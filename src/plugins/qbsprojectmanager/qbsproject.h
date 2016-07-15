@@ -41,6 +41,7 @@
 #include <qbs.h>
 
 #include <QFuture>
+#include <QHash>
 #include <QTimer>
 
 namespace Core { class IDocument; }
@@ -118,6 +119,7 @@ private:
     void handleQbsParsingDone(bool success);
 
     void targetWasAdded(ProjectExplorer::Target *t);
+    void targetWasRemoved(ProjectExplorer::Target *t);
     void changeActiveTarget(ProjectExplorer::Target *t);
     void buildConfigurationChanged(ProjectExplorer::BuildConfiguration *bc);
     void startParsing();
@@ -145,6 +147,7 @@ private:
                                        const qbs::GroupData &oldGroup);
 
     const QString m_projectName;
+    QHash<ProjectExplorer::Target *, qbs::Project> m_qbsProjects;
     qbs::Project m_qbsProject;
     qbs::ProjectData m_projectData;
     QSet<Core::IDocument *> m_qbsDocuments;

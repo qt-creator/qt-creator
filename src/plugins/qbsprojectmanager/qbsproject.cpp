@@ -119,6 +119,7 @@ QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
 
     connect(this, &Project::activeTargetChanged, this, &QbsProject::changeActiveTarget);
     connect(this, &Project::addedTarget, this, &QbsProject::targetWasAdded);
+    connect(this, &Project::removedTarget, this, &QbsProject::targetWasRemoved);
     connect(this, &Project::environmentChanged, this, &QbsProject::delayParsing);
 
     connect(&m_parsingDelay, &QTimer::timeout, this, &QbsProject::startParsing);
@@ -469,6 +470,7 @@ void QbsProject::handleQbsParsingDone(bool success)
     generateErrors(m_qbsProjectParser->error());
 
     m_qbsProject = m_qbsProjectParser->qbsProject();
+    m_qbsProjects.insert(activeTarget(), m_qbsProject);
     bool dataChanged = false;
     if (success) {
         QTC_ASSERT(m_qbsProject.isValid(), return);
@@ -529,15 +531,26 @@ void QbsProject::handleRuleExecutionDone()
 
 void QbsProject::targetWasAdded(Target *t)
 {
+    m_qbsProjects.insert(t, qbs::Project());
     connect(t, &Target::activeBuildConfigurationChanged, this, &QbsProject::delayParsing);
     connect(t, &Target::buildDirectoryChanged, this, &QbsProject::delayParsing);
+}
+
+void QbsProject::targetWasRemoved(Target *t)
+{
+    m_qbsProjects.remove(t);
 }
 
 void QbsProject::changeActiveTarget(Target *t)
 {
     BuildConfiguration *bc = 0;
-    if (t && t->kit())
-        bc = t->activeBuildConfiguration();
+    if (t) {
+        m_qbsProject = m_qbsProjects.value(t);
+        if (m_qbsProject.isValid())
+            m_projectData = m_qbsProject.projectData();
+        if (t->kit())
+            bc = t->activeBuildConfiguration();
+    }
     buildConfigurationChanged(bc);
 }
 
