@@ -99,8 +99,10 @@ uint CodeCompleter::defaultOptions() const
     uint options = CXCodeComplete_IncludeMacros
                  | CXCodeComplete_IncludeCodePatterns;
 
-    if (translationUnit.defaultOptions() & CXTranslationUnit_IncludeBriefCommentsInCodeCompletion)
+    if (translationUnit.defaultParseOptions()
+            & CXTranslationUnit_IncludeBriefCommentsInCodeCompletion) {
         options |= CXCodeComplete_IncludeBriefComments;
+    }
 
     return options;
 }

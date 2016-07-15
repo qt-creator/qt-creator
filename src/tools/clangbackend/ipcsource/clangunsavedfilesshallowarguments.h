@@ -36,6 +36,7 @@ class UnsavedFiles;
 
 class UnsavedFilesShallowArguments {
 public:
+    UnsavedFilesShallowArguments() = default;
     UnsavedFilesShallowArguments(const UnsavedFiles &unsavedFiles);
 
     uint count() const;

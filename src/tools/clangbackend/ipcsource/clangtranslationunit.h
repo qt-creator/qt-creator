@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "clangtranslationunitupdater.h"
+
 #include <utf8stringvector.h>
 
 #include <clang-c/Index.h>
@@ -40,6 +42,7 @@ class Utf8String;
 namespace ClangBackEnd {
 
 class TranslationUnitData;
+class TranslationUnitUpdateResult;
 class CodeCompleter;
 class UnsavedFile;
 class UnsavedFiles;
@@ -92,13 +95,13 @@ public:
 
     bool isIntact() const;
 
-    CXIndex index() const;
+    CXIndex &index() const;
+
     CXTranslationUnit cxTranslationUnit() const;
     CXTranslationUnit cxTranslationUnitWithoutReparsing() const;
 
     UnsavedFile unsavedFile() const;
     UnsavedFiles unsavedFiles() const;
-
     uint unsavedFilesCount() const;
 
     Utf8String filePath() const;
@@ -141,29 +144,22 @@ public:
 
     SkippedSourceRanges skippedSourceRanges() const;
 
-    static uint defaultOptions();
+    bool projectPartIsOutdated() const;
+    static uint defaultParseOptions();
 
 private:
     void setDirty();
     void checkIfNull() const;
     void checkIfFileExists() const;
-    void updateLastProjectPartChangeTimePoint() const;
-    void removeTranslationUnitIfProjectPartWasChanged() const;
-    bool projectPartIsOutdated() const;
     bool isMainFileAndExistsOrIsOtherFile(const Utf8String &filePath) const;
-    void createTranslationUnitIfNeeded() const;
     void checkParseErrorCode() const;
-    void checkReparseErrorCode() const;
-    void reparseTranslationUnit() const;
-    void reparseTranslationUnitIfFilesAreChanged() const;
     bool parseWasSuccessful() const;
     bool reparseWasSuccessful() const;
-    void updateIncludeFilePaths() const;
     bool fileExists() const;
-    static void includeCallback(CXFile included_file,
-                                CXSourceLocation * /*inclusion_stack*/,
-                                unsigned /*include_len*/,
-                                CXClientData clientData);
+
+    void updateSynchronously(TranslationUnitUpdater::UpdateMode updateMode) const;
+    TranslationUnitUpdater createUpdater() const;
+    void incorporateUpdaterResult(const TranslationUnitUpdateResult &result) const;
 
 private:
     mutable std::shared_ptr<TranslationUnitData> d;

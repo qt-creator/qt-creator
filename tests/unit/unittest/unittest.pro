@@ -69,7 +69,8 @@ SOURCES += \
 #    smallstringtest.cpp \
     highlightingmarkstest.cpp \
     sizedarraytest.cpp \
-    utf8positionfromlinecolumntest.cpp
+    utf8positionfromlinecolumntest.cpp \
+    translationunitupdatertest.cpp
 
 exists($$GOOGLEBENCHMARK_DIR) {
 SOURCES += \

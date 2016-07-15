@@ -30,6 +30,7 @@ HEADERS += $$PWD/clangcodemodelserver.h \
     $$PWD/cursor.h \
     $$PWD/skippedsourceranges.h \
     $$PWD/clangtranslationunit.h \
+    $$PWD/clangtranslationunitupdater.h \
     $$PWD/clangtype.h \
     $$PWD/highlightingmark.h \
     $$PWD/highlightingmarks.h \
@@ -67,6 +68,7 @@ SOURCES += $$PWD/clangcodemodelserver.cpp \
     $$PWD/cursor.cpp \
     $$PWD/skippedsourceranges.cpp \
     $$PWD/clangtranslationunit.cpp \
+    $$PWD/clangtranslationunitupdater.cpp \
     $$PWD/clangtype.cpp \
     $$PWD/highlightingmark.cpp \
     $$PWD/highlightingmarks.cpp \

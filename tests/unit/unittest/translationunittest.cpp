@@ -125,11 +125,6 @@ TEST_F(TranslationUnit, ThrowExceptionForGettingIndexForInvalidUnit)
     ASSERT_THROW(translationUnit.index(), ClangBackEnd::TranslationUnitIsNullException);
 }
 
-TEST_F(TranslationUnit, IndexGetterIsNonNullForValidUnit)
-{
-    ASSERT_THAT(translationUnit.index(), NotNull());
-}
-
 TEST_F(TranslationUnit, ThrowExceptionForGettingCxTranslationUnitForInvalidUnit)
 {
     ::TranslationUnit translationUnit;
