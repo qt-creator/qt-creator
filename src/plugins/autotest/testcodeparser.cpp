@@ -208,19 +208,14 @@ static void performParse(QFutureInterface<TestParseResultPtr> &futureInterface,
 
 void TestCodeParser::onDocumentUpdated(const QString &fileName)
 {
+    if (m_codeModelParsing || m_fullUpdatePostponed)
+        return;
+
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
     if (!project)
         return;
     if (!project->files(ProjectExplorer::Project::SourceFiles).contains(fileName))
         return;
-
-    if (m_codeModelParsing) {
-        if (!m_fullUpdatePostponed) {
-            m_partialUpdatePostponed = true;
-            m_postponedFiles.insert(fileName);
-        }
-        return;
-    }
 
     scanForTests(QStringList(fileName));
 }
