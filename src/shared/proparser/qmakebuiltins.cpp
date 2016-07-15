@@ -441,12 +441,13 @@ void QMakeEvaluator::runProcess(QProcess *proc, const QString &command) const
 }
 #endif
 
-QByteArray QMakeEvaluator::getCommandOutput(const QString &args) const
+QByteArray QMakeEvaluator::getCommandOutput(const QString &args, int *exitCode) const
 {
     QByteArray out;
 #ifndef QT_BOOTSTRAPPED
     QProcess proc;
     runProcess(&proc, args);
+    *exitCode = (proc.exitStatus() == QProcess::NormalExit) ? proc.exitCode() : -1;
     QByteArray errout = proc.readAllStandardError();
 # ifdef PROEVALUATOR_FULL
     // FIXME: Qt really should have the option to set forwarding per channel
@@ -476,7 +477,12 @@ QByteArray QMakeEvaluator::getCommandOutput(const QString &args) const
                 break;
             out += QByteArray(buff, read_in);
         }
-        QT_PCLOSE(proc);
+        int ec = QT_PCLOSE(proc);
+# ifdef Q_OS_WIN
+        *exitCode = ec >= 0 ? ec : -1;
+# else
+        *exitCode = WIFEXITED(ec) ? WEXITSTATUS(ec) : -1;
+# endif
     }
 # ifdef Q_OS_WIN
     out.replace("\r\n", "\n");
@@ -866,8 +872,8 @@ ProStringList QMakeEvaluator::evaluateBuiltinExpand(
         break;
     case E_SYSTEM:
         if (!m_skipLevel) {
-            if (args.count() < 1 || args.count() > 2) {
-                evalError(fL1S("system(execute) requires one or two arguments."));
+            if (args.count() < 1 || args.count() > 3) {
+                evalError(fL1S("system(command, [mode], [stsvar]) requires one to three arguments."));
             } else {
                 bool blob = false;
                 bool lines = false;
@@ -881,7 +887,12 @@ ProStringList QMakeEvaluator::evaluateBuiltinExpand(
                     else if (!m_tmp2.compare(QLatin1String("lines"), Qt::CaseInsensitive))
                         lines = true;
                 }
-                QByteArray bytes = getCommandOutput(args.at(0).toQString(m_tmp2));
+                int exitCode;
+                QByteArray bytes = getCommandOutput(args.at(0).toQString(m_tmp2), &exitCode);
+                if (args.count() > 2 && !args.at(2).isEmpty()) {
+                    m_valuemapStack.top()[args.at(2).toKey()] =
+                            ProStringList(ProString(QString::number(exitCode)));
+                }
                 if (lines) {
                     QTextStream stream(bytes);
                     while (!stream.atEnd())
