@@ -582,3 +582,9 @@ void f32()
 
 namespace N { template <typename T> void SizeIs(); }
 using N::SizeIs;
+
+void BaseClass::VirtualFunction() {}
+
+class WithVirtualFunctionDefined {
+  virtual void VirtualFunctionDefinition() {};
+};

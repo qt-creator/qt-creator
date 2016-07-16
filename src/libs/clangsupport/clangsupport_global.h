@@ -84,8 +84,9 @@ enum class HighlightingType : quint8
     PreprocessorDefinition,
     PreprocessorExpansion,
     Label,
-    OutputArgument,
-    Declaration
+    Declaration,
+    FunctionDefinition,
+    OutputArgument
 };
 
 enum class CompletionCorrection : quint32

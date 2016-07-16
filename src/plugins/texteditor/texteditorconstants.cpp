@@ -101,8 +101,9 @@ const char *nameForStyle(TextStyle style)
     case C_WARNING:             return "Warning";
     case C_WARNING_CONTEXT:     return "WarningContext";
 
-    case C_DECLARATION: return "Declaration";
-    case C_OUTPUT_ARGUMENT:    return "OutputArgument";
+    case C_DECLARATION:         return "Declaration";
+    case C_FUNCTION_DEFINITION: return "FunctionDefinition";
+    case C_OUTPUT_ARGUMENT:     return "OutputArgument";
 
     case C_LAST_STYLE_SENTINEL: return "LastStyleSentinel";
     }

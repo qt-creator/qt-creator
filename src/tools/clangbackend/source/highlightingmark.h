@@ -53,7 +53,9 @@ public:
 
     bool hasInvalidMainType() const;
     bool hasMainType(HighlightingType type) const;
+    unsigned mixinSize() const;
     bool hasMixinType(HighlightingType type) const;
+    bool hasMixinTypeAt(uint, HighlightingType type) const;
     bool hasOnlyType(HighlightingType type) const;
     bool hasFunctionArguments() const;
 
@@ -66,6 +68,7 @@ private:
     void variableKind(const Cursor &cursor);
     void fieldKind(const Cursor &cursor);
     bool isVirtualMethodDeclarationOrDefinition(const Cursor &cursor) const;
+    bool isDefinition() const;
     void functionKind(const Cursor &cursor, Recursion recursion);
     void memberReferenceKind(const Cursor &cursor);
     HighlightingType punctuationKind(const Cursor &cursor);

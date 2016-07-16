@@ -63,6 +63,8 @@ TextEditor::TextStyle toTextStyle(ClangBackEnd::HighlightingType type)
         return TextEditor::C_PREPROCESSOR;
     case HighlightingType::Declaration:
         return TextEditor::C_DECLARATION;
+    case HighlightingType::FunctionDefinition:
+        return TextEditor::C_FUNCTION_DEFINITION;
     case HighlightingType::OutputArgument:
         return TextEditor::C_OUTPUT_ARGUMENT;
     case HighlightingType::Operator:

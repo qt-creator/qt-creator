@@ -95,15 +95,27 @@ MATCHER_P2(HasTwoTypes, firstType, secondType,
            + PrintToString(secondType)
            )
 {
-    return arg.hasMainType(firstType) && arg.hasMixinType(secondType);
+    return arg.hasMainType(firstType) && arg.hasMixinTypeAt(0, secondType) && arg.mixinSize() == 1;
 }
 
-MATCHER_P(HasMixin, firstType,
+MATCHER_P3(HasThreeTypes, firstType, secondType, thirdType,
+           std::string(negation ? "isn't " : "is ")
+           + PrintToString(firstType)
+           + ", "
+           + PrintToString(secondType)
+           + " and "
+           + PrintToString(thirdType)
+           )
+{
+    return arg.hasMainType(firstType) && arg.hasMixinTypeAt(0, secondType) && arg.hasMixinTypeAt(1, thirdType) && arg.mixinSize() == 2;
+}
+
+MATCHER_P(HasMixin, mixinType,
           std::string(negation ? "isn't " : "is ")
-          + PrintToString(firstType)
+          + PrintToString(mixinType)
           )
 {
-    return  arg.hasMixinType(firstType);
+    return arg.hasMixinType(mixinType);
 }
 
 struct Data {
@@ -244,14 +256,28 @@ TEST_F(HighlightingMarks, FunctionDefinition)
 {
     const auto infos = translationUnit.highlightingMarksInRange(sourceRange(45, 20));
 
-    ASSERT_THAT(infos[1], HasTwoTypes(HighlightingType::Function, HighlightingType::Declaration));
+    ASSERT_THAT(infos[1], HasThreeTypes(HighlightingType::Function, HighlightingType::Declaration, HighlightingType::FunctionDefinition));
 }
 
 TEST_F(HighlightingMarks, MemberFunctionDefinition)
 {
     const auto infos = translationUnit.highlightingMarksInRange(sourceRange(52, 29));
 
-    ASSERT_THAT(infos[1], HasTwoTypes(HighlightingType::Function, HighlightingType::Declaration));
+    ASSERT_THAT(infos[1], HasThreeTypes(HighlightingType::Function, HighlightingType::Declaration, HighlightingType::FunctionDefinition));
+}
+
+TEST_F(HighlightingMarks, VirtualMemberFunctionDefinitionOutsideOfClassBody)
+{
+    const auto infos = translationUnit.highlightingMarksInRange(sourceRange(586, 37));
+
+    ASSERT_THAT(infos[3], HasThreeTypes(HighlightingType::VirtualFunction, HighlightingType::Declaration, HighlightingType::FunctionDefinition));
+}
+
+TEST_F(HighlightingMarks, VirtualMemberFunctionDefinitionInsideOfClassBody)
+{
+    const auto infos = translationUnit.highlightingMarksInRange(sourceRange(589, 47));
+
+    ASSERT_THAT(infos[2], HasThreeTypes(HighlightingType::VirtualFunction, HighlightingType::Declaration, HighlightingType::FunctionDefinition));
 }
 
 TEST_F(HighlightingMarks, FunctionDeclaration)

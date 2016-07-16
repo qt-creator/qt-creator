@@ -46,6 +46,10 @@ public:
     Format() = default;
     Format(const QColor &foreground, const QColor &background);
 
+    static Format createMixinFormat() {
+        return Format(QColor(), QColor());
+    }
+
     QColor foreground() const { return m_foreground; }
     void setForeground(const QColor &foreground);
 

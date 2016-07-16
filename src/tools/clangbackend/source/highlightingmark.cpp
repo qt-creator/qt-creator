@@ -84,6 +84,10 @@ bool HighlightingMark::hasMainType(HighlightingType type) const
     return m_types.mainHighlightingType == type;
 }
 
+unsigned HighlightingMark::mixinSize() const {
+    return m_types.mixinHighlightingTypes.size();
+}
+
 bool HighlightingMark::hasMixinType(HighlightingType type) const
 {
     auto found = std::find(m_types.mixinHighlightingTypes.begin(),
@@ -91,6 +95,12 @@ bool HighlightingMark::hasMixinType(HighlightingType type) const
                            type);
 
     return found != m_types.mixinHighlightingTypes.end();
+}
+
+bool HighlightingMark::hasMixinTypeAt(uint position, HighlightingType type) const
+{
+    return m_types.mixinHighlightingTypes.size() > position &&
+           m_types.mixinHighlightingTypes.at(position) == type;
 }
 
 bool HighlightingMark::hasOnlyType(HighlightingType type) const
@@ -191,17 +201,22 @@ void HighlightingMark::fieldKind(const Cursor &)
         m_types.mixinHighlightingTypes.push_back(HighlightingType::OutputArgument);
 }
 
+bool HighlightingMark::isDefinition() const
+{
+    return m_originalCursor.isDefinition();
+}
+
 bool HighlightingMark::isVirtualMethodDeclarationOrDefinition(const Cursor &cursor) const
 {
     return cursor.isVirtualMethod()
         && (m_originalCursor.isDeclaration() || m_originalCursor.isDefinition());
 }
+
 namespace {
 bool isNotFinalFunction(const Cursor &cursor)
 {
     return !cursor.hasFinalFunctionAttribute();
 }
-
 }
 bool HighlightingMark::isRealDynamicCall(const Cursor &cursor) const
 {
@@ -285,6 +300,9 @@ void HighlightingMark::functionKind(const Cursor &cursor, Recursion recursion)
         m_types.mixinHighlightingTypes.push_back(HighlightingType::OutputArgument);
 
     addExtraTypeIfFirstPass(HighlightingType::Declaration, recursion);
+
+    if (isDefinition())
+        addExtraTypeIfFirstPass(HighlightingType::FunctionDefinition, recursion);
 }
 
 void HighlightingMark::identifierKind(const Cursor &cursor, Recursion recursion)
