@@ -267,7 +267,7 @@ IOutputParser *ToolChainKitInformation::createOutputParser(const Kit *k) const
 
 Core::Id ToolChainKitInformation::id()
 {
-    return "PE.Profile.ToolChain";
+    return "PE.Profile.ToolChains";
 }
 
 ToolChain *ToolChainKitInformation::toolChain(const Kit *k, ToolChain::Language l)
@@ -347,14 +347,21 @@ QString ToolChainKitInformation::msgNoToolChainInTarget()
 
 QVariantMap ToolChainKitInformation::readValue(const Kit *k)
 {
-    QVariant value = k->value(ToolChainKitInformation::id());
-    if (value.isNull())
-        value = defaultValue();
-    else if (value.type() == QVariant::String) {
-        // Legacy value: Convert...
-        QVariantMap tmp;
-        tmp.insert(ToolChain::languageDisplayName(ToolChain::Language::Cxx), value.toString());
-        value = tmp;
+    const QVariant oldValue = k->value("PE.Profile.ToolChain");
+    const QVariant value = k->value(ToolChainKitInformation::id());
+    if (value.isNull()) {
+        if (!oldValue.isNull()) {
+            if (oldValue.type() == QVariant::Map) {
+                // Used between 4.1 and 4.2:
+                return oldValue.toMap();
+            } else {
+                // Used up to 4.1:
+                QVariantMap tmp;
+                tmp.insert(ToolChain::languageDisplayName(ToolChain::Language::Cxx), value.toString());
+                return tmp;
+            }
+        }
+        return defaultValue().toMap();
     }
     return value.toMap();
 }
