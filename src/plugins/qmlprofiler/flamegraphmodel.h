@@ -98,8 +98,6 @@ private:
     QVariant lookup(const FlameGraphData &data, int role) const;
     FlameGraphData *pushChild(FlameGraphData *parent, const QmlEvent &data);
 
-    int m_selectedTypeIndex;
-
     // used by binding loop detection
     QStack<QmlEvent> m_callStack;
     FlameGraphData m_stackBottom;
