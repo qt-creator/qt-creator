@@ -687,7 +687,7 @@ void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState
 
     Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
 
-    if (usages.count() > 0 && (addAlwaysNewSlot || usages.count()< 2)) {
+    if (usages.count() > 0 && (addAlwaysNewSlot || usages.count() < 2)  && (!isModelNodeRoot  || addAlwaysNewSlot)) {
         Core::EditorManager::openEditorAt(usages.first().path, usages.first().line, usages.first().col);
 
         if (!signalNames.isEmpty()) {
