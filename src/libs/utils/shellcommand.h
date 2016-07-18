@@ -168,12 +168,12 @@ private:
 
     // Run without a event loop in fully blocking mode. No signals will be delivered.
     SynchronousProcessResponse runFullySynchronous(const FileName &binary, const QStringList &arguments,
-                                                   OutputProxy *proxy,
+                                                   QSharedPointer<OutputProxy> proxy,
                                                    int timeoutS, const QString &workingDirectory,
                                                    const ExitCodeInterpreter &interpreter = defaultExitCodeInterpreter);
     // Run with an event loop. Signals will be delivered.
     SynchronousProcessResponse runSynchronous(const FileName &binary, const QStringList &arguments,
-                                              OutputProxy *proxy,
+                                              QSharedPointer<OutputProxy> proxy,
                                               int timeoutS, const QString &workingDirectory,
                                               const ExitCodeInterpreter &interpreter = defaultExitCodeInterpreter);
 

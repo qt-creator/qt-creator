@@ -328,9 +328,9 @@ Utils::SynchronousProcessResponse ShellCommand::runCommand(const Utils::FileName
         proxy->appendCommand(dir, binary, arguments);
 
     if (d->m_flags & FullySynchronously || QThread::currentThread() == QCoreApplication::instance()->thread())
-        response = runFullySynchronous(binary, arguments, proxy.data(), timeoutS, dir, interpreter);
+        response = runFullySynchronous(binary, arguments, proxy, timeoutS, dir, interpreter);
     else
-        response = runSynchronous(binary, arguments, proxy.data(), timeoutS, dir, interpreter);
+        response = runSynchronous(binary, arguments, proxy, timeoutS, dir, interpreter);
 
     if (!d->m_aborted) {
         // Success/Fail message in appropriate window?
@@ -347,7 +347,7 @@ Utils::SynchronousProcessResponse ShellCommand::runCommand(const Utils::FileName
 
 Utils::SynchronousProcessResponse ShellCommand::runFullySynchronous(const Utils::FileName &binary,
                                                                     const QStringList &arguments,
-                                                                    OutputProxy *proxy,
+                                                                    QSharedPointer<OutputProxy> proxy,
                                                                     int timeoutS,
                                                                     const QString &workingDirectory,
                                                                     const ExitCodeInterpreter &interpreter)
@@ -387,7 +387,7 @@ Utils::SynchronousProcessResponse ShellCommand::runFullySynchronous(const Utils:
 
 SynchronousProcessResponse ShellCommand::runSynchronous(const FileName &binary,
                                                         const QStringList &arguments,
-                                                        OutputProxy *proxy,
+                                                        QSharedPointer<OutputProxy> proxy,
                                                         int timeoutS,
                                                         const QString &workingDirectory,
                                                         const ExitCodeInterpreter &interpreter)
