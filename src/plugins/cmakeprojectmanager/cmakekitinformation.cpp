@@ -273,7 +273,8 @@ KitConfigWidget *CMakeGeneratorKitInformation::createConfigWidget(Kit *k) const
 static const char CONFIGURATION_ID[] = "CMake.ConfigurationKitInformation";
 
 static const char CMAKE_QMAKE_KEY[] = "QT_QMAKE_EXECUTABLE";
-static const char CMAKE_TOOLCHAIN_KEY[] = "CMAKE_CXX_COMPILER";
+static const char CMAKE_C_TOOLCHAIN_KEY[] = "CMAKE_C_COMPILER";
+static const char CMAKE_CXX_TOOLCHAIN_KEY[] = "CMAKE_CXX_COMPILER";
 
 CMakeConfigurationKitInformation::CMakeConfigurationKitInformation()
 {
@@ -324,7 +325,8 @@ CMakeConfig CMakeConfigurationKitInformation::defaultConfiguration(const Kit *k)
     Q_UNUSED(k);
     CMakeConfig config;
     config << CMakeConfigItem(CMAKE_QMAKE_KEY, "%{Qt:qmakeExecutable}");
-    config << CMakeConfigItem(CMAKE_TOOLCHAIN_KEY, "%{Compiler:Executable}");
+    config << CMakeConfigItem(CMAKE_C_TOOLCHAIN_KEY, "%{Compiler:Executable:C}");
+    config << CMakeConfigItem(CMAKE_CXX_TOOLCHAIN_KEY, "%{Compiler:Executable:Cxx}");
 
     return config;
 }
@@ -343,18 +345,23 @@ QVariant CMakeConfigurationKitInformation::defaultValue(const Kit *k) const
 QList<Task> CMakeConfigurationKitInformation::validate(const Kit *k) const
 {
     const QtSupport::BaseQtVersion *const version = QtSupport::QtKitInformation::qtVersion(k);
-    const ToolChain *const tc = ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx);
+    const ToolChain *const tcC = ToolChainKitInformation::toolChain(k, ToolChain::Language::C);
+    const ToolChain *const tcCxx = ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx);
     const CMakeConfig config = configuration(k);
 
-    QByteArray qmakePath;
-    QByteArray tcPath;
+    Utils::FileName qmakePath;
+    Utils::FileName tcCPath;
+    Utils::FileName tcCxxPath;
     foreach (const CMakeConfigItem &i, config) {
         // Do not use expand(QByteArray) as we can not be sure the input is latin1
-        const QByteArray expandedValue = k->macroExpander()->expand(QString::fromUtf8(i.value)).toUtf8();
+        const Utils::FileName expandedValue
+            = Utils::FileName::fromString(k->macroExpander()->expand(QString::fromUtf8(i.value)));
         if (i.key == CMAKE_QMAKE_KEY)
             qmakePath = expandedValue;
-        else if (i.key == CMAKE_TOOLCHAIN_KEY)
-            tcPath = expandedValue;
+        else if (i.key == CMAKE_C_TOOLCHAIN_KEY)
+            tcCPath = expandedValue;
+        else if (i.key == CMAKE_CXX_TOOLCHAIN_KEY)
+            tcCxxPath = expandedValue;
     }
 
     QList<Task> result;
@@ -370,7 +377,7 @@ QList<Task> CMakeConfigurationKitInformation::validate(const Kit *k) const
             result << Task(Task::Warning, tr("CMake configuration has a path to a qmake binary set, "
                                              "even though the kit has no valid Qt version."),
                            Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
-        } else if (qmakePath != version->qmakeCommand().toString().toUtf8()) {
+        } else if (qmakePath != version->qmakeCommand()) {
             result << Task(Task::Warning, tr("CMake configuration has a path to a qmake binary set, "
                                              "which does not match up with the qmake binary path "
                                              "configured in the Qt version."),
@@ -378,19 +385,38 @@ QList<Task> CMakeConfigurationKitInformation::validate(const Kit *k) const
         }
     }
 
-    // Validate Toolchain:
-    if (tcPath.isEmpty()) {
-        if (tc && tc->isValid()) {
+    // Validate Toolchains:
+    if (tcCPath.isEmpty()) {
+        if (tcC && tcC->isValid()) {
+            result << Task(Task::Warning, tr("CMake configuration has no path to a C compiler set, "
+                                             "even though the kit has a valid tool chain."),
+                           Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
+        }
+    } else {
+        if (!tcC || !tcC->isValid()) {
+            result << Task(Task::Warning, tr("CMake configuration has a path to a C compiler set, "
+                                             "even though the kit has no valid tool chain."),
+                           Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
+        } else if (tcCPath != tcC->compilerCommand()) {
+            result << Task(Task::Warning, tr("CMake configuration has a path to a C compiler set, "
+                                             "that does not match up with the compiler path "
+                                             "configured in the tool chain of the kit."),
+                           Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
+        }
+    }
+
+    if (tcCxxPath.isEmpty()) {
+        if (tcCxx && tcCxx->isValid()) {
             result << Task(Task::Warning, tr("CMake configuration has no path to a C++ compiler set, "
                                              "even though the kit has a valid tool chain."),
                            Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
         }
     } else {
-        if (!tc || !tc->isValid()) {
+        if (!tcCxx || !tcCxx->isValid()) {
             result << Task(Task::Warning, tr("CMake configuration has a path to a C++ compiler set, "
                                              "even though the kit has no valid tool chain."),
                            Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
-        } else if (tcPath != tc->compilerCommand().toString().toUtf8()) {
+        } else if (tcCxxPath != tcCxx->compilerCommand()) {
             result << Task(Task::Warning, tr("CMake configuration has a path to a C++ compiler set, "
                                              "that does not match up with the compiler path "
                                              "configured in the tool chain of the kit."),
