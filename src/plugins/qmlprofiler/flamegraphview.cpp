@@ -39,7 +39,9 @@ FlameGraphView::FlameGraphView(QmlProfilerModelManager *manager, QWidget *parent
     QmlProfilerEventsView(parent), m_content(new QQuickWidget(this)),
     m_model(new FlameGraphModel(manager, this))
 {
-    setWindowTitle(QStringLiteral("Flamegraph"));
+    setWindowTitle(QStringLiteral("Flame Graph"));
+
+    // We cannot change this without breaking the settings.
     setObjectName(QStringLiteral("QmlProfilerFlamegraph"));
 
     qmlRegisterType<FlameGraph>("FlameGraph", 1, 0, "FlameGraph");

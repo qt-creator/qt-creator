@@ -556,12 +556,12 @@
 
     \section2 Visualizing Statistics as Flame Graphs
 
-    The \uicontrol Flamegraph view shows a more concise statistical overview
+    The \uicontrol {Flame Graph} view shows a more concise statistical overview
     of QML and JavaScript execution. The horizontal bars show the amount of
     time all invocations of a certain function took together, relative to the
     total runtime of all JavaScript and QML events. The nesting shows which
     functions were called by which other ones. Mind that, unlike the
-    \uicontrol Timeline view, the \uicontrol Flamegraph view does not show the
+    \uicontrol Timeline view, the \uicontrol {Flame Graph} view does not show the
     time spans when no QML or JavaScript is running at all. Thus, it is not
     suitable for analyzing per frame execution times. However, it is very easy
     to see the total impact of the various QML and JavaScript events there.
