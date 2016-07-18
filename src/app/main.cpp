@@ -298,7 +298,8 @@ static const char *SHARE_PATH =
 
 void loadFonts()
 {
-    const QDir dir(QCoreApplication::applicationDirPath() + SHARE_PATH + "/fonts/");
+    const QDir dir(QCoreApplication::applicationDirPath() + QLatin1String(SHARE_PATH)
+                   + QLatin1String("/fonts/"));
 
     foreach (const QFileInfo &fileInfo, dir.entryList(QStringList("*.ttf"), QDir::Files))
         QFontDatabase::addApplicationFont(fileInfo.absoluteFilePath());
