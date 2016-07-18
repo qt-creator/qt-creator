@@ -75,7 +75,8 @@ void CppCodeModelSettingsWidget::setupClangCodeModelWidgets()
 {
     const bool isClangActive = CppModelManager::instance()->isClangCodeModelActive();
 
-    m_ui->activateClangCodeModelPluginHint->setVisible(!isClangActive);
+    m_ui->clangCodeModelIsDisabledHint->setVisible(!isClangActive);
+    m_ui->clangCodeModelIsEnabledHint->setVisible(isClangActive);
     m_ui->clangSettingsGroupBox->setEnabled(isClangActive);
 
     ClangDiagnosticConfigsModel diagnosticConfigsModel(m_settings->clangCustomDiagnosticConfigs());
