@@ -168,9 +168,8 @@ Qt::ItemFlags StackHandler::flags(const QModelIndex &index) const
 
 bool StackHandler::setData(const QModelIndex &idx, const QVariant &data, int role)
 {
-    Q_UNUSED(idx)
-
-    if (role == BaseTreeView::ItemActivatedRole) {
+    if (role == BaseTreeView::ItemActivatedRole || role == BaseTreeView::ItemClickedRole) {
+        m_engine->activateFrame(idx.row());
         return true;
     }
 
