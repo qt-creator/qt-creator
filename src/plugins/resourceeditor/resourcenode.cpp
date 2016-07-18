@@ -85,9 +85,8 @@ static bool addFilesToResource(const Utils::FileName &resourceFile,
         }
     }
 
-    Core::DocumentManager::expectFileChange(resourceFile.toString());
+    Core::FileChangeBlocker changeGuard(resourceFile.toString());
     file.save();
-    Core::DocumentManager::unexpectFileChange(resourceFile.toString());
 
     return true;
 }
@@ -282,9 +281,8 @@ bool ResourceTopLevelNode::addPrefix(const QString &prefix, const QString &lang)
     int index = file.addPrefix(prefix, lang);
     if (index == -1)
         return false;
-    Core::DocumentManager::expectFileChange(filePath().toString());
+    Core::FileChangeBlocker changeGuard(filePath().toString());
     file.save();
-    Core::DocumentManager::unexpectFileChange(filePath().toString());
 
     return true;
 }
@@ -298,9 +296,8 @@ bool ResourceTopLevelNode::removePrefix(const QString &prefix, const QString &la
         if (file.prefix(i) == prefix
                 && file.lang(i) == lang) {
             file.removePrefix(i);
-            Core::DocumentManager::expectFileChange(filePath().toString());
+            Core::FileChangeBlocker changeGuard(filePath().toString());
             file.save();
-            Core::DocumentManager::unexpectFileChange(filePath().toString());
             return true;
         }
     }
@@ -324,9 +321,8 @@ bool ResourceTopLevelNode::removeNonExistingFiles()
         }
     }
 
-    Core::DocumentManager::expectFileChange(filePath().toString());
+    Core::FileChangeBlocker changeGuard(filePath().toString());
     file.save();
-    Core::DocumentManager::unexpectFileChange(filePath().toString());
     return true;
 }
 
@@ -421,9 +417,8 @@ bool ResourceFolderNode::removeFiles(const QStringList &filePaths, QStringList *
         file.removeFile(index, j);
         --j;
     }
-    Core::DocumentManager::expectFileChange(m_topLevelNode->filePath().toString());
+    Core::FileChangeBlocker changeGuard(m_topLevelNode->filePath().toString());
     file.save();
-    Core::DocumentManager::unexpectFileChange(m_topLevelNode->filePath().toString());
 
     return true;
 }
@@ -461,9 +456,8 @@ bool ResourceFolderNode::renameFile(const QString &filePath, const QString &newF
     for (int j = 0; j < file.fileCount(index); ++j) {
         if (file.file(index, j) == filePath) {
             file.replaceFile(index, j, newFilePath);
-            Core::DocumentManager::expectFileChange(m_topLevelNode->filePath().toString());
+            Core::FileChangeBlocker changeGuard(m_topLevelNode->filePath().toString());
             file.save();
-            Core::DocumentManager::unexpectFileChange(m_topLevelNode->filePath().toString());
             return true;
         }
     }
@@ -483,9 +477,8 @@ bool ResourceFolderNode::renamePrefix(const QString &prefix, const QString &lang
     if (!file.replacePrefixAndLang(index, prefix, lang))
         return false;
 
-    Core::DocumentManager::expectFileChange(m_topLevelNode->filePath().toString());
+    Core::FileChangeBlocker changeGuard(m_topLevelNode->filePath().toString());
     file.save();
-    Core::DocumentManager::unexpectFileChange(m_topLevelNode->filePath().toString());
     return true;
 }
 
@@ -675,9 +668,8 @@ bool SimpleResourceFolderNode::removeFiles(const QStringList &filePaths, QString
         file.removeFile(index, j);
         --j;
     }
-    Core::DocumentManager::expectFileChange(m_topLevelNode->filePath().toString());
+    Core::FileChangeBlocker changeGuard(m_topLevelNode->filePath().toString());
     file.save();
-    Core::DocumentManager::unexpectFileChange(m_topLevelNode->filePath().toString());
 
     return true;
 }
@@ -694,9 +686,8 @@ bool SimpleResourceFolderNode::renameFile(const QString &filePath, const QString
     for (int j = 0; j < file.fileCount(index); ++j) {
         if (file.file(index, j) == filePath) {
             file.replaceFile(index, j, newFilePath);
-            Core::DocumentManager::expectFileChange(m_topLevelNode->filePath().toString());
+            Core::FileChangeBlocker changeGuard(m_topLevelNode->filePath().toString());
             file.save();
-            Core::DocumentManager::unexpectFileChange(m_topLevelNode->filePath().toString());
             return true;
         }
     }

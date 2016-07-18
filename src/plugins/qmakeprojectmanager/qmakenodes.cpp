@@ -1335,13 +1335,15 @@ bool QmakePriFileNode::setProVariable(const QString &var, const QStringList &val
 
 void QmakePriFileNode::save(const QStringList &lines)
 {
-    Core::DocumentManager::expectFileChange(m_projectFilePath.toString());
-    FileSaver saver(m_projectFilePath.toString(), QIODevice::Text);
-    saver.write(lines.join(QLatin1Char('\n')).toLocal8Bit());
-    saver.finalize(Core::ICore::mainWindow());
+    {
+        FileChangeBlocker changeGuard(m_projectFilePath.toString());
+        FileSaver saver(m_projectFilePath.toString(), QIODevice::Text);
+        saver.write(lines.join(QLatin1Char('\n')).toLocal8Bit());
+        saver.finalize(Core::ICore::mainWindow());
 
-    m_project->projectManager()->notifyChanged(m_projectFilePath);
-    Core::DocumentManager::unexpectFileChange(m_projectFilePath.toString());
+        m_project->projectManager()->notifyChanged(m_projectFilePath);
+    }
+
     // This is a hack.
     // We are saving twice in a very short timeframe, once the editor and once the ProFile.
     // So the modification time might not change between those two saves.

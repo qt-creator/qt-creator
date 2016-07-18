@@ -158,7 +158,7 @@ bool GenericProject::saveRawFileList(const QStringList &rawFileList)
 
 bool GenericProject::saveRawList(const QStringList &rawList, const QString &fileName)
 {
-    DocumentManager::expectFileChange(fileName);
+    FileChangeBlocker changeGuard(fileName);
     // Make sure we can open the file for writing
     Utils::FileSaver saver(fileName, QIODevice::Text);
     if (!saver.hasError()) {
@@ -168,7 +168,6 @@ bool GenericProject::saveRawList(const QStringList &rawList, const QString &file
         saver.setResult(&stream);
     }
     bool result = saver.finalize(ICore::mainWindow());
-    DocumentManager::unexpectFileChange(fileName);
     return result;
 }
 

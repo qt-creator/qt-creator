@@ -3194,9 +3194,8 @@ void ProjectExplorerPluginPrivate::removeFile()
                 return;
         }
 
-        DocumentManager::expectFileChange(filePath);
+        FileChangeBlocker changeGuard(filePath);
         FileUtils::removeFile(filePath, deleteFile);
-        DocumentManager::unexpectFileChange(filePath);
     }
 }
 
@@ -3253,7 +3252,7 @@ void ProjectExplorerPluginPrivate::deleteFile()
 
     folderNode->deleteFiles(QStringList(filePath));
 
-    DocumentManager::expectFileChange(filePath);
+    FileChangeBlocker changeGuard(filePath);
     if (IVersionControl *vc =
             VcsManager::findVersionControlForDirectory(QFileInfo(filePath).absolutePath())) {
         vc->vcsDelete(filePath);
@@ -3265,7 +3264,6 @@ void ProjectExplorerPluginPrivate::deleteFile()
                                  tr("Could not delete file %1.")
                                  .arg(QDir::toNativeSeparators(filePath)));
     }
-    DocumentManager::unexpectFileChange(filePath);
 }
 
 void ProjectExplorerPluginPrivate::handleRenameFile()

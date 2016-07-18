@@ -649,7 +649,7 @@ bool PythonProject::saveRawFileList(const QStringList &rawFileList)
 
 bool PythonProject::saveRawList(const QStringList &rawList, const QString &fileName)
 {
-    DocumentManager::expectFileChange(fileName);
+    FileChangeBlocker changeGuarg(fileName);
     // Make sure we can open the file for writing
     FileSaver saver(fileName, QIODevice::Text);
     if (!saver.hasError()) {
@@ -659,7 +659,6 @@ bool PythonProject::saveRawList(const QStringList &rawList, const QString &fileN
         saver.setResult(&stream);
     }
     bool result = saver.finalize(ICore::mainWindow());
-    DocumentManager::unexpectFileChange(fileName);
     return result;
 }
 
