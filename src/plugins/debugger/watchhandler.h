@@ -68,7 +68,6 @@ public:
     void watchExpression(const QString &exp, const QString &name = QString());
     void updateWatchExpression(WatchItem *item, const QString &newExp);
     void watchVariable(const QString &exp);
-    void clearWatches();
 
     const WatchItem *watchItem(const QModelIndex &) const;
     void fetchMore(const QString &iname) const;
@@ -96,11 +95,7 @@ public:
     void addDumpers(const GdbMi &dumpers);
     void addTypeFormats(const QString &type, const DisplayFormats &formats);
 
-    void setUnprintableBase(int base);
-    static int unprintableBase();
-
     QString watcherName(const QString &exp);
-    QString editorContents(const QModelIndexList &list = QModelIndexList());
 
     void scheduleResetLocation();
     void resetLocation();

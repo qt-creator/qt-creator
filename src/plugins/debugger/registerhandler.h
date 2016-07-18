@@ -27,30 +27,14 @@
 
 #include <utils/treemodel.h>
 
-#include <QAbstractTableModel>
 #include <QHash>
-#include <QVector>
+
+namespace Utils { class ItemViewEvent; }
 
 namespace Debugger {
 namespace Internal {
 
 class DebuggerEngine;
-
-enum RegisterColumns
-{
-    RegisterNameColumn,
-    RegisterValueColumn,
-    RegisterColumnCount
-};
-
-enum RegisterDataRole
-{
-    RegisterNameRole = Qt::UserRole,
-    RegisterIsBigRole,
-    RegisterChangedRole,
-    RegisterFormatRole,
-    RegisterAsAddressRole
-};
 
 enum RegisterKind
 {
@@ -102,7 +86,7 @@ public:
 class Register
 {
 public:
-    Register() { size = 0; kind = UnknownRegister; }
+    Register() {}
     void guessMissingData();
 
     QString name;
@@ -110,18 +94,18 @@ public:
     RegisterValue value;
     RegisterValue previousValue;
     QString description;
-    int size;
-    RegisterKind kind;
+    int size = 0;
+    RegisterKind kind = UnknownRegister;
 };
 
-class RegisterItem;
 class RegisterSubItem;
+class RegisterItem;
 using RegisterRootItem = Utils::TypedTreeItem<RegisterItem>;
+using RegisterModel = Utils::LeveledTreeModel<RegisterRootItem, RegisterItem, RegisterSubItem>;
 
 typedef QMap<quint64, QString> RegisterMap;
 
-class RegisterHandler
-    : public Utils::LeveledTreeModel<RegisterRootItem, RegisterItem, RegisterSubItem>
+class RegisterHandler : public RegisterModel
 {
     Q_OBJECT
 
@@ -129,11 +113,8 @@ public:
     explicit RegisterHandler(DebuggerEngine *engine);
 
     QAbstractItemModel *model() { return this; }
-    DebuggerEngine *engine() const { return m_engine; }
 
     void updateRegister(const Register &reg);
-
-    void setNumberFormat(const QString &name, RegisterFormat format);
     void commitUpdates() { emit layoutChanged(); }
     RegisterMap registerMap() const;
 
@@ -141,6 +122,11 @@ signals:
     void registerChanged(const QString &name, quint64 value); // For memory views
 
 private:
+    QVariant data(const QModelIndex &idx, int role) const override;
+    bool setData(const QModelIndex &idx, const QVariant &data, int role) override;
+
+    bool contextMenuEvent(const Utils::ItemViewEvent &ev);
+
     QHash<QString, RegisterItem *> m_registerByName;
     DebuggerEngine * const m_engine;
 };

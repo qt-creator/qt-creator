@@ -32,10 +32,14 @@
 #include <QObject>
 #include <QSharedPointer>
 
+#include <functional>
+
 QT_BEGIN_NAMESPACE
 class QIcon;
 class QMessageBox;
 class QWidget;
+class QMenu;
+class QAction;
 QT_END_NAMESPACE
 
 namespace CPlusPlus { class Snapshot; }
@@ -106,6 +110,13 @@ QMessageBox *showMessageBox(int icon, const QString &title,
     const QString &text, int buttons = 0);
 
 bool isReverseDebuggingEnabled();
+
+QAction *addAction(QMenu *menu, const QString &display, bool on,
+                   const std::function<void()> &onTriggered = {});
+QAction *addAction(QMenu *menu, const QString &d1, const QString &d2, bool on,
+                   const std::function<void()> &onTriggered);
+QAction *addCheckableAction(QMenu *menu, const QString &display, bool on, bool checked,
+                            const std::function<void()> &onTriggered);
 
 } // namespace Internal
 } // namespace Debugger

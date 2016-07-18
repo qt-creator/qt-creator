@@ -43,17 +43,12 @@
 #include "debuggerkitinformation.h"
 #include "memoryagent.h"
 #include "breakhandler.h"
-#include "breakwindow.h"
 #include "disassemblerlines.h"
 #include "logwindow.h"
-#include "moduleswindow.h"
 #include "moduleshandler.h"
-#include "registerwindow.h"
 #include "snapshotwindow.h"
 #include "stackhandler.h"
 #include "stackwindow.h"
-#include "sourcefileswindow.h"
-#include "threadswindow.h"
 #include "watchhandler.h"
 #include "watchwindow.h"
 #include "watchutils.h"
@@ -463,6 +458,30 @@ static void setProxyAction(ProxyAction *proxy, Id id)
     proxy->setIcon(visibleStartIcon(id, true));
 }
 
+QAction *addAction(QMenu *menu, const QString &display, bool on,
+                   const std::function<void()> &onTriggered)
+{
+    QAction *act = menu->addAction(display);
+    act->setEnabled(on);
+    QObject::connect(act, &QAction::triggered, onTriggered);
+    return act;
+};
+
+QAction *addAction(QMenu *menu, const QString &d1, const QString &d2, bool on,
+                   const std::function<void()> &onTriggered)
+{
+    return on ? addAction(menu, d1, true, onTriggered) : addAction(menu, d2, false);
+};
+
+QAction *addCheckableAction(QMenu *menu, const QString &display, bool on, bool checked,
+                            const std::function<void()> &onTriggered)
+{
+    QAction *act = addAction(menu, display, on, onTriggered);
+    act->setCheckable(true);
+    act->setChecked(checked);
+    return act;
+}
+
 ///////////////////////////////////////////////////////////////////////
 //
 // DummyEngine
@@ -547,15 +566,15 @@ public:
 ///////////////////////////////////////////////////////////////////////
 
 static QWidget *addSearch(BaseTreeView *treeView, const QString &title,
-    const char *objectName)
+    const QString &objectName)
 {
     QAction *act = action(UseAlternatingRowColors);
     treeView->setAlternatingRowColors(act->isChecked());
     QObject::connect(act, &QAction::toggled,
-                     treeView, &BaseTreeView::setAlternatingRowColorsHelper);
+                     treeView, &BaseTreeView::setAlternatingRowColors);
 
     QWidget *widget = ItemViewFind::createSearchableWrapper(treeView);
-    widget->setObjectName(QLatin1String(objectName));
+    widget->setObjectName(objectName);
     widget->setWindowTitle(title);
     return widget;
 }
@@ -1309,19 +1328,25 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     m_logWindow->setObjectName(QLatin1String(DOCKWIDGET_OUTPUT));
 
     m_breakHandler = new BreakHandler;
-    m_breakView = new BreakTreeView;
+    m_breakView = new BaseTreeView;;
+    m_breakView->setWindowIcon(Icons::BREAKPOINTS.icon());
+    m_breakView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    connect(action(UseAddressInBreakpointsView), &QAction::toggled,
+            this, [this](bool on) { m_breakView->setColumnHidden(BreakpointAddressColumn, !on); });
     m_breakView->setSettings(settings, "Debugger.BreakWindow");
     m_breakView->setModel(m_breakHandler->model());
     m_breakWindow = addSearch(m_breakView, tr("Breakpoints"), DOCKWIDGET_BREAK);
 
-    m_modulesView = new ModulesTreeView;
+    m_modulesView = new BaseTreeView;
+    m_modulesView->setSortingEnabled(true);
     m_modulesView->setSettings(settings, "Debugger.ModulesView");
     connect(m_modulesView, &BaseTreeView::aboutToShow, this, [this] {
         m_currentEngine->reloadModules();
     }, Qt::QueuedConnection);
     m_modulesWindow = addSearch(m_modulesView, tr("Modules"), DOCKWIDGET_MODULES);
 
-    m_registerView = new RegisterTreeView;
+    m_registerView = new BaseTreeView;
+    m_registerView->setRootIsDecorated(true);
     m_registerView->setSettings(settings, "Debugger.RegisterView");
     connect(m_registerView, &BaseTreeView::aboutToShow, this, [this] {
         m_currentEngine->reloadRegisters();
@@ -1332,14 +1357,16 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     m_stackView->setSettings(settings, "Debugger.StackView");
     m_stackWindow = addSearch(m_stackView, tr("Stack"), DOCKWIDGET_STACK);
 
-    m_sourceFilesView = new SourceFilesTreeView;
+    m_sourceFilesView = new BaseTreeView;
+    m_sourceFilesView->setSortingEnabled(true);
     m_sourceFilesView->setSettings(settings, "Debugger.SourceFilesView");
     connect(m_sourceFilesView, &BaseTreeView::aboutToShow, this, [this] {
         m_currentEngine->reloadSourceFiles();
     }, Qt::QueuedConnection);
     m_sourceFilesWindow = addSearch(m_sourceFilesView, tr("Source Files"), DOCKWIDGET_SOURCE_FILES);
 
-    m_threadsView = new ThreadsTreeView;
+    m_threadsView = new BaseTreeView;
+    m_threadsView->setSortingEnabled(true);
     m_threadsView->setSettings(settings, "Debugger.ThreadsView");
     m_threadsWindow = addSearch(m_threadsView, tr("Threads"), DOCKWIDGET_THREADS);
 
@@ -2243,7 +2270,7 @@ void DebuggerPluginPrivate::requestContextMenu(TextEditorWidget *widget,
         // Edit existing breakpoint.
         act = menu->addAction(tr("Edit Breakpoint %1...").arg(id));
         connect(act, &QAction::triggered, [bp] {
-            BreakTreeView::editBreakpoint(bp, ICore::dialogParent());
+            breakHandler()->editBreakpoint(bp, ICore::dialogParent());
         });
 
     } else {

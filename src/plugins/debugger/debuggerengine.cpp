@@ -174,23 +174,15 @@ class DebuggerEnginePrivate : public QObject
 public:
     DebuggerEnginePrivate(DebuggerEngine *engine, const DebuggerRunParameters &sp)
       : m_engine(engine),
-        m_masterEngine(0),
-        m_runControl(0),
         m_runParameters(sp),
-        m_state(DebuggerNotReady),
-        m_lastGoodState(DebuggerNotReady),
-        m_targetState(DebuggerNotReady),
-        m_remoteSetupState(RemoteSetupNone),
-        m_inferiorPid(0),
         m_modulesHandler(engine),
         m_registerHandler(engine),
-        m_sourceFilesHandler(),
+        m_sourceFilesHandler(engine),
         m_stackHandler(engine),
-        m_threadsHandler(),
+        m_threadsHandler(engine),
         m_watchHandler(engine),
         m_disassemblerAgent(engine),
-        m_memoryAgent(engine),
-        m_isStateDebugging(false)
+        m_memoryAgent(engine)
     {
         connect(&m_locationTimer, &QTimer::timeout,
                 this, &DebuggerEnginePrivate::resetLocation);
@@ -298,26 +290,26 @@ public:
         { return m_masterEngine ? m_masterEngine->runControl() : m_runControl; }
     void setRemoteSetupState(RemoteSetupState state);
 
-    DebuggerEngine *m_engine; // Not owned.
-    DebuggerEngine *m_masterEngine; // Not owned
-    DebuggerRunControl *m_runControl;  // Not owned.
+    DebuggerEngine *m_engine = nullptr; // Not owned.
+    DebuggerEngine *m_masterEngine = nullptr; // Not owned
+    DebuggerRunControl *m_runControl = nullptr;  // Not owned.
 
     DebuggerRunParameters m_runParameters;
 
     // The current state.
-    DebuggerState m_state;
+    DebuggerState m_state = DebuggerNotReady;
 
     // The state we had before something unexpected happend.
-    DebuggerState m_lastGoodState;
+    DebuggerState m_lastGoodState = DebuggerNotReady;
 
     // The state we are aiming for.
-    DebuggerState m_targetState;
+    DebuggerState m_targetState = DebuggerNotReady;
 
     // State of RemoteSetup signal/slots.
-    RemoteSetupState m_remoteSetupState;
+    RemoteSetupState m_remoteSetupState = RemoteSetupNone;
 
     Terminal m_terminal;
-    qint64 m_inferiorPid;
+    qint64 m_inferiorPid = 0;
 
     ModulesHandler m_modulesHandler;
     RegisterHandler m_registerHandler;
@@ -332,7 +324,7 @@ public:
     QScopedPointer<LocationMark> m_locationMark;
     QTimer m_locationTimer;
 
-    bool m_isStateDebugging;
+    bool m_isStateDebugging = false;
 
     Utils::FileInProjectFinder m_fileFinder;
     QString m_qtNamespace;

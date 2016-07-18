@@ -28,12 +28,126 @@
 #include "debuggerengine.h"
 #include "watchdelegatewidgets.h"
 
+#include "memoryview.h"
+#include "memoryagent.h"
+#include "debuggeractions.h"
+#include "debuggerdialogs.h"
+#include "debuggercore.h"
+#include "debuggerengine.h"
+
+#include <utils/basetreeview.h>
 #include <utils/qtcassert.h>
+#include <utils/savedaction.h>
+
+#include <QDebug>
+#include <QItemDelegate>
+#include <QMenu>
+#include <QPainter>
 
 using namespace Utils;
 
 namespace Debugger {
 namespace Internal {
+
+enum RegisterColumns
+{
+    RegisterNameColumn,
+    RegisterValueColumn,
+    RegisterColumnCount
+};
+
+enum RegisterDataRole
+{
+    RegisterChangedRole = Qt::UserRole
+};
+
+///////////////////////////////////////////////////////////////////////
+//
+// RegisterDelegate
+//
+///////////////////////////////////////////////////////////////////////
+
+class RegisterDelegate : public QItemDelegate
+{
+public:
+    RegisterDelegate() {}
+
+    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &,
+        const QModelIndex &index) const override
+    {
+        if (index.column() == RegisterValueColumn) {
+            auto lineEdit = new QLineEdit(parent);
+            lineEdit->setAlignment(Qt::AlignLeft);
+            lineEdit->setFrame(false);
+            return lineEdit;
+        }
+        return 0;
+    }
+
+    void setEditorData(QWidget *editor, const QModelIndex &index) const override
+    {
+        auto lineEdit = qobject_cast<QLineEdit *>(editor);
+        QTC_ASSERT(lineEdit, return);
+        lineEdit->setText(index.data(Qt::EditRole).toString());
+    }
+
+    void setModelData(QWidget *editor, QAbstractItemModel *model,
+        const QModelIndex &index) const override
+    {
+        if (index.column() == RegisterValueColumn) {
+            auto lineEdit = qobject_cast<QLineEdit *>(editor);
+            QTC_ASSERT(lineEdit, return);
+            model->setData(index, lineEdit->text(), Qt::EditRole);
+        }
+    }
+
+    void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option,
+        const QModelIndex &) const override
+    {
+        editor->setGeometry(option.rect);
+    }
+
+    void paint(QPainter *painter, const QStyleOptionViewItem &option,
+        const QModelIndex &index) const override
+    {
+        if (index.column() == RegisterValueColumn) {
+            const bool paintRed = index.data(RegisterChangedRole).toBool();
+            QPen oldPen = painter->pen();
+            const QColor lightColor(140, 140, 140);
+            if (paintRed)
+                painter->setPen(QColor(200, 0, 0));
+            else
+                painter->setPen(lightColor);
+            // FIXME: performance? this changes only on real font changes.
+            QFontMetrics fm(option.font);
+            int charWidth = qMax(fm.width(QLatin1Char('x')), fm.width(QLatin1Char('0')));
+            QString str = index.data(Qt::DisplayRole).toString();
+            int x = option.rect.x();
+            bool light = !paintRed;
+            for (int i = 0; i < str.size(); ++i) {
+                const QChar c = str.at(i);
+                const int uc = c.unicode();
+                if (light && (uc != 'x' && uc != '0')) {
+                    light = false;
+                    painter->setPen(oldPen.color());
+                }
+                if (uc == ' ') {
+                    light = true;
+                    painter->setPen(lightColor);
+                } else {
+                    QRect r = option.rect;
+                    r.setX(x);
+                    r.setWidth(charWidth);
+                    painter->drawText(r, Qt::AlignHCenter, c);
+                }
+                x += charWidth;
+            }
+            painter->setPen(oldPen);
+        } else {
+            QItemDelegate::paint(painter, option, index);
+        }
+    }
+};
 
 //////////////////////////////////////////////////////////////////
 //
@@ -288,9 +402,6 @@ void RegisterValue::shiftOneDigit(uint digit, RegisterFormat format)
 //
 //////////////////////////////////////////////////////////////////
 
-class RegisterItem;
-class RegisterSubItem;
-
 class RegisterEditItem : public TypedTreeItem<TreeItem, RegisterSubItem>
 {
 public:
@@ -307,7 +418,6 @@ public:
     int m_subSize;
     RegisterFormat m_subFormat;
 };
-
 
 class RegisterSubItem : public TypedTreeItem<RegisterEditItem, RegisterItem>
 {
@@ -339,7 +449,7 @@ public:
 class RegisterItem : public TypedTreeItem<RegisterSubItem>
 {
 public:
-    explicit RegisterItem(const Register &reg);
+    RegisterItem(DebuggerEngine *engine, const Register &reg);
 
     QVariant data(int column, int role) const override;
     bool setData(int column, const QVariant &value, int role) override;
@@ -348,13 +458,14 @@ public:
     quint64 addressValue() const;
     void triggerChange();
 
+    DebuggerEngine *m_engine;
     Register m_reg;
-    RegisterFormat m_format;
-    bool m_changed;
+    RegisterFormat m_format = HexadecimalFormat;
+    bool m_changed = true;
 };
 
-RegisterItem::RegisterItem(const Register &reg) :
-    m_reg(reg), m_format(HexadecimalFormat), m_changed(true)
+RegisterItem::RegisterItem(DebuggerEngine *engine, const Register &reg)
+    : m_engine(engine), m_reg(reg), m_changed(true)
 {
     if (m_reg.kind == UnknownRegister)
         m_reg.guessMissingData();
@@ -395,27 +506,14 @@ quint64 RegisterItem::addressValue() const
 void RegisterItem::triggerChange()
 {
     QString value = "0x" + m_reg.value.toString(m_reg.kind, m_reg.size, HexadecimalFormat);
-    DebuggerEngine *engine = static_cast<RegisterHandler *>(model())->engine();
-    engine->setRegisterValue(m_reg.name, value);
+    m_engine->setRegisterValue(m_reg.name, value);
 }
 
 QVariant RegisterItem::data(int column, int role) const
 {
     switch (role) {
-        case RegisterNameRole:
-            return m_reg.name;
-
-        case RegisterIsBigRole:
-            return m_reg.value.v.u64[1] > 0;
-
         case RegisterChangedRole:
             return m_changed;
-
-        case RegisterAsAddressRole:
-            return addressValue();
-
-        case RegisterFormatRole:
-            return m_format;
 
         case Qt::DisplayRole:
             switch (column) {
@@ -462,12 +560,6 @@ QVariant RegisterSubItem::data(int column, int role) const
     switch (role) {
         case RegisterChangedRole:
             return m_changed;
-
-        case RegisterFormatRole:
-            return int(parent()->m_format);
-
-        case RegisterAsAddressRole:
-            return 0;
 
         case Qt::DisplayRole:
             switch (column) {
@@ -521,7 +613,7 @@ QVariant RegisterSubItem::data(int column, int role) const
 RegisterHandler::RegisterHandler(DebuggerEngine *engine)
     : m_engine(engine)
 {
-    setObjectName(QLatin1String("RegisterModel"));
+    setObjectName("RegisterModel");
     setHeader({tr("Name"), tr("Value")});
 }
 
@@ -529,7 +621,7 @@ void RegisterHandler::updateRegister(const Register &r)
 {
     RegisterItem *reg = m_registerByName.value(r.name, 0);
     if (!reg) {
-        reg = new RegisterItem(r);
+        reg = new RegisterItem(m_engine, r);
         m_registerByName[r.name] = reg;
         rootItem()->appendChild(reg);
         return;
@@ -550,15 +642,6 @@ void RegisterHandler::updateRegister(const Register &r)
     }
 }
 
-void RegisterHandler::setNumberFormat(const QString &name, RegisterFormat format)
-{
-    RegisterItem *reg = m_registerByName.value(name, 0);
-    QTC_ASSERT(reg, return);
-    reg->m_format = format;
-    QModelIndex index = indexForItem(reg);
-    emit dataChanged(index, index);
-}
-
 RegisterMap RegisterHandler::registerMap() const
 {
     RegisterMap result;
@@ -569,6 +652,110 @@ RegisterMap RegisterHandler::registerMap() const
             result.insert(value, reg->m_reg.name);
     }
     return result;
+}
+
+QVariant RegisterHandler::data(const QModelIndex &idx, int role) const
+{
+    if (role == BaseTreeView::ItemDelegateRole)
+        return QVariant::fromValue(static_cast<QAbstractItemDelegate *>(new RegisterDelegate));
+
+    return RegisterModel::data(idx, role);
+}
+
+bool RegisterHandler::setData(const QModelIndex &idx, const QVariant &data, int role)
+{
+    if (role == BaseTreeView::ItemViewEventRole) {
+        ItemViewEvent ev = data.value<ItemViewEvent>();
+        if (ev.type() == QEvent::ContextMenu)
+            return contextMenuEvent(ev);
+    }
+
+    return RegisterModel::setData(idx, data, role);
+}
+
+bool RegisterHandler::contextMenuEvent(const ItemViewEvent &ev)
+{
+    const bool actionsEnabled = m_engine->debuggerActionsEnabled();
+    const DebuggerState state = m_engine->state();
+
+    RegisterItem *registerItem = firstLevelItemForIndex(ev.index());
+    RegisterSubItem *registerSubItem = secondLevelItemForIndex(ev.index());
+
+    const quint64 address = registerItem ? registerItem->addressValue() : 0;
+    const QString registerName = registerItem ? registerItem->m_reg.name : QString();
+
+    auto menu = new QMenu;
+
+    addAction(menu, tr("Reload Register Listing"),
+              m_engine->hasCapability(RegisterCapability)
+                && (state == InferiorStopOk || state == InferiorUnrunnable),
+              [this] { m_engine->reloadRegisters(); });
+
+    menu->addSeparator();
+
+    addAction(menu, tr("Open Memory View at Value of Register %1 0x%2")
+              .arg(registerName).arg(address, 0, 16),
+              tr("Open Memory View at Value of Register"),
+              address,
+              [this, registerName, address] {
+                    MemoryViewSetupData data;
+                    data.startAddress = address;
+                    data.flags = DebuggerEngine::MemoryTrackRegister|DebuggerEngine::MemoryView;
+                    data.registerName = registerName;
+                    m_engine->openMemoryView(data);
+              });
+
+    addAction(menu, tr("Open Memory Editor at 0x%1").arg(address, 0, 16),
+              tr("Open Memory Editor"),
+              address && actionsEnabled && m_engine->hasCapability(ShowMemoryCapability),
+              [this, registerName, address] {
+                    MemoryViewSetupData data;
+                    data.startAddress = address;
+                    data.registerName = registerName;
+                    data.markup = RegisterMemoryView::registerMarkup(address, registerName);
+                    data.title = RegisterMemoryView::title(registerName);
+                    m_engine->openMemoryView(data);
+              });
+
+    addAction(menu, tr("Open Disassembler at 0x%1").arg(address, 0, 16),
+              tr("Open Disassembler"),
+              address && m_engine->hasCapability(DisassemblerCapability),
+              [this, address] { m_engine->openDisassemblerView(Location(address)); });
+
+    addAction(menu, tr("Open Disassembler..."),
+              m_engine->hasCapability(DisassemblerCapability),
+              [this, address] {
+                    AddressDialog dialog;
+                    if (address)
+                        dialog.setAddress(address);
+                    if (dialog.exec() == QDialog::Accepted)
+                        m_engine->openDisassemblerView(Location(dialog.address()));
+              });
+
+    menu->addSeparator();
+
+    const RegisterFormat currentFormat = registerItem
+            ? registerItem->m_format
+            : registerSubItem
+              ? registerSubItem->parent()->m_format
+              : HexadecimalFormat;
+
+    auto addFormatAction = [this, menu, currentFormat, registerItem](const QString &display, RegisterFormat format) {
+        addCheckableAction(menu, display, registerItem, currentFormat == format, [this, registerItem, format] {
+            registerItem->m_format = format;
+            registerItem->update();
+        });
+    };
+
+    addFormatAction(tr("Hexadecimal"), HexadecimalFormat);
+    addFormatAction(tr("DecimalFormat"), DecimalFormat);
+    addFormatAction(tr("Octal"), OctalFormat);
+    addFormatAction(tr("Binary"), BinaryFormat);
+
+    menu->addSeparator();
+    menu->addAction(action(SettingsDialog));
+    menu->popup(ev.globalPos());
+    return true;
 }
 
 QVariant RegisterEditItem::data(int column, int role) const

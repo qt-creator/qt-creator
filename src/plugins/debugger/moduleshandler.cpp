@@ -25,30 +25,39 @@
 
 #include "moduleshandler.h"
 
+#include "debuggerconstants.h"
+#include "debuggercore.h"
+#include "debuggerengine.h"
+
+#include <utils/basetreeview.h>
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/treemodel.h>
 
 #include <QCoreApplication>
 #include <QDebug>
+#include <QMenu>
 #include <QSortFilterProxyModel>
 
-using namespace Utils;
+#include <functional>
 
-//////////////////////////////////////////////////////////////////
-//
-// ModulesModel
-//
-//////////////////////////////////////////////////////////////////
+using namespace Utils;
 
 namespace Debugger {
 namespace Internal {
 
 class ModuleItem : public TreeItem
 {
-public:
-    QVariant data(int column, int role) const;
+    Q_DECLARE_TR_FUNCTIONS(Debuggger::Internal::ModulesHandler)
 
 public:
+    QVariant data(int column, int role) const override;
+    bool setData(int column, const QVariant &data, int role) override;
+
+    bool contextMenuEvent(const ItemViewEvent &event);
+
+public:
+    DebuggerEngine *engine;
     Module module;
     bool updated;
 };
@@ -78,74 +87,133 @@ QVariant ModuleItem::data(int column, int role) const
     case 2:
         if (role == Qt::DisplayRole)
             switch (module.symbolsRead) {
-            case Module::UnknownReadState: return ModulesHandler::tr("Unknown");
-            case Module::ReadFailed: return ModulesHandler::tr("No");
-            case Module::ReadOk: return ModulesHandler::tr("Yes");
+            case Module::UnknownReadState: return tr("Unknown");
+            case Module::ReadFailed:       return tr("No");
+            case Module::ReadOk:           return tr("Yes");
             }
         break;
     case 3:
         if (role == Qt::DisplayRole)
             switch (module.elfData.symbolsType) {
-            case UnknownSymbols:
-                return ModulesHandler::tr("Unknown");
-            case NoSymbols:
-                return ModulesHandler::tr("None");
-            case PlainSymbols:
-                return ModulesHandler::tr("Plain");
-            case FastSymbols:
-                return ModulesHandler::tr("Fast");
-            case LinkedSymbols:
-                return ModulesHandler::tr("debuglnk");
-            case BuildIdSymbols:
-                return ModulesHandler::tr("buildid");
+            case UnknownSymbols: return tr("Unknown");
+            case NoSymbols:      return tr("None");
+            case PlainSymbols:   return tr("Plain");
+            case FastSymbols:    return tr("Fast");
+            case LinkedSymbols:  return tr("debuglnk");
+            case BuildIdSymbols: return tr("buildid");
             }
         else if (role == Qt::ToolTipRole)
             switch (module.elfData.symbolsType) {
             case UnknownSymbols:
-                return ModulesHandler::tr(
-                            "It is unknown whether this module contains debug "
-                            "information.\nUse \"Examine Symbols\" from the "
-                            "context menu to initiate a check.");
+                return tr("It is unknown whether this module contains debug "
+                          "information.\nUse \"Examine Symbols\" from the "
+                          "context menu to initiate a check.");
             case NoSymbols:
-                return ModulesHandler::tr(
-                            "This module neither contains nor references debug "
-                            "information.\nStepping into the module or setting "
-                            "breakpoints by file and line will not work.");
+                return tr("This module neither contains nor references debug "
+                          "information.\nStepping into the module or setting "
+                          "breakpoints by file and line will not work.");
             case PlainSymbols:
-                return ModulesHandler::tr(
-                            "This module contains debug information.\nStepping "
-                            "into the module or setting breakpoints by file and "
-                            "line is expected to work.");
+                return tr("This module contains debug information.\nStepping "
+                          "into the module or setting breakpoints by file and "
+                          "line is expected to work.");
             case FastSymbols:
-                return ModulesHandler::tr(
-                            "This module contains debug information.\nStepping "
-                            "into the module or setting breakpoints by file and "
-                            "line is expected to work.");
+                return tr("This module contains debug information.\nStepping "
+                          "into the module or setting breakpoints by file and "
+                          "line is expected to work.");
             case LinkedSymbols:
             case BuildIdSymbols:
-                return ModulesHandler::tr(
-                            "This module does not contain debug information "
-                            "itself, but contains a reference to external "
-                            "debug information.");
+                return tr("This module does not contain debug information "
+                          "itself, but contains a reference to external "
+                          "debug information.");
             }
         break;
     case 4:
         if (role == Qt::DisplayRole)
             if (module.startAddress)
-                return QString(QLatin1String("0x")
-                               + QString::number(module.startAddress, 16));
+                return QString("0x" + QString::number(module.startAddress, 16));
         break;
     case 5:
         if (role == Qt::DisplayRole) {
             if (module.endAddress)
-                return QString(QLatin1String("0x")
-                               + QString::number(module.endAddress, 16));
+                return QString("0x" + QString::number(module.endAddress, 16));
             //: End address of loaded module
-            return ModulesHandler::tr("<unknown>", "address");
+            return tr("<unknown>", "address");
         }
         break;
     }
     return QVariant();
+}
+
+bool ModuleItem::setData(int, const QVariant &data, int role)
+{
+    if (role == BaseTreeView::ItemActivatedRole) {
+        engine->gotoLocation(module.modulePath);
+        return true;
+    }
+
+    if (role == BaseTreeView::ItemViewEventRole) {
+        ItemViewEvent ev = data.value<ItemViewEvent>();
+        if (ev.type() == QEvent::ContextMenu)
+            return contextMenuEvent(ev);
+    }
+
+    return false;
+}
+
+bool ModuleItem::contextMenuEvent(const ItemViewEvent &event)
+{
+    auto menu = new QMenu;
+
+    const bool enabled = engine->debuggerActionsEnabled();
+    const bool canReload = engine->hasCapability(ReloadModuleCapability);
+    const bool canLoadSymbols = engine->hasCapability(ReloadModuleSymbolsCapability);
+    const bool canShowSymbols = engine->hasCapability(ShowModuleSymbolsCapability);
+    const bool moduleNameValid = !module.moduleName.isEmpty();
+
+    addAction(menu, tr("Update Module List"),
+              enabled && canReload,
+              [this] { engine->reloadModules(); });
+
+    addAction(menu, tr("Show Source Files for Module \"%1\"").arg(module.moduleName),
+              enabled && canReload,
+              [this] { engine->loadSymbols(module.modulePath); });
+
+    // FIXME: Dependencies only available on Windows, when "depends" is installed.
+    addAction(menu, tr("Show Dependencies of \"%1\"").arg(module.moduleName),
+              tr("Show Dependencies"),
+              moduleNameValid && !module.modulePath.isEmpty() && HostOsInfo::isWindowsHost(),
+              [this] { QProcess::startDetached("depends", QStringList(module.modulePath)); });
+
+    addAction(menu, tr("Load Symbols for All Modules"),
+              enabled && canLoadSymbols,
+              [this] { engine->loadAllSymbols(); });
+
+    addAction(menu, tr("Examine All Modules"),
+              enabled && canLoadSymbols,
+              [this] { engine->examineModules(); });
+
+    addAction(menu, tr("Load Symbols for Module \"%1\"").arg(module.moduleName),
+              tr("Load Symbols for Module"),
+              canLoadSymbols,
+              [this] { engine->loadSymbols(module.modulePath); });
+
+    addAction(menu, tr("Edit File \"%1\"").arg(module.moduleName),
+              tr("Edit File"),
+              moduleNameValid,
+              [this] { engine->gotoLocation(module.modulePath); });
+
+    addAction(menu, tr("Show Symbols in File \"%1\"").arg(module.moduleName),
+              tr("Show Symbols"),
+              canShowSymbols && moduleNameValid,
+              [this] { engine->requestModuleSymbols(module.modulePath); });
+
+    addAction(menu, tr("Show Sections in File \"%1\"").arg(module.moduleName),
+              tr("Show Sections"),
+              canShowSymbols && moduleNameValid,
+              [this] { engine->requestModuleSections(module.modulePath); });
+
+    menu->popup(event.globalPos());
+    return true;
 }
 
 //////////////////////////////////////////////////////////////////
@@ -154,40 +222,37 @@ QVariant ModuleItem::data(int column, int role) const
 //
 //////////////////////////////////////////////////////////////////
 
-static ModuleItem *moduleFromPath(TreeItem *root, const QString &modulePath)
-{
-    // Recent modules are more likely to be unloaded first.
-    for (int i = root->childCount(); --i >= 0; ) {
-        auto item = static_cast<ModuleItem *>(root->childAt(i));
-        if (item->module.modulePath == modulePath)
-            return item;
-    }
-    return 0;
-}
-
 ModulesHandler::ModulesHandler(DebuggerEngine *engine)
 {
     m_engine = engine;
 
-    QString pad = QLatin1String("        ");
-    m_model = new TreeModel(this);
-    m_model->setObjectName(QLatin1String("ModulesModel"));
-    m_model->setHeader(QStringList()
-        << ModulesHandler::tr("Module Name") + pad
-        << ModulesHandler::tr("Module Path") + pad
-        << ModulesHandler::tr("Symbols Read") + pad
-        << ModulesHandler::tr("Symbols Type") + pad
-        << ModulesHandler::tr("Start Address") + pad
-        << ModulesHandler::tr("End Address") + pad);
+    QString pad = "        ";
+    m_model = new ModulesModel;
+    m_model->setObjectName("ModulesModel");
+    m_model->setHeader(QStringList({
+        tr("Module Name") + pad,
+        tr("Module Path") + pad,
+        tr("Symbols Read") + pad,
+        tr("Symbols Type") + pad,
+        tr("Start Address") + pad,
+        tr("End Address") + pad}));
 
     m_proxyModel = new QSortFilterProxyModel(this);
-    m_proxyModel->setObjectName(QLatin1String("ModulesProxyModel"));
+    m_proxyModel->setObjectName("ModulesProxyModel");
     m_proxyModel->setSourceModel(m_model);
 }
 
 QAbstractItemModel *ModulesHandler::model() const
 {
     return m_proxyModel;
+}
+
+ModuleItem *ModulesHandler::moduleFromPath(const QString &modulePath) const
+{
+    // Recent modules are more likely to be unloaded first.
+    return m_model->findFirstLevelItem([modulePath](ModuleItem *item) {
+        return item->module.modulePath == modulePath;
+    });
 }
 
 void ModulesHandler::removeAll()
@@ -198,15 +263,13 @@ void ModulesHandler::removeAll()
 Modules ModulesHandler::modules() const
 {
     Modules mods;
-    TreeItem *root = m_model->rootItem();
-    for (int i = root->childCount(); --i >= 0; )
-        mods.append(static_cast<ModuleItem *>(root->childAt(i))->module);
+    m_model->forFirstLevelItems([&mods](ModuleItem *item) { mods.append(item->module); });
     return mods;
 }
 
 void ModulesHandler::removeModule(const QString &modulePath)
 {
-    if (ModuleItem *item = moduleFromPath(m_model->rootItem(), modulePath))
+    if (ModuleItem *item = moduleFromPath(modulePath))
         m_model->destroyItem(item);
 }
 
@@ -216,12 +279,13 @@ void ModulesHandler::updateModule(const Module &module)
     if (path.isEmpty())
         return;
 
-    ModuleItem *item = moduleFromPath(m_model->rootItem(), path);
+    ModuleItem *item = moduleFromPath(path);
     if (item) {
         item->module = module;
     } else {
         item = new ModuleItem;
         item->module = module;
+        item->engine = m_engine;
         m_model->rootItem()->appendChild(item);
     }
 
@@ -238,19 +302,17 @@ void ModulesHandler::updateModule(const Module &module)
 
 void ModulesHandler::beginUpdateAll()
 {
-    TreeItem *root = m_model->rootItem();
-    for (int i = root->childCount(); --i >= 0; )
-        static_cast<ModuleItem *>(root->childAt(i))->updated = false;
+    m_model->forFirstLevelItems([](ModuleItem *item) { item->updated = false; });
 }
 
 void ModulesHandler::endUpdateAll()
 {
-    TreeItem *root = m_model->rootItem();
-    for (int i = root->childCount(); --i >= 0; ) {
-        auto item = static_cast<ModuleItem *>(root->childAt(i));
+    QList<TreeItem *> toDestroy;
+    m_model->forFirstLevelItems([&toDestroy](ModuleItem *item) {
         if (!item->updated)
-            m_model->destroyItem(item);
-    }
+            toDestroy.append(item);
+    });
+    qDeleteAll(toDestroy);
 }
 
 } // namespace Internal

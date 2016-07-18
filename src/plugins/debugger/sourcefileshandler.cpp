@@ -25,19 +25,29 @@
 
 #include "sourcefileshandler.h"
 
+#include "debuggeractions.h"
+#include "debuggercore.h"
+#include "debuggerengine.h"
+
+#include <utils/basetreeview.h>
+#include <utils/savedaction.h>
+
 #include <QDebug>
 #include <QFileInfo>
-
+#include <QMenu>
 #include <QSortFilterProxyModel>
+
+using namespace Utils;
 
 namespace Debugger {
 namespace Internal {
 
-SourceFilesHandler::SourceFilesHandler()
+SourceFilesHandler::SourceFilesHandler(DebuggerEngine *engine)
+    : m_engine(engine)
 {
-    setObjectName(QLatin1String("SourceFilesModel"));
+    setObjectName("SourceFilesModel");
     QSortFilterProxyModel *proxy = new QSortFilterProxyModel(this);
-    proxy->setObjectName(QLatin1String("SourceFilesProxyModel"));
+    proxy->setObjectName("SourceFilesProxyModel");
     proxy->setSourceModel(this);
     m_proxyModel = proxy;
 }
@@ -95,6 +105,46 @@ QVariant SourceFilesHandler::data(const QModelIndex &index, int role) const
             break;
     }
     return QVariant();
+}
+
+bool SourceFilesHandler::setData(const QModelIndex &idx, const QVariant &data, int role)
+{
+    if (role == BaseTreeView::ItemActivatedRole) {
+        m_engine->gotoLocation(idx.data().toString());
+        return true;
+    }
+
+    if (role == BaseTreeView::ItemViewEventRole) {
+        ItemViewEvent ev = data.value<ItemViewEvent>();
+        if (ev.type() == QEvent::ContextMenu) {
+            auto menu = new QMenu;
+            QModelIndex index = idx.sibling(idx.row(), 0);
+            QString name = index.data().toString();
+
+            auto addAction = [menu](const QString &display, bool on, const std::function<void()> &onTriggered) {
+                QAction *act = menu->addAction(display);
+                act->setEnabled(on);
+                QObject::connect(act, &QAction::triggered, onTriggered);
+                return act;
+            };
+
+            addAction(tr("Reload Data"), m_engine->debuggerActionsEnabled(),
+                      [this] { m_engine->reloadSourceFiles(); });
+
+            if (name.isEmpty())
+                addAction(tr("Open File"), false, {});
+            else
+                addAction(tr("Open File \"%1\"").arg(name), true,
+                          [this, name] { m_engine->gotoLocation(name); });
+
+            menu->addSeparator();
+            menu->addAction(action(SettingsDialog));
+            menu->popup(ev.globalPos());
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void SourceFilesHandler::setSourceFiles(const QMap<QString, QString> &sourceFiles)

@@ -248,6 +248,7 @@ BaseTreeView::BaseTreeView(QWidget *parent)
     setSelectionMode(QAbstractItemView::ExtendedSelection);
     setUniformRowHeights(true);
     setItemDelegate(new BaseTreeViewDelegate(this));
+    setAlternatingRowColors(false);
 
     QHeaderView *h = header();
     h->setDefaultAlignment(Qt::AlignLeft);
@@ -303,6 +304,13 @@ void BaseTreeView::setModel(QAbstractItemModel *m)
                 connect(model(), c[i].qsignal, c[i].receiver, c[i].qslot);
         }
         d->restoreState();
+
+        QVariant delegateBlob = m->data(QModelIndex(), ItemDelegateRole);
+        if (delegateBlob.isValid()) {
+            auto delegate = delegateBlob.value<QAbstractItemDelegate *>();
+            delegate->setParent(this);
+            setItemDelegate(delegate);
+        }
     }
 }
 
@@ -312,6 +320,44 @@ void BaseTreeView::mousePressEvent(QMouseEvent *ev)
     const QModelIndex mi = indexAt(ev->pos());
     if (!mi.isValid())
         d->toggleColumnWidth(columnAt(ev->x()));
+}
+
+void BaseTreeView::contextMenuEvent(QContextMenuEvent *ev)
+{
+    QPoint pos = ev->pos();
+    QModelIndex index = indexAt(pos);
+    if (!model()->setData(index, describeEvent(ev, pos, index), ItemViewEventRole))
+        TreeView::contextMenuEvent(ev);
+}
+
+void BaseTreeView::keyPressEvent(QKeyEvent *ev)
+{
+    if (!model()->setData(QModelIndex(), describeEvent(ev), ItemViewEventRole))
+        TreeView::keyPressEvent(ev);
+}
+
+void BaseTreeView::dragEnterEvent(QDragEnterEvent *ev)
+{
+    if (!model()->setData(QModelIndex(), describeEvent(ev), ItemViewEventRole))
+        TreeView::dragEnterEvent(ev);
+}
+
+void BaseTreeView::dropEvent(QDropEvent *ev)
+{
+    if (!model()->setData(QModelIndex(), describeEvent(ev), ItemViewEventRole))
+        TreeView::dropEvent(ev);
+}
+
+void BaseTreeView::dragMoveEvent(QDragMoveEvent *ev)
+{
+    if (!model()->setData(QModelIndex(), describeEvent(ev), ItemViewEventRole))
+        TreeView::dragMoveEvent(ev);
+}
+
+void BaseTreeView::mouseDoubleClickEvent(QMouseEvent *ev)
+{
+    if (!model()->setData(QModelIndex(), describeEvent(ev), ItemViewEventRole))
+        TreeView::mouseDoubleClickEvent(ev);
 }
 
 void BaseTreeView::showEvent(QShowEvent *ev)
@@ -346,6 +392,35 @@ void BaseTreeView::hideProgressIndicator()
         d->m_progressIndicator->hide();
 }
 
+QVariant BaseTreeView::describeEvent(QEvent *ev, const QPoint &pos, const QModelIndex &idx)
+{
+    ItemViewEvent event;
+    event.m_view = this;
+    event.m_event = ev;
+    event.m_pos = pos;
+    event.m_index = idx;
+
+    QItemSelectionModel *selection = selectionModel();
+    event.m_selectedRows = selection->selectedRows();
+    if (event.m_selectedRows.isEmpty()) {
+        QModelIndex current = selection->currentIndex();
+        if (current.isValid())
+            event.m_selectedRows.append(current);
+    }
+
+    return QVariant::fromValue(event);
+}
+
+void BaseTreeView::rowActivated(const QModelIndex &index)
+{
+    model()->setData(index, QVariant(), ItemActivatedRole);
+}
+
+void BaseTreeView::rowClicked(const QModelIndex &index)
+{
+    model()->setData(index, QVariant(), ItemClickedRole);
+}
+
 void BaseTreeView::setSettings(QSettings *settings, const QByteArray &key)
 {
     QTC_ASSERT(!d->m_settings, qDebug() << "DUPLICATED setSettings" << key);
@@ -354,16 +429,9 @@ void BaseTreeView::setSettings(QSettings *settings, const QByteArray &key)
     d->readSettings();
 }
 
-QModelIndexList BaseTreeView::activeRows() const
+QModelIndexList ItemViewEvent::currentOrSelectedRows() const
 {
-    QItemSelectionModel *selection = selectionModel();
-    QModelIndexList indices = selection->selectedRows();
-    if (indices.isEmpty()) {
-        QModelIndex current = selection->currentIndex();
-        if (current.isValid())
-            indices.append(current);
-    }
-    return indices;
+    return m_selectedRows.isEmpty() ? QModelIndexList() << m_index : m_selectedRows;
 }
 
 } // namespace Utils

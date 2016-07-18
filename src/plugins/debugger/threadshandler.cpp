@@ -25,17 +25,22 @@
 
 #include "threadshandler.h"
 
+#include "debuggeractions.h"
 #include "debuggercore.h"
+#include "debuggerengine.h"
 #include "debuggericons.h"
 #include "debuggerprotocol.h"
 #include "watchutils.h"
 
 #include <utils/algorithm.h>
+#include <utils/basetreeview.h>
 #include <utils/qtcassert.h>
+#include <utils/savedaction.h>
 
 #include <QCoreApplication>
 #include <QDebug>
 #include <QIcon>
+#include <QMenu>
 
 using namespace Utils;
 
@@ -225,7 +230,8 @@ public:
             represent the running threads in a QTreeView or ComboBox.
 */
 
-ThreadsHandler::ThreadsHandler()
+ThreadsHandler::ThreadsHandler(DebuggerEngine *engine)
+    : m_engine(engine)
 {
     m_resetLocationScheduled = false;
     setObjectName(QLatin1String("ThreadsModel"));
@@ -234,6 +240,24 @@ ThreadsHandler::ThreadsHandler()
         tr("Address"), tr("Function"), tr("File"), tr("Line"), tr("State"),
         tr("Name"), tr("Target ID"), tr("Details"), tr("Core"),
     });
+}
+
+bool ThreadsHandler::setData(const QModelIndex &idx, const QVariant &data, int role)
+{
+    if (role == BaseTreeView::ItemActivatedRole) {
+        ThreadId id = ThreadId(idx.data(ThreadData::IdRole).toLongLong());
+        m_engine->selectThread(id);
+        return true;
+    }
+
+    if (role == BaseTreeView::ItemViewEventRole) {
+        auto menu = new QMenu;
+        menu->addAction(action(SettingsDialog));
+        menu->popup(data.value<ItemViewEvent>().globalPos());
+        return true;
+    }
+
+    return false;
 }
 
 static ThreadItem *itemForThreadId(const ThreadsHandler *handler, ThreadId threadId)

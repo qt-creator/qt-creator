@@ -27,25 +27,36 @@
 
 #include "debuggeractions.h"
 #include "debuggercore.h"
-#include "debuggericons.h"
+#include "debuggerdialogs.h"
 #include "debuggerengine.h"
+#include "debuggericons.h"
 #include "debuggerprotocol.h"
+#include "memoryagent.h"
 #include "simplifytype.h"
 
+#include <coreplugin/icore.h>
+#include <coreplugin/messagebox.h>
+
+#include <utils/basetreeview.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 
+#include <QApplication>
+#include <QClipboard>
+#include <QContextMenuEvent>
 #include <QDebug>
+#include <QDir>
+#include <QFile>
+#include <QFileDialog>
+#include <QInputDialog>
+#include <QMenu>
+#include <QTextStream>
+
+using namespace Utils;
 
 namespace Debugger {
 namespace Internal {
-
-////////////////////////////////////////////////////////////////////////
-//
-// StackHandler
-//
-////////////////////////////////////////////////////////////////////////
 
 /*!
     \class Debugger::Internal::StackHandler
@@ -56,13 +67,14 @@ namespace Internal {
 StackHandler::StackHandler(DebuggerEngine *engine)
   : m_engine(engine)
 {
-    setObjectName(QLatin1String("StackModel"));
-    m_resetLocationScheduled = false;
-    m_contentsValid = false;
-    m_currentIndex = -1;
-    m_canExpand = false;
+    setObjectName("StackModel");
+
     connect(action(OperateByInstruction), &QAction::triggered,
         this, &StackHandler::resetModel);
+    connect(action(ExpandStack), &QAction::triggered,
+        this, &StackHandler::reloadFullStack);
+    connect(action(MaximalStackDepth), &QAction::triggered,
+        this, &StackHandler::reloadFullStack);
 }
 
 StackHandler::~StackHandler()
@@ -104,12 +116,12 @@ QVariant StackHandler::data(const QModelIndex &index, int role) const
         case StackFunctionNameColumn:
             return simplifyType(frame.function);
         case StackFileNameColumn:
-            return frame.file.isEmpty() ? frame.module : Utils::FileName::fromString(frame.file).fileName();
+            return frame.file.isEmpty() ? frame.module : FileName::fromString(frame.file).fileName();
         case StackLineNumberColumn:
             return frame.line > 0 ? QVariant(frame.line) : QVariant();
         case StackAddressColumn:
             if (frame.address)
-                return QString::fromLatin1("0x%1").arg(frame.address, 0, 16);
+                return QString("0x%1").arg(frame.address, 0, 16);
             return QString();
         }
         return QVariant();
@@ -151,7 +163,24 @@ Qt::ItemFlags StackHandler::flags(const QModelIndex &index) const
     const StackFrame &frame = m_stackFrames.at(index.row());
     const bool isValid = frame.isUsable() || boolSetting(OperateByInstruction);
     return isValid && m_contentsValid
-        ? QAbstractTableModel::flags(index) : Qt::ItemFlags();
+            ? QAbstractTableModel::flags(index) : Qt::ItemFlags();
+}
+
+bool StackHandler::setData(const QModelIndex &idx, const QVariant &data, int role)
+{
+    Q_UNUSED(idx)
+
+    if (role == BaseTreeView::ItemActivatedRole) {
+        return true;
+    }
+
+    if (role == BaseTreeView::ItemViewEventRole) {
+        ItemViewEvent ev = data.value<ItemViewEvent>();
+        if (ev.type() == QEvent::ContextMenu)
+            return contextMenuEvent(ev);
+    }
+
+    return false;
 }
 
 StackFrame StackHandler::currentFrame() const
@@ -284,6 +313,172 @@ void StackHandler::resetLocation()
         m_resetLocationScheduled = false;
         endResetModel();
     }
+}
+
+// Input a function to be disassembled. Accept CDB syntax
+// 'Module!function' for module specification
+
+static StackFrame inputFunctionForDisassembly()
+{
+    StackFrame frame;
+    QInputDialog dialog;
+    dialog.setInputMode(QInputDialog::TextInput);
+    dialog.setLabelText(StackHandler::tr("Function:"));
+    dialog.setWindowTitle(StackHandler::tr("Disassemble Function"));
+    dialog.setWindowFlags(dialog.windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    if (dialog.exec() != QDialog::Accepted)
+        return frame;
+    const QString function = dialog.textValue();
+    if (function.isEmpty())
+        return frame;
+    const int bangPos = function.indexOf('!');
+    if (bangPos != -1) {
+        frame.module = function.left(bangPos);
+        frame.function = function.mid(bangPos + 1);
+    } else {
+        frame.function = function;
+    }
+    frame.line = 42; // trick gdb into mixed mode.
+    return frame;
+}
+
+// Write stack frames as task file for displaying it in the build issues pane.
+void StackHandler::saveTaskFile()
+{
+    QFile file;
+    QFileDialog fileDialog(Core::ICore::dialogParent());
+    fileDialog.setAcceptMode(QFileDialog::AcceptSave);
+    fileDialog.selectFile(QDir::currentPath() + "/stack.tasks");
+    while (!file.isOpen()) {
+        if (fileDialog.exec() != QDialog::Accepted)
+            return;
+        const QString fileName = fileDialog.selectedFiles().front();
+        file.setFileName(fileName);
+        if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            QString msg = tr("Cannot open \"%1\": %2")
+                    .arg(QDir::toNativeSeparators(fileName), file.errorString());
+            Core::AsynchronousMessageBox::warning(tr("Cannot Open Task File"), msg);
+        }
+    }
+
+    QTextStream str(&file);
+    foreach (const StackFrame &frame, frames()) {
+        if (frame.isUsable())
+            str << frame.file << '\t' << frame.line << "\tstack\tFrame #" << frame.level << '\n';
+    }
+}
+
+bool StackHandler::contextMenuEvent(const ItemViewEvent &ev)
+{
+    auto menu = new QMenu;
+
+    const int row = ev.index().row();
+    StackFrame frame;
+    if (row >= 0 && row < stackSize())
+        frame = frameAt(row);
+    const quint64 address = frame.address;
+
+    menu->addAction(action(ExpandStack));
+
+    addAction(menu, tr("Copy Contents to Clipboard"), true, [this] { copyContentsToClipboard(); });
+    addAction(menu, tr("Save as Task File..."), true, [this] { saveTaskFile(); });
+
+    if (m_engine->hasCapability(CreateFullBacktraceCapability))
+        menu->addAction(action(CreateFullBacktrace));
+
+    if (m_engine->hasCapability(AdditionalQmlStackCapability))
+        addAction(menu, tr("Load QML Stack"), true, [this] { m_engine->loadAdditionalQmlStack(); });
+
+    if (m_engine->hasCapability(ShowMemoryCapability))
+        addAction(menu, tr("Open Memory Editor at 0x%1").arg(address, 0, 16),
+                  tr("Open Memory Editor"),
+                  address,
+                  [this, row, frame, address] {
+                        MemoryViewSetupData data;
+                        data.startAddress = address;
+                        data.title = tr("Memory at Frame #%1 (%2) 0x%3").
+                            arg(row).arg(frame.function).arg(address, 0, 16);
+                        data.markup.push_back(MemoryMarkup(address, 1, QColor(Qt::blue).lighter(),
+                                                  tr("Frame #%1 (%2)").arg(row).arg(frame.function)));
+                        m_engine->openMemoryView(data);
+                   });
+
+    if (m_engine->hasCapability(DisassemblerCapability)) {
+        addAction(menu, tr("Open Disassembler at 0x%1").arg(address, 0, 16),
+                  tr("Open Disassembler"),
+                  address,
+                  [this, frame] { m_engine->openDisassemblerView(frame); });
+
+        addAction(menu, tr("Open Disassembler at Address..."), true,
+                  [this, address] {
+                        AddressDialog dialog;
+                        if (address)
+                            dialog.setAddress(address);
+                        if (dialog.exec() == QDialog::Accepted)
+                            m_engine->openDisassemblerView(Location(dialog.address()));
+                   });
+
+        addAction(menu, tr("Disassemble Function..."), true,
+                  [this, address] {
+                        const StackFrame frame = inputFunctionForDisassembly();
+                        if (!frame.function.isEmpty())
+                            m_engine->openDisassemblerView(Location(frame));
+                  });
+    }
+
+    if (m_engine->hasCapability(ShowModuleSymbolsCapability)) {
+        addAction(menu, tr("Try to Load Unknown Symbols"), true,
+                  [this] { m_engine->loadSymbolsForStack(); });
+    }
+
+    if (m_engine->hasCapability(MemoryAddressCapability))
+        menu->addAction(action(UseAddressInStackView));
+
+    menu->addSeparator();
+    menu->addAction(action(UseToolTipsInStackView));
+    menu->addSeparator();
+    menu->addAction(action(SettingsDialog));
+    menu->popup(ev.globalPos());
+    return true;
+}
+
+void StackHandler::copyContentsToClipboard()
+{
+    QString str;
+    int n = rowCount();
+    int m = columnCount();
+    QVector<int> largestColumnWidths(m, 0);
+
+    // First, find the widths of the largest columns,
+    // so that we can print them out nicely aligned.
+    for (int i = 0; i != n; ++i) {
+        for (int j = 0; j < m; ++j) {
+            const QModelIndex idx = index(i, j);
+            const int columnWidth = data(idx, Qt::DisplayRole).toString().size();
+            if (columnWidth > largestColumnWidths.at(j))
+                largestColumnWidths[j] = columnWidth;
+        }
+    }
+
+    for (int i = 0; i != n; ++i) {
+        for (int j = 0; j != m; ++j) {
+            QModelIndex idx = index(i, j);
+            const QString columnEntry = data(idx, Qt::DisplayRole).toString();
+            str += columnEntry;
+            const int difference = largestColumnWidths.at(j) - columnEntry.size();
+            // Add one extra space between columns.
+            str += QString().fill(' ', difference > 0 ? difference + 1 : 1);
+        }
+        str += '\n';
+    }
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText(str, QClipboard::Selection);
+    clipboard->setText(str, QClipboard::Clipboard);
+}
+
+void StackHandler::reloadFullStack()
+{
+    m_engine->reloadFullStack();
 }
 
 } // namespace Internal
