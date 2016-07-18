@@ -35,6 +35,11 @@ ClangCodeModelConnectionClient::ClangCodeModelConnectionClient(
 
 }
 
+ClangCodeModelConnectionClient::~ClangCodeModelConnectionClient()
+{
+    finishProcess();
+}
+
 ClangCodeModelServerProxy &ClangCodeModelConnectionClient::serverProxy()
 {
     return serverProxy_;

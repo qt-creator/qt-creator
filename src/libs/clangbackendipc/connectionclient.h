@@ -50,7 +50,6 @@ class CMBIPC_EXPORT ConnectionClient : public QObject
 
 public:
     ConnectionClient();
-    ~ConnectionClient();
 
     void startProcessAndConnectToServerAsynchronously();
     bool disconnectFromServer();

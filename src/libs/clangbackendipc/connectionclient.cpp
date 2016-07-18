@@ -70,11 +70,6 @@ ConnectionClient::ConnectionClient()
     connectLocalSocketConnected();
 }
 
-ConnectionClient::~ConnectionClient()
-{
-    finishProcess();
-}
-
 void ConnectionClient::startProcessAndConnectToServerAsynchronously()
 {
     process_  = startProcess();

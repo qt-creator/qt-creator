@@ -33,6 +33,8 @@ class CMBIPC_EXPORT ClangCodeModelConnectionClient : public ConnectionClient
 {
 public:
     ClangCodeModelConnectionClient(ClangCodeModelClientInterface *client);
+    ~ClangCodeModelConnectionClient();
+
 
     ClangCodeModelServerProxy &serverProxy();
 
