@@ -301,7 +301,7 @@ void loadFonts()
     const QDir dir(QCoreApplication::applicationDirPath() + QLatin1String(SHARE_PATH)
                    + QLatin1String("/fonts/"));
 
-    foreach (const QFileInfo &fileInfo, dir.entryList(QStringList("*.ttf"), QDir::Files))
+    foreach (const QFileInfo &fileInfo, dir.entryInfoList(QStringList("*.ttf"), QDir::Files))
         QFontDatabase::addApplicationFont(fileInfo.absoluteFilePath());
 }
 
