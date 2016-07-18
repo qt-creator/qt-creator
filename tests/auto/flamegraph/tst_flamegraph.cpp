@@ -23,14 +23,46 @@
 **
 ****************************************************************************/
 
-#include "flamegraph_test.h"
+#include <flamegraph/flamegraph.h>
+#include <flamegraph/flamegraphattached.h>
+#include <QObject>
+#include <QStandardItemModel>
+#include <QQmlComponent>
+#include <QQuickItem>
 #include <QtTest>
 #include <QQuickItem>
 
-namespace QmlProfiler {
-namespace Internal {
+class DelegateObject : public QQuickItem
+{
+    Q_OBJECT
+};
 
-void FlameGraphTest::initTestCase()
+class DelegateComponent : public QQmlComponent
+{
+    Q_OBJECT
+public:
+    QObject *create(QQmlContext *context) override;
+    QObject *beginCreate(QQmlContext *) override;
+    void completeCreate() override;
+};
+
+class tst_FlameGraph : public QObject
+{
+    Q_OBJECT
+private slots:
+    void initTestCase();
+    void testRebuild();
+    void cleanupTestCase();
+
+private:
+    static const int sizeRole = Qt::UserRole + 1;
+    static const int dataRole = Qt::UserRole + 2;
+    FlameGraph::FlameGraph flameGraph;
+    QStandardItemModel model;
+    DelegateComponent delegate;
+};
+
+void tst_FlameGraph::initTestCase()
 {
     flameGraph.setDelegate(&delegate);
     flameGraph.setModel(&model);
@@ -45,7 +77,7 @@ void FlameGraphTest::initTestCase()
     QCOMPARE(flameGraph.sizeThreshold(), 0.01);
 }
 
-void FlameGraphTest::testRebuild()
+void tst_FlameGraph::testRebuild()
 {
     flameGraph.setModel(nullptr);
     qreal sum = 0;
@@ -75,7 +107,9 @@ void FlameGraphTest::testRebuild()
     qreal i = 0;
     qreal position = 0;
     foreach (QQuickItem *child, flameGraph.childItems()) {
-        FlameGraphAttached *attached = FlameGraph::qmlAttachedProperties(child);
+        FlameGraph::FlameGraphAttached *attached =
+                FlameGraph::FlameGraph::qmlAttachedProperties(child);
+        QVERIFY(attached);
         QCOMPARE(attached->relativeSize(), (++i) / sum);
         QCOMPARE(attached->relativePosition(), position / sum);
         QCOMPARE(attached->data(dataRole).toInt(), 100 / static_cast<int>(i));
@@ -83,12 +117,15 @@ void FlameGraphTest::testRebuild()
 
         qreal j = 0;
         foreach (QQuickItem *grandchild, child->childItems()) {
-            FlameGraphAttached *attached2 = FlameGraph::qmlAttachedProperties(grandchild);
+            FlameGraph::FlameGraphAttached *attached2 =
+                    FlameGraph::FlameGraph::qmlAttachedProperties(grandchild);
+            QVERIFY(attached2);
             QCOMPARE(attached2->relativeSize(), 1.0 / i);
             QCOMPARE(attached2->relativePosition(), (j++) / i);
             QCOMPARE(grandchild->childItems().count(), 1);
-            FlameGraphAttached *skipped =
-                    FlameGraph::qmlAttachedProperties(grandchild->childItems()[0]);
+            FlameGraph::FlameGraphAttached *skipped =
+                    FlameGraph::FlameGraph::qmlAttachedProperties(grandchild->childItems()[0]);
+            QVERIFY(skipped);
             QCOMPARE(skipped->relativePosition(), 0.0);
             QCOMPARE(skipped->relativeSize(), 0.001 * 10);
         }
@@ -98,7 +135,7 @@ void FlameGraphTest::testRebuild()
     QCOMPARE(i, 9.0);
 }
 
-void FlameGraphTest::cleanupTestCase()
+void tst_FlameGraph::cleanupTestCase()
 {
 
 }
@@ -119,5 +156,6 @@ void DelegateComponent::completeCreate()
 {
 }
 
-} // namespace Internal
-} // namespace QmlProfiler
+QTEST_MAIN(tst_FlameGraph)
+
+#include "tst_flamegraph.moc"

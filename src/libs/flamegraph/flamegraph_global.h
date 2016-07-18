@@ -25,45 +25,10 @@
 
 #pragma once
 
-#include <qmlprofiler/flamegraph.h>
-#include <QObject>
-#include <QStandardItemModel>
-#include <QQmlComponent>
-#include <QQuickItem>
+#include <QtGlobal>
 
-namespace QmlProfiler {
-namespace Internal {
-
-class DelegateObject : public QQuickItem
-{
-    Q_OBJECT
-};
-
-class DelegateComponent : public QQmlComponent
-{
-    Q_OBJECT
-public:
-    QObject *create(QQmlContext *context) override;
-    QObject *beginCreate(QQmlContext *) override;
-    void completeCreate() override;
-};
-
-class FlameGraphTest : public QObject
-{
-    Q_OBJECT
-private slots:
-    void initTestCase();
-    void testRebuild();
-    void cleanupTestCase();
-
-private:
-    static const int sizeRole = Qt::UserRole + 1;
-    static const int dataRole = Qt::UserRole + 2;
-    FlameGraph flameGraph;
-    QStandardItemModel model;
-    DelegateComponent delegate;
-};
-
-
-} // namespace Internal
-} // namespace QmlProfiler
+#if defined(FLAMEGRAPH_LIBRARY)
+#  define FLAMEGRAPH_EXPORT Q_DECL_EXPORT
+#else
+#  define FLAMEGRAPH_EXPORT Q_DECL_IMPORT
+#endif

@@ -14,6 +14,7 @@ Project {
         "extensionsystem/extensionsystem.qbs",
         "externaltool/externaltool.qbs",
         "filesearch/filesearch.qbs",
+        "flamegraph/flamegraph.qbs",
         "generichighlighter/generichighlighter.qbs",
         "json/json.qbs",
         "profilewriter/profilewriter.qbs",

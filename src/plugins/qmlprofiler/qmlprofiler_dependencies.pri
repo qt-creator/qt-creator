@@ -1,6 +1,7 @@
 QTC_PLUGIN_NAME = QmlProfiler
 QTC_LIB_DEPENDS += \
     extensionsystem \
+    flamegraph \
     qmldebug \
     qmljs \
     timeline \

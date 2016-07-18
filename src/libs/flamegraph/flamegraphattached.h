@@ -25,13 +25,14 @@
 
 #pragma once
 
-#include <QQuickItem>
-#include <QAbstractItemModel>
+#include "flamegraph_global.h"
+#include <QObject>
+#include <QModelIndex>
+#include <QVariant>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace FlameGraph {
 
-class FlameGraphAttached : public QObject
+class FLAMEGRAPH_EXPORT FlameGraphAttached : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(qreal relativeSize READ relativeSize WRITE setRelativeSize
@@ -44,7 +45,10 @@ public:
     FlameGraphAttached(QObject *parent = 0) :
         QObject(parent), m_relativeSize(0), m_relativePosition(0) {}
 
-    Q_INVOKABLE QVariant data(int role) const;
+    Q_INVOKABLE QVariant data(int role) const
+    {
+        return m_data.isValid() ? m_data.data(role) : QVariant();
+    }
 
     bool isDataValid() const
     {
@@ -100,76 +104,4 @@ private:
     qreal m_relativePosition;
 };
 
-class FlameGraph : public QQuickItem
-{
-    Q_OBJECT
-    Q_PROPERTY(QQmlComponent* delegate READ delegate WRITE setDelegate NOTIFY delegateChanged)
-    Q_PROPERTY(QAbstractItemModel* model READ model WRITE setModel NOTIFY modelChanged)
-    Q_PROPERTY(int sizeRole READ sizeRole WRITE setSizeRole NOTIFY sizeRoleChanged)
-    Q_PROPERTY(qreal sizeThreshold READ sizeThreshold WRITE setSizeThreshold
-               NOTIFY sizeThresholdChanged)
-    Q_PROPERTY(int maximumDepth READ maximumDepth WRITE setMaximumDepth
-               NOTIFY maximumDepthChanged)
-    Q_PROPERTY(int depth READ depth NOTIFY depthChanged)
-
-public:
-    FlameGraph(QQuickItem *parent = 0);
-
-    QQmlComponent *delegate() const;
-    void setDelegate(QQmlComponent *delegate);
-
-    QAbstractItemModel *model() const;
-    void setModel(QAbstractItemModel *model);
-
-    int sizeRole() const;
-    void setSizeRole(int sizeRole);
-
-    qreal sizeThreshold() const;
-    void setSizeThreshold(qreal sizeThreshold);
-
-    int depth() const;
-
-    int maximumDepth() const
-    {
-        return m_maximumDepth;
-    }
-
-    void setMaximumDepth(int maximumDepth)
-    {
-        if (maximumDepth != m_maximumDepth) {
-            m_maximumDepth = maximumDepth;
-            emit maximumDepthChanged();
-        }
-    }
-
-    static FlameGraphAttached *qmlAttachedProperties(QObject *object);
-
-signals:
-    void delegateChanged(QQmlComponent *delegate);
-    void modelChanged(QAbstractItemModel *model);
-    void sizeRoleChanged(int role);
-    void sizeThresholdChanged(qreal threshold);
-    void depthChanged(int depth);
-    void maximumDepthChanged();
-
-private slots:
-    void rebuild();
-
-private:
-    QQmlComponent *m_delegate = nullptr;
-    QAbstractItemModel *m_model = nullptr;
-    int m_sizeRole = 0;
-    int m_depth = 0;
-    qreal m_sizeThreshold = 0;
-    int m_maximumDepth = std::numeric_limits<int>::max();
-
-    int buildNode(const QModelIndex &parentIndex, QObject *parentObject, int depth,
-                  int maximumDepth);
-    QObject *appendChild(QObject *parentObject, QQuickItem *parentItem, QQmlContext *context,
-                         const QModelIndex &childIndex, qreal position, qreal size);
-};
-
-} // namespace Internal
-} // namespace QmlProfiler
-
-QML_DECLARE_TYPEINFO(QmlProfiler::Internal::FlameGraph, QML_HAS_ATTACHED_PROPERTIES)
+} // namespace FlameGraph

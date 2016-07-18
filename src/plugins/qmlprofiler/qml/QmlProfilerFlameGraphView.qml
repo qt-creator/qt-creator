@@ -26,7 +26,8 @@
 import QtQuick 2.0
 import QtQuick.Controls 1.3
 import FlameGraph 1.0
-import FlameGraphModel 1.0
+import QmlProfilerFlameGraphModel 1.0
+import "../flamegraph/"
 
 ScrollView {
     id: root
@@ -45,7 +46,6 @@ ScrollView {
 
         FlameGraph {
             property int itemHeight: Math.max(30, flickable.height / depth)
-            property int level: -1
             property color blue: "blue"
             property color blue1: Qt.lighter(blue)
             property color blue2: Qt.rgba(0.375, 0, 1, 1)
@@ -59,21 +59,42 @@ ScrollView {
             width: parent.width
             height: depth * itemHeight
             model: flameGraphModel
-            sizeRole: FlameGraphModel.DurationRole
+            sizeRole: QmlProfilerFlameGraphModel.DurationRole
             sizeThreshold: 0.002
             maximumDepth: 25
             y: flickable.height > height ? flickable.height - height : 0
 
-            delegate: Item {
+            delegate: FlameGraphDelegate {
                 id: flamegraphItem
 
-                property int typeId: FlameGraph.data(FlameGraphModel.TypeIdRole) || -1
+                property int typeId: FlameGraph.data(QmlProfilerFlameGraphModel.TypeIdRole) || -1
                 property bool isBindingLoop: parent.checkBindingLoop(typeId)
-                property int level: parent.level + (rangeTypeVisible ? 1 : 0)
-                property bool isSelected: typeId !== -1 && typeId === root.selectedTypeId
-                                          && rangeTypeVisible
                 property bool rangeTypeVisible:
-                    root.visibleRangeTypes & (1 << FlameGraph.data(FlameGraphModel.RangeTypeRole))
+                    root.visibleRangeTypes & (1 << FlameGraph.data(QmlProfilerFlameGraphModel.RangeTypeRole))
+
+                itemHeight: rangeTypeVisible ? flamegraph.itemHeight : 0
+                isSelected: typeId !== -1 && typeId === root.selectedTypeId && rangeTypeVisible
+
+                borderColor: {
+                    if (isSelected)
+                        return flamegraph.blue2;
+                    else if (tooltip.hoveredNode === flamegraphItem)
+                        return flamegraph.blue1;
+                    else if (note() !== "" || isBindingLoop)
+                        return flamegraph.orange;
+                    else
+                        return flamegraph.grey1;
+                }
+                borderWidth: {
+                    if (tooltip.hoveredNode === flamegraphItem ||
+                            tooltip.selectedNode === flamegraphItem) {
+                        return 2;
+                    } else if (note() !== "") {
+                        return 3;
+                    } else {
+                        return 1;
+                    }
+                }
 
                 onIsSelectedChanged: {
                     if (isSelected && (tooltip.selectedNode === null ||
@@ -93,10 +114,45 @@ ScrollView {
                     }
                 }
 
+                function buildText() {
+                    if (!FlameGraph.dataValid)
+                        return "<others>";
+
+                    return FlameGraph.data(QmlProfilerFlameGraphModel.DetailsRole) + " ("
+                            + FlameGraph.data(QmlProfilerFlameGraphModel.TypeRole) + ", "
+                            + FlameGraph.data(QmlProfilerFlameGraphModel.TimeInPercentRole) + "%)";
+                }
+                text: textVisible ? buildText() : ""
+                FlameGraph.onDataChanged: if (textVisible) text = buildText();
+
+                onMouseEntered: {
+                    tooltip.hoveredNode = flamegraphItem;
+                }
+
+                onMouseExited: {
+                    if (tooltip.hoveredNode === flamegraphItem)
+                        tooltip.hoveredNode = null;
+                }
+
+                onClicked: {
+                    if (flamegraphItem.FlameGraph.dataValid) {
+                        tooltip.selectedNode = flamegraphItem;
+                        root.typeSelected(flamegraphItem.FlameGraph.data(
+                                              QmlProfilerFlameGraphModel.TypeIdRole));
+                        root.gotoSourceLocation(
+                                    flamegraphItem.FlameGraph.data(
+                                        QmlProfilerFlameGraphModel.FilenameRole),
+                                    flamegraphItem.FlameGraph.data(
+                                        QmlProfilerFlameGraphModel.LineRole),
+                                    flamegraphItem.FlameGraph.data(
+                                        QmlProfilerFlameGraphModel.ColumnRole));
+                    }
+                }
+
                 // Functions, not properties to limit the initial overhead when creating the nodes,
                 // and because FlameGraph.data(...) cannot be notified anyway.
-                function title() { return FlameGraph.data(FlameGraphModel.TypeRole) || ""; }
-                function note() { return FlameGraph.data(FlameGraphModel.NoteRole) || ""; }
+                function title() { return FlameGraph.data(QmlProfilerFlameGraphModel.TypeRole) || ""; }
+                function note() { return FlameGraph.data(QmlProfilerFlameGraphModel.NoteRole) || ""; }
                 function details() {
                     var model = [];
                     function addDetail(name, index, format) {
@@ -130,106 +186,17 @@ ScrollView {
                         model.push(qsTr("Details"));
                         model.push(qsTr("Various Events"));
                     } else {
-                        addDetail(qsTr("Details"), FlameGraphModel.DetailsRole, noop);
-                        addDetail(qsTr("Type"), FlameGraphModel.TypeRole, noop);
-                        addDetail(qsTr("Calls"), FlameGraphModel.CallCountRole, noop);
-                        addDetail(qsTr("Total Time"), FlameGraphModel.DurationRole, printTime);
-                        addDetail(qsTr("Mean Time"), FlameGraphModel.TimePerCallRole, printTime);
-                        addDetail(qsTr("In Percent"), FlameGraphModel.TimeInPercentRole,
+                        addDetail(qsTr("Details"), QmlProfilerFlameGraphModel.DetailsRole, noop);
+                        addDetail(qsTr("Type"), QmlProfilerFlameGraphModel.TypeRole, noop);
+                        addDetail(qsTr("Calls"), QmlProfilerFlameGraphModel.CallCountRole, noop);
+                        addDetail(qsTr("Total Time"), QmlProfilerFlameGraphModel.DurationRole, printTime);
+                        addDetail(qsTr("Mean Time"), QmlProfilerFlameGraphModel.TimePerCallRole, printTime);
+                        addDetail(qsTr("In Percent"), QmlProfilerFlameGraphModel.TimeInPercentRole,
                                   addPercent);
-                        addDetail(qsTr("Location"), FlameGraphModel.LocationRole, noop);
+                        addDetail(qsTr("Location"), QmlProfilerFlameGraphModel.LocationRole, noop);
                     }
                     return model;
                 }
-
-                Rectangle {
-                    border.color: {
-                        if (flamegraphItem.isSelected)
-                            return flamegraph.blue2;
-                        else if (tooltip.hoveredNode === flamegraphItem)
-                            return flamegraph.blue1;
-                        else if (flamegraphItem.note() !== "" || flamegraphItem.isBindingLoop)
-                            return flamegraph.orange;
-                        else
-                            return flamegraph.grey1;
-                    }
-                    border.width: {
-                        if (tooltip.hoveredNode === flamegraphItem ||
-                                tooltip.selectedNode === flamegraphItem) {
-                            return 2;
-                        } else if (flamegraphItem.note() !== "") {
-                            return 3;
-                        } else {
-                            return 1;
-                        }
-                    }
-                    color: Qt.hsla((level % 12) / 72, 0.9 + Math.random() / 10,
-                                   0.45 + Math.random() / 10, 0.9 + Math.random() / 10);
-                    height: flamegraphItem.rangeTypeVisible ? flamegraph.itemHeight : 0;
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-                    anchors.bottom: parent.bottom
-
-                    FlameGraphText {
-                        id: text
-                        visible: width > 20 || flamegraphItem === tooltip.selectedNode
-                        anchors.fill: parent
-                        anchors.margins: 5
-                        verticalAlignment: Text.AlignVCenter
-                        horizontalAlignment: Text.AlignHCenter
-                        text: visible ? buildText() : ""
-                        elide: Text.ElideRight
-                        wrapMode: Text.WrapAtWordBoundaryOrAnywhere
-                        font.bold: flamegraphItem === tooltip.selectedNode
-
-                        function buildText() {
-                            if (!flamegraphItem.FlameGraph.dataValid)
-                                return "<others>";
-
-                            return flamegraphItem.FlameGraph.data(FlameGraphModel.DetailsRole)
-                                    + " ("
-                                    + flamegraphItem.FlameGraph.data(FlameGraphModel.TypeRole)
-                                    + ", "
-                                    + flamegraphItem.FlameGraph.data(
-                                        FlameGraphModel.TimeInPercentRole) + "%)";
-                        }
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        hoverEnabled: true
-
-                        onEntered: {
-                            tooltip.hoveredNode = flamegraphItem;
-                        }
-
-                        onExited: {
-                            if (tooltip.hoveredNode === flamegraphItem)
-                                tooltip.hoveredNode = null;
-                        }
-
-                        onClicked: {
-                            if (flamegraphItem.FlameGraph.dataValid) {
-                                tooltip.selectedNode = flamegraphItem;
-                                root.typeSelected(flamegraphItem.FlameGraph.data(
-                                                      FlameGraphModel.TypeIdRole));
-                                root.gotoSourceLocation(
-                                            flamegraphItem.FlameGraph.data(
-                                                FlameGraphModel.FilenameRole),
-                                            flamegraphItem.FlameGraph.data(
-                                                FlameGraphModel.LineRole),
-                                            flamegraphItem.FlameGraph.data(
-                                                FlameGraphModel.ColumnRole));
-                            }
-                        }
-                    }
-                }
-
-                FlameGraph.onDataChanged: if (text.visible) text.text = text.buildText();
-
-                height: flamegraph.height - level * flamegraph.itemHeight;
-                width: parent === null ? flamegraph.width : parent.width * FlameGraph.relativeSize
-                x: parent === null ? 0 : parent.width * FlameGraph.relativePosition
             }
         }
 

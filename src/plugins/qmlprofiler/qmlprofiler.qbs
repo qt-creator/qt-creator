@@ -4,6 +4,8 @@ QtcPlugin {
     name: "QmlProfiler"
 
     Depends { name: "Qt"; submodules: ["widgets", "network", "quick", "quickwidgets"] }
+
+    Depends { name: "FlameGraph" }
     Depends { name: "QmlJS" }
     Depends { name: "QmlDebug" }
     Depends { name: "Utils" }
@@ -19,7 +21,6 @@ QtcPlugin {
         name: "General"
         files: [
             "debugmessagesmodel.cpp", "debugmessagesmodel.h",
-            "flamegraph.cpp", "flamegraph.h",
             "flamegraphmodel.cpp", "flamegraphmodel.h",
             "flamegraphview.cpp", "flamegraphview.h",
             "inputeventsmodel.cpp", "inputeventsmodel.h",
@@ -77,7 +78,6 @@ QtcPlugin {
         prefix: "tests/"
         files: [
             "debugmessagesmodel_test.cpp", "debugmessagesmodel_test.h",
-            "flamegraph_test.cpp", "flamegraph_test.h",
             "flamegraphmodel_test.cpp", "flamegraphmodel_test.h",
             "flamegraphview_test.cpp", "flamegraphview_test.h",
             "inputeventsmodel_test.cpp", "inputeventsmodel_test.h",

@@ -7,6 +7,7 @@ Project {
         "clangbackendipc/clangbackendipc.qbs",
         "cplusplus/cplusplus.qbs",
         "extensionsystem/extensionsystem.qbs",
+        "flamegraph/flamegraph.qbs",
         "glsl/glsl.qbs",
         "languageutils/languageutils.qbs",
         "modelinglib/modelinglib.qbs",

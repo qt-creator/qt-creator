@@ -25,8 +25,7 @@
 
 #include "flamegraph.h"
 
-namespace QmlProfiler {
-namespace Internal {
+namespace FlameGraph {
 
 FlameGraph::FlameGraph(QQuickItem *parent) :
     QQuickItem(parent)
@@ -180,10 +179,4 @@ void FlameGraph::rebuild()
     emit depthChanged(m_depth);
 }
 
-QVariant FlameGraphAttached::data(int role) const
-{
-    return m_data.isValid() ? m_data.data(role) : QVariant();
-}
-
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace FlameGraph

@@ -6,7 +6,6 @@ include(../../qtcreatorplugin.pri)
 
 SOURCES += \
     debugmessagesmodel.cpp \
-    flamegraph.cpp \
     flamegraphmodel.cpp \
     flamegraphview.cpp \
     inputeventsmodel.cpp \
@@ -48,7 +47,6 @@ SOURCES += \
 
 HEADERS += \
     debugmessagesmodel.h \
-    flamegraph.h \
     flamegraphmodel.h \
     flamegraphview.h \
     inputeventsmodel.h \

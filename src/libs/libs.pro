@@ -16,7 +16,8 @@ SUBDIRS   = \
     ssh \
     timeline \
     sqlite \
-    clangbackendipc
+    clangbackendipc \
+    flamegraph
 
 for(l, SUBDIRS) {
     QTC_LIB_DEPENDS =
