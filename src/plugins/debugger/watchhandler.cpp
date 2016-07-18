@@ -40,8 +40,6 @@
 #include "simplifytype.h"
 #include "watchdelegatewidgets.h"
 #include "watchutils.h"
-#include "watchwindow.cpp"
-#include "watchwindow.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
