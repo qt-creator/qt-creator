@@ -239,7 +239,7 @@ QString ChannelBuffer::linesRead()
         return QString();
 
     // Get completed lines and remove them from the incompleteLinesBuffer:
-    const QString lines = SynchronousProcess::normalizeNewlines(incompleteLineBuffer.left(lastLineIndex));
+    const QString lines = SynchronousProcess::normalizeNewlines(incompleteLineBuffer.left(lastLineIndex + 1));
     incompleteLineBuffer = incompleteLineBuffer.mid(lastLineIndex + 1);
 
     return lines;
