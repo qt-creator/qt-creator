@@ -341,6 +341,7 @@ void CMakeConfigurationKitConfigWidget::editConfigurationChanges()
     m_editor->setToolTip(tr("Enter one variable per line with the variable name "
                             "separated from the variable value by \"=\".<br>"
                             "You may provide a type hint by adding \":TYPE\" before the \"=\"."));
+    m_editor->setMinimumSize(800, 200);
 
     auto chooser = new Core::VariableChooser(m_dialog);
     chooser->addSupportedWidget(m_editor);
