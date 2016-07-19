@@ -135,6 +135,7 @@ public:
         QStringList arguments;
         arguments << QLatin1String("-c") << QLatin1String("color.grep.match=bold red")
                   << QLatin1String("grep") << QLatin1String("-zn")
+                  << QLatin1String("--no-full-name")
                   << QLatin1String("--color=always");
         if (!(m_parameters.flags & FindCaseSensitively))
             arguments << QLatin1String("-i");
