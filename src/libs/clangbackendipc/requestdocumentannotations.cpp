@@ -25,41 +25,11 @@
 
 #include "requestdocumentannotations.h"
 
-#include <QDataStream>
 #include <QDebug>
 
 #include <ostream>
 
 namespace ClangBackEnd {
-
-RequestDocumentAnnotationsMessage::RequestDocumentAnnotationsMessage(const FileContainer &file)
-    : fileContainer_(file)
-{
-}
-
-const FileContainer RequestDocumentAnnotationsMessage::fileContainer() const
-{
-    return fileContainer_;
-}
-
-QDataStream &operator<<(QDataStream &out, const RequestDocumentAnnotationsMessage &message)
-{
-    out << message.fileContainer_;
-
-    return out;
-}
-
-QDataStream &operator>>(QDataStream &in, RequestDocumentAnnotationsMessage &message)
-{
-    in >> message.fileContainer_;
-
-    return in;
-}
-
-bool operator==(const RequestDocumentAnnotationsMessage &first, const RequestDocumentAnnotationsMessage &second)
-{
-    return first.fileContainer_ == second.fileContainer_;
-}
 
 QDebug operator<<(QDebug debug, const RequestDocumentAnnotationsMessage &message)
 {

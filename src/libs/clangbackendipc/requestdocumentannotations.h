@@ -29,27 +29,42 @@
 
 namespace ClangBackEnd {
 
-class CMBIPC_EXPORT RequestDocumentAnnotationsMessage
+class RequestDocumentAnnotationsMessage
 {
-    friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const RequestDocumentAnnotationsMessage &message);
-    friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, RequestDocumentAnnotationsMessage &message);
-    friend CMBIPC_EXPORT bool operator==(const RequestDocumentAnnotationsMessage &first, const RequestDocumentAnnotationsMessage &second);
-    friend CMBIPC_EXPORT QDebug operator<<(QDebug debug, const RequestDocumentAnnotationsMessage &message);
-    friend void PrintTo(const RequestDocumentAnnotationsMessage &message, ::std::ostream* os);
-
 public:
     RequestDocumentAnnotationsMessage() = default;
-    RequestDocumentAnnotationsMessage(const FileContainer &fileContainer);
+    RequestDocumentAnnotationsMessage(const FileContainer &fileContainer)
+        : fileContainer_(fileContainer)
+    {
+    }
 
-    const FileContainer fileContainer() const;
+    const FileContainer fileContainer() const
+    {
+        return fileContainer_;
+    }
+
+    friend QDataStream &operator<<(QDataStream &out, const RequestDocumentAnnotationsMessage &message)
+    {
+        out << message.fileContainer_;
+
+        return out;
+    }
+
+    friend QDataStream &operator>>(QDataStream &in, RequestDocumentAnnotationsMessage &message)
+    {
+        in >> message.fileContainer_;
+
+        return in;
+    }
+
+    friend bool operator==(const RequestDocumentAnnotationsMessage &first, const RequestDocumentAnnotationsMessage &second)
+    {
+        return first.fileContainer_ == second.fileContainer_;
+    }
 
 private:
     FileContainer fileContainer_;
 };
-
-CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const RequestDocumentAnnotationsMessage &message);
-CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, RequestDocumentAnnotationsMessage &message);
-CMBIPC_EXPORT bool operator==(const RequestDocumentAnnotationsMessage &first, const RequestDocumentAnnotationsMessage &second);
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const RequestDocumentAnnotationsMessage &message);
 void PrintTo(const RequestDocumentAnnotationsMessage &message, ::std::ostream* os);
