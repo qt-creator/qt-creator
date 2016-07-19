@@ -158,7 +158,7 @@ void QbsProjectParser::startRuleExecution()
     options.setDryRun(m_dryRun);
     options.setExecuteRulesOnly(true);
     m_ruleExecutionJob = m_project.buildAllProducts(
-                options, qbs::Project::ProductSelectionWithNonDefault, this);
+                options, qbs::Project::ProductSelectionWithNonDefault, nullptr);
     connect(m_ruleExecutionJob, &qbs::AbstractJob::finished,
             this, &QbsProjectParser::handleRuleExecutionDone);
     connect(m_ruleExecutionJob, &qbs::AbstractJob::taskStarted,
