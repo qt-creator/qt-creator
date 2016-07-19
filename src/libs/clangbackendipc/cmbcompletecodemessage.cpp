@@ -25,7 +25,6 @@
 
 #include "cmbcompletecodemessage.h"
 
-#include <QDataStream>
 #include <QDebug>
 
 #include <ostream>
@@ -33,71 +32,6 @@
 namespace ClangBackEnd {
 
 quint64 CompleteCodeMessage::ticketCounter = 0;
-
-CompleteCodeMessage::CompleteCodeMessage(const Utf8String &filePath, quint32 line, quint32 column, const Utf8String &projectPartId)
-    : filePath_(filePath),
-      projectPartId_(projectPartId),
-      ticketNumber_(++ticketCounter),
-      line_(line),
-      column_(column)
-{
-}
-
-const Utf8String &CompleteCodeMessage::filePath() const
-{
-    return filePath_;
-}
-
-const Utf8String &CompleteCodeMessage::projectPartId() const
-{
-    return projectPartId_;
-}
-
-quint32 CompleteCodeMessage::line() const
-{
-    return line_;
-}
-
-quint32 CompleteCodeMessage::column() const
-{
-    return column_;
-}
-
-quint64 CompleteCodeMessage::ticketNumber() const
-{
-    return ticketNumber_;
-}
-
-QDataStream &operator<<(QDataStream &out, const CompleteCodeMessage &message)
-{
-    out << message.filePath_;
-    out << message.projectPartId_;
-    out << message.ticketNumber_;
-    out << message.line_;
-    out << message.column_;
-
-    return out;
-}
-
-QDataStream &operator>>(QDataStream &in, CompleteCodeMessage &message)
-{
-    in >> message.filePath_;
-    in >> message.projectPartId_;
-    in >> message.ticketNumber_;
-    in >> message.line_;
-    in >> message.column_;
-
-    return in;
-}
-
-bool operator==(const CompleteCodeMessage &first, const CompleteCodeMessage &second)
-{
-    return first.ticketNumber_ == second.ticketNumber_
-            && first.filePath_ == second.filePath_
-            && first.projectPartId_ == second.projectPartId_
-            && first.line_ == second.line_
-            && first.column_ == second.column_;
-}
 
 QDebug operator<<(QDebug debug, const CompleteCodeMessage &message)
 {
