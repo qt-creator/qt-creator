@@ -96,10 +96,6 @@ public slots:
     void clear();
 
 private:
-    friend class FlameGraphRelativesModel;
-    friend class FlameGraphParentsModel;
-    friend class FlameGraphChildrenModel;
-
     QVariant lookup(const FlameGraphData &data, int role) const;
     FlameGraphData *pushChild(FlameGraphData *parent, const QmlEvent &data);
 
