@@ -27,57 +27,21 @@
 
 #include "clangbackendipcdebugutils.h"
 
-#include <QDataStream>
 #include <QDebug>
 
 #include <ostream>
 
 namespace ClangBackEnd {
 
-ProjectPartContainer::ProjectPartContainer(const Utf8String &projectPathId,
-                                           const Utf8StringVector &arguments)
-    : projectPartId_(projectPathId),
-      arguments_(arguments)
-{
-}
+namespace {
 
-const Utf8String &ProjectPartContainer::projectPartId() const
-{
-    return projectPartId_;
-}
-
-const Utf8StringVector &ProjectPartContainer::arguments() const
-{
-    return arguments_;
-}
-
-
-QDataStream &operator<<(QDataStream &out, const ProjectPartContainer &container)
-{
-    out << container.projectPartId_;
-    out << container.arguments_;
-
-    return out;
-}
-
-QDataStream &operator>>(QDataStream &in, ProjectPartContainer &container)
-{
-    in >> container.projectPartId_;
-    in >> container.arguments_;
-
-    return in;
-}
-
-bool operator==(const ProjectPartContainer &first, const ProjectPartContainer &second)
-{
-    return first.projectPartId_ == second.projectPartId_;
-}
-
-static Utf8String quotedArguments(const Utf8StringVector &arguments)
+Utf8String quotedArguments(const Utf8StringVector &arguments)
 {
     const Utf8String quote = Utf8String::fromUtf8("\"");
     const Utf8String joined = arguments.join(quote + Utf8String::fromUtf8(" ") + quote);
     return quote + joined + quote;
+}
+
 }
 
 QDebug operator<<(QDebug debug, const ProjectPartContainer &container)
