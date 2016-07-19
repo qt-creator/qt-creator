@@ -43,7 +43,6 @@
 #include <QStringList>
 #include <QDir>
 #include <QProcess>
-#include <QSignalMapper>
 #include <QTextCodec>
 #include <QDebug>
 #include <QFileInfo>

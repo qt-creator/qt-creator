@@ -33,7 +33,6 @@
 #include <QTextBlock>
 #include <QMenu>
 
-#include <QSignalMapper>
 #include <QMimeData>
 #include <QSharedPointer>
 #include <QDebug>

@@ -51,7 +51,6 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QSettings>
-#include <QSignalMapper>
 #include <QList>
 
 #include <QAction>

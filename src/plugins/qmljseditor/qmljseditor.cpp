@@ -81,7 +81,6 @@
 #include <QMetaMethod>
 #include <QPointer>
 #include <QScopedPointer>
-#include <QSignalMapper>
 #include <QTextCodec>
 #include <QTimer>
 #include <QTreeView>

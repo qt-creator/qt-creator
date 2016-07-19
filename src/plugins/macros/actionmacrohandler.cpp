@@ -38,7 +38,6 @@
 
 #include <QAction>
 #include <QEvent>
-#include <QSignalMapper>
 
 using namespace Core;
 
