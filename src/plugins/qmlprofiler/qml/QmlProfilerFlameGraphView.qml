@@ -36,6 +36,22 @@ ScrollView {
 
     property int selectedTypeId: -1
     property int visibleRangeTypes: -1
+    property int sizeRole: QmlProfilerFlameGraphModel.DurationRole
+
+    readonly property var trRoleNames: [
+        QmlProfilerFlameGraphModel.DurationRole,      qsTr("Total Time"),
+        QmlProfilerFlameGraphModel.CallCountRole,     qsTr("Calls"),
+        QmlProfilerFlameGraphModel.DetailsRole,       qsTr("Details"),
+        QmlProfilerFlameGraphModel.TimePerCallRole,   qsTr("Mean Time"),
+        QmlProfilerFlameGraphModel.TimeInPercentRole, qsTr("In Percent"),
+        QmlProfilerFlameGraphModel.LocationRole,      qsTr("Location"),
+        QmlProfilerFlameGraphModel.AllocationsRole,   qsTr("Allocations"),
+        QmlProfilerFlameGraphModel.MemoryRole,        qsTr("Memory")
+    ].reduce(function(previousValue, currentValue, currentIndex, array) {
+        if (currentIndex % 2 === 1)
+            previousValue[array[currentIndex - 1]] = array[currentIndex];
+        return previousValue;
+    }, {})
 
     onSelectedTypeIdChanged: tooltip.hoveredNode = null
 
@@ -59,7 +75,7 @@ ScrollView {
             width: parent.width
             height: depth * itemHeight
             model: flameGraphModel
-            sizeRole: QmlProfilerFlameGraphModel.DurationRole
+            sizeRole: root.sizeRole
             sizeThreshold: 0.002
             maximumDepth: 25
             y: flickable.height > height ? flickable.height - height : 0
@@ -120,7 +136,7 @@ ScrollView {
 
                     return FlameGraph.data(QmlProfilerFlameGraphModel.DetailsRole) + " ("
                             + FlameGraph.data(QmlProfilerFlameGraphModel.TypeRole) + ", "
-                            + FlameGraph.data(QmlProfilerFlameGraphModel.TimeInPercentRole) + "%)";
+                            + Math.floor(width / flamegraph.width * 1000) / 10 + "%)";
                 }
                 text: textVisible ? buildText() : ""
                 FlameGraph.onDataChanged: if (textVisible) text = buildText();
@@ -155,8 +171,8 @@ ScrollView {
                 function note() { return FlameGraph.data(QmlProfilerFlameGraphModel.NoteRole) || ""; }
                 function details() {
                     var model = [];
-                    function addDetail(name, index, format) {
-                        model.push(name);
+                    function addDetail(index, format) {
+                        model.push(trRoleNames[index]);
                         model.push(format(FlameGraph.data(index)));
                     }
 
@@ -182,18 +198,33 @@ ScrollView {
                         return a + "%";
                     }
 
+                    function printMemory(a) {
+                        var units = ["b", "kb", "Mb", "Gb"];
+                        var div = 1;
+                        for (var i = 0; i < units.length; ++i, div *= 1024) {
+                            if (a > div * 1024)
+                                continue;
+
+                            a /= div;
+                            var digitsAfterDot = Math.round(3 - Math.log(a) / Math.LN10);
+                            var multiplier = Math.pow(10, digitsAfterDot);
+                            return Math.round(a * multiplier) / multiplier + units[i];
+                        }
+                    }
+
                     if (!FlameGraph.dataValid) {
                         model.push(qsTr("Details"));
                         model.push(qsTr("Various Events"));
                     } else {
-                        addDetail(qsTr("Details"), QmlProfilerFlameGraphModel.DetailsRole, noop);
-                        addDetail(qsTr("Type"), QmlProfilerFlameGraphModel.TypeRole, noop);
-                        addDetail(qsTr("Calls"), QmlProfilerFlameGraphModel.CallCountRole, noop);
-                        addDetail(qsTr("Total Time"), QmlProfilerFlameGraphModel.DurationRole, printTime);
-                        addDetail(qsTr("Mean Time"), QmlProfilerFlameGraphModel.TimePerCallRole, printTime);
-                        addDetail(qsTr("In Percent"), QmlProfilerFlameGraphModel.TimeInPercentRole,
-                                  addPercent);
-                        addDetail(qsTr("Location"), QmlProfilerFlameGraphModel.LocationRole, noop);
+                        addDetail(QmlProfilerFlameGraphModel.DetailsRole, noop);
+                        addDetail(QmlProfilerFlameGraphModel.TypeRole, noop);
+                        addDetail(QmlProfilerFlameGraphModel.CallCountRole, noop);
+                        addDetail(QmlProfilerFlameGraphModel.DurationRole, printTime);
+                        addDetail(QmlProfilerFlameGraphModel.TimePerCallRole, printTime);
+                        addDetail(QmlProfilerFlameGraphModel.TimeInPercentRole, addPercent);
+                        addDetail(QmlProfilerFlameGraphModel.LocationRole, noop);
+                        addDetail(QmlProfilerFlameGraphModel.MemoryRole, printMemory);
+                        addDetail(QmlProfilerFlameGraphModel.AllocationsRole, noop);
                     }
                     return model;
                 }
@@ -249,6 +280,33 @@ ScrollView {
                     var selectedNode = tooltip.selectedNode;
                     tooltip.selectedNode = null;
                     tooltip.selectedNode = selectedNode;
+                }
+            }
+        }
+
+        Button {
+            x: flickable.width - width
+            y: flickable.contentY
+
+            // It won't listen to anchors.margins and by default it doesn't add any margin. Great.
+            width: implicitWidth + 20
+
+            text: qsTr("Visualize %1").arg(trRoleNames[root.sizeRole])
+
+            menu: Menu {
+                MenuItem {
+                    text: trRoleNames[QmlProfilerFlameGraphModel.DurationRole]
+                    onTriggered: root.sizeRole = QmlProfilerFlameGraphModel.DurationRole
+                }
+
+                MenuItem {
+                    text: trRoleNames[QmlProfilerFlameGraphModel.MemoryRole]
+                    onTriggered: root.sizeRole = QmlProfilerFlameGraphModel.MemoryRole
+                }
+
+                MenuItem {
+                    text: trRoleNames[QmlProfilerFlameGraphModel.AllocationsRole]
+                    onTriggered: root.sizeRole = QmlProfilerFlameGraphModel.AllocationsRole
                 }
             }
         }

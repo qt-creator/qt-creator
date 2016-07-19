@@ -44,6 +44,9 @@ struct FlameGraphData {
 
     qint64 duration;
     qint64 calls;
+    qint64 memory;
+
+    int allocations;
     int typeIndex;
 
     FlameGraphData *parent;
@@ -69,6 +72,8 @@ public:
         TimeInPercentRole,
         RangeTypeRole,
         LocationRole,
+        AllocationsRole,
+        MemoryRole,
         MaxRole
     };
 

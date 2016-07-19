@@ -51,7 +51,7 @@ FlameGraphModel::FlameGraphModel(QmlProfilerModelManager *modelManager,
             this, [this](int typeId, int, int){loadNotes(typeId, true);});
     m_modelId = modelManager->registerModelProxy();
 
-    modelManager->announceFeatures(Constants::QML_JS_RANGE_FEATURES,
+    modelManager->announceFeatures(Constants::QML_JS_RANGE_FEATURES | 1 << ProfileMemory,
                                    [this](const QmlEvent &event, const QmlEventType &type) {
         loadEvent(event, type);
     }, [this](){
@@ -100,7 +100,20 @@ void FlameGraphModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
         beginResetModel();
 
     const QmlEvent *potentialParent = &(m_callStack.top());
-    if (event.rangeStage() == RangeEnd) {
+    if (type.message() == MemoryAllocation) {
+        if (type.detailType() == HeapPage)
+            return; // We're only interested in actual allocations, not heap pages being mmap'd
+
+        qint64 amount = event.number<qint64>(0);
+        if (amount < 0)
+            return; // We're not interested in GC runs here
+
+        for (FlameGraphData *data = m_stackTop; data; data = data->parent) {
+            ++data->allocations;
+            data->memory += amount;
+        }
+
+    } else if (event.rangeStage() == RangeEnd) {
         m_stackTop->duration += event.timestamp() - potentialParent->timestamp();
         m_callStack.pop();
         m_stackTop = m_stackTop->parent;
@@ -160,6 +173,8 @@ QVariant FlameGraphModel::lookup(const FlameGraphData &stats, int role) const
     case CallCountRole: return stats.calls;
     case TimePerCallRole: return stats.duration / stats.calls;
     case TimeInPercentRole: return stats.duration * 100 / m_stackBottom.duration;
+    case AllocationsRole: return stats.allocations;
+    case MemoryRole: return stats.memory;
     default: break;
     }
 
@@ -184,7 +199,7 @@ QVariant FlameGraphModel::lookup(const FlameGraphData &stats, int role) const
 }
 
 FlameGraphData::FlameGraphData(FlameGraphData *parent, int typeIndex, qint64 duration) :
-    duration(duration), calls(1), typeIndex(typeIndex), parent(parent) {}
+    duration(duration), calls(1), memory(0), allocations(0), typeIndex(typeIndex), parent(parent) {}
 
 FlameGraphData::~FlameGraphData()
 {
@@ -262,7 +277,10 @@ QHash<int, QByteArray> FlameGraphModel::roleNames() const
         {NoteRole, "note"},
         {TimePerCallRole, "timePerCall"},
         {TimeInPercentRole, "timeInPercent"},
-        {RangeTypeRole, "rangeType"}
+        {RangeTypeRole, "rangeType"},
+        {LocationRole, "location" },
+        {AllocationsRole, "allocations" },
+        {MemoryRole, "memory" }
     };
     return QAbstractItemModel::roleNames().unite(extraRoles);
 }
