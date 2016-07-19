@@ -25,43 +25,11 @@
 
 #include "cmbunregisterprojectsforeditormessage.h"
 
-#include <QDataStream>
 #include <QDebug>
 
 #include <ostream>
 
-
 namespace ClangBackEnd {
-
-
-UnregisterProjectPartsForEditorMessage::UnregisterProjectPartsForEditorMessage(const Utf8StringVector &filePaths)
-    : projectPartIds_(filePaths)
-{
-}
-
-const Utf8StringVector &UnregisterProjectPartsForEditorMessage::projectPartIds() const
-{
-    return projectPartIds_;
-}
-
-QDataStream &operator<<(QDataStream &out, const UnregisterProjectPartsForEditorMessage &message)
-{
-    out << message.projectPartIds_;
-
-    return out;
-}
-
-QDataStream &operator>>(QDataStream &in, UnregisterProjectPartsForEditorMessage &message)
-{
-    in >> message.projectPartIds_;
-
-    return in;
-}
-
-bool operator==(const UnregisterProjectPartsForEditorMessage &first, const UnregisterProjectPartsForEditorMessage &second)
-{
-    return first.projectPartIds_ == second.projectPartIds_;
-}
 
 QDebug operator<<(QDebug debug, const UnregisterProjectPartsForEditorMessage &message)
 {
