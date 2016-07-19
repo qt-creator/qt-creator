@@ -1321,7 +1321,10 @@ void ModelManagerInterface::updateCppQmlTypes(QFutureInterface<void> &interface,
         if (!scan) {
             hasNewInfo = newData.remove(fileName) > 0 || hasNewInfo;
             foreach (const QString &file, newDeclarations[fileName]) {
-                finder(snapshot.document(file));
+                CPlusPlus::Document::Ptr doc = snapshot.document(file);
+                if (doc.isNull())
+                    continue;
+                finder(doc);
                 hasNewInfo = rescanExports(file, finder, newData) || hasNewInfo;
             }
             continue;
