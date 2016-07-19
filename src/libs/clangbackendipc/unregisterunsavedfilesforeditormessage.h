@@ -31,25 +31,43 @@
 
 namespace ClangBackEnd {
 
-class CMBIPC_EXPORT UnregisterUnsavedFilesForEditorMessage
+class UnregisterUnsavedFilesForEditorMessage
 {
-    friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const UnregisterUnsavedFilesForEditorMessage &message);
-    friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, UnregisterUnsavedFilesForEditorMessage &message);
-    friend CMBIPC_EXPORT bool operator==(const UnregisterUnsavedFilesForEditorMessage &first, const UnregisterUnsavedFilesForEditorMessage &second);
-    friend void PrintTo(const UnregisterUnsavedFilesForEditorMessage &message, ::std::ostream* os);
 public:
     UnregisterUnsavedFilesForEditorMessage() = default;
-    UnregisterUnsavedFilesForEditorMessage(const QVector<FileContainer> &fileContainers);
+    UnregisterUnsavedFilesForEditorMessage(const QVector<FileContainer> &fileContainers)
+        : fileContainers_(fileContainers)
+    {
+    }
 
-    const QVector<FileContainer> &fileContainers() const;
+    const QVector<FileContainer> &fileContainers() const
+    {
+        return fileContainers_;
+    }
+
+    friend QDataStream &operator<<(QDataStream &out, const UnregisterUnsavedFilesForEditorMessage &message)
+    {
+        out << message.fileContainers_;
+
+        return out;
+    }
+
+    friend QDataStream &operator>>(QDataStream &in, UnregisterUnsavedFilesForEditorMessage &message)
+    {
+        in >> message.fileContainers_;
+
+        return in;
+    }
+
+    friend bool operator==(const UnregisterUnsavedFilesForEditorMessage &first, const UnregisterUnsavedFilesForEditorMessage &second)
+    {
+        return first.fileContainers_ == second.fileContainers_;
+    }
+
 
 private:
     QVector<FileContainer> fileContainers_;
 };
-
-CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const UnregisterUnsavedFilesForEditorMessage &message);
-CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, UnregisterUnsavedFilesForEditorMessage &message);
-CMBIPC_EXPORT bool operator==(const UnregisterUnsavedFilesForEditorMessage &first, const UnregisterUnsavedFilesForEditorMessage &second);
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const UnregisterUnsavedFilesForEditorMessage &message);
 void PrintTo(const UnregisterUnsavedFilesForEditorMessage &message, ::std::ostream* os);
