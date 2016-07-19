@@ -5105,10 +5105,18 @@ void TextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
     // Set whether the mouse cursor is a hand or normal arrow
     if (e->type() == QEvent::MouseMove) {
         if (inMarkArea) {
-            //Find line by cursor position
             int line = cursor.blockNumber() + 1;
-            if (d->extraAreaPreviousMarkTooltipRequestedLine != line)
-                emit markTooltipRequested(this, mapToGlobal(e->pos()), line);
+            if (d->extraAreaPreviousMarkTooltipRequestedLine != line) {
+                if (auto data = static_cast<TextBlockUserData *>(cursor.block().userData())) {
+                    QStringList toolTips;
+                    foreach (TextMark *mark, data->marks()) {
+                        QString toolTip = mark->toolTip();
+                        if (!toolTip.isEmpty())
+                            toolTips.append(toolTip);
+                    }
+                    ToolTip::show(mapToGlobal(e->pos()), toolTips.join('\n'), this);
+                }
+            }
             d->extraAreaPreviousMarkTooltipRequestedLine = line;
         }
 

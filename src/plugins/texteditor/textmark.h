@@ -51,8 +51,6 @@ public:
     TextMark(const QString &fileName, int lineNumber, Core::Id category);
     virtual ~TextMark();
 
-    TextMark(TextMark &&other) Q_DECL_NOEXCEPT;
-
     // determine order on markers on the same line.
     enum Priority
     {
@@ -93,6 +91,9 @@ public:
     TextDocument *baseTextDocument() const;
     void setBaseTextDocument(TextDocument *baseTextDocument);
 
+    QString toolTip() const;
+    void setToolTip(const QString &toolTip);
+
 private:
     Q_DISABLE_COPY(TextMark)
     friend class Internal::TextMarkRegistry;
@@ -106,6 +107,7 @@ private:
     QColor m_color;
     Core::Id m_category;
     double m_widthFactor;
+    QString m_toolTip;
 };
 
 } // namespace TextEditor

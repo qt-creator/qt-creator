@@ -243,11 +243,23 @@ ClangDiagnosticManager::ClangDiagnosticManager(TextEditor::TextDocument *textDoc
 {
 }
 
+ClangDiagnosticManager::~ClangDiagnosticManager()
+{
+    cleanMarks();
+}
+
+void ClangDiagnosticManager::cleanMarks()
+{
+    for (ClangTextMark *textMark : m_clangTextMarks) {
+        m_textDocument->removeMark(textMark);
+        delete textMark;
+    }
+    m_clangTextMarks.clear();
+}
 void ClangDiagnosticManager::generateTextMarks()
 {
-    m_clangTextMarks.clear();
+    cleanMarks();
     m_clangTextMarks.reserve(m_warningDiagnostics.size() + m_errorDiagnostics.size());
-
     addClangTextMarks(m_warningDiagnostics);
     addClangTextMarks(m_errorDiagnostics);
 }
@@ -332,18 +344,13 @@ ClangDiagnosticManager::diagnosticsWithFixIts() const
 void ClangDiagnosticManager::addClangTextMarks(
         const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics)
 {
-    QTC_ASSERT(m_clangTextMarks.size() + diagnostics.size() <= m_clangTextMarks.capacity(), return);
-
-    for (auto &&diagnostic : diagnostics) {
-        m_clangTextMarks.emplace_back(filePath(),
-                                      diagnostic.location().line(),
-                                      diagnostic.severity());
-
-        ClangTextMark &textMark = m_clangTextMarks.back();
-
-        textMark.setBaseTextDocument(m_textDocument);
-
-        m_textDocument->addMark(&textMark);
+    for (const ClangBackEnd::DiagnosticContainer &diagnostic : diagnostics) {
+        auto textMark = new ClangTextMark(filePath(),
+                                          diagnostic.location().line(),
+                                          diagnostic.severity());
+        textMark->setToolTip(diagnostic.text());
+        m_clangTextMarks.push_back(textMark);
+        m_textDocument->addMark(textMark);
     }
 }
 

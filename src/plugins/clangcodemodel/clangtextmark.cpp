@@ -79,10 +79,5 @@ void ClangTextMark::setIcon(ClangBackEnd::DiagnosticSeverity severity)
         TextMark::setIcon(errorIcon);
 }
 
-ClangTextMark::ClangTextMark(ClangTextMark &&other) Q_DECL_NOEXCEPT
-    : TextMark(std::move(other))
-{
-}
-
 } // namespace ClangCodeModel
 

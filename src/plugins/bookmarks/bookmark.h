@@ -37,13 +37,14 @@ class Bookmark : public TextEditor::TextMark
 public:
     Bookmark(int lineNumber, BookmarkManager *manager);
 
-    void updateLineNumber(int lineNumber);
-    void move(int line);
-    void updateBlock(const QTextBlock &block);
-    void updateFileName(const QString &fileName);
+    void updateLineNumber(int lineNumber) override;
+    void move(int line) override;
+    void updateBlock(const QTextBlock &block) override;
+    void updateFileName(const QString &fileName) override;
+    void removedFromEditor() override;
+
     void setNote(const QString &note);
     void updateNote(const QString &note);
-    void removedFromEditor();
 
     QString lineText() const;
     QString note() const;
@@ -51,7 +52,6 @@ public:
 private:
     BookmarkManager *m_manager;
     QString m_lineText;
-    QString m_note;
 };
 
 } // namespace Internal

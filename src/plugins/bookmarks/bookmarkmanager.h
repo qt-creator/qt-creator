@@ -26,7 +26,6 @@
 #pragma once
 
 #include <utils/itemviews.h>
-#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/inavigationwidgetfactory.h>
 
 #include <QAbstractItemModel>
@@ -35,6 +34,8 @@
 #include <QListView>
 #include <QPixmap>
 #include <QStyledItemDelegate>
+
+namespace Core { class IContext; }
 
 namespace Bookmarks {
 namespace Internal {
@@ -87,8 +88,6 @@ public:
         Note = Qt::UserRole + 4
     };
 
-    void handleBookmarkTooltipRequest(Core::IEditor *editor, const QPoint &pos, int line);
-
     void toggleBookmark(const QString &fileName, int lineNumber);
     void nextInDocument();
     void prevInDocument();
@@ -117,7 +116,6 @@ private:
     bool removeBookmarkFromMap(Bookmark *bookmark, const QString &fileName = QString());
     static QString bookmarkToString(const Bookmark *b);
     void saveBookmarks();
-    void operateTooltip(QWidget *widget, const QPoint &pos, Bookmark *mark);
 
     typedef QMultiMap<QString, Bookmark *> FileNameBookmarksMap;
     typedef QMap<QString, FileNameBookmarksMap *> DirectoryFileBookmarksMap;
