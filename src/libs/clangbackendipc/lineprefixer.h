@@ -25,9 +25,10 @@
 
 #pragma once
 
+#include <utf8string.h>
+
 #include <QString>
 #include <QTextStream>
-#include <utf8string.h>
 
 namespace ClangBackEnd {
 
@@ -35,12 +36,36 @@ class LinePrefixer
 {
 public:
     LinePrefixer() = delete;
-    LinePrefixer(const QByteArray &m_prefix);
-    QByteArray prefix(const QByteArray &text);
+    LinePrefixer(const QByteArray &prefix)
+        : prefix_(prefix),
+          previousIsEndingWithNewLine(true)
+    {
+    }
+
+    QByteArray prefix(const QByteArray &text)
+    {
+        QByteArray output = text;
+
+        if (previousIsEndingWithNewLine)
+            output.prepend(prefix_);
+
+        if (output.endsWith('\n')) {
+            previousIsEndingWithNewLine = true;
+            output.chop(1);
+        } else {
+            previousIsEndingWithNewLine = false;
+        }
+
+        output.replace("\n", "\n" + prefix_);
+        if (previousIsEndingWithNewLine)
+            output.append('\n');
+
+        return output;
+    }
 
 private:
-    QByteArray m_prefix;
-    bool m_previousIsEndingWithNewLine;
+    QByteArray prefix_;
+    bool previousIsEndingWithNewLine;
 };
 
 } // namespace ClangBackEnd

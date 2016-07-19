@@ -32,7 +32,6 @@ SOURCES += $$PWD/clangcodemodelserverinterface.cpp \
     $$PWD/codecompletionchunk.cpp \
     $$PWD/projectpartcontainer.cpp \
     $$PWD/projectpartsdonotexistmessage.cpp \
-    $$PWD/lineprefixer.cpp \
     $$PWD/clangbackendipcdebugutils.cpp \
     $$PWD/diagnosticcontainer.cpp \
     $$PWD/sourcerangecontainer.cpp \
