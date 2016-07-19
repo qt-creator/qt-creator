@@ -56,9 +56,10 @@ private:
     void importBookmarks();
     void exportBookmarks();
 
-    void updateFontSize();
-    void updateFontStyle();
-    void updateFontFamily();
+    void updateFontSizeSelector();
+    void updateFontStyleSelector();
+    void updateFontFamilySelector();
+    void updateFont();
     int closestPointSizeIndex(int desiredPointSize) const;
 
     QFont m_font;
