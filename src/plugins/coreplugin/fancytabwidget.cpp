@@ -418,7 +418,7 @@ public:
         if (!creatorTheme()->flag(Theme::DrawToolBarHighlights)
                 && !creatorTheme()->flag(Theme::DrawToolBarBorders)) {
             QPainter p(this);
-            p.setPen(StyleHelper::borderColor());
+            p.setPen(StyleHelper::toolBarBorderColor());
             const QRectF innerRect = QRectF(rect()).adjusted(0.5, 0.5, -0.5, -0.5);
             p.drawLine(innerRect.bottomLeft(), innerRect.bottomRight());
         }
@@ -528,13 +528,19 @@ void FancyTabWidget::paintEvent(QPaintEvent *event)
         QRect rect = m_selectionWidget->rect().adjusted(0, 0, 1, 0);
         rect = style()->visualRect(layoutDirection(), geometry(), rect);
         const QRectF boderRect = QRectF(rect).adjusted(0.5, 0.5, -0.5, -0.5);
-        StyleHelper::verticalGradient(&painter, rect, rect);
-        painter.setPen(StyleHelper::borderColor());
-        painter.drawLine(boderRect.topRight(), boderRect.bottomRight());
 
-        QColor light = StyleHelper::sidebarHighlight();
-        painter.setPen(light);
-        painter.drawLine(boderRect.bottomLeft(), boderRect.bottomRight());
+        if (creatorTheme()->flag(Theme::FlatToolBars)) {
+            painter.setPen(StyleHelper::toolBarBorderColor());
+            painter.drawLine(boderRect.topRight(), boderRect.bottomRight());
+        } else {
+            StyleHelper::verticalGradient(&painter, rect, rect);
+            painter.setPen(StyleHelper::borderColor());
+            painter.drawLine(boderRect.topRight(), boderRect.bottomRight());
+
+            QColor light = StyleHelper::sidebarHighlight();
+            painter.setPen(light);
+            painter.drawLine(boderRect.bottomLeft(), boderRect.bottomRight());
+        }
     }
 }
 
