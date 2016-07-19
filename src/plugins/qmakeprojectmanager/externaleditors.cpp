@@ -37,7 +37,6 @@
 
 #include <QProcess>
 #include <QDebug>
-#include <QSignalMapper>
 
 #include <QTcpSocket>
 #include <QTcpServer>
@@ -261,24 +260,17 @@ bool DesignerExternalEditor::startEditor(const QString &fileName, QString *error
 
     if (!startEditorProcess(data, errorMessage))
         return false;
-    // Set up signal mapper to track process termination via socket
-    if (!m_terminationMapper) {
-        m_terminationMapper = new QSignalMapper(this);
-        connect(m_terminationMapper,
-                static_cast<void (QSignalMapper::*)(const QString &)>(&QSignalMapper::mapped),
-                this, &DesignerExternalEditor::processTerminated);
-    }
     // Insert into cache if socket is created, else try again next time
     if (server.waitForNewConnection(3000)) {
         QTcpSocket *socket = server.nextPendingConnection();
         socket->setParent(this);
-        m_processCache.insert(data.binary, socket);
-        m_terminationMapper->setMapping(socket, data.binary);
-        auto mapSlot = static_cast<void (QSignalMapper::*)()>(&QSignalMapper::map);
-        connect(socket, &QAbstractSocket::disconnected, m_terminationMapper, mapSlot);
+        const QString binary = data.binary;
+        m_processCache.insert(binary, socket);
+        auto mapSlot = [this, binary] { processTerminated(binary); };
+        connect(socket, &QAbstractSocket::disconnected, this, mapSlot);
         connect(socket,
                 static_cast<void (QAbstractSocket::*)(QAbstractSocket::SocketError)>(&QAbstractSocket::error),
-                m_terminationMapper, mapSlot);
+                this, mapSlot);
     }
     return true;
 }

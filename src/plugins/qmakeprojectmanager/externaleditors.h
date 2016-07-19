@@ -34,7 +34,6 @@
 QT_BEGIN_NAMESPACE
 class QProcess;
 class QTcpSocket;
-class QSignalMapper;
 QT_END_NAMESPACE
 
 namespace QtSupport { class BaseQtVersion; }
@@ -132,7 +131,6 @@ private:
     typedef QMap<QString, QTcpSocket*> ProcessCache;
 
     ProcessCache m_processCache;
-    QSignalMapper *m_terminationMapper = nullptr;
 };
 
 } // namespace Internal
