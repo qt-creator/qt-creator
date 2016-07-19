@@ -25,65 +25,11 @@
 
 #include "cmbcodecompletedmessage.h"
 
-#include <QDataStream>
 #include <QDebug>
 
 #include <ostream>
 
 namespace ClangBackEnd {
-
-CodeCompletedMessage::CodeCompletedMessage(const CodeCompletions &codeCompletions,
-                                           CompletionCorrection neededCorrection,
-                                           quint64 ticketNumber)
-    : codeCompletions_(codeCompletions),
-      ticketNumber_(ticketNumber),
-      neededCorrection_(neededCorrection)
-{
-}
-
-const CodeCompletions &CodeCompletedMessage::codeCompletions() const
-{
-    return codeCompletions_;
-}
-
-CompletionCorrection CodeCompletedMessage::neededCorrection() const
-{
-    return neededCorrection_;
-}
-
-quint64 CodeCompletedMessage::ticketNumber() const
-{
-    return ticketNumber_;
-}
-
-QDataStream &operator<<(QDataStream &out, const CodeCompletedMessage &message)
-{
-    out << message.codeCompletions_;
-    out << static_cast<quint32>(message.neededCorrection_);
-    out << message.ticketNumber_;
-
-    return out;
-}
-
-QDataStream &operator>>(QDataStream &in, CodeCompletedMessage &message)
-{
-    quint32 neededCorrection;
-
-    in >> message.codeCompletions_;
-    in >> neededCorrection;
-    in >> message.ticketNumber_;
-
-    message.neededCorrection_ = static_cast<CompletionCorrection>(neededCorrection);
-
-    return in;
-}
-
-bool operator==(const CodeCompletedMessage &first, const CodeCompletedMessage &second)
-{
-    return first.ticketNumber_ == second.ticketNumber_
-        && first.neededCorrection_ == second.neededCorrection_
-        && first.codeCompletions_ == second.codeCompletions_;
-}
 
 #define RETURN_TEXT_FOR_CASE(enumValue) case CompletionCorrection::enumValue: return #enumValue
 static const char *completionCorrectionToText(CompletionCorrection correction)
