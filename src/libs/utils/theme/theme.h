@@ -269,6 +269,7 @@ public:
         DrawSearchResultWidgetFrame,
         DrawIndicatorBranch,
         DrawToolBarHighlights,
+        DrawToolBarBorders,
         ComboBoxDrawTextShadow,
         DerivePaletteFromTheme,
         ApplyThemePaletteGlobally,

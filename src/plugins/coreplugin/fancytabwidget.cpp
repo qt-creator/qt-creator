@@ -413,9 +413,10 @@ public:
     {
         QWidget::paintEvent(event);
 
-        // Some Themes do not want highlights and shadows in the toolbars.
+        // Some Themes do not want highlights, shadows and borders in the toolbars.
         // But we definitely want a separator between FancyColorButton and FancyTabBar
-        if (!creatorTheme()->flag(Theme::DrawToolBarHighlights)) {
+        if (!creatorTheme()->flag(Theme::DrawToolBarHighlights)
+                && !creatorTheme()->flag(Theme::DrawToolBarBorders)) {
             QPainter p(this);
             p.setPen(StyleHelper::borderColor());
             const QRectF innerRect = QRectF(rect()).adjusted(0.5, 0.5, -0.5, -0.5);

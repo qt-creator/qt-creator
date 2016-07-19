@@ -178,6 +178,7 @@ DrawIndicatorBranch=false
 DrawSearchResultWidgetFrame=true
 DrawTargetSelectorBottom=true
 DrawToolBarHighlights=true
+DrawToolBarBorders=false
 ApplyThemePaletteGlobally=false
 FlatToolBars=false
 FlatSideBarIcons=false
