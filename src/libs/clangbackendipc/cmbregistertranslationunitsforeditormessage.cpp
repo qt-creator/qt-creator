@@ -25,60 +25,11 @@
 
 #include "cmbregistertranslationunitsforeditormessage.h"
 
-#include <QDataStream>
 #include <QDebug>
 
 #include <ostream>
 
 namespace ClangBackEnd {
-
-RegisterTranslationUnitForEditorMessage::RegisterTranslationUnitForEditorMessage(const QVector<FileContainer> &fileContainers,
-                                                                                 const Utf8String &currentEditorFilePath,
-                                                                                 const Utf8StringVector &visibleEditorFilePaths)
-    : fileContainers_(fileContainers),
-      currentEditorFilePath_(currentEditorFilePath),
-      visibleEditorFilePaths_(visibleEditorFilePaths)
-{
-}
-
-const QVector<FileContainer> &RegisterTranslationUnitForEditorMessage::fileContainers() const
-{
-    return fileContainers_;
-}
-
-const Utf8String &RegisterTranslationUnitForEditorMessage::currentEditorFilePath() const
-{
-    return currentEditorFilePath_;
-}
-
-const Utf8StringVector &RegisterTranslationUnitForEditorMessage::visibleEditorFilePaths() const
-{
-    return visibleEditorFilePaths_;
-}
-
-QDataStream &operator<<(QDataStream &out, const RegisterTranslationUnitForEditorMessage &message)
-{
-    out << message.fileContainers_;
-    out << message.currentEditorFilePath_;
-    out << message.visibleEditorFilePaths_;
-    return out;
-}
-
-QDataStream &operator>>(QDataStream &in, RegisterTranslationUnitForEditorMessage &message)
-{
-    in >> message.fileContainers_;
-    in >> message.currentEditorFilePath_;
-    in >> message.visibleEditorFilePaths_;
-
-    return in;
-}
-
-bool operator==(const RegisterTranslationUnitForEditorMessage &first, const RegisterTranslationUnitForEditorMessage &second)
-{
-    return first.fileContainers_ == second.fileContainers_
-        && first.currentEditorFilePath_ == second.currentEditorFilePath_
-        && first.visibleEditorFilePaths_ == second.visibleEditorFilePaths_;
-}
 
 QDebug operator<<(QDebug debug, const RegisterTranslationUnitForEditorMessage &message)
 {

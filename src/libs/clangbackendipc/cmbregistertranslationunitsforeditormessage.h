@@ -27,38 +27,71 @@
 
 #include "filecontainer.h"
 
+#include <QDataStream>
 #include <QVector>
 
 namespace ClangBackEnd {
 
-class CMBIPC_EXPORT RegisterTranslationUnitForEditorMessage
+class RegisterTranslationUnitForEditorMessage
 {
-    friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const RegisterTranslationUnitForEditorMessage &message);
-    friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, RegisterTranslationUnitForEditorMessage &message);
-    friend CMBIPC_EXPORT bool operator==(const RegisterTranslationUnitForEditorMessage &first, const RegisterTranslationUnitForEditorMessage &second);
-    friend void PrintTo(const RegisterTranslationUnitForEditorMessage &message, ::std::ostream* os);
 public:
     RegisterTranslationUnitForEditorMessage() = default;
     RegisterTranslationUnitForEditorMessage(const QVector<FileContainer> &fileContainers,
                                             const Utf8String &currentEditorFilePath,
-                                            const Utf8StringVector &visibleEditorFilePaths);
+                                            const Utf8StringVector &visibleEditorFilePaths)
+        : fileContainers_(fileContainers),
+          currentEditorFilePath_(currentEditorFilePath),
+          visibleEditorFilePaths_(visibleEditorFilePaths)
+    {
+    }
 
-    const QVector<FileContainer> &fileContainers() const;
-    const Utf8String &currentEditorFilePath() const;
-    const Utf8StringVector &visibleEditorFilePaths() const;
+    const QVector<FileContainer> &fileContainers() const
+    {
+        return fileContainers_;
+    }
 
+    const Utf8String &currentEditorFilePath() const
+    {
+        return currentEditorFilePath_;
+    }
+
+    const Utf8StringVector &visibleEditorFilePaths() const
+    {
+        return visibleEditorFilePaths_;
+    }
+
+    friend QDataStream &operator<<(QDataStream &out, const RegisterTranslationUnitForEditorMessage &message)
+    {
+        out << message.fileContainers_;
+        out << message.currentEditorFilePath_;
+        out << message.visibleEditorFilePaths_;
+        return out;
+    }
+
+    friend QDataStream &operator>>(QDataStream &in, RegisterTranslationUnitForEditorMessage &message)
+    {
+        in >> message.fileContainers_;
+        in >> message.currentEditorFilePath_;
+        in >> message.visibleEditorFilePaths_;
+
+        return in;
+    }
+
+    friend bool operator==(const RegisterTranslationUnitForEditorMessage &first, const RegisterTranslationUnitForEditorMessage &second)
+    {
+        return first.fileContainers_ == second.fileContainers_
+            && first.currentEditorFilePath_ == second.currentEditorFilePath_
+            && first.visibleEditorFilePaths_ == second.visibleEditorFilePaths_;
+    }
+
+    friend void PrintTo(const RegisterTranslationUnitForEditorMessage &message, ::std::ostream* os);
 private:
     QVector<FileContainer> fileContainers_;
     Utf8String currentEditorFilePath_;
     Utf8StringVector visibleEditorFilePaths_;
 };
 
-CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const RegisterTranslationUnitForEditorMessage &message);
-CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, RegisterTranslationUnitForEditorMessage &message);
-CMBIPC_EXPORT bool operator==(const RegisterTranslationUnitForEditorMessage &first, const RegisterTranslationUnitForEditorMessage &second);
-
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const RegisterTranslationUnitForEditorMessage &message);
-void PrintTo(const RegisterTranslationUnitForEditorMessage &message, ::std::ostream* os);
 
 DECLARE_MESSAGE(RegisterTranslationUnitForEditorMessage);
 } // namespace ClangBackEnd
