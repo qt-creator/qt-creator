@@ -26,24 +26,87 @@
 #pragma once
 
 #include "clangbackendipc_global.h"
-#include <ostream>
+
+#include <QDataStream>
+
+#include <iosfwd>
 
 namespace ClangBackEnd {
 
-class CMBIPC_EXPORT HighlightingMarkContainer
+inline QDataStream &operator<<(QDataStream &out, HighlightingType highlightingType);
+inline QDataStream &operator<<(QDataStream &out, HighlightingTypes highlightingTypes);
+inline QDataStream &operator>>(QDataStream &in, HighlightingType &highlightingType);
+inline QDataStream &operator>>(QDataStream &in, HighlightingTypes &highlightingTypes);
+inline bool operator==(const MixinHighlightingTypes &first, const MixinHighlightingTypes &second);
+inline bool operator==(const HighlightingTypes &first, const HighlightingTypes &second);
+
+class HighlightingMarkContainer
 {
-    friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const HighlightingMarkContainer &container);
-    friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, HighlightingMarkContainer &container);
-    friend CMBIPC_EXPORT bool operator==(const HighlightingMarkContainer &first, const HighlightingMarkContainer &second);
 public:
     HighlightingMarkContainer() = default;
-    HighlightingMarkContainer(uint line, uint column, uint length, HighlightingTypes types);
-    HighlightingMarkContainer(uint line, uint column, uint length, HighlightingType type);
+    HighlightingMarkContainer(uint line, uint column, uint length, HighlightingTypes types)
+        : line_(line),
+          column_(column),
+          length_(length),
+          types_(types)
+    {
+    }
 
-    uint line() const;
-    uint column() const;
-    uint length() const;
-    HighlightingTypes types() const;
+    HighlightingMarkContainer(uint line, uint column, uint length, HighlightingType type)
+        : line_(line),
+          column_(column),
+          length_(length)
+    {
+        types_.mainHighlightingType = type;
+    }
+
+    uint line() const
+    {
+        return line_;
+    }
+
+    uint column() const
+    {
+        return column_;
+    }
+
+    uint length() const
+    {
+        return length_;
+    }
+
+    HighlightingTypes types() const
+    {
+        return types_;
+    }
+
+    friend QDataStream &operator<<(QDataStream &out, const HighlightingMarkContainer &container)
+    {
+        out << container.line_;
+        out << container.column_;
+        out << container.length_;
+        out << container.types_;
+
+        return out;
+    }
+
+    friend QDataStream &operator>>(QDataStream &in, HighlightingMarkContainer &container)
+    {
+        in >> container.line_;
+        in >> container.column_;
+        in >> container.length_;
+        in >> container.types_;
+
+        return in;
+    }
+
+    friend bool operator==(const HighlightingMarkContainer &first, const HighlightingMarkContainer &second)
+    {
+        return first.line_ == second.line_
+            && first.column_ == second.column_
+            && first.length_ == second.length_
+            && first.types_ == second.types_;
+    }
 
 private:
     uint line_;
@@ -52,10 +115,64 @@ private:
     HighlightingTypes types_;
 };
 
-CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const HighlightingMarkContainer &container);
-CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, HighlightingMarkContainer &container);
-CMBIPC_EXPORT bool operator==(const HighlightingTypes &first, const HighlightingTypes &second);
-CMBIPC_EXPORT bool operator==(const HighlightingMarkContainer &first, const HighlightingMarkContainer &second);
+inline QDataStream &operator<<(QDataStream &out, HighlightingType highlightingType)
+{
+    out << static_cast<const quint8>(highlightingType);
+
+    return out;
+}
+
+inline QDataStream &operator<<(QDataStream &out, HighlightingTypes highlightingTypes)
+{
+    out << highlightingTypes.mainHighlightingType;
+
+    out << highlightingTypes.mixinHighlightingTypes.size();
+
+    for (HighlightingType type : highlightingTypes.mixinHighlightingTypes)
+        out << type;
+
+    return out;
+}
+
+
+inline QDataStream &operator>>(QDataStream &in, HighlightingType &highlightingType)
+{
+    quint8 highlightingTypeInt;
+
+    in >> highlightingTypeInt;
+
+    highlightingType = static_cast<HighlightingType>(highlightingTypeInt);
+
+    return in;
+}
+
+inline QDataStream &operator>>(QDataStream &in, HighlightingTypes &highlightingTypes)
+{
+    in >> highlightingTypes.mainHighlightingType ;
+
+    quint8 size;
+    in >> size;
+
+    for (int counter = 0; counter < size; ++counter) {
+        HighlightingType type;
+        in >> type;
+        highlightingTypes.mixinHighlightingTypes.push_back(type);
+    }
+
+    return in;
+}
+
+inline bool operator==(const MixinHighlightingTypes &first, const MixinHighlightingTypes &second)
+{
+    return first.size() == second.size()
+        && std::equal(first.begin(), first.end(), second.begin());
+}
+
+inline bool operator==(const HighlightingTypes &first, const HighlightingTypes &second)
+{
+    return first.mainHighlightingType == second.mainHighlightingType
+        && first.mixinHighlightingTypes == second.mixinHighlightingTypes;
+}
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const HighlightingMarkContainer &container);
 CMBIPC_EXPORT void PrintTo(HighlightingType highlightingType, ::std::ostream *os);
