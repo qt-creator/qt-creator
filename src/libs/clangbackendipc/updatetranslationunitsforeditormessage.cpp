@@ -25,41 +25,11 @@
 
 #include "updatetranslationunitsforeditormessage.h"
 
-#include <QDataStream>
 #include <QDebug>
 
 #include <ostream>
 
 namespace ClangBackEnd {
-
-UpdateTranslationUnitsForEditorMessage::UpdateTranslationUnitsForEditorMessage(const QVector<FileContainer> &fileContainers)
-    : fileContainers_(fileContainers)
-{
-}
-
-const QVector<FileContainer> &UpdateTranslationUnitsForEditorMessage::fileContainers() const
-{
-    return fileContainers_;
-}
-
-QDataStream &operator<<(QDataStream &out, const UpdateTranslationUnitsForEditorMessage &message)
-{
-    out << message.fileContainers_;
-
-    return out;
-}
-
-QDataStream &operator>>(QDataStream &in, UpdateTranslationUnitsForEditorMessage &message)
-{
-    in >> message.fileContainers_;
-
-    return in;
-}
-
-bool operator==(const UpdateTranslationUnitsForEditorMessage &first, const UpdateTranslationUnitsForEditorMessage &second)
-{
-    return first.fileContainers_ == second.fileContainers_;
-}
 
 QDebug operator<<(QDebug debug, const UpdateTranslationUnitsForEditorMessage &message)
 {

@@ -31,25 +31,42 @@
 
 namespace ClangBackEnd {
 
-class CMBIPC_EXPORT UpdateTranslationUnitsForEditorMessage
+class UpdateTranslationUnitsForEditorMessage
 {
-    friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const UpdateTranslationUnitsForEditorMessage &message);
-    friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, UpdateTranslationUnitsForEditorMessage &message);
-    friend CMBIPC_EXPORT bool operator==(const UpdateTranslationUnitsForEditorMessage &first, const UpdateTranslationUnitsForEditorMessage &second);
-    friend void PrintTo(const UpdateTranslationUnitsForEditorMessage &message, ::std::ostream* os);
 public:
     UpdateTranslationUnitsForEditorMessage() = default;
-    UpdateTranslationUnitsForEditorMessage(const QVector<FileContainer> &fileContainers);
+    UpdateTranslationUnitsForEditorMessage(const QVector<FileContainer> &fileContainers)
+        : fileContainers_(fileContainers)
+    {
+    }
 
-    const QVector<FileContainer> &fileContainers() const;
+    const QVector<FileContainer> &fileContainers() const
+    {
+        return fileContainers_;
+    }
+
+    friend QDataStream &operator<<(QDataStream &out, const UpdateTranslationUnitsForEditorMessage &message)
+    {
+        out << message.fileContainers_;
+
+        return out;
+    }
+
+    friend QDataStream &operator>>(QDataStream &in, UpdateTranslationUnitsForEditorMessage &message)
+    {
+        in >> message.fileContainers_;
+
+        return in;
+    }
+
+    friend bool operator==(const UpdateTranslationUnitsForEditorMessage &first, const UpdateTranslationUnitsForEditorMessage &second)
+    {
+        return first.fileContainers_ == second.fileContainers_;
+    }
 
 private:
     QVector<FileContainer> fileContainers_;
 };
-
-CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const UpdateTranslationUnitsForEditorMessage &message);
-CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, UpdateTranslationUnitsForEditorMessage &message);
-CMBIPC_EXPORT bool operator==(const UpdateTranslationUnitsForEditorMessage &first, const UpdateTranslationUnitsForEditorMessage &second);
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const UpdateTranslationUnitsForEditorMessage &message);
 void PrintTo(const UpdateTranslationUnitsForEditorMessage &message, ::std::ostream* os);
