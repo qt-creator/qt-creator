@@ -374,7 +374,7 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunControl *runControl)
         connect(runControl, &QmlProfilerRunControl::processRunning,
                 d->m_profilerConnections, &QmlProfilerClientManager::connectTcpClient);
     connect(clientManager, &QmlProfilerClientManager::connectionFailed,
-            runControl, [clientManager, runControl]() {
+            runControl, [this, clientManager, runControl]() {
         QMessageBox *infoBox = new QMessageBox(ICore::mainWindow());
         infoBox->setIcon(QMessageBox::Critical);
         infoBox->setWindowTitle(tr("Qt Creator"));
