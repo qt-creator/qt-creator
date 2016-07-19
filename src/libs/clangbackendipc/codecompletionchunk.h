@@ -29,6 +29,7 @@
 
 #include <utf8string.h>
 
+#include <QDataStream>
 #include <QVector>
 
 namespace ClangBackEnd {
@@ -36,12 +37,8 @@ namespace ClangBackEnd {
 class CodeCompletionChunk;
 using CodeCompletionChunks = QVector<CodeCompletionChunk>;
 
-class CMBIPC_EXPORT CodeCompletionChunk
+class CodeCompletionChunk
 {
-    friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const CodeCompletionChunk &chunk);
-    friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, CodeCompletionChunk &chunk);
-    friend CMBIPC_EXPORT bool operator==(const CodeCompletionChunk &first, const CodeCompletionChunk &second);
-
 public:
     enum Kind : quint8 {
         Optional,
@@ -71,11 +68,56 @@ public:
     CodeCompletionChunk() = default;
     CodeCompletionChunk(Kind kind,
                         const Utf8String &text,
-                        bool isOptional = false);
+                        bool isOptional = false)
+        : text_(text),
+          kind_(kind),
+          isOptional_(isOptional)
+    {
+    }
 
-    Kind kind() const;
-    const Utf8String &text() const;
-    bool isOptional() const;
+    Kind kind() const
+    {
+        return kind_;
+    }
+
+    const Utf8String &text() const
+    {
+        return text_;
+    }
+
+    bool isOptional() const
+    {
+        return isOptional_;
+    }
+
+    friend QDataStream &operator<<(QDataStream &out, const CodeCompletionChunk &chunk)
+    {
+        out << static_cast<quint8>(chunk.kind_);
+        out << chunk.text_;
+        out << chunk.isOptional_;
+
+        return out;
+    }
+
+    friend QDataStream &operator>>(QDataStream &in, CodeCompletionChunk &chunk)
+    {
+        quint8 kind;
+
+        in >> kind;
+        in >> chunk.text_;
+        in >> chunk.isOptional_;
+
+        chunk.kind_ = static_cast<CodeCompletionChunk::Kind>(kind);
+
+        return in;
+    }
+
+    friend bool operator==(const CodeCompletionChunk &first, const CodeCompletionChunk &second)
+    {
+        return first.kind() == second.kind()
+                && first.text() == second.text()
+                && first.isOptional() == second.isOptional();
+    }
 
 private:
     Utf8String text_;
@@ -83,15 +125,9 @@ private:
     bool isOptional_ = false;
 };
 
-CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const CodeCompletionChunk &chunk);
-CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, CodeCompletionChunk &chunk);
-CMBIPC_EXPORT bool operator==(const CodeCompletionChunk &first, const CodeCompletionChunk &second);
-
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const CodeCompletionChunk &chunk);
 
 void PrintTo(const CodeCompletionChunk &chunk, ::std::ostream* os);
 void PrintTo(const CodeCompletionChunk::Kind &kind, ::std::ostream* os);
 
 } // namespace ClangBackEnd
-
-Q_DECLARE_METATYPE(ClangBackEnd::CodeCompletionChunk)
