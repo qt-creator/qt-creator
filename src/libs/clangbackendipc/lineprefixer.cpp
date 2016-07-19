@@ -23,24 +23,34 @@
 **
 ****************************************************************************/
 
-#pragma once
-
-#include <QString>
-#include <QTextStream>
-#include <utf8string.h>
+#include "lineprefixer.h"
 
 namespace ClangBackEnd {
 
-class LinePrefixer
-{
-public:
-    LinePrefixer() = delete;
-    LinePrefixer(const QByteArray &m_prefix);
-    QByteArray prefix(const QByteArray &text);
+LinePrefixer::LinePrefixer(const QByteArray &prefix)
+    : m_prefix(prefix)
+    , m_previousIsEndingWithNewLine(true)
+{}
 
-private:
-    QByteArray m_prefix;
-    bool m_previousIsEndingWithNewLine;
-};
+QByteArray LinePrefixer::prefix(const QByteArray &text)
+{
+    QByteArray output = text;
+
+    if (m_previousIsEndingWithNewLine)
+        output.prepend(m_prefix);
+
+    if (output.endsWith('\n')) {
+        m_previousIsEndingWithNewLine = true;
+        output.chop(1);
+    } else {
+        m_previousIsEndingWithNewLine = false;
+    }
+
+    output.replace("\n", "\n" + m_prefix);
+    if (m_previousIsEndingWithNewLine)
+        output.append('\n');
+
+    return output;
+}
 
 } // namespace ClangBackEnd
