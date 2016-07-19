@@ -27,29 +27,47 @@
 
 #include "projectpartcontainer.h"
 
+#include <QDataStream>
 #include <QVector>
 
 namespace ClangBackEnd {
 
-class CMBIPC_EXPORT RegisterProjectPartsForEditorMessage
+class RegisterProjectPartsForEditorMessage
 {
-    friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const RegisterProjectPartsForEditorMessage &message);
-    friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, RegisterProjectPartsForEditorMessage &message);
-    friend CMBIPC_EXPORT bool operator==(const RegisterProjectPartsForEditorMessage &first, const RegisterProjectPartsForEditorMessage &second);
-    friend void PrintTo(const RegisterProjectPartsForEditorMessage &message, ::std::ostream* os);
 public:
     RegisterProjectPartsForEditorMessage() = default;
-    RegisterProjectPartsForEditorMessage(const QVector<ProjectPartContainer> &projectContainers);
+    RegisterProjectPartsForEditorMessage(const QVector<ProjectPartContainer> &projectContainers)
+        :projectContainers_(projectContainers)
+    {
+    }
 
-    const QVector<ProjectPartContainer> &projectContainers() const;
+    const QVector<ProjectPartContainer> &projectContainers() const
+    {
+        return projectContainers_;
+    }
+
+    friend QDataStream &operator<<(QDataStream &out, const RegisterProjectPartsForEditorMessage &message)
+    {
+        out << message.projectContainers_;
+
+        return out;
+    }
+
+    friend QDataStream &operator>>(QDataStream &in, RegisterProjectPartsForEditorMessage &message)
+    {
+        in >> message.projectContainers_;
+
+        return in;
+    }
+
+    friend bool operator==(const RegisterProjectPartsForEditorMessage &first, const RegisterProjectPartsForEditorMessage &second)
+    {
+        return first.projectContainers_ == second.projectContainers_;
+    }
 
 private:
     QVector<ProjectPartContainer> projectContainers_;
 };
-
-CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const RegisterProjectPartsForEditorMessage &message);
-CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, RegisterProjectPartsForEditorMessage &message);
-CMBIPC_EXPORT bool operator==(const RegisterProjectPartsForEditorMessage &first, const RegisterProjectPartsForEditorMessage &second);
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const RegisterProjectPartsForEditorMessage &message);
 void PrintTo(const RegisterProjectPartsForEditorMessage &message, ::std::ostream* os);

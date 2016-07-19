@@ -25,42 +25,12 @@
 
 #include "cmbregisterprojectsforeditormessage.h"
 
-#include <QDataStream>
 #include <QDebug>
 
 #include <algorithm>
 #include <ostream>
 
 namespace ClangBackEnd {
-
-RegisterProjectPartsForEditorMessage::RegisterProjectPartsForEditorMessage(const QVector<ProjectPartContainer> &projectContainers)
-    :projectContainers_(projectContainers)
-{
-}
-
-const QVector<ProjectPartContainer> &RegisterProjectPartsForEditorMessage::projectContainers() const
-{
-    return projectContainers_;
-}
-
-QDataStream &operator<<(QDataStream &out, const RegisterProjectPartsForEditorMessage &message)
-{
-    out << message.projectContainers_;
-
-    return out;
-}
-
-QDataStream &operator>>(QDataStream &in, RegisterProjectPartsForEditorMessage &message)
-{
-    in >> message.projectContainers_;
-
-    return in;
-}
-
-bool operator==(const RegisterProjectPartsForEditorMessage &first, const RegisterProjectPartsForEditorMessage &second)
-{
-    return first.projectContainers_ == second.projectContainers_;
-}
 
 QDebug operator<<(QDebug debug, const RegisterProjectPartsForEditorMessage &message)
 {
