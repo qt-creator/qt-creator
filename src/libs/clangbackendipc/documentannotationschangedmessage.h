@@ -37,23 +37,67 @@ namespace ClangBackEnd {
 
 class CMBIPC_EXPORT DocumentAnnotationsChangedMessage
 {
-    friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const DocumentAnnotationsChangedMessage &message);
-    friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, DocumentAnnotationsChangedMessage &message);
-    friend CMBIPC_EXPORT bool operator==(const DocumentAnnotationsChangedMessage &first, const DocumentAnnotationsChangedMessage &second);
-    friend CMBIPC_EXPORT QDebug operator<<(QDebug debug, const DocumentAnnotationsChangedMessage &message);
-    friend void PrintTo(const DocumentAnnotationsChangedMessage &message, ::std::ostream* os);
-
 public:
     DocumentAnnotationsChangedMessage() = default;
     DocumentAnnotationsChangedMessage(const FileContainer &fileContainer,
                                       const QVector<DiagnosticContainer> &diagnostics,
                                       const QVector<HighlightingMarkContainer> &highlightingMarks,
-                                      const QVector<SourceRangeContainer> &skippedPreprocessorRanges);
+                                      const QVector<SourceRangeContainer> &skippedPreprocessorRanges)
+        : fileContainer_(fileContainer),
+          diagnostics_(diagnostics),
+          highlightingMarks_(highlightingMarks),
+          skippedPreprocessorRanges_(skippedPreprocessorRanges)
+    {
+    }
 
-    const FileContainer &fileContainer() const;
-    const QVector<DiagnosticContainer> &diagnostics() const;
-    const QVector<HighlightingMarkContainer> &highlightingMarks() const;
-    const QVector<SourceRangeContainer> &skippedPreprocessorRanges() const;
+    const FileContainer &fileContainer() const
+    {
+        return fileContainer_;
+    }
+
+    const QVector<DiagnosticContainer> &diagnostics() const
+    {
+        return diagnostics_;
+    }
+
+    const QVector<HighlightingMarkContainer> &highlightingMarks() const
+    {
+        return highlightingMarks_;
+    }
+
+    const QVector<SourceRangeContainer> &skippedPreprocessorRanges() const
+    {
+        return skippedPreprocessorRanges_;
+    }
+
+    friend QDataStream &operator<<(QDataStream &out, const DocumentAnnotationsChangedMessage &message)
+    {
+        out << message.fileContainer_;
+        out << message.diagnostics_;
+        out << message.highlightingMarks_;
+        out << message.skippedPreprocessorRanges_;
+
+        return out;
+    }
+
+    friend QDataStream &operator>>(QDataStream &in, DocumentAnnotationsChangedMessage &message)
+    {
+        in >> message.fileContainer_;
+        in >> message.diagnostics_;
+        in >> message.highlightingMarks_;
+        in >> message.skippedPreprocessorRanges_;
+
+        return in;
+    }
+
+    friend bool operator==(const DocumentAnnotationsChangedMessage &first,
+                    const DocumentAnnotationsChangedMessage &second)
+    {
+        return first.fileContainer_ == second.fileContainer_
+            && first.diagnostics_ == second.diagnostics_
+            && first.highlightingMarks_ == second.highlightingMarks_
+            && first.skippedPreprocessorRanges_ == second.skippedPreprocessorRanges_;
+    }
 
 private:
     FileContainer fileContainer_;
@@ -61,10 +105,6 @@ private:
     QVector<HighlightingMarkContainer> highlightingMarks_;
     QVector<SourceRangeContainer> skippedPreprocessorRanges_;
 };
-
-CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const DocumentAnnotationsChangedMessage &message);
-CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, DocumentAnnotationsChangedMessage &message);
-CMBIPC_EXPORT bool operator==(const DocumentAnnotationsChangedMessage &first, const DocumentAnnotationsChangedMessage &second);
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const DocumentAnnotationsChangedMessage &message);
 void PrintTo(const DocumentAnnotationsChangedMessage &message, ::std::ostream* os);

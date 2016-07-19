@@ -32,74 +32,13 @@
 
 namespace ClangBackEnd {
 
-DocumentAnnotationsChangedMessage::DocumentAnnotationsChangedMessage(
-        const FileContainer &file,
-        const QVector<DiagnosticContainer> &diagnostics,
-        const QVector<HighlightingMarkContainer> &highlightingMarks,
-        const QVector<SourceRangeContainer> &skippedPreprocessorRanges)
-    : fileContainer_(file),
-      diagnostics_(diagnostics),
-      highlightingMarks_(highlightingMarks),
-      skippedPreprocessorRanges_(skippedPreprocessorRanges)
-{
-}
-
-const FileContainer &DocumentAnnotationsChangedMessage::fileContainer() const
-{
-    return fileContainer_;
-}
-
-const QVector<DiagnosticContainer> &DocumentAnnotationsChangedMessage::diagnostics() const
-{
-    return diagnostics_;
-}
-
-const QVector<HighlightingMarkContainer> &DocumentAnnotationsChangedMessage::highlightingMarks() const
-{
-    return highlightingMarks_;
-}
-
-const QVector<SourceRangeContainer> &DocumentAnnotationsChangedMessage::skippedPreprocessorRanges() const
-{
-    return skippedPreprocessorRanges_;
-}
-
-QDataStream &operator<<(QDataStream &out, const DocumentAnnotationsChangedMessage &message)
-{
-    out << message.fileContainer_;
-    out << message.diagnostics_;
-    out << message.highlightingMarks_;
-    out << message.skippedPreprocessorRanges_;
-
-    return out;
-}
-
-QDataStream &operator>>(QDataStream &in, DocumentAnnotationsChangedMessage &message)
-{
-    in >> message.fileContainer_;
-    in >> message.diagnostics_;
-    in >> message.highlightingMarks_;
-    in >> message.skippedPreprocessorRanges_;
-
-    return in;
-}
-
-bool operator==(const DocumentAnnotationsChangedMessage &first,
-                const DocumentAnnotationsChangedMessage &second)
-{
-    return first.fileContainer_ == second.fileContainer_
-        && first.diagnostics_ == second.diagnostics_
-        && first.highlightingMarks_ == second.highlightingMarks_
-        && first.skippedPreprocessorRanges_ == second.skippedPreprocessorRanges_;
-}
-
 QDebug operator<<(QDebug debug, const DocumentAnnotationsChangedMessage &message)
 {
     debug.nospace() << "DocumentAnnotationsChangedMessage("
-                    << message.fileContainer_
-                    << ", " << message.diagnostics_.size()
-                    << ", " << message.highlightingMarks_.size()
-                    << ", " << message.skippedPreprocessorRanges_.size()
+                    << message.fileContainer()
+                    << ", " << message.diagnostics().size()
+                    << ", " << message.highlightingMarks().size()
+                    << ", " << message.skippedPreprocessorRanges().size()
                     << ")";
 
     return debug;
