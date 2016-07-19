@@ -22,6 +22,6 @@
 "VS120COMNTOOLS"	"..\..\VC\Bin"	"vcvars32.bat"	"Microsoft Visual C++ Compiler 12.0"	"x86"	""	"false"	""
 "VS120COMNTOOLS"	"..\..\VC"	"vcvarsall.bat"	"Microsoft Visual C++ Compiler 12.0"	"x86,amd64,x86_amd64,ia64,x86_ia64"	"x86,amd64,x86_amd64,ia64,x86_ia64"	"false"	""
 "VS140COMNTOOLS"	"..\..\VC\Bin"	"vcvars32.bat"	"Microsoft Visual C++ Compiler 14.0"	"x86"	""	"false"	"..\IDE\devenv.exe"
-"VS140COMNTOOLS"	"..\..\VC"	"vcvarsall.bat"	"Microsoft Visual C++ Compiler 14.0"	"x86,amd64,x86_amd64,x86_arm,amd64_arm"	"x86,amd64,x86_amd64,x86_arm,amd64_arm"	"false"	"..\IDE\devenv.exe"
+"VS140COMNTOOLS"	"..\..\VC"	"vcvarsall.bat"	"Microsoft Visual C++ Compiler 14.0"	"x86,amd64,x86_amd64,x86_arm,amd64_arm,amd64_x86"	"x86,amd64,x86_amd64,x86_arm,amd64_arm,amd64_x86"	"false"	"..\IDE\devenv.exe"
 "ProgramFiles"	"Microsoft Visual C++ Build Tools"	"vcbuildtools.bat"	"Microsoft Visual C++ Build Tools"	"x86,x64,x86_arm,x64_arm"	"x86,amd64,x86_arm,amd64_arm"	"false"	""
 "ProgramFiles(x86)"	"Microsoft Visual C++ Build Tools"	"vcbuildtools.bat"	"Microsoft Visual C++ Build Tools"	"x86,x64,x86_arm,x64_arm"	"x86,amd64,x86_arm,amd64_arm"	"false"	""
