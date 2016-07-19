@@ -73,11 +73,16 @@ def main():
                      "possible to select one of the suggestions.")
 # Step 4: Insert text "voi" to new line and press Tab.
         resetLine(editorWidget)
+        if useClang and JIRA.isBugStillOpen(15639):
+            snooze(2)
         type(editorWidget, "voi")
-        waitForObjectItem(":popupFrame_Proposal_QListView", "void")
-        type(waitForObject(":popupFrame_Proposal_QListView"), "<Tab>")
-        test.compare(str(lineUnderCursor(editorWidget)).strip(), "void",
-                     "Step 4: Verifying if: Word 'void' is completed because only one option is available.")
+        try:
+            waitForObjectItem(":popupFrame_Proposal_QListView", "void")
+            type(waitForObject(":popupFrame_Proposal_QListView"), "<Tab>")
+            test.compare(str(lineUnderCursor(editorWidget)).strip(), "void",
+                         "Step 4: Verifying if: Word 'void' is completed because only one option is available.")
+        except:
+            test.fail("The expected completion popup was not shown.")
 # Step 4.5: Insert text "2." to new line and verify that code completion is not triggered (QTCREATORBUG-16188)
         resetLine(editorWidget)
         lineWithFloat = "float fl = 2."
