@@ -25,25 +25,9 @@
 
 #include "cmbalivemessage.h"
 
-#include <QDataStream>
 #include <QDebug>
 
 namespace ClangBackEnd {
-
-QDataStream &operator<<(QDataStream &out, const AliveMessage &/*message*/)
-{
-    return out;
-}
-
-QDataStream &operator>>(QDataStream &in, AliveMessage &/*message*/)
-{
-    return in;
-}
-
-bool operator==(const AliveMessage &/*first*/, const AliveMessage &/*second*/)
-{
-    return true;
-}
 
 QDebug operator<<(QDebug debug, const AliveMessage &/*message*/)
 {

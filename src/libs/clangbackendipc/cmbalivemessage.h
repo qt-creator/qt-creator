@@ -27,15 +27,28 @@
 
 #include "clangbackendipc_global.h"
 
+#include <QDataStream>
+
 namespace ClangBackEnd {
 
-class CMBIPC_EXPORT AliveMessage
+class AliveMessage
 {
-};
+public:
+    friend QDataStream &operator<<(QDataStream &out, const AliveMessage &/*message*/)
+    {
+        return out;
+    }
 
-CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const AliveMessage &message);
-CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, AliveMessage &message);
-CMBIPC_EXPORT bool operator==(const AliveMessage &first, const AliveMessage &second);
+    friend QDataStream &operator>>(QDataStream &in, AliveMessage &/*message*/)
+    {
+        return in;
+    }
+
+    friend bool operator==(const AliveMessage &/*first*/, const AliveMessage &/*second*/)
+    {
+        return true;
+    }
+};
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const AliveMessage &message);
 
