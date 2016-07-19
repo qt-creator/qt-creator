@@ -25,41 +25,11 @@
 
 #include "registerunsavedfilesforeditormessage.h"
 
-#include <QDataStream>
 #include <QDebug>
 
 #include <ostream>
 
 namespace ClangBackEnd {
-
-RegisterUnsavedFilesForEditorMessage::RegisterUnsavedFilesForEditorMessage(const QVector<FileContainer> &fileContainers)
-    : fileContainers_(fileContainers)
-{
-}
-
-const QVector<FileContainer> &RegisterUnsavedFilesForEditorMessage::fileContainers() const
-{
-    return fileContainers_;
-}
-
-QDataStream &operator<<(QDataStream &out, const RegisterUnsavedFilesForEditorMessage &message)
-{
-    out << message.fileContainers_;
-
-    return out;
-}
-
-QDataStream &operator>>(QDataStream &in, RegisterUnsavedFilesForEditorMessage &message)
-{
-    in >> message.fileContainers_;
-
-    return in;
-}
-
-bool operator==(const RegisterUnsavedFilesForEditorMessage &first, const RegisterUnsavedFilesForEditorMessage &second)
-{
-    return first.fileContainers_ == second.fileContainers_;
-}
 
 QDebug operator<<(QDebug debug, const RegisterUnsavedFilesForEditorMessage &message)
 {

@@ -31,25 +31,42 @@
 
 namespace ClangBackEnd {
 
-class CMBIPC_EXPORT RegisterUnsavedFilesForEditorMessage
+class RegisterUnsavedFilesForEditorMessage
 {
-    friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const RegisterUnsavedFilesForEditorMessage &message);
-    friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, RegisterUnsavedFilesForEditorMessage &message);
-    friend CMBIPC_EXPORT bool operator==(const RegisterUnsavedFilesForEditorMessage &first, const RegisterUnsavedFilesForEditorMessage &second);
-    friend void PrintTo(const RegisterUnsavedFilesForEditorMessage &message, ::std::ostream* os);
 public:
     RegisterUnsavedFilesForEditorMessage() = default;
-    RegisterUnsavedFilesForEditorMessage(const QVector<FileContainer> &fileContainers);
+    RegisterUnsavedFilesForEditorMessage(const QVector<FileContainer> &fileContainers)
+        : fileContainers_(fileContainers)
+    {
+    }
 
-    const QVector<FileContainer> &fileContainers() const;
+    const QVector<FileContainer> &fileContainers() const
+    {
+        return fileContainers_;
+    }
+
+    friend QDataStream &operator<<(QDataStream &out, const RegisterUnsavedFilesForEditorMessage &message)
+    {
+        out << message.fileContainers_;
+
+        return out;
+    }
+
+    friend QDataStream &operator>>(QDataStream &in, RegisterUnsavedFilesForEditorMessage &message)
+    {
+        in >> message.fileContainers_;
+
+        return in;
+    }
+
+    friend bool operator==(const RegisterUnsavedFilesForEditorMessage &first, const RegisterUnsavedFilesForEditorMessage &second)
+    {
+        return first.fileContainers_ == second.fileContainers_;
+    }
 
 private:
     QVector<FileContainer> fileContainers_;
 };
-
-CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const RegisterUnsavedFilesForEditorMessage &message);
-CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, RegisterUnsavedFilesForEditorMessage &message);
-CMBIPC_EXPORT bool operator==(const RegisterUnsavedFilesForEditorMessage &first, const RegisterUnsavedFilesForEditorMessage &second);
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const RegisterUnsavedFilesForEditorMessage &message);
 void PrintTo(const RegisterUnsavedFilesForEditorMessage &message, ::std::ostream* os);
