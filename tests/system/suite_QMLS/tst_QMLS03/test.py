@@ -67,20 +67,22 @@ def checkUsages(resultsView, expectedResults, directory):
 
 def main():
     # prepare example project
-    sourceExample = os.path.abspath(sdkPath + "/Examples/4.7/declarative/animation/basics/property-animation")
-    proFile = "propertyanimation.pro"
+    sourceExample = os.path.join(Qt5Path.examplesPath(Targets.DESKTOP_561_DEFAULT),
+                                 "quick", "animation")
+    proFile = "animation.pro"
     if not neededFilePresent(os.path.join(sourceExample, proFile)):
         return
     # copy example project to temp directory
     templateDir = prepareTemplate(sourceExample)
     examplePath = os.path.join(templateDir, proFile)
+    templateDir = os.path.join(templateDir, "basics")   # only check subproject
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
     # open example project
-    openQmakeProject(examplePath, Targets.DESKTOP_480_DEFAULT)
+    openQmakeProject(examplePath, Targets.DESKTOP_531_DEFAULT)
     # open qml file
-    openDocument("propertyanimation.QML.qml.color-animation\\.qml")
+    openDocument("animation.Resources.animation\\.qrc./animation.basics.color-animation\\.qml")
     # get editor
     editorArea = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
     # 1. check usages using context menu
@@ -93,7 +95,7 @@ def main():
     invokeContextMenuItem(editorArea, "Find Usages")
     # check if usage was properly found
     expectedResults = [ExpectedResult("color-animation.qml", 49, "Rectangle {"),
-                       ExpectedResult("color-animation.qml", 96, "Rectangle {"),
+                       ExpectedResult("color-animation.qml", 109, "Rectangle {"),
                        ExpectedResult("property-animation.qml", 48, "Rectangle {"),
                        ExpectedResult("property-animation.qml", 57, "Rectangle {")]
     resultsView = waitForObject(":Qt Creator_Find::Internal::SearchResultTreeView")
@@ -112,7 +114,7 @@ def main():
     invokeMenuItem("Tools", "QML/JS", "Find Usages")
     # check if usage was properly found
     expectedResults = [ExpectedResult("color-animation.qml", 50, "anchors { left: parent.left; top: parent.top; right: parent.right; bottom: parent.verticalCenter }"),
-                       ExpectedResult("color-animation.qml", 97, "anchors { left: parent.left; top: parent.verticalCenter; right: parent.right; bottom: parent.bottom }"),
+                       ExpectedResult("color-animation.qml", 110, "anchors { left: parent.left; top: parent.verticalCenter; right: parent.right; bottom: parent.bottom }"),
                        ExpectedResult("property-animation.qml", 49, "anchors { left: parent.left; top: parent.top; right: parent.right; bottom: parent.verticalCenter }"),
                        ExpectedResult("property-animation.qml", 58, "anchors { left: parent.left; top: parent.verticalCenter; right: parent.right; bottom: parent.bottom }")]
     resultsView = waitForObject(":Qt Creator_Find::Internal::SearchResultTreeView")
@@ -130,7 +132,7 @@ def main():
         type(editorArea, "<Left>")
     type(editorArea, "<Ctrl+Shift+u>")
     # check if usage was properly found
-    expectedResults = [ExpectedResult("color-animation.qml", 87, "SequentialAnimation on opacity {")]
+    expectedResults = [ExpectedResult("color-animation.qml", 93, "SequentialAnimation on opacity {")]
     resultsView = waitForObject(":Qt Creator_Find::Internal::SearchResultTreeView")
     test.verify(checkUsages(resultsView, expectedResults, templateDir),
                 "Verifying if usages were properly found using shortcut.")
