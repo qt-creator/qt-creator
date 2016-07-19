@@ -182,6 +182,7 @@ void ConnectionClient::endProcess(QProcess *process)
 
 void ConnectionClient::terminateProcess(QProcess *process)
 {
+    Q_UNUSED(process)
 #ifndef Q_OS_WIN32
     if (isProcessIsRunning()) {
         process->terminate();
