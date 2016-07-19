@@ -31,23 +31,42 @@
 
 namespace ClangBackEnd {
 
-class CMBIPC_EXPORT EchoMessage
+class EchoMessage
 {
-    friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, EchoMessage &message);
-    friend CMBIPC_EXPORT bool operator==(const EchoMessage &first, const EchoMessage &second);
 public:
     EchoMessage() = default;
-    explicit EchoMessage(const MessageEnvelop &message);
+    explicit EchoMessage(const MessageEnvelop &message)
+        : message_(message)
+    {
+    }
 
-    const MessageEnvelop &message() const;
+    const MessageEnvelop &message() const
+    {
+        return message_;
+    }
+
+    friend QDataStream &operator<<(QDataStream &out, const EchoMessage &message)
+    {
+        out << message.message();
+
+        return out;
+    }
+
+    friend QDataStream &operator>>(QDataStream &in, EchoMessage &message)
+    {
+        in >> message.message_;
+
+        return in;
+    }
+
+    friend bool operator==(const EchoMessage &first, const EchoMessage &second)
+    {
+        return first.message_ == second.message_;
+    }
 
 private:
     MessageEnvelop message_;
 };
-
-CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const EchoMessage &message);
-CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, EchoMessage &message);
-CMBIPC_EXPORT bool operator==(const EchoMessage &first, const EchoMessage &second);
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const EchoMessage &message);
 void PrintTo(const EchoMessage &message, ::std::ostream* os);

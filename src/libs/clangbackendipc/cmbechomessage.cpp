@@ -25,41 +25,11 @@
 
 #include "cmbechomessage.h"
 
-#include <QDataStream>
 #include <QDebug>
 
 #include <ostream>
 
 namespace ClangBackEnd {
-
-EchoMessage::EchoMessage(const MessageEnvelop &message)
-    : message_(message)
-{
-}
-
-const MessageEnvelop &EchoMessage::message() const
-{
-    return message_;
-}
-
-QDataStream &operator<<(QDataStream &out, const EchoMessage &message)
-{
-    out << message.message();
-
-    return out;
-}
-
-QDataStream &operator>>(QDataStream &in, EchoMessage &message)
-{
-    in >> message.message_;
-
-    return in;
-}
-
-bool operator==(const EchoMessage &first, const EchoMessage &second)
-{
-    return first.message_ == second.message_;
-}
 
 QDebug operator<<(QDebug debug, const EchoMessage &)
 {
