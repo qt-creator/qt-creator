@@ -26,17 +26,31 @@
 #pragma once
 
 #include "clangbackendipc_global.h"
-#include <ostream>
+
+#include <QDataStream>
+
+#include <iosfwd>
 
 namespace ClangBackEnd {
 
-class CMBIPC_EXPORT EndMessage
+class EndMessage
 {
-};
+public:
+    friend QDataStream &operator<<(QDataStream &out, const EndMessage &/*message*/)
+    {
+        return out;
+    }
 
-CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const EndMessage &message);
-CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, EndMessage &message);
-CMBIPC_EXPORT bool operator==(const EndMessage &first, const EndMessage &second);
+    friend QDataStream &operator>>(QDataStream &in, EndMessage &/*message*/)
+    {
+        return in;
+    }
+
+    friend bool operator==(const EndMessage &/*first*/, const EndMessage &/*second*/)
+    {
+        return true;
+    }
+};
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const EndMessage &message);
 void PrintTo(const EndMessage &message, ::std::ostream* os);

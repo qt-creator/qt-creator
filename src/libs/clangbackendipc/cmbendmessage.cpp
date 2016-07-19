@@ -25,27 +25,11 @@
 
 #include "cmbendmessage.h"
 
-#include <QDataStream>
 #include <QDebug>
 
 #include <ostream>
 
 namespace ClangBackEnd {
-
-QDataStream &operator<<(QDataStream &out, const EndMessage &/*message*/)
-{
-    return out;
-}
-
-QDataStream &operator>>(QDataStream &in, EndMessage &/*message*/)
-{
-    return in;
-}
-
-bool operator==(const EndMessage &/*first*/, const EndMessage &/*second*/)
-{
-    return true;
-}
 
 QDebug operator<<(QDebug debug, const EndMessage &/*message*/)
 {
