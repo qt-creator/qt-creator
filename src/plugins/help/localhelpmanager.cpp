@@ -91,19 +91,6 @@ static void setOrRemoveSetting(const char *key, const T &value, const T &default
         settings->setValue(QLatin1String(key), value);
 }
 
-// TODO remove some time after Qt Creator 3.5
-static QVariant getSettingWithFallback(const QString &settingsKey,
-                                       const QString &fallbackSettingsKey,
-                                       const QVariant &fallbackSettingsValue)
-{
-    QSettings *settings = Core::ICore::settings();
-    if (settings->contains(settingsKey))
-        return settings->value(settingsKey);
-    // read from help engine for old settings
-    // TODO remove some time after Qt Creator 3.5
-    return LocalHelpManager::helpEngine().customValue(fallbackSettingsKey, fallbackSettingsValue);
-}
-
 LocalHelpManager::LocalHelpManager(QObject *parent)
     : QObject(parent)
 {
@@ -171,8 +158,8 @@ void LocalHelpManager::setFallbackFont(const QFont &font)
 
 LocalHelpManager::StartOption LocalHelpManager::startOption()
 {
-    const QVariant value = getSettingWithFallback(QLatin1String(kStartOptionKey),
-                                                  QLatin1String("StartOption"), ShowLastPages);
+    const QVariant value = Core::ICore::settings()->value(QLatin1String(kStartOptionKey),
+                                                          ShowLastPages);
     bool ok;
     int optionValue = value.toInt(&ok);
     if (!ok)
@@ -197,9 +184,8 @@ void LocalHelpManager::setStartOption(LocalHelpManager::StartOption option)
 
 Core::HelpManager::HelpViewerLocation LocalHelpManager::contextHelpOption()
 {
-    const QVariant value = getSettingWithFallback(QLatin1String(kContextHelpOptionKey),
-                                                  QLatin1String("ContextHelpOption"),
-                                                  Core::HelpManager::SideBySideIfPossible);
+    const QVariant value = Core::ICore::settings()->value(QLatin1String(kContextHelpOptionKey),
+                                                          Core::HelpManager::SideBySideIfPossible);
     bool ok;
     int optionValue = value.toInt(&ok);
     if (!ok)
@@ -226,8 +212,7 @@ void LocalHelpManager::setContextHelpOption(Core::HelpManager::HelpViewerLocatio
 
 bool LocalHelpManager::returnOnClose()
 {
-    const QVariant value = getSettingWithFallback(QLatin1String(kReturnOnCloseKey),
-                                                  QLatin1String("ReturnOnClose"), false);
+    const QVariant value = Core::ICore::settings()->value(QLatin1String(kReturnOnCloseKey), false);
     return value.toBool();
 }
 
@@ -239,8 +224,8 @@ void LocalHelpManager::setReturnOnClose(bool returnOnClose)
 
 QStringList LocalHelpManager::lastShownPages()
 {
-    const QVariant value = getSettingWithFallback(QLatin1String(kLastShownPagesKey),
-                                                  QLatin1String("LastShownPages"), QVariant());
+    const QVariant value = Core::ICore::settings()->value(QLatin1String(kLastShownPagesKey),
+                                                          QVariant());
     return value.toString().split(Constants::ListSeparator, QString::SkipEmptyParts);
 }
 
@@ -252,8 +237,8 @@ void LocalHelpManager::setLastShownPages(const QStringList &pages)
 
 QList<float> LocalHelpManager::lastShownPagesZoom()
 {
-    const QVariant value = getSettingWithFallback(QLatin1String(kLastShownPagesZoomKey),
-                                                  QLatin1String("LastShownPagesZoom"), QVariant());
+    const QVariant value = Core::ICore::settings()->value(QLatin1String(kLastShownPagesZoomKey),
+                                                          QVariant());
     const QStringList stringValues = value.toString().split(Constants::ListSeparator,
                                                             QString::SkipEmptyParts);
     return Utils::transform(stringValues, [](const QString &str) { return str.toFloat(); });
@@ -269,8 +254,7 @@ void LocalHelpManager::setLastShownPagesZoom(const QList<float> &zoom)
 
 int LocalHelpManager::lastSelectedTab()
 {
-    const QVariant value = getSettingWithFallback(QLatin1String(kLastSelectedTabKey),
-                                                  QLatin1String("LastTabPage"), 0);
+    const QVariant value = Core::ICore::settings()->value(QLatin1String(kLastSelectedTabKey), 0);
     return value.toInt();
 }
 
