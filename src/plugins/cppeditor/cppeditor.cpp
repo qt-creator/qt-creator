@@ -84,7 +84,6 @@
 #include <QFutureWatcher>
 #include <QMenu>
 #include <QPointer>
-#include <QSignalMapper>
 #include <QTextEdit>
 #include <QTimer>
 #include <QToolButton>
@@ -120,7 +119,6 @@ public:
     CppLocalRenaming m_localRenaming;
 
     SemanticInfo m_lastSemanticInfo;
-    QuickFixOperations m_quickFixes;
 
     CppUseSelectionsUpdater m_useSelectionsUpdater;
 
@@ -677,11 +675,6 @@ bool CppEditorWidget::event(QEvent *e)
     return TextEditorWidget::event(e);
 }
 
-void CppEditorWidget::performQuickFix(int index)
-{
-    d->m_quickFixes.at(index)->perform();
-}
-
 void CppEditorWidget::processKeyNormally(QKeyEvent *e)
 {
     TextEditorWidget::keyPressEvent(e);
@@ -700,9 +693,6 @@ void CppEditorWidget::contextMenuEvent(QContextMenuEvent *e)
     QMenu *quickFixMenu = new QMenu(tr("&Refactor"), menu);
     quickFixMenu->addAction(ActionManager::command(Constants::RENAME_SYMBOL_UNDER_CURSOR)->action());
 
-    QSignalMapper mapper;
-    connect(&mapper, static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped),
-            this, &CppEditorWidget::performQuickFix);
     if (isSemanticInfoValidExceptLocalUses()) {
         d->m_useSelectionsUpdater.update(CppUseSelectionsUpdater::Synchronous);
         AssistInterface *interface = createAssistInterface(QuickFix, ExplicitlyInvoked);
@@ -715,11 +705,8 @@ void CppEditorWidget::contextMenuEvent(QContextMenuEvent *e)
                 for (int index = 0; index < model->size(); ++index) {
                     auto item = static_cast<AssistProposalItem *>(model->proposalItem(index));
                     QuickFixOperation::Ptr op = item->data().value<QuickFixOperation::Ptr>();
-                    d->m_quickFixes.append(op);
                     QAction *action = quickFixMenu->addAction(op->description());
-                    mapper.setMapping(action, index);
-                    connect(action, &QAction::triggered,
-                            &mapper, static_cast<void (QSignalMapper::*)()>(&QSignalMapper::map));
+                    connect(action, &QAction::triggered, this, [op] { op->perform(); });
                 }
                 delete model;
             }
@@ -737,7 +724,6 @@ void CppEditorWidget::contextMenuEvent(QContextMenuEvent *e)
     menu->exec(e->globalPos());
     if (!menu)
         return;
-    d->m_quickFixes.clear();
     delete menu;
 }
 

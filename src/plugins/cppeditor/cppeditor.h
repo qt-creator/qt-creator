@@ -126,8 +126,6 @@ private:
                             bool updateUseSelectionSynchronously = false);
     void updatePreprocessorButtonTooltip();
 
-    void performQuickFix(int index);
-
     void processKeyNormally(QKeyEvent *e);
 
     void finalizeInitialization() override;
