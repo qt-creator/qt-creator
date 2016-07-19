@@ -64,8 +64,6 @@ public:
     {
     }
 
-    ~BranchNameValidator() {}
-
     State validate(QString &input, int &pos) const override
     {
         Q_UNUSED(pos)
@@ -141,7 +139,7 @@ void BranchAddDialog::setTrackedBranchName(const QString &name, bool remote)
     }
 }
 
-bool BranchAddDialog::track()
+bool BranchAddDialog::track() const
 {
     return m_ui->trackingCheckBox->isChecked();
 }

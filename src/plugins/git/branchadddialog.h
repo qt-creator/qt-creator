@@ -46,7 +46,7 @@ public:
 
     void setTrackedBranchName(const QString &name, bool remote);
 
-    bool track();
+    bool track() const;
 
 private:
     void updateButtonStatus();
