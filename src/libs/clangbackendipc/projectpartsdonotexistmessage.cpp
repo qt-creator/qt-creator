@@ -25,48 +25,17 @@
 
 #include "projectpartsdonotexistmessage.h"
 
-#include <QDataStream>
 #include <QDebug>
 
 #include <ostream>
 
 namespace ClangBackEnd {
 
-ProjectPartsDoNotExistMessage::ProjectPartsDoNotExistMessage(const Utf8StringVector &projectPartIds)
-    : projectPartIds_(projectPartIds)
-{
-}
-
-
-const Utf8StringVector &ProjectPartsDoNotExistMessage::projectPartIds() const
-{
-    return projectPartIds_;
-}
-
-QDataStream &operator<<(QDataStream &out, const ProjectPartsDoNotExistMessage &message)
-{
-    out << message.projectPartIds_;
-
-    return out;
-}
-
-QDataStream &operator>>(QDataStream &in, ProjectPartsDoNotExistMessage &message)
-{
-    in >> message.projectPartIds_;
-
-    return in;
-}
-
-bool operator==(const ProjectPartsDoNotExistMessage &first, const ProjectPartsDoNotExistMessage &second)
-{
-    return first.projectPartIds_ == second.projectPartIds_;
-}
-
 QDebug operator<<(QDebug debug, const ProjectPartsDoNotExistMessage &message)
 {
     debug.nospace() << "ProjectPartDoesNotExistMessage(";
 
-    debug.nospace() << message.projectPartIds_;
+    debug.nospace() << message.projectPartIds();
 
     debug.nospace() << ")";
 
