@@ -27,33 +27,58 @@
 
 #include "sourcerangecontainer.h"
 
+#include <QDataStream>
+
 namespace ClangBackEnd {
 
-class CMBIPC_EXPORT FixItContainer
+class FixItContainer
 {
-    friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const FixItContainer &container);
-    friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, FixItContainer &container);
-    friend CMBIPC_EXPORT bool operator==(const FixItContainer &first, const FixItContainer &second);
 public:
     FixItContainer() = default;
     FixItContainer(const Utf8String &text,
-                   const SourceRangeContainer &range);
+                   const SourceRangeContainer &range)
+        : range_(range),
+          text_(text)
+    {
+    }
 
-    const Utf8String &text() const;
-    const SourceRangeContainer &range() const;
+    const Utf8String &text() const
+    {
+        return text_;
+    }
+
+    const SourceRangeContainer &range() const
+    {
+        return range_;
+    }
+
+    friend QDataStream &operator<<(QDataStream &out, const FixItContainer &container)
+    {
+        out << container.text_;
+        out << container.range_;
+
+        return out;
+    }
+
+    friend QDataStream &operator>>(QDataStream &in, FixItContainer &container)
+    {
+        in >> container.text_;
+        in >> container.range_;
+
+        return in;
+    }
+
+    friend bool operator==(const FixItContainer &first, const FixItContainer &second)
+    {
+        return first.text_ == second.text_ && first.range_ == second.range_;
+    }
 
 private:
     SourceRangeContainer range_;
     Utf8String text_;
 };
 
-CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const FixItContainer &container);
-CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, FixItContainer &container);
-CMBIPC_EXPORT bool operator==(const FixItContainer &first, const FixItContainer &second);
-
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const FixItContainer &container);
 void PrintTo(const FixItContainer &container, ::std::ostream* os);
 
 } // namespace ClangBackEnd
-
-Q_DECLARE_METATYPE(ClangBackEnd::FixItContainer)

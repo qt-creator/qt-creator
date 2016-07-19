@@ -25,50 +25,11 @@
 
 #include "fixitcontainer.h"
 
-#include <QDataStream>
 #include <QDebug>
 
 #include <ostream>
 
 namespace ClangBackEnd {
-
-FixItContainer::FixItContainer(const Utf8String &text,
-                               const SourceRangeContainer &range)
-    : range_(range),
-      text_(text)
-{
-}
-
-const Utf8String &FixItContainer::text() const
-{
-    return text_;
-}
-
-const SourceRangeContainer &FixItContainer::range() const
-{
-    return range_;
-}
-
-QDataStream &operator<<(QDataStream &out, const FixItContainer &container)
-{
-    out << container.text_;
-    out << container.range_;
-
-    return out;
-}
-
-QDataStream &operator>>(QDataStream &in, FixItContainer &container)
-{
-    in >> container.text_;
-    in >> container.range_;
-
-    return in;
-}
-
-bool operator==(const FixItContainer &first, const FixItContainer &second)
-{
-    return first.text_ == second.text_ && first.range_ == second.range_;
-}
 
 QDebug operator<<(QDebug debug, const FixItContainer &container)
 {
