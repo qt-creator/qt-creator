@@ -33,31 +33,47 @@
 
 namespace ClangBackEnd {
 
-class CMBIPC_EXPORT UnregisterTranslationUnitsForEditorMessage
+class UnregisterTranslationUnitsForEditorMessage
 {
-    friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const UnregisterTranslationUnitsForEditorMessage &message);
-    friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, UnregisterTranslationUnitsForEditorMessage &message);
-    friend CMBIPC_EXPORT bool operator==(const UnregisterTranslationUnitsForEditorMessage &first, const UnregisterTranslationUnitsForEditorMessage &second);
-    friend void PrintTo(const UnregisterTranslationUnitsForEditorMessage &message, ::std::ostream* os);
-
 public:
     UnregisterTranslationUnitsForEditorMessage() = default;
-    UnregisterTranslationUnitsForEditorMessage(const QVector<FileContainer> &fileContainers);
+    UnregisterTranslationUnitsForEditorMessage(const QVector<FileContainer> &fileContainers)
+        : fileContainers_(fileContainers)
+    {
+    }
 
-    const QVector<FileContainer> &fileContainers() const;
+    const QVector<FileContainer> &fileContainers() const
+    {
+        return fileContainers_;
+    }
 
+    friend QDataStream &operator<<(QDataStream &out, const UnregisterTranslationUnitsForEditorMessage &message)
+    {
+        out << message.fileContainers_;
+
+        return out;
+    }
+
+    friend QDataStream &operator>>(QDataStream &in, UnregisterTranslationUnitsForEditorMessage &message)
+    {
+        in >> message.fileContainers_;
+
+        return in;
+    }
+
+    friend bool operator==(const UnregisterTranslationUnitsForEditorMessage &first, const UnregisterTranslationUnitsForEditorMessage &second)
+    {
+        return first.fileContainers_ == second.fileContainers_;
+    }
+
+#ifdef UNIT_TESTS
+    friend void PrintTo(const UnregisterTranslationUnitsForEditorMessage &message, ::std::ostream* os);
+#endif
 private:
     QVector<FileContainer> fileContainers_;
 };
 
-CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const UnregisterTranslationUnitsForEditorMessage &message);
-CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, UnregisterTranslationUnitsForEditorMessage &message);
-CMBIPC_EXPORT bool operator==(const UnregisterTranslationUnitsForEditorMessage &first, const UnregisterTranslationUnitsForEditorMessage &second);
-
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const UnregisterTranslationUnitsForEditorMessage &message);
-#ifdef CLANGBACKEND_TESTS
-void PrintTo(const UnregisterTranslationUnitsForEditorMessage &message, ::std::ostream* os);
-#endif
 
 DECLARE_MESSAGE(UnregisterTranslationUnitsForEditorMessage);
 } // namespace ClangBackEnd

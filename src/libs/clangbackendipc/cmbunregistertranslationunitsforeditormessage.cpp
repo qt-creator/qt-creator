@@ -29,40 +29,9 @@
 #include <gtest/gtest-printers.h>
 #endif
 
-#include <QDataStream>
 #include <QDebug>
 
 namespace ClangBackEnd {
-
-
-UnregisterTranslationUnitsForEditorMessage::UnregisterTranslationUnitsForEditorMessage(const QVector<FileContainer> &fileContainers)
-    : fileContainers_(fileContainers)
-{
-}
-
-const QVector<FileContainer> &UnregisterTranslationUnitsForEditorMessage::fileContainers() const
-{
-    return fileContainers_;
-}
-
-QDataStream &operator<<(QDataStream &out, const UnregisterTranslationUnitsForEditorMessage &message)
-{
-    out << message.fileContainers_;
-
-    return out;
-}
-
-QDataStream &operator>>(QDataStream &in, UnregisterTranslationUnitsForEditorMessage &message)
-{
-    in >> message.fileContainers_;
-
-    return in;
-}
-
-bool operator==(const UnregisterTranslationUnitsForEditorMessage &first, const UnregisterTranslationUnitsForEditorMessage &second)
-{
-    return first.fileContainers_ == second.fileContainers_;
-}
 
 QDebug operator<<(QDebug debug, const UnregisterTranslationUnitsForEditorMessage &message)
 {
