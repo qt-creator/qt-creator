@@ -34,7 +34,6 @@ class QPushButton;
 class QToolButton;
 class QLabel;
 class QVBoxLayout;
-class QSignalMapper;
 class QGraphicsOpacityEffect;
 QT_END_NAMESPACE
 
@@ -109,12 +108,8 @@ private:
     void updateSummary();
     void updateAdditionalSummary();
     void updateEnabledState();
-    void triggerStepMoveUp(int pos);
     void stepMoved(int from, int to);
-    void triggerStepMoveDown(int pos);
-    void triggerRemoveBuildStep(int pos);
     void removeBuildStep(int pos);
-    void triggerDisable(int pos);
 
     void setupUi();
     void updateBuildStepButtonsState();
@@ -128,11 +123,6 @@ private:
 
     QLabel *m_noStepsLabel;
     QPushButton *m_addButton;
-
-    QSignalMapper *m_disableMapper;
-    QSignalMapper *m_upMapper;
-    QSignalMapper *m_downMapper;
-    QSignalMapper *m_removeMapper;
 
     int m_leftMargin;
 };
