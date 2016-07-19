@@ -29,29 +29,57 @@
 
 namespace ClangBackEnd {
 
-class CMBIPC_EXPORT TranslationUnitDoesNotExistMessage
+class TranslationUnitDoesNotExistMessage
 {
-    friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const TranslationUnitDoesNotExistMessage &message);
-    friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, TranslationUnitDoesNotExistMessage &message);
-    friend CMBIPC_EXPORT bool operator==(const TranslationUnitDoesNotExistMessage &first, const TranslationUnitDoesNotExistMessage &second);
-    friend CMBIPC_EXPORT QDebug operator<<(QDebug debug, const TranslationUnitDoesNotExistMessage &message);
-    friend void PrintTo(const TranslationUnitDoesNotExistMessage &message, ::std::ostream* os);
 public:
     TranslationUnitDoesNotExistMessage() = default;
-    TranslationUnitDoesNotExistMessage(const FileContainer &fileContainer);
-    TranslationUnitDoesNotExistMessage(const Utf8String &filePath, const Utf8String &projectPartId);
+    TranslationUnitDoesNotExistMessage(const FileContainer &fileContainer)
+        : fileContainer_(fileContainer)
+    {
+    }
 
-    const FileContainer &fileContainer() const;
-    const Utf8String &filePath() const;
-    const Utf8String &projectPartId() const;
+    TranslationUnitDoesNotExistMessage(const Utf8String &filePath, const Utf8String &projectPartId)
+        : fileContainer_(filePath, projectPartId)
+    {
+    }
+
+    const FileContainer &fileContainer() const
+    {
+        return fileContainer_;
+    }
+
+    const Utf8String &filePath() const
+    {
+        return fileContainer_.filePath();
+    }
+
+    const Utf8String &projectPartId() const
+    {
+        return fileContainer_.projectPartId();
+    }
+
+    friend QDataStream &operator<<(QDataStream &out, const TranslationUnitDoesNotExistMessage &message)
+    {
+        out << message.fileContainer_;
+
+        return out;
+    }
+
+    friend QDataStream &operator>>(QDataStream &in, TranslationUnitDoesNotExistMessage &message)
+    {
+        in >> message.fileContainer_;
+
+        return in;
+    }
+
+    friend bool operator==(const TranslationUnitDoesNotExistMessage &first, const TranslationUnitDoesNotExistMessage &second)
+    {
+        return first.fileContainer_ == second.fileContainer_;
+    }
 
 private:
     FileContainer fileContainer_;
 };
-
-CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const TranslationUnitDoesNotExistMessage &message);
-CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, TranslationUnitDoesNotExistMessage &message);
-CMBIPC_EXPORT bool operator==(const TranslationUnitDoesNotExistMessage &first, const TranslationUnitDoesNotExistMessage &second);
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const TranslationUnitDoesNotExistMessage &message);
 void PrintTo(const TranslationUnitDoesNotExistMessage &message, ::std::ostream* os);
