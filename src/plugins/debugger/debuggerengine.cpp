@@ -550,16 +550,6 @@ void DebuggerEngine::setRegisterValue(const QString &name, const QString &value)
     Q_UNUSED(value);
 }
 
-static Utils::OutputFormat outputFormatForChannelType(int channel)
-{
-    switch (channel) {
-    case AppOutput: return Utils::StdOutFormatSameLine;
-    case AppError: return Utils::StdErrFormatSameLine;
-    case AppStuff: return Utils::DebugFormat;
-    default: return Utils::NumberOfFormats;
-    }
-}
-
 void DebuggerEngine::showMessage(const QString &msg, int channel, int timeout) const
 {
     if (d->m_masterEngine) {
@@ -577,7 +567,7 @@ void DebuggerEngine::showMessage(const QString &msg, int channel, int timeout) c
     case AppError:
     case AppStuff:
         if (d->m_runControl)
-            d->m_runControl->appendMessage(msg, outputFormatForChannelType(channel));
+            d->m_runControl->handleApplicationOutput(msg, channel);
         else
             qWarning("Warning: %s (no active run control)", qPrintable(msg));
         break;

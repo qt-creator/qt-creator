@@ -30,6 +30,8 @@
 
 #include <projectexplorer/runconfiguration.h>
 
+#include <functional>
+
 namespace Debugger {
 
 class RemoteSetupResult;
@@ -42,6 +44,19 @@ DEBUGGER_EXPORT DebuggerRunControl *createDebuggerRunControl(const DebuggerStart
                                                              ProjectExplorer::RunConfiguration *runConfig,
                                                              QString *errorMessage,
                                                              Core::Id runMode = ProjectExplorer::Constants::DEBUG_RUN_MODE);
+
+
+struct OutputProcessor
+{
+    enum OutputChannel
+    {
+        StandardOut,
+        StandardError
+    };
+
+    std::function<void(const QString &msg, OutputChannel channel)> process;
+    bool logToAppOutputPane = true;
+};
 
 class DEBUGGER_EXPORT DebuggerRunControl : public ProjectExplorer::RunControl
 {
@@ -57,6 +72,7 @@ public:
     bool isRunning() const override;
     QString displayName() const override;
     bool supportsReRunning() const override;
+    void handleApplicationOutput(const QString &msg, int channel);
 
     void startFailed();
     void notifyEngineRemoteServerRunning(const QByteArray &msg, int pid);
@@ -70,6 +86,8 @@ public:
     void showMessage(const QString &msg, int channel = LogDebug);
 
     DebuggerStartParameters &startParameters();
+
+    void setOutputProcessor(OutputProcessor *processor);
 
 signals:
     void requestRemoteSetup();
@@ -87,6 +105,7 @@ private:
 
     Internal::DebuggerEngine *m_engine;
     bool m_running;
+    OutputProcessor *m_outputProcessor = 0;
 };
 
 } // namespace Debugger

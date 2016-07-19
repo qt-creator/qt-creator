@@ -129,6 +129,10 @@ DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfig, DebuggerEngi
 DebuggerRunControl::~DebuggerRunControl()
 {
     disconnect();
+    if (m_outputProcessor) {
+        delete m_outputProcessor;
+        m_outputProcessor = 0;
+    }
     if (m_engine) {
         DebuggerEngine *engine = m_engine;
         m_engine = 0;
@@ -147,6 +151,32 @@ bool DebuggerRunControl::supportsReRunning() const
 {
     // QML and/or mixed are not prepared for it.
     return m_engine && !(m_engine->runParameters().languages & QmlLanguage);
+}
+
+static OutputFormat outputFormatForChannelType(int channel)
+{
+    switch (channel) {
+    case AppOutput: return StdOutFormatSameLine;
+    case AppError: return StdErrFormatSameLine;
+    case AppStuff: return DebugFormat;
+    default: return NumberOfFormats;
+    }
+}
+
+void DebuggerRunControl::handleApplicationOutput(const QString &msg, int channel)
+{
+    OutputFormat format = outputFormatForChannelType(channel);
+    QTC_ASSERT(format != NumberOfFormats, return);
+    if (m_outputProcessor) {
+        if (m_outputProcessor->logToAppOutputPane)
+            appendMessage(msg, format);
+        if (m_outputProcessor->process) {
+            m_outputProcessor->process(msg, channel == AppError ? OutputProcessor::StandardError
+                                                                : OutputProcessor::StandardOut);
+        }
+    } else {
+        appendMessage(msg, format);
+    }
 }
 
 void DebuggerRunControl::start()
@@ -275,6 +305,12 @@ bool DebuggerRunControl::isRunning() const
 DebuggerStartParameters &DebuggerRunControl::startParameters()
 {
     return m_engine->runParameters();
+}
+
+void DebuggerRunControl::setOutputProcessor(OutputProcessor *processor)
+{
+    delete m_outputProcessor;
+    m_outputProcessor = processor;
 }
 
 void DebuggerRunControl::notifyInferiorIll()
