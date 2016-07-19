@@ -141,9 +141,7 @@ QString SynchronousProcessResponse::exitMessage(const QString &binary, int timeo
 QByteArray SynchronousProcessResponse::allRawOutput() const
 {
     if (!rawStdOut.isEmpty() && !rawStdErr.isEmpty()) {
-        QByteArray result;
-        result.reserve(rawStdOut.size() + rawStdErr.size() + 1);
-        result = rawStdOut;
+        QByteArray result = rawStdOut;
         if (!result.endsWith('\n'))
             result += '\n';
         result += rawStdErr;
@@ -157,13 +155,14 @@ QString SynchronousProcessResponse::allOutput() const
     const QString out = stdOut();
     const QString err = stdErr();
 
-    QString result;
-    result.reserve(out.size() + err.size() + 1);
-    result = out;
-    if (!result.endsWith('\n'))
-        result += '\n';
-    result += err;
-    return result;
+    if (!out.isEmpty() && !err.isEmpty()) {
+        QString result = out;
+        if (!result.endsWith('\n'))
+            result += '\n';
+        result += err;
+        return result;
+    }
+    return !out.isEmpty() ? out : err;
 }
 
 QString SynchronousProcessResponse::stdOut() const
