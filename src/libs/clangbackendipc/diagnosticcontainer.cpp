@@ -25,117 +25,11 @@
 
 #include "diagnosticcontainer.h"
 
-#include <QDataStream>
 #include <QDebug>
 
 #include <ostream>
 
 namespace ClangBackEnd {
-
-DiagnosticContainer::DiagnosticContainer(const Utf8String &text,
-                                         const Utf8String &category,
-                                         const std::pair<Utf8String,Utf8String> &options,
-                                         DiagnosticSeverity severity,
-                                         const SourceLocationContainer &location,
-                                         const QVector<SourceRangeContainer> &ranges,
-                                         const QVector<FixItContainer> &fixIts,
-                                         const QVector<DiagnosticContainer> &children)
-    : location_(location),
-      ranges_(ranges),
-      text_(text),
-      category_(category),
-      enableOption_(options.first),
-      disableOption_(options.second),
-      children_(children),
-      fixIts_(fixIts),
-      severity_(severity)
-{
-}
-
-const Utf8String &DiagnosticContainer::text() const
-{
-    return text_;
-}
-
-const Utf8String &DiagnosticContainer::category() const
-{
-    return category_;
-}
-
-const Utf8String &DiagnosticContainer::enableOption() const
-{
-    return enableOption_;
-}
-
-const Utf8String &DiagnosticContainer::disableOption() const
-{
-    return disableOption_;
-}
-
-const SourceLocationContainer &DiagnosticContainer::location() const
-{
-    return location_;
-}
-
-const QVector<SourceRangeContainer> &DiagnosticContainer::ranges() const
-{
-    return ranges_;
-}
-
-DiagnosticSeverity DiagnosticContainer::severity() const
-{
-    return severity_;
-}
-
-const QVector<FixItContainer> &DiagnosticContainer::fixIts() const
-{
-    return fixIts_;
-}
-
-const QVector<DiagnosticContainer> &DiagnosticContainer::children() const
-{
-    return children_;
-}
-
-QDataStream &operator<<(QDataStream &out, const DiagnosticContainer &container)
-{
-    out << container.text_;
-    out << container.category_;
-    out << container.enableOption_;
-    out << container.disableOption_;
-    out << container.location_;
-    out << static_cast<quint32>(container.severity_);
-    out << container.ranges_;
-    out << container.fixIts_;
-    out << container.children_;
-
-    return out;
-}
-
-QDataStream &operator>>(QDataStream &in, DiagnosticContainer &container)
-{
-    quint32 severity;
-
-    in >> container.text_;
-    in >> container.category_;
-    in >> container.enableOption_;
-    in >> container.disableOption_;
-    in >> container.location_;
-    in >> severity;
-    in >> container.ranges_;
-    in >> container.fixIts_;
-    in >> container.children_;
-
-    container.severity_ = static_cast<DiagnosticSeverity>(severity);
-
-    return in;
-}
-
-bool operator==(const DiagnosticContainer &first, const DiagnosticContainer &second)
-{
-    return first.text_ == second.text_
-        && first.location_ == second.location_;
-}
 
 static const char *severityToText(DiagnosticSeverity severity)
 {
