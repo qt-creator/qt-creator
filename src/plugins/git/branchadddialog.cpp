@@ -70,11 +70,7 @@ public:
     {
         Q_UNUSED(pos)
 
-        // NoGos
-
-        if (input.contains(m_invalidChars))
-            return Invalid;
-
+        input.replace(m_invalidChars, QLatin1String("_"));
 
         // "Intermediate" patterns, may change to Acceptable when user edits further:
 
