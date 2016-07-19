@@ -48,6 +48,7 @@
 #include <QCoreApplication>
 #include <QCryptographicHash>
 #include <QDateTime>
+#include <QLibraryInfo>
 #include <QMessageBox>
 #include <QThread>
 
@@ -375,9 +376,11 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
         environment.set(QLatin1String("QMLDESIGNER_RC_PATHS"), m_qrcMapping);
     }
 
-    if (m_availablePuppetType != FallbackPuppet) {
-        environment.appendOrSet("QML2_IMPORT_PATH", m_model->importPaths().join(pathSep), pathSep);
-    }
+    QStringList importPaths = m_model->importPaths();
+    if (m_availablePuppetType == FallbackPuppet)
+        importPaths.append(QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath));
+    environment.appendOrSet("QML2_IMPORT_PATH", importPaths.join(pathSep), pathSep);
+
     return environment.toProcessEnvironment();
 }
 
