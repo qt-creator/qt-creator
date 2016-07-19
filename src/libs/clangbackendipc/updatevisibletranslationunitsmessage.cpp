@@ -25,7 +25,6 @@
 
 #include "updatevisibletranslationunitsmessage.h"
 
-#include <QDataStream>
 #include <QDebug>
 
 #include <algorithm>
@@ -33,46 +32,6 @@
 #include <ostream>
 
 namespace ClangBackEnd {
-
-UpdateVisibleTranslationUnitsMessage::UpdateVisibleTranslationUnitsMessage(
-        const Utf8String &currentEditorFilePath,
-        const Utf8StringVector &visibleEditorFilePaths)
-    : currentEditorFilePath_(currentEditorFilePath),
-      visibleEditorFilePaths_(visibleEditorFilePaths)
-{
-}
-
-const Utf8String &UpdateVisibleTranslationUnitsMessage::currentEditorFilePath() const
-{
-    return currentEditorFilePath_;
-}
-
-const Utf8StringVector &UpdateVisibleTranslationUnitsMessage::visibleEditorFilePaths() const
-{
-    return visibleEditorFilePaths_;
-}
-
-QDataStream &operator<<(QDataStream &out, const UpdateVisibleTranslationUnitsMessage &message)
-{
-    out << message.currentEditorFilePath_;
-    out << message.visibleEditorFilePaths_;
-
-    return out;
-}
-
-QDataStream &operator>>(QDataStream &in, UpdateVisibleTranslationUnitsMessage &message)
-{
-    in >> message.currentEditorFilePath_;
-    in >> message.visibleEditorFilePaths_;
-
-    return in;
-}
-
-bool operator==(const UpdateVisibleTranslationUnitsMessage &first, const UpdateVisibleTranslationUnitsMessage &second)
-{
-    return first.currentEditorFilePath_ == second.currentEditorFilePath_
-        && first.visibleEditorFilePaths_ == second.visibleEditorFilePaths_;
-}
 
 QDebug operator<<(QDebug debug, const UpdateVisibleTranslationUnitsMessage &message)
 {

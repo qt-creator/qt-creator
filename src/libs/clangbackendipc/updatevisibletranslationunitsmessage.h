@@ -29,29 +29,56 @@
 
 #include <utf8stringvector.h>
 
+#include <QDataStream>
+
 namespace ClangBackEnd {
 
-class CMBIPC_EXPORT UpdateVisibleTranslationUnitsMessage
+class UpdateVisibleTranslationUnitsMessage
 {
-    friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const UpdateVisibleTranslationUnitsMessage &message);
-    friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, UpdateVisibleTranslationUnitsMessage &message);
-    friend CMBIPC_EXPORT bool operator==(const UpdateVisibleTranslationUnitsMessage &first, const UpdateVisibleTranslationUnitsMessage &second);
 public:
     UpdateVisibleTranslationUnitsMessage() = default;
     UpdateVisibleTranslationUnitsMessage(const Utf8String &currentEditorFilePath,
-                                         const Utf8StringVector &visibleEditorFilePaths);
+                                         const Utf8StringVector &visibleEditorFilePaths)
+        : currentEditorFilePath_(currentEditorFilePath),
+          visibleEditorFilePaths_(visibleEditorFilePaths)
+    {
+    }
 
-    const Utf8String &currentEditorFilePath() const;
-    const Utf8StringVector &visibleEditorFilePaths() const;
+    const Utf8String &currentEditorFilePath() const
+    {
+        return currentEditorFilePath_;
+    }
+    const Utf8StringVector &visibleEditorFilePaths() const
+    {
+        return visibleEditorFilePaths_;
+    }
+
+    friend QDataStream &operator<<(QDataStream &out, const UpdateVisibleTranslationUnitsMessage &message)
+    {
+        out << message.currentEditorFilePath_;
+        out << message.visibleEditorFilePaths_;
+
+        return out;
+    }
+
+    friend QDataStream &operator>>(QDataStream &in, UpdateVisibleTranslationUnitsMessage &message)
+    {
+        in >> message.currentEditorFilePath_;
+        in >> message.visibleEditorFilePaths_;
+
+        return in;
+    }
+
+    friend bool operator==(const UpdateVisibleTranslationUnitsMessage &first, const UpdateVisibleTranslationUnitsMessage &second)
+    {
+        return first.currentEditorFilePath_ == second.currentEditorFilePath_
+            && first.visibleEditorFilePaths_ == second.visibleEditorFilePaths_;
+    }
 
 private:
     Utf8String currentEditorFilePath_;
     Utf8StringVector visibleEditorFilePaths_;
 };
-
-CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const UpdateVisibleTranslationUnitsMessage &message);
-CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, UpdateVisibleTranslationUnitsMessage &message);
-CMBIPC_EXPORT bool operator==(const UpdateVisibleTranslationUnitsMessage &first, const UpdateVisibleTranslationUnitsMessage &second);
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const UpdateVisibleTranslationUnitsMessage &message);
 void PrintTo(const UpdateVisibleTranslationUnitsMessage &message, ::std::ostream* os);
