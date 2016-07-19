@@ -25,49 +25,12 @@
 
 #include "sourcerangecontainer.h"
 
-#include <QDataStream>
 #include <QDebug>
 
 #include <ostream>
 
 namespace ClangBackEnd {
-SourceRangeContainer::SourceRangeContainer(SourceLocationContainer start,
-                                           SourceLocationContainer end)
-    : start_(start),
-      end_(end)
-{
-}
 
-SourceLocationContainer SourceRangeContainer::start() const
-{
-    return start_;
-}
-
-SourceLocationContainer SourceRangeContainer::end() const
-{
-    return end_;
-}
-
-QDataStream &operator<<(QDataStream &out, const SourceRangeContainer &container)
-{
-    out << container.start_;
-    out << container.end_;
-
-    return out;
-}
-
-QDataStream &operator>>(QDataStream &in, SourceRangeContainer &container)
-{
-    in >> container.start_;
-    in >> container.end_;
-
-    return in;
-}
-
-bool operator==(const SourceRangeContainer &first, const SourceRangeContainer &second)
-{
-    return first.start_ == second.start_ && first.end_ == second.end_;
-}
 
 QDebug operator<<(QDebug debug, const SourceRangeContainer &container)
 {

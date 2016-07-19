@@ -27,30 +27,57 @@
 
 #include "sourcelocationcontainer.h"
 
+#include <QDataStream>
+
 namespace ClangBackEnd {
 
-class CMBIPC_EXPORT SourceRangeContainer
+class SourceRangeContainer
 {
-    friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const SourceRangeContainer &container);
-    friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, SourceRangeContainer &container);
-    friend CMBIPC_EXPORT bool operator==(const SourceRangeContainer &first, const SourceRangeContainer &second);
 public:
     SourceRangeContainer() = default;
     SourceRangeContainer(SourceLocationContainer start,
-                         SourceLocationContainer end);
+                         SourceLocationContainer end)
+        : start_(start),
+          end_(end)
+    {
+    }
 
-    SourceLocationContainer start() const;
-    SourceLocationContainer end() const;
+    SourceLocationContainer start() const
+    {
+        return start_;
+    }
+
+    SourceLocationContainer end() const
+    {
+        return end_;
+    }
+
+    friend QDataStream &operator<<(QDataStream &out, const SourceRangeContainer &container)
+    {
+        out << container.start_;
+        out << container.end_;
+
+        return out;
+    }
+
+    friend QDataStream &operator>>(QDataStream &in, SourceRangeContainer &container)
+    {
+        in >> container.start_;
+        in >> container.end_;
+
+        return in;
+    }
+
+    friend bool operator==(const SourceRangeContainer &first, const SourceRangeContainer &second)
+    {
+        return first.start_ == second.start_ && first.end_ == second.end_;
+    }
 
 private:
     SourceLocationContainer start_;
     SourceLocationContainer end_;
 
 };
-
-CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const SourceRangeContainer &container);
-CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, SourceRangeContainer &container);
-CMBIPC_EXPORT bool operator==(const SourceRangeContainer &first, const SourceRangeContainer &second);
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const SourceRangeContainer &container);
 void PrintTo(const SourceRangeContainer &container, ::std::ostream* os);
