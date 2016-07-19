@@ -27,96 +27,11 @@
 
 #include "clangbackendipcdebugutils.h"
 
-#include <QDataStream>
 #include <QDebug>
 
 #include <ostream>
 
 namespace ClangBackEnd {
-
-FileContainer::FileContainer(const Utf8String &filePath,
-                             const Utf8String &projectPartId,
-                             const Utf8String &unsavedFileContent,
-                             bool hasUnsavedFileContent,
-                             quint32 documentRevision)
-    : filePath_(filePath),
-      projectPartId_(projectPartId),
-      unsavedFileContent_(unsavedFileContent),
-      documentRevision_(documentRevision),
-      hasUnsavedFileContent_(hasUnsavedFileContent)
-{
-}
-
-FileContainer::FileContainer(const Utf8String &filePath,
-                             const Utf8String &projectPartId,
-                             const Utf8StringVector &fileArguments,
-                             quint32 documentRevision)
-    : filePath_(filePath),
-      projectPartId_(projectPartId),
-      fileArguments_(fileArguments),
-      documentRevision_(documentRevision),
-      hasUnsavedFileContent_(false)
-{
-}
-
-const Utf8String &FileContainer::filePath() const
-{
-    return filePath_;
-}
-
-const Utf8String &FileContainer::projectPartId() const
-{
-    return projectPartId_;
-}
-
-const Utf8StringVector &FileContainer::fileArguments() const
-{
-    return fileArguments_;
-}
-
-const Utf8String &FileContainer::unsavedFileContent() const
-{
-    return unsavedFileContent_;
-}
-
-bool FileContainer::hasUnsavedFileContent() const
-{
-    return hasUnsavedFileContent_;
-}
-
-quint32 FileContainer::documentRevision() const
-{
-    return documentRevision_;
-}
-
-QDataStream &operator<<(QDataStream &out, const FileContainer &container)
-{
-    out << container.filePath_;
-    out << container.projectPartId_;
-    out << container.fileArguments_;
-    out << container.unsavedFileContent_;
-    out << container.documentRevision_;
-    out << container.hasUnsavedFileContent_;
-
-    return out;
-}
-
-QDataStream &operator>>(QDataStream &in, FileContainer &container)
-{
-    in >> container.filePath_;
-    in >> container.projectPartId_;
-    in >> container.fileArguments_;
-    in >> container.unsavedFileContent_;
-    in >> container.documentRevision_;
-    in >> container.hasUnsavedFileContent_;
-
-    return in;
-}
-
-bool operator==(const FileContainer &first, const FileContainer &second)
-{
-    return first.filePath_ == second.filePath_ && first.projectPartId_ == second.projectPartId_;
-}
 
 QDebug operator<<(QDebug debug, const FileContainer &container)
 {

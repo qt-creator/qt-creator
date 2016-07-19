@@ -30,31 +30,97 @@
 #include <utf8string.h>
 #include <utf8stringvector.h>
 
+#include <QDataStream>
+
 namespace ClangBackEnd {
 
-class CMBIPC_EXPORT FileContainer
+class FileContainer
 {
-    friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const FileContainer &container);
-    friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, FileContainer &container);
-    friend CMBIPC_EXPORT bool operator==(const FileContainer &first, const FileContainer &second);
 public:
     FileContainer() = default;
     FileContainer(const Utf8String &filePath,
                   const Utf8String &projectPartId,
                   const Utf8String &unsavedFileContent = Utf8String(),
                   bool hasUnsavedFileContent = false,
-                  quint32 documentRevision = 0);
+                  quint32 documentRevision = 0)
+        : filePath_(filePath),
+          projectPartId_(projectPartId),
+          unsavedFileContent_(unsavedFileContent),
+          documentRevision_(documentRevision),
+          hasUnsavedFileContent_(hasUnsavedFileContent)
+    {
+    }
+
     FileContainer(const Utf8String &filePath,
                   const Utf8String &projectPartId,
                   const Utf8StringVector &fileArguments,
-                  quint32 documentRevision);
+                  quint32 documentRevision)
+        : filePath_(filePath),
+          projectPartId_(projectPartId),
+          fileArguments_(fileArguments),
+          documentRevision_(documentRevision),
+          hasUnsavedFileContent_(false)
+    {
+    }
 
-    const Utf8String &filePath() const;
-    const Utf8String &projectPartId() const;
-    const Utf8StringVector &fileArguments() const;
-    const Utf8String &unsavedFileContent() const;
-    bool hasUnsavedFileContent() const;
-    quint32 documentRevision() const;
+    const Utf8String &filePath() const
+    {
+        return filePath_;
+    }
+
+    const Utf8String &projectPartId() const
+    {
+        return projectPartId_;
+    }
+
+    const Utf8StringVector &fileArguments() const
+    {
+        return fileArguments_;
+    }
+
+    const Utf8String &unsavedFileContent() const
+    {
+        return unsavedFileContent_;
+    }
+
+    bool hasUnsavedFileContent() const
+    {
+        return hasUnsavedFileContent_;
+    }
+
+    quint32 documentRevision() const
+    {
+        return documentRevision_;
+    }
+
+    friend QDataStream &operator<<(QDataStream &out, const FileContainer &container)
+    {
+        out << container.filePath_;
+        out << container.projectPartId_;
+        out << container.fileArguments_;
+        out << container.unsavedFileContent_;
+        out << container.documentRevision_;
+        out << container.hasUnsavedFileContent_;
+
+        return out;
+    }
+
+    friend QDataStream &operator>>(QDataStream &in, FileContainer &container)
+    {
+        in >> container.filePath_;
+        in >> container.projectPartId_;
+        in >> container.fileArguments_;
+        in >> container.unsavedFileContent_;
+        in >> container.documentRevision_;
+        in >> container.hasUnsavedFileContent_;
+
+        return in;
+    }
+
+    friend bool operator==(const FileContainer &first, const FileContainer &second)
+    {
+        return first.filePath_ == second.filePath_ && first.projectPartId_ == second.projectPartId_;
+    }
 
 private:
     Utf8String filePath_;
@@ -64,10 +130,6 @@ private:
     quint32 documentRevision_;
     bool hasUnsavedFileContent_ = false;
 };
-
-CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const FileContainer &container);
-CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, FileContainer &container);
-CMBIPC_EXPORT bool operator==(const FileContainer &first, const FileContainer &second);
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const FileContainer &container);
 void PrintTo(const FileContainer &container, ::std::ostream* os);
