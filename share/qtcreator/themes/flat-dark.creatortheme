@@ -1,7 +1,7 @@
 [General]
 ThemeName=Flat Dark
 PreferredStyles=Fusion
-DefaultTextEditorColorScheme=inkpot.xml
+DefaultTextEditorColorScheme=creator-dark.xml
 
 [Palette]
 shadowBackground=ff404244
