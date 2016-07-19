@@ -32,84 +32,106 @@
 
 namespace {
 
-QByteArray runPrefixer(QList<QByteArray> inputChunks)
-{
-    QByteArray actualOutput;
-    ClangBackEnd::LinePrefixer prefixer("PREFIX ");
-    foreach (const QByteArray &chunk, inputChunks)
-        actualOutput += prefixer.prefix(chunk);
-    return actualOutput;
-}
+QByteArray runPrefixer(QList<QByteArray> inputChunks);
 
 TEST(LinePrefixer, OneChunkEndsWithNewline)
 {
-    const QList<QByteArray> inputChunks { "hello\n" };
-    ASSERT_THAT(Utf8String::fromByteArray(runPrefixer(inputChunks)),
-                Utf8String::fromUtf8("PREFIX hello\n"));
+    const QList<QByteArray> inputChunks = {"hello\n"};
+
+    auto text = runPrefixer(inputChunks);
+
+    ASSERT_THAT(text, "PREFIX hello\n");
 }
 
 TEST(LinePrefixer, OneChunkEndsWithoutNewline)
 {
-    const QList<QByteArray> inputChunks { "hello" };
-    ASSERT_THAT(Utf8String::fromByteArray(runPrefixer(inputChunks)),
-                Utf8String::fromUtf8("PREFIX hello"));
+    const QList<QByteArray> inputChunks = {"hello"};
+
+    auto text = runPrefixer(inputChunks);
+
+    ASSERT_THAT(text, "PREFIX hello");
 }
 
 TEST(LinePrefixer, OneChunkStartsWithNewline)
 {
-    const QList<QByteArray> inputChunks { "\nhello" };
-    ASSERT_THAT(Utf8String::fromByteArray(runPrefixer(inputChunks)),
-                Utf8String::fromUtf8("PREFIX \n"
-                                     "PREFIX hello"));
+    const QList<QByteArray> inputChunks = {"\nhello"};
+
+    auto text = runPrefixer(inputChunks);
+
+    ASSERT_THAT(text, "PREFIX \n"
+                      "PREFIX hello");
 }
 
 TEST(LinePrefixer, OneChunkStartsAndEndsWithNewline)
 {
-    const QList<QByteArray> inputChunks { "\nhello\n" };
-    ASSERT_THAT(Utf8String::fromByteArray(runPrefixer(inputChunks)),
-                Utf8String::fromUtf8("PREFIX \n"
-                                     "PREFIX hello\n"));
+    const QList<QByteArray> inputChunks = {"\nhello\n"};
+
+    auto text = runPrefixer(inputChunks);
+
+    ASSERT_THAT(text, "PREFIX \n"
+                      "PREFIX hello\n");
 }
 
 TEST(LinePrefixer, OneChunkEndsWithExtraNewline)
 {
-    const QList<QByteArray> inputChunks { "hello\n\n" };
-    ASSERT_THAT(Utf8String::fromByteArray(runPrefixer(inputChunks)),
-                Utf8String::fromUtf8("PREFIX hello\n"
-                                     "PREFIX \n"));
+    const QList<QByteArray> inputChunks = {"hello\n\n"};
+
+    auto text = runPrefixer(inputChunks);
+
+    ASSERT_THAT(text, "PREFIX hello\n"
+                      "PREFIX \n");
 }
 
 TEST(LinePrefixer, OneChunkEndsWithTwoExtraNewlines)
 {
-    const QList<QByteArray> inputChunks { "hello\n\n\n" };
-    ASSERT_THAT(Utf8String::fromByteArray(runPrefixer(inputChunks)),
-                Utf8String::fromUtf8("PREFIX hello\n"
-                                     "PREFIX \n"
-                                     "PREFIX \n"));
+    const QList<QByteArray> inputChunks = {"hello\n\n\n"};
+
+    auto text = runPrefixer(inputChunks);
+
+    ASSERT_THAT(text, "PREFIX hello\n"
+                      "PREFIX \n"
+                      "PREFIX \n");
 }
 
 TEST(LinePrefixer, ChunkWithoutNewlineAndChunkWithNewline)
 {
-    const QList<QByteArray> inputChunks { "hello", "\n" };
-    ASSERT_THAT(Utf8String::fromByteArray(runPrefixer(inputChunks)),
-                Utf8String::fromUtf8("PREFIX hello\n"));
+    const QList<QByteArray> inputChunks = {"hello", "\n"};
+
+    auto text = runPrefixer(inputChunks);
+
+    ASSERT_THAT(text, "PREFIX hello\n");
 }
 
 TEST(LinePrefixer, ChunkWithoutNewlineAndChunkWithTwoNewlines)
 {
-    const QList<QByteArray> inputChunks { "hello", "\n\n" };
-    ASSERT_THAT(Utf8String::fromByteArray(runPrefixer(inputChunks)),
-                Utf8String::fromUtf8("PREFIX hello\n"
-                                     "PREFIX \n"));
+    const QList<QByteArray> inputChunks = {"hello", "\n\n"};
+
+    auto text = runPrefixer(inputChunks);
+
+    ASSERT_THAT(text, "PREFIX hello\n"
+                      "PREFIX \n");
 }
 
 TEST(LinePrefixer, ChunkWithTwoNewlinesAndChunkWithoutNewline)
 {
-    const QList<QByteArray> inputChunks { "\n\n", "hello" };
-    ASSERT_THAT(Utf8String::fromByteArray(runPrefixer(inputChunks)),
-                Utf8String::fromUtf8("PREFIX \n"
-                                     "PREFIX \n"
-                                     "PREFIX hello"));
+    const QList<QByteArray> inputChunks = {"\n\n", "hello"};
+
+    auto text = runPrefixer(inputChunks);
+
+    ASSERT_THAT(text, "PREFIX \n"
+                      "PREFIX \n"
+                      "PREFIX hello");
+}
+
+QByteArray runPrefixer(QList<QByteArray> inputChunks)
+{
+    QByteArray actualOutput;
+    ClangBackEnd::LinePrefixer prefixer("PREFIX ");
+
+    for (const auto &chunk : inputChunks)
+        actualOutput += prefixer.prefix(chunk);
+
+    return actualOutput;
 }
 
 } // anonymous namespace
