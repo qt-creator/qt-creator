@@ -52,10 +52,6 @@ DocumentWarningWidget::DocumentWarningWidget(QWidget *parent)
     , m_ignoreWarningsCheckBox(new QCheckBox(this))
     , m_continueButton(new QPushButton(this))
 {
-    setWindowFlags(Qt::Widget); //We only want the visual style from a ToolTip
-    setForegroundRole(QPalette::ToolTipText);
-    setBackgroundRole(QPalette::ToolTipBase);
-
     QFont boldFont = font();
     boldFont.setBold(true);
     m_headerLabel->setFont(boldFont);
