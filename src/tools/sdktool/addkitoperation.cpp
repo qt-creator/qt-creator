@@ -74,17 +74,18 @@ AddKitOperation::AddKitOperation()
 
 QString AddKitOperation::name() const
 {
-    return "addKit";
+    return QString("addKit");
 }
 
 QString AddKitOperation::helpText() const
 {
-    return "add a Kit to Qt Creator";
+    return QString("add a Kit to Qt Creator");
 }
 
 QString AddKitOperation::argumentsHelpText() const
 {
-    return "    --id <ID>                                  id of the new kit (required).\n"
+    return QString(
+           "    --id <ID>                                  id of the new kit (required).\n"
            "    --name <NAME>                              display name of the new kit (required).\n"
            "    --icon <PATH>                              icon of the new kit.\n"
            "    --debuggerid <ID>                          the id of the debugger to use.\n"
@@ -98,7 +99,7 @@ QString AddKitOperation::argumentsHelpText() const
            "    --qt <ID>                                  Qt of the new kit.\n"
            "    --mkspec <PATH>                            mkspec of the new kit.\n"
            "    --env <VALUE>                              add a custom environment setting. [may be repeated]\n"
-           "    <KEY> <TYPE:VALUE>                         extra key value pairs\n";
+           "    <KEY> <TYPE:VALUE>                         extra key value pairs\n");
 }
 
 bool AddKitOperation::setArguments(const QStringList &args)

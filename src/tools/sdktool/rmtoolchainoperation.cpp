@@ -43,17 +43,17 @@ const char ID[] = "ProjectExplorer.ToolChain.Id";
 
 QString RmToolChainOperation::name() const
 {
-    return "rmTC";
+    return QString("rmTC");
 }
 
 QString RmToolChainOperation::helpText() const
 {
-    return "remove a tool chain from Qt Creator";
+    return QString("remove a tool chain from Qt Creator");
 }
 
 QString RmToolChainOperation::argumentsHelpText() const
 {
-    return "    --id <ID>  The id of the tool chain to remove.\n";
+    return QString("    --id <ID>  The id of the tool chain to remove.\n");
 }
 
 bool RmToolChainOperation::setArguments(const QStringList &args)

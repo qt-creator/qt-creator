@@ -54,22 +54,23 @@ const char SUPPORTED_ABIS[] = "ProjectExplorer.GccToolChain.SupportedAbis";
 
 QString AddToolChainOperation::name() const
 {
-    return "addTC";
+    return QString("addTC");
 }
 
 QString AddToolChainOperation::helpText() const
 {
-    return "add a tool chain to Qt Creator";
+    return QString("add a tool chain to Qt Creator");
 }
 
 QString AddToolChainOperation::argumentsHelpText() const
 {
-    return "    --id <ID>                                  id of the new tool chain (required).\n"
+    return QString(
+           "    --id <ID>                                  id of the new tool chain (required).\n"
            "    --name <NAME>                              display name of the new tool chain (required).\n"
            "    --path <PATH>                              path to the compiler (required).\n"
            "    --abi <ABI STRING>                         ABI of the compiler (required).\n"
            "    --supportedAbis <ABI STRING>,<ABI STRING>  list of ABIs supported by the compiler.\n"
-           "    <KEY> <TYPE:VALUE>                         extra key value pairs\n";
+           "    <KEY> <TYPE:VALUE>                         extra key value pairs\n");
 }
 
 bool AddToolChainOperation::setArguments(const QStringList &args)
