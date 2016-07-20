@@ -94,7 +94,7 @@ public:
         QString filePath = line.left(lineSeparator);
         if (!m_ref.isEmpty() && filePath.startsWith(m_ref))
             filePath.remove(0, m_ref.length());
-        single.fileName = m_directory + QLatin1Char('/') + filePath;
+        single.fileName = m_directory + '/' + filePath;
         const int textSeparator = line.indexOf(QChar::Null, lineSeparator + 1);
         single.lineNumber = line.mid(lineSeparator + 1, textSeparator - lineSeparator - 1).toInt();
         QString text = line.mid(textSeparator + 1);
@@ -133,25 +133,25 @@ public:
     void exec()
     {
         QStringList arguments;
-        arguments << QLatin1String("-c") << QLatin1String("color.grep.match=bold red")
-                  << QLatin1String("grep") << QLatin1String("-zn")
-                  << QLatin1String("--no-full-name")
-                  << QLatin1String("--color=always");
+        arguments << "-c" << "color.grep.match=bold red"
+                  << "grep" << "-zn"
+                  << "--no-full-name"
+                  << "--color=always";
         if (!(m_parameters.flags & FindCaseSensitively))
-            arguments << QLatin1String("-i");
+            arguments << "-i";
         if (m_parameters.flags & FindWholeWords)
-            arguments << QLatin1String("-w");
+            arguments << "-w";
         if (m_parameters.flags & FindRegularExpression)
-            arguments << QLatin1String("-P");
+            arguments << "-P";
         else
-            arguments << QLatin1String("-F");
+            arguments << "-F";
         arguments << m_parameters.text;
         GitGrepParameters params = m_parameters.extensionParameters.value<GitGrepParameters>();
         if (!params.ref.isEmpty()) {
             arguments << params.ref;
-            m_ref = params.ref + QLatin1Char(':');
+            m_ref = params.ref + ':';
         }
-        arguments << QLatin1String("--") << m_parameters.nameFilters;
+        arguments << "--" << m_parameters.nameFilters;
         QScopedPointer<VcsCommand> command(GitPlugin::client()->createCommand(m_directory));
         command->addFlags(VcsCommand::SilentOutput | VcsCommand::SuppressFailMessage);
         command->setProgressiveOutput(true);
@@ -212,7 +212,7 @@ GitGrep::GitGrep()
     m_treeLineEdit->setPlaceholderText(tr("Tree (optional)"));
     m_treeLineEdit->setToolTip(tr("Can be HEAD, tag, local or remote branch, or a commit hash.\n"
                                   "Leave empty to search through the file system."));
-    const QRegularExpression refExpression(QLatin1String("[\\S]*"));
+    const QRegularExpression refExpression("[\\S]*");
     m_treeLineEdit->setValidator(new QRegularExpressionValidator(refExpression, this));
     layout->addWidget(m_treeLineEdit);
     TextEditor::FindInFiles *findInFiles = TextEditor::FindInFiles::instance();
@@ -267,14 +267,14 @@ QVariant GitGrep::parameters() const
 
 void GitGrep::readSettings(QSettings *settings)
 {
-    m_enabledCheckBox->setChecked(settings->value(QLatin1String(EnableGitGrep), false).toBool());
-    m_treeLineEdit->setText(settings->value(QLatin1String(GitGrepRef)).toString());
+    m_enabledCheckBox->setChecked(settings->value(EnableGitGrep, false).toBool());
+    m_treeLineEdit->setText(settings->value(GitGrepRef).toString());
 }
 
 void GitGrep::writeSettings(QSettings *settings) const
 {
-    settings->setValue(QLatin1String(EnableGitGrep), m_enabledCheckBox->isChecked());
-    settings->setValue(QLatin1String(GitGrepRef), m_treeLineEdit->text());
+    settings->setValue(EnableGitGrep, m_enabledCheckBox->isChecked());
+    settings->setValue(GitGrepRef, m_treeLineEdit->text());
 }
 
 QFuture<FileSearchResultList> GitGrep::executeSearch(
@@ -293,7 +293,7 @@ IEditor *GitGrep::openEditor(const SearchResultItem &item,
     QByteArray content;
     const QString topLevel = parameters.additionalParameters.toString();
     const QString relativePath = QDir(topLevel).relativeFilePath(path);
-    if (!GitPlugin::client()->synchronousShow(topLevel, params.ref + QLatin1String(":./") + relativePath,
+    if (!GitPlugin::client()->synchronousShow(topLevel, params.ref + ":./" + relativePath,
                                               &content, nullptr)) {
         return nullptr;
     }

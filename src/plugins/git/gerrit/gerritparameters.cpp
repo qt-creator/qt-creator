@@ -57,13 +57,13 @@ static inline QString detectSsh()
     const QByteArray gitSsh = qgetenv("GIT_SSH");
     if (!gitSsh.isEmpty())
         return QString::fromLocal8Bit(gitSsh);
-    QString ssh = QStandardPaths::findExecutable(QLatin1String(defaultSshC));
+    QString ssh = QStandardPaths::findExecutable(defaultSshC);
     if (!ssh.isEmpty())
         return ssh;
     if (Utils::HostOsInfo::isWindowsHost()) { // Windows: Use ssh.exe from git if it cannot be found.
         Utils::FileName path = GerritPlugin::gitBinDirectory();
         if (!path.isEmpty())
-            ssh = path.appendPath(QLatin1String(defaultSshC)).toString();
+            ssh = path.appendPath(defaultSshC).toString();
     }
     return ssh;
 }
@@ -72,17 +72,17 @@ void GerritParameters::setPortFlagBySshType()
 {
     bool isPlink = false;
     if (!ssh.isEmpty()) {
-        const QString version = Utils::PathChooser::toolVersion(ssh, QStringList(QLatin1String("-V")));
-        isPlink = version.contains(QLatin1String("plink"), Qt::CaseInsensitive);
+        const QString version = Utils::PathChooser::toolVersion(ssh, QStringList("-V"));
+        isPlink = version.contains("plink", Qt::CaseInsensitive);
     }
-    portFlag = isPlink ? QLatin1String("-P") : QLatin1String(defaultPortFlag);
+    portFlag = isPlink ? "-P" : defaultPortFlag;
 }
 
 GerritParameters::GerritParameters()
-    : host(QLatin1String(defaultHostC))
+    : host(defaultHostC)
     , port(defaultPort)
     , https(true)
-    , portFlag(QLatin1String(defaultPortFlag))
+    , portFlag(defaultPortFlag)
 {
 }
 
@@ -90,13 +90,13 @@ QStringList GerritParameters::baseCommandArguments() const
 {
     QStringList result;
     result << ssh << portFlag << QString::number(port)
-           << sshHostArgument() << QLatin1String("gerrit");
+           << sshHostArgument() << "gerrit";
     return result;
 }
 
 QString GerritParameters::sshHostArgument() const
 {
-    return user.isEmpty() ? host : (user + QLatin1Char('@') + host);
+    return user.isEmpty() ? host : (user + '@' + host);
 }
 
 bool GerritParameters::equals(const GerritParameters &rhs) const
@@ -107,34 +107,34 @@ bool GerritParameters::equals(const GerritParameters &rhs) const
 
 void GerritParameters::toSettings(QSettings *s) const
 {
-    s->beginGroup(QLatin1String(settingsGroupC));
-    s->setValue(QLatin1String(hostKeyC), host);
-    s->setValue(QLatin1String(userKeyC), user);
-    s->setValue(QLatin1String(portKeyC), port);
-    s->setValue(QLatin1String(portFlagKeyC), portFlag);
-    s->setValue(QLatin1String(sshKeyC), ssh);
-    s->setValue(QLatin1String(httpsKeyC), https);
+    s->beginGroup(settingsGroupC);
+    s->setValue(hostKeyC, host);
+    s->setValue(userKeyC, user);
+    s->setValue(portKeyC, port);
+    s->setValue(portFlagKeyC, portFlag);
+    s->setValue(sshKeyC, ssh);
+    s->setValue(httpsKeyC, https);
     s->endGroup();
 }
 
 void GerritParameters::saveQueries(QSettings *s) const
 {
-    s->beginGroup(QLatin1String(settingsGroupC));
-    s->setValue(QLatin1String(savedQueriesKeyC), savedQueries.join(QLatin1Char(',')));
+    s->beginGroup(settingsGroupC);
+    s->setValue(savedQueriesKeyC, savedQueries.join(','));
     s->endGroup();
 }
 
 void GerritParameters::fromSettings(const QSettings *s)
 {
-    const QString rootKey = QLatin1String(settingsGroupC) + QLatin1Char('/');
-    host = s->value(rootKey + QLatin1String(hostKeyC), QLatin1String(defaultHostC)).toString();
-    user = s->value(rootKey + QLatin1String(userKeyC), QString()).toString();
-    ssh = s->value(rootKey + QLatin1String(sshKeyC), QString()).toString();
-    port = s->value(rootKey + QLatin1String(portKeyC), QVariant(int(defaultPort))).toInt();
-    portFlag = s->value(rootKey + QLatin1String(portFlagKeyC), QLatin1String(defaultPortFlag)).toString();
-    savedQueries = s->value(rootKey + QLatin1String(savedQueriesKeyC), QString()).toString()
-            .split(QLatin1Char(','));
-    https = s->value(rootKey + QLatin1String(httpsKeyC), QVariant(true)).toBool();
+    const QString rootKey = QLatin1String(settingsGroupC) + '/';
+    host = s->value(rootKey + hostKeyC, defaultHostC).toString();
+    user = s->value(rootKey + userKeyC, QString()).toString();
+    ssh = s->value(rootKey + sshKeyC, QString()).toString();
+    port = s->value(rootKey + portKeyC, QVariant(int(defaultPort))).toInt();
+    portFlag = s->value(rootKey + portFlagKeyC, defaultPortFlag).toString();
+    savedQueries = s->value(rootKey + savedQueriesKeyC, QString()).toString()
+            .split(',');
+    https = s->value(rootKey + httpsKeyC, QVariant(true)).toBool();
     if (ssh.isEmpty())
         ssh = detectSsh();
 }

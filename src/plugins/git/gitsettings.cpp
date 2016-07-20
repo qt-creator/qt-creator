@@ -48,9 +48,9 @@ const QLatin1String GitSettings::lastResetIndexKey("LastResetIndex");
 
 GitSettings::GitSettings()
 {
-    setSettingsGroup(QLatin1String("Git"));
+    setSettingsGroup("Git");
 
-    declareKey(binaryPathKey, QLatin1String("git"));
+    declareKey(binaryPathKey, "git");
     declareKey(timeoutKey, Utils::HostOsInfo::isWindowsHost() ? 60 : 30);
     declareKey(pullRebaseKey, false);
     declareKey(showTagsKey, false);

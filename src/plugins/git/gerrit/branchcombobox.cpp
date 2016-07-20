@@ -39,16 +39,16 @@ void BranchComboBox::init(const QString &repository)
     QString currentBranch = GitPlugin::client()->synchronousCurrentLocalBranch(repository);
     if (currentBranch.isEmpty()) {
         m_detached = true;
-        currentBranch = QLatin1String("HEAD");
+        currentBranch = "HEAD";
         addItem(currentBranch);
     }
     QString output;
-    const QString branchPrefix(QLatin1String("refs/heads/"));
-    QStringList args;
-    args << QLatin1String("--format=%(refname)") << branchPrefix;
-    if (!GitPlugin::client()->synchronousForEachRefCmd(m_repository, args, &output))
+    const QString branchPrefix("refs/heads/");
+    if (!GitPlugin::client()->synchronousForEachRefCmd(
+                m_repository, { "--format=%(refname)", branchPrefix }, &output)) {
         return;
-    QStringList branches = output.trimmed().split(QLatin1Char('\n'));
+    }
+    QStringList branches = output.trimmed().split('\n');
     foreach (const QString &ref, branches) {
         const QString branch = ref.mid(branchPrefix.size());
         addItem(branch);

@@ -189,7 +189,7 @@ void GitSubmitEditor::slotDiffSelected(const QList<int> &rows)
             unmergedFiles.push_back(fileName);
         } else if (state & StagedFile) {
             if (state & (RenamedFile | CopiedFile)) {
-                const int arrow = fileName.indexOf(QLatin1String(" -> "));
+                const int arrow = fileName.indexOf(" -> ");
                 if (arrow != -1) {
                     stagedFiles.push_back(fileName.left(arrow));
                     stagedFiles.push_back(fileName.mid(arrow + 4));
@@ -198,7 +198,7 @@ void GitSubmitEditor::slotDiffSelected(const QList<int> &rows)
             }
             stagedFiles.push_back(fileName);
         } else if (state == UntrackedFile) {
-            Core::EditorManager::openEditor(m_workingDirectory + QLatin1Char('/') + fileName);
+            Core::EditorManager::openEditor(m_workingDirectory + '/' + fileName);
         } else {
             unstagedFiles.push_back(fileName);
         }

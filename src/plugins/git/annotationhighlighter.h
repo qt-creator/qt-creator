@@ -41,7 +41,7 @@ public:
 private:
     QString changeNumber(const QString &block) const override;
 
-    const QChar m_blank;
+    const QChar m_blank = ' ';
 };
 
 } // namespace Internal

@@ -80,6 +80,7 @@ const char GIT_DIRECTORY[] = ".git";
 const char graphLogFormatC[] = "%h %d %an %s %ci";
 const char HEAD[] = "HEAD";
 const char CHERRY_PICK_HEAD[] = "CHERRY_PICK_HEAD";
+const char stashNamePrefix[] = "stash@{";
 const char noColorOption[] = "--no-color";
 const char decorateOption[] = "--decorate";
 const char showFormatC[] =
@@ -200,14 +201,13 @@ void BaseController::processOutput(const QString &output)
 
 QStringList BaseController::addHeadWhenCommandInProgress() const
 {
-    QStringList args;
     // This is workaround for lack of support for merge commits and resolving conflicts,
     // we compare the current state of working tree to the HEAD of current branch
     // instead of showing unsupported combined diff format.
     GitClient::CommandInProgress commandInProgress = GitPlugin::client()->checkCommandInProgress(m_directory);
     if (commandInProgress != GitClient::NoCommand)
-        args << HEAD;
-    return args;
+        return { HEAD };
+    return QStringList();
 }
 
 class RepositoryDiffController : public BaseController
@@ -446,7 +446,7 @@ public:
         m_ignoreWSButton->setVisible(diffButton->isChecked());
         const QStringList graphArguments = {
             "--graph", "--oneline", "--topo-order",
-            (QLatin1String("--pretty=format:") + graphLogFormatC)
+            QLatin1String("--pretty=format:") + graphLogFormatC
         };
         QToolButton *graphButton = addToggleButton(graphArguments, tr("Graph"),
                                                    tr("Show textual graph log."));
@@ -580,8 +580,6 @@ static inline void msgCannotRun(const QStringList &args, const QString &workingD
 }
 
 // ---------------- GitClient
-
-const char *GitClient::stashNamePrefix = "stash@{";
 
 GitClient::GitClient() : VcsBase::VcsBaseClientImpl(new GitSettings),
     m_cachedGitVersion(0),
@@ -741,7 +739,7 @@ void GitClient::diffFiles(const QString &workingDirectory,
                           const QStringList &unstagedFileNames,
                           const QStringList &stagedFileNames) const
 {
-    requestReload(QLatin1String("Files:") + workingDirectory,
+    requestReload("Files:" + workingDirectory,
                   workingDirectory, tr("Git Diff Files"),
                   [this, workingDirectory, stagedFileNames, unstagedFileNames]
                   (IDocument *doc) -> DiffEditorController* {
@@ -752,7 +750,7 @@ void GitClient::diffFiles(const QString &workingDirectory,
 
 void GitClient::diffProject(const QString &workingDirectory, const QString &projectDirectory) const
 {
-    requestReload(QLatin1String("Project:") + workingDirectory,
+    requestReload("Project:" + workingDirectory,
                   workingDirectory, tr("Git Diff Project"),
                   [this, workingDirectory, projectDirectory]
                   (IDocument *doc) -> DiffEditorController* {
@@ -763,7 +761,7 @@ void GitClient::diffProject(const QString &workingDirectory, const QString &proj
 
 void GitClient::diffRepository(const QString &workingDirectory)
 {
-    requestReload(QLatin1String("Repository:") + workingDirectory,
+    requestReload("Repository:" + workingDirectory,
                   workingDirectory, tr("Git Diff Repository"),
                   [this, workingDirectory](IDocument *doc) -> DiffEditorController* {
                       return new RepositoryDiffController(doc, workingDirectory);
@@ -774,7 +772,7 @@ void GitClient::diffFile(const QString &workingDirectory, const QString &fileNam
 {
     const QString title = tr("Git Diff \"%1\"").arg(fileName);
     const QString sourceFile = VcsBaseEditor::getSource(workingDirectory, fileName);
-    const QString documentId = QLatin1String("File:") + sourceFile;
+    const QString documentId = "File:" + sourceFile;
     requestReload(documentId, sourceFile, title,
                   [this, workingDirectory, fileName]
                   (IDocument *doc) -> DiffEditorController* {
@@ -786,7 +784,7 @@ void GitClient::diffBranch(const QString &workingDirectory,
                            const QString &branchName) const
 {
     const QString title = tr("Git Diff Branch \"%1\"").arg(branchName);
-    const QString documentId = QLatin1String("Branch:") + branchName;
+    const QString documentId = "Branch:" + branchName;
     requestReload(documentId, workingDirectory, title,
                                [this, workingDirectory, branchName]
                                (IDocument *doc) -> DiffEditorController* {
@@ -894,7 +892,7 @@ void GitClient::show(const QString &source, const QString &id, const QString &na
     const QString repoDirectory = VcsManager::findTopLevelForDirectory(workingDirectory);
     if (!repoDirectory.isEmpty())
         workingDirectory = repoDirectory;
-    const QString documentId = QLatin1String("Show:") + id;
+    const QString documentId = "Show:" + id;
     requestReload(documentId, source, title,
                                [this, workingDirectory, id]
                                (IDocument *doc) -> DiffEditorController* {
@@ -1531,7 +1529,7 @@ bool GitClient::stashNameFromMessage(const QString &workingDirectory,
                                      QString *errorMessage) const
 {
     // All happy
-    if (message.startsWith(QLatin1String(stashNamePrefix))) {
+    if (message.startsWith(stashNamePrefix)) {
         *name = message;
         return true;
     }
@@ -2645,7 +2643,7 @@ void GitClient::revert(const QStringList &files, bool revertStaging)
 
 void GitClient::fetch(const QString &workingDirectory, const QString &remote)
 {
-    QStringList const arguments = { "fetch", (remote.isEmpty() ? QLatin1String("--all") : remote) };
+    QStringList const arguments = { "fetch", (remote.isEmpty() ? "--all" : remote) };
     VcsCommand *command = vcsExec(workingDirectory, arguments, nullptr, true,
                                   VcsCommand::ShowSuccessMessage);
     connect(command, &VcsCommand::success,

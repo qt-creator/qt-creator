@@ -54,9 +54,9 @@ QString GitSubmitEditorPanelData::authorString() const
     if (email.isEmpty())
         return rc;
 
-    rc += QLatin1String(" <");
+    rc += " <";
     rc += email;
-    rc += QLatin1Char('>');
+    rc += '>';
     return rc;
 }
 
@@ -114,7 +114,7 @@ bool CommitData::checkLine(const QString &stateInfo, const QString &file)
 {
     QTC_ASSERT(stateInfo.count() == 2, return false);
 
-    if (stateInfo == QLatin1String("??")) {
+    if (stateInfo == "??") {
         files.append(qMakePair(FileStates(UntrackedFile), file));
         return true;
     }
@@ -143,7 +143,7 @@ bool CommitData::checkLine(const QString &stateInfo, const QString &file)
         if (yState != EmptyFileState) {
             QString newFile = file;
             if (xState & (RenamedFile | CopiedFile))
-                newFile = file.mid(file.indexOf(QLatin1String(" -> ")) + 4);
+                newFile = file.mid(file.indexOf(" -> ") + 4);
 
             files.append(qMakePair(yState, newFile));
         }
@@ -159,20 +159,20 @@ bool CommitData::checkLine(const QString &stateInfo, const QString &file)
     \endcode */
 bool CommitData::parseFilesFromStatus(const QString &output)
 {
-    const QStringList lines = output.split(QLatin1Char('\n'));
+    const QStringList lines = output.split('\n');
 
     foreach (const QString &line, lines) {
         if (line.isEmpty())
             continue;
 
-        if (line.startsWith(QLatin1String("## "))) {
+        if (line.startsWith("## ")) {
             // Branch indication:
             panelInfo.branch = line.mid(3);
             continue;
         }
-        QTC_ASSERT(line.at(2) == QLatin1Char(' '), continue);
+        QTC_ASSERT(line.at(2) == ' ', continue);
         QString file = line.mid(3);
-        if (file.startsWith(QLatin1Char('"')))
+        if (file.startsWith('"'))
             file.remove(0, 1).chop(1);
         if (!checkLine(line.mid(0, 2), file))
             return false;

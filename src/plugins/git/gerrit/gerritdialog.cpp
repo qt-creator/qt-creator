@@ -69,7 +69,7 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     , m_filterLineEdit(new Utils::FancyLineEdit)
     , m_repositoryChooser(new Utils::PathChooser)
     , m_buttonBox(new QDialogButtonBox(QDialogButtonBox::Close))
-    , m_repositoryChooserLabel(new QLabel(tr("Apply in:") + QLatin1Char(' '), this))
+    , m_repositoryChooserLabel(new QLabel(tr("Apply in:") + ' ', this))
     , m_fetchRunning(false)
 {
     setWindowTitle(tr("Gerrit %1@%2").arg(p->user, p->host));
@@ -144,7 +144,7 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     detailsLayout->addWidget(m_detailsBrowser);
 
     m_repositoryChooser->setExpectedKind(Utils::PathChooser::Directory);
-    m_repositoryChooser->setHistoryCompleter(QLatin1String("Git.RepoDir.History"));
+    m_repositoryChooser->setHistoryCompleter("Git.RepoDir.History");
     QHBoxLayout *repoPathLayout = new QHBoxLayout;
     repoPathLayout->addWidget(m_repositoryChooserLabel);
     repoPathLayout->addWidget(m_repositoryChooser);

@@ -121,8 +121,6 @@ public:
         PushAction m_pushAction = NoPush;
     };
 
-    static const char *stashNamePrefix;
-
     explicit GitClient();
 
     Utils::FileName vcsBinary() const override;
