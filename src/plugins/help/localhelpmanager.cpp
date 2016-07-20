@@ -35,6 +35,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
+#include <QFontDatabase>
 #include <QMutexLocker>
 
 #include <QHelpEngine>
@@ -58,8 +59,7 @@ int LocalHelpManager::m_currentFilterIndex = -1;
 
 static const char kHelpHomePageKey[] = "Help/HomePage";
 static const char kFontFamilyKey[] = "Help/FallbackFontFamily";
-static const char kFontStyleKey[] = "Help/FallbackFontStyle";
-static const char kFontWeightKey[] = "Help/FallbackFontWeight";
+static const char kFontStyleNameKey[] = "Help/FallbackFontStyleName";
 static const char kFontSizeKey[] = "Help/FallbackFontSize";
 static const char kStartOptionKey[] = "Help/StartOption";
 static const char kContextHelpOptionKey[] = "Help/ContextHelpOption";
@@ -68,8 +68,12 @@ static const char kLastShownPagesKey[] = "Help/LastShownPages";
 static const char kLastShownPagesZoomKey[] = "Help/LastShownPagesZoom";
 static const char kLastSelectedTabKey[] = "Help/LastSelectedTab";
 
+// TODO remove some time after 4.1
+static const char kFontStyleKey[] = "Help/FallbackFontStyle";
+static const char kFontWeightKey[] = "Help/FallbackFontWeight";
 static const QFont::Style kDefaultFallbackFontStyle = QFont::StyleNormal;
 static const int kDefaultFallbackFontWeight = QFont::Normal;
+
 static const int kDefaultFallbackFontSize = 14;
 
 static QString defaultFallbackFontFamily()
@@ -79,6 +83,13 @@ static QString defaultFallbackFontFamily()
     if (Utils::HostOsInfo::isAnyUnixHost())
         return "sans-serif";
     return "Arial";
+}
+
+static QString defaultFallbackFontStyleName(const QString &fontFamily)
+{
+    const QStringList styles = QFontDatabase().styles(fontFamily);
+    QTC_ASSERT(!styles.isEmpty(), return "Regular");
+    return styles.first();
 }
 
 template <typename T>
@@ -138,19 +149,32 @@ QFont LocalHelpManager::fallbackFont()
 {
     QSettings *settings = Core::ICore::settings();
     const QString family = settings->value(kFontFamilyKey, defaultFallbackFontFamily()).toString();
-    const QFont::Style style = QFont::Style(settings->value(kFontStyleKey, kDefaultFallbackFontStyle).toInt());
-    const int weight = settings->value(kFontWeightKey, kDefaultFallbackFontWeight).toInt();
     const int size = settings->value(kFontSizeKey, kDefaultFallbackFontSize).toInt();
-    QFont font(family, size, weight);
-    font.setStyle(style);
+    QFont font(family, size);
+    // TODO remove reading of old settings some time after 4.1
+    if (settings->contains(kFontStyleKey) && settings->contains(kFontWeightKey)) {
+        const QFont::Style style = QFont::Style(settings->value(kFontStyleKey, kDefaultFallbackFontStyle).toInt());
+        const int weight = settings->value(kFontWeightKey, kDefaultFallbackFontWeight).toInt();
+        font.setStyle(style);
+        font.setWeight(weight);
+    } else {
+        const QString styleName = settings->value(kFontStyleNameKey,
+                                                  defaultFallbackFontStyleName(font.family())).toString();
+        font.setStyleName(styleName);
+    }
     return font;
 }
 
 void LocalHelpManager::setFallbackFont(const QFont &font)
 {
+    {
+        // TODO remove removal of old settings some time after 4.1
+        QSettings *settings = Core::ICore::settings();
+        settings->remove(kFontStyleKey);
+        settings->remove(kFontWeightKey);
+    }
     setOrRemoveSetting(kFontFamilyKey, font.family(), defaultFallbackFontFamily());
-    setOrRemoveSetting(kFontStyleKey, font.style(), kDefaultFallbackFontStyle);
-    setOrRemoveSetting(kFontWeightKey, font.weight(), kDefaultFallbackFontWeight);
+    setOrRemoveSetting(kFontStyleNameKey, font.styleName(), defaultFallbackFontStyleName(font.family()));
     setOrRemoveSetting(kFontSizeKey, font.pointSize(), kDefaultFallbackFontSize);
     emit m_instance->fallbackFontChanged(font);
 }

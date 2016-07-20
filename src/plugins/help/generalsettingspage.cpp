@@ -299,21 +299,9 @@ void GeneralSettingsPage::updateFont()
         fontSize = m_ui->sizeComboBox->itemData(currentIndex).toInt();
     m_font.setPointSize(fontSize);
 
-    QString fontStyle = "Normal";
     currentIndex = m_ui->styleComboBox->currentIndex();
     if (currentIndex != -1)
-        fontStyle = m_ui->styleComboBox->itemText(currentIndex);
-    m_font.setBold(m_fontDatabase.bold(family, fontStyle));
-    if (fontStyle.contains("Italic"))
-        m_font.setStyle(QFont::StyleItalic);
-    else if (fontStyle.contains("Oblique"))
-        m_font.setStyle(QFont::StyleOblique);
-    else
-        m_font.setStyle(QFont::StyleNormal);
-
-    const int weight = m_fontDatabase.weight(family, fontStyle);
-    if (weight >= 0)    // Weight < 0 asserts...
-        m_font.setWeight(weight);
+        m_font.setStyleName(m_ui->styleComboBox->itemText(currentIndex));
 }
 
 int GeneralSettingsPage::closestPointSizeIndex(int desiredPointSize) const
