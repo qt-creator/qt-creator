@@ -134,7 +134,7 @@ DocSettingsPage::DocSettingsPage()
     setDisplayName(tr("Documentation"));
     setCategory(Help::Constants::HELP_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Help", Help::Constants::HELP_TR_CATEGORY));
-    setCategoryIcon(QLatin1String(Help::Constants::HELP_CATEGORY_ICON));
+    setCategoryIcon(Help::Constants::HELP_CATEGORY_ICON);
 }
 
 QWidget *DocSettingsPage::widget()
@@ -189,8 +189,7 @@ void DocSettingsPage::addDocumentation()
         const QString filePath = QDir::cleanPath(file);
         const QString &nameSpace = HelpManager::namespaceFromFile(filePath);
         if (nameSpace.isEmpty()) {
-            docsUnableToRegister.insertMulti(QLatin1String("UnknownNamespace"),
-                QDir::toNativeSeparators(filePath));
+            docsUnableToRegister.insertMulti("UnknownNamespace", QDir::toNativeSeparators(filePath));
             continue;
         }
 
@@ -222,12 +221,12 @@ void DocSettingsPage::addDocumentation()
     }
 
     QString formatedFail;
-    if (docsUnableToRegister.contains(QLatin1String("UnknownNamespace"))) {
+    if (docsUnableToRegister.contains("UnknownNamespace")) {
         formatedFail += QString::fromLatin1("<ul><li><b>%1</b>").arg(tr("Invalid documentation file:"));
-        foreach (const QString &value, docsUnableToRegister.values(QLatin1String("UnknownNamespace")))
+        foreach (const QString &value, docsUnableToRegister.values("UnknownNamespace"))
             formatedFail += QString::fromLatin1("<ul><li>%2</li></ul>").arg(value);
-        formatedFail += QLatin1String("</li></ul>");
-        docsUnableToRegister.remove(QLatin1String("UnknownNamespace"));
+        formatedFail += "</li></ul>";
+        docsUnableToRegister.remove("UnknownNamespace");
     }
 
     if (!docsUnableToRegister.isEmpty()) {
@@ -236,7 +235,7 @@ void DocSettingsPage::addDocumentation()
         for (NameSpaceToPathHash::ConstIterator it = docsUnableToRegister.constBegin(); it != cend; ++it) {
             formatedFail += QString::fromLatin1("<ul><li>%1 - %2</li></ul>").arg(it.key(), it.value());
         }
-        formatedFail += QLatin1String("</li></ul>");
+        formatedFail += "</li></ul>";
     }
 
     if (!formatedFail.isEmpty()) {

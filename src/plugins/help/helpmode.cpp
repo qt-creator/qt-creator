@@ -35,7 +35,7 @@ using namespace Help::Internal;
 HelpMode::HelpMode(QObject *parent)
   : Core::IMode(parent)
 {
-    setObjectName(QLatin1String("HelpMode"));
+    setObjectName("HelpMode");
     setContext(Core::Context(Constants::C_MODE_HELP));
     setIcon(Utils::Icon::modeIcon(Icons::MODE_HELP_CLASSIC,
                                   Icons::MODE_HELP_FLAT, Icons::MODE_HELP_FLAT_ACTIVE));

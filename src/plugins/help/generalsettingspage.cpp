@@ -60,7 +60,7 @@ GeneralSettingsPage::GeneralSettingsPage()
     setDisplayName(tr("General"));
     setCategory(Help::Constants::HELP_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Help", Help::Constants::HELP_TR_CATEGORY));
-    setCategoryIcon(QLatin1String(Help::Constants::HELP_CATEGORY_ICON));
+    setCategoryIcon(Help::Constants::HELP_CATEGORY_ICON);
 }
 
 QWidget *GeneralSettingsPage::widget()
@@ -209,7 +209,7 @@ void GeneralSettingsPage::exportBookmarks()
     m_ui->errorLabel->setVisible(false);
 
     QString fileName = QFileDialog::getSaveFileName(ICore::dialogParent(),
-        tr("Save File"), QLatin1String("untitled.xbel"), tr("Files (*.xbel)"));
+        tr("Save File"), "untitled.xbel", tr("Files (*.xbel)"));
 
     QLatin1String suffix(".xbel");
     if (!fileName.endsWith(suffix))
@@ -265,7 +265,7 @@ void GeneralSettingsPage::updateFontStyleSelector()
 
     if (!styles.empty()) {
         int normalIndex = -1;
-        const QString normalStyle = QLatin1String("Normal");
+        const QString normalStyle = "Normal";
         foreach (const QString &style, styles) {
             // try to maintain selection or select 'normal' preferably
             const int newIndex = m_ui->styleComboBox->count();
@@ -299,14 +299,14 @@ void GeneralSettingsPage::updateFont()
         fontSize = m_ui->sizeComboBox->itemData(currentIndex).toInt();
     m_font.setPointSize(fontSize);
 
-    QString fontStyle = QLatin1String("Normal");
+    QString fontStyle = "Normal";
     currentIndex = m_ui->styleComboBox->currentIndex();
     if (currentIndex != -1)
         fontStyle = m_ui->styleComboBox->itemText(currentIndex);
     m_font.setBold(m_fontDatabase.bold(family, fontStyle));
-    if (fontStyle.contains(QLatin1String("Italic")))
+    if (fontStyle.contains("Italic"))
         m_font.setStyle(QFont::StyleItalic);
-    else if (fontStyle.contains(QLatin1String("Oblique")))
+    else if (fontStyle.contains("Oblique"))
         m_font.setStyle(QFont::StyleOblique);
     else
         m_font.setStyle(QFont::StyleNormal);

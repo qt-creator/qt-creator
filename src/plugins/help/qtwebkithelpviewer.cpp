@@ -476,11 +476,11 @@ void QtWebKitHelpViewer::highlightId(const QString &id)
     if (m_oldHighlightId == id)
         return;
     const QWebElement &document = m_webView->page()->mainFrame()->documentElement();
-    const QWebElementCollection &collection = document.findAll(QLatin1String("h3.fn a"));
+    const QWebElementCollection &collection = document.findAll("h3.fn a");
 
     const QLatin1String property("background-color");
     foreach (const QWebElement &element, collection) {
-        const QString &name = element.attribute(QLatin1String("name"));
+        const QString &name = element.attribute("name");
         if (name.isEmpty())
             continue;
 
@@ -495,7 +495,7 @@ void QtWebKitHelpViewer::highlightId(const QString &id)
             QWebElement parent = element.parent();
             m_oldHighlightStyle = parent.styleProperty(property,
                                                    QWebElement::ComputedStyle);
-            parent.setStyleProperty(property, QLatin1String("yellow"));
+            parent.setStyleProperty(property, "yellow");
         }
     }
     m_oldHighlightId = id;
@@ -575,7 +575,7 @@ bool QtWebKitHelpViewer::findText(const QString &text, FindFlags flags,
             *wrapped = true;
     }
     options = QWebPage::HighlightAllOccurrences;
-    m_webView->findText(QLatin1String(""), options); // clear first
+    m_webView->findText("", options); // clear first
     m_webView->findText(text, options); // force highlighting of all other matches
     return found;
 }

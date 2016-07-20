@@ -75,10 +75,10 @@ static const int kDefaultFallbackFontSize = 14;
 static QString defaultFallbackFontFamily()
 {
     if (Utils::HostOsInfo::isMacHost())
-        return QLatin1String("Helvetica");
+        return "Helvetica";
     if (Utils::HostOsInfo::isAnyUnixHost())
-        return QLatin1String("sans-serif");
-    return QLatin1String("Arial");
+        return "sans-serif";
+    return "Arial";
 }
 
 template <typename T>
@@ -126,22 +126,21 @@ QString LocalHelpManager::defaultHomePage()
 
 QString LocalHelpManager::homePage()
 {
-    return Core::ICore::settings()->value(QLatin1String(kHelpHomePageKey),
-                                          defaultHomePage()).toString();
+    return Core::ICore::settings()->value(kHelpHomePageKey, defaultHomePage()).toString();
 }
 
 void LocalHelpManager::setHomePage(const QString &page)
 {
-    Core::ICore::settings()->setValue(QLatin1String(kHelpHomePageKey), page);
+    Core::ICore::settings()->setValue(kHelpHomePageKey, page);
 }
 
 QFont LocalHelpManager::fallbackFont()
 {
     QSettings *settings = Core::ICore::settings();
-    const QString family = settings->value(QLatin1String(kFontFamilyKey), defaultFallbackFontFamily()).toString();
-    const QFont::Style style = QFont::Style(settings->value(QLatin1String(kFontStyleKey), kDefaultFallbackFontStyle).toInt());
-    const int weight = settings->value(QLatin1String(kFontWeightKey), kDefaultFallbackFontWeight).toInt();
-    const int size = settings->value(QLatin1String(kFontSizeKey), kDefaultFallbackFontSize).toInt();
+    const QString family = settings->value(kFontFamilyKey, defaultFallbackFontFamily()).toString();
+    const QFont::Style style = QFont::Style(settings->value(kFontStyleKey, kDefaultFallbackFontStyle).toInt());
+    const int weight = settings->value(kFontWeightKey, kDefaultFallbackFontWeight).toInt();
+    const int size = settings->value(kFontSizeKey, kDefaultFallbackFontSize).toInt();
     QFont font(family, size, weight);
     font.setStyle(style);
     return font;
@@ -158,8 +157,7 @@ void LocalHelpManager::setFallbackFont(const QFont &font)
 
 LocalHelpManager::StartOption LocalHelpManager::startOption()
 {
-    const QVariant value = Core::ICore::settings()->value(QLatin1String(kStartOptionKey),
-                                                          ShowLastPages);
+    const QVariant value = Core::ICore::settings()->value(kStartOptionKey, ShowLastPages);
     bool ok;
     int optionValue = value.toInt(&ok);
     if (!ok)
@@ -179,12 +177,12 @@ LocalHelpManager::StartOption LocalHelpManager::startOption()
 
 void LocalHelpManager::setStartOption(LocalHelpManager::StartOption option)
 {
-    Core::ICore::settings()->setValue(QLatin1String(kStartOptionKey), option);
+    Core::ICore::settings()->setValue(kStartOptionKey, option);
 }
 
 Core::HelpManager::HelpViewerLocation LocalHelpManager::contextHelpOption()
 {
-    const QVariant value = Core::ICore::settings()->value(QLatin1String(kContextHelpOptionKey),
+    const QVariant value = Core::ICore::settings()->value(kContextHelpOptionKey,
                                                           Core::HelpManager::SideBySideIfPossible);
     bool ok;
     int optionValue = value.toInt(&ok);
@@ -207,38 +205,35 @@ Core::HelpManager::HelpViewerLocation LocalHelpManager::contextHelpOption()
 
 void LocalHelpManager::setContextHelpOption(Core::HelpManager::HelpViewerLocation location)
 {
-    Core::ICore::settings()->setValue(QLatin1String(kContextHelpOptionKey), location);
+    Core::ICore::settings()->setValue(kContextHelpOptionKey, location);
 }
 
 bool LocalHelpManager::returnOnClose()
 {
-    const QVariant value = Core::ICore::settings()->value(QLatin1String(kReturnOnCloseKey), false);
+    const QVariant value = Core::ICore::settings()->value(kReturnOnCloseKey, false);
     return value.toBool();
 }
 
 void LocalHelpManager::setReturnOnClose(bool returnOnClose)
 {
-    Core::ICore::settings()->setValue(QLatin1String(kReturnOnCloseKey), returnOnClose);
+    Core::ICore::settings()->setValue(kReturnOnCloseKey, returnOnClose);
     emit m_instance->returnOnCloseChanged();
 }
 
 QStringList LocalHelpManager::lastShownPages()
 {
-    const QVariant value = Core::ICore::settings()->value(QLatin1String(kLastShownPagesKey),
-                                                          QVariant());
+    const QVariant value = Core::ICore::settings()->value(kLastShownPagesKey, QVariant());
     return value.toString().split(Constants::ListSeparator, QString::SkipEmptyParts);
 }
 
 void LocalHelpManager::setLastShownPages(const QStringList &pages)
 {
-    Core::ICore::settings()->setValue(QLatin1String(kLastShownPagesKey),
-                                      pages.join(Constants::ListSeparator));
+    Core::ICore::settings()->setValue(kLastShownPagesKey, pages.join(Constants::ListSeparator));
 }
 
 QList<float> LocalHelpManager::lastShownPagesZoom()
 {
-    const QVariant value = Core::ICore::settings()->value(QLatin1String(kLastShownPagesZoomKey),
-                                                          QVariant());
+    const QVariant value = Core::ICore::settings()->value(kLastShownPagesZoomKey, QVariant());
     const QStringList stringValues = value.toString().split(Constants::ListSeparator,
                                                             QString::SkipEmptyParts);
     return Utils::transform(stringValues, [](const QString &str) { return str.toFloat(); });
@@ -248,19 +243,19 @@ void LocalHelpManager::setLastShownPagesZoom(const QList<float> &zoom)
 {
     const QStringList stringValues = Utils::transform(zoom,
                                                       [](float z) { return QString::number(z); });
-    Core::ICore::settings()->setValue(QLatin1String(kLastShownPagesZoomKey),
+    Core::ICore::settings()->setValue(kLastShownPagesZoomKey,
                                       stringValues.join(Constants::ListSeparator));
 }
 
 int LocalHelpManager::lastSelectedTab()
 {
-    const QVariant value = Core::ICore::settings()->value(QLatin1String(kLastSelectedTabKey), 0);
+    const QVariant value = Core::ICore::settings()->value(kLastSelectedTabKey, 0);
     return value.toInt();
 }
 
 void LocalHelpManager::setLastSelectedTab(int index)
 {
-    Core::ICore::settings()->setValue(QLatin1String(kLastSelectedTabKey), index);
+    Core::ICore::settings()->setValue(kLastSelectedTabKey, index);
 }
 
 void LocalHelpManager::setupGuiHelpEngine()
@@ -314,11 +309,11 @@ bool LocalHelpManager::isValidUrl(const QString &link)
     if (!url.isValid())
         return false;
     const QString scheme = url.scheme();
-    return (scheme == QLatin1String("qthelp")
-            || scheme == QLatin1String("about")
-            || scheme == QLatin1String("file")
-            || scheme == QLatin1String("http")
-            || scheme == QLatin1String("https"));
+    return (scheme == "qthelp"
+            || scheme == "about"
+            || scheme == "file"
+            || scheme == "http"
+            || scheme == "https");
 }
 
 QByteArray LocalHelpManager::loadErrorMessage(const QUrl &url, const QString &errorString)
@@ -395,11 +390,11 @@ LocalHelpManager::HelpData LocalHelpManager::helpData(const QUrl &url)
         data.data = engine.fileData(data.resolvedUrl);
         data.mimeType = HelpViewer::mimeFromUrl(data.resolvedUrl);
         if (data.mimeType.isEmpty())
-            data.mimeType = QLatin1String("application/octet-stream");
+            data.mimeType = "application/octet-stream";
     } else {
         data.data = loadErrorMessage(url, QCoreApplication::translate(
                                          "Help", "The page could not be found"));
-        data.mimeType = QLatin1String("text/html");
+        data.mimeType = "text/html";
     }
     return data;
 }

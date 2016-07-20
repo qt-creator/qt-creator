@@ -132,8 +132,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     if (!locale.isEmpty()) {
         QTranslator *qtr = new QTranslator(this);
         QTranslator *qhelptr = new QTranslator(this);
-        const QString &creatorTrPath = ICore::resourcePath()
-            + QLatin1String("/translations");
+        const QString &creatorTrPath = ICore::resourcePath() + "/translations";
         const QString &qtTrPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
         const QString &trFile = QLatin1String("assistant_") + locale;
         const QString &helpTrFile = QLatin1String("qt_help_") + locale;
@@ -181,7 +180,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     QAction *action;
 
     // Add Contents, Index, and Context menu items
-    action = new QAction(QIcon::fromTheme(QLatin1String("help-contents")),
+    action = new QAction(QIcon::fromTheme("help-contents"),
         tr(Constants::SB_CONTENTS), this);
     cmd = ActionManager::registerAction(action, "Help.ContentsMenu");
     ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
@@ -240,7 +239,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     connect(remoteHelpFilter, &RemoteHelpFilter::linkActivated, this,
         &HelpPlugin::showLinkInHelpMode);
 
-    QDesktopServices::setUrlHandler(QLatin1String("qthelp"), HelpManager::instance(), "handleHelpRequest");
+    QDesktopServices::setUrlHandler("qthelp", HelpManager::instance(), "handleHelpRequest");
     connect(ModeManager::instance(), &ModeManager::currentModeChanged,
             this, &HelpPlugin::modeChanged);
 
@@ -255,7 +254,7 @@ void HelpPlugin::extensionsInitialized()
 {
     QStringList filesToRegister;
     // we might need to register creators inbuild help
-    filesToRegister.append(ICore::documentationPath() + QLatin1String("/qtcreator.qch"));
+    filesToRegister.append(ICore::documentationPath() + "/qtcreator.qch");
     HelpManager::registerDocumentation(filesToRegister);
 }
 
@@ -274,7 +273,7 @@ void HelpPlugin::resetFilter()
 {
     const QString &filterInternal = QString::fromLatin1("Qt Creator %1.%2.%3")
         .arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR).arg(IDE_VERSION_RELEASE);
-    QRegExp filterRegExp(QLatin1String("Qt Creator \\d*\\.\\d*\\.\\d*"));
+    QRegExp filterRegExp("Qt Creator \\d*\\.\\d*\\.\\d*");
 
     QHelpEngineCore *engine = &LocalHelpManager::helpEngine();
     const QStringList &filters = engine->customFilters();
@@ -310,8 +309,7 @@ void HelpPlugin::saveExternalWindowSettings()
         return;
     m_externalWindowState = m_externalWindow->geometry();
     QSettings *settings = ICore::settings();
-    settings->setValue(QLatin1String(kExternalWindowStateKey),
-                       qVariantFromValue(m_externalWindowState));
+    settings->setValue(kExternalWindowStateKey, qVariantFromValue(m_externalWindowState));
 }
 
 HelpWidget *HelpPlugin::createHelpWidget(const Context &context, HelpWidget::WidgetStyle style)
@@ -351,7 +349,7 @@ HelpViewer *HelpPlugin::externalHelpViewer()
                                         HelpWidget::ExternalWindow);
     if (m_externalWindowState.isNull()) {
         QSettings *settings = ICore::settings();
-        m_externalWindowState = settings->value(QLatin1String(kExternalWindowStateKey)).toRect();
+        m_externalWindowState = settings->value(kExternalWindowStateKey).toRect();
     }
     if (m_externalWindowState.isNull())
         m_externalWindow->resize(650, 700);
@@ -533,11 +531,11 @@ static QUrl findBestLink(const QMap<QString, QUrl> &links, QString *highlightId)
     QUrl source = links.constBegin().value();
     // workaround to show the latest Qt version
     int version = 0;
-    QRegExp exp(QLatin1String("(\\d+)"));
+    QRegExp exp("(\\d+)");
     foreach (const QUrl &link, links) {
         const QString &authority = link.authority();
-        if (authority.startsWith(QLatin1String("com.trolltech."))
-                || authority.startsWith(QLatin1String("org.qt-project."))) {
+        if (authority.startsWith("com.trolltech.")
+                || authority.startsWith("org.qt-project.")) {
             if (exp.indexIn(authority) >= 0) {
                 const int tmpVersion = exp.cap(1).toInt();
                 if (tmpVersion > version) {
@@ -593,13 +591,13 @@ void HelpPlugin::showContextHelp()
 void HelpPlugin::activateIndex()
 {
     activateHelpMode();
-    m_centralWidget->activateSideBarItem(QLatin1String(Constants::HELP_INDEX));
+    m_centralWidget->activateSideBarItem(Constants::HELP_INDEX);
 }
 
 void HelpPlugin::activateContents()
 {
     activateHelpMode();
-    m_centralWidget->activateSideBarItem(QLatin1String(Constants::HELP_CONTENTS));
+    m_centralWidget->activateSideBarItem(Constants::HELP_CONTENTS);
 }
 
 void HelpPlugin::highlightSearchTermsInContextHelp()
@@ -619,15 +617,15 @@ void HelpPlugin::handleHelpRequest(const QUrl &url, HelpManager::HelpViewerLocat
 
     QString address = url.toString();
     if (!HelpManager::findFile(url).isValid()) {
-        if (address.startsWith(QLatin1String("qthelp://org.qt-project."))
-            || address.startsWith(QLatin1String("qthelp://com.nokia."))
-            || address.startsWith(QLatin1String("qthelp://com.trolltech."))) {
+        if (address.startsWith("qthelp://org.qt-project.")
+            || address.startsWith("qthelp://com.nokia.")
+            || address.startsWith("qthelp://com.trolltech.")) {
                 // local help not installed, resort to external web help
-                QString urlPrefix = QLatin1String("http://doc.qt.io/");
-                if (url.authority() == QLatin1String("org.qt-project.qtcreator"))
+                QString urlPrefix = "http://doc.qt.io/";
+                if (url.authority() == "org.qt-project.qtcreator")
                     urlPrefix.append(QString::fromLatin1("qtcreator"));
                 else
-                    urlPrefix.append(QLatin1String("latest"));
+                    urlPrefix.append("latest");
             address = urlPrefix + address.mid(address.lastIndexOf(QLatin1Char('/')));
         }
     }
@@ -641,12 +639,12 @@ void HelpPlugin::handleHelpRequest(const QUrl &url, HelpManager::HelpViewerLocat
 
 void HelpPlugin::slotOpenSupportPage()
 {
-    showLinkInHelpMode(QUrl(QLatin1String("qthelp://org.qt-project.qtcreator/doc/technical-support.html")));
+    showLinkInHelpMode(QUrl("qthelp://org.qt-project.qtcreator/doc/technical-support.html"));
 }
 
 void HelpPlugin::slotReportBug()
 {
-    QDesktopServices::openUrl(QUrl(QLatin1String("https://bugreports.qt.io")));
+    QDesktopServices::openUrl(QUrl("https://bugreports.qt.io"));
 }
 
 void HelpPlugin::doSetupIfNeeded()

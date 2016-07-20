@@ -159,15 +159,15 @@ void SearchWidget::search() const
 {
     static QStringList charsToEscapeList;
     if (charsToEscapeList.isEmpty()) {
-        charsToEscapeList << QLatin1String("\\") << QLatin1String("+")
-            << QLatin1String("-") << QLatin1String("!") << QLatin1String("(")
-            << QLatin1String(")") << QLatin1String(":") << QLatin1String("^")
-            << QLatin1String("[") << QLatin1String("]") << QLatin1String("{")
-            << QLatin1String("}") << QLatin1String("~");
+        charsToEscapeList << "\\" << "+"
+            << "-" << "!" << "("
+            << ")" << ":" << "^"
+            << "[" << "]" << "{"
+            << "}" << "~";
     }
 
-    static QString escapeChar(QLatin1String("\\"));
-    static QRegExp regExp(QLatin1String("[\\+\\-\\!\\(\\)\\^\\[\\]\\{\\}~:]"));
+    static QString escapeChar("\\");
+    static QRegExp regExp("[\\+\\-\\!\\(\\)\\^\\[\\]\\{\\}~:]");
 
     QList<QHelpSearchQuery> escapedQueries;
     const QList<QHelpSearchQuery> queries = searchEngine->queryWidget()->query();
@@ -299,7 +299,7 @@ QStringList SearchWidget::currentSearchTerms() const
 // #pragma mark -- SearchSideBarItem
 
 SearchSideBarItem::SearchSideBarItem()
-    : SideBarItem(new SearchWidget, QLatin1String(Constants::HELP_SEARCH))
+    : SideBarItem(new SearchWidget, Constants::HELP_SEARCH)
 {
     widget()->setWindowTitle(HelpPlugin::tr(Constants::SB_SEARCH));
     connect(static_cast<SearchWidget *>(widget()), &SearchWidget::linkActivated,
