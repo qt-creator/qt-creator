@@ -25,6 +25,7 @@
 
 import QtQuick 2.1
 import HelperWidgets 2.0
+import QtQuick.Controls.Private 1.0 // showing a ToolTip
 
 Item {
     width: 300
@@ -201,12 +202,33 @@ Item {
     Component {
         id: component
         Item {
+            id: gradientStopHandle
             y: 20
             width: 10
             height: 20
 
             property alias color: rectangle.color
             property alias highlighted: canvas.highlighted
+
+            property bool toolTipVisible: false
+
+            function refreshToolTip(showToolTip) {
+                toolTipVisible = showToolTip;
+                if (showToolTip) {
+                    var currentPoint = Qt.point(gradientStopHandleMouseArea.mouseX, gradientStopHandleMouseArea.mouseY);
+                    var fixedGradiantStopPosition = currentGradiantStopPosition();
+                    Tooltip.showText(gradientStopHandleMouseArea, currentPoint, fixedGradiantStopPosition.toFixed(3));
+                } else {
+                    Tooltip.hideText()
+                }
+            }
+            function currentGradiantStopPosition() {
+                return x / colorLine.effectiveWidth;
+            }
+
+            onXChanged: {
+                refreshToolTip(toolTipVisible)
+            }
 
             Rectangle {
                 id: rectangle
@@ -274,21 +296,41 @@ Item {
                     duration: 100
                 }
             }
-
             MouseArea {
+                id: gradientStopHandleMouseArea
                 anchors.fill: parent
                 drag.target: parent
                 drag.minimumX: 0
                 drag.maximumX: colorLine.effectiveWidth
                 drag.minimumY: !readOnly ? 0 : 20
                 drag.maximumY: 20
+
+                // using pressed property instead of drag.active which was not working
+                onExited: {
+                    gradientStopHandle.refreshToolTip(pressed);
+                }
+                onCanceled: {
+                    gradientStopHandle.refreshToolTip(pressed);
+                }
+                hoverEnabled: true
+
+                Timer {
+                    interval: 1000
+                    running: gradientStopHandleMouseArea.containsMouse
+                    onTriggered: {
+                        gradientStopHandle.refreshToolTip(true);
+                    }
+                }
+
                 onPressed: {
                     colorLine.select(index);
+                    gradientStopHandle.refreshToolTip(true);
                 }
 
                 onReleased: {
                     if (drag.active) {
-                        gradientModel.setPosition(colorLine.selectedIndex, parent.x / colorLine.effectiveWidth)
+                        gradientModel.setPosition(colorLine.selectedIndex, gradientStopHandle.currentGradiantStopPosition())
+                        gradientStopHandle.refreshToolTip(false);
 
                         if (parent.y < 10) {
                             if (!readOnly) {
