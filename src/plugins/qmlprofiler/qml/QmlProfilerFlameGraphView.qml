@@ -61,7 +61,7 @@ ScrollView {
         boundsBehavior: Flickable.StopAtBounds
 
         FlameGraph {
-            property int itemHeight: Math.max(30, flickable.height / depth)
+            property int delegateHeight: Math.max(30, flickable.height / depth)
             property color blue: "blue"
             property color blue1: Qt.lighter(blue)
             property color blue2: Qt.rgba(0.375, 0, 1, 1)
@@ -73,7 +73,7 @@ ScrollView {
 
             id: flamegraph
             width: parent.width
-            height: depth * itemHeight
+            height: depth * delegateHeight
             model: flameGraphModel
             sizeRole: root.sizeRole
             sizeThreshold: 0.002
@@ -88,7 +88,7 @@ ScrollView {
                 property bool rangeTypeVisible:
                     root.visibleRangeTypes & (1 << FlameGraph.data(QmlProfilerFlameGraphModel.RangeTypeRole))
 
-                itemHeight: rangeTypeVisible ? flamegraph.itemHeight : 0
+                itemHeight: rangeTypeVisible ? flamegraph.delegateHeight : 0
                 isSelected: typeId !== -1 && typeId === root.selectedTypeId && rangeTypeVisible
 
                 borderColor: {

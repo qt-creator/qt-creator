@@ -39,10 +39,10 @@ Item {
     signal clicked
 
     property bool textVisible: width > 20 || isSelected
-    property int level: (parent.level !== undefined ? parent.level + 1 : -1)
-                        + (itemHeight > 0 ? 1 : 0)
+    property int level: parent.level !== undefined ? parent.level + 1 : 0
 
-    height: parent === null ? 0 : parent.height - (level > 0 ? itemHeight : 0);
+    height: parent === null ?
+                0 : (parent.height - (parent.itemHeight !== undefined ? parent.itemHeight : 0));
     width: parent === null ? 0 : parent.width * FlameGraph.relativeSize
     x: parent === null ? 0 : parent.width * FlameGraph.relativePosition
 
