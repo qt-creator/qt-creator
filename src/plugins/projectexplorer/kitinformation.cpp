@@ -230,7 +230,7 @@ void ToolChainKitInformation::fix(Kit *k)
 void ToolChainKitInformation::setup(Kit *k)
 {
     QTC_ASSERT(ToolChainManager::isLoaded(), return);
-    const QVariantMap value = readValue(k);
+    const QVariantMap value = k->value(ToolChainKitInformation::id()).toMap();
     const QList<ToolChain *> knownTcs = ToolChainManager::toolChains();
 
     for (auto i = value.constBegin(); i != value.constEnd(); ++i) {
