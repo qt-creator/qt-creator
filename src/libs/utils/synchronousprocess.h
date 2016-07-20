@@ -37,11 +37,12 @@ QT_FORWARD_DECLARE_CLASS(QDebug)
 
 namespace Utils {
 
-struct SynchronousProcessPrivate;
+class SynchronousProcessPrivate;
 
 /* Result of SynchronousProcess execution */
-struct QTCREATOR_UTILS_EXPORT SynchronousProcessResponse
+class QTCREATOR_UTILS_EXPORT SynchronousProcessResponse
 {
+public:
     enum Result {
         // Finished with return code 0
         Finished,
@@ -54,7 +55,6 @@ struct QTCREATOR_UTILS_EXPORT SynchronousProcessResponse
         // Hang, no output after time out
         Hang };
 
-    SynchronousProcessResponse();
     void clear();
 
     // Helper to format an exit message.
@@ -66,12 +66,12 @@ struct QTCREATOR_UTILS_EXPORT SynchronousProcessResponse
     QString stdOut() const;
     QString stdErr() const;
 
-    Result result;
-    int exitCode;
+    Result result = StartFailed;
+    int exitCode = -1;
 
-    QTextCodec *codec = nullptr;
     QByteArray rawStdOut;
     QByteArray rawStdErr;
+    QTextCodec *codec = nullptr;
 };
 
 QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const SynchronousProcessResponse &);

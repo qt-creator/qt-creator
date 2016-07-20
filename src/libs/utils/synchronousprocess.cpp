@@ -106,12 +106,6 @@ void TerminalControllingProcess::setupChildProcess()
 }
 
 // ----------- SynchronousProcessResponse
-SynchronousProcessResponse::SynchronousProcessResponse() :
-   result(StartFailed),
-   exitCode(-1)
-{
-}
-
 void SynchronousProcessResponse::clear()
 {
     result = StartFailed;
@@ -263,11 +257,11 @@ void ChannelBuffer::append(const QByteArray &text, bool emitSignals)
 }
 
 // ----------- SynchronousProcessPrivate
-struct SynchronousProcessPrivate {
-    SynchronousProcessPrivate();
+class SynchronousProcessPrivate {
+public:
     void clearForRun();
 
-    QTextCodec *m_codec;
+    QTextCodec *m_codec = QTextCodec::codecForLocale();
     TerminalControllingProcess m_process;
     QTimer m_timer;
     QEventLoop m_eventLoop;
@@ -283,11 +277,6 @@ struct SynchronousProcessPrivate {
     bool m_timeOutMessageBoxEnabled = false;
     bool m_waitingForUser = false;
 };
-
-SynchronousProcessPrivate::SynchronousProcessPrivate() :
-    m_codec(QTextCodec::codecForLocale())
-{
-}
 
 void SynchronousProcessPrivate::clearForRun()
 {
