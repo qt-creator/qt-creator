@@ -233,11 +233,11 @@ void QmlProfilerClientManager::connectClientSignals()
 
     QTC_ASSERT(m_profilerState, return);
     QObject::connect(m_qmlclientplugin.data(), &QmlProfilerTraceClient::recordingChanged,
-                     m_profilerState, &QmlProfilerStateManager::setServerRecording);
-    QObject::connect(m_profilerState, &QmlProfilerStateManager::requestedFeaturesChanged,
+                     m_profilerState.data(), &QmlProfilerStateManager::setServerRecording);
+    QObject::connect(m_profilerState.data(), &QmlProfilerStateManager::requestedFeaturesChanged,
                      m_qmlclientplugin.data(), &QmlProfilerTraceClient::setRequestedFeatures);
     QObject::connect(m_qmlclientplugin.data(), &QmlProfilerTraceClient::recordedFeaturesChanged,
-                     m_profilerState, &QmlProfilerStateManager::setRecordedFeatures);
+                     m_profilerState.data(), &QmlProfilerStateManager::setRecordedFeatures);
 }
 
 void QmlProfilerClientManager::disconnectClientSignals()
@@ -249,7 +249,7 @@ void QmlProfilerClientManager::disconnectClientSignals()
     m_qmlclientplugin->disconnect();
 
     QTC_ASSERT(m_profilerState, return);
-    QObject::disconnect(m_profilerState, &QmlProfilerStateManager::requestedFeaturesChanged,
+    QObject::disconnect(m_profilerState.data(), &QmlProfilerStateManager::requestedFeaturesChanged,
                         m_qmlclientplugin.data(), &QmlProfilerTraceClient::setRequestedFeatures);
 }
 
@@ -333,9 +333,9 @@ void QmlProfilerClientManager::setProfilerStateManager(QmlProfilerStateManager *
     QTC_ASSERT(m_connection.isNull() && m_qmlclientplugin.isNull(), disconnectClient());
 
     if (m_profilerState) {
-        disconnect(m_profilerState, &QmlProfilerStateManager::stateChanged,
+        disconnect(m_profilerState.data(), &QmlProfilerStateManager::stateChanged,
                    this, &QmlProfilerClientManager::profilerStateChanged);
-        disconnect(m_profilerState, &QmlProfilerStateManager::clientRecordingChanged,
+        disconnect(m_profilerState.data(), &QmlProfilerStateManager::clientRecordingChanged,
                    this, &QmlProfilerClientManager::clientRecordingChanged);
     }
 
@@ -343,9 +343,9 @@ void QmlProfilerClientManager::setProfilerStateManager(QmlProfilerStateManager *
 
     // connect
     if (m_profilerState) {
-        connect(m_profilerState, &QmlProfilerStateManager::stateChanged,
+        connect(m_profilerState.data(), &QmlProfilerStateManager::stateChanged,
                 this, &QmlProfilerClientManager::profilerStateChanged);
-        connect(m_profilerState, &QmlProfilerStateManager::clientRecordingChanged,
+        connect(m_profilerState.data(), &QmlProfilerStateManager::clientRecordingChanged,
                 this, &QmlProfilerClientManager::clientRecordingChanged);
     }
 }
