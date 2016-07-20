@@ -71,7 +71,7 @@ public:
 
     QByteArray rawStdOut;
     QByteArray rawStdErr;
-    QTextCodec *codec = nullptr;
+    QTextCodec *codec = QTextCodec::codecForLocale();
 };
 
 QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const SynchronousProcessResponse &);
