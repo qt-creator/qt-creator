@@ -118,9 +118,16 @@ void SshSendFacility::sendUserAuthByPasswordRequestPacket(const QByteArray &user
     }
 
 void SshSendFacility::sendUserAuthByPublicKeyRequestPacket(const QByteArray &user,
-    const QByteArray &service)
+    const QByteArray &service, const QByteArray &key, const QByteArray &signature)
 {
-    m_outgoingPacket.generateUserAuthByPublicKeyRequestPacket(user, service);
+    m_outgoingPacket.generateUserAuthByPublicKeyRequestPacket(user, service, key, signature);
+    sendPacket();
+}
+
+void SshSendFacility::sendQueryPublicKeyPacket(const QByteArray &user, const QByteArray &service,
+                                               const QByteArray &publicKey)
+{
+    m_outgoingPacket.generateQueryPublicKeyPacket(user, service, publicKey);
     sendPacket();
 }
 

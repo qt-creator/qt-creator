@@ -25,9 +25,11 @@
 
 #include "sshoutgoingpacket_p.h"
 
+#include "sshagent_p.h"
 #include "sshcapabilities_p.h"
 #include "sshcryptofacility_p.h"
 #include "sshlogging_p.h"
+#include "sshpacketparser_p.h"
 
 #include <QtEndian>
 
@@ -117,15 +119,39 @@ void SshOutgoingPacket::generateUserAuthByPasswordRequestPacket(const QByteArray
 }
 
 void SshOutgoingPacket::generateUserAuthByPublicKeyRequestPacket(const QByteArray &user,
-    const QByteArray &service)
+    const QByteArray &service, const QByteArray &key, const QByteArray &signature)
 {
     init(SSH_MSG_USERAUTH_REQUEST).appendString(user).appendString(service)
-        .appendString("publickey").appendBool(true)
-        .appendString(m_encrypter.authenticationAlgorithmName())
-        .appendString(m_encrypter.authenticationPublicKey());
-    const QByteArray &dataToSign = m_data.mid(PayloadOffset);
-    appendString(m_encrypter.authenticationKeySignature(dataToSign));
+        .appendString("publickey").appendBool(true);
+    if (!key.isEmpty()) {
+        appendString(SshPacketParser::asString(key, quint32(0)));
+        appendString(key);
+        appendString(signature);
+    } else {
+        appendString(m_encrypter.authenticationAlgorithmName());
+        appendString(m_encrypter.authenticationPublicKey());
+        const QByteArray &dataToSign = m_data.mid(PayloadOffset);
+        appendString(m_encrypter.authenticationKeySignature(dataToSign));
+    }
     finalize();
+}
+
+void SshOutgoingPacket::generateQueryPublicKeyPacket(const QByteArray &user,
+        const QByteArray &service, const QByteArray &publicKey)
+{
+    // Name extraction cannot fail, we already verified this when receiving the key
+    // from the agent.
+    const QByteArray algoName = SshPacketParser::asString(publicKey, quint32(0));
+    SshOutgoingPacket packetToSign(m_encrypter, m_seqNr);
+    packetToSign.init(SSH_MSG_USERAUTH_REQUEST).appendString(user).appendString(service)
+            .appendString("publickey").appendBool(true).appendString(algoName)
+            .appendString(publicKey);
+    const QByteArray &dataToSign
+            = encodeString(m_encrypter.sessionId()) + packetToSign.m_data.mid(PayloadOffset);
+    SshAgent::storeDataToSign(publicKey, dataToSign, qHash(m_encrypter.sessionId()));
+    init(SSH_MSG_USERAUTH_REQUEST).appendString(user).appendString(service)
+            .appendString("publickey").appendBool(false).appendString(algoName)
+            .appendString(publicKey).finalize();
 }
 
 void SshOutgoingPacket::generateUserAuthByKeyboardInteractiveRequestPacket(const QByteArray &user,

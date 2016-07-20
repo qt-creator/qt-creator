@@ -76,6 +76,12 @@ struct SshUserAuthBanner
     QByteArray language;
 };
 
+struct SshUserAuthPkOkPacket
+{
+    QByteArray algoName;
+    QByteArray keyBlob;
+};
+
 struct SshUserAuthInfoRequestPacket
 {
     QString name;
@@ -176,6 +182,7 @@ public:
     SshDisconnect extractDisconnect() const;
     SshUserAuthBanner extractUserAuthBanner() const;
     SshUserAuthInfoRequestPacket extractUserAuthInfoRequest() const;
+    SshUserAuthPkOkPacket extractUserAuthPkOk() const;
     SshDebug extractDebug() const;
     SshRequestSuccess extractRequestSuccess() const;
     SshUnimplemented extractUnimplemented() const;

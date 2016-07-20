@@ -58,6 +58,8 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
             this, &GenericLinuxDeviceConfigurationWidget::keyFileEditingFinished);
     connect(m_ui->keyButton, &QAbstractButton::toggled,
             this, &GenericLinuxDeviceConfigurationWidget::authenticationTypeChanged);
+    connect(m_ui->agentButton, &QAbstractButton::toggled,
+            this, &GenericLinuxDeviceConfigurationWidget::authenticationTypeChanged);
     connect(m_ui->timeoutSpinBox, &QAbstractSpinBox::editingFinished,
             this, &GenericLinuxDeviceConfigurationWidget::timeoutEditingFinished);
     connect(m_ui->timeoutSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
@@ -89,14 +91,16 @@ void GenericLinuxDeviceConfigurationWidget::authenticationTypeChanged()
 {
     SshConnectionParameters sshParams = device()->sshParameters();
     const bool usePassword = m_ui->passwordButton->isChecked();
-    sshParams.authenticationType = usePassword
-        ? SshConnectionParameters::AuthenticationTypeTryAllPasswordBasedMethods
-        : SshConnectionParameters::AuthenticationTypePublicKey;
+    const bool useKeyFile = m_ui->keyButton->isChecked();
+    sshParams.authenticationType
+            = usePassword ? SshConnectionParameters::AuthenticationTypeTryAllPasswordBasedMethods
+                          : useKeyFile ? SshConnectionParameters::AuthenticationTypePublicKey
+                                       : SshConnectionParameters::AuthenticationTypeAgent;
     device()->setSshParameters(sshParams);
     m_ui->pwdLineEdit->setEnabled(usePassword);
     m_ui->passwordLabel->setEnabled(usePassword);
-    m_ui->keyFileLineEdit->setEnabled(!usePassword);
-    m_ui->keyLabel->setEnabled(!usePassword);
+    m_ui->keyFileLineEdit->setEnabled(useKeyFile);
+    m_ui->keyLabel->setEnabled(useKeyFile);
 }
 
 void GenericLinuxDeviceConfigurationWidget::hostNameEditingFinished()
@@ -214,10 +218,18 @@ void GenericLinuxDeviceConfigurationWidget::initGui()
 
     const SshConnectionParameters &sshParams = device()->sshParameters();
 
-    if (sshParams.authenticationType != SshConnectionParameters::AuthenticationTypePublicKey)
-        m_ui->passwordButton->setChecked(true);
-    else
+    switch (sshParams.authenticationType) {
+    case SshConnectionParameters::AuthenticationTypePublicKey:
         m_ui->keyButton->setChecked(true);
+        break;
+    case SshConnectionParameters::AuthenticationTypeAgent:
+        m_ui->agentButton->setChecked(true);
+        break;
+    case SshConnectionParameters::AuthenticationTypePassword:
+    case SshConnectionParameters::AuthenticationTypeKeyboardInteractive:
+    case SshConnectionParameters::AuthenticationTypeTryAllPasswordBasedMethods:
+        m_ui->passwordButton->setChecked(true);
+    }
     m_ui->timeoutSpinBox->setValue(sshParams.timeout);
     m_ui->hostLineEdit->setEnabled(!device()->isAutoDetected());
     m_ui->sshPortSpinBox->setEnabled(!device()->isAutoDetected());

@@ -65,6 +65,7 @@ public:
     enum AuthenticationType {
         AuthenticationTypePassword,
         AuthenticationTypePublicKey,
+        AuthenticationTypeAgent,
         AuthenticationTypeKeyboardInteractive,
 
         // Some servers disable "password", others disable "keyboard-interactive".

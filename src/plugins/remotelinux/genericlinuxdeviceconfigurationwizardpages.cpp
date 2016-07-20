@@ -64,6 +64,10 @@ GenericLinuxDeviceConfigurationWizardSetupPage::GenericLinuxDeviceConfigurationW
             this, &QWizardPage::completeChanged);
     connect(d->ui.passwordButton, &QAbstractButton::toggled,
             this, &GenericLinuxDeviceConfigurationWizardSetupPage::handleAuthTypeChanged);
+    connect(d->ui.keyButton, &QAbstractButton::toggled,
+            this, &GenericLinuxDeviceConfigurationWizardSetupPage::handleAuthTypeChanged);
+    connect(d->ui.agentButton, &QAbstractButton::toggled,
+            this, &GenericLinuxDeviceConfigurationWizardSetupPage::handleAuthTypeChanged);
 }
 
 GenericLinuxDeviceConfigurationWizardSetupPage::~GenericLinuxDeviceConfigurationWizardSetupPage()
@@ -107,8 +111,9 @@ QString GenericLinuxDeviceConfigurationWizardSetupPage::userName() const
 SshConnectionParameters::AuthenticationType GenericLinuxDeviceConfigurationWizardSetupPage::authenticationType() const
 {
     return d->ui.passwordButton->isChecked()
-        ? SshConnectionParameters::AuthenticationTypeTryAllPasswordBasedMethods
-        : SshConnectionParameters::AuthenticationTypePublicKey;
+            ? SshConnectionParameters::AuthenticationTypeTryAllPasswordBasedMethods
+            : d->ui.keyButton->isChecked() ? SshConnectionParameters::AuthenticationTypePublicKey
+                                           : SshConnectionParameters::AuthenticationTypeAgent;
 }
 
 QString GenericLinuxDeviceConfigurationWizardSetupPage::password() const
@@ -143,8 +148,10 @@ QString GenericLinuxDeviceConfigurationWizardSetupPage::defaultPassWord() const
 
 void GenericLinuxDeviceConfigurationWizardSetupPage::handleAuthTypeChanged()
 {
-    d->ui.passwordLineEdit->setEnabled(authenticationType() != SshConnectionParameters::AuthenticationTypePublicKey);
-    d->ui.privateKeyPathChooser->setEnabled(!d->ui.passwordLineEdit->isEnabled());
+    d->ui.passwordLineEdit->setEnabled(authenticationType()
+            == SshConnectionParameters::AuthenticationTypeTryAllPasswordBasedMethods);
+    d->ui.privateKeyPathChooser->setEnabled(authenticationType()
+            == SshConnectionParameters::AuthenticationTypePublicKey);
     emit completeChanged();
 }
 
