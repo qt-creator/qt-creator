@@ -100,7 +100,9 @@ Item {
             var gradientObject = Qt.createQmlObject(gradientString, gradientRectangle, "test");
 
             for (i = 0; i < gradientModel.count; i++) {
-                repeater.itemAt(i).item.y = 20 //fixes corner case for dragging overlapped items
+                if (repeater.itemAt(i) !== null)
+                    repeater.itemAt(i).item.y = 20 //fixes corner case for dragging overlapped items
+
                 gradientObject.stops[i].color =  gradientModel.getColor(i)
                 gradientObject.stops[i].position = gradientModel.getPosition(i)
             }
