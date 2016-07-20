@@ -52,17 +52,17 @@ const char ID[] = "PE.Profile.Id";
 
 QString RmKitOperation::name() const
 {
-    return "rmKit";
+    return QString("rmKit");
 }
 
 QString RmKitOperation::helpText() const
 {
-    return "remove a Kit from Qt Creator";
+    return QString("remove a Kit from Qt Creator");
 }
 
 QString RmKitOperation::argumentsHelpText() const
 {
-    return "    --id <ID>                                  id of the kit to remove.\n";
+    return QString("    --id <ID>                                  id of the kit to remove.\n");
 }
 
 bool RmKitOperation::setArguments(const QStringList &args)
