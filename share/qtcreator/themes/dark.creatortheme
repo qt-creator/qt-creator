@@ -12,13 +12,16 @@ selectedBackground=46ffffff
 normalBackground=ff333333
 alternateBackground=ff515151
 error=ffff0000
+textColorLink=ff007af4
+textColorLinkVisited=ffa57aff
+backgroundColorDisabled=ff444444
 
 [Colors]
 BackgroundColorAlternate=alternateBackground
 BackgroundColorDark=shadowBackground
 BackgroundColorHover=hoverBackground
 BackgroundColorNormal=normalBackground
-BackgroundColorDisabled=ff444444
+BackgroundColorDisabled=backgroundColorDisabled
 BackgroundColorSelected=selectedBackground
 BadgeLabelBackgroundColorChecked=normalBackground
 BadgeLabelBackgroundColorUnchecked=selectedBackground
@@ -112,8 +115,8 @@ SplitterColor=ff313131
 TextColorDisabled=textDisabled
 TextColorError=ffff4040
 TextColorHighlight=ffff0000
-TextColorLink=ff007af4
-TextColorLinkVisited=ffa57aff
+TextColorLink=textColorLink
+TextColorLinkVisited=textColorLinkVisited
 TextColorNormal=text
 TodoItemTextColor=ff000000
 ToggleButtonBackgroundColor=shadowBackground
@@ -176,6 +179,26 @@ ProjectExplorer_TaskWarn_TextMarkColor=ffffff40
 
 ClangCodeModel_Error_TextMarkColor=ffff882f
 ClangCodeModel_Warning_TextMarkColor=ffceff40
+
+PaletteWindow=normalBackground
+PaletteWindowText=text
+PaletteBase=normalBackground
+PaletteAlternateBase=alternateBackground
+PaletteButton=shadowBackground
+PaletteBrightText=ffff0000
+PaletteText=text
+PaletteButtonText=text
+PaletteToolTipBase=selectedBackground
+PaletteHighlight=selectedBackground
+PaletteDark=shadowBackground
+PaletteHighlightedText=ffffffff
+PaletteToolTipText=text
+PaletteLink=textColorLink
+PaletteLinkVisited=textColorLinkVisited
+PaletteWindowDisabled=backgroundColorDisabled
+PaletteWindowTextDisabled=textDisabled
+PaletteBaseDisabled=backgroundColorDisabled
+PaletteTextDisabled=textDisabled
 
 [Flags]
 ComboBoxDrawTextShadow=false
