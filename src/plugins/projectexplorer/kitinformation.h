@@ -79,6 +79,7 @@ public:
     QVariant defaultValue(const Kit *k) const override;
 
     QList<Task> validate(const Kit *k) const override;
+    void upgrade(Kit *k) override;
     void fix(Kit *k) override;
     void setup(Kit *k) override;
 
@@ -102,8 +103,6 @@ public:
     static QString msgNoToolChainInTarget();
 
 private:
-    static QVariantMap readValue(const Kit *k);
-    static QVariant defaultValue();
     void kitsWereLoaded();
     void toolChainUpdated(ProjectExplorer::ToolChain *tc);
     void toolChainRemoved(ProjectExplorer::ToolChain *tc);

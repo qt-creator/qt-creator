@@ -500,6 +500,7 @@ void KitManager::addKit(Kit *k)
     {
         KitGuard g(k);
         foreach (KitInformation *ki, d->m_informationList) {
+            ki->upgrade(k);
             if (!k->hasValue(ki->id()))
                 k->setValue(ki->id(), ki->defaultValue(k));
             else
