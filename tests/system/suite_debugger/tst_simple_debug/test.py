@@ -52,11 +52,10 @@ def main():
         if result:
             expectedBreakpointsOrder = [{os.path.join(workingDir, projectName, "main.cpp"):8},
                                         {os.path.join(workingDir, projectName, "main.qml"):13}]
-            # Only use 4.7.4 to work around QTBUG-25187
             availableConfigs = iterateBuildConfigs(len(checkedTargets), "Debug")
             progressBarWait()
             if not availableConfigs:
-                test.fatal("Haven't found a suitable Qt version (need Qt 4.7.4) - leaving without debugging.")
+                test.fatal("Haven't found a suitable Qt version - leaving without debugging.")
             for kit, config in availableConfigs:
                 test.log("Selecting '%s' as build config" % config)
                 verifyBuildConfig(len(checkedTargets), kit, config, True, enableQmlDebug=True)
