@@ -34,7 +34,9 @@ namespace Internal {
 enum class IconType {
     Info,
     Error,
-    Warning
+    Warning,
+    Bug,
+    Todo
 };
 
 QIcon icon(IconType type);

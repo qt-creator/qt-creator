@@ -95,6 +95,14 @@ void KeywordDialog::setupListWidget(IconType selectedIcon)
     item->setData(Qt::UserRole, static_cast<int>(IconType::Error));
     ui->listWidget->addItem(item);
 
+    item = new QListWidgetItem(icon(IconType::Bug), QLatin1String("bug"));
+    item->setData(Qt::UserRole, static_cast<int>(IconType::Bug));
+    ui->listWidget->addItem(item);
+
+    item = new QListWidgetItem(icon(IconType::Todo), QLatin1String("todo"));
+    item->setData(Qt::UserRole, static_cast<int>(IconType::Todo));
+    ui->listWidget->addItem(item);
+
     for (int i = 0; i < ui->listWidget->count(); ++i) {
         item = ui->listWidget->item(i);
         if (static_cast<IconType>(item->data(Qt::UserRole).toInt()) == selectedIcon) {

@@ -125,7 +125,7 @@ void TodoPlugin::createItemsProvider()
 
 void TodoPlugin::createTodoOutputPane()
 {
-    m_todoOutputPane = new TodoOutputPane(m_todoItemsProvider->todoItemsModel());
+    m_todoOutputPane = new TodoOutputPane(m_todoItemsProvider->todoItemsModel(), &m_settings);
     addAutoReleasedObject(m_todoOutputPane);
     m_todoOutputPane->setScanningScope(m_settings.scanningScope);
     connect(m_todoOutputPane, &TodoOutputPane::scanningScopeChanged,

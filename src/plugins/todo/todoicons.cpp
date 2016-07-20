@@ -23,10 +23,13 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
+#include <utils/icon.h>
+#include <utils/theme/theme.h>
 #include <coreplugin/coreicons.h>
 
 #include "todoicons.h"
+
+using namespace Utils;
 
 namespace Todo {
 namespace Internal {
@@ -42,6 +45,23 @@ QIcon icon(IconType type)
         const static QIcon icon = Core::Icons::WARNING.icon();
         return icon;
     }
+    case IconType::Bug: {
+        const static QIcon icon =
+                Icon({
+                         {":/todoplugin/images/bugfill.png", Theme::BackgroundColorNormal},
+                         {":/todoplugin/images/bug.png", Theme::IconsInterruptToolBarColor}
+                     }, Icon::Tint).icon();
+
+        return icon;
+    }
+    case IconType::Todo: {
+        const static QIcon icon =
+                Icon({
+                         {":/todoplugin/images/tasklist.png", Theme::IconsRunToolBarColor}
+                     }, Icon::Tint).icon();
+        return icon;
+    }
+
     default:
     case IconType::Error: {
         const static QIcon icon = Core::Icons::ERROR.icon();

@@ -36,20 +36,22 @@
 #include <QHeaderView>
 #include <QToolButton>
 #include <QButtonGroup>
+#include <QSortFilterProxyModel>
 
 namespace Todo {
 namespace Internal {
 
-TodoOutputPane::TodoOutputPane(TodoItemsModel *todoItemsModel, QObject *parent) :
+TodoOutputPane::TodoOutputPane(TodoItemsModel *todoItemsModel, const Settings *settings, QObject *parent) :
     IOutputPane(parent),
-    m_todoItemsModel(todoItemsModel)
+    m_todoItemsModel(todoItemsModel),
+    m_settings(settings)
 {
     createTreeView();
     createScopeButtons();
     setScanningScope(ScanningScopeCurrentFile); // default
-    connect(m_todoItemsModel, &TodoItemsModel::layoutChanged,
+    connect(m_todoTreeView->model(), &TodoItemsModel::layoutChanged,
             this, &TodoOutputPane::navigateStateUpdate);
-    connect(m_todoItemsModel, &TodoItemsModel::layoutChanged,
+    connect(m_todoTreeView->model(), &TodoItemsModel::layoutChanged,
             this, &TodoOutputPane::updateTodoCount);
 }
 
@@ -67,7 +69,14 @@ QWidget *TodoOutputPane::outputWidget(QWidget *parent)
 
 QList<QWidget*> TodoOutputPane::toolBarWidgets() const
 {
-    return { m_spacer, m_currentFileButton, m_wholeProjectButton, m_subProjectButton };
+    QWidgetList widgets;
+
+    for (QToolButton *btn: m_filterButtons)
+        widgets << btn;
+
+    widgets << m_spacer << m_currentFileButton << m_wholeProjectButton << m_subProjectButton;
+
+    return widgets;
 }
 
 QString TodoOutputPane::displayName() const
@@ -82,6 +91,7 @@ int TodoOutputPane::priorityInStatusBar() const
 
 void TodoOutputPane::clearContents()
 {
+    clearFilter();
 }
 
 void TodoOutputPane::visibilityChanged(bool visible)
@@ -111,19 +121,19 @@ bool TodoOutputPane::canNavigate() const
 
 bool TodoOutputPane::canNext() const
 {
-    return m_todoTreeView->model()->rowCount() > 1;
+    return m_todoTreeView->model()->rowCount() > 0;
 }
 
 bool TodoOutputPane::canPrevious() const
 {
-    return m_todoTreeView->model()->rowCount() > 1;
+    return m_todoTreeView->model()->rowCount() > 0;
 }
 
 void TodoOutputPane::goToNext()
 {
     const QModelIndex nextIndex = nextModelIndex();
     m_todoTreeView->selectionModel()->setCurrentIndex(nextIndex, QItemSelectionModel::SelectCurrent
-                                                      | QItemSelectionModel::Rows);
+                                                      | QItemSelectionModel::Rows | QItemSelectionModel::Clear);
     todoTreeViewClicked(nextIndex);
 }
 
@@ -131,7 +141,7 @@ void TodoOutputPane::goToPrev()
 {
     const QModelIndex prevIndex = previousModelIndex();
     m_todoTreeView->selectionModel()->setCurrentIndex(prevIndex, QItemSelectionModel::SelectCurrent
-                                                      | QItemSelectionModel::Rows);
+                                                      | QItemSelectionModel::Rows | QItemSelectionModel::Clear);
     todoTreeViewClicked(prevIndex);
 }
 
@@ -147,7 +157,7 @@ void TodoOutputPane::setScanningScope(ScanningScope scanningScope)
         Q_ASSERT_X(false, "Updating scanning scope buttons", "Unknown scanning scope enum value");
 }
 
-void TodoOutputPane::scopeButtonClicked(QAbstractButton* button)
+void TodoOutputPane::scopeButtonClicked(QAbstractButton *button)
 {
     if (button == m_currentFileButton)
         emit scanningScopeChanged(ScanningScopeCurrentFile);
@@ -155,7 +165,7 @@ void TodoOutputPane::scopeButtonClicked(QAbstractButton* button)
         emit scanningScopeChanged(ScanningScopeSubProject);
     else if (button == m_wholeProjectButton)
         emit scanningScopeChanged(ScanningScopeProject);
-    setBadgeNumber(m_todoItemsModel->rowCount());
+    setBadgeNumber(m_todoTreeView->model()->rowCount());
 }
 
 void TodoOutputPane::todoTreeViewClicked(const QModelIndex &index)
@@ -177,13 +187,44 @@ void TodoOutputPane::todoTreeViewClicked(const QModelIndex &index)
 
 void TodoOutputPane::updateTodoCount()
 {
-    setBadgeNumber(m_todoItemsModel->rowCount());
+    setBadgeNumber(m_todoTreeView->model()->rowCount());
+}
+
+void TodoOutputPane::updateFilter()
+{
+    QStringList keywords;
+    for (QToolButton *btn: m_filterButtons) {
+        if (btn->isChecked())
+            keywords.append(btn->property(Constants::FILTER_KEYWORD_NAME).toString());
+    }
+
+    QString pattern = keywords.isEmpty() ? QString() : QString("^(%1).*").arg(keywords.join('|'));
+    int sortColumn = m_todoTreeView->header()->sortIndicatorSection();
+    Qt::SortOrder sortOrder = m_todoTreeView->header()->sortIndicatorOrder();
+
+    m_filteredTodoItemsModel->setFilterRegExp(pattern);
+    m_filteredTodoItemsModel->sort(sortColumn, sortOrder);
+
+    updateTodoCount();
+}
+
+void TodoOutputPane::clearFilter()
+{
+    for (QToolButton *btn: m_filterButtons)
+        btn->setChecked(false);
+
+    updateFilter();
 }
 
 void TodoOutputPane::createTreeView()
 {
+    m_filteredTodoItemsModel = new QSortFilterProxyModel();
+    m_filteredTodoItemsModel->setSourceModel(m_todoItemsModel);
+    m_filteredTodoItemsModel->setDynamicSortFilter(false);
+    m_filteredTodoItemsModel->setFilterKeyColumn(Constants::OUTPUT_COLUMN_TEXT);
+
     m_todoTreeView = new TodoOutputTreeView();
-    m_todoTreeView->setModel(m_todoItemsModel);
+    m_todoTreeView->setModel(m_filteredTodoItemsModel);
     Aggregation::Aggregate *agg = new Aggregation::Aggregate;
     agg->add(m_todoTreeView);
     agg->add(new Core::ItemViewFind(m_todoTreeView));
@@ -194,6 +235,19 @@ void TodoOutputPane::createTreeView()
 void TodoOutputPane::freeTreeView()
 {
     delete m_todoTreeView;
+    delete m_filteredTodoItemsModel;
+}
+
+QToolButton *TodoOutputPane::createCheckableToolButton(const QString &text, const QString &toolTip, const QIcon &icon)
+{
+    QToolButton *button = new QToolButton();
+
+    button->setCheckable(true);
+    button->setText(text);
+    button->setToolTip(toolTip);
+    button->setIcon(icon);
+
+    return button;
 }
 
 void TodoOutputPane::createScopeButtons()
@@ -222,6 +276,16 @@ void TodoOutputPane::createScopeButtons()
 
     m_spacer = new QWidget;
     m_spacer->setMinimumWidth(Constants::OUTPUT_TOOLBAR_SPACER_WIDTH);
+
+    QString tooltip = tr("Show \"%1\" entries");
+    for (const Keyword &keyword: m_settings->keywords) {
+        QToolButton *button = createCheckableToolButton(keyword.name, tooltip.arg(keyword.name), icon(keyword.iconType));
+        button->setProperty(Constants::FILTER_KEYWORD_NAME, keyword.name);
+        button->setToolButtonStyle(Qt::ToolButtonIconOnly);
+        connect(button, &QToolButton::clicked, this, &TodoOutputPane::updateFilter);
+
+        m_filterButtons.append(button);
+    }
 }
 
 void TodoOutputPane::freeScopeButtons()
@@ -231,6 +295,8 @@ void TodoOutputPane::freeScopeButtons()
     delete m_subProjectButton;
     delete m_scopeButtons;
     delete m_spacer;
+
+    qDeleteAll(m_filterButtons);
 }
 
 QModelIndex TodoOutputPane::selectedModelIndex()

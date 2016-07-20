@@ -141,6 +141,7 @@ void TodoItemsModel::sort(int column, Qt::SortOrder order)
     m_currentSortOrder = order;
 
     TodoItemSortPredicate predicate(m_currentSortColumn, m_currentSortOrder);
+    emit layoutAboutToBeChanged();
     Utils::sort(*m_todoItemsList, predicate);
     emit layoutChanged();
 }

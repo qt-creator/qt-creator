@@ -110,7 +110,7 @@ void Settings::setDefault()
     Keyword keyword;
 
     keyword.name = QLatin1String("TODO");
-    keyword.iconType = IconType::Warning;
+    keyword.iconType = IconType::Todo;
     keyword.color = QColor(QLatin1String(Constants::COLOR_TODO_BG));
     keywords.append(keyword);
 
@@ -125,7 +125,7 @@ void Settings::setDefault()
     keywords.append(keyword);
 
     keyword.name = QLatin1String("BUG");
-    keyword.iconType = IconType::Error;
+    keyword.iconType = IconType::Bug;
     keyword.color = QColor(QLatin1String(Constants::COLOR_BUG_BG));
     keywords.append(keyword);
 

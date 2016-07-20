@@ -68,5 +68,7 @@ const int OUTPUT_TOOLBAR_SPACER_WIDTH = 25;
 const int OUTPUT_PANE_UPDATE_INTERVAL = 2000;
 const char OUTPUT_PANE_TITLE[] = QT_TRANSLATE_NOOP("Todo::Internal::TodoOutputPane", "To-Do Entries");
 
+const char FILTER_KEYWORD_NAME[] = "filterKeywordName";
+
 } // namespace Constants
 } // namespace Todo

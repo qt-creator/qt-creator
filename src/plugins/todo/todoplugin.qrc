@@ -1,5 +1,11 @@
 <RCC>
     <qresource prefix="/todoplugin">
         <file>images/todo.png</file>
+        <file>images/tasklist@2x.png</file>
+        <file>images/tasklist.png</file>
+        <file>images/bug@2x.png</file>
+        <file>images/bug.png</file>
+        <file>images/bugfill.png</file>
+        <file>images/bugfill@2x.png</file>
     </qresource>
 </RCC>
