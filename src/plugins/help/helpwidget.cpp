@@ -396,9 +396,9 @@ QString HelpWidget::sideBarSettingsKey() const
 {
     switch (m_style) {
     case ModeWidget:
-        return kModeSideBarSettingsKey;
+        return QString(kModeSideBarSettingsKey);
     case ExternalWindow:
-        return kWindowSideBarSettingsKey;
+        return QString(kWindowSideBarSettingsKey);
     case SideBarWidget:
         QTC_CHECK(false);
         break;

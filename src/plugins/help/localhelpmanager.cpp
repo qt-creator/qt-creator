@@ -79,16 +79,16 @@ static const int kDefaultFallbackFontSize = 14;
 static QString defaultFallbackFontFamily()
 {
     if (Utils::HostOsInfo::isMacHost())
-        return "Helvetica";
+        return QString("Helvetica");
     if (Utils::HostOsInfo::isAnyUnixHost())
-        return "sans-serif";
-    return "Arial";
+        return QString("sans-serif");
+    return QString("Arial");
 }
 
 static QString defaultFallbackFontStyleName(const QString &fontFamily)
 {
     const QStringList styles = QFontDatabase().styles(fontFamily);
-    QTC_ASSERT(!styles.isEmpty(), return "Regular");
+    QTC_ASSERT(!styles.isEmpty(), return QString("Regular"));
     return styles.first();
 }
 

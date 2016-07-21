@@ -109,7 +109,7 @@ QString HelpViewer::mimeFromUrl(const QUrl &url)
             return QLatin1String(e->mimeType);
         ++e;
     }
-    return "";
+    return QString();
 }
 
 bool HelpViewer::launchWithExternalApp(const QUrl &url)
