@@ -47,6 +47,7 @@
 #include <QFutureInterface>
 #include <QTime>
 
+#include <debugger/debuggerkitinformation.h>
 #include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerstartparameters.h>
 
@@ -250,6 +251,33 @@ void TestRunner::runTests()
     Core::ProgressManager::addTask(future, tr("Running Tests"), Autotest::Constants::TASK_INDEX);
 }
 
+static void processOutput(TestOutputReader *outputreader, const QString &msg,
+                          Debugger::OutputProcessor::OutputChannel channel)
+{
+    switch (channel) {
+    case Debugger::OutputProcessor::StandardOut: {
+        static const QString gdbSpecialOut = "Qt: gdb: -nograb added to command-line options.\n"
+                                             "\t Use the -dograb option to enforce grabbing.";
+        int start = msg.startsWith(gdbSpecialOut) ? gdbSpecialOut.length() + 1 : 0;
+        if (start) {
+            int maxIndex = msg.length() - 1;
+            while (start < maxIndex && msg.at(start + 1) == '\n')
+                ++start;
+            if (start >= msg.length()) // we cut out the whole message
+                break;
+        }
+        for (const QString &line : msg.mid(start).split('\n'))
+            outputreader->processOutput(line.toUtf8() + '\n');
+        break;
+    }
+    case Debugger::OutputProcessor::StandardError:
+        outputreader->processStdError(msg.toUtf8());
+        break;
+    default:
+        QTC_CHECK(false); // unexpected channel
+    }
+}
+
 void TestRunner::debugTests()
 {
     // TODO improve to support more than one test configuration
@@ -291,6 +319,35 @@ void TestRunner::debugTests()
             TestRunner::tr("Failed to create run configuration.\n%1").arg(errorMessage))));
         onFinished();
         return;
+    }
+
+    bool useOutputProcessor = true;
+    if (ProjectExplorer::Target *targ = config->project()->activeTarget()) {
+        if (Debugger::DebuggerKitInformation::engineType(targ->kit()) == Debugger::CdbEngineType) {
+            emit testResultReady(TestResultPtr(new FaultyTestResult(Result::MessageWarn,
+                TestRunner::tr("Unable to display test results when using CDB."))));
+            useOutputProcessor = false;
+        }
+    }
+
+    // We need a fake QFuture for the results. TODO: replace with QtConcurrent::run
+    QFutureInterface<TestResultPtr> *futureInterface
+            = new QFutureInterface<TestResultPtr>(QFutureInterfaceBase::Running);
+    QFuture<TestResultPtr> future(futureInterface);
+    m_futureWatcher.setFuture(future);
+
+    if (useOutputProcessor) {
+        TestOutputReader *outputreader = config->outputReader(*futureInterface, 0);
+
+        Debugger::OutputProcessor *processor = new Debugger::OutputProcessor;
+        processor->logToAppOutputPane = false;
+        processor->process = [outputreader] (const QString &msg,
+                                             Debugger::OutputProcessor::OutputChannel channel) {
+            processOutput(outputreader, msg, channel);
+        };
+        runControl->setOutputProcessor(processor);
+        connect(runControl, &Debugger::DebuggerRunControl::finished,
+                outputreader, &QObject::deleteLater);
     }
 
     connect(this, &TestRunner::requestStopTestRun, runControl, &Debugger::DebuggerRunControl::stop);

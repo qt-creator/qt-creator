@@ -33,20 +33,10 @@ namespace Internal {
 class QtTestConfiguration : public TestConfiguration
 {
 public:
-    enum RunMode
-    {
-        Run,
-        Debug
-    };
-
-    explicit QtTestConfiguration(RunMode mode = Run) : m_runMode(mode) {}
+    explicit QtTestConfiguration() {}
     TestOutputReader *outputReader(const QFutureInterface<TestResultPtr> &fi,
                                    QProcess *app) const override;
     QStringList argumentsForTestRunner(const TestSettings &settings) const override;
-    void setRunMode(RunMode mode) { m_runMode = mode; }
-
-private:
-    RunMode m_runMode;
 };
 
 } // namespace Internal

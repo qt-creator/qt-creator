@@ -142,6 +142,9 @@ void QtTestOutputReader::processOutput(const QByteArray &outputLine)
                                         QStringLiteral("QtBuild"),
                                         QStringLiteral("QTestVersion") };
 
+    if (m_className.isEmpty() && outputLine.trimmed().isEmpty())
+        return;
+
     m_xmlReader.addData(outputLine);
     while (!m_xmlReader.atEnd()) {
         if (m_futureInterface.isCanceled())

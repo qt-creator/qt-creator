@@ -38,15 +38,17 @@ TestOutputReader::TestOutputReader(const QFutureInterface<TestResultPtr> &future
     , m_testApplication(testApplication)
     , m_buildDir(buildDirectory)
 {
-    connect(m_testApplication, &QProcess::readyRead,
-            this, [this] () {
-        while (m_testApplication->canReadLine())
-            processOutput(m_testApplication->readLine());
-    });
-    connect(m_testApplication, &QProcess::readyReadStandardError,
-            this, [this] () {
-        processStdError(m_testApplication->readAllStandardError());
-    });
+    if (m_testApplication) {
+        connect(m_testApplication, &QProcess::readyRead,
+                this, [this] () {
+            while (m_testApplication->canReadLine())
+                processOutput(m_testApplication->readLine());
+        });
+        connect(m_testApplication, &QProcess::readyReadStandardError,
+                this, [this] () {
+            processStdError(m_testApplication->readAllStandardError());
+        });
+    }
 }
 
 void TestOutputReader::processStdError(const QByteArray &output)
