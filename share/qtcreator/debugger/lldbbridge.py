@@ -1205,6 +1205,13 @@ class Dumper(DumperBase):
             else:
                 shadowed[name] = 1
 
+            if not value.IsInScope():
+                with SubItem(self, name):
+                    self.put('iname="%s",' % self.currentIName)
+                    self.putSpecialValue('outofscope')
+                    self.putNumChild(0)
+                continue
+
             if name == "argv" and value.GetType().GetName() == "char **":
                 self.putSpecialArgv(value)
             else:
