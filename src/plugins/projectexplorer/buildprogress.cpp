@@ -34,6 +34,7 @@
 #include <QLabel>
 #include <QHBoxLayout>
 #include <QPixmap>
+#include <QVariant>
 #include <QVBoxLayout>
 
 using namespace ProjectExplorer;
@@ -79,6 +80,8 @@ BuildProgress::BuildProgress(TaskWindow *taskWindow, Qt::Orientation orientation
     m_warningLabel->setFont(f);
     m_errorLabel->setPalette(Utils::StyleHelper::sidebarFontPalette(m_errorLabel->palette()));
     m_warningLabel->setPalette(Utils::StyleHelper::sidebarFontPalette(m_warningLabel->palette()));
+    m_errorLabel->setProperty("_q_custom_style_disabled", QVariant(true));
+    m_warningLabel->setProperty("_q_custom_style_disabled", QVariant(true));
 
     m_errorIcon->setAlignment(Qt::AlignRight);
     m_warningIcon->setAlignment(Qt::AlignRight);

@@ -93,10 +93,9 @@ QColor StyleHelper::notTooBrightHighlightColor()
 QPalette StyleHelper::sidebarFontPalette(const QPalette &original)
 {
     QPalette palette = original;
-    palette.setColor(QPalette::Active, QPalette::Text, panelTextColor());
-    palette.setColor(QPalette::Active, QPalette::WindowText, panelTextColor());
-    palette.setColor(QPalette::Inactive, QPalette::Text, panelTextColor().darker());
-    palette.setColor(QPalette::Inactive, QPalette::WindowText, panelTextColor().darker());
+    const QColor textColor = creatorTheme()->color(Theme::ProgressBarTitleColor);
+    palette.setColor(QPalette::WindowText, textColor);
+    palette.setColor(QPalette::Text, textColor);
     return palette;
 }
 
