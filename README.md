@@ -43,7 +43,7 @@ Installation ("make install") is not needed. It is however possible, using
 This section provides step by step instructions for compiling the latest
 versions of Qt and Qt Creator on Windows. Alternatively, to avoid having to
 compile Qt yourself, you can use one of the versions of Qt shipped with the Qt
-SDK (release builds of Qt using MinGW and Visual C++ 2013 or later).
+SDK (release builds of Qt using MinGW and Visual C++ 2015 or later).
 For detailed information on the supported compilers, see
 <https://wiki.qt.io/Building_Qt_5_from_Git> .
 
@@ -60,7 +60,7 @@ For detailed information on the supported compilers, see
        for example, `c:\work`. If you plan to use MinGW and Microsoft Visual
        Studio simultaneously or mix different Qt versions, we recommend
        creating a directory structure which reflects that. For example:
-       `C:\work\qt5.5.1-vs12, C:\work\qt5.5.1-mingw`.
+       `C:\work\qt5.6.0-vs12, C:\work\qt5.6.0-mingw`.
 
    4.  Download and install Perl from <https://www.activestate.com/activeperl>
        and check that perl.exe is added to the path. Run `perl -v` to verify
@@ -101,7 +101,7 @@ For detailed information on the supported compilers, see
        environment for the compiler (provided by the Windows SDK or the
        compiler):
 
-         CALL "C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat" amd64
+         CALL "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" amd64
          set PATH=<path_to_qt>\[qtbase\]bin;<working_directory>\creator\bin;%PATH%
          set QMAKESPEC=win32-msvc2013
 
