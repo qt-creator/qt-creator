@@ -10,23 +10,23 @@ you can check out from the public Git repository. For example:
 General
 
 * Added `Flat Dark` and `Flat Light` themes
-* Added `Ctrl+N` and `Ctrl+P` shortcuts for navigating in Locator
-* Added experimental support for the `Nim` programming language
+* Added `Ctrl+N` and `Ctrl+P` shortcuts for navigating in locator
+* Added experimental support for `Nim` programming language
 
 Editing
 
 * Added automatic release of resources for unmodified documents that have
-  not been visible a long time (QTCREATORBUG-10016)
+  not been visible recently (QTCREATORBUG-10016)
 * Added separate options for automatically inserted characters
 * Added highlighting of automatically inserted characters
 * Added option for skipping automatically inserted character, and changed
-  it to do this only as long as the cursor stays before it
-* Fixed that replacing could change the selection (QTCREATORBUG-15623)
+  it to be done only if the cursor stays before the character
+* Fixed that replacing could change selection (QTCREATORBUG-15623)
 
 All Projects
 
-* Improved feedback when build results in errors and there
-  are issues with the kit (QTCREATORBUG-16079)
+* Improved feedback when building results in errors, because of issues with
+  kits (QTCREATORBUG-16079)
 * Fixed issue with building in paths with non-ASCII characters
   (QTCREATORBUG-15855)
 * Fixed that `%{buildDir}` and `%{sourceDir}` stopped working in
@@ -44,12 +44,12 @@ CMake Projects
 * Improved parsing of errors
 * Added workaround for CMake issue that include paths are in random order
   (QTCREATORBUG-16432)
-* Added option for disabling automatic running of CMake to Build & Run > CMake
-  (QTCREATORBUG-15934)
-* Fixed that CMake was automatically run even if the Qt Creator application
-  is not in the foreground (QTCREATORBUG-16354)
+* Added option for disabling automatic running of CMake to `Build & Run` >
+  `CMake` (QTCREATORBUG-15934)
+* Fixed that CMake was automatically run even if Qt Creator application
+  is not in foreground (QTCREATORBUG-16354)
 * QML_IMPORT_PATH can now be set in CMakeLists.txt files. This information
-  will be passed on to the QmlJS code model (QTCREATORBUG-11328)  
+  will be passed on to QmlJS code model (QTCREATORBUG-11328)
   Example CMakeLists.txt code:  
   `set(QML_IMPORT_PATH ${CMAKE_SOURCE_DIR}/qml ${CMAKE_BINARY_DIR}/imports CACHE string "" FORCE)`
 
@@ -69,7 +69,7 @@ C++ Support
 
 QML Support
 
-* Added formal parameters of JavaScript functions to outline and Locator
+* Added formal parameters of JavaScript functions to outline and locator
 
 Debugging
 
@@ -89,7 +89,7 @@ Qt Quick Designer
 
 * Added support for Qt Quick Controls 2 styles
 * Added `Move to Component` action
-* Added `Add new Signal Handler` action
+* Added `Add New Signal Handler` action
 * Improved performance
 * Improved error dialog (QTCREATORBUG-15772)
 * Fixed crumble bar for component navigation
@@ -144,9 +144,9 @@ Remote Linux
 
 iOS
 
+* Added human readable error messages (QTCREATORBUG-16328)
 * Fixed that deployment could fail if device and host are in same WiFi network
   (QTCREATORBUG-16061)
-* Fixed missing human readable error messages (QTCREATORBUG-16328)
 
 Credits for these changes go to:  
 Albert Astals Cid  
