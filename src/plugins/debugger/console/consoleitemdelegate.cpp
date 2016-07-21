@@ -312,6 +312,7 @@ QWidget *ConsoleItemDelegate::createEditor(QWidget *parent,
     editor->setStyleSheet(QLatin1String("QTextEdit {"
                                         "margin-left: 24px;"
                                         "margin-top: 4px;"
+                                        "color: black;"
                                         "background-color: white;"
                                         "background-image: url(:/qmljstools/images/prompt.png);"
                                         "background-position: baseline left;"
