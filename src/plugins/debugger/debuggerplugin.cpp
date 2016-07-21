@@ -702,6 +702,10 @@ public:
         }
     }
 
+    void reloadSourceFiles() { if (m_currentEngine) m_currentEngine->reloadSourceFiles(); }
+    void reloadRegisters() { if (m_currentEngine) m_currentEngine->reloadRegisters(); }
+    void reloadModules() { if (m_currentEngine) m_currentEngine->reloadModules(); }
+
     void editorOpened(IEditor *editor);
     void updateBreakMenuItem(IEditor *editor);
     void setBusyCursor(bool busy);
@@ -1321,16 +1325,16 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     m_modulesView = new ModulesTreeView;
     m_modulesView->setSettings(settings, "Debugger.ModulesView");
-    connect(m_modulesView, &BaseTreeView::aboutToShow, this, [this] {
-        m_currentEngine->reloadModules();
-    }, Qt::QueuedConnection);
+    connect(m_modulesView, &BaseTreeView::aboutToShow,
+            this, &DebuggerPluginPrivate::reloadModules,
+            Qt::QueuedConnection);
     m_modulesWindow = addSearch(m_modulesView, tr("Modules"), DOCKWIDGET_MODULES);
 
     m_registerView = new RegisterTreeView;
     m_registerView->setSettings(settings, "Debugger.RegisterView");
-    connect(m_registerView, &BaseTreeView::aboutToShow, this, [this] {
-        m_currentEngine->reloadRegisters();
-    }, Qt::QueuedConnection);
+    connect(m_registerView, &BaseTreeView::aboutToShow,
+            this, &DebuggerPluginPrivate::reloadRegisters,
+            Qt::QueuedConnection);
     m_registerWindow = addSearch(m_registerView, tr("Registers"), DOCKWIDGET_REGISTER);
 
     m_stackView = new StackTreeView;
@@ -1339,9 +1343,9 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     m_sourceFilesView = new SourceFilesTreeView;
     m_sourceFilesView->setSettings(settings, "Debugger.SourceFilesView");
-    connect(m_sourceFilesView, &BaseTreeView::aboutToShow, this, [this] {
-        m_currentEngine->reloadSourceFiles();
-    }, Qt::QueuedConnection);
+    connect(m_sourceFilesView, &BaseTreeView::aboutToShow,
+            this, &DebuggerPluginPrivate::reloadSourceFiles,
+            Qt::QueuedConnection);
     m_sourceFilesWindow = addSearch(m_sourceFilesView, tr("Source Files"), DOCKWIDGET_SOURCE_FILES);
 
     m_threadsView = new ThreadsTreeView;
