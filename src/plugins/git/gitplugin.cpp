@@ -718,7 +718,7 @@ void GitPlugin::logRepository()
 void GitPlugin::undoFileChanges(bool revertStaging)
 {
     if (IDocument *document = EditorManager::currentDocument()) {
-        if (!DocumentManager::saveModifiedDocument(document))
+        if (!DocumentManager::saveModifiedDocumentSilently(document))
             return;
     }
     const VcsBasePluginState state = currentState();
