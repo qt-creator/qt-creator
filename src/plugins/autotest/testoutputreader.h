@@ -43,8 +43,8 @@ public:
                      QProcess *testApplication, const QString &buildDirectory);
 
 protected:
-    virtual void processOutput() = 0;
-    virtual void processStdError();
+    virtual void processOutput(const QByteArray &outputLine) = 0;
+    virtual void processStdError(const QByteArray &output);
     QFutureInterface<TestResultPtr> m_futureInterface;
     QProcess *m_testApplication;  // not owned
     QString m_buildDir;

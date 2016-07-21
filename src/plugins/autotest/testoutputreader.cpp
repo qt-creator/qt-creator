@@ -38,14 +38,20 @@ TestOutputReader::TestOutputReader(const QFutureInterface<TestResultPtr> &future
     , m_testApplication(testApplication)
     , m_buildDir(buildDirectory)
 {
-    connect(m_testApplication, &QProcess::readyRead, this, &TestOutputReader::processOutput);
+    connect(m_testApplication, &QProcess::readyRead,
+            this, [this] () {
+        while (m_testApplication->canReadLine())
+            processOutput(m_testApplication->readLine());
+    });
     connect(m_testApplication, &QProcess::readyReadStandardError,
-            this, &TestOutputReader::processStdError);
+            this, [this] () {
+        processStdError(m_testApplication->readAllStandardError());
+    });
 }
 
-void TestOutputReader::processStdError()
+void TestOutputReader::processStdError(const QByteArray &output)
 {
-    qWarning() << "AutoTest.Run: Ignored plain output:" << m_testApplication->readAllStandardError();
+    qWarning() << "AutoTest.Run: Ignored plain output:" << output;
 }
 
 } // namespace Internal

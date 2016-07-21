@@ -39,7 +39,7 @@ public:
                        QProcess *testApplication, const QString &buildDirectory);
 
 protected:
-    void processOutput() override;
+    void processOutput(const QByteArray &outputLine) override;
 
 private:
     enum CDATAMode
