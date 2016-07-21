@@ -41,6 +41,7 @@
 #include <QPixmapCache>
 #include <QMouseEvent>
 #include <QPainter>
+#include <QStyleFactory>
 
 
 namespace QmlDesigner {
@@ -53,6 +54,12 @@ namespace {
 class TreeViewStyle : public QProxyStyle
 {
 public:
+    TreeViewStyle(QObject *parent) : QProxyStyle(QStyleFactory::create("fusion"))
+    {
+        setParent(parent);
+        baseStyle()->setParent(parent);
+    }
+
     void drawPrimitive(PrimitiveElement element, const QStyleOption *option, QPainter *painter, const QWidget *widget = 0) const
     {
         static QRect mouseOverStateSavedFrameRectangle;
@@ -162,9 +169,7 @@ private: // variables
 NavigatorTreeView::NavigatorTreeView(QWidget *parent)
     : QTreeView(parent)
 {
-    TreeViewStyle *style = new TreeViewStyle;
-    setStyle(style);
-    style->setParent(this);
+    setStyle(new TreeViewStyle(this));
 }
 
 void NavigatorTreeView::drawSelectionBackground(QPainter *painter, const QStyleOption &option)

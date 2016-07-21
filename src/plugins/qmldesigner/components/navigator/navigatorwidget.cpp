@@ -36,8 +36,6 @@
 #include <QtDebug>
 #include <utils/fileutils.h>
 
-#include <QStyleFactory>
-
 namespace QmlDesigner {
 
 NavigatorWidget::NavigatorWidget(NavigatorView *view) :
@@ -52,9 +50,6 @@ NavigatorWidget::NavigatorWidget(NavigatorView *view) :
     m_treeView->header()->setStretchLastSection(false);
     m_treeView->setDefaultDropAction(Qt::LinkAction);
     m_treeView->setHeaderHidden(true);
-
-    QStyle *style = QStyleFactory::create("fusion");
-    m_treeView->setStyle(style);
 
     QVBoxLayout *layout = new QVBoxLayout;
     layout->setSpacing(0);
