@@ -359,10 +359,6 @@ QByteArray GccToolChain::predefinedMacros(const QStringList &cxxflags) const
 {
     QStringList allCxxflags = m_platformCodeGenFlags + cxxflags;  // add only cxxflags is empty?
 
-    QByteArray macros = macroCache(allCxxflags);
-    if (!macros.isNull())
-        return macros;
-
     // Using a clean environment breaks ccache/distcc/etc.
     Environment env = Environment::systemEnvironment();
     addToEnvironment(env);
@@ -406,10 +402,15 @@ QByteArray GccToolChain::predefinedMacros(const QStringList &cxxflags) const
                 || a == QLatin1String("-fPIE") || a == QLatin1String("-fpie"))
             arguments << a;
     }
+
+    QByteArray macros = macroCache(arguments);
+    if (!macros.isNull())
+        return macros;
+
     macros = gccPredefinedMacros(m_compilerCommand, reinterpretOptions(arguments),
                                  env.toStringList());
 
-    setMacroCache(allCxxflags, macros);
+    setMacroCache(arguments, macros);
     return macros;
 }
 
