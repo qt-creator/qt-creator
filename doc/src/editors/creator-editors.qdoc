@@ -2537,6 +2537,11 @@
     \key Space. The prefix is usually a single character. Then type the search
     string (typically, a filename or class name) or the command to execute.
 
+    You can also double-click a locator filter in the filter list to use it. You
+    can use the up and down arrow keys or the \key Ctrl+P and \key Ctrl+N
+    keyboard shortcuts to move up and down the list, and then press \key Enter
+    to use the selected filter.
+
     For example, to locate symbols matching QDataStream:
 
     \list 1
