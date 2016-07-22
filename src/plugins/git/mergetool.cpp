@@ -76,7 +76,7 @@ MergeTool::~MergeTool()
 bool MergeTool::start(const QString &workingDirectory, const QStringList &files)
 {
     QStringList arguments;
-    arguments << QLatin1String("mergetool") << QLatin1String("-y") << files;
+    arguments << "mergetool" << "-y" << files;
     m_process = new MergeToolProcess(this);
     m_process->setWorkingDirectory(workingDirectory);
     const Utils::FileName binary = GitPlugin::client()->vcsBinary();
@@ -206,7 +206,7 @@ void MergeTool::chooseAction()
         key = button->property("key");
     // either the message box was closed without clicking anything, or abort was clicked
     if (!key.isValid())
-        key = QVariant(QLatin1Char('a')); // abort
+        key = QVariant('a'); // abort
     ba.append(key.toChar().toLatin1());
     ba.append('\n');
     m_process->write(ba);

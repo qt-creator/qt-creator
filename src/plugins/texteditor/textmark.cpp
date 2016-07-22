@@ -60,20 +60,6 @@ TextMark::~TextMark()
     m_baseTextDocument = 0;
 }
 
-TextMark::TextMark(TextMark &&other) Q_DECL_NOEXCEPT
-    : m_baseTextDocument(std::move(other.m_baseTextDocument)),
-      m_fileName(std::move(other.m_fileName)),
-      m_lineNumber(std::move(other.m_lineNumber)),
-      m_priority(std::move(other.m_priority)),
-      m_visible(std::move(other.m_visible)),
-      m_icon(std::move(other.m_icon)),
-      m_color(std::move(other.m_color)),
-      m_category(std::move(other.m_category)),
-      m_widthFactor(std::move(other.m_widthFactor))
-{
-    other.m_baseTextDocument = nullptr;
-}
-
 QString TextMark::fileName() const
 {
     return m_fileName;
@@ -212,6 +198,15 @@ void TextMark::setBaseTextDocument(TextDocument *baseTextDocument)
     m_baseTextDocument = baseTextDocument;
 }
 
+QString TextMark::toolTip() const
+{
+    return m_toolTip;
+}
+
+void TextMark::setToolTip(const QString &toolTip)
+{
+    m_toolTip = toolTip;
+}
 
 TextMarkRegistry::TextMarkRegistry(QObject *parent)
     : QObject(parent)

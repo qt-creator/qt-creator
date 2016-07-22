@@ -4018,6 +4018,23 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_macroUses()
                           ProjectPartHeaderPaths(), 0, "QTCREATORBUG-12314");
 }
 
+void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_template()
+{
+    QByteArray original =
+        "template<class T>\n"
+        "class Foo { void fu@nc() {} };\n";
+    QByteArray expected =
+        "template<class T>\n"
+        "class Foo { void fu@nc(); };\n"
+        "\n"
+        "template<class T>\n"
+        "void Foo<T>::func() {}\n";
+       ;
+
+    MoveFuncDefOutside factory;
+    QuickFixOperationTest(singleDocument(original, expected), &factory, {}, 0, "QTCREATORBUG-16649");
+}
+
 /// Check: revert test_quickfix_MoveFuncDefOutside_MemberFuncToCpp()
 void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_MemberFunc()
 {

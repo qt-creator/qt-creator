@@ -93,6 +93,8 @@ void ConnectionView::nodeReparented(const ModelNode & /*node*/, const NodeAbstra
 void ConnectionView::nodeIdChanged(const ModelNode & /*node*/, const QString & /*newId*/, const QString & /*oldId*/)
 {
     connectionModel()->resetModel();
+    bindingModel()->resetModel();
+    dynamicPropertiesModel()->resetModel();
 }
 
 void ConnectionView::propertiesAboutToBeRemoved(const QList<AbstractProperty> & propertyList)

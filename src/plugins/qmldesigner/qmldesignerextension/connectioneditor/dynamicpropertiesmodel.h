@@ -63,8 +63,9 @@ public:
 
     void updateDisplayRoleFromVariant(int row, int columns, const QVariant &variant);
     void addDynamicPropertyForCurrentNode();
-protected:
     void resetModel();
+
+protected:
     void addProperty(const QVariant &propertyValue,
                      const QString &propertyType,
                      const AbstractProperty &abstractProperty);

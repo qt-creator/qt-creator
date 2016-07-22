@@ -35,6 +35,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/algorithm.h>
+#include <utils/elidinglabel.h>
 #include <utils/qtcassert.h>
 
 #include <QBoxLayout>
@@ -278,7 +279,7 @@ QString CMakeGeneratorKitConfigWidget::toolTip() const
 CMakeConfigurationKitConfigWidget::CMakeConfigurationKitConfigWidget(Kit *kit,
                                                                      const KitInformation *ki) :
     KitConfigWidget(kit, ki),
-    m_summaryLabel(new QLabel),
+    m_summaryLabel(new Utils::ElidingLabel),
     m_manageButton(new QPushButton)
 {
     refresh();
@@ -303,13 +304,9 @@ void CMakeConfigurationKitConfigWidget::refresh()
 {
     const QStringList current = CMakeConfigurationKitInformation::toStringList(kit());
 
-    QString shortSummary = current.join(QLatin1String("; "));
-    QFontMetrics fm(m_summaryLabel->font());
-    shortSummary = fm.elidedText(shortSummary, Qt::ElideRight, m_summaryLabel->width());
-    m_summaryLabel->setText(current.isEmpty() ? tr("<No Changes to Apply>") : shortSummary);
-
+    m_summaryLabel->setText(current.join("; "));
     if (m_editor)
-        m_editor->setPlainText(current.join(QLatin1Char('\n')));
+        m_editor->setPlainText(current.join('\n'));
 }
 
 QWidget *CMakeConfigurationKitConfigWidget::mainWidget() const
@@ -344,6 +341,7 @@ void CMakeConfigurationKitConfigWidget::editConfigurationChanges()
     m_editor->setToolTip(tr("Enter one variable per line with the variable name "
                             "separated from the variable value by \"=\".<br>"
                             "You may provide a type hint by adding \":TYPE\" before the \"=\"."));
+    m_editor->setMinimumSize(800, 200);
 
     auto chooser = new Core::VariableChooser(m_dialog);
     chooser->addSupportedWidget(m_editor);

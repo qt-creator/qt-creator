@@ -206,7 +206,7 @@ void StashDialog::deleteSelection()
             errors.push_back(errorMessage);
     refresh(m_repository, true);
     if (!errors.isEmpty())
-        warning(title, errors.join(QLatin1Char('\n')));
+        warning(title, errors.join('\n'));
 }
 
 void StashDialog::showCurrent()
@@ -219,21 +219,21 @@ void StashDialog::showCurrent()
 // Suggest Branch name to restore 'stash@{0}' -> 'stash0-date'
 static inline QString stashRestoreDefaultBranch(QString stash)
 {
-    stash.remove(QLatin1Char('{'));
-    stash.remove(QLatin1Char('}'));
-    stash.remove(QLatin1Char('@'));
-    stash += QLatin1Char('-');
-    stash += QDateTime::currentDateTime().toString(QLatin1String("yyMMddhhmmss"));
+    stash.remove('{');
+    stash.remove('}');
+    stash.remove('@');
+    stash += '-';
+    stash += QDateTime::currentDateTime().toString("yyMMddhhmmss");
     return stash;
 }
 
 // Return next stash id 'stash@{0}' -> 'stash@{1}'
 static inline QString nextStash(const QString &stash)
 {
-    const int openingBracePos = stash.indexOf(QLatin1Char('{'));
+    const int openingBracePos = stash.indexOf('{');
     if (openingBracePos == -1)
         return QString();
-    const int closingBracePos = stash.indexOf(QLatin1Char('}'), openingBracePos + 2);
+    const int closingBracePos = stash.indexOf('}', openingBracePos + 2);
     if (closingBracePos == -1)
         return QString();
     bool ok;
@@ -242,7 +242,7 @@ static inline QString nextStash(const QString &stash)
         return QString();
     QString rc =  stash.left(openingBracePos + 1);
     rc += QString::number(n + 1);
-    rc += QLatin1Char('}');
+    rc += '}';
     return rc;
 }
 

@@ -298,13 +298,9 @@ Item {
                 elide: Text.ElideRight
                 anchors.verticalCenter: parent.verticalCenter
             }
-            SliderSpinBox {
+            DoubleSpinBox {
                 id: hueSlider2
                 //value: colorButton.hue
-                decimals: 2
-                stepSize: 0.1
-                minimumValue: 0
-                maximumValue: 1
                 onValueChanged: {
                     if (colorButton.hue !== value  && !colorButton.block) {
                         colorButton.hue = value
@@ -325,13 +321,9 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
             }
 
-            SliderSpinBox {
+            DoubleSpinBox {
                 id: saturationSlider
                 //value: colorButton.saturation
-                decimals: 2
-                stepSize: 0.1
-                minimumValue: 0
-                maximumValue: 1
                 onValueChanged: {
                     if (colorButton.saturation !== value  && !colorButton.block) {
                         colorButton.saturation = value
@@ -351,13 +343,9 @@ Item {
                 elide: Text.ElideRight
                 anchors.verticalCenter: parent.verticalCenter
             }
-            SliderSpinBox {
+            DoubleSpinBox {
                 id: lightnessSlider
                 //value: colorButton.lightness
-                decimals: 2
-                stepSize: 0.1
-                minimumValue: 0
-                maximumValue: 1
                 onValueChanged: {
                     if (colorButton.lightness !== value && !colorButton.block) {
                         colorButton.lightness = value
@@ -378,13 +366,9 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
             }
 
-            SliderSpinBox {
+            DoubleSpinBox {
                 id: alphaSlider
-                decimals: 2
-                stepSize: 0.1
                 //value: colorButton.alpha
-                minimumValue: 0
-                maximumValue: 1
                 onValueChanged: {
                     if (colorButton.alpha !== value  && !colorButton.block) {
                         colorButton.alpha = value

@@ -47,7 +47,7 @@ stash@{2}: On <branch>: <message>
 
 bool Stash::parseStashLine(const QString &l)
 {
-    const QChar colon = QLatin1Char(':');
+    const QChar colon = ':';
     const int branchPos = l.indexOf(colon);
     if (branchPos < 0)
         return false;
@@ -55,7 +55,7 @@ bool Stash::parseStashLine(const QString &l)
     if (messagePos < 0)
         return false;
     // Branch spec
-    const int onIndex = l.indexOf(QLatin1String("on "), branchPos + 2, Qt::CaseInsensitive);
+    const int onIndex = l.indexOf("on ", branchPos + 2, Qt::CaseInsensitive);
     if (onIndex == -1 || onIndex >= messagePos)
         return false;
     // Happy!

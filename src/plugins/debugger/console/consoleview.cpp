@@ -98,7 +98,9 @@ ConsoleView::ConsoleView(ConsoleItemModel *model, QWidget *parent) :
                                 "QTreeView::branch:open:has-children:!has-siblings,"
                                 "QTreeView::branch:open:has-children:has-siblings  {"
                                 "border-image: none;"
-                                "image: none; }"));
+                                "image: none; }"
+                                "QTreeView {"
+                                "background-color: white; }"));
 
     QString baseName = QApplication::style()->objectName();
     if (Utils::HostOsInfo::isAnyUnixHost() && !Utils::HostOsInfo::isMacHost()

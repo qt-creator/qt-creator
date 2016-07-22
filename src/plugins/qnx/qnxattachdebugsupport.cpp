@@ -141,6 +141,11 @@ void QnxAttachDebugSupport::attachToProcess()
         stopPDebug();
         return;
     }
+    if (!runControl) {
+        handleError(tr("Attaching failed."));
+        stopPDebug();
+        return;
+    }
     connect(runControl, &Debugger::DebuggerRunControl::stateChanged,
             this, &QnxAttachDebugSupport::handleDebuggerStateChanged);
     ProjectExplorerPlugin::startRunControl(runControl, ProjectExplorer::Constants::DEBUG_RUN_MODE);

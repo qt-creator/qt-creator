@@ -46,20 +46,20 @@ class BranchNameValidator : public QValidator
 public:
     BranchNameValidator(const QStringList &localBranches, QObject *parent = 0) :
         QValidator(parent),
-        m_invalidChars(QLatin1String(
-                                   "\\s"     // no whitespace
-                                   "|~"      // no "~"
-                                   "|\\^"    // no "^"
-                                   "|\\["    // no "["
-                                   "|\\.\\." // no ".."
-                                   "|/\\."   // no slashdot
-                                   "|:"      // no ":"
-                                   "|@\\{"   // no "@{" sequence
-                                   "|\\\\"   // no backslash
-                                   "|//"     // no double slash
-                                   "|^[/-]"  // no leading slash or dash
-                                   "|\""     // no quotes
-                                   )),
+        m_invalidChars(
+            "\\s"     // no whitespace
+            "|~"      // no "~"
+            "|\\^"    // no "^"
+            "|\\["    // no "["
+            "|\\.\\." // no ".."
+            "|/\\."   // no slashdot
+            "|:"      // no ":"
+            "|@\\{"   // no "@{" sequence
+            "|\\\\"   // no backslash
+            "|//"     // no double slash
+            "|^[/-]"  // no leading slash or dash
+            "|\""     // no quotes
+        ),
         m_localBranches(localBranches)
     {
     }
@@ -68,21 +68,17 @@ public:
     {
         Q_UNUSED(pos)
 
-        // NoGos
-
-        if (input.contains(m_invalidChars))
-            return Invalid;
-
+        input.replace(m_invalidChars, "_");
 
         // "Intermediate" patterns, may change to Acceptable when user edits further:
 
-        if (input.endsWith(QLatin1String(".lock"))) //..may not end with ".lock"
+        if (input.endsWith(".lock")) //..may not end with ".lock"
             return Intermediate;
 
-        if (input.endsWith(QLatin1Char('.'))) // no dot at the end (but allowed in the middle)
+        if (input.endsWith('.')) // no dot at the end (but allowed in the middle)
             return Intermediate;
 
-        if (input.endsWith(QLatin1Char('/'))) // no slash at the end (but allowed in the middle)
+        if (input.endsWith('/')) // no slash at the end (but allowed in the middle)
             return Intermediate;
 
         if (m_localBranches.contains(input, Utils::HostOsInfo::isWindowsHost()

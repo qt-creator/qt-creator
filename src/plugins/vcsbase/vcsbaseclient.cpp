@@ -154,13 +154,25 @@ QString VcsBaseClientImpl::commandOutputFromLocal8Bit(const QByteArray &a)
 
 QStringList VcsBaseClientImpl::commandOutputLinesFromLocal8Bit(const QByteArray &a)
 {
-    QString output = commandOutputFromLocal8Bit(a);
+    return splitLines(commandOutputFromLocal8Bit(a));
+}
+
+QStringList VcsBaseClientImpl::splitLines(const QString &s)
+{
     const QChar newLine = QLatin1Char('\n');
+    QString output = s;
     if (output.endsWith(newLine))
         output.truncate(output.size() - 1);
     if (output.isEmpty())
         return QStringList();
     return output.split(newLine);
+}
+
+QString VcsBaseClientImpl::stripLastNewline(const QString &in)
+{
+    if (in.endsWith('\n'))
+        return in.left(in.count() - 1);
+    return in;
 }
 
 void VcsBaseClientImpl::resetCachedVcsInfo(const QString &workingDir)
@@ -181,18 +193,15 @@ void VcsBaseClientImpl::annotateRevisionRequested(const QString &workingDirector
     annotate(workingDirectory, file, changeCopy, line);
 }
 
-bool VcsBaseClientImpl::vcsFullySynchronousExec(const QString &workingDir, const QStringList &args,
-                                                QByteArray *outputData, QByteArray *errorData,
-                                                unsigned flags) const
+Utils::SynchronousProcessResponse
+VcsBaseClientImpl::vcsFullySynchronousExec(const QString &workingDir, const QStringList &args,
+                                           unsigned flags, int timeoutS, QTextCodec *codec) const
 {
-    QByteArray internalErrorData;
-    QScopedPointer<VcsCommand> command(createCommand(workingDir));
-    command->addFlags(flags);
-    bool result = command->runFullySynchronous(vcsBinary(), args, vcsTimeoutS(), outputData,
-                                               errorData ? errorData : &internalErrorData);
-    if (!internalErrorData.isEmpty() && !(flags & VcsCommand::SuppressStdErr))
-        VcsOutputWindow::appendError(commandOutputFromLocal8Bit(internalErrorData));
-    return result;
+    VcsCommand command(workingDir, processEnvironment());
+    command.addFlags(flags);
+    if (codec)
+        command.setCodec(codec);
+    return command.runCommand(vcsBinary(), args, (timeoutS > 0) ? timeoutS : vcsTimeoutS());
 }
 
 VcsCommand *VcsBaseClientImpl::vcsExec(const QString &workingDirectory, const QStringList &arguments,
@@ -299,10 +308,10 @@ bool VcsBaseClient::synchronousCreateRepository(const QString &workingDirectory,
 {
     QStringList args(vcsCommandString(CreateRepositoryCommand));
     args << extraOptions;
-    QByteArray outputData;
-    if (!vcsFullySynchronousExec(workingDirectory, args, &outputData))
+    Utils::SynchronousProcessResponse result = vcsFullySynchronousExec(workingDirectory, args);
+    if (result.result != Utils::SynchronousProcessResponse::Finished)
         return false;
-    VcsOutputWindow::append(commandOutputFromLocal8Bit(outputData));
+    VcsOutputWindow::append(result.stdOut());
 
     resetCachedVcsInfo(workingDirectory);
 
@@ -317,10 +326,10 @@ bool VcsBaseClient::synchronousClone(const QString &workingDir,
     QStringList args;
     args << vcsCommandString(CloneCommand)
          << extraOptions << srcLocation << dstLocation;
-    QByteArray stdOut;
-    const bool cloneOk = vcsFullySynchronousExec(workingDir, args, &stdOut);
+
+    Utils::SynchronousProcessResponse result = vcsFullySynchronousExec(workingDir, args);
     resetCachedVcsInfo(workingDir);
-    return cloneOk;
+    return result.result == Utils::SynchronousProcessResponse::Finished;
 }
 
 bool VcsBaseClient::synchronousAdd(const QString &workingDir, const QString &filename,
@@ -328,8 +337,7 @@ bool VcsBaseClient::synchronousAdd(const QString &workingDir, const QString &fil
 {
     QStringList args;
     args << vcsCommandString(AddCommand) << extraOptions << filename;
-    QByteArray stdOut;
-    return vcsFullySynchronousExec(workingDir, args, &stdOut);
+    return vcsFullySynchronousExec(workingDir, args).result == Utils::SynchronousProcessResponse::Finished;
 }
 
 bool VcsBaseClient::synchronousRemove(const QString &workingDir, const QString &filename,
@@ -337,8 +345,7 @@ bool VcsBaseClient::synchronousRemove(const QString &workingDir, const QString &
 {
     QStringList args;
     args << vcsCommandString(RemoveCommand) << extraOptions << filename;
-    QByteArray stdOut;
-    return vcsFullySynchronousExec(workingDir, args, &stdOut);
+    return vcsFullySynchronousExec(workingDir, args).result == Utils::SynchronousProcessResponse::Finished;
 }
 
 bool VcsBaseClient::synchronousMove(const QString &workingDir,
@@ -347,8 +354,7 @@ bool VcsBaseClient::synchronousMove(const QString &workingDir,
 {
     QStringList args;
     args << vcsCommandString(MoveCommand) << extraOptions << from << to;
-    QByteArray stdOut;
-    return vcsFullySynchronousExec(workingDir, args, &stdOut);
+    return vcsFullySynchronousExec(workingDir, args).result == Utils::SynchronousProcessResponse::Finished;
 }
 
 bool VcsBaseClient::synchronousPull(const QString &workingDir,

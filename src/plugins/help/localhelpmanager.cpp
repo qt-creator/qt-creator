@@ -35,6 +35,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
+#include <QFontDatabase>
 #include <QMutexLocker>
 
 #include <QHelpEngine>
@@ -58,8 +59,7 @@ int LocalHelpManager::m_currentFilterIndex = -1;
 
 static const char kHelpHomePageKey[] = "Help/HomePage";
 static const char kFontFamilyKey[] = "Help/FallbackFontFamily";
-static const char kFontStyleKey[] = "Help/FallbackFontStyle";
-static const char kFontWeightKey[] = "Help/FallbackFontWeight";
+static const char kFontStyleNameKey[] = "Help/FallbackFontStyleName";
 static const char kFontSizeKey[] = "Help/FallbackFontSize";
 static const char kStartOptionKey[] = "Help/StartOption";
 static const char kContextHelpOptionKey[] = "Help/ContextHelpOption";
@@ -68,17 +68,28 @@ static const char kLastShownPagesKey[] = "Help/LastShownPages";
 static const char kLastShownPagesZoomKey[] = "Help/LastShownPagesZoom";
 static const char kLastSelectedTabKey[] = "Help/LastSelectedTab";
 
+// TODO remove some time after 4.1
+static const char kFontStyleKey[] = "Help/FallbackFontStyle";
+static const char kFontWeightKey[] = "Help/FallbackFontWeight";
 static const QFont::Style kDefaultFallbackFontStyle = QFont::StyleNormal;
 static const int kDefaultFallbackFontWeight = QFont::Normal;
+
 static const int kDefaultFallbackFontSize = 14;
 
 static QString defaultFallbackFontFamily()
 {
     if (Utils::HostOsInfo::isMacHost())
-        return QLatin1String("Helvetica");
+        return QString("Helvetica");
     if (Utils::HostOsInfo::isAnyUnixHost())
-        return QLatin1String("sans-serif");
-    return QLatin1String("Arial");
+        return QString("sans-serif");
+    return QString("Arial");
+}
+
+static QString defaultFallbackFontStyleName(const QString &fontFamily)
+{
+    const QStringList styles = QFontDatabase().styles(fontFamily);
+    QTC_ASSERT(!styles.isEmpty(), return QString("Regular"));
+    return styles.first();
 }
 
 template <typename T>
@@ -89,19 +100,6 @@ static void setOrRemoveSetting(const char *key, const T &value, const T &default
         settings->remove(QLatin1String(key));
     else
         settings->setValue(QLatin1String(key), value);
-}
-
-// TODO remove some time after Qt Creator 3.5
-static QVariant getSettingWithFallback(const QString &settingsKey,
-                                       const QString &fallbackSettingsKey,
-                                       const QVariant &fallbackSettingsValue)
-{
-    QSettings *settings = Core::ICore::settings();
-    if (settings->contains(settingsKey))
-        return settings->value(settingsKey);
-    // read from help engine for old settings
-    // TODO remove some time after Qt Creator 3.5
-    return LocalHelpManager::helpEngine().customValue(fallbackSettingsKey, fallbackSettingsValue);
 }
 
 LocalHelpManager::LocalHelpManager(QObject *parent)
@@ -139,40 +137,51 @@ QString LocalHelpManager::defaultHomePage()
 
 QString LocalHelpManager::homePage()
 {
-    return Core::ICore::settings()->value(QLatin1String(kHelpHomePageKey),
-                                          defaultHomePage()).toString();
+    return Core::ICore::settings()->value(kHelpHomePageKey, defaultHomePage()).toString();
 }
 
 void LocalHelpManager::setHomePage(const QString &page)
 {
-    Core::ICore::settings()->setValue(QLatin1String(kHelpHomePageKey), page);
+    Core::ICore::settings()->setValue(kHelpHomePageKey, page);
 }
 
 QFont LocalHelpManager::fallbackFont()
 {
     QSettings *settings = Core::ICore::settings();
-    const QString family = settings->value(QLatin1String(kFontFamilyKey), defaultFallbackFontFamily()).toString();
-    const QFont::Style style = QFont::Style(settings->value(QLatin1String(kFontStyleKey), kDefaultFallbackFontStyle).toInt());
-    const int weight = settings->value(QLatin1String(kFontWeightKey), kDefaultFallbackFontWeight).toInt();
-    const int size = settings->value(QLatin1String(kFontSizeKey), kDefaultFallbackFontSize).toInt();
-    QFont font(family, size, weight);
-    font.setStyle(style);
+    const QString family = settings->value(kFontFamilyKey, defaultFallbackFontFamily()).toString();
+    const int size = settings->value(kFontSizeKey, kDefaultFallbackFontSize).toInt();
+    QFont font(family, size);
+    // TODO remove reading of old settings some time after 4.1
+    if (settings->contains(kFontStyleKey) && settings->contains(kFontWeightKey)) {
+        const QFont::Style style = QFont::Style(settings->value(kFontStyleKey, kDefaultFallbackFontStyle).toInt());
+        const int weight = settings->value(kFontWeightKey, kDefaultFallbackFontWeight).toInt();
+        font.setStyle(style);
+        font.setWeight(weight);
+    } else {
+        const QString styleName = settings->value(kFontStyleNameKey,
+                                                  defaultFallbackFontStyleName(font.family())).toString();
+        font.setStyleName(styleName);
+    }
     return font;
 }
 
 void LocalHelpManager::setFallbackFont(const QFont &font)
 {
+    {
+        // TODO remove removal of old settings some time after 4.1
+        QSettings *settings = Core::ICore::settings();
+        settings->remove(kFontStyleKey);
+        settings->remove(kFontWeightKey);
+    }
     setOrRemoveSetting(kFontFamilyKey, font.family(), defaultFallbackFontFamily());
-    setOrRemoveSetting(kFontStyleKey, font.style(), kDefaultFallbackFontStyle);
-    setOrRemoveSetting(kFontWeightKey, font.weight(), kDefaultFallbackFontWeight);
+    setOrRemoveSetting(kFontStyleNameKey, font.styleName(), defaultFallbackFontStyleName(font.family()));
     setOrRemoveSetting(kFontSizeKey, font.pointSize(), kDefaultFallbackFontSize);
     emit m_instance->fallbackFontChanged(font);
 }
 
 LocalHelpManager::StartOption LocalHelpManager::startOption()
 {
-    const QVariant value = getSettingWithFallback(QLatin1String(kStartOptionKey),
-                                                  QLatin1String("StartOption"), ShowLastPages);
+    const QVariant value = Core::ICore::settings()->value(kStartOptionKey, ShowLastPages);
     bool ok;
     int optionValue = value.toInt(&ok);
     if (!ok)
@@ -192,14 +201,13 @@ LocalHelpManager::StartOption LocalHelpManager::startOption()
 
 void LocalHelpManager::setStartOption(LocalHelpManager::StartOption option)
 {
-    Core::ICore::settings()->setValue(QLatin1String(kStartOptionKey), option);
+    Core::ICore::settings()->setValue(kStartOptionKey, option);
 }
 
 Core::HelpManager::HelpViewerLocation LocalHelpManager::contextHelpOption()
 {
-    const QVariant value = getSettingWithFallback(QLatin1String(kContextHelpOptionKey),
-                                                  QLatin1String("ContextHelpOption"),
-                                                  Core::HelpManager::SideBySideIfPossible);
+    const QVariant value = Core::ICore::settings()->value(kContextHelpOptionKey,
+                                                          Core::HelpManager::SideBySideIfPossible);
     bool ok;
     int optionValue = value.toInt(&ok);
     if (!ok)
@@ -221,39 +229,35 @@ Core::HelpManager::HelpViewerLocation LocalHelpManager::contextHelpOption()
 
 void LocalHelpManager::setContextHelpOption(Core::HelpManager::HelpViewerLocation location)
 {
-    Core::ICore::settings()->setValue(QLatin1String(kContextHelpOptionKey), location);
+    Core::ICore::settings()->setValue(kContextHelpOptionKey, location);
 }
 
 bool LocalHelpManager::returnOnClose()
 {
-    const QVariant value = getSettingWithFallback(QLatin1String(kReturnOnCloseKey),
-                                                  QLatin1String("ReturnOnClose"), false);
+    const QVariant value = Core::ICore::settings()->value(kReturnOnCloseKey, false);
     return value.toBool();
 }
 
 void LocalHelpManager::setReturnOnClose(bool returnOnClose)
 {
-    Core::ICore::settings()->setValue(QLatin1String(kReturnOnCloseKey), returnOnClose);
+    Core::ICore::settings()->setValue(kReturnOnCloseKey, returnOnClose);
     emit m_instance->returnOnCloseChanged();
 }
 
 QStringList LocalHelpManager::lastShownPages()
 {
-    const QVariant value = getSettingWithFallback(QLatin1String(kLastShownPagesKey),
-                                                  QLatin1String("LastShownPages"), QVariant());
+    const QVariant value = Core::ICore::settings()->value(kLastShownPagesKey, QVariant());
     return value.toString().split(Constants::ListSeparator, QString::SkipEmptyParts);
 }
 
 void LocalHelpManager::setLastShownPages(const QStringList &pages)
 {
-    Core::ICore::settings()->setValue(QLatin1String(kLastShownPagesKey),
-                                      pages.join(Constants::ListSeparator));
+    Core::ICore::settings()->setValue(kLastShownPagesKey, pages.join(Constants::ListSeparator));
 }
 
 QList<float> LocalHelpManager::lastShownPagesZoom()
 {
-    const QVariant value = getSettingWithFallback(QLatin1String(kLastShownPagesZoomKey),
-                                                  QLatin1String("LastShownPagesZoom"), QVariant());
+    const QVariant value = Core::ICore::settings()->value(kLastShownPagesZoomKey, QVariant());
     const QStringList stringValues = value.toString().split(Constants::ListSeparator,
                                                             QString::SkipEmptyParts);
     return Utils::transform(stringValues, [](const QString &str) { return str.toFloat(); });
@@ -263,20 +267,19 @@ void LocalHelpManager::setLastShownPagesZoom(const QList<float> &zoom)
 {
     const QStringList stringValues = Utils::transform(zoom,
                                                       [](float z) { return QString::number(z); });
-    Core::ICore::settings()->setValue(QLatin1String(kLastShownPagesZoomKey),
+    Core::ICore::settings()->setValue(kLastShownPagesZoomKey,
                                       stringValues.join(Constants::ListSeparator));
 }
 
 int LocalHelpManager::lastSelectedTab()
 {
-    const QVariant value = getSettingWithFallback(QLatin1String(kLastSelectedTabKey),
-                                                  QLatin1String("LastTabPage"), 0);
+    const QVariant value = Core::ICore::settings()->value(kLastSelectedTabKey, 0);
     return value.toInt();
 }
 
 void LocalHelpManager::setLastSelectedTab(int index)
 {
-    Core::ICore::settings()->setValue(QLatin1String(kLastSelectedTabKey), index);
+    Core::ICore::settings()->setValue(kLastSelectedTabKey, index);
 }
 
 void LocalHelpManager::setupGuiHelpEngine()
@@ -330,11 +333,11 @@ bool LocalHelpManager::isValidUrl(const QString &link)
     if (!url.isValid())
         return false;
     const QString scheme = url.scheme();
-    return (scheme == QLatin1String("qthelp")
-            || scheme == QLatin1String("about")
-            || scheme == QLatin1String("file")
-            || scheme == QLatin1String("http")
-            || scheme == QLatin1String("https"));
+    return (scheme == "qthelp"
+            || scheme == "about"
+            || scheme == "file"
+            || scheme == "http"
+            || scheme == "https");
 }
 
 QByteArray LocalHelpManager::loadErrorMessage(const QUrl &url, const QString &errorString)
@@ -411,11 +414,11 @@ LocalHelpManager::HelpData LocalHelpManager::helpData(const QUrl &url)
         data.data = engine.fileData(data.resolvedUrl);
         data.mimeType = HelpViewer::mimeFromUrl(data.resolvedUrl);
         if (data.mimeType.isEmpty())
-            data.mimeType = QLatin1String("application/octet-stream");
+            data.mimeType = "application/octet-stream";
     } else {
         data.data = loadErrorMessage(url, QCoreApplication::translate(
                                          "Help", "The page could not be found"));
-        data.mimeType = QLatin1String("text/html");
+        data.mimeType = "text/html";
     }
     return data;
 }

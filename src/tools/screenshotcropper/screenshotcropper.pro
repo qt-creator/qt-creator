@@ -1,3 +1,7 @@
+QTC_PLUGIN_DEPENDS += coreplugin
+QTC_LIB_DEPENDS += utils
+include(../../qtcreatortool.pri)
+
 SOURCES += \
     main.cpp\
     screenshotcropperwindow.cpp \
@@ -10,10 +14,7 @@ HEADERS += \
     ../../plugins/qtsupport/screenshotcropper.h
 
 INCLUDEPATH += \
-    ../../plugins/qtsupport \
-    ../../plugins
+    .
 
 FORMS += \
     screenshotcropperwindow.ui
-
-isEqual(QT_MAJOR_VERSION, 5):QT += widgets

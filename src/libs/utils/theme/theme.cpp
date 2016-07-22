@@ -192,8 +192,9 @@ void Theme::readSettings(QSettings &settings)
         for (int i = 0, total = e.keyCount(); i < total; ++i) {
             const QString key = QLatin1String(e.key(i));
             if (!settings.contains(key)) {
-                qWarning("Theme \"%s\" misses color setting for key \"%s\".",
-                         qPrintable(d->fileName), qPrintable(key));
+                if (i < PaletteWindow || i > PaletteShadowDisabled)
+                    qWarning("Theme \"%s\" misses color setting for key \"%s\".",
+                             qPrintable(d->fileName), qPrintable(key));
                 continue;
             }
             d->colors[i] = readNamedColor(settings.value(key).toString());
@@ -253,27 +254,64 @@ QPalette Theme::palette() const
     if (!flag(DerivePaletteFromTheme))
         return pal;
 
-    // FIXME: introduce some more color roles for this
+    const static struct {
+        Color themeColor;
+        QPalette::ColorRole paletteColorRole;
+        QPalette::ColorGroup paletteColorGroup;
+        bool setColorRoleAsBrush;
+    } mapping[] = {
+        { PaletteWindow,                    QPalette::Window,           QPalette::All,      false},
+        { PaletteWindowDisabled,            QPalette::Window,           QPalette::Disabled, false},
+        { PaletteWindowText,                QPalette::WindowText,       QPalette::All,      true},
+        { PaletteWindowTextDisabled,        QPalette::WindowText,       QPalette::Disabled, true},
+        { PaletteBase,                      QPalette::Base,             QPalette::All,      false},
+        { PaletteBaseDisabled,              QPalette::Base,             QPalette::Disabled, false},
+        { PaletteAlternateBase,             QPalette::AlternateBase,    QPalette::All,      false},
+        { PaletteAlternateBaseDisabled,     QPalette::AlternateBase,    QPalette::Disabled, false},
+        { PaletteToolTipBase,               QPalette::ToolTipBase,      QPalette::All,      true},
+        { PaletteToolTipBaseDisabled,       QPalette::ToolTipBase,      QPalette::Disabled, true},
+        { PaletteToolTipText,               QPalette::ToolTipText,      QPalette::All,      false},
+        { PaletteToolTipTextDisabled,       QPalette::ToolTipText,      QPalette::Disabled, false},
+        { PaletteText,                      QPalette::Text,             QPalette::All,      true},
+        { PaletteTextDisabled,              QPalette::Text,             QPalette::Disabled, true},
+        { PaletteButton,                    QPalette::Button,           QPalette::All,      false},
+        { PaletteButtonDisabled,            QPalette::Button,           QPalette::Disabled, false},
+        { PaletteButtonText,                QPalette::ButtonText,       QPalette::All,      true},
+        { PaletteButtonTextDisabled,        QPalette::ButtonText,       QPalette::Disabled, true},
+        { PaletteBrightText,                QPalette::BrightText,       QPalette::All,      false},
+        { PaletteBrightTextDisabled,        QPalette::BrightText,       QPalette::Disabled, false},
+        { PaletteHighlight,                 QPalette::Highlight,        QPalette::All,      true},
+        { PaletteHighlightDisabled,         QPalette::Highlight,        QPalette::Disabled, true},
+        { PaletteHighlightedText,           QPalette::HighlightedText,  QPalette::All,      true},
+        { PaletteHighlightedTextDisabled,   QPalette::HighlightedText,  QPalette::Disabled, true},
+        { PaletteLink,                      QPalette::Link,             QPalette::All,      false},
+        { PaletteLinkDisabled,              QPalette::Link,             QPalette::Disabled, false},
+        { PaletteLinkVisited,               QPalette::LinkVisited,      QPalette::All,      false},
+        { PaletteLinkVisitedDisabled,       QPalette::LinkVisited,      QPalette::Disabled, false},
+        { PaletteLight,                     QPalette::Light,            QPalette::All,      false},
+        { PaletteLightDisabled,             QPalette::Light,            QPalette::Disabled, false},
+        { PaletteMidlight,                  QPalette::Midlight,         QPalette::All,      false},
+        { PaletteMidlightDisabled,          QPalette::Midlight,         QPalette::Disabled, false},
+        { PaletteDark,                      QPalette::Dark,             QPalette::All,      false},
+        { PaletteDarkDisabled,              QPalette::Dark,             QPalette::Disabled, false},
+        { PaletteMid,                       QPalette::Mid,              QPalette::All,      false},
+        { PaletteMidDisabled,               QPalette::Mid,              QPalette::Disabled, false},
+        { PaletteShadow,                    QPalette::Shadow,           QPalette::All,      false},
+        { PaletteShadowDisabled,            QPalette::Shadow,           QPalette::Disabled, false}
+    };
 
-    pal.setColor(QPalette::Window,          color(Theme::BackgroundColorNormal));
-    pal.setBrush(QPalette::WindowText,      color(Theme::TextColorNormal));
-    pal.setColor(QPalette::Base,            color(Theme::BackgroundColorNormal));
-    pal.setColor(QPalette::AlternateBase,   color(Theme::BackgroundColorAlternate));
-    pal.setColor(QPalette::Button,          color(Theme::BackgroundColorDark));
-    pal.setColor(QPalette::BrightText,      Qt::red);
-    pal.setBrush(QPalette::Text,            color(Theme::TextColorNormal));
-    pal.setBrush(QPalette::ButtonText,      color(Theme::TextColorNormal));
-    pal.setBrush(QPalette::ToolTipBase,     color(Theme::BackgroundColorSelected));
-    pal.setColor(QPalette::Highlight,       color(Theme::BackgroundColorSelected));
-    pal.setColor(QPalette::Dark,            color(Theme::BackgroundColorDark));
-    pal.setColor(QPalette::HighlightedText, Qt::white);
-    pal.setColor(QPalette::ToolTipText,     color(Theme::TextColorNormal));
-    pal.setColor(QPalette::Link,            color(Theme::TextColorLink));
-    pal.setColor(QPalette::LinkVisited,     color(Theme::TextColorLinkVisited));
-    pal.setColor(QPalette::Disabled, QPalette::Window,     color(Theme::BackgroundColorDisabled));
-    pal.setBrush(QPalette::Disabled, QPalette::WindowText, color(Theme::TextColorDisabled));
-    pal.setColor(QPalette::Disabled, QPalette::Base,       color(Theme::BackgroundColorDisabled));
-    pal.setBrush(QPalette::Disabled, QPalette::Text,       color(Theme::TextColorDisabled));
+    for (auto entry: mapping) {
+        const QColor themeColor = color(entry.themeColor);
+        // Use original color if color is not defined in theme.
+        if (themeColor.isValid()) {
+            if (entry.setColorRoleAsBrush)
+                // TODO: Find out why sometimes setBrush is used
+                pal.setBrush(entry.paletteColorGroup, entry.paletteColorRole, themeColor);
+            else
+                pal.setColor(entry.paletteColorGroup, entry.paletteColorRole, themeColor);
+        }
+    }
+
     return pal;
 }
 

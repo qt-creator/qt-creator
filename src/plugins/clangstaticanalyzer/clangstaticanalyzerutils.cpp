@@ -32,9 +32,11 @@
 
 #include <utils/hostosinfo.h>
 #include <utils/environment.h>
+#include <utils/synchronousprocess.h>
 
 #include <QCoreApplication>
 #include <QFileInfo>
+#include <QRegularExpression>
 
 static bool isFileExecutable(const QString &executablePath)
 {
@@ -106,6 +108,54 @@ bool isClangExecutableUsable(const QString &filePath, QString *errorMessage)
         return false;
     }
     return true;
+}
+
+ClangExecutableVersion clangExecutableVersion(const QString &executable)
+{
+    const ClangExecutableVersion invalidVersion;
+
+    // Sanity checks
+    const QFileInfo fileInfo(executable);
+    const bool isExecutableFile = fileInfo.isFile() && fileInfo.isExecutable();
+    if (!isExecutableFile)
+        return invalidVersion;
+
+    // Get version output
+    Utils::Environment environment = Utils::Environment::systemEnvironment();
+    Utils::Environment::setupEnglishOutput(&environment);
+    Utils::SynchronousProcess runner;
+    runner.setEnvironment(environment.toStringList());
+    runner.setTimeoutS(10);
+    // We would prefer "-dumpversion", but that one returns some old version number.
+    const QStringList arguments(QLatin1String(("--version")));
+    const Utils::SynchronousProcessResponse response = runner.runBlocking(executable, arguments);
+    if (response.result != Utils::SynchronousProcessResponse::Finished)
+        return invalidVersion;
+    const QString output = response.stdOut();
+
+    // Parse version output
+    const QRegularExpression re(QLatin1String("clang version (\\d+)\\.(\\d+)\\.(\\d+)"));
+    const QRegularExpressionMatch reMatch = re.match(output);
+    if (re.captureCount() != 3)
+        return invalidVersion;
+
+    const QString majorString = reMatch.captured(1);
+    bool convertedSuccessfully = false;
+    const int major = majorString.toInt(&convertedSuccessfully);
+    if (!convertedSuccessfully)
+        return invalidVersion;
+
+    const QString minorString = reMatch.captured(2);
+    const int minor = minorString.toInt(&convertedSuccessfully);
+    if (!convertedSuccessfully)
+        return invalidVersion;
+
+    const QString patchString = reMatch.captured(3);
+    const int patch = patchString.toInt(&convertedSuccessfully);
+    if (!convertedSuccessfully)
+        return invalidVersion;
+
+    return ClangExecutableVersion(major, minor, patch);
 }
 
 } // namespace Internal

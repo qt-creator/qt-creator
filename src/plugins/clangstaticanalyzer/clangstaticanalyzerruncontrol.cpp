@@ -469,6 +469,28 @@ void ClangStaticAnalyzerRunControl::start()
         emit finished();
         return;
     }
+
+    // Check clang version
+    const ClangExecutableVersion version = clangExecutableVersion(executable);
+    if (!version.isValid()) {
+        const QString warningMessage
+            = tr("Clang Static Analyzer: Running with possibly unsupported version, "
+                 "could not determine version from executable \"%1\".")
+                    .arg(executable);
+        appendMessage(warningMessage + QLatin1Char('\n'), Utils::StdErrFormat);
+        TaskHub::addTask(Task::Warning, warningMessage, Debugger::Constants::ANALYZERTASK_ID);
+        TaskHub::requestPopup();
+    } else if (!version.isSupportedVersion()) {
+        const QString warningMessage
+            = tr("Clang Static Analyzer: Running with unsupported version %1, "
+                 "supported version is %2.")
+                    .arg(version.toString())
+                    .arg(ClangExecutableVersion::supportedVersionAsString());
+        appendMessage(warningMessage + QLatin1Char('\n'), Utils::StdErrFormat);
+        TaskHub::addTask(Task::Warning, warningMessage, Debugger::Constants::ANALYZERTASK_ID);
+        TaskHub::requestPopup();
+    }
+
     m_clangExecutable = executable;
 
     // Create log dir

@@ -121,8 +121,6 @@ public:
         PushAction m_pushAction = NoPush;
     };
 
-    static const char *stashNamePrefix;
-
     explicit GitClient();
 
     Utils::FileName vcsBinary() const override;
@@ -242,7 +240,6 @@ public:
     bool isRemoteCommit(const QString &workingDirectory, const QString &commit);
     bool isFastForwardMerge(const QString &workingDirectory, const QString &branch);
 
-    bool cloneRepository(const QString &directory, const QByteArray &url);
     void fetch(const QString &workingDirectory, const QString &remote);
     bool synchronousPull(const QString &workingDirectory, bool rebase);
     void push(const QString &workingDirectory, const QStringList &pushArgs = QStringList());
@@ -278,7 +275,7 @@ public:
     QString readGitVar(const QString &workingDirectory, const QString &configVar) const;
     QString readConfigValue(const QString &workingDirectory, const QString &configVar) const;
 
-    QTextCodec *encoding(const QString &workingDirectory, const QByteArray &configVar) const;
+    QTextCodec *encoding(const QString &workingDirectory, const QString &configVar) const;
     bool readDataFromCommit(const QString &repoDirectory, const QString &commit,
                             CommitData &commitData, QString *errorMessage = nullptr,
                             QString *commitTemplate = nullptr);

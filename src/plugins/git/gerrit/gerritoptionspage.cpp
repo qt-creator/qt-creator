@@ -93,8 +93,8 @@ GerritOptionsWidget::GerritOptionsWidget(QWidget *parent)
     formLayout->addRow(tr("&Host:"), m_hostLineEdit);
     formLayout->addRow(tr("&User:"), m_userLineEdit);
     m_sshChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
-    m_sshChooser->setCommandVersionArguments(QStringList(QLatin1String("-V")));
-    m_sshChooser->setHistoryCompleter(QLatin1String("Git.SshCommand.History"));
+    m_sshChooser->setCommandVersionArguments(QStringList("-V"));
+    m_sshChooser->setHistoryCompleter("Git.SshCommand.History");
     formLayout->addRow(tr("&ssh:"), m_sshChooser);
     m_portSpinBox->setMinimum(1);
     m_portSpinBox->setMaximum(65535);

@@ -337,6 +337,7 @@ public:
     {
         setFrameStyle(QFrame::NoFrame | QFrame::Plain);
         viewport()->setAutoFillBackground(false);
+        setWidgetResizable(true);
     }
 private:
     void resizeEvent(QResizeEvent *event) override
@@ -385,7 +386,6 @@ private:
             return 0;
         return list.first()->sizeHint().width();
     }
-
 };
 
 

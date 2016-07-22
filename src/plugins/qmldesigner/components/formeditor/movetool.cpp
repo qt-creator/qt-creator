@@ -50,7 +50,6 @@ MoveTool::MoveTool(FormEditorView *editorView)
     m_selectionIndicator.setCursor(Qt::SizeAllCursor);
 }
 
-
 MoveTool::~MoveTool()
 {
 

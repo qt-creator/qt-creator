@@ -59,9 +59,9 @@ public:
     QStringList possibleSourceProperties(const BindingProperty &bindingProperty) const;
     void deleteBindindByRow(int rowNumber);
     void addBindingForCurrentNode();
+    void resetModel();
 
 protected:
-    void resetModel();
     void addBindingProperty(const BindingProperty &property);
     void updateBindingProperty(int rowNumber);
     void addModelNode(const ModelNode &modelNode);

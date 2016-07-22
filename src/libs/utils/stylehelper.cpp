@@ -93,10 +93,9 @@ QColor StyleHelper::notTooBrightHighlightColor()
 QPalette StyleHelper::sidebarFontPalette(const QPalette &original)
 {
     QPalette palette = original;
-    palette.setColor(QPalette::Active, QPalette::Text, panelTextColor());
-    palette.setColor(QPalette::Active, QPalette::WindowText, panelTextColor());
-    palette.setColor(QPalette::Inactive, QPalette::Text, panelTextColor().darker());
-    palette.setColor(QPalette::Inactive, QPalette::WindowText, panelTextColor().darker());
+    const QColor textColor = creatorTheme()->color(Theme::ProgressBarTitleColor);
+    palette.setColor(QPalette::WindowText, textColor);
+    palette.setColor(QPalette::Text, textColor);
     return palette;
 }
 
@@ -151,6 +150,14 @@ QColor StyleHelper::borderColor(bool lightColored)
                   result.saturation(),
                   result.value() / 2);
     return result;
+}
+
+QColor StyleHelper::toolBarBorderColor()
+{
+    const QColor base = baseColor();
+    return QColor::fromHsv(base.hue(),
+                           base.saturation() ,
+                           clamp(base.value() * 0.80f));
 }
 
 // We try to ensure that the actual color used are within

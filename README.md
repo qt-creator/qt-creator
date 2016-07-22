@@ -333,3 +333,15 @@ SQLite (https://www.sqlite.org) is in the Public Domain.
   THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
+
+### Source Code Pro font
+
+  Copyright 2010, 2012 Adobe Systems Incorporated (http://www.adobe.com/),
+  with Reserved Font Name 'Source'. All Rights Reserved. Source is a
+  trademark of Adobe Systems Incorporated in the United States
+  and/or other countries.
+
+  This Font Software is licensed under the SIL Open Font License, Version 1.1.
+
+  The font and license files can be found in QtCreator/src/libs/3rdparty/fonts.
+

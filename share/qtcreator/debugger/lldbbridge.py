@@ -900,6 +900,10 @@ class Dumper(DumperBase):
             # logview pane feature.
             self.report('token(\"%s\")' % args["token"])
 
+    def readRawMemory(self, address, size):
+        error = lldb.SBError()
+        return self.process.ReadMemory(address, size, error)
+
     def extractBlob(self, base, size):
         if size == 0:
             return Blob("")
@@ -923,7 +927,8 @@ class Dumper(DumperBase):
 
     def findStaticMetaObject(self, typeName):
         symbolName = self.mangleName(typeName + '::staticMetaObject')
-        return self.target.FindFirstGlobalVariable(symbolName)
+        symbol = self.target.FindFirstGlobalVariable(symbolName)
+        return int(symbol.AddressOf()) if symbol.IsValid() else 0
 
     def findSymbol(self, symbolName):
         return self.target.FindFirstGlobalVariable(symbolName)
@@ -1204,6 +1209,13 @@ class Dumper(DumperBase):
                 name += "@%s" % level
             else:
                 shadowed[name] = 1
+
+            if not value.IsInScope():
+                with SubItem(self, name):
+                    self.put('iname="%s",' % self.currentIName)
+                    self.putSpecialValue('outofscope')
+                    self.putNumChild(0)
+                continue
 
             if name == "argv" and value.GetType().GetName() == "char **":
                 self.putSpecialArgv(value)

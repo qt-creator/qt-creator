@@ -296,7 +296,7 @@ void HelpWidget::addSideBar()
     bool supportsNewPages = (m_style == ModeWidget);
 
     auto contentWindow = new ContentWindow;
-    auto contentItem = new Core::SideBarItem(contentWindow, QLatin1String(Constants::HELP_CONTENTS));
+    auto contentItem = new Core::SideBarItem(contentWindow, Constants::HELP_CONTENTS);
     contentWindow->setOpenInNewPageActionVisible(supportsNewPages);
     contentWindow->setWindowTitle(HelpPlugin::tr(Constants::SB_CONTENTS));
     connect(contentWindow, &ContentWindow::linkActivated,
@@ -305,10 +305,10 @@ void HelpWidget::addSideBar()
     cmd = Core::ActionManager::registerAction(m_contentsAction, Constants::HELP_CONTENTS, m_context->context());
     cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+Shift+C")
                                                                   : tr("Ctrl+Shift+C")));
-    shortcutMap.insert(QLatin1String(Constants::HELP_CONTENTS), cmd);
+    shortcutMap.insert(Constants::HELP_CONTENTS, cmd);
 
     auto indexWindow = new IndexWindow();
-    auto indexItem = new Core::SideBarItem(indexWindow, QLatin1String(Constants::HELP_INDEX));
+    auto indexItem = new Core::SideBarItem(indexWindow, Constants::HELP_INDEX);
     indexWindow->setOpenInNewPageActionVisible(supportsNewPages);
     indexWindow->setWindowTitle(HelpPlugin::tr(Constants::SB_INDEX));
     connect(indexWindow, &IndexWindow::linkActivated,
@@ -319,20 +319,19 @@ void HelpWidget::addSideBar()
     cmd = Core::ActionManager::registerAction(m_indexAction, Constants::HELP_INDEX, m_context->context());
     cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+I")
                                                                   : tr("Ctrl+Shift+I")));
-    shortcutMap.insert(QLatin1String(Constants::HELP_INDEX), cmd);
+    shortcutMap.insert(Constants::HELP_INDEX, cmd);
 
     auto bookmarkWidget = new BookmarkWidget(&LocalHelpManager::bookmarkManager());
     bookmarkWidget->setWindowTitle(HelpPlugin::tr(Constants::SB_BOOKMARKS));
     bookmarkWidget->setOpenInNewPageActionVisible(supportsNewPages);
-    auto bookmarkItem = new Core::SideBarItem(bookmarkWidget,
-                                              QLatin1String(Constants::HELP_BOOKMARKS));
+    auto bookmarkItem = new Core::SideBarItem(bookmarkWidget, Constants::HELP_BOOKMARKS);
     connect(bookmarkWidget, &BookmarkWidget::linkActivated, this, &HelpWidget::setSource);
     m_bookmarkAction = new QAction(tr("Activate Help Bookmarks View"), this);
     cmd = Core::ActionManager::registerAction(m_bookmarkAction, Constants::HELP_BOOKMARKS,
                                               m_context->context());
     cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Alt+Meta+M")
                                                                   : tr("Ctrl+Shift+B")));
-    shortcutMap.insert(QLatin1String(Constants::HELP_BOOKMARKS), cmd);
+    shortcutMap.insert(Constants::HELP_BOOKMARKS, cmd);
 
     auto searchItem = new SearchSideBarItem;
     connect(searchItem, &SearchSideBarItem::linkActivated, this, &HelpWidget::openFromSearch);
@@ -341,20 +340,19 @@ void HelpWidget::addSideBar()
                                               m_context->context());
     cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+/")
                                                                   : tr("Ctrl+Shift+/")));
-    shortcutMap.insert(QLatin1String(Constants::HELP_SEARCH), cmd);
+    shortcutMap.insert(Constants::HELP_SEARCH, cmd);
 
     Core::SideBarItem *openPagesItem = 0;
     if (m_style == ModeWidget) {
         QWidget *openPagesWidget = OpenPagesManager::instance().openPagesWidget();
         openPagesWidget->setWindowTitle(HelpPlugin::tr(Constants::SB_OPENPAGES));
-        openPagesItem = new Core::SideBarItem(openPagesWidget,
-                                              QLatin1String(Constants::HELP_OPENPAGES));
+        openPagesItem = new Core::SideBarItem(openPagesWidget, Constants::HELP_OPENPAGES);
         m_openPagesAction = new QAction(tr("Activate Open Help Pages View"), this);
         cmd = Core::ActionManager::registerAction(m_openPagesAction, Constants::HELP_OPENPAGES,
                                                   m_context->context());
         cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+O")
                                                                       : tr("Ctrl+Shift+O")));
-        shortcutMap.insert(QLatin1String(Constants::HELP_OPENPAGES), cmd);
+        shortcutMap.insert(Constants::HELP_OPENPAGES, cmd);
     }
 
     QList<Core::SideBarItem *> itemList;
@@ -376,20 +374,20 @@ void HelpWidget::addSideBar()
     m_sideBarSplitter->setSizes(QList<int>() << m_sideBar->size().width() << 300);
 
     connect(m_contentsAction, &QAction::triggered, m_sideBar, [this]() {
-        m_sideBar->activateItem(QLatin1String(Constants::HELP_CONTENTS));
+        m_sideBar->activateItem(Constants::HELP_CONTENTS);
     });
     connect(m_indexAction, &QAction::triggered, m_sideBar, [this]() {
-        m_sideBar->activateItem(QLatin1String(Constants::HELP_INDEX));
+        m_sideBar->activateItem(Constants::HELP_INDEX);
     });
     connect(m_bookmarkAction, &QAction::triggered, m_sideBar, [this]() {
-        m_sideBar->activateItem(QLatin1String(Constants::HELP_BOOKMARKS));
+        m_sideBar->activateItem(Constants::HELP_BOOKMARKS);
     });
     connect(m_searchAction, &QAction::triggered, m_sideBar, [this]() {
-        m_sideBar->activateItem(QLatin1String(Constants::HELP_SEARCH));
+        m_sideBar->activateItem(Constants::HELP_SEARCH);
     });
     if (m_openPagesAction) {
         connect(m_openPagesAction, &QAction::triggered, m_sideBar, [this]() {
-            m_sideBar->activateItem(QLatin1String(Constants::HELP_OPENPAGES));
+            m_sideBar->activateItem(Constants::HELP_OPENPAGES);
         });
     }
 }
@@ -398,9 +396,9 @@ QString HelpWidget::sideBarSettingsKey() const
 {
     switch (m_style) {
     case ModeWidget:
-        return QLatin1String(kModeSideBarSettingsKey);
+        return QString(kModeSideBarSettingsKey);
     case ExternalWindow:
-        return QLatin1String(kWindowSideBarSettingsKey);
+        return QString(kWindowSideBarSettingsKey);
     case SideBarWidget:
         QTC_CHECK(false);
         break;

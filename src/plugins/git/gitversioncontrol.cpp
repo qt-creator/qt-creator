@@ -47,7 +47,7 @@ protected:
     QString trackFile(const QString &repository) override
     {
         const QString gitDir = m_client->findGitDirForRepository(repository);
-        return gitDir.isEmpty() ? QString() : (gitDir + QLatin1String("/HEAD"));
+        return gitDir.isEmpty() ? QString() : (gitDir + "/HEAD");
     }
 
     QString refreshTopic(const QString &repository) override
@@ -131,7 +131,7 @@ QString GitVersionControl::vcsTopic(const QString &directory)
     QString topic = Core::IVersionControl::vcsTopic(directory);
     const QString commandInProgress = m_client->commandInProgressDescription(directory);
     if (!commandInProgress.isEmpty())
-        topic += QLatin1String(" (") + commandInProgress + QLatin1Char(')');
+        topic += " (" + commandInProgress + ')';
     return topic;
 }
 
@@ -140,10 +140,11 @@ Core::ShellCommand *GitVersionControl::createInitialCheckoutCommand(const QStrin
                                                                     const QString &localName,
                                                                     const QStringList &extraArgs)
 {
-    QStringList args;
-    args << QLatin1String("clone") << QLatin1String("--progress") << extraArgs << url << localName;
+    QStringList args = { "clone", "--progress" };
+    args << extraArgs << url << localName;
 
     auto command = new VcsBase::VcsCommand(baseDirectory.toString(), m_client->processEnvironment());
+    command->addFlags(VcsBase::VcsCommand::SuppressStdErr);
     command->addJob(m_client->vcsBinary(), args, -1);
     return command;
 }

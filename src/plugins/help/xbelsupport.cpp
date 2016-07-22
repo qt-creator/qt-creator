@@ -50,9 +50,9 @@ void XbelWriter::writeToFile(QIODevice *device)
     setDevice(device);
 
     writeStartDocument();
-    writeDTD(QLatin1String("<!DOCTYPE xbel>"));
-    writeStartElement(QLatin1String("xbel"));
-    writeAttribute(QLatin1String("version"), QLatin1String("1.0"));
+    writeDTD("<!DOCTYPE xbel>");
+    writeStartElement("xbel");
+    writeAttribute("version", "1.0");
 
     QStandardItem *root = treeModel->invisibleRootItem();
     for (int i = 0; i < root->rowCount(); ++i)
@@ -67,23 +67,23 @@ void XbelWriter::writeData(QStandardItem *child)
     entry.title = child->data(Qt::DisplayRole).toString();
     entry.url = child->data(Qt::UserRole + 10).toString();
 
-    if (entry.url == QLatin1String("Folder")) {
-        writeStartElement(QLatin1String("folder"));
+    if (entry.url == "Folder") {
+        writeStartElement("folder");
 
         entry.folded = !child->data(Qt::UserRole + 11).toBool();
-        writeAttribute(QLatin1String("folded"),
+        writeAttribute("folded",
             entry.folded ? QLatin1String("yes") : QLatin1String("no"));
 
-        writeTextElement(QLatin1String("title"), entry.title);
+        writeTextElement("title", entry.title);
 
         for (int i = 0; i < child->rowCount(); ++i)
             writeData(child->child(i));
 
         writeEndElement();
     } else {
-        writeStartElement(QLatin1String("bookmark"));
-        writeAttribute(QLatin1String("href"), entry.url);
-        writeTextElement(QLatin1String("title"), entry.title);
+        writeStartElement("bookmark");
+        writeAttribute("href", entry.url);
+        writeTextElement("title", entry.title);
         writeEndElement();
     }
 }
@@ -109,9 +109,9 @@ bool XbelReader::readFromFile(QIODevice *device)
         readNext();
 
         if (isStartElement()) {
-            if (name() == QLatin1String("xbel")
-                && attributes().value(QLatin1String("version"))
-                    == QLatin1String("1.0")) {
+            if (name() == "xbel"
+                && attributes().value("version")
+                    == "1.0") {
                 readXBEL();
             } else {
                 raiseError(QCoreApplication::translate("Help::Internal::XbelReader", "The file is not an XBEL version 1.0 file."));
@@ -131,9 +131,9 @@ void XbelReader::readXBEL()
             break;
 
         if (isStartElement()) {
-            if (name() == QLatin1String("folder"))
+            if (name() == "folder")
                 readFolder(0);
-            else if (name() == QLatin1String("bookmark"))
+            else if (name() == "bookmark")
                 readBookmark(0);
             else
                 readUnknownElement();
@@ -158,10 +158,10 @@ void XbelReader::readFolder(QStandardItem *item)
 {
     QStandardItem *folder = createChildItem(item);
     folder->setIcon(folderIcon);
-    folder->setData(QLatin1String("Folder"), Qt::UserRole + 10);
+    folder->setData("Folder", Qt::UserRole + 10);
 
     bool expanded =
-        (attributes().value(QLatin1String("folded")) != QLatin1String("no"));
+        (attributes().value("folded") != "no");
     folder->setData(expanded, Qt::UserRole + 11);
 
     while (!atEnd()) {
@@ -171,11 +171,11 @@ void XbelReader::readFolder(QStandardItem *item)
             break;
 
         if (isStartElement()) {
-            if (name() == QLatin1String("title"))
+            if (name() == "title")
                 folder->setText(readElementText());
-            else if (name() == QLatin1String("folder"))
+            else if (name() == "folder")
                 readFolder(folder);
-            else if (name() == QLatin1String("bookmark"))
+            else if (name() == "bookmark")
                 readBookmark(folder);
             else
                 readUnknownElement();
@@ -188,7 +188,7 @@ void XbelReader::readBookmark(QStandardItem *item)
     QStandardItem *bookmark = createChildItem(item);
     bookmark->setIcon(bookmarkIcon);
     bookmark->setText(QCoreApplication::translate("Help::Internal::XbelReader", "Unknown title"));
-    bookmark->setData(attributes().value(QLatin1String("href")).toString(),
+    bookmark->setData(attributes().value("href").toString(),
         Qt::UserRole + 10);
 
     while (!atEnd()) {
@@ -198,7 +198,7 @@ void XbelReader::readBookmark(QStandardItem *item)
             break;
 
         if (isStartElement()) {
-            if (name() == QLatin1String("title"))
+            if (name() == "title")
                 bookmark->setText(readElementText());
             else
                 readUnknownElement();

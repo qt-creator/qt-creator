@@ -59,7 +59,7 @@ namespace Git {
 namespace Internal {
 
 GitEditorWidget::GitEditorWidget() :
-    m_changeNumberPattern(QLatin1String(CHANGE_PATTERN))
+    m_changeNumberPattern(CHANGE_PATTERN)
 {
     QTC_ASSERT(m_changeNumberPattern.isValid(), return);
     /* Diff format:
@@ -68,8 +68,8 @@ GitEditorWidget::GitEditorWidget() :
         --- a/src/plugins/git/giteditor.cpp
         +++ b/src/plugins/git/giteditor.cpp
     */
-    setDiffFilePattern(QRegExp(QLatin1String("^(?:diff --git a/|index |[+-]{3} (?:/dev/null|[ab]/(.+$)))")));
-    setLogEntryPattern(QRegExp(QLatin1String("^commit ([0-9a-f]{8})[0-9a-f]{32}")));
+    setDiffFilePattern(QRegExp("^(?:diff --git a/|index |[+-]{3} (?:/dev/null|[ab]/(.+$)))"));
+    setLogEntryPattern(QRegExp("^commit ([0-9a-f]{8})[0-9a-f]{32}"));
     setAnnotateRevisionTextFormat(tr("&Blame %1"));
     setAnnotatePreviousRevisionTextFormat(tr("Blame &Parent Revision %1"));
 }
@@ -81,11 +81,11 @@ QSet<QString> GitEditorWidget::annotationChanges() const
     if (txt.isEmpty())
         return changes;
     // Hunt for first change number in annotation: "<change>:"
-    QRegExp r(QLatin1String("^(" CHANGE_PATTERN ") "));
+    QRegExp r("^(" CHANGE_PATTERN ") ");
     QTC_ASSERT(r.isValid(), return changes);
     if (r.indexIn(txt) != -1) {
         changes.insert(r.cap(1));
-        r.setPattern(QLatin1String("\n(" CHANGE_PATTERN ") "));
+        r.setPattern("\n(" CHANGE_PATTERN ") ");
         QTC_ASSERT(r.isValid(), return changes);
         int pos = 0;
         while ((pos = r.indexIn(txt, pos)) != -1) {
@@ -126,8 +126,8 @@ static QString sanitizeBlameOutput(const QString &b)
 
     const bool omitDate = GitPlugin::client()->settings().boolValue(
                 GitSettings::omitAnnotationDateKey);
-    const QChar space(QLatin1Char(' '));
-    const int parenPos = b.indexOf(QLatin1Char(')'));
+    const QChar space(' ');
+    const int parenPos = b.indexOf(')');
     if (parenPos == -1)
         return b;
 
@@ -154,7 +154,7 @@ static QString sanitizeBlameOutput(const QString &b)
     // Copy over the parts that have not changed into a new byte array
     QString result;
     int prevPos = 0;
-    int pos = b.indexOf(QLatin1Char('\n'), 0) + 1;
+    int pos = b.indexOf('\n', 0) + 1;
     forever {
         QTC_CHECK(prevPos < pos);
         int afterParen = prevPos + parenPos;
@@ -165,7 +165,7 @@ static QString sanitizeBlameOutput(const QString &b)
         if (pos == b.size())
             break;
 
-        pos = b.indexOf(QLatin1Char('\n'), pos) + 1;
+        pos = b.indexOf('\n', pos) + 1;
         if (pos == 0) // indexOf returned -1
             pos = b.size();
     }
@@ -190,8 +190,7 @@ void GitEditorWidget::setPlainText(const QString &text)
 
 void GitEditorWidget::checkoutChange()
 {
-    GitPlugin::client()->stashAndCheckout(
-                sourceWorkingDirectory(), m_currentChange);
+    GitPlugin::client()->stashAndCheckout(sourceWorkingDirectory(), m_currentChange);
 }
 
 void GitEditorWidget::resetChange(const QByteArray &resetType)
@@ -202,14 +201,12 @@ void GitEditorWidget::resetChange(const QByteArray &resetType)
 
 void GitEditorWidget::cherryPickChange()
 {
-    GitPlugin::client()->synchronousCherryPick(
-                sourceWorkingDirectory(), m_currentChange);
+    GitPlugin::client()->synchronousCherryPick(sourceWorkingDirectory(), m_currentChange);
 }
 
 void GitEditorWidget::revertChange()
 {
-    GitPlugin::client()->synchronousRevert(
-                sourceWorkingDirectory(), m_currentChange);
+    GitPlugin::client()->synchronousRevert(sourceWorkingDirectory(), m_currentChange);
 }
 
 void GitEditorWidget::logChange()
@@ -229,9 +226,9 @@ void GitEditorWidget::applyDiffChunk(const DiffChunk& chunk, bool revert)
     patchFile.write(chunk.chunk);
     patchFile.close();
 
-    QStringList args = QStringList() << QLatin1String("--cached");
+    QStringList args = { "--cached" };
     if (revert)
-        args << QLatin1String("--reverse");
+        args << "--reverse";
     QString errorMessage;
     if (GitPlugin::client()->synchronousApplyPatch(baseDir, patchFile.fileName(), &errorMessage, args)) {
         if (errorMessage.isEmpty())
@@ -362,7 +359,7 @@ QString GitEditorWidget::fileNameForLine(int line) const
     // 7971b6e7 share/qtcreator/dumper/dumper.py   (hjk
     QTextBlock block = document()->findBlockByLineNumber(line - 1);
     QTC_ASSERT(block.isValid(), return source());
-    static QRegExp renameExp(QLatin1String("^" CHANGE_PATTERN "\\s+([^(]+)"));
+    static QRegExp renameExp("^" CHANGE_PATTERN "\\s+([^(]+)");
     if (renameExp.indexIn(block.text()) != -1) {
         const QString fileName = renameExp.cap(1).trimmed();
         if (!fileName.isEmpty())

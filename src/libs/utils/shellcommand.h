@@ -115,7 +115,7 @@ public:
                 const QString &workingDirectory = QString(), const ExitCodeInterpreter &interpreter = defaultExitCodeInterpreter);
     void addJob(const FileName &binary, const QStringList &arguments, int timeoutS,
                 const QString &workingDirectory = QString(), const ExitCodeInterpreter &interpreter = defaultExitCodeInterpreter);
-    void execute();
+    void execute(); // Execute tasks asynchronously!
     void abort();
     bool lastExecutionSuccess() const;
     int lastExecutionExitCode() const;
@@ -140,16 +140,14 @@ public:
 
     void setOutputProxyFactory(const std::function<OutputProxy *()> &factory);
 
+    // This is called once per job in a thread.
+    // When called from the UI thread it will execute fully synchronously, so no signals will
+    // be triggered!
     virtual SynchronousProcessResponse runCommand(const FileName &binary, const QStringList &arguments,
                                                   int timeoutS,
                                                   const QString &workingDirectory = QString(),
                                                   const ExitCodeInterpreter &interpreter = defaultExitCodeInterpreter);
-    // Make sure to not pass through the event loop at all:
-    virtual bool runFullySynchronous(const FileName &binary, const QStringList &arguments,
-                                     int timeoutS, QByteArray *outputData, QByteArray *errorData,
-                                     const QString &workingDirectory = QString());
 
-public slots:
     void cancel();
 
 signals:
@@ -167,7 +165,15 @@ protected:
 
 private:
     void run(QFutureInterface<void> &future);
+
+    // Run without a event loop in fully blocking mode. No signals will be delivered.
+    SynchronousProcessResponse runFullySynchronous(const FileName &binary, const QStringList &arguments,
+                                                   QSharedPointer<OutputProxy> proxy,
+                                                   int timeoutS, const QString &workingDirectory,
+                                                   const ExitCodeInterpreter &interpreter = defaultExitCodeInterpreter);
+    // Run with an event loop. Signals will be delivered.
     SynchronousProcessResponse runSynchronous(const FileName &binary, const QStringList &arguments,
+                                              QSharedPointer<OutputProxy> proxy,
                                               int timeoutS, const QString &workingDirectory,
                                               const ExitCodeInterpreter &interpreter = defaultExitCodeInterpreter);
 

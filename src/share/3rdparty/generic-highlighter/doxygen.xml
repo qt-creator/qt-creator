@@ -29,7 +29,7 @@
  -->
 
 <language name="Doxygen"
-          version="1.39"
+          version="1.41"
           kateversion="5.0"
           section="Markup"
           extensions="*.dox;*.doxygen"
@@ -485,12 +485,12 @@
   </contexts>
     <itemDatas>
       <itemData name="Normal Text"  defStyleNum="dsNormal" />
-      <itemData name="Tags"         defStyleNum="dsAnnotation" bold="1" italic="0" />
-      <itemData name="Custom Tags"  defStyleNum="dsNormal"  color="#458C61" bold="1" italic="0" />
+      <itemData name="Tags"         defStyleNum="dsAnnotation" bold="1" />
+      <itemData name="Custom Tags"  defStyleNum="dsAnnotation" />
       <itemData name="Word"         defStyleNum="dsCommentVar" bold="1" italic="0" />
       <itemData name="HTML Tag"     defStyleNum="dsKeyword" color="#000000" bold="1" italic="0" />
       <itemData name="Entities"     defStyleNum="dsOthers" color="#4086C0" bold="1" italic="1" />
-      <itemData name="Description"  defStyleNum="dsString"  color="#ff0000" />
+      <itemData name="Description"  defStyleNum="dsDocumentation" />
       <itemData name="Comment"      defStyleNum="dsComment" />
       <itemData name="Region"       defStyleNum="dsRegionMarker" />
       <itemData name="Identifier"   defStyleNum="dsOthers" />

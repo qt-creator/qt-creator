@@ -41,6 +41,7 @@
 #include <QPixmapCache>
 #include <QMouseEvent>
 #include <QPainter>
+#include <QStyleFactory>
 
 
 namespace QmlDesigner {
@@ -53,6 +54,12 @@ namespace {
 class TreeViewStyle : public QProxyStyle
 {
 public:
+    TreeViewStyle(QObject *parent) : QProxyStyle(QStyleFactory::create("fusion"))
+    {
+        setParent(parent);
+        baseStyle()->setParent(parent);
+    }
+
     void drawPrimitive(PrimitiveElement element, const QStyleOption *option, QPainter *painter, const QWidget *widget = 0) const
     {
         static QRect mouseOverStateSavedFrameRectangle;
@@ -162,31 +169,13 @@ private: // variables
 NavigatorTreeView::NavigatorTreeView(QWidget *parent)
     : QTreeView(parent)
 {
-    TreeViewStyle *style = new TreeViewStyle;
-    setStyle(style);
-    style->setParent(this);
+    setStyle(new TreeViewStyle(this));
 }
 
 void NavigatorTreeView::drawSelectionBackground(QPainter *painter, const QStyleOption &option)
 {
     painter->save();
-    if (Utils::creatorTheme()->flag(Utils::Theme::FlatToolBars)) {
-        painter->setOpacity(0.5);
-        painter->fillRect(option.rect, option.palette.color(QPalette::Highlight));
-    } else {
-        const QColor highlightColor = Utils::StyleHelper::notTooBrightHighlightColor();
-        QLinearGradient gradient;
-        gradient.setColorAt(0, highlightColor.lighter(130));
-        gradient.setColorAt(1, highlightColor.darker(130));
-        gradient.setStart(option.rect.topLeft());
-        gradient.setFinalStop(option.rect.bottomLeft());
-        painter->fillRect(option.rect, gradient);
-        painter->setPen(highlightColor.lighter());
-        const QRectF innerRect = QRectF(option.rect).adjusted(0.5, 0.5, -0.5, -0.5);
-        painter->drawLine(innerRect.topLeft(), innerRect.topRight());
-        painter->setPen(highlightColor.darker());
-        painter->drawLine(innerRect.bottomLeft(), innerRect.bottomRight());
-    }
+    painter->fillRect(option.rect, option.palette.color(QPalette::Highlight));
     painter->restore();
 }
 

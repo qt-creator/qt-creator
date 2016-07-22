@@ -471,6 +471,7 @@ CountingLabel::CountingLabel()
     f.setPointSizeF(StyleHelper::sidebarFontSize());
     setFont(f);
     setPalette(StyleHelper::sidebarFontPalette(palette()));
+    setProperty("_q_custom_style_disabled", QVariant(true));
     updateCount(0);
 }
 

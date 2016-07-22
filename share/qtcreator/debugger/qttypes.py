@@ -1106,7 +1106,7 @@ def qdump__QMetaObject(d, value):
     d.putNumChild(1)
     if d.isExpanded():
         with Children(d):
-            d.putQObjectGutsHelper(0, 0, -1, value, "QMetaObject")
+            d.putQObjectGutsHelper(0, 0, -1, d.addressOf(value), "QMetaObject")
             d.putMembersItem(value)
 
 

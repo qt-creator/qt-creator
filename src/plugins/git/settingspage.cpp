@@ -59,7 +59,7 @@ SettingsPageWidget::SettingsPageWidget(QWidget *parent) : VcsClientOptionsPageWi
         m_ui.winHomeCheckBox->setVisible(false);
     }
     m_ui.repBrowserCommandPathChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
-    m_ui.repBrowserCommandPathChooser->setHistoryCompleter(QLatin1String("Git.RepoCommand.History"));
+    m_ui.repBrowserCommandPathChooser->setHistoryCompleter("Git.RepoCommand.History");
     m_ui.repBrowserCommandPathChooser->setPromptDialogTitle(tr("Git Repository Browser Command"));
 }
 

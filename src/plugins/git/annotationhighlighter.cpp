@@ -25,15 +25,12 @@
 
 #include "annotationhighlighter.h"
 
-#include <QDebug>
-
 namespace Git {
 namespace Internal {
 
 GitAnnotationHighlighter::GitAnnotationHighlighter(const ChangeNumbers &changeNumbers,
                                                    QTextDocument *document) :
-    VcsBase::BaseAnnotationHighlighter(changeNumbers, document),
-    m_blank(QLatin1Char(' '))
+    VcsBase::BaseAnnotationHighlighter(changeNumbers, document)
 {
 }
 

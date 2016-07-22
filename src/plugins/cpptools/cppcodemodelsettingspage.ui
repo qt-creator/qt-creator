@@ -15,9 +15,16 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <widget class="QLabel" name="activateClangCodeModelPluginHint">
+    <widget class="QLabel" name="clangCodeModelIsEnabledHint">
      <property name="text">
-      <string>&lt;i&gt;Activate the Clang Code Model plugin to enable the options here.&lt;/i&gt;</string>
+      <string>&lt;i&gt;The Clang Code Model is enabled because the corresponding plugin is loaded.&lt;/i&gt;</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="clangCodeModelIsDisabledHint">
+     <property name="text">
+      <string>&lt;i&gt;The Clang Code Model is disabled because the corresponding plugin is not loaded.&lt;/i&gt;</string>
      </property>
     </widget>
    </item>

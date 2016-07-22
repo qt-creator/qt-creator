@@ -294,7 +294,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     addAutoReleasedObject(new VcsSubmitEditorFactory(&submitParameters,
         []() { return new GitSubmitEditor(&submitParameters); }));
 
-    const QString prefix = QLatin1String("git");
+    const QString prefix = "git";
     m_commandLocator = new CommandLocator("Git", prefix, prefix);
     addAutoReleasedObject(m_commandLocator);
 
@@ -623,7 +623,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     connect(VcsManager::instance(), &VcsManager::repositoryChanged,
             this, &GitPlugin::updateBranches, Qt::QueuedConnection);
 
-    Utils::MimeDatabase::addMimeTypes(QLatin1String(RC_GIT_MIME_XML));
+    Utils::MimeDatabase::addMimeTypes(RC_GIT_MIME_XML);
 
     /* "Gerrit" */
     m_gerritPlugin = new Gerrit::Internal::GerritPlugin(this);
@@ -718,7 +718,7 @@ void GitPlugin::logRepository()
 void GitPlugin::undoFileChanges(bool revertStaging)
 {
     if (IDocument *document = EditorManager::currentDocument()) {
-        if (!DocumentManager::saveModifiedDocument(document))
+        if (!DocumentManager::saveModifiedDocumentSilently(document))
             return;
     }
     const VcsBasePluginState state = currentState();
@@ -783,7 +783,7 @@ void GitPlugin::startRebase()
     dialog.setWindowTitle(tr("Interactive Rebase"));
     if (!dialog.runDialog(topLevel))
         return;
-    if (m_gitClient->beginStashScope(topLevel, QLatin1String("Rebase-i")))
+    if (m_gitClient->beginStashScope(topLevel, "Rebase-i"))
         m_gitClient->interactiveRebase(topLevel, dialog.commit(), false);
 }
 
@@ -857,7 +857,7 @@ void GitPlugin::gitkForCurrentFolder()
     /*
      *  entire lower part of the code can be easily replaced with one line:
      *
-     *  m_gitClient->launchGitK(dir.currentFileDirectory(), QLatin1String("."));
+     *  m_gitClient->launchGitK(dir.currentFileDirectory(), ".");
      *
      *  However, there is a bug in gitk in version 1.7.9.5, and if you run above
      *  command, there will be no documents listed in lower right section.
@@ -869,7 +869,7 @@ void GitPlugin::gitkForCurrentFolder()
      *
      */
     QDir dir(state.currentFileDirectory());
-    if (QFileInfo(dir,QLatin1String(".git")).exists() || dir.cd(QLatin1String(".git"))) {
+    if (QFileInfo(dir,".git").exists() || dir.cd(".git")) {
         m_gitClient->launchGitK(state.currentFileDirectory());
     } else {
         QString folderName = dir.absolutePath();
@@ -1044,7 +1044,7 @@ bool GitPlugin::submitEditorAboutToClose()
         return false;
     cleanCommitMessageFile();
     if (commitType == FixupCommit) {
-        if (!m_gitClient->beginStashScope(m_submitRepository, QLatin1String("Rebase-fixup"),
+        if (!m_gitClient->beginStashScope(m_submitRepository, "Rebase-fixup",
                                           NoPrompt, editor->panelData().pushAction)) {
             return false;
         }
@@ -1077,13 +1077,13 @@ void GitPlugin::pull()
     if (!rebase) {
         QString currentBranch = m_gitClient->synchronousCurrentLocalBranch(topLevel);
         if (!currentBranch.isEmpty()) {
-            currentBranch.prepend(QLatin1String("branch."));
-            currentBranch.append(QLatin1String(".rebase"));
-            rebase = (m_gitClient->readConfigValue(topLevel, currentBranch) == QLatin1String("true"));
+            currentBranch.prepend("branch.");
+            currentBranch.append(".rebase");
+            rebase = (m_gitClient->readConfigValue(topLevel, currentBranch) == "true");
         }
     }
 
-    if (!m_gitClient->beginStashScope(topLevel, QLatin1String("Pull"), rebase ? Default : AllowUnstashed))
+    if (!m_gitClient->beginStashScope(topLevel, "Pull", rebase ? Default : AllowUnstashed))
         return;
     m_gitClient->synchronousPull(topLevel, rebase);
 }
@@ -1111,19 +1111,19 @@ void GitPlugin::continueOrAbortCommand()
     QObject *action = QObject::sender();
 
     if (action == m_abortMergeAction)
-        m_gitClient->synchronousMerge(state.topLevel(), QLatin1String("--abort"));
+        m_gitClient->synchronousMerge(state.topLevel(), "--abort");
     else if (action == m_abortRebaseAction)
-        m_gitClient->rebase(state.topLevel(), QLatin1String("--abort"));
+        m_gitClient->rebase(state.topLevel(), "--abort");
     else if (action == m_abortCherryPickAction)
-        m_gitClient->synchronousCherryPick(state.topLevel(), QLatin1String("--abort"));
+        m_gitClient->synchronousCherryPick(state.topLevel(), "--abort");
     else if (action == m_abortRevertAction)
-        m_gitClient->synchronousRevert(state.topLevel(), QLatin1String("--abort"));
+        m_gitClient->synchronousRevert(state.topLevel(), "--abort");
     else if (action == m_continueRebaseAction)
-        m_gitClient->rebase(state.topLevel(), QLatin1String("--continue"));
+        m_gitClient->rebase(state.topLevel(), "--continue");
     else if (action == m_continueCherryPickAction)
-        m_gitClient->cherryPick(state.topLevel(), QLatin1String("--continue"));
+        m_gitClient->cherryPick(state.topLevel(), "--continue");
     else if (action == m_continueRevertAction)
-        m_gitClient->revert(state.topLevel(), QLatin1String("--continue"));
+        m_gitClient->revert(state.topLevel(), "--continue");
 
     updateContinueAndAbortCommands();
 }
@@ -1201,7 +1201,7 @@ void GitPlugin::promptApplyPatch()
 void GitPlugin::applyPatch(const QString &workingDirectory, QString file)
 {
     // Ensure user has been notified about pending changes
-    if (!m_gitClient->beginStashScope(workingDirectory, QLatin1String("Apply-Patch"), AllowUnstashed))
+    if (!m_gitClient->beginStashScope(workingDirectory, "Apply-Patch", AllowUnstashed))
         return;
     // Prompt for file
     if (file.isEmpty()) {
@@ -1427,8 +1427,8 @@ void GitPlugin::testStatusParsing()
     CommitData data;
     QFETCH(FileStates, first);
     QFETCH(FileStates, second);
-    QString output = QLatin1String("## master...origin/master [ahead 1]\n");
-    output += QString::fromLatin1(QTest::currentDataTag()) + QLatin1String(" main.cpp\n");
+    QString output = "## master...origin/master [ahead 1]\n";
+    output += QString::fromLatin1(QTest::currentDataTag()) + " main.cpp\n";
     data.parseFilesFromStatus(output);
     QCOMPARE(data.files.at(0).first, first);
     if (second == UnknownFileState)

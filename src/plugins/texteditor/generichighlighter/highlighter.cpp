@@ -113,7 +113,8 @@ Highlighter::Highlighter(QTextDocument *parent) :
                    << C_COMMENT           // CommentVar
                    << C_PREPROCESSOR      // Import
                    << C_TEXT              // Others
-                   << C_LOCAL;            // Identifier
+                   << C_LOCAL             // Identifier
+                   << C_DOXYGEN_COMMENT;  // Documentation
     }
 
     setTextFormatCategories(categories);
@@ -157,6 +158,7 @@ KateFormatMap::KateFormatMap()
     m_ids.insert(QLatin1String("dsImport"), Highlighter::Import);
     m_ids.insert(QLatin1String("dsOthers"), Highlighter::Others);
     m_ids.insert(QLatin1String("dsIdentifier"), Highlighter::Identifier);
+    m_ids.insert(QLatin1String("dsDocumentation"), Highlighter::Documentation);
 }
 
 Q_GLOBAL_STATIC(KateFormatMap, kateFormatMap)

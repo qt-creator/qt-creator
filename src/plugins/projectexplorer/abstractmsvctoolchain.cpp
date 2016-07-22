@@ -288,7 +288,7 @@ bool AbstractMsvcToolChain::generateEnvironmentSettings(Utils::Environment &env,
     }
 
     // The SDK/MSVC scripts do not return exit codes != 0. Check on stdout.
-    const QString stdOut = response.stdOut;
+    const QString stdOut = response.stdOut();
 
     //
     // Now parse the file to get the environment settings

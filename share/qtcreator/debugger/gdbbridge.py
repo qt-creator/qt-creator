@@ -383,13 +383,9 @@ class Dumper(DumperBase):
     def canCallLocale(self):
         return False if self.is32bit() else True
 
-    def reportTime(self, hint):
-        #from datetime import datetime
-        #warn("%s: %s" % (hint, datetime.now().time().isoformat()))
-        pass
-
     def fetchVariables(self, args):
-        self.reportTime("begin fetch")
+        self.resetStats()
+        self.preping("locals")
         self.prepare(args)
         partialVariable = args.get("partialvar", "")
         isPartial = len(partialVariable) > 0
@@ -425,7 +421,7 @@ class Dumper(DumperBase):
         else:
             locals = self.listOfLocals()
 
-        self.reportTime("locals")
+        self.ping("locals")
 
         # Take care of the return value of the last function call.
         if len(self.resultVarName) > 0:
@@ -449,12 +445,16 @@ class Dumper(DumperBase):
                 else:
                     # A "normal" local variable or parameter.
                     with TopLevelItem(self, item.iname):
+                        self.preping("all-" + item.iname)
                         self.put('iname="%s",' % item.iname)
                         self.put('name="%s",' % item.name)
                         self.putItem(value)
+                        self.ping("all-" + item.iname)
 
+        self.preping("watches")
         with OutputSafer(self):
             self.handleWatches(args)
+        self.ping("watches")
 
         self.output.append('],typeinfo=[')
         for name in self.typesToReport.keys():
@@ -475,9 +475,10 @@ class Dumper(DumperBase):
 
         self.output.append(',partial="%d"' % isPartial)
 
-        self.reportTime("before print: %s" % len(self.output))
+        self.preping('safePrint')
         safePrint(''.join(self.output))
-        self.reportTime("after print")
+        self.ping('safePrint')
+        safePrint('"%s"' % str(self.dumpStats()))
 
     def enterSubItem(self, item):
         if not item.iname:
@@ -800,10 +801,12 @@ class Dumper(DumperBase):
         return struct.unpack("b", self.readRawMemory(address, 1))[0]
 
     def findStaticMetaObject(self, typename):
-        return self.findSymbol(typename + "::staticMetaObject")
+        symbol = gdb.lookup_global_symbol(typename + "::staticMetaObject")
+        return toInteger(symbol.value().address) if symbol else 0
 
     def findSymbol(self, symbolName):
         try:
+            self.bump('findSymbol1')
             result = gdb.lookup_global_symbol(symbolName)
             return result.value() if result else 0
         except:
@@ -812,9 +815,11 @@ class Dumper(DumperBase):
         try:
             address = gdb.parse_and_eval("&'%s'" % symbolName)
             typeobj = gdb.lookup_type(self.qtNamespace() + "QMetaObject")
+            self.bump('findSymbol2')
             return self.createPointerValue(address, typeobj)
         except:
-            return 0
+            self.bump('findSymbol3')
+        return 0
 
     def put(self, value):
         self.output.append(value)

@@ -243,9 +243,9 @@ void FetchContext::processError(QProcess::ProcessError e)
 
 void FetchContext::show()
 {
-    const QString title = QString::number(m_change->number) + QLatin1Char('/')
+    const QString title = QString::number(m_change->number) + '/'
             + QString::number(m_change->currentPatchSet.patchSetNumber);
-    GitPlugin::client()->show(m_repository, QLatin1String("FETCH_HEAD"), title);
+    GitPlugin::client()->show(m_repository, "FETCH_HEAD", title);
 }
 
 void FetchContext::cherryPick()
@@ -253,12 +253,12 @@ void FetchContext::cherryPick()
     // Point user to errors.
     VcsBase::VcsOutputWindow::instance()->popup(IOutputPane::ModeSwitch
                                                   | IOutputPane::WithFocus);
-    GitPlugin::client()->synchronousCherryPick(m_repository, QLatin1String("FETCH_HEAD"));
+    GitPlugin::client()->synchronousCherryPick(m_repository, "FETCH_HEAD");
 }
 
 void FetchContext::checkout()
 {
-    GitPlugin::client()->stashAndCheckout(m_repository, QLatin1String("FETCH_HEAD"));
+    GitPlugin::client()->stashAndCheckout(m_repository, "FETCH_HEAD");
 }
 
 void FetchContext::terminate()
@@ -326,31 +326,26 @@ void GerritPlugin::push(const QString &topLevel)
     if (dialog.exec() == QDialog::Rejected)
         return;
 
-    QStringList args;
-
     m_reviewers = dialog.reviewers();
 
-    args << dialog.selectedRemoteName();
     QString target = dialog.selectedCommit();
     if (target.isEmpty())
-        target = QLatin1String("HEAD");
-    target += QLatin1String(":refs/") + dialog.selectedPushType() +
-            QLatin1Char('/') + dialog.selectedRemoteBranchName();
+        target = "HEAD";
+    target += ":refs/" + dialog.selectedPushType() +
+            '/' + dialog.selectedRemoteBranchName();
     const QString topic = dialog.selectedTopic();
     if (!topic.isEmpty())
-        target += QLatin1Char('/') + topic;
+        target += '/' + topic;
 
     QStringList options;
-    const QStringList reviewers = m_reviewers.split(QLatin1Char(','), QString::SkipEmptyParts);
+    const QStringList reviewers = m_reviewers.split(',', QString::SkipEmptyParts);
     foreach (const QString &reviewer, reviewers)
-        options << QLatin1String("r=") + reviewer;
+        options << "r=" + reviewer;
 
     if (!options.isEmpty())
-        target += QLatin1Char('%') + options.join(QLatin1Char(','));
+        target += '%' + options.join(',');
 
-    args << target;
-
-    GitPlugin::client()->push(topLevel, args);
+    GitPlugin::client()->push(topLevel, { dialog.selectedRemoteName(), target });
 }
 
 // Open or raise the Gerrit dialog window.
@@ -432,7 +427,7 @@ void GerritPlugin::fetch(const QSharedPointer<GerritChange> &change, int mode)
         if (!remotesList.isEmpty()) {
             QStringList remotes = remotesList.values();
             foreach (QString remote, remotes) {
-                if (remote.endsWith(QLatin1String(".git")))
+                if (remote.endsWith(".git"))
                     remote.chop(4);
                 if (remote.contains(m_parameters->host) && remote.endsWith(change->project)) {
                     verifiedRepository = true;
@@ -444,11 +439,11 @@ void GerritPlugin::fetch(const QSharedPointer<GerritChange> &change, int mode)
                 SubmoduleDataMap submodules = GitPlugin::client()->submoduleList(repository);
                 foreach (const SubmoduleData &submoduleData, submodules) {
                     QString remote = submoduleData.url;
-                    if (remote.endsWith(QLatin1String(".git")))
+                    if (remote.endsWith(".git"))
                         remote.chop(4);
                     if (remote.contains(m_parameters->host) && remote.endsWith(change->project)
-                            && QFile::exists(repository + QLatin1Char('/') + submoduleData.dir)) {
-                        repository = QDir::cleanPath(repository + QLatin1Char('/')
+                            && QFile::exists(repository + '/' + submoduleData.dir)) {
+                        repository = QDir::cleanPath(repository + '/'
                                                      + submoduleData.dir);
                         verifiedRepository = true;
                         break;
@@ -504,18 +499,18 @@ QString GerritPlugin::findLocalRepository(QString project, const QString &branch
 {
     const QStringList gitRepositories = VcsManager::repositories(GitPlugin::instance()->gitVersionControl());
     // Determine key (file name) to look for (qt/qtbase->'qtbase').
-    const int slashPos = project.lastIndexOf(QLatin1Char('/'));
+    const int slashPos = project.lastIndexOf('/');
     if (slashPos != -1)
         project.remove(0, slashPos + 1);
     // When looking at branch 1.7, try to check folders
     // "qtbase_17", 'qtbase1.7' with a semi-smart regular expression.
     QScopedPointer<QRegExp> branchRegexp;
-    if (!branch.isEmpty() && branch != QLatin1String("master")) {
+    if (!branch.isEmpty() && branch != "master") {
         QString branchPattern = branch;
-        branchPattern.replace(QLatin1Char('.'), QLatin1String("[\\.-_]?"));
-        const QString pattern = QLatin1Char('^') + project
-                                + QLatin1String("[-_]?")
-                                + branchPattern + QLatin1Char('$');
+        branchPattern.replace('.', "[\\.-_]?");
+        const QString pattern = '^' + project
+                                + "[-_]?"
+                                + branchPattern + '$';
         branchRegexp.reset(new QRegExp(pattern));
         if (!branchRegexp->isValid())
             branchRegexp.reset(); // Oops.

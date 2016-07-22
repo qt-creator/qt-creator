@@ -379,8 +379,11 @@ QString DesktopQmakeRunConfiguration::baseWorkingDirectory() const
 bool DesktopQmakeRunConfiguration::isConsoleApplication() const
 {
     if (QmakeProFileNode *node = projectNode()) {
-        return node->variableValue(ConfigVar).contains(QLatin1String("console"))
-                && !node->variableValue(QtVar).contains(QLatin1String("testlib"));
+        const QStringList config = node->variableValue(ConfigVar);
+        if (!config.contains("console") || config.contains("testcase"))
+            return false;
+        const QStringList qt = node->variableValue(QtVar);
+        return !qt.contains("testlib") && !qt.contains("qmltest");
     }
     return false;
 }

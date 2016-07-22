@@ -1140,8 +1140,8 @@ CvsResponse CvsPlugin::runCvs(const QString &workingDirectory,
                    timeOutS, flags, outputCodec);
 
     response.result = CvsResponse::OtherError;
-    response.stdErr = sp_resp.stdErr;
-    response.stdOut = sp_resp.stdOut;
+    response.stdErr = sp_resp.stdErr();
+    response.stdOut = sp_resp.stdOut();
     switch (sp_resp.result) {
     case SynchronousProcessResponse::Finished:
         response.result = CvsResponse::Ok;

@@ -583,6 +583,8 @@ QString decodeData(const QString &ba, const QString &encoding)
         return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<invalid>");
     if (encoding == "notcallable")
         return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<not callable>");
+    if (encoding == "outofscope")
+        return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<out of scope>");
 
     DebuggerEncoding enc(encoding);
     QString result;

@@ -121,8 +121,9 @@ void GdbPlainEngine::setupEngine()
     }
     gdbArgs.append("--tty=" + m_outputCollector.serverName());
 
-    if (!runParameters().inferior.workingDirectory.isEmpty())
-        m_gdbProc.setWorkingDirectory(runParameters().inferior.workingDirectory);
+    QString workingDirectory = runParameters().inferior.workingDirectory;
+    if (!workingDirectory.isEmpty() && QFileInfo::exists(workingDirectory))
+        m_gdbProc.setWorkingDirectory(workingDirectory);
 
     startGdb(gdbArgs);
 }

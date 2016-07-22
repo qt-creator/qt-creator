@@ -583,8 +583,6 @@ signals:
     void tooltipOverrideRequested(TextEditor::TextEditorWidget *widget,
         const QPoint &globalPos, int position, bool *handled);
     void tooltipRequested(const QPoint &globalPos, int position);
-    void markTooltipRequested(TextEditor::TextEditorWidget *widget,
-        const QPoint &globalPos, int line);
     void activateEditor();
 
 protected slots:

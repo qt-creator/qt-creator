@@ -48,6 +48,7 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/fileutils.h>
+#include <utils/qtcassert.h>
 
 #include <QSettings>
 #include <QToolBar>
@@ -318,8 +319,10 @@ void DesignModeWidget::setup()
     m_warningWidget->setVisible(false);
     connect(m_warningWidget.data(), &DocumentWarningWidget::gotoCodeClicked, [=]
         (const QString &filePath, int codeLine, int codeColumn) {
-            Q_UNUSED(filePath);
-            Q_ASSERT(textEditor()->textDocument()->filePath().toString() == filePath);
+        Q_UNUSED(filePath);
+        QTC_ASSERT(textEditor()->textDocument()->filePath().toString() == filePath,
+                   qDebug() << Q_FUNC_INFO << textEditor()->textDocument()->filePath().toString() <<
+        filePath; );
             textEditor()->gotoLine(codeLine, codeColumn);
             Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
         }

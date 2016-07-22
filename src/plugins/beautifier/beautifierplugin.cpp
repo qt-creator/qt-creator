@@ -104,7 +104,7 @@ FormatTask format(FormatTask task)
             task.error = BeautifierPlugin::tr("Failed to format: %1.").arg(response.exitMessage(executable, 5));
             return task;
         }
-        const QString output = response.stdErr;
+        const QString output = response.stdErr();
         if (!output.isEmpty())
             task.error = executable + QLatin1String(": ") + output;
 

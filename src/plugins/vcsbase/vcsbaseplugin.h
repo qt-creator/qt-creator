@@ -38,18 +38,17 @@ class QAction;
 class QTextCodec;
 QT_END_NAMESPACE
 
-namespace Utils
-{
+namespace Utils {
 class FileName;
-struct SynchronousProcessResponse;
-}
+class SynchronousProcessResponse;
+} // namespace Utils
 
 namespace Core {
 class Context;
 class IVersionControl;
 class Id;
 class IDocument;
-}
+} // namespace Core
 
 namespace VcsBase {
 

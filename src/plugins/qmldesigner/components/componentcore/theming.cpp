@@ -60,7 +60,6 @@ void Theming::insertTheme(QQmlPropertyMap *map)
     /* hack for light themes */
     /* The selected tab is always supposed to be lighter */
     if (tabDark.value() > tabLight.value()) {
-        QColor swap = tabLight.lighter(180);
         tabLight = tabDark.darker(110);
         tabDark =  tabDark.darker(260);
     }

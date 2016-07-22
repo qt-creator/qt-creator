@@ -66,7 +66,7 @@ void tst_Algorithm::transform()
     }
     {
         // QSet internally needs special inserter
-        const QSet<QString> strings({"1", "3", "132"});
+        const QSet<QString> strings({QString("1"), QString("3"), QString("132")});
         const QSet<int> i1 = Utils::transform(strings, [](const QString &s) { return s.toInt(); });
         QCOMPARE(i1, QSet<int>({1, 3, 132}));
         const QSet<int> i2 = Utils::transform(strings, stringToInt);
@@ -98,7 +98,7 @@ void tst_Algorithm::transform()
     }
     {
         // QSet to QList
-        const QSet<QString> strings({"1", "3", "132"});
+        const QSet<QString> strings({QString("1"), QString("3"), QString("132")});
         QList<int> i1 = Utils::transform<QList>(strings, [](const QString &s) { return s.toInt(); });
         qSort(i1);
         QCOMPARE(i1, QList<int>({1, 3, 132}));

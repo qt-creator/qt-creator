@@ -104,7 +104,7 @@ void IosProbe::detectDeveloperPaths()
     if (response.result != Utils::SynchronousProcessResponse::Finished) {
         qCWarning(probeLog) << QString::fromLatin1("Could not detect selected xcode with /usr/bin/xcode-select");
     } else {
-        QString path = response.stdOut;
+        QString path = response.stdOut();
         path.chop(1);
         addDeveloperPath(path);
     }

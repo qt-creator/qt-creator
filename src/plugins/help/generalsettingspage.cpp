@@ -60,7 +60,7 @@ GeneralSettingsPage::GeneralSettingsPage()
     setDisplayName(tr("General"));
     setCategory(Help::Constants::HELP_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Help", Help::Constants::HELP_TR_CATEGORY));
-    setCategoryIcon(QLatin1String(Help::Constants::HELP_CATEGORY_ICON));
+    setCategoryIcon(Help::Constants::HELP_CATEGORY_ICON);
 }
 
 QWidget *GeneralSettingsPage::widget()
@@ -74,9 +74,26 @@ QWidget *GeneralSettingsPage::widget()
 
         m_font = LocalHelpManager::fallbackFont();
 
-        updateFontSize();
-        updateFontStyle();
-        updateFontFamily();
+        updateFontSizeSelector();
+        updateFontStyleSelector();
+        updateFontFamilySelector();
+
+        connect(m_ui->familyComboBox, &QFontComboBox::currentFontChanged, this, [this]() {
+            updateFont();
+            updateFontStyleSelector();
+            updateFontSizeSelector();
+            updateFont(); // changes that might have happened when updating the selectors
+        });
+
+        connect(m_ui->styleComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+                this, [this]() {
+            updateFont();
+            updateFontSizeSelector();
+            updateFont(); // changes that might have happened when updating the selectors
+        });
+
+        connect(m_ui->sizeComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+                this, &GeneralSettingsPage::updateFont);
 
         m_homePage = LocalHelpManager::homePage();
         m_ui->homePageLineEdit->setText(m_homePage);
@@ -114,35 +131,9 @@ void GeneralSettingsPage::apply()
 {
     if (!m_ui) // page was never shown
         return;
-    QFont newFont;
-    const QString &family = m_ui->familyComboBox->currentFont().family();
-    newFont.setFamily(family);
 
-    int fontSize = 14;
-    int currentIndex = m_ui->sizeComboBox->currentIndex();
-    if (currentIndex != -1)
-        fontSize = m_ui->sizeComboBox->itemData(currentIndex).toInt();
-    newFont.setPointSize(fontSize);
-
-    QString fontStyle = QLatin1String("Normal");
-    currentIndex = m_ui->styleComboBox->currentIndex();
-    if (currentIndex != -1)
-        fontStyle = m_ui->styleComboBox->itemText(currentIndex);
-    newFont.setBold(m_fontDatabase.bold(family, fontStyle));
-    if (fontStyle.contains(QLatin1String("Italic")))
-        newFont.setStyle(QFont::StyleItalic);
-    else if (fontStyle.contains(QLatin1String("Oblique")))
-        newFont.setStyle(QFont::StyleOblique);
-    else
-        newFont.setStyle(QFont::StyleNormal);
-
-    const int weight = m_fontDatabase.weight(family, fontStyle);
-    if (weight >= 0)    // Weight < 0 asserts...
-        newFont.setWeight(weight);
-
-    if (newFont != m_font) {
-        m_font = newFont;
-        LocalHelpManager::setFallbackFont(newFont);
+    if (m_font != LocalHelpManager::fallbackFont()) {
+        LocalHelpManager::setFallbackFont(m_font);
         emit fontChanged();
     }
 
@@ -218,7 +209,7 @@ void GeneralSettingsPage::exportBookmarks()
     m_ui->errorLabel->setVisible(false);
 
     QString fileName = QFileDialog::getSaveFileName(ICore::dialogParent(),
-        tr("Save File"), QLatin1String("untitled.xbel"), tr("Files (*.xbel)"));
+        tr("Save File"), "untitled.xbel", tr("Files (*.xbel)"));
 
     QLatin1String suffix(".xbel");
     if (!fileName.endsWith(suffix))
@@ -236,7 +227,7 @@ void GeneralSettingsPage::exportBookmarks()
     }
 }
 
-void GeneralSettingsPage::updateFontSize()
+void GeneralSettingsPage::updateFontSizeSelector()
 {
     const QString &family = m_font.family();
     const QString &fontStyle = m_fontDatabase.styleString(m_font);
@@ -245,6 +236,7 @@ void GeneralSettingsPage::updateFontSize()
     if (pointSizes.empty())
         pointSizes = QFontDatabase::standardSizes();
 
+    bool blocked = m_ui->sizeComboBox->blockSignals(true);
     m_ui->sizeComboBox->clear();
     m_ui->sizeComboBox->setCurrentIndex(-1);
     m_ui->sizeComboBox->setEnabled(!pointSizes.empty());
@@ -258,20 +250,22 @@ void GeneralSettingsPage::updateFontSize()
         if (closestIndex != -1)
             m_ui->sizeComboBox->setCurrentIndex(closestIndex);
     }
+    m_ui->sizeComboBox->blockSignals(blocked);
 }
 
-void GeneralSettingsPage::updateFontStyle()
+void GeneralSettingsPage::updateFontStyleSelector()
 {
     const QString &fontStyle = m_fontDatabase.styleString(m_font);
     const QStringList &styles = m_fontDatabase.styles(m_font.family());
 
+    bool blocked = m_ui->styleComboBox->blockSignals(true);
     m_ui->styleComboBox->clear();
     m_ui->styleComboBox->setCurrentIndex(-1);
     m_ui->styleComboBox->setEnabled(!styles.empty());
 
     if (!styles.empty()) {
         int normalIndex = -1;
-        const QString normalStyle = QLatin1String("Normal");
+        const QString normalStyle = "Normal";
         foreach (const QString &style, styles) {
             // try to maintain selection or select 'normal' preferably
             const int newIndex = m_ui->styleComboBox->count();
@@ -286,11 +280,28 @@ void GeneralSettingsPage::updateFontStyle()
         if (m_ui->styleComboBox->currentIndex() == -1 && normalIndex != -1)
             m_ui->styleComboBox->setCurrentIndex(normalIndex);
     }
+    m_ui->styleComboBox->blockSignals(blocked);
 }
 
-void GeneralSettingsPage::updateFontFamily()
+void GeneralSettingsPage::updateFontFamilySelector()
 {
     m_ui->familyComboBox->setCurrentFont(m_font);
+}
+
+void GeneralSettingsPage::updateFont()
+{
+    const QString &family = m_ui->familyComboBox->currentFont().family();
+    m_font.setFamily(family);
+
+    int fontSize = 14;
+    int currentIndex = m_ui->sizeComboBox->currentIndex();
+    if (currentIndex != -1)
+        fontSize = m_ui->sizeComboBox->itemData(currentIndex).toInt();
+    m_font.setPointSize(fontSize);
+
+    currentIndex = m_ui->styleComboBox->currentIndex();
+    if (currentIndex != -1)
+        m_font.setStyleName(m_ui->styleComboBox->itemText(currentIndex));
 }
 
 int GeneralSettingsPage::closestPointSizeIndex(int desiredPointSize) const

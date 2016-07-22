@@ -38,7 +38,6 @@
 #include <projectexplorer/session.h>
 #include <texteditor/texteditor.h>
 #include <utils/icon.h>
-#include <utils/tooltip/tooltip.h>
 #include <utils/qtcassert.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/theme/theme.h>
@@ -845,17 +844,6 @@ void BookmarkManager::saveBookmarks()
     SessionManager::setValue(QLatin1String("Bookmarks"), list);
 }
 
-void BookmarkManager::operateTooltip(QWidget *widget, const QPoint &pos, Bookmark *mark)
-{
-    if (!mark)
-        return;
-
-    if (mark->note().isEmpty())
-        ToolTip::hide();
-    else
-        ToolTip::show(pos, mark->note(), widget);
-}
-
 /* Loads the bookmarks from the session settings. */
 void BookmarkManager::loadBookmarks()
 {
@@ -865,12 +853,6 @@ void BookmarkManager::loadBookmarks()
         addBookmark(bookmarkString);
 
     updateActionStatus();
-}
-
-void BookmarkManager::handleBookmarkTooltipRequest(IEditor *editor, const QPoint &pos, int line)
-{
-    Bookmark *mark = findBookmark(editor->document()->filePath().toString(), line);
-    operateTooltip(editor->widget(), pos, mark);
 }
 
 // BookmarkViewFactory

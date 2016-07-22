@@ -73,24 +73,35 @@ def main():
                      "possible to select one of the suggestions.")
 # Step 4: Insert text "voi" to new line and press Tab.
         resetLine(editorWidget)
+        if useClang and JIRA.isBugStillOpen(15639):
+            snooze(2)
         type(editorWidget, "voi")
-        waitForObjectItem(":popupFrame_Proposal_QListView", "void")
-        type(waitForObject(":popupFrame_Proposal_QListView"), "<Tab>")
-        test.compare(str(lineUnderCursor(editorWidget)).strip(), "void",
-                     "Step 4: Verifying if: Word 'void' is completed because only one option is available.")
+        try:
+            waitForObjectItem(":popupFrame_Proposal_QListView", "void")
+            type(waitForObject(":popupFrame_Proposal_QListView"), "<Tab>")
+            test.compare(str(lineUnderCursor(editorWidget)).strip(), "void",
+                         "Step 4: Verifying if: Word 'void' is completed because only one option is available.")
+        except:
+            test.fail("The expected completion popup was not shown.")
 # Step 4.5: Insert text "2." to new line and verify that code completion is not triggered (QTCREATORBUG-16188)
         resetLine(editorWidget)
         lineWithFloat = "float fl = 2."
         type(editorWidget, lineWithFloat)
         try:
             waitForObject(":popupFrame_Proposal_QListView", 5000)
-            if useClang and JIRA.isBugStillOpen(16188):
-                test.xfail("Typing a float value triggered code completion")
-            else:
-                test.fail("Typing a float value triggered code completion")
+            test.fail("Typing a float value triggered code completion")
         except:
             test.compare(str(lineUnderCursor(editorWidget)), "    " + lineWithFloat,
                          "Typing a float value does not trigger code completion")
+        triggerCompletion(editorWidget)
+        try:
+            waitForObject(":popupFrame_Proposal_QListView", 5000)
+            if useClang and JIRA.isBugStillOpen(16607):
+                test.xfail("User can trigger code completion manually in a float value")
+            else:
+                test.fail("User can trigger code completion manually in a float value")
+        except:
+            test.passes("User can't trigger code completion manually in a float value")
 # Step 5: From "Tools -> Options -> Text Editor -> Completion" select Activate completion Manually,
 # uncheck Autocomplete common prefix and press Apply and then Ok . Return to Edit mode.
         test.log("Step 5: Change Code Completion settings")

@@ -46,7 +46,7 @@ QString BuildableHelperLibrary::qtChooserToQmakePath(const QString &path)
     SynchronousProcessResponse response = proc.runBlocking(path, QStringList(QLatin1String("-print-env")));
     if (response.result != SynchronousProcessResponse::Finished)
         return QString();
-    const QString output = response.stdOut;
+    const QString output = response.stdOut();
     int pos = output.indexOf(toolDir);
     if (pos == -1)
         return QString();

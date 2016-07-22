@@ -29,8 +29,12 @@ import QtQuick.Controls 1.0
 SpinBox {
     id: spinBox
     width: 76
+    decimals: 2
+    stepSize: 0.1
+    minimumValue: 0
+    maximumValue: 1
 
-     property color textColor: colorLogic.textColor
+    property color textColor: creatorTheme.PanelTextColorLight
 
     style: CustomSpinBoxStyle {
 

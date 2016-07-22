@@ -57,7 +57,7 @@ QVariant OpenPagesModel::data(const QModelIndex &index, int role) const
             return m_pages.at(index.row())->source().toString();
         case Qt::DisplayRole: {
             QString title = m_pages.at(index.row())->title();
-            title.replace(QLatin1Char('&'), QLatin1String("&&"));
+            title.replace('&', "&&");
             return title.isEmpty() ? tr("(Untitled)") : title;
         }
         default:

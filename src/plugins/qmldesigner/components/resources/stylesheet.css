@@ -65,21 +65,6 @@ QLineEdit#itemLibrarySearchInput
      color: creatorTheme.PanelTextColorLight;
  }
 
-QTreeView::branch:has-siblings:!adjoins-item {
-     border-image: none;
-     image:none;
- }
-
- QTreeView::branch:has-siblings:adjoins-item {
-     border-image: none;
-     image:none;
- }
-
- QTreeView::branch:!has-children:!has-siblings:adjoins-item {
-     border-image: none;
-     image:none;
- }
-
  QListView {
     color:creatorTheme.PanelTextColorLight;
     selection-color: creatorTheme.PanelTextColorLight;

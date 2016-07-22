@@ -47,7 +47,7 @@ ClangStaticAnalyzerConfigWidget::ClangStaticAnalyzerConfigWidget(
     chooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
     chooser->setHistoryCompleter(QLatin1String("ClangStaticAnalyzer.ClangCommand.History"));
     chooser->setPromptDialogTitle(tr("Clang Command"));
-    const auto validator = [chooser](Utils::FancyLineEdit *edit, QString *errorMessage) {
+    const auto validator = [chooser, this](Utils::FancyLineEdit *edit, QString *errorMessage) {
         const QString currentFilePath = chooser->fileName().toString();
         Utils::PathChooser pc;
         Utils::PathChooser *helperPathChooser;
@@ -58,8 +58,17 @@ ClangStaticAnalyzerConfigWidget::ClangStaticAnalyzerConfigWidget(
         } else {
             helperPathChooser = chooser;
         }
-        return chooser->defaultValidationFunction()(helperPathChooser->lineEdit(), errorMessage)
+
+        const bool isExecutableValid =
+                chooser->defaultValidationFunction()(helperPathChooser->lineEdit(), errorMessage)
                 && isClangExecutableUsable(helperPathChooser->fileName().toString(), errorMessage);
+
+        const ClangExecutableVersion detectedVersion = isExecutableValid
+                ? clangExecutableVersion(helperPathChooser->fileName().toString())
+                : ClangExecutableVersion();
+        updateDetectedVersionLabel(isExecutableValid, detectedVersion);
+
+        return isExecutableValid;
     };
     chooser->setValidationFunction(validator);
     bool clangExeIsSet;
@@ -88,6 +97,30 @@ ClangStaticAnalyzerConfigWidget::ClangStaticAnalyzerConfigWidget(
 ClangStaticAnalyzerConfigWidget::~ClangStaticAnalyzerConfigWidget()
 {
     delete m_ui;
+}
+
+void ClangStaticAnalyzerConfigWidget::updateDetectedVersionLabel(
+        bool isExecutableValid,
+        const ClangExecutableVersion &providedVersion)
+{
+    QLabel &label = *m_ui->detectedVersionLabel;
+
+    if (isExecutableValid) {
+        if (providedVersion.isValid()) {
+            if (providedVersion.isSupportedVersion()) {
+                label.setText(tr("Version: %1, supported.")
+                              .arg(providedVersion.toString()));
+            } else {
+                label.setText(tr("Version: %1, unsupported (supported version is %2).")
+                              .arg(providedVersion.toString())
+                              .arg(ClangExecutableVersion::supportedVersionAsString()));
+            }
+        } else {
+            label.setText(tr("Version: Could not determine version."));
+        }
+    } else {
+        label.setText(tr("Version: Set valid executable first."));
+    }
 }
 
 } // namespace Internal

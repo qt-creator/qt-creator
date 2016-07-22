@@ -42,8 +42,8 @@ GitSubmitHighlighter::GitSubmitHighlighter(QTextEdit * parent) :
         categories << TextEditor::C_COMMENT;
 
     setTextFormatCategories(categories);
-    m_keywordPattern.setPattern(QLatin1String("^[\\w-]+:"));
-    m_hashChar = QLatin1Char('#');
+    m_keywordPattern.setPattern("^[\\w-]+:");
+    m_hashChar = '#';
     QTC_CHECK(m_keywordPattern.isValid());
 }
 
@@ -95,8 +95,8 @@ GitRebaseHighlighter::RebaseAction::RebaseAction(const QString &regexp,
 
 GitRebaseHighlighter::GitRebaseHighlighter(QTextDocument *parent) :
     TextEditor::SyntaxHighlighter(parent),
-    m_hashChar(QLatin1Char('#')),
-    m_changeNumberPattern(QLatin1String(CHANGE_PATTERN))
+    m_hashChar('#'),
+    m_changeNumberPattern(CHANGE_PATTERN)
 {
     static QVector<TextEditor::TextStyle> categories;
     if (categories.isEmpty()) {
@@ -112,12 +112,12 @@ GitRebaseHighlighter::GitRebaseHighlighter(QTextDocument *parent) :
     }
     setTextFormatCategories(categories);
 
-    m_actions << RebaseAction(QLatin1String("^(p|pick)\\b"), Format_Pick);
-    m_actions << RebaseAction(QLatin1String("^(r|reword)\\b"), Format_Reword);
-    m_actions << RebaseAction(QLatin1String("^(e|edit)\\b"), Format_Edit);
-    m_actions << RebaseAction(QLatin1String("^(s|squash)\\b"), Format_Squash);
-    m_actions << RebaseAction(QLatin1String("^(f|fixup)\\b"), Format_Fixup);
-    m_actions << RebaseAction(QLatin1String("^(x|exec)\\b"), Format_Exec);
+    m_actions << RebaseAction("^(p|pick)\\b", Format_Pick);
+    m_actions << RebaseAction("^(r|reword)\\b", Format_Reword);
+    m_actions << RebaseAction("^(e|edit)\\b", Format_Edit);
+    m_actions << RebaseAction("^(s|squash)\\b", Format_Squash);
+    m_actions << RebaseAction("^(f|fixup)\\b", Format_Fixup);
+    m_actions << RebaseAction("^(x|exec)\\b", Format_Exec);
 }
 
 void GitRebaseHighlighter::highlightBlock(const QString &text)

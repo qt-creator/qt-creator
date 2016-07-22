@@ -90,7 +90,8 @@ public:
         CommentVar,
         Import,
         Others,
-        Identifier
+        Identifier,
+        Documentation
     };
 
     void setTabSettings(const TabSettings &ts);

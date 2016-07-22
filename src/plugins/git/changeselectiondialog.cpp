@@ -119,7 +119,7 @@ void ChangeSelectionDialog::selectCommitFromRecentHistory()
         return;
 
     QString commit = change();
-    int tilde = commit.indexOf(QLatin1Char('~'));
+    int tilde = commit.indexOf('~');
     if (tilde != -1)
         commit.truncate(tilde);
     LogChangeDialog dialog(false, this);
@@ -219,12 +219,11 @@ void ChangeSelectionDialog::recalculateCompletion()
         return;
 
     GitClient *client = GitPlugin::client();
-    QStringList args;
-    args << QLatin1String("--format=%(refname:short)");
-    VcsBase::VcsCommand *command = client->asyncForEachRefCmd(workingDir, args);
+    VcsBase::VcsCommand *command = client->asyncForEachRefCmd(
+                workingDir, { "--format=%(refname:short)" });
     connect(this, &QObject::destroyed, command, &VcsBase::VcsCommand::abort);
     connect(command, &VcsBase::VcsCommand::stdOutText, [this](const QString &output) {
-        m_changeModel->setStringList(output.split(QLatin1Char('\n')));
+        m_changeModel->setStringList(output.split('\n'));
     });
 }
 
@@ -245,9 +244,6 @@ void ChangeSelectionDialog::recalculateDetails()
         return;
     }
 
-    QStringList args;
-    args << QLatin1String("show") << QLatin1String("--stat=80") << ref;
-
     m_process = new QProcess(this);
     m_process->setWorkingDirectory(workingDir);
     m_process->setProcessEnvironment(m_gitEnvironment);
@@ -255,7 +251,7 @@ void ChangeSelectionDialog::recalculateDetails()
     connect(m_process, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
             this, &ChangeSelectionDialog::setDetails);
 
-    m_process->start(m_gitExecutable.toString(), args);
+    m_process->start(m_gitExecutable.toString(), { "show", "--stat=80", ref });
     m_process->closeWriteChannel();
     if (!m_process->waitForStarted())
         m_ui->detailsText->setPlainText(tr("Error: Could not start Git."));

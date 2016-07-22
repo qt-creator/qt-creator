@@ -71,7 +71,7 @@ public:
     ~Relayer();
     void setClientSocket(QTcpSocket *clientSocket);
     bool startRelay(int serverFileDescriptor);
-public slots:
+
     void handleSocketHasData(int socket);
     void handleClientHasData();
     void handleClientHasError(QAbstractSocket::SocketError error);
@@ -90,7 +90,6 @@ public:
     static const int reconnectMsecDelay = 500;
     static const int maxReconnectAttempts = 2*60*5; // 5 min
     RemotePortRelayer(GenericRelayServer *parent, QTcpSocket *clientSocket);
-public slots:
     void tryRemoteConnect();
 signals:
     void didConnect(GenericRelayServer *serv);
@@ -108,7 +107,7 @@ public:
     void stopServer();
     quint16 serverPort();
     IosTool *iosTool();
-public slots:
+
     void handleNewRelayConnection();
     void removeRelayConnection(Relayer *relayer);
 protected:
@@ -148,7 +147,6 @@ class GdbRunner: public QObject
 public:
     GdbRunner(IosTool *iosTool, int gdbFd);
     void stop(int phase);
-public slots:
     void run();
 signals:
     void finished();
@@ -171,10 +169,9 @@ public:
     void writeTextInElement(const QString &output);
     void stopRelayServers(int errorCode = 0);
     void writeMaybeBin(const QString &extraMsg, const char *msg, quintptr len);
-public slots:
     void errorMsg(const QString &msg);
     void stopGdbRunner();
-private slots:
+private:
     void stopGdbRunner2();
     void isTransferringApp(const QString &bundlePath, const QString &deviceId, int progress,
                            const QString &info);
@@ -185,7 +182,6 @@ private slots:
                      Ios::DeviceSession *deviceSession);
     void deviceInfo(const QString &deviceId, const Ios::IosDeviceManager::Dict &info);
     void appOutput(const QString &output);
-private:
     void readStdin();
 
     QMutex m_xmlMutex;
@@ -229,8 +225,9 @@ void Relayer::setClientSocket(QTcpSocket *clientSocket)
     QTC_CHECK(!m_clientSocket);
     m_clientSocket = clientSocket;
     if (m_clientSocket) {
-        connect(m_clientSocket, SIGNAL(error(QAbstractSocket::SocketError)),
-                SLOT(handleClientHasError(QAbstractSocket::SocketError)));
+        connect(m_clientSocket,
+                static_cast<void (QAbstractSocket::*)(QAbstractSocket::SocketError)>(&QAbstractSocket::error),
+                this, &Relayer::handleClientHasError);
         connect(m_clientSocket, &QAbstractSocket::disconnected,
                 this, [this](){server()->removeRelayConnection(this);});
     }
@@ -243,9 +240,9 @@ bool Relayer::startRelay(int serverFileDescriptor)
     if (!m_clientSocket || m_serverFileDescriptor <= 0)
         return false;
     fcntl(serverFileDescriptor,F_SETFL, fcntl(serverFileDescriptor, F_GETFL) | O_NONBLOCK);
-    connect(m_clientSocket, SIGNAL(readyRead()), SLOT(handleClientHasData()));
+    connect(m_clientSocket, &QIODevice::readyRead, this, &Relayer::handleClientHasData);
     m_serverNotifier = new QSocketNotifier(m_serverFileDescriptor, QSocketNotifier::Read, this);
-    connect(m_serverNotifier, SIGNAL(activated(int)), SLOT(handleSocketHasData(int)));
+    connect(m_serverNotifier, &QSocketNotifier::activated, this, &Relayer::handleSocketHasData);
     // no way to check if an error did happen?
     if (m_clientSocket->bytesAvailable() > 0)
         handleClientHasData();
@@ -372,8 +369,7 @@ RemotePortRelayer::RemotePortRelayer(GenericRelayServer *parent, QTcpSocket *cli
 {
     m_remoteConnectTimer.setSingleShot(true);
     m_remoteConnectTimer.setInterval(reconnectMsecDelay);
-    connect(&m_remoteConnectTimer, SIGNAL(timeout()),
-            SLOT(tryRemoteConnect()));
+    connect(&m_remoteConnectTimer, &QTimer::timeout, this, &RemotePortRelayer::tryRemoteConnect);
 }
 
 void RemotePortRelayer::tryRemoteConnect()
@@ -412,7 +408,7 @@ bool RelayServer::startServer(int port, bool ipv6)
 {
     QTC_CHECK(!m_server.isListening());
     m_server.setMaxPendingConnections(1);
-    connect(&m_server, SIGNAL(newConnection()), SLOT(handleNewRelayConnection()));
+    connect(&m_server, &QTcpServer::newConnection, this, &RelayServer::handleNewRelayConnection);
     quint16 portValue = static_cast<quint16>(port);
     if (port < 0 || port > 0xFFFF)
         return false;
@@ -593,16 +589,12 @@ void IosTool::run(const QStringList &args)
         return;
     }
     outFile.flush();
-    connect(manager,SIGNAL(isTransferringApp(QString,QString,int,QString)),
-            SLOT(isTransferringApp(QString,QString,int,QString)));
-    connect(manager,SIGNAL(didTransferApp(QString,QString,Ios::IosDeviceManager::OpStatus)),
-            SLOT(didTransferApp(QString,QString,Ios::IosDeviceManager::OpStatus)));
-    connect(manager,SIGNAL(didStartApp(QString,QString,Ios::IosDeviceManager::OpStatus,int,Ios::DeviceSession*)),
-            SLOT(didStartApp(QString,QString,Ios::IosDeviceManager::OpStatus,int,Ios::DeviceSession*)));
-    connect(manager,SIGNAL(deviceInfo(QString,Ios::IosDeviceManager::Dict)),
-            SLOT(deviceInfo(QString,Ios::IosDeviceManager::Dict)));
-    connect(manager,SIGNAL(appOutput(QString)), SLOT(appOutput(QString)));
-    connect(manager,SIGNAL(errorMsg(QString)), SLOT(errorMsg(QString)));
+    connect(manager,&Ios::IosDeviceManager::isTransferringApp, this, &IosTool::isTransferringApp);
+    connect(manager,&Ios::IosDeviceManager::didTransferApp, this, &IosTool::didTransferApp);
+    connect(manager,&Ios::IosDeviceManager::didStartApp, this, &IosTool::didStartApp);
+    connect(manager,&Ios::IosDeviceManager::deviceInfo, this, &IosTool::deviceInfo);
+    connect(manager,&Ios::IosDeviceManager::appOutput, this, &IosTool::appOutput);
+    connect(manager,&Ios::IosDeviceManager::errorMsg, this, &IosTool::errorMsg);
     manager->watchDevices();
     QRegExp qmlPortRe=QRegExp(QLatin1String("-qmljsdebugger=port:([0-9]+)"));
     foreach (const QString &arg, extraArgs) {
@@ -755,9 +747,10 @@ void IosTool::didStartApp(const QString &bundlePath, const QString &deviceId,
         // all output moves to the new thread (other option would be to signal it back)
         QThread *gdbProcessThread = new QThread();
         gdbRunner->moveToThread(gdbProcessThread);
-        QObject::connect(gdbProcessThread, SIGNAL(started()), gdbRunner, SLOT(run()));
-        QObject::connect(gdbRunner, SIGNAL(finished()), gdbProcessThread, SLOT(quit()));
-        QObject::connect(gdbProcessThread, SIGNAL(finished()), gdbProcessThread, SLOT(deleteLater()));
+        QObject::connect(gdbProcessThread, &QThread::started, gdbRunner, &GdbRunner::run);
+        QObject::connect(gdbRunner, &GdbRunner::finished, gdbProcessThread, &QThread::quit);
+        QObject::connect(gdbProcessThread, &QThread::finished,
+                         gdbProcessThread, &QObject::deleteLater);
         gdbProcessThread->start();
 
         new std::thread([this]() -> void { readStdin();});
@@ -878,7 +871,7 @@ void IosTool::stopGdbRunner()
 {
     if (gdbRunner) {
         gdbRunner->stop(0);
-        QTimer::singleShot(100, this, SLOT(stopGdbRunner2()));
+        QTimer::singleShot(100, this, &IosTool::stopGdbRunner2);
     }
 }
 

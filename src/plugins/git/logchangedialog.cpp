@@ -153,21 +153,21 @@ bool LogChangeWidget::populateLog(const QString &repository, const QString &comm
 
     // Retrieve log using a custom format "Sha1:Subject [(refs)]"
     QStringList arguments;
-    arguments << QLatin1String("--max-count=1000") << QLatin1String("--format=%h:%s %d");
-    arguments << (commit.isEmpty() ? QLatin1String("HEAD") : commit);
+    arguments << "--max-count=1000" << "--format=%h:%s %d";
+    arguments << (commit.isEmpty() ? "HEAD" : commit);
     if (!(flags & IncludeRemotes))
-        arguments << QLatin1String("--not") << QLatin1String("--remotes");
+        arguments << "--not" << "--remotes";
     QString output;
     if (!GitPlugin::client()->synchronousLog(repository, arguments, &output, 0, VcsCommand::NoOutput))
         return false;
-    foreach (const QString &line, output.split(QLatin1Char('\n'))) {
-        const int colonPos = line.indexOf(QLatin1Char(':'));
+    foreach (const QString &line, output.split('\n')) {
+        const int colonPos = line.indexOf(':');
         if (colonPos != -1) {
             QList<QStandardItem *> row;
             for (int c = 0; c < ColumnCount; ++c) {
                 auto item = new QStandardItem;
                 item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
-                if (line.endsWith(QLatin1Char(')'))) {
+                if (line.endsWith(')')) {
                     QFont font = item->font();
                     font.setBold(true);
                     item->setFont(font);
@@ -207,9 +207,9 @@ LogChangeDialog::LogChangeDialog(bool isReset, QWidget *parent) :
     if (isReset) {
         popUpLayout->addWidget(new QLabel(tr("Reset type:"), this));
         m_resetTypeComboBox = new QComboBox(this);
-        m_resetTypeComboBox->addItem(tr("Hard"), QLatin1String("--hard"));
-        m_resetTypeComboBox->addItem(tr("Mixed"), QLatin1String("--mixed"));
-        m_resetTypeComboBox->addItem(tr("Soft"), QLatin1String("--soft"));
+        m_resetTypeComboBox->addItem(tr("Hard"), "--hard");
+        m_resetTypeComboBox->addItem(tr("Mixed"), "--mixed");
+        m_resetTypeComboBox->addItem(tr("Soft"), "--soft");
         m_resetTypeComboBox->setCurrentIndex(GitPlugin::client()->settings().intValue(
                                                  GitSettings::lastResetIndexKey));
         popUpLayout->addWidget(m_resetTypeComboBox);

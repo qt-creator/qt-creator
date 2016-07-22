@@ -78,7 +78,7 @@ void Bookmark::updateFileName(const QString &fileName)
 
 void Bookmark::setNote(const QString &note)
 {
-    m_note = note;
+    setToolTip(note);
 }
 
 void Bookmark::updateNote(const QString &note)
@@ -94,5 +94,5 @@ QString Bookmark::lineText() const
 
 QString Bookmark::note() const
 {
-    return m_note;
+    return toolTip();
 }

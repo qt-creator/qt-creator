@@ -663,6 +663,12 @@ void QmlInspectorAgent::addWatchData(const ObjectReference &obj,
             propertiesWatch->appendChild(propertyWatch);
         }
 
+        if (boolSetting(SortStructMembers)) {
+            propertiesWatch->sortChildren([](const WatchItem *item1, const WatchItem *item2) {
+                return item1->name < item2->name;
+            });
+        }
+
         m_qmlEngine->watchHandler()->insertItem(propertiesWatch);
     }
 

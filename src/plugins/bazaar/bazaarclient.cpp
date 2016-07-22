@@ -110,8 +110,8 @@ bool BazaarClient::synchronousSetUserId()
     args << QLatin1String("whoami")
          << (settings().stringValue(BazaarSettings::userNameKey) + QLatin1String(" <")
              + settings().stringValue(BazaarSettings::userEmailKey) + QLatin1Char('>'));
-    QByteArray stdOut;
-    return vcsFullySynchronousExec(QDir::currentPath(), args, &stdOut);
+    return vcsFullySynchronousExec(QDir::currentPath(), args).result
+            == SynchronousProcessResponse::Finished;
 }
 
 BranchInfo BazaarClient::synchronousBranchQuery(const QString &repositoryRoot) const
@@ -150,11 +150,10 @@ bool BazaarClient::synchronousUncommit(const QString &workingDir,
          << QLatin1String("--verbose") // Will print out what is being removed
          << revisionSpec(revision)
          << extraOptions;
-    QByteArray stdOut;
-    const bool success = vcsFullySynchronousExec(workingDir, args, &stdOut);
-    if (!stdOut.isEmpty())
-        VcsOutputWindow::append(QString::fromUtf8(stdOut));
-    return success;
+
+    const SynchronousProcessResponse result = vcsFullySynchronousExec(workingDir, args);
+    VcsOutputWindow::append(result.stdOut());
+    return result.result == SynchronousProcessResponse::Finished;
 }
 
 void BazaarClient::commit(const QString &repositoryRoot, const QStringList &files,
@@ -187,10 +186,11 @@ bool BazaarClient::managesFile(const QString &workingDirectory, const QString &f
 {
     QStringList args(QLatin1String("status"));
     args << fileName;
-    QByteArray stdOut;
-    if (!vcsFullySynchronousExec(workingDirectory, args, &stdOut))
+
+    const SynchronousProcessResponse result = vcsFullySynchronousExec(workingDirectory, args);
+    if (result.result != SynchronousProcessResponse::Finished)
         return false;
-    return !stdOut.startsWith("unknown");
+    return result.rawStdOut.startsWith("unknown");
 }
 
 void BazaarClient::view(const QString &source, const QString &id, const QStringList &extraOptions)

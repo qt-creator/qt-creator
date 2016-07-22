@@ -527,20 +527,24 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
 
     case PE_PanelStatusBar:
         {
+            const QRectF borderRect = QRectF(rect).adjusted(0.5, 0.5, -0.5, -0.5);
+            painter->save();
             if (creatorTheme()->flag(Theme::FlatToolBars)) {
                 painter->fillRect(rect, StyleHelper::baseColor());
             } else {
-                painter->save();
                 QLinearGradient grad = StyleHelper::statusBarGradient(rect);
                 painter->fillRect(rect, grad);
-                const QRectF borderRect = QRectF(rect).adjusted(0.5, 0.5, -0.5, -0.5);
                 painter->setPen(QColor(255, 255, 255, 60));
                 painter->drawLine(borderRect.topLeft() + QPointF(0, 1),
                                   borderRect.topRight()+ QPointF(0, 1));
                 painter->setPen(StyleHelper::borderColor().darker(110)); //TODO: make themable
                 painter->drawLine(borderRect.topLeft(), borderRect.topRight());
-                painter->restore();
             }
+            if (creatorTheme()->flag(Theme::DrawToolBarBorders)) {
+                painter->setPen(StyleHelper::toolBarBorderColor());
+                painter->drawLine(borderRect.topLeft(), borderRect.topRight());
+            }
+            painter->restore();
         }
         break;
 
@@ -796,7 +800,7 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
                 StyleHelper::menuGradient(painter, option->rect, option->rect);
 
             painter->save();
-            painter->setPen(StyleHelper::borderColor());
+            painter->setPen(StyleHelper::toolBarBorderColor());
             painter->drawLine(option->rect.bottomLeft() + QPointF(0.5, 0.5),
                               option->rect.bottomRight() + QPointF(0.5, 0.5));
             painter->restore();
@@ -828,7 +832,7 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
 
             if (creatorTheme()->flag(Theme::DrawToolBarHighlights)) {
                 if (!drawLightColored)
-                    painter->setPen(StyleHelper::borderColor());
+                    painter->setPen(StyleHelper::toolBarBorderColor());
                 else
                     painter->setPen(QColor(0x888888));
 
@@ -854,6 +858,13 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
                     painter->drawLine(borderRect.topLeft(), borderRect.bottomLeft());
                     painter->drawLine(borderRect.topRight(), borderRect.bottomRight());
                 }
+            }
+            if (creatorTheme()->flag(Theme::DrawToolBarBorders)) {
+                painter->setPen(StyleHelper::toolBarBorderColor());
+                if (widget && widget->property("topBorder").toBool())
+                    painter->drawLine(borderRect.topLeft(), borderRect.topRight());
+                else
+                    painter->drawLine(borderRect.bottomLeft(), borderRect.bottomRight());
             }
         }
         break;

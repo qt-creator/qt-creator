@@ -428,6 +428,16 @@ LogWindow::LogWindow(QWidget *parent)
             this, &LogWindow::doOutput);
 
     setMinimumHeight(60);
+
+    showOutput(LogWarning,
+        tr("NOTE: This log contains possibly confidential information about your machine, "
+           "environment variables, in-memory data of the processes you are debugging, and more. "
+           "It is never transferred over the internet by Qt Creator, and only stored "
+           "to disk if you manually use the respective option from the context menu, or through "
+           "mechanisms that are not under Qt Creator's control, for instance in swap files.\n"
+           "You may be asked to share the contents of this log when reporting bugs related "
+           "to debugger operation. In this case, make sure your submission does not "
+           "contain data you do not want to or you are not allowed to share.\n\n"));
 }
 
 void LogWindow::executeLine()

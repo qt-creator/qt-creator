@@ -170,13 +170,6 @@ void BookmarksPlugin::editorOpened(IEditor *editor)
                         m_bookmarkManager->toggleBookmark(editor->document()->filePath().toString(), line);
                 });
 
-
-        connect(widget, &TextEditorWidget::markTooltipRequested, m_bookmarkManager,
-                [this, editor](TextEditorWidget *, const QPoint &pos, int line) {
-                    if (editor->document())
-                        m_bookmarkManager->handleBookmarkTooltipRequest(editor, pos, line);
-                });
-
         connect(widget, &TextEditorWidget::markContextMenuRequested,
                 this, &BookmarksPlugin::requestContextMenu);
     }

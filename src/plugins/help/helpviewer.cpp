@@ -88,8 +88,8 @@ HelpViewer::HelpViewer(QWidget *parent)
 
 bool HelpViewer::isLocalUrl(const QUrl &url)
 {
-    return url.scheme() == QLatin1String("about") // "No documenation available"
-            || url.scheme() == QLatin1String("qthelp");
+    return url.scheme() == "about" // "No documenation available"
+            || url.scheme() == "qthelp";
 }
 
 bool HelpViewer::canOpenPage(const QString &url)
@@ -109,7 +109,7 @@ QString HelpViewer::mimeFromUrl(const QUrl &url)
             return QLatin1String(e->mimeType);
         ++e;
     }
-    return QLatin1String("");
+    return QString();
 }
 
 bool HelpViewer::launchWithExternalApp(const QUrl &url)
@@ -123,7 +123,7 @@ bool HelpViewer::launchWithExternalApp(const QUrl &url)
         const QString& path = resolvedUrl.path();
         if (!canOpenPage(path)) {
             Utils::TempFileSaver saver(QDir::tempPath()
-                + QLatin1String("/qtchelp_XXXXXX.") + QFileInfo(path).completeSuffix());
+                + "/qtchelp_XXXXXX." + QFileInfo(path).completeSuffix());
             saver.setAutoRemove(false);
             if (!saver.hasError())
                 saver.write(helpEngine.fileData(resolvedUrl));

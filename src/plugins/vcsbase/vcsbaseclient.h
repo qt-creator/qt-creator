@@ -95,28 +95,31 @@ public:
     static QString commandOutputFromLocal8Bit(const QByteArray &a);
     // Return converted command output split into lines
     static QStringList commandOutputLinesFromLocal8Bit(const QByteArray &a);
+    static QStringList splitLines(const QString &s);
+
+    static QString stripLastNewline(const QString &in);
+
+    // Fully synchronous VCS execution (QProcess-based)
+    Utils::SynchronousProcessResponse
+    vcsFullySynchronousExec(const QString &workingDir, const QStringList &args,
+                            unsigned flags = 0, int timeoutS = -1, QTextCodec *codec = nullptr) const;
+
+    // Simple helper to execute a single command using createCommand and enqueueJob.
+    VcsCommand *vcsExec(const QString &workingDirectory, const QStringList &arguments,
+                        VcsBaseEditorWidget *editor = nullptr, bool useOutputToWindow = false,
+                        unsigned additionalFlags = 0, const QVariant &cookie = QVariant()) const;
 
 protected:
     void resetCachedVcsInfo(const QString &workingDir);
     virtual void annotateRevisionRequested(const QString &workingDirectory, const QString &file,
                                            const QString &change, int line);
 
-    // Fully synchronous VCS execution (QProcess-based)
-    bool vcsFullySynchronousExec(const QString &workingDir, const QStringList &args,
-                                 QByteArray *outputData, QByteArray *errorData = 0,
-                                 unsigned flags = 0) const;
-
-    // Simple helper to execute a single command using createCommand and enqueueJob.
-    VcsCommand *vcsExec(const QString &workingDirectory, const QStringList &arguments,
-                        VcsBaseEditorWidget *editor = 0, bool useOutputToWindow = false,
-                        unsigned additionalFlags = 0, const QVariant &cookie = QVariant()) const;
-
     // Synchronous VCS execution using Utils::SynchronousProcess, with
     // log windows updating (using VcsBasePlugin::runVcs with flags)
     Utils::SynchronousProcessResponse vcsSynchronousExec(const QString &workingDir,
                                                          const QStringList &args,
                                                          unsigned flags = 0,
-                                                         QTextCodec *outputCodec = 0) const;
+                                                         QTextCodec *outputCodec = nullptr) const;
 
 private:
     void saveSettings();

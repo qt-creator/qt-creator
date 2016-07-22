@@ -1016,8 +1016,8 @@ PerforceResponse PerforcePlugin::synchronousProcess(const QString &workingDir,
     PerforceResponse response;
     response.error = true;
     response.exitCode = sp_resp.exitCode;
-    response.stdErr = sp_resp.stdErr;
-    response.stdOut = sp_resp.stdOut;
+    response.stdErr = sp_resp.stdErr();
+    response.stdOut = sp_resp.stdOut();
     switch (sp_resp.result) {
     case SynchronousProcessResponse::Finished:
         response.error = false;

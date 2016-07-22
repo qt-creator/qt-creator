@@ -47,6 +47,7 @@ class ClangDiagnosticManager
 {
 public:
     ClangDiagnosticManager(TextEditor::TextDocument *textDocument);
+    ~ClangDiagnosticManager();
 
     void processNewDiagnostics(const QVector<ClangBackEnd::DiagnosticContainer> &allDiagnostics);
 
@@ -60,6 +61,7 @@ public:
     void clearDiagnosticsWithFixIts();
 
 private:
+    void cleanMarks();
     QString filePath() const;
     void filterDiagnostics(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics);
     void generateEditorSelections();
@@ -77,7 +79,7 @@ private:
     QVector<ClangBackEnd::DiagnosticContainer> m_fixItdiagnostics;
     QList<QTextEdit::ExtraSelection> m_extraSelections;
     TextEditor::RefactorMarkers m_fixItAvailableMarkers;
-    std::vector<ClangTextMark> m_clangTextMarks;
+    std::vector<ClangTextMark *> m_clangTextMarks;
 };
 
 } // namespace Internal

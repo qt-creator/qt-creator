@@ -159,10 +159,10 @@
             width (\uicontrol W) and height (\uicontrol H) of the button in the
             \uicontrol Properties pane.
 
-        \li Select \uicontrol Connections > \uicontrol {Dynamic Properties} >
+        \li Select \uicontrol Connections > \uicontrol {Properties} >
             \uicontrol Add to add properties for the item:
 
-            \image qmldesigner-borderimage-properties.png "Dynamic properties"
+            \image qmldesigner-borderimage-properties.png "Properties"
 
             \list a
 

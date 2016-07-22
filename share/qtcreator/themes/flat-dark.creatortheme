@@ -1,7 +1,7 @@
 [General]
 ThemeName=Flat Dark
 PreferredStyles=Fusion
-DefaultTextEditorColorScheme=inkpot.xml
+DefaultTextEditorColorScheme=creator-dark.xml
 
 [Palette]
 shadowBackground=ff404244
@@ -17,13 +17,16 @@ normalBackground=ff2E2F30
 alternateBackground=ff353637
 error=ffe41e25
 splitter=ff06080A
+textColorLink=ff007af4
+textColorLinkVisited=ffa57aff
+backgroundColorDisabled=ff444444
 
 [Colors]
 BackgroundColorAlternate=alternateBackground
 BackgroundColorDark=shadowBackground
 BackgroundColorHover=hoverBackground
 BackgroundColorNormal=normalBackground
-BackgroundColorDisabled=ff444444
+BackgroundColorDisabled=backgroundColorDisabled
 BackgroundColorSelected=selectedBackground
 BadgeLabelBackgroundColorChecked=ffe0e0e0
 BadgeLabelBackgroundColorUnchecked=ff808080
@@ -117,8 +120,8 @@ SplitterColor=splitter
 TextColorDisabled=textDisabled
 TextColorError=ffff4040
 TextColorHighlight=ffff0000
-TextColorLink=ff007af4
-TextColorLinkVisited=ffa57aff
+TextColorLink=textColorLink
+TextColorLinkVisited=textColorLinkVisited
 TextColorNormal=text
 TodoItemTextColor=text
 ToggleButtonBackgroundColor=shadowBackground
@@ -182,6 +185,26 @@ ProjectExplorer_TaskWarn_TextMarkColor=ffffff40
 ClangCodeModel_Error_TextMarkColor=ffff882f
 ClangCodeModel_Warning_TextMarkColor=ffceff40
 
+PaletteWindow=normalBackground
+PaletteWindowText=text
+PaletteBase=normalBackground
+PaletteAlternateBase=alternateBackground
+PaletteButton=shadowBackground
+PaletteBrightText=ffff0000
+PaletteText=text
+PaletteButtonText=text
+PaletteToolTipBase=selectedBackground
+PaletteHighlight=selectedBackground
+PaletteDark=shadowBackground
+PaletteHighlightedText=ffffffff
+PaletteToolTipText=text
+PaletteLink=textColorLink
+PaletteLinkVisited=textColorLinkVisited
+PaletteWindowDisabled=backgroundColorDisabled
+PaletteWindowTextDisabled=textDisabled
+PaletteBaseDisabled=backgroundColorDisabled
+PaletteTextDisabled=textDisabled
+
 [Flags]
 ComboBoxDrawTextShadow=false
 DerivePaletteFromTheme=true
@@ -189,6 +212,7 @@ DrawIndicatorBranch=true
 DrawSearchResultWidgetFrame=false
 DrawTargetSelectorBottom=false
 DrawToolBarHighlights=false
+DrawToolBarBorders=false
 ApplyThemePaletteGlobally=true
 FlatToolBars=true
 FlatSideBarIcons=true

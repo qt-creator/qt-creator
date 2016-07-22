@@ -86,9 +86,9 @@ QDebug operator<<(QDebug d, const GerritChange &c)
 // Format default Url for a change
 static inline QString defaultUrl(const QSharedPointer<GerritParameters> &p, int gerritNumber)
 {
-    QString result = p->https ? QLatin1String("https://") : QLatin1String("http://");
+    QString result = QLatin1String(p->https ? "https://" : "http://");
     result += p->host;
-    result += QLatin1Char('/');
+    result += '/';
     result += QString::number(gerritNumber);
     return result;
 }
@@ -146,7 +146,7 @@ QString GerritPatchSet::approvalsColumn() const
 
     TypeReviewMap reviews; // Sort approvals into a map by type character
     foreach (const GerritApproval &a, approvals) {
-        if (a.type != QLatin1String("STGN")) { // Qt-Project specific: Ignore "STGN" (Staged)
+        if (a.type != "STGN") { // Qt-Project specific: Ignore "STGN" (Staged)
             const QChar typeChar = a.type.at(0);
             TypeReviewMapIterator it = reviews.find(typeChar);
             if (it == reviews.end())
@@ -183,7 +183,7 @@ int GerritPatchSet::approvalLevel() const
 
 QString GerritChange::filterString() const
 {
-    const QChar blank = QLatin1Char(' ');
+    const QChar blank = ' ';
     QString result = QString::number(number) + blank + title + blank
             + owner + blank + project + blank
             + branch + blank + status;
@@ -197,10 +197,10 @@ QString GerritChange::filterString() const
 QStringList GerritChange::gitFetchArguments(const QSharedPointer<GerritParameters> &p) const
 {
     QStringList arguments;
-    const QString url = QLatin1String("ssh://") + p->sshHostArgument()
-            + QLatin1Char(':') + QString::number(p->port) + QLatin1Char('/')
+    const QString url = "ssh://" + p->sshHostArgument()
+            + ':' + QString::number(p->port) + '/'
             + project;
-    arguments << QLatin1String("fetch") << url << currentPatchSet.ref;
+    arguments << "fetch" << url << currentPatchSet.ref;
     return arguments;
 }
 
@@ -276,9 +276,9 @@ QueryContext::QueryContext(const QStringList &queries,
     m_progress.setProgressRange(0, m_queries.size());
 
     // Determine binary and common command line arguments.
-    m_baseArguments << QLatin1String("query") << QLatin1String("--dependencies")
-                    << QLatin1String("--current-patch-set")
-                    << QLatin1String("--format=JSON");
+    m_baseArguments << "query" << "--dependencies"
+                    << "--current-patch-set"
+                    << "--format=JSON";
     m_binary = m_baseArguments.front();
     m_baseArguments.pop_front();
 
@@ -404,7 +404,7 @@ GerritModel::GerritModel(const QSharedPointer<GerritParameters> &p, QObject *par
     , m_parameters(p)
 {
     QStringList headers; // Keep in sync with GerritChange::toHtml()
-    headers << QLatin1String("#") << tr("Subject") << tr("Owner")
+    headers << "#" << tr("Subject") << tr("Owner")
             << tr("Updated") << tr("Project")
             << tr("Approvals") << tr("Status");
     setHorizontalHeaderLabels(headers);
@@ -463,7 +463,7 @@ QString GerritModel::toHtml(const QModelIndex& index) const
     if (!index.isValid())
         return QString();
     const GerritChangePtr c = change(index);
-    const QString serverPrefix = c->url.left(c->url.lastIndexOf(QLatin1Char('/')) + 1);
+    const QString serverPrefix = c->url.left(c->url.lastIndexOf('/') + 1);
     QString result;
     QTextStream str(&result);
     str << "<html><head/><body><table>"
@@ -522,14 +522,14 @@ void GerritModel::refresh(const QString &query)
         queries.push_back(query);
     else
     {
-        const QString statusOpenQuery = QLatin1String("status:open");
+        const QString statusOpenQuery = "status:open";
         if (m_parameters->user.isEmpty()) {
             queries.push_back(statusOpenQuery);
         } else {
             // Owned by:
-            queries.push_back(statusOpenQuery + QLatin1String(" owner:") + m_parameters->user);
+            queries.push_back(statusOpenQuery + " owner:" + m_parameters->user);
             // For Review by:
-            queries.push_back(statusOpenQuery + QLatin1String(" reviewer:") + m_parameters->user);
+            queries.push_back(statusOpenQuery + " reviewer:" + m_parameters->user);
         }
     }
 
@@ -578,27 +578,27 @@ static bool parseOutput(const QSharedPointer<GerritParameters> &parameters,
                         QList<GerritChangePtr> &result)
 {
     // The output consists of separate lines containing a document each
-    const QString typeKey = QLatin1String("type");
-    const QString dependsOnKey = QLatin1String("dependsOn");
-    const QString neededByKey = QLatin1String("neededBy");
-    const QString branchKey = QLatin1String("branch");
-    const QString numberKey = QLatin1String("number");
-    const QString ownerKey = QLatin1String("owner");
-    const QString ownerNameKey = QLatin1String("name");
-    const QString ownerEmailKey = QLatin1String("email");
-    const QString statusKey = QLatin1String("status");
-    const QString projectKey = QLatin1String("project");
-    const QString titleKey = QLatin1String("subject");
-    const QString urlKey = QLatin1String("url");
-    const QString patchSetKey = QLatin1String("currentPatchSet");
-    const QString refKey = QLatin1String("ref");
-    const QString approvalsKey = QLatin1String("approvals");
-    const QString approvalsValueKey = QLatin1String("value");
-    const QString approvalsByKey = QLatin1String("by");
-    const QString lastUpdatedKey = QLatin1String("lastUpdated");
+    const QString typeKey = "type";
+    const QString dependsOnKey = "dependsOn";
+    const QString neededByKey = "neededBy";
+    const QString branchKey = "branch";
+    const QString numberKey = "number";
+    const QString ownerKey = "owner";
+    const QString ownerNameKey = "name";
+    const QString ownerEmailKey = "email";
+    const QString statusKey = "status";
+    const QString projectKey = "project";
+    const QString titleKey = "subject";
+    const QString urlKey = "url";
+    const QString patchSetKey = "currentPatchSet";
+    const QString refKey = "ref";
+    const QString approvalsKey = "approvals";
+    const QString approvalsValueKey = "value";
+    const QString approvalsByKey = "by";
+    const QString lastUpdatedKey = "lastUpdated";
     const QList<QByteArray> lines = output.split('\n');
-    const QString approvalsTypeKey = QLatin1String("type");
-    const QString approvalsDescriptionKey = QLatin1String("description");
+    const QString approvalsTypeKey = "type";
+    const QString approvalsDescriptionKey = "description";
 
     bool res = true;
     result.clear();
@@ -712,8 +712,8 @@ QList<QStandardItem *> GerritModel::changeToRow(const GerritChangePtr &c) const
     row[DateColumn]->setData(c->lastUpdated, SortRole);
 
     QString project = c->project;
-    if (c->branch != QLatin1String("master"))
-        project += QLatin1String(" (") + c->branch  + QLatin1Char(')');
+    if (c->branch != "master")
+        project += " (" + c->branch  + ')';
     row[ProjectColumn]->setText(project);
     row[StatusColumn]->setText(c->status);
     row[ApprovalsColumn]->setText(c->currentPatchSet.approvalsColumn());
@@ -759,7 +759,7 @@ void GerritModel::queryFinished(const QByteArray &output)
             changes.at(i)->depth = 0;
         } else {
             const int dependsOnIndex = numberIndexHash.value(changes.at(i)->dependsOnNumber, -1);
-            if (dependsOnIndex < 0 || changes.at(dependsOnIndex)->status != QLatin1String("NEW"))
+            if (dependsOnIndex < 0 || changes.at(dependsOnIndex)->status != "NEW")
                 changes.at(i)->depth = 0;
         }
     }
@@ -798,7 +798,7 @@ void GerritModel::queryFinished(const QByteArray &output)
                 for (; changeFromItem(parent)->depth >= 1; parent = parent->parent()) {}
                 parent->appendRow(newRow);
                 QString parentFilterString = parent->data(FilterRole).toString();
-                parentFilterString += QLatin1Char(' ');
+                parentFilterString += ' ';
                 parentFilterString += newRow.first()->data(FilterRole).toString();
                 parent->setData(QVariant(parentFilterString), FilterRole);
             } else {
