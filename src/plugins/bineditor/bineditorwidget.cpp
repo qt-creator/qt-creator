@@ -111,11 +111,11 @@ public:
     void commitMarkup() override { q->setMarkup(m_markup); }
 
     void setFetchDataHandler(const std::function<void(quint64)> &cb) override { m_fetchDataHandler = cb; }
-    void setNewWindowRequestHandler(const std::function<void(quint64)> &cb) { m_newWindowRequestHandler = cb; }
-    void setNewRangeRequestHandler(const std::function<void(quint64)> &cb) { m_newRangeRequestHandler = cb; }
-    void setDataChangedHandler(const std::function<void(quint64, const QByteArray &)> &cb) { m_dataChangedHandler = cb; }
-    void setWatchPointRequestHandler(const std::function<void(quint64, uint)> &cb) { m_watchPointRequestHandler = cb; }
-    void setAboutToBeDestroyedHandler(const std::function<void()> & cb) { m_aboutToBeDestroyedHandler = cb; }
+    void setNewWindowRequestHandler(const std::function<void(quint64)> &cb) override { m_newWindowRequestHandler = cb; }
+    void setNewRangeRequestHandler(const std::function<void(quint64)> &cb) override { m_newRangeRequestHandler = cb; }
+    void setDataChangedHandler(const std::function<void(quint64, const QByteArray &)> &cb) override { m_dataChangedHandler = cb; }
+    void setWatchPointRequestHandler(const std::function<void(quint64, uint)> &cb) override { m_watchPointRequestHandler = cb; }
+    void setAboutToBeDestroyedHandler(const std::function<void()> & cb) override { m_aboutToBeDestroyedHandler = cb; }
 
     void fetchData(quint64 address) { if (m_fetchDataHandler) m_fetchDataHandler(address); }
     void requestNewWindow(quint64 address) { if (m_newWindowRequestHandler) m_newWindowRequestHandler(address); }
