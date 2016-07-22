@@ -47,7 +47,7 @@ public:
 
     /* The widget passed in should have an objectname set
      * which will then be used as key for QSettings. */
-    QDockWidget *addDockForWidget(QWidget *widget);
+    QDockWidget *addDockForWidget(QWidget *widget, bool immutable = false);
     QList<QDockWidget *> dockWidgets() const;
 
     void setTrackingEnabled(bool enabled);

@@ -67,7 +67,7 @@ struct FancyMainWindowPrivate
 class DockWidget : public QDockWidget
 {
 public:
-    DockWidget(QWidget *inner, FancyMainWindow *parent);
+    DockWidget(QWidget *inner, FancyMainWindow *parent, bool immutable = false);
 
     bool eventFilter(QObject *, QEvent *event);
     void enterEvent(QEvent *event);
@@ -81,6 +81,7 @@ private:
     QPoint m_startPos;
     TitleBarWidget *m_titleBar;
     QTimer m_timer;
+    bool m_immutable = false;
 };
 
 // Stolen from QDockWidgetTitleButton
@@ -240,8 +241,8 @@ public:
     DockWidgetTitleButton *m_closeButton;
 };
 
-DockWidget::DockWidget(QWidget *inner, FancyMainWindow *parent)
-    : QDockWidget(parent), q(parent)
+DockWidget::DockWidget(QWidget *inner, FancyMainWindow *parent, bool immutable)
+    : QDockWidget(parent), q(parent), m_immutable(immutable)
 {
     setWidget(inner);
     setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetFloatable);
@@ -254,6 +255,9 @@ DockWidget::DockWidget(QWidget *inner, FancyMainWindow *parent)
     m_titleBar = new TitleBarWidget(this, opt);
     m_titleBar->m_titleLabel->setText(inner->windowTitle());
     setTitleBarWidget(m_titleBar);
+
+    if (immutable)
+        return;
 
     m_timer.setSingleShot(true);
     m_timer.setInterval(500);
@@ -279,7 +283,7 @@ DockWidget::DockWidget(QWidget *inner, FancyMainWindow *parent)
 
 bool DockWidget::eventFilter(QObject *, QEvent *event)
 {
-    if (event->type() == QEvent::MouseMove && q->autoHideTitleBars()) {
+    if (!m_immutable && event->type() == QEvent::MouseMove && q->autoHideTitleBars()) {
         QMouseEvent *me = static_cast<QMouseEvent *>(event);
         int y = me->pos().y();
         int x = me->pos().x();
@@ -294,17 +298,20 @@ bool DockWidget::eventFilter(QObject *, QEvent *event)
 
 void DockWidget::enterEvent(QEvent *event)
 {
-    QApplication::instance()->installEventFilter(this);
+    if (!m_immutable)
+        QApplication::instance()->installEventFilter(this);
     QDockWidget::enterEvent(event);
 }
 
 void DockWidget::leaveEvent(QEvent *event)
 {
-    if (!isFloating()) {
-        m_timer.stop();
-        m_titleBar->setActive(false);
+    if (!m_immutable) {
+        if (!isFloating()) {
+            m_timer.stop();
+            m_titleBar->setActive(false);
+        }
+        QApplication::instance()->removeEventFilter(this);
     }
-    QApplication::instance()->removeEventFilter(this);
     QDockWidget::leaveEvent(event);
 }
 
@@ -366,25 +373,27 @@ FancyMainWindow::~FancyMainWindow()
     delete d;
 }
 
-QDockWidget *FancyMainWindow::addDockForWidget(QWidget *widget)
+QDockWidget *FancyMainWindow::addDockForWidget(QWidget *widget, bool immutable)
 {
     QTC_ASSERT(widget, return 0);
     QTC_CHECK(widget->objectName().size());
     QTC_CHECK(widget->windowTitle().size());
 
-    auto dockWidget = new DockWidget(widget, this);
+    auto dockWidget = new DockWidget(widget, this, immutable);
 
-    connect(dockWidget, &QDockWidget::visibilityChanged,
-        [this, dockWidget](bool visible) {
-            if (d->m_handleDockVisibilityChanges)
-                dockWidget->setProperty(dockWidgetActiveState, visible);
-        });
+    if (!immutable) {
+        connect(dockWidget, &QDockWidget::visibilityChanged,
+            [this, dockWidget](bool visible) {
+                if (d->m_handleDockVisibilityChanges)
+                    dockWidget->setProperty(dockWidgetActiveState, visible);
+            });
 
-    connect(dockWidget->toggleViewAction(), &QAction::triggered,
-            this, &FancyMainWindow::onDockActionTriggered,
-            Qt::QueuedConnection);
+        connect(dockWidget->toggleViewAction(), &QAction::triggered,
+                this, &FancyMainWindow::onDockActionTriggered,
+                Qt::QueuedConnection);
 
-    dockWidget->setProperty(dockWidgetActiveState, true);
+        dockWidget->setProperty(dockWidgetActiveState, true);
+    }
 
     return dockWidget;
 }
