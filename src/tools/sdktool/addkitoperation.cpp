@@ -95,7 +95,8 @@ QString AddKitOperation::argumentsHelpText() const
            "    --devicetype <TYPE>                        device type of the new kit (required).\n"
            "    --device <ID>                              device id to use (optional).\n"
            "    --sysroot <PATH>                           sysroot of the new kit.\n"
-           "    --toolchain <LANGID> <ID>                  tool chain of the new kit (may repeat!).\n"
+           "    --toolchain <ID>                           tool chain of the new kit (obsolete!).\n"
+           "    --<LANG>toolchain <ID>                     tool chain for a language.\n"
            "    --qt <ID>                                  Qt of the new kit.\n"
            "    --mkspec <PATH>                            mkspec of the new kit.\n"
            "    --env <VALUE>                              add a custom environment setting. [may be repeated]\n"
@@ -109,7 +110,6 @@ bool AddKitOperation::setArguments(const QStringList &args)
     for (int i = 0; i < args.count(); ++i) {
         const QString current = args.at(i);
         const QString next = ((i + 1) < args.count()) ? args.at(i + 1) : QString();
-        const QString nextnext = ((i + 2) < args.count()) ? args.at(i + 2) : QString();
 
         if (current == "--id") {
             if (next.isNull())
@@ -188,24 +188,24 @@ bool AddKitOperation::setArguments(const QStringList &args)
             continue;
         }
 
-        if (current == "--toolchain") {
+        if (current.startsWith("--") && current.endsWith("toolchain")) {
             if (next.isNull())
                 return false;
             ++i; // skip next;
+
+            const QString tmp = current.mid(2);
+            const QString tmp2 = tmp.mid(0, tmp.count() - 9 /* toolchain */);
+            const QString lang = tmp2.isEmpty() ? QString("Cxx") : tmp2;
 
             if (next.isEmpty()) {
                 std::cerr << "Empty langid for toolchain given." << std::endl << std::endl;
                 return false;
             }
-            if (nextnext.isEmpty()) {
-                std::cerr << "Empty id for toolchain given." << std::endl << std::endl;
-                return false;
-            }
-            if (m_tcs.contains(next)) {
+            if (m_tcs.contains(lang)) {
                 std::cerr << "No langid for toolchain given twice." << std::endl << std::endl;
                 return false;
             }
-            m_tcs.insert(next, nextnext);
+            m_tcs.insert(lang, next);
             continue;
         }
 
