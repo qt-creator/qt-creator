@@ -25,7 +25,7 @@
 
 #include "qmlprofilerclientmanager_test.h"
 #include <qmlprofiler/localqmlprofilerrunner.h>
-#include <qmldebug/qmldebugcommandlinearguments.h>
+#include <qmldebug/qpacketprotocol.h>
 #include <projectexplorer/applicationlauncher.h>
 
 #include <QTcpServer>
@@ -236,6 +236,24 @@ void QmlProfilerClientManagerTest::testResponsiveTcp_data()
     responsiveTestData();
 }
 
+void fakeDebugServer(QIODevice *socket)
+{
+    QmlDebug::QPacketProtocol *protocol = new QmlDebug::QPacketProtocol(socket, socket);
+    QObject::connect(protocol, &QmlDebug::QPacketProtocol::readyRead, [protocol]() {
+        QmlDebug::QPacket packet(QDataStream::Qt_4_7);
+        const int messageId = 0;
+        const int protocolVersion = 1;
+        const QStringList pluginNames({"CanvasFrameRate", "EngineControl", "DebugMessages"});
+        const QList<float> pluginVersions({1.0f, 1.0f, 1.0f});
+
+        packet << QString::fromLatin1("QDeclarativeDebugClient") << messageId << protocolVersion
+               << pluginNames << pluginVersions << QDataStream::Qt_DefaultCompiledVersion;
+        protocol->send(packet.data());
+        protocol->disconnect();
+        protocol->deleteLater();
+    });
+}
+
 void QmlProfilerClientManagerTest::testResponsiveTcp()
 {
     QFETCH(quint32, flushInterval);
@@ -244,45 +262,48 @@ void QmlProfilerClientManagerTest::testResponsiveTcp()
     QString hostName;
     Utils::Port port = LocalQmlProfilerRunner::findFreePort(hostName);
 
-    ProjectExplorer::StandardRunnable runnable;
-    runnable.environment = Utils::Environment::systemEnvironment();
-    runnable.executable = qApp->applicationFilePath();
-    runnable.commandLineArguments = "-test QmlProfiler,QQmlEngine "
-            + QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices, port);
-    runnable.runMode = ProjectExplorer::ApplicationLauncher::Gui;
-
-    ProjectExplorer::ApplicationLauncher launcher;
-    launcher.start(runnable);
-
     QSignalSpy openedSpy(&clientManager, SIGNAL(connectionOpened()));
     QSignalSpy closedSpy(&clientManager, SIGNAL(connectionClosed()));
 
     QVERIFY(!clientManager.isConnected());
 
-    clientManager.setProfilerStateManager(&stateManager);
-    clientManager.setModelManager(&modelManager);
-    clientManager.setFlushInterval(flushInterval);
-    clientManager.setAggregateTraces(aggregateTraces);
-    QCOMPARE(clientManager.aggregateTraces(), aggregateTraces);
+    {
+        QTcpServer server;
+        QScopedPointer<QTcpSocket> socket;
+        connect(&server, &QTcpServer::newConnection, [&server, &socket]() {
+            QVERIFY(socket.isNull());
+            socket.reset(server.nextPendingConnection());
+            fakeDebugServer(socket.data());
+        });
 
-    connect(&clientManager, &QmlProfilerClientManager::connectionFailed,
-            &clientManager, &QmlProfilerClientManager::retryConnect);
+        server.listen(QHostAddress(hostName), port.number());
 
-    clientManager.setTcpConnection(hostName, port);
-    clientManager.connectToTcpServer();
+        clientManager.setProfilerStateManager(&stateManager);
+        clientManager.setModelManager(&modelManager);
+        clientManager.setFlushInterval(flushInterval);
+        clientManager.setAggregateTraces(aggregateTraces);
+        QCOMPARE(clientManager.aggregateTraces(), aggregateTraces);
 
-    QTRY_COMPARE(openedSpy.count(), 1);
-    QCOMPARE(closedSpy.count(), 0);
-    QVERIFY(clientManager.isConnected());
+        connect(&clientManager, &QmlProfilerClientManager::connectionFailed,
+                &clientManager, &QmlProfilerClientManager::retryConnect);
 
-    // Do some nasty things and make sure it doesn't crash
-    stateManager.setCurrentState(QmlProfilerStateManager::AppRunning);
-    stateManager.setClientRecording(false);
-    stateManager.setClientRecording(true);
-    clientManager.clearBufferedData();
-    stateManager.setCurrentState(QmlProfilerStateManager::AppStopRequested);
+        clientManager.setTcpConnection(hostName, port);
+        clientManager.connectToTcpServer();
 
-    QTRY_VERIFY_WITH_TIMEOUT(!launcher.isRunning(), 10000);
+        QTRY_COMPARE(openedSpy.count(), 1);
+        QCOMPARE(closedSpy.count(), 0);
+        QVERIFY(clientManager.isConnected());
+
+        // Do some nasty things and make sure it doesn't crash
+        stateManager.setCurrentState(QmlProfilerStateManager::AppRunning);
+        stateManager.setClientRecording(false);
+        stateManager.setClientRecording(true);
+        clientManager.clearBufferedData();
+        stateManager.setCurrentState(QmlProfilerStateManager::AppStopRequested);
+
+        QVERIFY(socket);
+    }
+
     QTRY_COMPARE(closedSpy.count(), 1);
     QVERIFY(!clientManager.isConnected());
 
@@ -302,7 +323,7 @@ void QmlProfilerClientManagerTest::testResponsiveLocal()
     QFETCH(quint32, flushInterval);
     QFETCH(bool, aggregateTraces);
 
-    QString socket = LocalQmlProfilerRunner::findFreeSocket();
+    QString socketFile = LocalQmlProfilerRunner::findFreeSocket();
 
     QSignalSpy openedSpy(&clientManager, SIGNAL(connectionOpened()));
     QSignalSpy closedSpy(&clientManager, SIGNAL(connectionClosed()));
@@ -318,31 +339,27 @@ void QmlProfilerClientManagerTest::testResponsiveLocal()
     connect(&clientManager, &QmlProfilerClientManager::connectionFailed,
             &clientManager, &QmlProfilerClientManager::retryConnect);
 
-    clientManager.setLocalSocket(socket);
+    clientManager.setLocalSocket(socketFile);
     clientManager.startLocalServer();
 
-    ProjectExplorer::StandardRunnable runnable;
-    runnable.environment = Utils::Environment::systemEnvironment();
-    runnable.executable = qApp->applicationFilePath();
-    runnable.commandLineArguments = "-test QmlProfiler,QQmlEngine "
-            + QmlDebug::qmlDebugLocalArguments(QmlDebug::QmlProfilerServices, socket);
-    runnable.runMode = ProjectExplorer::ApplicationLauncher::Gui;
+    {
+        QScopedPointer<QLocalSocket> socket(new QLocalSocket(this));
+        socket->connectToServer(socketFile);
+        QVERIFY(socket->isOpen());
+        fakeDebugServer(socket.data());
 
-    ProjectExplorer::ApplicationLauncher launcher;
-    launcher.start(runnable);
+        QTRY_COMPARE(openedSpy.count(), 1);
+        QCOMPARE(closedSpy.count(), 0);
+        QVERIFY(clientManager.isConnected());
 
-    QTRY_COMPARE(openedSpy.count(), 1);
-    QCOMPARE(closedSpy.count(), 0);
-    QVERIFY(clientManager.isConnected());
+        // Do some nasty things and make sure it doesn't crash
+        stateManager.setCurrentState(QmlProfilerStateManager::AppRunning);
+        stateManager.setClientRecording(false);
+        stateManager.setClientRecording(true);
+        clientManager.clearBufferedData();
+        stateManager.setCurrentState(QmlProfilerStateManager::AppStopRequested);
+    }
 
-    // Do some nasty things and make sure it doesn't crash
-    stateManager.setCurrentState(QmlProfilerStateManager::AppRunning);
-    stateManager.setClientRecording(false);
-    stateManager.setClientRecording(true);
-    clientManager.clearBufferedData();
-    stateManager.setCurrentState(QmlProfilerStateManager::AppStopRequested);
-
-    QTRY_VERIFY_WITH_TIMEOUT(!launcher.isRunning(), 10000);
     QTRY_COMPARE(closedSpy.count(), 1);
     QVERIFY(!clientManager.isConnected());
 
