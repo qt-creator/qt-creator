@@ -54,7 +54,6 @@
 #include <cplusplus/CppDocument.h>
 
 #include <utils/qtcassert.h>
-#include <utils/tooltip/tooltip.h>
 #include <utils/runextensions.h>
 
 #include <QTextBlock>
@@ -244,16 +243,12 @@ bool ClangEditorDocumentProcessor::hasDiagnosticsAt(uint line, uint column) cons
     return m_diagnosticManager.hasDiagnosticsAt(line, column);
 }
 
-void ClangEditorDocumentProcessor::showDiagnosticTooltip(const QPoint &point,
-                                                         QWidget *parent,
-                                                         uint line,
-                                                         uint column) const
+void ClangEditorDocumentProcessor::addDiagnosticToolTipToLayout(uint line,
+                                                                uint column,
+                                                                QLayout *target) const
 {
-    const QVector<ClangBackEnd::DiagnosticContainer> diagnostics
-            = m_diagnosticManager.diagnosticsAt(line, column);
-    auto *tooltipWidget = new ClangDiagnosticToolTipWidget(diagnostics, parent);
-
-    ::Utils::ToolTip::show(point, tooltipWidget, parent);
+    foreach (const auto &diagnostic, m_diagnosticManager.diagnosticsAt(line, column))
+        addToolTipToLayout(diagnostic, target);
 }
 
 ClangBackEnd::FileContainer ClangEditorDocumentProcessor::fileContainerWithArguments() const

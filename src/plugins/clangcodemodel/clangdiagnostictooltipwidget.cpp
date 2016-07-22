@@ -186,7 +186,7 @@ public:
 void addChildrenToLayout(const QString &mainFilePath,
                          const QVector<ClangBackEnd::DiagnosticContainer>::const_iterator first,
                          const QVector<ClangBackEnd::DiagnosticContainer>::const_iterator last,
-                         QBoxLayout &boxLayout)
+                         QLayout &boxLayout)
 {
     for (auto it = first; it != last; ++it)
         boxLayout.addWidget(createDiagnosticLabel(*it, mainFilePath, IndentDiagnostic));
@@ -194,7 +194,7 @@ void addChildrenToLayout(const QString &mainFilePath,
 
 void setupChildDiagnostics(const QString &mainFilePath,
                            const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
-                           QBoxLayout &boxLayout)
+                           QLayout &boxLayout)
 {
     if (diagnostics.size() <= 10) {
         addChildrenToLayout(mainFilePath, diagnostics.begin(), diagnostics.end(), boxLayout);
@@ -214,22 +214,13 @@ void setupChildDiagnostics(const QString &mainFilePath,
 namespace ClangCodeModel {
 namespace Internal {
 
-ClangDiagnosticToolTipWidget::ClangDiagnosticToolTipWidget(
-        const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
-        QWidget *parent)
-    : Utils::FakeToolTip(parent)
+void addToolTipToLayout(const ClangBackEnd::DiagnosticContainer &diagnostic, QLayout *target)
 {
-    auto *mainLayout = createLayout<QVBoxLayout>();
+    // Set up header and text row for main diagnostic
+    target->addWidget(new MainDiagnosticWidget(diagnostic));
 
-    foreach (const auto &diagnostic, diagnostics) {
-        // Set up header and text row for main diagnostic
-        mainLayout->addWidget(new MainDiagnosticWidget(diagnostic));
-
-        // Set up child rows for notes
-        setupChildDiagnostics(diagnostic.location().filePath(), diagnostic.children(), *mainLayout);
-    }
-
-    setLayout(mainLayout);
+    // Set up child rows for notes
+    setupChildDiagnostics(diagnostic.location().filePath(), diagnostic.children(), *target);
 }
 
 } // namespace Internal

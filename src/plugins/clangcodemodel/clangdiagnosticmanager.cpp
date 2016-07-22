@@ -345,10 +345,7 @@ void ClangDiagnosticManager::addClangTextMarks(
         const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics)
 {
     for (const ClangBackEnd::DiagnosticContainer &diagnostic : diagnostics) {
-        auto textMark = new ClangTextMark(filePath(),
-                                          diagnostic.location().line(),
-                                          diagnostic.severity());
-        textMark->setToolTip(diagnostic.text());
+        auto textMark = new ClangTextMark(filePath(), diagnostic);
         m_clangTextMarks.push_back(textMark);
         m_textDocument->addMark(textMark);
     }

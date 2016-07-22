@@ -36,9 +36,11 @@
 #include <texteditor/texteditor.h>
 
 #include <utils/qtcassert.h>
+#include <utils/tooltip/tooltip.h>
 
 #include <QTextCursor>
 #include <QUrl>
+#include <QVBoxLayout>
 
 using namespace Core;
 using namespace TextEditor;
@@ -74,8 +76,13 @@ void processWithEditorDocumentProcessor(TextEditorWidget *editorWidget,
 {
     if (CppTools::BaseEditorDocumentProcessor *processor = editorDocumentProcessor(editorWidget)) {
         int line, column;
-        if (Convenience::convertPosition(editorWidget->document(), position, &line, &column))
-            processor->showDiagnosticTooltip(point, editorWidget, line, column);
+        if (Convenience::convertPosition(editorWidget->document(), position, &line, &column)) {
+            auto layout = new QVBoxLayout;
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->setSpacing(2);
+            processor->addDiagnosticToolTipToLayout(line, column, layout);
+            Utils::ToolTip::show(point, layout, editorWidget);
+        }
     }
 }
 

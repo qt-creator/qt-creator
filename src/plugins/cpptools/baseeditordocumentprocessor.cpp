@@ -63,7 +63,7 @@ bool BaseEditorDocumentProcessor::hasDiagnosticsAt(uint, uint) const
     return false;
 }
 
-void BaseEditorDocumentProcessor::showDiagnosticTooltip(const QPoint &, QWidget *, uint, uint) const
+void BaseEditorDocumentProcessor::addDiagnosticToolTipToLayout(uint, uint, QLayout *) const
 {
 }
 

@@ -26,10 +26,12 @@
 #include "clangtextmark.h"
 
 #include "clangconstants.h"
+#include "clangdiagnostictooltipwidget.h"
 
 #include <utils/icon.h>
 #include <utils/theme/theme.h>
 
+#include <QLayout>
 #include <QString>
 
 namespace ClangCodeModel {
@@ -57,11 +59,13 @@ Core::Id cartegoryForSeverity(ClangBackEnd::DiagnosticSeverity severity)
 
 } // anonymous namespace
 
-ClangTextMark::ClangTextMark(const QString &fileName, int lineNumber, ClangBackEnd::DiagnosticSeverity severity)
-    : TextEditor::TextMark(fileName, lineNumber, cartegoryForSeverity(severity))
+
+ClangTextMark::ClangTextMark(const QString &fileName, const ClangBackEnd::DiagnosticContainer &diagnostic)
+    : TextEditor::TextMark(fileName, int(diagnostic.location().line()), cartegoryForSeverity(diagnostic.severity())),
+      m_diagnostic(diagnostic)
 {
     setPriority(TextEditor::TextMark::HighPriority);
-    setIcon(severity);
+    setIcon(diagnostic.severity());
 }
 
 void ClangTextMark::setIcon(ClangBackEnd::DiagnosticSeverity severity)
@@ -77,6 +81,11 @@ void ClangTextMark::setIcon(ClangBackEnd::DiagnosticSeverity severity)
         TextMark::setIcon(warningIcon);
     else
         TextMark::setIcon(errorIcon);
+}
+
+void ClangTextMark::addToToolTipLayout(QLayout *target)
+{
+     Internal::addToolTipToLayout(m_diagnostic, target);
 }
 
 } // namespace ClangCodeModel

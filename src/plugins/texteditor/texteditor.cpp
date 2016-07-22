@@ -111,6 +111,7 @@
 #include <QTimeLine>
 #include <QTimer>
 #include <QToolBar>
+#include <QVBoxLayout>
 
 //#define DO_FOO
 
@@ -5048,6 +5049,7 @@ void TextEditorWidget::showDefaultContextMenu(QContextMenuEvent *e, Id menuConte
 void TextEditorWidget::extraAreaLeaveEvent(QEvent *)
 {
     d->extraAreaPreviousMarkTooltipRequestedLine = -1;
+    ToolTip::hide();
 
     // fake missing mouse move event from Qt
     QMouseEvent me(QEvent::MouseMove, QPoint(-1, -1), Qt::NoButton, 0, 0);
@@ -5108,13 +5110,16 @@ void TextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
             int line = cursor.blockNumber() + 1;
             if (d->extraAreaPreviousMarkTooltipRequestedLine != line) {
                 if (auto data = static_cast<TextBlockUserData *>(cursor.block().userData())) {
-                    QStringList toolTips;
-                    foreach (TextMark *mark, data->marks()) {
-                        QString toolTip = mark->toolTip();
-                        if (!toolTip.isEmpty())
-                            toolTips.append(toolTip);
+                    if (data->marks().isEmpty()) {
+                        ToolTip::hide();
+                    } else {
+                        auto layout = new QVBoxLayout;
+                        layout->setContentsMargins(0, 0, 0, 0);
+                        layout->setSpacing(2);
+                        foreach (TextMark *mark, data->marks())
+                            mark->addToToolTipLayout(layout);
+                        ToolTip::show(mapToGlobal(e->pos()), layout, this);
                     }
-                    ToolTip::show(mapToGlobal(e->pos()), toolTips.join('\n'), this);
                 }
             }
             d->extraAreaPreviousMarkTooltipRequestedLine = line;

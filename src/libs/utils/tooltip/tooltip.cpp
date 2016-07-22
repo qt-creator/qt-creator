@@ -28,6 +28,7 @@
 #include "effects.h"
 #include "reuse.h"
 
+#include <utils/faketooltip.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
@@ -83,6 +84,17 @@ void ToolTip::show(const QPoint &pos, QWidget *content, QWidget *w, const QStrin
         instance()->hideTipWithDelay();
     else
         instance()->showInternal(pos, QVariant::fromValue(content), WidgetContent, w, helpId, rect);
+}
+
+void ToolTip::show(const QPoint &pos, QLayout *content, QWidget *w, const QString &helpId, const QRect &rect)
+{
+    if (content && content->count()) {
+        auto tooltipWidget = new FakeToolTip;
+        tooltipWidget->setLayout(content);
+        instance()->showInternal(pos, QVariant::fromValue(tooltipWidget), WidgetContent, w, helpId, rect);
+    } else {
+        instance()->hideTipWithDelay();
+    }
 }
 
 void ToolTip::move(const QPoint &pos, QWidget *w)
