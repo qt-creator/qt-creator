@@ -35,6 +35,7 @@
 #include <QDebug>
 #include <QFile>
 #include <QFont>
+#include <QFontDatabase>
 #include <QSettings>
 #include <QTextCharFormat>
 
@@ -410,6 +411,12 @@ static QString defaultFontFamily()
 {
     if (Utils::HostOsInfo::isMacHost())
         return QLatin1String("Monaco");
+
+    const QString sourceCodePro("Source Code Pro");
+    const QFontDatabase dataBase;
+    if (dataBase.hasFamily(sourceCodePro))
+        return sourceCodePro;
+
     if (Utils::HostOsInfo::isAnyUnixHost())
         return QLatin1String("Monospace");
     return QLatin1String("Courier");
