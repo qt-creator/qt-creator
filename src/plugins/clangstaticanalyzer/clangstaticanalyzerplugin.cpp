@@ -54,6 +54,7 @@
 #include <QtPlugin>
 
 using namespace Debugger;
+using namespace ProjectExplorer;
 
 namespace ClangStaticAnalyzer {
 namespace Internal {
@@ -116,11 +117,11 @@ bool ClangStaticAnalyzerPlugin::initialize(const QStringList &arguments, QString
     Q_UNUSED(arguments);
     Q_UNUSED(errorString);
 
-    auto panelFactory = new ProjectExplorer::ProjectPanelFactory();
+    auto panelFactory = new ProjectPanelFactory();
     panelFactory->setPriority(100);
     panelFactory->setDisplayName(tr("Clang Static Analyzer"));
-    panelFactory->setSimpleCreateWidgetFunction<ProjectSettingsWidget>(QIcon());
-    ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
+    panelFactory->setCreateWidgetFunction([](Project *project) { return new ProjectSettingsWidget(project); });
+    ProjectPanelFactory::registerFactory(panelFactory);
 
     m_analyzerTool = new ClangStaticAnalyzerTool(this);
     addAutoReleasedObject(new ClangStaticAnalyzerRunControlFactory(m_analyzerTool));

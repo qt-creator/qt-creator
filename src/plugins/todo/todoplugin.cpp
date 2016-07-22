@@ -35,7 +35,9 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
+
 #include <projectexplorer/projectpanelfactory.h>
+#include <projectexplorer/propertiespanel.h>
 
 #include <QtPlugin>
 #include <QFileInfo>
@@ -68,20 +70,14 @@ bool TodoPlugin::initialize(const QStringList& args, QString *errMsg)
     createItemsProvider();
     createTodoOutputPane();
 
-    auto panelFactory = new ProjectExplorer::ProjectPanelFactory();
+    auto panelFactory = new ProjectExplorer::ProjectPanelFactory;
     panelFactory->setPriority(100);
     panelFactory->setDisplayName(TodoProjectSettingsWidget::tr("To-Do"));
-    panelFactory->setCreateWidgetFunction([this, panelFactory](ProjectExplorer::Project *project) -> QWidget * {
-        auto *panel = new ProjectExplorer::PropertiesPanel;
-        panel->setDisplayName(panelFactory->displayName());
-        auto *widget = new TodoProjectSettingsWidget(project);
+    panelFactory->setCreateWidgetFunction([this, panelFactory](ProjectExplorer::Project *project) {
+        auto widget = new TodoProjectSettingsWidget(project);
         connect(widget, &TodoProjectSettingsWidget::projectSettingsChanged,
-                m_todoItemsProvider, [this, project](){m_todoItemsProvider->projectSettingsChanged(project);});
-        panel->setWidget(widget);
-        auto *panelsWidget = new ProjectExplorer::PanelsWidget();
-        panelsWidget->addPropertiesPanel(panel);
-        panelsWidget->setFocusProxy(widget);
-        return panelsWidget;
+                m_todoItemsProvider, [this, project] { m_todoItemsProvider->projectSettingsChanged(project); });
+        return widget;
     });
     ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
 

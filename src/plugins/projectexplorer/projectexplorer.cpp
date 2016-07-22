@@ -42,7 +42,6 @@
 #include "projectexplorersettings.h"
 #include "projectexplorersettingspage.h"
 #include "removetaskhandler.h"
-#include "unconfiguredprojectpanel.h"
 #include "kitfeatureprovider.h"
 #include "kitmanager.h"
 #include "kitoptionspage.h"
@@ -529,7 +528,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     dd->m_projectsMode = new ProjectsMode(dd->m_proWindow);
     dd->m_projectsMode->setEnabled(false);
     addAutoReleasedObject(dd->m_projectsMode);
-    dd->m_proWindow->layout()->addWidget(new FindToolBarPlaceHolder(dd->m_proWindow));
 
     addAutoReleasedObject(new CopyTaskHandler);
     addAutoReleasedObject(new ShowInEditorTaskHandler);
@@ -556,51 +554,35 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     addAutoReleasedObject(new CurrentProjectFilter);
 
     // ProjectPanelFactories
-    auto editorSettingsPanelFactory = new ProjectPanelFactory;
-    editorSettingsPanelFactory->setPriority(30);
-    QString displayName = QCoreApplication::translate("EditorSettingsPanelFactory", "Editor");
-    editorSettingsPanelFactory->setDisplayName(displayName);
-    QIcon icon = QIcon(QLatin1String(":/projectexplorer/images/EditorSettings.png"));
-    editorSettingsPanelFactory->setSimpleCreateWidgetFunction<EditorSettingsWidget>(icon);
-    ProjectPanelFactory::registerFactory(editorSettingsPanelFactory);
+    auto panelFactory = new ProjectPanelFactory;
+    panelFactory->setPriority(30);
+    panelFactory->setDisplayName(QCoreApplication::translate("EditorSettingsPanelFactory", "Editor"));
+    panelFactory->setIcon(":/projectexplorer/images/EditorSettings.png");
+    panelFactory->setCreateWidgetFunction([](Project *project) { return new EditorSettingsWidget(project); });
+    ProjectPanelFactory::registerFactory(panelFactory);
 
-    auto codeStyleSettingsPanelFactory = new ProjectPanelFactory;
-    codeStyleSettingsPanelFactory->setPriority(40);
-    displayName = QCoreApplication::translate("CodeStyleSettingsPanelFactory", "Code Style");
-    codeStyleSettingsPanelFactory->setDisplayName(displayName);
-    icon = QIcon(QLatin1String(":/projectexplorer/images/CodeStyleSettings.png"));
-    codeStyleSettingsPanelFactory->setSimpleCreateWidgetFunction<CodeStyleSettingsWidget>(icon);
-    ProjectPanelFactory::registerFactory(codeStyleSettingsPanelFactory);
+    panelFactory = new ProjectPanelFactory;
+    panelFactory->setPriority(40);
+    panelFactory->setDisplayName(QCoreApplication::translate("CodeStyleSettingsPanelFactory", "Code Style"));
+    panelFactory->setIcon(":/projectexplorer/images/CodeStyleSettings.png");
+    panelFactory->setCreateWidgetFunction([](Project *project) { return new CodeStyleSettingsWidget(project); });
+    ProjectPanelFactory::registerFactory(panelFactory);
 
-    auto dependenciesPanelFactory = new ProjectPanelFactory;
-    dependenciesPanelFactory->setPriority(50);
-    displayName = QCoreApplication::translate("DependenciesPanelFactory", "Dependencies");
-    dependenciesPanelFactory->setDisplayName(displayName);
-    icon = QIcon(QLatin1String(":/projectexplorer/images/ProjectDependencies.png"));
-    dependenciesPanelFactory->setSimpleCreateWidgetFunction<DependenciesWidget>(icon);
-    ProjectPanelFactory::registerFactory(dependenciesPanelFactory);
+    panelFactory = new ProjectPanelFactory;
+    panelFactory->setPriority(50);
+    panelFactory->setDisplayName(QCoreApplication::translate("DependenciesPanelFactory", "Dependencies"));
+    panelFactory->setIcon(":/projectexplorer/images/ProjectDependencies.png");
+    panelFactory->setCreateWidgetFunction([](Project *project) { return new DependenciesWidget(project); });
+    ProjectPanelFactory::registerFactory(panelFactory);
 
-    auto unconfiguredProjectPanel = new ProjectPanelFactory;
-    unconfiguredProjectPanel->setPriority(-10);
-    unconfiguredProjectPanel->setDisplayName(tr("Configure Project"));
-    unconfiguredProjectPanel->setSupportsFunction([](Project *project){
-        return project->needsConfiguration();
+    panelFactory = new ProjectPanelFactory;
+    panelFactory->setPriority(-10);
+    panelFactory->setDisplayName(QCoreApplication::translate("TargetSettingsPanelFactory", "Build & Run"));
+    panelFactory->setSupportsFunction([](Project *project) { return project->requiresTargetPanel() || project->needsConfiguration(); });
+    panelFactory->setSelectorItemCreator([panelFactory](Project *project) {
+        return new TargetSettingsPanelItem(panelFactory, project);
     });
-    icon = QIcon(QLatin1String(":/projectexplorer/images/unconfigured.png"));
-    unconfiguredProjectPanel->setSimpleCreateWidgetFunction<TargetSetupPageWrapper>(icon);
-    ProjectPanelFactory::registerFactory(unconfiguredProjectPanel);
-
-    auto targetSettingsPanelFactory = new ProjectPanelFactory;
-    targetSettingsPanelFactory->setPriority(-10);
-    displayName = QCoreApplication::translate("TargetSettingsPanelFactory", "Build & Run");
-    targetSettingsPanelFactory->setDisplayName(displayName);
-    targetSettingsPanelFactory->setSupportsFunction([](Project *project) {
-        return project->requiresTargetPanel();
-    });
-    targetSettingsPanelFactory->setCreateWidgetFunction([](Project *project) {
-        return new TargetSettingsPanelWidget(project);
-    });
-    ProjectPanelFactory::registerFactory(targetSettingsPanelFactory);
+    ProjectPanelFactory::registerFactory(panelFactory);
 
     addAutoReleasedObject(new ProcessStepFactory);
 
@@ -1524,7 +1506,6 @@ ExtensionSystem::IPlugin::ShutdownFlag ProjectExplorerPlugin::aboutToShutdown()
     disconnect(ModeManager::instance(), &ModeManager::currentModeChanged,
                dd, &ProjectExplorerPluginPrivate::currentModeChanged);
     ProjectTree::aboutToShutDown();
-    dd->m_proWindow->aboutToShutdown(); // disconnect from session
     SessionManager::closeAllProjects();
     dd->m_projectsMode = nullptr;
     dd->m_shuttingDown = true;
@@ -2331,11 +2312,6 @@ void ProjectExplorerPlugin::buildProject(Project *p)
 {
     dd->queue(SessionManager::projectOrder(p),
           QList<Id>() << Id(Constants::BUILDSTEPS_BUILD));
-}
-
-void ProjectExplorerPlugin::requestProjectModeUpdate(Project *p)
-{
-    dd->m_proWindow->projectUpdated(p);
 }
 
 void ProjectExplorerPluginPrivate::handleBuildProject()

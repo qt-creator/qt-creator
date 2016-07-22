@@ -25,77 +25,38 @@
 
 #pragma once
 
-#include <QWidget>
+#include "projectpanelfactory.h"
 
-QT_BEGIN_NAMESPACE
-class QAction;
-class QMenu;
-class QStackedWidget;
-QT_END_NAMESPACE
+#include <coreplugin/id.h>
 
-namespace Utils { class FileName; }
+#include <QCoreApplication>
 
 namespace ProjectExplorer {
 
-class Target;
 class Project;
-class ProjectImporter;
-class Kit;
-class PanelsWidget;
+class ProjectPanelFactory;
 
 namespace Internal {
 
-class TargetSettingsWidget;
+class TargetItem;
+class TargetSettingsPanelItemPrivate;
 
-class TargetSettingsPanelWidget : public QWidget
+// Second level: Special case for the Build & Run item (with per-kit subItems)
+class TargetSettingsPanelItem : public Utils::TypedTreeItem<TargetItem>
 {
-    Q_OBJECT
+    Q_DECLARE_TR_FUNCTIONS(TargetSettingsPanelItem)
+
 public:
-    TargetSettingsPanelWidget(Project *project);
-    ~TargetSettingsPanelWidget() override;
+    TargetSettingsPanelItem(ProjectPanelFactory *factory, Project *project);
+    ~TargetSettingsPanelItem() override;
 
-    void setupUi();
+    QVariant data(int column, int role) const override;
+    bool setData(int column, const QVariant &data, int role) override;
 
-    int currentSubIndex() const;
-    void setCurrentSubIndex(int subIndex);
-
-protected:
-    bool event(QEvent *event) override;
+    Core::Id currentKitId() const;
 
 private:
-    void currentTargetChanged(int targetIndex, int subIndex);
-    void showTargetToolTip(const QPoint &globalPos, int targetIndex);
-    void targetAdded(ProjectExplorer::Target *target);
-    void removedTarget(ProjectExplorer::Target *target);
-    void activeTargetChanged(ProjectExplorer::Target *target);
-    void updateTargetButtons();
-    void renameTarget();
-    void openTargetPreferences();
-
-    void removeCurrentTarget();
-    void menuShown(int targetIndex);
-    void addActionTriggered(QAction *action);
-    void changeActionTriggered(QAction *action);
-    void duplicateActionTriggered(QAction *action);
-    void importTarget(const Utils::FileName &path);
-    void createAction(Kit *k, QMenu *menu);
-
-    Target *m_currentTarget = nullptr;
-    Project *m_project;
-    ProjectImporter *m_importer;
-    TargetSettingsWidget *m_selector = nullptr;
-    QStackedWidget *m_centralWidget = nullptr;
-    QWidget *m_noTargetLabel;
-    PanelsWidget *m_panelWidgets[2];
-    QList<Target *> m_targets;
-    QMenu *m_targetMenu;
-    QMenu *m_changeMenu = nullptr;
-    QMenu *m_duplicateMenu = nullptr;
-    QMenu *m_addMenu;
-    QAction *m_lastAction = nullptr;
-    QAction *m_importAction = nullptr;
-    int m_menuTargetIndex = -1;
-    static int s_targetSubIndex;
+    TargetSettingsPanelItemPrivate *d;
 };
 
 } // namespace Internal

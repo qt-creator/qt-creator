@@ -36,7 +36,7 @@ QT_END_NAMESPACE
 namespace ProjectExplorer {
 class PropertiesPanel;
 
-class PROJECTEXPLORER_EXPORT PanelsWidget : public QScrollArea
+class PROJECTEXPLORER_EXPORT PanelsWidget : public QWidget
 {
     Q_OBJECT
 public:
@@ -51,6 +51,7 @@ private:
 
     QList<PropertiesPanel *> m_panels;
     QGridLayout *m_layout;
+    QScrollArea *m_scroller;
     QWidget *m_root;
 };
 

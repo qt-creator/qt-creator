@@ -101,7 +101,7 @@ public:
     virtual bool supportsKit(Kit *k, QString *errorMessage = nullptr) const;
 
     Target *createTarget(Kit *k);
-    Target *cloneTarget(Target *sourceTarget, Kit *k);
+    static bool copySteps(Target *sourceTarget, Target *newTarget);
     Target *restoreTarget(const QVariantMap &data);
 
     void saveSettings();

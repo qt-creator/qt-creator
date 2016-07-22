@@ -143,9 +143,6 @@ public:
     static void addExistingFiles(FolderNode *folderNode, const QStringList &filePaths);
 
     static void buildProject(Project *p);
-    /// Normally there's no need to call this function.
-    /// This function needs to be called, only if the pages that support a project changed.
-    static void requestProjectModeUpdate(Project *p);
 
     static void initiateInlineRenaming();
 

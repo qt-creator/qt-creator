@@ -34,6 +34,7 @@
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 #include <utils/qtcassert.h>
+#include <utils/styledbar.h>
 
 namespace {
 const int ICON_SIZE(64);
@@ -106,14 +107,13 @@ void RootWidget::paintEvent(QPaintEvent *e)
 ///
 
 PanelsWidget::PanelsWidget(QWidget *parent) :
-    QScrollArea(parent),
+    QWidget(parent),
     m_root(new RootWidget(this))
 {
     // We want a 900px wide widget with and the scrollbar at the
     // side of the screen.
     m_root->setMaximumWidth(900);
     m_root->setContentsMargins(0, 0, 40, 0);
-
     QPalette pal;
     QColor background = StyleHelper::mergedColors(
                 palette().window().color(), Qt::white, 85);
@@ -121,6 +121,13 @@ PanelsWidget::PanelsWidget(QWidget *parent) :
     setPalette(pal);
     pal.setColor(QPalette::All, QPalette::Window, background);
     m_root->setPalette(pal);
+
+
+    m_scroller = new QScrollArea(this);
+    m_scroller->setWidget(m_root);
+    m_scroller->setFrameStyle(QFrame::NoFrame);
+    m_scroller->setWidgetResizable(true);
+    m_scroller->setFocusPolicy(Qt::NoFocus);
 
     // The layout holding the individual panels:
     auto topLayout = new QVBoxLayout(m_root);
@@ -130,13 +137,17 @@ PanelsWidget::PanelsWidget(QWidget *parent) :
     m_layout = new QGridLayout;
     m_layout->setColumnMinimumWidth(0, ICON_SIZE + 4);
     m_layout->setSpacing(0);
+
     topLayout->addLayout(m_layout);
     topLayout->addStretch(100);
 
-    setWidget(m_root);
-    setFrameStyle(QFrame::NoFrame);
-    setWidgetResizable(true);
-    setFocusPolicy(Qt::NoFocus);
+    auto layout = new QVBoxLayout(this);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(0);
+    layout->addWidget(new Utils::StyledBar(this));
+    layout->addWidget(m_scroller);
+
+    //layout->addWidget(new FindToolBarPlaceHolder(this));
 }
 
 PanelsWidget::~PanelsWidget()

@@ -27,78 +27,59 @@
 
 #include "projectexplorer_export.h"
 
-#include <QMap>
+#include <QPointer>
 #include <QWidget>
 
+#include <utils/fancymainwindow.h>
+
 QT_BEGIN_NAMESPACE
-class QStackedWidget;
+class QComboBox;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
+
 class Project;
 class Target;
 
 namespace Internal {
 
-class DoubleTabWidget;
+class SelectorModel;
+class SelectorTree;
+class ProjectItem;
 
-class WidgetCache
-{
-public:
-    void registerProject(Project *project);
-    QVector<QWidget *> deregisterProject(Project *project);
+enum {
+    ContextMenuItemAdderRole // To augment a context menu, data has a QMenu*
+        = Qt::UserRole + 1,
+    ItemActivaterRole,       // This item got activated and is now responsible for the central widget
+    ActiveWidgetRole,        // This item's widget to be shown as central widget.
+    ActiveIndexRole,          // This is the index of the currently selected item in the tree view
 
-    bool isRegistered(Project *project) const;
-    int indexForProject(Project *project) const;
-    Project *projectFor(int projectIndex) const;
-    QStringList tabNames(Project *project) const;
-
-    QWidget *widgetFor(Project *project, int factoryIndex);
-
-    void sort();
-    int recheckFactories(Project *project, int oldSupportsIndex);
-
-    void clear();
-
-private:
-    int factoryIndex(int projectIndex, int supportsIndex) const;
-
-    class ProjectInfo
-    {
-    public:
-        Project *project;
-        QVector<bool> supports;
-        QVector<QWidget *> widgets;
-    };
-    QList<ProjectInfo> m_projects; //ordered by displaynames of the projects
+    ProjectDisplayNameRole   // Shown in the project selection combobox
 };
 
-class ProjectWindow : public QWidget
+class ProjectWindow : public Utils::FancyMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit ProjectWindow(QWidget *parent = nullptr);
-
-    void aboutToShutdown();
-
-    void projectUpdated(Project *project);
+    ProjectWindow();
 
 private:
-    void projectDisplayNameChanged(Project *p);
-    void showProperties(int index, int subIndex);
-    void registerProject(Project*);
-    bool deregisterProject(Project*);
-    void startupProjectChanged(Project *);
-    void removedTarget(Target*);
+    void contextMenuEvent(QContextMenuEvent *event) override;
 
-    void removeCurrentWidget();
+    void updatePanel();
+    void openContextMenu(const QPoint &pos);
+    void registerProject(Project *project);
+    void deregisterProject(Project *project);
+    void startupProjectChanged(Project *project);
+    void projectSelected(int index);
+    void itemActivated(const QModelIndex &index);
+    ProjectItem *itemForProject(Project *project) const;
 
-    bool m_ignoreChange;
-    DoubleTabWidget *m_tabWidget;
-    QStackedWidget *m_centralWidget;
-    QWidget *m_currentWidget;
-    WidgetCache m_cache;
+    SelectorModel *m_selectorModel;
+    SelectorTree *m_selectorTree;
+    QDockWidget *m_selectorDock;
+    QComboBox *m_projectSelection;
 };
 
 } // namespace Internal

@@ -23,7 +23,6 @@ HEADERS += projectexplorer.h \
     removetaskhandler.h \
     targetsetuppage.h \
     targetsetupwidget.h \
-    unconfiguredprojectpanel.h \
     kit.h \
     kitchooser.h \
     kitconfigwidget.h \
@@ -92,9 +91,6 @@ HEADERS += projectexplorer.h \
     projectexplorersettingspage.h \
     baseprojectwizarddialog.h \
     miniprojecttargetselector.h \
-    targetselector.h \
-    targetsettingswidget.h \
-    doubletabwidget.h \
     buildenvironmentwidget.h \
     ldparser.h \
     linuxiccparser.h \
@@ -177,7 +173,6 @@ SOURCES += projectexplorer.cpp \
     removetaskhandler.cpp \
     targetsetuppage.cpp \
     targetsetupwidget.cpp \
-    unconfiguredprojectpanel.cpp \
     kit.cpp \
     kitchooser.cpp \
     kitconfigwidget.cpp \
@@ -242,9 +237,6 @@ SOURCES += projectexplorer.cpp \
     projectexplorersettingspage.cpp \
     baseprojectwizarddialog.cpp \
     miniprojecttargetselector.cpp \
-    targetselector.cpp \
-    targetsettingswidget.cpp \
-    doubletabwidget.cpp \
     buildenvironmentwidget.cpp \
     ldparser.cpp \
     linuxiccparser.cpp \
@@ -305,7 +297,6 @@ FORMS += processstep.ui \
     sessiondialog.ui \
     projectwizardpage.ui \
     projectexplorersettingspage.ui \
-    doubletabwidget.ui \
     deploymentdataview.ui \
     codestylesettingspropertiespage.ui \
     devicesupport/devicefactoryselectiondialog.ui \

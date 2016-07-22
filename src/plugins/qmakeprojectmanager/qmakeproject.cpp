@@ -1325,7 +1325,6 @@ void QmakeProject::configureAsExampleProject(const QSet<Core::Id> &platforms)
     }
     setup(infoList);
     qDeleteAll(infoList);
-    ProjectExplorerPlugin::requestProjectModeUpdate(this);
 }
 
 bool QmakeProject::requiresTargetPanel() const

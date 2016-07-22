@@ -274,10 +274,9 @@ Target *Project::createTarget(Kit *k)
     return t;
 }
 
-Target *Project::cloneTarget(Target *sourceTarget, Kit *k)
+bool Project::copySteps(Target *sourceTarget, Target *newTarget)
 {
-    auto newTarget = new Target(this, k);
-
+    bool fatalError = false;
     QStringList buildconfigurationError;
     QStringList deployconfigurationError;
     QStringList runconfigurationError;
@@ -348,7 +347,6 @@ Target *Project::cloneTarget(Target *sourceTarget, Kit *k)
             newTarget->setActiveRunConfiguration(rcs.first());
     }
 
-    bool fatalError = false;
     if (buildconfigurationError.count() == sourceTarget->buildConfigurations().count())
         fatalError = true;
 
@@ -364,10 +362,7 @@ Target *Project::cloneTarget(Target *sourceTarget, Kit *k)
                               tr("Incompatible Kit"),
                               tr("Kit %1 is incompatible with kit %2.")
                               .arg(sourceTarget->kit()->displayName())
-                              .arg(k->displayName()));
-
-        delete newTarget;
-        newTarget = nullptr;
+                              .arg(newTarget->kit()->displayName()));
     } else if (!buildconfigurationError.isEmpty()
                || !deployconfigurationError.isEmpty()
                || ! runconfigurationError.isEmpty()) {
@@ -397,13 +392,10 @@ Target *Project::cloneTarget(Target *sourceTarget, Kit *k)
         msgBox.setText(tr("Some configurations could not be copied."));
         msgBox.setDetailedText(error);
         msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
-        if (msgBox.exec() != QDialog::Accepted) {
-            delete newTarget;
-            newTarget = nullptr;
-        }
+        fatalError = msgBox.exec() != QDialog::Accepted;
     }
 
-    return newTarget;
+    return !fatalError;
 }
 
 bool Project::setupTarget(Target *t)
