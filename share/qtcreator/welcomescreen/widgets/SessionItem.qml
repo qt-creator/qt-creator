@@ -31,6 +31,11 @@ Item {
     height: columns.height
     width: columns.width
     property alias name: titleText.text
+    property alias tooltip: titleAreaTooltip.text
+
+    function requestSession() {
+        projectWelcomePage.requestSession(sessionName);
+    }
 
     Column {
         id: columns
@@ -65,15 +70,20 @@ Item {
                 font.underline: titleArea.containsMouse
             }
 
+            ToolTip {
+                id: titleAreaTooltip
+            }
+
             MouseArea {
                 id: titleArea
                 hoverEnabled: true
                 anchors.fill: parent
-                onClicked: {
-                    projectWelcomePage.requestSession(sessionName);
-                }
+                onClicked: delegate.requestSession()
+                onEntered: titleAreaTooltip.showAt(mouseX, mouseY)
+                onExited: titleAreaTooltip.hide()
             }
         }
+
         Rectangle {
             z: -1
             property int margin: 6

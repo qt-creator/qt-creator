@@ -59,10 +59,16 @@ Item {
         toolTip.oldY = toolTip.y
         var globalPos = mapFromItem(toolTip.originalParent, toolTip.oldX, toolTip.oldY);
 
-        toolTip.x = globalPos.x + toolTip.oldX
-        toolTip.y = globalPos.y + toolTip.oldY
+        toolTip.x = Math.min(globalPos.x + toolTip.oldX, toolTip.parent.width - toolTip.width);
+        toolTip.y = Math.min(globalPos.y + toolTip.oldY, toolTip.parent.height - toolTip.height);
 
         toolTip.opacity = 1;
+    }
+
+    function showAt(x, y) {
+        toolTip.x = x;
+        toolTip.y = y;
+        show();
     }
 
     function hide() {

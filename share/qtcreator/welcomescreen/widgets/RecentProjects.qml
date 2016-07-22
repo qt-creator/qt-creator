@@ -39,10 +39,34 @@ Rectangle {
 
         Repeater {
             id: repeater
+
             ProjectItem {
-                projectName: displayName
+                function displayNameWithIndex() {
+                    return  "%1: %2".arg(index + 1).arg(displayName);
+                }
+
+                function tooltipText() {
+                    var shortcutText = welcomeMode.recentProjectsShortcuts[index];
+                    if (shortcutText)
+                        return qsTr("Opens project \"%1\" (%2)").arg(displayName).arg(shortcutText);
+                    else
+                        return qsTr("Opens project \"%1\"").arg(displayName);
+                }
+
+                projectName: displayNameWithIndex()
                 projectPath: prettyFilePath
+                projectTooltip: tooltipText()
             }
         }
     }
+
+    Connections {
+        target: welcomeMode
+        onOpenRecentProjectTriggered: {
+            var item = repeater.itemAt(index);
+            if (item)
+                item.requestProject();
+        }
+    }
+
 }

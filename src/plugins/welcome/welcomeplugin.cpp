@@ -27,6 +27,9 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
+
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
@@ -125,6 +128,8 @@ class WelcomeMode : public IMode
 {
     Q_OBJECT
     Q_PROPERTY(int activePlugin READ activePlugin WRITE setActivePlugin NOTIFY activePluginChanged)
+    Q_PROPERTY(QStringList recentProjectsShortcuts READ recentProjectsShortcuts NOTIFY recentProjectsShortcutsChanged)
+    Q_PROPERTY(QStringList sessionsShortcuts READ sessionsShortcuts NOTIFY sessionsShortcutsChanged)
 public:
     WelcomeMode();
     ~WelcomeMode();
@@ -132,6 +137,9 @@ public:
     void activated();
     void initPlugins();
     int activePlugin() const { return m_activePlugin; }
+
+    QStringList recentProjectsShortcuts() const { return m_recentProjectsShortcuts; }
+    QStringList sessionsShortcuts() const { return m_sessionsShortcuts; }
 
 public slots:
     void setActivePlugin(int pos)
@@ -145,12 +153,19 @@ public slots:
 signals:
     void activePluginChanged(int pos);
 
+    void openSessionTriggered(int index);
+    void openRecentProjectTriggered(int index);
+
+    void recentProjectsShortcutsChanged(QStringList recentProjectsShortcuts);
+    void sessionsShortcutsChanged(QStringList sessionsShortcuts);
+
 private:
     void welcomePluginAdded(QObject*);
     void sceneGraphError(QQuickWindow::SceneGraphError, const QString &message);
     void facilitateQml(QQmlEngine *engine);
     void addPages(const QList<IWelcomePage *> &pages);
     void applyTheme();
+    void addKeyboardShortcuts();
 
     QWidget *m_modeWidget;
     QuickContainer *m_welcomePage;
@@ -158,6 +173,8 @@ private:
     QList<IWelcomePage *> m_pluginList;
     int m_activePlugin;
     QQmlPropertyMap m_themeProperties;
+    QStringList m_recentProjectsShortcuts;
+    QStringList m_sessionsShortcuts;
 };
 
 WelcomeMode::WelcomeMode()
@@ -208,6 +225,8 @@ WelcomeMode::WelcomeMode()
     layout->addWidget(container);
 #endif // USE_QUICK_WIDGET
 
+    addKeyboardShortcuts();
+
     setWidget(m_modeWidget);
 }
 
@@ -216,6 +235,40 @@ void WelcomeMode::applyTheme()
     const QVariantHash creatorTheme = Utils::creatorTheme()->values();
     for (auto it = creatorTheme.constBegin(); it != creatorTheme.constEnd(); ++it)
         m_themeProperties.insert(it.key(), it.value());
+}
+
+void WelcomeMode::addKeyboardShortcuts()
+{
+    const int actionsCount = 9;
+    Context welcomeContext(Core::Constants::C_WELCOME_MODE);
+
+    const Id sessionBase = "Welcome.OpenSession";
+    for (int i = 1; i <= actionsCount; ++i) {
+        auto act = new QAction(tr("Open Session #%1").arg(i), this);
+        Command *cmd = ActionManager::registerAction(act, sessionBase.withSuffix(i), welcomeContext);
+        cmd->setDefaultKeySequence(QKeySequence((UseMacShortcuts ? tr("Ctrl+Meta+%1") : tr("Ctrl+Alt+%1")).arg(i)));
+        m_sessionsShortcuts.append(cmd->keySequence().toString());
+
+        connect(act, &QAction::triggered, this, [this, i] { openSessionTriggered(i-1); });
+        connect(cmd, &Command::keySequenceChanged, this, [this, i, cmd] {
+            m_sessionsShortcuts[i-1] = cmd->keySequence().toString();
+            emit sessionsShortcutsChanged(m_sessionsShortcuts);
+        });
+    }
+
+    const Id projectBase = "Welcome.OpenRecentProject";
+    for (int i = 1; i <= actionsCount; ++i) {
+        auto act = new QAction(tr("Open Recent Project #%1").arg(i), this);
+        Command *cmd = ActionManager::registerAction(act, projectBase.withSuffix(i), welcomeContext);
+        cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+%1").arg(i)));
+        m_recentProjectsShortcuts.append(cmd->keySequence().toString());
+
+        connect(act, &QAction::triggered, this, [this, i] { openRecentProjectTriggered(i-1); });
+        connect(cmd, &Command::keySequenceChanged, this, [this, i, cmd] {
+            m_recentProjectsShortcuts[i-1] = cmd->keySequence().toString();
+            emit recentProjectsShortcutsChanged(m_recentProjectsShortcuts);
+        });
+    }
 }
 
 WelcomeMode::~WelcomeMode()

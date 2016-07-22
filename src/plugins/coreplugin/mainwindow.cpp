@@ -1056,15 +1056,21 @@ void MainWindow::aboutToShowRecentFiles()
     QMenu *menu = aci->menu();
     menu->clear();
 
-    bool hasRecentFiles = false;
-    foreach (const DocumentManager::RecentFile &file, DocumentManager::recentFiles()) {
-        hasRecentFiles = true;
-        QAction *action = menu->addAction(
-                    QDir::toNativeSeparators(Utils::withTildeHomePath(file.first)));
+    const QList<DocumentManager::RecentFile> recentFiles = DocumentManager::recentFiles();
+    for (int i = 0; i < recentFiles.count(); ++i) {
+        const DocumentManager::RecentFile file = recentFiles[i];
+
+        int acceleratorKey = i + 1;
+        QString textPattern = acceleratorKey < 10 ? QStringLiteral("&%1: %2") : QStringLiteral("%1: %2");
+        QString filePath = QDir::toNativeSeparators(withTildeHomePath(file.first));
+        QString actionText = textPattern.arg(acceleratorKey).arg(filePath);
+        QAction *action = menu->addAction(actionText);
         connect(action, &QAction::triggered, this, [file] {
             EditorManager::openEditor(file.first, file.second);
         });
     }
+
+    bool hasRecentFiles = !recentFiles.isEmpty();
     menu->setEnabled(hasRecentFiles);
 
     // add the Clear Menu item

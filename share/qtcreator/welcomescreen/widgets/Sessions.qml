@@ -51,7 +51,31 @@ Rectangle {
                     newSessionName = qsTr("%1 (current session)").arg(sessionName);
                 return newSessionName;
             }
-            name: fullSessionName()
+
+            function fullSessionNameWithIndex() {
+                return  "%1: %2".arg(index + 1).arg(fullSessionName());
+            }
+
+            function tooltipText() {
+                var shortcutText = welcomeMode.sessionsShortcuts[index];
+                if (shortcutText)
+                    return qsTr("Opens session \"%1\" (%2)").arg(sessionName).arg(shortcutText);
+                else
+                    return qsTr("Opens session \"%1\"").arg(sessionName);
+            }
+
+            name: fullSessionNameWithIndex()
+            tooltip: tooltipText()
+        }
+    }
+
+    Connections {
+        target: welcomeMode
+        onOpenSessionTriggered: {
+            if (index < content.count) {
+                content.currentIndex = index;
+                content.currentItem.requestSession();
+            }
         }
     }
 }

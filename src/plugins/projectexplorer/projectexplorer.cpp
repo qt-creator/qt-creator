@@ -2842,13 +2842,17 @@ void ProjectExplorerPluginPrivate::updateRecentProjectMenu()
     menu->clear();
 
     bool hasRecentProjects = false;
+    int acceleratorKey = 1;
     //projects (ignore sessions, they used to be in this list)
     const StringPairListConstIterator end = dd->m_recentProjects.constEnd();
-    for (StringPairListConstIterator it = dd->m_recentProjects.constBegin(); it != end; ++it) {
+    for (StringPairListConstIterator it = dd->m_recentProjects.constBegin(); it != end; ++it, ++acceleratorKey) {
         const QString fileName = it->first;
         if (fileName.endsWith(QLatin1String(".qws")))
             continue;
-        QAction *action = menu->addAction(Utils::withTildeHomePath(fileName));
+
+        QString textTemplate = acceleratorKey < 10 ? QStringLiteral("&%1: %2") : QStringLiteral("%1: %2");
+        QString actionText = textTemplate.arg(acceleratorKey).arg(Utils::withTildeHomePath(fileName));
+        QAction *action = menu->addAction(actionText);
         connect(action, &QAction::triggered, this, [this, fileName] {
             openRecentProject(fileName);
         });
@@ -3319,8 +3323,15 @@ void ProjectExplorerPluginPrivate::updateSessionMenu()
     QActionGroup *ag = new QActionGroup(m_sessionMenu);
     connect(ag, &QActionGroup::triggered, this, &ProjectExplorerPluginPrivate::setSession);
     const QString activeSession = SessionManager::activeSession();
-    foreach (const QString &session, SessionManager::sessions()) {
-        QAction *act = ag->addAction(session);
+
+    const QStringList sessions = SessionManager::sessions();
+    for (int i = 0; i < sessions.size(); ++i) {
+        const QString &session = sessions[i];
+
+        const int acceleratorKey = i + 1;
+        QString textTemplate = acceleratorKey < 10 ? QStringLiteral("&%1: %2") : QStringLiteral("%1: %2");
+        QString actionText = textTemplate.arg(acceleratorKey).arg(session);
+        QAction *act = ag->addAction(actionText);
         act->setData(session);
         act->setCheckable(true);
         if (session == activeSession)

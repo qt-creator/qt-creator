@@ -36,6 +36,11 @@ Rectangle {
 
     property alias projectName: projectNameText.text
     property alias projectPath: pathText.text
+    property alias projectTooltip: projectItemTooltip.text
+
+    function requestProject() {
+        projectWelcomePage.requestProject(filePath);
+    }
 
     Image {
         id: icon
@@ -65,10 +70,16 @@ Rectangle {
         font: fonts.smallPath
     }
 
+    ToolTip {
+        id: projectItemTooltip
+    }
+
     MouseArea {
         id: mouseArea
         anchors.fill: parent
         hoverEnabled: true
-        onClicked: projectWelcomePage.requestProject(filePath);
+        onClicked: projectItem.requestProject()
+        onEntered: projectItemTooltip.showAt(mouseX, mouseY)
+        onExited: projectItemTooltip.hide()
     }
 }
