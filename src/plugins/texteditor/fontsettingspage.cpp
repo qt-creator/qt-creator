@@ -253,15 +253,17 @@ FormatDescription::FormatDescription(TextStyle id,
 QColor FormatDescription::defaultForeground(TextStyle id)
 {
     if (id == C_LINE_NUMBER) {
-        const QColor bg = QApplication::palette().background().color();
+        const QPalette palette = Utils::Theme::initialPalette();
+        const QColor bg = palette.background().color();
         if (bg.value() < 128)
-            return QApplication::palette().foreground().color();
+            return palette.foreground().color();
         else
-            return QApplication::palette().dark().color();
+            return palette.dark().color();
     } else if (id == C_CURRENT_LINE_NUMBER) {
-        const QColor bg = QApplication::palette().background().color();
+        const QPalette palette = Utils::Theme::initialPalette();
+        const QColor bg = palette.background().color();
         if (bg.value() < 128)
-            return QApplication::palette().foreground().color();
+            return palette.foreground().color();
         else
             return QColor();
     } else if (id == C_PARENTHESES) {
@@ -277,7 +279,7 @@ QColor FormatDescription::defaultBackground(TextStyle id)
     if (id == C_TEXT) {
         return Qt::white;
     } else if (id == C_LINE_NUMBER) {
-        return QApplication::palette().background().color();
+        return Utils::Theme::initialPalette().background().color();
     } else if (id == C_SEARCH_RESULT) {
         return QColor(0xffef0b);
     } else if (id == C_PARENTHESES) {
@@ -287,7 +289,7 @@ QColor FormatDescription::defaultBackground(TextStyle id)
     } else if (id == C_AUTOCOMPLETE) {
         return QColor(192, 192, 255);
     } else if (id == C_CURRENT_LINE || id == C_SEARCH_SCOPE) {
-        const QPalette palette = QApplication::palette();
+        const QPalette palette = Utils::Theme::initialPalette();
         const QColor &fg = palette.color(QPalette::Highlight);
         const QColor &bg = palette.color(QPalette::Base);
 
@@ -308,8 +310,7 @@ QColor FormatDescription::defaultBackground(TextStyle id)
                                              fg.blueF() * ratio + bg.blueF() * (1 - ratio));
         return col;
     } else if (id == C_SELECTION) {
-        const QPalette palette = QApplication::palette();
-        return palette.color(QPalette::Highlight);
+        return Utils::Theme::initialPalette().color(QPalette::Highlight);
     } else if (id == C_OCCURRENCES) {
         return QColor(180, 180, 180);
     } else if (id == C_OCCURRENCES_RENAME) {
