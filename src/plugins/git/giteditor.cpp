@@ -212,7 +212,7 @@ void GitEditorWidget::revertChange()
 void GitEditorWidget::logChange()
 {
     GitPlugin::client()->log(
-                sourceWorkingDirectory(), QString(), false, QStringList(m_currentChange));
+                sourceWorkingDirectory(), QString(), false, { m_currentChange });
 }
 
 void GitEditorWidget::applyDiffChunk(const DiffChunk& chunk, bool revert)

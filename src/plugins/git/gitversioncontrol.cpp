@@ -105,13 +105,13 @@ bool GitVersionControl::vcsOpen(const QString & /*fileName*/)
 bool GitVersionControl::vcsAdd(const QString & fileName)
 {
     const QFileInfo fi(fileName);
-    return m_client->synchronousAdd(fi.absolutePath(), QStringList(fi.fileName()));
+    return m_client->synchronousAdd(fi.absolutePath(), { fi.fileName() });
 }
 
 bool GitVersionControl::vcsDelete(const QString & fileName)
 {
     const QFileInfo fi(fileName);
-    return m_client->synchronousDelete(fi.absolutePath(), true, QStringList(fi.fileName()));
+    return m_client->synchronousDelete(fi.absolutePath(), true, { fi.fileName() });
 }
 
 bool GitVersionControl::vcsMove(const QString &from, const QString &to)

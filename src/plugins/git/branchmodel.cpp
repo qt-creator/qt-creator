@@ -172,7 +172,7 @@ public:
             }
             return names;
         }
-        return QStringList(fullName().join('/'));
+        return { fullName().join('/') };
     }
 
     int rowOf(BranchNode *node)

@@ -754,8 +754,7 @@ void GitClient::diffProject(const QString &workingDirectory, const QString &proj
                   workingDirectory, tr("Git Diff Project"),
                   [this, workingDirectory, projectDirectory]
                   (IDocument *doc) -> DiffEditorController* {
-                      return new ProjectDiffController(doc, workingDirectory,
-                                                       QStringList(projectDirectory));
+                      return new ProjectDiffController(doc, workingDirectory, { projectDirectory });
                   });
 }
 
@@ -905,7 +904,7 @@ VcsBaseEditorWidget *GitClient::annotate(
         int lineNumber, const QStringList &extraOptions)
 {
     const Id editorId = Git::Constants::GIT_BLAME_EDITOR_ID;
-    const QString id = VcsBaseEditor::getTitleId(workingDir, QStringList(file), revision);
+    const QString id = VcsBaseEditor::getTitleId(workingDir, { file }, revision);
     const QString title = tr("Git Blame \"%1\"").arg(id);
     const QString sourceFile = VcsBaseEditor::getSource(workingDir, file);
 
@@ -2154,7 +2153,7 @@ void GitClient::launchRepositoryBrowser(const QString &workingDirectory)
 {
     const QString repBrowserBinary = settings().stringValue(GitSettings::repositoryBrowserCmd);
     if (!repBrowserBinary.isEmpty())
-        QProcess::startDetached(repBrowserBinary, QStringList(workingDirectory), workingDirectory);
+        QProcess::startDetached(repBrowserBinary, { workingDirectory }, workingDirectory);
 }
 
 bool GitClient::tryLauchingGitK(const QProcessEnvironment &env,
