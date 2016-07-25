@@ -70,7 +70,7 @@ void FlameGraphViewTest::testSelection()
     QCOMPARE(spy.count(), 1);
 
     // Click in empty area shouldn't change anything, either
-    QTest::mouseClick(view.childAt(250, 250), Qt::LeftButton, Qt::NoModifier, QPoint(495, 5));
+    QTest::mouseClick(view.childAt(250, 250), Qt::LeftButton, Qt::NoModifier, QPoint(495, 50));
     QCOMPARE(spy.count(), 1);
 
     view.onVisibleFeaturesChanged(1 << ProfileBinding);
