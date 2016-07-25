@@ -1358,7 +1358,7 @@
          style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
     </g>
     <g
-       id="src/libs/extensionsystem/images/ok">
+       id="src/libs/utils/images/ok">
       <rect
          y="584"
          x="297"
@@ -1374,7 +1374,7 @@
          sodipodi:nodetypes="ccc" />
     </g>
     <g
-       id="src/libs/extensionsystem/images/error"
+       id="src/libs/utils/images/error"
        transform="translate(2,0)">
       <rect
          style="display:inline;opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
@@ -1401,7 +1401,7 @@
       </g>
     </g>
     <g
-       id="src/libs/extensionsystem/images/notloaded"
+       id="src/libs/utils/images/notloaded"
        transform="translate(8,0)">
       <rect
          y="584"

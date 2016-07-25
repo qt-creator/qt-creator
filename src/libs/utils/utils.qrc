@@ -25,5 +25,11 @@
         <file>images/locked@2x.png</file>
         <file>images/unlocked.png</file>
         <file>images/unlocked@2x.png</file>
+        <file>images/error.png</file>
+        <file>images/error@2x.png</file>
+        <file>images/notloaded.png</file>
+        <file>images/notloaded@2x.png</file>
+        <file>images/ok.png</file>
+        <file>images/ok@2x.png</file>
     </qresource>
 </RCC>
