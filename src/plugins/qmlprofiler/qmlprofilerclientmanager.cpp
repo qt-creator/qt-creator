@@ -38,6 +38,16 @@ QmlProfilerClientManager::QmlProfilerClientManager(QObject *parent) : QObject(pa
     setObjectName(QLatin1String("QML Profiler Connections"));
 }
 
+QmlProfilerClientManager::~QmlProfilerClientManager()
+{
+    // Don't receive any signals from the dtors of child objects while our own dtor is running.
+    // That can lead to invalid reads.
+    if (m_connection)
+        m_connection->disconnect();
+    if (m_qmlclientplugin)
+        m_qmlclientplugin->disconnect();
+}
+
 void QmlProfilerClientManager::setModelManager(QmlProfilerModelManager *m)
 {
     QTC_ASSERT(m_connection.isNull() && m_qmlclientplugin.isNull(), disconnectClient());

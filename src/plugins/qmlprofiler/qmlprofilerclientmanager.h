@@ -46,6 +46,7 @@ class QmlProfilerClientManager : public QObject
     Q_OBJECT
 public:
     explicit QmlProfilerClientManager(QObject *parent = 0);
+    ~QmlProfilerClientManager();
 
     void setProfilerStateManager(QmlProfilerStateManager *profilerState);
     void setTcpConnection(QString host, Utils::Port port);
