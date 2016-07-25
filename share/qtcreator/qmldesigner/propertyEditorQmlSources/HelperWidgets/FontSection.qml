@@ -113,6 +113,7 @@ Section {
             Controls.ComboBox {
                 id: sizeType
                 model: ["pixels", "points"]
+                property color textColor: creatorTheme.PanelTextColorLight
                 onCurrentIndexChanged: {
                     if (sizeWidget.isSetup)
                         return;
