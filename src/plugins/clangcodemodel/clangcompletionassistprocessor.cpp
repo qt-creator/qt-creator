@@ -91,8 +91,6 @@ QList<AssistProposalItemInterface *> toAssistProposalItems(const CodeCompletions
             item->addOverload(codeCompletion);
         } else {
             item = new ClangAssistProposalItem;
-            QString detail = CompletionChunksToTextConverter::convertToToolTipWithHtml(codeCompletion.chunks());
-
             items.insert(name, item);
 
             item->setText(name);
