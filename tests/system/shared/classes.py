@@ -34,11 +34,9 @@ class Targets:
      DESKTOP_480_DEFAULT,
      SIMULATOR,
      EMBEDDED_LINUX,
-     DESKTOP_521_DEFAULT,
      DESKTOP_531_DEFAULT,
-     DESKTOP_541_GCC) = ALL_TARGETS
-
-    DESKTOP_561_DEFAULT = sum(ALL_TARGETS) + 1
+     DESKTOP_541_GCC,
+     DESKTOP_561_DEFAULT) = ALL_TARGETS
 
     @staticmethod
     def desktopTargetClasses():
@@ -65,8 +63,6 @@ class Targets:
             return "Qt Simulator"
         elif target == Targets.EMBEDDED_LINUX:
             return "Embedded Linux"
-        elif target == Targets.DESKTOP_521_DEFAULT:
-            return "Desktop 521 default"
         elif target == Targets.DESKTOP_531_DEFAULT:
             return "Desktop 531 default"
         elif target == Targets.DESKTOP_541_GCC:
@@ -96,7 +92,7 @@ class Targets:
 
     @staticmethod
     def getDefaultKit():
-        return Targets.DESKTOP_521_DEFAULT
+        return Targets.DESKTOP_531_DEFAULT
 
 # this class holds some constants for easier usage inside the Projects view
 class ProjectSettings:
@@ -182,7 +178,7 @@ class Qt5Path:
 
     @staticmethod
     def getPaths(pathSpec):
-        qt5targets = [Targets.DESKTOP_521_DEFAULT, Targets.DESKTOP_531_DEFAULT]
+        qt5targets = [Targets.DESKTOP_531_DEFAULT, Targets.DESKTOP_561_DEFAULT]
         if platform.system() != 'Darwin':
             qt5targets.append(Targets.DESKTOP_541_GCC)
         if pathSpec == Qt5Path.DOCS:
@@ -196,10 +192,7 @@ class Qt5Path:
     @staticmethod
     def __preCheckAndExtractQtVersionStr__(target):
         if target not in Targets.ALL_TARGETS:
-            # Ignore DESKTOP_561_DEFAULT which only delivers examples but not a kit yet.
-            # Remove the condition as soon as it is being used as a kit in tests.
-            if not target == Targets.DESKTOP_561_DEFAULT:
-                raise Exception("Unexpected target '%s'" % str(target))
+            raise Exception("Unexpected target '%s'" % str(target))
 
         matcher = re.match("^Desktop (5\\d{2}).*$", Targets.getStringForTarget(target))
         if matcher is None:
