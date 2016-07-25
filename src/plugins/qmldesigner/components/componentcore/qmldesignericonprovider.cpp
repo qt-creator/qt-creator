@@ -84,6 +84,33 @@ QPixmap QmlDesignerIconProvider::requestPixmap(const QString &id, QSize *size, c
     else if (id == "error")
         result = Icon({
                 { ":/utils/images/error.png", Theme::IconsBaseColor}}, Icon::Tint).pixmap();
+    else if (id == "anchor-top")
+        result = Icon({
+                { ":/qmldesigner/images/anchor_top.png", Theme::IconsBaseColor},
+                { ":/qmldesigner/images/anchoreditem.png", Theme::IconsBaseColor}}, Icon::Tint).pixmap();
+    else if (id == "anchor-right")
+        result = Icon({
+                { ":/qmldesigner/images/anchor_right.png", Theme::IconsBaseColor},
+                { ":/qmldesigner/images/anchoreditem.png", Theme::IconsBaseColor}}, Icon::Tint).pixmap();
+    else if (id == "anchor-bottom")
+        result = Icon({
+                { ":/qmldesigner/images/anchor_bottom.png", Theme::IconsBaseColor},
+                { ":/qmldesigner/images/anchoreditem.png", Theme::IconsBaseColor}}, Icon::Tint).pixmap();
+    else if (id == "anchor-left")
+        result = Icon({
+                { ":/qmldesigner/images/anchor_left.png", Theme::IconsBaseColor},
+                { ":/qmldesigner/images/anchoreditem.png", Theme::IconsBaseColor}}, Icon::Tint).pixmap();
+    else if (id == "anchor-horizontal")
+        result = Icon({
+                { ":/qmldesigner/images/anchor_horizontal.png", Theme::IconsBaseColor},
+                { ":/qmldesigner/images/anchoreditem.png", Theme::IconsBaseColor}}, Icon::Tint).pixmap();
+    else if (id == "anchor-vertical")
+        result = Icon({
+                { ":/qmldesigner/images/anchor_vertical.png", Theme::IconsBaseColor},
+                { ":/qmldesigner/images/anchoreditem.png", Theme::IconsBaseColor}}, Icon::Tint).pixmap();
+    else if (id == "anchor-fill")
+        result = Icon({
+                { ":/qmldesigner/images/anchor_fill.png", Theme::IconsBaseColor}}, Icon::Tint).pixmap();
     else
         qWarning() << Q_FUNC_INFO << "Image not found:" << id;
 

@@ -69,7 +69,7 @@ Item {
 
             anchors.fill: parent
             visible: checked
-            color: creatorTheme.QmlDesignerBackgroundColorDarker
+            color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate
         }
 
         RoundedPanel {
@@ -78,15 +78,15 @@ Item {
 
             anchors.fill: parent
             visible: !checked
-            color: creatorTheme.BackgroundColorDark
+            color: creatorTheme.QmlDesignerBackgroundColorDarker
         }
     }
 
     Image {
         id: image
-        //source: iconSource
+        width: 16
+        height: 16
         anchors.centerIn: parent
-        anchors.leftMargin: leftPadding
     }
 
     ToolTipArea {
