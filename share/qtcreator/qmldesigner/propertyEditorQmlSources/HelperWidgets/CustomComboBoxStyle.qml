@@ -85,7 +85,7 @@ ComboBoxStyle {
             anchors.verticalCenter: parent.verticalCenter
             text: control.currentText
             renderType: Text.NativeRendering
-            color: creatorTheme.PanelTextColorLight
+            color: control.textColor
         }
     }
 

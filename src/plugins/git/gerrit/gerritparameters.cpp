@@ -75,7 +75,7 @@ void GerritParameters::setPortFlagBySshType()
         const QString version = Utils::PathChooser::toolVersion(ssh, QStringList("-V"));
         isPlink = version.contains("plink", Qt::CaseInsensitive);
     }
-    portFlag = isPlink ? "-P" : defaultPortFlag;
+    portFlag = QLatin1String(isPlink ? "-P" : defaultPortFlag);
 }
 
 GerritParameters::GerritParameters()
