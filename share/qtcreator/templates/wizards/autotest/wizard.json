@@ -3,7 +3,7 @@
     "supportedProjectTypes": [ "Qt4ProjectManager.Qt4Project" ],
     "id": "R.AutoTest",
     "category": "H.Project",
-    "trDescription": "Creates a new project including auto test skeleton.",
+    "trDescription": "Creates a new project including an auto test skeleton.",
     "trDisplayName": "Auto Test Project",
     "trDisplayCategory": "Other Project",
     "icon": "autotest_24.png",
@@ -39,7 +39,7 @@
             "typeId": "Project",
             "data":
             {
-                "trDescription": "This wizard creates a simple Qmake based project with additional auto test skeleton."
+                "trDescription": "This wizard creates a simple Qmake based project with an additional auto test skeleton."
             }
         },
         {
@@ -50,7 +50,7 @@
             [
                 {
                     "name": "TestFrameWork",
-                    "trDisplayName": "Test Framework:",
+                    "trDisplayName": "Test framework:",
                     "type": "ComboBox",
                     "data":
                     {
@@ -81,7 +81,7 @@
                 },
                 {
                     "name": "TestCaseName",
-                    "trDisplayName": "Test Case Name:",
+                    "trDisplayName": "Test case name:",
                     "mandatory": true,
                     "type": "LineEdit",
                     "data": { "validator": "^[a-zA-Z_0-9]+$" }
@@ -110,7 +110,7 @@
                 },
                 {
                     "name": "TestSetName",
-                    "trDisplayName": "Test Set Name:",
+                    "trDisplayName": "Test set name:",
                     "visible": "%{JS: '%{TestFrameWork}' === 'GTest'}",
                     "type": "LineEdit",
                     "data": { "validator": "^[a-zA-Z0-9]+$" }
