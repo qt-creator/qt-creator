@@ -486,9 +486,9 @@
 
     You can change the property values permanently in the code editor.
 
-    \section2 To-Do List
+    \section2 To-Do Entries
 
-    The \uicontrol {To-Do List Entries} pane lists the BUG, FIXME, NOTE, TODO, and
+    The \uicontrol {To-Do Entries} pane lists the BUG, FIXME, NOTE, TODO, and
     WARNING keywords from the current file or from all project files. The
     keywords are organized into information, warning, and error categories.
 
