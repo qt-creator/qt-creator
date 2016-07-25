@@ -95,7 +95,7 @@ Section {
                 SpinBox {
                     id: sizeSpinBox
                     minimumValue: 0
-                    //visible: !sizeWidget.pixelSize
+                    visible: !sizeWidget.pixelSize
                     z: !sizeWidget.pixelSize ? 1 : 0
                     maximumValue: 400
                     backendValue: pointSize
@@ -103,7 +103,7 @@ Section {
 
                 SpinBox {
                     minimumValue: 0
-                    //visible: sizeWidget.pixelSize
+                    visible: sizeWidget.pixelSize
                     z: sizeWidget.pixelSize ? 1 : 0
                     maximumValue: 400
                     backendValue: pixelSize
