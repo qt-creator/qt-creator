@@ -3,7 +3,7 @@
     "supportedProjectTypes": [ ],
     "id": "F.Scxml",
     "category": "O.Model",
-    "trDescription": "Creates a new, empty, state chart.",
+    "trDescription": "Creates a new empty state chart.",
     "trDisplayName": "State Chart",
     "trDisplayCategory": "Modeling",
     "platformIndependent": true,
@@ -26,7 +26,7 @@
             [
                 {
                     "name": "Name",
-                    "trDisplayName": "State Chart name:",
+                    "trDisplayName": "State chart name:",
                     "mandatory": true,
                     "type": "LineEdit"
                 },

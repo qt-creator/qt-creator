@@ -12,7 +12,7 @@
     <glob pattern="*.ts" weight="70"/>
   </mime-type>
   <mime-type type="application/scxml+xml">
-    <comment>Scxml State Chart</comment>
+    <comment>SCXML State Chart</comment>
     <sub-class-of type="application/xml"/>
     <glob pattern="*.scxml"/>
   </mime-type>
