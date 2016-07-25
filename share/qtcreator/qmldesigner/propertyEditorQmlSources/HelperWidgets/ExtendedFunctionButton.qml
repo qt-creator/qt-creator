@@ -128,16 +128,7 @@ Item {
     Rectangle {
         parent: itemPane
         visible: false
-        x: 10
-        color: "#424242"
-
-        radius: 3
-        border.color: "black"
-        gradient: Gradient {
-            GradientStop {color: "#2c2c2c" ; position: 0}
-            GradientStop {color: "#343434" ; position: 0.15}
-            GradientStop {color: "#373737" ; position: 1.0}
-        }
+        x: 6
 
         id: expressionDialog
 
@@ -146,8 +137,13 @@ Item {
             y = pos.y + 2;
         }
 
-        width: parent.width - 20
+        width: parent.width - 12
         height: 120
+
+        radius: 2
+        color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate
+        //border.color: creatorTheme.QmlDesignerBackgroundColorDarker
+        border.color: creatorTheme.QmlDesignerTabLight
 
         Controls.TextField {
             id: textField
@@ -162,20 +158,16 @@ Item {
             }
 
             style: TextFieldStyle {
-                textColor: Constants.colorsDefaultText
+                textColor: creatorTheme.PanelTextColorLight
                 padding.top: 3
                 padding.bottom: 1
                 padding.left: 16
-                placeholderTextColor: "gray"
+                placeholderTextColor: creatorTheme.PanelTextColorMid
                 background: Rectangle {
                     implicitWidth: 100
                     implicitHeight: 23
-                    radius: 3
-                    gradient: Gradient {
-                        GradientStop {color: "#2c2c2c" ; position: 0}
-                        GradientStop {color: "#343434" ; position: 0.15}
-                        GradientStop {color: "#373737" ; position: 1.0}
-                    }
+                    radius: 2
+                    color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate
                 }
             }
         }
@@ -183,16 +175,29 @@ Item {
         Row {
             spacing: 0
             Button {
+                width: 16
+                height: 16
                 style: ButtonStyle {
-                    background: Image {
-                        source: "images/apply.png"
-                        Rectangle {
-                            opacity:  control.pressed ? 0.5 : 0
-                            anchors.fill: parent
-                            gradient: Gradient {
-                                GradientStop {color: "#606060" ; position: 0}
-                                GradientStop {color: "#404040" ; position: 0.07}
-                                GradientStop {color: "#303030" ; position: 1}
+                    background: Item{
+                        Image {
+                            width: 16
+                            height: 16
+                            source: "image://icons/error"
+                            opacity: {
+                                if (control.pressed)
+                                    return 0.5;
+
+                                if (control.hovered)
+                                    return 1.0;
+
+                                return 0.9;
+                            }
+                            Rectangle {
+                                z: -1
+                                anchors.fill: parent
+                                color: control.hovered? creatorTheme.FancyToolButtonSelectedColor : creatorTheme.BackgroundColorDark
+                                border.color: creatorTheme.QmlDesignerBackgroundColorDarker
+                                radius: 2
                             }
                         }
                     }
@@ -203,17 +208,29 @@ Item {
                 }
             }
             Button {
+                width: 16
+                height: 16
                 style: ButtonStyle {
-                    background: Image {
-                        source: "images/cancel.png"
+                    background: Item {
+                        Image {
+                            width: 16
+                            height: 16
+                            source: "image://icons/ok"
+                            opacity: {
+                                if (control.pressed)
+                                    return 0.5;
 
-                        Rectangle {
-                            opacity:  control.pressed ? 0.5 : 0
-                            anchors.fill: parent
-                            gradient: Gradient {
-                                GradientStop {color: "#606060" ; position: 0}
-                                GradientStop {color: "#404040" ; position: 0.07}
-                                GradientStop {color: "#303030" ; position: 1}
+                                if (control.hovered)
+                                    return 1.0;
+
+                                return 0.9;
+                            }
+                            Rectangle {
+                                z: -1
+                                anchors.fill: parent
+                                color: control.hovered? creatorTheme.FancyToolButtonSelectedColor : creatorTheme.BackgroundColorDark
+                                border.color: creatorTheme.QmlDesignerBackgroundColorDarker
+                                radius: 2
                             }
                         }
                     }
@@ -224,6 +241,7 @@ Item {
             }
             anchors.right: parent.right
             anchors.bottom: parent.bottom
+            anchors.margins: 2
         }
     }
 

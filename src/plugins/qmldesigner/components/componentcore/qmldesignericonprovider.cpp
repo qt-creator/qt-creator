@@ -78,6 +78,12 @@ QPixmap QmlDesignerIconProvider::requestPixmap(const QString &id, QSize *size, c
     else if (id == "tr")
         result = Icon({
                 { ":/qmldesigner/images/tr.png", Theme::IconsBaseColor}}, Icon::Tint).pixmap();
+    else if (id == "ok")
+        result = Icon({
+                { ":/utils/images/ok.png", Theme::IconsBaseColor}}, Icon::Tint).pixmap();
+    else if (id == "error")
+        result = Icon({
+                { ":/utils/images/error.png", Theme::IconsBaseColor}}, Icon::Tint).pixmap();
     else
         qWarning() << Q_FUNC_INFO << "Image not found:" << id;
 
