@@ -1415,9 +1415,9 @@ void tst_Dumpers::dumper()
         //qDebug() << "NUM CHECKS" << data.checks.size();
         Check check = data.checks.at(i);
         QString iname = "local." + check.iname;
-        WatchItem *item = local.findAnyChild<WatchItem *>([iname](WatchItem *item) {
-            return item->internalName() == iname;
-        });
+        WatchItem *item = static_cast<WatchItem *>(local.findAnyChild([iname](Utils::TreeItem *item) {
+            return static_cast<WatchItem *>(item)->internalName() == iname;
+        }));
         if (item) {
             seenINames.insert(iname);
             //qDebug() << "CHECKS" << i << check.iname;

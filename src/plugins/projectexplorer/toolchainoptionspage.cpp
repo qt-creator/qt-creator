@@ -293,8 +293,8 @@ void ToolChainOptionsWidget::removeToolChain(ToolChain *tc)
     }
 
     StaticTreeItem *parent = parentForToolChain(tc);
-    auto item = parent->findChildAtLevel<ToolChainTreeItem *>(1, [tc](ToolChainTreeItem *item) {
-        return item->toolChain == tc;
+    auto item = parent->findChildAtLevel(1, [tc](TreeItem *item) {
+        return static_cast<ToolChainTreeItem *>(item)->toolChain == tc;
     });
     m_model.destroyItem(item);
 

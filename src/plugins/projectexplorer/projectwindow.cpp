@@ -81,7 +81,7 @@ public:
 
         case Qt::DecorationRole: {
             QVariant icon;
-            forChildrenAtLevel<TreeItem *>(2, [this, &icon](TreeItem *item) {
+            forChildrenAtLevel(2, [this, &icon](TreeItem *item) {
                 QVariant sicon = item->data(0, Qt::DecorationRole);
                 if (sicon.isValid())
                     icon = sicon;

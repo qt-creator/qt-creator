@@ -47,7 +47,7 @@ static int countLevelItems(TreeItem *base, int level)
 {
     int n = 0;
     int bl = base->level();
-    base->forAllChildren<TreeItem *>([level, bl, &n](TreeItem *item) {
+    base->forAllChildren([level, bl, &n](TreeItem *item) {
         if (item->level() == bl + level)
             ++n;
     });

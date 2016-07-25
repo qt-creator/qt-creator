@@ -70,62 +70,13 @@ public:
     QModelIndex index() const;
     QAbstractItemModel *model() const;
 
-    template <class T, class Predicate>
-    void forSelectedChildren(const Predicate &pred) const {
-        foreach (TreeItem *item, m_children) {
-            if (pred(static_cast<T>(item)))
-                item->forSelectedChildren<T, Predicate>(pred);
-        }
-    }
-
-    template <class T, typename Predicate>
-    void forAllChildren(const Predicate &pred) const {
-        foreach (TreeItem *item, m_children) {
-            pred(static_cast<T>(item));
-            item->forAllChildren<T, Predicate>(pred);
-        }
-    }
+    void forSelectedChildren(const std::function<bool(TreeItem *)> &pred) const;
+    void forAllChildren(const std::function<void(TreeItem *)> &pred) const;
+    TreeItem *findAnyChild(const std::function<bool(TreeItem *)> &pred) const;
 
     // Levels are 1-based: Child at Level 1 is an immediate child.
-
-    template <class T, typename Predicate>
-    void forChildrenAtLevel(int level, Predicate pred) const
-    {
-        if (level == 1) {
-            foreach (TreeItem *item, m_children)
-                pred(static_cast<T>(item));
-        } else {
-            foreach (TreeItem *item, m_children)
-                item->forChildrenAtLevel<T, Predicate>(level - 1, pred);
-        }
-    }
-
-    template <class T, typename Predicate>
-    T findChildAtLevel(int level, Predicate pred) const
-    {
-        if (level == 1) {
-            foreach (TreeItem *item, m_children)
-                if (pred(static_cast<T>(item)))
-                    return static_cast<T>(item);
-        } else {
-            foreach (TreeItem *item, m_children) {
-                if (auto found = item->findChildAtLevel<T, Predicate>(level - 1, pred))
-                    return found;
-            }
-        }
-        return 0;
-    }
-
-    template <class T, typename Predicate>
-    T findAnyChild(Predicate pred) const {
-        foreach (TreeItem *item, m_children) {
-            if (pred(static_cast<T>(item)))
-                return static_cast<T>(item);
-            if (T found = item->findAnyChild<T>(pred))
-                return found;
-        }
-        return 0;
-    }
+    void forChildrenAtLevel(int level, const std::function<void(TreeItem *)> &pred) const;
+    TreeItem *findChildAtLevel(int level, const std::function<bool(TreeItem *)> &pred) const;
 
 private:
     TreeItem(const TreeItem &) = delete;
@@ -156,17 +107,20 @@ public:
 
     template <typename Predicate>
     void forAllChildren(const Predicate &pred) const {
-        return TreeItem::forAllChildren<ChildType *, Predicate>(pred);
+        const auto pred0 = [pred](TreeItem *treeItem) { pred(static_cast<ChildType *>(treeItem)); };
+        TreeItem::forAllChildren(pred0);
     }
 
     template <typename Predicate>
     void forFirstLevelChildren(Predicate pred) const {
-        return TreeItem::forChildrenAtLevel<ChildType *, Predicate>(1, pred);
+        const auto pred0 = [pred](TreeItem *treeItem) { pred(static_cast<ChildType *>(treeItem)); };
+        TreeItem::forChildrenAtLevel(1, pred0);
     }
 
     template <typename Predicate>
     ChildType *findFirstLevelChild(Predicate pred) const {
-        return TreeItem::findChildAtLevel<ChildType *, Predicate>(1, pred);
+        const auto pred0 = [pred](TreeItem *treeItem) { return pred(static_cast<ChildType *>(treeItem)); };
+        return static_cast<ChildType *>(TreeItem::findChildAtLevel(1, pred0));
     }
 
     ParentType *parent() const {
@@ -257,7 +211,6 @@ template<int N> struct SelectType<N>
     using Type = TreeItem;
 };
 
-
 // BestItem<T0, T1, T2, ... > selects T0 if all types are equal and 'TreeItem' otherwise
 template<typename ...All> struct BestItemType;
 
@@ -310,12 +263,16 @@ public:
 
     template <int Level, class Predicate>
     void forItemsAtLevel(const Predicate &pred) const {
-        m_root->forChildrenAtLevel<typename Internal::SelectType<Level, LevelItemTypes...>::Type *>(Level, pred);
+        using ItemType = typename Internal::SelectType<Level, LevelItemTypes...>::Type;
+        const auto pred0 = [pred](TreeItem *treeItem) { pred(static_cast<ItemType *>(treeItem)); };
+        m_root->forChildrenAtLevel(Level, pred0);
     }
 
     template <int Level, class Predicate>
     typename Internal::SelectType<Level, LevelItemTypes...>::Type *findItemAtLevel(const Predicate &pred) const {
-        return m_root->findChildAtLevel<typename Internal::SelectType<Level, LevelItemTypes...>::Type *>(Level, pred);
+        using ItemType = typename Internal::SelectType<Level, LevelItemTypes...>::Type;
+        const auto pred0 = [pred](TreeItem *treeItem) { return pred(static_cast<ItemType *>(treeItem)); };
+        return static_cast<ItemType *>(m_root->findChildAtLevel(Level, pred0));
     }
 
     RootItem *rootItem() const {
@@ -335,20 +292,20 @@ public:
 
     template <class Predicate>
     BestItem *findNonRooItem(const Predicate &pred) const {
-        TreeItem *root = this->rootItem();
-        return root->findAnyChild<BestItem *>(pred);
+        const auto pred0 = [pred](TreeItem *treeItem) -> bool { return pred(static_cast<BestItem *>(treeItem)); };
+        return static_cast<BestItem *>(m_root->findAnyChild(pred0));
     }
 
     template <class Predicate>
     void forSelectedItems(const Predicate &pred) const {
-        TreeItem *root = this->rootItem();
-        root->forSelectedChildren<BestItem *, Predicate>(pred);
+        const auto pred0 = [pred](TreeItem *treeItem) -> bool { return pred(static_cast<BestItem *>(treeItem)); };
+        m_root->forSelectedChildren(pred0);
     }
 
     template <class Predicate>
     void forAllItems(const Predicate &pred) const {
-        TreeItem *root = this->rootItem();
-        root->forAllChildren<BestItem *, Predicate>(pred);
+        const auto pred0 = [pred](TreeItem *treeItem) -> void { pred(static_cast<BestItem *>(treeItem)); };
+        m_root->forAllChildren(pred0);
     }
 
     BestItem *itemForIndex(const QModelIndex &idx) const {

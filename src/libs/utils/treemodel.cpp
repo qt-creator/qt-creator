@@ -777,6 +777,61 @@ QAbstractItemModel *TreeItem::model() const
     return m_model;
 }
 
+void TreeItem::forAllChildren(const std::function<void (TreeItem *)> &pred) const
+{
+    foreach (TreeItem *item, m_children) {
+        pred(item);
+        item->forAllChildren(pred);
+    }
+}
+
+void TreeItem::forSelectedChildren(const std::function<bool (TreeItem *)> &pred) const
+{
+    foreach (TreeItem *item, m_children) {
+        if (pred(item))
+            item->forSelectedChildren(pred);
+    }
+}
+
+void TreeItem::forChildrenAtLevel(int level, const std::function<void(TreeItem *)> &pred) const
+{
+    QTC_ASSERT(level > 0, return);
+    if (level == 1) {
+        foreach (TreeItem *item, m_children)
+            pred(item);
+    } else {
+        foreach (TreeItem *item, m_children)
+            item->forChildrenAtLevel(level - 1, pred);
+    }
+}
+
+TreeItem *TreeItem::findChildAtLevel(int level, const std::function<bool(TreeItem *)> &pred) const
+{
+    QTC_ASSERT(level > 0, return 0);
+    if (level == 1) {
+        foreach (TreeItem *item, m_children)
+            if (pred(item))
+                return item;
+    } else {
+        foreach (TreeItem *item, m_children) {
+            if (auto found = item->findChildAtLevel(level - 1, pred))
+                return found;
+        }
+    }
+    return 0;
+}
+
+TreeItem *TreeItem::findAnyChild(const std::function<bool(TreeItem *)> &pred) const
+{
+    foreach (TreeItem *item, m_children) {
+        if (pred(item))
+            return item;
+        if (TreeItem *found = item->findAnyChild(pred))
+            return found;
+    }
+    return 0;
+}
+
 void TreeItem::clear()
 {
     while (m_children.size()) {
