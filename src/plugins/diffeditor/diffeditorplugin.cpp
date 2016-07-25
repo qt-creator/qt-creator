@@ -74,19 +74,21 @@ void FileDiffController::reload()
     format.codec = Core::EditorManager::defaultTextCodec();
 
     QString leftText;
+    bool leftFileExists = true;
     if (Utils::TextFileFormat::readFile(m_leftFileName,
                                     format.codec,
                                     &leftText, &format, &errorString)
             != Utils::TextFileFormat::ReadSuccess) {
-        return;
+        leftFileExists = false;
     }
 
     QString rightText;
+    bool rightFileExists = true;
     if (Utils::TextFileFormat::readFile(m_rightFileName,
                                     format.codec,
                                     &rightText, &format, &errorString)
             != Utils::TextFileFormat::ReadSuccess) {
-        return;
+        rightFileExists = false;
     }
 
     Differ differ;
@@ -115,6 +117,10 @@ void FileDiffController::reload()
     FileData fileData = DiffUtils::calculateContextData(chunkData, contextLineCount(), 0);
     fileData.leftFileInfo.fileName = m_leftFileName;
     fileData.rightFileInfo.fileName = m_rightFileName;
+    if (!leftFileExists && rightFileExists)
+        fileData.fileOperation = FileData::NewFile;
+    else if (leftFileExists && !rightFileExists)
+        fileData.fileOperation = FileData::DeleteFile;
 
     QList<FileData> fileDataList;
     fileDataList << fileData;
