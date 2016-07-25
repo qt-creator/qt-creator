@@ -378,8 +378,8 @@ QList<Task> CMakeConfigurationKitInformation::validate(const Kit *k) const
                                              "even though the kit has no valid Qt version."),
                            Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
         } else if (qmakePath != version->qmakeCommand()) {
-            result << Task(Task::Warning, tr("CMake configuration has a path to a qmake binary set, "
-                                             "which does not match up with the qmake binary path "
+            result << Task(Task::Warning, tr("CMake configuration has a path to a qmake binary set "
+                                             "that does not match the qmake binary path "
                                              "configured in the Qt version."),
                            Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
         }
@@ -398,8 +398,8 @@ QList<Task> CMakeConfigurationKitInformation::validate(const Kit *k) const
                                              "even though the kit has no valid tool chain."),
                            Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
         } else if (tcCPath != tcC->compilerCommand()) {
-            result << Task(Task::Warning, tr("CMake configuration has a path to a C compiler set, "
-                                             "that does not match up with the compiler path "
+            result << Task(Task::Warning, tr("CMake configuration has a path to a C compiler set "
+                                             "that does not match the compiler path "
                                              "configured in the tool chain of the kit."),
                            Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
         }
@@ -417,8 +417,8 @@ QList<Task> CMakeConfigurationKitInformation::validate(const Kit *k) const
                                              "even though the kit has no valid tool chain."),
                            Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
         } else if (tcCxxPath != tcCxx->compilerCommand()) {
-            result << Task(Task::Warning, tr("CMake configuration has a path to a C++ compiler set, "
-                                             "that does not match up with the compiler path "
+            result << Task(Task::Warning, tr("CMake configuration has a path to a C++ compiler set "
+                                             "that does not match the compiler path "
                                              "configured in the tool chain of the kit."),
                            Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
         }
