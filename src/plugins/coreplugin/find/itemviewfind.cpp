@@ -128,23 +128,40 @@ IFindSupport::Result ItemViewFind::findStep(const QString &txt, FindFlags findFl
     return result;
 }
 
-QFrame *ItemViewFind::createSearchableWrapper(QAbstractItemView *treeView, ColorOption lightColored, FetchOption option)
+static QFrame *createHelper(QAbstractItemView *treeView,
+                            ItemViewFind::ColorOption colorOption,
+                            ItemViewFind *finder)
 {
-    QFrame *widget = new QFrame;
+    auto widget = new QFrame;
     widget->setFrameStyle(QFrame::NoFrame);
-    QVBoxLayout *vbox = new QVBoxLayout(widget);
+
+    auto placeHolder = new FindToolBarPlaceHolder(widget);
+    placeHolder->setLightColored(colorOption);
+
+    auto vbox = new QVBoxLayout(widget);
     vbox->setMargin(0);
     vbox->setSpacing(0);
     vbox->addWidget(treeView);
-    auto placeHolder = new FindToolBarPlaceHolder(widget);
-    placeHolder->setLightColored(lightColored);
     vbox->addWidget(placeHolder);
 
-    Aggregation::Aggregate *agg = new Aggregation::Aggregate;
+    auto agg = new Aggregation::Aggregate;
     agg->add(treeView);
-    agg->add(new ItemViewFind(treeView, Qt::DisplayRole, option));
+    agg->add(finder);
 
     return widget;
+}
+
+QFrame *ItemViewFind::createSearchableWrapper(QAbstractItemView *treeView,
+                                              ColorOption colorOption,
+                                              FetchOption option)
+{
+    return createHelper(treeView, colorOption, new ItemViewFind(treeView, Qt::DisplayRole, option));
+}
+
+QFrame *ItemViewFind::createSearchableWrapper(ItemViewFind *finder,
+                                              ItemViewFind::ColorOption colorOption)
+{
+    return createHelper(finder->d->m_view, colorOption, finder);
 }
 
 IFindSupport::Result ItemViewFind::find(const QString &searchTxt,
