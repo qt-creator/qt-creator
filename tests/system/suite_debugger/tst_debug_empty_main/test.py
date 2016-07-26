@@ -55,7 +55,7 @@ def main():
     editor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
     typeLines(editor, ["int main() {"])
     invokeMenuItem("File", "Save All")
-    performDebugging(workingDir, projectName, checkedTargets)
+    performDebugging(projectName, checkedTargets)
     invokeMenuItem("File", "Close All Projects and Editors")
     # C/C++
     targets = Targets.intToArray(Targets.desktopTargetClasses())
@@ -75,7 +75,7 @@ def main():
             invokeMenuItem("File", "Save All")
             progressBarWait(15000)
             setRunInTerminal(1, 0, False)
-            performDebugging(workingDir, projectName, [singleTarget])
+            performDebugging(projectName, [singleTarget])
             invokeMenuItem("File", "Close All Projects and Editors")
     invokeMenuItem("File", "Exit")
 
@@ -89,15 +89,21 @@ def __handleAppOutputWaitForDebuggerFinish__():
         invokeMenuItem("Debug", "Abort Debugging")
         waitFor("str(appOutput.plainText).endswith('Debugging has finished')", 5000)
 
-def performDebugging(workingDir, projectName, checkedTargets):
+def performDebugging(projectName, checkedTargets):
     for kit, config in iterateBuildConfigs(len(checkedTargets), "Debug"):
         test.log("Selecting '%s' as build config" % config)
-        verifyBuildConfig(len(checkedTargets), kit, config, True)
+        verifyBuildConfig(len(checkedTargets), kit, config, True, True)
         progressBarWait(10000)
         invokeMenuItem("Build", "Rebuild All")
         waitForCompile()
         isMsvc = isMsvcConfig(len(checkedTargets), kit)
-        allowAppThroughWinFW(workingDir, projectName, False)
+        if platform.system() in ('Microsoft' 'Windows'):
+            switchViewTo(ViewConstants.PROJECTS)
+            switchToBuildOrRunSettingsFor(len(checkedTargets), kit, ProjectSettings.BUILD)
+            buildDir = os.path.join(str(waitForObject(":Qt Creator_Utils::BuildDirectoryLineEdit").text),
+                                    "debug")
+            switchViewTo(ViewConstants.EDIT)
+            allowAppThroughWinFW(buildDir, projectName, None)
         clickButton(waitForObject(":*Qt Creator.Start Debugging_Core::Internal::FancyToolButton"))
         handleDebuggerWarnings(config, isMsvc)
         waitForObject(":Qt Creator.DebugModeWidget_QSplitter")
@@ -112,4 +118,5 @@ def performDebugging(workingDir, projectName, checkedTargets):
         clickButton(waitForObject(":*Qt Creator.Continue_Core::Internal::FancyToolButton"))
         __handleAppOutputWaitForDebuggerFinish__()
         removeOldBreakpoints()
-        deleteAppFromWinFW(workingDir, projectName, False)
+        if platform.system() in ('Microsoft' 'Windows'):
+            deleteAppFromWinFW(buildDir, projectName, None)
