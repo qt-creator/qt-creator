@@ -241,6 +241,15 @@
             information on how version control systems are integrated in
             \QC, see \l{Using Version Control Systems}
 
+        \li Import as qmake Project
+
+            Import an existing project that does not use any of the supported
+            build systems: qmake, Qbs, CMake, or Autotools. The wizard creates
+            a qmake .pro file, which enables you to use \QC as a code editor and
+            as a launcher for debugging and analysis tools. However, if you want
+            to build the project, you might need to edit the generated .pro
+            file.
+
         \li Import Existing Project
 
             Import an existing project that does not use any of the supported
