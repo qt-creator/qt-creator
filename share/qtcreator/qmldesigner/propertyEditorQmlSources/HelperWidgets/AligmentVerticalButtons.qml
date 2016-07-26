@@ -49,6 +49,8 @@ Row {
     property bool baseStateFlag: isBaseState;
 
     onValueChanged: {
+        buttonRow.initalChecked = 0
+        buttonRow.checkedIndex = 0
         if (value !== undefined) {
             if (value === "AlignTop") {
                 buttonRow.initalChecked = 0
