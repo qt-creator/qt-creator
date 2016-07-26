@@ -183,7 +183,7 @@ void QmlProfilerClientManagerTest::testUnresponsiveTcp()
     clientManager.setTcpConnection(hostName, port);
     clientManager.connectToTcpServer();
 
-    QTRY_COMPARE(connectionSpy.count(), 1);
+    QTRY_VERIFY(connectionSpy.count() > 0);
     QTRY_COMPARE(failedSpy.count(), 1);
     QCOMPARE(openedSpy.count(), 0);
     QCOMPARE(closedSpy.count(), 0);
@@ -271,7 +271,6 @@ void QmlProfilerClientManagerTest::testResponsiveTcp()
         QTcpServer server;
         QScopedPointer<QTcpSocket> socket;
         connect(&server, &QTcpServer::newConnection, [&server, &socket]() {
-            QVERIFY(socket.isNull());
             socket.reset(server.nextPendingConnection());
             fakeDebugServer(socket.data());
         });
