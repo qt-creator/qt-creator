@@ -73,7 +73,7 @@
 
         \li Select the split view in the navigator, then select the
             \uicontrol Layout tab in \uicontrol Properties (4), and then click
-            the \inlineimage anchor-fill-normal.png
+            the \inlineimage anchor_fill.png
             (\uicontrol {Fill to Parent}) button to anchor the split view to the
             item.
 

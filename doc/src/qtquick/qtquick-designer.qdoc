@@ -113,7 +113,7 @@
     you remove an item, the child items are also removed.
 
     You can show and hide items to focus on specific parts of the application.
-    Click the \inlineimage button_color_none_normal.png
+    Click the \inlineimage icon_color_none.png
     (\uicontrol Transparent) button to change the visibility of an item on the
     canvas. To change the
     visibility of an item in the application, select the \uicontrol Visibility
