@@ -40,7 +40,7 @@ QtObject {
     property bool highlight: textColor === __changedTextColor
 
     property color __defaultTextColor: creatorTheme.PanelTextColorLight
-    property color __changedTextColor: Constants.colorsChangedBaseText
+    readonly property color __changedTextColor: creatorTheme.QmlDesigner_HighlightColor
 
     onBackendValueChanged: {
         evaluate();
@@ -68,7 +68,7 @@ QtObject {
 
         if (baseStateFlag) {
             if (innerObject.backendValue.isInModel)
-                innerObject.textColor = Constants.colorsChangedBaseText
+                innerObject.textColor = __changedTextColor
             else
                 innerObject.textColor = creatorTheme.PanelTextColorLight
         } else {

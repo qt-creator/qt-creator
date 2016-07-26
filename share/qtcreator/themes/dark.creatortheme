@@ -200,6 +200,8 @@ PaletteWindowTextDisabled=textDisabled
 PaletteBaseDisabled=backgroundColorDisabled
 PaletteTextDisabled=textDisabled
 
+QmlDesigner_HighlightColor=ff9999ff
+
 [Flags]
 ComboBoxDrawTextShadow=false
 DerivePaletteFromTheme=true

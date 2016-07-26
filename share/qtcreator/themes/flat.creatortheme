@@ -181,6 +181,8 @@ ProjectExplorer_TaskWarn_TextMarkColor=ffffa500
 ClangCodeModel_Error_TextMarkColor=ffff882f
 ClangCodeModel_Warning_TextMarkColor=ffc6c132
 
+QmlDesigner_HighlightColor=ff9999ff
+
 [Flags]
 ComboBoxDrawTextShadow=false
 DerivePaletteFromTheme=false

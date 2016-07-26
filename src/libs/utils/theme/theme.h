@@ -279,7 +279,10 @@ public:
 
         /* ClangCodeModel Plugin */
         ClangCodeModel_Error_TextMarkColor,
-        ClangCodeModel_Warning_TextMarkColor
+        ClangCodeModel_Warning_TextMarkColor,
+
+        /* QmlDesigner */
+        QmlDesigner_HighlightColor
     };
 
     enum Gradient {
