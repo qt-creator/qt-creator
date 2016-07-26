@@ -63,8 +63,6 @@ public:
     virtual AssistProposalItemInterface *proposalItem(int index) const;
 
     void loadContent(const QList<AssistProposalItemInterface *> &items);
-    void setSortingAllowed(bool isAllowed);
-    bool isSortingAllowed() const;
 
 protected:
     QList<AssistProposalItemInterface *> m_currentItems;
