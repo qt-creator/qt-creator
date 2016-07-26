@@ -379,7 +379,8 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
     QStringList importPaths = m_model->importPaths();
     if (m_availablePuppetType == FallbackPuppet)
         importPaths.append(QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath));
-    environment.appendOrSet("QML2_IMPORT_PATH", importPaths.join(pathSep), pathSep);
+    if (m_availablePuppetType != FallbackPuppet)
+        environment.appendOrSet("QML2_IMPORT_PATH", importPaths.join(pathSep), pathSep);
 
     return environment.toProcessEnvironment();
 }
