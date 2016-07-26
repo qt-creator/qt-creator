@@ -53,6 +53,7 @@ public:
     virtual QIcon icon(int index) const;
     virtual QString detail(int index) const;
     virtual int persistentId(int index) const;
+    virtual bool containsDuplicates() const;
     virtual void removeDuplicates();
     virtual void filter(const QString &prefix);
     virtual bool isSortable(const QString &prefix) const;

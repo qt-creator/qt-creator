@@ -40,6 +40,11 @@ ClangAssistProposalModel::ClangAssistProposalModel(
 {
 }
 
+bool ClangAssistProposalModel::containsDuplicates() const
+{
+    return false;
+}
+
 bool ClangAssistProposalModel::isSortable(const QString &/*prefix*/) const
 {
     return true;
