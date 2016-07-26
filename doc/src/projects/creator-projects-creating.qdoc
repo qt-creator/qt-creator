@@ -314,6 +314,23 @@
 
         \endlist
 
+        \li Models and state charts
+
+        \list
+
+            \li Universal Modeling Language (UML) style models with structured
+                diagrams. However, the model editor uses a variant of UML and
+                provides only a subset of properties for specifying the
+                appearance of model elements. For more information, see
+                \l {Modeling}.
+
+            \li State Chart XML (SCXML) files that contain boilerplate code for
+                state machines. You can use the classes in the \l {Qt SCXML}
+                module to embed state machines created from the files in Qt
+                applications.
+
+        \endlist
+
         \li GLSL
 
             GLSL files that define fragment and vertex shaders in both Qt Quick
