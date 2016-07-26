@@ -101,9 +101,6 @@ Rectangle {
                 statesEditorModel.renameState(internalNodeId, text)
         }
 
-        // as we change the background we need to change the text
-        // color to see some text
-        textColor: creatorTheme.PanelTextColorLight
     }
 
     Item {

@@ -96,7 +96,6 @@ StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView, State
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     rootContext()->setContextProperty(QStringLiteral("statesEditorModel"), statesEditorModel);
-    rootContext()->setContextProperty(QStringLiteral("highlightColor"), Utils::StyleHelper::notTooBrightHighlightColor());
 
     rootContext()->setContextProperty(QLatin1String("canAddNewStates"), true);
 

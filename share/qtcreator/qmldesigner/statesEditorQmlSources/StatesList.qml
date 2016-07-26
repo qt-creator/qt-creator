@@ -147,7 +147,7 @@ FocusScope {
                 height: delegateHeight
                 isBaseState: 0 == internalNodeId
                 isCurrentState: root.currentStateInternalId == internalNodeId
-                baseColor: isCurrentState ? Qt.darker(highlightColor, 1.2) : background.color
+                baseColor: isCurrentState ? creatorTheme.QmlDesigner_HighlightColor : background.color
                 delegateStateName: stateName
                 delegateStateImageSource: stateImageSource
                 delegateStateImageSize: stateImageSize
