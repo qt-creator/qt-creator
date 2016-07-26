@@ -37,6 +37,7 @@ Rectangle {
     property int delegateStateImageSize
 
     color: baseColor
+    border.color: creatorTheme.QmlDesignerBackgroundColorDarker
 
     MouseArea {
         anchors.fill: parent
@@ -117,7 +118,7 @@ Rectangle {
             anchors.margins: -1
             anchors.fill: stateImage
             border.width: 1
-            border.color: "#000000"
+            border.color: creatorTheme.QmlDesignerBackgroundColorDarker
         }
         Image {
             id: stateImage

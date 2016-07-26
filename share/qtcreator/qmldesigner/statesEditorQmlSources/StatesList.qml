@@ -111,6 +111,7 @@ FocusScope {
                 background: Rectangle {
                     property color buttonBaseColor: Qt.darker(creatorTheme.QmlDesignerBackgroundColorDarkAlternate, 1.1)
                     color: control.hovered ? Qt.lighter(buttonBaseColor, 1.2)  : buttonBaseColor
+                    border.color: creatorTheme.QmlDesignerBackgroundColorDarker
                     border.width: 1
                     Image {
                         source: "image://icons/plus"
