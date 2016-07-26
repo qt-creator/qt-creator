@@ -61,5 +61,13 @@
         <file>images/alignment_bottom.png</file>
         <file>images/alignment_middle.png</file>
         <file>images/alignment_top.png</file>
+        <file>images/style_bold.png</file>
+        <file>images/style_bold@2x.png</file>
+        <file>images/style_italic.png</file>
+        <file>images/style_italic@2x.png</file>
+        <file>images/style_underline.png</file>
+        <file>images/style_underline@2x.png</file>
+        <file>images/style_strikeout.png</file>
+        <file>images/style_strikeout@2x.png</file>
     </qresource>
 </RCC>

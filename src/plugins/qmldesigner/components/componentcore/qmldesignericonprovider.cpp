@@ -147,6 +147,30 @@ QPixmap QmlDesignerIconProvider::requestPixmap(const QString &id, QSize *size, c
     else if (id == "alignment-bottom-h")
         result = Icon({
                 { ":/qmldesigner/images/alignment_bottom.png", Theme::QmlDesigner_HighlightColor}}, Icon::Tint).pixmap();
+    else if (id == "style-bold")
+        result = Icon({
+                { ":/qmldesigner/images/style_bold.png", Theme::IconsBaseColor}}, Icon::Tint).pixmap();
+    else if (id == "style-bold-h")
+        result = Icon({
+                { ":/qmldesigner/images/style_bold.png", Theme::QmlDesigner_HighlightColor}}, Icon::Tint).pixmap();
+    else if (id == "style-italic")
+        result = Icon({
+                { ":/qmldesigner/images/style_italic.png", Theme::IconsBaseColor}}, Icon::Tint).pixmap();
+    else if (id == "style-italic-h")
+        result = Icon({
+                { ":/qmldesigner/images/style_italic.png", Theme::QmlDesigner_HighlightColor}}, Icon::Tint).pixmap();
+    else if (id == "style-underline")
+        result = Icon({
+                { ":/qmldesigner/images/style_underline.png", Theme::IconsBaseColor}}, Icon::Tint).pixmap();
+    else if (id == "style-underline-h")
+        result = Icon({
+                { ":/qmldesigner/images/style_underline.png", Theme::QmlDesigner_HighlightColor}}, Icon::Tint).pixmap();
+    else if (id == "style-strikeout")
+        result = Icon({
+                { ":/qmldesigner/images/style_strikeout.png", Theme::IconsBaseColor}}, Icon::Tint).pixmap();
+    else if (id == "style-strikeout-h")
+        result = Icon({
+                { ":/qmldesigner/images/style_strikeout.png", Theme::QmlDesigner_HighlightColor}}, Icon::Tint).pixmap();
     else
         qWarning() << Q_FUNC_INFO << "Image not found:" << id;
 
