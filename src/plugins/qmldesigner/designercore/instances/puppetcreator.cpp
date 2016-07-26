@@ -48,10 +48,13 @@
 #include <QCoreApplication>
 #include <QCryptographicHash>
 #include <QDateTime>
+#include <QLoggingCategory>
 #include <QLibraryInfo>
 #include <QMessageBox>
 #include <QThread>
 
+static Q_LOGGING_CATEGORY(puppetStart, "puppet.start")
+static Q_LOGGING_CATEGORY(puppetBuild, "puppet.build")
 
 namespace QmlDesigner {
 
@@ -382,6 +385,11 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
     if (m_availablePuppetType != FallbackPuppet)
         environment.appendOrSet("QML2_IMPORT_PATH", importPaths.join(pathSep), pathSep);
 
+    qCInfo(puppetStart) << Q_FUNC_INFO;
+    qCInfo(puppetStart) << "Puppet qrc mapping" << m_qrcMapping;
+    qCInfo(puppetStart) << "Puppet import paths:" << importPaths;
+    qCInfo(puppetStart) << "Puppet environment:" << environment.toStringList();
+
     return environment.toProcessEnvironment();
 }
 
@@ -453,6 +461,9 @@ bool PuppetCreator::startBuildProcess(const QString &buildDirectoryPath,
     }
 
     process.waitForFinished();
+
+     qCInfo(puppetBuild) << Q_FUNC_INFO;
+     qCInfo(puppetBuild) << m_compileLog;
 
     if (process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0)
         return true;
