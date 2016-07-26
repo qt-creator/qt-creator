@@ -43,7 +43,7 @@ Rectangle {
     */
 
     border.width: roundLeft || roundRight ? 1 : 0
-    color: creatorTheme.BackgroundColorDark
+    color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate
     border.color: creatorTheme.QmlDesignerBackgroundColorDarker
 
     Rectangle {

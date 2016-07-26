@@ -69,7 +69,7 @@ Item {
 
             anchors.fill: parent
             visible: checked
-            color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate
+            color: creatorTheme.QmlDesignerBackgroundColorDarker
         }
 
         RoundedPanel {
@@ -78,7 +78,7 @@ Item {
 
             anchors.fill: parent
             visible: !checked
-            color: creatorTheme.QmlDesignerBackgroundColorDarker
+            color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate
         }
     }
 
