@@ -78,7 +78,7 @@ LibraryDetailsController::LibraryDetailsController(
                 case Abi::WindowsOS:
                     m_creatorPlatform = CreatorWindows;
                     break;
-                case Abi::MacOS:
+                case Abi::DarwinOS:
                     m_creatorPlatform = CreatorMac;
                     break;
                 default:

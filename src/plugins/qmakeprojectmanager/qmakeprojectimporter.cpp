@@ -145,7 +145,7 @@ QList<BuildInfo *> QmakeProjectImporter::import(const FileName &importPath, bool
             QList<ProjectExplorer::Abi> abis = version->qtAbis();
             if (!abis.isEmpty()) {
                 ProjectExplorer::Abi abi = abis.first();
-                if (abi.os() == ProjectExplorer::Abi::MacOS) {
+                if (abi.os() == ProjectExplorer::Abi::DarwinOS) {
                     if (abi.wordWidth() == 64)
                         archConfig = QMakeStepConfig::X86_64;
                     else

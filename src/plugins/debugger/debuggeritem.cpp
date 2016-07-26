@@ -353,7 +353,7 @@ static DebuggerItem::MatchLevel matchSingle(const Abi &debuggerAbi, const Abi &t
         return DebuggerItem::MatchesPerfectly;
     if (HostOsInfo::isLinuxHost() && engineType == GdbEngineType && targetAbi.os() == Abi::LinuxOS)
         return DebuggerItem::MatchesPerfectly;
-    if (HostOsInfo::isMacHost() && engineType == LldbEngineType && targetAbi.os() == Abi::MacOS)
+    if (HostOsInfo::isMacHost() && engineType == LldbEngineType && targetAbi.os() == Abi::DarwinOS)
         return DebuggerItem::MatchesPerfectly;
 
     return DebuggerItem::MatchesWell;

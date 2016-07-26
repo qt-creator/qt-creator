@@ -177,7 +177,7 @@ static QList<Abi> guessGccAbi(const QString &m, const QByteArray &macros)
     else if (macros.contains("#define __SIZEOF_SIZE_T__ 4"))
         width = 32;
 
-    if (os == Abi::MacOS) {
+    if (os == Abi::DarwinOS) {
         // Apple does PPC and x86!
         abiList << Abi(arch, os, flavor, format, width);
         abiList << Abi(arch, os, flavor, format, width == 64 ? 32 : 64);
@@ -575,9 +575,9 @@ FileNameList GccToolChain::suggestedMkspecList() const
             || abi.osFlavor() != host.osFlavor()) // Note: This can fail:-(
         return FileNameList();
 
-    if (abi.os() == Abi::MacOS) {
+    if (abi.os() == Abi::DarwinOS) {
         QString v = version();
-        // prefer versioned g++ on mac. This is required to enable building for older Mac OS versions
+        // prefer versioned g++ on macOS. This is required to enable building for older macOS versions
         if (v.startsWith(QLatin1String("4.0")) && m_compilerCommand.endsWith(QLatin1String("-4.0")))
             return FileNameList() << FileName::fromLatin1("macx-g++40");
         if (v.startsWith(QLatin1String("4.2")) && m_compilerCommand.endsWith(QLatin1String("-4.2")))
@@ -1104,7 +1104,7 @@ WarningFlags ClangToolChain::warningFlags(const QStringList &cflags) const
 FileNameList ClangToolChain::suggestedMkspecList() const
 {
     Abi abi = targetAbi();
-    if (abi.os() == Abi::MacOS)
+    if (abi.os() == Abi::DarwinOS)
         return FileNameList()
                 << FileName::fromLatin1("macx-clang")
                 << FileName::fromLatin1("macx-clang-32")
@@ -1508,23 +1508,23 @@ void ProjectExplorerPlugin::testGccAbiGuessing_data()
     QTest::newRow("Mac 1")
             << QString::fromLatin1("i686-apple-darwin10")
             << QByteArray("#define __SIZEOF_SIZE_T__ 8\n")
-            << (QStringList() << QLatin1String("x86-macos-generic-mach_o-64bit")
-                              << QLatin1String("x86-macos-generic-mach_o-32bit"));
+            << (QStringList() << QLatin1String("x86-darwin-generic-mach_o-64bit")
+                              << QLatin1String("x86-darwin-generic-mach_o-32bit"));
     QTest::newRow("Mac 2")
             << QString::fromLatin1("powerpc-apple-darwin10")
             << QByteArray("#define __SIZEOF_SIZE_T__ 8\n")
-            << (QStringList() << QLatin1String("ppc-macos-generic-mach_o-64bit")
-                              << QLatin1String("ppc-macos-generic-mach_o-32bit"));
+            << (QStringList() << QLatin1String("ppc-darwin-generic-mach_o-64bit")
+                              << QLatin1String("ppc-darwin-generic-mach_o-32bit"));
     QTest::newRow("Mac 3")
             << QString::fromLatin1("i686-apple-darwin9")
             << QByteArray("#define __SIZEOF_SIZE_T__ 4\n")
-            << (QStringList() << QLatin1String("x86-macos-generic-mach_o-32bit")
-                              << QLatin1String("x86-macos-generic-mach_o-64bit"));
+            << (QStringList() << QLatin1String("x86-darwin-generic-mach_o-32bit")
+                              << QLatin1String("x86-darwin-generic-mach_o-64bit"));
     QTest::newRow("Mac IOS")
             << QString::fromLatin1("arm-apple-darwin9")
             << QByteArray("#define __SIZEOF_SIZE_T__ 4\n")
-            << (QStringList() << QLatin1String("arm-macos-generic-mach_o-32bit")
-                              << QLatin1String("arm-macos-generic-mach_o-64bit"));
+            << (QStringList() << QLatin1String("arm-darwin-generic-mach_o-32bit")
+                              << QLatin1String("arm-darwin-generic-mach_o-64bit"));
     QTest::newRow("Intel 1")
             << QString::fromLatin1("86_64 x86_64 GNU/Linux")
             << QByteArray("#define __SIZEOF_SIZE_T__ 8\n")

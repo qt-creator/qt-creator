@@ -54,7 +54,7 @@ public:
     enum OS {
         BsdOS,
         LinuxOS,
-        MacOS,
+        DarwinOS,
         UnixOS,
         WindowsOS,
         VxWorks,
@@ -71,8 +71,8 @@ public:
         GenericLinuxFlavor,
         AndroidLinuxFlavor,
 
-        // Mac
-        GenericMacFlavor,
+        // Darwin
+        GenericDarwinFlavor,
 
         // Unix
         GenericUnixFlavor,

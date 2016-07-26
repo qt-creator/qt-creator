@@ -86,7 +86,7 @@ QList<Abi> IosQtVersion::detectQtAbis() const
     for (int i = 0; i < abis.count(); ++i) {
         abis[i] = Abi(abis.at(i).architecture(),
                       abis.at(i).os(),
-                      Abi::GenericMacFlavor,
+                      Abi::GenericDarwinFlavor,
                       abis.at(i).binaryFormat(),
                       abis.at(i).wordWidth());
     }

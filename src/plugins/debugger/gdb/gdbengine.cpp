@@ -1993,8 +1993,8 @@ bool GdbEngine::hasCapability(unsigned cap) const
     if (runParameters().startMode == AttachCore)
         return false;
 
-    // FIXME: Remove in case we have gdb 7.x on Mac.
-    if (runParameters().toolChainAbi.os() == Abi::MacOS)
+    // FIXME: Remove in case we have gdb 7.x on macOS.
+    if (runParameters().toolChainAbi.os() == Abi::DarwinOS)
         return false;
 
     return cap == SnapshotCapability;

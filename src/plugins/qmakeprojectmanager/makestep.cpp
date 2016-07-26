@@ -258,7 +258,7 @@ bool MakeStep::init(QList<const BuildStep *> &earlierSteps)
     pp->resolveAll();
 
     setOutputParser(new ProjectExplorer::GnuMakeParser());
-    if (tc && tc->targetAbi().os() == Abi::MacOS)
+    if (tc && tc->targetAbi().os() == Abi::DarwinOS)
         appendOutputParser(new XcodebuildParser);
     IOutputParser *parser = target()->kit()->createOutputParser();
     if (parser)

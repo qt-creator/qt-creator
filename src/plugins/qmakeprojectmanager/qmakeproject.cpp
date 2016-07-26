@@ -1464,7 +1464,7 @@ void QmakeProject::collectLibraryData(const QmakeProFileNode *node, DeploymentDa
         deploymentData.addFile(destDirFor(ti) + QLatin1Char('/') + targetFileName, targetPath);
         break;
     }
-    case Abi::MacOS: {
+    case Abi::DarwinOS: {
         QString destDir = destDirFor(ti);
         if (config.contains(QLatin1String("lib_bundle"))) {
             destDir.append(QLatin1Char('/')).append(ti.target)
@@ -1543,7 +1543,7 @@ QString QmakeProject::executableFor(const QmakeProFileNode *node)
     QString target;
 
     switch (toolchain->targetAbi().os()) {
-    case Abi::MacOS:
+    case Abi::DarwinOS:
         if (node->variableValue(ConfigVar).contains(QLatin1String("app_bundle"))) {
             target = ti.target + QLatin1String(".app/Contents/MacOS/") + ti.target;
             break;

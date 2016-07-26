@@ -879,7 +879,7 @@ QMakeStepConfig::TargetArchConfig QMakeStepConfig::targetArchFor(const Abi &targ
     QMakeStepConfig::TargetArchConfig arch = QMakeStepConfig::NoArch;
     if (!version || version->type() != QLatin1String(QtSupport::Constants::DESKTOPQT))
         return arch;
-    if ((targetAbi.os() == ProjectExplorer::Abi::MacOS)
+    if ((targetAbi.os() == ProjectExplorer::Abi::DarwinOS)
             && (targetAbi.binaryFormat() == ProjectExplorer::Abi::MachOFormat)) {
         if (targetAbi.architecture() == ProjectExplorer::Abi::X86Architecture) {
             if (targetAbi.wordWidth() == 32)
@@ -902,7 +902,7 @@ QMakeStepConfig::OsType QMakeStepConfig::osTypeFor(const ProjectExplorer::Abi &t
     const char IOSQT[] = "Qt4ProjectManager.QtVersion.Ios";
     if (!version || version->type() != QLatin1String(IOSQT))
         return os;
-    if ((targetAbi.os() == ProjectExplorer::Abi::MacOS)
+    if ((targetAbi.os() == ProjectExplorer::Abi::DarwinOS)
             && (targetAbi.binaryFormat() == ProjectExplorer::Abi::MachOFormat)) {
         if (targetAbi.architecture() == ProjectExplorer::Abi::X86Architecture) {
             os = QMakeStepConfig::IphoneSimulator;
