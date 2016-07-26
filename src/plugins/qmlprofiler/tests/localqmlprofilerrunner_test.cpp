@@ -105,9 +105,6 @@ void LocalQmlProfilerRunnerTest::testRunner()
     rc->start();
 
     QTRY_COMPARE_WITH_TIMEOUT(runCount, 3, 10000);
-    QTest::qWait(1000);
-    QVERIFY(running); // verify it doesn't spontaneously stop
-
     rc->stop();
     QTRY_VERIFY_WITH_TIMEOUT(!running, 10000);
 
