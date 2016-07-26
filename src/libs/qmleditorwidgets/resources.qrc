@@ -55,5 +55,11 @@
         <file>images/anchor_vertical@2x.png</file>
         <file>images/anchoreditem.png</file>
         <file>images/anchoreditem@2x.png</file>
+        <file>images/alignment_center.png</file>
+        <file>images/alignment_left.png</file>
+        <file>images/alignment_right.png</file>
+        <file>images/alignment_bottom.png</file>
+        <file>images/alignment_middle.png</file>
+        <file>images/alignment_top.png</file>
     </qresource>
 </RCC>

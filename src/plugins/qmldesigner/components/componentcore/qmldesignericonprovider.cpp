@@ -111,6 +111,42 @@ QPixmap QmlDesignerIconProvider::requestPixmap(const QString &id, QSize *size, c
     else if (id == "anchor-fill")
         result = Icon({
                 { ":/qmldesigner/images/anchor_fill.png", Theme::IconsBaseColor}}, Icon::Tint).pixmap();
+    else if (id == "alignment-left")
+        result = Icon({
+                { ":/qmldesigner/images/alignment_left.png", Theme::IconsBaseColor}}, Icon::Tint).pixmap();
+    else if (id == "alignment-left-h")
+        result = Icon({
+                { ":/qmldesigner/images/alignment_left.png", Theme::QmlDesigner_HighlightColor}}, Icon::Tint).pixmap();
+    else if (id == "alignment-center")
+        result = Icon({
+                { ":/qmldesigner/images/alignment_center.png", Theme::IconsBaseColor}}, Icon::Tint).pixmap();
+    else if (id == "alignment-center-h")
+        result = Icon({
+                { ":/qmldesigner/images/alignment_center.png", Theme::QmlDesigner_HighlightColor}}, Icon::Tint).pixmap();
+    else if (id == "alignment-right")
+        result = Icon({
+                { ":/qmldesigner/images/alignment_right.png", Theme::IconsBaseColor}}, Icon::Tint).pixmap();
+    else if (id == "alignment-right-h")
+        result = Icon({
+                { ":/qmldesigner/images/alignment_right.png", Theme::QmlDesigner_HighlightColor}}, Icon::Tint).pixmap();
+    else if (id == "alignment-top")
+        result = Icon({
+                { ":/qmldesigner/images/alignment_top.png", Theme::IconsBaseColor}}, Icon::Tint).pixmap();
+    else if (id == "alignment-top-h")
+        result = Icon({
+                { ":/qmldesigner/images/alignment_top.png", Theme::QmlDesigner_HighlightColor}}, Icon::Tint).pixmap();
+    else if (id == "alignment-middle")
+        result = Icon({
+                { ":/qmldesigner/images/alignment_middle.png", Theme::IconsBaseColor}}, Icon::Tint).pixmap();
+    else if (id == "alignment-middle-h")
+        result = Icon({
+                { ":/qmldesigner/images/alignment_middle.png", Theme::QmlDesigner_HighlightColor}}, Icon::Tint).pixmap();
+    else if (id == "alignment-bottom")
+        result = Icon({
+                { ":/qmldesigner/images/alignment_bottom.png", Theme::IconsBaseColor}}, Icon::Tint).pixmap();
+    else if (id == "alignment-bottom-h")
+        result = Icon({
+                { ":/qmldesigner/images/alignment_bottom.png", Theme::QmlDesigner_HighlightColor}}, Icon::Tint).pixmap();
     else
         qWarning() << Q_FUNC_INFO << "Image not found:" << id;
 

@@ -93,21 +93,21 @@ Row {
 
         ButtonRowButton {
             roundLeftButton: false
-            iconSource: blueHighlight ? "images/alignmenttop-h-icon.png" : "images/alignmenttop-icon.png"
+            iconSource: "image://icons/alignment-top" + (blueHighlight ? "-h" : "")
             onClicked: {
                 if (checked)
                     backendValue.setEnumeration("Text", "AlignTop")
             }
         }
         ButtonRowButton {
-            iconSource:  blueHighlight ? "images/alignmentmiddle-h-icon.png" : "images/alignmentmiddle-icon.png"
+            iconSource: "image://icons/alignment-middle" + (blueHighlight ? "-h" : "")
             onClicked: {
                 if (checked)
                     backendValue.setEnumeration("Text", "AlignVCenter")
             }
         }
         ButtonRowButton {
-            iconSource: blueHighlight ? "images/alignmentbottom-h-icon.png" : "images/alignmentbottom-icon.png"
+            iconSource: "image://icons/alignment-bottom" + (blueHighlight ? "-h" : "")
             onClicked: {
                 if (checked)
                     backendValue.setEnumeration("Text", "AlignBottom")

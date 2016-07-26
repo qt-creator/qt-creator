@@ -86,6 +86,7 @@ Item {
         id: image
         width: 16
         height: 16
+        smooth: false
         anchors.centerIn: parent
     }
 
