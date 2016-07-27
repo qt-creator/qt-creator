@@ -361,7 +361,7 @@ void ProjectWindow::deregisterProject(Project *project)
 void ProjectWindow::startupProjectChanged(Project *project)
 {
     if (ProjectItem *projectItem = itemForProject(project)) {
-        int index = projectItem->parent()->children().indexOf(projectItem);
+        int index = projectItem->indexInParent();
         QTC_ASSERT(index != -1, return);
         m_projectSelection->setCurrentIndex(index);
         m_selectorModel->rootItem()->m_currentProjectIndex = index;

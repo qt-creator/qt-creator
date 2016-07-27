@@ -65,6 +65,7 @@ public:
     int level() const;
 
     int childCount() const { return m_children.size(); }
+    int indexInParent() const;
     TreeItem *childAt(int index) const;
     QVector<TreeItem *> children() const { return m_children; }
     QModelIndex index() const;

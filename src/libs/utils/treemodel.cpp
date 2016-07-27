@@ -766,6 +766,11 @@ int TreeItem::level() const
     return l;
 }
 
+int TreeItem::indexInParent() const
+{
+    return m_parent ? m_parent->m_children.indexOf(const_cast<TreeItem *>(this)) : -1;
+}
+
 QModelIndex TreeItem::index() const
 {
     QTC_ASSERT(m_model, return QModelIndex());
