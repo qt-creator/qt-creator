@@ -446,6 +446,21 @@ static Core::Id toolchainType(ProjectExplorer::RunConfiguration *runConfiguratio
     return ToolChainKitInformation::toolChain(runConfiguration->target()->kit())->typeId();
 }
 
+static QString executableForVersionCheck(Core::Id toolchainType, const QString &executable)
+{
+    if (toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID) {
+        const QString suffix = QLatin1String("-cl.exe");
+        if (executable.endsWith(suffix, Utils::HostOsInfo::fileNameCaseSensitivity())) {
+            QString modified = executable;
+            modified.chop(suffix.length());
+            modified.append(QLatin1String(".exe"));
+            return modified;
+        }
+    }
+
+    return executable;
+}
+
 void ClangStaticAnalyzerRunControl::start()
 {
     m_success = false;
@@ -458,7 +473,8 @@ void ClangStaticAnalyzerRunControl::start()
 
     // Check clang executable
     bool isValidClangExecutable;
-    const QString executable = clangExecutableFromSettings(toolchainType(runConfiguration()),
+    const Core::Id theToolchainType = toolchainType(runConfiguration());
+    const QString executable = clangExecutableFromSettings(theToolchainType,
                                                            &isValidClangExecutable);
     if (!isValidClangExecutable) {
         const QString errorMessage = tr("Clang Static Analyzer: Invalid executable \"%1\", stop.")
@@ -471,12 +487,13 @@ void ClangStaticAnalyzerRunControl::start()
     }
 
     // Check clang version
-    const ClangExecutableVersion version = clangExecutableVersion(executable);
+    const QString versionCheckExecutable = executableForVersionCheck(theToolchainType, executable);
+    const ClangExecutableVersion version = clangExecutableVersion(versionCheckExecutable);
     if (!version.isValid()) {
         const QString warningMessage
             = tr("Clang Static Analyzer: Running with possibly unsupported version, "
                  "could not determine version from executable \"%1\".")
-                    .arg(executable);
+                    .arg(versionCheckExecutable);
         appendMessage(warningMessage + QLatin1Char('\n'), Utils::StdErrFormat);
         TaskHub::addTask(Task::Warning, warningMessage, Debugger::Constants::ANALYZERTASK_ID);
         TaskHub::requestPopup();
