@@ -58,7 +58,8 @@ public:
     static Ptr get(const QString &filePath);
 
 private:
-    void updateHelper(const WorkingCopy &workingCopy) override;
+    void updateHelper(const QFutureInterface<void> &future,
+                      const WorkingCopy &workingCopy) override;
     void addFileAndDependencies(CPlusPlus::Snapshot *snapshot,
                                 QSet<Utils::FileName> *toRemove,
                                 const Utils::FileName &fileName) const;

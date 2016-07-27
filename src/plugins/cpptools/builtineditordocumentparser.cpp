@@ -55,7 +55,8 @@ BuiltinEditorDocumentParser::BuiltinEditorDocumentParser(const QString &filePath
     qRegisterMetaType<CPlusPlus::Snapshot>("CPlusPlus::Snapshot");
 }
 
-void BuiltinEditorDocumentParser::updateHelper(const WorkingCopy &theWorkingCopy)
+void BuiltinEditorDocumentParser::updateHelper(const QFutureInterface<void> &future,
+                                               const WorkingCopy &theWorkingCopy)
 {
     if (filePath().isEmpty())
         return;
@@ -181,6 +182,10 @@ void BuiltinEditorDocumentParser::updateHelper(const WorkingCopy &theWorkingCopy
             if (releaseSourceAndAST_)
                 doc->releaseSourceAndAST();
         });
+        sourceProcessor.setCancelChecker([future]() {
+           return future.isCanceled();
+        });
+
         Snapshot globalSnapshot = modelManager->snapshot();
         globalSnapshot.remove(filePath());
         sourceProcessor.setGlobalSnapshot(globalSnapshot);

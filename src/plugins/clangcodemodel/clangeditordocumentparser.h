@@ -37,7 +37,8 @@ public:
     ClangEditorDocumentParser(const QString &filePath);
 
 private:
-    void updateHelper(const CppTools::WorkingCopy &) override;
+    void updateHelper(const QFutureInterface<void> &future,
+                      const CppTools::WorkingCopy &) override;
 };
 
 } // namespace ClangCodeModel

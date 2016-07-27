@@ -29,6 +29,7 @@
 #include "cppworkingcopy.h"
 #include "projectpart.h"
 
+#include <QFutureInterface>
 #include <QObject>
 #include <QMutex>
 
@@ -39,7 +40,7 @@ class CPPTOOLS_EXPORT BaseEditorDocumentParser : public QObject
     Q_OBJECT
 
 public:
-    using Ptr = QSharedPointer<BaseEditorDocumentParser>;;
+    using Ptr = QSharedPointer<BaseEditorDocumentParser>;
     static Ptr get(const QString &filePath);
 
     struct Configuration {
@@ -58,6 +59,7 @@ public:
     void setConfiguration(const Configuration &configuration);
 
     void update(const WorkingCopy &workingCopy);
+    void update(const QFutureInterface<void> &future, const WorkingCopy &workingCopy);
 
     ProjectPart::Ptr projectPart() const;
 
@@ -76,7 +78,8 @@ protected:
     mutable QMutex m_stateAndConfigurationMutex;
 
 private:
-    virtual void updateHelper(const WorkingCopy &workingCopy) = 0;
+    virtual void updateHelper(const QFutureInterface<void> &future,
+                              const WorkingCopy &workingCopy) = 0;
 
     const QString m_filePath;
     Configuration m_configuration;

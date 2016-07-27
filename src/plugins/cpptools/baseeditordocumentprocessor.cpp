@@ -77,7 +77,7 @@ void BaseEditorDocumentProcessor::runParser(QFutureInterface<void> &future,
         return;
     }
 
-    parser->update(workingCopy);
+    parser->update(future, workingCopy);
     CppToolsBridge::finishedRefreshingSourceFiles({parser->filePath()});
 
     future.setProgressValue(1);
