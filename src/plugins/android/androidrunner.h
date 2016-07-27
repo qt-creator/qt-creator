@@ -79,6 +79,7 @@ private:
     void logcatReadStandardError();
     void logcatReadStandardOutput();
     void asyncStart();
+    void asyncStop();
 
     void adbKill(qint64 pid);
     QStringList selector() const { return m_selector; }

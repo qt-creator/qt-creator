@@ -324,7 +324,7 @@ void AndroidRunner::start()
 {
     m_adbLogcatProcess.start(m_adb, selector() << _("logcat"));
     m_psProc.start(m_adb, selector() << _("shell"));
-    Utils::runAsync(&AndroidRunner::asyncStart, this);
+    Utils::runAsync(&AndroidRunner::asyncStart, this).waitForFinished();
 }
 
 void AndroidRunner::asyncStart()
@@ -519,18 +519,22 @@ void AndroidRunner::handleRemoteDebuggerRunning()
 
 void AndroidRunner::stop()
 {
-    QMutexLocker locker(&m_mutex);
     m_checkPIDTimer.stop();
+    m_adbLogcatProcess.kill();
+    m_psProc.kill();
+    Utils::runAsync(&AndroidRunner::asyncStop, this).waitForFinished();
+    m_adbLogcatProcess.waitForFinished();
+    m_psProc.waitForFinished();
+}
+
+void AndroidRunner::asyncStop()
+{
+    QMutexLocker locker(&m_mutex);
     m_tries = 0;
     if (m_processPID != -1) {
         forceStop();
         emit remoteProcessFinished(QLatin1String("\n\n") + tr("\"%1\" terminated.").arg(m_androidRunnable.packageName));
     }
-    //QObject::disconnect(&m_adbLogcatProcess, 0, this, 0);
-    m_adbLogcatProcess.kill();
-    m_adbLogcatProcess.waitForFinished();
-    m_psProc.kill();
-    m_psProc.waitForFinished();
     foreach (const QStringList &entry, m_androidRunnable.afterFinishADBCommands)
         runAdb(selector() << entry);
 }
