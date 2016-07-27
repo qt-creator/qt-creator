@@ -37,14 +37,6 @@ QTabWidget::pane { /* The tab widget frame */
      background-color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate;
 }
 
-QLineEdit
-{
-     border: 2px solid #8F8F8F;
-     padding: 0 8px;
-     background-color: white;
-     selection-background-color: darkgray;
-}
-
 QLineEdit#itemLibrarySearchInput
 {
     color: creatorTheme.PanelTextColorLight;
