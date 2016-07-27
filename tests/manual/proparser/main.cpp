@@ -189,6 +189,8 @@ int main(int argc, char **argv)
         qCritical("usage: testreader [-v] [-d [-d]] [-c] <filenme> [<out_pwd>] [<variable assignments>]");
         return 3;
     }
+    option.commitCommandLineArguments(state);
+    option.useEnvironment();
     if (out_pwd.isEmpty())
         out_pwd = in_pwd;
     option.setDirectories(in_pwd, out_pwd);
