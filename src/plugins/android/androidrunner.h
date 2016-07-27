@@ -79,7 +79,6 @@ private:
     void logcatReadStandardError();
     void logcatReadStandardOutput();
     void asyncStart();
-    Q_INVOKABLE QByteArray runPs();
 
     void adbKill(qint64 pid);
     QStringList selector() const { return m_selector; }
