@@ -30,11 +30,12 @@ Row {
     id: alignmentVerticalButtons
 
     RoundedPanel {
-        width: 14
+        width: 16
         height: parent.height
         roundLeft: true
 
         ExtendedFunctionButton {
+            x: 2
             anchors.verticalCenter: parent.verticalCenter
             backendValue: alignmentVerticalButtons.backendValue
         }
