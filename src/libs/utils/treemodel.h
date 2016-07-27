@@ -128,8 +128,8 @@ public:
     }
 
 private:
-    TreeItem(const TreeItem &) Q_DECL_EQ_DELETE;
-    void operator=(const TreeItem &) Q_DECL_EQ_DELETE;
+    TreeItem(const TreeItem &) = delete;
+    void operator=(const TreeItem &) = delete;
 
     void clear();
     void propagateModel(BaseTreeModel *m);
