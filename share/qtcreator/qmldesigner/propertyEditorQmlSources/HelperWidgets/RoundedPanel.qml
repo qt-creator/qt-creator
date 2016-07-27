@@ -30,8 +30,8 @@ import QtQuick.Layouts 1.0
 Rectangle {
     id: panel
 
-    property bool roundLeft: false
-    property bool roundRight: false
+    property bool roundLeft: true
+    property bool roundRight: true
 
 
     /*

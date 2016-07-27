@@ -65,7 +65,6 @@ Item {
         anchors.fill: parent
         RoundedPanel {
             roundLeft: isFirst() && buttonRowButton.roundLeftButton
-            roundRight: isLast()
 
             anchors.fill: parent
             visible: checked
@@ -74,7 +73,6 @@ Item {
 
         RoundedPanel {
             roundLeft: isFirst()
-            roundRight: isLast()
 
             anchors.fill: parent
             visible: !checked
