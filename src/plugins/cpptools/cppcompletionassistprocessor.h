@@ -45,7 +45,7 @@ namespace CppTools {
 class CPPTOOLS_EXPORT CppCompletionAssistProcessor : public TextEditor::IAssistProcessor
 {
 public:
-    CppCompletionAssistProcessor();
+    CppCompletionAssistProcessor(int snippetItemOrder = 0);
 
 protected:
     void addSnippets();

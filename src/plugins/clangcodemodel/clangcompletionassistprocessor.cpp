@@ -136,7 +136,8 @@ using namespace CPlusPlus;
 using namespace TextEditor;
 
 ClangCompletionAssistProcessor::ClangCompletionAssistProcessor()
-    : m_completionOperator(T_EOF_SYMBOL)
+    : CppCompletionAssistProcessor(100)
+    , m_completionOperator(T_EOF_SYMBOL)
 {
 }
 
