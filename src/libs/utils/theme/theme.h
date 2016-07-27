@@ -326,7 +326,8 @@ public:
         FlatSideBarIcons,
         FlatProjectsMode,
         FlatMenuBar,
-        ToolBarIconShadow
+        ToolBarIconShadow,
+        WindowColorAsBase
     };
 
     bool flag(Flag f) const;

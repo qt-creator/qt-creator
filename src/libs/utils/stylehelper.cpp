@@ -114,6 +114,12 @@ QColor StyleHelper::m_requestedBaseColor;
 
 QColor StyleHelper::baseColor(bool lightColored)
 {
+    static const bool windowColorAsBase = creatorTheme()->flag(Theme::WindowColorAsBase);
+    if (windowColorAsBase) {
+        static const QColor windowColor = QApplication::palette().color(QPalette::Window);
+        return windowColor;
+    }
+
     if (!lightColored)
         return m_baseColor;
     else

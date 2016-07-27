@@ -187,6 +187,7 @@ FlatSideBarIcons=false
 FlatProjectsMode=false
 FlatMenuBar=false
 ToolBarIconShadow=true
+WindowColorAsBase=false
 
 [Gradients]
 DetailsWidgetHeaderGradient\1\color=ffffff
