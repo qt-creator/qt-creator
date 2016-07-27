@@ -67,9 +67,6 @@ void ConsoleItemModel::shiftEditableRow()
     int position = rootItem()->childCount();
     Q_ASSERT(position > 0);
 
-    // Disable editing for old editable row
-    rootItem()->lastChild()->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
-
     appendItem(new ConsoleItem(ConsoleItem::InputType), position);
     emit selectEditableRow(index(position, 0, QModelIndex()), QItemSelectionModel::ClearAndSelect);
 }

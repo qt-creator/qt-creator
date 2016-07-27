@@ -40,18 +40,12 @@ static QString addZeroWidthSpace(QString text)
 ConsoleItem::ConsoleItem(ItemType itemType, const QString &expression, const QString &file,
                          int line) :
     m_itemType(itemType), m_text(addZeroWidthSpace(expression)), m_file(file), m_line(line)
-{
-    setFlags(Qt::ItemFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable |
-             (itemType == InputType ? Qt::ItemIsEditable : Qt::NoItemFlags)));
-}
+{}
 
 ConsoleItem::ConsoleItem(ConsoleItem::ItemType itemType, const QString &expression,
                          std::function<void(ConsoleItem *)> doFetch) :
     m_itemType(itemType), m_text(addZeroWidthSpace(expression)), m_line(-1), m_doFetch(doFetch)
-{
-    setFlags(Qt::ItemFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable |
-             (itemType == InputType ? Qt::ItemIsEditable : Qt::NoItemFlags)));
-}
+{}
 
 ConsoleItem::ItemType ConsoleItem::itemType() const
 {
@@ -71,6 +65,15 @@ QString ConsoleItem::file() const
 int ConsoleItem::line() const
 {
     return m_line;
+}
+
+Qt::ItemFlags ConsoleItem::flags(int) const
+{
+    Qt::ItemFlags f = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+    // Disable editing for old editable row
+    if (m_itemType == InputType && parent()->lastChild() == this)
+          f |= Qt::ItemIsEditable;
+    return f;
 }
 
 QVariant ConsoleItem::data(int column, int role) const
