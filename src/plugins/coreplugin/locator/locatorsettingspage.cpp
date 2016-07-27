@@ -88,7 +88,6 @@ using namespace Core::Internal;
 FilterItem::FilterItem(ILocatorFilter *filter)
     : m_filter(filter)
 {
-    setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 }
 
 QVariant FilterItem::data(int column, int role) const
@@ -114,12 +113,11 @@ QVariant FilterItem::data(int column, int role) const
 
 Qt::ItemFlags FilterItem::flags(int column) const
 {
-    if (column == FilterPrefix) {
-        return TreeItem::flags(column) | Qt::ItemIsEditable;
-    } else if (column == FilterIncludedByDefault) {
-        return TreeItem::flags(column) | Qt::ItemIsEditable | Qt::ItemIsUserCheckable;
-    }
-    return TreeItem::flags(column);
+    if (column == FilterPrefix)
+        return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable;
+    if (column == FilterIncludedByDefault)
+        return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsUserCheckable;
+    return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 }
 
 bool FilterItem::setData(int column, const QVariant &data, int role)
