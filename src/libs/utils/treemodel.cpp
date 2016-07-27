@@ -944,11 +944,6 @@ TreeItem *BaseTreeModel::rootItem() const
     return m_root;
 }
 
-int BaseTreeModel::topLevelItemCount() const
-{
-    return m_root->childCount();
-}
-
 void BaseTreeModel::setRootItem(TreeItem *item)
 {
     QTC_ASSERT(item, return);

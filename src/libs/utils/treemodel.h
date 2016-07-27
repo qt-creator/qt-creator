@@ -207,7 +207,6 @@ protected:
     TreeItem *itemForIndex(const QModelIndex &) const;
     QModelIndex indexForItem(const TreeItem *needle) const;
 
-    int topLevelItemCount() const;
     int rowCount(const QModelIndex &idx = QModelIndex()) const override;
     int columnCount(const QModelIndex &idx) const override;
 
@@ -308,7 +307,6 @@ public:
     using BaseTreeModel::setHeader;
     using BaseTreeModel::setHeaderToolTip;
     using BaseTreeModel::takeItem;
-    using BaseTreeModel::topLevelItemCount;
 
     template <int Level, class Predicate>
     void forItemsAtLevel(const Predicate &pred) const {
