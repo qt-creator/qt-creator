@@ -295,6 +295,10 @@
 
         \list
 
+            \li Qt item model source and header files that you can use to create
+                classes derived from QAbstractItemModel, QAbstractTableModel, or
+                QAbstractListModel.
+
             \li \QD forms and \QD form classes, which specify parts of user
                 interfaces in Qt widget based projects
 
