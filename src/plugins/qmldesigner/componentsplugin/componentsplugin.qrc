@@ -43,6 +43,8 @@
         <file>images/row-layouts-icon-16px.png</file>
         <file>images/splitview-layouts-icon.png</file>
         <file>images/splitview-layouts-icon-16px.png</file>
+        <file>images/stack-layouts-icon.png</file>
+        <file>images/stack-layouts-icon-16px.png</file>
     </qresource>
     <qresource prefix="/propertyEditorQmlSources/QtQuick">
         <file>Controls/ButtonSpecifics.qml</file>

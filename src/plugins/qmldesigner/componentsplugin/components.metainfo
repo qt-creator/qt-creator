@@ -342,6 +342,22 @@ MetaInfo {
         }
     }
 
+Type {
+    name: "QtQuick.Layouts.StackLayout"
+    icon: ":/componentsplugin/images/stack-layouts-icon-16px.png"
+
+    ItemLibraryEntry {
+        name: "StackLayout"
+        category: "Qt Quick - Layouts"
+        libraryIcon: ":/componentsplugin/images/stack-layouts-icon.png"
+        version: "1.3"
+        requiredImport: "QtQuick.Layouts"
+
+        Property { name: "width"; type: "int"; value: 100; }
+        Property { name: "height"; type: "int"; value: 100; }
+    }
+}
+
     Type {
         name: "QtQuick.Controls.TabView"
         icon: ":/componentsplugin/images/window16.png"
