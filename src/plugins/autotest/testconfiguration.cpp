@@ -151,7 +151,12 @@ void TestConfiguration::completeTestInformation(int runMode)
         Runnable runnable = rc->runnable();
         if (isLocal(rc) && runnable.is<StandardRunnable>()) {
             StandardRunnable stdRunnable = runnable.as<StandardRunnable>();
-            if (stdRunnable.executable == targetFile) {
+            // we might have an executable that gets installed - in such a case the
+            // runnable's executable and targetFile won't match - but the (unique) display name
+            // of the run configuration should match targetName
+            if (stdRunnable.executable == targetFile
+                    || (!targetName.isEmpty() && rc->displayName() == targetName)) {
+                targetFile = stdRunnable.executable;
                 workDir = Utils::FileUtils::normalizePathName(stdRunnable.workingDirectory);
                 env = stdRunnable.environment;
                 hasDesktopTarget = true;
