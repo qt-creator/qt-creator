@@ -92,7 +92,7 @@ def performTest(workingDir, projectName, targetCount, availableConfigs):
         clickButton(startButton)
         stopButton = waitForObject(":Qt Creator.Stop_QToolButton")
         elapsedLabel = waitForObject(":Analyzer Toolbar.Elapsed:_QLabel", 3000)
-        waitFor('"Elapsed:    5" in str(elapsedLabel.text)', 20000)
+        waitFor('"Elapsed:    8" in str(elapsedLabel.text)', 20000)
         clickButton(stopButton)
         test.verify(waitFor("not stopButton.enabled", 5000), "stopButton should be disabled")
         test.verify(waitFor("startButton.enabled", 2000), "startButton should be enabled")
