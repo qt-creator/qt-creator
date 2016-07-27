@@ -36,10 +36,13 @@
 
 #include <QVariant>
 #include <QMetaProperty>
+#include <QLoggingCategory>
 #include <QMimeData>
 #include <QPainter>
 #include <QPen>
 #include <qdebug.h>
+
+static Q_LOGGING_CATEGORY(itemlibraryPopulate, "itemlibrary.populate")
 
 static bool inline registerItemLibrarySortedModel() {
     qmlRegisterType<QmlDesigner::ItemLibrarySectionModel>();
@@ -150,23 +153,35 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
         if (import.isLibraryImport())
             imports << import.url() + QLatin1Char(' ') + import.version();
 
+
+    qCInfo(itemlibraryPopulate) << Q_FUNC_INFO;
     foreach (ItemLibraryEntry entry, itemLibraryInfo->entries()) {
 
-         NodeMetaInfo metaInfo = model->metaInfo(entry.typeName());
-         bool valid = metaInfo.isValid() && metaInfo.majorVersion() == entry.majorVersion();
-         bool isItem = valid && metaInfo.isSubclassOf("QtQuick.Item");
+        qCInfo(itemlibraryPopulate) << entry.typeName() << entry.majorVersion() << entry.minorVersion();
 
-         if (!isItem && valid) {
-             qDebug() << Q_FUNC_INFO;
-             qDebug() << metaInfo.typeName() << "is not a QtQuick.Item";
-             qDebug() << Utils::transform(metaInfo.superClasses(), &NodeMetaInfo::typeName);
-         }
+        NodeMetaInfo metaInfo = model->metaInfo(entry.typeName());
 
-         if (valid
-                 && isItem //We can change if the navigator does support pure QObjects
-                 && (entry.requiredImport().isEmpty()
-                     || model->hasImport(entryToImport(entry), true, true))) {
+        qCInfo(itemlibraryPopulate) << "valid: " << metaInfo.isValid() << metaInfo.majorVersion() << metaInfo.minorVersion();
+
+        bool valid = metaInfo.isValid() && metaInfo.majorVersion() == entry.majorVersion();
+        bool isItem = valid && metaInfo.isSubclassOf("QtQuick.Item");
+
+        qCInfo(itemlibraryPopulate) << "isItem: " << isItem;
+
+        qCInfo(itemlibraryPopulate) << "required import: " << entry.requiredImport() << entryToImport(entry).toImportString();
+
+        if (!isItem && valid) {
+            qDebug() << Q_FUNC_INFO;
+            qDebug() << metaInfo.typeName() << "is not a QtQuick.Item";
+            qDebug() << Utils::transform(metaInfo.superClasses(), &NodeMetaInfo::typeName);
+        }
+
+        if (valid
+                && isItem //We can change if the navigator does support pure QObjects
+                && (entry.requiredImport().isEmpty()
+                    || model->hasImport(entryToImport(entry), true, true))) {
             QString itemSectionName = entry.category();
+            qCInfo(itemlibraryPopulate) << "Adding:" << entry.typeName() << "to:" << entry.category();
             ItemLibrarySection *sectionModel = sectionByName(itemSectionName);
 
             if (sectionModel == 0) {
