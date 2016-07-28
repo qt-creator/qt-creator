@@ -38,7 +38,7 @@ CheckBoxStyle {
             color: control.pressed
                    ? creatorTheme.FancyToolButtonHoverColor
                    : creatorTheme.FancyToolButtonSelectedColor
-            border.color: creatorTheme.QmlDesignerBackgroundColorDarker
+            border.color: creatorTheme.QmlDesignerBorderColor
             anchors.margins: 1
         }
         Image {

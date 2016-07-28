@@ -40,28 +40,17 @@ ComboBoxStyle {
         Rectangle {
             anchors.fill: parent
             visible: !control.pressed
-            color: creatorTheme.FancyToolButtonSelectedColor
-            border.color: creatorTheme.QmlDesignerBackgroundColorDarker
+            color: creatorTheme.QmlDesignerButtonColor
+            border.color: creatorTheme.QmlDesignerBorderColor
             border.width: 1
         }
 
         Rectangle {
-            color: creatorTheme.FancyToolButtonHoverColor
+            color: creatorTheme.QmlDesignerBackgroundColorDarker
             anchors.fill: parent
             visible: control.pressed
-            border.color: creatorTheme.QmlDesignerBackgroundColorDarker
+            border.color: creatorTheme.QmlDesignerBorderColor
             border.width: 1
-        }
-
-        Rectangle {
-            color: creatorTheme.IconsBaseColor
-            width: 1
-            anchors.right: imageItem.left
-            anchors.topMargin: 4
-            anchors.bottomMargin: 4
-            anchors.rightMargin: 6
-            anchors.top: parent.top
-            anchors.bottom: parent.bottom
         }
 
         Image {

@@ -67,7 +67,7 @@ SpinBoxStyle {
     background: Rectangle {
         implicitWidth: Math.max(64, styleData.contentWidth)
         implicitHeight: 23
-        color: creatorTheme.FancyToolButtonSelectedColor
-        border.color: creatorTheme.QmlDesignerBackgroundColorDarker
+        color: creatorTheme.QmlDesignerBackgroundColorDarker
+        border.color: creatorTheme.QmlDesignerBorderColor
     }
 }

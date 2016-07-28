@@ -28,9 +28,9 @@ import QtQuick.Controls 1.1
 import QtQuick.Controls.Styles 1.0
 
 Rectangle {
-    color: creatorTheme.QmlDesignerBackgroundColorLighter
+    color: creatorTheme.QmlDesignerButtonColor
 
-    border.color: creatorTheme.BackgroundColorDark
+    border.color: creatorTheme.QmlDesignerBorderColor
     border.width: 1
 
 

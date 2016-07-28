@@ -118,8 +118,8 @@ Controls.TextField {
         background: Rectangle {
             implicitWidth: 100
             implicitHeight: 24
-            color: creatorTheme.FancyToolButtonSelectedColor
-            border.color: creatorTheme.QmlDesignerBackgroundColorDarker
+            color: creatorTheme.QmlDesignerBackgroundColorDarker
+            border.color: creatorTheme.QmlDesignerBorderColor
         }
     }
 
@@ -172,10 +172,8 @@ Controls.TextField {
                 y: 1
                 Rectangle {
                     anchors.fill: parent
-                    border.color: creatorTheme.QmlDesignerBackgroundColorDarker
-                    color: control.pressed
-                           ? creatorTheme.QmlDesignerBackgroundColorLighter
-                           : creatorTheme.FancyToolButtonHoverColor
+                    border.color: creatorTheme.QmlDesignerBorderColor
+                    color: creatorTheme.QmlDesignerBackgroundColorDarker
                     opacity: control.hovered || control.pressed ? 1 : 0.75
                 }
                 Image {

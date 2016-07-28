@@ -78,7 +78,7 @@ Item {
 
             anchors.fill: parent
             visible: !checked
-            color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate
+            color: creatorTheme.QmlDesignerButtonColor
         }
     }
 
