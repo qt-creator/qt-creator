@@ -69,7 +69,7 @@ Project {
                 result.push("advapi32", "user32")
             else if (qbs.targetOS.contains("linux"))
                 result.push("rt", "dl");
-            else if (qbs.targetOS.contains("osx"))
+            else if (qbs.targetOS.contains("macos"))
                 result.push("dl");
             else if (qbs.targetOS.contains("unix"))
                 result.push("rt");
@@ -95,7 +95,7 @@ Project {
                                 "BOTAN_HAS_ALLOC_MMAP", "BOTAN_HAS_ENTROPY_SRC_DEV_RANDOM",
                                 "BOTAN_HAS_ENTROPY_SRC_EGD", "BOTAN_HAS_ENTROPY_SRC_FTW",
                                 "BOTAN_HAS_ENTROPY_SRC_UNIX", "BOTAN_HAS_MUTEX_PTHREAD", "BOTAN_HAS_PIPE_UNIXFD_IO")
-                if (qbs.targetOS.contains("osx"))
+                if (qbs.targetOS.contains("macos"))
                     result.push("BOTAN_TARGET_OS_IS_DARWIN", "BOTAN_TARGET_OS_HAS_GETTIMEOFDAY",
                                 "BOTAN_HAS_ALLOC_MMAP", "BOTAN_HAS_ENTROPY_SRC_DEV_RANDOM",
                                 "BOTAN_HAS_ENTROPY_SRC_EGD", "BOTAN_HAS_ENTROPY_SRC_FTW",

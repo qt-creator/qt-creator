@@ -4,7 +4,7 @@ import QtcTool
 
 QtcTool {
     name: "iossim"
-    condition: qbs.targetOS.contains("osx")
+    condition: qbs.targetOS.contains("macos")
 
     Depends { name: "Qt"; submodules: ["widgets"] }
     Depends { name: "app_version_header" }

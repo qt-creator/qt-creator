@@ -7,7 +7,7 @@ QtcTool {
     Depends { name: "Utils" }
     Depends { name: "app_version_header" }
 
-    cpp.defines: base.concat([qbs.targetOS.contains("osx")
+    cpp.defines: base.concat([qbs.targetOS.contains("macos")
             ? 'DATA_PATH="."'
             : qbs.targetOS.contains("windows") ? 'DATA_PATH="../share/qtcreator"'
                                                : 'DATA_PATH="../../share/qtcreator"'])

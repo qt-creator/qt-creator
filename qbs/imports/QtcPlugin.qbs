@@ -27,17 +27,17 @@ QtcProduct {
 
     cpp.internalVersion: ""
     cpp.defines: base.concat([name.toUpperCase() + "_LIBRARY"])
-    cpp.sonamePrefix: qbs.targetOS.contains("osx")
+    cpp.sonamePrefix: qbs.targetOS.contains("macos")
         ? "@rpath"
         : undefined
-    cpp.rpaths: qbs.targetOS.contains("osx")
+    cpp.rpaths: qbs.targetOS.contains("macos")
         ? ["@loader_path/../Frameworks", "@loader_path/../PlugIns"]
         : ["$ORIGIN", "$ORIGIN/.."]
     cpp.linkerFlags: {
         var flags = base;
         if (qbs.buildVariant == "debug" && qbs.toolchain.contains("msvc"))
             flags.push("/INCREMENTAL:NO"); // Speed up startup time when debugging with cdb
-        if (qbs.targetOS.contains("osx"))
+        if (qbs.targetOS.contains("macos"))
             flags.push("-compatibility_version", qtc.qtcreator_compat_version);
         return flags;
     }
