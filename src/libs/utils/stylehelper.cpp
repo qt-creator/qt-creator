@@ -66,14 +66,14 @@ QColor StyleHelper::mergedColors(const QColor &colorA, const QColor &colorB, int
 
 QColor StyleHelper::alphaBlendedColors(const QColor &colorA, const QColor &colorB)
 {
-    const QRgb base = colorA.rgba();
-    const QRgb overlay = colorB.rgba();
-    const qreal overlayIntensity = qAlpha(overlay) / 255.0;
-    return qRgba(
-                qMin(qRed(base) + qRound(qRed(overlay) * overlayIntensity), 0xff),
-                qMin(qGreen(base) + qRound(qGreen(overlay) * overlayIntensity), 0xff),
-                qMin(qBlue(base) + qRound(qBlue(overlay) * overlayIntensity), 0xff),
-                qMin(qAlpha(base) + qAlpha(overlay), 0xff));
+    const int alpha = colorB.alpha();
+    const int antiAlpha = 255 - alpha;
+
+    return QColor(
+                (colorA.red() * antiAlpha + colorB.red() * alpha) / 255,
+                (colorA.green() * antiAlpha + colorB.green() * alpha) / 255,
+                (colorA.blue() * antiAlpha + colorB.blue() * alpha) / 255
+                );
 }
 
 qreal StyleHelper::sidebarFontSize()
