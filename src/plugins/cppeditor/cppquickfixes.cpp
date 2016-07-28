@@ -4918,12 +4918,14 @@ public:
     MoveFuncDefToDeclOp(const CppQuickFixInterface &interface,
                         const QString &fromFileName, const QString &toFileName,
                         FunctionDefinitionAST *funcDef, const QString &declText,
+                        const ChangeSet::Range &fromRange,
                         const ChangeSet::Range &toRange)
         : CppQuickFixOperation(interface, 0)
         , m_fromFileName(fromFileName)
         , m_toFileName(toFileName)
         , m_funcAST(funcDef)
         , m_declarationText(declText)
+        , m_fromRange(fromRange)
         , m_toRange(toRange)
     {
         if (m_toFileName == m_fromFileName) {
@@ -4942,7 +4944,6 @@ public:
         CppRefactoringChanges refactoring(snapshot());
         CppRefactoringFilePtr fromFile = refactoring.file(m_fromFileName);
         CppRefactoringFilePtr toFile = refactoring.file(m_toFileName);
-        ChangeSet::Range fromRange = fromFile->range(m_funcAST);
 
         const QString wholeFunctionText = m_declarationText
                 + fromFile->textOf(fromFile->endOf(m_funcAST->declarator),
@@ -4952,14 +4953,14 @@ public:
         ChangeSet toTarget;
         toTarget.replace(m_toRange, wholeFunctionText);
         if (m_toFileName == m_fromFileName)
-            toTarget.remove(fromRange);
+            toTarget.remove(m_fromRange);
         toFile->setChangeSet(toTarget);
         toFile->appendIndentRange(m_toRange);
         toFile->setOpenEditor(true, m_toRange.start);
         toFile->apply();
         if (m_toFileName != m_fromFileName) {
             ChangeSet fromTarget;
-            fromTarget.remove(fromRange);
+            fromTarget.remove(m_fromRange);
             fromFile->setChangeSet(fromTarget);
             fromFile->apply();
         }
@@ -4970,6 +4971,7 @@ private:
     const QString m_toFileName;
     FunctionDefinitionAST *m_funcAST;
     const QString m_declarationText;
+    const ChangeSet::Range m_fromRange;
     const ChangeSet::Range m_toRange;
 };
 
@@ -4978,18 +4980,21 @@ private:
 void MoveFuncDefToDecl::match(const CppQuickFixInterface &interface, QuickFixOperations &result)
 {
     const QList<AST *> &path = interface.path();
+    AST *completeDefAST = 0;
     FunctionDefinitionAST *funcAST = 0;
 
     const int pathSize = path.size();
     for (int idx = 1; idx < pathSize; ++idx) {
         if ((funcAST = path.at(idx)->asFunctionDefinition())) {
-            if (path.at(idx - 1)->asClassSpecifier())
+            AST *enclosingAST = path.at(idx - 1);
+            if (enclosingAST->asClassSpecifier())
                 return;
 
             // check cursor position
             if (idx != pathSize - 1  // Do not allow "void a() @ {..."
                     && funcAST->function_body
                     && !interface.isCursorOn(funcAST->function_body)) {
+                completeDefAST = enclosingAST->asTemplateDeclaration() ? enclosingAST : funcAST;
                 break;
             }
             funcAST = 0;
@@ -4998,6 +5003,10 @@ void MoveFuncDefToDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
 
     if (!funcAST || !funcAST->symbol)
         return;
+
+    const CppRefactoringChanges refactoring(interface.snapshot());
+    const CppRefactoringFilePtr defFile = refactoring.file(interface.fileName());
+    const ChangeSet::Range defRange = defFile->range(completeDefAST);
 
     // Determine declaration (file, range, text);
     QString declFileName;
@@ -5020,7 +5029,6 @@ void MoveFuncDefToDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
             declFileName = QString::fromUtf8(matchingClass->fileName(),
                                              matchingClass->fileNameLength());
 
-            const CppRefactoringChanges refactoring(interface.snapshot());
             const CppRefactoringFilePtr declFile = refactoring.file(declFileName);
             ASTPath astPath(declFile->cppDocument());
             const QList<AST *> path = astPath(s->line(), s->column());
@@ -5046,7 +5054,6 @@ void MoveFuncDefToDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
         if (isHeaderFile)
             return;
 
-        const CppRefactoringChanges refactoring(interface.snapshot());
         const CppRefactoringFilePtr declFile = refactoring.file(declFileName);
         const LookupContext lc(declFile->cppDocument(), interface.snapshot());
         const QList<LookupItem> candidates = lc.lookup(func->name(), matchingNamespace);
@@ -5077,7 +5084,7 @@ void MoveFuncDefToDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
                                               interface.fileName(),
                                               declFileName,
                                               funcAST, declText,
-                                              declRange));
+                                              defRange, declRange));
 }
 
 namespace {
