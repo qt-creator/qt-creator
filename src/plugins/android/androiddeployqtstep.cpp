@@ -69,6 +69,8 @@ const Core::Id AndroidDeployQtStep::Id("Qt4ProjectManager.AndroidDeployQtStep");
 // AndroidDeployQtStepFactory
 /////////////////
 
+
+
 AndroidDeployQtStepFactory::AndroidDeployQtStepFactory(QObject *parent)
     : IBuildStepFactory(parent)
 {
@@ -266,7 +268,6 @@ bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
 
 AndroidDeployQtStep::DeployResult AndroidDeployQtStep::runDeploy(QFutureInterface<bool> &fi)
 {
-    m_installOk = true;
     QString args;
     if (m_useAndroiddeployqt) {
         args = m_androiddeployqtArgs;
@@ -309,10 +310,11 @@ AndroidDeployQtStep::DeployResult AndroidDeployQtStep::runDeploy(QFutureInterfac
     if (Utils::HostOsInfo::isWindowsHost())
         m_process->setUseCtrlCStub(true);
 
+    DeployErrorCode deployError = NoError;
     connect(m_process, &Utils::QtcProcess::readyReadStandardOutput,
-            this, &AndroidDeployQtStep::processReadyReadStdOutput, Qt::DirectConnection);
+            std::bind(&AndroidDeployQtStep::processReadyReadStdOutput, this, std::ref(deployError)));
     connect(m_process, &Utils::QtcProcess::readyReadStandardError,
-            this, &AndroidDeployQtStep::processReadyReadStdError, Qt::DirectConnection);
+            std::bind(&AndroidDeployQtStep::processReadyReadStdError, this, std::ref(deployError)));
 
     m_process->start();
 
@@ -331,12 +333,16 @@ AndroidDeployQtStep::DeployResult AndroidDeployQtStep::runDeploy(QFutureInterfac
     }
 
     QString line = QString::fromLocal8Bit(m_process->readAllStandardError());
-    if (!line.isEmpty())
+    if (!line.isEmpty()) {
+        deployError |= parseDeployErrors(line);
         stdError(line);
+    }
 
     line = QString::fromLocal8Bit(m_process->readAllStandardOutput());
-    if (!line.isEmpty())
+    if (!line.isEmpty()) {
+        deployError |= parseDeployErrors(line);
         stdOutput(line);
+    }
 
     QProcess::ExitStatus exitStatus = m_process->exitStatus();
     int exitCode = m_process->exitCode();
@@ -355,7 +361,7 @@ AndroidDeployQtStep::DeployResult AndroidDeployQtStep::runDeploy(QFutureInterfac
     }
 
     if (exitCode == 0 && exitStatus == QProcess::NormalExit) {
-        if (!m_installOk) {
+        if (deployError != NoError) {
             if (!m_uninstallPreviousPackageRun)
                 return AskUinstall;
             else
@@ -451,38 +457,46 @@ ProjectExplorer::BuildStepConfigWidget *AndroidDeployQtStep::createConfigWidget(
     return new AndroidDeployQtWidget(this);
 }
 
-void AndroidDeployQtStep::processReadyReadStdOutput()
+void AndroidDeployQtStep::processReadyReadStdOutput(DeployErrorCode &errorCode)
 {
     m_process->setReadChannel(QProcess::StandardOutput);
     while (m_process->canReadLine()) {
         QString line = QString::fromLocal8Bit(m_process->readLine());
+        errorCode |= parseDeployErrors(line);
         stdOutput(line);
     }
 }
 
 void AndroidDeployQtStep::stdOutput(const QString &line)
 {
-    if (line.contains(InstallFailedInconsistentCertificatesString)
-            || line.contains(InstallFailedInconsistentCertificatesString2))
-        m_installOk = false;
     emit addOutput(line, BuildStep::NormalOutput, BuildStep::DontAppendNewline);
 }
 
-void AndroidDeployQtStep::processReadyReadStdError()
+void AndroidDeployQtStep::processReadyReadStdError(DeployErrorCode &errorCode)
 {
     m_process->setReadChannel(QProcess::StandardError);
     while (m_process->canReadLine()) {
         QString line = QString::fromLocal8Bit(m_process->readLine());
+        errorCode |= parseDeployErrors(line);
         stdError(line);
     }
 }
 
 void AndroidDeployQtStep::stdError(const QString &line)
 {
-    if (line.contains(InstallFailedInconsistentCertificatesString)
-            || line.contains(InstallFailedInconsistentCertificatesString2))
-        m_installOk = false;
     emit addOutput(line, BuildStep::ErrorOutput, BuildStep::DontAppendNewline);
+}
+
+AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::parseDeployErrors(QString &deployOutputLine) const
+{
+    DeployErrorCode errorCode = NoError;
+
+    if (deployOutputLine.contains(InstallFailedInconsistentCertificatesString))
+        errorCode |= InconsistentCertificates;
+    if (deployOutputLine.contains(InstallFailedInconsistentCertificatesString2))
+        errorCode |= UpdateIncompatible;
+
+    return errorCode;
 }
 
 bool AndroidDeployQtStep::fromMap(const QVariantMap &map)
