@@ -13,8 +13,6 @@
         <file>Overview.qml</file>
         <file>SelectionRange.qml</file>
         <file>SelectionRangeDetails.qml</file>
-        <file>arrow_down.png</file>
-        <file>arrow_right.png</file>
         <file>range_handle.png</file>
         <file>ico_selectionmode.png</file>
         <file>ico_selectionmode@2x.png</file>
@@ -22,7 +20,6 @@
         <file>ico_rangeselection@2x.png</file>
         <file>ico_rangeselected.png</file>
         <file>ico_rangeselected@2x.png</file>
-        <file>ico_note.png</file>
         <file>ButtonsBar.qml</file>
         <file>timelineitems.vert</file>
         <file>timelineitems.frag</file>

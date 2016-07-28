@@ -131,9 +131,7 @@ Item {
         id: titleBar
         width: parent.width
         height: 20
-        color: "#55a3b8"
-        border.width: 1
-        border.color: "#a0a0a0"
+        color: creatorTheme.Timeline_PanelHeaderColor
     }
     Item {
         width: parent.width+1
@@ -144,9 +142,7 @@ Item {
             width: parent.width-1
             height: 15
             y: -5
-            color: "#55a3b8"
-            border.width: 1
-            border.color: "#a0a0a0"
+            color: creatorTheme.Timeline_PanelHeaderColor
         }
     }
 
@@ -155,24 +151,21 @@ Item {
         id: typeTitle
         text: "  "+rangeDetails.dialogTitle
         font.bold: true
-        height: 18
-        y: 2
+        height: 20
         verticalAlignment: Text.AlignVCenter
         anchors.left: parent.left
         anchors.right: editIcon.left
-        color: "white"
         elide: Text.ElideRight
+        color: creatorTheme.PanelTextColorLight
     }
 
     // Details area
     Rectangle {
         id: contentArea
-        color: "white"
+        color: creatorTheme.Timeline_PanelBackgroundColor
         width: parent.width
         height: 10 + col.height + (noteEdit.visible ? (noteEdit.height + 5) : 0)
         y: 20
-        border.width: 1
-        border.color: "#a0a0a0"
 
         //details
         Grid {
@@ -214,7 +207,7 @@ Item {
             visible: notes && (text.length > 0 || focus)
             width: col.width
             wrapMode: Text.Wrap
-            color: "orange"
+            color: creatorTheme.Timeline_HighlightColor
             font.italic: true
             font.pixelSize: typeTitle.font.pixelSize
             font.family: typeTitle.font.family
@@ -250,46 +243,32 @@ Item {
         onClicked: rangeDetails.recenterOnItem()
     }
 
-    Image {
+    ImageToolButton {
         id: editIcon
-        source: "ico_edit.png"
+        imageSource: "image://icons/edit"
         anchors.top: closeIcon.top
         anchors.right: lockIcon.left
-        anchors.rightMargin: 4
+        implicitHeight: typeTitle.height
         visible: notes
-        width: 8
-        height: 12
-        MouseArea {
-            anchors.fill: parent
-            onClicked: noteEdit.focus = true
-        }
+        onClicked: noteEdit.focus = true
     }
 
-    Image {
+    ImageToolButton {
         id: lockIcon
-        source: locked?"lock_closed.png" : "lock_open.png"
+        imageSource: "image://icons/lock_" + (locked ? "closed" : "open")
         anchors.top: closeIcon.top
         anchors.right: closeIcon.left
-        anchors.rightMargin: 4
-        width: 8
-        height: 12
-        MouseArea {
-            anchors.fill: parent
-            onClicked: rangeDetails.toggleSelectionLocked()
-        }
+        implicitHeight: typeTitle.height
+        onClicked: rangeDetails.toggleSelectionLocked()
     }
 
-
-    TimelineText {
+    ImageToolButton {
         id: closeIcon
-        x: col.width + 10
-        y: 4
-        text:"X"
-        color: "white"
-        MouseArea {
-            anchors.fill: parent
-            onClicked: rangeDetails.clearSelection()
-        }
+        anchors.right: parent.right
+        anchors.top: parent.top
+        implicitHeight: typeTitle.height
+        imageSource: "image://icons/close_window"
+        onClicked: rangeDetails.clearSelection()
     }
 
     Item {
@@ -307,7 +286,7 @@ Item {
             cursorShape: Qt.SizeHorCursor
         }
         Rectangle {
-            color: "#55a3b8"
+            color: creatorTheme.Timeline_PanelHeaderColor
             rotation: 45
             width: parent.width * Math.SQRT2
             height: parent.height * Math.SQRT2

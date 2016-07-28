@@ -255,6 +255,17 @@ public:
         Welcome_LinkColor,
         Welcome_HoverColor,
 
+        /* Timeline Library */
+        Timeline_TextColor,
+        Timeline_BackgroundColor1,
+        Timeline_BackgroundColor2,
+        Timeline_DividerColor,
+        Timeline_HighlightColor,
+        Timeline_PanelBackgroundColor,
+        Timeline_PanelHeaderColor,
+        Timeline_HandleColor,
+        Timeline_RangeColor,
+
         /* VcsBase Plugin */
         VcsBase_FileStatusUnknown_TextColor,
         VcsBase_FileAdded_TextColor,

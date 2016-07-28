@@ -73,7 +73,8 @@ Item {
             model: timeMarks.rowCount
             Rectangle {
                 id: row
-                color: ((index + (startOdd ? 1 : 0)) % 2) ? "#f0f0f0" : "white"
+                color: ((index + (startOdd ? 1 : 0)) % 2) ? creatorTheme.Timeline_BackgroundColor1
+                                                          : creatorTheme.Timeline_BackgroundColor2
                 anchors.left: rows.left
                 anchors.right: rows.right
                 height: timeMarks.model ? timeMarks.model.rowHeight(index) : 0
@@ -97,7 +98,6 @@ Item {
                 TimelineText {
                     id: scaleTopLabel
                     visible: parent.scaleVisible
-                    color: "#B0B0B0"
                     font.pixelSize: 8
                     anchors.top: parent.top
                     anchors.leftMargin: 2
@@ -115,9 +115,7 @@ Item {
                         height: row.stepVal * row.height / row.valDiff
                         y: row.height - (index + 1) * height
                         visible: y > scaleTopLabel.height
-                        Text {
-                            renderType: Text.NativeRendering
-                            color: "#B0B0B0"
+                        TimelineText {
                             font.pixelSize: 8
                             anchors.bottom: parent.bottom
                             anchors.bottomMargin: 2
@@ -131,7 +129,7 @@ Item {
                             anchors.left: parent.left
                             anchors.right: parent.right
                             anchors.bottom: parent.bottom
-                            color: "#B0B0B0"
+                            color: creatorTheme.Timeline_DividerColor
                         }
                     }
                 }

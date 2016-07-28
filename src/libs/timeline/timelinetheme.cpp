@@ -25,6 +25,7 @@
 
 #include "timelinetheme.h"
 
+#include <coreplugin/coreicons.h>
 #include <utils/icon.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
@@ -74,6 +75,26 @@ public:
         else if (iconName == QLatin1String("selectionmode"))
             icon = Utils::Icon({{QLatin1String(":/timeline/ico_selectionmode.png"),
                                  Utils::Theme::IconsBaseColor}});
+        else if (iconName == QLatin1String("edit"))
+            icon = Utils::Icon({{QLatin1String(":/timeline/ico_edit.png"),
+                                 Utils::Theme::IconsBaseColor}});
+        else if (iconName == QLatin1String("lock_open"))
+            icon = Utils::Icon({{QLatin1String(":/timeline/lock_open.png"),
+                                 Utils::Theme::IconsBaseColor}});
+        else if (iconName == QLatin1String("lock_closed"))
+            icon = Utils::Icon({{QLatin1String(":/timeline/lock_closed.png"),
+                                 Utils::Theme::IconsBaseColor}});
+        else if (iconName == QLatin1String("range_handle"))
+            icon = Utils::Icon({{QLatin1String(":/timeline/range_handle.png"),
+                                 Utils::Theme::IconsBaseColor}});
+        else if (iconName == QLatin1String("note"))
+            icon = Utils::Icons::INFO_TOOLBAR;
+        else if (iconName == QLatin1String("split"))
+            icon = Utils::Icons::SPLIT_HORIZONTAL_TOOLBAR;
+        else if (iconName == QLatin1String("close_split"))
+            icon = Utils::Icons::CLOSE_SPLIT_TOP;
+        else if (iconName == QLatin1String("close_window"))
+            icon = Utils::Icons::CLOSE_TOOLBAR;
 
         const QSize iconSize(16, 16);
         const QPixmap result = icon.icon().pixmap(iconSize, iconMode);

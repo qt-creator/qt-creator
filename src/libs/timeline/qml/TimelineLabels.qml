@@ -144,7 +144,7 @@ Flickable {
 
                     Rectangle {
                         opacity: loader.y === 0 ? 0 : 1
-                        color: "#B0B0B0"
+                        color: creatorTheme.Timeline_DividerColor
                         height: 1
                         anchors.left: parent.left
                         anchors.right: parent.right
@@ -157,13 +157,5 @@ Flickable {
         Repeater {
             model: labelsModel
         }
-    }
-
-    Rectangle {
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: categoryContent.bottom
-        height: 1
-        color: "#B0B0B0"
     }
 }

@@ -153,6 +153,16 @@ Welcome_DividerColor=ffd6d6d6
 Welcome_HoverColor=ffe8e8e8
 Welcome_LinkColor=ff5caa15
 
+Timeline_TextColor=darkText
+Timeline_BackgroundColor1=ffffffff
+Timeline_BackgroundColor2=fff6f6f6
+Timeline_DividerColor=ffd6d6d6
+Timeline_HighlightColor=ff71b2db
+Timeline_PanelBackgroundColor=ffd6d6d6
+Timeline_PanelHeaderColor=ff3d3d3d
+Timeline_HandleColor=ff3d3d3d
+Timeline_RangeColor=66000000
+
 VcsBase_FileStatusUnknown_TextColor=ff000000
 VcsBase_FileAdded_TextColor=ff00aa00
 VcsBase_FileModified_TextColor=ff0000ee

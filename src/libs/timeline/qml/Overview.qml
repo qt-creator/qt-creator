@@ -29,7 +29,7 @@ import TimelineOverviewRenderer 1.0
 Rectangle {
     id: overview
     objectName: "Overview"
-    color: parent.color
+    color: creatorTheme.Timeline_BackgroundColor2
 
     property QtObject modelProxy
     property QtObject zoomer
@@ -78,20 +78,15 @@ Rectangle {
         anchors.left: parent.left
         anchors.right: parent.right
         textMargin: 2
-        bottomBorderHeight: 0
-        topBorderHeight: 1
         height: 10
         fontSize: 6
         labelsHeight: 10
-        color1: "#cccccc"
-        color2: "#cccccc"
         windowStart: zoomer.traceStart
         alignedWindowStart: zoomer.traceStart
         rangeDuration: zoomer.traceDuration
         contentX: 0
         offsetX: 0
     }
-
 
     Column {
         anchors.top: timebar.bottom
@@ -121,7 +116,7 @@ Rectangle {
         }, {});
 
         property int vertSpace: column.height / 7
-        property color noteColor: "orange"
+        property color noteColor: creatorTheme.Timeline_HighlightColor
         readonly property double spacing: parent.width / zoomer.traceDuration
 
         model: modelProxy.notes ? modelProxy.notes.count : 0
@@ -186,11 +181,5 @@ Rectangle {
         visible: modelProxy.height > 0
         onRangeLeftChanged: overview.updateZoomer()
         onRangeRightChanged: overview.updateZoomer()
-    }
-
-    Rectangle {
-        height: 1
-        width: parent.width
-        color: "#858585"
     }
 }

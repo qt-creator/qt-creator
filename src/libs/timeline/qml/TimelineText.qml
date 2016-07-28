@@ -30,5 +30,6 @@ Text {
     font.family: "sans-serif"
     textFormat: Text.PlainText
     renderType: Text.NativeRendering
+    color: creatorTheme.Timeline_TextColor
 }
 

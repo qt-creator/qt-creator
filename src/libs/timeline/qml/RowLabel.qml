@@ -45,14 +45,15 @@ Button {
     style: ButtonStyle {
         background: Rectangle {
             border.width: 1
-            border.color: "#c8c8c8"
-            color: "#eaeaea"
+            border.color: creatorTheme.Timeline_DividerColor
+            color: creatorTheme.PanelStatusBarBackgroundColor
         }
         label: TimelineText {
             text: button.labelText
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignLeft
             elide: Text.ElideRight
+            color: creatorTheme.PanelTextColorLight
         }
     }
     MouseArea {

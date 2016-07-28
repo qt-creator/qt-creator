@@ -49,7 +49,7 @@ Rectangle {
         content.scroll();
     }
 
-    color: "#dcdcdc"
+    color: creatorTheme.Timeline_BackgroundColor1
 
     // ***** connections with external objects
     Connections {
@@ -161,7 +161,7 @@ Rectangle {
         contentY: content.contentY
         selectedModel: root.selectedModel
         selectedItem: root.selectedItem
-        color: root.color
+        color: creatorTheme.PanelStatusBarBackgroundColor
         modelProxy: timelineModelAggregator
         zoomer: zoomControl
         reverseSelect: shiftPressed
@@ -369,17 +369,9 @@ Rectangle {
     }
 
     Rectangle {
-        anchors.left: buttonsBar.right
-        anchors.bottom: overview.top
-        anchors.top: parent.top
-        width: 1
-        color: "#B0B0B0"
-    }
-
-    Rectangle {
         id: zoomSliderToolBar
         objectName: "zoomSliderToolBar"
-        color: "#9b9b9b"
+        color: creatorTheme.Timeline_PanelBackgroundColor
         enabled: buttonsBar.enabled
         visible: false
         width: buttonsBar.width

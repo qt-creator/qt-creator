@@ -27,6 +27,9 @@ attribute vec4 vertexCoord;
 attribute float distanceFromTop;
 
 uniform mat4 matrix;
+uniform vec4 notesColor;
+
+varying vec4 color;
 varying float d;
 
 void main()
@@ -34,5 +37,6 @@ void main()
     gl_Position = matrix * vertexCoord;
     gl_Position.z -= 0.1;
     gl_Position.w = 1.0;
+    color = notesColor;
     d = distanceFromTop;
 }

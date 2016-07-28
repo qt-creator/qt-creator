@@ -30,12 +30,11 @@ Item {
     anchors.fill: parent
     signal rangeDoubleClicked()
 
-    property color handleColor: "#fe869cd1"
-    property color rangeColor:"#444a64b8"
-    property color dragColor:"#664a64b8"
-    property color borderColor:"#cc4a64b8"
-    property color dragMarkerColor: "#fe4a64b8"
-    property color singleLineColor: "#fe4a64b8"
+    property color handleColor: creatorTheme.Timeline_HandleColor
+    property color rangeColor: creatorTheme.Timeline_RangeColor
+    property color dragColor: creatorTheme.Timeline_RangeColor
+    property color borderColor: creatorTheme.Timeline_RangeColor
+    property color singleLineColor: creatorTheme.Timeline_RangeColor
 
     property alias rangeLeft: leftRange.x
     property alias rangeRight: rightRange.x
@@ -51,7 +50,7 @@ Item {
         color: width > 1 ? (dragArea.pressed ? dragColor : rangeColor) : singleLineColor
     }
 
-    Rectangle {
+    Item {
         id: leftRange
 
         onXChanged: {
@@ -61,8 +60,6 @@ Item {
 
         x: 0
         height: parent.height
-        width: 1
-        color: borderColor
 
         Rectangle {
             id: leftBorderHandle
@@ -72,12 +69,11 @@ Item {
             color: handleColor
             visible: false
             Image {
-                source: "range_handle.png"
-                x: 2
-                width: 4
-                height: 9
-                fillMode: Image.Tile
-                y: parent.height / 2 - 4
+                source: "image://icons/range_handle"
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.margins: 1
+                y: (parent.height - height) / 2
             }
         }
 
@@ -112,13 +108,11 @@ Item {
         }
     }
 
-    Rectangle {
+    Item {
         id: rightRange
 
         x: 1
         height: parent.height
-        width: 1
-        color: borderColor
 
         Rectangle {
             id: rightBorderHandle
@@ -128,12 +122,11 @@ Item {
             color: handleColor
             visible: false
             Image {
-                source: "range_handle.png"
-                x: 2
-                width: 4
-                height: 9
-                fillMode: Image.Tile
-                y: parent.height / 2 - 4
+                source: "image://icons/range_handle"
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.margins: 1
+                y: (parent.height - height) / 2
             }
         }
 

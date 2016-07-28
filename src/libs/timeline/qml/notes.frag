@@ -23,10 +23,10 @@
 **
 ****************************************************************************/
 
-lowp vec4 orange = vec4(1.0, 165.0 / 255.0, 0.0, 1.0);
+varying lowp vec4 color;
 varying lowp float d;
 
 void main()
 {
-    gl_FragColor = orange * float(d < (2.0 / 3.0) || d > (5.0 / 6.0));
+    gl_FragColor = color * float(d < (2.0 / 3.0) || d > (5.0 / 6.0));
 }

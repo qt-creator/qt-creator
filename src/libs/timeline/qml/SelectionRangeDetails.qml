@@ -76,23 +76,7 @@ Item {
     Rectangle {
         width: parent.width
         height: 20
-        color: "#4a64b8"
-        border.width: 1
-        border.color: "#a0a0a0"
-    }
-    Item {
-        width: parent.width+1
-        height: 11
-        y: 10
-        clip: true
-        Rectangle {
-            width: parent.width-1
-            height: 15
-            y: -5
-            color: "#4a64b8"
-            border.width: 1
-            border.color: "#a0a0a0"
-        }
+        color: creatorTheme.Timeline_PanelHeaderColor
     }
 
     //title
@@ -100,21 +84,18 @@ Item {
         id: typeTitle
         text: "  "+qsTr("Selection")
         font.bold: true
-        height: 18
-        y: 2
+        height: 20
         verticalAlignment: Text.AlignVCenter
         width: parent.width
-        color: "white"
+        color: creatorTheme.PanelTextColorLight
     }
 
     // Details area
     Rectangle {
-        color: "white"
+        color: creatorTheme.Timeline_PanelBackgroundColor
         width: parent.width
         height: col.height + 10
         y: 20
-        border.width: 1
-        border.color: "#a0a0a0"
         Grid {
             id: col
             x: 10
@@ -152,16 +133,12 @@ Item {
         onClicked: selectionRangeDetails.recenter()
     }
 
-    TimelineText {
+    ImageToolButton {
         id: closeIcon
-        x: selectionRangeDetails.width - 14
-        y: 4
-        text:"X"
-        color: "white"
-        MouseArea {
-            anchors.fill: parent
-            anchors.leftMargin: -8
-            onClicked: selectionRangeDetails.close()
-        }
+        imageSource: "image://icons/close_window"
+        anchors.right: selectionRangeDetails.right
+        anchors.top: selectionRangeDetails.top
+        implicitHeight: typeTitle.height
+        onClicked: selectionRangeDetails.close()
     }
 }

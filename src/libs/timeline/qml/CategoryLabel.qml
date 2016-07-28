@@ -81,11 +81,13 @@ Item {
 
     TimelineText {
         id: txt
-        x: 5
+        anchors.left: parent.left
+        anchors.leftMargin: 5
+        anchors.right: notesButton.visible ? notesButton.left : notesButton.right
+
         text: labelContainer.text
-        color: "#232323"
+        color: creatorTheme.PanelTextColorLight
         height: model ? model.defaultRowHeight : 0
-        width: 140
         verticalAlignment: Text.AlignVCenter
         elide: Text.ElideRight
     }
@@ -124,11 +126,10 @@ Item {
         }
     }
 
-    ToolButton {
+    ImageToolButton {
         id: notesButton
         anchors.verticalCenter: txt.verticalCenter
         anchors.right: expandButton.left
-        implicitWidth: 17
         implicitHeight: txt.height - 1
         property var eventIds: []
         property var texts: []
@@ -154,7 +155,7 @@ Item {
         }
 
         visible: eventIds.length > 0
-        iconSource: "ico_note.png"
+        imageSource: "image://icons/note"
         tooltip: texts.join("\n");
         onClicked: {
             if (++currentNote >= eventIds.length)
@@ -163,14 +164,13 @@ Item {
         }
     }
 
-    ToolButton {
+    ImageToolButton {
         id: expandButton
         anchors.verticalCenter: txt.verticalCenter
         anchors.right: parent.right
-        implicitWidth: 17
         implicitHeight: txt.height - 1
         enabled: expanded || (model && !model.empty)
-        iconSource: expanded ? "arrow_down.png" : "arrow_right.png"
+        imageSource: expanded ? "image://icons/close_split" : "image://icons/split"
         tooltip: expanded ? qsTr("Collapse category") : qsTr("Expand category")
         onClicked: model.expanded = !expanded
     }
@@ -180,7 +180,7 @@ Item {
         property int visualIndex: labelContainer.visualIndex
         width: labelContainer.width
         height: 0
-        color: "black"
+        color: creatorTheme.PanelStatusBarBackgroundColor
         opacity: 0.5
         anchors.left: parent.left
 
@@ -219,7 +219,7 @@ Item {
             id: draggerText
             visible: parent.Drag.active
             x: txt.x
-            color: "white"
+            color: creatorTheme.PanelTextColorLight
             width: txt.width
             height: txt.height
             verticalAlignment: txt.verticalAlignment
