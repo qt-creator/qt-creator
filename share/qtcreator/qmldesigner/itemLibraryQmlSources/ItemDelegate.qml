@@ -27,56 +27,58 @@ import QtQuick 2.1
 import QtQuick.Controls 1.1
 import QtQuick.Controls.Styles 1.0
 
-Rectangle {
-    color: creatorTheme.QmlDesignerButtonColor
-
-    border.color: creatorTheme.QmlDesignerBorderColor
-    border.width: 1
-
-
-    Image {
-        id: itemIcon // to be set by model
-
-        anchors.top: parent.top
-        anchors.topMargin: styleConstants.cellVerticalMargin
-        anchors.horizontalCenter: parent.horizontalCenter
-
-        width: itemLibraryIconWidth  // to be set in Qml context
-        height: itemLibraryIconHeight   // to be set in Qml context
-        source: itemLibraryIconPath     // to be set by model
-    }
-
-    Text {
-        id: text
-        font.pixelSize: 9
-        elide: Text.ElideMiddle
-        wrapMode: Text.WordWrap
-        anchors.top: itemIcon.bottom
-        anchors.topMargin: styleConstants.cellVerticalSpacing
-        anchors.left: parent.left
-        anchors.leftMargin: styleConstants.cellHorizontalMargin
-        anchors.right: parent.right
-        anchors.rightMargin: styleConstants.cellHorizontalMargin
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: styleConstants.cellHorizontalMargin
-
-        verticalAlignment: Qt.AlignVCenter
-        horizontalAlignment: Qt.AlignHCenter
-        text: itemName  // to be set by model
-        color: creatorTheme.PanelTextColorLight
-        renderType: Text.NativeRendering
-    }
-
-    MouseArea {
-        id: mouseRegion
+Item {
+    Rectangle {
+        anchors.rightMargin: 1
+        anchors.topMargin: 1
         anchors.fill: parent
 
-        property bool reallyPressed: false
-        property int pressedX
-        property int pressedY
+        color: creatorTheme.QmlDesignerButtonColor
 
-        onPressed: {
-            rootView.startDragAndDrop(itemLibraryEntry)
+        Image {
+            id: itemIcon // to be set by model
+
+            anchors.top: parent.top
+            anchors.topMargin: styleConstants.cellVerticalMargin
+            anchors.horizontalCenter: parent.horizontalCenter
+
+            width: itemLibraryIconWidth  // to be set in Qml context
+            height: itemLibraryIconHeight   // to be set in Qml context
+            source: itemLibraryIconPath     // to be set by model
+        }
+
+        Text {
+            id: text
+            font.pixelSize: 9
+            elide: Text.ElideMiddle
+            wrapMode: Text.WordWrap
+            anchors.top: itemIcon.bottom
+            anchors.topMargin: styleConstants.cellVerticalSpacing
+            anchors.left: parent.left
+            anchors.leftMargin: styleConstants.cellHorizontalMargin
+            anchors.right: parent.right
+            anchors.rightMargin: styleConstants.cellHorizontalMargin
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: styleConstants.cellHorizontalMargin
+
+            verticalAlignment: Qt.AlignVCenter
+            horizontalAlignment: Qt.AlignHCenter
+            text: itemName  // to be set by model
+            color: creatorTheme.PanelTextColorLight
+            renderType: Text.NativeRendering
+        }
+
+        MouseArea {
+            id: mouseRegion
+            anchors.fill: parent
+
+            property bool reallyPressed: false
+            property int pressedX
+            property int pressedY
+
+            onPressed: {
+                rootView.startDragAndDrop(itemLibraryEntry)
+            }
         }
     }
 }
