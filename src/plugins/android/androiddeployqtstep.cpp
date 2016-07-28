@@ -62,13 +62,13 @@ using namespace Android::Internal;
 
 const QLatin1String UninstallPreviousPackageKey("UninstallPreviousPackage");
 const QLatin1String InstallFailedInconsistentCertificatesString("INSTALL_PARSE_FAILED_INCONSISTENT_CERTIFICATES");
-const QLatin1String InstallFailedInconsistentCertificatesString2("INSTALL_FAILED_UPDATE_INCOMPATIBLE");
+const QLatin1String InstallFailedUpdateIncompatible("INSTALL_FAILED_UPDATE_INCOMPATIBLE");
+const QLatin1String InstallFailedPermissionModelDowngrade("INSTALL_FAILED_PERMISSION_MODEL_DOWNGRADE");
 const Core::Id AndroidDeployQtStep::Id("Qt4ProjectManager.AndroidDeployQtStep");
 
 //////////////////
 // AndroidDeployQtStepFactory
 /////////////////
-
 
 
 AndroidDeployQtStepFactory::AndroidDeployQtStepFactory(QObject *parent)
@@ -266,7 +266,7 @@ bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
     return true;
 }
 
-AndroidDeployQtStep::DeployResult AndroidDeployQtStep::runDeploy(QFutureInterface<bool> &fi)
+AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy(QFutureInterface<bool> &fi)
 {
     QString args;
     if (m_useAndroiddeployqt) {
@@ -361,23 +361,43 @@ AndroidDeployQtStep::DeployResult AndroidDeployQtStep::runDeploy(QFutureInterfac
     }
 
     if (exitCode == 0 && exitStatus == QProcess::NormalExit) {
-        if (deployError != NoError) {
-            if (!m_uninstallPreviousPackageRun)
-                return AskUinstall;
-            else
-                return Failure;
+        if (deployError != NoError && m_uninstallPreviousPackageRun) {
+            deployError = Failure;
         }
-        return Success;
+    } else {
+        deployError = Failure;
     }
-    return Failure;
+
+    return deployError;
 }
 
-void AndroidDeployQtStep::slotAskForUninstall()
+void AndroidDeployQtStep::slotAskForUninstall(DeployErrorCode errorCode)
 {
-    int button = QMessageBox::critical(0, tr("Install failed"),
-                                       tr("Another application with the same package id but signed with "
-                                          "different certificate already exists.\n"
-                                          "Do you want to uninstall the existing package?"),
+    Q_ASSERT(errorCode > 0);
+
+    QString uninstallMsg = tr("Deployment failed with the following errors:\n\n");
+    uint errorCodeFlags = errorCode;
+    uint mask = 1;
+    while (errorCodeFlags) {
+      switch (errorCodeFlags & mask) {
+      case DeployErrorCode::PermissionModelDowngrade:
+          uninstallMsg += InstallFailedPermissionModelDowngrade+"\n";
+          break;
+      case InconsistentCertificates:
+          uninstallMsg += InstallFailedInconsistentCertificatesString+"\n";
+          break;
+      case UpdateIncompatible:
+          uninstallMsg += InstallFailedUpdateIncompatible+"\n";
+          break;
+      default:
+          break;
+      }
+      errorCodeFlags &= ~mask;
+      mask <<= 1;
+    }
+
+    uninstallMsg.append(tr("\nUninstalling the installed package may solve the issue.\nDo you want to uninstall the existing package?"));
+    int button = QMessageBox::critical(0, tr("Install failed"), uninstallMsg,
                                        QMessageBox::Yes, QMessageBox::No);
     m_askForUinstall = button == QMessageBox::Yes;
 }
@@ -399,9 +419,9 @@ void AndroidDeployQtStep::run(QFutureInterface<bool> &fi)
         emit setSerialNumber(serialNumber);
     }
 
-    DeployResult returnValue = runDeploy(fi);
-    if (returnValue == AskUinstall) {
-        emit askForUninstall();
+    DeployErrorCode returnValue = runDeploy(fi);
+    if (returnValue > DeployErrorCode::NoError && returnValue < DeployErrorCode::Failure) {
+        emit askForUninstall(returnValue);
         if (m_askForUinstall) {
             m_uninstallPreviousPackageRun = true;
             returnValue = runDeploy(fi);
@@ -434,7 +454,7 @@ void AndroidDeployQtStep::run(QFutureInterface<bool> &fi)
                << QLatin1String("/system/") + m_libdir + QLatin1String("/libc.so")
                << QString::fromLatin1("%1/libc.so").arg(m_buildDirectory));
 
-    reportRunResult(fi, returnValue == Success);
+    reportRunResult(fi, returnValue == NoError);
 }
 
 void AndroidDeployQtStep::runCommand(const QString &program, const QStringList &arguments)
@@ -493,8 +513,10 @@ AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::parseDeployErrors(QStr
 
     if (deployOutputLine.contains(InstallFailedInconsistentCertificatesString))
         errorCode |= InconsistentCertificates;
-    if (deployOutputLine.contains(InstallFailedInconsistentCertificatesString2))
+    if (deployOutputLine.contains(InstallFailedUpdateIncompatible))
         errorCode |= UpdateIncompatible;
+    if (deployOutputLine.contains(InstallFailedPermissionModelDowngrade))
+        errorCode |= PermissionModelDowngrade;
 
     return errorCode;
 }

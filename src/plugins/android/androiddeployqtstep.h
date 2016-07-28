@@ -64,7 +64,9 @@ class AndroidDeployQtStep : public ProjectExplorer::BuildStep
     {
         NoError = 0,
         InconsistentCertificates = 0x0001,
-        UpdateIncompatible = 0x0002
+        UpdateIncompatible = 0x0002,
+        PermissionModelDowngrade = 0x0004,
+        Failure = 0x0008
     };
 
 public:
@@ -88,7 +90,7 @@ public:
     void setUninstallPreviousPackage(bool uninstall);
 
 signals:
-    void askForUninstall();
+    void askForUninstall(DeployErrorCode errorCode);
     void setSerialNumber(const QString &serialNumber);
 
 private:
@@ -98,9 +100,8 @@ private:
 
     bool init(QList<const BuildStep *> &earlierSteps) override;
     void run(QFutureInterface<bool> &fi) override;
-    enum DeployResult { Success, Failure, AskUinstall };
-    DeployResult runDeploy(QFutureInterface<bool> &fi);
-    void slotAskForUninstall();
+    DeployErrorCode runDeploy(QFutureInterface<bool> &fi);
+    void slotAskForUninstall(DeployErrorCode errorCode);
     void slotSetSerialNumber(const QString &serialNumber);
 
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
