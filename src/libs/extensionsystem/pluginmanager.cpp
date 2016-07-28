@@ -1024,6 +1024,8 @@ static int executeTestPlan(const TestPlan &testPlan)
                 << QLatin1String("arg0") // fake application name
                 << QLatin1String("-maxwarnings") << QLatin1String("0"); // unlimit output
         qExecArguments << functions;
+        // avoid being stuck in QTBUG-24925
+        qExecArguments << "-nocrashhandler";
         failedTests += QTest::qExec(testObject, qExecArguments);
     }
 
