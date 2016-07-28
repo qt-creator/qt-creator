@@ -39,6 +39,7 @@ Controls.CheckBox {
 
     ExtendedFunctionButton {
         x: 22
+        anchors.verticalCenter: parent.verticalCenter
         backendValue: checkBox.backendValue
         visible: checkBox.enabled
     }

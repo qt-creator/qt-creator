@@ -60,13 +60,13 @@ SpinBoxStyle {
             height: 4
             source: "image://icons/down-arrow"
             x: 1
-            y: 2.5 // Hack! Spinbox sets an non-int offset, somewhere
+            y: 3
         }
     }
 
     background: Rectangle {
         implicitWidth: Math.max(64, styleData.contentWidth)
-        implicitHeight: 23
+        implicitHeight: 24
         color: creatorTheme.QmlDesignerBackgroundColorDarker
         border.color: creatorTheme.QmlDesignerBorderColor
     }

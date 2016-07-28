@@ -52,7 +52,7 @@ Controls.TextField {
 
     ExtendedFunctionButton {
         x: 2
-        y: 6
+        anchors.verticalCenter: parent.verticalCenter
         backendValue: lineEdit.backendValue
         visible: lineEdit.enabled && showExtendedFunctionButton
     }

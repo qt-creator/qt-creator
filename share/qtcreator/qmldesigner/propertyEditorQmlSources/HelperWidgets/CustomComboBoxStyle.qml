@@ -35,7 +35,7 @@ ComboBoxStyle {
 
     background: Item {
         implicitWidth: 120
-        implicitHeight: 25
+        implicitHeight: 24
 
         Rectangle {
             anchors.fill: parent
