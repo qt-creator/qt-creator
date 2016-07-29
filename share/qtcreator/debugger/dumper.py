@@ -1776,7 +1776,7 @@ class DumperBase:
                         self.putQObjectGutsHelper(0, 0, -1, metaObjectPtr, "QMetaObject")
 
         if isQObject:
-            with SubItem(self, "d"):
+            with SubItem(self, "[d]"):
                 self.put('sortgroup="15"')
                 try:
                     self.putItem(qobject["d_ptr"]["d"])
