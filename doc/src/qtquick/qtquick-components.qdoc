@@ -90,6 +90,9 @@
     when compared to Qt Quick Controls, on which the module is based. These
     types work in conjunction with Qt Quick and Qt Quick Layouts.
 
+    Since Qt 5.7, \l {Qt Quick Controls 2} replace Qt Quick Controls 1 and
+    Qt Labs Controls.
+
     Some ready-made controls, such as a gauge, dial, status indicator, and
     tumbler, are provided by the \l {Qt Quick Extras} module.
 
@@ -104,7 +107,7 @@
     \list 1
 
         \li Select \uicontrol File > \uicontrol {New File or Project} >
-            \uicontrol {Files and Classes} > \uicontrol Qt > \uicontrol {QML File (Qt Quick 1)} or
+            \uicontrol {Files and Classes} > \uicontrol Qt >
             \uicontrol {QML File (Qt Quick 2)} > \uicontrol Choose to create a new .qml
             file.
 

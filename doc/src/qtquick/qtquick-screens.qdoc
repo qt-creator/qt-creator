@@ -57,6 +57,9 @@
     when compared to Qt Quick Controls, on which the module is based. These
     types work in conjunction with Qt Quick and Qt Quick Layouts.
 
+    Since Qt 5.7, \l {Qt Quick Controls 2} replace Qt Quick Controls 1 and
+    Qt Labs Controls.
+
     \section1 Adding Components to Screens
 
     \list 1
