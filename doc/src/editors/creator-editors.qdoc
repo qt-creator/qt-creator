@@ -492,6 +492,12 @@
         \li
 
     \row
+        \li M128
+        \li Error
+        \li A state cannot have the specified child item
+        \li
+
+    \row
         \li M201
         \li Hint
         \li Place var declarations at the start of a function
