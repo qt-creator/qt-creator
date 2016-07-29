@@ -64,7 +64,6 @@ public:
     TreeItem *lastChild() const;
     int level() const;
 
-    void setFlags(Qt::ItemFlags flags);
     int childCount() const { return m_children.size(); }
     TreeItem *childAt(int index) const;
     QVector<TreeItem *> children() const { return m_children; }
@@ -137,7 +136,6 @@ private:
 
     TreeItem *m_parent; // Not owned.
     BaseTreeModel *m_model; // Not owned.
-    Qt::ItemFlags m_flags;
 
  protected:
     QVector<TreeItem *> m_children; // Owned.

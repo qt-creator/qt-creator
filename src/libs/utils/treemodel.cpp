@@ -606,7 +606,7 @@ namespace Utils {
 // TreeItem
 //
 TreeItem::TreeItem()
-    : m_parent(0), m_model(0), m_flags(Qt::ItemIsEnabled|Qt::ItemIsSelectable)
+    : m_parent(0), m_model(0)
 {
 }
 
@@ -641,7 +641,7 @@ bool TreeItem::setData(int column, const QVariant &data, int role)
 Qt::ItemFlags TreeItem::flags(int column) const
 {
     Q_UNUSED(column);
-    return m_flags;
+    return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
 
 bool TreeItem::hasChildren() const
@@ -764,11 +764,6 @@ int TreeItem::level() const
     for (TreeItem *item = this->parent(); item; item = item->parent())
         ++l;
     return l;
-}
-
-void TreeItem::setFlags(Qt::ItemFlags flags)
-{
-    m_flags = flags;
 }
 
 QModelIndex TreeItem::index() const
