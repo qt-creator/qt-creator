@@ -42,6 +42,7 @@ public:
 
     virtual QString text() const;
     void setText(const QString &text);
+    void disableValidator();
 };
 
 class ConnectionComboBox : public PropertiesComboBox

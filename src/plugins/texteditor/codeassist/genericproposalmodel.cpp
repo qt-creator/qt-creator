@@ -170,7 +170,6 @@ QString GenericProposalModel::detail(int index) const
     return m_currentItems.at(index)->detail();
 }
 
-// make it optional because it is not needed in many cases
 void GenericProposalModel::removeDuplicates()
 {
     QHash<QString, quint64> unique;
@@ -270,6 +269,11 @@ void GenericProposalModel::sort(const QString &prefix)
 int GenericProposalModel::persistentId(int index) const
 {
     return m_idByText.value(m_currentItems.at(index)->text());
+}
+
+bool GenericProposalModel::containsDuplicates() const
+{
+    return true;
 }
 
 bool GenericProposalModel::supportsPrefixExpansion() const

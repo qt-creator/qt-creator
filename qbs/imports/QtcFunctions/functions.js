@@ -4,7 +4,7 @@ function qtLibraryName(qbs, name)
     if (qbs.debugInformation) {
         if (qbs.targetOS.contains("windows"))
             return name + "d";
-        else if (qbs.targetOS.contains("osx"))
+        else if (qbs.targetOS.contains("macos"))
             return name + "_debug";
     }
     return name;

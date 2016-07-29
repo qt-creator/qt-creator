@@ -65,7 +65,6 @@ Item {
         anchors.fill: parent
         RoundedPanel {
             roundLeft: isFirst() && buttonRowButton.roundLeftButton
-            roundRight: isLast()
 
             anchors.fill: parent
             visible: checked
@@ -74,19 +73,19 @@ Item {
 
         RoundedPanel {
             roundLeft: isFirst()
-            roundRight: isLast()
 
             anchors.fill: parent
             visible: !checked
-            color: creatorTheme.BackgroundColorDark
+            color: creatorTheme.QmlDesignerButtonColor
         }
     }
 
     Image {
         id: image
-        //source: iconSource
+        width: 16
+        height: 16
+        smooth: false
         anchors.centerIn: parent
-        anchors.leftMargin: leftPadding
     }
 
     ToolTipArea {

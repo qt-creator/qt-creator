@@ -31,6 +31,7 @@ import QtQuick.Controls 1.0 as Controls
 Controls.ComboBox {
 
     property string targetName: anchorBackend.topTarget
+    property color textColor: creatorTheme.PanelTextColorLight
 
     id: targetComboBox
 
@@ -50,5 +51,6 @@ Controls.ComboBox {
     model: anchorBackend.possibleTargetItems
 
     style: CustomComboBoxStyle {
+        textColor: targetComboBox.textColor
     }
 }

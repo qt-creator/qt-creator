@@ -241,6 +241,15 @@
             information on how version control systems are integrated in
             \QC, see \l{Using Version Control Systems}
 
+        \li Import as qmake Project
+
+            Import an existing project that does not use any of the supported
+            build systems: qmake, Qbs, CMake, or Autotools. The wizard creates
+            a qmake .pro file, which enables you to use \QC as a code editor and
+            as a launcher for debugging and analysis tools. However, if you want
+            to build the project, you might need to edit the generated .pro
+            file.
+
         \li Import Existing Project
 
             Import an existing project that does not use any of the supported
@@ -286,6 +295,10 @@
 
         \list
 
+            \li Qt item model source and header files that you can use to create
+                classes derived from QAbstractItemModel, QAbstractTableModel, or
+                QAbstractListModel.
+
             \li \QD forms and \QD form classes, which specify parts of user
                 interfaces in Qt widget based projects
 
@@ -293,15 +306,29 @@
             application executable
 
         \li QML files, which specify items in Qt Quick projects.
-            \uicontrol {Qt Quick 1} creates a QML file that imports Qt Quick 1.1 and
-            \uicontrol {Qt Quick 2} creates a QML file that imports Qt Quick 2.0.
-            Select \uicontrol {Qt Quick 1} to add files to a Qt Quick 1 application
-            and \uicontrol {Qt Quick 2} to add files to a Qt Quick 2 application.
-            \uicontrol {Qt Quick UI File} creates an UI form (\e .ui.qml) and
-            the corresponding QML file.
+            \uicontrol {QML File (Qt Quick 2)} creates a QML file that imports
+            Qt Quick 2.0 and \uicontrol {Qt Quick UI File} creates an UI form
+            (\e .ui.qml) and the corresponding QML file.
 
         \li JavaScript files that you can use to write the application logic in
             Qt Quick projects
+
+        \endlist
+
+        \li Models and state charts
+
+        \list
+
+            \li Universal Modeling Language (UML) style models with structured
+                diagrams. However, the model editor uses a variant of UML and
+                provides only a subset of properties for specifying the
+                appearance of model elements. For more information, see
+                \l {Modeling}.
+
+            \li State Chart XML (SCXML) files that contain boilerplate code for
+                state machines. You can use the classes in the \l {Qt SCXML}
+                module to embed state machines created from the files in Qt
+                applications.
 
         \endlist
 
@@ -321,6 +348,10 @@
                 not intend to save
 
         \endlist
+
+        \li Java
+
+            Java class files that you can use to create Java classes.
 
         \li Python
 

@@ -31,6 +31,7 @@
 #include <cplusplus/TypeOfExpression.h>
 #include <cplusplus/cppmodelmanagerbase.h>
 #include <cplusplus/CppDocument.h>
+#include <utils/qtcassert.h>
 
 #include <QList>
 
@@ -819,6 +820,8 @@ FindExportedCppTypes::FindExportedCppTypes(const CPlusPlus::Snapshot &snapshot)
 
 QStringList FindExportedCppTypes::operator()(const CPlusPlus::Document::Ptr &document)
 {
+    QTC_ASSERT(!document.isNull(), return QStringList());
+
     m_contextProperties.clear();
     m_exportedTypes.clear();
     QStringList fileNames;

@@ -38,7 +38,7 @@ Item {
         height: 16
         Image {
             id: image
-            anchors.centerIn: parent
+            anchors.fill: parent
         }
 
     }

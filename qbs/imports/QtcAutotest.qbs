@@ -26,7 +26,7 @@ QtcProduct {
     // The following would be conceptually right, but does not work currently as some autotests
     // (e.g. extensionsystem) do not work when installed, because they want hardcoded
     // absolute paths to resources in the build directory.
-    //    cpp.rpaths: qbs.targetOS.contains("osx")
+    //    cpp.rpaths: qbs.targetOS.contains("macos")
     //            ? ["@loader_path/../Frameworks", "@loader_path/../PlugIns"]
     //            : ["$ORIGIN/../" + qtc.libDirName + "/qtcreator",
     //               "$ORIGIN/../" qtc.libDirName + "/qtcreator/plugins"]

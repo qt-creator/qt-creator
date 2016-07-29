@@ -40,7 +40,7 @@ using namespace CPlusPlus;
 
 namespace CppTools {
 
-CppCompletionAssistProcessor::CppCompletionAssistProcessor()
+CppCompletionAssistProcessor::CppCompletionAssistProcessor(int snippetItemOrder)
     : m_positionForProposal(-1)
     , m_preprocessorCompletions(QStringList()
           << QLatin1String("define")
@@ -72,7 +72,8 @@ CppCompletionAssistProcessor::CppCompletionAssistProcessor()
           << QLatin1String("endif"))
     , m_hintProposal(0)
     , m_snippetCollector(QLatin1String(CppEditor::Constants::CPP_SNIPPETS_GROUP_ID),
-                         QIcon(QLatin1String(":/texteditor/images/snippet.png")))
+                         QIcon(QLatin1String(":/texteditor/images/snippet.png")),
+                         snippetItemOrder)
 {
 }
 

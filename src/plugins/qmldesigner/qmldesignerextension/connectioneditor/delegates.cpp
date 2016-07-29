@@ -71,6 +71,11 @@ void PropertiesComboBox::setText(const QString &text)
     setEditText(text);
 }
 
+void PropertiesComboBox::disableValidator()
+{
+    setValidator(0);
+}
+
 ConnectionComboBox::ConnectionComboBox(QWidget *parent) : PropertiesComboBox(parent)
 {
 }
@@ -163,6 +168,7 @@ QWidget *BindingDelegate::createEditor(QWidget *parent, const QStyleOptionViewIt
         } break;
         case BindingModel::SourcePropertyNameRow: {
             bindingComboBox->addItems(model->possibleSourceProperties(bindingProperty));
+            bindingComboBox->disableValidator();
         } break;
         default: qWarning() << "BindingDelegate::createEditor column" << index.column();
         }

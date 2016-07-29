@@ -65,7 +65,7 @@ def performTest(workingDir, projectName, targetCount, availableConfigs):
         # switching from MSVC to MinGW build will fail on the clean step of 'Rebuild All' because
         # of differences between MSVC's and MinGW's Makefile (so clean before switching kits)
         invokeMenuItem('Build', 'Clean Project "%s"' % projectName)
-        qtVersion = verifyBuildConfig(targetCount, kit, config, True, enableQmlDebug=True)[0]
+        qtVersion = verifyBuildConfig(targetCount, kit, config, True, True, True)[0]
         test.log("Selected kit using Qt %s" % qtVersion)
         # explicitly build before start debugging for adding the executable as allowed program to WinFW
         invokeMenuItem("Build", "Rebuild All")
@@ -73,7 +73,13 @@ def performTest(workingDir, projectName, targetCount, availableConfigs):
         if not checkCompile():
             test.fatal("Compile had errors... Skipping current build config")
             continue
-        allowAppThroughWinFW(workingDir, projectName, False)
+        if platform.system() in ('Microsoft' 'Windows'):
+            switchViewTo(ViewConstants.PROJECTS)
+            switchToBuildOrRunSettingsFor(targetCount, kit, ProjectSettings.BUILD)
+            buildDir = os.path.join(str(waitForObject(":Qt Creator_Utils::BuildDirectoryLineEdit").text),
+                                    "debug")
+            switchViewTo(ViewConstants.EDIT)
+            allowAppThroughWinFW(buildDir, projectName, None)
         switchViewTo(ViewConstants.DEBUG)
         selectFromCombo(":Analyzer Toolbar.AnalyzerManagerToolBox_QComboBox", "QML Profiler")
         recordButton = waitForObject("{container=':DebugModeWidget.Toolbar_QDockWidget' "
@@ -123,7 +129,8 @@ def performTest(workingDir, projectName, targetCount, availableConfigs):
                 elif str(model.index(row, colCalls).data()) == "2":
                     test.compare(model.index(row, colMedian).data(), model.index(row, colLongest).data(),
                                  "For two calls, median and longest time must be the same.")
-        deleteAppFromWinFW(workingDir, projectName, False)
+        if platform.system() in ('Microsoft' 'Windows'):
+            deleteAppFromWinFW(buildDir, projectName, None)
         progressBarWait(15000, False)   # wait for "Build" progressbar to disappear
         clickButton(waitForObject(":Analyzer Toolbar.Clear_QToolButton"))
         test.verify(waitFor("model.rowCount() == 0", 3000), "Analyzer results cleared.")

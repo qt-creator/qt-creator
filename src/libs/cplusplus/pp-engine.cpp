@@ -762,6 +762,11 @@ QByteArray Preprocessor::run(const QString &fileName,
     return preprocessed;
 }
 
+void Preprocessor::setCancelChecker(const Preprocessor::CancelChecker &cancelChecker)
+{
+    m_cancelChecker = cancelChecker;
+}
+
 bool Preprocessor::expandFunctionlikeMacros() const
 {
     return m_expandFunctionlikeMacros;
@@ -1636,6 +1641,9 @@ void Preprocessor::handlePreprocessorDirective(PPToken *tk)
 
 void Preprocessor::handleIncludeDirective(PPToken *tk, bool includeNext)
 {
+    if (m_cancelChecker && m_cancelChecker())
+        return;
+
     m_state.m_lexer->setScanAngleStringLiteralTokens(true);
     lex(tk); // consume "include" token
     m_state.m_lexer->setScanAngleStringLiteralTokens(false);

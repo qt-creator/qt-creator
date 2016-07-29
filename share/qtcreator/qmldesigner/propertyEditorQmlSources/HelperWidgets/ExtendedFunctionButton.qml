@@ -125,105 +125,140 @@ Item {
         }
     }
 
-    Rectangle {
-        parent: itemPane
-        visible: false
-        x: 10
-        color: "#424242"
+    Item {
 
-        radius: 3
-        border.color: "black"
-        gradient: Gradient {
-            GradientStop {color: "#2c2c2c" ; position: 0}
-            GradientStop {color: "#343434" ; position: 0.15}
-            GradientStop {color: "#373737" ; position: 1.0}
+        Rectangle {
+             anchors.fill: parent
+             color: creatorTheme.QmlDesignerBackgroundColorDarker
+             opacity: 0.6
         }
+
+        MouseArea {
+             anchors.fill: parent
+        }
+
 
         id: expressionDialog
+        visible: false
+        parent: itemPane
 
-        onVisibleChanged: {
-            var pos  = itemPane.mapFromItem(extendedFunctionButton.parent, 0, 0);
-            y = pos.y + 2;
-        }
+        anchors.fill: parent
 
-        width: parent.width - 20
-        height: 120
 
-        Controls.TextField {
-            id: textField
-            anchors.fill: parent
-            anchors.leftMargin: 4
-            anchors.rightMargin: 4
-            anchors.topMargin: 4
-            anchors.bottomMargin: 20
-            onAccepted: {
-                backendValue.expression = textField.text
-                expressionDialog.visible = false
+
+        Rectangle {
+            x: 4
+            onVisibleChanged: {
+                var pos  = itemPane.mapFromItem(extendedFunctionButton.parent, 0, 0);
+                y = pos.y + 2;
             }
 
-            style: TextFieldStyle {
-                textColor: Constants.colorsDefaultText
-                padding.top: 3
-                padding.bottom: 1
-                padding.left: 16
-                placeholderTextColor: "gray"
-                background: Rectangle {
-                    implicitWidth: 100
-                    implicitHeight: 23
-                    radius: 3
-                    gradient: Gradient {
-                        GradientStop {color: "#2c2c2c" ; position: 0}
-                        GradientStop {color: "#343434" ; position: 0.15}
-                        GradientStop {color: "#373737" ; position: 1.0}
-                    }
-                }
-            }
-        }
+            width: parent.width - 8
+            height: 160
 
-        Row {
-            spacing: 0
-            Button {
-                style: ButtonStyle {
-                    background: Image {
-                        source: "images/apply.png"
-                        Rectangle {
-                            opacity:  control.pressed ? 0.5 : 0
-                            anchors.fill: parent
-                            gradient: Gradient {
-                                GradientStop {color: "#606060" ; position: 0}
-                                GradientStop {color: "#404040" ; position: 0.07}
-                                GradientStop {color: "#303030" ; position: 1}
-                            }
-                        }
-                    }
-                }
-                onClicked: {
+            radius: 2
+            color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate
+            border.color: creatorTheme.QmlDesignerBorderColor
+
+            Label {
+                x: 8
+                y: 6
+                font.bold: true
+                text: qsTr("Binding Editor")
+            }
+
+            Controls.TextField {
+                verticalAlignment: Text.AlignTop
+                id: textField
+                anchors.fill: parent
+                anchors.leftMargin: 8
+                anchors.rightMargin: 8
+                anchors.topMargin: 24
+                anchors.bottomMargin: 32
+                onAccepted: {
                     backendValue.expression = textField.text
                     expressionDialog.visible = false
                 }
-            }
-            Button {
-                style: ButtonStyle {
-                    background: Image {
-                        source: "images/cancel.png"
 
-                        Rectangle {
-                            opacity:  control.pressed ? 0.5 : 0
-                            anchors.fill: parent
-                            gradient: Gradient {
-                                GradientStop {color: "#606060" ; position: 0}
-                                GradientStop {color: "#404040" ; position: 0.07}
-                                GradientStop {color: "#303030" ; position: 1}
+                style: TextFieldStyle {
+                    textColor: creatorTheme.PanelTextColorLight
+                    padding.top: 6
+                    padding.bottom: 2
+                    padding.left: 6
+                    placeholderTextColor: creatorTheme.PanelTextColorMid
+                    background: Rectangle {
+                        implicitWidth: 100
+                        implicitHeight: 23
+                        radius: 2
+                        color: creatorTheme.QmlDesignerBackgroundColorDarker
+                        border.color: creatorTheme.QmlDesignerBorderColor
+                    }
+                }
+            }
+
+            Row {
+                spacing: 2
+                Button {
+                    width: 16
+                    height: 16
+                    style: ButtonStyle {
+                        background: Item{
+                            Image {
+                                width: 16
+                                height: 16
+                                source: "image://icons/error"
+                                opacity: {
+                                    if (control.pressed)
+                                        return 0.8;
+                                    return 1.0;
+                                }
+                                Rectangle {
+                                    z: -1
+                                    anchors.fill: parent
+                                    color: control.pressed || control.hovered ? creatorTheme.QmlDesignerBackgroundColorDarker : creatorTheme.QmlDesignerButtonColor
+                                    border.color: creatorTheme.QmlDesignerBorderColor
+                                    radius: 2
+                                }
                             }
                         }
                     }
+                    onClicked: {
+                        backendValue.expression = textField.text
+                        expressionDialog.visible = false
+                    }
                 }
-                onClicked: {
-                    expressionDialog.visible = false
+                Button {
+                    width: 16
+                    height: 16
+                    style: ButtonStyle {
+                        background: Item {
+                            Image {
+                                width: 16
+                                height: 16
+                                source: "image://icons/ok"
+                                opacity: {
+                                    if (control.pressed)
+                                        return 0.8;
+                                    return 1.0;
+                                }
+                                Rectangle {
+                                    z: -1
+                                    anchors.fill: parent
+                                    color: control.pressed || control.hovered ? creatorTheme.QmlDesignerBackgroundColorDarker : creatorTheme.QmlDesignerButtonColor
+                                    border.color: creatorTheme.QmlDesignerBorderColor
+                                    radius: 2
+                                }
+                            }
+                        }
+                    }
+                    onClicked: {
+                        expressionDialog.visible = false
+                    }
                 }
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                anchors.margins: 4
             }
-            anchors.right: parent.right
-            anchors.bottom: parent.bottom
         }
     }
 

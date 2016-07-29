@@ -206,7 +206,7 @@ class Dumper(DumperBase):
         self.currentType = ReportItem()
         self.currentNumChild = None
         self.currentMaxNumChild = None
-        self.currentPrintsAddress = None
+        self.currentPrintsAddress = True
         self.currentChildType = None
         self.currentChildNumChild = -1
         self.currentWatchers = {}
@@ -250,12 +250,14 @@ class Dumper(DumperBase):
             if item.name == '**&':
                 item.name = '*'
             self.put('name="%s",' % item.name)
+        item.savedCurrentAddress = self.currentAddress
         item.savedIName = self.currentIName
         item.savedValue = self.currentValue
         item.savedType = self.currentType
         self.currentIName = item.iname
         self.currentValue = ReportItem()
         self.currentType = ReportItem()
+        self.currentAddress = None
 
     def exitSubItem(self, item, exType, exValue, exTraceBack):
         if not exType is None:
@@ -278,10 +280,13 @@ class Dumper(DumperBase):
                 self.put('value="%s",' % self.currentValue.value)
         except:
             pass
+        if not self.currentAddress is None:
+            self.put(self.currentAddress)
         self.put('},')
         self.currentIName = item.savedIName
         self.currentValue = item.savedValue
         self.currentType = item.savedType
+        self.currentAddress = item.savedCurrentAddress
         return True
 
     def stateName(self, s):
@@ -962,7 +967,7 @@ class Dumper(DumperBase):
         #if int(addr) == 0xffffffffffffffff:
         #    raise RuntimeError("Illegal address")
         if self.currentPrintsAddress and not addr is None:
-            self.put('address="0x%x",' % int(addr))
+            self.currentAddress = 'address="0x%x",' % toInteger(addr)
 
     def isFunctionType(self, typeobj):
         if self.isGoodLldb:
@@ -1174,6 +1179,7 @@ class Dumper(DumperBase):
             return
 
         self.output = ''
+        self.currentAddress = None
         partialVariable = args.get('partialvar', "")
         isPartial = len(partialVariable) > 0
 

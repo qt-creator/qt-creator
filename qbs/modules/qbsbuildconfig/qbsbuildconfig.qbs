@@ -8,7 +8,7 @@ Module {
     property bool enableProjectFileUpdates: true
     property bool installApiHeaders: false
     property string libInstallDir: qtc.ide_library_path
-    property stringList libRPaths: qbs.targetOS.contains("osx")
+    property stringList libRPaths: qbs.targetOS.contains("macos")
             ? ["@loader_path/" + FileInfo.relativePath('/' + appInstallDir, '/' + libInstallDir)]
             : ["$ORIGIN/..", "$ORIGIN/../" + qtc.ide_library_path]
     property string resourcesInstallDir: qtc.ide_data_path + "/qbs"

@@ -2,10 +2,10 @@ import qbs
 
 QtcProduct {
     Depends { name: "bundle" }
-    Depends { name: "ib"; condition: qbs.targetOS.contains("osx") }
+    Depends { name: "ib"; condition: qbs.targetOS.contains("macos") }
 
     Properties {
-        condition: qbs.targetOS.contains("osx")
+        condition: qbs.targetOS.contains("macos")
         ib.appIconName: "qtcreator"
     }
 
@@ -23,7 +23,7 @@ QtcProduct {
     installDir: qtc.ide_bin_path
     property bool qtcRunnable: true
 
-    cpp.rpaths: qbs.targetOS.contains("osx") ? ["@executable_path/../Frameworks"]
+    cpp.rpaths: qbs.targetOS.contains("macos") ? ["@executable_path/../Frameworks"]
                                              : ["$ORIGIN/../" + qtc.libDirName + "/qtcreator"]
     cpp.includePaths: [
         project.sharedSourcesDir + "/qtsingleapplication",
@@ -51,7 +51,7 @@ QtcProduct {
 
     Group {
         name: "qtcreator.sh"
-        condition: qbs.targetOS.contains("unix") && !qbs.targetOS.contains("osx")
+        condition: qbs.targetOS.contains("unix") && !qbs.targetOS.contains("macos")
         files: "../../bin/qtcreator.sh"
         qbs.install: true
         qbs.installDir: "bin"
@@ -74,7 +74,7 @@ QtcProduct {
     }
 
     Group {
-        condition: qbs.targetOS.contains("osx")
+        condition: qbs.targetOS.contains("macos")
         fileTagsFilter: ["aggregate_infoplist", "pkginfo", "compiled_assetcatalog"]
         qbs.install: true
         qbs.installSourceBase: product.buildDirectory

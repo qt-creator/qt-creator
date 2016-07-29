@@ -407,7 +407,8 @@ void GenericProposalWidget::setIsSynchronized(bool isSync)
 void GenericProposalWidget::showProposal(const QString &prefix)
 {
     ensurePolished();
-    d->m_model->removeDuplicates();
+    if (d->m_model->containsDuplicates())
+        d->m_model->removeDuplicates();
     if (!updateAndCheck(prefix))
         return;
     show();

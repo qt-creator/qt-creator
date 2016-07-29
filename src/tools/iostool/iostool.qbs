@@ -2,7 +2,7 @@ import qbs 1.0
 
 QtcTool {
     name: "iostool"
-    condition: qbs.targetOS.contains("osx")
+    condition: qbs.targetOS.contains("macos")
 
     Depends { name: "bundle" }
     Depends { name: "Qt.widgets" }

@@ -28,5 +28,4 @@
 var colorsDisabledText = "gray"
 var colorsDefaultText = "white"
 var colorsBoldText = "#dedede"
-var colorsChangedBaseText = "#9999ff"
 var colorsChangedStateText = "#99ccff"

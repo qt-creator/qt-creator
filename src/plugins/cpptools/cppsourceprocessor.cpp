@@ -121,6 +121,11 @@ CppSourceProcessor::CppSourceProcessor(const Snapshot &snapshot, DocumentCallbac
 CppSourceProcessor::~CppSourceProcessor()
 { }
 
+void CppSourceProcessor::setCancelChecker(const CppSourceProcessor::CancelChecker &cancelChecker)
+{
+    m_preprocess.setCancelChecker(cancelChecker);
+}
+
 void CppSourceProcessor::setWorkingCopy(const WorkingCopy &workingCopy)
 { m_workingCopy = workingCopy; }
 

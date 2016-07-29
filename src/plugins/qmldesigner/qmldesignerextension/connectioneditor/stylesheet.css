@@ -8,6 +8,9 @@ QFrame
 
 QTableView {
     color: creatorTheme.PanelTextColorLight;
+    selection-color: creatorTheme.PanelTextColorLight;
+    selection-background-color: creatorTheme.QmlDesigner_HighlightColor;
+
 }
 
 QTableView::item
@@ -24,11 +27,8 @@ QTableView::item:focus
 
 QTableView::item:selected
 {
-    background-color:  qlineargradient(x1: 0, y1: -0.4, x2: 0, y2: 0.6,stop: 0  palette(midlight), stop: 1 palette(highlight));
-
     border: none
 }
-
 
 QHeaderView::section {
     background-color: #494949;

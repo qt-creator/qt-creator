@@ -71,7 +71,7 @@
                 the rectangle and produce rounded corners for the button.
 
             \li Select \uicontrol {Layout}, and then select the
-                \inlineimage anchor-fill-normal.png
+                \inlineimage anchor_fill.png
                 (\uicontrol {Fill to Parent}) button to anchor the rectangle to
                 the item.
 
@@ -198,7 +198,7 @@
                 for example button_up.png.
 
             \li  Click \uicontrol {Layout}, and then click the
-                \inlineimage anchor-fill-normal.png
+                \inlineimage anchor_fill.png
                 (\uicontrol {Fill to Parent}) button to anchor the border image to the
                 \uicontrol Item.
 
@@ -248,9 +248,9 @@
                 \endlist
 
             \li Click \uicontrol {Layout}, and then click the
-                \inlineimage anchor-vertical-normal.png
+                \inlineimage anchor_vertical.png
                 (\uicontrol {Set Vertical Anchor}) and
-                \inlineimage anchor-horizontal-normal.png
+                \inlineimage anchor_horizontal.png
                 (\uicontrol {Set Horizontal Anchor})
                 buttons to inherit the vertical and horizontal centering from
                 the parent.

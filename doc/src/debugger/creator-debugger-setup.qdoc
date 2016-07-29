@@ -137,7 +137,7 @@
     On OS X you can use the LLDB version delivered with Xcode or build from source.
     The minimum supported version is LLDB 320.4.
 
-    On Linux, the minimum supported version is LLDB 3.7.
+    On Linux, the minimum supported version is LLDB 3.8.
 
     \omit
 

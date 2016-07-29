@@ -91,8 +91,6 @@ QList<AssistProposalItemInterface *> toAssistProposalItems(const CodeCompletions
             item->addOverload(codeCompletion);
         } else {
             item = new ClangAssistProposalItem;
-            QString detail = CompletionChunksToTextConverter::convertToToolTipWithHtml(codeCompletion.chunks());
-
             items.insert(name, item);
 
             item->setText(name);
@@ -138,7 +136,8 @@ using namespace CPlusPlus;
 using namespace TextEditor;
 
 ClangCompletionAssistProcessor::ClangCompletionAssistProcessor()
-    : m_completionOperator(T_EOF_SYMBOL)
+    : CppCompletionAssistProcessor(100)
+    , m_completionOperator(T_EOF_SYMBOL)
 {
 }
 

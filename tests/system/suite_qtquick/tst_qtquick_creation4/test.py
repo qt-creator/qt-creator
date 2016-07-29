@@ -29,7 +29,7 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    for targ, quickVer in [[Targets.DESKTOP_480_DEFAULT, 1], [Targets.DESKTOP_521_DEFAULT, 2],
+    for targ, quickVer in [[Targets.DESKTOP_480_DEFAULT, 1], [Targets.DESKTOP_561_DEFAULT, 2],
                            [Targets.DESKTOP_531_DEFAULT, 2]]:
         # using a temporary directory won't mess up a potentially existing
         createNewQmlExtension(tempDir(), targ, quickVer)

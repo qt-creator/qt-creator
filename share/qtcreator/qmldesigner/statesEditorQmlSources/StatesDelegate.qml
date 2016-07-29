@@ -37,6 +37,7 @@ Rectangle {
     property int delegateStateImageSize
 
     color: baseColor
+    border.color: creatorTheme.QmlDesignerBorderColor
 
     MouseArea {
         anchors.fill: parent
@@ -101,9 +102,6 @@ Rectangle {
                 statesEditorModel.renameState(internalNodeId, text)
         }
 
-        // as we change the background we need to change the text
-        // color to see some text
-        textColor: creatorTheme.PanelTextColorLight
     }
 
     Item {
@@ -120,7 +118,7 @@ Rectangle {
             anchors.margins: -1
             anchors.fill: stateImage
             border.width: 1
-            border.color: "#000000"
+            border.color: creatorTheme.QmlDesignerBackgroundColorDarker
         }
         Image {
             id: stateImage

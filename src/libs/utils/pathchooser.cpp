@@ -30,6 +30,7 @@
 
 #include "synchronousprocess.h"
 #include "hostosinfo.h"
+#include "theme/theme.h"
 
 #include <QDebug>
 #include <QFileDialog>
@@ -226,6 +227,7 @@ PathChooser::PathChooser(QWidget *parent) :
     connect(d->m_lineEdit, &QLineEdit::textChanged, this, [this] { emit pathChanged(path()); });
 
     d->m_lineEdit->setMinimumWidth(120);
+    d->m_lineEdit->setErrorColor(creatorTheme()->color(Theme::TextColorError));
     d->m_hLayout->addWidget(d->m_lineEdit);
     d->m_hLayout->setSizeConstraint(QLayout::SetMinimumSize);
 

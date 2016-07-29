@@ -135,6 +135,12 @@
    <header location="global">utils/treeviewcombobox.h</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>projectComboBox</tabstop>
+  <tabstop>addToVersionControlComboBox</tabstop>
+  <tabstop>vcsManageButton</tabstop>
+  <tabstop>scrollArea</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

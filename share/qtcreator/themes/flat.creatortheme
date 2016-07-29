@@ -101,7 +101,7 @@ MenuItemTextColorNormal=text
 MiniProjectTargetSelectorBackgroundColor=shadowBackground
 MiniProjectTargetSelectorBorderColor=shadowBackground
 MiniProjectTargetSelectorSummaryBackgroundColor=shadowBackground
-MiniProjectTargetSelectorTextColor=text
+MiniProjectTargetSelectorTextColor=fancyBarsNormalTextColor
 PanelStatusBarBackgroundColor=shadowBackground
 PanelsWidgetSeparatorLineColor=0
 PanelTextColorDark=text
@@ -181,6 +181,8 @@ ProjectExplorer_TaskWarn_TextMarkColor=ffffa500
 ClangCodeModel_Error_TextMarkColor=ffff882f
 ClangCodeModel_Warning_TextMarkColor=ffc6c132
 
+QmlDesigner_HighlightColor=ff46a2da
+
 [Flags]
 ComboBoxDrawTextShadow=false
 DerivePaletteFromTheme=false
@@ -195,6 +197,7 @@ FlatSideBarIcons=true
 FlatProjectsMode=false
 FlatMenuBar=false
 ToolBarIconShadow=true
+WindowColorAsBase=false
 
 [Gradients]
 DetailsWidgetHeaderGradient\1\color=0

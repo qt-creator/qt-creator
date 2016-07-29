@@ -35,7 +35,7 @@ Controls.SpinBox {
 
     ExtendedFunctionButton {
         x: 2
-        y: 4
+        anchors.verticalCenter: parent.verticalCenter
         backendValue: spinBox.backendValue
         visible: spinBox.enabled
     }

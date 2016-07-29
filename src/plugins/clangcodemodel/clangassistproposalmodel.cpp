@@ -34,15 +34,22 @@
 namespace ClangCodeModel {
 namespace Internal {
 
+const int SORT_LIMIT = 30000;
+
 ClangAssistProposalModel::ClangAssistProposalModel(
         ClangBackEnd::CompletionCorrection neededCorrection)
     : m_neededCorrection(neededCorrection)
 {
 }
 
+bool ClangAssistProposalModel::containsDuplicates() const
+{
+    return false;
+}
+
 bool ClangAssistProposalModel::isSortable(const QString &/*prefix*/) const
 {
-    return true;
+    return m_currentItems.size() <= SORT_LIMIT;
 }
 
 void ClangAssistProposalModel::sort(const QString &/*prefix*/)

@@ -34,24 +34,24 @@ ButtonRow {
     property variant strikeout: backendValues.font_strikeout
 
     BoolButtonRowButton {
-        standardIconSource: "images/bold-icon.png"
-        highlightedIconSource: "images/bold-h-icon.png"
+        standardIconSource: "image://icons/style-bold"
+        highlightedIconSource: "image://icons/style-bold-h"
         backendValue: bold
     }
     BoolButtonRowButton {
-        standardIconSource: "images/italic-icon.png"
-        highlightedIconSource: "images/italic-h-icon.png"
+        standardIconSource: "image://icons/style-italic"
+        highlightedIconSource: "image://icons/style-italic-h"
         backendValue: italic
     }
     BoolButtonRowButton {
-        standardIconSource: "images/underline-icon.png"
-        highlightedIconSource: "images/underline-h-icon.png"
+        standardIconSource: "image://icons/style-underline"
+        highlightedIconSource: "image://icons/style-underline-h"
         backendValue: underline
     }
 
     BoolButtonRowButton {
-        standardIconSource: "images/strikeout-icon.png"
-        highlightedIconSource: "images/strikeout-h-icon.png"
+        standardIconSource: "image://icons/style-strikeout"
+        highlightedIconSource: "image://icons/style-strikeout-h"
         backendValue: strikeout
     }
 

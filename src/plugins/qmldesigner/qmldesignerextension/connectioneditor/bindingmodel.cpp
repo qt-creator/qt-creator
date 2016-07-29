@@ -308,7 +308,7 @@ void BindingModel::updateExpression(int row)
     RewriterTransaction transaction =
         connectionView()->beginRewriterTransaction(QByteArrayLiteral("BindingModel::updateExpression"));
     try {
-        bindingProperty.setExpression(expression);
+        bindingProperty.setExpression(expression.trimmed());
         transaction.commit(); //committing in the try block
     } catch (Exception &e) {
         m_exceptionError = e.description();

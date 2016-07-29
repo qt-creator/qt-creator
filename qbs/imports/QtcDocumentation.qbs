@@ -28,7 +28,7 @@ Product {
 
     Group {
         fileTagsFilter: ["qch"]
-        qbs.install: !qbs.targetOS.contains("osx")
+        qbs.install: !qbs.targetOS.contains("macos")
         qbs.installDir: qtc.ide_doc_path
     }
 }

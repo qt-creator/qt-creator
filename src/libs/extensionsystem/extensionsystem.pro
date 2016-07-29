@@ -37,7 +37,3 @@ FORMS += \
     pluginerrorview.ui \
     plugindetailsview.ui \
     pluginerroroverview.ui
-RESOURCES += pluginview.qrc
-
-
-

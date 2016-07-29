@@ -152,7 +152,7 @@ void TargetSelectorDelegate::paint(QPainter *painter,
 
     QFontMetrics fm(option.font);
     QString text = index.data(Qt::DisplayRole).toString();
-    painter->setPen(QColor(255, 255, 255, 160));
+    painter->setPen(creatorTheme()->color(Theme::MiniProjectTargetSelectorTextColor));
     QString elidedText = fm.elidedText(text, Qt::ElideMiddle, option.rect.width() - 12);
     if (elidedText != text)
         const_cast<QAbstractItemModel *>(index.model())->setData(index, text, Qt::ToolTipRole);
@@ -174,7 +174,10 @@ ListWidget::ListWidget(QWidget *parent) : QListWidget(parent)
     setFocusPolicy(Qt::WheelFocus);
     setItemDelegate(new TargetSelectorDelegate(this));
     setAttribute(Qt::WA_MacShowFocusRect, false);
-    setStyleSheet(QString::fromLatin1("QListWidget { background: #464646; border-style: none; }"));
+    const QColor bgColor = creatorTheme()->color(Theme::MiniProjectTargetSelectorBackgroundColor);
+    const QString bgColorName = creatorTheme()->flag(Theme::FlatToolBars)
+            ? bgColor.lighter(120).name() : bgColor.name();
+    setStyleSheet(QString::fromLatin1("QListWidget { background: %1; border-style: none; }").arg(bgColorName));
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 }
 

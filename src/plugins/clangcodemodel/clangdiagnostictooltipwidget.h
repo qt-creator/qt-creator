@@ -27,19 +27,14 @@
 
 #include <clangbackendipc/diagnosticcontainer.h>
 
-#include <utils/faketooltip.h>
+QT_BEGIN_NAMESPACE
+class QLayout;
+QT_END_NAMESPACE
 
 namespace ClangCodeModel {
 namespace Internal {
 
-class ClangDiagnosticToolTipWidget : public Utils::FakeToolTip
-{
-    Q_OBJECT
-public:
-    explicit ClangDiagnosticToolTipWidget(
-            const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
-            QWidget *parent = 0);
-};
+void addToolTipToLayout(const ClangBackEnd::DiagnosticContainer &diagnostic, QLayout *target);
 
 } // namespace Internal
 } // namespace ClangCodeModel

@@ -27,10 +27,18 @@
 #include "qmldesignericonprovider.h"
 
 #include <utils/theme/theme.h>
+#include <utils/stylehelper.h>
 
 #include <QRegExp>
 
 namespace QmlDesigner {
+
+QColor midtone(const QColor &a, const QColor &b)
+{
+    QColor alphaB = b;
+    alphaB.setAlpha(128);
+    return Utils::StyleHelper::alphaBlendedColors(a ,alphaB);
+}
 
 void Theming::insertTheme(QQmlPropertyMap *map)
 {
@@ -38,20 +46,12 @@ void Theming::insertTheme(QQmlPropertyMap *map)
     for (auto it = creatorTheme.constBegin(); it != creatorTheme.constEnd(); ++it)
         map->insert(it.key(), it.value());
 
-    /* Custom Colors */
-
-    QColor darkerBackground = Utils::creatorTheme()->color(Utils::Theme::BackgroundColorDark);
-
-    if (darkerBackground.value() < 40)
-        darkerBackground = darkerBackground.lighter(150);
-
-    map->insert("QmlDesignerBackgroundColorDarker", darkerBackground.darker(120));
-    map->insert("QmlDesignerBackgroundColorLighter", darkerBackground.lighter(140));
-
-    if (darkerBackground.value() < 100)
-        map->insert("QmlDesignerBackgroundColorDarkAlternate", darkerBackground.lighter(120));
-    else
-        map->insert("QmlDesignerBackgroundColorDarkAlternate", darkerBackground.lighter(110));
+    /* Define QmlDesigner colors and remove alpha channels */
+    const QColor panelStatusBarBackgroundColor = Utils::creatorTheme()->color(Utils::Theme::PanelStatusBarBackgroundColor);
+    const QColor fancyToolButtonSelectedColor  = Utils::creatorTheme()->color(Utils::Theme::FancyToolButtonSelectedColor);
+    const QColor darkerBackground = Utils::StyleHelper::alphaBlendedColors(panelStatusBarBackgroundColor, fancyToolButtonSelectedColor);
+    const QColor fancyToolButtonHoverColor  = Utils::creatorTheme()->color(Utils::Theme::FancyToolButtonHoverColor);
+    const QColor buttonColor = Utils::StyleHelper::alphaBlendedColors(panelStatusBarBackgroundColor, fancyToolButtonHoverColor);
 
     Utils::creatorTheme()->color(Utils::Theme::PanelTextColorLight);
     QColor tabLight = Utils::creatorTheme()->color(Utils::Theme::PanelTextColorLight);
@@ -64,8 +64,12 @@ void Theming::insertTheme(QQmlPropertyMap *map)
         tabDark =  tabDark.darker(260);
     }
 
+    map->insert("QmlDesignerBackgroundColorDarker", darkerBackground);
+    map->insert("QmlDesignerBackgroundColorDarkAlternate", midtone(panelStatusBarBackgroundColor, buttonColor));
     map->insert("QmlDesignerTabLight", tabLight);
     map->insert("QmlDesignerTabDark", tabDark);
+    map->insert("QmlDesignerButtonColor", buttonColor);
+    map->insert("QmlDesignerBorderColor", Utils::creatorTheme()->color(Utils::Theme::SplitterColor));
 }
 
 QString Theming::replaceCssColors(const QString &input)

@@ -33,6 +33,8 @@
 #include <coreplugin/documentmanager.h>
 #include <utils/qtcassert.h>
 
+#include <QLayout>
+
 using namespace Core;
 using namespace Utils;
 using namespace TextEditor::Internal;
@@ -186,6 +188,12 @@ bool TextMark::isDraggable() const
 void TextMark::dragToLine(int lineNumber)
 {
     Q_UNUSED(lineNumber);
+}
+
+void TextMark::addToToolTipLayout(QLayout *target)
+{
+    if (!m_toolTip.isEmpty())
+        target->addWidget(new QLabel(m_toolTip));
 }
 
 TextDocument *TextMark::baseTextDocument() const

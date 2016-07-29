@@ -29,7 +29,7 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    available = [("5.3", False), ("5.3", True)]
+    available = [("5.6", False), ("5.6", True)]
     if platform.system() != 'Darwin':
         available.extend([("5.4", False), ("5.4", True)])
 
@@ -39,9 +39,9 @@ def main():
         projectName = createNewQtQuickUI(workingDir, qtVersion, controls)
         switchViewTo(ViewConstants.PROJECTS)
         clickButton(waitForObject(":*Qt Creator.Add Kit_QPushButton"))
-        if qtVersion == "5.3":
-            menuItem = Targets.getStringForTarget(Targets.DESKTOP_531_DEFAULT)
-            quick = "2.3"
+        if qtVersion == "5.6":
+            menuItem = Targets.getStringForTarget(Targets.DESKTOP_561_DEFAULT)
+            quick = "2.6"
         else:
             menuItem = Targets.getStringForTarget(Targets.DESKTOP_541_GCC)
             quick = "2.4"

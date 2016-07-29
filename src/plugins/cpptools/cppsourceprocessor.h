@@ -59,6 +59,9 @@ public:
     CppSourceProcessor(const CPlusPlus::Snapshot &snapshot, DocumentCallback documentFinished);
     ~CppSourceProcessor();
 
+    using CancelChecker = std::function<bool()>;
+    void setCancelChecker(const CancelChecker &cancelChecker);
+
     void setWorkingCopy(const CppTools::WorkingCopy &workingCopy);
     void setHeaderPaths(const ProjectPartHeaderPaths &headerPaths);
     void setLanguageFeatures(CPlusPlus::LanguageFeatures languageFeatures);

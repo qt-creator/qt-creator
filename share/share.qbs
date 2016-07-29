@@ -55,7 +55,7 @@ Product {
             ]
             if (qbs.targetOS.contains("windows"))
                 list.push("notepad_win.xml");
-            else if (qbs.targetOS.contains("osx"))
+            else if (qbs.targetOS.contains("macos"))
                 list.push("vi_mac.xml");
             else
                 list.push("vi.xml");

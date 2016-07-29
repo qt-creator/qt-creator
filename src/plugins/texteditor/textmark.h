@@ -33,6 +33,7 @@
 #include <QIcon>
 
 QT_BEGIN_NAMESPACE
+class QLayout;
 class QPainter;
 class QRect;
 class QTextBlock;
@@ -73,6 +74,7 @@ public:
     virtual void clicked();
     virtual bool isDraggable() const;
     virtual void dragToLine(int lineNumber);
+    virtual void addToToolTipLayout(QLayout *target);
 
     static Utils::Theme::Color categoryColor(Core::Id category);
     static bool categoryHasColor(Core::Id category);

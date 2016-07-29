@@ -31,7 +31,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/categorysortfiltermodel.h>
-#include <utils/icon.h>
+#include <utils/utilsicons.h>
 #include <utils/itemviews.h>
 #include <utils/qtcassert.h>
 #include <utils/treemodel.h>
@@ -90,22 +90,16 @@ static const QIcon &icon(IconIndex icon)
     using namespace Utils;
     switch (icon) {
     case OkIcon: {
-        static const QIcon ok =
-                Icon({{QLatin1String(":/extensionsystem/images/ok.png"),
-                       Theme::IconsRunToolBarColor}}, Icon::Tint).icon();
+        static const QIcon ok = Utils::Icons::OK.icon();
         return ok;
     }
     case ErrorIcon: {
-        static const QIcon error =
-                Icon({{QLatin1String(":/extensionsystem/images/error.png"),
-                       Theme::IconsErrorColor}}, Icon::Tint).icon();
+        static const QIcon error = Utils::Icons::ERROR.icon();
         return error;
     }
     default:
     case NotLoadedIcon: {
-        static const QIcon notLoaded =
-                Icon({{QLatin1String(":/extensionsystem/images/notloaded.png"),
-                       Theme::IconsErrorColor}}, Icon::Tint).icon();
+        static const QIcon notLoaded = Utils::Icons::NOTLOADED.icon();
         return notLoaded;
     }
     }
