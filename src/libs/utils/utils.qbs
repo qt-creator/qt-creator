@@ -18,7 +18,7 @@ Project {
             if (qbs.targetOS.contains("windows")) {
                 libs.push("user32", "iphlpapi", "ws2_32", "shell32");
             } else if (qbs.targetOS.contains("unix")) {
-                if (!qbs.targetOS.contains("osx"))
+                if (!qbs.targetOS.contains("macos"))
                     libs.push("X11");
                 if (!qbs.targetOS.contains("openbsd"))
                     libs.push("pthread");
@@ -29,7 +29,7 @@ Project {
         cpp.enableExceptions: true
 
         Properties {
-            condition: qbs.targetOS.contains("osx")
+            condition: qbs.targetOS.contains("macos")
             cpp.frameworks: ["Foundation"]
         }
 
@@ -278,7 +278,7 @@ Project {
 
         Group {
             name: "FileUtils_osx"
-            condition: qbs.targetOS.contains("osx")
+            condition: qbs.targetOS.contains("macos")
             files: [
                 "fileutils_mac.h", "fileutils_mac.mm",
             ]

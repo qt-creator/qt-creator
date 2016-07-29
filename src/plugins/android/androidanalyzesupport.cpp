@@ -72,35 +72,35 @@ AndroidAnalyzeSupport::AndroidAnalyzeSupport(AndroidRunConfiguration *runConfig,
 
     auto runner = new AndroidRunner(this, runConfig, runControl->runMode());
 
-    connect(runControl, &AnalyzerRunControl::finished,
+    connect(runControl, &AnalyzerRunControl::finished, runner,
         [runner]() { runner->stop(); });
 
-    connect(runControl, &AnalyzerRunControl::starting,
+    connect(runControl, &AnalyzerRunControl::starting, runner,
         [runner]() { runner->start(); });
 
-    connect(&m_outputParser, &QmlDebug::QmlOutputParser::waitingForConnectionOnPort,
+    connect(&m_outputParser, &QmlDebug::QmlOutputParser::waitingForConnectionOnPort, this,
         [this, runControl](Utils::Port) {
             runControl->notifyRemoteSetupDone(m_qmlPort);
         });
 
-    connect(runner, &AndroidRunner::remoteProcessStarted,
+    connect(runner, &AndroidRunner::remoteProcessStarted, this,
         [this](Utils::Port, Utils::Port qmlPort) {
             m_qmlPort = qmlPort;
         });
 
-    connect(runner, &AndroidRunner::remoteProcessFinished,
+    connect(runner, &AndroidRunner::remoteProcessFinished, this,
         [this, runControl](const QString &errorMsg)  {
             runControl->notifyRemoteFinished();
             runControl->appendMessage(errorMsg, Utils::NormalMessageFormat);
         });
 
-    connect(runner, &AndroidRunner::remoteErrorOutput,
+    connect(runner, &AndroidRunner::remoteErrorOutput, this,
         [this, runControl](const QString &msg) {
             runControl->appendMessage(msg, Utils::StdErrFormatSameLine);
             m_outputParser.processOutput(msg);
         });
 
-    connect(runner, &AndroidRunner::remoteOutput,
+    connect(runner, &AndroidRunner::remoteOutput, this,
         [this, runControl](const QString &msg) {
             runControl->appendMessage(msg, Utils::StdOutFormatSameLine);
             m_outputParser.processOutput(msg);

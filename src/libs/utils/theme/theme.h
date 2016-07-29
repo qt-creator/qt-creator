@@ -279,7 +279,10 @@ public:
 
         /* ClangCodeModel Plugin */
         ClangCodeModel_Error_TextMarkColor,
-        ClangCodeModel_Warning_TextMarkColor
+        ClangCodeModel_Warning_TextMarkColor,
+
+        /* QmlDesigner */
+        QmlDesigner_HighlightColor
     };
 
     enum Gradient {
@@ -323,7 +326,8 @@ public:
         FlatSideBarIcons,
         FlatProjectsMode,
         FlatMenuBar,
-        ToolBarIconShadow
+        ToolBarIconShadow,
+        WindowColorAsBase
     };
 
     bool flag(Flag f) const;

@@ -24,7 +24,7 @@ QtcTool {
     cpp.rpaths: base.concat(libclang.llvmLibDir)
 
     Properties {
-        condition: qbs.targetOS.contains("unix") && !qbs.targetOS.contains("osx")
+        condition: qbs.targetOS.contains("unix") && !qbs.targetOS.contains("macos")
         cpp.linkerFlags: base.concat(["-z", "origin"])
     }
 }

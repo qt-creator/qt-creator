@@ -109,7 +109,7 @@
                 size.
 
             \li In the \uicontrol Color field, click the
-                \inlineimage button_color_none_normal.png
+                \inlineimage icon_color_none.png
                 (\uicontrol Transparent) button to make the rectangle
                 transparent.
 
@@ -131,7 +131,7 @@
             \uicontrol Library to \e topLeftRect in the navigator.
 
         \li Click \uicontrol {Layout}, and then click the
-            \inlineimage anchor-fill-normal.png
+            \inlineimage anchor_fill.png
             (\uicontrol {Fill to Parent}) button to anchor the mouse area to the
             rectangle.
 

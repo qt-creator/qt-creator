@@ -4,7 +4,7 @@ QtcProduct {
     name: "qtquickplugin"
     type: ["dynamiclibrary"]
     installDir: qtc.ide_plugin_path + '/' + installDirName
-    property string installDirName: qbs.targetOS.contains("osx") ? "QmlDesigner" : "qmldesigner"
+    property string installDirName: qbs.targetOS.contains("macos") ? "QmlDesigner" : "qmldesigner"
 
     cpp.defines: base.concat("QTQUICK_LIBRARY")
     cpp.includePaths: base.concat("../designercore/include")

@@ -35,7 +35,8 @@ ClangEditorDocumentParser::ClangEditorDocumentParser(const QString &filePath)
     setConfiguration(config);
 }
 
-void ClangEditorDocumentParser::updateHelper(const CppTools::WorkingCopy &)
+void ClangEditorDocumentParser::updateHelper(const QFutureInterface<void> &,
+                                             const CppTools::WorkingCopy &)
 {
     State state_ = state();
     state_.projectPart = determineProjectPart(filePath(), configuration(), state_);

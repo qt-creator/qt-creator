@@ -424,8 +424,10 @@ void FormEditorView::instanceInformationsChange(const QMultiHash<ModelNode, Info
                 if (qmlItemNode.instanceBoundingRect().isEmpty() &&
                         !(qmlItemNode.propertyAffectedByCurrentState("width")
                           && qmlItemNode.propertyAffectedByCurrentState("height"))) {
-                    rootModelNode().setAuxiliaryData("width", 640);
-                    rootModelNode().setAuxiliaryData("height", 480);
+                    if (!(rootModelNode().hasAuxiliaryData("width")))
+                        rootModelNode().setAuxiliaryData("width", 640);
+                    if (!(rootModelNode().hasAuxiliaryData("height")))
+                        rootModelNode().setAuxiliaryData("height", 480);
                     rootModelNode().setAuxiliaryData("autoSize", true);
                     formEditorWidget()->updateActions();
                 } else {

@@ -3,7 +3,7 @@ import qbs 1.0
 QtcPlugin {
     name: "ClearCase"
 
-    pluginJsonReplacements: ({"CLEARCASE_DISABLED_STR": (qbs.targetOS.contains("osx") ? "true": "false")})
+    pluginJsonReplacements: ({"CLEARCASE_DISABLED_STR": (qbs.targetOS.contains("macos") ? "true": "false")})
 
     Depends { name: "Qt.widgets" }
     Depends { name: "Utils" }

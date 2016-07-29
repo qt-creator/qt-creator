@@ -265,7 +265,7 @@ void DebuggerMainWindow::loadPerspectiveHelper(const QByteArray &perspectiveId, 
 
         ICore::removeAdditionalContext(Context(Id::fromName(m_currentPerspectiveId)));
         const Perspective *perspective = m_perspectiveForPerspectiveId.value(m_currentPerspectiveId);
-        QWidget *central = perspective->centralWidget();
+        QWidget *central = perspective ? perspective->centralWidget() : nullptr;
         m_centralWidgetStack->removeWidget(central ? central : m_editorPlaceHolder);
     }
 

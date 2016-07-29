@@ -26,6 +26,7 @@
 #pragma once
 
 #include <clangbackendipc_global.h>
+#include <clangbackendipc/diagnosticcontainer.h>
 
 #include <texteditor/textmark.h>
 
@@ -34,10 +35,13 @@ namespace ClangCodeModel {
 class ClangTextMark : public TextEditor::TextMark
 {
 public:
-    ClangTextMark(const QString &fileName, int lineNumber, ClangBackEnd::DiagnosticSeverity severity);
+    ClangTextMark(const QString &fileName, const ClangBackEnd::DiagnosticContainer &diagnostic);
 
 private:
+    void addToToolTipLayout(QLayout *target);
     void setIcon(ClangBackEnd::DiagnosticSeverity severity);
+
+    ClangBackEnd::DiagnosticContainer m_diagnostic;
 };
 
 } // namespace ClangCodeModel

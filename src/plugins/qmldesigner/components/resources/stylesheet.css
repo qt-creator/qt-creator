@@ -37,14 +37,6 @@ QTabWidget::pane { /* The tab widget frame */
      background-color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate;
 }
 
-QLineEdit
-{
-     border: 2px solid #8F8F8F;
-     padding: 0 8px;
-     background-color: white;
-     selection-background-color: darkgray;
-}
-
 QLineEdit#itemLibrarySearchInput
 {
     color: creatorTheme.PanelTextColorLight;
@@ -59,19 +51,13 @@ QLineEdit#itemLibrarySearchInput
  QTreeView {
     color: creatorTheme.PanelTextColorLight;
     selection-color: creatorTheme.PanelTextColorLight;
- }
-
- QTreeView::item:selected {
-     color: creatorTheme.PanelTextColorLight;
+    selection-background-color: creatorTheme.QmlDesigner_HighlightColor;
  }
 
  QListView {
-    color:creatorTheme.PanelTextColorLight;
+    color: creatorTheme.PanelTextColorLight;
     selection-color: creatorTheme.PanelTextColorLight;
- }
-
- QListView::item:selected {
-     color: creatorTheme.PanelTextColorLight;
+    selection-background-color: creatorTheme.QmlDesigner_HighlightColor;
  }
 
   QComboBox QAbstractItemView {

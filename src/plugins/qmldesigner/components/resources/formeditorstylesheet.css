@@ -14,3 +14,12 @@ QGraphicsView:focus {
     background-color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate;
 }
 
+QLineEdit
+{
+    color: creatorTheme.PanelTextColorLight;
+    border: 1px solid creatorTheme.QmlDesignerBackgroundColorDarker;
+    padding: 2px 8px;
+    margin: 2px;
+    background-color: creatorTheme.FancyToolButtonSelectedColor;
+    selection-background-color: darkgray;
+}

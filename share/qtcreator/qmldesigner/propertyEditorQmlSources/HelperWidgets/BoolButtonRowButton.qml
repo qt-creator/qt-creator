@@ -83,7 +83,7 @@ ButtonRowButton {
 
     ExtendedFunctionButton {
         backendValue: boolButtonRowButton.backendValue
-        x: 0
-        y: 4
+        x: 2
+        anchors.verticalCenter: parent.verticalCenter
     }
 }

@@ -63,7 +63,7 @@ bool BaseEditorDocumentProcessor::hasDiagnosticsAt(uint, uint) const
     return false;
 }
 
-void BaseEditorDocumentProcessor::showDiagnosticTooltip(const QPoint &, QWidget *, uint, uint) const
+void BaseEditorDocumentProcessor::addDiagnosticToolTipToLayout(uint, uint, QLayout *) const
 {
 }
 
@@ -77,7 +77,7 @@ void BaseEditorDocumentProcessor::runParser(QFutureInterface<void> &future,
         return;
     }
 
-    parser->update(workingCopy);
+    parser->update(future, workingCopy);
     CppToolsBridge::finishedRefreshingSourceFiles({parser->filePath()});
 
     future.setProgressValue(1);

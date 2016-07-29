@@ -664,7 +664,7 @@ void QmlEngine::interruptInferior()
 {
     showMessage(INTERRUPT, LogInput);
     d->runDirectCommand(INTERRUPT);
-    notifyInferiorStopOk();
+    showStatusMessage(tr("Waiting for JavaScript engine to interrupt on next statement."));
 }
 
 void QmlEngine::executeStep()
@@ -1961,7 +1961,8 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
                             }
                             engine->notifyInferiorSpontaneousStop();
                             backtrace();
-                        } else if (engine->state() == InferiorStopOk) {
+                        } else if (engine->state() == InferiorStopRequested) {
+                            engine->notifyInferiorStopOk();
                             backtrace();
                         }
                     }

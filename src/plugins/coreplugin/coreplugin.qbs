@@ -27,7 +27,7 @@ Project {
                 return ["ole32", "user32"]
         }
 
-        cpp.frameworks: qbs.targetOS.contains("osx") ? ["AppKit"] : undefined
+        cpp.frameworks: qbs.targetOS.contains("macos") ? ["AppKit"] : undefined
 
         Group {
             name: "General"
@@ -176,7 +176,7 @@ Project {
 
         Group {
             name: "ProgressManager_mac"
-            condition: qbs.targetOS.contains("osx")
+            condition: qbs.targetOS.contains("macos")
             files: [
                 "progressmanager/progressmanager_mac.mm",
             ]
@@ -184,7 +184,7 @@ Project {
 
         Group {
             name: "ProgressManager_x11"
-            condition: qbs.targetOS.contains("unix") && !qbs.targetOS.contains("osx")
+            condition: qbs.targetOS.contains("unix") && !qbs.targetOS.contains("macos")
             files: [
                 "progressmanager/progressmanager_x11.cpp",
             ]
@@ -288,7 +288,7 @@ Project {
 
         Group {
             name: "Locator_mac"
-            condition: qbs.targetOS.contains("osx")
+            condition: qbs.targetOS.contains("macos")
             files: [
                 "locator/spotlightlocatorfilter.h",
                 "locator/spotlightlocatorfilter.mm",

@@ -58,14 +58,20 @@ def main():
                 test.fatal("Haven't found a suitable Qt version - leaving without debugging.")
             for kit, config in availableConfigs:
                 test.log("Selecting '%s' as build config" % config)
-                verifyBuildConfig(len(checkedTargets), kit, config, True, enableQmlDebug=True)
+                verifyBuildConfig(len(checkedTargets), kit, config, True, True, True)
                 # explicitly build before start debugging for adding the executable as allowed program to WinFW
                 invokeMenuItem("Build", "Rebuild All")
                 waitForCompile(300000)
                 if not checkCompile():
                     test.fatal("Compile had errors... Skipping current build config")
                     continue
-                allowAppThroughWinFW(workingDir, projectName, False)
+                if platform.system() in ('Microsoft' 'Windows'):
+                    switchViewTo(ViewConstants.PROJECTS)
+                    switchToBuildOrRunSettingsFor(len(checkedTargets), kit, ProjectSettings.BUILD)
+                    buildDir = os.path.join(str(waitForObject(":Qt Creator_Utils::BuildDirectoryLineEdit").text),
+                                            "debug")
+                    switchViewTo(ViewConstants.EDIT)
+                    allowAppThroughWinFW(buildDir, projectName, None)
                 if not doSimpleDebugging(len(checkedTargets), kit, config,
                                          len(expectedBreakpointsOrder), expectedBreakpointsOrder):
                     try:
@@ -74,7 +80,8 @@ def main():
                             clickButton(stopB)
                     except:
                         pass
-                deleteAppFromWinFW(workingDir, projectName, False)
+                if platform.system() in ('Microsoft' 'Windows'):
+                    deleteAppFromWinFW(buildDir, projectName, None)
                 # close application output window of current run to avoid mixing older output on the next run
                 ensureChecked(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton")
                 clickButton(waitForObject("{type='CloseButton' unnamed='1' visible='1' "

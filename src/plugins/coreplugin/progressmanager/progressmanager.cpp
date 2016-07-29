@@ -273,6 +273,7 @@ ProgressManagerPrivate::ProgressManagerPrivate()
     m_progressViewPinned(false),
     m_hovered(false)
 {
+    m_opacityEffect->setOpacity(1);
     m_instance = this;
     m_progressView = new ProgressView;
     // withDelay, so the statusBarWidget has the chance to get the enter event
@@ -346,7 +347,7 @@ void ProgressManagerPrivate::init()
             this, &ProgressManagerPrivate::progressDetailsToggled);
     toggleButton->setDefaultAction(cmd->action());
 
-    m_progressView->setVisible(m_progressViewPinned);
+    updateVisibility();
 
     initInternal();
 }

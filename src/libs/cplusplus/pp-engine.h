@@ -56,6 +56,8 @@
 #include <QByteArray>
 #include <QPair>
 
+#include <functional>
+
 namespace CPlusPlus {
 
 class Environment;
@@ -80,6 +82,9 @@ public:
     QByteArray run(const QString &filename, const QString &source);
     QByteArray run(const QString &filename, const QByteArray &source,
                    bool noLines = false, bool markGeneratedTokens = true);
+
+    using CancelChecker = std::function<bool()>;
+    void setCancelChecker(const CancelChecker &cancelChecker);
 
     bool expandFunctionlikeMacros() const;
     void setExpandFunctionlikeMacros(bool expandFunctionlikeMacros);
@@ -253,6 +258,7 @@ private:
     Client *m_client;
     Environment *m_env;
     QByteArray m_scratchBuffer;
+    CancelChecker m_cancelChecker;
 
     bool m_expandFunctionlikeMacros;
     bool m_keepComments;

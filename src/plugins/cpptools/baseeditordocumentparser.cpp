@@ -78,8 +78,15 @@ void BaseEditorDocumentParser::setConfiguration(const Configuration &configurati
 
 void BaseEditorDocumentParser::update(const WorkingCopy &workingCopy)
 {
+    QFutureInterface<void> dummy;
+    update(dummy, workingCopy);
+}
+
+void BaseEditorDocumentParser::update(const QFutureInterface<void> &future,
+                                      const WorkingCopy &workingCopy)
+{
     QMutexLocker locker(&m_updateIsRunning);
-    updateHelper(workingCopy);
+    updateHelper(future, workingCopy);
 }
 
 BaseEditorDocumentParser::State BaseEditorDocumentParser::state() const

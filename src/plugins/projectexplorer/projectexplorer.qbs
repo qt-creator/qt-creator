@@ -17,7 +17,7 @@ Project {
 
         cpp.defines: base.concat("QTC_CPU=X86Architecture")
         Properties {
-            condition: qbs.targetOS.contains("osx")
+            condition: qbs.targetOS.contains("macos")
             cpp.frameworks: base.concat(["Carbon"])
         }
 

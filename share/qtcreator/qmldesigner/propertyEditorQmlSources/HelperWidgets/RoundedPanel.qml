@@ -30,8 +30,8 @@ import QtQuick.Layouts 1.0
 Rectangle {
     id: panel
 
-    property bool roundLeft: false
-    property bool roundRight: false
+    property bool roundLeft: true
+    property bool roundRight: true
 
 
     /*
@@ -43,8 +43,8 @@ Rectangle {
     */
 
     border.width: roundLeft || roundRight ? 1 : 0
-    color: creatorTheme.BackgroundColorDark
-    border.color: creatorTheme.QmlDesignerBackgroundColorDarker
+    color: creatorTheme.QmlDesignerButtonColor
+    border.color: creatorTheme.QmlDesignerBorderColor
 
     Rectangle {
         anchors.fill: parent
@@ -71,7 +71,7 @@ Rectangle {
     }
 
     Rectangle {
-        color: creatorTheme.QmlDesignerBackgroundColorDarker
+        color: creatorTheme.QmlDesignerBorderColor
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
@@ -81,7 +81,7 @@ Rectangle {
     }
 
     Rectangle {
-        color: creatorTheme.QmlDesignerBackgroundColorDarker
+        color: creatorTheme.QmlDesignerBorderColor
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.right: parent.right

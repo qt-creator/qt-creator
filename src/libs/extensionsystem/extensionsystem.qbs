@@ -43,10 +43,6 @@ Project {
             "pluginspec_p.h",
             "pluginview.cpp",
             "pluginview.h",
-            "pluginview.qrc",
-            "images/error.png",
-            "images/notloaded.png",
-            "images/ok.png",
         ]
 
         Export {

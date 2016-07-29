@@ -58,4 +58,7 @@ protected:
 
 bool compareBindingProperties(const QmlDesigner::BindingProperty &bindingProperty01, const QmlDesigner::BindingProperty &bindingProperty02);
 
+QMLDESIGNERCORE_EXPORT QTextStream& operator<<(QTextStream &stream, const BindingProperty &property);
+QMLDESIGNERCORE_EXPORT QDebug operator<<(QDebug debug, const BindingProperty &AbstractProperty);
+
 } // namespace QmlDesigner

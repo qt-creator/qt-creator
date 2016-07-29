@@ -12,7 +12,7 @@ QtcProduct {
                                                        '/' + qtc.ide_library_path);
         var relativePathToPlugins = FileInfo.relativePath('/' + qtc.ide_libexec_path,
                                                           '/' + qtc.ide_plugin_path);
-        var prefix = qbs.targetOS.contains("osx") ? "@executable_path" : "$ORIGIN";
+        var prefix = qbs.targetOS.contains("macos") ? "@executable_path" : "$ORIGIN";
         return [
             FileInfo.joinPaths(prefix, relativePathToLibs),
             FileInfo.joinPaths(prefix, relativePathToPlugins)

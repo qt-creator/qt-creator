@@ -39,6 +39,8 @@ class ClangAssistProposalModel : public TextEditor::GenericProposalModel
 public:
     ClangAssistProposalModel(ClangBackEnd::CompletionCorrection neededCorrection);
 
+    bool containsDuplicates() const override;
+
     bool isSortable(const QString &prefix) const override;
     void sort(const QString &prefix) override;
 

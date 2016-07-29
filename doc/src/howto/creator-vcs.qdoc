@@ -481,7 +481,8 @@
 
     \section4 Working with Branches
 
-    To work with Git branches, select \uicontrol{Branches}. The checked out branch
+    To work with Git branches, select \uicontrol Tools > \uicontrol Git >
+    \uicontrol {Local Repository} > \uicontrol {Branches}. The checked out branch
     is shown in bold and underlined in the list of branches. Double-click branch
     names to edit them.
 
@@ -529,6 +530,9 @@
             \li \uicontrol Rebase
             \li Copy local commits to the updated upstream head.
         \row
+            \li \uicontrol Reset
+            \li Hard reset the active branch to the selected branch.
+        \row
             \li \uicontrol {Cherry Pick}
             \li Cherry pick the top commit from the selected branch.
         \row
@@ -540,7 +544,8 @@
 
     Patches are rewriting instructions that can be applied to a set of files.
     To apply a patch file that is open in \QC, select \uicontrol Tools > \uicontrol Git >
-    \uicontrol {Local Repository} > \uicontrol {Apply from Editor}.
+    \uicontrol {Local Repository} > \uicontrol Patch >
+    \uicontrol {Apply from Editor}.
 
     To select the patch file to apply from the file system, select
     \uicontrol {Apply from File}.

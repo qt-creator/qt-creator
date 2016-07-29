@@ -429,8 +429,17 @@
   <tabstop>errorFileNameCap</tabstop>
   <tabstop>errorLineNumberCap</tabstop>
   <tabstop>errorMessageCap</tabstop>
+  <tabstop>errorStdOutChannel</tabstop>
+  <tabstop>errorStdErrChannel</tabstop>
   <tabstop>errorOutputMessage</tabstop>
-  <tabstop>buttonBox</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>warningPattern</tabstop>
+  <tabstop>warningFileNameCap</tabstop>
+  <tabstop>warningLineNumberCap</tabstop>
+  <tabstop>warningMessageCap</tabstop>
+  <tabstop>warningStdOutChannel</tabstop>
+  <tabstop>warningStdErrChannel</tabstop>
+  <tabstop>warningOutputMessage</tabstop>
  </tabstops>
  <resources/>
  <connections>

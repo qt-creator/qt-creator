@@ -200,6 +200,8 @@ PaletteWindowTextDisabled=textDisabled
 PaletteBaseDisabled=backgroundColorDisabled
 PaletteTextDisabled=textDisabled
 
+QmlDesigner_HighlightColor=ff46a2da
+
 [Flags]
 ComboBoxDrawTextShadow=false
 DerivePaletteFromTheme=true
@@ -214,6 +216,7 @@ FlatSideBarIcons=true
 FlatProjectsMode=true
 FlatMenuBar=true
 ToolBarIconShadow=true
+WindowColorAsBase=false
 
 [Gradients]
 DetailsWidgetHeaderGradient\1\color=0

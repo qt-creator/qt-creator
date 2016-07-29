@@ -92,16 +92,18 @@
             \uicontrol {Qt Quick Controls Application}, or
             \uicontrol {Qt Labs Controls Application} > \uicontrol Choose.
 
-        \li In the \uicontrol {Minimal required Qt version} field, select the Qt
-            version to develop with. The Qt version determines the Qt Quick
-            imports that are used in the QML files.
+        \li For some Qt Quick applications, you must select the Qt version to
+            develop with in the \uicontrol {Minimal required Qt version} field.
+            The Qt version determines the Qt Quick imports that are used in the
+            QML files.
 
-        \li Select the \uicontrol {With .ui.qml file} check box to create an UI
+        \li For some Qt Quick applications, you can select the
+            \uicontrol {With .ui.qml file} check box to create an UI
             form that can contain a subset of the QML language. Similarly as
             with the UI forms for \QD, it is recommended that you use \QMLD to
             edit the UI forms. For more information, see \l{Qt Quick UI Forms}.
 
-        \li For a Qt Quick Controls application, you can also select the
+        \li For some Qt Quick applications, you can also select the
             \uicontrol {Enable native styling} check box. \QC adds a dependency
             to the Qt Widgets module to the \c .pro file.
 

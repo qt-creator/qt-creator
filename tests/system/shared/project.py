@@ -629,7 +629,9 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False):
         version = res.group("version")
     else:
         version = None
-    if 'Supported Platforms' in text:
+    if 'only available with Qt 5.6' in text:
+        result = [Targets.DESKTOP_561_DEFAULT]
+    elif 'Supported Platforms' in text:
         supports = text[text.find('Supported Platforms'):].split(":")[1].strip().split(" ")
         result = []
         if 'Desktop' in supports:
@@ -638,7 +640,7 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False):
                 result.append(Targets.DESKTOP_480_DEFAULT)
                 if platform.system() in ("Linux", "Darwin"):
                     result.append(Targets.EMBEDDED_LINUX)
-            result.extend([Targets.DESKTOP_521_DEFAULT, Targets.DESKTOP_531_DEFAULT])
+            result.extend([Targets.DESKTOP_531_DEFAULT, Targets.DESKTOP_561_DEFAULT])
             if platform.system() != 'Darwin':
                 result.append(Targets.DESKTOP_541_GCC)
         if not templateName == "Qt Creator Plugin" and (version == None or version < "5.0"):

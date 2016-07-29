@@ -557,7 +557,28 @@
      inkscape:groupmode="layer"
      id="layer6"
      inkscape:label="Tools logos"
-     style="display:inline" />
+     style="display:inline">
+    <g
+       id="src/libs/qmleditorwidgets/images/anchor_bottom"
+       transform="matrix(-1,0,0,-1,1228,1184)">
+      <rect
+         id="rect5146"
+         height="16"
+         width="16"
+         y="584"
+         x="590"
+         style="display:inline;fill:#ffffff;fill-opacity:1" />
+      <use
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#anchor_target_bar"
+         id="use5156-3"
+         transform="matrix(-1,0,0,-1,1196,1170)"
+         width="100%"
+         height="100%" />
+    </g>
+  </g>
   <g
      inkscape:label="Other icons"
      inkscape:groupmode="layer"
@@ -1006,7 +1027,7 @@
          style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
     </g>
     <g
-       id="src/libs/extensionsystem/images/ok">
+       id="src/libs/utils/images/ok">
       <rect
          y="584"
          x="297"
@@ -1022,7 +1043,7 @@
          sodipodi:nodetypes="ccc" />
     </g>
     <g
-       id="src/libs/extensionsystem/images/error"
+       id="src/libs/utils/images/error"
        transform="translate(2,0)">
       <rect
          style="display:inline;opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
@@ -1049,7 +1070,7 @@
       </g>
     </g>
     <g
-       id="src/libs/extensionsystem/images/notloaded"
+       id="src/libs/utils/images/notloaded"
        transform="translate(8,0)">
       <rect
          y="584"
@@ -1239,6 +1260,287 @@
          d="m 593.78663,588.98601 -0.3052,1.56048 -0.55626,0 c 0.01,-0.0689 0.0148,-0.13292 0.0148,-0.19199 0,-0.18378 -0.0394,-0.32653 -0.11814,-0.42827 -0.10502,-0.13784 -0.28223,-0.20675 -0.53165,-0.20675 -0.38068,0 -0.71378,0.16737 -0.9993,0.50211 -0.2855,0.33474 -0.44149,0.57814 -0.55636,1.17214 L 590.61539,594 l -1.74261,0 0.3926,-4.01028 -0.79747,0 0.17951,-0.98972 2.54009,0 -0.17722,0.97546 c 0.23957,-0.36428 0.51688,-0.63338 0.83193,-0.80731 0.31505,-0.17722 0.67604,-0.26583 1.08298,-0.26583 0.10174,0 0.22316,0.008 0.36428,0.0246 0.1444,0.0131 0.31012,0.0328 0.49718,0.0591 z M 583.624,589.98972 583.80351,589 l 0.86858,0 0.27086,-2 1.74261,0 -0.27085,2 1.34169,0 -0.17952,0.98972 -1.34169,0 c -0.0466,1.08737 -0.26951,2.07452 -0.31112,3.151 0,0.0886 0.008,0.1526 0.0246,0.19198 0.0525,0.11158 0.17396,0.16737 0.36427,0.16737 0.21003,0 0.37905,-0.0706 0.50704,-0.21167 0.12799,-0.14112 0.2248,-0.35936 0.29043,-0.65472 l 0.73348,0 c -0.13127,0.52509 -0.34623,0.89429 -0.64487,1.1076 -0.29864,0.21003 -0.76301,0.31505 -1.39311,0.31505 -0.71871,0 -1.18472,-0.11322 -1.39803,-0.33966 -0.13783,-0.1444 -0.20675,-0.36756 -0.20675,-0.66948 l 0.3299,-3.03691 z"
          style="fill:#000000"
          id="path4400" />
+    </g>
+    <g
+       id="src/libs/qmleditorwidgets/images/anchoreditem">
+      <rect
+         style="fill:#ffffff"
+         x="574"
+         y="584"
+         width="16"
+         height="16"
+         id="rect4723-6-8" />
+      <rect
+         y="588.5"
+         x="577.5"
+         height="8"
+         width="8"
+         id="anchoreditemrect"
+         style="fill:#dbdbdb;stroke:#606060"
+         ry="1.5" />
+    </g>
+    <g
+       id="src/libs/qmleditorwidgets/images/anchor_top">
+      <rect
+         style="fill:#ffffff"
+         x="590"
+         y="584"
+         width="16"
+         height="16"
+         id="rect4723-6-8-2" />
+      <rect
+         style="color:#000000;clip-rule:nonzero;display:inline;overflow:visible;visibility:visible;opacity:1;isolation:auto;mix-blend-mode:normal;color-interpolation:sRGB;color-interpolation-filters:linearRGB;solid-color:#000000;solid-opacity:1;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-opacity:1;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto;enable-background:accumulate"
+         id="anchor_target_bar"
+         width="11"
+         height="1"
+         x="592"
+         y="585" />
+    </g>
+    <g
+       id="src/libs/qmleditorwidgets/images/anchor_right"
+       transform="matrix(0,1,-1,0,1206,-6)">
+      <rect
+         id="rect5140"
+         height="16"
+         width="16"
+         y="584"
+         x="590"
+         style="fill:#ffffff" />
+      <use
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#anchor_target_bar"
+         id="use5156"
+         transform="translate(1,0)"
+         width="100%"
+         height="100%" />
+    </g>
+    <g
+       id="src/libs/qmleditorwidgets/images/anchor_left"
+       transform="matrix(0,-1,1,0,55,1190)">
+      <rect
+         id="rect5152"
+         height="16"
+         width="16"
+         y="583"
+         x="590"
+         style="fill:#ffffff" />
+      <use
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#anchor_target_bar"
+         id="use5156-6"
+         transform="matrix(-1,0,0,-1,1195,1169)"
+         width="100%"
+         height="100%" />
+    </g>
+    <g
+       style="display:inline"
+       id="src/libs/qmleditorwidgets/images/anchor_horizontal"
+       transform="matrix(0,-1,1,0,71,1190)">
+      <rect
+         id="rect5152-4"
+         height="16"
+         width="16"
+         y="583"
+         x="590"
+         style="fill:#ffffff" />
+      <use
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#anchor_target_bar"
+         id="use5156-6-3"
+         transform="matrix(-1,0,0,-1,1195,1176)"
+         width="100%"
+         height="100%" />
+    </g>
+    <g
+       id="src/libs/qmleditorwidgets/images/anchor_vertical">
+      <rect
+         transform="scale(1,-1)"
+         id="rect5152-4-0"
+         height="16"
+         width="16"
+         y="-600"
+         x="670"
+         style="fill:#ffffff" />
+      <use
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#anchor_target_bar"
+         id="use5156-6-3-2"
+         transform="matrix(-1,0,0,1,1275,7)"
+         width="100%"
+         height="100%" />
+    </g>
+    <g
+       style="display:inline"
+       id="src/libs/qmleditorwidgets/images/anchor_fill"
+       transform="matrix(0,1,-1,0,1286,-6)">
+      <rect
+         id="rect5140-5"
+         height="16"
+         width="16"
+         y="584"
+         x="590"
+         style="fill:#ffffff" />
+      <use
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#anchor_target_bar"
+         id="use5156-7"
+         transform="translate(1,0)"
+         width="100%"
+         height="100%" />
+      <use
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#anchor_target_bar"
+         id="use5156-7-9"
+         width="100%"
+         height="100%"
+         transform="translate(1,14)" />
+      <use
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#anchor_target_bar"
+         id="use5156-7-9-3"
+         width="100%"
+         height="100%"
+         transform="matrix(0,-1,1,0,6,1190)" />
+      <use
+         transform="matrix(0,-1,1,0,20,1190)"
+         height="100%"
+         width="100%"
+         id="use5284"
+         xlink:href="#anchor_target_bar"
+         y="0"
+         x="0"
+         style="display:inline" />
+      <rect
+         y="592"
+         x="-599"
+         height="13"
+         width="13"
+         id="rect5076-2"
+         style="fill:#dbdbdb"
+         transform="matrix(0,-1,1,0,0,0)"
+         ry="4" />
+      <use
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#anchoreditemrect"
+         id="use5093"
+         transform="matrix(0,-1,1,0,6,1174)"
+         width="100%"
+         height="100%" />
+    </g>
+    <g
+       id="src/libs/qmleditorwidgets/images/alignment_left"
+       transform="translate(-39,0)">
+      <rect
+         transform="matrix(0,1,-1,0,0,0)"
+         id="rect5140-5-1"
+         height="16"
+         width="16"
+         y="-757"
+         x="584"
+         style="display:inline;fill:#ffffff" />
+      <path
+         style="color:#000000"
+         d="m 702,584 0,1 12,0 0,-1 -12,0 z m 0,3 0,1 14,0 0,-1 -14,0 z m 0,3 0,1 16,0 0,-1 -16,0 z m 0,3 0,1 10,0 0,-1 -10,0 z m 0,3 0,1 12,0 0,-1 -12,0 z m 0,3 0,1 16,0 0,-1 -16,0 z"
+         transform="translate(39,0)"
+         id="rect5116"
+         inkscape:connector-curvature="0" />
+    </g>
+    <g
+       transform="translate(-23,0)"
+       id="src/libs/qmleditorwidgets/images/alignment_center">
+      <rect
+         style="display:inline;fill:#ffffff"
+         x="584"
+         y="-757"
+         width="16"
+         height="16"
+         id="rect5154"
+         transform="matrix(0,1,-1,0,0,0)" />
+      <path
+         id="rect5166"
+         style="color:#000000"
+         d="m 741,599 16,0 0,1 -16,0 z m 2,-3 12,0 0,1 -12,0 z m 1,-3 10,0 0,1 -10,0 z m -3,-3 16,0 0,1 -16,0 z m 1,-3 14,0 0,1 -14,0 z m 1,-3 12,0 0,1 -12,0 z" />
+    </g>
+    <use
+       x="0"
+       y="0"
+       xlink:href="#src/libs/qmleditorwidgets/images/alignment_left"
+       id="src/libs/qmleditorwidgets/images/alignment_right"
+       transform="matrix(-1,0,0,1,1452,0)"
+       width="100%"
+       height="100%" />
+    <g
+       style="display:inline"
+       id="src/libs/qmleditorwidgets/images/alignment_top"
+       transform="translate(9,0)">
+      <rect
+         style="display:inline;fill:#ffffff"
+         x="584"
+         y="-757"
+         width="16"
+         height="16"
+         id="rect5154-0"
+         transform="matrix(0,1,-1,0,0,0)" />
+      <path
+         inkscape:connector-curvature="0"
+         id="rect5166-5"
+         style="color:#000000"
+         d="m 742,585 14,0 0,1 -14,0 z"
+         sodipodi:nodetypes="ccccc" />
+    </g>
+    <g
+       style="display:inline"
+       id="src/libs/qmleditorwidgets/images/alignment_middle"
+       transform="translate(25,0)">
+      <rect
+         style="display:inline;fill:#ffffff"
+         x="584"
+         y="-757"
+         width="16"
+         height="16"
+         id="rect5154-0-3"
+         transform="matrix(0,1,-1,0,0,0)" />
+      <path
+         inkscape:connector-curvature="0"
+         id="rect5166-5-0"
+         style="color:#000000"
+         d="m 742,592 14,0 0,1 -14,0 z"
+         sodipodi:nodetypes="ccccc" />
+    </g>
+    <g
+       style="display:inline"
+       id="src/libs/qmleditorwidgets/images/alignment_bottom"
+       transform="translate(41,0)">
+      <rect
+         style="display:inline;fill:#ffffff"
+         x="584"
+         y="-757"
+         width="16"
+         height="16"
+         id="rect5154-0-3-5"
+         transform="matrix(0,1,-1,0,0,0)" />
+      <path
+         inkscape:connector-curvature="0"
+         id="rect5166-5-0-8"
+         style="color:#000000"
+         d="m 742,599 14,0 0,1 -14,0 z"
+         sodipodi:nodetypes="ccccc" />
     </g>
   </g>
   <g
@@ -5309,6 +5611,87 @@
          width="10"
          id="rect5583"
          style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-opacity:1" />
+    </g>
+    <g
+       id="src/libs/qmleditorwidgets/images/style_bold"
+       transform="translate(-4,0)">
+      <rect
+         transform="matrix(0,1,-1,0,0,0)"
+         id="rect5154-0-3-5-8"
+         height="16"
+         width="16"
+         y="-818"
+         x="584"
+         style="fill:#ffffff" />
+      <path
+         d="m 812.46641,591.10694 c 1.20962,0.28761 2.05886,0.63593 2.54771,1.04497 0.70195,0.58162 1.05292,1.3358 1.05292,2.26254 0,0.97787 -0.38544,1.78638 -1.15634,2.42552 C 813.96433,597.61331 812.58863,598 810.78359,598 l -6.47736,0 0,-0.35473 c 0.58915,0 0.98713,-0.0543 1.19395,-0.16295 0.21309,-0.11506 0.36038,-0.26208 0.44185,-0.44103 0.0878,-0.17894 0.13162,-0.61996 0.13162,-1.32301 l 0,-8.43655 c 0,-0.70304 -0.0438,-1.14406 -0.13162,-1.323 -0.0815,-0.18536 -0.22876,-0.33235 -0.44185,-0.44101 -0.21309,-0.10866 -0.61106,-0.16298 -1.19395,-0.16298 l 0,-0.35474 6.11073,0 c 1.46031,0 2.49444,0.13423 3.10238,0.40268 0.60794,0.26203 1.08738,0.6583 1.43835,1.18877 0.35098,0.52409 0.52647,1.08334 0.52647,1.67773 0,0.62635 -0.22249,1.1856 -0.66747,1.67775 -0.44499,0.48572 -1.22842,0.87239 -2.35028,1.16001 z m -3.45676,-0.25885 c 0.88999,0 1.57967,-0.10227 1.99959,-0.3068 0.42619,-0.2045 0.75209,-0.4921 0.9777,-0.86281 0.22564,-0.3707 0.33845,-0.84366 0.33845,-1.41888 0,-0.57522 -0.11281,-1.045 -0.33845,-1.4093 -0.21935,-0.37069 -0.53585,-0.6519 -0.9495,-0.84365 -0.41366,-0.19173 -1.11275,-0.2844 -2.02779,-0.27802 z m 0,0.74777 0,4.17036 -0.009,0.47936 c 0,0.34512 0.0845,0.60716 0.25383,0.78613 0.17549,0.17256 0.4672,0.25885 0.80563,0.25885 0.5014,0 0.96205,-0.11186 1.38196,-0.33557 0.4262,-0.23007 0.7521,-0.55922 0.97771,-0.98744 0.22564,-0.43462 0.33846,-0.91716 0.33846,-1.44765 0,-0.60718 -0.13789,-1.15044 -0.41365,-1.62978 -0.27577,-0.48575 -0.65496,-0.82449 -1.13755,-1.01623 -0.48258,-0.19173 -1.23807,-0.28441 -2.197,-0.27803 z"
+         style="fill:#000000"
+         id="path5133"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccscsccccssccccsccscccccsccccccccsccscccc" />
+    </g>
+    <g
+       id="src/libs/qmleditorwidgets/images/style_italic"
+       transform="translate(-4,0)">
+      <rect
+         style="fill:#ffffff"
+         x="584"
+         y="-834"
+         width="16"
+         height="16"
+         id="rect5154-0-3-5-8-1"
+         transform="matrix(0,1,-1,0,0,0)" />
+      <path
+         d="M 827.03729,597.64527 826.93388,598 l -5.24582,0 0.13162,-0.35473 q 0.78968,-0.0191 1.04352,-0.13422 0.41366,-0.16298 0.61107,-0.45057 0.31024,-0.4506 0.63927,-1.61061 l 2.21867,-7.84216 q 0.28204,-0.97787 0.28204,-1.47639 0,-0.24925 -0.12222,-0.42182 -0.12221,-0.17257 -0.37605,-0.25885 -0.24443,-0.0959 -0.96831,-0.0959 L 825.26048,585 l 4.92617,0 -0.10339,0.35474 q -0.60167,-0.009 -0.89311,0.13421 -0.42305,0.19174 -0.64868,0.54645 -0.21623,0.35474 -0.56404,1.57227 l -2.20929,7.84216 q -0.30082,1.08334 -0.30082,1.38052 0,0.23966 0.11281,0.41226 0.12219,0.16295 0.37603,0.25883 0.26323,0.0864 1.08113,0.14379 z"
+         style="fill:#000000"
+         id="path5135"
+         inkscape:connector-curvature="0" />
+    </g>
+    <g
+       id="src/libs/qmleditorwidgets/images/style_underline"
+       transform="translate(-4,0)">
+      <rect
+         transform="matrix(0,1,-1,0,0,0)"
+         id="rect5154-0-3-5-8-1-9"
+         height="16"
+         width="16"
+         y="-850"
+         x="584"
+         style="fill:#ffffff" />
+      <path
+         d="m 844.13746,585.36698 0,-0.34896 4.51251,0 0,0.34896 -0.47945,0 q -0.7521,0 -1.15634,0.63185 -0.1974,0.29235 -0.1974,1.35803 l 0,5.18696 q 0,1.92389 -0.38547,2.98957 -0.37603,1.05624 -1.49477,1.82015 -1.10934,0.75446 -3.02716,0.75446 -2.08703,0 -3.16817,-0.72618 -1.08113,-0.72615 -1.53238,-1.95217 -0.30085,-0.83934 -0.30085,-3.1499 l 0,-4.99831 q 0,-1.17886 -0.32903,-1.54667 -0.31963,-0.36779 -1.04352,-0.36779 l -0.47944,0 0,-0.34896 5.50904,0 0,0.34896 -0.48885,0 q -0.78972,0 -1.12813,0.49982 -0.23504,0.33951 -0.23504,1.41464 l 0,5.57359 q 0,0.74503 0.1316,1.707 0.14102,0.96194 0.49826,1.4995 0.35724,0.53756 1.02472,0.88648 0.67689,0.34895 1.6546,0.34895 1.25034,0 2.23747,-0.54701 0.98713,-0.54697 1.34436,-1.39574 0.36666,-0.85821 0.36666,-2.89525 l 0,-5.17752 q 0,-1.19774 -0.26325,-1.49952 -0.36663,-0.41494 -1.09053,-0.41494 l -0.47944,0 z"
+         style="fill:#000000"
+         id="path5137"
+         inkscape:connector-curvature="0" />
+      <path
+         inkscape:connector-curvature="0"
+         id="rect5166-5-0-3"
+         style="fill:#000000"
+         d="m 835,599 14,0 0,1 -14,0 z"
+         sodipodi:nodetypes="ccccc" />
+    </g>
+    <g
+       id="src/libs/qmleditorwidgets/images/style_strikeout"
+       transform="translate(-4,0)">
+      <rect
+         transform="matrix(0,1,-1,0,0,0)"
+         id="rect5154-0-3-5-8-1-6"
+         height="16"
+         width="16"
+         y="-866"
+         x="584"
+         style="fill:#ffffff" />
+      <path
+         d="m 861.87219,584.82307 0,4.40196 -0.34784,0 q -0.16924,-1.26707 -0.61108,-2.01796 -0.43244,-0.75086 -1.24094,-1.19197 -0.8085,-0.44116 -1.6734,-0.44116 -0.97771,0 -1.61699,0.60069 -0.63927,0.59132 -0.63927,1.35156 0,0.58193 0.40425,1.06061 0.58287,0.70392 2.77333,1.87718 1.7862,0.95735 2.43486,1.47355 0.65809,0.50685 1.00592,1.2014 0.35727,0.69455 0.35727,1.45481 0,1.44541 -1.12814,2.49662 -1.11874,1.04183 -2.88615,1.04183 -0.55467,0 -1.04353,-0.0844 -0.29143,-0.0467 -1.21273,-0.33788 -0.91191,-0.30034 -1.15632,-0.30034 -0.23506,0 -0.37608,0.14077 -0.1316,0.14078 -0.1974,0.58193 l -0.34785,0 0,-4.36442 0.34785,0 q 0.24443,1.37033 0.65807,2.0555 0.41366,0.67579 1.25976,1.1263 0.85549,0.45053 1.87081,0.45053 1.17516,0 1.85202,-0.61947 0.68628,-0.61947 0.68628,-1.46419 0,-0.46929 -0.26323,-0.94797 -0.25383,-0.47868 -0.7991,-0.89166 -0.36665,-0.28156 -2.00245,-1.19198 -1.63577,-0.91982 -2.33146,-1.46421 -0.68627,-0.54437 -1.04351,-1.20139 -0.35725,-0.657 -0.35725,-1.44541 0,-1.37033 1.05291,-2.35585 1.05292,-0.99489 2.67931,-0.99489 1.01534,0 2.15287,0.49745 0.52646,0.23464 0.7427,0.23464 0.24442,0 0.39483,-0.14078 0.15983,-0.15017 0.25384,-0.59131 l 0.34784,0 z"
+         style="fill:#000000"
+         id="path5139"
+         inkscape:connector-curvature="0" />
+      <path
+         inkscape:connector-curvature="0"
+         id="rect5166-5-0-3-3"
+         style="fill:#000000"
+         d="m 852,591 13,0 0,1 -13,0 z"
+         sodipodi:nodetypes="ccccc" />
     </g>
   </g>
 </svg>

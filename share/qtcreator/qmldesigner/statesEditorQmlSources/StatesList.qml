@@ -111,6 +111,7 @@ FocusScope {
                 background: Rectangle {
                     property color buttonBaseColor: Qt.darker(creatorTheme.QmlDesignerBackgroundColorDarkAlternate, 1.1)
                     color: control.hovered ? Qt.lighter(buttonBaseColor, 1.2)  : buttonBaseColor
+                    border.color: creatorTheme.QmlDesignerBorderColor
                     border.width: 1
                     Image {
                         source: "image://icons/plus"
@@ -147,7 +148,7 @@ FocusScope {
                 height: delegateHeight
                 isBaseState: 0 == internalNodeId
                 isCurrentState: root.currentStateInternalId == internalNodeId
-                baseColor: isCurrentState ? Qt.darker(highlightColor, 1.2) : background.color
+                baseColor: isCurrentState ? creatorTheme.QmlDesigner_HighlightColor : background.color
                 delegateStateName: stateName
                 delegateStateImageSource: stateImageSource
                 delegateStateImageSize: stateImageSize

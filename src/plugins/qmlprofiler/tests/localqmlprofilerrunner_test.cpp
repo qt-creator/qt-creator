@@ -37,17 +37,6 @@ LocalQmlProfilerRunnerTest::LocalQmlProfilerRunnerTest(QObject *parent) : QObjec
 {
 }
 
-bool checkErrors(const QStringList &errors, int number)
-{
-    if (errors.length() != number) {
-        qDebug() << "Found unexpected errors:" << errors;
-        return false;
-    } else {
-        return true;
-    }
-}
-
-
 void LocalQmlProfilerRunnerTest::testRunner()
 {
     Debugger::AnalyzerConnection connection;
@@ -64,7 +53,6 @@ void LocalQmlProfilerRunnerTest::testRunner()
 
     bool running = false;
     int runCount = 0;
-    QStringList errors;
 
     auto connectRunner = [&]() {
         connect(runner, &LocalQmlProfilerRunner::started, this, [&running, &runCount](){
@@ -76,13 +64,6 @@ void LocalQmlProfilerRunnerTest::testRunner()
             QVERIFY(running);
             running = false;
         });
-
-        connect(runner, &LocalQmlProfilerRunner::appendMessage, this,
-                [&errors](const QString &message, Utils::OutputFormat format) {
-            if (format == Utils::ErrorMessageFormat && message !=
-                    ProjectExplorer::ApplicationLauncher::msgWinCannotRetrieveDebuggingOutput())
-                errors << message;
-        });
     };
 
     connectRunner();
@@ -91,7 +72,6 @@ void LocalQmlProfilerRunnerTest::testRunner()
 
     QTRY_COMPARE_WITH_TIMEOUT(runCount, 1, 10000);
     QTRY_VERIFY_WITH_TIMEOUT(!running, 10000);
-    QVERIFY(checkErrors(errors, 1));
 
     configuration.socket = connection.analyzerSocket = LocalQmlProfilerRunner::findFreeSocket();
     configuration.debuggee.executable = qApp->applicationFilePath();
@@ -109,7 +89,6 @@ void LocalQmlProfilerRunnerTest::testRunner()
 
     QTRY_COMPARE_WITH_TIMEOUT(runCount, 2, 10000);
     QTRY_VERIFY_WITH_TIMEOUT(!running, 10000);
-    QVERIFY(checkErrors(errors, 1));
 
     delete rc;
 
@@ -126,13 +105,8 @@ void LocalQmlProfilerRunnerTest::testRunner()
     rc->start();
 
     QTRY_COMPARE_WITH_TIMEOUT(runCount, 3, 10000);
-    QTest::qWait(1000);
-    QVERIFY(running); // verify it doesn't spontaneously stop
-    QVERIFY(checkErrors(errors, 1));
-
     rc->stop();
     QTRY_VERIFY_WITH_TIMEOUT(!running, 10000);
-    QVERIFY(checkErrors(errors, 2)); // "The program has unexpectedly finished."
 
     delete rc;
 }

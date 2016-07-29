@@ -50,7 +50,7 @@ Section {
 
         AnchorRow {
             visible: anchorBackend.topAnchored;
-            iconSource: "../HelperWidgets/images/anchor-top.png"
+            iconSource: "image://icons/anchor-top"
             anchorMargin: backendValues.anchors_topMargin
             targetName: anchorBackend.topTarget
             onTargetChanged: {
@@ -73,7 +73,7 @@ Section {
 
         AnchorRow {
             visible: anchorBackend.bottomAnchored;
-            iconSource: "../HelperWidgets/images/anchor-bottom.png"
+            iconSource: "image://icons/anchor-bottom"
             anchorMargin: backendValues.anchors_bottomMargin
             targetName: anchorBackend.bottomTarget
             onTargetChanged: {
@@ -97,7 +97,7 @@ Section {
 
         AnchorRow {
             visible: anchorBackend.leftAnchored;
-            iconSource: "../HelperWidgets/images/anchor-left.png"
+            iconSource: "image://icons/anchor-left"
             anchorMargin: backendValues.anchors_leftMargin
             targetName: anchorBackend.leftTarget
             onTargetChanged: {
@@ -120,7 +120,7 @@ Section {
 
         AnchorRow {
             visible: anchorBackend.rightAnchored;
-            iconSource: "../HelperWidgets/images/anchor-right.png"
+            iconSource: "image://icons/anchor-right"
             anchorMargin: backendValues.anchors_rightMargin
             targetName: anchorBackend.rightTarget
             onTargetChanged: {
@@ -145,7 +145,7 @@ Section {
         AnchorRow {
             showAlternativeTargets: false
             visible: anchorBackend.horizontalCentered;
-            iconSource: "../HelperWidgets/images/anchor-horizontal.png"
+            iconSource: "image://icons/anchor-horizontal"
             anchorMargin: backendValues.anchors_horizontalCenterOffset
             targetName: anchorBackend.horizontalTarget
             onTargetChanged: {
@@ -158,7 +158,7 @@ Section {
         AnchorRow {
             showAlternativeTargets: false
             visible: anchorBackend.verticalCentered;
-            iconSource: "../HelperWidgets/images/anchor-vertical.png"
+            iconSource: "image://icons/anchor-vertical"
             anchorMargin: backendValues.anchors_verticalCenterOffset
             targetName: anchorBackend.verticalTarget
             onTargetChanged: {

@@ -52,6 +52,9 @@ DocumentWarningWidget::DocumentWarningWidget(QWidget *parent)
     , m_ignoreWarningsCheckBox(new QCheckBox(this))
     , m_continueButton(new QPushButton(this))
 {
+    // this "tooltip" should behave like a widget with parent child relation to the designer mode
+    setWindowFlags(Qt::Widget);
+
     QFont boldFont = font();
     boldFont.setBold(true);
     m_headerLabel->setFont(boldFont);

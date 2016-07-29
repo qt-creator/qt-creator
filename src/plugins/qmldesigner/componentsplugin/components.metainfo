@@ -72,32 +72,6 @@ MetaInfo {
     }
 
     Type {
-        name: "QtQuick.Controls.ButtonRow"
-        icon: ":/componentsplugin/images/buttonrow16.png"
-
-        ItemLibraryEntry {
-            name: "Button Row"
-            category: "Qt Quick - Controls"
-            libraryIcon: ":/componentsplugin/images/buttonrow.png"
-            version: "1.0"
-            requiredImport: "QtQuick.Controls"
-        }
-    }
-
-    Type {
-        name: "QtQuick.Controls.ButtonColumn"
-        icon: ":/componentsplugin/images/buttoncolumn16.png"
-
-        ItemLibraryEntry {
-            name: "Button Column"
-            category: "Qt Quick - Controls"
-            libraryIcon: ":/componentsplugin/images/buttoncolumn.png"
-            version: "1.0"
-            requiredImport: "QtQuick.Controls"
-        }
-    }
-
-    Type {
         name: "QtQuick.Controls.Label"
         icon: ":/componentsplugin/images/label16.png"
 
@@ -168,7 +142,7 @@ MetaInfo {
         ItemLibraryEntry {
            name: "Slider (Vertical)"
             category: "Qt Quick - Controls"
-            libraryIcon: ":/componentsplugin/images/sliderh.png"
+            libraryIcon: ":/componentsplugin/images/slider.png"
             version: "1.0"
             requiredImport: "QtQuick.Controls"
             Property { name: "orientation"; type: "Enumeration"; value: "Qt.Vertical"; }
@@ -341,6 +315,22 @@ MetaInfo {
             Property { name: "height"; type: "int"; value: 100; }
         }
     }
+
+Type {
+    name: "QtQuick.Layouts.StackLayout"
+    icon: ":/componentsplugin/images/stack-layouts-icon-16px.png"
+
+    ItemLibraryEntry {
+        name: "StackLayout"
+        category: "Qt Quick - Layouts"
+        libraryIcon: ":/componentsplugin/images/stack-layouts-icon.png"
+        version: "1.3"
+        requiredImport: "QtQuick.Layouts"
+
+        Property { name: "width"; type: "int"; value: 100; }
+        Property { name: "height"; type: "int"; value: 100; }
+    }
+}
 
     Type {
         name: "QtQuick.Controls.TabView"

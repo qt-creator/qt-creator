@@ -30,10 +30,11 @@ Row {
     id: alignmentHorizontalButtons
 
     RoundedPanel {
-        width: 14
+        width: 16
         height: parent.height
         roundLeft: true
         ExtendedFunctionButton {
+            x: 2
             anchors.verticalCenter: parent.verticalCenter
             backendValue: alignmentHorizontalButtons.backendValue
         }
@@ -48,6 +49,8 @@ Row {
     property bool baseStateFlag: isBaseState;
 
     onValueChanged: {
+        buttonRow.initalChecked = 0
+        buttonRow.checkedIndex = 0
         if (value !== undefined) {
             if (value === "AlignLeft") {
                 buttonRow.initalChecked = 0
@@ -92,21 +95,21 @@ Row {
 
         ButtonRowButton {
             roundLeftButton: false
-            iconSource: blueHighlight ? "images/alignmentleft-h-icon.png" : "images/alignmentleft-icon.png"
+            iconSource: "image://icons/alignment-left" + (blueHighlight ? "-h" : "")
             onClicked: {
                 if (checked)
                     backendValue.setEnumeration("Text", "AlignLeft")
             }
         }
         ButtonRowButton {
-            iconSource:  blueHighlight ? "images/alignmentcenterh-h-icon.png" : "images/alignmentcenterh-icon.png"
+            iconSource: "image://icons/alignment-center" + (blueHighlight ? "-h" : "")
             onClicked: {
                 if (checked)
                     backendValue.setEnumeration("Text", "AlignHCenter")
             }
         }
         ButtonRowButton {
-            iconSource: blueHighlight ? "images/alignmentright-h-icon.png" : "images/alignmentright-icon.png"
+            iconSource: "image://icons/alignment-right" + (blueHighlight ? "-h" : "")
             onClicked: {
                 if (checked)
                     backendValue.setEnumeration("Text", "AlignRight")

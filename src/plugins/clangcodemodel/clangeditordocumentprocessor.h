@@ -76,10 +76,7 @@ public:
     extraRefactoringOperations(const TextEditor::AssistInterface &assistInterface) override;
 
     bool hasDiagnosticsAt(uint line, uint column) const override;
-    void showDiagnosticTooltip(const QPoint &point,
-                               QWidget *parent,
-                               uint line,
-                               uint column) const override;
+    void addDiagnosticToolTipToLayout(uint line, uint column, QLayout *target) const override;
 
     ClangBackEnd::FileContainer fileContainerWithArguments() const;
 

@@ -517,7 +517,7 @@ void TestResultsPane::updateRunActions()
 {
     QString whyNot;
     TestTreeModel *model = TestTreeModel::instance();
-    const bool enable = !model->parser()->isParsing() && model->hasTests()
+    const bool enable = !m_testRunning && !model->parser()->isParsing() && model->hasTests()
             && ProjectExplorer::ProjectExplorerPlugin::canRunStartupProject(
                 ProjectExplorer::Constants::NORMAL_RUN_MODE, &whyNot);
     m_runAll->setEnabled(enable);

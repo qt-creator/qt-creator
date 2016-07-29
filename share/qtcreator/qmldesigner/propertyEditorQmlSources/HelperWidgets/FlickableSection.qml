@@ -51,7 +51,7 @@ Section {
             }
 
             Label {
-                text: "W"
+                text: "H"
                 width: 12
             }
 
