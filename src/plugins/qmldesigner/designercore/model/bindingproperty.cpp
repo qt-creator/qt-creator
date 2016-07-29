@@ -244,4 +244,22 @@ void BindingProperty::setDynamicTypeNameAndExpression(const TypeName &typeName, 
      model()->d->setDynamicBindingProperty(internalNode(), name(), typeName, expression);
 }
 
+QDebug operator<<(QDebug debug, const BindingProperty &property)
+{
+    if (!property.isValid())
+        return debug.nospace() << "BindingProperty(" << PropertyName("invalid") << ')';
+    else
+        return debug.nospace() << "BindingProperty(" <<  property.name() << " " << property.expression() << ')';
+}
+
+QTextStream& operator<<(QTextStream &stream, const BindingProperty &property)
+{
+    if (!property.isValid())
+        stream << "BindingProperty(" << PropertyName("invalid") << ')';
+    else
+        stream << "BindingProperty(" <<  property.name() << " " << property.expression() << ')';
+
+    return stream;
+}
+
 } // namespace QmlDesigner
