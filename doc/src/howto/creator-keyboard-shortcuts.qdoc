@@ -337,11 +337,25 @@
             \li  Go to block start
             \li  Ctrl+[
         \row
-            \li  Go to block end with selection
-            \li  Ctrl+}
+            \li  Go to block end and select the lines between the current cursor
+                 position and the end of the block
+            \li  Ctrl+Shift+]
         \row
-            \li  Go to block start with selection
-            \li  Ctrl+{
+            \li  Go to block start and select the lines between the current
+                 cursor position and the beginning of the block
+            \li  Ctrl+Shift+[
+        \row
+            \li  Select the current block
+
+                 The second press extends the selection to the parent block. To
+                 enable this behavior, select \uicontrol Tools >
+                 \uicontrol Options > \uicontrol {Text Editor} >
+                 \uicontrol Behavior >
+                 \uicontrol {Enable smart selection changing}.
+            \li  Ctrl+U
+        \row
+            \li  Undo the latest smart block selection
+            \li  Ctrl+Alt+Shift+U
         \row
             \li  Move current line down
             \li  Ctrl+Shift+Down
@@ -354,11 +368,6 @@
         \row
             \li  Rewrap paragraph
             \li  Ctrl+E, R
-        \row
-            \li  Select the current block
-
-               The second press extends the selection to the parent block
-            \li  Ctrl+U
         \row
             \li  Enable text wrapping
             \li  Ctrl+E, Ctrl+W

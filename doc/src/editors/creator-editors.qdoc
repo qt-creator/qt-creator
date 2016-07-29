@@ -142,6 +142,17 @@
     \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor} >
     \uicontrol Display and deselect \uicontrol {Animate matching parentheses}.
 
+    You can use keyboard shortcuts to move within and between blocks. To go to
+    block end, press \key {Ctrl+]} and to go to block start, press
+    \key {Ctrl+[}. To also select the lines from the cursor position to the end
+    or beginning of the block, press \key {Ctrl+Shift+]} and
+    \key {Ctrl+Shift+[}, respectively.
+
+    To select the current block, press \key Ctrl+U. A second key press extends
+    the selection to the parent block. To undo the last selection, press
+    \key {Ctrl+Alt+Shift+U}. To enable smart block selection, select
+    \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor} >
+    \uicontrol Behavior > \uicontrol {Enable smart selection changing}.
 */
 
 
