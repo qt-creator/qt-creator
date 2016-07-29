@@ -1301,8 +1301,12 @@ class DumperBase:
                 return p > 100000 and (p & 0x7 == 0) and (p < 0x7fffffffffff)
 
         def couldBeQObject():
-            (vtablePtr, dd) \
-                = self.extractStruct('PP', objectPtr, 2 * ptrSize)
+            try:
+                (vtablePtr, dd) \
+                    = self.extractStruct('PP', objectPtr, 2 * ptrSize)
+            except:
+                self.bump("nostruct-1")
+                return False
             if not canBePointer(vtablePtr):
                 self.bump("vtable")
                 return False
@@ -1310,8 +1314,12 @@ class DumperBase:
                 self.bump("d_d_ptr")
                 return False
 
-            (dvtablePtr, qptr, parentPtr, childrenDPtr, flags) \
-                = self.extractStruct('PPPPI', dd, 4 * ptrSize + 4)
+            try:
+                (dvtablePtr, qptr, parentPtr, childrenDPtr, flags) \
+                    = self.extractStruct('PPPPI', dd, 4 * ptrSize + 4)
+            except:
+                self.bump("nostruct-2")
+                return False
             #warn("STRUCT DD: %s %s" % (self.currentIName, x))
             if not canBePointer(dvtablePtr):
                 self.bump("dvtable")
