@@ -136,8 +136,6 @@ private:
 
     TreeItem *m_parent; // Not owned.
     BaseTreeModel *m_model; // Not owned.
-
- protected:
     QVector<TreeItem *> m_children; // Owned.
     friend class BaseTreeModel;
 };
