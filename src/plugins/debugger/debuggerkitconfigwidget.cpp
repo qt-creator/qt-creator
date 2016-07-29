@@ -142,16 +142,6 @@ void DebuggerKitConfigWidget::currentDebuggerChanged(int)
     m_kit->setValue(DebuggerKitInformation::id(), id);
 }
 
-int DebuggerKitConfigWidget::indexOf(const QVariant &id)
-{
-    QTC_ASSERT(id.isValid(), return -1);
-    for (int i = 0; i < m_comboBox->count(); ++i) {
-        if (id == m_comboBox->itemData(i))
-            return i;
-    }
-    return -1;
-}
-
 QVariant DebuggerKitConfigWidget::currentId() const
 {
     return m_comboBox->itemData(m_comboBox->currentIndex());

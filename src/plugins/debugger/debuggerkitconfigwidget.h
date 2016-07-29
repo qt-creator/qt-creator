@@ -68,7 +68,6 @@ private:
     void manageDebuggers();
     void currentDebuggerChanged(int idx);
 
-    int indexOf(const QVariant &id);
     QVariant currentId() const;
     void updateComboBox(const QVariant &id);
 
