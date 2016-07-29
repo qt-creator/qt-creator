@@ -29,6 +29,7 @@
 #include "debuggeroptionspage.h"
 #include "debuggerprotocol.h"
 
+#include <coreplugin/coreicons.h>
 #include <projectexplorer/abi.h>
 
 #include <utils/fileutils.h>
@@ -59,6 +60,7 @@ const char DEBUGGER_INFORMATION_AUTODETECTION_SOURCE[] = "AutoDetectionSource";
 const char DEBUGGER_INFORMATION_VERSION[] = "Version";
 const char DEBUGGER_INFORMATION_ABIS[] = "Abis";
 const char DEBUGGER_INFORMATION_LASTMODIFIED[] = "LastModified";
+const char DEBUGGER_INFORMATION_WORKINGDIRECTORY[] = "WorkingDirectory";
 
 namespace Debugger {
 
@@ -81,8 +83,9 @@ DebuggerItem::DebuggerItem(const QVariant &id)
 
 DebuggerItem::DebuggerItem(const QVariantMap &data)
 {
-    m_command = FileName::fromUserInput(data.value(QLatin1String(DEBUGGER_INFORMATION_COMMAND)).toString());
     m_id = data.value(QLatin1String(DEBUGGER_INFORMATION_ID)).toString();
+    m_command = FileName::fromUserInput(data.value(QLatin1String(DEBUGGER_INFORMATION_COMMAND)).toString());
+    m_workingDirectory = FileName::fromUserInput(data.value(DEBUGGER_INFORMATION_WORKINGDIRECTORY).toString());
     m_unexpandedDisplayName = data.value(QLatin1String(DEBUGGER_INFORMATION_DISPLAYNAME)).toString();
     m_isAutoDetected = data.value(QLatin1String(DEBUGGER_INFORMATION_AUTODETECTED), false).toBool();
     m_autoDetectionSource = data.value(QLatin1String(DEBUGGER_INFORMATION_AUTODETECTION_SOURCE)).toString();
@@ -213,9 +216,15 @@ QDateTime DebuggerItem::lastModified() const
     return m_lastModified;
 }
 
-bool DebuggerItem::isGood() const
+QIcon DebuggerItem::decoration() const
 {
-    return m_engineType != NoEngineType;
+    if (m_engineType == NoEngineType)
+        return Core::Icons::ERROR.icon();
+    if (!m_command.toFileInfo().isExecutable())
+        return Core::Icons::WARNING.icon();
+    if (!m_workingDirectory.isEmpty() && !m_workingDirectory.toFileInfo().isDir())
+        return Core::Icons::WARNING.icon();
+    return QIcon();
 }
 
 QString DebuggerItem::validityMessage() const
@@ -230,7 +239,8 @@ bool DebuggerItem::operator==(const DebuggerItem &other) const
     return m_id == other.m_id
             && m_unexpandedDisplayName == other.m_unexpandedDisplayName
             && m_isAutoDetected == other.m_isAutoDetected
-            && m_command == other.m_command;
+            && m_command == other.m_command
+            && m_workingDirectory == other.m_workingDirectory;
 }
 
 QVariantMap DebuggerItem::toMap() const
@@ -239,6 +249,7 @@ QVariantMap DebuggerItem::toMap() const
     data.insert(QLatin1String(DEBUGGER_INFORMATION_DISPLAYNAME), m_unexpandedDisplayName);
     data.insert(QLatin1String(DEBUGGER_INFORMATION_ID), m_id);
     data.insert(QLatin1String(DEBUGGER_INFORMATION_COMMAND), m_command.toString());
+    data.insert(QLatin1String(DEBUGGER_INFORMATION_WORKINGDIRECTORY), m_workingDirectory.toString());
     data.insert(QLatin1String(DEBUGGER_INFORMATION_ENGINETYPE), int(m_engineType));
     data.insert(QLatin1String(DEBUGGER_INFORMATION_AUTODETECTED), m_isAutoDetected);
     data.insert(QLatin1String(DEBUGGER_INFORMATION_AUTODETECTION_SOURCE), m_autoDetectionSource);

@@ -104,7 +104,7 @@ QDebug operator<<(QDebug str, const DebuggerRunParameters &sp)
             << " coreFile=" << sp.coreFile
             << " processArgs=" << sp.inferior.commandLineArguments
             << " inferior environment=<" << sp.inferior.environment.size() << " variables>"
-            << " debugger environment=<" << sp.debuggerEnvironment.size() << " variables>"
+            << " debugger environment=<" << sp.debugger.environment.size() << " variables>"
             << " workingDir=" << sp.inferior.workingDirectory
             << " attachPID=" << sp.attachPID
             << " useTerminal=" << sp.useTerminal

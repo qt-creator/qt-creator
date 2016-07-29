@@ -39,6 +39,7 @@
 #include <QTemporaryFile>
 
 using namespace Utils;
+using namespace ProjectExplorer;
 
 namespace Debugger {
 namespace Internal {
@@ -121,7 +122,7 @@ static QString findExecutableFromName(const QString &fileNameFromCore, const QSt
 }
 
 GdbCoreEngine::CoreInfo
-GdbCoreEngine::readExecutableNameFromCore(const QString &debuggerCommand, const QString &coreFile)
+GdbCoreEngine::readExecutableNameFromCore(const StandardRunnable &debugger, const QString &coreFile)
 {
     CoreInfo cinfo;
 #if 0
@@ -139,7 +140,7 @@ GdbCoreEngine::readExecutableNameFromCore(const QString &debuggerCommand, const 
     QStringList envLang = QProcess::systemEnvironment();
     Utils::Environment::setupEnglishOutput(&envLang);
     proc.setEnvironment(envLang);
-    SynchronousProcessResponse response = proc.runBlocking(debuggerCommand, args);
+    SynchronousProcessResponse response = proc.runBlocking(debugger.executable, args);
 
     if (response.result == SynchronousProcessResponse::Finished) {
         QString output = response.stdOut();
@@ -171,9 +172,8 @@ void GdbCoreEngine::continueSetupEngine()
             m_tempCoreFile.close();
     }
     if (isCore && m_executable.isEmpty()) {
-        GdbCoreEngine::CoreInfo cinfo = readExecutableNameFromCore(
-                                            runParameters().debuggerCommand,
-                                            coreFileName());
+        GdbCoreEngine::CoreInfo cinfo =
+                readExecutableNameFromCore(runParameters().debugger, coreFileName());
 
         if (cinfo.isCore) {
             m_executable = cinfo.foundExecutableName;

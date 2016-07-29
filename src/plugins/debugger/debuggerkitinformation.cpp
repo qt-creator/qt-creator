@@ -32,6 +32,7 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
@@ -244,6 +245,18 @@ const DebuggerItem *DebuggerKitInformation::debugger(const Kit *kit)
     return DebuggerItemManager::findById(id);
 }
 
+StandardRunnable DebuggerKitInformation::runnable(const Kit *kit)
+{
+    StandardRunnable runnable;
+    if (const DebuggerItem *item = debugger(kit)) {
+        runnable.executable = item->command().toString();
+        runnable.workingDirectory = item->workingDirectory().toString();
+        runnable.environment = Utils::Environment::systemEnvironment();
+        runnable.environment.set("LC_NUMERIC", "C");
+    }
+    return runnable;
+}
+
 bool DebuggerKitInformation::isValidDebugger(const Kit *k)
 {
     return debuggerConfigurationErrors(k) == 0;
@@ -324,14 +337,6 @@ void DebuggerKitInformation::addToMacroExpander(Kit *kit, MacroExpander *expande
 KitInformation::ItemList DebuggerKitInformation::toUserOutput(const Kit *k) const
 {
     return ItemList() << qMakePair(tr("Debugger"), displayString(k));
-}
-
-FileName DebuggerKitInformation::debuggerCommand(const Kit *k)
-{
-    const DebuggerItem *item = debugger(k);
-    if (item)
-        return item->command();
-    return FileName();
 }
 
 DebuggerEngineType DebuggerKitInformation::engineType(const Kit *k)

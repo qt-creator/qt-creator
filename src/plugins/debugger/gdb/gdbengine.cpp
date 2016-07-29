@@ -267,14 +267,19 @@ DebuggerStartMode GdbEngine::startMode() const
     return runParameters().startMode;
 }
 
+QString GdbEngine::failedToStartMessage()
+{
+    return tr("The gdb process failed to start.");
+}
+
 QString GdbEngine::errorMessage(QProcess::ProcessError error)
 {
     switch (error) {
         case QProcess::FailedToStart:
-            return tr("The gdb process failed to start. Either the "
+            return failedToStartMessage() + ' ' + tr("Either the "
                 "invoked program \"%1\" is missing, or you may have insufficient "
                 "permissions to invoke the program.\n%2")
-                .arg(m_gdb, m_gdbProc.errorString());
+                .arg(runParameters().debugger.executable, m_gdbProc.errorString());
         case QProcess::Crashed:
             if (targetState() == DebuggerFinished)
                 return tr("The gdb process crashed some time after starting "
@@ -860,7 +865,7 @@ void GdbEngine::interruptInferior()
             connect(m_signalOperation.data(), &DeviceProcessSignalOperation::finished,
                     this, &GdbEngine::handleInterruptDeviceInferior);
 
-            m_signalOperation->setDebuggerCommand(runParameters().debuggerCommand);
+            m_signalOperation->setDebuggerCommand(runParameters().debugger.executable);
             m_signalOperation->interruptProcess(inferiorPid());
         } else {
             interruptInferior2();
@@ -3945,18 +3950,6 @@ bool GdbEngine::handleCliDisassemblerResult(const QString &output, DisassemblerA
     return false;
 }
 
-// Binary/configuration check logic.
-
-static QString gdbBinary(const DebuggerRunParameters &sp)
-{
-    // 1) Environment.
-    const QByteArray envBinary = qgetenv("QTC_DEBUGGER_PATH");
-    if (!envBinary.isEmpty())
-        return QString::fromLocal8Bit(envBinary);
-    // 2) Command from profile.
-    return sp.debuggerCommand;
-}
-
 static SourcePathMap mergeStartParametersSourcePathMap(const DebuggerRunParameters &sp,
                                                        const SourcePathMap &in)
 {
@@ -3982,14 +3975,14 @@ void GdbEngine::startGdb(const QStringList &args)
     m_gdbProc.disconnect(); // From any previous runs
 
     const DebuggerRunParameters &rp = runParameters();
-    m_gdb = gdbBinary(rp);
-    if (m_gdb.isEmpty()) {
+    if (rp.debugger.executable.isEmpty()) {
         handleGdbStartFailed();
         handleAdapterStartFailed(
             msgNoGdbBinaryForToolChain(rp.toolChainAbi),
             Constants::DEBUGGER_COMMON_SETTINGS_ID);
         return;
     }
+
     QStringList gdbArgs;
     gdbArgs << "-i";
     gdbArgs << "mi";
@@ -4004,16 +3997,21 @@ void GdbEngine::startGdb(const QStringList &args)
     connect(&m_gdbProc, &QtcProcess::readyReadStandardOutput, this, &GdbEngine::readGdbStandardOutput);
     connect(&m_gdbProc, &QtcProcess::readyReadStandardError, this, &GdbEngine::readGdbStandardError);
 
-    showMessage("STARTING " + m_gdb + " " + gdbArgs.join(' '));
-    m_gdbProc.setCommand(m_gdb, QtcProcess::joinArgs(gdbArgs));
-    Environment env = Environment(m_gdbProc.systemEnvironment());
-    env.set("LC_NUMERIC", "C");
-    m_gdbProc.setEnvironment(env);
+    showMessage("STARTING " + rp.debugger.executable + " " + gdbArgs.join(' '));
+    m_gdbProc.setCommand(rp.debugger.executable, QtcProcess::joinArgs(gdbArgs));
+    if (QFileInfo(rp.debugger.workingDirectory).isDir())
+        m_gdbProc.setWorkingDirectory(rp.debugger.workingDirectory);
+    m_gdbProc.setEnvironment(rp.debugger.environment);
     m_gdbProc.start();
 
     if (!m_gdbProc.waitForStarted()) {
         handleGdbStartFailed();
-        const QString msg = errorMessage(QProcess::FailedToStart);
+        QString msg;
+        QString wd = m_gdbProc.workingDirectory();
+        if (!QFileInfo(wd).isDir())
+            msg = failedToStartMessage() + ' ' + tr("The working directory \"%s\" is not usable.").arg(wd);
+        else
+            msg = errorMessage(QProcess::FailedToStart);
         handleAdapterStartFailed(msg);
         return;
     }
@@ -4136,7 +4134,7 @@ void GdbEngine::startGdb(const QStringList &args)
     if (terminal()->isUsable())
         runCommand({"set inferior-tty " + QString::fromUtf8(terminal()->slaveDevice()), NoFlags});
 
-    const QFileInfo gdbBinaryFile(m_gdb);
+    const QFileInfo gdbBinaryFile(rp.debugger.executable);
     const QString uninstalledData = gdbBinaryFile.absolutePath() + "/data-directory/python";
 
     runCommand({"python sys.path.insert(1, '" + dumperSourcePath + "')", NoFlags});

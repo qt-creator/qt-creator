@@ -247,7 +247,7 @@ void LldbEngine::setupEngine()
 
 void LldbEngine::startLldb()
 {
-    m_lldbCmd = runParameters().debuggerCommand;
+    QString lldbCmd = runParameters().debugger.executable;
     connect(&m_lldbProc, static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
             this, &LldbEngine::handleLldbError);
     connect(&m_lldbProc, static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
@@ -260,17 +260,17 @@ void LldbEngine::startLldb()
     connect(this, &LldbEngine::outputReady,
             this, &LldbEngine::handleResponse, Qt::QueuedConnection);
 
-    showMessage("STARTING LLDB: " + m_lldbCmd);
-    m_lldbProc.setEnvironment(runParameters().debuggerEnvironment);
-    if (!runParameters().inferior.workingDirectory.isEmpty())
-        m_lldbProc.setWorkingDirectory(runParameters().inferior.workingDirectory);
+    showMessage("STARTING LLDB: " + lldbCmd);
+    m_lldbProc.setEnvironment(runParameters().debugger.environment);
+    if (QFileInfo(runParameters().debugger.workingDirectory).isDir())
+        m_lldbProc.setWorkingDirectory(runParameters().debugger.workingDirectory);
 
-    m_lldbProc.setCommand(m_lldbCmd, QString());
+    m_lldbProc.setCommand(lldbCmd, QString());
     m_lldbProc.start();
 
     if (!m_lldbProc.waitForStarted()) {
         const QString msg = tr("Unable to start LLDB \"%1\": %2")
-            .arg(m_lldbCmd, m_lldbProc.errorString());
+            .arg(lldbCmd, m_lldbProc.errorString());
         notifyEngineSetupFailed();
         showMessage("ADAPTER START FAILED");
         if (!msg.isEmpty())
@@ -852,7 +852,7 @@ QString LldbEngine::errorMessage(QProcess::ProcessError error) const
             return tr("The LLDB process failed to start. Either the "
                 "invoked program \"%1\" is missing, or you may have insufficient "
                 "permissions to invoke the program.")
-                .arg(m_lldbCmd);
+                .arg(runParameters().debugger.executable);
         case QProcess::Crashed:
             return tr("The LLDB process crashed some time after starting "
                 "successfully.");

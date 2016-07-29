@@ -354,11 +354,20 @@ static DebuggerRunControl *doCreate(DebuggerRunParameters rp, RunConfiguration *
     if (rp.symbolFile.isEmpty())
         rp.symbolFile = rp.inferior.executable;
 
+    rp.debugger = DebuggerKitInformation::runnable(kit);
+    const QByteArray envBinary = qgetenv("QTC_DEBUGGER_PATH");
+    if (!envBinary.isEmpty())
+        rp.debugger.executable = QString::fromLocal8Bit(envBinary);
+
     if (runConfig) {
         if (auto envAspect = runConfig->extraAspect<EnvironmentAspect>()) {
             rp.inferior.environment = envAspect->environment(); // Correct.
             rp.stubEnvironment = rp.inferior.environment; // FIXME: Wrong, but contains DYLD_IMAGE_SUFFIX
-            rp.debuggerEnvironment = rp.inferior.environment; // FIXME: Wrong, but contains DYLD_IMAGE_SUFFIX
+
+            // Copy over DYLD_IMAGE_SUFFIX etc
+            for (auto var : QStringList({"DYLD_IMAGE_SUFFIX", "DYLD_LIBRARY_PATH", "DYLD_FRAMEWORK_PATH"}))
+                if (rp.inferior.environment.hasKey(var))
+                    rp.debugger.environment.set(var, rp.inferior.environment.value(var));
         }
         if (Project *project = runConfig->target()->project()) {
             rp.projectSourceDirectory = project->projectDirectory().toString();
@@ -380,7 +389,6 @@ static DebuggerRunControl *doCreate(DebuggerRunParameters rp, RunConfiguration *
 
     rp.cppEngineType = DebuggerKitInformation::engineType(kit);
     rp.sysRoot = SysRootKitInformation::sysRoot(kit).toString();
-    rp.debuggerCommand = DebuggerKitInformation::debuggerCommand(kit).toString();
     rp.device = DeviceKitInformation::device(kit);
 
     if (rp.displayName.isEmpty() && runConfig)

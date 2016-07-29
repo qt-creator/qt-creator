@@ -27,10 +27,12 @@
 
 #include "debugger_global.h"
 #include "debuggerconstants.h"
+#include "debuggeritem.h"
 #include "debuggerprotocol.h"
 #include "debuggerstartparameters.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/runnables.h>
 #include <texteditor/textmark.h>
 
 #include <QObject>
@@ -89,7 +91,7 @@ public:
     bool breakOnMain = false;
     bool multiProcess = false; // Whether to set detach-on-fork off.
 
-    QString debuggerCommand;
+    ProjectExplorer::StandardRunnable debugger;
     QString coreFile;
     QString overrideStartScript; // Used in attach to core and remote debugging
     QString startMessage; // First status message shown.

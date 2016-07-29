@@ -46,7 +46,8 @@ public:
         QString foundExecutableName; // empty if no corresponding exec could be found
         bool isCore = false;
     };
-    static CoreInfo readExecutableNameFromCore(const QString &debuggerCmd, const QString &coreFile);
+    static CoreInfo readExecutableNameFromCore(const ProjectExplorer::StandardRunnable &debugger,
+                                               const QString &coreFile);
 
 private:
     void setupEngine() override;

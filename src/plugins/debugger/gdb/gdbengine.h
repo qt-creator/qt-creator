@@ -31,6 +31,7 @@
 #include <debugger/registerhandler.h>
 #include <debugger/watchhandler.h>
 #include <debugger/watchutils.h>
+#include <debugger/debuggeritem.h>
 #include <debugger/debuggertooltipmanager.h>
 
 #include <coreplugin/id.h>
@@ -397,13 +398,12 @@ protected:
     //
     void reloadDebuggingHelpers() override;
 
-    QString m_gdb;
-
     //
     // Convenience Functions
     //
     QString errorMessage(QProcess::ProcessError error);
     void showExecutionError(const QString &message);
+    QString failedToStartMessage();
 
     static QString tooltipIName(const QString &exp);
 

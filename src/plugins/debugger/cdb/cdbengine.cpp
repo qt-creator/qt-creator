@@ -506,7 +506,7 @@ bool CdbEngine::launchCDB(const DebuggerRunParameters &sp, QString *errorMessage
     // Determine binary (force MSVC), extension lib name and path to use
     // The extension is passed as relative name with the path variable set
     //(does not work with absolute path names)
-    const QString executable = sp.debuggerCommand;
+    const QString executable = sp.debugger.executable;
     if (executable.isEmpty()) {
         *errorMessage = tr("There is no CDB executable specified.");
         return false;
@@ -975,7 +975,7 @@ void CdbEngine::doInterruptInferior(SpecialStopMode sm)
     connect(m_signalOperation.data(), &DeviceProcessSignalOperation::finished,
             this, &CdbEngine::handleDoInterruptInferior);
 
-    m_signalOperation->setDebuggerCommand(runParameters().debuggerCommand);
+    m_signalOperation->setDebuggerCommand(runParameters().debugger.executable);
     m_signalOperation->interruptProcess(inferiorPid());
 }
 

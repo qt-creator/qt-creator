@@ -1268,7 +1268,7 @@ void AndroidConfigurations::updateAutomaticKitList()
 
         // Update code for 3.0 beta, which shipped with a bug for the debugger settings
         ToolChain *tc = ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx);
-        if (tc && Debugger::DebuggerKitInformation::debuggerCommand(k) != tc->suggestedDebugger()) {
+        if (tc && Debugger::DebuggerKitInformation::runnable(k).executable != tc->suggestedDebugger().toString()) {
             Debugger::DebuggerItem debugger;
             debugger.setCommand(tc->suggestedDebugger());
             debugger.setEngineType(Debugger::GdbEngineType);

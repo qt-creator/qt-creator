@@ -72,7 +72,6 @@ public:
 
     ProjectExplorer::StandardRunnable inferior;
     QString displayName; // Used in the Snapshots view.
-    Utils::Environment debuggerEnvironment;
     Utils::Environment stubEnvironment;
     qint64 attachPID = InvalidPid;
     QStringList solibSearchPath;

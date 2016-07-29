@@ -363,9 +363,8 @@ void AttachCoreDialog::coreFileChanged(const QString &core)
     if (!HostOsInfo::isWindowsHost() && QFile::exists(core)) {
         Kit *k = d->kitChooser->currentKit();
         QTC_ASSERT(k, return);
-        FileName cmd = DebuggerKitInformation::debuggerCommand(k);
-        GdbCoreEngine::CoreInfo cinfo =
-            GdbCoreEngine::readExecutableNameFromCore(cmd.toString(), core);
+        StandardRunnable debugger = DebuggerKitInformation::runnable(k);
+        GdbCoreEngine::CoreInfo cinfo = GdbCoreEngine::readExecutableNameFromCore(debugger, core);
         if (!cinfo.foundExecutableName.isEmpty())
             d->localExecFileName->setFileName(FileName::fromString(cinfo.foundExecutableName));
         else if (!d->localExecFileName->isValid() && !cinfo.rawStringFromCore.isEmpty())

@@ -1204,7 +1204,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         }
         rp.inferior.environment = Utils::Environment::systemEnvironment();
         rp.stubEnvironment = Utils::Environment::systemEnvironment();
-        rp.debuggerEnvironment = Utils::Environment::systemEnvironment();
+        rp.debugger.environment = Utils::Environment::systemEnvironment();
 
         if (!kit)
             kit = guessKitFromParameters(rp);
@@ -2912,7 +2912,7 @@ static QString formatStartParameters(DebuggerRunParameters &sp)
             str << "Directory: " << QDir::toNativeSeparators(sp.inferior.workingDirectory)
                 << '\n';
     }
-    QString cmd = sp.debuggerCommand;
+    QString cmd = sp.debugger.executable;
     if (!cmd.isEmpty())
         str << "Debugger: " << QDir::toNativeSeparators(cmd) << '\n';
     if (!sp.coreFile.isEmpty())

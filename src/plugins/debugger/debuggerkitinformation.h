@@ -29,6 +29,7 @@
 #include "debuggerconstants.h"
 
 #include <projectexplorer/kitinformation.h>
+#include <projectexplorer/runnables.h>
 
 namespace Debugger {
 class DebuggerItem;
@@ -49,6 +50,7 @@ public:
     void fix(ProjectExplorer::Kit *k) override;
 
     static const DebuggerItem *debugger(const ProjectExplorer::Kit *kit);
+    static ProjectExplorer::StandardRunnable runnable(const ProjectExplorer::Kit *kit);
 
     static QList<ProjectExplorer::Task> validateDebugger(const ProjectExplorer::Kit *k);
     static bool isValidDebugger(const ProjectExplorer::Kit *k);
@@ -61,7 +63,6 @@ public:
     static void setDebugger(ProjectExplorer::Kit *k, const QVariant &id);
 
     static Core::Id id();
-    static Utils::FileName debuggerCommand(const ProjectExplorer::Kit *k);
     static DebuggerEngineType engineType(const ProjectExplorer::Kit *k);
     static QString displayString(const ProjectExplorer::Kit *k);
 };
