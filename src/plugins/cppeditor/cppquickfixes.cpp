@@ -5017,7 +5017,17 @@ void MoveFuncDefToDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
     if (Class *matchingClass = isMemberFunction(interface.context(), func)) {
         // Dealing with member functions
         const QualifiedNameId *qName = func->name()->asQualifiedNameId();
-        for (Symbol *s = matchingClass->find(qName->identifier()); s; s = s->next()) {
+        for (Symbol *symbol = matchingClass->find(qName->identifier());
+             symbol; symbol = symbol->next()) {
+            Symbol *s = symbol;
+            if (func->enclosingScope()->isTemplate()) {
+                if (const Template *templ = s->type()->asTemplateType()) {
+                    if (Symbol *decl = templ->declaration()) {
+                        if (decl->type()->isFunctionType())
+                                s = decl;
+                    }
+                }
+            }
             if (!s->name()
                     || !qName->identifier()->match(s->identifier())
                     || !s->type()->isFunctionType()

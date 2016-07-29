@@ -4416,6 +4416,29 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_template()
     QuickFixOperationTest(singleDocument(original, expected), &factory);
 }
 
+void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_templateFunction()
+{
+    QByteArray original =
+        "class Foo\n"
+        "{\n"
+        "    template<class T>\n"
+        "    void func();\n"
+        "};\n"
+        "\n"
+        "template<class T>\n"
+        "void Foo::fu@nc() {}\n";
+
+    QByteArray expected =
+        "class Foo\n"
+        "{\n"
+        "    template<class T>\n"
+        "    void func() {}\n"
+        "};\n\n\n";
+
+    MoveFuncDefToDecl factory;
+    QuickFixOperationTest(singleDocument(original, expected), &factory);
+}
+
 /// Check: Move all definitions from header to cpp.
 void CppEditorPlugin::test_quickfix_MoveAllFuncDefOutside_MemberFuncToCpp()
 {
