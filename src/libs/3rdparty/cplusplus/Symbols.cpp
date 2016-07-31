@@ -171,11 +171,13 @@ void Argument::visitSymbol0(SymbolVisitor *visitor)
 
 TypenameArgument::TypenameArgument(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
     : Symbol(translationUnit, sourceLocation, name)
+    , _isClassDeclarator(false)
 { }
 
 TypenameArgument::TypenameArgument(Clone *clone, Subst *subst, TypenameArgument *original)
     : Symbol(clone, subst, original)
     , _type(clone->type(original->_type, subst))
+    , _isClassDeclarator(original->_isClassDeclarator)
 { }
 
 TypenameArgument::~TypenameArgument()

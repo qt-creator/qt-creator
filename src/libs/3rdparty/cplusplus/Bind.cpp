@@ -2388,9 +2388,11 @@ bool Bind::visit(TypenameTypeParameterAST *ast)
     // unsigned dot_dot_dot_token = ast->dot_dot_dot_token;
     const Name *name = this->name(ast->name);
     ExpressionTy type_id = this->expression(ast->type_id);
+    CPlusPlus::Kind classKey = translationUnit()->tokenKind(ast->classkey_token);
 
     TypenameArgument *arg = control()->newTypenameArgument(sourceLocation, name);
     arg->setType(type_id);
+    arg->setClassDeclarator(classKey == T_CLASS);
     ast->symbol = arg;
     _scope->addMember(arg);
     return false;

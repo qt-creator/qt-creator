@@ -187,6 +187,8 @@ public:
     virtual ~TypenameArgument();
 
     void setType(const FullySpecifiedType &type);
+    void setClassDeclarator(bool isClassDecl) { _isClassDeclarator = isClassDecl; }
+    bool isClassDeclarator() const { return _isClassDeclarator; }
 
     // Symbol's interface
     virtual FullySpecifiedType type() const;
@@ -202,6 +204,7 @@ protected:
 
 private:
     FullySpecifiedType _type;
+    bool _isClassDeclarator;
 };
 
 class CPLUSPLUS_EXPORT Block: public Scope
