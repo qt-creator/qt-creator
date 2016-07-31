@@ -2715,6 +2715,56 @@ void CppEditorPlugin::test_quickfix_InsertDeclFromDef()
     insertToSectionDeclFromDef("private slots", 5);
 }
 
+void CppEditorPlugin::test_quickfix_InsertDeclFromDef_templateFuncTypename()
+{
+    QByteArray original =
+        "class Foo\n"
+        "{\n"
+        "};\n"
+        "\n"
+        "template<class T>\n"
+        "void Foo::fu@nc() {}\n";
+
+    QByteArray expected =
+        "class Foo\n"
+        "{\n"
+        "public:\n"
+        "    template<class T>\n"
+        "    void func();\n"
+        "};\n"
+        "\n"
+        "template<class T>\n"
+        "void Foo::fu@nc() {}\n";
+
+    InsertDeclFromDef factory;
+    QuickFixOperationTest(singleDocument(original, expected), &factory, {}, 0);
+}
+
+void CppEditorPlugin::test_quickfix_InsertDeclFromDef_templateFuncInt()
+{
+    QByteArray original =
+            "class Foo\n"
+            "{\n"
+            "};\n"
+            "\n"
+            "template<int N>\n"
+            "void Foo::fu@nc() {}\n";
+
+    QByteArray expected =
+            "class Foo\n"
+            "{\n"
+            "public:\n"
+            "    template<int N>\n"
+            "    void func();\n"
+            "};\n"
+            "\n"
+            "template<int N>\n"
+            "void Foo::fu@nc() {}\n";
+
+    InsertDeclFromDef factory;
+    QuickFixOperationTest(singleDocument(original, expected), &factory, {}, 0);
+}
+
 void CppEditorPlugin::test_quickfix_InsertDeclFromDef_notTriggeredForTemplateFunc()
 {
     QByteArray contents =

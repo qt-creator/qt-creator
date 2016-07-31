@@ -147,6 +147,8 @@ private slots:
     void test_quickfix_InsertDefFromDecl_unicodeIdentifier();
 
     void test_quickfix_InsertDeclFromDef();
+    void test_quickfix_InsertDeclFromDef_templateFuncTypename();
+    void test_quickfix_InsertDeclFromDef_templateFuncInt();
     void test_quickfix_InsertDeclFromDef_notTriggeredForTemplateFunc();
 
     void test_quickfix_AddIncludeForUndefinedIdentifier_data();

@@ -2508,9 +2508,15 @@ QString InsertDeclOperation::generateDeclaration(const Function *function)
     oo.showFunctionSignatures = true;
     oo.showReturnTypes = true;
     oo.showArgumentNames = true;
+    oo.showEnclosingTemplate = true;
 
+    const Symbol *symbol = function;
+    if (const Scope *enclosingScope = function->enclosingScope()) {
+        if (const Template *templ = enclosingScope->asTemplate())
+            symbol = templ;
+    }
     QString decl;
-    decl += oo.prettyType(function->type(), function->unqualifiedName());
+    decl += oo.prettyType(symbol->type(), function->unqualifiedName());
     decl += QLatin1String(";\n");
 
     return decl;
