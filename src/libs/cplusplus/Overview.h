@@ -67,6 +67,7 @@ public:
     bool showFunctionSignatures: 1;
     bool showDefaultArguments: 1;
     bool showTemplateParameters: 1;
+    bool showEnclosingTemplate: 1;
     bool includeWhiteSpaceInOperatorName: 1; /// "operator =()" vs "operator=()"
 
     unsigned markedArgument;

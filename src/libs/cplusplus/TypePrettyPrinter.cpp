@@ -166,12 +166,13 @@ void TypePrettyPrinter::visit(Namespace *type)
 void TypePrettyPrinter::visit(Template *type)
 {
     if (Symbol *d = type->declaration()) {
-        if (overview()->showTemplateParameters && ! _name.isEmpty()) {
+        const Overview &oo = *overview();
+        if (oo.showTemplateParameters && ! _name.isEmpty()) {
             _name += QLatin1Char('<');
             for (unsigned index = 0; index < type->templateParameterCount(); ++index) {
                 if (index)
                     _name += QLatin1String(", ");
-                QString arg = overview()->prettyName(type->templateParameterAt(index)->name());
+                QString arg = oo.prettyName(type->templateParameterAt(index)->name());
                 if (arg.isEmpty()) {
                     arg += QLatin1Char('T');
                     arg += QString::number(index + 1);
@@ -181,6 +182,23 @@ void TypePrettyPrinter::visit(Template *type)
             _name += QLatin1Char('>');
         }
         acceptType(d->type());
+        if (oo.showEnclosingTemplate) {
+            QString templateScope = "template<";
+            for (unsigned i = 0, total = type->templateParameterCount(); i < total; ++i) {
+                if (Symbol *param = type->templateParameterAt(i)) {
+                    if (i > 0)
+                        templateScope.append(", ");
+                    if (TypenameArgument *typenameArg = param->asTypenameArgument()) {
+                        templateScope.append(QLatin1String(typenameArg->isClassDeclarator()
+                                                           ? "class " : "typename "));
+                        templateScope.append(oo(typenameArg->name()));
+                    } else if (Argument *arg = param->asArgument()) {
+                        templateScope.append(operator()(arg->type(), oo(arg->name())));
+                    }
+                }
+            }
+            _text.prepend(templateScope + ">\n");
+        }
     }
     prependCv(_fullySpecifiedType);
 }
