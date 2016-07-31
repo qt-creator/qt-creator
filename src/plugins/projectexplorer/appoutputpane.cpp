@@ -650,7 +650,7 @@ void AppOutputPane::enableButtons(const RunControl *rc, bool isRunning)
 void AppOutputPane::tabChanged(int i)
 {
     const int index = indexOf(m_tabWidget->widget(i));
-    if (i != -1) {
+    if (i != -1 && index != -1) {
         const RunControl *rc = m_runControlTabs.at(index).runControl;
         enableButtons(rc, rc->isRunning());
     } else {
