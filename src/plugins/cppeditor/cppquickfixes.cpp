@@ -2465,7 +2465,17 @@ void InsertDeclFromDef::match(const CppQuickFixInterface &interface, QuickFixOpe
     Function *fun = funDef->symbol;
     if (Class *matchingClass = isMemberFunction(interface.context(), fun)) {
         const QualifiedNameId *qName = fun->name()->asQualifiedNameId();
-        for (Symbol *s = matchingClass->find(qName->identifier()); s; s = s->next()) {
+        for (Symbol *symbol = matchingClass->find(qName->identifier());
+             symbol; symbol = symbol->next()) {
+            Symbol *s = symbol;
+            if (fun->enclosingScope()->isTemplate()) {
+                if (const Template *templ = s->type()->asTemplateType()) {
+                    if (Symbol *decl = templ->declaration()) {
+                        if (decl->type()->isFunctionType())
+                            s = decl;
+                    }
+                }
+            }
             if (!s->name()
                     || !qName->identifier()->match(s->identifier())
                     || !s->type()->isFunctionType())

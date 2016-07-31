@@ -2715,6 +2715,22 @@ void CppEditorPlugin::test_quickfix_InsertDeclFromDef()
     insertToSectionDeclFromDef("private slots", 5);
 }
 
+void CppEditorPlugin::test_quickfix_InsertDeclFromDef_notTriggeredForTemplateFunc()
+{
+    QByteArray contents =
+        "class Foo\n"
+        "{\n"
+        "    template<class T>\n"
+        "    void func();\n"
+        "};\n"
+        "\n"
+        "template<class T>\n"
+        "void Foo::fu@nc() {}\n";
+
+    InsertDeclFromDef factory;
+    QuickFixOperationTest(singleDocument(contents, ""), &factory);
+}
+
 void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_data()
 {
     QTest::addColumn<QString>("headerPath");
