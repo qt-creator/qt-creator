@@ -1702,9 +1702,9 @@ class DumperBase:
         if isQMetaObject or isQObject:
             with SubItem(self, "[properties]"):
                 self.put('sortgroup="5"')
-                self.putItemCount(propertyCount)
                 if self.isExpanded():
                     usesVector = self.qtVersion() >= 0x50700
+                    dynamicPropertyCount = 0
                     with Children(self):
                         # Static properties.
                         for i in range(propertyCount):
@@ -1725,11 +1725,12 @@ class DumperBase:
                             else:
                                 values = self.listChildrenGenerator(extraData + 2 * ptrSize, variantType)
                             for (k, v) in zip(names, values):
-                                with SubItem(self, propertyCount):
+                                with SubItem(self, propertyCount + dynamicPropertyCount):
                                     self.put('key="%s",' % self.encodeByteArray(k))
                                     self.put('keyencoded="latin1",')
                                     self.putItem(v)
-                                    propertyCount += 1
+                                    dynamicPropertyCount += 1
+                    self.putItemCount(propertyCount + dynamicPropertyCount)
                 else:
                     # We need a handle to [x] for the user to expand the item
                     # before we know whether there are actual children. Counting
