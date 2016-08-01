@@ -238,6 +238,15 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>valueLineEdit</tabstop>
+  <tabstop>typeSelector</tabstop>
+  <tabstop>maskLineEdit</tabstop>
+  <tabstop>useRecommendedGroupBox</tabstop>
+  <tabstop>startRangeSpinBox</tabstop>
+  <tabstop>endRangeSpinBox</tabstop>
+  <tabstop>prioritySpinBox</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

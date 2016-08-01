@@ -288,6 +288,19 @@
    </slots>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>toolTree</tabstop>
+  <tabstop>addButton</tabstop>
+  <tabstop>removeButton</tabstop>
+  <tabstop>revertButton</tabstop>
+  <tabstop>description</tabstop>
+  <tabstop>arguments</tabstop>
+  <tabstop>outputBehavior</tabstop>
+  <tabstop>errorOutputBehavior</tabstop>
+  <tabstop>environmentButton</tabstop>
+  <tabstop>modifiesDocumentCheckbox</tabstop>
+  <tabstop>inputText</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
