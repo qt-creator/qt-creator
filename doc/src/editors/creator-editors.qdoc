@@ -900,6 +900,8 @@
 
         \li QML code snippets, which specify QML code constructs
 
+        \li Nim code snippets, which specify Nim code constructs
+
     \endlist
 
     \section3 Adding and Editing Snippets
