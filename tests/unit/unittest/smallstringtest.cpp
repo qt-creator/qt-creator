@@ -80,6 +80,33 @@ TEST(SmallString, ShortSmallStringIsShortSmallString)
 #endif
 }
 
+TEST(SmallString, CreateFromCStringIterators)
+{
+    char sourceText[] = "this is very very very very very much text";
+
+    SmallString text(sourceText, &sourceText[sizeof(sourceText) - 1]);
+
+    ASSERT_THAT(text, SmallString("this is very very very very very much text"));
+}
+
+TEST(SmallString, CreateFromQByteArrayIterators)
+{
+    QByteArray sourceText = "this is very very very very very much text";
+
+    SmallString text(sourceText.begin(), sourceText.end());
+
+    ASSERT_THAT(text, SmallString("this is very very very very very much text"));
+}
+
+TEST(SmallString, CreateFromSmallStringIterators)
+{
+    SmallString sourceText = "this is very very very very very much text";
+
+    SmallString text(sourceText.begin(), sourceText.end());
+
+    ASSERT_THAT(text, SmallString("this is very very very very very much text"));
+}
+
 TEST(SmallString, ShortSmallStringIsReference)
 {
     SmallString longText("very very very very very long text");

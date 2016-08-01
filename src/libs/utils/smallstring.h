@@ -127,6 +127,16 @@ public:
         : SmallString(SmallString::fromQString(qString))
     {}
 
+    template<typename BeginIterator,
+             typename EndIterator,
+             typename = typename std::enable_if<std::is_same<BeginIterator, EndIterator>::value>::type
+             >
+    SmallString(BeginIterator begin, EndIterator end)
+        : SmallString(&(*begin), size_type(end - begin))
+    {
+    }
+
+
     ~SmallString() noexcept
     {
         if (Q_UNLIKELY(hasAllocatedMemory()))
