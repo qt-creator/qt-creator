@@ -6,9 +6,6 @@ QTCREATOR_COMPAT_VERSION = 4.0.83
 VERSION = $$QTCREATOR_VERSION
 BINARY_ARTIFACTS_BRANCH = 4.1
 
-# enable c++11
-CONFIG += c++11
-
 defineReplace(qtLibraryTargetName) {
    unset(LIBRARY_NAME)
    LIBRARY_NAME = $$1
