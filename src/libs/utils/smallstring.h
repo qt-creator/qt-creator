@@ -837,6 +837,54 @@ template<> struct hash<Utils::SmallString>
     }
 };
 
+template<
+    class Key,
+    class T,
+    class Hash,
+    class KeyEqual,
+    class Allocator>
+class unordered_map;
+
+template<typename Key,
+         typename Value,
+         typename Hash = hash<Key>,
+         typename KeyEqual = equal_to<Key>,
+         typename Allocator = allocator<pair<const Key, Value>>>
+QDataStream &operator<<(QDataStream &out, const unordered_map<Key, Value, Hash, KeyEqual, Allocator> &map)
+{
+    out << quint64(map.size());
+
+    for (auto &&entry : map)
+        out << entry.first << entry.second;
+
+    return out;
+}
+
+template<typename Key,
+         typename Value,
+         typename Hash = hash<Key>,
+         typename KeyEqual = equal_to<Key>,
+         typename Allocator = allocator<pair<const Key, Value>>>
+QDataStream &operator>>(QDataStream &in, unordered_map<Key, Value, Hash, KeyEqual, Allocator> &map)
+{
+    quint64 size;
+
+    in >> size;
+
+    map.reserve(size);
+
+    for (quint64 i = 0; i < size; ++i) {
+        Key key;
+        Value value;
+
+        in >> key >> value;
+
+        map.insert(make_pair(move(key), move(value)));
+    }
+
+    return in;
+}
+
 } // namespace std
 
 #pragma pop_macro("noexcept")
