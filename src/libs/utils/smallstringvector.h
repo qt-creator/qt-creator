@@ -131,6 +131,11 @@ public:
         return clonedVector;
     }
 
+    operator std::vector<std::string>() const
+    {
+        return std::vector<std::string>(begin(), end());
+    }
+
 private:
     std::size_t totalByteSize() const
     {

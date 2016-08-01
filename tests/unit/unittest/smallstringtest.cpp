@@ -319,6 +319,15 @@ TEST(SmallString, RBeginPlusOneIsEqualREndForSmallStringWidthSizeOne)
     ASSERT_THAT(beginPlusOne, Eq(text.rend()));
 }
 
+TEST(SmallString, ConstructorStandardString)
+{
+    std::string stdStringText = "short string";
+
+    auto text = SmallString(stdStringText);
+
+    ASSERT_THAT(text, SmallString("short string"));
+}
+
 TEST(SmallString, ToQString)
 {
     SmallString text("short string");

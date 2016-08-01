@@ -42,6 +42,7 @@
 #include <climits>
 #include <cstring>
 #include <iosfwd>
+#include <string>
 #include <utility>
 
 #pragma push_macro("constexpr")
@@ -125,6 +126,10 @@ public:
 
     SmallString(const QString &qString)
         : SmallString(SmallString::fromQString(qString))
+    {}
+
+    SmallString(const std::string &stdString)
+        : SmallString(stdString.data(), stdString.size())
     {}
 
     template<typename BeginIterator,
@@ -214,6 +219,11 @@ public:
     operator QString() const
     {
         return toQString();
+    }
+
+    operator std::string() const
+    {
+        return std::string(data(), size());
     }
 
     static
