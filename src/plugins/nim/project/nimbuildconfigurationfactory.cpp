@@ -40,6 +40,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmacroexpander.h>
 #include <projectexplorer/target.h>
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 
 #include <memory>
@@ -159,15 +160,22 @@ BuildConfiguration *NimBuildConfigurationFactory::clone(Target *parent, BuildCon
 
 int NimBuildConfigurationFactory::priority(const Kit *k, const QString &projectPath) const
 {
-    Q_UNUSED(k);
-    Q_UNUSED(projectPath);
-    return 0;
+    MimeDatabase mdb;
+    if (k && mdb.mimeTypeForFile(projectPath).matchesName(Constants::C_NIM_PROJECT_MIMETYPE))
+        return 0;
+    return -1;
 }
 
 int NimBuildConfigurationFactory::priority(const Target *parent) const
 {
-    Q_UNUSED(parent);
-    return 0;
+    return canHandle(parent) ? 0 : -1;
+}
+
+bool NimBuildConfigurationFactory::canHandle(const Target *t) const
+{
+    if (!t->project()->supportsKit(t->kit()))
+        return false;
+    return qobject_cast<NimProject *>(t->project());
 }
 
 FileName NimBuildConfigurationFactory::defaultBuildDirectory(const Kit *k,
