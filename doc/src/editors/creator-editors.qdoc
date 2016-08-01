@@ -1248,6 +1248,8 @@
             identifiers, type names, or left or right \c const or \c volatile
             keywords.
 
+        \li Name getter functions.
+
     \endlist
 
     You can use the live preview to see how the options change the indentation.
@@ -1430,6 +1432,14 @@
     pointers to functions and pointers to arrays.
 
     \image qtcreator-pointers-references.png "Pointers and References options"
+
+    \section1 Naming Getters
+
+    To prefer getter names without the string \e get, select the
+    \uicontrol {Prefer getter names without "get"} check box in the
+    \uicontrol {Getter and Setter} tab.
+
+    \image qtcreator-code-style-getter-setter.png
 
 */
 
