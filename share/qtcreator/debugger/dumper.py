@@ -1351,6 +1351,11 @@ class DumperBase:
             return True
 
         def extractMetaObjectPtrFromAddress():
+            return 0
+            # FIXME: Calling "works" but seems to impact memory contents(!)
+            # in relevant places. One symptom is that object name
+            # contents "vanishes" as the reported size of the string
+            # gets zeroed out(?).
             # Try vtable, metaObject() is the first entry.
             vtablePtr = self.extractPointer(objectPtr)
             metaObjectFunc = self.extractPointer(vtablePtr)
