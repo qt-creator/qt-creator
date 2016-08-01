@@ -1379,6 +1379,13 @@ void WatchHandler::notifyUpdateFinished()
     foreach (auto item, toRemove)
         m_model->destroyItem(item);
 
+    m_model->forAllItems([this](WatchItem *item) {
+        if (item->wantsChildren && isExpandedIName(item->iname)) {
+            m_model->m_engine->showMessage(QString("ADJUSTING CHILD EXPECTATION FOR " + item->iname));
+            item->wantsChildren = false;
+        }
+    });
+
     m_model->m_contentsValid = true;
     updateWatchersWindow();
     m_model->reexpandItems();
