@@ -87,19 +87,19 @@ class TabWidget : public QTabWidget
 public:
     TabWidget(QWidget *parent = nullptr);
 signals:
-    void contextMenuRequested(const QPoint &pos, const int index);
+    void contextMenuRequested(const QPoint &pos, int index);
 protected:
-    bool eventFilter(QObject *object, QEvent *event);
+    bool eventFilter(QObject *object, QEvent *event) override;
 private:
     void slotContextMenuRequested(const QPoint &pos);
-    int m_tabIndexForMiddleClick;
+    int m_tabIndexForMiddleClick = -1;
 };
 
 }
 }
 
 TabWidget::TabWidget(QWidget *parent)
-    : QTabWidget(parent), m_tabIndexForMiddleClick(-1)
+    : QTabWidget(parent)
 {
     tabBar()->installEventFilter(this);
     setContextMenuPolicy(Qt::CustomContextMenu);
@@ -138,7 +138,7 @@ void TabWidget::slotContextMenuRequested(const QPoint &pos)
 }
 
 AppOutputPane::RunControlTab::RunControlTab(RunControl *rc, Core::OutputWindow *w) :
-    runControl(rc), window(w), asyncClosing(false), behaviorOnOutput(Flash)
+    runControl(rc), window(w)
 { }
 
 AppOutputPane::AppOutputPane() :
@@ -161,7 +161,7 @@ AppOutputPane::AppOutputPane() :
     m_reRunButton->setToolTip(tr("Re-run this run-configuration"));
     m_reRunButton->setAutoRaise(true);
     m_reRunButton->setEnabled(false);
-    connect(m_reRunButton, &QAbstractButton::clicked,
+    connect(m_reRunButton, &QToolButton::clicked,
             this, &AppOutputPane::reRunRunControl);
 
     // Stop
@@ -183,7 +183,7 @@ AppOutputPane::AppOutputPane() :
     m_attachButton->setIcon(Icons::DEBUG_START_SMALL_TOOLBAR.icon());
     m_attachButton->setAutoRaise(true);
 
-    connect(m_attachButton, &QAbstractButton::clicked,
+    connect(m_attachButton, &QToolButton::clicked,
             this, &AppOutputPane::attachToRunControl);
 
     m_zoomInButton->setToolTip(tr("Increase Font Size"));
@@ -392,20 +392,20 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     Utils::OutputFormatter *formatter = rc->outputFormatter();
 
     // First look if we can reuse a tab
-    const int size = m_runControlTabs.size();
-    for (int i = 0; i < size; i++) {
-        RunControlTab &tab =m_runControlTabs[i];
-        if (rc->canReUseOutputPane(tab.runControl)) {
-            // Reuse this tab
-            delete tab.runControl;
-            tab.runControl = rc;
-            handleOldOutput(tab.window);
-            tab.window->scrollToBottom();
-            tab.window->setFormatter(formatter);
-            if (debug)
-                qDebug() << "OutputPane::createNewOutputWindow: Reusing tab" << i << " for " << rc;
-            return;
-        }
+    const int tabIndex = Utils::indexOf(m_runControlTabs, [rc](const RunControlTab &tab) {
+        return rc->canReUseOutputPane(tab.runControl);
+    });
+    if (tabIndex != -1) {
+        RunControlTab &tab = m_runControlTabs[tabIndex];
+        // Reuse this tab
+        delete tab.runControl;
+        tab.runControl = rc;
+        handleOldOutput(tab.window);
+        tab.window->scrollToBottom();
+        tab.window->setFormatter(formatter);
+        if (debug)
+            qDebug() << "OutputPane::createNewOutputWindow: Reusing tab" << tabIndex << " for " << rc;
+        return;
     }
     // Create new
     static uint counter = 0;
@@ -421,8 +421,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     ow->setBaseFont(TextEditor::TextEditorSettings::fontSettings().font());
     ow->setFontZoom(m_zoom);
 
-    connect(ow, &Core::OutputWindow::wheelZoom,
-            this, [this, ow]() {
+    connect(ow, &Core::OutputWindow::wheelZoom, this, [this, ow]() {
         m_zoom = ow->fontZoom();
         foreach (const RunControlTab &tab, m_runControlTabs)
             tab.window->setFontZoom(m_zoom);
@@ -448,9 +447,7 @@ void AppOutputPane::handleOldOutput(Core::OutputWindow *window) const
 
 void AppOutputPane::updateFromSettings()
 {
-    const int size = m_runControlTabs.size();
-    for (int i = 0; i < size; i++) {
-        RunControlTab &tab =m_runControlTabs[i];
+    foreach (const RunControlTab &tab, m_runControlTabs) {
         tab.window->setWordWrapEnabled(ProjectExplorerPlugin::projectExplorerSettings().wrapAppOutput);
         tab.window->setMaxLineCount(ProjectExplorerPlugin::projectExplorerSettings().maxAppOutputLines);
     }
@@ -530,7 +527,7 @@ bool AppOutputPane::closeTabs(CloseTabMode mode)
 
 QList<RunControl *> AppOutputPane::allRunControls() const
 {
-    return Utils::transform(m_runControlTabs,[](const RunControlTab &tab) {
+    return Utils::transform<QList>(m_runControlTabs,[](const RunControlTab &tab) {
         return tab.runControl;
     });
 }

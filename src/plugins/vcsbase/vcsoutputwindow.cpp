@@ -279,22 +279,10 @@ void OutputWindowPlainTextEdit::setFormat(enum VcsOutputWindow::MessageStyle sty
 class VcsOutputWindowPrivate
 {
 public:
-    Internal::OutputWindowPlainTextEdit *widget();
-
-    QPointer<Internal::OutputWindowPlainTextEdit> m_widget;
+    Internal::OutputWindowPlainTextEdit widget;
     QString repository;
     QRegExp passwordRegExp;
 };
-
-// Create log editor on demand. Some errors might be logged
-// before CorePlugin::extensionsInitialized() pulls up the windows.
-
-Internal::OutputWindowPlainTextEdit *VcsOutputWindowPrivate::widget()
-{
-    if (!m_widget)
-        m_widget = new Internal::OutputWindowPlainTextEdit();
-    return m_widget;
-}
 
 static VcsOutputWindow *m_instance = 0;
 static VcsOutputWindowPrivate *d = 0;
@@ -329,18 +317,14 @@ VcsOutputWindow::~VcsOutputWindow()
 
 QWidget *VcsOutputWindow::outputWidget(QWidget *parent)
 {
-    if (d->m_widget) {
-        if (parent != d->m_widget->parent())
-            d->m_widget->setParent(parent);
-    } else {
-        d->m_widget = new Internal::OutputWindowPlainTextEdit(parent);
-    }
-    return d->m_widget;
+    if (parent != d->widget.parent())
+        d->widget.setParent(parent);
+    return &d->widget;
 }
 
-QWidgetList VcsOutputWindow::toolBarWidgets() const
+QList<QWidget *> VcsOutputWindow::toolBarWidgets() const
 {
-    return QWidgetList();
+    return {};
 }
 
 QString VcsOutputWindow::displayName() const
@@ -355,14 +339,13 @@ int VcsOutputWindow::priorityInStatusBar() const
 
 void VcsOutputWindow::clearContents()
 {
-    if (d->m_widget)
-        d->m_widget->clear();
+    d->widget.clear();
 }
 
 void VcsOutputWindow::visibilityChanged(bool visible)
 {
-    if (visible && d->m_widget)
-        d->m_widget->setFocus();
+    if (visible)
+        d->widget.setFocus();
 }
 
 void VcsOutputWindow::setFocus()
@@ -404,7 +387,7 @@ void VcsOutputWindow::goToPrev()
 
 void VcsOutputWindow::setText(const QString &text)
 {
-    d->widget()->setPlainText(text);
+    d->widget.setPlainText(text);
 }
 
 void VcsOutputWindow::setData(const QByteArray &data)
@@ -419,9 +402,9 @@ void VcsOutputWindow::appendSilently(const QString &text)
 
 void VcsOutputWindow::append(const QString &text, enum MessageStyle style, bool silently)
 {
-    d->widget()->appendLinesWithStyle(text, style, d->repository);
+    d->widget.appendLinesWithStyle(text, style, d->repository);
 
-    if (!silently && !d->widget()->isVisible())
+    if (!silently && !d->widget.isVisible())
         m_instance->popup(Core::IOutputPane::NoModeSwitch);
 }
 

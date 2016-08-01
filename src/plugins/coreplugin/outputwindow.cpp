@@ -45,16 +45,7 @@ class OutputWindowPrivate
 {
 public:
     OutputWindowPrivate(QTextDocument *document)
-        : outputWindowContext(0)
-        , formatter(0)
-        , enforceNewline(false)
-        , scrollToBottom(false)
-        , linksActive(true)
-        , mousePressed(false)
-        , m_zoomEnabled(false)
-        , m_originalFontSize(0)
-        , maxLineCount(100000)
-        , cursor(document)
+        : cursor(document)
     {
     }
 
@@ -64,16 +55,16 @@ public:
         delete outputWindowContext;
     }
 
-    IContext *outputWindowContext;
-    Utils::OutputFormatter *formatter;
+    IContext *outputWindowContext = nullptr;
+    Utils::OutputFormatter *formatter = nullptr;
 
-    bool enforceNewline;
-    bool scrollToBottom;
-    bool linksActive;
-    bool mousePressed;
-    bool m_zoomEnabled;
-    float m_originalFontSize;
-    int maxLineCount;
+    bool enforceNewline = false;
+    bool scrollToBottom = true;
+    bool linksActive = true;
+    bool mousePressed = false;
+    bool m_zoomEnabled = false;
+    float m_originalFontSize = 0.;
+    int maxLineCount = 100000;
     QTextCursor cursor;
 };
 

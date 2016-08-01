@@ -38,26 +38,26 @@ class MessageOutputWindow : public IOutputPane
 
 public:
     MessageOutputWindow();
-    ~MessageOutputWindow();
+    ~MessageOutputWindow() override;
 
-    QWidget *outputWidget(QWidget *parent);
-    QList<QWidget*> toolBarWidgets() const { return QList<QWidget *>(); }
+    QWidget *outputWidget(QWidget *parent) override;
+    QList<QWidget*> toolBarWidgets() const override { return {}; }
 
-    QString displayName() const;
-    int priorityInStatusBar() const;
-    void clearContents();
-    void visibilityChanged(bool visible);
+    QString displayName() const override;
+    int priorityInStatusBar() const override;
+    void clearContents() override;
+    void visibilityChanged(bool visible) override;
 
     void append(const QString &text);
-    bool canFocus() const;
-    bool hasFocus() const;
-    void setFocus();
+    bool canFocus() const override;
+    bool hasFocus() const override;
+    void setFocus() override;
 
-    virtual bool canNext() const;
-    virtual bool canPrevious() const;
-    virtual void goToNext();
-    virtual void goToPrev();
-    bool canNavigate() const;
+    bool canNext() const override;
+    bool canPrevious() const override;
+    void goToNext() override;
+    void goToPrev() override;
+    bool canNavigate() const override;
 
 private:
     OutputWindow *m_widget;
