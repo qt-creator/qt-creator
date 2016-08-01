@@ -27,6 +27,9 @@ attribute vec4 vertexCoord;
 attribute vec2 postScaleOffset;
 
 uniform mat4 matrix;
+uniform vec4 bindingLoopsColor;
+
+varying vec4 color;
 
 void main()
 {
@@ -35,4 +38,5 @@ void main()
     gl_Position.y += postScaleOffset.y * 0.01;
     gl_Position.z -= 0.1;
     gl_Position.w = 1.0;
+    color = bindingLoopsColor;
 }

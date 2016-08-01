@@ -26,6 +26,8 @@
 #include "qmlprofilerbindingloopsrenderpass.h"
 #include <utils/qtcassert.h>
 
+#include <utils/theme/theme.h>
+
 namespace QmlProfiler {
 namespace Internal {
 
@@ -302,6 +304,7 @@ private:
 
     int m_matrix_id;
     int m_z_range_id;
+    int m_color_id;
 };
 
 BindingLoopMaterialShader::BindingLoopMaterialShader()
@@ -316,6 +319,9 @@ void BindingLoopMaterialShader::updateState(const RenderState &state, QSGMateria
     if (state.isMatrixDirty()) {
         program()->setUniformValue(m_matrix_id, state.combinedMatrix());
         program()->setUniformValue(m_z_range_id, GLfloat(1.0));
+        program()->setUniformValue(
+                    m_color_id,
+                    Utils::creatorTheme()->color(Utils::Theme::Timeline_HighlightColor));
     }
 }
 
@@ -329,6 +335,7 @@ void BindingLoopMaterialShader::initialize()
 {
     m_matrix_id = program()->uniformLocation("matrix");
     m_z_range_id = program()->uniformLocation("_qt_zRange");
+    m_color_id = program()->uniformLocation("bindingLoopsColor");
 }
 
 
