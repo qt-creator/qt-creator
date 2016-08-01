@@ -887,5 +887,38 @@ QDataStream &operator>>(QDataStream &in, unordered_map<Key, Value, Hash, KeyEqua
 
 } // namespace std
 
+namespace Utils {
+
+template<typename Key,
+         typename Value,
+         typename Hash = std::hash<Key>,
+         typename KeyEqual = std::equal_to<Key>,
+         typename Allocator = std::allocator<std::pair<const Key, Value>>>
+std::unordered_map<Key, Value, Hash, KeyEqual, Allocator>
+clone(const std::unordered_map<Key, Value, Hash, KeyEqual, Allocator> &map)
+{
+    std::unordered_map<Key, Value, Hash, KeyEqual, Allocator> clonedMap;
+    clonedMap.reserve(clonedMap.size());
+
+    for (auto &&entry : map)
+        clonedMap.emplace(entry.first, entry.second.clone());
+
+    return clonedMap;
+}
+
+template <typename Type>
+std::vector<Type> clone(const std::vector<Type> &vector)
+{
+    std::vector<Type> clonedVector;
+    clonedVector.reserve(vector.size());
+
+    for (auto &&entry : vector)
+        clonedVector.push_back(entry.clone());
+
+    return clonedVector;
+}
+
+} // namespace Utils
+
 #pragma pop_macro("noexcept")
 #pragma pop_macro("constexpr")

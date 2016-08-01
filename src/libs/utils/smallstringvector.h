@@ -148,18 +148,6 @@ private:
     }
 };
 
-template <typename Type>
-std::vector<Type> clone(const std::vector<Type> &vector)
-{
-    std::vector<Type> clonedVector;
-    clonedVector.reserve(vector.size());
-
-    for (auto &&entry : vector)
-        clonedVector.push_back(entry.clone());
-
-    return clonedVector;
-}
-
 inline QDataStream &operator<<(QDataStream &out, const SmallStringVector &stringVector)
 {
     out << quint64(stringVector.size());
