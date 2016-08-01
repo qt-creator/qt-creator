@@ -508,7 +508,6 @@ UNIT_TEST_PUBLIC:
     }
 
 private:
-    constexpr
     SmallString(Internal::StringDataLayout data) noexcept
         : m_data(data)
     {
