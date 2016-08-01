@@ -371,7 +371,7 @@ void CppEditorPlugin::test_autoBackspace_data()
 
         QTest::newRow((QLatin1String("Inside ") + charGroupTestName(c)).toLatin1().data())
                 << fileContent(InBetween, c)
-                << QString("([").contains(c);
+                << QString("(['\"").contains(c);
     }
 }
 
