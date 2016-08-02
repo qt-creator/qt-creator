@@ -118,25 +118,14 @@ bool ILocatorFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
     return false;
 }
 
-QString ILocatorFilter::trimWildcards(const QString &str)
-{
-    if (str.isEmpty())
-        return str;
-    int first = 0, last = str.size() - 1;
-    const QChar asterisk = QLatin1Char('*');
-    const QChar question = QLatin1Char('?');
-    while (first < str.size() && (str.at(first) == asterisk || str.at(first) == question))
-        ++first;
-    while (last >= 0 && (str.at(last) == asterisk || str.at(last) == question))
-        --last;
-    if (first > last)
-        return QString();
-    return str.mid(first, last - first + 1);
-}
-
 Qt::CaseSensitivity ILocatorFilter::caseSensitivity(const QString &str)
 {
     return str == str.toLower() ? Qt::CaseInsensitive : Qt::CaseSensitive;
+}
+
+bool ILocatorFilter::containsWildcard(const QString &str)
+{
+    return str.contains(QLatin1Char('*')) || str.contains(QLatin1Char('?'));
 }
 
 QString ILocatorFilter::msgConfigureDialogTitle()

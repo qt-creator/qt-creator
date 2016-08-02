@@ -54,26 +54,32 @@ QList<Core::LocatorFilterEntry> MacroLocatorFilter::matchesFor(QFutureInterface<
     QList<Core::LocatorFilterEntry> goodEntries;
     QList<Core::LocatorFilterEntry> betterEntries;
 
-    const Qt::CaseSensitivity caseSensitivity_ = caseSensitivity(entry);
+    const Qt::CaseSensitivity entryCaseSensitivity = caseSensitivity(entry);
 
     const QMap<QString, Macro*> &macros = MacroManager::macros();
     QMapIterator<QString, Macro*> it(macros);
 
     while (it.hasNext()) {
         it.next();
-        QString name = it.key();
+        const QString displayName = it.key();
+        const QString description = it.value()->description();
 
-        QList<Core::LocatorFilterEntry> *category = 0;
-        if (name.startsWith(entry, caseSensitivity_))
-            category = &betterEntries;
-        else if (name.contains(entry, caseSensitivity_))
-            category = &goodEntries;
+        int index = displayName.indexOf(entry, 0, entryCaseSensitivity);
+        Core::LocatorFilterEntry::HighlightInfo::DataType hDataType = Core::LocatorFilterEntry::HighlightInfo::DisplayName;
+        if (index < 0) {
+            index = description.indexOf(entry, 0, entryCaseSensitivity);
+            hDataType = Core::LocatorFilterEntry::HighlightInfo::ExtraInfo;
+        }
 
-        if (category) {
-            QVariant id;
-            Core::LocatorFilterEntry entry(this, it.key(), id, m_icon);
-            entry.extraInfo = it.value()->description();
-            category->append(entry);
+        if (index >= 0) {
+            Core::LocatorFilterEntry filterEntry(this, displayName, QVariant(), m_icon);
+            filterEntry.extraInfo = description;
+            filterEntry.highlightInfo = Core::LocatorFilterEntry::HighlightInfo(index, entry.length(), hDataType);
+
+            if (index == 0)
+                betterEntries.append(filterEntry);
+            else
+                goodEntries.append(filterEntry);
         }
     }
     betterEntries.append(goodEntries);

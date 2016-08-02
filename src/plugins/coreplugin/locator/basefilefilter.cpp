@@ -98,18 +98,18 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFil
 {
     QList<LocatorFilterEntry> betterEntries;
     QList<LocatorFilterEntry> goodEntries;
-    const QString trimmed = trimWildcards(QDir::fromNativeSeparators(origEntry));
-    const EditorManager::FilePathInfo fp = EditorManager::splitLineAndColumnNumber(trimmed);
-    QStringMatcher matcher(fp.filePath, Qt::CaseInsensitive);
-    const QChar asterisk = QLatin1Char('*');
-    QRegExp regexp(asterisk + fp.filePath+ asterisk, Qt::CaseInsensitive, QRegExp::Wildcard);
+    const QString entry = QDir::fromNativeSeparators(origEntry);
+    const EditorManager::FilePathInfo fp = EditorManager::splitLineAndColumnNumber(entry);
+    const Qt::CaseSensitivity cs = caseSensitivity(fp.filePath);
+    QStringMatcher matcher(fp.filePath, cs);
+    QRegExp regexp(fp.filePath, cs, QRegExp::Wildcard);
     if (!regexp.isValid()) {
         d->m_current.clear(); // free memory
         return betterEntries;
     }
     const QChar pathSeparator(QLatin1Char('/'));
     const bool hasPathSeparator = fp.filePath.contains(pathSeparator);
-    const bool hasWildcard = fp.filePath.contains(asterisk) || fp.filePath.contains(QLatin1Char('?'));
+    const bool hasWildcard = containsWildcard(fp.filePath);
     const bool containsPreviousEntry = !d->m_current.previousEntry.isEmpty()
             && fp.filePath.contains(d->m_current.previousEntry);
     const bool pathSeparatorAdded = !d->m_current.previousEntry.contains(pathSeparator)
@@ -124,7 +124,6 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFil
     d->m_current.previousResultPaths.clear();
     d->m_current.previousResultNames.clear();
     d->m_current.previousEntry = fp.filePath;
-    const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(fp.filePath);
     d->m_current.iterator->toFront();
     bool canceled = false;
     while (d->m_current.iterator->hasNext()) {
@@ -137,16 +136,32 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFil
         QString path = d->m_current.iterator->filePath();
         QString name = d->m_current.iterator->fileName();
         QString matchText = hasPathSeparator ? path : name;
-        if ((hasWildcard && regexp.exactMatch(matchText))
-                || (!hasWildcard && matcher.indexIn(matchText) != -1)) {
+        int index = hasWildcard ? regexp.indexIn(matchText) : matcher.indexIn(matchText);
+
+        if (index >= 0) {
             QFileInfo fi(path);
-            LocatorFilterEntry entry(this, fi.fileName(), QString(path + fp.postfix));
-            entry.extraInfo = FileUtils::shortNativePath(FileName(fi));
-            entry.fileName = path;
-            if (matchText.startsWith(fp.filePath, caseSensitivityForPrefix))
-                betterEntries.append(entry);
+            LocatorFilterEntry filterEntry(this, fi.fileName(), QString(path + fp.postfix));
+            filterEntry.fileName = path;
+            filterEntry.extraInfo = FileUtils::shortNativePath(FileName(fi));
+
+            LocatorFilterEntry::HighlightInfo::DataType hDataType = LocatorFilterEntry::HighlightInfo::DisplayName;
+            int length = hasWildcard ? regexp.matchedLength() : fp.filePath.length();
+            const bool betterMatch = index == 0;
+            if (hasPathSeparator) {
+                const int indexCandidate = index + filterEntry.extraInfo.length() - path.length();
+                const int cutOff = indexCandidate < 0 ? -indexCandidate : 0;
+                index = qMax(indexCandidate, 0);
+                length = qMax(length - cutOff, 1);
+                hDataType = LocatorFilterEntry::HighlightInfo::ExtraInfo;
+            }
+
+            if (index >= 0)
+                filterEntry.highlightInfo = LocatorFilterEntry::HighlightInfo(index, length, hDataType);
+
+            if (betterMatch)
+                betterEntries.append(filterEntry);
             else
-                goodEntries.append(entry);
+                goodEntries.append(filterEntry);
             d->m_current.previousResultPaths.append(path);
             d->m_current.previousResultNames.append(name);
         }

@@ -27,6 +27,7 @@
 #include "cppmodelmanager.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <utils/algorithm.h>
 
 #include <QRegExp>
 #include <QStringMatcher>
@@ -66,26 +67,18 @@ void CppLocatorFilter::refresh(QFutureInterface<void> &future)
     Q_UNUSED(future)
 }
 
-static bool compareLexigraphically(const Core::LocatorFilterEntry &a,
-                                   const Core::LocatorFilterEntry &b)
-{
-    return a.displayName < b.displayName;
-}
-
 QList<Core::LocatorFilterEntry> CppLocatorFilter::matchesFor(
-        QFutureInterface<Core::LocatorFilterEntry> &future, const QString &origEntry)
+        QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry)
 {
-    QString entry = trimWildcards(origEntry);
     QList<Core::LocatorFilterEntry> goodEntries;
     QList<Core::LocatorFilterEntry> betterEntries;
-    const QChar asterisk = QLatin1Char('*');
-    QStringMatcher matcher(entry, Qt::CaseInsensitive);
-    QRegExp regexp(asterisk + entry+ asterisk, Qt::CaseInsensitive, QRegExp::Wildcard);
+    const Qt::CaseSensitivity cs = caseSensitivity(entry);
+    QStringMatcher matcher(entry, cs);
+    QRegExp regexp(entry, cs, QRegExp::Wildcard);
     if (!regexp.isValid())
         return goodEntries;
-    bool hasWildcard = (entry.contains(asterisk) || entry.contains(QLatin1Char('?')));
+    bool hasWildcard = containsWildcard(entry);
     bool hasColonColon = entry.contains(QLatin1String("::"));
-    const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(entry);
     const IndexItem::ItemType wanted = matchTypes();
 
     m_data->filterAllFiles([&](const IndexItem::Ptr &info) -> IndexItem::VisitorResult {
@@ -93,10 +86,20 @@ QList<Core::LocatorFilterEntry> CppLocatorFilter::matchesFor(
             return IndexItem::Break;
         if (info->type() & wanted) {
             const QString matchString = hasColonColon ? info->scopedSymbolName() : info->symbolName();
-            if ((hasWildcard && regexp.exactMatch(matchString)) ||
-                    (!hasWildcard && matcher.indexIn(matchString) != -1)) {
-                const Core::LocatorFilterEntry filterEntry = filterEntryFromIndexItem(info);
-                if (matchString.startsWith(entry, caseSensitivityForPrefix))
+            int index = hasWildcard ? regexp.indexIn(matchString) : matcher.indexIn(matchString);
+            if (index >= 0) {
+                const bool betterMatch = index == 0;
+                Core::LocatorFilterEntry filterEntry = filterEntryFromIndexItem(info);
+
+                if (matchString != filterEntry.displayName) {
+                    index = hasWildcard ? regexp.indexIn(filterEntry.displayName)
+                                        : matcher.indexIn(filterEntry.displayName);
+                }
+
+                if (index >= 0)
+                    filterEntry.highlightInfo = {index, (hasWildcard ? regexp.matchedLength() : entry.length())};
+
+                if (betterMatch)
                     betterEntries.append(filterEntry);
                 else
                     goodEntries.append(filterEntry);
@@ -110,9 +113,9 @@ QList<Core::LocatorFilterEntry> CppLocatorFilter::matchesFor(
     });
 
     if (goodEntries.size() < 1000)
-        std::stable_sort(goodEntries.begin(), goodEntries.end(), compareLexigraphically);
+        Utils::sort(goodEntries, Core::LocatorFilterEntry::compareLexigraphically);
     if (betterEntries.size() < 1000)
-        std::stable_sort(betterEntries.begin(), betterEntries.end(), compareLexigraphically);
+        Utils::sort(betterEntries, Core::LocatorFilterEntry::compareLexigraphically);
 
     betterEntries += goodEntries;
     return betterEntries;

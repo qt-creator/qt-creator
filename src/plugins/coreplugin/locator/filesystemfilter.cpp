@@ -41,11 +41,16 @@ namespace {
 
 QList<LocatorFilterEntry> *categorize(const QString &entry, const QString &candidate,
                                Qt::CaseSensitivity caseSensitivity,
-                               QList<LocatorFilterEntry> *betterEntries, QList<LocatorFilterEntry> *goodEntries)
+                               QList<LocatorFilterEntry> *betterEntries, QList<LocatorFilterEntry> *goodEntries,
+                               int *index)
 {
-    if (entry.isEmpty() || candidate.startsWith(entry, caseSensitivity))
+    const int position = candidate.indexOf(entry, 0, caseSensitivity);
+    if (index)
+        *index = position;
+
+    if (entry.isEmpty() || position == 0)
         return betterEntries;
-    else if (candidate.contains(entry, caseSensitivity))
+    else if (position >= 0)
         return goodEntries;
     return 0;
 }
@@ -99,11 +104,15 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorF
     foreach (const QString &dir, dirs) {
         if (future.isCanceled())
             break;
-        if (QList<LocatorFilterEntry> *category = categorize(entryFileName, dir, caseSensitivity_, &betterEntries,
-                                                      &goodEntries)) {
+        int index = -1;
+        if (QList<LocatorFilterEntry> *category = categorize(entryFileName, dir, caseSensitivity_,
+                                                             &betterEntries, &goodEntries, &index)) {
             const QString fullPath = dirInfo.filePath(dir);
             LocatorFilterEntry filterEntry(this, dir, QVariant());
             filterEntry.fileName = fullPath;
+            if (index >= 0)
+                filterEntry.highlightInfo = {index, entryFileName.length()};
+
             category->append(filterEntry);
         }
     }
@@ -113,11 +122,15 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorF
     foreach (const QString &file, files) {
         if (future.isCanceled())
             break;
-        if (QList<LocatorFilterEntry> *category = categorize(fileName, file, caseSensitivity_, &betterEntries,
-                                                      &goodEntries)) {
+        int index = -1;
+        if (QList<LocatorFilterEntry> *category = categorize(fileName, file, caseSensitivity_,
+                                                             &betterEntries, &goodEntries, &index)) {
             const QString fullPath = dirInfo.filePath(file);
             LocatorFilterEntry filterEntry(this, file, QString(fullPath + fp.postfix));
             filterEntry.fileName = fullPath;
+            if (index >= 0)
+                filterEntry.highlightInfo = {index, fileName.length()};
+
             category->append(filterEntry);
         }
     }

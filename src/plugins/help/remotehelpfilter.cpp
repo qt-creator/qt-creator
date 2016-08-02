@@ -129,15 +129,16 @@ RemoteHelpFilter::~RemoteHelpFilter()
 {
 }
 
-QList<Core::LocatorFilterEntry> RemoteHelpFilter::matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &pattern)
+QList<Core::LocatorFilterEntry> RemoteHelpFilter::matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry)
 {
     QList<Core::LocatorFilterEntry> entries;
     foreach (const QString &url, remoteUrls()) {
         if (future.isCanceled())
             break;
-
-        entries.append(Core::LocatorFilterEntry(this, url.arg(pattern), QVariant(),
-            m_icon));
+        const QString name = url.arg(entry);
+        Core::LocatorFilterEntry filterEntry(this, name, QVariant(), m_icon);
+        filterEntry.highlightInfo = {name.lastIndexOf(entry), entry.length()};
+        entries.append(filterEntry);
     }
     return entries;
 }

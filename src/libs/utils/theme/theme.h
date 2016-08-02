@@ -116,6 +116,7 @@ public:
         TextColorDisabled,
         TextColorError,
         TextColorHighlight,
+        TextColorHighlightBackground,
         TextColorLink,
         TextColorLinkVisited,
         TextColorNormal,

@@ -55,19 +55,16 @@ OpenDocumentsFilter::OpenDocumentsFilter()
             this, &OpenDocumentsFilter::refreshInternally);
 }
 
-QList<LocatorFilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry)
+QList<LocatorFilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future,
+                                                          const QString &entry)
 {
     QList<LocatorFilterEntry> goodEntries;
     QList<LocatorFilterEntry> betterEntries;
     const EditorManager::FilePathInfo fp = EditorManager::splitLineAndColumnNumber(entry);
-    const QChar asterisk = QLatin1Char('*');
-    QString pattern = QString(asterisk);
-    pattern += fp.filePath;
-    pattern += asterisk;
-    QRegExp regexp(pattern, Qt::CaseInsensitive, QRegExp::Wildcard);
+    QRegExp regexp(fp.filePath, caseSensitivity(fp.filePath), QRegExp::Wildcard);
     if (!regexp.isValid())
         return goodEntries;
-    const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(fp.filePath);
+
     foreach (const Entry &editorEntry, editors()) {
         if (future.isCanceled())
             break;
@@ -75,13 +72,16 @@ QList<LocatorFilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<Locat
         if (fileName.isEmpty())
             continue;
         QString displayName = editorEntry.displayName;
-        if (regexp.exactMatch(displayName)) {
-            LocatorFilterEntry fiEntry(this, displayName, QString(fileName + fp.postfix));
-            fiEntry.extraInfo = FileUtils::shortNativePath(FileName::fromString(fileName));
-            fiEntry.fileName = fileName;
-            QList<LocatorFilterEntry> &category = displayName.startsWith(fp.filePath, caseSensitivityForPrefix)
-                    ? betterEntries : goodEntries;
-            category.append(fiEntry);
+        const int index = regexp.indexIn(displayName);
+        if (index >= 0) {
+            LocatorFilterEntry filterEntry(this, displayName, QString(fileName + fp.postfix));
+            filterEntry.extraInfo = FileUtils::shortNativePath(FileName::fromString(fileName));
+            filterEntry.fileName = fileName;
+            filterEntry.highlightInfo = {index, regexp.matchedLength()};
+            if (index == 0)
+                betterEntries.append(filterEntry);
+            else
+                goodEntries.append(filterEntry);
         }
     }
     betterEntries.append(goodEntries);

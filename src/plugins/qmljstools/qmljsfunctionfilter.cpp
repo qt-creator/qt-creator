@@ -53,24 +53,18 @@ void FunctionFilter::refresh(QFutureInterface<void> &)
 {
 }
 
-static bool compareLexigraphically(const Core::LocatorFilterEntry &a,
-                                   const Core::LocatorFilterEntry &b)
+QList<Core::LocatorFilterEntry> FunctionFilter::matchesFor(
+        QFutureInterface<Core::LocatorFilterEntry> &future,
+        const QString &entry)
 {
-    return a.displayName < b.displayName;
-}
-
-QList<Core::LocatorFilterEntry> FunctionFilter::matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &origEntry)
-{
-    QString entry = trimWildcards(origEntry);
     QList<Core::LocatorFilterEntry> goodEntries;
     QList<Core::LocatorFilterEntry> betterEntries;
-    const QChar asterisk = QLatin1Char('*');
-    QStringMatcher matcher(entry, Qt::CaseInsensitive);
-    QRegExp regexp(asterisk + entry+ asterisk, Qt::CaseInsensitive, QRegExp::Wildcard);
+    const Qt::CaseSensitivity cs = caseSensitivity(entry);
+    QStringMatcher matcher(entry, cs);
+    QRegExp regexp(entry, cs, QRegExp::Wildcard);
     if (!regexp.isValid())
         return goodEntries;
-    bool hasWildcard = (entry.contains(asterisk) || entry.contains(QLatin1Char('?')));
-    const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(entry);
+    bool hasWildcard = containsWildcard(entry);
 
     QHashIterator<QString, QList<LocatorData::Entry> > it(m_data->entries());
     while (it.hasNext()) {
@@ -83,14 +77,17 @@ QList<Core::LocatorFilterEntry> FunctionFilter::matchesFor(QFutureInterface<Core
         foreach (const LocatorData::Entry &info, items) {
             if (info.type != LocatorData::Function)
                 continue;
-            if ((hasWildcard && regexp.exactMatch(info.symbolName))
-                    || (!hasWildcard && matcher.indexIn(info.symbolName) != -1)) {
 
+            const int index = hasWildcard ? regexp.indexIn(info.symbolName)
+                                          : matcher.indexIn(info.symbolName);
+            if (index >= 0) {
                 QVariant id = qVariantFromValue(info);
                 Core::LocatorFilterEntry filterEntry(this, info.displayName, id/*, info.icon*/);
                 filterEntry.extraInfo = info.extraInfo;
+                const int length = hasWildcard ? regexp.matchedLength() : entry.length();
+                filterEntry.highlightInfo = {index, length};
 
-                if (info.symbolName.startsWith(entry, caseSensitivityForPrefix))
+                if (index == 0)
                     betterEntries.append(filterEntry);
                 else
                     goodEntries.append(filterEntry);
@@ -99,9 +96,9 @@ QList<Core::LocatorFilterEntry> FunctionFilter::matchesFor(QFutureInterface<Core
     }
 
     if (goodEntries.size() < 1000)
-        Utils::sort(goodEntries, compareLexigraphically);
+        Utils::sort(goodEntries, Core::LocatorFilterEntry::compareLexigraphically);
     if (betterEntries.size() < 1000)
-        Utils::sort(betterEntries, compareLexigraphically);
+        Utils::sort(betterEntries, Core::LocatorFilterEntry::compareLexigraphically);
 
     betterEntries += goodEntries;
     return betterEntries;

@@ -116,6 +116,7 @@ SplitterColor=ff313131
 TextColorDisabled=textDisabled
 TextColorError=ffff4040
 TextColorHighlight=ffff0000
+TextColorHighlightBackground=555500
 TextColorLink=textColorLink
 TextColorLinkVisited=textColorLinkVisited
 TextColorNormal=text

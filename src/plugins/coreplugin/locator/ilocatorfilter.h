@@ -37,6 +37,23 @@ class ILocatorFilter;
 
 struct LocatorFilterEntry
 {
+    struct HighlightInfo {
+        enum DataType {
+            DisplayName,
+            ExtraInfo
+        };
+
+        HighlightInfo(int startIndex, int length, DataType type = DataType::DisplayName)
+            : startIndex(startIndex)
+            , length(length)
+            , dataType(type)
+        {}
+
+        int startIndex;
+        int length;
+        DataType dataType;
+    };
+
     LocatorFilterEntry() = default;
 
     LocatorFilterEntry(ILocatorFilter *fromFilter, const QString &name, const QVariant &data,
@@ -67,6 +84,14 @@ struct LocatorFilterEntry
     QString fileName;
     /* internal */
     bool fileIconResolved = false;
+    /* highlighting support */
+    HighlightInfo highlightInfo{0, 0};
+
+    static bool compareLexigraphically(const Core::LocatorFilterEntry &lhs,
+                                       const Core::LocatorFilterEntry &rhs)
+    {
+        return lhs.displayName < rhs.displayName;
+    }
 };
 
 class CORE_EXPORT ILocatorFilter : public QObject
@@ -134,8 +159,8 @@ public:
     /* Returns whether the filter should be enabled and used in menus. */
     bool isEnabled() const;
 
-    static QString trimWildcards(const QString &str);
     static Qt::CaseSensitivity caseSensitivity(const QString &str);
+    static bool containsWildcard(const QString &str);
 
     static QString msgConfigureDialogTitle();
     static QString msgPrefixLabel();

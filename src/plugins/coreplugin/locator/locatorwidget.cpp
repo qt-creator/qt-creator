@@ -33,6 +33,8 @@
 #include <coreplugin/modemanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/fileiconprovider.h>
+#include <coreplugin/find/searchresulttreeitemdelegate.h>
+#include <coreplugin/find/searchresulttreeitemroles.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/mainwindow.h>
 #include <utils/algorithm.h>
@@ -69,8 +71,16 @@ namespace Internal {
 class LocatorModel : public QAbstractListModel
 {
 public:
+
+    enum Columns {
+        DisplayNameColumn,
+        ExtraInfoColumn,
+        ColumnCount
+    };
+
     LocatorModel(QObject *parent = 0)
         : QAbstractListModel(parent)
+        , mBackgroundColor(Utils::creatorTheme()->color(Utils::Theme::TextColorHighlightBackground).name())
     {}
 
     void clear();
@@ -83,6 +93,7 @@ public:
 private:
     mutable QList<LocatorFilterEntry> mEntries;
     bool hasExtraInfo = false;
+    QColor mBackgroundColor;
 };
 
 class CompletionList : public QTreeView
@@ -144,7 +155,7 @@ int LocatorModel::columnCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
         return 0;
-    return hasExtraInfo ? 2 : 1;
+    return hasExtraInfo ? ColumnCount : 1;
 }
 
 QVariant LocatorModel::data(const QModelIndex &index, int role) const
@@ -154,9 +165,9 @@ QVariant LocatorModel::data(const QModelIndex &index, int role) const
 
     switch (role) {
     case Qt::DisplayRole:
-        if (index.column() == 0)
+        if (index.column() == DisplayNameColumn)
             return mEntries.at(index.row()).displayName;
-        else if (index.column() == 1)
+        else if (index.column() == ExtraInfoColumn)
             return mEntries.at(index.row()).extraInfo;
         break;
     case Qt::ToolTipRole:
@@ -167,7 +178,8 @@ QVariant LocatorModel::data(const QModelIndex &index, int role) const
                             + QLatin1String("\n\n") + mEntries.at(index.row()).extraInfo);
         break;
     case Qt::DecorationRole:
-        if (index.column() == 0) {
+    case ItemDataRoles::ResultIconRole:
+        if (index.column() == DisplayNameColumn) {
             LocatorFilterEntry &entry = mEntries[index.row()];
             if (!entry.fileIconResolved && !entry.fileName.isEmpty() && entry.displayIcon.isNull()) {
                 entry.fileIconResolved = true;
@@ -177,11 +189,25 @@ QVariant LocatorModel::data(const QModelIndex &index, int role) const
         }
         break;
     case Qt::ForegroundRole:
-        if (index.column() == 1)
+        if (index.column() == ExtraInfoColumn)
             return QColor(Qt::darkGray);
         break;
-    case Qt::UserRole:
+    case ItemDataRoles::ResultItemRole:
         return qVariantFromValue(mEntries.at(index.row()));
+    case ItemDataRoles::ResultBeginColumnNumberRole:
+    case ItemDataRoles::SearchTermLengthRole: {
+        LocatorFilterEntry &entry = mEntries[index.row()];
+        const int highlightColumn = entry.highlightInfo.dataType == LocatorFilterEntry::HighlightInfo::DisplayName
+                                                                 ? DisplayNameColumn
+                                                                 : ExtraInfoColumn;
+        if (highlightColumn == index.column()) {
+            const bool startIndexRole = role == ItemDataRoles::ResultBeginColumnNumberRole;
+            return startIndexRole ? entry.highlightInfo.startIndex : entry.highlightInfo.length;
+        }
+        break;
+    }
+    case ItemDataRoles::ResultHighlightBackgroundColor:
+        return mBackgroundColor;
     }
 
     return QVariant();
@@ -202,6 +228,7 @@ void LocatorModel::addEntries(const QList<LocatorFilterEntry> &entries)
 CompletionList::CompletionList(QWidget *parent)
     : QTreeView(parent)
 {
+    setItemDelegate(new SearchResultTreeItemDelegate(0, this));
     setRootIsDecorated(false);
     setUniformRowHeights(true);
     header()->hide();
@@ -611,9 +638,10 @@ void LocatorWidget::acceptCurrentEntry()
     const QModelIndex index = m_completionList->currentIndex();
     if (!index.isValid())
         return;
-    const LocatorFilterEntry entry = m_locatorModel->data(index, Qt::UserRole).value<LocatorFilterEntry>();
+    const LocatorFilterEntry entry = m_locatorModel->data(index, ItemDataRoles::ResultItemRole).value<LocatorFilterEntry>();
     m_completionList->hide();
     m_fileLineEdit->clearFocus();
+    Q_ASSERT(entry.filter != nullptr);
     entry.filter->accept(entry);
 }
 

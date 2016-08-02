@@ -62,18 +62,16 @@ CppCurrentDocumentFilter::CppCurrentDocumentFilter(CppTools::CppModelManager *ma
 }
 
 QList<Core::LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(
-        QFutureInterface<Core::LocatorFilterEntry> &future, const QString & origEntry)
+        QFutureInterface<Core::LocatorFilterEntry> &future, const QString & entry)
 {
-    QString entry = trimWildcards(origEntry);
     QList<Core::LocatorFilterEntry> goodEntries;
     QList<Core::LocatorFilterEntry> betterEntries;
-    QStringMatcher matcher(entry, Qt::CaseInsensitive);
-    const QChar asterisk = QLatin1Char('*');
-    QRegExp regexp(asterisk + entry + asterisk, Qt::CaseInsensitive, QRegExp::Wildcard);
+    const Qt::CaseSensitivity cs = caseSensitivity(entry);
+    QStringMatcher matcher(entry, cs);
+    QRegExp regexp(entry, cs, QRegExp::Wildcard);
     if (!regexp.isValid())
         return goodEntries;
-    bool hasWildcard = (entry.contains(asterisk) || entry.contains(QLatin1Char('?')));
-    const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(entry);
+    bool hasWildcard = containsWildcard(entry);
 
     foreach (IndexItem::Ptr info, itemsOfCurrentDocument()) {
         if (future.isCanceled())
@@ -85,20 +83,30 @@ QList<Core::LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(
         else if (info->type() == IndexItem::Function)
             matchString += info->symbolType();
 
-        if ((hasWildcard && regexp.exactMatch(matchString))
-            || (!hasWildcard && matcher.indexIn(matchString) != -1))
-        {
+        int index = hasWildcard ? regexp.indexIn(matchString) : matcher.indexIn(matchString);
+        if (index >= 0) {
+            const bool betterMatch = index == 0;
             QVariant id = qVariantFromValue(info);
             QString name = matchString;
             QString extraInfo = info->symbolScope();
             if (info->type() == IndexItem::Function) {
-                if (info->unqualifiedNameAndScope(matchString, &name, &extraInfo))
+                if (info->unqualifiedNameAndScope(matchString, &name, &extraInfo)) {
                     name += info->symbolType();
+                    index = hasWildcard ? regexp.indexIn(name) : matcher.indexIn(name);
+                }
             }
+
             Core::LocatorFilterEntry filterEntry(this, name, id, info->icon());
             filterEntry.extraInfo = extraInfo;
-
-            if (matchString.startsWith(entry, caseSensitivityForPrefix))
+            if (index < 0) {
+                index = hasWildcard ? regexp.indexIn(extraInfo) : matcher.indexIn(extraInfo);
+                filterEntry.highlightInfo.dataType = Core::LocatorFilterEntry::HighlightInfo::ExtraInfo;
+            }
+            if (index >= 0) {
+                filterEntry.highlightInfo.startIndex = index;
+                filterEntry.highlightInfo.length = hasWildcard ? regexp.matchedLength() : entry.length();
+            }
+            if (betterMatch)
                 betterEntries.append(filterEntry);
             else
                 goodEntries.append(filterEntry);

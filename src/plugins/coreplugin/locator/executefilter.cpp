@@ -60,16 +60,20 @@ QList<LocatorFilterEntry> ExecuteFilter::matchesFor(QFutureInterface<LocatorFilt
     if (!entry.isEmpty()) // avoid empty entry
         value.append(LocatorFilterEntry(this, entry, QVariant()));
     QList<LocatorFilterEntry> others;
-    const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(entry);
-    foreach (const QString &i, m_commandHistory) {
+    const Qt::CaseSensitivity entryCaseSensitivity = caseSensitivity(entry);
+    foreach (const QString &cmd, m_commandHistory) {
         if (future.isCanceled())
             break;
-        if (i == entry) // avoid repeated entry
+        if (cmd == entry) // avoid repeated entry
             continue;
-        if (i.startsWith(entry, caseSensitivityForPrefix))
-            value.append(LocatorFilterEntry(this, i, QVariant()));
-        else
-            others.append(LocatorFilterEntry(this, i, QVariant()));
+        LocatorFilterEntry filterEntry(this, cmd, QVariant());
+        const int index = cmd.indexOf(entry, 0, entryCaseSensitivity);
+        if (index >= 0) {
+            filterEntry.highlightInfo = {index, entry.length()};
+            value.append(filterEntry);
+        } else {
+            others.append(filterEntry);
+        }
     }
     value.append(others);
     return value;
