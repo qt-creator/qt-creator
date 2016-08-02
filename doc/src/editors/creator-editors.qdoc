@@ -1044,9 +1044,9 @@
             copy the URL of the post on the code pasting service to the
             clipboard when you paste a post.
 
-        \li Select the \uicontrol {Display Output pane after sending a post} to
-            display the URL in the \uicontrol {General Messages} output pane
-            when you paste a post.
+        \li Select the \uicontrol {Display Output pane after sending a post}
+            check box to display the URL in the \uicontrol {General Messages}
+            output pane when you paste a post.
 
     \endlist
 
