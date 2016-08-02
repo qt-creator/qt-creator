@@ -451,6 +451,9 @@ void TextEditorActionHandlerPrivate::createActions()
             [this] (TextEditorWidget *w) { w->selectBlockDown(); }, true, tr("Select Block Down"),
             QKeySequence(tr("Ctrl+Shift+Alt+U")),
             G_EDIT_BLOCKS, advancedEditMenu);
+    registerAction(SELECT_WORD_UNDER_CURSOR,
+            [this] (TextEditorWidget *w) { w->selectWordUnderCursor(); }, true,
+            tr("Select Word Under Cursor"));
 
     // register GOTO Actions
     registerAction(GOTO_LINE_START,

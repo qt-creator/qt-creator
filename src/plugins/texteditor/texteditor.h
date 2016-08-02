@@ -396,6 +396,7 @@ public:
 
     virtual bool selectBlockUp();
     virtual bool selectBlockDown();
+    void selectWordUnderCursor();
 
     void moveLineUp();
     void moveLineDown();

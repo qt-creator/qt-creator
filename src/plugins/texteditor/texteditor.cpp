@@ -1357,6 +1357,15 @@ bool TextEditorWidget::selectBlockDown()
     return true;
 }
 
+void TextEditorWidget::selectWordUnderCursor()
+{
+    QTextCursor tc = textCursor();
+    if (tc.hasSelection())
+        return;
+    tc.select(QTextCursor::WordUnderCursor);
+    setTextCursor(tc);
+}
+
 void TextEditorWidget::copyLineUp()
 {
     d->copyLineUpDown(true);
