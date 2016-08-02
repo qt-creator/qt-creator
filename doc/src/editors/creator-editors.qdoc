@@ -1556,6 +1556,8 @@
                 \li \uicontrol {Files in File System} recursively searches files
                     matching the defined file pattern in the selected directory.
 
+                    \image qtcreator-search-filesystem.png
+
                     Select the \uicontrol {Use Git Grep} check box to use Git to
                     only search tracked files in the Git work tree. To restrict
                     the search to the HEAD, a tag, a local or remote branch, or
