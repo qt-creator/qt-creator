@@ -45,15 +45,15 @@ void tst_TemplateEngine::testTemplateEngine_data()
     QTest::addColumn<QString>("expectedErrorMessage");
     QTest::newRow("if")
         << QString::fromLatin1("@if 1\nline 1\n@elsif 0\nline 2\n@else\nline 3\n@endif\n")
-        << QString::fromLatin1("line 1\n\n")
+        << QString::fromLatin1("line 1\n")
         << QString();
     QTest::newRow("elsif")
         << QString::fromLatin1("@if 0\nline 1\n@elsif 1\nline 2\n@else\nline 3\n@endif\n")
-        << QString::fromLatin1("line 2\n\n")
+        << QString::fromLatin1("line 2\n")
         << QString();
     QTest::newRow("else")
         << QString::fromLatin1("@if 0\nline 1\n@elsif 0\nline 2\n@else\nline 3\n@endif\n")
-        << QString::fromLatin1("line 3\n\n")
+        << QString::fromLatin1("line 3\n")
         << QString();
     QTest::newRow("nested-if")
         << QString::fromLatin1("@if 1\n"
@@ -61,7 +61,7 @@ void tst_TemplateEngine::testTemplateEngine_data()
                                "@else\n"
                                "  @if 1\nline 4\n@elsif 0\nline 5\n@else\nline 6\n@endif\n"
                                "@endif\n")
-        << QString::fromLatin1("line 1\n\n")
+        << QString::fromLatin1("line 1\n")
         << QString();
     QTest::newRow("nested-else")
         << QString::fromLatin1("@if 0\n"
@@ -69,7 +69,7 @@ void tst_TemplateEngine::testTemplateEngine_data()
                                "@else\n"
                                "  @if 1\nline 4\n@elsif 0\nline 5\n@else\nline 6\n@endif\n"
                                "@endif\n")
-        << QString::fromLatin1("line 4\n\n")
+        << QString::fromLatin1("line 4\n")
         << QString();
     QTest::newRow("twice-nested-if")
         << QString::fromLatin1("@if 0\n"
@@ -81,7 +81,7 @@ void tst_TemplateEngine::testTemplateEngine_data()
                                "    @if 1\nline 3\n@else\nline 4\n@endif\n"
                                "  @endif\n"
                                "@endif\n")
-        << QString::fromLatin1("line 3\n\n")
+        << QString::fromLatin1("line 3\n")
         << QString();
 }
 

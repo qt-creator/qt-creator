@@ -139,6 +139,7 @@ bool PreprocessContext::process(const QString &in, QString *out, QString *errorM
     const QChar newLine = QLatin1Char('\n');
     const QStringList lines = in.split(newLine, QString::KeepEmptyParts);
     const int lineCount = lines.size();
+    bool first = true;
     for (int l = 0; l < lineCount; l++) {
         // Check for element of the stack (be it dummy, else something is wrong).
         if (m_sectionStack.isEmpty()) {
@@ -206,7 +207,9 @@ bool PreprocessContext::process(const QString &in, QString *out, QString *errorM
             break;
         case OtherSection: // Rest: Append according to current condition.
             if (top.condition) {
-                if (l != 0)
+                if (first)
+                    first = false;
+                else
                     out->append(newLine);
                 out->append(lines.at(l));
             }
