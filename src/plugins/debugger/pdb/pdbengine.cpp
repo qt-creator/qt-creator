@@ -91,6 +91,10 @@ void PdbEngine::postDirectCommand(const QString &command)
 
 void PdbEngine::runCommand(const DebuggerCommand &cmd)
 {
+    if (state() == EngineSetupRequested) { // cmd has been triggered too early
+        showMessage("IGNORED COMMAND: " + cmd.function);
+        return;
+    }
     QTC_ASSERT(m_proc.state() == QProcess::Running, notifyEngineIll());
     QString command = "qdebug('" + cmd.function + "'," + cmd.argsToPython() + ")";
     showMessage(command, LogInput);
