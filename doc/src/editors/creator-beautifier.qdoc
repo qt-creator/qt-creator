@@ -76,8 +76,26 @@
 
         \li Restart \QC to be able to use the plugin.
 
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Beautifier
-            to specify settings for the tool you want to use.
+        \li Select \uicontrol Tools > \uicontrol Options >
+            \uicontrol Beautifier to specify settings for beautifying files.
+
+        \li Select the \uicontrol {Enable auto format on file save} check box to
+            automatically beautify files when you save them using the tool you
+            select in the \uicontrol Tool field.
+
+            \image qt-creator-beautifier-options-general.png
+
+        \li In the \uicontrol {Restrict to MIME types} field, define the MIME
+            types of the files to beautify, separated by semicolons. Leave the
+            field empty to apply the tool on all files.
+
+        \li Select the \uicontrol {Restrict to files contained in the current
+            project} check box to only beautify files that belong to the
+            current project.
+
+        \li Select \uicontrol {Artistic Style}, \uicontrol {Clang Format}, or
+            \uicontrol Uncrustify to specify settings for the tool you want to
+            use.
 
             \image beautifier_options.png
 
@@ -85,10 +103,6 @@
             the tool executable in the \uicontrol {Artistic Style command},
             \uicontrol {Clang Format command}, or
             \uicontrol {Uncrustify command} field.
-
-        \li In the \uicontrol {Restrict to MIME types} field, define the MIME
-            types of the files to beautify, separated by semicolons. Leave the
-            field empty to apply the tool on all files.
 
         \li In the \uicontrol Options group, select the configuration file that
             defines the style to use in the source files. If you select several
@@ -117,8 +131,8 @@
 
             \endlist
 
-        \li Select \uicontrol Tools > \uicontrol Beautifier >
-            \uicontrol {Artistic Style}, \uicontrol ClangFormat, or
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Beautifier
+            > \uicontrol {Artistic Style}, \uicontrol ClangFormat, or
             \uicontrol Uncrustify > \uicontrol {Format Current File} to format
             the currently open file.
 
@@ -133,21 +147,4 @@
     file in this case when using Clang, select the
     \uicontrol {Format entire file if no text was selected} check box in the
     \uicontrol {Clang Format} options.
-
-    To automatically format files when they are saved, select \uicontrol Tools >
-    \uicontrol Beautifier > \uicontrol General:
-
-    \list 1
-
-        \li In the \uicontrol Tool field, select the tool for formatting.
-
-        \li In the \uicontrol {Restrict to MIME types} field, specify a
-            semicolon-separated list of MIME types. One of these types must
-            match the MIME type of the file that is auto formatted.
-            An empty list accepts all files.
-
-        \li Select the \uicontrol {Restrict to files contained in the current
-            project} check box to only auto format files in the current project.
-
-    \endlist
 */
