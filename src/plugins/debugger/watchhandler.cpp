@@ -415,7 +415,6 @@ public:
     DebuggerEngine *m_engine; // Not owned.
 
     bool m_contentsValid;
-    bool m_resetLocationScheduled;
 
     WatchItem *m_localsRoot; // Not owned.
     WatchItem *m_inspectorRoot; // Not owned.
@@ -439,9 +438,7 @@ WatchModel::WatchModel(WatchHandler *handler, DebuggerEngine *engine)
 {
     setObjectName("WatchModel");
 
-    m_contentsValid = false;
-    m_contentsValid = true; // FIXME
-    m_resetLocationScheduled = false;
+    m_contentsValid = true;
 
     setHeader({ tr("Name"), tr("Value"), tr("Type") });
     m_localsRoot = new WatchItem;
@@ -2503,12 +2500,10 @@ QString WatchModel::editorContents(const QModelIndexList &list)
 void WatchHandler::scheduleResetLocation()
 {
     m_model->m_contentsValid = false;
-    m_model->m_resetLocationScheduled = true;
 }
 
 void WatchHandler::resetLocation()
 {
-    m_model->m_resetLocationScheduled = false;
 }
 
 void WatchHandler::setCurrentItem(const QString &iname)
