@@ -32,8 +32,6 @@ namespace Internal {
 
 class PythonEditorFactory : public TextEditor::TextEditorFactory
 {
-    Q_OBJECT
-
 public:
     PythonEditorFactory();
 };

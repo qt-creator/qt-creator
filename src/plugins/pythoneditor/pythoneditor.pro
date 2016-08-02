@@ -10,15 +10,14 @@ HEADERS += \
     pythoneditorplugin.h \
     pythoneditor.h \
     pythoneditorconstants.h \
-    tools/pythonhighlighter.h \
-    tools/pythonindenter.h \
-    tools/lexical/pythonformattoken.h \
-    tools/lexical/pythonscanner.h \
-    tools/lexical/sourcecodestream.h
+    pythonhighlighter.h \
+    pythonindenter.h \
+    pythonformattoken.h \
+    pythonscanner.h \
 
 SOURCES += \
     pythoneditorplugin.cpp \
     pythoneditor.cpp \
-    tools/pythonhighlighter.cpp \
-    tools/pythonindenter.cpp \
-    tools/lexical/pythonscanner.cpp
+    pythonhighlighter.cpp \
+    pythonindenter.cpp \
+    pythonscanner.cpp

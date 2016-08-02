@@ -37,10 +37,8 @@ class PythonHighlighter : public TextEditor::SyntaxHighlighter
 public:
     PythonHighlighter();
 
-protected:
-    void highlightBlock(const QString &text);
-
 private:
+    void highlightBlock(const QString &text) override;
     int highlightLine(const QString &text, int initialState);
     void highlightImport(Internal::Scanner &scanner);
 };

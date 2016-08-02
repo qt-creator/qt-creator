@@ -41,14 +41,10 @@ class PythonEditorPlugin : public ExtensionSystem::IPlugin
 
 public:
     PythonEditorPlugin();
-    virtual ~PythonEditorPlugin();
+    ~PythonEditorPlugin() override;
 
-    virtual bool initialize(const QStringList &arguments, QString *errorMessage);
-    virtual void extensionsInitialized() {}
-
-    static QSet<QString> keywords();
-    static QSet<QString> magics();
-    static QSet<QString> builtins();
+    bool initialize(const QStringList &arguments, QString *errorMessage) override;
+    void extensionsInitialized() override {}
 
 private:
     QSet<QString> m_keywords;

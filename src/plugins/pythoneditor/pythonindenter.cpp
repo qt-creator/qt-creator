@@ -24,27 +24,11 @@
 ****************************************************************************/
 
 #include "pythonindenter.h"
-#include "lexical/pythonscanner.h"
+#include "pythonscanner.h"
 
 #include <texteditor/tabsettings.h>
 
-#include <QSet>
-
 namespace PythonEditor {
-
-PythonIndenter::PythonIndenter()
-{
-    m_jumpKeywords << QLatin1String("return")
-                   << QLatin1String("yield")
-                   << QLatin1String("break")
-                   << QLatin1String("continue")
-                   << QLatin1String("raise")
-                   << QLatin1String("pass");
-}
-
-PythonIndenter::~PythonIndenter()
-{
-}
 
 /**
  * @brief Does given character change indentation level?
@@ -53,7 +37,7 @@ PythonIndenter::~PythonIndenter()
  */
 bool PythonIndenter::isElectricCharacter(const QChar &ch) const
 {
-    return (ch == QLatin1Char(':'));
+    return ch == ':';
 }
 
 int PythonIndenter::indentFor(const QTextBlock &block, const TextEditor::TabSettings &tabSettings)
@@ -81,7 +65,7 @@ bool PythonIndenter::isElectricLine(const QString &line) const
 
     // trim spaces in 'if True:  '
     int index = line.length() - 1;
-    while ((index > 0) && line[index].isSpace())
+    while (index > 0 && line[index].isSpace())
         --index;
 
     return isElectricCharacter(line[index]);
@@ -91,10 +75,13 @@ bool PythonIndenter::isElectricLine(const QString &line) const
 int PythonIndenter::getIndentDiff(const QString &previousLine,
                                   const TextEditor::TabSettings &tabSettings) const
 {
+    static const QStringList jumpKeywords = {
+        "return", "yield", "break", "continue", "raise", "pass" };
+
     Internal::Scanner sc(previousLine.constData(), previousLine.length());
     forever {
         Internal::FormatToken tk = sc.read();
-        if ((tk.format() == Internal::Format_Keyword) && m_jumpKeywords.contains(sc.value(tk)))
+        if (tk.format() == Internal::Format_Keyword && jumpKeywords.contains(sc.value(tk)))
             return -tabSettings.m_indentSize;
         if (tk.format() != Internal::Format_Whitespace)
             break;

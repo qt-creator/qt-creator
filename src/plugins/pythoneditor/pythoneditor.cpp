@@ -26,8 +26,8 @@
 #include "pythoneditor.h"
 #include "pythoneditorconstants.h"
 #include "pythoneditorplugin.h"
-#include "tools/pythonindenter.h"
-#include "tools/pythonhighlighter.h"
+#include "pythonindenter.h"
+#include "pythonhighlighter.h"
 
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
@@ -44,15 +44,15 @@ PythonEditorFactory::PythonEditorFactory()
 {
     setId(Constants::C_PYTHONEDITOR_ID);
     setDisplayName(QCoreApplication::translate("OpenWith::Editors", Constants::C_EDITOR_DISPLAY_NAME));
-    addMimeType(QLatin1String(Constants::C_PY_MIMETYPE));
+    addMimeType(Constants::C_PY_MIMETYPE);
 
     setEditorActionHandlers(TextEditorActionHandler::Format
                        | TextEditorActionHandler::UnCommentSelection
                        | TextEditorActionHandler::UnCollapseAll);
 
-    setDocumentCreator([]() { return new TextDocument(Constants::C_PYTHONEDITOR_ID); });
-    setIndenterCreator([]() { return new PythonIndenter; });
-    setSyntaxHighlighterCreator([]() { return new PythonHighlighter; });
+    setDocumentCreator([] { return new TextDocument(Constants::C_PYTHONEDITOR_ID); });
+    setIndenterCreator([] { return new PythonIndenter; });
+    setSyntaxHighlighterCreator([] { return new PythonHighlighter; });
     setCommentStyle(Utils::CommentDefinition::HashStyle);
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);

@@ -18,18 +18,10 @@ QtcPlugin {
             "pythoneditorconstants.h",
             "pythoneditorplugin.cpp", "pythoneditorplugin.h",
             "pythoneditorplugin.qrc",
-        ]
-    }
-
-    Group {
-        name: "Tools"
-        prefix: "tools/"
-        files: [
-            "lexical/pythonformattoken.h",
-            "lexical/pythonscanner.h", "lexical/pythonscanner.cpp",
-            "lexical/sourcecodestream.h",
             "pythonhighlighter.h", "pythonhighlighter.cpp",
             "pythonindenter.cpp", "pythonindenter.h"
+            "pythonformattoken.h",
+            "pythonscanner.h", "pythonscanner.cpp"
         ]
     }
 }

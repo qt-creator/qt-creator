@@ -34,7 +34,7 @@
  */
 
 #include "pythonhighlighter.h"
-#include "lexical/pythonscanner.h"
+#include "pythonscanner.h"
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditorconstants.h>
@@ -62,21 +62,20 @@ namespace Internal {
 
 PythonHighlighter::PythonHighlighter()
 {
-    static QVector<TextEditor::TextStyle> categories;
-    if (categories.isEmpty()) {
-        categories << TextEditor::C_NUMBER
-                   << TextEditor::C_STRING
-                   << TextEditor::C_KEYWORD
-                   << TextEditor::C_TYPE
-                   << TextEditor::C_FIELD
-                   << TextEditor::C_JS_SCOPE_VAR
-                   << TextEditor::C_OPERATOR
-                   << TextEditor::C_COMMENT
-                   << TextEditor::C_DOXYGEN_COMMENT
-                   << TextEditor::C_TEXT
-                   << TextEditor::C_VISUAL_WHITESPACE
-                   << TextEditor::C_STRING;
-    }
+    static const QVector<TextEditor::TextStyle> categories = {
+        TextEditor::C_NUMBER,
+        TextEditor::C_STRING,
+        TextEditor::C_KEYWORD,
+        TextEditor::C_TYPE,
+        TextEditor::C_FIELD,
+        TextEditor::C_JS_SCOPE_VAR,
+        TextEditor::C_OPERATOR,
+        TextEditor::C_COMMENT,
+        TextEditor::C_DOXYGEN_COMMENT,
+        TextEditor::C_TEXT,
+        TextEditor::C_VISUAL_WHITESPACE,
+        TextEditor::C_STRING
+    };
     setTextFormatCategories(categories);
 }
 
@@ -102,7 +101,7 @@ void PythonHighlighter::highlightBlock(const QString &text)
  */
 static bool isImportKeyword(const QString &keyword)
 {
-    return keyword == QLatin1String("import") || keyword == QLatin1String("from");
+    return keyword == "import" || keyword == "from";
 }
 
 /**

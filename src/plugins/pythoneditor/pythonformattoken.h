@@ -25,61 +25,45 @@
 
 #pragma once
 
-#include "pythonformattoken.h"
-#include "sourcecodestream.h"
-
-#include <QString>
-#include <QSet>
-
 namespace PythonEditor {
 namespace Internal {
 
-/**
- * @brief The Scanner class - scans source code for highlighting only
- */
-class Scanner
+enum Format {
+    Format_Number = 0,
+    Format_String,
+    Format_Keyword,
+    Format_Type,
+    Format_ClassField,
+    Format_MagicAttr, // magic class attribute/method, like __name__, __init__
+    Format_Operator,
+    Format_Comment,
+    Format_Doxygen,
+    Format_Identifier,
+    Format_Whitespace,
+    Format_ImportedModule,
+
+    Format_FormatsAmount,
+    Format_EndOfBlock
+};
+
+class FormatToken
 {
-    Scanner(const Scanner &other);
-    void operator =(const Scanner &other);
-
 public:
-    enum State {
-        State_Default,
-        State_String,
-        State_MultiLineString
-    };
+    FormatToken() {}
 
-    Scanner(const QChar *text, const int length);
-    ~Scanner();
+    FormatToken(Format format, int position, int length)
+        : m_format(format), m_position(position), m_length(length)
+    {}
 
-    void setState(int state);
-    int state() const;
-    FormatToken read();
-    QString value(const FormatToken& tk) const;
+    Format format() const { return m_format; }
+    int begin() const { return m_position; }
+    int end() const { return m_position + m_length; }
+    int length() const { return m_length; }
 
 private:
-    FormatToken onDefaultState();
-
-    void checkEscapeSequence(QChar quoteChar);
-    FormatToken readStringLiteral(QChar quoteChar);
-    FormatToken readMultiLineStringLiteral(QChar quoteChar);
-    FormatToken readIdentifier();
-    FormatToken readNumber();
-    FormatToken readFloatNumber();
-    FormatToken readComment();
-    FormatToken readDoxygenComment();
-    FormatToken readWhiteSpace();
-    FormatToken readOperator();
-
-    void clearState();
-    void saveState(State state, QChar savedData);
-    void parseState(State &state, QChar &savedData) const;
-
-    SourceCodeStream m_src;
-    int m_state;
-    const QSet<QString> m_keywords;
-    const QSet<QString> m_magics;
-    const QSet<QString> m_builtins;
+    Format m_format;
+    int m_position;
+    int m_length;
 };
 
 } // namespace Internal
