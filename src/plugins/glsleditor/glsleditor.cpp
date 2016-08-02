@@ -163,15 +163,6 @@ GlslEditorWidget::GlslEditorWidget()
     m_outlineCombo->setSizePolicy(policy);
 
     insertExtraToolBarWidget(TextEditorWidget::Left, m_outlineCombo);
-
-//    if (m_modelManager) {
-//        m_semanticHighlighter->setModelManager(m_modelManager);
-//        connect(m_modelManager, SIGNAL(documentUpdated(GLSL::Document::Ptr)),
-//                this, SLOT(onDocumentUpdated(GLSL::Document::Ptr)));
-//        connect(m_modelManager, SIGNAL(libraryInfoUpdated(QString,GLSL::LibraryInfo)),
-//                this, SLOT(forceSemanticRehighlight()));
-//        connect(this->document(), SIGNAL(modificationChanged(bool)), this, SLOT(modificationChanged(bool)));
-//    }
 }
 
 int GlslEditorWidget::editorRevision() const
