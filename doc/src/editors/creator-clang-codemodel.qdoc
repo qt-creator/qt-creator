@@ -84,8 +84,37 @@
     include several files, processing a single file and all the included files
     can take a while.
 
-    To make parsing faster, pre-compiled headers are ignored by default. You can
-    specify that Clang processes them in \uicontrol {Code Model} options.
+    To make parsing faster, pre-compiled headers are ignored by default. To
+    specify that Clang processes them, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol C++ > \uicontrol {Code Model}, and
+    deselect the \uicontrol {Ignore pre-compiled headers} check box.
+
+    When Clang encounters risky or possibly erroneous constructions, it issues
+    warnings. To request or suppress warnings, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol C++ > \uicontrol {Code Model}. You can
+    either select one of the predefined configurations, or create a copy of a
+    configuration and edit it to fit your needs:
+
+    \list
+
+        \li \uicontrol {Pedantic Warnings} uses the \c -Wpendantic option that
+            requests all the warnings demanded by strict ISO C and ISO C++.
+
+        \li \uicontrol {Warnings for Questionable Constructs} combines the
+            \c -Wall and \c -Wextra options to request all warnings about easily
+            avoidable questionable constructions and some additional warnings.
+
+        \li \uicontrol {Warnings for Almost Everything} uses the \c -Weverything
+            option with negative options to suppress some warnings.
+
+    \endlist
+
+    You can edit the predefined configurations to request specific warnings
+    beginning with \c -W. Each of these warnings also has a negative version
+    that begins with \c -Wno. Keep in mind that some options turn on other
+    options. For more information, see
+    \l{https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html}
+    {Options to Request or Suppress Warnings} or the GCC or Clang manual pages.
 
     The following services are currently implemented in the experimental Clang
     code model plugin:
@@ -147,8 +176,17 @@
 
         \li Restart \QC to be able to use the plugin.
 
-        \li To process pre-compiled headers before processing any project files,
-            deselect the \uicontrol {Ignore pre-compiled headers} check box.
+        \li To specify settings for the Clang code model, select
+            \uicontrol Tools > \uicontrol Options > \uicontrol C++ >
+            \uicontrol {Code Model}.
+
+            \image qtcreator-clang-code-model-options.png
+
+        \li In the \uicontrol {Configuration to use} list, select the
+            warnings to request.
+
+        \li To have Clang process pre-compiled headers, deselect the
+            \uicontrol {Ignore pre-compiled headers} check box.
 
     \endlist
 
