@@ -151,6 +151,7 @@
   </customwidget>
  </customwidgets>
  <tabstops>
+  <tabstop>useFallbackLocation</tabstop>
   <tabstop>ignoreEdit</tabstop>
  </tabstops>
  <resources/>

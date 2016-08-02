@@ -73,6 +73,11 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>protocolBox</tabstop>
+  <tabstop>pasteEdit</tabstop>
+  <tabstop>listWidget</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

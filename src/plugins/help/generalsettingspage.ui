@@ -391,6 +391,20 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>familyComboBox</tabstop>
+  <tabstop>styleComboBox</tabstop>
+  <tabstop>sizeComboBox</tabstop>
+  <tabstop>contextHelpComboBox</tabstop>
+  <tabstop>helpStartComboBox</tabstop>
+  <tabstop>homePageLineEdit</tabstop>
+  <tabstop>currentPageButton</tabstop>
+  <tabstop>blankPageButton</tabstop>
+  <tabstop>defaultPageButton</tabstop>
+  <tabstop>m_returnOnClose</tabstop>
+  <tabstop>importButton</tabstop>
+  <tabstop>exportButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

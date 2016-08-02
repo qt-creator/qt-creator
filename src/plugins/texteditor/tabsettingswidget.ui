@@ -230,6 +230,7 @@ Influences the indentation of continuation lines.
   </layout>
  </widget>
  <tabstops>
+  <tabstop>tabPolicy</tabstop>
   <tabstop>tabSize</tabstop>
   <tabstop>indentSize</tabstop>
   <tabstop>continuationAlignBehavior</tabstop>

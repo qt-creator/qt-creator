@@ -434,6 +434,23 @@ With cache simulation, further event counters are enabled:
    <container>1</container>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>smcDetectionComboBox</tabstop>
+  <tabstop>trackOrigins</tabstop>
+  <tabstop>showReachable</tabstop>
+  <tabstop>leakCheckOnFinish</tabstop>
+  <tabstop>numCallers</tabstop>
+  <tabstop>suppressionList</tabstop>
+  <tabstop>addSuppression</tabstop>
+  <tabstop>removeSuppression</tabstop>
+  <tabstop>minimumInclusiveCostRatio</tabstop>
+  <tabstop>visualisationMinimumInclusiveCostRatio</tabstop>
+  <tabstop>enableEventToolTips</tabstop>
+  <tabstop>enableCacheSim</tabstop>
+  <tabstop>enableBranchSim</tabstop>
+  <tabstop>collectSystime</tabstop>
+  <tabstop>collectBusEvents</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

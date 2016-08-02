@@ -60,6 +60,11 @@
   <zorder>commandLabel</zorder>
   <zorder>commandLineEdit</zorder>
  </widget>
+ <tabstops>
+  <tabstop>commandLineEdit</tabstop>
+  <tabstop>argumentsTextEdit</tabstop>
+  <tabstop>resetDefaultsButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

@@ -168,6 +168,12 @@
    </slots>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>defaultUsernameLineEdit</tabstop>
+  <tabstop>defaultEmailLineEdit</tabstop>
+  <tabstop>logEntriesCount</tabstop>
+  <tabstop>timeout</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

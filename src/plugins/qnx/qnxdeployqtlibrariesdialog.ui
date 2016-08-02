@@ -112,6 +112,13 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>qtLibraryCombo</tabstop>
+  <tabstop>deployButton</tabstop>
+  <tabstop>remoteDirectory</tabstop>
+  <tabstop>deployLogWindow</tabstop>
+  <tabstop>closeButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

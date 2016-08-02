@@ -460,10 +460,22 @@ Specifies how backspace interacts with indentation.
   </customwidget>
  </customwidgets>
  <tabstops>
+  <tabstop>autoIndent</tabstop>
+  <tabstop>smartBackspaceBehavior</tabstop>
+  <tabstop>tabKeyBehavior</tabstop>
   <tabstop>cleanWhitespace</tabstop>
   <tabstop>inEntireDocument</tabstop>
   <tabstop>cleanIndentation</tabstop>
   <tabstop>addFinalNewLine</tabstop>
+  <tabstop>encodingBox</tabstop>
+  <tabstop>utf8BomBox</tabstop>
+  <tabstop>mouseHiding</tabstop>
+  <tabstop>mouseNavigation</tabstop>
+  <tabstop>scrollWheelZooming</tabstop>
+  <tabstop>camelCaseNavigation</tabstop>
+  <tabstop>smartSelectionChanging</tabstop>
+  <tabstop>keyboardTooltips</tabstop>
+  <tabstop>constrainTooltipsBox</tabstop>
  </tabstops>
  <resources/>
  <connections>

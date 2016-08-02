@@ -199,10 +199,15 @@
  </widget>
  <tabstops>
   <tabstop>itemList</tabstop>
+  <tabstop>foregroundToolButton</tabstop>
+  <tabstop>eraseForegroundToolButton</tabstop>
   <tabstop>backgroundToolButton</tabstop>
   <tabstop>eraseBackgroundToolButton</tabstop>
   <tabstop>boldCheckBox</tabstop>
   <tabstop>italicCheckBox</tabstop>
+  <tabstop>underlineColorToolButton</tabstop>
+  <tabstop>eraseUnderlineColorToolButton</tabstop>
+  <tabstop>underlineComboBox</tabstop>
  </tabstops>
  <resources/>
  <connections/>

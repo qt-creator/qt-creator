@@ -467,6 +467,31 @@
    <header location="global">utils/pathchooser.h</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>spinSnapMargin</tabstop>
+  <tabstop>spinItemSpacing</tabstop>
+  <tabstop>spinCanvasWidth</tabstop>
+  <tabstop>spinCanvasHeight</tabstop>
+  <tabstop>styleLineEdit</tabstop>
+  <tabstop>resetStyle</tabstop>
+  <tabstop>controls2StyleComboBox</tabstop>
+  <tabstop>useDefaultPuppetRadioButton</tabstop>
+  <tabstop>resetFallbackPuppetPathButton</tabstop>
+  <tabstop>useQtRelatedPuppetRadioButton</tabstop>
+  <tabstop>resetQmlPuppetBuildPathButton</tabstop>
+  <tabstop>alwaysSaveSubcomponentsCheckBox</tabstop>
+  <tabstop>designerWarningsCheckBox</tabstop>
+  <tabstop>designerWarningsInEditorCheckBox</tabstop>
+  <tabstop>designerWarningsUiQmlfiles</tabstop>
+  <tabstop>useQsTrFunctionRadioButton</tabstop>
+  <tabstop>useQsTrIdFunctionRadioButton</tabstop>
+  <tabstop>designerShowDebuggerCheckBox</tabstop>
+  <tabstop>showPropertyEditorWarningsCheckBox</tabstop>
+  <tabstop>forwardPuppetOutputComboBox</tabstop>
+  <tabstop>designerEnableDebuggerCheckBox</tabstop>
+  <tabstop>showWarnExceptionsCheckBox</tabstop>
+  <tabstop>debugPuppetComboBox</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

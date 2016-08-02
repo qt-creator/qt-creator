@@ -220,12 +220,14 @@ p, li { white-space: pre-wrap; }
   </customwidget>
  </customwidgets>
  <tabstops>
+  <tabstop>protocolBox</tabstop>
+  <tabstop>expirySpinBox</tabstop>
   <tabstop>uiUsername</tabstop>
   <tabstop>uiDescription</tabstop>
   <tabstop>uiComment</tabstop>
-  <tabstop>buttonBox</tabstop>
   <tabstop>uiPatchList</tabstop>
   <tabstop>uiPatchView</tabstop>
+  <tabstop>plainTextEdit</tabstop>
  </tabstops>
  <resources/>
  <connections>

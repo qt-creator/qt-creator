@@ -76,6 +76,12 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>configChooserComboBox</tabstop>
+  <tabstop>copyButton</tabstop>
+  <tabstop>removeButton</tabstop>
+  <tabstop>diagnosticOptionsTextEdit</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

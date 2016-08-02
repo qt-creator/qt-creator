@@ -277,6 +277,14 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>buildConfigurationComboBox</tabstop>
+  <tabstop>qmakeAdditonalArgumentsLineEdit</tabstop>
+  <tabstop>separateDebugInfoCheckBox</tabstop>
+  <tabstop>qmlDebuggingLibraryCheckBox</tabstop>
+  <tabstop>qtQuickCompilerCheckBox</tabstop>
+  <tabstop>qmakeArgumentsEdit</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

@@ -170,6 +170,13 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>lookingForDeviceCancel</tabstop>
+  <tabstop>deviceView</tabstop>
+  <tabstop>defaultDeviceCheckBox</tabstop>
+  <tabstop>refreshDevicesButton</tabstop>
+  <tabstop>createAVDButton</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

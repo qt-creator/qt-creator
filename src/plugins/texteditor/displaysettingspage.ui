@@ -179,6 +179,24 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>enableTextWrapping</tabstop>
+  <tabstop>showWrapColumn</tabstop>
+  <tabstop>wrapColumn</tabstop>
+  <tabstop>displayLineNumbers</tabstop>
+  <tabstop>displayFoldingMarkers</tabstop>
+  <tabstop>markTextChanges</tabstop>
+  <tabstop>visualizeWhitespace</tabstop>
+  <tabstop>centerOnScroll</tabstop>
+  <tabstop>autoFoldFirstComment</tabstop>
+  <tabstop>scrollBarHighlights</tabstop>
+  <tabstop>highlightCurrentLine</tabstop>
+  <tabstop>highlightBlocks</tabstop>
+  <tabstop>animateMatchingParentheses</tabstop>
+  <tabstop>highlightMatchingParentheses</tabstop>
+  <tabstop>openLinksInNextSplit</tabstop>
+  <tabstop>displayFileEncoding</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

@@ -129,6 +129,13 @@
    </slots>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>rootLineEdit</tabstop>
+  <tabstop>timeOutSpinBox</tabstop>
+  <tabstop>diffOptionsLineEdit</tabstop>
+  <tabstop>promptToSubmitCheckBox</tabstop>
+  <tabstop>describeByCommitIdCheckBox</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

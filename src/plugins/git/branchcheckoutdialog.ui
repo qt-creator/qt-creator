@@ -89,8 +89,10 @@
   </layout>
  </widget>
  <tabstops>
+  <tabstop>makeStashRadioButton</tabstop>
+  <tabstop>moveChangesRadioButton</tabstop>
   <tabstop>discardChangesRadioButton</tabstop>
-  <tabstop>buttonBox</tabstop>
+  <tabstop>popStashCheckBox</tabstop>
  </tabstops>
  <resources/>
  <connections>

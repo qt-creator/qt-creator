@@ -144,6 +144,12 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>loadedRadioButton</tabstop>
+  <tabstop>loadedText</tabstop>
+  <tabstop>updatedRadioButton</tabstop>
+  <tabstop>updatedText</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

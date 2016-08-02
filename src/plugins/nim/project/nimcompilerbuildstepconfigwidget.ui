@@ -89,6 +89,12 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>targetComboBox</tabstop>
+  <tabstop>defaultArgumentsComboBox</tabstop>
+  <tabstop>additionalArgumentsLineEdit</tabstop>
+  <tabstop>commandTextEdit</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

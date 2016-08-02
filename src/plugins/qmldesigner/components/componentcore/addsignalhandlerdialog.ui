@@ -112,6 +112,12 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>comboBox</tabstop>
+  <tabstop>frequent</tabstop>
+  <tabstop>properties</tabstop>
+  <tabstop>all</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

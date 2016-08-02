@@ -210,6 +210,12 @@
  </customwidgets>
  <tabstops>
   <tabstop>pathLineEdit</tabstop>
+  <tabstop>winHomeCheckBox</tabstop>
+  <tabstop>logCountSpinBox</tabstop>
+  <tabstop>timeoutSpinBox</tabstop>
+  <tabstop>pullRebaseCheckBox</tabstop>
+  <tabstop>showTagsCheckBox</tabstop>
+  <tabstop>gitkOptionsLineEdit</tabstop>
  </tabstops>
  <resources/>
  <connections/>

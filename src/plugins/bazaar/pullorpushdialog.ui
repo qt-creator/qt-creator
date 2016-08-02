@@ -176,6 +176,18 @@ Local pulls are not applied to the master branch.</string>
    </slots>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>defaultButton</tabstop>
+  <tabstop>localButton</tabstop>
+  <tabstop>urlButton</tabstop>
+  <tabstop>urlLineEdit</tabstop>
+  <tabstop>rememberCheckBox</tabstop>
+  <tabstop>overwriteCheckBox</tabstop>
+  <tabstop>localCheckBox</tabstop>
+  <tabstop>useExistingDirCheckBox</tabstop>
+  <tabstop>createPrefixCheckBox</tabstop>
+  <tabstop>revisionLineEdit</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

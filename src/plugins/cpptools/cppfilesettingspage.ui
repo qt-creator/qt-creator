@@ -218,6 +218,15 @@ These prefixes are used in addition to current file name on Switch Header/Source
    </slots>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>headerSuffixComboBox</tabstop>
+  <tabstop>headerSearchPathsEdit</tabstop>
+  <tabstop>headerPrefixesEdit</tabstop>
+  <tabstop>sourceSuffixComboBox</tabstop>
+  <tabstop>sourceSearchPathsEdit</tabstop>
+  <tabstop>sourcePrefixesEdit</tabstop>
+  <tabstop>lowerCaseFileNamesCheckBox</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

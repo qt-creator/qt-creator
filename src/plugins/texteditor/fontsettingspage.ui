@@ -197,6 +197,15 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>fontComboBox</tabstop>
+  <tabstop>sizeComboBox</tabstop>
+  <tabstop>zoomSpinBox</tabstop>
+  <tabstop>antialias</tabstop>
+  <tabstop>schemeComboBox</tabstop>
+  <tabstop>copyButton</tabstop>
+  <tabstop>deleteButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

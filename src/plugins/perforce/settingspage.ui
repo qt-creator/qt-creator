@@ -210,9 +210,15 @@
   </customwidget>
  </customwidgets>
  <tabstops>
+  <tabstop>environmentGroupBox</tabstop>
   <tabstop>portLineEdit</tabstop>
   <tabstop>clientLineEdit</tabstop>
   <tabstop>userLineEdit</tabstop>
+  <tabstop>logCountSpinBox</tabstop>
+  <tabstop>timeOutSpinBox</tabstop>
+  <tabstop>promptToSubmitCheckBox</tabstop>
+  <tabstop>autoOpenCheckBox</tabstop>
+  <tabstop>testPushButton</tabstop>
  </tabstops>
  <resources/>
  <connections/>

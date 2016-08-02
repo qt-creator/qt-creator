@@ -123,9 +123,12 @@
  </widget>
  <tabstops>
   <tabstop>groupCombo</tabstop>
+  <tabstop>snippetsTable</tabstop>
   <tabstop>addButton</tabstop>
   <tabstop>removeButton</tabstop>
-  <tabstop>snippetsTable</tabstop>
+  <tabstop>revertButton</tabstop>
+  <tabstop>restoreRemovedButton</tabstop>
+  <tabstop>resetAllButton</tabstop>
  </tabstops>
  <resources/>
  <connections/>

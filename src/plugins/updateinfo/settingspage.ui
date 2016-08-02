@@ -145,6 +145,11 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>m_updatesGroupBox</tabstop>
+  <tabstop>m_checkIntervalComboBox</tabstop>
+  <tabstop>m_checkNowButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

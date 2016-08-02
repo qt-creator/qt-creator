@@ -83,6 +83,13 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>defaultProtocol</tabstop>
+  <tabstop>userEdit</tabstop>
+  <tabstop>expirySpinBox</tabstop>
+  <tabstop>clipboardBox</tabstop>
+  <tabstop>displayBox</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

@@ -256,6 +256,18 @@
    <header location="global">utils/fancylineedit.h</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>buildVariantComboBox</tabstop>
+  <tabstop>jobSpinBox</tabstop>
+  <tabstop>qmlDebuggingLibraryCheckBox</tabstop>
+  <tabstop>propertyEdit</tabstop>
+  <tabstop>keepGoingCheckBox</tabstop>
+  <tabstop>showCommandLinesCheckBox</tabstop>
+  <tabstop>forceProbesCheckBox</tabstop>
+  <tabstop>installCheckBox</tabstop>
+  <tabstop>cleanInstallRootCheckBox</tabstop>
+  <tabstop>commandLineTextEdit</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

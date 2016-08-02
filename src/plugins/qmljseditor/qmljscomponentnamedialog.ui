@@ -110,6 +110,11 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>componentNameEdit</tabstop>
+  <tabstop>listWidget</tabstop>
+  <tabstop>plainTextEdit</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
