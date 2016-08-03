@@ -27,6 +27,8 @@
 
 #include <utils/mimetypes/mimetype.h>
 
+#include <QList>
+
 namespace Beautifier {
 namespace Internal {
 

@@ -33,6 +33,7 @@
 #include <QString>
 #include <QUrl>
 #include <QFileSystemWatcher>
+#include <QMultiHash>
 #include <QPointer>
 #include <QFileInfo>
 
