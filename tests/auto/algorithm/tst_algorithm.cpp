@@ -33,6 +33,7 @@ class tst_Algorithm : public QObject
 
 private slots:
     void transform();
+    void sort();
 };
 
 
@@ -109,6 +110,32 @@ void tst_Algorithm::transform()
         qSort(i3);
         QCOMPARE(i3, QList<int>({1, 1, 3}));
     }
+}
+
+namespace {
+struct Struct
+{
+    Struct(int m) : member(m) {}
+    bool operator==(const Struct &other) const { return member == other.member; }
+
+    int member;
+};
+}
+
+void tst_Algorithm::sort()
+{
+    QStringList s1({"3", "2", "1"});
+    Utils::sort(s1);
+    QCOMPARE(s1, QStringList({"1", "2", "3"}));
+    QStringList s2({"13", "31", "22"});
+    Utils::sort(s2, [](const QString &a, const QString &b) { return a[1] < b[1]; });
+    QCOMPARE(s2, QStringList({"31", "22", "13"}));
+    QList<QString> s3({"12345", "3333", "22"});
+    Utils::sort(s3, &QString::size);
+    QCOMPARE(s3, QList<QString>({"22", "3333", "12345"}));
+    QList<Struct> s4({4, 3, 2, 1});
+    Utils::sort(s4, &Struct::member);
+    QCOMPARE(s4, QList<Struct>({1, 2, 3, 4}));
 }
 
 QTEST_MAIN(tst_Algorithm)

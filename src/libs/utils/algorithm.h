@@ -384,6 +384,24 @@ inline void sort(Container &c, Predicate p)
     std::sort(c.begin(), c.end(), p);
 }
 
+// pointer to member
+template <typename Container, typename R, typename S>
+inline void sort(Container &c, R S::*member)
+{
+    std::sort(c.begin(), c.end(), [member](const S &a, const S &b) {
+        return a.*member < b.*member;
+    });
+}
+
+// pointer to member function
+template <typename Container, typename R, typename S>
+inline void sort(Container &c, R (S::*function)() const)
+{
+    std::sort(c.begin(), c.end(), [function](const S &a, const S &b) {
+        return (a.*function)() < (b.*function)();
+    });
+}
+
 //////////////////
 // reverseForeach
 /////////////////
