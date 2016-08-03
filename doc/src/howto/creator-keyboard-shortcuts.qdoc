@@ -469,6 +469,37 @@
             \li  Alt+V, n, where n is the number of the user action, from 1 to 9
     \endtable
 
+    \section3 Emacs Shortcuts
+
+    You can specify shortcuts for executing actions in a way that is familiar to
+    \l{https://www.gnu.org/software/emacs/manual/html_node/emacs/index.html}
+    {Emacs} editor users. The actions are not bound to any key combinations by
+    default. The following actions are available:
+
+    \list
+        \li Copy
+        \li Cut
+        \li Delete Character
+        \li Exchange Cursor and Mark
+        \li Go to File End
+        \li Go to File Start
+        \li Go to Line End
+        \li Go to Line Start
+        \li Go to Next Character
+        \li Go to Next Line
+        \li Go to Next Word
+        \li Go to Previous Character
+        \li Go to Previous Line
+        \li Go to Previous Word
+        \li Insert Line and Indent
+        \li Kill Line
+        \li Kill Word
+        \li Mark
+        \li Scroll Half Screen Down
+        \li Scroll Half Screen Up
+        \li Yank
+    \endlist
+
     \section2 Image Viewer Shortcuts
 
     \table
