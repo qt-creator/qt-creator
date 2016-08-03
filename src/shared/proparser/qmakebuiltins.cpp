@@ -40,11 +40,9 @@
 #include <qset.h>
 #include <qstringlist.h>
 #include <qtextstream.h>
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-# include <qjsondocument.h>
-# include <qjsonobject.h>
-# include <qjsonarray.h>
-#endif
+#include <qjsondocument.h>
+#include <qjsonobject.h>
+#include <qjsonarray.h>
 #ifdef PROEVALUATOR_THREAD_SAFE
 # include <qthreadpool.h>
 #endif
@@ -168,9 +166,7 @@ void QMakeEvaluator::initFunctionStatics()
         { "infile", T_INFILE },
         { "count", T_COUNT },
         { "isEmpty", T_ISEMPTY },
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
         { "parseJson", T_PARSE_JSON },
-#endif
         { "load", T_LOAD },
         { "include", T_INCLUDE },
         { "debug", T_DEBUG },
@@ -279,7 +275,6 @@ QMakeEvaluator::quoteValue(const ProString &val)
     return ret;
 }
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 static void addJsonValue(const QJsonValue &value, const QString &keyPrefix, ProValueMap *map);
 
 static void insertJsonKeyValue(const QString &key, const QStringList &values, ProValueMap *map)
@@ -346,7 +341,6 @@ static QMakeEvaluator::VisitReturn parseJsonInto(const QByteArray &json, const Q
 
     return QMakeEvaluator::ReturnTrue;
 }
-#endif
 
 QMakeEvaluator::VisitReturn
 QMakeEvaluator::writeFile(const QString &ctx, const QString &fn, QIODevice::OpenMode mode,
@@ -1362,7 +1356,6 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
             m_valuemapStack.top()[var] = statics.fakeValue;
         return ReturnTrue;
     }
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     case T_PARSE_JSON: {
         if (args.count() != 2) {
             evalError(fL1S("parseJson(variable, into) requires two arguments."));
@@ -1373,7 +1366,6 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
         QString parseInto = args.at(1).toQString(m_tmp2);
         return parseJsonInto(json, parseInto, &m_valuemapStack.top());
     }
-#endif
     case T_INCLUDE: {
         if (args.count() < 1 || args.count() > 3) {
             evalError(fL1S("include(file, [into, [silent]]) requires one, two or three arguments."));
