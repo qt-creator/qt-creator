@@ -50,6 +50,8 @@ wrapper.bat
 app_version.h
 /src/plugins/coreplugin/ide_version.h
 /share/qtcreator/externaltools
+/share/qtcreator/fonts/
+/share/qtcreator/generic-highlighter/
 phony.c
 
 # xemacs temporary files
@@ -95,6 +97,7 @@ phony.c
 debug/
 release/
 /lib/
+/libexec/
 /lib64/
 /*-debug/
 /*-release/
