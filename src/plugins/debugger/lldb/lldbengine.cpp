@@ -248,8 +248,7 @@ void LldbEngine::setupEngine()
 void LldbEngine::startLldb()
 {
     QString lldbCmd = runParameters().debugger.executable;
-    connect(&m_lldbProc, static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
-            this, &LldbEngine::handleLldbError);
+    connect(&m_lldbProc, &QProcess::errorOccurred, this, &LldbEngine::handleLldbError);
     connect(&m_lldbProc, static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
             this, &LldbEngine::handleLldbFinished);
     connect(&m_lldbProc, &QProcess::readyReadStandardOutput,

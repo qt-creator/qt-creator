@@ -100,14 +100,12 @@ ApplicationLauncher::ApplicationLauncher(QObject *parent) : QObject(parent),
     }
     connect(&d->m_guiProcess, &QProcess::readyReadStandardOutput,
             this, &ApplicationLauncher::readStandardOutput);
-    connect(&d->m_guiProcess, static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
+    connect(&d->m_guiProcess, &QProcess::errorOccurred,
             this, &ApplicationLauncher::guiProcessError);
     connect(&d->m_guiProcess, static_cast<void (QProcess::*)(int,QProcess::ExitStatus)>(&QProcess::finished),
             this, &ApplicationLauncher::processDone);
-    connect(&d->m_guiProcess, &QProcess::started,
-            this, &ApplicationLauncher::bringToForeground);
-    connect(&d->m_guiProcess, static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
-            this, &ApplicationLauncher::error);
+    connect(&d->m_guiProcess, &QProcess::started, this, &ApplicationLauncher::bringToForeground);
+    connect(&d->m_guiProcess, &QProcess::errorOccurred, this, &ApplicationLauncher::error);
 
 #ifdef Q_OS_UNIX
     d->m_consoleProcess.setSettings(Core::ICore::settings());

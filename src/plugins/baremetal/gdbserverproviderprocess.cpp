@@ -48,11 +48,8 @@ GdbServerProviderProcess::GdbServerProviderProcess(
     if (Utils::HostOsInfo::isWindowsHost())
         m_process->setUseCtrlCStub(true);
 
-    connect(m_process,
-            static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
-            this, &GdbServerProviderProcess::error);
-    connect(m_process,
-            static_cast<void (QProcess::*)(int)>(&QProcess::finished),
+    connect(m_process, &QProcess::errorOccurred, this, &GdbServerProviderProcess::error);
+    connect(m_process, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
             this, &GdbServerProviderProcess::finished);
 
     connect(m_process, &QProcess::readyReadStandardOutput,

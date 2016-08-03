@@ -739,7 +739,7 @@ void QtcProcess::start()
             setErrorString(tr("Error in command line."));
             // Should be FailedToStart, but we cannot set the process error from the outside,
             // so it would be inconsistent.
-            emit error(QProcess::UnknownError);
+            emit errorOccurred(QProcess::UnknownError);
             return;
         }
         QProcess::start(command, arguments.toUnixArgs());

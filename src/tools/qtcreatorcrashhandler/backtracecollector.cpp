@@ -52,9 +52,7 @@ BacktraceCollector::BacktraceCollector(QObject *parent) :
     connect(&d->debugger,
             static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
             this, &BacktraceCollector::onDebuggerFinished);
-    connect(&d->debugger,
-            static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
-            this, &BacktraceCollector::onDebuggerError);
+    connect(&d->debugger, &QProcess::errorOccurred, this, &BacktraceCollector::onDebuggerError);
     connect(&d->debugger, &QIODevice::readyRead,
             this, &BacktraceCollector::onDebuggerOutputAvailable);
     d->debugger.setProcessChannelMode(QProcess::MergedChannels);

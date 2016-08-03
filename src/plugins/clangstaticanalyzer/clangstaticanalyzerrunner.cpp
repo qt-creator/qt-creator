@@ -84,14 +84,11 @@ ClangStaticAnalyzerRunner::ClangStaticAnalyzerRunner(const QString &clangExecuta
     m_process.setProcessChannelMode(QProcess::MergedChannels);
     m_process.setProcessEnvironment(environment.toProcessEnvironment());
     m_process.setWorkingDirectory(m_clangLogFileDir); // Current clang-cl puts log file into working dir.
-    connect(&m_process, &QProcess::started,
-            this, &ClangStaticAnalyzerRunner::onProcessStarted);
+    connect(&m_process, &QProcess::started, this, &ClangStaticAnalyzerRunner::onProcessStarted);
     connect(&m_process, static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
             this, &ClangStaticAnalyzerRunner::onProcessFinished);
-    connect(&m_process, static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
-            this, &ClangStaticAnalyzerRunner::onProcessError);
-    connect(&m_process, &QProcess::readyRead,
-            this, &ClangStaticAnalyzerRunner::onProcessOutput);
+    connect(&m_process, &QProcess::errorOccurred, this, &ClangStaticAnalyzerRunner::onProcessError);
+    connect(&m_process, &QProcess::readyRead, this, &ClangStaticAnalyzerRunner::onProcessOutput);
 }
 
 ClangStaticAnalyzerRunner::~ClangStaticAnalyzerRunner()

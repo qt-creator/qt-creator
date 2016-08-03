@@ -102,9 +102,7 @@ void WinRtDeviceFactory::autoDetect()
 
     if (!m_process) {
         m_process = new Utils::QtcProcess(this);
-        connect(m_process,
-                static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
-                this, &WinRtDeviceFactory::onProcessError);
+        connect(m_process, &QProcess::errorOccurred, this, &WinRtDeviceFactory::onProcessError);
         connect(m_process,
                 static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
                 this, &WinRtDeviceFactory::onProcessFinished);

@@ -231,9 +231,7 @@ IosToolHandlerPrivate::IosToolHandlerPrivate(const IosDeviceType &devType,
     QObject::connect(&process,
                      static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
                      q, &IosToolHandler::subprocessFinished);
-    QObject::connect(&process,
-                     static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
-                     q, &IosToolHandler::subprocessError);
+    QObject::connect(&process, &QProcess::errorOccurred, q, &IosToolHandler::subprocessError);
     QObject::connect(&killTimer, &QTimer::timeout,
                      q, &IosToolHandler::killProcess);
 }

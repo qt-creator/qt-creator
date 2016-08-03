@@ -3990,8 +3990,7 @@ void GdbEngine::startGdb(const QStringList &args)
         gdbArgs << "-n";
     gdbArgs += args;
 
-    connect(&m_gdbProc, static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
-            this, &GdbEngine::handleGdbError);
+    connect(&m_gdbProc, &QProcess::errorOccurred, this, &GdbEngine::handleGdbError);
     connect(&m_gdbProc,  static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
             this, &GdbEngine::handleGdbFinished);
     connect(&m_gdbProc, &QtcProcess::readyReadStandardOutput, this, &GdbEngine::readGdbStandardOutput);

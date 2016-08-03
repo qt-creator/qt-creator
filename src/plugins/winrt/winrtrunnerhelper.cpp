@@ -232,8 +232,7 @@ void WinRtRunnerHelper::startWinRtRunner(const RunConf &conf)
         connect(process,
                 static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
                 this, &WinRtRunnerHelper::onProcessFinished);
-        connect(process, static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
-                this, &WinRtRunnerHelper::onProcessError);
+        connect(process, &QProcess::errorOccurred, this, &WinRtRunnerHelper::onProcessError);
         connect(process, &QProcess::readyReadStandardOutput, this, &WinRtRunnerHelper::onProcessReadyReadStdOut);
         connect(process, &QProcess::readyReadStandardError, this, &WinRtRunnerHelper::onProcessReadyReadStdErr);
     }

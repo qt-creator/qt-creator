@@ -249,8 +249,7 @@ CdbEngine::CdbEngine(const DebuggerRunParameters &sp) :
             this, &CdbEngine::createFullBacktrace);
     connect(&m_process, static_cast<void(QProcess::*)(int)>(&QProcess::finished),
             this, &CdbEngine::processFinished);
-    connect(&m_process, static_cast<void(QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
-            this, &CdbEngine::processError);
+    connect(&m_process, &QProcess::errorOccurred, this, &CdbEngine::processError);
     connect(&m_process, &QProcess::readyReadStandardOutput,
             this, &CdbEngine::readyReadStandardOut);
     connect(&m_process, &QProcess::readyReadStandardError,

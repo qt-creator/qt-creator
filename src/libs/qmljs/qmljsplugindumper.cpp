@@ -511,8 +511,7 @@ void PluginDumper::runQmlDump(const QmlJS::ModelManagerInterface::ProjectInfo &i
     process->setEnvironment(info.qmlDumpEnvironment.toStringList());
     connect(process, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
             this, &PluginDumper::qmlPluginTypeDumpDone);
-    connect(process, static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
-            this, &PluginDumper::qmlPluginTypeDumpError);
+    connect(process, &QProcess::errorOccurred, this, &PluginDumper::qmlPluginTypeDumpError);
     process->start(info.qmlDumpPath, arguments);
     m_runningQmldumps.insert(process, importPath);
 }

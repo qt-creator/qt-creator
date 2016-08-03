@@ -300,8 +300,7 @@ SynchronousProcess::SynchronousProcess() :
     connect(&d->m_process,
             static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
             this, &SynchronousProcess::finished);
-    connect(&d->m_process, static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
-            this, &SynchronousProcess::error);
+    connect(&d->m_process, &QProcess::errorOccurred, this, &SynchronousProcess::error);
     connect(&d->m_process, &QProcess::readyReadStandardOutput,
             this, [this]() {
                 d->m_hangTimerCount = 0;
