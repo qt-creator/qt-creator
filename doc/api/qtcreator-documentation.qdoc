@@ -156,7 +156,7 @@
 
     \section2 Taking Screen Shots
 
-    \QC has the native look and feel on Windows, Linux, and OS X, and therefore,
+    \QC has the native look and feel on Windows, Linux, and \macos, and therefore,
     screen shots can end up looking very different, depending on who takes them
     and which system they use. To try to preserve a consistent look and feel in
     the \QC Manual, observe the guidelines listed in this section when taking
@@ -207,7 +207,7 @@
     You can use a web service, such as \l{https://tinypng.com}, or an image
     optimization tool to shrink the images. For example, you can use the Radical
     Image Optimization Tool (RIOT) on Windows (very efficient) or ImageOptim on
-    OS X (much less efficient), or some other tool available on Linux.
+    \macos (much less efficient), or some other tool available on Linux.
 
     With ImageOptim, you simply drag and drop the image files to the
     application. The following section describes the settings to use for RIOT.
@@ -278,7 +278,7 @@
     \list
         \li  nmake docs (on Windows)
 
-        \li  make docs (on Linux and OS X)
+        \li  make docs (on Linux and \macos)
     \endlist
 
     The \QC Manual HTML files are generated in the \c {doc/html} directory.
@@ -286,7 +286,7 @@
     \c {doc/html-dev} directory. The help files (\c {.qch}) are generated in the
     \c {share/doc/qtcreator} directory in the \QC build directory on Windows and
     Linux, and in the \c {bin/Qt Creator.app/Contents/Resources/app} directory
-    on OS X. You can view the HTML files in a browser and the help files in
+    on \macos. You can view the HTML files in a browser and the help files in
     the \QC \uicontrol Help mode. For more information about adding the help
     files to \QC, see
     \l{http://doc.qt.io/qtcreator/creator-help.html#adding-external-documentation}

@@ -41,7 +41,7 @@
     (IDE) for application developers to create applications for multiple
     desktop, \l {http://doc.qt.io/QtForDeviceCreation/index.html}{embedded},
     and mobile device platforms, such as \l{Connecting Android Devices}{Android}
-    and \l{Connecting iOS Devices}{iOS}. It is available for Linux, OS X and
+    and \l{Connecting iOS Devices}{iOS}. It is available for Linux, \macos and
     Windows
     operating systems. For more information, see \l{Supported Platforms}.
 

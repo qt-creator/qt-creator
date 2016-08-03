@@ -61,7 +61,7 @@
 
         \li In the \uicontrol {Create in} field, enter the path for the project files.
             For example, \c {C:\Qt\examples}, and then click \uicontrol{Next} (on
-            Windows and Linux) or \uicontrol Continue (on OS X).
+            Windows and Linux) or \uicontrol Continue (on \macos).
 
             The \uicontrol {Kit Selection} dialog opens.
 
@@ -73,7 +73,7 @@
             \note If only one kit is specified in \uicontrol Tools > \uicontrol Options >
             \uicontrol {Build & Run} > \uicontrol Kits (on Windows and Linux) or in
             \uicontrol {Qt Creator} > \uicontrol Preferences \uicontrol {Build & Run} > \uicontrol Kits
-            (on OS X), this dialog is skipped.
+            (on \macos), this dialog is skipped.
 
             The \uicontrol{Class Information} dialog opens.
 
@@ -95,7 +95,7 @@
             \image qtcreator-new-project-summary-qt-gui.png "Project Management dialog"
 
         \li Review the project settings, and click \uicontrol{Finish} (on Windows and
-            Linux) or \uicontrol Done (on OS X) to create the project.
+            Linux) or \uicontrol Done (on \macos) to create the project.
 
     \endlist
 
@@ -164,7 +164,7 @@
 
         \li Press \key {Ctrl+A} (or \key {Cmd+A}) to select the widgets and
             click \uicontrol{Lay out Horizontally} (or press \uicontrol{Ctrl+H} on Linux or
-            Windows or \key {Ctrl+Shift+H} on OS X) to apply a horizontal
+            Windows or \key {Ctrl+Shift+H} on \macos) to apply a horizontal
             layout (QHBoxLayout).
 
             \image qtcreator-texfinder-ui-horizontal-layout.png "Applying horizontal layout"

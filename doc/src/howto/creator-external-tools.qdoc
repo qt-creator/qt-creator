@@ -81,7 +81,7 @@
     \section1 Using External Text Editors
 
     You can open files for editing in the default text editor for your system:
-    Notepad on Windows and vi on Linux and OS X.
+    Notepad on Windows and vi on Linux and \macos.
     To open the file you are currently viewing in an external editor, select
     \uicontrol Tools > \uicontrol External > \uicontrol Text >
     \uicontrol {Edit with Notepad} or \uicontrol {Edit with vi}, depending on
@@ -157,7 +157,7 @@
     The tool configurations that you add and modify are stored in XML format in
     the user configuration folder. For example,
     \c {~/config/QtProject/qtcreator/externaltools}
-    on Linux and OS X and
+    on Linux and \macos and
     \c {C:\Users\username\AppData\Roaming\QtProject\qtcreator\externaltools}
     in Windows. To share a configuration with other users, copy an XML
     configuration file to the folder.

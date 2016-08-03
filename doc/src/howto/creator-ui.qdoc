@@ -157,7 +157,7 @@
 
         \li To toggle the sidebar, click \inlineimage sidebaricon.png
             (\uicontrol {Hide Sidebar/Show Sidebar}) or press \key Alt+0
-            (\key Cmd+0 on OS X).
+            (\key Cmd+0 on \macos).
 
         \li To split the sidebar, click \inlineimage splitbutton_horizontal.png
             (\uicontrol {Split}). Select new content to view in the split view.
@@ -574,7 +574,7 @@
     \e options or \e preferences. In this manual, the names and locations on
     Windows and Linux are usually used to keep the instructions short. Here are
     some places to check if you cannot find a function, dialog, or keyboard
-    shortcut on OS X when following the instructions:
+    shortcut on \macos when following the instructions:
 
     \table
         \header

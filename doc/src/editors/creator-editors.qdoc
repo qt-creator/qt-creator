@@ -193,7 +193,7 @@
     schemas. \QC looks for a JSON schema file with a
     name that matches the name of the JSON instance file in the user
     configuration folder. For example, \c {~/config/QtProject/qtcreator/json} on
-    Linux and OS X and
+    Linux and \macos and
     \c {C:\Users\username\AppData\Roaming\QtCreator\qtcreator\json}
     in Windows. To check JSON data structure, copy the JSON schema file to the
     above folder.
@@ -2462,7 +2462,7 @@
 
     \list
 
-        \li Press \key {Ctrl+K} (\key {Cmd+K} on OS X).
+        \li Press \key {Ctrl+K} (\key {Cmd+K} on \macos).
 
         \li Select \uicontrol Tools > \uicontrol Locate.
 

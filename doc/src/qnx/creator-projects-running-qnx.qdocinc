@@ -16,7 +16,7 @@
     \QC uses the compiler specified in the QNX tool chain to build the
     application.
 
-    \note Debugging is currently only fully supported on Linux and OS X.
+    \note Debugging is currently only fully supported on Linux and \macos.
     It is not possible to insert breakpoints during runtime on Windows.
 
     \section2 Troubleshooting Errors
