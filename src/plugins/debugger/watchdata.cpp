@@ -109,7 +109,6 @@ bool isIntOrFloatType(const QString &type)
 
 WatchItem::WatchItem() :
     id(WatchItem::InvalidId),
-    state(InitialState),
     address(0),
     origaddr(0),
     size(0),
@@ -135,7 +134,6 @@ bool WatchItem::isVTablePointer() const
 
 void WatchItem::setError(const QString &msg)
 {
-    setAllUnneeded();
     value = msg;
     wantsChildren = false;
     valueEnabled = false;
@@ -178,8 +176,6 @@ void WatchItem::setValue(const QString &value0)
     // column. No need to duplicate it here.
     if (value.startsWith('(' + type + ") 0x"))
         value = value.section(QLatin1Char(' '), -1, -1);
-
-    setValueUnneeded();
 }
 
 enum GuessChildrenResult { HasChildren, HasNoChildren, HasPossiblyChildren };
@@ -257,8 +253,6 @@ QString WatchItem::toString() const
     if (!exp.isEmpty())
         str << "exp=\"" << exp << doubleQuoteComma;
 
-    if (isValueNeeded())
-        str << "value=<needed>,";
     if (!value.isEmpty())
         str << "value=\"" << value << doubleQuoteComma;
 
@@ -272,8 +266,6 @@ QString WatchItem::toString() const
 
     str << "wantsChildren=\"" << (wantsChildren ? "true" : "false") << doubleQuoteComma;
 
-    if (isChildrenNeeded())
-        str << "children=<needed>,";
     str.flush();
     if (res.endsWith(QLatin1Char(',')))
         res.truncate(res.size() - 1);
@@ -340,7 +332,6 @@ public:
             child->type = childType;
             child->address = addrbase + i * addrstep;
             child->valueEditable = true;
-            child->setAllUnneeded();
             item->appendChild(child);
         }
     }
@@ -404,8 +395,6 @@ static bool sortByName(const WatchItem *a, const WatchItem *b)
 
 void WatchItem::parseHelper(const GdbMi &input, bool maySort)
 {
-    setChildrenUnneeded();
-
     GdbMi mi = input["type"];
     if (mi.isValid())
         setType(mi.data());
@@ -445,11 +434,8 @@ void WatchItem::parseHelper(const GdbMi &input, bool maySort)
 
     mi = input["value"];
     QString enc = input["valueencoded"].data();
-    if (mi.isValid() || !enc.isEmpty()) {
+    if (mi.isValid() || !enc.isEmpty())
         setValue(decodeData(mi.data(), enc));
-    } else {
-        setValueNeeded();
-    }
 
     mi = input["size"];
     if (mi.isValid())

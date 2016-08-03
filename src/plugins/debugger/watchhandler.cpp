@@ -1220,10 +1220,8 @@ void WatchModel::fetchMore(const QModelIndex &idx)
     WatchItem *item = nonRootItemForIndex(idx);
     if (item) {
         m_expandedINames.insert(item->iname);
-        if (item->children().isEmpty()) {
-            item->setChildrenNeeded();
+        if (item->children().isEmpty())
             m_engine->expandItem(item->iname);
-        }
     }
 }
 
@@ -2088,7 +2086,6 @@ void WatchHandler::watchExpression(const QString &exp, const QString &name)
     saveWatchers();
 
     if (m_model->m_engine->state() == DebuggerNotReady) {
-        item->setAllUnneeded();
         item->setValue(QString(QLatin1Char(' ')));
         item->update();
     } else {
@@ -2111,7 +2108,6 @@ void WatchHandler::updateWatchExpression(WatchItem *item, const QString &newExp)
 
     saveWatchers();
     if (m_model->m_engine->state() == DebuggerNotReady) {
-        item->setAllUnneeded();
         item->setValue(QString(QLatin1Char(' ')));
         item->update();
     } else {
@@ -2290,10 +2286,8 @@ void WatchHandler::fetchMore(const QString &iname) const
 {
     if (WatchItem *item = m_model->findItem(iname)) {
         m_model->m_expandedINames.insert(iname);
-        if (item->children().isEmpty()) {
-            item->setChildrenNeeded();
+        if (item->children().isEmpty())
             m_model->m_engine->expandItem(iname);
-        }
     }
 }
 

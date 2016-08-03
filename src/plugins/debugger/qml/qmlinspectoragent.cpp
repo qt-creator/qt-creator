@@ -615,7 +615,6 @@ void QmlInspectorAgent::addWatchData(const ObjectReference &obj,
         objWatch->type = obj.className();
         objWatch->value = "object";
         objWatch->wantsChildren = true;
-        objWatch->setAllUnneeded();
 
         m_qmlEngine->watchHandler()->insertItem(objWatch);
         addObjectWatch(objWatch->id);
@@ -645,7 +644,6 @@ void QmlInspectorAgent::addWatchData(const ObjectReference &obj,
         propertiesWatch->id = objDebugId;
         propertiesWatch->value = "list";
         propertiesWatch->wantsChildren = true;
-        propertiesWatch->setAllUnneeded();
 
         foreach (const PropertyReference &property, obj.properties()) {
             const QString propertyName = property.name();
@@ -659,7 +657,6 @@ void QmlInspectorAgent::addWatchData(const ObjectReference &obj,
             propertyWatch->type = property.valueTypeName();
             propertyWatch->value = property.value().toString();
             propertyWatch->wantsChildren = false;
-            propertyWatch->setAllUnneeded();
             propertiesWatch->appendChild(propertyWatch);
         }
 
