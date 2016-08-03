@@ -33,6 +33,8 @@
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/texteditor.h>
 
+#include <algorithm>
+
 namespace TextEditor {
 
 // --------------------------
@@ -51,12 +53,12 @@ Keywords::Keywords(const QStringList &variabels, const QStringList &functions, c
 
 bool Keywords::isVariable(const QString &word) const
 {
-    return qBinaryFind(m_variables, word) != m_variables.constEnd();
+    return std::binary_search(m_variables.constBegin(), m_variables.constEnd(), word);
 }
 
 bool Keywords::isFunction(const QString &word) const
 {
-    return qBinaryFind(m_functions, word) != m_functions.constEnd();
+    return std::binary_search(m_functions.constBegin(), m_functions.constEnd(), word);
 }
 
 QStringList Keywords::variables() const

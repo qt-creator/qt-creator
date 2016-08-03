@@ -31,6 +31,8 @@
 
 #include <cstring>
 
+#include <algorithm>
+
 namespace QmlDesigner {
 
 // using cache as a container which deletes sharedmemory pointers at process exit
@@ -68,7 +70,7 @@ void ValuesChangedCommand::removeSharedMemorys(const QVector<qint32> &keyNumberV
 
 void ValuesChangedCommand::sort()
 {
-    qSort(m_valueChangeVector);
+    std::sort(m_valueChangeVector.begin(), m_valueChangeVector.end());
 }
 
 static const QLatin1String valueKeyTemplateString("Values-%1");

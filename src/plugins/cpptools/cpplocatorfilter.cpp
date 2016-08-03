@@ -30,6 +30,8 @@
 
 #include <QStringMatcher>
 
+#include <algorithm>
+
 using namespace CppTools;
 using namespace CppTools::Internal;
 
@@ -107,9 +109,9 @@ QList<Core::LocatorFilterEntry> CppLocatorFilter::matchesFor(
     });
 
     if (goodEntries.size() < 1000)
-        qStableSort(goodEntries.begin(), goodEntries.end(), compareLexigraphically);
+        std::stable_sort(goodEntries.begin(), goodEntries.end(), compareLexigraphically);
     if (betterEntries.size() < 1000)
-        qStableSort(betterEntries.begin(), betterEntries.end(), compareLexigraphically);
+        std::stable_sort(betterEntries.begin(), betterEntries.end(), compareLexigraphically);
 
     betterEntries += goodEntries;
     return betterEntries;

@@ -23,6 +23,7 @@
 **
 ****************************************************************************/
 
+#include "algorithm.h"
 #include "environment.h"
 
 #include <QDir>
@@ -55,14 +56,9 @@ Q_GLOBAL_STATIC(SystemEnvironment, staticSystemEnvironment)
 
 namespace Utils {
 
-static bool sortEnvironmentItem(const EnvironmentItem &a, const EnvironmentItem &b)
-{
-    return a.name < b.name;
-}
-
 void EnvironmentItem::sort(QList<EnvironmentItem> *list)
 {
-    qSort(list->begin(), list->end(), &sortEnvironmentItem);
+    Utils::sort(*list, &EnvironmentItem::name);
 }
 
 QList<EnvironmentItem> EnvironmentItem::fromStringList(const QStringList &list)

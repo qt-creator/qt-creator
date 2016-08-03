@@ -370,7 +370,7 @@ void FolderNode::addFileNodes(const QList<FileNode *> &files)
             // empty list or greater then last node
             m_fileNodes.append(file);
         } else {
-            auto it = qLowerBound(m_fileNodes.begin(), m_fileNodes.end(), file);
+            auto it = std::lower_bound(m_fileNodes.begin(), m_fileNodes.end(), file);
             m_fileNodes.insert(it, file);
         }
     }
@@ -438,7 +438,7 @@ void FolderNode::addFolderNodes(const QList<FolderNode*> &subFolders)
             m_subFolderNodes.append(folder);
         } else {
             // Binary Search for insertion point
-            auto it = qLowerBound(m_subFolderNodes.begin(), m_subFolderNodes.end(), folder);
+            auto it = std::lower_bound(m_subFolderNodes.begin(), m_subFolderNodes.end(), folder);
             m_subFolderNodes.insert(it, folder);
         }
 

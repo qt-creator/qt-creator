@@ -34,6 +34,7 @@
 #include "qmljsviewercontext.h"
 
 #include <cplusplus/cppmodelmanagerbase.h>
+#include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/runextensions.h>
 
@@ -439,9 +440,9 @@ void ModelManagerInterface::iterateQrcFiles(ProjectExplorer::Project *project,
     } else {
         pInfos = projectInfos();
         if (resources == ActiveQrcResources) // make the result predictable
-            qSort(pInfos.begin(), pInfos.end(), &pInfoLessThanActive);
+            Utils::sort(pInfos, &pInfoLessThanActive);
         else
-            qSort(pInfos.begin(), pInfos.end(), &pInfoLessThanAll);
+            Utils::sort(pInfos, &pInfoLessThanAll);
     }
 
     QSet<QString> pathsChecked;

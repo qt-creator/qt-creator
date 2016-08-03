@@ -409,16 +409,16 @@ void AndroidConfig::updateAvailableSdkPlatforms() const
         } else if (line.startsWith(QLatin1String("---")) || line.startsWith(QLatin1String("==="))) {
             if (platform.apiLevel == -1)
                 continue;
-            auto it = qLowerBound(m_availableSdkPlatforms.begin(), m_availableSdkPlatforms.end(),
-                                  platform, sortSdkPlatformByApiLevel);
+            auto it = std::lower_bound(m_availableSdkPlatforms.begin(), m_availableSdkPlatforms.end(),
+                                       platform, sortSdkPlatformByApiLevel);
             m_availableSdkPlatforms.insert(it, platform);
             platform = SdkPlatform();
         }
     }
 
     if (platform.apiLevel != -1) {
-        auto it = qLowerBound(m_availableSdkPlatforms.begin(), m_availableSdkPlatforms.end(),
-                              platform, sortSdkPlatformByApiLevel);
+        auto it = std::lower_bound(m_availableSdkPlatforms.begin(), m_availableSdkPlatforms.end(),
+                                   platform, sortSdkPlatformByApiLevel);
         m_availableSdkPlatforms.insert(it, platform);
     }
 

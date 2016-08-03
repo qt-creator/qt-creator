@@ -78,6 +78,8 @@
 #include <QPluginLoader>
 #include <QTime>
 
+#include <algorithm>
+
 static const char settingsGroupC[] = "Designer";
 
 /* Actions of the designer plugin:
@@ -249,8 +251,8 @@ FormEditorData::FormEditorData() :
     QTC_ASSERT(!d, return);
     d = this;
 
-    qFill(m_designerSubWindows, m_designerSubWindows + DesignerSubWindowCount,
-          static_cast<QWidget *>(0));
+    std::fill(m_designerSubWindows, m_designerSubWindows + DesignerSubWindowCount,
+              static_cast<QWidget *>(0));
 
     m_formeditor->setTopLevel(ICore::mainWindow());
     m_formeditor->setSettingsManager(new SettingsManager());
@@ -449,7 +451,7 @@ void FormEditorData::fullInit()
 
 void FormEditorData::initDesignerSubWindows()
 {
-    qFill(m_designerSubWindows, m_designerSubWindows + DesignerSubWindowCount, static_cast<QWidget*>(0));
+    std::fill(m_designerSubWindows, m_designerSubWindows + DesignerSubWindowCount, static_cast<QWidget*>(0));
 
     QDesignerWidgetBoxInterface *wb = QDesignerComponents::createWidgetBox(m_formeditor, 0);
     wb->setWindowTitle(tr("Widget Box"));

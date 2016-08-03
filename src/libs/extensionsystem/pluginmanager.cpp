@@ -275,11 +275,6 @@ using namespace ExtensionSystem::Internal;
 static Internal::PluginManagerPrivate *d = 0;
 static PluginManager *m_instance = 0;
 
-static bool lessThanByPluginName(const PluginSpec *one, const PluginSpec *two)
-{
-    return one->name() < two->name();
-}
-
 /*!
     Gets the unique plugin manager instance.
 */
@@ -588,7 +583,7 @@ static QStringList subList(const QStringList &in, const QString &key)
     QStringList rc;
     // Find keyword and copy arguments until end or next keyword
     const QStringList::const_iterator inEnd = in.constEnd();
-    QStringList::const_iterator it = qFind(in.constBegin(), inEnd, key);
+    QStringList::const_iterator it = std::find(in.constBegin(), inEnd, key);
     if (it != inEnd) {
         const QChar nextIndicator = QLatin1Char(':');
         for (++it; it != inEnd && !it->startsWith(nextIndicator); ++it)
@@ -1468,7 +1463,7 @@ void PluginManagerPrivate::readPluginPaths()
     }
     resolveDependencies();
     // ensure deterministic plugin load order by sorting
-    qSort(pluginSpecs.begin(), pluginSpecs.end(), lessThanByPluginName);
+    Utils::sort(pluginSpecs, &PluginSpec::name);
     emit q->pluginsChanged();
 }
 

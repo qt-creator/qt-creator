@@ -390,7 +390,7 @@ QList<QModelIndex> SearchResultTreeModel::addResults(const QList<SearchResultIte
 {
     QSet<SearchResultTreeItem *> pathNodes;
     QList<SearchResultItem> sortedItems = items;
-    qStableSort(sortedItems.begin(), sortedItems.end(), lessThanByPath);
+    std::stable_sort(sortedItems.begin(), sortedItems.end(), lessThanByPath);
     QList<SearchResultItem> itemSet;
     foreach (const SearchResultItem &item, sortedItems) {
         m_editorFontIsUsed |= item.useTextEditorFont;

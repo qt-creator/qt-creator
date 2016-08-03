@@ -32,6 +32,8 @@
 
 #include <QFontMetrics>
 
+#include <algorithm>
+
 namespace ProjectExplorer {
 namespace Internal {
 
@@ -106,7 +108,7 @@ void TaskModel::addTask(const Task &task)
     CategoryData &data = m_categories[task.category];
     CategoryData &global = m_categories[Core::Id()];
 
-    auto it = qLowerBound(m_tasks.begin(), m_tasks.end(),task.taskId, sortById);
+    auto it = std::lower_bound(m_tasks.begin(), m_tasks.end(),task.taskId, sortById);
     int i = it - m_tasks.begin();
     beginInsertRows(QModelIndex(), i, i);
     m_tasks.insert(it, task);
@@ -131,7 +133,7 @@ void TaskModel::removeTask(const Task &task)
 
 int TaskModel::rowForId(unsigned int id)
 {
-    auto it = qLowerBound(m_tasks.constBegin(), m_tasks.constEnd(), id, sortById);
+    auto it = std::lower_bound(m_tasks.constBegin(), m_tasks.constEnd(), id, sortById);
     if (it == m_tasks.constEnd())
         return -1;
     return it - m_tasks.constBegin();
@@ -374,8 +376,8 @@ QVariant TaskFilterModel::data(const QModelIndex &index, int role) const
 
 static QPair<int, int> findFilteredRange(int first, int last, const QList<int> &list)
 {
-    auto filteredFirst = qLowerBound(list, first);
-    auto filteredLast = qUpperBound(filteredFirst, list.constEnd(), last);
+    auto filteredFirst = std::lower_bound(list.constBegin(), list.constEnd(), first);
+    auto filteredLast = std::upper_bound(filteredFirst, list.constEnd(), last);
     return qMakePair(filteredFirst - list.constBegin(), filteredLast - list.constBegin() - 1);
 }
 
@@ -399,7 +401,7 @@ void TaskFilterModel::handleNewRows(const QModelIndex &index, int first, int las
     if (last == m_sourceModel->rowCount() - 1)
         filteredFirst = m_mapping.count();
     else
-        filteredFirst = qLowerBound(m_mapping, first) - m_mapping.constBegin();
+        filteredFirst = std::lower_bound(m_mapping.constBegin(), m_mapping.constEnd(), first) - m_mapping.constBegin();
 
     const int filteredLast = filteredFirst + newItems - 1;
     beginInsertRows(QModelIndex(), filteredFirst, filteredLast);
@@ -449,8 +451,8 @@ void TaskFilterModel::handleReset()
 
 QModelIndex TaskFilterModel::mapFromSource(const QModelIndex &idx) const
 {
-    auto it = qBinaryFind(m_mapping.constBegin(), m_mapping.constEnd(), idx.row());
-    if (it == m_mapping.constEnd())
+    auto it = std::lower_bound(m_mapping.constBegin(), m_mapping.constEnd(), idx.row());
+    if (it == m_mapping.constEnd() || idx.row() != *it)
         return QModelIndex();
     return index(it - m_mapping.constBegin(), 0);
 }

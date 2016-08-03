@@ -59,6 +59,7 @@
 #include <QCoreApplication>
 #include <QByteArray>
 
+#include <algorithm>
 #include <functional>
 
 namespace QmlDesigner {
@@ -568,7 +569,7 @@ static inline QList<IOptionsPage*> sortedOptionsPages()
 static PropertyNameList sortedPropertyNameList(const PropertyNameList &nameList)
 {
     PropertyNameList sortedPropertyNameList = nameList;
-    qStableSort(sortedPropertyNameList);
+    std::stable_sort(sortedPropertyNameList.begin(), sortedPropertyNameList.end());
     return sortedPropertyNameList;
 }
 

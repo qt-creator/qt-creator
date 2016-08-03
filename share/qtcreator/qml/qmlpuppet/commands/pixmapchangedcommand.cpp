@@ -29,6 +29,8 @@
 
 #include <QVarLengthArray>
 
+#include <algorithm>
+
 namespace QmlDesigner {
 
 PixmapChangedCommand::PixmapChangedCommand()
@@ -47,7 +49,7 @@ QVector<ImageContainer> PixmapChangedCommand::images() const
 
 void PixmapChangedCommand::sort()
 {
-    qSort(m_imageVector);
+    std::sort(m_imageVector.begin(), m_imageVector.end());
 }
 
 QDataStream &operator<<(QDataStream &out, const PixmapChangedCommand &command)

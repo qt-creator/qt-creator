@@ -25,6 +25,8 @@
 
 #include <qmljs/qmljsscanner.h>
 
+#include <algorithm>
+
 using namespace QmlJS;
 
 namespace {
@@ -410,10 +412,7 @@ int Scanner::state() const
 
 bool Scanner::isKeyword(const QString &text) const
 {
-    if (qBinaryFind(begin(js_keywords), end(js_keywords), text) != end(js_keywords))
-        return true;
-
-    return false;
+    return std::binary_search(begin(js_keywords), end(js_keywords), text);
 }
 
 QStringList Scanner::keywords()

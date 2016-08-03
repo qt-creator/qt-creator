@@ -32,6 +32,8 @@
 #include <QResizeEvent>
 #include <QPainter>
 
+#include <algorithm>
+
 namespace Utils {
 
 static const int ArrowBorderSize = 12;
@@ -292,10 +294,8 @@ void CrumblePath::sortChildren(Qt::SortOrder order)
     QTC_ASSERT(childList, return);
     QList<QAction *> actions = childList->actions();
 
-    if (order == Qt::AscendingOrder)
-        qStableSort(actions.begin(), actions.end(), lessThan);
-    else
-        qStableSort(actions.begin(), actions.end(), greaterThan);
+    std::stable_sort(actions.begin(), actions.end(),
+                     order == Qt::AscendingOrder ? lessThan : greaterThan);
 
     childList->clear();
     childList->addActions(actions);

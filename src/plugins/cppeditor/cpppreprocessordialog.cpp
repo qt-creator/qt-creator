@@ -31,6 +31,8 @@
 
 #include <projectexplorer/session.h>
 
+#include <algorithm>
+
 using namespace CppEditor::Internal;
 
 static bool projectPartLessThan(const CppTools::ProjectPart::Ptr &projectPart1,
@@ -58,7 +60,7 @@ CppPreProcessorDialog::CppPreProcessorDialog(QWidget *parent, const QString &fil
     int currentIndex = 0;
 
     QList<CppTools::ProjectPart::Ptr> sortedProjectParts(projectParts);
-    qStableSort(sortedProjectParts.begin(), sortedProjectParts.end(), projectPartLessThan);
+    std::stable_sort(sortedProjectParts.begin(), sortedProjectParts.end(), projectPartLessThan);
 
     foreach (CppTools::ProjectPart::Ptr projectPart, sortedProjectParts) {
         m_ui->projectComboBox->addItem(projectPart->displayName);

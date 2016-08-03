@@ -48,6 +48,8 @@
 #include <QPushButton>
 #include <QSortFilterProxyModel>
 
+#include <algorithm>
+
 using namespace CPlusPlus;
 using namespace CppTools;
 namespace CMI = CppCodeModelInspector;
@@ -410,7 +412,7 @@ void IncludesModel::configure(const QList<Document::Include> &includes)
 {
     emit layoutAboutToBeChanged();
     m_includes = includes;
-    qStableSort(m_includes.begin(), m_includes.end(), includesSorter);
+    std::stable_sort(m_includes.begin(), m_includes.end(), includesSorter);
     emit layoutChanged();
 }
 
@@ -513,7 +515,7 @@ void DiagnosticMessagesModel::configure(
 {
     emit layoutAboutToBeChanged();
     m_messages = messages;
-    qStableSort(m_messages.begin(), m_messages.end(), diagnosticMessagesModelSorter);
+    std::stable_sort(m_messages.begin(), m_messages.end(), diagnosticMessagesModelSorter);
     emit layoutChanged();
 }
 

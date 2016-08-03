@@ -25,6 +25,7 @@
 
 #include "fancymainwindow.h"
 
+#include "algorithm.h"
 #include "qtcassert.h"
 
 #include <QAbstractButton>
@@ -505,13 +506,6 @@ bool FancyMainWindow::autoHideTitleBars() const
     return d->m_autoHideTitleBars.isChecked();
 }
 
-static bool actionLessThan(const QAction *action1, const QAction *action2)
-{
-    QTC_ASSERT(action1, return true);
-    QTC_ASSERT(action2, return false);
-    return action1->text().toLower() < action2->text().toLower();
-}
-
 void FancyMainWindow::addDockActionsToMenu(QMenu *menu)
 {
     QList<QAction *> actions;
@@ -523,7 +517,11 @@ void FancyMainWindow::addDockActionsToMenu(QMenu *menu)
             actions.append(dockwidgets.at(i)->toggleViewAction());
         }
     }
-    qSort(actions.begin(), actions.end(), actionLessThan);
+    Utils::sort(actions, [](const QAction *action1, const QAction *action2) {
+        QTC_ASSERT(action1, return true);
+        QTC_ASSERT(action2, return false);
+        return action1->text().toLower() < action2->text().toLower();
+    });
     foreach (QAction *action, actions)
         menu->addAction(action);
     menu->addAction(&d->m_menuSeparator1);

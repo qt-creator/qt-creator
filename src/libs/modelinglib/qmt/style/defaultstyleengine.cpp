@@ -37,6 +37,8 @@
 #include "qmt/diagram/dannotation.h"
 #include "qmt/infrastructure/qmtassert.h"
 
+#include <utils/algorithm.h>
+
 #include <QSet>
 #include <QDebug>
 
@@ -292,7 +294,7 @@ const Style *DefaultStyleEngine::applyObjectStyle(const Style *baseStyle, const 
     int depth = 0;
     if (!depths.isEmpty()) {
         QList<int> keys = depths.keys();
-        qSort(keys);
+        Utils::sort(keys);
         foreach (int d, keys) {
             DepthProperties properties = depths.value(d);
             if (properties.m_elementType == elementType

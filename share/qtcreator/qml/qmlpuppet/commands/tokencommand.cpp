@@ -28,6 +28,8 @@
 #include <QDataStream>
 #include <QDebug>
 
+#include <algorithm>
+
 namespace QmlDesigner {
 
 TokenCommand::TokenCommand()
@@ -59,7 +61,7 @@ QVector<qint32> TokenCommand::instances() const
 
 void TokenCommand::sort()
 {
-    qSort(m_instanceIdVector);
+    std::sort(m_instanceIdVector.begin(), m_instanceIdVector.end());
 }
 
 QDataStream &operator<<(QDataStream &out, const TokenCommand &command)

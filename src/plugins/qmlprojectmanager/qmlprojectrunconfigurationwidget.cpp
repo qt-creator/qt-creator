@@ -38,6 +38,8 @@
 #include <QLabel>
 #include <QStandardItemModel>
 
+#include <algorithm>
+
 using Core::ICore;
 using ProjectExplorer::ProjectExplorerPlugin;
 
@@ -121,7 +123,7 @@ void QmlProjectRunConfigurationWidget::updateFileComboBox()
     }
     sortedFiles = relativeFiles;
 
-    qStableSort(sortedFiles.begin(), sortedFiles.end(), caseInsensitiveLessThan);
+    std::stable_sort(sortedFiles.begin(), sortedFiles.end(), caseInsensitiveLessThan);
 
     QString mainScriptPath;
     if (m_runConfiguration->mainScriptSource() != QmlProjectRunConfiguration::FileInEditor)

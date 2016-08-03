@@ -251,7 +251,7 @@ void NewDialog::setWizardFactories(QList<IWizardFactory *> factories,
 {
     m_defaultLocation = defaultLocation;
     m_extraVariables = extraVariables;
-    qStableSort(factories.begin(), factories.end(), wizardFactoryLessThan);
+    std::stable_sort(factories.begin(), factories.end(), wizardFactoryLessThan);
 
     m_model->clear();
     QStandardItem *parentItem = m_model->invisibleRootItem();

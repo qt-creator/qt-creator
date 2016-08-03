@@ -28,6 +28,8 @@
 #include <QDataStream>
 #include <QDebug>
 
+#include <algorithm>
+
 namespace QmlDesigner {
 
 ComponentCompletedCommand::ComponentCompletedCommand()
@@ -46,7 +48,7 @@ QVector<qint32> ComponentCompletedCommand::instances() const
 
 void ComponentCompletedCommand::sort()
 {
-    qSort(m_instanceVector);
+    std::sort(m_instanceVector.begin(), m_instanceVector.end());
 }
 
 QDataStream &operator<<(QDataStream &out, const ComponentCompletedCommand &command)

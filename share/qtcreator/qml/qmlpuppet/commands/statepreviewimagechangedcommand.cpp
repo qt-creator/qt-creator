@@ -27,6 +27,8 @@
 
 #include <QDebug>
 
+#include <algorithm>
+
 namespace QmlDesigner {
 
 StatePreviewImageChangedCommand::StatePreviewImageChangedCommand()
@@ -45,7 +47,7 @@ QVector<ImageContainer> StatePreviewImageChangedCommand::previews()const
 
 void StatePreviewImageChangedCommand::sort()
 {
-    qSort(m_previewVector);
+    std::sort(m_previewVector.begin(), m_previewVector.end());
 }
 
 QDataStream &operator<<(QDataStream &out, const StatePreviewImageChangedCommand &command)

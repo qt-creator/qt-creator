@@ -869,7 +869,7 @@ void FlatModel::changedSortKey(FolderNode *folderNode, Node *node)
     int oldIndex = nodes.indexOf(node);
 
     nodes.removeAt(oldIndex);
-    QList<Node *>::iterator newPosIt = qLowerBound(nodes.begin(), nodes.end(), node, sortNodes);
+    QList<Node *>::iterator newPosIt = std::lower_bound(nodes.begin(), nodes.end(), node, sortNodes);
     int newIndex = newPosIt - nodes.begin();
 
     if (newIndex == oldIndex)

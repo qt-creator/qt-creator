@@ -27,6 +27,8 @@
 
 #include <QDebug>
 
+#include <algorithm>
+
 namespace QmlDesigner {
 
 ChildrenChangedCommand::ChildrenChangedCommand()
@@ -58,8 +60,8 @@ QVector<InformationContainer> ChildrenChangedCommand::informations() const
 
 void ChildrenChangedCommand::sort()
 {
-    qSort(m_childrenVector);
-    qSort(m_informationVector);
+    std::sort(m_childrenVector.begin(), m_childrenVector.end());
+    std::sort(m_informationVector.begin(), m_informationVector.end());
 }
 
 QDataStream &operator<<(QDataStream &out, const ChildrenChangedCommand &command)

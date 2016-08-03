@@ -30,6 +30,8 @@
 
 #include "propertyvaluecontainer.h"
 
+#include <algorithm>
+
 namespace QmlDesigner {
 
 InformationChangedCommand::InformationChangedCommand()
@@ -48,7 +50,7 @@ QVector<InformationContainer> InformationChangedCommand::informations() const
 
 void InformationChangedCommand::sort()
 {
-    qSort(m_informationVector);
+    std::sort(m_informationVector.begin(), m_informationVector.end());
 }
 
 QDataStream &operator<<(QDataStream &out, const InformationChangedCommand &command)

@@ -1273,7 +1273,7 @@ int WatchModel::memberVariableRecursion(WatchItem *item,
             const QString toolTip = variableToolTip(childName, item->type, childOffset);
             const ColorNumberToolTip colorNumberNamePair((*colorNumberIn)++, toolTip);
             const ColorNumberToolTips::iterator begin = cnmv->begin() + childOffset;
-            qFill(begin, begin + item->size, colorNumberNamePair);
+            std::fill(begin, begin + item->size, colorNumberNamePair);
             childCount++;
             childCount += memberVariableRecursion(child, childName, start, end, colorNumberIn, cnmv);
         }
