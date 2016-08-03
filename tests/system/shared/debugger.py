@@ -111,6 +111,7 @@ def removeOldBreakpoints():
     except:
         test.fatal("UI seems to have changed - check manually and fix this script.")
         return False
+    waitFor("model.rowCount() == 0", 1000)
     return test.compare(model.rowCount(), 0, "Check if all breakpoints have been removed.")
 
 # function to do simple debugging of the current (configured) project
