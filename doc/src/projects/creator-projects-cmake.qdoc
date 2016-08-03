@@ -47,6 +47,13 @@
     You can add paths to other CMake executables and use them in different
     build and run \l{glossary-buildandrun-kit}{kits}.
 
+    \QC automatically runs CMake to regenerate makefiles when you edit a
+    \c CMakeLists.txt configuration file in a project. If the project uses
+    several configuration files, you can disable the automatic generation of
+    makefiles by selecting \uicontrol Tools > \uicontrol Options >
+    \uicontrol {Build & Run} > \uicontrol CMake. Makefiles are automatically
+    regenerated when you build the project.
+
     \section1 Adding CMake Tools
 
     \QC supports CMake version 3.0, or later. For best results you should use
@@ -66,6 +73,10 @@
 
         \li In the \uicontrol Path field, specify the path to the CMake
             executable.
+
+        \li Deselect the \uicontrol {Autorun CMake} check box to prevent \QC
+            from running CMake when you make changes to \c {CMakeLists.txt}
+            files.
 
         \li Select \uicontrol Apply to save your changes.
 
