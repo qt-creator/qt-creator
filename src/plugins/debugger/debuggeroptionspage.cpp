@@ -27,8 +27,6 @@
 #include "debuggeritemmanager.h"
 #include "debuggeritem.h"
 
-#include <coreplugin/coreicons.h>
-
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/detailswidget.h>

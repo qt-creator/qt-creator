@@ -56,7 +56,6 @@
 #include <texteditor/texteditor.h>
 
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/coreicons.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/findplugin.h>
 #include <coreplugin/icore.h>
@@ -205,7 +204,7 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     setRecording(d->m_profilerState->clientRecording());
 
     d->m_clearButton = new QToolButton;
-    d->m_clearButton->setIcon(Core::Icons::CLEAN_TOOLBAR.icon());
+    d->m_clearButton->setIcon(Utils::Icons::CLEAN_TOOLBAR.icon());
     d->m_clearButton->setToolTip(tr("Discard data"));
 
     connect(d->m_clearButton, &QAbstractButton::clicked, [this](){
@@ -220,7 +219,7 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     connect(d->m_searchButton, &QToolButton::clicked, this, &QmlProfilerTool::showTimeLineSearch);
 
     d->m_displayFeaturesButton = new QToolButton;
-    d->m_displayFeaturesButton->setIcon(Core::Icons::FILTER.icon());
+    d->m_displayFeaturesButton->setIcon(Utils::Icons::FILTER.icon());
     d->m_displayFeaturesButton->setToolTip(tr("Hide or show event categories."));
     d->m_displayFeaturesButton->setPopupMode(QToolButton::InstantPopup);
     d->m_displayFeaturesButton->setProperty("noArrow", true);

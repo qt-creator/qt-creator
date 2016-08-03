@@ -25,9 +25,9 @@
 
 #include "remotelinuxruncontrol.h"
 
-#include <coreplugin/coreicons.h>
-
 #include <projectexplorer/devicesupport/deviceapplicationrunner.h>
+
+#include <utils/utilsicons.h>
 
 using namespace ProjectExplorer;
 
@@ -43,7 +43,7 @@ public:
 RemoteLinuxRunControl::RemoteLinuxRunControl(RunConfiguration *rc)
         : RunControl(rc, ProjectExplorer::Constants::NORMAL_RUN_MODE), d(new RemoteLinuxRunControlPrivate)
 {
-    setIcon(Core::Icons::RUN_SMALL_TOOLBAR);
+    setIcon(Utils::Icons::RUN_SMALL_TOOLBAR);
     setRunnable(rc->runnable());
 
     d->running = false;

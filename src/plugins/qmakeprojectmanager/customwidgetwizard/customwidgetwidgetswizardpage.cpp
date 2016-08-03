@@ -27,8 +27,7 @@
 #include "ui_customwidgetwidgetswizardpage.h"
 #include "classdefinition.h"
 
-#include <coreplugin/coreicons.h>
-
+#include <utils/utilsicons.h>
 #include <utils/wizard.h>
 
 #include <QTimer>
@@ -47,9 +46,9 @@ CustomWidgetWidgetsWizardPage::CustomWidgetWidgetsWizardPage(QWidget *parent) :
 {
     m_ui->setupUi(this);
     m_ui->tabStackWidget->setLayout(m_tabStackLayout);
-    m_ui->addButton->setIcon(Core::Icons::PLUS.icon());
+    m_ui->addButton->setIcon(Utils::Icons::PLUS.icon());
     connect(m_ui->addButton, &QAbstractButton::clicked, m_ui->classList, &ClassList::startEditingNewClassItem);
-    m_ui->deleteButton->setIcon(Core::Icons::MINUS.icon());
+    m_ui->deleteButton->setIcon(Utils::Icons::MINUS.icon());
     connect(m_ui->deleteButton, &QAbstractButton::clicked, m_ui->classList, &ClassList::removeCurrentClass);
     m_ui->deleteButton->setEnabled(false);
 

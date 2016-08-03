@@ -25,10 +25,11 @@
 
 #include "outlinefactory.h"
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/coreicons.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
+
+#include <utils/utilsicons.h>
 
 #include <QToolButton>
 #include <QLabel>
@@ -54,7 +55,7 @@ OutlineWidgetStack::OutlineWidgetStack(OutlineFactory *factory) :
     addWidget(label);
 
     m_toggleSync = new QToolButton;
-    m_toggleSync->setIcon(Core::Icons::LINK.icon());
+    m_toggleSync->setIcon(Utils::Icons::LINK.icon());
     m_toggleSync->setCheckable(true);
     m_toggleSync->setChecked(true);
     m_toggleSync->setToolTip(tr("Synchronize with Editor"));
@@ -62,7 +63,7 @@ OutlineWidgetStack::OutlineWidgetStack(OutlineFactory *factory) :
             this, &OutlineWidgetStack::toggleCursorSynchronization);
 
     m_filterButton = new QToolButton;
-    m_filterButton->setIcon(Core::Icons::FILTER.icon());
+    m_filterButton->setIcon(Utils::Icons::FILTER.icon());
     m_filterButton->setToolTip(tr("Filter tree"));
     m_filterButton->setPopupMode(QToolButton::InstantPopup);
     m_filterButton->setProperty("noArrow", true);

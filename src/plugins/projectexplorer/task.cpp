@@ -25,7 +25,7 @@
 
 #include "task.h"
 
-#include <coreplugin/coreicons.h>
+#include <utils/utilsicons.h>
 #include <utils/qtcassert.h>
 
 #include "projectexplorerconstants.h"
@@ -36,8 +36,8 @@ namespace ProjectExplorer
 static QIcon taskTypeIcon(Task::TaskType t)
 {
     static QIcon icons[3] = { QIcon(),
-                              Core::Icons::ERROR.icon(),
-                              Core::Icons::WARNING.icon()};
+                              Utils::Icons::ERROR.icon(),
+                              Utils::Icons::WARNING.icon()};
 
     if (t < 0 || t > 2)
         t = Task::Unknown;

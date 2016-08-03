@@ -25,7 +25,6 @@
 
 #include "mainwindow.h"
 #include "icore.h"
-#include "coreicons.h"
 #include "jsexpander.h"
 #include "toolsettings.h"
 #include "mimetypesettings.h"
@@ -76,6 +75,7 @@
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 #include <utils/stringutils.h>
+#include <utils/utilsicons.h>
 
 #include <QApplication>
 #include <QCloseEvent>
@@ -147,7 +147,7 @@ MainWindow::MainWindow() :
 
     setWindowTitle(tr("Qt Creator"));
     if (HostOsInfo::isLinuxHost())
-        QApplication::setWindowIcon(Icons::QTCREATORLOGO_BIG.icon());
+        QApplication::setWindowIcon(Utils::Icons::QTCREATORLOGO_BIG.icon());
     QCoreApplication::setApplicationName(QLatin1String("QtCreator"));
     QCoreApplication::setApplicationVersion(QLatin1String(Constants::IDE_VERSION_LONG));
     QCoreApplication::setOrganizationName(QLatin1String(Constants::IDE_SETTINGSVARIANT_STR));
@@ -506,7 +506,7 @@ void MainWindow::registerDefaultActions()
     connect(m_focusToEditor, &QAction::triggered, this, &MainWindow::setFocusToEditor);
 
     // New File Action
-    QIcon icon = QIcon::fromTheme(QLatin1String("document-new"), Icons::NEWFILE.icon());
+    QIcon icon = QIcon::fromTheme(QLatin1String("document-new"), Utils::Icons::NEWFILE.icon());
     m_newAction = new QAction(icon, tr("&New File or Project..."), this);
     cmd = ActionManager::registerAction(m_newAction, Constants::NEW);
     cmd->setDefaultKeySequence(QKeySequence::New);
@@ -520,7 +520,7 @@ void MainWindow::registerDefaultActions()
     });
 
     // Open Action
-    icon = QIcon::fromTheme(QLatin1String("document-open"), Icons::OPENFILE.icon());
+    icon = QIcon::fromTheme(QLatin1String("document-open"), Utils::Icons::OPENFILE.icon());
     m_openAction = new QAction(icon, tr("&Open File or Project..."), this);
     cmd = ActionManager::registerAction(m_openAction, Constants::OPEN);
     cmd->setDefaultKeySequence(QKeySequence::Open);
@@ -540,7 +540,7 @@ void MainWindow::registerDefaultActions()
     ac->setOnAllDisabledBehavior(ActionContainer::Show);
 
     // Save Action
-    icon = QIcon::fromTheme(QLatin1String("document-save"), Icons::SAVEFILE.icon());
+    icon = QIcon::fromTheme(QLatin1String("document-save"), Utils::Icons::SAVEFILE.icon());
     QAction *tmpaction = new QAction(icon, EditorManager::tr("&Save"), this);
     tmpaction->setEnabled(false);
     cmd = ActionManager::registerAction(tmpaction, Constants::SAVE);
@@ -584,7 +584,7 @@ void MainWindow::registerDefaultActions()
     connect(m_exitAction, &QAction::triggered, this, &MainWindow::exit);
 
     // Undo Action
-    icon = QIcon::fromTheme(QLatin1String("edit-undo"), Icons::UNDO.icon());
+    icon = QIcon::fromTheme(QLatin1String("edit-undo"), Utils::Icons::UNDO.icon());
     tmpaction = new QAction(icon, tr("&Undo"), this);
     cmd = ActionManager::registerAction(tmpaction, Constants::UNDO);
     cmd->setDefaultKeySequence(QKeySequence::Undo);
@@ -594,7 +594,7 @@ void MainWindow::registerDefaultActions()
     tmpaction->setEnabled(false);
 
     // Redo Action
-    icon = QIcon::fromTheme(QLatin1String("edit-redo"), Icons::REDO.icon());
+    icon = QIcon::fromTheme(QLatin1String("edit-redo"), Utils::Icons::REDO.icon());
     tmpaction = new QAction(icon, tr("&Redo"), this);
     cmd = ActionManager::registerAction(tmpaction, Constants::REDO);
     cmd->setDefaultKeySequence(QKeySequence::Redo);
@@ -604,7 +604,7 @@ void MainWindow::registerDefaultActions()
     tmpaction->setEnabled(false);
 
     // Cut Action
-    icon = QIcon::fromTheme(QLatin1String("edit-cut"), Icons::CUT.icon());
+    icon = QIcon::fromTheme(QLatin1String("edit-cut"), Utils::Icons::CUT.icon());
     tmpaction = new QAction(icon, tr("Cu&t"), this);
     cmd = ActionManager::registerAction(tmpaction, Constants::CUT);
     cmd->setDefaultKeySequence(QKeySequence::Cut);
@@ -612,7 +612,7 @@ void MainWindow::registerDefaultActions()
     tmpaction->setEnabled(false);
 
     // Copy Action
-    icon = QIcon::fromTheme(QLatin1String("edit-copy"), Icons::COPY.icon());
+    icon = QIcon::fromTheme(QLatin1String("edit-copy"), Utils::Icons::COPY.icon());
     tmpaction = new QAction(icon, tr("&Copy"), this);
     cmd = ActionManager::registerAction(tmpaction, Constants::COPY);
     cmd->setDefaultKeySequence(QKeySequence::Copy);
@@ -620,7 +620,7 @@ void MainWindow::registerDefaultActions()
     tmpaction->setEnabled(false);
 
     // Paste Action
-    icon = QIcon::fromTheme(QLatin1String("edit-paste"), Icons::PASTE.icon());
+    icon = QIcon::fromTheme(QLatin1String("edit-paste"), Utils::Icons::PASTE.icon());
     tmpaction = new QAction(icon, tr("&Paste"), this);
     cmd = ActionManager::registerAction(tmpaction, Constants::PASTE);
     cmd->setDefaultKeySequence(QKeySequence::Paste);
@@ -694,7 +694,7 @@ void MainWindow::registerDefaultActions()
     }
 
     // Show Sidebar Action
-    m_toggleSideBarAction = new QAction(Icons::TOGGLE_SIDEBAR.icon(),
+    m_toggleSideBarAction = new QAction(Utils::Icons::TOGGLE_SIDEBAR.icon(),
                                         QCoreApplication::translate("Core", Constants::TR_SHOW_SIDEBAR),
                                         this);
     m_toggleSideBarAction->setCheckable(true);
@@ -703,7 +703,8 @@ void MainWindow::registerDefaultActions()
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Ctrl+0") : tr("Alt+0")));
     connect(m_toggleSideBarAction, &QAction::triggered, this, &MainWindow::setSidebarVisible);
     ProxyAction *toggleSideBarProxyAction =
-            ProxyAction::proxyActionWithIcon(cmd->action(), Core::Icons::TOGGLE_SIDEBAR_TOOLBAR.icon());
+            ProxyAction::proxyActionWithIcon(cmd->action(),
+                                             Utils::Icons::TOGGLE_SIDEBAR_TOOLBAR.icon());
     m_toggleSideBarButton->setDefaultAction(toggleSideBarProxyAction);
     mwindow->addAction(cmd, Constants::G_WINDOW_VIEWS);
     m_toggleSideBarAction->setEnabled(false);

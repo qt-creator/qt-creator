@@ -41,7 +41,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/coreicons.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/minisplitter.h>
@@ -129,7 +128,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
         setAttribute(Qt::WA_QuitOnClose, false); // don't prevent Qt Creator from closing
     }
     if (style != SideBarWidget) {
-        m_toggleSideBarAction = new QAction(Core::Icons::TOGGLE_SIDEBAR_TOOLBAR.icon(),
+        m_toggleSideBarAction = new QAction(Utils::Icons::TOGGLE_SIDEBAR_TOOLBAR.icon(),
                                             QCoreApplication::translate("Core", Core::Constants::TR_SHOW_SIDEBAR),
                                             toolBar);
         m_toggleSideBarAction->setCheckable(true);
@@ -245,7 +244,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     }
 
     if (style != ExternalWindow) {
-        m_closeAction = new QAction(Core::Icons::CLOSE_TOOLBAR.icon(), QString(), toolBar);
+        m_closeAction = new QAction(Utils::Icons::CLOSE_TOOLBAR.icon(), QString(), toolBar);
         connect(m_closeAction, &QAction::triggered, this, &HelpWidget::closeButtonClicked);
         button = new QToolButton;
         button->setDefaultAction(m_closeAction);

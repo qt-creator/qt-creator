@@ -33,7 +33,6 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/coreicons.h>
 #include <coreplugin/outputwindow.h>
 #include <coreplugin/find/basetextfind.h>
 #include <coreplugin/coreconstants.h>
@@ -47,6 +46,7 @@
 #include <utils/algorithm.h>
 #include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
+#include <utils/utilsicons.h>
 
 #include <QAction>
 #include <QVBoxLayout>
@@ -157,7 +157,7 @@ AppOutputPane::AppOutputPane() :
     setObjectName(QLatin1String("AppOutputPane")); // Used in valgrind engine
 
     // Rerun
-    m_reRunButton->setIcon(Core::Icons::RUN_SMALL_TOOLBAR.icon());
+    m_reRunButton->setIcon(Utils::Icons::RUN_SMALL_TOOLBAR.icon());
     m_reRunButton->setToolTip(tr("Re-run this run-configuration"));
     m_reRunButton->setAutoRaise(true);
     m_reRunButton->setEnabled(false);
@@ -165,7 +165,7 @@ AppOutputPane::AppOutputPane() :
             this, &AppOutputPane::reRunRunControl);
 
     // Stop
-    m_stopAction->setIcon(Core::Icons::STOP_SMALL_TOOLBAR.icon());
+    m_stopAction->setIcon(Utils::Icons::STOP_SMALL_TOOLBAR.icon());
     m_stopAction->setToolTip(tr("Stop"));
     m_stopAction->setEnabled(false);
 
@@ -187,14 +187,14 @@ AppOutputPane::AppOutputPane() :
             this, &AppOutputPane::attachToRunControl);
 
     m_zoomInButton->setToolTip(tr("Increase Font Size"));
-    m_zoomInButton->setIcon(Core::Icons::PLUS.icon());
+    m_zoomInButton->setIcon(Utils::Icons::PLUS.icon());
     m_zoomInButton->setAutoRaise(true);
 
     connect(m_zoomInButton, &QToolButton::clicked,
             this, &AppOutputPane::zoomIn);
 
     m_zoomOutButton->setToolTip(tr("Decrease Font Size"));
-    m_zoomOutButton->setIcon(Core::Icons::MINUS.icon());
+    m_zoomOutButton->setIcon(Utils::Icons::MINUS.icon());
     m_zoomOutButton->setAutoRaise(true);
 
     connect(m_zoomOutButton, &QToolButton::clicked,
@@ -638,7 +638,7 @@ void AppOutputPane::enableButtons(const RunControl *rc, bool isRunning)
         m_zoomOutButton->setEnabled(true);
     } else {
         m_reRunButton->setEnabled(false);
-        m_reRunButton->setIcon(Core::Icons::RUN_SMALL_TOOLBAR.icon());
+        m_reRunButton->setIcon(Utils::Icons::RUN_SMALL_TOOLBAR.icon());
         m_attachButton->setEnabled(false);
         m_attachButton->setToolTip(msgAttachDebuggerTooltip());
         m_stopAction->setEnabled(false);

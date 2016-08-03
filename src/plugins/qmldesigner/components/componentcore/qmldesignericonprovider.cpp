@@ -26,8 +26,8 @@
 #include "qmldesignericonprovider.h"
 
 #include <utils/icon.h>
+#include <utils/utilsicons.h>
 
-#include <coreplugin/coreicons.h>
 #include <coreplugin/icore.h>
 
 #include <QDebug>
@@ -54,9 +54,9 @@ QPixmap QmlDesignerIconProvider::requestPixmap(const QString &id, QSize *size, c
     QPixmap result;
 
     if (id == "close")
-        result = Core::Icons::CLOSE_TOOLBAR.pixmap();
+        result = Utils::Icons::CLOSE_TOOLBAR.pixmap();
     else if (id == "plus")
-        result = Core::Icons::PLUS.pixmap();
+        result = Utils::Icons::PLUS.pixmap();
     else if (id == "expression")
         result = Icon({
                 { iconPath() + QLatin1String("expression.png"), Theme::IconsBaseColor}}, Icon::Tint).pixmap();

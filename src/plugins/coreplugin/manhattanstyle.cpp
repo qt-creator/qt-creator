@@ -27,14 +27,13 @@
 
 #include "styleanimator.h"
 
-#include "coreicons.h"
-
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/stylehelper.h>
 
 #include <utils/fancymainwindow.h>
 #include <utils/theme/theme.h>
+#include <utils/utilsicons.h>
 
 #include <QApplication>
 #include <QComboBox>
@@ -129,8 +128,8 @@ public:
 };
 
 ManhattanStylePrivate::ManhattanStylePrivate() :
-    extButtonPixmap(Core::Icons::TOOLBAR_EXTENSION.pixmap()),
-    closeButtonPixmap(Core::Icons::CLOSE_FOREGROUND.pixmap())
+    extButtonPixmap(Utils::Icons::TOOLBAR_EXTENSION.pixmap()),
+    closeButtonPixmap(Utils::Icons::CLOSE_FOREGROUND.pixmap())
 {
 }
 

@@ -30,9 +30,9 @@
 #include "testtreemodel.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/coreicons.h>
 
 #include <utils/hostosinfo.h>
+#include <utils/utilsicons.h>
 
 namespace Autotest {
 namespace Internal {
@@ -45,7 +45,7 @@ TestSettingsWidget::TestSettingsWidget(QWidget *parent)
     m_ui.perfRB->setEnabled(Utils::HostOsInfo::isLinuxHost()); // according to docs perf Linux only
 
     m_ui.frameworksWarnIcon->setVisible(false);
-    m_ui.frameworksWarnIcon->setPixmap(Core::Icons::WARNING.pixmap());
+    m_ui.frameworksWarnIcon->setPixmap(Utils::Icons::WARNING.pixmap());
     m_ui.frameworksWarn->setVisible(false);
     m_ui.frameworksWarn->setText(tr("No active test frameworks."));
     m_ui.frameworksWarn->setToolTip(tr("You will not be able to use the AutoTest plugin without "

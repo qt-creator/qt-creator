@@ -25,7 +25,7 @@
 
 #include "winrtpackagedeploymentstepwidget.h"
 #include <ui_winrtpackagedeploymentstepwidget.h>
-#include <coreplugin/coreicons.h>
+#include <utils/utilsicons.h>
 #include <QIcon>
 
 namespace WinRt {
@@ -37,7 +37,7 @@ WinRtPackageDeploymentStepWidget::WinRtPackageDeploymentStepWidget(WinRtPackageD
 {
     m_ui->setupUi(this);
     m_ui->leArguments->setText(m_step->winDeployQtArguments());
-    m_ui->btnRestoreDefaultArgs->setIcon(Core::Icons::RESET.icon());
+    m_ui->btnRestoreDefaultArgs->setIcon(Utils::Icons::RESET.icon());
 }
 
 WinRtPackageDeploymentStepWidget::~WinRtPackageDeploymentStepWidget()

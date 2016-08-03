@@ -34,7 +34,6 @@
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/coreicons.h>
 #include <coreplugin/fileutils.h>
 #include <coreplugin/find/findplugin.h>
 
@@ -45,6 +44,7 @@
 #include <utils/qtcassert.h>
 #include <utils/elidinglabel.h>
 #include <utils/itemviews.h>
+#include <utils/utilsicons.h>
 
 #include <QDebug>
 #include <QSize>
@@ -157,7 +157,7 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
     layout->setContentsMargins(0, 0, 0, 0);
     setLayout(layout);
 
-    m_toggleSync->setIcon(Core::Icons::LINK.icon());
+    m_toggleSync->setIcon(Utils::Icons::LINK.icon());
     m_toggleSync->setCheckable(true);
     m_toggleSync->setToolTip(tr("Synchronize with Editor"));
     setAutoSynchronization(true);
@@ -422,7 +422,7 @@ Core::NavigationView FolderNavigationWidgetFactory::createWidget()
     auto fnw = new FolderNavigationWidget;
     n.widget = fnw;
     auto filter = new QToolButton;
-    filter->setIcon(Core::Icons::FILTER.icon());
+    filter->setIcon(Utils::Icons::FILTER.icon());
     filter->setToolTip(tr("Filter Files"));
     filter->setPopupMode(QToolButton::InstantPopup);
     filter->setProperty("noArrow", true);

@@ -34,7 +34,6 @@
 
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/coreicons.h>
 #include <coreplugin/variablechooser.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
@@ -46,6 +45,7 @@
 #include <utils/runextensions.h>
 #include <utils/algorithm.h>
 #include <utils/treemodel.h>
+#include <utils/utilsicons.h>
 
 #include <QDir>
 #include <QMessageBox>
@@ -199,8 +199,8 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent)
     , m_ui(new Internal::Ui::QtVersionManager())
     , m_versionUi(new Internal::Ui::QtVersionInfo())
     , m_infoBrowser(new QTextBrowser)
-    , m_invalidVersionIcon(Core::Icons::ERROR.icon())
-    , m_warningVersionIcon(Core::Icons::WARNING.icon())
+    , m_invalidVersionIcon(Utils::Icons::ERROR.icon())
+    , m_warningVersionIcon(Utils::Icons::WARNING.icon())
     , m_configurationWidget(0)
 {
     QWidget *versionInfoWidget = new QWidget();

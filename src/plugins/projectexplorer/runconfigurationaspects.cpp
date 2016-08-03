@@ -29,8 +29,7 @@
 #include "runconfiguration.h"
 #include "environmentaspect.h"
 
-#include <coreplugin/coreicons.h>
-
+#include <utils/utilsicons.h>
 #include <utils/fancylineedit.h>
 #include <utils/pathchooser.h>
 
@@ -154,7 +153,7 @@ void WorkingDirectoryAspect::addToMainConfigurationWidget(QWidget *parent, QForm
     QTC_CHECK(!m_chooser);
     m_resetButton = new QToolButton(parent);
     m_resetButton->setToolTip(tr("Reset to Default"));
-    m_resetButton->setIcon(Core::Icons::RESET.icon());
+    m_resetButton->setIcon(Utils::Icons::RESET.icon());
     connect(m_resetButton.data(), &QAbstractButton::clicked, this, &WorkingDirectoryAspect::resetPath);
 
     m_chooser = new PathChooser(parent);

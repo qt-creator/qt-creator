@@ -30,7 +30,6 @@
 #include "androidmanager.h"
 #include "androidqtsupport.h"
 
-#include <coreplugin/coreicons.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/infobar.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -45,6 +44,7 @@
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditor.h>
 #include <utils/algorithm.h>
+#include <utils/utilsicons.h>
 
 #include <QLineEdit>
 #include <QFileInfo>
@@ -162,7 +162,7 @@ void AndroidManifestEditorWidget::initializePage()
         m_packageNameWarning->setVisible(false);
 
         m_packageNameWarningIcon = new QLabel;
-        m_packageNameWarningIcon->setPixmap(Core::Icons::WARNING.pixmap());
+        m_packageNameWarningIcon->setPixmap(Utils::Icons::WARNING.pixmap());
         m_packageNameWarningIcon->setVisible(false);
         m_packageNameWarningIcon->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 

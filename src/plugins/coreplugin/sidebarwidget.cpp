@@ -27,9 +27,8 @@
 #include "sidebar.h"
 #include "navigationsubwidget.h"
 
-#include "coreicons.h"
-
 #include <utils/algorithm.h>
+#include <utils/utilsicons.h>
 
 #include <QToolBar>
 #include <QToolButton>
@@ -72,13 +71,13 @@ SideBarWidget::SideBarWidget(SideBar *sideBar, const QString &id)
 
     m_splitAction = new QAction(tr("Split"), m_toolbar);
     m_splitAction->setToolTip(tr("Split"));
-    m_splitAction->setIcon(Icons::SPLIT_HORIZONTAL_TOOLBAR.icon());
+    m_splitAction->setIcon(Utils::Icons::SPLIT_HORIZONTAL_TOOLBAR.icon());
     connect(m_splitAction, &QAction::triggered, this, &SideBarWidget::splitMe);
     m_toolbar->addAction(m_splitAction);
 
     m_closeAction = new QAction(tr("Close"), m_toolbar);
     m_closeAction->setToolTip(tr("Close"));
-    m_closeAction->setIcon(Icons::CLOSE_SPLIT_BOTTOM.icon());
+    m_closeAction->setIcon(Utils::Icons::CLOSE_SPLIT_BOTTOM.icon());
     connect(m_closeAction, &QAction::triggered, this, &SideBarWidget::closeMe);
     m_toolbar->addAction(m_closeAction);
 

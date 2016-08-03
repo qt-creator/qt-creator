@@ -74,7 +74,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/coreicons.h>
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/itemviewfind.h>
@@ -124,6 +123,7 @@
 #include <utils/savedaction.h>
 #include <utils/statuslabel.h>
 #include <utils/styledbar.h>
+#include <utils/utilsicons.h>
 #include <utils/winutils.h>
 
 #include <QAction>
@@ -3592,7 +3592,7 @@ QAction *createStartAction()
 QAction *createStopAction()
 {
     auto action = new QAction(DebuggerMainWindow::tr("Stop"), DebuggerPlugin::instance());
-    action->setIcon(Core::Icons::STOP_SMALL_TOOLBAR.icon());
+    action->setIcon(Utils::Icons::STOP_SMALL_TOOLBAR.icon());
     action->setEnabled(true);
     return action;
 }

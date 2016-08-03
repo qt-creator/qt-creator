@@ -31,8 +31,7 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 
-#include <coreplugin/coreicons.h>
-
+#include <utils/utilsicons.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>
@@ -63,7 +62,7 @@ LocalApplicationRunControl::LocalApplicationRunControl(RunConfiguration *rc, Cor
     : RunControl(rc, mode)
 {
     setRunnable(rc->runnable());
-    setIcon(Core::Icons::RUN_SMALL_TOOLBAR);
+    setIcon(Utils::Icons::RUN_SMALL_TOOLBAR);
     connect(&m_applicationLauncher, &ApplicationLauncher::appendMessage,
             this, static_cast<void(RunControl::*)(const QString &, Utils::OutputFormat)>(&RunControl::appendMessage));
     connect(&m_applicationLauncher, &ApplicationLauncher::processStarted,

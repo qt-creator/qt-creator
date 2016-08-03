@@ -60,7 +60,6 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/coreicons.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/id.h>
@@ -355,7 +354,7 @@ MemcheckTool::MemcheckTool(QObject *parent)
 
     // Load external XML log file
     auto action = new QAction(this);
-    action->setIcon(Core::Icons::OPENFILE.icon());
+    action->setIcon(Utils::Icons::OPENFILE.icon());
     action->setToolTip(tr("Load External XML Log File"));
     connect(action, &QAction::triggered, this, &MemcheckTool::loadExternalXmlLogFile);
     m_loadExternalLogFile = action;
@@ -377,7 +376,7 @@ MemcheckTool::MemcheckTool(QObject *parent)
     m_goNext = action;
 
     auto filterButton = new QToolButton;
-    filterButton->setIcon(Core::Icons::FILTER.icon());
+    filterButton->setIcon(Utils::Icons::FILTER.icon());
     filterButton->setText(tr("Error Filter"));
     filterButton->setPopupMode(QToolButton::InstantPopup);
     filterButton->setProperty("noArrow", true);

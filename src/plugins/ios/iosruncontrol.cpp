@@ -28,7 +28,7 @@
 #include "iosrunconfiguration.h"
 #include "iosrunner.h"
 
-#include <coreplugin/coreicons.h>
+#include <utils/utilsicons.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 
@@ -42,7 +42,7 @@ IosRunControl::IosRunControl(IosRunConfiguration *rc)
     , m_runner(new IosRunner(this, rc, false, QmlDebug::NoQmlDebugServices))
     , m_running(false)
 {
-    setIcon(Core::Icons::RUN_SMALL_TOOLBAR);
+    setIcon(Utils::Icons::RUN_SMALL_TOOLBAR);
 }
 
 IosRunControl::~IosRunControl()

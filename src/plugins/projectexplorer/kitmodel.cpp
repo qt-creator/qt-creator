@@ -29,7 +29,7 @@
 #include "kitmanagerconfigwidget.h"
 #include "kitmanager.h"
 
-#include <coreplugin/coreicons.h>
+#include <utils/utilsicons.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
@@ -79,11 +79,11 @@ public:
             }
             if (role == Qt::DecorationRole) {
                 if (!widget->isValid()) {
-                    static const QIcon errorIcon(Core::Icons::ERROR.icon());
+                    static const QIcon errorIcon(Utils::Icons::ERROR.icon());
                     return errorIcon;
                 }
                 if (widget->hasWarning()) {
-                    static const QIcon warningIcon(Core::Icons::WARNING.icon());
+                    static const QIcon warningIcon(Utils::Icons::WARNING.icon());
                     return warningIcon;
                 }
                 return QIcon();

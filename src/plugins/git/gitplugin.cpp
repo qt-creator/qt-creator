@@ -45,7 +45,6 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/coreicons.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -63,6 +62,7 @@
 #include <utils/qtcassert.h>
 #include <utils/parameteraction.h>
 #include <utils/pathchooser.h>
+#include <utils/utilsicons.h>
 #include <texteditor/texteditor.h>
 
 #include <vcsbase/basevcseditorfactory.h>
@@ -743,7 +743,7 @@ class RebaseItemDelegate : public IconItemDelegate
 {
 public:
     RebaseItemDelegate(LogChangeWidget *widget)
-        : IconItemDelegate(widget, Core::Icons::UNDO.imageFileName())
+        : IconItemDelegate(widget, Utils::Icons::UNDO.imageFileName())
     {
     }
 

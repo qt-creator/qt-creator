@@ -29,10 +29,10 @@
 #include "consoleitemdelegate.h"
 
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/coreicons.h>
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/icore.h>
 #include <utils/savedaction.h>
+#include <utils/utilsicons.h>
 #include <aggregation/aggregate.h>
 #include <coreplugin/find/itemviewfind.h>
 
@@ -108,7 +108,7 @@ Console::Console()
     m_showDebugButtonAction->setToolTip(tr("Show debug, log, and info messages."));
     m_showDebugButtonAction->setCheckable(true);
     m_showDebugButtonAction->setChecked(true);
-    m_showDebugButtonAction->setIcon(Core::Icons::INFO_TOOLBAR.icon());
+    m_showDebugButtonAction->setIcon(Utils::Icons::INFO_TOOLBAR.icon());
     connect(m_showDebugButtonAction, &Utils::SavedAction::toggled,
             proxyModel, &ConsoleProxyModel::setShowLogs);
     m_showDebugButton->setDefaultAction(m_showDebugButtonAction);
@@ -122,7 +122,7 @@ Console::Console()
     m_showWarningButtonAction->setToolTip(tr("Show warning messages."));
     m_showWarningButtonAction->setCheckable(true);
     m_showWarningButtonAction->setChecked(true);
-    m_showWarningButtonAction->setIcon(Core::Icons::WARNING_TOOLBAR.icon());
+    m_showWarningButtonAction->setIcon(Utils::Icons::WARNING_TOOLBAR.icon());
     connect(m_showWarningButtonAction, &Utils::SavedAction::toggled,
             proxyModel, &ConsoleProxyModel::setShowWarnings);
     m_showWarningButton->setDefaultAction(m_showWarningButtonAction);
@@ -136,7 +136,7 @@ Console::Console()
     m_showErrorButtonAction->setToolTip(tr("Show error messages."));
     m_showErrorButtonAction->setCheckable(true);
     m_showErrorButtonAction->setChecked(true);
-    m_showErrorButtonAction->setIcon(Core::Icons::ERROR_TOOLBAR.icon());
+    m_showErrorButtonAction->setIcon(Utils::Icons::ERROR_TOOLBAR.icon());
     connect(m_showErrorButtonAction, &Utils::SavedAction::toggled,
             proxyModel, &ConsoleProxyModel::setShowErrors);
     m_showErrorButton->setDefaultAction(m_showErrorButtonAction);

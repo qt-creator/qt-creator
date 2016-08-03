@@ -31,7 +31,6 @@
 #include <android/androidqtsupport.h>
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/coreicons.h>
 
 #include <projectexplorer/target.h>
 
@@ -41,6 +40,8 @@
 #include <proparser/prowriter.h>
 
 #include <qtsupport/qtkitinformation.h>
+
+#include <utils/utilsicons.h>
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -125,7 +126,7 @@ ChooseDirectoryPage::ChooseDirectoryPage(CreateAndroidManifestWizard *wizard)
     m_sourceDirectoryWarning->setWordWrap(true);
     m_warningIcon = new QLabel(this);
     m_warningIcon->setVisible(false);
-    m_warningIcon->setPixmap(Core::Icons::ERROR.pixmap());
+    m_warningIcon->setPixmap(Utils::Icons::ERROR.pixmap());
     m_warningIcon->setWordWrap(true);
     m_warningIcon->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 

@@ -30,10 +30,10 @@
 #include "openpagesmanager.h"
 
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/coreicons.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <utils/styledbar.h>
+#include <utils/utilsicons.h>
 
 #include <QApplication>
 #include <QClipboard>
@@ -309,7 +309,7 @@ SearchSideBarItem::SearchSideBarItem()
 QList<QToolButton *> SearchSideBarItem::createToolBarWidgets()
 {
     QToolButton *reindexButton = new QToolButton;
-    reindexButton->setIcon(Core::Icons::RELOAD.icon());
+    reindexButton->setIcon(Utils::Icons::RELOAD.icon());
     reindexButton->setToolTip(tr("Regenerate Index"));
     connect(reindexButton, &QAbstractButton::clicked,
             static_cast<SearchWidget *>(widget()), &SearchWidget::reindexDocumentation);

@@ -36,6 +36,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/detailswidget.h>
+#include <utils/utilsicons.h>
 
 using namespace QmakeProjectManager;
 using namespace QmakeProjectManager::Internal;
@@ -63,7 +64,7 @@ QmakeProjectConfigWidget::QmakeProjectConfigWidget(QmakeBuildConfiguration *bc)
 
     m_browseButton = m_ui->shadowBuildDirEdit->buttonAtIndex(0);
 
-    m_ui->warningLabel->setPixmap(Core::Icons::WARNING.pixmap());
+    m_ui->warningLabel->setPixmap(Utils::Icons::WARNING.pixmap());
     m_ui->shadowBuildDirEdit->setPromptDialogTitle(tr("Shadow Build Directory"));
     m_ui->shadowBuildDirEdit->setExpectedKind(Utils::PathChooser::ExistingDirectory);
     m_ui->shadowBuildDirEdit->setHistoryCompleter(QLatin1String("Qmake.BuildDir.History"));

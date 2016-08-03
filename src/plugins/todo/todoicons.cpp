@@ -25,7 +25,7 @@
 ****************************************************************************/
 #include <utils/icon.h>
 #include <utils/theme/theme.h>
-#include <coreplugin/coreicons.h>
+#include <utils/utilsicons.h>
 
 #include "todoicons.h"
 
@@ -38,11 +38,11 @@ QIcon icon(IconType type)
 {
     switch (type) {
     case IconType::Info: {
-        const static QIcon icon = Core::Icons::INFO.icon();
+        const static QIcon icon = Utils::Icons::INFO.icon();
         return icon;
     }
     case IconType::Warning: {
-        const static QIcon icon = Core::Icons::WARNING.icon();
+        const static QIcon icon = Utils::Icons::WARNING.icon();
         return icon;
     }
     case IconType::Bug: {
@@ -64,7 +64,7 @@ QIcon icon(IconType type)
 
     default:
     case IconType::Error: {
-        const static QIcon icon = Core::Icons::ERROR.icon();
+        const static QIcon icon = Utils::Icons::ERROR.icon();
         return icon;
     }
     }

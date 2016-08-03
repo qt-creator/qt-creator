@@ -666,7 +666,7 @@ void FindToolBar::updateIcons()
     bool regexp = effectiveFlags & FindRegularExpression;
     bool preserveCase = effectiveFlags & FindPreserveCase;
     if (!casesensitive && !wholewords && !regexp && !preserveCase) {
-        const QPixmap pixmap = Icons::MAGNIFIER.pixmap();
+        const QPixmap pixmap = Utils::Icons::MAGNIFIER.pixmap();
         m_ui.findEdit->setButtonPixmap(Utils::FancyLineEdit::Left, pixmap);
     } else {
         m_ui.findEdit->setButtonPixmap(Utils::FancyLineEdit::Left,
@@ -961,13 +961,13 @@ void FindToolBar::setLightColoredIcon(bool lightColored)
         m_ui.findNextButton->setArrowType(Qt::RightArrow);
         m_ui.findPreviousButton->setIcon(QIcon());
         m_ui.findPreviousButton->setArrowType(Qt::LeftArrow);
-        m_ui.close->setIcon(Icons::CLOSE_FOREGROUND.icon());
+        m_ui.close->setIcon(Utils::Icons::CLOSE_FOREGROUND.icon());
     } else {
         m_ui.findNextButton->setIcon(Utils::Icons::NEXT_TOOLBAR.icon());
         m_ui.findNextButton->setArrowType(Qt::NoArrow);
         m_ui.findPreviousButton->setIcon(Utils::Icons::PREV_TOOLBAR.icon());
         m_ui.findPreviousButton->setArrowType(Qt::NoArrow);
-        m_ui.close->setIcon(Icons::CLOSE_TOOLBAR.icon());
+        m_ui.close->setIcon(Utils::Icons::CLOSE_TOOLBAR.icon());
     }
 }
 

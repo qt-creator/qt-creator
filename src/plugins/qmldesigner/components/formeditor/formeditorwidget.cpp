@@ -41,8 +41,8 @@
 #include <lineeditaction.h>
 #include <backgroundaction.h>
 
-#include <coreplugin/coreicons.h>
 #include <utils/fileutils.h>
+#include <utils/utilsicons.h>
 
 namespace QmlDesigner {
 
@@ -99,7 +99,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_showBoundingRectAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     m_showBoundingRectAction->setCheckable(true);
     m_showBoundingRectAction->setChecked(true);
-    m_showBoundingRectAction->setIcon(Core::Icons::BOUNDING_RECT.icon());
+    m_showBoundingRectAction->setIcon(Utils::Icons::BOUNDING_RECT.icon());
 
     addAction(m_showBoundingRectAction.data());
     upperActions.append(m_showBoundingRectAction.data());
@@ -138,7 +138,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_resetAction = new QAction(tr("Reset view (R)."), this);
     m_resetAction->setShortcut(Qt::Key_R);
     m_resetAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
-    m_resetAction->setIcon(Core::Icons::RESET_TOOLBAR.icon());
+    m_resetAction->setIcon(Utils::Icons::RESET_TOOLBAR.icon());
     connect(m_resetAction.data(), SIGNAL(triggered(bool)), this, SLOT(resetNodeInstanceView()));
     addAction(m_resetAction.data());
     upperActions.append(m_resetAction.data());

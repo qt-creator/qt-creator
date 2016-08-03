@@ -54,7 +54,6 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/coreicons.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 
@@ -72,6 +71,7 @@
 #include <utils/fancymainwindow.h>
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
+#include <utils/utilsicons.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
@@ -366,14 +366,14 @@ CallgrindTool::CallgrindTool(QObject *parent)
 
     // load external log file
     auto action = m_loadExternalLogFile = new QAction(this);
-    action->setIcon(Core::Icons::OPENFILE.icon());
+    action->setIcon(Utils::Icons::OPENFILE.icon());
     action->setToolTip(tr("Load External Log File"));
     connect(action, &QAction::triggered, this, &CallgrindTool::loadExternalLogFile);
 
     // dump action
     m_dumpAction = action = new QAction(this);
     action->setDisabled(true);
-    action->setIcon(Core::Icons::REDO.icon());
+    action->setIcon(Utils::Icons::REDO.icon());
     //action->setText(tr("Dump"));
     action->setToolTip(tr("Request the dumping of profile information. This will update the Callgrind visualization."));
     connect(action, &QAction::triggered, this, &CallgrindTool::slotRequestDump);
@@ -381,7 +381,7 @@ CallgrindTool::CallgrindTool(QObject *parent)
     // reset action
     m_resetAction = action = new QAction(this);
     action->setDisabled(true);
-    action->setIcon(Core::Icons::RELOAD.icon());
+    action->setIcon(Utils::Icons::RELOAD.icon());
     //action->setText(tr("Reset"));
     action->setToolTip(tr("Reset all event counters."));
     connect(action, &QAction::triggered, this, &CallgrindTool::resetRequested);
@@ -389,7 +389,7 @@ CallgrindTool::CallgrindTool(QObject *parent)
     // pause action
     m_pauseAction = action = new QAction(this);
     action->setCheckable(true);
-    action->setIcon(Core::Icons::INTERRUPT_SMALL_TOOLBAR.icon());
+    action->setIcon(Utils::Icons::INTERRUPT_SMALL_TOOLBAR.icon());
     //action->setText(tr("Ignore"));
     action->setToolTip(tr("Pause event logging. No events are counted which will speed up program execution during profiling."));
     connect(action, &QAction::toggled, this, &CallgrindTool::pauseToggled);
@@ -481,7 +481,7 @@ CallgrindTool::CallgrindTool(QObject *parent)
 
     // Filtering
     action = m_filterProjectCosts = new QAction(tr("Show Project Costs Only"), this);
-    action->setIcon(Core::Icons::FILTER.icon());
+    action->setIcon(Utils::Icons::FILTER.icon());
     action->setToolTip(tr("Show only profiling info that originated from this project source."));
     action->setCheckable(true);
     connect(action, &QAction::toggled, this, &CallgrindTool::handleFilterProjectCosts);

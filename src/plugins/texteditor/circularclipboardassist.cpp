@@ -34,7 +34,8 @@
 #include "circularclipboard.h"
 
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/coreicons.h>
+
+#include <utils/utilsicons.h>
 
 #include <QApplication>
 #include <QClipboard>
@@ -90,7 +91,7 @@ public:
             return 0;
         const QScopedPointer<const AssistInterface> AssistInterface(interface);
 
-        QIcon icon = QIcon::fromTheme(QLatin1String("edit-paste"), Core::Icons::PASTE.icon()).pixmap(16);
+        QIcon icon = QIcon::fromTheme(QLatin1String("edit-paste"), Utils::Icons::PASTE.icon()).pixmap(16);
         CircularClipboard * clipboard = CircularClipboard::instance();
         QList<AssistProposalItemInterface *> items;
         for (int i = 0; i < clipboard->size(); ++i) {

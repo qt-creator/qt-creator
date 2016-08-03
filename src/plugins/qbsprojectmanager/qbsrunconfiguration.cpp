@@ -29,7 +29,6 @@
 #include "qbsinstallstep.h"
 #include "qbsproject.h"
 
-#include <coreplugin/coreicons.h>
 #include <coreplugin/messagemanager.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildstep.h>
@@ -50,6 +49,7 @@
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/qtkitinformation.h>
 #include <utils/hostosinfo.h>
+#include <utils/utilsicons.h>
 
 #include "api/runenvironment.h"
 
@@ -342,7 +342,7 @@ QbsRunConfigurationWidget::QbsRunConfigurationWidget(QbsRunConfiguration *rc)
     auto hl = new QHBoxLayout();
     hl->addStretch();
     m_disabledIcon = new QLabel(this);
-    m_disabledIcon->setPixmap(Core::Icons::WARNING.pixmap());
+    m_disabledIcon->setPixmap(Utils::Icons::WARNING.pixmap());
     hl->addWidget(m_disabledIcon);
     m_disabledReason = new QLabel(this);
     m_disabledReason->setVisible(false);

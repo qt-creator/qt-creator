@@ -29,7 +29,6 @@
 #include "debuggeroptionspage.h"
 #include "debuggerprotocol.h"
 
-#include <coreplugin/coreicons.h>
 #include <projectexplorer/abi.h>
 
 #include <utils/fileutils.h>
@@ -37,6 +36,7 @@
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
+#include <utils/utilsicons.h>
 
 #include <QFileInfo>
 #include <QProcess>
@@ -219,11 +219,11 @@ QDateTime DebuggerItem::lastModified() const
 QIcon DebuggerItem::decoration() const
 {
     if (m_engineType == NoEngineType)
-        return Core::Icons::ERROR.icon();
+        return Utils::Icons::ERROR.icon();
     if (!m_command.toFileInfo().isExecutable())
-        return Core::Icons::WARNING.icon();
+        return Utils::Icons::WARNING.icon();
     if (!m_workingDirectory.isEmpty() && !m_workingDirectory.toFileInfo().isDir())
-        return Core::Icons::WARNING.icon();
+        return Utils::Icons::WARNING.icon();
     return QIcon();
 }
 

@@ -37,10 +37,10 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/itemviewfind.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/coreicons.h>
 #include <coreplugin/icore.h>
 #include <texteditor/texteditor.h>
 #include <utils/progressindicator.h>
+#include <utils/utilsicons.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 
 #include <QAction>
@@ -204,7 +204,7 @@ QList<QToolButton *> TestNavigationWidget::createToolButtons()
     QList<QToolButton *> list;
 
     m_filterButton = new QToolButton(m_view);
-    m_filterButton->setIcon(Core::Icons::FILTER.icon());
+    m_filterButton->setIcon(Utils::Icons::FILTER.icon());
     m_filterButton->setToolTip(tr("Filter Test Tree"));
     m_filterButton->setProperty("noArrow", true);
     m_filterButton->setAutoRaise(true);
@@ -220,11 +220,11 @@ QList<QToolButton *> TestNavigationWidget::createToolButtons()
     m_sort->setToolTip(tr("Sort Naturally"));
 
     QToolButton *expand = new QToolButton(this);
-    expand->setIcon(Core::Icons::EXPAND_TOOLBAR.icon());
+    expand->setIcon(Utils::Icons::EXPAND_TOOLBAR.icon());
     expand->setToolTip(tr("Expand All"));
 
     QToolButton *collapse = new QToolButton(this);
-    collapse->setIcon(Core::Icons::COLLAPSE_TOOLBAR.icon());
+    collapse->setIcon(Utils::Icons::COLLAPSE_TOOLBAR.icon());
     collapse->setToolTip(tr("Collapse All"));
 
     connect(expand, &QToolButton::clicked, m_view, &TestTreeView::expandAll);

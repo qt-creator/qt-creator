@@ -31,7 +31,6 @@
 #include "androidmanager.h"
 #include "ui_androidbuildapkwidget.h"
 
-#include <coreplugin/coreicons.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
@@ -39,6 +38,7 @@
 
 #include <utils/fancylineedit.h>
 #include <utils/pathchooser.h>
+#include <utils/utilsicons.h>
 
 #include <QFileDialog>
 
@@ -85,10 +85,10 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
     m_ui->KeystoreLocationPathChooser->setInitialBrowsePathBackup(QDir::homePath());
     m_ui->KeystoreLocationPathChooser->setPromptDialogFilter(tr("Keystore files (*.keystore *.jks)"));
     m_ui->KeystoreLocationPathChooser->setPromptDialogTitle(tr("Select Keystore File"));
-    m_ui->signingDebugWarningIcon->setPixmap(Core::Icons::WARNING.pixmap());
+    m_ui->signingDebugWarningIcon->setPixmap(Utils::Icons::WARNING.pixmap());
     m_ui->signingDebugWarningIcon->hide();
     m_ui->signingDebugWarningLabel->hide();
-    m_ui->signingDebugDeployErrorIcon->setPixmap(Core::Icons::ERROR.pixmap());
+    m_ui->signingDebugDeployErrorIcon->setPixmap(Utils::Icons::ERROR.pixmap());
     signPackageCheckBoxToggled(m_step->signPackage());
 
     m_ui->useGradleCheckBox->setChecked(m_step->useGradle());

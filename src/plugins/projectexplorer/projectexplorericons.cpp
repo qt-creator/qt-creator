@@ -48,16 +48,16 @@ const Icon DEBUG_START_FLAT({
         {":/projectexplorer/images/run_mask.png", Theme::IconsRunToolBarColor},
         {":/projectexplorer/images/debugger_beetle_mask.png", Theme::IconsDebugColor}});
 const Icon DEBUG_START_SMALL({
-        {":/core/images/run_small.png", Theme::IconsRunColor},
+        {":/utils/images/run_small.png", Theme::IconsRunColor},
         {":/projectexplorer/images/debugger_overlay_small.png", Theme::PanelTextColorMid}}, Icon::MenuTintedStyle);
 const Icon DEBUG_START_SMALL_TOOLBAR({
-        {":/core/images/run_small.png", Theme::IconsRunToolBarColor},
+        {":/utils/images/run_small.png", Theme::IconsRunToolBarColor},
         {":/projectexplorer/images/debugger_overlay_small.png", Theme::IconsDebugColor}});
 const Icon ANALYZER_START_SMALL({
-        {":/core/images/run_small.png", Theme::IconsRunColor},
+        {":/utils/images/run_small.png", Theme::IconsRunColor},
         {":/projectexplorer/images/analyzer_overlay_small.png", Theme::PanelTextColorMid}}, Icon::MenuTintedStyle);
 const Icon ANALYZER_START_SMALL_TOOLBAR({
-        {":/core/images/run_small.png", Theme::IconsRunToolBarColor},
+        {":/utils/images/run_small.png", Theme::IconsRunToolBarColor},
         {":/projectexplorer/images/analyzer_overlay_small.png", Theme::IconsBaseColor}});
 
 const Icon BUILDSTEP_MOVEUP({
@@ -72,7 +72,7 @@ const Icon BUILDSTEP_REMOVE({
 const Icon DESKTOP_DEVICE({
         {":/projectexplorer/images/desktopdevice.png", Theme::IconsBaseColor}});
 const Icon DESKTOP_DEVICE_SMALL({
-        {":/core/images/desktopdevicesmall.png", Theme::PanelTextColorDark}}, Icon::Tint);
+        {":/utils/images/desktopdevicesmall.png", Theme::PanelTextColorDark}}, Icon::Tint);
 
 const Icon MODE_PROJECT_CLASSIC(":/projectexplorer/images/mode_project.png");
 const Icon MODE_PROJECT_FLAT({

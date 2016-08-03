@@ -25,7 +25,7 @@
 
 #include "opendocumentstreeview.h"
 
-#include "coreicons.h"
+#include <utils/utilsicons.h>
 
 #include <QApplication>
 #include <QHeaderView>
@@ -83,8 +83,8 @@ void OpenDocumentsDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
 
     if (closeButtonVisible && index.column() == 1 && option.state & QStyle::State_MouseOver) {
         const QIcon icon = (option.state & QStyle::State_Selected) ?
-                    Icons::CLOSE_BACKGROUND.icon()
-                  : Icons::CLOSE_FOREGROUND.icon();
+                    Utils::Icons::CLOSE_BACKGROUND.icon()
+                  : Utils::Icons::CLOSE_FOREGROUND.icon();
 
         QRect iconRect(option.rect.right() - option.rect.height(),
                        option.rect.top(),

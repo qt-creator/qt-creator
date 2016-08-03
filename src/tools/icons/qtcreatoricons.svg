@@ -585,7 +585,7 @@
      id="layer1"
      style="display:inline">
     <g
-       id="src/plugins/coreplugin/images/dir"
+       id="src/libs/utils/images/dir"
        transform="translate(102,0)">
       <path
          sodipodi:nodetypes="ccccccccc"
@@ -614,7 +614,7 @@
          y="584" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/progressbar"
+       id="src/libs/utils/images/progressbar"
        transform="translate(96,0)">
       <rect
          ry="1"
@@ -1550,7 +1550,7 @@
      style="display:inline">
     <g
        style="display:inline"
-       id="src/plugins/coreplugin/images/close"
+       id="src/libs/utils/images/close"
        inkscape:export-filename="c:\Users\aportale\dev\qt-creator\src\plugins\coreplugin\images\button_close.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90"
@@ -1578,7 +1578,7 @@
       </g>
     </g>
     <g
-       id="src/plugins/coreplugin/images/extension"
+       id="src/libs/utils/images/extension"
        style="display:inline;"
        clip-path="url(#clipPath4754)"
        transform="translate(-171,-20)">
@@ -1603,7 +1603,7 @@
          style="fill:none;stroke:#000000;stroke-width:0.89999998;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/filtericon"
+       id="src/libs/utils/images/filtericon"
        style="display:inline;"
        clip-path="url(#clipPath4845)"
        transform="translate(-170,-16)">
@@ -1627,7 +1627,7 @@
          style="display:inline;fill:#000000;stroke:none;fill-opacity:1.0" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/linkicon"
+       id="src/libs/utils/images/linkicon"
        style="display:inline;"
        clip-path="url(#clipPath3927)"
        transform="translate(-396,-16)">
@@ -1655,7 +1655,7 @@
          id="path4975-0" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/splitbutton_closebottom"
+       id="src/libs/utils/images/splitbutton_closebottom"
        style=""
        clip-path="url(#clipPath3182)"
        transform="translate(1,0)">
@@ -1679,7 +1679,7 @@
          sodipodi:nodetypes="cccc" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/splitbutton_closeleft"
+       id="src/libs/utils/images/splitbutton_closeleft"
        style=""
        clip-path="url(#clipPath3271)"
        transform="translate(17,0)">
@@ -1704,7 +1704,7 @@
     </g>
     <g
        transform="translate(33,0)"
-       id="src/plugins/coreplugin/images/splitbutton_closeright"
+       id="src/libs/utils/images/splitbutton_closeright"
        style="display:inline;"
        clip-path="url(#clipPath3271-1)">
       <rect
@@ -1728,7 +1728,7 @@
     </g>
     <g
        transform="translate(16,0)"
-       id="src/plugins/coreplugin/images/splitbutton_closetop"
+       id="src/libs/utils/images/splitbutton_closetop"
        style="display:inline;"
        clip-path="url(#clipPath3182-1)">
       <rect
@@ -1751,7 +1751,7 @@
          sodipodi:nodetypes="cccc" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/splitbutton_horizontal"
+       id="src/libs/utils/images/splitbutton_horizontal"
        style=""
        clip-path="url(#clipPath4080)"
        transform="translate(1,0)">
@@ -1787,7 +1787,7 @@
     </g>
     <g
        transform="translate(17,0)"
-       id="src/plugins/coreplugin/images/splitbutton_vertical"
+       id="src/libs/utils/images/splitbutton_vertical"
        style="display:inline;"
        clip-path="url(#clipPath4080-1)">
       <rect
@@ -1822,7 +1822,7 @@
          style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/reload_gray"
+       id="src/libs/utils/images/reload_gray"
        clip-path="url(#clipPath3204)">
       <rect
          style="fill:#ffffff"
@@ -1973,7 +1973,7 @@
     </g>
     <g
        style="display:inline;"
-       id="src/plugins/coreplugin/images/arrowdown"
+       id="src/libs/utils/images/arrowdown"
        transform="translate(217,-16)"
        clip-path="url(#clipPath4007)">
       <rect
@@ -1991,7 +1991,7 @@
          sodipodi:nodetypes="ccc" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/arrowup"
+       id="src/libs/utils/images/arrowup"
        style=""
        clip-path="url(#clipPath4026)">
       <rect
@@ -2055,7 +2055,7 @@
          style="fill:#000000;fill-opacity:1;stroke:none" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/run_small"
+       id="src/libs/utils/images/run_small"
        transform="translate(112,0)">
       <rect
          id="rect4901-1"
@@ -2071,7 +2071,7 @@
          style="fill:#000000;fill-opacity:1;stroke:none" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/stop_small"
+       id="src/libs/utils/images/stop_small"
        transform="translate(112,0)">
       <rect
          id="rect4907-4"
@@ -2090,7 +2090,7 @@
     </g>
     <g
        transform="translate(128,0)"
-       id="src/plugins/coreplugin/images/interrupt_small">
+       id="src/libs/utils/images/interrupt_small">
       <rect
          style="fill:#ffffff;fill-opacity:1;stroke:none"
          x="265"
@@ -2250,7 +2250,7 @@
     </g>
     <g
        transform="translate(29,268)"
-       id="src/plugins/coreplugin/images/plus">
+       id="src/libs/utils/images/plus">
       <rect
          id="rect5187-0"
          height="16"
@@ -2268,7 +2268,7 @@
     <g
        style="display:inline"
        transform="translate(45,268)"
-       id="src/plugins/coreplugin/images/minus">
+       id="src/libs/utils/images/minus">
       <rect
          id="rect5187-0-8"
          height="16"
@@ -2286,7 +2286,7 @@
     <g
        transform="translate(-219,368)"
        style="display:inline"
-       id="src/plugins/coreplugin/images/clean_pane_small">
+       id="src/libs/utils/images/clean_pane_small">
       <rect
          id="rect4672-0"
          height="16"
@@ -2316,7 +2316,7 @@
          transform="translate(0,-100)" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/sidebaricon"
+       id="src/libs/utils/images/sidebaricon"
        clip-path="none"
        transform="translate(399,0)">
       <rect
@@ -2387,7 +2387,7 @@
     <g
        transform="translate(297,268)"
        style="display:inline"
-       id="src/plugins/coreplugin/images/eye_open">
+       id="src/libs/utils/images/eye_open">
       <rect
          id="rect6782-9"
          height="16"
@@ -2409,7 +2409,7 @@
     </g>
     <g
        transform="translate(263,268)"
-       id="src/plugins/coreplugin/images/eye_closed">
+       id="src/libs/utils/images/eye_closed">
       <rect
          id="rect6790-1"
          height="16"
@@ -2546,7 +2546,7 @@
     <g
        transform="translate(608,268)"
        style="display:inline"
-       id="src/plugins/coreplugin/images/boundingrect">
+       id="src/libs/utils/images/boundingrect">
       <rect
          id="rect6754-2"
          height="16"
@@ -2563,7 +2563,7 @@
     <g
        transform="matrix(0,-1,1,0,524,834)"
        style="display:inline"
-       id="src/plugins/coreplugin/images/reset">
+       id="src/libs/utils/images/reset">
       <rect
          id="rect6700-2"
          height="16"
@@ -2823,7 +2823,7 @@
     </g>
     <g
        style="display:inline"
-       id="src/plugins/coreplugin/images/expand"
+       id="src/libs/utils/images/expand"
        transform="translate(48,0)">
       <rect
          y="568"
@@ -2852,7 +2852,7 @@
          inkscape:connector-curvature="0" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/collapse"
+       id="src/libs/utils/images/collapse"
        transform="translate(16,0)">
       <rect
          style="display:inline;fill:#ffffff;fill-opacity:1;stroke:none"
@@ -3144,7 +3144,7 @@
       </g>
     </g>
     <g
-       id="src/plugins/coreplugin/images/replace_a">
+       id="src/libs/utils/images/replace_a">
       <rect
          id="rect6782-96-0-04"
          height="16"
@@ -3161,7 +3161,7 @@
     </g>
     <g
        style="display:inline"
-       id="src/plugins/coreplugin/images/replace_b"
+       id="src/libs/utils/images/replace_b"
        transform="translate(16,0)">
       <rect
          id="rect6782-96-0-04-0"
@@ -4201,7 +4201,7 @@
      inkscape:label="Errors, warnings, info"
      style="display:inline">
     <g
-       id="src/plugins/coreplugin/images/compile_error_taskbar"
+       id="src/libs/utils/images/compile_error_taskbar"
        transform="translate(-76,-48)">
       <rect
          y="584"
@@ -4236,7 +4236,7 @@
          sodipodi:nodetypes="ccccccc" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/warning"
+       id="src/libs/utils/images/warning"
        transform="translate(-421,-48)">
       <rect
          style="fill:#ffffff;stroke:none"
@@ -4261,14 +4261,14 @@
          sodipodi:nodetypes="sssssccccc" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/error"
+       id="src/libs/utils/images/error"
        transform="translate(-422,-48)">
       <use
          height="600"
          width="800"
          transform="translate(470,48)"
          id="use3888"
-         xlink:href="#src/plugins/coreplugin/images/compile_error_taskbar"
+         xlink:href="#src/libs/utils/images/compile_error_taskbar"
          y="0"
          x="0" />
       <path
@@ -4278,7 +4278,7 @@
          inkscape:connector-curvature="0" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/info"
+       id="src/libs/utils/images/info"
        transform="translate(-422,-48)">
       <rect
          y="584"
@@ -4294,7 +4294,7 @@
          style="display:inline;fill:#000000" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/warningfill"
+       id="src/libs/utils/images/warningfill"
        transform="translate(16,0)">
       <rect
          y="520"
@@ -4346,7 +4346,7 @@
          width="800"
          transform="translate(470,48)"
          id="use3888-4"
-         xlink:href="#src/plugins/coreplugin/images/compile_error_taskbar"
+         xlink:href="#src/libs/utils/images/compile_error_taskbar"
          y="0"
          x="0" />
       <path
@@ -4555,7 +4555,7 @@
      inkscape:label="Panel items"
      style="display:inline">
     <g
-       id="src/plugins/coreplugin/images/inputfield"
+       id="src/libs/utils/images/inputfield"
        transform="translate(-211,-80)"
        style="opacity:1;stroke:none">
       <g
@@ -4581,14 +4581,14 @@
          ry="2" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/inputfield_disabled"
+       id="src/libs/utils/images/inputfield_disabled"
        transform="translate(-212,-80)">
       <use
          height="600"
          width="800"
          transform="translate(228,80)"
          id="use4910"
-         xlink:href="#src/plugins/coreplugin/images/inputfield"
+         xlink:href="#src/libs/utils/images/inputfield"
          y="0"
          x="0"
          style="filter:url(#filter3230)" />
@@ -4604,7 +4604,7 @@
          transform="translate(16.5,0.5)" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/editclear"
+       id="src/libs/utils/images/editclear"
        transform="translate(-139,-80)"
        style="">
       <rect
@@ -4644,7 +4644,7 @@
     </g>
     <g
        style="display:inline"
-       id="src/plugins/coreplugin/images/magnifier"
+       id="src/libs/utils/images/magnifier"
        transform="translate(37,-80)">
       <rect
          style="fill:#ffffff;fill-opacity:1"
@@ -4678,7 +4678,7 @@
          style="display:inline;fill:#000000;fill-opacity:1;stroke:none" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/panel_button"
+       id="src/libs/utils/images/panel_button"
        style="opacity:0.83"
        inkscape:export-filename="panel_button.png"
        inkscape:export-xdpi="90"
@@ -4733,7 +4733,7 @@
       </g>
     </g>
     <g
-       id="src/plugins/coreplugin/images/panel_button_hover"
+       id="src/libs/utils/images/panel_button_hover"
        style="opacity:0.82999998"
        inkscape:export-filename="panel_button.png"
        inkscape:export-xdpi="90"
@@ -4757,7 +4757,7 @@
          style="fill:#ffffff;fill-opacity:0.1254902;stroke:none" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/panel_button_checked"
+       id="src/libs/utils/images/panel_button_checked"
        style="opacity:0.82999998"
        inkscape:export-filename="panel_button.png"
        inkscape:export-xdpi="90"
@@ -4784,7 +4784,7 @@
       </g>
     </g>
     <g
-       id="src/plugins/coreplugin/images/panel_button_checked_hover"
+       id="src/libs/utils/images/panel_button_checked_hover"
        style="opacity:0.82999998"
        inkscape:export-filename="panel_button.png"
        inkscape:export-xdpi="90"
@@ -4808,7 +4808,7 @@
          x="0" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/panel_button_pressed"
+       id="src/libs/utils/images/panel_button_pressed"
        style="opacity:0.82999998"
        inkscape:export-filename="panel_button.png"
        inkscape:export-xdpi="90"
@@ -4839,7 +4839,7 @@
          x="0" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/panel_manage_button"
+       id="src/libs/utils/images/panel_manage_button"
        style="opacity:0.82999998">
       <g
          id="panel_manage_button">
@@ -4869,7 +4869,7 @@
       </g>
     </g>
     <g
-       id="src/plugins/coreplugin/images/panel_manage_button_hover"
+       id="src/libs/utils/images/panel_manage_button_hover"
        style="opacity:0.83">
       <use
          height="600"
@@ -4889,7 +4889,7 @@
          style="fill:#ffffff;fill-opacity:0.12549020000000000;stroke:none" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/panel_manage_button_pressed"
+       id="src/libs/utils/images/panel_manage_button_pressed"
        style="opacity:0.82999998">
       <use
          x="0"
@@ -5234,7 +5234,7 @@
        x="0"
        y="0"
        xlink:href="#src/plugins/projectexplorer/images/desktopdevice"
-       id="src/plugins/coreplugin/images/desktopdevicesmall"
+       id="src/libs/utils/images/desktopdevicesmall"
        transform="matrix(0.5,0,0,0.5,285,189.5)"
        width="100%"
        height="100%" />
@@ -5576,7 +5576,7 @@
       </g>
     </g>
     <g
-       id="src/plugins/coreplugin/images/filesave">
+       id="src/libs/utils/images/filesave">
       <rect
          style="display:inline;fill:#ffffff;fill-opacity:1"
          x="1000"

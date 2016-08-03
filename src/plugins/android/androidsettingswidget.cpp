@@ -31,11 +31,11 @@
 #include "androidconstants.h"
 #include "androidtoolchain.h"
 
-#include <coreplugin/coreicons.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
 #include <utils/runextensions.h>
+#include <utils/utilsicons.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/kitinformation.h>
@@ -170,11 +170,11 @@ AndroidSettingsWidget::AndroidSettingsWidget(QWidget *parent)
     m_ui->downloadAntToolButton->setVisible(!Utils::HostOsInfo::isLinuxHost());
     m_ui->downloadOpenJDKToolButton->setVisible(!Utils::HostOsInfo::isLinuxHost());
 
-    const QPixmap warningPixmap = Core::Icons::WARNING.pixmap();
+    const QPixmap warningPixmap = Utils::Icons::WARNING.pixmap();
     m_ui->jdkWarningIconLabel->setPixmap(warningPixmap);
     m_ui->kitWarningIconLabel->setPixmap(warningPixmap);
 
-    const QPixmap errorPixmap = Core::Icons::ERROR.pixmap();
+    const QPixmap errorPixmap = Utils::Icons::ERROR.pixmap();
     m_ui->sdkWarningIconLabel->setPixmap(errorPixmap);
     m_ui->gdbWarningIconLabel->setPixmap(errorPixmap);
     m_ui->ndkWarningIconLabel->setPixmap(errorPixmap);

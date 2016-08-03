@@ -29,7 +29,7 @@
 #include "androidrunconfiguration.h"
 #include "androidrunner.h"
 
-#include <coreplugin/coreicons.h>
+#include <utils/utilsicons.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 
@@ -44,7 +44,7 @@ AndroidRunControl::AndroidRunControl(AndroidRunConfiguration *rc)
     , m_running(false)
 {
     setRunnable(m_runner->runnable());
-    setIcon(Core::Icons::RUN_SMALL_TOOLBAR);
+    setIcon(Utils::Icons::RUN_SMALL_TOOLBAR);
 }
 
 AndroidRunControl::~AndroidRunControl()

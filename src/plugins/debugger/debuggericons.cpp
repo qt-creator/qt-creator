@@ -40,9 +40,9 @@ const Icon BREAKPOINT_PENDING({
 const Icon BREAKPOINTS(
         ":/debugger/images/debugger_breakpoints.png");
 const Icon WATCHPOINT({
-        {":/core/images/eye_open.png", Theme::TextColorNormal}}, Icon::Tint);
+        {":/utils/images/eye_open.png", Theme::TextColorNormal}}, Icon::Tint);
 const Icon TRACEPOINT({
-        {":/core/images/eye_open.png", Theme::TextColorNormal},
+        {":/utils/images/eye_open.png", Theme::TextColorNormal},
         {":/debugger/images/tracepointoverlay.png", Theme::TextColorNormal}}, Icon::Tint | Icon::PunchEdges);
 const Icon CONTINUE(
         ":/debugger/images/debugger_continue.png");
@@ -64,16 +64,16 @@ const Icon INTERRUPT_FLAT({
         {":/debugger/images/debugger_interrupt_mask.png", Theme::IconsInterruptToolBarColor},
         {":/projectexplorer/images/debugger_beetle_mask.png", Theme::IconsDebugColor}});
 const Icon DEBUG_INTERRUPT_SMALL({
-        {":/core/images/interrupt_small.png", Theme::IconsInterruptColor},
+        {":/utils/images/interrupt_small.png", Theme::IconsInterruptColor},
         {":/projectexplorer/images/debugger_overlay_small.png", Theme::PanelTextColorMid}}, Icon::MenuTintedStyle);
 const Icon DEBUG_INTERRUPT_SMALL_TOOLBAR({
-        {":/core/images/interrupt_small.png", Theme::IconsInterruptToolBarColor},
+        {":/utils/images/interrupt_small.png", Theme::IconsInterruptToolBarColor},
         {":/projectexplorer/images/debugger_overlay_small.png", Theme::IconsDebugColor}});
 const Icon DEBUG_EXIT_SMALL({
-        {":/core/images/stop_small.png", Theme::IconsStopColor},
+        {":/utils/images/stop_small.png", Theme::IconsStopColor},
         {":/projectexplorer/images/debugger_overlay_small.png", Theme::PanelTextColorMid}}, Icon::MenuTintedStyle);
 const Icon DEBUG_EXIT_SMALL_TOOLBAR({
-        {":/core/images/stop_small.png", Theme::IconsStopToolBarColor},
+        {":/utils/images/stop_small.png", Theme::IconsStopToolBarColor},
         {":/projectexplorer/images/debugger_overlay_small.png", Theme::IconsDebugColor}});
 const Icon LOCATION({
         {":/debugger/images/location_background.png", Theme::IconsCodeModelOverlayForegroundColor},

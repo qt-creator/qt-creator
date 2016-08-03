@@ -26,8 +26,7 @@
 #include "buildprogress.h"
 #include "projectexplorerconstants.h"
 
-#include <coreplugin/coreicons.h>
-
+#include <utils/utilsicons.h>
 #include <utils/stylehelper.h>
 
 #include <QFont>
@@ -85,8 +84,8 @@ BuildProgress::BuildProgress(TaskWindow *taskWindow, Qt::Orientation orientation
 
     m_errorIcon->setAlignment(Qt::AlignRight);
     m_warningIcon->setAlignment(Qt::AlignRight);
-    m_errorIcon->setPixmap(Core::Icons::ERROR_TOOLBAR.pixmap());
-    m_warningIcon->setPixmap(Core::Icons::WARNING_TOOLBAR.pixmap());
+    m_errorIcon->setPixmap(Utils::Icons::ERROR_TOOLBAR.pixmap());
+    m_warningIcon->setPixmap(Utils::Icons::WARNING_TOOLBAR.pixmap());
 
     m_contentWidget->hide();
 

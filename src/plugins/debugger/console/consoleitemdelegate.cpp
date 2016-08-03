@@ -27,7 +27,8 @@
 #include "consoleedit.h"
 
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/coreicons.h>
+
+#include <utils/utilsicons.h>
 
 #include <QPainter>
 #include <QTreeView>
@@ -66,11 +67,11 @@ namespace Internal {
 ConsoleItemDelegate::ConsoleItemDelegate(ConsoleItemModel *model, QObject *parent) :
     QStyledItemDelegate(parent),
     m_model(model),
-    m_logIcon(Core::Icons::INFO.icon()),
-    m_warningIcon(Core::Icons::WARNING.icon()),
-    m_errorIcon(Core::Icons::ERROR.icon()),
-    m_expandIcon(Core::Icons::EXPAND.icon()),
-    m_collapseIcon(Core::Icons::COLLAPSE.icon()),
+    m_logIcon(Utils::Icons::INFO.icon()),
+    m_warningIcon(Utils::Icons::WARNING.icon()),
+    m_errorIcon(Utils::Icons::ERROR.icon()),
+    m_expandIcon(Utils::Icons::EXPAND.icon()),
+    m_collapseIcon(Utils::Icons::COLLAPSE.icon()),
     m_prompt(QLatin1String(":/qmljstools/images/prompt.png")),
     m_cachedHeight(0)
 {

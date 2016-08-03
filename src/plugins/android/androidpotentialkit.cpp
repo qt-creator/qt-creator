@@ -28,6 +28,8 @@
 #include "androidconfigurations.h"
 
 #include <utils/detailswidget.h>
+#include <utils/utilsicons.h>
+
 #include <coreplugin/coreicons.h>
 #include <coreplugin/icore.h>
 #include <projectexplorer/kitmanager.h>
@@ -87,7 +89,7 @@ AndroidPotentialKitWidget::AndroidPotentialKitWidget(QWidget *parent)
     : Utils::DetailsWidget(parent)
 {
     setSummaryText(QLatin1String("<b>Android has not been configured. Create Android kits.</b>"));
-    setIcon(Core::Icons::WARNING.icon());
+    setIcon(Utils::Icons::WARNING.icon());
     //detailsWidget->setState(Utils::DetailsWidget::NoSummary);
     auto mainWidget = new QWidget(this);
     setWidget(mainWidget);

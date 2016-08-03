@@ -27,10 +27,10 @@
 
 #include "diagnosticlocation.h"
 
-#include <coreplugin/coreicons.h>
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <utils/qtcassert.h>
+#include <utils/utilsicons.h>
 
 #include <QAbstractTextDocumentLayout>
 #include <QAction>
@@ -127,7 +127,7 @@ DetailedErrorView::DetailedErrorView(QWidget *parent) :
     setItemDelegateForColumn(LocationColumn, new Internal::DetailedErrorDelegate(this));
 
     m_copyAction->setText(tr("Copy"));
-    m_copyAction->setIcon(Core::Icons::COPY.icon());
+    m_copyAction->setIcon(Utils::Icons::COPY.icon());
     m_copyAction->setShortcut(QKeySequence::Copy);
     m_copyAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     connect(m_copyAction, &QAction::triggered, [this] {

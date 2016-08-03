@@ -29,7 +29,6 @@
 #include "locatorsearchutils.h"
 #include "ilocatorfilter.h"
 
-#include <coreplugin/coreicons.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -250,7 +249,7 @@ LocatorWidget::LocatorWidget(Locator *qop) :
     layout->addWidget(m_fileLineEdit);
 
     setWindowIcon(Utils::Icons::ZOOM.icon());
-    const QPixmap pixmap = Icons::MAGNIFIER.pixmap();
+    const QPixmap pixmap = Utils::Icons::MAGNIFIER.pixmap();
     m_fileLineEdit->setFiltering(true);
     m_fileLineEdit->setButtonPixmap(Utils::FancyLineEdit::Left, pixmap);
     m_fileLineEdit->setButtonToolTip(Utils::FancyLineEdit::Left, tr("Options"));

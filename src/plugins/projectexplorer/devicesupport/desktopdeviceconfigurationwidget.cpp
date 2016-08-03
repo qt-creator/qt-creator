@@ -27,7 +27,7 @@
 #include "ui_desktopdeviceconfigurationwidget.h"
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <coreplugin/coreicons.h>
+#include <utils/utilsicons.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
 
@@ -69,7 +69,7 @@ void DesktopDeviceConfigurationWidget::initGui()
     m_ui->machineTypeValueLabel->setText(tr("Physical Device"));
     m_ui->freePortsLineEdit->setPlaceholderText(
                 QString::fromLatin1("eg: %1-%2").arg(DESKTOP_PORT_START).arg(DESKTOP_PORT_END));
-    m_ui->portsWarningLabel->setPixmap(Core::Icons::WARNING.pixmap());
+    m_ui->portsWarningLabel->setPixmap(Utils::Icons::WARNING.pixmap());
     m_ui->portsWarningLabel->setToolTip(QLatin1String("<font color=\"red\">")
                                         + tr("You will need at least one port for QML debugging.")
                                         + QLatin1String("</font>"));

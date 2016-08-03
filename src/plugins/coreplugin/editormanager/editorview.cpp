@@ -32,7 +32,6 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editortoolbar.h>
-#include <coreplugin/coreicons.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/infobar.h>
 #include <coreplugin/locator/locatorconstants.h>
@@ -41,6 +40,7 @@
 #include <coreplugin/findplaceholder.h>
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
+#include <utils/utilsicons.h>
 
 #include <QDebug>
 
@@ -740,11 +740,11 @@ void SplitterOrView::split(Qt::Orientation orientation)
     view->view()->setCurrentEditor(duplicate);
 
     if (orientation == Qt::Horizontal) {
-        view->view()->setCloseSplitIcon(Icons::CLOSE_SPLIT_LEFT.icon());
-        otherView->view()->setCloseSplitIcon(Icons::CLOSE_SPLIT_RIGHT.icon());
+        view->view()->setCloseSplitIcon(Utils::Icons::CLOSE_SPLIT_LEFT.icon());
+        otherView->view()->setCloseSplitIcon(Utils::Icons::CLOSE_SPLIT_RIGHT.icon());
     } else {
-        view->view()->setCloseSplitIcon(Icons::CLOSE_SPLIT_TOP.icon());
-        otherView->view()->setCloseSplitIcon(Icons::CLOSE_SPLIT_BOTTOM.icon());
+        view->view()->setCloseSplitIcon(Utils::Icons::CLOSE_SPLIT_TOP.icon());
+        otherView->view()->setCloseSplitIcon(Utils::Icons::CLOSE_SPLIT_BOTTOM.icon());
     }
 
     EditorManagerPrivate::activateView(otherView->view());
@@ -834,12 +834,12 @@ void SplitterOrView::unsplit()
             if (parentSplitter) { // not the toplevel splitterOrView
                 if (parentSplitter->orientation() == Qt::Horizontal)
                     m_view->setCloseSplitIcon(parentSplitter->widget(0) == this ?
-                                                  Icons::CLOSE_SPLIT_LEFT.icon()
-                                                : Icons::CLOSE_SPLIT_RIGHT.icon());
+                                                  Utils::Icons::CLOSE_SPLIT_LEFT.icon()
+                                                : Utils::Icons::CLOSE_SPLIT_RIGHT.icon());
                 else
                     m_view->setCloseSplitIcon(parentSplitter->widget(0) == this ?
-                                                  Icons::CLOSE_SPLIT_TOP.icon()
-                                                : Icons::CLOSE_SPLIT_BOTTOM.icon());
+                                                  Utils::Icons::CLOSE_SPLIT_TOP.icon()
+                                                : Utils::Icons::CLOSE_SPLIT_BOTTOM.icon());
             }
         }
         m_layout->setCurrentWidget(m_view);

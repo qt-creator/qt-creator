@@ -47,7 +47,6 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/coreicons.h>
 #include <coreplugin/modemanager.h>
 
 #include <extensionsystem/pluginmanager.h>
@@ -55,6 +54,7 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/treemodel.h>
+#include <utils/utilsicons.h>
 
 #include <QCoreApplication>
 #include <QDialogButtonBox>
@@ -364,9 +364,9 @@ public:
             Kit *k = KitManager::find(m_kitId);
             QTC_ASSERT(k, return QVariant());
             if (!k->isValid())
-                return Core::Icons::ERROR.icon();
+                return Utils::Icons::ERROR.icon();
             if (k->hasWarning())
-                return Core::Icons::WARNING.icon();
+                return Utils::Icons::WARNING.icon();
             break;
         }
 

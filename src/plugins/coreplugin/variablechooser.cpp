@@ -26,13 +26,12 @@
 #include "variablechooser.h"
 #include "coreconstants.h"
 
-#include <coreplugin/coreicons.h>
-
 #include <utils/fancylineedit.h> // IconButton
 #include <utils/headerviewstretcher.h> // IconButton
 #include <utils/macroexpander.h>
 #include <utils/treemodel.h>
 #include <utils/qtcassert.h>
+#include <utils/utilsicons.h>
 
 #include <QApplication>
 #include <QAbstractItemModel>
@@ -89,7 +88,7 @@ public:
     void createIconButton()
     {
         m_iconButton = new IconButton;
-        m_iconButton->setPixmap(Core::Icons::REPLACE.pixmap());
+        m_iconButton->setPixmap(Utils::Icons::REPLACE.pixmap());
         m_iconButton->setToolTip(VariableChooser::tr("Insert Variable"));
         m_iconButton->hide();
         connect(m_iconButton.data(), static_cast<void(QAbstractButton::*)(bool)>(&QAbstractButton::clicked),

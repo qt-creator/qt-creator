@@ -25,10 +25,10 @@
 
 #include "infobar.h"
 
-#include "coreicons.h"
 #include "icore.h"
 
 #include <utils/theme/theme.h>
+#include <utils/utilsicons.h>
 
 #include <QFrame>
 #include <QHBoxLayout>
@@ -246,7 +246,7 @@ void InfoBarDisplay::update()
 
         if (info.cancelButtonText.isEmpty()) {
             infoWidgetCloseButton->setAutoRaise(true);
-            infoWidgetCloseButton->setIcon(Icons::CLOSE_FOREGROUND.icon());
+            infoWidgetCloseButton->setIcon(Utils::Icons::CLOSE_FOREGROUND.icon());
             infoWidgetCloseButton->setToolTip(tr("Close"));
             if (infoWidgetSuppressButton)
                 hbox->addWidget(infoWidgetSuppressButton);

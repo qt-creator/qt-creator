@@ -27,7 +27,6 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/coreicons.h>
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/editormanager_p.h>
@@ -100,8 +99,10 @@ EditorToolBarPrivate::EditorToolBarPrivate(QWidget *parent, EditorToolBar *q) :
     m_backButton(new QToolButton(q)),
     m_forwardButton(new QToolButton(q)),
     m_splitButton(new QToolButton(q)),
-    m_horizontalSplitAction(new QAction(Icons::SPLIT_HORIZONTAL.icon(), EditorManager::tr("Split"), parent)),
-    m_verticalSplitAction(new QAction(Icons::SPLIT_VERTICAL.icon(), EditorManager::tr("Split Side by Side"), parent)),
+    m_horizontalSplitAction(new QAction(Utils::Icons::SPLIT_HORIZONTAL.icon(),
+                                        EditorManager::tr("Split"), parent)),
+    m_verticalSplitAction(new QAction(Utils::Icons::SPLIT_VERTICAL.icon(),
+                                      EditorManager::tr("Split Side by Side"), parent)),
     m_splitNewWindowAction(new QAction(EditorManager::tr("Open in New Window"), parent)),
     m_closeSplitButton(new QToolButton(q)),
     m_activeToolBar(0),
@@ -148,7 +149,7 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     d->m_editorList->setContextMenuPolicy(Qt::CustomContextMenu);
 
     d->m_closeEditorButton->setAutoRaise(true);
-    d->m_closeEditorButton->setIcon(Icons::CLOSE_TOOLBAR.icon());
+    d->m_closeEditorButton->setIcon(Utils::Icons::CLOSE_TOOLBAR.icon());
     d->m_closeEditorButton->setEnabled(false);
     d->m_closeEditorButton->setProperty("showborder", true);
 
@@ -164,7 +165,7 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
         d->m_splitNewWindowAction->setIconVisibleInMenu(false);
     }
 
-    d->m_splitButton->setIcon(Icons::SPLIT_HORIZONTAL_TOOLBAR.icon());
+    d->m_splitButton->setIcon(Utils::Icons::SPLIT_HORIZONTAL_TOOLBAR.icon());
     d->m_splitButton->setToolTip(tr("Split"));
     d->m_splitButton->setPopupMode(QToolButton::InstantPopup);
     d->m_splitButton->setProperty("noArrow", true);
@@ -175,7 +176,7 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     d->m_splitButton->setMenu(splitMenu);
 
     d->m_closeSplitButton->setAutoRaise(true);
-    d->m_closeSplitButton->setIcon(Icons::CLOSE_SPLIT_BOTTOM.icon());
+    d->m_closeSplitButton->setIcon(Utils::Icons::CLOSE_SPLIT_BOTTOM.icon());
 
     QHBoxLayout *toplayout = new QHBoxLayout(this);
     toplayout->setSpacing(0);

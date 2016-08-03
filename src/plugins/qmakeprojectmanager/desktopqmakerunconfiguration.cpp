@@ -29,7 +29,6 @@
 #include "qmakeproject.h"
 #include "qmakebuildconfiguration.h"
 
-#include <coreplugin/coreicons.h>
 #include <coreplugin/variablechooser.h>
 #include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/runconfigurationaspects.h>
@@ -46,6 +45,7 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
+#include <utils/utilsicons.h>
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -170,7 +170,7 @@ DesktopQmakeRunConfigurationWidget::DesktopQmakeRunConfigurationWidget(DesktopQm
     auto hl = new QHBoxLayout();
     hl->addStretch();
     m_disabledIcon = new QLabel(this);
-    m_disabledIcon->setPixmap(Core::Icons::WARNING.pixmap());
+    m_disabledIcon->setPixmap(Utils::Icons::WARNING.pixmap());
     hl->addWidget(m_disabledIcon);
     m_disabledReason = new QLabel(this);
     m_disabledReason->setVisible(false);

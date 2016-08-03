@@ -58,7 +58,7 @@ MemcheckErrorView::MemcheckErrorView(QWidget *parent)
     m_suppressAction = new QAction(this);
     m_suppressAction->setText(tr("Suppress Error"));
     const QIcon icon = Utils::Icon({
-            {QLatin1String(":/core/images/eye_open.png"), Utils::Theme::TextColorNormal},
+            {QLatin1String(":/utils/images/eye_open.png"), Utils::Theme::TextColorNormal},
             {QLatin1String(":/valgrind/images/suppressoverlay.png"), Utils::Theme::IconsErrorColor}},
             Utils::Icon::Tint | Utils::Icon::PunchEdges).icon();
     m_suppressAction->setIcon(icon);
