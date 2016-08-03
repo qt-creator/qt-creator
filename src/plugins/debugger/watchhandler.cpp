@@ -398,8 +398,7 @@ public:
                                const QPoint &pos);
     MemoryMarkupList variableMemoryMarkup(WatchItem *item, const QString &rootName,
                                           const QString &rootToolTip, quint64 address, quint64 size,
-                                          const RegisterMap &registerMap, bool sizeIsEstimate,
-                                          const QColor &defaultBackground);
+                                          const RegisterMap &registerMap, bool sizeIsEstimate);
     int memberVariableRecursion(WatchItem *item, const QString &name, quint64 start,
                                 quint64 end, int *colorNumberIn, ColorNumberToolTips *cnmv);
 
@@ -1324,14 +1323,11 @@ MemoryMarkupList WatchModel::variableMemoryMarkup(WatchItem *item,
                          const QString &rootToolTip,
                          quint64 address, quint64 size,
                          const RegisterMap &registerMap,
-                         bool sizeIsEstimate,
-                         const QColor &defaultBackground)
+                         bool sizeIsEstimate)
 {
     enum { debug = 0 };
     enum { registerColorNumber = 0x3453 };
 
-    if (debug)
-        qDebug() << address << ' ' << size << rootName << rootToolTip;
     // Starting out from base, create an array representing the area
     // filled with base color. Fill children with some unique color numbers,
     // leaving the padding areas of the parent colored with the base color.
@@ -1372,6 +1368,8 @@ MemoryMarkupList WatchModel::variableMemoryMarkup(WatchItem *item,
     // Overwrite the first color (which is usually very bright) by the base color.
     QList<QColor> colors = TextEditor::SyntaxHighlighter::generateColors(colorNumber + 2,
                                                                          QColor(Qt::black));
+    QWidget *parent = ICore::dialogParent();
+    const QColor defaultBackground = parent->palette().color(QPalette::Normal, QPalette::Base);
     colors[0] = sizeIsEstimate ? defaultBackground : Qt::lightGray;
     const QColor registerColor = Qt::green;
     int lastColorNumber = 0;
@@ -1409,8 +1407,6 @@ MemoryMarkupList WatchModel::variableMemoryMarkup(WatchItem *item,
 void WatchModel::addVariableMemoryView(bool separateView,
     WatchItem *item, bool atPointerAddress, const QPoint &pos)
 {
-    QWidget *parent = ICore::dialogParent();
-    const QColor background = parent->palette().color(QPalette::Normal, QPalette::Base);
     MemoryViewSetupData data;
     data.startAddress = atPointerAddress ? item->origaddr : item->address;
     if (!data.startAddress)
@@ -1422,21 +1418,20 @@ void WatchModel::addVariableMemoryView(bool separateView,
     data.markup = variableMemoryMarkup(item, item->name, rootToolTip,
                              data.startAddress, size,
                              m_engine->registerHandler()->registerMap(),
-                             sizeIsEstimate, background);
-    data.flags = separateView ? DebuggerEngine::MemoryView|DebuggerEngine::MemoryReadOnly : 0;
+                             sizeIsEstimate);
+    data.separateView = separateView;
+    data.readOnly = separateView;
     QString pat = atPointerAddress
         ? tr("Memory at Pointer's Address \"%1\" (0x%2)")
         : tr("Memory at Object's Address \"%1\" (0x%2)");
     data.title = pat.arg(item->name).arg(data.startAddress, 0, 16);
     data.pos = pos;
-    data.parent = parent;
     m_engine->openMemoryView(data);
 }
 
 // Add a memory view of the stack layout showing local variables and registers.
 void WatchModel::addStackLayoutMemoryView(bool separateView, const QPoint &p)
 {
-    QWidget *parent = ICore::dialogParent();
     // Determine suitable address range from locals.
     quint64 start = Q_UINT64_C(0xFFFFFFFFFFFFFFFF);
     quint64 end = 0;
@@ -1477,16 +1472,14 @@ void WatchModel::addStackLayoutMemoryView(bool separateView, const QPoint &p)
     }
     // Indicate all variables.
     MemoryViewSetupData data;
-    const QColor background = parent->palette().color(QPalette::Normal, QPalette::Base);
     data.startAddress = start;
     data.markup = variableMemoryMarkup(rootItem()->childAt(0), QString(),
-                             QString(), start, end - start,
-                             regMap, true, background);
-    data.flags = separateView
-        ? (DebuggerEngine::MemoryView|DebuggerEngine::MemoryReadOnly) : 0;
+                                       QString(), start, end - start,
+                                       regMap, true);
+    data.separateView  = separateView;
+    data.readOnly = separateView;
     data.title = tr("Memory Layout of Local Variables at 0x%1").arg(start, 0, 16);
     data.pos = p;
-    data.parent = parent;
     m_engine->openMemoryView(data);
 }
 

@@ -58,13 +58,14 @@ class MemoryViewSetupData
 public:
     MemoryViewSetupData() {}
 
-    QWidget *parent = nullptr;
     quint64 startAddress = 0;
     QString registerName;
-    unsigned flags = 0;
     QList<MemoryMarkup> markup;
     QPoint pos;
     QString title;
+    bool readOnly = false;        // Read-only.
+    bool separateView = false;    // Open a separate view (using the pos-parameter).
+    bool trackRegisters = false;  // Address parameter is register number to track
 };
 
 class MemoryAgent : public QObject
@@ -75,14 +76,10 @@ public:
     MemoryAgent(const MemoryViewSetupData &data, DebuggerEngine *engine);
     ~MemoryAgent();
 
-    void setAddress(quint64 address);
-    void setMarkup(const QList<MemoryMarkup> &ml);
     void updateContents();
     void addData(quint64 address, const QByteArray &data);
     void setFinished();
     bool isUsable();
-
-    BinEditor::EditorService *service() { return m_service; }
 
     static bool hasBinEditor();
 
@@ -91,7 +88,7 @@ private:
     BinEditor::EditorService *m_service = nullptr;
 
     DebuggerEngine *m_engine = nullptr;
-    int m_flags = 0;
+    bool m_trackRegisters = false;
 };
 
 QList<MemoryMarkup> registerViewMarkup(quint64 address, const QString &regName);

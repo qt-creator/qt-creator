@@ -699,8 +699,9 @@ bool RegisterHandler::contextMenuEvent(const ItemViewEvent &ev)
               [this, registerName, address] {
                     MemoryViewSetupData data;
                     data.startAddress = address;
-                    data.flags = DebuggerEngine::MemoryTrackRegister|DebuggerEngine::MemoryView;
                     data.registerName = registerName;
+                    data.trackRegisters = true;
+                    data.separateView = true;
                     m_engine->openMemoryView(data);
               });
 

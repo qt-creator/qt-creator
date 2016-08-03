@@ -207,14 +207,6 @@ public:
     virtual void prepareForRestart() {}
 
     virtual void watchPoint(const QPoint &);
-
-    enum MemoryViewFlags
-    {
-        MemoryReadOnly = 0x1,      //!< Read-only.
-        MemoryTrackRegister = 0x2, //!< Address parameter is register number to track
-        MemoryView = 0x4           //!< Open a separate view (using the pos-parameter).
-    };
-
     virtual void runCommand(const DebuggerCommand &cmd);
     virtual void openMemoryView(const MemoryViewSetupData &data);
     virtual void fetchMemory(MemoryAgent *, quint64 addr, quint64 length);

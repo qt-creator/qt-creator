@@ -37,6 +37,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/messagebox.h>
 
@@ -70,38 +71,30 @@ enum { DataRange = 1024 * 1024 };
 class MemoryView : public QWidget
 {
 public:
-    explicit MemoryView(MemoryAgent *agent, QWidget *parent)
-        : QWidget(parent, Qt::Tool), m_agent(agent)
+    explicit MemoryView(BinEditor::EditorService *service)
+        : QWidget(ICore::dialogParent(), Qt::Tool), m_service(service)
     {
         setAttribute(Qt::WA_DeleteOnClose);
-        QVBoxLayout *layout = new QVBoxLayout(this);
-        layout->addWidget(agent->service()->widget());
+        auto layout = new QVBoxLayout(this);
+        layout->addWidget(service->widget());
         layout->setContentsMargins(0, 0, 0, 0);
         setMinimumWidth(400);
         resize(800, 200);
     }
 
-    void updateContents()
+protected:
+    void setMarkup(const QList<MemoryMarkup> &markup)
     {
-        if (m_agent)
-            m_agent->updateContents();
+        if (m_service) {
+            m_service->clearMarkup();
+            for (const MemoryMarkup &m : markup)
+                m_service->addMarkup(m.address, m.length, m.color, m.toolTip);
+            m_service->commitMarkup();
+        }
     }
 
 protected:
-    void setAddress(quint64 a)
-    {
-        if (m_agent)
-            m_agent->setAddress(a);
-    }
-
-    void setMarkup(const QList<MemoryMarkup> &m)
-    {
-        if (m_agent)
-            m_agent->setMarkup(m);
-    }
-
-private:
-    QPointer<MemoryAgent> m_agent;
+    BinEditor::EditorService *m_service;
 };
 
 
@@ -125,13 +118,13 @@ private:
 class RegisterMemoryView : public MemoryView
 {
 public:
-    RegisterMemoryView(MemoryAgent *agent, quint64 addr, const QString &regName,
-                       RegisterHandler *rh, QWidget *parent)
-        : MemoryView(agent, parent), m_registerName(regName), m_registerAddress(addr)
+    RegisterMemoryView(BinEditor::EditorService *service, quint64 addr, const QString &regName,
+                       RegisterHandler *rh)
+        : MemoryView(service), m_registerName(regName), m_registerAddress(addr)
     {
         connect(rh, &QAbstractItemModel::modelReset, this, &QWidget::close);
         connect(rh, &RegisterHandler::registerChanged, this, &RegisterMemoryView::onRegisterChanged);
-        updateContents();
+        m_service->updateContents();
     }
 
 private:
@@ -144,11 +137,14 @@ private:
     void setRegisterAddress(quint64 v)
     {
         if (v == m_registerAddress) {
-            updateContents();
+            if (m_service)
+                m_service->updateContents();
             return;
         }
         m_registerAddress = v;
-        setAddress(v);
+        if (m_service)
+            m_service->setSizes(v, DataRange, BinBlockSize);
+
         setWindowTitle(registerViewTitle(m_registerName, v));
         if (v)
             setMarkup(registerViewMarkup(v, m_registerName));
@@ -212,18 +208,17 @@ bool MemoryAgent::hasBinEditor()
 }
 
 MemoryAgent::MemoryAgent(const MemoryViewSetupData &data, DebuggerEngine *engine)
-    : m_engine(engine), m_flags(data.flags)
+    : m_engine(engine), m_trackRegisters(data.trackRegisters)
 {
     auto factory = binEditorFactory();
     if (!factory)
         return;
 
-    const bool readOnly = (m_flags & DebuggerEngine::MemoryReadOnly) != 0;
     QString title = data.title.isEmpty() ? tr("Memory at 0x%1").arg(data.startAddress, 0, 16) : data.title;
-    if (!(m_flags & DebuggerEngine::MemoryView) && !title.endsWith('$'))
+    if (!data.separateView && !title.endsWith('$'))
         title.append(" $");
 
-    if (m_flags & DebuggerEngine::MemoryView) {
+    if (data.separateView) {
         // Ask BIN editor plugin for factory service and have it create a bin editor widget.
         m_service = factory->createEditorService(title, false);
     } else {
@@ -261,14 +256,15 @@ MemoryAgent::MemoryAgent(const MemoryViewSetupData &data, DebuggerEngine *engine
     m_service->setAboutToBeDestroyedHandler([this] { m_service = nullptr; });
 
     // Separate view?
-    if (m_flags & DebuggerEngine::MemoryView) {
+    if (data.separateView) {
         // Memory view tracking register value, providing its own updating mechanism.
-        if (m_flags & DebuggerEngine::MemoryTrackRegister) {
-            auto view = new RegisterMemoryView(this, data.startAddress, data.registerName, m_engine->registerHandler(), data.parent);
+        if (data.trackRegisters) {
+            auto view = new RegisterMemoryView(m_service, data.startAddress, data.registerName,
+                                               m_engine->registerHandler());
             view->show();
         } else {
             // Ordinary memory view
-            auto view = new MemoryView(this, data.parent);
+            auto view = new MemoryView(m_service);
             view->setWindowTitle(title);
             view->show();
         }
@@ -277,10 +273,13 @@ MemoryAgent::MemoryAgent(const MemoryViewSetupData &data, DebuggerEngine *engine
         m_service->editor()->document()->setProperty(Constants::OPENED_BY_DEBUGGER, QVariant(true));
     }
 
-    m_service->setReadOnly(readOnly);
+    m_service->setReadOnly(data.readOnly);
     m_service->setNewWindowRequestAllowed(true);
     m_service->setSizes(data.startAddress, DataRange, BinBlockSize);
-    setMarkup(data.markup);
+    m_service->clearMarkup();
+    for (const MemoryMarkup &m : data.markup)
+        m_service->addMarkup(m.address, m.length, m.color, m.toolTip);
+    m_service->commitMarkup();
 }
 
 MemoryAgent::~MemoryAgent()
@@ -293,26 +292,11 @@ MemoryAgent::~MemoryAgent()
     }
 }
 
-void MemoryAgent::setAddress(quint64 address)
-{
-    QTC_ASSERT(m_service, return);
-    m_service->setSizes(address, DataRange, BinBlockSize);
-}
-
-void MemoryAgent::setMarkup(const QList<MemoryMarkup> &markup)
-{
-    QTC_ASSERT(m_service, return);
-    m_service->clearMarkup();
-    for (const MemoryMarkup &m : markup)
-        m_service->addMarkup(m.address, m.length, m.color, m.toolTip);
-    m_service->commitMarkup();
-}
-
 void MemoryAgent::updateContents()
 {
     // Update all views except register views, which trigger on
     // register value set/changed.
-    if (!(m_flags & DebuggerEngine::MemoryTrackRegister) && m_service)
+    if (!m_trackRegisters && m_service)
         m_service->updateContents();
 }
 
