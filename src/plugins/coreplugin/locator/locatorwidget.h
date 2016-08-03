@@ -94,6 +94,7 @@ private:
     bool m_acceptRequested = false;
     bool m_possibleToolTipRequest = false;
     QWidget *m_progressIndicator;
+    QWidget *m_mainWindow;
     QTimer m_showProgressTimer;
 };
 

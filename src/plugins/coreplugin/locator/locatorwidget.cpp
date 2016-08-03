@@ -34,6 +34,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icontext.h>
+#include <coreplugin/mainwindow.h>
 #include <utils/algorithm.h>
 #include <utils/appmainwindow.h>
 #include <utils/fancylineedit.h>
@@ -88,7 +89,7 @@ class CompletionList : public QTreeView
 public:
     CompletionList(QWidget *parent = 0);
 
-    void updatePreferredSize();
+    void resize();
     QSize preferredSize() const { return m_preferredSize; }
 
     void focusOutEvent (QFocusEvent *event) {
@@ -196,7 +197,6 @@ CompletionList::CompletionList(QWidget *parent)
 {
     setRootIsDecorated(false);
     setUniformRowHeights(true);
-    setMaximumWidth(900);
     header()->hide();
     header()->setStretchLastSection(true);
     // This is too slow when done on all results
@@ -210,12 +210,15 @@ CompletionList::CompletionList(QWidget *parent)
     }
 }
 
-void CompletionList::updatePreferredSize()
+void CompletionList::resize()
 {
     const QStyleOptionViewItem &option = viewOptions();
     const QSize shint = itemDelegate()->sizeHint(option, model()->index(0, 0));
+    const QSize windowSize = ICore::mainWindow()->size();
 
-    m_preferredSize = QSize(730, shint.height() * 17 + frameWidth() * 2);
+    const int width = qMax(730, windowSize.width() * 2 / 3);
+    m_preferredSize = QSize(width, shint.height() * 17 + frameWidth() * 2);
+    QTreeView::resize(m_preferredSize);
 }
 
 // =========== LocatorWidget ===========
@@ -229,6 +232,7 @@ LocatorWidget::LocatorWidget(Locator *qop) :
     m_configureAction(new QAction(ICore::msgShowOptionsDialog(), this)),
     m_fileLineEdit(new Utils::FancyLineEdit)
 {
+    m_mainWindow = ICore::mainWindow();
     // Explicitly hide the completion list popup.
     m_completionList->hide();
 
@@ -260,11 +264,11 @@ LocatorWidget::LocatorWidget(Locator *qop) :
 
     m_fileLineEdit->installEventFilter(this);
     this->installEventFilter(this);
+    m_mainWindow->installEventFilter(this);
 
     m_completionList->setModel(m_locatorModel);
     m_completionList->header()->resizeSection(0, 300);
-    m_completionList->updatePreferredSize();
-    m_completionList->resize(m_completionList->preferredSize());
+    m_completionList->resize();
 
     m_filterMenu->addAction(m_refreshAction);
     m_filterMenu->addAction(m_configureAction);
@@ -431,6 +435,8 @@ bool LocatorWidget::eventFilter(QObject *obj, QEvent *event)
         QFocusEvent *fev = static_cast<QFocusEvent *>(event);
         if (fev->reason() != Qt::ActiveWindowFocusReason)
             showPopupNow();
+    } else if (obj == m_mainWindow && event->type() == QEvent::Resize) {
+        m_completionList->resize();
     } else if (obj == this && event->type() == QEvent::ShortcutOverride) {
         QKeyEvent *ke = static_cast<QKeyEvent *>(event);
         switch (ke->key()) {
@@ -601,7 +607,7 @@ void LocatorWidget::show(const QString &text, int selectionStart, int selectionL
         m_fileLineEdit->setText(text);
     m_fileLineEdit->setFocus();
     showPopupNow();
-    ICore::raiseWindow(ICore::mainWindow());
+    ICore::raiseWindow(m_mainWindow);
 
     if (selectionStart >= 0) {
         m_fileLineEdit->setSelection(selectionStart, selectionLength);
