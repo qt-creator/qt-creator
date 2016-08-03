@@ -867,7 +867,7 @@ void TextEditorWidgetPrivate::print(QPrinter *printer)
          srcBlock = srcBlock.next(), dstBlock = dstBlock.next()) {
 
 
-        QList<QTextLayout::FormatRange> formatList = srcBlock.layout()->additionalFormats();
+        QVector<QTextLayout::FormatRange> formatList = srcBlock.layout()->formats();
         if (backgroundIsDark) {
             // adjust syntax highlighting colors for better contrast
             for (int i = formatList.count() - 1; i >= 0; --i) {
@@ -885,7 +885,7 @@ void TextEditorWidgetPrivate::print(QPrinter *printer)
             }
         }
 
-        dstBlock.layout()->setAdditionalFormats(formatList);
+        dstBlock.layout()->setFormats(formatList);
     }
 
     QAbstractTextDocumentLayout *layout = doc->documentLayout();
@@ -6775,7 +6775,7 @@ QMimeData *TextEditorWidget::createMimeDataFromSelection() const
             for (QTextBlock current = start; current.isValid() && current != end; current = current.next()) {
                 if (selectionVisible(current.blockNumber())) {
                     const QTextLayout *layout = current.layout();
-                    foreach (const QTextLayout::FormatRange &range, layout->additionalFormats()) {
+                    foreach (const QTextLayout::FormatRange &range, layout->formats()) {
                         const int startPosition = current.position() + range.start - selectionStart - removedCount;
                         const int endPosition = startPosition + range.length;
                         if (endPosition <= 0 || startPosition >= endOfDocument - removedCount)

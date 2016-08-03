@@ -165,8 +165,8 @@ void CppEditorDocument::applyFontSettings()
         // Clear all additional formats since they may have changed
         QTextBlock b = document()->firstBlock();
         while (b.isValid()) {
-            QList<QTextLayout::FormatRange> noFormats;
-            highlighter->setExtraAdditionalFormats(b, noFormats);
+            QVector<QTextLayout::FormatRange> noFormats;
+            highlighter->setExtraFormats(b, noFormats);
             b = b.next();
         }
     }

@@ -100,14 +100,14 @@ void SyntaxHighlighterPrivate::applyFormatChanges(int from, int charsRemoved, in
 
     QTextLayout *layout = currentBlock.layout();
 
-    QList<QTextLayout::FormatRange> ranges = layout->additionalFormats();
+    QVector<QTextLayout::FormatRange> ranges = layout->formats();
 
     bool doAdjustRange = currentBlock.contains(from);
 
-    QList<QTextLayout::FormatRange> old_ranges;
+    QVector<QTextLayout::FormatRange> old_ranges;
 
     if (!ranges.isEmpty()) {
-        QList<QTextLayout::FormatRange>::Iterator it = ranges.begin();
+        auto it = ranges.begin();
         while (it != ranges.end()) {
             if (it->format.property(QTextFormat::UserProperty).toBool()) {
                 if (doAdjustRange)
@@ -126,7 +126,7 @@ void SyntaxHighlighterPrivate::applyFormatChanges(int from, int charsRemoved, in
     QTextLayout::FormatRange r;
     r.start = -1;
 
-    QList<QTextLayout::FormatRange> new_ranges;
+    QVector<QTextLayout::FormatRange> new_ranges;
     int i = 0;
     while (i < formatChanges.count()) {
 
@@ -167,7 +167,7 @@ void SyntaxHighlighterPrivate::applyFormatChanges(int from, int charsRemoved, in
 
     if (formatsChanged) {
         ranges.append(new_ranges);
-        layout->setAdditionalFormats(ranges);
+        layout->setFormats(ranges);
         doc->markContentsDirty(currentBlock.position(), currentBlock.length());
     }
 }
@@ -238,10 +238,10 @@ void SyntaxHighlighterPrivate::reformatBlock(const QTextBlock &block, int from, 
     The SyntaxHighlighter class is a copied and forked version of the QSyntaxHighlighter. There are
     a couple of binary incompatible changes that prevent doing this directly in Qt.
 
-    The main difference from the QSyntaxHighlighter is the addition of setExtraAdditionalFormats.
-    This method prevents redoing syntax highlighting when setting the additionalFormats on the
+    The main difference from the QSyntaxHighlighter is the addition of setExtraFormats.
+    This method prevents redoing syntax highlighting when setting the formats on the
     layout and subsequently marking the document contents dirty. It thus prevents the redoing of the
-    semantic highlighting, which sets extra additionalFormats, and so on.
+    semantic highlighting, which sets extra formats, and so on.
 
     Another way to implement the semantic highlighting is to use ExtraSelections on
     Q(Plain)TextEdit. The drawback of QTextEdit::setExtraSelections is that ExtraSelection uses a
@@ -255,7 +255,7 @@ void SyntaxHighlighterPrivate::reformatBlock(const QTextBlock &block, int from, 
     document. This means that every editor needs a highlighter, instead of every document. This
     could become expensive when multiple editors with the same document are opened.
 
-    So, we use AdditionalFormats, because all those highlights should get removed or redone soon
+    So, we use formats, because all those highlights should get removed or redone soon
     after the change happens.
 */
 
@@ -316,7 +316,7 @@ void SyntaxHighlighter::setDocument(QTextDocument *doc)
         QTextCursor cursor(d->doc);
         cursor.beginEditBlock();
         for (QTextBlock blk = d->doc->begin(); blk.isValid(); blk = blk.next())
-            blk.layout()->clearAdditionalFormats();
+            blk.layout()->clearFormats();
         cursor.endEditBlock();
     }
     d->doc = doc;
@@ -635,10 +635,10 @@ static bool byStartOfRange(const QTextLayout::FormatRange &range, const QTextLay
 
 // The formats is passed in by reference in order to prevent unnecessary copying of its items.
 // After this function returns, the list is modified, and should be considered invalidated!
-void SyntaxHighlighter::setExtraAdditionalFormats(const QTextBlock& block,
-                                                  QList<QTextLayout::FormatRange> &formats)
+void SyntaxHighlighter::setExtraFormats(const QTextBlock &block,
+                                        QVector<QTextLayout::FormatRange> &formats)
 {
-//    qDebug() << "setAdditionalFormats() on block" << block.blockNumber();
+//    qDebug() << "setFormats() on block" << block.blockNumber();
 //    qDebug() << "   is valid:" << (block.isValid() ? "Yes" : "No");
 //    qDebug() << "   has layout:" << (block.layout() ? "Yes" : "No");
 //    if (block.layout()) qDebug() << "   has text:" << (block.text().isEmpty() ? "No" : "Yes");
@@ -655,9 +655,9 @@ void SyntaxHighlighter::setExtraAdditionalFormats(const QTextBlock& block,
 
     Utils::sort(formats, byStartOfRange);
 
-    const QList<QTextLayout::FormatRange> all = block.layout()->additionalFormats();
-    QList<QTextLayout::FormatRange> previousSemanticFormats;
-    QList<QTextLayout::FormatRange> formatsToApply;
+    const QVector<QTextLayout::FormatRange> all = block.layout()->formats();
+    QVector<QTextLayout::FormatRange> previousSemanticFormats;
+    QVector<QTextLayout::FormatRange> formatsToApply;
     previousSemanticFormats.reserve(all.size());
     formatsToApply.reserve(all.size() + formats.size());
 
@@ -693,7 +693,7 @@ void SyntaxHighlighter::setExtraAdditionalFormats(const QTextBlock& block,
 
     bool wasInReformatBlocks = d->inReformatBlocks;
     d->inReformatBlocks = true;
-    block.layout()->setAdditionalFormats(formatsToApply);
+    block.layout()->setFormats(formatsToApply);
     document()->markContentsDirty(block.position(), blockLength - 1);
     d->inReformatBlocks = wasInReformatBlocks;
 }
