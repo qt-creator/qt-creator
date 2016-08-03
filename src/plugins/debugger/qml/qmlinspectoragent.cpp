@@ -708,11 +708,6 @@ void QmlInspectorAgent::clearObjectTree()
     m_objectWatches.clear();
 }
 
-BaseToolsClient *QmlInspectorAgent::toolsClient() const
-{
-    return m_toolsClient;
-}
-
 void QmlInspectorAgent::clientStateChanged(QmlDebugClient::State state)
 {
     QString serviceName;
@@ -805,32 +800,32 @@ void QmlInspectorAgent::selectObjectsFromToolsClient(const QList<int> &debugIds)
 
 void QmlInspectorAgent::onSelectActionTriggered(bool checked)
 {
-    QTC_ASSERT(toolsClient(), return);
+    QTC_ASSERT(m_toolsClient, return);
     if (checked) {
-        toolsClient()->setDesignModeBehavior(true);
-        toolsClient()->changeToSelectTool();
+        m_toolsClient->setDesignModeBehavior(true);
+        m_toolsClient->changeToSelectTool();
         m_zoomAction->setChecked(false);
     } else {
-        toolsClient()->setDesignModeBehavior(false);
+        m_toolsClient->setDesignModeBehavior(false);
     }
 }
 
 void QmlInspectorAgent::onZoomActionTriggered(bool checked)
 {
-    QTC_ASSERT(toolsClient(), return);
+    QTC_ASSERT(m_toolsClient, return);
     if (checked) {
-        toolsClient()->setDesignModeBehavior(true);
-        toolsClient()->changeToZoomTool();
+        m_toolsClient->setDesignModeBehavior(true);
+        m_toolsClient->changeToZoomTool();
         m_selectAction->setChecked(false);
     } else {
-        toolsClient()->setDesignModeBehavior(false);
+        m_toolsClient->setDesignModeBehavior(false);
     }
 }
 
 void QmlInspectorAgent::onShowAppOnTopChanged(bool checked)
 {
-    QTC_ASSERT(toolsClient(), return);
-    toolsClient()->showAppOnTop(checked);
+    QTC_ASSERT(m_toolsClient, return);
+    m_toolsClient->showAppOnTop(checked);
 }
 
 void QmlInspectorAgent::setActiveEngineClient(BaseEngineDebugClient *client)
