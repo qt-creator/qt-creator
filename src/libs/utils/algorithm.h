@@ -412,18 +412,9 @@ inline void sort(Container &c, R (S::*function)() const)
 template <typename Container, typename Op>
 inline void reverseForeach(const Container &c, const Op &operation)
 {
-#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
-    auto rend = c.begin();
-    auto it = c.end();
-    while (it != rend) {
-        --it;
-        operation(*it);
-    }
-#else
     auto rend = c.rend();
     for (auto it = c.rbegin(); it != rend; ++it)
         operation(*it);
-#endif
 }
 
 }

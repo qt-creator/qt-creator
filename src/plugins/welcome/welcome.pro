@@ -1,14 +1,9 @@
 
-QT += quick
+QT += quick quickwidgets
 
 QML_IMPORT_PATH=../../../share/qtcreator/welcomescreen
 
 include(../../qtcreatorplugin.pri)
-
-!isEmpty(USE_QUICK_WIDGET)|minQtVersion(5, 5, 0) {
-    QT +=  quickwidgets
-    DEFINES += USE_QUICK_WIDGET
-}
 
 HEADERS += welcomeplugin.h
 

@@ -27,10 +27,6 @@
 
 #ifdef Q_OS_WIN
 
-#  if (QT_VERSION < QT_VERSION_CHECK(5, 4, 1))
-#    define NOMINMAX
-#  endif
-
 #include <windows.h>
 #include <QApplication>
 #include <QTime>

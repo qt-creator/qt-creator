@@ -53,13 +53,7 @@
 #include <QQmlPropertyMap>
 #include <QQuickImageProvider>
 
-#ifdef USE_QUICK_WIDGET
-    #include <QtQuickWidgets/QQuickWidget>
-    typedef QQuickWidget QuickContainer;
-#else
-    #include <QtQuick/QQuickView>
-    typedef QQuickView QuickContainer;
-#endif
+#include <QtQuickWidgets/QQuickWidget>
 #include <QtQml/QQmlContext>
 #include <QtQml/QQmlEngine>
 
@@ -168,7 +162,7 @@ private:
     void addKeyboardShortcuts();
 
     QWidget *m_modeWidget;
-    QuickContainer *m_welcomePage;
+    QQuickWidget *m_welcomePage;
     QMap<Id, IWelcomePage *> m_idPageMap;
     QList<IWelcomePage *> m_pluginList;
     int m_activePlugin;
@@ -202,28 +196,21 @@ WelcomeMode::WelcomeMode()
     layout->setMargin(0);
     layout->setSpacing(0);
 
-    m_welcomePage = new QuickContainer();
+    m_welcomePage = new QQuickWidget;
     applyTheme(); // initialize background color and theme properties
-    m_welcomePage->setResizeMode(QuickContainer::SizeRootObjectToView);
+    m_welcomePage->setResizeMode(QQuickWidget::SizeRootObjectToView);
 
     m_welcomePage->setObjectName(QLatin1String("WelcomePage"));
 
-    connect(m_welcomePage, &QuickContainer::sceneGraphError,
+    connect(m_welcomePage, &QQuickWidget::sceneGraphError,
             this, &WelcomeMode::sceneGraphError);
 
     StyledBar *styledBar = new StyledBar(m_modeWidget);
     styledBar->setObjectName(QLatin1String("WelcomePageStyledBar"));
     layout->addWidget(styledBar);
 
-#ifdef USE_QUICK_WIDGET
     m_welcomePage->setParent(m_modeWidget);
     layout->addWidget(m_welcomePage);
-#else
-    QWidget *container = QWidget::createWindowContainer(m_welcomePage, m_modeWidget);
-    container->setProperty("nativeAncestors", true);
-    m_modeWidget->setLayout(layout);
-    layout->addWidget(container);
-#endif // USE_QUICK_WIDGET
 
     addKeyboardShortcuts();
 
@@ -307,15 +294,8 @@ void WelcomeMode::facilitateQml(QQmlEngine *engine)
 
     QQmlContext *ctx = engine->rootContext();
     ctx->setContextProperty(QLatin1String("welcomeMode"), this);
-
     ctx->setContextProperty(QLatin1String("creatorTheme"), &m_themeProperties);
-
-#if defined(USE_QUICK_WIDGET) && (QT_VERSION < QT_VERSION_CHECK(5, 5, 0))
-    bool useNativeText = !HostOsInfo::isMacHost();
-#else
-    bool useNativeText = true;
-#endif
-    ctx->setContextProperty(QLatin1String("useNativeText"), useNativeText);
+    ctx->setContextProperty(QLatin1String("useNativeText"), true);
 }
 
 void WelcomeMode::initPlugins()

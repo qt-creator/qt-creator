@@ -45,11 +45,6 @@ ImageViewerFactory::ImageViewerFactory(QObject *parent) :
     const QList<QByteArray> supportedMimeTypes = QImageReader::supportedMimeTypes();
     foreach (const QByteArray &format, supportedMimeTypes)
         addMimeType(format.constData());
-
-#if (QT_VERSION < QT_VERSION_CHECK(5, 5, 0)) && !QT_NO_SVGRENDERER
-    // Workaround for https://codereview.qt-project.org/108693
-    addMimeType("image/svg+xml");
-#endif
 }
 
 Core::IEditor *ImageViewerFactory::createEditor()

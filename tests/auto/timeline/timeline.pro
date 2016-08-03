@@ -3,21 +3,17 @@ TEMPLATE = subdirs
 
 SUBDIRS = \
     timelineabstractrenderer \
+    timelineitemsrenderpass \
     timelinemodel \
     timelinemodelaggregator \
     timelinenotesmodel \
+    timelinenotesrenderpass \
     timelineoverviewrenderer \
     timelinerenderer \
     timelinerenderpass \
     timelinerenderstate \
+    timelineselectionrenderpass \
     timelinezoomcontrol
-
-minQtVersion(5,4,0) {
-    SUBDIRS += \
-        timelineitemsrenderpass \
-        timelinenotesrenderpass \
-        timelineselectionrenderpass
-}
 
 OTHER_FILES += \
     timelineautotest.qbs

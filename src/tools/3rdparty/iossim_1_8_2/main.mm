@@ -8,11 +8,7 @@
 #import <AppKit/AppKit.h>
 #import "iphonesimulator.h"
 #include <QLibrary>
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-#include <QApplication>
-#else
 #include <QGuiApplication>
-#endif
 #include <QString>
 #include <QStringList>
 
@@ -29,12 +25,7 @@ int main (int argc, char *argv[]) {
     char *qtarg = 0;
     if (argc)
         qtarg = argv[0];
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-    QApplication a(qtargc, &qtarg);
-#else
     QGuiApplication a(qtargc, &qtarg);
-#endif
-
 
     //NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
