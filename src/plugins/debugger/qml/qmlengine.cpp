@@ -1081,7 +1081,7 @@ void QmlEngine::quitDebugger()
     d->noDebugOutputTimer.stop();
     d->automaticConnect = false;
     d->retryOnConnectFail = false;
-    DebuggerEngine::quitDebugger();
+    shutdownInferior();
 }
 
 void QmlEngine::disconnected()
