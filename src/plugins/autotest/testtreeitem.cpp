@@ -107,7 +107,7 @@ Qt::ItemFlags TestTreeItem::flags(int /*column*/) const
     case Root:
         return Qt::ItemIsEnabled;
     case TestCase:
-        return defaultFlags | Qt::ItemIsTristate | Qt::ItemIsUserCheckable;
+        return defaultFlags | Qt::ItemIsAutoTristate | Qt::ItemIsUserCheckable;
     case TestFunctionOrSet:
         return defaultFlags | Qt::ItemIsUserCheckable;
     case TestDataFunction:
