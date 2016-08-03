@@ -110,7 +110,6 @@ private:
     void paint(QPainter *painter,
                const QStyleOptionViewItem &option,
                const QModelIndex &index) const;
-    mutable QImage selectionGradient;
     ListWidget *m_listWidget;
 };
 
@@ -128,9 +127,6 @@ void TargetSelectorDelegate::paint(QPainter *painter,
     painter->save();
     painter->setClipping(false);
 
-    if (selectionGradient.isNull())
-        selectionGradient.load(QLatin1String(":/projectexplorer/images/targetpanel_gradient.png"));
-
     if (option.state & QStyle::State_Selected) {
         const QColor color = (option.state & QStyle::State_HasFocus) ?
                     option.palette.highlight().color() :
@@ -139,6 +135,7 @@ void TargetSelectorDelegate::paint(QPainter *painter,
             painter->fillRect(option.rect, color);
         } else {
             painter->fillRect(option.rect, color.darker(140));
+            static const QImage selectionGradient(":/projectexplorer/images/targetpanel_gradient.png");
             StyleHelper::drawCornerImage(selectionGradient, painter, option.rect.adjusted(0, 0, 0, -1), 5, 5, 5, 5);
             const QRectF borderRect = QRectF(option.rect).adjusted(0.5, 0.5, -0.5, -0.5);
             painter->setPen(QColor(255, 255, 255, 60));
@@ -1605,7 +1602,7 @@ void MiniProjectTargetSelector::paintEvent(QPaintEvent *)
     if (creatorTheme()->flag(Theme::DrawTargetSelectorBottom)) {
         // draw thicker border on the bottom
         QRect bottomRect(0, rect().height() - 8, rect().width(), 8);
-        static QImage image(QLatin1String(":/projectexplorer/images/targetpanel_bottom.png"));
+        static const QImage image(":/projectexplorer/images/targetpanel_bottom.png");
         StyleHelper::drawCornerImage(image, &painter, bottomRect, 1, 1, 1, 1);
     }
 }
