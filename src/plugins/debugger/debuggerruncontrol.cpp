@@ -450,15 +450,18 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
 
     if (m_rp.languages & QmlLanguage) {
         if (m_rp.device && m_rp.device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
-            QTcpServer server;
-            const bool canListen = server.listen(QHostAddress::LocalHost)
-                    || server.listen(QHostAddress::LocalHostIPv6);
-            if (!canListen) {
-                m_errors.append(DebuggerPlugin::tr("Not enough free ports for QML debugging.") + QLatin1Char(' '));
-                return;
+            if (m_rp.qmlServerAddress.isEmpty() || m_rp.qmlServerPort == InvalidPort) {
+                QTcpServer server;
+                const bool canListen = server.listen(QHostAddress::LocalHost)
+                        || server.listen(QHostAddress::LocalHostIPv6);
+                if (!canListen) {
+                    m_errors.append(DebuggerPlugin::tr("Not enough free ports for QML debugging.")
+                                    + QLatin1Char(' '));
+                    return;
+                }
+                m_rp.qmlServerAddress = server.serverAddress().toString();
+                m_rp.qmlServerPort = server.serverPort();
             }
-            m_rp.qmlServerAddress = server.serverAddress().toString();
-            m_rp.qmlServerPort = server.serverPort();
 
             // Makes sure that all bindings go through the JavaScript engine, so that
             // breakpoints are actually hit!
