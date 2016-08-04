@@ -5,6 +5,7 @@ Project {
     condition: project.withAutotests
     references: [
         "aggregation/aggregation.qbs",
+        "algorithm/algorithm.qbs",
         "changeset/changeset.qbs",
         "clangstaticanalyzer/clangstaticanalyzer.qbs",
         "cplusplus/cplusplus.qbs",
