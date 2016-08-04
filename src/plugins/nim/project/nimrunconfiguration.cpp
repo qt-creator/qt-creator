@@ -80,6 +80,7 @@ Runnable NimRunConfiguration::runnable() const
     result.executable = m_executable;
     result.commandLineArguments = m_argumentAspect->arguments();
     result.workingDirectory = m_workingDirectoryAspect->workingDirectory().toString();
+    result.environment = m_localEnvironmentAspect->environment();
     return result;
 }
 
