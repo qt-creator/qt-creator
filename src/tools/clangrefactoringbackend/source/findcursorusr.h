@@ -59,17 +59,15 @@ public:
         return true;
     }
 
-    bool shouldVisitImplicitCode() const
-    {
-        return true;
-    }
-
     bool VisitNamedDecl(const clang::NamedDecl *declaration)
     {
         auto name = declaration->getNameAsString();
 
-        return setResultIfCursorIsInBetween(declaration, declaration->getLocation(),
-                                            declaration->getNameAsString().length());
+        bool notFound = setResultIfCursorIsInBetween(declaration,
+                                                     declaration->getLocation(),
+                                                     declaration->getNameAsString().length());
+
+        return true;
     }
 
     bool VisitDeclRefExpr(const clang::DeclRefExpr *expression)
@@ -77,16 +75,18 @@ public:
         if (!iterateNestedNameSpecifierLocation(expression->getQualifierLoc()))
             return false;
 
-        const auto *Decl = expression->getFoundDecl();
-        return setResultIfCursorIsInBetween(Decl, expression->getLocation(),
-                                            Decl->getNameAsString().length());
+        const auto *declaration = expression->getFoundDecl();
+        return setResultIfCursorIsInBetween(declaration,
+                                            expression->getLocation(),
+                                            declaration->getNameAsString().length());
     }
 
-    bool VisitMemberExpr(const clang::MemberExpr *Expr)
+    bool VisitMemberExpr(const clang::MemberExpr *expression)
     {
-        const auto *Decl = Expr->getFoundDecl().getDecl();
-        return setResultIfCursorIsInBetween(Decl, Expr->getMemberLoc(),
-                                            Decl->getNameAsString().length());
+        const auto *declaration = expression->getFoundDecl().getDecl();
+        return setResultIfCursorIsInBetween(declaration,
+                                            expression->getMemberLoc(),
+                                            declaration->getNameAsString().length());
     }
 
     std::vector<const clang::NamedDecl*> takeNamedDecl()
@@ -156,7 +156,8 @@ private:
 
     std::vector<const clang::NamedDecl*> namedDeclarations;
     const clang::SourceManager &sourceManager;
-    const clang::SourceLocation cursorSourceLocation; // The location to find the NamedDecl.
+    const clang::SourceLocation cursorSourceLocation;
+    bool isTemplate = false;
 };
 
 inline

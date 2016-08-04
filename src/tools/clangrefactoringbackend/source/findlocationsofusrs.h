@@ -49,10 +49,9 @@ namespace ClangBackEnd {
 class FindLocationsOfUSRsASTVisitor : public clang::RecursiveASTVisitor<FindLocationsOfUSRsASTVisitor>
 {
 public:
-    explicit FindLocationsOfUSRsASTVisitor(std::vector<USRName> &unifiedSymbolResolutions)
+    explicit FindLocationsOfUSRsASTVisitor(const std::vector<USRName> &unifiedSymbolResolutions)
         : unifiedSymbolResolutions(unifiedSymbolResolutions)
     {
-        std::sort(unifiedSymbolResolutions.begin(), unifiedSymbolResolutions.end());
     }
 
     bool VisitNamedDecl(const clang::NamedDecl *declaration) {
@@ -108,15 +107,17 @@ private:
 
     bool containsUSR(const USRName &unifiedSymbolResolution)
     {
-        return std::binary_search(unifiedSymbolResolutions.cbegin(),
-                                  unifiedSymbolResolutions.cend(),
-                                  unifiedSymbolResolution);
+        auto found = std::find(unifiedSymbolResolutions.cbegin(),
+                               unifiedSymbolResolutions.cend(),
+                               unifiedSymbolResolution);
+
+        return found != unifiedSymbolResolutions.cend();
     }
 
 private:
 
     // All the locations of the USR were found.
-    std::vector<USRName> unifiedSymbolResolutions;
+    const std::vector<USRName> unifiedSymbolResolutions;
     std::vector<clang::SourceLocation> foundLocations;
 };
 

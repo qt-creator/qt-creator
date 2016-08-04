@@ -94,23 +94,74 @@ TEST(SymbolFinder, FindNameInUnsavedFile)
 TEST(SymbolFinder, FindUsrs)
 {
     SymbolFinder finder(1, 5);
-    finder.addFile(TESTDATA_DIR, "renamevariable.cpp", "int variable;", {"cc", "renamevariable.cpp"});
+    finder.addFile(TESTDATA_DIR, "renamevariable.cpp", "int variable;", {"cc", "renamevariable.cpp", "-std=c++14"});
 
     finder.findSymbol();
 
     ASSERT_THAT(finder.unifiedSymbolResolutions().front(), StrEq("c:@variable"));
 }
 
-TEST(SymbolFinder, SourceLocations)
+TEST(SymbolFinder, VariableDeclarationSourceLocations)
 {
     SymbolFinder finder(1, 5);
-    finder.addFile(TESTDATA_DIR, "renamevariable.cpp", "", {"cc", "renamevariable.cpp"});
+    finder.addFile(TESTDATA_DIR, "renamevariable.cpp", "", {"cc", "renamevariable.cpp", "-std=c++14"});
 
     finder.findSymbol();
 
     ASSERT_THAT(finder.sourceLocations().sourceLocationContainers(),
                 AllOf(Contains(IsSourceLocation(1, 5)),
                       Contains(IsSourceLocation(3, 9))));
+}
+
+TEST(SymbolFinder, VariableUsageSourceLocations)
+{
+    SymbolFinder finder(3, 9);
+    finder.addFile(TESTDATA_DIR, "renamevariable.cpp", "", {"cc", "renamevariable.cpp", "-std=c++14"});
+
+    finder.findSymbol();
+
+    ASSERT_THAT(finder.sourceLocations().sourceLocationContainers(),
+                AllOf(Contains(IsSourceLocation(1, 5)),
+                      Contains(IsSourceLocation(3, 9))));
+}
+
+TEST(SymbolFinder, TemplateMemberVariableDeclarationSourceLocations)
+{
+    SymbolFinder finder(8, 18);
+    finder.addFile(TESTDATA_DIR, "renamevariable.cpp", "", {"cc", "renamevariable.cpp", "-std=c++14"});
+
+    finder.findSymbol();
+
+    ASSERT_THAT(finder.sourceLocations().sourceLocationContainers(),
+                AllOf(Contains(IsSourceLocation(8, 18)),
+                      Contains(IsSourceLocation(15, 14)),
+                      Contains(IsSourceLocation(18, 19))));
+}
+
+TEST(SymbolFinder, TemplateMemberVariableUsageSourceLocations)
+{
+    SymbolFinder finder(15, 14);
+    finder.addFile(TESTDATA_DIR, "renamevariable.cpp", "", {"cc", "renamevariable.cpp", "-std=c++14"});
+
+    finder.findSymbol();
+
+    ASSERT_THAT(finder.sourceLocations().sourceLocationContainers(),
+                AllOf(Contains(IsSourceLocation(8, 18)),
+                      Contains(IsSourceLocation(15, 14)),
+                      Contains(IsSourceLocation(18, 19))));
+}
+
+TEST(SymbolFinder, TemplateMemberVariableUsageInLambdaSourceLocations)
+{
+    SymbolFinder finder(18, 19);
+    finder.addFile(TESTDATA_DIR, "renamevariable.cpp", "", {"cc", "renamevariable.cpp", "-std=c++14"});
+
+    finder.findSymbol();
+
+    ASSERT_THAT(finder.sourceLocations().sourceLocationContainers(),
+                AllOf(Contains(IsSourceLocation(8, 18)),
+                      Contains(IsSourceLocation(15, 14)),
+                      Contains(IsSourceLocation(18, 19))));
 }
 
 TEST(SymbolFinder, CursorOverMacroDefintionSymbolName)
