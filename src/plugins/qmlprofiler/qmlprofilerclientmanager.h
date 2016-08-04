@@ -59,13 +59,12 @@ public:
     void setModelManager(QmlProfilerModelManager *m);
     void setFlushInterval(quint32 flushInterval);
 
-    bool aggregateTraces() const;
-    void setAggregateTraces(bool aggregateTraces);
-
     void setRetryParams(int interval, int maxAttempts);
     void retryConnect();
     void connectToTcpServer();
     void startLocalServer();
+
+    void stopRecording();
 
 signals:
     void connectionOpened();
@@ -89,8 +88,6 @@ private:
     int m_maximumRetries = 50;
     int m_numRetries = 0;
 
-    bool m_aggregateTraces = true;
-
     void disconnectClient();
     void stopConnectionTimer();
 
@@ -99,12 +96,6 @@ private:
     void qmlDebugConnectionFailed();
 
     void logState(const QString &);
-
-    void qmlComplete(qint64 maximumTime);
-    void qmlNewEngine(int engineId);
-
-    void profilerStateChanged();
-    void clientRecordingChanged();
 
     void createConnection();
     void connectClientSignals();

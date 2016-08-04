@@ -53,8 +53,8 @@ public:
 
 signals:
     void stateChanged();
-    void clientRecordingChanged();
-    void serverRecordingChanged();
+    void clientRecordingChanged(bool);
+    void serverRecordingChanged(bool);
     void requestedFeaturesChanged(quint64);
     void recordedFeaturesChanged(quint64);
 

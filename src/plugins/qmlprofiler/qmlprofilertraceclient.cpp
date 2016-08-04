@@ -180,7 +180,7 @@ QmlProfilerTraceClient::QmlProfilerTraceClient(QmlDebug::QmlDebugConnection *cli
 {
     setRequestedFeatures(features);
     connect(&d->engineControl, &QmlDebug::QmlEngineControlClient::engineAboutToBeAdded,
-            this, &QmlProfilerTraceClient::newEngine);
+            this, &QmlProfilerTraceClient::sendRecordingStatus);
 }
 
 QmlProfilerTraceClient::~QmlProfilerTraceClient()
@@ -259,14 +259,6 @@ void QmlProfilerTraceClient::setFlushInterval(quint32 flushInterval)
     d->flushInterval = flushInterval;
 }
 
-void QmlProfilerTraceClient::setRecordingFromServer(bool v)
-{
-    if (v == d->recording)
-        return;
-    d->recording = v;
-    emit recordingChanged(v);
-}
-
 bool QmlProfilerTraceClientPrivate::updateFeatures(ProfileFeature feature)
 {
     quint64 flag = 1ULL << feature;
@@ -300,11 +292,8 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
             d->processCurrentEvent();
         }
         emit complete(d->maximumTime);
-        setRecordingFromServer(false);
     } else if (d->currentEvent.type.message() == Event
                && d->currentEvent.type.detailType() == StartTrace) {
-        if (!d->recording)
-            setRecordingFromServer(true);
         emit traceStarted(d->currentEvent.event.timestamp(),
                           d->currentEvent.event.numbers<QList<int>, qint32>());
     } else if (d->currentEvent.type.message() == Event

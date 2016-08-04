@@ -145,7 +145,7 @@ void QmlProfilerStateManager::setClientRecording(bool recording)
 #endif
     if (d->m_clientRecording != recording) {
         d->m_clientRecording = recording;
-        emit clientRecordingChanged();
+        emit clientRecordingChanged(recording);
     }
 }
 
@@ -156,7 +156,7 @@ void QmlProfilerStateManager::setServerRecording(bool recording)
 #endif
     if (d->m_serverRecording != recording) {
         d->m_serverRecording = recording;
-        emit serverRecordingChanged();
+        emit serverRecordingChanged(recording);
     }
 }
 

@@ -59,16 +59,6 @@ void QmlProfilerClientManager::setFlushInterval(quint32 flushInterval)
     m_flushInterval = flushInterval;
 }
 
-bool QmlProfilerClientManager::aggregateTraces() const
-{
-    return m_aggregateTraces;
-}
-
-void QmlProfilerClientManager::setAggregateTraces(bool aggregateTraces)
-{
-    m_aggregateTraces = aggregateTraces;
-}
-
 void QmlProfilerClientManager::setRetryParams(int interval, int maxAttempts)
 {
     m_retryInterval = interval;
@@ -183,6 +173,12 @@ void QmlProfilerClientManager::startLocalServer()
     m_connectionTimer.start(m_retryInterval);
 }
 
+void QmlProfilerClientManager::stopRecording()
+{
+    QTC_ASSERT(m_qmlclientplugin, return);
+    m_qmlclientplugin->setRecording(false);
+}
+
 void QmlProfilerClientManager::retryConnect()
 {
     if (!m_localSocket.isEmpty()) {
@@ -230,24 +226,31 @@ void QmlProfilerClientManager::connectClientSignals()
 
 
     QTC_ASSERT(m_qmlclientplugin, return);
-    QObject::connect(m_qmlclientplugin.data(), &QmlProfilerTraceClient::complete,
-                     this, &QmlProfilerClientManager::qmlComplete);
-    QObject::connect(m_qmlclientplugin.data(), &QmlProfilerTraceClient::newEngine,
-                     this, &QmlProfilerClientManager::qmlNewEngine);
-
     QTC_ASSERT(m_modelManager, return);
     QObject::connect(m_qmlclientplugin.data(), &QmlProfilerTraceClient::traceFinished,
                      m_modelManager->traceTime(), &QmlProfilerTraceTime::increaseEndTime);
-    QObject::connect(m_qmlclientplugin.data(), &QmlProfilerTraceClient::traceStarted,
-                     m_modelManager->traceTime(), &QmlProfilerTraceTime::decreaseStartTime);
 
     QTC_ASSERT(m_profilerState, return);
-    QObject::connect(m_qmlclientplugin.data(), &QmlProfilerTraceClient::recordingChanged,
-                     m_profilerState.data(), &QmlProfilerStateManager::setServerRecording);
     QObject::connect(m_profilerState.data(), &QmlProfilerStateManager::requestedFeaturesChanged,
                      m_qmlclientplugin.data(), &QmlProfilerTraceClient::setRequestedFeatures);
     QObject::connect(m_qmlclientplugin.data(), &QmlProfilerTraceClient::recordedFeaturesChanged,
                      m_profilerState.data(), &QmlProfilerStateManager::setRecordedFeatures);
+
+    QObject::connect(m_qmlclientplugin.data(), &QmlProfilerTraceClient::traceStarted,
+                     this, [this](qint64 time) {
+        m_profilerState->setServerRecording(true);
+        m_modelManager->traceTime()->decreaseStartTime(time);
+    });
+
+    QObject::connect(m_qmlclientplugin.data(), &QmlProfilerTraceClient::complete,
+                     this, [this](qint64 time) {
+        m_modelManager->traceTime()->increaseEndTime(time);
+        m_profilerState->setServerRecording(false);
+    });
+
+    QObject::connect(m_profilerState.data(), &QmlProfilerStateManager::clientRecordingChanged,
+                     m_qmlclientplugin.data(), &QmlProfilerTraceClient::setRecording);
+
 }
 
 void QmlProfilerClientManager::disconnectClientSignals()
@@ -261,6 +264,8 @@ void QmlProfilerClientManager::disconnectClientSignals()
     QTC_ASSERT(m_profilerState, return);
     QObject::disconnect(m_profilerState.data(), &QmlProfilerStateManager::requestedFeaturesChanged,
                         m_qmlclientplugin.data(), &QmlProfilerTraceClient::setRequestedFeatures);
+    QObject::disconnect(m_profilerState.data(), &QmlProfilerStateManager::clientRecordingChanged,
+                        m_qmlclientplugin.data(), &QmlProfilerTraceClient::setRecording);
 }
 
 bool QmlProfilerClientManager::isConnected() const
@@ -285,10 +290,11 @@ void QmlProfilerClientManager::disconnectClient()
 void QmlProfilerClientManager::qmlDebugConnectionOpened()
 {
     logState(tr("Debug connection opened"));
+    QTC_ASSERT(m_profilerState, return);
     QTC_ASSERT(m_connection && m_qmlclientplugin, return);
     QTC_ASSERT(m_connection->isConnected(), return);
     stopConnectionTimer();
-    clientRecordingChanged();
+    m_qmlclientplugin->setRecording(m_profilerState->clientRecording());
     emit connectionOpened();
 }
 
@@ -318,70 +324,12 @@ void QmlProfilerClientManager::logState(const QString &msg)
     QmlProfilerTool::logState(QLatin1String("QML Profiler: ") + msg);
 }
 
-void QmlProfilerClientManager::qmlComplete(qint64 maximumTime)
-{
-    QTC_ASSERT(m_profilerState && m_modelManager, return);
-    if (m_profilerState->currentState() == QmlProfilerStateManager::AppStopRequested)
-        m_profilerState->setCurrentState(QmlProfilerStateManager::Idle);
-    m_modelManager->traceTime()->increaseEndTime(maximumTime);
-    if (m_modelManager && !m_aggregateTraces)
-        m_modelManager->acquiringDone();
-}
-
-void QmlProfilerClientManager::qmlNewEngine(int engineId)
-{
-    QTC_ASSERT(m_connection && m_qmlclientplugin, return);
-    if (m_qmlclientplugin->isRecording() != m_profilerState->clientRecording())
-        m_qmlclientplugin->setRecording(m_profilerState->clientRecording());
-    else
-        m_qmlclientplugin->sendRecordingStatus(engineId);
-}
-
 void QmlProfilerClientManager::setProfilerStateManager(QmlProfilerStateManager *profilerState)
 {
     // Don't do this while connecting
     QTC_ASSERT(m_connection.isNull() && m_qmlclientplugin.isNull(), disconnectClient());
 
-    if (m_profilerState) {
-        disconnect(m_profilerState.data(), &QmlProfilerStateManager::stateChanged,
-                   this, &QmlProfilerClientManager::profilerStateChanged);
-        disconnect(m_profilerState.data(), &QmlProfilerStateManager::clientRecordingChanged,
-                   this, &QmlProfilerClientManager::clientRecordingChanged);
-    }
-
     m_profilerState = profilerState;
-
-    // connect
-    if (m_profilerState) {
-        connect(m_profilerState.data(), &QmlProfilerStateManager::stateChanged,
-                this, &QmlProfilerClientManager::profilerStateChanged);
-        connect(m_profilerState.data(), &QmlProfilerStateManager::clientRecordingChanged,
-                this, &QmlProfilerClientManager::clientRecordingChanged);
-    }
-}
-
-void QmlProfilerClientManager::profilerStateChanged()
-{
-    QTC_ASSERT(m_profilerState, return);
-    switch (m_profilerState->currentState()) {
-    case QmlProfilerStateManager::AppStopRequested :
-        if (m_profilerState->serverRecording()) {
-            if (m_qmlclientplugin)
-                m_qmlclientplugin->setRecording(false);
-        } else {
-            m_profilerState->setCurrentState(QmlProfilerStateManager::Idle);
-        }
-        break;
-    default:
-        break;
-    }
-}
-
-void QmlProfilerClientManager::clientRecordingChanged()
-{
-    QTC_ASSERT(m_profilerState, return);
-    if (m_qmlclientplugin)
-        m_qmlclientplugin->setRecording(m_profilerState->clientRecording());
 }
 
 void QmlProfilerClientManager::stopConnectionTimer()

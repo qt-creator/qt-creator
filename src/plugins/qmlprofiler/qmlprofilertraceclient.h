@@ -65,16 +65,12 @@ signals:
 
     void recordingChanged(bool arg);
     void recordedFeaturesChanged(quint64 features);
-    void newEngine(int engineId);
 
     void cleared();
 
 protected:
     virtual void stateChanged(State status);
     virtual void messageReceived(const QByteArray &);
-
-private:
-    void setRecordingFromServer(bool);
 
 private:
     class QmlProfilerTraceClientPrivate *d;

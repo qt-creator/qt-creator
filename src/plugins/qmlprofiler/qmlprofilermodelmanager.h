@@ -114,6 +114,8 @@ public:
     void setVisibleFeatures(quint64 features);
     quint64 recordedFeatures() const;
     void setRecordedFeatures(quint64 features);
+    bool aggregateTraces() const;
+    void setAggregateTraces(bool aggregateTraces);
 
     void acquiringDone();
     void processingDone();

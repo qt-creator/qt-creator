@@ -223,12 +223,9 @@ void QmlProfilerClientManagerTest::testUnresponsiveLocal()
 void responsiveTestData()
 {
     QTest::addColumn<quint32>("flushInterval");
-    QTest::addColumn<bool>("aggregateTraces");
 
-    QTest::newRow("no flush, no aggregate") << 0u << false;
-    QTest::newRow("no flush, aggregate")    << 0u << true;
-    QTest::newRow("flush, no aggregate")    << 1u << false;
-    QTest::newRow("flush, aggregate")       << 1u << true;
+    QTest::newRow("no flush") << 0u;
+    QTest::newRow("flush")    << 1u;
 }
 
 void QmlProfilerClientManagerTest::testResponsiveTcp_data()
@@ -257,7 +254,6 @@ void fakeDebugServer(QIODevice *socket)
 void QmlProfilerClientManagerTest::testResponsiveTcp()
 {
     QFETCH(quint32, flushInterval);
-    QFETCH(bool, aggregateTraces);
 
     QString hostName;
     Utils::Port port = LocalQmlProfilerRunner::findFreePort(hostName);
@@ -280,8 +276,6 @@ void QmlProfilerClientManagerTest::testResponsiveTcp()
         clientManager.setProfilerStateManager(&stateManager);
         clientManager.setModelManager(&modelManager);
         clientManager.setFlushInterval(flushInterval);
-        clientManager.setAggregateTraces(aggregateTraces);
-        QCOMPARE(clientManager.aggregateTraces(), aggregateTraces);
 
         connect(&clientManager, &QmlProfilerClientManager::connectionFailed,
                 &clientManager, &QmlProfilerClientManager::retryConnect);
@@ -320,7 +314,6 @@ void QmlProfilerClientManagerTest::testResponsiveLocal_data()
 void QmlProfilerClientManagerTest::testResponsiveLocal()
 {
     QFETCH(quint32, flushInterval);
-    QFETCH(bool, aggregateTraces);
 
     QString socketFile = LocalQmlProfilerRunner::findFreeSocket();
 
@@ -332,8 +325,6 @@ void QmlProfilerClientManagerTest::testResponsiveLocal()
     clientManager.setProfilerStateManager(&stateManager);
     clientManager.setModelManager(&modelManager);
     clientManager.setFlushInterval(flushInterval);
-    clientManager.setAggregateTraces(aggregateTraces);
-    QCOMPARE(clientManager.aggregateTraces(), aggregateTraces);
 
     connect(&clientManager, &QmlProfilerClientManager::connectionFailed,
             &clientManager, &QmlProfilerClientManager::retryConnect);
