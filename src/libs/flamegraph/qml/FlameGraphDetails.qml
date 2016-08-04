@@ -24,6 +24,8 @@
 ****************************************************************************/
 
 import QtQuick 2.1
+import QtQuick.Controls 1.4
+import QtQuick.Controls.Styles 1.4
 
 Item {
     id: rangeDetails
@@ -34,6 +36,8 @@ Item {
     property color contentTextColor: "black"
     property color borderColor: "#a0a0a0"
     property color noteTextColor: "orange"
+    property color buttonSelectedColor: titleBarColor
+    property color buttonHoveredColor: titleBarColor
 
     property real titleBarHeight: 20
     property real borderWidth: 1
@@ -95,18 +99,31 @@ Item {
             elide: Text.ElideRight
         }
 
-        FlameGraphText {
+        ToolButton {
             id: closeIcon
+
+            implicitWidth: 30
             anchors.right: parent.right
             anchors.top: parent.top
             anchors.bottom: parent.bottom
-            anchors.rightMargin: innerMargin
-            verticalAlignment: Text.AlignVCenter
-            text: "X"
-            color: titleBarTextColor
-            MouseArea {
-                anchors.fill: parent
-                onClicked: rangeDetails.clearSelection()
+            onClicked: rangeDetails.clearSelection()
+
+            Image {
+                id: image
+                source: "image://icons/close_window" + (parent.enabled ? "" : "/disabled")
+                width: 16
+                height: 16
+                anchors.centerIn: parent
+            }
+
+            style: ButtonStyle {
+                background: Rectangle {
+                    color: (control.checked || control.pressed)
+                           ? buttonSelectedColor
+                           : control.hovered
+                             ? buttonHoveredColor
+                             : "#00000000"
+                }
             }
         }
     }
