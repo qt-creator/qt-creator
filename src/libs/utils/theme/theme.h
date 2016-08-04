@@ -282,6 +282,7 @@ public:
         ClangCodeModel_Warning_TextMarkColor,
 
         /* QmlDesigner */
+        QmlDesigner_BackgroundColor,
         QmlDesigner_HighlightColor
     };
 

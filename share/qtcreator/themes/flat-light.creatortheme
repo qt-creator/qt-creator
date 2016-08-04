@@ -182,6 +182,7 @@ ProjectExplorer_TaskWarn_TextMarkColor=ffffa500
 ClangCodeModel_Error_TextMarkColor=ffff882f
 ClangCodeModel_Warning_TextMarkColor=ffc6c132
 
+QmlDesigner_BackgroundColor=fff8f8f8
 QmlDesigner_HighlightColor=ff46a2da
 
 [Flags]
