@@ -59,7 +59,7 @@ public:
         auto declarationUSR = USROfDeclaration(declaration);
 
         if (containsUSR(declarationUSR))
-            LocationsFound.push_back(declaration->getLocation());
+            foundLocations.push_back(declaration->getLocation());
 
         return true;
     }
@@ -71,7 +71,7 @@ public:
         auto declarationUSR = USROfDeclaration(declaration);
 
         if (containsUSR(declarationUSR))
-            LocationsFound.push_back(expression->getLocation());
+            foundLocations.push_back(expression->getLocation());
 
         return true;
     }
@@ -81,7 +81,7 @@ public:
         auto declarationUSR = USROfDeclaration(declaration);
 
         if (containsUSR(declarationUSR))
-            LocationsFound.push_back(expression->getMemberLoc());
+            foundLocations.push_back(expression->getMemberLoc());
 
         return true;
     }
@@ -92,7 +92,7 @@ public:
     }
 
     std::vector<clang::SourceLocation> takeFoundLocations() const {
-        return std::move(LocationsFound);
+        return std::move(foundLocations);
     }
 
 private:
@@ -100,7 +100,7 @@ private:
         while (nameLocation) {
             const auto *declaration = nameLocation.getNestedNameSpecifier()->getAsNamespace();
             if (declaration && containsUSR(USROfDeclaration(declaration)))
-                LocationsFound.push_back(nameLocation.getLocalBeginLoc());
+                foundLocations.push_back(nameLocation.getLocalBeginLoc());
 
             nameLocation = nameLocation.getPrefix();
         }
@@ -117,7 +117,7 @@ private:
 
     // All the locations of the USR were found.
     std::vector<USRName> unifiedSymbolResolutions;
-    std::vector<clang::SourceLocation> LocationsFound;
+    std::vector<clang::SourceLocation> foundLocations;
 };
 
 inline
