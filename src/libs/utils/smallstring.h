@@ -38,6 +38,7 @@
 #include <QString>
 
 #include <algorithm>
+#include <cmath>
 #include <cstdlib>
 #include <climits>
 #include <cstring>
