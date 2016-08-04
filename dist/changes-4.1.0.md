@@ -21,6 +21,8 @@ Editing
 * Added highlighting of automatically inserted characters
 * Added option for skipping automatically inserted character, and changed
   it to be done only if the cursor stays before the character
+* Added `Modnokai Night Shift v2`, `Qt Creator Dark`,
+  `Solarized Dark` and `Solarized Light` editor schemes
 * Fixed that replacing could change selection (QTCREATORBUG-15623)
 
 All Projects
@@ -90,6 +92,7 @@ Qt Quick Designer
 * Added support for Qt Quick Controls 2 styles
 * Added `Move to Component` action
 * Added `Add New Signal Handler` action
+* Added support of Qt Creator themes in the Designer UI
 * Improved performance
 * Improved error dialog (QTCREATORBUG-15772)
 * Fixed crumble bar for component navigation
@@ -152,11 +155,14 @@ Credits for these changes go to:
 Albert Astals Cid  
 Alessandro Portale  
 Alexander Drozdov  
+Alexandru Croitor  
 Andre Hartmann  
 André Pönitz  
 Antoine Poliakov  
+Anton Kudryavtsev  
 Arnold Dumas  
 BogDan Vatra  
+Brett Stottlemyer  
 Christian Kandeler  
 Christian Stenger  
 Cristian Adam  
@@ -171,20 +177,25 @@ Jake Petroules
 Jaroslaw Kobus  
 Jean Gressmann  
 Jochen Becher  
+Lars Knoll  
 Leena Miettinen  
 Lorenz Haas  
 Lukas Holecek  
+Marc Mutz  
+Marc Reilly  
 Marco Benelli  
 Marco Bubke  
-Marc Reilly  
 Mashrab Kuvatov  
+Mat Sutcliffe  
 Maurice Kalinowski  
+Nazar Gerasymchuk  
 Nikita Baryshnikov  
 Nikolai Kosjar  
 Orgad Shaneh  
 Oswald Buddenhagen  
 Philip Lorenz  
 Robert Löhning  
+Serhii Moroz  
 Shinnok  
 Takumi ASAKI  
 Thiago Macieira  
