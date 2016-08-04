@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
     ClangCodeModelServer clangCodeModelServer;
     ConnectionServer<ClangCodeModelServer, ClangCodeModelClientProxy> connectionServer(connection);
     connectionServer.start();
-    connectionServer.setClangCodeModelServer(&clangCodeModelServer);
+    connectionServer.setServer(&clangCodeModelServer);
 
     return application.exec();
 }

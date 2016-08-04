@@ -54,6 +54,7 @@ class BaseEditorDocumentProcessor;
 class CppCompletionAssistProvider;
 class CppEditorDocumentHandle;
 class CppIndexingSupport;
+class RefactoringEngineInterface;
 class SymbolFinder;
 class WorkingCopy;
 
@@ -170,6 +171,9 @@ public:
     static Internal::CppSourceProcessor *createSourceProcessor();
     static QString configurationFileName();
     static QString editorConfigurationFileName();
+
+    static void setRefactoringEngine(RefactoringEngineInterface *refactoringEngine);
+    static RefactoringEngineInterface *refactoringEngine();
 
 signals:
     /// Project data might be locked while this is emitted.

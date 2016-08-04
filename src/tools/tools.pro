@@ -21,6 +21,7 @@ mac {
 isEmpty(LLVM_INSTALL_DIR):LLVM_INSTALL_DIR=$$(LLVM_INSTALL_DIR)
 exists($$LLVM_INSTALL_DIR) {
     SUBDIRS += clangbackend
+    SUBDIRS += clangrefactoringbackend
 }
 
 isEmpty(BUILD_CPLUSPLUS_TOOLS):BUILD_CPLUSPLUS_TOOLS=$$(BUILD_CPLUSPLUS_TOOLS)

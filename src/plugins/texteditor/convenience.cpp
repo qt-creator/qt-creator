@@ -61,6 +61,23 @@ QString textAt(QTextCursor tc, int pos, int length)
     return tc.selectedText().replace(QChar::ParagraphSeparator, QLatin1Char('\n'));
 }
 
+QTextCursor selectAt(QTextCursor textCursor, uint line, uint column, uint length)
+{
+    if (line < 1)
+        line = 1;
+
+    if (column < 1)
+        column = 1;
+
+    textCursor.setPosition(0);
+    textCursor.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor, line - 1);
+    textCursor.movePosition(QTextCursor::NextCharacter,QTextCursor::MoveAnchor, column  + length - 1 );
+
+    textCursor.movePosition(QTextCursor::PreviousCharacter,QTextCursor::KeepAnchor, length);
+
+    return textCursor;
+}
+
 QTextCursor flippedCursor(const QTextCursor &cursor)
 {
     QTextCursor flipped = cursor;

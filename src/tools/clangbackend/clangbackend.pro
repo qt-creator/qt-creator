@@ -9,7 +9,7 @@ include(ipcsource/clangbackendclangipc-source.pri)
 QT += core network
 QT -= gui
 
-LIBS += $$LLVM_LIBS
+LIBS += $$LIBCLANG_LIBS
 INCLUDEPATH += $$LLVM_INCLUDEPATH
 
 SOURCES += clangbackendmain.cpp

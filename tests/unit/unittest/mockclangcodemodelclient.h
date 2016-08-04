@@ -39,7 +39,8 @@
 #include <gtest/gtest.h>
 #include "gtest-qt-printing.h"
 
-class MockClangCodeModelClient : public ClangBackEnd::ClangCodeModelClientInterface {
+class MockClangCodeModelClient : public ClangBackEnd::ClangCodeModelClientInterface
+{
 public:
     MOCK_METHOD0(alive,
                  void());

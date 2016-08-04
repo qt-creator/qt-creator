@@ -38,25 +38,6 @@
 
 namespace ClangBackEnd {
 
-namespace {
-const QTemporaryDir &temporaryDirectory()
-{
-    static QTemporaryDir temporaryDirectory(QDir::tempPath() + QStringLiteral("/qtc-clang-XXXXXX"));
-
-    return temporaryDirectory;
-}
-
-QString currentProcessId()
-{
-    return QString::number(QCoreApplication::applicationPid());
-}
-
-QString connectionName()
-{
-    return temporaryDirectory().path() + QStringLiteral("/ClangBackEnd-") + currentProcessId();
-}
-}
-
 ConnectionClient::ConnectionClient()
 {
     processAliveTimer.setInterval(10000);
@@ -72,7 +53,7 @@ ConnectionClient::ConnectionClient()
 
 void ConnectionClient::startProcessAndConnectToServerAsynchronously()
 {
-    process_  = startProcess();
+    process_ = startProcess();
 }
 
 bool ConnectionClient::disconnectFromServer()
@@ -125,6 +106,23 @@ QProcessEnvironment ConnectionClient::processEnvironment() const
     }
 
     return processEnvironment;
+}
+
+const QTemporaryDir &ConnectionClient::temporaryDirectory() const
+{
+    static QTemporaryDir temporaryDirectory(QDir::tempPath() + QStringLiteral("/qtc-clang-XXXXXX"));
+
+    return temporaryDirectory;
+}
+
+LinePrefixer &ConnectionClient::stdErrPrefixer()
+{
+    return stdErrPrefixer_;
+}
+
+LinePrefixer &ConnectionClient::stdOutPrefixer()
+{
+    return stdOutPrefixer_;
 }
 
 std::unique_ptr<QProcess> ConnectionClient::startProcess()
@@ -207,17 +205,17 @@ void ConnectionClient::resetProcessIsStarting()
 void ConnectionClient::printLocalSocketError(QLocalSocket::LocalSocketError socketError)
 {
     if (socketError != QLocalSocket::ServerNotFoundError)
-        qWarning() << "ClangCodeModel ConnectionClient LocalSocket Error:" << localSocket.errorString();
+        qWarning() << outputName() << "LocalSocket Error:" << localSocket.errorString();
 }
 
 void ConnectionClient::printStandardOutput()
 {
-    qDebug("%s", stdOutPrefixer.prefix(process_->readAllStandardOutput()).constData());
+    qDebug("%s", stdOutPrefixer_.prefix(process_->readAllStandardOutput()).constData());
 }
 
 void ConnectionClient::printStandardError()
 {
-    qDebug("%s", stdErrPrefixer.prefix(process_->readAllStandardError()).constData());
+    qDebug("%s", stdErrPrefixer_.prefix(process_->readAllStandardError()).constData());
 }
 
 void ConnectionClient::connectLocalSocketConnected()
@@ -240,8 +238,6 @@ void ConnectionClient::finishProcess()
 
 void ConnectionClient::finishProcess(std::unique_ptr<QProcess> &&process)
 {
-    TIME_SCOPE_DURATION("ConnectionClient::finishProcess");
-
     if (process) {
         processAliveTimer.stop();
 
@@ -251,7 +247,7 @@ void ConnectionClient::finishProcess(std::unique_ptr<QProcess> &&process)
         terminateProcess(process.get());
         killProcess(process.get());
 
-    resetCounter();
+        resetCounter();
     }
 }
 
@@ -274,7 +270,7 @@ bool ConnectionClient::waitForConnected()
         }
     }
 
-    qWarning() << "Cannot connect:" << localSocket.errorString();
+    qWarning() << outputName() << "cannot connect:" << localSocket.errorString();
 
     return isConnected;
 }

@@ -106,7 +106,10 @@ enum class MessageType : quint8 {
     CodeCompletedMessage,
 
     TranslationUnitDoesNotExistMessage,
-    ProjectPartsDoNotExistMessage
+    ProjectPartsDoNotExistMessage,
+
+    SourceLocationsForRenamingMessage,
+    RequestSourceLocationsForRenamingMessage
 };
 
 template<MessageType messageEnumeration>

@@ -44,11 +44,20 @@ SOURCES += $$PWD/clangcodemodelserverinterface.cpp \
     $$PWD/updatetranslationunitsforeditormessage.cpp \
     $$PWD/updatevisibletranslationunitsmessage.cpp \
     $$PWD/highlightingmarkcontainer.cpp \
+    $$PWD/refactoringclientinterface.cpp \
     $$PWD/messageenvelop.cpp \
+    $$PWD/refactoringserverinterface.cpp \
+    $$PWD/refactoringserverproxy.cpp \
     $$PWD/ipcclientinterface.cpp \
     $$PWD/ipcserverinterface.cpp \
     $$PWD/clangcodemodelconnectionclient.cpp \
-    $$PWD/documentannotationschangedmessage.cpp
+    $$PWD/documentannotationschangedmessage.cpp \
+    $$PWD/refactoringclientproxy.cpp \
+    $$PWD/sourcelocationscontainer.cpp \
+    $$PWD/sourcelocationcontainerv2.cpp \
+    $$PWD/sourcelocationsforrenamingmessage.cpp \
+    $$PWD/requestsourcelocationforrenamingmessage.cpp \
+    $$PWD/filepath.cpp
 
 HEADERS += \
     $$PWD/clangcodemodelserverinterface.h \
@@ -92,6 +101,15 @@ HEADERS += \
     $$PWD/ipcclientinterface.h \
     $$PWD/ipcserverinterface.h \
     $$PWD/clangcodemodelconnectionclient.h \
-    $$PWD/documentannotationschangedmessage.h
+    $$PWD/documentannotationschangedmessage.h \
+    $$PWD/refactoringclientinterface.h \
+    $$PWD/refactoringserverinterface.h \
+    $$PWD/refactoringserverproxy.h \
+    $$PWD/refactoringclientproxy.h \
+    $$PWD/sourcelocationscontainer.h \
+    $$PWD/sourcelocationcontainerv2.h \
+    $$PWD/sourcelocationsforrenamingmessage.h \
+    $$PWD/requestsourcelocationforrenamingmessage.h \
+    $$PWD/filepath.h
 
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols

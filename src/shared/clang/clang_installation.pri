@@ -40,13 +40,11 @@ defineReplace(findLLVMVersionFromLibDir) {
 
 defineReplace(findClangLibInLibDir) {
     libdir = $$1
-    exists ($${libdir}/libclang.*) {
-        #message("LLVM was build with autotools")
-        return("clang")
+    exists ($${libdir}/libclang.so*) {
+        return("-lclang")
     } else {
-        exists ($${libdir}/liblibclang.*) {
-            #message("LLVM was build with CMake")
-            return("libclang")
+        exists ($${libdir}/libclang.lib) {
+            return("-llibclang")
         }
     }
 }
@@ -65,45 +63,36 @@ defineReplace(findClangOnWindows) {
     }
 }
 
-win32 {
-    LLVM_INCLUDEPATH = "$$LLVM_INSTALL_DIR/include"
-    LLVM_LIBDIR = $$findClangOnWindows()
-    isEmpty(LLVM_LIBDIR): error("Cannot find clang shared library at $${LLVM_INSTALL_DIR}")
-    LLVM_VERSION = $$findLLVMVersionFromLibDir($$LLVM_LIBDIR)
+CLANGTOOLING_LIBS=-lclangTooling -lclangIndex -lclangFrontend -lclangParse -lclangSerialization \
+                  -lclangSema -lclangEdit -lclangAnalysis -lclangDriver -lclangASTMatchers \
+                  -lclangFormat -lclangToolingCore -lclangRewrite -lclangAST -lclangLex -lclangBasic
 
-    clang_lib = clang
-    !exists("$${LLVM_LIBDIR}/clang.*"): clang_lib = libclang
+BIN_EXTENSION =
+win32: BIN_EXTENSION = .exe
 
-    LLVM_LIBS = -L"$${LLVM_LIBDIR}" -l$${clang_lib}
-    LLVM_LIBS += -ladvapi32 -lshell32
-}
+llvm_config = $$system_quote($$LLVM_INSTALL_DIR/bin/llvm-config)
+requires(exists($$llvm_config$$BIN_EXTENSION))
+#message("llvm-config found, querying it for paths and version")
+LLVM_LIBDIR = $$system($$llvm_config --libdir, lines)
+LLVM_INCLUDEPATH = $$system($$llvm_config --includedir, lines)
+output = $$system($$llvm_config --version, lines)
+LLVM_VERSION = $$extractVersion($$output)
+LLVM_STATIC_LIBS_STRING += $$system($$llvm_config --libs, lines)
+LLVM_STATIC_LIBS_STRING += $$system($$llvm_config --system-libs, lines)
 
-unix {
-    llvm_config = $$LLVM_INSTALL_DIR/bin/llvm-config
-    exists($$llvm_config) {
-        #message("llvm-config found, querying it for paths and version")
-        LLVM_LIBDIR = $$system($$llvm_config --libdir 2>/dev/null)
-        LLVM_INCLUDEPATH = $$system($$llvm_config --includedir 2>/dev/null)
-        output = $$system($$llvm_config --version 2>/dev/null)
-        LLVM_VERSION = $$extractVersion($$output)
-    } else {
-        #message("llvm-config not found, concluding paths and version from LLVM_INSTALL_DIR")
-        LLVM_INCLUDEPATH = $$LLVM_INSTALL_DIR/include
-        LLVM_LIBDIR = $$LLVM_INSTALL_DIR/lib
-        LLVM_VERSION = $$findLLVMVersionFromLibDir($$LLVM_LIBDIR)
-    }
+LLVM_STATIC_LIBS = $$split(LLVM_STATIC_LIBS_STRING, " ")
 
-    LIBCLANG_MAIN_HEADER = $$LLVM_INCLUDEPATH/clang-c/Index.h
-    !exists($$LIBCLANG_MAIN_HEADER): error("Cannot find libclang's main header file, candidate: $$LIBCLANG_MAIN_HEADER")
-    !exists($$LLVM_LIBDIR): error("Cannot detect lib dir for clang, candidate: $$LLVM_LIBDIR")
-    clang_lib = $$findClangLibInLibDir($$LLVM_LIBDIR)
-    isEmpty(clang_lib): error("Cannot find Clang shared library in $$LLVM_LIBDIR")
+LIBCLANG_MAIN_HEADER = $$LLVM_INCLUDEPATH/clang-c/Index.h
+!exists($$LIBCLANG_MAIN_HEADER): error("Cannot find libclang's main header file, candidate: $$LIBCLANG_MAIN_HEADER")
+!exists($$LLVM_LIBDIR): error("Cannot detect lib dir for clang, candidate: $$LLVM_LIBDIR")
+CLANG_LIB = $$findClangLibInLibDir($$LLVM_LIBDIR)
+isEmpty(CLANG_LIB): error("Cannot find Clang shared library in $$LLVM_LIBDIR")
 
-    !contains(QMAKE_DEFAULT_LIBDIRS, $$LLVM_LIBDIR): LLVM_LIBS = -L$${LLVM_LIBDIR}
-    LLVM_LIBS += -l$${clang_lib}
-
-    contains(QMAKE_DEFAULT_INCDIRS, $$LLVM_INCLUDEPATH): LLVM_INCLUDEPATH =
-}
+!contains(QMAKE_DEFAULT_LIBDIRS, $$LLVM_LIBDIR): LIBCLANG_LIBS = -L$${LLVM_LIBDIR}
+LIBCLANG_LIBS += $${CLANG_LIB}
+!contains(QMAKE_DEFAULT_LIBDIRS, $$LLVM_LIBDIR): LIBTOOLING_LIBS = -L$${LLVM_LIBDIR}
+LIBTOOLING_LIBS += $$CLANGTOOLING_LIBS $$LLVM_STATIC_LIBS
+contains(QMAKE_DEFAULT_INCDIRS, $$LLVM_INCLUDEPATH): LLVM_INCLUDEPATH =
 
 isEmpty(LLVM_VERSION): error("Cannot determine clang version at $$LLVM_INSTALL_DIR")
 !versionIsAtLeast($$LLVM_VERSION, 3, 8, 0): {

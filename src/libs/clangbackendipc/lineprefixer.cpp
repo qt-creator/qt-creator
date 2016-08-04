@@ -28,9 +28,14 @@
 namespace ClangBackEnd {
 
 LinePrefixer::LinePrefixer(const QByteArray &prefix)
-    : m_prefix(prefix)
-    , m_previousIsEndingWithNewLine(true)
+    : m_prefix(prefix),
+      m_previousIsEndingWithNewLine(true)
 {}
+
+void LinePrefixer::setPrefix(const QByteArray &prefix)
+{
+    m_prefix = prefix;
+}
 
 QByteArray LinePrefixer::prefix(const QByteArray &text)
 {

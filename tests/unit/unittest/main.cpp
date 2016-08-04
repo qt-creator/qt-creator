@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
 
     QCoreApplication application(argc, argv);
 
-    QLoggingCategory::setFilterRules(QStringLiteral("*.info=false\n*.debug=false\n*.warning=false"));
+    QLoggingCategory::setFilterRules(QStringLiteral("*.info=false\n*.debug=false\n*.warning=true"));
 
     testing::InitGoogleTest(&argc, argv);
 #ifdef WITH_BENCHMARKS

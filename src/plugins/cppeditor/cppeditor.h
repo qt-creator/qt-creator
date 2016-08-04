@@ -33,7 +33,9 @@
 
 namespace CppTools {
 class CppEditorOutline;
+class RefactoringEngineInterface;
 class SemanticInfo;
+class ProjectPart;
 }
 
 namespace CppEditor {
@@ -134,6 +136,13 @@ private:
     unsigned documentRevision() const;
 
     TextEditor::RefactorMarkers refactorMarkersWithoutClangMarkers() const;
+
+    CppTools::RefactoringEngineInterface *refactoringEngine() const;
+
+    void renameSymbolUnderCursorClang();
+    void renameSymbolUnderCursorBuiltin();
+
+    CppTools::ProjectPart *projectPart() const;
 
 private:
     QScopedPointer<CppEditorWidgetPrivate> d;

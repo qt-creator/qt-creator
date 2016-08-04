@@ -1,5 +1,5 @@
 include(../../../src/shared/clang/clang_installation.pri)
-requires(!isEmpty(LLVM_LIBS))
+requires(!isEmpty(LIBCLANG_LIBS))
 
 INCLUDEPATH += $$LLVM_INCLUDEPATH
-LIBS += $$LLVM_LIBS
+LIBS += $$LIBTOOLING_LIBS $$LIBCLANG_LIBS

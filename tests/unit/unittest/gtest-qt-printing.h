@@ -26,6 +26,18 @@
 #include <QString>
 #include <QDebug>
 
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
+
+#include <clang/Basic/SourceLocation.h>
+#include <clang/Basic/SourceManager.h>
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
+
 #include <gtest/gtest-printers.h>
 
 #include <iostream>
@@ -33,6 +45,7 @@
 #pragma once
 
 QT_BEGIN_NAMESPACE
+
 class QVariant;
 inline void PrintTo(const QVariant &variant, ::std::ostream *os)
 {
@@ -50,6 +63,21 @@ inline void PrintTo(const QString &text, ::std::ostream *os)
 }
 
 QT_END_NAMESPACE
+
+namespace clang {
+
+inline void PrintTo(const clang::FullSourceLoc &sourceLocation, ::std::ostream *os)
+{
+    auto &&sourceManager = sourceLocation.getManager();
+    auto fileName = sourceManager.getFileEntryForID(sourceLocation.getFileID())->getName();
+
+    *os << "SourceLocation(\""
+        << fileName << ", "
+        << sourceLocation.getSpellingLineNumber() << ", "
+        << sourceLocation.getSpellingColumnNumber() << ")";
+}
+
+}
 
 //namespace testing {
 //namespace internal {

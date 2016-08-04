@@ -6,7 +6,7 @@ include(creator_dependency.pri)
 include(benchmark_dependency.pri)
 
 QT += core network testlib widgets
-CONFIG += console c++11 testcase object_parallel_to_source
+CONFIG += console c++14 testcase object_parallel_to_source
 CONFIG -= app_bundle
 
 OBJECTS_DIR = $$OUT_PWD/obj # workaround for qmake bug in object_parallel_to_source
@@ -76,6 +76,12 @@ SOURCES += \
     clangcompletecodejobtest.cpp \
     clangcreateinitialdocumentpreamblejobtest.cpp \
     clangjobqueuetest.cpp \
+    refactoringcompilationdatabasetest.cpp \
+    symbolfindertest.cpp \
+    refactoringclientserverinprocesstest.cpp \
+    refactoringservertest.cpp \
+    refactoringenginetest.cpp \
+    refactoringclienttest.cpp \
     clangjobstest.cpp \
     clangrequestdocumentannotationsjobtest.cpp \
     clangupdatedocumentannotationsjobtest.cpp
@@ -89,11 +95,15 @@ HEADERS += \
     gtest-qt-printing.h \
     mockclangcodemodelclient.h \
     mockclangcodemodelserver.h \
+    mockrefactoringclient.h \
+    mockrefactoringserver.h \
     spydummy.h \
     dummyclangipcclient.h \
     matcher-diagnosticcontainer.h \
     chunksreportedmonitor.h \
     testutils.h \
-    clangasyncjobtest.h
+    clangasyncjobtest.h \
+    refactoringclientcallbackmock.h \
+    filesystemutilities.h
 
 OTHER_FILES += $$files(data/*)

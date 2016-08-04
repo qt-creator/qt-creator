@@ -43,6 +43,8 @@ TEXTEDITOR_EXPORT bool convertPosition(const QTextDocument *document,
 
 TEXTEDITOR_EXPORT QString textAt(QTextCursor tc, int pos, int length);
 
+TEXTEDITOR_EXPORT QTextCursor selectAt(QTextCursor textCursor, uint line, uint column, uint length);
+
 TEXTEDITOR_EXPORT QTextCursor flippedCursor(const QTextCursor &cursor);
 
 } // Util

@@ -25,14 +25,26 @@
 
 #include "clangcodemodelconnectionclient.h"
 
+#include <QCoreApplication>
+#include <QTemporaryDir>
+
 namespace ClangBackEnd {
 
+namespace {
+
+QString currentProcessId()
+{
+    return QString::number(QCoreApplication::applicationPid());
+}
+
+}
 
 ClangCodeModelConnectionClient::ClangCodeModelConnectionClient(
         ClangCodeModelClientInterface *client)
     : serverProxy_(client, ioDevice())
 {
-
+    stdErrPrefixer().setPrefix("ClangCodeModelConnectionClient.error:");
+    stdOutPrefixer().setPrefix("ClangCodeModelConnectionClient.out:");
 }
 
 ClangCodeModelConnectionClient::~ClangCodeModelConnectionClient()
@@ -53,6 +65,16 @@ void ClangCodeModelConnectionClient::sendEndCommand()
 void ClangCodeModelConnectionClient::resetCounter()
 {
     serverProxy_.resetCounter();
+}
+
+QString ClangCodeModelConnectionClient::connectionName() const
+{
+    return temporaryDirectory().path() + QStringLiteral("/ClangBackEnd-") + currentProcessId();
+}
+
+QString ClangCodeModelConnectionClient::outputName() const
+{
+    return QStringLiteral("ClangCodeModelConnectionClient");
 }
 
 } // namespace ClangBackEnd

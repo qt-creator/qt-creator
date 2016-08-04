@@ -35,6 +35,7 @@
 
 QT_BEGIN_NAMESPACE
 class QProcess;
+class QTemporaryDir;
 QT_END_NAMESPACE
 
 class Utf8String;
@@ -79,9 +80,14 @@ signals:
 
 protected:
     QIODevice *ioDevice();
+    const QTemporaryDir &temporaryDirectory() const;
+    LinePrefixer &stdErrPrefixer();
+    LinePrefixer &stdOutPrefixer();
 
     virtual void sendEndCommand() = 0;
     virtual void resetCounter() = 0;
+    virtual QString connectionName() const = 0;
+    virtual QString outputName() const = 0;
 
 private:
     std::unique_ptr<QProcess> startProcess();
@@ -108,6 +114,9 @@ private:
     QProcessEnvironment processEnvironment() const;
 
 private:
+    LinePrefixer stdErrPrefixer_;
+    LinePrefixer stdOutPrefixer_;
+
     mutable std::unique_ptr<QProcess> process_;
     QLocalSocket localSocket;
     QTimer processAliveTimer;
@@ -115,8 +124,6 @@ private:
     bool isAliveTimerResetted = false;
     bool processIsStarting = false;
 
-    LinePrefixer stdErrPrefixer = QByteArrayLiteral("clangbackend.stderr: ");
-    LinePrefixer stdOutPrefixer = QByteArrayLiteral("clangbackend.stdout: ");
 };
 
 } // namespace ClangBackEnd

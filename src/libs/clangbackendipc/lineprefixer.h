@@ -25,17 +25,20 @@
 
 #pragma once
 
+#include "clangbackendipc_global.h"
+
 #include <QString>
 #include <QTextStream>
 #include <utf8string.h>
 
 namespace ClangBackEnd {
 
-class LinePrefixer
+class CMBIPC_EXPORT LinePrefixer
 {
 public:
-    LinePrefixer() = delete;
-    LinePrefixer(const QByteArray &m_prefix);
+    LinePrefixer() = default;
+    LinePrefixer(const QByteArray &prefix);
+    void setPrefix(const QByteArray &prefix);
     QByteArray prefix(const QByteArray &text);
 
 private:

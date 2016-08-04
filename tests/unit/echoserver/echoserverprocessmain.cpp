@@ -25,8 +25,8 @@
 
 #include "echoclangcodemodelserver.h"
 
-#include <clangcodemodelclientproxy.h>
-#include <connectionserver.h>
+#include <clangbackendipc/clangcodemodelclientproxy.h>
+#include <clangbackendipc/connectionserver.h>
 
 #include <QCoreApplication>
 
@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
     EchoClangCodeModelServer echoClangCodeModelServer;
     ConnectionServer<EchoClangCodeModelServer, ClangCodeModelClientProxy> connectionServer(application.arguments()[1]);
     connectionServer.start();
-    connectionServer.setClangCodeModelServer(&echoClangCodeModelServer);
+    connectionServer.setServer(&echoClangCodeModelServer);
 
     return application.exec();
 }

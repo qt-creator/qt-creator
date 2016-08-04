@@ -38,6 +38,8 @@
 #include "cppquickfixassistant.h"
 #include "cppuseselectionsupdater.h"
 
+#include <clangbackendipc/sourcelocationscontainer.h>
+
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -55,6 +57,7 @@
 #include <cpptools/cpptoolsreuse.h>
 #include <cpptools/cppworkingcopy.h>
 #include <cpptools/symbolfinder.h>
+#include <cpptools/refactoringengineinterface.h>
 
 #include <texteditor/behaviorsettings.h>
 #include <texteditor/completionsettings.h>
@@ -68,11 +71,14 @@
 #include <texteditor/fontsettings.h>
 #include <texteditor/refactoroverlay.h>
 
+#include <projectexplorer/projecttree.h>
+
 #include <cplusplus/ASTPath.h>
 #include <cplusplus/FastPreprocessor.h>
 #include <cplusplus/MatchingText.h>
 #include <utils/qtcassert.h>
 
+#include <QApplication>
 #include <QAction>
 #include <QElapsedTimer>
 #include <QFutureWatcher>
@@ -378,12 +384,144 @@ bool CppEditorWidget::selectBlockDown()
 
 void CppEditorWidget::renameSymbolUnderCursor()
 {
+    if (refactoringEngine())
+        renameSymbolUnderCursorClang();
+    else
+        renameSymbolUnderCursorBuiltin();
+}
+
+void CppEditorWidget::renameSymbolUnderCursorBuiltin()
+{
     d->m_useSelectionsUpdater.abortSchedule();
+
     updateSemanticInfo(d->m_cppEditorDocument->recalculateSemanticInfo(),
                        /*updateUseSelectionSynchronously=*/ true);
 
     if (!d->m_localRenaming.start()) // Rename local symbol
         renameUsages(); // Rename non-local symbol or macro
+}
+
+namespace {
+
+QList<ProjectPart::Ptr> fetchProjectParts(CppTools::CppModelManager *modelManager,
+                                     const Utils::FileName &filePath)
+{
+    QList<ProjectPart::Ptr> projectParts = modelManager->projectPart(filePath);
+
+    if (projectParts.isEmpty())
+        projectParts = modelManager->projectPartFromDependencies(filePath);
+    else if (projectParts.isEmpty())
+        projectParts.append(modelManager->fallbackProjectPart());
+
+    return projectParts;
+}
+
+ProjectPart *findProjectPartForCurrentProject(const QList<ProjectPart::Ptr> &projectParts,
+                                              ProjectExplorer::Project *currentProject)
+{
+    auto found = std::find_if(projectParts.cbegin(),
+                             projectParts.cend(),
+                             [&] (const CppTools::ProjectPart::Ptr &projectPart) {
+        return projectPart->project == currentProject;
+    });
+
+    if (found != projectParts.cend())
+        return (*found).data();
+
+    return 0;
+}
+
+}
+
+ProjectPart *CppEditorWidget::projectPart() const
+{
+    auto projectParts = fetchProjectParts(d->m_modelManager, textDocument()->filePath());
+
+    return findProjectPartForCurrentProject(projectParts,
+                                            ProjectExplorer::ProjectTree::currentProject());
+}
+
+namespace {
+
+using ClangBackEnd::V2::SourceLocationContainer;
+using TextEditor::Convenience::selectAt;
+
+QTextCharFormat occurrencesTextCharFormat()
+{
+    using TextEditor::TextEditorSettings;
+
+    return TextEditorSettings::fontSettings().toTextCharFormat(TextEditor::C_OCCURRENCES);
+}
+
+QList<QTextEdit::ExtraSelection>
+sourceLocationsToExtraSelections(const std::vector<SourceLocationContainer> &sourceLocations,
+                                 uint selectionLength,
+                                 CppEditorWidget *cppEditorWidget)
+{
+    const auto textCharFormat = occurrencesTextCharFormat();
+
+    QList<QTextEdit::ExtraSelection> selections;
+    selections.reserve(sourceLocations.size());
+
+    auto sourceLocationToExtraSelection = [&] (const SourceLocationContainer &sourceLocation) {
+        QTextEdit::ExtraSelection selection;
+
+        selection.cursor = selectAt(cppEditorWidget->textCursor(),
+                                    sourceLocation.line(),
+                                    sourceLocation.column(),
+                                    selectionLength);
+        selection.format = textCharFormat;
+
+        return selection;
+    };
+
+
+    std::transform(sourceLocations.begin(),
+                   sourceLocations.end(),
+                   std::back_inserter(selections),
+                   sourceLocationToExtraSelection);
+
+    return selections;
+};
+
+}
+
+void CppEditorWidget::renameSymbolUnderCursorClang()
+{
+    using ClangBackEnd::SourceLocationsContainer;
+
+    if (refactoringEngine()->isUsable()) {
+        d->m_useSelectionsUpdater.abortSchedule();
+
+        QPointer<CppEditorWidget> cppEditorWidget = this;
+
+        auto renameSymbols = [=] (const QString &symbolName,
+                                  const SourceLocationsContainer &sourceLocations,
+                                  int revision) {
+            if (cppEditorWidget) {
+                viewport()->setCursor(Qt::IBeamCursor);
+
+                if (revision == document()->revision()) {
+                    auto selections = sourceLocationsToExtraSelections(sourceLocations.sourceLocationContainers(),
+                                                                       symbolName.size(),
+                                                                       cppEditorWidget);
+                    setExtraSelections(TextEditor::TextEditorWidget::CodeSemanticsSelection,
+                                       selections);
+                    d->m_localRenaming.updateSelectionsForVariableUnderCursor(selections);
+                    if (!d->m_localRenaming.start())
+                        renameUsages();
+                }
+            }
+        };
+
+        refactoringEngine()->startLocalRenaming(textCursor(),
+                                                textDocument()->filePath(),
+                                                document()->revision(),
+                                                projectPart(),
+                                                std::move(renameSymbols));
+
+        viewport()->setCursor(Qt::BusyCursor);
+    }
 }
 
 void CppEditorWidget::updatePreprocessorButtonTooltip()
@@ -498,6 +636,11 @@ RefactorMarkers CppEditorWidget::refactorMarkersWithoutClangMarkers() const
     }
 
     return clearedRefactorMarkers;
+}
+
+RefactoringEngineInterface *CppEditorWidget::refactoringEngine() const
+{
+    return CppTools::CppModelManager::refactoringEngine();
 }
 
 bool CppEditorWidget::isSemanticInfoValidExceptLocalUses() const

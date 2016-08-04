@@ -162,6 +162,9 @@ public:
 
     bool m_enableGC;
     QTimer m_delayedGcTimer;
+
+    // Refactoring
+    RefactoringEngineInterface *m_refactoringEngine = nullptr;
 };
 
 } // namespace Internal
@@ -252,6 +255,16 @@ CppSourceProcessor *CppModelManager::createSourceProcessor()
 QString CppModelManager::editorConfigurationFileName()
 {
     return QLatin1String("<per-editor-defines>");
+}
+
+void CppModelManager::setRefactoringEngine(RefactoringEngineInterface *refactoringEngine)
+{
+    instance()->d->m_refactoringEngine = refactoringEngine;
+}
+
+RefactoringEngineInterface *CppModelManager::refactoringEngine()
+{
+    return instance()->d->m_refactoringEngine;
 }
 
 QString CppModelManager::configurationFileName()

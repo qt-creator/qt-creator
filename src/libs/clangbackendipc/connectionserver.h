@@ -83,7 +83,7 @@ public:
         localServer.listen(ConnectionName::connectionName);
     }
 
-    void setClangCodeModelServer(ServerInterface *ipcServer)
+    void setServer(ServerInterface *ipcServer)
     {
         this->ipcServer = ipcServer;
 

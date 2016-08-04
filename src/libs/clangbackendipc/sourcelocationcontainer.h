@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <clangbackendipc_global.h>
+#include "clangbackendipc_global.h"
 
 #include <utf8string.h>
 

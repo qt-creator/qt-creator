@@ -76,8 +76,8 @@ HEADERS += \
     projectpartheaderpath.h \
     projectinfo.h \
     projectpartbuilder.h \
-    compileroptionsbuilder.h
-
+    compileroptionsbuilder.h \
+    refactoringengineinterface.h
 SOURCES += \
     abstracteditorsupport.cpp \
     baseeditordocumentparser.cpp \
