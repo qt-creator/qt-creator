@@ -419,5 +419,42 @@ void QmlProfilerClientManagerTest::testInvalidData()
     clientManager.clearConnection();
 }
 
+void QmlProfilerClientManagerTest::testStopRecording()
+{
+    QString socketFile = LocalQmlProfilerRunner::findFreeSocket();
+
+    {
+        QmlProfilerClientManager clientManager;
+        clientManager.setRetryParams(10, 10);
+        QSignalSpy openedSpy(&clientManager, SIGNAL(connectionOpened()));
+        QSignalSpy closedSpy(&clientManager, SIGNAL(connectionClosed()));
+
+        QVERIFY(!clientManager.isConnected());
+
+        clientManager.setProfilerStateManager(&stateManager);
+        clientManager.setModelManager(&modelManager);
+
+        connect(&clientManager, &QmlProfilerClientManager::connectionFailed,
+                &clientManager, &QmlProfilerClientManager::retryConnect);
+
+        clientManager.setLocalSocket(socketFile);
+        clientManager.startLocalServer();
+
+        QScopedPointer<QLocalSocket> socket(new QLocalSocket(this));
+        socket->connectToServer(socketFile);
+        QVERIFY(socket->isOpen());
+        fakeDebugServer(socket.data());
+
+        QTRY_COMPARE(openedSpy.count(), 1);
+        QCOMPARE(closedSpy.count(), 0);
+        QVERIFY(clientManager.isConnected());
+
+        // We can't verify that it does anything useful, but at least it doesn't crash
+        clientManager.stopRecording();
+    }
+
+    // Delete while still connected, for added fun
+}
+
 } // namespace Internal
 } // namespace QmlProfiler

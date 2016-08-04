@@ -53,6 +53,7 @@ private slots:
     void testResponsiveLocal();
 
     void testInvalidData();
+    void testStopRecording();
 
 private:
     QmlProfilerClientManager clientManager;
