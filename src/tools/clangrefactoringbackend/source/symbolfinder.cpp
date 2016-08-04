@@ -44,9 +44,7 @@ namespace {
 std::string toNativePath(std::string &&path)
 {
 #ifdef WIN32
-    std::transform(path.begin(), path.end(), path.begin(), [] (char sign) {
-        return sign == '/' ? '\\' : sign;
-    });
+    std::replace(path.begin(), path.end(), '/', '\\');
 #endif
 
     return std::move(path);
