@@ -67,7 +67,7 @@ ScrollView {
             property color blue2: Qt.rgba(0.375, 0, 1, 1)
             property color grey1: "#B0B0B0"
             property color grey2: "#A0A0A0"
-            property color orange: "orange"
+            property color highlight: creatorTheme.Timeline_HighlightColor
 
             function checkBindingLoop(otherTypeId) {return false;}
 
@@ -97,7 +97,7 @@ ScrollView {
                     else if (tooltip.hoveredNode === flamegraphItem)
                         return flamegraph.blue1;
                     else if (note() !== "" || isBindingLoop)
-                        return flamegraph.orange;
+                        return flamegraph.highlight;
                     else
                         return flamegraph.grey1;
                 }
@@ -238,6 +238,15 @@ ScrollView {
             maximumX: flickable.width
             minimumY: flickable.contentY
             maximumY: flickable.contentY + flickable.height
+
+            titleBarColor: creatorTheme.Timeline_PanelHeaderColor
+            titleBarTextColor: creatorTheme.PanelTextColorLight
+            contentColor: creatorTheme.Timeline_PanelBackgroundColor
+            contentTextColor: creatorTheme.Timeline_TextColor
+            noteTextColor: creatorTheme.Timeline_HighlightColor
+            buttonHoveredColor: creatorTheme.FancyToolButtonHoverColor
+            buttonSelectedColor: creatorTheme.FancyToolButtonSelectedColor
+            borderWidth: 0
 
             property var hoveredNode: null;
             property var selectedNode: null;
