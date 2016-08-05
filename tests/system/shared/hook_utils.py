@@ -88,7 +88,7 @@ def batchEditRunEnvironment(kitCount, currentTarget, modifications, alreadyOnRun
 
 def modifyRunSettingsForHookIntoQtQuickUI(kitCount, kit, workingDir, projectName, port, quickVersion="1.1"):
     switchViewTo(ViewConstants.PROJECTS)
-    switchToBuildOrRunSettingsFor(kitCount, kit, ProjectSettings.RUN, True)
+    switchToBuildOrRunSettingsFor(kitCount, kit, ProjectSettings.RUN)
 
     qtVersion, mkspec, qtLibPath, qmake = getQtInformationForQmlProject()
     if None in (qtVersion, mkspec, qtLibPath, qmake):

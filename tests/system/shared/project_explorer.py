@@ -82,38 +82,32 @@ def prepareBuildSettings(targetCount, currentTarget, setReleaseBuild=True, disab
 # param currentTarget specifies the target for which to switch into the specified settings (zero based index)
 # param targetCount specifies the number of targets currently defined (must be correct!)
 # param projectSettings specifies where to switch to (must be one of ProjectSettings.BUILD or ProjectSettings.RUN)
-def switchToBuildOrRunSettingsFor(targetCount, currentTarget, projectSettings, isQtQuickUI=False):
+def switchToBuildOrRunSettingsFor(targetCount, currentTarget, projectSettings):
     try:
-        targetSel = waitForObject("{type='ProjectExplorer::Internal::TargetSelector' unnamed='1' "
-                                  "visible='1' window=':Qt Creator_Core::Internal::MainWindow'}", 5000)
+        treeView = waitForObject(":Projects.ProjectNavigationTreeView")
     except LookupError:
-        if isQtQuickUI:
-            if projectSettings == ProjectSettings.RUN:
-                mouseClick(waitForObject(":*Qt Creator.DoubleTabWidget_ProjectExplorer::Internal::DoubleTabWidget"), 70, 44, 0, Qt.LeftButton)
-                return True
-            else:
-                test.fatal("Don't know what you're trying to switch to")
-                return False
-        # there's only one target defined so use the DoubleTabWidget instead
-        if projectSettings == ProjectSettings.RUN:
-            mouseClick(waitForObject(":*Qt Creator.DoubleTabWidget_ProjectExplorer::Internal::DoubleTabWidget"), 170, 44, 0, Qt.LeftButton)
-        elif projectSettings == ProjectSettings.BUILD:
-            mouseClick(waitForObject(":*Qt Creator.DoubleTabWidget_ProjectExplorer::Internal::DoubleTabWidget"), 70, 44, 0, Qt.LeftButton)
-        else:
-            test.fatal("Don't know what you're trying to switch to")
-            return False
-        return True
-    ADD_BUTTON_WIDTH = 27 # bad... (taken from source)
-    selectorWidth = (targetSel.width - 3 - 2 * (ADD_BUTTON_WIDTH + 1)) / targetCount - 1
-    yToClick = targetSel.height * 3 / 5 + 5
-    if projectSettings == ProjectSettings.RUN:
-        xToClick = ADD_BUTTON_WIDTH + (selectorWidth + 1) * currentTarget - 2 + selectorWidth / 2 + 15
-    elif projectSettings == ProjectSettings.BUILD:
-        xToClick = ADD_BUTTON_WIDTH + (selectorWidth + 1) * currentTarget - 2 + selectorWidth / 2 - 15
+        return False
+    bAndRIndex = getQModelIndexStr("text='Build & Run'", ":Projects.ProjectNavigationTreeView")
+
+    targetIndices = dumpIndices(treeView.model(), waitForObject(bAndRIndex))
+    targets = map(lambda t: str(t.data(0)), filter(lambda x: x.enabled, targetIndices))
+    if not test.compare(targetCount, len(targets), "Check whether all chosen targets are listed."):
+        return False
+    # we assume the targets are still ordered the same way
+    currentTargetIndex = getQModelIndexStr("text='%s'" % targets[currentTarget], bAndRIndex)
+    if not test.verify(findObject(currentTargetIndex).enabled, "Verifying target '%s' is enabled."
+                       % targets[currentTarget]):
+        return False
+    mouseClick(waitForObject(currentTargetIndex))
+
+    if projectSettings == ProjectSettings.BUILD:
+        settingsIndex = getQModelIndexStr("text='Build'", currentTargetIndex)
+    elif projectSettings == ProjectSettings.RUN:
+        settingsIndex = getQModelIndexStr("text='Run'", currentTargetIndex)
     else:
         test.fatal("Don't know what you're trying to switch to")
         return False
-    mouseClick(targetSel, xToClick, yToClick, 0, Qt.LeftButton)
+    mouseClick(waitForObject(settingsIndex))
     return True
 
 # this function switches "Run in terminal" on or off in a project's run settings

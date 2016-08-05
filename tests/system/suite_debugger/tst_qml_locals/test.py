@@ -56,7 +56,7 @@ def main():
         earlyExit("Something went wrong opening Qml project - probably missing Qt5.")
         return
     switchViewTo(ViewConstants.PROJECTS)
-    switchToBuildOrRunSettingsFor(1, 0, ProjectSettings.RUN, True)
+    switchToBuildOrRunSettingsFor(1, 0, ProjectSettings.RUN)
     ensureChecked("{container=':Qt Creator.scrollArea_QScrollArea' text='Enable QML' "
                   "type='QCheckBox' unnamed='1' visible='1'}")
     switchViewTo(ViewConstants.EDIT)

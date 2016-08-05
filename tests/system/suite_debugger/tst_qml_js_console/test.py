@@ -132,7 +132,7 @@ def main():
     if test.verify(waitFor('fancyDebugButton.enabled', 5000), "Start Debugging is enabled."):
         # make sure QML Debugging is enabled
         switchViewTo(ViewConstants.PROJECTS)
-        switchToBuildOrRunSettingsFor(1, 0, ProjectSettings.RUN, True)
+        switchToBuildOrRunSettingsFor(1, 0, ProjectSettings.RUN)
         ensureChecked("{container=':Qt Creator.scrollArea_QScrollArea' text='Enable QML' "
                       "type='QCheckBox' unnamed='1' visible='1'}")
         switchViewTo(ViewConstants.EDIT)
