@@ -93,6 +93,7 @@ QtcPlugin {
             "qmlprofilerbindingloopsrenderpass_test.cpp",
             "qmlprofilerbindingloopsrenderpass_test.h",
             "qmlprofilerclientmanager_test.cpp", "qmlprofilerclientmanager_test.h",
+            "qmlprofilerconfigwidget_test.cpp", "qmlprofilerconfigwidget_test.h",
         ]
     }
 }
