@@ -54,4 +54,9 @@ inline bool operator==(const AndroidRunnable &r1, const AndroidRunnable &r2)
         && r1.deviceSerialNumber == r2.deviceSerialNumber;
 }
 
+inline bool operator!=(const AndroidRunnable &r1, const AndroidRunnable &r2)
+{
+    return !(r1 == r2);
+}
+
 } // namespace Android

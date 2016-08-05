@@ -145,7 +145,7 @@ AndroidDebugSupport::AndroidDebugSupport(AndroidRunConfiguration *runConfig,
 
     // FIXME: Move signal to base class and generalize handling.
     connect(m_runControl, &DebuggerRunControl::aboutToNotifyInferiorSetupOk,
-            m_runner, &AndroidRunner::handleRemoteDebuggerRunning);
+            m_runner, &AndroidRunner::remoteDebuggerRunning);
 
     connect(m_runner, &AndroidRunner::remoteServerRunning,
         [this](const QByteArray &serverChannel, int pid) {
