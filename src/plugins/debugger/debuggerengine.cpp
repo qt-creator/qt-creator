@@ -118,7 +118,6 @@ namespace Internal {
 
 Location::Location(const StackFrame &frame, bool marker)
 {
-    init();
     m_fileName = frame.file;
     m_lineNumber = frame.line;
     m_needsMarker = marker;

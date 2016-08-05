@@ -140,11 +140,11 @@ public:
 class Location
 {
 public:
-    Location() { init(); }
-    Location(quint64 address) { init(); m_address = address; }
-    Location(const QString &file) { init(); m_fileName = file; }
+    Location() {}
+    Location(quint64 address) { m_address = address; }
+    Location(const QString &file) { m_fileName = file; }
     Location(const QString &file, int line, bool marker = true)
-        { init(); m_lineNumber = line; m_fileName = file; m_needsMarker = marker; }
+        { m_lineNumber = line; m_fileName = file; m_needsMarker = marker; }
     Location(const StackFrame &frame, bool marker = true);
     QString fileName() const { return m_fileName; }
     QString functionName() const { return m_functionName; }
@@ -162,16 +162,14 @@ public:
     quint64 address() const { return m_address; }
 
 private:
-    void init() { m_needsMarker = false; m_needsRaise = true; m_lineNumber = -1;
-        m_address = 0; m_hasDebugInfo = true; }
-    bool m_needsMarker;
-    bool m_needsRaise;
-    bool m_hasDebugInfo;
-    int m_lineNumber;
+    bool m_needsMarker = false;
+    bool m_needsRaise = true;
+    bool m_hasDebugInfo = true;
+    int m_lineNumber = -1;
     QString m_fileName;
     QString m_functionName;
     QString m_from;
-    quint64 m_address;
+    quint64 m_address = 0;
 };
 
 enum LocationType { UnknownLocation, LocationByFile, LocationByAddress };
