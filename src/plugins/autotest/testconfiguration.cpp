@@ -263,5 +263,48 @@ void TestConfiguration::setGuessedConfiguration(bool guessed)
     m_guessedConfiguration = guessed;
 }
 
+QString TestConfiguration::executableFilePath() const
+{
+    if (m_targetFile.isEmpty())
+        return QString();
+
+    QFileInfo commandFileInfo(m_targetFile);
+    if (commandFileInfo.isExecutable() && commandFileInfo.path() != ".") {
+        return commandFileInfo.absoluteFilePath();
+    } else if (commandFileInfo.path() == "."){
+        QString fullCommandFileName = m_targetFile;
+    #ifdef Q_OS_WIN
+        if (!m_targetFile.endsWith(".exe"))
+            fullCommandFileName = m_targetFile + QLatin1String(".exe");
+
+        static const QString separator(";");
+    #else
+        static const QString separator(":");
+    #endif
+        // TODO: check if we can use searchInPath() from Utils::Environment
+        const QStringList &pathList
+                = m_environment.toProcessEnvironment().value("PATH").split(separator);
+
+        foreach (const QString &path, pathList) {
+            QString filePath(path + QDir::separator() + fullCommandFileName);
+            if (QFileInfo(filePath).isExecutable())
+                return commandFileInfo.absoluteFilePath();
+        }
+    }
+    return QString();
+}
+
+QString TestConfiguration::workingDirectory() const
+{
+    if (!m_workingDir.isEmpty()) {
+        const QFileInfo info(m_workingDir);
+        if (info.isDir()) // ensure wanted working dir does exist
+            return info.absoluteFilePath();
+    }
+
+    const QString executable = executableFilePath();
+    return executable.isEmpty() ? executable : QFileInfo(executable).absolutePath();
+}
+
 } // namespace Internal
 } // namespace Autotest
