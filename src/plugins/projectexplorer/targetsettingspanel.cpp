@@ -100,6 +100,7 @@ private:
     void done()
     {
         m_targetSetupPage->setupProject(m_project);
+        Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
     }
 
     void cancel()
