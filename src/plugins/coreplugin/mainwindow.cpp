@@ -50,6 +50,7 @@
 #include "externaltoolmanager.h"
 #include "editormanager/systemeditor.h"
 #include "windowsupport.h"
+#include "coreicons.h"
 
 #include <app/app_version.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -147,7 +148,7 @@ MainWindow::MainWindow() :
 
     setWindowTitle(tr("Qt Creator"));
     if (HostOsInfo::isLinuxHost())
-        QApplication::setWindowIcon(Utils::Icons::QTCREATORLOGO_BIG.icon());
+        QApplication::setWindowIcon(Icons::QTCREATORLOGO_BIG.icon());
     QCoreApplication::setApplicationName(QLatin1String("QtCreator"));
     QCoreApplication::setApplicationVersion(QLatin1String(Constants::IDE_VERSION_LONG));
     QCoreApplication::setOrganizationName(QLatin1String(Constants::IDE_SETTINGSVARIANT_STR));

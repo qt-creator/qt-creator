@@ -32,6 +32,7 @@
 namespace Core {
 namespace Icons {
 
+CORE_EXPORT extern const Utils::Icon QTCREATORLOGO_BIG;
 CORE_EXPORT extern const Utils::Icon FIND_CASE_INSENSITIVELY;
 CORE_EXPORT extern const Utils::Icon FIND_WHOLE_WORD;
 CORE_EXPORT extern const Utils::Icon FIND_REGEXP;

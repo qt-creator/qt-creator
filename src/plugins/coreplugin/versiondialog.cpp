@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "versiondialog.h"
+#include "coreicons.h"
 
 #include <app/app_version.h>
 #include <coreplugin/coreicons.h>
@@ -48,7 +49,7 @@ VersionDialog::VersionDialog(QWidget *parent)
     // We need to set the window icon explicitly here since for some reason the
     // application icon isn't used when the size of the dialog is fixed (at least not on X11/GNOME)
     if (Utils::HostOsInfo::isLinuxHost())
-        setWindowIcon(Utils::Icons::QTCREATORLOGO_BIG.icon());
+        setWindowIcon(Icons::QTCREATORLOGO_BIG.icon());
 
     setWindowTitle(tr("About Qt Creator"));
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
@@ -102,7 +103,7 @@ VersionDialog::VersionDialog(QWidget *parent)
     connect(buttonBox , &QDialogButtonBox::rejected, this, &QDialog::reject);
 
     QLabel *logoLabel = new QLabel;
-    logoLabel->setPixmap(Utils::Icons::QTCREATORLOGO_BIG.pixmap());
+    logoLabel->setPixmap(Icons::QTCREATORLOGO_BIG.pixmap());
     layout->addWidget(logoLabel , 0, 0, 1, 1);
     layout->addWidget(copyRightLabel, 0, 1, 4, 4);
     layout->addWidget(buttonBox, 4, 0, 1, 5);

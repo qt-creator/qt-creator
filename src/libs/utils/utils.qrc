@@ -45,8 +45,6 @@
         <file>images/fileopen.png</file>
         <file>images/filesave.png</file>
         <file>images/filesave@2x.png</file>
-        <file alias="images/qtcreatorlogo-big.png">images/logo/128/QtProject-qtcreator.png</file>
-        <file alias="images/qtcreatorlogo-big@2x.png">images/logo/256/QtProject-qtcreator.png</file>
         <file>images/inputfield.png</file>
         <file>images/inputfield@2x.png</file>
         <file>images/inputfield_disabled.png</file>
