@@ -44,7 +44,7 @@ class AndroidRunConfiguration;
 
 namespace Internal {
 
-class AndroidRunner : public QThread
+class AndroidRunner : public QObject
 {
     Q_OBJECT
 

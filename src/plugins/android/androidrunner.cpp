@@ -127,7 +127,7 @@ static int socketHandShakePort = MIN_SOCKET_HANDSHAKE_PORT;
 AndroidRunner::AndroidRunner(QObject *parent,
                              AndroidRunConfiguration *runConfig,
                              Core::Id runMode)
-    : QThread(parent)
+    : QObject(parent)
     , m_runConfig(runConfig)
     , m_handShakeMethod(SocketHandShake), m_socket(0)
     , m_customPort(false)
