@@ -1516,12 +1516,15 @@ void CdbEngine::postFetchMemory(const MemoryViewCookie &cookie)
     str << cookie.address << ' ' << cookie.length;
     cmd.args = args;
     cmd.callback = [this, cookie](const DebuggerResponse &response) {
-        if (response.resultClass == ResultDone && cookie.agent) {
+        if (!cookie.agent)
+            return;
+        if (response.resultClass == ResultDone) {
             const QByteArray data = QByteArray::fromHex(response.data.data().toUtf8());
             if (unsigned(data.size()) == cookie.length)
                 cookie.agent->addData(cookie.address, data);
         } else {
             showMessage(response.data["msg"].data(), LogWarning);
+            cookie.agent->addData(cookie.address, QByteArray(int(cookie.length), char()));
         }
     };
     runCommand(cmd);

@@ -81,7 +81,7 @@ static QString defaultFallbackFontFamily()
     if (Utils::HostOsInfo::isMacHost())
         return QString("Helvetica");
     if (Utils::HostOsInfo::isAnyUnixHost())
-        return QString("sans-serif");
+        return QString("Sans Serif");
     return QString("Arial");
 }
 

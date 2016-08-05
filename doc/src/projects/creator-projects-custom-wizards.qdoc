@@ -77,7 +77,7 @@
 
         \li the local user's configuration folder,
             \c {$HOME/.config/QtProject/qtcreator/templates/wizards} on Linux
-            and OS X or \c {%APPDATA%\QtProject\qtcreator\templates\wizards} on
+            and \macos or \c {%APPDATA%\QtProject\qtcreator\templates\wizards} on
             Windows
 
     \endlist

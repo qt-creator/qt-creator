@@ -10,7 +10,7 @@
 
         \li In the \uicontrol {Create in} field, enter the path for the project
             files, and then select \uicontrol Next (or \uicontrol Continue on
-            OS X).
+            \macos).
 
         \li In the \uicontrol {Minimal required Qt version} field, select
             \uicontrol {Qt 5.4}, or later.
@@ -30,12 +30,12 @@
             Tools > \uicontrol Options > \uicontrol {Build & Run} >
             \uicontrol Kits (on Windows and Linux) or in \uicontrol {Qt Creator}
             > \uicontrol Preferences \uicontrol {Build & Run} > \uicontrol Kits
-            (on OS X).
+            (on \macos).
 
         \li Select \uicontrol Next.
 
         \li Review the project settings, and click \uicontrol{Finish} (or
-            \uicontrol Done on OS X).
+            \uicontrol Done on \macos).
 
     \endlist
 

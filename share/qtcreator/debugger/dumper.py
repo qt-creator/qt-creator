@@ -1301,8 +1301,12 @@ class DumperBase:
                 return p > 100000 and (p & 0x7 == 0) and (p < 0x7fffffffffff)
 
         def couldBeQObject():
-            (vtablePtr, dd) \
-                = self.extractStruct('PP', objectPtr, 2 * ptrSize)
+            try:
+                (vtablePtr, dd) \
+                    = self.extractStruct('PP', objectPtr, 2 * ptrSize)
+            except:
+                self.bump("nostruct-1")
+                return False
             if not canBePointer(vtablePtr):
                 self.bump("vtable")
                 return False
@@ -1310,8 +1314,12 @@ class DumperBase:
                 self.bump("d_d_ptr")
                 return False
 
-            (dvtablePtr, qptr, parentPtr, childrenDPtr, flags) \
-                = self.extractStruct('PPPPI', dd, 4 * ptrSize + 4)
+            try:
+                (dvtablePtr, qptr, parentPtr, childrenDPtr, flags) \
+                    = self.extractStruct('PPPPI', dd, 4 * ptrSize + 4)
+            except:
+                self.bump("nostruct-2")
+                return False
             #warn("STRUCT DD: %s %s" % (self.currentIName, x))
             if not canBePointer(dvtablePtr):
                 self.bump("dvtable")
@@ -1343,6 +1351,11 @@ class DumperBase:
             return True
 
         def extractMetaObjectPtrFromAddress():
+            return 0
+            # FIXME: Calling "works" but seems to impact memory contents(!)
+            # in relevant places. One symptom is that object name
+            # contents "vanishes" as the reported size of the string
+            # gets zeroed out(?).
             # Try vtable, metaObject() is the first entry.
             vtablePtr = self.extractPointer(objectPtr)
             metaObjectFunc = self.extractPointer(vtablePtr)
@@ -1493,6 +1506,23 @@ class DumperBase:
         for i in range(size):
             yield self.createValue(data + i * innerSize, innerType)
 
+    def putTypedPointer(self, name, addr, typeName):
+        """ Prints a typed pointer, expandable if the type can be resolved,
+            and without children otherwise """
+        with SubItem(self, name):
+            self.putAddress(addr)
+            self.putValue("@0x%x" % addr)
+            typeObj = self.lookupType(typeName)
+            if typeObj:
+                self.putType(typeObj)
+                self.putNumChild(1)
+                if self.isExpanded():
+                    with Children(self):
+                        self.putFields(self.createValue(addr, typeObj))
+            else:
+                self.putType(typeName)
+                self.putNumChild(0)
+
     def putStructGuts(self, value):
         self.putEmptyValue()
         #metaObjectPtr = self.extractMetaObjectPtr(self.addressOf(value), value.type)
@@ -1600,11 +1630,18 @@ class DumperBase:
 
         extraData = 0
         if qobjectPtr:
-            isQt5 = self.qtVersion() >= 0x50000
-            extraDataOffset = 5 * ptrSize + 8 if isQt5 else 6 * ptrSize + 8
-            # dd = value["d_ptr"]["d"] is just behind the vtable.
+            #isQt5 = self.qtVersion() >= 0x50000
+            #extraDataOffset = 5 * ptrSize + 8 if isQt5 else 6 * ptrSize + 8
+            # (QObjectData/QObjectPrivate) dd = value["d_ptr"]["d"] is just behind the vtable.
             dd = self.extractPointer(qobjectPtr + ptrSize)
-            extraData = self.extractPointer(dd + extraDataOffset)
+            if self.qtVersion() >= 0x50000:
+                (dvtablePtr, qptr, parentPtr, childrenDPtr, flags, postedEvents, dynMetaObjectPtr,
+                    extraData, threadDataPtr, connectionListsPtr, sendersPtr, currentSenderPtr) \
+                        = self.extractStruct('PPPPIIPPPPPP', dd, 10 * ptrSize + 8)
+            else:
+                (dvtablePtr, qptr, parentPtr, childrenDPtr, flags, postedEvents, dynMetaObjectPtr,
+                    extraData, threadDataPtr, connectionListsPtr, sendersPtr, currentSenderPtr) \
+                        = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
         if qobjectPtr:
             qobjectType = self.lookupQtType("QObject")
@@ -1684,14 +1721,35 @@ class DumperBase:
                             t = self.extractStruct('IIIII', dataPtr + 56 + i * 20, 20)
                             putt("method %d" % i, "%s %s %s %s %s" % t)
 
-                putt("[extraData]", "0x%x" % toInteger(extraData), "void *")
+        if isQObject:
+            with SubItem(self, "[extra]"):
+                self.put('sortgroup="1"')
+                self.putEmptyValue()
+                self.putNumChild(1)
+                if self.isExpanded():
+                    with Children(self):
+                        if extraData:
+                            self.putTypedPointer("[extraData]", extraData,
+                                                 self.qtNamespace() + "QObjectPrivate::ExtraData")
+
+                        if connectionListsPtr:
+                            self.putTypedPointer("[connectionLists]", connectionListsPtr,
+                                                 self.qtNamespace() + "QObjectConnectionListVector")
+
+                        with SubItem(self, "[metaObject]"):
+                            self.putAddress(metaObjectPtr)
+                            self.putNumChild(1)
+                            if self.isExpanded():
+                                with Children(self):
+                                    self.putQObjectGutsHelper(0, 0, -1, metaObjectPtr, "QMetaObject")
+
 
         if isQMetaObject or isQObject:
             with SubItem(self, "[properties]"):
                 self.put('sortgroup="5"')
-                self.putItemCount(propertyCount)
                 if self.isExpanded():
                     usesVector = self.qtVersion() >= 0x50700
+                    dynamicPropertyCount = 0
                     with Children(self):
                         # Static properties.
                         for i in range(propertyCount):
@@ -1712,11 +1770,12 @@ class DumperBase:
                             else:
                                 values = self.listChildrenGenerator(extraData + 2 * ptrSize, variantType)
                             for (k, v) in zip(names, values):
-                                with SubItem(self, propertyCount):
+                                with SubItem(self, propertyCount + dynamicPropertyCount):
                                     self.put('key="%s",' % self.encodeByteArray(k))
                                     self.put('keyencoded="latin1",')
                                     self.putItem(v)
-                                    propertyCount += 1
+                                    dynamicPropertyCount += 1
+                    self.putItemCount(propertyCount + dynamicPropertyCount)
                 else:
                     # We need a handle to [x] for the user to expand the item
                     # before we know whether there are actual children. Counting
@@ -1768,21 +1827,18 @@ class DumperBase:
                                     putt("[globalindex]", str(globalOffset + i))
 
         if isQObject:
-            with SubItem(self, "[metaObject]"):
-                self.putAddress(metaObjectPtr)
-                self.putNumChild(1)
-                if self.isExpanded():
-                    with Children(self):
-                        self.putQObjectGutsHelper(0, 0, -1, metaObjectPtr, "QMetaObject")
-
-        if isQObject:
-            with SubItem(self, "d"):
+            with SubItem(self, "[d]"):
                 self.put('sortgroup="15"')
                 try:
-                    self.putItem(qobject["d_ptr"]["d"])
+                    qobjectPrivateType = self.lookupQtType("QObjectPrivate")
+                    self.putItem(qobject["d_ptr"]["d"].dereference().cast(qobjectPrivateType))
                 except:
-                    self.putNumChild(0)
-                    self.putSpecialValue("notaccessible")
+                    try:
+                        self.putItem(qobject["d_ptr"]["d"])
+                    except:
+                        self.putNumChild(0)
+                        self.putType(self.qtNamespace() + "QObjectData *")
+                        self.putSpecialValue("notaccessible")
 
         if isQMetaObject:
             with SubItem(self, "[superdata]"):

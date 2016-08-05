@@ -155,6 +155,12 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>colorButton</tabstop>
+  <tabstop>resetColorButton</tabstop>
+  <tabstop>languageBox</tabstop>
+  <tabstop>resetWarningsButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

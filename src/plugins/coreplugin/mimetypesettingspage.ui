@@ -169,6 +169,16 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>filterLineEdit</tabstop>
+  <tabstop>mimeTypesTreeView</tabstop>
+  <tabstop>resetButton</tabstop>
+  <tabstop>patternsLineEdit</tabstop>
+  <tabstop>magicHeadersTreeWidget</tabstop>
+  <tabstop>addMagicButton</tabstop>
+  <tabstop>editMagicButton</tabstop>
+  <tabstop>removeMagicButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

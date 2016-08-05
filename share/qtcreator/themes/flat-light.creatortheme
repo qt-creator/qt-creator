@@ -39,7 +39,7 @@ DockWidgetResizeHandleColor=splitter
 DoubleTabWidget1stSeparatorColor=ffff0000
 DoubleTabWidget1stTabActiveTextColor=ff000000
 DoubleTabWidget1stTabBackgroundColor=ffff0000
-DoubleTabWidget1stTabInactiveTextColor=ffffffff
+DoubleTabWidget1stTabInactiveTextColor=ff555555
 DoubleTabWidget2ndSeparatorColor=ffff0000
 DoubleTabWidget2ndTabActiveTextColor=ffffffff
 DoubleTabWidget2ndTabBackgroundColor=ffff0000
@@ -182,6 +182,7 @@ ProjectExplorer_TaskWarn_TextMarkColor=ffffa500
 ClangCodeModel_Error_TextMarkColor=ffff882f
 ClangCodeModel_Warning_TextMarkColor=ffc6c132
 
+QmlDesigner_BackgroundColor=fff8f8f8
 QmlDesigner_HighlightColor=ff46a2da
 
 [Flags]

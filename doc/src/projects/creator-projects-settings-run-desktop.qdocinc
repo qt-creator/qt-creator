@@ -19,7 +19,7 @@
     you use deployment steps.
 
     The \uicontrol {Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)} option
-    (only available on OS X) enables you to debug (for example, step into)
+    (only available on \macos) enables you to debug (for example, step into)
     linked frameworks, such as the Qt framework itself. You do not need this
     option for debugging your application code.
 

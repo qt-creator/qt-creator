@@ -63,10 +63,10 @@
     (PRE_TARGETDEPS) in the project file.
 
     Depending on the development platform, some options might be detected
-    automatically. For example, on OS X, the library type (\uicontrol Library or
+    automatically. For example, on \macos, the library type (\uicontrol Library or
     \uicontrol Framework) is detected automatically and the option is hidden. However,
-    if you develop on another platform than OS X and want to build your
-    project for OS X, you must specify the library type.
+    if you develop on another platform than \macos and want to build your
+    project for \macos, you must specify the library type.
 
     The default convention on Windows is that the debug and release versions
     of a library have the same name, but are placed in different subdirectories,

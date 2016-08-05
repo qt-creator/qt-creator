@@ -318,8 +318,13 @@ void TestCodeParser::scanForTests(const QStringList &fileList)
     QStringList list;
     if (isFullParse) {
         list = ProjectExplorer::SessionManager::startupProject()->files(ProjectExplorer::Project::SourceFiles);
-        if (list.isEmpty())
+        if (list.isEmpty()) {
+            // at least project file should be there, but might happen if parsing current project
+            // takes too long, especially when opening sessions holding multiple projects
+            qCDebug(LOG) << "File list empty (FullParse) - trying again in a sec";
+            emitUpdateTestTree();
             return;
+        }
         qCDebug(LOG) << "setting state to FullParse (scanForTests)";
         m_parserState = FullParse;
     } else {

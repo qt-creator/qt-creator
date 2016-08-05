@@ -21,12 +21,6 @@ Product {
 
     cpp.cxxLanguageVersion: "c++11"
     cpp.defines: qtc.generalDefines
-    cpp.linkerFlags: {
-        var flags = [];
-        if (qbs.buildVariant == "release" && (qbs.toolchain.contains("gcc") || qbs.toolchain.contains("mingw")))
-            flags.push("-Wl,-s");
-        return flags;
-    }
     cpp.minimumOsxVersion: "10.7"
     cpp.minimumWindowsVersion: qbs.architecture === "x86" ? "5.1" : "5.2"
     cpp.useCxxPrecompiledHeader: useNonGuiPchFile || useGuiPchFile

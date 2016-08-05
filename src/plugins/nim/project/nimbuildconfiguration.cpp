@@ -106,14 +106,12 @@ bool NimBuildConfiguration::canRestore(const QVariantMap &map)
 bool NimBuildConfiguration::hasNimCompilerBuildStep() const
 {
     BuildStepList *steps = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
-    QTC_ASSERT(steps, return false);
-    return steps->contains(Constants::C_NIMCOMPILERBUILDSTEP_ID);
+    return steps ? steps->contains(Constants::C_NIMCOMPILERBUILDSTEP_ID) : false;
 }
 
 bool NimBuildConfiguration::hasNimCompilerCleanStep() const
 {
     BuildStepList *steps = stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
-    QTC_ASSERT(steps, return false);
     return steps ? steps->contains(Constants::C_NIMCOMPILERCLEANSTEP_ID) : false;
 }
 

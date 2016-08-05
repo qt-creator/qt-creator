@@ -362,6 +362,11 @@ static QString ProStringList_join(const ProStringList &this_, const QChar *sep, 
     return res;
 }
 
+QString ProStringList::join(const ProString &sep) const
+{
+    return ProStringList_join(*this, sep.constData(), sep.size());
+}
+
 QString ProStringList::join(const QString &sep) const
 {
     return ProStringList_join(*this, sep.constData(), sep.size());
@@ -388,7 +393,7 @@ void ProStringList::removeAll(const char *str)
 
 void ProStringList::removeEach(const ProStringList &value)
 {
-    foreach (const ProString &str, value)
+    for (const ProString &str : value)
         if (!str.isEmpty())
             removeAll(str);
 }
@@ -421,7 +426,7 @@ void ProStringList::removeDuplicates()
 
 void ProStringList::insertUnique(const ProStringList &value)
 {
-    foreach (const ProString &str, value)
+    for (const ProString &str : value)
         if (!str.isEmpty() && !contains(str))
             append(str);
 }
@@ -429,7 +434,7 @@ void ProStringList::insertUnique(const ProStringList &value)
 ProStringList::ProStringList(const QStringList &list)
 {
     reserve(list.size());
-    foreach (const QString &str, list)
+    for (const QString &str : list)
         *this << ProString(str);
 }
 
@@ -437,8 +442,8 @@ QStringList ProStringList::toQStringList() const
 {
     QStringList ret;
     ret.reserve(size());
-    for (int i = 0; i < size(); i++) // foreach causes MSVC2010 ICE
-        ret << at(i).toQString();
+    for (const auto &e : *this)
+        ret.append(e.toQString());
     return ret;
 }
 

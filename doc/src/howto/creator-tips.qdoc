@@ -61,8 +61,8 @@
     \key Ctrl+Tab.
 
     To move forward in the location history, press \key {Alt+Right}
-    (\key {Cmd+Opt+Right} on OS X). To move backward, press \key {Alt+Left}
-    (\key {Cmd+Opt+Left} on OS X). For example, if you use the \uicontrol Locator
+    (\key {Cmd+Opt+Right} on \macos). To move backward, press \key {Alt+Left}
+    (\key {Cmd+Opt+Left} on \macos). For example, if you use the \uicontrol Locator
     to jump to a symbol in the same file, you can jump back to your original
     location in that file by pressing \key {Alt+Left}.
 
@@ -96,13 +96,13 @@
 
     \list
 
-        \li \uicontrol{Issues} pane Alt+1 (Cmd+1 on OS X)
+        \li \uicontrol{Issues} pane Alt+1 (Cmd+1 on \macos)
 
-        \li \uicontrol{Search Results} pane Alt+2 (Cmd+2 on OS X)
+        \li \uicontrol{Search Results} pane Alt+2 (Cmd+2 on \macos)
 
-        \li \uicontrol{Application Output} pane Alt+3 (Cmd+3 on OS X)
+        \li \uicontrol{Application Output} pane Alt+3 (Cmd+3 on \macos)
 
-        \li \uicontrol{Compile Output} pane Alt+4 (Cmd+4 on OS X)
+        \li \uicontrol{Compile Output} pane Alt+4 (Cmd+4 on \macos)
 
     \endlist
 
@@ -136,7 +136,7 @@
 
     To toggle the sidebar in the \uicontrol Edit and \uicontrol Debug modes, click
     \inlineimage sidebaricon.png
-    or press \key Alt+0 (\key Cmd+0 on OS X).
+    or press \key Alt+0 (\key Cmd+0 on \macos).
 
     For more information on using the sidebar, see
     \l {Browsing Project Contents}.
@@ -152,7 +152,7 @@
     select the symbol in the list. For more information on using the locator,
     see \l{Searching with the Locator}.
 
-    Press \key Ctrl (\key Cmd on OS X) and click a symbol to move directly to
+    Press \key Ctrl (\key Cmd on \macos) and click a symbol to move directly to
     the definition or the declaration of the symbol. You can also move the
     cursor on the symbol and press \key {F2}. For more information, see
     \l{Moving to Symbol Definition or Declaration}.

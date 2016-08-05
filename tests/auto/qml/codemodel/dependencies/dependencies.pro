@@ -9,8 +9,6 @@ DEFINES+=TESTSRCDIR=\\\"$$PWD\\\"
 QT += core
 QT -= gui
 
-CONFIG += c++11
-
 TARGET = tst_dependencies
 CONFIG += console
 CONFIG -= app_bundle

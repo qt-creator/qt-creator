@@ -9,8 +9,6 @@ SOURCES +=  simple_test_app.cpp
 QT += network xml
 !isEmpty(QT.script.name): QT += script
 
-CONFIG += c++11
-
 osx {
     DEFINES += USE_CXX11
     QMAKE_CXXFLAGS += -stdlib=libc++

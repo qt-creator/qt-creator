@@ -200,19 +200,19 @@
             \li  Ctrl+6
         \row
             \li  Toggle \uicontrol{Issues} pane
-            \li  Alt+1 (Cmd+1 on OS X)
+            \li  Alt+1 (Cmd+1 on \macos)
         \row
             \li  Toggle \uicontrol{Search Results} pane
-            \li  Alt+2 (Cmd+2 on OS X)
+            \li  Alt+2 (Cmd+2 on \macos)
         \row
             \li  Toggle \uicontrol{Application Output} pane
-            \li  Alt+3 (Cmd+3 on OS X)
+            \li  Alt+3 (Cmd+3 on \macos)
         \row
             \li  Toggle \uicontrol{Compile Output} pane
-            \li  Alt+4 (Cmd+4 on OS X)
+            \li  Alt+4 (Cmd+4 on \macos)
         \row
             \li  Toggle other output panes
-            \li  Alt+number (Cmd+number on OS X)
+            \li  Alt+number (Cmd+number on \macos)
 
             Where the number is the number of the output pane.
         \row
@@ -241,7 +241,7 @@
             \li  Ctrl+Shift+F11
         \row
             \li  Toggle the sidebar
-            \li  Alt+0 (Cmd+0 on OS X)
+            \li  Alt+0 (Cmd+0 on \macos)
         \row
             \li  Undo
             \li  Ctrl+Z
@@ -337,11 +337,25 @@
             \li  Go to block start
             \li  Ctrl+[
         \row
-            \li  Go to block end with selection
-            \li  Ctrl+}
+            \li  Go to block end and select the lines between the current cursor
+                 position and the end of the block
+            \li  Ctrl+Shift+]
         \row
-            \li  Go to block start with selection
-            \li  Ctrl+{
+            \li  Go to block start and select the lines between the current
+                 cursor position and the beginning of the block
+            \li  Ctrl+Shift+[
+        \row
+            \li  Select the current block
+
+                 The second press extends the selection to the parent block. To
+                 enable this behavior, select \uicontrol Tools >
+                 \uicontrol Options > \uicontrol {Text Editor} >
+                 \uicontrol Behavior >
+                 \uicontrol {Enable smart selection changing}.
+            \li  Ctrl+U
+        \row
+            \li  Undo the latest smart block selection
+            \li  Ctrl+Alt+Shift+U
         \row
             \li  Move current line down
             \li  Ctrl+Shift+Down
@@ -354,11 +368,6 @@
         \row
             \li  Rewrap paragraph
             \li  Ctrl+E, R
-        \row
-            \li  Select the current block
-
-               The second press extends the selection to the parent block
-            \li  Ctrl+U
         \row
             \li  Enable text wrapping
             \li  Ctrl+E, Ctrl+W
@@ -468,6 +477,37 @@
             \li  Execute user actions in FakeVim mode
             \li  Alt+V, n, where n is the number of the user action, from 1 to 9
     \endtable
+
+    \section3 Emacs Shortcuts
+
+    You can specify shortcuts for executing actions in a way that is familiar to
+    \l{https://www.gnu.org/software/emacs/manual/html_node/emacs/index.html}
+    {Emacs} editor users. The actions are not bound to any key combinations by
+    default. The following actions are available:
+
+    \list
+        \li Copy
+        \li Cut
+        \li Delete Character
+        \li Exchange Cursor and Mark
+        \li Go to File End
+        \li Go to File Start
+        \li Go to Line End
+        \li Go to Line Start
+        \li Go to Next Character
+        \li Go to Next Line
+        \li Go to Next Word
+        \li Go to Previous Character
+        \li Go to Previous Line
+        \li Go to Previous Word
+        \li Insert Line and Indent
+        \li Kill Line
+        \li Kill Word
+        \li Mark
+        \li Scroll Half Screen Down
+        \li Scroll Half Screen Up
+        \li Yank
+    \endlist
 
     \section2 Image Viewer Shortcuts
 

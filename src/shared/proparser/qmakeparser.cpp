@@ -221,7 +221,7 @@ ProFile *QMakeParser::parsedProFile(const QString &fileName, ParseFlags flags)
 }
 
 ProFile *QMakeParser::parsedProBlock(
-        const QString &contents, const QString &name, int line, SubGrammar grammar)
+        const QStringRef &contents, const QString &name, int line, SubGrammar grammar)
 {
     ProFile *pro = new ProFile(name);
     read(pro, contents, line, grammar);
@@ -244,7 +244,7 @@ bool QMakeParser::read(ProFile *pro, ParseFlags flags)
                                fL1S("Cannot read %1: %2").arg(pro->fileName(), errStr));
         return false;
     }
-    read(pro, content, 1, FullGrammar);
+    read(pro, QStringRef(&content), 1, FullGrammar);
     return true;
 }
 
@@ -272,7 +272,8 @@ void QMakeParser::putHashStr(ushort *&pTokPtr, const ushort *buf, uint len)
     *tokPtr++ = (ushort)hash;
     *tokPtr++ = (ushort)(hash >> 16);
     *tokPtr++ = (ushort)len;
-    memcpy(tokPtr, buf, len * 2);
+    if (len) // buf may be nullptr; don't pass that to memcpy (-> undefined behavior)
+        memcpy(tokPtr, buf, len * 2);
     pTokPtr = tokPtr + len;
 }
 
@@ -285,7 +286,7 @@ void QMakeParser::finalizeHashStr(ushort *buf, uint len)
     buf[-2] = (ushort)(hash >> 16);
 }
 
-void QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar grammar)
+void QMakeParser::read(ProFile *pro, const QStringRef &in, int line, SubGrammar grammar)
 {
     m_proFile = pro;
     m_lineNo = line;
@@ -295,27 +296,30 @@ void QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
     // Worst-case size calculations:
     // - line marker adds 1 (2-nl) to 1st token of each line
     // - empty assignment "A=":2 =>
-    //   TokHashLiteral(1) + hash(2) + len(1) + "A"(1) + TokAssign(1) + 0(1) +
+    //   TokHashLiteral(1) + hash(2) + len(1) + "A"(1) + TokAssign(1) + size_hint(1) +
     //   TokValueTerminator(1) == 8 (9)
     // - non-empty assignment "A=B C":5 =>
-    //   TokHashLiteral(1) + hash(2) + len(1) + "A"(1) + TokAssign(1) + 2(1) +
+    //   TokHashLiteral(1) + hash(2) + len(1) + "A"(1) + TokAssign(1) + size_hint(1) +
     //   TokLiteral(1) + len(1) + "B"(1) +
     //   TokLiteral(1) + len(1) + "C"(1) + TokValueTerminator(1) == 14 (15)
     // - variable expansion: "$$f":3 =>
     //   TokVariable(1) + hash(2) + len(1) + "f"(1) = 5
     // - function expansion: "$$f()":5 =>
     //   TokFuncName(1) + hash(2) + len(1) + "f"(1) + TokFuncTerminator(1) = 6
+    // - test literal: "X":1 =>
+    //   TokHashLiteral(1) + hash(2) + len(1) + "A"(1) + TokCondition(1) = 6 (7)
     // - scope: "X:":2 =>
     //   TokHashLiteral(1) + hash(2) + len(1) + "A"(1) + TokCondition(1) +
-    //   TokBranch(1) + len(2) + ... + len(2) + ... == 10
-    // - test: "X():":4 =>
+    //   TokBranch(1) + len(2) + ... + len(2) + ... == 11 (12)
+    // - test call: "X():":4 =>
     //   TokHashLiteral(1) + hash(2) + len(1) + "A"(1) + TokTestCall(1) + TokFuncTerminator(1) +
-    //   TokBranch(1) + len(2) + ... + len(2) + ... == 11
+    //   TokBranch(1) + len(2) + ... + len(2) + ... == 12 (13)
     // - "for(A,B):":9 =>
     //   TokForLoop(1) + hash(2) + len(1) + "A"(1) +
     //   len(2) + TokLiteral(1) + len(1) + "B"(1) + TokValueTerminator(1) +
     //   len(2) + ... + TokTerminator(1) == 14 (15)
-    tokBuff.reserve((in.size() + 1) * 5);
+    // One extra for possibly missing trailing newline.
+    tokBuff.reserve((in.size() + 1) * 7);
     ushort *tokPtr = (ushort *)tokBuff.constData(); // Current writing position
 
     // Expression precompiler buffer.
@@ -330,8 +334,8 @@ void QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
     QStack<ParseCtx> xprStack;
     xprStack.reserve(10);
 
-    // We rely on QStrings being null-terminated, so don't maintain a global end pointer.
     const ushort *cur = (const ushort *)in.unicode();
+    const ushort *inend = cur + in.length();
     m_canElse = false;
   freshLine:
     m_state = StNew;
@@ -414,7 +418,7 @@ void QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
     int indent;
 
     if (context == CtxPureValue) {
-        end = (const ushort *)in.unicode() + in.length();
+        end = inend;
         cptr = 0;
         lineCont = false;
         indent = 0; // just gcc being stupid
@@ -426,24 +430,30 @@ void QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
 
         // First, skip leading whitespace
         for (indent = 0; ; ++cur, ++indent) {
+            if (cur == inend) {
+                cur = 0;
+                goto flushLine;
+            }
             c = *cur;
             if (c == '\n') {
                 ++cur;
                 goto flushLine;
-            } else if (!c) {
-                cur = 0;
-                goto flushLine;
-            } else if (c != ' ' && c != '\t' && c != '\r') {
-                break;
             }
+            if (c != ' ' && c != '\t' && c != '\r')
+                break;
         }
 
         // Then strip comments. Yep - no escaping is possible.
         for (cptr = cur;; ++cptr) {
+            if (cptr == inend) {
+                end = cptr;
+                break;
+            }
             c = *cptr;
             if (c == '#') {
-                for (end = cptr; (c = *++cptr);) {
-                    if (c == '\n') {
+                end = cptr;
+                while (++cptr < inend) {
+                    if (*cptr == '\n') {
                         ++cptr;
                         break;
                     }
@@ -454,10 +464,6 @@ void QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
                     // Qmake bizarreness: such lines do not affect line continuations
                     goto ignore;
                 }
-                break;
-            }
-            if (!c) {
-                end = cptr;
                 break;
             }
             if (c == '\n') {
@@ -1211,7 +1217,7 @@ void QMakeParser::finalizeCall(ushort *&tokPtr, ushort *uc, ushort *ptr, int arg
 bool QMakeParser::resolveVariable(ushort *xprPtr, int tlen, int needSep, ushort **ptr,
                                   ushort **buf, QString *xprBuff,
                                   ushort **tokPtr, QString *tokBuff,
-                                  const ushort *cur, const QString &in)
+                                  const ushort *cur, const QStringRef &in)
 {
     QString out;
     m_tmp.setRawData((const QChar *)xprPtr, tlen);

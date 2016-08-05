@@ -25,7 +25,10 @@ QtcProduct {
         name: "Qt.test"
     }
 
-    cpp.internalVersion: ""
+    Properties {
+        condition: qbs.targetOS.contains("unix")
+        cpp.internalVersion: ""
+    }
     cpp.defines: base.concat([name.toUpperCase() + "_LIBRARY"])
     cpp.sonamePrefix: qbs.targetOS.contains("macos")
         ? "@rpath"

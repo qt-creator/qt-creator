@@ -97,7 +97,7 @@ MenuBarItemTextColorDisabled=textDisabled
 MenuBarItemTextColorNormal=text
 MenuItemTextColorDisabled=textDisabled
 MenuItemTextColorNormal=text
-MiniProjectTargetSelectorBackgroundColor=shadowBackground
+MiniProjectTargetSelectorBackgroundColor=normalBackground
 MiniProjectTargetSelectorBorderColor=shadowBackground
 MiniProjectTargetSelectorSummaryBackgroundColor=shadowBackground
 MiniProjectTargetSelectorTextColor=text
@@ -200,6 +200,7 @@ PaletteWindowTextDisabled=textDisabled
 PaletteBaseDisabled=backgroundColorDisabled
 PaletteTextDisabled=textDisabled
 
+QmlDesigner_BackgroundColor=ff3c3e40
 QmlDesigner_HighlightColor=ff46a2da
 
 [Flags]

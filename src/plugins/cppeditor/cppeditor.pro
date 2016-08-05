@@ -18,9 +18,6 @@ HEADERS += \
     cpphighlighter.h \
     cpphoverhandler.h \
     cppincludehierarchy.h \
-    cppincludehierarchyitem.h \
-    cppincludehierarchymodel.h \
-    cppincludehierarchytreeview.h \
     cppinsertvirtualmethods.h \
     cpplocalrenaming.h \
     cppoutline.h \
@@ -48,9 +45,6 @@ SOURCES += \
     cpphighlighter.cpp \
     cpphoverhandler.cpp \
     cppincludehierarchy.cpp \
-    cppincludehierarchyitem.cpp \
-    cppincludehierarchymodel.cpp \
-    cppincludehierarchytreeview.cpp \
     cppinsertvirtualmethods.cpp \
     cpplocalrenaming.cpp \
     cppoutline.cpp \

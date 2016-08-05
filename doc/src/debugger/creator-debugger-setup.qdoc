@@ -64,7 +64,7 @@
     the Symbol Server provided by Microsoft to the symbol search path of the
     debugger. For more information, see \l{Setting CDB Paths on Windows}.
 
-    \note To use the Free Software Foundation (FSF) version of GDB on OS X, you
+    \note To use the Free Software Foundation (FSF) version of GDB on \macos, you
     must sign it and modify your \l{glossary-buildandrun-kit}{kit} settings.
 
     This section explains the options you have for debugging C++ code and
@@ -79,7 +79,7 @@
     Qt Creator supports native debuggers when working with compiled code. On
     most supported platforms, the GNU Symbolic Debugger GDB can be used. On
     Microsoft Windows, when using the Microsoft tool chain the Microsoft Console
-    Debugger CDB, is needed. On OS X, the LLDB debugger can be used. Basic
+    Debugger CDB, is needed. On \macos, the LLDB debugger can be used. Basic
     support for LLDB is also available on Linux, but it is restricted by LLDB's
     capabilities there, and considered experimental.
 
@@ -99,7 +99,7 @@
             \li GCC, ICC
             \li GDB
         \row
-            \li OS X
+            \li \macos
             \li GCC, Clang
             \li LLDB, FSF GDB (experimental)
         \row
@@ -130,11 +130,11 @@
     \section2 Supported LLDB Versions
 
     The LLDB native debugger has similar functionality to the GDB debugger. LLDB
-    is the default debugger in Xcode on OS X for supporting C++ on the desktop.
+    is the default debugger in Xcode on \macos for supporting C++ on the desktop.
     LLDB is typically used with the Clang compiler (even though you can use it
     with GCC, too).
 
-    On OS X you can use the LLDB version delivered with Xcode or build from source.
+    On \macos you can use the LLDB version delivered with Xcode or build from source.
     The minimum supported version is LLDB 320.4.
 
     On Linux, the minimum supported version is LLDB 3.8.
@@ -184,7 +184,7 @@
                 most Linux distributions the GDB builds shipped with the system
                 are sufficient. You can also build your own. Follow the
                 instructions in \l{http://wiki.qt.io/QtCreator_Build_Gdb}
-                {Building GDB}. Builds of GDB shipped with Xcode on OS X are no
+                {Building GDB}. Builds of GDB shipped with Xcode on \macos are no
                 longer supported.
 
         \row
@@ -211,7 +211,7 @@
                 \l{Setting CDB Paths on Windows}.
 
        \row
-            \li Debugging tools for OS X
+            \li Debugging tools for \macos
             \li The Qt binary distribution contains both debug and release
                 variants of the libraries. But you have to explicitly tell the
                 runtime linker that you want to use the debug libraries even if
@@ -223,7 +223,7 @@
                 \uicontrol Projects mode. In the run configuration, select
                 \uicontrol{Use debug version of frameworks}.
 
-                For more detailed information about debugging on OS X,
+                For more detailed information about debugging on \macos,
                 see: \l{http://developer.apple.com/library/mac/#technotes/tn2124/_index.html#//apple_ref/doc/uid/DTS10003391}
                 {Mac OS X Debugging Magic}.
 
@@ -282,9 +282,9 @@
     directly from version control or the web, enter the following string in
     the \uicontrol {Source Paths} field: \c srv*.
 
-    \section1 Setting up FSF GDB for OS X
+    \section1 Setting up FSF GDB for \macos
 
-    To use FSF GDB on OS X, you must sign it and add it to the \QC
+    To use FSF GDB on \macos, you must sign it and add it to the \QC
     \l{glossary-buildandrun-kit}{kits}.
 
     \list 1

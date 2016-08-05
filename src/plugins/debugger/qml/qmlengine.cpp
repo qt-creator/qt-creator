@@ -1084,7 +1084,7 @@ void QmlEngine::quitDebugger()
     d->noDebugOutputTimer.stop();
     d->automaticConnect = false;
     d->retryOnConnectFail = false;
-    DebuggerEngine::quitDebugger();
+    shutdownInferior();
 }
 
 void QmlEngine::disconnected()
@@ -2150,7 +2150,7 @@ void QmlEnginePrivate::handleFrame(const QVariantMap &response)
 
     StackHandler *stackHandler = engine->stackHandler();
     WatchHandler * watchHandler = engine->watchHandler();
-    watchHandler->notifyUpdateStarted();
+    watchHandler->notifyUpdateStarted({"local"});
 
     const int frameIndex = stackHandler->currentIndex();
     if (frameIndex < 0)

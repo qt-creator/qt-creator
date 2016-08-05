@@ -65,8 +65,10 @@ public:
     Result findIncremental(const QString &txt, FindFlags findFlags);
     Result findStep(const QString &txt, FindFlags findFlags);
 
-    static QFrame *createSearchableWrapper(QAbstractItemView *treeView, ColorOption lightColored = DarkColored,
+    static QFrame *createSearchableWrapper(QAbstractItemView *treeView, ColorOption colorOption = DarkColored,
                                            FetchOption option = DoNotFetchMoreWhileSearching);
+    static QFrame *createSearchableWrapper(ItemViewFind *finder, ColorOption colorOption = DarkColored);
+
 private:
     Result find(const QString &txt, FindFlags findFlags,
                 bool startFromCurrentIndex, bool *wrapped);

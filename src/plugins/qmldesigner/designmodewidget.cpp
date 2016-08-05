@@ -320,13 +320,13 @@ void DesignModeWidget::setup()
     connect(m_warningWidget.data(), &DocumentWarningWidget::gotoCodeClicked, [=]
         (const QString &filePath, int codeLine, int codeColumn) {
         Q_UNUSED(filePath);
+
+        QTC_ASSERT(textEditor(), return;);
         QTC_ASSERT(textEditor()->textDocument()->filePath().toString() == filePath,
-                   qDebug() << Q_FUNC_INFO << textEditor()->textDocument()->filePath().toString() <<
-        filePath; );
-            textEditor()->gotoLine(codeLine, codeColumn);
-            Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
-        }
-    );
+            qDebug() << Q_FUNC_INFO << textEditor()->textDocument()->filePath().toString() << filePath; );
+        textEditor()->gotoLine(codeLine, codeColumn);
+        Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
+    });
 
     QList<Core::SideBarItem*> sideBarItems;
     QList<Core::SideBarItem*> leftSideBarItems;

@@ -258,23 +258,6 @@ static int extractPid(const QString &exeName, const QByteArray &psOutput)
     return extractPidFromChunk(psOutput, from);
 }
 
-QByteArray AndroidRunner::runPs()
-{
-    if (QThread::currentThread() != thread()) {
-        QByteArray ret;
-        QMetaObject::invokeMethod(this, "runPs", Qt::BlockingQueuedConnection, Q_RETURN_ARG(QByteArray, ret));
-        return ret;
-    } else {
-        QByteArray psLine("ps");
-        if (m_isBusyBox)
-            psLine += " -w";
-        psLine += '\n';
-        m_psProc.write(psLine);
-        m_psProc.waitForBytesWritten(psLine.size());
-        return m_psProc.readAllStandardOutput();
-    }
-}
-
 void AndroidRunner::launchAVDProcesses()
 {
     // Its assumed that the device or avd serial returned by selector() is online.
@@ -284,8 +267,13 @@ void AndroidRunner::launchAVDProcesses()
 
 void AndroidRunner::checkPID()
 {
-    QByteArray psOut = runPs();
-    m_processPID = extractPid(m_androidRunnable.packageName, psOut);
+    // Don't write to m_psProc from a different thread
+    QTC_ASSERT(QThread::currentThread() == thread(), return);
+
+    QByteArray psLine(m_isBusyBox ? "ps -w\n" : "ps\n");
+    m_psProc.write(psLine);
+    m_psProc.waitForBytesWritten(psLine.size());
+    m_processPID = extractPid(m_androidRunnable.packageName, m_psProc.readAllStandardOutput());
 
     if (m_processPID == -1) {
         if (m_wasStarted) {
@@ -320,11 +308,17 @@ void AndroidRunner::checkPID()
 
 void AndroidRunner::forceStop()
 {
+    // Don't run Utils::SynchronousProcess on the GUI thread
+    QTC_ASSERT(QThread::currentThread() != thread(), return);
+
     runAdb(selector() << _("shell") << _("am") << _("force-stop") << m_androidRunnable.packageName,
            nullptr, 30);
 
     // try killing it via kill -9
-    const QByteArray out = runPs();
+    const QByteArray out = Utils::SynchronousProcess()
+            .runBlocking(m_adb, selector() << _("shell") << _(m_isBusyBox ? "ps -w" : "ps"))
+            .allRawOutput();
+
     int from = 0;
     while (1) {
         const int to = out.indexOf('\n', from);
@@ -346,7 +340,7 @@ void AndroidRunner::start()
        launchAVD();
     }
 
-    Utils::runAsync(&AndroidRunner::asyncStart, this);
+    Utils::runAsync(&AndroidRunner::asyncStart, this).waitForFinished();
 }
 
 void AndroidRunner::asyncStart()
@@ -588,8 +582,6 @@ void AndroidRunner::handleRemoteDebuggerRunning()
 
 void AndroidRunner::stop()
 {
-    QMutexLocker locker(&m_mutex);
-
     if (m_avdFutureInterface.isRunning()) {
         m_avdFutureInterface.cancel();
         m_avdFutureInterface.waitForFinished();
@@ -597,16 +589,21 @@ void AndroidRunner::stop()
     }
 
     m_checkPIDTimer.stop();
+    m_adbLogcatProcess.kill();
+    m_psProc.kill();
+    Utils::runAsync(&AndroidRunner::asyncStop, this).waitForFinished();
+    m_adbLogcatProcess.waitForFinished();
+    m_psProc.waitForFinished();
+}
+
+void AndroidRunner::asyncStop()
+{
+    QMutexLocker locker(&m_mutex);
     m_tries = 0;
     if (m_processPID != -1) {
         forceStop();
         emit remoteProcessFinished(QLatin1String("\n\n") + tr("\"%1\" terminated.").arg(m_androidRunnable.packageName));
     }
-    //QObject::disconnect(&m_adbLogcatProcess, 0, this, 0);
-    m_adbLogcatProcess.kill();
-    m_adbLogcatProcess.waitForFinished();
-    m_psProc.kill();
-    m_psProc.waitForFinished();
     foreach (const QStringList &entry, m_androidRunnable.afterFinishADBCommands)
         runAdb(selector() << entry);
 }

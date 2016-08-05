@@ -25,7 +25,7 @@
 
 #include "cppeditorplugin.h"
 #include "cppeditortestcase.h"
-#include "cppincludehierarchymodel.h"
+#include "cppincludehierarchy.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <cpptools/cppmodelmanager.h>
@@ -61,6 +61,8 @@ QString toString(CppIncludeHierarchyModel &model, const QModelIndex &index, int 
 
 QString toString(CppIncludeHierarchyModel &model)
 {
+    model.fetchMore(model.index(0, 0));
+    model.fetchMore(model.index(1, 0));
     return toString(model, model.index(0, 0))
             + toString(model, model.index(1, 0));
 }
@@ -98,8 +100,8 @@ public:
         closeEditorAtEndOfTestCase(editor);
 
         // Test model
-        CppIncludeHierarchyModel model(0);
-        model.buildHierarchy(editor, fileName);
+        CppIncludeHierarchyModel model;
+        model.buildHierarchy(editor->document()->filePath().toString());
         const QString actualHierarchy = toString(model);
         QCOMPARE(actualHierarchy, expectedHierarchy);
     }

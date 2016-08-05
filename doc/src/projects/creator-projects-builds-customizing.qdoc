@@ -41,7 +41,7 @@
     and deploy configurations, select \uicontrol Tools > \uicontrol Options >
     \uicontrol {Build & Run}. By
     default, the \uicontrol {Always build project before deploying it} and the
-    \uicontrol {Always deploy project before running it} options are enabled.
+    \uicontrol {Always deploy project before running it} options (1) are enabled.
     Therefore, when you select the \uicontrol Run function, \QC checks for changes in
     the project files and also builds and deploys the project if necessary.
 

@@ -56,9 +56,11 @@
 
 #ifdef Q_OS_WIN32
 #define QT_POPEN _popen
+#define QT_POPEN_READ "rb"
 #define QT_PCLOSE _pclose
 #else
 #define QT_POPEN popen
+#define QT_POPEN_READ "r"
 #define QT_PCLOSE pclose
 #endif
 
@@ -101,7 +103,7 @@ QString QMakeGlobals::cleanSpec(QMakeCmdLineParserState &state, const QString &s
 QMakeGlobals::ArgumentReturn QMakeGlobals::addCommandLineArguments(
         QMakeCmdLineParserState &state, QStringList &args, int *pos)
 {
-    enum { ArgNone, ArgConfig, ArgSpec, ArgXSpec, ArgTmpl, ArgTmplPfx, ArgCache } argState = ArgNone;
+    enum { ArgNone, ArgConfig, ArgSpec, ArgXSpec, ArgTmpl, ArgTmplPfx, ArgCache, ArgQtConf } argState = ArgNone;
     for (; *pos < args.count(); (*pos)++) {
         QString arg = args.at(*pos);
         switch (argState) {
@@ -126,8 +128,16 @@ QMakeGlobals::ArgumentReturn QMakeGlobals::addCommandLineArguments(
         case ArgCache:
             cachefile = args[*pos] = QDir::cleanPath(QDir(state.pwd).absoluteFilePath(arg));
             break;
+        case ArgQtConf:
+            qtconf = args[*pos] = QDir::cleanPath(QDir(state.pwd).absoluteFilePath(arg));
+            break;
         default:
             if (arg.startsWith(QLatin1Char('-'))) {
+                if (arg == QLatin1String("--")) {
+                    state.extraargs = args.mid(*pos + 1);
+                    *pos = args.size();
+                    return ArgumentsOk;
+                }
                 if (arg == QLatin1String("-after"))
                     state.after = true;
                 else if (arg == QLatin1String("-config"))
@@ -136,6 +146,8 @@ QMakeGlobals::ArgumentReturn QMakeGlobals::addCommandLineArguments(
                     do_cache = false;
                 else if (arg == QLatin1String("-cache"))
                     argState = ArgCache;
+                else if (arg == QLatin1String("-qtconf"))
+                    argState = ArgQtConf;
                 else if (arg == QLatin1String("-platform") || arg == QLatin1String("-spec"))
                     argState = ArgSpec;
                 else if (arg == QLatin1String("-xplatform") || arg == QLatin1String("-xspec"))
@@ -171,6 +183,12 @@ void QMakeGlobals::commitCommandLineArguments(QMakeCmdLineParserState &state)
 {
     if (!state.preconfigs.isEmpty())
         state.precmds << (fL1S("CONFIG += ") + state.preconfigs.join(QLatin1Char(' ')));
+    if (!state.extraargs.isEmpty()) {
+        QString extra = fL1S("QMAKE_EXTRA_ARGS =");
+        foreach (const QString &ea, state.extraargs)
+            extra += QLatin1Char(' ') + QMakeEvaluator::quoteValue(ProString(ea));
+        state.precmds << extra;
+    }
     precmds = state.precmds.join(QLatin1Char('\n'));
     if (!state.postconfigs.isEmpty())
         state.postcmds << (fL1S("CONFIG += ") + state.postconfigs.join(QLatin1Char(' ')));
@@ -240,9 +258,9 @@ QStringList QMakeGlobals::splitPathList(const QString &val) const
     QStringList ret;
     if (!val.isEmpty()) {
         QDir bdir;
-        QStringList vals = val.split(dirlist_sep);
+        const QStringList vals = val.split(dirlist_sep);
         ret.reserve(vals.length());
-        foreach (const QString &it, vals)
+        for (const QString &it : vals)
             ret << QDir::cleanPath(bdir.absoluteFilePath(it));
     }
     return ret;
@@ -299,14 +317,15 @@ bool QMakeGlobals::initProperties()
     data = proc.readAll();
 #else
     if (FILE *proc = QT_POPEN(QString(QMakeInternal::IoUtils::shellQuote(qmake_abslocation)
-                                      + QLatin1String(" -query")).toLocal8Bit(), "r")) {
+                                      + QLatin1String(" -query")).toLocal8Bit(), QT_POPEN_READ)) {
         char buff[1024];
         while (!feof(proc))
             data.append(buff, int(fread(buff, 1, 1023, proc)));
         QT_PCLOSE(proc);
     }
 #endif
-    foreach (QByteArray line, data.split('\n')) {
+    const auto lines = data.split('\n');
+    for (QByteArray line : lines) {
         int off = line.indexOf(':');
         if (off < 0) // huh?
             continue;

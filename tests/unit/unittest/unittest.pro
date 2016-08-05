@@ -6,7 +6,7 @@ include(creator_dependency.pri)
 include(benchmark_dependency.pri)
 
 QT += core network testlib widgets
-CONFIG += console c++14 testcase object_parallel_to_source
+CONFIG += console testcase object_parallel_to_source
 CONFIG -= app_bundle
 
 OBJECTS_DIR = $$OUT_PWD/obj # workaround for qmake bug in object_parallel_to_source

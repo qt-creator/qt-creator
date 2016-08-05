@@ -47,7 +47,7 @@
     for which you set up a project in \QC and applications for which you do not
     have a project.
 
-    Valgrind tools are supported locally only on Linux and OS X. However,
+    Valgrind tools are supported locally only on Linux and \macos. However,
     according to Valgrind.org, support on OS X 10.8 and 10.9 is experimental and
     mostly broken. You can run the tools on a remote Linux machine or device
     from any development host.

@@ -374,6 +374,21 @@
    </slots>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>terminalComboBox</tabstop>
+  <tabstop>resetTerminalButton</tabstop>
+  <tabstop>externalFileBrowserEdit</tabstop>
+  <tabstop>resetFileBrowserButton</tabstop>
+  <tabstop>helpExternalFileBrowserButton</tabstop>
+  <tabstop>fileSystemCaseSensitivityChooser</tabstop>
+  <tabstop>reloadBehavior</tabstop>
+  <tabstop>autoSaveCheckBox</tabstop>
+  <tabstop>autoSaveInterval</tabstop>
+  <tabstop>autoSuspendCheckBox</tabstop>
+  <tabstop>autoSuspendMinDocumentCount</tabstop>
+  <tabstop>warnBeforeOpeningBigFiles</tabstop>
+  <tabstop>bigFilesLimitSpinBox</tabstop>
+ </tabstops>
  <resources>
   <include location="core.qrc"/>
  </resources>

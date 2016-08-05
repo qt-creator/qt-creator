@@ -33,13 +33,6 @@
 
 namespace QmlDesigner {
 
-QColor midtone(const QColor &a, const QColor &b)
-{
-    QColor alphaB = b;
-    alphaB.setAlpha(128);
-    return Utils::StyleHelper::alphaBlendedColors(a ,alphaB);
-}
-
 void Theming::insertTheme(QQmlPropertyMap *map)
 {
     const QVariantHash creatorTheme = Utils::creatorTheme()->values();
@@ -47,6 +40,7 @@ void Theming::insertTheme(QQmlPropertyMap *map)
         map->insert(it.key(), it.value());
 
     /* Define QmlDesigner colors and remove alpha channels */
+    const QColor backgroundColor = Utils::creatorTheme()->color(Utils::Theme::QmlDesigner_BackgroundColor);
     const QColor panelStatusBarBackgroundColor = Utils::creatorTheme()->color(Utils::Theme::PanelStatusBarBackgroundColor);
     const QColor fancyToolButtonSelectedColor  = Utils::creatorTheme()->color(Utils::Theme::FancyToolButtonSelectedColor);
     const QColor darkerBackground = Utils::StyleHelper::alphaBlendedColors(panelStatusBarBackgroundColor, fancyToolButtonSelectedColor);
@@ -65,7 +59,7 @@ void Theming::insertTheme(QQmlPropertyMap *map)
     }
 
     map->insert("QmlDesignerBackgroundColorDarker", darkerBackground);
-    map->insert("QmlDesignerBackgroundColorDarkAlternate", midtone(panelStatusBarBackgroundColor, buttonColor));
+    map->insert("QmlDesignerBackgroundColorDarkAlternate", backgroundColor);
     map->insert("QmlDesignerTabLight", tabLight);
     map->insert("QmlDesignerTabDark", tabDark);
     map->insert("QmlDesignerButtonColor", buttonColor);

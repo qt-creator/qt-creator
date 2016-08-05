@@ -47,6 +47,13 @@
     You can add paths to other CMake executables and use them in different
     build and run \l{glossary-buildandrun-kit}{kits}.
 
+    \QC automatically runs CMake to regenerate makefiles when you edit a
+    \c CMakeLists.txt configuration file in a project. If the project uses
+    several configuration files, you can disable the automatic generation of
+    makefiles by selecting \uicontrol Tools > \uicontrol Options >
+    \uicontrol {Build & Run} > \uicontrol CMake. Makefiles are automatically
+    regenerated when you build the project.
+
     \section1 Adding CMake Tools
 
     \QC supports CMake version 3.0, or later. For best results you should use
@@ -66,6 +73,10 @@
 
         \li In the \uicontrol Path field, specify the path to the CMake
             executable.
+
+        \li Deselect the \uicontrol {Autorun CMake} check box to prevent \QC
+            from running CMake when you make changes to \c {CMakeLists.txt}
+            files.
 
         \li Select \uicontrol Apply to save your changes.
 
@@ -94,7 +105,7 @@
 
         \li In the \uicontrol {Create in} field, enter the path for the project
             files, and then select \uicontrol Next (or \uicontrol Continue on
-            OS X).
+            \macos).
 
         \li In the \uicontrol {Build system} field, select \uicontrol CMake, and
             then select \uicontrol Next.
@@ -103,7 +114,7 @@
             application for, and then select \uicontrol Next.
 
         \li Review the project settings, and click \uicontrol{Finish} (or
-            \uicontrol Done on OS X).
+            \uicontrol Done on \macos).
 
         \li Select \uicontrol {Run CMake} to generate a .cbp file.
 
@@ -159,7 +170,7 @@
     \section1 Building CMake Projects
 
     To build CMake projects, select \uicontrol {Build Project} or press
-    \key Ctrl+B (or \key Cmd+B on OS X).
+    \key Ctrl+B (or \key Cmd+B on \macos).
 
     \QC builds CMake projects by running \c make, \c mingw32-make, \c nmake, or
     \c ninja depending on the selected kit.
@@ -206,7 +217,7 @@
     \image qtcreator-cmake-run-settings.png
 
     To run CMake projects, select \uicontrol Run or press \key Ctrl+R (or
-    \key Cmd+R on OS X).
+    \key Cmd+R on \macos).
 
     \section1 Deploying CMake Projects to Embedded Linux Devices
 

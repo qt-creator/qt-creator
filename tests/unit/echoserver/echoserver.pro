@@ -3,7 +3,7 @@ QT       += core network
 QT       -= gui
 
 TARGET = echo
-CONFIG   += console c++11
+CONFIG   += console
 CONFIG   -= app_bundle
 
 TEMPLATE = app

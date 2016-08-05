@@ -1650,8 +1650,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     cmd->setAttribute(Command::CA_UpdateText);
     debugMenu->addAction(cmd);
 
-    cmd = ActionManager::registerAction(m_stepOutAction,
-        Constants::STEPOUT, cppDebuggercontext);
+    cmd = ActionManager::registerAction(m_stepOutAction, Constants::STEPOUT);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Ctrl+Shift+T") : tr("Shift+F11")));
     cmd->setAttribute(Command::CA_Hide);
     debugMenu->addAction(cmd);
