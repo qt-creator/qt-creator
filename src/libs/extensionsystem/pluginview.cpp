@@ -94,7 +94,7 @@ static const QIcon &icon(IconIndex icon)
         return ok;
     }
     case ErrorIcon: {
-        static const QIcon error = Utils::Icons::ERROR.icon();
+        static const QIcon error = Utils::Icons::BROKEN.icon();
         return error;
     }
     default:

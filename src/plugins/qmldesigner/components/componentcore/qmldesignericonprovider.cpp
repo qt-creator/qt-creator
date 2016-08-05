@@ -83,7 +83,7 @@ QPixmap QmlDesignerIconProvider::requestPixmap(const QString &id, QSize *size, c
                 { ":/utils/images/ok.png", Theme::IconsBaseColor}}, Icon::Tint).pixmap();
     else if (id == "error")
         result = Icon({
-                { ":/utils/images/error.png", Theme::IconsBaseColor}}, Icon::Tint).pixmap();
+                { ":/utils/images/broken.png", Theme::IconsBaseColor}}, Icon::Tint).pixmap();
     else if (id == "anchor-top")
         result = Icon({
                 { ":/qmldesigner/images/anchor_top.png", Theme::IconsBaseColor},
