@@ -53,7 +53,7 @@ QList<LocatorFilterEntry> *categorize(const QString &entry, const QString &candi
 } // anynoumous namespace
 
 FileSystemFilter::FileSystemFilter(LocatorWidget *locatorWidget)
-        : m_locatorWidget(locatorWidget), m_includeHidden(true)
+        : m_locatorWidget(locatorWidget)
 {
     setId("Files in file system");
     setDisplayName(tr("Files in File System"));

@@ -121,11 +121,6 @@ private:
     QSize m_preferredSize;
 };
 
-} // namespace Internal
-
-
-using namespace Core::Internal;
-
 // =========== LocatorModel ===========
 
 void LocatorModel::clear()
@@ -152,27 +147,35 @@ QVariant LocatorModel::data(const QModelIndex &index, int role) const
     if (!index.isValid() || index.row() >= mEntries.size())
         return QVariant();
 
-    if (role == Qt::DisplayRole) {
+    switch (role) {
+    case Qt::DisplayRole:
         if (index.column() == 0)
             return mEntries.at(index.row()).displayName;
         else if (index.column() == 1)
             return mEntries.at(index.row()).extraInfo;
-    } else if (role == Qt::ToolTipRole) {
+        break;
+    case Qt::ToolTipRole:
         if (mEntries.at(index.row()).extraInfo.isEmpty())
             return QVariant(mEntries.at(index.row()).displayName);
         else
             return QVariant(mEntries.at(index.row()).displayName
                             + QLatin1String("\n\n") + mEntries.at(index.row()).extraInfo);
-    } else if (role == Qt::DecorationRole && index.column() == 0) {
-        LocatorFilterEntry &entry = mEntries[index.row()];
-        if (!entry.fileIconResolved && !entry.fileName.isEmpty() && entry.displayIcon.isNull()) {
-            entry.fileIconResolved = true;
-            entry.displayIcon = FileIconProvider::icon(entry.fileName);
+        break;
+    case Qt::DecorationRole:
+        if (index.column() == 0) {
+            LocatorFilterEntry &entry = mEntries[index.row()];
+            if (!entry.fileIconResolved && !entry.fileName.isEmpty() && entry.displayIcon.isNull()) {
+                entry.fileIconResolved = true;
+                entry.displayIcon = FileIconProvider::icon(entry.fileName);
+            }
+            return entry.displayIcon;
         }
-        return entry.displayIcon;
-    } else if (role == Qt::ForegroundRole && index.column() == 1) {
-        return QColor(Qt::darkGray);
-    } else if (role == Qt::UserRole) {
+        break;
+    case Qt::ForegroundRole:
+        if (index.column() == 1)
+            return QColor(Qt::darkGray);
+        break;
+    case Qt::UserRole:
         return qVariantFromValue(mEntries.at(index.row()));
     }
 
@@ -224,11 +227,7 @@ LocatorWidget::LocatorWidget(Locator *qop) :
     m_filterMenu(new QMenu(this)),
     m_refreshAction(new QAction(tr("Refresh"), this)),
     m_configureAction(new QAction(ICore::msgShowOptionsDialog(), this)),
-    m_fileLineEdit(new Utils::FancyLineEdit),
-    m_needsClearResult(true),
-    m_updateRequested(false),
-    m_acceptRequested(false),
-    m_possibleToolTipRequest(false)
+    m_fileLineEdit(new Utils::FancyLineEdit)
 {
     // Explicitly hide the completion list popup.
     m_completionList->hide();
@@ -658,4 +657,5 @@ void LocatorWidget::addSearchResults(int firstIndex, int endIndex)
         m_completionList->setCurrentIndex(m_locatorModel->index(0, 0));
 }
 
+} // namespace Internal
 } // namespace Core

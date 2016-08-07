@@ -81,7 +81,7 @@ private:
     LocatorWidget *m_locatorWidget;
     LocatorSettingsPage *m_settingsPage;
 
-    bool m_settingsInitialized;
+    bool m_settingsInitialized = false;
     QList<ILocatorFilter *> m_filters;
     QList<ILocatorFilter *> m_customFilters;
     int m_refreshInterval;
@@ -89,7 +89,7 @@ private:
     OpenDocumentsFilter *m_openDocumentsFilter;
     FileSystemFilter *m_fileSystemFilter;
     ExecuteFilter *m_executeFilter;
-    CorePlugin *m_corePlugin;
+    CorePlugin *m_corePlugin = nullptr;
     ExternalToolsFilter *m_externalToolsFilter;
 };
 

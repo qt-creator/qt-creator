@@ -89,10 +89,10 @@ private:
     QFutureWatcher<LocatorFilterEntry> *m_entriesWatcher;
     QMap<Id, QAction *> m_filterActionMap;
     QString m_requestedCompletionText;
-    bool m_needsClearResult;
-    bool m_updateRequested;
-    bool m_acceptRequested;
-    bool m_possibleToolTipRequest;
+    bool m_needsClearResult = true;
+    bool m_updateRequested = false;
+    bool m_acceptRequested = false;
+    bool m_possibleToolTipRequest = false;
     QWidget *m_progressIndicator;
     QTimer m_showProgressTimer;
 };

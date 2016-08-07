@@ -62,9 +62,7 @@ namespace Core {
 namespace Internal {
 
 Locator::Locator()
-    : m_settingsInitialized(false)
 {
-    m_corePlugin = 0;
     m_refreshTimer.setSingleShot(false);
     connect(&m_refreshTimer, &QTimer::timeout, this, [this]() { refresh(); });
 }

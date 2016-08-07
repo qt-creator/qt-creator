@@ -37,10 +37,7 @@ class ILocatorFilter;
 
 struct LocatorFilterEntry
 {
-    LocatorFilterEntry()
-        : filter(0)
-        , fileIconResolved(false)
-    {}
+    LocatorFilterEntry() = default;
 
     LocatorFilterEntry(ILocatorFilter *fromFilter, const QString &name, const QVariant &data,
                 const QIcon &icon = QIcon())
@@ -48,7 +45,6 @@ struct LocatorFilterEntry
         , displayName(name)
         , internalData(data)
         , displayIcon(icon)
-        , fileIconResolved(false)
     {}
 
     bool operator==(const LocatorFilterEntry &other) const {
@@ -58,7 +54,7 @@ struct LocatorFilterEntry
     }
 
     /* backpointer to creating filter */
-    ILocatorFilter *filter;
+    ILocatorFilter *filter = nullptr;
     /* displayed string */
     QString displayName;
     /* extra information displayed in light-gray in a second column (optional) */
@@ -70,7 +66,7 @@ struct LocatorFilterEntry
     /* file name, if the entry is related to a file, is used e.g. for resolving a file icon */
     QString fileName;
     /* internal */
-    bool fileIconResolved;
+    bool fileIconResolved = false;
 };
 
 class CORE_EXPORT ILocatorFilter : public QObject
@@ -161,12 +157,12 @@ protected:
 private:
     Id m_id;
     QString m_shortcut;
-    Priority m_priority;
+    Priority m_priority = Medium;
     QString m_displayName;
-    bool m_includedByDefault;
-    bool m_hidden;
-    bool m_enabled;
-    bool m_isConfigurable;
+    bool m_includedByDefault = false;
+    bool m_hidden = false;
+    bool m_enabled = true;
+    bool m_isConfigurable = true;
 };
 
 } // namespace Core

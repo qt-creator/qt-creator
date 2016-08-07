@@ -54,7 +54,7 @@ public:
 
 private:
     LocatorWidget *m_locatorWidget;
-    bool m_includeHidden;
+    bool m_includeHidden = true;
     QString m_currentDocumentDirectory;
 };
 

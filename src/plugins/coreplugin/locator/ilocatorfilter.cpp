@@ -38,12 +38,7 @@
 using namespace Core;
 
 ILocatorFilter::ILocatorFilter(QObject *parent):
-    QObject(parent),
-    m_priority(Medium),
-    m_includedByDefault(false),
-    m_hidden(false),
-    m_enabled(true),
-    m_isConfigurable(true)
+    QObject(parent)
 {
 }
 
