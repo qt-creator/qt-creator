@@ -43,7 +43,7 @@ defineReplace(findClangLibInLibDir) {
     exists ($${libdir}/libclang.so*) {
         return("-lclang")
     } else {
-        exists ($${libdir}/libclang.lib) {
+        exists ($${libdir}/libclang.*) {
             return("-llibclang")
         }
     }
