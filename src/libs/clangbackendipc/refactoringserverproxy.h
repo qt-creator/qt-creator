@@ -60,7 +60,6 @@ private:
     ClangBackEnd::WriteMessageBlock writeMessageBlock;
     ClangBackEnd::ReadMessageBlock readMessageBlock;
     RefactoringClientInterface *client = nullptr;
-    QIODevice *ioDevice = nullptr;
 };
 
 } // namespace ClangBackEnd
