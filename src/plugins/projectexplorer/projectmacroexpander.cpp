@@ -29,10 +29,14 @@
 
 namespace ProjectExplorer {
 
-ProjectMacroExpander::ProjectMacroExpander(const QString &projectName,
+ProjectMacroExpander::ProjectMacroExpander(const QString &mainFilePath, const QString &projectName,
                                            const Kit *kit, const QString &bcName,
                                            BuildConfiguration::BuildType buildType)
 {
+    registerFileVariables(Constants::VAR_CURRENTPROJECT_PREFIX,
+                     QCoreApplication::translate("ProjectExplorer", "Main file of current project"),
+                     [mainFilePath]() -> QString { return mainFilePath; });
+
     registerVariable(Constants::VAR_CURRENTPROJECT_NAME,
                      QCoreApplication::translate("ProjectExplorer", "Name of current project"),
                      [projectName] { return projectName; });

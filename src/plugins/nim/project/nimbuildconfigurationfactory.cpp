@@ -180,7 +180,7 @@ FileName NimBuildConfigurationFactory::defaultBuildDirectory(const Kit *k,
 {
     QFileInfo projectFileInfo(projectFilePath);
 
-    ProjectMacroExpander expander(projectFileInfo.baseName(), k, bc, buildType);
+    ProjectMacroExpander expander(projectFilePath, projectFileInfo.baseName(), k, bc, buildType);
     QString buildDirectory = expander.expand(Core::DocumentManager::buildDirectory());
 
     if (FileUtils::isAbsolutePath(buildDirectory))

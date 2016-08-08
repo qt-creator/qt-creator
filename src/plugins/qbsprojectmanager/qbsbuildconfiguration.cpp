@@ -398,7 +398,7 @@ static Utils::FileName defaultBuildDirectory(const QString &projectFilePath, con
                                              BuildConfiguration::BuildType buildType)
 {
     const QString projectName = QFileInfo(projectFilePath).completeBaseName();
-    ProjectMacroExpander expander(projectName, k, bcName, buildType);
+    ProjectMacroExpander expander(projectFilePath, projectName, k, bcName, buildType);
     QString projectDir = Project::projectDirectory(Utils::FileName::fromString(projectFilePath)).toString();
     QString buildPath = expander.expand(Core::DocumentManager::buildDirectory());
     return Utils::FileName::fromString(Utils::FileUtils::resolvePath(projectDir, buildPath));
