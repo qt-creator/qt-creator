@@ -42,10 +42,11 @@ public:
                                       QObject *parent = 0);
     virtual bool isComplete() const = 0;
     virtual QString snippet() const = 0;
+
 signals:
     void completeChanged();
-protected:
 
+protected:
     enum CreatorPlatform {
         CreatorLinux,
         CreatorMac,

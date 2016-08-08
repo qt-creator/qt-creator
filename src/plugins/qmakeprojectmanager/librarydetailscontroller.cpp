@@ -31,10 +31,7 @@
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
-#include <projectexplorer/project.h>
-#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/toolchain.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
 
@@ -53,41 +50,16 @@ LibraryDetailsController::LibraryDetailsController(
     m_proFile(proFile),
     m_libraryDetailsWidget(libraryDetails)
 {
+    m_creatorPlatform = CreatorLinux;
     switch (Utils::HostOsInfo::hostOs()) {
     case Utils::OsTypeMac:
         m_creatorPlatform = CreatorMac;
-        break;
-    case Utils::OsTypeLinux:
-        m_creatorPlatform = CreatorLinux;
-        break;
     case Utils::OsTypeWindows:
         m_creatorPlatform = CreatorWindows;
-        break;
     default:
         break;
     }
 
-    if (!Utils::HostOsInfo::isLinuxHost()) {
-        // project for which we are going to insert the snippet
-        const Project *project = SessionManager::projectForFile(Utils::FileName::fromString(proFile));
-        if (project && project->activeTarget()) {
-            // if its tool chain is maemo behave the same as we would be on linux
-            ProjectExplorer::ToolChain *tc = ToolChainKitInformation::toolChain(project->activeTarget()->kit(), ToolChain::Language::Cxx);
-            if (tc) {
-                switch (tc->targetAbi().os()) {
-                case Abi::WindowsOS:
-                    m_creatorPlatform = CreatorWindows;
-                    break;
-                case Abi::DarwinOS:
-                    m_creatorPlatform = CreatorMac;
-                    break;
-                default:
-                    m_creatorPlatform = CreatorLinux;
-                    break;
-                }
-            }
-        }
-    }
     setPlatformsVisible(true);
     setLinkageGroupVisible(true);
     setMacLibraryGroupVisible(true);
