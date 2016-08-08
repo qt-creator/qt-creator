@@ -217,7 +217,8 @@ HEADERS += \
     $$PWD/smallstringmemory.h \
     $$PWD/smallstringvector.h \
     $$PWD/smallstringlayout.h \
-    $$PWD/sizedarray.h
+    $$PWD/sizedarray.h \
+    $$PWD/smallstringio.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \

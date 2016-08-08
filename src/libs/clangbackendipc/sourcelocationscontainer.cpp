@@ -25,6 +25,8 @@
 
 #include "sourcelocationscontainer.h"
 
+#include <ostream>
+
 namespace ClangBackEnd {
 
 QDebug operator<<(QDebug debug, const SourceLocationsContainer &container)

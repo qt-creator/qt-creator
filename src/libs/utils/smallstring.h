@@ -33,8 +33,6 @@
 #include "smallstringmemory.h"
 
 #include <QByteArray>
-#include <QDataStream>
-#include <QDebug>
 #include <QString>
 
 #include <algorithm>
@@ -42,10 +40,10 @@
 #include <cstdlib>
 #include <climits>
 #include <cstring>
-#include <iosfwd>
 #include <string>
 #include <unordered_map>
 #include <utility>
+#include <vector>
 
 #pragma push_macro("constexpr")
 #ifndef __cpp_constexpr
@@ -775,117 +773,6 @@ bool operator<(const SmallString& first, const SmallString& second) noexcept
 
     return comparison < 0;
 }
-
-inline
-QDataStream &operator<<(QDataStream &out, const SmallString &string)
-{
-   if (string.isEmpty())
-       out << quint32(0);
-   else
-       out.writeBytes(string.data(), qint32(string.size()));
-
-   return out;
-}
-
-inline
-QDataStream &operator>>(QDataStream &in, SmallString &string)
-{
-    quint32 size;
-
-    in >> size;
-
-    if (size > 0 ) {
-        string.resize(size);
-
-        char *data = string.data();
-
-        in.readRawData(data, size);
-    }
-
-    return in;
-}
-
-inline
-QDebug &operator<<(QDebug &debug, const SmallString &string)
-{
-    using QT_USE_NAMESPACE::operator<<;
-
-    debug.nospace() << "\"" << string.data() << "\"";
-
-    return debug;
-}
-
-inline
-std::ostream &operator<<(std::ostream &stream, const SmallString &string)
-{
-    using std::operator<<;
-
-    return stream << string.data();
-}
-
-inline
-void PrintTo(const SmallString &string, ::std::ostream *os)
-{
-    *os << "'" << string.data() << "'";
-}
-
-} // namespace Utils
-
-namespace std {
-
-template<> struct hash<Utils::SmallString>
-{
-    using argument_type = Utils::SmallString;
-    using result_type = uint;
-    result_type operator()(const argument_type& string) const
-    {
-        return qHashBits(string.data(), string.size());
-    }
-};
-
-template<typename Key,
-         typename Value,
-         typename Hash = hash<Key>,
-         typename KeyEqual = equal_to<Key>,
-         typename Allocator = allocator<pair<const Key, Value>>>
-QDataStream &operator<<(QDataStream &out, const unordered_map<Key, Value, Hash, KeyEqual, Allocator> &map)
-{
-    out << quint64(map.size());
-
-    for (auto &&entry : map)
-        out << entry.first << entry.second;
-
-    return out;
-}
-
-template<typename Key,
-         typename Value,
-         typename Hash = hash<Key>,
-         typename KeyEqual = equal_to<Key>,
-         typename Allocator = allocator<pair<const Key, Value>>>
-QDataStream &operator>>(QDataStream &in, unordered_map<Key, Value, Hash, KeyEqual, Allocator> &map)
-{
-    quint64 size;
-
-    in >> size;
-
-    map.reserve(size);
-
-    for (quint64 i = 0; i < size; ++i) {
-        Key key;
-        Value value;
-
-        in >> key >> value;
-
-        map.insert(make_pair(move(key), move(value)));
-    }
-
-    return in;
-}
-
-} // namespace std
-
-namespace Utils {
 
 template<typename Key,
          typename Value,

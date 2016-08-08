@@ -28,6 +28,7 @@
 #include "clangbackendipc_global.h"
 
 #include <utils/smallstring.h>
+#include <utils/smallstringio.h>
 
 namespace ClangBackEnd {
 

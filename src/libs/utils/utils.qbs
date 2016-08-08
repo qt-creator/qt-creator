@@ -194,6 +194,7 @@ Project {
             "sleep.h",
             "smallstring.h",
             "smallstringiterator.h",
+            "smallstringio.h",
             "smallstringliteral.h",
             "smallstringlayout.h",
             "smallstringmemory.h",

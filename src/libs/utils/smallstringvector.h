@@ -31,6 +31,8 @@
 
 #include <vector>
 
+#include <QStringList>
+
 #pragma push_macro("noexcept")
 #ifndef __cpp_noexcept
 #define noexcept
@@ -148,101 +150,6 @@ private:
     }
 };
 
-inline QDataStream &operator<<(QDataStream &out, const SmallStringVector &stringVector)
-{
-    out << quint64(stringVector.size());
-
-    for (auto &&string : stringVector)
-        out << string;
-
-    return out;
-}
-
-inline QDataStream &operator>>(QDataStream &in, SmallStringVector &stringVector)
-{
-    stringVector.clear();
-
-    quint64 size;
-
-    in >> size;
-
-    stringVector.reserve(size);
-
-    for (quint64 i = 0; i < size; ++i) {
-        SmallString string;
-
-        in >> string;
-
-        stringVector.push_back(std::move(string));
-    }
-
-    return in;
-}
-
-inline QDebug operator<<(QDebug debug, const SmallStringVector &stringVector)
-{
-    debug << "StringVector(" << stringVector.join(Utils::SmallString(", ")).constData() << ")";
-
-    return debug;
-}
-
-inline void PrintTo(const SmallStringVector &textVector, ::std::ostream* os)
-{
-    *os << "StringVector(" << textVector.join(Utils::SmallString(", ")).constData() << ")";
-}
-
 } // namespace Utils;
-
-namespace std {
-
-template<typename Type>
-QDataStream &operator<<(QDataStream &out, const vector<Type> &vector)
-{
-    out << quint64(vector.size());
-
-    for (auto &&entry : vector)
-        out << entry;
-
-    return out;
-}
-
-template<typename Type>
-QDataStream &operator>>(QDataStream &in, vector<Type> &vector)
-{
-    vector.clear();
-
-    quint64 size;
-
-    in >> size;
-
-    vector.reserve(size);
-
-    for (quint64 i = 0; i < size; ++i) {
-        Type entry;
-
-        in >> entry;
-
-        vector.push_back(move(entry));
-    }
-
-    return in;
-}
-
-} // namespace std
-
-QT_BEGIN_NAMESPACE
-
-template<typename Type>
-QDebug &operator<<(QDebug &debug, const std::vector<Type> &vector)
-{
-    debug.noquote() << "[";
-    for (auto &&entry : vector)
-        debug.noquote() << entry << ", ";
-    debug.noquote() << "]";
-
-    return debug;
-}
-
-QT_END_NAMESPACE
 
 #pragma pop_macro("noexcept")

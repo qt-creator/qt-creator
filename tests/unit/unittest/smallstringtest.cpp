@@ -29,9 +29,9 @@
 
 #include <QString>
 
-#include <utils/smallstringvector.h>
-
 #include <utils/smallstring.h>
+#include <utils/smallstringio.h>
+#include <utils/smallstringvector.h>
 
 #ifndef __cpp_constexpr
 #define constexpr

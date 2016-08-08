@@ -25,10 +25,6 @@
 
 #include "sourcelocationsforrenamingmessage.h"
 
-#include <QDebug>
-
-#include <ostream>
-
 namespace ClangBackEnd {
 
 QDebug operator<<(QDebug debug, const SourceLocationsForRenamingMessage &message)
