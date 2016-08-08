@@ -57,8 +57,16 @@ inline bool operator<(const Port &p1, const Port &p2) { return p1.number() < p2.
 inline bool operator<=(const Port &p1, const Port &p2) { return p1.number() <= p2.number(); }
 inline bool operator>(const Port &p1, const Port &p2) { return p1.number() > p2.number(); }
 inline bool operator>=(const Port &p1, const Port &p2) { return p1.number() >= p2.number(); }
-inline bool operator==(const Port &p1, const Port &p2) { return p1.number() == p2.number(); }
-inline bool operator!=(const Port &p1, const Port &p2) { return p1.number() != p2.number(); }
+
+inline bool operator==(const Port &p1, const Port &p2)
+{
+    return p1.isValid() ? (p2.isValid() && p1.number() == p2.number()) : !p2.isValid();
+}
+
+inline bool operator!=(const Port &p1, const Port &p2)
+{
+    return p1.isValid() ? (!p2.isValid() || p1.number() != p2.number()) : p2.isValid();
+}
 
 } // Utils
 
