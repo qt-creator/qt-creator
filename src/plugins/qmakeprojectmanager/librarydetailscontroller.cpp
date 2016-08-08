@@ -428,8 +428,12 @@ static QString generateLibsSnippet(AddLibraryWizard::Platforms platforms,
                      const QString &targetRelativePath, const QString &pwd,
                      bool useSubfolders, bool addSuffix, bool generateLibPath)
 {
-    // it contains: $$[pwd]/
-    const QString libraryPathSnippet = QLatin1String("$$") + pwd + QLatin1Char('/');
+    const QDir targetRelativeDir(targetRelativePath);
+    QString libraryPathSnippet;
+    if (targetRelativeDir.isRelative()) {
+        // it contains: $$[pwd]/
+        libraryPathSnippet = QLatin1String("$$") + pwd + QLatin1Char('/');
+    }
 
     AddLibraryWizard::Platforms commonPlatforms = platforms;
     if (macLibraryType == AddLibraryWizard::FrameworkType) // we will generate a separate -F -framework line
@@ -494,10 +498,15 @@ static QString generateLibsSnippet(AddLibraryWizard::Platforms platforms,
 
 static QString generateIncludePathSnippet(const QString &includeRelativePath)
 {
-    return QLatin1String("\nINCLUDEPATH += $$PWD/")
-            + smartQuote(includeRelativePath) + QLatin1Char('\n')
-            + QLatin1String("DEPENDPATH += $$PWD/")
-            + smartQuote(includeRelativePath) + QLatin1Char('\n');
+    const QDir includeRelativeDir(includeRelativePath);
+    QString includePathSnippet;
+    if (includeRelativeDir.isRelative()) {
+        includePathSnippet = QLatin1String("$$PWD/");
+    }
+    includePathSnippet += smartQuote(includeRelativePath) + QLatin1Char('\n');
+
+    return QLatin1String("\nINCLUDEPATH += ") + includePathSnippet
+            + QLatin1String("DEPENDPATH += ") + includePathSnippet;
 }
 
 static QString generatePreTargetDepsSnippet(AddLibraryWizard::Platforms platforms,
@@ -509,9 +518,13 @@ static QString generatePreTargetDepsSnippet(AddLibraryWizard::Platforms platform
     if (linkageType != AddLibraryWizard::StaticLinkage)
         return QString();
 
-    // it contains: PRE_TARGETDEPS += $$[pwd]/
-    const QString preTargetDepsSnippet = QLatin1String("PRE_TARGETDEPS += $$") +
-            pwd + QLatin1Char('/');
+    const QDir targetRelativeDir(targetRelativePath);
+
+    QString preTargetDepsSnippet = QLatin1String("PRE_TARGETDEPS += ");
+    if (targetRelativeDir.isRelative()) {
+        // it contains: PRE_TARGETDEPS += $$[pwd]/
+        preTargetDepsSnippet += QLatin1String("$$") + pwd + QLatin1Char('/');
+    }
 
     QString snippetMessage;
     QTextStream str(&snippetMessage);
