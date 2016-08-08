@@ -25,7 +25,6 @@
 
 #include "timelinetheme.h"
 
-#include <coreplugin/coreicons.h>
 #include <utils/icon.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
