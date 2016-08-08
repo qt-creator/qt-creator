@@ -40,7 +40,7 @@ defineReplace(findLLVMVersionFromLibDir) {
 
 defineReplace(findClangLibInLibDir) {
     libdir = $$1
-    exists ($${libdir}/libclang.so*) {
+    exists($${libdir}/libclang.so*)|exists($${libdir}/libclang.dylib) {
         return("-lclang")
     } else {
         exists ($${libdir}/libclang.*) {
