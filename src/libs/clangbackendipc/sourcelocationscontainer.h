@@ -105,6 +105,12 @@ public:
         return SourceLocationsContainer(Utils::clone(filePathHash), Utils::clone(sourceLocationContainers_));
     }
 
+
+    const std::unordered_map<uint, FilePath> &filePathsForTestOnly() const
+    {
+        return filePathHash;
+    }
+
 private:
     std::unordered_map<uint, FilePath> filePathHash;
     std::vector<V2::SourceLocationContainer> sourceLocationContainers_;

@@ -43,14 +43,26 @@
 namespace ClangBackEnd {
 
 inline
-Utils::SmallString absolutePath(const char *path)
+llvm::SmallString<256> absolutePath(const char *path)
 {
     llvm::SmallString<256> absolutePath(path);
 
     if (!llvm::sys::path::is_absolute(absolutePath))
         llvm::sys::fs::make_absolute(absolutePath);
 
-    return Utils::SmallString(absolutePath.begin(), absolutePath.end());
+    return absolutePath;
+}
+
+template <typename Container>
+Utils::SmallString fromNativePath(Container container)
+{
+    Utils::SmallString path(container.data(), container.size());
+
+#ifdef WIN32
+    std::replace(path.begin(), path.end(), '\\', '/');
+#endif
+
+    return path;
 }
 
 inline
@@ -65,12 +77,13 @@ void appendSourceLocationsToSourceLocationsContainer(
         clang::FullSourceLoc fullSourceLocation(sourceLocation, sourceManager);
         auto fileId = fullSourceLocation.getFileID();
         auto fileEntry = sourceManager.getFileEntryForID(fileId);
-        auto fileName = fileEntry->getName();
-        auto fileDirectoryPath = absolutePath(fileEntry->getDir()->getName());
+        auto filePath = absolutePath(fileEntry->getName());
+        auto fileName = llvm::sys::path::filename(filePath);
+        llvm::sys::path::remove_filename(filePath);
 
         sourceLocationsContainer.insertFilePath(fileId.getHashValue(),
-                                                std::move(fileDirectoryPath),
-                                                fileName);
+                                                fromNativePath(filePath),
+                                                fromNativePath(fileName));
         sourceLocationsContainer.insertSourceLocation(fileId.getHashValue(),
                                                       fullSourceLocation.getSpellingLineNumber(),
                                                       fullSourceLocation.getSpellingColumnNumber());

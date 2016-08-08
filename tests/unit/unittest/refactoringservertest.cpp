@@ -39,12 +39,15 @@ namespace {
 
 using testing::AllOf;
 using testing::Contains;
+using testing::Pair;
 using testing::PrintToString;
 using testing::Property;
+using testing::_;
 
 using ClangBackEnd::RequestSourceLocationsForRenamingMessage;
 using ClangBackEnd::SourceLocationsContainer;
 using ClangBackEnd::SourceLocationsForRenamingMessage;
+using ClangBackEnd::FilePath;
 
 MATCHER_P2(IsSourceLocation, line, column,
            std::string(negation ? "isn't" : "is")
@@ -83,9 +86,11 @@ TEST_F(RefactoringServer, RequestSourceLocationsForRenamingMessage)
                 sourceLocationsForRenamingMessage(
                     AllOf(Property(&SourceLocationsForRenamingMessage::symbolName, "v"),
                           Property(&SourceLocationsForRenamingMessage::sourceLocations,
-                                   Property(&SourceLocationsContainer::sourceLocationContainers,
+                                   AllOf(Property(&SourceLocationsContainer::sourceLocationContainers,
                                             AllOf(Contains(IsSourceLocation(1, 5)),
-                                                  Contains(IsSourceLocation(3, 9))))))))
+                                                  Contains(IsSourceLocation(3, 9)))),
+                                         Property(&SourceLocationsContainer::filePathsForTestOnly,
+                                                  Contains(Pair(_, FilePath(TESTDATA_DIR, "renamevariable.cpp")))))))))
         .Times(1);
 
     refactoringServer.requestSourceLocationsForRenamingMessage(std::move(requestSourceLocationsForRenamingMessage));
