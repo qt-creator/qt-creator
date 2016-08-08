@@ -138,9 +138,9 @@
 
                 \li Use the package manager of your system.
 
-                \li Download and install LLVM from the
-                    \l{http://llvm.org/releases/}{LLVM Download Page} or
-                    \l{http://llvm.org/builds/}{LLVM Snapshot Builds}.
+                \li Download and install the Clang package from the
+                    \l{https://download.qt.io/development_releases/prebuilt/libclang/}
+                    {Qt Download Page}.
 
                 \li Build Clang by following
                     \l{http://clang.llvm.org/get_started.html}
