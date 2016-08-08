@@ -612,9 +612,6 @@ NonInternalLibraryDetailsController::NonInternalLibraryDetailsController(
     setLibraryComboBoxVisible(false);
     setLibraryPathChooserVisible(true);
 
-    libraryDetailsWidget()->libraryPathChooser
-            ->setHistoryCompleter(QLatin1String("Qmake.LibDir.History"));
-
     if (creatorPlatform() == CreatorWindows) {
         libraryDetailsWidget()->libraryPathChooser->setPromptDialogFilter(
                 QLatin1String("Library file (*.lib lib*.a)"));

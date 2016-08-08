@@ -189,7 +189,10 @@ DetailsPage::DetailsPage(AddLibraryWizard *parent)
 {
     m_libraryDetailsWidget = new Ui::LibraryDetailsWidget();
     m_libraryDetailsWidget->setupUi(this);
+
     Utils::PathChooser * const libPathChooser = m_libraryDetailsWidget->libraryPathChooser;
+    libPathChooser->setHistoryCompleter("Qmake.LibDir.History");
+
     const auto pathValidator = [libPathChooser](Utils::FancyLineEdit *edit, QString *errorMessage) {
         return libPathChooser->defaultValidationFunction()(edit, errorMessage)
                 && validateLibraryPath(libPathChooser->fileName().toString(), libPathChooser,
