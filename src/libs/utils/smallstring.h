@@ -44,6 +44,7 @@
 #include <cstring>
 #include <iosfwd>
 #include <string>
+#include <unordered_map>
 #include <utility>
 
 #pragma push_macro("constexpr")
@@ -841,14 +842,6 @@ template<> struct hash<Utils::SmallString>
         return qHashBits(string.data(), string.size());
     }
 };
-
-template<
-    class Key,
-    class T,
-    class Hash,
-    class KeyEqual,
-    class Allocator>
-class unordered_map;
 
 template<typename Key,
          typename Value,
