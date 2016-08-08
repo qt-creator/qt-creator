@@ -243,9 +243,10 @@ void NotesMaterialShader::updateState(const RenderState &state, QSGMaterial *, Q
     if (state.isMatrixDirty()) {
         program()->setUniformValue(m_matrix_id, state.combinedMatrix());
         program()->setUniformValue(m_z_range_id, GLfloat(1.0));
-        program()->setUniformValue(
-                    m_color_id,
-                    Utils::creatorTheme()->color(Utils::Theme::Timeline_HighlightColor));
+        const QColor notesColor = Utils::creatorTheme()
+                ? Utils::creatorTheme()->color(Utils::Theme::Timeline_HighlightColor)
+                : QColor(255, 165, 0);
+        program()->setUniformValue(m_color_id, notesColor);
     }
 }
 
