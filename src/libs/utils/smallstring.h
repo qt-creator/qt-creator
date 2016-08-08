@@ -807,6 +807,8 @@ QDataStream &operator>>(QDataStream &in, SmallString &string)
 inline
 QDebug &operator<<(QDebug &debug, const SmallString &string)
 {
+    using QT_USE_NAMESPACE::operator<<;
+
     debug.nospace() << "\"" << string.data() << "\"";
 
     return debug;
@@ -815,6 +817,8 @@ QDebug &operator<<(QDebug &debug, const SmallString &string)
 inline
 std::ostream &operator<<(std::ostream &stream, const SmallString &string)
 {
+    using std::operator<<;
+
     return stream << string.data();
 }
 
