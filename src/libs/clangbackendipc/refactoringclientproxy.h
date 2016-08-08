@@ -51,7 +51,7 @@ public:
     void alive() override;
     void sourceLocationsForRenamingMessage(SourceLocationsForRenamingMessage &&message) override;
 
-    void setLocalRenamingCallback(RenameCallback &&) {}
+    void setLocalRenamingCallback(RenameCallback &&) final {}
 
 private:
     ClangBackEnd::WriteMessageBlock writeMessageBlock;
