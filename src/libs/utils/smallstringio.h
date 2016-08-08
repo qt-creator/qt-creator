@@ -66,7 +66,7 @@ QDataStream &operator>>(QDataStream &in, SmallString &string)
 inline
 QDebug &operator<<(QDebug &debug, const SmallString &string)
 {
-    using QT_USE_NAMESPACE::operator<<;
+    using QT_PREPEND_NAMESPACE(operator<<);
 
     debug.nospace() << "\"" << string.data() << "\"";
 
