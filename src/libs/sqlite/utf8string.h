@@ -28,6 +28,7 @@
 #include "sqliteglobal.h"
 
 #include <QByteArray>
+#include <QDataStream>
 #include <QHashFunctions>
 #include <QMetaType>
 #include <QString>

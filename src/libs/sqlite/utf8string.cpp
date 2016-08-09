@@ -30,8 +30,6 @@
 #include <QString>
 #include <QDebug>
 
-#include <QDataStream>
-
 #include <ostream>
 
 QDebug operator<<(QDebug debug, const Utf8String &text)
