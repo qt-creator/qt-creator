@@ -135,7 +135,7 @@ protected:
 
     // for level computation
     QHash<int, qint64> m_startTimesPerLevel;
-    int m_level = Constants::QML_MIN_LEVEL;
+    int m_level = 0;
 
     // compute parent-child relationship and call count
     QHash<int, int> m_typesPerLevel;

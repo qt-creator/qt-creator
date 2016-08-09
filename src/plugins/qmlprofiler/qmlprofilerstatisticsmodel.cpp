@@ -353,7 +353,7 @@ void QmlProfilerStatisticsRelativesModel::loadEvent(const QmlEvent &event)
         break;
     case RangeEnd: {
         int parentTypeIndex = -1;
-        if (m_level > Constants::QML_MIN_LEVEL && m_typesPerLevel.contains(m_level-1))
+        if (m_level > 0 && m_typesPerLevel.contains(m_level-1))
             parentTypeIndex = m_typesPerLevel[m_level-1];
 
         int relativeTypeIndex = (m_relation == QmlProfilerStatisticsParents) ? parentTypeIndex :
@@ -408,8 +408,7 @@ void QmlProfilerStatisticsRelativesModel::clear()
 {
     m_data.clear();
     m_startTimesPerLevel.clear();
-    m_level = Constants::QML_MIN_LEVEL;
-    m_startTimesPerLevel[0] = 0;
+    m_level = 0;
     m_typesPerLevel.clear();
 }
 
