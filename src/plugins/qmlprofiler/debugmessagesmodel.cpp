@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "debugmessagesmodel.h"
+#include "qmlprofilerconstants.h"
 
 namespace QmlProfiler {
 namespace Internal {
@@ -91,7 +92,7 @@ int DebugMessagesModel::expandedRow(int index) const
 int DebugMessagesModel::collapsedRow(int index) const
 {
     Q_UNUSED(index);
-    return 1;
+    return Constants::QML_MIN_LEVEL;
 }
 
 void DebugMessagesModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
@@ -104,7 +105,7 @@ void DebugMessagesModel::loadEvent(const QmlEvent &event, const QmlEventType &ty
 
 void DebugMessagesModel::finalize()
 {
-    setCollapsedRowCount(2);
+    setCollapsedRowCount(Constants::QML_MIN_LEVEL + 1);
     setExpandedRowCount(m_maximumMsgType + 2);
 }
 
