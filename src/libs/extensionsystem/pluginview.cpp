@@ -391,8 +391,7 @@ void PluginView::updatePlugins()
         collections.append(new CollectionItem(tr("Utilities"), plugins, this));
     }
 
-    Utils::sort(collections, [](CollectionItem *a, CollectionItem *b) -> bool
-        { return a->m_name < b->m_name; });
+    Utils::sort(collections, &CollectionItem::m_name);
 
     foreach (CollectionItem *collection, collections)
         m_model->rootItem()->appendChild(collection);

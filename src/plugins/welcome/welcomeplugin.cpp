@@ -348,9 +348,7 @@ void WelcomeMode::welcomePluginAdded(QObject *obj)
 void WelcomeMode::addPages(const QList<IWelcomePage *> &pages)
 {
     QList<IWelcomePage *> addedPages = pages;
-    Utils::sort(addedPages, [](const IWelcomePage *l, const IWelcomePage *r) {
-        return l->priority() < r->priority();
-    });
+    Utils::sort(addedPages, &IWelcomePage::priority);
     // insert into m_pluginList, keeping m_pluginList sorted by priority
     QQmlEngine *engine = m_welcomePage->engine();
     auto addIt = addedPages.begin();

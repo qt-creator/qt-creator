@@ -420,9 +420,7 @@ AnalyzeUnits ClangStaticAnalyzerRunControl::sortedUnitsToAnalyze()
                                                    m_extraToolChainInfo);
     }
 
-    Utils::sort(units, [](const AnalyzeUnit &a1, const AnalyzeUnit &a2) -> bool {
-        return a1.file < a2.file;
-    });
+    Utils::sort(units, &AnalyzeUnit::file);
     return units;
 }
 

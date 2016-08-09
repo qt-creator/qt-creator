@@ -234,8 +234,7 @@ void FindPrivate::setupFilterMenuItems()
     bool haveEnabledFilters = false;
     const Id base("FindFilter.");
     QList<IFindFilter *> sortedFilters = findInterfaces;
-    Utils::sort(sortedFilters, [](IFindFilter *a, IFindFilter *b) -> bool
-        { return a->displayName() < b->displayName(); });
+    Utils::sort(sortedFilters, &IFindFilter::displayName);
     foreach (IFindFilter *filter, sortedFilters) {
         QAction *action = new QAction(QLatin1String("    ") + filter->displayName(), this);
         bool isEnabled = filter->isEnabled();

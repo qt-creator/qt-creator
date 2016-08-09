@@ -127,9 +127,7 @@ LineForNewIncludeDirective::LineForNewIncludeDirective(const QTextDocument *text
 {
     QList<Document::Include> includes
         = cppDocument->resolvedIncludes() + cppDocument->unresolvedIncludes();
-    Utils::sort(includes, [](const Include &left, const Include &right) {
-        return left.line() < right.line();
-    });
+    Utils::sort(includes, &Include::line);
 
     // Ignore *.moc includes if requested
     if (mocIncludeMode == IgnoreMocIncludes) {

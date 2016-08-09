@@ -248,9 +248,7 @@ void RunSettingsWidget::aboutToShowAddMenu()
         }
     }
 
-    Utils::sort(menuActions, [](const QAction *l, const QAction *r) {
-        return l->text() < r->text();
-    });
+    Utils::sort(menuActions, &QAction::text);
     foreach (QAction *action, menuActions)
         m_addRunMenu->addAction(action);
 }

@@ -556,9 +556,7 @@ void QtVersionManager::setNewQtVersions(QList<BaseQtVersion *> newVersions)
     // We want to preserve the same order as in the settings dialog
     // so we sort a copy
     QList<BaseQtVersion *> sortedNewVersions = newVersions;
-    Utils::sort(sortedNewVersions, [](const BaseQtVersion *l, const BaseQtVersion *r) {
-        return l->uniqueId() < r->uniqueId();
-    });
+    Utils::sort(sortedNewVersions, &BaseQtVersion::uniqueId);
 
     QList<int> addedVersions;
     QList<int> removedVersions;
