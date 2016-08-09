@@ -28,7 +28,6 @@
 namespace QmlProfiler {
 namespace Constants {
 
-const char ATTACH[] = "Menu.Analyzer.Attach";
 const char TASK_LOAD[] = "QmlProfiler.TaskLoad";
 const char TASK_SAVE[] = "QmlProfiler.TaskSave";
 const char FLUSH_ENABLED[] = "Analyzer.QmlProfiler.FlushEnabled";
