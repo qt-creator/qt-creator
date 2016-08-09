@@ -63,9 +63,9 @@ public:
     {
         auto name = declaration->getNameAsString();
 
-        bool notFound = setResultIfCursorIsInBetween(declaration,
-                                                     declaration->getLocation(),
-                                                     declaration->getNameAsString().length());
+        setResultIfCursorIsInBetween(declaration,
+                                     declaration->getLocation(),
+                                     declaration->getNameAsString().length());
 
         return true;
     }
