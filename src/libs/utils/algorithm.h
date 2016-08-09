@@ -388,8 +388,10 @@ inline void sort(Container &c, Predicate p)
 template <typename Container, typename R, typename S>
 inline void sort(Container &c, R S::*member)
 {
-    std::sort(c.begin(), c.end(), [member](const S &a, const S &b) {
-        return a.*member < b.*member;
+    auto f = std::mem_fn(member);
+    using const_ref = typename Container::const_reference;
+    std::sort(c.begin(), c.end(), [&f](const_ref a, const_ref b) {
+        return f(a) < f(b);
     });
 }
 
@@ -397,8 +399,10 @@ inline void sort(Container &c, R S::*member)
 template <typename Container, typename R, typename S>
 inline void sort(Container &c, R (S::*function)() const)
 {
-    std::sort(c.begin(), c.end(), [function](const S &a, const S &b) {
-        return (a.*function)() < (b.*function)();
+    auto f = std::mem_fn(function);
+    using const_ref = typename Container::const_reference;
+    std::sort(c.begin(), c.end(), [&f](const_ref a, const_ref b) {
+        return f(a) < f(b);
     });
 }
 

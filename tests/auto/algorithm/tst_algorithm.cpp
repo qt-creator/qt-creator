@@ -136,6 +136,16 @@ void tst_Algorithm::sort()
     QList<Struct> s4({4, 3, 2, 1});
     Utils::sort(s4, &Struct::member);
     QCOMPARE(s4, QList<Struct>({1, 2, 3, 4}));
+    // member function with pointers
+    QList<QString> arr1({"12345", "3333", "22"});
+    QList<QString *> s5({&arr1[0], &arr1[1], &arr1[2]});
+    Utils::sort(s5, &QString::size);
+    QCOMPARE(s5, QList<QString *>({&arr1[2], &arr1[1], &arr1[0]}));
+    // member with pointers
+    QList<Struct> arr2({4, 1, 3});
+    QList<Struct *> s6({&arr2[0], &arr2[1], &arr2[2]});
+    Utils::sort(s6, &Struct::member);
+    QCOMPARE(s6, QList<Struct *>({&arr2[1], &arr2[2], &arr2[0]}));
 }
 
 QTEST_MAIN(tst_Algorithm)
