@@ -47,7 +47,7 @@ public:
 
     struct QmlRangeEventStartInstance {
         QmlRangeEventStartInstance() :
-                displayRowExpanded(Constants::QML_MIN_LEVEL),
+                displayRowExpanded(1),
                 displayRowCollapsed(Constants::QML_MIN_LEVEL),
                 bindingLoopHead(-1) {}
 
