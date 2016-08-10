@@ -250,7 +250,7 @@ QString QbsRunConfiguration::executable() const
     if (!product.isValid() || !pro->qbsProject().isValid())
         return QString();
 
-    return pro->qbsProject().targetExecutable(product, installOptions());
+    return product.targetExecutable();
 }
 
 bool QbsRunConfiguration::isConsoleApplication() const

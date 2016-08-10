@@ -752,7 +752,7 @@ void QbsProject::updateDocuments(const QSet<QString> &files)
     m_qbsDocuments.unite(toAdd);
 }
 
-static CppTools::ProjectFile::Kind cppFileType(const qbs::SourceArtifact &sourceFile)
+static CppTools::ProjectFile::Kind cppFileType(const qbs::ArtifactData &sourceFile)
 {
     if (sourceFile.fileTags().contains(QLatin1String("hpp")))
         return CppTools::ProjectFile::CXXHeader;
@@ -857,8 +857,8 @@ void QbsProject::updateCppCodeModel()
             ppBuilder.setDisplayName(grp.name());
             ppBuilder.setProjectFile(groupLocationToProjectFile(grp.location()));
 
-            QHash<QString, qbs::SourceArtifact> filePathToSourceArtifact;
-            foreach (const qbs::SourceArtifact &source, grp.allSourceArtifacts()) {
+            QHash<QString, qbs::ArtifactData> filePathToSourceArtifact;
+            foreach (const qbs::ArtifactData &source, grp.allSourceArtifacts()) {
                 filePathToSourceArtifact.insert(source.filePath(), source);
 
                 foreach (const QString &tag, source.fileTags()) {
@@ -922,7 +922,7 @@ void QbsProject::updateCppCompilerCallData()
             CppTools::ProjectInfo::CompilerCallGroup compilerCallGroup;
             compilerCallGroup.groupId = groupLocationToProjectFile(group.location());
 
-            foreach (const qbs::SourceArtifact &file, group.allSourceArtifacts()) {
+            foreach (const qbs::ArtifactData &file, group.allSourceArtifacts()) {
                 const QString &filePath = file.filePath();
                 if (!CppTools::ProjectFile::isSource(cppFileType(file)))
                     continue;
@@ -984,7 +984,7 @@ void QbsProject::updateApplicationTargets()
                     FileName::fromString(productData.location().filePath()));
             continue;
         }
-        foreach (const qbs::TargetArtifact &ta, productData.targetArtifacts()) {
+        foreach (const qbs::ArtifactData &ta, productData.targetArtifacts()) {
             QTC_ASSERT(ta.isValid(), continue);
             if (!ta.isExecutable())
                 continue;
@@ -1002,9 +1002,8 @@ void QbsProject::updateDeploymentInfo()
     if (m_qbsProject.isValid()) {
         qbs::InstallOptions installOptions;
         installOptions.setInstallRoot(QLatin1String("/"));
-        foreach (const qbs::InstallableFile &f, m_qbsProject
-                     .installableFilesForProject(m_projectData, installOptions)) {
-            deploymentData.addFile(f.sourceFilePath(), QFileInfo(f.targetFilePath()).path(),
+        foreach (const qbs::ArtifactData &f, m_projectData.installableArtifacts()) {
+            deploymentData.addFile(f.filePath(), f.installData().installDir(),
                     f.isExecutable() ? DeployableFile::TypeExecutable : DeployableFile::TypeNormal);
         }
     }

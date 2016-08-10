@@ -109,7 +109,7 @@ private:
                             const QHash<QString, ProjectExplorer::FileType> &fileTypeHash,
                             const FileTreeNode *subFileTree, const QString &baseDir,
                             bool updateExisting);
-    static ProjectExplorer::FileType fileType(const qbs::SourceArtifact &artifact);
+    static ProjectExplorer::FileType fileType(const qbs::ArtifactData &artifact);
 
     qbs::GroupData m_qbsGroupData;
     QString m_productPath;

@@ -454,7 +454,7 @@ void QbsGroupNode::setupFiles(ProjectExplorer::FolderNode *root, const qbs::Grou
     FileTreeNode::simplify(&tree);
 
     QHash<QString, ProjectExplorer::FileType> fileTypeHash;
-    foreach (const qbs::SourceArtifact &sa, group.allSourceArtifacts())
+    foreach (const qbs::ArtifactData &sa, group.allSourceArtifacts())
         fileTypeHash[sa.filePath()] = fileType(sa);
 
     setupFolder(root, fileTypeHash, &tree, productPath, updateExisting);
@@ -548,7 +548,7 @@ void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root,
     root->addFileNodes(filesToAdd);
 }
 
-ProjectExplorer::FileType QbsGroupNode::fileType(const qbs::SourceArtifact &artifact)
+ProjectExplorer::FileType QbsGroupNode::fileType(const qbs::ArtifactData &artifact)
 {
     QTC_ASSERT(artifact.isValid(), return ProjectExplorer::UnknownFileType);
 
@@ -712,10 +712,8 @@ QList<ProjectExplorer::RunConfiguration *> QbsProductNode::runConfigurations() c
 {
     QList<ProjectExplorer::RunConfiguration *> result;
     QbsProjectNode *pn = dynamic_cast<QbsProjectNode *>(projectNode());
-    if (!isEnabled() || !pn || !pn->qbsProject().isValid()
-            || pn->qbsProject().targetExecutable(m_qbsProductData, qbs::InstallOptions()).isEmpty()) {
+    if (!isEnabled() || m_qbsProductData.targetExecutable().isEmpty())
         return result;
-    }
 
     foreach (ProjectExplorer::RunConfiguration *rc, pn->project()->activeTarget()->runConfigurations()) {
         QbsRunConfiguration *qbsRc = qobject_cast<QbsRunConfiguration *>(rc);
