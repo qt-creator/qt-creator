@@ -112,6 +112,7 @@ private:
         float selectionId;
     };
 
+    void calculateDistances();
     int updateVertices(TimelineItemsGeometry &geometry, const QVarLengthArray<qint64> &distances,
                        qint64 minDistance, float itemTop, int i) const;
     void addEvent(TimelineItemsGeometry &geometry, const QVarLengthArray<qint64> &distances,
@@ -397,9 +398,12 @@ TimelineRenderPass::State *TimelineItemsRenderPass::update(const TimelineAbstrac
 
     state->updateCollapsedRowMaterial(spacing / parentState->scale(), selectedItem, selectionColor);
 
-    NodeUpdater updater(model, parentState, state, indexFrom, indexTo);
-    updater.run();
-
+    if (state->indexFrom() < state->indexTo()) {
+        if (indexFrom < state->indexFrom() || indexTo > state->indexTo())
+            NodeUpdater(model, parentState, state, indexFrom, indexTo).run();
+    } else if (indexFrom < indexTo) {
+        NodeUpdater(model, parentState, state, indexFrom, indexTo).run();
+    }
 
     if (model->expanded()) {
         for (int row = 0; row < model->expandedRowCount(); ++row) {
@@ -565,45 +569,48 @@ void TimelineItemsRenderPassState::updateCollapsedRowMaterial(float xScale, int 
 NodeUpdater::NodeUpdater(const TimelineModel *model, const TimelineRenderState *parentState,
                          TimelineItemsRenderPassState *state, int indexFrom, int indexTo) :
     m_model(model), m_parentState(parentState), m_indexFrom(indexFrom), m_indexTo(indexTo),
-    m_state(state)
+    m_state(state), m_minCollapsedDistance(0), m_minExpandedDistance(0)
+{
+}
+
+void NodeUpdater::calculateDistances()
 {
     int numItems = m_indexTo - m_indexFrom;
-    if (numItems > s_maxNumItems) {
-        m_collapsedDistances.resize(numItems);
-        m_expandedDistances.resize(numItems);
-        QVarLengthArray<qint64> startsPerExpandedRow(m_model->expandedRowCount());
-        QVarLengthArray<qint64> startsPerCollapsedRow(m_model->collapsedRowCount());
-        memset(startsPerCollapsedRow.data(), 0xff, startsPerCollapsedRow.size());
-        memset(startsPerExpandedRow.data(), 0xff, startsPerExpandedRow.size());
-        for (int i = m_indexFrom; i < m_indexTo; ++i) {
-            // Add some "random" factor. Distances below 256ns cannot be properly displayed
-            // anyway and if all events have the same distance from one another, then we'd merge
-            // them all together otherwise.
-            qint64 start = startTime(m_model, m_parentState, i) + (i % 256);
-            qint64 end = endTime(m_model, m_parentState, i) + (i % 256);
-            if (start > end) {
-                m_collapsedDistances[i - m_indexFrom] = m_expandedDistances[i - m_indexFrom] = 0;
-                continue;
-            }
 
-            qint64 &collapsedStart = startsPerCollapsedRow[m_model->collapsedRow(i)];
-            m_collapsedDistances[i - m_indexFrom] = (collapsedStart != s_invalidTimestamp) ?
-                        end - collapsedStart : std::numeric_limits<qint64>::max();
-            collapsedStart = start;
-
-            qint64 &expandedStart = startsPerExpandedRow[m_model->expandedRow(i)];
-            m_expandedDistances[i - m_indexFrom] = (expandedStart != s_invalidTimestamp) ?
-                        end - expandedStart : std::numeric_limits<qint64>::max();
-            expandedStart = start;
+    m_collapsedDistances.resize(numItems);
+    m_expandedDistances.resize(numItems);
+    QVarLengthArray<qint64> startsPerExpandedRow(m_model->expandedRowCount());
+    QVarLengthArray<qint64> startsPerCollapsedRow(m_model->collapsedRowCount());
+    memset(startsPerCollapsedRow.data(), 0xff, startsPerCollapsedRow.size());
+    memset(startsPerExpandedRow.data(), 0xff, startsPerExpandedRow.size());
+    for (int i = m_indexFrom; i < m_indexTo; ++i) {
+        // Add some "random" factor. Distances below 256ns cannot be properly displayed
+        // anyway and if all events have the same distance from one another, then we'd merge
+        // them all together otherwise.
+        qint64 start = startTime(m_model, m_parentState, i) + (i % 256);
+        qint64 end = endTime(m_model, m_parentState, i) + (i % 256);
+        if (start > end) {
+            m_collapsedDistances[i - m_indexFrom] = m_expandedDistances[i - m_indexFrom] = 0;
+            continue;
         }
 
-        QVarLengthArray<qint64> sorted = m_collapsedDistances;
-        std::sort(sorted.begin(), sorted.end());
-        m_minCollapsedDistance = sorted[numItems - s_maxNumItems];
-        sorted = m_expandedDistances;
-        std::sort(sorted.begin(), sorted.end());
-        m_minExpandedDistance = sorted[numItems - s_maxNumItems];
+        qint64 &collapsedStart = startsPerCollapsedRow[m_model->collapsedRow(i)];
+        m_collapsedDistances[i - m_indexFrom] = (collapsedStart != s_invalidTimestamp) ?
+                    end - collapsedStart : std::numeric_limits<qint64>::max();
+        collapsedStart = start;
+
+        qint64 &expandedStart = startsPerExpandedRow[m_model->expandedRow(i)];
+        m_expandedDistances[i - m_indexFrom] = (expandedStart != s_invalidTimestamp) ?
+                    end - expandedStart : std::numeric_limits<qint64>::max();
+        expandedStart = start;
     }
+
+    QVarLengthArray<qint64> sorted = m_collapsedDistances;
+    std::sort(sorted.begin(), sorted.end());
+    m_minCollapsedDistance = sorted[numItems - s_maxNumItems];
+    sorted = m_expandedDistances;
+    std::sort(sorted.begin(), sorted.end());
+    m_minExpandedDistance = sorted[numItems - s_maxNumItems];
 }
 
 int NodeUpdater::updateVertices(TimelineItemsGeometry &geometry,
@@ -733,6 +740,9 @@ int NodeUpdater::updateNodes(const int from, const int to) const
 
 void NodeUpdater::run()
 {
+    if (m_indexTo - m_indexFrom > s_maxNumItems)
+        calculateDistances();
+
     if (m_state->indexFrom() < m_state->indexTo()) {
         if (m_indexFrom < m_state->indexFrom()) {
             for (int i = m_indexFrom; i < m_state->indexFrom();)
