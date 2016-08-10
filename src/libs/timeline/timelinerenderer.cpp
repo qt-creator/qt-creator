@@ -273,25 +273,42 @@ void TimelineRenderer::TimelineRendererPrivate::manageHovered(int mouseX, int mo
     // find if we are in the right column
     qint64 bestOffset = std::numeric_limits<qint64>::max();
     for (int i=eventTo; i>=eventFrom; --i) {
-        if (model->row(i) == row) {
-            // There can be small events that don't reach the cursor position after large events
-            // that do but are in a different row.
-            qint64 itemEnd = model->endTime(i);
-            if (itemEnd < startTime)
-                continue;
+        if (model->row(i) != row)
+            continue;
 
-            qint64 itemStart = model->startTime(i);
+        // There can be small events that don't reach the cursor position after large events
+        // that do but are in a different row.
+        qint64 itemEnd = model->endTime(i);
+        if (itemEnd < startTime)
+            continue;
 
-            qint64 offset = qAbs(itemEnd - exactTime) + qAbs(itemStart - exactTime);
-            if (offset < bestOffset) {
-                // match
-                currentSelection.eventIndex = i;
-                currentSelection.startTime = itemStart;
-                currentSelection.endTime = itemEnd;
-                currentSelection.row = row;
-                bestOffset = offset;
-            }
+        qint64 itemStart = model->startTime(i);
+
+        qint64 startOffset = exactTime - itemStart;
+        if (startOffset >= bestOffset) {
+            // We cannot get better anymore as the startTimes are totally ordered and we're moving
+            // backwards. Thus, the startOffset will only get bigger and we're only adding a
+            // positive number (end offset) below when comparing with bestOffset.
+            break;
         }
+
+        qint64 offset = qAbs(itemEnd - exactTime) + qAbs(startOffset);
+        if (offset >= bestOffset)
+            continue;
+
+        // match
+        currentSelection.eventIndex = i;
+        currentSelection.startTime = itemStart;
+        currentSelection.endTime = itemEnd;
+        currentSelection.row = row;
+
+        // Exact match. If we can get better than this, then we have multiple overlapping
+        // events in one row. There is no point in sorting those out as you cannot properly
+        // discern them anyway.
+        if (itemEnd >= exactTime && itemStart <= exactTime)
+            break;
+
+        bestOffset = offset;
     }
     if (!selectionLocked && currentSelection.eventIndex != -1)
         q->setSelectedItem(currentSelection.eventIndex);
