@@ -247,11 +247,11 @@ void WelcomeMode::addKeyboardShortcuts()
         auto act = new QAction(tr("Open Session #%1").arg(i), this);
         Command *cmd = ActionManager::registerAction(act, sessionBase.withSuffix(i), welcomeContext);
         cmd->setDefaultKeySequence(QKeySequence((UseMacShortcuts ? tr("Ctrl+Meta+%1") : tr("Ctrl+Alt+%1")).arg(i)));
-        m_sessionsShortcuts.append(cmd->keySequence().toString());
+        m_sessionsShortcuts.append(cmd->keySequence().toString(QKeySequence::NativeText));
 
         connect(act, &QAction::triggered, this, [this, i] { openSessionTriggered(i-1); });
         connect(cmd, &Command::keySequenceChanged, this, [this, i, cmd] {
-            m_sessionsShortcuts[i-1] = cmd->keySequence().toString();
+            m_sessionsShortcuts[i-1] = cmd->keySequence().toString(QKeySequence::NativeText);
             emit sessionsShortcutsChanged(m_sessionsShortcuts);
         });
     }
@@ -261,11 +261,11 @@ void WelcomeMode::addKeyboardShortcuts()
         auto act = new QAction(tr("Open Recent Project #%1").arg(i), this);
         Command *cmd = ActionManager::registerAction(act, projectBase.withSuffix(i), welcomeContext);
         cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+%1").arg(i)));
-        m_recentProjectsShortcuts.append(cmd->keySequence().toString());
+        m_recentProjectsShortcuts.append(cmd->keySequence().toString(QKeySequence::NativeText));
 
         connect(act, &QAction::triggered, this, [this, i] { openRecentProjectTriggered(i-1); });
         connect(cmd, &Command::keySequenceChanged, this, [this, i, cmd] {
-            m_recentProjectsShortcuts[i-1] = cmd->keySequence().toString();
+            m_recentProjectsShortcuts[i-1] = cmd->keySequence().toString(QKeySequence::NativeText);
             emit recentProjectsShortcutsChanged(m_recentProjectsShortcuts);
         });
     }
