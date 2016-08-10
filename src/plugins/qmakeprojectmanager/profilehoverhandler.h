@@ -46,7 +46,7 @@ signals:
     void creatorHelpRequested(const QUrl &url);
 
 private:
-    void identifyMatch(TextEditor::TextEditorWidget *editorWidget, int pos);
+    void identifyMatch(TextEditor::TextEditorWidget *editorWidget, int pos) override;
     void identifyQMakeKeyword(const QString &text, int pos);
 
     enum ManualKind {

@@ -36,8 +36,8 @@ public:
     GlslHoverHandler() {}
 
 private:
-    virtual void identifyMatch(TextEditor::TextEditorWidget *editorWidget, int pos);
-    virtual void decorateToolTip();
+    void identifyMatch(TextEditor::TextEditorWidget *editorWidget, int pos) override;
+    void decorateToolTip() override;
 };
 
 } // namespace Internal

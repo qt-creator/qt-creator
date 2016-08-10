@@ -57,8 +57,8 @@ public:
 private:
     void reset();
 
-    void identifyMatch(TextEditor::TextEditorWidget *editorWidget, int pos);
-    void operateTooltip(TextEditor::TextEditorWidget *editorWidget, const QPoint &point);
+    void identifyMatch(TextEditor::TextEditorWidget *editorWidget, int pos) override;
+    void operateTooltip(TextEditor::TextEditorWidget *editorWidget, const QPoint &point) override;
 
     bool matchDiagnosticMessage(QmlJSEditorWidget *qmlEditor, int pos);
     bool matchColorItem(const QmlJS::ScopeChain &lookupContext,
