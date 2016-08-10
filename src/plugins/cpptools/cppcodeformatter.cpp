@@ -683,11 +683,6 @@ CodeFormatter::State CodeFormatter::state(int belowTop) const
         return State();
 }
 
-const QVector<CodeFormatter::State> &CodeFormatter::newStatesThisLine() const
-{
-    return m_newStates;
-}
-
 int CodeFormatter::tokenIndex() const
 {
     return m_tokenIndex;

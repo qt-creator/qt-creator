@@ -183,21 +183,17 @@ public: // must be public to make Q_GADGET introspection work
 protected:
     class State {
     public:
-        State()
-            : savedIndentDepth(0)
-            , savedPaddingDepth(0)
-            , type(0)
-        {}
+        State() = default;
 
-        State(quint8 ty, quint16 savedIndentDepth, qint16 savedPaddingDepth)
+        State(quint8 ty, quint16 savedIndentDepth, quint16 savedPaddingDepth)
             : savedIndentDepth(savedIndentDepth)
             , savedPaddingDepth(savedPaddingDepth)
             , type(ty)
         {}
 
-        quint16 savedIndentDepth;
-        quint16 savedPaddingDepth;
-        quint8 type;
+        quint16 savedIndentDepth = 0;
+        quint16 savedPaddingDepth = 0;
+        quint8 type = 0;
 
         bool operator==(const State &other) const {
             return type == other.type
@@ -207,7 +203,6 @@ protected:
     };
 
     State state(int belowTop = 0) const;
-    const QVector<State> &newStatesThisLine() const;
     int tokenIndex() const;
     int tokenCount() const;
     const CPlusPlus::Token &currentToken() const;
