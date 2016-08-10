@@ -379,6 +379,15 @@ bool LocatorWidget::eventFilter(QObject *obj, QEvent *event)
             showCompletionList();
             QApplication::sendEvent(m_completionList, event);
             return true;
+        case Qt::Key_Home:
+        case Qt::Key_End:
+            if (Utils::HostOsInfo::isMacHost()
+                    != (keyEvent->modifiers() == Qt::KeyboardModifiers(Qt::ControlModifier))) {
+                showCompletionList();
+                QApplication::sendEvent(m_completionList, event);
+                return true;
+            }
+            break;
         case Qt::Key_Enter:
         case Qt::Key_Return:
             scheduleAcceptCurrentEntry();
