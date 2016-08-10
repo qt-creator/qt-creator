@@ -26,14 +26,13 @@
 #pragma once
 
 #include "timelinemodel.h"
+#include <functional>
 
 namespace Timeline {
 
 class TIMELINE_EXPORT TimelineModel::TimelineModelPrivate {
 public:
     static const int DefaultRowHeight = 30;
-
-    enum IdType { SelectionId, TypeId };
 
     enum BoxColorProperties {
         SelectionIdHueMultiplier = 25,
@@ -122,8 +121,8 @@ public:
         return fromIndex;
     }
 
-    int prevItemById(IdType idType, int id, qint64 time, int currentSelected) const;
-    int nextItemById(IdType idType, int id, qint64 time, int currentSelected) const;
+    int prevItemById(std::function<bool(int)> matchesId, qint64 time, int currentSelected) const;
+    int nextItemById(std::function<bool(int)> matchesId, qint64 time, int currentSelected) const;
 
     QVector<Range> ranges;
     QVector<RangeEnd> endTimes;
@@ -136,12 +135,6 @@ public:
     bool hidden;
     int expandedRowCount;
     int collapsedRowCount;
-
-protected:
-    TimelineModel *q_ptr;
-
-private:
-    Q_DECLARE_PUBLIC(TimelineModel)
 };
 
 } // namespace Timeline
