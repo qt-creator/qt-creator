@@ -173,6 +173,7 @@ Core::GeneratedFiles GenericProjectWizard::generateFiles(const QWizard *w,
             includePaths.append(relative);
         }
     }
+    includePaths.append(QString()); // ensure newline at EOF
 
     Core::GeneratedFile generatedCreatorFile(creatorFileName);
     generatedCreatorFile.setContents(QLatin1String("[General]\n"));
@@ -181,6 +182,8 @@ Core::GeneratedFiles GenericProjectWizard::generateFiles(const QWizard *w,
     QStringList sources = Utils::transform(wizard->selectedFiles(), &Utils::FileName::toString);
     for (int i = 0; i < sources.length(); ++i)
         sources[i] = dir.relativeFilePath(sources[i]);
+    Utils::sort(sources);
+    sources.append(QString()); // ensure newline at EOF
 
     Core::GeneratedFile generatedFilesFile(filesFileName);
     generatedFilesFile.setContents(sources.join(QLatin1Char('\n')));
