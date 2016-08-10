@@ -29,7 +29,8 @@ HEADERS += \
     cpptypehierarchy.h \
     cppuseselectionsupdater.h \
     cppvirtualfunctionassistprovider.h \
-    cppvirtualfunctionproposalitem.h
+    cppvirtualfunctionproposalitem.h \
+    resourcepreviewhoverhandler.h
 
 SOURCES += \
     cppautocompleter.cpp \
@@ -56,7 +57,8 @@ SOURCES += \
     cpptypehierarchy.cpp \
     cppuseselectionsupdater.cpp \
     cppvirtualfunctionassistprovider.cpp \
-    cppvirtualfunctionproposalitem.cpp
+    cppvirtualfunctionproposalitem.cpp \
+    resourcepreviewhoverhandler.cpp
 
 FORMS += \
     cpppreprocessordialog.ui \

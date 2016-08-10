@@ -38,6 +38,7 @@
 #include "cppquickfixes.h"
 #include "cppsnippetprovider.h"
 #include "cpptypehierarchy.h"
+#include "resourcepreviewhoverhandler.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 
@@ -106,6 +107,7 @@ public:
 
         addHoverHandler(new CppHoverHandler);
         addHoverHandler(new ColorPreviewHoverHandler);
+        addHoverHandler(new ResourcePreviewHoverHandler);
     }
 };
 
