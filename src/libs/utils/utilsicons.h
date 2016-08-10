@@ -54,7 +54,7 @@ const Icon OK({
         {QLatin1String(":/utils/images/ok.png"), Utils::Theme::IconsRunToolBarColor}}, Icon::Tint);
 const Icon NOTLOADED({
         {QLatin1String(":/utils/images/notloaded.png"), Utils::Theme::IconsErrorColor}}, Icon::Tint);
-const Utils::Icon BROKEN({
+const Icon BROKEN({
         {QLatin1String(":/utils/images/broken.png"), Utils::Theme::IconsErrorColor}}, Icon::Tint);
 const Icon ERROR({
         {QLatin1String(":/utils/images/warningfill.png"), Theme::BackgroundColorNormal},
