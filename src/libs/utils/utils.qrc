@@ -83,9 +83,6 @@
         <file>images/unknownfile.png</file>
         <file>images/extension.png</file>
         <file>images/extension@2x.png</file>
-        <file>images/category_core.png</file>
-        <file>images/category_texteditor.png</file>
-        <file>images/category_design.png</file>
         <file>images/progressbar.png</file>
         <file>images/progressbar@2x.png</file>
         <file>images/help.png</file>
@@ -95,7 +92,6 @@
         <file>images/arrowdown@2x.png</file>
         <file>images/arrowup.png</file>
         <file>images/arrowup@2x.png</file>
-        <file>images/category_locator.png</file>
         <file>images/filtericon.png</file>
         <file>images/filtericon@2x.png</file>
         <file>images/splitbutton_closebottom.png</file>
