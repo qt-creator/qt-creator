@@ -34,6 +34,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <utils/icon.h>
+#include <utils/utilsicons.h>
 
 #include <QAction>
 #include <QShortcut>
@@ -206,9 +207,7 @@ void ActionHandler::createActions()
     d->synchronizeBrowserAction = registerCommand(
                 Constants::ACTION_SYNC_BROWSER, nullptr, Core::Context(), true,
                 tr("Synchronize Browser and Diagram<br><i><small>Press&Hold for options</small></i>"))->action();
-    static const Utils::Icon
-            LINK_ICON({{ QStringLiteral(":/core/images/linkicon.png"), Utils::Theme::IconsBaseColor }});
-    d->synchronizeBrowserAction->setIcon(LINK_ICON.icon());
+    d->synchronizeBrowserAction->setIcon(Utils::Icons::LINK.icon());
     d->synchronizeBrowserAction->setCheckable(true);
 
     auto editPropertiesAction = new QAction(tr("Edit Element Properties"), Core::ICore::mainWindow());
