@@ -63,7 +63,6 @@ public:
     };
 
     TimelineModelPrivate(int modelId);
-    void init(TimelineModel *q);
 
     int firstIndexNoParents(qint64 startTime) const;
 

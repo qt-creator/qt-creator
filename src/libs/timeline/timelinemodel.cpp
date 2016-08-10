@@ -157,11 +157,6 @@ TimelineModel::TimelineModelPrivate::TimelineModelPrivate(int modelId) :
 {
 }
 
-TimelineModel::TimelineModel(TimelineModelPrivate &dd, QObject *parent) :
-    QObject(parent), d_ptr(&dd)
-{
-}
-
 TimelineModel::TimelineModel(int modelId, QObject *parent) :
     QObject(parent), d_ptr(new TimelineModelPrivate(modelId))
 {

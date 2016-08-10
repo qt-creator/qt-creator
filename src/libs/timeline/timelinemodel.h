@@ -138,10 +138,8 @@ protected:
 
     virtual void clear();
 
-    explicit TimelineModel(TimelineModelPrivate &dd, QObject *parent);
-    TimelineModelPrivate *d_ptr;
-
 private:
+    TimelineModelPrivate *d_ptr;
     Q_DECLARE_PRIVATE(TimelineModel)
 };
 
