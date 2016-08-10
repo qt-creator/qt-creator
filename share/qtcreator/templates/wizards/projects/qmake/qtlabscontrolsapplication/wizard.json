@@ -17,7 +17,9 @@
         { "key": "QtQuickVersion", "value": "2.6" },
         { "key": "QtLabsControlsVersion", "value": "1.0" },
         { "key": "QtQuickDialogsVersion", "value": "1.0" },
-        { "key": "QtQuickLayoutsVersion", "value": "1.0" }
+        { "key": "QtQuickLayoutsVersion", "value": "1.0" },
+        { "key": "QtQuickVirtualKeyboardVersion", "value": "2.0" },
+        { "key": "UseVirtualKeyboard", "value": "%{JS: [ %{Plugins} ].indexOf('Boot2Qt') >= 0}" }
     ],
 
     "pages":
