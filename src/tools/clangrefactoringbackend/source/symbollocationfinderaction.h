@@ -42,7 +42,7 @@
 
 namespace clang {
 class ASTConsumer;
-};
+}
 
 namespace ClangBackEnd {
 
