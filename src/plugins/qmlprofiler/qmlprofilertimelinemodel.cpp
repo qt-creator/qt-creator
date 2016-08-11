@@ -70,11 +70,6 @@ bool QmlProfilerTimelineModel::handlesTypeId(int typeIndex) const
     return accepted(modelManager()->qmlModel()->eventTypes().at(typeIndex));
 }
 
-void QmlProfilerTimelineModel::clear()
-{
-    TimelineModel::clear();
-}
-
 QmlProfilerModelManager *QmlProfilerTimelineModel::modelManager() const
 {
     return m_modelManager;

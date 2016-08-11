@@ -55,7 +55,6 @@ public:
 
     virtual void loadEvent(const QmlEvent &event, const QmlEventType &type) = 0;
     virtual void finalize() = 0;
-    void clear();
 
 private slots:
     void dataChanged();
