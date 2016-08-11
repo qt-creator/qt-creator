@@ -99,4 +99,4 @@ isEmpty(LLVM_VERSION): error("Cannot determine clang version at $$LLVM_INSTALL_D
     error("LLVM/Clang version >= 3.8.0 required, version provided: $$LLVM_VERSION")
 }
 
-unix:LLVM_CXXFLAGS = -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS
+unix:LLVM_CXXFLAGS = -fno-rtti -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS
