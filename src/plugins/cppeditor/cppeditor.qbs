@@ -50,7 +50,7 @@ QtcPlugin {
         "cppuseselectionsupdater.cpp", "cppuseselectionsupdater.h",
         "cppvirtualfunctionassistprovider.cpp", "cppvirtualfunctionassistprovider.h",
         "cppvirtualfunctionproposalitem.cpp", "cppvirtualfunctionproposalitem.h",
-        "resoucepreviewhoverhandler.cpp", "resoucepreviewhoverhandler.h",
+        "resourcepreviewhoverhandler.cpp", "resourcepreviewhoverhandler.h",
     ]
 
     Group {
