@@ -150,7 +150,7 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
 {
     Core::Context context(Constants::C_COMPILE_OUTPUT);
     m_outputWindow = new CompileOutputTextEdit(context);
-    m_outputWindow->setWindowTitle(tr("Compile Output"));
+    m_outputWindow->setWindowTitle(displayName());
     m_outputWindow->setWindowIcon(Icons::WINDOW.icon());
     m_outputWindow->setReadOnly(true);
     m_outputWindow->setUndoRedoEnabled(false);
