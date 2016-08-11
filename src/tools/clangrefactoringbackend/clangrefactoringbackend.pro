@@ -11,6 +11,8 @@ QT -= gui
 LIBS += $$LIBTOOLING_LIBS
 INCLUDEPATH += $$LLVM_INCLUDEPATH
 
+QMAKE_CXXFLAGS += $$LLVM_CXXFLAGS
+
 SOURCES += \
     clangrefactoringbackendmain.cpp
 
