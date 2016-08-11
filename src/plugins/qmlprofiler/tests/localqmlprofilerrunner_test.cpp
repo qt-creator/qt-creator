@@ -41,6 +41,7 @@ void LocalQmlProfilerRunnerTest::testRunner()
 {
     Debugger::AnalyzerConnection connection;
     LocalQmlProfilerRunner::Configuration configuration;
+    configuration.debuggee.executable = "\\-/|\\-/";
     configuration.debuggee.environment = Utils::Environment::systemEnvironment();
 
     // should not be used anywhere but cannot be empty
