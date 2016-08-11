@@ -26,7 +26,7 @@
 source("../shared/qmls.py")
 
 def main():
-    editorArea = startQtCreatorWithNewAppAtQMLEditor(tempDir(), "SampleApp", "Text {")
+    editorArea = startQtCreatorWithNewAppAtQMLEditor(tempDir(), "SampleApp", "TextEdit {")
     if not editorArea:
         return
     homeKey = "<Home>"
