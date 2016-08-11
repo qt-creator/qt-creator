@@ -229,6 +229,8 @@ Project {
             "unixutils.h",
             "utils.qrc",
             "utils_global.h",
+            "utilsicons.h",
+            "utilsicons.cpp",
             "winutils.cpp",
             "winutils.h",
             "wizard.cpp",
