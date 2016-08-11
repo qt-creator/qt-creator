@@ -78,11 +78,9 @@ public:
             icon = Utils::Icon({{QLatin1String(":/timeline/ico_edit.png"),
                                  Utils::Theme::IconsBaseColor}});
         else if (iconName == QLatin1String("lock_open"))
-            icon = Utils::Icon({{QLatin1String(":/timeline/lock_open.png"),
-                                 Utils::Theme::IconsBaseColor}});
+            icon = Utils::Icons::UNLOCKED_TOOLBAR;
         else if (iconName == QLatin1String("lock_closed"))
-            icon = Utils::Icon({{QLatin1String(":/timeline/lock_closed.png"),
-                                 Utils::Theme::IconsBaseColor}});
+            icon = Utils::Icons::LOCKED_TOOLBAR;
         else if (iconName == QLatin1String("range_handle"))
             icon = Utils::Icon({{QLatin1String(":/timeline/range_handle.png"),
                                  Utils::Theme::IconsBaseColor}});
