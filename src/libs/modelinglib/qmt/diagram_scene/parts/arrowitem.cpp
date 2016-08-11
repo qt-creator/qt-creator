@@ -346,14 +346,14 @@ QPointF ArrowItem::calcPointAtPercent(double percentage) const
 
 QLineF ArrowItem::firstLineSegment() const
 {
-    QMT_CHECK(m_points.size() >= 2);
-    return QLineF(m_points[0], m_points[1]);
+    QTC_ASSERT(m_points.size() > 1, return QLineF());
+    return QLineF(m_points.at(0), m_points.at(1));
 }
 
 QLineF ArrowItem::lastLineSegment() const
 {
-    QMT_CHECK(m_points.size() >= 2);
-    return QLineF(m_points[m_points.size() - 1], m_points[m_points.size() - 2]);
+    QTC_ASSERT(m_points.size() > 1, return QLineF());
+    return QLineF(m_points.at(m_points.size() - 1), m_points.at(m_points.size() - 2));
 }
 
 double ArrowItem::startHeadLength() const
@@ -380,7 +380,7 @@ void ArrowItem::update(const Style *style)
 
 void ArrowItem::updateShaft(const Style *style)
 {
-    QMT_CHECK(m_shaftItem);
+    QTC_ASSERT(m_shaftItem, return);
 
     QPen pen(style->linePen());
     if (m_shaft == ShaftDashed)
@@ -424,38 +424,38 @@ void ArrowItem::updateHeadGeometry(GraphicsHeadItem **headItem, const QPointF &p
 
 void ArrowItem::updateGeometry()
 {
-    QMT_CHECK(m_points.size() >= 2);
-    QMT_CHECK(m_shaftItem);
+    QTC_ASSERT(m_points.size() > 1, return);
+    QTC_ASSERT(m_shaftItem, return);
 
     prepareGeometryChange();
 
     QPainterPath path;
 
     if (m_startHeadItem) {
-        QVector2D startDirectionVector(m_points[1] - m_points[0]);
+        QVector2D startDirectionVector(m_points.at(1) - m_points.at(0));
         startDirectionVector.normalize();
         startDirectionVector *= m_startHeadItem->calcHeadLength();
-        path.moveTo(m_points[0] + startDirectionVector.toPointF());
+        path.moveTo(m_points.at(0) + startDirectionVector.toPointF());
     } else {
-        path.moveTo(m_points[0]);
+        path.moveTo(m_points.at(0));
     }
 
     for (int i = 1; i < m_points.size() - 1; ++i)
         path.lineTo(m_points.at(i));
 
     if (m_endHeadItem) {
-        QVector2D endDirectionVector(m_points[m_points.size() - 1] - m_points[m_points.size() - 2]);
+        QVector2D endDirectionVector(m_points.at(m_points.size() - 1) - m_points.at(m_points.size() - 2));
         endDirectionVector.normalize();
         endDirectionVector *= m_endHeadItem->calcHeadLength();
-        path.lineTo(m_points[m_points.size() - 1] - endDirectionVector.toPointF());
+        path.lineTo(m_points.at(m_points.size() - 1) - endDirectionVector.toPointF());
     } else {
-        path.lineTo(m_points[m_points.size() - 1]);
+        path.lineTo(m_points.at(m_points.size() - 1));
     }
 
     m_shaftItem->setPath(path);
 
-    updateHeadGeometry(&m_startHeadItem, m_points[0], m_points[1]);
-    updateHeadGeometry(&m_endHeadItem, m_points[m_points.size() - 1], m_points[m_points.size() - 2]);
+    updateHeadGeometry(&m_startHeadItem, m_points.at(0), m_points.at(1));
+    updateHeadGeometry(&m_endHeadItem, m_points.at(m_points.size() - 1), m_points.at(m_points.size() - 2));
 }
 
 } // namespace qmt
