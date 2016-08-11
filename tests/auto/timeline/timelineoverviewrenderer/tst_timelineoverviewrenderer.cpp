@@ -42,7 +42,7 @@ public:
         setExpandedRowCount(3);
         for (int i = 0; i < 10; ++i)
             insert(i, i, i);
-        emit emptyChanged();
+        emit contentChanged();
     }
 };
 

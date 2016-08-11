@@ -92,19 +92,17 @@ void QmlProfilerTimelineModel::announceFeatures(quint64 features)
 
 void QmlProfilerTimelineModel::dataChanged()
 {
-
     switch (m_modelManager->state()) {
     case QmlProfilerModelManager::Done:
-        emit emptyChanged();
+        emit contentChanged();
         break;
     case QmlProfilerModelManager::ClearingData:
         clear();
         break;
     default:
+        emit contentChanged();
         break;
     }
-
-    emit labelsChanged();
 }
 
 void QmlProfilerTimelineModel::onVisibleFeaturesChanged(quint64 features)

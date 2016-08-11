@@ -106,7 +106,7 @@ void TimelineAbstractRenderer::setModel(TimelineModel *model)
         disconnect(d->model, &TimelineModel::hiddenChanged, this, &QQuickItem::update);
         disconnect(d->model, &TimelineModel::expandedRowHeightChanged,
                    this, &TimelineAbstractRenderer::setRowHeightsDirty);
-        disconnect(d->model, &TimelineModel::emptyChanged,
+        disconnect(d->model, &TimelineModel::contentChanged,
                    this, &TimelineAbstractRenderer::setModelDirty);
     }
 
@@ -116,7 +116,7 @@ void TimelineAbstractRenderer::setModel(TimelineModel *model)
         connect(d->model, &TimelineModel::hiddenChanged, this, &QQuickItem::update);
         connect(d->model, &TimelineModel::expandedRowHeightChanged,
                 this, &TimelineAbstractRenderer::setRowHeightsDirty);
-        connect(d->model, &TimelineModel::emptyChanged,
+        connect(d->model, &TimelineModel::contentChanged,
                 this, &TimelineAbstractRenderer::setModelDirty);
         d->renderPasses = d->model->supportedRenderPasses();
     }

@@ -576,7 +576,7 @@ void TimelineModel::clear()
     if (hadRowHeights)
         emit expandedRowHeightChanged(-1, -1);
     if (!wasEmpty) {
-        emit emptyChanged();
+        emit contentChanged();
         emit heightChanged();
     }
 }

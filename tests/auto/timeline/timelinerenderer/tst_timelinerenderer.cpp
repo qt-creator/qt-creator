@@ -45,7 +45,7 @@ public:
         for (int i = 0; i < 10; ++i)
             insert(i, 10 - i, i);
         computeNesting();
-        emit emptyChanged();
+        emit contentChanged();
     }
 };
 
