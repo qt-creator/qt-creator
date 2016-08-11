@@ -875,7 +875,8 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
 
     // Separator lines
     painter->setPen(QColor::fromRgb(150,150,150));
-    painter->drawLine(0, opt.rect.bottom(), opt.rect.right(), opt.rect.bottom());
+    const QRectF borderRect = QRectF(opt.rect).adjusted(0.5, 0.5, -0.5, -0.5);
+    painter->drawLine(borderRect.bottomLeft(), borderRect.bottomRight());
     painter->restore();
 }
 
