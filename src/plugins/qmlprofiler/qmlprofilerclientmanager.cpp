@@ -104,13 +104,6 @@ void QmlProfilerClientManager::clearBufferedData()
 
 void QmlProfilerClientManager::connectToTcpServer()
 {
-    if (m_connection.isNull()) {
-        QTC_ASSERT(m_qmlclientplugin.isNull(), disconnectClient());
-        createConnection();
-        QTC_ASSERT(m_connection, emit connectionFailed(); return);
-        m_connection->connectToHost(m_tcpHost, m_tcpPort.number());
-    }
-
     // Calling this again when we're already trying means "reset the retry timer". This is
     // useful in cases where we have to parse the port from the output. We might waste retries
     // on an initial guess for the port.
@@ -144,18 +137,17 @@ void QmlProfilerClientManager::connectToTcpServer()
         }
     });
     m_connectionTimer.start(m_retryInterval);
+
+    if (m_connection.isNull()) {
+        QTC_ASSERT(m_qmlclientplugin.isNull(), disconnectClient());
+        createConnection();
+        QTC_ASSERT(m_connection, emit connectionFailed(); return);
+        m_connection->connectToHost(m_tcpHost, m_tcpPort.number());
+    }
 }
 
 void QmlProfilerClientManager::startLocalServer()
 {
-    if (m_connection.isNull()) {
-        // Otherwise, reuse the same one
-        QTC_ASSERT(m_qmlclientplugin.isNull(), disconnectClient());
-        createConnection();
-        QTC_ASSERT(m_connection, emit connectionFailed(); return);
-        m_connection->startLocalServer(m_localSocket);
-    }
-
     stopConnectionTimer();
     connect(&m_connectionTimer, &QTimer::timeout, this, [this]() {
         QTC_ASSERT(!isConnected(), return);
@@ -171,6 +163,14 @@ void QmlProfilerClientManager::startLocalServer()
         }
     });
     m_connectionTimer.start(m_retryInterval);
+
+    if (m_connection.isNull()) {
+        // Otherwise, reuse the same one
+        QTC_ASSERT(m_qmlclientplugin.isNull(), disconnectClient());
+        createConnection();
+        QTC_ASSERT(m_connection, emit connectionFailed(); return);
+        m_connection->startLocalServer(m_localSocket);
+    }
 }
 
 void QmlProfilerClientManager::stopRecording()
