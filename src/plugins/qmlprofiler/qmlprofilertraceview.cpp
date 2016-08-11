@@ -53,6 +53,7 @@
 #include <debugger/analyzer/analyzermanager.h>
 #include <coreplugin/findplaceholder.h>
 #include <utils/styledbar.h>
+#include <utils/algorithm.h>
 
 #include <QQmlContext>
 #include <QToolButton>
@@ -80,6 +81,7 @@ public:
     QmlProfilerViewManager *m_viewContainer;
     QQuickWidget *m_mainView;
     QmlProfilerModelManager *m_modelManager;
+    QVariantList m_suspendedModels;
     Timeline::TimelineModelAggregator *m_modelProxy;
     Timeline::TimelineZoomControl *m_zoomControl;
 };
@@ -92,13 +94,28 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerViewManag
 
     d->m_zoomControl = new Timeline::TimelineZoomControl(this);
     connect(modelManager, &QmlProfilerModelManager::stateChanged, this, [modelManager, this]() {
-        if (modelManager->state() == QmlProfilerModelManager::Done) {
+        switch (modelManager->state()) {
+        case QmlProfilerModelManager::Done: {
             qint64 start = modelManager->traceTime()->startTime();
             qint64 end = modelManager->traceTime()->endTime();
             d->m_zoomControl->setTrace(start, end);
             d->m_zoomControl->setRange(start, start + (end - start) / 10);
-        } else if (modelManager->state() == QmlProfilerModelManager::ClearingData) {
+            // Fall through
+        }
+        case QmlProfilerModelManager::Empty:
+            d->m_modelProxy->setModels(d->m_suspendedModels);
+            d->m_suspendedModels.clear();
+            break;
+        case QmlProfilerModelManager::ProcessingData:
+            break;
+        case QmlProfilerModelManager::ClearingData:
             d->m_zoomControl->clear();
+            // Fall through
+        case QmlProfilerModelManager::AcquiringData:
+            // Temporarily remove the models, while we're changing them
+            d->m_suspendedModels = d->m_modelProxy->models();
+            d->m_modelProxy->setModels(QVariantList());
+            break;
         }
     });
 
