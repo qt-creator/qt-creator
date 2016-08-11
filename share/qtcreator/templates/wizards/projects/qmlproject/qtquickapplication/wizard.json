@@ -17,7 +17,8 @@
         { "key": "QtQuickVersion", "value": "%{JS: %{QtVersion}.qtQuickVersion}" },
         { "key": "QtQuickWindowVersion", "value": "%{JS: %{QtVersion}.qtQuickWindowVersion}" },
         { "key": "UiSupport", "value": "%{JS: '%{QtQuickVersion}' !== '2.3' }" },
-        { "key": "IsUiFileInUse", "value": "%{JS: %{UiSupport} && %{QmlUiSplit} }" }
+        { "key": "IsUiFileInUse", "value": "%{JS: %{UiSupport} && %{QmlUiSplit} }" },
+        { "key": "UseVirtualKeyboard", "value": "false" }
     ],
 
     "pages":
