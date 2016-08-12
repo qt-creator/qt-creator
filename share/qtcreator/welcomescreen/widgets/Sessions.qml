@@ -71,9 +71,11 @@ Rectangle {
 
     Connections {
         target: welcomeMode
+        // this is coming from session shortcuts
         onOpenSessionTriggered: {
             if (index < content.count) {
                 content.currentIndex = index;
+                // calling a javascript method on the SessionItem which knows its own current sessionName
                 content.currentItem.requestSession();
             }
         }
