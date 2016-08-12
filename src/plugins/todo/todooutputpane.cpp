@@ -279,7 +279,7 @@ void TodoOutputPane::createScopeButtons()
 
     QString tooltip = tr("Show \"%1\" entries");
     for (const Keyword &keyword: m_settings->keywords) {
-        QToolButton *button = createCheckableToolButton(keyword.name, tooltip.arg(keyword.name), icon(keyword.iconType));
+        QToolButton *button = createCheckableToolButton(keyword.name, tooltip.arg(keyword.name), toolBarIcon(keyword.iconType));
         button->setProperty(Constants::FILTER_KEYWORD_NAME, keyword.name);
         button->setToolButtonStyle(Qt::ToolButtonIconOnly);
         connect(button, &QToolButton::clicked, this, &TodoOutputPane::updateFilter);

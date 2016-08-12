@@ -40,6 +40,7 @@ enum class IconType {
 };
 
 QIcon icon(IconType type);
+QIcon toolBarIcon(IconType type);
 
 } // namespace Internal
 } // namespace Todo
