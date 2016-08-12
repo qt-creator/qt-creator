@@ -34,7 +34,7 @@ Item {
     property alias tooltip: titleAreaTooltip.text
 
     function requestSession() {
-        projectWelcomePage.requestSession(sessionName);
+        root.model.switchToSession(sessionName);
     }
 
     Column {

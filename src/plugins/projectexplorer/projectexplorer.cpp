@@ -238,7 +238,6 @@ public:
 
     void determineSessionToRestoreAtStartup();
     void restoreSession();
-    void loadSession(const QString &session);
     void runProjectContextMenu();
     void savePersistentSettings();
 
@@ -1866,8 +1865,6 @@ void ProjectExplorerPluginPrivate::restoreSession()
     // update welcome page
     connect(ModeManager::instance(), &ModeManager::currentModeChanged,
             dd, &ProjectExplorerPluginPrivate::currentModeChanged);
-    connect(dd->m_welcomePage, &ProjectWelcomePage::requestSession,
-            dd, &ProjectExplorerPluginPrivate::loadSession);
     connect(dd->m_welcomePage, &ProjectWelcomePage::requestProject,
             m_instance, &ProjectExplorerPlugin::openProjectWelcomePage);
     dd->m_arguments = arguments;
@@ -1877,11 +1874,6 @@ void ProjectExplorerPluginPrivate::restoreSession()
         m_instance->finishedInitialization();
     });
     updateActions();
-}
-
-void ProjectExplorerPluginPrivate::loadSession(const QString &session)
-{
-    SessionManager::loadSession(session);
 }
 
 void ProjectExplorerPluginPrivate::buildStateChanged(Project * pro)

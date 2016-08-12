@@ -75,7 +75,6 @@ public slots:
 
 signals:
     void requestProject(const QString &project);
-    void requestSession(const QString &session);
     void manageSessions();
 
 private:
