@@ -37,6 +37,7 @@ ToolButton {
         width: 16
         height: 16
         anchors.centerIn: parent
+        smooth: false
     }
 
     style: ButtonStyle {
