@@ -136,6 +136,7 @@ Project {
                 "runsettingspropertiespage.cpp", "runsettingspropertiespage.h",
                 "selectablefilesmodel.cpp", "selectablefilesmodel.h",
                 "session.cpp", "session.h",
+                "sessionmodel.cpp", "sessionmodel.h",
                 "sessiondialog.cpp", "sessiondialog.h", "sessiondialog.ui",
                 "settingsaccessor.cpp", "settingsaccessor.h",
                 "showineditortaskhandler.cpp", "showineditortaskhandler.h",

@@ -24,144 +24,21 @@
 ****************************************************************************/
 
 #include "projectwelcomepage.h"
-
-#include <QQmlContext>
-#include <QQmlEngine>
-#include <QFileInfo>
-#include <QDir>
+#include "sessionmodel.h"
+#include "projectexplorer.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/iwizardfactory.h>
-#include <projectexplorer/session.h>
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/sessiondialog.h>
 
 #include <utils/fileutils.h>
 #include <utils/stringutils.h>
 #include <utils/algorithm.h>
 
+#include <QQmlContext>
+#include <QQmlEngine>
+
 namespace ProjectExplorer {
 namespace Internal {
-
-SessionModel::SessionModel(QObject *parent)
-    : QAbstractListModel(parent)
-{
-    connect(SessionManager::instance(), &SessionManager::sessionLoaded,
-            this, &SessionModel::resetSessions);
-}
-
-int SessionModel::rowCount(const QModelIndex &) const
-{
-    return SessionManager::sessions().count();
-}
-
-QStringList pathsToBaseNames(const QStringList &paths)
-{
-    return Utils::transform(paths, [](const QString &path) {
-        return QFileInfo(path).completeBaseName();
-    });
-}
-
-
-
-QStringList pathsWithTildeHomePath(const QStringList &paths)
-{
-    return Utils::transform(paths, [](const QString &path) {
-        return Utils::withTildeHomePath(QDir::toNativeSeparators(path));
-    });
-}
-
-QVariant SessionModel::data(const QModelIndex &index, int role) const
-{
-    if (role == Qt::DisplayRole || role == DefaultSessionRole ||
-            role == LastSessionRole || role == ActiveSessionRole || role == ProjectsPathRole  || role == ProjectsDisplayRole) {
-        QString sessionName = SessionManager::sessions().at(index.row());
-        if (role == Qt::DisplayRole)
-            return sessionName;
-        else if (role == DefaultSessionRole)
-            return SessionManager::isDefaultSession(sessionName);
-        else if (role == LastSessionRole)
-            return SessionManager::lastSession() == sessionName;
-        else if (role == ActiveSessionRole)
-            return SessionManager::activeSession() == sessionName;
-        else if (role == ProjectsPathRole)
-            return pathsWithTildeHomePath(SessionManager::projectsForSessionName(sessionName));
-        else if (role == ProjectsDisplayRole)
-            return pathsToBaseNames(SessionManager::projectsForSessionName(sessionName));
-    }
-    return QVariant();
-}
-
-QHash<int, QByteArray> SessionModel::roleNames() const
-{
-    static QHash<int, QByteArray> extraRoles{
-        {Qt::DisplayRole, "sessionName"},
-        {DefaultSessionRole, "defaultSession"},
-        {ActiveSessionRole, "activeSession"},
-        {LastSessionRole, "lastSession"},
-        {ProjectsPathRole, "projectsPath"},
-        {ProjectsDisplayRole, "projectsName"}
-    };
-    return QAbstractListModel::roleNames().unite(extraRoles);
-}
-
-bool SessionModel::isDefaultVirgin() const
-{
-    return SessionManager::isDefaultVirgin();
-}
-
-void SessionModel::resetSessions()
-{
-    beginResetModel();
-    endResetModel();
-}
-
-void SessionModel::cloneSession(const QString &session)
-{
-    SessionNameInputDialog newSessionInputDialog(SessionManager::sessions(), nullptr);
-    newSessionInputDialog.setWindowTitle(tr("New session name"));
-    newSessionInputDialog.setValue(session + QLatin1String(" (2)"));
-
-    if (newSessionInputDialog.exec() == QDialog::Accepted) {
-        QString newSession = newSessionInputDialog.value();
-        if (newSession.isEmpty() || SessionManager::sessions().contains(newSession))
-            return;
-        beginResetModel();
-        SessionManager::cloneSession(session, newSession);
-        endResetModel();
-
-        if (newSessionInputDialog.isSwitchToRequested())
-            SessionManager::loadSession(newSession);
-    }
-}
-
-void SessionModel::deleteSession(const QString &session)
-{
-    if (!SessionManager::confirmSessionDelete(session))
-        return;
-    beginResetModel();
-    SessionManager::deleteSession(session);
-    endResetModel();
-}
-
-void SessionModel::renameSession(const QString &session)
-{
-    SessionNameInputDialog newSessionInputDialog(SessionManager::sessions(), nullptr);
-    newSessionInputDialog.setWindowTitle(tr("New session name"));
-    newSessionInputDialog.setValue(session);
-
-    if (newSessionInputDialog.exec() == QDialog::Accepted) {
-        QString newSession = newSessionInputDialog.value();
-        if (newSession.isEmpty() || SessionManager::sessions().contains(newSession))
-            return;
-        beginResetModel();
-        SessionManager::renameSession(session, newSession);
-        endResetModel();
-
-        if (newSessionInputDialog.isSwitchToRequested())
-            SessionManager::loadSession(newSession);
-    }
-}
 
 ProjectModel::ProjectModel(QObject *parent)
     : QAbstractListModel(parent)

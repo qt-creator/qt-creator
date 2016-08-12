@@ -27,60 +27,29 @@
 
 #include <QAbstractListModel>
 
-#include <coreplugin/iwelcomepage.h>
-
-QT_BEGIN_NAMESPACE
-class QQmlEngine;
-QT_END_NAMESPACE
-
 namespace ProjectExplorer {
 namespace Internal {
 
-class SessionModel;
-
-class ProjectModel : public QAbstractListModel
+class SessionModel : public QAbstractListModel
 {
     Q_OBJECT
 
 public:
-    enum { FilePathRole = Qt::UserRole+1, PrettyFilePathRole };
+    enum { DefaultSessionRole = Qt::UserRole+1, LastSessionRole, ActiveSessionRole, ProjectsPathRole, ProjectsDisplayRole };
 
-    ProjectModel(QObject *parent = nullptr);
+    explicit SessionModel(QObject *parent = nullptr);
+
     int rowCount(const QModelIndex &parent) const override;
     QVariant data(const QModelIndex &index, int role) const override;
     QHash<int, QByteArray> roleNames() const override;
 
-public slots:
-    void resetProjects();
-};
-
-class ProjectWelcomePage : public Core::IWelcomePage
-{
-    Q_OBJECT
-public:
-    ProjectWelcomePage() = default;
-
-    void facilitateQml(QQmlEngine *engine) override;
-    QUrl pageLocation() const override;
-    QWidget *page() { return nullptr; }
-    QString title() const override { return tr("Projects"); }
-    int priority() const override { return 20; }
-    Core::Id id() const override;
-
-    void reloadWelcomeScreenData();
+    Q_SCRIPTABLE bool isDefaultVirgin() const;
 
 public slots:
-    void newProject();
-    void openProject();
-
-signals:
-    void requestProject(const QString &project);
-    void requestSession(const QString &session);
-    void manageSessions();
-
-private:
-    SessionModel *m_sessionModel = nullptr;
-    ProjectModel *m_projectModel = nullptr;
+    void resetSessions();
+    void cloneSession(const QString &session);
+    void deleteSession(const QString &session);
+    void renameSession(const QString &session);
 };
 
 } // namespace Internal

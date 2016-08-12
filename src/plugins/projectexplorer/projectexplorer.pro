@@ -144,6 +144,7 @@ HEADERS += projectexplorer.h \
     propertiespanel.h \
     panelswidget.h \
     projectwelcomepage.h \
+    sessionmodel.h \
     projectpanelfactory.h \
     projecttree.h \
     expanddata.h \
@@ -283,6 +284,7 @@ SOURCES += projectexplorer.cpp \
     propertiespanel.cpp \
     panelswidget.cpp \
     projectwelcomepage.cpp \
+    sessionmodel.cpp \
     projectpanelfactory.cpp \
     projecttree.cpp \
     expanddata.cpp \
