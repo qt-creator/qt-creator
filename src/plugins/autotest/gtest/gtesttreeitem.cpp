@@ -135,7 +135,10 @@ TestConfiguration *GTestTreeItem::testConfiguration() const
 
 TestConfiguration *GTestTreeItem::debugConfiguration() const
 {
-    return testConfiguration();
+    GTestConfiguration *config = static_cast<GTestConfiguration *>(testConfiguration());
+    if (config)
+        config->setRunMode(DebuggableTestConfiguration::Debug);
+    return config;
 }
 
 // used as key inside getAllTestCases()/getSelectedTestCases() for Google Tests

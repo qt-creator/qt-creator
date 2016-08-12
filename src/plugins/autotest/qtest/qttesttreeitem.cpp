@@ -136,6 +136,8 @@ TestConfiguration *QtTestTreeItem::testConfiguration() const
 TestConfiguration *QtTestTreeItem::debugConfiguration() const
 {
     QtTestConfiguration *config = static_cast<QtTestConfiguration *>(testConfiguration());
+    if (config)
+        config->setRunMode(DebuggableTestConfiguration::Debug);
     return config;
 }
 

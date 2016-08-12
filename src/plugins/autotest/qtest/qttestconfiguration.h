@@ -30,7 +30,7 @@
 namespace Autotest {
 namespace Internal {
 
-class QtTestConfiguration : public TestConfiguration
+class QtTestConfiguration : public DebuggableTestConfiguration
 {
 public:
     explicit QtTestConfiguration() {}

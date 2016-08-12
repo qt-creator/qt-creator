@@ -103,5 +103,25 @@ private:
     TestRunConfiguration *m_runConfig = 0;
 };
 
+class DebuggableTestConfiguration : public TestConfiguration
+{
+public:
+    enum RunMode
+    {
+        Run,
+        Debug
+    };
+
+    explicit DebuggableTestConfiguration(RunMode runMode = Run) : m_runMode(runMode) {}
+    ~DebuggableTestConfiguration() {}
+
+    void setRunMode(RunMode mode) { m_runMode = mode; }
+    RunMode runMode() const { return m_runMode; }
+
+
+private:
+    RunMode m_runMode;
+};
+
 } // namespace Internal
 } // namespace Autotest

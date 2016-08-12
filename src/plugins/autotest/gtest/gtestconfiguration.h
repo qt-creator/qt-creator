@@ -30,7 +30,7 @@
 namespace Autotest {
 namespace Internal {
 
-class GTestConfiguration : public TestConfiguration
+class GTestConfiguration : public DebuggableTestConfiguration
 {
 public:
     explicit GTestConfiguration() {}
