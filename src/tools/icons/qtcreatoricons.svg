@@ -3303,6 +3303,27 @@
          y="0"
          x="0" />
     </g>
+    <g
+       id="src/libs/timeline/qml/ico_edit">
+      <rect
+         style="fill:#ffffff"
+         x="1144"
+         y="568"
+         width="16"
+         height="16"
+         id="rect6782-96-0-04-0-3" />
+      <path
+         sodipodi:nodetypes="ccccccccccc"
+         id="polygon5391-6-3"
+         d="m 1155.85,572.65 -1.5,-1.5 -6.1,6.1 -1.25,2.75 2.75,-1.25 z m -1.1,-1.9 1.75,-1.75 1.5,1.5 -1.75,1.75 z"
+         inkscape:connector-curvature="0" />
+      <path
+         style="fill:none;stroke:#000000"
+         d="m 1147,580 c -1.5,2 0.5,2.57785 1.1876,2.55639 C 1150,582.5 1151,580.5 1153,580.5 c 1.7793,0 1.5,2 3.4984,2 0.5016,0 1.5016,-0.5 2.6735,-1.26563"
+         id="path5127"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="csssc" />
+    </g>
   </g>
   <g
      inkscape:groupmode="layer"
