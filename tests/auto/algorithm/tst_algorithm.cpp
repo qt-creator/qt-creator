@@ -101,13 +101,13 @@ void tst_Algorithm::transform()
         // QSet to QList
         const QSet<QString> strings({QString("1"), QString("3"), QString("132")});
         QList<int> i1 = Utils::transform<QList>(strings, [](const QString &s) { return s.toInt(); });
-        qSort(i1);
+        Utils::sort(i1);
         QCOMPARE(i1, QList<int>({1, 3, 132}));
         QList<int> i2 = Utils::transform<QList>(strings, stringToInt);
-        qSort(i2);
+        Utils::sort(i2);
         QCOMPARE(i2, QList<int>({1, 3, 132}));
         QList<int> i3 = Utils::transform<QList>(strings, &QString::size);
-        qSort(i3);
+        Utils::sort(i3);
         QCOMPARE(i3, QList<int>({1, 1, 3}));
     }
 }

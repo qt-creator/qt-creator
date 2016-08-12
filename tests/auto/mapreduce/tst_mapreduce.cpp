@@ -204,7 +204,7 @@ void tst_MapReduce::map()
                     ).waitForFinished();
         // Utils::map is "ordered" by default, but that means that result reporting is ordered,
         // the map function is still called out-of-order
-        qSort(results);
+        Utils::sort(results);
         QCOMPARE(results, QList<int>({1, 2, 5}));
     }
     {
@@ -224,7 +224,7 @@ void tst_MapReduce::map()
                                                                       QLatin1String("bar"), QLatin1String("blah")}),
                                                          [](const QString &s) { return s.size(); });
         QList<int> vals = sizes.toList();
-        qSort(vals);
+        Utils::sort(vals);
         QCOMPARE(vals, QList<int>({3, 4}));
     }
     {
@@ -232,7 +232,7 @@ void tst_MapReduce::map()
         const QSet<int> sizes = Utils::mapped<QSet>(list.cbegin(), list.cend(),
                                                     [](const QString &s) { return s.size(); });
         QList<int> vals = sizes.toList();
-        qSort(vals);
+        Utils::sort(vals);
         QCOMPARE(vals, QList<int>({3, 4}));
     }
 }
