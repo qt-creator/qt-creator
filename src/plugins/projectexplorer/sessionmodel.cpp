@@ -66,23 +66,36 @@ QStringList pathsWithTildeHomePath(const QStringList &paths)
 
 QVariant SessionModel::data(const QModelIndex &index, int role) const
 {
-    if (role == Qt::DisplayRole || role == DefaultSessionRole ||
-            role == LastSessionRole || role == ActiveSessionRole || role == ProjectsPathRole  || role == ProjectsDisplayRole) {
+    QVariant result;
+    if (index.isValid()) {
         QString sessionName = SessionManager::sessions().at(index.row());
-        if (role == Qt::DisplayRole)
-            return sessionName;
-        else if (role == DefaultSessionRole)
-            return SessionManager::isDefaultSession(sessionName);
-        else if (role == LastSessionRole)
-            return SessionManager::lastSession() == sessionName;
-        else if (role == ActiveSessionRole)
-            return SessionManager::activeSession() == sessionName;
-        else if (role == ProjectsPathRole)
-            return pathsWithTildeHomePath(SessionManager::projectsForSessionName(sessionName));
-        else if (role == ProjectsDisplayRole)
-            return pathsToBaseNames(SessionManager::projectsForSessionName(sessionName));
+
+        switch (role) {
+        case Qt::DisplayRole:
+            switch (index.column()) {
+            case 0: result = sessionName;
+                break;
+            } // switch (section)
+            break;
+        case DefaultSessionRole:
+            result = SessionManager::isDefaultSession(sessionName);
+            break;
+        case LastSessionRole:
+            result = SessionManager::lastSession() == sessionName;
+            break;
+        case ActiveSessionRole:
+            result = SessionManager::activeSession() == sessionName;
+            break;
+        case ProjectsPathRole:
+            result = pathsWithTildeHomePath(SessionManager::projectsForSessionName(sessionName));
+            break;
+        case ProjectsDisplayRole:
+            result = pathsToBaseNames(SessionManager::projectsForSessionName(sessionName));
+            break;
+        } // switch (role)
     }
-    return QVariant();
+
+    return result;
 }
 
 QHash<int, QByteArray> SessionModel::roleNames() const
