@@ -211,6 +211,13 @@
                 \QC. For more information about managing sessions, see
                 \l{Managing Sessions}.
 
+        \row
+            \li <session>
+            \li ProjectExplorer plugin: load the given session when \QC starts.
+                Open the projects and files that were open when you last exited
+                \QC. For more information about managing sessions, see
+                \l{Managing Sessions}.
+
     \endtable
 
     \section1 Using Custom Styles

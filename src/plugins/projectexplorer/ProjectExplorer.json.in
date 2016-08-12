@@ -23,6 +23,10 @@
         {
             \"Name\" : \"-lastsession\",
             \"Description\" : \"Restore the last session\"
+        },
+        {
+            \"Name\" : \"<session>\",
+            \"Description\" : \"Restore a saved session\"
         }
     ],
     $$dependencyList
