@@ -61,9 +61,12 @@ struct TestSettings
     bool limitResultOutput;
     bool autoScroll;
     bool alwaysParse;
+    bool qtestNoCrashHandler;
     bool gtestRunDisabled;
     bool gtestShuffle;
     bool gtestRepeat;
+    bool gtestThrowOnFailure;
+    bool gtestBreakOnFailure;
     QHash<Core::Id, bool> frameworks;
 };
 

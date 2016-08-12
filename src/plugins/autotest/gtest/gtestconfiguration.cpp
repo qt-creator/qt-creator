@@ -50,6 +50,13 @@ QStringList GTestConfiguration::argumentsForTestRunner(const TestSettings &setti
         arguments << QLatin1String("--gtest_shuffle")
                   << QString::fromLatin1("--gtest_random_seed=%1").arg(settings.gtestSeed);
     }
+    if (settings.gtestThrowOnFailure)
+        arguments << "--gtest_throw_on_failure";
+
+    if (runMode() == DebuggableTestConfiguration::Debug) {
+        if (settings.gtestBreakOnFailure)
+            arguments << "--gtest_break_on_failure";
+    }
     return arguments;
 }
 

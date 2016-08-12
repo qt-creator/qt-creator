@@ -45,6 +45,12 @@ QStringList QtTestConfiguration::argumentsForTestRunner(const TestSettings &sett
         arguments << metricsOption;
     if (testCases().count())
         arguments << testCases();
+
+    if (runMode() == DebuggableTestConfiguration::Debug) {
+        if (settings.qtestNoCrashHandler)
+            arguments << "-nocrashhandler";
+    }
+
     return arguments;
 }
 

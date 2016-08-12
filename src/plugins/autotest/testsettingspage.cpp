@@ -64,11 +64,14 @@ void TestSettingsWidget::setSettings(const TestSettings &settings)
     m_ui.limitResultOutputCB->setChecked(settings.limitResultOutput);
     m_ui.autoScrollCB->setChecked(settings.autoScroll);
     m_ui.alwaysParseCB->setChecked(settings.alwaysParse);
+    m_ui.disableCrashhandlerCB->setChecked(settings.qtestNoCrashHandler);
     m_ui.runDisabledGTestsCB->setChecked(settings.gtestRunDisabled);
     m_ui.repeatGTestsCB->setChecked(settings.gtestRepeat);
     m_ui.shuffleGTestsCB->setChecked(settings.gtestShuffle);
     m_ui.repetitionSpin->setValue(settings.gtestIterations);
     m_ui.seedSpin->setValue(settings.gtestSeed);
+    m_ui.breakOnFailureCB->setChecked(settings.gtestBreakOnFailure);
+    m_ui.throwOnFailureCB->setChecked(settings.gtestThrowOnFailure);
 
     switch (settings.metrics) {
     case MetricsType::Walltime:
@@ -101,11 +104,14 @@ TestSettings TestSettingsWidget::settings() const
     result.limitResultOutput = m_ui.limitResultOutputCB->isChecked();
     result.autoScroll = m_ui.autoScrollCB->isChecked();
     result.alwaysParse = m_ui.alwaysParseCB->isChecked();
+    result.qtestNoCrashHandler = m_ui.disableCrashhandlerCB->isChecked();
     result.gtestRunDisabled = m_ui.runDisabledGTestsCB->isChecked();
     result.gtestRepeat = m_ui.repeatGTestsCB->isChecked();
     result.gtestShuffle = m_ui.shuffleGTestsCB->isChecked();
     result.gtestIterations = m_ui.repetitionSpin->value();
     result.gtestSeed = m_ui.seedSpin->value();
+    result.gtestBreakOnFailure = m_ui.breakOnFailureCB->isChecked();
+    result.gtestThrowOnFailure = m_ui.throwOnFailureCB->isChecked();
 
     if (m_ui.walltimeRB->isChecked())
         result.metrics = MetricsType::Walltime;

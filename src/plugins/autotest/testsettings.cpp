@@ -41,11 +41,14 @@ static const char omitRunConfigWarnKey[] = "OmitRCWarnings";
 static const char limitResultOutputKey[] = "LimitResultOutput";
 static const char autoScrollKey[] = "AutoScrollResults";
 static const char alwaysParseKey[] = "AlwaysParse";
+static const char qtestNoCrashhandlerKey[] = "NoCrashhandlerOnDebug";
 static const char gtestRunDisabledKey[] = "RunDisabledGTests";
 static const char gtestRepeatKey[] = "RepeatGTests";
 static const char gtestShuffleKey[] = "ShuffleGTests";
 static const char gtestIterationsKey[] = "IterationsGTests";
 static const char gtestSeedKey[] = "SeedGTests";
+static const char gtestThrowOnFailureKey[] = "ThrowOnFailure";
+static const char gtestBreakOnFailureKey[] = "BreakOnFailure";
 
 static const int defaultTimeout = 60000;
 
@@ -65,11 +68,14 @@ void TestSettings::toSettings(QSettings *s) const
     s->setValue(QLatin1String(limitResultOutputKey), limitResultOutput);
     s->setValue(QLatin1String(autoScrollKey), autoScroll);
     s->setValue(QLatin1String(alwaysParseKey), alwaysParse);
+    s->setValue(QLatin1String(qtestNoCrashhandlerKey), qtestNoCrashHandler);
     s->setValue(QLatin1String(gtestRunDisabledKey), gtestRunDisabled);
     s->setValue(QLatin1String(gtestRepeatKey), gtestRepeat);
     s->setValue(QLatin1String(gtestShuffleKey), gtestShuffle);
     s->setValue(QLatin1String(gtestIterationsKey), gtestIterations);
     s->setValue(QLatin1String(gtestSeedKey), gtestSeed);
+    s->setValue(QLatin1String(gtestBreakOnFailureKey), gtestBreakOnFailure);
+    s->setValue(QLatin1String(gtestThrowOnFailureKey), gtestThrowOnFailure);
     // store frameworks and their current active state
     for (const Core::Id &id : frameworks.keys())
         s->setValue(QLatin1String(id.name()), frameworks.value(id));
@@ -104,11 +110,14 @@ void TestSettings::fromSettings(const QSettings *s)
     limitResultOutput = s->value(root + QLatin1String(limitResultOutputKey), true).toBool();
     autoScroll = s->value(root + QLatin1String(autoScrollKey), true).toBool();
     alwaysParse = s->value(root + QLatin1String(alwaysParseKey), true).toBool();
+    qtestNoCrashHandler = s->value(root + QLatin1String(qtestNoCrashhandlerKey), true).toBool();
     gtestRunDisabled = s->value(root + QLatin1String(gtestRunDisabledKey), false).toBool();
     gtestRepeat = s->value(root + QLatin1String(gtestRepeatKey), false).toBool();
     gtestShuffle = s->value(root + QLatin1String(gtestShuffleKey), false).toBool();
     gtestIterations = s->value(root + QLatin1String(gtestIterationsKey), 1).toInt();
     gtestSeed = s->value(root + QLatin1String(gtestSeedKey), 0).toInt();
+    gtestBreakOnFailure = s->value(root + QLatin1String(gtestBreakOnFailureKey), true).toBool();
+    gtestThrowOnFailure = s->value(root + QLatin1String(gtestThrowOnFailureKey), false).toBool();
     // try to get settings for registered frameworks
     TestFrameworkManager *frameworkManager = TestFrameworkManager::instance();
     const QList<Core::Id> &registered = frameworkManager->registeredFrameworkIds();
@@ -127,9 +136,12 @@ bool TestSettings::equals(const TestSettings &rhs) const
             && limitResultOutput == rhs.limitResultOutput
             && autoScroll == rhs.autoScroll
             && alwaysParse == rhs.alwaysParse
+            && qtestNoCrashHandler == rhs.qtestNoCrashHandler
             && gtestRunDisabled == rhs.gtestRunDisabled
             && gtestRepeat == rhs.gtestRepeat && gtestIterations == rhs.gtestIterations
             && gtestShuffle == rhs.gtestShuffle && gtestSeed == rhs.gtestSeed
+            && gtestBreakOnFailure == rhs.gtestBreakOnFailure
+            && gtestThrowOnFailure == rhs.gtestThrowOnFailure
             && frameworks == rhs.frameworks;
 }
 
