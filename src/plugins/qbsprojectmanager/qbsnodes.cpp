@@ -712,7 +712,7 @@ QList<ProjectExplorer::RunConfiguration *> QbsProductNode::runConfigurations() c
 {
     QList<ProjectExplorer::RunConfiguration *> result;
     QbsProjectNode *pn = dynamic_cast<QbsProjectNode *>(projectNode());
-    if (!isEnabled() || m_qbsProductData.targetExecutable().isEmpty())
+    if (!isEnabled() || !pn || m_qbsProductData.targetExecutable().isEmpty())
         return result;
 
     foreach (ProjectExplorer::RunConfiguration *rc, pn->project()->activeTarget()->runConfigurations()) {
