@@ -29,7 +29,7 @@ bool %{CN}::setHeaderData(int section, Qt::Orientation orientation, const QVaria
 
 int %{CN}::rowCount(const QModelIndex &parent) const
 {
-    if (!parent.isValid())
+    if (parent.isValid())
         return 0;
 
     // FIXME: Implement me!
@@ -37,7 +37,7 @@ int %{CN}::rowCount(const QModelIndex &parent) const
 
 int %{CN}::columnCount(const QModelIndex &parent) const
 {
-    if (!parent.isValid())
+    if (parent.isValid())
         return 0;
 
     // FIXME: Implement me!
