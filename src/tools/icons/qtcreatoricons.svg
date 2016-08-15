@@ -3324,6 +3324,61 @@
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="csssc" />
     </g>
+    <g
+       id="src/plugins/todo/images/bug"
+       transform="translate(16,0)">
+      <rect
+         id="rect6782-96-0-0-7-8-1"
+         height="16"
+         width="16"
+         y="568"
+         x="1144"
+         style="fill:#ffffff" />
+      <use
+         height="100%"
+         width="100%"
+         id="use5063"
+         xlink:href="#big_bug"
+         y="0"
+         x="0"
+         style="display:inline"
+         transform="translate(387,509)" />
+    </g>
+    <g
+       transform="translate(32,0)"
+       style="display:inline"
+       id="src/plugins/todo/images/bugfill">
+      <rect
+         id="rect6782-96-0-0-7-8-1-0"
+         height="16"
+         width="16"
+         y="568"
+         x="1144"
+         style="fill:#ffffff" />
+      <path
+         style="fill:#000000"
+         d="m 1150,573.262 0.8,-1.262 3.4,0 0.8,1.262 0,1.738 -2,0 0,6.78456 -1,0 0,-6.78456 -2,0 z"
+         id="path5130"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccccccccccc" />
+    </g>
+    <g
+       style="display:inline"
+       id="src/plugins/todo/images/tasklist"
+       transform="translate(16,0)">
+      <rect
+         style="fill:#ffffff"
+         x="1176"
+         y="568"
+         width="16"
+         height="16"
+         id="rect6782-96-0-0-7-8-1-0-4" />
+      <path
+         inkscape:connector-curvature="0"
+         d="m 1182,580 8,0 0,1 -8,0 z m -4,0 2,0 0,1 -2,0 z m 4,-3 8,0 0,1 -8,0 z m -4,0 2,0 0,1 -2,0 z m 4,-3 8,0 0,1 -8,0 z m -4,0 2,0 0,1 -2,0 z m 4,-3 8,0 0,1 -8,0 z m -4,0 2,0 0,1 -2,0 z"
+         style="fill:#000000"
+         id="rect5132-95" />
+    </g>
   </g>
   <g
      inkscape:groupmode="layer"
@@ -5064,7 +5119,7 @@
          height="24"
          id="rect5759-4-1" />
       <g
-         id="g4881"
+         id="big_bug"
          transform="translate(-4,2.999762)">
         <path
            d="m 769.50001,58.836563 c -0.65839,0 -1.70859,0.724548 -2.00602,1.694142 l 2.00602,1.345458 2.006,-1.345458 c -0.29742,-0.97021 -1.34763,-1.694142 -2.006,-1.694142 z"
