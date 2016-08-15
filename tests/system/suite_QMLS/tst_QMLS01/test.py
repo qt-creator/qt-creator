@@ -116,23 +116,23 @@ def main():
     if not startQtCreatorWithNewAppAtQMLEditor(tempDir(), "SampleApp"):
         return
     # test "color: " suggestion usage with Enter key
-    if not testSuggestionsAuto("Text {", "col", "color:", "<Return>"):
+    if not testSuggestionsAuto("TextEdit {", "col", "color:", "<Return>"):
         saveAndExit()
         return
     # test "color: " suggestion usage with Tab key
-    if not testSuggestionsAuto("Text {", "col", "color:", "<Tab>"):
+    if not testSuggestionsAuto("TextEdit {", "col", "color:", "<Tab>"):
         saveAndExit()
         return
     # test "textChanged: " suggestion - automatic insert, because only one suggestion available
     shortcutToSuggestions = "<Ctrl+Space>"
     if platform.system() == "Darwin":
         shortcutToSuggestions = "<Meta+Space>"
-    if not testSuggestionsAuto("Text {","textChan", "textChanged:", shortcutToSuggestions):
+    if not testSuggestionsAuto("TextEdit {","baseu", "baseUrl:", shortcutToSuggestions):
         saveAndExit()
         return
     # change settings to manual insertion of suggestions
     changeAutocompleteToManual()
     # test manual suggestions
-    testSuggestionsManual("Text {", "col", "color:")
+    testSuggestionsManual("TextEdit {", "col", "color:")
     # exit qt creator
     saveAndExit()

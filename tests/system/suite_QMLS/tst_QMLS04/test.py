@@ -27,7 +27,7 @@ source("../shared/qmls.py")
 
 def main():
     projectDir = tempDir()
-    editorArea = startQtCreatorWithNewAppAtQMLEditor(projectDir, "SampleApp", "Text {")
+    editorArea = startQtCreatorWithNewAppAtQMLEditor(projectDir, "SampleApp", "TextEdit {")
     if not editorArea:
         return
     for i in range(5):
@@ -45,9 +45,9 @@ def main():
     # verify if refactoring is done correctly
     waitFor("'MyComponent' in str(editorArea.plainText)", 2000)
     codeText = str(editorArea.plainText)
-    patternCodeToAdd = "MyComponent\s+\{\s*\}"
-    patternCodeToMove = "Text\s+\{.*\}"
-    # there should be empty MyComponent item instead of Text item
+    patternCodeToAdd = "MyComponent\s+\{\s*id: textEdit\s*\}"
+    patternCodeToMove = "TextEdit\s+\{.*\}"
+    # there should be empty MyComponent item instead of TextEdit item
     if re.search(patternCodeToAdd, codeText, re.DOTALL) and not re.search(patternCodeToMove, codeText, re.DOTALL):
         test.passes("Refactoring was properly applied in source file")
     else:

@@ -32,7 +32,8 @@ Item {
 
 
     property variant backendValue
-    property color borderColor: colorLogic.textColor
+    property color borderColorSelected: colorLogic.textColor
+    property color borderColor: creatorTheme.QmlDesignerBorderColor
 
     property bool showTranslateCheckBox: true
 
@@ -101,8 +102,8 @@ Item {
             width: 15
             height: 15
             color: selected ? selectedColor : unselectedColor
-            border.color: originControl.borderColor
-            border.width: selected ? 2 : 0
+            border.width: selected ? 2 : 1
+            border.color: selected ? originControl.borderColorSelected : originControl.borderColor
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
@@ -116,8 +117,8 @@ Item {
             width: topLeft.width
             height: topLeft.height
             color: selected ? selectedColor : unselectedColor
-            border.width: selected ? 2 : 0
-            border.color: originControl.borderColor
+            border.width: selected ? 2 : 1
+            border.color: selected ? originControl.borderColorSelected : originControl.borderColor
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
@@ -131,8 +132,8 @@ Item {
             width: topLeft.width
             height: topLeft.height
             color: selected ? selectedColor : unselectedColor
-            border.width: selected ? 2 : 0
-            border.color: originControl.borderColor
+            border.width: selected ? 2 : 1
+            border.color: selected ? originControl.borderColorSelected : originControl.borderColor
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
@@ -146,8 +147,8 @@ Item {
             width: topLeft.width
             height: topLeft.height
             color: selected ? selectedColor : unselectedColor
-            border.width: selected ? 2 : 0
-            border.color: originControl.borderColor
+            border.width: selected ? 2 : 1
+            border.color: selected ? originControl.borderColorSelected : originControl.borderColor
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
@@ -161,8 +162,8 @@ Item {
             width: topLeft.width
             height: topLeft.height
             color: selected ? selectedColor : unselectedColor
-            border.width: selected ? 2 : 0
-            border.color: originControl.borderColor
+            border.width: selected ? 2 : 1
+            border.color: selected ? originControl.borderColorSelected : originControl.borderColor
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
@@ -176,8 +177,8 @@ Item {
             width: topLeft.width
             height: topLeft.height
             color: selected ? selectedColor : unselectedColor
-            border.width: selected ? 2 : 0
-            border.color: originControl.borderColor
+            border.width: selected ? 2 : 1
+            border.color: selected ? originControl.borderColorSelected : originControl.borderColor
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
@@ -191,8 +192,8 @@ Item {
             width: topLeft.width
             height: topLeft.height
             color: selected ? selectedColor : unselectedColor
-            border.width: selected ? 2 : 0
-            border.color: originControl.borderColor
+            border.width: selected ? 2 : 1
+            border.color: selected ? originControl.borderColorSelected : originControl.borderColor
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
@@ -206,8 +207,8 @@ Item {
             width: topLeft.width
             height: topLeft.height
             color: selected ? selectedColor : unselectedColor
-            border.width: selected ? 2 : 0
-            border.color: originControl.borderColor
+            border.width: selected ? 2 : 1
+            border.color: selected ? originControl.borderColorSelected : originControl.borderColor
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
@@ -221,8 +222,8 @@ Item {
             width: topLeft.width
             height: topLeft.height
             color: selected ? selectedColor : unselectedColor
-            border.width: selected ? 2 : 0
-            border.color: originControl.borderColor
+            border.width: selected ? 2 : 1
+            border.color: selected ? originControl.borderColorSelected : originControl.borderColor
             MouseArea {
                 anchors.fill: parent
                 onClicked: {

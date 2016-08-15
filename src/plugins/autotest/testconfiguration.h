@@ -74,8 +74,9 @@ public:
     int testCaseCount() const { return m_testCaseCount; }
     QString proFile() const { return m_proFile; }
     QString targetFile() const { return m_targetFile; }
+    QString executableFilePath() const;
     QString targetName() const { return m_targetName; }
-    QString workingDirectory() const { return m_workingDir; }
+    QString workingDirectory() const;
     QString buildDirectory() const { return m_buildDir; }
     QString displayName() const { return m_displayName; }
     Utils::Environment environment() const { return m_environment; }

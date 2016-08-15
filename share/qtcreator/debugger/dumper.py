@@ -1417,7 +1417,7 @@ class DumperBase:
             #    warn("METAOBJECT EXTRACTION FAILED FOR UNKNOWN REASON")
 
             if not result:
-                base = self.directBaseClass(typeobj, 0)
+                base = self.directBaseClass(someTypeObj, 0)
                 if base != someTypeObj: # sanity check
                     result = extractStaticMetaObjectPtrFromType(base)
 

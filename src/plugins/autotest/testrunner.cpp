@@ -55,35 +55,6 @@ namespace Internal {
 
 static TestRunner *m_instance = 0;
 
-static QString executableFilePath(const QString &command, const QProcessEnvironment &environment)
-{
-    if (command.isEmpty())
-        return QString();
-
-    QFileInfo commandFileInfo(command);
-    if (commandFileInfo.isExecutable() && commandFileInfo.path() != QLatin1String(".")) {
-        return commandFileInfo.absoluteFilePath();
-    } else if (commandFileInfo.path() == QLatin1String(".")){
-        QString fullCommandFileName = command;
-    #ifdef Q_OS_WIN
-        if (!command.endsWith(QLatin1String(".exe")))
-            fullCommandFileName = command + QLatin1String(".exe");
-
-        static const QString pathSeparator(QLatin1Char(';'));
-    #else
-        static const QString pathSeparator(QLatin1Char(':'));
-    #endif
-        QStringList pathList = environment.value(QLatin1String("PATH")).split(pathSeparator);
-
-        foreach (const QString &path, pathList) {
-            QString filePath(path + QDir::separator() + fullCommandFileName);
-            if (QFileInfo(filePath).isExecutable())
-                return commandFileInfo.absoluteFilePath();
-        }
-    }
-    return QString();
-}
-
 TestRunner *TestRunner::instance()
 {
     if (!m_instance)
@@ -157,7 +128,7 @@ static void performTestRun(QFutureInterface<TestResultPtr> &futureInterface,
             continue;
 
         QProcessEnvironment environment = testConfiguration->environment().toProcessEnvironment();
-        QString commandFilePath = executableFilePath(testConfiguration->targetFile(), environment);
+        QString commandFilePath = testConfiguration->executableFilePath();
         if (commandFilePath.isEmpty()) {
             futureInterface.reportResult(TestResultPtr(new FaultyTestResult(Result::MessageFatal,
                 TestRunner::tr("Could not find command \"%1\". (%2)")
@@ -293,8 +264,7 @@ void TestRunner::debugTests()
         return;
     }
 
-    const QString &commandFilePath = executableFilePath(config->targetFile(),
-                                                        config->environment().toProcessEnvironment());
+    const QString &commandFilePath = config->executableFilePath();
     if (commandFilePath.isEmpty()) {
         emit testResultReady(TestResultPtr(new FaultyTestResult(Result::MessageFatal,
             TestRunner::tr("Could not find command \"%1\". (%2)")
