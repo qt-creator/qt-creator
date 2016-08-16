@@ -623,7 +623,7 @@ static QSet<QString> tooBigFilesRemoved(const QSet<QString> &files, int fileSize
     while (i.hasNext()) {
         const QString filePath = i.next();
         fileInfo.setFile(filePath);
-        if (skipFileDueToSizeLimit(fileInfo), fileSizeLimit)
+        if (skipFileDueToSizeLimit(fileInfo, fileSizeLimit))
             continue;
 
         result << filePath;
