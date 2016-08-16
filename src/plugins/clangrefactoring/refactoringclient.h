@@ -36,10 +36,10 @@ namespace ClangRefactoring {
 class RefactoringClient : public ClangBackEnd::RefactoringClientInterface
 {
 public:
-    void alive() override;
-    void sourceLocationsForRenamingMessage(ClangBackEnd::SourceLocationsForRenamingMessage &&message) override;
+    void alive() final;
+    void sourceLocationsForRenamingMessage(ClangBackEnd::SourceLocationsForRenamingMessage &&message) final;
 
-    void setLocalRenamingCallback(CppTools::RefactoringEngineInterface::RenameCallback &&localRenamingCallback);
+    void setLocalRenamingCallback(CppTools::RefactoringEngineInterface::RenameCallback &&localRenamingCallback) final;
     void setRefactoringEngine(ClangRefactoring::RefactoringEngine *refactoringEngine);
 
     bool hasValidLocalRenamingCallback() const;
