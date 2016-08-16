@@ -382,7 +382,10 @@ void BuildDirManager::extractData()
         m_files.append(cbpparser.cmakeFileList());
         foreach (const ProjectExplorer::FileNode *node, cbpparser.cmakeFileList())
             m_cmakeFiles.insert(node->filePath());
-    } else {
+    }
+
+    // Make sure the top cmakelists.txt file is always listed:
+    if (!Utils::contains(m_files, [topCMake](ProjectExplorer::FileNode *fn) { return fn->filePath() == topCMake; })) {
         m_files.append(new ProjectExplorer::FileNode(topCMake, ProjectExplorer::ProjectFileType, false));
     }
 
