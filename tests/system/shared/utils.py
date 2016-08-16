@@ -198,11 +198,30 @@ def invokeMenuItem(menu, item, *subItems):
     itemObject = waitForObjectItem(objectMap.realName(menuObject), item)
     waitFor("itemObject.enabled", 2000)
     activateItem(itemObject)
+    numberedPrefix = "&?\\d+: "
     for subItem in subItems:
         sub = itemObject.menu()
         waitFor("sub.visible", 1000)
-        itemObject = waitForObjectItem(sub, subItem)
-        activateItem(itemObject)
+        # we might have numbered sub items (e.g. "Recent Files") - these have this special prefix
+        if subItem.startswith(numberedPrefix):
+            actions = sub.actions()
+            triggered = False
+            for i in range(actions.count()):
+                current = actions.at(i)
+                nonPrefix = subItem[len(numberedPrefix):]
+                matcher = re.match("(%s)(.*)" % numberedPrefix, str(current.text))
+                if matcher and matcher.group(2) == nonPrefix:
+                    itemObject = current
+                    activateItem(itemObject)
+                    triggered = True
+                    break
+            if not triggered:
+                test.fail("Could not trigger '%s' - item missing or code wrong?" % subItem,
+                          "Function arguments: '%s', '%s', %s" % (menu, item, str(subItems)))
+                break # we failed to trigger - no need to process subItems further
+        else:
+            itemObject = waitForObjectItem(sub, subItem)
+            activateItem(itemObject)
 
 def logApplicationOutput():
     # make sure application output is shown
