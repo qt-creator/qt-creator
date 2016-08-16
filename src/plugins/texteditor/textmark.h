@@ -79,6 +79,7 @@ public:
     static Utils::Theme::Color categoryColor(Core::Id category);
     static bool categoryHasColor(Core::Id category);
     static void setCategoryColor(Core::Id category, Utils::Theme::Color color);
+    static void setDefaultToolTip(Core::Id category, const QString &toolTip);
     void setIcon(const QIcon &icon);
     // call this if the icon has changed.
     void updateMarker();

@@ -332,6 +332,7 @@ BookmarkManager::BookmarkManager() :
     updateActionStatus();
     Bookmark::setCategoryColor(Constants::BOOKMARKS_TEXT_MARK_CATEGORY,
                                Theme::Bookmarks_TextMarkColor);
+    Bookmark::setDefaultToolTip(Constants::BOOKMARKS_TEXT_MARK_CATEGORY, tr("Bookmark"));
 }
 
 BookmarkManager::~BookmarkManager()

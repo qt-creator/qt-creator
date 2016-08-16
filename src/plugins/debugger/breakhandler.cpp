@@ -896,6 +896,8 @@ BreakHandler::BreakHandler()
     qRegisterMetaType<BreakpointModelId>();
     TextEditor::TextMark::setCategoryColor(Constants::TEXT_MARK_CATEGORY_BREAKPOINT,
                                            Theme::Debugger_Breakpoint_TextMarkColor);
+    TextEditor::TextMark::setDefaultToolTip(Constants::TEXT_MARK_CATEGORY_BREAKPOINT,
+                                            tr("Breakpoint"));
 
 #if USE_BREAK_MODEL_TEST
     new ModelTest(this, 0);

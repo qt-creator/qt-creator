@@ -51,6 +51,12 @@ void initializeTextMarks()
                                            Utils::Theme::ClangCodeModel_Warning_TextMarkColor);
     TextEditor::TextMark::setCategoryColor(Core::Id(Constants::CLANG_ERROR),
                                            Utils::Theme::ClangCodeModel_Error_TextMarkColor);
+    TextEditor::TextMark::setDefaultToolTip(Core::Id(Constants::CLANG_WARNING),
+                                            QApplication::translate("Clang Code Model Marks",
+                                                                    "Code Model Warning"));
+    TextEditor::TextMark::setDefaultToolTip(Core::Id(Constants::CLANG_ERROR),
+                                            QApplication::translate("Clang Code Model Marks",
+                                                                    "Code Model Error"));
 }
 
 void addProjectPanelWidget()

@@ -55,6 +55,8 @@ public:
     Utils::Theme::Color categoryColor(Core::Id category);
     bool categoryHasColor(Core::Id category);
     void setCategoryColor(Core::Id category, Utils::Theme::Color color);
+    QString defaultToolTip(Core::Id category) const;
+    void setDefaultToolTip(Core::Id category, const QString &toolTip);
 private:
     void editorOpened(Core::IEditor *editor);
     void documentRenamed(Core::IDocument *document, const QString &oldName, const QString &newName);
@@ -62,6 +64,7 @@ private:
 
     QHash<Utils::FileName, QSet<TextMark *> > m_marks;
     QHash<Core::Id, Utils::Theme::Color> m_colors;
+    QHash<Core::Id, QString> m_defaultToolTips;
 };
 
 } // namespace Internal

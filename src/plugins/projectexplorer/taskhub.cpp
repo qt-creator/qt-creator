@@ -105,6 +105,8 @@ TaskHub::TaskHub()
                                Utils::Theme::ProjectExplorer_TaskError_TextMarkColor);
     TaskMark::setCategoryColor(Constants::TASK_MARK_WARNING,
                                Utils::Theme::ProjectExplorer_TaskWarn_TextMarkColor);
+    TaskMark::setDefaultToolTip(Constants::TASK_MARK_ERROR, tr("Error"));
+    TaskMark::setDefaultToolTip(Constants::TASK_MARK_WARNING, tr("Warning"));
 }
 
 TaskHub::~TaskHub()

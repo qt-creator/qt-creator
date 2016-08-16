@@ -129,6 +129,11 @@ void TextMark::setCategoryColor(Id category, Theme::Color color)
     TextEditorPlugin::baseTextMarkRegistry()->setCategoryColor(category, color);
 }
 
+void TextMark::setDefaultToolTip(Id category, const QString &toolTip)
+{
+    TextEditorPlugin::baseTextMarkRegistry()->setDefaultToolTip(category, toolTip);
+}
+
 void TextMark::updateMarker()
 {
     if (m_baseTextDocument)
@@ -257,6 +262,19 @@ void TextMarkRegistry::setCategoryColor(Id category, Theme::Color color)
     if (m_colors[category] == color)
         return;
     m_colors[category] = color;
+}
+
+QString TextMarkRegistry::defaultToolTip(Id category) const
+{
+    return m_defaultToolTips[category];
+}
+
+void TextMarkRegistry::setDefaultToolTip(Id category, const QString &toolTip)
+{
+    QString &defaultToolTip = m_defaultToolTips[category];
+    if (defaultToolTip == toolTip)
+        return;
+    defaultToolTip = toolTip;
 }
 
 void TextMarkRegistry::editorOpened(IEditor *editor)
