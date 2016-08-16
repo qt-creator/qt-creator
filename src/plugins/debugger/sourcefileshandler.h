@@ -40,17 +40,17 @@ class SourceFilesHandler : public QAbstractItemModel
 public:
     explicit SourceFilesHandler(DebuggerEngine *engine);
 
-    int columnCount(const QModelIndex &parent) const
+    int columnCount(const QModelIndex &parent) const override
         { return parent.isValid() ? 0 : 2; }
-    int rowCount(const QModelIndex &parent) const
+    int rowCount(const QModelIndex &parent) const override
         { return parent.isValid() ? 0 : m_shortNames.size(); }
-    QModelIndex parent(const QModelIndex &) const { return QModelIndex(); }
-    QModelIndex index(int row, int column, const QModelIndex &) const
+    QModelIndex parent(const QModelIndex &) const override { return QModelIndex(); }
+    QModelIndex index(int row, int column, const QModelIndex &) const override
         { return createIndex(row, column); }
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-    QVariant data(const QModelIndex &index, int role) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+    QVariant data(const QModelIndex &index, int role) const override;
     bool setData(const QModelIndex &idx, const QVariant &data, int role) override;
-    Qt::ItemFlags flags(const QModelIndex &index) const;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     void clearModel();
 
