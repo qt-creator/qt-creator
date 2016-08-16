@@ -58,6 +58,12 @@ static QString clangDiagnosticConfigsArrayOptionsKey()
 static QString pchUsageKey()
 { return QLatin1String(Constants::CPPTOOLS_MODEL_MANAGER_PCH_USAGE); }
 
+static QString skipIndexingBigFilesKey()
+{ return QLatin1String(Constants::CPPTOOLS_SKIP_INDEXING_BIG_FILES); }
+
+static QString indexerFileSizeLimitKey()
+{ return QLatin1String(Constants::CPPTOOLS_INDEXER_FILE_SIZE_LIMIT); }
+
 void CppCodeModelSettings::fromSettings(QSettings *s)
 {
     s->beginGroup(QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP));
@@ -81,6 +87,13 @@ void CppCodeModelSettings::fromSettings(QSettings *s)
 
     const QVariant pchUsageVariant = s->value(pchUsageKey(), initialPchUsage());
     setPCHUsage(static_cast<PCHUsage>(pchUsageVariant.toInt()));
+
+    const QVariant skipIndexingBigFiles = s->value(skipIndexingBigFilesKey(), true);
+    setSkipIndexingBigFiles(skipIndexingBigFiles.toBool());
+
+    const QVariant indexerFileSizeLimit = s->value(indexerFileSizeLimitKey(), 5);
+    setIndexerFileSizeLimitInMb(indexerFileSizeLimit.toInt());
+
     s->endGroup();
 
     emit changed();
@@ -103,6 +116,8 @@ void CppCodeModelSettings::toSettings(QSettings *s)
 
     s->setValue(clangDiagnosticConfigKey(), clangDiagnosticConfigId().toSetting());
     s->setValue(pchUsageKey(), pchUsage());
+    s->setValue(skipIndexingBigFilesKey(), skipIndexingBigFiles());
+    s->setValue(indexerFileSizeLimitKey(), indexerFileSizeLimitInMb());
 
     s->endGroup();
 
@@ -149,4 +164,24 @@ void CppCodeModelSettings::setPCHUsage(CppCodeModelSettings::PCHUsage pchUsage)
 void CppCodeModelSettings::emitChanged()
 {
     emit changed();
+}
+
+bool CppCodeModelSettings::skipIndexingBigFiles() const
+{
+    return m_skipIndexingBigFiles;
+}
+
+void CppCodeModelSettings::setSkipIndexingBigFiles(bool yesno)
+{
+    m_skipIndexingBigFiles = yesno;
+}
+
+int CppCodeModelSettings::indexerFileSizeLimitInMb() const
+{
+    return m_indexerFileSizeLimitInMB;
+}
+
+void CppCodeModelSettings::setIndexerFileSizeLimitInMb(int sizeInMB)
+{
+    m_indexerFileSizeLimitInMB = sizeInMB;
 }

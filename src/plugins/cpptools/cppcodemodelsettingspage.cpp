@@ -58,6 +58,7 @@ void CppCodeModelSettingsWidget::setSettings(const QSharedPointer<CppCodeModelSe
 
     setupClangCodeModelWidgets();
     setupPchCheckBox();
+    setupSkipIndexingFilesWidgets();
 }
 
 void CppCodeModelSettingsWidget::applyToSettings() const
@@ -66,6 +67,7 @@ void CppCodeModelSettingsWidget::applyToSettings() const
 
     changed |= applyClangCodeModelWidgetsToSettings();
     changed |= applyPchCheckBoxToSettings();
+    changed |= applySkipIndexingFilesWidgets();
 
     if (changed)
         m_settings->toSettings(Core::ICore::settings());
@@ -90,6 +92,12 @@ void CppCodeModelSettingsWidget::setupPchCheckBox() const
 {
     const bool ignorePch = m_settings->pchUsage() == CppCodeModelSettings::PchUse_None;
     m_ui->ignorePCHCheckBox->setChecked(ignorePch);
+}
+
+void CppCodeModelSettingsWidget::setupSkipIndexingFilesWidgets()
+{
+    m_ui->skipIndexingBigFilesCheckBox->setChecked(m_settings->skipIndexingBigFiles());
+    m_ui->bigFilesLimitSpinBox->setValue(m_settings->indexerFileSizeLimitInMb());
 }
 
 bool CppCodeModelSettingsWidget::applyClangCodeModelWidgetsToSettings() const
@@ -129,6 +137,25 @@ bool CppCodeModelSettingsWidget::applyPchCheckBoxToSettings() const
     }
 
     return false;
+}
+
+bool CppCodeModelSettingsWidget::applySkipIndexingFilesWidgets() const
+{
+    bool settingsChanged = false;
+
+    const bool newSkipIndexingBigFiles = m_ui->skipIndexingBigFilesCheckBox->isChecked();
+    if (m_settings->skipIndexingBigFiles() != newSkipIndexingBigFiles) {
+        m_settings->setSkipIndexingBigFiles(newSkipIndexingBigFiles);
+        settingsChanged = true;
+    }
+
+    const int newFileSizeLimit = m_ui->bigFilesLimitSpinBox->value();
+    if (m_settings->indexerFileSizeLimitInMb() != newFileSizeLimit) {
+        m_settings->setIndexerFileSizeLimitInMb(newFileSizeLimit);
+        settingsChanged = true;
+    }
+
+    return settingsChanged;
 }
 
 CppCodeModelSettingsPage::CppCodeModelSettingsPage(QSharedPointer<CppCodeModelSettings> &settings,

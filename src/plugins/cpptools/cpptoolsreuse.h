@@ -72,7 +72,7 @@ void CPPTOOLS_EXPORT switchHeaderSource();
 class CppCodeModelSettings;
 QSharedPointer<CppCodeModelSettings> CPPTOOLS_EXPORT codeModelSettings();
 
-int fileSizeLimit();
-bool skipFileDueToSizeLimit(const QFileInfo &fileInfo, int limitInMB = fileSizeLimit());
+int indexerFileSizeLimitInMb();
+bool fileSizeExceedsLimit(const QFileInfo &fileInfo, int sizeLimitInMb);
 
 } // CppTools

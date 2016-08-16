@@ -611,9 +611,9 @@ QByteArray CppModelManager::codeModelConfiguration() const
     return QByteArray::fromRawData(pp_configuration, qstrlen(pp_configuration));
 }
 
-static QSet<QString> tooBigFilesRemoved(const QSet<QString> &files, int fileSizeLimit)
+static QSet<QString> tooBigFilesRemoved(const QSet<QString> &files, int fileSizeLimitInMb)
 {
-    if (fileSizeLimit == 0)
+    if (fileSizeLimitInMb <= 0)
         return files;
 
     QSet<QString> result;
@@ -623,7 +623,7 @@ static QSet<QString> tooBigFilesRemoved(const QSet<QString> &files, int fileSize
     while (i.hasNext()) {
         const QString filePath = i.next();
         fileInfo.setFile(filePath);
-        if (skipFileDueToSizeLimit(fileInfo, fileSizeLimit))
+        if (fileSizeExceedsLimit(fileInfo, fileSizeLimitInMb))
             continue;
 
         result << filePath;
@@ -638,7 +638,7 @@ QFuture<void> CppModelManager::updateSourceFiles(const QSet<QString> &sourceFile
     if (sourceFiles.isEmpty() || !d->m_indexerEnabled)
         return QFuture<void>();
 
-    const auto filteredFiles = tooBigFilesRemoved(sourceFiles, fileSizeLimit());
+    const QSet<QString> filteredFiles = tooBigFilesRemoved(sourceFiles, indexerFileSizeLimitInMb());
 
     if (d->m_indexingSupporter)
         d->m_indexingSupporter->refreshSourceFiles(filteredFiles, mode);

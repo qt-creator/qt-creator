@@ -32,6 +32,7 @@
 #include "cppsourceprocessor.h"
 #include "cpptoolsconstants.h"
 #include "cpptoolsplugin.h"
+#include "cpptoolsreuse.h"
 #include "searchsymbols.h"
 
 #include <coreplugin/icore.h>
@@ -59,6 +60,7 @@ public:
     ProjectPartHeaderPaths headerPaths;
     WorkingCopy workingCopy;
     QSet<QString> sourceFiles;
+    int indexerFileSizeLimitInMb = -1;
 };
 
 class WriteTaskFileForDiagnostics
@@ -179,6 +181,7 @@ void indexFindErrors(QFutureInterface<void> &future, const ParseParams params)
 void index(QFutureInterface<void> &future, const ParseParams params)
 {
     QScopedPointer<CppSourceProcessor> sourceProcessor(CppModelManager::createSourceProcessor());
+    sourceProcessor->setFileSizeLimitInMb(params.indexerFileSizeLimitInMb);
     sourceProcessor->setHeaderPaths(params.headerPaths);
     sourceProcessor->setWorkingCopy(params.workingCopy);
 
@@ -349,6 +352,7 @@ QFuture<void> BuiltinIndexingSupport::refreshSourceFiles(const QSet<QString> &so
     CppModelManager *mgr = CppModelManager::instance();
 
     ParseParams params;
+    params.indexerFileSizeLimitInMb = indexerFileSizeLimitInMb();
     params.headerPaths = mgr->headerPaths();
     params.workingCopy = mgr->workingCopy();
     params.sourceFiles = sourceFiles;

@@ -63,6 +63,12 @@ public:
     PCHUsage pchUsage() const;
     void setPCHUsage(PCHUsage pchUsage);
 
+    bool skipIndexingBigFiles() const;
+    void setSkipIndexingBigFiles(bool yesno);
+
+    int indexerFileSizeLimitInMb() const;
+    void setIndexerFileSizeLimitInMb(int sizeInMB);
+
 public: // for tests
     void emitChanged();
 
@@ -72,6 +78,8 @@ signals:
 
 private:
     PCHUsage m_pchUsage = PchUse_None;
+    bool m_skipIndexingBigFiles = true;
+    int m_indexerFileSizeLimitInMB = 5;
     ClangDiagnosticConfigs m_clangCustomDiagnosticConfigs;
     Core::Id m_clangDiagnosticConfigId;
 };

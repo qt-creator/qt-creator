@@ -448,7 +448,7 @@ void CppSourceProcessor::sourceNeeded(unsigned line, const QString &fileName, In
     }
 
     const QFileInfo info(absoluteFileName);
-    if (skipFileDueToSizeLimit(info))
+    if (fileSizeExceedsLimit(info, m_fileSizeLimitInMb))
         return; // TODO: Add diagnostic message
 
     // Otherwise get file contents
@@ -503,6 +503,11 @@ void CppSourceProcessor::sourceNeeded(unsigned line, const QString &fileName, In
     m_snapshot.insert(document);
     m_todo.remove(absoluteFileName);
     switchCurrentDocument(previousDocument);
+}
+
+void CppSourceProcessor::setFileSizeLimitInMb(int fileSizeLimitInMb)
+{
+    m_fileSizeLimitInMb = fileSizeLimitInMb;
 }
 
 Document::Ptr CppSourceProcessor::switchCurrentDocument(Document::Ptr doc)

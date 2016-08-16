@@ -65,6 +65,7 @@ public:
     void setWorkingCopy(const CppTools::WorkingCopy &workingCopy);
     void setHeaderPaths(const ProjectPartHeaderPaths &headerPaths);
     void setLanguageFeatures(CPlusPlus::LanguageFeatures languageFeatures);
+    void setFileSizeLimitInMb(int fileSizeLimitInMb);
     void setTodo(const QSet<QString> &files);
 
     void run(const QString &fileName, const QStringList &initialIncludes = QStringList());
@@ -122,6 +123,7 @@ private:
     QSet<QString> m_todo;
     QSet<QString> m_processed;
     QHash<QString, QString> m_fileNameCache;
+    int m_fileSizeLimitInMb = -1;
     QTextCodec *m_defaultCodec;
 };
 
