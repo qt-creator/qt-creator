@@ -147,6 +147,7 @@ void TaskHub::addTask(Task task)
         auto mark = new TaskMark(task.taskId, task.file.toString(), task.line, task.type, !task.icon.isNull());
         mark->setIcon(task.icon);
         mark->setPriority(TextEditor::TextMark::LowPriority);
+        mark->setToolTip(task.description);
         task.setMark(mark);
     }
     emit m_instance->taskAdded(task);

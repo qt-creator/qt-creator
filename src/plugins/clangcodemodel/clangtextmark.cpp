@@ -31,7 +31,6 @@
 #include <utils/icon.h>
 #include <utils/theme/theme.h>
 
-#include <QLayout>
 #include <QString>
 
 namespace ClangCodeModel {
@@ -83,9 +82,10 @@ void ClangTextMark::setIcon(ClangBackEnd::DiagnosticSeverity severity)
         TextMark::setIcon(errorIcon);
 }
 
-void ClangTextMark::addToToolTipLayout(QLayout *target)
+bool ClangTextMark::addToolTipContent(QLayout *target)
 {
-     Internal::addToolTipToLayout(m_diagnostic, target);
+    Internal::addToolTipToLayout(m_diagnostic, target);
+    return true;
 }
 
 } // namespace ClangCodeModel

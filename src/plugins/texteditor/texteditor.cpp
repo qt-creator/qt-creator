@@ -91,6 +91,7 @@
 #include <QClipboard>
 #include <QCoreApplication>
 #include <QDebug>
+#include <QGridLayout>
 #include <QKeyEvent>
 #include <QMenu>
 #include <QMessageBox>
@@ -111,7 +112,6 @@
 #include <QTimeLine>
 #include <QTimer>
 #include <QToolBar>
-#include <QVBoxLayout>
 
 //#define DO_FOO
 
@@ -5122,7 +5122,7 @@ void TextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
                     if (data->marks().isEmpty()) {
                         ToolTip::hide();
                     } else {
-                        auto layout = new QVBoxLayout;
+                        auto layout = new QGridLayout;
                         layout->setContentsMargins(0, 0, 0, 0);
                         layout->setSpacing(2);
                         foreach (TextMark *mark, data->marks())

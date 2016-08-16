@@ -33,6 +33,7 @@
 #include <QIcon>
 
 QT_BEGIN_NAMESPACE
+class QGridLayout;
 class QLayout;
 class QPainter;
 class QRect;
@@ -74,13 +75,15 @@ public:
     virtual void clicked();
     virtual bool isDraggable() const;
     virtual void dragToLine(int lineNumber);
-    virtual void addToToolTipLayout(QLayout *target);
+    void addToToolTipLayout(QGridLayout *target);
+    virtual bool addToolTipContent(QLayout *target);
 
     static Utils::Theme::Color categoryColor(Core::Id category);
     static bool categoryHasColor(Core::Id category);
     static void setCategoryColor(Core::Id category, Utils::Theme::Color color);
     static void setDefaultToolTip(Core::Id category, const QString &toolTip);
     void setIcon(const QIcon &icon);
+    const QIcon &icon() const;
     // call this if the icon has changed.
     void updateMarker();
     Priority priority() const;

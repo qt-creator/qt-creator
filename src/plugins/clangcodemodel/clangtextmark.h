@@ -38,7 +38,7 @@ public:
     ClangTextMark(const QString &fileName, const ClangBackEnd::DiagnosticContainer &diagnostic);
 
 private:
-    void addToToolTipLayout(QLayout *target);
+    bool addToolTipContent(QLayout *target);
     void setIcon(ClangBackEnd::DiagnosticSeverity severity);
 
     ClangBackEnd::DiagnosticContainer m_diagnostic;
