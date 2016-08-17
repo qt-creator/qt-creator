@@ -276,6 +276,9 @@ void CMakeProject::parseCMakeOutput()
 
     QHash<QString, QStringList> targetDataCache;
     foreach (const CMakeBuildTarget &cbt, buildTargets()) {
+        if (cbt.targetType == UtilityType)
+            continue;
+
         // CMake shuffles the include paths that it reports via the CodeBlocks generator
         // So remove the toolchain include paths, so that at least those end up in the correct
         // place.
@@ -697,7 +700,7 @@ void CMakeProject::updateApplicationAndDeploymentTargets()
     DeploymentData deploymentData;
 
     foreach (const CMakeBuildTarget &ct, buildTargets()) {
-        if (ct.executable.isEmpty())
+        if (ct.targetType == UtilityType)
             continue;
 
         if (ct.targetType == ExecutableType || ct.targetType == DynamicLibraryType)
