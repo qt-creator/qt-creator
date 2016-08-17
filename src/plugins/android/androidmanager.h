@@ -66,6 +66,7 @@ public:
     static bool signPackage(ProjectExplorer::Target *target);
 
     static int minimumSDK(ProjectExplorer::Target *target);
+    static int minimumSDK(const ProjectExplorer::Kit *kit);
 
     static QString targetArch(ProjectExplorer::Target *target);
 

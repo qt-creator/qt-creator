@@ -119,6 +119,13 @@ bool AndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
     if (!version)
         return false;
 
+    int minSDKForKit = AndroidManager::minimumSDK(target()->kit());
+    if (AndroidManager::minimumSDK(target()) < minSDKForKit) {
+        emit addOutput(tr("The API level set for the APK is less than the minimum required by the kit."
+                          "\nThe minimum API level required by the kit is %1.").arg(minSDKForKit), ErrorOutput);
+        return false;
+    }
+
     JavaParser *parser = new JavaParser;
     parser->setProjectFileList(target()->project()->files(ProjectExplorer::Project::AllFiles));
     parser->setSourceDirectory(androidPackageSourceDir());
