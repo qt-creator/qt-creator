@@ -291,7 +291,7 @@ TEST(SmallString, BeginPlusOneIsEqualEndForSmallStringWidthSizeOne)
 {
     SmallString text("x");
 
-    auto beginPlusOne = text.begin() + 1l;
+    auto beginPlusOne = text.begin() + std::size_t(1);
 
     ASSERT_THAT(beginPlusOne, Eq(text.end()));
 }
