@@ -97,15 +97,21 @@ void CMakeCbpParser::sortFiles()
 
     foreach (const FileName &fileName, fileNames) {
         qCDebug(log) << fileName;
-        const QString unitTarget = m_unitTargetMap[fileName];
-        if (!unitTarget.isEmpty()) { // target was explicitly specified for that file
-            int index = Utils::indexOf(m_buildTargets, Utils::equal(&CMakeBuildTarget::title, unitTarget));
-            if (index != -1) {
-                m_buildTargets[index].files.append(fileName.toString());
-                qCDebug(log) << "  into" << m_buildTargets[index].title << "(target attribute)";
-                continue;
+        const QStringList unitTargets = m_unitTargetMap[fileName];
+        if (!unitTargets.isEmpty()) {
+            // cmake >= 3.3:
+            foreach (const QString &unitTarget, unitTargets) {
+                int index = Utils::indexOf(m_buildTargets, Utils::equal(&CMakeBuildTarget::title, unitTarget));
+                if (index != -1) {
+                    m_buildTargets[index].files.append(fileName.toString());
+                    qCDebug(log) << "  into" << m_buildTargets[index].title << "(target attribute)";
+                    continue;
+                }
             }
+            continue;
         }
+
+        // fallback for cmake < 3.3:
         if (fileName.parentDir() == parentDirectory && last) {
             // easy case, same parent directory as last file
             last->files.append(fileName.toString());
@@ -447,7 +453,7 @@ void CMakeCbpParser::parseUnit()
     }
 
     m_parsingCMakeUnit = false;
-    m_unitTarget.clear();
+    m_unitTargets.clear();
     while (!atEnd()) {
         readNext();
         if (isEndElement()) {
@@ -468,8 +474,7 @@ void CMakeCbpParser::parseUnit()
                     else
                         m_fileList.append( new ProjectExplorer::FileNode(fileName, ProjectExplorer::SourceType, generated));
                 }
-                if (!m_unitTarget.isEmpty())
-                    m_unitTargetMap.insert(fileName, m_unitTarget);
+                m_unitTargetMap.insert(fileName, m_unitTargets);
                 m_processedUnits.insert(fileName);
             }
             return;
@@ -485,7 +490,9 @@ void CMakeCbpParser::parseUnitOption()
 {
     const QXmlStreamAttributes optionAttributes = attributes();
     m_parsingCMakeUnit = optionAttributes.hasAttribute(QLatin1String("virtualFolder"));
-    m_unitTarget = optionAttributes.value(QLatin1String("target")).toString();
+    const QString target = optionAttributes.value(QLatin1String("target")).toString();
+    if (!target.isEmpty())
+        m_unitTargets.append(target);
 
     while (!atEnd()) {
         readNext();
