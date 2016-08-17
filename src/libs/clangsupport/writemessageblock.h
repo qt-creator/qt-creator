@@ -48,6 +48,8 @@ public:
 
     void resetCounter();
 
+    void setIoDevice(QIODevice *ioDevice);
+
 private:
     qint64 m_messageCounter;
     QIODevice *m_ioDevice;

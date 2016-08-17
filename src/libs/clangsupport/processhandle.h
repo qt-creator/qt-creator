@@ -23,38 +23,24 @@
 **
 ****************************************************************************/
 
-#include "echoclangcodemodelserver.h"
+#pragma once
 
-#include <clangsupport/clangcodemodelclientproxy.h>
-#include <clangsupport/connectionserver.h>
+#include <QProcess>
 
-#include <QCoreApplication>
+#include <memory>
 
-using ClangBackEnd::ClangCodeModelClientProxy;
-using ClangBackEnd::ConnectionServer;
-using ClangBackEnd::EchoClangCodeModelServer;
+namespace ClangBackEnd {
 
-int main(int argc, char *argv[])
+class QProcessUniquePointerDeleter
 {
-    QCoreApplication::setOrganizationName("QtProject");
-    QCoreApplication::setOrganizationDomain("qt-project.org");
-    QCoreApplication::setApplicationName("EchoCodeModelBackend");
-    QCoreApplication::setApplicationVersion("1.0.0");
+public:
+  void operator()(QProcess* process)
+  {
+      process->kill();
+      process->waitForFinished();
+  }
+};
 
-    QCoreApplication application(argc, argv);
+using QProcessUniquePointer = std::unique_ptr<QProcess, QProcessUniquePointerDeleter>;
 
-
-    if (application.arguments().count() < 2)
-        return 1;
-    else if (application.arguments().count() == 3)
-        *(int*)0 = 0;
-    else if (application.arguments().contains("connectionName"))
-        return 0;
-
-    EchoClangCodeModelServer echoClangCodeModelServer;
-    ConnectionServer<EchoClangCodeModelServer, ClangCodeModelClientProxy> connectionServer;
-    connectionServer.setServer(&echoClangCodeModelServer);
-    connectionServer.start(application.arguments()[1]);
-
-    return application.exec();
-}
+} // namespace ClangBackEnd

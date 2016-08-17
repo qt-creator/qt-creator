@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,29 +23,39 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "baseserverproxy.h"
+#include "messageenvelop.h"
 
-#include <connectionclient.h>
-#include <pchmanagerserverproxy.h>
+#include <QIODevice>
 
-namespace ClangPchManager {
+namespace ClangBackEnd {
 
-class PchManagerConnectionClient  : public ClangBackEnd::ConnectionClient
+BaseServerProxy::BaseServerProxy(IpcClientInterface *client, QIODevice *ioDevice)
+    : m_writeMessageBlock(ioDevice),
+      m_readMessageBlock(ioDevice),
+      m_client(client)
 {
-public:
-    PchManagerConnectionClient(ClangBackEnd::PchManagerClientInterface *client);
-    ~PchManagerConnectionClient();
+    if (ioDevice)
+        QObject::connect(ioDevice, &QIODevice::readyRead, [this] () { BaseServerProxy::readMessages(); });
+}
 
-    ClangBackEnd::PchManagerServerProxy &serverProxy();
+void BaseServerProxy::readMessages()
+{
+    for (const auto &message : m_readMessageBlock.readAll())
+        m_client->dispatch(message);
+}
 
-protected:
-    void sendEndCommand() override;
-    void resetCounter() override;
-    QString outputName() const override;
-    void newConnectedServer(QIODevice *ioDevice) override;
+void BaseServerProxy::resetCounter()
+{
+    m_writeMessageBlock.resetCounter();
+    m_readMessageBlock.resetCounter();
+}
 
-private:
-    ClangBackEnd::PchManagerServerProxy m_serverProxy;
-};
+void BaseServerProxy::setIoDevice(QIODevice *ioDevice)
+{
+    QObject::connect(ioDevice, &QIODevice::readyRead, [this] () { BaseServerProxy::readMessages(); });
+    m_writeMessageBlock.setIoDevice(ioDevice);
+    m_readMessageBlock.setIoDevice(ioDevice);
+}
 
-} // namespace ClangPchManager
+} // namespace ClangBackEnd

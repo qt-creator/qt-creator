@@ -37,38 +37,23 @@
 namespace ClangBackEnd {
 
 PchManagerServerProxy::PchManagerServerProxy(PchManagerClientInterface *client, QIODevice *ioDevice)
-    : writeMessageBlock(ioDevice),
-      readMessageBlock(ioDevice),
-      client(client)
+    : BaseServerProxy(client, ioDevice)
 {
-    QObject::connect(ioDevice, &QIODevice::readyRead, [this] () { readMessages(); });
 }
 
 void PchManagerServerProxy::end()
 {
-    writeMessageBlock.write(EndMessage());
+    m_writeMessageBlock.write(EndMessage());
 }
 
 void PchManagerServerProxy::updatePchProjectParts(UpdatePchProjectPartsMessage &&message)
 {
-    writeMessageBlock.write(message);
+    m_writeMessageBlock.write(message);
 }
 
 void PchManagerServerProxy::removePchProjectParts(RemovePchProjectPartsMessage &&message)
 {
-    writeMessageBlock.write(message);
-}
-
-void PchManagerServerProxy::readMessages()
-{
-    for (const auto &message : readMessageBlock.readAll())
-        client->dispatch(message);
-}
-
-void PchManagerServerProxy::resetCounter()
-{
-    writeMessageBlock.resetCounter();
-    readMessageBlock.resetCounter();
+    m_writeMessageBlock.write(message);
 }
 
 } // namespace ClangBackEnd

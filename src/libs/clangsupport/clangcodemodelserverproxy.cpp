@@ -29,30 +29,11 @@
 #include <clangcodemodelservermessages.h>
 #include <messageenvelop.h>
 
-#include <QLocalServer>
-#include <QLocalSocket>
-#include <QProcess>
-
 namespace ClangBackEnd {
 
 ClangCodeModelServerProxy::ClangCodeModelServerProxy(ClangCodeModelClientInterface *client, QIODevice *ioDevice)
-    : m_writeMessageBlock(ioDevice),
-      m_readMessageBlock(ioDevice),
-      m_client(client)
+    : BaseServerProxy(client, ioDevice)
 {
-    QObject::connect(ioDevice, &QIODevice::readyRead, [this] () {ClangCodeModelServerProxy::readMessages();});
-}
-
-void ClangCodeModelServerProxy::readMessages()
-{
-    for (const auto &message : m_readMessageBlock.readAll())
-        m_client->dispatch(message);
-}
-
-void ClangCodeModelServerProxy::resetCounter()
-{
-    m_writeMessageBlock.resetCounter();
-    m_readMessageBlock.resetCounter();
 }
 
 void ClangCodeModelServerProxy::end()

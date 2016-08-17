@@ -119,7 +119,7 @@ TEST_F(ReadAndWriteMessageBlock, ReadThreeMessagesAndTestCount)
     writeMessageBlock.write(ClangBackEnd::EndMessage());
     buffer.seek(0);
 
-    ASSERT_EQ(3, readMessageBlock.readAll().count());
+    ASSERT_THAT(readMessageBlock.readAll(), SizeIs(3));
 }
 
 TEST_F(ReadAndWriteMessageBlock, CompareEndMessage)

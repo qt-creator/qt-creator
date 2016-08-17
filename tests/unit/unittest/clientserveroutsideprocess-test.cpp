@@ -51,7 +51,7 @@ using ::testing::SizeIs;
 struct Data {
     Data() : client(&mockClangCodeModelClient) {}
 
-    MockClangCodeModelClient mockClangCodeModelClient;
+    NiceMock<MockClangCodeModelClient> mockClangCodeModelClient;
     ClangBackEnd::ClangCodeModelConnectionClient client;
 };
 
@@ -80,7 +80,7 @@ TEST_F(ClientServerOutsideProcessSlowTest, RestartProcessAsynchronously)
     client.restartProcessAsynchronously();
 
     ASSERT_TRUE(clientSpy.wait(100000));
-    ASSERT_TRUE(client.isProcessIsRunning());
+    ASSERT_TRUE(client.isProcessRunning());
     ASSERT_TRUE(client.isConnected());
 }
 
@@ -200,6 +200,6 @@ void ClientServerOutsideProcess::TearDown()
     client.setProcessAliveTimerInterval(1000000);
     client.waitForConnected();
 
-    ASSERT_TRUE(client.isProcessIsRunning());
+    ASSERT_TRUE(client.isProcessRunning());
     ASSERT_TRUE(client.isConnected());
 }

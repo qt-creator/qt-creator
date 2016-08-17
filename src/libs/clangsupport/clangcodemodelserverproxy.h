@@ -24,9 +24,9 @@
 ****************************************************************************/
 
 #pragma once
+
+#include "baseserverproxy.h"
 #include "clangcodemodelserverinterface.h"
-#include "readmessageblock.h"
-#include "writemessageblock.h"
 
 #include <QtGlobal>
 #include <QTimer>
@@ -42,12 +42,11 @@ QT_END_NAMESPACE
 
 namespace ClangBackEnd {
 
-class CLANGSUPPORT_EXPORT ClangCodeModelServerProxy : public ClangCodeModelServerInterface
+class CLANGSUPPORT_EXPORT ClangCodeModelServerProxy : public BaseServerProxy,
+                                                      public ClangCodeModelServerInterface
 {
 public:
     ClangCodeModelServerProxy(ClangCodeModelClientInterface *client, QIODevice *ioDevice);
-    ClangCodeModelServerProxy(const ClangCodeModelServerProxy&) = delete;
-    ClangCodeModelServerProxy &operator=(const ClangCodeModelServerProxy&) = delete;
 
     void end() override;
     void registerTranslationUnitsForEditor(const RegisterTranslationUnitForEditorMessage &message) override;
@@ -62,15 +61,6 @@ public:
     void requestReferences(const RequestReferencesMessage &message) override;
     void requestFollowSymbol(const RequestFollowSymbolMessage &message) override;
     void updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message) override;
-
-    void readMessages();
-
-    void resetCounter();
-
-private:
-    ClangBackEnd::WriteMessageBlock m_writeMessageBlock;
-    ClangBackEnd::ReadMessageBlock m_readMessageBlock;
-    ClangCodeModelClientInterface *m_client;
 };
 
 } // namespace ClangBackEnd

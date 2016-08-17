@@ -76,9 +76,9 @@ try {
     FilePathCaching filePathCache{database};
     SymbolIndexing symbolIndexing{database, filePathCache};
     RefactoringServer clangCodeModelServer{symbolIndexing, filePathCache};
-    ConnectionServer<RefactoringServer, RefactoringClientProxy> connectionServer(connection);
-    connectionServer.start();
+    ConnectionServer<RefactoringServer, RefactoringClientProxy> connectionServer;
     connectionServer.setServer(&clangCodeModelServer);
+    connectionServer.start(connection);
 
 
     return application.exec();

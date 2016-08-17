@@ -72,9 +72,9 @@ int main(int argc, char *argv[])
     clang_enableStackTraces();
 
     ClangCodeModelServer clangCodeModelServer;
-    ConnectionServer<ClangCodeModelServer, ClangCodeModelClientProxy> connectionServer(connection);
-    connectionServer.start();
+    ConnectionServer<ClangCodeModelServer, ClangCodeModelClientProxy> connectionServer;
     connectionServer.setServer(&clangCodeModelServer);
+    connectionServer.start(connection);
 
     return application.exec();
 }

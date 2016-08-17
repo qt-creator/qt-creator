@@ -72,6 +72,10 @@ void WriteMessageBlock::resetCounter()
     m_messageCounter = 0;
 }
 
+void WriteMessageBlock::setIoDevice(QIODevice *ioDevice)
+{
+    m_ioDevice = ioDevice;
+}
 
 } // namespace ClangBackEnd
 

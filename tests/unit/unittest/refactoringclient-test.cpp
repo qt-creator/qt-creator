@@ -41,6 +41,7 @@
 
 #include <utils/smallstringvector.h>
 
+#include <QBuffer>
 #include <QTextCursor>
 #include <QTextDocument>
 
@@ -74,9 +75,10 @@ protected:
     NiceMock<MockSearchHandle> mockSearchHandle;
     NiceMock<MockSymbolQuery> mockSymbolQuery;
     MockRefactoringClientCallBack callbackMock;
+    QBuffer ioDevice;
     ClangRefactoring::RefactoringClient client;
-    ClangBackEnd::RefactoringConnectionClient connectionClient{&client};
-    RefactoringEngine engine{connectionClient.serverProxy(), client, mockFilePathCaching, mockSymbolQuery};
+    ClangBackEnd::RefactoringServerProxy serverProxy{&client, &ioDevice};
+    RefactoringEngine engine{serverProxy, client, mockFilePathCaching, mockSymbolQuery};
     QString fileContent{QStringLiteral("int x;\nint y;")};
     QTextDocument textDocument{fileContent};
     QTextCursor cursor{&textDocument};

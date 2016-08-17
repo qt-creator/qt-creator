@@ -31,7 +31,6 @@
 #include <QCoreApplication>
 #include <QDebug>
 
-
 namespace ClangBackEnd {
 
 void EchoClangCodeModelServer::dispatch(const MessageEnvelop &message)
@@ -41,7 +40,6 @@ void EchoClangCodeModelServer::dispatch(const MessageEnvelop &message)
 
 void EchoClangCodeModelServer::end()
 {
-    ConnectionServer<EchoClangCodeModelServer, ClangCodeModelClientProxy>::removeServer();
     QCoreApplication::quit();
 }
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,27 +25,30 @@
 
 #pragma once
 
-#include <connectionclient.h>
-#include <pchmanagerserverproxy.h>
+#include "ipcclientinterface.h"
+#include "readmessageblock.h"
+#include "writemessageblock.h"
 
-namespace ClangPchManager {
+namespace ClangBackEnd {
 
-class PchManagerConnectionClient  : public ClangBackEnd::ConnectionClient
+class CLANGSUPPORT_EXPORT BaseServerProxy
 {
-public:
-    PchManagerConnectionClient(ClangBackEnd::PchManagerClientInterface *client);
-    ~PchManagerConnectionClient();
+    BaseServerProxy(const BaseServerProxy&) = delete;
+    BaseServerProxy &operator=(const BaseServerProxy&) = delete;
 
-    ClangBackEnd::PchManagerServerProxy &serverProxy();
+public:
+    BaseServerProxy(IpcClientInterface *client, QIODevice *ioDevice);
+
+    void readMessages();
+
+    void resetCounter();
+
+    void setIoDevice(QIODevice *ioDevice);
 
 protected:
-    void sendEndCommand() override;
-    void resetCounter() override;
-    QString outputName() const override;
-    void newConnectedServer(QIODevice *ioDevice) override;
-
-private:
-    ClangBackEnd::PchManagerServerProxy m_serverProxy;
+    ClangBackEnd::WriteMessageBlock m_writeMessageBlock;
+    ClangBackEnd::ReadMessageBlock m_readMessageBlock;
+    IpcClientInterface *m_client;
 };
 
-} // namespace ClangPchManager
+} // namespace ClangBackEnd

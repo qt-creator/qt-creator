@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "baseserverproxy.h"
 #include "clangsupport_global.h"
 #include "pchmanagerserverinterface.h"
 #include "readmessageblock.h"
@@ -42,25 +43,15 @@ namespace ClangBackEnd {
 
 class PchManagerClientInterface;
 
-class CLANGSUPPORT_EXPORT PchManagerServerProxy final : public PchManagerServerInterface
+class CLANGSUPPORT_EXPORT PchManagerServerProxy final : public BaseServerProxy,
+                                                        public PchManagerServerInterface
 {
 public:
     explicit PchManagerServerProxy(PchManagerClientInterface *client, QIODevice *ioDevice);
-    PchManagerServerProxy(const PchManagerServerProxy&) = delete;
-    const PchManagerServerProxy &operator=(const PchManagerServerProxy&) = delete;
 
     void end() override;
     void updatePchProjectParts(UpdatePchProjectPartsMessage &&message) override;
     void removePchProjectParts(RemovePchProjectPartsMessage &&message) override;
-
-    void readMessages();
-
-    void resetCounter();
-
-private:
-    ClangBackEnd::WriteMessageBlock writeMessageBlock;
-    ClangBackEnd::ReadMessageBlock readMessageBlock;
-    PchManagerClientInterface *client = nullptr;
 };
 
 } // namespace ClangBackEnd

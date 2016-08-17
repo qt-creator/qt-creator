@@ -27,7 +27,5 @@
 
 namespace ClangBackEnd {
 
-QString ConnectionName::connectionName;
-
 } // namespace ClangBackEnd
 

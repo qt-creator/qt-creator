@@ -23,38 +23,18 @@
 **
 ****************************************************************************/
 
-#include "echoclangcodemodelserver.h"
+#include "processexception.h"
 
-#include <clangsupport/clangcodemodelclientproxy.h>
-#include <clangsupport/connectionserver.h>
+namespace ClangBackEnd {
 
-#include <QCoreApplication>
-
-using ClangBackEnd::ClangCodeModelClientProxy;
-using ClangBackEnd::ConnectionServer;
-using ClangBackEnd::EchoClangCodeModelServer;
-
-int main(int argc, char *argv[])
+ProcessException::ProcessException(Utils::SmallString &&what)
+    : what_(std::move(what))
 {
-    QCoreApplication::setOrganizationName("QtProject");
-    QCoreApplication::setOrganizationDomain("qt-project.org");
-    QCoreApplication::setApplicationName("EchoCodeModelBackend");
-    QCoreApplication::setApplicationVersion("1.0.0");
-
-    QCoreApplication application(argc, argv);
-
-
-    if (application.arguments().count() < 2)
-        return 1;
-    else if (application.arguments().count() == 3)
-        *(int*)0 = 0;
-    else if (application.arguments().contains("connectionName"))
-        return 0;
-
-    EchoClangCodeModelServer echoClangCodeModelServer;
-    ConnectionServer<EchoClangCodeModelServer, ClangCodeModelClientProxy> connectionServer;
-    connectionServer.setServer(&echoClangCodeModelServer);
-    connectionServer.start(application.arguments()[1]);
-
-    return application.exec();
 }
+
+const char *ProcessException::what() const noexcept
+{
+    return what_.data();
+}
+
+} // namespace ClangBackEnd

@@ -74,6 +74,9 @@ SOURCES += \
     $$PWD/sourcelocationscontainer.cpp \
     $$PWD/sourcelocationsforrenamingmessage.cpp \
     $$PWD/sourcerangecontainer.cpp \
+    $$PWD/processcreator.cpp \
+    $$PWD/processexception.cpp \
+    $$PWD/processstartedevent.cpp \
     $$PWD/sourcerangecontainerv2.cpp \
     $$PWD/sourcerangesanddiagnosticsforquerymessage.cpp \
     $$PWD/sourcerangescontainer.cpp \
@@ -85,7 +88,8 @@ SOURCES += \
     $$PWD/updatevisibletranslationunitsmessage.cpp \
     $$PWD/writemessageblock.cpp \
     $$PWD/filepathcaching.cpp \
-    $$PWD/filepathid.cpp
+    $$PWD/filepathid.cpp \
+    $$PWD/baseserverproxy.cpp
 
 HEADERS += \
     $$PWD/cancelmessage.h \
@@ -161,6 +165,11 @@ HEADERS += \
     $$PWD/sourcelocationscontainer.h \
     $$PWD/sourcelocationsforrenamingmessage.h \
     $$PWD/sourcerangecontainer.h \
+    $$PWD/filepath.h \
+    $$PWD/processcreator.h \
+    $$PWD/processexception.h \
+    $$PWD/processhandle.h \
+    $$PWD/processstartedevent.h \
     $$PWD/sourcerangecontainerv2.h \
     $$PWD/sourcerangesanddiagnosticsforquerymessage.h \
     $$PWD/sourcerangescontainer.h \
@@ -187,6 +196,7 @@ HEADERS += \
     $$PWD/filepathcachinginterface.h \
     $$PWD/filepathcaching.h \
     $$PWD/filepathcachingfwd.h \
+    $$PWD/baseserverproxy.h \
     $$PWD/nativefilepathview.h \
     $$PWD/filepath.h \
     $$PWD/nativefilepath.h \

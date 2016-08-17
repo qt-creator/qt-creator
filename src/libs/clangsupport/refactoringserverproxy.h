@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "baseserverproxy.h"
 #include "clangsupport_global.h"
 #include "refactoringserverinterface.h"
 #include "readmessageblock.h"
@@ -42,12 +43,11 @@ namespace ClangBackEnd {
 
 class RefactoringClientInterface;
 
-class CLANGSUPPORT_EXPORT RefactoringServerProxy final : public RefactoringServerInterface
+class CLANGSUPPORT_EXPORT RefactoringServerProxy final : public BaseServerProxy,
+                                                         public RefactoringServerInterface
 {
 public:
     explicit RefactoringServerProxy(RefactoringClientInterface *client, QIODevice *ioDevice);
-    RefactoringServerProxy(const RefactoringServerProxy&) = delete;
-    const RefactoringServerProxy &operator=(const RefactoringServerProxy&) = delete;
 
     void end() override;
     void requestSourceLocationsForRenamingMessage(RequestSourceLocationsForRenamingMessage &&message) override;
@@ -56,15 +56,6 @@ public:
     void updatePchProjectParts(UpdatePchProjectPartsMessage &&message) override;
     void removePchProjectParts(RemovePchProjectPartsMessage &&message) override;
     void cancel() override;
-
-    void readMessages();
-
-    void resetCounter();
-
-private:
-    ClangBackEnd::WriteMessageBlock writeMessageBlock;
-    ClangBackEnd::ReadMessageBlock readMessageBlock;
-    RefactoringClientInterface *client = nullptr;
 };
 
 } // namespace ClangBackEnd

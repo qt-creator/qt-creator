@@ -23,38 +23,40 @@
 **
 ****************************************************************************/
 
-#include "echoclangcodemodelserver.h"
-
-#include <clangsupport/clangcodemodelclientproxy.h>
-#include <clangsupport/connectionserver.h>
+#include "eventspy.h"
 
 #include <QCoreApplication>
+#include <QEvent>
 
-using ClangBackEnd::ClangCodeModelClientProxy;
-using ClangBackEnd::ConnectionServer;
-using ClangBackEnd::EchoClangCodeModelServer;
+using namespace std::literals::chrono_literals;
 
-int main(int argc, char *argv[])
+EventSpy::EventSpy(uint eventType)
+    : startTime(std::chrono::steady_clock::now()),
+      eventType(eventType)
 {
-    QCoreApplication::setOrganizationName("QtProject");
-    QCoreApplication::setOrganizationDomain("qt-project.org");
-    QCoreApplication::setApplicationName("EchoCodeModelBackend");
-    QCoreApplication::setApplicationVersion("1.0.0");
+}
 
-    QCoreApplication application(argc, argv);
+bool EventSpy::waitForEvent()
+{
+    while (shouldRun())
+        QCoreApplication::processEvents();
 
+    return eventHappened;
+}
 
-    if (application.arguments().count() < 2)
-        return 1;
-    else if (application.arguments().count() == 3)
-        *(int*)0 = 0;
-    else if (application.arguments().contains("connectionName"))
-        return 0;
+bool EventSpy::event(QEvent *event)
+{
+    if (event->type() == eventType) {
+        eventHappened = true;
 
-    EchoClangCodeModelServer echoClangCodeModelServer;
-    ConnectionServer<EchoClangCodeModelServer, ClangCodeModelClientProxy> connectionServer;
-    connectionServer.setServer(&echoClangCodeModelServer);
-    connectionServer.start(application.arguments()[1]);
+        return true;
+    }
 
-    return application.exec();
+    return false;
+}
+
+bool EventSpy::shouldRun() const
+{
+    return !eventHappened
+        && (std::chrono::steady_clock::now() - startTime) < 1s;
 }

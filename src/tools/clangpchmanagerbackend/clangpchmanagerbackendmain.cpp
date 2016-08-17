@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
 
     QCoreApplication application(argc, argv);
 
-    const QString connection =  processArguments(application);
+    const QString connectionName =  processArguments(application);
 
     Sqlite::Database database{Utils::PathString{QDir::tempPath() + "/symbol.db"}};
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
@@ -120,9 +120,9 @@ int main(int argc, char *argv[])
     includeWatcher.setNotifier(&clangPchManagerServer);
     pchGenerator.setNotifier(&clangPchManagerServer);
 
-    ConnectionServer<PchManagerServer, PchManagerClientProxy> connectionServer(connection);
-    connectionServer.start();
+    ConnectionServer<PchManagerServer, PchManagerClientProxy> connectionServer;
     connectionServer.setServer(&clangPchManagerServer);
+    connectionServer.start(connectionName);
 
     return application.exec();
 }

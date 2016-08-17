@@ -23,38 +23,29 @@
 **
 ****************************************************************************/
 
-#include "echoclangcodemodelserver.h"
+#pragma once
 
-#include <clangsupport/clangcodemodelclientproxy.h>
-#include <clangsupport/connectionserver.h>
+#include <QObject>
 
-#include <QCoreApplication>
+#include <chrono>
 
-using ClangBackEnd::ClangCodeModelClientProxy;
-using ClangBackEnd::ConnectionServer;
-using ClangBackEnd::EchoClangCodeModelServer;
-
-int main(int argc, char *argv[])
+class EventSpy : public QObject
 {
-    QCoreApplication::setOrganizationName("QtProject");
-    QCoreApplication::setOrganizationDomain("qt-project.org");
-    QCoreApplication::setApplicationName("EchoCodeModelBackend");
-    QCoreApplication::setApplicationVersion("1.0.0");
+    Q_OBJECT
 
-    QCoreApplication application(argc, argv);
+public:
+    EventSpy(uint eventType);
 
+    bool waitForEvent();
 
-    if (application.arguments().count() < 2)
-        return 1;
-    else if (application.arguments().count() == 3)
-        *(int*)0 = 0;
-    else if (application.arguments().contains("connectionName"))
-        return 0;
+protected:
+    bool event(QEvent *event) override;
 
-    EchoClangCodeModelServer echoClangCodeModelServer;
-    ConnectionServer<EchoClangCodeModelServer, ClangCodeModelClientProxy> connectionServer;
-    connectionServer.setServer(&echoClangCodeModelServer);
-    connectionServer.start(application.arguments()[1]);
+private:
+    bool shouldRun() const;
 
-    return application.exec();
-}
+private:
+    std::chrono::steady_clock::time_point startTime;
+    uint eventType;
+    bool eventHappened = false;
+};

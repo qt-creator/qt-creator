@@ -70,6 +70,7 @@ SOURCES += \
     spydummy.cpp \
     symbolindexer-test.cpp \
     stringcache-test.cpp \
+    eventspy.cpp \
     unittests-main.cpp \
     utf8-test.cpp \
     symbolstorage-test.cpp \
@@ -82,6 +83,7 @@ SOURCES += \
     filepathcache-test.cpp \
     filepathstorage-test.cpp \
     filepathstoragesqlitestatementfactory-test.cpp \
+    processcreator-test.cpp \
     nativefilepath-test.cpp \
     nativefilepathview-test.cpp
 
@@ -176,6 +178,7 @@ HEADERS += \
     conditionally-disabled-tests.h \
     dummyclangipcclient.h \
     dynamicastmatcherdiagnosticcontainer-matcher.h \
+    eventspy.h \
     fakeprocess.h \
     faketimer.h \
     filesystem-utilities.h \

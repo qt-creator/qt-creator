@@ -25,39 +25,54 @@
 
 #pragma once
 
-#include <QtGlobal>
+#include <clangsupport_global.h>
 
-#include <vector>
+#include "processhandle.h"
+
+#include <utils/temporarydirectory.h>
+
+#include <QStringList>
+
+#include <future>
+#include <memory>
 
 QT_BEGIN_NAMESPACE
-class QDataStream;
-class QIODevice;
+class QTemporaryDir;
+class QProcessEnvironment;
 QT_END_NAMESPACE
 
 namespace ClangBackEnd {
 
-class MessageEnvelop;
-
-class ReadMessageBlock
+class CLANGSUPPORT_EXPORT ProcessCreator
 {
 public:
-    ReadMessageBlock(QIODevice *ioDevice = nullptr);
+    ProcessCreator();
 
-    MessageEnvelop read();
-    std::vector<MessageEnvelop> readAll();
+    void setTemporaryDirectoryPattern(const QString &temporaryDirectoryPattern);
+    void setProcessPath(const QString &m_processPath);
+    void setArguments(const QStringList &m_arguments);
+    void setObserver(QObject *m_observer);
 
-    void resetCounter();
+    std::future<QProcessUniquePointer> createProcess() const;
 
-    void setIoDevice(QIODevice *ioDevice);
+    const QTemporaryDir &temporaryDirectory() const;
+    void resetTemporaryDirectory();
 
 private:
-    bool isTheWholeMessageReadable(QDataStream &in);
-    bool checkIfMessageIsLost(QDataStream &in);
+    void checkIfProcessPathExists() const;
+    void checkIfProcessWasStartingSuccessful(QProcess *process) const;
+    [[noreturn]] void dispatchProcessError(QProcess *process) const;
+    void postProcessStartedEvent() const;
+    [[noreturn]] void throwProcessException(const QString &message) const;
+
+    QProcessEnvironment processEnvironment() const;
 
 private:
-    QIODevice *m_ioDevice;
-    qint64 m_messageCounter;
-    qint32 m_blockSize;
+    std::unique_ptr<Utils::TemporaryDirectory> m_temporaryDirectory;
+    QString m_processPath;
+    QString m_temporaryDirectoryPattern;
+    QStringList m_arguments;
+    QObject *m_observer = nullptr;
 };
 
 } // namespace ClangBackEnd

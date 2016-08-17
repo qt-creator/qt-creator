@@ -41,8 +41,8 @@ namespace ClangRefactoring {
 class RefactoringEngine : public CppTools::RefactoringEngineInterface
 {
 public:
-    RefactoringEngine(ClangBackEnd::RefactoringServerInterface &m_server,
-                      ClangBackEnd::RefactoringClientInterface &m_client,
+    RefactoringEngine(ClangBackEnd::RefactoringServerInterface &server,
+                      ClangBackEnd::RefactoringClientInterface &client,
                       ClangBackEnd::FilePathCachingInterface &filePathCache,
                       SymbolQueryInterface &symbolQuery);
     ~RefactoringEngine() override;

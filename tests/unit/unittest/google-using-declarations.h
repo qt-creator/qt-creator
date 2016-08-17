@@ -33,7 +33,6 @@ using testing::AnyNumber;
 using testing::AnyOf;
 using testing::Contains;
 using testing::ElementsAre;
-using testing::Eq;
 using testing::Field;
 using testing::HasSubstr;
 using testing::InSequence;
@@ -51,3 +50,10 @@ using testing::SizeIs;
 using testing::StrEq;
 using testing::Throw;
 using testing::UnorderedElementsAre;
+
+using testing::Eq;
+using testing::Ge;
+using testing::Gt;
+using testing::Le;
+using testing::Lt;
+using testing::Ne;
