@@ -118,7 +118,6 @@ using namespace ProjectExplorer;
 namespace Android {
 namespace Internal {
 
-typedef QLatin1String _;
 const int MIN_SOCKET_HANDSHAKE_PORT = 20001;
 const int MAX_SOCKET_HANDSHAKE_PORT = 20999;
 
@@ -225,16 +224,16 @@ AndroidRunnerWorker::AndroidRunnerWorker(AndroidRunConfiguration *runConfig, Cor
     }
     m_adb = AndroidConfigurations::currentConfig().adbToolPath().toString();
 
-    QString packageDir = _("/data/data/") + m_packageName;
-    m_pingFile = packageDir + _("/debug-ping");
-    m_pongFile = _("/data/local/tmp/qt/debug-pong-") + m_packageName;
-    m_gdbserverSocket = packageDir + _("/debug-socket");
+    QString packageDir = "/data/data/" + m_packageName;
+    m_pingFile = packageDir + "/debug-ping";
+    m_pongFile = "/data/local/tmp/qt/debug-pong-" + m_packageName;
+    m_gdbserverSocket = packageDir + "/debug-socket";
     const QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(
                 runConfig->target()->kit());
     if (version && version->qtVersion() >=  QtSupport::QtVersionNumber(5, 4, 0))
-        m_gdbserverPath = packageDir + _("/lib/libgdbserver.so");
+        m_gdbserverPath = packageDir + "/lib/libgdbserver.so";
     else
-        m_gdbserverPath = packageDir + _("/lib/gdbserver");
+        m_gdbserverPath = packageDir + "/lib/gdbserver";
 
     if (version && version->qtVersion() >= QtSupport::QtVersionNumber(5, 4, 0)) {
         if (qEnvironmentVariableIsSet("QTC_ANDROID_USE_FILE_HANDSHAKE"))
@@ -272,7 +271,7 @@ void AndroidRunnerWorker::init()
     Utils::SynchronousProcess psProc;
     psProc.setTimeoutS(5);
     Utils::SynchronousProcessResponse response = psProc.runBlocking(
-                m_adb, selector() << _("shell") << _("readlink") << _("$(which ps)"));
+                m_adb, selector() << "shell" << "readlink" << "$(which ps)");
     const QString which = response.allOutput();
     m_isBusyBox = which.startsWith("busybox");
 
@@ -371,11 +370,12 @@ void AndroidRunnerWorker::checkPID()
 
 void AndroidRunnerWorker::forceStop()
 {
-    runAdb(selector() << _("shell") << _("am") << _("force-stop") << m_packageName, nullptr, 30);
+    runAdb(selector() << "shell" << "am" << "force-stop" << m_packageName, nullptr, 30);
 
     // try killing it via kill -9
     const QByteArray out = Utils::SynchronousProcess()
-            .runBlocking(m_adb, selector() << _("shell") << _(m_isBusyBox ? "ps -w" : "ps"))
+            .runBlocking(m_adb,
+                         selector() << "shell" << QLatin1String(m_isBusyBox ? "ps -w" : "ps"))
             .allRawOutput();
 
     int from = 0;
@@ -396,46 +396,46 @@ void AndroidRunnerWorker::asyncStart(const QString &intentName,
                                      const QVector<QStringList> &adbCommands)
 {
     // Its assumed that the device or avd serial returned by selector() is online.
-    m_adbLogcatProcess->start(m_adb, selector() << _("logcat"));
-    m_psProc->start(m_adb, selector() << _("shell"));
+    m_adbLogcatProcess->start(m_adb, selector() << "logcat");
+    m_psProc->start(m_adb, selector() << "shell");
 
     forceStop();
     QString errorMessage;
 
     if (m_useCppDebugger)
-        runAdb(selector() << _("shell") << _("rm") << m_pongFile); // Remove pong file.
+        runAdb(selector() << "shell" << "rm" << m_pongFile); // Remove pong file.
 
     foreach (const QStringList &entry, adbCommands)
         runAdb(selector() << entry);
 
     QStringList args = selector();
-    args << _("shell") << _("am") << _("start") << _("-n") << intentName;
+    args << "shell" << "am" << "start" << "-n" << intentName;
 
     if (m_useCppDebugger) {
-        if (!runAdb(selector() << _("forward")
+        if (!runAdb(selector() << "forward"
                     << QString::fromLatin1("tcp:%1").arg(m_localGdbServerPort.number())
-                    << _("localfilesystem:") + m_gdbserverSocket, &errorMessage)) {
+                    << "localfilesystem:" + m_gdbserverSocket, &errorMessage)) {
             emit remoteProcessFinished(tr("Failed to forward C++ debugging ports. Reason: %1.").arg(errorMessage));
             return;
         }
 
-        const QString pingPongSocket(m_packageName + _(".ping_pong_socket"));
-        args << _("-e") << _("debug_ping") << _("true");
+        const QString pingPongSocket(m_packageName + ".ping_pong_socket");
+        args << "-e" << "debug_ping" << "true";
         if (m_handShakeMethod == SocketHandShake) {
-            args << _("-e") << _("ping_socket") << pingPongSocket;
+            args << "-e" << "ping_socket" << pingPongSocket;
         } else if (m_handShakeMethod == PingPongFiles) {
-            args << _("-e") << _("ping_file") << m_pingFile;
-            args << _("-e") << _("pong_file") << m_pongFile;
+            args << "-e" << "ping_file" << m_pingFile;
+            args << "-e" << "pong_file" << m_pongFile;
         }
 
         QString gdbserverCommand = QString::fromLatin1(adbShellAmNeedsQuotes() ? "\"%1 --multi +%2\"" : "%1 --multi +%2")
                 .arg(m_gdbserverPath).arg(m_gdbserverSocket);
-        args << _("-e") << _("gdbserver_command") << gdbserverCommand;
-        args << _("-e") << _("gdbserver_socket") << m_gdbserverSocket;
+        args << "-e" << "gdbserver_command" << gdbserverCommand;
+        args << "-e" << "gdbserver_socket" << m_gdbserverSocket;
 
         if (m_handShakeMethod == SocketHandShake) {
             const QString port = QString::fromLatin1("tcp:%1").arg(m_socketHandShakePort);
-            if (!runAdb(selector() << _("forward") << port << _("localabstract:") + pingPongSocket,
+            if (!runAdb(selector() << "forward" << port << ("localabstract:" + pingPongSocket),
                         &errorMessage)) {
                 emit remoteProcessFinished(tr("Failed to forward ping pong ports. Reason: %1.")
                                            .arg(errorMessage));
@@ -447,14 +447,14 @@ void AndroidRunnerWorker::asyncStart(const QString &intentName,
     if (m_qmlDebugServices != QmlDebug::NoQmlDebugServices) {
         // currently forward to same port on device and host
         const QString port = QString::fromLatin1("tcp:%1").arg(m_qmlPort.number());
-        if (!runAdb(selector() << _("forward") << port << port, &errorMessage)) {
+        if (!runAdb(selector() << "forward" << port << port, &errorMessage)) {
             emit remoteProcessFinished(tr("Failed to forward QML debugging ports. Reason: %1.")
                                        .arg(errorMessage));
             return;
         }
 
-        args << _("-e") << _("qml_debug") << _("true")
-             << _("-e") << _("qmljsdebugger")
+        args << "-e" << "qml_debug" << "true"
+             << "-e" << "qmljsdebugger"
              << QString::fromLatin1("port:%1,block,services:%2")
                 .arg(m_qmlPort.number()).arg(QmlDebug::qmlDebugServices(m_qmlDebugServices));
     }
@@ -509,11 +509,11 @@ void AndroidRunnerWorker::asyncStart(const QString &intentName,
         } else {
             // Handling ping.
             for (int i = 0; ; ++i) {
-                QTemporaryFile tmp(QDir::tempPath() + _("/pingpong"));
+                QTemporaryFile tmp(QDir::tempPath() + "/pingpong");
                 tmp.open();
                 tmp.close();
 
-                runAdb(selector() << _("pull") << m_pingFile << tmp.fileName());
+                runAdb(selector() << "pull" << m_pingFile << tmp.fileName());
 
                 QFile res(tmp.fileName());
                 const bool doBreak = res.size();
@@ -548,8 +548,8 @@ bool AndroidRunnerWorker::adbShellAmNeedsQuotes()
     Utils::SynchronousProcess adb;
     adb.setTimeoutS(10);
     Utils::SynchronousProcessResponse response
-            = adb.run(m_adb, selector() << _("shell") << _("am") << _("start")
-                      << _("-e") << _("dummy") <<_("dummy --dummy"));
+            = adb.run(m_adb, selector() << "shell" << "am" << "start"
+                                        << "-e" << "dummy" << "dummy --dummy");
     if (response.result == Utils::SynchronousProcessResponse::StartFailed
             || response.result != Utils::SynchronousProcessResponse::Finished)
         return true;
@@ -578,10 +578,10 @@ void AndroidRunnerWorker::handleRemoteDebuggerRunning()
             m_socket->waitForBytesWritten();
             m_socket->close();
         } else {
-            QTemporaryFile tmp(QDir::tempPath() + _("/pingpong"));
+            QTemporaryFile tmp(QDir::tempPath() + "/pingpong");
             tmp.open();
 
-            runAdb(selector() << _("push") << tmp.fileName() << m_pongFile);
+            runAdb(selector() << "push" << tmp.fileName() << m_pongFile);
         }
         QTC_CHECK(m_processPID != -1);
     }
@@ -646,9 +646,9 @@ void AndroidRunnerWorker::logcatProcess(const QByteArray &text, QByteArray &buff
                     emit remoteOutput(output);
             }
         } else {
-            if (onlyError || line.startsWith(_("F/"))
-                    || line.startsWith(_("E/"))
-                    || line.startsWith(_("W/")))
+            if (onlyError || line.startsWith("F/")
+                    || line.startsWith("E/")
+                    || line.startsWith("W/"))
                 emit remoteErrorOutput(line);
             else
                 emit remoteOutput(line);
@@ -670,9 +670,9 @@ void AndroidRunnerWorker::logcatReadStandardOutput()
 
 void AndroidRunnerWorker::adbKill(qint64 pid)
 {
-    runAdb(selector() << _("shell") << _("kill") << QLatin1String("-9") << QString::number(pid));
-    runAdb(selector() << _("shell") << _("run-as") << m_packageName
-           << _("kill") << QLatin1String("-9") << QString::number(pid));
+    runAdb(selector() << "shell" << "kill" << "-9" << QString::number(pid));
+    runAdb(selector() << "shell" << "run-as" << m_packageName
+                      << "kill" << "-9" << QString::number(pid));
 }
 
 AndroidRunner::AndroidRunner(QObject *parent, AndroidRunConfiguration *runConfig, Core::Id runMode)
