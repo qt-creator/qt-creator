@@ -193,7 +193,7 @@ FileName CMakeBuildConfiguration::shadowBuildDirectory(const FileName &projectFi
         return FileName();
 
     const QString projectName = projectFilePath.parentDir().fileName();
-    ProjectMacroExpander expander(projectName, k, bcName, buildType);
+    ProjectMacroExpander expander(projectFilePath.toString(), projectName, k, bcName, buildType);
     QDir projectDir = QDir(Project::projectDirectory(projectFilePath).toString());
     QString buildPath = expander.expand(Core::DocumentManager::buildDirectory());
     return FileName::fromUserInput(projectDir.absoluteFilePath(buildPath));

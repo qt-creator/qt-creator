@@ -105,6 +105,7 @@ CMakeProject::~CMakeProject()
 {
     setRootProjectNode(nullptr);
     m_codeModelFuture.cancel();
+    qDeleteAll(m_watchedFiles);
     qDeleteAll(m_extraCompilers);
 }
 

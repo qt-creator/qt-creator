@@ -223,7 +223,7 @@ BookmarkView::BookmarkView(BookmarkManager *manager)  :
     setItemDelegate(new BookmarkDelegate(this));
     setFrameStyle(QFrame::NoFrame);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    setFocusPolicy(Qt::NoFocus);
+    setAttribute(Qt::WA_MacShowFocusRect, false);
     setSelectionModel(manager->selectionModel());
     setSelectionMode(QAbstractItemView::SingleSelection);
     setSelectionBehavior(QAbstractItemView::SelectRows);
