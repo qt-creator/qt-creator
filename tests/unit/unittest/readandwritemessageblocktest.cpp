@@ -35,7 +35,6 @@
 #include <messageenvelop.h>
 #include <requestdocumentannotations.h>
 #include <readmessageblock.h>
-#include <sourcelocation.h>
 #include <registerunsavedfilesforeditormessage.h>
 #include <unregisterunsavedfilesforeditormessage.h>
 #include <updatetranslationunitsforeditormessage.h>

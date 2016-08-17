@@ -31,8 +31,10 @@
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
 
+#ifdef CLANG_UNIT_TESTS
 #include <clang/Basic/SourceLocation.h>
 #include <clang/Basic/SourceManager.h>
+#endif
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic pop
@@ -64,6 +66,7 @@ inline void PrintTo(const QString &text, ::std::ostream *os)
 
 QT_END_NAMESPACE
 
+#ifdef CLANG_UNIT_TESTS
 namespace clang {
 
 inline void PrintTo(const clang::FullSourceLoc &sourceLocation, ::std::ostream *os)
@@ -78,6 +81,7 @@ inline void PrintTo(const clang::FullSourceLoc &sourceLocation, ::std::ostream *
 }
 
 }
+#endif
 
 //namespace testing {
 //namespace internal {

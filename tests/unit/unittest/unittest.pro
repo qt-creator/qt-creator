@@ -25,6 +25,19 @@ win32:DEFINES += ECHOSERVER=\"R\\\"xxx($$OUT_PWD/../echo)xxx\\\"\"
 unix: DEFINES += ECHOSERVER=\"R\\\"xxx($$OUT_PWD/../echoserver/echo)xxx\\\"\"
 
 SOURCES += \
+    clientserverinprocesstest.cpp \
+    clientserveroutsideprocess.cpp \
+    lineprefixertest.cpp \
+    main.cpp \
+    readandwritemessageblocktest.cpp \
+    sizedarraytest.cpp \
+    spydummy.cpp \
+    smallstringtest.cpp \
+    testutils.cpp \
+    utf8test.cpp
+
+!isEmpty($$LIBCLANG_LIBS) {
+SOURCES += \
     activationsequencecontextprocessortest.cpp \
     activationsequenceprocessortest.cpp \
     clangcodecompleteresultstest.cpp \
@@ -33,8 +46,6 @@ SOURCES += \
     clangfixitoperationtest.cpp \
     clangipcservertest.cpp \
     clangstringtest.cpp \
-    clientserverinprocesstest.cpp \
-    clientserveroutsideprocess.cpp \
     codecompletionsextractortest.cpp \
     codecompletiontest.cpp \
     completionchunkstotextconvertertest.cpp \
@@ -42,13 +53,9 @@ SOURCES += \
     diagnosticsettest.cpp \
     diagnostictest.cpp \
     fixittest.cpp \
-    lineprefixertest.cpp \
-    main.cpp \
     projecttest.cpp \
-    readandwritemessageblocktest.cpp \
     sourcelocationtest.cpp \
     sourcerangetest.cpp \
-    spydummy.cpp \
     sqlitecolumntest.cpp \
     sqlitedatabasebackendtest.cpp \
     sqlitedatabasetest.cpp \
@@ -58,7 +65,6 @@ SOURCES += \
     translationunitstest.cpp \
     translationunittest.cpp \
     unsavedfilestest.cpp \
-    utf8test.cpp \
     senddocumenttrackertest.cpp \
     cursortest.cpp \
     skippedsourcerangestest.cpp \
@@ -66,25 +72,27 @@ SOURCES += \
     chunksreportedmonitor.cpp \
     unsavedfiletest.cpp \
     clangisdiagnosticrelatedtolocationtest.cpp \
-    smallstringtest.cpp \
     highlightingmarkstest.cpp \
-    sizedarraytest.cpp \
     utf8positionfromlinecolumntest.cpp \
     translationunitupdatertest.cpp \
-    testutils.cpp \
     clangasyncjobtest.cpp \
     clangcompletecodejobtest.cpp \
     clangcreateinitialdocumentpreamblejobtest.cpp \
     clangjobqueuetest.cpp \
-    refactoringcompilationdatabasetest.cpp \
-    symbolfindertest.cpp \
-    refactoringclientserverinprocesstest.cpp \
-    refactoringservertest.cpp \
-    refactoringenginetest.cpp \
-    refactoringclienttest.cpp \
     clangjobstest.cpp \
     clangrequestdocumentannotationsjobtest.cpp \
     clangupdatedocumentannotationsjobtest.cpp
+}
+
+!isEmpty($$LIBTOOLING_LIBS) {
+SOURCES += \
+    refactoringclientserverinprocesstest.cpp \
+    refactoringcompilationdatabasetest.cpp \
+    refactoringservertest.cpp \
+    refactoringenginetest.cpp \
+    refactoringclienttest.cpp \
+    symbolfindertest.cpp
+}
 
 exists($$GOOGLEBENCHMARK_DIR) {
 SOURCES += \
@@ -93,17 +101,25 @@ SOURCES += \
 
 HEADERS += \
     gtest-qt-printing.h \
+    spydummy.h \
+    dummyclangipcclient.h \
+    testutils.h \
     mockclangcodemodelclient.h \
     mockclangcodemodelserver.h \
     mockrefactoringclient.h \
     mockrefactoringserver.h \
-    spydummy.h \
-    dummyclangipcclient.h \
-    matcher-diagnosticcontainer.h \
-    chunksreportedmonitor.h \
-    testutils.h \
+    refactoringclientcallbackmock.h
+
+!isEmpty($$LIBCLANG_LIBS) {
+HEADERS += \
     clangasyncjobtest.h \
-    refactoringclientcallbackmock.h \
+    chunksreportedmonitor.h \
+    matcher-diagnosticcontainer.h
+}
+
+!isEmpty($$LIBTOOLING_LIBS) {
+HEADERS += \
     filesystemutilities.h
+}
 
 OTHER_FILES += $$files(data/*)
