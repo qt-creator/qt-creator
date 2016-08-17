@@ -762,7 +762,7 @@ void CMakeBuildTarget::clear()
     workingDirectory.clear();
     sourceDirectory.clear();
     title.clear();
-    targetType = ExecutableType;
+    targetType = UtilityType;
     includeFiles.clear();
     compilerOptions.clear();
     defines.clear();

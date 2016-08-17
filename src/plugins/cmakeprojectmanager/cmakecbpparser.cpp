@@ -240,8 +240,11 @@ void CMakeCbpParser::parseBuildTarget()
         readNext();
         if (isEndElement()) {
             if (!m_buildTarget.title.endsWith(QLatin1String("/fast"))
-                    && !m_buildTarget.title.endsWith(QLatin1String("_automoc")))
+                    && !m_buildTarget.title.endsWith(QLatin1String("_automoc"))) {
+                if (m_buildTarget.executable.isEmpty() && m_buildTarget.targetType == ExecutableType)
+                    m_buildTarget.targetType = UtilityType;
                 m_buildTargets.append(m_buildTarget);
+            }
             return;
         } else if (name() == QLatin1String("Compiler")) {
             parseCompiler();
@@ -264,8 +267,14 @@ void CMakeCbpParser::parseBuildTargetOption()
             m_buildTarget.executable = tool->mapAllPaths(m_kit, m_buildTarget.executable);
     } else if (attributes().hasAttribute(QLatin1String("type"))) {
         const QStringRef value = attributes().value(QLatin1String("type"));
-        if (value == QLatin1String("2") || value == QLatin1String("3"))
-            m_buildTarget.targetType = TargetType(value.toInt());
+        if (value == "0" || value == "1")
+            m_buildTarget.targetType = ExecutableType;
+        else if (value == "2")
+            m_buildTarget.targetType = StaticLibraryType;
+        else if (value == "3")
+            m_buildTarget.targetType = DynamicLibraryType;
+        else
+            m_buildTarget.targetType = UtilityType;
     } else if (attributes().hasAttribute(QLatin1String("working_dir"))) {
         m_buildTarget.workingDirectory = attributes().value(QLatin1String("working_dir")).toString();
 
