@@ -71,8 +71,10 @@ QStringList createClangOptions(const ProjectPart::Ptr &pPart, const QString &fil
 
 static QString getResourceDir()
 {
-    QDir dir(ICore::instance()->resourcePath() + QLatin1String("/cplusplus/clang/") +
-             QLatin1String(CLANG_VERSION) + QLatin1String("/include"));
+    QDir dir(ICore::libexecPath()
+                + QLatin1String("/clang/lib/clang/")
+                + QLatin1String(CLANG_VERSION)
+                + QLatin1String("/include"));
     if (!dir.exists() || !QFileInfo(dir, QLatin1String("stdint.h")).exists())
         dir = QDir(QLatin1String(CLANG_RESOURCE_DIR));
     return dir.canonicalPath();
