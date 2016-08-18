@@ -698,7 +698,7 @@ ClangCodeCompleteResults CodeCompletionsExtractor::getResults(const TranslationU
                                                          column,
                                                          unsaved.data(),
                                                          unsaved.count(),
-                                                         CXCodeComplete_IncludeMacros | CXCodeComplete_IncludeCodePatterns));
+                                                         CXCodeComplete_IncludeMacros | CXCodeComplete_IncludeCodePatterns | CXCodeComplete_IncludeBriefComments));
 }
 
 }
