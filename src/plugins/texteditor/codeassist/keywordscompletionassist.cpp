@@ -170,6 +170,7 @@ int KeywordsFunctionHintModel::activeArgument(const QString &prefix) const
 // ---------------------------------
 KeywordsCompletionAssistProcessor::KeywordsCompletionAssistProcessor(Keywords keywords)
     : m_startPosition(-1)
+    , m_snippetCollector(QString(), QIcon(":/texteditor/images/snippet.png"))
     , m_variableIcon(QLatin1String(":/codemodel/images/keyword.png"))
     , m_functionIcon(QLatin1String(":/codemodel/images/member.png"))
     , m_keywords(keywords)
@@ -200,7 +201,7 @@ IAssistProposal *KeywordsCompletionAssistProcessor::perform(const AssistInterfac
         IAssistProposal *proposal = new FunctionHintProposal(m_startPosition, model);
         return proposal;
     } else {
-        QList<AssistProposalItemInterface *> items;
+        QList<AssistProposalItemInterface *> items = m_snippetCollector.collect();
         addWordsToProposalList(&items, m_keywords.variables(), m_variableIcon);
         addWordsToProposalList(&items, m_keywords.functions(), m_functionIcon);
         return new GenericProposal(m_startPosition, items);
@@ -210,6 +211,11 @@ IAssistProposal *KeywordsCompletionAssistProcessor::perform(const AssistInterfac
 QChar KeywordsCompletionAssistProcessor::startOfCommentChar() const
 {
     return QLatin1Char('#');
+}
+
+void KeywordsCompletionAssistProcessor::setSnippetGroup(const QString &id)
+{
+    m_snippetCollector.setGroupId(id);
 }
 
 void KeywordsCompletionAssistProcessor::setKeywords(Keywords keywords)

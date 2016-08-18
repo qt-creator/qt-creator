@@ -28,7 +28,7 @@
 #include "iassistprocessor.h"
 #include "assistproposalitem.h"
 #include "ifunctionhintproposalmodel.h"
-
+#include "../snippets/snippetassistcollector.h"
 
 namespace TextEditor {
 
@@ -86,6 +86,8 @@ public:
     IAssistProposal *perform(const AssistInterface *interface) override;
     QChar startOfCommentChar() const;
 
+    void setSnippetGroup(const QString &id);
+
 protected:
     void setKeywords (Keywords keywords);
 
@@ -96,6 +98,7 @@ private:
     void addWordsToProposalList(QList<AssistProposalItemInterface *> *items, const QStringList &words, const QIcon &icon);
 
     int m_startPosition;
+    TextEditor::SnippetAssistCollector m_snippetCollector;
     QString m_word;
     QScopedPointer<const AssistInterface> m_interface;
     const QIcon m_variableIcon;
