@@ -59,7 +59,9 @@ IAssistProcessor *CMakeFileCompletionAssistProvider::createProcessor() const
 
 CMakeFileCompletionAssist::CMakeFileCompletionAssist() :
     KeywordsCompletionAssistProcessor(Keywords())
-{}
+{
+    setSnippetGroup(Constants::CMAKE_SNIPPETS_GROUP_ID);
+}
 
 IAssistProposal *CMakeFileCompletionAssist::perform(const AssistInterface *interface)
 {

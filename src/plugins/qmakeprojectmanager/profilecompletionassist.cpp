@@ -28,6 +28,7 @@
 
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/keywordscompletionassist.h>
+#include <texteditor/texteditorconstants.h>
 
 #include <coreplugin/id.h>
 
@@ -335,7 +336,9 @@ IAssistProcessor *ProFileCompletionAssistProvider::createProcessor() const
     if (m_variables.isEmpty())
         const_cast<ProFileCompletionAssistProvider *>(this)->init();
     TextEditor::Keywords keywords = TextEditor::Keywords(m_variables, m_functions, QMap<QString, QStringList>());
-    return new KeywordsCompletionAssistProcessor(keywords);
+    auto processor = new KeywordsCompletionAssistProcessor(keywords);
+    processor->setSnippetGroup(TextEditor::Constants::TEXT_SNIPPET_GROUP_ID);
+    return processor;
 }
 
 QStringList ProFileCompletionAssistProvider::variables() const
