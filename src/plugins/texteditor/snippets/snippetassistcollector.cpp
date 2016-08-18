@@ -58,9 +58,6 @@ SnippetAssistCollector::SnippetAssistCollector(const QString &groupId, const QIc
     , m_order(order)
 {}
 
-SnippetAssistCollector::~SnippetAssistCollector()
-{}
-
 QList<AssistProposalItemInterface *> SnippetAssistCollector::collect() const
 {
     QList<AssistProposalItemInterface *> snippets;

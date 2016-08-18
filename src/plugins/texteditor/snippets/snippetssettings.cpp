@@ -38,9 +38,6 @@ static const QLatin1String kLastUsedSnippetGroup("LastUsedSnippetGroup");
 using namespace TextEditor;
 using namespace Internal;
 
-SnippetsSettings::SnippetsSettings()
-{}
-
 void SnippetsSettings::toSettings(const QString &category, QSettings *s) const
 {
     const QString &group = category + kGroupPostfix;

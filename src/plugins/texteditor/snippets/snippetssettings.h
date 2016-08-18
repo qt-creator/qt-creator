@@ -36,7 +36,7 @@ namespace TextEditor {
 class SnippetsSettings
 {
 public:
-    SnippetsSettings();
+    SnippetsSettings() = default;
 
     void toSettings(const QString &category, QSettings *s) const;
     void fromSettings(const QString &category, QSettings *s);
