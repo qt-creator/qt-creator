@@ -33,12 +33,6 @@
 using namespace TextEditor;
 using namespace Internal;
 
-PlainTextSnippetProvider::PlainTextSnippetProvider()
-{}
-
-PlainTextSnippetProvider::~PlainTextSnippetProvider()
-{}
-
 QString PlainTextSnippetProvider::groupId() const
 {
     return QLatin1String(Constants::TEXT_SNIPPET_GROUP_ID);

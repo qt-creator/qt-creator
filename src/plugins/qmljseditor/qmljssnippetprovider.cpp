@@ -41,13 +41,6 @@
 using namespace QmlJSEditor;
 using namespace Internal;
 
-QmlJSSnippetProvider::QmlJSSnippetProvider() :
-    TextEditor::ISnippetProvider()
-{}
-
-QmlJSSnippetProvider::~QmlJSSnippetProvider()
-{}
-
 QString QmlJSSnippetProvider::groupId() const
 {
     return QLatin1String(Constants::QML_SNIPPETS_GROUP_ID);

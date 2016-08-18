@@ -35,9 +35,6 @@
 
 namespace Nim {
 
-NimSnippetProvider::NimSnippetProvider()
-{}
-
 QString NimSnippetProvider::groupId() const
 {
     return Nim::Constants::C_NIMSNIPPETSGROUP_ID;

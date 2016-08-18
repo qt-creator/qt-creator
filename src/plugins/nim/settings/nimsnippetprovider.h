@@ -34,11 +34,11 @@ class NimSnippetProvider : public TextEditor::ISnippetProvider
     Q_OBJECT
 
 public:
-    NimSnippetProvider();
+    ~NimSnippetProvider() final = default;
 
-    QString groupId() const override;
-    QString displayName() const override;
-    void decorateEditor(TextEditor::SnippetEditorWidget *editor) const override;
+    QString groupId() const final;
+    QString displayName() const final;
+    void decorateEditor(TextEditor::SnippetEditorWidget *editor) const final;
 };
 
 } // namespace Nim

@@ -40,13 +40,6 @@
 using namespace CppEditor;
 using namespace CppEditor::Internal;
 
-CppSnippetProvider::CppSnippetProvider() :
-    TextEditor::ISnippetProvider()
-{}
-
-CppSnippetProvider::~CppSnippetProvider()
-{}
-
 QString CppSnippetProvider::groupId() const
 {
     return QLatin1String(Constants::CPP_SNIPPETS_GROUP_ID);
