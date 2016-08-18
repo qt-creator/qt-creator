@@ -6730,8 +6730,10 @@ void TextEditorWidget::circularPaste()
         circularClipBoard->toLastCollect();
     }
 
-    if (circularClipBoard->size() > 1)
-        return invokeAssist(QuickFix, d->m_clipboardAssistProvider.data());
+    if (circularClipBoard->size() > 1) {
+        invokeAssist(QuickFix, d->m_clipboardAssistProvider.data());
+        return;
+    }
 
     if (const QMimeData *mimeData = circularClipBoard->next().data()) {
         QApplication::clipboard()->setMimeData(TextEditorWidget::duplicateMimeData(mimeData));
