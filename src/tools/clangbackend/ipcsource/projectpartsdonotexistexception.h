@@ -40,12 +40,6 @@ public:
 
     const char *what() const Q_DECL_NOEXCEPT override;
 
-#if defined(__GNUC__) && !defined(__clang__)
-#  if !__GNUC_PREREQ(4,8)
-    ~ProjectPartDoNotExistException() noexcept {}
-#  endif
-#endif
-
 private:
     Utf8StringVector projectPartIds_;
     mutable Utf8String what_;
