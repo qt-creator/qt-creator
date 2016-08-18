@@ -25,34 +25,22 @@
 
 #pragma once
 
-#include <QtGlobal>
+#include <texteditor/snippets/isnippetprovider.h>
 
 namespace CMakeProjectManager {
-namespace Constants {
+namespace Internal {
 
-const char PROJECTCONTEXT[] = "CMakeProject.ProjectContext";
-const char CMAKEMIMETYPE[]  = "text/x-cmake";
-const char CMAKEPROJECTMIMETYPE[]  = "text/x-cmake-project";
-const char CMAKE_EDITOR_ID[] = "CMakeProject.CMakeEditor";
-const char CMAKE_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("CMakeProjectManager::Internal::CMakeEditorFactory", "CMake Editor");
-const char RUNCMAKE[] = "CMakeProject.RunCMake";
-const char CLEARCMAKECACHE[] = "CMakeProject.ClearCache";
-const char RUNCMAKECONTEXTMENU[] = "CMakeProject.RunCMakeContextMenu";
+class CMakeSnippetProvider : public TextEditor::ISnippetProvider
+{
+    Q_OBJECT
 
-// Project
-const char CMAKEPROJECT_ID[] = "CMakeProjectManager.CMakeProject";
+public:
+    ~CMakeSnippetProvider() final;
 
-// Buildconfiguration
-const char CMAKE_BC_ID[] = "CMakeProjectManager.CMakeBuildConfiguration";
+    QString groupId() const final;
+    QString displayName() const final;
+    void decorateEditor(TextEditor::SnippetEditorWidget *editor) const final;
+};
 
-// Menu
-const char M_CONTEXT[] = "CMakeEditor.ContextMenu";
-
-// Settings page
-const char CMAKE_SETTINGSPAGE_ID[] = "Z.CMake";
-
-// Snippets
-const char CMAKE_SNIPPETS_GROUP_ID[] = "CMake";
-
-} // namespace Constants
+} // namespace Internal
 } // namespace CMakeProjectManager

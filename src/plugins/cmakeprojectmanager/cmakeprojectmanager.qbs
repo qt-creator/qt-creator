@@ -64,6 +64,8 @@ QtcPlugin {
         "cmaketoolmanager.h",
         "cmakesettingspage.h",
         "cmakesettingspage.cpp",
+        "cmakesnippetprovider.cpp",
+        "cmakesnippetprovider.h",
         "cmakeindenter.h",
         "cmakeindenter.cpp",
         "cmakeautocompleter.h",

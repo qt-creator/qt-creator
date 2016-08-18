@@ -30,6 +30,7 @@
 #include "cmakeprojectmanager.h"
 #include "cmakebuildconfiguration.h"
 #include "cmakerunconfiguration.h"
+#include "cmakesnippetprovider.h"
 #include "cmakeprojectconstants.h"
 #include "cmakelocatorfilter.h"
 #include "cmakesettingspage.h"
@@ -46,6 +47,7 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
     Q_UNUSED(errorMessage)
     Utils::MimeDatabase::addMimeTypes(QLatin1String(":cmakeproject/CMakeProjectManager.mimetypes.xml"));
 
+    addAutoReleasedObject(new Internal::CMakeSnippetProvider);
     addAutoReleasedObject(new CMakeSettingsPage);
     addAutoReleasedObject(new CMakeManager);
     addAutoReleasedObject(new CMakeBuildStepFactory);
