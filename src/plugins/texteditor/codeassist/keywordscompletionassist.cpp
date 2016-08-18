@@ -169,7 +169,7 @@ int KeywordsFunctionHintModel::activeArgument(const QString &prefix) const
 KeywordsCompletionAssistProcessor::KeywordsCompletionAssistProcessor(Keywords keywords)
     : m_startPosition(-1)
     , m_variableIcon(QLatin1String(":/codemodel/images/keyword.png"))
-    , m_functionIcon(QLatin1String(":/codemodel/images/func.png"))
+    , m_functionIcon(QLatin1String(":/codemodel/images/member.png"))
     , m_keywords(keywords)
 {}
 
