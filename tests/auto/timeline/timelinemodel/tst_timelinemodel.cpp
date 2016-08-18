@@ -262,7 +262,7 @@ void tst_TimelineModel::count()
     QCOMPARE(dummy.count(), 0);
     dummy.loadData();
     QCOMPARE(dummy.count(), NumItems);
-    QSignalSpy emptySpy(&dummy, SIGNAL(emptyChanged()));
+    QSignalSpy emptySpy(&dummy, SIGNAL(contentChanged()));
     dummy.clear();
     QCOMPARE(emptySpy.count(), 1);
     QCOMPARE(dummy.count(), 0);
