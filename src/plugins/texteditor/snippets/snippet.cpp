@@ -43,25 +43,27 @@ const char TCMANGLER_ID[] = "TextEditor::TitlecaseMangler";
 // Manglers:
 // --------------------------------------------------------------------
 
+NameMangler::~NameMangler() = default;
+
 class UppercaseMangler : public NameMangler
 {
 public:
-    Core::Id id() const { return UCMANGLER_ID; }
-    QString mangle(const QString &unmangled) const { return unmangled.toUpper(); }
+    Core::Id id() const final { return UCMANGLER_ID; }
+    QString mangle(const QString &unmangled) const final { return unmangled.toUpper(); }
 };
 
 class LowercaseMangler : public NameMangler
 {
 public:
-    Core::Id id() const { return LCMANGLER_ID; }
-    QString mangle(const QString &unmangled) const { return unmangled.toLower(); }
+    Core::Id id() const final { return LCMANGLER_ID; }
+    QString mangle(const QString &unmangled) const final { return unmangled.toLower(); }
 };
 
 class TitlecaseMangler : public NameMangler
 {
 public:
-    Core::Id id() const { return TCMANGLER_ID; }
-    QString mangle(const QString &unmangled) const
+    Core::Id id() const final { return TCMANGLER_ID; }
+    QString mangle(const QString &unmangled) const final
     {
         QString result = unmangled;
         if (!result.isEmpty())
@@ -77,8 +79,7 @@ public:
 const QChar Snippet::kVariableDelimiter(QLatin1Char('$'));
 const QChar Snippet::kEscapeChar(QLatin1Char('\\'));
 
-Snippet::Snippet(const QString &groupId, const QString &id) :
-    m_isRemoved(false), m_isModified(false), m_groupId(groupId), m_id(id)
+Snippet::Snippet(const QString &groupId, const QString &id) : m_groupId(groupId), m_id(id)
 {}
 
 Snippet::~Snippet()
