@@ -151,6 +151,7 @@ signals:
     void remoteErrorOutput(const QString &output);
 
 private:
+    void extractPID();
     void checkPID();
     void logcatReadStandardError();
     void logcatReadStandardOutput();
@@ -165,13 +166,13 @@ private:
     // Create the processes and timer in the worker thread, for correct thread affinity
     QScopedPointer<QProcess> m_adbLogcatProcess;
     QScopedPointer<QProcess> m_psProc;
-    QScopedPointer<QTimer> m_checkPIDTimer;
     QScopedPointer<QTcpSocket> m_socket;
 
     bool m_wasStarted = false;
     int m_tries = 0;
     QByteArray m_stdoutBuffer;
     QByteArray m_stderrBuffer;
+    QByteArray m_psProcBuffer;
 
     qint64 m_processPID = -1;
     bool m_useCppDebugger = false;
@@ -261,11 +262,9 @@ void AndroidRunnerWorker::init()
 {
     QTC_ASSERT(m_adbLogcatProcess.isNull(), /**/);
     QTC_ASSERT(m_psProc.isNull(), /**/);
-    QTC_ASSERT(m_checkPIDTimer.isNull(), /**/);
 
     m_adbLogcatProcess.reset(new QProcess);
     m_psProc.reset(new QProcess);
-    m_checkPIDTimer.reset(new QTimer);
 
     // Detect busybox, as we need to pass -w to ps to get wide output.
     Utils::SynchronousProcess psProc;
@@ -275,13 +274,11 @@ void AndroidRunnerWorker::init()
     const QString which = response.allOutput();
     m_isBusyBox = which.startsWith("busybox");
 
-    m_checkPIDTimer->setInterval(1000);
-
     connect(m_adbLogcatProcess.data(), &QProcess::readyReadStandardOutput,
             this, &AndroidRunnerWorker::logcatReadStandardOutput);
     connect(m_adbLogcatProcess.data(), &QProcess::readyReadStandardError,
             this, &AndroidRunnerWorker::logcatReadStandardError);
-    connect(m_checkPIDTimer.data(), &QTimer::timeout, this, &AndroidRunnerWorker::checkPID);
+    connect(m_psProc.data(), &QIODevice::readyRead, this, &AndroidRunnerWorker::checkPID);
 
     m_logCatRegExp = QRegExp(QLatin1String("[0-9\\-]*"  // date
                                            "\\s+"
@@ -311,28 +308,25 @@ static int extractPidFromChunk(const QByteArray &chunk, int from)
     return pid;
 }
 
-static int extractPid(const QString &exeName, const QByteArray &psOutput)
+void AndroidRunnerWorker::extractPID()
 {
-    const QByteArray needle = exeName.toUtf8() + '\r';
-    const int to = psOutput.indexOf(needle);
-    if (to == -1)
-        return -1;
-    const int from = psOutput.lastIndexOf('\n', to);
-    if (from == -1)
-        return -1;
-    return extractPidFromChunk(psOutput, from);
+    const int to = m_psProcBuffer.lastIndexOf('\n');
+    if (to <= 0) {
+        m_processPID = -1;
+    } else {
+        const int from = m_psProcBuffer.lastIndexOf('\n', to - 1);
+        m_processPID = extractPidFromChunk(m_psProcBuffer, from == -1 ? 0 : from);
+        m_psProcBuffer = m_psProcBuffer.mid(to);
+    }
 }
 
 void AndroidRunnerWorker::checkPID()
 {
     // Don't write to m_psProc from a different thread
     QTC_ASSERT(QThread::currentThread() == thread(), return);
-    m_checkPIDTimer->stop();
 
-    QByteArray psLine(m_isBusyBox ? "ps -w\n" : "ps\n");
-    m_psProc->write(psLine);
-    m_psProc->waitForBytesWritten(psLine.size());
-    m_processPID = extractPid(m_packageName, m_psProc->readAllStandardOutput());
+    m_psProcBuffer.append(m_psProc->readAllStandardOutput());
+    extractPID();
 
     if (m_processPID == -1) {
         if (m_wasStarted) {
@@ -365,7 +359,6 @@ void AndroidRunnerWorker::checkPID()
         m_wasStarted = true;
         logcatReadStandardOutput();
     }
-    m_checkPIDTimer->start();
 }
 
 void AndroidRunnerWorker::forceStop()
@@ -397,7 +390,9 @@ void AndroidRunnerWorker::asyncStart(const QString &intentName,
 {
     // Its assumed that the device or avd serial returned by selector() is online.
     m_adbLogcatProcess->start(m_adb, selector() << "logcat");
-    m_psProc->start(m_adb, selector() << "shell");
+    m_psProc->start(m_adb, selector() << "shell"
+                    << QString("while true; do sleep 1; %1 | (grep '%2' || echo -1); done")
+                       .arg(QLatin1String(m_isBusyBox ? "ps -w" : "ps"), m_packageName));
 
     forceStop();
     QString errorMessage;
@@ -534,7 +529,6 @@ void AndroidRunnerWorker::asyncStart(const QString &intentName,
 
     m_tries = 0;
     m_wasStarted = false;
-    m_checkPIDTimer->start();
 }
 
 bool AndroidRunnerWorker::adbShellAmNeedsQuotes()
@@ -590,7 +584,6 @@ void AndroidRunnerWorker::handleRemoteDebuggerRunning()
 
 void AndroidRunnerWorker::asyncStop(const QVector<QStringList> &adbCommands)
 {
-    m_checkPIDTimer->stop();
     m_adbLogcatProcess->kill();
     m_psProc->kill();
 
@@ -605,6 +598,7 @@ void AndroidRunnerWorker::asyncStop(const QVector<QStringList> &adbCommands)
 
     m_adbLogcatProcess->waitForFinished();
     m_psProc->waitForFinished();
+    m_psProcBuffer.clear();
 }
 
 void AndroidRunnerWorker::setAdbParameters(const QString &packageName, const QStringList &selector)
