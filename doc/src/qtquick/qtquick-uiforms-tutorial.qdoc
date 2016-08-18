@@ -156,10 +156,10 @@
     \endcode
 
     Remove the \c width and \c height properties from the ApplicationWindow
-    type and use a Layout type in the MainForm type to set the minimum and
+    type and use a \l Layout type in the MainForm type to set the minimum and
     preferred size of the main view.
 
-    To use the Layouts, import QtQuick Layouts:
+    To use the Layout type, import Qt Quick Layouts:
 
     \quotefromfile uiforms/main.qml
     \skipto QtQuick.Layouts
