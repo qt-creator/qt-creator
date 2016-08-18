@@ -17,7 +17,6 @@ QtcTool {
     ]
     cpp.frameworks: base.concat(["CoreFoundation", "CoreServices", "IOKit", "Security",
                                  "SystemConfiguration"])
-    cpp.dynamicLibraries: base.concat(["ssl", "bz2"])
     bundle.infoPlistFile: "Info.plist"
 
     installDir: qtc.ide_libexec_path + "/ios"
