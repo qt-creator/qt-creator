@@ -63,7 +63,7 @@ static QStringList constructCommandLineArguments(const QString &filePath,
     arguments
         << QLatin1String("--analyze")
         << QLatin1String("-o")
-        << logFile
+        << QDir::toNativeSeparators(logFile)
         ;
     arguments += options;
     arguments << QDir::toNativeSeparators(filePath);
@@ -80,7 +80,7 @@ ClangStaticAnalyzerRunner::ClangStaticAnalyzerRunner(const QString &clangExecuta
                                                      const Utils::Environment &environment,
                                                      QObject *parent)
     : QObject(parent)
-    , m_clangExecutable(clangExecutable)
+    , m_clangExecutable(QDir::toNativeSeparators(clangExecutable))
     , m_clangLogFileDir(clangLogFileDir)
 {
     QTC_CHECK(!m_clangExecutable.isEmpty());
