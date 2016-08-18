@@ -109,7 +109,7 @@ QString CMakeEditor::contextHelpId() const
 class CMakeEditorWidget : public TextEditorWidget
 {
 public:
-    CMakeEditorWidget() {}
+    ~CMakeEditorWidget() final = default;
 
 private:
     bool save(const QString &fileName = QString());
