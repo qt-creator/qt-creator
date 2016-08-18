@@ -48,7 +48,7 @@
     have a project.
 
     Valgrind tools are supported locally only on Linux and \macos. However,
-    according to Valgrind.org, support on OS X 10.8 and 10.9 is experimental and
+    according to Valgrind.org, support on \macos 10.8 and 10.9 is experimental and
     mostly broken. You can run the tools on a remote Linux machine or device
     from any development host.
 
