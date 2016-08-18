@@ -1241,8 +1241,22 @@ static KnownType knownClassTypeHelper(const std::string &type,
             case 8:
                 if (!type.compare(hPos, 8, "multimap"))
                     return KT_StdMultiMap;
+                if (!type.compare(hPos, 8, "multiset"))
+                    return KT_StdMultiSet;
                 if (!type.compare(hPos, 8, "valarray"))
                     return KT_StdValArray;
+                break;
+            case 13:
+                if (!type.compare(hPos, 13, "unordered_map"))
+                    return KT_StdUnorderedMap;
+                if (!type.compare(hPos, 13, "unordered_set"))
+                    return KT_StdUnorderedSet;
+                break;
+            case 18:
+                if (!type.compare(hPos, 18, "unordered_multimap"))
+                    return KT_StdUnorderedMultiMap;
+                if (!type.compare(hPos, 18, "unordered_multiset"))
+                    return KT_StdUnorderedMultiSet;
                 break;
             }
         }

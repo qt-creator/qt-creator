@@ -187,8 +187,13 @@ int containerSize(KnownType kt, const SymbolGroupValue &v)
         return msvcStdVectorSize(v);
     case KT_StdDeque: // MSVC2012 has many base classes, MSVC2010 1, MSVC2008 none
     case KT_StdSet:
+    case KT_StdMultiSet:
     case KT_StdMap:
+    case KT_StdUnorderedSet:
+    case KT_StdUnorderedMultiSet:
     case KT_StdMultiMap:
+    case KT_StdUnorderedMap:
+    case KT_StdUnorderedMultiMap:
     case KT_StdValArray:
     case KT_StdList: {
         const int size = v.readIntegerFromAncestor("_Mysize");
@@ -626,7 +631,7 @@ static inline SymbolGroupValueVector
     return rc;
 }
 
-// std::set<>: Children directly contained in list
+// std::(multi)set<>: Children directly contained in list
 static inline AbstractSymbolGroupNodePtrVector
     stdSetChildList(const SymbolGroupValue &set, unsigned count)
 {
@@ -640,7 +645,14 @@ static inline AbstractSymbolGroupNodePtrVector
     return rc;
 }
 
-// std::map<K,V>: A list of std::pair<K,V> (derived from std::pair_base<K,V>)
+static inline AbstractSymbolGroupNodePtrVector
+    stdHashChildList(const SymbolGroupValue &set, unsigned count)
+{
+    SymbolGroupValue list = set.findMember(set, "_List");
+    return stdListChildList(list.node(), count, list.context());
+}
+
+// std::(multi)map<K,V>: A list of std::pair<K,V> (derived from std::pair_base<K,V>)
 static inline AbstractSymbolGroupNodePtrVector
     stdMapChildList(const SymbolGroupValue &map, unsigned count)
 {
@@ -1161,10 +1173,16 @@ AbstractSymbolGroupNodePtrVector containerChildren(SymbolGroupNode *node, int ty
             return stdDequeChildList(deque, size);
         break;
     case KT_StdSet:
+    case KT_StdMultiSet:
         return stdSetChildList(SymbolGroupValue(node, ctx), size);
     case KT_StdMap:
     case KT_StdMultiMap:
         return stdMapChildList(SymbolGroupValue(node, ctx), size);
+    case KT_StdUnorderedMap:
+    case KT_StdUnorderedMultiMap:
+    case KT_StdUnorderedMultiSet:
+    case KT_StdUnorderedSet:
+        return stdHashChildList(SymbolGroupValue(node, ctx), size);
     }
     return AbstractSymbolGroupNodePtrVector();
 }
