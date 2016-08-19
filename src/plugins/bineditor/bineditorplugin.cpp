@@ -340,7 +340,8 @@ public:
 
     void provideNewRange(quint64 offset)
     {
-        openImpl(0, filePath().toString(), offset);
+        if (filePath().exists())
+            openImpl(0, filePath().toString(), offset);
     }
 
 public:
