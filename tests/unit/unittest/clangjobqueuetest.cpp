@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "testutils.h"
-#include "dummyclangipcclient.h"
 
 #include <clangjobs.h>
 #include <clangtranslationunit.h>
@@ -78,13 +77,12 @@ protected:
     ClangBackEnd::UnsavedFiles unsavedFiles;
     ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
     ClangBackEnd::TranslationUnit translationUnit;
-    DummyIpcClient dummyClientInterface;
 
     Utf8String filePath1 = Utf8StringLiteral(TESTDATA_DIR"/translationunits.cpp");
     Utf8String filePath2 = Utf8StringLiteral(TESTDATA_DIR"/skippedsourceranges.cpp");
     Utf8String projectPartId{Utf8StringLiteral("/path/to/projectfile")};
 
-    ClangBackEnd::JobQueue jobQueue{translationUnits, unsavedFiles, projects, dummyClientInterface};
+    ClangBackEnd::JobQueue jobQueue{translationUnits, projects};
 };
 
 TEST_F(JobQueue, AddJob)

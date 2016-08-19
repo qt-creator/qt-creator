@@ -31,18 +31,13 @@
 
 namespace ClangBackEnd {
 
-class ClangCodeModelClientInterface;
 class ProjectParts;
 class TranslationUnits;
-class UnsavedFiles;
 
 class JobQueue
 {
 public:
-    JobQueue(TranslationUnits &translationUnits,
-             UnsavedFiles &unsavedFiles,
-             ProjectParts &projects,
-             ClangCodeModelClientInterface &client);
+    JobQueue(TranslationUnits &translationUnits, ProjectParts &projects);
 
     void add(const JobRequest &job);
 
@@ -65,9 +60,7 @@ private:
 
 private:
     TranslationUnits &m_translationUnits;
-    UnsavedFiles &m_unsavedFiles;
     ProjectParts &m_projectParts;
-    ClangCodeModelClientInterface &m_client;
 
     IsJobRunningHandler m_isJobRunningHandler;
 

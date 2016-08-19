@@ -44,7 +44,7 @@ Jobs::Jobs(TranslationUnits &translationUnits,
     , m_unsavedFiles(unsavedFiles)
     , m_projectParts(projectParts)
     , m_client(client)
-    , m_queue(translationUnits, unsavedFiles, projectParts, client)
+    , m_queue(translationUnits, projectParts)
 {
     m_queue.setIsJobRunningHandler([this](const Utf8String &filePath,
                                           const Utf8String &projectPartId) {

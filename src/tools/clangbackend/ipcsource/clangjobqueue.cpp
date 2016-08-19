@@ -34,14 +34,9 @@
 
 namespace ClangBackEnd {
 
-JobQueue::JobQueue(TranslationUnits &translationUnits,
-                   UnsavedFiles &unsavedFiles,
-                   ProjectParts &projectParts,
-                   ClangCodeModelClientInterface &client)
+JobQueue::JobQueue(TranslationUnits &translationUnits, ProjectParts &projectParts)
     : m_translationUnits(translationUnits)
-    , m_unsavedFiles(unsavedFiles)
     , m_projectParts(projectParts)
-    , m_client(client)
 {
 }
 
