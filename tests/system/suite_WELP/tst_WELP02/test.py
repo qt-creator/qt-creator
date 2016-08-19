@@ -38,8 +38,8 @@ def main():
         test.log("Welcome mode is not scriptable with this Squish version")
         return
     # prepare example project
-    sourceExample = os.path.join(sdkPath, "Examples", "4.7", "declarative", "animation", "basics",
-                                 "property-animation")
+    sourceExample = os.path.join(Qt5Path.examplesPath(Targets.DESKTOP_561_DEFAULT),
+                                 "quick", "animation")
     if not neededFilePresent(sourceExample):
         return
     # open Qt Creator
@@ -72,16 +72,16 @@ def main():
     checkTypeAndProperties(typePropDet)
 
     # select "Open project" and select a project
-    examplePath = os.path.join(prepareTemplate(sourceExample), "propertyanimation.pro")
+    examplePath = os.path.join(prepareTemplate(sourceExample), "animation.pro")
     openQmakeProject(examplePath, fromWelcome = True)
     progressBarWait(30000)
     test.verify(checkIfObjectExists("{column='0' container=':Qt Creator_Utils::NavigationTreeView'"
-                                    " text~='propertyanimation( \(.*\))?' type='QModelIndex'}"),
+                                    " text~='animation( \(.*\))?' type='QModelIndex'}"),
                 "Verifying: The project is opened in 'Edit' mode after configuring.")
     # go to "Welcome page" again and check if there is an information about recent projects
     switchViewTo(ViewConstants.WELCOME)
     test.verify(checkIfObjectExists(getQmlItem("Text", welcomePage, False,
-                                               "text='propertyanimation'")) and
+                                               "text='animation'")) and
                 checkIfObjectExists(getQmlItem("Text", welcomePage, False,
                                                "text='SampleApp'")),
                 "Verifying: 'Welcome page' displays information about recently created and "
