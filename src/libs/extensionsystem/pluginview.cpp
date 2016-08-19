@@ -27,7 +27,6 @@
 #include "pluginmanager.h"
 #include "pluginspec.h"
 #include "pluginspec_p.h"
-#include "plugincollection.h"
 
 #include <utils/algorithm.h>
 #include <utils/categorysortfiltermodel.h>
@@ -71,7 +70,6 @@
 */
 
 Q_DECLARE_METATYPE(ExtensionSystem::PluginSpec*)
-Q_DECLARE_METATYPE(ExtensionSystem::PluginCollection*)
 
 using namespace Utils;
 
@@ -371,26 +369,13 @@ void PluginView::updatePlugins()
     // Model.
     m_model->clear();
 
-    PluginCollection *defaultCollection = 0;
+
     QList<CollectionItem *> collections;
-    foreach (PluginCollection *collection, PluginManager::pluginCollections()) {
-        if (collection->name().isEmpty() || collection->plugins().isEmpty()) {
-            defaultCollection = collection;
-            continue;
-        }
-        collections.append(new CollectionItem(collection->name(), collection->plugins(), this));
+    auto end = PluginManager::pluginCollections().cend();
+    for (auto it = PluginManager::pluginCollections().cbegin(); it != end; ++it) {
+        const QString name = it.key().isEmpty() ? tr("Utilities") : it.key();
+        collections.append(new CollectionItem(name, it.value(), this));
     }
-
-    QList<PluginSpec *> plugins;
-    if (defaultCollection)
-        plugins = defaultCollection->plugins();
-
-    if (!plugins.isEmpty()) {
-        // add all non-categorized plugins into utilities. could also be added as root items
-        // but that makes the tree ugly.
-        collections.append(new CollectionItem(tr("Utilities"), plugins, this));
-    }
-
     Utils::sort(collections, &CollectionItem::m_name);
 
     foreach (CollectionItem *collection, collections)

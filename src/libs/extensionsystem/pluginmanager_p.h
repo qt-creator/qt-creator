@@ -45,7 +45,6 @@ QT_END_NAMESPACE
 namespace ExtensionSystem {
 
 class PluginManager;
-class PluginCollection;
 
 namespace Internal {
 
@@ -96,7 +95,7 @@ public:
         testSpecs = Utils::filtered(testSpecs, [pluginSpec](const TestSpec &s) { return s.pluginSpec != pluginSpec; });
     }
 
-    QHash<QString, PluginCollection *> pluginCategories;
+    QHash<QString, QList<PluginSpec *>> pluginCategories;
     QList<PluginSpec *> pluginSpecs;
     QList<TestSpec> testSpecs;
     QStringList pluginPaths;

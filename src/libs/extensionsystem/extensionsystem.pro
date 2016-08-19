@@ -21,7 +21,6 @@ HEADERS += pluginerrorview.h \
     pluginspec_p.h \
     pluginview.h \
     optionsparser.h \
-    plugincollection.h \
     pluginerroroverview.h
 SOURCES += pluginerrorview.cpp \
     plugindetailsview.cpp \
@@ -31,7 +30,6 @@ SOURCES += pluginerrorview.cpp \
     pluginspec.cpp \
     pluginview.cpp \
     optionsparser.cpp \
-    plugincollection.cpp \
     pluginerroroverview.cpp
 FORMS += \
     pluginerrorview.ui \

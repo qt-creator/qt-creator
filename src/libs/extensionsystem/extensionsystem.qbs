@@ -24,8 +24,6 @@ Project {
             "iplugin_p.h",
             "optionsparser.cpp",
             "optionsparser.h",
-            "plugincollection.cpp",
-            "plugincollection.h",
             "plugindetailsview.cpp",
             "plugindetailsview.h",
             "plugindetailsview.ui",

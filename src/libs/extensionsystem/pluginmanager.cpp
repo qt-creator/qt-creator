@@ -29,7 +29,6 @@
 #include "pluginspec_p.h"
 #include "optionsparser.h"
 #include "iplugin.h"
-#include "plugincollection.h"
 
 #include <QCoreApplication>
 #include <QEventLoop>
@@ -531,7 +530,7 @@ QList<PluginSpec *> PluginManager::plugins()
     return d->pluginSpecs;
 }
 
-QHash<QString, PluginCollection *> PluginManager::pluginCollections()
+QHash<QString, QList<PluginSpec *> > PluginManager::pluginCollections()
 {
     return d->pluginCategories;
 }
@@ -852,7 +851,6 @@ PluginManagerPrivate::PluginManagerPrivate(PluginManager *pluginManager) :
 PluginManagerPrivate::~PluginManagerPrivate()
 {
     qDeleteAll(pluginSpecs);
-    qDeleteAll(pluginCategories);
 }
 
 /*!
@@ -1421,13 +1419,12 @@ static QStringList pluginFiles(const QStringList &pluginPaths)
 */
 void PluginManagerPrivate::readPluginPaths()
 {
-    qDeleteAll(pluginCategories);
     qDeleteAll(pluginSpecs);
     pluginSpecs.clear();
     pluginCategories.clear();
 
-    auto defaultCollection = new PluginCollection(QString());
-    pluginCategories.insert(QString(), defaultCollection);
+    // default
+    pluginCategories.insert(QString(), QList<PluginSpec *>());
 
     foreach (const QString &pluginFile, pluginFiles(pluginPaths)) {
         PluginSpec *spec = new PluginSpec;
@@ -1436,14 +1433,6 @@ void PluginManagerPrivate::readPluginPaths()
             continue;
         }
 
-        PluginCollection *collection = 0;
-        // find correct plugin collection or create a new one
-        if (pluginCategories.contains(spec->category())) {
-            collection = pluginCategories.value(spec->category());
-        } else {
-            collection = new PluginCollection(spec->category());
-            pluginCategories.insert(spec->category(), collection);
-        }
         // defaultDisabledPlugins and defaultEnabledPlugins from install settings
         // is used to override the defaults read from the plugin spec
         if (spec->isEnabledByDefault() && defaultDisabledPlugins.contains(spec->name())) {
@@ -1458,7 +1447,7 @@ void PluginManagerPrivate::readPluginPaths()
         if (spec->isEnabledByDefault() && disabledPlugins.contains(spec->name()))
             spec->d->setEnabledBySettings(false);
 
-        collection->addPlugin(spec);
+        pluginCategories[spec->category()].append(spec);
         pluginSpecs.append(spec);
     }
     resolveDependencies();
