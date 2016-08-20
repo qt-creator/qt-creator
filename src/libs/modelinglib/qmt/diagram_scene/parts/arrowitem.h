@@ -43,11 +43,15 @@ class ArrowItem : public QGraphicsItem
 public:
     enum Shaft {
         ShaftSolid,
-        ShaftDashed
+        ShaftDashed,
+        ShaftDot,
+        ShaftDashDot,
+        ShaftDashDotDot
     };
 
     enum Head {
         HeadNone,
+        HeadCustom,
         HeadOpen,
         HeadTriangle,
         HeadFilledTriangle,
@@ -65,7 +69,9 @@ public:
     void setArrowSize(double arrowSize);
     void setDiamondSize(double diamondSize);
     void setStartHead(Head head);
+    void setStartHead(QGraphicsItem *startHeadItem);
     void setEndHead(Head head);
+    void setEndHead(QGraphicsItem *endHeadItem);
     void setPoints(const QList<QPointF> &points);
 
     QRectF boundingRect() const override;
@@ -82,19 +88,21 @@ public:
 
 private:
     void updateShaft(const Style *style);
-    void updateHead(GraphicsHeadItem **headItem, Head head, const Style *style);
-    void updateHeadGeometry(GraphicsHeadItem **headItem, const QPointF &pos,
+    void deleteHead(QGraphicsItem **headItem);
+    void updateHead(QGraphicsItem **headItem, Head head, const Style *style);
+    void updateHeadGeometry(QGraphicsItem *headItem, const QPointF &pos,
                             const QPointF &otherPos);
     void updateGeometry();
+    double calcHeadLength(QGraphicsItem *headItem) const;
 
     Shaft m_shaft = ShaftSolid;
     GraphicsShaftItem *m_shaftItem = nullptr;
     double m_arrowSize = 10.0;
     double m_diamondSize = 15.0;
     Head m_startHead = HeadNone;
-    GraphicsHeadItem *m_startHeadItem = nullptr;
+    QGraphicsItem *m_startHeadItem = nullptr;
     Head m_endHead = HeadNone;
-    GraphicsHeadItem *m_endHeadItem = nullptr;
+    QGraphicsItem *m_endHeadItem = nullptr;
     QList<QPointF> m_points;
 };
 

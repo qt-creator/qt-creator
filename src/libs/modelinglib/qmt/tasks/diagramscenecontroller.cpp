@@ -36,6 +36,7 @@
 #include "qmt/diagram/dpackage.h"
 #include "qmt/diagram/ditem.h"
 #include "qmt/diagram/drelation.h"
+#include "qmt/diagram/dassociation.h"
 #include "qmt/diagram_ui/diagram_mime_types.h"
 #include "qmt/model_controller/modelcontroller.h"
 #include "qmt/model_controller/mselection.h"
@@ -221,7 +222,8 @@ void DiagramSceneController::createInheritance(DClass *derivedClass, DClass *bas
 }
 
 void DiagramSceneController::createAssociation(DClass *endAClass, DClass *endBClass,
-                                               const QList<QPointF> &intermediatePoints, MDiagram *diagram)
+                                               const QList<QPointF> &intermediatePoints, MDiagram *diagram,
+                                               std::function<void (MAssociation*, DAssociation*)> custom)
 {
     m_diagramController->undoController()->beginMergeSequence(tr("Create Association"));
 
@@ -243,6 +245,11 @@ void DiagramSceneController::createAssociation(DClass *endAClass, DClass *endBCl
     m_modelController->addRelation(endAModelObject, modelAssociation);
 
     DRelation *relation = addRelation(modelAssociation, intermediatePoints, diagram);
+    DAssociation *diagramAssociation = dynamic_cast<DAssociation *>(relation);
+    QMT_CHECK(diagramAssociation);
+
+    if (custom)
+        custom(modelAssociation, diagramAssociation);
 
     m_diagramController->undoController()->endMergeSequence();
 

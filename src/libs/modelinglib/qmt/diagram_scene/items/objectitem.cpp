@@ -42,7 +42,9 @@
 #include "qmt/model/mdiagram.h"
 #include "qmt/model/mobject.h"
 #include "qmt/model_controller/modelcontroller.h"
+#include "qmt/stereotype/customrelation.h"
 #include "qmt/stereotype/stereotypecontroller.h"
+#include "qmt/stereotype/toolbar.h"
 #include "qmt/style/style.h"
 #include "qmt/style/stylecontroller.h"
 #include "qmt/style/styledobject.h"
@@ -58,8 +60,12 @@
 
 namespace qmt {
 
-ObjectItem::ObjectItem(DObject *object, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent)
+static const char DEPENDENCY[] = "dependency";
+
+
+ObjectItem::ObjectItem(const QString &elementType, DObject *object, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent)
     : QGraphicsItem(parent),
+      m_elementType(elementType),
       m_object(object),
       m_diagramSceneModel(diagramSceneModel)
 {
@@ -309,12 +315,58 @@ QPointF ObjectItem::relationStartPos() const
 
 void ObjectItem::relationDrawn(const QString &id, const QPointF &toScenePos, const QList<QPointF> &intermediatePoints)
 {
-    DElement *targetElement = diagramSceneModel()->findTopmostElement(toScenePos);
-    if (targetElement) {
-        if (id == QLatin1String("dependency")) {
-            auto dependantObject = dynamic_cast<DObject *>(targetElement);
-            if (dependantObject)
-                diagramSceneModel()->diagramSceneController()->createDependency(object(), dependantObject, intermediatePoints, diagramSceneModel()->diagram());
+    ObjectItem *targetItem = diagramSceneModel()->findTopmostObjectItem(toScenePos);
+    if (targetItem)
+        relationDrawn(id, targetItem, intermediatePoints);
+}
+
+void ObjectItem::relationDrawn(const QString &id, ObjectItem *targetItem, const QList<QPointF> &intermediatePoints)
+{
+    DiagramSceneController *diagramSceneController = diagramSceneModel()->diagramSceneController();
+    if (id == DEPENDENCY) {
+        DObject *dependantObject = targetItem->object();
+        if (dependantObject)
+            diagramSceneController->createDependency(object(), dependantObject, intermediatePoints,
+                                                     diagramSceneModel()->diagram());
+    } else {
+        StereotypeController *stereotypeController = diagramSceneModel()->stereotypeController();
+        CustomRelation customRelation = stereotypeController->findCustomRelation(id);
+        if (!customRelation.isNull()) {
+            switch (customRelation.element()) {
+            case CustomRelation::Element::Dependency:
+            {
+                DObject *dependantObject = targetItem->object();
+                if (dependantObject)
+                    diagramSceneController->createDependency(object(), dependantObject, intermediatePoints,
+                                                             diagramSceneModel()->diagram());
+                break;
+            }
+            case CustomRelation::Element::Relation:
+            {
+                DObject *relatedObject = targetItem->object();
+                if (relatedObject) {
+                    // check if element is allowed as target
+                    QList<QString> endItems = customRelation.endB().endItems();
+                    if (endItems.isEmpty())
+                        endItems = customRelation.endItems();
+                    QString elementType;
+                    if (!targetItem->stereotypeIconId().isEmpty())
+                        elementType = targetItem->stereotypeIconId();
+                    else if (!targetItem->shapeIconId().isEmpty())
+                        elementType = targetItem->shapeIconId();
+                    else
+                        elementType = targetItem->elementType();
+                    if (!endItems.contains(elementType)) {
+                        return;
+                    }
+                    // create relation
+                }
+                break;
+            }
+            default:
+                // ignore other elements
+                break;
+            }
         }
     }
 }
@@ -594,7 +646,29 @@ void ObjectItem::updateRelationStarter()
             m_relationStarter = new RelationStarter(this, diagramSceneModel(), 0);
             scene()->addItem(m_relationStarter);
             m_relationStarter->setZValue(RELATION_STARTER_ZVALUE);
-            updateRelationStarterTools(m_relationStarter);
+            QString elementType;
+            if (!m_stereotypeIconId.isEmpty())
+                elementType = m_stereotypeIconId;
+            else if (!m_shapeIconId.isEmpty())
+                elementType = m_shapeIconId;
+            else
+                elementType = m_elementType;
+            StereotypeController *stereotypeController = diagramSceneModel()->stereotypeController();
+            QList<Toolbar> toolbars = stereotypeController->findToolbars(elementType);
+            if (!toolbars.isEmpty()) {
+                foreach (const Toolbar &toolbar, toolbars) {
+                    foreach (const Toolbar::Tool &tool, toolbar.tools()) {
+                        CustomRelation customRelation =
+                                stereotypeController->findCustomRelation(tool.m_elementType);
+                        if (!customRelation.isNull())
+                            addRelationStarterTool(customRelation);
+                        else
+                            addRelationStarterTool(tool.m_elementType);
+                    }
+                }
+            } else {
+                addStandardRelationStarterTools();
+            }
         }
     } else if (m_relationStarter) {
         scene()->removeItem(m_relationStarter);
@@ -604,9 +678,71 @@ void ObjectItem::updateRelationStarter()
 
 }
 
-void ObjectItem::updateRelationStarterTools(RelationStarter *relationStarter)
+void ObjectItem::addRelationStarterTool(const QString &id)
 {
-    relationStarter->addArrow(QLatin1String("dependency"), ArrowItem::ShaftDashed, ArrowItem::HeadOpen);
+    if (id == DEPENDENCY)
+        m_relationStarter->addArrow(DEPENDENCY, ArrowItem::ShaftDashed,
+                                    ArrowItem::HeadNone, ArrowItem::HeadOpen,
+                                    tr("Dependency"));
+}
+
+void ObjectItem::addRelationStarterTool(const CustomRelation &customRelation)
+{
+    ArrowItem::Shaft shaft = ArrowItem::ShaftSolid;
+    ArrowItem::Head headStart = ArrowItem::HeadNone;
+    ArrowItem::Head headEnd = ArrowItem::HeadNone;
+    switch (customRelation.element()) {
+    case CustomRelation::Element::Dependency:
+        shaft = ArrowItem::ShaftDashed;
+        switch (customRelation.direction()) {
+        case CustomRelation::Direction::AtoB:
+            headEnd = ArrowItem::HeadOpen;
+            break;
+        case CustomRelation::Direction::BToA:
+            headStart = ArrowItem::HeadOpen;
+            break;
+        case CustomRelation::Direction::Bi:
+            headStart = ArrowItem::HeadOpen;
+            headEnd = ArrowItem::HeadOpen;
+            break;
+        }
+        break;
+    case CustomRelation::Element::Relation:
+    {
+        // TODO support custom shapes
+        static const QHash<CustomRelation::ShaftPattern, ArrowItem::Shaft> shaft2shaft = {
+            { CustomRelation::ShaftPattern::Solid, ArrowItem::ShaftSolid },
+            { CustomRelation::ShaftPattern::Dash, ArrowItem::ShaftDashed },
+            { CustomRelation::ShaftPattern::Dot, ArrowItem::ShaftDot },
+            { CustomRelation::ShaftPattern::DashDot, ArrowItem::ShaftDashDot },
+            { CustomRelation::ShaftPattern::DashDotDot, ArrowItem::ShaftDashDotDot },
+        };
+        static const QHash<CustomRelation::Head, ArrowItem::Head> head2head = {
+            { CustomRelation::Head::None, ArrowItem::HeadNone },
+            { CustomRelation::Head::Shape, ArrowItem::HeadNone },
+            { CustomRelation::Head::Arrow, ArrowItem::HeadOpen },
+            { CustomRelation::Head::Triangle, ArrowItem::HeadTriangle },
+            { CustomRelation::Head::FilledTriangle, ArrowItem::HeadFilledTriangle },
+            { CustomRelation::Head::Diamond, ArrowItem::HeadDiamond },
+            { CustomRelation::Head::FilledDiamond, ArrowItem::HeadFilledDiamond },
+        };
+        shaft = shaft2shaft.value(customRelation.shaftPattern());
+        headStart = head2head.value(customRelation.endA().head());
+        headEnd = head2head.value(customRelation.endB().head());
+        // TODO use color?
+        break;
+    }
+    default:
+        return;
+    }
+    m_relationStarter->addArrow(customRelation.id(), shaft, headStart, headEnd,
+                                customRelation.title());
+
+}
+
+void ObjectItem::addStandardRelationStarterTools()
+{
+    addRelationStarterTool(DEPENDENCY);
 }
 
 void ObjectItem::updateRelationStarterGeometry(const QRectF &objectRect)

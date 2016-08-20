@@ -32,7 +32,6 @@
 #include "qmt/diagram_scene/parts/contextlabelitem.h"
 #include "qmt/diagram_scene/parts/customiconitem.h"
 #include "qmt/diagram_scene/parts/editabletextitem.h"
-#include "qmt/diagram_scene/parts/relationstarter.h"
 #include "qmt/diagram_scene/parts/stereotypesitem.h"
 #include "qmt/infrastructure/geometryutilities.h"
 #include "qmt/infrastructure/qmtassert.h"
@@ -56,7 +55,7 @@ static const qreal BODY_VERT_BORDER = 4.0;
 static const qreal BODY_HORIZ_BORDER = 4.0;
 
 ItemItem::ItemItem(DItem *item, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent)
-    : ObjectItem(item, diagramSceneModel, parent)
+    : ObjectItem(QStringLiteral("item"), item, diagramSceneModel, parent)
 {
 }
 
@@ -124,22 +123,7 @@ void ItemItem::update()
     }
 
     updateSelectionMarker(m_customIcon);
-
-    // relation starters
-    if (isFocusSelected()) {
-        if (!m_relationStarter && scene()) {
-            m_relationStarter = new RelationStarter(this, diagramSceneModel(), 0);
-            scene()->addItem(m_relationStarter);
-            m_relationStarter->setZValue(RELATION_STARTER_ZVALUE);
-            m_relationStarter->addArrow(QStringLiteral("dependency"), ArrowItem::ShaftDashed, ArrowItem::HeadOpen);
-        }
-    } else if (m_relationStarter) {
-        if (m_relationStarter->scene())
-            m_relationStarter->scene()->removeItem(m_relationStarter);
-        delete m_relationStarter;
-        m_relationStarter = 0;
-    }
-
+    updateRelationStarter();
     updateAlignmentButtons();
     updateGeometry();
 }
@@ -277,10 +261,7 @@ void ItemItem::updateGeometry()
     }
 
     updateSelectionMarkerGeometry(rect);
-
-    if (m_relationStarter)
-        m_relationStarter->setPos(mapToScene(QPointF(right + 8.0, top)));
-
+    updateRelationStarterGeometry(rect);
     updateAlignmentButtonsGeometry(rect);
     updateDepth();
 }

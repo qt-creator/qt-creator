@@ -59,7 +59,7 @@ public:
 
     QSizeF minimumSize() const override;
 
-    void relationDrawn(const QString &id, const QPointF &toScenePos,
+    void relationDrawn(const QString &id, ObjectItem *targetElement,
                        const QList<QPointF> &intermediatePoints) override;
 
 protected:
@@ -67,7 +67,9 @@ protected:
     bool handleSelectedContextMenuAction(const QString &id) override;
     QString buildDisplayName() const override;
     void setFromDisplayName(const QString &displayName) override;
-    void updateRelationStarterTools(RelationStarter *relationStarter) override;
+    void addRelationStarterTool(const QString &id) override;
+    void addRelationStarterTool(const CustomRelation &customRelation) override;
+    void addStandardRelationStarterTools() override;
 
 private:
     DClass::TemplateDisplay templateDisplay() const;

@@ -38,6 +38,7 @@
 #include "qmt/diagram/drelation.h"
 #include "qmt/diagram_controller/diagramcontroller.h"
 #include "qmt/diagram_controller/dselection.h"
+#include "qmt/diagram_scene/items/objectitem.h"
 #include "qmt/model/mdiagram.h"
 #include "qmt/model/mobject.h"
 #include "qmt/model/mpackage.h"
@@ -230,16 +231,24 @@ DElement *DiagramSceneModel::findTopmostElement(const QPointF &scenePos) const
 
 DObject *DiagramSceneModel::findTopmostObject(const QPointF &scenePos) const
 {
+    ObjectItem *item = findTopmostObjectItem(scenePos);
+    if (!item)
+        return nullptr;
+    return item->object();
+}
+
+ObjectItem *DiagramSceneModel::findTopmostObjectItem(const QPointF &scenePos) const
+{
     // fetch affected items from scene in correct drawing order to find topmost element
-    QList<QGraphicsItem *> items = m_graphicsScene->items(scenePos);
-    foreach (QGraphicsItem *item, items) {
+    const QList<QGraphicsItem *> items = m_graphicsScene->items(scenePos);
+    for (QGraphicsItem *item : items) {
         if (m_graphicsItems.contains(item)) {
             DObject *object = dynamic_cast<DObject *>(m_itemToElementMap.value(item));
             if (object)
-                return object;
+                return dynamic_cast<ObjectItem *>(item);
         }
     }
-    return 0;
+    return nullptr;
 }
 
 QGraphicsItem *DiagramSceneModel::graphicsItem(DElement *element) const

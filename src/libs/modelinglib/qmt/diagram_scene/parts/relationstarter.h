@@ -47,8 +47,9 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                QWidget *widget = 0) override;
 
-    void addArrow(const QString &id, ArrowItem::Shaft shaft, ArrowItem::Head endHead,
-                  ArrowItem::Head startHead = ArrowItem::HeadNone);
+    void addArrow(const QString &id, ArrowItem::Shaft shaft, ArrowItem::Head startHead,
+                  ArrowItem::Head endHead,
+                  const QString &toolTip = QString());
 
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *event) override;

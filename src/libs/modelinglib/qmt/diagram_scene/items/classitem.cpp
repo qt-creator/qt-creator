@@ -40,6 +40,7 @@
 #include "qmt/infrastructure/qmtassert.h"
 #include "qmt/model/mclass.h"
 #include "qmt/model/mclassmember.h"
+#include "qmt/model/massociation.h"
 #include "qmt/model_controller/modelcontroller.h"
 #include "qmt/stereotype/stereotypecontroller.h"
 #include "qmt/stereotype/stereotypeicon.h"
@@ -59,7 +60,12 @@
 
 #include <algorithm>
 
+#include <qmt/stereotype/customrelation.h>
+
 namespace qmt {
+
+static const char ASSOCIATION[] = "association";
+static const char INHERITANCE[] = "inheritance";
 
 static const qreal MINIMUM_AUTO_WIDTH = 80.0;
 static const qreal MINIMUM_AUTO_HEIGHT = 60.0;
@@ -67,7 +73,7 @@ static const qreal BODY_VERT_BORDER = 4.0;
 static const qreal BODY_HORIZ_BORDER = 4.0;
 
 ClassItem::ClassItem(DClass *klass, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent)
-    : ObjectItem(klass, diagramSceneModel, parent)
+    : ObjectItem(QStringLiteral("class"), klass, diagramSceneModel, parent)
 {
 }
 
@@ -247,30 +253,83 @@ QSizeF ClassItem::minimumSize() const
     return calcMinimumGeometry();
 }
 
-void ClassItem::relationDrawn(const QString &id, const QPointF &toScenePos, const QList<QPointF> &intermediatePoints)
+void ClassItem::relationDrawn(const QString &id, ObjectItem *targetItem, const QList<QPointF> &intermediatePoints)
 {
-    DElement *targetElement = diagramSceneModel()->findTopmostElement(toScenePos);
-    if (targetElement) {
-        if (id == QLatin1String("inheritance")) {
-            auto baseClass = dynamic_cast<DClass *>(targetElement);
-            if (baseClass) {
-                auto derivedClass = dynamic_cast<DClass *>(object());
-                QMT_ASSERT(derivedClass, return);
-                diagramSceneModel()->diagramSceneController()->createInheritance(derivedClass, baseClass, intermediatePoints, diagramSceneModel()->diagram());
+    DiagramSceneController *diagramSceneController = diagramSceneModel()->diagramSceneController();
+    if (id == INHERITANCE) {
+        auto baseClass = dynamic_cast<DClass *>(targetItem->object());
+        if (baseClass) {
+            auto derivedClass = dynamic_cast<DClass *>(object());
+            QMT_ASSERT(derivedClass, return);
+            diagramSceneController->createInheritance(derivedClass, baseClass, intermediatePoints, diagramSceneModel()->diagram());
+        }
+        return;
+    } else if (id == ASSOCIATION) {
+        auto associatedClass = dynamic_cast<DClass *>(targetItem->object());
+        if (associatedClass) {
+            auto derivedClass = dynamic_cast<DClass *>(object());
+            QMT_ASSERT(derivedClass, return);
+            diagramSceneController->createAssociation(derivedClass, associatedClass, intermediatePoints, diagramSceneModel()->diagram());
+        }
+        return;
+    } else {
+        StereotypeController *stereotypeController = diagramSceneModel()->stereotypeController();
+        CustomRelation customRelation = stereotypeController->findCustomRelation(id);
+        if (!customRelation.isNull()) {
+            switch (customRelation.element()) {
+            case CustomRelation::Element::Inheritance:
+            {
+                auto baseClass = dynamic_cast<DClass *>(targetItem->object());
+                if (baseClass) {
+                    auto derivedClass = dynamic_cast<DClass *>(object());
+                    QMT_ASSERT(derivedClass, return);
+                    diagramSceneController->createInheritance(derivedClass, baseClass, intermediatePoints, diagramSceneModel()->diagram());
+                }
+                return;
             }
-        } else if (id == QLatin1String("dependency")) {
-            auto dependantObject = dynamic_cast<DObject *>(targetElement);
-            if (dependantObject)
-                diagramSceneModel()->diagramSceneController()->createDependency(object(), dependantObject, intermediatePoints, diagramSceneModel()->diagram());
-        } else if (id == QLatin1String("association")) {
-            auto assoziatedClass = dynamic_cast<DClass *>(targetElement);
-            if (assoziatedClass) {
-                auto derivedClass = dynamic_cast<DClass *>(object());
-                QMT_ASSERT(derivedClass, return);
-                diagramSceneModel()->diagramSceneController()->createAssociation(derivedClass, assoziatedClass, intermediatePoints, diagramSceneModel()->diagram());
+            case CustomRelation::Element::Association:
+            {
+                auto assoziatedClass = dynamic_cast<DClass *>(targetItem->object());
+                if (assoziatedClass) {
+                    auto derivedClass = dynamic_cast<DClass *>(object());
+                    QMT_ASSERT(derivedClass, return);
+                    diagramSceneController->createAssociation(
+                                derivedClass, assoziatedClass, intermediatePoints, diagramSceneModel()->diagram(),
+                                [=] (MAssociation *mAssociation, DAssociation *dAssociation) {
+                        if (mAssociation && dAssociation) {
+                            static const QHash<CustomRelation::Relationship, MAssociationEnd::Kind> relationship2KindMap = {
+                                { CustomRelation::Relationship::Association, MAssociationEnd::Association },
+                                { CustomRelation::Relationship::Aggregation, MAssociationEnd::Aggregation },
+                                { CustomRelation::Relationship::Composition, MAssociationEnd::Composition } };
+                            diagramSceneController->modelController()->startUpdateRelation(mAssociation);
+                            mAssociation->setStereotypes(customRelation.stereotypes().toList());
+                            mAssociation->setName(customRelation.name());
+                            MAssociationEnd endA;
+                            endA.setCardinality(customRelation.endA().cardinality());
+                            endA.setKind(relationship2KindMap.value(customRelation.endA().relationship()));
+                            endA.setName(customRelation.endA().role());
+                            endA.setNavigable(customRelation.endA().navigable());
+                            mAssociation->setEndA(endA);
+                            MAssociationEnd endB;
+                            endB.setCardinality(customRelation.endB().cardinality());
+                            endB.setKind(relationship2KindMap.value(customRelation.endB().relationship()));
+                            endB.setName(customRelation.endB().role());
+                            endB.setNavigable(customRelation.endB().navigable());
+                            mAssociation->setEndB(endB);
+                            diagramSceneController->modelController()->finishUpdateRelation(mAssociation, false);
+                        }
+                    });
+                }
+                return;
+            }
+            case CustomRelation::Element::Dependency:
+            case CustomRelation::Element::Relation:
+                // fall thru
+                break;
             }
         }
     }
+    ObjectItem::relationDrawn(id, targetItem, intermediatePoints);
 }
 
 bool ClassItem::extendContextMenu(QMenu *menu)
@@ -338,11 +397,64 @@ void ClassItem::setFromDisplayName(const QString &displayName)
     }
 }
 
-void ClassItem::updateRelationStarterTools(RelationStarter *relationStarter)
+void ClassItem::addRelationStarterTool(const QString &id)
 {
-    relationStarter->addArrow("dependency", ArrowItem::ShaftDashed, ArrowItem::HeadOpen);
-    relationStarter->addArrow("inheritance", ArrowItem::ShaftSolid, ArrowItem::HeadTriangle);
-    relationStarter->addArrow("association", ArrowItem::ShaftSolid, ArrowItem::HeadFilledTriangle);
+    if (id == INHERITANCE)
+        relationStarter()->addArrow(INHERITANCE, ArrowItem::ShaftSolid,
+                                    ArrowItem::HeadNone, ArrowItem::HeadTriangle,
+                                    tr("Inheritance"));
+    else if (id == ASSOCIATION)
+        relationStarter()->addArrow(ASSOCIATION, ArrowItem::ShaftSolid,
+                                    ArrowItem::HeadNone, ArrowItem::HeadFilledTriangle,
+                                    tr("Association"));
+    else
+        ObjectItem::addRelationStarterTool(id);
+}
+
+void ClassItem::addRelationStarterTool(const CustomRelation &customRelation)
+{
+    ArrowItem::Shaft shaft = ArrowItem::ShaftSolid;
+    ArrowItem::Head headStart = ArrowItem::HeadNone;
+    ArrowItem::Head headEnd = ArrowItem::HeadNone;
+    switch (customRelation.element()) {
+    case CustomRelation::Element::Inheritance:
+        shaft = ArrowItem::ShaftSolid;
+        headEnd = ArrowItem::HeadTriangle;
+        break;
+    case CustomRelation::Element::Association:
+        switch (customRelation.endA().relationship()) {
+        case CustomRelation::Relationship::Association:
+            if (customRelation.endA().navigable() && customRelation.endB().navigable()) {
+                headStart = ArrowItem::HeadNone;
+                headEnd = ArrowItem::HeadNone;
+            } else if (customRelation.endA().navigable()) {
+                headStart = ArrowItem::HeadFilledTriangle;
+            } else {
+                headEnd = ArrowItem::HeadFilledTriangle;
+            }
+            break;
+        case CustomRelation::Relationship::Aggregation:
+            headStart = ArrowItem::HeadDiamond;
+            break;
+        case CustomRelation::Relationship::Composition:
+            headStart = ArrowItem::HeadFilledDiamond;
+            break;
+        }
+        break;
+    case CustomRelation::Element::Dependency:
+    case CustomRelation::Element::Relation:
+        ObjectItem::addRelationStarterTool(customRelation);
+        return;
+    }
+    relationStarter()->addArrow(customRelation.id(), shaft, headStart, headEnd,
+                                customRelation.title());
+}
+
+void ClassItem::addStandardRelationStarterTools()
+{
+    ObjectItem::addStandardRelationStarterTools();
+    addRelationStarterTool(INHERITANCE);
+    addRelationStarterTool(ASSOCIATION);
 }
 
 DClass::TemplateDisplay ClassItem::templateDisplay() const

@@ -54,6 +54,7 @@ class DSelection;
 class MDiagram;
 class DElement;
 class DObject;
+class ObjectItem;
 
 class QMT_EXPORT DiagramSceneModel : public QObject
 {
@@ -98,6 +99,7 @@ public:
     DSelection selectedElements() const;
     DElement *findTopmostElement(const QPointF &scenePos) const;
     DObject *findTopmostObject(const QPointF &scenePos) const;
+    ObjectItem *findTopmostObjectItem(const QPointF &scenePos) const;
 
     QList<QGraphicsItem *> graphicsItems() const { return m_graphicsItems; }
     QGraphicsItem *graphicsItem(DElement *element) const;

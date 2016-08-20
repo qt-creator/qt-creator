@@ -32,7 +32,6 @@
 #include "qmt/diagram_scene/parts/contextlabelitem.h"
 #include "qmt/diagram_scene/parts/customiconitem.h"
 #include "qmt/diagram_scene/parts/editabletextitem.h"
-#include "qmt/diagram_scene/parts/relationstarter.h"
 #include "qmt/diagram_scene/parts/stereotypesitem.h"
 #include "qmt/infrastructure/geometryutilities.h"
 #include "qmt/stereotype/stereotypecontroller.h"
@@ -72,7 +71,7 @@ public:
 };
 
 PackageItem::PackageItem(DPackage *package, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent)
-    : ObjectItem(package, diagramSceneModel, parent)
+    : ObjectItem(QStringLiteral("package"), package, diagramSceneModel, parent)
 {
 }
 
@@ -135,21 +134,7 @@ void PackageItem::update()
     }
 
     updateSelectionMarker(m_customIcon);
-
-    // relation starters
-    if (isFocusSelected()) {
-        if (!m_relationStarter) {
-            m_relationStarter = new RelationStarter(this, diagramSceneModel(), 0);
-            scene()->addItem(m_relationStarter);
-            m_relationStarter->setZValue(RELATION_STARTER_ZVALUE);
-            m_relationStarter->addArrow(QStringLiteral("dependency"), ArrowItem::ShaftDashed, ArrowItem::HeadOpen);
-        }
-    } else if (m_relationStarter) {
-        scene()->removeItem(m_relationStarter);
-        delete m_relationStarter;
-        m_relationStarter = 0;
-    }
-
+    updateRelationStarter();
     updateAlignmentButtons();
     updateGeometry();
 }
@@ -326,10 +311,7 @@ void PackageItem::updateGeometry()
     }
 
     updateSelectionMarkerGeometry(rect);
-
-    if (m_relationStarter)
-        m_relationStarter->setPos(mapToScene(QPointF(right + 8.0, top)));
-
+    updateRelationStarterGeometry(rect);
     updateAlignmentButtonsGeometry(rect);
     updateDepth();
 }

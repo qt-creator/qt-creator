@@ -68,7 +68,6 @@ private:
     QGraphicsRectItem *m_upperRect = 0;
     QGraphicsRectItem *m_lowerRect = 0;
     ContextLabelItem *m_contextLabel = 0;
-    RelationStarter *m_relationStarter = 0;
 };
 
 } // namespace qmt

@@ -46,10 +46,12 @@ QT_END_NAMESPACE
 
 namespace qmt {
 
+class DElement;
 class DObject;
 class DiagramSceneModel;
 class StereotypesItem;
 class CustomIconItem;
+class CustomRelation;
 class EditableTextItem;
 class RectangularSelectionItem;
 class RelationStarter;
@@ -84,9 +86,10 @@ protected:
     };
 
 public:
-    ObjectItem(DObject *object, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
+    ObjectItem(const QString &elementType, DObject *object, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
     ~ObjectItem() override;
 
+    QString elementType() const { return m_elementType; }
     DObject *object() const { return m_object; }
     DiagramSceneModel *diagramSceneModel() const { return m_diagramSceneModel; }
 
@@ -119,6 +122,8 @@ public:
     QPointF relationStartPos() const override;
     void relationDrawn(const QString &id, const QPointF &toScenePos,
                        const QList<QPointF> &intermediatePoints) override;
+    virtual void relationDrawn(const QString &id, ObjectItem *targetElement,
+                               const QList<QPointF> &intermediatePoints);
 
     void align(AlignType alignType, const QString &identifier) override;
 
@@ -147,7 +152,10 @@ protected:
     void updateSelectionMarker(ResizeFlags resizeFlags);
     void updateSelectionMarkerGeometry(const QRectF &objectRect);
     void updateRelationStarter();
-    virtual void updateRelationStarterTools(RelationStarter *relationStarter);
+    RelationStarter *relationStarter() const { return m_relationStarter; }
+    virtual void addRelationStarterTool(const QString &id);
+    virtual void addRelationStarterTool(const CustomRelation &customRelation);
+    virtual void addStandardRelationStarterTools();
     void updateRelationStarterGeometry(const QRectF &objectRect);
     void updateAlignmentButtons();
     void updateAlignmentButtonsGeometry(const QRectF &objectRect);
@@ -168,6 +176,7 @@ protected:
 private:
     QSizeF minimumSize(const QSet<QGraphicsItem *> &items) const;
 
+    QString m_elementType;
     DObject *m_object = 0;
     DiagramSceneModel *m_diagramSceneModel = 0;
     bool m_isSecondarySelected = false;
