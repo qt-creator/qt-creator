@@ -4657,6 +4657,7 @@ QString definitionSignature(const CppQuickFixInterface *assist,
     oo.showFunctionSignatures = true;
     oo.showReturnTypes = true;
     oo.showArgumentNames = true;
+    oo.showEnclosingTemplate = true;
     const Name *name = func->name();
     if (name && nameIncludesOperatorName(name)) {
         CoreDeclaratorAST *coreDeclarator = functionDefinitionAST->declarator->core_declarator;

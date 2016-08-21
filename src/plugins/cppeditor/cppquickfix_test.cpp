@@ -4144,11 +4144,11 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_template()
         "class Foo { void fu@nc(); };\n"
         "\n"
         "template<class T>\n"
-        "void Foo<T>::func() {}\n";
+        "void Foo::func() {}\n"; // Should be Foo<T>::func
        ;
 
     MoveFuncDefOutside factory;
-    QuickFixOperationTest(singleDocument(original, expected), &factory, {}, 0, "QTCREATORBUG-16649");
+    QuickFixOperationTest(singleDocument(original, expected), &factory);
 }
 
 /// Check: revert test_quickfix_MoveFuncDefOutside_MemberFuncToCpp()
