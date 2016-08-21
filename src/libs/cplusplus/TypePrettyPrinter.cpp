@@ -182,23 +182,6 @@ void TypePrettyPrinter::visit(Template *type)
             _name += QLatin1Char('>');
         }
         acceptType(d->type());
-        if (oo.showEnclosingTemplate) {
-            QString templateScope = "template<";
-            for (unsigned i = 0, total = type->templateParameterCount(); i < total; ++i) {
-                if (Symbol *param = type->templateParameterAt(i)) {
-                    if (i > 0)
-                        templateScope.append(", ");
-                    if (TypenameArgument *typenameArg = param->asTypenameArgument()) {
-                        templateScope.append(QLatin1String(typenameArg->isClassDeclarator()
-                                                           ? "class " : "typename "));
-                        templateScope.append(oo(typenameArg->name()));
-                    } else if (Argument *arg = param->asArgument()) {
-                        templateScope.append(operator()(arg->type(), oo(arg->name())));
-                    }
-                }
-            }
-            _text.prepend(templateScope + ">\n");
-        }
     }
     prependCv(_fullySpecifiedType);
 }
@@ -421,6 +404,27 @@ void TypePrettyPrinter::visit(Function *type)
             if (!endsWithPtrOrRef(returnType))
                 _text.prepend(QLatin1Char(' '));
             _text.prepend(returnType);
+        }
+    }
+
+    if (_overview->showEnclosingTemplate) {
+        if (Template *templ = type->enclosingTemplate()) {
+            QString templateScope = "template<";
+            for (unsigned i = 0, total = templ->templateParameterCount(); i < total; ++i) {
+                if (Symbol *param = templ->templateParameterAt(i)) {
+                    if (i > 0)
+                        templateScope.append(", ");
+                    if (TypenameArgument *typenameArg = param->asTypenameArgument()) {
+                        templateScope.append(QLatin1String(typenameArg->isClassDeclarator()
+                                                           ? "class " : "typename "));
+                        templateScope.append(_overview->prettyName(typenameArg->name()));
+                    } else if (Argument *arg = param->asArgument()) {
+                        templateScope.append(operator()(arg->type(),
+                                                        _overview->prettyName(arg->name())));
+                    }
+                }
+            }
+            _text.prepend(templateScope + ">\n");
         }
     }
 

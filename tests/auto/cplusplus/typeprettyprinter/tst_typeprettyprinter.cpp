@@ -107,11 +107,13 @@ static FullySpecifiedType fnTy(const QString &name, const FullySpecifiedType &re
     return FullySpecifiedType(fn);
 }
 
-static FullySpecifiedType templTy(const FullySpecifiedType &declTy, bool isClassDeclarator)
+static FullySpecifiedType templTy(FullySpecifiedType declTy, bool isClassDeclarator)
 {
     Template *templ = new Template(0, 0, nameId(""));
     templ->addMember(typenameArg("T", isClassDeclarator));
     templ->addMember(decl(declTy));
+    if (Function *func = declTy->asFunctionType())
+        func->setEnclosingScope(templ);
     return FullySpecifiedType(templ);
 }
 
