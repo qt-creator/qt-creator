@@ -2567,6 +2567,7 @@ public:
         oo.showFunctionSignatures = true;
         oo.showReturnTypes = true;
         oo.showArgumentNames = true;
+        oo.showEnclosingTemplate = true;
 
         if (m_defpos == DefPosInsideClass) {
             const int targetPos = targetFile->position(m_loc.line(), m_loc.column());

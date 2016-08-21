@@ -2668,6 +2668,56 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_unicodeIdentifier()
     QuickFixOperationTest(testDocuments, &factory);
 }
 
+void CppEditorPlugin::test_quickfix_InsertDefFromDecl_templateClass()
+{
+    QByteArray original =
+        "template<class T>\n"
+        "class Foo\n"
+        "{\n"
+        "    void fun@c();\n"
+        "};\n";
+    QByteArray expected =
+        "template<class T>\n"
+        "class Foo\n"
+        "{\n"
+        "    void fun@c();\n"
+        "};\n"
+        "\n"
+        "template<class T>\n"
+        "void Foo::func()\n" // Should really be Foo<T>::func()
+        "{\n"
+        "\n"
+        "}\n";
+
+    InsertDefFromDecl factory;
+    QuickFixOperationTest(singleDocument(original, expected), &factory);
+}
+
+void CppEditorPlugin::test_quickfix_InsertDefFromDecl_templateFunction()
+{
+    QByteArray original =
+        "class Foo\n"
+        "{\n"
+        "    template<class T>\n"
+        "    void fun@c();\n"
+        "};\n";
+    QByteArray expected =
+        "class Foo\n"
+        "{\n"
+        "    template<class T>\n"
+        "    void fun@c();\n"
+        "};\n"
+        "\n"
+        "template<class T>\n"
+        "void Foo::func()\n"
+        "{\n"
+        "\n"
+        "}\n";
+
+    InsertDefFromDecl factory;
+    QuickFixOperationTest(singleDocument(original, expected), &factory);
+}
+
 // Function for one of InsertDeclDef section cases
 void insertToSectionDeclFromDef(const QByteArray &section, int sectionIndex)
 {
