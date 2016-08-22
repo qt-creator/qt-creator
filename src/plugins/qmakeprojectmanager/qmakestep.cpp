@@ -121,6 +121,7 @@ QmakeBuildConfiguration *QMakeStep::qmakeBuildConfiguration() const
 /// user arguments
 QString QMakeStep::allArguments(const BaseQtVersion *v, bool shorted) const
 {
+    QTC_ASSERT(v, return QString());
     QmakeBuildConfiguration *bc = qmakeBuildConfiguration();
     QStringList arguments;
     if (bc->subNodeBuild())
@@ -482,9 +483,12 @@ QString QMakeStep::effectiveQMakeCall() const
     if (make.isEmpty())
         make = tr("<no Make step found>");
 
-    QString result = qmake + QLatin1Char(' ') + allArguments(qtVersion);
-    if (qtVersion->qtVersion() >= QtVersionNumber(5, 0, 0))
-        result.append(QString::fromLatin1(" && %1 %2").arg(make).arg(makeArguments()));
+    QString result = qmake;
+    if (qtVersion) {
+        result += QLatin1Char(' ') + allArguments(qtVersion);
+        if (qtVersion->qtVersion() >= QtVersionNumber(5, 0, 0))
+            result.append(QString::fromLatin1(" && %1 %2").arg(make).arg(makeArguments()));
+    }
     return result;
 }
 
