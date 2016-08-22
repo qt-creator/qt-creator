@@ -135,10 +135,10 @@ protected:
     void insertRow(const char *before_id, const QString &label, QLayout *layout, const char *id);
     void insertRow(const char *before_id, const QString &label, QWidget *widget, const char *id);
     void insertRow(const char *before_id, QWidget *widget, const char *id);
-    template<class T, class V>
+    template<typename T, typename V>
     void setTitle(const QList<V *> &elements, const QString &singularTitle,
                   const QString &pluralTitle);
-    template<class T, class V>
+    template<typename T, typename V>
     void setTitle(const MItem *item, const QList<V *> &elements,
                   const QString &singularTitle, const QString &pluralTitle);
     void setStereotypeIconElement(StereotypeIcon::Element stereotypeElement);

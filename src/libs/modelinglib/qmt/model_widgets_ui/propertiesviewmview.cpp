@@ -1353,7 +1353,7 @@ void PropertiesView::MView::insertRow(const char *before_id, QWidget *widget, co
     addRow(widget, id);
 }
 
-template<class T, class V>
+template<typename T, typename V>
 void PropertiesView::MView::setTitle(const QList<V *> &elements,
                                      const QString &singularTitle, const QString &pluralTitle)
 {
@@ -1368,7 +1368,7 @@ void PropertiesView::MView::setTitle(const QList<V *> &elements,
     }
 }
 
-template<class T, class V>
+template<typename T, typename V>
 void PropertiesView::MView::setTitle(const MItem *item, const QList<V *> &elements,
                                      const QString &singularTitle, const QString &pluralTitle)
 {
