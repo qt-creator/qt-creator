@@ -143,8 +143,12 @@ float OpaqueColoredPoint2DWithSize::top() const
 
 void OpaqueColoredPoint2DWithSize::update(float nr, float ny)
 {
-    if (a <= MaximumDirection)
+    if (a <= MaximumDirection) {
         a += MaximumDirection;
+        id = -2;
+    } else {
+        --id;
+    }
 
     y += ny;
     w = nr - x;
