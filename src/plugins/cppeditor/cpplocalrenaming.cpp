@@ -105,7 +105,7 @@ bool CppLocalRenaming::handleCut()
         return false;
 
     startRenameChange();
-    m_editorWidget->TextEditorWidget::paste();
+    m_editorWidget->TextEditorWidget::cut();
     finishRenameChange();
     return true;
 }
