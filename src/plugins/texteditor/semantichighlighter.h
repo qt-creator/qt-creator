@@ -43,12 +43,12 @@ class SyntaxHighlighter;
 
 class TEXTEDITOR_EXPORT HighlightingResult {
 public:
-    unsigned line; // 1-based
-    unsigned column; // 1-based
-    unsigned length;
+    unsigned line = 0; // 1-based
+    unsigned column = 0; // 1-based
+    unsigned length = 0;
     TextStyles textStyles;
-    int kind; /// The various highlighters can define their own kind of results.
-    bool useTextSyles;
+    int kind = 0; /// The various highlighters can define their own kind of results.
+    bool useTextSyles = false;
 
     bool isValid() const
     { return line != 0; }
@@ -56,9 +56,7 @@ public:
     bool isInvalid() const
     { return line == 0; }
 
-    HighlightingResult()
-        : line(0), column(0), length(0), kind(0)
-    {}
+    HighlightingResult() = default;
 
     HighlightingResult(unsigned line, unsigned column, unsigned length, int kind)
         : line(line), column(column), length(length), kind(kind), useTextSyles(false)
