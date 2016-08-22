@@ -24,6 +24,12 @@ Editing
 * Added `Modnokai Night Shift v2`, `Qt Creator Dark`,
   `Solarized Dark` and `Solarized Light` editor schemes
 * Fixed that replacing could change selection (QTCREATORBUG-15623)
+* Fixed opening bookmarks in external editor window (QTCREATORBUG-16524)
+
+Help
+
+* Fixed default fallback font on Linux
+* Fixed crash when removing multiple documentation sets (QTCREATORBUG-16747)
 
 All Projects
 
@@ -33,6 +39,8 @@ All Projects
   (QTCREATORBUG-15855)
 * Fixed that `%{buildDir}` and `%{sourceDir}` stopped working in
   run configurations (QTCREATORBUG-16338)
+* Fixed that `CurrentProject:` variables were sometimes not resolved from the
+  appropriate project (QTCREATORBUG-16724)
 
 QMake Projects
 
@@ -54,6 +62,8 @@ CMake Projects
   will be passed on to QmlJS code model (QTCREATORBUG-11328)
   Example CMakeLists.txt code:  
   `set(QML_IMPORT_PATH ${CMAKE_SOURCE_DIR}/qml ${CMAKE_BINARY_DIR}/imports CACHE string "" FORCE)`
+* Fixed crash when re-opening project
+* Fixed that `CMakeLists.txt` file was not shown for projects with errors
 
 Qbs Projects
 
@@ -78,6 +88,8 @@ Debugging
 * Added support for copying selected values from `Locals and Expressions`
   (QTCREATORBUG-14956)
 * Fixed jumping to address in binary editor (QTCREATORBUG-11064)
+* Fixed environment for `Start and Debug External Application`
+  (QTCREATORBUG-16746)
 * GDB
     * Fixed that `qint8` values where shown as unsigned values
       (QTCREATORBUG-16353)
@@ -86,6 +98,10 @@ QML Profiler
 
 * Improved progress information
 * Improved performance when many events are involved
+
+Clang Static Analyzer
+
+* Fixed that built-in headers were not found
 
 Qt Quick Designer
 
