@@ -754,7 +754,7 @@ def qform__std__valarray():
     return arrayForms()
 
 def qdump__std__valarray(d, value):
-    size = value["_M_size"]
+    size = int(value["_M_size"])
     d.putItemCount(size)
     d.putPlotData(value["_M_data"], size, d.templateArgument(value.type, 0))
 
@@ -799,7 +799,7 @@ def qdump__std__vector(d, value):
         size = finish - start
 
     d.check(0 <= size and size <= 1000 * 1000 * 1000)
-    d.check(finish <= alloc)
+    d.check(int(finish) <= int(alloc))
     d.checkPointer(start)
     d.checkPointer(finish)
     d.checkPointer(alloc)
