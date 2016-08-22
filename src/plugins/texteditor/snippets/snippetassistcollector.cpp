@@ -58,10 +58,23 @@ SnippetAssistCollector::SnippetAssistCollector(const QString &groupId, const QIc
     , m_order(order)
 {}
 
+void SnippetAssistCollector::setGroupId(const QString &gid)
+{
+    m_groupId = gid;
+}
+
+QString SnippetAssistCollector::groupId() const
+{
+    return m_groupId;
+}
+
 QList<AssistProposalItemInterface *> SnippetAssistCollector::collect() const
 {
     QList<AssistProposalItemInterface *> snippets;
+    if (m_groupId.isEmpty())
+        return snippets;
     appendSnippets(&snippets, m_groupId, m_icon, m_order);
-    appendSnippets(&snippets, QLatin1String(Constants::TEXT_SNIPPET_GROUP_ID), m_icon, m_order);
+    if (m_groupId != Constants::TEXT_SNIPPET_GROUP_ID)
+        appendSnippets(&snippets, Constants::TEXT_SNIPPET_GROUP_ID, m_icon, m_order);
     return snippets;
 }
