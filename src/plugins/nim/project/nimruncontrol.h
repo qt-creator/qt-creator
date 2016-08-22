@@ -28,12 +28,16 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runnables.h>
 
+#include <QCoreApplication>
+
 namespace Nim {
 
 class NimRunConfiguration;
 
 class NimRunControl : public ProjectExplorer::RunControl
 {
+    Q_DECLARE_TR_FUNCTIONS(Nim::NimRunControl)
+
 public:
     NimRunControl(NimRunConfiguration *runConfiguration, Core::Id mode);
 
