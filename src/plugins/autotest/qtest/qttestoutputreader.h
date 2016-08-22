@@ -27,6 +27,7 @@
 
 #include "../testoutputreader.h"
 
+#include <QCoreApplication>
 #include <QXmlStreamReader>
 
 namespace Autotest {
@@ -34,6 +35,8 @@ namespace Internal {
 
 class QtTestOutputReader : public TestOutputReader
 {
+    Q_DECLARE_TR_FUNCTIONS(Autotest::Internal::QtTestOutputReader)
+
 public:
     QtTestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
                        QProcess *testApplication, const QString &buildDirectory);

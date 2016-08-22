@@ -36,11 +36,15 @@
 #include <utils/qtcassert.h>
 #include <debugger/debuggerrunconfigurationaspect.h>
 
+#include <QCoreApplication>
+
 namespace Autotest {
 namespace Internal {
 
 class TestRunConfiguration : public ProjectExplorer::RunConfiguration
 {
+    Q_DECLARE_TR_FUNCTIONS(Autotest::Internal::TestRunConfiguration)
+
 public:
     TestRunConfiguration(ProjectExplorer::Target *parent, TestConfiguration *config)
         : ProjectExplorer::RunConfiguration(parent, "AutoTest.TestRunConfig")
