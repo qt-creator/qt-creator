@@ -81,6 +81,7 @@ public:
 
 class ConnectionDelegate : public ConnectionEditorDelegate
 {
+    Q_OBJECT
 public:
     ConnectionDelegate(QWidget *parent = 0);
     virtual QWidget *createEditor(QWidget *parent,
