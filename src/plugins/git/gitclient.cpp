@@ -1965,7 +1965,7 @@ GitClient::CommandInProgress GitClient::checkCommandInProgress(const QString &wo
     const QString gitDir = findGitDirForRepository(workingDirectory);
     if (QFile::exists(gitDir + "/MERGE_HEAD"))
         return Merge;
-    else if (QFile::exists(gitDir + "/rebase-apply/rebasing"))
+    else if (QFile::exists(gitDir + "/rebase-apply"))
         return Rebase;
     else if (QFile::exists(gitDir + "/rebase-merge"))
         return RebaseMerge;

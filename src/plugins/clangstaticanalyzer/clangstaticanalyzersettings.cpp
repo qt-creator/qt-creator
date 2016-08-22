@@ -60,8 +60,9 @@ static QString clangExecutableFileName()
 
 QString ClangStaticAnalyzerSettings::defaultClangExecutable() const
 {
-    const QString shippedBinary = Core::ICore::libexecPath() + QLatin1Char('/')
-            + clangExecutableFileName();
+    const QString shippedBinary = Core::ICore::libexecPath()
+                    + QLatin1String("/clang/bin/")
+                    + clangExecutableFileName();
     if (QFileInfo(shippedBinary).isExecutable())
         return shippedBinary;
     return clangExecutableFileName();

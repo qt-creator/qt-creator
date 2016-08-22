@@ -43,7 +43,6 @@ def verifyInteractiveQMLHelp(lineText, helpText):
                 "Verifying if help is opened with documentation for '%s'." % helpText)
 
 def main():
-    global sdkPath
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return

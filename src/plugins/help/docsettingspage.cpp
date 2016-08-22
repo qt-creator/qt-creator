@@ -27,6 +27,7 @@
 #include "helpconstants.h"
 
 #include <coreplugin/helpmanager.h>
+#include <utils/algorithm.h>
 
 #include <QFileDialog>
 #include <QKeyEvent>
@@ -287,8 +288,12 @@ void DocSettingsPage::removeDocumentation(const QList<QModelIndex> &items)
     if (items.isEmpty())
         return;
 
-    for (int i = items.size() - 1; i >= 0; --i) {
-        const int row = items.at(i).row();
+    QList<QModelIndex> itemsByDecreasingRow = items;
+    Utils::sort(itemsByDecreasingRow, [](const QModelIndex &i1, const QModelIndex &i2) {
+        return i1.row() > i2.row();
+    });
+    foreach (const QModelIndex &item, itemsByDecreasingRow) {
+        const int row = item.row();
         const QString nameSpace = m_model->entryAt(row).nameSpace;
 
         m_filesToRegister.remove(nameSpace);
@@ -298,7 +303,7 @@ void DocSettingsPage::removeDocumentation(const QList<QModelIndex> &items)
         m_model->removeAt(row);
     }
 
-    const int newlySelectedRow = qMax(items.first().row() - 1, 0);
+    const int newlySelectedRow = qMax(itemsByDecreasingRow.last().row() - 1, 0);
     const QModelIndex index = m_proxyModel->mapFromSource(m_model->index(newlySelectedRow));
     m_ui.docsListView->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
 }

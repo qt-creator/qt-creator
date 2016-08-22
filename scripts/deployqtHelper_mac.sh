@@ -91,13 +91,15 @@ if [ $LLVM_INSTALL_DIR ]; then
         echo "- Copying libclang"
         mkdir -p "$1/Contents/Frameworks" || exit 1
         # use recursive copy to make it copy symlinks as symlinks
+        mkdir -p "$1/Contents/Resources/clang/bin"
+        mkdir -p "$1/Contents/Resources/clang/lib"
         cp -Rf "$LLVM_INSTALL_DIR"/lib/libclang.*dylib "$1/Contents/Frameworks/" || exit 1
-        cp -Rf "$LLVM_INSTALL_DIR"/lib/clang "$1/Contents/Resources/cplusplus/" || exit 1
+        cp -Rf "$LLVM_INSTALL_DIR"/lib/clang "$1/Contents/Resources/clang/lib/" || exit 1
         clangsource="$LLVM_INSTALL_DIR"/bin/clang
         clanglinktarget="$(readlink "$clangsource")"
-        cp -Rf "$clangsource" "$1/Contents/Resources/" || exit 1
+        cp -Rf "$clangsource" "$1/Contents/Resources/clang/bin/" || exit 1
         if [ $clanglinktarget ]; then
-            cp -Rf "$(dirname "$clangsource")/$clanglinktarget" "$1/Contents/Resources/$clanglinktarget" || exit 1
+            cp -Rf "$(dirname "$clangsource")/$clanglinktarget" "$1/Contents/Resources/clang/bin/$clanglinktarget" || exit 1
         fi
     fi
     _CLANG_CODEMODEL_LIB="$1/Contents/PlugIns/libClangCodeModel_debug.dylib"

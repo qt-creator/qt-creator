@@ -282,7 +282,6 @@ def selectFromFileDialog(fileName, waitForFile=False):
 # add Qt documentations from given paths
 # param which a list/tuple of the paths to the qch files to be added
 def addHelpDocumentation(which):
-    global sdkPath
     invokeMenuItem("Tools", "Options...")
     waitForObjectItem(":Options_QListView", "Help")
     clickItem(":Options_QListView", "Help", 14, 15, 0, Qt.LeftButton)

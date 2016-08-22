@@ -55,7 +55,12 @@ static QStringList constructCommandLineArguments(const QString &filePath,
                                                  const QString &logFile,
                                                  const QStringList &options)
 {
-    QStringList arguments = QStringList()
+    QStringList arguments;
+
+    if (LOG().isDebugEnabled())
+        arguments << QLatin1String("-v");
+
+    arguments
         << QLatin1String("--analyze")
         << QLatin1String("-o")
         << logFile
@@ -129,8 +134,11 @@ void ClangStaticAnalyzerRunner::onProcessStarted()
 void ClangStaticAnalyzerRunner::onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
     if (exitStatus == QProcess::NormalExit) {
-        if (exitCode == 0)
+        if (exitCode == 0) {
+            qCDebug(LOG).noquote() << "Output:\n" << Utils::SynchronousProcess::normalizeNewlines(
+                                                        QString::fromLocal8Bit(m_processOutput));
             emit finishedWithSuccess(actualLogFile());
+        }
         else
             emit finishedWithFailure(finishedWithBadExitCode(exitCode), processCommandlineAndOutput());
     } else { // == QProcess::CrashExit

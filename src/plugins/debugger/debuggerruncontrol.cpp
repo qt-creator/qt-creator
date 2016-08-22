@@ -373,6 +373,10 @@ static DebuggerRunControl *doCreate(DebuggerRunParameters rp, RunConfiguration *
             rp.projectSourceDirectory = project->projectDirectory().toString();
             rp.projectSourceFiles = project->files(Project::SourceFiles);
         }
+    } else {
+        // "special" starts like Start and Debug External Application.
+        rp.inferior.environment = Environment::systemEnvironment();
+        rp.inferior.environment.modify(EnvironmentKitInformation::environmentChanges(kit));
     }
 
     rp.toolChainAbi = ToolChainKitInformation::targetAbi(kit);
