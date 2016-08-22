@@ -1980,7 +1980,7 @@ void tst_Dumpers::dumper_data()
                     "unused(&l0);\n\n"
 
                     "QList<int> l1;\n"
-                    "for (int i = 0; i < 10000; ++i)\n"
+                    "for (int i = 0; i < 10; ++i)\n"
                     "    l1.push_back(i);\n"
                     "unused(&l1);\n\n"
 
@@ -2057,9 +2057,9 @@ void tst_Dumpers::dumper_data()
 
                + Check("l0", "<0 items>", "@QList<int>")
 
-               + Check("l1", "<10000 items>", "@QList<int>")
+               + Check("l1", "<10 items>", "@QList<int>")
                + Check("l1.0", "[0]", "0", "int")
-               + Check("l1.999", "[999]", "999", "int")
+               + Check("l1.9", "[9]", "9", "int")
 
                + Check("l2", "<2 items>", "@QList<int>")
                + Check("l2.0", "[0]", "1", "int")
