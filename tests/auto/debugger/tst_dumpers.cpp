@@ -5265,8 +5265,9 @@ void tst_Dumpers::dumper_data()
                     "sseB = _mm_loadu_ps(b);\n"
                     "unused(&i, &sseA, &sseB);\n")
                + Profile("QMAKE_CXXFLAGS += -msse2")
-               + Check("sseA", "", "__m128")
-               + Check("sseB", "", "__m128");
+               + CheckType("sseA", "__m128")
+               + Check("sseA.2", "[2]", "4", "float")
+               + CheckType("sseB", "__m128");
 
 
     QTest::newRow("BoostOptional")
