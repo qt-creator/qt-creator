@@ -477,7 +477,7 @@ CountingLabel::CountingLabel()
 
 void CountingLabel::updateCount(int count)
 {
-    setText(tr("%1 found").arg(count));
+    setText(BaseFileFind::tr("%1 found").arg(count));
 }
 
 } // namespace Internal
