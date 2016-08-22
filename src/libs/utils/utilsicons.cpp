@@ -178,6 +178,7 @@ const Icon COLLAPSE({
         {QLatin1String(":/utils/images/collapse.png"), Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon COLLAPSE_TOOLBAR({
         {QLatin1String(":/utils/images/collapse.png"), Theme::IconsBaseColor}});
+const Icon EMPTY14(":/utils/images/empty14.png");
 
 } // namespace Icons
 } // namespace Utils

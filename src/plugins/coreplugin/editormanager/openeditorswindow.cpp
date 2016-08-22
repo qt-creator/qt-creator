@@ -32,6 +32,7 @@
 
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+#include <utils/utilsicons.h>
 
 #include <QFocusEvent>
 #include <QHeaderView>
@@ -52,7 +53,7 @@ enum class Role
 
 OpenEditorsWindow::OpenEditorsWindow(QWidget *parent) :
     QFrame(parent, Qt::Popup),
-    m_emptyIcon(QLatin1String(":/core/images/empty14.png")),
+    m_emptyIcon(Utils::Icons::EMPTY14.icon()),
     m_editorList(new OpenEditorsTreeWidget(this))
 {
     setMinimumSize(300, 200);

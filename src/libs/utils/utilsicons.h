@@ -105,6 +105,7 @@ QTCREATOR_UTILS_EXPORT extern const Icon EXPAND;
 QTCREATOR_UTILS_EXPORT extern const Icon EXPAND_TOOLBAR;
 QTCREATOR_UTILS_EXPORT extern const Icon COLLAPSE;
 QTCREATOR_UTILS_EXPORT extern const Icon COLLAPSE_TOOLBAR;
+QTCREATOR_UTILS_EXPORT extern const Icon EMPTY14;
 
 } // namespace Icons
 } // namespace Utils
