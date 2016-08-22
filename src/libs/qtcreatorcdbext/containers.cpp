@@ -758,14 +758,8 @@ static inline AbstractSymbolGroupNodePtrVector
                                AddressSequence(arrayAddress, pointerSize),
                                v.module(), innerType, count);
      // Check condition for large||static.
-     bool isLargeOrStatic = innerTypeSize > pointerSize;
-     if (!isLargeOrStatic && !SymbolGroupValue::isPointerType(innerType)) {
-         const KnownType kt = knownType(innerType, false); // inner type, no 'class ' prefix.
-         if (kt != KT_Unknown && !(kt & (KT_POD_Type|KT_Qt_PrimitiveType|KT_Qt_MovableType))
-                 && !(kt == KT_QStringList && QtInfo::get(v.context()).version >= 5)) {
-             isLargeOrStatic = true;
-         }
-     }
+     const bool isLargeOrStatic = innerTypeSize > pointerSize
+             || !SymbolGroupValue::isMovable(innerType, v);
      if (SymbolGroupValue::verbose)
          DebugPrint() << "isLargeOrStatic " << isLargeOrStatic;
      if (isLargeOrStatic) {
@@ -776,7 +770,8 @@ static inline AbstractSymbolGroupNodePtrVector
                          arrayChildList(v.node()->symbolGroup(),
                                         AddressArraySequence<ULONG64>(reinterpret_cast<const ULONG64 *>(data)),
                                         v.module(), innerType, count) :
-                         arrayChildList(v.node()->symbolGroup(), AddressArraySequence<ULONG32>(reinterpret_cast<const ULONG32 *>(data)),
+                         arrayChildList(v.node()->symbolGroup(),
+                                        AddressArraySequence<ULONG32>(reinterpret_cast<const ULONG32 *>(data)),
                                         v.module(), innerType, count);
              delete [] data;
              return rc;
