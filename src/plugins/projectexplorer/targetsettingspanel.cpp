@@ -202,6 +202,8 @@ void TargetSetupPageWrapper::updateNoteText()
 
 class TargetSettingsPanelItemPrivate : public QObject
 {
+    Q_DECLARE_TR_FUNCTIONS(TargetSettingsPanelItem)
+
 public:
     TargetSettingsPanelItemPrivate(TargetSettingsPanelItem *q, Project *project);
     ~TargetSettingsPanelItemPrivate() { /*delete m_importer;*/ }
