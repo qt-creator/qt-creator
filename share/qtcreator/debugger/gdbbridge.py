@@ -168,7 +168,10 @@ class PlainDumper:
         self.typeCache = {}
 
     def __call__(self, d, value):
-        printer = self.printer.gen_printer(value)
+        try:
+            printer = self.printer.gen_printer(value)
+        except:
+            printer = self.printer.invoke(value)
         lister = getattr(printer, "children", None)
         children = [] if lister is None else list(lister())
         d.putType(self.printer.name)
