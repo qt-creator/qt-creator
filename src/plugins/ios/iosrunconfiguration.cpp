@@ -400,7 +400,7 @@ IosRunConfigurationWidget::IosRunConfigurationWidget(IosRunConfiguration *runCon
 
 QString IosRunConfigurationWidget::displayName() const
 {
-    return tr("iOS run settings");
+    return IosRunConfiguration::tr("iOS run settings");
 }
 
 void IosRunConfigurationWidget::setDeviceTypeIndex(int devIndex)
