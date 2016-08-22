@@ -257,11 +257,12 @@ bool TextMarkRegistry::categoryHasColor(Id category)
     return m_colors.contains(category);
 }
 
-void TextMarkRegistry::setCategoryColor(Id category, Theme::Color color)
+void TextMarkRegistry::setCategoryColor(Id category, Theme::Color newColor)
 {
-    if (m_colors[category] == color)
+    Theme::Color &color = m_colors[category];
+    if (color == newColor)
         return;
-    m_colors[category] = color;
+    color = newColor;
 }
 
 QString TextMarkRegistry::defaultToolTip(Id category) const
