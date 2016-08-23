@@ -25,7 +25,6 @@
 
 #include "nimbuildconfigurationfactory.h"
 #include "nimbuildconfiguration.h"
-#include "nimbuildinfo.h"
 #include "nimcompilerbuildstep.h"
 #include "nimcompilercleanstep.h"
 #include "nimproject.h"
@@ -33,6 +32,7 @@
 #include "../nimconstants.h"
 
 #include <coreplugin/documentmanager.h>
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildstep.h>
@@ -48,6 +48,21 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Nim {
+
+class NimBuildInfo : public BuildInfo
+{
+public:
+    NimBuildInfo(BuildConfiguration::BuildType buildType,
+                 const NimBuildConfigurationFactory *factory)
+        : BuildInfo(factory), m_buildType(buildType)
+    {}
+
+    BuildConfiguration::BuildType buildType() const { return m_buildType; }
+
+private:
+    BuildConfiguration::BuildType m_buildType;
+};
+
 
 NimBuildConfigurationFactory::NimBuildConfigurationFactory(QObject *parent)
     : IBuildConfigurationFactory(parent)

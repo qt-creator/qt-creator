@@ -36,7 +36,6 @@ QtcPlugin {
             "nimbuildconfiguration.h", "nimbuildconfiguration.cpp",
             "nimbuildconfigurationfactory.h", "nimbuildconfigurationfactory.cpp",
             "nimbuildconfigurationwidget.h", "nimbuildconfigurationwidget.cpp",
-            "nimbuildinfo.h", "nimbuildinfo.cpp",
             "nimcompilerbuildstep.h", "nimcompilerbuildstep.cpp",
             "nimcompilerbuildstepconfigwidget.h", "nimcompilerbuildstepconfigwidget.cpp", "nimcompilerbuildstepconfigwidget.ui",
             "nimcompilerbuildstepfactory.h", "nimcompilerbuildstepfactory.cpp",
