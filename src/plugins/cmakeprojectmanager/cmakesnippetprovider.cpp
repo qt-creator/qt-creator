@@ -35,17 +35,17 @@ namespace Internal {
 
 CMakeSnippetProvider::~CMakeSnippetProvider() = default;
 
-QString CMakeProjectManager::Internal::CMakeSnippetProvider::groupId() const
+QString CMakeSnippetProvider::groupId() const
 {
     return QLatin1String(Constants::CMAKE_SNIPPETS_GROUP_ID);
 }
 
-QString CMakeProjectManager::Internal::CMakeSnippetProvider::displayName() const
+QString CMakeSnippetProvider::displayName() const
 {
     return tr("CMake");
 }
 
-void CMakeProjectManager::Internal::CMakeSnippetProvider::decorateEditor(TextEditor::SnippetEditorWidget *editor) const
+void CMakeSnippetProvider::decorateEditor(TextEditor::SnippetEditorWidget *editor) const
 {
     Q_UNUSED(editor);
     // What needs to go here?
