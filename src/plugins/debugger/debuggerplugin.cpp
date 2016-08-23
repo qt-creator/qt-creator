@@ -3604,6 +3604,9 @@ void registerPerspective(const QByteArray &perspectiveId, const Perspective *per
 
 void selectPerspective(const QByteArray &perspectiveId)
 {
+    if (dd->m_mainWindow->currentPerspective() == perspectiveId)
+        return;
+
     // FIXME: Work-around aslong as the GammaRay integration does not use the same setup,
     if (perspectiveId.isEmpty())
         return;
