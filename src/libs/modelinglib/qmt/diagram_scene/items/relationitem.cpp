@@ -28,6 +28,7 @@
 #include "qmt/diagram_controller/diagramcontroller.h"
 #include "qmt/diagram_controller/dvoidvisitor.h"
 #include "qmt/diagram/dassociation.h"
+#include "qmt/diagram/dconnection.h"
 #include "qmt/diagram/ddependency.h"
 #include "qmt/diagram/dinheritance.h"
 #include "qmt/diagram/dobject.h"
@@ -41,6 +42,8 @@
 #include "qmt/diagram_scene/parts/stereotypesitem.h"
 #include "qmt/infrastructure/geometryutilities.h"
 #include "qmt/infrastructure/qmtassert.h"
+#include "qmt/stereotype/customrelation.h"
+#include "qmt/stereotype/stereotypecontroller.h"
 #include "qmt/style/stylecontroller.h"
 #include "qmt/style/styledrelation.h"
 #include "qmt/style/style.h"
@@ -161,6 +164,46 @@ public:
             break;
         }
 
+        m_arrow->setStartHead(endAHead);
+        m_arrow->setEndHead(endBHead);
+        m_arrow->setPoints(m_points);
+    }
+
+    void visitDConnection(const DConnection *connection)
+    {
+
+        ArrowItem::Shaft shaft = ArrowItem::ShaftSolid;
+        ArrowItem::Head endAHead = ArrowItem::HeadNone;
+        ArrowItem::Head endBHead = ArrowItem::HeadNone;
+
+        CustomRelation customRelation = m_diagramSceneModel->stereotypeController()->findCustomRelation(connection->customRelationId());
+        if (!customRelation.isNull()) {
+            // TODO support custom shapes
+            static const QHash<CustomRelation::ShaftPattern, ArrowItem::Shaft> shaft2shaft = {
+                { CustomRelation::ShaftPattern::Solid, ArrowItem::ShaftSolid },
+                { CustomRelation::ShaftPattern::Dash, ArrowItem::ShaftDashed },
+                { CustomRelation::ShaftPattern::Dot, ArrowItem::ShaftDot },
+                { CustomRelation::ShaftPattern::DashDot, ArrowItem::ShaftDashDot },
+                { CustomRelation::ShaftPattern::DashDotDot, ArrowItem::ShaftDashDotDot },
+            };
+            static const QHash<CustomRelation::Head, ArrowItem::Head> head2head = {
+                { CustomRelation::Head::None, ArrowItem::HeadNone },
+                { CustomRelation::Head::Shape, ArrowItem::HeadNone },
+                { CustomRelation::Head::Arrow, ArrowItem::HeadOpen },
+                { CustomRelation::Head::Triangle, ArrowItem::HeadTriangle },
+                { CustomRelation::Head::FilledTriangle, ArrowItem::HeadFilledTriangle },
+                { CustomRelation::Head::Diamond, ArrowItem::HeadDiamond },
+                { CustomRelation::Head::FilledDiamond, ArrowItem::HeadFilledDiamond },
+            };
+            shaft = shaft2shaft.value(customRelation.shaftPattern());
+            endAHead = head2head.value(customRelation.endA().head());
+            endBHead = head2head.value(customRelation.endB().head());
+            // TODO color
+        }
+
+        m_arrow->setShaft(shaft);
+        m_arrow->setArrowSize(12.0);
+        m_arrow->setDiamondSize(12.0);
         m_arrow->setStartHead(endAHead);
         m_arrow->setEndHead(endBHead);
         m_arrow->setPoints(m_points);

@@ -47,6 +47,7 @@ public:
     void visitDInheritance(DInheritance *inheritance) override;
     void visitDDependency(DDependency *dependency) override;
     void visitDAssociation(DAssociation *association) override;
+    void visitDConnection(DConnection *connection) override;
     void visitDAnnotation(DAnnotation *annotation) override;
     void visitDBoundary(DBoundary *boundary) override;
 };
@@ -67,6 +68,7 @@ public:
     void visitDInheritance(const DInheritance *inheritance) override;
     void visitDDependency(const DDependency *dependency) override;
     void visitDAssociation(const DAssociation *association) override;
+    void visitDConnection(const DConnection *connection) override;
     void visitDAnnotation(const DAnnotation *annotation) override;
     void visitDBoundary(const DBoundary *boundary) override;
 };

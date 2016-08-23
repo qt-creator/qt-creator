@@ -49,6 +49,7 @@ public:
     void visitMDependency(const MDependency *dependency) override;
     void visitMInheritance(const MInheritance *inheritance) override;
     void visitMAssociation(const MAssociation *association) override;
+    void visitMConnection(const MConnection *connection) override;
 
 private:
     MElement *m_target;

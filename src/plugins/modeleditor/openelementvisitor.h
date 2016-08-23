@@ -53,6 +53,7 @@ public:
     void visitDInheritance(const qmt::DInheritance *inheritance);
     void visitDDependency(const qmt::DDependency *dependency);
     void visitDAssociation(const qmt::DAssociation *association);
+    void visitDConnection(const qmt::DConnection *connection);
     void visitDAnnotation(const qmt::DAnnotation *annotation);
     void visitDBoundary(const qmt::DBoundary *boundary);
 
@@ -79,6 +80,7 @@ public:
     void visitMDependency(const qmt::MDependency *dependency) override;
     void visitMInheritance(const qmt::MInheritance *inheritance) override;
     void visitMAssociation(const qmt::MAssociation *association) override;
+    void visitMConnection(const qmt::MConnection *connection) override;
 
 private:
     ElementTasks *m_elementTasks = 0;

@@ -32,6 +32,7 @@
 #include "qmt/diagram/drelation.h"
 #include "qmt/diagram/ddependency.h"
 #include "qmt/diagram/dassociation.h"
+#include "qmt/diagram/dconnection.h"
 
 #include "qmt/model/melement.h"
 #include "qmt/model/mobject.h"
@@ -220,6 +221,27 @@ void DUpdateVisitor::visitMAssociation(const MAssociation *association)
     if (isUpdating(endB != dassociation->endB()))
         dassociation->setEndB(endB);
     visitMRelation(association);
+}
+
+void DUpdateVisitor::visitMConnection(const MConnection *connection)
+{
+    auto dconnection = dynamic_cast<DConnection *>(m_target);
+    QMT_CHECK(dconnection);
+    if (isUpdating(connection->customRelationId() != dconnection->customRelationId()))
+        dconnection->setCustomRelationId(connection->customRelationId());
+    DConnectionEnd endA;
+    endA.setName(connection->endA().name());
+    endA.setCardinatlity(connection->endA().cardinality());
+    endA.setNavigable(connection->endA().isNavigable());
+    if (isUpdating(endA != dconnection->endA()))
+        dconnection->setEndA(endA);
+    DConnectionEnd endB;
+    endB.setName(connection->endB().name());
+    endB.setCardinatlity(connection->endB().cardinality());
+    endB.setNavigable(connection->endB().isNavigable());
+    if (isUpdating(endB != dconnection->endB()))
+        dconnection->setEndB(endB);
+    visitMRelation(connection);
 }
 
 bool DUpdateVisitor::isUpdating(bool valueChanged)

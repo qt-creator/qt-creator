@@ -36,6 +36,7 @@
 #include "qmt/model/mitem.h"
 #include "qmt/model/mrelation.h"
 #include "qmt/model/massociation.h"
+#include "qmt/model/mconnection.h"
 #include "qmt/model/mdependency.h"
 #include "qmt/model/minheritance.h"
 
@@ -188,6 +189,15 @@ public:
         visitMRelation(association);
     }
 
+    void visitMConnection(const MConnection *connection)
+    {
+        QMT_CHECK(!m_item);
+
+        static QIcon icon(QStringLiteral(":modelinglib/48x48/connection.ong"));
+        m_item = new ModelItem(icon, m_treeModel->createRelationLabel(connection));
+        visitMRelation(connection);
+    }
+
 private:
     TreeModel *m_treeModel = 0;
     TreeModel::ModelItem *m_item = 0;
@@ -283,6 +293,11 @@ public:
     void visitMAssociation(const MAssociation *association)
     {
         visitMRelation(association);
+    }
+
+    void visitMConnection(const MConnection *connection)
+    {
+        visitMRelation(connection);
     }
 
 private:

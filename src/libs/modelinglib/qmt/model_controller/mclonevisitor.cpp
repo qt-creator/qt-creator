@@ -35,6 +35,7 @@
 #include "qmt/model/mitem.h"
 #include "qmt/model/mrelation.h"
 #include "qmt/model/massociation.h"
+#include "qmt/model/mconnection.h"
 #include "qmt/model/mdependency.h"
 #include "qmt/model/minheritance.h"
 
@@ -134,6 +135,13 @@ void MCloneVisitor::visitMAssociation(const MAssociation *association)
     if (!m_cloned)
         m_cloned = new MAssociation(*association);
     visitMRelation(association);
+}
+
+void MCloneVisitor::visitMConnection(const MConnection *connection)
+{
+    if (!m_cloned)
+        m_cloned = new MConnection(*connection);
+    visitMRelation(connection);
 }
 
 MCloneDeepVisitor::MCloneDeepVisitor()
@@ -255,6 +263,13 @@ void MCloneDeepVisitor::visitMAssociation(const MAssociation *association)
     if (!m_cloned)
         m_cloned = new MAssociation(*association);
     visitMRelation(association);
+}
+
+void MCloneDeepVisitor::visitMConnection(const MConnection *connection)
+{
+    if (!m_cloned)
+        m_cloned = new MConnection(*connection);
+    visitMRelation(connection);
 }
 
 } // namespace qmt

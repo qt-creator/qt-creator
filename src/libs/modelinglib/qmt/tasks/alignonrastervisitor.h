@@ -55,6 +55,7 @@ public:
     void visitDInheritance(DInheritance *inheritance) override;
     void visitDDependency(DDependency *dependency) override;
     void visitDAssociation(DAssociation *association) override;
+    void visitDConnection(DConnection *connection) override;
     void visitDAnnotation(DAnnotation *annotation) override;
     void visitDBoundary(DBoundary *boundary) override;
 

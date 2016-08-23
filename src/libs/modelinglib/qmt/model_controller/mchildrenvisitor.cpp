@@ -34,6 +34,7 @@
 #include "qmt/model/mdependency.h"
 #include "qmt/model/minheritance.h"
 #include "qmt/model/massociation.h"
+#include "qmt/model/mconnection.h"
 
 namespace qmt {
 
@@ -100,6 +101,11 @@ void MChildrenVisitor::visitMInheritance(MInheritance *inheritance)
 void MChildrenVisitor::visitMAssociation(MAssociation *association)
 {
     visitMRelation(association);
+}
+
+void MChildrenVisitor::visitMConnection(MConnection *connection)
+{
+    visitMRelation(connection);
 }
 
 } // namespace qmt

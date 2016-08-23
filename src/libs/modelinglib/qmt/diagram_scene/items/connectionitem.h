@@ -25,42 +25,40 @@
 
 #pragma once
 
+#include "relationitem.h"
+
+QT_BEGIN_NAMESPACE
+class QGraphicsSimpleTextItem;
+QT_END_NAMESPACE
+
 namespace qmt {
 
-class MElement;
+class DConnection;
+class DConnectionEnd;
 
-class MObject;
-class MPackage;
-class MClass;
-class MComponent;
-class MDiagram;
-class MCanvasDiagram;
-class MItem;
-
-class MRelation;
-class MDependency;
-class MInheritance;
-class MAssociation;
-class MConnection;
-
-class MVisitor
+class ConnectionItem : public RelationItem
 {
 public:
-    virtual ~MVisitor() { }
+    ConnectionItem(DConnection *connection, DiagramSceneModel *diagramSceneModel,
+                    QGraphicsItem *parent = 0);
+    ~ConnectionItem() override;
 
-    virtual void visitMElement(MElement *element) = 0;
-    virtual void visitMObject(MObject *object) = 0;
-    virtual void visitMPackage(MPackage *package) = 0;
-    virtual void visitMClass(MClass *klass) = 0;
-    virtual void visitMComponent(MComponent *component) = 0;
-    virtual void visitMDiagram(MDiagram *diagram) = 0;
-    virtual void visitMCanvasDiagram(MCanvasDiagram *diagram) = 0;
-    virtual void visitMItem(MItem *item) = 0;
-    virtual void visitMRelation(MRelation *relation) = 0;
-    virtual void visitMDependency(MDependency *dependency) = 0;
-    virtual void visitMInheritance(MInheritance *inheritance) = 0;
-    virtual void visitMAssociation(MAssociation *association) = 0;
-    virtual void visitMConnection(MConnection *connection) = 0;
+protected:
+    void update(const Style *style) override;
+
+private:
+    void updateEndLabels(const DConnectionEnd &end, const DConnectionEnd &otherEnd,
+                         QGraphicsSimpleTextItem **endName,
+                         QGraphicsSimpleTextItem **endCardinality, const Style *style);
+    void placeEndLabels(const QLineF &lineSegment, QGraphicsItem *endName,
+                        QGraphicsItem *endCardinality,
+                        QGraphicsItem *endItem, double headLength);
+
+    DConnection *m_connection = 0;
+    QGraphicsSimpleTextItem *m_endAName = 0;
+    QGraphicsSimpleTextItem *m_endACardinality = 0;
+    QGraphicsSimpleTextItem *m_endBName = 0;
+    QGraphicsSimpleTextItem *m_endBCardinality = 0;
 };
 
 } // namespace qmt

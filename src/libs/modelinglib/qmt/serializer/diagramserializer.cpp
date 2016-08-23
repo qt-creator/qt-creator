@@ -41,6 +41,7 @@
 #include "qmt/diagram/dinheritance.h"
 #include "qmt/diagram/ddependency.h"
 #include "qmt/diagram/dassociation.h"
+#include "qmt/diagram/dconnection.h"
 
 #include "qmt/diagram/dannotation.h"
 #include "qmt/diagram/dboundary.h"
@@ -328,6 +329,39 @@ inline void Access<Archive, DAssociation>::serialize(Archive &archive, DAssociat
 }
 
 QARK_ACCESS_SPECIALIZE(QXmlInArchive, QXmlOutArchive, DAssociation)
+
+// DConnection
+
+QARK_REGISTER_TYPE_NAME(DConnectionEnd, "DConnectionEnd")
+QARK_ACCESS_SERIALIZE(DConnectionEnd)
+
+template<class Archive>
+inline void Access<Archive, DConnectionEnd>::serialize(Archive &archive, DConnectionEnd &connectionEnd)
+{
+    archive || tag(connectionEnd)
+            || attr(QStringLiteral("name"), connectionEnd, &DConnectionEnd::name, &DConnectionEnd::setName)
+            || attr(QStringLiteral("cradinality"), connectionEnd, &DConnectionEnd::cardinality, &DConnectionEnd::setCardinatlity)
+            || attr(QStringLiteral("navigable"), connectionEnd, &DConnectionEnd::isNavigable, &DConnectionEnd::setNavigable)
+            || end;
+}
+
+QARK_REGISTER_TYPE_NAME(DConnection, "DConnection")
+QARK_REGISTER_DERIVED_CLASS(QXmlInArchive, QXmlOutArchive, DConnection, DElement)
+QARK_REGISTER_DERIVED_CLASS(QXmlInArchive, QXmlOutArchive, DConnection, DRelation)
+QARK_ACCESS_SERIALIZE(DConnection)
+
+template<class Archive>
+inline void Access<Archive, DConnection>::serialize(Archive &archive, DConnection &connection)
+{
+    archive || tag(connection)
+            || base<DRelation>(connection)
+            || attr(QStringLiteral("custom-relation"), connection, &DConnection::customRelationId, &DConnection::setCustomRelationId)
+            || attr(QStringLiteral("a"), connection, &DConnection::endA, &DConnection::setEndA)
+            || attr(QStringLiteral("b"), connection, &DConnection::endB, &DConnection::setEndB)
+            || end;
+}
+
+QARK_ACCESS_SPECIALIZE(QXmlInArchive, QXmlOutArchive, DConnection)
 
 // DAnnotation
 

@@ -36,6 +36,7 @@
 #include "qmt/diagram/dinheritance.h"
 #include "qmt/diagram/ddependency.h"
 #include "qmt/diagram/dassociation.h"
+#include "qmt/diagram/dconnection.h"
 #include "qmt/diagram/dannotation.h"
 #include "qmt/diagram/dboundary.h"
 
@@ -98,6 +99,11 @@ void DVoidVisitor::visitDDependency(DDependency *dependency)
 void DVoidVisitor::visitDAssociation(DAssociation *association)
 {
     visitDRelation(association);
+}
+
+void DVoidVisitor::visitDConnection(DConnection *connection)
+{
+    visitDRelation(connection);
 }
 
 void DVoidVisitor::visitDAnnotation(DAnnotation *annotation)
@@ -167,6 +173,11 @@ void DConstVoidVisitor::visitDDependency(const DDependency *dependency)
 void DConstVoidVisitor::visitDAssociation(const DAssociation *association)
 {
     visitDRelation(association);
+}
+
+void DConstVoidVisitor::visitDConnection(const DConnection *connection)
+{
+    visitDRelation(connection);
 }
 
 void DConstVoidVisitor::visitDAnnotation(const DAnnotation *annotation)

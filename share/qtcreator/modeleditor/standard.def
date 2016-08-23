@@ -64,13 +64,13 @@
 //         role: <The role of the end. A string that defaults to nothing.>
 //         cardinality: <An integer or a string defining the cardinality of the end. Defaults to nothing.>
 //         navigable: <If the end is navigable. One of Yes, No, True, False. Defaults to nothing.>
-//         Shape {
-//         }
+//         head: <Predefined shapes. One of none, arrow, triangle, filledtriangle, diamond, filleddiamond.
+//                Defaults to none.>
 //     }
 // }
 //
 //
-// A Dependency defines a number of settings of a dependency specialization:
+// A Dependency defines settings of a dependency specialization:
 //
 // Dependency {
 //     id: <id>
@@ -183,24 +183,24 @@ Icon {
 }
 
 Association {
-    id: AggregationOne
-    title: "Aggregation (?:1)"
+    id: Aggregation
+    title: "Aggregation"
     End {
         end: A
-        cardinality: 1
+        cardinality: "*"
         navigable: yes
         relationship: aggregation
     }
 }
 
 Association {
-    id: AggregationMany
-    title: "Aggregation (?:N)"
+    id: Composition
+    title: "Composition"
     End {
         end: A
-        cardinality: "*"
+        cardinality: "1"
         navigable: yes
-        relationship: aggregation
+        relationship: composition
     }
 }
 
@@ -215,8 +215,8 @@ Toolbar {
         Tool { element: dependency }
         Tool { element: inheritance }
         Tool { element: association }
-        Tool { element: AggregationOne }
-        Tool { element: AggregationMany }
+        Tool { element: Aggregation }
+        Tool { element: Composition }
     }
 }
 
@@ -303,6 +303,29 @@ Icon {
         Line { x0: 10; y0: 25; x1: 17; y1: 40 }
     }
 }
+
+Relation {
+    id: Communication
+    elements: UseCase, Actor
+    pattern: solid
+    color: A
+    End {
+        end: A
+    }
+    End {
+        end: B
+    }
+}
+
+Toolbar {
+    id: UseCaseToolbar
+    element: UseCase, Actor
+    Tools {
+        Tool { element: Communication }
+        Tool { element: dependency }
+    }
+}
+
 
 // ****************
 // ** Activities **
@@ -409,15 +432,11 @@ Relation {
     End {
         end: A
         elements: Start, Activity, Condition, HorizontalBar, VerticalBar
-        role: ""
     }
     End {
         end: B
         elements: Activity, Condition, HorizontalBar, VerticalBar, Termination
-        head: filledtriangle
-        //Shape {
-        //    Triangle { x: 6; y: 5.2; width: 12; height: 10.4; filled: yes }
-        //}
+        head: arrow
     }
 }
 

@@ -27,6 +27,7 @@ HEADERS += \
     $$PWD/diagram/dboundary.h \
     $$PWD/diagram/dclass.h \
     $$PWD/diagram/dcomponent.h \
+    $$PWD/diagram/dconnection.h \
     $$PWD/diagram/dconstvisitor.h \
     $$PWD/diagram/ddependency.h \
     $$PWD/diagram/ddiagram.h \
@@ -55,6 +56,7 @@ HEADERS += \
     $$PWD/diagram_scene/items/boundaryitem.h \
     $$PWD/diagram_scene/items/classitem.h \
     $$PWD/diagram_scene/items/componentitem.h \
+    $$PWD/diagram_scene/items/connectionitem.h \
     $$PWD/diagram_scene/items/diagramitem.h \
     $$PWD/diagram_scene/items/itemitem.h \
     $$PWD/diagram_scene/items/objectitem.h \
@@ -103,6 +105,7 @@ HEADERS += \
     $$PWD/model/mclass.h \
     $$PWD/model/mclassmember.h \
     $$PWD/model/mcomponent.h \
+    $$PWD/model/mconnection.h \
     $$PWD/model/mconstvisitor.h \
     $$PWD/model/mdependency.h \
     $$PWD/model/mdiagram.h \
@@ -180,6 +183,7 @@ SOURCES += \
     $$PWD/diagram/dboundary.cpp \
     $$PWD/diagram/dclass.cpp \
     $$PWD/diagram/dcomponent.cpp \
+    $$PWD/diagram/dconnection.cpp \
     $$PWD/diagram/ddependency.cpp \
     $$PWD/diagram/ddiagram.cpp \
     $$PWD/diagram/delement.cpp \
@@ -196,6 +200,7 @@ SOURCES += \
     $$PWD/diagram_scene/items/boundaryitem.cpp \
     $$PWD/diagram_scene/items/classitem.cpp \
     $$PWD/diagram_scene/items/componentitem.cpp \
+    $$PWD/diagram_scene/items/connectionitem.cpp \
     $$PWD/diagram_scene/items/diagramitem.cpp \
     $$PWD/diagram_scene/items/itemitem.cpp \
     $$PWD/diagram_scene/items/objectitem.cpp \
@@ -235,6 +240,7 @@ SOURCES += \
     $$PWD/model/mclass.cpp \
     $$PWD/model/mclassmember.cpp \
     $$PWD/model/mcomponent.cpp \
+    $$PWD/model/mconnection.cpp \
     $$PWD/model/mdependency.cpp \
     $$PWD/model/mdiagram.cpp \
     $$PWD/model/melement.cpp \

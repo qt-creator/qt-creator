@@ -36,6 +36,7 @@
 #include "qmt/diagram/dinheritance.h"
 #include "qmt/diagram/ddependency.h"
 #include "qmt/diagram/dassociation.h"
+#include "qmt/diagram/dconnection.h"
 #include "qmt/diagram/dannotation.h"
 #include "qmt/diagram/dboundary.h"
 #include "qmt/infrastructure/qmtassert.h"
@@ -120,6 +121,13 @@ void DCloneVisitor::visitDAssociation(const DAssociation *association)
     if (!m_cloned)
         m_cloned = new DAssociation(*association);
     visitDRelation(association);
+}
+
+void DCloneVisitor::visitDConnection(const DConnection *connection)
+{
+    if (!m_cloned)
+        m_cloned = new DConnection(*connection);
+    visitDRelation(connection);
 }
 
 void DCloneVisitor::visitDAnnotation(const DAnnotation *annotation)
@@ -213,6 +221,13 @@ void DCloneDeepVisitor::visitDAssociation(const DAssociation *association)
     if (!m_cloned)
         m_cloned = new DAssociation(*association);
     visitDRelation(association);
+}
+
+void DCloneDeepVisitor::visitDConnection(const DConnection *connection)
+{
+    if (!m_cloned)
+        m_cloned = new DConnection(*connection);
+    visitDRelation(connection);
 }
 
 void DCloneDeepVisitor::visitDAnnotation(const DAnnotation *annotation)

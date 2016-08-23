@@ -34,6 +34,7 @@
 #include "qmt/model/mdependency.h"
 #include "qmt/model/minheritance.h"
 #include "qmt/model/massociation.h"
+#include "qmt/model/mconnection.h"
 
 namespace qmt {
 
@@ -131,6 +132,17 @@ void MFlatAssignmentVisitor::visitMAssociation(const MAssociation *association)
     QMT_ASSERT(targetAssociation, return);
     targetAssociation->setEndA(association->endA());
     targetAssociation->setEndB(association->endB());
+    // TODO assign association class UID?
+}
+
+void MFlatAssignmentVisitor::visitMConnection(const MConnection *connection)
+{
+    visitMRelation(connection);
+    auto targetConnection = dynamic_cast<MConnection *>(m_target);
+    QMT_CHECK(targetConnection);
+    targetConnection->setCustomRelationId(connection->customRelationId());
+    targetConnection->setEndA(connection->endA());
+    targetConnection->setEndB(connection->endB());
 }
 
 } // namespace qmt

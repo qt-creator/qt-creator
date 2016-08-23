@@ -32,6 +32,7 @@
 #include "items/itemitem.h"
 #include "items/relationitem.h"
 #include "items/associationitem.h"
+#include "items/connectionitem.h"
 #include "items/annotationitem.h"
 #include "items/boundaryitem.h"
 
@@ -46,6 +47,7 @@
 #include "qmt/diagram/dinheritance.h"
 #include "qmt/diagram/ddependency.h"
 #include "qmt/diagram/dassociation.h"
+#include "qmt/diagram/dconnection.h"
 #include "qmt/diagram/dannotation.h"
 #include "qmt/diagram/dboundary.h"
 #include "qmt/infrastructure/qmtassert.h"
@@ -120,6 +122,12 @@ void DiagramSceneModel::CreationVisitor::visitDAssociation(DAssociation *associa
 {
     QMT_CHECK(!m_graphicsItem);
     m_graphicsItem = new AssociationItem(association, m_diagramSceneModel);
+}
+
+void DiagramSceneModel::CreationVisitor::visitDConnection(DConnection *connection)
+{
+    QMT_CHECK(!m_graphicsItem);
+    m_graphicsItem = new ConnectionItem(connection, m_diagramSceneModel);
 }
 
 void DiagramSceneModel::CreationVisitor::visitDAnnotation(DAnnotation *annotation)
@@ -260,6 +268,11 @@ void DiagramSceneModel::UpdateVisitor::visitDDependency(DDependency *dependency)
 void DiagramSceneModel::UpdateVisitor::visitDAssociation(DAssociation *association)
 {
     visitDRelation(association);
+}
+
+void DiagramSceneModel::UpdateVisitor::visitDConnection(DConnection *connection)
+{
+    visitDRelation(connection);
 }
 
 void DiagramSceneModel::UpdateVisitor::visitDAnnotation(DAnnotation *annotation)

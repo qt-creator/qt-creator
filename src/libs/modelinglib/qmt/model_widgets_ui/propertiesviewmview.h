@@ -78,6 +78,7 @@ public:
     void visitMDependency(const MDependency *dependency) override;
     void visitMInheritance(const MInheritance *inheritance) override;
     void visitMAssociation(const MAssociation *association) override;
+    void visitMConnection(const MConnection *connection) override;
 
     void visitDElement(const DElement *element) override;
     void visitDObject(const DObject *object) override;
@@ -90,6 +91,7 @@ public:
     void visitDInheritance(const DInheritance *inheritance) override;
     void visitDDependency(const DDependency *dependency) override;
     void visitDAssociation(const DAssociation *association) override;
+    void visitDConnection(const DConnection *connection) override;
     void visitDAnnotation(const DAnnotation *annotation) override;
     void visitDBoundary(const DBoundary *boundary) override;
 
@@ -116,6 +118,12 @@ protected:
     void onAssociationEndBCardinalityChanged(const QString &cardinality);
     void onAssociationEndBNavigableChanged(bool navigable);
     void onAssociationEndBKindChanged(int kindIndex);
+    void onConnectionEndANameChanged(const QString &name);
+    void onConnectionEndACardinalityChanged(const QString &cardinality);
+    void onConnectionEndANavigableChanged(bool navigable);
+    void onConnectionEndBNameChanged(const QString &name);
+    void onConnectionEndBCardinalityChanged(const QString &cardinality);
+    void onConnectionEndBNavigableChanged(bool navigable);
     void onAutoSizedChanged(bool autoSized);
     void onVisualPrimaryRoleChanged(int visualRoleIndex);
     void onVisualSecondaryRoleChanged(int visualRoleIndex);
@@ -140,6 +148,9 @@ protected:
                   const QString &pluralTitle);
     template<typename T, typename V>
     void setTitle(const MItem *item, const QList<V *> &elements,
+                  const QString &singularTitle, const QString &pluralTitle);
+    template<typename T, typename V>
+    void setTitle(const MConnection *connection, const QList<V *> &elements,
                   const QString &singularTitle, const QString &pluralTitle);
     void setStereotypeIconElement(StereotypeIcon::Element stereotypeElement);
     void setStyleElementType(StyleEngine::ElementType elementType);

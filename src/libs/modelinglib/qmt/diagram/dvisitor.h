@@ -38,6 +38,7 @@ class DRelation;
 class DInheritance;
 class DDependency;
 class DAssociation;
+class DConnection;
 class DAnnotation;
 class DBoundary;
 
@@ -57,6 +58,7 @@ public:
     virtual void visitDInheritance(DInheritance *inheritance) = 0;
     virtual void visitDDependency(DDependency *dependency) = 0;
     virtual void visitDAssociation(DAssociation *association) = 0;
+    virtual void visitDConnection(DConnection *connection) = 0;
     virtual void visitDAnnotation(DAnnotation *annotation) = 0;
     virtual void visitDBoundary(DBoundary *boundary) = 0;
 };

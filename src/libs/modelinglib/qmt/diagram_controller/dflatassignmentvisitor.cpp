@@ -36,6 +36,7 @@
 #include "qmt/diagram/dinheritance.h"
 #include "qmt/diagram/ddependency.h"
 #include "qmt/diagram/dassociation.h"
+#include "qmt/diagram/dconnection.h"
 #include "qmt/diagram/dannotation.h"
 #include "qmt/diagram/dboundary.h"
 #include "qmt/infrastructure/qmtassert.h"
@@ -142,6 +143,17 @@ void DFlatAssignmentVisitor::visitDAssociation(const DAssociation *association)
     QMT_ASSERT(target, return);
     target->setEndA(association->endA());
     target->setEndB(association->endB());
+    // TODO assign assoziation class?
+}
+
+void DFlatAssignmentVisitor::visitDConnection(const DConnection *connection)
+{
+    visitDRelation(connection);
+    auto target = dynamic_cast<DConnection *>(m_target);
+    QMT_CHECK(target);
+    target->setCustomRelationId(connection->customRelationId());
+    target->setEndA(connection->endA());
+    target->setEndB(connection->endB());
 }
 
 void DFlatAssignmentVisitor::visitDAnnotation(const DAnnotation *annotation)

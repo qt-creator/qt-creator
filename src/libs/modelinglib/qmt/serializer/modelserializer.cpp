@@ -41,6 +41,7 @@
 #include "qmt/model/mdependency.h"
 #include "qmt/model/massociation.h"
 #include "qmt/model/minheritance.h"
+#include "qmt/model/mconnection.h"
 
 #include "qmt/diagram/delement.h"
 
@@ -343,5 +344,38 @@ inline void Access<Archive, MAssociation>::serialize(Archive &archive, MAssociat
 }
 
 QARK_ACCESS_SPECIALIZE(QXmlInArchive, QXmlOutArchive, MAssociation)
+
+// MConnection
+
+QARK_REGISTER_TYPE_NAME(MConnectionEnd, "MConnectionEnd")
+QARK_ACCESS_SERIALIZE(MConnectionEnd)
+
+template<class Archive>
+inline void Access<Archive, MConnectionEnd>::serialize(Archive &archive, MConnectionEnd &connectionEnd)
+{
+    archive || tag(connectionEnd)
+            || attr(QStringLiteral("name"), connectionEnd, &MConnectionEnd::name, &MConnectionEnd::setName)
+            || attr(QStringLiteral("cardinality"), connectionEnd, &MConnectionEnd::cardinality, &MConnectionEnd::setCardinality)
+            || attr(QStringLiteral("navigable"), connectionEnd, &MConnectionEnd::isNavigable, &MConnectionEnd::setNavigable)
+            || end;
+}
+
+QARK_REGISTER_TYPE_NAME(MConnection, "MConnection")
+QARK_REGISTER_DERIVED_CLASS(QXmlInArchive, QXmlOutArchive, MConnection, MElement)
+QARK_REGISTER_DERIVED_CLASS(QXmlInArchive, QXmlOutArchive, MConnection, MRelation)
+QARK_ACCESS_SERIALIZE(MConnection)
+
+template<class Archive>
+inline void Access<Archive, MConnection>::serialize(Archive &archive, MConnection &connection)
+{
+    archive || tag(connection)
+            || base<MRelation>(connection)
+            || attr(QStringLiteral("custom-relation"), connection, &MConnection::customRelationId, &MConnection::setCustomRelationId)
+            || attr(QStringLiteral("a"), connection, &MConnection::endA, &MConnection::setEndA)
+            || attr(QStringLiteral("b"), connection, &MConnection::endB, &MConnection::setEndB)
+            || end;
+}
+
+QARK_ACCESS_SPECIALIZE(QXmlInArchive, QXmlOutArchive, MConnection)
 
 } // namespace qark

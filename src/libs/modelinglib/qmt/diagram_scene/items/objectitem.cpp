@@ -360,6 +360,8 @@ void ObjectItem::relationDrawn(const QString &id, ObjectItem *targetItem, const 
                         return;
                     }
                     // create relation
+                    diagramSceneController->createConnection(id, object(), relatedObject, intermediatePoints,
+                                                             diagramSceneModel()->diagram());
                 }
                 break;
             }

@@ -81,8 +81,7 @@ void RelationStarter::addArrow(const QString &id, ArrowItem::Shaft shaft,
     arrow->setShaft(shaft);
     arrow->setStartHead(startHead);
     arrow->setEndHead(endHead);
-    if (!toolTip.isEmpty())
-        arrow->setToolTip(toolTip);
+    arrow->setToolTip(toolTip.isEmpty() ? id : toolTip);
     arrow->setPoints(QList<QPointF>() << QPointF(0.0, 10.0) << QPointF(15.0, 0.0));
     arrow->setPos(6.0, m_arrows.size() * 20.0 + 8.0);
     arrow->update(m_diagramSceneModel->styleController()->relationStarterStyle());

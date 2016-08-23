@@ -31,6 +31,7 @@
 #include "qmt/diagram/dboundary.h"
 #include "qmt/diagram/dclass.h"
 #include "qmt/diagram/dcomponent.h"
+#include "qmt/diagram/dconnection.h"
 #include "qmt/diagram/ddependency.h"
 #include "qmt/diagram/ddiagram.h"
 #include "qmt/diagram/ditem.h"
@@ -133,6 +134,11 @@ void AlignOnRasterVisitor::visitDDependency(DDependency *dependency)
 void AlignOnRasterVisitor::visitDAssociation(DAssociation *association)
 {
     visitDRelation(association);
+}
+
+void AlignOnRasterVisitor::visitDConnection(DConnection *connection)
+{
+    visitDRelation(connection);
 }
 
 void AlignOnRasterVisitor::visitDAnnotation(DAnnotation *annotation)
