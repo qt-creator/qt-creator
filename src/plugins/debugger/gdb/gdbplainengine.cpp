@@ -52,8 +52,11 @@ void GdbPlainEngine::setupInferior()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     setEnvironmentVariables();
-    if (!runParameters().inferior.commandLineArguments.isEmpty()) {
-        QString args = runParameters().inferior.commandLineArguments;
+    const DebuggerRunParameters &rp = runParameters();
+    if (!rp.inferior.workingDirectory.isEmpty())
+        runCommand({"cd " + rp.inferior.workingDirectory, NoFlags});
+    if (!rp.inferior.commandLineArguments.isEmpty()) {
+        QString args = rp.inferior.commandLineArguments;
         runCommand({"-exec-arguments " + args, NoFlags});
     }
 
