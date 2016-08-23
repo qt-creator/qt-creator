@@ -47,6 +47,8 @@
 # include <qthreadpool.h>
 #endif
 
+#include <algorithm>
+
 #ifdef Q_OS_UNIX
 #include <time.h>
 #include <utime.h>
@@ -92,7 +94,7 @@ enum ExpandFunc {
 enum TestFunc {
     T_INVALID = 0, T_REQUIRES, T_GREATERTHAN, T_LESSTHAN, T_EQUALS,
     T_EXISTS, T_EXPORT, T_CLEAR, T_UNSET, T_EVAL, T_CONFIG, T_SYSTEM,
-    T_DEFINED, T_CONTAINS, T_INFILE,
+    T_DEFINED, T_DISCARD_FROM, T_CONTAINS, T_INFILE,
     T_COUNT, T_ISEMPTY, T_PARSE_JSON, T_INCLUDE, T_LOAD, T_DEBUG, T_LOG, T_MESSAGE, T_WARNING, T_ERROR, T_IF,
     T_MKPATH, T_WRITE_FILE, T_TOUCH, T_CACHE
 };
@@ -173,6 +175,7 @@ void QMakeEvaluator::initFunctionStatics()
         { "if", T_IF },
         { "isActiveConfig", T_CONFIG },
         { "system", T_SYSTEM },
+        { "discard_from", T_DISCARD_FROM },
         { "defined", T_DEFINED },
         { "contains", T_CONTAINS },
         { "infile", T_INFILE },
@@ -1286,6 +1289,38 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
                 break;
             }
         }
+        return ReturnTrue;
+    }
+    case T_DISCARD_FROM: {
+        if (args.count() != 1 || args.at(0).isEmpty()) {
+            evalError(fL1S("discard_from(file) requires one argument."));
+            return ReturnFalse;
+        }
+        if (m_valuemapStack.count() != 1) {
+            evalError(fL1S("discard_from() cannot be called from functions."));
+            return ReturnFalse;
+        }
+        QString fn = resolvePath(args.at(0).toQString(m_tmp1));
+        ProFile *pro = m_parser->parsedProFile(fn, QMakeParser::ParseOnlyCached);
+        if (!pro)
+            return ReturnFalse;
+        ProValueMap &vmap = m_valuemapStack.first();
+        for (auto vit = vmap.begin(); vit != vmap.end(); ) {
+            if (!vit->isEmpty()) {
+                auto isFrom = [pro](const ProString &s) {
+                    return s.sourceFile() == pro;
+                };
+                vit->erase(std::remove_if(vit->begin(), vit->end(), isFrom), vit->end());
+                if (vit->isEmpty()) {
+                    // When an initially non-empty variable becomes entirely empty,
+                    // undefine it altogether.
+                    vit = vmap.erase(vit);
+                    continue;
+                }
+            }
+            ++vit;
+        }
+        pro->deref();
         return ReturnTrue;
     }
     case T_INFILE:
