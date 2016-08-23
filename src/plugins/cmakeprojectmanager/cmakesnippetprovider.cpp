@@ -37,7 +37,7 @@ CMakeSnippetProvider::~CMakeSnippetProvider() = default;
 
 QString CMakeProjectManager::Internal::CMakeSnippetProvider::groupId() const
 {
-    return Constants::CMAKE_SNIPPETS_GROUP_ID;
+    return QLatin1String(Constants::CMAKE_SNIPPETS_GROUP_ID);
 }
 
 QString CMakeProjectManager::Internal::CMakeSnippetProvider::displayName() const
