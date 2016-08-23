@@ -359,7 +359,7 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
 }
 
 void FancyTabBar::setCurrentIndex(int index) {
-    if (isTabEnabled(index)) {
+    if (isTabEnabled(index) && index != m_currentIndex) {
         m_currentIndex = index;
         update();
         emit currentChanged(m_currentIndex);
@@ -572,8 +572,7 @@ QStatusBar *FancyTabWidget::statusBar() const
 
 void FancyTabWidget::setCurrentIndex(int index)
 {
-    if (m_tabBar->isTabEnabled(index))
-        m_tabBar->setCurrentIndex(index);
+    m_tabBar->setCurrentIndex(index);
 }
 
 void FancyTabWidget::showWidget(int index)
