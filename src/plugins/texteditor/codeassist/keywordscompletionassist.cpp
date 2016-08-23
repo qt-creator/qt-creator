@@ -186,8 +186,8 @@ IAssistProposal *KeywordsCompletionAssistProcessor::perform(const AssistInterfac
         return new FunctionHintProposal(m_startPosition, model);
     } else {
         QList<AssistProposalItemInterface *> items = m_snippetCollector.collect();
-        addWordsToProposalList(&items, m_keywords.variables(), m_variableIcon);
-        addWordsToProposalList(&items, m_keywords.functions(), m_functionIcon);
+        items.append(generateProposalList(m_keywords.variables(), m_variableIcon));
+        items.append(generateProposalList(m_keywords.variables(), m_variableIcon));
         return new GenericProposal(m_startPosition, items);
     }
 }
@@ -252,13 +252,10 @@ bool KeywordsCompletionAssistProcessor::isInComment() const
     return lineBeginning.contains(startOfCommentChar());
 }
 
-void KeywordsCompletionAssistProcessor::addWordsToProposalList(QList<AssistProposalItemInterface *> *items,
-                                                               const QStringList &words, const QIcon &icon)
+QList<AssistProposalItemInterface *>
+KeywordsCompletionAssistProcessor::generateProposalList(const QStringList &words, const QIcon &icon)
 {
-    if (!items)
-        return;
-
-    *items = Utils::transform(words, [this, &icon](const QString &word) -> AssistProposalItemInterface * {
+    return Utils::transform(words, [this, &icon](const QString &word) -> AssistProposalItemInterface * {
         AssistProposalItem *item = new KeywordsAssistProposalItem(m_keywords.isFunction(word));
         item->setText(word);
         item->setIcon(icon);

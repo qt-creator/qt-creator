@@ -97,8 +97,7 @@ private:
     bool acceptsIdleEditor();
     int findStartOfName(int pos = -1);
     bool isInComment() const;
-    void addWordsToProposalList(QList<AssistProposalItemInterface *> *items,
-                                const QStringList &words, const QIcon &icon);
+    QList<AssistProposalItemInterface *> generateProposalList(const QStringList &words, const QIcon &icon);
 
     int m_startPosition = -1;
     TextEditor::SnippetAssistCollector m_snippetCollector;
