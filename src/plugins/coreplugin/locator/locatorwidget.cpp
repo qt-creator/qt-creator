@@ -218,6 +218,7 @@ void CompletionList::resize()
 
     const int width = qMax(730, windowSize.width() * 2 / 3);
     m_preferredSize = QSize(width, shint.height() * 17 + frameWidth() * 2);
+    header()->resizeSection(0, width / 2);
     QTreeView::resize(m_preferredSize);
 }
 
@@ -267,7 +268,6 @@ LocatorWidget::LocatorWidget(Locator *qop) :
     m_mainWindow->installEventFilter(this);
 
     m_completionList->setModel(m_locatorModel);
-    m_completionList->header()->resizeSection(0, 300);
     m_completionList->resize();
 
     m_filterMenu->addAction(m_refreshAction);
