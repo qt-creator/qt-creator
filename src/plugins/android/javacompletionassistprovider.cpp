@@ -26,6 +26,7 @@
 #include "javacompletionassistprovider.h"
 #include "androidconstants.h"
 
+#include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/keywordscompletionassist.h>
 #include <coreplugin/id.h>
 

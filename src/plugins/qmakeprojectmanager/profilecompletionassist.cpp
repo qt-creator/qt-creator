@@ -26,6 +26,7 @@
 #include "profilecompletionassist.h"
 #include "qmakeprojectmanagerconstants.h"
 
+#include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/keywordscompletionassist.h>
 
 #include <coreplugin/id.h>

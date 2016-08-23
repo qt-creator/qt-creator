@@ -32,11 +32,14 @@
 
 namespace TextEditor {
 
+class AssistInterface;
+
 class TEXTEDITOR_EXPORT Keywords
 {
 public:
-    Keywords();
-    Keywords(const QStringList &variabels, const QStringList &functions, const QMap<QString, QStringList> &functionArgs);
+    Keywords() = default;
+    Keywords(const QStringList &variables, const QStringList &functions,
+             const QMap<QString, QStringList> &functionArgs);
     bool isVariable(const QString &word) const;
     bool isFunction(const QString &word) const;
 
@@ -54,10 +57,9 @@ class TEXTEDITOR_EXPORT KeywordsAssistProposalItem : public AssistProposalItem
 {
 public:
     KeywordsAssistProposalItem(bool isFunction);
-    ~KeywordsAssistProposalItem() Q_DECL_NOEXCEPT;
 
-    bool prematurelyApplies(const QChar &c) const override;
-    void applyContextualContent(TextDocumentManipulatorInterface &manipulator, int basePosition) const override;
+    bool prematurelyApplies(const QChar &c) const final;
+    void applyContextualContent(TextDocumentManipulatorInterface &manipulator, int basePosition) const final;
 private:
     bool m_isFunction;
 };
@@ -66,12 +68,12 @@ class TEXTEDITOR_EXPORT KeywordsFunctionHintModel : public IFunctionHintProposal
 {
 public:
     KeywordsFunctionHintModel(const QStringList &functionSymbols);
-    ~KeywordsFunctionHintModel();
+    ~KeywordsFunctionHintModel() final = default;
 
-    void reset() override;
-    int size() const override;
-    QString text(int index) const override;
-    int activeArgument(const QString &prefix) const override;
+    void reset() final;
+    int size() const final;
+    QString text(int index) const final;
+    int activeArgument(const QString &prefix) const final;
 
 private:
     QStringList m_functionSymbols;
@@ -81,7 +83,7 @@ class TEXTEDITOR_EXPORT KeywordsCompletionAssistProcessor : public IAssistProces
 {
 public:
     KeywordsCompletionAssistProcessor(Keywords keywords);
-    ~KeywordsCompletionAssistProcessor();
+    ~KeywordsCompletionAssistProcessor() override = default;
 
     IAssistProposal *perform(const AssistInterface *interface) override;
     QChar startOfCommentChar() const;
@@ -95,9 +97,10 @@ private:
     bool acceptsIdleEditor();
     int findStartOfName(int pos = -1);
     bool isInComment() const;
-    void addWordsToProposalList(QList<AssistProposalItemInterface *> *items, const QStringList &words, const QIcon &icon);
+    void addWordsToProposalList(QList<AssistProposalItemInterface *> *items,
+                                const QStringList &words, const QIcon &icon);
 
-    int m_startPosition;
+    int m_startPosition = -1;
     TextEditor::SnippetAssistCollector m_snippetCollector;
     QString m_word;
     QScopedPointer<const AssistInterface> m_interface;
