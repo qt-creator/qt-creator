@@ -144,9 +144,10 @@ static IMode *findMode(Id id)
 
 void ModeManager::activateMode(Id id)
 {
-    const int index = indexOf(id);
-    if (index >= 0)
-        d->m_modeStack->setCurrentIndex(index);
+    const int currentIndex = d->m_modeStack->currentIndex();
+    const int newIndex = indexOf(id);
+    if (newIndex != currentIndex && newIndex >= 0)
+        d->m_modeStack->setCurrentIndex(newIndex);
 }
 
 void ModeManager::objectAdded(QObject *obj)
