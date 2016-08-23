@@ -546,8 +546,6 @@ void QbsProject::changeActiveTarget(Target *t)
     BuildConfiguration *bc = 0;
     if (t) {
         m_qbsProject = m_qbsProjects.value(t);
-        if (m_qbsProject.isValid())
-            m_projectData = m_qbsProject.projectData();
         if (t->kit())
             bc = t->activeBuildConfiguration();
     }
