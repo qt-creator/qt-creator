@@ -37,7 +37,7 @@ QT_BEGIN_NAMESPACE
 class QPrinter;
 class QStatusBar;
 class QWidget;
-template <class T> class QList;
+template <typename T> class QList;
 QT_END_NAMESPACE
 
 namespace Core {

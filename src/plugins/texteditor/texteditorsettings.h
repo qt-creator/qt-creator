@@ -32,7 +32,7 @@
 #include <QObject>
 
 QT_BEGIN_NAMESPACE
-template <class Key, class T>
+template <typename Key, typename T>
 class QMap;
 QT_END_NAMESPACE
 
