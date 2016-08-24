@@ -26,8 +26,11 @@
 #include "projectimporter.h"
 
 #include "kit.h"
+#include "kitinformation.h"
 #include "kitmanager.h"
 #include "project.h"
+#include "projectexplorerconstants.h"
+#include "target.h"
 
 #include <coreplugin/idocument.h>
 
@@ -47,6 +50,31 @@ ProjectImporter::~ProjectImporter()
 {
     foreach (Kit *k, KitManager::kits())
         removeProject(k);
+}
+
+Target *ProjectImporter::preferredTarget(const QList<Target *> &possibleTargets)
+{
+    // Select active target
+    // a) The default target
+    // c) Desktop target
+    // d) the first target
+    Target *activeTarget = nullptr;
+    if (possibleTargets.isEmpty())
+        return activeTarget;
+
+    activeTarget = possibleTargets.at(0);
+    bool pickedFallback = false;
+    foreach (Target *t, possibleTargets) {
+        if (t->kit() == KitManager::defaultKit())
+            return t;
+        if (pickedFallback)
+            continue;
+        if (DeviceTypeKitInformation::deviceTypeId(t->kit()) == Constants::DESKTOP_DEVICE_TYPE) {
+            activeTarget = t;
+            pickedFallback = true;
+        }
+    }
+    return activeTarget;
 }
 
 void ProjectImporter::markTemporary(Kit *k)

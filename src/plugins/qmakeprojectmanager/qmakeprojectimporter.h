@@ -45,7 +45,6 @@ public:
 
     QList<ProjectExplorer::BuildInfo *> import(const Utils::FileName &importPath, bool silent = false) final;
     QStringList importCandidates() final;
-    ProjectExplorer::Target *preferredTarget(const QList<ProjectExplorer::Target *> &possibleTargets) final;
 
 private:
     ProjectExplorer::Kit *createTemporaryKit(const QtProjectImporter::QtVersionData &data,

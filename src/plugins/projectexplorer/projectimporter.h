@@ -47,7 +47,7 @@ public:
 
     virtual QList<BuildInfo *> import(const Utils::FileName &importPath, bool silent = false) = 0;
     virtual QStringList importCandidates() = 0;
-    virtual Target *preferredTarget(const QList<Target *> &possibleTargets) = 0;
+    virtual Target *preferredTarget(const QList<Target *> &possibleTargets);
 
     bool isUpdating() const { return m_isUpdating; }
 

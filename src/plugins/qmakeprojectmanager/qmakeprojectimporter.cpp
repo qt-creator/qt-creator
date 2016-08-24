@@ -33,9 +33,7 @@
 #include "qmakestep.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/idocument.h>
 #include <projectexplorer/kitmanager.h>
-#include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <qtsupport/qtkitinformation.h>
@@ -247,28 +245,6 @@ QStringList QmakeProjectImporter::importCandidates()
         }
     }
     return candidates;
-}
-
-Target *QmakeProjectImporter::preferredTarget(const QList<Target *> &possibleTargets)
-{
-    // Select active target
-    // a) The default target
-    // b) Simulator target
-    // c) Desktop target
-    // d) the first target
-    Target *activeTarget = possibleTargets.isEmpty() ? 0 : possibleTargets.at(0);
-    int activeTargetPriority = 0;
-    foreach (Target *t, possibleTargets) {
-        BaseQtVersion *version = QtKitInformation::qtVersion(t->kit());
-        if (t->kit() == KitManager::defaultKit()) {
-            activeTarget = t;
-            activeTargetPriority = 3;
-        } else if (activeTargetPriority < 1 && version && version->type() == QLatin1String(QtSupport::Constants::DESKTOPQT)) {
-            activeTarget = t;
-            activeTargetPriority = 1;
-        }
-    }
-    return activeTarget;
 }
 
 static ToolChain *preferredToolChain(BaseQtVersion *qtVersion, const FileName &ms, const QMakeStepConfig::TargetArchConfig &archConfig)
