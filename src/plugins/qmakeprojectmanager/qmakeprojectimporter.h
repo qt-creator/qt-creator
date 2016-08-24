@@ -44,18 +44,19 @@ public:
     QmakeProjectImporter(const QString &path);
 
     QList<ProjectExplorer::BuildInfo *> import(const Utils::FileName &importPath, bool silent = false) final;
-    QStringList importCandidates(const Utils::FileName &projectFilePath) final;
+    QStringList importCandidates() final;
     ProjectExplorer::Target *preferredTarget(const QList<ProjectExplorer::Target *> &possibleTargets) final;
 
     void cleanupKit(ProjectExplorer::Kit *k) final;
-
     void makePermanent(ProjectExplorer::Kit *k) final;
 
 private:
+    using ProjectExplorer::ProjectImporter::createTemporaryKit;
     ProjectExplorer::Kit *createTemporaryKit(QtSupport::BaseQtVersion *version,
                                              bool temporaryVersion,
                                              const Utils::FileName &parsedSpec,
-                                             const QmakeProjectManager::QMakeStepConfig::TargetArchConfig &archConfig, const QMakeStepConfig::OsType &osType);
+                                             const QmakeProjectManager::QMakeStepConfig::TargetArchConfig &archConfig,
+                                             const QMakeStepConfig::OsType &osType);
 };
 
 } // namespace Internal

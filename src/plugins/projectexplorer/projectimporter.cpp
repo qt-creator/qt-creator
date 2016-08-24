@@ -46,7 +46,7 @@ ProjectImporter::ProjectImporter(const QString &path) : m_projectPath(path)
 ProjectImporter::~ProjectImporter()
 {
     foreach (Kit *k, KitManager::kits())
-        removeProject(k, m_projectPath);
+        removeProject(k);
 }
 
 void ProjectImporter::markTemporary(Kit *k)
@@ -96,14 +96,14 @@ void ProjectImporter::addProject(Kit *k)
     k->setValueSilently(TEMPORARY_OF_PROJECTS, projects);
 }
 
-void ProjectImporter::removeProject(Kit *k, const QString &path)
+void ProjectImporter::removeProject(Kit *k)
 {
     if (!k->hasValue(KIT_IS_TEMPORARY))
         return;
 
     UpdateGuard guard(*this);
     QStringList projects = k->value(TEMPORARY_OF_PROJECTS, QStringList()).toStringList();
-    projects.removeOne(path);
+    projects.removeOne(m_projectPath);
 
     if (projects.isEmpty())
         KitManager::deregisterKit(k);
@@ -111,9 +111,28 @@ void ProjectImporter::removeProject(Kit *k, const QString &path)
         k->setValueSilently(TEMPORARY_OF_PROJECTS, projects);
 }
 
-bool ProjectImporter::isTemporaryKit(Kit *k)
+bool ProjectImporter::isTemporaryKit(Kit *k) const
 {
     return k->hasValue(KIT_IS_TEMPORARY);
+}
+
+Kit *ProjectImporter::createTemporaryKit(const std::function<void (Kit *)> &setup)
+{
+    Kit *k = new Kit;
+    UpdateGuard guard(*this);
+    {
+        KitGuard kitGuard(k);
+        k->setUnexpandedDisplayName(QCoreApplication::translate("ProjectExplorer::ProjectImporter", "Imported Kit"));;
+        markTemporary(k);
+
+        setup(k);
+
+        // Set up values:
+        foreach (KitInformation *ki, KitManager::kitInformation())
+            ki->setup(k);
+    } // ~KitGuard, sending kitUpdated
+    KitManager::registerKit(k); // potentially adds kits to other targetsetuppages
+    return k;
 }
 
 } // namespace ProjectExplorer

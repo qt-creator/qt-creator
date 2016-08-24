@@ -46,21 +46,20 @@ public:
     const QString projectFilePath() const { return m_projectPath; }
 
     virtual QList<BuildInfo *> import(const Utils::FileName &importPath, bool silent = false) = 0;
-    virtual QStringList importCandidates(const Utils::FileName &projectFilePath) = 0;
+    virtual QStringList importCandidates() = 0;
     virtual Target *preferredTarget(const QList<Target *> &possibleTargets) = 0;
 
     bool isUpdating() const { return m_isUpdating; }
 
-    virtual void markTemporary(Kit *k);
     virtual void makePermanent(Kit *k);
 
     // Additional cleanup that has to happen when kits are removed
     virtual void cleanupKit(Kit *k);
 
-    void addProject(Kit *k);
-    void removeProject(Kit *k, const QString &path);
+    bool isTemporaryKit(Kit *k) const;
 
-    bool isTemporaryKit(Kit *k);
+    void addProject(Kit *k);
+    void removeProject(Kit *k);
 
 protected:
     class UpdateGuard
@@ -78,7 +77,12 @@ protected:
         bool m_wasUpdating;
     };
 
+
+    ProjectExplorer::Kit *createTemporaryKit(const std::function<void(Kit *)> &setup);
+
 private:
+    void markTemporary(Kit *k);
+
     const QString m_projectPath;
     bool m_isUpdating = false;
 

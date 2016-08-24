@@ -250,16 +250,16 @@ QList<BuildInfo *> QmakeProjectImporter::import(const FileName &importPath, bool
     return result;
 }
 
-QStringList QmakeProjectImporter::importCandidates(const FileName &projectPath)
+QStringList QmakeProjectImporter::importCandidates()
 {
     QStringList candidates;
 
-    QFileInfo pfi = projectPath.toFileInfo();
+    QFileInfo pfi = QFileInfo(projectFilePath());
     const QString prefix = pfi.baseName();
     candidates << pfi.absolutePath();
 
     foreach (Kit *k, KitManager::kits()) {
-        QFileInfo fi(QmakeBuildConfiguration::shadowBuildDirectory(projectPath.toString(), k,
+        QFileInfo fi(QmakeBuildConfiguration::shadowBuildDirectory(projectFilePath(), k,
                                                                    QString(), BuildConfiguration::Unknown));
         const QString baseDir = fi.absolutePath();
 
@@ -355,31 +355,17 @@ Kit *QmakeProjectImporter::createTemporaryKit(BaseQtVersion *version,
                                               const QMakeStepConfig::OsType &osType)
 {
     Q_UNUSED(osType); // TODO use this to select the right toolchain?
-    Kit *k = new Kit;
-    UpdateGuard guard(*this);
-    {
-        KitGuard kitGuard(k);
-
+    return createTemporaryKit([version, temporaryVersion, parsedSpec, archConfig](Kit *k) -> void {
         QtKitInformation::setQtVersion(k, version);
         ToolChainKitInformation::setToolChain(k, preferredToolChain(version, parsedSpec, archConfig));
         if (parsedSpec != version->mkspec())
             QmakeKitInformation::setMkspec(k, parsedSpec);
 
-        markTemporary(k);
         if (temporaryVersion)
             k->setValue(QT_IS_TEMPORARY, version->uniqueId());
 
-        // Set up other values:
-        foreach (KitInformation *ki, KitManager::kitInformation()) {
-            if (ki->id() == ToolChainKitInformation::id() || ki->id() == QtKitInformation::id())
-                continue;
-            ki->setup(k);
-        }
         k->setUnexpandedDisplayName(version->displayName());;
-    } // ~KitGuard, sending kitUpdated
-
-    KitManager::registerKit(k); // potentially adds kits to other targetsetuppages
-    return k;
+    });
 }
 
 } // namespace Internal

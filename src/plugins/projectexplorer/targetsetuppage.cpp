@@ -273,7 +273,7 @@ void TargetSetupPage::reset()
         if (!k)
             continue;
         if (m_importer)
-            m_importer->removeProject(k, m_projectPath);
+            m_importer->removeProject(k);
         delete widget;
     }
 
@@ -329,7 +329,7 @@ void TargetSetupPage::setupImports()
     if (!m_importer || m_projectPath.isEmpty())
         return;
 
-    QStringList toImport = m_importer->importCandidates(Utils::FileName::fromString(m_projectPath));
+    QStringList toImport = m_importer->importCandidates();
     foreach (const QString &path, toImport)
         import(Utils::FileName::fromString(path), true);
 }
