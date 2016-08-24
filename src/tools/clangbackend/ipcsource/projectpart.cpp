@@ -135,7 +135,7 @@ const std::vector<const char*> &ProjectPart::arguments() const
 
 int ProjectPart::argumentCount() const
 {
-    return d->arguments.size();
+    return int(d->arguments.size());
 }
 
 const char * const *ProjectPart::cxArguments() const
