@@ -116,7 +116,7 @@ bool ProjectImporter::isTemporaryKit(Kit *k) const
     return k->hasValue(KIT_IS_TEMPORARY);
 }
 
-Kit *ProjectImporter::createTemporaryKit(const std::function<void (Kit *)> &setup)
+Kit *ProjectImporter::createTemporaryKit(const KitSetupFunction &setup)
 {
     Kit *k = new Kit;
     UpdateGuard guard(*this);

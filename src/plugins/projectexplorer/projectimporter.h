@@ -78,7 +78,8 @@ protected:
     };
 
 
-    ProjectExplorer::Kit *createTemporaryKit(const std::function<void(Kit *)> &setup);
+    using KitSetupFunction = std::function<void(Kit *)>;
+    ProjectExplorer::Kit *createTemporaryKit(const KitSetupFunction &setup);
 
 private:
     void markTemporary(Kit *k);

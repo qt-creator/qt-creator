@@ -42,8 +42,10 @@
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/qtversionfactory.h>
 #include <qtsupport/qtversionmanager.h>
-#include <utils/qtcprocess.h>
+
 #include <utils/algorithm.h>
+#include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -62,7 +64,7 @@ const Core::Id QT_IS_TEMPORARY("Qmake.TempQt");
 const char IOSQT[] = "Qt4ProjectManager.QtVersion.Ios"; // ugly
 
 QmakeProjectImporter::QmakeProjectImporter(const QString &path) :
-    ProjectImporter(path)
+    QtProjectImporter(path)
 { }
 
 QList<BuildInfo *> QmakeProjectImporter::import(const FileName &importPath, bool silent)
@@ -79,8 +81,6 @@ QList<BuildInfo *> QmakeProjectImporter::import(const FileName &importPath, bool
 
     QStringList makefiles = QDir(importPath.toString()).entryList(QStringList(QLatin1String("Makefile*")));
     qCDebug(logs) << "  Makefiles:" << makefiles;
-
-    bool temporaryVersion = false;
 
     foreach (const QString &file, makefiles) {
         qCDebug(logs) << "  Parsing makefile" << file;
@@ -102,47 +102,24 @@ QList<BuildInfo *> QmakeProjectImporter::import(const FileName &importPath, bool
 
         qCDebug(logs) << "  QMake:" << canonicalQmakeBinary;
 
-        BaseQtVersion *version
-                = Utils::findOrDefault(QtVersionManager::unsortedVersions(),
-                                      [&canonicalQmakeBinary](BaseQtVersion *v) -> bool {
-                                          QFileInfo vfi = v->qmakeCommand().toFileInfo();
-                                          FileName current = FileName::fromString(vfi.canonicalFilePath());
-                                          return current == canonicalQmakeBinary;
-                                      });
-
-        if (version) {
-            // Check if version is a temporary qt
-            int qtId = version->uniqueId();
-            temporaryVersion = Utils::anyOf(KitManager::kits(), [&qtId](Kit *k){
-                return k->value(QT_IS_TEMPORARY, -1).toInt() == qtId;
-            });
-            qCDebug(logs) << "  qt version already exist. Temporary:" << temporaryVersion;
-        } else {
-            // Create a new version if not found:
-            // Do not use the canonical path here...
-            version = QtVersionFactory::createQtVersionFromQMakePath(parse.qmakePath());
-            if (!version)
-                continue;
-
-            UpdateGuard guard(*this);
-            QtVersionManager::addVersion(version);
-
-            temporaryVersion = true;
-            qCDebug(logs) << "  created new qt version";
-        }
+        QtProjectImporter::QtVersionData data
+                = QtProjectImporter::findOrCreateQtVersion(canonicalQmakeBinary);
+        QTC_ASSERT(data.version, continue);
+        qCDebug(logs) << "  qt version:" << data.version->displayName()
+                      << " temporary:" << data.isTemporaryVersion;
 
         QMakeStepConfig::TargetArchConfig archConfig = parse.config().archConfig;
         QMakeStepConfig::OsType osType = parse.config().osType;
         qCDebug(logs) << "  archConfig:" << archConfig;
         qCDebug(logs) << "  osType:    " << osType;
-        if (version->type() == QLatin1String(IOSQT)
+        if (data.version->type() == QLatin1String(IOSQT)
                 && osType == QMakeStepConfig::NoOsType) {
             osType = QMakeStepConfig::IphoneOS;
             qCDebug(logs) << "  IOS found without osType, adjusting osType" << osType;
         }
 
-        if (version->type() == QLatin1String(Constants::DESKTOPQT)) {
-            QList<ProjectExplorer::Abi> abis = version->qtAbis();
+        if (data.version->type() == QLatin1String(Constants::DESKTOPQT)) {
+            QList<ProjectExplorer::Abi> abis = data.version->qtAbis();
             if (!abis.isEmpty()) {
                 ProjectExplorer::Abi abi = abis.first();
                 if (abi.os() == ProjectExplorer::Abi::DarwinOS) {
@@ -155,16 +132,16 @@ QList<BuildInfo *> QmakeProjectImporter::import(const FileName &importPath, bool
             }
         }
 
-
         // find qmake arguments and mkspec
         QString additionalArguments = parse.unparsedArguments();
         qCDebug(logs) << "  Unparsed arguments:" << additionalArguments;
         FileName parsedSpec =
-                QmakeBuildConfiguration::extractSpecFromArguments(&additionalArguments, importPath.toString(), version);
+                QmakeBuildConfiguration::extractSpecFromArguments(&additionalArguments,
+                                                                  importPath.toString(), data.version);
         qCDebug(logs) << "  Extracted spec:" << parsedSpec;
         qCDebug(logs) << "  Arguments now:" << additionalArguments;
 
-        FileName versionSpec = version->mkspec();
+        FileName versionSpec = data.version->mkspec();
         if (parsedSpec.isEmpty() || parsedSpec == FileName::fromLatin1("default")) {
             parsedSpec = versionSpec;
             qCDebug(logs) << "  No parsed spec or default spec => parsed spec now:" << parsedSpec;
@@ -187,18 +164,18 @@ QList<BuildInfo *> QmakeProjectImporter::import(const FileName &importPath, bool
                 kitOsType = QMakeStepConfig::osTypeFor(tc->targetAbi(), kitVersion);
             }
             qCDebug(logs) << k->displayName()
-                          << "version:" << (kitVersion == version)
+                          << "version:" << (kitVersion == data.version)
                           << "spec:" << (kitSpec == parsedSpec)
                           << "targetarch:" << (kitTargetArch == archConfig)
                           << "ostype:" << (kitOsType == osType);
-            if (kitVersion == version
+            if (kitVersion == data.version
                     && kitSpec == parsedSpec
                     && kitTargetArch == archConfig
                     && kitOsType == osType)
                 kitList.append(k);
         }
         if (kitList.isEmpty()) {
-            kitList.append(createTemporaryKit(version, temporaryVersion, parsedSpec, archConfig, osType));
+            kitList.append(createTemporaryKit(data, parsedSpec, archConfig, osType));
             qCDebug(logs) << "  No matching kits found, created new kit";
         }
 
@@ -213,7 +190,7 @@ QList<BuildInfo *> QmakeProjectImporter::import(const FileName &importPath, bool
 
             // create info:
             QmakeBuildInfo *info = new QmakeBuildInfo(factory);
-            BaseQtVersion::QmakeBuildConfigs buildConfig = parse.effectiveBuildConfig(version->defaultBuildConfig());
+            BaseQtVersion::QmakeBuildConfigs buildConfig = parse.effectiveBuildConfig(data.version->defaultBuildConfig());
             if (buildConfig & BaseQtVersion::DebugBuild) {
                 info->buildType = BuildConfiguration::Debug;
                 info->displayName = QCoreApplication::translate("QmakeProjectManager::Internal::QmakeProjectImporter", "Debug");
@@ -294,45 +271,6 @@ Target *QmakeProjectImporter::preferredTarget(const QList<Target *> &possibleTar
     return activeTarget;
 }
 
-void QmakeProjectImporter::cleanupKit(Kit *k)
-{
-    BaseQtVersion *version = QtVersionManager::version(k->value(QT_IS_TEMPORARY, -1).toInt());
-    if (!version)
-        return;
-
-    // count how many kits are using this version
-    int qtId = version->uniqueId();
-    int users = Utils::count(KitManager::kits(), [qtId](Kit *k) {
-        return k->value(QT_IS_TEMPORARY, -1).toInt() == qtId;
-    });
-
-    if (users == 0) // Remove if no other kit is using it. (The Kit k is not in KitManager::kits()
-        QtVersionManager::removeVersion(version);
-}
-
-void QmakeProjectImporter::makePermanent(Kit *k)
-{
-    if (!isTemporaryKit(k))
-        return;
-    UpdateGuard guard(*this);
-
-    int tempId = k->value(QT_IS_TEMPORARY, -1).toInt();
-    int qtId = QtKitInformation::qtVersionId(k);
-    if (tempId != qtId) {
-        BaseQtVersion *version = QtVersionManager::version(tempId);
-        int users = count(KitManager::kits(), [tempId](Kit *k) {
-            return k->value(QT_IS_TEMPORARY, -1).toInt() == tempId;
-        });
-        if (users == 0)
-            QtVersionManager::removeVersion(version);
-    }
-
-    foreach (Kit *kit, KitManager::kits())
-        if (kit->value(QT_IS_TEMPORARY, -1).toInt() == tempId)
-            kit->removeKeySilently(QT_IS_TEMPORARY);
-    ProjectImporter::makePermanent(k);
-}
-
 static ToolChain *preferredToolChain(BaseQtVersion *qtVersion, const FileName &ms, const QMakeStepConfig::TargetArchConfig &archConfig)
 {
     const FileName spec = ms.isEmpty() ? qtVersion->mkspec() : ms;
@@ -348,23 +286,17 @@ static ToolChain *preferredToolChain(BaseQtVersion *qtVersion, const FileName &m
                           });
 }
 
-Kit *QmakeProjectImporter::createTemporaryKit(BaseQtVersion *version,
-                                              bool temporaryVersion,
+Kit *QmakeProjectImporter::createTemporaryKit(const QtProjectImporter::QtVersionData &data,
                                               const FileName &parsedSpec,
                                               const QMakeStepConfig::TargetArchConfig &archConfig,
                                               const QMakeStepConfig::OsType &osType)
 {
     Q_UNUSED(osType); // TODO use this to select the right toolchain?
-    return createTemporaryKit([version, temporaryVersion, parsedSpec, archConfig](Kit *k) -> void {
-        QtKitInformation::setQtVersion(k, version);
-        ToolChainKitInformation::setToolChain(k, preferredToolChain(version, parsedSpec, archConfig));
-        if (parsedSpec != version->mkspec())
+    return QtProjectImporter::createTemporaryKit(data,
+                                                 [&data, parsedSpec, archConfig](Kit *k) -> void {
+        ToolChainKitInformation::setToolChain(k, preferredToolChain(data.version, parsedSpec, archConfig));
+        if (parsedSpec != data.version->mkspec())
             QmakeKitInformation::setMkspec(k, parsedSpec);
-
-        if (temporaryVersion)
-            k->setValue(QT_IS_TEMPORARY, version->uniqueId());
-
-        k->setUnexpandedDisplayName(version->displayName());;
     });
 }
 

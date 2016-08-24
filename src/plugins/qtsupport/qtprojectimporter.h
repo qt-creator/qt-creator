@@ -25,34 +25,36 @@
 
 #pragma once
 
-#include "qmakestep.h"
+#include "qtsupport_global.h"
 
-#include <qtsupport/qtprojectimporter.h>
+#include <projectexplorer/projectimporter.h>
 
-namespace QtSupport { class BaseQtVersion; }
+#include <QPair>
 
-namespace QmakeProjectManager {
+namespace QtSupport {
 
-class QmakeProject;
-
-namespace Internal {
+class BaseQtVersion;
 
 // Documentation inside.
-class QmakeProjectImporter : public QtSupport::QtProjectImporter
+class QTSUPPORT_EXPORT QtProjectImporter : public ProjectExplorer::ProjectImporter
 {
 public:
-    QmakeProjectImporter(const QString &path);
+    QtProjectImporter(const QString &path);
 
-    QList<ProjectExplorer::BuildInfo *> import(const Utils::FileName &importPath, bool silent = false) final;
-    QStringList importCandidates() final;
-    ProjectExplorer::Target *preferredTarget(const QList<ProjectExplorer::Target *> &possibleTargets) final;
+    void cleanupKit(ProjectExplorer::Kit *k) override;
+    void makePermanent(ProjectExplorer::Kit *k) override;
 
-private:
-    ProjectExplorer::Kit *createTemporaryKit(const QtProjectImporter::QtVersionData &data,
-                                             const Utils::FileName &parsedSpec,
-                                             const QmakeProjectManager::QMakeStepConfig::TargetArchConfig &archConfig,
-                                             const QMakeStepConfig::OsType &osType);
+protected:
+    class QtVersionData
+    {
+    public:
+        BaseQtVersion *version = nullptr;
+        bool isTemporaryVersion = true;
+    };
+
+    QtVersionData findOrCreateQtVersion(const Utils::FileName &qmakePath);
+    ProjectExplorer::Kit *createTemporaryKit(const QtVersionData &versionData,
+                                             const KitSetupFunction &setup);
 };
 
-} // namespace Internal
 } // namespace QmakeProjectManager

@@ -63,6 +63,8 @@ Project {
             "codegensettingspagewidget.ui",
             "qtconfigwidget.cpp",
             "qtconfigwidget.h",
+            "qtprojectimporter.cpp",
+            "qtprojectimporter.h",
             "qtsupport.qrc",
             "exampleslistmodel.cpp",
             "exampleslistmodel.h",
