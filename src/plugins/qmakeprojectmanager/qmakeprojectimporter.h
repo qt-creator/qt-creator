@@ -43,13 +43,13 @@ class QmakeProjectImporter : public ProjectExplorer::ProjectImporter
 public:
     QmakeProjectImporter(const QString &path);
 
-    QList<ProjectExplorer::BuildInfo *> import(const Utils::FileName &importPath, bool silent = false);
-    QStringList importCandidates(const Utils::FileName &projectFilePath);
-    ProjectExplorer::Target *preferredTarget(const QList<ProjectExplorer::Target *> &possibleTargets);
+    QList<ProjectExplorer::BuildInfo *> import(const Utils::FileName &importPath, bool silent = false) final;
+    QStringList importCandidates(const Utils::FileName &projectFilePath) final;
+    ProjectExplorer::Target *preferredTarget(const QList<ProjectExplorer::Target *> &possibleTargets) final;
 
-    void cleanupKit(ProjectExplorer::Kit *k);
+    void cleanupKit(ProjectExplorer::Kit *k) final;
 
-    void makePermanent(ProjectExplorer::Kit *k);
+    void makePermanent(ProjectExplorer::Kit *k) final;
 
 private:
     ProjectExplorer::Kit *createTemporaryKit(QtSupport::BaseQtVersion *version,
