@@ -53,8 +53,8 @@
 #include <QMessageBox>
 #include <QThread>
 
-static Q_LOGGING_CATEGORY(puppetStart, "puppet.start")
-static Q_LOGGING_CATEGORY(puppetBuild, "puppet.build")
+static Q_LOGGING_CATEGORY(puppetStart, "qtc.puppet.start")
+static Q_LOGGING_CATEGORY(puppetBuild, "qtc.puppet.build")
 
 namespace QmlDesigner {
 
