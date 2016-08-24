@@ -76,7 +76,7 @@ static QString socketStateToString(QAbstractSocket::SocketState state)
     case QAbstractSocket::HostLookupState:
         return QmlDebugConnection::tr("Resolving host");
     case QAbstractSocket::ConnectingState:
-        return QmlDebugConnection::tr("Establishing network connection ...");
+        return QmlDebugConnection::tr("Establishing network connection...");
     case QAbstractSocket::ConnectedState:
         return QmlDebugConnection::tr("Network connection established");
     case QAbstractSocket::ClosingState:

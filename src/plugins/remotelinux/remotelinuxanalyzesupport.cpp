@@ -118,7 +118,7 @@ void RemoteLinuxAnalyzeSupport::handleRemoteSetupRequested()
                     Utils::NormalMessageFormat);
         startPortsGathering();
     } else if (d->runMode == ProjectExplorer::Constants::PERFPROFILER_RUN_MODE) {
-        showMessage(tr("Creating remote socket ...")  + QLatin1Char('\n'),
+        showMessage(tr("Creating remote socket...") + QLatin1Char('\n'),
                     Utils::NormalMessageFormat);
         createRemoteFifo();
     }
