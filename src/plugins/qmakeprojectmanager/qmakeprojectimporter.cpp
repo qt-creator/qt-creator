@@ -124,9 +124,9 @@ QList<BuildInfo *> QmakeProjectImporter::import(const FileName &importPath, bool
             if (!version)
                 continue;
 
-            bool oldIsUpdating = setIsUpdating(true);
+            UpdateGuard guard(*this);
             QtVersionManager::addVersion(version);
-            setIsUpdating(oldIsUpdating);
+
             temporaryVersion = true;
             qCDebug(logs) << "  created new qt version";
         }
@@ -314,7 +314,8 @@ void QmakeProjectImporter::makePermanent(Kit *k)
 {
     if (!isTemporaryKit(k))
         return;
-    setIsUpdating(true);
+    UpdateGuard guard(*this);
+
     int tempId = k->value(QT_IS_TEMPORARY, -1).toInt();
     int qtId = QtKitInformation::qtVersionId(k);
     if (tempId != qtId) {
@@ -329,7 +330,6 @@ void QmakeProjectImporter::makePermanent(Kit *k)
     foreach (Kit *kit, KitManager::kits())
         if (kit->value(QT_IS_TEMPORARY, -1).toInt() == tempId)
             kit->removeKeySilently(QT_IS_TEMPORARY);
-    setIsUpdating(false);
     ProjectImporter::makePermanent(k);
 }
 
@@ -356,9 +356,9 @@ Kit *QmakeProjectImporter::createTemporaryKit(BaseQtVersion *version,
 {
     Q_UNUSED(osType); // TODO use this to select the right toolchain?
     Kit *k = new Kit;
-    bool oldIsUpdating = setIsUpdating(true);
+    UpdateGuard guard(*this);
     {
-        KitGuard guard(k);
+        KitGuard kitGuard(k);
 
         QtKitInformation::setQtVersion(k, version);
         ToolChainKitInformation::setToolChain(k, preferredToolChain(version, parsedSpec, archConfig));
@@ -379,7 +379,6 @@ Kit *QmakeProjectImporter::createTemporaryKit(BaseQtVersion *version,
     } // ~KitGuard, sending kitUpdated
 
     KitManager::registerKit(k); // potentially adds kits to other targetsetuppages
-    setIsUpdating(oldIsUpdating);
     return k;
 }
 

@@ -63,15 +63,26 @@ public:
     bool isTemporaryKit(Kit *k);
 
 protected:
-    bool setIsUpdating(bool b) {
-        bool old = m_isUpdating;
-        m_isUpdating = b;
-        return old;
-    }
+    class UpdateGuard
+    {
+    public:
+        UpdateGuard(ProjectImporter &i) : m_importer(i)
+        {
+            m_wasUpdating = m_importer.isUpdating();
+            m_importer.m_isUpdating = true;
+        }
+        ~UpdateGuard() { m_importer.m_isUpdating = m_wasUpdating; }
+
+    private:
+        ProjectImporter &m_importer;
+        bool m_wasUpdating;
+    };
 
 private:
     const QString m_projectPath;
     bool m_isUpdating = false;
+
+    friend class UpdateGuard;
 };
 
 } // namespace ProjectExplorer

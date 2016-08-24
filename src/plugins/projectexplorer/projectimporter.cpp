@@ -53,7 +53,7 @@ void ProjectImporter::markTemporary(Kit *k)
 {
     QTC_ASSERT(!k->hasValue(KIT_IS_TEMPORARY), return);
 
-    bool oldIsUpdating = setIsUpdating(true);
+    UpdateGuard guard(*this);
 
     const QString name = k->displayName();
     k->setUnexpandedDisplayName(QCoreApplication::translate("ProjectExplorer::ProjectImporter",
@@ -62,8 +62,6 @@ void ProjectImporter::markTemporary(Kit *k)
     k->setValue(KIT_TEMPORARY_NAME, k->displayName());
     k->setValue(KIT_FINAL_NAME, name);
     k->setValue(KIT_IS_TEMPORARY, true);
-
-    setIsUpdating(oldIsUpdating);
 }
 
 void ProjectImporter::makePermanent(Kit *k)
@@ -71,7 +69,7 @@ void ProjectImporter::makePermanent(Kit *k)
     if (!k->hasValue(KIT_IS_TEMPORARY))
         return;
 
-    bool oldIsUpdating = setIsUpdating(true);
+    UpdateGuard guard(*this);
 
     k->removeKey(KIT_IS_TEMPORARY);
     k->removeKey(TEMPORARY_OF_PROJECTS);
@@ -80,8 +78,6 @@ void ProjectImporter::makePermanent(Kit *k)
         k->setUnexpandedDisplayName(k->value(KIT_FINAL_NAME).toString());
     k->removeKey(KIT_TEMPORARY_NAME);
     k->removeKey(KIT_FINAL_NAME);
-
-    setIsUpdating(oldIsUpdating);
 }
 
 void ProjectImporter::cleanupKit(Kit *k)
@@ -94,15 +90,10 @@ void ProjectImporter::addProject(Kit *k)
     if (!k->hasValue(KIT_IS_TEMPORARY))
         return;
 
+    UpdateGuard guard(*this);
     QStringList projects = k->value(TEMPORARY_OF_PROJECTS, QStringList()).toStringList();
-
     projects.append(m_projectPath); // note: There can be more than one instance of the project added!
-
-    bool oldIsUpdating = setIsUpdating(true);
-
     k->setValueSilently(TEMPORARY_OF_PROJECTS, projects);
-
-    setIsUpdating(oldIsUpdating);
 }
 
 void ProjectImporter::removeProject(Kit *k, const QString &path)
@@ -110,17 +101,14 @@ void ProjectImporter::removeProject(Kit *k, const QString &path)
     if (!k->hasValue(KIT_IS_TEMPORARY))
         return;
 
+    UpdateGuard guard(*this);
     QStringList projects = k->value(TEMPORARY_OF_PROJECTS, QStringList()).toStringList();
     projects.removeOne(path);
-
-    bool oldIsUpdating = setIsUpdating(true);
 
     if (projects.isEmpty())
         KitManager::deregisterKit(k);
     else
         k->setValueSilently(TEMPORARY_OF_PROJECTS, projects);
-
-    setIsUpdating(oldIsUpdating);
 }
 
 bool ProjectImporter::isTemporaryKit(Kit *k)
