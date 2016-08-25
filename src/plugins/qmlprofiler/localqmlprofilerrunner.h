@@ -30,6 +30,7 @@
 #include <utils/port.h>
 #include <projectexplorer/applicationlauncher.h>
 #include <projectexplorer/runnables.h>
+#include <qmldebug/qmloutputparser.h>
 
 namespace Debugger {
 class AnalyzerRunControl;
@@ -66,6 +67,7 @@ private:
 
     Configuration m_configuration;
     ProjectExplorer::ApplicationLauncher m_launcher;
+    QmlDebug::QmlOutputParser m_outputParser;
 };
 
 } // namespace QmlProfiler

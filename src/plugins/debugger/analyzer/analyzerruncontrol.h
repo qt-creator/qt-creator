@@ -47,6 +47,7 @@ public:
     AnalyzerRunControl(ProjectExplorer::RunConfiguration *runConfiguration, Core::Id runMode);
 
     virtual void notifyRemoteSetupDone(Utils::Port) {}
+    virtual void notifyRemoteSetupFailed(const QString &) {}
     virtual void notifyRemoteFinished() {}
 
 signals:

@@ -79,6 +79,35 @@ LocalQmlProfilerRunner::LocalQmlProfilerRunner(const Configuration &configuratio
             this, &LocalQmlProfilerRunner::start);
     connect(runControl, &RunControl::finished,
             this, &LocalQmlProfilerRunner::stop);
+
+    m_outputParser.setNoOutputText(ApplicationLauncher::msgWinCannotRetrieveDebuggingOutput());
+
+    connect(runControl, &Debugger::AnalyzerRunControl::appendMessageRequested,
+            this, [this](RunControl *runControl, const QString &msg, Utils::OutputFormat format) {
+        Q_UNUSED(runControl);
+        Q_UNUSED(format);
+        m_outputParser.processOutput(msg);
+    });
+
+    connect(&m_outputParser, &QmlDebug::QmlOutputParser::waitingForConnectionOnPort,
+            runControl, [this, runControl](Utils::Port port) {
+        runControl->notifyRemoteSetupDone(port);
+    });
+
+    connect(&m_outputParser, &QmlDebug::QmlOutputParser::noOutputMessage,
+            runControl, [this, runControl]() {
+        runControl->notifyRemoteSetupDone(Utils::Port());
+    });
+
+    connect(&m_outputParser, &QmlDebug::QmlOutputParser::connectingToSocketMessage,
+            runControl, [this, runControl]() {
+        runControl->notifyRemoteSetupDone(Utils::Port());
+    });
+
+    connect(&m_outputParser, &QmlDebug::QmlOutputParser::errorMessage,
+            runControl, [this, runControl](const QString &message) {
+        runControl->notifyRemoteSetupFailed(message);
+    });
 }
 
 void LocalQmlProfilerRunner::start()
