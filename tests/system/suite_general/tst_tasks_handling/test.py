@@ -33,7 +33,7 @@ toolButton = ("{toolTip='%s' type='QToolButton' unnamed='1' visible='1' "
 def generateRandomFilePath(isWin, isHeader):
     # generate random (fake) file path
     filePath = ''.join(random.choice(string.ascii_letters + string.digits + "/")
-                    for _ in range(random.randint(3, 15)))
+                    for _ in range(random.randint(38, 50)))
     if not filePath.startswith("/"):
         filePath = "/" + filePath
     if isWin:
