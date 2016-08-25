@@ -241,10 +241,16 @@ static int extractPidFromChunk(const QByteArray &chunk, int from)
 
 static int extractPid(const QString &exeName, const QByteArray &psOutput)
 {
-    const QByteArray needle = exeName.toUtf8() + '\r';
-    const int to = psOutput.indexOf(needle);
-    if (to == -1)
-        return -1;
+    static char psEol[]={'\r', '\n'};
+    QByteArray needle = exeName.toUtf8() + psEol[0];
+    int to = psOutput.indexOf(needle);
+    if (to == -1) {
+        needle = exeName.toUtf8() + psEol[1];
+        to = psOutput.indexOf(needle);
+        if (to == -1)
+            return -1;
+        std::swap(psEol[0], psEol[1]);
+    }
     const int from = psOutput.lastIndexOf('\n', to);
     if (from == -1)
         return -1;
