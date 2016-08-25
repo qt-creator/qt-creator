@@ -143,7 +143,7 @@ public:
     virtual BuildConfiguration *clone(Target *parent, BuildConfiguration *product) = 0;
 
     static IBuildConfigurationFactory *find(Target *parent, const QVariantMap &map);
-    static IBuildConfigurationFactory *find(Kit *k, const QString &projectPath);
+    static IBuildConfigurationFactory *find(const Kit *k, const QString &projectPath);
     static IBuildConfigurationFactory *find(Target *parent);
     static IBuildConfigurationFactory *find(Target *parent, BuildConfiguration *bc);
 
