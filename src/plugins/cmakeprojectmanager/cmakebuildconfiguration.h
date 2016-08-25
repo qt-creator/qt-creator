@@ -124,6 +124,8 @@ private:
     friend class CMakeProjectManager::CMakeProject;
 };
 
+class CMakeProjectImporter;
+
 class CMakeBuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory
 {
     Q_OBJECT
@@ -159,6 +161,8 @@ private:
     CMakeBuildInfo *createBuildInfo(const ProjectExplorer::Kit *k,
                                     const QString &sourceDir,
                                     BuildType buildType) const;
+
+    friend class CMakeProjectImporter;
 };
 
 } // namespace Internal

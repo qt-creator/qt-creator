@@ -49,6 +49,8 @@ QtcPlugin {
         "cmakeproject.cpp",
         "cmakeproject.h",
         "cmakeproject.qrc",
+        "cmakeprojectimporter.cpp",
+        "cmakeprojectimporter.h",
         "cmakeprojectconstants.h",
         "cmakeprojectmanager.cpp",
         "cmakeprojectmanager.h",

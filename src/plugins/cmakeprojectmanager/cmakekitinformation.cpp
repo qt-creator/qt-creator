@@ -76,6 +76,11 @@ CMakeKitInformation::CMakeKitInformation()
             [this]() { foreach (Kit *k, KitManager::kits()) fix(k); });
 }
 
+Core::Id CMakeKitInformation::id()
+{
+    return TOOL_ID;
+}
+
 CMakeTool *CMakeKitInformation::cmakeTool(const Kit *k)
 {
     if (!k)

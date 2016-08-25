@@ -86,12 +86,11 @@ signals:
     void dataAvailable() const;
     void errorOccured(const QString &err) const;
 
-protected:
-    const Utils::FileName workDirectory() const;
-
 private:
     void emitDataAvailable();
     void checkConfiguration();
+
+    const Utils::FileName workDirectory() const;
 
     void updateReaderType(std::function<void()> todo);
     void updateReaderData();

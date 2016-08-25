@@ -25,55 +25,39 @@
 
 #pragma once
 
-#include <extensionsystem/iplugin.h>
-
-#include <QObject>
-
-namespace ProjectExplorer {
-class Node;
-class Project;
-} // namespace ProjectExplorer
-
-namespace Utils { class ParameterAction; }
+#include <qtsupport/qtprojectimporter.h>
 
 namespace CMakeProjectManager {
 
-class CMakeProject;
-class CMakeToolManager;
+class CMakeTool;
 
 namespace Internal {
 
-class CMakeProjectPlugin : public ExtensionSystem::IPlugin
+class CMakeProjectImporter : public QtSupport::QtProjectImporter
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "CMakeProjectManager.json")
-
 public:
-    bool initialize(const QStringList &arguments, QString *errorMessage) override;
+    CMakeProjectImporter(const Utils::FileName &path);
 
-    void extensionsInitialized() override;
-
-#ifdef WITH_TESTS
-private slots:
-    void testCMakeParser_data();
-    void testCMakeParser();
-
-    void testCMakeSplitValue_data();
-    void testCMakeSplitValue();
-
-    void testCMakeProjectImporterQt_data();
-    void testCMakeProjectImporterQt();
-
-    void testCMakeProjectImporterToolChain_data();
-    void testCMakeProjectImporterToolChain();
-#endif
+    QStringList importCandidates() final;
 
 private:
-    void updateContextActions(ProjectExplorer::Node *node, ProjectExplorer::Project *project);
+    QList<void *> examineDirectory(const Utils::FileName &importPath) const final;
+    bool matchKit(void *directoryData, const ProjectExplorer::Kit *k) const final;
+    ProjectExplorer::Kit *createKit(void *directoryData) const final;
+    QList<ProjectExplorer::BuildInfo *> buildInfoListForKit(const ProjectExplorer::Kit *k,
+                                                            void *directoryData) const final;
 
-    Utils::ParameterAction *m_buildTargetContextAction = nullptr;
-    QMetaObject::Connection m_actionConnect;
+    struct CMakeToolData {
+        bool isTemporary = false;
+        CMakeTool *cmakeTool = nullptr;
+    };
+    CMakeToolData findOrCreateCMakeTool(const Utils::FileName &cmakeToolPath) const;
+
+    void deleteDirectoryData(void *directoryData) const final;
+
+    void cleanupTemporaryCMake(ProjectExplorer::Kit *k, const QVariantList &vl);
+    void persistTemporaryCMake(ProjectExplorer::Kit *k, const QVariantList &vl);
 };
 
 } // namespace Internal
-} // namespace CMakeProject
+} // namespace CMakeProjectManager

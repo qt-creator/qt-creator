@@ -41,6 +41,8 @@ class CMAKE_EXPORT CMakeKitInformation : public ProjectExplorer::KitInformation
 public:
     CMakeKitInformation();
 
+    static Core::Id id();
+
     static CMakeTool *cmakeTool(const ProjectExplorer::Kit *k);
     static void setCMakeTool(ProjectExplorer::Kit *k, const Core::Id id);
 

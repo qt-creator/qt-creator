@@ -26,6 +26,7 @@
 #pragma once
 
 #include "cmake_global.h"
+#include "cmakeprojectimporter.h"
 #include "treescanner.h"
 
 #include <projectexplorer/extracompiler.h>
@@ -35,6 +36,8 @@
 
 #include <QFuture>
 #include <QHash>
+
+#include <memory>
 
 QT_BEGIN_NAMESPACE
 class QFileSystemWatcher;
@@ -102,6 +105,8 @@ public:
     // Context menu actions:
     void buildCMakeTarget(const QString &buildTarget);
 
+    ProjectExplorer::ProjectImporter *projectImporter() const final;
+
 signals:
     /// emitted when cmake is running:
     void parsingStarted();
@@ -135,6 +140,7 @@ private:
     Internal::TreeScanner m_treeScanner;
     QHash<QString, bool> m_mimeBinaryCache;
     QList<const ProjectExplorer::FileNode *> m_allFiles;
+    mutable std::unique_ptr<Internal::CMakeProjectImporter> m_projectImporter;
 
     friend class Internal::CMakeBuildConfiguration;
     friend class Internal::CMakeBuildSettingsWidget;
