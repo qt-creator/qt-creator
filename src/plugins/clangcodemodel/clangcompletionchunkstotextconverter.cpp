@@ -302,7 +302,7 @@ QString CompletionChunksToTextConverter::inDesiredTextFormat(const Utf8String &t
 bool CompletionChunksToTextConverter::emphasizeCurrentPlaceHolder() const
 {
     if (m_addPlaceHolderPositions) {
-        const uint currentPlaceHolderPosition = m_placeholderPositions.size() + 1;
+        const uint currentPlaceHolderPosition = uint(m_placeholderPositions.size() + 1);
         return uint(m_placeHolderPositionToEmphasize) == currentPlaceHolderPosition;
     }
 
