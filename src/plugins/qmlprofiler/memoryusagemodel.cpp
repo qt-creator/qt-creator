@@ -103,7 +103,7 @@ QVariantMap MemoryUsageModel::details(int index) const
     else
         result.insert(QLatin1String("displayName"), tr("Memory Freed"));
 
-    result.insert(tr("Total"), tr("%1 bytes").arg(ev->size));
+    result.insert(tr("Total"), tr("%n bytes", 0, ev->size));
     if (ev->allocations > 0) {
         result.insert(tr("Allocated"), tr("%1 bytes").arg(ev->allocated));
         result.insert(tr("Allocations"), QString::number(ev->allocations));
