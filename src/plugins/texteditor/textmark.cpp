@@ -275,7 +275,7 @@ void TextMarkRegistry::documentRenamed(IDocument *document, const
                                            QString &oldName, const QString &newName)
 {
     TextDocument *baseTextDocument = qobject_cast<TextDocument *>(document);
-    if (!document)
+    if (!baseTextDocument)
         return;
     FileName oldFileName = FileName::fromString(oldName);
     FileName newFileName = FileName::fromString(newName);
