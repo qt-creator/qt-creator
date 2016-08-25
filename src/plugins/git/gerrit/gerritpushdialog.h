@@ -58,6 +58,7 @@ private:
     void setChangeRange();
     void setRemoteBranches(bool includeOld = false);
     void updateCommits(int index);
+    void validate();
 
     typedef QPair<QString, QDate> BranchDate;
     typedef QMultiMap<QString, BranchDate> RemoteBranchesMap;
@@ -70,6 +71,7 @@ private:
     Ui::GerritPushDialog *m_ui;
     RemoteBranchesMap m_remoteBranches;
     bool m_isValid = false;
+    bool m_hasLocalCommits = false;
 };
 
 
