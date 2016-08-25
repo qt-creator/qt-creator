@@ -51,9 +51,10 @@ public:
     Core::Id kitId;
     BuildConfiguration::BuildType buildType = BuildConfiguration::Unknown;
 
-    bool operator==(const BuildInfo &o)
+    virtual bool operator==(const BuildInfo &o) const
     {
-        return displayName == o.displayName && typeName == o.typeName
+        return m_factory == o.m_factory
+                && displayName == o.displayName && typeName == o.typeName
                 && buildDirectory == o.buildDirectory && kitId == o.kitId
                 && buildType == o.buildType;
     }

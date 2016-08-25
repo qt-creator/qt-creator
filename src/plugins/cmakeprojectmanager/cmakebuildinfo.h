@@ -55,6 +55,16 @@ public:
         configuration = bc->cmakeConfiguration();
     }
 
+    bool operator==(const BuildInfo &o) const final
+    {
+        if (!ProjectExplorer::BuildInfo::operator==(o))
+            return false;
+
+        auto other = static_cast<const CMakeBuildInfo *>(&o);
+        return sourceDirectory == other->sourceDirectory
+                && configuration == other->configuration;
+    }
+
     QString sourceDirectory;
     CMakeConfig configuration;
 };

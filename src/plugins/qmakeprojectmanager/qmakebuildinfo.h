@@ -44,11 +44,15 @@ public:
     QString makefile;
     QMakeStepConfig config;
 
-    bool operator==(const QmakeBuildInfo &o)
+    bool operator==(const BuildInfo &o) const final
     {
-        return ProjectExplorer::BuildInfo::operator==(o)
-                && additionalArguments == o.additionalArguments
-                && config == o.config;
+        if (!ProjectExplorer::BuildInfo::operator==(o))
+            return false;
+
+        auto other = static_cast<const QmakeBuildInfo *>(&o);
+        return additionalArguments == other->additionalArguments
+                && makefile == other->makefile
+                && config == other->config;
     }
 
     QList<ProjectExplorer::Task> reportIssues(const QString &projectPath,

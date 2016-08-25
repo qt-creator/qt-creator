@@ -53,6 +53,8 @@ public:
     static CMakeConfigItem fromString(const QString &s);
     QString toString() const;
 
+    bool operator==(const CMakeConfigItem &o) const;
+
     QByteArray key;
     Type type = STRING;
     bool isAdvanced = false;

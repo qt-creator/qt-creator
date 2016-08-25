@@ -177,4 +177,10 @@ QString CMakeConfigItem::toString() const
     return QString::fromUtf8(key) + QLatin1Char(':') + typeStr + QLatin1Char('=') + QString::fromUtf8(value);
 }
 
+bool CMakeConfigItem::operator==(const CMakeConfigItem &o) const
+{
+    // type, isAdvanced and documentation do not matter for a match!
+    return o.key == key && o.value == value;
+}
+
 } // namespace CMakeProjectManager
