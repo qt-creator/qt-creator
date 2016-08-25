@@ -49,21 +49,6 @@ using namespace Utils;
 
 namespace Nim {
 
-class NimBuildInfo : public BuildInfo
-{
-public:
-    NimBuildInfo(BuildConfiguration::BuildType buildType,
-                 const NimBuildConfigurationFactory *factory)
-        : BuildInfo(factory), m_buildType(buildType)
-    {}
-
-    BuildConfiguration::BuildType buildType() const { return m_buildType; }
-
-private:
-    BuildConfiguration::BuildType m_buildType;
-};
-
-
 NimBuildConfigurationFactory::NimBuildConfigurationFactory(QObject *parent)
     : IBuildConfigurationFactory(parent)
 {}
@@ -75,9 +60,8 @@ QList<BuildInfo *> NimBuildConfigurationFactory::availableBuilds(const Target *p
     QTC_ASSERT(project, return {});
 
     // Create the build info
-    NimBuildInfo *info = createBuildInfo(parent->kit(),
-                                         project->projectFilePath(),
-                                         BuildConfiguration::Debug);
+    BuildInfo *info = createBuildInfo(parent->kit(), project->projectFilePath(),
+                                      BuildConfiguration::Debug);
 
     info->displayName.clear(); // ask for a name
     info->buildDirectory.clear(); // This depends on the displayName
@@ -87,8 +71,8 @@ QList<BuildInfo *> NimBuildConfigurationFactory::availableBuilds(const Target *p
 
 QList<BuildInfo *> NimBuildConfigurationFactory::availableSetups(const Kit *k, const QString &projectPath) const
 {
-    NimBuildInfo *debug = createBuildInfo(k, projectPath, BuildConfiguration::Debug);
-    NimBuildInfo *release = createBuildInfo(k, projectPath, BuildConfiguration::Release);
+    BuildInfo *debug = createBuildInfo(k, projectPath, BuildConfiguration::Debug);
+    BuildInfo *release = createBuildInfo(k, projectPath, BuildConfiguration::Release);
     return { debug, release };
 }
 
@@ -97,23 +81,21 @@ BuildConfiguration *NimBuildConfigurationFactory::create(Target *parent, const B
     auto project = qobject_cast<NimProject *>(parent->project());
     QTC_ASSERT(project, return nullptr);
 
-    auto nimInfo = static_cast<const NimBuildInfo *>(info);
-
     // Create the build configuration and initialize it from build info
     auto result = new NimBuildConfiguration(parent);
-    result->setDisplayName(nimInfo->displayName);
-    result->setDefaultDisplayName(nimInfo->displayName);
+    result->setDisplayName(info->displayName);
+    result->setDefaultDisplayName(info->displayName);
     result->setBuildDirectory(defaultBuildDirectory(parent->kit(),
                                                     project->projectFilePath(),
-                                                    nimInfo->displayName,
-                                                    nimInfo->buildType()));
+                                                    info->displayName,
+                                                    info->buildType));
 
     // Add nim compiler build step
     {
         BuildStepList *buildSteps = result->stepList(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD));
         auto nimCompilerBuildStep = new NimCompilerBuildStep(buildSteps);
         NimCompilerBuildStep::DefaultBuildOptions defaultOption;
-        switch (nimInfo->buildType()) {
+        switch (info->buildType) {
         case BuildConfiguration::Release:
             defaultOption = NimCompilerBuildStep::DefaultBuildOptions::Release;
             break;
@@ -207,11 +189,11 @@ FileName NimBuildConfigurationFactory::defaultBuildDirectory(const Kit *k,
     return result;
 }
 
-NimBuildInfo *NimBuildConfigurationFactory::createBuildInfo(const Kit *k,
-                                                            const QString &projectFilePath,
-                                                            BuildConfiguration::BuildType buildType) const
+BuildInfo *NimBuildConfigurationFactory::createBuildInfo(const Kit *k, const QString &projectFilePath,
+                                                         BuildConfiguration::BuildType buildType) const
 {
-    auto result = new NimBuildInfo(buildType, this);
+    auto result = new BuildInfo(this);
+    result->buildType = buildType;
     result->displayName = BuildConfiguration::buildTypeName(buildType);
     result->buildDirectory = defaultBuildDirectory(k, projectFilePath, result->displayName, buildType);
     result->kitId = k->id();
@@ -219,4 +201,4 @@ NimBuildInfo *NimBuildConfigurationFactory::createBuildInfo(const Kit *k,
     return result;
 }
 
-}
+} // namespace Nim
