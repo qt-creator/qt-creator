@@ -178,7 +178,7 @@ static void performTestRun(QFutureInterface<TestResultPtr> &futureInterface,
             }
             futureInterface.reportResult(TestResultPtr(
                     new FaultyTestResult(Result::MessageFatal, TestRunner::tr(
-                    "Test case canceled due to timeout. \nMaybe raise the timeout?"))));
+                    "Test case canceled due to timeout.\nMaybe raise the timeout?"))));
         }
     }
     futureInterface.setProgressValue(testCaseCount);
