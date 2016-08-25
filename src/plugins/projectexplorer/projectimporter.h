@@ -45,13 +45,13 @@ public:
 
     const QString projectFilePath() const { return m_projectPath; }
 
-    virtual QList<BuildInfo *> import(const Utils::FileName &importPath, bool silent = false) = 0;
+    virtual QList<BuildInfo *> import(const Utils::FileName &importPath, bool silent = false);
     virtual QStringList importCandidates() = 0;
     virtual Target *preferredTarget(const QList<Target *> &possibleTargets);
 
     bool isUpdating() const { return m_isUpdating; }
 
-    virtual void makePermanent(Kit *k);
+    virtual void makePermanent(Kit *k) const;
 
     // Additional cleanup that has to happen when kits are removed
     virtual void cleanupKit(Kit *k);
@@ -65,7 +65,7 @@ protected:
     class UpdateGuard
     {
     public:
-        UpdateGuard(ProjectImporter &i) : m_importer(i)
+        UpdateGuard(const ProjectImporter &i) : m_importer(i)
         {
             m_wasUpdating = m_importer.isUpdating();
             m_importer.m_isUpdating = true;
@@ -73,19 +73,27 @@ protected:
         ~UpdateGuard() { m_importer.m_isUpdating = m_wasUpdating; }
 
     private:
-        ProjectImporter &m_importer;
+        const ProjectImporter &m_importer;
         bool m_wasUpdating;
     };
 
+    // importPath is an existing directory at this point!
+    virtual QList<void *> examineDirectory(const Utils::FileName &importPath) const = 0;
+    // will get one of the results from examineDirectory
+    virtual bool matchKit(void *directoryData, const Kit *k) const = 0;
+    // will get one of the results from examineDirectory
+    virtual Kit *createKit(void *directoryData) const = 0;
+    // will get one of the results from examineDirectory
+    virtual QList<BuildInfo *> buildInfoListForKit(const Kit *k, void *directoryData) const = 0;
 
     using KitSetupFunction = std::function<void(Kit *)>;
-    ProjectExplorer::Kit *createTemporaryKit(const KitSetupFunction &setup);
+    ProjectExplorer::Kit *createTemporaryKit(const KitSetupFunction &setup) const;
 
 private:
-    void markTemporary(Kit *k);
+    void markTemporary(Kit *k) const;
 
     const QString m_projectPath;
-    bool m_isUpdating = false;
+    mutable bool m_isUpdating = false;
 
     friend class UpdateGuard;
 };

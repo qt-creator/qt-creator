@@ -25,6 +25,7 @@
 
 #include "projectimporter.h"
 
+#include "buildinfo.h"
 #include "kit.h"
 #include "kitinformation.h"
 #include "kitmanager.h"
@@ -32,9 +33,13 @@
 #include "projectexplorerconstants.h"
 #include "target.h"
 
-#include <coreplugin/idocument.h>
+#include <coreplugin/icore.h>
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+
+#include <QLoggingCategory>
+#include <QMessageBox>
 
 namespace ProjectExplorer {
 
@@ -50,6 +55,70 @@ ProjectImporter::~ProjectImporter()
 {
     foreach (Kit *k, KitManager::kits())
         removeProject(k);
+}
+
+QList<BuildInfo *> ProjectImporter::import(const Utils::FileName &importPath, bool silent)
+{
+    QList<BuildInfo *> result;
+
+    const QLoggingCategory log("qtc.projectexplorer.import");
+    qCDebug(log) << "ProjectImporter::import" << importPath << silent;
+
+    QFileInfo fi = importPath.toFileInfo();
+    if (!fi.exists() && !fi.isDir()) {
+        qCDebug(log) << "**doesn't exist";
+        return result;
+    }
+
+    const Utils::FileName absoluteImportPath = Utils::FileName::fromString(fi.absoluteFilePath());
+
+    qCDebug(log) << "Examining directory" << absoluteImportPath.toString();
+    QList<void *> dataList = examineDirectory(absoluteImportPath);
+    if (dataList.isEmpty()) {
+        qCDebug(log) << "Nothing to import found in" << absoluteImportPath.toString();
+        return result;
+    }
+
+    qCDebug(log) << "Looking for kits";
+    foreach (void *data, dataList) {
+        QTC_ASSERT(data, continue);
+        QList<Kit *> kitList;
+        const QList<Kit *> tmp
+                = Utils::filtered(KitManager::kits(), [this, data](Kit *k) { return matchKit(data, k); });
+        if (tmp.isEmpty()) {
+            kitList += createKit(data);
+            qCDebug(log) << "  no matching kit found, temporary kit created.";
+        } else {
+            kitList += tmp;
+            qCDebug(log) << "  " << tmp.count() << "matching kits found.";
+        }
+
+        foreach (Kit *k, kitList) {
+            qCDebug(log) << "Creating buildinfos for kit" << k->displayName();
+            QList<BuildInfo *> infoList = buildInfoListForKit(k, data);
+            if (infoList.isEmpty()) {
+                qCDebug(log) << "No build infos for kit" << k->displayName();
+                continue;
+            }
+
+            addProject(k);
+
+            foreach (BuildInfo *i, infoList) {
+                if (!Utils::contains(result, [i](const BuildInfo *o) { return (*i) == (*o); }))
+                    result += i;
+            }
+        }
+    }
+
+    qDeleteAll(dataList);
+
+    if (result.isEmpty() && !silent)
+        QMessageBox::critical(Core::ICore::mainWindow(),
+                              QCoreApplication::translate("ProjectExplorer::ProjectImporter", "No Build Found"),
+                              QCoreApplication::translate("ProjectExplorer::ProjectImporter", "No build found in %1 matching project %2.")
+                .arg(importPath.toUserOutput()).arg(QDir::toNativeSeparators(projectFilePath())));
+
+    return result;
 }
 
 Target *ProjectImporter::preferredTarget(const QList<Target *> &possibleTargets)
@@ -77,7 +146,7 @@ Target *ProjectImporter::preferredTarget(const QList<Target *> &possibleTargets)
     return activeTarget;
 }
 
-void ProjectImporter::markTemporary(Kit *k)
+void ProjectImporter::markTemporary(Kit *k) const
 {
     QTC_ASSERT(!k->hasValue(KIT_IS_TEMPORARY), return);
 
@@ -92,7 +161,7 @@ void ProjectImporter::markTemporary(Kit *k)
     k->setValue(KIT_IS_TEMPORARY, true);
 }
 
-void ProjectImporter::makePermanent(Kit *k)
+void ProjectImporter::makePermanent(Kit *k) const
 {
     if (!k->hasValue(KIT_IS_TEMPORARY))
         return;
@@ -144,7 +213,7 @@ bool ProjectImporter::isTemporaryKit(Kit *k) const
     return k->hasValue(KIT_IS_TEMPORARY);
 }
 
-Kit *ProjectImporter::createTemporaryKit(const KitSetupFunction &setup)
+Kit *ProjectImporter::createTemporaryKit(const KitSetupFunction &setup) const
 {
     Kit *k = new Kit;
     UpdateGuard guard(*this);

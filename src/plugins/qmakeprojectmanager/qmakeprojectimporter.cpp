@@ -32,7 +32,6 @@
 #include "makefileparse.h"
 #include "qmakestep.h"
 
-#include <coreplugin/icore.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
@@ -47,13 +46,33 @@
 
 #include <QDir>
 #include <QFileInfo>
-#include <QMessageBox>
 #include <QStringList>
 #include <QLoggingCategory>
 
+#include <memory>
+
 using namespace ProjectExplorer;
+using namespace QmakeProjectManager;
 using namespace QtSupport;
 using namespace Utils;
+
+namespace {
+
+struct DirectoryData
+{
+    QString makefile;
+    Utils::FileName buildDirectory;
+    Utils::FileName canonicalQmakeBinary;
+    QtProjectImporter::QtVersionData qtVersionData;
+    FileName parsedSpec;
+    BaseQtVersion::QmakeBuildConfigs buildConfig;
+    QString additionalArguments;
+    QMakeStepConfig config;
+    QMakeStepConfig::TargetArchConfig archConfig;
+    QMakeStepConfig::OsType osType;
+};
+
+} // namespace
 
 namespace QmakeProjectManager {
 namespace Internal {
@@ -64,166 +83,6 @@ const char IOSQT[] = "Qt4ProjectManager.QtVersion.Ios"; // ugly
 QmakeProjectImporter::QmakeProjectImporter(const QString &path) :
     QtProjectImporter(path)
 { }
-
-QList<BuildInfo *> QmakeProjectImporter::import(const FileName &importPath, bool silent)
-{
-    const auto &logs = MakeFileParse::logging();
-    qCDebug(logs) << "QmakeProjectImporter::import" << importPath << silent;
-
-    QList<BuildInfo *> result;
-    QFileInfo fi = importPath.toFileInfo();
-    if (!fi.exists() && !fi.isDir()) {
-        qCDebug(logs) << "**doesn't exist";
-        return result;
-    }
-
-    QStringList makefiles = QDir(importPath.toString()).entryList(QStringList(QLatin1String("Makefile*")));
-    qCDebug(logs) << "  Makefiles:" << makefiles;
-
-    foreach (const QString &file, makefiles) {
-        qCDebug(logs) << "  Parsing makefile" << file;
-        // find interesting makefiles
-        QString makefile = importPath.toString() + QLatin1Char('/') + file;
-        MakeFileParse parse(makefile);
-        if (parse.makeFileState() != MakeFileParse::Okay)
-            continue;
-        QFileInfo qmakeFi = parse.qmakePath().toFileInfo();
-        FileName canonicalQmakeBinary = FileName::fromString(qmakeFi.canonicalFilePath());
-        if (canonicalQmakeBinary.isEmpty()) {
-            qCDebug(logs) << "  " << parse.qmakePath() << "doesn't exist anymore";
-            continue;
-        }
-        if (parse.srcProFile() != projectFilePath()) {
-            qCDebug(logs) << "  pro files doesn't match" << parse.srcProFile() << projectFilePath();
-            continue;
-        }
-
-        qCDebug(logs) << "  QMake:" << canonicalQmakeBinary;
-
-        QtProjectImporter::QtVersionData data
-                = QtProjectImporter::findOrCreateQtVersion(canonicalQmakeBinary);
-        QTC_ASSERT(data.version, continue);
-        qCDebug(logs) << "  qt version:" << data.version->displayName()
-                      << " temporary:" << data.isTemporaryVersion;
-
-        QMakeStepConfig::TargetArchConfig archConfig = parse.config().archConfig;
-        QMakeStepConfig::OsType osType = parse.config().osType;
-        qCDebug(logs) << "  archConfig:" << archConfig;
-        qCDebug(logs) << "  osType:    " << osType;
-        if (data.version->type() == QLatin1String(IOSQT)
-                && osType == QMakeStepConfig::NoOsType) {
-            osType = QMakeStepConfig::IphoneOS;
-            qCDebug(logs) << "  IOS found without osType, adjusting osType" << osType;
-        }
-
-        if (data.version->type() == QLatin1String(Constants::DESKTOPQT)) {
-            QList<ProjectExplorer::Abi> abis = data.version->qtAbis();
-            if (!abis.isEmpty()) {
-                ProjectExplorer::Abi abi = abis.first();
-                if (abi.os() == ProjectExplorer::Abi::DarwinOS) {
-                    if (abi.wordWidth() == 64)
-                        archConfig = QMakeStepConfig::X86_64;
-                    else
-                        archConfig = QMakeStepConfig::X86;
-                    qCDebug(logs) << "  OS X found without targetarch, adjusting archType" << archConfig;
-                }
-            }
-        }
-
-        // find qmake arguments and mkspec
-        QString additionalArguments = parse.unparsedArguments();
-        qCDebug(logs) << "  Unparsed arguments:" << additionalArguments;
-        FileName parsedSpec =
-                QmakeBuildConfiguration::extractSpecFromArguments(&additionalArguments,
-                                                                  importPath.toString(), data.version);
-        qCDebug(logs) << "  Extracted spec:" << parsedSpec;
-        qCDebug(logs) << "  Arguments now:" << additionalArguments;
-
-        FileName versionSpec = data.version->mkspec();
-        if (parsedSpec.isEmpty() || parsedSpec == FileName::fromLatin1("default")) {
-            parsedSpec = versionSpec;
-            qCDebug(logs) << "  No parsed spec or default spec => parsed spec now:" << parsedSpec;
-        }
-
-        qCDebug(logs) << "*******************";
-        qCDebug(logs) << "* Looking for kits";
-        // Find kits (can be more than one, e.g. (Linux-)Desktop and embedded linux):
-        QList<Kit *> kitList;
-        foreach (Kit *k, KitManager::kits()) {
-            BaseQtVersion *kitVersion = QtKitInformation::qtVersion(k);
-            FileName kitSpec = QmakeKitInformation::mkspec(k);
-            ToolChain *tc = ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx);
-            if (kitSpec.isEmpty() && kitVersion)
-                kitSpec = kitVersion->mkspecFor(tc);
-            QMakeStepConfig::TargetArchConfig kitTargetArch = QMakeStepConfig::NoArch;
-            QMakeStepConfig::OsType kitOsType = QMakeStepConfig::NoOsType;
-            if (tc) {
-                kitTargetArch = QMakeStepConfig::targetArchFor(tc->targetAbi(), kitVersion);
-                kitOsType = QMakeStepConfig::osTypeFor(tc->targetAbi(), kitVersion);
-            }
-            qCDebug(logs) << k->displayName()
-                          << "version:" << (kitVersion == data.version)
-                          << "spec:" << (kitSpec == parsedSpec)
-                          << "targetarch:" << (kitTargetArch == archConfig)
-                          << "ostype:" << (kitOsType == osType);
-            if (kitVersion == data.version
-                    && kitSpec == parsedSpec
-                    && kitTargetArch == archConfig
-                    && kitOsType == osType)
-                kitList.append(k);
-        }
-        if (kitList.isEmpty()) {
-            kitList.append(createTemporaryKit(data, parsedSpec, archConfig, osType));
-            qCDebug(logs) << "  No matching kits found, created new kit";
-        }
-
-        foreach (Kit *k, kitList) {
-            addProject(k);
-
-            auto factory = qobject_cast<QmakeBuildConfigurationFactory *>(
-                        IBuildConfigurationFactory::find(k, projectFilePath()));
-
-            if (!factory)
-                continue;
-
-            // create info:
-            QmakeBuildInfo *info = new QmakeBuildInfo(factory);
-            BaseQtVersion::QmakeBuildConfigs buildConfig = parse.effectiveBuildConfig(data.version->defaultBuildConfig());
-            if (buildConfig & BaseQtVersion::DebugBuild) {
-                info->buildType = BuildConfiguration::Debug;
-                info->displayName = QCoreApplication::translate("QmakeProjectManager::Internal::QmakeProjectImporter", "Debug");
-            } else {
-                info->buildType = BuildConfiguration::Release;
-                info->displayName = QCoreApplication::translate("QmakeProjectManager::Internal::QmakeProjectImporter", "Release");
-            }
-            info->kitId = k->id();
-            info->buildDirectory = FileName::fromString(fi.absoluteFilePath());
-            info->additionalArguments = additionalArguments;
-            info->config = parse.config();
-            info->makefile = makefile;
-
-            bool found = false;
-            foreach (BuildInfo *bInfo, result) {
-                if (*static_cast<QmakeBuildInfo *>(bInfo) == *info) {
-                    found = true;
-                    break;
-                }
-            }
-            if (found)
-                delete info;
-            else
-                result << info;
-        }
-    }
-
-    if (result.isEmpty() && !silent)
-        QMessageBox::critical(Core::ICore::mainWindow(),
-                              QCoreApplication::translate("QmakeProjectManager::Internal::QmakeProjectImporter", "No Build Found"),
-                              QCoreApplication::translate("QmakeProjectManager::Internal::QmakeProjectImporter", "No build found in %1 matching project %2.")
-                .arg(importPath.toUserOutput()).arg(QDir::toNativeSeparators(projectFilePath())));
-
-    return result;
-}
 
 QStringList QmakeProjectImporter::importCandidates()
 {
@@ -247,7 +106,167 @@ QStringList QmakeProjectImporter::importCandidates()
     return candidates;
 }
 
-static ToolChain *preferredToolChain(BaseQtVersion *qtVersion, const FileName &ms, const QMakeStepConfig::TargetArchConfig &archConfig)
+QList<void *> QmakeProjectImporter::examineDirectory(const FileName &importPath) const
+{
+    QList<void *> result;
+    const QLoggingCategory &logs = MakeFileParse::logging();
+
+    QStringList makefiles = QDir(importPath.toString()).entryList(QStringList(QLatin1String("Makefile*")));
+    qCDebug(logs) << "  Makefiles:" << makefiles;
+
+    foreach (const QString &file, makefiles) {
+        std::unique_ptr<DirectoryData> data(new DirectoryData);
+        data->makefile = file;
+        data->buildDirectory = importPath;
+
+        qCDebug(logs) << "  Parsing makefile" << file;
+        // find interesting makefiles
+        QString makefile = importPath.toString() + QLatin1Char('/') + file;
+        MakeFileParse parse(makefile);
+        if (parse.makeFileState() != MakeFileParse::Okay) {
+            qCDebug(logs) << "  Parsing the makefile failed" << makefile;
+            continue;
+        }
+        if (parse.srcProFile() != projectFilePath()) {
+            qCDebug(logs) << "  pro files doesn't match" << parse.srcProFile() << projectFilePath();
+            continue;
+        }
+
+        QFileInfo qmakeFi = parse.qmakePath().toFileInfo();
+        data->canonicalQmakeBinary = FileName::fromString(qmakeFi.canonicalFilePath());
+        if (data->canonicalQmakeBinary.isEmpty()) {
+            qCDebug(logs) << "  " << parse.qmakePath() << "doesn't exist anymore";
+            continue;
+        }
+
+        qCDebug(logs) << "  QMake:" << data->canonicalQmakeBinary;
+
+        data->qtVersionData = QtProjectImporter::findOrCreateQtVersion(data->canonicalQmakeBinary);
+        BaseQtVersion *version = data->qtVersionData.qt;
+        bool isTemporaryVersion = data->qtVersionData.isTemporary;
+
+        QTC_ASSERT(version, continue);
+
+        qCDebug(logs) << "  qt version:" << version->displayName() << " temporary:" << isTemporaryVersion;
+
+        data->archConfig = parse.config().archConfig;
+        data->osType = parse.config().osType;
+
+        qCDebug(logs) << "  archConfig:" << data->archConfig;
+        qCDebug(logs) << "  osType:    " << data->osType;
+        if (version->type() == QLatin1String(IOSQT)
+                && data->osType == QMakeStepConfig::NoOsType) {
+            data->osType = QMakeStepConfig::IphoneOS;
+            qCDebug(logs) << "  IOS found without osType, adjusting osType" << data->osType;
+        }
+
+        if (version->type() == Constants::DESKTOPQT) {
+            const QList<ProjectExplorer::Abi> abis = version->qtAbis();
+            if (!abis.isEmpty()) {
+                ProjectExplorer::Abi abi = abis.first();
+                if (abi.os() == ProjectExplorer::Abi::DarwinOS) {
+                    if (abi.wordWidth() == 64)
+                        data->archConfig = QMakeStepConfig::X86_64;
+                    else
+                        data->archConfig = QMakeStepConfig::X86;
+                    qCDebug(logs) << "  OS X found without targetarch, adjusting archType" << data->archConfig;
+                }
+            }
+        }
+
+        // find qmake arguments and mkspec
+        data->additionalArguments = parse.unparsedArguments();
+        qCDebug(logs) << "  Unparsed arguments:" << data->additionalArguments;
+        data->parsedSpec =
+                QmakeBuildConfiguration::extractSpecFromArguments(&(data->additionalArguments), importPath.toString(), version);
+        qCDebug(logs) << "  Extracted spec:" << data->parsedSpec;
+        qCDebug(logs) << "  Arguments now:" << data->additionalArguments;
+
+        FileName versionSpec = version->mkspec();
+        if (data->parsedSpec.isEmpty() || data->parsedSpec == FileName::fromLatin1("default")) {
+            data->parsedSpec = versionSpec;
+            qCDebug(logs) << "  No parsed spec or default spec => parsed spec now:" << data->parsedSpec;
+        }
+        data->buildConfig = parse.effectiveBuildConfig(data->qtVersionData.qt->defaultBuildConfig());
+        data->config = parse.config();
+
+        result.append(data.release());
+    }
+    return result;
+}
+
+bool QmakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
+{
+    DirectoryData *data = static_cast<DirectoryData *>(directoryData);
+    const QLoggingCategory &logs = MakeFileParse::logging();
+
+    BaseQtVersion *kitVersion = QtKitInformation::qtVersion(k);
+    FileName kitSpec = QmakeKitInformation::mkspec(k);
+    ToolChain *tc = ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx);
+    if (kitSpec.isEmpty() && kitVersion)
+        kitSpec = kitVersion->mkspecFor(tc);
+    QMakeStepConfig::TargetArchConfig kitTargetArch = QMakeStepConfig::NoArch;
+    QMakeStepConfig::OsType kitOsType = QMakeStepConfig::NoOsType;
+    if (tc) {
+        kitTargetArch = QMakeStepConfig::targetArchFor(tc->targetAbi(), kitVersion);
+        kitOsType = QMakeStepConfig::osTypeFor(tc->targetAbi(), kitVersion);
+    }
+    qCDebug(logs) << k->displayName()
+                  << "version:" << (kitVersion == data->qtVersionData.qt)
+                  << "spec:" << (kitSpec == data->parsedSpec)
+                  << "targetarch:" << (kitTargetArch == data->archConfig)
+                  << "ostype:" << (kitOsType == data->osType);
+    return kitVersion == data->qtVersionData.qt
+            && kitSpec == data->parsedSpec
+            && kitTargetArch == data->archConfig
+            && kitOsType == data->osType;
+}
+
+Kit *QmakeProjectImporter::createKit(void *directoryData) const
+{
+    DirectoryData *data = static_cast<DirectoryData *>(directoryData);
+    return createTemporaryKit(data->qtVersionData, data->parsedSpec, data->archConfig, data->osType);
+}
+
+QList<BuildInfo *> QmakeProjectImporter::buildInfoListForKit(const Kit *k, void *directoryData) const
+{
+    QList<BuildInfo *> result;
+    DirectoryData *data = static_cast<DirectoryData *>(directoryData);
+    auto factory = qobject_cast<QmakeBuildConfigurationFactory *>(
+                IBuildConfigurationFactory::find(k, projectFilePath()));
+    if (!factory)
+        return result;
+
+    // create info:
+    std::unique_ptr<QmakeBuildInfo> info(new QmakeBuildInfo(factory));
+    if (data->buildConfig & BaseQtVersion::DebugBuild) {
+        info->buildType = BuildConfiguration::Debug;
+        info->displayName = QCoreApplication::translate("QmakeProjectManager::Internal::QmakeProjectImporter", "Debug");
+    } else {
+        info->buildType = BuildConfiguration::Release;
+        info->displayName = QCoreApplication::translate("QmakeProjectManager::Internal::QmakeProjectImporter", "Release");
+    }
+    info->kitId = k->id();
+    info->buildDirectory = data->buildDirectory;
+    info->additionalArguments = data->additionalArguments;
+    info->config = data->config;
+    info->makefile = data->makefile;
+
+    bool found = false;
+    foreach (BuildInfo *bInfo, result) {
+        if (*static_cast<QmakeBuildInfo *>(bInfo) == *info) {
+            found = true;
+            break;
+        }
+    }
+    if (!found)
+        result << info.release();
+
+    return result;
+}
+
+static ToolChain *preferredToolChain(BaseQtVersion *qtVersion, const FileName &ms,
+                                     const QMakeStepConfig::TargetArchConfig &archConfig)
 {
     const FileName spec = ms.isEmpty() ? qtVersion->mkspec() : ms;
 
@@ -265,13 +284,13 @@ static ToolChain *preferredToolChain(BaseQtVersion *qtVersion, const FileName &m
 Kit *QmakeProjectImporter::createTemporaryKit(const QtProjectImporter::QtVersionData &data,
                                               const FileName &parsedSpec,
                                               const QMakeStepConfig::TargetArchConfig &archConfig,
-                                              const QMakeStepConfig::OsType &osType)
+                                              const QMakeStepConfig::OsType &osType) const
 {
     Q_UNUSED(osType); // TODO use this to select the right toolchain?
     return QtProjectImporter::createTemporaryKit(data,
                                                  [&data, parsedSpec, archConfig](Kit *k) -> void {
-        ToolChainKitInformation::setToolChain(k, preferredToolChain(data.version, parsedSpec, archConfig));
-        if (parsedSpec != data.version->mkspec())
+        ToolChainKitInformation::setToolChain(k, preferredToolChain(data.qt, parsedSpec, archConfig));
+        if (parsedSpec != data.qt->mkspec())
             QmakeKitInformation::setMkspec(k, parsedSpec);
     });
 }

@@ -42,19 +42,19 @@ public:
     QtProjectImporter(const QString &path);
 
     void cleanupKit(ProjectExplorer::Kit *k) override;
-    void makePermanent(ProjectExplorer::Kit *k) override;
+    void makePermanent(ProjectExplorer::Kit *k) const override;
 
-protected:
     class QtVersionData
     {
     public:
-        BaseQtVersion *version = nullptr;
-        bool isTemporaryVersion = true;
+        BaseQtVersion *qt = nullptr;
+        bool isTemporary = true;
     };
 
-    QtVersionData findOrCreateQtVersion(const Utils::FileName &qmakePath);
+protected:
+    QtVersionData findOrCreateQtVersion(const Utils::FileName &qmakePath) const;
     ProjectExplorer::Kit *createTemporaryKit(const QtVersionData &versionData,
-                                             const KitSetupFunction &setup);
+                                             const KitSetupFunction &setup) const;
 };
 
 } // namespace QmakeProjectManager

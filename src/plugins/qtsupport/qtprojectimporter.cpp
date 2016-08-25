@@ -59,17 +59,7 @@ static void cleanTemporaryVersion(BaseQtVersion *version) {
         QtVersionManager::removeVersion(version);
 }
 
-QtProjectImporter::QtProjectImporter(const QString &path) : ProjectImporter(path)
-{ }
-
-void QtProjectImporter::cleanupKit(Kit *k)
-{
-    const int tempId = k->value(QT_IS_TEMPORARY, -1).toInt();
-    k->removeKeySilently(QT_IS_TEMPORARY);
-    cleanTemporaryVersion(QtVersionManager::version(tempId));
-}
-
-void QtProjectImporter::makePermanent(Kit *k)
+void QtProjectImporter::makePermanent(Kit *k) const
 {
     if (!isTemporaryKit(k))
         return;
@@ -88,10 +78,10 @@ void QtProjectImporter::makePermanent(Kit *k)
 }
 
 QtProjectImporter::QtVersionData
-QtProjectImporter::findOrCreateQtVersion(const Utils::FileName &qmakePath)
+QtProjectImporter::findOrCreateQtVersion(const Utils::FileName &qmakePath) const
 {
     QtVersionData result;
-    result.version
+    result.qt
             = Utils::findOrDefault(QtVersionManager::unsortedVersions(),
                                   [&qmakePath](BaseQtVersion *v) -> bool {
                                       QFileInfo vfi = v->qmakeCommand().toFileInfo();
@@ -99,10 +89,10 @@ QtProjectImporter::findOrCreateQtVersion(const Utils::FileName &qmakePath)
                                       return current == qmakePath;
                                   });
 
-    if (result.version) {
+    if (result.qt) {
         // Check if version is a temporary qt
-        const int qtId = result.version->uniqueId();
-        result.isTemporaryVersion = Utils::anyOf(KitManager::kits(), [&qtId](Kit *k) {
+        const int qtId = result.qt->uniqueId();
+        result.isTemporary = Utils::anyOf(KitManager::kits(), [&qtId](Kit *k) {
                 return k->value(QT_IS_TEMPORARY, -1).toInt() == qtId;
             });
         return result;
@@ -110,25 +100,25 @@ QtProjectImporter::findOrCreateQtVersion(const Utils::FileName &qmakePath)
 
     // Create a new version if not found:
     // Do not use the canonical path here...
-    result.version = QtVersionFactory::createQtVersionFromQMakePath(qmakePath);
-    result.isTemporaryVersion = true;
-    if (result.version) {
+    result.qt = QtVersionFactory::createQtVersionFromQMakePath(qmakePath);
+    result.isTemporary = true;
+    if (result.qt) {
         UpdateGuard guard(*this);
-        QtVersionManager::addVersion(result.version);
+        QtVersionManager::addVersion(result.qt);
     }
 
     return result;
 }
 
 Kit *QtProjectImporter::createTemporaryKit(const QtVersionData &versionData,
-                                           const ProjectImporter::KitSetupFunction &setup)
+                                           const ProjectImporter::KitSetupFunction &setup) const
 {
     return ProjectImporter::createTemporaryKit([&setup, &versionData](Kit *k) -> void {
-        QtKitInformation::setQtVersion(k, versionData.version);
-        if (versionData.isTemporaryVersion)
-            k->setValue(QT_IS_TEMPORARY, versionData.version->uniqueId());
+        QtKitInformation::setQtVersion(k, versionData.qt);
+        if (versionData.isTemporary)
+            k->setValue(QT_IS_TEMPORARY, versionData.qt->uniqueId());
 
-        k->setUnexpandedDisplayName(versionData.version->displayName());;
+        k->setUnexpandedDisplayName(versionData.qt->displayName());;
 
         setup(k);
     });
