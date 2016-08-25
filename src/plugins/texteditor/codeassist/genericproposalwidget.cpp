@@ -621,7 +621,7 @@ bool GenericProposalWidget::eventFilter(QObject *o, QEvent *e)
 
         default:
             // Only forward keys that insert text and refine the completion.
-            if (ke->text().isEmpty())
+            if (ke->text().isEmpty() && !(ke == QKeySequence::Paste))
                 return true;
             break;
         }
