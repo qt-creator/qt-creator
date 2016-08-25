@@ -46,6 +46,8 @@ public:
     void invalidateCache(QTextDocument *doc) override;
 
     int indentFor(const QTextBlock &block, const TextEditor::TabSettings &tabSettings) override;
+    TextEditor::IndentationForBlock indentationForBlocks(const QVector<QTextBlock> &blocks,
+                                                         const TextEditor::TabSettings &tabSettings) override;
 };
 
 } // Internal

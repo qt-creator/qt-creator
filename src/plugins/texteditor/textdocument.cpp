@@ -764,29 +764,35 @@ void TextDocument::cleanWhitespace(QTextCursor &cursor, bool cleanIndentation, b
     if (cursor.hasSelection())
         end = d->m_document.findBlock(cursor.selectionEnd()-1).next();
 
+    QVector<QTextBlock> blocks;
     while (block.isValid() && block != end) {
+        if (inEntireDocument || block.revision() != documentLayout->lastSaveRevision)
+            blocks.append(block);
+        block = block.next();
+    }
+    if (blocks.isEmpty())
+        return;
 
-        if (inEntireDocument || block.revision() != documentLayout->lastSaveRevision) {
+    const IndentationForBlock &indentations =
+            d->m_indenter->indentationForBlocks(blocks, d->m_tabSettings);
 
-            QString blockText = block.text();
-            d->m_tabSettings.removeTrailingWhitespace(cursor, block);
-            const int indent = d->m_indenter->indentFor(block, d->m_tabSettings);
-            if (cleanIndentation && !d->m_tabSettings.isIndentationClean(block, indent)) {
-                cursor.setPosition(block.position());
-                int firstNonSpace = d->m_tabSettings.firstNonSpace(blockText);
-                if (firstNonSpace == blockText.length()) {
-                    cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
-                    cursor.removeSelectedText();
-                } else {
-                    int column = d->m_tabSettings.columnAt(blockText, firstNonSpace);
-                    cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, firstNonSpace);
-                    QString indentationString = d->m_tabSettings.indentationString(0, column, column - indent, block);
-                    cursor.insertText(indentationString);
-                }
+    foreach (block, blocks) {
+        QString blockText = block.text();
+        d->m_tabSettings.removeTrailingWhitespace(cursor, block);
+        const int indent = indentations[block.blockNumber()];
+        if (cleanIndentation && !d->m_tabSettings.isIndentationClean(block, indent)) {
+            cursor.setPosition(block.position());
+            int firstNonSpace = d->m_tabSettings.firstNonSpace(blockText);
+            if (firstNonSpace == blockText.length()) {
+                cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+                cursor.removeSelectedText();
+            } else {
+                int column = d->m_tabSettings.columnAt(blockText, firstNonSpace);
+                cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, firstNonSpace);
+                QString indentationString = d->m_tabSettings.indentationString(0, column, column - indent, block);
+                cursor.insertText(indentationString);
             }
         }
-
-        block = block.next();
     }
 }
 

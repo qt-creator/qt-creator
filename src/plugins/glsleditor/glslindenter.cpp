@@ -124,5 +124,24 @@ int GlslIndenter::indentFor(const QTextBlock &block, const TextEditor::TabSettin
     return indent;
 }
 
+TextEditor::IndentationForBlock
+GlslIndenter::indentationForBlocks(const QVector<QTextBlock> &blocks,
+                                   const TextEditor::TabSettings &tabSettings)
+{
+    CppTools::QtStyleCodeFormatter codeFormatter(tabSettings,
+              CppTools::CppToolsSettings::instance()->cppCodeStyle()->codeStyleSettings());
+
+    codeFormatter.updateStateUntil(blocks.last());
+
+    TextEditor::IndentationForBlock ret;
+    foreach (QTextBlock block, blocks) {
+        int indent;
+        int padding;
+        codeFormatter.indentFor(block, &indent, &padding);
+        ret.insert(block.blockNumber(), indent);
+    }
+    return ret;
+}
+
 } // namespace Internal
 } // namespace GlslEditor

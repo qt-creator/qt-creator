@@ -90,3 +90,19 @@ int Indenter::indentFor(const QTextBlock &block,
     codeFormatter.updateStateUntil(block);
     return codeFormatter.indentFor(block);
 }
+
+
+TextEditor::IndentationForBlock
+Indenter::indentationForBlocks(const QVector<QTextBlock> &blocks,
+                               const TextEditor::TabSettings &tabSettings)
+{
+    QmlJSTools::CreatorCodeFormatter codeFormatter(tabSettings);
+
+
+    codeFormatter.updateStateUntil(blocks.last());
+
+    TextEditor::IndentationForBlock ret;
+    foreach (QTextBlock block, blocks)
+        ret.insert(block.blockNumber(), codeFormatter.indentFor(block));
+    return ret;
+}
