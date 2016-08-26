@@ -126,6 +126,22 @@ QDockWidget *DebuggerMainWindow::dockWidget(const QByteArray &dockId) const
     return m_dockForDockId.value(dockId);
 }
 
+void DebuggerMainWindow::onModeChanged(Core::Id mode)
+{
+    if (mode == Debugger::Constants::MODE_DEBUG) {
+        setDockActionsVisible(true);
+        restorePerspective({});
+    } else {
+        setDockActionsVisible(false);
+
+        // Hide dock widgets manually in case they are floating.
+        foreach (QDockWidget *dockWidget, dockWidgets()) {
+            if (dockWidget->isFloating())
+                dockWidget->hide();
+        }
+    }
+}
+
 void DebuggerMainWindow::resetCurrentPerspective()
 {
     loadPerspectiveHelper(m_currentPerspectiveId, false);

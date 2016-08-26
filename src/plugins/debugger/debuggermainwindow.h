@@ -129,6 +129,8 @@ public:
     QByteArray currentPerspective() const { return m_currentPerspectiveId; }
     QStackedWidget *centralWidgetStack() const { return m_centralWidgetStack; }
 
+    void onModeChanged(Core::Id mode);
+
 private:
     QDockWidget *registerDockWidget(const QByteArray &dockId, QWidget *widget);
     void loadPerspectiveHelper(const QByteArray &perspectiveId, bool fromStoredSettings = true);

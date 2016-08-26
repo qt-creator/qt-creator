@@ -1770,6 +1770,8 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     connect(ModeManager::instance(), &ModeManager::currentModeChanged,
         this, &DebuggerPluginPrivate::onModeChanged);
+    connect(ModeManager::instance(), &ModeManager::currentModeChanged,
+            m_mainWindow.data(), &DebuggerMainWindow::onModeChanged);
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
         this, &DebuggerPluginPrivate::updateDebugWithoutDeployMenu);
 
@@ -3386,8 +3388,6 @@ void DebuggerPluginPrivate::onModeChanged(Id mode)
             editor->widget()->setFocus();
 
         m_toolTipManager.debugModeEntered();
-        m_mainWindow->setDockActionsVisible(true);
-        m_mainWindow->restorePerspective({});
 
 //        static bool firstTime = true;
 //        if (firstTime) {
@@ -3405,13 +3405,6 @@ void DebuggerPluginPrivate::onModeChanged(Id mode)
         updateActiveLanguages();
     } else {
         m_toolTipManager.leavingDebugMode();
-        m_mainWindow->setDockActionsVisible(false);
-
-        // Hide dock widgets manually in case they are floating.
-        foreach (QDockWidget *dockWidget, m_mainWindow->dockWidgets()) {
-            if (dockWidget->isFloating())
-                dockWidget->hide();
-        }
     }
 }
 
