@@ -61,7 +61,10 @@ public:
 
 static inline QString msgInvalidConstructor(const char *what)
 {
-    return StaticAnalysisMessages::tr("Do not use \"%1\" as a constructor.").arg(QLatin1String(what));
+    return StaticAnalysisMessages::tr("Do not use \"%1\" as a constructor."
+                                      "\n\nFor more information, see the"
+                                      " \"Checking Code Syntax\" documentation.")
+            .arg(QLatin1String(what));
 }
 
 StaticAnalysisMessages::StaticAnalysisMessages()
