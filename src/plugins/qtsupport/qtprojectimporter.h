@@ -41,9 +41,6 @@ class QTSUPPORT_EXPORT QtProjectImporter : public ProjectExplorer::ProjectImport
 public:
     QtProjectImporter(const QString &path);
 
-    void cleanupKit(ProjectExplorer::Kit *k) override;
-    void makePermanent(ProjectExplorer::Kit *k) const override;
-
     class QtVersionData
     {
     public:
@@ -55,6 +52,10 @@ protected:
     QtVersionData findOrCreateQtVersion(const Utils::FileName &qmakePath) const;
     ProjectExplorer::Kit *createTemporaryKit(const QtVersionData &versionData,
                                              const KitSetupFunction &setup) const;
+
+private:
+    void cleanupTemporaryQt(ProjectExplorer::Kit *k, const QVariantList &vl);
+    void persistTemporaryQt(ProjectExplorer::Kit *k, const QVariantList &vl);
 };
 
 } // namespace QmakeProjectManager

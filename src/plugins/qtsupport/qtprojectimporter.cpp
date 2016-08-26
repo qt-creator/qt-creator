@@ -35,6 +35,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
+#include <utils/qtcassert.h>
 
 #include <QFileInfo>
 #include <QList>
@@ -43,38 +44,11 @@ using namespace ProjectExplorer;
 
 namespace QtSupport {
 
-const Core::Id QT_IS_TEMPORARY("Qt.TempQt");
-
-static void cleanTemporaryVersion(BaseQtVersion *version) {
-    if (!version)
-        return;
-
-    // count how many kits are using this version
-    const int qtId = version->uniqueId();
-    const int users = Utils::count(KitManager::kits(), [qtId](Kit *k) {
-        return k->value(QT_IS_TEMPORARY, -1).toInt() == qtId;
-    });
-
-    if (users == 0) // Remove if no other kit is using it. (The Kit k is not in KitManager::kits()
-        QtVersionManager::removeVersion(version);
-}
-
-void QtProjectImporter::makePermanent(Kit *k) const
+QtProjectImporter::QtProjectImporter(const QString &path) : ProjectImporter(path)
 {
-    if (!isTemporaryKit(k))
-        return;
-
-    UpdateGuard guard(*this);
-    const int tempId = k->value(QT_IS_TEMPORARY, -1).toInt();
-    k->removeKeySilently(QT_IS_TEMPORARY);
-    const int qtId = QtKitInformation::qtVersionId(k);
-    if (tempId != qtId)
-        cleanTemporaryVersion(QtVersionManager::version(tempId));
-
-    foreach (Kit *kit, KitManager::kits())
-        if (kit->value(QT_IS_TEMPORARY, -1).toInt() == tempId)
-            kit->removeKeySilently(QT_IS_TEMPORARY);
-    ProjectImporter::makePermanent(k);
+    useTemporaryKitInformation(QtKitInformation::id(),
+                               [this](Kit *k, const QVariantList &vl) { cleanupTemporaryQt(k, vl); },
+                               [this](Kit *k, const QVariantList &vl) { persistTemporaryQt(k, vl); });
 }
 
 QtProjectImporter::QtVersionData
@@ -92,9 +66,7 @@ QtProjectImporter::findOrCreateQtVersion(const Utils::FileName &qmakePath) const
     if (result.qt) {
         // Check if version is a temporary qt
         const int qtId = result.qt->uniqueId();
-        result.isTemporary = Utils::anyOf(KitManager::kits(), [&qtId](Kit *k) {
-                return k->value(QT_IS_TEMPORARY, -1).toInt() == qtId;
-            });
+        result.isTemporary = hasKitWithTemporaryData(QtKitInformation::id(), qtId);
         return result;
     }
 
@@ -111,17 +83,46 @@ QtProjectImporter::findOrCreateQtVersion(const Utils::FileName &qmakePath) const
 }
 
 Kit *QtProjectImporter::createTemporaryKit(const QtVersionData &versionData,
-                                           const ProjectImporter::KitSetupFunction &setup) const
+                                           const ProjectImporter::KitSetupFunction &additionalSetup) const
 {
-    return ProjectImporter::createTemporaryKit([&setup, &versionData](Kit *k) -> void {
+    return ProjectImporter::createTemporaryKit([&additionalSetup, &versionData, this](Kit *k) -> void {
         QtKitInformation::setQtVersion(k, versionData.qt);
         if (versionData.isTemporary)
-            k->setValue(QT_IS_TEMPORARY, versionData.qt->uniqueId());
+            addTemporaryData(QtKitInformation::id(), versionData.qt->uniqueId(), k);
 
         k->setUnexpandedDisplayName(versionData.qt->displayName());;
 
-        setup(k);
+        additionalSetup(k);
     });
+}
+
+static BaseQtVersion *versionFromVariant(const QVariant &v)
+{
+    bool ok;
+    const int qtId = v.toInt(&ok);
+    QTC_ASSERT(ok, return nullptr);
+    return QtVersionManager::version(qtId);
+}
+
+void QtProjectImporter::cleanupTemporaryQt(Kit *k, const QVariantList &vl)
+{
+    Q_UNUSED(k);
+
+    QTC_ASSERT(vl.count() == 1, return);
+    BaseQtVersion *version = versionFromVariant(vl.at(0));
+    QTC_ASSERT(version, return);
+    QtVersionManager::removeVersion(version);
+}
+
+void QtProjectImporter::persistTemporaryQt(Kit *k, const QVariantList &vl)
+{
+    QTC_ASSERT(vl.count() == 1, return);
+    BaseQtVersion *tmpVersion = versionFromVariant(vl.at(0));
+    BaseQtVersion *actualVersion = QtKitInformation::qtVersion(k);
+
+    // User changed Kit away from temporary Qt that was set up:
+    if (tmpVersion && actualVersion != tmpVersion)
+        QtVersionManager::removeVersion(tmpVersion);
 }
 
 } // namespace QtSupport

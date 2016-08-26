@@ -362,7 +362,7 @@ void TargetSetupPage::handleKitUpdate(Kit *k)
         return;
 
     if (m_importer)
-        m_importer->makePermanent(k);
+        m_importer->makePersistent(k);
 
     TargetSetupWidget *widget = m_widgets.value(k->id());
 
@@ -543,7 +543,7 @@ bool TargetSetupPage::setupProject(Project *project)
 
         Kit *k = widget->kit();
         if (m_importer)
-            m_importer->makePermanent(k);
+            m_importer->makePersistent(k);
         toSetUp << widget->selectedBuildInfoList();
         widget->clearKit();
     }
