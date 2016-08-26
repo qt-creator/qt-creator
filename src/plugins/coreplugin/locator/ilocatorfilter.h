@@ -27,6 +27,8 @@
 
 #include <coreplugin/id.h>
 
+#include <utils/optional.h>
+
 #include <QVariant>
 #include <QFutureInterface>
 #include <QIcon>
@@ -57,7 +59,7 @@ struct LocatorFilterEntry
     LocatorFilterEntry() = default;
 
     LocatorFilterEntry(ILocatorFilter *fromFilter, const QString &name, const QVariant &data,
-                const QIcon &icon = QIcon())
+                Utils::optional<QIcon> icon = Utils::nullopt)
         : filter(fromFilter)
         , displayName(name)
         , internalData(data)
@@ -79,11 +81,9 @@ struct LocatorFilterEntry
     /* can be used by the filter to save more information about the entry */
     QVariant internalData;
     /* icon to display along with the entry */
-    QIcon displayIcon;
+    Utils::optional<QIcon> displayIcon;
     /* file name, if the entry is related to a file, is used e.g. for resolving a file icon */
     QString fileName;
-    /* internal */
-    bool fileIconResolved = false;
     /* highlighting support */
     HighlightInfo highlightInfo{0, 0};
 

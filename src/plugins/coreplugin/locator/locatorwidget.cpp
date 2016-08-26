@@ -182,11 +182,9 @@ QVariant LocatorModel::data(const QModelIndex &index, int role) const
     case ItemDataRoles::ResultIconRole:
         if (index.column() == DisplayNameColumn) {
             LocatorFilterEntry &entry = mEntries[index.row()];
-            if (!entry.fileIconResolved && !entry.fileName.isEmpty() && entry.displayIcon.isNull()) {
-                entry.fileIconResolved = true;
+            if (!entry.displayIcon && !entry.fileName.isEmpty())
                 entry.displayIcon = FileIconProvider::icon(entry.fileName);
-            }
-            return entry.displayIcon;
+            return entry.displayIcon ? entry.displayIcon.value() : QIcon();
         }
         break;
     case Qt::ForegroundRole:
