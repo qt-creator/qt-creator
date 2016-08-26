@@ -960,9 +960,11 @@ static inline SymbolGroupValueVector qMap4Nodes(const SymbolGroupValue &v, Vecto
     SymbolGroupValueVector rc;
     rc.reserve(count);
     SymbolGroupValue n = e["forward"][unsigned(0)];
+    const std::string &type = SymbolGroupValue::stripClassPrefixes(n.type());
     for (VectorIndexType i = 0; i < count && n && n.pointerValue() != ePtr; ++i) {
         rc.push_back(n);
-        n = n["forward"][unsigned(0)];
+        ULONG64 address = n.addressOfAncestor("forward");
+        n = n.addSymbol(address, type);
     }
     return rc;
 }

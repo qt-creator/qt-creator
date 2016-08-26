@@ -139,12 +139,7 @@ SymbolGroupValue SymbolGroupValue::addSymbolForAncestor(const std::string &ances
     const SymbolAncestorInfo info = infoOfAncestor(ancestorName);
     if (info.isValid()) {
         const ULONG64 base = isPointerType(type()) ? pointerValue() : address();
-        const std::string &pointerToType =
-                pointedToSymbolName(base + info.offset, stripClassPrefixes(info.type));
-        if (SymbolGroupNode *ancestorNode =
-                node()->symbolGroup()->addSymbol(module(), pointerToType, "", "", &std::string())) {
-            return SymbolGroupValue(ancestorNode, m_context);
-        }
+        return addSymbol(base + info.offset, stripClassPrefixes(info.type));
     }
     if (isValid() && SymbolGroupValue::verbose) { // Do not report subsequent errors
         DebugPrint dp;
@@ -219,6 +214,22 @@ SymbolAncestorInfo SymbolGroupValue::infoOfAncestor(const std::string &name) con
     if (info.isValid())
         offsets[name] = info;
     return info;
+}
+
+SymbolGroupValue SymbolGroupValue::addSymbol(const ULONG64 address, const std::string &type) const
+{
+    const std::string &pointerToType = pointedToSymbolName(address, type);
+    if (SymbolGroupNode *ancestorNode =
+            node()->symbolGroup()->addSymbol(module(), pointerToType, "", "", &std::string())) {
+        return SymbolGroupValue(ancestorNode, m_context);
+    }
+    if (isValid() && SymbolGroupValue::verbose) { // Do not report subsequent errors
+        DebugPrint dp;
+        dp << this->name() << "::addSymbol(\"" << address << "\", \"" << address << "\") failed. ";
+        formatNodeError(m_node, dp);
+    }
+    return SymbolGroupValue(m_errorMessage);
+
 }
 
 unsigned SymbolGroupValue::childCount() const

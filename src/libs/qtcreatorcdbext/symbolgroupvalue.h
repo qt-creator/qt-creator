@@ -96,6 +96,8 @@ public:
     std::string typeOfAncestor(const std::string &childName) const;
     SymbolAncestorInfo infoOfAncestor(const std::string &name) const;
 
+    SymbolGroupValue addSymbol(const ULONG64 address, const std::string &type) const;
+
     SymbolGroupNode *node() const { return m_node; }
     SymbolGroupValueContext context() const { return m_context; }
 
