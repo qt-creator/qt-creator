@@ -113,6 +113,8 @@ QString MakeStep::effectiveMakeCommand() const
     QString makeCmd = m_makeCmd;
     if (makeCmd.isEmpty()) {
         QmakeBuildConfiguration *bc = qmakeBuildConfiguration();
+        if (!bc)
+            bc = qobject_cast<QmakeBuildConfiguration *>(target()->activeBuildConfiguration());
         ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit());
 
         if (bc && tc)
