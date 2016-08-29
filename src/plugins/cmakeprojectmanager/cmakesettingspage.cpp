@@ -342,6 +342,7 @@ CMakeToolItemConfigWidget::CMakeToolItemConfigWidget(CMakeToolItemModel *model)
 
     m_autoRunCheckBox = new QCheckBox;
     m_autoRunCheckBox->setText(tr("Autorun CMake"));
+    m_autoRunCheckBox->setToolTip(tr("Automatically run CMake after changes to CMake project files."));
 
     QFormLayout *formLayout = new QFormLayout(this);
     formLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
