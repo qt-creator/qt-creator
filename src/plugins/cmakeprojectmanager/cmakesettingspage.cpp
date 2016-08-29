@@ -341,7 +341,7 @@ CMakeToolItemConfigWidget::CMakeToolItemConfigWidget(CMakeToolItemModel *model)
     m_binaryChooser->setHistoryCompleter(QLatin1String("Cmake.Command.History"));
 
     m_autoRunCheckBox = new QCheckBox;
-    m_autoRunCheckBox->setText("Autorun CMake");
+    m_autoRunCheckBox->setText(tr("Autorun CMake"));
 
     QFormLayout *formLayout = new QFormLayout(this);
     formLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
