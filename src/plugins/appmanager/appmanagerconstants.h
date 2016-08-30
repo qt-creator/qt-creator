@@ -23,42 +23,25 @@
 **
 ****************************************************************************/
 
-#include "appmanagerplugin.h"
-#include "appmanagerconstants.h"
+#pragma once
 
-#include "project/appmanagerprojectmanager.h"
-#include "project/appmanagerrunconfigurationfactory.h"
-#include "project/appmanagerruncontrolfactory.h"
-
-#include <utils/mimetypes/mimedatabase.h>
-#include <QtPlugin>
-
-using namespace Utils;
+#include <QObject>
+#include <QtGlobal>
 
 namespace AppManager {
-namespace Internal {
 
-AppManagerPlugin::AppManagerPlugin()
-{
-}
+#define QTC_APPMANAGER_TRACE() qDebug() << Q_FUNC_INFO << __LINE__
 
-bool AppManagerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
-{
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
+namespace Constants {
 
-    MimeDatabase::addMimeTypes(":/appmanager/AppManager.mimetypes.xml");
+const char C_APPMANAGERPROJECT_ID[] = "AppManager.AppManagerProject";
+const char C_APPMANAGERPROJECT_MIMETYPE[] = "text/x-appmanager-project";
 
-    addAutoReleasedObject(new AppManagerProjectManager);
-    addAutoReleasedObject(new AppManagerRunConfigurationFactory);
-    addAutoReleasedObject(new AppManagerRunControlFactory);
+const char C_APPMANAGERRUNCONFIGURATION_ID[] = "AppManager.AppManagerRunConfiguration";
+const QString C_APPMANAGERRUNCONFIGURATION_CODE_KEY = QStringLiteral("AppManager.AppManagerRunConfiguration.Code");
 
-    return true;
-}
+const QString C_APPMANAGER_COMMAND = QStringLiteral("appman");
+const QString C_APPMANAGER_COMMAND_BASE_ARGUMENTS = QStringLiteral("-r --verbose");
 
-void AppManagerPlugin::extensionsInitialized()
-{
-}
-
-} // namespace Internal
+} // namespace Constants
 } // namespace AppManager

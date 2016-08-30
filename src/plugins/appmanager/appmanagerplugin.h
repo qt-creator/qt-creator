@@ -30,15 +30,13 @@
 namespace AppManager {
 namespace Internal {
 
-class AppManagerPlugin
-    : public ExtensionSystem::IPlugin
+class AppManagerPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "AppManager.json")
 
 public:
     AppManagerPlugin();
-    ~AppManagerPlugin();
 
     bool initialize(const QStringList &arguments, QString *errorMessage) override;
     void extensionsInitialized() override;

@@ -23,42 +23,30 @@
 **
 ****************************************************************************/
 
-#include "appmanagerplugin.h"
-#include "appmanagerconstants.h"
+#pragma once
 
-#include "project/appmanagerprojectmanager.h"
-#include "project/appmanagerrunconfigurationfactory.h"
-#include "project/appmanagerruncontrolfactory.h"
+#include <projectexplorer/runconfiguration.h>
 
-#include <utils/mimetypes/mimedatabase.h>
-#include <QtPlugin>
-
-using namespace Utils;
+namespace ProjectExplorer {
+class WorkingDirectoryAspect;
+class ArgumentsAspect;
+class TerminalAspect;
+class LocalEnvironmentAspect;
+}
 
 namespace AppManager {
-namespace Internal {
 
-AppManagerPlugin::AppManagerPlugin()
+class AppManagerRunConfiguration : public ProjectExplorer::RunConfiguration
 {
-}
+    Q_DECLARE_TR_FUNCTIONS(AppManager::AppManagerRunConfiguration)
 
-bool AppManagerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
-{
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
+public:
+    AppManagerRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
 
-    MimeDatabase::addMimeTypes(":/appmanager/AppManager.mimetypes.xml");
+    QWidget *createConfigurationWidget() override;
+    ProjectExplorer::Runnable runnable() const override;
+    QVariantMap toMap() const override;
+    bool fromMap(const QVariantMap &map) override;
+};
 
-    addAutoReleasedObject(new AppManagerProjectManager);
-    addAutoReleasedObject(new AppManagerRunConfigurationFactory);
-    addAutoReleasedObject(new AppManagerRunControlFactory);
-
-    return true;
-}
-
-void AppManagerPlugin::extensionsInitialized()
-{
-}
-
-} // namespace Internal
 } // namespace AppManager

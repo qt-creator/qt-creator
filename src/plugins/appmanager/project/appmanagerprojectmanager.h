@@ -23,42 +23,20 @@
 **
 ****************************************************************************/
 
-#include "appmanagerplugin.h"
-#include "appmanagerconstants.h"
+#pragma once
 
-#include "project/appmanagerprojectmanager.h"
-#include "project/appmanagerrunconfigurationfactory.h"
-#include "project/appmanagerruncontrolfactory.h"
-
-#include <utils/mimetypes/mimedatabase.h>
-#include <QtPlugin>
-
-using namespace Utils;
+#include <projectexplorer/iprojectmanager.h>
 
 namespace AppManager {
-namespace Internal {
 
-AppManagerPlugin::AppManagerPlugin()
+class AppManagerProjectManager : public ProjectExplorer::IProjectManager
 {
-}
+    Q_OBJECT
 
-bool AppManagerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
-{
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
+public:
+    QString mimeType() const override;
 
-    MimeDatabase::addMimeTypes(":/appmanager/AppManager.mimetypes.xml");
+    ProjectExplorer::Project *openProject(const QString &fileName, QString *errorString) override;
+};
 
-    addAutoReleasedObject(new AppManagerProjectManager);
-    addAutoReleasedObject(new AppManagerRunConfigurationFactory);
-    addAutoReleasedObject(new AppManagerRunControlFactory);
-
-    return true;
-}
-
-void AppManagerPlugin::extensionsInitialized()
-{
-}
-
-} // namespace Internal
 } // namespace AppManager

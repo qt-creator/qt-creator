@@ -23,42 +23,35 @@
 **
 ****************************************************************************/
 
-#include "appmanagerplugin.h"
-#include "appmanagerconstants.h"
+#pragma once
 
-#include "project/appmanagerprojectmanager.h"
-#include "project/appmanagerrunconfigurationfactory.h"
-#include "project/appmanagerruncontrolfactory.h"
-
-#include <utils/mimetypes/mimedatabase.h>
-#include <QtPlugin>
-
-using namespace Utils;
+#include <projectexplorer/runconfiguration.h>
 
 namespace AppManager {
-namespace Internal {
 
-AppManagerPlugin::AppManagerPlugin()
+class AppManagerRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
 {
-}
+public:
+    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent, CreationMode mode) const override;
 
-bool AppManagerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
-{
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
+    QString displayNameForId(Core::Id id) const override;
 
-    MimeDatabase::addMimeTypes(":/appmanager/AppManager.mimetypes.xml");
+    bool canCreate(ProjectExplorer::Target *parent, Core::Id id) const override;
 
-    addAutoReleasedObject(new AppManagerProjectManager);
-    addAutoReleasedObject(new AppManagerRunConfigurationFactory);
-    addAutoReleasedObject(new AppManagerRunControlFactory);
+    bool canRestore(ProjectExplorer::Target *parent,
+                    const QVariantMap &map) const override;
 
-    return true;
-}
+    bool canClone(ProjectExplorer::Target *parent,
+                  ProjectExplorer::RunConfiguration *product) const override;
 
-void AppManagerPlugin::extensionsInitialized()
-{
-}
+    ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Target *parent,
+                                             ProjectExplorer::RunConfiguration *product) override;
 
-} // namespace Internal
+private:
+    bool canHandle(ProjectExplorer::Target *parent) const;
+
+    ProjectExplorer::RunConfiguration *doCreate(ProjectExplorer::Target *parent, Core::Id id) override;
+    ProjectExplorer::RunConfiguration *doRestore(ProjectExplorer::Target *parent, const QVariantMap &map) override;
+};
+
 } // namespace AppManager

@@ -23,42 +23,28 @@
 **
 ****************************************************************************/
 
-#include "appmanagerplugin.h"
-#include "appmanagerconstants.h"
+#include "appmanagerprojectmanager.h"
+#include "appmanagerproject.h"
 
-#include "project/appmanagerprojectmanager.h"
-#include "project/appmanagerrunconfigurationfactory.h"
-#include "project/appmanagerruncontrolfactory.h"
+#include "../appmanagerconstants.h"
 
-#include <utils/mimetypes/mimedatabase.h>
-#include <QtPlugin>
-
-using namespace Utils;
+using namespace ProjectExplorer;
 
 namespace AppManager {
-namespace Internal {
 
-AppManagerPlugin::AppManagerPlugin()
+QString AppManagerProjectManager::mimeType() const
 {
+    return QLatin1String(Constants::C_APPMANAGERPROJECT_MIMETYPE);
 }
 
-bool AppManagerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+Project *AppManagerProjectManager::openProject(const QString &fileName, QString *errorString)
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
+    if (!QFileInfo(fileName).isFile()) {
+        *errorString = tr("Failed opening project \"%1\": Project is not a file.").arg(fileName);
+        return nullptr;
+    }
 
-    MimeDatabase::addMimeTypes(":/appmanager/AppManager.mimetypes.xml");
-
-    addAutoReleasedObject(new AppManagerProjectManager);
-    addAutoReleasedObject(new AppManagerRunConfigurationFactory);
-    addAutoReleasedObject(new AppManagerRunControlFactory);
-
-    return true;
+    return new AppManagerProject(this, fileName);
 }
 
-void AppManagerPlugin::extensionsInitialized()
-{
-}
-
-} // namespace Internal
 } // namespace AppManager

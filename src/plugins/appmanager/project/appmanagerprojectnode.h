@@ -23,42 +23,29 @@
 **
 ****************************************************************************/
 
-#include "appmanagerplugin.h"
-#include "appmanagerconstants.h"
+#pragma once
 
-#include "project/appmanagerprojectmanager.h"
-#include "project/appmanagerrunconfigurationfactory.h"
-#include "project/appmanagerruncontrolfactory.h"
+#include <projectexplorer/projectnodes.h>
 
-#include <utils/mimetypes/mimedatabase.h>
-#include <QtPlugin>
-
-using namespace Utils;
+namespace Utils { class FileName; }
 
 namespace AppManager {
-namespace Internal {
 
-AppManagerPlugin::AppManagerPlugin()
+class AppManagerProject;
+
+class AppManagerProjectNode : public ProjectExplorer::ProjectNode
 {
-}
+public:
+    AppManagerProjectNode(const Utils::FileName &projectFilePath);
 
-bool AppManagerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
-{
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
+    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const override;
+    bool canAddSubProject(const QString &) const override;
+    bool addSubProjects(const QStringList &) override;
+    bool removeSubProjects(const QStringList &) override;
+    bool addFiles(const QStringList &, QStringList *) override;
+    bool removeFiles(const QStringList &, QStringList *) override;
+    bool deleteFiles(const QStringList &) override;
+    bool renameFile(const QString &, const QString &) override;
+};
 
-    MimeDatabase::addMimeTypes(":/appmanager/AppManager.mimetypes.xml");
-
-    addAutoReleasedObject(new AppManagerProjectManager);
-    addAutoReleasedObject(new AppManagerRunConfigurationFactory);
-    addAutoReleasedObject(new AppManagerRunControlFactory);
-
-    return true;
-}
-
-void AppManagerPlugin::extensionsInitialized()
-{
-}
-
-} // namespace Internal
 } // namespace AppManager

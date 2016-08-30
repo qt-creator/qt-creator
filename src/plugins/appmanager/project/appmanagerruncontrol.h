@@ -23,42 +23,35 @@
 **
 ****************************************************************************/
 
-#include "appmanagerplugin.h"
-#include "appmanagerconstants.h"
+#pragma once
 
-#include "project/appmanagerprojectmanager.h"
-#include "project/appmanagerrunconfigurationfactory.h"
-#include "project/appmanagerruncontrolfactory.h"
-
-#include <utils/mimetypes/mimedatabase.h>
-#include <QtPlugin>
-
-using namespace Utils;
+#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runnables.h>
 
 namespace AppManager {
-namespace Internal {
 
-AppManagerPlugin::AppManagerPlugin()
+class AppManagerRunConfiguration;
+
+class AppManagerRunControl : public ProjectExplorer::RunControl
 {
-}
+    Q_DECLARE_TR_FUNCTIONS(AppManager::AppManagerRunControl)
 
-bool AppManagerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
-{
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
+public:
+    AppManagerRunControl(AppManagerRunConfiguration *runConfiguration, Core::Id mode);
 
-    MimeDatabase::addMimeTypes(":/appmanager/AppManager.mimetypes.xml");
+    void start() override;
+    StopResult stop() override;
+    bool isRunning() const override;
 
-    addAutoReleasedObject(new AppManagerProjectManager);
-    addAutoReleasedObject(new AppManagerRunConfigurationFactory);
-    addAutoReleasedObject(new AppManagerRunControlFactory);
+private:
+    void processStarted();
+    void processExited(int exitCode, QProcess::ExitStatus status);
+    void slotAppendMessage(const QString &err, Utils::OutputFormat isError);
 
-    return true;
-}
+    QPointer<QObject> m_launcher;
+    ProjectExplorer::ApplicationLauncher m_applicationLauncher;
+    bool m_running;
+    ProjectExplorer::StandardRunnable m_runnable;
+};
 
-void AppManagerPlugin::extensionsInitialized()
-{
-}
-
-} // namespace Internal
 } // namespace AppManager

@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/appmanager">
+        <file>AppManager.mimetypes.xml</file>
+    </qresource>
+</RCC>

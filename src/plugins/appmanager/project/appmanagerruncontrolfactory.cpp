@@ -23,42 +23,26 @@
 **
 ****************************************************************************/
 
-#include "appmanagerplugin.h"
-#include "appmanagerconstants.h"
+#include "appmanagerruncontrolfactory.h"
+#include "appmanagerrunconfiguration.h"
+#include "appmanagerruncontrol.h"
 
-#include "project/appmanagerprojectmanager.h"
-#include "project/appmanagerrunconfigurationfactory.h"
-#include "project/appmanagerruncontrolfactory.h"
-
-#include <utils/mimetypes/mimedatabase.h>
-#include <QtPlugin>
-
-using namespace Utils;
+#include "../appmanagerconstants.h"
 
 namespace AppManager {
-namespace Internal {
 
-AppManagerPlugin::AppManagerPlugin()
+bool AppManagerRunControlFactory::canRun(ProjectExplorer::RunConfiguration *runConfiguration, Core::Id mode) const
 {
+    Q_UNUSED(mode)
+    bool result = dynamic_cast<AppManagerRunConfiguration *>(runConfiguration);
+    return result;
 }
 
-bool AppManagerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+ProjectExplorer::RunControl *AppManagerRunControlFactory::create(ProjectExplorer::RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage)
 {
-    Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
-
-    MimeDatabase::addMimeTypes(":/appmanager/AppManager.mimetypes.xml");
-
-    addAutoReleasedObject(new AppManagerProjectManager);
-    addAutoReleasedObject(new AppManagerRunConfigurationFactory);
-    addAutoReleasedObject(new AppManagerRunControlFactory);
-
-    return true;
+    QTC_ASSERT(canRun(runConfiguration, mode), return 0);
+    return new AppManagerRunControl(static_cast<AppManagerRunConfiguration *>(runConfiguration), mode);
 }
 
-void AppManagerPlugin::extensionsInitialized()
-{
-}
-
-} // namespace Internal
 } // namespace AppManager
