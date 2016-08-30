@@ -39,12 +39,9 @@ class ExtensionCommandContext;
 // Global parameters
 class Parameters
 {
-public:
-    Parameters();
-
-    unsigned maxStringLength;
-    unsigned maxArraySize;
-    unsigned maxStackDepth;
+    unsigned maxStringLength = 10000;
+    unsigned maxArraySize = 100;
+    unsigned maxStackDepth = 1000;
 };
 
 // Global singleton with context.
@@ -53,7 +50,7 @@ class ExtensionContext {
     ExtensionContext(const ExtensionContext&);
     ExtensionContext& operator=(const ExtensionContext&);
 
-    ExtensionContext();
+    ExtensionContext() = default;
 public:
     enum CallFlags {
         CallWithExceptionsHandled = 0x1,
@@ -125,10 +122,9 @@ public:
 
     struct CdbVersion
     {
-        CdbVersion() : major(0), minor(0), patch(0) {}
-        int major;
-        int minor;
-        int patch;
+        int major = 0;
+        int minor = 0;
+        int patch = 0;
         void clear () { major = minor = patch = 0; }
     };
 
@@ -141,14 +137,14 @@ private:
     std::auto_ptr<LocalsSymbolGroup> m_symbolGroup;
     std::auto_ptr<WatchesSymbolGroup> m_watchesSymbolGroup;
 
-    CIDebugClient *m_hookedClient;
-    IDebugEventCallbacks *m_oldEventCallback;
-    IDebugOutputCallbacksWide *m_oldOutputCallback;
-    IDebugEventCallbacks *m_creatorEventCallback;
-    OutputCallback *m_creatorOutputCallback;
+    CIDebugClient *m_hookedClient = nullptr;
+    IDebugEventCallbacks *m_oldEventCallback = nullptr;
+    IDebugOutputCallbacksWide *m_oldOutputCallback = nullptr;
+    IDebugEventCallbacks *m_creatorEventCallback = nullptr;
+    OutputCallback *m_creatorOutputCallback = nullptr;
 
     StopReasonMap m_stopReason;
-    bool m_stateNotification;
+    bool m_stateNotification = true;
     Parameters m_parameters;
 };
 

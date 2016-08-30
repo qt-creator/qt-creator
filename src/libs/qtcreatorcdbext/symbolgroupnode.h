@@ -61,7 +61,6 @@ struct DumpParameters
         DumpAlphabeticallySorted = 0x4
     };
 
-    DumpParameters();
     bool humanReadable() const {  return dumpFlags & DumpHumanReadable; }
     bool isAlphabeticallySorted() const {  return (dumpFlags & DumpAlphabeticallySorted) != 0; }
     // Helper to decode format option arguments.
@@ -80,7 +79,7 @@ struct DumpParameters
                 std::wstring *value, std::string *encoding) const;
     std::string format(const std::string &type, const std::string &iname) const;
 
-    unsigned dumpFlags;
+    unsigned dumpFlags = 0;
     FormatMap typeFormats;
     FormatMap individualFormats;
 };
@@ -153,8 +152,8 @@ protected:
 private:
     const std::string m_name;
     const std::string m_iname;
-    AbstractSymbolGroupNode *m_parent;
-    unsigned m_flags;
+    AbstractSymbolGroupNode *m_parent = nullptr;
+    unsigned m_flags = 0;
 };
 
 class BaseSymbolGroupNode : public AbstractSymbolGroupNode
@@ -289,16 +288,16 @@ private:
     bool runSimpleDumpers(const SymbolGroupValueContext &ctx);
     ULONG nextSymbolIndex() const;
 
-    SymbolGroup *const m_symbolGroup;
+    SymbolGroup *const m_symbolGroup = nullptr;
     const std::string m_module;
-    ULONG m_index;
+    ULONG m_index = 0;
     DEBUG_SYMBOL_PARAMETERS m_parameters; // Careful when using ParentSymbol. It might not be correct.
     std::wstring m_dumperValue;
     std::string m_dumperValueEncoding;
-    int m_dumperType;
-    int m_dumperContainerSize;
-    void *m_dumperSpecialInfo; // Opaque information passed from simple to complex dumpers
-    MemoryHandle *m_memory; // Memory shared between simple dumper and edit value.
+    int m_dumperType = -1;
+    int m_dumperContainerSize = -1;
+    void *m_dumperSpecialInfo = nullptr; // Opaque information passed from simple to complex dumpers
+    MemoryHandle *m_memory = nullptr; // Memory shared between simple dumper and edit value.
 };
 
 class ReferenceSymbolGroupNode : public AbstractSymbolGroupNode
@@ -356,9 +355,9 @@ class SymbolGroupNodeVisitor {
 
     friend class AbstractSymbolGroupNode;
 protected:
-    SymbolGroupNodeVisitor() {}
+    SymbolGroupNodeVisitor() = default;
 public:
-    virtual ~SymbolGroupNodeVisitor() {}
+    virtual ~SymbolGroupNodeVisitor() = default;
 
     // "local.vi" -> "local"
     static std::string parentIname(const std::string &iname);
@@ -427,5 +426,5 @@ private:
     std::ostream &m_os;
     const SymbolGroupValueContext &m_context;
     const DumpParameters &m_parameters;
-    unsigned m_lastDepth;
+    unsigned m_lastDepth = unsigned(-1);
 };

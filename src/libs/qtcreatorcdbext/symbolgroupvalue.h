@@ -40,10 +40,10 @@ class MemoryHandle;
 struct SymbolGroupValueContext
 {
     SymbolGroupValueContext(CIDebugDataSpaces *ds, CIDebugSymbols *s) : dataspaces(ds), symbols(s) {}
-    SymbolGroupValueContext::SymbolGroupValueContext() : dataspaces(0), symbols(0) {}
+    SymbolGroupValueContext() = default;
 
-    CIDebugDataSpaces *dataspaces;
-    CIDebugSymbols *symbols;
+    CIDebugDataSpaces *dataspaces = nullptr;
+    CIDebugSymbols *symbols = nullptr;
 };
 
 class SymbolGroupValue
@@ -170,7 +170,7 @@ private:
     bool ensureExpanded() const;
     SymbolGroupValue typeCastedValue(ULONG64 address, const char *type) const;
 
-    SymbolGroupNode *m_node;
+    SymbolGroupNode *m_node = 0;
     SymbolGroupValueContext m_context;
     mutable std::string m_errorMessage;
 };
@@ -184,8 +184,6 @@ struct QtInfo
     {
         Core, Gui, Widgets, Network, Script, Qml
     };
-
-    QtInfo() : version(0), isStatic(false) {}
 
     static const QtInfo &get(const SymbolGroupValueContext &ctx);
 
@@ -213,8 +211,8 @@ struct QtInfo
 
     std::string moduleName(Module m) const;
 
-    int version;
-    bool isStatic;
+    int version = 0;
+    bool isStatic = false;
     std::string nameSpace;
     std::string libInfix;
     // Fully qualified types with module and namespace

@@ -46,10 +46,6 @@ const char *ExtensionContext::breakPointStopReasonC = "breakpoint";
     \ingroup qtcreatorcdbext
 */
 
-Parameters::Parameters() : maxStringLength(10000), maxArraySize(100) ,maxStackDepth(1000)
-{
-}
-
 /*!  \class StateNotificationBlocker
 
     Blocks state (stopped) notification of ExtensionContext while instantiated
@@ -79,13 +75,6 @@ private:
     Caches a symbolgroup per frame and thread as long as the session is accessible.
     \ingroup qtcreatorcdbext
 */
-
-ExtensionContext::ExtensionContext() :
-    m_hookedClient(0),
-    m_oldEventCallback(0), m_oldOutputCallback(0),
-    m_creatorEventCallback(0), m_creatorOutputCallback(0), m_stateNotification(true)
-{
-}
 
 ExtensionContext::~ExtensionContext()
 {

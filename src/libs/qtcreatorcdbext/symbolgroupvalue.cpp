@@ -68,7 +68,7 @@ typedef std::vector<int>::size_type VectorIndexType;
 unsigned SymbolGroupValue::verbose = 0;
 
 SymbolGroupValue::SymbolGroupValue(const std::string &parentError) :
-    m_node(0), m_errorMessage(parentError)
+    m_errorMessage(parentError)
 {
     if (m_errorMessage.empty())
         m_errorMessage = "Invalid";
@@ -87,7 +87,7 @@ SymbolGroupValue::SymbolGroupValue(SymbolGroupNode *node,
 }
 
 SymbolGroupValue::SymbolGroupValue() :
-    m_node(0), m_errorMessage("Invalid")
+    m_errorMessage("Invalid")
 {
 }
 

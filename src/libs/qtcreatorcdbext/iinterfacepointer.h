@@ -35,7 +35,7 @@ class IInterfacePointer
     IInterfacePointer& operator=(const IInterfacePointer&);
 
 public:
-    inline IInterfacePointer() : m_instance(0), m_hr(S_OK) {}
+    IInterfacePointer() = default;
 
     // IDebugClient4 does not inherit IDebugClient.
     inline explicit IInterfacePointer(IDebugClient *client) : m_instance(0), m_hr(S_OK)  { create(client); }
@@ -76,6 +76,6 @@ private:
             m_hr = S_OK;
         }
     }
-    IInterface *m_instance;
-    HRESULT m_hr;
+    IInterface *m_instance = nullptr;
+    HRESULT m_hr = S_OK;
 };

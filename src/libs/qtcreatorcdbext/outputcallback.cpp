@@ -37,7 +37,7 @@
  */
 
 OutputCallback::OutputCallback(IDebugOutputCallbacksWide *wrapped) :
-    m_wrapped(wrapped), m_recording(false)
+    m_wrapped(wrapped)
 {
 }
 

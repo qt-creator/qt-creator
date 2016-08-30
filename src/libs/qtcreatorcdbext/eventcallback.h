@@ -32,7 +32,7 @@ class EventCallback : public IDebugEventCallbacks
 {
 public:
     explicit EventCallback(IDebugEventCallbacks *wrapped);
-    virtual ~EventCallback();
+    virtual ~EventCallback() = default;
     // IUnknown.
     STDMETHOD(QueryInterface)(
             THIS_

@@ -31,7 +31,7 @@
 
 #include <vector>
 
-StackFrame::StackFrame(ULONG64 a) : address(a), line(0) {}
+StackFrame::StackFrame(ULONG64 a) : address(a) {}
 
 std::wstring StackFrame::fileName() const
 {
@@ -258,10 +258,6 @@ std::string gdbmiThreadList(CIDebugSystemObjects *debugSystemObjects,
     return str.str();
 }
 
-Module::Module() : deferred(false), base(0), size(0)
-{
-}
-
 Modules getModules(CIDebugSymbols *syms, std::string *errorMessage)
 {
     enum { BufSize = 1024 };
@@ -441,9 +437,8 @@ void formatDebugValue(std::ostream &str, const DEBUG_VALUE &dv, CIDebugControl *
     str.flags(savedState);
 }
 
-Register::Register() : subRegister(false), pseudoRegister(false)
+Register::Register()
 {
-    size = 0;
     value.Type = DEBUG_VALUE_INT32;
     value.I32 = 0;
 }

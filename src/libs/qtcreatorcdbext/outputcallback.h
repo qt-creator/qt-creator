@@ -59,6 +59,6 @@ public:
 
 private:
     IDebugOutputCallbacksWide *m_wrapped;
-    bool m_recording;
+    bool m_recording = false;
     std::wstring m_recorded;
 };

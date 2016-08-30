@@ -90,8 +90,9 @@ inline std::ostream &operator<<(std::ostream &str, const DebugNodeFlags &f)
     \ingroup qtcreatorcdbext
 */
 AbstractSymbolGroupNode::AbstractSymbolGroupNode(const std::string &name,
-                                                 const std::string &iname) :
-    m_name(name), m_iname(iname), m_parent(0), m_flags(0)
+                                                 const std::string &iname)
+    : m_name(name)
+    , m_iname(iname)
 {
 }
 
@@ -289,10 +290,6 @@ std::ostream &operator<<(std::ostream &str, const DEBUG_SYMBOL_PARAMETERS &param
     integer values indicating hex/dec, etc.
     \ingroup qtcreatorcdbext
 */
-
-DumpParameters::DumpParameters() : dumpFlags(0)
-{
-}
 
 // typeformats: decode hex-encoded name, value pairs:
 // '414A=2,...' -> map of "AB:2".
@@ -561,10 +558,6 @@ SymbolGroupNode::SymbolGroupNode(SymbolGroup *symbolGroup,
     , m_symbolGroup(symbolGroup)
     , m_module(module)
     , m_index(index)
-    , m_dumperType(-1)
-    , m_dumperContainerSize(-1)
-    , m_dumperSpecialInfo(0)
-    , m_memory(0)
 {
     memset(&m_parameters, 0, sizeof(DEBUG_SYMBOL_PARAMETERS));
     m_parameters.ParentSymbol = DEBUG_ANY_ID;
@@ -1627,9 +1620,10 @@ SymbolGroupNodeVisitor::VisitResult
 
 DumpSymbolGroupNodeVisitor::DumpSymbolGroupNodeVisitor(std::ostream &os,
                                                        const SymbolGroupValueContext &context,
-                                                       const DumpParameters &parameters) :
-    m_os(os), m_context(context), m_parameters(parameters),
-    m_lastDepth(unsigned(-1))
+                                                       const DumpParameters &parameters)
+    : m_os(os)
+    , m_context(context)
+    , m_parameters(parameters)
 {
 }
 

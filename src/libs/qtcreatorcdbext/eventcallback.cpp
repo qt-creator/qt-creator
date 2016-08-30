@@ -47,10 +47,6 @@ EventCallback::EventCallback(IDebugEventCallbacks *wrapped) :
 {
 }
 
-EventCallback::~EventCallback()
-{
-}
-
 STDMETHODIMP EventCallback::QueryInterface(
     THIS_
     IN REFIID InterfaceId,
