@@ -46,6 +46,13 @@ struct SymbolGroupValueContext
     CIDebugSymbols *symbols = nullptr;
 };
 
+struct SymbolAncestorInfo
+{
+    bool isValid() const { return offset >= 0 && !type.empty(); }
+    std::string type;
+    LONG64 offset = -1;
+};
+
 class SymbolGroupValue
 {
     explicit SymbolGroupValue(const std::string &parentError);
@@ -79,6 +86,15 @@ public:
     std::vector<std::string>  innerTypes() const { return innerTypesOf(type()); }
     std::wstring value() const;
     unsigned size() const;
+
+    //offset based access to ancestors
+    SymbolGroupValue addSymbolForAncestor(const std::string &ancestorName) const;
+    ULONG64 readPointerValueFromAncestor(const std::string &name) const;
+    int readIntegerFromAncestor(const std::string &name, int defaultValue = -1) const;
+    LONG64 offsetOfAncestor(const std::string &name) const;
+    ULONG64 addressOfAncestor(const std::string &name) const;
+    std::string typeOfAncestor(const std::string &childName) const;
+    SymbolAncestorInfo infoOfAncestor(const std::string &name) const;
 
     SymbolGroupNode *node() const { return m_node; }
     SymbolGroupValueContext context() const { return m_context; }
@@ -170,6 +186,7 @@ public:
 private:
     bool ensureExpanded() const;
     SymbolGroupValue typeCastedValue(ULONG64 address, const char *type) const;
+    template<class POD> POD readPODFromAncestor(const std::string &name, POD defaultValue) const;
 
     SymbolGroupNode *m_node = 0;
     SymbolGroupValueContext m_context;

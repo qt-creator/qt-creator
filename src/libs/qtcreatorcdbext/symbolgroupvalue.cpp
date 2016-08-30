@@ -40,8 +40,13 @@
 #include <algorithm>
 #include <limits>
 #include <ctype.h>
+#include <unordered_map>
 
 typedef std::vector<int>::size_type VectorIndexType;
+
+typedef std::unordered_map<std::string, SymbolAncestorInfo> AncestorInfos;
+
+static std::unordered_map<std::string, AncestorInfos> typeAncestorInfos;
 
 /*!
     \class SymbolGroupValueContext
@@ -127,6 +132,93 @@ SymbolGroupValue SymbolGroupValue::operator[](unsigned index) const
         formatNodeError(m_node, dp);
     }
     return SymbolGroupValue(m_errorMessage);
+}
+
+SymbolGroupValue SymbolGroupValue::addSymbolForAncestor(const std::string &ancestorName) const
+{
+    const SymbolAncestorInfo info = infoOfAncestor(ancestorName);
+    if (info.isValid()) {
+        const ULONG64 base = isPointerType(type()) ? pointerValue() : address();
+        const std::string &pointerToType =
+                pointedToSymbolName(base + info.offset, stripClassPrefixes(info.type));
+        if (SymbolGroupNode *ancestorNode =
+                node()->symbolGroup()->addSymbol(module(), pointerToType, "", "", &std::string())) {
+            return SymbolGroupValue(ancestorNode, m_context);
+        }
+    }
+    if (isValid() && SymbolGroupValue::verbose) { // Do not report subsequent errors
+        DebugPrint dp;
+        dp << this->name() << "::addSymbolForAncestor(\"" << ancestorName << "\") failed. ";
+        formatNodeError(m_node, dp);
+    }
+    return SymbolGroupValue(m_errorMessage);
+}
+
+int SymbolGroupValue::readIntegerFromAncestor(const std::string &name, int defaultValue) const
+{
+    return readPODFromAncestor<int>(name, defaultValue);
+}
+
+LONG64 SymbolGroupValue::offsetOfAncestor(const std::string &name) const
+{
+    return infoOfAncestor(name).offset;
+}
+
+ULONG64 SymbolGroupValue::addressOfAncestor(const std::string &name) const
+{
+    const ULONG64 base = isPointerType(type()) ? pointerValue() : address();
+    LONG64 offset = offsetOfAncestor(name);
+    return offset >= 0 ? base + ULONG64(offset) : 0;
+}
+
+std::string SymbolGroupValue::typeOfAncestor(const std::string &name) const
+{
+    return infoOfAncestor(name).type;
+}
+
+SymbolAncestorInfo SymbolGroupValue::infoOfAncestor(const std::string &name) const
+{
+    const std::string &typeName = type();
+    AncestorInfos &offsets = typeAncestorInfos[typeName];
+    auto offsetIt = offsets.find(name);
+    if (offsetIt != offsets.end())
+        return offsetIt->second;
+
+    SymbolAncestorInfo info;
+    if (!ensureExpanded())
+        return info;
+
+    if (AbstractSymbolGroupNode *abstractChildNode = m_node->childByIName(name.c_str())) {
+        if (SymbolGroupNode *childNode = abstractChildNode->asSymbolGroupNode()) {
+            SymbolGroupValue child(childNode, m_context);
+            ULONG64 childAddress = child.address();
+            if (childAddress == 0)
+                return info;
+            const ULONG64 base = isPointerType(typeName) ? pointerValue() : address();
+            info.offset = LONG64(childAddress - base);
+            info.type = child.type();
+        }
+    }
+
+    if (!info.isValid()) {
+        // Search recursively for ancestor
+        for (AbstractSymbolGroupNode *abstractChildNode : m_node->children())  {
+            if (SymbolGroupNode *childNode = abstractChildNode->asSymbolGroupNode()) {
+                SymbolGroupValue child(childNode, m_context);
+                if (isPointerType(child.type()))
+                    continue;
+                info = child.infoOfAncestor(name);
+                if (info.isValid()) {
+                    info.offset += offsetOfAncestor(child.name());
+                    break;
+                }
+            }
+        }
+    }
+
+    if (info.isValid())
+        offsets[name] = info;
+    return info;
 }
 
 unsigned SymbolGroupValue::childCount() const
@@ -254,10 +346,27 @@ template<class POD>
     return rc;
 }
 
+template<class POD>
+POD SymbolGroupValue::readPODFromAncestor(const std::string &name, POD defaultValue) const
+{
+    ULONG64 address = addressOfAncestor(name.c_str());
+    if (address == 0)
+        return defaultValue;
+    return readPODFromMemory<POD>(m_context.dataspaces, address, sizeof(POD), defaultValue, 0);
+}
+
 ULONG64 SymbolGroupValue::readPointerValue(CIDebugDataSpaces *ds, ULONG64 address,
                                            std::string *errorMessage /* = 0 */)
 {
     return readPODFromMemory<ULONG64>(ds, address, SymbolGroupValue::pointerSize(), 0, errorMessage);
+}
+
+ULONG64 SymbolGroupValue::readPointerValueFromAncestor(const std::string &name) const
+{
+    ULONG64 address = addressOfAncestor(name.c_str());
+    if (address == 0)
+        return 0;
+    return readPointerValue(m_context.dataspaces, address);
 }
 
 ULONG64 SymbolGroupValue::readUnsignedValue(CIDebugDataSpaces *ds,
