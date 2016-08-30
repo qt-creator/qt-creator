@@ -66,7 +66,7 @@ QVariant TestTreeItem::data(int /*column*/, int role) const
     switch (role) {
     case Qt::DisplayRole:
         if (m_type == Root && childCount() == 0)
-            return QString(m_name + QCoreApplication::translate("TestTreeItem", " (none)"));
+            return QCoreApplication::translate("TestTreeItem", "%1 (none)").arg(m_name);
         else
             return m_name;
     case Qt::ToolTipRole:
