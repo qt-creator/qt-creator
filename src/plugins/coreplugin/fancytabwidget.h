@@ -98,6 +98,8 @@ public:
         tab->text = label;
         tab->hasMenu = hasMenu;
         m_tabs.insert(index, tab);
+        if (m_currentIndex >= index)
+            ++m_currentIndex;
         updateGeometry();
     }
     void setEnabled(int index, bool enabled);
