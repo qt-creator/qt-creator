@@ -86,8 +86,6 @@ void GdbRemoteServerEngine::setupEngine()
         m_uploadProc.start(arglist);
         m_uploadProc.waitForStarted();
     }
-    if (!runParameters().inferior.workingDirectory.isEmpty())
-        m_gdbProc.setWorkingDirectory(runParameters().inferior.workingDirectory);
 
     if (runParameters().remoteSetupNeeded) {
         notifyEngineRequestRemoteSetup();
