@@ -563,7 +563,6 @@ void ICore::openFiles(const QStringList &arguments, ICore::OpenFilesFlags flags)
     m_mainwindow->openFiles(arguments, flags);
 }
 
-
 /*!
     \fn ICore::addCloseCoreListener
 
@@ -578,6 +577,20 @@ void ICore::openFiles(const QStringList &arguments, ICore::OpenFilesFlags flags)
 void ICore::addPreCloseListener(const std::function<bool ()> &listener)
 {
     m_mainwindow->addPreCloseListener(listener);
+}
+
+QString ICore::systemInformation()
+{
+    QString result = PluginManager::instance()->systemInformation() + '\n';
+    result += versionString() + '\n';
+    result += buildCompatibilityString() + '\n';
+#ifdef IDE_REVISION
+    result += "From revision %1\n").arg(QString::fromLatin1(Constants::IDE_REVISION_STR).left(10));
+#endif
+#ifdef QTC_SHOW_BUILD_DATE
+     result += "Built on %1 %2\n").arg(QLatin1String(__DATE__), QLatin1String(__TIME__));
+#endif
+     return result;
 }
 
 void ICore::saveSettings()

@@ -130,6 +130,8 @@ public:
 
     static void addPreCloseListener(const std::function<bool()> &listener);
 
+    static QString systemInformation();
+
 public slots:
     static void saveSettings();
 

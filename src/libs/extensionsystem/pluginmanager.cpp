@@ -36,6 +36,7 @@
 #include <QDir>
 #include <QFile>
 #include <QLibrary>
+#include <QLibraryInfo>
 #include <QMetaProperty>
 #include <QSettings>
 #include <QTextStream>
@@ -47,7 +48,9 @@
 
 #include <utils/algorithm.h>
 #include <utils/executeondestruction.h>
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+#include <utils/synchronousprocess.h>
 
 #ifdef WITH_TESTS
 #include <utils/hostosinfo.h>
@@ -270,6 +273,7 @@ enum { debugLeaks = 0 };
 
 using namespace ExtensionSystem;
 using namespace ExtensionSystem::Internal;
+using namespace Utils;
 
 static Internal::PluginManagerPrivate *d = 0;
 static PluginManager *m_instance = 0;
@@ -420,6 +424,33 @@ void PluginManager::shutdown()
     d->shutdown();
 }
 
+static QString filled(const QString &s, int min)
+{
+    return s + QString(qMax(0, min - s.size()), ' ');
+}
+
+QString PluginManager::systemInformation() const
+{
+    QString result;
+    const QString qtdiagBinary = HostOsInfo::withExecutableSuffix(
+                QLibraryInfo::location(QLibraryInfo::BinariesPath) + "/qtdiag");
+    SynchronousProcess qtdiagProc;
+    const SynchronousProcessResponse response = qtdiagProc.runBlocking(qtdiagBinary, QStringList());
+    if (response.result == SynchronousProcessResponse::Finished)
+        result += response.allOutput() + "\n";
+    result += "Plugin information:\n\n";
+    auto longestSpec = std::max_element(plugins().cbegin(), plugins().cend(),
+                                        [](const PluginSpec *left, const PluginSpec *right) {
+                                            return left->name().size() < right->name().size();
+                                        });
+    int size = (*longestSpec)->name().size();
+    for (const PluginSpec *spec : plugins()) {
+        result += (spec->isEffectivelyEnabled() ? "+ " : " ") + filled(spec->name(), size) +
+                  " " + spec->version() + "\n";
+    }
+    return result;
+}
+
 /*!
     The list of paths were the plugin manager searches for plugins.
 
@@ -525,7 +556,7 @@ QStringList PluginManager::arguments()
 
     \sa setPluginPaths()
 */
-QList<PluginSpec *> PluginManager::plugins()
+const QList<PluginSpec *> PluginManager::plugins()
 {
     return d->pluginSpecs;
 }
@@ -1019,7 +1050,7 @@ static int executeTestPlan(const TestPlan &testPlan)
                 << QLatin1String("-maxwarnings") << QLatin1String("0"); // unlimit output
         qExecArguments << functions;
         // avoid being stuck in QTBUG-24925
-        if (!Utils::HostOsInfo::isWindowsHost())
+        if (!HostOsInfo::isWindowsHost())
             qExecArguments << "-nocrashhandler";
         failedTests += QTest::qExec(testObject, qExecArguments);
     }
@@ -1123,7 +1154,7 @@ void PluginManagerPrivate::startTests()
             continue; // plugin not loaded
 
         const QList<QObject *> testObjects = plugin->createTestObjects();
-        Utils::ExecuteOnDestruction deleteTestObjects([&]() { qDeleteAll(testObjects); });
+        ExecuteOnDestruction deleteTestObjects([&]() { qDeleteAll(testObjects); });
         Q_UNUSED(deleteTestObjects)
 
         const bool hasDuplicateTestObjects = testObjects.size() != testObjects.toSet().size();

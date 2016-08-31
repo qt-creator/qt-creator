@@ -98,6 +98,7 @@ private:
 
     void slotOpenSupportPage();
     void slotReportBug();
+    void slotSystemInformation();
 
     void resetFilter();
     void activateHelpMode();

@@ -79,9 +79,12 @@
 #include <utils/theme/theme.h>
 #include <utils/tooltip/tooltip.h>
 
+#include <QClipboard>
+#include <QDialog>
 #include <QDir>
 #include <QFileInfo>
 #include <QLibraryInfo>
+#include <QPlainTextEdit>
 #include <QTimer>
 #include <QTranslator>
 #include <qplugin.h>
@@ -207,6 +210,11 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     cmd = ActionManager::registerAction(action, "Help.ReportBug");
     ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_SUPPORT);
     connect(action, &QAction::triggered, this, &HelpPlugin::slotReportBug);
+
+    action = new QAction(tr("System Information..."), this);
+    cmd = ActionManager::registerAction(action, "Help.SystemInformation");
+    ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_SUPPORT);
+    connect(action, &QAction::triggered, this, &HelpPlugin::slotSystemInformation);
 
     if (ActionContainer *windowMenu = ActionManager::actionContainer(Core::Constants::M_WINDOW)) {
         // reuse EditorManager constants to avoid a second pair of menu actions
@@ -645,6 +653,54 @@ void HelpPlugin::slotOpenSupportPage()
 void HelpPlugin::slotReportBug()
 {
     QDesktopServices::openUrl(QUrl("https://bugreports.qt.io"));
+}
+
+class DialogClosingOnEscape : public QDialog
+{
+public:
+    DialogClosingOnEscape(QWidget *parent = 0) : QDialog(parent) {}
+    bool event(QEvent *event)
+    {
+        if (event->type() == QEvent::ShortcutOverride) {
+            QKeyEvent *ke = static_cast<QKeyEvent *>(event);
+            if (ke->key() == Qt::Key_Escape && !ke->modifiers()) {
+                ke->accept();
+                return true;
+            }
+        }
+        return QDialog::event(event);
+    }
+};
+
+void HelpPlugin::slotSystemInformation()
+{
+    auto dialog = new DialogClosingOnEscape(ICore::dialogParent());
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->setModal(true);
+    dialog->setWindowTitle(tr("System Information"));
+    auto layout = new QVBoxLayout;
+    dialog->setLayout(layout);
+    auto intro = new QLabel(tr("Use the following to provide more detailed information about your system to bug reports:"));
+    intro->setWordWrap(true);
+    layout->addWidget(intro);
+    const QString text = "{noformat}\n" + ICore::systemInformation() + "\n{noformat}";
+    auto info = new QPlainTextEdit;
+    info->setPlainText(text);
+    layout->addWidget(info);
+    auto buttonBox = new QDialogButtonBox;
+    buttonBox->addButton(QDialogButtonBox::Cancel);
+    buttonBox->addButton(tr("Copy to Clipboard"), QDialogButtonBox::AcceptRole);
+    connect(buttonBox, &QDialogButtonBox::accepted, dialog, &QDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, dialog, &QDialog::reject);
+    layout->addWidget(buttonBox);
+    connect(dialog, &QDialog::accepted, info, [info]() {
+        if (QApplication::clipboard())
+            QApplication::clipboard()->setText(info->toPlainText());
+    });
+    connect(dialog, &QDialog::rejected, dialog, [dialog]{ dialog->close(); });
+    dialog->resize(700, 400);
+    ICore::registerWindow(dialog, Context("Help.SystemInformation"));
+    dialog->show();
 }
 
 void HelpPlugin::doSetupIfNeeded()
