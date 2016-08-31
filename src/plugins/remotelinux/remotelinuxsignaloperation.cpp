@@ -96,7 +96,8 @@ QString RemoteLinuxSignalOperation::interruptProcessByNameCommandLine(const QStr
 
 void RemoteLinuxSignalOperation::killProcess(qint64 pid)
 {
-    run(signalProcessByPidCommandLine(pid, 9));
+    run(QString::fromLatin1("%1; %2").arg(signalProcessByPidCommandLine(pid, 15),
+                                          signalProcessByPidCommandLine(pid, 9)));
 }
 
 void RemoteLinuxSignalOperation::killProcess(const QString &filePath)
