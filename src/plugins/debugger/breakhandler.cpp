@@ -2224,6 +2224,20 @@ void BreakpointItem::updateMarker()
 
     if (!m_marker && !file.isEmpty() && line > 0)
         m_marker = new BreakpointMarker(this, file, line);
+
+    if (m_marker) {
+        QString toolTip;
+        auto addToToolTipText = [&toolTip](const QString &info, const QString &label) {
+            if (info.isEmpty())
+                return;
+            if (!toolTip.isEmpty())
+                toolTip += ' ';
+            toolTip += label + ": '" + info + '\'';
+        };
+        addToToolTipText(m_params.condition, tr("Breakpoint Condition"));
+        addToToolTipText(m_params.command, tr("Debugger Command"));
+        m_marker->setToolTip(toolTip);
+    }
 }
 
 QIcon BreakpointItem::icon() const
