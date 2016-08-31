@@ -8,7 +8,10 @@ QtcProduct {
 
     cpp.defines: base.concat("QTQUICK_LIBRARY")
     cpp.includePaths: base.concat("../designercore/include")
-    cpp.internalVersion: ""
+    Properties {
+        condition: qbs.targetOS.contains("unix")
+        cpp.internalVersion: ""
+    }
 
     Group {
         name: "sources"

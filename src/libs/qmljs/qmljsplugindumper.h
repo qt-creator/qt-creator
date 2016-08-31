@@ -83,7 +83,8 @@ private:
     void loadDependencies(const QStringList &dependencies,
                           QStringList &errors,
                           QStringList &warnings,
-                          QList<LanguageUtils::FakeMetaObject::ConstPtr> &objects) const;
+                          QList<LanguageUtils::FakeMetaObject::ConstPtr> &objects,
+                          QSet<QString> *visited=0) const;
     void loadQmltypesFile(const QStringList &qmltypesFilePaths,
                           const QString &libraryPath,
                           QmlJS::LibraryInfo libraryInfo);

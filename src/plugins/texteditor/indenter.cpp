@@ -118,3 +118,12 @@ int Indenter::indentFor(const QTextBlock &block, const TabSettings &tabSettings)
     Q_UNUSED(tabSettings)
     return -1;
 }
+
+IndentationForBlock Indenter::indentationForBlocks(const QVector<QTextBlock> &blocks,
+                                                   const TabSettings &tabSettings)
+{
+    IndentationForBlock ret;
+    foreach (QTextBlock block, blocks)
+        ret.insert(block.blockNumber(), indentFor(block, tabSettings));
+    return ret;
+}

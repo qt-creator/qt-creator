@@ -186,3 +186,21 @@ CppCodeStyleSettings CppQtStyleIndenter::codeStyleSettings() const
         return m_cppCodeStylePreferences->currentCodeStyleSettings();
     return CppCodeStyleSettings();
 }
+
+TextEditor::IndentationForBlock
+CppQtStyleIndenter::indentationForBlocks(const QVector<QTextBlock> &blocks,
+                                         const TextEditor::TabSettings &tabSettings)
+{
+    QtStyleCodeFormatter codeFormatter(tabSettings, codeStyleSettings());
+
+    codeFormatter.updateStateUntil(blocks.last());
+
+    TextEditor::IndentationForBlock ret;
+    foreach (QTextBlock block, blocks) {
+        int indent;
+        int padding;
+        codeFormatter.indentFor(block, &indent, &padding);
+        ret.insert(block.blockNumber(), indent);
+    }
+    return ret;
+}

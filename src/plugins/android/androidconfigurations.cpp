@@ -922,8 +922,10 @@ QString AndroidConfig::getAvdName(const QString &serialnumber)
     // The input "avd name" might not be echoed as-is, but contain ASCII
     // control sequences.
     for (int i = response.size() - 1; i > 1; --i) {
-        if (response.at(i).startsWith("OK"))
+        if (response.at(i).startsWith("OK")) {
             name = response.at(i - 1);
+            break;
+        }
     }
     return QString::fromLatin1(name).trimmed();
 }

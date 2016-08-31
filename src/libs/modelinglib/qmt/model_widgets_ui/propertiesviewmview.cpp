@@ -65,6 +65,7 @@
 #include "qmt/style/style.h"
 #include "qmt/style/objectvisuals.h"
 
+#include <QCoreApplication>
 #include <QWidget>
 #include <QFormLayout>
 #include <QLineEdit>
@@ -1364,7 +1365,7 @@ void PropertiesView::MView::setTitle(const QList<V *> &elements,
         else
             m_propertiesTitle = pluralTitle;
     } else {
-        m_propertiesTitle = tr("Multi-Selection");
+        m_propertiesTitle = QCoreApplication::translate("qmt::PropertiesView::MView", "Multi-Selection");
     }
 }
 
@@ -1389,7 +1390,7 @@ void PropertiesView::MView::setTitle(const MItem *item, const QList<V *> &elemen
                 m_propertiesTitle = pluralTitle;
             }
         } else {
-            m_propertiesTitle = tr("Multi-Selection");
+            m_propertiesTitle = QCoreApplication::translate("qmt::PropertiesView::MView", "Multi-Selection");
         }
     }
 }

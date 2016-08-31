@@ -25,30 +25,40 @@
 
 #pragma once
 
-#include "qmljstools_global.h"
+#include <QObject>
+#include <QString>
 
-#include <texteditor/indenter.h>
+namespace ProjectExplorer {
+class Project;
+class Target;
+class SessionManager;
+}
 
-namespace QmlJSEditor {
+namespace ClangStaticAnalyzer {
 namespace Internal {
+class ClangStaticAnalyzerTool;
 
-class QMLJSTOOLS_EXPORT Indenter : public TextEditor::Indenter
+class ClangStaticAnalyzerPreconfiguredSessionTests: public QObject
 {
+    Q_OBJECT
+
 public:
-    Indenter();
-    ~Indenter() override;
+    ClangStaticAnalyzerPreconfiguredSessionTests(ClangStaticAnalyzerTool *analyzerTool,
+                                                 QObject *parent = 0);
 
-    bool isElectricCharacter(const QChar &ch) const override;
-    void indentBlock(QTextDocument *doc,
-                     const QTextBlock &block,
-                     const QChar &typedChar,
-                     const TextEditor::TabSettings &tabSettings) override;
-    void invalidateCache(QTextDocument *doc) override;
+private slots:
+    void initTestCase();
 
-    int indentFor(const QTextBlock &block, const TextEditor::TabSettings &tabSettings) override;
-    TextEditor::IndentationForBlock indentationForBlocks(const QVector<QTextBlock> &blocks,
-                                                         const TextEditor::TabSettings &tabSettings) override;
+    void testPreconfiguredSession();
+    void testPreconfiguredSession_data();
+
+private:
+    bool switchToProjectAndTarget(ProjectExplorer::Project *project,
+                                  ProjectExplorer::Target *target);
+
+    ProjectExplorer::SessionManager &m_sessionManager;
+    ClangStaticAnalyzerTool &m_analyzerTool;
 };
 
-} // Internal
-} // QmlJSEditor
+} // namespace Internal
+} // namespace ClangStaticAnalyzerPlugin

@@ -28,7 +28,10 @@ QtcProduct {
         "../../../../share/qtcreator/qml/qmlpuppet/interfaces",
         "../../../../share/qtcreator/qml/qmlpuppet/types",
     ])
-    cpp.internalVersion: ""
+    Properties {
+        condition: qbs.targetOS.contains("unix")
+        cpp.internalVersion: ""
+    }
 
     Group {
         name: "controls"

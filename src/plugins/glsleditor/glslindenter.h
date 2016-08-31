@@ -48,6 +48,8 @@ public:
                         const TextEditor::TabSettings &tabSettings) override;
 
     int indentFor(const QTextBlock &block, const TextEditor::TabSettings &tabSettings) override;
+    TextEditor::IndentationForBlock indentationForBlocks(const QVector<QTextBlock> &blocks,
+                                                         const TextEditor::TabSettings &tabSettings) override;
 };
 
 } // namespace Internal

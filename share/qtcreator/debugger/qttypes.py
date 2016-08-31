@@ -508,9 +508,16 @@ def qdump__QFileInfo(d, value):
             d.putCallItem("ownerid", value, "ownerId")
 
             #QFile::Permissions permissions () const
-            perms = d.call(value, "permissions")
+            try:
+                perms = d.call(value, "permissions")
+            except:
+                perms = None
+
             if perms is None:
-                d.putValue("<not available>")
+                with SubItem(d, "permissions"):
+                    d.putSpecialValue("notcallable")
+                    d.putType(ns + "QFile::Permissions")
+                    d.putNumChild(0)
             else:
                 with SubItem(d, "permissions"):
                     d.putEmptyValue()

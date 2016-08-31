@@ -58,7 +58,7 @@ def main():
         description = "Description %s" % datetime.utcnow()
         type(waitForObject(":uiDescription_QLineEdit"), description)
         typeLines(pasteEditor, "// tst_codepasting %s" % datetime.utcnow())
-        pastedText = pasteEditor.plainText
+        pastedText = str(pasteEditor.plainText)
         expiry = waitForObject(":Send to Codepaster.qt_spinbox_lineedit_QLineEdit")
         expiryDays = random.randint(1, 10)
         replaceEditorContent(expiry, "%d" % expiryDays)
@@ -134,6 +134,8 @@ def main():
         waitFor("not filenameCombo.currentText.isEmpty()", 20000)
         editor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
         test.compare(filenameCombo.currentText, "%s: %s" % (protocol, pasteId), "Verify title of editor")
+        if protocol == "Pastebin.Com" and pastedText.endswith("\n"):
+            pastedText = pastedText[:-1]
         test.compare(editor.plainText, pastedText, "Verify that pasted and fetched texts are the same")
         invokeMenuItem("File", "Close All")
     invokeMenuItem("File", "Open File or Project...")

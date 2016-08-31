@@ -32,6 +32,7 @@
 #include "clangstaticanalyzertool.h"
 
 #ifdef WITH_TESTS
+#include "clangstaticanalyzerpreconfiguredsessiontests.h"
 #include "clangstaticanalyzerunittests.h"
 #endif
 
@@ -149,6 +150,7 @@ QList<QObject *> ClangStaticAnalyzerPlugin::createTestObjects() const
 {
     QList<QObject *> tests;
 #ifdef WITH_TESTS
+    tests << new ClangStaticAnalyzerPreconfiguredSessionTests(m_analyzerTool);
     tests << new ClangStaticAnalyzerUnitTests(m_analyzerTool);
 #endif
     return tests;

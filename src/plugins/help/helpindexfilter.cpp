@@ -87,6 +87,8 @@ QList<LocatorFilterEntry> HelpIndexFilter::matchesFor(QFutureInterface<LocatorFi
         int limit = entry.size() < 2 ? 200 : INT_MAX;
         QSet<QString> results;
         foreach (const QString &filePath, m_helpDatabases) {
+            if (future.isCanceled())
+                return QList<LocatorFilterEntry>();
             QSet<QString> result;
             QMetaObject::invokeMethod(this, "searchMatches", Qt::BlockingQueuedConnection,
                                       Q_RETURN_ARG(QSet<QString>, result),
@@ -111,7 +113,7 @@ QList<LocatorFilterEntry> HelpIndexFilter::matchesFor(QFutureInterface<LocatorFi
     QSet<QString> allresults;
     foreach (const QString &keyword, m_keywordCache) {
         if (future.isCanceled())
-            break;
+            return QList<LocatorFilterEntry>();
         if (keyword.startsWith(entry, cs)) {
             keywords.append(keyword);
             allresults.insert(keyword);

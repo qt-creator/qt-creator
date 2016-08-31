@@ -58,6 +58,8 @@ public:
     void setCodeStylePreferences(TextEditor::ICodeStylePreferences *preferences) override;
     void invalidateCache(QTextDocument *doc) override;
     int indentFor(const QTextBlock &block, const TextEditor::TabSettings &tabSettings) override;
+    TextEditor::IndentationForBlock indentationForBlocks(const QVector<QTextBlock> &blocks,
+                                                         const TextEditor::TabSettings &tabSettings) override;
 private:
     CppCodeStyleSettings codeStyleSettings() const;
     CppCodeStylePreferences *m_cppCodeStylePreferences;

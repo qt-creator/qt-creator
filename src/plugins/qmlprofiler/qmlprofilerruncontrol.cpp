@@ -70,7 +70,6 @@ public:
     Internal::QmlProfilerTool *m_tool = 0;
     QmlProfilerStateManager *m_profilerState = 0;
     QTimer m_noDebugOutputTimer;
-    QmlDebug::QmlOutputParser m_outputParser;
     bool m_running = false;
 };
 
@@ -90,18 +89,9 @@ QmlProfilerRunControl::QmlProfilerRunControl(RunConfiguration *runConfiguration,
     // (application output might be redirected / blocked)
     d->m_noDebugOutputTimer.setSingleShot(true);
     d->m_noDebugOutputTimer.setInterval(4000);
-    connect(&d->m_noDebugOutputTimer, &QTimer::timeout,
-            this, [this](){processIsRunning(Utils::Port());});
-
-    d->m_outputParser.setNoOutputText(ApplicationLauncher::msgWinCannotRetrieveDebuggingOutput());
-    connect(&d->m_outputParser, &QmlDebug::QmlOutputParser::waitingForConnectionOnPort,
-            this, &QmlProfilerRunControl::processIsRunning);
-    connect(&d->m_outputParser, &QmlDebug::QmlOutputParser::noOutputMessage,
-            this, [this](){processIsRunning(Utils::Port());});
-    connect(&d->m_outputParser, &QmlDebug::QmlOutputParser::connectingToSocketMessage,
-            this, [this](){processIsRunning(Utils::Port());});
-    connect(&d->m_outputParser, &QmlDebug::QmlOutputParser::errorMessage,
-            this, &QmlProfilerRunControl::wrongSetupMessageBox);
+    connect(&d->m_noDebugOutputTimer, &QTimer::timeout, this, [this]() {
+        notifyRemoteSetupDone(Utils::Port());
+    });
 }
 
 QmlProfilerRunControl::~QmlProfilerRunControl()
@@ -203,13 +193,7 @@ void QmlProfilerRunControl::cancelProcess()
     emit finished();
 }
 
-void QmlProfilerRunControl::appendMessage(const QString &msg, Utils::OutputFormat format)
-{
-    AnalyzerRunControl::appendMessage(msg, format);
-    d->m_outputParser.processOutput(msg);
-}
-
-void QmlProfilerRunControl::wrongSetupMessageBox(const QString &errorMessage)
+void QmlProfilerRunControl::notifyRemoteSetupFailed(const QString &errorMessage)
 {
     QMessageBox *infoBox = new QMessageBox(ICore::mainWindow());
     infoBox->setIcon(QMessageBox::Critical);
@@ -242,12 +226,6 @@ void QmlProfilerRunControl::wrongSetupMessageBoxFinished(int button)
 }
 
 void QmlProfilerRunControl::notifyRemoteSetupDone(Utils::Port port)
-{
-    d->m_noDebugOutputTimer.stop();
-    emit processRunning(port);
-}
-
-void QmlProfilerRunControl::processIsRunning(Utils::Port port)
 {
     d->m_noDebugOutputTimer.stop();
 

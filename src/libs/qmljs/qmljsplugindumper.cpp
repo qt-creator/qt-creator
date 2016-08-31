@@ -458,19 +458,27 @@ QString PluginDumper::buildQmltypesPath(const QString &name) const
 void PluginDumper::loadDependencies(const QStringList &dependencies,
                                     QStringList &errors,
                                     QStringList &warnings,
-                                    QList<FakeMetaObject::ConstPtr> &objects) const
+                                    QList<FakeMetaObject::ConstPtr> &objects,
+                                    QSet<QString> *visited) const
 {
+    if (dependencies.isEmpty())
+        return;
+
+    QScopedPointer<QSet<QString>> visitedPtr(visited ? visited : new QSet<QString>());
+
     QStringList dependenciesPaths;
     QString path;
     for (const QString &name: dependencies) {
         path = buildQmltypesPath(name);
         if (!path.isNull())
             dependenciesPaths << path;
+        visitedPtr->insert(name);
     }
     QStringList newDependencies;
     loadQmlTypeDescription(dependenciesPaths, errors, warnings, objects, 0, &newDependencies);
+    newDependencies = (newDependencies.toSet() - *visitedPtr).toList();
     if (!newDependencies.isEmpty())
-        loadDependencies(newDependencies, errors, warnings, objects);
+        loadDependencies(newDependencies, errors, warnings, objects, visitedPtr.take());
 }
 
 void PluginDumper::loadQmltypesFile(const QStringList &qmltypesFilePaths,

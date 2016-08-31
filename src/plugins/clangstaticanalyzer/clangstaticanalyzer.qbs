@@ -59,6 +59,8 @@ QtcPlugin {
         name: "Unit tests"
         condition: qtc.testsEnabled
         files: [
+            "clangstaticanalyzerpreconfiguredsessiontests.cpp",
+            "clangstaticanalyzerpreconfiguredsessiontests.h",
             "clangstaticanalyzerunittests.cpp",
             "clangstaticanalyzerunittests.h",
             "clangstaticanalyzerunittests.qrc",
