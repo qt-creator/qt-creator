@@ -56,7 +56,6 @@ TodoPlugin::TodoPlugin() :
 
 TodoPlugin::~TodoPlugin()
 {
-    m_settings.save(Core::ICore::settings());
 }
 
 bool TodoPlugin::initialize(const QStringList& args, QString *errMsg)
@@ -80,6 +79,8 @@ bool TodoPlugin::initialize(const QStringList& args, QString *errMsg)
         return widget;
     });
     ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
+    connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
+            this, [this] { m_settings.save(Core::ICore::settings()); });
 
     return true;
 }

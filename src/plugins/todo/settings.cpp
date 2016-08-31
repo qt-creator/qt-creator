@@ -76,6 +76,8 @@ void Settings::load(QSettings *settings)
 
     scanningScope = static_cast<ScanningScope>(settings->value(QLatin1String(Constants::SCANNING_SCOPE),
         ScanningScopeCurrentFile).toInt());
+    if (scanningScope >= ScanningScopeMax)
+        scanningScope = ScanningScopeCurrentFile;
 
     KeywordList newKeywords;
     const int keywordsSize = settings->beginReadArray(QLatin1String(Constants::KEYWORDS_LIST));

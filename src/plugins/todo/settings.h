@@ -36,13 +36,14 @@ namespace Internal {
 enum ScanningScope {
     ScanningScopeCurrentFile,
     ScanningScopeProject,
-    ScanningScopeSubProject
+    ScanningScopeSubProject,
+    ScanningScopeMax
 };
 
 class Settings {
 public:
     KeywordList keywords;
-    ScanningScope scanningScope;
+    ScanningScope scanningScope = ScanningScopeCurrentFile;
     void save(QSettings *settings) const;
     void load(QSettings *settings);
     void setDefault();
