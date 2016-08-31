@@ -40,7 +40,7 @@ WINDBG_EXTENSION_APIS   ExtensionApis = {sizeof(WINDBG_EXTENSION_APIS), 0, 0, 0,
 const char *ExtensionContext::stopReasonKeyC = "reason";
 const char *ExtensionContext::breakPointStopReasonC = "breakpoint";
 
-/*!  \class Parameters
+/*!  \struct Parameters
 
     Externally configureable parameters.
     \ingroup qtcreatorcdbext
