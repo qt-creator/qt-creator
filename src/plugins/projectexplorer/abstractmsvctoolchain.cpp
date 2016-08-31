@@ -95,11 +95,16 @@ ToolChain::CompilerFlags AbstractMsvcToolChain::compilerFlags(const QStringList 
     if (cxxflags.contains(QLatin1String("/Za")))
         flags &= ~MicrosoftExtensions;
 
-    if (m_abi.osFlavor() == Abi::WindowsMsvc2010Flavor
-            || m_abi.osFlavor() == Abi::WindowsMsvc2012Flavor
-            || m_abi.osFlavor() == Abi::WindowsMsvc2013Flavor
-            || m_abi.osFlavor() == Abi::WindowsMsvc2015Flavor)
-        flags |= StandardCxx11;
+    switch (m_abi.osFlavor()) {
+    case Abi::WindowsMsvc2010Flavor:
+    case Abi::WindowsMsvc2012Flavor: flags |= StandardCxx11;
+        break;
+    case Abi::WindowsMsvc2013Flavor:
+    case Abi::WindowsMsvc2015Flavor: flags |= StandardCxx14;
+        break;
+    default:
+        break;
+    }
 
     return flags;
 }
