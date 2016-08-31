@@ -1,3 +1,4 @@
+isEmpty(LLVM_INSTALL_DIR):LLVM_INSTALL_DIR=$$(LLVM_INSTALL_DIR)
 !isEmpty(LLVM_INSTALL_DIR) {
 include(../../../src/shared/clang/clang_installation.pri)
 requires(!isEmpty(LIBCLANG_LIBS))

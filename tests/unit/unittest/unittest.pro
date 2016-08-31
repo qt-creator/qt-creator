@@ -36,7 +36,7 @@ SOURCES += \
     testutils.cpp \
     utf8test.cpp
 
-!isEmpty($$LIBCLANG_LIBS) {
+!isEmpty(LIBCLANG_LIBS) {
 SOURCES += \
     activationsequencecontextprocessortest.cpp \
     activationsequenceprocessortest.cpp \
@@ -84,7 +84,7 @@ SOURCES += \
     clangupdatedocumentannotationsjobtest.cpp
 }
 
-!isEmpty($$LIBTOOLING_LIBS) {
+!isEmpty(LIBTOOLING_LIBS) {
 SOURCES += \
     refactoringclientserverinprocesstest.cpp \
     refactoringcompilationdatabasetest.cpp \
@@ -110,14 +110,14 @@ HEADERS += \
     mockrefactoringserver.h \
     refactoringclientcallbackmock.h
 
-!isEmpty($$LIBCLANG_LIBS) {
+!isEmpty(LIBCLANG_LIBS) {
 HEADERS += \
     clangasyncjobtest.h \
     chunksreportedmonitor.h \
     matcher-diagnosticcontainer.h
 }
 
-!isEmpty($$LIBTOOLING_LIBS) {
+!isEmpty(LIBTOOLING_LIBS) {
 HEADERS += \
     filesystemutilities.h
 }
