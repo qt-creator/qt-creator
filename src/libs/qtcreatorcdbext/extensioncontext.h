@@ -37,7 +37,7 @@ class OutputCallback;
 class ExtensionCommandContext;
 
 // Global parameters
-class Parameters
+struct Parameters
 {
     unsigned maxStringLength = 10000;
     unsigned maxArraySize = 100;
