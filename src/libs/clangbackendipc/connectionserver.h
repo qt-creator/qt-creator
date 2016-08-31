@@ -106,7 +106,8 @@ private:
 
     void sendAliveMessage()
     {
-        ipcClientProxy->alive();
+        if (ipcClientProxy)
+            ipcClientProxy->alive();
     }
 
     void handleSocketDisconnect()
