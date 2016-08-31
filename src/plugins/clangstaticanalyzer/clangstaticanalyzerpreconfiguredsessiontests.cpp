@@ -147,7 +147,7 @@ static QList<Target *> validTargets(Project *project)
             return false;
         }
 
-        const ToolChain * const toolchain = ToolChainKitInformation::toolChain(kit);
+        const ToolChain * const toolchain = ToolChainKitInformation::toolChain(kit, ToolChain::Language::Cxx);
         QTC_ASSERT(toolchain, return false);
         bool hasClangExecutable;
         clangExecutableFromSettings(toolchain->typeId(), &hasClangExecutable);
