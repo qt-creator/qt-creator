@@ -122,23 +122,16 @@ void SessionModel::resetSessions()
     endResetModel();
 }
 
+void SessionModel::newSession()
+{
+    runNewSessionDialog("", &SessionManager::createSession);
+}
+
 void SessionModel::cloneSession(const QString &session)
 {
-    SessionNameInputDialog newSessionInputDialog(SessionManager::sessions(), nullptr);
-    newSessionInputDialog.setWindowTitle(tr("New Session Name"));
-    newSessionInputDialog.setValue(session + QLatin1String(" (2)"));
-
-    if (newSessionInputDialog.exec() == QDialog::Accepted) {
-        QString newSession = newSessionInputDialog.value();
-        if (newSession.isEmpty() || SessionManager::sessions().contains(newSession))
-            return;
-        beginResetModel();
-        SessionManager::cloneSession(session, newSession);
-        endResetModel();
-
-        if (newSessionInputDialog.isSwitchToRequested())
-            SessionManager::loadSession(newSession);
-    }
+    runNewSessionDialog(session + " (2)", [session](const QString &newName) {
+        SessionManager::cloneSession(session, newName);
+    });
 }
 
 void SessionModel::deleteSession(const QString &session)
@@ -152,20 +145,33 @@ void SessionModel::deleteSession(const QString &session)
 
 void SessionModel::renameSession(const QString &session)
 {
+    runNewSessionDialog(session, [session](const QString &newName) {
+        SessionManager::cloneSession(session, newName);
+    });
+}
+
+void SessionModel::switchToSession(const QString &session)
+{
+    SessionManager::loadSession(session);
+    emit sessionSwitched();
+}
+
+void SessionModel::runNewSessionDialog(const QString &suggestedName, std::function<void(const QString &)> createSession)
+{
     SessionNameInputDialog newSessionInputDialog(SessionManager::sessions(), nullptr);
     newSessionInputDialog.setWindowTitle(tr("New Session Name"));
-    newSessionInputDialog.setValue(session);
+    newSessionInputDialog.setValue(suggestedName);
 
     if (newSessionInputDialog.exec() == QDialog::Accepted) {
         QString newSession = newSessionInputDialog.value();
         if (newSession.isEmpty() || SessionManager::sessions().contains(newSession))
             return;
         beginResetModel();
-        SessionManager::renameSession(session, newSession);
+        createSession(newSession);
         endResetModel();
 
         if (newSessionInputDialog.isSwitchToRequested())
-            SessionManager::loadSession(newSession);
+            switchToSession(newSession);
     }
 }
 } // namespace Internal

@@ -27,6 +27,8 @@
 
 #include <QAbstractListModel>
 
+#include <functional>
+
 namespace ProjectExplorer {
 namespace Internal {
 
@@ -45,11 +47,19 @@ public:
 
     Q_SCRIPTABLE bool isDefaultVirgin() const;
 
+signals:
+    void sessionSwitched();
+
 public slots:
     void resetSessions();
+    void newSession();
     void cloneSession(const QString &session);
     void deleteSession(const QString &session);
     void renameSession(const QString &session);
+    void switchToSession(const QString &session);
+
+private:
+    void runNewSessionDialog(const QString &suggestedName, std::function<void(const QString &)> createSession);
 };
 
 } // namespace Internal
