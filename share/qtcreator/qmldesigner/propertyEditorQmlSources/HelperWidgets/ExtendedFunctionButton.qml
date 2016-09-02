@@ -157,7 +157,7 @@ Item {
             }
 
             width: parent.width - 8
-            height: 160
+            height: 260
 
             radius: 2
             color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate
@@ -171,8 +171,59 @@ Item {
             }
 
             Controls.TextField {
-                verticalAlignment: Text.AlignTop
+
                 id: textField
+
+                property bool completionActive: listView.count > 0
+                property bool dotCompletion: false
+                property int dotCursorPos: 0
+                property string prefix
+
+                function commitCompletion() {
+                    var cursorPos = textField.cursorPosition
+
+                    var string = textField.text
+                    var before = string.slice(0, cursorPos - textField.prefix.length)
+                    var after = string.slice(cursorPos)
+
+                    textField.text = before + listView.currentItem.text + after
+
+                    textField.cursorPosition = cursorPos + listView.currentItem.text.length - prefix.length
+
+                    listView.model = null
+                }
+
+                ListView {
+                    id: listView
+
+                    clip: true
+                    cacheBuffer: 0
+                    snapMode: ListView.SnapToItem
+                    boundsBehavior: Flickable.StopAtBounds
+                    visible: textField.completionActive
+                    delegate: Text {
+                        text: modelData
+                        color: creatorTheme.PanelTextColorLight
+                        Rectangle {
+                            visible: index === listView.currentIndex
+                            z: -1
+                            anchors.fill: parent
+                            color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate
+                        }
+                    }
+
+                    anchors.top: parent.top
+                    anchors.topMargin: 26
+                    anchors.bottomMargin: 12
+                    anchors.bottom: parent.bottom
+                    anchors.left: parent.left
+                    anchors.leftMargin: 6
+                    width: 200
+                    spacing: 2
+                }
+
+                verticalAlignment: Text.AlignTop
+
                 anchors.fill: parent
                 anchors.leftMargin: 8
                 anchors.rightMargin: 8
@@ -181,6 +232,68 @@ Item {
                 onAccepted: {
                     backendValue.expression = textField.text
                     expressionDialog.visible = false
+                }
+
+                Keys.priority: Keys.BeforeItem
+                Keys.onPressed: {
+
+                    if (event.key === Qt.Key_Period) {
+                        textField.dotCursorPos = textField.cursorPosition + 1
+                        var list = autoComplete(textField.text+".", textField.dotCursorPos, false)
+                        textField.prefix = list.pop()
+                        listView.model = list;
+                        textField.dotCompletion = true
+                    } else {
+                        if (textField.completionActive) {
+                            var list2 = autoComplete(textField.text + event.text,
+                                                     textField.cursorPosition + event.text.length,
+                                                     true)
+                            textField.prefix = list2.pop()
+                            listView.model = list2;
+                        }
+                    }
+                }
+
+                Keys.onSpacePressed: {
+                    if (event.modifiers & Qt.ControlModifier) {
+                        var list = autoComplete(textField.text, textField.cursorPosition, true)
+                        textField.prefix = list.pop()
+                        listView.model = list;
+                        textField.dotCompletion = false
+
+                        event.accepted = true;
+
+                        if (list.length == 1)
+                            textField.commitCompletion()
+
+                    } else {
+                        event.accepted = false
+                    }
+                }
+
+                Keys.onReturnPressed: {
+                    event.accepted = false
+                    if (textField.completionActive) {
+                        textField.commitCompletion()
+                        event.accepted = true
+                    }
+                }
+
+                Keys.onEscapePressed: {
+                    event.accepted = true
+                    if (textField.completionActive) {
+                        listView.model = null
+                    }
+                }
+
+                Keys.onUpPressed: {
+                    listView.decrementCurrentIndex()
+                    event.accepted = false
+                }
+
+                Keys.onDownPressed: {
+                    listView.incrementCurrentIndex()
+                    event.accepted = false
                 }
 
                 style: TextFieldStyle {
