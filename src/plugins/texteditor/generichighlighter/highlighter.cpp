@@ -204,6 +204,11 @@ void Highlighter::highlightBlock(const QString &text)
                                     m_currentContext->definition(),
                                     false);
             }
+            if (length == 0) {
+                handleContextChange(m_currentContext->lineEmptyContext(),
+                                    m_currentContext->definition(),
+                                    false);
+            }
             delete progress;
             m_contexts.clear();
 

@@ -45,6 +45,7 @@ namespace {
     static const QLatin1String kDynamic("dynamic");
     static const QLatin1String kFallthrough("fallthrough");
     static const QLatin1String kLineEndContext("lineEndContext");
+    static const QLatin1String kLineEmptyContext("lineEmptyContext");
     static const QLatin1String kLineBeginContext("lineBeginContext");
     static const QLatin1String kFallthroughContext("fallthroughContext");
     static const QLatin1String kBeginRegion("beginRegion");
@@ -224,6 +225,7 @@ void HighlightDefinitionHandler::contextElementStarted(const QXmlAttributes &att
     m_currentContext->setFallthroughContext(atts.value(kFallthroughContext));
     m_currentContext->setLineBeginContext(atts.value(kLineBeginContext));
     m_currentContext->setLineEndContext(atts.value(kLineEndContext));
+    m_currentContext->setLineEmptyContext(atts.value(kLineEmptyContext));
 
     m_initialContext = false;
 }

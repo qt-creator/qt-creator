@@ -57,6 +57,9 @@ public:
     void setLineEndContext(const QString &context);
     const QString &lineEndContext() const;
 
+    void setLineEmptyContext(const QString &context);
+    const QString &lineEmptyContext() const;
+
     void setFallthroughContext(const QString &context);
     const QString &fallthroughContext() const;
 
@@ -88,6 +91,7 @@ private:
     QString m_name;
     QString m_lineBeginContext;
     QString m_lineEndContext;
+    QString m_lineEmptyContext;
     QString m_fallthroughContext;
     QString m_itemData;
     bool m_fallthrough;

@@ -37,7 +37,8 @@ Context::Context() : m_fallthrough(false), m_dynamic(false)
 
 Context::Context(const Context &context) :
     m_id(context.m_id), m_name(context.m_name), m_lineBeginContext(context.m_lineBeginContext),
-    m_lineEndContext(context.m_lineEndContext), m_fallthroughContext(context.m_fallthroughContext),
+    m_lineEndContext(context.m_lineEndContext), m_lineEmptyContext(context.m_lineEmptyContext),
+    m_fallthroughContext(context.m_fallthroughContext),
     m_itemData(context.m_itemData), m_fallthrough(context.m_fallthrough),
     m_dynamic(context.m_dynamic), m_instructions(context.m_instructions),
     m_definition(context.m_definition)
@@ -62,6 +63,7 @@ void Context::swap(Context &context)
     qSwap(m_name, context.m_name);
     qSwap(m_lineBeginContext, context.m_lineBeginContext);
     qSwap(m_lineEndContext, context.m_lineEndContext);
+    qSwap(m_lineEmptyContext, context.m_lineEmptyContext);
     qSwap(m_fallthroughContext, context.m_fallthroughContext);
     qSwap(m_itemData, context.m_itemData);
     qSwap(m_fallthrough, context.m_fallthrough);
@@ -97,6 +99,12 @@ void Context::setLineEndContext(const QString &context)
 
 const QString &Context::lineEndContext() const
 { return m_lineEndContext; }
+
+void Context::setLineEmptyContext(const QString &context)
+{ m_lineEmptyContext = context; }
+
+const QString &Context::lineEmptyContext() const
+{ return m_lineEmptyContext; }
 
 void Context::setFallthroughContext(const QString &context)
 { m_fallthroughContext = context; }
