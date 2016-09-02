@@ -100,6 +100,7 @@ PropertyEditorQmlBackend::PropertyEditorQmlBackend(PropertyEditorView *propertyE
     m_dummyPropertyEditorValue->setValue(QLatin1String("#000000"));
     context()->setContextProperty(QLatin1String("dummyBackendValue"), m_dummyPropertyEditorValue.data());
     m_contextObject->setBackendValues(&m_backendValuesPropertyMap);
+    m_contextObject->setModel(propertyEditor->model());
     m_contextObject->insertInQmlContext(context());
 
     Theming::insertTheme(&m_themeProperties);

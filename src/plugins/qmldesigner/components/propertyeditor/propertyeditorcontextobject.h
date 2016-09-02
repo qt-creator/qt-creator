@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <model.h>
+
 #include <QObject>
 #include <QUrl>
 #include <QQmlPropertyMap>
@@ -71,6 +73,8 @@ public:
     Q_INVOKABLE QColor colorFromString(const QString &colorString);
     Q_INVOKABLE QString translateFunction();
 
+    Q_INVOKABLE QStringList autoComplete(const QString &text, int pos, bool explicitComplete);
+
     int majorVersion() const;
     int majorQtQuickVersion() const;
     void setMajorVersion(int majorVersion);
@@ -109,6 +113,8 @@ public slots:
 
      void setBackendValues(QQmlPropertyMap* newBackendValues);
 
+     void setModel(Model *model);
+
     void triggerSelectionChanged();
 
 private:
@@ -128,6 +134,8 @@ private:
     int m_majorQtQuickVersion;
     QQmlComponent *m_qmlComponent;
     QQmlContext *m_qmlContext;
+
+    Model *m_model = nullptr;
 };
 
 } //QmlDesigner {

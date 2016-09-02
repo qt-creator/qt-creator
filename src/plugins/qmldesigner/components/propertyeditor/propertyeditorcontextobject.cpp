@@ -25,6 +25,8 @@
 
 #include "propertyeditorcontextobject.h"
 
+#include <abstractview.h>
+
 #include <QQmlContext>
 #include <qmldesignerplugin.h>
 
@@ -109,6 +111,14 @@ QString PropertyEditorContextObject::translateFunction()
             DesignerSettingsKey::USE_QSTR_FUNCTION).toBool())
         return QStringLiteral("qsTr");
     return QStringLiteral("qsTrId");
+}
+
+QStringList PropertyEditorContextObject::autoComplete(const QString &text, int pos, bool explicitComplete)
+{
+    if (m_model && m_model->rewriterView())
+        return m_model->rewriterView()->autoComplete(text, pos, explicitComplete);
+
+    return QStringList();
 }
 
 int PropertyEditorContextObject::majorVersion() const
@@ -242,6 +252,11 @@ void PropertyEditorContextObject::setBackendValues(QQmlPropertyMap *newBackendVa
 
     m_backendValues = newBackendValues;
     emit backendValuesChanged();
+}
+
+void PropertyEditorContextObject::setModel(Model *model)
+{
+    m_model = model;
 }
 
 void PropertyEditorContextObject::triggerSelectionChanged()
