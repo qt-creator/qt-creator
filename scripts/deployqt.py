@@ -107,7 +107,7 @@ def ignored_qt_lib_files(path, filenames):
         return []
     return [fn for fn in filenames if is_ignored_windows_file(debug_build, path, fn)]
 
-def copy_qt_libs(target_qt_prefix_path, qt_libs_dir, qt_plugin_dir, qt_import_dir, qt_qml_dir, plugins, imports):
+def copy_qt_libs(target_qt_prefix_path, qt_bin_dir, qt_libs_dir, qt_plugin_dir, qt_import_dir, qt_qml_dir, plugins, imports):
     print "copying Qt libraries..."
 
     if common.is_windows_platform():
@@ -165,6 +165,14 @@ def copy_qt_libs(target_qt_prefix_path, qt_libs_dir, qt_plugin_dir, qt_import_di
         print('{0} -> {1}'.format(qt_qml_dir, target))
         common.copytree(qt_qml_dir, target, ignore=ignored_qt_lib_files, symlinks=True)
 
+    print "Copying qtdiag"
+    bin_dest = target_qt_prefix_path if common.is_windows_platform() else os.path.join(target_qt_prefix_path, 'bin')
+    qtdiag_src = os.path.join(qt_bin_dir, 'qtdiag.exe' if common.is_windows_platform() else 'qtdiag')
+    if not os.path.exists(bin_dest):
+        os.makedirs(bin_dest)
+    shutil.copy(qtdiag_src, bin_dest)
+
+
 def add_qt_conf(target_path, qt_prefix_path):
     qtconf_filepath = os.path.join(target_path, 'qt.conf')
     prefix_path = os.path.relpath(qt_prefix_path, target_path).replace('\\', '/')
@@ -172,6 +180,7 @@ def add_qt_conf(target_path, qt_prefix_path):
     f = open(qtconf_filepath, 'w')
     f.write('[Paths]\n')
     f.write('Prefix={0}\n'.format(prefix_path))
+    f.write('Binaries={0}\n'.format('bin' if common.is_linux_platform() else '.'))
     f.write('Libraries={0}\n'.format('lib' if common.is_linux_platform() else '.'))
     f.write('Plugins=plugins\n')
     f.write('Imports=imports\n')
@@ -306,9 +315,9 @@ def main():
         debug_build = is_debug_build(install_dir)
 
     if common.is_windows_platform():
-        copy_qt_libs(qt_deploy_prefix, QT_INSTALL_BINS, QT_INSTALL_PLUGINS, QT_INSTALL_IMPORTS, QT_INSTALL_QML, plugins, imports)
+        copy_qt_libs(qt_deploy_prefix, QT_INSTALL_BINS, QT_INSTALL_BINS, QT_INSTALL_PLUGINS, QT_INSTALL_IMPORTS, QT_INSTALL_QML, plugins, imports)
     else:
-        copy_qt_libs(qt_deploy_prefix, QT_INSTALL_LIBS, QT_INSTALL_PLUGINS, QT_INSTALL_IMPORTS, QT_INSTALL_QML, plugins, imports)
+        copy_qt_libs(qt_deploy_prefix, QT_INSTALL_BINS, QT_INSTALL_LIBS, QT_INSTALL_PLUGINS, QT_INSTALL_IMPORTS, QT_INSTALL_QML, plugins, imports)
     copy_translations(install_dir, QT_INSTALL_TRANSLATIONS)
     if "LLVM_INSTALL_DIR" in os.environ:
         deploy_libclang(install_dir, os.environ["LLVM_INSTALL_DIR"], chrpath_bin)
@@ -317,6 +326,7 @@ def main():
         print "fixing rpaths..."
         common.fix_rpaths(install_dir, os.path.join(qt_deploy_prefix, 'lib'), qt_install_info, chrpath_bin)
         add_qt_conf(os.path.join(install_dir, 'libexec', 'qtcreator'), qt_deploy_prefix) # e.g. for qml2puppet
+        add_qt_conf(os.path.join(qt_deploy_prefix, 'bin'), qt_deploy_prefix) # e.g. qtdiag
     add_qt_conf(os.path.join(install_dir, 'bin'), qt_deploy_prefix)
 
 if __name__ == "__main__":

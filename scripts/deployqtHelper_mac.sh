@@ -25,16 +25,25 @@
 #
 ############################################################################
 
-[ $# -lt 5 ] && echo "Usage: $(basename $0) <app folder> <qt translations folder> <qt plugin folder> <qt quick imports folder> <qt quick 2 imports folder>" && exit 2
+[ $# -lt 5 ] && echo "Usage: $(basename $0) <app folder> <qt bin folder> <qt translations folder> <qt plugin folder> <qt quick imports folder> <qt quick 2 imports folder>" && exit 2
 [ $(uname -s) != "Darwin" ] && echo "Run this script on Mac OS X" && exit 2;
 
 app_path="$1"
-translation_src="$2"
-plugin_src="$3"
-quick1_src="$4"
-quick2_src="$5"
+bin_src="$2"
+translation_src="$3"
+plugin_src="$4"
+quick1_src="$5"
+quick2_src="$6"
 
 echo "Deploying Qt"
+
+# copy qtdiag
+echo "- Copying qtdiag"
+cp "$bin_src/qtdiag" "$app_path/Contents/MacOS/" || exit 1
+# fix rpath if qtdiag was from binary Qt package
+( xcrun install_name_tool -delete_rpath "@loader_path/../lib" "$app_path/Contents/MacOS/qtdiag" &&
+  xcrun install_name_tool -add_rpath "@loader_path/../Frameworks" "$app_path/Contents/MacOS/qtdiag" ) || true
+
 
 # collect designer plugins
 designerDestDir="$app_path/Contents/PlugIns/designer"
@@ -139,6 +148,7 @@ if [ ! -d "$app_path/Contents/Frameworks/QtCore.framework" ]; then
         "-executable=$app_path/Contents/Resources/ios/iossim_1_8_2" \
         "-executable=$app_path/Contents/Resources/buildoutputparser" \
         "-executable=$app_path/Contents/Resources/cpaster" \
+        "-executable=$app_path/Contents/MacOS/qtdiag" \
         "-executable=$qbsapp" \
         "-executable=$qbsapp-config" \
         "-executable=$qbsapp-config-ui" \
