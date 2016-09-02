@@ -330,6 +330,42 @@ bool isLiteral(AST::Node *ast)
 
 } // Anonymous
 
+QStringList qmlJSAutoComplete(QTextDocument *textDocument,
+                              int position,
+                              const QString &fileName,
+                              TextEditor::AssistReason reason,
+                              const SemanticInfo &info)
+{
+    QStringList list;
+    QmlJSCompletionAssistProcessor processor;
+    QScopedPointer<IAssistProposal> proposal(processor.perform( /* The processor takes ownership. */
+                                                 new QmlJSCompletionAssistInterface(
+                                                     textDocument,
+                                                     position,
+                                                     fileName,
+                                                     reason,
+                                                     info)));
+
+    if (proposal) {
+        GenericProposalModel *model = static_cast<GenericProposalModel*>(proposal->model());
+
+        int basePosition = proposal->basePosition();
+        const QString prefix = textDocument->toPlainText().mid(basePosition,
+                                                               position - basePosition);
+
+        if (reason == TextEditor::ExplicitlyInvoked) {
+            model->filter(prefix);
+            model->sort(prefix);
+        }
+
+        for (int i = 0; i < model->size(); ++i)
+            list.append(proposal->model()->text(i));
+        list.append(prefix);
+    }
+
+    return list;
+}
+
 } // namesapce QmlJSEditor
 
 Q_DECLARE_METATYPE(QmlJSEditor::CompleteFunctionCall)

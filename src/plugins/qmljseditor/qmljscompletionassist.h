@@ -134,4 +134,10 @@ private:
     QIcon m_darkCyanIcon;
 };
 
+QStringList QMLJSEDITOR_EXPORT qmlJSAutoComplete(QTextDocument *textDocument,
+                                                 int position,
+                                                 const QString &fileName,
+                                                 TextEditor::AssistReason reason,
+                                                 const QmlJSTools::SemanticInfo &info);
+
 } // QmlJSEditor
