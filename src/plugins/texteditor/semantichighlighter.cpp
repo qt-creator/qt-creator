@@ -136,9 +136,8 @@ void SemanticHighlighter::clearExtraAdditionalFormatsUntilEnd(
     QTextDocument *doc = highlighter->document();
 
     const int firstBlockToClear = lastBlockNumber + 1;
-    if (firstBlockToClear == doc->blockCount())
+    if (firstBlockToClear <= doc->blockCount())
         return;
-    QTC_ASSERT(firstBlockToClear < doc->blockCount(), return);
 
     QTextBlock b = doc->findBlockByNumber(firstBlockToClear);
 
