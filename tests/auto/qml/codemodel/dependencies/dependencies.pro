@@ -37,5 +37,15 @@ DISTFILES += \
     samples/test_Timer.qml \
     samples/test_Universal.qml \
     samples/test_Window.qml \
-    samples/test_XmlListModel.qml
+    samples/test_XmlListModel.qml \
+    samples/test_CircularGauge.qml \
+    samples/test_ColorDialog.qml \
+    samples/test_Dialog.qml \
+    samples/test_FileDialog.qml \
+    samples/test_FontDialog.qml \
+    samples/test_Gauge.qml \
+    samples/test_PieMenu.qml \
+    samples/test_StatusIndicator.qml \
+    samples/test_Tumbler.qml \
+    samples/test_TumblerColumn.qml
 
