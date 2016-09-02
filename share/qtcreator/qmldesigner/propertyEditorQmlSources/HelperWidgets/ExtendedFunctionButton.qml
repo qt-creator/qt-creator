@@ -223,7 +223,7 @@ Item {
                         }
                     }
                     onClicked: {
-                        backendValue.expression = textField.text
+                        backendValue.expression = textField.text.trim()
                         expressionDialog.visible = false
                     }
                 }
