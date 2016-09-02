@@ -206,7 +206,7 @@ Item {
                             Image {
                                 width: 16
                                 height: 16
-                                source: "image://icons/error"
+                                source: "image://icons/ok"
                                 opacity: {
                                     if (control.pressed)
                                         return 0.8;
@@ -235,7 +235,7 @@ Item {
                             Image {
                                 width: 16
                                 height: 16
-                                source: "image://icons/ok"
+                                source: "image://icons/error"
                                 opacity: {
                                     if (control.pressed)
                                         return 0.8;
