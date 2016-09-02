@@ -36,25 +36,29 @@ public:
     ComponentTextModifier(TextModifier *originalModifier, int componentStartOffset, int componentEndOffset, int rootStartOffset);
     ~ComponentTextModifier();
 
-    virtual void replace(int offset, int length, const QString& replacement);
-    virtual void move(const MoveInfo &moveInfo);
-    virtual void indent(int offset, int length);
+    void replace(int offset, int length, const QString& replacement) override;
+    void move(const MoveInfo &moveInfo) override;
+    void indent(int offset, int length) override;
 
-    virtual int indentDepth() const;
+    int indentDepth() const override;
 
-    virtual void startGroup();
-    virtual void flushGroup();
-    virtual void commitGroup();
+    void startGroup() override;
+    void flushGroup() override;
+    void commitGroup() override;
 
-    virtual QTextDocument *textDocument() const;
-    virtual QString text() const;
-    virtual QTextCursor textCursor() const;
+    QTextDocument *textDocument() const override;
+    QString text() const override;
+    QTextCursor textCursor() const override;
 
-    virtual void deactivateChangeSignals();
-    virtual void reactivateChangeSignals();
+    void deactivateChangeSignals() override;
+    void reactivateChangeSignals() override;
 
-    virtual bool renameId(const QString & /* oldId */, const QString & /* newId */) { return false; }
-    virtual bool moveToComponent(int /* nodeOffset */) { return false; }
+    bool renameId(const QString & /* oldId */, const QString & /* newId */) override
+    { return false; }
+    QStringList autoComplete(QTextDocument * /*textDocument*/, int /*position*/, bool /*explicitComplete*/) override
+    { return QStringList(); }
+    bool moveToComponent(int /* nodeOffset */) override
+    { return false; }
 
 public slots:
     void contentsChange(int position, int charsRemoved, int charsAdded);

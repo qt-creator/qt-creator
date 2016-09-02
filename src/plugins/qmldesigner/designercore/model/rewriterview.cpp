@@ -651,6 +651,14 @@ void RewriterView::moveToComponent(const ModelNode &modelNode)
     textModifier()->moveToComponent(offset);
 }
 
+QStringList RewriterView::autoComplete(const QString &text, int pos, bool explicitComplete)
+{
+    QTextDocument textDocument;
+    textDocument.setPlainText(text);
+
+    return textModifier()->autoComplete(&textDocument, pos, explicitComplete);
+}
+
 void RewriterView::qmlTextChanged()
 {
     if (inErrorState())

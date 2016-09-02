@@ -41,12 +41,13 @@ class QMLDESIGNERCORE_EXPORT BaseTextEditModifier: public PlainTextEditModifier
 public:
     BaseTextEditModifier(TextEditor::TextEditorWidget *textEdit);
 
-    virtual void indent(int offset, int length);
+    void indent(int offset, int length) override;
 
-    virtual int indentDepth() const;
+    int indentDepth() const override;
 
-    virtual bool renameId(const QString &oldId, const QString &newId);
-    virtual bool moveToComponent(int nodeOffset);
+    bool renameId(const QString &oldId, const QString &newId) override;
+    bool moveToComponent(int nodeOffset) override;
+    QStringList autoComplete(QTextDocument *textDocument, int position, bool explicitComplete) override;
 };
 
 } // namespace QmlDesigner

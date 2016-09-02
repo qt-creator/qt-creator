@@ -138,6 +138,8 @@ public:
 
     void moveToComponent(const ModelNode &modelNode);
 
+    QStringList autoComplete(const QString &text, int pos, bool explicitComplete = true);
+
 signals:
     void errorsChanged(const QList<RewriterError> &errors);
 

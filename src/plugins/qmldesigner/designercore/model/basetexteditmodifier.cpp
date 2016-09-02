@@ -30,6 +30,7 @@
 #include <qmljstools/qmljsindenter.h>
 #include <qmljseditor/qmljseditordocument.h>
 #include <qmljseditor/qmljscomponentfromobjectdef.h>
+#include <qmljseditor/qmljscompletionassist.h>
 #include <texteditor/tabsettings.h>
 #include <utils/changeset.h>
 
@@ -137,4 +138,17 @@ bool BaseTextEditModifier::moveToComponent(int nodeOffset)
         }
     }
     return false;
+}
+
+QStringList BaseTextEditModifier::autoComplete(QTextDocument *textDocument, int position, bool explicitComplete)
+{
+    if (TextEditor::TextEditorWidget *bte = qobject_cast<TextEditor::TextEditorWidget*>(plainTextEdit()))
+        if (QmlJSEditor::QmlJSEditorDocument *document
+                = qobject_cast<QmlJSEditor::QmlJSEditorDocument *>(bte->textDocument()))
+            return QmlJSEditor::qmlJSAutoComplete(textDocument,
+                                                  position,
+                                                  document->filePath().toString(),
+                                                  explicitComplete ? TextEditor::ExplicitlyInvoked : TextEditor::ActivationCharacter,
+                                                  document->semanticInfo());
+    return QStringList();
 }
