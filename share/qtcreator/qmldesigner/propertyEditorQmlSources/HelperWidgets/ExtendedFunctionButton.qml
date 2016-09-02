@@ -121,6 +121,8 @@ Item {
             onTriggered: {
                 textField.text = backendValue.expression
                 expressionDialog.visible = true
+                textField.forceActiveFocus()
+
             }
         }
     }
@@ -128,13 +130,14 @@ Item {
     Item {
 
         Rectangle {
-             anchors.fill: parent
-             color: creatorTheme.QmlDesignerBackgroundColorDarker
-             opacity: 0.6
+            anchors.fill: parent
+            color: creatorTheme.QmlDesignerBackgroundColorDarker
+            opacity: 0.6
         }
 
         MouseArea {
-             anchors.fill: parent
+            anchors.fill: parent
+            onDoubleClicked: expressionDialog.visible = false
         }
 
 
