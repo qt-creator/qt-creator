@@ -242,7 +242,11 @@ void SubmitEditorWidget::registerActions(QAction *editorUndoAction, QAction *edi
         d->m_ui.buttonLayout->addWidget(d->m_submitButton);
         if (!d->m_submitShortcut)
             d->m_submitShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Return), this);
-        connect(d->m_submitShortcut, &QShortcut::activated, submitAction, &QAction::trigger);
+        connect(d->m_submitShortcut, &QShortcut::activated,
+                submitAction, [submitAction] {
+            if (submitAction->isEnabled())
+                submitAction->trigger();
+        });
     }
     if (diffAction) {
         if (debug)
