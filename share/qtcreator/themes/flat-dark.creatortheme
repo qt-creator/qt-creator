@@ -165,7 +165,7 @@ Welcome_BackgroundColor=normalBackground
 Welcome_ButtonBackgroundColor=normalBackground
 Welcome_DividerColor=ff555555
 Welcome_HoverColor=ff444444
-Welcome_LinkColor=ff5caa15
+Welcome_LinkColor=ff7fc63c
 
 VcsBase_FileStatusUnknown_TextColor=text
 VcsBase_FileAdded_TextColor=ff00ff00
