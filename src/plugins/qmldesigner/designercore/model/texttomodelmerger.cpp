@@ -74,7 +74,8 @@ static inline QStringList supportedVersionsList()
         QStringLiteral("2.0"), QStringLiteral("2.1"),
         QStringLiteral("2.2"), QStringLiteral("2.3"),
         QStringLiteral("2.4"), QStringLiteral("2.5"),
-        QStringLiteral("2.6"), QStringLiteral("2.7")
+        QStringLiteral("2.6"), QStringLiteral("2.7"),
+        QStringLiteral("2.8")
     };
     return list;
 }
