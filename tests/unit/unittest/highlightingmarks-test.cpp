@@ -107,7 +107,7 @@ struct Data {
     Utf8String filePath{Utf8StringLiteral(TESTDATA_DIR"/highlightingmarks.cpp")};
     Document document{filePath,
                       ProjectPart(Utf8StringLiteral("projectPartId"),
-                                  {Utf8StringLiteral("-std=c++14")}),
+                                  {Utf8StringLiteral("-std=c++14"), Utf8StringLiteral("-I" TESTDATA_DIR)}),
                       {},
                       documents};
     TranslationUnit translationUnit{filePath,
