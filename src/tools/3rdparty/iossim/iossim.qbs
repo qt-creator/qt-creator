@@ -20,7 +20,7 @@ QtcTool {
         "dvtiphonesimulatorremoteclient/dvtiphonesimulatorremoteclient.h"
     ]
     cpp.includePaths: ["."]
-    cpp.linkerFlags: base.concat(["-fobjc-link-runtime"])
+    cpp.driverFlags: base.concat(["-fobjc-link-runtime"])
     cpp.frameworks: base.concat(["Foundation", "CoreServices", "ApplicationServices", "IOKit",
                                  "AppKit"])
     cpp.frameworkPaths: base.concat("/System/Library/PrivateFrameworks")
