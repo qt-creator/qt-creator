@@ -124,7 +124,9 @@ void SessionModel::resetSessions()
 
 void SessionModel::newSession()
 {
-    runNewSessionDialog("", &SessionManager::createSession);
+    runNewSessionDialog("", [](const QString &newName) {
+        SessionManager::createSession(newName);
+    });
 }
 
 void SessionModel::cloneSession(const QString &session)
