@@ -66,3 +66,59 @@ With code like
        <QString> = {"Hello"}
 
 
+
+
+In order to hook a new debugger backend into this "common pretty printing system",
+the backend should expose a Python API containing at least the following:
+
+
+class Value:
+    name() -> string                      # Name of this thing or None
+    type() -> Type                        # Type of this value
+    asBytes() -> bytes                    # Memory contents of this object, or None
+    address() -> int                      # Address of this object, or None
+    dereference() -> Value                # Dereference if value is pointer,
+                                          # remove reference if value is reference.
+    hasChildren() -> bool                 # Whether this object has subobjects.
+
+    childFromName(string name) -> Value   # (optional)
+    childFromField(Field field) -> Value  # (optional)
+    childFromIndex(int position) -> Value # (optional)
+
+
+class Type:
+    name() -> string                      # Full name of this type
+    bitsize() -> int                      # Size of type in bits
+    arrayType() -> bool                   # Is this an array?
+    pointerType() -> bool                 # Is this a pointer
+    referenceType() -> bool               # ...
+    functionType() -> bool
+    typedefedType() -> bool
+    enumType() -> bool
+    integralType() -> bool
+    floatingPointType() -> bool
+
+    unqualified() -> Type                 # Type without const/volatile
+    target() -> Type                      # Type dereferenced if it is a pointer type, element if array etc
+    stripTypedef() -> Type                # Type with typedefs removed
+    fields() -> [ Fields ]                # List of fields (member and base classes) of this type
+
+    templateArgument(int pos, bool numeric) -> Type or int   # (optional)
+
+class Field:
+    name() -> string                      # Name of member, None for anonymous items
+    isBaseClass() -> bool                 # Whether this is a base class or normal member
+    type() -> Type                        # Type of this member
+    parentType() -> Type                  # Type of class this member belongs to
+    bitsize() -> int                      # Size of member in bits
+    bitpos() -> int                       # Offset of member in parent type in bits
+
+
+
+parseAndEvaluate(string: expr) -> Value   # or None if not possible.
+lookupType(string: name) -> Type          # or None if not possible.
+listOfLocals() -> [ Value ]               # List of items currently in scope.
+
+
+
+
