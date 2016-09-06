@@ -111,6 +111,8 @@ public:
 
     void addPreCloseListener(const std::function<bool()> &listener);
 
+    void saveSettings();
+
 signals:
     void newItemDialogRunningChanged();
 
@@ -149,7 +151,7 @@ private:
     void registerDefaultActions();
 
     void readSettings();
-    void writeSettings();
+    void saveWindowSettings();
 
     ICore *m_coreImpl;
     QStringList m_aboutInformation;

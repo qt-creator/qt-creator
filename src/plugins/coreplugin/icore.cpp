@@ -596,6 +596,7 @@ QString ICore::systemInformation()
 void ICore::saveSettings()
 {
     emit m_instance->saveSettingsRequested();
+    m_mainwindow->saveSettings();
 
     ICore::settings(QSettings::SystemScope)->sync();
     ICore::settings(QSettings::UserScope)->sync();

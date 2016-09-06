@@ -388,7 +388,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
     emit m_coreImpl->coreAboutToClose();
 
-    writeSettings();
+    saveWindowSettings();
 
     m_navigationWidget->closeSubWidgets();
 
@@ -980,13 +980,26 @@ void MainWindow::readSettings()
     m_rightPaneWidget->readSettings(settings);
 }
 
-void MainWindow::writeSettings()
+void MainWindow::saveSettings()
 {
     QSettings *settings = PluginManager::settings();
     settings->beginGroup(QLatin1String(settingsGroup));
 
     if (!(m_overrideColor.isValid() && StyleHelper::baseColor() == m_overrideColor))
         settings->setValue(QLatin1String(colorKey), StyleHelper::requestedBaseColor());
+
+    settings->endGroup();
+
+    DocumentManager::saveSettings();
+    ActionManager::saveSettings();
+    EditorManagerPrivate::saveSettings();
+    m_navigationWidget->saveSettings(settings);
+}
+
+void MainWindow::saveWindowSettings()
+{
+    QSettings *settings = PluginManager::settings();
+    settings->beginGroup(QLatin1String(settingsGroup));
 
     // On OS X applications usually do not restore their full screen state.
     // To be able to restore the correct non-full screen geometry, we have to put
@@ -999,11 +1012,6 @@ void MainWindow::writeSettings()
     settings->setValue(QLatin1String(modeSelectorVisibleKey), ModeManager::isModeSelectorVisible());
 
     settings->endGroup();
-
-    DocumentManager::saveSettings();
-    ActionManager::saveSettings();
-    EditorManagerPrivate::saveSettings();
-    m_navigationWidget->saveSettings(settings);
 }
 
 void MainWindow::updateAdditionalContexts(const Context &remove, const Context &add,
