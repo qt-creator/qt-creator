@@ -28,24 +28,23 @@ from dumper import *
 
 
 def qdump__QAtomicInt(d, value):
-    d.putValue(d.extractInt(value.address))
+    d.putValue(value.integer())
     d.putNumChild(0)
 
 
 def qdump__QBasicAtomicInt(d, value):
-    d.putValue(d.extractInt(value.address))
+    d.putValue(value.integer())
     d.putNumChild(0)
 
 
 def qdump__QAtomicPointer(d, value):
     d.putType(value.type)
-    q = d.extractPointer(value.address)
-    p = toInteger(q)
+    p = value.extractPointer()
     d.putValue("@0x%x" % p)
     d.putNumChild(1 if p else 0)
     if d.isExpanded():
         with Children(d):
-           d.putSubItem("[pointee]", q.dereference())
+           d.putSubItem("[pointee]", value.dereference())
 
 def qform__QByteArray():
     return [Latin1StringFormat, SeparateLatin1StringFormat,
@@ -71,7 +70,7 @@ def qdump__QByteArray(d, value):
         d.putArrayData(data, size, d.charType())
 
 def qdump__QArrayData(d, value):
-    data, size, alloc = d.byteArrayDataHelper(d.addressOf(value))
+    data, size, alloc = d.byteArrayDataHelper(value.address())
     d.check(alloc == 0 or (0 <= size and size <= alloc and alloc <= 100000000))
     d.putValue(d.readMemory(data, size), "latin1")
     d.putNumChild(1)
@@ -100,7 +99,7 @@ def qdump__QBitArray(d, value):
 
 
 def qdump__QChar(d, value):
-    d.putValue(int(value["ucs"]))
+    d.putValue(d.extractUShort(value))
     d.putNumChild(0)
 
 
@@ -115,7 +114,7 @@ def qdump_X_QAbstractItemModel(d, value):
     #displayFormat == EnhancedFormat:
     # Create a default-constructed QModelIndex on the stack.
     try:
-        ri = d.makeValue(d.qtNamespace() + "QModelIndex", "-1, -1, 0, 0")
+        ri = d.pokeValue(d.qtNamespace() + "QModelIndex", "-1, -1, 0, 0")
         this_ = d.makeExpression(value)
         ri_ = d.makeExpression(ri)
         rowCount = int(d.parseAndEvaluate("%s.rowCount(%s)" % (this_, ri_)))
@@ -161,7 +160,7 @@ def qdump_X_QModelIndex(d, value):
     except:
         p = value["i"]
     m = value["m"]
-    if d.isNull(m) or r < 0 or c < 0:
+    if m.integer() == 0 or r < 0 or c < 0:
         d.putValue("(invalid)")
         d.putPlainChildren(value)
         return
@@ -170,7 +169,7 @@ def qdump_X_QModelIndex(d, value):
     mm = mm.cast(mm.type.unqualified())
     ns = d.qtNamespace()
     try:
-        mi = d.makeValue(ns + "QModelIndex", "%s,%s,%s,%s" % (r, c, p, m))
+        mi = d.pokeValue(ns + "QModelIndex", "%s,%s,%s,%s" % (r, c, p, m))
         mm_ = d.makeExpression(mm)
         mi_ = d.makeExpression(mi)
         rowCount = int(d.parseAndEvaluate("%s.rowCount(%s)" % (mm_, mi_)))
@@ -183,7 +182,7 @@ def qdump_X_QModelIndex(d, value):
         # Access DisplayRole as value
         val = d.parseAndEvaluate("%s.data(%s, 0)" % (mm_, mi_))
         v = val["d"]["data"]["ptr"]
-        d.putStringValue(d.makeValue(ns + 'QString', v))
+        d.putStringValue(d.pokeValue(ns + 'QString', v))
     except:
         d.putValue("")
 
@@ -200,12 +199,12 @@ def qdump_X_QModelIndex(d, value):
                             % (mm_, row, column, mi_))
                         d.putItem(mi2)
                         i = i + 1
-            d.putCallItem("parent", value, "parent")
+            d.putCallItem("parent", ns + "QModelIndex", value, "parent")
     #gdb.execute("call free($mi)")
 
 
 def qdump__QDate(d, value):
-    jd = int(value["jd"])
+    jd = value.integer()
     if jd:
         d.putValue(jd, "juliandate")
         d.putNumChild(1)
@@ -213,13 +212,13 @@ def qdump__QDate(d, value):
             # FIXME: This improperly uses complex return values.
             with Children(d):
                 if d.canCallLocale():
-                    d.putCallItem("toString", value, "toString",
+                    d.putCallItem("toString", d.qtNamespace() + "QString", value, "toString",
                         d.enumExpression("DateFormat", "TextDate"))
-                    d.putCallItem("(ISO)", value, "toString",
+                    d.putCallItem("(ISO)", d.qtNamespace() + "QString", value, "toString",
                         d.enumExpression("DateFormat", "ISODate"))
-                    d.putCallItem("(SystemLocale)", value, "toString",
+                    d.putCallItem("(SystemLocale)", d.qtNamespace() + "QString", value, "toString",
                         d.enumExpression("DateFormat", "SystemLocaleDate"))
-                    d.putCallItem("(Locale)", value, "toString",
+                    d.putCallItem("(Locale)", d.qtNamespace() + "QString", value, "toString",
                         d.enumExpression("DateFormat", "LocaleDate"))
                 d.putFields(value)
     else:
@@ -228,26 +227,24 @@ def qdump__QDate(d, value):
 
 
 def qdump__QTime(d, value):
-    mds = int(value["mds"])
-    if mds >= 0:
-        d.putValue(mds, "millisecondssincemidnight")
-        d.putNumChild(1)
-        if d.isExpanded():
-            # FIXME: This improperly uses complex return values.
-            with Children(d):
-                d.putCallItem("toString", value, "toString",
-                    d.enumExpression("DateFormat", "TextDate"))
-                d.putCallItem("(ISO)", value, "toString",
-                    d.enumExpression("DateFormat", "ISODate"))
-                if d.canCallLocale():
-                    d.putCallItem("(SystemLocale)", value, "toString",
-                        d.enumExpression("DateFormat", "SystemLocaleDate"))
-                    d.putCallItem("(Locale)", value, "toString",
-                        d.enumExpression("DateFormat", "LocaleDate"))
-                d.putFields(value)
-    else:
+    mds = value.split('i')[0]
+    if mds == -1:
         d.putValue("(invalid)")
         d.putNumChild(0)
+        return
+    d.putValue(mds, "millisecondssincemidnight")
+    if d.isExpanded():
+        with Children(d):
+            d.putCallItem("toString", d.qtNamespace() + "QString", value, "toString",
+                d.enumExpression("DateFormat", "TextDate"))
+            d.putCallItem("(ISO)", d.qtNamespace() + "QString", value, "toString",
+                d.enumExpression("DateFormat", "ISODate"))
+            if d.canCallLocale():
+                d.putCallItem("(SystemLocale)", d.qtNamespace() + "QString", value, "toString",
+                    d.enumExpression("DateFormat", "SystemLocaleDate"))
+                d.putCallItem("(Locale)", d.qtNamespace() + "QString", value, "toString",
+                    d.enumExpression("DateFormat", "LocaleDate"))
+            d.putFields(value)
 
 
 def qdump__QTimeZone(d, value):
@@ -267,34 +264,80 @@ def qdump__QDateTime(d, value):
     # This relies on the Qt4/Qt5 internal structure layout:
     # {sharedref(4), ...
     base = d.extractPointer(value)
-    is32bit = d.is32bit()
+    is32bit = d.ptrSize() == 4
     if qtVersion >= 0x050200:
-        if d.isWindowsTarget():
-            msecsOffset = 8
-            specOffset = 16
-            offsetFromUtcOffset = 20
-            timeZoneOffset = 24
-            statusOffset = 28 if is32bit else 32
-        else:
-            msecsOffset = 4 if is32bit else 8
-            specOffset = 12 if is32bit else 16
-            offsetFromUtcOffset = 16 if is32bit else 20
-            timeZoneOffset = 20 if is32bit else 24
-            statusOffset = 24 if is32bit else 32
-        status = d.extractInt(base + statusOffset)
-        if int(status & 0x0c == 0x0c): # ValidDate and ValidTime
-            isValid = True
-            msecs = d.extractInt64(base + msecsOffset)
-            spec = d.extractInt(base + specOffset)
-            offset = d.extractInt(base + offsetFromUtcOffset)
-            tzp = d.extractPointer(base + timeZoneOffset)
-            if tzp == 0:
-                tz = ""
+        tiVersion = d.qtTypeInfoVersion()
+        #warn("TI VERSION: %s" % tiVersion)
+        if tiVersion is None:
+            tiVersion = 4
+        if tiVersion > 10:
+            # QDataTime:
+            #   union
+            #      Data {
+            #      QDateTimePrivate *d = {
+            #        qint64 m_msecs;
+            #        StatusFlags m_status;
+            #        int m_offsetFromUtc;
+            #        mutable QAtomicInt ref;
+            #        QTimeZone m_timeZone;
+            #      }
+            #      ShortData data = {
+            #         quintptr status : 8;
+            #         qintptr msecs : sizeof(void *) * 8 - 8; // note: this is only 24 bits on 32-bit systems...
+            #
+            # enum StatusFlag:
+            #    ShortData           = 0x01,
+            #    ValidDate           = 0x02,
+            #    ValidTime           = 0x04,
+            #    ValidDateTime       = 0x08,
+            #    TimeSpecMask        = 0x30,
+            #    SetToStandardTime   = 0x40,
+            #    SetToDaylightTime   = 0x80
+            #
+            status = d.extractByte(value)
+            #warn("STATUS: %s" % status)
+            if status & 0x01:
+                # Short data
+                msecs = d.extractUInt64(value) >> 8
+                spec = (status & 0x30) >> 4
+                offsetFromUtc = 0
+                timeZone = 0
+                isValid = status & 0x08
             else:
-                idBase = tzp + 2 * d.ptrSize() # [QSharedData] + [vptr]
-                elided, tz = d.encodeByteArrayHelper(d.extractPointer(idBase), limit=100)
-            d.putValue("%s/%s/%s/%s/%s" % (msecs, spec, offset, tz, status),
+                dptr = d.extractPointer(value)
+                (msecs, status, offsetFromUtc, ref, timeZone) = d.split('qIIIp', dptr)
+                spec = (status & 0x30) >> 4
+                isValid = True
+
+            d.putValue("%s/%s/%s/%s/%s" % (msecs, spec, offsetFromUtc, timeZone, status),
                 "datetimeinternal")
+        else:
+            if d.isWindowsTarget():
+                msecsOffset = 8
+                specOffset = 16
+                offsetFromUtcOffset = 20
+                timeZoneOffset = 24
+                statusOffset = 28 if is32bit else 32
+            else:
+                msecsOffset = 4 if is32bit else 8
+                specOffset = 12 if is32bit else 16
+                offsetFromUtcOffset = 16 if is32bit else 20
+                timeZoneOffset = 20 if is32bit else 24
+                statusOffset = 24 if is32bit else 32
+            status = d.extractInt(base + statusOffset)
+            if int(status & 0x0c == 0x0c): # ValidDate and ValidTime
+                isValid = True
+                msecs = d.extractInt64(base + msecsOffset)
+                spec = d.extractInt(base + specOffset)
+                offset = d.extractInt(base + offsetFromUtcOffset)
+                tzp = d.extractPointer(base + timeZoneOffset)
+                if tzp == 0:
+                    tz = ""
+                else:
+                    idBase = tzp + 2 * d.ptrSize() # [QSharedData] + [vptr]
+                    elided, tz = d.encodeByteArrayHelper(d.extractPointer(idBase), limit=100)
+                d.putValue("%s/%s/%s/%s/%s" % (msecs, spec, offset, tz, status),
+                    "datetimeinternal")
     else:
         # This relies on the Qt4/Qt5 internal structure layout:
         # {sharedref(4), date(8), time(4+x)}
@@ -307,7 +350,7 @@ def qdump__QDateTime(d, value):
         # -  Spec spec;
         dateSize = 8 if qtVersion >= 0x050000 else 4 # Qt5: qint64, Qt4 uint
         # 4 byte padding after 4 byte QAtomicInt if we are on 64 bit and QDate is 64 bit
-        refPlusPadding = 8 if qtVersion >= 0x050000 and not d.is32bit() else 4
+        refPlusPadding = 8 if qtVersion >= 0x050000 and d.ptrSize() == 8 else 4
         dateBase = base + refPlusPadding
         timeBase = dateBase + dateSize
         mds = d.extractInt(timeBase)
@@ -315,69 +358,69 @@ def qdump__QDateTime(d, value):
         if isValid:
             jd = d.extractInt(dateBase)
             d.putValue("%s/%s" % (jd, mds), "juliandateandmillisecondssincemidnight")
-    if isValid:
-        d.putNumChild(1)
-        if d.isExpanded():
-            # FIXME: This improperly uses complex return values.
-            with Children(d):
-                d.putCallItem("toTime_t", value, "toTime_t")
-                if d.canCallLocale():
-                    d.putCallItem("toString", value, "toString",
-                        d.enumExpression("DateFormat", "TextDate"))
-                    d.putCallItem("(ISO)", value, "toString",
-                        d.enumExpression("DateFormat", "ISODate"))
-                    d.putCallItem("toUTC", value, "toTimeSpec",
-                        d.enumExpression("TimeSpec", "UTC"))
-                    d.putCallItem("(SystemLocale)", value, "toString",
-                        d.enumExpression("DateFormat", "SystemLocaleDate"))
-                    d.putCallItem("(Locale)", value, "toString",
-                        d.enumExpression("DateFormat", "LocaleDate"))
-                    d.putCallItem("toLocalTime", value, "toTimeSpec",
-                        d.enumExpression("TimeSpec", "LocalTime"))
-                d.putFields(value)
-    else:
+
+    if not isValid:
         d.putValue("(invalid)")
         d.putNumChild(0)
+        return
+
+    if d.isExpanded():
+        with Children(d):
+            d.putCallItem("toTime_t", value, "toTime_t")
+            if d.canCallLocale():
+                d.putCallItem("toString", value, "toString",
+                    d.enumExpression("DateFormat", "TextDate"))
+                d.putCallItem("(ISO)", value, "toString",
+                    d.enumExpression("DateFormat", "ISODate"))
+                d.putCallItem("toUTC", value, "toTimeSpec",
+                    d.enumExpression("TimeSpec", "UTC"))
+                d.putCallItem("(SystemLocale)", value, "toString",
+                    d.enumExpression("DateFormat", "SystemLocaleDate"))
+                d.putCallItem("(Locale)", value, "toString",
+                    d.enumExpression("DateFormat", "LocaleDate"))
+                d.putCallItem("toLocalTime", value, "toTimeSpec",
+                    d.enumExpression("TimeSpec", "LocalTime"))
+            d.putFields(value)
 
 
 def qdump__QDir(d, value):
     d.putNumChild(1)
     privAddress = d.extractPointer(value)
-    bit32 = d.is32bit()
+    bit32 = d.ptrSize() == 4
     qt5 = d.qtVersion() >= 0x050000
 
     # Change 9fc0965 reorders members again.
-    #  bool fileListsInitialized;\n"
-    #  QStringList files;\n"
-    #  QFileInfoList fileInfos;\n"
-    #  QStringList nameFilters;\n"
-    #  QDir::SortFlags sort;\n"
-    #  QDir::Filters filters;\n"
+    #   bool fileListsInitialized;\n"
+    #   QStringList files;\n"
+    #   QFileInfoList fileInfos;\n"
+    #   QStringList nameFilters;\n"
+    #   QDir::SortFlags sort;\n"
+    #   QDir::Filters filters;\n"
 
     # Before 9fc0965:
     # QDirPrivate:
-    # QAtomicInt ref
-    # QStringList nameFilters;
-    # QDir::SortFlags sort;
-    # QDir::Filters filters;
-    # // qt3support:
-    # QChar filterSepChar;
-    # bool matchAllDirs;
-    # // end qt3support
-    # QScopedPointer<QAbstractFileEngine> fileEngine;
-    # bool fileListsInitialized;
-    # QStringList files;
-    # QFileInfoList fileInfos;
-    # QFileSystemEntry dirEntry;
-    # QFileSystemEntry absoluteDirEntry;
+    #   QAtomicInt ref
+    #   QStringList nameFilters;
+    #   QDir::SortFlags sort;
+    #   QDir::Filters filters;
+    #   // qt3support:
+    #   QChar filterSepChar;
+    #   bool matchAllDirs;
+    #   // end qt3support
+    #   QScopedPointer<QAbstractFileEngine> fileEngine;
+    #   bool fileListsInitialized;
+    #   QStringList files;
+    #   QFileInfoList fileInfos;
+    #   QFileSystemEntry dirEntry;
+    #   QFileSystemEntry absoluteDirEntry;
 
     # QFileSystemEntry:
-    # QString m_filePath
-    # QByteArray m_nativeFilePath
-    # qint16 m_lastSeparator
-    # qint16 m_firstDotInFileName
-    # qint16 m_lastDotInFileName
-    # + 2 byte padding
+    #   QString m_filePath
+    #   QByteArray m_nativeFilePath
+    #   qint16 m_lastSeparator
+    #   qint16 m_firstDotInFileName
+    #   qint16 m_lastDotInFileName
+    #   + 2 byte padding
     fileSystemEntrySize = 2 * d.ptrSize() + 8
 
     if d.qtVersion() < 0x050200:
@@ -415,7 +458,7 @@ def qdump__QDir(d, value):
     if d.isExpanded():
         with Children(d):
             ns = d.qtNamespace()
-            d.call(value, "count")  # Fill cache.
+            d.call("int", value, "count")  # Fill cache.
             #d.putCallItem("absolutePath", value, "absolutePath")
             #d.putCallItem("canonicalPath", value, "canonicalPath")
             with SubItem(d, "absolutePath"):
@@ -433,7 +476,7 @@ def qdump__QDir(d, value):
 def qdump__QFile(d, value):
     # 9fc0965 and a373ffcd change the layout of the private structure
     qtVersion = d.qtVersion()
-    is32bit = d.is32bit()
+    is32bit = d.ptrSize() == 4
     if qtVersion >= 0x050600:
         if d.isWindowsTarget():
             offset = 164 if is32bit else 248
@@ -461,19 +504,19 @@ def qdump__QFile(d, value):
             offset = 144 if is32bit else 232
         else:
             offset = 140 if is32bit else 232
-    privAddress = d.extractPointer(d.addressOf(value) + d.ptrSize())
+    privAddress = d.extractPointer(value.address() + d.ptrSize())
     fileNameAddress = privAddress + offset
     d.putStringValue(fileNameAddress)
     d.putNumChild(1)
     if d.isExpanded():
         with Children(d):
-            d.putCallItem("exists", value, "exists")
+            d.putCallItem("exists", "bool", value, "exists")
             d.putFields(value)
 
 
 def qdump__QFileInfo(d, value):
     privAddress = d.extractPointer(value)
-    #bit32 = d.is32bit()
+    #bit32 = d.ptrSize() == 4
     #qt5 = d.qtVersion() >= 0x050000
     #try:
     #    d.putStringValue(value["d_ptr"]["d"].dereference()["fileNames"][3])
@@ -485,31 +528,32 @@ def qdump__QFileInfo(d, value):
     d.putNumChild(1)
     if d.isExpanded():
         ns = d.qtNamespace()
-        with Children(d, childType=d.lookupType(ns + "QString")):
-            d.putCallItem("absolutePath", value, "absolutePath")
-            d.putCallItem("absoluteFilePath", value, "absoluteFilePath")
-            d.putCallItem("canonicalPath", value, "canonicalPath")
-            d.putCallItem("canonicalFilePath", value, "canonicalFilePath")
-            d.putCallItem("completeBaseName", value, "completeBaseName")
-            d.putCallItem("completeSuffix", value, "completeSuffix")
-            d.putCallItem("baseName", value, "baseName")
+        with Children(d):
+            stype = ns + "QString"
+            d.putCallItem("absolutePath", stype, value, "absolutePath")
+            d.putCallItem("absoluteFilePath", stype, value, "absoluteFilePath")
+            d.putCallItem("canonicalPath", stype, value, "canonicalPath")
+            d.putCallItem("canonicalFilePath", stype, value, "canonicalFilePath")
+            d.putCallItem("completeBaseName", stype, value, "completeBaseName")
+            d.putCallItem("completeSuffix", stype, value, "completeSuffix")
+            d.putCallItem("baseName", stype, value, "baseName")
             if False:
                 #ifdef Q_OS_MACX
                 d.putCallItem("isBundle", value, "isBundle")
                 d.putCallItem("bundleName", value, "bundleName")
-            d.putCallItem("fileName", value, "fileName")
-            d.putCallItem("filePath", value, "filePath")
+            d.putCallItem("fileName", stype, value, "fileName")
+            d.putCallItem("filePath", stype, value, "filePath")
             # Crashes gdb (archer-tromey-python, at dad6b53fe)
             #d.putCallItem("group", value, "group")
             #d.putCallItem("owner", value, "owner")
-            d.putCallItem("path", value, "path")
+            d.putCallItem("path", stype, value, "path")
 
             d.putCallItem("groupid", value, "groupId")
             d.putCallItem("ownerid", value, "ownerId")
 
             #QFile::Permissions permissions () const
             try:
-                perms = d.call(value, "permissions")
+                perms = d.call("int", value, "permissions")
             except:
                 perms = None
 
@@ -541,21 +585,21 @@ def qdump__QFileInfo(d, value):
 
             #QDir absoluteDir () const
             #QDir dir () const
-            d.putCallItem("caching", value, "caching")
-            d.putCallItem("exists", value, "exists")
-            d.putCallItem("isAbsolute", value, "isAbsolute")
-            d.putCallItem("isDir", value, "isDir")
-            d.putCallItem("isExecutable", value, "isExecutable")
-            d.putCallItem("isFile", value, "isFile")
-            d.putCallItem("isHidden", value, "isHidden")
-            d.putCallItem("isReadable", value, "isReadable")
-            d.putCallItem("isRelative", value, "isRelative")
-            d.putCallItem("isRoot", value, "isRoot")
-            d.putCallItem("isSymLink", value, "isSymLink")
-            d.putCallItem("isWritable", value, "isWritable")
-            d.putCallItem("created", value, "created")
-            d.putCallItem("lastModified", value, "lastModified")
-            d.putCallItem("lastRead", value, "lastRead")
+            d.putCallItem("caching", "bool", value, "caching")
+            d.putCallItem("exists", "bool", value, "exists")
+            d.putCallItem("isAbsolute", "bool", value, "isAbsolute")
+            d.putCallItem("isDir", "bool", value, "isDir")
+            d.putCallItem("isExecutable", "bool", value, "isExecutable")
+            d.putCallItem("isFile", "bool", value, "isFile")
+            d.putCallItem("isHidden", "bool", value, "isHidden")
+            d.putCallItem("isReadable", "bool", value, "isReadable")
+            d.putCallItem("isRelative", "bool", value, "isRelative")
+            d.putCallItem("isRoot", "bool", value, "isRoot")
+            d.putCallItem("isSymLink", "bool", value, "isSymLink")
+            d.putCallItem("isWritable", "bool", value, "isWritable")
+            d.putCallItem("created", "bool", value, "created")
+            d.putCallItem("lastModified", "bool", value, "lastModified")
+            d.putCallItem("lastRead", "bool", value, "lastRead")
             d.putFields(value)
 
 
@@ -573,13 +617,13 @@ def qdump__QFiniteStack(d, value):
     size = int(value["_size"])
     d.check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 1000)
     d.putItemCount(size)
-    d.putPlotData(value["_array"], size, d.templateArgument(value.type, 0))
+    d.putPlotData(value["_array"], size, value.type[0])
 
 
 def qdump__QFlags(d, value):
     i = value["i"]
     try:
-        enumType = d.templateArgument(value.type.unqualified(), 0)
+        enumType = value.type.unqualified()[0]
         d.putValue("%s (%s)" % (i.cast(enumType), i))
     except:
         d.putValue("%s" % i)
@@ -590,69 +634,60 @@ def qform__QHash():
     return mapForms()
 
 def qdump__QHash(d, value):
+    qdumpHelper_QHash(d, value, value.type[0], value.type[1])
 
-    def hashDataFirstNode(dPtr, numBuckets):
-        ePtr = dPtr.cast(nodeTypePtr)
-        bucket = dPtr.dereference()["buckets"]
-        for n in xrange(numBuckets - 1, -1, -1):
-            n = n - 1
-            if n < 0:
-                break
-            if d.pointerValue(bucket.dereference()) != d.pointerValue(ePtr):
-                return bucket.dereference()
-            bucket = bucket + 1
-        return ePtr;
+def qdump__QVariantHash(d, value):
+    qdumpHelper_QHash(d, value, d.createType("QString"), d.createType("QVariant"))
 
-    def hashDataNextNode(nodePtr, numBuckets):
-        nextPtr = nodePtr.dereference()["next"]
-        if d.pointerValue(nextPtr.dereference()["next"]):
-            return nextPtr
-        start = (int(nodePtr.dereference()["h"]) % numBuckets) + 1
-        dPtr = nextPtr.cast(dataTypePtr)
-        bucket = dPtr.dereference()["buckets"] + start
-        for n in xrange(numBuckets - start):
-            if d.pointerValue(bucket.dereference()) != d.pointerValue(nextPtr):
-                return bucket.dereference()
-            bucket += 1
-        return nextPtr
+def qdumpHelper_QHash(d, value, keyType, valueType):
+    def hashDataFirstNode():
+        b = buckets
+        n = numBuckets
+        while n:
+            n -= 1
+            bb = d.extractPointer(b)
+            if bb != dptr:
+                return bb
+            b += ptrSize
+        return dptr
 
-    keyType = d.templateArgument(value.type, 0)
-    valueType = d.templateArgument(value.type, 1)
+    def hashDataNextNode(node):
+        (nextp, h) = d.split('pI', node)
+        if d.extractPointer(nextp):
+            return nextp
+        start = (h % numBuckets) + 1
+        b = buckets + start * ptrSize
+        n = numBuckets - start
+        while n:
+            n -= 1
+            bb = d.extractPointer(b)
+            if bb != nextp:
+                return bb
+            b += ptrSize
+        return nextp
 
-    anon = d.childAt(value, 0)
-    d_ptr = anon["d"]
-    e_ptr = anon["e"]
-    size = int(d_ptr["size"])
-
-    dataTypePtr = d_ptr.type    # QHashData *  = { Node *fakeNext, Node *buckets }
-    nodeTypePtr = d_ptr.dereference()["fakeNext"].type    # QHashData::Node
+    ptrSize = d.ptrSize()
+    dptr = d.extractPointer(value)
+    (fakeNext, buckets, ref, size, nodeSize, userNumBits, numBits, numBuckets) = \
+        d.split("ppiiihhi", dptr)
 
     d.check(0 <= size and size <= 100 * 1000 * 1000)
-    d.checkRef(d_ptr["ref"])
+    d.check(-1 <= ref and ref < 100000)
 
     d.putItemCount(size)
     if d.isExpanded():
-        numBuckets = int(d_ptr.dereference()["numBuckets"])
-        innerType = e_ptr.dereference().type
-        isCompact = d.isMapCompact(keyType, valueType)
-        childType = valueType if isCompact else innerType
-        with Children(d, size, maxNumChild=1000, childType=childType):
-            j = 0
+        isShort = d.qtVersion() < 0x050000 and keyType.name == 'int'
+        with PairedChildren(d, size, keyType=keyType, valueType=valueType, useKeyAndValue=True):
+            node = hashDataFirstNode()
             for i in d.childRange():
-                if i == 0:
-                    node = hashDataFirstNode(d_ptr, numBuckets)
+                if isShort:
+                    typeCode = 'P{%s}@{%s}' % (keyType, valueType)
+                    (pnext, key, padding2, val) = d.split(typeCode, node)
                 else:
-                    node = hashDataNextNode(node, numBuckets)
-                it = node.dereference().cast(innerType)
-                with SubItem(d, i):
-                    if isCompact:
-                        key = it["key"]
-                        d.putMapName(key, j)
-                        d.putItem(it["value"])
-                        d.putType(valueType)
-                        j += 1
-                    else:
-                        d.putItem(it)
+                    typeCode = 'Pi@{%s}@{%s}' % (keyType, valueType)
+                    (pnext, hashval, padding1, key, padding2, val) = d.split(typeCode, node)
+                d.putPairItem(i, (key, val))
+                node = hashDataNextNode(node)
 
 
 def qform__QHashNode():
@@ -678,24 +713,22 @@ def qHashIteratorHelper(d, value):
     typeName = str(value.type)
     hashTypeName = typeName[0:typeName.rfind("::")]
     hashType = d.lookupType(hashTypeName)
-    keyType = d.templateArgument(hashType, 0)
-    valueType = d.templateArgument(hashType, 1)
+    keyType = hashType[0]
+    valueType = hashType[1]
     d.putNumChild(1)
     d.putEmptyValue()
     if d.isExpanded():
         with Children(d):
-            # We need something like QHash<int, float>::iterator
-            # -> QHashNode<int, float> with 'proper' spacing,
-            # as space changes confuse LLDB.
-            innerTypeName = hashTypeName.replace("QHash", "QHashNode", 1)
-            node = value["i"].cast(d.lookupType(innerTypeName).pointer()).dereference()
-            key = node["key"]
-            if not key:
-                # LLDB can't access directly since it's in anonymous union
-                # for Qt4 optimized int keytype
-                key = node[1]["key"]
+            node = d.extractPointer(value)
+            isShort = d.qtVersion() < 0x050000 and keyType.name == 'int'
+            if isShort:
+                typeCode = 'P{%s}@{%s}' % (keyType, valueType)
+                (pnext, key, padding2, val) = d.split(typeCode, node)
+            else:
+                typeCode = 'Pi@{%s}@{%s}' % (keyType, valueType)
+                (pnext, hashval, padding1, key, padding2, val) = d.split(typeCode, node)
             d.putSubItem("key", key)
-            d.putSubItem("value", node["value"])
+            d.putSubItem("value", val)
 
 def qdump__QHash__const_iterator(d, value):
     qHashIteratorHelper(d, value)
@@ -705,111 +738,78 @@ def qdump__QHash__iterator(d, value):
 
 
 def qdump__QHostAddress(d, value):
-    # QHostAddress in Qt 4.5 (byte offsets)
-    #   quint32 a        (0)
-    #   Q_IPV6ADDR a6    (4)
-    #   protocol         (20)
-    #   QString ipString (24)
-    #   QString scopeId  (24 + ptrSize)
-    #   bool isParsed    (24 + 2 * ptrSize)
-    # QHostAddress in Qt 5.0
-    #   QString ipString (0)
-    #   QString scopeId  (ptrSize)
-    #   quint32 a        (2*ptrSize)
-    #   Q_IPV6ADDR a6    (2*ptrSize + 4)
-    #   protocol         (2*ptrSize + 20)
-    #   bool isParsed    (2*ptrSize + 24)
-
-    privAddress = d.extractPointer(value)
-    if d.qtVersion() >= 0x050700:
-        sizeofQString = d.ptrSize()
-        ipStringAddress = privAddress
-        a6Address = privAddress + 2 * sizeofQString + d.ptrSize() # Include padding
-        protoAddress = a6Address + 16
-        isParsedAddress = protoAddress + 4
-        # value.d.d->ipString
-        ipString = d.encodeString(ipStringAddress, limit=100)
-        if d.extractByte(isParsedAddress) and len(ipString) > 0:
-            d.putValue(ipString, "utf16")
+    dd = d.extractPointer(value)
+    qtVersion = d.qtVersion()
+    tiVersion = d.qtTypeInfoVersion()
+    #warn("QT: %x, TI: %s" % (qtVersion, tiVersion))
+    if tiVersion is not None:
+        if tiVersion >= 5:
+            # Branch 5.8.0 at f70b4a13  TI: 15
+            # Branch 5.7.0 at b6cf0418  TI: 5
+            (ipString, scopeId, a6, a4, protocol, isParsed) \
+                = d.split("{QString}{QString}16s{quint32}B{bool}", dd)
         else:
-            # value.d.d->protocol:
-            #  QAbstractSocket::IPv4Protocol = 0
-            #  QAbstractSocket::IPv6Protocol = 1
-            proto = d.extractInt(protoAddress)
-            if proto == 1:
-                # value.d.d->a6
-                data = d.readMemory(a6Address, 16)
-                address = ':'.join("%x" % int(data[i:i+4], 16) for i in xrange(0, 32, 4))
-                scopeIdAddress = ipStringAddress + sizeofQString
-                scopeId = d.encodeString(scopeIdAddress, limit=100)
-                d.putValue("%s%%%s" % (address, scopeId), "ipv6addressandhexscopeid")
-            elif proto == 0:
-                # value.d.d->a
-                a = d.extractInt(privAddress + 2 * sizeofQString)
-                a, n4 = divmod(a, 256)
-                a, n3 = divmod(a, 256)
-                a, n2 = divmod(a, 256)
-                a, n1 = divmod(a, 256)
-                d.putValue("%d.%d.%d.%d" % (n1, n2, n3, n4));
-            else:
-                d.putValue("<unspecified>")
+            (ipString, scopeId, a4, pad, a6, protocol, isParsed) \
+                = d.split("{QString}{QString}{quint32}I16sI{bool}", dd)
+    elif qtVersion >= 0x050600: # 5.6.0 at f3aabb42
+        (ipString, scopeId, a4, pad, a6, protocol, isParsed) \
+            = d.split("{QString}{QString}{quint32}I16sI{bool}", dd)
+    elif qtVersion >= 0x050000: # 5.2.0 at 62feb088
+        (ipString, scopeId, a4, a6, protocol, isParsed) \
+            = d.split("{QString}{QString}{quint32}16sI{bool}", dd)
+    else: # 4.8.7 at b05d05f
+        (a4, a6, protocol, pad, ipString, isParsed, pad, scopeId) \
+                = d.split("{quint32}16sB@{QString}{bool}@{QString}", dd)
+
+    (ipStringData, ipStringSize, ipStringAlloc) = d.stringData(ipString)
+    if isParsed.integer() and ipStringSize > 0:
+        d.putStringValue(ipString)
     else:
-        isQt5 = d.qtVersion() >= 0x050000
-        sizeofQString = d.ptrSize()
-        ipStringAddress = privAddress + (0 if isQt5 else 24)
-        isParsedAddress = privAddress + 24 + 2 * sizeofQString
-        # value.d.d->ipString
-        ipString = d.encodeString(ipStringAddress, limit=100)
-        if d.extractByte(isParsedAddress) and len(ipString) > 0:
-            d.putValue(ipString, "utf16")
+        # value.d.d->protocol:
+        #  QAbstractSocket::IPv4Protocol = 0
+        #  QAbstractSocket::IPv6Protocol = 1
+        if protocol == 1:
+            # value.d.d->a6
+            data = d.hexencode(a6)
+            address = ':'.join("%x" % int(data[i:i+4], 16) for i in xrange(0, 32, 4))
+            d.putValue(address)
+        elif protocol == 0:
+            # value.d.d->a
+            a = a4.integer()
+            a, n4 = divmod(a, 256)
+            a, n3 = divmod(a, 256)
+            a, n2 = divmod(a, 256)
+            a, n1 = divmod(a, 256)
+            d.putValue("%d.%d.%d.%d" % (n1, n2, n3, n4));
         else:
-            # value.d.d->protocol:
-            #  QAbstractSocket::IPv4Protocol = 0
-            #  QAbstractSocket::IPv6Protocol = 1
-            protoAddress = privAddress + 20 + (2 * sizeofQString if isQt5 else 0);
-            proto = d.extractInt(protoAddress)
-            if proto == 1:
-                # value.d.d->a6
-                a6Offset = 4 + (2 * sizeofQString if isQt5 else 0)
-                data = d.readMemory(privAddress + a6Offset, 16)
-                address = ':'.join("%x" % int(data[i:i+4], 16) for i in xrange(0, 32, 4))
-                scopeId = privAddress + sizeofQString + (0 if isQt5 else 24)
-                scopeId = d.encodeString(scopeId, limit=100)
-                d.putValue("%s%%%s" % (address, scopeId), "ipv6addressandhexscopeid")
-            elif proto == 0:
-                # value.d.d->a
-                a = d.extractInt(privAddress + (2 * sizeofQString if isQt5 else 0))
-                a, n4 = divmod(a, 256)
-                a, n3 = divmod(a, 256)
-                a, n2 = divmod(a, 256)
-                a, n1 = divmod(a, 256)
-                d.putValue("%d.%d.%d.%d" % (n1, n2, n3, n4));
-            else:
-                d.putValue("<unspecified>")
+            d.putValue("<unspecified protocol %s>" % protocol)
 
-    d.putPlainChildren(value["d"]["d"].dereference())
+    if d.isExpanded():
+        with Children(d):
+            d.putSubItem('ipString', ipString)
+            d.putSubItem('scopeId', scopeId)
+            d.putSubItem('isParsed', isParsed)
+            d.putSubItem('a', a4)
 
 
 def qdump__QIPv6Address(d, value):
-    #warn("IPV6.VALUE: %s" % value)
-    #warn("IPV6.ADDR: 0x%x" % d.addressOf(value))
-    #warn("IPV6.LOADADDR: 0x%x" % value.GetLoadAddress())
-    c = value["c"]
-    data = d.readMemory(d.addressOf(c), 16)
+    raw = d.split("16s", value)[0]
+    data = d.hexencode(raw)
     d.putValue(':'.join("%x" % int(data[i:i+4], 16) for i in xrange(0, 32, 4)))
-    #d.putValue('xx')
-    #d.putValue("0x%x - 0x%x" % (d.addressOf(value), d.addressOf(c)))
-    #d.putValue("0x%x - 0x%x" % (value.GetAddress(), c.GetAddress()))
-    #d.putValue("0x%x - 0x%x" % (value.GetLoadAddress(), c.GetLoadAddress()))
-    d.putPlainChildren(c)
+    d.putArrayData(value.address(), 16, d.lookupType('unsigned char'))
 
 def qform__QList():
     return [DirectQListStorageFormat, IndirectQListStorageFormat]
 
 def qdump__QList(d, value):
+    return qdumpHelper_QList(d, value, value.type[0])
+
+def qdump__QVariantList(d, value):
+    qdumpHelper_QList(d, value, d.createType("QVariant"))
+
+def qdumpHelper_QList(d, value, innerType):
     base = d.extractPointer(value)
-    begin = d.extractInt(base + 8)
-    end = d.extractInt(base + 12)
+    (ref, alloc, begin, end) = d.split('IIII', base)
     array = base + 16
     if d.qtVersion() < 0x50000:
         array += d.ptrSize()
@@ -818,11 +818,9 @@ def qdump__QList(d, value):
     d.check(size >= 0)
     #d.checkRef(private["ref"])
 
-    innerType = d.templateArgument(value.type, 0)
-
     d.putItemCount(size)
     if d.isExpanded():
-        innerSize = innerType.sizeof
+        innerSize = innerType.size()
         stepSize = d.ptrSize()
         addr = array + begin * stepSize
         # The exact condition here is:
@@ -836,7 +834,7 @@ def qdump__QList(d, value):
         elif displayFormat == IndirectQListStorageFormat:
             isInternal = False
         else:
-            isInternal = innerSize <= stepSize and d.isMovableType(innerType)
+            isInternal = innerSize <= stepSize and innerType.isMovableType()
         if isInternal:
             if innerSize == stepSize:
                 d.putArrayData(addr, size, innerType)
@@ -857,33 +855,18 @@ def qform__QImage():
     return [SimpleFormat, SeparateFormat]
 
 def qdump__QImage(d, value):
-    # This relies on current QImage layout:
-    # QImageData:
-    # - QAtomicInt ref
-    # - int width, height, depth, nbytes
-    # - padding on 64 bit machines
-    # - qreal devicePixelRatio  (+20 + padding)  # Assume qreal == double, Qt 5 only
-    # - QVector<QRgb> colortable (+20 + padding + gap)
-    # - uchar *data (+20 + padding + gap + ptr)
-    # [- uchar **jumptable jumptable with Qt 3 suppor]
-    # - enum format (+20 + padding + gap + 2 * ptr)
+    if d.qtVersion() < 0x050000:
+        (vtbl, painters, imageData) = value.split("ppp");
+    else:
+        (vtbl, painters, reserved, imageData) = value.split("pppp");
 
-    ptrSize = d.ptrSize()
-    isQt5 = d.qtVersion() >= 0x050000
-    offset = (3 if isQt5 else 2) * ptrSize
-    base = d.extractPointer(d.addressOf(value) + offset)
-    if base == 0:
+    if imageData == 0:
         d.putValue("(invalid)")
         return
-    qt3Support = d.isQt3Support()
-    width = d.extractInt(base + 4)
-    height = d.extractInt(base + 8)
-    nbytes = d.extractInt(base + 16)
-    padding = d.ptrSize() - d.intSize()
-    pixelRatioSize = 8 if isQt5 else 0
-    jumpTableSize = ptrSize if qt3Support else 0
-    bits = d.extractPointer(base + 20 + padding + pixelRatioSize + ptrSize)
-    iformat = d.extractInt(base + 20 + padding + pixelRatioSize + jumpTableSize + 2 * ptrSize)
+
+    (ref, width, height, depth, nbytes, padding, devicePixelRatio, colorTable,
+        bits, iformat) = d.split('iiiii@dppi', imageData)
+
     d.putValue("(%dx%d)" % (width, height))
     d.putNumChild(1)
     if d.isExpanded():
@@ -899,18 +882,8 @@ def qdump__QImage(d, value):
 
     displayFormat = d.currentItemFormat()
     if displayFormat == SeparateFormat:
-        # This is critical for performance. Writing to an external
-        # file using the following is faster when using GDB.
-        #   file = tempfile.mkstemp(prefix="gdbpy_")
-        #   filename = file[1].replace("\\", "\\\\")
-        #   gdb.execute("dump binary memory %s %s %s" %
-        #       (filename, bits, bits + nbytes))
-        #   d.putDisplay('imagefile:separate', " %d %d %d %d %s"
-        #       % (width, height, nbytes, iformat, filename))
-        d.putDisplay('imagedata:separate',
-                     '%08x%08x%08x%08x' % (width, height, nbytes, iformat)
+        d.putDisplay('imagedata:separate', '%08x%08x%08x%08x' % (width, height, nbytes, iformat)
                         + d.readMemory(bits, nbytes))
-
 
 
 def qdump__QLinkedList(d, value):
@@ -922,7 +895,7 @@ def qdump__QLinkedList(d, value):
     d.check(-1 <= ref and ref <= 1000)
     d.putItemCount(n)
     if d.isExpanded():
-        innerType = d.templateArgument(value.type, 0)
+        innerType = value.type[0]
         with Children(d, n, maxNumChild=1000, childType=innerType):
             pp = d.extractPointer(dd)
             for i in d.childRange():
@@ -951,10 +924,8 @@ def qdump__QLocale(d, value):
     #        index = int(value["d"]["d"]["m_data"]...)
     #d.check(index >= 0)
     #d.check(index <= qqLocalesCount)
-    d.putStringValue(d.call(value, "name"))
-    d.putNumChild(0)
-    return
-    # FIXME: Poke back for variants.
+    d.putStringValue(d.call("const char *", value, "name"))
+    d.putNumChild(1)
     if d.isExpanded():
         ns = d.qtNamespace()
         with Children(d, childType=d.lookupType(ns + "QChar"), childNumChild=0):
@@ -984,103 +955,82 @@ def qdump__QMapNode(d, value):
             d.putSubItem("value", value["value"])
 
 
-def qdumpHelper__Qt4_QMap(d, value):
-    anon = d.childAt(value, 0)
-    d_ptr = anon["d"].dereference()
-    e_ptr = anon["e"].dereference()
-    n = int(d_ptr["size"])
+def qdumpHelper_Qt4_QMap(d, value, keyType, valueType):
+    dd = value.extractPointer()
+    (backward, forward, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11,
+        ref, toplevel, n) = d.split('P' + 'p'* 12 + 'iii', dd)
     d.check(0 <= n and n <= 100*1000*1000)
-    d.checkRef(d_ptr["ref"])
-
+    d.checkRef(ref)
     d.putItemCount(n)
     if d.isExpanded():
         if n > 10000:
             n = 10000
 
-        keyType = d.templateArgument(value.type, 0)
-        valueType = d.templateArgument(value.type, 1)
-
-        it = e_ptr["forward"].dereference()
-
-        # QMapPayloadNode is QMapNode except for the 'forward' member, so
-        # its size is most likely the offset of the 'forward' member therein.
-        # Or possibly 2 * sizeof(void *)
-        # Note: Keeping the spacing in the type lookup
-        # below is important for LLDB.
-        needle = str(value.type).replace("QMap", "QMapNode", 1)
+        ## QMapPayloadNode is QMapNode except for the 'forward' member, so
+        ## its size is most likely the offset of the 'forward' member therein.
+        ## Or possibly 2 * sizeof(void *)
+        ## Note: Keeping the spacing in the type lookup
+        ## below is important for LLDB.
+        needle = value.type.name.replace("QMap", "QMapNode", 1)
         needle = d.qtNamespace() + "QMapNode<%s,%s>" % (keyType, valueType)
         nodeType = d.lookupType(needle)
-        nodePointerType = nodeType.pointer()
-        # symbols reports payload size at wrong size 24
-        if d.isArmArchitecture() and d.isQnxTarget() and str(valueType) == 'QVariant':
+        ## symbols reports payload size at wrong size 24
+        if d.isArmArchitecture() and d.isQnxTarget() and valueType.name() == 'QVariant':
             payloadSize = 28
         else:
-            payloadSize = nodeType.sizeof - 2 * nodePointerType.sizeof
+            payloadSize = nodeType.size() - 2 * d.ptrSize()
 
-        with PairedChildren(d, n, useKeyAndValue=True,
-                keyType=keyType, valueType=valueType, pairType=nodeType):
-            for i in xrange(n):
-                base = it.cast(d.charPtrType()) - payloadSize
-                node = base.cast(nodePointerType).dereference()
-                with SubItem(d, i):
-                    #d.putField("iname", d.currentIName)
-                    d.putPair(node, i)
-                it = it.dereference()["forward"].dereference()
+        # New approach:
+        typeCode = '{%s}@{%s}' % (keyType, valueType)
+        #(pp, payloadSize, fields) = d.describeStruct(typeCode)
+
+        it = forward
+        with PairedChildren(d, n, useKeyAndValue=True, keyType=keyType, valueType=valueType):
+            for i in d.childRange():
+                (key, pad, value) = d.split(typeCode, it - payloadSize)
+                d.putPairItem(i, (key, value))
+                (backward, it) = d.split("Pp", it)
 
 
-def qdumpHelper__Qt5_QMap(d, value):
-    d_ptr = value["d"].dereference()
-    n = int(d_ptr["size"])
+def qdumpHelper_Qt5_QMap(d, value, keyType, valueType):
+    dptr = d.extractPointer(value)
+    (ref, n) = d.split("ii", dptr)
     d.check(0 <= n and n <= 100*1000*1000)
-    d.checkRef(d_ptr["ref"])
+    d.check(-1 <= ref and ref < 100000)
 
     d.putItemCount(n)
     if d.isExpanded():
         if n > 10000:
             n = 10000
 
-        keyType = d.templateArgument(value.type, 0)
-        valueType = d.templateArgument(value.type, 1)
-        # Note: Keeping the spacing in the type lookup
-        # below is important for LLDB.
-        needle = str(d_ptr.type).replace("QMapData", "QMapNode", 1)
-        nodeType = d.lookupType(needle)
+        typeCode = 'ppp@{%s}@{%s}' % (keyType, valueType)
 
-        def helper(d, node, nodeType, i):
-            left = node["left"]
-            if not d.isNull(left):
-                i = helper(d, left.dereference(), nodeType, i)
-                if i >= n:
-                    return i
+        def helper(node):
+            (p, left, right, padding1, key, padding2, value) = d.split(typeCode, node)
+            if left:
+                for res in helper(left):
+                    yield res
+            yield (key, value)
+            if right:
+                for res in helper(right):
+                    yield res
 
-            nodex = node.cast(nodeType)
-            with SubItem(d, i):
-                d.putPair(nodex, i)
-
-            i += 1
-            if i >= n:
-                return i
-
-            right = node["right"]
-            if not d.isNull(right):
-                i = helper(d, right.dereference(), nodeType, i)
-
-            return i
-
-        with PairedChildren(d, n, useKeyAndValue=True,
-                keyType=keyType, valueType=valueType, pairType=nodeType):
-            node = d_ptr["header"]
-            helper(d, node, nodeType, 0)
+        with PairedChildren(d, n, keyType=keyType, valueType=valueType, useKeyAndValue=True):
+            for (pair, i) in zip(helper(dptr + 8), range(n)):
+                d.putPairItem(i, pair)
 
 
 def qform__QMap():
     return mapForms()
 
 def qdump__QMap(d, value):
+    qdumpHelper_QMap(d, value, value.type[0], value.type[1])
+
+def qdumpHelper_QMap(d, value, keyType, valueType):
     if d.qtVersion() < 0x50000:
-        qdumpHelper__Qt4_QMap(d, value)
+        qdumpHelper_Qt4_QMap(d, value, keyType, valueType)
     else:
-        qdumpHelper__Qt5_QMap(d, value)
+        qdumpHelper_Qt5_QMap(d, value, keyType, valueType)
 
 def qform__QMultiMap():
     return mapForms()
@@ -1088,13 +1038,11 @@ def qform__QMultiMap():
 def qdump__QMultiMap(d, value):
     qdump__QMap(d, value)
 
-
 def qform__QVariantMap():
     return mapForms()
 
 def qdump__QVariantMap(d, value):
-    qdump__QMap(d, value)
-
+    qdumpHelper_QMap(d, value, d.createType("QString"), d.createType("QVariant"))
 
 def qdump__QMetaMethod(d, value):
     d.putQMetaStuff(value, "QMetaMethod")
@@ -1113,44 +1061,40 @@ def qdump__QMetaObject(d, value):
     d.putNumChild(1)
     if d.isExpanded():
         with Children(d):
-            d.putQObjectGutsHelper(0, 0, -1, d.addressOf(value), "QMetaObject")
+            d.putQObjectGutsHelper(0, 0, -1, value.address(), "QMetaObject")
             d.putMembersItem(value)
 
 
 def qdump__QPixmap(d, value):
-    offset = (3 if d.qtVersion() >= 0x050000 else 2) * d.ptrSize()
-    base = d.extractPointer(d.addressOf(value) + offset)
-    if base == 0:
+    if d.qtVersion() < 0x050000:
+        (vtbl, painters, dataPtr) = value.split("ppp");
+    else:
+        (vtbl, painters, reserved, dataPtr) = s = d.split("pppp", value);
+    if dataPtr == 0:
         d.putValue("(invalid)")
     else:
-        width = d.extractInt(base + d.ptrSize())
-        height = d.extractInt(base + d.ptrSize() + 4)
+        (dummy, width, height) = d.split("pii", dataPtr)
         d.putValue("(%dx%d)" % (width, height))
     d.putNumChild(0)
 
 
 def qdump__QPoint(d, value):
-    x = int(value["xp"])
-    y = int(value["yp"])
+    (x, y) = value.split("ii")
     d.putValue("(%s, %s)" % (x, y))
     d.putPlainChildren(value)
 
 
 def qdump__QPointF(d, value):
-    x = float(value["xp"])
-    y = float(value["yp"])
+    (x, y) = value.split("dd")
     d.putValue("(%s, %s)" % (x, y))
     d.putPlainChildren(value)
 
 
 def qdump__QRect(d, value):
     def pp(l):
-        if l >= 0: return "+%s" % l
+        if int(l) >= 0: return "+%s" % l
         return l
-    x1 = int(value["x1"])
-    y1 = int(value["y1"])
-    x2 = int(value["x2"])
-    y2 = int(value["y2"])
+    (x1, y1, x2, y2) = d.split("iiii", value)
     w = x2 - x1 + 1
     h = y2 - y1 + 1
     d.putValue("%sx%s%s%s" % (w, h, pp(x1), pp(y1)))
@@ -1159,12 +1103,12 @@ def qdump__QRect(d, value):
 
 def qdump__QRectF(d, value):
     def pp(l):
-        if l >= 0: return "+%s" % l
+        if float(l) >= 0: return "+%s" % l
         return l
-    x = float(value["xp"])
-    y = float(value["yp"])
-    w = float(value["w"])
-    h = float(value["h"])
+    x = value["xp"].display()
+    y = value["yp"].display()
+    w = value["w"].display()
+    h = value["h"].display()
     d.putValue("%sx%s%s%s" % (w, h, pp(x), pp(y)))
     d.putPlainChildren(value)
 
@@ -1188,7 +1132,7 @@ def qdump__QRegExp(d, value):
             # - QString t                        (+2ptr +2enum +1bool +3pad?)
             # - QStringList captures             (+3ptr +2enum +1bool +3pad?)
             # FIXME: Remove need to call. Needed to warm up cache.
-            d.call(value, "capturedTexts") # create cache
+            d.call("void", value, "capturedTexts") # create cache
             ns = d.qtNamespace()
             with SubItem(d, "syntax"):
                 # value["priv"]["engineKey"["capturedCache"]
@@ -1203,47 +1147,38 @@ def qdump__QRegExp(d, value):
 
 
 def qdump__QRegion(d, value):
-    p = value["d"].dereference()["qt_rgn"]
-    if d.isNull(p):
+    regionDataPtr = d.extractPointer(value)
+    if regionDataPtr == 0:
         d.putSpecialValue("empty")
         d.putNumChild(0)
     else:
-        # struct QRegionPrivate:
-        # int numRects;
-        # QVector<QRect> rects;
-        # QRect extents;
-        # QRect innerRect;
-        # int innerArea;
-        pp = d.extractPointer(p)
-        n = d.extractInt(pp)
-        d.putItemCount(n)
+        if d.qtVersion() >= 0x050400: # Padding removed in ee324e4ed
+            (ref, pad, rgn) = d.split("i@p", regionDataPtr)
+            (numRects, innerArea, rects, extents, innerRect) = \
+                d.split("iiP{QRect}{QRect}", rgn)
+        elif d.qtVersion() >= 0x050000:
+            (ref, pad, rgn) = d.split("i@p", regionDataPtr)
+            (numRects, pad, rects, extents, innerRect, innerArea) = \
+                d.split("i@P{QRect}{QRect}i", rgn)
+        else:
+            if d.isWindowsTarget():
+                (ref, pad, rgn) = d.split("i@p", regionDataPtr)
+            else:
+                (ref, pad, xrgn, xrectangles, rgn) = d.split("i@ppp", regionDataPtr)
+            if rgn == 0:
+                numRects = 0
+            else:
+                (numRects, pad, rects, extents, innerRect, innerArea) = \
+                    d.split("i@P{QRect}{QRect}i", rgn)
+
+        d.putItemCount(numRects)
         if d.isExpanded():
             with Children(d):
-                v = d.ptrSize()
-                ns = d.qtNamespace()
-                rectType = d.lookupType(ns + "QRect")
-                d.putIntItem("numRects", n)
-                if d.qtVersion() >= 0x050400:
-                    # Changed in ee324e4ed
-                    d.putSubItem("extents", d.createValue(pp + 8 + v, rectType))
-                    d.putSubItem("innerRect", d.createValue(pp + 8 + v + rectType.sizeof, rectType))
-                    d.putIntItem("innerArea", d.extractInt(pp + 4))
-                    rectsOffset = 8
-                else:
-                    d.putSubItem("extents", d.createValue(pp + 2 * v, rectType))
-                    d.putSubItem("innerRect", d.createValue(pp + 2 * v + rectType.sizeof, rectType))
-                    d.putIntItem("innerArea", d.extractInt(pp + 2 * v + 2 * rectType.sizeof))
-                    rectsOffset = v
-                # FIXME
-                try:
-                    # Can fail if QVector<QRect> debuginfo is missing.
-                    vectType = d.lookupType("%sQVector<%sQRect>" % (ns, ns))
-                    d.putSubItem("rects", d.createValue(pp + rectsOffset, vectType))
-                except:
-                    with SubItem(d, "rects"):
-                        d.putItemCount(n)
-                        d.putType("%sQVector<%sQRect>" % (ns, ns))
-                        d.putNumChild(0)
+                d.putIntItem("numRects", numRects)
+                d.putIntItem("innerArea", innerArea)
+                d.putSubItem("extents", extents)
+                d.putSubItem("innerRect", innerRect)
+                d.putSubItem("rects", d.createVectorItem(rects, d.qtNamespace() + "QRect"))
 
 
 def qdump__QScopedPointer(d, value):
@@ -1253,57 +1188,56 @@ def qdump__QScopedPointer(d, value):
 
 def qdump__QSet(d, value):
 
-    def hashDataFirstNode(dPtr, numBuckets):
-        ePtr = dPtr.cast(nodeTypePtr)
-        bucket = dPtr["buckets"]
-        for n in xrange(numBuckets - 1, -1, -1):
-            n = n - 1
-            if n < 0:
-                break
-            if d.pointerValue(bucket.dereference()) != d.pointerValue(ePtr):
-                return bucket.dereference()
-            bucket = bucket + 1
-        return ePtr
+    def hashDataFirstNode():
+        b = buckets
+        n = numBuckets
+        while n:
+            n -= 1
+            bb = d.extractPointer(b)
+            if bb != dptr:
+                return bb
+            b += ptrSize
+        return dptr
 
-    def hashDataNextNode(nodePtr, numBuckets):
-        nextPtr = nodePtr.dereference()["next"]
-        if d.pointerValue(nextPtr.dereference()["next"]):
-            return nextPtr
-        dPtr = nodePtr.cast(hashDataType.pointer()).dereference()
-        start = (int(nodePtr.dereference()["h"]) % numBuckets) + 1
-        bucket = dPtr.dereference()["buckets"] + start
-        for n in xrange(numBuckets - start):
-            if d.pointerValue(bucket.dereference()) != d.pointerValue(nextPtr):
-                return bucket.dereference()
-            bucket += 1
-        return nodePtr
+    def hashDataNextNode(node):
+        (nextp, h) = d.split('pI', node)
+        if d.extractPointer(nextp):
+            return nextp
+        start = (h % numBuckets) + 1
+        b = buckets + start * ptrSize
+        n = numBuckets - start
+        while n:
+            n -= 1
+            bb = d.extractPointer(b)
+            if bb != nextp:
+                return bb
+            b += ptrSize
+        return nextp
 
-    anon = d.childAt(value, 0)
-    if d.isLldb: # Skip the inheritance level.
-        anon = d.childAt(anon, 0)
-    d_ptr = anon["d"]
-    e_ptr = anon["e"]
-    size = int(d_ptr.dereference()["size"])
+    ptrSize = d.ptrSize()
+    dptr = d.extractPointer(value)
+    (fakeNext, buckets, ref, size, nodeSize, userNumBits, numBits, numBuckets) = \
+        d.split("ppiiihhi", dptr)
 
     d.check(0 <= size and size <= 100 * 1000 * 1000)
-    d.checkRef(d_ptr["ref"])
+    d.check(-1 <= ref and ref < 100000)
 
     d.putItemCount(size)
     if d.isExpanded():
-        hashDataType = d_ptr.type
-        nodeTypePtr = d_ptr.dereference()["fakeNext"].type
-        numBuckets = int(d_ptr.dereference()["numBuckets"])
-        innerType = e_ptr.dereference().type
-        with Children(d, size, maxNumChild=1000, childType=innerType):
+        keyType = value.type[0]
+        isShort = d.qtVersion() < 0x050000 and keyType.name == 'int'
+        with Children(d, size, childType=keyType):
+            node = hashDataFirstNode()
             for i in d.childRange():
-                if i == 0:
-                    node = hashDataFirstNode(d_ptr, numBuckets)
+                if isShort:
+                    typeCode = 'P{%s}' % keyType
+                    (pnext, key) = d.split(typeCode, node)
                 else:
-                    node = hashDataNextNode(node, numBuckets)
-                it = node.dereference().cast(innerType)
+                    typeCode = 'Pi@{%s}' % keyType
+                    (pnext, hashval, padding1, key) = d.split(typeCode, node)
                 with SubItem(d, i):
-                    key = it["key"]
-                    d.putItem(key)
+                    d.putItem(key, i)
+                node = hashDataNextNode(node)
 
 
 def qdump__QSharedData(d, value):
@@ -1313,14 +1247,14 @@ def qdump__QSharedData(d, value):
 
 def qdump__QSharedDataPointer(d, value):
     d_ptr = value["d"]
-    if d.isNull(d_ptr):
+    if d_ptr.integer() == 0:
         d.putValue("(null)")
         d.putNumChild(0)
     else:
         # This replaces the pointer by the pointee, making the
         # pointer transparent.
         try:
-            innerType = d.templateArgument(value.type, 0)
+            innerType = value.type[0]
         except:
             d.putValue(d_ptr)
             d.putPlainChildren(value)
@@ -1329,19 +1263,16 @@ def qdump__QSharedDataPointer(d, value):
         d.putItem(d_ptr.cast(innerType.pointer()).dereference())
 
 
-def qdump__QSharedPointer(d, value):
-    qdump__QWeakPointer(d, value)
-
 
 def qdump__QSize(d, value):
-    w = int(value["wd"])
-    h = int(value["ht"])
+    w = value["wd"].display()
+    h = value["ht"].display()
     d.putValue("(%s, %s)" % (w, h))
     d.putPlainChildren(value)
 
 def qdump__QSizeF(d, value):
-    w = float(value["wd"])
-    h = float(value["ht"])
+    w = value["wd"].display()
+    h = value["ht"].display()
     d.putValue("(%s, %s)" % (w, h))
     d.putPlainChildren(value)
 
@@ -1353,20 +1284,22 @@ def qdump__QStack(d, value):
     qdump__QVector(d, value)
 
 def qdump__QPolygonF(d, value):
-    qdump__QVector(d, value.cast(d.directBaseClass(value.type, 0)))
-    d.putBetterType(d.currentType)
+    data, size, alloc = d.vectorDataHelper(d.extractPointer(value))
+    d.putItemCount(size)
+    d.putPlotData(data, size, d.createType("QPointF"))
 
 def qdump__QPolygon(d, value):
-    qdump__QVector(d, value.cast(d.directBaseClass(value.type, 0)))
-    d.putBetterType(d.currentType)
+    data, size, alloc = d.vectorDataHelper(d.extractPointer(value))
+    d.putItemCount(size)
+    d.putPlotData(data, size, d.createType("QPoint"))
 
 def qdump__QGraphicsPolygonItem(d, value):
-    dptr = d.extractPointer(d.addressOf(value) + d.ptrSize()) # Skip vtable
+    (vtbl, dptr) = value.split('pp')
     # Assume sizeof(QGraphicsPolygonItemPrivate) == 400
-    offset = 308 if d.is32bit() else 384
+    offset = 308 if d.ptrSize() == 4 else 384
     data, size, alloc = d.vectorDataHelper(d.extractPointer(dptr + offset))
     d.putItemCount(size)
-    d.putPlotData(data, size, d.lookupQtType("QPointF"))
+    d.putPlotData(data, size, d.createType("QPointF"))
 
 def qdump__QStandardItem(d, value):
     d.putBetterType(d.currentType)
@@ -1377,7 +1310,7 @@ def qdump__QStandardItem(d, value):
 
 
 def qedit__QString(d, value, data):
-    d.call(value, "resize", str(len(data)))
+    d.call("void", value, "resize", str(len(data)))
     (base, size, alloc) = d.stringData(value)
     d.setValues(base, "short", [ord(c) for c in data])
 
@@ -1386,21 +1319,20 @@ def qform__QString():
 
 def qdump__QString(d, value):
     d.putStringValue(value)
-    data, size, alloc = d.stringData(value)
+    (data, size, alloc) = d.stringData(value)
     d.putNumChild(size)
     displayFormat = d.currentItemFormat()
     if displayFormat == SeparateFormat:
         d.putDisplay("utf16:separate", d.encodeString(value, limit=100000))
     if d.isExpanded():
-        d.putArrayData(data, size, d.lookupType(d.qtNamespace() + "QChar"))
+        d.putArrayData(data, size, d.createType("QChar"))
 
 def qdump__QStringData(d, value):
-    d.putStringValueByAddress(toInteger(value))
+    d.putStringValueByAddress(value.integer())
     d.putNumChild(0)
 
 def qdump__QHashedString(d, value):
-    stringType = d.directBaseClass(value.type)
-    qdump__QString(d, value.cast(stringType))
+    qdump__QString(d, value)
     d.putBetterType(value.type)
 
 def qdump__QQmlRefCount(d, value):
@@ -1409,22 +1341,18 @@ def qdump__QQmlRefCount(d, value):
 
 
 def qdump__QStringRef(d, value):
-    if d.isNull(value["m_string"]):
+    (stringptr, pos, size) = value.split("pii")
+    if stringptr == 0:
         d.putValue("(null)");
         d.putNumChild(0)
         return
-    s = value["m_string"].dereference()
-    data, size, alloc = d.stringData(s)
-    data += 2 * int(value["m_position"])
-    size = int(value["m_size"])
-    s = d.readMemory(data, 2 * size)
-    d.putValue(s, "utf16")
+    (data, ssize, alloc) = d.stringData(d.createValue(stringptr, "QString"))
+    d.putValue(d.readMemory(data + 2 * pos,  2 * size), "utf16")
     d.putPlainChildren(value)
 
 
 def qdump__QStringList(d, value):
-    listType = d.directBaseClass(value.type)
-    qdump__QList(d, value.cast(listType))
+    qdumpHelper_QList(d, value, d.createType("QString"))
     d.putBetterType(value.type)
 
 
@@ -1433,7 +1361,7 @@ def qdump__QTemporaryFile(d, value):
 
 
 def qdump__QTextCodec(d, value):
-    name = d.call(value, "name")
+    name = d.call("const char *", value, "name")
     d.putValue(d.encodeByteArray(name, limit=100), 6)
     d.putNumChild(2)
     if d.isExpanded():
@@ -1456,7 +1384,7 @@ def qdump__QTextCursor(d, value):
         with Children(d):
             positionAddress = privAddress + 2 * d.ptrSize() + 8
             d.putIntItem("position", d.extractInt(positionAddress))
-            d.putIntItem("anchor", d.extractInt(positionAddress + d.intSize()))
+            d.putIntItem("anchor", d.extractInt(positionAddress + 4))
             d.putCallItem("selected", value, "selectedText")
             d.putFields(value)
 
@@ -1478,130 +1406,101 @@ def qform__QUrl():
     return [SimpleFormat, SeparateFormat]
 
 def qdump__QUrl(d, value):
+    privAddress = d.extractPointer(value)
+    if not privAddress:
+        # d == 0 if QUrl was constructed with default constructor
+        d.putValue("<invalid>")
+        d.putNumChild(0)
+        return
+
     if d.qtVersion() < 0x050000:
-        privAddress = d.extractPointer(value)
-        if not privAddress:
-            # d == 0 if QUrl was constructed with default constructor
-            d.putValue("<invalid>")
-            return
-        encodedOriginalAddress = privAddress + 8 * d.ptrSize()
-        d.putValue(d.encodeByteArrayHelper(d.extractPointer(encodedOriginalAddress), 100), "latin1")
-        d.putNumChild(8)
-        if d.isExpanded():
-            stringType = d.lookupType(d.qtNamespace() + "QString")
-            baType = d.lookupType(d.qtNamespace() + "QByteArray")
-            with Children(d):
-                # Qt 4 only decodes the original string if some detail is requested
-                d.putCallItem("scheme", value, "scheme")
-                d.putCallItem("userName", value, "userName")
-                d.putCallItem("password", value, "password")
-                d.putCallItem("host", value, "host")
-                d.putCallItem("path", value, "path")
-                d.putCallItem("query", value, "encodedQuery")
-                d.putCallItem("fragment", value, "fragment")
-                d.putCallItem("port", value, "port")
-                d.putFields(value)
+        d.call("void", value, "port") # Warm up internal cache.
+        d.call("void", value, "path")
+        st = '{QString}'
+        ba = '{QByteArray}'
+        (ref, dummy,
+                scheme, userName, password, host, path, # QString
+                query, # QByteArray
+                fragment, # QString
+                encodedOriginal, encodedUserName, encodedPassword,
+                encodedPath, encodedFragment, # QByteArray
+                port) \
+            = d.split('i@' + st*5 + ba + st + ba*5 + 'i', privAddress)
     else:
-        # QUrlPrivate:
-        # - QAtomicInt ref;
-        # - int port;
-        # - QString scheme;
-        # - QString userName;
-        # - QString password;
-        # - QString host;
-        # - QString path;
-        # - QString query;
-        # - QString fragment;
-        privAddress = d.extractPointer(value)
-        if not privAddress:
-            # d == 0 if QUrl was constructed with default constructor
-            d.putValue("<invalid>")
-            return
-        schemeAddr = privAddress + 2 * d.intSize()
-        scheme = d.encodeString(schemeAddr, limit=1000)
-        userName = d.encodeString(schemeAddr + 1 * d.ptrSize(), limit=100)
-        password = d.encodeString(schemeAddr + 2 * d.ptrSize(), limit=100)
-        host = d.encodeString(schemeAddr + 3 * d.ptrSize(), limit=100)
-        path = d.encodeString(schemeAddr + 4 * d.ptrSize(), limit=1000)
-        query = d.encodeString(schemeAddr + 5 * d.ptrSize(), limit=10000)
-        fragment = d.encodeString(schemeAddr + 6 * d.ptrSize(), limit=10000)
-        port = d.extractInt(d.extractPointer(value) + d.intSize())
+        (ref, port, scheme, userName, password, host, path, query, fragment) \
+            = d.split('ii' + '{QString}' * 7, privAddress)
 
-        url = scheme
-        url += "3a002f002f00"
-        if len(userName):
-            url += userName
-            url += "4000"
-        url += host
-        if port >= 0:
-            url += "3a00"
-            url += ''.join(["%02x00" % ord(c) for c in str(port)])
-        url += path
-        d.putValue(url, "utf16")
+    userNameEnc = d.encodeString(userName)
+    hostEnc = d.encodeString(host)
+    pathEnc = d.encodeString(path)
+    url = d.encodeString(scheme)
+    url += "3a002f002f00"  # "://"
+    if len(userNameEnc):
+        url += userNameEnc + "4000" # "@"
+    url += hostEnc
+    if port >= 0:
+        url += "3a00" + ''.join(["%02x00" % ord(c) for c in str(port)])
+    url += pathEnc
+    d.putValue(url, "utf16")
 
-        displayFormat = d.currentItemFormat()
-        if displayFormat == SeparateFormat:
-            d.putDisplay("utf16:separate", url)
+    displayFormat = d.currentItemFormat()
+    if displayFormat == SeparateFormat:
+        d.putDisplay("utf16:separate", url)
 
-        d.putNumChild(8)
-        if d.isExpanded():
-            stringType = d.lookupType(d.qtNamespace() + "QString")
-            with Children(d):
-                d.putIntItem("port", port)
-                d.putGenericItem("scheme", stringType, scheme, "utf16")
-                d.putGenericItem("userName", stringType, userName, "utf16")
-                d.putGenericItem("password", stringType, password, "utf16")
-                d.putGenericItem("host", stringType, host, "utf16")
-                d.putGenericItem("path", stringType, path, "utf16")
-                d.putGenericItem("query", stringType, query, "utf16")
-                d.putGenericItem("fragment", stringType, fragment, "utf16")
-                d.putFields(value)
+    if d.isExpanded():
+        with Children(d):
+            d.putIntItem("port", port)
+            d.putSubItem("scheme", scheme)
+            d.putSubItem("userName", userName)
+            d.putSubItem("password", password)
+            d.putSubItem("host", host)
+            d.putSubItem("path", path)
+            d.putSubItem("query", query)
+            d.putSubItem("fragment", fragment)
+            d.putFields(value)
 
 
 def qdump__QUuid(d, value):
-    v = value["data4"]
-    d.putValue("{%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x}"
-                % (toInteger(value["data1"]) & 0xfffffffff,
-                   value["data2"], value["data3"],
-                   v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7]))
+    r = value.split("IHHBBBBBBBB")
+    d.putValue("{%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x}" % r)
     d.putNumChild(1)
     d.putPlainChildren(value)
 
 
-def qdumpHelper_QVariant_0(d, blob):
+def qdumpHelper_QVariant_0(d, value):
     # QVariant::Invalid
     d.putBetterType("%sQVariant (invalid)" % d.qtNamespace())
     d.putValue("(invalid)")
 
-def qdumpHelper_QVariant_1(d, blob):
+def qdumpHelper_QVariant_1(d, value):
     # QVariant::Bool
     d.putBetterType("%sQVariant (bool)" % d.qtNamespace())
-    d.putValue("true" if blob.extractByte() else "false")
+    d.putValue("true" if value.to('b') else "false")
 
-def qdumpHelper_QVariant_2(d, blob):
+def qdumpHelper_QVariant_2(d, value):
     # QVariant::Int
     d.putBetterType("%sQVariant (int)" % d.qtNamespace())
-    d.putValue("%s" % blob.extractInt())
+    d.putValue(value.to('i'))
 
-def qdumpHelper_QVariant_3(d, blob):
+def qdumpHelper_QVariant_3(d, value):
     # uint
     d.putBetterType("%sQVariant (uint)" % d.qtNamespace())
-    d.putValue(blob.extractUInt())
+    d.putValue(value.to('I'))
 
-def qdumpHelper_QVariant_4(d, blob):
+def qdumpHelper_QVariant_4(d, value):
     # qlonglong
     d.putBetterType("%sQVariant (qlonglong)" % d.qtNamespace())
-    d.putValue(blob.extractInt64())
+    d.putValue(value.to('q'))
 
-def qdumpHelper_QVariant_5(d, blob):
+def qdumpHelper_QVariant_5(d, value):
     # qulonglong
     d.putBetterType("%sQVariant (qulonglong)" % d.qtNamespace())
-    d.putValue(blob.extractUInt64())
+    d.putValue(value.to('Q'))
 
-def qdumpHelper_QVariant_6(d, blob):
+def qdumpHelper_QVariant_6(d, value):
     # QVariant::Double
     d.putBetterType("%sQVariant (double)" % d.qtNamespace())
-    d.putValue(blob.extractDouble())
+    d.putValue(value.to('d'))
 
 qdumpHelper_QVariants_A = [
     qdumpHelper_QVariant_0,
@@ -1639,45 +1538,51 @@ qdumpHelper_QVariants_B = [
     "QVariantHash",# 28
 ]
 
-def qdumpHelper_QVariant_31(d, blob):
+def qdumpHelper_QVariant_31(d, value):
     # QVariant::VoidStar
     d.putBetterType("%sQVariant (void *)" % d.qtNamespace())
-    d.putValue("0x%x" % d.extractPointer(blob))
+    d.putValue("0x%x" % d.extractPointer(value))
 
-def qdumpHelper_QVariant_32(d, blob):
+def qdumpHelper_QVariant_32(d, value):
     # QVariant::Long
     d.putBetterType("%sQVariant (long)" % d.qtNamespace())
-    d.putValue("%s" % blob.extractLong())
+    if d.ptrSize() == 4:
+        d.putValue("%s" % d.extractInt(value))
+    else:
+        d.putValue("%s" % d.extractInt64(value))  # sic!
 
-def qdumpHelper_QVariant_33(d, blob):
+def qdumpHelper_QVariant_33(d, value):
     # QVariant::Short
     d.putBetterType("%sQVariant (short)" % d.qtNamespace())
-    d.putValue("%s" % blob.extractShort())
+    d.putValue("%s" % d.extractShort(value))
 
-def qdumpHelper_QVariant_34(d, blob):
+def qdumpHelper_QVariant_34(d, value):
     # QVariant::Char
     d.putBetterType("%sQVariant (char)" % d.qtNamespace())
-    d.putValue("%s" % blob.extractByte())
+    d.putValue("%s" % d.extractByte(value))
 
-def qdumpHelper_QVariant_35(d, blob):
+def qdumpHelper_QVariant_35(d, value):
     # QVariant::ULong
     d.putBetterType("%sQVariant (unsigned long)" % d.qtNamespace())
-    d.putValue("%s" % blob.extractULong())
+    if d.ptrSize() == 4:
+        d.putValue("%s" % d.extractUInt(value))
+    else:
+        d.putValue("%s" % d.extractUInt64(value))  # sic!
 
-def qdumpHelper_QVariant_36(d, blob):
+def qdumpHelper_QVariant_36(d, value):
     # QVariant::UShort
     d.putBetterType("%sQVariant (unsigned short)" % d.qtNamespace())
-    d.putValue("%s" % blob.extractUShort())
+    d.putValue("%s" % d.extractUShort(value))
 
-def qdumpHelper_QVariant_37(d, blob):
+def qdumpHelper_QVariant_37(d, value):
     # QVariant::UChar
     d.putBetterType("%sQVariant (unsigned char)" % d.qtNamespace())
-    d.putValue("%s" % blob.extractByte())
+    d.putValue("%s" % d.extractByte(value))
 
-def qdumpHelper_QVariant_38(d, blob):
+def qdumpHelper_QVariant_38(d, value):
     # QVariant::Float
     d.putBetterType("%sQVariant (float)" % d.qtNamespace())
-    d.putValue("%s" % blob.extractFloat())
+    d.putValue(value.to('f'))
 
 qdumpHelper_QVariants_D = [
     qdumpHelper_QVariant_31,
@@ -1721,39 +1626,37 @@ qdumpHelper_QVariants_F = [
 ]
 
 def qdump__QVariant(d, value):
-    variantType = int(value["d"]["type"])
-    #warn("VARIANT TYPE: %s : " % variantType)
+    (data, typeStuff) = d.split("8sI", value)
+    variantType = typeStuff & 0x3fffffff
 
     # Well-known simple type.
     if variantType <= 6:
-        blob = d.toBlob(value)
-        qdumpHelper_QVariants_A[variantType](d, blob)
+        qdumpHelper_QVariants_A[variantType](d, value)
         d.putNumChild(0)
         return None
 
     # Extended Core type (Qt 5)
     if variantType >= 31 and variantType <= 38 and d.qtVersion() >= 0x050000:
-        blob = d.toBlob(value)
-        qdumpHelper_QVariants_D[variantType - 31](d, blob)
+        qdumpHelper_QVariants_D[variantType - 31](d, value)
         d.putNumChild(0)
         return None
 
     # Extended Core type (Qt 4)
     if variantType >= 128 and variantType <= 135 and d.qtVersion() < 0x050000:
         if variantType == 128:
-            p = d.extractPointer(value)
             d.putBetterType("%sQVariant (void *)" % d.qtNamespace())
-            d.putValue("0x%x" % p)
+            d.putValue("0x%x" % value.extractPointer())
         else:
-            if variantType == 135:
-                blob = d.toBlob(value)
+            if variantType == 135: # Float
+                blob = value
             else:
                 p = d.extractPointer(value)
-                p = d.extractPointer(p)
-                blob = d.extractBlob(p, 8)
+                blob = d.extractUInt64(p)
             qdumpHelper_QVariants_D[variantType - 128](d, blob)
         d.putNumChild(0)
         return None
+
+    #warn("TYPE: %s" % variantType)
 
     if variantType <= 86:
         # Known Core or Gui type.
@@ -1766,31 +1669,21 @@ def qdump__QVariant(d, value):
         else:
             innert = qdumpHelper_QVariants_F[variantType - 75]
 
-        data = value["d"]["data"]
-        ns = d.qtNamespace()
-        inner = ns + innert
-        innerType = d.lookupType(inner)
+        #data = value["d"]["data"]
+        innerType = d.qtNamespace() + innert
 
-        if innerType is None:
-            # Looking up typedefs is problematic with LLDB, and can also
-            # happen with GDB e.g. in the QVariant2 dumper test on x86
-            # unless further use of the empty QVariantHash is added.
-            if innert == "QVariantMap":
-                inner = "%sQMap<%sQString, %sQVariant>" % (ns, ns, ns)
-            elif innert == "QVariantHash":
-                inner = "%sQHash<%sQString, %sQVariant>" % (ns, ns, ns)
-            elif innert == "QVariantList":
-                inner = "%sQList<%sQVariant>" % (ns, ns)
-            innerType = d.lookupType(inner)
-
-        if innerType is None:
-            self.putSpecialValue("notaccessible")
-            return innert
-
-        if toInteger(value["d"]["is_shared"]):
-            val = data["ptr"].cast(innerType.pointer().pointer()).dereference().dereference()
+        isShared = bool(typeStuff & 0x40000000)
+        #warn("SHARED: %s" % isShared)
+        if isShared:
+            base1 = d.extractPointer(value)
+            #warn("BASE 1: %s %s" % (base1, innert))
+            base = d.extractPointer(base1)
+            #warn("SIZE 1: %s" % size)
+            innerType = d.createType(d.qtNamespace() + innert)
+            val = d.createValue(base, innerType)
         else:
-            val = data["ptr"].cast(innerType)
+            #warn("DIRECT ITEM 1: %s" % innerType)
+            val = d.createValue(data, innerType)
 
         d.putEmptyValue(-99)
         d.putItem(val)
@@ -1798,55 +1691,65 @@ def qdump__QVariant(d, value):
 
         return innert
 
-    # Do not handle user types. The workaround below works, sometimes
-    # for inialized data, but can force loading all debug information
-    # and trigger parse errors  "error: need to add support for
-    # DW_TAG_base_type 'auto' encoded with DW_ATE = 0x0, bit_size = 0"
-    # (LLDB 3.7/Linux)
-    if d.isLldb and platform.system() == "Linux":
-        return None
 
     # User types.
-    d_ptr = value["d"]
-    typeCode = int(d_ptr["type"])
     ns = d.qtNamespace()
-    try:
-        exp = "((const char *(*)(int))%sQMetaType::typeName)(%d)" % (ns, typeCode)
-        type = str(d.parseAndEvaluate(exp))
-    except:
-        exp = "%sQMetaType::typeName(%d)" % (ns, typeCode)
-        type = str(d.parseAndEvaluate(exp))
-    type = type[type.find('"') + 1 : type.rfind('"')]
-    type = type.replace("Q", ns + "Q") # HACK!
-    type = type.replace("uint", "unsigned int") # HACK!
-    type = type.replace("COMMA", ",") # HACK!
-    type = type.replace(" ,", ",") # Lldb
-    #warn("TYPE: %s" % type)
-    data = d.call(value, "constData")
-    #warn("DATA: %s" % data)
     d.putEmptyValue(-99)
-    d.putType("%sQVariant (%s)" % (ns, type))
+    d.putType("%sQVariant (%s)" % (ns, variantType))
     d.putNumChild(1)
-    tdata = data.cast(d.lookupType(type).pointer()).dereference()
     if d.isExpanded():
+        typeName = None
         with Children(d):
-            with NoAddress(d):
-                d.putSubItem("data", tdata)
-    return tdata.type
+            ev = d.parseAndEvaluate
+            data = d.call("const void *", value, "constData")
+
+            addr = value.address()
+            data = ev("((%sQVariant*)0x%x)->constData()" % (ns, addr))
+            if data is None:
+                data = ev("((QVariant*)0x%x)->constData()" % addr)
+            if data is None:
+                d.putSpecialValue("notcallable")
+                return None
+
+            p = None
+            if p is None:
+                # Without debug info.
+                symbol = d.mangleName(d.qtNamespace() + "QMetaType::typeName") + 'i'
+                p = ev("((const char *(*)(int))%s)(%d)" % (symbol, variantType))
+            #if p is None:
+            #    p = ev("((const char *(*)(int))%sQMetaType::typeName)(%d)" % (ns, variantType))
+            if p is None:
+                # LLDB on Linux
+                p = ev("((const char *(*)(int))QMetaType::typeName)(%d)" % variantType)
+            if p is None:
+                d.putSpecialValue("notcallable")
+                return None
+            ptr = p.pointer()
+            (elided, blob) = d.encodeCArray(ptr, 1, 100)
+            typeName = d.hexdecode(blob)
+            base = data.extractPointer()
+            # Prefer namespaced version.
+            if len(ns) > 0:
+                if not d.lookupNativeType(ns + typeName) is None:
+                    typeName = ns + typeName
+            d.putSubItem("data", d.createValue(base, d.createType(typeName)))
+        if not typeName is None:
+            d.putBetterType("%sQVariant (%s)" % (ns, typeName))
+    return None
 
 
 def qedit__QVector(d, value, data):
     values = data.split(',')
     size = len(values)
-    d.call(value, "resize", str(size))
-    innerType = d.templateArgument(value.type, 0)
+    d.call("void", value, "resize", str(size))
+    innerType = value.type[0]
     try:
         # Qt 5. Will fail on Qt 4 due to the missing 'offset' member.
         offset = value["d"]["offset"]
-        base = d.pointerValue(value["d"].cast(d.charPtrType()) + offset)
+        base = value["d"].address() + offset
     except:
         # Qt 4.
-        base = d.pointerValue(value["p"]["array"])
+        base = value["p"]["array"].integer()
     d.setValues(base, innerType, values)
 
 
@@ -1855,56 +1758,81 @@ def qform__QVector():
 
 
 def qdump__QVector(d, value):
-    data, size, alloc = d.vectorDataHelper(d.extractPointer(value))
+    dd = d.extractPointer(value)
+    data, size, alloc = d.vectorDataHelper(dd)
     d.check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 1000)
     d.putItemCount(size)
-    d.putPlotData(data, size, d.templateArgument(value.type, 0))
+    d.putPlotData(data, size, value.type[0])
 
 def qdump__QVarLengthArray(d, value):
-    data = d.extractPointer(value["ptr"])
-    size = int(value["s"])
+    (cap, size, data) = value.split('iip')
     d.check(0 <= size)
     d.putItemCount(size)
-    d.putPlotData(data, size, d.templateArgument(value.type, 0))
+    d.putPlotData(data, size, value.type[0])
+
+
+def qdump__QSharedPointer(d, value):
+    qdump_QWeakPointerHelper(d, value, False)
 
 def qdump__QWeakPointer(d, value):
-    d_ptr = value["d"]
-    val = value["value"]
-    if d.isNull(d_ptr) and d.isNull(val):
+    qdump_QWeakPointerHelper(d, value, True)
+
+def qdump_QWeakPointerHelper(d, value, isWeak):
+    if isWeak:
+        (d_ptr, val) = value.split('pp')
+    else:
+        (val, d_ptr) = value.split('pp')
+    if d_ptr == 0 and val == 0:
         d.putValue("(null)")
         d.putNumChild(0)
         return
-    if d.isNull(d_ptr) or d.isNull(val):
+    if d_ptr == 0 or val == 0:
         d.putValue("<invalid>")
         d.putNumChild(0)
         return
-    weakref = d.extractInt(d_ptr["weakref"].address)
-    strongref = d.extractInt(d_ptr["strongref"].address)
+
+    if d.qtVersion() >= 0x050000:
+        (weakref, strongref) = d.split('ii', d_ptr)
+    else:
+        (vptr, weakref, strongref) = d.split('pii', d_ptr)
     d.check(strongref >= -1)
     d.check(strongref <= weakref)
     d.check(weakref <= 10*1000*1000)
 
-    innerType = d.templateArgument(value.type, 0)
-    if d.isSimpleType(innerType):
-        d.putSimpleValue(val.dereference())
+    innerType = value.type[0]
+    if innerType.isSimpleType():
+        d.putValue(d.createValue(val, innerType).display())
     else:
         d.putEmptyValue()
 
     d.putNumChild(3)
     if d.isExpanded():
         with Children(d):
-            d.putSubItem("data", val.dereference().cast(innerType))
+            d.putSubItem("data", d.createValue(val, innerType))
             d.putIntItem("weakref", weakref)
             d.putIntItem("strongref", strongref)
 
 
+def qdump__QXmlAttributes__Attribute(d, value):
+    d.putEmptyValue()
+    if d.isExpanded():
+        with Children(d):
+            (qname, uri, localname, val) = value.split("{QString}" * 4)
+            d.putSubItem("qname", qname)
+            d.putSubItem("uri", uri)
+            d.putSubItem("localname", localname)
+            d.putSubItem("value", val)
+
 def qdump__QXmlAttributes(d, value):
-    qdump__QList(d, value["attList"])
+    (vptr, atts) = value.split("pP")
+    innerType = d.createType(d.qtNamespace() + "QXmlAttributes::Attribute", 4 * d.ptrSize())
+    val = d.createListItem(atts, innerType)
+    qdumpHelper_QList(d, val, innerType)
 
 
 def qdump__QXmlStreamStringRef(d, value):
     s = value["m_string"]
-    data, size, alloc = d.stringData(s)
+    (data, size, alloc) = d.stringData(s)
     data += 2 * int(value["m_position"])
     size = int(value["m_size"])
     s = d.readMemory(data, 2 * size)
@@ -1914,7 +1842,7 @@ def qdump__QXmlStreamStringRef(d, value):
 
 def qdump__QXmlStreamAttribute(d, value):
     s = value["m_name"]["m_string"]
-    data, size, alloc = d.stringData(s)
+    (data, size, alloc) = d.stringData(s)
     data += 2 * int(value["m_name"]["m_position"])
     size = int(value["m_name"]["m_size"])
     s = d.readMemory(data, 2 * size)
@@ -1961,7 +1889,7 @@ def qdump__QV4__TypedValue(d, value):
     qdump__QV4__Value(d, d.directBaseObject(value))
 
 def qdump__QV4__CallData(d, value):
-    argc = toInteger(value["argc"])
+    argc = value["argc"].integer()
     d.putItemCount(argc)
     if d.isExpanded():
         with Children(d):
@@ -1970,10 +1898,10 @@ def qdump__QV4__CallData(d, value):
                 d.putSubItem(i, value["args"][i])
 
 def qdump__QV4__String(d, value):
-    d.putStringValue(d.addressOf(value) + 2 * d.ptrSize())
+    d.putStringValue(value.address() + 2 * d.ptrSize())
 
 def qdump__QV4__Value(d, value):
-    v = toInteger(str(value["_val"]))
+    v = int(str(value["_val"]))
     NaNEncodeMask          = 0xffff800000000000
     IsInt32Mask            = 0x0002000000000000
     IsDoubleMask           = 0xfffc000000000000
@@ -1991,7 +1919,7 @@ def qdump__QV4__Value(d, value):
     elif v & IsDoubleMask:
         d.putBetterType("%sQV4::Value (double)" % ns)
         d.putValue("%x" % (v ^ 0xffff800000000000), "float:8")
-    elif d.isNull(v):
+    elif v == 0:
         d.putBetterType("%sQV4::Value (null)" % ns)
         d.putValue("(null)")
     elif v & IsNullOrUndefinedMask:
@@ -2003,10 +1931,10 @@ def qdump__QV4__Value(d, value):
         d.putValue(v & 1)
     else:
         vtable = value["m"]["vtable"]
-        if toInteger(vtable["isString"]):
+        if vtable["isString"].integer():
             d.putBetterType("%sQV4::Value (string)" % ns)
             d.putStringValue(d.extractPointer(value) + 2 * d.ptrSize())
-        elif toInteger(vtable["isObject"]):
+        elif vtable["isObject"].integer():
             d.putBetterType("%sQV4::Value (object)" % ns)
             d.putValue("[0x%x]" % v)
         else:
@@ -2100,7 +2028,7 @@ def qdump__QScriptValue(d, value):
     #d.putEmptyValue()
     dd = value["d_ptr"]["d"]
     ns = d.qtNamespace()
-    if d.isNull(dd):
+    if dd.integer() == 0:
         d.putValue("(invalid)")
         d.putNumChild(0)
         return
@@ -2189,16 +2117,16 @@ def qdumpHelper_qle_cutBits(value, offset, length):
     return (value >> offset) & ((1 << length) - 1)
 
 def qdump__QJsonPrivate__qle_bitfield(d, value):
-    offset = d.numericTemplateArgument(value.type, 0)
-    length = d.numericTemplateArgument(value.type, 1)
-    val = toInteger(value["val"])
+    offset = value.type[0]
+    length = value.type[1]
+    val = value["val"].integer()
     d.putValue("%s" % qdumpHelper_qle_cutBits(val, offset, length))
     d.putNumChild(0)
 
 def qdumpHelper_qle_signedbitfield_value(d, value):
-    offset = d.numericTemplateArgument(value.type, 0)
-    length = d.numericTemplateArgument(value.type, 1)
-    val = toInteger(value["val"])
+    offset = value.type[0]
+    length = value.type[1]
+    val = value["val"].integer()
     val = (val >> offset) & ((1 << length) - 1)
     if val >= (1 << (length - 1)):
         val -= (1 << (length - 1))
@@ -2209,11 +2137,11 @@ def qdump__QJsonPrivate__qle_signedbitfield(d, value):
     d.putNumChild(0)
 
 def qdump__QJsonPrivate__q_littleendian(d, value):
-    d.putValue("%s" % toInteger(value["val"]))
+    d.putValue("%s" % value["val"].integer())
     d.putNumChild(0)
 
 
-def qdumpHelper__QJsonValue(d, data, base, pv):
+def qdumpHelper_QJsonValue(d, data, base, pv):
     """
     Parameters are the parameters to the
     QJsonValue(QJsonPrivate::Data *data, QJsonPrivate::Base *base,
@@ -2224,6 +2152,9 @@ def qdumpHelper__QJsonValue(d, data, base, pv):
     base is passed as pointer integer
     pv is passed as 32 bit integer.
     """
+    d.checkIntType(data)
+    d.checkIntType(base)
+    d.checkIntType(pv)
 
     t = qdumpHelper_qle_cutBits(pv, 0, 3)
     v = qdumpHelper_qle_cutBits(pv, 5, 27)
@@ -2247,8 +2178,9 @@ def qdumpHelper__QJsonValue(d, data, base, pv):
                 w -= 0x8000000
             d.putValue(w)
         else:
-            data = base + v;
-            d.putValue(d.extractBlob(data, 8).extractDouble())
+            data = base + v
+            f = d.split('d', data)[0]
+            d.putValue(str(f))
         d.putNumChild(0)
         return
     if t == 3:
@@ -2264,15 +2196,15 @@ def qdumpHelper__QJsonValue(d, data, base, pv):
         return
     if t == 4:
         d.putType("QJsonValue (Array)")
-        qdumpHelper__QJsonArray(d, data, base + v)
+        qdumpHelper_QJsonArray(d, data, base + v)
         return
     if t == 5:
         d.putType("QJsonValue (Object)")
-        qdumpHelper__QJsonObject(d, data, base + v)
+        qdumpHelper_QJsonObject(d, data, base + v)
         d.putNumChild(0)
 
 
-def qdumpHelper__QJsonArray(d, data, array):
+def qdumpHelper_QJsonArray(d, data, array):
     """
     Parameters are the parameters to the
     QJsonArray(QJsonPrivate::Data *data, QJsonPrivate::Array *array)
@@ -2293,10 +2225,10 @@ def qdumpHelper__QJsonArray(d, data, array):
             table = array + d.extractUInt(array + 8)
             for i in range(n):
                 with SubItem(d, i):
-                    qdumpHelper__QJsonValue(d, data, array, d.extractUInt(table + 4 * i))
+                    qdumpHelper_QJsonValue(d, data, array, d.extractUInt(table + 4 * i))
 
 
-def qdumpHelper__QJsonObject(d, data, obj):
+def qdumpHelper_QJsonObject(d, data, obj):
     """
     Parameters are the parameters to the
     QJsonObject(QJsonPrivate::Data *data, QJsonPrivate::Object *object);
@@ -2332,11 +2264,11 @@ def qdumpHelper__QJsonObject(d, data, obj):
                         d.put('key="%s",' % d.readMemory(keyStart + 4, keyLength))
                         d.put('keyencoded="utf16",')
 
-                    qdumpHelper__QJsonValue(d, data, obj, val)
+                    qdumpHelper_QJsonValue(d, data, obj, val)
 
 
 def qdump__QJsonValue(d, value):
-    t = toInteger(value["t"])
+    (data, dd, t) = value.split('QpI')
     if t == 0:
         d.putType("QJsonValue (Null)")
         d.putValue("Null")
@@ -2344,27 +2276,27 @@ def qdump__QJsonValue(d, value):
         return
     if t == 1:
         d.putType("QJsonValue (Bool)")
-        v = toInteger(value["b"])
+        v = value.split('b')
         d.putValue("true" if v else "false")
         d.putNumChild(0)
         return
     if t == 2:
         d.putType("QJsonValue (Number)")
-        d.putValue(value["dbl"])
+        d.putValue(value.split('d'))
         d.putNumChild(0)
         return
     if t == 3:
         d.putType("QJsonValue (String)")
-        d.putStringValueByAddress(toInteger(value["stringData"]))
+        d.putStringValueByAddress(data)
         d.putNumChild(0)
         return
     if t == 4:
         d.putType("QJsonValue (Array)")
-        qdumpHelper__QJsonArray(d, toInteger(value["d"]), toInteger(value["base"]))
+        qdumpHelper_QJsonArray(d, dd, data)
         return
     if t == 5:
         d.putType("QJsonValue (Object)")
-        qdumpHelper__QJsonObject(d, toInteger(value["d"]), toInteger(value["base"]))
+        qdumpHelper_QJsonObject(d, dd, data)
         return
     d.putType("QJsonValue (Undefined)")
     d.putEmptyValue()
@@ -2372,10 +2304,10 @@ def qdump__QJsonValue(d, value):
 
 
 def qdump__QJsonArray(d, value):
-    qdumpHelper__QJsonArray(d, toInteger(value["d"]), toInteger(value["a"]))
+    qdumpHelper_QJsonArray(d, value["d"].integer(), value["a"].integer())
 
 
 def qdump__QJsonObject(d, value):
-    qdumpHelper__QJsonObject(d, toInteger(value["d"]), toInteger(value["o"]))
+    qdumpHelper_QJsonObject(d, value["d"].integer(), value["o"].integer())
 
 

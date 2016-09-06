@@ -35,69 +35,71 @@ def qdump____m128(d, value):
     d.putEmptyValue()
     d.putNumChild(1)
     if d.isExpanded():
-        d.putArrayData(value.address, 4, d.lookupType("float"))
+        d.putArrayData(value.address(), 4, d.lookupType("float"))
 
 def qdump____m256(d, value):
     d.putEmptyValue()
     d.putNumChild(1)
     if d.isExpanded():
-        d.putArrayData(value.address, 8, d.lookupType("float"))
+        d.putArrayData(value.address(), 8, d.lookupType("float"))
 
 def qdump____m512(d, value):
     d.putEmptyValue()
     d.putNumChild(1)
     if d.isExpanded():
-        d.putArrayData(value.address, 16, d.lookupType("float"))
+        d.putArrayData(value.address(), 16, d.lookupType("float"))
 
 def qdump____m128d(d, value):
     d.putEmptyValue()
     d.putNumChild(1)
     if d.isExpanded():
-        d.putArrayData(value.address, 2, d.lookupType("double"))
+        d.putArrayData(value.address(), 2, d.lookupType("double"))
 
 def qdump____m256d(d, value):
     d.putEmptyValue()
     d.putNumChild(1)
     if d.isExpanded():
-        d.putArrayData(value.address, 4, d.lookupType("double"))
+        d.putArrayData(value.address(), 4, d.lookupType("double"))
 
 def qdump____m512d(d, value):
     d.putEmptyValue()
     d.putNumChild(1)
     if d.isExpanded():
-        d.putArrayData(value.address, 8, d.lookupType("double"))
+        d.putArrayData(value.address(), 8, d.lookupType("double"))
 
 def qdump____m128i(d, value):
-    data = d.readMemory(value.address, 16)
+    data = d.hexencode(value.data())
     d.putValue(':'.join("%04x" % int(data[i:i+4], 16) for i in xrange(0, 32, 4)))
     d.putNumChild(4)
     if d.isExpanded():
         with Children(d):
-            d.putArrayItem("uint8x16", value.address, 16, "unsigned char")
-            d.putArrayItem("uint16x8", value.address, 8, "unsigned short")
-            d.putArrayItem("uint32x4", value.address, 4, "unsigned int")
-            d.putArrayItem("uint64x2", value.address, 2, "unsigned long long")
+            addr = value.address()
+            d.putArrayItem("uint8x16", addr, 16, "unsigned char")
+            d.putArrayItem("uint16x8", addr, 8, "unsigned short")
+            d.putArrayItem("uint32x4", addr, 4, "unsigned int")
+            d.putArrayItem("uint64x2", addr, 2, "unsigned long long")
 
 def qdump____m256i(d, value):
-    data = d.readMemory(value.address, 32)
+    data = d.hexencode(value.data())
     d.putValue(':'.join("%04x" % int(data[i:i+4], 16) for i in xrange(0, 64, 4)))
     d.putNumChild(4)
     if d.isExpanded():
         with Children(d):
-            d.putArrayItem("uint8x32", value.address, 32, "unsigned char")
-            d.putArrayItem("uint16x16", value.address, 16, "unsigned short")
-            d.putArrayItem("uint32x8", value.address, 8, "unsigned int")
-            d.putArrayItem("uint64x4", value.address, 4, "unsigned long long")
+            addr = value.address()
+            d.putArrayItem("uint8x32", addr, 32, "unsigned char")
+            d.putArrayItem("uint16x16", addr, 16, "unsigned short")
+            d.putArrayItem("uint32x8", addr, 8, "unsigned int")
+            d.putArrayItem("uint64x4", addr, 4, "unsigned long long")
 
 def qdump____m512i(d, value):
-    data = d.readMemory(value.address, 64)
+    data = d.hexencode(value.data())
     d.putValue(':'.join("%04x" % int(data[i:i+4], 16) for i in xrange(0, 64, 4))
                + ', ' + ':'.join("%04x" % int(data[i:i+4], 16) for i in xrange(64, 128, 4)))
     d.putNumChild(2)
     if d.isExpanded():
         with Children(d):
-            d.putArrayItem("uint32x16", value.address, 16, "unsigned int")
-            d.putArrayItem("uint64x8", value.address, 8, "unsigned long long")
+            d.putArrayItem("uint32x16", value.address(), 16, "unsigned int")
+            d.putArrayItem("uint64x8", value.address(), 8, "unsigned long long")
 
 #######################################################################
 #
@@ -109,11 +111,11 @@ def qdump____m512i(d, value):
 #    return "Transposed"
 
 def qdump__Eigen__Matrix(d, value):
-    innerType = d.templateArgument(value.type, 0)
-    options = d.numericTemplateArgument(value.type, 3)
+    innerType = value.type.templateArgument(0, False)
+    argRow = value.type.templateArgument(1, True)
+    argCol = value.type.templateArgument(2, True)
+    options = value.type.templateArgument(3, True)
     rowMajor = (int(options) & 0x1)
-    argRow = d.numericTemplateArgument(value.type, 1)
-    argCol = d.numericTemplateArgument(value.type, 2)
     # The magic dimension value is -1 in Eigen3, but 10000 in Eigen2.
     # 10000 x 10000 matrices are rare, vectors of dim 10000 less so.
     # So "fix" only the matrix case:
@@ -123,12 +125,13 @@ def qdump__Eigen__Matrix(d, value):
     if argCol != -1 and argRow != -1:
         nrows = argRow
         ncols = argCol
-        p = d.createPointerValue(d.addressOf(value), innerType)
+        p = value.address()
     else:
         storage = value["m_storage"]
-        nrows = toInteger(storage["m_rows"]) if argRow == -1 else argRow
-        ncols = toInteger(storage["m_cols"]) if argCol == -1 else argCol
-        p = d.createValue(d.addressOf(value), innerType.pointer())
+        nrows = storage["m_rows"].integer() if argRow == -1 else argRow
+        ncols = storage["m_cols"].integer() if argCol == -1 else argCol
+        p = storage["m_data"].integer()
+    innerSize = innerType.size()
     d.putValue("(%s x %s), %s" % (nrows, ncols, ["ColumnMajor", "RowMajor"][rowMajor]))
     d.putField("keeporder", "1")
     d.putNumChild(nrows * ncols)
@@ -141,19 +144,19 @@ def qdump__Eigen__Matrix(d, value):
         with Children(d, nrows * ncols, childType=innerType):
             if ncols == 1 or nrows == 1:
                 for i in range(0, min(nrows * ncols, 10000)):
-                    d.putSubItem(i, (p + i).dereference())
+                    d.putSubItem(i, d.createValue(p + i * innerSize, innerType))
             elif rowMajor == 1:
                 s = 0
                 for i in range(0, nnrows):
                     for j in range(0, nncols):
-                        v = (p + i * ncols + j).dereference()
+                        v = d.createValue(p + (i * ncols + j) * innerSize, innerType)
                         d.putNamedSubItem(s, v, "[%d,%d]" % (i, j))
                         s = s + 1
             else:
                 s = 0
                 for j in range(0, nncols):
                     for i in range(0, nnrows):
-                        v = (p + i + j * nrows).dereference()
+                        v = d.createValue(p + (i + j * nrows) * innerSize, innerType)
                         d.putNamedSubItem(s, v, "[%d,%d]" % (i, j))
                         s = s + 1
 
@@ -362,7 +365,7 @@ def qdump__WTF__String(d, value):
     d.check(0 <= stringLength and stringLength <= 100000000)
 
     # WTF::StringImpl* -> WTF::StringImpl -> sizeof(WTF::StringImpl)
-    offsetToData = data.type.target().sizeof
+    offsetToData = data.type.target().size()
     bufferPtr = data.cast(d.charPtrType()) + offsetToData
 
     is8Bit = data['m_is8Bit']

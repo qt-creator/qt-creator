@@ -1837,10 +1837,10 @@ namespace qobject {
             Q_SLOT void setMyProp2(const QString&mt) { m_myProp2 = mt; }
 
             Q_PROPERTY(long myProp3 READ myProp3)
-            long myProp3() const { return 54; }
+            long myProp3() const { return -54; }
 
-            Q_PROPERTY(long myProp4 READ myProp4)
-            long myProp4() const { return 44; }
+            Q_PROPERTY(int myProp4 READ myProp4)
+            int myProp4() const { return -44; }
 
             Q_SIGNAL void sigFoo();
             Q_SIGNAL void sigBar(int);
@@ -1887,6 +1887,8 @@ namespace qobject {
             v[i] = mo->method(i);
 
 
+        test.setProperty("USER DEFINED 1", 44);
+        test.setProperty("USER DEFINED 2", QStringList() << "FOO" << "BAR");
         BREAK_HERE;
         // Check s "HELLOWORLD" QString.
         // Check test  qobject::Names::Bar::TestObject.
@@ -2275,7 +2277,11 @@ namespace qregion {
         BREAK_HERE;
         // Check region <4 items> QRegion.
         // Continue.
-        dummyStatement(&region);
+        QVector<int> vv = { 1, 2, 3 };
+        dummyStatement(&region, &vv);
+        QRect x(12, 34, 66, 77);
+        QVector<QRect> rr = { {1, 2, 3, 4}, {5, 6, 7, 8} };
+        dummyStatement(&region, &vv, &rr, &x);
         #endif
     }
 

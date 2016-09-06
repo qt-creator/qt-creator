@@ -26,63 +26,55 @@
 from dumper import *
 
 def qdump__boost__bimaps__bimap(d, value):
-    #leftType = d.templateArgument(value.type, 0)
-    #rightType = d.templateArgument(value.type, 1)
-    size = int(value["core"]["node_count"])
+    #leftType = value.type[0]
+    #rightType = value.type[1]
+    size = value["core"]["node_count"].integer()
     d.putItemCount(size)
     if d.isExpanded():
         d.putPlainChildren(value)
 
 
 def qdump__boost__optional(d, value):
-    if int(value["m_initialized"]) == 0:
+    innerType = value.type[0]
+    (initialized, pad, payload) = d.split('b@{%s}' % innerType, value)
+    if initialized:
+        d.putItem(payload)
+        d.putBetterType(value.type)
+    else:
         d.putSpecialValue("uninitialized")
         d.putNumChild(0)
-    else:
-        type = d.templateArgument(value.type, 0)
-        storage = value["m_storage"]
-        if d.isReferenceType(type):
-            d.putItem(storage.cast(type.target().pointer()).dereference())
-        else:
-            d.putItem(storage.cast(type))
-        d.putBetterType(value.type)
 
 
 def qdump__boost__shared_ptr(d, value):
     # s                  boost::shared_ptr<int>
+    #    px      0x0     int *
     #    pn              boost::detail::shared_count
     #        pi_ 0x0     boost::detail::sp_counted_base *
-    #    px      0x0     int *
-    if d.isNull(value["pn"]["pi_"]):
+    (px, pi) = value.split("pp")
+    if pi == 0:
         d.putValue("(null)")
         d.putNumChild(0)
         return
 
-    if d.isNull(value["px"]):
+    if px == 0:
         d.putValue("(null)")
         d.putNumChild(0)
         return
 
-    countedbase = value["pn"]["pi_"].dereference()
-    weakcount = int(countedbase["weak_count_"])
-    usecount = int(countedbase["use_count_"])
+    (vptr, usecount, weakcount) = d.split('pii', pi)
     d.check(weakcount >= 0)
+    d.check(weakcount <= usecount)
     d.check(usecount <= 10*1000*1000)
 
-    val = value["px"].dereference()
-    type = val.type
-    # handle boost::shared_ptr<int>::element_type as int
-    if str(type).endswith(">::element_type"):
-        type = type.strip_typedefs()
-
-    if d.isSimpleType(type):
+    innerType = value.type[0]
+    val = d.createValue(px, innerType)
+    if innerType.isSimpleType():
         d.putNumChild(3)
         d.putItem(val)
         d.putBetterType(value.type)
     else:
         d.putEmptyValue()
 
-    d.putNumChild(3)
     if d.isExpanded():
         with Children(d, 3):
             d.putSubItem("data", val)
@@ -92,10 +84,10 @@ def qdump__boost__shared_ptr(d, value):
 
 def qdump__boost__container__list(d, value):
     r = value["members_"]["m_icont"]["data_"]["root_plus_size_"]
-    n = toInteger(r["size_"])
+    n = r["size_"].integer()
     d.putItemCount(n)
     if d.isExpanded():
-        innerType = d.templateArgument(value.type, 0)
+        innerType = value.type[0]
         offset = 2 * d.ptrSize()
         with Children(d, n):
             try:
@@ -103,42 +95,42 @@ def qdump__boost__container__list(d, value):
             except:
                 root = r["m_header"]
             p = root["next_"]
-            for i in xrange(n):
-                d.putSubItem("%s" % i, d.createValue(d.pointerValue(p) + offset, innerType))
+            for i in d.childRange():
+                d.putSubItem(i, d.createValue(p.integer() + offset, innerType))
                 p = p["next_"]
 
 
 def qdump__boost__gregorian__date(d, value):
-    d.putValue(int(value["days_"]), "juliandate")
+    d.putValue(value.integer(), "juliandate")
     d.putNumChild(0)
 
 
 def qdump__boost__posix_time__ptime(d, value):
-    ms = int(int(value["time_"]["time_count_"]["value_"]) / 1000)
+    ms = int(value.integer() / 1000)
     d.putValue("%s/%s" % divmod(ms, 86400000), "juliandateandmillisecondssincemidnight")
     d.putNumChild(0)
 
 
 def qdump__boost__posix_time__time_duration(d, value):
-    d.putValue(int(int(value["ticks_"]["value_"]) / 1000), "millisecondssincemidnight")
+    d.putValue(int(value.integer() / 1000), "millisecondssincemidnight")
     d.putNumChild(0)
 
 
 def qdump__boost__unordered__unordered_set(d, value):
-    base = d.addressOf(value)
+    base = value.address()
     ptrSize = d.ptrSize()
     size = d.extractInt(base + 2 * ptrSize)
     d.putItemCount(size)
 
     if d.isExpanded():
-        innerType = d.templateArgument(value.type, 0)
+        innerType = value.type[0]
         bucketCount = d.extractInt(base + ptrSize)
         #warn("A BUCKET COUNT: %s" % bucketCount)
         #warn("X BUCKET COUNT: %s" % d.parseAndEvaluate("s1.table_.bucket_count_"))
         try:
             # boost 1.58
             table = value["table_"]
-            bucketsAddr = toInteger(table["buckets_"])
+            bucketsAddr = table["buckets_"].integer()
             #warn("A BUCKETS: 0x%x" % bucketsAddr)
             #warn("X BUCKETS: %s" % d.parseAndEvaluate("s1.table_.buckets_"))
             lastBucketAddr = bucketsAddr + bucketCount * ptrSize
@@ -159,7 +151,7 @@ def qdump__boost__unordered__unordered_set(d, value):
                     item = d.extractPointer(item)
         except:
             # boost 1.48
-            offset = int((innerType.sizeof + ptrSize - 1) / ptrSize) * ptrSize
+            offset = int((innerType.size() + ptrSize - 1) / ptrSize) * ptrSize
             with Children(d, size, maxNumChild=10000):
                 afterBuckets = d.extractPointer(base + 5 * ptrSize)
                 afterBuckets += bucketCount * ptrSize

@@ -57,14 +57,8 @@ def check(exp):
     if not exp:
         raise RuntimeError("Check failed")
 
-Value = lldb.SBValue
-
 def impl_SBValue__add__(self, offset):
     if self.GetType().IsPointerType():
-        if isinstance(offset, int) or isinstance(offset, long):
-            pass
-        else:
-            offset = offset.GetValueAsSigned()
         itemsize = self.GetType().GetPointeeType().GetByteSize()
         address = self.GetValueAsUnsigned() + offset * itemsize
         address = address & 0xFFFFFFFFFFFFFFFF  # Force unsigned
@@ -74,88 +68,8 @@ def impl_SBValue__add__(self, offset):
     raise RuntimeError("SBValue.__add__ not implemented: %s" % self.GetType())
     return NotImplemented
 
-def impl_SBValue__sub__(self, other):
-    if self.GetType().IsPointerType():
-        if isinstance(other, int) or isinstance(other, long):
-            address = self.GetValueAsUnsigned() - other
-            address = address & 0xFFFFFFFFFFFFFFFF  # Force unsigned
-            return self.CreateValueFromAddress(None, address, self.GetType())
-        if other.GetType().IsPointerType():
-            itemsize = self.GetType().GetPointeeType().GetByteSize()
-            return (self.GetValueAsUnsigned() - other.GetValueAsUnsigned()) / itemsize
-    raise RuntimeError("SBValue.__sub__ not implemented: %s" % self.GetType())
-    return NotImplemented
-
-def impl_SBValue__le__(self, other):
-    if self.GetType().IsPointerType() and other.GetType().IsPointerType():
-        return int(self) <= int(other)
-    raise RuntimeError("SBValue.__le__ not implemented")
-    return NotImplemented
-
-def impl_SBValue__int__(self):
-    return self.GetValueAsSigned()
-
-def impl_SBValue__float__(self):
-    error = lldb.SBError()
-    if self.GetType().GetByteSize() == 4:
-        result = self.GetData().GetFloat(error, 0)
-    else:
-        result = self.GetData().GetDouble(error, 0)
-    if error.Success():
-        return result
-    return NotImplemented
-
-def impl_SBValue__long__(self):
-    return int(self.GetValue(), 0)
-
-def impl_SBValue__getitem__(value, index):
-    if isinstance(index, int) or isinstance(index, long):
-        type = value.GetType()
-        if type.IsPointerType():
-            innertype = value.Dereference().GetType()
-            address = value.GetValueAsUnsigned() + index * innertype.GetByteSize()
-            address = address & 0xFFFFFFFFFFFFFFFF  # Force unsigned
-            return value.CreateValueFromAddress(None, address, innertype)
-        return value.GetChildAtIndex(index)
-    item = value.GetChildMemberWithName(index)
-    if item.IsValid():
-        return item
-    raise RuntimeError("SBValue.__getitem__: No such member '%s'" % index)
-
-def impl_SBValue__deref(value):
-    result = value.Dereference()
-    if result.IsValid():
-        return result
-    exp = "*(class %s*)0x%x" % (value.GetType().GetPointeeType(), value.GetValueAsUnsigned())
-    return value.CreateValueFromExpression(None, exp)
 
 lldb.SBValue.__add__ = impl_SBValue__add__
-lldb.SBValue.__sub__ = impl_SBValue__sub__
-lldb.SBValue.__le__ = impl_SBValue__le__
-
-lldb.SBValue.__getitem__ = impl_SBValue__getitem__
-lldb.SBValue.__int__ = impl_SBValue__int__
-lldb.SBValue.__float__ = impl_SBValue__float__
-lldb.SBValue.__long__ = lambda self: long(self.GetValue(), 0)
-
-lldb.SBValue.code = lambda self: self.GetTypeClass()
-lldb.SBValue.cast = lambda self, typeObj: self.Cast(typeObj)
-lldb.SBValue.dereference = impl_SBValue__deref
-lldb.SBValue.address = property(lambda self: self.GetLoadAddress())
-
-lldb.SBType.pointer = lambda self: self.GetPointerType()
-lldb.SBType.target = lambda self: self.GetPointeeType()
-lldb.SBType.code = lambda self: self.GetTypeClass()
-lldb.SBType.sizeof = property(lambda self: self.GetByteSize())
-
-
-lldb.SBType.unqualified = \
-    lambda self: self.GetUnqualifiedType() if hasattr(self, 'GetUnqualifiedType') else self
-lldb.SBType.strip_typedefs = \
-    lambda self: self.GetCanonicalType() if hasattr(self, 'GetCanonicalType') else self
-
-lldb.SBType.__orig__str__ = lldb.SBType.__str__
-lldb.SBType.__str__ = lldb.SBType.GetName
 
 class Dumper(DumperBase):
     def __init__(self):
@@ -179,10 +93,15 @@ class Dumper(DumperBase):
 
         # FIXME: warn("DISABLING DEFAULT FORMATTERS")
         # It doesn't work at all with 179.5 and we have some bad
-        # interactonn in 3000
+        # interaction in 300
         # if not hasattr(lldb.SBType, 'GetCanonicalType'): # "Test" for 179.5
-        self.debugger.HandleCommand('type category delete gnu-libstdc++')
-        self.debugger.HandleCommand('type category delete libcxx')
+        #self.debugger.HandleCommand('type category delete gnu-libstdc++')
+        #self.debugger.HandleCommand('type category delete libcxx')
+        #self.debugger.HandleCommand('type category delete default')
+        self.debugger.DeleteCategory('gnu-libstdc++')
+        self.debugger.DeleteCategory('libcxx')
+        self.debugger.DeleteCategory('default')
+        self.debugger.DeleteCategory('cplusplus')
         #for i in range(self.debugger.GetNumCategories()):
         #    self.debugger.GetCategoryAtIndex(i).SetEnabled(False)
 
@@ -200,6 +119,7 @@ class Dumper(DumperBase):
         self.useFancy = True
         self.formats = {}
         self.typeformats = {}
+        self.currentContextValue = None
 
         self.currentIName = None
         self.currentValue = ReportItem()
@@ -221,7 +141,6 @@ class Dumper(DumperBase):
 
         self.charType_ = None
         self.intType_ = None
-        self.int64Type_ = None
         self.sizetType_ = None
         self.charPtrType_ = None
         self.voidPtrType_ = None
@@ -233,62 +152,204 @@ class Dumper(DumperBase):
         self.reportState("enginesetupok")
         self.debuggerCommandInProgress = False
 
-    def enterSubItem(self, item):
-        if isinstance(item.name, lldb.SBValue):
-            # Avoid $$__synth__ suffix on Mac.
-            value = item.name
-            if self.isGoodLldb:
-                value.SetPreferSyntheticValue(False)
-            item.name = value.GetName()
-            if item.name is None:
-                self.anonNumber += 1
-                item.name = "#%d" % self.anonNumber
-        if not item.iname:
-            item.iname = "%s.%s" % (self.currentIName, item.name)
-        self.put('{')
-        #if not item.name is None:
-        if isinstance(item.name, str):
-            if item.name == '**&':
-                item.name = '*'
-            self.put('name="%s",' % item.name)
-        item.savedCurrentAddress = self.currentAddress
-        item.savedIName = self.currentIName
-        item.savedValue = self.currentValue
-        item.savedType = self.currentType
-        self.currentIName = item.iname
-        self.currentValue = ReportItem()
-        self.currentType = ReportItem()
-        self.currentAddress = None
-
-    def exitSubItem(self, item, exType, exValue, exTraceBack):
-        if not exType is None:
-            if self.passExceptions:
-                showException("SUBITEM", exType, exValue, exTraceBack)
-            self.putNumChild(0)
-            self.putSpecialValue("notaccessible")
+    def fromNativeValue(self, nativeValue):
+        nativeValue.SetPreferSyntheticValue(False)
+        val = self.Value(self)
+        val.nativeValue = nativeValue
+        val.type = self.fromNativeType(nativeValue.type)
+        val.lIsInScope = nativeValue.IsInScope()
+        #val.name = nativeValue.GetName()
         try:
-            if self.currentType.value:
-                typeName = self.currentType.value
-                if len(typeName) > 0 and typeName != self.currentChildType:
-                    self.put('type="%s",' % typeName) # str(type.unqualified()) ?
-            if  self.currentValue.value is None:
-                self.put('value="",encoding="notaccessible",numchild="0",')
-            else:
-                if not self.currentValue.encoding is None:
-                    self.put('valueencoded="%s",' % self.currentValue.encoding)
-                if self.currentValue.elided:
-                    self.put('valueelided="%s",' % self.currentValue.elided)
-                self.put('value="%s",' % self.currentValue.value)
+            val.laddress = int(nativeValue.GetLoadAddress())
         except:
             pass
-        if not self.currentAddress is None:
-            self.put(self.currentAddress)
-        self.put('},')
-        self.currentIName = item.savedIName
-        self.currentValue = item.savedValue
-        self.currentType = item.savedType
-        self.currentAddress = item.savedCurrentAddress
-        return True
+        return val
+
+    def fromNativeType(self, nativeType):
+        typeobj = self.Type(self)
+        if nativeType.IsPointerType():
+            typeobj.nativeType = nativeType
+        else:
+            # This strips typedefs for pointers. We don't want that.
+            typeobj.nativeType = nativeType.GetUnqualifiedType()
+        typeobj.name = typeobj.nativeType.GetDisplayTypeName()
+        typeobj.lbitsize = nativeType.GetByteSize() * 8
+        code = nativeType.GetTypeClass()
+        typeobj.code = code
+        typeobj.lFunctionType = nativeType.IsFunctionType()
+        typeobj.lPointerType = nativeType.IsPointerType()
+        typeobj.lReferenceType = nativeType.IsReferenceType()
+        #typeobj.lIntegralType = code in (BoolCode, CharCode, IntCode)
+        #typeobj.lFloatingPointType = code == FloatCode
+        typeobj.lTypedefedType = code == lldb.eTypeClassTypedef
+        typeobj.lEnumType = code == lldb.eTypeClassEnumeration
+        #typeobj.lEnumType = False
+        typeobj.lArrayType = code in (lldb.eTypeClassArray, lldb.eTypeClassVector)
+        typeobj.lComplexType = code in (lldb.eTypeClassComplexInteger, lldb.eTypeClassComplexFloat)
+        #warn("CREATE TYPE: %s IS TYPEDEF: %s" % (typeobj.name, typeobj.lTypedefedType))
+        return typeobj
+
+    def nativeTypeFields(self, nativeType):
+        fields = []
+        if self.currentContextValue is not None:
+            addr = self.currentContextValue.AddressOf().GetValueAsUnsigned()
+        else:
+            warn("CREATING DUMMY CONTEXT")
+            addr = 0 # FIXME: 0 doesn't produce valid member offsets.
+            addr = 0x7fffffffe0a0
+        sbaddr = lldb.SBAddress(addr, self.target)
+        dummyValue = self.target.CreateValueFromAddress('x', sbaddr, nativeType)
+
+        anonNumber = 0
+
+        baseNames = {}
+        virtualNames = {}
+        # baseNames = set(base.GetName() for base in nativeType.get_bases_array())
+        for i in range(nativeType.GetNumberOfDirectBaseClasses()):
+            base = nativeType.GetDirectBaseClassAtIndex(i)
+            baseNames[base.GetName()] = i
+
+        for i in range(nativeType.GetNumberOfVirtualBaseClasses()):
+            base = nativeType.GetVirtualBaseClassAtIndex(i)
+            virtualNames[base.GetName()] = i
+
+        fieldBits = dict((field.name, (field.GetBitfieldSizeInBits(), field.GetOffsetInBits()))
+                        for field in nativeType.get_fields_array())
+
+        #warn("BASE NAMES: %s" % baseNames)
+        #warn("VIRTUAL NAMES: %s" % virtualNames)
+        #warn("FIELD BITS: %s" % fieldBits)
+
+        # This does not list empty base entries.
+        for i in xrange(dummyValue.GetNumChildren()):
+            dummyChild = dummyValue.GetChildAtIndex(i)
+            fieldName = dummyChild.GetName()
+            if fieldName is None:
+                anonNumber += 1
+                fieldName = "#%s" % anonNumber
+            fieldType = dummyChild.GetType()
+            #warn("CHILD AT: %s: %s %s" % (i, fieldName, fieldType))
+            #warn(" AT: %s: %s %s" % (i, fieldName, fieldType))
+            caddr = dummyChild.AddressOf().GetValueAsUnsigned()
+            child = self.Value(self)
+            child.type = self.fromNativeType(fieldType)
+            child.name = fieldName
+            field = self.Field(self)
+            field.value = child
+            field.parentType = self.fromNativeType(nativeType)
+            field.ltype = self.fromNativeType(fieldType)
+            field.nativeIndex = i
+            field.name = fieldName
+            if fieldName in fieldBits:
+                (field.lbitsize, field.lbitpos) = fieldBits[fieldName]
+            else:
+                field.lbitsize = fieldType.GetByteSize() * 8
+                field.lbitpos = (caddr - addr) * 8
+            if fieldName in baseNames:
+                #warn("BASE: %s P0S: 0x%x - 0x%x = %s" % (fieldName, caddr, addr, caddr - addr))
+                field.isBaseClass = True
+                field.baseIndex = baseNames[fieldName]
+            if fieldName in virtualNames:
+                field.isVirtualBase = True
+                #warn("ADDING VRITUAL BASE: %s" % fieldName)
+            fields.append(field)
+
+        # Add empty bases.
+        for i in range(nativeType.GetNumberOfDirectBaseClasses()):
+            fieldObj = nativeType.GetDirectBaseClassAtIndex(i)
+            fieldType = fieldObj.GetType()
+            if fieldType.GetNumberOfFields() == 0:
+                if fieldType.GetNumberOfDirectBaseClasses() == 0:
+                    fieldName = fieldObj.GetName()
+                    child = self.Value(self)
+                    child.type = self.fromNativeType(fieldType)
+                    child.name = fieldName
+                    child.ldata = bytes()
+                    field = self.Field(self)
+                    field.value = child
+                    field.isBaseClass = True
+                    field.baseIndex = baseNames[fieldName]
+                    field.parentType = self.fromNativeType(nativeType)
+                    field.ltype = self.fromNativeType(fieldType)
+                    field.name = fieldName
+                    field.lbitsize = 0
+                    field.lbitpos = 0
+                    fields.append(field)
+
+        #warn("FIELD NAMES: %s" % [field.name for field in fields])
+        #warn("FIELDS: %s" % fields)
+        return fields
+
+    def nativeValueDereference(self, nativeValue):
+        result = nativeValue.Dereference()
+        if not result.IsValid():
+            return None
+        return self.fromNativeValue(result)
+
+    def nativeValueCast(self, nativeValue, nativeType):
+        return self.fromNativeValue(nativeValue.Cast(nativeType))
+
+    def nativeTypeUnqualified(self, nativeType):
+        return self.fromNativeType(nativeType.GetUnqualifiedType())
+
+    def nativeTypePointer(self, nativeType):
+        return self.fromNativeType(nativeType.GetPointerType())
+
+    def nativeTypeStripTypedefs(self, typeobj):
+        if hasattr(typeobj, 'GetCanonicalType'):
+            return self.fromNativeType(typeobj.GetCanonicalType())
+        return self.fromNativeType(typeobj)
+
+    def nativeValueChildFromNameHelper(self, nativeValue, fieldName):
+        val = nativeValue.GetChildMemberWithName(fieldName)
+        if val.IsValid():
+            return val
+        nativeType = nativeValue.GetType()
+        for i in xrange(nativeType.GetNumberOfDirectBaseClasses()):
+            baseField = nativeType.GetDirectBaseClassAtIndex(i)
+            baseType = baseField.GetType()
+            base = nativeValue.Cast(baseType)
+            val = self.nativeValueChildFromNameHelper(base, fieldName)
+            if val is not None:
+                return val
+        return None
+
+    def nativeValueChildFromField(self, nativeValue, field):
+        val = None
+        if field.isVirtualBase is True:
+            #warn("FETCHING VIRTUAL BASE: %s: %s" % (field.baseIndex, field.name))
+            pass
+        if field.nativeIndex is not None:
+            #warn("FETCHING BY NATIVE INDEX: %s: %s" % (field.nativeIndex, field.name))
+            val = nativeValue.GetChildAtIndex(field.nativeIndex)
+            if val.IsValid():
+                return self.fromNativeValue(val)
+        elif field.baseIndex is not None:
+            baseClass = nativeValue.GetType().GetDirectBaseClassAtIndex(field.baseIndex)
+            if baseClass.IsValid():
+                #warn("BASE IS VALID, TYPE: %s" % baseClass.GetType())
+                #warn("BASE BITPOS: %s" % field.lbitpos)
+                #warn("BASE BITSIZE: %s" % field.lbitsize)
+                # FIXME: This is wrong for virtual bases.
+                return None  # Let standard behavior kick in.
+        elif field.arrayIndex is not None:
+            #warn("FETCHING BY ARRAY INDEX: %s: %s" % (field.arrayIndex, field.name))
+            val = nativeValue.GetChildAtIndex(field.arrayIndex)
+        else:
+            #warn("FETCHING BY NAME: %s: %s" % (field, field.name))
+            val = self.nativeValueChildFromNameHelper(nativeValue, field.name)
+        if val is not None:
+            return self.fromNativeValue(val)
+        raise RuntimeError("No such member '%s' in %s" % (field.name, nativeValue.type))
+        return None
+
+    def nativeTypeFirstBase(self, nativeType):
+        #warn("FIRST BASE FROM: %s" % nativeType)
+        if nativeType.GetNumberOfDirectBaseClasses() == 0:
+            return None
+        t = nativeType.GetDirectBaseClassAtIndex(0)
+        #warn(" GOT BASE FROM: %s" % t)
+        return self.fromNativeType(nativeType.GetDirectBaseClassAtIndex(0).GetType())
 
     def stateName(self, s):
         try:
@@ -330,97 +391,98 @@ class Dumper(DumperBase):
         except:
             return 'unknown(%s)' % s
 
-    def isSimpleType(self, typeobj):
-        typeClass = typeobj.GetTypeClass()
-        return typeClass == lldb.eTypeClassBuiltin
-
-    def childWithName(self, value, name):
-        child = value.GetChildMemberWithName(name)
-        return child if child.IsValid() else None
-
-    def simpleValue(self, value):
-        return str(value.value)
-
-    def childAt(self, value, index):
-        return value.GetChildAtIndex(index)
-
-    def fieldAt(self, type, index):
-        return type.GetFieldAtIndex(index)
-
-    def pointerValue(self, value):
-        return value.GetValueAsUnsigned()
-
     def enumExpression(self, enumType, enumValue):
         ns = self.qtNamespace()
         return ns + "Qt::" + enumType + "(" \
             + ns + "Qt::" + enumType + "::" + enumValue + ")"
 
-    def callHelper(self, value, func, args):
+    def callHelper(self, rettype, value, func, args):
         # args is a tuple.
         arg = ','.join(args)
-        #self.warn("CALL: %s -> %s(%s)" % (value, func, arg))
-        type = value.type.name
-        exp = "((%s*)%s)->%s(%s)" % (type, value.address, func, arg)
-        #self.warn("CALL: %s" % exp)
-        result = value.CreateValueFromExpression('', exp)
-        #self.warn("  -> %s" % result)
-        return result
+        #warn("PRECALL: %s -> %s(%s)" % (value.address(), func, arg))
+        typename = value.type.name
+        exp = "((%s*)0x%x)->%s(%s)" % (typename, value.address(), func, arg)
+        #warn("CALL: %s" % exp)
+        result = self.currentContextValue.CreateValueFromExpression('', exp)
+        #warn("  -> %s" % result)
+        return self.fromNativeValue(result)
 
-    def pointerInfo(self, value):
-        # -> (dereferencable, address)
-        target = value.dereference()
-        return (target.GetError().Success(), value.GetValueAsUnsigned())
-
-    def makeValue(self, type, *args):
+    def pokeValue(self, typeName, *args):
         thread = self.currentThread()
         frame = thread.GetFrameAtIndex(0)
         inner = ','.join(args)
-        value = frame.EvaluateExpression(type + '{' + inner + '}')
+        value = frame.EvaluateExpression(typeName + '{' + inner + '}')
         #self.warn("  TYPE: %s" % value.type)
         #self.warn("  ADDR: 0x%x" % value.address)
         #self.warn("  VALUE: %s" % value)
         return value
 
-    def parseAndEvaluate(self, expr):
+    def parseAndEvaluate(self, exp):
         thread = self.currentThread()
         frame = thread.GetFrameAtIndex(0)
-        return frame.EvaluateExpression(expr)
+        val = frame.EvaluateExpression(exp)
+        #options = lldb.SBExpressionOptions()
+        #val = self.target.EvaluateExpression(exp, options)
+        err = val.GetError()
+        if err.Fail():
+            #warn("FAILING TO EVAL: %s" % exp)
+            return None
+        #warn("NO ERROR.")
+        #warn("EVAL: %s -> %s" % (exp, val.IsValid()))
+        return self.fromNativeValue(val)
 
-    def checkPointer(self, p, align = 1):
-        if not self.isNull(p):
-            p.Dereference()
+    def nativeTypeTemplateArgument(self, nativeType, position, numeric = False):
+        if numeric:
+            # There seems no API to extract the numeric value.
+            inner = self.extractTemplateArgument(nativeType.GetName(), position)
+            innerType = nativeType.GetTemplateArgumentType(position)
+            basicType = innerType.GetBasicType()
+            value = toInteger(inner)
+            # Clang writes 'int' and '0xfffffff' into the debug info
+            # LLDB manages to read a value of 0xfffffff...
+            if basicType == lldb.eBasicTypeInt and value >= 0x8000000:
+                value -= 0x100000000
+            return value
+        else:
+            #warn("nativeTypeTemplateArgument: %s: pos %s" % (nativeType, position))
+            typeobj = nativeType.GetTemplateArgumentType(position).GetUnqualifiedType()
+            if typeobj.IsValid():
+            #    warn("TYPE: %s" % typeobj)
+                return self.fromNativeType(typeobj)
+            inner = self.extractTemplateArgument(nativeType.GetName(), position)
+            #warn("INNER: %s" % inner)
+            return self.lookupType(inner)
 
-    def isNull(self, p):
-        return p.GetValueAsUnsigned() == 0
+    def nativeValueAddressOf(self, nativeValue):
+        return int(value.GetLoadAddress())
 
-    def directBaseClass(self, typeobj, index = 0):
-        result = typeobj.GetDirectBaseClassAtIndex(index).GetType()
-        return result if result.IsValid() else None
+    def nativeTypeDereference(self, nativeType):
+        return self.fromNativeType(nativeType.GetPointeeType())
 
-    def templateArgument(self, typeobj, index):
-        type = typeobj.GetTemplateArgumentType(index)
-        if type.IsValid():
-            return type
-        inner = self.extractTemplateArgument(typeobj.GetName(), index)
-        return self.lookupType(inner)
+    def nativeTypeTarget(self, nativeType):
+        code = nativeType.GetTypeClass()
+        if code == lldb.eTypeClassPointer:
+            return self.fromNativeType(nativeType.GetPointeeType())
+        if code == lldb.eTypeClassReference:
+            return self.fromNativeType(nativeType.GetDereferencedType())
+        if code == lldb.eTypeClassArray:
+            if hasattr(nativeType, "GetArrayElementType"): # New in 3.8(?) / 350.x
+                return self.fromNativeType(nativeType.GetArrayElementType())
+            fields = nativeType.get_fields_array()
+            return None if not len(fields) else self.nativeTypeTarget(fields[0])
+        if code == lldb.eTypeClassVector:
+            return self.fromNativeType(nativeType.GetVectorElementType())
+        return self.fromNativeType(nativeType)
 
-    def numericTemplateArgument(self, typeobj, index):
-        # There seems no API to extract the numeric value.
-        inner = self.extractTemplateArgument(typeobj.GetName(), index)
-        innerType = typeobj.GetTemplateArgumentType(index)
-        basicType = innerType.GetBasicType()
-        value = toInteger(inner)
-        # Clang writes 'int' and '0xfffffff' into the debug info
-        # LLDB manages to read a value of 0xfffffff...
-        if basicType == lldb.eBasicTypeInt and value >= 0x8000000:
-            value -= 0x100000000
-        return value
-
-    def isReferenceType(self, typeobj):
-        return typeobj.IsReferenceType()
-
-    def isStructType(self, typeobj):
-        return typeobj.GetTypeClass() in (lldb.eTypeClassStruct, lldb.eTypeClassClass)
+    def nativeValueHasChildren(self, nativeValue):
+        nativeType = nativeValue.type
+        code = nativeType.GetTypeClass()
+        if code == lldb.eTypeClassArray:
+             return True
+        if code not in (lldb.eTypeClassStruct, lldb.eTypeClassUnion):
+             return False
+        return nativeType.GetNumberOfFields() > 0 \
+            or nativeType.GetNumberOfDirectBaseClasses() > 0
 
     def isWindowsTarget(self):
         return False
@@ -478,68 +540,45 @@ class Dumper(DumperBase):
         self.qtVersionAndNamespace()
         return self.qtVersionAndNamespace()[1]
 
-    def intSize(self):
-        return 4
+    def qtTypeInfoVersion(self):
+        try:
+            thread = self.currentThread()
+            frame = thread.GetFrameAtIndex(0)
+            #options = lldb.SBExpressionOptions()
+            exp = "((quintptr**)&qtHookData)[0]"
+            #hookVersion = lldb.target.EvaluateExpression(exp, options).GetValueAsUnsigned()
+            hookVersion = frame.EvaluateExpression(exp).GetValueAsUnsigned()
+            exp = "((quintptr**)&qtHookData)[6]"
+            #warn("EXP: %s" % exp)
+            #tiVersion = lldb.target.EvaluateExpression(exp, options).GetValueAsUnsigned()
+            tiVersion = frame.EvaluateExpression(exp).GetValueAsUnsigned()
+            #warn("HOOK: %s TI: %s" % (hookVersion, tiVersion))
+            if hookVersion >= 3:
+                self.qtTypeInfoVersion = lambda: tiVersion
+                return tiVersion
+        except:
+            pass
+        return None
 
     def ptrSize(self):
         return self.target.GetAddressByteSize()
 
     def intType(self):
-        return self.target.GetBasicType(lldb.eBasicTypeInt)
-
-    def int64Type(self):
-        return self.target.GetBasicType(lldb.eBasicTypeLongLong)
+        return self.fromNativeType(self.target.GetBasicType(lldb.eBasicTypeInt))
 
     def charType(self):
-        return self.target.GetBasicType(lldb.eBasicTypeChar)
+        return self.fromNativeType(self.target.GetBasicType(lldb.eBasicTypeChar))
 
     def charPtrType(self):
-        return self.target.GetBasicType(lldb.eBasicTypeChar).GetPointerType()
+        return self.fromNativeType(self.target.GetBasicType(lldb.eBasicTypeChar).GetPointerType())
 
     def voidPtrType(self):
-        return self.target.GetBasicType(lldb.eBasicVoid).GetPointerType()
+        return self.fromNativeType(self.target.GetBasicType(lldb.eBasicVoid).GetPointerType())
 
     def sizetType(self):
         if self.sizetType_ is None:
              self.sizetType_ = self.lookupType('size_t')
-        return self.sizetType_
-
-    def addressOf(self, value):
-        return int(value.GetLoadAddress())
-
-    def extractUShort(self, address):
-        error = lldb.SBError()
-        return int(self.process.ReadUnsignedFromMemory(address, 2, error))
-
-    def extractShort(self, address):
-        i = self.extractUInt(address)
-        if i >= 0x8000:
-            i -= 0x10000
-        return i
-
-    def extractUInt(self, address):
-        error = lldb.SBError()
-        return int(self.process.ReadUnsignedFromMemory(address, 4, error))
-
-    def extractInt(self, address):
-        i = self.extractUInt(address)
-        if i >= 0x80000000:
-            i -= 0x100000000
-        return i
-
-    def extractUInt64(self, address):
-        error = lldb.SBError()
-        return int(self.process.ReadUnsignedFromMemory(address, 8, error))
-
-    def extractInt64(self, address):
-        i = self.extractUInt64(address)
-        if i >= 0x8000000000000000:
-            i -= 0x10000000000000000
-        return i
-
-    def extractByte(self, address):
-        error = lldb.SBError()
-        return int(self.process.ReadUnsignedFromMemory(address, 1, error) & 0xFF)
+        return self.fromNativeType(self.sizetType)
 
     def handleCommand(self, command):
         result = lldb.SBCommandReturnObject()
@@ -553,24 +592,10 @@ class Dumper(DumperBase):
     def put(self, stuff):
         self.output += stuff
 
-    def isMovableType(self, type):
-        if type.GetTypeClass() in (lldb.eTypeClassBuiltin, lldb.eTypeClassPointer):
-            return True
-        return self.isKnownMovableType(self.stripNamespaceFromType(type.GetName()))
-
-    def putPointerValue(self, value):
-        # Use a lower priority
-        if value is None:
-            self.putEmptyValue(-1)
-        else:
-            self.putValue("0x%x" % value.Dereference())
-
-    def putSimpleValue(self, value, encoding = None, priority = 0):
-        self.putValue(value.GetValue(), encoding, priority)
-
     def simpleEncoding(self, typeobj):
-        code = typeobj.GetTypeClass()
-        size = typeobj.sizeof
+        #warn("TYPE OBJ: %s" % typeobj)
+        code = typeobj.code
+        size = typeobj.size()
         if code == lldb.eTypeClassBuiltin:
             name = str(typeobj)
             if name == 'float':
@@ -583,19 +608,10 @@ class Dumper(DumperBase):
                 return 'int:%d' % size
         return None
 
-    def createPointerValue(self, address, pointeeType):
-        addr = int(address) & 0xFFFFFFFFFFFFFFFF
-        sbaddr = lldb.SBAddress(addr, self.target)
-        # Any type.
-        # FIXME: This can be replaced with self.target.CreateValueFromExpression
-        # as soon as we drop support for lldb builds not having that (~Xcode 6.1)
-        dummy = self.target.CreateValueFromAddress('@', sbaddr, self.target.FindFirstType('char'))
-        return dummy.CreateValueFromExpression('', '(%s*)%s' % (pointeeType, addr))
-
-    def createValue(self, address, referencedType):
-        addr = int(address) & 0xFFFFFFFFFFFFFFFF
-        sbaddr = lldb.SBAddress(addr, self.target)
-        return self.target.CreateValueFromAddress('@', sbaddr, referencedType)
+    #def createValue(self, address, referencedType):
+    #    addr = int(address) & 0xFFFFFFFFFFFFFFFF
+    #    sbaddr = lldb.SBAddress(addr, self.target)
+    #    return self.target.CreateValueFromAddress('@', sbaddr, referencedType)
 
     def childRange(self):
         if self.currentMaxNumChild is None:
@@ -605,10 +621,11 @@ class Dumper(DumperBase):
     def canonicalTypeName(self, name):
         return re.sub('\\bconst\\b', '', name).replace(' ', '')
 
-    def lookupType(self, name):
-        #self.warn("LOOKUP TYPE NAME: %s" % name)
+    def lookupNativeType(self, name):
+        #warn("LOOKUP TYPE NAME: %s" % name)
         typeobj = self.target.FindFirstType(name)
         if typeobj.IsValid():
+            #warn("VALID FIRST : %s" % dir(typeobj))
             return typeobj
         typeobj = self.target.FindFirstType(name + '*')
         if typeobj.IsValid():
@@ -620,8 +637,8 @@ class Dumper(DumperBase):
             typeobj = self.target.FindFirstType(name[:-1].strip())
             if typeobj.IsValid():
                 return typeobj.GetPointerType()
-        #self.warn("LOOKUP RESULT: %s" % typeobj.name)
-        #self.warn("LOOKUP VALID: %s" % typeobj.IsValid())
+        #warn("LOOKUP RESULT: %s" % typeobj.name)
+        #warn("LOOKUP VALID: %s" % typeobj.IsValid())
         needle = self.canonicalTypeName(name)
         #self.warn("NEEDLE: %s " % needle)
         for i in xrange(self.target.GetNumModules()):
@@ -639,7 +656,7 @@ class Dumper(DumperBase):
                 if n == needle + '&':
                     #self.warn("FOUND TYPE BY REFERENCE 2: %s " % t)
                     return t.GetDereferencedType()
-        #self.warn("NOT FOUND: %s " % needle)
+        #warn("NOT FOUND: %s " % needle)
         return None
 
     def setupInferior(self, args):
@@ -907,68 +924,31 @@ class Dumper(DumperBase):
             self.report('token(\"%s\")' % args["token"])
 
     def readRawMemory(self, address, size):
-        error = lldb.SBError()
-        return self.process.ReadMemory(address, size, error)
-
-    def extractBlob(self, base, size):
         if size == 0:
-            return Blob("")
-        base = int(base) & 0xFFFFFFFFFFFFFFFF
-        size = int(size) & 0xFFFFFFFF
+            return bytes()
         error = lldb.SBError()
-        return Blob(self.process.ReadMemory(base, size, error))
+        #warn("READ: %s %s" % (address, size))
+        res = self.process.ReadMemory(address, size, error)
+        if res is None:
+            return bytes()
+        return res
 
-    def toBlob(self, value):
-        data = value.GetData()
-        size = int(data.GetByteSize())
+    def nativeValueAsBytes(self, nativeValue, size):
+        data = nativeValue.GetData()
         buf = bytearray(struct.pack('x' * size))
         error = lldb.SBError()
         #data.ReadRawData(error, 0, buf)
         for i in range(size):
             buf[i] = data.GetUnsignedInt8(error, i)
-        return Blob(bytes(buf))
-
-    def mangleName(self, typeName):
-        return '_ZN%sE' % ''.join(map(lambda x: "%d%s" % (len(x), x), typeName.split('::')))
+        return bytes(buf)
 
     def findStaticMetaObject(self, typeName):
         symbolName = self.mangleName(typeName + '::staticMetaObject')
         symbol = self.target.FindFirstGlobalVariable(symbolName)
-        return int(symbol.AddressOf()) if symbol.IsValid() else 0
+        return symbol.AddressOf().GetValueAsUnsigned() if symbol.IsValid() else 0
 
     def findSymbol(self, symbolName):
         return self.target.FindFirstGlobalVariable(symbolName)
-
-    def stripNamespaceFromType(self, typeName):
-        #type = self.stripClassTag(typeName)
-        type = typeName
-        ns = self.qtNamespace()
-        if len(ns) > 0 and type.startswith(ns):
-            type = type[len(ns):]
-        pos = type.find("<")
-        # FIXME: make it recognize  foo<A>::bar<B>::iterator?
-        while pos != -1:
-            pos1 = type.rfind(">", pos)
-            type = type[0:pos] + type[pos1+1:]
-            pos = type.find("<")
-        if type.startswith("const "):
-            type = type[6:]
-        if type.startswith("volatile "):
-            type = type[9:]
-        return type
-
-    def putSubItem(self, component, value, tryDynamic=True):
-        if not value.IsValid():
-            self.warn("INVALID SUBITEM: %s" % value.GetName())
-            return
-        with SubItem(self, component):
-            self.putItem(value, tryDynamic)
-
-    def putAddress(self, addr):
-        #if int(addr) == 0xffffffffffffffff:
-        #    raise RuntimeError("Illegal address")
-        if self.currentPrintsAddress and not addr is None:
-            self.currentAddress = 'address="0x%x",' % toInteger(addr)
 
     def isFunctionType(self, typeobj):
         if self.isGoodLldb:
@@ -976,187 +956,8 @@ class Dumper(DumperBase):
         #warn("TYPE: %s" % typeobj)
         return False
 
-    def putItem(self, value, tryDynamic=True):
-        typeName = value.GetType().GetUnqualifiedType().GetName()
-        if self.isGoodLldb:
-            value.SetPreferDynamicValue(tryDynamic)
-        typeClass = value.GetType().GetTypeClass()
-
-        if tryDynamic:
-            self.putAddress(value.GetLoadAddress())
-
-        # Handle build-in LLDB visualizers if wanted.
-        if False and self.useLldbDumpers and value.GetTypeSynthetic().IsValid():
-            # FIXME: print "official" summary?
-            summary = value.GetTypeSummary()
-            if summary.IsValid():
-                warn("DATA: %s" % summary.GetData())
-            if self.isGoodLldb:
-                value.SetPreferSyntheticValue(False)
-            provider = value.GetTypeSynthetic()
-            data = provider.GetData()
-            formatter = eval(data)(value, {})
-            formatter.update()
-            numchild = formatter.num_children()
-            self.put('iname="%s",' % self.currentIName)
-            self.putType(typeName)
-            self.put('numchild="%s",' % numchild)
-            self.put('address="0x%x",' % value.GetLoadAddress())
-            self.putItemCount(numchild)
-            if self.currentIName in self.expandedINames:
-                with Children(self):
-                    for i in xrange(numchild):
-                        child = formatter.get_child_at_index(i)
-                        with SubItem(self, i):
-                            self.putItem(child)
-            return
-
-        # Typedefs
-        if typeClass == lldb.eTypeClassTypedef:
-            if typeName in self.qqDumpers:
-                self.putType(typeName)
-                self.context = value
-                self.qqDumpers[typeName](self, value)
-                return
-            realType = value.GetType()
-            if hasattr(realType, 'GetCanonicalType'):
-                baseType = realType.GetCanonicalType()
-                if baseType != realType:
-                    baseValue = value.Cast(baseType.unqualified())
-                    self.putItem(baseValue)
-                    self.putBetterType(realType)
-                    return
-
-        # Our turf now.
-        if self.isGoodLldb:
-            value.SetPreferSyntheticValue(False)
-
-        # Arrays
-        if typeClass == lldb.eTypeClassArray:
-            self.putCStyleArray(value)
-            return
-
-        # Vectors like char __attribute__ ((vector_size (8)))
-        if typeClass == lldb.eTypeClassVector:
-            self.putCStyleArray(value)
-            return
-
-        # References
-        if value.GetType().IsReferenceType():
-            type = value.GetType().GetDereferencedType().unqualified()
-            addr = value.GetValueAsUnsigned()
-            #warn("FROM: %s" % value)
-            #warn("ADDR: 0x%x" % addr)
-            #warn("TYPE: %s" % type)
-            # Works:
-            #item = self.currentThread().GetSelectedFrame().EvaluateExpression(
-            #    "(%s*)0x%x" % (type, addr)).Dereference()
-            # Does not work on lldb-350.0.21.3:
-            #item = value.CreateValueFromExpression(None,
-            #    "(%s*)0x%x" % (type, addr), lldb.SBExpressionOptions()).Dereference()
-            # Does not work:
-            #item = value.CreateValueFromAddress(None, addr, type)
-            # Works:
-            item = value.Cast(type.GetPointerType()).Dereference()
-            #warn("TOOO: %s" % item)
-            self.putItem(item)
-            self.putBetterType(value.GetTypeName())
-            return
-
-        # Pointers
-        if value.GetType().IsPointerType():
-            self.putFormattedPointer(value)
-            return
-
-        # Chars
-        if typeClass == lldb.eTypeClassBuiltin:
-            basicType = value.GetType().GetBasicType()
-            if basicType == lldb.eBasicTypeChar:
-                self.putValue(value.GetValueAsUnsigned())
-                self.putType(typeName)
-                self.putNumChild(0)
-                return
-            if basicType == lldb.eBasicTypeSignedChar:
-                self.putValue(value.GetValueAsSigned())
-                self.putType(typeName)
-                self.putNumChild(0)
-                return
-
-        #warn("VALUE: %s" % value)
-        #warn("FANCY: %s" % self.useFancy)
-        if self.tryPutPrettyItem(typeName, value):
-            return
-
-        # Normal value
-        #numchild = 1 if value.MightHaveChildren() else 0
-        numchild = value.GetNumChildren()
-        v = value.GetValue()
-        if v:
-            self.putValue(v)
-
-        self.putType(typeName)
-        self.putNumChild(numchild)
-        self.putStructGuts(value)
-
-
     def warn(self, msg):
         self.put('{name="%s",value="",type="",numchild="0"},' % msg)
-
-    def putFields(self, value, dumpBase = True):
-        # Suppress printing of 'name' field for arrays.
-        if value.GetType().GetTypeClass() == lldb.eTypeClassArray:
-            for i in xrange(value.GetNumChildren()):
-                child = value.GetChildAtIndex(i)
-                with UnnamedSubItem(self, str(i)):
-                    self.putItem(child)
-            return
-
-        memberBase = 0  # Start of members.
-
-        class ChildItem:
-            def __init__(self, name, value):
-                self.name = name
-                self.value = value
-
-        baseObjects = []
-        # GetNumberOfDirectBaseClasses() includes(!) GetNumberOfVirtualBaseClasses()
-        # so iterating over .GetNumberOfDirectBaseClasses() is correct.
-        for i in xrange(value.GetType().GetNumberOfDirectBaseClasses()):
-            baseClass = value.GetType().GetDirectBaseClassAtIndex(i).GetType()
-            baseChildCount = baseClass.GetNumberOfFields() \
-                + baseClass.GetNumberOfDirectBaseClasses()
-            if baseChildCount:
-                baseObjects.append(ChildItem(baseClass.GetName(), value.GetChildAtIndex(memberBase)))
-                memberBase += 1
-            else:
-                # This base object is empty, but exists and will *not* be reported
-                # by value.GetChildCount(). So manually report the empty base class.
-                baseObject = value.Cast(baseClass)
-                baseObjects.append(ChildItem(baseClass.GetName(), baseObject))
-
-        for i in xrange(len(baseObjects)):
-            baseObject = baseObjects[i]
-            with UnnamedSubItem(self, "@%d" % (i + 1)):
-                self.put('iname="%s",' % self.currentIName)
-                self.put('name="[%s]",' % baseObject.name)
-                self.put('sortgroup="30"')
-                self.putItem(baseObject.value)
-
-        memberCount = value.GetNumChildren()
-        if memberCount > 10000:
-            memberCount = 10000
-        children = [value.GetChildAtIndex(memberBase + i) for i in xrange(memberCount)]
-        for child in children:
-            # Only needed in the QVariant4 test.
-            if int(child.GetLoadAddress()) == 0xffffffffffffffff:
-                typeClass = child.GetType().GetTypeClass()
-                if typeClass != lldb.eTypeClassBuiltin:
-                    field = value.GetType().GetFieldAtIndex(i)
-                    addr = value.GetLoadAddress() + field.GetOffsetInBytes()
-                    child = value.CreateValueFromAddress(child.GetName(), addr, child.GetType())
-            if child.IsValid():  # FIXME: Anon members?
-                with SubItem(self, child):
-                    self.putItem(child)
 
     def fetchVariables(self, args):
         (ok, res) = self.tryFetchInterpreterVariables(args)
@@ -1188,7 +989,7 @@ class Dumper(DumperBase):
         self.put('data=[')
         self.anonNumber = 0
         shadowed = {}
-        ids = {} # Filter out duplicates entries at the same address.
+        #ids = {} # Filter out duplicates entries at the same address.
 
         # FIXME: Implement shortcut for partial updates.
         #if isPartial:
@@ -1198,18 +999,20 @@ class Dumper(DumperBase):
             values = list(frame.GetVariables(True, True, False, False))
             values.reverse() # To get shadowed vars numbered backwards.
 
-        for value in values:
-            if not value.IsValid():
+        for val in values:
+            if not val.IsValid():
                 continue
-            name = value.GetName()
-            id = "%s:0x%x" % (name, value.GetLoadAddress())
-            if id in ids:
-                continue
-            ids[id] = True
+            self.currentContextValue = val
+            name = val.GetName()
+            #id = "%s:0x%x" % (name, val.GetLoadAddress())
+            #if id in ids:
+            #    continue
+            #ids[id] = True
             if name is None:
                 # This can happen for unnamed function parameters with
                 # default values:  void foo(int = 0)
                 continue
+            value = self.fromNativeValue(val)
             if name in shadowed:
                 level = shadowed[name]
                 shadowed[name] = level + 1
@@ -1217,14 +1020,7 @@ class Dumper(DumperBase):
             else:
                 shadowed[name] = 1
 
-            if not value.IsInScope():
-                with SubItem(self, name):
-                    self.put('iname="%s",' % self.currentIName)
-                    self.putSpecialValue('outofscope')
-                    self.putNumChild(0)
-                continue
-
-            if name == "argv" and value.GetType().GetName() == "char **":
+            if name == "argv" and val.GetType().GetName() == "char **":
                 self.putSpecialArgv(value)
             else:
                 with SubItem(self, name):
@@ -1246,7 +1042,7 @@ class Dumper(DumperBase):
                             with SubItem(self, i):
                                 self.put('name="%s",' % name)
                                 self.put('iname="%s",' % self.currentIName)
-                                self.putItem(staticVar)
+                                self.putItem(self.fromNativeValue(staticVar))
                     else:
                         with SubItem(self, "None"):
                             self.putEmptyValue()
@@ -1336,7 +1132,8 @@ class Dumper(DumperBase):
         flavor = event.GetDataFlavor()
         state = lldb.SBProcess.GetStateFromEvent(event)
         bp = lldb.SBBreakpoint.GetBreakpointFromEvent(event)
-        skipEventReporting = self.debuggerCommandInProgress and (eventType == lldb.SBProcess.eBroadcastBitSTDOUT or eventType == lldb.SBProcess.eBroadcastBitSTDERR)
+        skipEventReporting = self.debuggerCommandInProgress \
+            and eventType in (lldb.SBProcess.eBroadcastBitSTDOUT, lldb.SBProcess.eBroadcastBitSTDERR)
         self.report('event={type="%s",data="%s",msg="%s",flavor="%s",state="%s",bp="%s"}'
             % (eventType, out.GetData(), msg, flavor, self.stateName(state), bp))
         if state != self.eventState:
