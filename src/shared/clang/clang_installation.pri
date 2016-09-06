@@ -101,6 +101,6 @@ isEmpty(LLVM_VERSION): error("Cannot determine clang version at $$LLVM_INSTALL_D
     error("LLVM/Clang version >= 3.9.0 required, version provided: $$LLVM_VERSION")
 }
 
-unix:LLVM_CXXFLAGS = -fno-rtti -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS
+LLVM_CXXFLAGS = $$system($$llvm_config --cxxflags, lines)
 
 LLVM_IS_COMPILED_WITH_RTTI = $$system($$llvm_config --has-rtti, lines)
