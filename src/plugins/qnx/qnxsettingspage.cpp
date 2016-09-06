@@ -30,6 +30,7 @@
 #include "qnxsettingswidget.h"
 
 #include <coreplugin/icore.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <QCoreApplication>
 
@@ -43,10 +44,9 @@ QnxSettingsPage::QnxSettingsPage(QObject* parent) :
 {
     setId(Core::Id(Constants::QNX_SETTINGS_ID));
     setDisplayName(tr("QNX"));
-    setCategory(Constants::QNX_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("QNX",
-                Constants::QNX_CATEGORY_TR));
-    setCategoryIcon(Utils::Icon(Constants::QNX_CATEGORY_ICON));
+    setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
+    setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
+                                       ProjectExplorer::Constants::DEVICE_SETTINGS_TR_CATEGORY));
 }
 
 QWidget* QnxSettingsPage::widget()

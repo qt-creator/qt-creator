@@ -172,6 +172,7 @@ const char KITS_SETTINGS_PAGE_ID[] = "D.ProjectExplorer.KitsOptions";
 
 // Device settings page
 const char DEVICE_SETTINGS_CATEGORY[] = "XW.Devices";
+const char DEVICE_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Devices");
 const char DEVICE_SETTINGS_PAGE_ID[] = "AA.Device Settings";
 
 // Task categories

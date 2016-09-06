@@ -30,6 +30,7 @@
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/detailswidget.h>
 #include <utils/qtcassert.h>
@@ -47,6 +48,7 @@
 #include <QTextStream>
 #include <QTreeView>
 #include <QVBoxLayout>
+#include <QGroupBox>
 
 using namespace Utils;
 
@@ -293,9 +295,15 @@ GdbServerProvidersSettingsWidget::GdbServerProvidersSettingsWidget
     verticalLayout->addWidget(m_providerView);
     verticalLayout->addLayout(buttonLayout);
 
-    auto horizontalLayout = new QHBoxLayout(this);
+    auto horizontalLayout = new QHBoxLayout();
     horizontalLayout->addLayout(verticalLayout);
     horizontalLayout->addWidget(m_container);
+
+    auto groupBox = new QGroupBox(tr("GDB Server Providers"), this);
+    groupBox->setLayout(horizontalLayout);
+
+    auto topLayout = new QVBoxLayout(this);
+    topLayout->addWidget(groupBox);
 
     connect(&m_model, &GdbServerProviderModel::providerStateChanged,
             this, &GdbServerProvidersSettingsWidget::updateState);
@@ -411,12 +419,11 @@ QModelIndex GdbServerProvidersSettingsWidget::currentIndex() const
 GdbServerProvidersSettingsPage::GdbServerProvidersSettingsPage(QObject *parent)
     : Core::IOptionsPage(parent)
 {
-    setCategory(Constants::BAREMETAL_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate(
-                       "BareMetal", Constants::BAREMETAL_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(Utils::Icon(Constants::BAREMETAL_SETTINGS_CATEGORY_ICON));
     setId(Constants::GDB_PROVIDERS_SETTINGS_ID);
-    setDisplayName(tr("GDB Server Providers"));
+    setDisplayName(tr("Bare Metal"));
+    setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
+    setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
+                                       ProjectExplorer::Constants::DEVICE_SETTINGS_TR_CATEGORY));
 }
 
 QWidget *GdbServerProvidersSettingsPage::widget()

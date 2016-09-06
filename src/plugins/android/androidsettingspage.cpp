@@ -28,6 +28,7 @@
 #include "androidsettingswidget.h"
 #include "androidconstants.h"
 #include "androidtoolchain.h"
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchainmanager.h>
 
 #include <QCoreApplication>
@@ -41,11 +42,10 @@ AndroidSettingsPage::AndroidSettingsPage(QObject *parent)
     : Core::IOptionsPage(parent)
 {
     setId(Constants::ANDROID_SETTINGS_ID);
-    setDisplayName(tr("Android Configurations"));
-    setCategory(Constants::ANDROID_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("Android",
-        Constants::ANDROID_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(Utils::Icon(Constants::ANDROID_SETTINGS_CATEGORY_ICON));
+    setDisplayName(tr("Android"));
+    setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
+    setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
+                                       ProjectExplorer::Constants::DEVICE_SETTINGS_TR_CATEGORY));
 }
 
 QWidget *AndroidSettingsPage::widget()

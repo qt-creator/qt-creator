@@ -34,11 +34,7 @@ const char BareMetalOsType[] = "BareMetalOsType";
 const char ACTION_ID[] = "BareMetal.Action";
 const char MENU_ID[] = "BareMetal.Menu";
 
-const char BAREMETAL_SETTINGS_CATEGORY[] = "ZZ.BareMetal";
-const char BAREMETAL_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("BareMetal", "Bare Metal");
-const char BAREMETAL_SETTINGS_CATEGORY_ICON[] = ":/baremetal/images/QtBareMetal.png";
-
-const char GDB_PROVIDERS_SETTINGS_ID[] = "AA.BareMetal.GdbServerProvidersOptions";
+const char GDB_PROVIDERS_SETTINGS_ID[] = "EE.BareMetal.GdbServerProvidersOptions";
 
 // Debugger Server Provider Ids
 const char OPENOCD_PROVIDER_ID[] = "BareMetal.GdbServerProvider.OpenOcd";

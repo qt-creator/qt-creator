@@ -28,6 +28,8 @@
 #include "iossettingswidget.h"
 #include "iosconstants.h"
 
+#include <projectexplorer/projectexplorerconstants.h>
+
 #include <QCoreApplication>
 
 namespace Ios {
@@ -37,11 +39,10 @@ IosSettingsPage::IosSettingsPage(QObject *parent)
     : Core::IOptionsPage(parent)
 {
     setId(Constants::IOS_SETTINGS_ID);
-    setDisplayName(tr("iOS Configurations"));
-    setCategory(Constants::IOS_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("iOS",
-        Constants::IOS_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(Utils::Icon(QLatin1String(Constants::IOS_SETTINGS_CATEGORY_ICON)));
+    setDisplayName(tr("iOS"));
+    setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
+    setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
+                                       ProjectExplorer::Constants::DEVICE_SETTINGS_TR_CATEGORY));
 }
 
 QWidget *IosSettingsPage::widget()

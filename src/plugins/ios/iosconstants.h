@@ -34,9 +34,7 @@ Q_DECLARE_LOGGING_CATEGORY(iosLog)
 } // namespace Internal
 
 namespace Constants {
-const char IOS_SETTINGS_ID[] = "ZZ.Ios Configurations";
-const char IOS_SETTINGS_CATEGORY[] = "XA.Ios";
-const char IOS_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("Ios", "iOS");
+const char IOS_SETTINGS_ID[] = "CC.Ios Configurations";
 const char IOS_SETTINGS_CATEGORY_ICON[] = ":/ios/images/iossettings.png";
 const char IOSQT[] = "Qt4ProjectManager.QtVersion.Ios"; // this literal is replicated to avoid dependencies
 

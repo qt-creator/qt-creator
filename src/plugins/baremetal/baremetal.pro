@@ -47,5 +47,3 @@ HEADERS += baremetalplugin.h \
     openocdgdbserverprovider.h \
     defaultgdbserverprovider.h \
     stlinkutilgdbserverprovider.h
-
-RESOURCES = baremetal.qrc
