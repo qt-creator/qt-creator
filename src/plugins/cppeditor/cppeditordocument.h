@@ -26,6 +26,7 @@
 #pragma once
 
 #include <cpptools/baseeditordocumentprocessor.h>
+#include <cpptools/cppclasscompletionassist.h>
 #include <cpptools/cppcompletionassistprovider.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cppsemanticinfo.h>
@@ -50,6 +51,7 @@ public:
 
     bool isObjCEnabled() const;
     TextEditor::CompletionAssistProvider *completionAssistProvider() const override;
+    TextEditor::CompletionAssistProvider *classCompletionAssistProvider() const override;
     TextEditor::QuickFixAssistProvider *quickFixAssistProvider() const override;
 
     void recalculateSemanticInfoDetached();
@@ -109,6 +111,7 @@ private:
     QScopedPointer<CppTools::BaseEditorDocumentProcessor> m_processor;
 
     CppTools::CppCompletionAssistProvider *m_completionAssistProvider;
+    QScopedPointer<CppTools::CppClassCompletionAssistProvider> m_cppClassCompletionAssistProvider{new CppTools::CppClassCompletionAssistProvider};
 
     // (Un)Registration in CppModelManager
     QScopedPointer<CppTools::CppEditorDocumentHandle> m_editorDocumentHandle;

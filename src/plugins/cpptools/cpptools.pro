@@ -77,7 +77,10 @@ HEADERS += \
     projectinfo.h \
     projectpartbuilder.h \
     compileroptionsbuilder.h \
-    refactoringengineinterface.h
+    refactoringengineinterface.h \
+    cpprefactoringhelper.h \
+    cppclasscompletionassist.h
+
 SOURCES += \
     abstracteditorsupport.cpp \
     baseeditordocumentparser.cpp \
@@ -148,7 +151,9 @@ SOURCES += \
     projectpart.cpp \
     projectinfo.cpp \
     projectpartbuilder.cpp \
-    compileroptionsbuilder.cpp
+    compileroptionsbuilder.cpp \
+    cpprefactoringhelper.cpp \
+    cppclasscompletionassist.cpp
 
 FORMS += \
     clangdiagnosticconfigswidget.ui \

@@ -31,7 +31,8 @@ enum AssistKind
 {
     Completion,
     QuickFix,
-    FollowSymbol
+    FollowSymbol,
+    ClassCompletion
 };
 
 enum AssistReason

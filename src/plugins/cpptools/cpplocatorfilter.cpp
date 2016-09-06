@@ -117,6 +117,32 @@ QList<Core::LocatorFilterEntry> CppLocatorFilter::matchesFor(
     return betterEntries;
 }
 
+QList<Core::LocatorFilterEntry> CppLocatorFilter::matchesRegexp(QFutureInterface<Core::LocatorFilterEntry>& future, const QRegExp& entry)
+{
+   QMap<QString, Core::LocatorFilterEntry> entries;
+
+   m_data->filterAllFiles([&](const IndexItem::Ptr &info) -> IndexItem::VisitorResult {
+      if (future.isCanceled())
+         return IndexItem::Break;
+
+      if ( (info->type() & IndexItem::Enum) || (info->type() & IndexItem::Class) || (info->type() & IndexItem::TypedefDeclaration) ) {
+         const QString matchString = info->symbolName();
+         if (entry.indexIn(matchString) != -1) {
+            const Core::LocatorFilterEntry filterEntry = filterEntryFromIndexItem(info);
+            entries.insert(filterEntry.displayName, filterEntry);
+         }
+      }
+
+      if (info->type() & IndexItem::Class)
+         return IndexItem::Recurse;
+      else
+         return IndexItem::Continue;
+   });
+
+   return entries.values();
+}
+
+
 void CppLocatorFilter::accept(Core::LocatorFilterEntry selection) const
 {
     IndexItem::Ptr info = qvariant_cast<IndexItem::Ptr>(selection.internalData);

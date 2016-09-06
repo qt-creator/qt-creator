@@ -200,6 +200,11 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
     if (!provider) {
         if (kind == Completion)
             provider = m_editorWidget->textDocument()->completionAssistProvider();
+        else if (kind == ClassCompletion)
+        {
+           provider = m_editorWidget->textDocument()->classCompletionAssistProvider();
+           kind = Completion;
+        }
         else
             provider = m_editorWidget->textDocument()->quickFixAssistProvider();
 

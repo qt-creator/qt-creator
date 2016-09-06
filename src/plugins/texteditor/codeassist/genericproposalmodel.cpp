@@ -246,9 +246,16 @@ void GenericProposalModel::filter(const QString &prefix)
     QRegExp regExp(keyRegExp);
 
     m_currentItems.clear();
-    foreach (const auto &item, m_originalItems) {
-        if (regExp.indexIn(item->text()) == 0)
-            m_currentItems.append(item);
+    foreach (const auto &item, m_originalItems)
+    {
+       const QSharedPointer<QRegExp> customizeRegexp = item->customizeRegexp();
+       bool keepItem = false;
+       if(customizeRegexp)
+          keepItem = (customizeRegexp->indexIn(item->text()) != -1);
+       else if (regExp.indexIn(item->text()) == 0)
+          keepItem = true;
+       if(keepItem)
+           m_currentItems.append(item);
     }
 }
 
