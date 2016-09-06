@@ -585,10 +585,10 @@ QString ICore::systemInformation()
     result += versionString() + '\n';
     result += buildCompatibilityString() + '\n';
 #ifdef IDE_REVISION
-    result += "From revision %1\n").arg(QString::fromLatin1(Constants::IDE_REVISION_STR).left(10));
+    result += QString("From revision %1\n").arg(QString::fromLatin1(Constants::IDE_REVISION_STR).left(10));
 #endif
 #ifdef QTC_SHOW_BUILD_DATE
-     result += "Built on %1 %2\n").arg(QLatin1String(__DATE__), QLatin1String(__TIME__));
+     result += QString("Built on %1 %2\n").arg(QLatin1String(__DATE__), QLatin1String(__TIME__));
 #endif
      return result;
 }
