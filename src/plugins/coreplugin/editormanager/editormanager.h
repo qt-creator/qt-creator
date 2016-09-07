@@ -97,7 +97,8 @@ public:
         DoNotMakeVisible = 4,
         CanContainLineAndColumnNumber = 8,
         OpenInOtherSplit = 16,
-        DoNotSwitchToDesignMode = 32
+        DoNotSwitchToDesignMode = 32,
+        DoNotSwitchToEditMode = 64
     };
     Q_DECLARE_FLAGS(OpenEditorFlags, OpenEditorFlag)
 

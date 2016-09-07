@@ -1251,11 +1251,13 @@ IEditor *EditorManagerPrivate::activateEditor(EditorView *view, IEditor *editor,
                 ModeManager::activateMode(Constants::MODE_DESIGN);
                 ModeManager::setFocusToCurrentMode();
             } else {
-                int index;
-                findEditorArea(view, &index);
-                if (index == 0) // main window --> we might need to switch mode
-                    if (!editor->widget()->isVisible())
-                        ModeManager::activateMode(Constants::MODE_EDIT);
+                if (!(flags & EditorManager::DoNotSwitchToEditMode)) {
+                    int index;
+                    findEditorArea(view, &index);
+                    if (index == 0) // main window --> we might need to switch mode
+                        if (!editor->widget()->isVisible())
+                            ModeManager::activateMode(Constants::MODE_EDIT);
+                }
                 editor->widget()->setFocus();
                 ICore::raiseWindow(editor->widget());
             }
