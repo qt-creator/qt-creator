@@ -48,7 +48,7 @@ RefactoringClient ClangRefactoringPlugin::client;
 ClangBackEnd::RefactoringConnectionClient ClangRefactoringPlugin::connectionClient(&client);
 RefactoringEngine ClangRefactoringPlugin::engine(connectionClient.serverProxy(), client);
 
-bool ClangRefactoringPlugin::initialize(const QStringList &/*arguments*/, QString */*errorMessage*/)
+bool ClangRefactoringPlugin::initialize(const QStringList & /*arguments*/, QString * /*errorMessage*/)
 {
     client.setRefactoringEngine(&engine);
 
