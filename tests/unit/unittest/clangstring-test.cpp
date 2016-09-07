@@ -35,6 +35,7 @@
 namespace {
 
 using ::testing::StrEq;
+using ::testing::Eq;
 
 using ClangBackEnd::ClangString;
 
@@ -88,4 +89,82 @@ TEST(ClangString, SpellingAsCString)
 
     ASSERT_THAT(text.cString(), StrEq("text"));
 }
+
+TEST(ClangString, EqualBetweenClangStrings)
+{
+    ClangString text(CXString{"text", 0});
+    ClangString text2(CXString{"text", 0});
+
+    bool textIsEqual = text == text2;
+
+    ASSERT_TRUE(textIsEqual);
+}
+
+TEST(ClangString, NotEqualBetweenClangStrings)
+{
+    ClangString text(CXString{"text", 0});
+    ClangString text2(CXString{"text ", 0});
+
+    bool textIsEqual = text == text2;
+
+    ASSERT_FALSE(textIsEqual);
+}
+
+TEST(ClangString, EqualClangStringAndCString)
+{
+    ClangString text(CXString{"text", 0});
+
+    bool textIsEqual = text == "text";
+
+    ASSERT_TRUE(textIsEqual);
+}
+
+TEST(ClangString, NotEqualClangStringAndCString)
+{
+    ClangString text(CXString{"text", 0});
+
+    bool textIsEqual = text == "text ";
+
+    ASSERT_FALSE(textIsEqual);
+}
+
+TEST(ClangString, EqualCStringAndClangString)
+{
+    ClangString text(CXString{"text", 0});
+
+    bool textIsEqual = "text" == text;
+
+    ASSERT_TRUE(textIsEqual);
+}
+
+TEST(ClangString, EqualClangStringPointerAndCString)
+{
+    ClangString text(CXString{"text", 0});
+    const char *cString = "text";
+
+    bool textIsEqual = cString == text;
+
+    ASSERT_TRUE(textIsEqual);
+}
+
+TEST(ClangString, NotEqualClangStringPointerAndCString)
+{
+    ClangString text(CXString{"text", 0});
+    const char *cString = "text ";
+
+    bool textIsEqual = cString == text;
+
+    ASSERT_FALSE(textIsEqual);
+}
+
+TEST(ClangString, EqualCStringAndClangStringPointer)
+{
+    ClangString text(CXString{"text", 0});
+    const char *cString = "text";
+
+    bool textIsEqual = text == cString;
+
+    ASSERT_TRUE(textIsEqual);
+}
+
 }
