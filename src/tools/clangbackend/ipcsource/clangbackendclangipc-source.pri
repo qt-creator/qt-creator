@@ -52,7 +52,6 @@ HEADERS += $$PWD/clangcodemodelserver.h \
 
 SOURCES += $$PWD/clangcodemodelserver.cpp \
     $$PWD/codecompleter.cpp \
-    $$PWD/clangstring.cpp \
     $$PWD/translationunitisnullexception.cpp \
     $$PWD/codecompletefailedexception.cpp \
     $$PWD/clangcodecompleteresults.cpp \

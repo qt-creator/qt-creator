@@ -29,25 +29,63 @@
 
 #include <utf8string.h>
 
+#include <cstring>
+
 namespace ClangBackEnd {
 
 class ClangString
 {
 public:
-    ClangString(CXString cxString);
-    ~ClangString();
+    ClangString(CXString cxString)
+        : cxString(cxString)
+    {
+    }
+
+    ~ClangString()
+    {
+        clang_disposeString(cxString);
+    }
 
     ClangString(const ClangString &) = delete;
     const ClangString &operator=(const ClangString &) = delete;
 
-    ClangString(ClangString &&other);
-    ClangString &operator=(ClangString &&other);
 
-    operator Utf8String() const;
+    ClangString(ClangString &&other)
+        : cxString(std::move(other.cxString))
+    {
+        other.cxString.data = nullptr;
+        other.cxString.private_flags = 0;
+    }
 
-    const char *cString() const;
 
-    bool isNull() const;
+    ClangString &operator=(ClangString &&other)
+    {
+        if (this != &other) {
+            clang_disposeString(cxString);
+            cxString = std::move(other.cxString);
+            other.cxString.data = nullptr;
+            other.cxString.private_flags = 0;
+        }
+
+        return *this;
+    }
+
+    const char *cString() const
+    {
+        return clang_getCString(cxString);
+    }
+
+    operator Utf8String() const
+    {
+        return Utf8String(cString(), -1);
+    }
+
+    bool isNull() const
+    {
+        return cxString.data == nullptr;
+    }
+
+
 
 private:
     CXString cxString;
