@@ -46,7 +46,7 @@ HEADERS += $$PWD/clangcodemodelserver.h \
     $$PWD/clangjobrequest.h \
     $$PWD/clangjobs.h \
     $$PWD/clangrequestdocumentannotationsjob.h \
-    $$PWD/clangtranslationunitcore.h \
+    $$PWD/clangtranslationunit.h \
     $$PWD/clangunsavedfilesshallowarguments.h \
     $$PWD/clangupdatedocumentannotationsjob.h
 
@@ -93,7 +93,7 @@ SOURCES += $$PWD/clangcodemodelserver.cpp \
     $$PWD/clangjobrequest.cpp \
     $$PWD/clangjobs.cpp \
     $$PWD/clangrequestdocumentannotationsjob.cpp \
-    $$PWD/clangtranslationunitcore.cpp \
+    $$PWD/clangtranslationunit.cpp \
     $$PWD/clangunsavedfilesshallowarguments.cpp \
     $$PWD/clangupdatedocumentannotationsjob.cpp \
 

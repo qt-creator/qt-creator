@@ -29,7 +29,7 @@
 #include <projects.h>
 #include <clangdocument.h>
 #include <clangdocuments.h>
-#include <clangtranslationunitcore.h>
+#include <clangtranslationunit.h>
 #include <unsavedfiles.h>
 #include <sourcelocation.h>
 #include <sourcerange.h>
@@ -44,7 +44,7 @@
 
 using ClangBackEnd::DiagnosticSet;
 using ClangBackEnd::Document;
-using ClangBackEnd::TranslationUnitCore;
+using ClangBackEnd::TranslationUnit;
 using ClangBackEnd::ProjectPart;
 using ClangBackEnd::UnsavedFiles;
 using ClangBackEnd::Diagnostic;
@@ -72,8 +72,8 @@ MATCHER_P4(IsSourceLocation, filePath, line, column, offset,
 
 struct FixItData
 {
-    FixItData(TranslationUnitCore &translationUnitCore)
-        : diagnosticSet{translationUnitCore.diagnostics()}
+    FixItData(TranslationUnit &translationUnit)
+        : diagnosticSet{translationUnit.diagnostics()}
         , diagnostic{diagnosticSet.front()}
         , fixIt{diagnostic.fixIts().front()}
     {
@@ -89,7 +89,7 @@ struct Data
     Data()
     {
         document.parse();
-        d.reset(new FixItData(translationUnitCore));
+        d.reset(new FixItData(translationUnit));
     }
 
     ProjectPart projectPart{Utf8StringLiteral("projectPartId")};
@@ -100,7 +100,7 @@ struct Data
                       projectPart,
                       Utf8StringVector(),
                       documents};
-    TranslationUnitCore translationUnitCore{document.translationUnitCore()};
+    TranslationUnit translationUnit{document.translationUnit()};
     std::unique_ptr<FixItData> d;
 };
 

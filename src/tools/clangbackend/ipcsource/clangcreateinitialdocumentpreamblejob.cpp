@@ -31,13 +31,13 @@
 
 namespace ClangBackEnd {
 
-static void runAsyncHelper(const TranslationUnitCore &translationUnitCore,
+static void runAsyncHelper(const TranslationUnit &translationUnit,
                            const TranslationUnitUpdateInput &translationUnitUpdateInput)
 {
     TIME_SCOPE_DURATION("CreateInitialDocumentPreambleJobRunner");
 
     try {
-        translationUnitCore.reparse(translationUnitUpdateInput);
+        translationUnit.reparse(translationUnitUpdateInput);
     } catch (const std::exception &exception) {
         qWarning() << "Error in CreateInitialDocumentPreambleJobRunner:" << exception.what();
     }
@@ -52,10 +52,10 @@ bool CreateInitialDocumentPreambleJob::prepareAsyncRun()
         m_pinnedDocument = context().documentForJobRequest();
         m_pinnedFileContainer = m_pinnedDocument.fileContainer();
 
-        const TranslationUnitCore translationUnitCore = m_pinnedDocument.translationUnitCore();
+        const TranslationUnit translationUnit = m_pinnedDocument.translationUnit();
         const TranslationUnitUpdateInput updateInput = m_pinnedDocument.createUpdateInput();
-        setRunner([translationUnitCore, updateInput]() {
-            return runAsyncHelper(translationUnitCore, updateInput);
+        setRunner([translationUnit, updateInput]() {
+            return runAsyncHelper(translationUnit, updateInput);
         });
 
     } catch (const std::exception &exception) {

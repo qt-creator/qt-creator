@@ -34,7 +34,7 @@
 namespace ClangBackEnd {
 
 static UpdateDocumentAnnotationsJob::AsyncResult runAsyncHelper(
-        const TranslationUnitCore &translationUnitCore,
+        const TranslationUnit &translationUnit,
         const TranslationUnitUpdateInput &translationUnitUpdatInput)
 {
     TIME_SCOPE_DURATION("UpdateDocumentAnnotationsJobRunner");
@@ -43,12 +43,12 @@ static UpdateDocumentAnnotationsJob::AsyncResult runAsyncHelper(
 
     try {
         // Update
-        asyncResult.updateResult = translationUnitCore.update(translationUnitUpdatInput);
+        asyncResult.updateResult = translationUnit.update(translationUnitUpdatInput);
 
         // Collect
-        translationUnitCore.extractDocumentAnnotations(asyncResult.diagnostics,
-                                                       asyncResult.highlightingMarks,
-                                                       asyncResult.skippedSourceRanges);
+        translationUnit.extractDocumentAnnotations(asyncResult.diagnostics,
+                                                   asyncResult.highlightingMarks,
+                                                   asyncResult.skippedSourceRanges);
 
     } catch (const std::exception &exception) {
         qWarning() << "Error in UpdateDocumentAnnotationsJobRunner:" << exception.what();
@@ -66,10 +66,10 @@ bool UpdateDocumentAnnotationsJob::prepareAsyncRun()
         m_pinnedDocument = context().documentForJobRequest();
         m_pinnedFileContainer = m_pinnedDocument.fileContainer();
 
-        const TranslationUnitCore translationUnitCore = m_pinnedDocument.translationUnitCore();
+        const TranslationUnit translationUnit = m_pinnedDocument.translationUnit();
         const TranslationUnitUpdateInput updateInput = m_pinnedDocument.createUpdateInput();
-        setRunner([translationUnitCore, updateInput]() {
-            return runAsyncHelper(translationUnitCore, updateInput);
+        setRunner([translationUnit, updateInput]() {
+            return runAsyncHelper(translationUnit, updateInput);
         });
 
     } catch (const std::exception &exception) {

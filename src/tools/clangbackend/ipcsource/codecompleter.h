@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "clangtranslationunitcore.h"
+#include "clangtranslationunit.h"
 #include "unsavedfiles.h"
 
 #include <codecompletion.h>
@@ -40,7 +40,7 @@ class CodeCompleter
 {
 public:
     CodeCompleter() = default;
-    CodeCompleter(const TranslationUnitCore &translationUnitCore,
+    CodeCompleter(const TranslationUnit &translationUnit,
                   const UnsavedFiles &unsavedFiles);
 
     CodeCompletions complete(uint line, uint column);
@@ -61,7 +61,7 @@ private:
                                                            uint dotPosition);
 
 private:
-    TranslationUnitCore translationUnitCore;
+    TranslationUnit translationUnit;
     UnsavedFiles unsavedFiles;
     CompletionCorrection neededCorrection_ = CompletionCorrection::NoCorrection;
 };

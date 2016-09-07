@@ -58,9 +58,9 @@ CodeCompletions toCodeCompletions(const ClangCodeCompleteResults &results)
 
 } // anonymous namespace
 
-CodeCompleter::CodeCompleter(const TranslationUnitCore &translationUnitCore,
+CodeCompleter::CodeCompleter(const TranslationUnit &translationUnit,
                              const UnsavedFiles &unsavedFiles)
-    : translationUnitCore(translationUnitCore)
+    : translationUnit(translationUnit)
     , unsavedFiles(unsavedFiles)
 {
 }
@@ -83,10 +83,10 @@ CompletionCorrection CodeCompleter::neededCorrection() const
 
 ClangCodeCompleteResults CodeCompleter::completeHelper(uint line, uint column)
 {
-    const Utf8String nativeFilePath = FilePath::toNativeSeparators(translationUnitCore.filePath());
+    const Utf8String nativeFilePath = FilePath::toNativeSeparators(translationUnit.filePath());
     UnsavedFilesShallowArguments unsaved = unsavedFiles.shallowArguments();
 
-    return clang_codeCompleteAt(translationUnitCore.cxTranslationUnit(),
+    return clang_codeCompleteAt(translationUnit.cxTranslationUnit(),
                                 nativeFilePath.constData(),
                                 line,
                                 column,
@@ -110,7 +110,7 @@ uint CodeCompleter::defaultOptions() const
 
 UnsavedFile &CodeCompleter::unsavedFile()
 {
-    return unsavedFiles.unsavedFile(translationUnitCore.filePath());
+    return unsavedFiles.unsavedFile(translationUnit.filePath());
 }
 
 void CodeCompleter::tryDotArrowCorrectionIfNoResults(ClangCodeCompleteResults &results,

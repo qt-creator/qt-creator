@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include <clangtranslationunitcore.h>
+#include <clangtranslationunit.h>
 #include <diagnostic.h>
 #include <diagnosticset.h>
 #include <projectpart.h>
@@ -45,7 +45,7 @@
 using ClangBackEnd::DiagnosticSet;
 using ClangBackEnd::Document;
 using ClangBackEnd::Documents;
-using ClangBackEnd::TranslationUnitCore;
+using ClangBackEnd::TranslationUnit;
 using ClangBackEnd::ProjectPart;
 using ClangBackEnd::UnsavedFiles;
 using ClangBackEnd::Diagnostic;
@@ -76,7 +76,7 @@ MATCHER_P4(IsSourceLocation, filePath, line, column, offset,
 
 struct SourceRangeData {
     SourceRangeData(Document &document)
-        : diagnosticSet{document.translationUnitCore().diagnostics()}
+        : diagnosticSet{document.translationUnit().diagnostics()}
         , diagnostic{diagnosticSet.front()}
         , diagnosticWithFilteredOutInvalidRange{diagnosticSet.at(1)}
         , sourceRange{diagnostic.ranges().front()}
@@ -105,9 +105,9 @@ struct Data {
                       projectPart,
                       Utf8StringVector(),
                       documents};
-    TranslationUnitCore translationUnitCore{filePath,
-                                            document.translationUnitCore().cxIndex(),
-                                            document.translationUnitCore().cxTranslationUnit()};
+    TranslationUnit translationUnit{filePath,
+                                    document.translationUnit().cxIndex(),
+                                    document.translationUnit().cxTranslationUnit()};
 
     std::unique_ptr<SourceRangeData> d;
 };
@@ -123,7 +123,7 @@ protected:
     const ::SourceRange &sourceRange = d->d->sourceRange;
     const Diagnostic &diagnostic = d->d->diagnostic;
     const Diagnostic &diagnosticWithFilteredOutInvalidRange = d->d->diagnosticWithFilteredOutInvalidRange;
-    const TranslationUnitCore &translationUnitCore = d->translationUnitCore;
+    const TranslationUnit &translationUnit = d->translationUnit;
 };
 
 TEST_F(SourceRange, IsNull)
@@ -168,7 +168,7 @@ TEST_F(SourceRange, Create)
 
 TEST_F(SourceRange, SourceRangeFromTranslationUnit)
 {
-    auto sourceRangeFromTranslationUnit = translationUnitCore.sourceRange(8u, 5u, 8u, 6u);
+    auto sourceRangeFromTranslationUnit = translationUnit.sourceRange(8u, 5u, 8u, 6u);
 
     ASSERT_THAT(sourceRangeFromTranslationUnit, sourceRange);
 }

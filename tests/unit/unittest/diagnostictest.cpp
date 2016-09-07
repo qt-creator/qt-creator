@@ -30,7 +30,7 @@
 #include <projectpart.h>
 #include <clangdocument.h>
 #include <clangdocuments.h>
-#include <clangtranslationunitcore.h>
+#include <clangtranslationunit.h>
 #include <projects.h>
 #include <unsavedfiles.h>
 #include <sourcelocation.h>
@@ -82,7 +82,7 @@ MATCHER_P4(IsSourceLocation, filePath, line, column, offset,
 
 struct DiagnosticData {
     DiagnosticData(Document &document)
-        : diagnosticSet{document.translationUnitCore().diagnostics()}
+        : diagnosticSet{document.translationUnit().diagnostics()}
         , diagnostic{diagnosticSet.front()}
     {
     }

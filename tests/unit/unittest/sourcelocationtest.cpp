@@ -29,7 +29,7 @@
 #include <projects.h>
 #include <clangdocument.h>
 #include <clangdocuments.h>
-#include <clangtranslationunitcore.h>
+#include <clangtranslationunit.h>
 #include <unsavedfiles.h>
 #include <sourcelocation.h>
 
@@ -54,7 +54,7 @@ namespace {
 
 struct SourceLocationData {
     SourceLocationData(Document &document)
-        : diagnosticSet{document.translationUnitCore().diagnostics()}
+        : diagnosticSet{document.translationUnit().diagnostics()}
         , diagnostic{diagnosticSet.front()}
         , sourceLocation{diagnostic.location()}
     {
@@ -117,12 +117,12 @@ TEST_F(SourceLocation, Offset)
 
 TEST_F(SourceLocation, Create)
 {
-    ASSERT_THAT(document.translationUnitCore().sourceLocationAt(4, 1), sourceLocation);
+    ASSERT_THAT(document.translationUnit().sourceLocationAt(4, 1), sourceLocation);
 }
 
 TEST_F(SourceLocation, NotEqual)
 {
-    ASSERT_THAT(document.translationUnitCore().sourceLocationAt(3, 1), Not(sourceLocation));
+    ASSERT_THAT(document.translationUnit().sourceLocationAt(3, 1), Not(sourceLocation));
 }
 
 Data *SourceLocation::d;

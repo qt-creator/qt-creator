@@ -29,7 +29,7 @@
 #include <clangtranslationunitupdater.h>
 #include <projectpart.h>
 #include <projects.h>
-#include <clangtranslationunitcore.h>
+#include <clangtranslationunit.h>
 #include <clangdocuments.h>
 #include <unsavedfiles.h>
 #include <utf8string.h>
@@ -70,7 +70,7 @@ TEST(ClangCodeCompleteResults, GetData)
     Utf8String nativeFilePath = FilePath::toNativeSeparators(document.filePath());
     document.parse();
     CXCodeCompleteResults *cxCodeCompleteResults =
-            clang_codeCompleteAt(document.translationUnitCore().cxTranslationUnit(),
+            clang_codeCompleteAt(document.translationUnit().cxTranslationUnit(),
                                  nativeFilePath.constData(),
                                  49, 1, 0, 0,
                                  completionOptions());
@@ -102,7 +102,7 @@ TEST(ClangCodeCompleteResults, MoveClangCodeCompleteResults)
     Utf8String nativeFilePath = FilePath::toNativeSeparators(document.filePath());
     document.parse();
     CXCodeCompleteResults *cxCodeCompleteResults =
-            clang_codeCompleteAt(document.translationUnitCore().cxTranslationUnit(),
+            clang_codeCompleteAt(document.translationUnit().cxTranslationUnit(),
                                  nativeFilePath.constData(),
                                  49, 1, 0, 0,
                                  completionOptions());

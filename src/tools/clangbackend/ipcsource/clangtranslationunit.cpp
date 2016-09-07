@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "clangtranslationunitcore.h"
+#include "clangtranslationunit.h"
 #include "clangtranslationunitupdater.h"
 
 #include <codecompleter.h>
@@ -38,36 +38,36 @@
 
 namespace ClangBackEnd {
 
-TranslationUnitCore::TranslationUnitCore(const Utf8String &filepath,
-                                         CXIndex &cxIndex,
-                                         CXTranslationUnit &cxTranslationUnit)
+TranslationUnit::TranslationUnit(const Utf8String &filepath,
+                                 CXIndex &cxIndex,
+                                 CXTranslationUnit &cxTranslationUnit)
     : m_filePath(filepath)
     , m_cxIndex(cxIndex)
     , m_cxTranslationUnit(cxTranslationUnit)
 {
 }
 
-bool TranslationUnitCore::isNull() const
+bool TranslationUnit::isNull() const
 {
     return !m_cxTranslationUnit || !m_cxIndex || m_filePath.isEmpty();
 }
 
-Utf8String TranslationUnitCore::filePath() const
+Utf8String TranslationUnit::filePath() const
 {
     return m_filePath;
 }
 
-CXIndex &TranslationUnitCore::cxIndex() const
+CXIndex &TranslationUnit::cxIndex() const
 {
     return m_cxIndex;
 }
 
-CXTranslationUnit &TranslationUnitCore::cxTranslationUnit() const
+CXTranslationUnit &TranslationUnit::cxTranslationUnit() const
 {
     return m_cxTranslationUnit;
 }
 
-TranslationUnitUpdateResult TranslationUnitCore::update(
+TranslationUnitUpdateResult TranslationUnit::update(
         const TranslationUnitUpdateInput &parseInput) const
 {
     TranslationUnitUpdater updater(cxIndex(), cxTranslationUnit(), parseInput);
@@ -75,7 +75,7 @@ TranslationUnitUpdateResult TranslationUnitCore::update(
     return updater.update(TranslationUnitUpdater::UpdateMode::AsNeeded);
 }
 
-TranslationUnitUpdateResult TranslationUnitCore::parse(
+TranslationUnitUpdateResult TranslationUnit::parse(
         const TranslationUnitUpdateInput &parseInput) const
 {
     TranslationUnitUpdater updater(cxIndex(), cxTranslationUnit(), parseInput);
@@ -83,7 +83,7 @@ TranslationUnitUpdateResult TranslationUnitCore::parse(
     return updater.update(TranslationUnitUpdater::UpdateMode::ParseIfNeeded);
 }
 
-TranslationUnitUpdateResult TranslationUnitCore::reparse(
+TranslationUnitUpdateResult TranslationUnit::reparse(
         const TranslationUnitUpdateInput &parseInput) const
 {
     TranslationUnitUpdater updater(cxIndex(), cxTranslationUnit(), parseInput);
@@ -91,7 +91,7 @@ TranslationUnitUpdateResult TranslationUnitCore::reparse(
     return updater.update(TranslationUnitUpdater::UpdateMode::ForceReparse);
 }
 
-TranslationUnitCore::CodeCompletionResult TranslationUnitCore::complete(
+TranslationUnit::CodeCompletionResult TranslationUnit::complete(
         UnsavedFiles &unsavedFiles,
         uint line,
         uint column) const
@@ -104,7 +104,7 @@ TranslationUnitCore::CodeCompletionResult TranslationUnitCore::complete(
     return CodeCompletionResult{completions, correction};
 }
 
-void TranslationUnitCore::extractDocumentAnnotations(
+void TranslationUnit::extractDocumentAnnotations(
         QVector<DiagnosticContainer> &diagnostics,
         QVector<HighlightingMarkContainer> &highlightingMarks,
         QVector<SourceRangeContainer> &skippedSourceRanges) const
@@ -114,12 +114,12 @@ void TranslationUnitCore::extractDocumentAnnotations(
     skippedSourceRanges = this->skippedSourceRanges().toSourceRangeContainers();
 }
 
-DiagnosticSet TranslationUnitCore::diagnostics() const
+DiagnosticSet TranslationUnit::diagnostics() const
 {
     return DiagnosticSet(clang_getDiagnosticSetFromTU(m_cxTranslationUnit));
 }
 
-QVector<DiagnosticContainer> TranslationUnitCore::mainFileDiagnostics() const
+QVector<DiagnosticContainer> TranslationUnit::mainFileDiagnostics() const
 {
     const auto isMainFileDiagnostic = [this](const Diagnostic &diagnostic) {
         return diagnostic.location().filePath() == m_filePath;
@@ -128,50 +128,50 @@ QVector<DiagnosticContainer> TranslationUnitCore::mainFileDiagnostics() const
     return diagnostics().toDiagnosticContainers(isMainFileDiagnostic);
 }
 
-SourceLocation TranslationUnitCore::sourceLocationAt(uint line,uint column) const
+SourceLocation TranslationUnit::sourceLocationAt(uint line,uint column) const
 {
     return SourceLocation(m_cxTranslationUnit, m_filePath, line, column);
 }
 
-SourceLocation TranslationUnitCore::sourceLocationAt(const Utf8String &filePath,
-                                                     uint line,
-                                                     uint column) const
+SourceLocation TranslationUnit::sourceLocationAt(const Utf8String &filePath,
+                                                 uint line,
+                                                 uint column) const
 {
     return SourceLocation(m_cxTranslationUnit, filePath, line, column);
 }
 
-SourceRange TranslationUnitCore::sourceRange(uint fromLine,
-                                             uint fromColumn,
-                                             uint toLine,
-                                             uint toColumn) const
+SourceRange TranslationUnit::sourceRange(uint fromLine,
+                                         uint fromColumn,
+                                         uint toLine,
+                                         uint toColumn) const
 {
     return SourceRange(sourceLocationAt(fromLine, fromColumn),
                        sourceLocationAt(toLine, toColumn));
 }
 
-Cursor TranslationUnitCore::cursorAt(uint line, uint column) const
+Cursor TranslationUnit::cursorAt(uint line, uint column) const
 {
     return clang_getCursor(m_cxTranslationUnit, sourceLocationAt(line, column));
 }
 
-Cursor TranslationUnitCore::cursorAt(const Utf8String &filePath,
+Cursor TranslationUnit::cursorAt(const Utf8String &filePath,
                                      uint line,
                                      uint column) const
 {
     return clang_getCursor(m_cxTranslationUnit, sourceLocationAt(filePath, line, column));
 }
 
-Cursor TranslationUnitCore::cursor() const
+Cursor TranslationUnit::cursor() const
 {
     return clang_getTranslationUnitCursor(m_cxTranslationUnit);
 }
 
-HighlightingMarks TranslationUnitCore::highlightingMarks() const
+HighlightingMarks TranslationUnit::highlightingMarks() const
 {
     return highlightingMarksInRange(cursor().sourceRange());
 }
 
-HighlightingMarks TranslationUnitCore::highlightingMarksInRange(const SourceRange &range) const
+HighlightingMarks TranslationUnit::highlightingMarksInRange(const SourceRange &range) const
 {
     CXToken *cxTokens = 0;
     uint cxTokensCount = 0;
@@ -181,7 +181,7 @@ HighlightingMarks TranslationUnitCore::highlightingMarksInRange(const SourceRang
     return HighlightingMarks(m_cxTranslationUnit, cxTokens, cxTokensCount);
 }
 
-SkippedSourceRanges TranslationUnitCore::skippedSourceRanges() const
+SkippedSourceRanges TranslationUnit::skippedSourceRanges() const
 {
     return SkippedSourceRanges(m_cxTranslationUnit, m_filePath.constData());
 }

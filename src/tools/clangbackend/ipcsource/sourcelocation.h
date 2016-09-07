@@ -38,7 +38,7 @@ class SourceLocation
 {
     friend class Diagnostic;
     friend class SourceRange;
-    friend class TranslationUnitCore;
+    friend class TranslationUnit;
     friend class Cursor;
     friend bool operator==(const SourceLocation &first, const SourceLocation &second);
 

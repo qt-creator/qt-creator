@@ -34,16 +34,16 @@
 namespace ClangBackEnd {
 
 static RequestDocumentAnnotationsJob::AsyncResult runAsyncHelper(
-        const TranslationUnitCore &translationUnitCore)
+        const TranslationUnit &translationUnit)
 {
     TIME_SCOPE_DURATION("RequestDocumentAnnotationsJobRunner");
 
     RequestDocumentAnnotationsJob::AsyncResult asyncResult;
 
     try {
-        translationUnitCore.extractDocumentAnnotations(asyncResult.diagnostics,
-                                                       asyncResult.highlightingMarks,
-                                                       asyncResult.skippedSourceRanges);
+        translationUnit.extractDocumentAnnotations(asyncResult.diagnostics,
+                                                   asyncResult.highlightingMarks,
+                                                   asyncResult.skippedSourceRanges);
     } catch (const std::exception &exception) {
         qWarning() << "Error in RequestDocumentAnnotationsJobRunner:" << exception.what();
     }
@@ -60,9 +60,9 @@ bool RequestDocumentAnnotationsJob::prepareAsyncRun()
         m_pinnedDocument = context().documentForJobRequest();
         m_pinnedFileContainer = m_pinnedDocument.fileContainer();
 
-        const TranslationUnitCore translationUnitCore = m_pinnedDocument.translationUnitCore();
-        setRunner([translationUnitCore]() {
-            return runAsyncHelper(translationUnitCore);
+        const TranslationUnit translationUnit = m_pinnedDocument.translationUnit();
+        setRunner([translationUnit]() {
+            return runAsyncHelper(translationUnit);
         });
 
     } catch (const std::exception &exception) {

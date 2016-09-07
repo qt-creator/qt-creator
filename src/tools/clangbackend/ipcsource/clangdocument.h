@@ -27,7 +27,7 @@
 
 #include "clangtranslationunitupdater.h"
 
-#include "clangtranslationunitcore.h"
+#include "clangtranslationunit.h"
 
 #include <utf8stringvector.h>
 
@@ -43,7 +43,7 @@ class Utf8String;
 
 namespace ClangBackEnd {
 
-class TranslationUnitCore;
+class TranslationUnit;
 class DocumentData;
 class TranslationUnitUpdateResult;
 class ProjectPart;
@@ -104,7 +104,7 @@ public:
     TranslationUnitUpdateInput createUpdateInput() const;
     void incorporateUpdaterResult(const TranslationUnitUpdateResult &result) const;
 
-    TranslationUnitCore translationUnitCore() const;
+    TranslationUnit translationUnit() const;
 
 public: // for tests
     void parse() const;

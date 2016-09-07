@@ -48,7 +48,7 @@ class TranslationUnitUpdateInput;
 class TranslationUnitUpdateResult;
 class UnsavedFiles;
 
-class TranslationUnitCore
+class TranslationUnit
 {
 public:
     struct CodeCompletionResult {
@@ -57,9 +57,9 @@ public:
     };
 
 public:
-    TranslationUnitCore(const Utf8String &filePath,
-                        CXIndex &cxIndex,
-                        CXTranslationUnit &cxTranslationUnit);
+    TranslationUnit(const Utf8String &filePath,
+                    CXIndex &cxIndex,
+                    CXTranslationUnit &cxTranslationUnit);
 
     bool isNull() const;
 

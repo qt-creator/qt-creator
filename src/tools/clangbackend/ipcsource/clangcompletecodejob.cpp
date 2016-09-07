@@ -33,7 +33,7 @@
 
 namespace ClangBackEnd {
 
-static CompleteCodeJob::AsyncResult runAsyncHelper(const TranslationUnitCore &translationUnitCore,
+static CompleteCodeJob::AsyncResult runAsyncHelper(const TranslationUnit &translationUnit,
                                                    UnsavedFiles unsavedFiles,
                                                    quint32 line,
                                                    quint32 column)
@@ -43,8 +43,8 @@ static CompleteCodeJob::AsyncResult runAsyncHelper(const TranslationUnitCore &tr
     CompleteCodeJob::AsyncResult asyncResult;
 
     try {
-        const TranslationUnitCore::CodeCompletionResult results
-                = translationUnitCore.complete(unsavedFiles, line, column);
+        const TranslationUnit::CodeCompletionResult results
+                = translationUnit.complete(unsavedFiles, line, column);
 
         asyncResult.completions = results.completions;
         asyncResult.correction = results.correction;
@@ -63,12 +63,12 @@ bool CompleteCodeJob::prepareAsyncRun()
     try {
         m_pinnedDocument = context().documentForJobRequest();
 
-        const TranslationUnitCore translationUnitCore = m_pinnedDocument.translationUnitCore();
+        const TranslationUnit translationUnit = m_pinnedDocument.translationUnit();
         const UnsavedFiles unsavedFiles = *context().unsavedFiles;
         const quint32 line = jobRequest.line;
         const quint32 column = jobRequest.column;
-        setRunner([translationUnitCore, unsavedFiles, line, column]() {
-            return runAsyncHelper(translationUnitCore, unsavedFiles, line, column);
+        setRunner([translationUnit, unsavedFiles, line, column]() {
+            return runAsyncHelper(translationUnit, unsavedFiles, line, column);
         });
 
 

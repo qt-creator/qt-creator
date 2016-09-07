@@ -35,7 +35,7 @@
 #include <translationunitdoesnotexistexception.h>
 #include <translationunitfilenotexitexception.h>
 #include <clangdocument.h>
-#include <clangtranslationunitcore.h>
+#include <clangtranslationunit.h>
 #include <translationunitisnullexception.h>
 #include <translationunitparseerrorexception.h>
 #include <clangdocuments.h>
@@ -125,21 +125,21 @@ TEST_F(Document, ThrowExceptionForGettingIndexForInvalidUnit)
 {
     ::Document document;
 
-    ASSERT_THROW(document.translationUnitCore().cxIndex(), ClangBackEnd::TranslationUnitIsNullException);
+    ASSERT_THROW(document.translationUnit().cxIndex(), ClangBackEnd::TranslationUnitIsNullException);
 }
 
 TEST_F(Document, ThrowExceptionForGettingCxTranslationUnitForInvalidUnit)
 {
     ::Document document;
 
-    ASSERT_THROW(document.translationUnitCore().cxIndex(), ClangBackEnd::TranslationUnitIsNullException);
+    ASSERT_THROW(document.translationUnit().cxIndex(), ClangBackEnd::TranslationUnitIsNullException);
 }
 
 TEST_F(Document, CxTranslationUnitGetterIsNonNullForParsedUnit)
 {
     document.parse();
 
-    ASSERT_THAT(document.translationUnitCore().cxIndex(), NotNull());
+    ASSERT_THAT(document.translationUnit().cxIndex(), NotNull());
 }
 
 TEST_F(Document, ThrowExceptionIfGettingFilePathForNullUnit)

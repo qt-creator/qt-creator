@@ -27,7 +27,7 @@
 #include <clangdocument.h>
 #include <clangdocuments.h>
 #include <clangstring.h>
-#include <clangtranslationunitcore.h>
+#include <clangtranslationunit.h>
 #include <projectpart.h>
 #include <projects.h>
 #include <skippedsourceranges.h>
@@ -47,7 +47,7 @@
 using ClangBackEnd::Cursor;
 using ClangBackEnd::Document;
 using ClangBackEnd::Documents;
-using ClangBackEnd::TranslationUnitCore;
+using ClangBackEnd::TranslationUnit;
 using ClangBackEnd::UnsavedFiles;
 using ClangBackEnd::ProjectPart;
 using ClangBackEnd::ClangString;
@@ -101,9 +101,9 @@ struct Data {
                                   Utf8StringLiteral("-DBLAH")}),
                       {},
                       documents};
-    TranslationUnitCore translationUnitCore{filePath,
-                                            document.translationUnitCore().cxIndex(),
-                                            document.translationUnitCore().cxTranslationUnit()};
+    TranslationUnit translationUnit{filePath,
+                                    document.translationUnit().cxIndex(),
+                                    document.translationUnit().cxTranslationUnit()};
 };
 
 class SkippedSourceRanges : public ::testing::Test
@@ -114,9 +114,9 @@ public:
 
 protected:
     static Data *d;
-    const TranslationUnitCore &translationUnitCore = d->translationUnitCore;
+    const TranslationUnit &translationUnit = d->translationUnit;
     const Utf8String &filePath = d->filePath;
-    const ::SkippedSourceRanges skippedSourceRanges{d->translationUnitCore.skippedSourceRanges()};
+    const ::SkippedSourceRanges skippedSourceRanges{d->translationUnit.skippedSourceRanges()};
 };
 
 Data *SkippedSourceRanges::d;

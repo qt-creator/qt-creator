@@ -31,7 +31,7 @@
 #include <projectpart.h>
 #include <projects.h>
 #include <clangunsavedfilesshallowarguments.h>
-#include <clangtranslationunitcore.h>
+#include <clangtranslationunit.h>
 #include <clangdocuments.h>
 #include <unsavedfiles.h>
 #include <utf8stringvector.h>
@@ -692,7 +692,7 @@ ClangCodeCompleteResults CodeCompletionsExtractor::getResults(const Document &do
     const Utf8String nativeFilePath = FilePath::toNativeSeparators(document.filePath());
     UnsavedFilesShallowArguments unsaved = unsavedFiles.shallowArguments();
 
-    return ClangCodeCompleteResults(clang_codeCompleteAt(document.translationUnitCore().cxTranslationUnit(),
+    return ClangCodeCompleteResults(clang_codeCompleteAt(document.translationUnit().cxTranslationUnit(),
                                                          nativeFilePath.constData(),
                                                          line,
                                                          column,

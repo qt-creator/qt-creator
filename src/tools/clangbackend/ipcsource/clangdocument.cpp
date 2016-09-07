@@ -34,7 +34,7 @@
 #include "translationunitisnullexception.h"
 #include "translationunitparseerrorexception.h"
 #include "translationunitreparseerrorexception.h"
-#include "clangtranslationunitcore.h"
+#include "clangtranslationunit.h"
 #include "clangtranslationunitupdater.h"
 #include "unsavedfiles.h"
 #include "unsavedfile.h"
@@ -318,11 +318,11 @@ void Document::incorporateUpdaterResult(const TranslationUnitUpdateResult &resul
     }
 }
 
-TranslationUnitCore Document::translationUnitCore() const
+TranslationUnit Document::translationUnit() const
 {
     checkIfNull();
 
-    return TranslationUnitCore(d->filePath, d->index, d->translationUnit);
+    return TranslationUnit(d->filePath, d->index, d->translationUnit);
 }
 
 void Document::parse() const
@@ -330,7 +330,7 @@ void Document::parse() const
     checkIfNull();
 
     const TranslationUnitUpdateInput updateInput = createUpdateInput();
-    TranslationUnitUpdateResult result = translationUnitCore().parse(updateInput);
+    TranslationUnitUpdateResult result = translationUnit().parse(updateInput);
 
     incorporateUpdaterResult(result);
 }
@@ -340,7 +340,7 @@ void Document::reparse() const
     checkIfNull();
 
     const TranslationUnitUpdateInput updateInput = createUpdateInput();
-    TranslationUnitUpdateResult result = translationUnitCore().reparse(updateInput);
+    TranslationUnitUpdateResult result = translationUnit().reparse(updateInput);
 
     incorporateUpdaterResult(result);
 }
