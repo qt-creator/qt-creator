@@ -184,7 +184,12 @@ void DebuggerMainWindow::finalizeSetup()
     Context debugcontext(Debugger::Constants::C_DEBUGMODE);
 
     ActionContainer *viewsMenu = ActionManager::actionContainer(Core::Constants::M_WINDOW_VIEWS);
-    Command *cmd = ActionManager::registerAction(menuSeparator1(),
+    Command *cmd = ActionManager::registerAction(showCentralWidgetAction(),
+        "Debugger.Views.ShowCentralWidget", debugcontext);
+    cmd->setAttribute(Command::CA_Hide);
+    cmd->setAttribute(Command::CA_UpdateText);
+    viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
+    cmd = ActionManager::registerAction(menuSeparator1(),
         "Debugger.Views.Separator1", debugcontext);
     cmd->setAttribute(Command::CA_Hide);
     viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
@@ -349,10 +354,14 @@ void DebuggerMainWindow::loadPerspectiveHelper(const QByteArray &perspectiveId, 
         if (settings->value(QLatin1String("ToolSettingsSaved"), false).toBool())
             restoreSettings(settings);
         settings->endGroup();
+    } else {
+        // By default, show the central widget
+        showCentralWidgetAction()->setChecked(true);
     }
 
     QWidget *central = perspective->centralWidget();
     m_centralWidgetStack->addWidget(central ? central : m_editorPlaceHolder);
+    showCentralWidgetAction()->setText(central ? central->windowTitle() : tr("Editor"));
 
     QTC_CHECK(m_toolbarForPerspectiveId.contains(m_currentPerspectiveId));
     m_controlsStackWidget->setCurrentWidget(m_toolbarForPerspectiveId.value(m_currentPerspectiveId));
