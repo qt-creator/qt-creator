@@ -58,29 +58,29 @@ namespace {
 
 using namespace ClangBackEnd;
 
-MATCHER_P5(HasDirtyTranslationUnit,
+MATCHER_P5(HasDirtyDocument,
            filePath,
            projectPartId,
            documentRevision,
            isNeedingReparse,
            hasNewDiagnostics,
            std::string(negation ? "isn't" : "is")
-           + " translation unit with file path "+ PrintToString(filePath)
+           + " document with file path "+ PrintToString(filePath)
            + " and project " + PrintToString(projectPartId)
            + " and document revision " + PrintToString(documentRevision)
            + " and isNeedingReparse = " + PrintToString(isNeedingReparse)
            + " and hasNewDiagnostics = " + PrintToString(hasNewDiagnostics)
            )
 {
-    auto &&translationUnits = arg.translationUnitsForTestOnly();
+    auto &&documents = arg.documentsForTestOnly();
     try {
-        auto translationUnit = translationUnits.translationUnit(filePath, projectPartId);
+        auto document = documents.document(filePath, projectPartId);
 
-        if (translationUnit.documentRevision() == documentRevision) {
-            if (translationUnit.isNeedingReparse() && !isNeedingReparse) {
+        if (document.documentRevision() == documentRevision) {
+            if (document.isNeedingReparse() && !isNeedingReparse) {
                 *result_listener << "isNeedingReparse is true";
                 return false;
-            } else if (!translationUnit.isNeedingReparse() && isNeedingReparse) {
+            } else if (!document.isNeedingReparse() && isNeedingReparse) {
                 *result_listener << "isNeedingReparse is false";
                 return false;
             }
@@ -88,7 +88,7 @@ MATCHER_P5(HasDirtyTranslationUnit,
             return true;
         }
 
-        *result_listener << "revision number is " << PrintToString(translationUnit.documentRevision());
+        *result_listener << "revision number is " << PrintToString(document.documentRevision());
         return false;
 
     } catch (...) {
@@ -156,7 +156,7 @@ protected:
 protected:
     MockClangCodeModelClient mockClangCodeModelClient;
     ClangBackEnd::ClangCodeModelServer clangServer;
-    const ClangBackEnd::TranslationUnits &translationUnits = clangServer.translationUnitsForTestOnly();
+    const ClangBackEnd::Documents &documents = clangServer.documentsForTestOnly();
     const Utf8String projectPartId = Utf8StringLiteral("pathToProjectPart.pro");
 
     const Utf8String filePathA = Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_function.cpp");
@@ -344,35 +344,35 @@ TEST_F(ClangClangCodeModelServer, TranslationUnitAfterCreationIsNotDirty)
 {
     registerProjectAndFile(filePathA, 1);
 
-    ASSERT_THAT(clangServer, HasDirtyTranslationUnit(filePathA, projectPartId, 0U, false, false));
+    ASSERT_THAT(clangServer, HasDirtyDocument(filePathA, projectPartId, 0U, false, false));
 }
 
 TEST_F(ClangClangCodeModelServer, SetCurrentAndVisibleEditor)
 {
     registerProjectAndFilesAndWaitForFinished();
-    auto functionTranslationUnit = translationUnits.translationUnit(filePathA, projectPartId);
-    auto variableTranslationUnit = translationUnits.translationUnit(filePathB, projectPartId);
+    auto functionDocument = documents.document(filePathA, projectPartId);
+    auto variableDocument = documents.document(filePathB, projectPartId);
 
     updateVisibilty(filePathB, filePathA);
 
-    ASSERT_TRUE(variableTranslationUnit.isUsedByCurrentEditor());
-    ASSERT_TRUE(variableTranslationUnit.isVisibleInEditor());
-    ASSERT_TRUE(functionTranslationUnit.isVisibleInEditor());
+    ASSERT_TRUE(variableDocument.isUsedByCurrentEditor());
+    ASSERT_TRUE(variableDocument.isVisibleInEditor());
+    ASSERT_TRUE(functionDocument.isVisibleInEditor());
 }
 
 TEST_F(ClangClangCodeModelServer, IsNotCurrentCurrentAndVisibleEditorAnymore)
 {
     registerProjectAndFilesAndWaitForFinished();
-    auto functionTranslationUnit = translationUnits.translationUnit(filePathA, projectPartId);
-    auto variableTranslationUnit = translationUnits.translationUnit(filePathB, projectPartId);
+    auto functionDocument = documents.document(filePathA, projectPartId);
+    auto variableDocument = documents.document(filePathB, projectPartId);
     updateVisibilty(filePathB, filePathA);
 
     updateVisibilty(filePathB, Utf8String());
 
-    ASSERT_FALSE(functionTranslationUnit.isUsedByCurrentEditor());
-    ASSERT_FALSE(functionTranslationUnit.isVisibleInEditor());
-    ASSERT_TRUE(variableTranslationUnit.isUsedByCurrentEditor());
-    ASSERT_TRUE(variableTranslationUnit.isVisibleInEditor());
+    ASSERT_FALSE(functionDocument.isUsedByCurrentEditor());
+    ASSERT_FALSE(functionDocument.isVisibleInEditor());
+    ASSERT_TRUE(variableDocument.isUsedByCurrentEditor());
+    ASSERT_TRUE(variableDocument.isVisibleInEditor());
 }
 
 TEST_F(ClangClangCodeModelServer, TranslationUnitAfterUpdateNeedsReparse)
@@ -380,7 +380,7 @@ TEST_F(ClangClangCodeModelServer, TranslationUnitAfterUpdateNeedsReparse)
     registerProjectAndFileAndWaitForFinished(filePathA, 2);
 
     updateUnsavedContent(filePathA, unsavedContent(filePathAUnsavedVersion1), 1U);
-    ASSERT_THAT(clangServer, HasDirtyTranslationUnit(filePathA, projectPartId, 1U, true, true));
+    ASSERT_THAT(clangServer, HasDirtyDocument(filePathA, projectPartId, 1U, true, true));
 }
 
 void ClangClangCodeModelServer::SetUp()

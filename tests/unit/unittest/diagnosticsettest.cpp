@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include <clangbackendipc_global.h>
+#include <clangdocument.h>
 #include <diagnosticcontainer.h>
 #include <diagnosticset.h>
 #include <fixitcontainer.h>
@@ -32,9 +33,8 @@
 #include <sourcelocation.h>
 #include <sourcelocationcontainer.h>
 #include <sourcerangecontainer.h>
-#include <clangtranslationunit.h>
 #include <clangtranslationunitcore.h>
-#include <translationunits.h>
+#include <clangdocuments.h>
 #include <unsavedfiles.h>
 
 #include <clang-c/Index.h>
@@ -56,7 +56,7 @@ using ::ClangBackEnd::FixItContainer;
 using ::ClangBackEnd::ProjectPart;
 using ::ClangBackEnd::SourceLocation;
 using ::ClangBackEnd::SourceLocationContainer;
-using ::ClangBackEnd::TranslationUnit;
+using ::ClangBackEnd::Document;
 using ::ClangBackEnd::UnsavedFiles;
 
 namespace {
@@ -69,15 +69,15 @@ protected:
     ProjectPart projectPart{Utf8StringLiteral("projectPartId"), {Utf8StringLiteral("-pedantic")}};
     ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
-    ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
-    TranslationUnit translationUnit{Utf8StringLiteral(TESTDATA_DIR"/diagnostic_diagnosticset.cpp"),
-                                    projectPart,
-                                    Utf8StringVector(),
-                                    translationUnits};
-    TranslationUnit translationUnitMainFile{Utf8StringLiteral(TESTDATA_DIR"/diagnostic_diagnosticset_mainfile.cpp"),
-                                            projectPart,
-                                            Utf8StringVector(),
-                                            translationUnits};
+    ClangBackEnd::Documents documents{projects, unsavedFiles};
+    Document document{Utf8StringLiteral(TESTDATA_DIR"/diagnostic_diagnosticset.cpp"),
+                      projectPart,
+                      Utf8StringVector(),
+                      documents};
+    Document documentMainFile{Utf8StringLiteral(TESTDATA_DIR"/diagnostic_diagnosticset_mainfile.cpp"),
+                              projectPart,
+                              Utf8StringVector(),
+                              documents};
 
 protected:
     enum ChildMode { WithChild, WithoutChild };
@@ -86,16 +86,16 @@ protected:
 
 TEST_F(DiagnosticSet, SetHasContent)
 {
-    translationUnit.parse();
-    const auto set = translationUnit.translationUnitCore().diagnostics();
+    document.parse();
+    const auto set = document.translationUnitCore().diagnostics();
 
     ASSERT_THAT(set.size(), 1);
 }
 
 TEST_F(DiagnosticSet, MoveConstructor)
 {
-    translationUnit.parse();
-    auto set = translationUnit.translationUnitCore().diagnostics();
+    document.parse();
+    auto set = document.translationUnitCore().diagnostics();
 
     const auto set2 = std::move(set);
 
@@ -105,8 +105,8 @@ TEST_F(DiagnosticSet, MoveConstructor)
 
 TEST_F(DiagnosticSet, MoveAssigment)
 {
-    translationUnit.parse();
-    auto set = translationUnit.translationUnitCore().diagnostics();
+    document.parse();
+    auto set = document.translationUnitCore().diagnostics();
 
     auto set2 = std::move(set);
     set = std::move(set2);
@@ -117,8 +117,8 @@ TEST_F(DiagnosticSet, MoveAssigment)
 
 TEST_F(DiagnosticSet, MoveSelfAssigment)
 {
-    translationUnit.parse();
-    auto set = translationUnit.translationUnitCore().diagnostics();
+    document.parse();
+    auto set = document.translationUnitCore().diagnostics();
 
     set = std::move(set);
 
@@ -127,24 +127,24 @@ TEST_F(DiagnosticSet, MoveSelfAssigment)
 
 TEST_F(DiagnosticSet, FirstElementEqualBegin)
 {
-    translationUnit.parse();
-    auto set = translationUnit.translationUnitCore().diagnostics();
+    document.parse();
+    auto set = document.translationUnitCore().diagnostics();
 
     ASSERT_TRUE(set.front() == *set.begin());
 }
 
 TEST_F(DiagnosticSet, BeginIsUnequalEnd)
 {
-    translationUnit.parse();
-    auto set = translationUnit.translationUnitCore().diagnostics();
+    document.parse();
+    auto set = document.translationUnitCore().diagnostics();
 
     ASSERT_TRUE(set.begin() != set.end());
 }
 
 TEST_F(DiagnosticSet, BeginPlusOneIsEqualEnd)
 {
-    translationUnit.parse();
-    auto set = translationUnit.translationUnitCore().diagnostics();
+    document.parse();
+    auto set = document.translationUnitCore().diagnostics();
 
     ASSERT_TRUE(++set.begin() == set.end());
 }
@@ -152,17 +152,17 @@ TEST_F(DiagnosticSet, BeginPlusOneIsEqualEnd)
 TEST_F(DiagnosticSet, ToDiagnosticContainersLetThroughByDefault)
 {
     const auto diagnosticContainerWithoutChild = expectedDiagnostic(WithChild);
-    translationUnitMainFile.parse();
+    documentMainFile.parse();
 
-    const auto diagnostics = translationUnitMainFile.translationUnitCore().diagnostics().toDiagnosticContainers();
+    const auto diagnostics = documentMainFile.translationUnitCore().diagnostics().toDiagnosticContainers();
 
     ASSERT_THAT(diagnostics, Contains(IsDiagnosticContainer(diagnosticContainerWithoutChild)));
 }
 
 TEST_F(DiagnosticSet, ToDiagnosticContainersFiltersOutTopLevelItem)
 {
-    translationUnitMainFile.parse();
-    const ::DiagnosticSet diagnosticSetWithChildren{translationUnitMainFile.translationUnitCore().diagnostics()};
+    documentMainFile.parse();
+    const ::DiagnosticSet diagnosticSetWithChildren{documentMainFile.translationUnitCore().diagnostics()};
     const auto acceptNoDiagnostics = [](const Diagnostic &) { return false; };
 
     const auto diagnostics = diagnosticSetWithChildren.toDiagnosticContainers(acceptNoDiagnostics);
@@ -192,7 +192,7 @@ DiagnosticContainer DiagnosticSet::expectedDiagnostic(DiagnosticSet::ChildMode c
         Utf8StringLiteral("Semantic Issue"),
         {Utf8String(), Utf8String()},
         ClangBackEnd::DiagnosticSeverity::Error,
-        SourceLocationContainer(translationUnitMainFile.filePath(), 3, 6),
+        SourceLocationContainer(documentMainFile.filePath(), 3, 6),
         {},
         {},
         children

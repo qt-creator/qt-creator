@@ -32,14 +32,14 @@ class Utf8String;
 
 namespace ClangBackEnd {
 
-class TranslationUnits;
+class Documents;
 
 class ClangFileSystemWatcher : public QObject
 {
     Q_OBJECT
 
 public:
-    ClangFileSystemWatcher(TranslationUnits &translationUnits);
+    ClangFileSystemWatcher(Documents &documents);
 
     void addFiles(const QSet<Utf8String> &filePaths);
 
@@ -51,7 +51,7 @@ private:
 
 private:
     QFileSystemWatcher watcher;
-    TranslationUnits &translationUnits;
+    Documents &documents;
 };
 
 } // namespace ClangBackEnd

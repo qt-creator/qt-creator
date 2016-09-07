@@ -49,8 +49,8 @@ TEST_F(CreateInitialDocumentPreambleJob, PrepareAsyncRun)
 
 TEST_F(CreateInitialDocumentPreambleJob, RunAsync)
 {
-    translationUnit.parse();
-    translationUnit.setDirtyIfDependencyIsMet(translationUnit.filePath());
+    document.parse();
+    document.setDirtyIfDependencyIsMet(document.filePath());
     job.setContext(jobContext);
     job.prepareAsyncRun();
 

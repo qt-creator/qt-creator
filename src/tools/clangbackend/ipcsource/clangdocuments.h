@@ -25,8 +25,8 @@
 
 #pragma once
 
+#include "clangdocument.h"
 #include "clangfilesystemwatcher.h"
-#include "clangtranslationunit.h"
 
 #include <filecontainer.h>
 
@@ -39,54 +39,54 @@ namespace ClangBackEnd {
 class ProjectParts;
 class UnsavedFiles;
 
-class TranslationUnits
+class Documents
 {
 public:
-    TranslationUnits(ProjectParts &projectParts, UnsavedFiles &unsavedFiles);
+    Documents(ProjectParts &projectParts, UnsavedFiles &unsavedFiles);
 
-    std::vector<TranslationUnit> create(const QVector<FileContainer> &fileContainers);
+    std::vector<Document> create(const QVector<FileContainer> &fileContainers);
     void update(const QVector<FileContainer> &fileContainers);
     void remove(const QVector<FileContainer> &fileContainers);
 
     void setUsedByCurrentEditor(const Utf8String &filePath);
     void setVisibleInEditors(const Utf8StringVector &filePaths);
 
-    const TranslationUnit &translationUnit(const Utf8String &filePath, const Utf8String &projectPartId) const;
-    const TranslationUnit &translationUnit(const FileContainer &fileContainer) const;
-    bool hasTranslationUnit(const Utf8String &filePath, const Utf8String &projectPartId) const;
-    bool hasTranslationUnitWithFilePath(const Utf8String &filePath) const;
+    const Document &document(const Utf8String &filePath, const Utf8String &projectPartId) const;
+    const Document &document(const FileContainer &fileContainer) const;
+    bool hasDocument(const Utf8String &filePath, const Utf8String &projectPartId) const;
+    bool hasDocumentWithFilePath(const Utf8String &filePath) const;
 
-    const std::vector<TranslationUnit> &translationUnits() const;
+    const std::vector<Document> &documents() const;
 
     UnsavedFiles unsavedFiles() const;
 
     void addWatchedFiles(QSet<Utf8String> &filePaths);
 
-    void updateTranslationUnitsWithChangedDependency(const Utf8String &filePath);
-    void updateTranslationUnitsWithChangedDependencies(const QVector<FileContainer> &fileContainers);
-    void setTranslationUnitsDirtyIfProjectPartChanged();
+    void updateDocumentsWithChangedDependency(const Utf8String &filePath);
+    void updateDocumentsWithChangedDependencies(const QVector<FileContainer> &fileContainers);
+    void setDocumentsDirtyIfProjectPartChanged();
 
     QVector<FileContainer> newerFileContainers(const QVector<FileContainer> &fileContainers) const;
 
     const ClangFileSystemWatcher *clangFileSystemWatcher() const;
 
 private:
-    TranslationUnit createTranslationUnit(const FileContainer &fileContainer);
-    void updateTranslationUnit(const FileContainer &fileContainer);
-    std::vector<TranslationUnit>::iterator findTranslationUnit(const FileContainer &fileContainer);
-    std::vector<TranslationUnit> findAllTranslationUnitWithFilePath(const Utf8String &filePath);
-    std::vector<TranslationUnit>::const_iterator findTranslationUnit(const Utf8String &filePath, const Utf8String &projectPartId) const;
-    bool hasTranslationUnit(const FileContainer &fileContainer) const;
+    Document createDocument(const FileContainer &fileContainer);
+    void updateDocument(const FileContainer &fileContainer);
+    std::vector<Document>::iterator findDocument(const FileContainer &fileContainer);
+    std::vector<Document> findAllDocumentsWithFilePath(const Utf8String &filePath);
+    std::vector<Document>::const_iterator findDocument(const Utf8String &filePath, const Utf8String &projectPartId) const;
+    bool hasDocument(const FileContainer &fileContainer) const;
     void checkIfProjectPartExists(const Utf8String &projectFileName) const;
     void checkIfProjectPartsExists(const QVector<FileContainer> &fileContainers) const;
-    void checkIfTranslationUnitsDoesNotExists(const QVector<FileContainer> &fileContainers) const;
-    void checkIfTranslationUnitsForFilePathsDoesExists(const QVector<FileContainer> &fileContainers) const;
+    void checkIfDocumentsDoNotExist(const QVector<FileContainer> &fileContainers) const;
+    void checkIfDocumentsForFilePathsExist(const QVector<FileContainer> &fileContainers) const;
 
-    void removeTranslationUnits(const QVector<FileContainer> &fileContainers);
+    void removeDocuments(const QVector<FileContainer> &fileContainers);
 
 private:
     ClangFileSystemWatcher fileSystemWatcher;
-    std::vector<TranslationUnit> translationUnits_;
+    std::vector<Document> documents_;
     ProjectParts &projectParts;
     UnsavedFiles &unsavedFiles_;
 };

@@ -30,8 +30,8 @@
 namespace ClangBackEnd {
 
 class ClangCodeModelClientInterface;
-class TranslationUnit;
-class TranslationUnits;
+class Document;
+class Documents;
 class UnsavedFiles;
 
 class JobContext
@@ -39,11 +39,11 @@ class JobContext
 public:
     JobContext() = default;
     JobContext(const JobRequest &jobRequest,
-               TranslationUnits *translationUnits,
+               Documents *documents,
                UnsavedFiles *unsavedFiles,
                ClangCodeModelClientInterface *client);
 
-    TranslationUnit translationUnitForJobRequest() const;
+    Document documentForJobRequest() const;
 
     bool isOutdated() const;
     bool isDocumentOpen() const;
@@ -51,7 +51,7 @@ public:
 
 public:
     JobRequest jobRequest;
-    TranslationUnits *translationUnits = nullptr;
+    Documents *documents = nullptr;
     UnsavedFiles *unsavedFiles = nullptr;
     ClangCodeModelClientInterface *client = nullptr;
 };

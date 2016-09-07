@@ -27,9 +27,9 @@
 #include <diagnosticset.h>
 #include <projectpart.h>
 #include <projects.h>
-#include <clangtranslationunit.h>
+#include <clangdocument.h>
+#include <clangdocuments.h>
 #include <clangtranslationunitcore.h>
-#include <translationunits.h>
 #include <unsavedfiles.h>
 #include <sourcelocation.h>
 #include <sourcerange.h>
@@ -43,7 +43,7 @@
 #include "gtest-qt-printing.h"
 
 using ClangBackEnd::DiagnosticSet;
-using ClangBackEnd::TranslationUnit;
+using ClangBackEnd::Document;
 using ClangBackEnd::TranslationUnitCore;
 using ClangBackEnd::ProjectPart;
 using ClangBackEnd::UnsavedFiles;
@@ -88,19 +88,19 @@ struct Data
 {
     Data()
     {
-        translationUnit.parse();
+        document.parse();
         d.reset(new FixItData(translationUnitCore));
     }
 
     ProjectPart projectPart{Utf8StringLiteral("projectPartId")};
     ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
-    ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
-    TranslationUnit translationUnit{Utf8StringLiteral(TESTDATA_DIR"/diagnostic_semicolon_fixit.cpp"),
-                                    projectPart,
-                                    Utf8StringVector(),
-                                    translationUnits};
-    TranslationUnitCore translationUnitCore{translationUnit.translationUnitCore()};
+    ClangBackEnd::Documents documents{projects, unsavedFiles};
+    Document document{Utf8StringLiteral(TESTDATA_DIR"/diagnostic_semicolon_fixit.cpp"),
+                      projectPart,
+                      Utf8StringVector(),
+                      documents};
+    TranslationUnitCore translationUnitCore{document.translationUnitCore()};
     std::unique_ptr<FixItData> d;
 };
 

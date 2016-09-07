@@ -61,9 +61,9 @@ bool CompleteCodeJob::prepareAsyncRun()
     QTC_ASSERT(jobRequest.type == JobRequest::Type::CompleteCode, return false);
 
     try {
-        m_pinnedTranslationUnit = context().translationUnitForJobRequest();
+        m_pinnedDocument = context().documentForJobRequest();
 
-        const TranslationUnitCore translationUnitCore = m_pinnedTranslationUnit.translationUnitCore();
+        const TranslationUnitCore translationUnitCore = m_pinnedDocument.translationUnitCore();
         const UnsavedFiles unsavedFiles = *context().unsavedFiles;
         const quint32 line = jobRequest.line;
         const quint32 column = jobRequest.column;

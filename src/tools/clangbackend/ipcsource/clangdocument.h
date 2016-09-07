@@ -44,15 +44,15 @@ class Utf8String;
 namespace ClangBackEnd {
 
 class TranslationUnitCore;
-class TranslationUnitData;
+class DocumentData;
 class TranslationUnitUpdateResult;
 class ProjectPart;
 class FileContainer;
-class TranslationUnits;
+class Documents;
 
 using time_point = std::chrono::steady_clock::time_point;
 
-class TranslationUnit
+class Document
 {
 public:
     enum FileExistsCheck {
@@ -60,19 +60,19 @@ public:
         DoNotCheckIfFileExists
     };
 
-    TranslationUnit() = default;
-    TranslationUnit(const Utf8String &filePath,
-                    const ProjectPart &projectPart,
-                    const Utf8StringVector &fileArguments,
-                    TranslationUnits &translationUnits,
-                    FileExistsCheck fileExistsCheck = CheckIfFileExists);
-    ~TranslationUnit();
+    Document() = default;
+    Document(const Utf8String &filePath,
+             const ProjectPart &projectPart,
+             const Utf8StringVector &fileArguments,
+             Documents &documents,
+             FileExistsCheck fileExistsCheck = CheckIfFileExists);
+    ~Document();
 
-    TranslationUnit(const TranslationUnit &cxTranslationUnit);
-    TranslationUnit &operator=(const TranslationUnit &cxTranslationUnit);
+    Document(const Document &cxTranslationUnit);
+    Document &operator=(const Document &cxTranslationUnit);
 
-    TranslationUnit(TranslationUnit &&cxTranslationUnit);
-    TranslationUnit &operator=(TranslationUnit &&cxTranslationUnit);
+    Document(Document &&cxTranslationUnit);
+    Document &operator=(Document &&cxTranslationUnit);
 
     void reset();
 
@@ -124,9 +124,9 @@ private:
     bool isMainFileAndExistsOrIsOtherFile(const Utf8String &filePath) const;
 
 private:
-    mutable std::shared_ptr<TranslationUnitData> d;
+    mutable std::shared_ptr<DocumentData> d;
 };
 
-bool operator==(const TranslationUnit &first, const TranslationUnit &second);
-void PrintTo(const TranslationUnit &translationUnit, ::std::ostream *os);
+bool operator==(const Document &first, const Document &second);
+void PrintTo(const Document &document, ::std::ostream *os);
 } // namespace ClangBackEnd

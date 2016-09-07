@@ -28,9 +28,9 @@
 #include <diagnosticset.h>
 #include <fixitcontainer.h>
 #include <projectpart.h>
-#include <clangtranslationunit.h>
+#include <clangdocument.h>
+#include <clangdocuments.h>
 #include <clangtranslationunitcore.h>
-#include <translationunits.h>
 #include <projects.h>
 #include <unsavedfiles.h>
 #include <sourcelocation.h>
@@ -51,13 +51,13 @@ using ::testing::PrintToString;
 
 using ClangBackEnd::DiagnosticSet;
 using ClangBackEnd::DiagnosticContainer;
-using ClangBackEnd::TranslationUnit;
+using ClangBackEnd::Document;
+using ClangBackEnd::Documents;
 using ClangBackEnd::ProjectPart;
 using ClangBackEnd::UnsavedFiles;
 using ClangBackEnd::Diagnostic;
 using ClangBackEnd::SourceLocation;
 using ClangBackEnd::DiagnosticSeverity;
-using ClangBackEnd::TranslationUnits;
 using ClangBackEnd::FixItContainer;
 using ClangBackEnd::SourceLocationContainer;
 
@@ -81,8 +81,8 @@ MATCHER_P4(IsSourceLocation, filePath, line, column, offset,
 }
 
 struct DiagnosticData {
-    DiagnosticData(TranslationUnit &translationUnit)
-        : diagnosticSet{translationUnit.translationUnitCore().diagnostics()}
+    DiagnosticData(Document &document)
+        : diagnosticSet{document.translationUnitCore().diagnostics()}
         , diagnostic{diagnosticSet.front()}
     {
     }
@@ -94,18 +94,18 @@ struct DiagnosticData {
 struct Data {
     Data()
     {
-        translationUnit.parse();
-        d.reset(new DiagnosticData(translationUnit));
+        document.parse();
+        d.reset(new DiagnosticData(document));
     }
 
     ProjectPart projectPart{Utf8StringLiteral("projectPartId"), {Utf8StringLiteral("-std=c++11")}};
     ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
-    ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
-    TranslationUnit translationUnit{Utf8StringLiteral(TESTDATA_DIR"/diagnostic_diagnostic.cpp"),
-                                    projectPart,
-                                    Utf8StringVector(),
-                                    translationUnits};
+    ClangBackEnd::Documents documents{projects, unsavedFiles};
+    Document document{Utf8StringLiteral(TESTDATA_DIR"/diagnostic_diagnostic.cpp"),
+                      projectPart,
+                      Utf8StringVector(),
+                      documents};
     std::unique_ptr<DiagnosticData> d;
 };
 
@@ -215,7 +215,7 @@ DiagnosticContainer Diagnostic::expectedDiagnostic(Diagnostic::ChildMode childMo
             Utf8StringLiteral("Semantic Issue"),
             {Utf8String(), Utf8String()},
             ClangBackEnd::DiagnosticSeverity::Note,
-            SourceLocationContainer(d->translationUnit.filePath(), 5, 6),
+            SourceLocationContainer(d->document.filePath(), 5, 6),
             {},
             {},
             {}
@@ -229,7 +229,7 @@ DiagnosticContainer Diagnostic::expectedDiagnostic(Diagnostic::ChildMode childMo
             Utf8StringLiteral("Semantic Issue"),
             {Utf8String(), Utf8String()},
             ClangBackEnd::DiagnosticSeverity::Error,
-            SourceLocationContainer(d->translationUnit.filePath(), 7, 5),
+            SourceLocationContainer(d->document.filePath(), 7, 5),
             {},
             {},
             children

@@ -25,9 +25,9 @@
 
 #include "sourcelocation.h"
 
+#include "clangdocument.h"
 #include "clangfilepath.h"
 #include "clangstring.h"
-#include "clangtranslationunit.h"
 
 #include <utf8string.h>
 

@@ -36,13 +36,13 @@ void ClangAsyncJobTest::BaseSetUp(ClangBackEnd::JobRequest::Type jobRequestType,
     projects.createOrUpdate({ProjectPartContainer(projectPartId)});
 
     const QVector<FileContainer> fileContainer{FileContainer(filePath, projectPartId)};
-    translationUnit = translationUnits.create(fileContainer).front();
-    translationUnits.setVisibleInEditors({filePath});
-    translationUnits.setUsedByCurrentEditor(filePath);
+    document = documents.create(fileContainer).front();
+    documents.setVisibleInEditors({filePath});
+    documents.setUsedByCurrentEditor(filePath);
 
     jobRequest = createJobRequest(filePath, jobRequestType);
-    jobContext = JobContext(jobRequest, &translationUnits, &unsavedFiles, &dummyIpcClient);
-    jobContextWithMockClient = JobContext(jobRequest, &translationUnits, &unsavedFiles, &mockIpcClient);
+    jobContext = JobContext(jobRequest, &documents, &unsavedFiles, &dummyIpcClient);
+    jobContextWithMockClient = JobContext(jobRequest, &documents, &unsavedFiles, &mockIpcClient);
     asyncJob.setFinishedHandler([](IAsyncJob *){});
 }
 
@@ -55,7 +55,7 @@ JobRequest ClangAsyncJobTest::createJobRequest(const Utf8String &filePath,
     jobRequest.filePath = filePath;
     jobRequest.projectPartId = projectPartId;
     jobRequest.unsavedFilesChangeTimePoint = unsavedFiles.lastChangeTimePoint();
-    jobRequest.documentRevision = translationUnit.documentRevision();
+    jobRequest.documentRevision = document.documentRevision();
     jobRequest.projectChangeTimePoint = projects.project(projectPartId).lastChangeTimePoint();
 
     return jobRequest;

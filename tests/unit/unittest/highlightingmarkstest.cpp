@@ -23,7 +23,8 @@
 **
 ****************************************************************************/
 
-#include <clangtranslationunit.h>
+#include <clangdocument.h>
+#include <clangdocuments.h>
 #include <clangtranslationunitcore.h>
 #include <cursor.h>
 #include <clangbackendipc_global.h>
@@ -34,7 +35,6 @@
 #include <sourcerange.h>
 #include <highlightingmark.h>
 #include <highlightingmarks.h>
-#include <translationunits.h>
 #include <unsavedfiles.h>
 
 #include <clang-c/Index.h>
@@ -49,11 +49,11 @@ using ClangBackEnd::HighlightingTypes;
 using ClangBackEnd::HighlightingMark;
 using ClangBackEnd::HighlightingMarks;
 using ClangBackEnd::HighlightingType;
-using ClangBackEnd::TranslationUnit;
+using ClangBackEnd::Document;
+using ClangBackEnd::Documents;
 using ClangBackEnd::TranslationUnitCore;
 using ClangBackEnd::UnsavedFiles;
 using ClangBackEnd::ProjectPart;
-using ClangBackEnd::TranslationUnits;
 using ClangBackEnd::ClangString;
 using ClangBackEnd::SourceRange;
 
@@ -101,20 +101,21 @@ MATCHER_P2(HasTwoTypes, firstType, secondType,
 struct Data {
     Data()
     {
-        translationUnit.parse();
+        document.parse();
     }
 
     ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
-    ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
+    ClangBackEnd::Documents documents{projects, unsavedFiles};
     Utf8String filePath{Utf8StringLiteral(TESTDATA_DIR"/highlightingmarks.cpp")};
-    TranslationUnit translationUnit{filePath,
-                ProjectPart(Utf8StringLiteral("projectPartId"), {Utf8StringLiteral("-std=c++14")}),
-                {},
-                translationUnits};
+    Document document{filePath,
+                      ProjectPart(Utf8StringLiteral("projectPartId"),
+                                  {Utf8StringLiteral("-std=c++14")}),
+                      {},
+                      documents};
     TranslationUnitCore translationUnitCore{filePath,
-                                            translationUnit.translationUnitCore().cxIndex(),
-                                            translationUnit.translationUnitCore().cxTranslationUnit()};
+                                            document.translationUnitCore().cxIndex(),
+                                            document.translationUnitCore().cxTranslationUnit()};
 };
 
 class HighlightingMarks : public ::testing::Test

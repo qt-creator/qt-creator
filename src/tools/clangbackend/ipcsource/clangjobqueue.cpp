@@ -25,8 +25,8 @@
 
 #include "clangiasyncjob.h"
 #include "clangjobqueue.h"
-#include "clangtranslationunit.h"
-#include "translationunits.h"
+#include "clangdocument.h"
+#include "clangdocuments.h"
 #include "projects.h"
 #include "unsavedfiles.h"
 
@@ -34,8 +34,8 @@
 
 namespace ClangBackEnd {
 
-JobQueue::JobQueue(TranslationUnits &translationUnits, ProjectParts &projectParts)
-    : m_translationUnits(translationUnits)
+JobQueue::JobQueue(Documents &documents, ProjectParts &projectParts)
+    : m_documents(documents)
     , m_projectParts(projectParts)
 {
 }
@@ -81,7 +81,7 @@ void JobQueue::removeOutDatedRequests()
 bool JobQueue::isJobRequestOutDated(const JobRequest &jobRequest) const
 {
     const JobRequest::Requirements requirements = jobRequest.requirements;
-    const UnsavedFiles unsavedFiles = m_translationUnits.unsavedFiles();
+    const UnsavedFiles unsavedFiles = m_documents.unsavedFiles();
 
     if (requirements.testFlag(JobRequest::CurrentUnsavedFiles)) {
         if (jobRequest.unsavedFilesChangeTimePoint != unsavedFiles.lastChangeTimePoint()) {
@@ -93,7 +93,7 @@ bool JobQueue::isJobRequestOutDated(const JobRequest &jobRequest) const
     bool projectCheckedAndItExists = false;
 
     if (requirements.testFlag(JobRequest::DocumentValid)) {
-        if (!m_translationUnits.hasTranslationUnit(jobRequest.filePath, jobRequest.projectPartId)) {
+        if (!m_documents.hasDocument(jobRequest.filePath, jobRequest.projectPartId)) {
             qCDebug(jobsLog) << "Removing due to already closed document:" << jobRequest;
             return true;
         }
@@ -104,15 +104,15 @@ bool JobQueue::isJobRequestOutDated(const JobRequest &jobRequest) const
         }
         projectCheckedAndItExists = true;
 
-        const TranslationUnit translationUnit
-                = m_translationUnits.translationUnit(jobRequest.filePath, jobRequest.projectPartId);
-        if (!translationUnit.isIntact()) {
+        const Document document
+                = m_documents.document(jobRequest.filePath, jobRequest.projectPartId);
+        if (!document.isIntact()) {
             qCDebug(jobsLog) << "Removing due to not intact translation unit:" << jobRequest;
             return true;
         }
 
         if (requirements.testFlag(JobRequest::CurrentDocumentRevision)) {
-            if (translationUnit.documentRevision() != jobRequest.documentRevision) {
+            if (document.documentRevision() != jobRequest.documentRevision) {
                 qCDebug(jobsLog) << "Removing due to changed document revision:" << jobRequest;
                 return true;
             }
@@ -135,14 +135,14 @@ bool JobQueue::isJobRequestOutDated(const JobRequest &jobRequest) const
     return false;
 }
 
-static int priority(const TranslationUnit &translationUnit)
+static int priority(const Document &document)
 {
     int thePriority = 0;
 
-    if (translationUnit.isUsedByCurrentEditor())
+    if (document.isUsedByCurrentEditor())
         thePriority += 1000;
 
-    if (translationUnit.isVisibleInEditor())
+    if (document.isVisibleInEditor())
         thePriority += 100;
 
     return thePriority;
@@ -152,8 +152,8 @@ void JobQueue::prioritizeRequests()
 {
     const auto lessThan = [this] (const JobRequest &r1, const JobRequest &r2) {
         // TODO: Getting the TU is O(n) currently, so this might become expensive for large n.
-        const TranslationUnit &t1 = m_translationUnits.translationUnit(r1.filePath, r1.projectPartId);
-        const TranslationUnit &t2 = m_translationUnits.translationUnit(r2.filePath, r2.projectPartId);
+        const Document &t1 = m_documents.document(r1.filePath, r1.projectPartId);
+        const Document &t2 = m_documents.document(r2.filePath, r2.projectPartId);
 
         return priority(t1) > priority(t2);
     };
@@ -171,12 +171,12 @@ JobRequests JobQueue::takeJobRequestsToRunNow()
         const JobRequest &jobRequest = i.next();
 
         try {
-            const TranslationUnit &translationUnit
-                    = m_translationUnits.translationUnit(jobRequest.filePath,
+            const Document &document
+                    = m_documents.document(jobRequest.filePath,
                                                          jobRequest.projectPartId);
             const DocumentId documentId = DocumentId(jobRequest.filePath, jobRequest.projectPartId);
 
-            if (!translationUnit.isUsedByCurrentEditor() && !translationUnit.isVisibleInEditor())
+            if (!document.isUsedByCurrentEditor() && !document.isVisibleInEditor())
                 continue;
 
             if (documentsScheduledForThisRun.contains(documentId))

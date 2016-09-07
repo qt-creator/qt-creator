@@ -34,9 +34,9 @@
 namespace ClangBackEnd {
 
 class ClangCodeModelClientInterface;
+class Documents;
 class IAsyncJob;
 class ProjectParts;
-class TranslationUnits;
 class UnsavedFiles;
 
 class Jobs
@@ -49,7 +49,7 @@ public:
     using RunningJobs = QHash<IAsyncJob *, RunningJob>;
 
 public:
-    Jobs(TranslationUnits &translationUnits,
+    Jobs(Documents &documents,
          UnsavedFiles &unsavedFiles,
          ProjectParts &projects,
          ClangCodeModelClientInterface &client);
@@ -70,7 +70,7 @@ private:
     void onJobFinished(IAsyncJob *asyncJob);
 
 private:
-    TranslationUnits &m_translationUnits;
+    Documents &m_documents;
     UnsavedFiles &m_unsavedFiles;
     ProjectParts &m_projectParts;
     ClangCodeModelClientInterface &m_client;

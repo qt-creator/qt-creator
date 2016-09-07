@@ -29,8 +29,8 @@
 
 #include "projectpart.h"
 #include "projects.h"
-#include "clangtranslationunit.h"
-#include "translationunits.h"
+#include "clangdocument.h"
+#include "clangdocuments.h"
 #include "unsavedfiles.h"
 #include "clangjobs.h"
 
@@ -59,7 +59,7 @@ public:
     void requestDocumentAnnotations(const RequestDocumentAnnotationsMessage &message) override;
 
 public /*for tests*/:
-    const TranslationUnits &translationUnitsForTestOnly() const;
+    const Documents &documentsForTestOnly() const;
     const Jobs &jobsForTestOnly();
     bool isTimerRunningForTestOnly() const;
     void setUpdateDocumentAnnotationsTimeOutInMsForTestsOnly(int value);
@@ -70,15 +70,14 @@ private:
     void startDocumentAnnotationsTimerIfFileIsNotATranslationUnit(const Utf8String &filePath);
     void addJobRequestsForDirtyAndVisibleDocuments();
     void processJobsForDirtyAndVisibleDocuments();
-    void processInitialJobsForDocuments(const std::vector<TranslationUnit> &translationUnits);
+    void processInitialJobsForDocuments(const std::vector<Document> &documents);
 
-    JobRequest createJobRequest(const TranslationUnit &translationUnit,
-                                JobRequest::Type type) const;
+    JobRequest createJobRequest(const Document &document, JobRequest::Type type) const;
 
 private:
     ProjectParts projects;
     UnsavedFiles unsavedFiles;
-    TranslationUnits translationUnits;
+    Documents documents;
     QScopedPointer<Jobs> jobs_;
 
     QTimer updateDocumentAnnotationsTimer;

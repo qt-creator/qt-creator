@@ -62,8 +62,8 @@ SOURCES += \
     sqlitestatementtest.cpp \
     sqlitetabletest.cpp \
     sqlstatementbuildertest.cpp \
-    translationunitstest.cpp \
-    translationunittest.cpp \
+    clangdocumenttest.cpp \
+    clangdocumentstest.cpp \
     unsavedfilestest.cpp \
     senddocumenttrackertest.cpp \
     cursortest.cpp \

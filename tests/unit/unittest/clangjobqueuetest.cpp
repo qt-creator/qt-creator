@@ -25,12 +25,12 @@
 
 #include "testutils.h"
 
+#include <clangdocument.h>
+#include <clangdocuments.h>
 #include <clangjobs.h>
-#include <clangtranslationunit.h>
 #include <filecontainer.h>
 #include <projectpart.h>
 #include <projects.h>
-#include <translationunits.h>
 #include <unsavedfiles.h>
 
 #include <clang-c/Index.h>
@@ -75,14 +75,14 @@ protected:
 protected:
     ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
-    ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
-    ClangBackEnd::TranslationUnit translationUnit;
+    ClangBackEnd::Documents documents{projects, unsavedFiles};
+    ClangBackEnd::Document document;
 
     Utf8String filePath1 = Utf8StringLiteral(TESTDATA_DIR"/translationunits.cpp");
     Utf8String filePath2 = Utf8StringLiteral(TESTDATA_DIR"/skippedsourceranges.cpp");
     Utf8String projectPartId{Utf8StringLiteral("/path/to/projectfile")};
 
-    ClangBackEnd::JobQueue jobQueue{translationUnits, projects};
+    ClangBackEnd::JobQueue jobQueue{documents, projects};
 };
 
 TEST_F(JobQueue, AddJob)
@@ -200,7 +200,7 @@ TEST_F(JobQueue, PrioritizeCurrentDocumentOverNotCurrent)
     resetVisibilityAndCurrentEditor();
     jobQueue.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
     jobQueue.add(createJobRequest(filePath2, JobRequest::Type::UpdateDocumentAnnotations));
-    translationUnits.setUsedByCurrentEditor(filePath2);
+    documents.setUsedByCurrentEditor(filePath2);
 
     jobQueue.prioritizeRequests();
 
@@ -212,7 +212,7 @@ TEST_F(JobQueue, PrioritizeVisibleDocumentsOverNotVisible)
     resetVisibilityAndCurrentEditor();
     jobQueue.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
     jobQueue.add(createJobRequest(filePath2, JobRequest::Type::UpdateDocumentAnnotations));
-    translationUnits.setVisibleInEditors({filePath2});
+    documents.setVisibleInEditors({filePath2});
 
     jobQueue.prioritizeRequests();
 
@@ -224,8 +224,8 @@ TEST_F(JobQueue, PrioritizeCurrentDocumentOverVisible)
     resetVisibilityAndCurrentEditor();
     jobQueue.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
     jobQueue.add(createJobRequest(filePath2, JobRequest::Type::UpdateDocumentAnnotations));
-    translationUnits.setVisibleInEditors({filePath1, filePath2});
-    translationUnits.setUsedByCurrentEditor(filePath2);
+    documents.setVisibleInEditors({filePath1, filePath2});
+    documents.setUsedByCurrentEditor(filePath2);
 
     jobQueue.prioritizeRequests();
 
@@ -236,8 +236,8 @@ TEST_F(JobQueue, RunNothingForNotCurrentOrVisibleDocument)
 {
     jobQueue.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
     jobQueue.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
-    translationUnits.setVisibleInEditors({});
-    translationUnits.setUsedByCurrentEditor(Utf8StringLiteral("aNonExistingFilePath"));
+    documents.setVisibleInEditors({});
+    documents.setUsedByCurrentEditor(Utf8StringLiteral("aNonExistingFilePath"));
 
     const JobRequests jobsToRun = jobQueue.processQueue();
 
@@ -312,7 +312,7 @@ TEST_F(JobQueue, RequestUpdateDocumentAnnotationsOutdatableByDocumentClose)
 TEST_F(JobQueue, RequestUpdateDocumentAnnotationsOutdatableByNotIntactDocument)
 {
     jobQueue.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
-    translationUnit.setHasParseOrReparseFailed(true);
+    document.setHasParseOrReparseFailed(true);
 
     const JobRequests jobsToStart = jobQueue.processQueue();
 
@@ -375,15 +375,15 @@ void JobQueue::SetUp()
 
     const QVector<FileContainer> fileContainer{FileContainer(filePath1, projectPartId),
                                                FileContainer(filePath2, projectPartId)};
-    translationUnit = translationUnits.create(fileContainer).front();
-    translationUnits.setVisibleInEditors({filePath1});
-    translationUnits.setUsedByCurrentEditor(filePath1);
+    document = documents.create(fileContainer).front();
+    documents.setVisibleInEditors({filePath1});
+    documents.setUsedByCurrentEditor(filePath1);
 }
 
 void JobQueue::resetVisibilityAndCurrentEditor()
 {
-    translationUnits.setVisibleInEditors({});
-    translationUnits.setUsedByCurrentEditor(Utf8String());
+    documents.setVisibleInEditors({});
+    documents.setUsedByCurrentEditor(Utf8String());
 }
 
 Utf8String JobQueue::createTranslationUnitForDeletedFile()
@@ -394,9 +394,9 @@ Utf8String JobQueue::createTranslationUnitForDeletedFile()
 
     ClangBackEnd::FileContainer fileContainer(temporaryFilePath,
                                               projectPartId, Utf8String(), true);
-    translationUnits.create({fileContainer});
-    auto translationUnit = translationUnits.translationUnit(fileContainer);
-    translationUnit.setIsUsedByCurrentEditor(true);
+    documents.create({fileContainer});
+    auto document = documents.document(fileContainer);
+    document.setIsUsedByCurrentEditor(true);
 
     return temporaryFilePath;
 }
@@ -410,7 +410,7 @@ JobRequest JobQueue::createJobRequest(const Utf8String &filePath,
     jobRequest.filePath = filePath;
     jobRequest.projectPartId = projectPartId;
     jobRequest.unsavedFilesChangeTimePoint = unsavedFiles.lastChangeTimePoint();
-    jobRequest.documentRevision = translationUnit.documentRevision();
+    jobRequest.documentRevision = document.documentRevision();
     jobRequest.projectChangeTimePoint = projects.project(projectPartId).lastChangeTimePoint();
 
     return jobRequest;
@@ -418,7 +418,7 @@ JobRequest JobQueue::createJobRequest(const Utf8String &filePath,
 
 void JobQueue::updateDocumentRevision()
 {
-    translationUnits.update({FileContainer(filePath1, projectPartId, Utf8String(), true, 1)});
+    documents.update({FileContainer(filePath1, projectPartId, Utf8String(), true, 1)});
 }
 
 void JobQueue::updateUnsavedFiles()
@@ -438,7 +438,7 @@ void JobQueue::removeProject()
 
 void JobQueue::removeDocument()
 {
-    translationUnits.remove({FileContainer(filePath1, projectPartId)});
+    documents.remove({FileContainer(filePath1, projectPartId)});
 }
 
 } // anonymous

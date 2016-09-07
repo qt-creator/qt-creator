@@ -26,12 +26,12 @@
 #include "testutils.h"
 #include "dummyclangipcclient.h"
 
+#include <clangdocument.h>
 #include <clangjobs.h>
-#include <clangtranslationunit.h>
 #include <filecontainer.h>
 #include <projectpart.h>
 #include <projects.h>
-#include <translationunits.h>
+#include <clangdocuments.h>
 #include <unsavedfiles.h>
 
 #include <clang-c/Index.h>
@@ -68,14 +68,14 @@ protected:
 protected:
     ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
-    ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
-    ClangBackEnd::TranslationUnit translationUnit;
+    ClangBackEnd::Documents documents{projects, unsavedFiles};
+    ClangBackEnd::Document document;
     DummyIpcClient dummyClientInterface;
 
     Utf8String filePath1 = Utf8StringLiteral(TESTDATA_DIR"/translationunits.cpp");
     Utf8String projectPartId{Utf8StringLiteral("/path/to/projectfile")};
 
-    ClangBackEnd::Jobs jobs{translationUnits, unsavedFiles, projects, dummyClientInterface};
+    ClangBackEnd::Jobs jobs{documents, unsavedFiles, projects, dummyClientInterface};
 };
 
 TEST_F(Jobs, ProcessEmptyQueue)
@@ -122,9 +122,9 @@ void Jobs::SetUp()
     projects.createOrUpdate({ProjectPartContainer(projectPartId)});
 
     const QVector<FileContainer> fileContainer{FileContainer(filePath1, projectPartId)};
-    translationUnit = translationUnits.create(fileContainer).front();
-    translationUnits.setVisibleInEditors({filePath1});
-    translationUnits.setUsedByCurrentEditor(filePath1);
+    document = documents.create(fileContainer).front();
+    documents.setVisibleInEditors({filePath1});
+    documents.setUsedByCurrentEditor(filePath1);
 }
 
 void Jobs::TearDown()
@@ -157,7 +157,7 @@ JobRequest Jobs::createJobRequest(const Utf8String &filePath,
     jobRequest.filePath = filePath;
     jobRequest.projectPartId = projectPartId;
     jobRequest.unsavedFilesChangeTimePoint = unsavedFiles.lastChangeTimePoint();
-    jobRequest.documentRevision = translationUnit.documentRevision();
+    jobRequest.documentRevision = document.documentRevision();
     jobRequest.projectChangeTimePoint = projects.project(projectPartId).lastChangeTimePoint();
 
     return jobRequest;

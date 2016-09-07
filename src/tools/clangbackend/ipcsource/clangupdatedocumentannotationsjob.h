@@ -26,7 +26,7 @@
 #pragma once
 
 #include "clangasyncjob.h"
-#include "clangtranslationunit.h"
+#include "clangdocument.h"
 #include "clangtranslationunitupdater.h"
 
 #include <clangbackendipc/diagnosticcontainer.h>
@@ -57,7 +57,7 @@ private:
     void sendAnnotations(const AsyncResult &result);
 
 private:
-    TranslationUnit m_pinnedTranslationUnit;
+    Document m_pinnedDocument;
     FileContainer m_pinnedFileContainer;
 };
 

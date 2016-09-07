@@ -25,24 +25,24 @@
 
 #include "clangiasyncjob.h"
 
-#include "translationunits.h"
+#include "clangdocuments.h"
 
 namespace ClangBackEnd {
 
 JobContext::JobContext(const JobRequest &jobRequest,
-                       TranslationUnits *translationUnits,
+                       Documents *documents,
                        UnsavedFiles *unsavedFiles,
                        ClangCodeModelClientInterface *clientInterface)
     : jobRequest(jobRequest)
-    , translationUnits(translationUnits)
+    , documents(documents)
     , unsavedFiles(unsavedFiles)
     , client(clientInterface)
 {
 }
 
-TranslationUnit JobContext::translationUnitForJobRequest() const
+Document JobContext::documentForJobRequest() const
 {
-    return translationUnits->translationUnit(jobRequest.filePath, jobRequest.projectPartId);
+    return documents->document(jobRequest.filePath, jobRequest.projectPartId);
 }
 
 bool JobContext::isOutdated() const
@@ -53,7 +53,7 @@ bool JobContext::isOutdated() const
 bool JobContext::isDocumentOpen() const
 {
     const bool hasTranslationUnit
-            = translationUnits->hasTranslationUnit(jobRequest.filePath, jobRequest.projectPartId);
+            = documents->hasDocument(jobRequest.filePath, jobRequest.projectPartId);
 
     if (!hasTranslationUnit)
         qCDebug(jobsLog) << "Document already closed for results of" << jobRequest;
@@ -63,9 +63,8 @@ bool JobContext::isDocumentOpen() const
 
 bool JobContext::documentRevisionChanged() const
 {
-    const TranslationUnit &translationUnit
-            = translationUnits->translationUnit(jobRequest.filePath, jobRequest.projectPartId);
-    const bool revisionChanged = translationUnit.documentRevision() != jobRequest.documentRevision;
+    const Document &document = documents->document(jobRequest.filePath, jobRequest.projectPartId);
+    const bool revisionChanged = document.documentRevision() != jobRequest.documentRevision;
 
     if (revisionChanged)
         qCDebug(jobsLog) << "Document revision changed for results of" << jobRequest;

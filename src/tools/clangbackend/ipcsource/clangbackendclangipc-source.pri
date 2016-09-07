@@ -10,7 +10,7 @@ HEADERS += $$PWD/clangcodemodelserver.h \
     $$PWD/unsavedfile.h \
     $$PWD/unsavedfiles.h \
     $$PWD/projects.h \
-    $$PWD/translationunits.h \
+    $$PWD/clangdocuments.h \
     $$PWD/translationunitparseerrorexception.h \
     $$PWD/translationunitreparseerrorexception.h \
     $$PWD/projectpart.h \
@@ -29,7 +29,7 @@ HEADERS += $$PWD/clangcodemodelserver.h \
     $$PWD/commandlinearguments.h \
     $$PWD/cursor.h \
     $$PWD/skippedsourceranges.h \
-    $$PWD/clangtranslationunit.h \
+    $$PWD/clangdocument.h \
     $$PWD/clangtranslationunitupdater.h \
     $$PWD/clangtype.h \
     $$PWD/highlightingmark.h \
@@ -60,7 +60,7 @@ SOURCES += $$PWD/clangcodemodelserver.cpp \
     $$PWD/unsavedfile.cpp \
     $$PWD/unsavedfiles.cpp \
     $$PWD/projects.cpp \
-    $$PWD/translationunits.cpp \
+    $$PWD/clangdocuments.cpp \
     $$PWD/translationunitparseerrorexception.cpp \
     $$PWD/translationunitreparseerrorexception.cpp \
     $$PWD/projectpart.cpp \
@@ -78,7 +78,7 @@ SOURCES += $$PWD/clangcodemodelserver.cpp \
     $$PWD/commandlinearguments.cpp \
     $$PWD/cursor.cpp \
     $$PWD/skippedsourceranges.cpp \
-    $$PWD/clangtranslationunit.cpp \
+    $$PWD/clangdocument.cpp \
     $$PWD/clangtranslationunitupdater.cpp \
     $$PWD/clangtype.cpp \
     $$PWD/highlightingmark.cpp \

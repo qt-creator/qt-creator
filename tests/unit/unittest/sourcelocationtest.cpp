@@ -27,9 +27,9 @@
 #include <diagnosticset.h>
 #include <projectpart.h>
 #include <projects.h>
-#include <clangtranslationunit.h>
+#include <clangdocument.h>
+#include <clangdocuments.h>
 #include <clangtranslationunitcore.h>
-#include <translationunits.h>
 #include <unsavedfiles.h>
 #include <sourcelocation.h>
 
@@ -44,7 +44,7 @@ using ClangBackEnd::Diagnostic;
 using ClangBackEnd::DiagnosticSet;
 using ClangBackEnd::ProjectPart;
 using ClangBackEnd::SourceLocation;
-using ClangBackEnd::TranslationUnit;
+using ClangBackEnd::Document;
 using ClangBackEnd::UnsavedFiles;
 
 using testing::EndsWith;
@@ -53,8 +53,8 @@ using testing::Not;
 namespace {
 
 struct SourceLocationData {
-    SourceLocationData(TranslationUnit &translationUnit)
-        : diagnosticSet{translationUnit.translationUnitCore().diagnostics()}
+    SourceLocationData(Document &document)
+        : diagnosticSet{document.translationUnitCore().diagnostics()}
         , diagnostic{diagnosticSet.front()}
         , sourceLocation{diagnostic.location()}
     {
@@ -68,18 +68,18 @@ struct SourceLocationData {
 struct Data {
     Data()
     {
-        translationUnit.parse();
-        d.reset(new SourceLocationData(translationUnit));
+        document.parse();
+        d.reset(new SourceLocationData(document));
     }
 
     ProjectPart projectPart{Utf8StringLiteral("projectPartId")};
     ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
-    ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
-    TranslationUnit translationUnit{Utf8StringLiteral(TESTDATA_DIR"/diagnostic_source_location.cpp"),
-                                    projectPart,
-                                    Utf8StringVector(),
-                                    translationUnits};
+    ClangBackEnd::Documents documents{projects, unsavedFiles};
+    Document document{Utf8StringLiteral(TESTDATA_DIR"/diagnostic_source_location.cpp"),
+                      projectPart,
+                      Utf8StringVector(),
+                      documents};
     std::unique_ptr<SourceLocationData> d;
 };
 
@@ -91,7 +91,7 @@ public:
 
 protected:
     static Data *d;
-    TranslationUnit &translationUnit = d->translationUnit;
+    Document &document = d->document;
     ::SourceLocation &sourceLocation = d->d->sourceLocation;
 };
 
@@ -117,12 +117,12 @@ TEST_F(SourceLocation, Offset)
 
 TEST_F(SourceLocation, Create)
 {
-    ASSERT_THAT(translationUnit.translationUnitCore().sourceLocationAt(4, 1), sourceLocation);
+    ASSERT_THAT(document.translationUnitCore().sourceLocationAt(4, 1), sourceLocation);
 }
 
 TEST_F(SourceLocation, NotEqual)
 {
-    ASSERT_THAT(translationUnit.translationUnitCore().sourceLocationAt(3, 1), Not(sourceLocation));
+    ASSERT_THAT(document.translationUnitCore().sourceLocationAt(3, 1), Not(sourceLocation));
 }
 
 Data *SourceLocation::d;

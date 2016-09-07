@@ -27,8 +27,8 @@
 #include <diagnostic.h>
 #include <diagnosticset.h>
 #include <projectpart.h>
-#include <clangtranslationunit.h>
-#include <translationunits.h>
+#include <clangdocument.h>
+#include <clangdocuments.h>
 #include <projects.h>
 #include <unsavedfiles.h>
 #include <sourcerange.h>
@@ -43,13 +43,13 @@
 #include "gtest-qt-printing.h"
 
 using ClangBackEnd::DiagnosticSet;
-using ClangBackEnd::TranslationUnit;
+using ClangBackEnd::Document;
+using ClangBackEnd::Documents;
 using ClangBackEnd::TranslationUnitCore;
 using ClangBackEnd::ProjectPart;
 using ClangBackEnd::UnsavedFiles;
 using ClangBackEnd::Diagnostic;
 using ClangBackEnd::SourceRange;
-using ClangBackEnd::TranslationUnits;
 
 using testing::PrintToString;
 using testing::IsEmpty;
@@ -75,8 +75,8 @@ MATCHER_P4(IsSourceLocation, filePath, line, column, offset,
 }
 
 struct SourceRangeData {
-    SourceRangeData(TranslationUnit &translationUnit)
-        : diagnosticSet{translationUnit.translationUnitCore().diagnostics()}
+    SourceRangeData(Document &document)
+        : diagnosticSet{document.translationUnitCore().diagnostics()}
         , diagnostic{diagnosticSet.front()}
         , diagnosticWithFilteredOutInvalidRange{diagnosticSet.at(1)}
         , sourceRange{diagnostic.ranges().front()}
@@ -92,22 +92,22 @@ struct SourceRangeData {
 struct Data {
     Data()
     {
-        translationUnit.parse();
-        d.reset(new SourceRangeData(translationUnit));
+        document.parse();
+        d.reset(new SourceRangeData(document));
     }
 
     ProjectPart projectPart{Utf8StringLiteral("projectPartId"), {Utf8StringLiteral("-pedantic")}};
     ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
-    ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
+    ClangBackEnd::Documents documents{projects, unsavedFiles};
     Utf8String filePath{Utf8StringLiteral(TESTDATA_DIR"/diagnostic_source_range.cpp")};
-    TranslationUnit translationUnit{filePath,
-                                    projectPart,
-                                    Utf8StringVector(),
-                                    translationUnits};
+    Document document{filePath,
+                      projectPart,
+                      Utf8StringVector(),
+                      documents};
     TranslationUnitCore translationUnitCore{filePath,
-                                            translationUnit.translationUnitCore().cxIndex(),
-                                            translationUnit.translationUnitCore().cxTranslationUnit()};
+                                            document.translationUnitCore().cxIndex(),
+                                            document.translationUnitCore().cxTranslationUnit()};
 
     std::unique_ptr<SourceRangeData> d;
 };

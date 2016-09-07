@@ -78,7 +78,7 @@ TEST_F(UpdateDocumentAnnotationsJob, DontSendAnnotationsIfDocumentWasClosed)
     EXPECT_CALL(mockIpcClient, documentAnnotationsChanged(_)).Times(0);
 
     job.runAsync();
-    translationUnits.remove({FileContainer{filePath, projectPartId}});
+    documents.remove({FileContainer{filePath, projectPartId}});
 
     ASSERT_TRUE(waitUntilJobFinished(job));
 }
@@ -90,23 +90,23 @@ TEST_F(UpdateDocumentAnnotationsJob, DontSendAnnotationsIfDocumentRevisionChange
     EXPECT_CALL(mockIpcClient, documentAnnotationsChanged(_)).Times(0);
 
     job.runAsync();
-    translationUnits.update({FileContainer(filePath, projectPartId, Utf8String(), true, 99)});
+    documents.update({FileContainer(filePath, projectPartId, Utf8String(), true, 99)});
 
     ASSERT_TRUE(waitUntilJobFinished(job));
 }
 
 TEST_F(UpdateDocumentAnnotationsJob, UpdatesTranslationUnit)
 {
-    const time_point timePointBefore = translationUnit.lastProjectPartChangeTimePoint();
-    const QSet<Utf8String> dependendOnFilesBefore = translationUnit.dependedFilePaths();
+    const time_point timePointBefore = document.lastProjectPartChangeTimePoint();
+    const QSet<Utf8String> dependendOnFilesBefore = document.dependedFilePaths();
     job.setContext(jobContext);
     job.prepareAsyncRun();
 
     job.runAsync();
     ASSERT_TRUE(waitUntilJobFinished(job));
 
-    ASSERT_THAT(timePointBefore, Not(translationUnit.lastProjectPartChangeTimePoint()));
-    ASSERT_THAT(dependendOnFilesBefore, Not(translationUnit.dependedFilePaths()));
+    ASSERT_THAT(timePointBefore, Not(document.lastProjectPartChangeTimePoint()));
+    ASSERT_THAT(dependendOnFilesBefore, Not(document.dependedFilePaths()));
 }
 
 } // anonymous

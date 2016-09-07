@@ -29,10 +29,10 @@
 #include "mockclangcodemodelclient.h"
 #include "clangiasyncjob.h"
 
+#include <clangdocument.h>
 #include <clangjobrequest.h>
-#include <clangtranslationunit.h>
 #include <projects.h>
-#include <translationunits.h>
+#include <clangdocuments.h>
 #include <unsavedfiles.h>
 
 #include <gmock/gmock.h>
@@ -55,8 +55,8 @@ protected:
 protected:
     ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
-    ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
-    ClangBackEnd::TranslationUnit translationUnit;
+    ClangBackEnd::Documents documents{projects, unsavedFiles};
+    ClangBackEnd::Document document;
 
     MockClangCodeModelClient mockIpcClient;
     DummyIpcClient dummyIpcClient;

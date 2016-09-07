@@ -77,7 +77,7 @@ TEST_F(RequestDocumentAnnotationsJob, DontSendAnnotationsIfDocumentWasClosed)
     EXPECT_CALL(mockIpcClient, documentAnnotationsChanged(_)).Times(0);
 
     job.runAsync();
-    translationUnits.remove({FileContainer{filePath, projectPartId}});
+    documents.remove({FileContainer{filePath, projectPartId}});
 
     ASSERT_TRUE(waitUntilJobFinished(job));
 }

@@ -49,11 +49,11 @@ bool CreateInitialDocumentPreambleJob::prepareAsyncRun()
     QTC_ASSERT(jobRequest.type == JobRequest::Type::CreateInitialDocumentPreamble, return false);
 
     try {
-        m_pinnedTranslationUnit = context().translationUnitForJobRequest();
-        m_pinnedFileContainer = m_pinnedTranslationUnit.fileContainer();
+        m_pinnedDocument = context().documentForJobRequest();
+        m_pinnedFileContainer = m_pinnedDocument.fileContainer();
 
-        const TranslationUnitCore translationUnitCore = m_pinnedTranslationUnit.translationUnitCore();
-        const TranslationUnitUpdateInput updateInput = m_pinnedTranslationUnit.createUpdateInput();
+        const TranslationUnitCore translationUnitCore = m_pinnedDocument.translationUnitCore();
+        const TranslationUnitUpdateInput updateInput = m_pinnedDocument.createUpdateInput();
         setRunner([translationUnitCore, updateInput]() {
             return runAsyncHelper(translationUnitCore, updateInput);
         });

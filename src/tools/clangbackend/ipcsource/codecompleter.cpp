@@ -34,7 +34,7 @@
 #include "sourcelocation.h"
 #include "unsavedfile.h"
 #include "unsavedfiles.h"
-#include "clangtranslationunit.h"
+#include "clangdocument.h"
 #include "sourcerange.h"
 #include "clangunsavedfilesshallowarguments.h"
 #include "clangtranslationunitupdater.h"

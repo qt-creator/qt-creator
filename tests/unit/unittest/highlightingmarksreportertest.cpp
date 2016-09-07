@@ -24,14 +24,14 @@
 ****************************************************************************/
 
 #include <chunksreportedmonitor.h>
+#include <clangdocument.h>
+#include <clangdocuments.h>
 #include <cursor.h>
-#include <clangtranslationunit.h>
 #include <highlightingmarkcontainer.h>
 #include <highlightingmarks.h>
 #include <clanghighlightingmarksreporter.h>
 #include <projectpart.h>
 #include <projects.h>
-#include <translationunits.h>
 #include <unsavedfiles.h>
 
 #include <gmock/gmock.h>
@@ -43,11 +43,11 @@ using ClangBackEnd::Cursor;
 using ClangBackEnd::HighlightingMarks;
 using ClangBackEnd::HighlightingMarkContainer;
 using ClangBackEnd::HighlightingType;
-using ClangBackEnd::TranslationUnit;
+using ClangBackEnd::Document;
+using ClangBackEnd::Documents;
 using ClangBackEnd::UnsavedFiles;
 using ClangBackEnd::ProjectPart;
 using ClangBackEnd::ProjectParts;
-using ClangBackEnd::TranslationUnits;
 using ClangBackEnd::ChunksReportedMonitor;
 
 namespace {
@@ -55,12 +55,12 @@ namespace {
 struct Data {
     ProjectParts projects;
     UnsavedFiles unsavedFiles;
-    TranslationUnits translationUnits{projects, unsavedFiles};
-    TranslationUnit translationUnit{Utf8StringLiteral(TESTDATA_DIR"/highlightingmarks.cpp"),
-                                    ProjectPart(Utf8StringLiteral("projectPartId"),
-                                                {Utf8StringLiteral("-std=c++14")}),
-                                    {},
-                                    translationUnits};
+    Documents documents{projects, unsavedFiles};
+    Document document{Utf8StringLiteral(TESTDATA_DIR"/highlightingmarks.cpp"),
+                      ProjectPart(Utf8StringLiteral("projectPartId"),
+                                  {Utf8StringLiteral("-std=c++14")}),
+                      {},
+                      documents};
 };
 
 class HighlightingMarksReporter : public ::testing::Test

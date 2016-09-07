@@ -32,12 +32,12 @@
 namespace ClangBackEnd {
 
 class ProjectParts;
-class TranslationUnits;
+class Documents;
 
 class JobQueue
 {
 public:
-    JobQueue(TranslationUnits &translationUnits, ProjectParts &projects);
+    JobQueue(Documents &documents, ProjectParts &projects);
 
     void add(const JobRequest &job);
 
@@ -59,7 +59,7 @@ private:
     bool isJobRequestOutDated(const JobRequest &jobRequest) const;
 
 private:
-    TranslationUnits &m_translationUnits;
+    Documents &m_documents;
     ProjectParts &m_projectParts;
 
     IsJobRunningHandler m_isJobRunningHandler;

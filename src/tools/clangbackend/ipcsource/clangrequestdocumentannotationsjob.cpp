@@ -57,10 +57,10 @@ bool RequestDocumentAnnotationsJob::prepareAsyncRun()
     QTC_ASSERT(jobRequest.type == JobRequest::Type::RequestDocumentAnnotations, return false);
 
     try {
-        m_pinnedTranslationUnit = context().translationUnitForJobRequest();
-        m_pinnedFileContainer = m_pinnedTranslationUnit.fileContainer();
+        m_pinnedDocument = context().documentForJobRequest();
+        m_pinnedFileContainer = m_pinnedDocument.fileContainer();
 
-        const TranslationUnitCore translationUnitCore = m_pinnedTranslationUnit.translationUnitCore();
+        const TranslationUnitCore translationUnitCore = m_pinnedDocument.translationUnitCore();
         setRunner([translationUnitCore]() {
             return runAsyncHelper(translationUnitCore);
         });

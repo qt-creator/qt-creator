@@ -26,7 +26,7 @@
 #pragma once
 
 #include "clangasyncjob.h"
-#include "clangtranslationunit.h"
+#include "clangdocument.h"
 
 #include <clangbackendipc/codecompletion.h>
 
@@ -47,7 +47,7 @@ public:
     void finalizeAsyncRun() override;
 
 private:
-    TranslationUnit m_pinnedTranslationUnit;
+    Document m_pinnedDocument;
 };
 
 } // namespace ClangBackEnd

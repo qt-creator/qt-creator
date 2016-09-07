@@ -23,8 +23,9 @@
 **
 ****************************************************************************/
 
-#include "clangtranslationunit.h"
+#include "clangdocument.h"
 
+#include "clangdocuments.h"
 #include "clangstring.h"
 #include "clangunsavedfilesshallowarguments.h"
 #include "codecompleter.h"
@@ -35,7 +36,6 @@
 #include "translationunitreparseerrorexception.h"
 #include "clangtranslationunitcore.h"
 #include "clangtranslationunitupdater.h"
-#include "translationunits.h"
 #include "unsavedfiles.h"
 #include "unsavedfile.h"
 
@@ -49,17 +49,17 @@
 
 namespace ClangBackEnd {
 
-class TranslationUnitData
+class DocumentData
 {
 public:
-    TranslationUnitData(const Utf8String &filePath,
-                        const ProjectPart &projectPart,
-                        const Utf8StringVector &fileArguments,
-                        TranslationUnits &translationUnits);
-    ~TranslationUnitData();
+    DocumentData(const Utf8String &filePath,
+                 const ProjectPart &projectPart,
+                 const Utf8StringVector &fileArguments,
+                 Documents &documents);
+    ~DocumentData();
 
 public:
-    TranslationUnits &translationUnits;
+    Documents &documents;
 
     const Utf8String filePath;
     const Utf8StringVector fileArguments;
@@ -80,11 +80,11 @@ public:
     bool isVisibleInEditor = false;
 };
 
-TranslationUnitData::TranslationUnitData(const Utf8String &filePath,
-                                         const ProjectPart &projectPart,
-                                         const Utf8StringVector &fileArguments,
-                                         TranslationUnits &translationUnits)
-    : translationUnits(translationUnits),
+DocumentData::DocumentData(const Utf8String &filePath,
+                           const ProjectPart &projectPart,
+                           const Utf8StringVector &fileArguments,
+                           Documents &documents)
+    : documents(documents),
       filePath(filePath),
       fileArguments(fileArguments),
       projectPart(projectPart),
@@ -94,74 +94,74 @@ TranslationUnitData::TranslationUnitData(const Utf8String &filePath,
     dependedFilePaths.insert(filePath);
 }
 
-TranslationUnitData::~TranslationUnitData()
+DocumentData::~DocumentData()
 {
     clang_disposeTranslationUnit(translationUnit);
     clang_disposeIndex(index);
 }
 
-TranslationUnit::TranslationUnit(const Utf8String &filePath,
-                                 const ProjectPart &projectPart,
-                                 const Utf8StringVector &fileArguments,
-                                 TranslationUnits &translationUnits,
-                                 FileExistsCheck fileExistsCheck)
-    : d(std::make_shared<TranslationUnitData>(filePath,
-                                              projectPart,
-                                              fileArguments,
-                                              translationUnits))
+Document::Document(const Utf8String &filePath,
+                   const ProjectPart &projectPart,
+                   const Utf8StringVector &fileArguments,
+                   Documents &documents,
+                   FileExistsCheck fileExistsCheck)
+    : d(std::make_shared<DocumentData>(filePath,
+                                       projectPart,
+                                       fileArguments,
+                                       documents))
 {
     if (fileExistsCheck == CheckIfFileExists)
         checkIfFileExists();
 }
 
-TranslationUnit::~TranslationUnit() = default;
-TranslationUnit::TranslationUnit(const TranslationUnit &) = default;
-TranslationUnit &TranslationUnit::operator=(const TranslationUnit &) = default;
+Document::~Document() = default;
+Document::Document(const Document &) = default;
+Document &Document::operator=(const Document &) = default;
 
-TranslationUnit::TranslationUnit(TranslationUnit &&other)
+Document::Document(Document &&other)
     : d(std::move(other.d))
 {
 }
 
-TranslationUnit &TranslationUnit::operator=(TranslationUnit &&other)
+Document &Document::operator=(Document &&other)
 {
     d = std::move(other.d);
 
     return *this;
 }
 
-void TranslationUnit::reset()
+void Document::reset()
 {
     d.reset();
 }
 
-bool TranslationUnit::isNull() const
+bool Document::isNull() const
 {
     return !d;
 }
 
-bool TranslationUnit::isIntact() const
+bool Document::isIntact() const
 {
     return !isNull()
         && fileExists()
         && !d->hasParseOrReparseFailed;
 }
 
-Utf8String TranslationUnit::filePath() const
+Utf8String Document::filePath() const
 {
     checkIfNull();
 
     return d->filePath;
 }
 
-Utf8StringVector TranslationUnit::fileArguments() const
+Utf8StringVector Document::fileArguments() const
 {
     checkIfNull();
 
     return d->fileArguments;
 }
 
-FileContainer TranslationUnit::fileContainer() const
+FileContainer Document::fileContainer() const
 {
     checkIfNull();
 
@@ -172,103 +172,103 @@ FileContainer TranslationUnit::fileContainer() const
                          d->documentRevision);
 }
 
-Utf8String TranslationUnit::projectPartId() const
+Utf8String Document::projectPartId() const
 {
     checkIfNull();
 
     return d->projectPart.projectPartId();
 }
 
-const ProjectPart &TranslationUnit::projectPart() const
+const ProjectPart &Document::projectPart() const
 {
     checkIfNull();
 
     return d->projectPart;
 }
 
-const time_point TranslationUnit::lastProjectPartChangeTimePoint() const
+const time_point Document::lastProjectPartChangeTimePoint() const
 {
     checkIfNull();
 
     return d->lastProjectPartChangeTimePoint;
 }
 
-bool TranslationUnit::isProjectPartOutdated() const
+bool Document::isProjectPartOutdated() const
 {
     checkIfNull();
 
     return d->projectPart.lastChangeTimePoint() >= d->lastProjectPartChangeTimePoint;
 }
 
-uint TranslationUnit::documentRevision() const
+uint Document::documentRevision() const
 {
     checkIfNull();
 
     return d->documentRevision;
 }
 
-void TranslationUnit::setDocumentRevision(uint revision)
+void Document::setDocumentRevision(uint revision)
 {
     checkIfNull();
 
     d->documentRevision = revision;
 }
 
-bool TranslationUnit::isUsedByCurrentEditor() const
+bool Document::isUsedByCurrentEditor() const
 {
     checkIfNull();
 
     return d->isUsedByCurrentEditor;
 }
 
-void TranslationUnit::setIsUsedByCurrentEditor(bool isUsedByCurrentEditor)
+void Document::setIsUsedByCurrentEditor(bool isUsedByCurrentEditor)
 {
     checkIfNull();
 
     d->isUsedByCurrentEditor = isUsedByCurrentEditor;
 }
 
-bool TranslationUnit::isVisibleInEditor() const
+bool Document::isVisibleInEditor() const
 {
     checkIfNull();
 
     return d->isVisibleInEditor;
 }
 
-void TranslationUnit::setIsVisibleInEditor(bool isVisibleInEditor)
+void Document::setIsVisibleInEditor(bool isVisibleInEditor)
 {
     checkIfNull();
 
     d->isVisibleInEditor = isVisibleInEditor;
 }
 
-time_point TranslationUnit::isNeededReparseChangeTimePoint() const
+time_point Document::isNeededReparseChangeTimePoint() const
 {
     checkIfNull();
 
     return d->needsToBeReparsedChangeTimePoint;
 }
 
-bool TranslationUnit::isNeedingReparse() const
+bool Document::isNeedingReparse() const
 {
     checkIfNull();
 
     return d->needsToBeReparsed;
 }
 
-void TranslationUnit::setDirtyIfProjectPartIsOutdated()
+void Document::setDirtyIfProjectPartIsOutdated()
 {
     if (isProjectPartOutdated())
         setDirty();
 }
 
-void TranslationUnit::setDirtyIfDependencyIsMet(const Utf8String &filePath)
+void Document::setDirtyIfDependencyIsMet(const Utf8String &filePath)
 {
     if (d->dependedFilePaths.contains(filePath) && isMainFileAndExistsOrIsOtherFile(filePath))
         setDirty();
 }
 
-TranslationUnitUpdateInput TranslationUnit::createUpdateInput() const
+TranslationUnitUpdateInput Document::createUpdateInput() const
 {
     TranslationUnitUpdateInput updateInput;
     updateInput.parseNeeded = isProjectPartOutdated();
@@ -276,14 +276,14 @@ TranslationUnitUpdateInput TranslationUnit::createUpdateInput() const
     updateInput.needsToBeReparsedChangeTimePoint = d->needsToBeReparsedChangeTimePoint;
     updateInput.filePath = filePath();
     updateInput.fileArguments = fileArguments();
-    updateInput.unsavedFiles = d->translationUnits.unsavedFiles();
+    updateInput.unsavedFiles = d->documents.unsavedFiles();
     updateInput.projectId = projectPart().projectPartId();
     updateInput.projectArguments = projectPart().arguments();
 
     return updateInput;
 }
 
-TranslationUnitUpdater TranslationUnit::createUpdater() const
+TranslationUnitUpdater Document::createUpdater() const
 {
     const TranslationUnitUpdateInput updateInput = createUpdateInput();
     TranslationUnitUpdater updater(d->index, d->translationUnit, updateInput);
@@ -291,12 +291,12 @@ TranslationUnitUpdater TranslationUnit::createUpdater() const
     return updater;
 }
 
-void TranslationUnit::setHasParseOrReparseFailed(bool hasFailed)
+void Document::setHasParseOrReparseFailed(bool hasFailed)
 {
     d->hasParseOrReparseFailed = hasFailed;
 }
 
-void TranslationUnit::incorporateUpdaterResult(const TranslationUnitUpdateResult &result) const
+void Document::incorporateUpdaterResult(const TranslationUnitUpdateResult &result) const
 {
     d->hasParseOrReparseFailed = result.hasParseOrReparseFailed;
     if (d->hasParseOrReparseFailed) {
@@ -310,7 +310,7 @@ void TranslationUnit::incorporateUpdaterResult(const TranslationUnitUpdateResult
     if (result.parseTimePointIsSet || result.reparsed)
         d->dependedFilePaths = result.dependedOnFilePaths;
 
-    d->translationUnits.addWatchedFiles(d->dependedFilePaths);
+    d->documents.addWatchedFiles(d->dependedFilePaths);
 
     if (result.reparsed
             && result.needsToBeReparsedChangeTimePoint == d->needsToBeReparsedChangeTimePoint) {
@@ -318,14 +318,14 @@ void TranslationUnit::incorporateUpdaterResult(const TranslationUnitUpdateResult
     }
 }
 
-TranslationUnitCore TranslationUnit::translationUnitCore() const
+TranslationUnitCore Document::translationUnitCore() const
 {
     checkIfNull();
 
     return TranslationUnitCore(d->filePath, d->index, d->translationUnit);
 }
 
-void TranslationUnit::parse() const
+void Document::parse() const
 {
     checkIfNull();
 
@@ -335,7 +335,7 @@ void TranslationUnit::parse() const
     incorporateUpdaterResult(result);
 }
 
-void TranslationUnit::reparse() const
+void Document::reparse() const
 {
     checkIfNull();
 
@@ -345,7 +345,7 @@ void TranslationUnit::reparse() const
     incorporateUpdaterResult(result);
 }
 
-const QSet<Utf8String> TranslationUnit::dependedFilePaths() const
+const QSet<Utf8String> Document::dependedFilePaths() const
 {
     checkIfNull();
     checkIfFileExists();
@@ -353,30 +353,30 @@ const QSet<Utf8String> TranslationUnit::dependedFilePaths() const
     return d->dependedFilePaths;
 }
 
-void TranslationUnit::setDirty()
+void Document::setDirty()
 {
     d->needsToBeReparsedChangeTimePoint = std::chrono::steady_clock::now();
     d->needsToBeReparsed = true;
 }
 
-void TranslationUnit::checkIfNull() const
+void Document::checkIfNull() const
 {
     if (isNull())
         throw TranslationUnitIsNullException();
 }
 
-void TranslationUnit::checkIfFileExists() const
+void Document::checkIfFileExists() const
 {
     if (!fileExists())
         throw TranslationUnitFileNotExitsException(d->filePath);
 }
 
-bool TranslationUnit::fileExists() const
+bool Document::fileExists() const
 {
     return QFileInfo::exists(d->filePath.toString());
 }
 
-bool TranslationUnit::isMainFileAndExistsOrIsOtherFile(const Utf8String &filePath) const
+bool Document::isMainFileAndExistsOrIsOtherFile(const Utf8String &filePath) const
 {
     if (filePath == d->filePath)
         return QFileInfo::exists(d->filePath);
@@ -384,17 +384,17 @@ bool TranslationUnit::isMainFileAndExistsOrIsOtherFile(const Utf8String &filePat
     return true;
 }
 
-bool operator==(const TranslationUnit &first, const TranslationUnit &second)
+bool operator==(const Document &first, const Document &second)
 {
     return first.filePath() == second.filePath() && first.projectPartId() == second.projectPartId();
 }
 
-void PrintTo(const TranslationUnit &translationUnit, ::std::ostream *os)
+void PrintTo(const Document &document, ::std::ostream *os)
 {
-    *os << "TranslationUnit("
-        << translationUnit.filePath().constData() << ", "
-        << translationUnit.projectPartId().constData() << ", "
-        << translationUnit.documentRevision() << ")";
+    *os << "Document("
+        << document.filePath().constData() << ", "
+        << document.projectPartId().constData() << ", "
+        << document.documentRevision() << ")";
 }
 
 } // namespace ClangBackEnd

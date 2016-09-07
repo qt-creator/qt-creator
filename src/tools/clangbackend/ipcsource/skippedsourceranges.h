@@ -34,7 +34,7 @@ class SourceRangeContainer;
 class SkippedSourceRanges
 {
 public:
-    SkippedSourceRanges(CXTranslationUnit TranslationUnit, const char *filePath);
+    SkippedSourceRanges(CXTranslationUnit Document, const char *filePath);
     ~SkippedSourceRanges();
 
     SkippedSourceRanges(const SkippedSourceRanges &) = delete;

@@ -24,11 +24,11 @@
 ****************************************************************************/
 
 #include <codecompleter.h>
+#include <clangdocument.h>
 #include <filecontainer.h>
 #include <projectpart.h>
 #include <projects.h>
-#include <clangtranslationunit.h>
-#include <translationunits.h>
+#include <clangdocuments.h>
 #include <unsavedfiles.h>
 #include <utf8stringvector.h>
 
@@ -88,8 +88,8 @@ protected:
                                                   projectPart.projectPartId()};
     ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
-    ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
-    ClangBackEnd::TranslationUnit translationUnit;
+    ClangBackEnd::Documents documents{projects, unsavedFiles};
+    ClangBackEnd::Document document;
     QScopedPointer<ClangBackEnd::CodeCompleter> completer;
     ClangBackEnd::FileContainer unsavedMainFileContainer{mainFileContainer.filePath(),
                                                          projectPart.projectPartId(),
@@ -211,20 +211,20 @@ void CodeCompleter::SetUp()
 {
     EXPECT_TRUE(includeDirectory.isValid());
     projects.createOrUpdate({projectPart});
-    translationUnits.create({mainFileContainer});
-    translationUnit = translationUnits.translationUnit(mainFileContainer);
-    completer.reset(new ClangBackEnd::CodeCompleter(translationUnit.translationUnitCore(),
+    documents.create({mainFileContainer});
+    document = documents.document(mainFileContainer);
+    completer.reset(new ClangBackEnd::CodeCompleter(document.translationUnitCore(),
                                                     unsavedFiles));
 
     copyTargetHeaderToTemporaryIncludeDirecory();
-    translationUnit.parse();
+    document.parse();
 }
 
 TEST_F(CodeCompleter, FunctionInUnsavedFile)
 {
     unsavedFiles.createOrUpdate({unsavedMainFileContainer});
-    translationUnits.update({unsavedMainFileContainer});
-    ClangBackEnd::CodeCompleter myCompleter(translationUnit.translationUnitCore(), unsavedFiles);
+    documents.update({unsavedMainFileContainer});
+    ClangBackEnd::CodeCompleter myCompleter(document.translationUnitCore(), unsavedFiles);
 
     ASSERT_THAT(myCompleter.complete(27, 1),
                 AllOf(Contains(IsCodeCompletion(Utf8StringLiteral("FunctionWithArguments"),
@@ -242,8 +242,8 @@ TEST_F(CodeCompleter, FunctionInUnsavedFile)
 TEST_F(CodeCompleter, VariableInUnsavedFile)
 {
     unsavedFiles.createOrUpdate({unsavedMainFileContainer});
-    translationUnits.update({unsavedMainFileContainer});
-    ClangBackEnd::CodeCompleter myCompleter(translationUnit.translationUnitCore(), unsavedFiles);
+    documents.update({unsavedMainFileContainer});
+    ClangBackEnd::CodeCompleter myCompleter(document.translationUnitCore(), unsavedFiles);
 
     ASSERT_THAT(myCompleter.complete(27, 1),
                 Contains(IsCodeCompletion(Utf8StringLiteral("VariableInUnsavedFile"),
@@ -253,8 +253,8 @@ TEST_F(CodeCompleter, VariableInUnsavedFile)
 TEST_F(CodeCompleter, GlobalVariableInUnsavedFile)
 {
     unsavedFiles.createOrUpdate({unsavedMainFileContainer});
-    translationUnits.update({unsavedMainFileContainer});
-    ClangBackEnd::CodeCompleter myCompleter(translationUnit.translationUnitCore(), unsavedFiles);
+    documents.update({unsavedMainFileContainer});
+    ClangBackEnd::CodeCompleter myCompleter(document.translationUnitCore(), unsavedFiles);
 
     ASSERT_THAT(myCompleter.complete(27, 1),
                 Contains(IsCodeCompletion(Utf8StringLiteral("GlobalVariableInUnsavedFile"),
@@ -264,8 +264,8 @@ TEST_F(CodeCompleter, GlobalVariableInUnsavedFile)
 TEST_F(CodeCompleter, Macro)
 {
     unsavedFiles.createOrUpdate({unsavedMainFileContainer});
-    translationUnits.update({unsavedMainFileContainer});
-    ClangBackEnd::CodeCompleter myCompleter(translationUnit.translationUnitCore(), unsavedFiles);
+    documents.update({unsavedMainFileContainer});
+    ClangBackEnd::CodeCompleter myCompleter(document.translationUnitCore(), unsavedFiles);
 
     ASSERT_THAT(myCompleter.complete(27, 1),
                 Contains(IsCodeCompletion(Utf8StringLiteral("Macro"),
@@ -289,8 +289,8 @@ TEST_F(CodeCompleter, FunctionInIncludedHeader)
 TEST_F(CodeCompleter, FunctionInUnsavedIncludedHeader)
 {
     unsavedFiles.createOrUpdate({unsavedTargetHeaderFileContainer});
-    translationUnits.create({unsavedTargetHeaderFileContainer});
-    ClangBackEnd::CodeCompleter myCompleter(translationUnit.translationUnitCore(), unsavedFiles);
+    documents.create({unsavedTargetHeaderFileContainer});
+    ClangBackEnd::CodeCompleter myCompleter(document.translationUnitCore(), unsavedFiles);
 
     ASSERT_THAT(myCompleter.complete(27, 1),
                 Contains(IsCodeCompletion(Utf8StringLiteral("FunctionInIncludedHeaderUnsaved"),
@@ -309,8 +309,8 @@ TEST_F(CodeCompleter, DISABLED_FunctionInChangedIncludedHeader)
 TEST_F(CodeCompleter, DISABLED_FunctionInChangedIncludedHeaderWithUnsavedContentInMainFile) // it's not that bad because we reparse anyway
 {
     unsavedFiles.createOrUpdate({unsavedMainFileContainer});
-    translationUnits.update({unsavedMainFileContainer});
-    ClangBackEnd::CodeCompleter myCompleter(translationUnit.translationUnitCore(), unsavedFiles);
+    documents.update({unsavedMainFileContainer});
+    ClangBackEnd::CodeCompleter myCompleter(document.translationUnitCore(), unsavedFiles);
 
     copyChangedTargetHeaderToTemporaryIncludeDirecory();
 
@@ -345,16 +345,16 @@ TEST_F(CodeCompleter, DotToArrowCompletionForPointer)
                 ClangBackEnd::CompletionCorrection::DotToArrowCorrection);
 }
 
-TEST_F(CodeCompleter, DotToArrowCompletionForPointerInOutdatedTranslationUnit)
+TEST_F(CodeCompleter, DotToArrowCompletionForPointerInOutdatedDocument)
 {
     auto fileContainerBeforeTyping = dotArrowCorrectionForPointerFileContainerBeforeTyping;
-    translationUnits.create({fileContainerBeforeTyping});
+    documents.create({fileContainerBeforeTyping});
     unsavedFiles.createOrUpdate({fileContainerBeforeTyping});
-    auto translationUnit = translationUnits.translationUnit(fileContainerBeforeTyping.filePath(),
+    auto document = documents.document(fileContainerBeforeTyping.filePath(),
                                                             fileContainerBeforeTyping.projectPartId());
-    translationUnit.parse();
+    document.parse();
     unsavedFiles.createOrUpdate({dotArrowCorrectionForPointerFileContainerAfterTyping});
-    ClangBackEnd::CodeCompleter myCompleter(translationUnits.translationUnit(dotArrowCorrectionForPointerFileContainerAfterTyping).translationUnitCore(),
+    ClangBackEnd::CodeCompleter myCompleter(documents.document(dotArrowCorrectionForPointerFileContainerAfterTyping).translationUnitCore(),
                                             unsavedFiles);
 
     const ClangBackEnd::CodeCompletions completions = myCompleter.complete(5, 9);
@@ -443,13 +443,13 @@ TEST_F(CodeCompleter, NoDotArrowCorrectionForColonColon)
 ClangBackEnd::CodeCompleter CodeCompleter::setupCompleter(
         const ClangBackEnd::FileContainer &fileContainer)
 {
-    translationUnits.create({fileContainer});
+    documents.create({fileContainer});
     unsavedFiles.createOrUpdate({fileContainer});
-    translationUnit = translationUnits.translationUnit(fileContainer);
-    translationUnit.parse();
+    document = documents.document(fileContainer);
+    document.parse();
 
-    ClangBackEnd::TranslationUnit translationUnit = translationUnits.translationUnit(fileContainer);
-    return ClangBackEnd::CodeCompleter(translationUnit.translationUnitCore(),
+    ClangBackEnd::Document document = documents.document(fileContainer);
+    return ClangBackEnd::CodeCompleter(document.translationUnitCore(),
                                        unsavedFiles);
 }
 

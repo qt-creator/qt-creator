@@ -24,6 +24,8 @@
 ****************************************************************************/
 
 #include <cursor.h>
+#include <clangdocument.h>
+#include <clangdocuments.h>
 #include <clangstring.h>
 #include <clangtranslationunitcore.h>
 #include <projectpart.h>
@@ -31,8 +33,6 @@
 #include <skippedsourceranges.h>
 #include <sourcelocation.h>
 #include <sourcerange.h>
-#include <clangtranslationunit.h>
-#include <translationunits.h>
 #include <unsavedfiles.h>
 
 #include <sourcerangecontainer.h>
@@ -45,11 +45,11 @@
 #include "gtest-qt-printing.h"
 
 using ClangBackEnd::Cursor;
-using ClangBackEnd::TranslationUnit;
+using ClangBackEnd::Document;
+using ClangBackEnd::Documents;
 using ClangBackEnd::TranslationUnitCore;
 using ClangBackEnd::UnsavedFiles;
 using ClangBackEnd::ProjectPart;
-using ClangBackEnd::TranslationUnits;
 using ClangBackEnd::ClangString;
 using ClangBackEnd::SourceRange;
 using ClangBackEnd::SkippedSourceRanges;
@@ -88,21 +88,22 @@ MATCHER_P4(IsSourceLocation, filePath, line, column, offset,
 struct Data {
     Data()
     {
-        translationUnit.parse();
+        document.parse();
     }
 
     ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
-    ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
+    ClangBackEnd::Documents documents{projects, unsavedFiles};
     Utf8String filePath = Utf8StringLiteral(TESTDATA_DIR"/skippedsourceranges.cpp");
-    TranslationUnit translationUnit{filePath,
-                ProjectPart(Utf8StringLiteral("projectPartId"),
-                            {Utf8StringLiteral("-std=c++11"),Utf8StringLiteral("-DBLAH")}),
-                {},
-                translationUnits};
+    Document document{filePath,
+                      ProjectPart(Utf8StringLiteral("projectPartId"),
+                                 {Utf8StringLiteral("-std=c++11"),
+                                  Utf8StringLiteral("-DBLAH")}),
+                      {},
+                      documents};
     TranslationUnitCore translationUnitCore{filePath,
-                                            translationUnit.translationUnitCore().cxIndex(),
-                                            translationUnit.translationUnitCore().cxTranslationUnit()};
+                                            document.translationUnitCore().cxIndex(),
+                                            document.translationUnitCore().cxTranslationUnit()};
 };
 
 class SkippedSourceRanges : public ::testing::Test

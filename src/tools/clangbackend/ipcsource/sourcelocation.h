@@ -32,7 +32,7 @@
 namespace ClangBackEnd {
 
 class SourceLocationContainer;
-class TranslationUnit;
+class Document;
 
 class SourceLocation
 {

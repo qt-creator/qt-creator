@@ -36,15 +36,15 @@
 
 namespace ClangBackEnd {
 
-Jobs::Jobs(TranslationUnits &translationUnits,
+Jobs::Jobs(Documents &documents,
            UnsavedFiles &unsavedFiles,
            ProjectParts &projectParts,
            ClangCodeModelClientInterface &client)
-    : m_translationUnits(translationUnits)
+    : m_documents(documents)
     , m_unsavedFiles(unsavedFiles)
     , m_projectParts(projectParts)
     , m_client(client)
-    , m_queue(translationUnits, projectParts)
+    , m_queue(documents, projectParts)
 {
     m_queue.setIsJobRunningHandler([this](const Utf8String &filePath,
                                           const Utf8String &projectPartId) {
@@ -89,7 +89,7 @@ JobRequests Jobs::runJobs(const JobRequests &jobsRequests)
 bool Jobs::runJob(const JobRequest &jobRequest)
 {
     if (IAsyncJob *asyncJob = IAsyncJob::create(jobRequest.type)) {
-        JobContext context(jobRequest, &m_translationUnits, &m_unsavedFiles, &m_client);
+        JobContext context(jobRequest, &m_documents, &m_unsavedFiles, &m_client);
         asyncJob->setContext(context);
 
         if (asyncJob->prepareAsyncRun()) {

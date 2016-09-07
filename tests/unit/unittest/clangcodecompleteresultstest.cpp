@@ -24,13 +24,13 @@
 ****************************************************************************/
 
 #include <clangcodecompleteresults.h>
+#include <clangdocument.h>
 #include <clangfilepath.h>
 #include <clangtranslationunitupdater.h>
 #include <projectpart.h>
 #include <projects.h>
-#include <clangtranslationunit.h>
 #include <clangtranslationunitcore.h>
-#include <translationunits.h>
+#include <clangdocuments.h>
 #include <unsavedfiles.h>
 #include <utf8string.h>
 
@@ -45,7 +45,7 @@ namespace {
 
 using ClangBackEnd::ClangCodeCompleteResults;
 using ClangBackEnd::FilePath;
-using ClangBackEnd::TranslationUnit;
+using ClangBackEnd::Document;
 using ClangBackEnd::UnsavedFiles;
 using ClangBackEnd::ProjectPart;
 
@@ -62,15 +62,15 @@ TEST(ClangCodeCompleteResults, GetData)
     ProjectPart projectPart(Utf8StringLiteral("projectPartId"));
     ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
-    ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
-    TranslationUnit translationUnit(Utf8StringLiteral(TESTDATA_DIR"/complete_testfile_1.cpp"),
-                                    projectPart,
-                                    Utf8StringVector(),
-                                    translationUnits);
-    Utf8String nativeFilePath = FilePath::toNativeSeparators(translationUnit.filePath());
-    translationUnit.parse();
+    ClangBackEnd::Documents documents{projects, unsavedFiles};
+    Document document(Utf8StringLiteral(TESTDATA_DIR"/complete_testfile_1.cpp"),
+                      projectPart,
+                      Utf8StringVector(),
+                      documents);
+    Utf8String nativeFilePath = FilePath::toNativeSeparators(document.filePath());
+    document.parse();
     CXCodeCompleteResults *cxCodeCompleteResults =
-            clang_codeCompleteAt(translationUnit.translationUnitCore().cxTranslationUnit(),
+            clang_codeCompleteAt(document.translationUnitCore().cxTranslationUnit(),
                                  nativeFilePath.constData(),
                                  49, 1, 0, 0,
                                  completionOptions());
@@ -94,15 +94,15 @@ TEST(ClangCodeCompleteResults, MoveClangCodeCompleteResults)
     ProjectPart projectPart(Utf8StringLiteral("projectPartId"));
     ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
-    ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
-    TranslationUnit translationUnit(Utf8StringLiteral(TESTDATA_DIR"/complete_testfile_1.cpp"),
-                                    projectPart,
-                                    Utf8StringVector(),
-                                    translationUnits);
-    Utf8String nativeFilePath = FilePath::toNativeSeparators(translationUnit.filePath());
-    translationUnit.parse();
+    ClangBackEnd::Documents documents{projects, unsavedFiles};
+    Document document(Utf8StringLiteral(TESTDATA_DIR"/complete_testfile_1.cpp"),
+                      projectPart,
+                      Utf8StringVector(),
+                      documents);
+    Utf8String nativeFilePath = FilePath::toNativeSeparators(document.filePath());
+    document.parse();
     CXCodeCompleteResults *cxCodeCompleteResults =
-            clang_codeCompleteAt(translationUnit.translationUnitCore().cxTranslationUnit(),
+            clang_codeCompleteAt(document.translationUnitCore().cxTranslationUnit(),
                                  nativeFilePath.constData(),
                                  49, 1, 0, 0,
                                  completionOptions());

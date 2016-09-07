@@ -24,15 +24,15 @@
 ****************************************************************************/
 
 #include <clangcodecompleteresults.h>
+#include <clangdocument.h>
 #include <clangfilepath.h>
 #include <codecompletionsextractor.h>
 #include <filecontainer.h>
 #include <projectpart.h>
 #include <projects.h>
-#include <clangtranslationunit.h>
 #include <clangunsavedfilesshallowarguments.h>
 #include <clangtranslationunitcore.h>
-#include <translationunits.h>
+#include <clangdocuments.h>
 #include <unsavedfiles.h>
 #include <utf8stringvector.h>
 
@@ -48,7 +48,7 @@
 using ClangBackEnd::CodeCompletionsExtractor;
 using ClangBackEnd::ClangCodeCompleteResults;
 using ClangBackEnd::FilePath;
-using ClangBackEnd::TranslationUnit;
+using ClangBackEnd::Document;
 using ClangBackEnd::CodeCompletion;
 using ClangBackEnd::UnsavedFiles;
 using ClangBackEnd::UnsavedFilesShallowArguments;
@@ -145,7 +145,7 @@ const ClangBackEnd::FileContainer unsavedDataFileContainer(const char *filePath,
 class CodeCompletionsExtractor : public ::testing::Test
 {
 protected:
-    ClangCodeCompleteResults getResults(const TranslationUnit &translationUnit,
+    ClangCodeCompleteResults getResults(const Document &document,
                                         uint line,
                                         uint column = 1,
                                         bool needsReparse = false);
@@ -154,19 +154,19 @@ protected:
     ClangBackEnd::ProjectPart project{Utf8StringLiteral("/path/to/projectfile")};
     ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
-    ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
-    TranslationUnit functionTranslationUnit{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_function.cpp"), project, Utf8StringVector(), translationUnits};
-    TranslationUnit variableTranslationUnit{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_variable.cpp"), project, Utf8StringVector(), translationUnits};
-    TranslationUnit classTranslationUnit{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_class.cpp"), project, Utf8StringVector(), translationUnits};
-    TranslationUnit namespaceTranslationUnit{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_namespace.cpp"), project, Utf8StringVector(), translationUnits};
-    TranslationUnit enumerationTranslationUnit{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_enumeration.cpp"), project, Utf8StringVector(), translationUnits};
-    TranslationUnit constructorTranslationUnit{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_constructor.cpp"), project, Utf8StringVector(), translationUnits};
-    TranslationUnit briefCommentTranslationUnit{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_brief_comment.cpp"), project, Utf8StringVector(), translationUnits};
+    ClangBackEnd::Documents documents{projects, unsavedFiles};
+    Document functionDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_function.cpp"), project, Utf8StringVector(), documents};
+    Document variableDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_variable.cpp"), project, Utf8StringVector(), documents};
+    Document classDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_class.cpp"), project, Utf8StringVector(), documents};
+    Document namespaceDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_namespace.cpp"), project, Utf8StringVector(), documents};
+    Document enumerationDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_enumeration.cpp"), project, Utf8StringVector(), documents};
+    Document constructorDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_constructor.cpp"), project, Utf8StringVector(), documents};
+    Document briefCommentDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_brief_comment.cpp"), project, Utf8StringVector(), documents};
 };
 
 TEST_F(CodeCompletionsExtractor, Function)
 {
-    ClangCodeCompleteResults completeResults(getResults(functionTranslationUnit, 20));
+    ClangCodeCompleteResults completeResults(getResults(functionDocument, 20));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -177,7 +177,7 @@ TEST_F(CodeCompletionsExtractor, Function)
 
 TEST_F(CodeCompletionsExtractor, TemplateFunction)
 {
-    ClangCodeCompleteResults completeResults(getResults(functionTranslationUnit, 20));
+    ClangCodeCompleteResults completeResults(getResults(functionDocument, 20));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -188,7 +188,7 @@ TEST_F(CodeCompletionsExtractor, TemplateFunction)
 
 TEST_F(CodeCompletionsExtractor, Variable)
 {
-    ClangCodeCompleteResults completeResults(getResults(variableTranslationUnit, 4));
+    ClangCodeCompleteResults completeResults(getResults(variableDocument, 4));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -200,7 +200,7 @@ TEST_F(CodeCompletionsExtractor, Variable)
 
 TEST_F(CodeCompletionsExtractor, NonTypeTemplateParameter)
 {
-    ClangCodeCompleteResults completeResults(getResults(variableTranslationUnit, 25, 19));
+    ClangCodeCompleteResults completeResults(getResults(variableDocument, 25, 19));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -212,7 +212,7 @@ TEST_F(CodeCompletionsExtractor, NonTypeTemplateParameter)
 
 TEST_F(CodeCompletionsExtractor, VariableReference)
 {
-    ClangCodeCompleteResults completeResults(getResults(variableTranslationUnit, 12));
+    ClangCodeCompleteResults completeResults(getResults(variableDocument, 12));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -223,7 +223,7 @@ TEST_F(CodeCompletionsExtractor, VariableReference)
 
 TEST_F(CodeCompletionsExtractor, Parameter)
 {
-    ClangCodeCompleteResults completeResults(getResults(variableTranslationUnit, 4));
+    ClangCodeCompleteResults completeResults(getResults(variableDocument, 4));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -234,7 +234,7 @@ TEST_F(CodeCompletionsExtractor, Parameter)
 
 TEST_F(CodeCompletionsExtractor, Field)
 {
-    ClangCodeCompleteResults completeResults(getResults(variableTranslationUnit, 20));
+    ClangCodeCompleteResults completeResults(getResults(variableDocument, 20));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -245,7 +245,7 @@ TEST_F(CodeCompletionsExtractor, Field)
 
 TEST_F(CodeCompletionsExtractor, Class)
 {
-    ClangCodeCompleteResults completeResults(getResults(classTranslationUnit, 20));
+    ClangCodeCompleteResults completeResults(getResults(classDocument, 20));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -256,7 +256,7 @@ TEST_F(CodeCompletionsExtractor, Class)
 
 TEST_F(CodeCompletionsExtractor, Struct)
 {
-    ClangCodeCompleteResults completeResults(getResults(classTranslationUnit, 20));
+    ClangCodeCompleteResults completeResults(getResults(classDocument, 20));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -267,7 +267,7 @@ TEST_F(CodeCompletionsExtractor, Struct)
 
 TEST_F(CodeCompletionsExtractor, Union)
 {
-    ClangCodeCompleteResults completeResults(getResults(classTranslationUnit, 20));
+    ClangCodeCompleteResults completeResults(getResults(classDocument, 20));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -278,7 +278,7 @@ TEST_F(CodeCompletionsExtractor, Union)
 
 TEST_F(CodeCompletionsExtractor, Typedef)
 {
-    ClangCodeCompleteResults completeResults(getResults(classTranslationUnit, 20));
+    ClangCodeCompleteResults completeResults(getResults(classDocument, 20));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -289,7 +289,7 @@ TEST_F(CodeCompletionsExtractor, Typedef)
 
 TEST_F(CodeCompletionsExtractor, UsingAsTypeAlias)
 {
-    ClangCodeCompleteResults completeResults(getResults(classTranslationUnit, 20));
+    ClangCodeCompleteResults completeResults(getResults(classDocument, 20));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -300,7 +300,7 @@ TEST_F(CodeCompletionsExtractor, UsingAsTypeAlias)
 
 TEST_F(CodeCompletionsExtractor, TemplateTypeParameter)
 {
-    ClangCodeCompleteResults completeResults(getResults(classTranslationUnit, 20));
+    ClangCodeCompleteResults completeResults(getResults(classDocument, 20));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -311,7 +311,7 @@ TEST_F(CodeCompletionsExtractor, TemplateTypeParameter)
 
 TEST_F(CodeCompletionsExtractor, TemplateClass)
 {
-    ClangCodeCompleteResults completeResults(getResults(classTranslationUnit, 20));
+    ClangCodeCompleteResults completeResults(getResults(classDocument, 20));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -322,7 +322,7 @@ TEST_F(CodeCompletionsExtractor, TemplateClass)
 
 TEST_F(CodeCompletionsExtractor, TemplateTemplateParameter)
 {
-    ClangCodeCompleteResults completeResults(getResults(classTranslationUnit, 20));
+    ClangCodeCompleteResults completeResults(getResults(classDocument, 20));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -333,7 +333,7 @@ TEST_F(CodeCompletionsExtractor, TemplateTemplateParameter)
 
 TEST_F(CodeCompletionsExtractor, ClassTemplatePartialSpecialization)
 {
-    ClangCodeCompleteResults completeResults(getResults(classTranslationUnit, 20));
+    ClangCodeCompleteResults completeResults(getResults(classDocument, 20));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -344,7 +344,7 @@ TEST_F(CodeCompletionsExtractor, ClassTemplatePartialSpecialization)
 
 TEST_F(CodeCompletionsExtractor, Namespace)
 {
-    ClangCodeCompleteResults completeResults(getResults(namespaceTranslationUnit, 20));
+    ClangCodeCompleteResults completeResults(getResults(namespaceDocument, 20));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -355,7 +355,7 @@ TEST_F(CodeCompletionsExtractor, Namespace)
 
 TEST_F(CodeCompletionsExtractor, NamespaceAlias)
 {
-    ClangCodeCompleteResults completeResults(getResults(namespaceTranslationUnit, 20));
+    ClangCodeCompleteResults completeResults(getResults(namespaceDocument, 20));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -366,7 +366,7 @@ TEST_F(CodeCompletionsExtractor, NamespaceAlias)
 
 TEST_F(CodeCompletionsExtractor, Enumeration)
 {
-    ClangCodeCompleteResults completeResults(getResults(enumerationTranslationUnit, 20));
+    ClangCodeCompleteResults completeResults(getResults(enumerationDocument, 20));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -377,7 +377,7 @@ TEST_F(CodeCompletionsExtractor, Enumeration)
 
 TEST_F(CodeCompletionsExtractor, Enumerator)
 {
-    ClangCodeCompleteResults completeResults(getResults(enumerationTranslationUnit, 20));
+    ClangCodeCompleteResults completeResults(getResults(enumerationDocument, 20));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -388,7 +388,7 @@ TEST_F(CodeCompletionsExtractor, Enumerator)
 
 TEST_F(CodeCompletionsExtractor, DISABLED_Constructor)
 {
-    ClangCodeCompleteResults completeResults(getResults(constructorTranslationUnit, 20));
+    ClangCodeCompleteResults completeResults(getResults(constructorDocument, 20));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -399,7 +399,7 @@ TEST_F(CodeCompletionsExtractor, DISABLED_Constructor)
 
 TEST_F(CodeCompletionsExtractor, Destructor)
 {
-    ClangCodeCompleteResults completeResults(getResults(constructorTranslationUnit, 20));
+    ClangCodeCompleteResults completeResults(getResults(constructorDocument, 20));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -410,7 +410,7 @@ TEST_F(CodeCompletionsExtractor, Destructor)
 
 TEST_F(CodeCompletionsExtractor, Method)
 {
-    ClangCodeCompleteResults completeResults(getResults(functionTranslationUnit, 20));
+    ClangCodeCompleteResults completeResults(getResults(functionDocument, 20));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -422,7 +422,7 @@ TEST_F(CodeCompletionsExtractor, Method)
 
 TEST_F(CodeCompletionsExtractor, MethodWithParameters)
 {
-    ClangCodeCompleteResults completeResults(getResults(functionTranslationUnit, 20));
+    ClangCodeCompleteResults completeResults(getResults(functionDocument, 20));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -434,7 +434,7 @@ TEST_F(CodeCompletionsExtractor, MethodWithParameters)
 
 TEST_F(CodeCompletionsExtractor, Slot)
 {
-    ClangCodeCompleteResults completeResults(getResults(functionTranslationUnit, 20));
+    ClangCodeCompleteResults completeResults(getResults(functionDocument, 20));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -445,7 +445,7 @@ TEST_F(CodeCompletionsExtractor, Slot)
 
 TEST_F(CodeCompletionsExtractor, Signal)
 {
-    ClangCodeCompleteResults completeResults(getResults(functionTranslationUnit, 20));
+    ClangCodeCompleteResults completeResults(getResults(functionDocument, 20));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -456,7 +456,7 @@ TEST_F(CodeCompletionsExtractor, Signal)
 
 TEST_F(CodeCompletionsExtractor, MacroDefinition)
 {
-    ClangCodeCompleteResults completeResults(getResults(variableTranslationUnit, 35));
+    ClangCodeCompleteResults completeResults(getResults(variableDocument, 35));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -467,7 +467,7 @@ TEST_F(CodeCompletionsExtractor, MacroDefinition)
 
 TEST_F(CodeCompletionsExtractor, FunctionMacro)
 {
-    ClangCodeCompleteResults completeResults(getResults(functionTranslationUnit, 20));
+    ClangCodeCompleteResults completeResults(getResults(functionDocument, 20));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -478,7 +478,7 @@ TEST_F(CodeCompletionsExtractor, FunctionMacro)
 
 TEST_F(CodeCompletionsExtractor, IntKeyword)
 {
-    ClangCodeCompleteResults completeResults(getResults(functionTranslationUnit, 20));
+    ClangCodeCompleteResults completeResults(getResults(functionDocument, 20));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -489,7 +489,7 @@ TEST_F(CodeCompletionsExtractor, IntKeyword)
 
 TEST_F(CodeCompletionsExtractor, SwitchKeyword)
 {
-    ClangCodeCompleteResults completeResults(getResults(functionTranslationUnit, 20));
+    ClangCodeCompleteResults completeResults(getResults(functionDocument, 20));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -500,7 +500,7 @@ TEST_F(CodeCompletionsExtractor, SwitchKeyword)
 
 TEST_F(CodeCompletionsExtractor, ClassKeyword)
 {
-    ClangCodeCompleteResults completeResults(getResults(functionTranslationUnit, 20));
+    ClangCodeCompleteResults completeResults(getResults(functionDocument, 20));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -511,7 +511,7 @@ TEST_F(CodeCompletionsExtractor, ClassKeyword)
 
 TEST_F(CodeCompletionsExtractor, DeprecatedFunction)
 {
-    ClangCodeCompleteResults completeResults(getResults(functionTranslationUnit, 20));
+    ClangCodeCompleteResults completeResults(getResults(functionDocument, 20));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -522,7 +522,7 @@ TEST_F(CodeCompletionsExtractor, DeprecatedFunction)
 
 TEST_F(CodeCompletionsExtractor, NotAccessibleFunction)
 {
-    ClangCodeCompleteResults completeResults(getResults(functionTranslationUnit, 20));
+    ClangCodeCompleteResults completeResults(getResults(functionDocument, 20));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -533,7 +533,7 @@ TEST_F(CodeCompletionsExtractor, NotAccessibleFunction)
 
 TEST_F(CodeCompletionsExtractor, NotAvailableFunction)
 {
-    ClangCodeCompleteResults completeResults(getResults(functionTranslationUnit, 20));
+    ClangCodeCompleteResults completeResults(getResults(functionDocument, 20));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -544,10 +544,10 @@ TEST_F(CodeCompletionsExtractor, NotAvailableFunction)
 
 TEST_F(CodeCompletionsExtractor, UnsavedFile)
 {
-    TranslationUnit translationUnit(Utf8String::fromUtf8(TESTDATA_DIR"/complete_extractor_function.cpp"), project, Utf8StringVector(), translationUnits);
+    Document document(Utf8String::fromUtf8(TESTDATA_DIR"/complete_extractor_function.cpp"), project, Utf8StringVector(), documents);
     unsavedFiles.createOrUpdate({unsavedDataFileContainer(TESTDATA_DIR"/complete_extractor_function.cpp",
                                  TESTDATA_DIR"/complete_extractor_function_unsaved.cpp")});
-    ClangCodeCompleteResults completeResults(getResults(translationUnit, 20));
+    ClangCodeCompleteResults completeResults(getResults(document, 20));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -558,13 +558,13 @@ TEST_F(CodeCompletionsExtractor, UnsavedFile)
 
 TEST_F(CodeCompletionsExtractor, ChangeUnsavedFile)
 {
-    TranslationUnit translationUnit(Utf8String::fromUtf8(TESTDATA_DIR"/complete_extractor_function.cpp"), project, Utf8StringVector(), translationUnits);
+    Document document(Utf8String::fromUtf8(TESTDATA_DIR"/complete_extractor_function.cpp"), project, Utf8StringVector(), documents);
     unsavedFiles.createOrUpdate({unsavedDataFileContainer(TESTDATA_DIR"/complete_extractor_function.cpp",
                                  TESTDATA_DIR"/complete_extractor_function_unsaved.cpp")});
-    ClangCodeCompleteResults completeResults(getResults(translationUnit, 20));
+    ClangCodeCompleteResults completeResults(getResults(document, 20));
     unsavedFiles.createOrUpdate({unsavedDataFileContainer(TESTDATA_DIR"/complete_extractor_function.cpp",
                                  TESTDATA_DIR"/complete_extractor_function_unsaved_2.cpp")});
-    completeResults = getResults(translationUnit, 20);
+    completeResults = getResults(document, 20);
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -576,7 +576,7 @@ TEST_F(CodeCompletionsExtractor, ChangeUnsavedFile)
 TEST_F(CodeCompletionsExtractor, ArgumentDefinition)
 {
     project.setArguments({Utf8StringLiteral("-DArgumentDefinition"), Utf8StringLiteral("-std=gnu++14")});
-    ClangCodeCompleteResults completeResults(getResults(variableTranslationUnit, 35));
+    ClangCodeCompleteResults completeResults(getResults(variableDocument, 35));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -588,7 +588,7 @@ TEST_F(CodeCompletionsExtractor, ArgumentDefinition)
 TEST_F(CodeCompletionsExtractor, NoArgumentDefinition)
 {
     project.setArguments({Utf8StringLiteral("-std=gnu++14")});
-    ClangCodeCompleteResults completeResults(getResults(variableTranslationUnit, 35));
+    ClangCodeCompleteResults completeResults(getResults(variableDocument, 35));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -599,7 +599,7 @@ TEST_F(CodeCompletionsExtractor, NoArgumentDefinition)
 
 TEST_F(CodeCompletionsExtractor, CompletionChunksFunction)
 {
-    ClangCodeCompleteResults completeResults(getResults(functionTranslationUnit, 20));
+    ClangCodeCompleteResults completeResults(getResults(functionDocument, 20));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -612,7 +612,7 @@ TEST_F(CodeCompletionsExtractor, CompletionChunksFunction)
 
 TEST_F(CodeCompletionsExtractor, CompletionChunksFunctionWithOptionalChunks)
 {
-    ClangCodeCompleteResults completeResults(getResults(functionTranslationUnit, 20));
+    ClangCodeCompleteResults completeResults(getResults(functionDocument, 20));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -630,7 +630,7 @@ TEST_F(CodeCompletionsExtractor, CompletionChunksFunctionWithOptionalChunks)
 
 TEST_F(CodeCompletionsExtractor, CompletionChunksField)
 {
-    ClangCodeCompleteResults completeResults(getResults(variableTranslationUnit, 20));
+    ClangCodeCompleteResults completeResults(getResults(variableDocument, 20));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -641,7 +641,7 @@ TEST_F(CodeCompletionsExtractor, CompletionChunksField)
 
 TEST_F(CodeCompletionsExtractor, CompletionChunksEnumerator)
 {
-    ClangCodeCompleteResults completeResults(getResults(enumerationTranslationUnit, 20));
+    ClangCodeCompleteResults completeResults(getResults(enumerationDocument, 20));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -652,7 +652,7 @@ TEST_F(CodeCompletionsExtractor, CompletionChunksEnumerator)
 
 TEST_F(CodeCompletionsExtractor, CompletionChunksEnumeration)
 {
-    ClangCodeCompleteResults completeResults(getResults(enumerationTranslationUnit, 20));
+    ClangCodeCompleteResults completeResults(getResults(enumerationDocument, 20));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -662,7 +662,7 @@ TEST_F(CodeCompletionsExtractor, CompletionChunksEnumeration)
 
 TEST_F(CodeCompletionsExtractor, CompletionChunksClass)
 {
-    ClangCodeCompleteResults completeResults(getResults(classTranslationUnit, 20));
+    ClangCodeCompleteResults completeResults(getResults(classDocument, 20));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -672,7 +672,7 @@ TEST_F(CodeCompletionsExtractor, CompletionChunksClass)
 
 TEST_F(CodeCompletionsExtractor, BriefComment)
 {
-    ClangCodeCompleteResults completeResults(getResults(briefCommentTranslationUnit, 10, 1,
+    ClangCodeCompleteResults completeResults(getResults(briefCommentDocument, 10, 1,
                                                         /*needsReparse=*/ true));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
@@ -680,19 +680,19 @@ TEST_F(CodeCompletionsExtractor, BriefComment)
     ASSERT_THAT(extractor, HasBriefComment(Utf8StringLiteral("BriefComment"), Utf8StringLiteral("A brief comment")));
 }
 
-ClangCodeCompleteResults CodeCompletionsExtractor::getResults(const TranslationUnit &translationUnit,
+ClangCodeCompleteResults CodeCompletionsExtractor::getResults(const Document &document,
                                                               uint line,
                                                               uint column,
                                                               bool needsReparse)
 {
-    translationUnit.parse();
+    document.parse();
     if (needsReparse)
-        translationUnit.reparse();
+        document.reparse();
 
-    const Utf8String nativeFilePath = FilePath::toNativeSeparators(translationUnit.filePath());
+    const Utf8String nativeFilePath = FilePath::toNativeSeparators(document.filePath());
     UnsavedFilesShallowArguments unsaved = unsavedFiles.shallowArguments();
 
-    return ClangCodeCompleteResults(clang_codeCompleteAt(translationUnit.translationUnitCore().cxTranslationUnit(),
+    return ClangCodeCompleteResults(clang_codeCompleteAt(document.translationUnitCore().cxTranslationUnit(),
                                                          nativeFilePath.constData(),
                                                          line,
                                                          column,
