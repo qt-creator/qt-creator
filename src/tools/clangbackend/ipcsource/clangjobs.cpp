@@ -42,7 +42,6 @@ Jobs::Jobs(Documents &documents,
            ClangCodeModelClientInterface &client)
     : m_documents(documents)
     , m_unsavedFiles(unsavedFiles)
-    , m_projectParts(projectParts)
     , m_client(client)
     , m_queue(documents, projectParts)
 {

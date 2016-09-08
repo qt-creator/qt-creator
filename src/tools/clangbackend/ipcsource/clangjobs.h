@@ -36,7 +36,6 @@ namespace ClangBackEnd {
 class ClangCodeModelClientInterface;
 class Documents;
 class IAsyncJob;
-class ProjectParts;
 class UnsavedFiles;
 
 class Jobs
@@ -72,7 +71,6 @@ private:
 private:
     Documents &m_documents;
     UnsavedFiles &m_unsavedFiles;
-    ProjectParts &m_projectParts;
     ClangCodeModelClientInterface &m_client;
 
     JobQueue m_queue;
