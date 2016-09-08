@@ -201,8 +201,6 @@ void DebuggerMainWindow::finalizeSetup()
     cmd->setAttribute(Command::CA_Hide);
     viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
 
-    addDockActionsToMenu(viewsMenu->menu());
-
     auto dock = new QDockWidget(tr("Toolbar"));
     dock->setObjectName(QLatin1String("Toolbar"));
     dock->setFeatures(QDockWidget::NoDockWidgetFeatures);
