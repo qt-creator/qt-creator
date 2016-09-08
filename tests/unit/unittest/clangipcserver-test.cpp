@@ -323,8 +323,8 @@ void ClangClangCodeModelServer::TearDown()
 bool ClangClangCodeModelServer::waitUntilAllJobsFinished(int timeOutInMs)
 {
     const auto noJobsRunningAnymore = [this]() {
-        return clangServer.jobsForTestOnly().runningJobs() == 0
-            && clangServer.jobsForTestOnly().queue().size() == 0
+        return clangServer.runningJobsForTestsOnly().isEmpty()
+            && clangServer.queueSizeForTestsOnly() == 0
             && !clangServer.isTimerRunningForTestOnly();
     };
 

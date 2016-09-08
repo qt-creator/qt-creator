@@ -141,6 +141,10 @@ void ClangCodeModelServer::unregisterTranslationUnitsForEditor(const ClangBackEn
     TIME_SCOPE_DURATION("ClangCodeModelServer::unregisterTranslationUnitsForEditor");
 
     try {
+        for (const auto &fileContainer : message.fileContainers()) {
+            const Document &document = documents.document(fileContainer);
+            documentProcessors().remove(document);
+        }
         documents.remove(message.fileContainers());
         unsavedFiles.remove(message.fileContainers());
     } catch (const std::exception &exception) {
@@ -211,8 +215,9 @@ void ClangCodeModelServer::completeCode(const ClangBackEnd::CompleteCodeMessage 
         jobRequest.column = message.column();
         jobRequest.ticketNumber = message.ticketNumber();
 
-        jobs().add(jobRequest);
-        jobs().process();
+        DocumentProcessor processor = documentProcessors().processor(document);
+        processor.addJob(jobRequest);
+        processor.process();
     }  catch (const std::exception &exception) {
         qWarning() << "Error in ClangCodeModelServer::completeCode:" << exception.what();
     }
@@ -229,8 +234,9 @@ void ClangCodeModelServer::requestDocumentAnnotations(const RequestDocumentAnnot
         const JobRequest jobRequest = createJobRequest(document,
                                                        JobRequest::Type::RequestDocumentAnnotations);
 
-        jobs().add(jobRequest);
-        jobs().process();
+        DocumentProcessor processor = documentProcessors().processor(document);
+        processor.addJob(jobRequest);
+        processor.process();
     }  catch (const std::exception &exception) {
         qWarning() << "Error in ClangCodeModelServer::requestDocumentAnnotations:" << exception.what();
     }
@@ -260,9 +266,14 @@ void ClangCodeModelServer::startDocumentAnnotationsTimerIfFileIsNotOpenAsDocumen
         updateDocumentAnnotationsTimer.start(0);
 }
 
-const Jobs &ClangCodeModelServer::jobsForTestOnly()
+QList<Jobs::RunningJob> ClangCodeModelServer::runningJobsForTestsOnly()
 {
-    return jobs();
+    return documentProcessors().runningJobs();
+}
+
+int ClangCodeModelServer::queueSizeForTestsOnly()
+{
+    return documentProcessors().queueSize();
 }
 
 bool ClangCodeModelServer::isTimerRunningForTestOnly() const
@@ -270,28 +281,26 @@ bool ClangCodeModelServer::isTimerRunningForTestOnly() const
     return updateDocumentAnnotationsTimer.isActive();
 }
 
-void ClangCodeModelServer::addJobRequestsForDirtyAndVisibleDocuments()
-{
-    for (const auto &document : documents.documents()) {
-        if (document.isNeedingReparse() && document.isVisibleInEditor())
-            jobs().add(createJobRequest(document, JobRequest::Type::UpdateDocumentAnnotations));
-    }
-}
-
 void ClangCodeModelServer::processJobsForDirtyAndVisibleDocuments()
 {
-    addJobRequestsForDirtyAndVisibleDocuments();
-    jobs().process();
+    for (const auto &document : documents.documents()) {
+        if (document.isNeedingReparse() && document.isVisibleInEditor()) {
+            DocumentProcessor processor = documentProcessors().processor(document);
+            processor.addJob(createJobRequest(document, JobRequest::Type::UpdateDocumentAnnotations));
+        }
+    }
+
+    documentProcessors().process();
 }
 
 void ClangCodeModelServer::processInitialJobsForDocuments(const std::vector<Document> &documents)
 {
     for (const auto &document : documents) {
-        jobs().add(createJobRequest(document, JobRequest::Type::UpdateDocumentAnnotations));
-        jobs().add(createJobRequest(document, JobRequest::Type::CreateInitialDocumentPreamble));
+        DocumentProcessor processor = documentProcessors().create(document);
+        processor.addJob(createJobRequest(document, JobRequest::Type::UpdateDocumentAnnotations));
+        processor.addJob(createJobRequest(document, JobRequest::Type::CreateInitialDocumentPreamble));
+        processor.process();
     }
-
-    jobs().process();
 }
 
 JobRequest ClangCodeModelServer::createJobRequest(const Document &document,
@@ -315,16 +324,16 @@ void ClangCodeModelServer::setUpdateDocumentAnnotationsTimeOutInMsForTestsOnly(i
     updateDocumentAnnotationsTimeOutInMs = value;
 }
 
-Jobs &ClangCodeModelServer::jobs()
+DocumentProcessors &ClangCodeModelServer::documentProcessors()
 {
-    if (!jobs_) {
-        // Jobs needs a reference to the client, but the client is not known at
-        // construction time of ClangCodeModelServer, so construct Jobs in a
-        // lazy manner.
-        jobs_.reset(new Jobs(documents, unsavedFiles, projects, *client()));
+    if (!documentProcessors_) {
+        // DocumentProcessors needs a reference to the client, but the client
+        // is not known at construction time of ClangCodeModelServer, so
+        // construct DocumentProcessors in a lazy manner.
+        documentProcessors_.reset(new DocumentProcessors(documents, unsavedFiles, projects, *client()));
     }
 
-    return *jobs_.data();
+    return *documentProcessors_.data();
 }
 
 } // namespace ClangBackEnd

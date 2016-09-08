@@ -31,8 +31,9 @@
 #include "projects.h"
 #include "clangdocument.h"
 #include "clangdocuments.h"
+#include "clangdocumentprocessors.h"
+#include "clangjobrequest.h"
 #include "unsavedfiles.h"
-#include "clangjobs.h"
 
 #include <utf8string.h>
 
@@ -58,14 +59,15 @@ public:
     void updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message) override;
     void requestDocumentAnnotations(const RequestDocumentAnnotationsMessage &message) override;
 
-public /*for tests*/:
+public: // for tests
     const Documents &documentsForTestOnly() const;
-    const Jobs &jobsForTestOnly();
+    QList<Jobs::RunningJob> runningJobsForTestsOnly();
+    int queueSizeForTestsOnly();
     bool isTimerRunningForTestOnly() const;
     void setUpdateDocumentAnnotationsTimeOutInMsForTestsOnly(int value);
 
 private:
-    Jobs &jobs();
+    DocumentProcessors &documentProcessors();
 
     void startDocumentAnnotationsTimerIfFileIsNotOpenAsDocument(const Utf8String &filePath);
     void addJobRequestsForDirtyAndVisibleDocuments();
@@ -78,7 +80,8 @@ private:
     ProjectParts projects;
     UnsavedFiles unsavedFiles;
     Documents documents;
-    QScopedPointer<Jobs> jobs_;
+
+    QScopedPointer<DocumentProcessors> documentProcessors_; // Delayed initialization
 
     QTimer updateDocumentAnnotationsTimer;
     int updateDocumentAnnotationsTimeOutInMs;

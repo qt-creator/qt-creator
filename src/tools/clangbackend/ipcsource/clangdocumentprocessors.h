@@ -25,56 +25,50 @@
 
 #pragma once
 
-#include "clangjobqueue.h"
+#include "clangdocumentprocessor.h"
+#include "clangjobs.h"
 
-#include <clangbackendipc/clangcodemodelclientinterface.h>
+#include <utf8string.h>
 
-#include <QFuture>
+#include <QMap>
 
 namespace ClangBackEnd {
 
-class ClangCodeModelClientInterface;
-class Documents;
-class IAsyncJob;
-class UnsavedFiles;
+class Document;
+class DocumentProcessor;
 
-class Jobs
+class DocumentId {
+public:
+    Utf8String filePath;
+    Utf8String projectPartId;
+};
+
+class DocumentProcessors
 {
 public:
-    struct RunningJob {
-        JobRequest jobRequest;
-        QFuture<void> future;
-    };
-    using RunningJobs = QHash<IAsyncJob *, RunningJob>;
+    DocumentProcessors(Documents &documents,
+                       UnsavedFiles &unsavedFiles,
+                       ProjectParts &projects,
+                       ClangCodeModelClientInterface &client);
 
-public:
-    Jobs(Documents &documents,
-         UnsavedFiles &unsavedFiles,
-         ProjectParts &projects,
-         ClangCodeModelClientInterface &client);
-    ~Jobs();
-
-    void add(const JobRequest &job);
+    DocumentProcessor create(const Document &document);
+    DocumentProcessor processor(const Document &document);
+    void remove(const Document &document);
 
     JobRequests process();
 
-public /*for tests*/:
-    QList<RunningJob> runningJobs() const;
-    JobRequests queue() const;
-    bool isJobRunning(const Utf8String &filePath, const Utf8String &projectPartId) const;
-
-private:
-    JobRequests runJobs(const JobRequests &jobRequest);
-    bool runJob(const JobRequest &jobRequest);
-    void onJobFinished(IAsyncJob *asyncJob);
+public: // for tests
+    QList<DocumentProcessor> processors() const;
+    QList<Jobs::RunningJob> runningJobs() const;
+    int queueSize() const;
 
 private:
     Documents &m_documents;
     UnsavedFiles &m_unsavedFiles;
+    ProjectParts &m_projects;
     ClangCodeModelClientInterface &m_client;
 
-    JobQueue m_queue;
-    RunningJobs m_running;
+    QMap<DocumentId, DocumentProcessor> m_processors;
 };
 
 } // namespace ClangBackEnd

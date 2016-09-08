@@ -41,7 +41,9 @@ HEADERS += $$PWD/clangcodemodelserver.h \
     $$PWD/clangtranslationunit.h \
     $$PWD/clangunsavedfilesshallowarguments.h \
     $$PWD/clangupdatedocumentannotationsjob.h \
-    $$PWD/clangexceptions.h
+    $$PWD/clangexceptions.h \
+    $$PWD/clangdocumentprocessor.h \
+    $$PWD/clangdocumentprocessors.h \
 
 SOURCES += $$PWD/clangcodemodelserver.cpp \
     $$PWD/codecompleter.cpp \
@@ -80,4 +82,6 @@ SOURCES += $$PWD/clangcodemodelserver.cpp \
     $$PWD/clangtranslationunit.cpp \
     $$PWD/clangunsavedfilesshallowarguments.cpp \
     $$PWD/clangupdatedocumentannotationsjob.cpp \
-    $$PWD/clangexceptions.cpp
+    $$PWD/clangexceptions.cpp \
+    $$PWD/clangdocumentprocessor.cpp \
+    $$PWD/clangdocumentprocessors.cpp \

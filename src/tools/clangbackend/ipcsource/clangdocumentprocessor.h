@@ -25,56 +25,41 @@
 
 #pragma once
 
-#include "clangjobqueue.h"
+#include "clangjobrequest.h"
+#include "clangjobs.h"
 
-#include <clangbackendipc/clangcodemodelclientinterface.h>
-
-#include <QFuture>
+#include <memory>
 
 namespace ClangBackEnd {
 
 class ClangCodeModelClientInterface;
+class Document;
 class Documents;
-class IAsyncJob;
+class DocumentProcessorData;
+class JobRequest;
+class ProjectParts;
 class UnsavedFiles;
 
-class Jobs
+class DocumentProcessor
 {
 public:
-    struct RunningJob {
-        JobRequest jobRequest;
-        QFuture<void> future;
-    };
-    using RunningJobs = QHash<IAsyncJob *, RunningJob>;
+    DocumentProcessor(const Document &document,
+                      Documents &documents,
+                      UnsavedFiles &unsavedFiles,
+                      ProjectParts &projects,
+                      ClangCodeModelClientInterface &client);
 
-public:
-    Jobs(Documents &documents,
-         UnsavedFiles &unsavedFiles,
-         ProjectParts &projects,
-         ClangCodeModelClientInterface &client);
-    ~Jobs();
-
-    void add(const JobRequest &job);
-
+    void addJob(const JobRequest &jobRequest);
     JobRequests process();
 
-public /*for tests*/:
-    QList<RunningJob> runningJobs() const;
-    JobRequests queue() const;
-    bool isJobRunning(const Utf8String &filePath, const Utf8String &projectPartId) const;
+    Document document() const;
+
+public: // for tests
+    QList<Jobs::RunningJob> runningJobs() const;
+    int queueSize() const;
 
 private:
-    JobRequests runJobs(const JobRequests &jobRequest);
-    bool runJob(const JobRequest &jobRequest);
-    void onJobFinished(IAsyncJob *asyncJob);
-
-private:
-    Documents &m_documents;
-    UnsavedFiles &m_unsavedFiles;
-    ClangCodeModelClientInterface &m_client;
-
-    JobQueue m_queue;
-    RunningJobs m_running;
+    std::shared_ptr<DocumentProcessorData> d;
 };
 
 } // namespace ClangBackEnd

@@ -56,6 +56,8 @@ public:
     virtual QFuture<void> runAsync() = 0;
     virtual void finalizeAsyncRun() = 0;
 
+    virtual void preventFinalization() = 0;
+
 public: // for tests
     bool isFinished() const;
     void setIsFinished(bool isFinished);

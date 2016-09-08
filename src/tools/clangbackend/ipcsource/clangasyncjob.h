@@ -64,6 +64,11 @@ public:
         return future;
     }
 
+    void preventFinalization() override
+    {
+        m_futureWatcher.disconnect();
+    }
+
 private:
     Runner m_runner;
     QFutureWatcher<Result> m_futureWatcher;

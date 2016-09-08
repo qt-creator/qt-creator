@@ -49,6 +49,8 @@ SOURCES += \
     clangdiagnosticfilter-test.cpp \
     clangdocuments-test.cpp \
     clangdocument-test.cpp \
+    clangdocumentprocessor-test.cpp \
+    clangdocumentprocessors-test.cpp \
     clangfixitoperation-test.cpp \
     clangipcserver-test.cpp \
     clangisdiagnosticrelatedtolocation-test.cpp \

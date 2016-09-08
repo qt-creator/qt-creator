@@ -53,9 +53,15 @@ Jobs::Jobs(Documents &documents,
 
 Jobs::~Jobs()
 {
+    foreach (IAsyncJob *asyncJob, m_running.keys())
+        asyncJob->preventFinalization();
+
     QFutureSynchronizer<void> waitForFinishedJobs;
     foreach (const RunningJob &runningJob, m_running.values())
         waitForFinishedJobs.addFuture(runningJob.future);
+
+    foreach (IAsyncJob *asyncJob, m_running.keys())
+        delete asyncJob;
 }
 
 void Jobs::add(const JobRequest &job)
@@ -118,9 +124,9 @@ void Jobs::onJobFinished(IAsyncJob *asyncJob)
     process();
 }
 
-int Jobs::runningJobs() const
+QList<Jobs::RunningJob> Jobs::runningJobs() const
 {
-    return m_running.size();
+    return m_running.values();
 }
 
 JobRequests Jobs::queue() const

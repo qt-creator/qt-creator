@@ -74,4 +74,24 @@ DocumentIsNullException::DocumentIsNullException()
     m_info = Utf8String::fromUtf8("Tried to access a null Document!");
 }
 
+DocumentProcessorAlreadyExists::DocumentProcessorAlreadyExists(const Utf8String &filePath,
+                                                               const Utf8String &projectPartId)
+{
+    m_info = Utf8StringLiteral("Document processor for file '")
+           + filePath
+           + Utf8StringLiteral("' and project part id '")
+           + projectPartId
+           + Utf8StringLiteral("' already exists!");
+}
+
+DocumentProcessorDoesNotExist::DocumentProcessorDoesNotExist(const Utf8String &filePath,
+                                                             const Utf8String &projectPartId)
+{
+    m_info = Utf8StringLiteral("Document processor for file '")
+           + filePath
+           + Utf8StringLiteral("' and project part id '")
+           + projectPartId
+           + Utf8StringLiteral("' does not exist!");
+}
+
 } // namespace ClangBackEnd
