@@ -38,7 +38,6 @@
 #include "localhelpmanager.h"
 #include "openpagesmanager.h"
 #include "openpagesmodel.h"
-#include "qtwebkithelpviewer.h"
 #include "remotehelpfilter.h"
 #include "searchwidget.h"
 #include "searchtaskhandler.h"
@@ -374,9 +373,6 @@ HelpViewer *HelpPlugin::createHelpViewer(qreal zoom)
     typedef std::function<HelpViewer *()> ViewerFactory;
     typedef QPair<QByteArray, ViewerFactory>  ViewerFactoryItem; // id -> factory
     QVector<ViewerFactoryItem> factories;
-#ifndef QT_NO_WEBKIT
-    factories.append(qMakePair(QByteArray("qtwebkit"), []() { return new QtWebKitHelpViewer(); }));
-#endif
 #ifdef QTC_WEBENGINE_HELPVIEWER
     factories.append(qMakePair(QByteArray("qtwebengine"), []() { return new WebEngineHelpViewer(); }));
 #endif
