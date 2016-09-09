@@ -48,25 +48,25 @@ const char *ProjectPartDoNotExistException::what() const Q_DECL_NOEXCEPT
     return what_.constData();
 }
 
-TranslationUnitAlreadyExistsException::TranslationUnitAlreadyExistsException(
+DocumentAlreadyExistsException::DocumentAlreadyExistsException(
         const FileContainer &fileContainer)
     : fileContainer_(fileContainer)
 {
 }
 
-TranslationUnitAlreadyExistsException::TranslationUnitAlreadyExistsException(
+DocumentAlreadyExistsException::DocumentAlreadyExistsException(
         const Utf8String &filePath,
         const Utf8String &projectPartId)
     : fileContainer_(filePath, projectPartId)
 {
 }
 
-const FileContainer &TranslationUnitAlreadyExistsException::fileContainer() const
+const FileContainer &DocumentAlreadyExistsException::fileContainer() const
 {
     return fileContainer_;
 }
 
-const char *TranslationUnitAlreadyExistsException::what() const Q_DECL_NOEXCEPT
+const char *DocumentAlreadyExistsException::what() const Q_DECL_NOEXCEPT
 {
     if (what_.isEmpty()) {
         what_ += Utf8StringLiteral("Translation unit '")
@@ -79,25 +79,25 @@ const char *TranslationUnitAlreadyExistsException::what() const Q_DECL_NOEXCEPT
     return what_.constData();
 }
 
-TranslationUnitDoesNotExistException::TranslationUnitDoesNotExistException(
+DocumentDoesNotExistException::DocumentDoesNotExistException(
         const FileContainer &fileContainer)
     : fileContainer_(fileContainer)
 {
 }
 
-TranslationUnitDoesNotExistException::TranslationUnitDoesNotExistException(
+DocumentDoesNotExistException::DocumentDoesNotExistException(
         const Utf8String &filePath,
         const Utf8String &projectPartId)
     : fileContainer_(filePath, projectPartId)
 {
 }
 
-const FileContainer &TranslationUnitDoesNotExistException::fileContainer() const
+const FileContainer &DocumentDoesNotExistException::fileContainer() const
 {
     return fileContainer_;
 }
 
-const char *TranslationUnitDoesNotExistException::what() const Q_DECL_NOEXCEPT
+const char *DocumentDoesNotExistException::what() const Q_DECL_NOEXCEPT
 {
     if (what_.isEmpty())
         what_ += Utf8StringLiteral("Translation unit '")
@@ -109,18 +109,18 @@ const char *TranslationUnitDoesNotExistException::what() const Q_DECL_NOEXCEPT
     return what_.constData();
 }
 
-TranslationUnitFileNotExitsException::TranslationUnitFileNotExitsException(
+DocumentFileDoesNotExistException::DocumentFileDoesNotExistException(
         const Utf8String &filePath)
     : filePath_(filePath)
 {
 }
 
-const Utf8String &TranslationUnitFileNotExitsException::filePath() const
+const Utf8String &DocumentFileDoesNotExistException::filePath() const
 {
     return filePath_;
 }
 
-const char *TranslationUnitFileNotExitsException::what() const Q_DECL_NOEXCEPT
+const char *DocumentFileDoesNotExistException::what() const Q_DECL_NOEXCEPT
 {
     if (what_.isEmpty())
         what_ += Utf8StringLiteral("File ")
@@ -130,7 +130,7 @@ const char *TranslationUnitFileNotExitsException::what() const Q_DECL_NOEXCEPT
     return what_.constData();
 }
 
-const char *TranslationUnitIsNullException::what() const Q_DECL_NOEXCEPT
+const char *DocumentIsNullException::what() const Q_DECL_NOEXCEPT
 {
     return "Tried to access a null TranslationUnit!";
 }

@@ -52,13 +52,11 @@ bool JobContext::isOutdated() const
 
 bool JobContext::isDocumentOpen() const
 {
-    const bool hasTranslationUnit
-            = documents->hasDocument(jobRequest.filePath, jobRequest.projectPartId);
-
-    if (!hasTranslationUnit)
+    const bool hasDocument = documents->hasDocument(jobRequest.filePath, jobRequest.projectPartId);
+    if (!hasDocument)
         qCDebug(jobsLog) << "Document already closed for results of" << jobRequest;
 
-    return hasTranslationUnit;
+    return hasDocument;
 }
 
 bool JobContext::documentRevisionChanged() const

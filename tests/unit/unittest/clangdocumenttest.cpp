@@ -104,7 +104,7 @@ TEST_F(Document, DefaultDocumentIsNotIntact)
 TEST_F(Document, ThrowExceptionForNonExistingFilePath)
 {
     ASSERT_THROW(::Document(Utf8StringLiteral("file.cpp"), projectPart, Utf8StringVector(), documents),
-                 ClangBackEnd::TranslationUnitFileNotExitsException);
+                 ClangBackEnd::DocumentFileDoesNotExistException);
 }
 
 TEST_F(Document, ThrowNoExceptionForNonExistingFilePathIfDoNotCheckIfFileExistsIsSet)
@@ -122,14 +122,14 @@ TEST_F(Document, ThrowExceptionForGettingIndexForInvalidUnit)
 {
     ::Document document;
 
-    ASSERT_THROW(document.translationUnit().cxIndex(), ClangBackEnd::TranslationUnitIsNullException);
+    ASSERT_THROW(document.translationUnit().cxIndex(), ClangBackEnd::DocumentIsNullException);
 }
 
 TEST_F(Document, ThrowExceptionForGettingCxTranslationUnitForInvalidUnit)
 {
     ::Document document;
 
-    ASSERT_THROW(document.translationUnit().cxIndex(), ClangBackEnd::TranslationUnitIsNullException);
+    ASSERT_THROW(document.translationUnit().cxIndex(), ClangBackEnd::DocumentIsNullException);
 }
 
 TEST_F(Document, CxTranslationUnitGetterIsNonNullForParsedUnit)
@@ -143,7 +143,7 @@ TEST_F(Document, ThrowExceptionIfGettingFilePathForNullUnit)
 {
    ::Document document;
 
-    ASSERT_THROW(document.filePath(), ClangBackEnd::TranslationUnitIsNullException);
+    ASSERT_THROW(document.filePath(), ClangBackEnd::DocumentIsNullException);
 }
 
 TEST_F(Document, ResettedDocumentIsNull)

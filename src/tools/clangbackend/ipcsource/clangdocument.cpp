@@ -359,13 +359,13 @@ void Document::setDirty()
 void Document::checkIfNull() const
 {
     if (isNull())
-        throw TranslationUnitIsNullException();
+        throw DocumentIsNullException();
 }
 
 void Document::checkIfFileExists() const
 {
     if (!fileExists())
-        throw TranslationUnitFileNotExitsException(d->filePath);
+        throw DocumentFileDoesNotExistException(d->filePath);
 }
 
 bool Document::fileExists() const

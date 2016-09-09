@@ -49,12 +49,12 @@ private:
     mutable Utf8String what_;
 };
 
-class TranslationUnitAlreadyExistsException : public std::exception
+class DocumentAlreadyExistsException : public std::exception
 {
 public:
-    TranslationUnitAlreadyExistsException(const FileContainer &fileContainer);
-    TranslationUnitAlreadyExistsException(const Utf8String &filePath,
-                                          const Utf8String &projectPartId);
+    DocumentAlreadyExistsException(const FileContainer &fileContainer);
+    DocumentAlreadyExistsException(const Utf8String &filePath,
+                                   const Utf8String &projectPartId);
 
     const FileContainer &fileContainer() const;
 
@@ -65,12 +65,12 @@ private:
     mutable Utf8String what_;
 };
 
-class TranslationUnitDoesNotExistException : public std::exception
+class DocumentDoesNotExistException : public std::exception
 {
 public:
-    TranslationUnitDoesNotExistException(const FileContainer &fileContainer);
-    TranslationUnitDoesNotExistException(const Utf8String &filePath,
-                                         const Utf8String &projectPartId);
+    DocumentDoesNotExistException(const FileContainer &fileContainer);
+    DocumentDoesNotExistException(const Utf8String &filePath,
+                                  const Utf8String &projectPartId);
 
     const FileContainer &fileContainer() const;
 
@@ -81,10 +81,10 @@ private:
     mutable Utf8String what_;
 };
 
-class TranslationUnitFileNotExitsException : public std::exception
+class DocumentFileDoesNotExistException : public std::exception
 {
 public:
-    TranslationUnitFileNotExitsException(const Utf8String &filePath);
+    DocumentFileDoesNotExistException(const Utf8String &filePath);
 
     const Utf8String &filePath() const;
 
@@ -95,7 +95,7 @@ private:
     mutable Utf8String what_;
 };
 
-class TranslationUnitIsNullException : public std::exception
+class DocumentIsNullException : public std::exception
 {
 public:
     const char *what() const Q_DECL_NOEXCEPT override;

@@ -87,7 +87,7 @@ protected:
 TEST_F(Documents, ThrowForGettingWithWrongFilePath)
 {
     ASSERT_THROW(documents.document(nonExistingFilePath, projectPartId),
-                 ClangBackEnd::TranslationUnitDoesNotExistException);
+                 ClangBackEnd::DocumentDoesNotExistException);
 
 }
 
@@ -103,7 +103,7 @@ TEST_F(Documents, ThrowForAddingNonExistingFile)
     ClangBackEnd::FileContainer fileContainer(nonExistingFilePath, projectPartId);
 
     ASSERT_THROW(documents.create({fileContainer}),
-                 ClangBackEnd::TranslationUnitFileNotExitsException);
+                 ClangBackEnd::DocumentFileDoesNotExistException);
 }
 
 TEST_F(Documents, DoNotThrowForAddingNonExistingFileWithUnsavedContent)
@@ -139,14 +139,14 @@ TEST_F(Documents, ThrowForCreatingAnExistingDocument)
     documents.create({fileContainer});
 
     ASSERT_THROW(documents.create({fileContainer}),
-                 ClangBackEnd::TranslationUnitAlreadyExistsException);
+                 ClangBackEnd::DocumentAlreadyExistsException);
 }
 
 TEST_F(Documents, ThrowForUpdatingANonExistingDocument)
 {
     ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, Utf8StringVector(), 74u);
     ASSERT_THROW(documents.update({fileContainer}),
-                 ClangBackEnd::TranslationUnitDoesNotExistException);
+                 ClangBackEnd::DocumentDoesNotExistException);
 }
 
 TEST_F(Documents, UpdateSingle)
@@ -230,7 +230,7 @@ TEST_F(Documents, ThrowForRemovingWithWrongFilePath)
     ClangBackEnd::FileContainer fileContainer(nonExistingFilePath, projectPartId);
 
     ASSERT_THROW(documents.remove({fileContainer}),
-                 ClangBackEnd::TranslationUnitDoesNotExistException);
+                 ClangBackEnd::DocumentDoesNotExistException);
 }
 
 TEST_F(Documents, ThrowForRemovingWithWrongProjectPartFilePath)
@@ -249,7 +249,7 @@ TEST_F(Documents, Remove)
     documents.remove({fileContainer});
 
     ASSERT_THROW(documents.document(filePath, projectPartId),
-                 ClangBackEnd::TranslationUnitDoesNotExistException);
+                 ClangBackEnd::DocumentDoesNotExistException);
 }
 
 TEST_F(Documents, RemoveAllValidIfExceptionIsThrown)
@@ -258,7 +258,7 @@ TEST_F(Documents, RemoveAllValidIfExceptionIsThrown)
     documents.create({fileContainer});
 
     ASSERT_THROW(documents.remove({ClangBackEnd::FileContainer(Utf8StringLiteral("dontextist.pro"), projectPartId), fileContainer}),
-                 ClangBackEnd::TranslationUnitDoesNotExistException);
+                 ClangBackEnd::DocumentDoesNotExistException);
 
     ASSERT_THAT(documents.documents(),
                 Not(Contains(Document(filePath,

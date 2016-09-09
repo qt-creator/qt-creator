@@ -116,7 +116,7 @@ const Document &Documents::document(const Utf8String &filePath, const Utf8String
     auto findIterator = findDocument(filePath, projectPartId);
 
     if (findIterator == documents_.end())
-        throw TranslationUnitDoesNotExistException(FileContainer(filePath, projectPartId));
+        throw DocumentDoesNotExistException(FileContainer(filePath, projectPartId));
 
     return *findIterator;
 }
@@ -169,10 +169,10 @@ QVector<FileContainer> Documents::newerFileContainers(const QVector<FileContaine
 {
     QVector<FileContainer> newerContainers;
 
-    auto translationUnitIsNewer = [this] (const FileContainer &fileContainer) {
+    auto documentIsNewer = [this] (const FileContainer &fileContainer) {
         try {
             return document(fileContainer).documentRevision() != fileContainer.documentRevision();
-        } catch (const TranslationUnitDoesNotExistException &) {
+        } catch (const DocumentDoesNotExistException &) {
             return true;
         }
     };
@@ -180,7 +180,7 @@ QVector<FileContainer> Documents::newerFileContainers(const QVector<FileContaine
     std::copy_if(fileContainers.cbegin(),
                  fileContainers.cend(),
                  std::back_inserter(newerContainers),
-                 translationUnitIsNewer);
+                 documentIsNewer);
 
     return newerContainers;
 }
@@ -280,7 +280,7 @@ void Documents::checkIfDocumentsDoNotExist(const QVector<FileContainer> &fileCon
 {
     for (const FileContainer &fileContainer : fileContainers) {
         if (hasDocument(fileContainer))
-            throw  TranslationUnitAlreadyExistsException(fileContainer);
+            throw DocumentAlreadyExistsException(fileContainer);
     }
 }
 
@@ -288,7 +288,7 @@ void Documents::checkIfDocumentsForFilePathsExist(const QVector<FileContainer> &
 {
     for (const FileContainer &fileContainer : fileContainers) {
         if (!hasDocumentWithFilePath(fileContainer.filePath()))
-            throw  TranslationUnitDoesNotExistException(fileContainer);
+            throw DocumentDoesNotExistException(fileContainer);
     }
 }
 
@@ -303,7 +303,7 @@ void Documents::removeDocuments(const QVector<FileContainer> &fileContainers)
     documents_.erase(removeBeginIterator, documents_.end());
 
     if (!processedFileContainers.isEmpty())
-        throw TranslationUnitDoesNotExistException(processedFileContainers.first());
+        throw DocumentDoesNotExistException(processedFileContainers.first());
 }
 
 } // namespace ClangBackEnd

@@ -95,7 +95,7 @@ ClangCodeModelServer::ClangCodeModelServer()
     QObject::connect(documents.clangFileSystemWatcher(),
                      &ClangFileSystemWatcher::fileChanged,
                      [this](const Utf8String &filePath) {
-        ClangCodeModelServer::startDocumentAnnotationsTimerIfFileIsNotATranslationUnit(filePath);
+        ClangCodeModelServer::startDocumentAnnotationsTimerIfFileIsNotOpenAsDocument(filePath);
     });
 }
 
@@ -136,7 +136,7 @@ void ClangCodeModelServer::updateTranslationUnitsForEditor(const UpdateTranslati
         }
     } catch (const ProjectPartDoNotExistException &exception) {
         client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
-    } catch (const TranslationUnitDoesNotExistException &exception) {
+    } catch (const DocumentDoesNotExistException &exception) {
         client()->translationUnitDoesNotExist(TranslationUnitDoesNotExistMessage(exception.fileContainer()));
     } catch (const std::exception &exception) {
         qWarning() << "Error in ClangCodeModelServer::updateTranslationUnitsForEditor:" << exception.what();
@@ -150,7 +150,7 @@ void ClangCodeModelServer::unregisterTranslationUnitsForEditor(const ClangBackEn
     try {
         documents.remove(message.fileContainers());
         unsavedFiles.remove(message.fileContainers());
-    } catch (const TranslationUnitDoesNotExistException &exception) {
+    } catch (const DocumentDoesNotExistException &exception) {
         client()->translationUnitDoesNotExist(TranslationUnitDoesNotExistMessage(exception.fileContainer()));
     } catch (const ProjectPartDoNotExistException &exception) {
         client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
@@ -209,7 +209,7 @@ void ClangCodeModelServer::unregisterUnsavedFilesForEditor(const UnregisterUnsav
     try {
         unsavedFiles.remove(message.fileContainers());
         documents.updateDocumentsWithChangedDependencies(message.fileContainers());
-    } catch (const TranslationUnitDoesNotExistException &exception) {
+    } catch (const DocumentDoesNotExistException &exception) {
         client()->translationUnitDoesNotExist(TranslationUnitDoesNotExistMessage(exception.fileContainer()));
     } catch (const ProjectPartDoNotExistException &exception) {
         client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
@@ -232,7 +232,7 @@ void ClangCodeModelServer::completeCode(const ClangBackEnd::CompleteCodeMessage 
 
         jobs().add(jobRequest);
         jobs().process();
-    } catch (const TranslationUnitDoesNotExistException &exception) {
+    } catch (const DocumentDoesNotExistException &exception) {
         client()->translationUnitDoesNotExist(TranslationUnitDoesNotExistMessage(exception.fileContainer()));
     } catch (const ProjectPartDoNotExistException &exception) {
         client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
@@ -254,7 +254,7 @@ void ClangCodeModelServer::requestDocumentAnnotations(const RequestDocumentAnnot
 
         jobs().add(jobRequest);
         jobs().process();
-    } catch (const TranslationUnitDoesNotExistException &exception) {
+    } catch (const DocumentDoesNotExistException &exception) {
         client()->translationUnitDoesNotExist(TranslationUnitDoesNotExistMessage(exception.fileContainer()));
     } catch (const ProjectPartDoNotExistException &exception) {
         client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
@@ -281,7 +281,7 @@ const Documents &ClangCodeModelServer::documentsForTestOnly() const
     return documents;
 }
 
-void ClangCodeModelServer::startDocumentAnnotationsTimerIfFileIsNotATranslationUnit(const Utf8String &filePath)
+void ClangCodeModelServer::startDocumentAnnotationsTimerIfFileIsNotOpenAsDocument(const Utf8String &filePath)
 {
     if (!documents.hasDocumentWithFilePath(filePath))
         updateDocumentAnnotationsTimer.start(0);

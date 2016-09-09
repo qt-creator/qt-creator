@@ -67,7 +67,7 @@ public /*for tests*/:
 private:
     Jobs &jobs();
 
-    void startDocumentAnnotationsTimerIfFileIsNotATranslationUnit(const Utf8String &filePath);
+    void startDocumentAnnotationsTimerIfFileIsNotOpenAsDocument(const Utf8String &filePath);
     void addJobRequestsForDirtyAndVisibleDocuments();
     void processJobsForDirtyAndVisibleDocuments();
     void processInitialJobsForDocuments(const std::vector<Document> &documents);
