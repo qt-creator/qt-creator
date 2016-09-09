@@ -36,7 +36,7 @@ MemoryUsageModel::MemoryUsageModel(QmlProfilerModelManager *manager, QObject *pa
     QmlProfilerTimelineModel(manager, MemoryAllocation, MaximumRangeType, ProfileMemory, parent)
 {
     // Announce additional features. The base class already announces the main feature.
-    announceFeatures(Constants::QML_JS_RANGE_FEATURES);
+    announceFeatures(Constants::QML_JS_RANGE_FEATURES ^ (1 << Compiling));
 }
 
 int MemoryUsageModel::rowMaxValue(int rowNumber) const
@@ -128,7 +128,8 @@ QVariantMap MemoryUsageModel::details(int index) const
 
 bool MemoryUsageModel::accepted(const QmlEventType &type) const
 {
-    return QmlProfilerTimelineModel::accepted(type) || type.rangeType() != MaximumRangeType;
+    return QmlProfilerTimelineModel::accepted(type)
+            || (type.rangeType() != MaximumRangeType && type.rangeType() != Compiling);
 }
 
 void MemoryUsageModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
