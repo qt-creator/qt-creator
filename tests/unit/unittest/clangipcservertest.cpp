@@ -146,8 +146,6 @@ protected:
     void expectCompletionFromFileAUnsavedMethodVersion2();
     void expectCompletionWithTicketNumber(quint64 ticketNumber);
     void expectNoCompletionWithUnsavedMethod();
-    void expectTranslationUnitDoesNotExist(const Utf8String &filePath);
-    void expectProjectPartsDoNoExist(const Utf8StringVector &projectFilePaths);
     void expectDocumentAnnotationsChangedForFileBWithSpecificHighlightingMark();
 
     static const Utf8String unsavedContent(const QString &unsavedFilePath);
@@ -232,22 +230,6 @@ TEST_F(ClangClangCodeModelServer, CodeCompletionDependingOnProject)
     completeCodeInFileB();
 }
 
-TEST_F(ClangClangCodeModelServer, GetTranslationUnitDoesNotExistForEditorOnNonExistingTranslationUnit)
-{
-    registerProjectPart();
-
-    expectTranslationUnitDoesNotExist(aFilePath);
-    completeCode(aFilePath);
-}
-
-TEST_F(ClangClangCodeModelServer, GetTranslationUnitDoesNotExistForCompletingUnregisteredFile)
-{
-    registerProjectPart();
-
-    expectTranslationUnitDoesNotExist(anExistingFilePath);
-    completeCode(anExistingFilePath, 20, 1);
-}
-
 TEST_F(ClangClangCodeModelServer, GetCodeCompletionForUnsavedFile)
 {
     registerProjectPart();
@@ -276,58 +258,6 @@ TEST_F(ClangClangCodeModelServer, GetNewCodeCompletionAfterUpdatingUnsavedFile)
 
     expectCompletionFromFileAUnsavedMethodVersion2();
     completeCodeInFileA();
-}
-
-TEST_F(ClangClangCodeModelServer, GetTranslationUnitDoesNotExistForUnregisterTranslationUnitWithWrongFilePath)
-{
-    registerProjectPart();
-
-    expectTranslationUnitDoesNotExist(aFilePath);
-    unregisterFile(aFilePath);
-}
-
-TEST_F(ClangClangCodeModelServer, UnregisterTranslationUnitAndTestFailingCompletion)
-{
-    const int expectedDocumentAnnotationsChangedCount = 1; // Only for registration.
-    registerProjectAndFileAndWaitForFinished(filePathA, expectedDocumentAnnotationsChangedCount);
-    unregisterFile(filePathA);
-
-    expectTranslationUnitDoesNotExist(filePathA);
-    completeCodeInFileA();
-}
-
-TEST_F(ClangClangCodeModelServer, GetProjectPartDoesNotExistUnregisterProjectPartInexistingProjectPart)
-{
-    expectProjectPartsDoNoExist({aProjectPartId});
-    unregisterProject(aProjectPartId);
-}
-
-TEST_F(ClangClangCodeModelServer, GetProjectPartDoesNotExistRegisterTranslationUnitWithInexistingProjectPart)
-{
-    expectProjectPartsDoNoExist({aProjectPartId});
-    registerFile(filePathB, aProjectPartId);
-}
-
-TEST_F(ClangClangCodeModelServer, GetProjectPartDoesNotExistUnregisterTranslationUnitWithInexistingProjectPart)
-{
-    expectProjectPartsDoNoExist({aProjectPartId});
-    unregisterFile(filePathB, aProjectPartId);
-}
-
-TEST_F(ClangClangCodeModelServer, GetProjectPartDoesNotExistForCompletingProjectPartFile)
-{
-    registerProjectAndFile(filePathB, 1);
-
-    expectProjectPartsDoNoExist({aProjectPartId});
-    completeCode(filePathB, 1, 1, aProjectPartId);
-}
-
-TEST_F(ClangClangCodeModelServer, GetProjectPartDoesNotExistForCompletingUnregisteredFile)
-{
-    registerProjectPart();
-
-    expectTranslationUnitDoesNotExist(anExistingFilePath);
-    completeCode(anExistingFilePath);
 }
 
 TEST_F(ClangClangCodeModelServer, TicketNumberIsForwarded)
@@ -539,14 +469,6 @@ void ClangClangCodeModelServer::expectNoCompletionWithUnsavedMethod()
             .Times(1);
 }
 
-void ClangClangCodeModelServer::expectTranslationUnitDoesNotExist(const Utf8String &filePath)
-{
-    const TranslationUnitDoesNotExistMessage message(filePath, projectPartId);
-
-    EXPECT_CALL(mockClangCodeModelClient, translationUnitDoesNotExist(message))
-        .Times(1);
-}
-
 void ClangClangCodeModelServer::expectCompletionFromFileA()
 {
     const CodeCompletion completion(Utf8StringLiteral("Function"),
@@ -616,14 +538,6 @@ void ClangClangCodeModelServer::unregisterProject(const Utf8String &projectPartI
     const UnregisterProjectPartsForEditorMessage message({projectPartId});
 
     clangServer.unregisterProjectPartsForEditor(message);
-}
-
-void ClangClangCodeModelServer::expectProjectPartsDoNoExist(const Utf8StringVector &projectFilePaths)
-{
-    const ProjectPartsDoNotExistMessage message(projectFilePaths);
-
-    EXPECT_CALL(mockClangCodeModelClient, projectPartsDoNotExist(message))
-        .Times(1);
 }
 
 void ClangClangCodeModelServer::registerProjectPart()

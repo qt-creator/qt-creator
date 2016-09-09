@@ -83,6 +83,21 @@ void TranslationUnitUpdater::removeTranslationUnitIfProjectPartWasChanged()
     }
 }
 
+#define RETURN_TEXT_FOR_CASE(enumValue) case enumValue: return #enumValue
+static const char *errorCodeToText(CXErrorCode errorCode)
+{
+    switch (errorCode) {
+        RETURN_TEXT_FOR_CASE(CXError_Success);
+        RETURN_TEXT_FOR_CASE(CXError_Failure);
+        RETURN_TEXT_FOR_CASE(CXError_Crashed);
+        RETURN_TEXT_FOR_CASE(CXError_InvalidArguments);
+        RETURN_TEXT_FOR_CASE(CXError_ASTReadError);
+    }
+
+    return "UnknownCXErrorCode";
+}
+#undef RETURN_TEXT_FOR_CASE
+
 void TranslationUnitUpdater::createTranslationUnitIfNeeded()
 {
     if (!m_cxTranslationUnit) {
@@ -109,7 +124,8 @@ void TranslationUnitUpdater::createTranslationUnitIfNeeded()
             updateIncludeFilePaths();
             updateLastProjectPartChangeTimePoint();
         } else {
-            qWarning() << "Parsing" << m_in.filePath << "failed:" << m_parseErrorCode;
+            qWarning() << "Parsing" << m_in.filePath << "failed:"
+                       << errorCodeToText(m_parseErrorCode);
             m_out.hasParseOrReparseFailed = true;
         }
     }

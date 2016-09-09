@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include <clangbackendipc/filecontainer.h>
-
 #include <utf8stringvector.h>
 
 #include <clang-c/Index.h>
@@ -35,108 +33,45 @@
 
 namespace ClangBackEnd {
 
-class ProjectPartDoNotExistException : public std::exception
+class ClangBaseException : public std::exception
+{
+public:
+    const char *what() const Q_DECL_NOEXCEPT override;
+
+protected:
+    Utf8String m_info;
+};
+
+class ProjectPartDoNotExistException : public ClangBaseException
 {
 public:
     ProjectPartDoNotExistException(const Utf8StringVector &projectPartIds);
-
-    const Utf8StringVector &projectPartIds() const;
-
-    const char *what() const Q_DECL_NOEXCEPT override;
-
-private:
-    Utf8StringVector projectPartIds_;
-    mutable Utf8String what_;
 };
 
-class DocumentAlreadyExistsException : public std::exception
+class DocumentAlreadyExistsException : public ClangBaseException
 {
 public:
-    DocumentAlreadyExistsException(const FileContainer &fileContainer);
     DocumentAlreadyExistsException(const Utf8String &filePath,
                                    const Utf8String &projectPartId);
-
-    const FileContainer &fileContainer() const;
-
-    const char *what() const Q_DECL_NOEXCEPT override;
-
-private:
-    FileContainer fileContainer_;
-    mutable Utf8String what_;
 };
 
-class DocumentDoesNotExistException : public std::exception
+class DocumentDoesNotExistException : public ClangBaseException
 {
 public:
-    DocumentDoesNotExistException(const FileContainer &fileContainer);
     DocumentDoesNotExistException(const Utf8String &filePath,
                                   const Utf8String &projectPartId);
-
-    const FileContainer &fileContainer() const;
-
-    const char *what() const Q_DECL_NOEXCEPT override;
-
-private:
-    FileContainer fileContainer_;
-    mutable Utf8String what_;
 };
 
-class DocumentFileDoesNotExistException : public std::exception
+class DocumentFileDoesNotExistException : public ClangBaseException
 {
 public:
     DocumentFileDoesNotExistException(const Utf8String &filePath);
-
-    const Utf8String &filePath() const;
-
-    const char *what() const Q_DECL_NOEXCEPT override;
-
-private:
-    Utf8String filePath_;
-    mutable Utf8String what_;
 };
 
-class DocumentIsNullException : public std::exception
+class DocumentIsNullException : public ClangBaseException
 {
 public:
-    const char *what() const Q_DECL_NOEXCEPT override;
-};
-
-class TranslationUnitParseErrorException : public std::exception
-{
-public:
-    TranslationUnitParseErrorException(const Utf8String &filePath,
-                                       const Utf8String &projectPartId,
-                                       CXErrorCode errorCode);
-
-    const Utf8String &filePath() const;
-    const Utf8String &projectPartId() const;
-
-    const char *what() const Q_DECL_NOEXCEPT override;
-
-private:
-    Utf8String filePath_;
-    Utf8String projectPartId_;
-    CXErrorCode errorCode_;
-    mutable Utf8String what_;
-};
-
-class TranslationUnitReparseErrorException : public std::exception
-{
-public:
-    TranslationUnitReparseErrorException(const Utf8String &filePath,
-                                         const Utf8String &projectPartId,
-                                         int errorCode);
-
-    const Utf8String &filePath() const;
-    const Utf8String &projectPartId() const;
-
-    const char *what() const Q_DECL_NOEXCEPT override;
-
-private:
-    Utf8String filePath_;
-    Utf8String projectPartId_;
-    int errorCode_;
-    mutable Utf8String what_;
+    DocumentIsNullException();
 };
 
 } // namespace ClangBackEnd

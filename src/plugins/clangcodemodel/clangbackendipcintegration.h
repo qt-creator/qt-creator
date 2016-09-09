@@ -79,8 +79,8 @@ private:
 
     void documentAnnotationsChanged(const ClangBackEnd::DocumentAnnotationsChangedMessage &message) override;
 
-    void translationUnitDoesNotExist(const ClangBackEnd::TranslationUnitDoesNotExistMessage &message) override;
-    void projectPartsDoNotExist(const ClangBackEnd::ProjectPartsDoNotExistMessage &message) override;
+    void translationUnitDoesNotExist(const ClangBackEnd::TranslationUnitDoesNotExistMessage &) override {}
+    void projectPartsDoNotExist(const ClangBackEnd::ProjectPartsDoNotExistMessage &) override {}
 
 private:
     AliveHandler m_aliveHandler;

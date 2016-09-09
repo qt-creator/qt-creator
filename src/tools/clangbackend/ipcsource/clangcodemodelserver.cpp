@@ -115,8 +115,6 @@ void ClangCodeModelServer::registerTranslationUnitsForEditor(const ClangBackEnd:
         documents.setVisibleInEditors(message.visibleEditorFilePaths());
 
         processInitialJobsForDocuments(createdDocuments);
-    } catch (const ProjectPartDoNotExistException &exception) {
-        client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
     } catch (const std::exception &exception) {
         qWarning() << "Error in ClangCodeModelServer::registerTranslationUnitsForEditor:" << exception.what();
     }
@@ -134,10 +132,6 @@ void ClangCodeModelServer::updateTranslationUnitsForEditor(const UpdateTranslati
 
             updateDocumentAnnotationsTimer.start(updateDocumentAnnotationsTimeOutInMs);
         }
-    } catch (const ProjectPartDoNotExistException &exception) {
-        client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
-    } catch (const DocumentDoesNotExistException &exception) {
-        client()->translationUnitDoesNotExist(TranslationUnitDoesNotExistMessage(exception.fileContainer()));
     } catch (const std::exception &exception) {
         qWarning() << "Error in ClangCodeModelServer::updateTranslationUnitsForEditor:" << exception.what();
     }
@@ -150,10 +144,6 @@ void ClangCodeModelServer::unregisterTranslationUnitsForEditor(const ClangBackEn
     try {
         documents.remove(message.fileContainers());
         unsavedFiles.remove(message.fileContainers());
-    } catch (const DocumentDoesNotExistException &exception) {
-        client()->translationUnitDoesNotExist(TranslationUnitDoesNotExistMessage(exception.fileContainer()));
-    } catch (const ProjectPartDoNotExistException &exception) {
-        client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
     } catch (const std::exception &exception) {
         qWarning() << "Error in ClangCodeModelServer::unregisterTranslationUnitsForEditor:" << exception.what();
     }
@@ -179,8 +169,6 @@ void ClangCodeModelServer::unregisterProjectPartsForEditor(const UnregisterProje
 
     try {
         projects.remove(message.projectPartIds());
-    } catch (const ProjectPartDoNotExistException &exception) {
-        client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
     } catch (const std::exception &exception) {
         qWarning() << "Error in ClangCodeModelServer::unregisterProjectPartsForEditor:" << exception.what();
     }
@@ -195,8 +183,6 @@ void ClangCodeModelServer::registerUnsavedFilesForEditor(const RegisterUnsavedFi
         documents.updateDocumentsWithChangedDependencies(message.fileContainers());
 
         updateDocumentAnnotationsTimer.start(updateDocumentAnnotationsTimeOutInMs);
-    } catch (const ProjectPartDoNotExistException &exception) {
-        client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
     } catch (const std::exception &exception) {
         qWarning() << "Error in ClangCodeModelServer::registerUnsavedFilesForEditor:" << exception.what();
     }
@@ -209,10 +195,6 @@ void ClangCodeModelServer::unregisterUnsavedFilesForEditor(const UnregisterUnsav
     try {
         unsavedFiles.remove(message.fileContainers());
         documents.updateDocumentsWithChangedDependencies(message.fileContainers());
-    } catch (const DocumentDoesNotExistException &exception) {
-        client()->translationUnitDoesNotExist(TranslationUnitDoesNotExistMessage(exception.fileContainer()));
-    } catch (const ProjectPartDoNotExistException &exception) {
-        client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
     } catch (const std::exception &exception) {
         qWarning() << "Error in ClangCodeModelServer::unregisterUnsavedFilesForEditor:" << exception.what();
     }
@@ -232,10 +214,6 @@ void ClangCodeModelServer::completeCode(const ClangBackEnd::CompleteCodeMessage 
 
         jobs().add(jobRequest);
         jobs().process();
-    } catch (const DocumentDoesNotExistException &exception) {
-        client()->translationUnitDoesNotExist(TranslationUnitDoesNotExistMessage(exception.fileContainer()));
-    } catch (const ProjectPartDoNotExistException &exception) {
-        client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
     }  catch (const std::exception &exception) {
         qWarning() << "Error in ClangCodeModelServer::completeCode:" << exception.what();
     }
@@ -254,10 +232,6 @@ void ClangCodeModelServer::requestDocumentAnnotations(const RequestDocumentAnnot
 
         jobs().add(jobRequest);
         jobs().process();
-    } catch (const DocumentDoesNotExistException &exception) {
-        client()->translationUnitDoesNotExist(TranslationUnitDoesNotExistMessage(exception.fileContainer()));
-    } catch (const ProjectPartDoNotExistException &exception) {
-        client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
     }  catch (const std::exception &exception) {
         qWarning() << "Error in ClangCodeModelServer::requestDocumentAnnotations:" << exception.what();
     }

@@ -116,7 +116,7 @@ const Document &Documents::document(const Utf8String &filePath, const Utf8String
     auto findIterator = findDocument(filePath, projectPartId);
 
     if (findIterator == documents_.end())
-        throw DocumentDoesNotExistException(FileContainer(filePath, projectPartId));
+        throw DocumentDoesNotExistException(filePath, projectPartId);
 
     return *findIterator;
 }
@@ -279,16 +279,20 @@ void Documents::checkIfProjectPartsExists(const QVector<FileContainer> &fileCont
 void Documents::checkIfDocumentsDoNotExist(const QVector<FileContainer> &fileContainers) const
 {
     for (const FileContainer &fileContainer : fileContainers) {
-        if (hasDocument(fileContainer))
-            throw DocumentAlreadyExistsException(fileContainer);
+        if (hasDocument(fileContainer)) {
+            throw DocumentAlreadyExistsException(fileContainer.filePath(),
+                                                 fileContainer.projectPartId());
+        }
     }
 }
 
 void Documents::checkIfDocumentsForFilePathsExist(const QVector<FileContainer> &fileContainers) const
 {
     for (const FileContainer &fileContainer : fileContainers) {
-        if (!hasDocumentWithFilePath(fileContainer.filePath()))
-            throw DocumentDoesNotExistException(fileContainer);
+        if (!hasDocumentWithFilePath(fileContainer.filePath())) {
+            throw DocumentDoesNotExistException(fileContainer.filePath(),
+                                                fileContainer.projectPartId());
+        }
     }
 }
 
@@ -302,8 +306,11 @@ void Documents::removeDocuments(const QVector<FileContainer> &fileContainers)
 
     documents_.erase(removeBeginIterator, documents_.end());
 
-    if (!processedFileContainers.isEmpty())
-        throw DocumentDoesNotExistException(processedFileContainers.first());
+    if (!processedFileContainers.isEmpty()) {
+        const FileContainer fileContainer = processedFileContainers.first();
+        throw DocumentDoesNotExistException(fileContainer.filePath(),
+                                            fileContainer.projectPartId());
+    }
 }
 
 } // namespace ClangBackEnd

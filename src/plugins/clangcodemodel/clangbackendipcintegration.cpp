@@ -188,18 +188,6 @@ void IpcReceiver::documentAnnotationsChanged(const DocumentAnnotationsChangedMes
     }
 }
 
-void IpcReceiver::translationUnitDoesNotExist(const TranslationUnitDoesNotExistMessage &message)
-{
-    QTC_CHECK(!"Got TranslationUnitDoesNotExistMessage");
-    qCDebug(log) << "<<< ERROR:" << message;
-}
-
-void IpcReceiver::projectPartsDoNotExist(const ProjectPartsDoNotExistMessage &message)
-{
-    QTC_CHECK(!"Got ProjectPartsDoNotExistMessage");
-    qCDebug(log) << "<<< ERROR:" << message;
-}
-
 class IpcSender : public IpcSenderInterface
 {
 public:
