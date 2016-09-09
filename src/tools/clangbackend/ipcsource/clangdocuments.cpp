@@ -62,12 +62,12 @@ std::vector<Document> Documents::create(const QVector<FileContainer> &fileContai
 {
     checkIfDocumentsDoNotExist(fileContainers);
 
-    std::vector<Document> createdTranslationUnits;
+    std::vector<Document> createdDocuments;
 
     for (const FileContainer &fileContainer : fileContainers)
-        createdTranslationUnits.push_back(createDocument(fileContainer));
+        createdDocuments.push_back(createDocument(fileContainer));
 
-    return createdTranslationUnits;
+    return createdDocuments;
 }
 
 void Documents::update(const QVector<FileContainer> &fileContainers)

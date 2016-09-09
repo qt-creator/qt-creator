@@ -47,7 +47,7 @@ signals:
     void fileChanged(const Utf8String &filePath);
 
 private:
-    void updateTranslationUnitsWithChangedDependencies(const QString &filePath);
+    void updateDocumentsWithChangedDependencies(const QString &filePath);
 
 private:
     QFileSystemWatcher watcher;

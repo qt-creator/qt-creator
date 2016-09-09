@@ -113,12 +113,12 @@ void ClangCodeModelServer::registerTranslationUnitsForEditor(const ClangBackEnd:
     TIME_SCOPE_DURATION("ClangCodeModelServer::registerTranslationUnitsForEditor");
 
     try {
-        auto createdTranslationUnits = documents.create(message.fileContainers());
+        auto createdDocuments = documents.create(message.fileContainers());
         unsavedFiles.createOrUpdate(message.fileContainers());
         documents.setUsedByCurrentEditor(message.currentEditorFilePath());
         documents.setVisibleInEditors(message.visibleEditorFilePaths());
 
-        processInitialJobsForDocuments(createdTranslationUnits);
+        processInitialJobsForDocuments(createdDocuments);
     } catch (const ProjectPartDoNotExistException &exception) {
         client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
     } catch (const std::exception &exception) {
