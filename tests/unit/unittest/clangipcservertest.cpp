@@ -31,8 +31,7 @@
 #include <clangcodemodelclientproxy.h>
 #include <clangcodemodelserverproxy.h>
 #include <requestdocumentannotations.h>
-#include <translationunitdoesnotexistexception.h>
-#include <translationunitparseerrorexception.h>
+#include <clangexceptions.h>
 
 #include <cmbcompletecodemessage.h>
 #include <cmbregisterprojectsforeditormessage.h>

@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include <projectpart.h>
-#include <projectpartsdonotexistexception.h>
+#include <clangexceptions.h>
 #include <projects.h>
 #include <utf8stringvector.h>
 

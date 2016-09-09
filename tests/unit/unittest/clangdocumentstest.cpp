@@ -24,13 +24,9 @@
 ****************************************************************************/
 
 #include <projectpart.h>
-#include <projectpartsdonotexistexception.h>
+#include <clangexceptions.h>
 #include <projects.h>
-#include <translationunitdoesnotexistexception.h>
-#include <translationunitalreadyexistsexception.h>
-#include <translationunitfilenotexitexception.h>
 #include <clangdocument.h>
-#include <translationunitisnullexception.h>
 #include <clangdocuments.h>
 #include <unsavedfiles.h>
 #include <utf8string.h>

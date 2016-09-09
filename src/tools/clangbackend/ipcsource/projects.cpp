@@ -25,7 +25,7 @@
 
 #include "projects.h"
 
-#include "projectpartsdonotexistexception.h"
+#include "clangexceptions.h"
 
 #include <QtGlobal>
 

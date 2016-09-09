@@ -28,11 +28,9 @@
 #include <diagnosticset.h>
 #include <documentannotationschangedmessage.h>
 #include <highlightingmarks.h>
-#include <projectpartsdonotexistexception.h>
+#include <clangexceptions.h>
 #include <projects.h>
 #include <skippedsourceranges.h>
-#include <translationunitalreadyexistsexception.h>
-#include <translationunitdoesnotexistexception.h>
 #include <unsavedfiles.h>
 
 #include <QDebug>

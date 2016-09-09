@@ -30,12 +30,8 @@
 #include "codecompleter.h"
 #include "diagnosticset.h"
 #include "highlightingmarks.h"
-#include "projectpartsdonotexistexception.h"
+#include "clangexceptions.h"
 #include "skippedsourceranges.h"
-#include "translationunitdoesnotexistexception.h"
-#include "translationunitfilenotexitexception.h"
-#include "translationunitisnullexception.h"
-#include "translationunitparseerrorexception.h"
 
 #include <clangbackendipcdebugutils.h>
 #include <cmbcodecompletedmessage.h>

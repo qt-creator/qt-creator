@@ -3,20 +3,13 @@ INCLUDEPATH += $$PWD
 HEADERS += $$PWD/clangcodemodelserver.h \
     $$PWD/codecompleter.h \
     $$PWD/clangstring.h \
-    $$PWD/translationunitisnullexception.h \
-    $$PWD/codecompletefailedexception.h \
     $$PWD/clangcodecompleteresults.h \
     $$PWD/codecompletionsextractor.h \
     $$PWD/unsavedfile.h \
     $$PWD/unsavedfiles.h \
     $$PWD/projects.h \
     $$PWD/clangdocuments.h \
-    $$PWD/translationunitparseerrorexception.h \
-    $$PWD/translationunitreparseerrorexception.h \
     $$PWD/projectpart.h \
-    $$PWD/translationunitfilenotexitexception.h \
-    $$PWD/translationunitdoesnotexistexception.h \
-    $$PWD/projectpartsdonotexistexception.h \
     $$PWD/codecompletionchunkconverter.h \
     $$PWD/diagnosticset.h \
     $$PWD/diagnostic.h \
@@ -25,7 +18,6 @@ HEADERS += $$PWD/clangcodemodelserver.h \
     $$PWD/fixit.h \
     $$PWD/diagnosticsetiterator.h \
     $$PWD/clangfilesystemwatcher.h \
-    $$PWD/translationunitalreadyexistsexception.h \
     $$PWD/commandlinearguments.h \
     $$PWD/cursor.h \
     $$PWD/skippedsourceranges.h \
@@ -48,24 +40,18 @@ HEADERS += $$PWD/clangcodemodelserver.h \
     $$PWD/clangrequestdocumentannotationsjob.h \
     $$PWD/clangtranslationunit.h \
     $$PWD/clangunsavedfilesshallowarguments.h \
-    $$PWD/clangupdatedocumentannotationsjob.h
+    $$PWD/clangupdatedocumentannotationsjob.h \
+    $$PWD/clangexceptions.h
 
 SOURCES += $$PWD/clangcodemodelserver.cpp \
     $$PWD/codecompleter.cpp \
-    $$PWD/translationunitisnullexception.cpp \
-    $$PWD/codecompletefailedexception.cpp \
     $$PWD/clangcodecompleteresults.cpp \
     $$PWD/codecompletionsextractor.cpp \
     $$PWD/unsavedfile.cpp \
     $$PWD/unsavedfiles.cpp \
     $$PWD/projects.cpp \
     $$PWD/clangdocuments.cpp \
-    $$PWD/translationunitparseerrorexception.cpp \
-    $$PWD/translationunitreparseerrorexception.cpp \
     $$PWD/projectpart.cpp \
-    $$PWD/translationunitfilenotexitexception.cpp \
-    $$PWD/translationunitdoesnotexistexception.cpp \
-    $$PWD/projectpartsdonotexistexception.cpp \
     $$PWD/codecompletionchunkconverter.cpp \
     $$PWD/diagnosticset.cpp \
     $$PWD/diagnostic.cpp \
@@ -73,7 +59,6 @@ SOURCES += $$PWD/clangcodemodelserver.cpp \
     $$PWD/sourcerange.cpp \
     $$PWD/fixit.cpp \
     $$PWD/clangfilesystemwatcher.cpp \
-    $$PWD/translationunitalreadyexistsexception.cpp \
     $$PWD/commandlinearguments.cpp \
     $$PWD/cursor.cpp \
     $$PWD/skippedsourceranges.cpp \
@@ -95,4 +80,4 @@ SOURCES += $$PWD/clangcodemodelserver.cpp \
     $$PWD/clangtranslationunit.cpp \
     $$PWD/clangunsavedfilesshallowarguments.cpp \
     $$PWD/clangupdatedocumentannotationsjob.cpp \
-
+    $$PWD/clangexceptions.cpp

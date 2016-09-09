@@ -32,12 +32,9 @@
 #include <projectpart.h>
 #include <projectpartcontainer.h>
 #include <projects.h>
-#include <translationunitdoesnotexistexception.h>
-#include <translationunitfilenotexitexception.h>
+#include <clangexceptions.h>
 #include <clangdocument.h>
 #include <clangtranslationunit.h>
-#include <translationunitisnullexception.h>
-#include <translationunitparseerrorexception.h>
 #include <clangdocuments.h>
 #include <unsavedfiles.h>
 #include <utf8string.h>

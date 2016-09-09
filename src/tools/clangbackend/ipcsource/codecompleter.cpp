@@ -29,7 +29,7 @@
 #include "clangcodecompleteresults.h"
 #include "clangstring.h"
 #include "cursor.h"
-#include "codecompletefailedexception.h"
+#include "clangexceptions.h"
 #include "codecompletionsextractor.h"
 #include "sourcelocation.h"
 #include "unsavedfile.h"
