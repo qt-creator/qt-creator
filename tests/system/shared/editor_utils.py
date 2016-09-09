@@ -344,20 +344,10 @@ def validateSearchResult(expectedCount):
 def invokeContextMenuItem(editorArea, command1, command2 = None):
     ctxtMenu = openContextMenuOnTextCursorPosition(editorArea)
     snooze(1)
-    if platform.system() == 'Darwin':
-        item1 = waitForObjectItem(ctxtMenu, command1)
-        subMenu = item1.menu()
-        activateItem(item1)
-        # subMenu could have been triggered by hovering, but closed again by clicking
-        if subMenu and not subMenu.visible:
-            activateItem(item1)
-        if command2:
-            activateItem(subMenu, command2)
-    else:
-        activateItem(waitForObjectItem(objectMap.realName(ctxtMenu), command1, 2000))
-        if command2:
-            activateItem(waitForObjectItem("{title='%s' type='QMenu' visible='1' window=%s}"
-                                           % (command1, objectMap.realName(ctxtMenu)), command2, 2000))
+    activateItem(waitForObjectItem(objectMap.realName(ctxtMenu), command1, 2000))
+    if command2:
+        activateItem(waitForObjectItem("{title='%s' type='QMenu' visible='1' window=%s}"
+                                       % (command1, objectMap.realName(ctxtMenu)), command2, 2000))
 
 # this function invokes the "Find Usages" item from context menu
 # param editor an editor object
