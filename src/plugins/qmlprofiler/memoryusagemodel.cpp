@@ -258,6 +258,14 @@ void MemoryUsageModel::clear()
     QmlProfilerTimelineModel::clear();
 }
 
+bool MemoryUsageModel::handlesTypeId(int typeId) const
+{
+    Q_UNUSED(typeId);
+    // We don't want the memory ranges allocated by some QML/JS function to be highlighted when
+    // propagating a typeId selection to the timeline. The actual range should be highlighted.
+    return false;
+}
+
 MemoryUsageModel::MemoryAllocationItem::MemoryAllocationItem(int typeId, qint64 baseAmount) :
     size(baseAmount), allocated(0), deallocated(0), allocations(0), deallocations(0),
     typeId(typeId)

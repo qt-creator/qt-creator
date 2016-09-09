@@ -71,6 +71,7 @@ public:
     void loadEvent(const QmlEvent &event, const QmlEventType &type) override;
     void finalize() override;
     void clear() override;
+    bool handlesTypeId(int typeId) const override;
 
 private:
     struct RangeStackFrame {
