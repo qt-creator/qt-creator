@@ -318,6 +318,17 @@ Rectangle {
         }
     }
 
+    TimelineRulers {
+        contentX: buttonsBar.width - content.x - content.flickableItem.x + content.contentX
+        anchors.left: buttonsBar.right
+        anchors.right: parent.right
+        anchors.top: parent.top
+        height: content.flickableItem.height + buttonsBar.height
+        windowStart: zoomControl.windowStart
+        viewTimePerPixel: selectionRange.viewTimePerPixel
+        scaleHeight: buttonsBar.height
+    }
+
     SelectionRangeDetails {
         z: 3
         x: 200
