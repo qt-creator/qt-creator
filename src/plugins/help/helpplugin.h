@@ -75,6 +75,8 @@ public:
     void extensionsInitialized();
     ShutdownFlag aboutToShutdown();
 
+    static HelpViewer *viewerForHelpViewerLocation(Core::HelpManager::HelpViewerLocation location);
+
     static HelpViewer *createHelpViewer(qreal zoom);
 
 private:
@@ -101,9 +103,8 @@ private:
     void slotSystemInformation();
 
     void resetFilter();
-    void activateHelpMode();
-    bool canShowHelpSideBySide() const;
-    HelpViewer *viewerForHelpViewerLocation(Core::HelpManager::HelpViewerLocation location);
+    static void activateHelpMode();
+    static bool canShowHelpSideBySide();
     HelpViewer *viewerForContextHelp();
     HelpWidget *createHelpWidget(const Core::Context &context, HelpWidget::WidgetStyle style);
     void createRightPaneContextViewer();

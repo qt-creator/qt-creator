@@ -42,6 +42,12 @@ class HelpViewer : public QWidget
     Q_OBJECT
 
 public:
+    enum class Action {
+        NewPage = 0x01,
+        ExternalWindow = 0x02
+    };
+    Q_DECLARE_FLAGS(Actions, Action)
+
     explicit HelpViewer(QWidget *parent = 0);
     ~HelpViewer() { }
 
@@ -65,7 +71,8 @@ public:
     virtual bool isBackwardAvailable() const = 0;
     virtual void addBackHistoryItems(QMenu *backMenu) = 0;
     virtual void addForwardHistoryItems(QMenu *forwardMenu) = 0;
-    virtual void setOpenInNewPageActionVisible(bool visible) = 0;
+    void setActionVisible(Action action, bool visible);
+    bool isActionVisible(Action action);
 
     virtual bool findText(const QString &text, Core::FindFlags flags,
         bool incremental, bool fromSearch, bool *wrapped = 0) = 0;
@@ -95,10 +102,14 @@ signals:
     void forwardAvailable(bool);
     void backwardAvailable(bool);
     void loadFinished();
+    void newPageRequested(const QUrl &url);
+    void externalPageRequested(const QUrl &url);
 
 protected:
     void slotLoadStarted();
     void slotLoadFinished();
+
+    Actions m_visibleActions = 0;
 };
 
 }   // namespace Internal

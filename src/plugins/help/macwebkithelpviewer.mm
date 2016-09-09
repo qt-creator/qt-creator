@@ -25,6 +25,7 @@
 
 #include "macwebkithelpviewer.h"
 
+#include "helpconstants.h"
 #include "localhelpmanager.h"
 #include "openpagesmanager.h"
 
@@ -280,15 +281,15 @@ static void ensureProtocolHandler()
     Help::Internal::MacWebKitHelpWidget *widget;
 }
 
-@property (assign) BOOL openInNewPageActionVisible;
-
 - (id)initWithWidget:(Help::Internal::MacWebKitHelpWidget *)theWidget;
 - (void)webView:(WebView *)sender makeFirstResponder:(NSResponder *)responder;
 - (NSArray *)webView:(WebView *)sender contextMenuItemsForElement:(NSDictionary *)element
     defaultMenuItems:(NSArray *)defaultMenuItems;
-- (WebView *)webView:(WebView *)sender createWebViewWithRequest:(NSURLRequest *)request;
 - (void)webView:(WebView *)sender mouseDidMoveOverElement:(NSDictionary *)elementInformation
     modifierFlags:(NSUInteger)modifierFlags;
+
+- (void)openAsNewPage:(id)sender;
+- (void)openInWindow:(id)sender;
 @end
 
 @implementation UIDelegate
@@ -298,7 +299,6 @@ static void ensureProtocolHandler()
     self = [super init];
     if (self) {
         widget = theWidget;
-        self.openInNewPageActionVisible = YES;
     }
     return self;
 }
@@ -310,6 +310,16 @@ static void ensureProtocolHandler()
         widget->setFocus();
         [sender.window makeFirstResponder:responder];
     }
+}
+
+static NSMenuItem *menuItem(NSURL *url, id target, SEL action, const QString &title)
+{
+    NSMenuItem *openItem = [[NSMenuItem alloc] initWithTitle:title.toNSString()
+                                                      action:action
+                                               keyEquivalent:@""];
+    openItem.representedObject = url;
+    openItem.target = target;
+    return [openItem autorelease];
 }
 
 - (NSArray *)webView:(WebView *)sender contextMenuItemsForElement:(NSDictionary *)element
@@ -335,26 +345,23 @@ static void ensureProtocolHandler()
             [ret addObject:item];
             break;
         case WebMenuItemTagOpenLinkInNewWindow:
-        case WebMenuItemTagOpenImageInNewWindow:
-            if (self.openInNewPageActionVisible) {
-                item.title = QCoreApplication::translate("HelpViewer", "Open Link as New Page").toNSString();
-                [ret addObject:item];
+        case WebMenuItemTagOpenImageInNewWindow: {
+            NSURL *url = [element objectForKey:WebElementLinkURLKey];
+            if (QTC_GUARD(url)) {
+                if (widget->viewer()->isActionVisible(Help::Internal::HelpViewer::Action::NewPage))
+                    [ret addObject:menuItem(url, self, @selector(openAsNewPage:),
+                                            QCoreApplication::translate("HelpViewer", Help::Constants::TR_OPEN_LINK_AS_NEW_PAGE))];
+                if (widget->viewer()->isActionVisible(Help::Internal::HelpViewer::Action::ExternalWindow))
+                    [ret addObject:menuItem(url, self, @selector(openInWindow:),
+                                            QCoreApplication::translate("HelpViewer", Help::Constants::TR_OPEN_LINK_IN_WINDOW))];
             }
+            break;
+        }
         default:
             break;
         }
     }
     return [ret autorelease];
-}
-
-- (WebView *)webView:(WebView *)sender createWebViewWithRequest:(NSURLRequest *)request
-{
-    Q_UNUSED(sender)
-    Q_UNUSED(request)
-    Help::Internal::MacWebKitHelpViewer* viewer
-            = static_cast<Help::Internal::MacWebKitHelpViewer *>(
-                Help::Internal::OpenPagesManager::instance().createPage(QUrl()));
-    return viewer->widget()->webView();
 }
 
 - (void)webView:(WebView *)sender mouseDidMoveOverElement:(NSDictionary *)elementInformation
@@ -372,6 +379,16 @@ static void ensureProtocolHandler()
     }
     widget->startToolTipTimer(flipPoint(NSEvent.mouseLocation),
                        QString::fromNSString(url.absoluteString));
+}
+
+- (void)openAsNewPage:(id)item
+{
+    widget->viewer()->newPageRequested(QUrl::fromNSURL([item representedObject]));
+}
+
+- (void)openInWindow:(id)item
+{
+    widget->viewer()->externalPageRequested(QUrl::fromNSURL([item representedObject]));
 }
 
 @end
@@ -420,8 +437,9 @@ namespace Internal {
 class MacWebKitHelpWidgetPrivate
 {
 public:
-    MacWebKitHelpWidgetPrivate()
-        : m_savedResponder(nil)
+    MacWebKitHelpWidgetPrivate(MacWebKitHelpViewer *parent)
+        : m_viewer(parent),
+          m_savedResponder(nil)
     {
     }
 
@@ -432,6 +450,7 @@ public:
         [m_uiDelegate release];
     }
 
+    MacWebKitHelpViewer *m_viewer;
     WebView *m_webView;
     FrameLoadDelegate *m_frameLoadDelegate;
     UIDelegate *m_uiDelegate;
@@ -445,7 +464,7 @@ public:
 
 MacWebKitHelpWidget::MacWebKitHelpWidget(MacWebKitHelpViewer *parent)
     : QMacCocoaViewContainer(0, parent),
-      d(new MacWebKitHelpWidgetPrivate)
+      d(new MacWebKitHelpWidgetPrivate(parent))
 {
     d->m_toolTipTimer.setSingleShot(true);
     connect(&d->m_toolTipTimer, &QTimer::timeout, this, &MacWebKitHelpWidget::showToolTip);
@@ -462,6 +481,7 @@ MacWebKitHelpWidget::MacWebKitHelpWidget(MacWebKitHelpViewer *parent)
 
         setCocoaView(d->m_webView);
     }
+
 }
 
 MacWebKitHelpWidget::~MacWebKitHelpWidget()
@@ -469,9 +489,9 @@ MacWebKitHelpWidget::~MacWebKitHelpWidget()
     delete d;
 }
 
-void MacWebKitHelpWidget::setOpenInNewPageActionVisible(bool visible)
+MacWebKitHelpViewer *MacWebKitHelpWidget::viewer() const
 {
-    d->m_uiDelegate.openInNewPageActionVisible = visible;
+    return d->m_viewer;
 }
 
 WebView *MacWebKitHelpWidget::webView() const
@@ -677,11 +697,6 @@ void MacWebKitHelpViewer::addForwardHistoryItems(QMenu *forwardMenu)
             forwardMenu->addAction(action);
         }
     }
-}
-
-void MacWebKitHelpViewer::setOpenInNewPageActionVisible(bool visible)
-{
-    m_widget->setOpenInNewPageActionVisible(visible);
 }
 
 DOMRange *MacWebKitHelpViewer::findText(NSString *text, bool forward, bool caseSensitive, DOMNode *startNode, int startOffset)

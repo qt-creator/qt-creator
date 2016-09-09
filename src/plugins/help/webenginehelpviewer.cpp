@@ -25,6 +25,7 @@
 
 #include "webenginehelpviewer.h"
 
+#include "helpconstants.h"
 #include "localhelpmanager.h"
 #include "openpagesmanager.h"
 
@@ -34,6 +35,7 @@
 #include <QContextMenuEvent>
 #include <QCoreApplication>
 #include <QVBoxLayout>
+#include <QWebEngineContextMenuData>
 #include <QWebEngineHistory>
 #include <QWebEngineProfile>
 #include <QWebEngineSettings>
@@ -98,7 +100,7 @@ WebEngineHelpViewer::WebEngineHelpViewer(QWidget *parent) :
 
     QAction* action = m_widget->pageAction(QWebEnginePage::OpenLinkInNewTab);
     action->setText(QCoreApplication::translate("HelpViewer",
-                                                "Open Link as New Page"));
+                                                Constants::TR_OPEN_LINK_AS_NEW_PAGE));
 
     QWebEnginePage *viewPage = m_widget->page();
     QTC_ASSERT(viewPage, return);
@@ -202,11 +204,6 @@ void WebEngineHelpViewer::addForwardHistoryItems(QMenu *forwardMenu)
     }
 }
 
-void WebEngineHelpViewer::setOpenInNewPageActionVisible(bool visible)
-{
-    m_widget->setOpenInNewPageActionVisible(visible);
-}
-
 bool WebEngineHelpViewer::findText(const QString &text, Core::FindFlags flags, bool incremental,
                                    bool fromSearch, bool *wrapped)
 {
@@ -276,35 +273,55 @@ WebEngineHelpPage::WebEngineHelpPage(QObject *parent)
 {
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 7, 0)
 QWebEnginePage *WebEngineHelpPage::createWindow(QWebEnginePage::WebWindowType)
 {
     auto viewer = static_cast<WebEngineHelpViewer *>(OpenPagesManager::instance().createPage());
     return viewer->page();
 }
+#endif
 
-WebView::WebView(QWidget *parent)
-    : QWebEngineView(parent)
+WebView::WebView(WebEngineHelpViewer *viewer)
+    : QWebEngineView(viewer),
+      m_viewer(viewer)
 {
-}
-
-void WebView::setOpenInNewPageActionVisible(bool visible)
-{
-    m_openInNewPageActionVisible = visible;
 }
 
 void WebView::contextMenuEvent(QContextMenuEvent *event)
 {
     QMenu *menu = page()->createStandardContextMenu();
-    if (m_openInNewPageActionVisible) {
-        // insert Open In New Tab if OpenLinkInThisWindow is also there
-        const QList<QAction*> actions = menu->actions();
-        auto it = std::find(actions.cbegin(), actions.cend(), page()->action(QWebEnginePage::OpenLinkInThisWindow));
-        if (it != actions.cend()) {
-            // insert after
-            ++it;
-            QAction *before = (it == actions.cend() ? 0 : *it);
-            menu->insertAction(before, page()->action(QWebEnginePage::OpenLinkInNewTab));
+    // insert Open as New Page etc if OpenLinkInThisWindow is also there
+    const QList<QAction*> actions = menu->actions();
+    auto it = std::find(actions.cbegin(), actions.cend(),
+                        page()->action(QWebEnginePage::OpenLinkInThisWindow));
+    if (it != actions.cend()) {
+        // insert after
+        ++it;
+        QAction *before = (it == actions.cend() ? 0 : *it);
+#if QT_VERSION < QT_VERSION_CHECK(5, 7, 0)
+        if (m_viewer->isActionVisible(HelpViewer::Action::NewPage)) {
+            QAction *openLinkInNewTab = page()->action(QWebEnginePage::OpenLinkInNewTab);
+            menu->insertAction(before, openLinkInNewTab);
         }
+#else
+        QUrl url = page()->contextMenuData().linkUrl();
+        if (m_viewer->isActionVisible(HelpViewer::Action::NewPage)) {
+            auto openLink = new QAction(QCoreApplication::translate("HelpViewer",
+                                        Constants::TR_OPEN_LINK_IN_NEW_PAGE), menu);
+            connect(openLink, &QAction::triggered, m_viewer, [this, url] {
+                m_viewer->newPageRequested(url);
+            });
+            menu->insertAction(before, openLink);
+        }
+        if (m_viewer->isActionVisible(HelpViewer::Action::ExternalWindow)) {
+            auto openLink = new QAction(QCoreApplication::translate("HelpViewer",
+                                        Constants::TR_OPEN_LINK_IN_WINDOW), menu);
+            connect(openLink, &QAction::triggered, m_viewer, [this, url] {
+                m_viewer->externalPageRequested(url);
+            });
+            menu->insertAction(before, openLink);
+        }
+#endif
     }
 
     connect(menu, &QMenu::aboutToHide, menu, &QObject::deleteLater);

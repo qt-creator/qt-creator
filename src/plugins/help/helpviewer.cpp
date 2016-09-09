@@ -86,6 +86,19 @@ HelpViewer::HelpViewer(QWidget *parent)
 {
 }
 
+void HelpViewer::setActionVisible(Action action, bool visible)
+{
+    if (visible)
+        m_visibleActions |= Actions(action);
+    else
+        m_visibleActions &= ~Actions(action);
+}
+
+bool HelpViewer::isActionVisible(HelpViewer::Action action)
+{
+    return (m_visibleActions & Actions(action)) != 0;
+}
+
 bool HelpViewer::isLocalUrl(const QUrl &url)
 {
     return url.scheme() == "about" // "No documenation available"

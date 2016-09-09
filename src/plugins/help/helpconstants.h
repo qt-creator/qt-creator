@@ -63,5 +63,8 @@ static const char SB_BOOKMARKS[] = QT_TRANSLATE_NOOP("Help::Internal::HelpPlugin
 static const char SB_OPENPAGES[] = QT_TRANSLATE_NOOP("Help::Internal::HelpPlugin", "Open Pages");
 static const char SB_SEARCH[] = QT_TRANSLATE_NOOP("Help::Internal::HelpPlugin", "Search");
 
+static const char TR_OPEN_LINK_AS_NEW_PAGE[] = QT_TRANSLATE_NOOP("HelpViewer", "Open Link as New Page");
+static const char TR_OPEN_LINK_IN_WINDOW[] = QT_TRANSLATE_NOOP("HelpViewer", "Open Link in Window");
+
 } // Constants
 } // Help

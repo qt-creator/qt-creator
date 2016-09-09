@@ -33,6 +33,8 @@
 namespace Help {
 namespace Internal {
 
+class WebEngineHelpViewer;
+
 class HelpUrlSchemeHandler : public QWebEngineUrlSchemeHandler
 {
 public:
@@ -44,21 +46,21 @@ class WebEngineHelpPage : public QWebEnginePage
 {
 public:
     explicit WebEngineHelpPage(QObject *parent = 0);
+#if QT_VERSION < QT_VERSION_CHECK(5, 7, 0)
     QWebEnginePage *createWindow(QWebEnginePage::WebWindowType) override;
+#endif
 };
 
 class WebView : public QWebEngineView
 {
 public:
-    explicit WebView(QWidget *parent = 0);
-
-    void setOpenInNewPageActionVisible(bool visible);
+    explicit WebView(WebEngineHelpViewer *viewer);
 
 protected:
     void contextMenuEvent(QContextMenuEvent *event) override;
 
 private:
-    bool m_openInNewPageActionVisible = true;
+    WebEngineHelpViewer *m_viewer;
 };
 
 class WebEngineHelpViewer : public HelpViewer
@@ -80,7 +82,6 @@ public:
     bool isBackwardAvailable() const override;
     void addBackHistoryItems(QMenu *backMenu) override;
     void addForwardHistoryItems(QMenu *forwardMenu) override;
-    void setOpenInNewPageActionVisible(bool visible) override;
     bool findText(const QString &text, Core::FindFlags flags, bool incremental, bool fromSearch, bool *wrapped) override;
 
     WebEngineHelpPage *page() const;

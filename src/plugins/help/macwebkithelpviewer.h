@@ -59,11 +59,10 @@ public:
     MacWebKitHelpWidget(MacWebKitHelpViewer *parent);
     ~MacWebKitHelpWidget();
 
-    void setOpenInNewPageActionVisible(bool visible);
-
     WebView *webView() const;
     void startToolTipTimer(const QPoint &pos, const QString &text);
     void hideToolTip();
+    MacWebKitHelpViewer *viewer() const;
 
 protected:
     void hideEvent(QHideEvent *);
@@ -102,7 +101,7 @@ public:
     bool isBackwardAvailable() const;
     void addBackHistoryItems(QMenu *backMenu);
     void addForwardHistoryItems(QMenu *forwardMenu);
-    void setOpenInNewPageActionVisible(bool visible);
+    void setActionVisible(bool visible);
 
     bool findText(const QString &text, Core::FindFlags flags,
         bool incremental, bool fromSearch, bool *wrapped = 0);

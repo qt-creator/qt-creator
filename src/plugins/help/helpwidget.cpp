@@ -417,8 +417,8 @@ void HelpWidget::addViewer(HelpViewer *viewer)
 {
     m_viewerStack->addWidget(viewer);
     viewer->setFocus(Qt::OtherFocusReason);
-    if (m_style == SideBarWidget || m_style == ExternalWindow)
-        viewer->setOpenInNewPageActionVisible(false);
+    viewer->setActionVisible(HelpViewer::Action::NewPage, m_style == ModeWidget);
+    viewer->setActionVisible(HelpViewer::Action::ExternalWindow, m_style != ExternalWindow);
     connect(viewer, &HelpViewer::sourceChanged, this, [viewer, this](const QUrl &url) {
         if (currentViewer() == viewer)
             emit sourceChanged(url);
@@ -438,6 +438,15 @@ void HelpWidget::addViewer(HelpViewer *viewer)
         connect(viewer, &HelpViewer::titleChanged, this, &HelpWidget::updateWindowTitle);
 
     connect(viewer, &HelpViewer::loadFinished, this, &HelpWidget::highlightSearchTerms);
+    connect(viewer, &HelpViewer::newPageRequested, [](const QUrl &url) {
+        OpenPagesManager::instance().createPage(url);
+    });
+    connect(viewer, &HelpViewer::externalPageRequested, [](const QUrl &url) {
+        HelpViewer *viewer = HelpPlugin::viewerForHelpViewerLocation(Core::HelpManager::ExternalHelpAlways);
+        if (QTC_GUARD(viewer))
+            viewer->setSource(url);
+        Core::ICore::raiseWindow(viewer);
+    });
 
     updateCloseButton();
 }

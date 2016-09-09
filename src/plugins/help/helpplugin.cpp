@@ -108,6 +108,8 @@ static const char kToolTipHelpContext[] = "Help.ToolTip";
 using namespace Core;
 using namespace Utils;
 
+static HelpPlugin *m_instance = nullptr;
+
 HelpPlugin::HelpPlugin()
     : m_mode(0),
     m_centralWidget(0),
@@ -116,6 +118,7 @@ HelpPlugin::HelpPlugin()
     m_helpManager(0),
     m_openPagesManager(0)
 {
+    m_instance = this;
 }
 
 HelpPlugin::~HelpPlugin()
@@ -476,7 +479,7 @@ void HelpPlugin::setupHelpEngineIfNeeded()
         LocalHelpManager::setupGuiHelpEngine();
 }
 
-bool HelpPlugin::canShowHelpSideBySide() const
+bool HelpPlugin::canShowHelpSideBySide()
 {
     RightPanePlaceHolder *placeHolder = RightPanePlaceHolder::current();
     if (!placeHolder)
@@ -503,19 +506,19 @@ HelpViewer *HelpPlugin::viewerForHelpViewerLocation(HelpManager::HelpViewerLocat
                                                  : HelpManager::HelpModeAlways;
 
     if (actualLocation == HelpManager::ExternalHelpAlways)
-        return externalHelpViewer();
+        return m_instance->externalHelpViewer();
 
     if (actualLocation == HelpManager::SideBySideAlways) {
-        createRightPaneContextViewer();
-        RightPaneWidget::instance()->setWidget(m_rightPaneSideBarWidget);
+        m_instance->createRightPaneContextViewer();
+        RightPaneWidget::instance()->setWidget(m_instance->m_rightPaneSideBarWidget);
         RightPaneWidget::instance()->setShown(true);
-        return m_rightPaneSideBarWidget->currentViewer();
+        return m_instance->m_rightPaneSideBarWidget->currentViewer();
     }
 
     QTC_CHECK(actualLocation == HelpManager::HelpModeAlways);
 
     activateHelpMode(); // should trigger an createPage...
-    HelpViewer *viewer = m_centralWidget->currentViewer();
+    HelpViewer *viewer = m_instance->m_centralWidget->currentViewer();
     if (!viewer)
         viewer = OpenPagesManager::instance().createPage();
     return viewer;
