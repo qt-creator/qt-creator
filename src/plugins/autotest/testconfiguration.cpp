@@ -273,17 +273,11 @@ QString TestConfiguration::executableFilePath() const
         return commandFileInfo.absoluteFilePath();
     } else if (commandFileInfo.path() == "."){
         QString fullCommandFileName = m_targetFile;
-    #ifdef Q_OS_WIN
-        if (!m_targetFile.endsWith(".exe"))
+        if (Utils::HostOsInfo::isWindowsHost() && !m_targetFile.endsWith(".exe"))
             fullCommandFileName = m_targetFile + QLatin1String(".exe");
-
-        static const QString separator(";");
-    #else
-        static const QString separator(":");
-    #endif
         // TODO: check if we can use searchInPath() from Utils::Environment
-        const QStringList &pathList
-                = m_environment.toProcessEnvironment().value("PATH").split(separator);
+        const QStringList &pathList = m_environment.toProcessEnvironment().value("PATH").split(
+                    Utils::HostOsInfo::pathListSeparator());
 
         foreach (const QString &path, pathList) {
             QString filePath(path + QDir::separator() + fullCommandFileName);
