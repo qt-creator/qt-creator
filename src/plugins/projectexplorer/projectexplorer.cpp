@@ -89,11 +89,9 @@
 #include "waitforstopdialog.h"
 #include "projectexplorericons.h"
 
-#ifdef Q_OS_WIN
-#    include "windebuginterface.h"
-#    include "msvctoolchain.h"
-#    include "wincetoolchain.h"
-#endif
+#include "windebuginterface.h"
+#include "msvctoolchain.h"
+#include "wincetoolchain.h"
 
 #include "projecttree.h"
 #include "projectwelcomepage.h"
@@ -432,17 +430,15 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 #endif
 
     // Add ToolChainFactories:
-#ifdef Q_OS_WIN
-    addAutoReleasedObject(new WinDebugInterface);
-
-    addAutoReleasedObject(new MsvcToolChainFactory);
-    addAutoReleasedObject(new WinCEToolChainFactory);
-#else
-    addAutoReleasedObject(new LinuxIccToolChainFactory);
-#endif
-#ifndef Q_OS_MAC
-    addAutoReleasedObject(new MingwToolChainFactory); // Mingw offers cross-compiling to windows
-#endif
+    if (Utils::HostOsInfo::isWindowsHost()) {
+        addAutoReleasedObject(new WinDebugInterface);
+        addAutoReleasedObject(new MsvcToolChainFactory);
+        addAutoReleasedObject(new WinCEToolChainFactory);
+    } else {
+        addAutoReleasedObject(new LinuxIccToolChainFactory);
+    }
+    if (!Utils::HostOsInfo::isMacHost())
+        addAutoReleasedObject(new MingwToolChainFactory); // Mingw offers cross-compiling to windows
     addAutoReleasedObject(new GccToolChainFactory);
     addAutoReleasedObject(new ClangToolChainFactory);
     addAutoReleasedObject(new CustomToolChainFactory);
@@ -719,9 +715,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     // open action
     dd->m_loadAction = new QAction(tr("Load Project..."), this);
     cmd = ActionManager::registerAction(dd->m_loadAction, Constants::LOAD);
-#ifndef Q_OS_MAC
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+O")));
-#endif
+    if (!Utils::HostOsInfo::isMacHost())
+        cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+O")));
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_FILES);
 
     // Default open action
