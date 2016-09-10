@@ -28,10 +28,6 @@
 #include <QHeaderView>
 #include <QFocusEvent>
 
-#ifdef Q_OS_MAC
-#include <QKeyEvent>
-#endif
-
 /*!
    \class Utils::NavigationTreeView
 

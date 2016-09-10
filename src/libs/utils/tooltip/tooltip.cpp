@@ -304,18 +304,17 @@ bool ToolTip::eventFilter(QObject *o, QEvent *event)
         return false;
 
     switch (event->type()) {
-#ifdef Q_OS_MAC
     case QEvent::KeyPress:
-    case QEvent::KeyRelease: {
-        int key = static_cast<QKeyEvent *>(event)->key();
-        Qt::KeyboardModifiers mody = static_cast<QKeyEvent *>(event)->modifiers();
-        if (!(mody & Qt::KeyboardModifierMask)
-            && key != Qt::Key_Shift && key != Qt::Key_Control
-            && key != Qt::Key_Alt && key != Qt::Key_Meta)
-            hideTipWithDelay();
+    case QEvent::KeyRelease:
+        if (HostOsInfo::isMacHost()) {
+            int key = static_cast<QKeyEvent *>(event)->key();
+            Qt::KeyboardModifiers mody = static_cast<QKeyEvent *>(event)->modifiers();
+            if (!(mody & Qt::KeyboardModifierMask)
+                && key != Qt::Key_Shift && key != Qt::Key_Control
+                && key != Qt::Key_Alt && key != Qt::Key_Meta)
+                hideTipWithDelay();
+        }
         break;
-    }
-#endif
     case QEvent::Leave:
         if (o == m_tip && !m_tip->isAncestorOf(qApp->focusWidget()))
             hideTipWithDelay();

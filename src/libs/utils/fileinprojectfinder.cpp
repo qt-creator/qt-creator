@@ -25,6 +25,7 @@
 
 #include "fileinprojectfinder.h"
 #include "fileutils.h"
+#include "hostosinfo.h"
 #include "qtcassert.h"
 
 #include <QDebug>
@@ -141,25 +142,23 @@ QString FileInProjectFinder::findFile(const QUrl &fileUrl, bool *success) const
         int prefixToIgnore = -1;
         const QChar separator = QLatin1Char('/');
         if (originalPath.startsWith(m_projectDir + separator)) {
-
-#ifdef Q_OS_MAC
-            // starting with the project path is not sufficient if the file was
-            // copied in an insource build, e.g. into MyApp.app/Contents/Resources
-            static const QString appResourcePath = QString::fromLatin1(".app/Contents/Resources");
-            if (originalPath.contains(appResourcePath)) {
-                // the path is inside the project, but most probably as a resource of an insource build
-                // so ignore that path
-                prefixToIgnore = originalPath.indexOf(appResourcePath) + appResourcePath.length();
-            } else {
-#endif
+            if (Utils::HostOsInfo::isMacHost()) {
+                // starting with the project path is not sufficient if the file was
+                // copied in an insource build, e.g. into MyApp.app/Contents/Resources
+                static const QString appResourcePath = QString::fromLatin1(".app/Contents/Resources");
+                if (originalPath.contains(appResourcePath)) {
+                    // the path is inside the project, but most probably as a resource of an insource build
+                    // so ignore that path
+                    prefixToIgnore = originalPath.indexOf(appResourcePath) + appResourcePath.length();
+                }
+            }
+            if (prefixToIgnore == -1) {
                 if (debug)
                     qDebug() << "FileInProjectFinder: found" << originalPath << "in project directory";
                 if (success)
                     *success = true;
                 return originalPath;
-#ifdef Q_OS_MAC
             }
-#endif
         }
 
         if (m_cache.contains(originalPath)) {
