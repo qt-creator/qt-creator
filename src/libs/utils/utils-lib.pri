@@ -72,7 +72,6 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/json.cpp \
     $$PWD/portlist.cpp \
     $$PWD/appmainwindow.cpp \
-    $$PWD/sleep.cpp \
     $$PWD/basetreeview.cpp \
     $$PWD/qtcassert.cpp \
     $$PWD/elfreader.cpp \
@@ -173,7 +172,6 @@ HEADERS += \
     $$PWD/runextensions.h \
     $$PWD/portlist.h \
     $$PWD/appmainwindow.h \
-    $$PWD/sleep.h \
     $$PWD/basetreeview.h \
     $$PWD/elfreader.h \
     $$PWD/bracematcher.h \

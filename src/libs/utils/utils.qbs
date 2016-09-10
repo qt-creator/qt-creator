@@ -190,8 +190,6 @@ Project {
             "shellcommandpage.cpp",
             "shellcommandpage.h",
             "sizedarray.h",
-            "sleep.cpp",
-            "sleep.h",
             "smallstring.h",
             "smallstringiterator.h",
             "smallstringio.h",
