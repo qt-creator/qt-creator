@@ -49,16 +49,16 @@ namespace Internal {
 GdbTermEngine::GdbTermEngine(const DebuggerRunParameters &startParameters)
     : GdbEngine(startParameters)
 {
-#ifdef Q_OS_WIN
-    // Windows up to xp needs a workaround for attaching to freshly started processes. see proc_stub_win
-    if (QSysInfo::WindowsVersion >= QSysInfo::WV_VISTA)
-        m_stubProc.setMode(ConsoleProcess::Suspend);
-    else
+    if (HostOsInfo::isWindowsHost()) {
+        // Windows up to xp needs a workaround for attaching to freshly started processes. see proc_stub_win
+        if (QSysInfo::WindowsVersion >= QSysInfo::WV_VISTA)
+            m_stubProc.setMode(ConsoleProcess::Suspend);
+        else
+            m_stubProc.setMode(ConsoleProcess::Debug);
+    } else {
         m_stubProc.setMode(ConsoleProcess::Debug);
-#else
-    m_stubProc.setMode(ConsoleProcess::Debug);
-    m_stubProc.setSettings(Core::ICore::settings());
-#endif
+        m_stubProc.setSettings(Core::ICore::settings());
+    }
 }
 
 GdbTermEngine::~GdbTermEngine()

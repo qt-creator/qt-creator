@@ -193,16 +193,16 @@ void LldbEngine::setupEngine()
 
     if (runParameters().useTerminal) {
         QTC_CHECK(false); // See above.
-        #ifdef Q_OS_WIN
+        if (HostOsInfo::isWindowsHost()) {
             // Windows up to xp needs a workaround for attaching to freshly started processes. see proc_stub_win
             if (QSysInfo::WindowsVersion >= QSysInfo::WV_VISTA)
                 m_stubProc.setMode(ConsoleProcess::Suspend);
             else
                 m_stubProc.setMode(ConsoleProcess::Debug);
-        #else
+        } else {
             m_stubProc.setMode(ConsoleProcess::Debug);
             m_stubProc.setSettings(ICore::settings());
-        #endif
+        }
 
         QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
         showMessage("TRYING TO START ADAPTER");
