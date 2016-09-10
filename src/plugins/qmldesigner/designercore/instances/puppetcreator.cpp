@@ -35,13 +35,15 @@
 
 #include <projectexplorer/kit.h>
 #include <projectexplorer/toolchain.h>
-#include <utils/environment.h>
 #include <coreplugin/messagebox.h>
 #include <coreplugin/icore.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <coreplugin/icore.h>
+
+#include <utils/environment.h>
+#include <utils/hostosinfo.h>
 
 #include <QProcess>
 #include <QTemporaryDir>
@@ -351,11 +353,7 @@ QString PuppetCreator::qml2PuppetPath(PuppetType puppetType) const
 
 QProcessEnvironment PuppetCreator::processEnvironment() const
 {
-#if defined(Q_OS_WIN)
-    static QLatin1String pathSep(";");
-#else
-    static QLatin1String pathSep(":");
-#endif
+    static const QString pathSep = Utils::HostOsInfo::pathListSeparator();
     Utils::Environment environment = Utils::Environment::systemEnvironment();
     if (!useOnlyFallbackPuppet())
         m_kit->addToEnvironment(environment);
