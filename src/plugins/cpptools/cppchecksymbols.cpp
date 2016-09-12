@@ -568,6 +568,58 @@ bool CheckSymbols::visit(ElaboratedTypeSpecifierAST *ast)
     return false;
 }
 
+bool CheckSymbols::visit(ObjCProtocolDeclarationAST *ast)
+{
+    accept(ast->attribute_list);
+    accept(ast->name);
+    accept(ast->protocol_refs);
+    accept(ast->member_declaration_list);
+    addUse(ast->name, SemanticHighlighter::TypeUse);
+    return false;
+}
+
+bool CheckSymbols::visit(ObjCProtocolForwardDeclarationAST *ast)
+{
+    accept(ast->attribute_list);
+    accept(ast->identifier_list);
+    for (NameListAST *i = ast->identifier_list; i; i = i->next)
+        addUse(i->value, SemanticHighlighter::TypeUse);
+    return false;
+}
+
+bool CheckSymbols::visit(ObjCClassDeclarationAST *ast)
+{
+    accept(ast->attribute_list);
+    accept(ast->class_name);
+    accept(ast->category_name);
+    accept(ast->superclass);
+    accept(ast->protocol_refs);
+    accept(ast->inst_vars_decl);
+    accept(ast->member_declaration_list);
+    addUse(ast->class_name, SemanticHighlighter::TypeUse);
+    if (ast->superclass && maybeType(ast->superclass->name))
+        addUse(ast->superclass, SemanticHighlighter::TypeUse);
+    return false;
+}
+
+bool CheckSymbols::visit(ObjCClassForwardDeclarationAST *ast)
+{
+    accept(ast->attribute_list);
+    accept(ast->identifier_list);
+    for (NameListAST *i = ast->identifier_list ; i != 0; i = i->next)
+        addUse(i->value, SemanticHighlighter::TypeUse);
+    return false;
+}
+
+bool CheckSymbols::visit(ObjCProtocolRefsAST *ast)
+{
+    accept(ast->identifier_list);
+    for (NameListAST *i = ast->identifier_list; i; i = i->next)
+        if (maybeType(i->value->name))
+            addUse(i->value, SemanticHighlighter::TypeUse);
+    return false;
+}
+
 bool CheckSymbols::visit(MemberAccessAST *ast)
 {
     accept(ast->base_expression);
@@ -655,6 +707,12 @@ bool CheckSymbols::visit(CallAST *ast)
     }
 
     return false;
+}
+
+bool CheckSymbols::visit(ObjCSelectorArgumentAST *ast)
+{
+    addUse(ast->firstToken(), SemanticHighlighter::FunctionUse);
+    return true;
 }
 
 bool CheckSymbols::visit(NewExpressionAST *ast)

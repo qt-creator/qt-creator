@@ -872,7 +872,7 @@ AssistInterface *CppEditorWidget::createAssistInterface(AssistKind kind, AssistR
             LanguageFeatures features = LanguageFeatures::defaultFeatures();
             if (Document::Ptr doc = d->m_lastSemanticInfo.doc)
                 features = doc->languageFeatures();
-            features.objCEnabled = cppEditorDocument()->isObjCEnabled();
+            features.objCEnabled |= cppEditorDocument()->isObjCEnabled();
             return cap->createAssistInterface(
                             textDocument()->filePath().toString(),
                             this,

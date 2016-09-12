@@ -154,6 +154,12 @@ protected:
 
     virtual bool visit(CPlusPlus::ElaboratedTypeSpecifierAST *ast);
 
+    virtual bool visit(CPlusPlus::ObjCProtocolDeclarationAST *ast);
+    virtual bool visit(CPlusPlus::ObjCProtocolForwardDeclarationAST *ast);
+    virtual bool visit(CPlusPlus::ObjCClassDeclarationAST *ast);
+    virtual bool visit(CPlusPlus::ObjCClassForwardDeclarationAST *ast);
+    virtual bool visit(CPlusPlus::ObjCProtocolRefsAST *ast);
+
     virtual bool visit(CPlusPlus::SimpleNameAST *ast);
     virtual bool visit(CPlusPlus::DestructorNameAST *ast);
     virtual bool visit(CPlusPlus::QualifiedNameAST *ast);
@@ -161,6 +167,7 @@ protected:
 
     virtual bool visit(CPlusPlus::MemberAccessAST *ast);
     virtual bool visit(CPlusPlus::CallAST *ast);
+    virtual bool visit(CPlusPlus::ObjCSelectorArgumentAST *ast);
     virtual bool visit(CPlusPlus::NewExpressionAST *ast);
 
     virtual bool visit(CPlusPlus::GotoStatementAST *ast);

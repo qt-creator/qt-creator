@@ -497,6 +497,7 @@ void QmakeProject::updateCppCodeModel()
                                            ProjectFile::CXXSource));
         pinfo.appendProjectPart(cppPart);
         objcppPart->displayName += QLatin1String(" (ObjC++)");
+        objcppPart->languageExtensions |= ProjectPart::ObjectiveCExtensions;
         if (!objcppPart->files.isEmpty()) {
             pinfo.appendProjectPart(objcppPart);
             cppPart->displayName += QLatin1String(" (C++)");

@@ -48,7 +48,7 @@ void ProjectPart::updateLanguageFeatures()
     languageFeatures.cxx11Enabled = languageVersion >= CXX11;
     languageFeatures.cxxEnabled = languageVersion >= CXX98;
     languageFeatures.c99Enabled = languageVersion >= C99;
-    languageFeatures.objCEnabled = languageExtensions & ObjectiveCExtensions;
+    languageFeatures.objCEnabled = languageExtensions.testFlag(ObjectiveCExtensions);
     languageFeatures.qtEnabled = hasQt;
     languageFeatures.qtMocRunEnabled = hasQt;
     if (!hasQt) {

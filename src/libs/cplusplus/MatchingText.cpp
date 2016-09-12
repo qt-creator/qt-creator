@@ -203,6 +203,7 @@ static Tokens getTokens(const QTextCursor &cursor, int &prevState)
     features.cxx11Enabled = true;
     features.cxxEnabled = true;
     features.c99Enabled = true;
+    features.objCEnabled = true;
 
     SimpleLexer tokenize;
     tokenize.setLanguageFeatures(features);
