@@ -617,10 +617,7 @@ IOutputParser *GccToolChain::outputParser() const
 
 void GccToolChain::resetToolChain(const FileName &path)
 {
-    if (path == m_compilerCommand)
-        return;
-
-    bool resetDisplayName = displayName() == defaultDisplayName();
+    bool resetDisplayName = (displayName() == defaultDisplayName());
 
     setCompilerCommand(path);
 
@@ -710,14 +707,18 @@ bool GccToolChain::fromMap(const QVariantMap &data)
     m_platformLinkerFlags = data.value(QLatin1String(compilerPlatformLinkerFlagsKeyC)).toStringList();
     m_targetAbi = Abi(data.value(QLatin1String(targetAbiKeyC)).toString());
     m_originalTargetTriple = data.value(QLatin1String(originalTargetTripleKeyC)).toString();
-    QStringList abiList = data.value(QLatin1String(supportedAbisKeyC)).toStringList();
+    const QStringList abiList = data.value(QLatin1String(supportedAbisKeyC)).toStringList();
     m_supportedAbis.clear();
-    foreach (const QString &a, abiList) {
+    for (const QString &a : abiList) {
         Abi abi(a);
         if (!abi.isValid())
             continue;
         m_supportedAbis.append(abi);
     }
+
+    if (!m_targetAbi.isValid())
+        resetToolChain(m_compilerCommand);
+
     return true;
 }
 
