@@ -156,8 +156,6 @@ signals: // for tests
     void backendReinitialized();
 
 private:
-    enum SendMode { RespectSendRequests, IgnoreSendRequests };
-
     void initializeBackend();
     void initializeBackendWithCurrentData();
     void registerCurrentProjectParts();
