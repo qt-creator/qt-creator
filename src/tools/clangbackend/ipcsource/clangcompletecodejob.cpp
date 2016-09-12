@@ -40,17 +40,12 @@ static CompleteCodeJob::AsyncResult runAsyncHelper(const TranslationUnit &transl
 {
     TIME_SCOPE_DURATION("CompleteCodeJobRunner");
 
+    const TranslationUnit::CodeCompletionResult results
+            = translationUnit.complete(unsavedFiles, line, column);
+
     CompleteCodeJob::AsyncResult asyncResult;
-
-    try {
-        const TranslationUnit::CodeCompletionResult results
-                = translationUnit.complete(unsavedFiles, line, column);
-
-        asyncResult.completions = results.completions;
-        asyncResult.correction = results.correction;
-    } catch (const std::exception &exception) {
-        qWarning() << "Error in CompleteCodeJobRunner:" << exception.what();
-    }
+    asyncResult.completions = results.completions;
+    asyncResult.correction = results.correction;
 
     return asyncResult;
 }

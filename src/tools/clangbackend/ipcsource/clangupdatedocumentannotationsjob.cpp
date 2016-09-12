@@ -41,18 +41,13 @@ static UpdateDocumentAnnotationsJob::AsyncResult runAsyncHelper(
 
     UpdateDocumentAnnotationsJob::AsyncResult asyncResult;
 
-    try {
-        // Update
-        asyncResult.updateResult = translationUnit.update(translationUnitUpdatInput);
+    // Update
+    asyncResult.updateResult = translationUnit.update(translationUnitUpdatInput);
 
-        // Collect
-        translationUnit.extractDocumentAnnotations(asyncResult.diagnostics,
-                                                   asyncResult.highlightingMarks,
-                                                   asyncResult.skippedSourceRanges);
-
-    } catch (const std::exception &exception) {
-        qWarning() << "Error in UpdateDocumentAnnotationsJobRunner:" << exception.what();
-    }
+    // Collect
+    translationUnit.extractDocumentAnnotations(asyncResult.diagnostics,
+                                               asyncResult.highlightingMarks,
+                                               asyncResult.skippedSourceRanges);
 
     return asyncResult;
 }

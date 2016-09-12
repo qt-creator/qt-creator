@@ -36,11 +36,7 @@ static void runAsyncHelper(const TranslationUnit &translationUnit,
 {
     TIME_SCOPE_DURATION("CreateInitialDocumentPreambleJobRunner");
 
-    try {
-        translationUnit.reparse(translationUnitUpdateInput);
-    } catch (const std::exception &exception) {
-        qWarning() << "Error in CreateInitialDocumentPreambleJobRunner:" << exception.what();
-    }
+    translationUnit.reparse(translationUnitUpdateInput);
 }
 
 bool CreateInitialDocumentPreambleJob::prepareAsyncRun()

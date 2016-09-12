@@ -40,13 +40,9 @@ static RequestDocumentAnnotationsJob::AsyncResult runAsyncHelper(
 
     RequestDocumentAnnotationsJob::AsyncResult asyncResult;
 
-    try {
-        translationUnit.extractDocumentAnnotations(asyncResult.diagnostics,
-                                                   asyncResult.highlightingMarks,
-                                                   asyncResult.skippedSourceRanges);
-    } catch (const std::exception &exception) {
-        qWarning() << "Error in RequestDocumentAnnotationsJobRunner:" << exception.what();
-    }
+    translationUnit.extractDocumentAnnotations(asyncResult.diagnostics,
+                                               asyncResult.highlightingMarks,
+                                               asyncResult.skippedSourceRanges);
 
     return asyncResult;
 }
