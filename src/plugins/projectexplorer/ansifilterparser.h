@@ -27,9 +27,11 @@
 
 #include "ioutputparser.h"
 
+#include "projectexplorer_export.h"
+
 namespace ProjectExplorer {
 
-class AnsiFilterParser : public IOutputParser
+class PROJECTEXPLORER_EXPORT AnsiFilterParser : public IOutputParser
 {
     Q_OBJECT
 
