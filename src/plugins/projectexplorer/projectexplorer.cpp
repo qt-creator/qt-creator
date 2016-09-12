@@ -765,7 +765,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
 
     // unload action
-    dd->m_unloadAction = new Utils::ParameterAction(tr("Close Project"), tr("Close Project \"%1\""),
+    dd->m_unloadAction = new Utils::ParameterAction(tr("Close Project"), tr("Close Pro&ject \"%1\""),
                                                       Utils::ParameterAction::AlwaysEnabled, this);
     cmd = ActionManager::registerAction(dd->m_unloadAction, Constants::UNLOAD);
     cmd->setAttribute(Command::CA_UpdateText);
@@ -774,7 +774,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     ActionContainer *munload =
         ActionManager::createMenu(Constants::M_UNLOADPROJECTS);
-    munload->menu()->setTitle(tr("Close Project"));
+    munload->menu()->setTitle(tr("Close Pro&ject"));
     munload->setOnAllDisabledBehavior(ActionContainer::Show);
     mfile->addMenu(munload, Core::Constants::G_FILE_PROJECT);
     connect(mfile->menu(), &QMenu::aboutToShow,
