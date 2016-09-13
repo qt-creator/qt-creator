@@ -69,21 +69,7 @@ namespace Internal {
 
 HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget *parent) :
     QWidget(parent),
-    m_style(style),
-    m_toggleSideBarAction(0),
-    m_switchToHelp(0),
-    m_filterComboBox(0),
-    m_closeAction(0),
-    m_scaleUp(0),
-    m_scaleDown(0),
-    m_resetScale(0),
-    m_printer(0),
-    m_sideBar(0),
-    m_contentsAction(0),
-    m_indexAction(0),
-    m_bookmarkAction(0),
-    m_searchAction(0),
-    m_openPagesAction(0)
+    m_style(style)
 {
     m_viewerStack = new QStackedWidget;
 
