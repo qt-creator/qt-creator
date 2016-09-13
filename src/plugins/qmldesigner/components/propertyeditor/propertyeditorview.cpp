@@ -651,6 +651,15 @@ void PropertyEditorView::rootNodeTypeChanged(const QString &/*type*/, int /*majo
     // TODO: we should react to this case
 }
 
+void PropertyEditorView::nodeReparented(const ModelNode &node,
+                                        const NodeAbstractProperty &newPropertyParent,
+                                        const NodeAbstractProperty &oldPropertyParent,
+                                        AbstractView::PropertyChangeFlags propertyChange)
+{
+    if (node == m_selectedNode)
+        m_qmlBackEndForCurrentType->backendAnchorBinding().setup(QmlItemNode(m_selectedNode));
+}
+
 void PropertyEditorView::setValue(const QmlObjectNode &qmlObjectNode, const PropertyName &name, const QVariant &value)
 {
     m_locked = true;

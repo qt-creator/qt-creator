@@ -81,6 +81,11 @@ public:
 
     void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion) override;
 
+    void nodeReparented(const ModelNode &node,
+                        const NodeAbstractProperty &newPropertyParent,
+                        const NodeAbstractProperty &oldPropertyParent,
+                        AbstractView::PropertyChangeFlags propertyChange);
+
 public slots:
     void changeValue(const QString &name);
     void changeExpression(const QString &name);
