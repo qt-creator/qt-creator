@@ -43,7 +43,7 @@ public:
 
     JobRequests processQueue();
 
-    using IsJobRunningHandler = std::function<bool(const Utf8String &, const Utf8String &)>;
+    using IsJobRunningHandler = std::function<bool(const Utf8String &)>;
     void setIsJobRunningHandler(const IsJobRunningHandler &isJobRunningHandler);
 
 public: // for tests
@@ -52,8 +52,7 @@ public: // for tests
     void prioritizeRequests();
 
 private:
-    using DocumentId = QPair<Utf8String, Utf8String>;
-    bool isJobRunningForDocument(const DocumentId &documentId);
+    bool isJobRunningForTranslationUnit(const Utf8String &translationUnitId);
     JobRequests takeJobRequestsToRunNow();
     void removeOutDatedRequests();
     bool isJobRequestOutDated(const JobRequest &jobRequest) const;

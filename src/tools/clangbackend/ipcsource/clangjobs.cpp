@@ -45,9 +45,8 @@ Jobs::Jobs(Documents &documents,
     , m_client(client)
     , m_queue(documents, projectParts)
 {
-    m_queue.setIsJobRunningHandler([this](const Utf8String &filePath,
-                                          const Utf8String &projectPartId) {
-        return isJobRunning(filePath, projectPartId);
+    m_queue.setIsJobRunningHandler([this](const Utf8String &translationUnitId) {
+        return isJobRunning(translationUnitId);
     });
 }
 
@@ -97,13 +96,15 @@ bool Jobs::runJob(const JobRequest &jobRequest)
         JobContext context(jobRequest, &m_documents, &m_unsavedFiles, &m_client);
         asyncJob->setContext(context);
 
-        if (asyncJob->prepareAsyncRun()) {
-            qCDebug(jobsLog) << "Running" << jobRequest;
+        if (const IAsyncJob::AsyncPrepareResult prepareResult = asyncJob->prepareAsyncRun()) {
+            qCDebug(jobsLog) << "Running" << jobRequest
+                             << "with TranslationUnit" << prepareResult.translationUnitId;
 
             asyncJob->setFinishedHandler([this](IAsyncJob *asyncJob){ onJobFinished(asyncJob); });
             const QFuture<void> future = asyncJob->runAsync();
 
-            m_running.insert(asyncJob, RunningJob{jobRequest, future});
+            const RunningJob runningJob{jobRequest, prepareResult.translationUnitId, future};
+            m_running.insert(asyncJob, runningJob);
             return true;
         } else {
             qCDebug(jobsLog) << "Preparation failed for " << jobRequest;
@@ -134,12 +135,10 @@ JobRequests Jobs::queue() const
     return m_queue.queue();
 }
 
-bool Jobs::isJobRunning(const Utf8String &filePath, const Utf8String &projectPartId) const
+bool Jobs::isJobRunning(const Utf8String &translationUnitId) const
 {
-    const auto hasJobRequest = [filePath, projectPartId](const RunningJob &runningJob) {
-        const JobRequest &jobRequest = runningJob.jobRequest;
-        return filePath == jobRequest.filePath
-            && projectPartId == jobRequest.projectPartId;
+    const auto hasJobRequest = [translationUnitId](const RunningJob &runningJob) {
+        return runningJob.translationUnitId == translationUnitId;
     };
 
     return Utils::anyOf(m_running.values(), hasJobRequest);

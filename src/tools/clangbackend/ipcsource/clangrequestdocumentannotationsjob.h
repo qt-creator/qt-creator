@@ -46,7 +46,7 @@ class RequestDocumentAnnotationsJob : public AsyncJob<RequestDocumentAnnotations
 public:
     using AsyncResult = RequestDocumentAnnotationsJobResult;
 
-    bool prepareAsyncRun() override;
+    AsyncPrepareResult prepareAsyncRun() override;
     void finalizeAsyncRun() override;
 
 private:

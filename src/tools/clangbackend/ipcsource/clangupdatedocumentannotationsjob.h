@@ -49,7 +49,7 @@ class UpdateDocumentAnnotationsJob : public AsyncJob<UpdateDocumentAnnotationsJo
 public:
     using AsyncResult = UpdateDocumentAnnotationsJobResult;
 
-    bool prepareAsyncRun() override;
+    AsyncPrepareResult prepareAsyncRun() override;
     void finalizeAsyncRun() override;
 
 private:

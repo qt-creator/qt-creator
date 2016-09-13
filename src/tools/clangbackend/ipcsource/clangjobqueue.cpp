@@ -27,6 +27,7 @@
 #include "clangjobqueue.h"
 #include "clangdocument.h"
 #include "clangdocuments.h"
+#include "clangtranslationunits.h"
 #include "projects.h"
 #include "unsavedfiles.h"
 
@@ -164,43 +165,43 @@ void JobQueue::prioritizeRequests()
 JobRequests JobQueue::takeJobRequestsToRunNow()
 {
     JobRequests jobsToRun;
-    QSet<DocumentId> documentsScheduledForThisRun;
+    using TranslationUnitIds = QSet<Utf8String>;
+    TranslationUnitIds translationUnitsScheduledForThisRun;
 
     QMutableVectorIterator<JobRequest> i(m_queue);
     while (i.hasNext()) {
-        const JobRequest &jobRequest = i.next();
+        const JobRequest &request = i.next();
 
         try {
-            const Document &document
-                    = m_documents.document(jobRequest.filePath,
-                                                         jobRequest.projectPartId);
-            const DocumentId documentId = DocumentId(jobRequest.filePath, jobRequest.projectPartId);
+            const Document &document = m_documents.document(request.filePath,
+                                                            request.projectPartId);
 
             if (!document.isUsedByCurrentEditor() && !document.isVisibleInEditor())
                 continue;
 
-            if (documentsScheduledForThisRun.contains(documentId))
+            const Utf8String id = document.translationUnit(request.preferredTranslationUnit).id();
+            if (translationUnitsScheduledForThisRun.contains(id))
                 continue;
 
-            if (isJobRunningForDocument(documentId))
+            if (isJobRunningForTranslationUnit(id))
                 continue;
 
-            documentsScheduledForThisRun.insert(documentId);
-            jobsToRun += jobRequest;
+            translationUnitsScheduledForThisRun.insert(id);
+            jobsToRun += request;
             i.remove();
         } catch (const std::exception &exception) {
             qWarning() << "Error in Jobs::takeJobRequestsToRunNow for"
-                       << jobRequest << ":" << exception.what();
+                       << request << ":" << exception.what();
         }
     }
 
     return jobsToRun;
 }
 
-bool JobQueue::isJobRunningForDocument(const JobQueue::DocumentId &documentId)
+bool JobQueue::isJobRunningForTranslationUnit(const Utf8String &translationUnitId)
 {
     if (m_isJobRunningHandler)
-        return m_isJobRunningHandler(documentId.first, documentId.second);
+        return m_isJobRunningHandler(translationUnitId);
 
     return false;
 }

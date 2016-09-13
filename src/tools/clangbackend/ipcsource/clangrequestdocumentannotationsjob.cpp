@@ -47,10 +47,11 @@ static RequestDocumentAnnotationsJob::AsyncResult runAsyncHelper(
     return asyncResult;
 }
 
-bool RequestDocumentAnnotationsJob::prepareAsyncRun()
+IAsyncJob::AsyncPrepareResult RequestDocumentAnnotationsJob::prepareAsyncRun()
 {
     const JobRequest jobRequest = context().jobRequest;
-    QTC_ASSERT(jobRequest.type == JobRequest::Type::RequestDocumentAnnotations, return false);
+    QTC_ASSERT(jobRequest.type == JobRequest::Type::RequestDocumentAnnotations,
+               return AsyncPrepareResult());
 
     try {
         m_pinnedDocument = context().documentForJobRequest();
@@ -60,13 +61,12 @@ bool RequestDocumentAnnotationsJob::prepareAsyncRun()
         setRunner([translationUnit]() {
             return runAsyncHelper(translationUnit);
         });
+        return AsyncPrepareResult{translationUnit.id()};
 
     } catch (const std::exception &exception) {
         qWarning() << "Error in RequestDocumentAnnotationsJob::prepareAsyncRun:" << exception.what();
-        return false;
+        return AsyncPrepareResult();
     }
-
-    return true;
 }
 
 void RequestDocumentAnnotationsJob::finalizeAsyncRun()

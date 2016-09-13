@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "clangbackend_global.h"
 #include "clangclock.h"
 
 #include <utf8string.h>
@@ -73,6 +74,7 @@ public:
     TimePoint unsavedFilesChangeTimePoint;
     TimePoint projectChangeTimePoint;
     uint documentRevision = 0;
+    PreferredTranslationUnit preferredTranslationUnit = PreferredTranslationUnit::RecentlyParsed;
 
     // For code completion
     quint32 line = 0;

@@ -108,7 +108,7 @@ TEST_F(Jobs, IsJobRunning)
     jobs.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
     jobs.process();
 
-    const bool isJobRunning = jobs.isJobRunning(filePath1, projectPartId);
+    const bool isJobRunning = jobs.isJobRunning(document.translationUnit().id());
 
     ASSERT_TRUE(isJobRunning);
 }

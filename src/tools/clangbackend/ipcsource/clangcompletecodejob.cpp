@@ -50,10 +50,10 @@ static CompleteCodeJob::AsyncResult runAsyncHelper(const TranslationUnit &transl
     return asyncResult;
 }
 
-bool CompleteCodeJob::prepareAsyncRun()
+IAsyncJob::AsyncPrepareResult CompleteCodeJob::prepareAsyncRun()
 {
     const JobRequest jobRequest = context().jobRequest;
-    QTC_ASSERT(jobRequest.type == JobRequest::Type::CompleteCode, return false);
+    QTC_ASSERT(jobRequest.type == JobRequest::Type::CompleteCode, return AsyncPrepareResult());
 
     try {
         m_pinnedDocument = context().documentForJobRequest();
@@ -65,14 +65,12 @@ bool CompleteCodeJob::prepareAsyncRun()
         setRunner([translationUnit, unsavedFiles, line, column]() {
             return runAsyncHelper(translationUnit, unsavedFiles, line, column);
         });
-
+        return AsyncPrepareResult{translationUnit.id()};
 
     } catch (const std::exception &exception) {
         qWarning() << "Error in CompleteCodeJob::prepareAsyncRun:" << exception.what();
-        return false;
+        return AsyncPrepareResult();
     }
-
-    return true;
 }
 
 void CompleteCodeJob::finalizeAsyncRun()

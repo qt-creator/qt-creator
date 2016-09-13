@@ -52,10 +52,11 @@ static UpdateDocumentAnnotationsJob::AsyncResult runAsyncHelper(
     return asyncResult;
 }
 
-bool UpdateDocumentAnnotationsJob::prepareAsyncRun()
+IAsyncJob::AsyncPrepareResult UpdateDocumentAnnotationsJob::prepareAsyncRun()
 {
     const JobRequest jobRequest = context().jobRequest;
-    QTC_ASSERT(jobRequest.type == JobRequest::Type::UpdateDocumentAnnotations, return false);
+    QTC_ASSERT(jobRequest.type == JobRequest::Type::UpdateDocumentAnnotations,
+               return AsyncPrepareResult());
 
     try {
         m_pinnedDocument = context().documentForJobRequest();
@@ -66,13 +67,12 @@ bool UpdateDocumentAnnotationsJob::prepareAsyncRun()
         setRunner([translationUnit, updateInput]() {
             return runAsyncHelper(translationUnit, updateInput);
         });
+        return AsyncPrepareResult{translationUnit.id()};
 
     } catch (const std::exception &exception) {
         qWarning() << "Error in UpdateDocumentAnnotationsJob::prepareAsyncRun:" << exception.what();
-        return false;
+        return AsyncPrepareResult();
     }
-
-    return true;
 }
 
 void UpdateDocumentAnnotationsJob::finalizeAsyncRun()

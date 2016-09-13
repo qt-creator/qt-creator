@@ -25,6 +25,8 @@
 
 #include "clangjobrequest.h"
 
+#include <QFileInfo>
+
 namespace ClangBackEnd {
 
 #define RETURN_TEXT_FOR_CASE(enumValue) case JobRequest::Type::enumValue: return #enumValue
@@ -41,6 +43,18 @@ static const char *JobRequestTypeToText(JobRequest::Type type)
 }
 #undef RETURN_TEXT_FOR_CASE
 
+#define RETURN_TEXT_FOR_CASE(enumValue) case PreferredTranslationUnit::enumValue: return #enumValue
+const char *preferredTranslationUnitToText(PreferredTranslationUnit type)
+{
+    switch (type) {
+        RETURN_TEXT_FOR_CASE(RecentlyParsed);
+        RETURN_TEXT_FOR_CASE(PreviouslyParsed);
+    }
+
+    return "UnhandledPreferredTranslationUnitType";
+}
+#undef RETURN_TEXT_FOR_CASE
+
 QDebug operator<<(QDebug debug, JobRequest::Type type)
 {
     debug << JobRequestTypeToText(type);
@@ -53,12 +67,14 @@ QDebug operator<<(QDebug debug, const JobRequest &jobRequest)
     debug.nospace() << "Job<"
                     << jobRequest.id
                     << ","
+                    << QFileInfo(jobRequest.filePath).fileName()
+                    << ","
                     << JobRequestTypeToText(jobRequest.type)
                     << ","
-                    << jobRequest.filePath
+                    << preferredTranslationUnitToText(jobRequest.preferredTranslationUnit)
                     << ">";
 
-    return debug;
+    return debug.space();
 }
 
 JobRequest::JobRequest()

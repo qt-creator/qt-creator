@@ -33,7 +33,7 @@ namespace ClangBackEnd {
 class CreateInitialDocumentPreambleJob : public AsyncJob<void>
 {
 public:
-    bool prepareAsyncRun() override;
+    AsyncPrepareResult prepareAsyncRun() override;
     void finalizeAsyncRun() override;
 
 private:

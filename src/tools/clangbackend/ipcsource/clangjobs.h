@@ -43,6 +43,7 @@ class Jobs
 public:
     struct RunningJob {
         JobRequest jobRequest;
+        Utf8String translationUnitId;
         QFuture<void> future;
     };
     using RunningJobs = QHash<IAsyncJob *, RunningJob>;
@@ -61,7 +62,7 @@ public:
 public /*for tests*/:
     QList<RunningJob> runningJobs() const;
     JobRequests queue() const;
-    bool isJobRunning(const Utf8String &filePath, const Utf8String &projectPartId) const;
+    bool isJobRunning(const Utf8String &translationUnitId) const;
 
 private:
     JobRequests runJobs(const JobRequests &jobRequest);
