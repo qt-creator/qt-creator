@@ -42,7 +42,7 @@
 #include <QPen>
 #include <qdebug.h>
 
-static Q_LOGGING_CATEGORY(itemlibraryPopulate, "itemlibrary.populate")
+static Q_LOGGING_CATEGORY(itemlibraryPopulate, "qtc.itemlibrary.populate")
 
 static bool inline registerItemLibrarySortedModel() {
     qmlRegisterType<QmlDesigner::ItemLibrarySectionModel>();

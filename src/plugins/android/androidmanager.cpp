@@ -283,6 +283,8 @@ QString AndroidManager::androidNameForApiLevel(int x)
         return QLatin1String("Android 5.1");
     case 23:
         return QLatin1String("Android 6.0");
+    case 24:
+        return QLatin1String("Android 7.0");
     default:
         return tr("Unknown Android version. API Level: %1").arg(QString::number(x));
     }

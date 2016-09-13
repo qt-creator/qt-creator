@@ -178,7 +178,6 @@ Item {
                     expressionDialog.visible = false
                 }
             }
-
         }
     }
 

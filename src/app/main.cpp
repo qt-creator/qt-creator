@@ -301,7 +301,8 @@ int main(int argc, char **argv)
 {
     const char *highDpiEnvironmentVariable = setHighDpiEnvironmentVariable();
 
-    QLoggingCategory::setFilterRules(QLatin1String("qtc.*.debug=false"));
+    QLoggingCategory::setFilterRules(QLatin1String("qtc.*.debug=false\nqtc.*.info=false"));
+
 #ifdef Q_OS_MAC
     // increase the number of file that can be opened in Qt Creator.
     struct rlimit rl;

@@ -109,6 +109,7 @@ public:
     QString platform;
     QString deviceSymbolsRoot;
     bool continueAfterAttach = false;
+    QString sysRoot;
 };
 
 } // namespace Debugger

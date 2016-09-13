@@ -183,6 +183,8 @@ void OutputPanePlaceHolder::ensureSizeHintAsMinimum()
 
 int OutputPanePlaceHolder::nonMaximizedSize() const
 {
+    if (!d->m_initialized)
+        return Internal::OutputPaneManager::outputPaneHeightSetting();
     return d->m_nonMaximizedSize;
 }
 

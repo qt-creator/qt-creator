@@ -88,6 +88,8 @@ void BuiltinEditorDocumentParser::updateHelper(const QFutureInterface<void> &fut
         configFile += part->toolchainDefines;
         configFile += overwrittenToolchainDefines(*part.data());
         configFile += part->projectDefines;
+        if (!part->projectConfigFile.isEmpty())
+            configFile += ProjectPart::readProjectConfigFile(part);
         headerPaths = part->headerPaths;
         projectConfigFile = part->projectConfigFile;
         if (baseConfig.usePrecompiledHeaders)
@@ -193,8 +195,6 @@ void BuiltinEditorDocumentParser::updateHelper(const QFutureInterface<void> &fut
         sourceProcessor.setHeaderPaths(state.headerPaths);
         sourceProcessor.setLanguageFeatures(features);
         sourceProcessor.run(configurationFileName);
-        if (!state.projectConfigFile.isEmpty())
-            sourceProcessor.run(state.projectConfigFile);
         if (baseConfig.usePrecompiledHeaders) {
             foreach (const QString &precompiledHeader, state.precompiledHeaders)
                 sourceProcessor.run(precompiledHeader);

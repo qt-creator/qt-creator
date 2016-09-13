@@ -86,6 +86,15 @@ static QStringList uniquePaths(const QStringList &files)
     return paths.toList();
 }
 
+static QString toNdkArch(const QString &arch)
+{
+    if (arch == QLatin1String("armeabi-v7a") || arch == QLatin1String("armeabi"))
+        return QLatin1String("arch-arm");
+    if (arch == QLatin1String("arm64-v8a"))
+        return QLatin1String("arch-arm64");
+    return QLatin1String("arch-") + arch;
+}
+
 RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *runConfig, QString *errorMessage)
 {
     Target *target = runConfig->target();
@@ -109,6 +118,9 @@ RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *
         QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
         params.solibSearchPath.append(qtSoPaths(version));
         params.solibSearchPath.append(uniquePaths(AndroidManager::androidQtSupport(target)->androidExtraLibs(target)));
+        params.sysRoot = AndroidConfigurations::currentConfig().ndkLocation().appendPath(QLatin1String("platforms"))
+                                                     .appendPath(QLatin1String("android-") + QString::number(AndroidManager::minimumSDK(target)))
+                                                     .appendPath(toNdkArch(AndroidManager::targetArch(target))).toString();
     }
     if (aspect->useQmlDebugger()) {
         QTcpServer server;

@@ -428,7 +428,8 @@ static DebuggerRunControl *doCreate(DebuggerRunParameters rp, RunConfiguration *
         rp.nativeMixedEnabled = bool(nativeMixedOverride);
 
     rp.cppEngineType = DebuggerKitInformation::engineType(kit);
-    rp.sysRoot = SysRootKitInformation::sysRoot(kit).toString();
+    if (rp.sysRoot.isEmpty())
+        rp.sysRoot = SysRootKitInformation::sysRoot(kit).toString();
     rp.device = DeviceKitInformation::device(kit);
 
     if (rp.displayName.isEmpty() && runConfig)

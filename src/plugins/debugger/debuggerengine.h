@@ -99,7 +99,6 @@ public:
     QStringList debugSourceLocation; // Gdb "directory"
     QString serverStartScript;
     ProjectExplorer::IDevice::ConstPtr device;
-    QString sysRoot;
     bool isSnapshot = false; // Set if created internally.
     ProjectExplorer::Abi toolChainAbi;
 
