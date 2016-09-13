@@ -58,6 +58,7 @@ SOURCES += \
     clangjobs-test.cpp \
     clangrequestdocumentannotationsjob-test.cpp \
     clangstring-test.cpp \
+    clangtranslationunits-test.cpp \
     clangupdatedocumentannotationsjob-test.cpp \
     codecompletionsextractor-test.cpp \
     codecompletion-test.cpp \

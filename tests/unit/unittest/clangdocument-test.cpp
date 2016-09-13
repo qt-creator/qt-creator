@@ -27,6 +27,8 @@
 
 #include <clangfilepath.h>
 #include <clangtranslationunitupdater.h>
+#include <clangtranslationunits.h>
+#include <clangtranslationunit.h>
 #include <commandlinearguments.h>
 #include <diagnosticset.h>
 #include <highlightingmarks.h>
@@ -56,6 +58,8 @@ using ClangBackEnd::ProjectPart;
 using ClangBackEnd::ProjectPartContainer;
 using ClangBackEnd::Documents;
 using ClangBackEnd::TranslationUnitUpdateResult;
+using ClangBackEnd::TranslationUnit;
+using ClangBackEnd::TranslationUnits;
 
 using testing::IsNull;
 using testing::NotNull;
@@ -332,6 +336,7 @@ TEST_F(Document, IncorporateUpdaterResultResetsDirtyness)
     TranslationUnitUpdateResult result;
     result.reparseTimePoint = std::chrono::steady_clock::now();
     result.needsToBeReparsedChangeTimePoint = document.isNeededReparseChangeTimePoint();
+    result.translationUnitId = document.translationUnit().id();
 
     document.incorporateUpdaterResult(result);
 
@@ -343,11 +348,31 @@ TEST_F(Document, IncorporateUpdaterResultDoesNotResetDirtynessIfItWasChanged)
     TranslationUnitUpdateResult result;
     result.reparseTimePoint = std::chrono::steady_clock::now();
     result.needsToBeReparsedChangeTimePoint = std::chrono::steady_clock::now();
+    result.translationUnitId = document.translationUnit().id();
     document.setDirtyIfDependencyIsMet(document.filePath());
 
     document.incorporateUpdaterResult(result);
 
     ASSERT_TRUE(document.isNeedingReparse());
+}
+
+TEST_F(Document, IncorporateUpdaterResultUpdatesTranslationUnitsReparseTimePoint)
+{
+    TranslationUnits &translationUnits = document.translationUnits();
+    const TranslationUnit initialTranslationUnit = translationUnits.get();
+    translationUnits.updateParseTimePoint(initialTranslationUnit.id(), std::chrono::steady_clock::now());
+    const TranslationUnit alternativeTranslationUnit = translationUnits.createAndAppend();
+    translationUnits.updateParseTimePoint(alternativeTranslationUnit.id(), std::chrono::steady_clock::now());
+    TranslationUnitUpdateResult result;
+    result.reparseTimePoint = std::chrono::steady_clock::now();
+    result.needsToBeReparsedChangeTimePoint = std::chrono::steady_clock::now();
+    result.translationUnitId = initialTranslationUnit.id();
+    document.setDirtyIfDependencyIsMet(document.filePath());
+    ASSERT_THAT(translationUnits.get().id(), Eq(alternativeTranslationUnit.id()));
+
+    document.incorporateUpdaterResult(result);
+
+    ASSERT_THAT(translationUnits.get().id(), Eq(initialTranslationUnit.id()));
 }
 
 void Document::SetUp()

@@ -40,13 +40,15 @@ static bool isVerboseModeEnabled()
 
 namespace ClangBackEnd {
 
-TranslationUnitUpdater::TranslationUnitUpdater(CXIndex &index,
+TranslationUnitUpdater::TranslationUnitUpdater(const Utf8String translationUnitId,
+                                               CXIndex &index,
                                                CXTranslationUnit &cxTranslationUnit,
                                                const TranslationUnitUpdateInput &updateData)
     : m_cxIndex(index)
     , m_cxTranslationUnit(cxTranslationUnit)
     , m_in(updateData)
 {
+    m_out.translationUnitId = translationUnitId;
 }
 
 TranslationUnitUpdateResult TranslationUnitUpdater::update(UpdateMode mode)

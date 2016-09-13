@@ -88,4 +88,10 @@ public:
                                   const Utf8String &projectPartId);
 };
 
+class TranslationUnitDoesNotExist : public ClangBaseException
+{
+public:
+    TranslationUnitDoesNotExist(const Utf8String &filePath);
+};
+
 } // namespace ClangBackEnd

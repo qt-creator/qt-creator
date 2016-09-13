@@ -63,8 +63,9 @@ public:
     { return reparseTimePoint != time_point(); }
 
 public:
-    bool hasParseOrReparseFailed = false;
+    Utf8String translationUnitId;
 
+    bool hasParseOrReparseFailed = false;
     time_point parseTimePoint;
     time_point reparseTimePoint;
     time_point needsToBeReparsedChangeTimePoint;
@@ -81,7 +82,8 @@ public:
     };
 
 public:
-    TranslationUnitUpdater(CXIndex &index,
+    TranslationUnitUpdater(const Utf8String translationUnitId,
+                           CXIndex &index,
                            CXTranslationUnit &cxTranslationUnit,
                            const TranslationUnitUpdateInput &in);
 

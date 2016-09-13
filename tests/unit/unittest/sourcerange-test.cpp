@@ -103,6 +103,7 @@ struct Data {
                       Utf8StringVector(),
                       documents};
     TranslationUnit translationUnit{filePath,
+                                    filePath,
                                     document.translationUnit().cxIndex(),
                                     document.translationUnit().cxTranslationUnit()};
 

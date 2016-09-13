@@ -57,11 +57,14 @@ public:
     };
 
 public:
-    TranslationUnit(const Utf8String &filePath,
+    TranslationUnit(const Utf8String &id,
+                    const Utf8String &filePath,
                     CXIndex &cxIndex,
                     CXTranslationUnit &cxTranslationUnit);
 
     bool isNull() const;
+
+    Utf8String id() const;
 
     Utf8String filePath() const;
     CXIndex &cxIndex() const;
@@ -94,6 +97,7 @@ public:
     SkippedSourceRanges skippedSourceRanges() const;
 
 private:
+    const Utf8String m_id;
     const Utf8String m_filePath;
     CXIndex &m_cxIndex;
     CXTranslationUnit &m_cxTranslationUnit;

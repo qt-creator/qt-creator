@@ -38,10 +38,12 @@
 
 namespace ClangBackEnd {
 
-TranslationUnit::TranslationUnit(const Utf8String &filepath,
+TranslationUnit::TranslationUnit(const Utf8String &id,
+                                 const Utf8String &filepath,
                                  CXIndex &cxIndex,
                                  CXTranslationUnit &cxTranslationUnit)
-    : m_filePath(filepath)
+    : m_id(id)
+    , m_filePath(filepath)
     , m_cxIndex(cxIndex)
     , m_cxTranslationUnit(cxTranslationUnit)
 {
@@ -49,7 +51,12 @@ TranslationUnit::TranslationUnit(const Utf8String &filepath,
 
 bool TranslationUnit::isNull() const
 {
-    return !m_cxTranslationUnit || !m_cxIndex || m_filePath.isEmpty();
+    return !m_cxTranslationUnit || !m_cxIndex || m_filePath.isEmpty() || m_id.isEmpty();
+}
+
+Utf8String TranslationUnit::id() const
+{
+    return m_id;
 }
 
 Utf8String TranslationUnit::filePath() const
@@ -70,7 +77,7 @@ CXTranslationUnit &TranslationUnit::cxTranslationUnit() const
 TranslationUnitUpdateResult TranslationUnit::update(
         const TranslationUnitUpdateInput &parseInput) const
 {
-    TranslationUnitUpdater updater(cxIndex(), cxTranslationUnit(), parseInput);
+    TranslationUnitUpdater updater(id(), cxIndex(), cxTranslationUnit(), parseInput);
 
     return updater.update(TranslationUnitUpdater::UpdateMode::AsNeeded);
 }
@@ -78,7 +85,7 @@ TranslationUnitUpdateResult TranslationUnit::update(
 TranslationUnitUpdateResult TranslationUnit::parse(
         const TranslationUnitUpdateInput &parseInput) const
 {
-    TranslationUnitUpdater updater(cxIndex(), cxTranslationUnit(), parseInput);
+    TranslationUnitUpdater updater(id(), cxIndex(), cxTranslationUnit(), parseInput);
 
     return updater.update(TranslationUnitUpdater::UpdateMode::ParseIfNeeded);
 }
@@ -86,7 +93,7 @@ TranslationUnitUpdateResult TranslationUnit::parse(
 TranslationUnitUpdateResult TranslationUnit::reparse(
         const TranslationUnitUpdateInput &parseInput) const
 {
-    TranslationUnitUpdater updater(cxIndex(), cxTranslationUnit(), parseInput);
+    TranslationUnitUpdater updater(id(), cxIndex(), cxTranslationUnit(), parseInput);
 
     return updater.update(TranslationUnitUpdater::UpdateMode::ForceReparse);
 }

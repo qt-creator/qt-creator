@@ -94,4 +94,11 @@ DocumentProcessorDoesNotExist::DocumentProcessorDoesNotExist(const Utf8String &f
            + Utf8StringLiteral("' does not exist!");
 }
 
+TranslationUnitDoesNotExist::TranslationUnitDoesNotExist(const Utf8String &filePath)
+{
+    m_info += Utf8StringLiteral("TranslationUnit for file '")
+            + filePath
+            + Utf8StringLiteral("' does not exist.");
+}
+
 } // namespace ClangBackEnd
