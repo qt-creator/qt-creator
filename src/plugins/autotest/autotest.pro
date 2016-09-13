@@ -70,6 +70,7 @@ HEADERS += \
     testoutputreader.h \
     autotesticons.h \
     itestframework.h \
+    iframeworksettings.h \
     itestparser.h \
     gtest/gtestconfiguration.h \
     gtest/gtestparser.h \

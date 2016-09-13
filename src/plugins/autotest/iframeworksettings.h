@@ -25,31 +25,20 @@
 
 #pragma once
 
-#include "../iframeworksettings.h"
+#include <QSettings>
 
 namespace Autotest {
 namespace Internal {
 
-enum MetricsType
-{
-    Walltime,
-    TickCounter,
-    EventCounter,
-    CallGrind,
-    Perf
-};
-
-class QtTestSettings : public IFrameworkSettings
+class IFrameworkSettings
 {
 public:
-    QtTestSettings() {}
-    QString name() const override;
-    void fromSettings(const QSettings *s) override;
-    void toSettings(QSettings *s) const override;
-    static QString metricsTypeToOption(const MetricsType type);
+    IFrameworkSettings() {}
+    virtual ~IFrameworkSettings() {}
 
-    MetricsType metrics = Walltime;
-    bool noCrashHandler = true;
+    virtual QString name() const = 0;
+    virtual void toSettings(QSettings *s) const = 0;
+    virtual void fromSettings(const QSettings *s) = 0;
 };
 
 } // namespace Internal

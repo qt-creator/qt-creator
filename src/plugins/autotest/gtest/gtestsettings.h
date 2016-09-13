@@ -25,17 +25,18 @@
 
 #pragma once
 
-#include <QSettings>
+#include "../iframeworksettings.h"
 
 namespace Autotest {
 namespace Internal {
 
-class GTestSettings
+class GTestSettings : public IFrameworkSettings
 {
 public:
     GTestSettings() {}
-    void fromSettings(const QSettings *s);
-    void toSettings(QSettings *s) const;
+    QString name() const override;
+    void fromSettings(const QSettings *s) override;
+    void toSettings(QSettings *s) const override;
 
     int iterations = 1;
     int seed = 0;

@@ -36,6 +36,11 @@ static const char seedKey[]             = "Seed";
 static const char shuffleKey[]          = "Shuffle";
 static const char throwOnFailureKey[]   = "ThrowOnFailure";
 
+QString GTestSettings::name() const
+{
+    return QString("GTest");
+}
+
 void GTestSettings::fromSettings(const QSettings *s)
 {
     runDisabled = s->value(QLatin1String(runDisabledKey), false).toBool();

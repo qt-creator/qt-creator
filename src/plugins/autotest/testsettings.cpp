@@ -61,10 +61,10 @@ void TestSettings::toSettings(QSettings *s) const
     for (const Core::Id &id : frameworks.keys())
         s->setValue(QLatin1String(id.name()), frameworks.value(id));
 
-    s->beginGroup("QtTest");
+    s->beginGroup(qtTestSettings.name());
     qtTestSettings.toSettings(s);
     s->endGroup();
-    s->beginGroup("GTest");
+    s->beginGroup(gTestSettings.name());
     gTestSettings.toSettings(s);
     s->endGroup();
 
@@ -89,10 +89,10 @@ void TestSettings::fromSettings(QSettings *s)
                                        frameworkManager->isActive(id)).toBool());
     }
 
-    s->beginGroup("QtTest");
+    s->beginGroup(qtTestSettings.name());
     qtTestSettings.fromSettings(s);
     s->endGroup();
-    s->beginGroup("GTest");
+    s->beginGroup(gTestSettings.name());
     gTestSettings.fromSettings(s);
     s->endGroup();
 

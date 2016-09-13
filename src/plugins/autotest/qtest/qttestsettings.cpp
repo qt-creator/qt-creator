@@ -49,6 +49,11 @@ static MetricsType intToMetrics(int value)
     }
 }
 
+QString QtTestSettings::name() const
+{
+    return QString("QtTest");
+}
+
 void QtTestSettings::fromSettings(const QSettings *s)
 {
     metrics = intToMetrics(s->value(QLatin1String(metricsKey), Walltime).toInt());
