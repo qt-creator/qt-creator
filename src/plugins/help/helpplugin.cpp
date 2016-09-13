@@ -633,7 +633,7 @@ void HelpPlugin::handleHelpRequest(const QUrl &url, HelpManager::HelpViewerLocat
                 if (url.authority() == "org.qt-project.qtcreator")
                     urlPrefix.append(QString::fromLatin1("qtcreator"));
                 else
-                    urlPrefix.append("latest");
+                    urlPrefix.append("qt-5");
             address = urlPrefix + address.mid(address.lastIndexOf(QLatin1Char('/')));
         }
     }

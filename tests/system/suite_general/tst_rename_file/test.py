@@ -27,8 +27,9 @@ source("../../shared/qtcreator.py")
 
 def main():
     # prepare example project
-    projectName = "declarative-music-browser"
-    sourceExample = os.path.join(sdkPath, "Examples", "QtMobility", projectName)
+    projectName = "adding"
+    sourceExample = os.path.join(Qt5Path.examplesPath(Targets.DESKTOP_561_DEFAULT),
+                                 "qml", "referenceexamples", "adding")
     proFile = projectName + ".pro"
     if not neededFilePresent(os.path.join(sourceExample, proFile)):
         return
@@ -40,25 +41,33 @@ def main():
         return
     usedProFile = os.path.join(templateDir, proFile)
     openQmakeProject(usedProFile)
+    openDocument(projectName + "." + projectName + "\\.pro")
+    typeLines(waitForObject(":Qt Creator_TextEditor::TextEditorWidget"),
+              "OTHER_FILES += example.qml")
+    invokeMenuItem("File", "Save All")
+    invokeMenuItem("File", "Close All")
     progressBarWait()
-    for filetype, filename in [["Headers", "utility.h"],
+    for filetype, filename in [["Headers", "person.h"],
                                ["Sources", "main.cpp"],
-                               ["Sources", "utility.cpp"],
-                               ["Resources", "musicbrowser.qrc"],
-                               ["QML", "musicbrowser.qml"]]:
+                               ["Sources", "person.cpp"],
+                               ["Resources", "adding.qrc"],
+                               ["QML", "example.qml"]]:
         filenames = ["ABCD" + filename.upper(), "abcd" + filename.lower(), "test", "TEST", filename]
         previous = filenames[-1]
         for filename in filenames:
             tempFiletype = filetype
-            if previous in ("test", "TEST") or filetype == "QML" and previous[-4:] != ".qml":
+            if (filetype == "Resources" and previous in ("test", "TEST")
+                or filetype == "QML" and not previous.endswith(".qml")):
                 tempFiletype = "Other files"
+            elif filetype == "Sources" and previous in ("test", "TEST"):
+                tempFiletype = "Headers"
             renameFile(templateDir, usedProFile, projectName + "." + tempFiletype,
                        previous, filename)
             # QTCREATORBUG-13176 does update the navigator async
             progressBarWait()
-            if tempFiletype == "Headers":   # QTCREATORBUG-13204
+            if filetype == "Headers":
                 verifyRenamedIncludes(templateDir, "main.cpp", previous, filename)
-                verifyRenamedIncludes(templateDir, "utility.cpp", previous, filename)
+                verifyRenamedIncludes(templateDir, "person.cpp", previous, filename)
             previous = filename
     invokeMenuItem("File", "Exit")
 

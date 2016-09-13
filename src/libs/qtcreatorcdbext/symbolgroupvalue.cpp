@@ -1505,6 +1505,14 @@ void formatKnownTypeFlags(std::ostream &os, KnownType kt)
         os << " simple_dumper";
 }
 
+unsigned SymbolGroupValue::isMovable(const std::string &t, const SymbolGroupValue &v)
+{
+    KnownType kt = knownType(t, false);
+    if (kt & (KT_POD_Type | KT_Qt_MovableType | KT_Qt_PrimitiveType))
+        return true;
+    return kt == KT_QStringList && QtInfo::get(v.context()).version >= 5;
+}
+
 static inline DumpParameterRecodeResult
     checkCharArrayRecode(const SymbolGroupValue &v)
 {

@@ -41,13 +41,12 @@ def handlePackagingMessageBoxes():
             break
 
 def main():
-    global sdkPath
     welcomePage = ":Qt Creator.WelcomePage_QQuickWidget"
     # open Qt Creator
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    qchs = [os.path.join(sdkPath, "Documentation", "qt.qch")]
+    qchs = []
     for p in Qt5Path.getPaths(Qt5Path.DOCS):
         qchs.extend([os.path.join(p, "qtopengl.qch"), os.path.join(p, "qtwidgets.qch")])
     addHelpDocumentation(qchs)
@@ -64,13 +63,8 @@ def main():
                5, 5, 0, Qt.LeftButton)
     test.verify(checkIfObjectExists(getQmlItem("Text", welcomePage, False, "text='Examples'")),
                 "Verifying: 'Examples' topic is opened and the examples are shown.")
-    basePath = "opengl/2dpainting/2dpainting.pro"
-    qt4Exmpl = os.path.join(sdkPath, "Examples", "4.7", basePath)
-    qt5Exmpls = []
-    for p in Qt5Path.getPaths(Qt5Path.EXAMPLES):
-        qt5Exmpls.append(os.path.join(p, basePath))
-    proFiles = [qt4Exmpl]
-    proFiles.extend(qt5Exmpls)
+    proFiles = map(lambda p: os.path.join(p, "opengl", "2dpainting", "2dpainting.pro"),
+                   Qt5Path.getPaths(Qt5Path.EXAMPLES))
     cleanUpUserFiles(proFiles)
     for p in proFiles:
         removePackagingDirectory(os.path.dirname(p))
@@ -112,13 +106,8 @@ def main():
 
     # go to "Welcome" page and choose another example
     switchViewTo(ViewConstants.WELCOME)
-    basePath = "itemviews/addressbook/addressbook.pro"
-    qt4Exmpl = os.path.join(sdkPath, "Examples", "4.7", basePath)
-    qt5Exmpls = []
-    for p in Qt5Path.getPaths(Qt5Path.EXAMPLES):
-        qt5Exmpls.append(os.path.join(p, "widgets", basePath))
-    proFiles = [qt4Exmpl]
-    proFiles.extend(qt5Exmpls)
+    proFiles = map(lambda p: os.path.join(p, "widgets", "itemviews", "addressbook", "addressbook.pro"),
+                   Qt5Path.getPaths(Qt5Path.EXAMPLES))
     cleanUpUserFiles(proFiles)
     for p in proFiles:
         removePackagingDirectory(os.path.dirname(p))

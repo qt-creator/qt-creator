@@ -32,6 +32,7 @@
 #include "qmlprofilerconstants.h"
 
 #include <QHash>
+#include <QStack>
 #include <QVector>
 #include <QObject>
 
@@ -121,7 +122,7 @@ public:
     const QmlStatisticsRelativesMap &getData(int typeId) const;
     const QVector<QmlEventType> &getTypes() const;
 
-    void loadEvent(const QmlEvent &event);
+    void loadEvent(RangeType type, const QmlEvent &event);
     void finalize(const QSet<int> &eventsInBindingLoop);
 
     QmlProfilerStatisticsRelation relation() const;
@@ -133,12 +134,12 @@ protected:
     QHash <int, QmlStatisticsRelativesMap> m_data;
     QmlProfilerModelManager *m_modelManager;
 
-    // for level computation
-    QHash<int, qint64> m_startTimesPerLevel;
-    int m_level = 0;
-
-    // compute parent-child relationship and call count
-    QHash<int, int> m_typesPerLevel;
+    struct Frame {
+        qint64 startTime;
+        int typeId;
+    };
+    QStack<Frame> m_callStack;
+    QStack<Frame> m_compileStack;
     const QmlProfilerStatisticsRelation m_relation;
 };
 

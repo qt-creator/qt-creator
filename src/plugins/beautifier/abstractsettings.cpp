@@ -275,7 +275,8 @@ void AbstractSettings::createDocumentationFile() const
 void AbstractSettings::read()
 {
     // Set default values
-    setSupportedMimeTypes("text/x-c++src;text/x-c++hdr");
+    setSupportedMimeTypes("text/x-c++src;text/x-c++hdr;text/x-csrc;text/x-chdr;text/x-objcsrc;"
+                          "text/x-objc++src");
 
     // Read settings, except styles
     QSettings *s = Core::ICore::settings();

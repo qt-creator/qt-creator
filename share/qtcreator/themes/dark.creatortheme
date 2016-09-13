@@ -160,7 +160,7 @@ Welcome_BackgroundColor=normalBackground
 Welcome_ButtonBackgroundColor=normalBackground
 Welcome_DividerColor=ff555555
 Welcome_HoverColor=ff444444
-Welcome_LinkColor=ff5caa15
+Welcome_LinkColor=ff78bb39
 
 Timeline_TextColor=text
 Timeline_BackgroundColor1=normalBackground
