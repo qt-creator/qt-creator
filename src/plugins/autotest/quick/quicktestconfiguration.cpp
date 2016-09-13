@@ -40,7 +40,8 @@ QStringList QuickTestConfiguration::argumentsForTestRunner(const TestSettings &s
 {
     QStringList arguments({"-xml"});
 
-    const QString &metricsOption = TestSettings::metricsTypeToOption(settings.metrics);
+    const QString &metricsOption
+            = QtTestSettings::metricsTypeToOption(settings.qtTestSettings.metrics);
     if (!metricsOption.isEmpty())
         arguments << metricsOption;
     if (testCases().count())

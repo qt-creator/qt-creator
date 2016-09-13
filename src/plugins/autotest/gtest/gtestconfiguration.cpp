@@ -42,19 +42,19 @@ QStringList GTestConfiguration::argumentsForTestRunner(const TestSettings &setti
     const QStringList &testSets = testCases();
     if (testSets.size())
         arguments << QLatin1String("--gtest_filter=") + testSets.join(QLatin1Char(':'));
-    if (settings.gtestRunDisabled)
+    if (settings.gTestSettings.runDisabled)
         arguments << QLatin1String("--gtest_also_run_disabled_tests");
-    if (settings.gtestRepeat)
-        arguments << QString::fromLatin1("--gtest_repeat=%1").arg(settings.gtestIterations);
-    if (settings.gtestShuffle) {
+    if (settings.gTestSettings.repeat)
+        arguments << QString::fromLatin1("--gtest_repeat=%1").arg(settings.gTestSettings.iterations);
+    if (settings.gTestSettings.shuffle) {
         arguments << QLatin1String("--gtest_shuffle")
-                  << QString::fromLatin1("--gtest_random_seed=%1").arg(settings.gtestSeed);
+                  << QString::fromLatin1("--gtest_random_seed=%1").arg(settings.gTestSettings.seed);
     }
-    if (settings.gtestThrowOnFailure)
+    if (settings.gTestSettings.throwOnFailure)
         arguments << "--gtest_throw_on_failure";
 
     if (runMode() == DebuggableTestConfiguration::Debug) {
-        if (settings.gtestBreakOnFailure)
+        if (settings.gTestSettings.breakOnFailure)
             arguments << "--gtest_break_on_failure";
     }
     return arguments;

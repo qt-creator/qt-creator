@@ -25,37 +25,25 @@
 
 #pragma once
 
-#include "gtest/gtestsettings.h"
-#include "qtest/qttestsettings.h"
-
-#include <QHash>
-
-namespace Core { class Id; }
-
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+#include <QSettings>
 
 namespace Autotest {
 namespace Internal {
 
-struct TestSettings
+class GTestSettings
 {
-    TestSettings();
+public:
+    GTestSettings() {}
+    void fromSettings(const QSettings *s);
     void toSettings(QSettings *s) const;
-    void fromSettings(QSettings *s);
-    static QString metricsTypeToOption(const MetricsType type);
 
-    int timeout;
-    bool omitInternalMssg = true;
-    bool omitRunConfigWarn = false;
-    bool limitResultOutput = true;
-    bool autoScroll = true;
-    bool alwaysParse = true;
-    QHash<Core::Id, bool> frameworks;
-
-    QtTestSettings qtTestSettings;
-    GTestSettings gTestSettings;
+    int iterations = 1;
+    int seed = 0;
+    bool runDisabled = false;
+    bool shuffle = false;
+    bool repeat = false;
+    bool throwOnFailure = false;
+    bool breakOnFailure = true;
 };
 
 } // namespace Internal

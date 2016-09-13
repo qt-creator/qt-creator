@@ -64,16 +64,10 @@ void TestSettingsWidget::setSettings(const TestSettings &settings)
     m_ui.limitResultOutputCB->setChecked(settings.limitResultOutput);
     m_ui.autoScrollCB->setChecked(settings.autoScroll);
     m_ui.alwaysParseCB->setChecked(settings.alwaysParse);
-    m_ui.disableCrashhandlerCB->setChecked(settings.qtestNoCrashHandler);
-    m_ui.runDisabledGTestsCB->setChecked(settings.gtestRunDisabled);
-    m_ui.repeatGTestsCB->setChecked(settings.gtestRepeat);
-    m_ui.shuffleGTestsCB->setChecked(settings.gtestShuffle);
-    m_ui.repetitionSpin->setValue(settings.gtestIterations);
-    m_ui.seedSpin->setValue(settings.gtestSeed);
-    m_ui.breakOnFailureCB->setChecked(settings.gtestBreakOnFailure);
-    m_ui.throwOnFailureCB->setChecked(settings.gtestThrowOnFailure);
+    populateFrameworksListWidget(settings.frameworks);
 
-    switch (settings.metrics) {
+    m_ui.disableCrashhandlerCB->setChecked(settings.qtTestSettings.noCrashHandler);
+    switch (settings.qtTestSettings.metrics) {
     case MetricsType::Walltime:
         m_ui.walltimeRB->setChecked(true);
         break;
@@ -92,7 +86,14 @@ void TestSettingsWidget::setSettings(const TestSettings &settings)
     default:
         m_ui.walltimeRB->setChecked(true);
     }
-    populateFrameworksListWidget(settings.frameworks);
+
+    m_ui.runDisabledGTestsCB->setChecked(settings.gTestSettings.runDisabled);
+    m_ui.repeatGTestsCB->setChecked(settings.gTestSettings.repeat);
+    m_ui.shuffleGTestsCB->setChecked(settings.gTestSettings.shuffle);
+    m_ui.repetitionSpin->setValue(settings.gTestSettings.iterations);
+    m_ui.seedSpin->setValue(settings.gTestSettings.seed);
+    m_ui.breakOnFailureCB->setChecked(settings.gTestSettings.breakOnFailure);
+    m_ui.throwOnFailureCB->setChecked(settings.gTestSettings.throwOnFailure);
 }
 
 TestSettings TestSettingsWidget::settings() const
@@ -104,27 +105,29 @@ TestSettings TestSettingsWidget::settings() const
     result.limitResultOutput = m_ui.limitResultOutputCB->isChecked();
     result.autoScroll = m_ui.autoScrollCB->isChecked();
     result.alwaysParse = m_ui.alwaysParseCB->isChecked();
-    result.qtestNoCrashHandler = m_ui.disableCrashhandlerCB->isChecked();
-    result.gtestRunDisabled = m_ui.runDisabledGTestsCB->isChecked();
-    result.gtestRepeat = m_ui.repeatGTestsCB->isChecked();
-    result.gtestShuffle = m_ui.shuffleGTestsCB->isChecked();
-    result.gtestIterations = m_ui.repetitionSpin->value();
-    result.gtestSeed = m_ui.seedSpin->value();
-    result.gtestBreakOnFailure = m_ui.breakOnFailureCB->isChecked();
-    result.gtestThrowOnFailure = m_ui.throwOnFailureCB->isChecked();
-
-    if (m_ui.walltimeRB->isChecked())
-        result.metrics = MetricsType::Walltime;
-    else if (m_ui.tickcounterRB->isChecked())
-        result.metrics = MetricsType::TickCounter;
-    else if (m_ui.eventCounterRB->isChecked())
-        result.metrics = MetricsType::EventCounter;
-    else if (m_ui.callgrindRB->isChecked())
-        result.metrics = MetricsType::CallGrind;
-    else if (m_ui.perfRB->isChecked())
-        result.metrics = MetricsType::Perf;
-
     result.frameworks = frameworks();
+
+    // QtTestSettings
+    result.qtTestSettings.noCrashHandler = m_ui.disableCrashhandlerCB->isChecked();
+    if (m_ui.walltimeRB->isChecked())
+        result.qtTestSettings.metrics = MetricsType::Walltime;
+    else if (m_ui.tickcounterRB->isChecked())
+        result.qtTestSettings.metrics = MetricsType::TickCounter;
+    else if (m_ui.eventCounterRB->isChecked())
+        result.qtTestSettings.metrics = MetricsType::EventCounter;
+    else if (m_ui.callgrindRB->isChecked())
+        result.qtTestSettings.metrics = MetricsType::CallGrind;
+    else if (m_ui.perfRB->isChecked())
+        result.qtTestSettings.metrics = MetricsType::Perf;
+
+    // GTestSettings
+    result.gTestSettings.runDisabled = m_ui.runDisabledGTestsCB->isChecked();
+    result.gTestSettings.repeat = m_ui.repeatGTestsCB->isChecked();
+    result.gTestSettings.shuffle = m_ui.shuffleGTestsCB->isChecked();
+    result.gTestSettings.iterations = m_ui.repetitionSpin->value();
+    result.gTestSettings.seed = m_ui.seedSpin->value();
+    result.gTestSettings.breakOnFailure = m_ui.breakOnFailureCB->isChecked();
+    result.gTestSettings.throwOnFailure = m_ui.throwOnFailureCB->isChecked();
 
     return result;
 }

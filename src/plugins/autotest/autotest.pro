@@ -31,6 +31,7 @@ SOURCES += \
     gtest/gtestoutputreader.cpp \
     gtest/gtestvisitors.cpp \
     gtest/gtestframework.cpp \
+    gtest/gtestsettings.cpp \
     qtest/qttesttreeitem.cpp \
     qtest/qttestvisitors.cpp \
     qtest/qttestconfiguration.cpp \
@@ -38,6 +39,7 @@ SOURCES += \
     qtest/qttestresult.cpp \
     qtest/qttestparser.cpp \
     qtest/qttestframework.cpp \
+    qtest/qttestsettings.cpp \
     quick/quicktestconfiguration.cpp \
     quick/quicktestparser.cpp \
     quick/quicktesttreeitem.cpp \
@@ -77,6 +79,7 @@ HEADERS += \
     gtest/gtest_utils.h \
     gtest/gtestvisitors.h \
     gtest/gtestframework.h \
+    gtest/gtestsettings.h \
     qtest/qttesttreeitem.h \
     qtest/qttest_utils.h \
     qtest/qttestresult.h \
@@ -85,6 +88,7 @@ HEADERS += \
     qtest/qttestoutputreader.h \
     qtest/qttestparser.h \
     qtest/qttestframework.h \
+    qtest/qttestsettings.h \
     quick/quicktestconfiguration.h \
     quick/quicktestparser.h \
     quick/quicktesttreeitem.h \

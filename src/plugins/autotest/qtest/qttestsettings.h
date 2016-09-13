@@ -25,37 +25,30 @@
 
 #pragma once
 
-#include "gtest/gtestsettings.h"
-#include "qtest/qttestsettings.h"
-
-#include <QHash>
-
-namespace Core { class Id; }
-
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+#include <QSettings>
 
 namespace Autotest {
 namespace Internal {
 
-struct TestSettings
+enum MetricsType
 {
-    TestSettings();
+    Walltime,
+    TickCounter,
+    EventCounter,
+    CallGrind,
+    Perf
+};
+
+class QtTestSettings
+{
+public:
+    QtTestSettings() {}
+    void fromSettings(const QSettings *s);
     void toSettings(QSettings *s) const;
-    void fromSettings(QSettings *s);
     static QString metricsTypeToOption(const MetricsType type);
 
-    int timeout;
-    bool omitInternalMssg = true;
-    bool omitRunConfigWarn = false;
-    bool limitResultOutput = true;
-    bool autoScroll = true;
-    bool alwaysParse = true;
-    QHash<Core::Id, bool> frameworks;
-
-    QtTestSettings qtTestSettings;
-    GTestSettings gTestSettings;
+    MetricsType metrics = Walltime;
+    bool noCrashHandler = true;
 };
 
 } // namespace Internal

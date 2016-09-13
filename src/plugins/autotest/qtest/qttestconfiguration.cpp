@@ -40,14 +40,15 @@ QStringList QtTestConfiguration::argumentsForTestRunner(const TestSettings &sett
 {
     QStringList arguments("-xml");
 
-    const QString &metricsOption = TestSettings::metricsTypeToOption(settings.metrics);
+    const QString &metricsOption
+            = QtTestSettings::metricsTypeToOption(settings.qtTestSettings.metrics);
     if (!metricsOption.isEmpty())
         arguments << metricsOption;
     if (testCases().count())
         arguments << testCases();
 
     if (runMode() == DebuggableTestConfiguration::Debug) {
-        if (settings.qtestNoCrashHandler)
+        if (settings.qtTestSettings.noCrashHandler)
             arguments << "-nocrashhandler";
     }
 

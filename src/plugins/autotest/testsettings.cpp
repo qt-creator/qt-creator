@@ -33,28 +33,18 @@
 namespace Autotest {
 namespace Internal {
 
-static const char group[] = "Autotest";
-static const char timeoutKey[] = "Timeout";
-static const char metricsKey[] = "Metrics";
-static const char omitInternalKey[] = "OmitInternal";
-static const char omitRunConfigWarnKey[] = "OmitRCWarnings";
-static const char limitResultOutputKey[] = "LimitResultOutput";
-static const char autoScrollKey[] = "AutoScrollResults";
-static const char alwaysParseKey[] = "AlwaysParse";
-static const char qtestNoCrashhandlerKey[] = "NoCrashhandlerOnDebug";
-static const char gtestRunDisabledKey[] = "RunDisabledGTests";
-static const char gtestRepeatKey[] = "RepeatGTests";
-static const char gtestShuffleKey[] = "ShuffleGTests";
-static const char gtestIterationsKey[] = "IterationsGTests";
-static const char gtestSeedKey[] = "SeedGTests";
-static const char gtestThrowOnFailureKey[] = "ThrowOnFailure";
-static const char gtestBreakOnFailureKey[] = "BreakOnFailure";
+static const char group[]                   = "Autotest";
+static const char timeoutKey[]              = "Timeout";
+static const char omitInternalKey[]         = "OmitInternal";
+static const char omitRunConfigWarnKey[]    = "OmitRCWarnings";
+static const char limitResultOutputKey[]    = "LimitResultOutput";
+static const char autoScrollKey[]           = "AutoScrollResults";
+static const char alwaysParseKey[]          = "AlwaysParse";
 
 static const int defaultTimeout = 60000;
 
 TestSettings::TestSettings()
-    : timeout(defaultTimeout), metrics(Walltime), omitInternalMssg(true), omitRunConfigWarn(false),
-      limitResultOutput(true), autoScroll(true), alwaysParse(true)
+    : timeout(defaultTimeout)
 {
 }
 
@@ -62,88 +52,51 @@ void TestSettings::toSettings(QSettings *s) const
 {
     s->beginGroup(QLatin1String(group));
     s->setValue(QLatin1String(timeoutKey), timeout);
-    s->setValue(QLatin1String(metricsKey), metrics);
     s->setValue(QLatin1String(omitInternalKey), omitInternalMssg);
     s->setValue(QLatin1String(omitRunConfigWarnKey), omitRunConfigWarn);
     s->setValue(QLatin1String(limitResultOutputKey), limitResultOutput);
     s->setValue(QLatin1String(autoScrollKey), autoScroll);
     s->setValue(QLatin1String(alwaysParseKey), alwaysParse);
-    s->setValue(QLatin1String(qtestNoCrashhandlerKey), qtestNoCrashHandler);
-    s->setValue(QLatin1String(gtestRunDisabledKey), gtestRunDisabled);
-    s->setValue(QLatin1String(gtestRepeatKey), gtestRepeat);
-    s->setValue(QLatin1String(gtestShuffleKey), gtestShuffle);
-    s->setValue(QLatin1String(gtestIterationsKey), gtestIterations);
-    s->setValue(QLatin1String(gtestSeedKey), gtestSeed);
-    s->setValue(QLatin1String(gtestBreakOnFailureKey), gtestBreakOnFailure);
-    s->setValue(QLatin1String(gtestThrowOnFailureKey), gtestThrowOnFailure);
     // store frameworks and their current active state
     for (const Core::Id &id : frameworks.keys())
         s->setValue(QLatin1String(id.name()), frameworks.value(id));
+
+    s->beginGroup("QtTest");
+    qtTestSettings.toSettings(s);
+    s->endGroup();
+    s->beginGroup("GTest");
+    gTestSettings.toSettings(s);
+    s->endGroup();
+
     s->endGroup();
 }
 
-static MetricsType intToMetrics(int value)
+void TestSettings::fromSettings(QSettings *s)
 {
-    switch (value) {
-    case Walltime:
-        return Walltime;
-    case TickCounter:
-        return TickCounter;
-    case EventCounter:
-        return EventCounter;
-    case CallGrind:
-        return CallGrind;
-    case Perf:
-        return Perf;
-    default:
-        return Walltime;
-    }
-}
-
-void TestSettings::fromSettings(const QSettings *s)
-{
-    const QString root = QLatin1String(group) + QLatin1Char('/');
-    timeout = s->value(root + QLatin1String(timeoutKey), defaultTimeout).toInt();
-    metrics = intToMetrics(s->value(root + QLatin1String(metricsKey), Walltime).toInt());
-    omitInternalMssg = s->value(root + QLatin1String(omitInternalKey), true).toBool();
-    omitRunConfigWarn = s->value(root + QLatin1String(omitRunConfigWarnKey), false).toBool();
-    limitResultOutput = s->value(root + QLatin1String(limitResultOutputKey), true).toBool();
-    autoScroll = s->value(root + QLatin1String(autoScrollKey), true).toBool();
-    alwaysParse = s->value(root + QLatin1String(alwaysParseKey), true).toBool();
-    qtestNoCrashHandler = s->value(root + QLatin1String(qtestNoCrashhandlerKey), true).toBool();
-    gtestRunDisabled = s->value(root + QLatin1String(gtestRunDisabledKey), false).toBool();
-    gtestRepeat = s->value(root + QLatin1String(gtestRepeatKey), false).toBool();
-    gtestShuffle = s->value(root + QLatin1String(gtestShuffleKey), false).toBool();
-    gtestIterations = s->value(root + QLatin1String(gtestIterationsKey), 1).toInt();
-    gtestSeed = s->value(root + QLatin1String(gtestSeedKey), 0).toInt();
-    gtestBreakOnFailure = s->value(root + QLatin1String(gtestBreakOnFailureKey), true).toBool();
-    gtestThrowOnFailure = s->value(root + QLatin1String(gtestThrowOnFailureKey), false).toBool();
+    s->beginGroup(group);
+    timeout = s->value(QLatin1String(timeoutKey), defaultTimeout).toInt();
+    omitInternalMssg = s->value(QLatin1String(omitInternalKey), true).toBool();
+    omitRunConfigWarn = s->value(QLatin1String(omitRunConfigWarnKey), false).toBool();
+    limitResultOutput = s->value(QLatin1String(limitResultOutputKey), true).toBool();
+    autoScroll = s->value(QLatin1String(autoScrollKey), true).toBool();
+    alwaysParse = s->value(QLatin1String(alwaysParseKey), true).toBool();
     // try to get settings for registered frameworks
     TestFrameworkManager *frameworkManager = TestFrameworkManager::instance();
     const QList<Core::Id> &registered = frameworkManager->registeredFrameworkIds();
     frameworks.clear();
     for (const Core::Id &id : registered) {
-        frameworks.insert(id, s->value(root + QLatin1String(id.name()),
+        frameworks.insert(id, s->value(QLatin1String(id.name()),
                                        frameworkManager->isActive(id)).toBool());
     }
-}
 
-QString TestSettings::metricsTypeToOption(const MetricsType type)
-{
-    switch (type) {
-    case MetricsType::Walltime:
-        return QString();
-    case MetricsType::TickCounter:
-        return QLatin1String("-tickcounter");
-    case MetricsType::EventCounter:
-        return QLatin1String("-eventcounter");
-    case MetricsType::CallGrind:
-        return QLatin1String("-callgrind");
-    case MetricsType::Perf:
-        return QLatin1String("-perf");
-    default:
-        return QString();
-    }
+    s->beginGroup("QtTest");
+    qtTestSettings.fromSettings(s);
+    s->endGroup();
+    s->beginGroup("GTest");
+    gTestSettings.fromSettings(s);
+    s->endGroup();
+
+    s->endGroup();
 }
 
 } // namespace Internal
