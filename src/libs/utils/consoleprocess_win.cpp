@@ -383,4 +383,10 @@ QStringList ConsoleProcess::availableTerminalEmulators()
     return QStringList(ConsoleProcess::defaultTerminalEmulator());
 }
 
+void ConsoleProcess::setSettings(QSettings *settings)
+{
+    Q_UNUSED(settings)
+    // Not used on Windows
+}
+
 } // namespace Utils
