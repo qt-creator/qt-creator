@@ -937,9 +937,10 @@ void LldbEngine::handleStateNotification(const GdbMi &reportedState)
         if (runParameters().continueAfterAttach)
             m_continueAtNextSpontaneousStop = true;
         notifyEngineRunAndInferiorRunOk();
-    } else if (newState == "enginerunandinferiorstopok")
+    } else if (newState == "enginerunandinferiorstopok") {
         notifyEngineRunAndInferiorStopOk();
-    else if (newState == "enginerunokandinferiorunrunnable")
+        continueInferior();
+    } else if (newState == "enginerunokandinferiorunrunnable")
         notifyEngineRunOkAndInferiorUnrunnable();
     else if (newState == "inferiorshutdownok")
         notifyInferiorShutdownOk();
