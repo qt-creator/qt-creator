@@ -335,9 +335,6 @@ class Dumper(DumperBase):
                 #warn("BASE BITSIZE: %s" % field.lbitsize)
                 # FIXME: This is wrong for virtual bases.
                 return None  # Let standard behavior kick in.
-        elif field.arrayIndex is not None:
-            #warn("FETCHING BY ARRAY INDEX: %s: %s" % (field.arrayIndex, field.name))
-            val = nativeValue.GetChildAtIndex(field.arrayIndex)
         else:
             #warn("FETCHING BY NAME: %s: %s" % (field, field.name))
             val = self.nativeValueChildFromNameHelper(nativeValue, field.name)

@@ -390,11 +390,9 @@ class Dumper(DumperBase):
                 field = self.Field(self)
                 field.ltype = self.fromNativeType(innerType)
                 field.parentType = self.fromNativeType(nativeType)
-                field.name = None
                 field.isBaseClass = False
                 field.lbitsize = innerType.sizeof
                 field.lbitpos = i * innerType.sizeof * 8
-                field.arrayIndex = i
                 fields.append(field)
             return fields
 
@@ -472,13 +470,6 @@ class Dumper(DumperBase):
                 # The generic handling is almost good enough, but does not
                 # downcast the produced values.
                 return None
-        if field.arrayIndex is not None:
-            #warn("IS ARRAY ITEM %s" % field.arrayIndex)
-            if nativeValue.type.code == ArrayCode:
-                typeobj = nativeValue.type.strip_typedefs()
-                innerType = typeobj.target()
-                addr = nativeValue.address + arrayIndex * innerType.sizeof
-                return self.createValue(addr, self.fromNativeType(innerType))
         if field.name is not None:
             return self.nativeValueDownCast(nativeValue[field.name])
         error("FIELD EXTARCTION FAILED: %s" % field)

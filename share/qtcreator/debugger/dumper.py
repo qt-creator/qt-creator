@@ -816,8 +816,7 @@ class DumperBase:
                     self.putItem(baseValue, False)
                 continue
 
-            name = field.arrayIndex if field.name is None else field.name
-            with SubItem(self, name):
+            with SubItem(self, field.name):
                 self.putItem(value[field])
 
 
@@ -2742,10 +2741,6 @@ class DumperBase:
                 field = self.dumper.Field(self.dumper)
                 field.parentType = self.type
                 field.name = index
-            elif self.dumper.isInt(index):
-                field = self.dumper.Field(self.dumper)
-                field.parentType = self.type
-                field.arrayIndex = index
             elif isinstance(index, self.dumper.Field):
                 field = index
             else:
@@ -2788,29 +2783,21 @@ class DumperBase:
 
                 if self.laddress is not None:
                     #warn("ADDRESS")
-                    if field.arrayIndex is not None:
-                        #warn("ARRAY")
-                        val.laddress = self.address + field.arrayIndex * fieldSize
+                    fieldBitpos = field.bitpos()
+                    fieldOffset = None if fieldBitpos is None else fieldBitpos >> 3
+                    if  fieldBitpos is not None:
+                        #warn("BITPOS: %s" % fieldBitpos)
+                        val.laddress = self.laddress + fieldOffset
                     else:
-                        fieldBitpos = field.bitpos()
-                        fieldOffset = None if fieldBitpos is None else fieldBitpos >> 3
-                        if  fieldBitpos is not None:
-                            #warn("BITPOS: %s" % fieldBitpos)
-                            val.laddress = self.laddress + fieldOffset
-                        else:
-                            error("NO IDEA 1")
+                        error("NO IDEA 1")
                 elif len(self.ldata) > 0:
                     #warn("DATA")
-                    if field.arrayIndex is not None:
-                        start = field.arrayIndex * fieldSize
-                        val.ldata = self.ldata[start:start + fieldSize]
+                    fieldBitpos = field.bitpos()
+                    fieldOffset = None if fieldBitpos is None else fieldBitpos >> 3
+                    if fieldBitpos is not None:
+                        val.ldata = self.ldata[fieldOffset:fieldOffset + fieldSize]
                     else:
-                        fieldBitpos = field.bitpos()
-                        fieldOffset = None if fieldBitpos is None else fieldBitpos >> 3
-                        if fieldBitpos is not None:
-                            val.ldata = self.ldata[fieldOffset:fieldOffset + fieldSize]
-                        else:
-                            error("NO IDEA 2")
+                        error("NO IDEA 2")
                 else:
                     error("NO IDEA 3")
 
@@ -3219,7 +3206,6 @@ class DumperBase:
         def __init__(self, dumper):
             self.dumper = dumper
             self.name = None
-            self.arrayIndex = None   # Item number if parent is array
             self.baseIndex = None    # Base class index if parent is structure
             self.nativeIndex = None   # Backend-defined index value
             self.isBaseClass = False
@@ -3231,12 +3217,11 @@ class DumperBase:
             self.isStruct = False
 
         def __str__(self):
-            #return str(self.arrayIndex if self.name is None else self.name)
             return ("Field(name='%s',ltype=%s,parentType=%s,bpos=%s,bsize=%s,"
-                     + "bidx=%s,aidx=%s,nidx=%s)") \
+                     + "bidx=%s,nidx=%s)") \
                     % (self.name, self.ltype, self.parentType,
                        self.lbitpos, self.lbitsize,
-                       self.baseIndex, self.arrayIndex, self.nativeIndex)
+                       self.baseIndex, self.nativeIndex)
 
         def check(self):
             if self.parentType.isPointerType():
@@ -3264,8 +3249,6 @@ class DumperBase:
             if self.lbitpos is not None:
                 #warn("BITPOS KNOWN: %s %s" % (self.name, self.lbitpos))
                 return self.lbitpos
-            if self.arrayIndex is not None:
-                return 8 * self.arrayIndex * self.fieldType().size()
             self.check()
             f = self.parentType.field(self.name)
             if f is not None:
@@ -3280,10 +3263,6 @@ class DumperBase:
                 field = self.parentType.field(self.name)
                 if field is not None:
                     return field.fieldType()
-            if self.arrayIndex is not None:
-                res = self.parentType.target()
-                if res is not None:
-                    return res
             #error("CANT GET FIELD TYPE FOR %s" % self)
             return None
 
