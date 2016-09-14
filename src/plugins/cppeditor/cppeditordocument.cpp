@@ -230,12 +230,14 @@ void CppEditorDocument::scheduleProcessDocument()
 {
     m_processorRevision = document()->revision();
     m_processorTimer.start();
+    processor()->editorDocumentTimerRestarted();
 }
 
 void CppEditorDocument::processDocument()
 {
     if (processor()->isParserRunning() || m_processorRevision != contentsRevision()) {
         m_processorTimer.start();
+        processor()->editorDocumentTimerRestarted();
         return;
     }
 

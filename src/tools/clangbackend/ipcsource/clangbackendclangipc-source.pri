@@ -47,6 +47,9 @@ HEADERS += $$PWD/clangcodemodelserver.h \
     $$PWD/clangdocumentprocessors.h \
     $$PWD/clangtranslationunits.h \
     $$PWD/clangclock.h \
+    $$PWD/clangsupportivetranslationunitinitializer.h \
+    $$PWD/clangparsesupportivetranslationunitjob.h \
+    $$PWD/clangreparsesupportivetranslationunitjob.h \
 
 SOURCES += $$PWD/clangcodemodelserver.cpp \
     $$PWD/codecompleter.cpp \
@@ -88,4 +91,7 @@ SOURCES += $$PWD/clangcodemodelserver.cpp \
     $$PWD/clangexceptions.cpp \
     $$PWD/clangdocumentprocessor.cpp \
     $$PWD/clangdocumentprocessors.cpp \
-    $$PWD/clangtranslationunits.cpp
+    $$PWD/clangtranslationunits.cpp \
+    $$PWD/clangsupportivetranslationunitinitializer.cpp \
+    $$PWD/clangparsesupportivetranslationunitjob.cpp \
+    $$PWD/clangreparsesupportivetranslationunitjob.cpp \

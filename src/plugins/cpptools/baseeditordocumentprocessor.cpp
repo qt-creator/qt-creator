@@ -67,6 +67,10 @@ void BaseEditorDocumentProcessor::addDiagnosticToolTipToLayout(uint, uint, QLayo
 {
 }
 
+void BaseEditorDocumentProcessor::editorDocumentTimerRestarted()
+{
+}
+
 void BaseEditorDocumentProcessor::runParser(QFutureInterface<void> &future,
                                             BaseEditorDocumentParser::Ptr parser,
                                             const WorkingCopy workingCopy)

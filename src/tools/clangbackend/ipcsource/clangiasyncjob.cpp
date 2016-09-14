@@ -27,6 +27,8 @@
 
 #include "clangcompletecodejob.h"
 #include "clangcreateinitialdocumentpreamblejob.h"
+#include "clangparsesupportivetranslationunitjob.h"
+#include "clangreparsesupportivetranslationunitjob.h"
 #include "clangrequestdocumentannotationsjob.h"
 #include "clangupdatedocumentannotationsjob.h"
 
@@ -39,6 +41,10 @@ IAsyncJob *IAsyncJob::create(JobRequest::Type type)
     switch (type) {
     case JobRequest::Type::UpdateDocumentAnnotations:
         return new UpdateDocumentAnnotationsJob();
+    case JobRequest::Type::ParseSupportiveTranslationUnit:
+        return new ParseSupportiveTranslationUnitJob();
+    case JobRequest::Type::ReparseSupportiveTranslationUnit:
+        return new ReparseSupportiveTranslationUnitJob();
     case JobRequest::Type::CreateInitialDocumentPreamble:
         return new CreateInitialDocumentPreambleJob();
     case JobRequest::Type::CompleteCode:

@@ -62,7 +62,8 @@ IAsyncJob::AsyncPrepareResult UpdateDocumentAnnotationsJob::prepareAsyncRun()
         m_pinnedDocument = context().documentForJobRequest();
         m_pinnedFileContainer = m_pinnedDocument.fileContainer();
 
-        const TranslationUnit translationUnit = m_pinnedDocument.translationUnit();
+        const TranslationUnit translationUnit
+                = m_pinnedDocument.translationUnit(jobRequest.preferredTranslationUnit);
         const TranslationUnitUpdateInput updateInput = m_pinnedDocument.createUpdateInput();
         setRunner([translationUnit, updateInput]() {
             return runAsyncHelper(translationUnit, updateInput);

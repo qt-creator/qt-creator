@@ -58,7 +58,8 @@ IAsyncJob::AsyncPrepareResult CompleteCodeJob::prepareAsyncRun()
     try {
         m_pinnedDocument = context().documentForJobRequest();
 
-        const TranslationUnit translationUnit = m_pinnedDocument.translationUnit();
+        const TranslationUnit translationUnit
+                = m_pinnedDocument.translationUnit(jobRequest.preferredTranslationUnit);
         const UnsavedFiles unsavedFiles = *context().unsavedFiles;
         const quint32 line = jobRequest.line;
         const quint32 column = jobRequest.column;

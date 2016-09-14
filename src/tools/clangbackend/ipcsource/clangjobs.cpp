@@ -120,10 +120,20 @@ void Jobs::onJobFinished(IAsyncJob *asyncJob)
 {
     qCDebug(jobsLog) << "Finishing" << asyncJob->context().jobRequest;
 
+    if (m_jobFinishedCallback) {
+        const RunningJob runningJob = m_running.value(asyncJob);
+        m_jobFinishedCallback(runningJob);
+    }
+
     m_running.remove(asyncJob);
     delete asyncJob;
 
     process();
+}
+
+void Jobs::setJobFinishedCallback(const JobFinishedCallback &jobFinishedCallback)
+{
+    m_jobFinishedCallback = jobFinishedCallback;
 }
 
 QList<Jobs::RunningJob> Jobs::runningJobs() const

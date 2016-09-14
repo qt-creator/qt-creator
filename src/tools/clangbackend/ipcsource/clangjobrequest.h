@@ -34,7 +34,11 @@
 #include <QDebug>
 #include <QVector>
 
+#include <functional>
+
 namespace ClangBackEnd {
+
+class Document;
 
 class JobRequest
 {
@@ -42,6 +46,10 @@ public:
     enum class Type {
         UpdateDocumentAnnotations,
         CreateInitialDocumentPreamble,
+
+        ParseSupportiveTranslationUnit,
+        ReparseSupportiveTranslationUnit,
+
         CompleteCode,
         RequestDocumentAnnotations,
     };
@@ -83,6 +91,9 @@ public:
 };
 
 using JobRequests = QVector<JobRequest>;
+using JobRequestCreator = std::function<JobRequest(const Document &,
+                                                   JobRequest::Type ,
+                                                   PreferredTranslationUnit)>;
 
 QDebug operator<<(QDebug debug, const JobRequest &jobRequest);
 

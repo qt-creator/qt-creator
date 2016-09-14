@@ -25,13 +25,27 @@
 
 #pragma once
 
+#include "clangasyncjob.h"
+#include "clangdocument.h"
+
 namespace ClangBackEnd {
 
-enum class PreferredTranslationUnit
+struct ParseSupportiveTranslationUnitJobResult
 {
-    RecentlyParsed,
-    PreviouslyParsed,
-    LastUninitialized,
+    TranslationUnitUpdateResult updateResult;
+};
+
+class ParseSupportiveTranslationUnitJob : public AsyncJob<ParseSupportiveTranslationUnitJobResult>
+{
+public:
+    using AsyncResult = ParseSupportiveTranslationUnitJobResult;
+
+    AsyncPrepareResult prepareAsyncRun() override;
+    void finalizeAsyncRun() override;
+
+private:
+    Document m_pinnedDocument;
+    FileContainer m_pinnedFileContainer;
 };
 
 } // namespace ClangBackEnd

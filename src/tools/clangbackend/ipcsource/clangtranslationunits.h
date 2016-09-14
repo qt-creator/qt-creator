@@ -63,8 +63,13 @@ public:
     TranslationUnit get(PreferredTranslationUnit type = PreferredTranslationUnit::RecentlyParsed);
     void updateParseTimePoint(const Utf8String &translationUnitId, TimePoint timePoint);
 
-private:
     bool areAllTranslationUnitsParsed() const;
+
+public: // for tests
+    int size() const;
+    TimePoint parseTimePoint(const Utf8String &translationUnitId);
+
+private:
     TranslationUnit getPreferredTranslationUnit(PreferredTranslationUnit type);
     TranslationUnitData &findUnit(const Utf8String &translationUnitId);
     TranslationUnit toTranslationUnit(TranslationUnitData &unit);

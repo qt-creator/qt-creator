@@ -56,7 +56,10 @@ SOURCES += \
     clangisdiagnosticrelatedtolocation-test.cpp \
     clangjobqueue-test.cpp \
     clangjobs-test.cpp \
+    clangparsesupportivetranslationunitjobtest.cpp \
+    clangreparsesupportivetranslationunitjobtest.cpp \
     clangrequestdocumentannotationsjob-test.cpp \
+    clangsupportivetranslationunitinitializertest.cpp \
     clangstring-test.cpp \
     clangtranslationunits-test.cpp \
     clangupdatedocumentannotationsjob-test.cpp \

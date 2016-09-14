@@ -72,6 +72,11 @@ ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(
     , m_semanticHighlighter(document)
     , m_builtinProcessor(document, /*enableSemanticHighlighter=*/ false)
 {
+    m_updateTranslationUnitTimer.setSingleShot(true);
+    m_updateTranslationUnitTimer.setInterval(350);
+    connect(&m_updateTranslationUnitTimer, &QTimer::timeout,
+            this, &ClangEditorDocumentProcessor::updateTranslationUnitIfProjectPartExists);
+
     // Forwarding the semantic info from the builtin processor enables us to provide all
     // editor (widget) related features that are not yet implemented by the clang plugin.
     connect(&m_builtinProcessor, &CppTools::BuiltinEditorDocumentProcessor::cppDocumentUpdated,
@@ -82,6 +87,8 @@ ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(
 
 ClangEditorDocumentProcessor::~ClangEditorDocumentProcessor()
 {
+    m_updateTranslationUnitTimer.stop();
+
     m_parserWatcher.cancel();
     m_parserWatcher.waitForFinished();
 
@@ -93,7 +100,7 @@ ClangEditorDocumentProcessor::~ClangEditorDocumentProcessor()
 
 void ClangEditorDocumentProcessor::run()
 {
-    updateTranslationUnitIfProjectPartExists();
+    m_updateTranslationUnitTimer.start();
 
     // Run clang parser
     disconnect(&m_parserWatcher, &QFutureWatcher<void>::finished,
@@ -249,6 +256,11 @@ void ClangEditorDocumentProcessor::addDiagnosticToolTipToLayout(uint line,
 {
     foreach (const auto &diagnostic, m_diagnosticManager.diagnosticsAt(line, column))
         addToolTipToLayout(diagnostic, target);
+}
+
+void ClangEditorDocumentProcessor::editorDocumentTimerRestarted()
+{
+    m_updateTranslationUnitTimer.stop(); // Wait for the next call to run().
 }
 
 ClangBackEnd::FileContainer ClangEditorDocumentProcessor::fileContainerWithArguments() const

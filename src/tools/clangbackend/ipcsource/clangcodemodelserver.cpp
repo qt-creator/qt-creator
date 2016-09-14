@@ -27,6 +27,7 @@
 
 #include "clangdocuments.h"
 #include "clangfilesystemwatcher.h"
+#include "clangtranslationunits.h"
 #include "codecompleter.h"
 #include "diagnosticset.h"
 #include "highlightingmarks.h"
@@ -126,10 +127,16 @@ void ClangCodeModelServer::updateTranslationUnitsForEditor(const UpdateTranslati
     try {
         const auto newerFileContainers = documents.newerFileContainers(message.fileContainers());
         if (newerFileContainers.size() > 0) {
-            documents.update(newerFileContainers);
+            const std::vector<Document> updateDocuments = documents.update(newerFileContainers);
             unsavedFiles.createOrUpdate(newerFileContainers);
 
-            updateDocumentAnnotationsTimer.start(updateDocumentAnnotationsTimeOutInMs);
+            // Start the jobs on the next event loop iteration since otherwise
+            // we might block the translation unit for a completion request
+            // that comes right after this message.
+            updateDocumentAnnotationsTimer.start(0);
+            QTimer::singleShot(0, [this, updateDocuments](){
+                startInitializingSupportiveTranslationUnits(updateDocuments);
+            });
         }
     } catch (const std::exception &exception) {
         qWarning() << "Error in ClangCodeModelServer::updateTranslationUnitsForEditor:" << exception.what();
@@ -286,7 +293,9 @@ void ClangCodeModelServer::processJobsForDirtyAndVisibleDocuments()
     for (const auto &document : documents.documents()) {
         if (document.isNeedingReparse() && document.isVisibleInEditor()) {
             DocumentProcessor processor = documentProcessors().processor(document);
-            processor.addJob(createJobRequest(document, JobRequest::Type::UpdateDocumentAnnotations));
+            processor.addJob(createJobRequest(document,
+                                              JobRequest::Type::UpdateDocumentAnnotations,
+                                              PreferredTranslationUnit::PreviouslyParsed));
         }
     }
 
@@ -297,14 +306,37 @@ void ClangCodeModelServer::processInitialJobsForDocuments(const std::vector<Docu
 {
     for (const auto &document : documents) {
         DocumentProcessor processor = documentProcessors().create(document);
+        const auto jobRequestCreator = [this](const Document &document,
+                JobRequest::Type jobRequestType,
+                PreferredTranslationUnit preferredTranslationUnit) {
+            return createJobRequest(document, jobRequestType, preferredTranslationUnit);
+        };
+        processor.setJobRequestCreator(jobRequestCreator);
+
         processor.addJob(createJobRequest(document, JobRequest::Type::UpdateDocumentAnnotations));
         processor.addJob(createJobRequest(document, JobRequest::Type::CreateInitialDocumentPreamble));
         processor.process();
     }
 }
 
-JobRequest ClangCodeModelServer::createJobRequest(const Document &document,
-                                                  JobRequest::Type type) const
+void ClangCodeModelServer::startInitializingSupportiveTranslationUnits(
+        const std::vector<Document> &documents)
+{
+    for (const Document &document : documents) {
+        try {
+            DocumentProcessor processor = documentProcessors().processor(document);
+            if (!processor.hasSupportiveTranslationUnit())
+                processor.startInitializingSupportiveTranslationUnit();
+        } catch (const DocumentProcessorDoesNotExist &) {
+            // OK, document was already closed.
+        }
+    }
+}
+
+JobRequest ClangCodeModelServer::createJobRequest(
+        const Document &document,
+        JobRequest::Type type,
+        PreferredTranslationUnit preferredTranslationUnit) const
 {
     JobRequest jobRequest;
     jobRequest.type = type;
@@ -313,6 +345,7 @@ JobRequest ClangCodeModelServer::createJobRequest(const Document &document,
     jobRequest.projectPartId = document.projectPartId();
     jobRequest.unsavedFilesChangeTimePoint = unsavedFiles.lastChangeTimePoint();
     jobRequest.documentRevision = document.documentRevision();
+    jobRequest.preferredTranslationUnit = preferredTranslationUnit;
     const ProjectPart &projectPart = projects.project(document.projectPartId());
     jobRequest.projectChangeTimePoint = projectPart.lastChangeTimePoint();
 

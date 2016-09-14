@@ -25,9 +25,14 @@
 
 #include "clangdocumentprocessor.h"
 
+#include "clangdocuments.h"
 #include "clangjobs.h"
+#include "clangsupportivetranslationunitinitializer.h"
 
 #include "clangdocument.h"
+#include "clangtranslationunits.h"
+
+#include <utils/qtcassert.h>
 
 namespace ClangBackEnd {
 
@@ -40,12 +45,24 @@ public:
                           ProjectParts &projects,
                           ClangCodeModelClientInterface &client)
         : document(document)
+        , documents(documents)
         , jobs(documents, unsavedFiles, projects, client)
-    {}
+        , supportiveTranslationUnitInitializer(document, jobs)
+    {
+        const auto isDocumentClosedChecker = [this](const Utf8String &filePath,
+                                                    const Utf8String &projectPartId) {
+            return !this->documents.hasDocument(filePath, projectPartId);
+        };
+        supportiveTranslationUnitInitializer.setIsDocumentClosedChecker(isDocumentClosedChecker);
+    }
 
 public:
     Document document;
+    Documents &documents;
     Jobs jobs;
+
+    SupportiveTranslationUnitInitializer supportiveTranslationUnitInitializer;
+    JobRequestCreator jobRequestCreator;
 };
 
 DocumentProcessor::DocumentProcessor(const Document &document,
@@ -61,6 +78,11 @@ DocumentProcessor::DocumentProcessor(const Document &document,
 {
 }
 
+void DocumentProcessor::setJobRequestCreator(const JobRequestCreator &creator)
+{
+    d->supportiveTranslationUnitInitializer.setJobRequestCreator(creator);
+}
+
 void DocumentProcessor::addJob(const JobRequest &jobRequest)
 {
     d->jobs.add(jobRequest);
@@ -74,6 +96,23 @@ JobRequests DocumentProcessor::process()
 Document DocumentProcessor::document() const
 {
     return d->document;
+}
+
+bool DocumentProcessor::hasSupportiveTranslationUnit() const
+{
+    return d->supportiveTranslationUnitInitializer.state()
+        != SupportiveTranslationUnitInitializer::State::NotInitialized;
+}
+
+void DocumentProcessor::startInitializingSupportiveTranslationUnit()
+{
+    d->supportiveTranslationUnitInitializer.startInitializing();
+}
+
+bool DocumentProcessor::isSupportiveTranslationUnitInitialized() const
+{
+    return d->supportiveTranslationUnitInitializer.state()
+        == SupportiveTranslationUnitInitializer::State::Initialized;
 }
 
 QList<Jobs::RunningJob> DocumentProcessor::runningJobs() const

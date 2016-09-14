@@ -49,12 +49,18 @@ public:
                       ProjectParts &projects,
                       ClangCodeModelClientInterface &client);
 
+    void setJobRequestCreator(const JobRequestCreator &creator);
+
     void addJob(const JobRequest &jobRequest);
     JobRequests process();
 
     Document document() const;
 
+    bool hasSupportiveTranslationUnit() const;
+    void startInitializingSupportiveTranslationUnit();
+
 public: // for tests
+    bool isSupportiveTranslationUnitInitialized() const;
     QList<Jobs::RunningJob> runningJobs() const;
     int queueSize() const;
 

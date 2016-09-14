@@ -65,16 +65,20 @@ public: // for tests
     int queueSizeForTestsOnly();
     bool isTimerRunningForTestOnly() const;
     void setUpdateDocumentAnnotationsTimeOutInMsForTestsOnly(int value);
+    DocumentProcessors &documentProcessors();
 
 private:
-    DocumentProcessors &documentProcessors();
 
     void startDocumentAnnotationsTimerIfFileIsNotOpenAsDocument(const Utf8String &filePath);
     void addJobRequestsForDirtyAndVisibleDocuments();
     void processJobsForDirtyAndVisibleDocuments();
     void processInitialJobsForDocuments(const std::vector<Document> &documents);
+    void startInitializingSupportiveTranslationUnits(const std::vector<Document> &documents);
 
-    JobRequest createJobRequest(const Document &document, JobRequest::Type type) const;
+    JobRequest createJobRequest(const Document &document,
+                                JobRequest::Type type,
+                                PreferredTranslationUnit preferredTranslationUnit
+                                    = PreferredTranslationUnit::RecentlyParsed) const;
 
 private:
     ProjectParts projects;

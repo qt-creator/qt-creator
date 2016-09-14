@@ -23,35 +23,33 @@
 **
 ****************************************************************************/
 
-#include "clangrequestdocumentannotationsjob.h"
+#include "clangparsesupportivetranslationunitjob.h"
 
 #include <clangbackendipc/clangbackendipcdebugutils.h>
-#include <clangbackendipc/documentannotationschangedmessage.h>
-#include <clangbackendipc/clangcodemodelclientinterface.h>
 
 #include <utils/qtcassert.h>
 
 namespace ClangBackEnd {
 
-static RequestDocumentAnnotationsJob::AsyncResult runAsyncHelper(
-        const TranslationUnit &translationUnit)
+static ParseSupportiveTranslationUnitJob::AsyncResult runAsyncHelper(
+        const TranslationUnit &translationUnit,
+        const TranslationUnitUpdateInput &translationUnitUpdateInput)
 {
-    TIME_SCOPE_DURATION("RequestDocumentAnnotationsJobRunner");
+    TIME_SCOPE_DURATION("ParseSupportiveTranslationUnitJob");
 
-    RequestDocumentAnnotationsJob::AsyncResult asyncResult;
+    TranslationUnitUpdateInput updateInput = translationUnitUpdateInput;
+    updateInput.parseNeeded = true;
 
-    translationUnit.extractDocumentAnnotations(asyncResult.diagnostics,
-                                               asyncResult.highlightingMarks,
-                                               asyncResult.skippedSourceRanges);
+    ParseSupportiveTranslationUnitJob::AsyncResult asyncResult;
+    asyncResult.updateResult = translationUnit.update(updateInput);
 
     return asyncResult;
 }
 
-IAsyncJob::AsyncPrepareResult RequestDocumentAnnotationsJob::prepareAsyncRun()
+IAsyncJob::AsyncPrepareResult ParseSupportiveTranslationUnitJob::prepareAsyncRun()
 {
     const JobRequest jobRequest = context().jobRequest;
-    QTC_ASSERT(jobRequest.type == JobRequest::Type::RequestDocumentAnnotations,
-               return AsyncPrepareResult());
+    QTC_ASSERT(jobRequest.type == JobRequest::Type::ParseSupportiveTranslationUnit, return AsyncPrepareResult());
 
     try {
         m_pinnedDocument = context().documentForJobRequest();
@@ -59,34 +57,22 @@ IAsyncJob::AsyncPrepareResult RequestDocumentAnnotationsJob::prepareAsyncRun()
 
         const TranslationUnit translationUnit
                 = m_pinnedDocument.translationUnit(jobRequest.preferredTranslationUnit);
-        setRunner([translationUnit]() {
-            return runAsyncHelper(translationUnit);
+        const TranslationUnitUpdateInput updateInput = m_pinnedDocument.createUpdateInput();
+        setRunner([translationUnit, updateInput]() {
+            return runAsyncHelper(translationUnit, updateInput);
         });
         return AsyncPrepareResult{translationUnit.id()};
 
     } catch (const std::exception &exception) {
-        qWarning() << "Error in RequestDocumentAnnotationsJob::prepareAsyncRun:" << exception.what();
+        qWarning() << "Error in ParseForSupportiveTranslationUnitJob::prepareAsyncRun:"
+                   << exception.what();
         return AsyncPrepareResult();
     }
 }
 
-void RequestDocumentAnnotationsJob::finalizeAsyncRun()
+void ParseSupportiveTranslationUnitJob::finalizeAsyncRun()
 {
-    if (context().isDocumentOpen()) {
-        const AsyncResult result = asyncResult();
-        sendAnnotations(result);
-    }
-}
-
-void RequestDocumentAnnotationsJob::sendAnnotations(
-        const RequestDocumentAnnotationsJob::AsyncResult &result)
-{
-    const DocumentAnnotationsChangedMessage message(m_pinnedFileContainer,
-                                                    result.diagnostics,
-                                                    result.highlightingMarks,
-                                                    result.skippedSourceRanges);
-
-    context().client->documentAnnotationsChanged(message);
 }
 
 } // namespace ClangBackEnd
+

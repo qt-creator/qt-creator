@@ -34,6 +34,8 @@ static const char *JobRequestTypeToText(JobRequest::Type type)
 {
     switch (type) {
         RETURN_TEXT_FOR_CASE(UpdateDocumentAnnotations);
+        RETURN_TEXT_FOR_CASE(ParseSupportiveTranslationUnit);
+        RETURN_TEXT_FOR_CASE(ReparseSupportiveTranslationUnit);
         RETURN_TEXT_FOR_CASE(CreateInitialDocumentPreamble);
         RETURN_TEXT_FOR_CASE(CompleteCode);
         RETURN_TEXT_FOR_CASE(RequestDocumentAnnotations);
@@ -49,6 +51,7 @@ const char *preferredTranslationUnitToText(PreferredTranslationUnit type)
     switch (type) {
         RETURN_TEXT_FOR_CASE(RecentlyParsed);
         RETURN_TEXT_FOR_CASE(PreviouslyParsed);
+        RETURN_TEXT_FOR_CASE(LastUninitialized);
     }
 
     return "UnhandledPreferredTranslationUnitType";
@@ -93,6 +96,8 @@ JobRequest::Requirements JobRequest::requirementsForType(Type type)
                                        |JobRequest::CurrentDocumentRevision);
     case JobRequest::Type::CompleteCode:
     case JobRequest::Type::CreateInitialDocumentPreamble:
+    case JobRequest::Type::ParseSupportiveTranslationUnit:
+    case JobRequest::Type::ReparseSupportiveTranslationUnit:
         return JobRequest::Requirements(JobRequest::DocumentValid);
     }
 

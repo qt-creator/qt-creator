@@ -106,6 +106,17 @@ TEST_F(TranslationUnits, GetFirstForMultipleTranslationUnitsAndOnlySecondParsed)
     ASSERT_THAT(queried.id(), Eq(created1.id()));
 }
 
+TEST_F(TranslationUnits, GetLastUnitializedForMultipleTranslationUnits)
+{
+    const TranslationUnit created1 = translationUnits.createAndAppend();
+    translationUnits.updateParseTimePoint(created1.id(), Clock::now());
+    const TranslationUnit created2 = translationUnits.createAndAppend();
+
+    const TranslationUnit queried = translationUnits.get(PreferredTranslationUnit::LastUninitialized);
+
+    ASSERT_THAT(queried.id(), Eq(created2.id()));
+}
+
 TEST_F(TranslationUnits, GetRecentForMultipleTranslationUnits)
 {
     const TranslationUnit created1 = translationUnits.createAndAppend();

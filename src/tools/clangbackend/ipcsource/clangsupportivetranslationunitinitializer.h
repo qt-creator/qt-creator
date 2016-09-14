@@ -23,15 +23,55 @@
 **
 ****************************************************************************/
 
+#include "clangdocument.h"
+#include "clangjobrequest.h"
+#include "clangjobs.h"
+
+#include <functional>
+
 #pragma once
 
 namespace ClangBackEnd {
 
-enum class PreferredTranslationUnit
+class SupportiveTranslationUnitInitializer
 {
-    RecentlyParsed,
-    PreviouslyParsed,
-    LastUninitialized,
+public:
+    using IsDocumentClosedChecker = std::function<bool(const Utf8String &, const Utf8String &)>;
+
+    enum class State {
+        NotInitialized,
+        WaitingForParseJob,
+        WaitingForReparseJob,
+        Initialized,
+        Aborted
+    };
+
+public:
+    SupportiveTranslationUnitInitializer(const Document &document, Jobs &jobs);
+
+    void setJobRequestCreator(const JobRequestCreator &creator);
+    void setIsDocumentClosedChecker(const IsDocumentClosedChecker &isDocumentClosedChecker);
+
+    State state() const;
+    void startInitializing();
+
+public: // for tests
+    void setState(const State &state);
+    void checkIfParseJobFinished(const Jobs::RunningJob &job);
+    void checkIfReparseJobFinished(const Jobs::RunningJob &job);
+
+private:
+
+    bool abortIfDocumentIsClosed();
+    void addJob(JobRequest::Type jobRequestType);
+
+private:
+    Document m_document;
+    Jobs &m_jobs;
+
+    State m_state = State::NotInitialized;
+    JobRequestCreator m_jobRequestCreator;
+    IsDocumentClosedChecker m_isDocumentClosedChecker;
 };
 
 } // namespace ClangBackEnd

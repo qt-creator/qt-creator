@@ -70,10 +70,15 @@ TranslationUnit TranslationUnits::get(PreferredTranslationUnit type)
     if (m_tuDatas.isEmpty())
         throw TranslationUnitDoesNotExist(m_filePath);
 
-    if (m_tuDatas.size() == 1 || !areAllTranslationUnitsParsed())
+    if (m_tuDatas.size() == 1)
         return toTranslationUnit(m_tuDatas.first());
 
-    return getPreferredTranslationUnit(type);
+    if (areAllTranslationUnitsParsed())
+        return getPreferredTranslationUnit(type);
+    else if (type == PreferredTranslationUnit::LastUninitialized)
+        return toTranslationUnit(m_tuDatas.last());
+
+    return toTranslationUnit(m_tuDatas.first());
 }
 
 void TranslationUnits::updateParseTimePoint(const Utf8String &translationUnitId,
@@ -89,11 +94,21 @@ void TranslationUnits::updateParseTimePoint(const Utf8String &translationUnitId,
         << "PreviouslyParsed:" << get(PreferredTranslationUnit::PreviouslyParsed).id();
 }
 
+TimePoint TranslationUnits::parseTimePoint(const Utf8String &translationUnitId)
+{
+    return findUnit(translationUnitId).parseTimePoint;
+}
+
 bool TranslationUnits::areAllTranslationUnitsParsed() const
 {
     return Utils::allOf(m_tuDatas, [](const TranslationUnitData &unit) {
         return unit.parseTimePoint != TimePoint();
     });
+}
+
+int TranslationUnits::size() const
+{
+    return m_tuDatas.size();
 }
 
 TranslationUnit TranslationUnits::getPreferredTranslationUnit(PreferredTranslationUnit type)
