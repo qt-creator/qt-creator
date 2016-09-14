@@ -324,39 +324,43 @@ void BaseTreeView::mousePressEvent(QMouseEvent *ev)
 
 void BaseTreeView::contextMenuEvent(QContextMenuEvent *ev)
 {
-    QPoint pos = ev->pos();
-    QModelIndex index = indexAt(pos);
-    if (!model()->setData(index, describeEvent(ev, pos, index), ItemViewEventRole))
+    ItemViewEvent ive(ev, this);
+    if (!model()->setData(ive.index(), QVariant::fromValue(ive), ItemViewEventRole))
         TreeView::contextMenuEvent(ev);
 }
 
 void BaseTreeView::keyPressEvent(QKeyEvent *ev)
 {
-    if (!model()->setData(QModelIndex(), describeEvent(ev), ItemViewEventRole))
+    ItemViewEvent ive(ev, this);
+    if (!model()->setData(ive.index(), QVariant::fromValue(ive), ItemViewEventRole))
         TreeView::keyPressEvent(ev);
 }
 
 void BaseTreeView::dragEnterEvent(QDragEnterEvent *ev)
 {
-    if (!model()->setData(QModelIndex(), describeEvent(ev), ItemViewEventRole))
+    ItemViewEvent ive(ev, this);
+    if (!model()->setData(ive.index(), QVariant::fromValue(ive), ItemViewEventRole))
         TreeView::dragEnterEvent(ev);
 }
 
 void BaseTreeView::dropEvent(QDropEvent *ev)
 {
-    if (!model()->setData(QModelIndex(), describeEvent(ev), ItemViewEventRole))
+    ItemViewEvent ive(ev, this);
+    if (!model()->setData(ive.index(), QVariant::fromValue(ive), ItemViewEventRole))
         TreeView::dropEvent(ev);
 }
 
 void BaseTreeView::dragMoveEvent(QDragMoveEvent *ev)
 {
-    if (!model()->setData(QModelIndex(), describeEvent(ev), ItemViewEventRole))
+    ItemViewEvent ive(ev, this);
+    if (!model()->setData(ive.index(), QVariant::fromValue(ive), ItemViewEventRole))
         TreeView::dragMoveEvent(ev);
 }
 
 void BaseTreeView::mouseDoubleClickEvent(QMouseEvent *ev)
 {
-    if (!model()->setData(QModelIndex(), describeEvent(ev), ItemViewEventRole))
+    ItemViewEvent ive(ev, this);
+    if (!model()->setData(ive.index(), QVariant::fromValue(ive), ItemViewEventRole))
         TreeView::mouseDoubleClickEvent(ev);
 }
 
@@ -392,25 +396,6 @@ void BaseTreeView::hideProgressIndicator()
         d->m_progressIndicator->hide();
 }
 
-QVariant BaseTreeView::describeEvent(QEvent *ev, const QPoint &pos, const QModelIndex &idx)
-{
-    ItemViewEvent event;
-    event.m_view = this;
-    event.m_event = ev;
-    event.m_pos = pos;
-    event.m_index = idx;
-
-    QItemSelectionModel *selection = selectionModel();
-    event.m_selectedRows = selection->selectedRows();
-    if (event.m_selectedRows.isEmpty()) {
-        QModelIndex current = selection->currentIndex();
-        if (current.isValid())
-            event.m_selectedRows.append(current);
-    }
-
-    return QVariant::fromValue(event);
-}
-
 void BaseTreeView::rowActivated(const QModelIndex &index)
 {
     model()->setData(index, QVariant(), ItemActivatedRole);
@@ -427,6 +412,39 @@ void BaseTreeView::setSettings(QSettings *settings, const QByteArray &key)
     d->m_settings = settings;
     d->m_settingsKey = QString::fromLatin1(key);
     d->readSettings();
+}
+
+ItemViewEvent::ItemViewEvent(QEvent *ev, QAbstractItemView *view)
+    : m_event(ev), m_view(view)
+{
+    switch (ev->type()) {
+    case QEvent::MouseButtonPress:
+    case QEvent::MouseButtonRelease:
+    case QEvent::MouseButtonDblClick:
+        m_pos = static_cast<QMouseEvent *>(ev)->pos();
+        m_index = view->indexAt(m_pos);
+        break;
+    case QEvent::ContextMenu:
+        m_pos = static_cast<QContextMenuEvent *>(ev)->pos();
+        m_index = view->indexAt(m_pos);
+        break;
+    case QEvent::DragEnter:
+    case QEvent::DragMove:
+    case QEvent::Drop:
+        m_pos = static_cast<QDropEvent *>(ev)->pos();
+        m_index = view->indexAt(m_pos);
+        break;
+    default:
+        break;
+    }
+
+    QItemSelectionModel *selection = view->selectionModel();
+    m_selectedRows = selection->selectedRows();
+    if (m_selectedRows.isEmpty()) {
+        QModelIndex current = selection->currentIndex();
+        if (current.isValid())
+            m_selectedRows.append(current);
+    }
 }
 
 QModelIndexList ItemViewEvent::currentOrSelectedRows() const

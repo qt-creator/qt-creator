@@ -75,9 +75,6 @@ signals:
     void aboutToShow();
 
 private:
-    QVariant describeEvent(QEvent *ev,
-                           const QPoint &pos = QPoint(),
-                           const QModelIndex &idx = QModelIndex());
     void rowActivated(const QModelIndex &index);
     void rowClicked(const QModelIndex &index);
 
@@ -112,6 +109,7 @@ class QTCREATOR_UTILS_EXPORT ItemViewEvent
 {
 public:
     ItemViewEvent() {}
+    ItemViewEvent(QEvent *ev, QAbstractItemView *view);
 
     template <class T> T *as() const {
         return checkEventType<T>(m_event);
@@ -122,7 +120,7 @@ public:
     }
 
     QEvent::Type type() const { return m_event->type(); }
-    BaseTreeView *view() const { return m_view; }
+    QWidget *view() const { return m_view; }
     QPoint pos() const { return m_pos; }
     QPoint globalPos() const { return m_view->mapToGlobal(m_pos); }
     QModelIndex index() const { return m_index; }
@@ -130,9 +128,8 @@ public:
     QModelIndexList currentOrSelectedRows() const;
 
 private:
-    friend class BaseTreeView;
     QEvent *m_event = nullptr;
-    BaseTreeView *m_view = nullptr;
+    QWidget *m_view = nullptr;
     QPoint m_pos;
     QModelIndex m_index;
     QModelIndexList m_selectedRows;

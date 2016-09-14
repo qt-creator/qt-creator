@@ -1938,6 +1938,8 @@ bool BreakHandler::setData(const QModelIndex &idx, const QVariant &value, int ro
             if (Breakpoint b = findBreakpointByIndex(idx)) {
                 if (idx.column() >= BreakpointAddressColumn)
                     editBreakpoints({ b }, ev.view());
+                else
+                    b.gotoLocation();
             } else {
                 addBreakpoint();
             }
