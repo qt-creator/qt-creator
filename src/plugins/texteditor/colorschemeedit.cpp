@@ -253,11 +253,11 @@ void ColorSchemeEdit::updateForegroundControls()
     const auto &formatDescription = m_descriptions[m_curItem];
     const Format &format = m_scheme.formatFor(formatDescription.id());
 
-    bool isVisble = formatDescription.showControl(FormatDescription::ShowForegroundControl);
+    bool isVisible = formatDescription.showControl(FormatDescription::ShowForegroundControl);
 
-    m_ui->foregroundLabel->setVisible(isVisble);
-    m_ui->foregroundToolButton->setVisible(isVisble);
-    m_ui->eraseForegroundToolButton->setVisible(isVisble);
+    m_ui->foregroundLabel->setVisible(isVisible);
+    m_ui->foregroundToolButton->setVisible(isVisible);
+    m_ui->eraseForegroundToolButton->setVisible(isVisible);
 
     m_ui->foregroundToolButton->setStyleSheet(colorButtonStyleSheet(format.foreground()));
     m_ui->eraseForegroundToolButton->setEnabled(!m_readOnly
@@ -270,11 +270,11 @@ void ColorSchemeEdit::updateBackgroundControls()
     const auto formatDescription = m_descriptions[m_curItem];
     const Format &format = m_scheme.formatFor(formatDescription.id());
 
-    bool isVisble = formatDescription.showControl(FormatDescription::ShowBackgroundControl);
+    bool isVisible = formatDescription.showControl(FormatDescription::ShowBackgroundControl);
 
-    m_ui->backgroundLabel->setVisible(isVisble);
-    m_ui->backgroundToolButton->setVisible(isVisble);
-    m_ui->eraseBackgroundToolButton->setVisible(isVisble);
+    m_ui->backgroundLabel->setVisible(isVisible);
+    m_ui->backgroundToolButton->setVisible(isVisible);
+    m_ui->eraseBackgroundToolButton->setVisible(isVisible);
 
     m_ui->backgroundToolButton->setStyleSheet(colorButtonStyleSheet(format.background()));
     m_ui->eraseBackgroundToolButton->setEnabled(!m_readOnly
@@ -290,10 +290,10 @@ void ColorSchemeEdit::updateFontControls()
     QSignalBlocker boldSignalBlocker(m_ui->boldCheckBox);
     QSignalBlocker italicSignalBlocker(m_ui->italicCheckBox);
 
-    bool isVisble= formatDescription.showControl(FormatDescription::ShowFontControls);
+    bool isVisible= formatDescription.showControl(FormatDescription::ShowFontControls);
 
-    m_ui->boldCheckBox->setVisible(isVisble);
-    m_ui->italicCheckBox->setVisible(isVisble);
+    m_ui->boldCheckBox->setVisible(isVisible);
+    m_ui->italicCheckBox->setVisible(isVisible);
 
     m_ui->boldCheckBox->setChecked(format.bold());
     m_ui->italicCheckBox->setChecked(format.italic());
@@ -307,12 +307,12 @@ void ColorSchemeEdit::updateUnderlineControls()
 
     QSignalBlocker comboBoxSignalBlocker(m_ui->underlineComboBox);
 
-    bool isVisble= formatDescription.showControl(FormatDescription::ShowUnderlineControl);
+    bool isVisible= formatDescription.showControl(FormatDescription::ShowUnderlineControl);
 
-    m_ui->underlineLabel->setVisible(isVisble);
-    m_ui->underlineColorToolButton->setVisible(isVisble);
-    m_ui->eraseUnderlineColorToolButton->setVisible(isVisble);
-    m_ui->underlineComboBox->setVisible(isVisble);
+    m_ui->underlineLabel->setVisible(isVisible);
+    m_ui->underlineColorToolButton->setVisible(isVisible);
+    m_ui->eraseUnderlineColorToolButton->setVisible(isVisible);
+    m_ui->underlineComboBox->setVisible(isVisible);
 
     m_ui->underlineColorToolButton->setStyleSheet(colorButtonStyleSheet(format.underlineColor()));
     m_ui->eraseUnderlineColorToolButton->setEnabled(!m_readOnly
