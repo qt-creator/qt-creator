@@ -318,7 +318,9 @@ QStringList CMakeTool::parseVariableOutput(const QString &output)
     const QStringList variableList = output.split(QLatin1Char('\n'));
     QStringList result;
     foreach (const QString &v, variableList) {
-        if (v.contains("<CONFIG>")) {
+        if (v.startsWith("CMAKE_COMPILER_IS_GNU<LANG>")) { // This key takes a compiler name :-/
+            result << "CMAKE_COMPILER_IS_GNUCC" << "CMAKE_COMPILER_IS_GNUCXX";
+        } else if (v.contains("<CONFIG>")) {
             const QString tmp = QString(v).replace("<CONFIG>", "%1");
             result << tmp.arg("DEBUG") << tmp.arg("RELEASE")
                    << tmp.arg("MINSIZEREL") << tmp.arg("RELWITHDEBINFO");
