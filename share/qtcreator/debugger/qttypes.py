@@ -603,7 +603,7 @@ def qdump__QFileInfo(d, value):
 
 
 def qdump__QFixed(d, value):
-    v = int(value["val"])
+    v = value.split('i')[0]
     d.putValue("%s/64 = %s" % (v, v/64.0))
     d.putNumChild(0)
 

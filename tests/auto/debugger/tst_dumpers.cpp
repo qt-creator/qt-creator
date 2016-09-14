@@ -635,6 +635,7 @@ struct UseDebugImage {};
 struct CoreProfile {};
 struct CorePrivateProfile {};
 struct GuiProfile {};
+struct GuiPrivateProfile {};
 struct NetworkProfile {};
 
 struct BigArrayProfile {};
@@ -803,6 +804,18 @@ public:
         profileExtra +=
             "greaterThan(QT_MAJOR_VERSION, 4) {\n"
             "  QT += core-private\n"
+            "  CONFIG += no_private_qt_headers_warning\n"
+            "}";
+
+        return *this;
+    }
+
+    const Data &operator+(const GuiPrivateProfile &) const
+    {
+        this->operator+(GuiProfile());
+        profileExtra +=
+            "greaterThan(QT_MAJOR_VERSION, 4) {\n"
+            "  QT += gui-private\n"
             "  CONFIG += no_private_qt_headers_warning\n"
             "}";
 
@@ -1767,6 +1780,13 @@ void tst_Dumpers::dumper_data()
                + Check("file", "\"/tmp/t\"", "@QFile")
                + Check("s", "\"/tmp/tt\"", "@QString");
 #endif
+
+
+    QTest::newRow("QFixed")
+            << Data("#include <private/qfixed_p.h>\n",
+                    "QFixed f(1234);\n")
+               + GuiPrivateProfile()
+               + Check("f", "78976/64 = 1234.0", "@QFixed");
 
 
     QTest::newRow("QHash")
