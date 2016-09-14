@@ -572,7 +572,7 @@ class Dumper(DumperBase):
     # due to misaligned %ebx in SSE calls (qstring.cpp:findChar)
     # This seems to be fixed in 7.9 (or earlier)
     def canCallLocale(self):
-        return False if self.is32bit() else True
+        return self.ptrSize() == 8
 
     def fetchVariables(self, args):
         self.resetStats()

@@ -488,9 +488,6 @@ class DumperBase:
             s = s.encode("utf8")
         return base64.b16encode(s).decode("utf8")
 
-    def is32bit(self):
-        return self.ptrSize() == 4
-
     def isQt3Support(self):
         # assume no Qt 3 support by default
         return False
