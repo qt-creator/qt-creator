@@ -570,15 +570,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     panelFactory->setCreateWidgetFunction([](Project *project) { return new DependenciesWidget(project); });
     ProjectPanelFactory::registerFactory(panelFactory);
 
-    panelFactory = new ProjectPanelFactory;
-    panelFactory->setPriority(-10);
-    panelFactory->setDisplayName(QCoreApplication::translate("TargetSettingsPanelFactory", "Build & Run"));
-    panelFactory->setSupportsFunction([](Project *project) { return project->requiresTargetPanel() || project->needsConfiguration(); });
-    panelFactory->setSelectorItemCreator([panelFactory](Project *project) {
-        return new TargetSettingsPanelItem(panelFactory, project);
-    });
-    ProjectPanelFactory::registerFactory(panelFactory);
-
     addAutoReleasedObject(new ProcessStepFactory);
 
     addAutoReleasedObject(new AllProjectsFind);

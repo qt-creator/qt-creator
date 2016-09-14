@@ -54,7 +54,6 @@ public:
     bool supports(Project *project);
 
     using WidgetCreator = std::function<QWidget *(Project *)>;
-    using SelectorItemCreator = std::function<Utils::TreeItem *(Project *)>;
 
     // interface for "implementations" of ProjectPanelFactory
     // by default all projects are supported, only set a custom supports function
@@ -67,13 +66,13 @@ public:
 
     static QList<ProjectPanelFactory *> factories();
 
-    Utils::TreeItem *createSelectorItem(Project *project);
-    void setSelectorItemCreator(const SelectorItemCreator &selectorCreator);
+    Utils::TreeItem *createPanelItem(Project *project);
 
     QString icon() const;
     void setIcon(const QString &icon);
 
     void setCreateWidgetFunction(const WidgetCreator &createWidgetFunction);
+    QWidget *createWidget(Project *project) const;
 
 private:
     friend class ProjectExplorerPlugin;
@@ -83,7 +82,6 @@ private:
     QString m_displayName;
     SupportsFunction m_supportsFunction;
     WidgetCreator m_widgetCreator;
-    SelectorItemCreator m_selectorItemCreator;
     QString m_icon;
 };
 

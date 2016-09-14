@@ -31,6 +31,7 @@
 #include "project.h"
 #include "projectexplorer.h"
 #include "projectpanelfactory.h"
+#include "propertiespanel.h"
 #include "session.h"
 #include "target.h"
 #include "targetsettingspanel.h"
@@ -50,6 +51,7 @@
 #include <QHeaderView>
 #include <QMenu>
 #include <QStyledItemDelegate>
+#include <QTimer>
 #include <QTreeView>
 #include <QVBoxLayout>
 
@@ -59,15 +61,154 @@ using namespace Utils;
 namespace ProjectExplorer {
 namespace Internal {
 
-// The first tree level, i.e. projects.
-class ProjectItem : public TreeItem
+class MiscSettingsGroupItem;
+class RootItem;
+
+// Standard third level for the generic case: i.e. all except for the Build/Run page
+class MiscSettingsPanelItem : public TreeItem // TypedTreeItem<TreeItem, MiscSettingsGroupItem>
+{
+public:
+    MiscSettingsPanelItem(ProjectPanelFactory *factory, Project *project)
+        : m_factory(factory), m_project(project)
+    {}
+
+    ~MiscSettingsPanelItem() { delete m_widget; }
+
+    QVariant data(int column, int role) const override;
+    Qt::ItemFlags flags(int column) const override;
+    bool setData(int column, const QVariant &, int role) override;
+
+protected:
+    ProjectPanelFactory *m_factory = nullptr;
+    QPointer<Project> m_project;
+
+    mutable QPointer<QWidget> m_widget = nullptr;
+};
+
+QVariant MiscSettingsPanelItem::data(int column, int role) const
+{
+    Q_UNUSED(column)
+    if (role == Qt::DisplayRole) {
+        if (m_factory)
+            return m_factory->displayName();
+    }
+
+    if (role == PanelWidgetRole) {
+        if (!m_widget) {
+            auto panelsWidget = new PanelsWidget;
+            auto panel = new PropertiesPanel;
+            panel->setDisplayName(m_factory->displayName());
+            QWidget *widget = m_factory->createWidget(m_project);
+            panel->setWidget(widget);
+            panel->setIcon(QIcon(m_factory->icon()));
+            panelsWidget->addPropertiesPanel(panel);
+            panelsWidget->setFocusProxy(widget);
+            m_widget = panelsWidget;
+        }
+
+        return QVariant::fromValue<QWidget *>(m_widget.data());
+    }
+
+    if (role == ActiveItemRole)  // We are the active one.
+        return QVariant::fromValue<TreeItem *>(const_cast<MiscSettingsPanelItem *>(this));
+
+    return QVariant();
+}
+
+Qt::ItemFlags MiscSettingsPanelItem::flags(int column) const
+{
+    if (m_factory && m_project) {
+        if (!m_factory->supports(m_project))
+            return Qt::ItemIsSelectable;
+    }
+    return TreeItem::flags(column);
+}
+
+bool MiscSettingsPanelItem::setData(int column, const QVariant &, int role)
+{
+    if (role == ItemActivatedDirectlyRole) {
+        // Bubble up
+        return parent()->setData(column, QVariant::fromValue(static_cast<TreeItem *>(this)),
+                                 ItemActivatedFromBelowRole);
+    }
+
+    return false;
+}
+
+// The lower part of the second tree level, i.e. the project settings list.
+// The upper part is the TargetSettingsPanelItem .
+class MiscSettingsGroupItem : public TreeItem // TypedTreeItem<MiscSettingsPanelItem, ProjectItem>
+{
+public:
+    explicit MiscSettingsGroupItem(Project *project)
+        : m_project(project)
+    {
+        QTC_ASSERT(m_project, return);
+        foreach (ProjectPanelFactory *factory, ProjectPanelFactory::factories())
+            appendChild(new MiscSettingsPanelItem(factory, project));
+    }
+
+    Qt::ItemFlags flags(int) const override
+    {
+        return Qt::ItemIsEnabled;
+    }
+
+    QVariant data(int column, int role) const override
+    {
+        switch (role) {
+        case Qt::DisplayRole:
+            return ProjectWindow::tr("Project Settings");
+
+        case PanelWidgetRole:
+        case ActiveItemRole:
+            if (0 <= m_currentPanelIndex && m_currentPanelIndex < childCount())
+                return childAt(m_currentPanelIndex)->data(column, role);
+        }
+        return QVariant();
+    }
+
+    bool setData(int column, const QVariant &data, int role) override
+    {
+        Q_UNUSED(column)
+
+        if (role == ItemActivatedFromBelowRole) {
+            TreeItem *item = data.value<TreeItem *>();
+            QTC_ASSERT(item, return false);
+            m_currentPanelIndex = children().indexOf(item);
+            QTC_ASSERT(m_currentPanelIndex != -1, return false);
+            parent()->setData(0, QVariant::fromValue(static_cast<TreeItem *>(this)),
+                              ItemActivatedFromBelowRole);
+            return true;
+        }
+
+        if (role == ItemActivatedDirectlyRole) {
+            m_currentPanelIndex = 0; // Use the first ('Editor') page.
+            parent()->setData(0, QVariant::fromValue(static_cast<TreeItem *>(this)),
+                              ItemActivatedFromBelowRole);
+            return true;
+        }
+
+        return false;
+    }
+
+    Project *project() const { return m_project; }
+
+private:
+    int m_currentPanelIndex = -1;
+
+    Project * const m_project;
+};
+
+// The first tree level, i.e. projects (nowadays in the combobox in the top bar...)
+class ProjectItem : public TreeItem // TypedTreeItem<TreeItem, RootItem>
 {
 public:
     explicit ProjectItem(Project *project) : m_project(project)
     {
         QTC_ASSERT(m_project, return);
-        foreach (ProjectPanelFactory *factory, ProjectPanelFactory::factories())
-            appendChild(factory->createSelectorItem(m_project));
+        QString display = ProjectWindow::tr("Build & Run");
+        appendChild(m_targetsItem = new TargetGroupItem(display, project));
+        appendChild(m_miscItem = new MiscSettingsGroupItem(project));
     }
 
     QVariant data(int column, int role) const override
@@ -81,7 +222,7 @@ public:
 
         case Qt::DecorationRole: {
             QVariant icon;
-            forChildrenAtLevel(2, [this, &icon](TreeItem *item) {
+            m_targetsItem->forChildrenAtLevel(1, [this, &icon](TreeItem *item) {
                 QVariant sicon = item->data(0, Qt::DecorationRole);
                 if (sicon.isValid())
                     icon = sicon;
@@ -95,10 +236,12 @@ public:
             return font;
         }
 
-        case ActiveWidgetRole:
-        case ActiveIndexRole:
-            if (0 <= m_currentPanelIndex && m_currentPanelIndex < childCount())
-                return childAt(m_currentPanelIndex)->data(column, role);
+        case PanelWidgetRole:
+        case ActiveItemRole:
+            if (m_currentChildIndex == 0)
+                return m_targetsItem->data(column, role);
+            if (m_currentChildIndex == 1)
+                return m_miscItem->data(column, role);
         }
         return QVariant();
     }
@@ -107,15 +250,41 @@ public:
     {
         Q_UNUSED(column)
 
-        if (role == ItemActivaterRole) {
-            // Possible called from child item.
-            TreeItem *item = data.value<TreeItem *>();
-            m_currentPanelIndex = children().indexOf(item);
-
-            SessionManager::setStartupProject(m_project);
-
-            // Bubble up.
+        if (role == ItemDeactivatedFromBelowRole) {
             parent()->setData(0, QVariant::fromValue(static_cast<TreeItem *>(this)), role);
+            return true;
+        }
+
+        if (role == ItemActivatedFromBelowRole) {
+            TreeItem *item = data.value<TreeItem *>();
+            QTC_ASSERT(item, return false);
+            int res = children().indexOf(item);
+            QTC_ASSERT(res >= 0, return false);
+            m_currentChildIndex = res;
+            parent()->setData(0, QVariant::fromValue(static_cast<TreeItem *>(this)), role);
+            return true;
+        }
+
+        if (role == ItemActivatedDirectlyRole) {
+            // Someone selected the project using the combobox or similar.
+            SessionManager::setStartupProject(m_project);
+            m_currentChildIndex = 0; // Use some Target page by defaults
+            m_targetsItem->setData(column, data, ItemActivatedFromAboveRole); // And propagate downwards.
+            parent()->setData(0, QVariant::fromValue(static_cast<TreeItem *>(this)),
+                              ItemActivatedFromBelowRole);
+            return true;
+        }
+
+        if (role == ItemActivatedFromAboveRole) {
+            // Someone selected the project using the combobox or similar.
+            // Do not change the previous active subitem,
+            SessionManager::setStartupProject(m_project);
+            // Downwards.
+            if (m_currentChildIndex == 0)
+                m_targetsItem->setData(column, data, role);
+            else if (m_currentChildIndex == 1)
+                m_miscItem->setData(column, data, role);
+
             return true;
         }
 
@@ -125,17 +294,19 @@ public:
     Project *project() const { return m_project; }
 
 private:
-    int m_currentPanelIndex = 0;
-
-    Project * const m_project;
+    int m_currentChildIndex = 0; // Start with Build & Run.
+    Project *m_project;
+    TargetGroupItem *m_targetsItem;
+    MiscSettingsGroupItem *m_miscItem;
 };
+
 
 class RootItem : public TypedTreeItem<ProjectItem>
 {
 public:
     QVariant data(int column, int role) const override
     {
-        if (role == ActiveWidgetRole) {
+        if (role == PanelWidgetRole || role == ActiveItemRole) {
             if (0 <= m_currentProjectIndex && m_currentProjectIndex < childCount())
                 return childAt(m_currentProjectIndex)->data(column, role);
         }
@@ -147,18 +318,59 @@ public:
     {
         Q_UNUSED(column)
 
-        if (role == ItemActivaterRole) {
-            // Possible called from child item.
-            if (TreeItem *t = data.value<TreeItem *>())
-                m_currentProjectIndex = children().indexOf(t);
+        switch (role) {
+        case ItemActivatedFromBelowRole: {
+            TreeItem *t = data.value<TreeItem *>();
+            QTC_CHECK(t);
+            m_currentProjectIndex = children().indexOf(t);
             updateAll();
+            updateExternals();
             return true;
+        }
+        case ItemDeactivatedFromBelowRole: {
+            QTC_CHECK(data.isValid());
+            updateAll();
+            updateExternals();
+            return true;
+        }
+        case ItemActivatedFromAboveRole:
+        case ItemActivatedDirectlyRole: {
+            QTC_CHECK(!data.isValid());
+            updateAll();
+            updateExternals();
+            return true;
+        }
         }
 
         return false;
     }
 
+    void setCurrentProject(int index)
+    {
+        m_currentProjectIndex = index;
+        m_tree->setRootIndex(childAt(index)->index());
+        updateExternals();
+    }
+
+    void updateExternals() const
+    {
+        QTimer::singleShot(0, [this] {
+            // Needs to be async to be run after selection changes
+            // triggered by the normal QTreeView machinery.
+            TreeItem *item = data(0, ActiveItemRole).value<TreeItem *>();
+            QTC_ASSERT(item, return);
+            QWidget *widget = item->data(0, PanelWidgetRole).value<QWidget *>();
+            m_updater(widget);
+            QModelIndex idx = item->index();
+            m_tree->selectionModel()->clear();
+            m_tree->selectionModel()->select(idx, QItemSelectionModel::Select);
+        });
+    }
+
+public:
     int m_currentProjectIndex = -1;
+    std::function<void(QWidget *)> m_updater;
+    QTreeView *m_tree = 0;
 };
 
 
@@ -168,18 +380,10 @@ public:
 
 class SelectorModel : public TreeModel<RootItem, ProjectItem, TreeItem>
 {
-    Q_OBJECT
-
 public:
     SelectorModel(QObject *parent)
         : TreeModel<RootItem, ProjectItem, TreeItem>(parent)
-    {
-        setRootItem(new RootItem);
-        setHeader({ ProjectWindow::tr("Projects") });
-    }
-
-signals:
-    void needPanelUpdate();
+    {}
 };
 
 
@@ -197,9 +401,11 @@ public:
     {
         QSize s = QStyledItemDelegate::sizeHint(option, index);
         auto model = static_cast<const SelectorModel *>(index.model());
-        TreeItem *item = model->itemForIndex(index);
-        if (item && item->level() == 2)
-            s = QSize(s.width(), 3 * s.height());
+        if (TreeItem *item = model->itemForIndex(index)) {
+            switch (item->level()) {
+                case 2: s = QSize(s.width(), 3 * s.height()); break;
+            }
+        }
         return s;
     }
 
@@ -207,11 +413,14 @@ public:
                const QStyleOptionViewItem &option, const QModelIndex &index) const override
     {
         auto model = static_cast<const SelectorModel *>(index.model());
-        TreeItem *item = model->itemForIndex(index);
         QStyleOptionViewItem opt = option;
-        if (item && item->level() == 2) {
-            opt.font.setBold(true);
-            opt.font.setPointSizeF(opt.font.pointSizeF() * 1.2);
+        if (TreeItem *item = model->itemForIndex(index)) {
+            switch (item->level()) {
+                case 2:
+                    opt.font.setBold(true);
+                    opt.font.setPointSizeF(opt.font.pointSizeF() * 1.2);
+                    break;
+            }
         }
         QStyledItemDelegate::paint(painter, opt, index);
     }
@@ -253,12 +462,24 @@ ProjectWindow::ProjectWindow()
     setBackgroundRole(QPalette::Base);
 
     m_selectorModel = new SelectorModel(this);
-    connect(m_selectorModel, &SelectorModel::needPanelUpdate,
-            this, &ProjectWindow::updatePanel);
+    m_selectorModel->setHeader({ tr("Projects") });
+    m_selectorModel->rootItem()->m_updater = [this](QWidget *panel) {
+        if (QWidget *widget = centralWidget()) {
+            takeCentralWidget();
+            widget->hide(); // Don't delete.
+        }
+        if (panel) {
+            setCentralWidget(panel);
+            panel->show();
+            if (hasFocus()) // we get assigned focus from setFocusToCurrentMode, pass that on
+                panel->setFocus();
+        }
+    };
 
     m_selectorTree = new SelectorTree;
     m_selectorTree->setModel(m_selectorModel);
     m_selectorTree->setItemDelegate(new SelectorDelegate);
+    m_selectorModel->rootItem()->m_tree = m_selectorTree;
     connect(m_selectorTree, &QAbstractItemView::activated,
             this, &ProjectWindow::itemActivated);
 
@@ -343,8 +564,8 @@ void ProjectWindow::registerProject(Project *project)
         QString bName = pb->displayName();
         if (aName != bName)
             return aName < bName;
-        Utils::FileName aPath = pa->projectFilePath();
-        Utils::FileName bPath = pb->projectFilePath();
+        FileName aPath = pa->projectFilePath();
+        FileName bPath = pb->projectFilePath();
         if (aPath != bPath)
             return aPath < bPath;
         return pa < pb;
@@ -364,43 +585,18 @@ void ProjectWindow::startupProjectChanged(Project *project)
         int index = projectItem->indexInParent();
         QTC_ASSERT(index != -1, return);
         m_projectSelection->setCurrentIndex(index);
-        m_selectorModel->rootItem()->m_currentProjectIndex = index;
-        m_selectorTree->update();
-        m_selectorTree->setRootIndex(m_selectorModel->indexForItem(m_selectorModel->rootItem()->childAt(index)));
-        m_selectorTree->expandAll();
-        QModelIndex activeIndex = projectItem->data(0, ActiveIndexRole).value<QModelIndex>();
-        m_selectorTree->selectionModel()->setCurrentIndex(activeIndex, QItemSelectionModel::SelectCurrent);
-        updatePanel();
+        m_selectorModel->rootItem()->setCurrentProject(index);
     }
 }
 
 void ProjectWindow::projectSelected(int index)
 {
-    auto projectItem = m_selectorModel->rootItem()->childAt(index);
-    QTC_ASSERT(projectItem, return);
-    SessionManager::setStartupProject(projectItem->project());
+    m_selectorModel->rootItem()->setCurrentProject(index);
 }
 
 void ProjectWindow::itemActivated(const QModelIndex &index)
 {
-    m_selectorModel->setData(index, QVariant(), ItemActivaterRole);
-    updatePanel();
-}
-
-void ProjectWindow::updatePanel()
-{
-    if (QWidget *widget = centralWidget()) {
-        takeCentralWidget();
-        widget->hide(); // Don't delete.
-    }
-
-    RootItem *rootItem = m_selectorModel->rootItem();
-    if (QWidget *widget = rootItem->data(0, ActiveWidgetRole).value<QWidget *>()) {
-        setCentralWidget(widget);
-        widget->show();
-        if (hasFocus()) // we get assigned focus from setFocusToCurrentMode, pass that on
-            widget->setFocus();
-    }
+    m_selectorModel->setData(index, QVariant(), ItemActivatedDirectlyRole);
 }
 
 ProjectItem *ProjectWindow::itemForProject(Project *project) const
@@ -412,5 +608,3 @@ ProjectItem *ProjectWindow::itemForProject(Project *project) const
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#include "projectwindow.moc"

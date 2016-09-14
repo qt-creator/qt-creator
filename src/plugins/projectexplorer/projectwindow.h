@@ -50,11 +50,15 @@ class ProjectItem;
 enum {
     ContextMenuItemAdderRole // To augment a context menu, data has a QMenu*
         = Qt::UserRole + 1,
-    ItemActivaterRole,       // This item got activated and is now responsible for the central widget
-    ActiveWidgetRole,        // This item's widget to be shown as central widget.
-    ActiveIndexRole,          // This is the index of the currently selected item in the tree view
 
-    ProjectDisplayNameRole   // Shown in the project selection combobox
+    ProjectDisplayNameRole,       // Shown in the project selection combobox
+    ItemActivatedDirectlyRole,    // This item got activated through user interaction and
+                                  // is now responsible for the central widget.
+    ItemActivatedFromBelowRole,   // A subitem gots activated and gives us the opportunity to adjust
+    ItemActivatedFromAboveRole,   // A parent item gots activated and makes us its active child.
+    ItemDeactivatedFromBelowRole, // A subitem got deactivated and gives us the opportunity to adjust
+    ActiveItemRole,               // The index of the currently selected item in the tree view
+    PanelWidgetRole               // This item's widget to be shown as central widget.
 };
 
 class ProjectWindow : public Utils::FancyMainWindow
@@ -67,7 +71,6 @@ public:
 private:
     void contextMenuEvent(QContextMenuEvent *event) override;
 
-    void updatePanel();
     void openContextMenu(const QPoint &pos);
     void registerProject(Project *project);
     void deregisterProject(Project *project);

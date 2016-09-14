@@ -27,96 +27,13 @@
 
 #include "project.h"
 #include "projectwindow.h"
-#include "propertiespanel.h"
 
 using namespace ProjectExplorer::Internal;
 using namespace Utils;
 
 namespace ProjectExplorer {
-namespace Internal {
 
 static QList<ProjectPanelFactory *> s_factories;
-
-// Standard second level for the generic case: i.e. all except for the Build/Run page
-class ProjectPanelItem : public TreeItem
-{
-public:
-    using WidgetCreator = std::function<QWidget *(Project *Project)>;
-
-    ProjectPanelItem(ProjectPanelFactory *factory, Project *project,
-                     const WidgetCreator &widgetCreator)
-        : m_factory(factory), m_project(project), m_widgetCreator(widgetCreator)
-    {}
-
-    ~ProjectPanelItem() { delete m_widget; }
-
-    QVariant data(int column, int role) const override;
-    Qt::ItemFlags flags(int column) const override;
-    bool setData(int column, const QVariant &, int role) override;
-
-protected:
-    ProjectPanelFactory *m_factory = nullptr;
-    QPointer<Project> m_project;
-    WidgetCreator m_widgetCreator;
-
-    mutable QPointer<QWidget> m_widget = nullptr;
-};
-
-QVariant ProjectPanelItem::data(int column, int role) const
-{
-    Q_UNUSED(column)
-    if (role == Qt::DisplayRole) {
-        if (m_factory)
-            return m_factory->displayName();
-    }
-
-//    if (role == Qt::DecorationRole) {
-//        if (m_factory)
-//            return QIcon(m_factory->icon());
-//    }
-
-    if (role == ActiveWidgetRole) {
-        if (!m_widget) {
-            auto panelsWidget = new PanelsWidget;
-            auto panel = new PropertiesPanel;
-            panel->setDisplayName(m_factory->displayName());
-            QWidget *widget = m_widgetCreator(m_project);
-            panel->setWidget(widget);
-            panel->setIcon(QIcon(m_factory->icon()));
-            panelsWidget->addPropertiesPanel(panel);
-            panelsWidget->setFocusProxy(widget);
-            m_widget = panelsWidget;
-        }
-
-        return QVariant::fromValue<QWidget *>(m_widget.data());
-    }
-
-    if (role == ActiveIndexRole)  // We are the active one.
-        return QVariant::fromValue(index());
-
-    return QVariant();
-}
-
-Qt::ItemFlags ProjectPanelItem::flags(int column) const
-{
-    if (m_factory && m_project) {
-        if (!m_factory->supports(m_project))
-            return Qt::ItemIsSelectable;
-    }
-    return TreeItem::flags(column);
-}
-
-bool ProjectPanelItem::setData(int column, const QVariant &, int role)
-{
-    if (role == ItemActivaterRole) {
-        // Bubble up
-        return parent()->setData(column, QVariant::fromValue(static_cast<TreeItem *>(this)), role);
-    }
-
-    return false;
-}
-
-} // Internal
 
 ProjectPanelFactory::ProjectPanelFactory()
     : m_supportsFunction([] (Project *) { return true; })
@@ -157,13 +74,6 @@ QList<ProjectPanelFactory *> ProjectPanelFactory::factories()
     return s_factories;
 }
 
-TreeItem *ProjectPanelFactory::createSelectorItem(Project *project)
-{
-    if (m_selectorItemCreator)
-        return m_selectorItemCreator(project);
-    return new Internal::ProjectPanelItem(this, project, m_widgetCreator);
-}
-
 void ProjectPanelFactory::destroyFactories()
 {
     qDeleteAll(s_factories);
@@ -180,14 +90,14 @@ void ProjectPanelFactory::setIcon(const QString &icon)
     m_icon = icon;
 }
 
+QWidget *ProjectPanelFactory::createWidget(Project *project) const
+{
+    return m_widgetCreator(project);
+}
+
 void ProjectPanelFactory::setCreateWidgetFunction(const WidgetCreator &createWidgetFunction)
 {
     m_widgetCreator = createWidgetFunction;
-}
-
-void ProjectPanelFactory::setSelectorItemCreator(const SelectorItemCreator &selectorCreator)
-{
-    m_selectorItemCreator = selectorCreator;
 }
 
 bool ProjectPanelFactory::supports(Project *project)

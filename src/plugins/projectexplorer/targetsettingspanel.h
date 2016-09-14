@@ -32,31 +32,29 @@
 #include <QCoreApplication>
 
 namespace ProjectExplorer {
-
-class Project;
-class ProjectPanelFactory;
-
 namespace Internal {
 
 class TargetItem;
-class TargetSettingsPanelItemPrivate;
+class TargetGroupItemPrivate;
 
 // Second level: Special case for the Build & Run item (with per-kit subItems)
-class TargetSettingsPanelItem : public Utils::TypedTreeItem<TargetItem>
+class TargetGroupItem : public Utils::TypedTreeItem<TargetItem /*, ProjectItem */>
 {
     Q_DECLARE_TR_FUNCTIONS(TargetSettingsPanelItem)
 
 public:
-    TargetSettingsPanelItem(ProjectPanelFactory *factory, Project *project);
-    ~TargetSettingsPanelItem() override;
+    TargetGroupItem(const QString &displayName, Project *project);
+    ~TargetGroupItem() override;
 
     QVariant data(int column, int role) const override;
     bool setData(int column, const QVariant &data, int role) override;
+    Qt::ItemFlags flags(int) const override;
 
-    Core::Id currentKitId() const;
+    TargetItem *currentTargetItem() const;
+    TargetItem *targetItem(Target *target) const;
 
 private:
-    TargetSettingsPanelItemPrivate *d;
+    TargetGroupItemPrivate *d;
 };
 
 } // namespace Internal

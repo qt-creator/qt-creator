@@ -63,6 +63,7 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QTimer>
 #include <QToolTip>
 #include <QVBoxLayout>
 
@@ -201,25 +202,26 @@ void TargetSetupPageWrapper::updateNoteText()
 // TargetSettingsPanelItem
 //
 
-class TargetSettingsPanelItemPrivate : public QObject
+class TargetGroupItemPrivate : public QObject
 {
     Q_DECLARE_TR_FUNCTIONS(TargetSettingsPanelItem)
 
 public:
-    TargetSettingsPanelItemPrivate(TargetSettingsPanelItem *q, Project *project);
-    ~TargetSettingsPanelItemPrivate() { /*delete m_importer;*/ }
+    TargetGroupItemPrivate(TargetGroupItem *q, Project *project);
+    ~TargetGroupItemPrivate() { /*delete m_importer;*/ }
 
     void handleRemovedKit(Kit *kit);
     void handleAddedKit(Kit *kit);
 
-    TargetItem *currentTargetItem() const;
+    void handleTargetAdded(Target *target);
+    void handleTargetRemoved(Target *target);
+    void handleTargetChanged(Target *target);
 
     void importTarget(const Utils::FileName &path);
     void ensureWidget();
     void rebuildContents();
-    Id currentKitId() const;
 
-    TargetSettingsPanelItem *q;
+    TargetGroupItem *q;
     QString m_displayName;
     QPointer<Project> m_project;
     ProjectImporter *m_importer;
@@ -229,7 +231,7 @@ public:
     QPointer<QWidget> m_configuredPage;
 };
 
-void TargetSettingsPanelItemPrivate::ensureWidget()
+void TargetGroupItemPrivate::ensureWidget()
 {
     if (!m_noKitLabel) {
         m_noKitLabel = new QWidget;
@@ -280,7 +282,7 @@ void TargetSettingsPanelItemPrivate::ensureWidget()
     }
 }
 
-void TargetSettingsPanelItemPrivate::importTarget(const Utils::FileName &path)
+void TargetGroupItemPrivate::importTarget(const Utils::FileName &path)
 {
     if (!m_importer)
         return;
@@ -308,35 +310,17 @@ void TargetSettingsPanelItemPrivate::importTarget(const Utils::FileName &path)
 }
 
 //
-// Third level: The per-kit entries
+// Third level: The per-kit entries (inactive or with a 'Build' and a 'Run' subitem)
 //
-
-class TargetItemPrivate : public QObject
-{
-    // QObject base needed as guard for the Project::addedTarget connection below.
-public:
-    TargetItemPrivate(TargetItem *q) : q(q) {}
-
-    void handleChangedTarget(Target *target);
-
-    TargetItem *q;
-};
-
-class TargetItem : public TypedTreeItem<TreeItem, TargetSettingsPanelItem>
+class TargetItem : public TypedTreeItem<TreeItem, TargetGroupItem>
 {
     Q_DECLARE_TR_FUNCTIONS(TargetSettingsPanelWidget)
 
 public:
     TargetItem(Project *project, Id kitId)
-        : d(new TargetItemPrivate(this)), m_project(project), m_kitId(kitId)
+        : m_project(project), m_kitId(kitId)
     {
-        QObject::connect(m_project, &Project::addedTarget, d, &TargetItemPrivate::handleChangedTarget);
         updateSubItems();
-    }
-
-    ~TargetItem()
-    {
-        delete d;
     }
 
     Target *target() const
@@ -375,8 +359,10 @@ public:
 
         case Qt::FontRole: {
             QFont font = parent()->data(column, role).value<QFont>();
-            if (parent()->currentKitId() == m_kitId && m_project == SessionManager::startupProject())
-                font.setBold(true);
+            if (TargetItem *targetItem = parent()->currentTargetItem())
+                if (targetItem->target()->id() == m_kitId
+                        && m_project == SessionManager::startupProject())
+                    font.setBold(true);
             return font;
         }
 
@@ -386,8 +372,8 @@ public:
             return k->toHtml();
         }
 
-        case ActiveWidgetRole:
-        case ActiveIndexRole: {
+        case PanelWidgetRole:
+        case ActiveItemRole: {
             if (m_currentChild >= 0 && m_currentChild < childCount())
                 return childAt(m_currentChild)->data(column, role);
             break;
@@ -410,14 +396,30 @@ public:
             return true;
         }
 
-        if (role == ItemActivaterRole) {
+        if (role == ItemActivatedFromBelowRole) {
+            // I.e. 'Build' and 'Run' items were present and user clicked on them.
             int child = children().indexOf(data.value<TreeItem *>());
-            if (child != -1)
-                m_currentChild = child; // Triggered from sub-item.
-            parent()->setData(column, QVariant::fromValue(static_cast<TreeItem *>(this)), role);
+            QTC_ASSERT(child != -1, return false);
+            m_currentChild = child; // Triggered from sub-item.
+            SessionManager::setActiveTarget(m_project, target(), SetActive::Cascade);
+            // Propagate Build/Run selection up.
+            parent()->setData(column, QVariant::fromValue(static_cast<TreeItem *>(this)),
+                              ItemActivatedFromBelowRole);
             return true;
         }
 
+        if (role == ItemActivatedDirectlyRole) {
+            // User clicked on this item. Use 'Run' as default.
+            QTC_ASSERT(!data.isValid(), return false);
+            SessionManager::setActiveTarget(m_project, target(), SetActive::Cascade);
+            return true;
+        }
+
+        if (role == ItemActivatedFromAboveRole) {
+            // Usually programmatic activation, e.g. after opening the Project mode.
+            SessionManager::setActiveTarget(m_project, target(), SetActive::Cascade);
+            return true;
+        }
         return false;
     }
 
@@ -433,8 +435,7 @@ public:
         QObject::connect(enableAction, &QAction::triggered, [this, kit] {
             Target *t = m_project->createTarget(kit);
             m_project->addTarget(t);
-            updateSubItems();
-            setData(0, QVariant(), ItemActivaterRole);
+            setData(0, QVariant(), ItemActivatedDirectlyRole);
         });
 
         QAction *disableAction = menu->addAction(tr("Disable Kit \"%1\" for Project \"%2\"").arg(kitName, projectName));
@@ -459,13 +460,7 @@ public:
 
             QCoreApplication::processEvents();
 
-            if (m_project->removeTarget(t)) {
-                updateSubItems();
-                if (m_project->targets().isEmpty()) {
-                    parent()->setData(0, QVariant(), ItemActivaterRole);
-                    QMetaObject::invokeMethod(model(), "needPanelUpdate");
-                }
-            }
+            m_project->removeTarget(t);
         });
 
         QMenu *copyMenu = menu->addMenu(tr("Copy Steps From Other Kit..."));
@@ -477,11 +472,9 @@ public:
                     copyAction->setEnabled(false);
                 } else {
                     QObject::connect(copyAction, &QAction::triggered, [this, kit] {
-                        Target *sourceTarget = target();
-                        Target *newTarget = m_project->target(kit->id());
-                        bool success = Project::copySteps(sourceTarget, newTarget);
-                        Q_UNUSED(success);
-                        SessionManager::setActiveTarget(m_project, newTarget, SetActive::Cascade);
+                        Target *thisTarget = m_project->target(m_kitId);
+                        Target *sourceTarget = m_project->target(kit->id());
+                        Project::copySteps(sourceTarget, thisTarget);
                     });
                 }
             }
@@ -503,7 +496,6 @@ public:
     bool isEnabled() const { return target() != 0; }
 
 public:
-    TargetItemPrivate *d;
     Project *m_project; // Not owned.
     Id m_kitId;
     int m_currentChild = 1; // Use run page by default.
@@ -535,11 +527,6 @@ public:
         return m_project->target(m_kitId);
     }
 
-    void updateSubItems()
-    {
-        static_cast<TargetItem *>(parent())->updateSubItems();
-    }
-
     QVariant data(int column, int role) const override
     {
         switch (role) {
@@ -556,10 +543,10 @@ public:
         case Qt::ToolTipRole:
             return parent()->data(column, role);
 
-        case ActiveWidgetRole:
+        case PanelWidgetRole:
             return QVariant::fromValue(panel());
 
-        case ActiveIndexRole:
+        case ActiveItemRole:
             return QVariant::fromValue<TreeItem *>(const_cast<BuildOrRunItem *>(this));
 
         default:
@@ -576,8 +563,9 @@ public:
 
     bool setData(int column, const QVariant &data, int role) override
     {
-        if (role == ItemActivaterRole) {
-            parent()->setData(column, QVariant::fromValue(static_cast<TreeItem *>(this)), role);
+        if (role == ItemActivatedDirectlyRole) {
+            parent()->setData(column, QVariant::fromValue(static_cast<TreeItem *>(this)),
+                              ItemActivatedFromBelowRole);
             return true;
         }
 
@@ -625,7 +613,7 @@ public:
 //
 // Also third level:
 //
-class PotentialKitItem : public TypedTreeItem<TreeItem, TargetSettingsPanelItem>
+class PotentialKitItem : public TypedTreeItem<TreeItem, TargetGroupItem>
 {
     Q_DECLARE_TR_FUNCTIONS(TargetSettingsPanelWidget)
 
@@ -678,18 +666,25 @@ public:
     IPotentialKit *m_potentialKit;
 };
 
-TargetSettingsPanelItem::TargetSettingsPanelItem(ProjectPanelFactory *factory, Project *project)
-    : d(new TargetSettingsPanelItemPrivate(this, project))
+TargetGroupItem::TargetGroupItem(const QString &displayName, Project *project)
+    : d(new TargetGroupItemPrivate(this, project))
 {
-    d->m_displayName = factory->displayName();
+    d->m_displayName = displayName;
+    QObject::connect(project, &Project::addedTarget,
+            d, &TargetGroupItemPrivate::handleTargetAdded,
+            Qt::QueuedConnection);
+    QObject::connect(project, &Project::removedTarget,
+            d, &TargetGroupItemPrivate::handleTargetRemoved);
+    QObject::connect(project, &Project::activeTargetChanged,
+            d, &TargetGroupItemPrivate::handleTargetChanged);
 }
 
-TargetSettingsPanelItem::~TargetSettingsPanelItem()
+TargetGroupItem::~TargetGroupItem()
 {
     delete d;
 }
 
-TargetSettingsPanelItemPrivate::TargetSettingsPanelItemPrivate(TargetSettingsPanelItem *q,
+TargetGroupItemPrivate::TargetGroupItemPrivate(TargetGroupItem *q,
                                                                Project *project)
     : q(q), m_project(project)
 {
@@ -706,88 +701,81 @@ TargetSettingsPanelItemPrivate::TargetSettingsPanelItemPrivate(TargetSettingsPan
 
     // force a signal since the index has changed
     connect(KitManager::instance(), &KitManager::kitAdded,
-            this, &TargetSettingsPanelItemPrivate::handleAddedKit);
+            this, &TargetGroupItemPrivate::handleAddedKit);
     connect(KitManager::instance(), &KitManager::kitRemoved,
-            this, &TargetSettingsPanelItemPrivate::handleRemovedKit);
+            this, &TargetGroupItemPrivate::handleRemovedKit);
 
     rebuildContents();
 }
 
-QVariant TargetSettingsPanelItem::data(int column, int role) const
+QVariant TargetGroupItem::data(int column, int role) const
 {
     if (role == Qt::DisplayRole)
         return d->m_displayName;
 
-    if (role == ActiveIndexRole) {
-        Id needle = currentKitId();
-        TargetItem *item = findFirstLevelChild([this, needle](TargetItem *item) { return item->m_kitId == needle; });
-        return item ? item->data(column, role) : QVariant();
+    if (role == ActiveItemRole) {
+        if (TargetItem *item = currentTargetItem())
+            return item->data(column, role);
+        return QVariant::fromValue<TreeItem *>(const_cast<TargetGroupItem *>(this));
     }
 
-    if (role == ActiveWidgetRole) {
-        Id needle = currentKitId();
-        TargetItem *item = findFirstLevelChild([this, needle](TargetItem *item) { return item->m_kitId == needle; });
-        if (item)
+    if (role == PanelWidgetRole) {
+        if (TargetItem *item = currentTargetItem())
             return item->data(column, role);
 
         d->ensureWidget();
-        if (d->m_project->targets().isEmpty()) {
-            return QVariant::fromValue<QWidget *>(d->m_configurePage.data());
-        }
-        return QVariant::fromValue<QWidget *>(d->m_configuredPage.data());
+        return QVariant::fromValue<QWidget *>(d->m_configurePage.data());
     }
 
     return QVariant();
 }
 
-bool TargetSettingsPanelItem::setData(int column, const QVariant &data, int role)
+bool TargetGroupItem::setData(int column, const QVariant &data, int role)
 {
-    if (role == ItemActivaterRole) {
-        // From sub item
-        if (TreeItem *subItem = data.value<TreeItem *>()) {
-            // Bubble up (i.e. set active project)
-            parent()->setData(column, QVariant::fromValue(static_cast<TreeItem *>(this)), role);
-
-            // Set selected target.
-            Id kitId = static_cast<TargetItem *>(subItem)->m_kitId;
-            Target *target = d->m_project->target(kitId);
-            SessionManager::setActiveTarget(d->m_project, target, SetActive::Cascade);
-
-            return true;
-        }
-
-        // Bubble up
-        SessionManager::setActiveTarget(d->m_project, nullptr, SetActive::Cascade);
-        return parent()->setData(column, QVariant::fromValue(static_cast<TreeItem *>(this)), role);
+    Q_UNUSED(data)
+    if (role == ItemActivatedFromBelowRole) {
+        // Bubble up to trigger setting the active project.
+        parent()->setData(column, QVariant::fromValue(static_cast<TreeItem *>(this)), role);
+        return true;
     }
 
     return false;
 }
 
-Id TargetSettingsPanelItem::currentKitId() const
+Qt::ItemFlags TargetGroupItem::flags(int) const
 {
-    return d->currentKitId();
+    return Qt::ItemIsEnabled;
 }
 
-Id TargetSettingsPanelItemPrivate::currentKitId() const
+TargetItem *TargetGroupItem::currentTargetItem() const
 {
-    Target *target = m_project->activeTarget();
-    return target ? target->id() : Id(); // Unconfigured project have no active target.
+    return targetItem(d->m_project->activeTarget());
 }
 
-void TargetSettingsPanelItemPrivate::handleRemovedKit(Kit *kit)
+TargetItem *TargetGroupItem::targetItem(Target *target) const
+{
+    if (target) {
+        Id needle = target->id(); // Unconfigured project have no active target.
+        return findFirstLevelChild([this, needle](TargetItem *item) { return item->m_kitId == needle; });
+    }
+    return 0;
+}
+
+void TargetGroupItemPrivate::handleRemovedKit(Kit *kit)
 {
     Q_UNUSED(kit);
     rebuildContents();
 }
 
-void TargetSettingsPanelItemPrivate::handleAddedKit(Kit *kit)
+void TargetGroupItemPrivate::handleAddedKit(Kit *kit)
 {
     q->appendChild(new TargetItem(m_project, kit->id()));
 }
 
 void TargetItem::updateSubItems()
 {
+    if (children().isEmpty() && isEnabled())
+        m_currentChild = 1; // We will add children below. Use 'Run' item by default.
     removeChildren();
     if (isEnabled()) {
         appendChild(new BuildOrRunItem(m_project, m_kitId, BuildOrRunItem::BuildPage));
@@ -795,7 +783,7 @@ void TargetItem::updateSubItems()
     }
 }
 
-void TargetSettingsPanelItemPrivate::rebuildContents()
+void TargetGroupItemPrivate::rebuildContents()
 {
     q->removeChildren();
 
@@ -803,12 +791,26 @@ void TargetSettingsPanelItemPrivate::rebuildContents()
         q->appendChild(new TargetItem(m_project, kit->id()));
 }
 
-void TargetItemPrivate::handleChangedTarget(Target *target)
+void TargetGroupItemPrivate::handleTargetAdded(Target *target)
 {
-    if (q->m_kitId == target->id()) {
-        q->updateSubItems();
-        q->parent()->update();
-    }
+    if (TargetItem *item = q->targetItem(target))
+        item->updateSubItems();
+    q->update();
+}
+
+void TargetGroupItemPrivate::handleTargetRemoved(Target *target)
+{
+    if (TargetItem *item = q->targetItem(target))
+        item->updateSubItems();
+    q->parent()->setData(0, QVariant::fromValue(static_cast<TreeItem *>(q)),
+                         ItemDeactivatedFromBelowRole);
+}
+
+void TargetGroupItemPrivate::handleTargetChanged(Target *target)
+{
+    if (TargetItem *item = q->targetItem(target))
+        item->updateSubItems();
+    q->setData(0, QVariant(), ItemActivatedFromBelowRole);
 }
 
 } // Internal
