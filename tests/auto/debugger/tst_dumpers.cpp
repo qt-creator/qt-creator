@@ -2629,12 +2629,13 @@ void tst_Dumpers::dumper_data()
                     "QRegExp re(QString(\"a(.*)b(.*)c\"));\n"
                     "QString str1 = \"a1121b344c\";\n"
                     "QString str2 = \"Xa1121b344c\";\n"
-                    "int pos2 = re.indexIn(str2);\n"
-                    "int pos1 = re.indexIn(str1);\n"
-                    "unused(&pos1, &pos2);\n")
+                    "int pos1 = re.indexIn(str1); unused(&pos1);\n"
+                    "int pos2 = re.indexIn(str2); unused(&pos2);\n")
                + CoreProfile()
                + Check("re", "\"a(.*)b(.*)c\"", "@QRegExp")
-               + Check("str1", "\"a1121b344c\"", "@QString")
+               + Check("re.captures.0", "[0]", "\"a1121b344c\"", "@QString")
+               + Check("re.captures.1", "[1]", "\"1121\"", "@QString")
+               + Check("re.captures.2", "[2]", "\"344\"", "@QString")
                + Check("str2", "\"Xa1121b344c\"", "@QString")
                + Check("pos1", "0", "int")
                + Check("pos2", "1", "int");

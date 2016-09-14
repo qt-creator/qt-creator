@@ -1115,34 +1115,15 @@ def qdump__QRectF(d, value):
 def qdump__QRegExp(d, value):
     # value.priv.engineKey.pattern
     privAddress = d.extractPointer(value)
-    engineKeyAddress = privAddress + d.ptrSize()
-    patternAddress = engineKeyAddress
-    d.putStringValue(patternAddress)
-    d.putNumChild(1)
+    (eng, pattern) = d.split("p{QString}", privAddress)
+    d.putStringValue(pattern)
     if d.isExpanded():
         with Children(d):
-            # QRegExpPrivate:
-            # - QRegExpEngine *eng               (+0)
-            # - QRegExpEngineKey:                (+1ptr)
-            #   - QString pattern;               (+1ptr)
-            #   - QRegExp::PatternSyntax patternSyntax;  (+2ptr)
-            #   - Qt::CaseSensitivity cs;        (+2ptr +1enum +pad?)
-            # - bool minimal                     (+2ptr +2enum +2pad?)
-            # - QString t                        (+2ptr +2enum +1bool +3pad?)
-            # - QStringList captures             (+3ptr +2enum +1bool +3pad?)
-            # FIXME: Remove need to call. Needed to warm up cache.
-            d.call("void", value, "capturedTexts") # create cache
-            ns = d.qtNamespace()
-            with SubItem(d, "syntax"):
-                # value["priv"]["engineKey"["capturedCache"]
-                address = engineKeyAddress + d.ptrSize()
-                typ = d.lookupType(ns + "QRegExp::PatternSyntax")
-                d.putItem(d.createValue(address, typ))
-            with SubItem(d, "captures"):
-                # value["priv"]["capturedCache"]
-                address = privAddress + 3 * d.ptrSize() + 12
-                typ = d.lookupType(ns + "QStringList")
-                d.putItem(d.createValue(address, typ))
+            d.call("void", value, "capturedTexts") # Warm up internal cache.
+            (patternSyntax, caseSensitive, minimal, pad, t, captures) \
+                = d.split("{int}{int}B@{QString}{QStringList}", privAddress + 2 * d.ptrSize())
+            d.putSubItem("syntax", patternSyntax.cast(d.qtNamespace() + "QRegExp::PatternSyntax"))
+            d.putSubItem("captures", captures)
 
 
 def qdump__QRegion(d, value):

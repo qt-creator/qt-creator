@@ -2867,16 +2867,14 @@ class DumperBase:
                 return val
             error("BAD DATA TO DEREFERENCE: %s %s" % (self.type, type(self)))
 
-        def cast(self, typeobj):
-            if not isinstance(typeobj, self.dumper.Type):
-                error("BAD TYPE IN CAST: %s" % typeobj)
+        def cast(self, typish):
             self.check()
+            typeobj = self.dumper.createType(typish)
             if self.nativeValue is not None and typeobj.nativeType is not None:
                 res = self.dumper.nativeValueCast(self.nativeValue, typeobj.nativeType)
                 if res is not None:
                     return res
                 #error("BAD NATIVE DATA TO CAST: %s %s" % (self.type, typeobj))
-            #if self.laddress is not None:
             val = self.dumper.Value(self.dumper)
             val.laddress = self.laddress
             val.ldata = self.ldata
@@ -3295,7 +3293,7 @@ class DumperBase:
             return typish
         if isinstance(typish, str):
             if typish[0] == 'Q':
-                if typish in ("QByteArray", "QString"):
+                if typish in ("QByteArray", "QString", "QList", "QStringList"):
                     typish = self.qtNamespace() + typish
                     size = self.ptrSize()
                 elif typish == "QImage":
@@ -3334,7 +3332,7 @@ class DumperBase:
         error("NEED TYPE, NOT %s" % type(typish))
 
     def createValue(self, datish, typish):
-        if self.isInt(datish):
+        if self.isInt(datish):  # Used as address.
             #warn("CREATING %s AT 0x%x" % (typish, address))
             val = self.Value(self)
             val.laddress = datish
