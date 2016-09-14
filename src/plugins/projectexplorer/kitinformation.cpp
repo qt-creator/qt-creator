@@ -145,7 +145,7 @@ ToolChainKitInformation::ToolChainKitInformation()
 static QMap<ToolChain::Language, QByteArray> defaultToolChainIds()
 {
     QMap<ToolChain::Language, QByteArray> toolChains;
-    Abi abi = Abi::hostAbi();
+    const Abi abi = Abi::hostAbi();
     QList<ToolChain *> tcList = Utils::filtered(ToolChainManager::toolChains(),
                                                 Utils::equal(&ToolChain::targetAbi, abi));
     foreach (ToolChain::Language l, ToolChain::allLanguages()) {
@@ -207,9 +207,13 @@ void ToolChainKitInformation::upgrade(Kit *k)
         } else {
             // Used up to 4.1:
             newValue.insert(ToolChain::languageId(ToolChain::Language::Cxx), oldValue.toString());
-            // insert default C compiler which did not exist before
-            newValue.insert(ToolChain::languageId(ToolChain::Language::C),
-                            defaultToolChainIds().value(ToolChain::Language::C));
+
+            const Core::Id typeId = DeviceTypeKitInformation::deviceTypeId(k);
+            if (typeId == Constants::DESKTOP_DEVICE_TYPE) {
+                // insert default C compiler which did not exist before
+                newValue.insert(ToolChain::languageId(ToolChain::Language::C),
+                                defaultToolChainIds().value(ToolChain::Language::C));
+            }
         }
         k->setValue(ToolChainKitInformation::id(), newValue);
     }
