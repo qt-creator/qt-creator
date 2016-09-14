@@ -537,10 +537,9 @@ def qdump__QFileInfo(d, value):
             d.putCallItem("completeBaseName", stype, value, "completeBaseName")
             d.putCallItem("completeSuffix", stype, value, "completeSuffix")
             d.putCallItem("baseName", stype, value, "baseName")
-            if False:
-                #ifdef Q_OS_MACX
-                d.putCallItem("isBundle", value, "isBundle")
-                d.putCallItem("bundleName", value, "bundleName")
+            if platform.system() == 'Darwin':
+                d.putCallItem("isBundle", stype, value, "isBundle")
+                d.putCallItem("bundleName", stype, value, "bundleName")
             d.putCallItem("fileName", stype, value, "fileName")
             d.putCallItem("filePath", stype, value, "filePath")
             # Crashes gdb (archer-tromey-python, at dad6b53fe)
