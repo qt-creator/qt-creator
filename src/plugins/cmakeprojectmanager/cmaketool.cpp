@@ -318,13 +318,13 @@ QStringList CMakeTool::parseVariableOutput(const QString &output)
     const QStringList variableList = output.split(QLatin1Char('\n'));
     QStringList result;
     foreach (const QString &v, variableList) {
-        if (v.contains(QLatin1String("<CONFIG>"))) {
-            const QString tmp = QString(v).replace(QLatin1String("<CONFIG>"), QLatin1String("%1"));
-            result << tmp.arg(QLatin1String("DEBUG")) << tmp.arg(QLatin1String("RELEASE"))
-                   << tmp.arg(QLatin1String("MINSIZEREL")) << tmp.arg(QLatin1String("RELWITHDEBINFO"));
-        } else if (v.contains(QLatin1String("<LANG>"))) {
-            const QString tmp = QString(v).replace(QLatin1String("<LANG>"), QLatin1String("%1"));
-            result << tmp.arg(QLatin1String("C")) << tmp.arg(QLatin1String("CXX"));
+        if (v.contains("<CONFIG>")) {
+            const QString tmp = QString(v).replace("<CONFIG>", "%1");
+            result << tmp.arg("DEBUG") << tmp.arg("RELEASE")
+                   << tmp.arg("MINSIZEREL") << tmp.arg("RELWITHDEBINFO");
+        } else if (v.contains("<LANG>")) {
+            const QString tmp = QString(v).replace("<LANG>", "%1");
+            result << tmp.arg("C") << tmp.arg("CXX");
         } else if (!v.contains(QLatin1Char('<')) && !v.contains(QLatin1Char('['))) {
             result << v;
         }
