@@ -65,21 +65,17 @@ public:
             m_sharedMemory->unlock();
     }
 
-    bool lock()
-    {
-        if (m_sharedMemory && m_sharedMemory->lock())
+    bool tryLocker(const QString &function) {
+        if (!m_sharedMemory)
+            return false;
+
+        if (m_sharedMemory->lock())
             return true;
+
+        m_sharedMemory->m_errorString = QStringLiteral("%1: unable to lock").arg(function);
+        m_sharedMemory->m_error = QSharedMemory::LockError;
         m_sharedMemory = 0;
         return false;
-    }
-
-    bool tryLocker(const QString function) {
-        if (!lock()) {
-            m_sharedMemory->m_errorString = QStringLiteral("%1: unable to lock").arg(function);
-            m_sharedMemory->m_error = QSharedMemory::LockError;
-            return false;
-        }
-        return true;
     }
 
 private:
