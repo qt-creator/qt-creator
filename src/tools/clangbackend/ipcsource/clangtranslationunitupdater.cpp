@@ -122,7 +122,7 @@ void TranslationUnitUpdater::createTranslationUnitIfNeeded()
 
         if (parseWasSuccessful()) {
             updateIncludeFilePaths();
-            updateLastProjectPartChangeTimePoint();
+            m_out.parseTimePoint = std::chrono::steady_clock::now();
         } else {
             qWarning() << "Parsing" << m_in.filePath << "failed:"
                        << errorCodeToText(m_parseErrorCode);
@@ -151,7 +151,7 @@ void TranslationUnitUpdater::reparse()
     if (reparseWasSuccessful()) {
         updateIncludeFilePaths();
 
-        m_out.reparsed = true;
+        m_out.reparseTimePoint = std::chrono::steady_clock::now();
         m_out.needsToBeReparsedChangeTimePoint = m_in.needsToBeReparsedChangeTimePoint;
     } else {
         qWarning() << "Reparsing" << m_in.filePath << "failed:" << m_reparseErrorCode;
@@ -183,12 +183,6 @@ void TranslationUnitUpdater::createIndexIfNeeded()
         const bool displayDiagnostics = isVerboseModeEnabled();
         m_cxIndex = clang_createIndex(1, displayDiagnostics);
     }
-}
-
-void TranslationUnitUpdater::updateLastProjectPartChangeTimePoint()
-{
-    m_out.parseTimePointIsSet = true;
-    m_out.parseTimePoint = std::chrono::steady_clock::now();
 }
 
 void TranslationUnitUpdater::includeCallback(CXFile included_file,

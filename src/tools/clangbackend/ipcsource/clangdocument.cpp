@@ -301,15 +301,15 @@ void Document::incorporateUpdaterResult(const TranslationUnitUpdateResult &resul
         return;
     }
 
-    if (result.parseTimePointIsSet)
+    if (result.hasParsed())
         d->lastProjectPartChangeTimePoint = result.parseTimePoint;
 
-    if (result.parseTimePointIsSet || result.reparsed)
+    if (result.hasParsed() || result.hasReparsed())
         d->dependedFilePaths = result.dependedOnFilePaths;
 
     d->documents.addWatchedFiles(d->dependedFilePaths);
 
-    if (result.reparsed
+    if (result.hasReparsed()
             && result.needsToBeReparsedChangeTimePoint == d->needsToBeReparsedChangeTimePoint) {
         d->needsToBeReparsed = false;
     }

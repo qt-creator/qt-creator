@@ -61,7 +61,7 @@ TEST_F(TranslationUnitUpdater, ParsesIfNeeded)
     TranslationUnitUpdateResult result = updater.update(::TranslationUnitUpdater::UpdateMode::AsNeeded);
 
     ASSERT_TRUE(cxTranslationUnit);
-    ASSERT_FALSE(result.reparsed);
+    ASSERT_FALSE(result.hasReparsed());
 }
 
 TEST_F(TranslationUnitUpdater, ReparsesIfNeeded)
@@ -70,7 +70,7 @@ TEST_F(TranslationUnitUpdater, ReparsesIfNeeded)
 
     TranslationUnitUpdateResult result = updater.update(::TranslationUnitUpdater::UpdateMode::AsNeeded);
 
-    ASSERT_TRUE(result.reparsed);
+    ASSERT_TRUE(result.hasReparsed());
 }
 
 TEST_F(TranslationUnitUpdater, UpdatesParseTimePoint)
@@ -80,7 +80,7 @@ TEST_F(TranslationUnitUpdater, UpdatesParseTimePoint)
 
     TranslationUnitUpdateResult result = updater.update(::TranslationUnitUpdater::UpdateMode::AsNeeded);
 
-    ASSERT_TRUE(result.parseTimePointIsSet);
+    ASSERT_TRUE(result.hasParsed());
     ASSERT_THAT(result.parseTimePoint, Gt(now));
 }
 
@@ -92,8 +92,8 @@ TEST_F(TranslationUnitUpdater, NotUpdatingParseTimePointForReparseOnly)
     ::TranslationUnitUpdater reparseUpdater = createUpdater(createInput(SetReparseNeeded));
     result = reparseUpdater.update(::TranslationUnitUpdater::UpdateMode::AsNeeded);
 
-    ASSERT_TRUE(result.reparsed);
-    ASSERT_FALSE(result.parseTimePointIsSet);
+    ASSERT_TRUE(result.hasReparsed());
+    ASSERT_FALSE(result.hasParsed());
 }
 
 TEST_F(TranslationUnitUpdater, UpdatesDependendOnFilesOnParse)

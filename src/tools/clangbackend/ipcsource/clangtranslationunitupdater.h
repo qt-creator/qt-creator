@@ -56,13 +56,18 @@ public:
 
 class TranslationUnitUpdateResult {
 public:
+    bool hasParsed() const
+    { return parseTimePoint != time_point(); }
+
+    bool hasReparsed() const
+    { return reparseTimePoint != time_point(); }
+
+public:
     bool hasParseOrReparseFailed = false;
 
-    bool parseTimePointIsSet = false;
     time_point parseTimePoint;
-
+    time_point reparseTimePoint;
     time_point needsToBeReparsedChangeTimePoint;
-    bool reparsed = false;
 
     QSet<Utf8String> dependedOnFilePaths;
 };
@@ -92,8 +97,6 @@ private:
     void reparseIfNeeded();
     void recreateAndParseIfNeeded();
     void reparse();
-
-    void updateLastProjectPartChangeTimePoint();
 
     void updateIncludeFilePaths();
     static void includeCallback(CXFile included_file,

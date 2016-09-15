@@ -330,7 +330,7 @@ TEST_F(Document, IncorporateUpdaterResultResetsDirtyness)
 {
     document.setDirtyIfDependencyIsMet(document.filePath());
     TranslationUnitUpdateResult result;
-    result.reparsed = true;
+    result.reparseTimePoint = std::chrono::steady_clock::now();
     result.needsToBeReparsedChangeTimePoint = document.isNeededReparseChangeTimePoint();
 
     document.incorporateUpdaterResult(result);
@@ -341,7 +341,7 @@ TEST_F(Document, IncorporateUpdaterResultResetsDirtyness)
 TEST_F(Document, IncorporateUpdaterResultDoesNotResetDirtynessIfItWasChanged)
 {
     TranslationUnitUpdateResult result;
-    result.reparsed = true;
+    result.reparseTimePoint = std::chrono::steady_clock::now();
     result.needsToBeReparsedChangeTimePoint = std::chrono::steady_clock::now();
     document.setDirtyIfDependencyIsMet(document.filePath());
 
