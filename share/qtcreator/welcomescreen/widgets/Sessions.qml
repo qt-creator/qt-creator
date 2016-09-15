@@ -52,8 +52,8 @@ Rectangle {
                 return newSessionName;
             }
 
-            function fullSessionNameWithIndex() {
-                return  "%1: %2".arg(index + 1).arg(fullSessionName());
+            function maybeNumber() {
+                return index < 9 ? "%1".arg(index + 1) : "";
             }
 
             function tooltipText() {
@@ -64,7 +64,8 @@ Rectangle {
                     return qsTr("Opens session \"%1\"").arg(sessionName);
             }
 
-            name: fullSessionNameWithIndex()
+            number: maybeNumber()
+            name: fullSessionName()
             tooltip: tooltipText()
         }
     }

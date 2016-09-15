@@ -32,6 +32,7 @@ QtObject {
     property alias italicDescription: italicDescriptionText.font
     property alias boldDescription: boldText.font
     property alias smallPath: smallPathText.font
+    property alias smallNumber: smallNumberText.font
 
     property list<Item> texts: [
 
@@ -50,6 +51,14 @@ QtObject {
 
             font.pixelSize: 13
             //font.bold: true
+            font.family: "Helvetica"
+        },
+
+        Text {
+            id: smallNumberText
+
+            visible: false
+            font.pixelSize: 10
             font.family: "Helvetica"
         },
 

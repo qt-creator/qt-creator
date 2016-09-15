@@ -30,6 +30,7 @@ Item {
     property bool expanded: false
     height: columns.height
     width: columns.width
+    property alias number: number.text
     property alias name: titleText.text
     property alias tooltip: titleAreaTooltip.text
 
@@ -53,15 +54,25 @@ Item {
                 id: sessionIcon
                 source: "image://icons/session/Welcome_ForegroundSecondaryColor"
                 x: 11
-                anchors.verticalCenter: parent.verticalCenter
+                anchors.verticalCenter: titleText.verticalCenter
                 height: 16
                 width: 16
             }
 
             NativeText {
+                id: number
+                anchors.verticalCenter: titleText.verticalCenter
+                anchors.right: sessionIcon.left
+                anchors.rightMargin: 3
+                color: creatorTheme.Welcome_ForegroundSecondaryColor
+                font: fonts.smallNumber
+            }
+
+            NativeText {
                 id: titleText
-                anchors.fill: parent
-                anchors.leftMargin: 38
+                x: 36
+                height: 30
+                anchors.top: parent.top
                 elide: Text.ElideRight
                 color: creatorTheme.Welcome_LinkColor
                 verticalAlignment: Text.AlignVCenter

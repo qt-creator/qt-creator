@@ -41,8 +41,8 @@ Rectangle {
             id: repeater
 
             ProjectItem {
-                function displayNameWithIndex() {
-                    return  "%1: %2".arg(index + 1).arg(displayName);
+                function maybeNumber() {
+                    return index < 9 ? "%1".arg(index + 1) : "";
                 }
 
                 function tooltipText() {
@@ -52,8 +52,8 @@ Rectangle {
                     else
                         return qsTr("Opens project \"%1\"").arg(displayName);
                 }
-
-                projectName: displayNameWithIndex()
+                number: maybeNumber()
+                projectName: displayName
                 projectPath: prettyFilePath
                 projectTooltip: tooltipText()
             }

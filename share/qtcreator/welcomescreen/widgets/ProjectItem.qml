@@ -34,6 +34,7 @@ Rectangle {
            ? creatorTheme.Welcome_HoverColor
            : creatorTheme.Welcome_BackgroundColor
 
+    property alias number: number.text
     property alias projectName: projectNameText.text
     property alias projectPath: pathText.text
     property alias projectTooltip: projectItemTooltip.text
@@ -45,20 +46,31 @@ Rectangle {
     Image {
         id: icon
         x: 11
-        y: 6
         height: 16
         width: 16
+        anchors.verticalCenter: projectNameText.verticalCenter
         source: "image://icons/project/Welcome_ForegroundSecondaryColor"
     }
 
     NativeText {
-        x: 38
+        id: number
+        anchors.right: icon.left
+        anchors.rightMargin: 3
+        anchors.verticalCenter: projectNameText.verticalCenter
+        color: creatorTheme.Welcome_ForegroundSecondaryColor
+        font: fonts.smallNumber
+    }
+
+    NativeText {
         id: projectNameText
+        x: 36
+        height: 30
+        anchors.top: parent.top
+        verticalAlignment: Text.AlignVCenter
         font.pixelSize: fonts.linkFont.pixelSize
         font.family: fonts.linkFont.family
         font.underline: mouseArea.containsMouse
         color: creatorTheme.Welcome_LinkColor
-        anchors.verticalCenter: icon.verticalCenter
     }
 
     NativeText {
