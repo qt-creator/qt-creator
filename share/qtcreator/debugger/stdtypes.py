@@ -227,7 +227,7 @@ def qdump__std__map(d, value):
         pairPointer = pairType.pointer()
         with PairedChildren(d, size, pairType=pairType, maxNumChild=1000):
             node = impl["_M_header"]["_M_left"]
-            typeCode = "p@{%s}@{%s}" % (pairType[0], pairType[1])
+            typeCode = "p@{%s}@{%s}" % (pairType[0].name, pairType[1].name)
             for i in d.childRange():
                 pair = (node + 1).cast(pairPointer).dereference()
                 d.putPairItem(i, pair)
@@ -337,11 +337,11 @@ def qdumpHelper__std__tree__iterator(d, value, isSet=False):
     if d.isExpanded():
         with Children(d):
             if isSet:
-                typecode = 'pppp@{%s}' % keyType
+                typecode = 'pppp@{%s}' % keyType.name
                 (color, parent, left, right, pad1, key) = d.split(typecode, node)
                 d.putSubItem("value", key)
             else:
-                typecode = 'pppp@{%s}@{%s}' % (keyType, valueType)
+                typecode = 'pppp@{%s}@{%s}' % (keyType.name, valueType.name)
                 (color, parent, left, right, pad1, key, pad2, value) = d.split(typecode, node)
                 d.putSubItem("first", key)
                 d.putSubItem("second", value)
@@ -937,7 +937,7 @@ def qdump____gnu_cxx__hash_set(d, value):
     d.check(0 <= size and size <= 1000 * 1000 * 1000)
     d.putItemCount(size)
     innerType = value.type[0]
-    d.putType("__gnu__cxx::hash_set<%s>" % innerType)
+    d.putType("__gnu__cxx::hash_set<%s>" % innerType.name)
     if d.isExpanded():
         with Children(d, size, maxNumChild=1000, childType=innerType):
             buckets = ht["_M_buckets"]["_M_impl"]

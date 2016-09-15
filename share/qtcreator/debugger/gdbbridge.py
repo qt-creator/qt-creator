@@ -903,19 +903,6 @@ class Dumper(DumperBase):
         self.isQt3Support = lambda: self.cachedIsQt3Suport
         return self.cachedIsQt3Suport
 
-    def simpleEncoding(self, typeobj):
-        code = typeobj.code
-        if code == BoolCode or code == CharCode:
-            return "int:1"
-        if code == IntCode:
-            if str(typeobj).find("unsigned") >= 0:
-                 return "uint:%d" % typeobj.size()
-            else:
-                 return "int:%d" % typeobj.size()
-        if code == FloatCode:
-            return "float:%d" % typeobj.size()
-        return None
-
     def readCString(self, base):
         inferior = self.selectedInferior()
         mem = ""

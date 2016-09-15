@@ -655,10 +655,10 @@ def qdumpHelper_QHash(d, value, keyType, valueType):
             node = hashDataFirstNode()
             for i in d.childRange():
                 if isShort:
-                    typeCode = 'P{%s}@{%s}' % (keyType, valueType)
+                    typeCode = 'P{%s}@{%s}' % (keyType.name, valueType.name)
                     (pnext, key, padding2, val) = d.split(typeCode, node)
                 else:
-                    typeCode = 'Pi@{%s}@{%s}' % (keyType, valueType)
+                    typeCode = 'Pi@{%s}@{%s}' % (keyType.name, valueType.name)
                     (pnext, hashval, padding1, key, padding2, val) = d.split(typeCode, node)
                 d.putPairItem(i, (key, val))
                 node = hashDataNextNode(node)
@@ -684,7 +684,7 @@ def qdump__QHashNode(d, value):
 
 
 def qHashIteratorHelper(d, value):
-    typeName = str(value.type)
+    typeName = value.type.name
     hashTypeName = typeName[0:typeName.rfind("::")]
     hashType = d.lookupType(hashTypeName)
     keyType = hashType[0]
@@ -696,10 +696,10 @@ def qHashIteratorHelper(d, value):
             node = d.extractPointer(value)
             isShort = d.qtVersion() < 0x050000 and keyType.name == 'int'
             if isShort:
-                typeCode = 'P{%s}@{%s}' % (keyType, valueType)
+                typeCode = 'P{%s}@{%s}' % (keyType.name, valueType.name)
                 (pnext, key, padding2, val) = d.split(typeCode, node)
             else:
-                typeCode = 'Pi@{%s}@{%s}' % (keyType, valueType)
+                typeCode = 'Pi@{%s}@{%s}' % (keyType.name, valueType.name)
                 (pnext, hashval, padding1, key, padding2, val) = d.split(typeCode, node)
             d.putSubItem("key", key)
             d.putSubItem("value", val)
@@ -988,7 +988,7 @@ def qdumpHelper_Qt5_QMap(d, value, keyType, valueType):
         if n > 10000:
             n = 10000
 
-        typeCode = 'ppp@{%s}@{%s}' % (keyType, valueType)
+        typeCode = 'ppp@{%s}@{%s}' % (keyType.name, valueType.name)
 
         def helper(node):
             (p, left, right, padding1, key, padding2, value) = d.split(typeCode, node)
@@ -1196,10 +1196,10 @@ def qdump__QSet(d, value):
             node = hashDataFirstNode()
             for i in d.childRange():
                 if isShort:
-                    typeCode = 'P{%s}' % keyType
+                    typeCode = 'P{%s}' % keyType.name
                     (pnext, key) = d.split(typeCode, node)
                 else:
-                    typeCode = 'Pi@{%s}' % keyType
+                    typeCode = 'Pi@{%s}' % keyType.name
                     (pnext, hashval, padding1, key) = d.split(typeCode, node)
                 with SubItem(d, i):
                     d.putItem(key, i)

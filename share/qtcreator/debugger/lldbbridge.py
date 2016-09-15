@@ -604,27 +604,6 @@ class Dumper(DumperBase):
     def put(self, stuff):
         self.output += stuff
 
-    def simpleEncoding(self, typeobj):
-        #warn("TYPE OBJ: %s" % typeobj)
-        code = typeobj.code
-        size = typeobj.size()
-        if code == lldb.eTypeClassBuiltin:
-            name = str(typeobj)
-            if name == 'float':
-                return 'float:4'
-            if name == 'double':
-                return 'float:8'
-            if name.find('unsigned') >= 0:
-                return 'uint:%d' % size
-            else:
-                return 'int:%d' % size
-        return None
-
-    #def createValue(self, address, referencedType):
-    #    addr = int(address) & 0xFFFFFFFFFFFFFFFF
-    #    sbaddr = lldb.SBAddress(addr, self.target)
-    #    return self.target.CreateValueFromAddress('@', sbaddr, referencedType)
-
     def childRange(self):
         if self.currentMaxNumChild is None:
             return xrange(0, self.currentNumChild)

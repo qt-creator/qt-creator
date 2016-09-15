@@ -36,7 +36,7 @@ def qdump__boost__bimaps__bimap(d, value):
 
 def qdump__boost__optional(d, value):
     innerType = value.type[0]
-    (initialized, pad, payload) = d.split('b@{%s}' % innerType, value)
+    (initialized, pad, payload) = d.split('b@{%s}' % innerType.name, value)
     if initialized:
         d.putItem(payload)
         d.putBetterType(value.type)

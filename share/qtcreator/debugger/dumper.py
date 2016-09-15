@@ -147,18 +147,10 @@ class Children:
         if childType is None:
             self.childType = None
         else:
-            self.childType = d.stripClassTag(str(childType))
+            self.childType = d.stripClassTag(childType.name)
             if not self.d.isCli:
                 self.d.put('childtype="%s",' % self.childType)
-            if childNumChild is None:
-                pass
-                #if childType.isSimpleType():
-                #    self.d.put('childnumchild="0",')
-                #    self.childNumChild = 0
-                #elif childType.code == PointerCode:
-                #    self.d.put('childnumchild="1",')
-                #    self.childNumChild = 1
-            else:
+            if childNumChild is not None:
                 self.d.put('childnumchild="%s",' % childNumChild)
                 self.childNumChild = childNumChild
         if addrBase is not None and addrStep is not None:
@@ -202,7 +194,7 @@ class PairedChildrenData:
         self.isCompact = d.isMapCompact(self.keyType, self.valueType)
         self.childType = valueType if self.isCompact else pairType
         ns = d.qtNamespace()
-        keyTypeName = d.stripClassTag(str(self.keyType))
+        keyTypeName = d.stripClassTag(self.keyType.name)
         self.keyIsQString = keyTypeName == ns + "QString"
         self.keyIsQByteArray = keyTypeName == ns + "QByteArray"
         self.keyIsStdString = keyTypeName == "std::string" \
@@ -440,6 +432,8 @@ class DumperBase:
         return True
 
     def stripClassTag(self, typeName):
+        if not isinstance(typeName, str):
+            error("Expected string in stripClassTag(), got %s" % type(typeName))
         if typeName.startswith("class "):
             return typeName[6:]
         if typeName.startswith("struct "):
@@ -451,6 +445,8 @@ class DumperBase:
         return typeName
 
     def stripForFormat(self, typeName):
+        if not isinstance(typeName, str):
+            error("Expected string in stripForFormat(), got %s" % type(typeName))
         if typeName in self.cachedFormats:
             return self.cachedFormats[typeName]
         stripped = ""
@@ -977,10 +973,13 @@ class DumperBase:
     def putField(self, name, value):
         self.put('%s="%s",' % (name, value))
 
-    def putType(self, type, priority = 0):
+    def putType(self, typish, priority = 0):
         # Higher priority values override lower ones.
         if priority >= self.currentType.priority:
-            self.currentType.value = str(type)
+            if isinstance(typish, str):
+                self.currentType.value = typish
+            else:
+                self.currentType.value = typish.name
             self.currentType.priority = priority
 
     def putValue(self, value, encoding = None, priority = 0, elided = None):
@@ -1007,11 +1006,13 @@ class DumperBase:
     def putName(self, name):
         self.put('name="%s",' % name)
 
-    def putBetterType(self, type):
-        if isinstance(type, ReportItem):
-            self.currentType.value = str(type.value)
+    def putBetterType(self, typish):
+        if isinstance(typish, ReportItem):
+            self.currentType.value = typish.value
+        elif isinstance(typish, str):
+            self.currentType.value = typish
         else:
-            self.currentType.value = str(type)
+            self.currentType.value = typish.name
         self.currentType.priority += 1
 
     def putNoType(self):
@@ -1044,7 +1045,7 @@ class DumperBase:
             innerType = self.fromNativeType(value.nativeValue[0].type)
         else:
             innerType = value.type.target()
-        innerTypeName = str(innerType.unqualified())
+        innerTypeName = innerType.unqualified().name
         address = value.address()
         if address:
             self.putValue("@0x%x" % address, priority = -1)
@@ -1235,7 +1236,7 @@ class DumperBase:
             self.putNumChild(0)
             return
 
-        displayFormat = self.currentItemFormat(value.type)
+        displayFormat = self.currentItemFormat(value.type.name)
         innerType = value.type.target().unqualified()
         innerTypeName = innerType.name
 
@@ -1456,7 +1457,7 @@ class DumperBase:
             if someTypeObj.isSimpleType():
                 return 0
 
-            typeName = str(someTypeObj)
+            typeName = someTypeObj.name
             isQObjectProper = typeName == self.qtNamespace() + "QObject"
 
             if not isQObjectProper:
@@ -1483,7 +1484,7 @@ class DumperBase:
         def extractStaticMetaObjectPtrFromType(someTypeObj):
             if someTypeObj is None:
                 return 0
-            someTypeName = str(someTypeObj)
+            someTypeName = someTypeObj.name
             self.bump('metaObjectFromType')
             known = self.knownStaticMetaObjects.get(someTypeName, None)
             if known is not None: # Is 0 or the static metaobject.
@@ -1511,7 +1512,7 @@ class DumperBase:
 
         ptrSize = self.ptrSize()
 
-        typeName = str(typeobj)
+        typeName = typeobj.name
         result = self.knownStaticMetaObjects.get(typeName, None)
         if result is not None: # Is 0 or the static metaobject.
             self.bump("typecached")
@@ -1974,12 +1975,12 @@ class DumperBase:
                             if pp > 1000:
                                 break
 
-    def currentItemFormat(self, type = None):
+    def currentItemFormat(self, typeName = None):
         displayFormat = self.formats.get(self.currentIName, AutomaticFormat)
         if displayFormat == AutomaticFormat:
-            if type is None:
-                type = self.currentType.value
-            needle = self.stripForFormat(str(type))
+            if typeName is None:
+                typeName = self.currentType.value
+            needle = None if typeName is None else self.stripForFormat(typeName)
             displayFormat = self.typeformats.get(needle, AutomaticFormat)
         return displayFormat
 
@@ -1997,9 +1998,9 @@ class DumperBase:
         addrBase = base
         innerSize = innerType.size()
         #warn("ADDRESS: %s INNERSIZE: %s INNERTYPE: %s" % (addrBase, innerSize, innerType))
-        enc = self.simpleEncoding(innerType)
+        enc = innerType.simpleEncoding()
         if enc:
-            self.put('childtype="%s",' % innerType)
+            self.put('childtype="%s",' % innerType.name)
             self.put('addrbase="0x%x",' % addrBase)
             self.put('addrstep="0x%x",' % innerSize)
             self.put('arrayencoding="%s",' % enc)
@@ -2029,7 +2030,7 @@ class DumperBase:
             self.put('plotelided="%s",' % n) # FIXME: Act on that in frontend
             n = maxNumChild
         if self.currentItemFormat() == ArrayPlotFormat and innerType.isSimpleType():
-            enc = self.simpleEncoding(innerType)
+            enc = innerType.simpleEncoding()
             if enc:
                 self.putField("editencoding", enc)
                 self.putDisplay("plotdata:separate",
@@ -2457,7 +2458,7 @@ class DumperBase:
         if value.type.isPointerType():
             value = value.dereference()
         data = value["data"]
-        return data.cast(self.lookupType(str(value.type).replace("QV4::", "QV4::Heap::")))
+        return data.cast(self.lookupType(value.type.name.replace("QV4::", "QV4::Heap::")))
 
     def extractInterpreterStack(self):
         return self.sendInterpreterRequest('backtrace', {'limit': 10 })
@@ -2987,7 +2988,6 @@ class DumperBase:
         def __init__(self, dumper):
             self.dumper = dumper
             self.name = None
-            self.code = None # Backward compatibility
             self.nativeType = None
             self.lfields = None
             self.lbitsize = None
@@ -3006,8 +3006,13 @@ class DumperBase:
 
         def __str__(self):
             self.check()
+            error("Not implemented")
             return self.name
             #error("Not implemented")
+
+        def stringify(self):
+            return "Type(name='%s',bsize=%s,bpos=%s,enum=%s,native=%s)" \
+                    % (self.name, self.lbitsize, self.lbitpos, self.lEnumType, self.nativeType is not None)
 
         def stringify(self):
             return "Type(name='%s',bsize=%s,bpos=%s,enum=%s,native=%s)" \
@@ -3056,6 +3061,23 @@ class DumperBase:
                                  'long long', 'unsigned long long',
                                  'char', 'signed char', 'unsigned char',
                                  'bool')
+
+        def simpleEncoding(self):
+            res = {
+                'bool' : 'int:1',
+                'char' : 'int:1',
+                'signed char' : 'int:1',
+                'unsigned char' : 'uint:1',
+                'short' : 'int:2',
+                'unsigned short' : 'uint:2',
+                'int' : 'int:4',
+                'unsigned int' : 'uint:4',
+                'long long' : 'int:8',
+                'unsigned long long' : 'uint:8',
+                'float': 'float:4',
+                'double': 'float:8'
+            }.get(self.name, None)
+            return res
 
         def isFloatingPointType(self):
             return self.name in ('float', 'double')
@@ -3366,20 +3388,22 @@ class DumperBase:
             return val
         error("EXPECTING ADDRESS OR BYTES, GOT %s" % type(datish))
 
-    def createListItem(self, data, typeName):
+    def createListItem(self, data, innerTypish):
+        innerType = self.createType(innerTypish)
         typeobj = self.Type(self)
-        typeobj.name = self.qtNamespace() + "QList<%s>" % typeName
-        typeobj.templateArguments = [self.createType(typeName)]
+        typeobj.name = self.qtNamespace() + "QList<%s>" % innerType.name
+        typeobj.templateArguments = [innerType]
         typeobj.lbitsize = 8 * self.ptrSize()
         val = self.Value(self)
         val.ldata = data
         val.type = typeobj
         return val
 
-    def createVectorItem(self, data, typeName):
+    def createVectorItem(self, data, innerTypish):
+        innerType = self.createType(innerTypish)
         typeobj = self.Type(self)
-        typeobj.name = self.qtNamespace() + "QVector<%s>" % typeName
-        typeobj.templateArguments = [self.createType(typeName)]
+        typeobj.name = self.qtNamespace() + "QVector<%s>" % innerType.name
+        typeobj.templateArguments = [innerType]
         typeobj.lbitsize = 8 * self.ptrSize()
         val = self.Value(self)
         val.ldata = data
