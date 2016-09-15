@@ -271,29 +271,6 @@ def qdump__QDateTime(d, value):
         if tiVersion is None:
             tiVersion = 4
         if tiVersion > 10:
-            # QDataTime:
-            #   union
-            #      Data {
-            #      QDateTimePrivate *d = {
-            #        qint64 m_msecs;
-            #        StatusFlags m_status;
-            #        int m_offsetFromUtc;
-            #        mutable QAtomicInt ref;
-            #        QTimeZone m_timeZone;
-            #      }
-            #      ShortData data = {
-            #         quintptr status : 8;
-            #         qintptr msecs : sizeof(void *) * 8 - 8; // note: this is only 24 bits on 32-bit systems...
-            #
-            # enum StatusFlag:
-            #    ShortData           = 0x01,
-            #    ValidDate           = 0x02,
-            #    ValidTime           = 0x04,
-            #    ValidDateTime       = 0x08,
-            #    TimeSpecMask        = 0x30,
-            #    SetToStandardTime   = 0x40,
-            #    SetToDaylightTime   = 0x80
-            #
             status = d.extractByte(value)
             #warn("STATUS: %s" % status)
             if status & 0x01:
@@ -366,19 +343,20 @@ def qdump__QDateTime(d, value):
 
     if d.isExpanded():
         with Children(d):
-            d.putCallItem("toTime_t", value, "toTime_t")
+            ns = d.qtNamespace()
+            d.putCallItem("toTime_t", "unsigned int", value, "toTime_t")
             if d.canCallLocale():
-                d.putCallItem("toString", value, "toString",
+                d.putCallItem("toString", "QString", value, "toString",
                     d.enumExpression("DateFormat", "TextDate"))
-                d.putCallItem("(ISO)", value, "toString",
+                d.putCallItem("(ISO)", "QString", value, "toString",
                     d.enumExpression("DateFormat", "ISODate"))
-                d.putCallItem("toUTC", value, "toTimeSpec",
+                d.putCallItem("toUTC", "QDateTime", value, "toTimeSpec",
                     d.enumExpression("TimeSpec", "UTC"))
-                d.putCallItem("(SystemLocale)", value, "toString",
+                d.putCallItem("(SystemLocale)", "QString", value, "toString",
                     d.enumExpression("DateFormat", "SystemLocaleDate"))
-                d.putCallItem("(Locale)", value, "toString",
+                d.putCallItem("(Locale)", "QString", value, "toString",
                     d.enumExpression("DateFormat", "LocaleDate"))
-                d.putCallItem("toLocalTime", value, "toTimeSpec",
+                d.putCallItem("toLocalTime", "QDateTime", value, "toTimeSpec",
                     d.enumExpression("TimeSpec", "LocalTime"))
             d.putFields(value)
 
