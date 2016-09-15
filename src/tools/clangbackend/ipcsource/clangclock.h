@@ -25,53 +25,12 @@
 
 #pragma once
 
-#include "clangbackend_global.h"
-#include "clangclock.h"
-
-#include <utf8string.h>
-
-#include <clang-c/Index.h>
-
-#include <QList>
+#include <chrono>
 
 namespace ClangBackEnd {
 
-class TranslationUnit;
-
-class TranslationUnits
-{
-public:
-    class TranslationUnitData {
-    public:
-        TranslationUnitData(const Utf8String &id)
-            : id(id)
-        {}
-
-        Utf8String id;
-
-        CXTranslationUnit cxTranslationUnit = nullptr;
-        CXIndex cxIndex = nullptr;
-
-        TimePoint parseTimePoint;
-    };
-
-public:
-    TranslationUnits(const Utf8String &filePath);
-    ~TranslationUnits();
-
-    TranslationUnit createAndAppend();
-    TranslationUnit get(PreferredTranslationUnit type = PreferredTranslationUnit::RecentlyParsed);
-    void updateParseTimePoint(const Utf8String &translationUnitId, TimePoint timePoint);
-
-private:
-    bool areAllTranslationUnitsParsed() const;
-    TranslationUnit getPreferredTranslationUnit(PreferredTranslationUnit type);
-    TranslationUnitData &findUnit(const Utf8String &translationUnitId);
-    TranslationUnit toTranslationUnit(TranslationUnitData &unit);
-
-private:
-    Utf8String m_filePath;
-    QList<TranslationUnitData> m_tuDatas;
-};
+using Clock = std::chrono::steady_clock;
+using Duration = std::chrono::steady_clock::duration;
+using TimePoint = std::chrono::steady_clock::time_point;
 
 } // namespace ClangBackEnd

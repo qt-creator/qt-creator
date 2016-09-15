@@ -63,14 +63,14 @@ public:
     const Utf8StringVector fileArguments;
 
     ProjectPart projectPart;
-    time_point lastProjectPartChangeTimePoint;
+    TimePoint lastProjectPartChangeTimePoint;
 
     TranslationUnits translationUnits;
 
     QSet<Utf8String> dependedFilePaths;
 
     uint documentRevision = 0;
-    time_point needsToBeReparsedChangeTimePoint;
+    TimePoint needsToBeReparsedChangeTimePoint;
     bool hasParseOrReparseFailed = false;
     bool needsToBeReparsed = false;
     bool isUsedByCurrentEditor = false;
@@ -85,7 +85,7 @@ DocumentData::DocumentData(const Utf8String &filePath,
       filePath(filePath),
       fileArguments(fileArguments),
       projectPart(projectPart),
-      lastProjectPartChangeTimePoint(std::chrono::steady_clock::now()),
+      lastProjectPartChangeTimePoint(Clock::now()),
       translationUnits(filePath),
       needsToBeReparsedChangeTimePoint(lastProjectPartChangeTimePoint)
 {
@@ -183,7 +183,7 @@ const ProjectPart &Document::projectPart() const
     return d->projectPart;
 }
 
-const time_point Document::lastProjectPartChangeTimePoint() const
+const TimePoint Document::lastProjectPartChangeTimePoint() const
 {
     checkIfNull();
 
@@ -239,7 +239,7 @@ void Document::setIsVisibleInEditor(bool isVisibleInEditor)
     d->isVisibleInEditor = isVisibleInEditor;
 }
 
-time_point Document::isNeededReparseChangeTimePoint() const
+TimePoint Document::isNeededReparseChangeTimePoint() const
 {
     checkIfNull();
 
@@ -312,7 +312,7 @@ void Document::incorporateUpdaterResult(const TranslationUnitUpdateResult &resul
     if (result.hasParsed() || result.hasReparsed()) {
         d->dependedFilePaths = result.dependedOnFilePaths;
 
-        const time_point timePoint = qMax(result.parseTimePoint, result.reparseTimePoint);
+        const TimePoint timePoint = qMax(result.parseTimePoint, result.reparseTimePoint);
         d->translationUnits.updateParseTimePoint(result.translationUnitId, timePoint);
     }
 
@@ -366,7 +366,7 @@ const QSet<Utf8String> Document::dependedFilePaths() const
 
 void Document::setDirty()
 {
-    d->needsToBeReparsedChangeTimePoint = std::chrono::steady_clock::now();
+    d->needsToBeReparsedChangeTimePoint = Clock::now();
     d->needsToBeReparsed = true;
 }
 

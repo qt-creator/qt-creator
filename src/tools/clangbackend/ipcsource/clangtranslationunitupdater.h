@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "clangclock.h"
+
 #include "commandlinearguments.h"
 #include "unsavedfiles.h"
 #include "utf8stringvector.h"
@@ -33,18 +35,14 @@
 
 #include <QSet>
 
-#include <chrono>
-
 namespace ClangBackEnd {
-
-using time_point = std::chrono::steady_clock::time_point;
 
 class TranslationUnitUpdateInput {
 public:
     bool parseNeeded = false;
     bool reparseNeeded = false;
 
-    time_point needsToBeReparsedChangeTimePoint;
+    TimePoint needsToBeReparsedChangeTimePoint;
     Utf8String filePath;
     Utf8StringVector fileArguments;
 
@@ -57,18 +55,18 @@ public:
 class TranslationUnitUpdateResult {
 public:
     bool hasParsed() const
-    { return parseTimePoint != time_point(); }
+    { return parseTimePoint != TimePoint(); }
 
     bool hasReparsed() const
-    { return reparseTimePoint != time_point(); }
+    { return reparseTimePoint != TimePoint(); }
 
 public:
     Utf8String translationUnitId;
 
     bool hasParseOrReparseFailed = false;
-    time_point parseTimePoint;
-    time_point reparseTimePoint;
-    time_point needsToBeReparsedChangeTimePoint;
+    TimePoint parseTimePoint;
+    TimePoint reparseTimePoint;
+    TimePoint needsToBeReparsedChangeTimePoint;
 
     QSet<Utf8String> dependedOnFilePaths;
 };

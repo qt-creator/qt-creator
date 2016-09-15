@@ -25,17 +25,15 @@
 
 #pragma once
 
+#include "clangclock.h"
+
 #include <utf8string.h>
 
 #include <QFlags>
 #include <QDebug>
 #include <QVector>
 
-#include <chrono>
-
 namespace ClangBackEnd {
-
-using time_point = std::chrono::steady_clock::time_point;
 
 class JobRequest
 {
@@ -72,8 +70,8 @@ public:
     // General
     Utf8String filePath;
     Utf8String projectPartId;
-    time_point unsavedFilesChangeTimePoint;
-    time_point projectChangeTimePoint;
+    TimePoint unsavedFilesChangeTimePoint;
+    TimePoint projectChangeTimePoint;
     uint documentRevision = 0;
 
     // For code completion

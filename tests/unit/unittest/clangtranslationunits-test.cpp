@@ -31,13 +31,12 @@
 
 #include <clang-c/Index.h>
 
-#include <chrono>
-
 #include <gmock/gmock.h>
 #include <gmock/gmock-matchers.h>
 #include <gtest/gtest.h>
 #include "gtest-qt-printing.h"
 
+using ClangBackEnd::Clock;
 using ClangBackEnd::TranslationUnit;
 using ClangBackEnd::TranslationUnits;
 using ClangBackEnd::TranslationUnitDoesNotExist;
@@ -88,7 +87,7 @@ TEST_F(TranslationUnits, GetFirstForMultipleTranslationUnits)
 TEST_F(TranslationUnits, GetFirstForMultipleTranslationUnitsAndOnlyFirstParsed)
 {
     const TranslationUnit created1 = translationUnits.createAndAppend();
-    translationUnits.updateParseTimePoint(created1.id(), std::chrono::steady_clock::now());
+    translationUnits.updateParseTimePoint(created1.id(), Clock::now());
     translationUnits.createAndAppend();
 
     const TranslationUnit queried = translationUnits.get();
@@ -100,7 +99,7 @@ TEST_F(TranslationUnits, GetFirstForMultipleTranslationUnitsAndOnlySecondParsed)
 {
     const TranslationUnit created1 = translationUnits.createAndAppend();
     const TranslationUnit created2 = translationUnits.createAndAppend();
-    translationUnits.updateParseTimePoint(created2.id(), std::chrono::steady_clock::now());
+    translationUnits.updateParseTimePoint(created2.id(), Clock::now());
 
     const TranslationUnit queried = translationUnits.get();
 
@@ -110,9 +109,9 @@ TEST_F(TranslationUnits, GetFirstForMultipleTranslationUnitsAndOnlySecondParsed)
 TEST_F(TranslationUnits, GetRecentForMultipleTranslationUnits)
 {
     const TranslationUnit created1 = translationUnits.createAndAppend();
-    translationUnits.updateParseTimePoint(created1.id(), std::chrono::steady_clock::now());
+    translationUnits.updateParseTimePoint(created1.id(), Clock::now());
     const TranslationUnit created2 = translationUnits.createAndAppend();
-    translationUnits.updateParseTimePoint(created2.id(), std::chrono::steady_clock::now());
+    translationUnits.updateParseTimePoint(created2.id(), Clock::now());
 
     const TranslationUnit queried = translationUnits.get(PreferredTranslationUnit::RecentlyParsed);
 
@@ -122,9 +121,9 @@ TEST_F(TranslationUnits, GetRecentForMultipleTranslationUnits)
 TEST_F(TranslationUnits, GetPreviousForMultipleTranslationUnits)
 {
     const TranslationUnit created1 = translationUnits.createAndAppend();
-    translationUnits.updateParseTimePoint(created1.id(), std::chrono::steady_clock::now());
+    translationUnits.updateParseTimePoint(created1.id(), Clock::now());
     const TranslationUnit created2 = translationUnits.createAndAppend();
-    translationUnits.updateParseTimePoint(created2.id(), std::chrono::steady_clock::now());
+    translationUnits.updateParseTimePoint(created2.id(), Clock::now());
 
     const TranslationUnit queried = translationUnits.get(PreferredTranslationUnit::PreviouslyParsed);
 
@@ -136,7 +135,7 @@ TEST_F(TranslationUnits, UpdateThrowsForNotExisting)
     ClangBackEnd::TranslationUnits otherTranslationUnits{someFilePath};
     const TranslationUnit translationUnit = otherTranslationUnits.createAndAppend();
 
-    ASSERT_THROW(translationUnits.updateParseTimePoint(translationUnit.id(), std::chrono::steady_clock::now()),
+    ASSERT_THROW(translationUnits.updateParseTimePoint(translationUnit.id(), Clock::now()),
                  TranslationUnitDoesNotExist);
 }
 

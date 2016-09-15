@@ -37,7 +37,6 @@
 #include <QSet>
 #include <QtGlobal>
 
-#include <chrono>
 #include <memory>
 
 class Utf8String;
@@ -51,8 +50,6 @@ class TranslationUnitUpdateResult;
 class ProjectPart;
 class FileContainer;
 class Documents;
-
-using time_point = std::chrono::steady_clock::time_point;
 
 class Document
 {
@@ -87,7 +84,7 @@ public:
 
     Utf8String projectPartId() const;
     const ProjectPart &projectPart() const;
-    const time_point lastProjectPartChangeTimePoint() const;
+    const TimePoint lastProjectPartChangeTimePoint() const;
     bool isProjectPartOutdated() const;
 
     uint documentRevision() const;
@@ -116,7 +113,7 @@ public: // for tests
     const QSet<Utf8String> dependedFilePaths() const;
     TranslationUnitUpdater createUpdater() const;
     void setHasParseOrReparseFailed(bool hasFailed);
-    time_point isNeededReparseChangeTimePoint() const;
+    TimePoint isNeededReparseChangeTimePoint() const;
 
 private:
     void setDirty();

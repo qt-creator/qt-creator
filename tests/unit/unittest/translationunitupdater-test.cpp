@@ -25,10 +25,13 @@
 
 #include "googletest.h"
 
+#include <clangclock.h>
 #include <clangtranslationunitupdater.h>
 
 #include <clang-c/Index.h>
 
+using ClangBackEnd::Clock;
+using ClangBackEnd::TimePoint;
 using ClangBackEnd::TranslationUnitUpdater;
 using ClangBackEnd::TranslationUnitUpdateInput;
 using ClangBackEnd::TranslationUnitUpdateResult;
@@ -88,7 +91,7 @@ TEST_F(TranslationUnitUpdater, PropagatesTranslationUnitId)
 TEST_F(TranslationUnitUpdater, UpdatesParseTimePoint)
 {
     ::TranslationUnitUpdater updater = createUpdater(createInput());
-    const std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
+    const TimePoint now = Clock::now();
 
     TranslationUnitUpdateResult result = updater.update(::TranslationUnitUpdater::UpdateMode::AsNeeded);
 

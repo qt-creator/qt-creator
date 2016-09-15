@@ -77,11 +77,11 @@ TranslationUnit TranslationUnits::get(PreferredTranslationUnit type)
 }
 
 void TranslationUnits::updateParseTimePoint(const Utf8String &translationUnitId,
-                                            time_point timePoint)
+                                            TimePoint timePoint)
 {
     TranslationUnitData &unit = findUnit(translationUnitId);
 
-    QTC_CHECK(timePoint != time_point());
+    QTC_CHECK(timePoint != TimePoint());
     unit.parseTimePoint = timePoint;
 
     qCDebug(tuLog) << "Updated" << translationUnitId << "for" << QFileInfo(m_filePath).fileName()
@@ -92,7 +92,7 @@ void TranslationUnits::updateParseTimePoint(const Utf8String &translationUnitId,
 bool TranslationUnits::areAllTranslationUnitsParsed() const
 {
     return Utils::allOf(m_tuDatas, [](const TranslationUnitData &unit) {
-        return unit.parseTimePoint != time_point();
+        return unit.parseTimePoint != TimePoint();
     });
 }
 

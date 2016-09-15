@@ -45,7 +45,8 @@ HEADERS += $$PWD/clangcodemodelserver.h \
     $$PWD/clangexceptions.h \
     $$PWD/clangdocumentprocessor.h \
     $$PWD/clangdocumentprocessors.h \
-    $$PWD/clangtranslationunits.h
+    $$PWD/clangtranslationunits.h \
+    $$PWD/clangclock.h \
 
 SOURCES += $$PWD/clangcodemodelserver.cpp \
     $$PWD/codecompleter.cpp \

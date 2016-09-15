@@ -25,12 +25,12 @@
 
 #include "googletest.h"
 
+#include <clangclock.h>
 #include <projectpart.h>
 #include <clangexceptions.h>
 #include <projects.h>
 #include <utf8stringvector.h>
 
-#include <chrono>
 #include <thread>
 
 using testing::ElementsAre;
@@ -82,7 +82,7 @@ TEST(ProjectPart, TimeStampIsUpdatedAsArgumentChanged)
 {
     ClangBackEnd::ProjectPart project(Utf8StringLiteral("/tmp/blah.pro"));
     auto lastChangeTimePoint = project.lastChangeTimePoint();
-    std::this_thread::sleep_for(std::chrono::steady_clock::duration(1));
+    std::this_thread::sleep_for(ClangBackEnd::Duration(1));
 
     project.setArguments(Utf8StringVector({Utf8StringLiteral("-O"), Utf8StringLiteral("-fast")}));
 
@@ -163,7 +163,7 @@ TEST(ProjectPart, ProjectPartIsClearedAfterRemove)
     projects.createOrUpdate({projectContainer});
     ClangBackEnd::ProjectPart project = *projects.findProjectPart(projectContainer.projectPartId());
     const auto lastChangeTimePoint = project.lastChangeTimePoint();
-    std::this_thread::sleep_for(std::chrono::steady_clock::duration(1));
+    std::this_thread::sleep_for(ClangBackEnd::Duration(1));
 
     projects.remove({projectContainer.projectPartId()});
 
