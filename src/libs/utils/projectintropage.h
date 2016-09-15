@@ -35,7 +35,7 @@ class ProjectIntroPagePrivate;
 class QTCREATOR_UTILS_EXPORT ProjectIntroPage : public WizardPage
 {
     Q_OBJECT
-    Q_PROPERTY(QString description READ description WRITE setPath DESIGNABLE true)
+    Q_PROPERTY(QString description READ description WRITE setDescription DESIGNABLE true)
     Q_PROPERTY(QString path READ path WRITE setPath DESIGNABLE true)
     Q_PROPERTY(QString projectName READ projectName WRITE setProjectName DESIGNABLE true)
     Q_PROPERTY(bool useAsDefaultPath READ useAsDefaultPath WRITE setUseAsDefaultPath DESIGNABLE true)
