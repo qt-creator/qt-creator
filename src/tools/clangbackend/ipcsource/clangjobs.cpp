@@ -92,24 +92,25 @@ JobRequests Jobs::runJobs(const JobRequests &jobsRequests)
 
 bool Jobs::runJob(const JobRequest &jobRequest)
 {
-    if (IAsyncJob *asyncJob = IAsyncJob::create(jobRequest.type)) {
-        JobContext context(jobRequest, &m_documents, &m_unsavedFiles, &m_client);
-        asyncJob->setContext(context);
+    IAsyncJob *asyncJob = IAsyncJob::create(jobRequest.type);
+    QTC_ASSERT(asyncJob, return false);
 
-        if (const IAsyncJob::AsyncPrepareResult prepareResult = asyncJob->prepareAsyncRun()) {
-            qCDebug(jobsLog) << "Running" << jobRequest
-                             << "with TranslationUnit" << prepareResult.translationUnitId;
+    JobContext context(jobRequest, &m_documents, &m_unsavedFiles, &m_client);
+    asyncJob->setContext(context);
 
-            asyncJob->setFinishedHandler([this](IAsyncJob *asyncJob){ onJobFinished(asyncJob); });
-            const QFuture<void> future = asyncJob->runAsync();
+    if (const IAsyncJob::AsyncPrepareResult prepareResult = asyncJob->prepareAsyncRun()) {
+        qCDebug(jobsLog) << "Running" << jobRequest
+                         << "with TranslationUnit" << prepareResult.translationUnitId;
 
-            const RunningJob runningJob{jobRequest, prepareResult.translationUnitId, future};
-            m_running.insert(asyncJob, runningJob);
-            return true;
-        } else {
-            qCDebug(jobsLog) << "Preparation failed for " << jobRequest;
-            delete asyncJob;
-        }
+        asyncJob->setFinishedHandler([this](IAsyncJob *asyncJob){ onJobFinished(asyncJob); });
+        const QFuture<void> future = asyncJob->runAsync();
+
+        const RunningJob runningJob{jobRequest, prepareResult.translationUnitId, future};
+        m_running.insert(asyncJob, runningJob);
+        return true;
+    } else {
+        qCDebug(jobsLog) << "Preparation failed for " << jobRequest;
+        delete asyncJob;
     }
 
     return false;
