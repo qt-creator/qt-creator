@@ -2830,8 +2830,10 @@ void ProjectExplorerPluginPrivate::updateRecentProjectMenu()
         if (fileName.endsWith(QLatin1String(".qws")))
             continue;
 
-        QString textTemplate = acceleratorKey < 10 ? QStringLiteral("&%1: %2") : QStringLiteral("%1: %2");
-        QString actionText = textTemplate.arg(acceleratorKey).arg(Utils::withTildeHomePath(fileName));
+        const QString textTemplate = acceleratorKey < 10 ? QStringLiteral("&%1: %2") : QStringLiteral("%1: %2");
+        const QString actionText = Utils::HostOsInfo::isMacHost()
+                ? Utils::withTildeHomePath(fileName)
+                : textTemplate.arg(acceleratorKey).arg(Utils::withTildeHomePath(fileName));
         QAction *action = menu->addAction(actionText);
         connect(action, &QAction::triggered, this, [this, fileName] {
             openRecentProject(fileName);
