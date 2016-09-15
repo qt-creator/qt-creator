@@ -172,7 +172,10 @@ class Dumper(DumperBase):
         else:
             # This strips typedefs for pointers. We don't want that.
             typeobj.nativeType = nativeType.GetUnqualifiedType()
-        typeobj.name = typeobj.nativeType.GetDisplayTypeName()
+        if hasattr(typeobj.nativeType, "GetDisplayTypeName"):
+            typeobj.name = typeobj.nativeType.GetDisplayTypeName()  # Xcode 6 (lldb-320)
+        else:
+            typeobj.name = typeobj.nativeType.GetName()             # Xcode 5 (lldb-310)
         typeobj.lbitsize = nativeType.GetByteSize() * 8
         code = nativeType.GetTypeClass()
         typeobj.code = code
