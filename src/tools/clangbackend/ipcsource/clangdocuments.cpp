@@ -68,14 +68,20 @@ std::vector<Document> Documents::create(const QVector<FileContainer> &fileContai
     return createdDocuments;
 }
 
-void Documents::update(const QVector<FileContainer> &fileContainers)
+std::vector<Document> Documents::update(const QVector<FileContainer> &fileContainers)
 {
     checkIfDocumentsForFilePathsExist(fileContainers);
 
+    std::vector<Document> createdDocuments;
+
     for (const FileContainer &fileContainer : fileContainers) {
-        updateDocument(fileContainer);
+        const std::vector<Document> documents = updateDocument(fileContainer);
+        createdDocuments.insert(createdDocuments.end(), documents.begin(), documents.end());
+
         updateDocumentsWithChangedDependency(fileContainer.filePath());
     }
+
+    return createdDocuments;
 }
 
 static bool removeFromFileContainer(QVector<FileContainer> &fileContainers, const Document &document)
@@ -205,12 +211,14 @@ Document Documents::createDocument(const FileContainer &fileContainer)
     return documents_.back();
 }
 
-void Documents::updateDocument(const FileContainer &fileContainer)
+std::vector<Document> Documents::updateDocument(const FileContainer &fileContainer)
 {
     const auto documents = findAllDocumentsWithFilePath(fileContainer.filePath());
 
     for (auto document : documents)
         document.setDocumentRevision(fileContainer.documentRevision());
+
+    return documents;
 }
 
 std::vector<Document>::iterator Documents::findDocument(const FileContainer &fileContainer)
