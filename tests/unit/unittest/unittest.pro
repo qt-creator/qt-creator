@@ -25,101 +25,102 @@ win32:DEFINES += ECHOSERVER=\"R\\\"xxx($$OUT_PWD/../echo)xxx\\\"\"
 unix: DEFINES += ECHOSERVER=\"R\\\"xxx($$OUT_PWD/../echoserver/echo)xxx\\\"\"
 
 SOURCES += \
-    clientserverinprocesstest.cpp \
+    clientserverinprocess-test.cpp \
     clientserveroutsideprocess.cpp \
-    lineprefixertest.cpp \
-    main.cpp \
-    readandwritemessageblocktest.cpp \
-    sizedarraytest.cpp \
+    lineprefixer-test.cpp \
+    processevents-utilities.cpp \
+    readandwritemessageblock-test.cpp \
+    sizedarray-test.cpp \
+    smallstring-test.cpp \
     spydummy.cpp \
-    smallstringtest.cpp \
-    testutils.cpp \
-    utf8test.cpp
+    unittests-main.cpp \
+    utf8-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \
-    activationsequencecontextprocessortest.cpp \
-    activationsequenceprocessortest.cpp \
-    clangcodecompleteresultstest.cpp \
-    clangcompletioncontextanalyzertest.cpp \
-    clangdiagnosticfiltertest.cpp \
-    clangfixitoperationtest.cpp \
-    clangipcservertest.cpp \
-    clangstringtest.cpp \
-    codecompletionsextractortest.cpp \
-    codecompletiontest.cpp \
-    completionchunkstotextconvertertest.cpp \
-    createtablesqlstatementbuildertest.cpp \
-    diagnosticsettest.cpp \
-    diagnostictest.cpp \
-    fixittest.cpp \
-    projecttest.cpp \
-    sourcelocationtest.cpp \
-    sourcerangetest.cpp \
-    sqlitecolumntest.cpp \
-    sqlitedatabasebackendtest.cpp \
-    sqlitedatabasetest.cpp \
-    sqlitestatementtest.cpp \
-    sqlitetabletest.cpp \
-    sqlstatementbuildertest.cpp \
-    clangdocumenttest.cpp \
-    clangdocumentstest.cpp \
-    unsavedfilestest.cpp \
-    senddocumenttrackertest.cpp \
-    cursortest.cpp \
-    skippedsourcerangestest.cpp \
-    highlightingmarksreportertest.cpp \
+    activationsequencecontextprocessor-test.cpp \
+    activationsequenceprocessor-test.cpp \
     chunksreportedmonitor.cpp \
-    unsavedfiletest.cpp \
-    clangisdiagnosticrelatedtolocationtest.cpp \
-    highlightingmarkstest.cpp \
-    utf8positionfromlinecolumntest.cpp \
-    translationunitupdatertest.cpp \
-    clangasyncjobtest.cpp \
-    clangcompletecodejobtest.cpp \
-    clangcreateinitialdocumentpreamblejobtest.cpp \
-    clangjobqueuetest.cpp \
-    clangjobstest.cpp \
-    clangrequestdocumentannotationsjobtest.cpp \
-    clangupdatedocumentannotationsjobtest.cpp
+    clangasyncjob-base.cpp \
+    clangcodecompleteresults-test.cpp \
+    clangcompletecodejob-test.cpp \
+    clangcompletioncontextanalyzer-test.cpp \
+    clangcreateinitialdocumentpreamblejob-test.cpp \
+    clangdiagnosticfilter-test.cpp \
+    clangdocuments-test.cpp \
+    clangdocument-test.cpp \
+    clangfixitoperation-test.cpp \
+    clangipcserver-test.cpp \
+    clangisdiagnosticrelatedtolocation-test.cpp \
+    clangjobqueue-test.cpp \
+    clangjobs-test.cpp \
+    clangrequestdocumentannotationsjob-test.cpp \
+    clangstring-test.cpp \
+    clangupdatedocumentannotationsjob-test.cpp \
+    codecompletionsextractor-test.cpp \
+    codecompletion-test.cpp \
+    completionchunkstotextconverter-test.cpp \
+    createtablesqlstatementbuilder-test.cpp \
+    cursor-test.cpp \
+    diagnosticset-test.cpp \
+    diagnostic-test.cpp \
+    fixit-test.cpp \
+    highlightingmarksreporter-test.cpp \
+    highlightingmarks-test.cpp \
+    projectpart-test.cpp \
+    senddocumenttracker-test.cpp \
+    skippedsourceranges-test.cpp \
+    sourcelocation-test.cpp \
+    sourcerange-test.cpp \
+    sqlitecolumn-test.cpp \
+    sqlitedatabasebackend-test.cpp \
+    sqlitedatabase-test.cpp \
+    sqlitestatement-test.cpp \
+    sqlitetable-test.cpp \
+    sqlstatementbuilder-test.cpp \
+    translationunitupdater-test.cpp \
+    unsavedfiles-test.cpp \
+    unsavedfile-test.cpp \
+    utf8positionfromlinecolumn-test.cpp
 }
 
 !isEmpty(LIBTOOLING_LIBS) {
 SOURCES += \
-    refactoringclientserverinprocesstest.cpp \
-    refactoringcompilationdatabasetest.cpp \
-    refactoringservertest.cpp \
-    refactoringenginetest.cpp \
-    refactoringclienttest.cpp \
-    symbolfindertest.cpp
+    refactoringclientserverinprocess-test.cpp \
+    refactoringclient-test.cpp \
+    refactoringcompilationdatabase-test.cpp \
+    refactoringengine-test.cpp \
+    refactoringserver-test.cpp \
+    symbolfinder-test.cpp
 }
 
 exists($$GOOGLEBENCHMARK_DIR) {
 SOURCES += \
-    smallstringbenchmark.cpp
+    smallstring-benchmark.cpp
 }
 
 HEADERS += \
+    filesystem-utilities.h \
+    googletest.h \
     gtest-qt-printing.h \
-    spydummy.h \
-    dummyclangipcclient.h \
-    testutils.h \
-    mockclangcodemodelclient.h \
-    mockclangcodemodelserver.h \
-    mockrefactoringclient.h \
-    mockrefactoringserver.h \
-    refactoringclientcallbackmock.h
+    processevents-utilities.h \
+    spydummy.h
 
 !isEmpty(LIBCLANG_LIBS) {
 HEADERS += \
-    clangasyncjobtest.h \
     chunksreportedmonitor.h \
-    matcher-diagnosticcontainer.h
+    clangasyncjob-base.h \
+    diagnosticcontainer-matcher.h \
+    dummyclangipcclient.h \
+    mockclangcodemodelclient.h \
+    mockclangcodemodelserver.h
 }
 
 !isEmpty(LIBTOOLING_LIBS) {
 HEADERS += \
-    filesystemutilities.h
+    mockrefactoringclientcallback.h \
+    mockrefactoringclient.h \
+    mockrefactoringserver.h
 }
 
 OTHER_FILES += $$files(data/*)

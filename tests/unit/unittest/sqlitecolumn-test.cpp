@@ -25,35 +25,63 @@
 
 #include "googletest.h"
 
-#include "chunksreportedmonitor.h"
+#include <sqlitecolumn.h>
 
-#include <QSignalSpy>
+namespace {
 
-namespace ClangBackEnd {
-
-ChunksReportedMonitor::ChunksReportedMonitor(const QFuture<TextEditor::HighlightingResult> &future)
-    : m_future(future)
+class SqliteColumn : public ::testing::Test
 {
-    m_futureWatcher.setFuture(future);
-    connect(&m_futureWatcher, &QFutureWatcher<TextEditor::HighlightingResult>::resultsReadyAt,
-            this, &ChunksReportedMonitor::onResultsReadyAt);
+protected:
+    void SetUp() override;
+
+    ::SqliteColumn column;
+};
+
+TEST_F(SqliteColumn, ChangeName)
+{
+    column.setName(Utf8StringLiteral("Claudia"));
+
+    ASSERT_THAT(column.name(), Utf8StringLiteral("Claudia"));
 }
 
-bool ChunksReportedMonitor::waitUntilFinished(int timeoutInMs)
+TEST_F(SqliteColumn, DefaultType)
 {
-    QSignalSpy spy(&m_futureWatcher, SIGNAL(finished()));
-    return spy.wait(timeoutInMs);
+    ASSERT_THAT(column.type(), ColumnType::Numeric);
 }
 
-void ChunksReportedMonitor::onResultsReadyAt(int, int)
+TEST_F(SqliteColumn, ChangeType)
 {
-    ++m_resultsReadyCounter;
+    column.setType(ColumnType::Text);
+
+    ASSERT_THAT(column.type(), ColumnType::Text);
 }
 
-uint ChunksReportedMonitor::resultsReadyCounter()
+TEST_F(SqliteColumn, DefaultPrimaryKey)
 {
-    waitUntilFinished();
-    return m_resultsReadyCounter;
+    ASSERT_FALSE(column.isPrimaryKey());
 }
 
-} // namespace ClangBackEnd
+TEST_F(SqliteColumn, SetPrimaryKey)
+{
+    column.setIsPrimaryKey(true);
+
+    ASSERT_TRUE(column.isPrimaryKey());
+}
+
+TEST_F(SqliteColumn, GetColumnDefinition)
+{
+    column.setName(Utf8StringLiteral("Claudia"));
+
+    Internal::ColumnDefinition columnDefintion = column.columnDefintion();
+
+    ASSERT_THAT(columnDefintion.name(), Utf8StringLiteral("Claudia"));
+    ASSERT_THAT(columnDefintion.type(), ColumnType::Numeric);
+    ASSERT_FALSE(columnDefintion.isPrimaryKey());
+}
+
+void SqliteColumn::SetUp()
+{
+    column.clear();
+}
+
+}

@@ -23,37 +23,11 @@
 **
 ****************************************************************************/
 
-#include "googletest.h"
+#pragma once
 
-#include "chunksreportedmonitor.h"
+#include <functional>
 
-#include <QSignalSpy>
-
-namespace ClangBackEnd {
-
-ChunksReportedMonitor::ChunksReportedMonitor(const QFuture<TextEditor::HighlightingResult> &future)
-    : m_future(future)
+namespace ProcessEventUtilities
 {
-    m_futureWatcher.setFuture(future);
-    connect(&m_futureWatcher, &QFutureWatcher<TextEditor::HighlightingResult>::resultsReadyAt,
-            this, &ChunksReportedMonitor::onResultsReadyAt);
+bool processEventsUntilTrue(std::function<bool ()> condition, int timeOutInMs);
 }
-
-bool ChunksReportedMonitor::waitUntilFinished(int timeoutInMs)
-{
-    QSignalSpy spy(&m_futureWatcher, SIGNAL(finished()));
-    return spy.wait(timeoutInMs);
-}
-
-void ChunksReportedMonitor::onResultsReadyAt(int, int)
-{
-    ++m_resultsReadyCounter;
-}
-
-uint ChunksReportedMonitor::resultsReadyCounter()
-{
-    waitUntilFinished();
-    return m_resultsReadyCounter;
-}
-
-} // namespace ClangBackEnd

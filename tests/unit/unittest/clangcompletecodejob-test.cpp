@@ -23,37 +23,63 @@
 **
 ****************************************************************************/
 
-#include "googletest.h"
+#include "clangasyncjob-base.h"
 
-#include "chunksreportedmonitor.h"
+#include <clangcompletecodejob.h>
 
-#include <QSignalSpy>
+using namespace ClangBackEnd;
 
-namespace ClangBackEnd {
+using testing::_;
 
-ChunksReportedMonitor::ChunksReportedMonitor(const QFuture<TextEditor::HighlightingResult> &future)
-    : m_future(future)
+namespace {
+
+class CompleteCodeJob : public ClangAsyncJobTest
 {
-    m_futureWatcher.setFuture(future);
-    connect(&m_futureWatcher, &QFutureWatcher<TextEditor::HighlightingResult>::resultsReadyAt,
-            this, &ChunksReportedMonitor::onResultsReadyAt);
+protected:
+    void SetUp() override { BaseSetUp(JobRequest::Type::CompleteCode, job); }
+
+protected:
+    ClangBackEnd::CompleteCodeJob job;
+};
+
+TEST_F(CompleteCodeJob, PrepareAsyncRun)
+{
+    job.setContext(jobContext);
+
+    ASSERT_TRUE(job.prepareAsyncRun());
 }
 
-bool ChunksReportedMonitor::waitUntilFinished(int timeoutInMs)
+TEST_F(CompleteCodeJob, RunAsync)
 {
-    QSignalSpy spy(&m_futureWatcher, SIGNAL(finished()));
-    return spy.wait(timeoutInMs);
+    job.setContext(jobContext);
+    job.prepareAsyncRun();
+
+    job.runAsync();
+
+    ASSERT_TRUE(waitUntilJobFinished(job));
 }
 
-void ChunksReportedMonitor::onResultsReadyAt(int, int)
+TEST_F(CompleteCodeJob, SendAnnotations)
 {
-    ++m_resultsReadyCounter;
+    job.setContext(jobContextWithMockClient);
+    job.prepareAsyncRun();
+    EXPECT_CALL(mockIpcClient, codeCompleted(_)).Times(1);
+
+    job.runAsync();
+
+    ASSERT_TRUE(waitUntilJobFinished(job));
 }
 
-uint ChunksReportedMonitor::resultsReadyCounter()
+TEST_F(CompleteCodeJob, DontSendCompletionsIfDocumentWasClosed)
 {
-    waitUntilFinished();
-    return m_resultsReadyCounter;
+    job.setContext(jobContextWithMockClient);
+    job.prepareAsyncRun();
+    EXPECT_CALL(mockIpcClient, codeCompleted(_)).Times(0);
+
+    job.runAsync();
+    documents.remove({FileContainer{filePath, projectPartId}});
+
+    ASSERT_TRUE(waitUntilJobFinished(job));
 }
 
-} // namespace ClangBackEnd
+} // anonymous

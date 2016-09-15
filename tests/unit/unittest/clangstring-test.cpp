@@ -25,35 +25,67 @@
 
 #include "googletest.h"
 
-#include "chunksreportedmonitor.h"
+#include <clangstring.h>
 
-#include <QSignalSpy>
+#include <utf8string.h>
 
-namespace ClangBackEnd {
+#include <clang-c/CXString.h>
+#include <clang-c/Index.h>
 
-ChunksReportedMonitor::ChunksReportedMonitor(const QFuture<TextEditor::HighlightingResult> &future)
-    : m_future(future)
+namespace {
+
+using ::testing::StrEq;
+
+using ClangBackEnd::ClangString;
+
+TEST(ClangString, ConvertToUtf8String)
 {
-    m_futureWatcher.setFuture(future);
-    connect(&m_futureWatcher, &QFutureWatcher<TextEditor::HighlightingResult>::resultsReadyAt,
-            this, &ChunksReportedMonitor::onResultsReadyAt);
+    const CXString cxString = { "text", 0};
+
+    ASSERT_THAT(Utf8String(ClangString(cxString)), Utf8StringLiteral("text"));
 }
 
-bool ChunksReportedMonitor::waitUntilFinished(int timeoutInMs)
+TEST(ClangString, ConvertNullStringToUtf8String)
 {
-    QSignalSpy spy(&m_futureWatcher, SIGNAL(finished()));
-    return spy.wait(timeoutInMs);
+    const CXString cxString = { 0, 0};
+
+    ASSERT_THAT(Utf8String(ClangString(cxString)), Utf8String());
 }
 
-void ChunksReportedMonitor::onResultsReadyAt(int, int)
+TEST(ClangString, MoveContructor)
 {
-    ++m_resultsReadyCounter;
+    ClangString text(CXString{ "text", 0});
+
+    const ClangString text2 = std::move(text);
+
+    ASSERT_TRUE(text.isNull());
+    ASSERT_FALSE(text2.isNull());
 }
 
-uint ChunksReportedMonitor::resultsReadyCounter()
+TEST(ClangString, MoveAssigment)
 {
-    waitUntilFinished();
-    return m_resultsReadyCounter;
+    ClangString text(CXString{ "text", 0});
+
+    ClangString text2 = std::move(text);
+    text = std::move(text2);
+
+    ASSERT_TRUE(text2.isNull());
+    ASSERT_FALSE(text.isNull());
 }
 
-} // namespace ClangBackEnd
+TEST(ClangString, MoveSelfAssigment)
+{
+    ClangString text(CXString{ "text", 0});
+
+    text = std::move(text);
+
+    ASSERT_FALSE(text.isNull());
+}
+
+TEST(ClangString, SpellingAsCString)
+{
+    ClangString text(CXString{"text", 0});
+
+    ASSERT_THAT(text.cString(), StrEq("text"));
+}
+}

@@ -23,6 +23,8 @@
 **
 ****************************************************************************/
 
+#include "googletest.h"
+
 #include "mockclangcodemodelclient.h"
 
 #include <cmbalivemessage.h>
@@ -40,11 +42,6 @@
 #include <readmessageblock.h>
 #include <translationunitdoesnotexistmessage.h>
 #include <writemessageblock.h>
-
-#include <gmock/gmock.h>
-#include <gmock/gmock-matchers.h>
-#include <gtest/gtest.h>
-#include "gtest-qt-printing.h"
 
 #include <utils/hostosinfo.h>
 

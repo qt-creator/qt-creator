@@ -23,37 +23,35 @@
 **
 ****************************************************************************/
 
-#include "googletest.h"
+#include "processevents-utilities.h"
 
-#include "chunksreportedmonitor.h"
+#include <QCoreApplication>
+#include <QThread>
+#include <QTime>
 
-#include <QSignalSpy>
+#include <QDebug>
 
-namespace ClangBackEnd {
-
-ChunksReportedMonitor::ChunksReportedMonitor(const QFuture<TextEditor::HighlightingResult> &future)
-    : m_future(future)
+namespace ProcessEventUtilities
 {
-    m_futureWatcher.setFuture(future);
-    connect(&m_futureWatcher, &QFutureWatcher<TextEditor::HighlightingResult>::resultsReadyAt,
-            this, &ChunksReportedMonitor::onResultsReadyAt);
-}
-
-bool ChunksReportedMonitor::waitUntilFinished(int timeoutInMs)
+bool processEventsUntilTrue(std::function<bool ()> condition, int timeOutInMs)
 {
-    QSignalSpy spy(&m_futureWatcher, SIGNAL(finished()));
-    return spy.wait(timeoutInMs);
-}
+    if (condition())
+        return true;
 
-void ChunksReportedMonitor::onResultsReadyAt(int, int)
-{
-    ++m_resultsReadyCounter;
-}
+    QTime time;
+    time.start();
 
-uint ChunksReportedMonitor::resultsReadyCounter()
-{
-    waitUntilFinished();
-    return m_resultsReadyCounter;
-}
+    forever {
+        if (condition())
+            return true;
 
-} // namespace ClangBackEnd
+        if (time.elapsed() > timeOutInMs) {
+            qWarning() << "Timeout of" << timeOutInMs
+                       << "reached in processEventsAndWaitUntilTrue()";
+            return false;
+        }
+
+        QCoreApplication::processEvents();
+    }
+}
+}

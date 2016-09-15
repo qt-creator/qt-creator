@@ -23,37 +23,20 @@
 **
 ****************************************************************************/
 
-#include "googletest.h"
+#pragma once
 
-#include "chunksreportedmonitor.h"
+#include <sourcelocationscontainer.h>
 
-#include <QSignalSpy>
+#include <gmock/gmock.h>
+#include <gmock/gmock-matchers.h>
+#include <gtest/gtest.h>
+#include "gtest-qt-printing.h"
 
-namespace ClangBackEnd {
-
-ChunksReportedMonitor::ChunksReportedMonitor(const QFuture<TextEditor::HighlightingResult> &future)
-    : m_future(future)
+class MockRefactoringClientCallBack
 {
-    m_futureWatcher.setFuture(future);
-    connect(&m_futureWatcher, &QFutureWatcher<TextEditor::HighlightingResult>::resultsReadyAt,
-            this, &ChunksReportedMonitor::onResultsReadyAt);
-}
-
-bool ChunksReportedMonitor::waitUntilFinished(int timeoutInMs)
-{
-    QSignalSpy spy(&m_futureWatcher, SIGNAL(finished()));
-    return spy.wait(timeoutInMs);
-}
-
-void ChunksReportedMonitor::onResultsReadyAt(int, int)
-{
-    ++m_resultsReadyCounter;
-}
-
-uint ChunksReportedMonitor::resultsReadyCounter()
-{
-    waitUntilFinished();
-    return m_resultsReadyCounter;
-}
-
-} // namespace ClangBackEnd
+public:
+    MOCK_METHOD3(localRenaming,
+                 void(const QString &,
+                      const ClangBackEnd::SourceLocationsContainer &,
+                      int));
+};

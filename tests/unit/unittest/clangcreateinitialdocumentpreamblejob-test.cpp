@@ -23,37 +23,40 @@
 **
 ****************************************************************************/
 
-#include "googletest.h"
+#include "clangasyncjob-base.h"
 
-#include "chunksreportedmonitor.h"
+#include <clangcreateinitialdocumentpreamblejob.h>
 
-#include <QSignalSpy>
+using namespace ClangBackEnd;
 
-namespace ClangBackEnd {
+namespace {
 
-ChunksReportedMonitor::ChunksReportedMonitor(const QFuture<TextEditor::HighlightingResult> &future)
-    : m_future(future)
+class CreateInitialDocumentPreambleJob : public ClangAsyncJobTest
 {
-    m_futureWatcher.setFuture(future);
-    connect(&m_futureWatcher, &QFutureWatcher<TextEditor::HighlightingResult>::resultsReadyAt,
-            this, &ChunksReportedMonitor::onResultsReadyAt);
+protected:
+    void SetUp() override { BaseSetUp(JobRequest::Type::CreateInitialDocumentPreamble, job); }
+
+protected:
+    ClangBackEnd::CreateInitialDocumentPreambleJob job;
+};
+
+TEST_F(CreateInitialDocumentPreambleJob, PrepareAsyncRun)
+{
+    job.setContext(jobContext);
+
+    ASSERT_TRUE(job.prepareAsyncRun());
 }
 
-bool ChunksReportedMonitor::waitUntilFinished(int timeoutInMs)
+TEST_F(CreateInitialDocumentPreambleJob, RunAsync)
 {
-    QSignalSpy spy(&m_futureWatcher, SIGNAL(finished()));
-    return spy.wait(timeoutInMs);
+    document.parse();
+    document.setDirtyIfDependencyIsMet(document.filePath());
+    job.setContext(jobContext);
+    job.prepareAsyncRun();
+
+    job.runAsync();
+
+    ASSERT_TRUE(waitUntilJobFinished(job));
 }
 
-void ChunksReportedMonitor::onResultsReadyAt(int, int)
-{
-    ++m_resultsReadyCounter;
-}
-
-uint ChunksReportedMonitor::resultsReadyCounter()
-{
-    waitUntilFinished();
-    return m_resultsReadyCounter;
-}
-
-} // namespace ClangBackEnd
+} // anonymous
