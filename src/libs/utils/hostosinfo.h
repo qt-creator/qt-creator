@@ -42,7 +42,20 @@ namespace Utils {
 class QTCREATOR_UTILS_EXPORT HostOsInfo
 {
 public:
-    static constexpr inline OsType hostOs();
+    static constexpr inline OsType hostOs()
+    {
+#if defined(Q_OS_WIN)
+        return OsTypeWindows;
+#elif defined(Q_OS_LINUX)
+        return OsTypeLinux;
+#elif defined(Q_OS_MAC)
+        return OsTypeMac;
+#elif defined(Q_OS_UNIX)
+        return OsTypeOtherUnix;
+#else
+        return OsTypeOther;
+#endif
+    }
 
     enum HostArchitecture { HostArchitectureX86, HostArchitectureAMD64, HostArchitectureItanium,
                             HostArchitectureArm, HostArchitectureUnknown };
@@ -51,7 +64,14 @@ public:
     static constexpr bool isWindowsHost() { return hostOs() == OsTypeWindows; }
     static constexpr bool isLinuxHost() { return hostOs() == OsTypeLinux; }
     static constexpr bool isMacHost() { return hostOs() == OsTypeMac; }
-    static constexpr inline bool isAnyUnixHost();
+    static constexpr inline bool isAnyUnixHost()
+    {
+#ifdef Q_OS_UNIX
+        return true;
+#else
+        return false;
+#endif
+    }
 
     static QString withExecutableSuffix(const QString &executable)
     {
@@ -86,30 +106,5 @@ private:
     static Qt::CaseSensitivity m_overrideFileNameCaseSensitivity;
     static bool m_useOverrideFileNameCaseSensitivity;
 };
-
-
-constexpr OsType HostOsInfo::hostOs()
-{
-#if defined(Q_OS_WIN)
-    return OsTypeWindows;
-#elif defined(Q_OS_LINUX)
-    return OsTypeLinux;
-#elif defined(Q_OS_MAC)
-    return OsTypeMac;
-#elif defined(Q_OS_UNIX)
-    return OsTypeOtherUnix;
-#else
-    return OsTypeOther;
-#endif
-}
-
-constexpr bool HostOsInfo::isAnyUnixHost()
-{
-#ifdef Q_OS_UNIX
-    return true;
-#else
-    return false;
-#endif
-}
 
 } // namespace Utils
