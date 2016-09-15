@@ -1,0 +1,45 @@
+<RCC>
+    <qresource prefix="/scxmleditor">
+        <file>images/adjust_height.png</file>
+        <file>images/adjust_size.png</file>
+        <file>images/adjust_width.png</file>
+        <file>images/align_bottom.png</file>
+        <file>images/align_horizontal.png</file>
+        <file>images/align_left.png</file>
+        <file>images/align_right.png</file>
+        <file>images/align_top.png</file>
+        <file>images/align_vertical.png</file>
+        <file>images/arrow_down.png</file>
+        <file>images/arrow_right.png</file>
+        <file>images/colorthemes.png</file>
+        <file>images/final.png</file>
+        <file>images/font_color.png</file>
+        <file>images/fullnamespace.png</file>
+        <file>images/history.png</file>
+        <file>images/icon-close.png</file>
+        <file>images/icon-copy.png</file>
+        <file>images/icon-cut.png</file>
+        <file>images/icon-export-canvas.png</file>
+        <file>images/icon-filter.png</file>
+        <file>images/icon-fit-screen.png</file>
+        <file>images/icon-pan.png</file>
+        <file>images/icon-paste.png</file>
+        <file>images/icon-redo.png</file>
+        <file>images/icon-search.png</file>
+        <file>images/icon-undo.png</file>
+        <file>images/icon-zoom-in.png</file>
+        <file>images/icon-zoom-out.png</file>
+        <file>images/initial.png</file>
+        <file>images/more_colors.png</file>
+        <file>images/navigator.png</file>
+        <file>images/parallel.png</file>
+        <file>images/parallel_icon.png</file>
+        <file>images/properties.png</file>
+        <file>images/screenshot.png</file>
+        <file>images/search.png</file>
+        <file>images/state.png</file>
+        <file>images/state_color.png</file>
+        <file>images/statistics.png</file>
+        <file>images/structure.png</file>
+    </qresource>
+</RCC>

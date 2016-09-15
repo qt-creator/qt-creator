@@ -1,0 +1,90 @@
+/****************************************************************************
+**
+** Copyright (C) 2016 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of Qt Creator.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3 as published by the Free Software
+** Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-3.0.html.
+**
+****************************************************************************/
+
+#include "actionhandler.h"
+#include "mytypes.h"
+
+#include <QAction>
+
+using namespace ScxmlEditor::PluginInterface;
+
+ActionHandler::ActionHandler(QObject *parent)
+    : QObject(parent)
+{
+    using AH = ActionHandler;
+
+    const struct {
+        const char *icon;
+        QString name;
+        QString tooltip;
+        const char *keyseq;
+        bool checkable;
+    } actionInfos[] = {
+        { ":/scxmleditor/images/icon-zoom-in.png", AH::tr("Zoom In"), AH::tr("Zoom In (Ctrl + + / Ctrl + Wheel)"), "Ctrl++", false },
+        { ":/scxmleditor/images/icon-zoom-out.png", AH::tr("Zoom Out"), AH::tr("Zoom Out (Ctrl + - / Ctrl + Wheel)"), "Ctrl+-", false },
+        { ":/scxmleditor/images/icon-fit-screen.png", AH::tr("Fit to View"), AH::tr("Fit to View (F11)"), "F11", false },
+        { ":/scxmleditor/images/icon-pan.png", AH::tr("Panning"), AH::tr("Panning (Shift)"), "Shift", true },
+
+        { ":/scxmleditor/images/icon-search.png", AH::tr("Magnifier"), AH::tr("Magnifier Tool (Alt)"), "Alt", true },
+        { ":/scxmleditor/images/navigator.png", AH::tr("Navigator"), AH::tr("Navigator (Ctrl+E)"), "Ctrl+E", true },
+
+        { ":/scxmleditor/images/icon-copy.png", AH::tr("Copy"), AH::tr("Copy (Ctrl + C)"), "Ctrl+C", false },
+        { ":/scxmleditor/images/icon-cut.png", AH::tr("Cut"), AH::tr("Cut (Ctrl + X)"), "Ctrl+X", false },
+        { ":/scxmleditor/images/icon-paste.png", AH::tr("Paste"), AH::tr("Paste (Ctrl + V)"), "Ctrl+V", false },
+        { ":/scxmleditor/images/screenshot.png", AH::tr("Screenshot"), AH::tr("Screenshot (Ctrl + Shift + C)"), "Ctrl+Shift+C", false },
+        { ":/scxmleditor/images/icon-export-canvas.png", AH::tr("Export to Image"), AH::tr("Export to Image"), "Ctrl+Shift+E", false },
+        { ":/scxmleditor/images/fullnamespace.png", AH::tr("Toggle Full Namespace"), AH::tr("Toggle Full Namespace"), "Ctrl+Shift+N", true },
+
+        { ":/scxmleditor/images/align_left.png", AH::tr("Align Left"), AH::tr("Align Left (Ctrl+L,1)"), "Ctrl+L,1", false },
+        { ":/scxmleditor/images/align_right.png", AH::tr("Align Right"), AH::tr("Align Right (Ctrl+L,2)"), "Ctrl+L,2", false },
+        { ":/scxmleditor/images/align_top.png", AH::tr("Align Top"), AH::tr("Align Top (Ctrl+L,3)"), "Ctrl+L,3", false },
+        { ":/scxmleditor/images/align_bottom.png", AH::tr("Align Bottom"), AH::tr("Align Bottom (Ctrl+L,4)"), "Ctrl+L,4", false },
+        { ":/scxmleditor/images/align_horizontal.png", AH::tr("Align Horizontal"), AH::tr("Align Horizontal (Ctrl+L,5)"), "Ctrl+L,5", false },
+        { ":/scxmleditor/images/align_vertical.png", AH::tr("Align Vertical"), AH::tr("Align Vertical (Ctrl+L,6)"), "Ctrl+L,6", false },
+        { ":/scxmleditor/images/adjust_width.png", AH::tr("Adjust Width"), AH::tr("Adjust Width (Ctrl+L,7)"), "Ctrl+L,7", false },
+        { ":/scxmleditor/images/adjust_height.png", AH::tr("Adjust Height"), AH::tr("Adjust Height (Ctrl+L,8)"), "Ctrl+L,8", false },
+        { ":/scxmleditor/images/adjust_size.png", AH::tr("Adjust Size"), AH::tr("Adjust Size (Ctrl+L,9)"), "Ctrl+L,9", false },
+
+        { ":/scxmleditor/images/statistics.png", AH::tr("Show Statistics..."), AH::tr("Show Statistics"), "", false }
+    };
+
+    // Init actions
+    for (auto info: actionInfos) {
+        auto action = new QAction(QIcon(QLatin1String(info.icon)), info.name, this);
+        action->setCheckable(info.checkable);
+        action->setToolTip(info.tooltip);
+        action->setShortcut(QKeySequence(QLatin1String(info.keyseq)));
+
+        m_actions << action;
+    }
+}
+
+QAction *ActionHandler::action(ActionType type) const
+{
+    if (type >= ActionZoomIn && type < ActionLast)
+        return m_actions[type];
+
+    return nullptr;
+}

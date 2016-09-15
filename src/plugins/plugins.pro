@@ -57,6 +57,7 @@ SUBDIRS   = \
     winrt \
     qmlprofiler \
     updateinfo \
+    scxmleditor \
     welcome
 
 DO_NOT_BUILD_QMLDESIGNER = $$(DO_NOT_BUILD_QMLDESIGNER)
