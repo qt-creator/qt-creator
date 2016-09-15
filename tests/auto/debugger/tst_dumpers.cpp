@@ -2216,10 +2216,19 @@ void tst_Dumpers::dumper_data()
                    "QLocale::MeasurementSystem m1 = loc1.measurementSystem();\n"
                    "unused(&loc0, &loc, &m, &loc1, &m1);\n")
               + CoreProfile()
-//              + Check("loc0", "\"en_US\"", "@QLocale")  FIXME
               + CheckType("loc", "@QLocale")
               + CheckType("m", "@QLocale::MeasurementSystem")
               + Check("loc1", "\"en_US\"", "@QLocale")
+              + Check("loc1.country", "@QLocale::UnitedStates (225)", "@QLocale::Country")
+              + Check("loc1.language", "@QLocale::English (31)", "@QLocale::Language")
+              + Check("loc1.numberOptions", "@QLocale::DefaultNumberOptions (0)", "@QLocale::NumberOptions")
+              + Check("loc1.decimalPoint", "46", "@QChar")   // .
+              + Check("loc1.exponential", "101", "@QChar")   // e
+              + Check("loc1.percent", "37", "@QChar")        // %
+              + Check("loc1.zeroDigit", "48", "@QChar")      // 0
+              + Check("loc1.groupSeparator", "44", "@QChar") // ,
+              + Check("loc1.negativeSign", "45", "@QChar")   // -
+              + Check("loc1.positiveSign", "43", "@QChar")   // +
               + Check("m1", ValuePattern(".*Imperial.*System (1)"), Pattern(".*MeasurementSystem"));
 
 
@@ -4853,6 +4862,19 @@ void tst_Dumpers::dumper_data()
                + Check("s64s", "-9223372036854775808", "@qint64")
                + Check("u32s", "0", "@quint32")
                + Check("s32s", "-2147483648", "@qint32");
+
+
+    QTest::newRow("Enum")
+            << Data("\n"
+                    "enum Foo { a = -1000, b, c = 1, d };\n",
+                    "Foo fa = a; unused(&fa);\n"
+                    "Foo fb = b; unused(&fb);\n"
+                    "Foo fc = c; unused(&fc);\n"
+                    "Foo fd = d; unused(&fd);\n")
+                + Check("fa", "a (-1000)", "Foo")
+                + Check("fb", "b (-999)", "Foo")
+                + Check("fc", "c (1)", "Foo")
+                + Check("fd", "d (2)", "Foo");
 
 
     QTest::newRow("Array")

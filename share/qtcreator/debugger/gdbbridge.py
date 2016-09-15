@@ -379,6 +379,13 @@ class Dumper(DumperBase):
         if len(nativeFields) and nativeFields[0].is_base_class:
             return self.fromNativeType(nativeFields[0].type)
 
+    def nativeTypeEnumDisplay(self, nativeType, intval):
+        try:
+            val = gdb.parse_and_eval("(%s)%d" % (nativeType.name, intval))
+            return  "%s (%d)" % (val, intval)
+        except:
+            return "%d" % intval
+
     def nativeTypeFields(self, nativeType):
         #warn("TYPE: %s" % nativeType)
         fields = []

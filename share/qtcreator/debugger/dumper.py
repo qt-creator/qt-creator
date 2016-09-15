@@ -2518,7 +2518,7 @@ class DumperBase:
             return
 
         if typeobj.isEnumType():
-            #warn("ENUM VALUE: %s" % value)
+            #warn("ENUM VALUE: %s" % value.stringify())
             self.putType(typeobj.name)
             self.putValue(value.display())
             self.putNumChild(0)
@@ -2651,24 +2651,22 @@ class DumperBase:
                 error("INCONSISTENT TYPE: %s" % type(self.type))
 
         def __str__(self):
+            #error("Not implemented")
+            return self.stringify()
+
+        def stringify(self):
             self.check()
             addr = "None" if self.laddress is None else ("0x%x" % self.laddress)
-            #return self.display()
             return "Value(name='%s',type=%s,data=%s,address=%s,nativeValue=%s)" \
                     % (self.name, self.type, self.dumper.hexencode(self.ldata),
                         addr, self.nativeValue)
 
         def display(self):
+            if self.type.lEnumType:
+                return self.type.enumDisplay(self.extractInteger(self.type.size() * 8, False))
             simple = self.value()
             if simple is not None:
                 return str(simple)
-            if self.type.lEnumType:
-                if self.nativeValue is not None:
-                    if self.dumper.isLldb:
-                        return "%s (%d)" % (self.nativeValue.GetValue(), self.nativeValue.GetValueAsSigned())
-                    else:
-                        return "%s (%d)" % (self.nativeValue, self.nativeValue)
-                return self.integer()
             if self.type.lComplexType:
                 if self.nativeValue is not None:
                     if self.dumper.isLldb:
@@ -2854,6 +2852,19 @@ class DumperBase:
                 return val
             error("BAD DATA TO DEREFERENCE: %s %s" % (self.type, type(self)))
 
+        def extend(self, size):
+            if self.type.size() < size:
+                val = self.dumper.Value(self.dumper)
+                val.laddress = None
+                if sys.version_info[0] == 3:
+                    val.ldata = self.ldata + bytes('\0' * (size - self.type.size()), encoding='latin1')
+                else:
+                    val.ldata = self.ldata + bytes('\0' * (size - self.type.size()))
+                return val
+            if self.type.size() == size:
+                return self
+            error("NOT IMPLEMENTED")
+
         def cast(self, typish):
             self.check()
             typeobj = self.dumper.createType(typish)
@@ -2886,7 +2897,14 @@ class DumperBase:
             self.check()
             if self.ldata is not None:
                 if len(self.ldata) > 0:
-                    return self.ldata
+                    if size is None:
+                        return self.ldata
+                    if size == len(self.ldata):
+                        return self.ldata
+                    if size < len(self.ldata):
+                        return self.ldata[:size]
+                    error("DATA PRESENT, BUT NOT BIG ENOUGH: %s WANT: %s"
+                        % (self.stringify(), size))
             if self.laddress is not None:
                 if size is None:
                     size = self.type.size()
@@ -2918,7 +2936,12 @@ class DumperBase:
             if code is None:
                 return None
             rawBytes = self.data(size)
-            return struct.unpack_from(code, rawBytes, 0)[0]
+            try:
+                return struct.unpack_from(code, rawBytes, 0)[0]
+            except:
+                pass
+            error("Cannot extract: Code: %s Bytes: %s Bitsize: %s Size: %s"
+                % (code, self.dumper.hexencode(rawBytes), bitsize, size))
 
         def extractSomething(self, code, bitsize):
             self.check()
@@ -2984,6 +3007,11 @@ class DumperBase:
         def __str__(self):
             self.check()
             return self.name
+            #error("Not implemented")
+
+        def stringify(self):
+            return "Type(name='%s',bsize=%s,bpos=%s,enum=%s,native=%s)" \
+                    % (self.name, self.lbitsize, self.lbitpos, self.lEnumType, self.nativeType is not None)
 
         def __getitem__(self, index):
             if self.dumper.isInt(index):
@@ -3202,6 +3230,11 @@ class DumperBase:
                 return True
             return strippedName == "QStringList" and self.dumper.qtVersion() >= 0x050000
 
+        def enumDisplay(self, intval):
+            if self.nativeType is not None:
+                return self.dumper.nativeTypeEnumDisplay(self.nativeType, intval)
+            return "%d" % intval
+
     class Field:
         def __init__(self, dumper):
             self.dumper = dumper
@@ -3271,6 +3304,11 @@ class DumperBase:
             typish.check()
             return typish
         if isinstance(typish, str):
+            if typish.startswith("enum "):
+                typish = typish[5:]
+                isEnum = True
+            else:
+                isEnum = False
             if typish[0] == 'Q':
                 if typish in ("QByteArray", "QString", "QList", "QStringList"):
                     typish = self.qtNamespace() + typish
@@ -3287,14 +3325,12 @@ class DumperBase:
                 elif typish == "QChar":
                     typish = self.qtNamespace() + typish
                     size = 2
-                    #res.lEnumType = False
             elif typish in ("quint32", "qint32"):
                 typish = self.qtNamespace() + typish
                 size = 4
 
             #typeobj = self.Type(self)
             #typeobj.name = typish
-            #warn("CREATE TYPE: %s" % typish)
             nativeType = self.lookupNativeType(typish) # FIXME: Remove?
             #warn("FOUND NAT TYPE: %s" % dir(nativeType))
             if nativeType is not None:
@@ -3306,6 +3342,8 @@ class DumperBase:
                 typeobj.name = typish
                 if size is not None:
                     typeobj.lbitsize = 8 * size
+            #warn("CREATE TYPE: %s" % typeobj)
+            typeobj.lEnumType = isEnum
             typeobj.check()
             return typeobj
         error("NEED TYPE, NOT %s" % type(typish))

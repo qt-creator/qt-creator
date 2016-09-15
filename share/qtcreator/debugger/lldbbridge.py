@@ -351,6 +351,18 @@ class Dumper(DumperBase):
         #warn(" GOT BASE FROM: %s" % t)
         return self.fromNativeType(nativeType.GetDirectBaseClassAtIndex(0).GetType())
 
+    def nativeTypeEnumDisplay(self, nativeType, intval):
+        if hasattr(nativeType, 'get_enum_members_array'):
+            for enumMember in nativeType.get_enum_members_array():
+                # Even when asking for signed we get unsigned with LLDB 3.8.
+                diff = enumMember.GetValueAsSigned() - intval
+                mask = (1 << nativeType.GetByteSize() * 8) - 1
+                if diff & mask == 0:
+                    path = nativeType.GetName().split('::')
+                    path[-1] = enumMember.GetName()
+                    return "%s (%d)" % ('::'.join(path), intval)
+        return "%d" % intval
+
     def stateName(self, s):
         try:
             # See db.StateType

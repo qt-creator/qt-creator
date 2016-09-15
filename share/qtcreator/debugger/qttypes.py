@@ -620,12 +620,9 @@ def qdump__QFiniteStack(d, value):
 
 
 def qdump__QFlags(d, value):
-    i = value["i"]
-    try:
-        enumType = value.type.unqualified()[0]
-        d.putValue("%s (%s)" % (i.cast(enumType), i))
-    except:
-        d.putValue("%s" % i)
+    i = value.split('{int}')[0]
+    enumType = value.type[0]
+    d.putValue(i.cast('enum ' + enumType.name).display())
     d.putNumChild(0)
 
 
@@ -923,25 +920,36 @@ def qdump__QLocale(d, value):
     #        index = int(value["d"]["d"]["m_data"]...)
     #d.check(index >= 0)
     #d.check(index <= qqLocalesCount)
+    dd = value.extractPointer()
+    ns = d.qtNamespace()
+    prefix = "enum " + ns + "QLocale::"
+    (data, ref, numberOptions) = d.split("pi{int}", dd)
+    (languageId, scriptId, countryId,
+                  decimal, group, listt, percent, zero,
+                  minus, plus, exponential) \
+        = d.split('{short}{short}{QChar}'
+                + '{QChar}{QChar}{short}{QChar}{QChar}'
+                + '{QChar}{QChar}{QChar}', data)
     d.putStringValue(d.call("const char *", value, "name"))
     d.putNumChild(1)
     if d.isExpanded():
-        ns = d.qtNamespace()
-        with Children(d, childType=d.lookupType(ns + "QChar"), childNumChild=0):
-            d.putCallItem("country", value, "country")
-            d.putCallItem("language", value, "language")
-            d.putCallItem("measurementSystem", value, "measurementSystem")
-            d.putCallItem("numberOptions", value, "numberOptions")
-            d.putCallItem("timeFormat_(short)", value,
-                "timeFormat", ns + "QLocale::ShortFormat")
-            d.putCallItem("timeFormat_(long)", value,
-                "timeFormat", ns + "QLocale::LongFormat")
-            d.putCallItem("decimalPoint", value, "decimalPoint")
-            d.putCallItem("exponential", value, "exponential")
-            d.putCallItem("percent", value, "percent")
-            d.putCallItem("zeroDigit", value, "zeroDigit")
-            d.putCallItem("groupSeparator", value, "groupSeparator")
-            d.putCallItem("negativeSign", value, "negativeSign")
+        with Children(d):
+            d.putSubItem("country", countryId.extend(4).cast(prefix + "Country"))
+            d.putSubItem("language", languageId.extend(4).cast(prefix + "Language"))
+            d.putSubItem("numberOptions", numberOptions.cast(prefix + "NumberOptions"))
+            d.putSubItem("decimalPoint", decimal)
+            d.putSubItem("exponential", exponential)
+            d.putSubItem("percent", percent)
+            d.putSubItem("zeroDigit", zero)
+            d.putSubItem("groupSeparator", group)
+            d.putSubItem("negativeSign", minus)
+            d.putSubItem("positiveSign", plus)
+            d.putCallItem("measurementSystem", ns + "QLocale::MeasurementSystem",
+                value, "measurementSystem")
+            d.putCallItem("timeFormat_(short)", ns + "QString",
+                value, "timeFormat", ns + "QLocale::ShortFormat")
+            d.putCallItem("timeFormat_(long)", ns + "QString",
+                value, "timeFormat", ns + "QLocale::LongFormat")
             d.putFields(value)
 
 
