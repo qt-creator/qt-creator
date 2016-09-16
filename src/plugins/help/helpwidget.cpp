@@ -67,6 +67,14 @@ static const char kModeSideBarSettingsKey[] = "Help/ModeSideBar";
 namespace Help {
 namespace Internal {
 
+static void openUrlInWindow(const QUrl &url)
+{
+    HelpViewer *viewer = HelpPlugin::viewerForHelpViewerLocation(Core::HelpManager::ExternalHelpAlways);
+    if (QTC_GUARD(viewer))
+        viewer->setSource(url);
+    Core::ICore::raiseWindow(viewer);
+}
+
 HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget *parent) :
     QWidget(parent),
     m_style(style)
@@ -139,7 +147,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
         layout->addWidget(Core::Command::toolButtonWithAppendedShortcut(m_toggleSideBarAction, cmd));
 
     if (style != ModeWidget) {
-        m_switchToHelp = new QAction(tr("Go to Help Mode"), toolBar);
+        m_switchToHelp = new QAction(tr("Open in Help Mode"), toolBar);
         cmd = Core::ActionManager::registerAction(m_switchToHelp, Constants::CONTEXT_HELP, context);
         connect(m_switchToHelp, &QAction::triggered, this, &HelpWidget::helpModeButtonClicked);
         layout->addWidget(Core::Command::toolButtonWithAppendedShortcut(m_switchToHelp, cmd));
@@ -230,6 +238,31 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     }
 
     if (style != ExternalWindow) {
+        auto openButton = new QToolButton;
+        openButton->setIcon(Utils::Icons::SPLIT_HORIZONTAL_TOOLBAR.icon());
+        openButton->setPopupMode(QToolButton::InstantPopup);
+        openButton->setProperty("noArrow", true);
+        layout->addWidget(openButton);
+        QMenu *openMenu = new QMenu(openButton);
+        if (m_switchToHelp)
+            openMenu->addAction(m_switchToHelp);
+        if (style == ModeWidget) {
+            QAction *openPage = openMenu->addAction(tr("Open in New Page"));
+            connect(openPage, &QAction::triggered, this, [this]() {
+                if (HelpViewer *viewer = currentViewer())
+                    OpenPagesManager::instance().createPage(viewer->source());
+            });
+        }
+        QAction *openExternal = openMenu->addAction(tr("Open in Window"));
+        connect(openExternal, &QAction::triggered, this, [this]() {
+            if (HelpViewer *viewer = currentViewer()) {
+                openUrlInWindow(viewer->source());
+                if (m_style == SideBarWidget)
+                    emit closeButtonClicked();
+            }
+        });
+        openButton->setMenu(openMenu);
+
         const Utils::Icon &icon = style == ModeWidget ? Utils::Icons::CLOSE_TOOLBAR
                                                       : Utils::Icons::CLOSE_SPLIT_RIGHT;
         m_closeAction = new QAction(icon.icon(), QString(), toolBar);
@@ -441,12 +474,7 @@ void HelpWidget::addViewer(HelpViewer *viewer)
     connect(viewer, &HelpViewer::newPageRequested, [](const QUrl &url) {
         OpenPagesManager::instance().createPage(url);
     });
-    connect(viewer, &HelpViewer::externalPageRequested, [](const QUrl &url) {
-        HelpViewer *viewer = HelpPlugin::viewerForHelpViewerLocation(Core::HelpManager::ExternalHelpAlways);
-        if (QTC_GUARD(viewer))
-            viewer->setSource(url);
-        Core::ICore::raiseWindow(viewer);
-    });
+    connect(viewer, &HelpViewer::externalPageRequested, this, &openUrlInWindow);
 
     updateCloseButton();
 }
