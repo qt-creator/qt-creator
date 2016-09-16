@@ -545,8 +545,17 @@ QString Kit::toHtml(const QList<Task> &additional) const
     QList<KitInformation *> infoList = KitManager::kitInformation();
     foreach (KitInformation *ki, infoList) {
         KitInformation::ItemList list = ki->toUserOutput(this);
-        foreach (const KitInformation::Item &j, list)
-            str << "<tr><td><b>" << j.first << ":</b></td><td>" << j.second << "</td></tr>";
+        foreach (const KitInformation::Item &j, list) {
+            QString contents = j.second;
+            if (contents.count() > 256) {
+                int pos = contents.lastIndexOf("<br>", 256);
+                if (pos < 0) // no linebreak, so cut early.
+                    pos = 80;
+                contents = contents.mid(0, pos);
+                contents += "&lt;...&gt;";
+            }
+            str << "<tr><td><b>" << j.first << ":</b></td><td>" << contents << "</td></tr>";
+        }
     }
     str << "</table></body></html>";
     return rc;
