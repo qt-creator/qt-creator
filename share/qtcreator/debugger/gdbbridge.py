@@ -381,7 +381,7 @@ class Dumper(DumperBase):
 
     def nativeTypeEnumDisplay(self, nativeType, intval):
         try:
-            val = gdb.parse_and_eval("(%s)%d" % (nativeType.name, intval))
+            val = gdb.parse_and_eval("(%s)%d" % (nativeType, intval))
             return  "%s (%d)" % (val, intval)
         except:
             return "%d" % intval
