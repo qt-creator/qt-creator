@@ -1,5 +1,8 @@
 <RCC>
     <qresource prefix="/ios">
-        <file>images/iossettings.png</file>
+        <file>images/iosdevice.png</file>
+        <file>images/iosdevice@2x.png</file>
+        <file>images/iosdevicesmall.png</file>
+        <file>images/iosdevicesmall@2x.png</file>
     </qresource>
 </RCC>

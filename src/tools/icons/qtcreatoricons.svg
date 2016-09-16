@@ -5769,5 +5769,167 @@
          d="m 852,591 13,0 0,1 -13,0 z"
          sodipodi:nodetypes="ccccc" />
     </g>
+    <g
+       id="src/plugins/ios/images/iosdevice">
+      <rect
+         style="fill:#ffffff"
+         x="554"
+         y="347"
+         width="32"
+         height="32"
+         id="rect5230" />
+      <g
+         id="phone_body_big">
+        <path
+           sodipodi:nodetypes="csssssssc"
+           id="path5232"
+           d="m 578,374 0,-22 c 0,-1.1 -1,-2 -2,-2 l -12,0 c -1.1,0 -2,1 -2,2 l 0,22 c 0,1.1 1,2 2,2 l 12,0 c 1.1,0 2,-1 2,-2 z"
+           inkscape:connector-curvature="0" />
+        <path
+           sodipodi:nodetypes="ccccc"
+           style="fill:#b3b3b3"
+           id="path5234"
+           d="m 564,371 0,-19 12,0 0,19 z"
+           inkscape:connector-curvature="0" />
+      </g>
+      <circle
+         style="fill:#b3b3b3"
+         id="circle5236"
+         cx="570"
+         cy="373.5"
+         r="1.5" />
+      <use
+         transform="matrix(1.7179779,0,0,1.7179779,-422.96128,-273.18602)"
+         x="0"
+         y="0"
+         xlink:href="#ioslogo"
+         id="use5240"
+         width="100%"
+         height="100%" />
+    </g>
+    <g
+       id="src/plugins/ios/images/iosdevicesmall"
+       transform="translate(16,0)">
+      <rect
+         id="rect5759-5-9-0-8"
+         height="16"
+         width="16"
+         y="363"
+         x="570"
+         style="fill:#ffffff" />
+      <g
+         id="phone_body_small">
+        <path
+           inkscape:connector-curvature="0"
+           d="m 582,377 0,-12 c 0,-0.55 -0.5,-1 -1,-1 l -6,0 c -0.55,0 -1,0.5 -1,1 l 0,12 c 0,0.55 0.5,1 1,1 l 6,0 c 0.55,0 1,-0.5 1,-1 z"
+           id="path5514-4"
+           sodipodi:nodetypes="csssssssc" />
+        <path
+           inkscape:connector-curvature="0"
+           d="m 575,375 0,-10 6,0 0,10 z"
+           id="path4825-5"
+           style="fill:#b3b3b3"
+           sodipodi:nodetypes="ccccc" />
+      </g>
+      <circle
+         r="1"
+         cy="376.5"
+         cx="578"
+         id="path5098"
+         style="fill:#b3b3b3" />
+      <path
+         id="ioslogo"
+         style="fill:#000000;fill-opacity:1.0"
+         d="m 578.70257,367.62846 c 0.17676,-0.2141 0.29609,-0.51179 0.26322,-0.80851 -0.25463,0.0103 -0.56283,0.16975 -0.74567,0.38384 -0.16367,0.18922 -0.30725,0.49232 -0.26834,0.783 0.28398,0.022 0.574,-0.14455 0.75079,-0.35833 m 0.6373,1.88113 c -0.006,-0.64069 0.52327,-0.94828 0.5472,-0.96327 -0.29769,-0.43553 -0.76098,-0.4952 -0.92626,-0.50222 -0.39405,-0.0399 -0.76928,0.23197 -0.96901,0.23197 -0.19974,0 -0.5086,-0.22622 -0.83533,-0.21984 -0.4301,0.006 -0.82607,0.24984 -1.0475,0.63463 -0.44638,0.77438 -0.11391,1.92207 0.32066,2.55064 0.21282,0.30726 0.46616,0.65345 0.79927,0.64069 0.32098,-0.0128 0.44223,-0.2074 0.82958,-0.2074 0.38735,0 0.49647,0.2074 0.83565,0.20134 0.34491,-0.007 0.56379,-0.31397 0.77501,-0.62219 0.24377,-0.35672 0.3446,-0.70195 0.35034,-0.72014 -0.008,-0.003 -0.67259,-0.25813 -0.67961,-1.02421"
+         inkscape:connector-curvature="0" />
+    </g>
+    <g
+       transform="translate(48,0)"
+       id="src/plugins/android/images/androiddevice">
+      <rect
+         style="fill:#ffffff"
+         x="554"
+         y="347"
+         width="32"
+         height="32"
+         id="rect5230-4" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#phone_body_big"
+         id="use4346"
+         width="100%"
+         height="100%" />
+      <rect
+         style="fill:#b3b3b3"
+         id="rect4318"
+         width="4"
+         height="2"
+         x="568"
+         y="373" />
+      <g
+         transform="translate(-48,0)"
+         id="g5128"
+         style="fill:#000000;fill-opacity:1.0">
+        <path
+           sodipodi:nodetypes="ccccccccccccc"
+           inkscape:connector-curvature="0"
+           id="path4309"
+           d="m 620.5,360 0,5 -0.5,0 0,2 -1,0 0,-2 -2,0 0,2 -1,0 0,-2 -0.5,0 0,-5 z"
+           style="fill-opacity:1" />
+        <path
+           sodipodi:nodetypes="cccccccccc"
+           inkscape:connector-curvature="0"
+           id="path4311"
+           d="m 616.29102,356.80664 -0.58204,0.38672 1,1.5 0.58204,-0.38672 z M 614,360 l 0,4 1,0 0,-4 z"
+           style="fill-opacity:1" />
+        <use
+           height="100%"
+           width="100%"
+           transform="matrix(-1,0,0,1,1236,0)"
+           id="use5126"
+           xlink:href="#path4311"
+           y="0"
+           x="0"
+           style="fill-opacity:1" />
+        <path
+           sodipodi:nodetypes="cczc"
+           inkscape:connector-curvature="0"
+           id="path4315"
+           d="m 615.5,359.5 5,0 c 0,0 -0.5,-2 -2.5,-2 -2,0 -2.5,2 -2.5,2 z"
+           style="fill-opacity:1" />
+      </g>
+    </g>
+    <g
+       id="src/plugins/android/images/androiddevicesmall"
+       transform="translate(64,0)">
+      <rect
+         id="rect5759-5-9-0-8-6"
+         height="16"
+         width="16"
+         y="363"
+         x="570"
+         style="fill:#ffffff" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#phone_body_small"
+         id="use4363"
+         width="100%"
+         height="100%" />
+      <rect
+         style="fill:#b3b3b3"
+         id="rect4318-7"
+         width="2"
+         height="1"
+         x="577"
+         y="376" />
+      <path
+         style="fill:#000000;fill-opacity:1.0"
+         d="m 642,367.5 c -1,0 -1,1.25 -1,1.25 l 2,0 c 0,0 0,-1.25 -1,-1.25 z m -2,1.5 0,2 0.75,0 0,-2 -0.75,0 z m 1,0 0,2 2,0 0,-2 -2,0 z m 2.25,0 0,2 0.75,0 0,-2 -0.75,0 z m -2.25,2.25 0,1.75 2,0 0,-1.75 -2,0 z"
+         transform="translate(-64,0)"
+         id="path5131"
+         inkscape:connector-curvature="0" />
+    </g>
   </g>
 </svg>

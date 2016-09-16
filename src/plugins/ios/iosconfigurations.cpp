@@ -175,7 +175,6 @@ static void printKits(const QSet<Kit *> &kits)
 static void setupKit(Kit *kit, Core::Id pDeviceType, ClangToolChain *pToolchain,
                      const QVariant &debuggerId, const Utils::FileName &sdkPath, BaseQtVersion *qtVersion)
 {
-    kit->setIconPath(FileName::fromString(QLatin1String(Constants::IOS_SETTINGS_CATEGORY_ICON)));
     DeviceTypeKitInformation::setDeviceTypeId(kit, pDeviceType);
     ToolChainKitInformation::setToolChain(kit, pToolchain);
     QtKitInformation::setQtVersion(kit, qtVersion);

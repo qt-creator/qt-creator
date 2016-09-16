@@ -48,7 +48,6 @@ enum AndroidQemuStatus {
 
 namespace Constants {
 const char ANDROID_SETTINGS_ID[] = "BB.Android Configurations";
-const char ANDROID_SETTINGS_CATEGORY_ICON[] = ":/android/images/QtAndroid.png";
 const char ANDROID_TOOLCHAIN_ID[] = "Qt4ProjectManager.ToolChain.Android";
 const char ANDROIDQT[] = "Qt4ProjectManager.QtVersion.Android";
 
