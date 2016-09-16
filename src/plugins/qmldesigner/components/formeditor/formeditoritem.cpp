@@ -225,6 +225,7 @@ void FormEditorItem::paintBoundingRect(QPainter *painter) const
          return;
 
     QPen pen;
+    pen.setCosmetic(true);
     pen.setJoinStyle(Qt::MiterJoin);
 
     QColor frameColor("#AAAAAA");
