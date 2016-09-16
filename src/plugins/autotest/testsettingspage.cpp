@@ -197,18 +197,16 @@ void TestSettingsPage::apply()
     if (!m_widget) // page was not shown at all
         return;
     const TestSettings newSettings = m_widget->settings();
-    if (newSettings != *m_settings) {
-        bool frameworkSyncNecessary = newSettings.frameworks != m_settings->frameworks;
-        *m_settings = newSettings;
-        m_settings->toSettings(Core::ICore::settings());
-        if (m_settings->alwaysParse)
-            TestTreeModel::instance()->enableParsingFromSettings();
-        else
-            TestTreeModel::instance()->disableParsingFromSettings();
-        TestFrameworkManager::instance()->activateFrameworksFromSettings(m_settings);
-        if (frameworkSyncNecessary)
-            TestTreeModel::instance()->syncTestFrameworks();
-    }
+    bool frameworkSyncNecessary = newSettings.frameworks != m_settings->frameworks;
+    *m_settings = newSettings;
+    m_settings->toSettings(Core::ICore::settings());
+    if (m_settings->alwaysParse)
+        TestTreeModel::instance()->enableParsingFromSettings();
+    else
+        TestTreeModel::instance()->disableParsingFromSettings();
+    TestFrameworkManager::instance()->activateFrameworksFromSettings(m_settings);
+    if (frameworkSyncNecessary)
+        TestTreeModel::instance()->syncTestFrameworks();
 }
 
 } // namespace Internal

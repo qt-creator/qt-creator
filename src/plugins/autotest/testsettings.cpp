@@ -128,23 +128,6 @@ void TestSettings::fromSettings(const QSettings *s)
     }
 }
 
-bool TestSettings::equals(const TestSettings &rhs) const
-{
-    return timeout == rhs.timeout && metrics == rhs.metrics
-            && omitInternalMssg == rhs.omitInternalMssg
-            && omitRunConfigWarn == rhs.omitRunConfigWarn
-            && limitResultOutput == rhs.limitResultOutput
-            && autoScroll == rhs.autoScroll
-            && alwaysParse == rhs.alwaysParse
-            && qtestNoCrashHandler == rhs.qtestNoCrashHandler
-            && gtestRunDisabled == rhs.gtestRunDisabled
-            && gtestRepeat == rhs.gtestRepeat && gtestIterations == rhs.gtestIterations
-            && gtestShuffle == rhs.gtestShuffle && gtestSeed == rhs.gtestSeed
-            && gtestBreakOnFailure == rhs.gtestBreakOnFailure
-            && gtestThrowOnFailure == rhs.gtestThrowOnFailure
-            && frameworks == rhs.frameworks;
-}
-
 QString TestSettings::metricsTypeToOption(const MetricsType type)
 {
     switch (type) {

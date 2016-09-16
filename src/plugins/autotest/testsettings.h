@@ -49,7 +49,6 @@ struct TestSettings
     TestSettings();
     void toSettings(QSettings *s) const;
     void fromSettings(const QSettings *s);
-    bool equals(const TestSettings &rhs) const;
     static QString metricsTypeToOption(const MetricsType type);
 
     int timeout;
@@ -69,9 +68,6 @@ struct TestSettings
     bool gtestBreakOnFailure;
     QHash<Core::Id, bool> frameworks;
 };
-
-inline bool operator==(const TestSettings &s1, const TestSettings &s2) { return s1.equals(s2); }
-inline bool operator!=(const TestSettings &s1, const TestSettings &s2) { return !s1.equals(s2); }
 
 } // namespace Internal
 } // namespace Autotest
