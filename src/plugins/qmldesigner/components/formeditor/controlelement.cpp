@@ -37,6 +37,7 @@ ControlElement::ControlElement(LayerItem *layerItem)
     : m_controlShape(new QGraphicsRectItem(layerItem))
 {
     QPen pen;
+    pen.setCosmetic(true);
     pen.setStyle(Qt::DashLine);
     pen.setColor(Qt::blue);
     m_controlShape->setPen(pen);

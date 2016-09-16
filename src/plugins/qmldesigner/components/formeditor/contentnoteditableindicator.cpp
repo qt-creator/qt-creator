@@ -93,6 +93,7 @@ void ContentNotEditableIndicator::addAddiationEntries(const QList<FormEditorItem
             if (!m_entryList.contains(EntryPair(formEditorItem, 0))) {
                 QGraphicsRectItem *indicatorShape = new QGraphicsRectItem(m_layerItem);
                 QPen linePen;
+                linePen.setCosmetic(true);
                 linePen.setColor("#a0a0a0");
                 indicatorShape->setPen(linePen);
                 QRectF boundingRectangleInSceneSpace = formEditorItem->qmlItemNode().instanceSceneTransform().mapRect(formEditorItem->qmlItemNode().instanceBoundingRect());

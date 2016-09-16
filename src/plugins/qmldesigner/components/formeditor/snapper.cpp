@@ -747,6 +747,7 @@ QList<QGraphicsItem*> Snapper::generateSnappingLines(const QList<QRectF> &boundi
         QGraphicsLineItem * lineItem = new QGraphicsLineItem(lineInTransformationSpace, layerItem);
         lineItem->setZValue(40);
         QPen linePen;
+        linePen.setCosmetic(true);
 //        linePen.setStyle(Qt::DashLine);
         linePen.setColor("#5d2dd7");
         lineItem->setPen(linePen);
