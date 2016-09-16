@@ -52,6 +52,7 @@ private:
     QList<ProjectExplorer::BuildInfo *> buildInfoListForKit(const ProjectExplorer::Kit *k,
                                                             void *directoryData) const final;
 
+    void deleteDirectoryData(void *directoryData) const final;
 
     ProjectExplorer::Kit *createTemporaryKit(const QtProjectImporter::QtVersionData &data,
                                              const Utils::FileName &parsedSpec,

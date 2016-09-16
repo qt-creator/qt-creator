@@ -265,6 +265,11 @@ QList<BuildInfo *> QmakeProjectImporter::buildInfoListForKit(const Kit *k, void 
     return result;
 }
 
+void QmakeProjectImporter::deleteDirectoryData(void *directoryData) const
+{
+    delete static_cast<DirectoryData *>(directoryData);
+}
+
 static ToolChain *preferredToolChain(BaseQtVersion *qtVersion, const FileName &ms,
                                      const QMakeStepConfig::TargetArchConfig &archConfig)
 {

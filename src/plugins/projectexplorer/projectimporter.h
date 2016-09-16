@@ -86,6 +86,8 @@ protected:
     // will get one of the results from examineDirectory
     virtual QList<BuildInfo *> buildInfoListForKit(const Kit *k, void *directoryData) const = 0;
 
+    virtual void deleteDirectoryData(void *directoryData) const = 0;
+
     using KitSetupFunction = std::function<void(Kit *)>;
     ProjectExplorer::Kit *createTemporaryKit(const KitSetupFunction &setup) const;
 

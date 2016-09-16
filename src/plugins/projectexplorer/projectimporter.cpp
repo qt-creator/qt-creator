@@ -131,7 +131,9 @@ QList<BuildInfo *> ProjectImporter::import(const Utils::FileName &importPath, bo
         }
     }
 
-    qDeleteAll(dataList);
+    foreach (auto *dd, dataList)
+        deleteDirectoryData(dd);
+    dataList.clear();
 
     if (result.isEmpty() && !silent)
         QMessageBox::critical(Core::ICore::mainWindow(),
