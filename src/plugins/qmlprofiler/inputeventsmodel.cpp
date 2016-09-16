@@ -27,6 +27,8 @@
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilereventtypes.h"
 
+#include <timeline/timelineformattime.h>
+
 #include <QKeyEvent>
 #include <QMouseEvent>
 #include <QMetaEnum>
@@ -75,7 +77,7 @@ QMetaEnum InputEventsModel::metaEnum(const char *name)
 QVariantMap InputEventsModel::details(int index) const
 {
     QVariantMap result;
-    result.insert(tr("Timestamp"), QmlProfilerDataModel::formatTime(startTime(index)));
+    result.insert(tr("Timestamp"), Timeline::formatTime(startTime(index)));
     QString type;
     const InputEvent &event = m_data[index];
     switch (event.type) {

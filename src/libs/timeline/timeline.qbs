@@ -17,6 +17,7 @@ Project {
                 "README",
                 "timelineabstractrenderer.cpp", "timelineabstractrenderer.h",
                 "timelineabstractrenderer_p.h",
+                "timelineformattime.cpp", "timelineformattime.h",
                 "timelineitemsrenderpass.cpp", "timelineitemsrenderpass.h",
                 "timelinemodel.cpp", "timelinemodel.h", "timelinemodel_p.h",
                 "timelinemodelaggregator.cpp", "timelinemodelaggregator.h",

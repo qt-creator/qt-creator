@@ -39,8 +39,6 @@ class QMLPROFILER_EXPORT QmlProfilerDataModel : public QObject
 {
     Q_OBJECT
 public:
-    static QString formatTime(qint64 timestamp);
-
     explicit QmlProfilerDataModel(Utils::FileInProjectFinder *fileFinder,
                                   QmlProfilerModelManager *parent);
     ~QmlProfilerDataModel();

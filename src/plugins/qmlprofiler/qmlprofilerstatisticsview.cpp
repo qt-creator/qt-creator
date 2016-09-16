@@ -29,6 +29,7 @@
 
 #include <coreplugin/minisplitter.h>
 #include <utils/qtcassert.h>
+#include <timeline/timelineformattime.h>
 
 #include <QUrl>
 #include <QHash>
@@ -573,7 +574,7 @@ void QmlProfilerStatisticsMainView::parseModel()
         }
 
         if (d->m_fieldShown[TotalTime]) {
-            newRow << new StatisticsViewItem(QmlProfilerDataModel::formatTime(stats.duration),
+            newRow << new StatisticsViewItem(Timeline::formatTime(stats.duration),
                                              stats.duration);
         }
 
@@ -583,7 +584,7 @@ void QmlProfilerStatisticsMainView::parseModel()
         }
 
         if (d->m_fieldShown[SelfTime]) {
-            newRow << new StatisticsViewItem(QmlProfilerDataModel::formatTime(stats.durationSelf),
+            newRow << new StatisticsViewItem(Timeline::formatTime(stats.durationSelf),
                                              stats.durationSelf);
         }
 
@@ -591,22 +592,22 @@ void QmlProfilerStatisticsMainView::parseModel()
             newRow << new StatisticsViewItem(QString::number(stats.calls), stats.calls);
 
         if (d->m_fieldShown[TimePerCall]) {
-            newRow << new StatisticsViewItem(QmlProfilerDataModel::formatTime(stats.timePerCall),
+            newRow << new StatisticsViewItem(Timeline::formatTime(stats.timePerCall),
                                              stats.timePerCall);
         }
 
         if (d->m_fieldShown[MedianTime]) {
-            newRow << new StatisticsViewItem(QmlProfilerDataModel::formatTime(stats.medianTime),
+            newRow << new StatisticsViewItem(Timeline::formatTime(stats.medianTime),
                                              stats.medianTime);
         }
 
         if (d->m_fieldShown[MaxTime]) {
-            newRow << new StatisticsViewItem(QmlProfilerDataModel::formatTime(stats.maxTime),
+            newRow << new StatisticsViewItem(Timeline::formatTime(stats.maxTime),
                                              stats.maxTime);
         }
 
         if (d->m_fieldShown[MinTime]) {
-            newRow << new StatisticsViewItem(QmlProfilerDataModel::formatTime(stats.minTime),
+            newRow << new StatisticsViewItem(Timeline::formatTime(stats.minTime),
                                              stats.minTime);
         }
 
@@ -848,7 +849,7 @@ void QmlProfilerStatisticsRelativesView::rebuildTree(
                       type.displayName());
         const QString typeName = QmlProfilerStatisticsMainView::nameForType(type.rangeType());
         newRow << new StatisticsViewItem(typeName, typeName);
-        newRow << new StatisticsViewItem(QmlProfilerDataModel::formatTime(stats.duration),
+        newRow << new StatisticsViewItem(Timeline::formatTime(stats.duration),
                                          stats.duration);
         newRow << new StatisticsViewItem(QString::number(stats.calls), stats.calls);
         newRow << new StatisticsViewItem(type.data().isEmpty() ? tr("Source code not available") :

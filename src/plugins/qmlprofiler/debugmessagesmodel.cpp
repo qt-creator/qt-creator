@@ -25,6 +25,7 @@
 
 #include "debugmessagesmodel.h"
 #include "qmlprofilerconstants.h"
+#include <timeline/timelineformattime.h>
 
 namespace QmlProfiler {
 namespace Internal {
@@ -78,7 +79,7 @@ QVariantMap DebugMessagesModel::details(int index) const
 
     QVariantMap result;
     result.insert(QLatin1String("displayName"), messageType(type.detailType()));
-    result.insert(tr("Timestamp"), QmlProfilerDataModel::formatTime(startTime(index)));
+    result.insert(tr("Timestamp"), Timeline::formatTime(startTime(index)));
     result.insert(tr("Message"), m_data[index].text);
     result.insert(tr("Location"), type.displayName());
     return result;

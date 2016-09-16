@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "qmlprofileranimationsmodel_test.h"
+#include <timeline/timelineformattime.h>
 #include <QtTest>
 
 namespace QmlProfiler {
@@ -127,7 +128,7 @@ void QmlProfilerAnimationsModelTest::testDetails()
         QVariantMap details = model.details(i);
         QCOMPARE(details["displayName"].toString(), model.displayName());
         QCOMPARE(details[QmlProfilerAnimationsModel::tr("Duration")].toString(),
-                QmlProfilerDataModel::formatTime(1));
+                Timeline::formatTime(1));
         QCOMPARE(details[QmlProfilerAnimationsModel::tr("Framerate")].toString(),
                 QString::fromLatin1("%1 FPS").arg(frameRate(i)));
         QCOMPARE(details[QmlProfilerAnimationsModel::tr("Animations")].toString(),

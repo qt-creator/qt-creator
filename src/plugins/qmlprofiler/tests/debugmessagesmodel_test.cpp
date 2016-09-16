@@ -24,6 +24,9 @@
 ****************************************************************************/
 
 #include "debugmessagesmodel_test.h"
+
+#include <timeline/timelineformattime.h>
+
 #include <QtTest>
 
 namespace QmlProfiler {
@@ -93,7 +96,7 @@ void DebugMessagesModelTest::testDetails()
         QCOMPARE(details.value(QLatin1String("displayName")).toString(),
                  model.tr(messageTypes[i % (QtMsgType::QtInfoMsg + 1)]));
         QCOMPARE(details.value(model.tr("Timestamp")).toString(),
-                 QmlProfilerDataModel::formatTime(i));
+                 Timeline::formatTime(i));
         QCOMPARE(details.value(model.tr("Message")).toString(),
                  QString::fromLatin1("message %1").arg(i));
         QCOMPARE(details.value(model.tr("Location")).toString(),

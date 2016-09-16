@@ -28,6 +28,7 @@
 #include "qmlprofilerdatamodel.h"
 
 #include <utils/qtcassert.h>
+#include <timeline/timelineformattime.h>
 
 #include <QCoreApplication>
 #include <QVector>
@@ -182,7 +183,7 @@ QVariantMap QmlProfilerAnimationsModel::details(int index) const
     QVariantMap result;
 
     result.insert(QStringLiteral("displayName"), displayName());
-    result.insert(tr("Duration"), QmlProfilerDataModel::formatTime(duration(index)));
+    result.insert(tr("Duration"), Timeline::formatTime(duration(index)));
     result.insert(tr("Framerate"), QString::fromLatin1("%1 FPS").arg(m_data[index].framerate));
     result.insert(tr("Animations"), QString::number(m_data[index].animationcount));
     result.insert(tr("Context"), selectionId(index) == GuiThread ? tr("GUI Thread") :

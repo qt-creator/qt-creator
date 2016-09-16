@@ -25,6 +25,8 @@
 
 #include "inputeventsmodel_test.h"
 #include "timeline/timelinemodel_p.h"
+#include "timeline/timelineformattime.h"
+
 #include <QtTest>
 
 namespace QmlProfiler {
@@ -105,7 +107,7 @@ void InputEventsModelTest::testDetails()
 {
     for (int i = 0; i < 10; ++i) {
         const QVariantMap details = model.details(i);
-        QCOMPARE(details[model.tr("Timestamp")].toString(), QmlProfilerDataModel::formatTime(i));
+        QCOMPARE(details[model.tr("Timestamp")].toString(), Timeline::formatTime(i));
         QString displayName = details[QString("displayName")].toString();
         QVERIFY(!displayName.isEmpty());
         switch (static_cast<InputEventType>(i % MaximumInputEventType)) {

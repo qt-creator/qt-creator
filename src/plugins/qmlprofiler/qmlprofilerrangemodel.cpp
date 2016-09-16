@@ -31,6 +31,7 @@
 #include "timeline/timelinenotesrenderpass.h"
 #include "timeline/timelineitemsrenderpass.h"
 #include "timeline/timelineselectionrenderpass.h"
+#include "timeline/timelineformattime.h"
 
 #include <QCoreApplication>
 #include <QVector>
@@ -223,7 +224,7 @@ QVariantMap QmlProfilerRangeModel::details(int index) const
 
     result.insert(QStringLiteral("displayName"),
                   tr(QmlProfilerModelManager::featureName(mainFeature())));
-    result.insert(tr("Duration"), QmlProfilerDataModel::formatTime(duration(index)));
+    result.insert(tr("Duration"), Timeline::formatTime(duration(index)));
 
     result.insert(tr("Details"), types[id].data());
     result.insert(tr("Location"), types[id].displayName());

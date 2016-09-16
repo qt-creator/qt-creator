@@ -92,16 +92,6 @@ QString getInitialDetails(const QmlEventType &event)
     return details;
 }
 
-QString QmlProfilerDataModel::formatTime(qint64 timestamp)
-{
-    if (timestamp < 1e6)
-        return QString::number(timestamp/1e3f,'f',3) + trUtf8(" \xc2\xb5s");
-    if (timestamp < 1e9)
-        return QString::number(timestamp/1e6f,'f',3) + tr(" ms");
-
-    return QString::number(timestamp/1e9f,'f',3) + tr(" s");
-}
-
 QmlProfilerDataModel::QmlProfilerDataModel(Utils::FileInProjectFinder *fileFinder,
                                            QmlProfilerModelManager *parent) :
     QObject(parent), d_ptr(new QmlProfilerDataModelPrivate)

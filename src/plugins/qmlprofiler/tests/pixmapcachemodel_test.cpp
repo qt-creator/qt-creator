@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "pixmapcachemodel_test.h"
+#include <timeline/timelineformattime.h>
 #include <QtTest>
 
 namespace QmlProfiler {
@@ -248,7 +249,7 @@ void PixmapCacheModelTest::testConsistency()
             QVERIFY(expandedRow < model.expandedRowCount());
             QVERIFY(details[QLatin1String("displayName")].toString() == model.tr("Image Loaded"));
             QCOMPARE(details[model.tr("Duration")].toString(),
-                    QmlProfilerDataModel::formatTime(model.duration(i)));
+                    Timeline::formatTime(model.duration(i)));
             // In expanded view pixmaps of the same URL but different sizes are allowed to overlap.
             // It looks bad, but that should be a rare thing.
             break;

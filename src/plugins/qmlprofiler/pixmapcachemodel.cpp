@@ -27,6 +27,8 @@
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilereventtypes.h"
 
+#include <timeline/timelineformattime.h>
+
 namespace QmlProfiler {
 namespace Internal {
 
@@ -119,7 +121,7 @@ QVariantMap PixmapCacheModel::details(int index) const
         result.insert(QLatin1String("displayName"), tr("Image Loaded"));
         if (m_pixmaps[ev->urlIndex].sizes[ev->sizeIndex].loadState != Finished)
             result.insert(tr("Result"), tr("Load Error"));
-        result.insert(tr("Duration"), QmlProfilerDataModel::formatTime(duration(index)));
+        result.insert(tr("Duration"), Timeline::formatTime(duration(index)));
     }
 
     result.insert(tr("Cache Size"), QString::fromLatin1("%1 px").arg(ev->cacheSize));
