@@ -36,7 +36,7 @@ MemoryUsageModel::MemoryUsageModel(QmlProfilerModelManager *manager, QObject *pa
     QmlProfilerTimelineModel(manager, MemoryAllocation, MaximumRangeType, ProfileMemory, parent)
 {
     // Announce additional features. The base class already announces the main feature.
-    announceFeatures(Constants::QML_JS_RANGE_FEATURES ^ (1 << Compiling));
+    announceFeatures(Constants::QML_JS_RANGE_FEATURES ^ (1 << ProfileCompiling));
 }
 
 int MemoryUsageModel::rowMaxValue(int rowNumber) const
