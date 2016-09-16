@@ -44,6 +44,7 @@
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
 #include <utils/treemodel.h>
+#include <utils/basetreeview.h>
 
 #include <QApplication>
 #include <QComboBox>
@@ -430,7 +431,7 @@ public:
 // SelectorTree
 //
 
-class SelectorTree : public NavigationTreeView
+class SelectorTree : public BaseTreeView
 {
 public:
     SelectorTree()

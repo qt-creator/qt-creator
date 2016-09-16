@@ -52,6 +52,7 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/algorithm.h>
+#include <utils/basetreeview.h>
 #include <utils/qtcassert.h>
 #include <utils/treemodel.h>
 #include <utils/utilsicons.h>
@@ -333,9 +334,7 @@ public:
     Qt::ItemFlags flags(int column) const override
     {
         Q_UNUSED(column)
-        if (isEnabled())
-            return Qt::ItemFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-        return Qt::ItemIsSelectable;
+        return Qt::ItemFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
     }
 
     QVariant data(int column, int role) const override
@@ -348,6 +347,8 @@ public:
         }
 
         case Qt::DecorationRole: {
+            if (!isEnabled())
+                return Utils::Icons::PLUS.icon();
             Kit *k = KitManager::find(m_kitId);
             QTC_ASSERT(k, return QVariant());
             if (!k->isValid())
@@ -355,6 +356,11 @@ public:
             if (k->hasWarning())
                 return Utils::Icons::WARNING.icon();
             break;
+        }
+
+        case Qt::TextColorRole: {
+            if (!isEnabled())
+                return Utils::creatorTheme()->color(Theme::TextColorDisabled);
         }
 
         case Qt::FontRole: {
@@ -369,7 +375,11 @@ public:
         case Qt::ToolTipRole: {
             Kit *k = KitManager::find(m_kitId);
             QTC_ASSERT(k, return QVariant());
-            return k->toHtml();
+            QString toolTip;
+            if (!isEnabled())
+                toolTip = "<h3>" + tr("Click to activate:") + "</h3>";
+            toolTip += k->toHtml();
+            return toolTip;
         }
 
         case PanelWidgetRole:
@@ -394,6 +404,17 @@ public:
             QMenu *menu = data.value<QMenu *>();
             addToContextMenu(menu);
             return true;
+        }
+
+        if (role == BaseTreeView::ItemClickedRole) {
+            if (!isEnabled()) {
+                Kit *k = KitManager::find(m_kitId);
+                Target *t = m_project->createTarget(k);
+                m_project->addTarget(t);
+                QTC_ASSERT(!data.isValid(), return false);
+                SessionManager::setActiveTarget(m_project, target(), SetActive::Cascade);
+                return true;
+            }
         }
 
         if (role == ItemActivatedFromBelowRole) {
