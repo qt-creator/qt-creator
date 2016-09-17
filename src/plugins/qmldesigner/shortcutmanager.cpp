@@ -266,7 +266,7 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
     command->setDefaultKeySequence(QKeySequence(Qt::Key_Escape));
     m_escapeAction.setEnabled(false);
 
-    Core::ActionManager::registerAction(&m_hideSidebarsAction, Core::Constants::TOGGLE_SIDEBAR, qmlDesignerMainContext);
+    Core::ActionManager::registerAction(&m_hideSidebarsAction, Core::Constants::TOGGLE_LEFT_SIDEBAR, qmlDesignerMainContext);
 
     connect(designerActionManager.view(), &DesignerActionManagerView::selectionChanged, this, [this](bool itemsSelected, bool rootItemIsSelected) {
         m_deleteAction.setEnabled(itemsSelected && !rootItemIsSelected);

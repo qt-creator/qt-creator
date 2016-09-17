@@ -47,8 +47,8 @@ public:
     QToolButton *toggleSyncButton();
     QToolButton *filterButton();
 
-    void saveSettings(int position);
-    void restoreSettings(int position);
+    void saveSettings(QSettings *settings, int position);
+    void restoreSettings(QSettings *settings, int position);
 
 private:
     bool isCursorSynchronized() const;
@@ -77,8 +77,8 @@ public:
 
     // from INavigationWidgetFactory
     virtual Core::NavigationView createWidget();
-    virtual void saveSettings(int position, QWidget *widget);
-    virtual void restoreSettings(int position, QWidget *widget);
+    virtual void saveSettings(QSettings *settings, int position, QWidget *widget);
+    virtual void restoreSettings(QSettings *settings, int position, QWidget *widget);
 private:
     QList<IOutlineWidgetFactory*> m_factories;
 };

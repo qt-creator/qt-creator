@@ -468,22 +468,20 @@ NavigationView ProjectTreeWidgetFactory::createWidget()
     return n;
 }
 
-void ProjectTreeWidgetFactory::saveSettings(int position, QWidget *widget)
+void ProjectTreeWidgetFactory::saveSettings(QSettings *settings, int position, QWidget *widget)
 {
     auto ptw = qobject_cast<ProjectTreeWidget *>(widget);
     Q_ASSERT(ptw);
-    QSettings *settings = ICore::settings();
     const QString baseKey = QLatin1String("ProjectTreeWidget.") + QString::number(position);
     settings->setValue(baseKey + QLatin1String(".ProjectFilter"), ptw->projectFilter());
     settings->setValue(baseKey + QLatin1String(".GeneratedFilter"), ptw->generatedFilesFilter());
     settings->setValue(baseKey + QLatin1String(".SyncWithEditor"), ptw->autoSynchronization());
 }
 
-void ProjectTreeWidgetFactory::restoreSettings(int position, QWidget *widget)
+void ProjectTreeWidgetFactory::restoreSettings(QSettings *settings, int position, QWidget *widget)
 {
     auto ptw = qobject_cast<ProjectTreeWidget *>(widget);
     Q_ASSERT(ptw);
-    QSettings *settings = ICore::settings();
     const QString baseKey = QLatin1String("ProjectTreeWidget.") + QString::number(position);
     ptw->setProjectFilter(settings->value(baseKey + QLatin1String(".ProjectFilter"), false).toBool());
     ptw->setGeneratedFilesFilter(settings->value(baseKey + QLatin1String(".GeneratedFilter"), true).toBool());

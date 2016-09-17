@@ -32,6 +32,7 @@
 #include <QKeySequence>
 
 QT_BEGIN_NAMESPACE
+class QSettings;
 class QToolButton;
 class QWidget;
 QT_END_NAMESPACE
@@ -69,8 +70,8 @@ public:
     // Similar to how IView
     virtual NavigationView createWidget() = 0;
 
-    virtual void saveSettings(int position, QWidget *widget);
-    virtual void restoreSettings(int position, QWidget *widget);
+    virtual void saveSettings(QSettings *settings, int position, QWidget *widget);
+    virtual void restoreSettings(QSettings *settings, int position, QWidget *widget);
 
 private:
     QString m_displayName;

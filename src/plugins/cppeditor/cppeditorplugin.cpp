@@ -366,8 +366,7 @@ QList<QObject *> CppEditorPlugin::createTestObjects() const
 void CppEditorPlugin::openTypeHierarchy()
 {
     if (currentCppEditorWidget()) {
-        NavigationWidget *navigation = NavigationWidget::instance();
-        navigation->activateSubWidget(Constants::TYPE_HIERARCHY_ID);
+        NavigationWidget::activateSubWidget(Constants::TYPE_HIERARCHY_ID, Side::Left);
         emit typeHierarchyRequested();
     }
 }
@@ -375,8 +374,7 @@ void CppEditorPlugin::openTypeHierarchy()
 void CppEditorPlugin::openIncludeHierarchy()
 {
     if (currentCppEditorWidget()) {
-        NavigationWidget *navigation = NavigationWidget::instance();
-        navigation->activateSubWidget(Id(Constants::INCLUDE_HIERARCHY_ID));
+        NavigationWidget::activateSubWidget(Constants::INCLUDE_HIERARCHY_ID, Side::Left);
         emit includeHierarchyRequested();
     }
 }
