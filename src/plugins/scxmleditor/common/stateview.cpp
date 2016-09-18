@@ -38,7 +38,7 @@ StateView::StateView(StateItem *state, QWidget *parent)
 {
     m_ui.setupUi(this);
 
-    m_isMainView = m_parentState == nullptr;
+    m_isMainView = !m_parentState;
 
     connect(m_ui.m_btnClose, &QPushButton::clicked, this, &StateView::closeView);
     if (!m_isMainView)

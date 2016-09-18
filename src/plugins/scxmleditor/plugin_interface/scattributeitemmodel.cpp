@@ -45,7 +45,7 @@ QVariant SCAttributeItemModel::headerData(int section, Qt::Orientation orientati
 
 bool SCAttributeItemModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if (role != Qt::EditRole || m_tag == nullptr)
+    if (role != Qt::EditRole || !m_tag)
         return false;
 
     bool bEditable = m_tag->tagType() <= MetadataItem;
@@ -71,7 +71,7 @@ bool SCAttributeItemModel::setData(const QModelIndex &index, const QVariant &val
 
 QVariant SCAttributeItemModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || m_tag == nullptr)
+    if (!index.isValid() || !m_tag)
         return QVariant();
 
     if (index.row() < 0)
@@ -142,7 +142,7 @@ QVariant SCAttributeItemModel::data(const QModelIndex &index, int role) const
 
 Qt::ItemFlags SCAttributeItemModel::flags(const QModelIndex &index) const
 {
-    if (!index.isValid() || m_tag == nullptr)
+    if (!index.isValid() || !m_tag)
         return Qt::NoItemFlags;
 
     if (m_tag->tagType() <= MetadataItem || (index.column() == 1 && m_tag->info()->n_attributes > 0 && m_tag->info()->attributes[index.row()].editable))

@@ -476,7 +476,7 @@ bool TransitionItem::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
     if (watched->type() == CornerGrabberType) {
         auto c = qgraphicsitem_cast<CornerGrabberItem*>(watched);
         auto mouseEvent = dynamic_cast<QGraphicsSceneMouseEvent*>(event);
-        if (c == nullptr || mouseEvent == nullptr)
+        if (!c || !mouseEvent)
             return BaseItem::sceneEventFilter(watched, event);
 
         int cid = m_cornerGrabbers.indexOf(c);
@@ -659,7 +659,7 @@ void TransitionItem::connectToTopItem(const QPointF &pos, TransitionPoint tp, It
         storeValues();
     } else {
         // Create new item and connect to it
-        ConnectableItem *newItem = SceneUtils::createItem(targetType, parentItem == nullptr ? p : parentItem->mapFromScene(p));
+        ConnectableItem *newItem = SceneUtils::createItem(targetType, parentItem ? parentItem->mapFromScene(p) : p);
         if (newItem) {
             ScxmlTag *newTag = SceneUtils::createTag(targetType, tag()->document());
             newItem->setTag(newTag);
@@ -985,7 +985,7 @@ void TransitionItem::updateAttributes()
     BaseItem::updateAttributes();
 
     // Find new target
-    if (m_endItem == nullptr || (m_endItem && tagValue("target") != m_endItem->itemId())) {
+    if (!m_endItem || tagValue("target") != m_endItem->itemId()) {
         if (m_endItem)
             m_endItem->removeInputTransition(this);
 
@@ -1098,7 +1098,7 @@ bool TransitionItem::containsScenePoint(const QPointF &p) const
 void TransitionItem::findEndItem()
 {
     QString targetId = tagValue("target");
-    if (m_endItem == nullptr && !targetId.isEmpty()) {
+    if (!m_endItem && !targetId.isEmpty()) {
         QList<QGraphicsItem*> items = scene()->items();
         for (int i = 0; i < items.count(); ++i) {
             if (items[i]->type() >= FinalStateType) {
@@ -1183,7 +1183,7 @@ void TransitionItem::updateTargetType()
 
     if (m_startItem != 0 && m_startItem == m_endItem)
         type = InternalSameTarget;
-    else if (m_startItem != 0 && m_endItem == nullptr) {
+    else if (m_startItem != 0 && !m_endItem) {
         if (m_movingLastPoint) {
             type = ExternalNoTarget;
         } else {

@@ -42,7 +42,7 @@ namespace TagUtils {
 
 bool checkPaste(const QString &copiedTagTypes, const ScxmlTag *currentTag)
 {
-    if (copiedTagTypes.isEmpty() || currentTag == nullptr)
+    if (copiedTagTypes.isEmpty() || !currentTag)
         return false;
 
     QVector<TagType> tagTypes;

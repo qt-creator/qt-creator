@@ -157,7 +157,7 @@ bool ConnectableItem::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
     if (watched->type() == CornerGrabberType) {
         auto c = qgraphicsitem_cast<CornerGrabberItem*>(watched);
         auto mouseEvent = dynamic_cast<QGraphicsSceneMouseEvent*>(event);
-        if (c == nullptr || mouseEvent == nullptr)
+        if (!c || !mouseEvent)
             return BaseItem::sceneEventFilter(watched, event);
 
         QRectF r = boundingRect();
@@ -450,7 +450,7 @@ void ConnectableItem::releaseFromParent()
     setOpacity(0.5);
     m_releasedIndex = tag()->index();
     m_releasedParent = parentItem();
-    tag()->document()->changeParent(tag(), 0, m_releasedParent == nullptr ? m_releasedIndex : -1);
+    tag()->document()->changeParent(tag(), 0, !m_releasedParent ? m_releasedIndex : -1);
     setZValue(503);
 
     for (int i = 0; i < m_quickTransitions.count(); ++i)

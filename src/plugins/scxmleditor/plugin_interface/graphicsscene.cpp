@@ -520,7 +520,7 @@ void GraphicsScene::endTagChange(ScxmlDocument::TagChange change, ScxmlTag *tag,
             if (oldParentItem)
                 oldParentItem->checkInitial();
 
-            if (oldParentItem == nullptr || newParentItem == nullptr)
+            if (!oldParentItem || !newParentItem)
                 checkInitialState();
         }
         break;
@@ -667,7 +667,7 @@ void GraphicsScene::addConnectableItem(ItemType type, const QPointF &pos, BaseIt
 void GraphicsScene::keyPressEvent(QKeyEvent *event)
 {
     QGraphicsItem *focusItem = this->focusItem();
-    if (focusItem == nullptr || focusItem->type() != TextType) {
+    if (!focusItem || focusItem->type() != TextType) {
         if (event->key() == Qt::Key_Delete)
             removeSelectedItems();
     }
@@ -677,7 +677,7 @@ void GraphicsScene::keyPressEvent(QKeyEvent *event)
 void GraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     QGraphicsItem *it = itemAt(event->scenePos(), QTransform());
-    if (it == nullptr || it->type() == LayoutType) {
+    if (!it || it->type() == LayoutType) {
         if (event->button() == Qt::LeftButton) {
             QGraphicsScene::mousePressEvent(event);
             m_document->setCurrentTag(m_document->rootTag());
@@ -879,7 +879,7 @@ QList<QGraphicsItem*> GraphicsScene::sceneItems(Qt::SortOrder order) const
     QList<QGraphicsItem*> children;
     QList<QGraphicsItem*> items = this->items(order);
     for (int i = 0; i < items.count(); ++i) {
-        if (items[i]->parentItem() == nullptr && items[i]->type() >= InitialStateType)
+        if (!items[i]->parentItem() && items[i]->type() >= InitialStateType)
             children << items[i];
     }
 

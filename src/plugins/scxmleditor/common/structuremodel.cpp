@@ -68,7 +68,7 @@ bool StructureModel::setData(const QModelIndex &index, const QVariant &value, in
         return false;
 
     ScxmlTag *tag = getItem(index);
-    if (tag == nullptr || tag->tagType() > MetadataItem)
+    if (!tag || tag->tagType() > MetadataItem)
         return false;
 
     tag->setTagName(value.toString());

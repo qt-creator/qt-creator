@@ -139,7 +139,7 @@ void WarningItem::setTypeName(const QString &name)
 
 void WarningItem::setWarningActive(bool active)
 {
-    if (active && m_warning == nullptr && m_warningModel) {
+    if (active && !m_warning && m_warningModel) {
         m_warning = m_warningModel->createWarning(m_severity, m_typeName, m_reason, m_description);
         connect(m_warning, &OutputPane::Warning::dataChanged, this, &WarningItem::checkVisibility);
     } else if (!active && m_warning) {

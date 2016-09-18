@@ -508,7 +508,7 @@ ScxmlTag *ScxmlDocument::currentTag() const
 void ScxmlDocument::changeParent(ScxmlTag *child, ScxmlTag *newParent, int tagIndex)
 {
     if (child && child->parentTag() != newParent && !m_undoRedoRunning)
-        m_undoStack->push(new ChangeParentCommand(this, child, newParent == nullptr ? rootTag() : newParent, tagIndex));
+        m_undoStack->push(new ChangeParentCommand(this, child, !newParent ? rootTag() : newParent, tagIndex));
 }
 
 void ScxmlDocument::changeOrder(ScxmlTag *child, int newPos)
