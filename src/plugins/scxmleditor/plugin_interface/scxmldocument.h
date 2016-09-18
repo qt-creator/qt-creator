@@ -26,6 +26,7 @@
 #pragma once
 
 #include <QFileInfo>
+#include <QHash>
 #include <QMap>
 #include <QObject>
 #include <QPointF>
