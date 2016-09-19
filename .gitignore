@@ -91,6 +91,10 @@ phony.c
 /share/qtcreator/translations/*_tr.h
 /share/qtcreator/translations/qtcreator_untranslated.ts
 
+# Qml caching files
+*.jsc
+*.qmlc
+
 # Directories to ignore
 # ---------------------
 
