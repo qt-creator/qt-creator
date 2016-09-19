@@ -313,8 +313,8 @@ void GraphicsScene::setDocument(ScxmlDocument *document)
 void GraphicsScene::connectDocument()
 {
     if (m_document) {
-        connect(m_document, &ScxmlDocument::beginTagChange, this, &GraphicsScene::beginTagChange);
-        connect(m_document, &ScxmlDocument::endTagChange, this, &GraphicsScene::endTagChange);
+        connect(m_document.data(), &ScxmlDocument::beginTagChange, this, &GraphicsScene::beginTagChange);
+        connect(m_document.data(), &ScxmlDocument::endTagChange, this, &GraphicsScene::endTagChange);
     }
 }
 

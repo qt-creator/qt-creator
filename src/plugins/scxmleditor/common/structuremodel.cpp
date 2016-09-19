@@ -50,8 +50,8 @@ void StructureModel::setDocument(ScxmlDocument *document)
 
     m_document = document;
     if (m_document) {
-        connect(m_document, &ScxmlDocument::beginTagChange, this, &StructureModel::beginTagChange);
-        connect(m_document, &ScxmlDocument::endTagChange, this, &StructureModel::endTagChange);
+        connect(m_document.data(), &ScxmlDocument::beginTagChange, this, &StructureModel::beginTagChange);
+        connect(m_document.data(), &ScxmlDocument::endTagChange, this, &StructureModel::endTagChange);
     }
     endResetModel();
 }

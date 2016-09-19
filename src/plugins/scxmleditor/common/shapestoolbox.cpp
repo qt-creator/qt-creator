@@ -49,7 +49,7 @@ void ShapesToolbox::setUIFactory(ScxmlEditor::PluginInterface::ScxmlUiFactory *f
     QTC_ASSERT(factory, return);
 
     m_shapeProvider = static_cast<PluginInterface::ShapeProvider*>(factory->object("shapeProvider"));
-    connect(m_shapeProvider, &PluginInterface::ShapeProvider::changed, this, &ShapesToolbox::initView);
+    connect(m_shapeProvider.data(), &PluginInterface::ShapeProvider::changed, this, &ShapesToolbox::initView);
     initView();
 }
 

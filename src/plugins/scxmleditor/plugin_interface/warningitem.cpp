@@ -44,7 +44,7 @@ WarningItem::WarningItem(QGraphicsItem *parent)
     if (sc) {
         sc->addWarningItem(this);
         m_warningModel = sc->warningModel();
-        connect(m_warningModel, &OutputPane::WarningModel::modelCleared, this, &WarningItem::check);
+        connect(m_warningModel.data(), &OutputPane::WarningModel::modelCleared, this, &WarningItem::check);
     }
     setWarningActive(false);
 }
@@ -82,7 +82,7 @@ QVariant WarningItem::itemChange(GraphicsItemChange change, const QVariant &valu
         if (sc) {
             sc->addWarningItem(this);
             m_warningModel = sc->warningModel();
-            connect(m_warningModel, &OutputPane::WarningModel::modelCleared, this, &WarningItem::check);
+            connect(m_warningModel.data(), &OutputPane::WarningModel::modelCleared, this, &WarningItem::check);
         }
         break;
     }
@@ -141,7 +141,7 @@ void WarningItem::setWarningActive(bool active)
 {
     if (active && !m_warning && m_warningModel) {
         m_warning = m_warningModel->createWarning(m_severity, m_typeName, m_reason, m_description);
-        connect(m_warning, &OutputPane::Warning::dataChanged, this, &WarningItem::checkVisibility);
+        connect(m_warning.data(), &OutputPane::Warning::dataChanged, this, &WarningItem::checkVisibility);
     } else if (!active && m_warning) {
         m_warning->deleteLater();
         m_warning = nullptr;

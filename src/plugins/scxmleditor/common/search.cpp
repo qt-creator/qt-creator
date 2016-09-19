@@ -75,7 +75,7 @@ void Search::setDocument(ScxmlDocument *document)
 void Search::setGraphicsScene(GraphicsScene *scene)
 {
     m_scene = scene;
-    connect(m_ui.m_searchView, &ScxmlEditor::OutputPane::TableView::mouseExited, m_scene, &GraphicsScene::unhighlightAll);
+    connect(m_ui.m_searchView, &ScxmlEditor::OutputPane::TableView::mouseExited, m_scene.data(), &GraphicsScene::unhighlightAll);
 }
 
 void Search::rowEntered(const QModelIndex &index)

@@ -53,13 +53,13 @@ void Navigator::setCurrentView(GraphicsView *view)
     m_currentView = view;
 
     if (m_currentView) {
-        connect(m_currentView, &GraphicsView::viewChanged, m_ui.m_navigatorView, &NavigatorGraphicsView::setMainViewPolygon);
-        connect(m_currentView, &GraphicsView::zoomPercentChanged, m_ui.m_navigatorSlider, &NavigatorSlider::setSliderValue);
+        connect(m_currentView.data(), &GraphicsView::viewChanged, m_ui.m_navigatorView, &NavigatorGraphicsView::setMainViewPolygon);
+        connect(m_currentView.data(), &GraphicsView::zoomPercentChanged, m_ui.m_navigatorSlider, &NavigatorSlider::setSliderValue);
 
-        connect(m_ui.m_navigatorSlider, &NavigatorSlider::valueChanged, m_currentView, &GraphicsView::zoomTo);
-        connect(m_ui.m_navigatorView, &NavigatorGraphicsView::moveMainViewTo, m_currentView, &GraphicsView::moveToPoint);
-        connect(m_ui.m_navigatorView, &NavigatorGraphicsView::zoomIn, m_currentView, &GraphicsView::zoomIn);
-        connect(m_ui.m_navigatorView, &NavigatorGraphicsView::zoomOut, m_currentView, &GraphicsView::zoomOut);
+        connect(m_ui.m_navigatorSlider, &NavigatorSlider::valueChanged, m_currentView.data(), &GraphicsView::zoomTo);
+        connect(m_ui.m_navigatorView, &NavigatorGraphicsView::moveMainViewTo, m_currentView.data(), &GraphicsView::moveToPoint);
+        connect(m_ui.m_navigatorView, &NavigatorGraphicsView::zoomIn, m_currentView.data(), &GraphicsView::zoomIn);
+        connect(m_ui.m_navigatorView, &NavigatorGraphicsView::zoomOut, m_currentView.data(), &GraphicsView::zoomOut);
     }
 }
 
