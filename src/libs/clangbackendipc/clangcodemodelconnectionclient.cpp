@@ -43,8 +43,8 @@ ClangCodeModelConnectionClient::ClangCodeModelConnectionClient(
         ClangCodeModelClientInterface *client)
     : serverProxy_(client, ioDevice())
 {
-    stdErrPrefixer().setPrefix("ClangCodeModelConnectionClient.error:");
-    stdOutPrefixer().setPrefix("ClangCodeModelConnectionClient.out:");
+    stdErrPrefixer().setPrefix("ClangCodeModelConnectionClient.stderr: ");
+    stdOutPrefixer().setPrefix("ClangCodeModelConnectionClient.stdout: ");
 }
 
 ClangCodeModelConnectionClient::~ClangCodeModelConnectionClient()

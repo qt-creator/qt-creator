@@ -42,8 +42,8 @@ QString currentProcessId()
 RefactoringConnectionClient::RefactoringConnectionClient(RefactoringClientInterface *client)
     : serverProxy_(client, ioDevice())
 {
-    stdErrPrefixer().setPrefix("RefactoringConnectionClient.error:");
-    stdOutPrefixer().setPrefix("RefactoringConnectionClient.out:");
+    stdErrPrefixer().setPrefix("RefactoringConnectionClient.stderr: ");
+    stdOutPrefixer().setPrefix("RefactoringConnectionClient.stdout: ");
 }
 
 RefactoringServerProxy &RefactoringConnectionClient::serverProxy()
