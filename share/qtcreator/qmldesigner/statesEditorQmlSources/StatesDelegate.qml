@@ -26,8 +26,10 @@
 import QtQuick 2.2
 import QtQuick.Controls 1.1
 import QtQuick.Controls.Styles 1.1
+import "../propertyEditorQmlSources/HelperWidgets"
 
 Rectangle {
+    z: expressionTextField.visible ? 5 : 0
     border.width: 1
     property bool isBaseState
     property bool isCurrentState
@@ -35,9 +37,17 @@ Rectangle {
     property string delegateStateName
     property string delegateStateImageSource
     property int delegateStateImageSize
+    property bool delegateHasWhenCondition
+    property string delegateWhenConditionString
 
     color: baseColor
     border.color: creatorTheme.QmlDesignerBorderColor
+
+    function autoComplete(text, pos, explicitComplete) {
+        var stringList = statesEditorModel.autoComplete(text, pos, explicitComplete)
+        print(stringList)
+        return stringList
+    }
 
     MouseArea {
         anchors.fill: parent
@@ -74,11 +84,58 @@ Rectangle {
         onClicked: root.deleteState(internalNodeId)
     }
 
+    Image {
+        id: whenButton
+        visible: !isBaseState && expanded
+        width: 14
+        height: 14
+        x: 4
+        y: 6
+        source: {
+            if (whenMouseArea.containsMouse)
+                return "image://icons/submenu"
+
+            return delegateHasWhenCondition ? "image://icons/expression" : "image://icons/placeholder"
+
+        }
+
+        MouseArea {
+            id: whenMouseArea
+            hoverEnabled: true
+            anchors.fill: parent
+            onClicked: contextMenu.popup()
+        }
+        Menu {
+            id: contextMenu
+
+            MenuItem {
+                text: qsTr("Set when condition")
+                onTriggered: {
+                    expressionTextField.text = delegateWhenConditionString
+                    expressionTextField.visible = true
+                    expressionTextField.forceActiveFocus()
+                }
+
+            }
+
+            MenuItem {
+                visible: delegateHasWhenCondition
+                text: qsTr("Reset when condition")
+                onTriggered: {
+                   statesEditorModel.resetWhenCondition(internalNodeId)
+                }
+
+            }
+        }
+
+
+    }
+
     TextField {
         id: stateNameField
         y: 4
-        font.pixelSize: 11
-        anchors.left: parent.left
+        font.pixelSize: 9
+        anchors.left: whenButton.right
         // use the spacing which the image to the delegate rectangle has
         anchors.leftMargin: 4
         anchors.right: removeStateButton.left
@@ -107,7 +164,7 @@ Rectangle {
     Item {
         id: stateImageArea
         anchors.topMargin: 4
-        anchors.left: stateNameField.left
+        anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: stateNameField.bottom
 
         height: delegateStateImageSize + 2
@@ -125,6 +182,23 @@ Rectangle {
             anchors.centerIn: parent
             source: delegateStateImageSource
         }
+    }
+
+    ExpressionTextField {
+        id: expressionTextField
+        visible: false
+        onAccepted: {
+            visible = false
+            statesEditorModel.setWhenCondition(internalNodeId, expressionTextField.text.trim())
+        }
+
+        onRejected: visible = false
+
+        anchors.topMargin: 4
+        anchors.left: stateNameField.left
+        anchors.top: stateNameField.bottom
+        height: delegateStateImageSize + 6
+        width: (delegateStateImageSize + 2) * 2
     }
 
 }

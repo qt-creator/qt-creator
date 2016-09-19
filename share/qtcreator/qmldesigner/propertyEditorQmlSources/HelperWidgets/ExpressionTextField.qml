@@ -84,12 +84,6 @@ Controls.TextField {
 
     verticalAlignment: Text.AlignTop
 
-    anchors.fill: parent
-    anchors.leftMargin: 8
-    anchors.rightMargin: 8
-    anchors.topMargin: 24
-    anchors.bottomMargin: 32
-
     Keys.priority: Keys.BeforeItem
     Keys.onPressed: {
 

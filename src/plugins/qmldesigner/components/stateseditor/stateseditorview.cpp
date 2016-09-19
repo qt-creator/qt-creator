@@ -33,10 +33,12 @@
 
 #include <nodemetainfo.h>
 
+#include <bindingproperty.h>
 #include <variantproperty.h>
 #include <nodelistproperty.h>
 
 #include <qmlitemnode.h>
+#include <qmlstate.h>
 
 
 namespace QmlDesigner {
@@ -102,6 +104,10 @@ void StatesEditorView::synchonizeCurrentStateFromWidget()
 {
     if (!model())
         return;
+
+    if (m_block)
+        return;
+
     int internalId = m_statesEditorWidget->currentStateInternalId();
 
     if (internalId > 0 && hasModelNodeForInternalId(internalId)) {
@@ -245,6 +251,48 @@ void StatesEditorView::renameState(int internalNodeId, const QString &newName)
     }
 }
 
+void StatesEditorView::setWhenCondition(int internalNodeId, const QString &condition)
+{
+    if (m_block)
+        return;
+
+    m_block = true;
+
+    if (hasModelNodeForInternalId(internalNodeId)) {
+        QmlModelState state(modelNodeForInternalId(internalNodeId));
+        try {
+            if (state.isValid())
+                state.modelNode().bindingProperty("when").setExpression(condition);
+
+        } catch (const RewritingException &e) {
+            e.showException();
+        }
+    }
+
+    m_block = false;
+}
+
+void StatesEditorView::resetWhenCondition(int internalNodeId)
+{
+    if (m_block)
+        return;
+
+    m_block = true;
+
+    if (hasModelNodeForInternalId(internalNodeId)) {
+        QmlModelState state(modelNodeForInternalId(internalNodeId));
+        try {
+            if (state.isValid() && state.modelNode().hasProperty("when"))
+                state.modelNode().removeProperty("when");
+
+        } catch (const RewritingException &e) {
+            e.showException();
+        }
+    }
+
+    m_block = false;
+}
+
 void StatesEditorView::modelAttached(Model *model)
 {
     if (model == AbstractView::model())
@@ -271,6 +319,8 @@ void StatesEditorView::propertiesRemoved(const QList<AbstractProperty>& property
 {
     foreach (const AbstractProperty &property, propertyList) {
         if (property.name() == "states" && property.parentModelNode().isRootNode())
+            resetModel();
+        if (property.name() == "when" && QmlModelState::isValidQmlModelState(property.parentModelNode()))
             resetModel();
     }
 }
@@ -318,6 +368,15 @@ void StatesEditorView::nodeOrderChanged(const NodeListProperty &listProperty, co
 {
     if (listProperty.isValid() && listProperty.parentModelNode().isRootNode() && listProperty.name() == "states")
         resetModel();
+}
+
+void StatesEditorView::bindingPropertiesChanged(const QList<BindingProperty> &propertyList, AbstractView::PropertyChangeFlags propertyChange)
+{
+    foreach (const BindingProperty &property, propertyList) {
+            if (property.name() == "when" && QmlModelState::isValidQmlModelState(property.parentModelNode()))
+                resetModel();
+        }
+
 }
 
 void StatesEditorView::currentStateChanged(const ModelNode &node)

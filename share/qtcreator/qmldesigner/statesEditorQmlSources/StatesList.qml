@@ -37,7 +37,7 @@ FocusScope {
     signal duplicateCurrentState
 
     property int stateImageSize: 100
-    property int delegateWidth: stateImageSize + 10
+    property int delegateWidth: stateImageSize + 44
     property int padding: 2
     property int delegateHeight: root.height - padding * 2 + 1
     property int innerSpacing: -1
@@ -152,6 +152,8 @@ FocusScope {
                 delegateStateName: stateName
                 delegateStateImageSource: stateImageSource
                 delegateStateImageSize: stateImageSize
+                delegateHasWhenCondition: hasWhenCondition
+                delegateWhenConditionString: whenConditionString
             }
         }
     }

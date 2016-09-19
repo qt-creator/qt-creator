@@ -42,7 +42,9 @@ class StatesEditorModel : public QAbstractListModel
     enum {
         StateNameRole = Qt::DisplayRole,
         StateImageSourceRole = Qt::UserRole,
-        InternalNodeId
+        InternalNodeId,
+        HasWhenCondition,
+        WhenConditionString
     };
 
 public:
@@ -58,8 +60,12 @@ public:
     void removeState(int stateIndex);
     void updateState(int beginIndex, int endIndex);
     Q_INVOKABLE void renameState(int internalNodeId, const QString &newName);
+    Q_INVOKABLE void setWhenCondition(int internalNodeId, const QString &condition);
+    Q_INVOKABLE void resetWhenCondition(int internalNodeId);
+    Q_INVOKABLE QStringList autoComplete(const QString &text, int pos, bool explicitComplete);
 
     void reset();
+
 
 signals:
     void countChanged();

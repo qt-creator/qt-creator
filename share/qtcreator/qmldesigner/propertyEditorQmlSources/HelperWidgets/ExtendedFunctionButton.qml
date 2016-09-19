@@ -177,6 +177,11 @@ Item {
                     backendValue.expression = textField.text.trim()
                     expressionDialog.visible = false
                 }
+                anchors.fill: parent
+                anchors.leftMargin: 8
+                anchors.rightMargin: 8
+                anchors.topMargin: 24
+                anchors.bottomMargin: 32
             }
         }
     }

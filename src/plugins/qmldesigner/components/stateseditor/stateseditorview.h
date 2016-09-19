@@ -43,6 +43,8 @@ public:
     ~StatesEditorView();
 
     void renameState(int internalNodeId,const QString &newName);
+    void setWhenCondition(int internalNodeId, const QString &condition);
+    void resetWhenCondition(int internalNodeId);
     bool validStateName(const QString &name) const;
     QString currentStateName() const;
     void setCurrentState(const QmlModelState &state);
@@ -66,6 +68,7 @@ public:
                         const NodeAbstractProperty &oldPropertyParent,
                         AbstractView::PropertyChangeFlags propertyChange) override;
     void nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex) override;
+    void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange) override;
 
 
     // AbstractView
@@ -93,6 +96,7 @@ private:
     QPointer<StatesEditorModel> m_statesEditorModel;
     QPointer<StatesEditorWidget> m_statesEditorWidget;
     int m_lastIndex;
+    bool m_block = false;
 };
 
 } // namespace QmlDesigner
