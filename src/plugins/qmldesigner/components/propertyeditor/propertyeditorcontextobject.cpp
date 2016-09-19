@@ -29,6 +29,8 @@
 
 #include <QQmlContext>
 #include <qmldesignerplugin.h>
+#include <qmlobjectnode.h>
+#include <rewritingexception.h>
 
 static uchar fromHex(const uchar c, const uchar c2)
 {
@@ -119,6 +121,42 @@ QStringList PropertyEditorContextObject::autoComplete(const QString &text, int p
         return m_model->rewriterView()->autoComplete(text, pos, explicitComplete);
 
     return QStringList();
+}
+
+void PropertyEditorContextObject::toogleExportAlias()
+{
+    if (!m_model || !m_model->rewriterView())
+        return;
+
+    /* Ideally we should not missuse the rewriterView
+     * If we add more code here we have to forward the property editor view */
+    RewriterView *rewriterView = m_model->rewriterView();
+
+    if (rewriterView->selectedModelNodes().isEmpty())
+        return;
+
+    ModelNode selectedNode = rewriterView->selectedModelNodes().first();
+
+    if (QmlObjectNode::isValidQmlObjectNode(selectedNode)) {
+        QmlObjectNode objectNode(selectedNode);
+
+        PropertyName modelNodeId = selectedNode.id().toUtf8();
+        ModelNode rootModelNode = rewriterView->rootModelNode();
+
+        try {
+            RewriterTransaction transaction =
+                    rewriterView->beginRewriterTransaction(QByteArrayLiteral("NavigatorTreeModel:exportItem"));
+
+            if (!objectNode.isAliasExported())
+                objectNode.ensureAliasExport();
+            else
+                if (rootModelNode.hasProperty(modelNodeId))
+                    rootModelNode.removeProperty(modelNodeId);
+        }  catch (RewritingException &exception) { //better safe than sorry! There always might be cases where we fail
+            exception.showException();
+        }
+    }
+
 }
 
 int PropertyEditorContextObject::majorVersion() const
@@ -262,6 +300,15 @@ void PropertyEditorContextObject::setModel(Model *model)
 void PropertyEditorContextObject::triggerSelectionChanged()
 {
     setSelectionChanged(!m_selectionChanged);
+}
+
+void PropertyEditorContextObject::setHasAliasExport(bool hasAliasExport)
+{
+    if (m_aliasExport == hasAliasExport)
+        return;
+
+    m_aliasExport = hasAliasExport;
+    emit hasAliasExportChanged();
 }
 
 } //QmlDesigner

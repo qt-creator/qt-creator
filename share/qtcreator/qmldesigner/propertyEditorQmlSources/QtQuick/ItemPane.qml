@@ -76,9 +76,16 @@ Rectangle {
                         }
                         // workaround: without this item the lineedit does not shrink to the
                         // right size after resizing to a wider width
-                        Item {
-                            width: 0
-                            height: 1
+
+                        Image {
+                            width: 16
+                            height: 16
+                            source: hasAliasExport ? "image://icons/alias-export-checked" : "image://icons/alias-export-unchecked"
+                            ToolTipArea {
+                                anchors.fill: parent
+                                onClicked: toogleExportAlias()
+                                tooltip: qsTr("Toggle if selected item is alias exported.")
+                            }
                         }
                     }
                 }

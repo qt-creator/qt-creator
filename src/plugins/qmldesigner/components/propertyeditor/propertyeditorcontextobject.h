@@ -52,6 +52,8 @@ class PropertyEditorContextObject : public QObject
     Q_PROPERTY(int minorVersion READ minorVersion WRITE setMinorVersion NOTIFY minorVersionChanged)
     Q_PROPERTY(int majorQtQuickVersion READ majorQtQuickVersion WRITE setMajorQtQuickVersion NOTIFY majorQtQuickVersionChanged)
 
+    Q_PROPERTY(bool hasAliasExport READ hasAliasExport NOTIFY hasAliasExportChanged)
+
     Q_PROPERTY(QQmlPropertyMap* backendValues READ backendValues WRITE setBackendValues NOTIFY backendValuesChanged)
 
     Q_PROPERTY(QQmlComponent* specificQmlComponent READ specificQmlComponent NOTIFY specificQmlComponentChanged)
@@ -75,6 +77,8 @@ public:
 
     Q_INVOKABLE QStringList autoComplete(const QString &text, int pos, bool explicitComplete);
 
+    Q_INVOKABLE void toogleExportAlias();
+
     int majorVersion() const;
     int majorQtQuickVersion() const;
     void setMajorVersion(int majorVersion);
@@ -84,6 +88,8 @@ public:
 
     void insertInQmlContext(QQmlContext *context);
     QQmlComponent *specificQmlComponent();
+
+    bool hasAliasExport() const { return m_aliasExport; }
 
 signals:
     void globalBaseUrlChanged();
@@ -97,6 +103,7 @@ signals:
     void minorVersionChanged();
     void majorQtQuickVersionChanged();
     void specificQmlComponentChanged();
+    void hasAliasExportChanged();
 
 public slots:
      void setGlobalBaseUrl(const QUrl &newBaseUrl);
@@ -115,7 +122,8 @@ public slots:
 
      void setModel(Model *model);
 
-    void triggerSelectionChanged();
+     void triggerSelectionChanged();
+     void setHasAliasExport(bool hasAliasExport);
 
 private:
     QUrl m_globalBaseUrl;
@@ -136,6 +144,8 @@ private:
     QQmlContext *m_qmlContext;
 
     Model *m_model = nullptr;
+
+    bool m_aliasExport = false;
 };
 
 } //QmlDesigner {

@@ -218,6 +218,20 @@ void NavigatorView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& pr
     }
 }
 
+void NavigatorView::propertiesRemoved(const QList<AbstractProperty> &propertyList)
+{
+    for (const AbstractProperty &property : propertyList) {
+        ModelNode node = property.parentModelNode();
+        /* Update export alias state if property from root note was removed and the root node was not selected. */
+        /* The check for the selection is an optimization to reduce updates. */
+        if (node.isRootNode() && !selectedModelNodes().isEmpty() && !selectedModelNodes().first().isRootNode()) {
+
+            foreach (const ModelNode &modelNode, node.allSubModelNodes())
+                m_treeModel->updateItemRow(modelNode);
+        }
+    }
+}
+
 void NavigatorView::rootNodeTypeChanged(const QString & /*type*/, int /*majorVersion*/, int /*minorVersion*/)
 {
     if (m_treeModel->isInTree(rootModelNode()))

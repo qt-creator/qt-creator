@@ -84,7 +84,7 @@ public:
     void nodeReparented(const ModelNode &node,
                         const NodeAbstractProperty &newPropertyParent,
                         const NodeAbstractProperty &oldPropertyParent,
-                        AbstractView::PropertyChangeFlags propertyChange);
+                        AbstractView::PropertyChangeFlags propertyChange) override;
 
 public slots:
     void changeValue(const QString &name);

@@ -494,6 +494,10 @@ void PropertyEditorView::propertiesRemoved(const QList<AbstractProperty>& proper
 
     foreach (const AbstractProperty &property, propertyList) {
         ModelNode node(property.parentModelNode());
+
+        if (node.isRootNode() && !m_selectedNode.isRootNode())
+            m_qmlBackEndForCurrentType->contextObject()->setHasAliasExport(QmlObjectNode(m_selectedNode).isAliasExported());
+
         if (node == m_selectedNode || QmlObjectNode(m_selectedNode).propertyChangeForCurrentState() == node) {
             setValue(m_selectedNode, property.name(), QmlObjectNode(m_selectedNode).instanceValue(property.name()));
 
@@ -547,6 +551,9 @@ void PropertyEditorView::bindingPropertiesChanged(const QList<BindingProperty>& 
     foreach (const BindingProperty &property, propertyList) {
         ModelNode node(property.parentModelNode());
 
+        if (property.isAliasExport())
+            m_qmlBackEndForCurrentType->contextObject()->setHasAliasExport(QmlObjectNode(m_selectedNode).isAliasExported());
+
         if (node == m_selectedNode || QmlObjectNode(m_selectedNode).propertyChangeForCurrentState() == node) {
             if (property.name().contains("anchor"))
                 m_qmlBackEndForCurrentType->backendAnchorBinding().invalidate(m_selectedNode);
@@ -554,6 +561,7 @@ void PropertyEditorView::bindingPropertiesChanged(const QList<BindingProperty>& 
                 setValue(m_selectedNode, property.name(), QmlObjectNode(m_selectedNode).instanceValue(property.name()));
             else
                 setValue(m_selectedNode, property.name(), QmlObjectNode(m_selectedNode).modelValue(property.name()));
+
         }
     }
 }
@@ -652,9 +660,9 @@ void PropertyEditorView::rootNodeTypeChanged(const QString &/*type*/, int /*majo
 }
 
 void PropertyEditorView::nodeReparented(const ModelNode &node,
-                                        const NodeAbstractProperty &newPropertyParent,
-                                        const NodeAbstractProperty &oldPropertyParent,
-                                        AbstractView::PropertyChangeFlags propertyChange)
+                                        const NodeAbstractProperty & /*newPropertyParent*/,
+                                        const NodeAbstractProperty & /*oldPropertyParent*/,
+                                        AbstractView::PropertyChangeFlags /*propertyChange*/)
 {
     if (node == m_selectedNode)
         m_qmlBackEndForCurrentType->backendAnchorBinding().setup(QmlItemNode(m_selectedNode));

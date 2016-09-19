@@ -24,6 +24,8 @@
 ****************************************************************************/
 
 #include "qmldesignericonprovider.h"
+#include <qmldesignericons.h>
+
 
 #include <utils/icon.h>
 #include <utils/utilsicons.h>
@@ -171,6 +173,10 @@ QPixmap QmlDesignerIconProvider::requestPixmap(const QString &id, QSize *size, c
     else if (id == "style-strikeout-h")
         result = Icon({
                 { ":/qmldesigner/images/style_strikeout.png", Theme::QmlDesigner_HighlightColor}}, Icon::Tint).pixmap();
+    else if (id == "alias-export-checked")
+        result = Icons::EXPORT_CHECKED.pixmap();
+    else if (id == "alias-export-unchecked")
+        result = Icons::EXPORT_UNCHECKED.pixmap();
     else
         qWarning() << Q_FUNC_INFO << "Image not found:" << id;
 

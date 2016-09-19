@@ -312,6 +312,8 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
         context()->setContextProperty(QLatin1String("propertyCount"), QVariant(qmlObjectNode.modelNode().properties().count()));
 
         contextObject()->setIsBaseState(qmlObjectNode.isInBaseState());
+
+        contextObject()->setHasAliasExport(qmlObjectNode.isAliasExported());
         contextObject()->setSelectionChanged(false);
 
         contextObject()->setSelectionChanged(false);
