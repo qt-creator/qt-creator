@@ -119,8 +119,8 @@ QRectF AnchorIndicatorGraphicsItem::boundingRect() const
 
 static QPointF createParentAnchorPoint(const QmlItemNode &parentQmlItemNode, AnchorLineType anchorLineType, const QmlItemNode &childQmlItemNode)
 {
-    QRectF parentBoundingRect = parentQmlItemNode.instanceSceneTransform().mapRect(parentQmlItemNode.instanceBoundingRect().adjusted(0., 0., 1., 1.));
-    QRectF childBoundingRect = childQmlItemNode.instanceSceneTransform().mapRect(childQmlItemNode.instanceBoundingRect().adjusted(0., 0., 1., 1.));
+    QRectF parentBoundingRect = parentQmlItemNode.instanceSceneTransform().mapRect(parentQmlItemNode.instanceBoundingRect());
+    QRectF childBoundingRect = childQmlItemNode.instanceSceneTransform().mapRect(childQmlItemNode.instanceBoundingRect());
 
     QPointF anchorPoint;
 
@@ -146,7 +146,7 @@ static QPointF createParentAnchorPoint(const QmlItemNode &parentQmlItemNode, Anc
 
 static QPointF createAnchorPoint(const QmlItemNode &qmlItemNode, AnchorLineType anchorLineType)
 {
-    QRectF boundingRect = qmlItemNode.instanceBoundingRect().adjusted(0., 0., 1., 1.);
+    QRectF boundingRect = qmlItemNode.instanceBoundingRect();
 
     QPointF anchorPoint;
 
@@ -192,7 +192,7 @@ static QPointF createControlPoint(const QPointF &firstEditPoint, AnchorLineType 
 
 static void updateAnchorLinePoints(QPointF *firstPoint, QPointF *secondPoint, const AnchorLine &anchorLine)
 {
-    QRectF boundingRectangle = anchorLine.qmlItemNode().instanceBoundingRect().adjusted(0., 0., 1., 1.);
+    QRectF boundingRectangle = anchorLine.qmlItemNode().instanceBoundingRect();
 
     switch (anchorLine.type()) {
     case AnchorLineTop:
