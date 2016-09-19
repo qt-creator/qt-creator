@@ -76,40 +76,6 @@ def registerCommand(name, func):
 
 #######################################################################
 #
-# Types
-#
-#######################################################################
-
-PointerCode = gdb.TYPE_CODE_PTR # 1
-ArrayCode = gdb.TYPE_CODE_ARRAY # 2
-StructCode = gdb.TYPE_CODE_STRUCT # 3
-UnionCode = gdb.TYPE_CODE_UNION # 4
-EnumCode = gdb.TYPE_CODE_ENUM # 5
-FlagsCode = gdb.TYPE_CODE_FLAGS # 6
-FunctionCode = gdb.TYPE_CODE_FUNC # 7
-IntCode = gdb.TYPE_CODE_INT # 8
-FloatCode = gdb.TYPE_CODE_FLT # 9, Parts of GDB assume that this means complex.
-VoidCode = gdb.TYPE_CODE_VOID # 10
-#SetCode = gdb.TYPE_CODE_SET # 11
-RangeCode = gdb.TYPE_CODE_RANGE # 12
-StringCode = gdb.TYPE_CODE_STRING # 13
-#BitStringCode = gdb.TYPE_CODE_BITSTRING # -1
-#ErrorTypeCode = gdb.TYPE_CODE_ERROR # 14
-MethodCode = gdb.TYPE_CODE_METHOD # 15
-MethodPointerCode = gdb.TYPE_CODE_METHODPTR # 16
-MemberPointerCode = gdb.TYPE_CODE_MEMBERPTR # 17
-ReferenceCode = gdb.TYPE_CODE_REF # 18
-CharCode = gdb.TYPE_CODE_CHAR # 19
-BoolCode = gdb.TYPE_CODE_BOOL # 20
-ComplexCode = gdb.TYPE_CODE_COMPLEX # 21
-TypedefCode = gdb.TYPE_CODE_TYPEDEF # 22
-#NamespaceCode = gdb.TYPE_CODE_NAMESPACE # 23
-#Code = gdb.TYPE_CODE_DECFLOAT # 24, Decimal floating point.
-#Code = gdb.TYPE_CODE_INTERNAL_FUNCTION # 26
-
-
-#######################################################################
-#
 # Convenience
 #
 #######################################################################
@@ -310,17 +276,26 @@ class Dumper(DumperBase):
         typeobj.nativeType = nativeType.unqualified()
         typeobj.name = str(typeobj.nativeType)
         typeobj.lbitsize = nativeType.sizeof * 8
-        code = nativeType.code
-        typeobj.code = code
-        typeobj.lFunctionType = code in (MethodCode, FunctionCode, MethodPointerCode, MemberPointerCode)
-        typeobj.lPointerType = code == PointerCode
-        typeobj.lReferenceType = code == ReferenceCode
-        typeobj.lIntegralType = code in (BoolCode, CharCode, IntCode)
-        typeobj.lFloatingPointType = code == FloatCode
-        typeobj.lTypedefedType = code == TypedefCode
-        typeobj.lEnumType = code == EnumCode
-        typeobj.lArrayType = code == ArrayCode
-        typeobj.lComplexType = code == ComplexCode
+        typeobj.code = {
+            gdb.TYPE_CODE_TYPEDEF : TypeCodeTypedef,
+            gdb.TYPE_CODE_METHOD : TypeCodeFunction,
+            gdb.TYPE_CODE_VOID : TypeCodeVoid,
+            gdb.TYPE_CODE_FUNC : TypeCodeFunction,
+            gdb.TYPE_CODE_METHODPTR : TypeCodeFunction,
+            gdb.TYPE_CODE_MEMBERPTR : TypeCodeFunction,
+            gdb.TYPE_CODE_PTR : TypeCodePointer,
+            gdb.TYPE_CODE_REF : TypeCodeReference,
+            gdb.TYPE_CODE_BOOL : TypeCodeIntegral,
+            gdb.TYPE_CODE_CHAR : TypeCodeIntegral,
+            gdb.TYPE_CODE_INT : TypeCodeIntegral,
+            gdb.TYPE_CODE_FLT : TypeCodeFloat,
+            gdb.TYPE_CODE_ENUM : TypeCodeEnum,
+            gdb.TYPE_CODE_ARRAY : TypeCodeArray,
+            gdb.TYPE_CODE_STRUCT : TypeCodeStruct,
+            gdb.TYPE_CODE_UNION : TypeCodeStruct,
+            gdb.TYPE_CODE_COMPLEX : TypeCodeComplex,
+            gdb.TYPE_CODE_STRING : TypeCodeFortranString,
+        }[nativeType.code]
         return typeobj
 
     def fromNativeField(self, nativeField):
@@ -361,15 +336,15 @@ class Dumper(DumperBase):
         return self.fromNativeType(nativeType.pointer())
 
     def nativeTypeTarget(self, nativeType):
-        while nativeType.code == TypedefCode:
+        while nativeType.code == gdb.TYPE_CODE_TYPEDEF:
             nativeType = nativeType.strip_typedefs().unqualified()
         return self.fromNativeType(nativeType.target())
 
     def nativeValueHasChildren(self, nativeValue):
         nativeType = nativeValue.type
-        if nativeType.code == ArrayCode:
+        if nativeType.code == gdb.TYPE_CODE_ARRAY:
             return True
-        if nativeType.code != StructCode and nativeType.code != UnionCode:
+        if nativeType.code not in (gdb.TYPE_CODE_STRUCT, gdb.TYPE_CODE_UNION):
             return False
         nativeFields = nativeType.fields()
         return len(nativeFields) > 0
@@ -389,7 +364,7 @@ class Dumper(DumperBase):
     def nativeTypeFields(self, nativeType):
         #warn("TYPE: %s" % nativeType)
         fields = []
-        if nativeType.code == ArrayCode:
+        if nativeType.code == gdb.TYPE_CODE_ARRAY:
             # An array.
             typeobj = nativeType.strip_typedefs()
             innerType = typeobj.target()
@@ -403,7 +378,7 @@ class Dumper(DumperBase):
                 fields.append(field)
             return fields
 
-        if not nativeType.code in (StructCode, UnionCode):
+        if not nativeType.code in (gdb.TYPE_CODE_STRUCT, gdb.TYPE_CODE_UNION):
             return fields
 
         nativeIndex = 0
@@ -459,7 +434,7 @@ class Dumper(DumperBase):
 
     def nativeTypeStripTypedefs(self, typeobj):
         typeobj = typeobj.unqualified()
-        while typeobj.code == TypedefCode:
+        while typeobj.code == gdb.TYPE_CODE_TYPEDEF:
             typeobj = typeobj.strip_typedefs().unqualified()
         return self.fromNativeType(typeobj)
 
@@ -611,7 +586,7 @@ class Dumper(DumperBase):
         else:
             variables = self.listOfLocals()
 
-        #warn("VARIAVL: %s" % variables)
+        #warn("VARIABLES: %s" % variables)
 
         self.ping("locals")
 

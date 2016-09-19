@@ -96,6 +96,35 @@ BreakpointOnQmlSignalEmit, \
 BreakpointAtJavaScriptThrow, \
     = range(0, 14)
 
+
+# Internal codes for types
+TypeCodeTypedef, \
+TypeCodeStruct, \
+TypeCodeVoid, \
+TypeCodeIntegral, \
+TypeCodeFloat, \
+TypeCodeEnum, \
+TypeCodePointer, \
+TypeCodeArray, \
+TypeCodeComplex, \
+TypeCodeReference, \
+TypeCodeFunction, \
+TypeCodeMemberPointer, \
+TypeCodeFortranString, \
+    = range(0, 13)
+
+def isIntegralTypeName(name):
+    return name in ('int', 'unsigned int', 'signed int',
+                    'short', 'unsigned short',
+                    'long', 'unsigned long',
+                    'long long', 'unsigned long long',
+                    'char', 'signed char', 'unsigned char',
+                    'bool')
+
+def isFloatingPointTypeName(name):
+    return name in ('float', 'double')
+
+
 def arrayForms():
     return [ArrayPlotFormat]
 
@@ -1274,7 +1303,7 @@ class DumperBase:
             self.putArrayData(value.address(), n, innerType)
             return
 
-        if innerType.isFunctionType():
+        if innerType.code == TypeCodeFunction:
             # A function pointer.
             self.putValue("0x%x" % pointer)
             self.putType(typeName)
@@ -2455,7 +2484,7 @@ class DumperBase:
         return functionName and functionName.find("QV4::Moth::VME::exec") >= 0
 
     def extractQmlData(self, value):
-        if value.type.isPointerType():
+        if value.type.code == TypeCodePointer:
             value = value.dereference()
         data = value["data"]
         return data.cast(self.lookupType(value.type.name.replace("QV4::", "QV4::Heap::")))
@@ -2478,6 +2507,8 @@ class DumperBase:
         #    self.putSpecialValue("notaccessible")
         #    self.putType("<unknown>")
         #    return True
+
+        #warn("ITEM: %s" % value.stringify())
 
         typeobj = value.type #unqualified()
         typeName = typeobj.name
@@ -2502,49 +2533,49 @@ class DumperBase:
         if self.tryPutPrettyItem(typeName, value):
             return
 
-        if typeobj.lTypedefedType is True:
+        if typeobj.code == TypeCodeTypedef:
             strippedType = typeobj.stripTypedefs()
             self.putItem(value.cast(strippedType))
             self.putBetterType(typeName)
             return
 
-        if typeobj.isPointerType():
+        if typeobj.code == TypeCodePointer:
             self.putFormattedPointer(value)
             return
 
-        if typeobj.isFunctionType():
+        if typeobj.code == TypeCodeFunction:
             self.putType(typeobj)
             self.putValue(value)
             self.putNumChild(0)
             return
 
-        if typeobj.isEnumType():
+        if typeobj.code == TypeCodeEnum:
             #warn("ENUM VALUE: %s" % value.stringify())
             self.putType(typeobj.name)
             self.putValue(value.display())
             self.putNumChild(0)
             return
 
-        if typeobj.isArrayType():
+        if typeobj.code == TypeCodeArray:
             #warn("ARRAY VALUE: %s" % value)
             self.putCStyleArray(value)
             return
 
-        if typeobj.isIntegralType():
+        if typeobj.code == TypeCodeIntegral:
             #warn("INTEGER: %s %s" % (value.name, value))
             self.putValue(value.value())
             self.putNumChild(0)
             self.putType(typeobj.name)
             return
 
-        if typeobj.isFloatingPointType():
+        if typeobj.code == TypeCodeFloat:
             #warn("FLOAT VALUE: %s" % value)
             self.putValue(value.value())
             self.putNumChild(0)
             self.putType(typeobj.name)
             return
 
-        if typeobj.isReferenceType():
+        if typeobj.code == TypeCodeReference:
             try:
                 # Try to recognize null references explicitly.
                 if value.address() is 0:
@@ -2589,14 +2620,14 @@ class DumperBase:
                     self.putType(typeobj)
                     self.putNumChild(0)
                     return True
-        if typeobj.lComplexType:
+
+        if typeobj.code == TypeCodeComplex:
             self.putType(typeobj)
             self.putValue(value.display())
             self.putNumChild(0)
             return True
 
-        if typeobj.isStringType():
-            # FORTRAN strings
+        if typeobj.code == TypeCodeFortranString:
             data = self.value.data()
             self.putValue(data, "latin1", 1)
             self.putType(typeobj)
@@ -2659,16 +2690,16 @@ class DumperBase:
             self.check()
             addr = "None" if self.laddress is None else ("0x%x" % self.laddress)
             return "Value(name='%s',type=%s,data=%s,address=%s,nativeValue=%s)" \
-                    % (self.name, self.type, self.dumper.hexencode(self.ldata),
+                    % (self.name, self.type.stringify(), self.dumper.hexencode(self.ldata),
                         addr, self.nativeValue)
 
         def display(self):
-            if self.type.lEnumType:
-                return self.type.enumDisplay(self.extractInteger(self.type.size() * 8, False))
+            if self.type.code == TypeCodeEnum:
+                return self.type.enumDisplay(self.extractInteger(self.type.bitsize(), False))
             simple = self.value()
             if simple is not None:
                 return str(simple)
-            if self.type.lComplexType:
+            if self.type.code == TypeCodeComplex:
                 if self.nativeValue is not None:
                     if self.dumper.isLldb:
                         return str(self.nativeValue.GetValue())
@@ -2714,13 +2745,13 @@ class DumperBase:
 
         def value(self):
             if self.type is not None:
-                if self.type.isIntegralType():
+                if self.type.code == TypeCodeIntegral:
                     return self.integer()
-                if self.type.isFloatingPointType():
+                if self.type.code == TypeCodeFloat:
                     return self.floatingPoint()
-                if self.type.isTypedefedType():
+                if self.type.code == TypeCodeTypedef:
                     return self.cast(self.type.stripTypedefs()).value()
-                if self.type.stripTypedefs().isPointerType():
+                if self.type.stripTypedefs().code == TypeCodePointer:
                     return self.pointer()
             return None
 
@@ -2730,11 +2761,11 @@ class DumperBase:
         def __getitem__(self, index):
             #warn("GET ITEM %s %s" % (self, index))
             self.check()
-            if self.type.lTypedefedType is True:
+            if self.type.code == TypeCodeTypedef:
                 #warn("GET ITEM %s STRIP TYPEDEFS TO %s" % (self, self.type.stripTypedefs()))
                 return self.cast(self.type.stripTypedefs()).__getitem__(index)
             if isinstance(index, str):
-                if self.type.isPointerType():
+                if self.type.code == TypeCodePointer:
                     #warn("GET ITEM %s DEREFERENCE TO %s" % (self, self.dereference()))
                     return self.dereference().__getitem__(index)
                 field = self.dumper.Field(self.dumper)
@@ -2747,7 +2778,7 @@ class DumperBase:
             field.check()
 
             #warn("EXTRACT FIELD: %s, BASE 0x%x" % (field, self.address()))
-            if self.type.isPointerType():
+            if self.type.code == TypeCodePointer:
                 #warn("IS TYPEDEFED POINTER!")
                 res = self.dereference()
                 #warn("WAS POINTER: %s" % res)
@@ -2757,7 +2788,7 @@ class DumperBase:
 
         def extractField(self, field):
             #warn("PARENT BASE 0x%x" % self.address())
-            if self.type.lTypedefedType is True:
+            if self.type.code == TypeCodeTypedef:
                 error("WRONG")
             if not isinstance(field, self.dumper.Field):
                 error("BAD INDEX TYPE %s" % type(field))
@@ -2878,8 +2909,8 @@ class DumperBase:
             val.laddress = self.laddress
             val.ldata = self.ldata
             val.type = typeobj
+            #warn("CAST %s %s" % (self.type.stringify(), typeobj.stringify()))
             return val
-            #error("BAD DATA TO CAST: %s %s" % (self.type, typeobj))
 
         def downcast(self):
             self.check()
@@ -2993,16 +3024,7 @@ class DumperBase:
             self.lbitsize = None
             self.lbitpos = None
             self.templateArguments = None
-            self.lArrayType = None
-            self.lPointerType = None
-            self.lReferenceType = None
-            self.lFunctionType = False
-            self.lTypedefedType = None
-            self.lEnumType = False
-            self.lIntegralType = None
-            self.lFloatingPointType = None
-            self.lComplexType = False
-            self.lStringType = False
+            self.code = None
 
         def __str__(self):
             self.check()
@@ -3011,12 +3033,8 @@ class DumperBase:
             #error("Not implemented")
 
         def stringify(self):
-            return "Type(name='%s',bsize=%s,bpos=%s,enum=%s,native=%s)" \
-                    % (self.name, self.lbitsize, self.lbitpos, self.lEnumType, self.nativeType is not None)
-
-        def stringify(self):
-            return "Type(name='%s',bsize=%s,bpos=%s,enum=%s,native=%s)" \
-                    % (self.name, self.lbitsize, self.lbitpos, self.lEnumType, self.nativeType is not None)
+            return "Type(name='%s',bsize=%s,bpos=%s,code=%s,native=%s)" \
+                    % (self.name, self.lbitsize, self.lbitpos, self.code, self.nativeType is not None)
 
         def __getitem__(self, index):
             if self.dumper.isInt(index):
@@ -3054,14 +3072,6 @@ class DumperBase:
                 return int(res)
             return self.dumper.createType(res)
 
-        def isIntegralType(self):
-            return self.name in ('int', 'unsigned int', 'signed int',
-                                 'short', 'unsigned short',
-                                 'long', 'unsigned long',
-                                 'long long', 'unsigned long long',
-                                 'char', 'signed char', 'unsigned char',
-                                 'bool')
-
         def simpleEncoding(self):
             res = {
                 'bool' : 'int:1',
@@ -3079,18 +3089,15 @@ class DumperBase:
             }.get(self.name, None)
             return res
 
-        def isFloatingPointType(self):
-            return self.name in ('float', 'double')
-
         def isSimpleType(self):
-            return self.isIntegralType() or self.isFloatingPointType() or self.isEnumType()
+            return self.code in (TypeCodeIntegral, TypeCodeFloat, TypeCodeEnum)
 
         def alignment(self):
             if self.isSimpleType():
                 if self.name == 'double':
                     return self.dumper.ptrSize() # Crude approximation.
                 return self.size()
-            if self.isPointerType():
+            if self.code == TypeCodePointer:
                 return self.dumper.ptrSize()
             fields = self.fields()
             align = 1
@@ -3102,38 +3109,6 @@ class DumperBase:
             #warn("COMPUTED ALIGNMENT: %s " % align)
             return align
 
-        def isPointerType(self):
-            if self.lPointerType is None:
-                return self.name.endswith('*')
-            return self.lPointerType
-
-        def isReferenceType(self):
-            if self.lReferenceType is None:
-                return self.name.endswith('&')
-            return self.lReferenceType
-
-        def isEnumType(self):
-            return self.lEnumType
-
-        def isComplexType(self):
-            return self.lComplexType
-
-        def isStringType(self):
-            return self.lStringType
-
-        def isTypedefedType(self):
-            if self.lTypedefedType is None:
-                error("DONT KNOW: %s" % self)
-            return self.lTypedefedType
-
-        def isFunctionType(self):
-            return self.lFunctionType
-
-        def isArrayType(self):
-            if self.lArrayType is None:
-                return self.name.endswith(']')
-            return self.lArrayType
-
         def pointer(self):
             if self.nativeType is not None:
                 return self.dumper.nativeTypePointer(self.nativeType)
@@ -3141,7 +3116,7 @@ class DumperBase:
 
         def splitArrayType(self):
             # -> (inner type, count)
-            if not self.isArrayType():
+            if not self.code == TypeCodeArray:
                 error("Not an array")
             s = self.name
             pos1 = s.rfind('[')
@@ -3155,9 +3130,12 @@ class DumperBase:
                 #warn("DEREFERENCING: %s -> %s " % (self.nativeType, target))
                 if target is not None:
                     return target
-            if self.isArrayType():
+            if self.code == TypeCodeArray:
                 (innerType, itemCount) = self.splitArrayType()
                 #warn("EXTRACTING ARRAY TYPE: %s -> %s" % (self, innerType))
+                # HACK for LLDB 320:
+                if innerType.code is None and innerType.name.endswith(']'):
+                    innerType.code = TypeCodeArray
                 return innerType
 
             strippedType = self.stripTypdefs()
@@ -3208,7 +3186,7 @@ class DumperBase:
             return None
 
         def stripTypedefs(self):
-            if self.isTypedefedType() is False:
+            if self.code != TypeCodeTypedef:
                 #warn("NO TYPEDEF: %s" % self)
                 return self
             if self.nativeType is not None:
@@ -3226,15 +3204,13 @@ class DumperBase:
         def bitsize(self):
             if self.lbitsize is not None:
                 return self.lbitsize
-            if self.isArrayType():
+            if self.code == TypeCodeArray:
                 (innerType, itemCount) = self.splitArrayType()
                 return itemCount * innerType.bitsize()
             error("DONT KNOW SIZE: %s" % self.name)
 
         def isMovableType(self):
-            if self.isPointerType():
-                return True
-            if self.isIntegralType():
+            if self.code in (TypeCodePointer, TypeCodeIntegral, TypeCodeFloat):
                 return True
             strippedName = self.dumper.stripNamespaceFromType(self.name)
             if strippedName in (
@@ -3279,9 +3255,9 @@ class DumperBase:
                        self.baseIndex, self.nativeIndex)
 
         def check(self):
-            if self.parentType.isPointerType():
+            if self.parentType.code == TypeCodePointer:
                 error("POINTER NOT POSSIBLE AS FIELD PARENT")
-            if self.parentType.lTypedefedType is True:
+            if self.parentType.code == TypeCodeTypedef:
                 error("TYPEDEFS NOT ALLOWED AS FIELD PARENT")
 
         def size(self):
@@ -3326,11 +3302,6 @@ class DumperBase:
             typish.check()
             return typish
         if isinstance(typish, str):
-            if typish.startswith("enum "):
-                typish = typish[5:]
-                isEnum = True
-            else:
-                isEnum = False
             if typish[0] == 'Q':
                 if typish in ("QByteArray", "QString", "QList", "QStringList"):
                     typish = self.qtNamespace() + typish
@@ -3365,7 +3336,6 @@ class DumperBase:
                 if size is not None:
                     typeobj.lbitsize = 8 * size
             #warn("CREATE TYPE: %s" % typeobj)
-            typeobj.lEnumType = isEnum
             typeobj.check()
             return typeobj
         error("NEED TYPE, NOT %s" % type(typish))

@@ -178,18 +178,33 @@ class Dumper(DumperBase):
             typeobj.name = typeobj.nativeType.GetName()             # Xcode 5 (lldb-310)
         typeobj.lbitsize = nativeType.GetByteSize() * 8
         code = nativeType.GetTypeClass()
-        typeobj.code = code
-        typeobj.lFunctionType = nativeType.IsFunctionType()
-        typeobj.lPointerType = nativeType.IsPointerType()
-        typeobj.lReferenceType = nativeType.IsReferenceType()
-        #typeobj.lIntegralType = code in (BoolCode, CharCode, IntCode)
-        #typeobj.lFloatingPointType = code == FloatCode
-        typeobj.lTypedefedType = code == lldb.eTypeClassTypedef
-        typeobj.lEnumType = code == lldb.eTypeClassEnumeration
-        #typeobj.lEnumType = False
-        typeobj.lArrayType = code in (lldb.eTypeClassArray, lldb.eTypeClassVector)
-        typeobj.lComplexType = code in (lldb.eTypeClassComplexInteger, lldb.eTypeClassComplexFloat)
-        #warn("CREATE TYPE: %s IS TYPEDEF: %s" % (typeobj.name, typeobj.lTypedefedType))
+        try:
+            typeobj.code = {
+                lldb.eTypeClassArray : TypeCodeArray,
+                lldb.eTypeClassVector : TypeCodeArray,
+                lldb.eTypeClassComplexInteger : TypeCodeComplex,
+                lldb.eTypeClassComplexFloat : TypeCodeComplex,
+                lldb.eTypeClassClass : TypeCodeStruct,
+                lldb.eTypeClassStruct : TypeCodeStruct,
+                lldb.eTypeClassUnion : TypeCodeStruct,
+                lldb.eTypeClassEnumeration : TypeCodeEnum,
+                lldb.eTypeClassTypedef : TypeCodeTypedef,
+                lldb.eTypeClassReference : TypeCodeReference,
+                lldb.eTypeClassPointer : TypeCodePointer,
+                lldb.eTypeClassFunction : TypeCodeFunction,
+                lldb.eTypeClassMemberPointer : TypeCodeMemberPointer
+            }[code]
+        except KeyError:
+            if code == lldb.eTypeClassBuiltin:
+                if isFloatingPointTypeName(typeobj.name):
+                    typeobj.code = TypeCodeFloat
+                elif isIntegralTypeName(typeobj.name):
+                    typeobj.code = TypeCodeIntegral
+                else:
+                    warn("UNKNOWN TYPE KEY: %s: %s" % (typeobj.name, code))
+            else:
+                warn("UNKNOWN TYPE KEY: %s: %s" % (typeobj.name, code))
+        #warn("CREATE TYPE: %s CODE: %s" % (typeobj.name, typeobj.code))
         return typeobj
 
     def nativeTypeFields(self, nativeType):

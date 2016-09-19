@@ -900,7 +900,6 @@ def qdump__QLocale(d, value):
     #d.check(index <= qqLocalesCount)
     dd = value.extractPointer()
     ns = d.qtNamespace()
-    prefix = "enum " + ns + "QLocale::"
     (data, ref, numberOptions) = d.split("pi{int}", dd)
     (languageId, scriptId, countryId,
                   decimal, group, listt, percent, zero,
@@ -912,6 +911,7 @@ def qdump__QLocale(d, value):
     d.putNumChild(1)
     if d.isExpanded():
         with Children(d):
+            prefix = ns + "QLocale::"
             d.putSubItem("country", countryId.extend(4).cast(prefix + "Country"))
             d.putSubItem("language", languageId.extend(4).cast(prefix + "Language"))
             d.putSubItem("numberOptions", numberOptions.cast(prefix + "NumberOptions"))
