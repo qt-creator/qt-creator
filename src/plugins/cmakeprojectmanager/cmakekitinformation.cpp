@@ -32,12 +32,15 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitinformation.h>
+#include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
+
+#include <QVariant>
 
 using namespace ProjectExplorer;
 
@@ -448,9 +451,10 @@ KitConfigWidget *CMakeGeneratorKitInformation::createConfigWidget(Kit *k) const
 
 static const char CONFIGURATION_ID[] = "CMake.ConfigurationKitInformation";
 
-static const char CMAKE_QMAKE_KEY[] = "QT_QMAKE_EXECUTABLE";
 static const char CMAKE_C_TOOLCHAIN_KEY[] = "CMAKE_C_COMPILER";
 static const char CMAKE_CXX_TOOLCHAIN_KEY[] = "CMAKE_CXX_COMPILER";
+static const char CMAKE_QMAKE_KEY[] = "QT_QMAKE_EXECUTABLE";
+static const char CMAKE_PREFIX_PATH_KEY[] = "CMAKE_PREFIX_PATH";
 
 CMakeConfigurationKitInformation::CMakeConfigurationKitInformation()
 {
@@ -500,7 +504,11 @@ CMakeConfig CMakeConfigurationKitInformation::defaultConfiguration(const Kit *k)
 {
     Q_UNUSED(k);
     CMakeConfig config;
+    // Qt4:
     config << CMakeConfigItem(CMAKE_QMAKE_KEY, "%{Qt:qmakeExecutable}");
+    // Qt5:
+    config << CMakeConfigItem(CMAKE_PREFIX_PATH_KEY, "%{Qt:QT_INSTALL_LIBS}");
+
     config << CMakeConfigItem(CMAKE_C_TOOLCHAIN_KEY, "%{Compiler:Executable:C}");
     config << CMakeConfigItem(CMAKE_CXX_TOOLCHAIN_KEY, "%{Compiler:Executable:Cxx}");
 
@@ -525,7 +533,9 @@ QList<Task> CMakeConfigurationKitInformation::validate(const Kit *k) const
     const ToolChain *const tcCxx = ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx);
     const CMakeConfig config = configuration(k);
 
+    const bool isQt4 = version && version->qtVersion() < QtSupport::QtVersionNumber(5, 0, 0);
     Utils::FileName qmakePath;
+    QStringList qtLibDirs;
     Utils::FileName tcCPath;
     Utils::FileName tcCxxPath;
     foreach (const CMakeConfigItem &i, config) {
@@ -538,12 +548,14 @@ QList<Task> CMakeConfigurationKitInformation::validate(const Kit *k) const
             tcCPath = expandedValue;
         else if (i.key == CMAKE_CXX_TOOLCHAIN_KEY)
             tcCxxPath = expandedValue;
+        else if (i.key == CMAKE_PREFIX_PATH_KEY)
+            qtLibDirs = CMakeConfigItem::cmakeSplitValue(expandedValue.toString());
     }
 
     QList<Task> result;
     // Validate Qt:
     if (qmakePath.isEmpty()) {
-        if (version && version->isValid()) {
+        if (version && version->isValid() && isQt4) {
             result << Task(Task::Warning, tr("CMake configuration has no path to qmake binary set, "
                                              "even though the kit has a valid Qt version."),
                            Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
@@ -553,10 +565,17 @@ QList<Task> CMakeConfigurationKitInformation::validate(const Kit *k) const
             result << Task(Task::Warning, tr("CMake configuration has a path to a qmake binary set, "
                                              "even though the kit has no valid Qt version."),
                            Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
-        } else if (qmakePath != version->qmakeCommand()) {
+        } else if (qmakePath != version->qmakeCommand() && isQt4) {
             result << Task(Task::Warning, tr("CMake configuration has a path to a qmake binary set "
                                              "that does not match the qmake binary path "
                                              "configured in the Qt version."),
+                           Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
+        }
+    }
+    if (!qtLibDirs.contains(version->qmakeProperty("QT_INSTALL_LIBS")) && !isQt4) {
+        if (version && version->isValid()) {
+            result << Task(Task::Warning, tr("CMake configuration has no CMAKE_PREFIX_PATH set "
+                                             "that points to the kit Qt version."),
                            Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
         }
     }
