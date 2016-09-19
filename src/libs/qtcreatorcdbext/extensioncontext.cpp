@@ -33,6 +33,10 @@
 
 #include <algorithm>
 
+#ifdef WITH_PYTHON
+#include <Python.h>
+#endif
+
 // wdbgexts.h declares 'extern WINDBG_EXTENSION_APIS ExtensionApis;'
 // and it's inline functions rely on its existence.
 WINDBG_EXTENSION_APIS   ExtensionApis = {sizeof(WINDBG_EXTENSION_APIS), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -154,6 +158,10 @@ HRESULT ExtensionContext::initialize(PULONG Version, PULONG Flags)
 
     *Version = DEBUG_EXTENSION_VERSION(1, 0);
     *Flags = 0;
+
+#ifdef WITH_PYTHON
+    Py_Initialize();
+#endif
 
     IInterfacePointer<CIDebugClient> client;
     if (!client.create())
@@ -503,6 +511,9 @@ HRESULT CALLBACK DebugExtensionInitialize(PULONG Version, PULONG Flags)
 
 void CALLBACK DebugExtensionUninitialize(void)
 {
+#ifdef WITH_PYTHON
+    Py_Finalize();
+#endif
 }
 
 void CALLBACK DebugExtensionNotify(ULONG Notify, ULONG64)

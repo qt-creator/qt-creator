@@ -23,13 +23,17 @@
 **
 ****************************************************************************/
 
-#include "extensioncontext.h"
-#include "outputcallback.h"
 #include "eventcallback.h"
+#include "extensioncontext.h"
+#include "gdbmihelpers.h"
+#include "outputcallback.h"
+#include "stringutils.h"
 #include "symbolgroup.h"
 #include "symbolgroupvalue.h"
-#include "stringutils.h"
-#include "gdbmihelpers.h"
+
+#ifdef WITH_PYTHON
+#include <Python.h>
+#endif
 
 #include <cstdio>
 #include <sstream>
@@ -106,7 +110,8 @@ enum Command {
     CmdWidgetAt,
     CmdBreakPoints,
     CmdTest,
-    CmdSetParameter
+    CmdSetParameter,
+    CmdScript
 };
 
 static const CommandDescription commandDescriptions[] = {
@@ -172,7 +177,8 @@ static const CommandDescription commandDescriptions[] = {
 {"breakpoints","List breakpoints with modules","[-h] [-v]"},
 {"test","Testing command","-T type | -w watch-expression"},
 {"setparameter","Set parameter",
- "maxStringLength=value maxArraySize=value maxStackDepth=value stateNotification=1,0"}
+ "maxStringLength=value maxArraySize=value maxStackDepth=value stateNotification=1,0"},
+{"script", "Run Python command", "[-t token]"}
 };
 
 typedef std::vector<std::string> StringVector;
@@ -562,6 +568,45 @@ static std::string commandLocals(ExtensionCommandContext &commandExtCtx,PCSTR ar
         return watchesSymbolGroup->dump(iname, dumpContext, parameters.dumpParameters, errorMessage);
     else
         return symGroup->dump(iname, dumpContext, parameters.dumpParameters, errorMessage);
+}
+
+extern "C" HRESULT CALLBACK script(CIDebugClient *client, PCSTR argsIn)
+{
+    ExtensionCommandContext exc(client);
+    int token;
+#ifdef WITH_PYTHON
+    std::stringstream command;
+    for (std::string arg : commandTokens<StringList>(argsIn, &token))
+        command << arg << ' ';
+
+    if (PyRun_SimpleString(command.str().c_str()) == 0) {
+        ExtensionContext::instance().reportLong('R', token, "script", "");
+    } else {
+        ExtensionContext::instance().report('N', token, 0, "script",
+                                            "Error while executing Python code.");
+    }
+
+    _Py_IDENTIFIER(stdout);
+    _Py_IDENTIFIER(flush);
+
+    PyObject *fout = _PySys_GetObjectId(&PyId_stdout);
+    PyObject *tmp;
+
+    if (fout != NULL && fout != Py_None) {
+        tmp = _PyObject_CallMethodId(fout, &PyId_flush, "");
+        if (tmp == NULL)
+            PyErr_WriteUnraisable(fout);
+        else
+            Py_DECREF(tmp);
+    }
+#else
+    commandTokens<StringList>(argsIn, &token);
+    ExtensionContext::instance().report('N', token, 0, "script",
+            "Python is not supported in this CDB extension.\n"
+            "You need to define PYTHON_INSTALL_DIR in your creator build environment "
+            "pointing to a Python 3.5 installation.");
+#endif
+    return S_OK;
 }
 
 extern "C" HRESULT CALLBACK locals(CIDebugClient *client, PCSTR args)

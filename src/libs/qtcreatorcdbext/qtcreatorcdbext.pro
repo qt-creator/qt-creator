@@ -96,6 +96,18 @@ HEADERS += extensioncontext.h \
     knowntype.h \
     symbolgroupnode.h
 
+isEmpty(PYTHON_INSTALL_DIR):PYTHON_INSTALL_DIR=$$(PYTHON_INSTALL_DIR)
+exists($$PYTHON_INSTALL_DIR) {
+    DEFINES += WITH_PYTHON=1
+
+    INCLUDEPATH += $$PYTHON_INSTALL_DIR/include
+    DEPENDPATH += $$PYTHON_INSTALL_DIR/include
+
+    #TODO: parse version number for a generic approach
+    CONFIG(release, debug|release): LIBS += -L$$PYTHON_INSTALL_DIR/libs -lpython35
+    else:CONFIG(debug, debug|release): LIBS += -L$$PYTHON_INSTALL_DIR/libs -lpython35_d
+}
+
 target.path = $$QTC_PREFIX/lib/$${DIRNAME} # TODO this should go to INSTALL_LIBRARY_PATH/$${DIRNAME}
 
 INSTALLS += target
