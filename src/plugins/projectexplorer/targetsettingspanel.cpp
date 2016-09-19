@@ -406,15 +406,15 @@ public:
             return true;
         }
 
-        if (role == BaseTreeView::ItemClickedRole) {
+        if (role == ItemActivatedDirectlyRole) {
+            QTC_ASSERT(!data.isValid(), return false);
             if (!isEnabled()) {
                 Kit *k = KitManager::find(m_kitId);
-                Target *t = m_project->createTarget(k);
-                m_project->addTarget(t);
-                QTC_ASSERT(!data.isValid(), return false);
+                m_project->addTarget(m_project->createTarget(k));
+            } else {
                 SessionManager::setActiveTarget(m_project, target(), SetActive::Cascade);
-                return true;
             }
+            return true;
         }
 
         if (role == ItemActivatedFromBelowRole) {
@@ -426,13 +426,6 @@ public:
             // Propagate Build/Run selection up.
             parent()->setData(column, QVariant::fromValue(static_cast<TreeItem *>(this)),
                               ItemActivatedFromBelowRole);
-            return true;
-        }
-
-        if (role == ItemActivatedDirectlyRole) {
-            // User clicked on this item. Use 'Run' as default.
-            QTC_ASSERT(!data.isValid(), return false);
-            SessionManager::setActiveTarget(m_project, target(), SetActive::Cascade);
             return true;
         }
 
@@ -454,9 +447,7 @@ public:
         QAction *enableAction = menu->addAction(tr("Enable Kit \"%1\" for Project \"%2\"").arg(kitName, projectName));
         enableAction->setEnabled(m_kitId.isValid() && !isEnabled());
         QObject::connect(enableAction, &QAction::triggered, [this, kit] {
-            Target *t = m_project->createTarget(kit);
-            m_project->addTarget(t);
-            setData(0, QVariant(), ItemActivatedDirectlyRole);
+            m_project->addTarget(m_project->createTarget(kit));
         });
 
         QAction *disableAction = menu->addAction(tr("Disable Kit \"%1\" for Project \"%2\"").arg(kitName, projectName));
