@@ -357,20 +357,11 @@ class DumperBase:
     def enterSubItem(self, item):
         if not item.iname:
             item.iname = "%s.%s" % (self.currentIName, item.name)
-        if self.isGdb:
-            #warn("INAME %s" % item.iname)
+        if not self.isCli:
             self.put('{')
-            #if not item.name is None:
             if isinstance(item.name, str):
                 self.put('name="%s",' % item.name)
-        elif self.isLldb:
-            self.put('{')
-            #if not item.name is None:
-            if isinstance(item.name, str):
-                if item.name == '**&':
-                    item.name = '*'
-                self.put('name="%s",' % item.name)
-        elif self.isCli:
+        else:
             self.indent += 1
             self.output += '\n' + '   ' * self.indent
             if isinstance(item.name, str):
@@ -391,25 +382,7 @@ class DumperBase:
                 showException("SUBITEM", exType, exValue, exTraceBack)
             self.putSpecialValue("notaccessible")
             self.putNumChild(0)
-        if self.isGdb:
-            try:
-                if self.currentType.value:
-                    typeName = self.stripClassTag(self.currentType.value)
-                    if len(typeName) > 0 and typeName != self.currentChildType:
-                        self.put('type="%s",' % typeName) # str(type.unqualified()) ?
-
-                if self.currentValue.value is None:
-                    self.put('value="",encoding="notaccessible",numchild="0",')
-                else:
-                    if not self.currentValue.encoding is None:
-                        self.put('valueencoded="%s",' % self.currentValue.encoding)
-                    if self.currentValue.elided:
-                        self.put('valueelided="%d",' % self.currentValue.elided)
-                    self.put('value="%s",' % self.currentValue.value)
-            except:
-                pass
-            self.put('},')
-        elif self.isLldb:
+        if not self.isCli:
             try:
                 if self.currentType.value:
                     typeName = self.currentType.value
@@ -426,7 +399,7 @@ class DumperBase:
             except:
                 pass
             self.put('},')
-        elif self.isCli:
+        else:
             self.indent -= 1
             try:
                 if self.currentType.value:
