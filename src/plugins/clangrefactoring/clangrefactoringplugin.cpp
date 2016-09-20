@@ -44,13 +44,17 @@ QString backendProcessPath()
 
 } // anonymous namespace
 
-RefactoringClient ClangRefactoringPlugin::client;
-ClangBackEnd::RefactoringConnectionClient ClangRefactoringPlugin::connectionClient(&client);
-RefactoringEngine ClangRefactoringPlugin::engine(connectionClient.serverProxy(), client);
+std::unique_ptr<RefactoringClient> ClangRefactoringPlugin::client;
+std::unique_ptr<ClangBackEnd::RefactoringConnectionClient> ClangRefactoringPlugin::connectionClient;
+std::unique_ptr<RefactoringEngine> ClangRefactoringPlugin::engine;
 
 bool ClangRefactoringPlugin::initialize(const QStringList & /*arguments*/, QString * /*errorMessage*/)
 {
-    client.setRefactoringEngine(&engine);
+    client.reset(new RefactoringClient);
+    connectionClient.reset(new ClangBackEnd::RefactoringConnectionClient(client.get()));
+    engine.reset(new RefactoringEngine(connectionClient->serverProxy(), *client));
+
+    client->setRefactoringEngine(engine.get());
 
     connectBackend();
     startBackend();
@@ -63,21 +67,30 @@ void ClangRefactoringPlugin::extensionsInitialized()
     CppTools::CppModelManager::setRefactoringEngine(&refactoringEngine());
 }
 
+ExtensionSystem::IPlugin::ShutdownFlag ClangRefactoringPlugin::aboutToShutdown()
+{
+    engine.reset();
+    connectionClient.reset();
+    client.reset();
+
+    return SynchronousShutdown;
+}
+
 RefactoringEngine &ClangRefactoringPlugin::refactoringEngine()
 {
-    return engine;
+    return *engine;
 }
 
 void ClangRefactoringPlugin::startBackend()
 {
-    connectionClient.setProcessPath(backendProcessPath());
+    connectionClient->setProcessPath(backendProcessPath());
 
-    connectionClient.startProcessAndConnectToServerAsynchronously();
+    connectionClient->startProcessAndConnectToServerAsynchronously();
 }
 
 void ClangRefactoringPlugin::connectBackend()
 {
-    connect(&connectionClient,
+    connect(connectionClient.get(),
             &ClangBackEnd::RefactoringConnectionClient::connectedToLocalSocket,
             this,
             &ClangRefactoringPlugin::backendIsConnected);
@@ -85,7 +98,7 @@ void ClangRefactoringPlugin::connectBackend()
 
 void ClangRefactoringPlugin::backendIsConnected()
 {
-    engine.setUsable(true);
+    engine->setUsable(true);
 }
 
 } // namespace ClangRefactoring

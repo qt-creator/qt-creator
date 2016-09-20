@@ -33,6 +33,7 @@
 
 #include <extensionsystem/iplugin.h>
 
+#include <memory>
 
 namespace ClangRefactoring {
 
@@ -44,6 +45,7 @@ class ClangRefactoringPlugin : public ExtensionSystem::IPlugin
 public:
     bool initialize(const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized();
+    ShutdownFlag aboutToShutdown();
 
     static RefactoringEngine &refactoringEngine();
 
@@ -53,9 +55,9 @@ private:
     void backendIsConnected();
 
 private:
-    static ClangBackEnd::RefactoringConnectionClient connectionClient;
-    static RefactoringClient client;
-    static RefactoringEngine engine;
+    static std::unique_ptr<ClangBackEnd::RefactoringConnectionClient> connectionClient;
+    static std::unique_ptr<RefactoringClient> client;
+    static std::unique_ptr<RefactoringEngine> engine;
 };
 
 } // namespace ClangRefactoring
