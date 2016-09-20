@@ -417,6 +417,7 @@ void BaseTreeView::setSettings(QSettings *settings, const QByteArray &key)
 ItemViewEvent::ItemViewEvent(QEvent *ev, QAbstractItemView *view)
     : m_event(ev), m_view(view)
 {
+    QItemSelectionModel *selection = view->selectionModel();
     switch (ev->type()) {
     case QEvent::MouseButtonPress:
     case QEvent::MouseButtonRelease:
@@ -435,10 +436,10 @@ ItemViewEvent::ItemViewEvent(QEvent *ev, QAbstractItemView *view)
         m_index = view->indexAt(m_pos);
         break;
     default:
+        m_index = selection->currentIndex();
         break;
     }
 
-    QItemSelectionModel *selection = view->selectionModel();
     m_selectedRows = selection->selectedRows();
     if (m_selectedRows.isEmpty()) {
         QModelIndex current = selection->currentIndex();
