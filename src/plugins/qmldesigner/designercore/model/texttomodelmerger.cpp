@@ -1087,11 +1087,14 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
                     if (context->isArrayProperty(propertyType, containingObject, name))
                         syncArrayProperty(modelProperty, QList<AST::UiObjectMember*>() << member, context, differenceHandler);
                     else
-                        syncNodeProperty(modelProperty, binding, context, differenceHandler);
+                        syncNodeProperty(modelProperty, binding, context, TypeName(), differenceHandler);
                     modelPropertyNames.remove(astPropertyName.toUtf8());
                 } else {
-                    qWarning() << "Skipping invalid node property" << astPropertyName
+                    qWarning() << "Syncing unknown node property" << astPropertyName
                                << "for node type" << modelNode.type();
+                    AbstractProperty modelProperty = modelNode.property(astPropertyName.toUtf8());
+                    syncNodeProperty(modelProperty, binding, context, TypeName(), differenceHandler);
+                    modelPropertyNames.remove(astPropertyName.toUtf8());
                 }
             }
         } else if (AST::UiScriptBinding *script = AST::cast<AST::UiScriptBinding *>(member)) {
@@ -1117,7 +1120,13 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
 
             const TypeName &astType = property->memberType.toUtf8();
             AbstractProperty modelProperty = modelNode.property(astName.toUtf8());
-            if (!property->statement || isLiteralValue(property->statement)) {
+
+            if (property->binding) {
+                if (AST::UiObjectBinding *binding = AST::cast<AST::UiObjectBinding *>(property->binding))
+                    syncNodeProperty(modelProperty, binding, context, astType, differenceHandler);
+                else
+                    qWarning() << "Arrays are not yet supported";
+            } else if (!property->statement || isLiteralValue(property->statement)) {
                 const QVariant variantValue = convertDynamicPropertyValueToVariant(astValue, QString::fromLatin1(astType));
                 syncVariantProperty(modelProperty, variantValue, astType, differenceHandler);
             } else {
@@ -1306,8 +1315,10 @@ void TextToModelMerger::syncNodeId(ModelNode &modelNode, const QString &astObjec
 void TextToModelMerger::syncNodeProperty(AbstractProperty &modelProperty,
                                          AST::UiObjectBinding *binding,
                                          ReadingContext *context,
+                                         const TypeName &dynamicPropertyType,
                                          DifferenceHandler &differenceHandler)
 {
+
     QString typeNameString;
     QString dummy;
     int majorVersion;
@@ -1316,12 +1327,13 @@ void TextToModelMerger::syncNodeProperty(AbstractProperty &modelProperty,
 
     TypeName typeName = typeNameString.toUtf8();
 
+
     if (typeName.isEmpty()) {
         qWarning() << "Skipping node with unknown type" << toString(binding->qualifiedTypeNameId);
         return;
     }
 
-    if (modelProperty.isNodeProperty()) {
+    if (modelProperty.isNodeProperty() && dynamicPropertyType == modelProperty.dynamicTypeName()) {
         ModelNode nodePropertyNode = modelProperty.toNodeProperty().modelNode();
         syncNode(nodePropertyNode, binding, context, differenceHandler);
     } else {
@@ -1330,6 +1342,7 @@ void TextToModelMerger::syncNodeProperty(AbstractProperty &modelProperty,
                                                majorVersion,
                                                minorVersion,
                                                binding,
+                                               dynamicPropertyType,
                                                context);
     }
 }
@@ -1601,6 +1614,7 @@ void ModelValidator::shouldBeNodeProperty(AbstractProperty &modelProperty,
                                           int /*majorVersion*/,
                                           int /*minorVersion*/,
                                           AST::UiObjectMember * /*astNode*/,
+                                          const TypeName & /*dynamicPropertyType */,
                                           ReadingContext * /*context*/)
 {
     Q_UNUSED(modelProperty)
@@ -1754,6 +1768,7 @@ void ModelAmender::shouldBeNodeProperty(AbstractProperty &modelProperty,
                                         int majorVersion,
                                         int minorVersion,
                                         AST::UiObjectMember *astNode,
+                                        const TypeName &dynamicPropertyType,
                                         ReadingContext *context)
 {
     ModelNode theNode = modelProperty.parentModelNode();
@@ -1769,7 +1784,10 @@ void ModelAmender::shouldBeNodeProperty(AbstractProperty &modelProperty,
                                                           context,
                                                           *this);
 
-    newNodeProperty.setModelNode(newNode);
+    if (dynamicPropertyType.isEmpty())
+        newNodeProperty.setModelNode(newNode);
+    else
+        newNodeProperty.setDynamicTypeNameAndsetModelNode(dynamicPropertyType, newNode);
 
     if (propertyTakesComponent)
         m_merger->setupComponentDelayed(newNode, true);

@@ -101,7 +101,7 @@ public:
     void addSignalHandlerProperty(const PropertyName &name);
     void addNodeListProperty(const PropertyName &name);
     void addVariantProperty(const PropertyName &name);
-    void addNodeProperty(const PropertyName &name);
+    void addNodeProperty(const PropertyName &name, const TypeName &dynamicTypeName);
 
 
     PropertyNameList propertyNameList() const;

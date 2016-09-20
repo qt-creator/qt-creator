@@ -43,6 +43,7 @@ public:
     ModelNode modelNode() const;
 
     void reparentHere(const ModelNode &modelNode);
+    void setDynamicTypeNameAndsetModelNode(const TypeName &typeName, const ModelNode &modelNode);
 
     NodeProperty();
 protected:

@@ -26,6 +26,7 @@
 #include "nodeproperty.h"
 #include "invalidmodelnodeexception.h"
 #include "invalidargumentexception.h"
+#include "invalidreparentingexception.h"
 #include "internalnode_p.h"
 #include "model.h"
 #include "model_p.h"
@@ -80,6 +81,17 @@ ModelNode NodeProperty::modelNode() const
 void NodeProperty::reparentHere(const ModelNode &modelNode)
 {
     NodeAbstractProperty::reparentHere(modelNode, false);
+}
+
+void NodeProperty::setDynamicTypeNameAndsetModelNode(const TypeName &typeName, const ModelNode &modelNode)
+{
+    if (!modelNode.isValid())
+       throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+
+    if (modelNode.hasParentProperty()) /* Not supported */
+        throw InvalidReparentingException(__LINE__, __FUNCTION__, __FILE__);
+
+    NodeAbstractProperty::reparentHere(modelNode, false, typeName);
 }
 
 } // namespace QmlDesigner

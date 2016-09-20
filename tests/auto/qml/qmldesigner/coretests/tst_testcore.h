@@ -82,6 +82,8 @@ private slots:
     void testModelBasicOperations();
     void testModelResolveIds();
     void testModelNodeListProperty();
+    void testModelNodePropertyDynamic();
+    void testModelNodePropertyDynamicSource();
     void testModelPropertyValueTypes();
     void testModelNodeInHierarchy();
     void testModelNodeIsAncestorOf();

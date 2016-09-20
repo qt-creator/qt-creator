@@ -269,9 +269,10 @@ void InternalNode::addVariantProperty(const PropertyName &name)
     m_namePropertyHash.insert(name, newProperty);
 }
 
-void InternalNode::addNodeProperty(const PropertyName &name)
+void InternalNode::addNodeProperty(const PropertyName &name, const TypeName &dynamicTypeName)
 {
-    InternalProperty::Pointer newProperty(InternalNodeProperty::create(name, internalPointer()));
+    InternalNodeProperty::Pointer newProperty(InternalNodeProperty::create(name, internalPointer()));
+    newProperty->setDynamicTypeName(dynamicTypeName);
     m_namePropertyHash.insert(name, newProperty);
 }
 

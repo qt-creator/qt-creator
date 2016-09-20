@@ -61,10 +61,12 @@ void NodeAbstractProperty::reparentHere(const ModelNode &modelNode)
         reparentHere(modelNode, parentModelNode().metaInfo().propertyIsListProperty(name()) || isDefaultProperty()); //we could use the metasystem instead?
 }
 
-void NodeAbstractProperty::reparentHere(const ModelNode &modelNode,  bool isNodeList)
+void NodeAbstractProperty::reparentHere(const ModelNode &modelNode,  bool isNodeList, const TypeName &dynamicTypeName)
 {
-    if (modelNode.hasParentProperty() && modelNode.parentProperty() == *this)
+    if (modelNode.hasParentProperty() && modelNode.parentProperty() == *this
+            && dynamicTypeName == modelNode.parentProperty().dynamicTypeName())
         return;
+
     Internal::WriteLocker locker(model());
     if (!isValid())
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
@@ -78,19 +80,24 @@ void NodeAbstractProperty::reparentHere(const ModelNode &modelNode,  bool isNode
     if (modelNode.isAncestorOf(parentModelNode()))
         throw InvalidReparentingException(__LINE__, __FUNCTION__, __FILE__);
 
+    /* This is currently not supported and not required. */
+    /* Removing the property does work of course. */
+    if (modelNode.hasParentProperty() && modelNode.parentProperty().isDynamic())
+        throw InvalidReparentingException(__LINE__, __FUNCTION__, __FILE__);
+
     if (internalNode()->hasProperty(name()) && !internalNode()->property(name())->isNodeAbstractProperty())
         model()->d->removeProperty(internalNode()->property(name()));
 
     if (modelNode.hasParentProperty()) {
         Internal::InternalNodeAbstractProperty::Pointer oldParentProperty = modelNode.internalNode()->parentProperty();
 
-        model()->d->reparentNode(internalNode(), name(), modelNode.internalNode(), isNodeList);
+        model()->d->reparentNode(internalNode(), name(), modelNode.internalNode(), isNodeList, dynamicTypeName);
 
         Q_ASSERT(!oldParentProperty.isNull());
 
 
     } else {
-        model()->d->reparentNode(internalNode(), name(), modelNode.internalNode(), isNodeList);
+        model()->d->reparentNode(internalNode(), name(), modelNode.internalNode(), isNodeList, dynamicTypeName);
     }
 }
 

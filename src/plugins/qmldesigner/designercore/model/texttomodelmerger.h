@@ -89,6 +89,7 @@ public:
     void syncNodeProperty(AbstractProperty &modelProperty,
                           QmlJS::AST::UiObjectBinding *binding,
                           ReadingContext *context,
+                          const TypeName &astType,
                           DifferenceHandler &differenceHandler);
     void syncExpressionProperty(AbstractProperty &modelProperty,
                                 const QString &javascript,
@@ -187,6 +188,7 @@ public:
                                       int majorVersion,
                                       int minorVersion,
                                       QmlJS::AST::UiObjectMember *astNode,
+                                      const TypeName &dynamicPropertyType,
                                       ReadingContext *context) = 0;
     virtual void modelNodeAbsentFromQml(ModelNode &modelNode) = 0;
     virtual ModelNode listPropertyMissingModelNode(NodeListProperty &modelProperty,
@@ -238,7 +240,9 @@ public:
                                       int majorVersion,
                                       int minorVersion,
                                       QmlJS::AST::UiObjectMember *astNode,
+                                      const TypeName &dynamicPropertyType,
                                       ReadingContext *context);
+
     virtual void modelNodeAbsentFromQml(ModelNode &modelNode);
     virtual ModelNode listPropertyMissingModelNode(NodeListProperty &modelProperty,
                                                    ReadingContext *context,
@@ -286,7 +290,9 @@ public:
                                       int majorVersion,
                                       int minorVersion,
                                       QmlJS::AST::UiObjectMember *astNode,
+                                      const TypeName &dynamicPropertyType,
                                       ReadingContext *context);
+
     virtual void modelNodeAbsentFromQml(ModelNode &modelNode);
     virtual ModelNode listPropertyMissingModelNode(NodeListProperty &modelProperty,
                                                    ReadingContext *context,

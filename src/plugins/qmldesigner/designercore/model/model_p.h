@@ -191,7 +191,10 @@ public:
     void setVariantProperty(const InternalNodePointer &internalNodePointer, const PropertyName &name, const QVariant &value);
     void setDynamicVariantProperty(const InternalNodePointer &internalNodePointer, const PropertyName &name, const TypeName &propertyType, const QVariant &value);
     void setDynamicBindingProperty(const InternalNodePointer &internalNodePointer, const PropertyName &name, const TypeName &dynamicPropertyType, const QString &expression);
-    void reparentNode(const InternalNodePointer &internalNodePointer, const PropertyName &name, const InternalNodePointer &internalNodeToBeAppended, bool list = true);
+    void reparentNode(const InternalNodePointer &internalNodePointer,
+                      const PropertyName &name,
+                      const InternalNodePointer &internalNodeToBeAppended,
+                      bool list = true, const TypeName &dynamicTypeName = TypeName());
     void changeNodeOrder(const InternalNodePointer &internalParentNode, const PropertyName &listPropertyName, int from, int to);
     void checkPropertyName(const PropertyName &propertyName);
     void clearParent(const InternalNodePointer &internalNodePointer);

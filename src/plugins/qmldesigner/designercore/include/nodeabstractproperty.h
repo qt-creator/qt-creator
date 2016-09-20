@@ -59,7 +59,7 @@ public:
 protected:
     NodeAbstractProperty(const PropertyName &propertyName, const Internal::InternalNodePointer &internalNode, Model *model, AbstractView *view);
     NodeAbstractProperty(const Internal::InternalNodeAbstractPropertyPointer &property, Model *model, AbstractView *view);
-    void reparentHere(const ModelNode &modelNode, bool isNodeList);
+    void reparentHere(const ModelNode &modelNode, bool isNodeList, const TypeName &typeName = TypeName());
 };
 
 

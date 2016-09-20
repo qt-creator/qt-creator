@@ -1522,14 +1522,18 @@ void ModelPrivate::setDynamicBindingProperty(const InternalNodePointer &internal
     notifyBindingPropertiesChanged(QList<InternalBindingPropertyPointer>() << bindingProperty, propertyChange);
 }
 
-void ModelPrivate::reparentNode(const InternalNode::Pointer &newParentNode, const PropertyName &name, const InternalNode::Pointer &internalNodePointer, bool list)
+void ModelPrivate::reparentNode(const InternalNode::Pointer &newParentNode,
+                                const PropertyName &name,
+                                const InternalNode::Pointer &internalNodePointer,
+                                bool list,
+                                const TypeName &dynamicTypeName)
 {
     AbstractView::PropertyChangeFlags propertyChange = AbstractView::NoAdditionalChanges;
     if (!newParentNode->hasProperty(name)) {
         if (list)
             newParentNode->addNodeListProperty(name);
         else
-            newParentNode->addNodeProperty(name);
+            newParentNode->addNodeProperty(name, dynamicTypeName);
         propertyChange |= AbstractView::PropertiesAdded;
     }
 

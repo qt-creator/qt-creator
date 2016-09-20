@@ -1587,6 +1587,116 @@ void tst_TestCore::testModelNodeListProperty()
     QVERIFY(!rectChildren.isValid());
 }
 
+void tst_TestCore::testModelNodePropertyDynamic()
+{
+    //
+    // Test NodeListProperty API
+    //
+    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 2, 0));
+    QVERIFY(model.data());
+
+    QScopedPointer<TestView> view(new TestView(model.data()));
+    QVERIFY(view.data());
+    model->attachView(view.data());
+
+    model->rewriterView()->setCheckSemanticErrors(false); //This test needs this
+
+    ModelNode rootNode = view->rootModelNode();
+
+    //
+    // Item {}
+    //
+    NodeProperty nodeProperty = rootNode.nodeProperty("gradient1");
+    QVERIFY(!rootNode.hasProperty("gradient1"));
+    QVERIFY(nodeProperty.isValid());
+    QVERIFY(!nodeProperty.isNodeProperty());
+    QVERIFY(nodeProperty.isEmpty());
+
+    ModelNode rectNode = view->createModelNode("QtQuick.Rectangle", 2, 0);
+    nodeProperty.reparentHere(rectNode);
+
+    QVERIFY(rootNode.hasProperty("gradient1"));
+    QVERIFY(nodeProperty.isValid());
+    QVERIFY(nodeProperty.isNodeProperty());
+    QVERIFY(!nodeProperty.isEmpty());
+    QVERIFY(!nodeProperty.isDynamic());
+
+
+    NodeProperty dynamicNodeProperty = rootNode.nodeProperty("gradient2");
+    QVERIFY(!rootNode.hasProperty("gradient2"));
+    QVERIFY(dynamicNodeProperty.isValid());
+    QVERIFY(!dynamicNodeProperty.isNodeProperty());
+    QVERIFY(dynamicNodeProperty.isEmpty());
+
+    ModelNode rectNode2 = view->createModelNode("QtQuick.Rectangle", 2, 0);
+    dynamicNodeProperty.setDynamicTypeNameAndsetModelNode("Gradient", rectNode2);
+
+    QVERIFY(rootNode.hasProperty("gradient2"));
+    QVERIFY(dynamicNodeProperty.isValid());
+    QVERIFY(dynamicNodeProperty.isNodeProperty());
+    QVERIFY(!dynamicNodeProperty.isEmpty());
+    QVERIFY(dynamicNodeProperty.isDynamic());
+
+
+    rectNode2.setIdWithRefactoring("test");
+    QCOMPARE(rectNode2.id(), QString("test"));
+
+    rectNode2.variantProperty("x").setValue(10);
+
+    QCOMPARE(rectNode2.variantProperty("x").value(), QVariant(10));
+
+    rootNode.removeProperty("gradient2");
+    QVERIFY(!rootNode.hasProperty("gradient2"));
+
+    QVERIFY(dynamicNodeProperty.isValid());
+    QVERIFY(!rootNode.hasProperty("gradient2"));
+
+    QVERIFY(!dynamicNodeProperty.isNodeProperty());
+}
+
+static QString dynmaicNodePropertySource =  "import QtQuick 2.1\n"
+                                            "Rectangle {\n"
+                                            "    property Gradient gradient1: Gradient {\n"
+                                            "        id: pGradient\n"
+                                            "    }\n"
+                                            "    gradient: Gradient {\n"
+                                            "        id: secondGradient\n"
+                                            "        GradientStop { id: nOne; position: 0.0; color: \"blue\" }\n"
+                                            "        GradientStop { id: nTwo; position: 1.0; color: \"lightsteelblue\" }\n"
+                                            "    }\n"
+                                            "}";
+
+
+void tst_TestCore::testModelNodePropertyDynamicSource()
+{
+    QPlainTextEdit textEdit;
+    textEdit.setPlainText(dynmaicNodePropertySource);
+    NotIndentingTextEditModifier textModifier(&textEdit);
+
+    QScopedPointer<Model> model(Model::create("QtQuick.Item", 2, 1));
+    QVERIFY(model.data());
+
+    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    testRewriterView->setTextModifier(&textModifier);
+    model->attachView(testRewriterView.data());
+
+
+    QVERIFY(model.data());
+    ModelNode rootModelNode(testRewriterView->rootModelNode());
+    QVERIFY(rootModelNode.isValid());
+    QCOMPARE(rootModelNode.directSubModelNodes().size(), 2);
+
+    QVERIFY(rootModelNode.hasProperty("gradient"));
+    QVERIFY(rootModelNode.hasProperty("gradient1"));
+
+    QVERIFY(rootModelNode.property("gradient").isNodeProperty());
+    QVERIFY(rootModelNode.property("gradient1").isNodeProperty());
+    QVERIFY(rootModelNode.property("gradient1").isDynamic());
+
+    rootModelNode.removeProperty("gradient1");
+    QVERIFY(!rootModelNode.hasProperty("gradient1"));
+}
+
 void tst_TestCore::testBasicOperationsWithView()
 {
     QScopedPointer<Model> model(createModel("QtQuick.Item", 2, 0));
