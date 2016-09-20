@@ -62,10 +62,9 @@
 #include <QSettings>
 #include <QStringList>
 #include <QTcpSocket>
+#include <QThread>
 
-#include <chrono>
 #include <functional>
-#include <thread>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -826,7 +825,7 @@ bool AndroidConfig::waitForBooted(const QString &serialNumber, const QFutureInte
         if (hasFinishedBooting(serialNumber)) {
             return true;
         } else {
-            std::this_thread::sleep_for(std::chrono::seconds(2));
+            QThread::sleep(2);
             if (!isConnected(serialNumber)) // device was disconnected
                 return false;
         }
@@ -845,7 +844,7 @@ QString AndroidConfig::waitForAvd(const QString &avdName, const QFutureInterface
         serialNumber = findAvd(avdName);
         if (!serialNumber.isEmpty())
             return waitForBooted(serialNumber, fi) ?  serialNumber : QString();
-        std::this_thread::sleep_for(std::chrono::seconds(2));
+        QThread::sleep(2);
     }
     return QString();
 }
