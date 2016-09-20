@@ -27,11 +27,8 @@ try:
     import __builtin__
 except:
     import builtins
-try:
-    import gdb
-except:
-    pass
 
+import gdb
 import os
 import os.path
 import sys
@@ -187,16 +184,6 @@ class OutputSafer:
 
 
 
-#def couldBePointer(p, align):
-#    typeobj = lookupType("unsigned int")
-#    ptr = gdb.Value(p).cast(typeobj)
-#    d = int(str(ptr))
-#    warn("CHECKING : %s %d " % (p, ((d & 3) == 0 and (d > 1000 or d == 0))))
-#    return (d & (align - 1)) and (d > 1000 or d == 0)
-
-
-Value = gdb.Value
-
 #######################################################################
 #
 # The Dumper Class
@@ -298,21 +285,6 @@ class Dumper(DumperBase):
         }[nativeType.code]
         return typeobj
 
-    def fromNativeField(self, nativeField):
-        self.check(isinstance(nativeField, gdb.Field))
-        field = self.Field(self)
-        field.ltype = self.fromNativeType(nativeField.type)
-        field.parentType = self.fromNativeType(nativeField.parent_type)
-        field.name = nativeField.name
-        field.isBaseClass = nativeField.is_base_class
-        if hasattr(nativeField, 'bitpos'):
-            field.lbitpos = nativeField.bitpos
-        if hasattr(nativeField, 'bitsize') and nativeField.bitsize != 0:
-            field.lbitsize = nativeField.bitsize
-        else:
-            field.lbitsize = 8 * nativeField.type.sizeof
-        return field
-
     def nativeValueDereference(self, nativeValue):
         return self.nativeValueDownCast(nativeValue.dereference())
 
@@ -329,7 +301,6 @@ class Dumper(DumperBase):
         return self.fromNativeType(nativeType.strip_typedefs().target())
 
     def nativeTypeUnqualified(self, nativeType):
-        #warn("NATIVE TYPE: %s" % nativeType)
         return self.fromNativeType(nativeType.unqualified())
 
     def nativeTypePointer(self, nativeType):
@@ -339,15 +310,6 @@ class Dumper(DumperBase):
         while nativeType.code == gdb.TYPE_CODE_TYPEDEF:
             nativeType = nativeType.strip_typedefs().unqualified()
         return self.fromNativeType(nativeType.target())
-
-    def nativeValueHasChildren(self, nativeValue):
-        nativeType = nativeValue.type
-        if nativeType.code == gdb.TYPE_CODE_ARRAY:
-            return True
-        if nativeType.code not in (gdb.TYPE_CODE_STRUCT, gdb.TYPE_CODE_UNION):
-            return False
-        nativeFields = nativeType.fields()
-        return len(nativeFields) > 0
 
     def nativeTypeFirstBase(self, nativeType):
         nativeFields = nativeType.fields()
@@ -362,7 +324,6 @@ class Dumper(DumperBase):
             return "%d" % intval
 
     def nativeTypeFields(self, nativeType):
-        #warn("TYPE: %s" % nativeType)
         fields = []
         if nativeType.code == gdb.TYPE_CODE_ARRAY:
             # An array.

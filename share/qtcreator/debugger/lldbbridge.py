@@ -501,16 +501,6 @@ class Dumper(DumperBase):
             return self.fromNativeType(nativeType.GetVectorElementType())
         return self.fromNativeType(nativeType)
 
-    def nativeValueHasChildren(self, nativeValue):
-        nativeType = nativeValue.type
-        code = nativeType.GetTypeClass()
-        if code == lldb.eTypeClassArray:
-             return True
-        if code not in (lldb.eTypeClassStruct, lldb.eTypeClassUnion):
-             return False
-        return nativeType.GetNumberOfFields() > 0 \
-            or nativeType.GetNumberOfDirectBaseClasses() > 0
-
     def isWindowsTarget(self):
         return False
 

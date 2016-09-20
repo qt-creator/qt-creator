@@ -40,9 +40,6 @@ else:
     toInteger = long
 
 
-verbosity = 0
-verbosity = 1
-
 # Debugger start modes. Keep in sync with DebuggerStartMode in debuggerconstants.h
 NoStartMode, \
 StartInternal, \
@@ -1628,27 +1625,6 @@ class DumperBase:
                 self.putType(typeName)
                 self.putNumChild(0)
 
-    def putStructGuts(self, value):
-        self.putEmptyValue()
-        #warn("STRUCT GUTS: %s  ADDRESS: %s " % (value.name, value.address()))
-        #metaObjectPtr = self.extractMetaObjectPtr(value.address(), value.type)
-        if self.showQObjectNames:
-            self.preping(self.currentIName)
-            metaObjectPtr = self.extractMetaObjectPtr(value.address(), value.type)
-            self.ping(self.currentIName)
-            if metaObjectPtr:
-                self.context = value
-            self.putQObjectNameValue(value)
-        #warn("STRUCT GUTS: %s  MO: 0x%x " % (self.currentIName, metaObjectPtr))
-        if self.isExpanded():
-            self.put('sortable="1"')
-            with Children(self, 1, childType=None):
-                self.putFields(value)
-                if not self.showQObjectNames:
-                    metaObjectPtr = self.extractMetaObjectPtr(value.address(), value.type)
-                if metaObjectPtr:
-                    self.putQObjectGuts(value, metaObjectPtr)
-
     # This is called is when a QObject derived class is expanded
     def putQObjectGuts(self, qobject, metaObjectPtr):
         self.putQObjectGutsHelper(qobject, qobject.address(), -1, metaObjectPtr, "QObject")
@@ -2130,15 +2106,6 @@ class DumperBase:
             return value.extractSomething(pattern, bitsize)
         error("CANT EXTRACT FROM %s" % type(value))
 
-    # FIXME: Note these should take target architecture into account.
-    #def extractLong(self, value):
-    #    #return self.extractSomething(value, "l", 32)
-    #    return self.extractSomething(value, "q", 64)
-#
-#    # FIXME: Note these should take target architecture into account.
-##    def extractULong(self, value):
-#        return self.extractSomething(value, "Q", 64)
-
     # Parses a..b and  a.(s).b
     def parseRange(self, exp):
 
@@ -2528,13 +2495,6 @@ class DumperBase:
         return False
 
     def putItem(self, value, tryDynamic=True):
-        #if value is None:
-        #    # Happens for non-available watchers in gdb versions that
-        #    # need to use gdb.execute instead of gdb.parse_and_eval
-        #    self.putSpecialValue("notaccessible")
-        #    self.putType("<unknown>")
-        #    return True
-
         #warn("ITEM: %s" % value.stringify())
 
         typeobj = value.type #unqualified()
@@ -2677,8 +2637,26 @@ class DumperBase:
         #warn("EXPANDED: %s " % (self.currentIName in self.expandedINames))
         self.putType(typeName)
         self.putNumChild(1)
-        #self.putNumChild(value.hasChildren())
-        self.putStructGuts(value)
+        self.putEmptyValue()
+        #warn("STRUCT GUTS: %s  ADDRESS: %s " % (value.name, value.address()))
+        #metaObjectPtr = self.extractMetaObjectPtr(value.address(), value.type)
+        if self.showQObjectNames:
+            self.preping(self.currentIName)
+            metaObjectPtr = self.extractMetaObjectPtr(value.address(), value.type)
+            self.ping(self.currentIName)
+            if metaObjectPtr:
+                self.context = value
+            self.putQObjectNameValue(value)
+        #warn("STRUCT GUTS: %s  MO: 0x%x " % (self.currentIName, metaObjectPtr))
+        if self.isExpanded():
+            self.put('sortable="1"')
+            with Children(self, 1, childType=None):
+                self.putFields(value)
+                if not self.showQObjectNames:
+                    metaObjectPtr = self.extractMetaObjectPtr(value.address(), value.type)
+                if metaObjectPtr:
+                    self.putQObjectGuts(value, metaObjectPtr)
+
 
     def qtTypeInfoVersion(self):
         return 11 # FIXME
@@ -3007,11 +2985,6 @@ class DumperBase:
             size = (bitsize + 7) >> 3
             rawBytes = self.data(size)
             return struct.unpack_from(code, rawBytes, 0)[0]
-
-        def hasChildren(self):
-            if self.nativeValue is not None:
-                return self.dumper.nativeValueHasChildren(self.nativeValue)
-            return False
 
         def to(self, pattern):
             return self.split(pattern)[0]
