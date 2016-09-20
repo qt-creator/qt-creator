@@ -88,6 +88,7 @@ public:
     Utils::FileName iconPath() const;
     void setIconPath(const Utils::FileName &path);
 
+    QList<Core::Id> allKeys() const;
     QVariant value(Core::Id key, const QVariant &unset = QVariant()) const;
     bool hasValue(Core::Id key) const;
     void setValue(Core::Id key, const QVariant &value);

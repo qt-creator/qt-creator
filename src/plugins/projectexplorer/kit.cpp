@@ -395,6 +395,11 @@ void Kit::setIconPath(const FileName &path)
     kitUpdated();
 }
 
+QList<Id> Kit::allKeys() const
+{
+    return d->m_data.keys();
+}
+
 QVariant Kit::value(Id key, const QVariant &unset) const
 {
     return d->m_data.value(key, unset);
