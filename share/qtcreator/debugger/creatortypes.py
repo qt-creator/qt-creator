@@ -89,11 +89,12 @@ def dumpLiteral(d, value):
     d.putValue(d.hexencode(readLiteral(d, value)), "latin1")
 
 def qdump__Core__Id(d, value):
+    val = value.extractPointer()
     try:
-        name = d.parseAndEvaluate("Core::nameForId(%d)" % value["m_id"])
-        d.putSimpleCharArray(name)
+        name = d.parseAndEvaluate("Core::nameForId(0x%x)" % val)
+        d.putSimpleCharArray(name.pointer())
     except:
-        d.putValue(value["m_id"])
+        d.putValue(val)
     d.putPlainChildren(value)
 
 def qdump__Debugger__Internal__GdbMi(d, value):
