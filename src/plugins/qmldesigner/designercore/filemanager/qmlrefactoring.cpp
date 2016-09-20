@@ -64,6 +64,11 @@ bool QmlRefactoring::reparseDocument()
     } else {
         qWarning() << "*** Possible problem: QML file wasn't parsed correctly.";
         qDebug() << "*** QML text:" << textModifier->text();
+        QString errorMessage = QStringLiteral("Parsing Error");
+        if (!tmpDocument->diagnosticMessages().isEmpty())
+            errorMessage = tmpDocument->diagnosticMessages().first().message;
+
+        qDebug() <<  "*** " << errorMessage;
         return false;
     }
 }
