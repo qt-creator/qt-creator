@@ -80,7 +80,7 @@ QbsProfilesSettingsPage::QbsProfilesSettingsPage(QObject *parent)
     setCategory(Constants::QBS_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("QbsProjectManager",
                                                    Constants::QBS_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(QLatin1String(Constants::QBS_SETTINGS_CATEGORY_ICON));
+    setCategoryIcon(Utils::Icon(Constants::QBS_SETTINGS_CATEGORY_ICON));
 }
 
 QWidget *QbsProfilesSettingsPage::widget()

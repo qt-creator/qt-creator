@@ -241,7 +241,7 @@ KitOptionsPage::KitOptionsPage()
     setCategory(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
                                        Constants::PROJECTEXPLORER_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(QLatin1String(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY_ICON));
+    setCategoryIcon(Utils::Icon(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY_ICON));
 }
 
 QWidget *KitOptionsPage::widget()

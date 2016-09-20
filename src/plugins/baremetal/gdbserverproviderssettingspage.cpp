@@ -414,7 +414,7 @@ GdbServerProvidersSettingsPage::GdbServerProvidersSettingsPage(QObject *parent)
     setCategory(Constants::BAREMETAL_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate(
                        "BareMetal", Constants::BAREMETAL_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(QLatin1String(Constants::BAREMETAL_SETTINGS_CATEGORY_ICON));
+    setCategoryIcon(Utils::Icon(Constants::BAREMETAL_SETTINGS_CATEGORY_ICON));
     setId(Constants::GDB_PROVIDERS_SETTINGS_ID);
     setDisplayName(tr("GDB Server Providers"));
 }

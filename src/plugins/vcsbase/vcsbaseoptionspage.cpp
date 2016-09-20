@@ -48,7 +48,7 @@ VcsBaseOptionsPage::VcsBaseOptionsPage(QObject *parent) : Core::IOptionsPage(par
 {
     setCategory(Constants::VCS_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("VcsBase", Constants::VCS_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(QLatin1String(Constants::SETTINGS_CATEGORY_VCS_ICON));
+    setCategoryIcon(Utils::Icon(Constants::SETTINGS_CATEGORY_VCS_ICON));
 }
 
 VcsBaseOptionsPage::~VcsBaseOptionsPage() = default;

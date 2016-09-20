@@ -70,7 +70,7 @@ SettingsPage::SettingsPage(const QSharedPointer<Settings> &settings) :
     setCategory(Constants::CPASTER_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("CodePaster",
         Constants::CPASTER_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(QLatin1String(Constants::SETTINGS_CATEGORY_CPASTER_ICON));
+    setCategoryIcon(Utils::Icon(Constants::SETTINGS_CATEGORY_CPASTER_ICON));
 }
 
 SettingsPage::~SettingsPage()

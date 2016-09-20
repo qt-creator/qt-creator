@@ -71,7 +71,7 @@ public:
                            "Clang Static Analyzer"));
         setCategory("T.Analyzer");
         setDisplayCategory(QCoreApplication::translate("Analyzer", "Analyzer"));
-        setCategoryIcon(QLatin1String(":/images/analyzer_category.png"));
+        setCategoryIcon(Utils::Icon(":/images/analyzer_category.png"));
     }
 
     QWidget *widget()

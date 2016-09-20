@@ -41,7 +41,7 @@ IosSettingsPage::IosSettingsPage(QObject *parent)
     setCategory(Constants::IOS_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("iOS",
         Constants::IOS_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(QLatin1String(Constants::IOS_SETTINGS_CATEGORY_ICON));
+    setCategoryIcon(Utils::Icon(QLatin1String(Constants::IOS_SETTINGS_CATEGORY_ICON)));
 }
 
 QWidget *IosSettingsPage::widget()

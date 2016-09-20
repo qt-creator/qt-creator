@@ -27,6 +27,8 @@
 
 #include <coreplugin/id.h>
 
+#include <utils/icon.h>
+
 #include <QObject>
 #include <QStringList>
 
@@ -61,13 +63,13 @@ protected:
     void setDisplayName(const QString &displayName) { m_displayName = displayName; }
     void setCategory(Id category) { m_category = category; }
     void setDisplayCategory(const QString &displayCategory) { m_displayCategory = displayCategory; }
-    void setCategoryIcon(const QString &categoryIcon) { m_categoryIcon = categoryIcon; }
+    void setCategoryIcon(const Utils::Icon &categoryIcon) { m_categoryIcon = categoryIcon; }
 
     Id m_id;
     Id m_category;
     QString m_displayName;
     QString m_displayCategory;
-    QString m_categoryIcon;
+    Utils::Icon m_categoryIcon;
 
     mutable bool m_keywordsInitialized;
     mutable QStringList m_keywords;

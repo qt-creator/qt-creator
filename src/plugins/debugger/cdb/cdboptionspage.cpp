@@ -202,7 +202,7 @@ CdbOptionsPage::CdbOptionsPage()
     setCategory(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Debugger",
         Constants::DEBUGGER_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(QLatin1String(Constants::DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON));
+    setCategoryIcon(Utils::Icon(Constants::DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON));
 }
 
 CdbOptionsPage::~CdbOptionsPage()
@@ -281,7 +281,7 @@ CdbPathsPage::CdbPathsPage()
     setCategory(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Debugger",
         Constants::DEBUGGER_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(QLatin1String(Constants::DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON));
+    setCategoryIcon(Utils::Icon(Constants::DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON));
 }
 
 CdbPathsPage::~CdbPathsPage()

@@ -167,7 +167,7 @@ LocatorSettingsPage::LocatorSettingsPage(Locator *plugin)
     setDisplayName(QCoreApplication::translate("Locator", Constants::FILTER_OPTIONS_PAGE));
     setCategory(Constants::SETTINGS_CATEGORY_CORE);
     setDisplayCategory(QCoreApplication::translate("Core", Constants::SETTINGS_TR_CATEGORY_CORE));
-    setCategoryIcon(QLatin1String(Constants::SETTINGS_CATEGORY_CORE_ICON));
+    setCategoryIcon(Utils::Icon(Constants::SETTINGS_CATEGORY_CORE_ICON));
 }
 
 QWidget *LocatorSettingsPage::widget()

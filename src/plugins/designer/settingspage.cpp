@@ -41,7 +41,7 @@ SettingsPage::SettingsPage(QDesignerOptionsPageInterface *designerPage) :
     setCategory(Designer::Constants::SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Designer",
         Designer::Constants::SETTINGS_TR_CATEGORY));
-    setCategoryIcon(QLatin1String(Designer::Constants::SETTINGS_CATEGORY_ICON));
+    setCategoryIcon(Utils::Icon(Designer::Constants::SETTINGS_CATEGORY_ICON));
 }
 
 QWidget *SettingsPage::widget()

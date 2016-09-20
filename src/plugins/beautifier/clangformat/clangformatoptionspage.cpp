@@ -98,7 +98,7 @@ ClangFormatOptionsPage::ClangFormatOptionsPage(ClangFormatSettings *settings, QO
     setDisplayName(tr("Clang Format"));
     setCategory(Constants::OPTION_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Beautifier", Constants::OPTION_TR_CATEGORY));
-    setCategoryIcon(Constants::OPTION_CATEGORY_ICON);
+    setCategoryIcon(Utils::Icon(Constants::OPTION_CATEGORY_ICON));
 }
 
 QWidget *ClangFormatOptionsPage::widget()

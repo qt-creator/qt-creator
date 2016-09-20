@@ -260,7 +260,7 @@ CommonOptionsPage::CommonOptionsPage(const QSharedPointer<GlobalDebuggerOptions>
     setDisplayName(QCoreApplication::translate("Debugger", "General"));
     setCategory(DEBUGGER_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Debugger", DEBUGGER_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(QLatin1String(DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON));
+    setCategoryIcon(Utils::Icon(DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON));
 }
 
 CommonOptionsPage::~CommonOptionsPage()
@@ -331,7 +331,7 @@ LocalsAndExpressionsOptionsPage::LocalsAndExpressionsOptionsPage()
     setDisplayName(QCoreApplication::translate("Debugger", "Locals && Expressions"));
     setCategory(DEBUGGER_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Debugger", DEBUGGER_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(QLatin1String(DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON));
+    setCategoryIcon(Utils::Icon(DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON));
 }
 
 void LocalsAndExpressionsOptionsPage::apply()

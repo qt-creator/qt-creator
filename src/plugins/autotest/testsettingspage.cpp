@@ -179,7 +179,7 @@ TestSettingsPage::TestSettingsPage(const QSharedPointer<TestSettings> &settings)
     setDisplayName(tr("General"));
     setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
     setDisplayCategory(tr("Test Settings"));
-    setCategoryIcon(QLatin1String(":/images/autotest.png"));
+    setCategoryIcon(Utils::Icon(":/images/autotest.png"));
 }
 
 TestSettingsPage::~TestSettingsPage()

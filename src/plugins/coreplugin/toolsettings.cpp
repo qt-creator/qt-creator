@@ -48,7 +48,7 @@ ToolSettings::ToolSettings(QObject *parent) :
     setDisplayName(tr("External Tools"));
     setCategory(Constants::SETTINGS_CATEGORY_CORE);
     setDisplayCategory(QCoreApplication::translate("Core", Constants::SETTINGS_TR_CATEGORY_CORE));
-    setCategoryIcon(QLatin1String(Constants::SETTINGS_CATEGORY_CORE_ICON));
+    setCategoryIcon(Utils::Icon(Constants::SETTINGS_CATEGORY_CORE_ICON));
 }
 
 

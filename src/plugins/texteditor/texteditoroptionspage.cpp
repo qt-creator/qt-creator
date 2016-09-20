@@ -36,5 +36,5 @@ TextEditorOptionsPage::TextEditorOptionsPage(QObject *parent) :
 {
     setCategory(Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("TextEditor", Constants::TEXT_EDITOR_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(QLatin1String(Constants::TEXT_EDITOR_SETTINGS_CATEGORY_ICON));
+    setCategoryIcon(Utils::Icon(Constants::TEXT_EDITOR_SETTINGS_CATEGORY_ICON));
 }

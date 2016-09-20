@@ -362,7 +362,7 @@ public:
         setDisplayName(Tr::tr("General"));
         setCategory(SETTINGS_CATEGORY);
         setDisplayCategory(Tr::tr("FakeVim"));
-        setCategoryIcon(SETTINGS_CATEGORY_FAKEVIM_ICON);
+        setCategoryIcon(Utils::Icon(SETTINGS_CATEGORY_FAKEVIM_ICON));
     }
 
     QWidget *widget();
@@ -596,7 +596,7 @@ public:
         setDisplayName(Tr::tr("Ex Command Mapping"));
         setCategory(SETTINGS_CATEGORY);
         setDisplayCategory(Tr::tr("FakeVim"));
-        setCategoryIcon(SETTINGS_CATEGORY_FAKEVIM_ICON);
+        setCategoryIcon(Utils::Icon(SETTINGS_CATEGORY_FAKEVIM_ICON));
     }
 
     QWidget *widget() override;
@@ -810,7 +810,7 @@ public:
         setDisplayName(Tr::tr("User Command Mapping"));
         setCategory(SETTINGS_CATEGORY);
         setDisplayCategory(Tr::tr("FakeVim"));
-        setCategoryIcon(SETTINGS_CATEGORY_FAKEVIM_ICON);
+        setCategoryIcon(Utils::Icon(SETTINGS_CATEGORY_FAKEVIM_ICON));
     }
 
     void apply();

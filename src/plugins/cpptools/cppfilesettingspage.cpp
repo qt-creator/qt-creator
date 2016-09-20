@@ -363,7 +363,7 @@ CppFileSettingsPage::CppFileSettingsPage(QSharedPointer<CppFileSettings> &settin
     setDisplayName(QCoreApplication::translate("CppTools", Constants::CPP_FILE_SETTINGS_NAME));
     setCategory(Constants::CPP_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("CppTools", Constants::CPP_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(QLatin1String(Constants::SETTINGS_CATEGORY_CPP_ICON));
+    setCategoryIcon(Utils::Icon(Constants::SETTINGS_CATEGORY_CPP_ICON));
 }
 
 QWidget *CppFileSettingsPage::widget()

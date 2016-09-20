@@ -45,7 +45,7 @@ AndroidSettingsPage::AndroidSettingsPage(QObject *parent)
     setCategory(Constants::ANDROID_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Android",
         Constants::ANDROID_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(QLatin1String(Constants::ANDROID_SETTINGS_CATEGORY_ICON));
+    setCategoryIcon(Utils::Icon(Constants::ANDROID_SETTINGS_CATEGORY_ICON));
 }
 
 QWidget *AndroidSettingsPage::widget()

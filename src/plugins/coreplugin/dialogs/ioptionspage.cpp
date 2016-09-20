@@ -78,7 +78,7 @@
 
 QIcon Core::IOptionsPage::categoryIcon() const
 {
-    return QIcon(m_categoryIcon);
+    return m_categoryIcon.icon();
 }
 
 /*!

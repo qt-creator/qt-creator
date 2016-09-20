@@ -83,7 +83,7 @@ GeneralOptionsPage::GeneralOptionsPage(GeneralSettings *settings, const QStringL
     setDisplayName(tr("General"));
     setCategory(Constants::OPTION_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Beautifier", Constants::OPTION_TR_CATEGORY));
-    setCategoryIcon(Constants::OPTION_CATEGORY_ICON);
+    setCategoryIcon(Utils::Icon(Constants::OPTION_CATEGORY_ICON));
 }
 
 QWidget *GeneralOptionsPage::widget()

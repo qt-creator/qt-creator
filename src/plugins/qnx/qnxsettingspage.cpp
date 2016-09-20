@@ -46,7 +46,7 @@ QnxSettingsPage::QnxSettingsPage(QObject* parent) :
     setCategory(Constants::QNX_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("QNX",
                 Constants::QNX_CATEGORY_TR));
-    setCategoryIcon(QLatin1String(Constants::QNX_CATEGORY_ICON));
+    setCategoryIcon(Utils::Icon(Constants::QNX_CATEGORY_ICON));
 }
 
 QWidget* QnxSettingsPage::widget()
