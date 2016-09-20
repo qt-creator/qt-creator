@@ -42,29 +42,6 @@ using namespace VcsBase;
 namespace Git {
 namespace Internal {
 
-class MergeToolProcess : public QProcess
-{
-public:
-    MergeToolProcess(QObject *parent = 0) : QProcess(parent)
-    { }
-
-protected:
-    qint64 readData(char *data, qint64 maxlen) override
-    {
-        qint64 res = QProcess::readData(data, maxlen);
-        if (res > 0)
-            VcsOutputWindow::append(QString::fromLocal8Bit(data, int(res)));
-        return res;
-    }
-
-    qint64 writeData(const char *data, qint64 len) override
-    {
-        if (len > 0)
-            VcsOutputWindow::append(QString::fromLocal8Bit(data, int(len)));
-        return QProcess::writeData(data, len);
-    }
-};
-
 MergeTool::MergeTool(QObject *parent) : QObject(parent)
 { }
 
@@ -77,7 +54,7 @@ bool MergeTool::start(const QString &workingDirectory, const QStringList &files)
 {
     QStringList arguments;
     arguments << "mergetool" << "-y" << files;
-    m_process = new MergeToolProcess(this);
+    m_process = new QProcess(this);
     m_process->setWorkingDirectory(workingDirectory);
     const Utils::FileName binary = GitPlugin::client()->vcsBinary();
     VcsOutputWindow::appendCommand(workingDirectory, binary, arguments);
@@ -98,7 +75,9 @@ MergeTool::FileState MergeTool::waitAndReadStatus(QString &extraInfo)
     QByteArray state;
     for (int i = 0; i < 5; ++i) {
         if (m_process->canReadLine()) {
-            state = m_process->readLine().trimmed();
+            const QByteArray line = m_process->readLine();
+            VcsOutputWindow::append(QString::fromLocal8Bit(line));
+            QByteArray state = line.trimmed();
             break;
         }
         m_process->waitForReadyRead(500);
@@ -209,8 +188,7 @@ void MergeTool::chooseAction()
         key = QVariant('a'); // abort
     ba.append(key.toChar().toLatin1());
     ba.append('\n');
-    m_process->write(ba);
-    m_process->waitForBytesWritten();
+    write(ba);
 }
 
 void MergeTool::addButton(QMessageBox *msgBox, const QString &text, char key)
@@ -223,17 +201,17 @@ void MergeTool::prompt(const QString &title, const QString &question)
     if (QMessageBox::question(Core::ICore::dialogParent(), title, question,
                               QMessageBox::Yes | QMessageBox::No,
                               QMessageBox::No) == QMessageBox::Yes) {
-        m_process->write("y\n");
+        write("y\n");
     } else {
-        m_process->write("n\n");
+        write("n\n");
     }
-    m_process->waitForBytesWritten();
 }
 
 void MergeTool::readData()
 {
     while (m_process->bytesAvailable()) {
         QByteArray line = m_process->canReadLine() ? m_process->readLine() : m_process->readAllStandardOutput();
+        VcsOutputWindow::append(QString::fromLocal8Bit(line));
         // {Normal|Deleted|Submodule|Symbolic link} merge conflict for 'foo.cpp'
         int index = line.indexOf(" merge conflict for ");
         if (index != -1) {
@@ -264,6 +242,13 @@ void MergeTool::done()
     GitPlugin::client()->continueCommandIfNeeded(workingDirectory, exitCode == 0);
     GitPlugin::instance()->gitVersionControl()->emitRepositoryChanged(workingDirectory);
     deleteLater();
+}
+
+void MergeTool::write(const QByteArray &bytes)
+{
+    m_process->write(bytes);
+    m_process->waitForBytesWritten();
+    VcsOutputWindow::append(QString::fromLocal8Bit(bytes));
 }
 
 } // namespace Internal

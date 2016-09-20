@@ -30,12 +30,12 @@
 
 QT_BEGIN_NAMESPACE
 class QMessageBox;
+class QProcess;
 QT_END_NAMESPACE
 
 namespace Git {
 namespace Internal {
 
-class MergeToolProcess;
 class GitClient;
 
 class MergeTool : public QObject
@@ -67,6 +67,7 @@ private:
     void prompt(const QString &title, const QString &question);
     void readData();
     void done();
+    void write(const QByteArray &bytes);
 
     FileState waitAndReadStatus(QString &extraInfo);
     QString mergeTypeName();
@@ -74,7 +75,7 @@ private:
     void chooseAction();
     void addButton(QMessageBox *msgBox, const QString &text, char key);
 
-    MergeToolProcess *m_process = nullptr;
+    QProcess *m_process = nullptr;
     MergeType m_mergeType = NormalMerge;
     QString m_fileName;
     FileState m_localState = UnknownState;
