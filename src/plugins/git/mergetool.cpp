@@ -70,18 +70,9 @@ bool MergeTool::start(const QString &workingDirectory, const QStringList &files)
     return true;
 }
 
-MergeTool::FileState MergeTool::waitAndReadStatus(QString &extraInfo)
+MergeTool::FileState MergeTool::parseStatus(const QByteArray &line, QString &extraInfo)
 {
-    QByteArray state;
-    for (int i = 0; i < 5; ++i) {
-        if (m_process->canReadLine()) {
-            const QByteArray line = m_process->readLine();
-            VcsOutputWindow::append(QString::fromLocal8Bit(line));
-            QByteArray state = line.trimmed();
-            break;
-        }
-        m_process->waitForReadyRead(500);
-    }
+    QByteArray state = line.trimmed();
     // "  {local}: modified file"
     // "  {remote}: deleted"
     if (!state.isEmpty()) {
@@ -218,8 +209,10 @@ void MergeTool::readData()
             m_mergeType = mergeType(line.left(index));
             int quote = line.indexOf('\'');
             m_fileName = QString::fromLocal8Bit(line.mid(quote + 1, line.lastIndexOf('\'') - quote - 1));
-            m_localState = waitAndReadStatus(m_localInfo);
-            m_remoteState = waitAndReadStatus(m_remoteInfo);
+        } else if (line.startsWith("  {local}")) {
+            m_localState = parseStatus(line, m_localInfo);
+        } else if (line.startsWith("  {remote}")) {
+            m_remoteState = parseStatus(line, m_remoteInfo);
             chooseAction();
         } else if (line.startsWith("Was the merge successful")) {
             prompt(tr("Unchanged File"), tr("Was the merge successful?"));

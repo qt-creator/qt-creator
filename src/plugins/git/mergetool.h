@@ -69,7 +69,7 @@ private:
     void done();
     void write(const QByteArray &bytes);
 
-    FileState waitAndReadStatus(QString &extraInfo);
+    FileState parseStatus(const QByteArray &line, QString &extraInfo);
     QString mergeTypeName();
     QString stateName(FileState state, const QString &extraInfo);
     void chooseAction();
