@@ -34,11 +34,13 @@
 #include "ui_qbsbuildstepconfigwidget.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/variablechooser.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/qtversionmanager.h>
+#include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>
@@ -473,6 +475,8 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
     m_ui = new Ui::QbsBuildStepConfigWidget;
     m_ui->setupUi(this);
 
+    auto chooser = new Core::VariableChooser(this);
+    chooser->addSupportedWidget(m_ui->propertyEdit);
     m_ui->propertyEdit->setValidationFunction([this](Utils::FancyLineEdit *edit,
                                                      QString *errorMessage) {
         return validateProperties(edit, errorMessage);
@@ -692,7 +696,9 @@ bool QbsBuildStepConfigWidget::validateProperties(Utils::FancyLineEdit *edit, QS
     }
 
     QList<QPair<QString, QString> > properties;
-    foreach (const QString &arg, argList) {
+    Utils::MacroExpander *expander = Utils::globalMacroExpander();
+    foreach (const QString &rawArg, argList) {
+        const QString arg = expander->expand(rawArg);
         int pos = arg.indexOf(QLatin1Char(':'));
         QString key;
         QString value;
