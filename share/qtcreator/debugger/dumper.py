@@ -2193,11 +2193,38 @@ class DumperBase:
         if numchild != self.currentChildNumChild:
             self.put('numchild="%s",' % numchild)
 
+    def handleLocals(self, variables):
+        #warn("VARIABLES: %s" % variables)
+        self.preping("locals")
+        shadowed = {}
+        for value in variables:
+            self.anonNumber = 0
+            if value.name == "argv" and value.type.name == "char **":
+                self.putSpecialArgv(value)
+            else:
+                name = value.name
+                if name in shadowed:
+                    level = shadowed[name]
+                    shadowed[name] = level + 1
+                    name += "@%d" % level
+                else:
+                    shadowed[name] = 1
+                # A "normal" local variable or parameter.
+                iname = value.iname if  hasattr(value, 'iname') else 'local.' + name
+                with TopLevelItem(self, iname):
+                    self.preping("all-" + iname)
+                    self.put('iname="%s",name="%s",' % (iname, name))
+                    self.putItem(value)
+                    self.ping("all-" + iname)
+        self.ping("locals")
+
     def handleWatches(self, args):
+        self.preping("watches")
         for watcher in args.get("watchers", []):
             iname = watcher['iname']
             exp = self.hexdecode(watcher['exp'])
             self.handleWatch(exp, exp, iname)
+        self.ping("watches")
 
     def handleWatch(self, origexp, exp, iname):
         exp = str(exp).strip()

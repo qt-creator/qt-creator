@@ -457,7 +457,7 @@ class Dumper(DumperBase):
         error("FIELD EXTARCTION FAILED: %s" % field)
         return None
 
-    def listOfLocals(self):
+    def listOfLocals(self, partialVar):
         frame = gdb.selected_frame()
 
         try:
@@ -485,22 +485,16 @@ class Dumper(DumperBase):
                 if name == "__in_chrg" or name == "__PRETTY_FUNCTION__":
                     continue
 
+                if not partialVar is None and partialVar != name:
+                    continue
+
                 # "NotImplementedError: Symbol type not yet supported in
                 # Python scripts."
-                #warn("SYMBOL %s  (%s): " % (symbol, name))
-                if name in shadowed:
-                    level = shadowed[name]
-                    name1 = "%s@%s" % (name, level)
-                    shadowed[name] = level + 1
-                else:
-                    name1 = name
-                    shadowed[name] = 1
                 #warn("SYMBOL %s  (%s, %s)): " % (symbol, name, symbol.name))
                 try:
                     value = self.fromNativeDowncastableValue(frame.read_var(name, block))
                     #warn("READ 1: %s" % value)
-                    value.name = name1
-                    value.iname = "local." + name1
+                    value.name = name
                     items.append(value)
                     continue
                 except:
@@ -509,8 +503,7 @@ class Dumper(DumperBase):
                 try:
                     #warn("READ 2: %s" % item.value)
                     value = self.fromNativeDowncastableValue(frame.read_var(name))
-                    value.name = name1
-                    value.iname = "local." + name1
+                    value.name = name
                     items.append(value)
                     continue
                 except:
@@ -549,46 +542,20 @@ class Dumper(DumperBase):
 
     def fetchVariables(self, args):
         self.resetStats()
-        self.preping("locals")
         self.prepare(args)
-        partialVariable = args.get("partialvar", "")
-        isPartial = len(partialVariable) > 0
 
         (ok, res) = self.tryFetchInterpreterVariables(args)
         if ok:
             safePrint(res)
             return
 
-        #
-        # Locals
-        #
         self.output.append('data=[')
 
-        if isPartial:
-            parts = partialVariable.split('.')
-            name = parts[1]
-            try:
-                if parts[0] == 'local':
-                    frame = gdb.selected_frame()
-                    value = self.fromNativeDowncastableValue(frame.read_var(name))
-                else:
-                    name = self.hexdecode(name)
-                    value = self.fromNativeValue(gdb.parse_and_eval(name))
-                value.iname = parts[0] + '.' + name
-                value.name = name
-                variables = [value]
-            except RuntimeError as error:
-                warn("ERROR: %s" % error)
-                variables = []
-            except:
-                warn("ERROR")
-                variables = []
-        else:
-            variables = self.listOfLocals()
+        partialVar = args.get("partialvar", "")
+        isPartial = len(partialVar) > 0
+        partialName = partialVar.split('.')[1].split('@')[0] if isPartial else None
 
-        #warn("VARIABLES: %s" % variables)
-
-        self.ping("locals")
+        variables = self.listOfLocals(partialName)
 
         # Take care of the return value of the last function call.
         if len(self.resultVarName) > 0:
@@ -601,25 +568,8 @@ class Dumper(DumperBase):
                 # Don't bother. It's only supplementary information anyway.
                 pass
 
-        for value in variables:
-            with OutputSafer(self):
-                self.anonNumber = 0
-
-                if value.iname == "local.argv" and value.type.name == "char **":
-                    self.putSpecialArgv(value)
-                else:
-                    # A "normal" local variable or parameter.
-                    with TopLevelItem(self, value.iname):
-                        self.preping("all-" + value.iname)
-                        self.put('iname="%s",' % value.iname)
-                        self.put('name="%s",' % value.name)
-                        self.putItem(value)
-                        self.ping("all-" + value.iname)
-
-        self.preping("watches")
-        with OutputSafer(self):
-            self.handleWatches(args)
-        self.ping("watches")
+        self.handleLocals(variables)
+        self.handleWatches(args)
 
         self.output.append('],typeinfo=[')
         for name in self.typesToReport.keys():

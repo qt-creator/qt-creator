@@ -994,44 +994,6 @@ class Dumper(DumperBase):
         self.currentIName = 'local'
         self.put('data=[')
         self.anonNumber = 0
-        shadowed = {}
-        #ids = {} # Filter out duplicates entries at the same address.
-
-        # FIXME: Implement shortcut for partial updates.
-        #if isPartial:
-        #    values = [frame.FindVariable(partialVariable)]
-        #else:
-        if True:
-            values = list(frame.GetVariables(True, True, False, False))
-            values.reverse() # To get shadowed vars numbered backwards.
-
-        for val in values:
-            if not val.IsValid():
-                continue
-            self.currentContextValue = val
-            name = val.GetName()
-            #id = "%s:0x%x" % (name, val.GetLoadAddress())
-            #if id in ids:
-            #    continue
-            #ids[id] = True
-            if name is None:
-                # This can happen for unnamed function parameters with
-                # default values:  void foo(int = 0)
-                continue
-            value = self.fromNativeValue(val)
-            if name in shadowed:
-                level = shadowed[name]
-                shadowed[name] = level + 1
-                name += "@%s" % level
-            else:
-                shadowed[name] = 1
-
-            if name == "argv" and val.GetType().GetName() == "char **":
-                self.putSpecialArgv(value)
-            else:
-                with SubItem(self, name):
-                    self.put('iname="%s",' % self.currentIName)
-                    self.putItem(value)
 
         with SubItem(self, '[statics]'):
             self.put('iname="%s",' % self.currentIName)
@@ -1054,6 +1016,29 @@ class Dumper(DumperBase):
                             self.putEmptyValue()
                             self.putNumChild(0)
 
+        # FIXME: Implement shortcut for partial updates.
+        #if isPartial:
+        #    values = [frame.FindVariable(partialVariable)]
+        #else:
+        if True:
+            values = list(frame.GetVariables(True, True, False, False))
+            values.reverse() # To get shadowed vars numbered backwards.
+
+        variables = []
+        for val in values:
+            if not val.IsValid():
+                continue
+            self.currentContextValue = val
+            name = val.GetName()
+            if name is None:
+                # This can happen for unnamed function parameters with
+                # default values:  void foo(int = 0)
+                continue
+            value = self.fromNativeValue(val)
+            value.name = name
+            variables.append(value)
+
+        self.handleLocals(variables)
         self.handleWatches(args)
 
         self.put('],partial="%d"' % isPartial)
