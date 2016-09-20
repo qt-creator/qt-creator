@@ -44,14 +44,14 @@
 
 namespace ProjectExplorer {
 
-static const Core::Id KIT_IS_TEMPORARY("PE.TempKit");
-static const Core::Id KIT_TEMPORARY_NAME("PE.TempName");
-static const Core::Id KIT_FINAL_NAME("PE.FinalName");
-static const Core::Id TEMPORARY_OF_PROJECTS("PE.TempProject");
+static const Core::Id KIT_IS_TEMPORARY("PE.tmp.isTemporary");
+static const Core::Id KIT_TEMPORARY_NAME("PE.tmp.Name");
+static const Core::Id KIT_FINAL_NAME("PE.tmp.FinalName");
+static const Core::Id TEMPORARY_OF_PROJECTS("PE.tmp.ForProjects");
 
 static Core::Id fullId(Core::Id id)
 {
-    const QString prefix = "PE.Temporary.";
+    const QString prefix = "PE.tmp.";
 
     const QString idStr = id.toString();
     QTC_ASSERT(!idStr.startsWith(prefix), return Core::Id::fromString(idStr));
@@ -64,7 +64,7 @@ static bool hasOtherUsers(Core::Id id, const QVariant &v, Kit *k)
     return Utils::contains(KitManager::kits(), [id, v, k](Kit *in) -> bool {
         if (in == k)
             return false;
-        QVariantList tmp = in->value(id).toList();
+        const QVariantList tmp = in->value(id).toList();
         return tmp.contains(v);
     });
 }
@@ -107,7 +107,9 @@ QList<BuildInfo *> ProjectImporter::import(const Utils::FileName &importPath, bo
         const QList<Kit *> tmp
                 = Utils::filtered(KitManager::kits(), [this, data](Kit *k) { return matchKit(data, k); });
         if (tmp.isEmpty()) {
-            kitList += createKit(data);
+            Kit *k = createKit(data);
+            if (k)
+                kitList.append(k);
             qCDebug(log) << "  no matching kit found, temporary kit created.";
         } else {
             kitList += tmp;
@@ -121,8 +123,6 @@ QList<BuildInfo *> ProjectImporter::import(const Utils::FileName &importPath, bo
                 qCDebug(log) << "No build infos for kit" << k->displayName();
                 continue;
             }
-
-            addProject(k);
 
             foreach (BuildInfo *i, infoList) {
                 if (!Utils::contains(result, [i](const BuildInfo *o) { return (*i) == (*o); }))
@@ -206,34 +206,41 @@ void ProjectImporter::makePersistent(Kit *k) const
 
         // Mark permanent in all other kits:
         foreach (Kit *ok, KitManager::kits()) {
-            if (ok == k)
+            if (ok == k || !ok->hasValue(fid))
                 continue;
-
-            QVariantList otherTemporaryValues = ok->value(fid).toList();
-            otherTemporaryValues = Utils::filtered(otherTemporaryValues, [&temporaryValues](const QVariant &v) {
-                return temporaryValues.contains(v);
+            const QVariantList otherTemporaryValues
+                    = Utils::filtered(ok->value(fid).toList(), [&temporaryValues](const QVariant &v) {
+                return !temporaryValues.contains(v);
             });
             ok->setValueSilently(fid, otherTemporaryValues);
         }
 
         // persist:
         tih.persist(k, temporaryValues);
+        k->removeKeySilently(fid);
     }
 }
 
-void ProjectImporter::cleanupKit(Kit *k)
+void ProjectImporter::cleanupKit(Kit *k) const
 {
     foreach (const TemporaryInformationHandler &tih, m_temporaryHandlers) {
         const Core::Id fid = fullId(tih.id);
-        QVariantList temporaryValues = k->value(fid).toList();
-        temporaryValues = Utils::filtered(temporaryValues, [fid, k](const QVariant &v) {
+        const QVariantList temporaryValues
+                = Utils::filtered(k->value(fid).toList(), [fid, k](const QVariant &v) {
            return !hasOtherUsers(fid, v, k);
         });
         tih.cleanup(k, temporaryValues);
+        k->removeKeySilently(fid);
     }
+
+    // remove keys to manage temporary state of kit:
+    k->removeKeySilently(KIT_IS_TEMPORARY);
+    k->removeKeySilently(TEMPORARY_OF_PROJECTS);
+    k->removeKeySilently(KIT_FINAL_NAME);
+    k->removeKeySilently(KIT_TEMPORARY_NAME);
 }
 
-void ProjectImporter::addProject(Kit *k)
+void ProjectImporter::addProject(Kit *k) const
 {
     if (!k->hasValue(KIT_IS_TEMPORARY))
         return;
@@ -244,7 +251,7 @@ void ProjectImporter::addProject(Kit *k)
     k->setValueSilently(TEMPORARY_OF_PROJECTS, projects);
 }
 
-void ProjectImporter::removeProject(Kit *k)
+void ProjectImporter::removeProject(Kit *k) const
 {
     if (!k->hasValue(KIT_IS_TEMPORARY))
         return;
@@ -253,10 +260,12 @@ void ProjectImporter::removeProject(Kit *k)
     QStringList projects = k->value(TEMPORARY_OF_PROJECTS, QStringList()).toStringList();
     projects.removeOne(m_projectPath);
 
-    if (projects.isEmpty())
+    if (projects.isEmpty()) {
+        cleanupKit(k);
         KitManager::deregisterKit(k);
-    else
+    } else {
         k->setValueSilently(TEMPORARY_OF_PROJECTS, projects);
+    }
 }
 
 bool ProjectImporter::isTemporaryKit(Kit *k) const
@@ -271,13 +280,18 @@ Kit *ProjectImporter::createTemporaryKit(const KitSetupFunction &setup) const
     {
         KitGuard kitGuard(k);
         k->setUnexpandedDisplayName(QCoreApplication::translate("ProjectExplorer::ProjectImporter", "Imported Kit"));;
-        markKitAsTemporary(k);
-
-        setup(k);
 
         // Set up values:
         foreach (KitInformation *ki, KitManager::kitInformation())
             ki->setup(k);
+
+        setup(k);
+
+        foreach (KitInformation *ki, KitManager::kitInformation())
+            ki->fix(k);
+
+        markKitAsTemporary(k);
+        addProject(k);
     } // ~KitGuard, sending kitUpdated
     KitManager::registerKit(k); // potentially adds kits to other targetsetuppages
     return k;

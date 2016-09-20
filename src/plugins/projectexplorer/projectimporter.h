@@ -54,12 +54,12 @@ public:
     bool isUpdating() const { return m_isUpdating; }
 
     void makePersistent(Kit *k) const;
-    void cleanupKit(Kit *k);
+    void cleanupKit(Kit *k) const;
 
     bool isTemporaryKit(Kit *k) const;
 
-    void addProject(Kit *k);
-    void removeProject(Kit *k);
+    void addProject(Kit *k) const;
+    void removeProject(Kit *k) const;
 
 protected:
     class UpdateGuard

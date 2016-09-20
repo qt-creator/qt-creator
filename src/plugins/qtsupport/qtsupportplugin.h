@@ -50,6 +50,17 @@ private slots:
     void testQtOutputFormatter_appendMessage_data();
     void testQtOutputFormatter_appendMessage();
     void testQtOutputFormatter_appendMixedAssertAndAnsi();
+
+    void testQtProjectImporter_oneProject_data();
+    void testQtProjectImporter_oneProject();
+#if 0
+    void testQtProjectImporter_oneProjectExistingKit();
+    void testQtProjectImporter_oneProjectNewKitExistingQt();
+    void testQtProjectImporter_oneProjectNewKitNewQt();
+    void testQtProjectImporter_oneProjectTwoNewKitSameNewQt_pc();
+    void testQtProjectImporter_oneProjectTwoNewKitSameNewQt_cp();
+    void testQtProjectImporter_oneProjectTwoNewKitSameNewQt_cc();
+#endif
 #endif
 };
 
