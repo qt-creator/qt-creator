@@ -69,6 +69,10 @@ void ClangRefactoringPlugin::extensionsInitialized()
 
 ExtensionSystem::IPlugin::ShutdownFlag ClangRefactoringPlugin::aboutToShutdown()
 {
+    client->setRefactoringEngine(nullptr);
+
+    connectionClient->finishProcess();
+
     engine.reset();
     connectionClient.reset();
     client.reset();
