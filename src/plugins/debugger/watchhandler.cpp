@@ -1097,7 +1097,7 @@ bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role
                 m_engine->assignValueInDebugger(item, item->expression(), value);
                 break;
             }
-            break;
+            return true;
 
         case LocalsExpandedRole:
             if (value.toBool()) {
@@ -1109,25 +1109,25 @@ bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role
             }
             if (item->iname.contains('.'))
                 emit columnAdjustmentRequested();
-            break;
+            return true;
 
         case LocalsTypeFormatRole:
             setTypeFormat(item->type, value.toInt());
             m_engine->updateLocals();
-            break;
+            return true;
 
         case LocalsIndividualFormatRole: {
             setIndividualFormat(item->iname, value.toInt());
             m_engine->updateLocals();
-            break;
+            return true;
         }
 
         case BaseTreeView::ItemActivatedRole:
             m_engine->selectWatchData(item->iname);
-            break;
+            return true;
     }
 
-    return true;
+    return false;
 }
 
 Qt::ItemFlags WatchModel::flags(const QModelIndex &idx) const
