@@ -110,7 +110,7 @@ typedef QVector<Module> Modules;
 //
 //////////////////////////////////////////////////////////////////
 
-using ModulesModel = Utils::TreeModel<Utils::TypedTreeItem<ModuleItem>, ModuleItem>;
+class ModulesModel;
 
 class ModulesHandler : public QObject
 {
@@ -133,7 +133,6 @@ public:
 private:
     ModuleItem *moduleFromPath(const QString &modulePath) const;
 
-    DebuggerEngine *m_engine;
     ModulesModel *m_model;
     QSortFilterProxyModel *m_proxyModel;
 };
