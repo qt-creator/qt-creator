@@ -82,8 +82,8 @@ public:
 
     Utils::SmallString takeSymbolName();
     const std::vector<USRName> &unifiedSymbolResolutions();
-    const ClangBackEnd::SourceLocationsContainer &sourceLocations() const;
-    ClangBackEnd::SourceLocationsContainer takeSourceLocations();
+    const SourceLocationsContainer &sourceLocations() const;
+    SourceLocationsContainer takeSourceLocations();
 
 private:
     Utils::SmallString symbolName;
