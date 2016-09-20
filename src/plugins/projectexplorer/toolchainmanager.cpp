@@ -342,8 +342,11 @@ QList<ToolChain *> ToolChainManager::findToolChains(const Abi &abi)
 {
     QList<ToolChain *> result;
     foreach (ToolChain *tc, d->m_toolChains) {
-        Abi targetAbi = tc->targetAbi();
-        if (targetAbi.isCompatibleWith(abi))
+        bool isCompatible = Utils::anyOf(tc->supportedAbis(), [abi](const Abi &supportedAbi) {
+            return supportedAbi.isCompatibleWith(abi);
+        });
+
+        if (isCompatible)
             result.append(tc);
     }
     return result;

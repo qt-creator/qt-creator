@@ -135,6 +135,11 @@ Core::Id ToolChain::typeId() const
     return d->m_typeId;
 }
 
+QList<Abi> ToolChain::supportedAbis() const
+{
+    return { targetAbi() };
+}
+
 bool ToolChain::canClone() const
 {
     return true;

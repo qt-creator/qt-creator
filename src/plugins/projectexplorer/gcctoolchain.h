@@ -56,7 +56,7 @@ public:
     Abi targetAbi() const override;
     QString originalTargetTriple() const override;
     QString version() const;
-    QList<Abi> supportedAbis() const;
+    QList<Abi> supportedAbis() const override;
     void setTargetAbi(const Abi &);
 
     bool isValid() const override;
