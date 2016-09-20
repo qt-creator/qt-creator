@@ -30,33 +30,33 @@
 using namespace QmlJS;
 
 namespace {
-QString js_keywords[] = {
+static const QString js_keywords[] = {
     QLatin1String("break"),
-    QString::fromLatin1("case"),
-    QString::fromLatin1("catch"),
-    QString::fromLatin1("continue"),
-    QString::fromLatin1("debugger"),
-    QString::fromLatin1("default"),
-    QString::fromLatin1("delete"),
-    QString::fromLatin1("do"),
-    QString::fromLatin1("else"),
-    QString::fromLatin1("finally"),
-    QString::fromLatin1("for"),
-    QString::fromLatin1("function"),
-    QString::fromLatin1("if"),
-    QString::fromLatin1("in"),
-    QString::fromLatin1("instanceof"),
-    QString::fromLatin1("new"),
-    QString::fromLatin1("return"),
-    QString::fromLatin1("switch"),
-    QString::fromLatin1("this"),
-    QString::fromLatin1("throw"),
-    QString::fromLatin1("try"),
-    QString::fromLatin1("typeof"),
-    QString::fromLatin1("var"),
-    QString::fromLatin1("void"),
-    QString::fromLatin1("while"),
-    QString::fromLatin1("with")
+    QLatin1String("case"),
+    QLatin1String("catch"),
+    QLatin1String("continue"),
+    QLatin1String("debugger"),
+    QLatin1String("default"),
+    QLatin1String("delete"),
+    QLatin1String("do"),
+    QLatin1String("else"),
+    QLatin1String("finally"),
+    QLatin1String("for"),
+    QLatin1String("function"),
+    QLatin1String("if"),
+    QLatin1String("in"),
+    QLatin1String("instanceof"),
+    QLatin1String("new"),
+    QLatin1String("return"),
+    QLatin1String("switch"),
+    QLatin1String("this"),
+    QLatin1String("throw"),
+    QLatin1String("try"),
+    QLatin1String("typeof"),
+    QLatin1String("var"),
+    QLatin1String("void"),
+    QLatin1String("while"),
+    QLatin1String("with")
 };
 } // end of anonymous namespace
 
@@ -417,10 +417,10 @@ bool Scanner::isKeyword(const QString &text) const
 
 QStringList Scanner::keywords()
 {
-    static QStringList words;
-    if (words.isEmpty()) {
+    static QStringList words = [&]() {
         for (const QString *word = begin(js_keywords); word != end(js_keywords); ++word)
             words.append(*word);
-    }
+        return words;
+    }();
     return words;
 }

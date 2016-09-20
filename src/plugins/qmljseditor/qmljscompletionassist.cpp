@@ -853,17 +853,15 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const AssistInterface *
 
         // add qml extra words
         if (doQmlKeywordCompletion && isQmlFile) {
-            static QStringList qmlWords;
-            static QStringList qmlWordsAlsoInJs;
-
-            if (qmlWords.isEmpty()) {
-                qmlWords << QLatin1String("property")
-                            //<< QLatin1String("readonly")
-                         << QLatin1String("signal")
-                         << QLatin1String("import");
-            }
-            if (qmlWordsAlsoInJs.isEmpty())
-                qmlWordsAlsoInJs << QLatin1String("default") << QLatin1String("function");
+            static QStringList qmlWords{
+                QLatin1String("property"),
+                //QLatin1String("readonly")
+                QLatin1String("signal"),
+                QLatin1String("import")
+            };
+            static QStringList qmlWordsAlsoInJs{
+                QLatin1String("default"), QLatin1String("function")
+            };
 
             addCompletions(&m_completions, qmlWords, m_interface->keywordIcon(), KeywordOrder);
             if (!doJsKeywordCompletion)
