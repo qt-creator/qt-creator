@@ -4571,28 +4571,29 @@ void GdbEngine::doUpdateLocals(const UpdateParameters &params)
     watchHandler()->appendFormatRequests(&cmd);
     watchHandler()->appendWatchersAndTooltipRequests(&cmd);
 
-    cmd.arg("stringcutoff", action(MaximalStringLength)->value().toString());
-    cmd.arg("displaystringlimit", action(DisplayStringLimit)->value().toString());
-
     const static bool alwaysVerbose = !qgetenv("QTC_DEBUGGER_PYTHON_VERBOSE").isEmpty();
-
     cmd.arg("passexceptions", alwaysVerbose);
     cmd.arg("fancy", boolSetting(UseDebuggingHelpers));
     cmd.arg("autoderef", boolSetting(AutoDerefPointers));
     cmd.arg("dyntype", boolSetting(UseDynamicType));
     cmd.arg("qobjectnames", boolSetting(ShowQObjectNames));
-    cmd.arg("nativemixed", isNativeMixedActive());
 
     StackFrame frame = stackHandler()->currentFrame();
     cmd.arg("context", frame.context);
+    cmd.arg("nativemixed", isNativeMixedActive());
+
+    cmd.arg("stringcutoff", action(MaximalStringLength)->value().toString());
+    cmd.arg("displaystringlimit", action(DisplayStringLimit)->value().toString());
 
     cmd.arg("resultvarname", m_resultVarName);
     cmd.arg("partialvar", params.partialVariable);
-    cmd.callback = CB(handleFetchVariables);
-    runCommand(cmd);
 
-    cmd.arg("passexceptions", true);
     m_lastDebuggableCommand = cmd;
+    m_lastDebuggableCommand.arg("passexceptions", "1");
+
+    cmd.callback = CB(handleFetchVariables);
+
+    runCommand(cmd);
 }
 
 void GdbEngine::handleFetchVariables(const DebuggerResponse &response)

@@ -813,7 +813,11 @@ void LldbEngine::doUpdateLocals(const UpdateParameters &params)
     cmd.arg("context", frame.context);
     cmd.arg("nativemixed", isNativeMixedActive());
 
+    cmd.arg("stringcutoff", action(MaximalStringLength)->value().toString());
+    cmd.arg("displaystringlimit", action(DisplayStringLimit)->value().toString());
+
     //cmd.arg("resultvarname", m_resultVarName);
+    cmd.arg("partialvar", params.partialVariable);
 
     m_lastDebuggableCommand = cmd;
     m_lastDebuggableCommand.arg("passexceptions", "1");
