@@ -58,7 +58,7 @@ QPixmap QmlDesignerIconProvider::requestPixmap(const QString &id, QSize *size, c
     if (id == "close")
         result = Utils::Icons::CLOSE_TOOLBAR.pixmap();
     else if (id == "plus")
-        result = Utils::Icons::PLUS.pixmap();
+        result = Utils::Icons::PLUS_TOOLBAR.pixmap();
     else if (id == "expression")
         result = Icon({
                 { iconPath() + QLatin1String("expression.png"), Theme::IconsBaseColor}}, Icon::Tint).pixmap();

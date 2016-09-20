@@ -355,7 +355,7 @@ public:
                 return Utils::Icons::ERROR.icon();
             if (k->hasWarning())
                 return Utils::Icons::WARNING.icon();
-            break;
+            return Utils::Icons::EMPTY14.icon();
         }
 
         case Qt::TextColorRole: {
@@ -560,6 +560,9 @@ public:
 
         case ActiveItemRole:
             return QVariant::fromValue<TreeItem *>(const_cast<BuildOrRunItem *>(this));
+
+        case Qt::DecorationRole:
+            return Utils::Icons::EMPTY14.icon();
 
         default:
             break;

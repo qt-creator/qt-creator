@@ -91,8 +91,10 @@ const Icon ARROW_DOWN({
         {QLatin1String(":/utils/images/arrowdown.png"), Theme::IconsBaseColor}});
 const Icon MINUS({
         {QLatin1String(":/utils/images/minus.png"), Theme::IconsBaseColor}});
-const Icon PLUS({
+const Icon PLUS_TOOLBAR({
         {QLatin1String(":/utils/images/plus.png"), Theme::IconsBaseColor}});
+const Icon PLUS({
+        {QLatin1String(":/utils/images/plus.png"), Theme::PaletteText}});
 const Icon MAGNIFIER({
         {QLatin1String(":/utils/images/magnifier.png"), Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon CLEAN({

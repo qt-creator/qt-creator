@@ -170,7 +170,7 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
                                                     Utils::Icons::STOP_SMALL_TOOLBAR.icon());
     m_cancelBuildButton->setDefaultAction(cancelBuildProxyButton);
     m_zoomInButton->setToolTip(tr("Increase Font Size"));
-    m_zoomInButton->setIcon(Utils::Icons::PLUS.icon());
+    m_zoomInButton->setIcon(Utils::Icons::PLUS_TOOLBAR.icon());
     m_zoomOutButton->setToolTip(tr("Decrease Font Size"));
     m_zoomOutButton->setIcon(Utils::Icons::MINUS.icon());
 

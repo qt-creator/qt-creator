@@ -451,6 +451,12 @@ public:
         setObjectName("ProjectNavigation");
         setContextMenuPolicy(Qt::CustomContextMenu);
     }
+
+    // remove branch indicators
+    void drawBranches(QPainter *, const QRect &, const QModelIndex &) const override
+    {
+        return;
+    }
 };
 
 

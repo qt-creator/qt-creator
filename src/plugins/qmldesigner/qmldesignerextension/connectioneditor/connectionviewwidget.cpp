@@ -124,7 +124,7 @@ QList<QToolButton *> ConnectionViewWidget::createToolBarWidgets()
     QList<QToolButton *> buttons;
 
     buttons << new QToolButton();
-    buttons.last()->setIcon(Utils::Icons::PLUS.icon());
+    buttons.last()->setIcon(Utils::Icons::PLUS_TOOLBAR.icon());
     buttons.last()->setToolTip(tr("Add binding or connection."));
     connect(buttons.last(), SIGNAL(clicked()), this, SLOT(addButtonClicked()));
     connect(this, SIGNAL(setEnabledAddButton(bool)), buttons.last(), SLOT(setEnabled(bool)));

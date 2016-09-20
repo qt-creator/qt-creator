@@ -187,7 +187,7 @@ AppOutputPane::AppOutputPane() :
             this, &AppOutputPane::attachToRunControl);
 
     m_zoomInButton->setToolTip(tr("Increase Font Size"));
-    m_zoomInButton->setIcon(Utils::Icons::PLUS.icon());
+    m_zoomInButton->setIcon(Utils::Icons::PLUS_TOOLBAR.icon());
     m_zoomInButton->setAutoRaise(true);
 
     connect(m_zoomInButton, &QToolButton::clicked,
