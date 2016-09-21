@@ -263,7 +263,7 @@ QList<float> LocalHelpManager::lastShownPagesZoom()
     return Utils::transform(stringValues, [](const QString &str) { return str.toFloat(); });
 }
 
-void LocalHelpManager::setLastShownPagesZoom(const QList<float> &zoom)
+void LocalHelpManager::setLastShownPagesZoom(const QList<qreal> &zoom)
 {
     const QStringList stringValues = Utils::transform(zoom,
                                                       [](float z) { return QString::number(z); });

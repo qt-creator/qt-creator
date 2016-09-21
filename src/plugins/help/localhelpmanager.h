@@ -82,7 +82,7 @@ public:
     static void setLastShownPages(const QStringList &pages);
 
     static QList<float> lastShownPagesZoom();
-    static void setLastShownPagesZoom(const QList<float> &zoom);
+    static void setLastShownPagesZoom(const QList<qreal> &zoom);
 
     static int lastSelectedTab();
     static void setLastSelectedTab(int index);

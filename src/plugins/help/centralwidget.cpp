@@ -32,7 +32,7 @@
 
 using namespace Help::Internal;
 
-CentralWidget *gStaticCentralWidget = 0;
+static CentralWidget *gStaticCentralWidget = 0;
 
 // -- CentralWidget
 
@@ -46,7 +46,7 @@ CentralWidget::CentralWidget(const Core::Context &context, QWidget *parent)
 CentralWidget::~CentralWidget()
 {
     // TODO: this shouldn't be done here
-    QList<float> zoomFactors;
+    QList<qreal> zoomFactors;
     QStringList currentPages;
     for (int i = 0; i < viewerCount(); ++i) {
         const HelpViewer * const viewer = viewerAt(i);
