@@ -324,6 +324,9 @@ class Dumper(DumperBase):
             return "%d" % intval
 
     def nativeTypeFields(self, nativeType):
+        if nativeType.code == gdb.TYPE_CODE_TYPEDEF:
+            return self.nativeTypeFields(nativeType.strip_typedefs())
+
         fields = []
         if nativeType.code == gdb.TYPE_CODE_ARRAY:
             # An array.
