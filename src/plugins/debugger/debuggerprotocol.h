@@ -248,6 +248,7 @@ const char DisplayUcs4String[]   = "ucs4:separate";
 const char DisplayImageData[]    = "imagedata:separate";
 const char DisplayImageFile[]    = "imagefile:separate";
 const char DisplayPlotData[]     = "plotdata:separate";
+const char DisplayArrayData[]    = "arraydata:separate";
 
 } // namespace Internal
 } // namespace Debugger

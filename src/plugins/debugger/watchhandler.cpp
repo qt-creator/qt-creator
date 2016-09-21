@@ -68,6 +68,7 @@
 #include <QProcess>
 #include <QTabWidget>
 #include <QTextEdit>
+#include <QTableWidget>
 #include <QTimer>
 #include <QVBoxLayout>
 
@@ -272,10 +273,10 @@ public:
         QVariant geometry = sessionValue("DebuggerSeparateWidgetGeometry");
         if (geometry.isValid()) {
             QRect rc = geometry.toRect();
-            if (rc.width() < 200)
-                rc.setWidth(200);
-            if (rc.height() < 200)
-                rc.setHeight(200);
+            if (rc.width() < 400)
+                rc.setWidth(400);
+            if (rc.height() < 400)
+                rc.setHeight(400);
             setGeometry(rc);
         }
     }
@@ -2139,6 +2140,13 @@ static void swapEndian(char *d, int nchar)
     }
 }
 
+template <class T> void readOne(const char *p, QString *res, int size)
+{
+    T r = 0;
+    memcpy(&r, p, size);
+    res->setNum(r);
+}
+
 void WatchModel::showEditValue(const WatchItem *item)
 {
     const QString &format = item->editformat;
@@ -2206,6 +2214,41 @@ void WatchModel::showEditValue(const WatchItem *item)
         std::vector<double> data;
         readNumericVector(&data, QByteArray::fromHex(item->editvalue.toUtf8()), item->editencoding);
         m_separatedView->prepareObject<PlotViewer>(item)->setData(data);
+    } else if (format.startsWith(DisplayArrayData)) {
+        QString innerType = format.section(':', 2, 2);
+        int innerSize = format.section(':', 3, 3).toInt();
+        QTC_ASSERT(0 <= innerSize && innerSize <= 8, return);
+//        int hint = format.section(':', 4, 4).toInt();
+        int ndims = format.section(':', 5, 5).toInt();
+        int ncols = format.section(':', 6, 6).toInt();
+        int nrows = format.section(':', 7, 7).toInt();
+        QTC_ASSERT(ndims == 2, qDebug() << "Display format: " << format; return);
+        QByteArray ba = QByteArray::fromHex(item->editvalue.toUtf8());
+
+        void (*reader)(const char *p, QString *res, int size) = 0;
+        if (innerType == "int")
+            reader = &readOne<qlonglong>;
+        else if (innerType == "uint")
+            reader = &readOne<qulonglong>;
+        else if (innerType == "float") {
+            if (innerSize == 4)
+                reader = &readOne<float>;
+            else if (innerSize == 4)
+                reader = &readOne<double>;
+        }
+        QTC_ASSERT(reader, return);
+        auto table = m_separatedView->prepareObject<QTableWidget>(item);
+        table->setRowCount(nrows);
+        table->setColumnCount(ncols);
+        QString s;
+        const char *p = ba.constBegin();
+        for (int i = 0; i < nrows; ++i) {
+            for (int j = 0; j < ncols; ++j) {
+                reader(p, &s, innerSize);
+                table->setItem(i, j, new QTableWidgetItem(s));
+                p += innerSize;
+            }
+        }
     } else {
         QTC_ASSERT(false, qDebug() << "Display format: " << format);
     }

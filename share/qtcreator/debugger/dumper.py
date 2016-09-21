@@ -294,6 +294,7 @@ class DumperBase:
             "stdtypes",
             "misctypes",
             "boosttypes",
+            "opencvtypes",
             "creatortypes",
             "personaltypes",
         ]
@@ -2714,6 +2715,8 @@ class DumperBase:
                 field.name = index
             elif isinstance(index, self.dumper.Field):
                 field = index
+            elif self.dumper.isInt(index):
+                return self.members()[index]
             else:
                 error("BAD INDEX TYPE %s" % type(index))
             field.check()
@@ -2789,6 +2792,13 @@ class DumperBase:
             val.check()
             val.lbitsize = field.bitsize()
             return val
+
+        def members(self):
+            members = []
+            for field in self.type.fields():
+                if not field.isBaseClass:
+                    members.append(self.extractField(field))
+            return members
 
         def __add__(self, other):
             self.check()
@@ -3273,6 +3283,13 @@ class DumperBase:
                     typeobj.lbitsize = 8 * size
             #warn("CREATE TYPE: %s" % typeobj)
             typeobj.check()
+            return typeobj
+        if self.isInt(typish):
+            # Assume it is an typecode, create an "anonymous" Type
+            typeobj = self.Type(self)
+            typeobj.code = typish
+            typeobj.lbitsize = 8 * size
+            typeobj.name = ' '
             return typeobj
         error("NEED TYPE, NOT %s" % type(typish))
 
