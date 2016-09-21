@@ -518,6 +518,7 @@ void WatchItem::parseHelper(const GdbMi &input, bool maySort)
                 QString key = subinput["key"].data();
                 if (!key.isEmpty())
                     child->name = decodeData(key, subinput["keyencoded"].data());
+                child->name = subinput["keyprefix"].data() + child->name;
                 child->parseHelper(subinput, maySort);
                 appendChild(child);
             }

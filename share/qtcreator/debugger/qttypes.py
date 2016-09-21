@@ -668,20 +668,7 @@ def qform__QHashNode():
     return mapForms()
 
 def qdump__QHashNode(d, value):
-    key = value["key"]
-    val = value["value"]
-    if d.isMapCompact(key.type, val.type):
-        d.putMapName(key)
-        d.putItem(val)
-        d.putType(value.type)
-    else:
-        d.putEmptyValue()
-        d.putNumChild(2)
-        if d.isExpanded():
-            with Children(d):
-                d.putSubItem("key", key)
-                d.putSubItem("value", val)
-
+    d.putPairItem(None, value)
 
 def qHashIteratorHelper(d, value):
     typeName = value.type.name

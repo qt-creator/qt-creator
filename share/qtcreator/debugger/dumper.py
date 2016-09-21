@@ -219,12 +219,6 @@ class PairedChildrenData:
         self.valueType = valueType
         self.isCompact = d.isMapCompact(self.keyType, self.valueType)
         self.childType = valueType if self.isCompact else pairType
-        ns = d.qtNamespace()
-        keyTypeName = d.stripClassTag(self.keyType.name)
-        self.keyIsQString = keyTypeName == ns + "QString"
-        self.keyIsQByteArray = keyTypeName == ns + "QByteArray"
-        self.keyIsStdString = keyTypeName == "std::string" \
-            or keyTypeName.startswith("std::basic_string<char")
 
 class PairedChildren(Children):
     def __init__(self, d, numChild, useKeyAndValue = False,
@@ -686,15 +680,36 @@ class DumperBase:
             self.putType("bool")
             self.putNumChild(0)
 
-    def putPairItem(self, name, value):
-        with SubItem(self, name):
-            self.putPair(value, name)
+    def putPairItem(self, index, pair):
+        if isinstance(pair, tuple):
+            (first, second) = pair
+        elif self.pairData.useKeyAndValue:
+            (first, second) = (pair["key"], pair["value"])
+        else:
+            (first, second) = (pair["first"], pair["second"])
+
+        with SubItem(self, index):
+            self.putNumChild(2)
+            (keystr, keyenc, valstr, valenc) = (None, None, None, None)
+            with Children(self):
+                with SubItem(self, "key"):
+                    self.putItem(first, True)
+                    keystr = self.currentValue.value
+                    keyenc = self.currentValue.encoding
+                with SubItem(self, "value"):
+                    self.putItem(second, True)
+                    valstr = self.currentValue.value
+                    valenc = self.currentValue.encoding
+            if index is not None:
+                self.put('keyprefix="[%s] ",' % index)
+            self.put('keyencoded="%s",key="%s",' % (keyenc, keystr))
+            self.putValue(valstr, valenc)
 
     def putCallItem(self, name, rettype, value, func, *args):
         with SubItem(self, name):
             try:
                 result = self.callHelper(rettype, value, func, args)
-            except RuntimeError as error:
+            except Exception as error:
                 if self.passExceptions:
                     raise error
                 else:
@@ -709,58 +724,6 @@ class DumperBase:
     def putAddress(self, address):
         if address is not None and not self.isCli:
             self.put('address="0x%x",' % address)
-
-    def putMapName(self, value, index = None):
-        ns = self.qtNamespace()
-        typeName = self.stripClassTag(str(value.type))
-        if typeName == ns + "QString":
-            self.put('keyencoded="utf16:2:0",key="%s",' % self.encodeString(value))
-        elif typeName == ns + "QByteArray":
-            self.put('keyencoded="latin1:1:0",key="%s",' % self.encodeByteArray(value))
-        elif typeName == "std::string":
-            self.put('keyencoded="latin1:1:0",key="%s",' % self.encodeStdString(value))
-        else:
-            val = value.display() #str(value.GetValue()) if self.isLldb else str(value)
-            if index is None:
-                key = '%s' % val
-            else:
-                key = '[%s] %s' % (index, val)
-            self.put('keyencoded="utf8:1:0",key="%s",' % self.hexencode(key))
-
-    def putPair(self, pair, index = None):
-        if isinstance(pair, tuple):
-            self.putPairHelper(pair[0], pair[1], index)
-        elif self.pairData.useKeyAndValue:
-            self.putPairHelper(pair["key"], pair["value"], index)
-        else:
-            self.putPairHelper(pair["first"], pair["second"], index)
-
-    def putPairHelper(self, key, value, index = None):
-        if self.pairData.isCompact:
-            if self.pairData.keyIsQString:
-                self.put('keyencoded="utf16",key="%s",' % self.encodeString(key))
-            elif self.pairData.keyIsQByteArray:
-                self.put('keyencoded="latin1",key="%s",' % self.encodeByteArray(key))
-            elif self.pairData.keyIsStdString:
-                self.put('keyencoded="latin1",key="%s",' % self.encodeStdString(key))
-            else: #self.isInt(key):
-                if index is None:
-                    self.put('name="%s",' % key)
-                else:
-                    self.put('key="[%s] %s",' % (index, key.display()))
-            self.putItem(value)
-        else:
-            self.putEmptyValue()
-            self.putNumChild(2)
-            self.putField("iname", self.currentIName)
-            if self.isExpanded():
-                with Children(self):
-                    if self.pairData.useKeyAndValue:
-                        self.putSubItem("key", key)
-                        self.putSubItem("value", value)
-                    else:
-                        self.putSubItem("first", key)
-                        self.putSubItem("second", value)
 
     def putPlainChildren(self, value, dumpBase = True):
         self.putEmptyValue(-99)
@@ -2214,7 +2177,7 @@ class DumperBase:
             try:
                 value = self.parseAndEvaluate(exp)
                 self.putItem(value)
-            except RuntimeError:
+            except Exception:
                 self.currentType.value = " "
                 self.currentValue.value = "<no such value>"
                 self.currentChildNumChild = -1
@@ -2542,7 +2505,7 @@ class DumperBase:
                     self.putSpecialValue("nullreference")
                     self.putNumChild(0)
                     self.putType(typeobj)
-                    return True
+                    return
             except:
                 pass
 
@@ -2563,7 +2526,7 @@ class DumperBase:
                         val = val.cast(val.dynamic_type)
                         self.putItem(val)
                         self.putBetterType("%s &" % typeobj)
-                        return True
+                        return
                     except:
                         pass
 
@@ -2573,19 +2536,19 @@ class DumperBase:
                     # a "QWidget &" as "void &" and with optimized out code.
                     self.putItem(value.cast(typeobj.target().unqualified()))
                     self.putBetterType("%s &" % self.currentType.value)
-                    return True
-                except RuntimeError as error:
+                    return
+                except Exception as error:
                     self.putSpecialValue("optimizedout")
                     #self.putValue("optimizedout: %s" % error)
                     self.putType(typeobj)
                     self.putNumChild(0)
-                    return True
+                    return
 
         if typeobj.code == TypeCodeComplex:
             self.putType(typeobj)
             self.putValue(value.display())
             self.putNumChild(0)
-            return True
+            return
 
         if typeobj.code == TypeCodeFortranString:
             data = self.value.data()

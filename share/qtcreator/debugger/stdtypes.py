@@ -282,17 +282,8 @@ def qdump__std__map__QNX(d, value):
         with Children(d, size, maxNumChild=1000,
                 childType=childType, childNumChild=childNumChild):
             for i in d.childRange():
-                with SubItem(d, i):
-                    pair = node.cast(nodeType).dereference()['_Myval']
-                    if isCompact:
-                        d.putMapName(pair["first"])
-                        d.putItem(pair["second"])
-                    else:
-                        d.putEmptyValue()
-                        if d.isExpanded():
-                            with Children(d, 2):
-                                d.putSubItem("first", pair["first"])
-                                d.putSubItem("second", pair["second"])
+                pair = node.cast(nodeType).dereference()['_Myval']
+                d.putPairItem(i, pair)
                 if not node['_Right']['_Isnil']:
                     node = node['_Right']
                     while not node['_Left']['_Isnil']:
