@@ -1056,7 +1056,7 @@ bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role
         }
 
         if (ev.as<QMouseEvent>(QEvent::MouseButtonDblClick)) {
-            if (!item->parent()) { // if item is the invisible root item
+            if (item && !item->parent()) { // if item is the invisible root item
                 inputNewExpression();
                 return true;
             }
