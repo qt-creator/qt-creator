@@ -30,6 +30,38 @@
             "typeId": "Project"
         },
         {
+            "trDisplayName": "Define Project Details",
+            "trShortTitle": "Details",
+            "typeId": "Fields",
+            "data":
+            [
+                {
+                    "name": "ControlsStyle",
+                    "trDisplayName": "Qt Quick Controls 2 Style:",
+                    "type": "ComboBox",
+                    "data":
+                    {
+                        "index": 0,
+                        "items":
+                        [
+                            {
+                                "trKey": "Default",
+                                "value": "Default"
+                            },
+                            {
+                                "trKey": "Material",
+                                "value": "Material"
+                            },
+                            {
+                                "trKey": "Universal",
+                                "value": "Universal"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
             "trDisplayName": "Kit Selection",
             "trShortTitle": "Kits",
             "typeId": "Kits",
@@ -72,6 +104,9 @@
                 },
                 {
                     "source": "qml.qrc"
+                },
+                {
+                    "source": "qtquickcontrols2.conf"
                 },
                 {
                     "source": "../../git.ignore",
