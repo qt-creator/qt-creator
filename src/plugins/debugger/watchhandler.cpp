@@ -1587,8 +1587,7 @@ bool WatchModel::contextMenuEvent(const ItemViewEvent &ev)
 
     addAction(menu, tr("Add New Expression Evaluator..."),
               canHandleWatches && canInsertWatches,
-              [this] {
-               });
+              [this] { inputNewExpression(); });
 
     addAction(menu, addWatchActionText(exp),
               // Suppress for top-level watchers.
