@@ -64,72 +64,6 @@ NetworkAccessManager *NetworkAccessManager::instance()
     return namInstance;
 }
 
-static const QString getOsString()
-{
-    QString osString;
-#if defined(Q_OS_WIN)
-    switch (QSysInfo::WindowsVersion) {
-    case (QSysInfo::WV_4_0):
-        osString += QLatin1String("WinNT4.0");
-        break;
-    case (QSysInfo::WV_5_0):
-        osString += QLatin1String("Windows NT 5.0");
-        break;
-    case (QSysInfo::WV_5_1):
-        osString += QLatin1String("Windows NT 5.1");
-        break;
-    case (QSysInfo::WV_5_2):
-        osString += QLatin1String("Windows NT 5.2");
-        break;
-    case (QSysInfo::WV_6_0):
-        osString += QLatin1String("Windows NT 6.0");
-        break;
-    case (QSysInfo::WV_6_1):
-        osString += QLatin1String("Windows NT 6.1");
-        break;
-    default:
-        osString += QLatin1String("Windows NT (Unknown)");
-        break;
-    }
-#elif defined (Q_OS_MAC)
-    if (QSysInfo::ByteOrder == QSysInfo::BigEndian)
-        osString += QLatin1String("PPC ");
-    else
-        osString += QLatin1String("Intel ");
-    osString += QLatin1String("Mac OS X ");
-    switch (QSysInfo::MacintoshVersion) {
-    case (QSysInfo::MV_10_3):
-        osString += QLatin1String("10_3");
-        break;
-    case (QSysInfo::MV_10_4):
-        osString += QLatin1String("10_4");
-        break;
-    case (QSysInfo::MV_10_5):
-        osString += QLatin1String("10_5");
-        break;
-    case (QSysInfo::MV_10_6):
-        osString += QLatin1String("10_6");
-        break;
-    default:
-        osString += QLatin1String("(Unknown)");
-        break;
-    }
-#elif defined (Q_OS_UNIX)
-    struct utsname uts;
-    if (uname(&uts) == 0) {
-        osString += QLatin1String(uts.sysname);
-        osString += QLatin1Char(' ');
-        osString += QLatin1String(uts.release);
-    } else {
-        osString += QLatin1String("Unix (Unknown)");
-    }
-#else
-    osString = QLatin1String("Unknown OS");
-#endif
-    return osString;
-}
-
-
 NetworkAccessManager::NetworkAccessManager(QObject *parent)
     : QNetworkAccessManager(parent)
 {
@@ -142,7 +76,8 @@ QNetworkReply* NetworkAccessManager::createRequest(Operation op, const QNetworkR
                     .arg(QCoreApplication::applicationName(),
                          QCoreApplication::applicationVersion(),
                          QLatin1String(qVersion()),
-                         getOsString(), QLocale::system().name())
+                         QSysInfo::prettyProductName(),
+                         QLocale::system().name())
                     .arg(QSysInfo::WordSize);
     QNetworkRequest req(request);
     req.setRawHeader("User-Agent", agentStr.toLatin1());
