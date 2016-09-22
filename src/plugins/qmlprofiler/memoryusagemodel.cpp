@@ -36,7 +36,7 @@ MemoryUsageModel::MemoryUsageModel(QmlProfilerModelManager *manager, QObject *pa
     QmlProfilerTimelineModel(manager, MemoryAllocation, MaximumRangeType, ProfileMemory, parent)
 {
     // Announce additional features. The base class already announces the main feature.
-    announceFeatures(Constants::QML_JS_RANGE_FEATURES);
+    announceFeatures(Constants::QML_JS_RANGE_FEATURES ^ (1 << ProfileCompiling));
 }
 
 int MemoryUsageModel::rowMaxValue(int rowNumber) const
@@ -128,7 +128,8 @@ QVariantMap MemoryUsageModel::details(int index) const
 
 bool MemoryUsageModel::accepted(const QmlEventType &type) const
 {
-    return QmlProfilerTimelineModel::accepted(type) || type.rangeType() != MaximumRangeType;
+    return QmlProfilerTimelineModel::accepted(type)
+            || (type.rangeType() != MaximumRangeType && type.rangeType() != Compiling);
 }
 
 void MemoryUsageModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
@@ -256,6 +257,14 @@ void MemoryUsageModel::clear()
     m_continuation = ContinueNothing;
     m_rangeStack.clear();
     QmlProfilerTimelineModel::clear();
+}
+
+bool MemoryUsageModel::handlesTypeId(int typeId) const
+{
+    Q_UNUSED(typeId);
+    // We don't want the memory ranges allocated by some QML/JS function to be highlighted when
+    // propagating a typeId selection to the timeline. The actual range should be highlighted.
+    return false;
 }
 
 MemoryUsageModel::MemoryAllocationItem::MemoryAllocationItem(int typeId, qint64 baseAmount) :

@@ -44,7 +44,9 @@ FlameGraphModel::FlameGraphModel(QmlProfilerModelManager *modelManager,
 {
     m_modelManager = modelManager;
     m_callStack.append(QmlEvent());
-    m_stackTop = &m_stackBottom;
+    m_compileStack.append(QmlEvent());
+    m_callStackTop = &m_stackBottom;
+    m_compileStackTop = &m_stackBottom;
     connect(modelManager, &QmlProfilerModelManager::stateChanged,
             this, &FlameGraphModel::onModelManagerStateChanged);
     connect(modelManager->notesModel(), &Timeline::TimelineNotesModel::changed,
@@ -64,8 +66,11 @@ void FlameGraphModel::clear()
     beginResetModel();
     m_stackBottom = FlameGraphData(0, -1, 1);
     m_callStack.clear();
+    m_compileStack.clear();
     m_callStack.append(QmlEvent());
-    m_stackTop = &m_stackBottom;
+    m_compileStack.append(QmlEvent());
+    m_callStackTop = &m_stackBottom;
+    m_compileStackTop = &m_stackBottom;
     m_typeIdsWithNotes.clear();
     endResetModel();
 }
@@ -99,7 +104,11 @@ void FlameGraphModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
     if (m_stackBottom.children.isEmpty())
         beginResetModel();
 
-    const QmlEvent *potentialParent = &(m_callStack.top());
+    const bool isCompiling = (type.rangeType() == Compiling);
+    QStack<QmlEvent> &stack =  isCompiling ? m_compileStack : m_callStack;
+    FlameGraphData *&stackTop = isCompiling ? m_compileStackTop : m_callStackTop;
+
+    const QmlEvent *potentialParent = &(stack.top());
     if (type.message() == MemoryAllocation) {
         if (type.detailType() == HeapPage)
             return; // We're only interested in actual allocations, not heap pages being mmap'd
@@ -108,20 +117,20 @@ void FlameGraphModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
         if (amount < 0)
             return; // We're not interested in GC runs here
 
-        for (FlameGraphData *data = m_stackTop; data; data = data->parent) {
+        for (FlameGraphData *data = stackTop; data; data = data->parent) {
             ++data->allocations;
             data->memory += amount;
         }
 
     } else if (event.rangeStage() == RangeEnd) {
-        m_stackTop->duration += event.timestamp() - potentialParent->timestamp();
-        m_callStack.pop();
-        m_stackTop = m_stackTop->parent;
-        potentialParent = &(m_callStack.top());
+        stackTop->duration += event.timestamp() - potentialParent->timestamp();
+        stack.pop();
+        stackTop = stackTop->parent;
+        potentialParent = &(stack.top());
     } else {
         QTC_ASSERT(event.rangeStage() == RangeStart, return);
-        m_callStack.push(event);
-        m_stackTop = pushChild(m_stackTop, event);
+        stack.push(event);
+        stackTop = pushChild(stackTop, event);
     }
 }
 

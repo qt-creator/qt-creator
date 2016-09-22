@@ -81,6 +81,7 @@ public:
     Core::Id typeId() const;
     virtual QString typeDisplayName() const = 0;
     virtual Abi targetAbi() const = 0;
+    virtual QList<Abi> supportedAbis() const;
     virtual QString originalTargetTriple() const { return QString(); }
 
     virtual bool isValid() const = 0;

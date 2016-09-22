@@ -101,8 +101,10 @@ private:
 
     // used by binding loop detection
     QStack<QmlEvent> m_callStack;
+    QStack<QmlEvent> m_compileStack;
     FlameGraphData m_stackBottom;
-    FlameGraphData *m_stackTop;
+    FlameGraphData *m_callStackTop;
+    FlameGraphData *m_compileStackTop;
 
     int m_modelId;
     QmlProfilerModelManager *m_modelManager;

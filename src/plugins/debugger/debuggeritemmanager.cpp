@@ -231,7 +231,7 @@ void DebuggerItemManager::autoDetectGdbOrLldbDebuggers()
                 = lldbInfo.runBlocking(QLatin1String("xcrun"), QStringList() << QLatin1String("--find")
                                        << QLatin1String("lldb"));
         if (response.result == Utils::SynchronousProcessResponse::Finished) {
-            QString lPath = response.allOutput();
+            QString lPath = response.allOutput().trimmed();
             if (!lPath.isEmpty()) {
                 const QFileInfo fi(lPath);
                 if (fi.exists() && fi.isExecutable() && !fi.isDir())

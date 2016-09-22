@@ -123,7 +123,7 @@ public:
     };
 
     explicit IosToolHandlerPrivate(const IosDeviceType &devType, IosToolHandler *q);
-    virtual ~IosToolHandlerPrivate() {}
+    virtual ~IosToolHandlerPrivate();
     virtual void requestTransferApp(const QString &bundlePath, const QString &deviceId,
                                     int timeout = 1000) = 0;
     virtual void requestRunApp(const QString &bundlePath, const QStringList &extraArgs,
@@ -158,7 +158,7 @@ protected:
     void processXml();
 
     IosToolHandler *q;
-    QProcess process;
+    QProcess *process;
     QTimer killTimer;
     QXmlStreamReader outputParser;
     QString deviceId;
@@ -202,7 +202,12 @@ private:
 
 IosToolHandlerPrivate::IosToolHandlerPrivate(const IosDeviceType &devType,
                                              Ios::IosToolHandler *q) :
-    q(q), state(NonStarted), devType(devType), iBegin(0), iEnd(0),
+    q(q),
+    process(new QProcess),
+    state(NonStarted),
+    devType(devType),
+    iBegin(0),
+    iEnd(0),
     gdbSocket(-1)
 {
     killTimer.setSingleShot(true);
@@ -225,20 +230,30 @@ IosToolHandlerPrivate::IosToolHandlerPrivate(const IosDeviceType &devType,
                    << QLatin1String("/System/Library/PrivateFrameworks");
     env.insert(QLatin1String("DYLD_FALLBACK_FRAMEWORK_PATH"), frameworkPaths.join(QLatin1Char(':')));
     qCDebug(toolHandlerLog) << "IosToolHandler runEnv:" << env.toStringList();
-    process.setProcessEnvironment(env);
-    QObject::connect(&process, &QProcess::readyReadStandardOutput,
+    process->setProcessEnvironment(env);
+    QObject::connect(process, &QProcess::readyReadStandardOutput,
                      q, &IosToolHandler::subprocessHasData);
-    QObject::connect(&process,
+    QObject::connect(process,
                      static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
                      q, &IosToolHandler::subprocessFinished);
-    QObject::connect(&process, &QProcess::errorOccurred, q, &IosToolHandler::subprocessError);
+    QObject::connect(process, &QProcess::errorOccurred, q, &IosToolHandler::subprocessError);
     QObject::connect(&killTimer, &QTimer::timeout,
                      q, &IosToolHandler::killProcess);
 }
 
+IosToolHandlerPrivate::~IosToolHandlerPrivate()
+{
+    if (isRunning()) {
+        process->terminate();
+        if (!process->waitForFinished(1000))
+            process->kill();
+    }
+    delete process;
+}
+
 bool IosToolHandlerPrivate::isRunning()
 {
-    return process.state() != QProcess::NotRunning;
+    return process && (process->state() != QProcess::NotRunning);
 }
 
 void IosToolHandlerPrivate::start(const QString &exe, const QStringList &args)
@@ -246,7 +261,7 @@ void IosToolHandlerPrivate::start(const QString &exe, const QStringList &args)
     QTC_CHECK(state == NonStarted);
     state = Starting;
     qCDebug(toolHandlerLog) << "running " << exe << args;
-    process.start(exe, args);
+    process->start(exe, args);
     state = StartedInferior;
 }
 
@@ -281,9 +296,9 @@ void IosToolHandlerPrivate::stop(int errorCode)
     case Stopped:
         return;
     }
-    if (process.state() != QProcess::NotRunning) {
-        process.write("k\n\r");
-        process.closeWriteChannel();
+    if (isRunning()) {
+        process->write("k\n\r");
+        process->closeWriteChannel();
         killTimer.start(1500);
     }
 }
@@ -554,8 +569,8 @@ void IosToolHandlerPrivate::subprocessHasData()
             // read some data
         {
             char buf[200];
-            while (true) {
-                qint64 rRead = process.read(buf, sizeof(buf));
+            while (isRunning()) {
+                qint64 rRead = process->read(buf, sizeof(buf));
                 if (rRead == -1) {
                     stop(-1);
                     return;
@@ -704,8 +719,8 @@ void IosSimulatorToolHandlerPrivate::addDeviceArguments(QStringList &args) const
 
 void IosToolHandlerPrivate::killProcess()
 {
-    if (process.state() != QProcess::NotRunning)
-        process.kill();
+    if (isRunning())
+        process->kill();
 }
 
 } // namespace Internal

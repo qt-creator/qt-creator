@@ -149,6 +149,11 @@ Core::Id ToolChain::typeId() const
     return d->m_typeId;
 }
 
+QList<Abi> ToolChain::supportedAbis() const
+{
+    return { targetAbi() };
+}
+
 const QSet<ToolChain::Language> &ToolChain::allLanguages()
 {
     static QSet<Language> languages({ Language::C, Language::Cxx });

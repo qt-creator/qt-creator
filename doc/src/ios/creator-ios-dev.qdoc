@@ -46,9 +46,22 @@
 
     \section1 Configuring Devices
 
-    The process of configuring devices and the UI varies slightly depending on
-    the Xcode version that you use. The instructions in this section describe
-    the process and UI when using Xcode version 4.6.3.
+    The connections between \QC and an iOS device are protected by using a
+    certificate that you receive from Apple when you
+    \l{https://developer.apple.com/programs/enroll/}
+    {enroll in the Apple Developer Program}. The certificate is copied to
+    the device when you configure the device.
+
+    The first time you connect the device to the Mac, you are asked to enable
+    developer mode on the device. The next time you connect the device, \QC
+    detects it automatically. To disable automatic connections to a device that
+    you do not use for development, select \uicontrol Preferences >
+    \uicontrol iOS, and deselect the \uicontrol {Ask about devices not in
+    developer mode} check box.
+
+    \note The process of configuring devices and the UI varies slightly
+    depending on the Xcode version that you use. We recommend that you use the
+    latest available Xcode version.
 
     To configure connections between \QC and an iOS device:
 
@@ -58,43 +71,11 @@
 
         \li Connect the device to the Mac computer with a USB cable.
 
-        \li Start Xcode to configure the device:
+        \li Start Xcode to configure the device.
 
-            \list 1
-
-                \li Select \uicontrol Window > \uicontrol Organizer.
-
-                \li Select the \uicontrol + button to add the connected device.
-
-                \li Select the device you want to add in the list of devices.
-
-                \li If you do not have an Apple developer account, you can now
-                    create one, for a charge.
-
-                \li When your account is ready, you can add the device. Your
-                    Apple developer certificate is copied to the device.
-
-                \li The first time you connect the device, you are asked to
-                    enable developer mode on the device.
-
-            \endlist
-
-        The connections between \QC and an iOS device are protected by using an
-        iOS Developer Program certificate that you receive from Apple for a
-        charge when you
-        \l{http://developer.apple.com/library/ios/documentation/IDEs/Conceptual/AppDistributionGuide/EnrollingADP/EnrollingADP.html}
-         {enroll in the iOS Developer Program}. The certificate is copied to the
-        device when you configure the device.
-
-        The next time you connect the device to the Mac computer, \QC
-        detects it automatically. To disable automatic connections to a
-        device that you do not use for development, select \uicontrol Preferences >
-        \uicontrol iOS, and deselect the
-        \uicontrol {Ask about devices not in developer mode} check box.
-
-        \note If \QC does not detect the devices, the iOS plugin might not be
-        enabled. Select \uicontrol {Qt Creator} > \uicontrol {About Plugins} >
-        \uicontrol {Device Support} > \uicontrol iOS and restart \QC.
+            For example, in Xcode version 7.3.0, select \uicontrol Window >
+            \uicontrol Device > \uicontrol + > \uicontrol {Add Device} to add
+            the connected device.
 
         \li To specify build settings:
 
@@ -103,8 +84,9 @@
             \li Open a project for an application you want to develop for the
                 device.
 
-            \li Select \uicontrol Projects > \uicontrol {Build & Run} > \uicontrol {Add Kit} to
-                add a kit for building and running applications on iOS.
+            \li Select \uicontrol Projects > \uicontrol {Build & Run} >
+                \uicontrol {Add Kit} to add a kit for building and running
+                applications on iOS.
 
                 \image qtcreator-ios-add-kit.png "Build & Run Settings"
 
@@ -123,9 +105,10 @@
     \endlist
 
     \note If you cannot deploy applications, because a provisioning profile is
-    missing, try refreshing the list of provisioning profiles in Xcode. Select
-    \uicontrol Xcode > \uicontrol Preferences > \uicontrol Accounts > \uicontrol {View Details}, and
-    then select the \uicontrol Refresh button.
+    missing, check that provisioning profiles are listed in Xcode by selecting
+    \uicontrol Xcode > \uicontrol Preferences > \uicontrol Accounts >
+    \uicontrol {View Details}. For more information about how to acquire and
+    install a provisioning profile, see Apple documentation.
 
     \section1 Viewing Device Connection Status
 

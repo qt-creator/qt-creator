@@ -99,7 +99,7 @@ void DebugMessagesModel::loadEvent(const QmlEvent &event, const QmlEventType &ty
     m_data.insert(insert(event.timestamp(), 0, type.detailType()),
                   MessageData(event.string(), event.typeIndex()));
     if (type.detailType() > m_maximumMsgType)
-        m_maximumMsgType = event.typeIndex();
+        m_maximumMsgType = type.detailType();
 }
 
 void DebugMessagesModel::finalize()

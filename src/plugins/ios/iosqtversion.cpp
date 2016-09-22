@@ -116,5 +116,6 @@ QSet<Core::Id> IosQtVersion::availableFeatures() const
 
 QSet<Core::Id> IosQtVersion::targetDeviceTypes() const
 {
-    return { Constants::IOS_DEVICE_TYPE };
+    // iOS Qt version supports ios devices as well as simulator.
+    return { Constants::IOS_DEVICE_TYPE, Constants::IOS_SIMULATOR_TYPE };
 }

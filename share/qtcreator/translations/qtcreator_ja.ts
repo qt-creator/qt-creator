@@ -265,11 +265,11 @@
     </message>
     <message>
         <source>&amp;RSA</source>
-        <translation>RSA(&amp;R)</translation>
+        <translation>&amp;RSA</translation>
     </message>
     <message>
         <source>&amp;DSA</source>
-        <translation>DSA(&amp;D)</translation>
+        <translation>&amp;DSA</translation>
     </message>
     <message>
         <source>Key &amp;size:</source>
@@ -1247,6 +1247,14 @@ Local pulls are not applied to the master branch.</source>
         <translation>カテゴリを追加</translation>
     </message>
     <message>
+        <source>PATH=C:\dev\bin;${PATH}</source>
+        <translation>PATH=C:\dev\bin;${PATH}</translation>
+    </message>
+    <message>
+        <source>PATH=/opt/bin:${PATH}</source>
+        <translation>PATH=/opt/bin:${PATH}</translation>
+    </message>
+    <message>
         <source>Add tool.</source>
         <translation>ツールを追加します。</translation>
     </message>
@@ -1784,10 +1792,14 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::CompletionSettingsPage</name>
+    <name>TextEditor::Internal::CompletionSettingsPage</name>
     <message>
         <source>Behavior</source>
         <translation>動作</translation>
+    </message>
+    <message>
+        <source>Activate completion:</source>
+        <translation>補完起動:</translation>
     </message>
     <message>
         <source>&amp;Case-sensitivity:</source>
@@ -1806,10 +1818,6 @@ p, li { white-space: pre-wrap; }
         <translation>先頭文字のみ</translation>
     </message>
     <message>
-        <source>Activate completion:</source>
-        <translation>補完起動:</translation>
-    </message>
-    <message>
         <source>Manually</source>
         <translation>手動</translation>
     </message>
@@ -1822,68 +1830,16 @@ p, li { white-space: pre-wrap; }
         <translation>常時</translation>
     </message>
     <message>
-        <source>Autocomplete common &amp;prefix</source>
-        <translation>共通のプレフィックスを自動的に補完する(&amp;P)</translation>
-    </message>
-    <message>
-        <source>&amp;Automatically insert matching characters</source>
-        <translation>マッチング文字を自動的に挿入する(&amp;A)</translation>
-    </message>
-    <message>
-        <source>Surround &amp;text selections</source>
-        <translation>選択しているテキスト範囲を囲む(&amp;T)</translation>
-    </message>
-    <message>
-        <source>Insert &amp;space after function name</source>
-        <translation>関数名の末尾に空白を挿入する(&amp;S)</translation>
-    </message>
-    <message>
-        <source>Documentation Comments</source>
-        <translation>ドキュメントコメント</translation>
-    </message>
-    <message>
-        <source>Enable Doxygen blocks</source>
-        <translation>Doxygen ブロックを有効にする</translation>
-    </message>
-    <message>
-        <source>Generate brief description</source>
-        <translation>簡易説明を生成する</translation>
-    </message>
-    <message>
-        <source>Add leading asterisks</source>
-        <translation>先頭にアスタリスクを追加する</translation>
-    </message>
-    <message>
-        <source>Completion</source>
-        <translation>補完</translation>
+        <source>Timeout in ms:</source>
+        <translation>タイムアウト(ミリ秒):</translation>
     </message>
     <message>
         <source>Inserts the common prefix of available completion items.</source>
-        <translation>利用可能な補完アイテムで共通なプレフィックスを自動的に挿入します。</translation>
+        <translation>利用可能な補完アイテムで共通するプレフィックスを自動的に挿入します。</translation>
     </message>
     <message>
-        <source>Automatically inserts semicolons and closing brackets, parentheses, curly braces, and quotes when appropriate.</source>
-        <translation>自動的にセミコロンや閉じ波括弧、括弧、角括弧、および引用符を適切に挿入します。</translation>
-    </message>
-    <message>
-        <source>When typing a matching character and there is a text selection, instead of removing the selection, surrounds it with the corresponding characters.</source>
-        <translation>テキストを選択している状態でマッチング文字を入力した場合、選択部分を削除せずに対応する文字で囲みます。</translation>
-    </message>
-    <message>
-        <source>Automatically creates a Doxygen comment upon pressing enter after a &apos;/**&apos;, &apos;/*!&apos;, &apos;//!&apos; or &apos;///&apos;.</source>
-        <translation>&apos;/**&apos;, &apos;/*!&apos;, &apos;//!&apos;, &apos;///&apos; の後にリターンを入力した場合に、自動的に Doxygen 用のコメントを作成します。</translation>
-    </message>
-    <message>
-        <source>Generates a &lt;i&gt;brief&lt;/i&gt; command with an initial description for the corresponding declaration.</source>
-        <translation>宣言に対応する最初の記述を持つ &lt;i&gt;brief&lt;/i&gt; コマンドを生成します。</translation>
-    </message>
-    <message>
-        <source>Adds leading asterisks when continuing C/C++ &quot;/*&quot;, Qt &quot;/*!&quot; and Java &quot;/**&quot; style comments on new lines.</source>
-        <translation>C/C++ &quot;/*&quot; や Qt &quot;/*!&quot; あるいは Java &quot;/**&quot; スタイルのコメントを改行で継続する場合に、行頭にアスタリスク &apos;*&apos; を追加します。</translation>
-    </message>
-    <message>
-        <source>Automatically split strings</source>
-        <translation>自動的に文字列を分割する</translation>
+        <source>Autocomplete common &amp;prefix</source>
+        <translation>共通するプレフィックスは自動的に補完する(&amp;P)</translation>
     </message>
     <message>
         <source>Splits a string into two lines by adding an end quote at the cursor position when you press Enter and a start quote to the next line, before the rest of the string.
@@ -1894,8 +1850,100 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
 また、Shift+Enter の場合には引用符は挿入せずに改行をエスケープして二行に分割します。</translation>
     </message>
     <message>
-        <source>Timeout in ms:</source>
-        <translation>タイムアウト(ミリ秒):</translation>
+        <source>Automatically split strings</source>
+        <translation>文字列を自動的に分割する</translation>
+    </message>
+    <message>
+        <source>&amp;Automatically insert matching characters</source>
+        <translation>マッチング文字を自動的に挿入する(&amp;A)</translation>
+    </message>
+    <message>
+        <source>Insert opening or closing brackets</source>
+        <translation>開き・閉じ括弧を挿入する</translation>
+    </message>
+    <message>
+        <source>Insert closing quote</source>
+        <translation>閉じる引用符を挿入する</translation>
+    </message>
+    <message>
+        <source>When typing a matching bracket and there is a text selection, instead of removing the selection, surrounds it with the corresponding characters.</source>
+        <translation>テキストを選択している状態で括弧を入力した場合、選択部分を削除せずに対応する文字で囲みます。</translation>
+    </message>
+    <message>
+        <source>Surround text selection with brackets</source>
+        <translation>選択しているテキストを括弧で囲む</translation>
+    </message>
+    <message>
+        <source>Insert &amp;space after function name</source>
+        <translation>関数名の末尾に空白を挿入する(&amp;S)</translation>
+    </message>
+    <message>
+        <source>When typing a matching quote and there is a text selection, instead of removing the selection, surrounds it with the corresponding characters.</source>
+        <translation>テキストを選択している状態で引用符を入力した場合、選択部分を削除せずに対応する文字で囲みます。</translation>
+    </message>
+    <message>
+        <source>Surround text selection with quotes</source>
+        <translation>選択しているテキストを引用符で囲む</translation>
+    </message>
+    <message>
+        <source>Show a visual hint when for example a brace or a quote is automatically inserted by the editor.</source>
+        <translation>括弧や引用符がエディタにより自動的に挿入された場合などに視覚的なヒントを表示します。</translation>
+    </message>
+    <message>
+        <source>Animate automatically inserted text</source>
+        <translation>自動的に入力されたテキストをアニメーションする</translation>
+    </message>
+    <message>
+        <source>Highlight automatically inserted text</source>
+        <translation>自動的に入力されたテキストをハイライトする</translation>
+    </message>
+    <message>
+        <source>Skip automatically inserted character if re-typed manually after completion.</source>
+        <translation>補完後に自動的に挿入された文字が手動で再度タイプされた場合、スキップします。</translation>
+    </message>
+    <message>
+        <source>Skip automatically inserted character when typing</source>
+        <translation>タイプ中に自動的に入力された文字はスキップする</translation>
+    </message>
+    <message>
+        <source>Remove the automatically inserted character if the trigger is deleted by backspace after the completion.</source>
+        <translation>補完後にトリガーとなった文字がバックスペースで削除された場合、自動的に挿入された文字を削除します。</translation>
+    </message>
+    <message>
+        <source>Remove automatically inserted text on backspace</source>
+        <translation>バックスペースで自動的に挿入された文字を削除する</translation>
+    </message>
+    <message>
+        <source>Documentation Comments</source>
+        <translation>ドキュメントコメント</translation>
+    </message>
+    <message>
+        <source>Automatically creates a Doxygen comment upon pressing enter after a &apos;/**&apos;, &apos;/*!&apos;, &apos;//!&apos; or &apos;///&apos;.</source>
+        <translation>&apos;/**&apos;, &apos;/*!&apos;, &apos;//!&apos;, &apos;///&apos; の後にリターンを入力した場合に、自動的に Doxygen 用のコメントを作成します。</translation>
+    </message>
+    <message>
+        <source>Enable Doxygen blocks</source>
+        <translation>Doxygen ブロックを有効にする</translation>
+    </message>
+    <message>
+        <source>Generates a &lt;i&gt;brief&lt;/i&gt; command with an initial description for the corresponding declaration.</source>
+        <translation>宣言に対応する最初の記述を持つ &lt;i&gt;brief&lt;/i&gt; コマンドを生成します。</translation>
+    </message>
+    <message>
+        <source>Generate brief description</source>
+        <translation>簡易説明を生成する</translation>
+    </message>
+    <message>
+        <source>Adds leading asterisks when continuing C/C++ &quot;/*&quot;, Qt &quot;/*!&quot; and Java &quot;/**&quot; style comments on new lines.</source>
+        <translation>C/C++ &quot;/*&quot; や Qt &quot;/*!&quot; あるいは Java &quot;/**&quot; スタイルのコメントを改行で継続する場合に、行頭にアスタリスク &apos;*&apos; を追加します。</translation>
+    </message>
+    <message>
+        <source>Add leading asterisks</source>
+        <translation>先頭にアスタリスクを追加する</translation>
+    </message>
+    <message>
+        <source>Completion</source>
+        <translation>補完</translation>
     </message>
 </context>
 <context>
@@ -1917,12 +1965,16 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <translation>コンパイル済みヘッダーを無視する</translation>
     </message>
     <message>
-        <source>&lt;i&gt;Activate the Clang Code Model plugin to enable the options here.&lt;/i&gt;</source>
-        <translation>&lt;i&gt;このオプションを有効にするには Clang コードモデルプラグインを読み込んでください。&lt;/i&gt;</translation>
-    </message>
-    <message>
         <source>Clang Code Model Warnings</source>
         <translation>Clang コードモデルの警告</translation>
+    </message>
+    <message>
+        <source>&lt;i&gt;The Clang Code Model is enabled because the corresponding plugin is loaded.&lt;/i&gt;</source>
+        <translation>&lt;i&gt;対応するプラグインが読み込まれたため、Clang コードモデルを有効にします。&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;i&gt;The Clang Code Model is disabled because the corresponding plugin is not loaded.&lt;/i&gt;</source>
+        <translation>&lt;i&gt;対応するプラグインが読み込まれなかったため、Clang コードモデルを無効にします。&lt;/i&gt;</translation>
     </message>
 </context>
 <context>
@@ -2149,6 +2201,14 @@ if they would align to the next line</source>
     <message>
         <source>Right const/volatile</source>
         <translation>右側の const/volatile</translation>
+    </message>
+    <message>
+        <source>Getter and Setter</source>
+        <translation>ゲッターとセッター</translation>
+    </message>
+    <message>
+        <source>Prefer getter names without &quot;get&quot;</source>
+        <translation>ゲッターの名前に &quot;get&quot; を付けない</translation>
     </message>
 </context>
 <context>
@@ -2629,9 +2689,11 @@ These prefixes are used in addition to current file name on Switch Header/Source
         <source>&amp;Track</source>
         <translation>トラック(&amp;T)</translation>
     </message>
-    <message>
-        <source>Include branches and tags that have not been active for %1 days.</source>
-        <translation>直近の %1 日にアクティブではないブランチやタグを含みます。</translation>
+    <message numerus="yes">
+        <source>Include branches and tags that have not been active for %n days.</source>
+        <translation>
+            <numerusform>直近の %n 日にアクティブではないブランチやタグを含みます。</numerusform>
+        </translation>
     </message>
     <message>
         <source>Checkout</source>
@@ -4105,11 +4167,15 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>None</source>
-        <translation>なし</translation>
+        <translation>しない</translation>
     </message>
     <message>
         <source>Same Project</source>
         <translation>同一プロジェクト</translation>
+    </message>
+    <message>
+        <source>Same Build Directory</source>
+        <translation>同一ビルドディレクトリ</translation>
     </message>
 </context>
 <context>
@@ -4188,10 +4254,6 @@ Add, modify, and remove document filters, which determine the documentation set 
 </context>
 <context>
     <name>ProjectExplorer::Internal::TargetSettingsWidget</name>
-    <message>
-        <source>TargetSettingsWidget</source>
-        <translation>TargetSettingsWidget</translation>
-    </message>
     <message>
         <source>Add Kit</source>
         <translation>キットを追加</translation>
@@ -4278,6 +4340,10 @@ Add, modify, and remove document filters, which determine the documentation set 
     <message>
         <source>Parallel jobs:</source>
         <translation>並列ジョブ数:</translation>
+    </message>
+    <message>
+        <source>Force probes</source>
+        <translation>プローブを強制する</translation>
     </message>
 </context>
 <context>
@@ -4721,11 +4787,11 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>Requires QApplication</source>
-        <translation>QApplication を必要とする</translation>
+        <translation>QApplication を使用する</translation>
     </message>
     <message>
         <source>Generate initialization and cleanup code</source>
-        <translation>初期化およびクリーンアップコードを生成する</translation>
+        <translation>初期化およびクリーンアップ用コードを生成する</translation>
     </message>
     <message>
         <source>File:</source>
@@ -5229,6 +5295,30 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Debug QML emulation layer:</source>
         <translation>QML エミュレーションレイヤをデバッグする:</translation>
     </message>
+    <message>
+        <source>Controls 2 style</source>
+        <translation>Controls 2 のスタイル:</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation>既定</translation>
+    </message>
+    <message>
+        <source>Material</source>
+        <translation>Material</translation>
+    </message>
+    <message>
+        <source>Universal</source>
+        <translation>Universal</translation>
+    </message>
+    <message>
+        <source>Qt Quick Designer will propose to open .ui.qml files instead of opening a .qml file.</source>
+        <translation>Qt Quick Designer は .qml ファイルの代わりに .ui.qml ファイルを使用することを提案します。</translation>
+    </message>
+    <message>
+        <source>Warn about using .qml files instead of .ui.qml files</source>
+        <translation>.ui.qml ファイルではなく .qml ファイルを使用する場合に警告する</translation>
+    </message>
 </context>
 <context>
     <name>QmlJSEditor::Internal::ComponentNameDialog</name>
@@ -5245,8 +5335,8 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>コンポーネント名:</translation>
     </message>
     <message>
-        <source>Choose a path</source>
-        <translation>パスの選択</translation>
+        <source>Property assignments for %1:</source>
+        <translation>%1 に残すプロパティ:</translation>
     </message>
     <message>
         <source>Invalid component name</source>
@@ -5255,6 +5345,14 @@ Add, modify, and remove document filters, which determine the documentation set 
     <message>
         <source>Invalid path</source>
         <translation>無効なパス</translation>
+    </message>
+    <message>
+        <source>Property assignments for</source>
+        <translation>残すプロパティ</translation>
+    </message>
+    <message>
+        <source>Component Name</source>
+        <translation>コンポーネント名</translation>
     </message>
 </context>
 <context>
@@ -7959,29 +8057,6 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>PluginDialog</name>
-    <message>
-        <source>Details</source>
-        <translation>詳細</translation>
-    </message>
-    <message>
-        <source>Error Details</source>
-        <translation>エラーの詳細</translation>
-    </message>
-    <message>
-        <source>Installed Plugins</source>
-        <translation>インストール済みプラグイン</translation>
-    </message>
-    <message>
-        <source>Plugin Details of %1</source>
-        <translation>プラグイン %1 の詳細</translation>
-    </message>
-    <message>
-        <source>Plugin Errors of %1</source>
-        <translation>プラグイン %1 のエラー情報</translation>
-    </message>
-</context>
-<context>
     <name>QmlDebug::QmlOutputParser</name>
     <message>
         <source>The port seems to be in use.</source>
@@ -8027,64 +8102,88 @@ will also disable the following plugins:
 <context>
     <name>QmlParser</name>
     <message>
-        <source>Illegal syntax for exponential number</source>
-        <translation>無効な指数シンタックス</translation>
+        <source>Illegal syntax for exponential number.</source>
+        <translation>無効な指数シンタックスです。</translation>
     </message>
     <message>
-        <source>Stray newline in string literal</source>
-        <translation>文字列リテラル中の改行</translation>
+        <source>Stray newline in string literal.</source>
+        <translation>文字列リテラル内に改行が存在します。</translation>
     </message>
     <message>
-        <source>Illegal unicode escape sequence</source>
-        <translation>無効な UNICODE エスケープシーケンス</translation>
+        <source>Illegal unicode escape sequence.</source>
+        <translation>無効な UNICODE エスケープシーケンスです。</translation>
     </message>
     <message>
-        <source>Illegal hexadecimal escape sequence</source>
-        <translation>無効な16進数のエスケープシーケンス</translation>
+        <source>Illegal hexadecimal escape sequence.</source>
+        <translation>無効な16進数のエスケープシーケンスです。</translation>
     </message>
     <message>
-        <source>Octal escape sequences are not allowed</source>
-        <translation>8進数のエスケープシーケンスは利用できません</translation>
+        <source>Octal escape sequences are not allowed.</source>
+        <translation>8進数のエスケープシーケンスは利用できません。</translation>
     </message>
     <message>
-        <source>Unclosed string at end of line</source>
-        <translation>文末で閉じられていない文字列</translation>
+        <source>Unclosed string at end of line.</source>
+        <translation>文末で閉じられていない文字列です。</translation>
     </message>
     <message>
-        <source>Decimal numbers can&apos;t start with &apos;0&apos;</source>
-        <translation>10進数は &apos;0&apos; で開始できません</translation>
+        <source>Decimal numbers cannot start with &quot;0&quot;.</source>
+        <translation>10進数は &quot;0&quot; で開始できません。</translation>
     </message>
     <message>
-        <source>At least one hexadecimal digit is required after &apos;0%1&apos;</source>
-        <translation>一桁以上の16進数が &apos;0%1&apos; の後に必要です</translation>
+        <source>At least one hexadecimal digit is required after &quot;0%1&quot;.</source>
+        <translation>一桁以上の16進数が &quot;0%1&quot; の後に必要です。</translation>
     </message>
     <message>
-        <source>Invalid regular expression flag &apos;%0&apos;</source>
-        <translation>無効な正規表現フラグ &apos;%0&apos;</translation>
+        <source>Invalid regular expression flag &quot;%0&quot;.</source>
+        <translation>&quot;%0&quot; は無効な正規表現フラグです。</translation>
     </message>
     <message>
-        <source>Unterminated regular expression backslash sequence</source>
-        <translation>閉じられていない正規表現のバックスラッシュシーケンス</translation>
+        <source>Unterminated regular expression backslash sequence.</source>
+        <translation>閉じられていない正規表現のバックスラッシュシーケンスです。</translation>
     </message>
     <message>
-        <source>Unterminated regular expression class</source>
-        <translation>閉じられていない正規表現クラス</translation>
+        <source>Unterminated regular expression class.</source>
+        <translation>閉じられていない正規表現クラスです。</translation>
     </message>
     <message>
-        <source>Unterminated regular expression literal</source>
-        <translation>閉じられていない正規表現</translation>
+        <source>Unterminated regular expression literal.</source>
+        <translation>閉じられていない正規表現リテラルです。</translation>
     </message>
     <message>
-        <source>Syntax error</source>
-        <translation>シンタックスエラー</translation>
+        <source>Syntax error.</source>
+        <translation>シンタックスエラーです。</translation>
     </message>
     <message>
-        <source>Unexpected token `%1&apos;</source>
-        <translation>予期しないトークン `%1&apos;</translation>
+        <source>Imported file must be a script.</source>
+        <translation>インポートされたファイルがスクリプトではありません。</translation>
     </message>
     <message>
-        <source>Expected token `%1&apos;</source>
-        <translation>期待されるトークン `%1&apos;</translation>
+        <source>Invalid module URI.</source>
+        <translation>無効なモジュールの URI です。</translation>
+    </message>
+    <message>
+        <source>Module import requires a version.</source>
+        <translation>モジュールをインポートするにはバージョン番号が含まれている必要があります。</translation>
+    </message>
+    <message>
+        <source>File import requires a qualifier.</source>
+        <translation>修飾子が必要なファイルのインポートです。</translation>
+    </message>
+    <message>
+        <source>Module import requires a qualifier.</source>
+        <translation>修飾子が必要なモジュールのインポートです。</translation>
+    </message>
+    <message>
+        <source>Invalid import qualifier.</source>
+        <translation>無効なインポート修飾子です。</translation>
+    </message>
+    <message>
+        <source>Unexpected token &quot;%1&quot;.</source>
+        <translation>&quot;%1&quot; は予期しないトークンです。</translation>
+    </message>
+    <message>
+        <source>Expected token &quot;%1&quot;.</source>
+        <translation>期待されるトークンは &quot;%1&quot; です。</translation>
     </message>
 </context>
 <context>
@@ -8142,6 +8241,14 @@ will also disable the following plugins:
     <message>
         <source>Major version different from 1 not supported.</source>
         <translation>メジャーバージョンは 1 のみに対応しています。</translation>
+    </message>
+    <message>
+        <source>Expected dependency definitions</source>
+        <translation>依存関係の定義が必要です</translation>
+    </message>
+    <message>
+        <source>Cannot read dependency: skipping.</source>
+        <translation>依存関係を読み込めません: スキップします。</translation>
     </message>
     <message>
         <source>Expected only Property, Method, Signal and Enum object definitions, not &quot;%1&quot;.</source>
@@ -8274,7 +8381,9 @@ Import paths:
 
 For qmake projects, use the QML_IMPORT_PATH variable to add import paths.
 For Qbs projects, declare and set a qmlImportPaths property in your product to add import paths.
-For qmlproject projects, use the importPaths property to add import paths.</source>
+For qmlproject projects, use the importPaths property to add import paths.
+For CMake projects, make sure QML_IMPORT_PATH variable is in CMakeCache.txt.
+</source>
         <translation>QML モジュールが見つかりません。
 
 インポートパス:
@@ -8282,7 +8391,9 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
 
 qmake プロジェクトでは、インポートするパスを QML_IMPORT_PATH 変数を使用して追加します。
 Qbs プロジェクトでは、インポートするパスを qmlImportPaths プロパティを宣言して設定します。
-qmlproject プロジェクトでは、インポートするパスを importPaths プロパティを使用して追加します。</translation>
+qmlproject プロジェクトでは、インポートするパスを importPaths プロパティを使用して追加します。
+CMake プロジェクトでは、CMakeCache.txt 内で QML_IMPORT_PATH 変数を使用します。
+</translation>
     </message>
     <message>
         <source>QML module contains C++ plugins, currently reading type information...</source>
@@ -8521,6 +8632,10 @@ qmlproject プロジェクトでは、インポートするパスを importPaths
         <translation>Qt Quick UI フォームではルートアイテムの親を参照できません。</translation>
     </message>
     <message>
+        <source>A State cannot have a child item (%1).</source>
+        <translation>State は子アイテム (%1) を持つことができません。</translation>
+    </message>
+    <message>
         <source>Do not use &quot;%1&quot; as a constructor.</source>
         <translation>&quot;%1&quot; はコンストラクタとして使用できません。</translation>
     </message>
@@ -8578,7 +8693,7 @@ qmlproject プロジェクトでは、インポートするパスを importPaths
     </message>
     <message>
         <source>Missing property &quot;%1&quot;.</source>
-        <translation>プロパティ &apos;%1&apos; が見つかりません。</translation>
+        <translation>プロパティ &quot;%1&quot; が見つかりません。</translation>
     </message>
     <message>
         <source>Object value expected.</source>
@@ -8770,6 +8885,14 @@ Server list was %2.</source>
 </context>
 <context>
     <name>QSsh::Internal::SshChannelManager</name>
+    <message>
+        <source>Unexpected request success packet.</source>
+        <translation>成功パケットの要求は予期していません。</translation>
+    </message>
+    <message>
+        <source>Unexpected request failure packet.</source>
+        <translation>失敗パケットの要求は予期していません。</translation>
+    </message>
     <message>
         <source>Invalid channel id %1</source>
         <translation>%1 は無効なチャネル ID です</translation>
@@ -9625,28 +9748,12 @@ Do you want to uninstall the existing package?</source>
         <translation>パッケージデプロイ: コマンド &quot;%1 %2&quot; を実行しています。</translation>
     </message>
     <message>
-        <source>Packaging error: Could not start command &quot;%1 %2&quot;. Reason: %3</source>
-        <translation>パッケージ作成エラー: コマンド &quot;%1 %2&quot; を実行できませんでした。原因: %3</translation>
-    </message>
-    <message>
-        <source>Packaging error: Command &quot;%1 %2&quot; failed.</source>
-        <translation>パッケージ作成エラー: コマンド &quot;%1 %2&quot; に失敗しました。</translation>
-    </message>
-    <message>
         <source>Install failed</source>
         <translation>インストールエラー</translation>
     </message>
     <message>
         <source>Pulling files necessary for debugging.</source>
         <translation>デバッグに必要なファイルを取得しています。</translation>
-    </message>
-    <message>
-        <source>Reason: %1</source>
-        <translation>原因: %1</translation>
-    </message>
-    <message>
-        <source>Exit code: %1</source>
-        <translation>終了コード: %1</translation>
     </message>
 </context>
 <context>
@@ -9958,24 +10065,12 @@ Do you want to uninstall the existing package?</source>
         <translation>C++ デバッグポートの転送に失敗しました。原因: %1。</translation>
     </message>
     <message>
-        <source>Failed to forward C++ debugging ports.</source>
-        <translation>C++ デバッグポートの転送に失敗しました。</translation>
-    </message>
-    <message>
         <source>Failed to forward ping pong ports. Reason: %1.</source>
         <translation>ping 用ポートの転送に失敗しました。原因: %1.</translation>
     </message>
     <message>
-        <source>Failed to forward ping pong ports.</source>
-        <translation>ping 用ポートの転送に失敗しました。</translation>
-    </message>
-    <message>
         <source>Failed to forward QML debugging ports. Reason: %1.</source>
         <translation>QML デバッグポートの転送に失敗しました。原因: %1。</translation>
-    </message>
-    <message>
-        <source>Failed to forward QML debugging ports.</source>
-        <translation>QML デバッグポートの転送に失敗しました。</translation>
     </message>
     <message>
         <source>Failed to start the activity. Reason: %1.</source>
@@ -10758,6 +10853,10 @@ Qt を追加するにはオプションから「ビルドと実行」→「Qt �
         <source>Model Editor</source>
         <translation>モデルエディタ</translation>
     </message>
+    <message>
+        <source>Nim Editor</source>
+        <translation>Nim エディタ</translation>
+    </message>
 </context>
 <context>
     <name>Bookmarks::Internal::BookmarkView</name>
@@ -10916,7 +11015,7 @@ Qt を追加するにはオプションから「ビルドと実行」→「Qt �
     </message>
     <message>
         <source>C&amp;learCase</source>
-        <translation>ClearCase(&amp;l)</translation>
+        <translation>C&amp;learCase</translation>
     </message>
     <message>
         <source>Check Out...</source>
@@ -11282,6 +11381,26 @@ Qt を追加するにはオプションから「ビルドと実行」→「Qt �
         <translation>ビルドディレクトリ:</translation>
     </message>
     <message>
+        <source>&amp;Add</source>
+        <translation>追加(&amp;A)</translation>
+    </message>
+    <message>
+        <source>&amp;Boolean</source>
+        <translation>真偽値(&amp;B)</translation>
+    </message>
+    <message>
+        <source>&amp;String</source>
+        <translation>文字列(&amp;S)</translation>
+    </message>
+    <message>
+        <source>&amp;Directory</source>
+        <translation>ディレクトリ(&amp;D)</translation>
+    </message>
+    <message>
+        <source>&amp;File</source>
+        <translation>ファイル(&amp;F)</translation>
+    </message>
+    <message>
         <source>&amp;Edit</source>
         <translation>編集(&amp;E)</translation>
     </message>
@@ -11296,6 +11415,10 @@ Qt を追加するにはオプションから「ビルドと実行」→「Qt �
     <message>
         <source>Apply Configuration Changes</source>
         <translation>設定の変更を適用</translation>
+    </message>
+    <message>
+        <source>&lt;UNSET&gt;</source>
+        <translation>&lt;未定義&gt;</translation>
     </message>
     <message>
         <source>CMake</source>
@@ -11869,7 +11992,7 @@ Continue?</source>
     </message>
 </context>
 <context>
-    <name>Core::ICore</name>
+    <name>ICore</name>
     <message>
         <source> (%1)</source>
         <translation> (%1)</translation>
@@ -12613,7 +12736,7 @@ to version control (%2)
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CppIncludeHierarchyWidget</name>
+    <name>CppEditor::CppIncludeHierarchy</name>
     <message>
         <source>No include hierarchy available</source>
         <translation>インクルード階層は利用できません</translation>
@@ -13273,7 +13396,7 @@ Flags: %3</source>
     </message>
     <message>
         <source>&amp;CVS</source>
-        <translation>CVS(&amp;C)</translation>
+        <translation>&amp;CVS</translation>
     </message>
     <message>
         <source>Diff Current File</source>
@@ -14109,14 +14232,6 @@ Flags: %3</source>
         <translation>デバッガの起動に失敗しました</translation>
     </message>
     <message>
-        <source>Normal</source>
-        <translation>ノーマル</translation>
-    </message>
-    <message>
-        <source>Separate Window</source>
-        <translation>別ウィンドウ</translation>
-    </message>
-    <message>
         <source>There is no CDB executable specified.</source>
         <translation>CDB 実行ファイルが指定されていません。</translation>
     </message>
@@ -14423,7 +14538,7 @@ Flags: %3</source>
     </message>
     <message>
         <source>&lt;p&gt;Displays the objectName property of QObject based items. Note that this can negatively impact debugger performance even if no QObjects are present.</source>
-        <translation>&lt;p&gt;QObject ベースのクラスでは objectName プロパティを表示します。注: QObject クラスが使用されていない場合でもデバッガのパフォーマンスが悪化する可能性があります。</translation>
+        <translation>&lt;p&gt;QObject ベースのクラスでは objectName プロパティを表示します。注意: QObject クラスが使用されていない場合でもデバッガのパフォーマンスが悪化する可能性があります。</translation>
     </message>
     <message>
         <source>Sort Members of Classes and Structs Alphabetically</source>
@@ -14792,6 +14907,10 @@ Flags: %3</source>
     <message>
         <source>The debugger location must be given as an absolute path (%1).</source>
         <translation>デバッガのパスは絶対パスを指定する必要があります (%1)。</translation>
+    </message>
+    <message>
+        <source>The ABI of the selected debugger does not match the toolchain ABI.</source>
+        <translation>選択されたデバッガの ABI がツールチェインの ABI と合致しません。</translation>
     </message>
     <message>
         <source>Name of Debugger</source>
@@ -15400,8 +15519,8 @@ Qt Creator はアタッチできません。</translation>
 <context>
     <name>Debugger::Internal::GdbAttachEngine</name>
     <message>
-        <source>Attached to process %1.</source>
-        <translation>プロセス %1 にアタッチしました。</translation>
+        <source>Attaching to process %1.</source>
+        <translation>プロセス %1 にアタッチします。</translation>
     </message>
     <message>
         <source>Attached to running application</source>
@@ -15627,7 +15746,7 @@ You can choose between waiting longer or aborting debugging.</source>
     </message>
     <message>
         <source>There is no GDB binary available for binaries in format &quot;%1&quot;</source>
-        <translation>&quot;%1&quot; フォーマットのバイナリで使用可能な GDB のバイナリがありません</translation>
+        <translation>&quot;%1&quot; フォーマットのバイナリで利用可能な GDB のバイナリがありません</translation>
     </message>
     <message>
         <source>The debugger settings point to a script file at &quot;%1&quot; which is not accessible. If a script file is not needed, consider clearing that entry to avoid this warning. </source>
@@ -15696,10 +15815,6 @@ You can choose between waiting longer or aborting debugging.</source>
     <message>
         <source>Cannot create snapshot:</source>
         <translation>スナップショットが作成できません:</translation>
-    </message>
-    <message>
-        <source>Finished retrieving data</source>
-        <translation>データの受信が完了しました</translation>
     </message>
     <message>
         <source>Cannot read widget data: %1</source>
@@ -15929,7 +16044,7 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Attempts to identify missing debug info packages and lists them in the Issues output pane.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; This feature needs special support from the Linux distribution and GDB build and is not available everywhere.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;不足しているデバッグ情報パッケージを特定を試み、そのリストを「問題」ペインに出力します。&lt;/p&gt;&lt;p&gt;&lt;b&gt;注:&lt;/b&gt; この機能は特別な Linux ディストリビューションのサポートとそれに対応した GDB が必要なため、機能しない場合があります。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;不足しているデバッグ情報パッケージを特定を試み、そのリストを「問題」ペインに出力します。&lt;/p&gt;&lt;p&gt;&lt;b&gt;注意:&lt;/b&gt; この機能は特別な Linux ディストリビューションのサポートとそれに対応した GDB が必要なため、機能しない場合があります。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;To execute simple Python commands, prefix them with &quot;python&quot;.&lt;/p&gt;&lt;p&gt;To execute sequences of Python commands spanning multiple lines prepend the block with &quot;python&quot; on a separate line, and append &quot;end&quot; on a separate line.&lt;/p&gt;&lt;p&gt;To execute arbitrary Python scripts, use &lt;i&gt;python execfile(&apos;/path/to/script.py&apos;)&lt;/i&gt;.&lt;/p&gt;</source>
@@ -15997,7 +16112,7 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enables stepping backwards.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; This feature is very slow and unstable on the GDB side. It exhibits unpredictable behavior when going backwards over system calls and is very likely to destroy your debugging session.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;ステップの逆実行を有効にします。&lt;/p&gt;&lt;p&gt;&lt;b&gt;注:&lt;/b&gt; この機能はとても遅く、GDB が不安定になります。システムコールの逆実行時には予測不可能な挙動を示し、高確率でデバッグセッションが破壊されます。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;ステップの逆実行を有効にします。&lt;/p&gt;&lt;p&gt;&lt;b&gt;注意:&lt;/b&gt; この機能はとても遅く、GDB が不安定になります。システムコールの逆実行時には予測不可能な挙動を示し、高確率でデバッグセッションが破壊されます。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;Postpones reading debug information as long as possible. This can result in faster startup times at the price of not being able to set breakpoints by file and number.&lt;/body&gt;&lt;/html&gt;</source>
@@ -16075,6 +16190,22 @@ markers in the source code editor.</source>
     <message>
         <source>Reading debug information failed:</source>
         <translation>デバッグ情報の読込に失敗しました:</translation>
+    </message>
+    <message>
+        <source>No Remote Executable or Process ID Specified</source>
+        <translation>リモートの実行ファイルまたはプロセスIDが指定されていません</translation>
+    </message>
+    <message>
+        <source>No remote executable could be determined from your build system files.&lt;p&gt;In case you use qmake, consider adding&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;target.path = /tmp/your_executable # path on device&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;INSTALLS += target&lt;/p&gt;to your .pro file.</source>
+        <translation>ビルドシステムのファイルからリモートの実行ファイルを特定できませんでした。&lt;p&gt;qmake を使用している場合は、.pro ファイルに以下の行を追加してください。&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;target.path = /tmp/your_executable # デバイス上のパス&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;INSTALLS += target&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>Continue Debugging</source>
+        <translation>デバッグの続行</translation>
+    </message>
+    <message>
+        <source>Stop Debugging</source>
+        <translation>デバッグを停止</translation>
     </message>
     <message>
         <source>Interrupting not possible</source>
@@ -16168,6 +16299,10 @@ markers in the source code editor.</source>
 </context>
 <context>
     <name>Debugger::Internal::LldbEngine</name>
+    <message>
+        <source>Run in Terminal is not supported with the LLDB backend.</source>
+        <translation>LLDB バックエンドでは「ターミナルで実行」オプションはサポートされていません。</translation>
+    </message>
     <message>
         <source>Unable to start LLDB &quot;%1&quot;: %2</source>
         <translation>LLDB &quot;%1&quot; を開始できません: %2</translation>
@@ -16310,6 +16445,16 @@ markers in the source code editor.</source>
     <message>
         <source>Command:</source>
         <translation>コマンド:</translation>
+    </message>
+    <message>
+        <source>NOTE: This log contains possibly confidential information about your machine, environment variables, in-memory data of the processes you are debugging, and more. It is never transferred over the internet by Qt Creator, and only stored to disk if you manually use the respective option from the context menu, or through mechanisms that are not under Qt Creator&apos;s control, for instance in swap files.
+You may be asked to share the contents of this log when reporting bugs related to debugger operation. In this case, make sure your submission does not contain data you do not want to or you are not allowed to share.
+
+</source>
+        <translation>注意: このログにはマシンやその環境変数、デバッグ中のプロセスのメモリデータなどの機密情報が含まれている可能性があります。Qt Creator がこの情報をインターネット上に送信することはありません。コンテキストメニューから該当するオプションを選択した場合やスワップファイルなどの Qt Creator のコントロール下にない仕組みを通じてのみ、ディスク上に格納されます。
+デバッガ操作に関連したバグレポート時にこのログのコンテンツの共有を依頼される場合があるかもしれませんが、その場合共有不可能なデータが含まれていないことを確認してください。
+
+</translation>
     </message>
     <message>
         <source>User commands are not accepted in the current state.</source>
@@ -16612,6 +16757,10 @@ Do you want to retry?</source>
     <message>
         <source>QML debugging port not set: Unable to convert %1 to unsigned int.</source>
         <translation>QML デバッグポートが設定されていません。%1 は符号無し整数に変換できません。</translation>
+    </message>
+    <message>
+        <source>Waiting for JavaScript engine to interrupt on next statement.</source>
+        <translation>JavaScript エンジンが次の文に割り込むのを待機しています。</translation>
     </message>
     <message>
         <source>Run to line %1 (%2) requested...</source>
@@ -17127,6 +17276,10 @@ Do you want to retry?</source>
         <translation>&lt;無効&gt;</translation>
     </message>
     <message>
+        <source>&lt;out of scope&gt;</source>
+        <translation>&lt;スコープ範囲外&gt;</translation>
+    </message>
+    <message>
         <source>&lt;not accessible&gt;</source>
         <translation>&lt;アクセス不可&gt;</translation>
     </message>
@@ -17220,6 +17373,14 @@ Do you want to retry?</source>
     <message>
         <source>Latin1 String in Separate Window</source>
         <translation>別ウィンドウに Latin1 文字列</translation>
+    </message>
+    <message>
+        <source>Normal</source>
+        <translation>ノーマル</translation>
+    </message>
+    <message>
+        <source>Separate Window</source>
+        <translation>別ウィンドウ</translation>
     </message>
     <message>
         <source>UTF-8 String in Separate Window</source>
@@ -17377,6 +17538,14 @@ Do you want to retry?</source>
         <translation>表示内容をクリップボードにコピー</translation>
     </message>
     <message>
+        <source>Copy Current Value to Clipboard</source>
+        <translation>現在の値をクリップボードにコピー</translation>
+    </message>
+    <message>
+        <source>Copy Selected Rows to Clipboard</source>
+        <translation>選択された行をクリップボードにコピー</translation>
+    </message>
+    <message>
         <source>Open View Contents in Editor</source>
         <translation>表示内容をエディタで開く</translation>
     </message>
@@ -17390,7 +17559,7 @@ Do you want to retry?</source>
     </message>
     <message>
         <source>Note: Evaluators will be re-evaluated after each step. For details check the &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debug-mode.html#locals-and-expressions&quot;&gt;documentation&lt;/a&gt;.</source>
-        <translation>注: 式は各ステップ実行ごとに再評価されます。詳細は &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debug-mode.html#locals-and-expressions&quot;&gt;ドキュメント&lt;/a&gt; を参照してください。</translation>
+        <translation>注意: 式は各ステップ実行ごとに再評価されます。詳細は &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debug-mode.html#locals-and-expressions&quot;&gt;ドキュメント&lt;/a&gt; を参照してください。</translation>
     </message>
     <message>
         <source>Treat All Characters as Printable</source>
@@ -17503,10 +17672,6 @@ Do you want to retry?</source>
     <message>
         <source>Open Memory Editor Showing Stack Layout</source>
         <translation>表示しているスタックレイアウトをメモリエディタで開く</translation>
-    </message>
-    <message>
-        <source>Copy Value to Clipboard</source>
-        <translation>値をクリップボードにコピー</translation>
     </message>
     <message>
         <source>Close Editor Tooltips</source>
@@ -17964,7 +18129,7 @@ Would you like to terminate it?</source>
     </message>
     <message>
         <source>&amp;ssh:</source>
-        <translation>SSH(&amp;s):</translation>
+        <translation>&amp;ssh:</translation>
     </message>
     <message>
         <source>&amp;Port:</source>
@@ -18119,10 +18284,6 @@ were not verified among remotes in %3. Select different folder?</source>
     <message>
         <source>Cannot launch &quot;%1&quot;.</source>
         <translation>&quot;%1&quot; を起動できません。</translation>
-    </message>
-    <message>
-        <source>Cannot run &quot;%1 %2&quot; in &quot;%2&quot;: %3</source>
-        <translation>&quot;%1 %2&quot; を &quot;%2&quot; で実行できません: %3</translation>
     </message>
     <message>
         <source>Git Diff Project</source>
@@ -18344,6 +18505,10 @@ Commit now?</source>
     <message>
         <source>Git Diff Files</source>
         <translation>Git ファイルの差分表示</translation>
+    </message>
+    <message>
+        <source>Cannot run &quot;%1&quot; in &quot;%2&quot;: %3</source>
+        <translation>&quot;%1&quot; を &quot;%2&quot; で実行できません: %3</translation>
     </message>
     <message numerus="yes">
         <source>Committed %n file(s).</source>
@@ -18788,7 +18953,7 @@ Commit now?</source>
     </message>
     <message>
         <source>&amp;Subversion</source>
-        <translation>Subversion(&amp;S)</translation>
+        <translation>&amp;Subversion</translation>
     </message>
     <message>
         <source>Manage Remotes...</source>
@@ -19094,6 +19259,14 @@ Remote: %4</source>
         <translation>削除(&amp;D)</translation>
     </message>
     <message>
+        <source>Unchanged File</source>
+        <translation>未変更のファイル</translation>
+    </message>
+    <message>
+        <source>Was the merge successful?</source>
+        <translation>マージが完了しましたか？</translation>
+    </message>
+    <message>
         <source>Continue Merging</source>
         <translation>マージの続行</translation>
     </message>
@@ -19385,8 +19558,8 @@ msysgit が、git bash 外で実行された時に自身のインストール先
         <translation>でブロイに失敗しました。iOS デバイスが見つかりません。</translation>
     </message>
     <message>
-        <source>Deployment failed. The settings in the Organizer window of Xcode might be incorrect.</source>
-        <translation>デプロイに失敗しました。Xcode の Organizer ウィンドウでの設定が正しくないかもしれません。</translation>
+        <source>Deployment failed. The settings in the Devices window of Xcode might be incorrect.</source>
+        <translation>デプロイに失敗しました。Xcode の Devices ウィンドウでの設定が正しくないかもしれません。</translation>
     </message>
     <message>
         <source>Deployment failed.</source>
@@ -19954,7 +20127,7 @@ msysgit が、git bash 外で実行された時に自身のインストール先
     <name>Perforce::Internal::PerforcePlugin</name>
     <message>
         <source>&amp;Perforce</source>
-        <translation>Perforce(&amp;P)</translation>
+        <translation>&amp;Perforce</translation>
     </message>
     <message>
         <source>Diff Current File</source>
@@ -20561,6 +20734,10 @@ msysgit が、git bash 外で実行された時に自身のインストール先
         <translation>プロジェクト %1 のビルド・デプロイ中にエラーが発生しました (キット %2)</translation>
     </message>
     <message>
+        <source>The kit %1 has configuration issues which might be the root cause for this problem.</source>
+        <translation>この問題は、キット %1 の設定が原因かもしれません。</translation>
+    </message>
+    <message>
         <source>When executing step &quot;%1&quot;</source>
         <translation>ステップ &quot;%1&quot; 実行中</translation>
     </message>
@@ -20909,48 +21086,8 @@ msysgit が、git bash 外で実行された時に自身のインストール先
         <translation>Qt Creator プラグイン</translation>
     </message>
     <message>
-        <source>Creates a new project including auto test skeleton.</source>
-        <translation>自動テストのスケルトンを含む新しいプロジェクトを作成します。</translation>
-    </message>
-    <message>
-        <source>Auto Test</source>
-        <translation>自動テスト</translation>
-    </message>
-    <message>
         <source>Other Project</source>
         <translation>その他のプロジェクト</translation>
-    </message>
-    <message>
-        <source>Project and Test Information</source>
-        <translation>プロジェクトとテスト情報</translation>
-    </message>
-    <message>
-        <source>GUI Application</source>
-        <translation>GUI アプリケーション</translation>
-    </message>
-    <message>
-        <source>Test Case Name:</source>
-        <translation>テストケース名:</translation>
-    </message>
-    <message>
-        <source>Requires QApplication</source>
-        <translation>QApplication を必要とする</translation>
-    </message>
-    <message>
-        <source>Generate initialization and cleanup code</source>
-        <translation>初期化およびクリーンアップ用コードを生成する</translation>
-    </message>
-    <message>
-        <source>Build auto tests</source>
-        <translation>自動テストのビルド</translation>
-    </message>
-    <message>
-        <source>always</source>
-        <translation>常時</translation>
-    </message>
-    <message>
-        <source>debug only</source>
-        <translation>デバッグ時のみ</translation>
     </message>
     <message>
         <source>Library</source>
@@ -21263,6 +21400,10 @@ msysgit が、git bash 外で実行された時に自身のインストール先
         <translation>現在のビルドの名前</translation>
     </message>
     <message>
+        <source>Main file of current project</source>
+        <translation>現在のプロジェクトのメインファイル</translation>
+    </message>
+    <message>
         <source>Name of current project</source>
         <translation>現在のプロジェクトの名前</translation>
     </message>
@@ -21383,13 +21524,6 @@ msysgit が、git bash 外で実行された時に自身のインストール先
     <message>
         <source>Base environment for this run configuration:</source>
         <translation>この実行設定用の基本環境:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentItemsDialog</name>
-    <message>
-        <source>Edit Environment</source>
-        <translation>環境変数の編集</translation>
     </message>
 </context>
 <context>
@@ -21598,8 +21732,16 @@ msysgit が、git bash 外で実行された時に自身のインストール先
 <context>
     <name>ProjectExplorer::SysRootKitInformation</name>
     <message>
+        <source>Sys Root &quot;%1&quot; does not exist in the file system.</source>
+        <translation>ファイルシステム上に Sys Root &quot;%1&quot; が存在しません。</translation>
+    </message>
+    <message>
         <source>Sys Root &quot;%1&quot; is not a directory.</source>
         <translation>Sys Root &quot;%1&quot; はディレクトリではありません。</translation>
+    </message>
+    <message>
+        <source>Sys Root &quot;%1&quot; is empty.</source>
+        <translation>Sys Root &quot;%1&quot; が空です。</translation>
     </message>
     <message>
         <source>Sys Root</source>
@@ -22349,6 +22491,10 @@ Please close all running instances of your application before starting a build.<
         <translation>現在有効なキットのデバイスにログインする際のユーザー名です。</translation>
     </message>
     <message>
+        <source>Duplicate File...</source>
+        <translation>ファイルの複製...</translation>
+    </message>
+    <message>
         <source>All Projects</source>
         <translation>すべてのプロジェクト</translation>
     </message>
@@ -22466,7 +22612,7 @@ Do you want to ignore them?</source>
     </message>
     <message>
         <source>Run %1</source>
-        <translation>%1 の実行</translation>
+        <translation>%1 を実行</translation>
     </message>
     <message>
         <source>New File</source>
@@ -22497,6 +22643,24 @@ Do you want to ignore them?</source>
     <message>
         <source>Could not remove file %1 from project %2.</source>
         <translation>プロジェクト %2 からファイル %1 を削除できません。</translation>
+    </message>
+    <message>
+        <source>_copy</source>
+        <translatorcomment>ファイル名の末尾</translatorcomment>
+        <translation>_copy</translation>
+    </message>
+    <message>
+        <source>_copy%1</source>
+        <translatorcomment>ファイル名の末尾</translatorcomment>
+        <translation>_copy%1</translation>
+    </message>
+    <message>
+        <source>Duplicating File Failed</source>
+        <translation>ファイルの複製に失敗</translation>
+    </message>
+    <message>
+        <source>Could not duplicate the file %1.</source>
+        <translation>ファイル %1 を複製できませんでした。</translation>
     </message>
     <message>
         <source>Delete File</source>
@@ -23613,7 +23777,7 @@ Neither the path to the library nor the path to its includes is added to the .pr
     <name>QmakeProjectManager::Internal::ExternalQtEditor</name>
     <message>
         <source>Unable to start &quot;%1&quot;</source>
-        <translation>&apos;%1&apos; を開始できません</translation>
+        <translation>&quot;%1&quot; を開始できません</translation>
     </message>
     <message>
         <source>The application &quot;%1&quot; could not be found.</source>
@@ -23788,6 +23952,10 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>mkspec</source>
         <translation>mkspec</translation>
     </message>
+    <message>
+        <source>Mkspec configured for qmake by the Kit.</source>
+        <translation>キットで設定されている qmake 用 Mkspec です。</translation>
+    </message>
 </context>
 <context>
     <name>QmakeProjectManager::QmakePriFileNode</name>
@@ -23948,6 +24116,14 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>Configuration unchanged, skipping qmake step.</source>
         <translation>設定が変更されていない為、qmake ステップをスキップします。</translation>
     </message>
+    <message>
+        <source>&lt;no Qt version&gt;</source>
+        <translation>&lt;Qt バージョンが未設定&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;no Make step found&gt;</source>
+        <translation>&lt;Make コマンドが見つかりません&gt;</translation>
+    </message>
 </context>
 <context>
     <name>QmakeProjectManager::QMakeStepConfigWidget</name>
@@ -23984,10 +24160,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
     <message>
         <source>Disables QML debugging. QML profiling will still work.</source>
         <translation>QML デバッグを無効化します。QML プロファイラは利用可能です。</translation>
-    </message>
-    <message>
-        <source>&lt;No Qt version&gt;</source>
-        <translation>&lt;Qt バージョンが未設定&gt;</translation>
     </message>
 </context>
 <context>
@@ -24052,8 +24224,16 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <translation>SVG ファイルを表示する為のクラスです</translation>
     </message>
     <message>
+        <source>Classes for displaying and editing Web content using Chromium backend</source>
+        <translation>Chromium バックエンドを使用する Web コンテンツを表示・編集する為のクラスです</translation>
+    </message>
+    <message>
+        <source>WebEngine and QWidget-based classes using Chromium backend</source>
+        <translation>Chromium バックエンドを使用する WebEngine と QWidget ベースのクラスです</translation>
+    </message>
+    <message>
         <source>Classes for displaying and editing Web content</source>
-        <translation>Web コンテンツを表示したり編集したりする為のクラスです</translation>
+        <translation>Web コンテンツを表示・編集する為のクラスです</translation>
     </message>
     <message>
         <source>WebKit1 and QWidget-based classes from Qt 4 (Qt 5)</source>
@@ -24313,6 +24493,14 @@ Preselects a desktop Qt for building the application if available.</source>
     <message>
         <source>Go to Implementation</source>
         <translation>実装へ移動</translation>
+    </message>
+    <message>
+        <source>Add New Signal Handler</source>
+        <translation>新しいシグナルハンドラの追加</translation>
+    </message>
+    <message>
+        <source>Move to Component</source>
+        <translation>コンポーネントへ移動</translation>
     </message>
     <message>
         <source>Set Id</source>
@@ -24693,22 +24881,7 @@ QML の可視性(visible)プロパティの値からは独立しています。<
     </message>
 </context>
 <context>
-    <name>QmlDesigner::PluginManager</name>
-    <message>
-        <source>About Plugins</source>
-        <translation>プラグインについて</translation>
-    </message>
-</context>
-<context>
     <name>WidgetPluginManager</name>
-    <message>
-        <source>Failed to create instance.</source>
-        <translation>インスタンスの作成に失敗しました。</translation>
-    </message>
-    <message>
-        <source>Not a QmlDesigner plugin.</source>
-        <translation>QmlDesigner プラグインではありません。</translation>
-    </message>
     <message>
         <source>Failed to create instance of file &apos;%1&apos;: %2</source>
         <translation>ファイル &apos;%1&apos; のインスタンス作成に失敗しました: %2</translation>
@@ -24889,7 +25062,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>QmlDesigner::RewriterView</name>
+    <name>QmlDesigner::RewriterError</name>
     <message>
         <source>Error parsing</source>
         <translation>解析中にエラーが発生</translation>
@@ -24897,10 +25070,6 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <source>Internal error</source>
         <translation>内部エラー</translation>
-    </message>
-    <message>
-        <source>&quot;%1&quot;</source>
-        <translation>&quot;%1&quot;</translation>
     </message>
     <message>
         <source>line %1</source>
@@ -24925,28 +25094,36 @@ Ids must begin with a lowercase letter.</source>
 <context>
     <name>QmlDesigner::Internal::DocumentWarningWidget</name>
     <message>
-        <source>Placeholder</source>
-        <translation>プレースホルダー</translation>
+        <source>Cannot open this QML document because of an error in the QML file:</source>
+        <translation>エラーが発生したため QML ファイルを開けません:</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;goToError&quot;&gt;Go to error&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;goToError&quot;&gt;エラーにジャンプ&lt;/a&gt;</translation>
+        <source>OK</source>
+        <translation>OK</translation>
     </message>
     <message>
-        <source>%3 (%1:%2)</source>
-        <translation>%3 (%1:%2)</translation>
+        <source>This QML file contains features which are not supported by Qt Quick Designer at:</source>
+        <translation>この QML ファイルには Qt Quick Designer で未対応の機能が含まれています:</translation>
     </message>
     <message>
-        <source>Internal error (%1)</source>
-        <translation>内部エラー (%1)</translation>
+        <source>Ignore</source>
+        <translation>無視</translation>
     </message>
     <message>
-        <source>Cannot open this QML document because of an error in the QML file:
-
-</source>
-        <translation>エラーが発生したため QML ファイルを開けません:
-
-</translation>
+        <source>Previous</source>
+        <translation>前へ</translation>
+    </message>
+    <message>
+        <source>Next</source>
+        <translation>次へ</translation>
+    </message>
+    <message>
+        <source>Go to error</source>
+        <translation>エラー箇所へ飛ぶ</translation>
+    </message>
+    <message>
+        <source>Go to warning</source>
+        <translation>警告箇所へ飛ぶ</translation>
     </message>
 </context>
 <context>
@@ -24970,6 +25147,14 @@ Ids must begin with a lowercase letter.</source>
 </context>
 <context>
     <name>QmlDesigner::QmlDesignerPlugin</name>
+    <message>
+        <source>Cannot Open Design Mode</source>
+        <translation>デザインモードを開けません</translation>
+    </message>
+    <message>
+        <source>The QML file is not currently opened in a QML Editor.</source>
+        <translation>この QML ファイルは現在 QML エディタで開けません。</translation>
+    </message>
     <message>
         <source>Switch Text/Design</source>
         <translation>ソース/デザイナの切替</translation>
@@ -25104,7 +25289,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
     <message>
         <source>Run Checks</source>
-        <translation>チェックを実行</translation>
+        <translation>チェックの実行</translation>
     </message>
     <message>
         <source>Ctrl+Shift+C</source>
@@ -25379,6 +25564,10 @@ Do you want to retry?</source>
         <translation>プロファイリングの有効化</translation>
     </message>
     <message>
+        <source>QML traces (*%1 *%2)</source>
+        <translation>QML トレース (*%1 *%2)</translation>
+    </message>
+    <message>
         <source>Discard data</source>
         <translation>データを破棄</translation>
     </message>
@@ -25393,10 +25582,6 @@ Do you want to retry?</source>
     <message>
         <source>Elapsed: %1</source>
         <translation>経過: %1</translation>
-    </message>
-    <message>
-        <source>QML traces (*%1)</source>
-        <translation>QML トレース (*%1)</translation>
     </message>
     <message>
         <source>You are about to discard the profiling data, including unsaved notes. Do you want to continue?</source>
@@ -25418,6 +25603,10 @@ Do you want to save the data first?</source>
 <context>
     <name>QmlProfiler::Internal::QmlProfilerStateWidget</name>
     <message>
+        <source>Profiling application: %1 events</source>
+        <translation>アプリケーションのプロファイリング: %1 イベント</translation>
+    </message>
+    <message>
         <source>Profiling application</source>
         <translation>アプリケーションのプロファイリング</translation>
     </message>
@@ -25426,24 +25615,24 @@ Do you want to save the data first?</source>
         <translation>QML イベントの記録なし</translation>
     </message>
     <message>
-        <source>Processing data</source>
-        <translation>データの処理中</translation>
+        <source>Processing data: %1 / %2</source>
+        <translation>データ処理中: %1 / %2</translation>
     </message>
     <message>
-        <source>Waiting for more data</source>
-        <translation>追加データ待機中</translation>
+        <source>Loading buffered data: %1 events</source>
+        <translation>バッファリング済みデータの読込中: %1 イベント</translation>
     </message>
     <message>
         <source>Clearing old trace</source>
         <translation>古いトレース結果のクリア中</translation>
     </message>
     <message>
-        <source>Waiting for data</source>
-        <translation>データ待機中</translation>
+        <source>Loading offline data: %1 events</source>
+        <translation>オフラインデータの読込中: %1 イベント</translation>
     </message>
     <message>
-        <source>Application stopped before loading all data</source>
-        <translation>アプリケーションはすべてのデータを読み込む前に停止しました</translation>
+        <source>Waiting for data</source>
+        <translation>データ待機中</translation>
     </message>
 </context>
 <context>
@@ -25590,6 +25779,22 @@ Do you want to save the data first?</source>
     <message>
         <source>Error while parsing trace data file: %1</source>
         <translation>トレースデータファイルの解析中のエラー: %1</translation>
+    </message>
+    <message>
+        <source>Invalid magic: %1</source>
+        <translation>無効なマジック: %1</translation>
+    </message>
+    <message>
+        <source>Unknown data stream version: %1</source>
+        <translation>未知のデータストリームバージョン: %1</translation>
+    </message>
+    <message>
+        <source>Invalid type index %1</source>
+        <translation>無効なタイプインデックス: %1</translation>
+    </message>
+    <message>
+        <source>Corrupt data before position %1.</source>
+        <translation>位置 %1 以前のデータが壊れています。</translation>
     </message>
 </context>
 <context>
@@ -25765,7 +25970,7 @@ Do you want to save the data first?</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDeviceConfiguration</name>
+    <name>Qnx::Internal::QnxDevice</name>
     <message>
         <source>QNX</source>
         <translation>QNX</translation>
@@ -25776,24 +25981,21 @@ Do you want to save the data first?</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDeviceConfigurationFactory</name>
+    <name>Qnx::Internal::QnxDeviceFactory</name>
     <message>
         <source>QNX Device</source>
         <translation>QNX デバイス</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDeviceConfigurationWizard</name>
+    <name>Qnx::Internal::QnxDeviceWizard</name>
+    <message>
+        <source>QNX Device</source>
+        <translation>QNX デバイス</translation>
+    </message>
     <message>
         <source>New QNX Device Configuration Setup</source>
-        <translation>新しい QNX デバイス設定の設定</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDeviceConfigurationWizardSetupPage</name>
-    <message>
-        <source>QNX Device</source>
-        <translation>QNX デバイス</translation>
+        <translation>新しい QNX デバイスの設定</translation>
     </message>
 </context>
 <context>
@@ -26045,16 +26247,12 @@ Do you want to save the data first?</source>
         <translation>qmake コマンド &quot;%1&quot; が見つからないか実行可能ではありません。</translation>
     </message>
     <message>
-        <source>Qmake does not support build directories below the source directory.</source>
-        <translation>Qmake はソースディレクトリ以下のビルドディレクトリをサポートしていません。</translation>
-    </message>
-    <message>
         <source>The build directory needs to be at the same level as the source directory.</source>
         <translation>ビルドディレクトリはソースディレクトリと同じ階層にある必要があります。</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::CustomExecutableConfigurationWidget</name>
+    <name>ProjectExplorer::Internal::CustomExecutableConfigurationWidget</name>
     <message>
         <source>Executable:</source>
         <translation>実行ファイル:</translation>
@@ -26065,14 +26263,14 @@ Do you want to save the data first?</source>
     </message>
 </context>
 <context>
-    <name>CustomExecutableDialog</name>
+    <name>ProjectExplorer::CustomExecutableDialog</name>
     <message>
         <source>Could not find the executable, please specify one.</source>
         <translation>実行ファイルが見つかりません。実行ファイルを指定してください。</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport::CustomExecutableRunConfiguration</name>
+    <name>ProjectExplorer::CustomExecutableRunConfiguration</name>
     <message>
         <source>No executable.</source>
         <translation>実行可能ファイルがありません。</translation>
@@ -26095,7 +26293,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>QtSupport::CustomExecutableRunConfigurationFactory</name>
+    <name>ProjectExplorer::CustomExecutableRunConfigurationFactory</name>
     <message>
         <source>Custom Executable</source>
         <translation>カスタム実行ファイル</translation>
@@ -26142,42 +26340,6 @@ cannot be found in the path.</source>
     <message>
         <source>Cannot Copy Project</source>
         <translation>プロジェクトをコピーできません</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmlDumpTool</name>
-    <message>
-        <source>Only available for Qt for Desktop.</source>
-        <translation>デスクトップ向け Qt でのみ利用可能です。</translation>
-    </message>
-    <message>
-        <source>Only available for Qt 4.7.1 or newer.</source>
-        <translation>Qt 4.7.1 以降でのみ利用可能です。</translation>
-    </message>
-    <message>
-        <source>Not needed.</source>
-        <translation>必要ありません。</translation>
-    </message>
-    <message>
-        <source>Private headers are missing for this Qt version.</source>
-        <translation>このバージョンの Qt にプライベートヘッダが見つかりません。</translation>
-    </message>
-    <message>
-        <source>qmldump</source>
-        <translation>qmldump</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::QmlDumpTool</name>
-    <message>
-        <source>qmldump could not be built in any of the directories:
-- %1
-
-Reason: %2</source>
-        <translation>qmldump はすべてのディレクトリでビルドできませんでした:
-- %1
-
-理由: %2</translation>
     </message>
 </context>
 <context>
@@ -26262,8 +26424,16 @@ Reason: %2</source>
         <translation>現在の Qt のデモのインストールパスです。</translation>
     </message>
     <message>
-        <source>The current Qt version&apos;s default mkspecs.</source>
-        <translation>現在の Qt の既定の mkspec です。</translation>
+        <source>The current Qt version&apos;s default mkspecs (Qt 4).</source>
+        <translation>現在の Qt の既定の mkspec (Qt 4) です。</translation>
+    </message>
+    <message>
+        <source>The current Qt version&apos;s default mkspec (Qt 5; host system)</source>
+        <translation>現在の Qt の既定の mkspec (Qt 5、ホストシステム) です。</translation>
+    </message>
+    <message>
+        <source>The current Qt version&apos;s default mkspec (Qt 5; target system).</source>
+        <translation>現在の Qt の既定の mkspec (Qt 5、ターゲットシステム) です。</translation>
     </message>
     <message>
         <source>The current Qt&apos;s qmake version.</source>
@@ -26442,13 +26612,6 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractRemoteLinuxRunSupport</name>
-    <message>
-        <source>Not enough free ports on device for debugging.</source>
-        <translation>デバイスにデバッグ用の空きポートがありません。</translation>
-    </message>
-</context>
-<context>
     <name>RemoteLinux::AbstractUploadAndInstallPackageService</name>
     <message>
         <source>Successfully uploaded package file.</source>
@@ -26535,7 +26698,7 @@ Reason: %2</source>
     <name>RemoteLinux::GenericLinuxDeviceConfigurationWizard</name>
     <message>
         <source>New Generic Linux Device Configuration Setup</source>
-        <translation>新しい一般的な Linux デバイス設定の設定</translation>
+        <translation>新しい一般的な Linux デバイスの設定</translation>
     </message>
 </context>
 <context>
@@ -26673,6 +26836,18 @@ In addition, device connectivity will be tested.</source>
         <translation>使用可能なポートを確認中...</translation>
     </message>
     <message>
+        <source>Creating remote socket ...</source>
+        <translation>リモートソケットを作成しています ...</translation>
+    </message>
+    <message>
+        <source>Not enough free ports on device for profiling.</source>
+        <translation>デバイスにプロファイル用の空きポートがありません。</translation>
+    </message>
+    <message>
+        <source>FIFO for profiling data could not be created.</source>
+        <translation>プロファイルデータ用 FIFO が作成できませんでした。</translation>
+    </message>
+    <message>
         <source>Failure running remote process.</source>
         <translation>リモートプロセスの実行に失敗しました。</translation>
     </message>
@@ -26765,6 +26940,14 @@ In addition, device connectivity will be tested.</source>
     <message>
         <source>Checking available ports...</source>
         <translation>使用可能なポートを確認中...</translation>
+    </message>
+    <message>
+        <source>Not enough free ports on device for C++ debugging.</source>
+        <translation>デバイスに C++ デバッグ用の空きポートがありません。</translation>
+    </message>
+    <message>
+        <source>Not enough free ports on device for QML debugging.</source>
+        <translation>デバイスに QML デバッグ用の空きポートがありません。</translation>
     </message>
     <message>
         <source>Debugging failed.</source>
@@ -27211,7 +27394,7 @@ In addition, device connectivity will be tested.</source>
     <name>Subversion::Internal::SubversionPlugin</name>
     <message>
         <source>&amp;Subversion</source>
-        <translation>Subversion(&amp;S)</translation>
+        <translation>&amp;Subversion</translation>
     </message>
     <message>
         <source>Diff Current File</source>
@@ -27898,7 +28081,7 @@ Filter: %2
     </message>
 </context>
 <context>
-    <name>TextEditor::TextEditorSettings</name>
+    <name>TextEditorSettings</name>
     <message>
         <source>Text</source>
         <translation>テキスト</translation>
@@ -27919,11 +28102,11 @@ Applied to text, if no other rules matching.</source>
     </message>
     <message>
         <source>Selection</source>
-        <translation>選択した部分</translation>
+        <translation>選択部分</translation>
     </message>
     <message>
         <source>Selected text.</source>
-        <translation>テキストを選択します。</translation>
+        <translation>選択されたテキストです。</translation>
     </message>
     <message>
         <source>Line Number</source>
@@ -27939,7 +28122,7 @@ Applied to text, if no other rules matching.</source>
     </message>
     <message>
         <source>Highlighted search results inside the editor.</source>
-        <translation>エディタ内で検索結果を強調表示します。</translation>
+        <translation>エディタ内で強調表示される検索結果です。</translation>
     </message>
     <message>
         <source>Search Scope</source>
@@ -27947,7 +28130,7 @@ Applied to text, if no other rules matching.</source>
     </message>
     <message>
         <source>Section where the pattern is searched in.</source>
-        <translation>検索したパターン内のセクションです。</translation>
+        <translation>パターンの検索範囲です。</translation>
     </message>
     <message>
         <source>Parentheses</source>
@@ -27955,7 +28138,7 @@ Applied to text, if no other rules matching.</source>
     </message>
     <message>
         <source>Displayed when matching parentheses, square brackets or curly brackets are found.</source>
-        <translation>対応する括弧や鍵括弧、波括弧が見つかった時に表示されます。</translation>
+        <translation>対応する括弧や鍵括弧、波括弧が見つかっている時の表示です。</translation>
     </message>
     <message>
         <source>Mismatched Parentheses</source>
@@ -27963,7 +28146,15 @@ Applied to text, if no other rules matching.</source>
     </message>
     <message>
         <source>Displayed when mismatched parentheses, square brackets, or curly brackets are found.</source>
-        <translation>対応していない括弧や鍵括弧、波括弧が見つかった時に表示されます。</translation>
+        <translation>対応する括弧や鍵括弧、波括弧が見つからない時の表示です。</translation>
+    </message>
+    <message>
+        <source>Auto Complete</source>
+        <translation>自動補完</translation>
+    </message>
+    <message>
+        <source>Displayed when a character is automatically inserted like brackets or quotes.</source>
+        <translation>括弧や引用符などの文字が自動的に挿入された場合に表示されます。</translation>
     </message>
     <message>
         <source>Current Line</source>
@@ -27989,7 +28180,7 @@ Applied to text, if no other rules matching.</source>
         <source>Occurrences of the symbol under the cursor.
 (Only the background will be applied.)</source>
         <translation>カーソルの位置にあるシンボルの出現箇所です。
-(バックグラウンドにだけ適用されます。)</translation>
+(バックグラウンドだけ適用されます。)</translation>
     </message>
     <message>
         <source>Unused Occurrence</source>
@@ -28009,7 +28200,7 @@ Applied to text, if no other rules matching.</source>
     </message>
     <message>
         <source>Number</source>
-        <translation>番号</translation>
+        <translation>数字</translation>
     </message>
     <message>
         <source>Number literal.</source>
@@ -28056,12 +28247,20 @@ Applied to text, if no other rules matching.</source>
         <translation>クラスのデータメンバです。</translation>
     </message>
     <message>
+        <source>Global</source>
+        <translation>グローバル変数</translation>
+    </message>
+    <message>
+        <source>Global variables.</source>
+        <translation>グローバル変数です。</translation>
+    </message>
+    <message>
         <source>Enumeration</source>
         <translation>列挙型</translation>
     </message>
     <message>
         <source>Applied to enumeration items.</source>
-        <translation>列挙型のアイテムに適用します。</translation>
+        <translation>列挙型のアイテムに適用されます。</translation>
     </message>
     <message>
         <source>Function</source>
@@ -28093,7 +28292,7 @@ Applied to text, if no other rules matching.</source>
     </message>
     <message>
         <source>QML item id within a QML file.</source>
-        <translation>QML ファイル内の QML アイテム ID です。</translation>
+        <translation>QML ファイル内の QML アイテムの ID です。</translation>
     </message>
     <message>
         <source>QML Root Object Property</source>
@@ -28172,6 +28371,10 @@ Applied to text, if no other rules matching.</source>
         <translation>キーワード</translation>
     </message>
     <message>
+        <source>Reserved keywords of the programming language except keywords denoting primitive types.</source>
+        <translation>プログラム言語によって予約されているキーワードです(プリミティブ型を示すキーワードを除く)。</translation>
+    </message>
+    <message>
         <source>Operator</source>
         <translation>演算子</translation>
     </message>
@@ -28180,22 +28383,12 @@ Applied to text, if no other rules matching.</source>
         <translation>演算子(ex. operator++ や operator-=)です。</translation>
     </message>
     <message>
-        <source>Whitespace.
-Will not be applied to whitespace in comments and strings.</source>
-        <translation>空白です。
-コメントや文字列内の空白には適用されません。</translation>
-    </message>
-    <message>
         <source>Preprocessor</source>
         <translation>プリプロセッサ</translation>
     </message>
     <message>
-        <source>Reserved keywords of the programming language except keywords denoting primitive types.</source>
-        <translation>プログラム言語によって予約されているキーワードです(プリミティブ型を示すキーワードを除く)。</translation>
-    </message>
-    <message>
         <source>Preprocessor directives.</source>
-        <translation>プリプロセッサです。</translation>
+        <translation>プリプロセッサディレクティブです。</translation>
     </message>
     <message>
         <source>Label</source>
@@ -28203,7 +28396,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Labels for goto statements.</source>
-        <translation>goto ステートメントのラベルです。</translation>
+        <translation>goto ステートメント用のラベルです。</translation>
     </message>
     <message>
         <source>Comment</source>
@@ -28211,7 +28404,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>All style of comments except Doxygen comments.</source>
-        <translation>すべてのコメントは Doxgen のコメントスタイルである必要があります。</translation>
+        <translation>Doxgen 用のコメント以外のすべてのコメントです。</translation>
     </message>
     <message>
         <source>Doxygen Comment</source>
@@ -28234,28 +28427,34 @@ Will not be applied to whitespace in comments and strings.</source>
         <translation>空白の可視化</translation>
     </message>
     <message>
+        <source>Whitespace.
+Will not be applied to whitespace in comments and strings.</source>
+        <translation>空白です。
+コメントや文字列内の空白には適用されません。</translation>
+    </message>
+    <message>
         <source>Disabled Code</source>
         <translation>無効化されたコード</translation>
     </message>
     <message>
         <source>Code disabled by preprocessor directives.</source>
-        <translation>プリプロセッサによって無効化されたコードです。</translation>
+        <translation>プリプロセッサ ディレクティブによって無効化されたコードです。</translation>
     </message>
     <message>
         <source>Added Line</source>
-        <translation>追加した行</translation>
+        <translation>追加された行</translation>
     </message>
     <message>
         <source>Applied to added lines in differences (in diff editor).</source>
-        <translation>差異のある行のうち、追加された行に適用されます (差分エディタ)。</translation>
+        <translation>差分内の追加された行に適用されます (差分エディタ)。</translation>
     </message>
     <message>
         <source>Removed Line</source>
-        <translation>削除した行</translation>
+        <translation>削除された行</translation>
     </message>
     <message>
         <source>Applied to removed lines in differences (in diff editor).</source>
-        <translation>差異のある行のうち、削除された行に適用されます (差分エディタ)。</translation>
+        <translation>差分内の削除された行に適用されます (差分エディタ)。</translation>
     </message>
     <message>
         <source>Diff File</source>
@@ -28267,11 +28466,11 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Diff Location</source>
-        <translation>差異のある行</translation>
+        <translation>差分の位置</translation>
     </message>
     <message>
         <source>Location in the files where the difference is (in diff editor).</source>
-        <translation>ファイル内の差異のある行です (差分エディタ)。</translation>
+        <translation>ファイルの差分がある位置です(差分エディタ)。</translation>
     </message>
     <message>
         <source>Diff File Line</source>
@@ -28295,7 +28494,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Applied to source lines with changes in differences (in side-by-side diff editor).</source>
-        <translation>差分の変更内容がソースに適用されます(サイドバイサイド差分エディタにて)。</translation>
+        <translation>差分の比較元の変更された行に適用されます(サイドバイサイド差分エディタにて)。</translation>
     </message>
     <message>
         <source>Diff Source Character</source>
@@ -28303,7 +28502,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Applied to removed characters in differences (in side-by-side diff editor).</source>
-        <translation>差分の文字列の削除が適用されます(サイドバイサイド差分エディタにて)。</translation>
+        <translation>差分の削除された文字列に適用されます(サイドバイサイド差分エディタにて)。</translation>
     </message>
     <message>
         <source>Diff Destination Line</source>
@@ -28311,7 +28510,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Applied to destination lines with changes in differences (in side-by-side diff editor).</source>
-        <translation>差分の変更内容がターゲットに適用されます(サイドバイサイド差分エディタにて)。</translation>
+        <translation>差分の比較先の変更された行に適用されます(サイドバイサイド差分エディタにて)。</translation>
     </message>
     <message>
         <source>Diff Destination Character</source>
@@ -28319,7 +28518,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Applied to added characters in differences (in side-by-side diff editor).</source>
-        <translation>差分の文字列の追加が適用されます(サイドバイサイド差分エディタにて)。</translation>
+        <translation>差分の追加された文字列に適用されます(サイドバイサイド差分エディタにて)。</translation>
     </message>
     <message>
         <source>Log Change Line</source>
@@ -28328,6 +28527,10 @@ Will not be applied to whitespace in comments and strings.</source>
     <message>
         <source>Applied to lines describing changes in VCS log.</source>
         <translation>バージョン管理システムのログにおいて変更を記載した行に適用されます。</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>エラー</translation>
     </message>
     <message>
         <source>Underline color of error diagnostics.</source>
@@ -28342,6 +28545,10 @@ Will not be applied to whitespace in comments and strings.</source>
         <translation>エラー判定時のコンテキストの下線の色です。</translation>
     </message>
     <message>
+        <source>Warning</source>
+        <translation>警告</translation>
+    </message>
+    <message>
         <source>Underline color of warning diagnostics.</source>
         <translation>警告判定時の下線の色です。</translation>
     </message>
@@ -28354,20 +28561,20 @@ Will not be applied to whitespace in comments and strings.</source>
         <translation>警告判定時のコンテキストの下線の色です。</translation>
     </message>
     <message>
+        <source>Declaration</source>
+        <translation>宣言</translation>
+    </message>
+    <message>
+        <source>Declaration of a function, variable, and so on.</source>
+        <translation>関数や変数などの宣言です。</translation>
+    </message>
+    <message>
         <source>Behavior</source>
         <translation>動作</translation>
     </message>
     <message>
         <source>Display</source>
         <translation>表示</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>エラー</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation>警告</translation>
     </message>
 </context>
 <context>
@@ -29450,6 +29657,14 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <translation>WebP 画像ファイル</translation>
     </message>
     <message>
+        <source>Nim project file</source>
+        <translation>Nim プロジェクトファイル</translation>
+    </message>
+    <message>
+        <source>Nim source file </source>
+        <translation>Nim ソースファイル</translation>
+    </message>
+    <message>
         <source>Python source file without console</source>
         <translation>コンソールのない Python ソースファイル</translation>
     </message>
@@ -29516,6 +29731,10 @@ When a problem is detected, the application is interrupted and can be debugged.<
     <message>
         <source>QML Project file</source>
         <translation>QML プロジェクトファイル</translation>
+    </message>
+    <message>
+        <source>Scxml State Chart</source>
+        <translation>Scxml 状態遷移図</translation>
     </message>
     <message>
         <source>Qt Resource file</source>
@@ -29617,6 +29836,10 @@ Ex. &quot;Revision: 15&quot; を指定した場合、ブランチはリビジョ
         <source>Use customized style:</source>
         <translation>カスタムスタイルを使用する:</translation>
     </message>
+    <message>
+        <source>Restrict to MIME types:</source>
+        <translation>制限する MIME タイプ:</translation>
+    </message>
 </context>
 <context>
     <name>Beautifier::Internal::ClangFormat::ClangFormatOptionsPage</name>
@@ -29655,6 +29878,10 @@ Ex. &quot;Revision: 15&quot; を指定した場合、ブランチはリビジョ
     <message>
         <source>Format entire file if no text was selected</source>
         <translation>未選択時にはファイル全体を整形する</translation>
+    </message>
+    <message>
+        <source>Restrict to MIME types:</source>
+        <translation>制限する MIME タイプ:</translation>
     </message>
 </context>
 <context>
@@ -29745,6 +29972,10 @@ Ex. &quot;Revision: 15&quot; を指定した場合、ブランチはリビジョ
     <message>
         <source>Format entire file if no text was selected</source>
         <translation>未選択時にはファイル全体を整形する</translation>
+    </message>
+    <message>
+        <source>Restrict to MIME types:</source>
+        <translation>制限する MIME タイプ:</translation>
     </message>
 </context>
 <context>
@@ -30062,7 +30293,7 @@ Qt バージョンオプションページで qmldump アプリケーション�
     </message>
 </context>
 <context>
-    <name>AbstractSettings</name>
+    <name>Beautifier::Internal::AbstractSettings</name>
     <message>
         <source>Cannot save styles. %1 does not exist.</source>
         <translation>スタイルを保存できません。%1 が存在しません。</translation>
@@ -30102,6 +30333,26 @@ Qt バージョンオプションページで qmldump アプリケーション�
 <context>
     <name>Beautifier::Internal::BeautifierPlugin</name>
     <message>
+        <source>Cannot create temporary file &quot;%1&quot;: %2.</source>
+        <translation>一時ファイル &quot;%1&quot; を作成できません: %2.</translation>
+    </message>
+    <message>
+        <source>Failed to format: %1.</source>
+        <translation>整形に失敗しました: %1.</translation>
+    </message>
+    <message>
+        <source>Cannot read file &quot;%1&quot;: %2.</source>
+        <translation>ファイル &quot;%1&quot; が読み込めません: %2.</translation>
+    </message>
+    <message>
+        <source>Cannot call %1 or some other error occurred.</source>
+        <translation>%1 が呼び出せないかその他のエラーが発生しました。</translation>
+    </message>
+    <message>
+        <source>Cannot call %1 or some other error occurred. Timeout reached while formatting file %2.</source>
+        <translation>%1 が呼び出せないかその他のエラーが発生しました。ファイル %2 の整形中にタイムアウトが発生しました。</translation>
+    </message>
+    <message>
         <source>File was modified.</source>
         <translation>ファイルは編集されています。</translation>
     </message>
@@ -30138,7 +30389,7 @@ Qt バージョンオプションページで qmldump アプリケーション�
     </message>
 </context>
 <context>
-    <name>ClangFormatSettings</name>
+    <name>Beautifier::Internal::ClangFormat::ClangFormatSettings</name>
     <message>
         <source>No description available.</source>
         <translation>記述が見つかりません。</translation>
@@ -30161,7 +30412,7 @@ Qt バージョンオプションページで qmldump アプリケーション�
     </message>
 </context>
 <context>
-    <name>Core::FindPlugin</name>
+    <name>Core::Find</name>
     <message>
         <source>&amp;Find/Replace</source>
         <translation>検索/置換(&amp;F)</translation>
@@ -30584,7 +30835,7 @@ kill しますか？</translation>
     </message>
     <message>
         <source>Select valid executable.</source>
-        <translation>勇往な実行ファイルを選択してください。</translation>
+        <translation>有効な実行ファイルを選択してください。</translation>
     </message>
     <message>
         <source>Not watching.</source>
@@ -30702,6 +30953,10 @@ kill しますか？</translation>
     <message>
         <source>Remote: &quot;%1:%2&quot; - Process %3</source>
         <translation>リモート: &quot;%1:%2&quot; - プロセス %3</translation>
+    </message>
+    <message>
+        <source>Attaching failed.</source>
+        <translation>アタッチに失敗しました。</translation>
     </message>
 </context>
 <context>
@@ -30873,6 +31128,30 @@ kill しますか？</translation>
     <message>
         <source>Target</source>
         <translation>ターゲット</translation>
+    </message>
+    <message>
+        <source>Anchor to the top of the target.</source>
+        <translation>ターゲットの上端にアンカーします。</translation>
+    </message>
+    <message>
+        <source>Anchor to the left of the target.</source>
+        <translation>ターゲットの左端にアンカーします。</translation>
+    </message>
+    <message>
+        <source>Anchor to the vertical center of the target.</source>
+        <translation>ターゲットの垂直方向の中央にアンカーします。</translation>
+    </message>
+    <message>
+        <source>Anchor to the horizontal center of the target.</source>
+        <translation>ターゲットの水平方向の中央にアンカーします。</translation>
+    </message>
+    <message>
+        <source>Anchor to the bottom of the target.</source>
+        <translation>ターゲットの下端にアンカーします。</translation>
+    </message>
+    <message>
+        <source>Anchor to the right of the target.</source>
+        <translation>ターゲットの右端にアンカーします。</translation>
     </message>
 </context>
 <context>
@@ -31223,7 +31502,7 @@ API バージョンが %1 以上の SDK をインストールしてください�
     <name>BareMetal::Internal::BareMetalDeviceConfigurationWizard</name>
     <message>
         <source>New Bare Metal Device Configuration Setup</source>
-        <translation>新しいベアメタルデバイス設定の設定</translation>
+        <translation>新しいベアメタルデバイスの設定</translation>
     </message>
 </context>
 <context>
@@ -31290,7 +31569,7 @@ API バージョンが %1 以上の SDK をインストールしてください�
     </message>
 </context>
 <context>
-    <name>Core::DocumentModelPrivate</name>
+    <name>Core::Internal::DocumentModelPrivate</name>
     <message>
         <source>&lt;no document&gt;</source>
         <translation>&lt;ドキュメントなし&gt;</translation>
@@ -32197,6 +32476,14 @@ Android 5 ではローカルの Qt ライブラリをデプロイできません
         <source>Test Settings</source>
         <translation>テスト設定</translation>
     </message>
+    <message>
+        <source>Active Test Frameworks</source>
+        <translation>有効なテストフレームワーク</translation>
+    </message>
+    <message>
+        <source>Select the test frameworks to be handled by the AutoTest plugin.</source>
+        <translation>AutoTest プラグインで使用するテストフレームワークを選択します。</translation>
+    </message>
 </context>
 <context>
     <name>ClangCodeModel::Internal::ClangProjectSettingsWidget</name>
@@ -32234,6 +32521,26 @@ Android 5 ではローカルの Qt ライブラリをデプロイできません
     <message>
         <source>Clang Command</source>
         <translation>Clang コマンド</translation>
+    </message>
+    <message>
+        <source>Version: %1, supported.</source>
+        <translation>バージョン: %1, サポート対象です。</translation>
+    </message>
+    <message>
+        <source>Version: %1, unsupported (supported version is %2).</source>
+        <translation>バージョン: %1, 未サポートです(サポート対象のバージョンは %2 です)。</translation>
+    </message>
+    <message>
+        <source>Version: Could not determine version.</source>
+        <translation>バージョン: バージョンが検出できません。</translation>
+    </message>
+    <message>
+        <source>Version: Set valid executable first.</source>
+        <translation>バージョン: 有効な実行ファイルを設定してください。</translation>
+    </message>
+    <message>
+        <source>TextLabel</source>
+        <translation>テキストラベル</translation>
     </message>
 </context>
 <context>
@@ -32363,6 +32670,22 @@ Android 5 ではローカルの Qt ライブラリをデプロイできません
     <message>
         <source>Influences how file names are matched to decide if they are the same.</source>
         <translation>ファイル名が一致する場合にそれらが同一のファイルかどうかを決定する方法に影響します。</translation>
+    </message>
+    <message>
+        <source>Automatically free resources of old documents that are not visible and not modified. They stay visible in the list of open documents.</source>
+        <translation>非表示で未変更のドキュメントのリソースを自動的に解放します。開いたドキュメントのリストには表示されます。</translation>
+    </message>
+    <message>
+        <source>Auto-suspend unmodified files</source>
+        <translation>未変更のファイルを自動的にサスペンドする</translation>
+    </message>
+    <message>
+        <source>Minimum number of open documents that should be kept in memory. Increasing this number will lead to greater resource usage of Qt Creator when not manually closing documents.</source>
+        <translation>メモリ上に維持されるドキュメントの最小値です。この数値を増加させると、ドキュメントを閉じていない状態で Qt Creator が使用するリソースが増大します。</translation>
+    </message>
+    <message>
+        <source>Files to keep open:</source>
+        <translation>維持するファイル数:</translation>
     </message>
 </context>
 <context>
@@ -32688,21 +33011,6 @@ Android 5 ではローカルの Qt ライブラリをデプロイできません
     </message>
 </context>
 <context>
-    <name>QmlDesigner::QmlWarningDialog</name>
-    <message>
-        <source>Warning</source>
-        <translation>警告</translation>
-    </message>
-    <message>
-        <source>This QML file contains features which are not supported by Qt Quick Designer</source>
-        <translation>この QML ファイルには Qt Quick Designer で未対応の機能が含まれています</translation>
-    </message>
-    <message>
-        <source>Warn about unsupported features</source>
-        <translation>未対応の機能を警告する</translation>
-    </message>
-</context>
-<context>
     <name>QmlDesigner::PuppetBuildProgressDialog</name>
     <message>
         <source>Build Progress</source>
@@ -32871,6 +33179,10 @@ the program.</source>
     <message>
         <source>To-Do</source>
         <translation>To-Do</translation>
+    </message>
+    <message>
+        <source>&lt;Enter regular expression to exclude&gt;</source>
+        <translation>&lt;除外する正規表現を入力してください&gt;</translation>
     </message>
 </context>
 <context>
@@ -33537,10 +33849,6 @@ the program.</source>
         <source>&lt;font color=red&gt;Invalid syntax!&lt;/font&gt;</source>
         <translation>&lt;font color=red&gt;無効なシンタックス！&lt;/font&gt;</translation>
     </message>
-    <message>
-        <source>Multi-Selection</source>
-        <translation>複数選択</translation>
-    </message>
 </context>
 <context>
     <name>qmt::ProjectController</name>
@@ -33703,10 +34011,6 @@ the program.</source>
         <source>Unknown</source>
         <translation>不明</translation>
     </message>
-    <message>
-        <source>Error: Executable timed out after %1 s.</source>
-        <translation>エラー: 実行ファイルが %1 秒後にタイムアウトしました。</translation>
-    </message>
 </context>
 <context>
     <name>Utils::ShellCommandPage</name>
@@ -33828,13 +34132,6 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>Autotest::Constants</name>
-    <message>
-        <source>&lt;unnamed&gt;</source>
-        <translation>&lt;無名&gt;</translation>
-    </message>
-</context>
-<context>
     <name>Autotest::Internal::AutotestPlugin</name>
     <message>
         <source>&amp;Tests</source>
@@ -33879,8 +34176,24 @@ the program.</source>
         <translation>テスト</translation>
     </message>
     <message>
+        <source>No active test frameworks.</source>
+        <translation>有効なテストフレームワークが見つかりません。</translation>
+    </message>
+    <message>
         <source>Run This Test</source>
         <translation>このテストの実行</translation>
+    </message>
+    <message>
+        <source>Run Without Deployment</source>
+        <translation>デプロイせずに実行</translation>
+    </message>
+    <message>
+        <source>Debug This Test</source>
+        <translation>このテストのデバッグ</translation>
+    </message>
+    <message>
+        <source>Debug Without Deployment</source>
+        <translation>デプロイせずにデバッグ</translation>
     </message>
     <message>
         <source>Select All</source>
@@ -33927,132 +34240,11 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>QObject</name>
-    <message>
-        <source>&lt;Enter regular expression to exclude&gt;</source>
-        <translation>&lt;除外する正規表現を入力してください&gt;</translation>
-    </message>
+    <name>Autotest::Internal::QtTestOutputReader</name>
     <message>
         <source>%1 %2 per iteration (total: %3, iterations: %4)</source>
         <translation>%1 %2 毎実行 (トータル: %3, 実行回数: %4)</translation>
     </message>
-    <message>
-        <source>Test run canceled by user.</source>
-        <translation>テスト実行はユーザーによってキャンセルされました。</translation>
-    </message>
-    <message>
-        <source>Project is null for &quot;%1&quot;. Removing from test run.
-Check the test environment.</source>
-        <translation>&quot;%1&quot; 向けプロジェクトが空です。テスト実行から削除します。
-テスト環境を確認してください。</translation>
-    </message>
-    <message>
-        <source>Could not find command &quot;%1&quot;. (%2)</source>
-        <translation>コマンド &quot;%1&quot; が見つかりませんでした。(%2)</translation>
-    </message>
-    <message>
-        <source>Test case canceled due to timeout. 
-Maybe raise the timeout?</source>
-        <translation>タイムアウトに到達したためテストケースをキャンセルしました。
-タイムアウトを発生させますか？</translation>
-    </message>
-    <message>
-        <source> (none)</source>
-        <translation> (なし)</translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;Give all test cases a name to ensure correct behavior when running test cases and to be able to select them.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;テストケースの実行や選択が正常に動作するようにすべてのテストケースに名前を付けてください。&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>parameterized</source>
-        <translation>パラメータ化</translation>
-    </message>
-    <message>
-        <source>typed</source>
-        <translation>型付け</translation>
-    </message>
-    <message>
-        <source>Cannot create temporary file &quot;%1&quot;: %2.</source>
-        <translation>一時ファイル &quot;%1&quot; を作成できません: %2.</translation>
-    </message>
-    <message>
-        <source>Cannot call %1 or some other error occurred. Time out reached while formatting file %2.</source>
-        <translation>%1 が呼び出せないかその他のエラーが発生しました。ファイル %2 の整形中にタイムアウトが発生しました。</translation>
-    </message>
-    <message>
-        <source>Cannot read file &quot;%1&quot;: %2.</source>
-        <translation>ファイル &quot;%1&quot; が読み込めません: %2.</translation>
-    </message>
-    <message>
-        <source>Cannot call %1 or some other error occurred.</source>
-        <translation>%1 が呼び出せないかその他のエラーが発生しました。</translation>
-    </message>
-    <message>
-        <source>Inspect available fixits</source>
-        <translation>利用可能な修正の確認</translation>
-    </message>
-    <message>
-        <source>File &quot;%1&quot; does not exist or is not readable.</source>
-        <translation>ファイル &quot;%1&quot; が存在しないか読み込み可能ではありません。</translation>
-    </message>
-    <message>
-        <source>Could not read file &quot;%1&quot;: UnexpectedElementError.</source>
-        <translation>ファイル &quot;%1&quot; を読み込みませんでした: 想定外のエレメントです。</translation>
-    </message>
-    <message>
-        <source>Could not read file &quot;%1&quot;: CustomError.</source>
-        <translation>ファイル &quot;%1&quot; を読み込みませんでした: カスタムエラーです。</translation>
-    </message>
-    <message>
-        <source>Could not read file &quot;%1&quot;: NotWellFormedError.</source>
-        <translation>ファイル &quot;%1&quot; を読み込みませんでした: XML ファイルのフォーマットが不正です。</translation>
-    </message>
-    <message>
-        <source>Could not read file &quot;%1&quot;: PrematureEndOfDocumentError.</source>
-        <translation>ファイル &quot;%1&quot; を読み込みませんでした: XML ファイルが途中で終了しています。</translation>
-    </message>
-    <message>
-        <source>File is not a plist version 1.0 file.</source>
-        <translation>ファイルがバージョン 1.0 の plist ファイルではありません。</translation>
-    </message>
-    <message>
-        <source>Expected a string element.</source>
-        <translation>string エレメントではありません。</translation>
-    </message>
-    <message>
-        <source>Expected an array element.</source>
-        <translation>array エレメントではありません。</translation>
-    </message>
-    <message>
-        <source>Expected an integer element.</source>
-        <translation>integer エレメントではありません。</translation>
-    </message>
-    <message>
-        <source>An error occurred with the Clang Static Analyzer process.</source>
-        <translation>Clang 静的解析のプロセスでエラーが発生しました。</translation>
-    </message>
-    <message>
-        <source>Clang Static Analyzer crashed.</source>
-        <translation>Clang 静的解析がクラッシュしました。</translation>
-    </message>
-    <message>
-        <source>Clang Static Analyzer finished with exit code: %1.</source>
-        <translation>Clang 静的解析は終了コード %1 で終了しました。</translation>
-    </message>
-    <message>
-        <source>Command line: &quot;%1&quot;
-Process Error: %2
-Output:
-%3</source>
-        <translation>コマンドライン：&quot;%1&quot;
-プロセスエラー: %2
-出力:
-%3</translation>
-    </message>
-</context>
-<context>
-    <name>Autotest::Internal::QtTestOutputReader</name>
     <message>
         <source>Executing test case %1</source>
         <translation>テストケース %1 を実行しています</translation>
@@ -34241,6 +34433,26 @@ Output:
 <context>
     <name>Autotest::Internal::TestRunner</name>
     <message>
+        <source>Test run canceled by user.</source>
+        <translation>テスト実行はユーザーによってキャンセルされました。</translation>
+    </message>
+    <message>
+        <source>Project is null for &quot;%1&quot;. Removing from test run.
+Check the test environment.</source>
+        <translation>&quot;%1&quot; 向けプロジェクトが空です。テスト実行から削除します。
+テスト環境を確認してください。</translation>
+    </message>
+    <message>
+        <source>Could not find command &quot;%1&quot;. (%2)</source>
+        <translation>コマンド &quot;%1&quot; が見つかりませんでした。(%2)</translation>
+    </message>
+    <message>
+        <source>Test case canceled due to timeout. 
+Maybe raise the timeout?</source>
+        <translation>タイムアウトに到達したためテストケースをキャンセルしました。
+タイムアウトを発生させますか？</translation>
+    </message>
+    <message>
         <source>Project&apos;s run configuration was guessed for &quot;%1&quot;.
 This might cause trouble during execution.</source>
         <translation>プロジェクトの実行設定は &quot;%1&quot; 向けだと解釈されました。
@@ -34265,23 +34477,18 @@ Only desktop kits are supported. Make sure the currently active kit is a desktop
         <translation>テストの実行中</translation>
     </message>
     <message>
+        <source>Failed to get run configuration.</source>
+        <translation>実行設定の取得に失敗しました。</translation>
+    </message>
+    <message>
+        <source>Failed to create run configuration.
+%1</source>
+        <translation>実行設定の作成に失敗しました。
+%1</translation>
+    </message>
+    <message>
         <source>Build failed. Canceling test run.</source>
         <translation>ビルドに失敗しました。テストの実行をキャンセルしました。</translation>
-    </message>
-</context>
-<context>
-    <name>Autotest::Internal::TestTreeModel</name>
-    <message>
-        <source>Auto Tests</source>
-        <translation>自動テスト</translation>
-    </message>
-    <message>
-        <source>Qt Quick Tests</source>
-        <translation>Qt Quick テスト</translation>
-    </message>
-    <message>
-        <source>Google Tests</source>
-        <translation>Google Tests</translation>
     </message>
 </context>
 <context>
@@ -34692,8 +34899,8 @@ Only desktop kits are supported. Make sure the currently active kit is a desktop
         <translation>ファイルエラー</translation>
     </message>
     <message>
-        <source>The file is too big for the Binary Editor (max. 2GB).</source>
-        <translation>ファイルサイズがバイナリエディタで扱える上限を超えています(最大 2GB)。</translation>
+        <source>The file is too big for the Binary Editor (max. 32GB).</source>
+        <translation>ファイルサイズがバイナリエディタで扱える上限を超えています(最大 32GB)。</translation>
     </message>
     <message>
         <source>Cannot open %1: %2</source>
@@ -34799,12 +35006,24 @@ Only desktop kits are supported. Make sure the currently active kit is a desktop
 <context>
     <name>ClangStaticAnalyzer::Internal::ClangStaticAnalyzerRunControl</name>
     <message>
+        <source>Clang Static Analyzer</source>
+        <translation>Clang 静的解析</translation>
+    </message>
+    <message>
         <source>Running Clang Static Analyzer on %1</source>
         <translation>%1 で Clang 静的解析を実行する</translation>
     </message>
     <message>
         <source>Clang Static Analyzer: Invalid executable &quot;%1&quot;, stop.</source>
         <translation>Clang 静的解析: 実行ファイル &quot;%1&quot; が無効のため停止しました。</translation>
+    </message>
+    <message>
+        <source>Clang Static Analyzer: Running with possibly unsupported version, could not determine version from executable &quot;%1&quot;.</source>
+        <translation>Clang 静的解析: サポート対象外のバージョンを動作させようとしている可能性があります。実行ファイル &quot;%1&quot; からバージョンを特定できませんでした。</translation>
+    </message>
+    <message>
+        <source>Clang Static Analyzer: Running with unsupported version %1, supported version is %2.</source>
+        <translation>Clang: 静的解析: サポート対象外のバージョン %1 で動作させようとしています。サポート対象のバージョンは %2 です。</translation>
     </message>
     <message>
         <source>Clang Static Analyzer: Failed to create temporary dir, stop.</source>
@@ -34870,7 +35089,7 @@ Only desktop kits are supported. Make sure the currently active kit is a desktop
     </message>
     <message>
         <source>Run %1 in %2 Mode?</source>
-        <translation>%1を%2モードで実行しますか？</translation>
+        <translation>%1 を%2モードで実行しますか？</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You are trying to run the tool &quot;%1&quot; on an application in %2 mode. The tool is designed to be used in Debug mode since enabled assertions can reduce the number of false positives.&lt;/p&gt;&lt;p&gt;Do you want to continue and run the tool in %2 mode?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -34922,8 +35141,8 @@ clang の実行ファイルを設定してください。</translation>
 <context>
     <name>CMakeProjectManager::Internal::BuildDirManager</name>
     <message>
-        <source>The build directory is not for %1</source>
-        <translation>ビルドディレクトリが %1 用ではありません</translation>
+        <source>The build directory is not for %1 but for %2</source>
+        <translation>このビルドディレクトリは %2 向けで %1 向けではありません</translation>
     </message>
     <message>
         <source>Running &quot;%1 %2&quot; in %3.</source>
@@ -34940,6 +35159,22 @@ clang の実行ファイルを設定してください。</translation>
     <message>
         <source>*** cmake process exited with exit code %1.</source>
         <translation>*** CMake プロセスは終了コード %1 で終了しました。</translation>
+    </message>
+    <message>
+        <source>&lt;removed&gt;</source>
+        <translation>&lt;削除済み&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;empty&gt;</source>
+        <translation>&lt;空&gt;</translation>
+    </message>
+    <message>
+        <source>CMake configuration has changed on disk.</source>
+        <translation>ディスク上の CMake の設定が変更されました。</translation>
+    </message>
+    <message>
+        <source>The CMakeCache.txt file has changed: %1</source>
+        <translation>CMakeCache.txt ファイルが変更されました: %1</translation>
     </message>
     <message>
         <source>Failed to open %1 for reading.</source>
@@ -35034,10 +35269,6 @@ clang の実行ファイルを設定してください。</translation>
         <translation>CMake 設定</translation>
     </message>
     <message>
-        <source>&lt;No Changes to Apply&gt;</source>
-        <translation>&lt;変更なし&gt;</translation>
-    </message>
-    <message>
         <source>Default configuration passed to CMake when setting up a project.</source>
         <translation>プロジェクト設定時に既定の設定が CMake に渡されます。</translation>
     </message>
@@ -35060,13 +35291,13 @@ clang の実行ファイルを設定してください。</translation>
         <source>Unconfigured</source>
         <translation>未設定</translation>
     </message>
+    <message>
+        <source>Path to the cmake executable</source>
+        <translation>cmake 実行ファイルへのパス</translation>
+    </message>
 </context>
 <context>
     <name>CMakeProjectManager::CMakeGeneratorKitInformation</name>
-    <message>
-        <source>No CMake Tool configured, CMake generator will be ignored.</source>
-        <translation>設定済みの CMake ツールが見つからないため、CMake ジェネレータは無視されます。</translation>
-    </message>
     <message>
         <source>CMake Tool is unconfigured, CMake generator will be ignored.</source>
         <translation>CMake ツールが設定されていないため、CMake ジェネレータは無視されます。</translation>
@@ -35076,8 +35307,8 @@ clang の実行ファイルを設定してください。</translation>
         <translation>CMake ツールがジェネレータに対応していません。</translation>
     </message>
     <message>
-        <source>CMake generator does not generate CodeBlocks file. Qt Creator will not be able to parse the CMake project.</source>
-        <translation>CMake ジェネレータが CodeBlocks ファイルを生成しません。CMake プロジェクトを解析できません。</translation>
+        <source>CMake generator does not generate a CodeBlocks file. Qt Creator will not be able to parse the CMake project.</source>
+        <translation>CMake ジェネレータが CodeBlocks ファイルを生成しないため、CMake プロジェクトをパースできません。</translation>
     </message>
     <message>
         <source>CMake Generator</source>
@@ -35298,25 +35529,6 @@ clang の実行ファイルを設定してください。</translation>
     <message>
         <source>A comment.</source>
         <translation>コメントです。</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::EnvironmentChangesDialog</name>
-    <message>
-        <source>Edit Environment Changes</source>
-        <translation>環境変数の変更の編集</translation>
-    </message>
-    <message>
-        <source>Change system environment by assigning one environment variable per line:</source>
-        <translation>行毎に環境変数に値を代入してシステムの環境変数を変更してください:</translation>
-    </message>
-    <message>
-        <source>PATH=C:\dev\bin;${PATH}</source>
-        <translation>PATH=C:\dev\bin;${PATH}</translation>
-    </message>
-    <message>
-        <source>PATH=/opt/bin:${PATH}</source>
-        <translation>PATH=/opt/bin:${PATH}</translation>
     </message>
 </context>
 <context>
@@ -36116,6 +36328,10 @@ Setting breakpoints by file name and line number may fail.</source>
 ファイル名と行番号によるブレークポイントの設定は失敗するかもしれません。</translation>
     </message>
     <message>
+        <source>Finished retrieving data</source>
+        <translation>データの受信が完了しました</translation>
+    </message>
+    <message>
         <source>Run to Address 0x%1</source>
         <translation>アドレス 0x%1 まで実行</translation>
     </message>
@@ -36381,7 +36597,7 @@ Affected are breakpoints %1</source>
     </message>
     <message>
         <source>Run %1 in %2 Mode?</source>
-        <translation>%1 を %2 モードで実行しますか？</translation>
+        <translation>%1 を%2モードで実行しますか？</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You are trying to run the tool &quot;%1&quot; on an application in %2 mode. The tool is designed to be used %3.&lt;/p&gt;&lt;p&gt;Run-time characteristics differ significantly between optimized and non-optimized binaries. Analytical findings for one mode may or may not be relevant for the other.&lt;/p&gt;&lt;p&gt;Running tools that need debug symbols on binaries that don&apos;t provide any may lead to missing function names or otherwise insufficient output.&lt;/p&gt;&lt;p&gt;Do you want to continue and run the tool in %2 mode?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -37017,14 +37233,6 @@ Affected are breakpoints %1</source>
         <translation>Qt リソースファイル</translation>
     </message>
     <message>
-        <source>Creates a QML file with boilerplate code, starting with &quot;import QtQuick 1.1&quot;.</source>
-        <translation>&quot;import QtQuick 1.1&quot; で始まるテンプレートコードを含む QML ファイルを作成します。</translation>
-    </message>
-    <message>
-        <source>QML File (Qt Quick 1)</source>
-        <translation>QML ファイル (Qt Quick 1)</translation>
-    </message>
-    <message>
         <source>Creates a QML file with boilerplate code, starting with &quot;import QtQuick 2.0&quot;.</source>
         <translation>&quot;import QtQuick 2.0&quot; で始まるテンプレートコードを含む QML ファイルを作成します。</translation>
     </message>
@@ -37161,10 +37369,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <translation>Qt Canvas 3D アプリケーション</translation>
     </message>
     <message>
-        <source>Creates a deployable Qt Quick 2 application using Qt Labs Controls.</source>
-        <translation>Qt Labs Controls を使用する、デプロイ可能な Qt Quick 2 アプリケーションを作成します。</translation>
-    </message>
-    <message>
         <source>Qt Labs Controls Application</source>
         <translation>Qt Labs Controls アプリケーション</translation>
     </message>
@@ -37259,6 +37463,126 @@ Preselects a desktop Qt for building the application if available.</source>
     <message>
         <source>&quot;%{JS: Util.toNativeSeparators(&apos;%{TargetPath}&apos;)}&quot; exists in the filesystem.</source>
         <translation>&quot;%{JS: Util.toNativeSeparators(&apos;%{TargetPath}&apos;)}&quot; は既にファイルシステムに存在しています。</translation>
+    </message>
+    <message>
+        <source>This wizard creates a simple Qmake based project with additional auto test skeleton.</source>
+        <translation>このウィザードは自動テストのスケルトンが追加されたシンプルな qmake ベースのプロジェクトを作成します。</translation>
+    </message>
+    <message>
+        <source>Qt Test</source>
+        <translation>Qt Test</translation>
+    </message>
+    <message>
+        <source>Googletest</source>
+        <translation>Google Test</translation>
+    </message>
+    <message>
+        <source>Test Framework:</source>
+        <translation>テストフレームワーク:</translation>
+    </message>
+    <message>
+        <source>GUI Application</source>
+        <translation>GUI アプリケーション</translation>
+    </message>
+    <message>
+        <source>Test Case Name:</source>
+        <translation>テストケース名:</translation>
+    </message>
+    <message>
+        <source>Requires QApplication</source>
+        <translation>QApplication を使用する</translation>
+    </message>
+    <message>
+        <source>Generate initialization and cleanup code</source>
+        <translation>初期化およびクリーンアップ用コードを生成する</translation>
+    </message>
+    <message>
+        <source>Test Set Name:</source>
+        <translation>テストセット名:</translation>
+    </message>
+    <message>
+        <source>Enable C++11</source>
+        <translation>C++ を有効にする</translation>
+    </message>
+    <message>
+        <source>always</source>
+        <translation>常時</translation>
+    </message>
+    <message>
+        <source>debug only</source>
+        <translation>デバッグ時のみ</translation>
+    </message>
+    <message>
+        <source>Build auto tests</source>
+        <translation>自動テストのビルド</translation>
+    </message>
+    <message>
+        <source>Googletest repository:</source>
+        <translation>Google Test リポジトリ:</translation>
+    </message>
+    <message>
+        <source>Project and Test Information</source>
+        <translation>プロジェクトとテスト情報</translation>
+    </message>
+    <message>
+        <source>Creates a new project including auto test skeleton.</source>
+        <translation>自動テストのスケルトンを含む新しいプロジェクトを作成します。</translation>
+    </message>
+    <message>
+        <source>Auto Test Project</source>
+        <translation>自動テストプロジェクト</translation>
+    </message>
+    <message>
+        <source>Creates an empty Nim file using UTF-8 charset.</source>
+        <translation>UTF-8 エンコーディングで空の Nim ファイルを作成します。</translation>
+    </message>
+    <message>
+        <source>Nim</source>
+        <translation>Nim</translation>
+    </message>
+    <message>
+        <source>Nim File</source>
+        <translation>Nim ファイル</translation>
+    </message>
+    <message>
+        <source>State Chart name:</source>
+        <translation>状態遷移名:</translation>
+    </message>
+    <message>
+        <source>State Chart Name and Location</source>
+        <translation>状態遷移名とパス</translation>
+    </message>
+    <message>
+        <source>Creates a new, empty, state chart.</source>
+        <translation>新しい空の状態遷移を作成します。</translation>
+    </message>
+    <message>
+        <source>State Chart</source>
+        <translation>状態遷移</translation>
+    </message>
+    <message>
+        <source>Creates a simple Nim application.</source>
+        <translation>シンプルな Nim アプリケーションを作成します。</translation>
+    </message>
+    <message>
+        <source>Nim Application</source>
+        <translation>Nim アプリケーション</translation>
+    </message>
+    <message>
+        <source>Creates a deployable Qt Quick 2 application using Qt Labs Controls.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Note:&lt;/b&gt; Qt Labs Controls are only available with Qt 5.6. Choose &lt;em&gt;Qt Quick Controls 2 Application&lt;/em&gt; when targeting Qt 5.7 or later.</source>
+        <translation>Qt Labs Controls を使用する、デプロイ可能な Qt Quick 2 アプリケーションを作成します。&lt;br/&gt;&lt;br/&gt;&lt;b&gt;注意:&lt;/b&gt; Qt Labs Controls は Qt 5.6 でのみ利用できます。Qt 5.7 以降では &lt;em&gt;Qt Quick Controls 2 アプリケーション&lt;/em&gt; を選択してください。</translation>
+    </message>
+    <message>
+        <source>Qt 5.7</source>
+        <translation>Qt 5.7</translation>
+    </message>
+    <message>
+        <source>Creates a deployable Qt Quick 2 application using Qt Quick Controls 2.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Note:&lt;/b&gt; Qt Quick Controls 2 are available with Qt 5.7 and later. Choose &lt;em&gt;Qt Labs Controls Application&lt;/em&gt; when targeting Qt 5.6.</source>
+        <translation>Qt Quick Controls 2 を使用する、デプロイ可能な Qt Quick 2 アプリケーションを作成します。&lt;br/&gt;&lt;br/&gt;&lt;b&gt;注意:&lt;/b&gt; Qt Quick Controls 2 は Qt 5.7 以降でのみ利用できます。Qt 5.6 では &lt;em&gt;Qt Labs Controls アプリケーション&lt;/em&gt; を選択してください。</translation>
+    </message>
+    <message>
+        <source>Qt Quick Controls 2 Application</source>
+        <translation>Qt Quick Controls 2 アプリケーション</translation>
     </message>
     <message>
         <source>Use existing directory</source>
@@ -38153,8 +38477,36 @@ Would you like to overwrite it?</source>
         <translation>図のエクスポート...</translation>
     </message>
     <message>
+        <source>Zoom In</source>
+        <translation>拡大</translation>
+    </message>
+    <message>
+        <source>Zoom Out</source>
+        <translation>縮小</translation>
+    </message>
+    <message>
+        <source>Reset Zoom</source>
+        <translation>縮尺を戻す</translation>
+    </message>
+    <message>
         <source>Open Parent Diagram</source>
         <translation>親の図を開く</translation>
+    </message>
+    <message>
+        <source>Add Package</source>
+        <translation>パッケージの追加</translation>
+    </message>
+    <message>
+        <source>Add Component</source>
+        <translation>コンポーネントの追加</translation>
+    </message>
+    <message>
+        <source>Add Class</source>
+        <translation>クラスの追加</translation>
+    </message>
+    <message>
+        <source>Add Canvas Diagram</source>
+        <translation>キャンバス図の追加</translation>
     </message>
     <message>
         <source>Edit Element Properties</source>
@@ -38707,20 +39059,12 @@ to project &quot;%2&quot;.</source>
         <translation>環境変数:</translation>
     </message>
     <message>
-        <source>Additional environment settings when using this kit.</source>
-        <translation>このキットを使用する際の変更する環境変数の設定です。</translation>
+        <source>Additional build environment settings when using this kit.</source>
+        <translation>このキット使用時に追加するビルド用環境変数です。</translation>
     </message>
     <message>
         <source>No changes to apply.</source>
         <translation>変更しません。</translation>
-    </message>
-    <message>
-        <source>Edit Environment Changes</source>
-        <translation>環境変数の変更の編集</translation>
-    </message>
-    <message>
-        <source>Enter one variable per line with the variable name separated from the variable value by &quot;=&quot;.&lt;br&gt;Environment variables can be referenced with ${OTHER}.</source>
-        <translation>一行に付き一つの変数をその名と値を &quot;=&quot; で繋ぐ形式で入力してください。&lt;br&gt;他の環境変数は ${OTHER} の形式で参照できます。</translation>
     </message>
 </context>
 <context>
@@ -39266,9 +39610,9 @@ Android パッケージソースディレクトリのファイルはビルドデ
         <translation>バインディング</translation>
     </message>
     <message>
-        <source>Dynamic Properties</source>
+        <source>Properties</source>
         <comment>Title of dynamic properties view</comment>
-        <translation>ダイナミックプロパティ</translation>
+        <translation>プロパティ</translation>
     </message>
     <message>
         <source>Add binding or connection.</source>
@@ -39517,19 +39861,6 @@ Android パッケージソースディレクトリのファイルはビルドデ
         <translation>&lt;バイトコード&gt;</translation>
     </message>
     <message>
-        <source>(Opt)</source>
-        <translation>(最適化)</translation>
-    </message>
-    <message>
-        <source>Binding is evaluated by the optimized engine.</source>
-        <translation>バインディングは最適化されたエンジンで評価されます。</translation>
-    </message>
-    <message>
-        <source>Binding not optimized (might have side effects or assignments,
-references to elements in other files, loops, and so on.)</source>
-        <translation>バインディングは最適化されていません(副作用の可能性や代入、他のファイルのエレメントへの参照、ループなどの為)</translation>
-    </message>
-    <message>
         <source>Source code not available</source>
         <translation>ソースコードが見つかりません</translation>
     </message>
@@ -39620,7 +39951,7 @@ references to elements in other files, loops, and so on.)</source>
     </message>
 </context>
 <context>
-    <name>QmlProfilerExtension::Internal::DebugMessagesModel</name>
+    <name>QmlProfiler::Internal::DebugMessagesModel</name>
     <message>
         <source>Unknown Message %1</source>
         <translation>未知のメッセージ %1</translation>
@@ -39639,45 +39970,22 @@ references to elements in other files, loops, and so on.)</source>
     </message>
 </context>
 <context>
-    <name>QmlProfilerExtension::Internal::FlameGraphModel</name>
+    <name>QmlProfiler::Internal::DebugMessagesModelTest</name>
     <message>
-        <source>Paint</source>
-        <translation>描画</translation>
+        <source>Timestamp</source>
+        <translation>タイムスタンプ</translation>
     </message>
     <message>
-        <source>Compile</source>
-        <translation>コンパイル</translation>
+        <source>Message</source>
+        <translation>メッセージ</translation>
     </message>
     <message>
-        <source>Create</source>
-        <translation>生成</translation>
-    </message>
-    <message>
-        <source>Binding</source>
-        <translation>バインディング</translation>
-    </message>
-    <message>
-        <source>Signal</source>
-        <translation>シグナル</translation>
-    </message>
-    <message>
-        <source>JavaScript</source>
-        <translation>JavaScript</translation>
-    </message>
-    <message>
-        <source>Source code not available</source>
-        <translation>ソースコードが見つかりません</translation>
+        <source>Location</source>
+        <translation>パス</translation>
     </message>
 </context>
 <context>
-    <name>QmlProfilerExtension::Internal::FlameGraphView</name>
-    <message>
-        <source>Show Full Range</source>
-        <translation>全体を表示</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfilerExtension::Internal::InputEventsModel</name>
+    <name>QmlProfiler::Internal::InputEventsModelTest</name>
     <message>
         <source>Mouse Events</source>
         <translation>マウスイベント</translation>
@@ -39695,10 +40003,6 @@ references to elements in other files, loops, and so on.)</source>
         <translation>キープレス</translation>
     </message>
     <message>
-        <source>Key Release</source>
-        <translation>キーリリース</translation>
-    </message>
-    <message>
         <source>Key</source>
         <translation>キー</translation>
     </message>
@@ -39707,16 +40011,16 @@ references to elements in other files, loops, and so on.)</source>
         <translation>修飾キー</translation>
     </message>
     <message>
-        <source>Double Click</source>
-        <translation>ダブルクリック</translation>
+        <source>Key Release</source>
+        <translation>キーリリース</translation>
+    </message>
+    <message>
+        <source>Keyboard Event</source>
+        <translation>キーボードイベント</translation>
     </message>
     <message>
         <source>Mouse Press</source>
         <translation>マウスプレス</translation>
-    </message>
-    <message>
-        <source>Mouse Release</source>
-        <translation>マウスリリース</translation>
     </message>
     <message>
         <source>Button</source>
@@ -39725,6 +40029,10 @@ references to elements in other files, loops, and so on.)</source>
     <message>
         <source>Result</source>
         <translation>結果</translation>
+    </message>
+    <message>
+        <source>Mouse Release</source>
+        <translation>マウスリリース</translation>
     </message>
     <message>
         <source>Mouse Move</source>
@@ -39739,6 +40047,10 @@ references to elements in other files, loops, and so on.)</source>
         <translation>Y</translation>
     </message>
     <message>
+        <source>Double Click</source>
+        <translation>ダブルクリック</translation>
+    </message>
+    <message>
         <source>Mouse Wheel</source>
         <translation>マウスホイール</translation>
     </message>
@@ -39751,16 +40063,12 @@ references to elements in other files, loops, and so on.)</source>
         <translation>Y軸角度</translation>
     </message>
     <message>
-        <source>Keyboard Event</source>
-        <translation>キーボードイベント</translation>
-    </message>
-    <message>
         <source>Mouse Event</source>
         <translation>マウスイベント</translation>
     </message>
 </context>
 <context>
-    <name>QmlProfilerExtension::Internal::MemoryUsageModel</name>
+    <name>QmlProfiler::Internal::MemoryUsageModelTest</name>
     <message>
         <source>Memory Allocation</source>
         <translation>メモリ確保</translation>
@@ -39774,12 +40082,12 @@ references to elements in other files, loops, and so on.)</source>
         <translation>確保済みメモリ</translation>
     </message>
     <message>
-        <source>Memory Freed</source>
-        <translation>解放済みメモリ</translation>
-    </message>
-    <message>
         <source>Total</source>
         <translation>トータル</translation>
+    </message>
+    <message>
+        <source>%1 bytes</source>
+        <translation>%1 バイト</translation>
     </message>
     <message>
         <source>Allocated</source>
@@ -39790,6 +40098,18 @@ references to elements in other files, loops, and so on.)</source>
         <translation>確保</translation>
     </message>
     <message>
+        <source>Type</source>
+        <translation>型</translation>
+    </message>
+    <message>
+        <source>Heap Allocation</source>
+        <translation>ヒープメモリ</translation>
+    </message>
+    <message>
+        <source>Location</source>
+        <translation>パス</translation>
+    </message>
+    <message>
         <source>Deallocated</source>
         <translation>解放済み</translation>
     </message>
@@ -39798,32 +40118,20 @@ references to elements in other files, loops, and so on.)</source>
         <translation>解放</translation>
     </message>
     <message>
-        <source>Type</source>
-        <translation>タイプ</translation>
-    </message>
-    <message>
-        <source>Location</source>
-        <translation>パス</translation>
-    </message>
-    <message>
-        <source>Heap Allocation</source>
-        <translation>ヒープメモリ</translation>
-    </message>
-    <message>
         <source>Large Item Allocation</source>
         <translation>巨大アイテム用メモリ</translation>
+    </message>
+    <message>
+        <source>Memory Freed</source>
+        <translation>解放済みメモリ</translation>
     </message>
     <message>
         <source>Heap Usage</source>
         <translation>ヒープ使用</translation>
     </message>
-    <message>
-        <source>Unknown</source>
-        <translation>不明</translation>
-    </message>
 </context>
 <context>
-    <name>QmlProfilerExtension::Internal::PixmapCacheModel</name>
+    <name>QmlProfiler::Internal::PixmapCacheModelTest</name>
     <message>
         <source>Image Cached</source>
         <translation>キャッシュ済み画像</translation>
@@ -39831,14 +40139,6 @@ references to elements in other files, loops, and so on.)</source>
     <message>
         <source>Image Loaded</source>
         <translation>読込済み画像</translation>
-    </message>
-    <message>
-        <source>Result</source>
-        <translation>結果</translation>
-    </message>
-    <message>
-        <source>Load Error</source>
-        <translation>読込エラー</translation>
     </message>
     <message>
         <source>Duration</source>
@@ -39862,18 +40162,7 @@ references to elements in other files, loops, and so on.)</source>
     </message>
 </context>
 <context>
-    <name>QmlProfilerExtension::Internal::QmlProfilerExtensionPlugin</name>
-    <message>
-        <source>Action Triggered</source>
-        <translation>アクショントリガー</translation>
-    </message>
-    <message>
-        <source>This is an action from QML Profiler Extension.</source>
-        <translation>QML プロファイラエクステンションのアクションです。</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfilerExtension::Internal::SceneGraphTimelineModel</name>
+    <name>QmlProfiler::Internal::SceneGraphTimelineModel</name>
     <message>
         <source>Stage</source>
         <translation>ステージ</translation>
@@ -39992,10 +40281,6 @@ references to elements in other files, loops, and so on.)</source>
 <context>
     <name>TextEditor::TextEditorWidget</name>
     <message>
-        <source>CTRL+D</source>
-        <translation>CTRL+D</translation>
-    </message>
-    <message>
         <source>Print Document</source>
         <translation>ドキュメントの印刷</translation>
     </message>
@@ -40008,14 +40293,6 @@ references to elements in other files, loops, and so on.)</source>
         <translation>表示するにはテキストが大きすぎます (%1 MB)。</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Error:&lt;/b&gt; Could not decode &quot;%1&quot; with &quot;%2&quot;-encoding. Editing not possible.</source>
-        <translation>&lt;b&gt;エラー:&lt;/b&gt; &quot;%1&quot; を文字コード &quot;%2&quot; ではデコードできませんでした。編集できません。</translation>
-    </message>
-    <message>
-        <source>Select Encoding</source>
-        <translation>文字コードの選択</translation>
-    </message>
-    <message>
         <source>Zoom: %1%</source>
         <translation>拡大率: %1%</translation>
     </message>
@@ -40026,6 +40303,21 @@ references to elements in other files, loops, and so on.)</source>
     <message>
         <source>Add UTF-8 BOM on Save</source>
         <translation>保存時に UTF-8 BOM を追加</translation>
+    </message>
+</context>
+<context>
+    <name>TextEditorWidget</name>
+    <message>
+        <source>CTRL+D</source>
+        <translation>CTRL+D</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Error:&lt;/b&gt; Could not decode &quot;%1&quot; with &quot;%2&quot;-encoding. Editing not possible.</source>
+        <translation>&lt;b&gt;エラー:&lt;/b&gt; &quot;%1&quot; を文字コード &quot;%2&quot; ではデコードできませんでした。編集できません。</translation>
+    </message>
+    <message>
+        <source>Select Encoding</source>
+        <translation>文字コードの選択</translation>
     </message>
     <message>
         <source>Line: %1, Col: %2</source>
@@ -40137,6 +40429,10 @@ references to elements in other files, loops, and so on.)</source>
     <message>
         <source>Ctrl+Return</source>
         <translation>Ctrl+Return</translation>
+    </message>
+    <message>
+        <source>Toggle UTF-8 BOM</source>
+        <translation>UTF-8 BOM の切替</translation>
     </message>
     <message>
         <source>Indent</source>
@@ -40780,6 +41076,768 @@ references to elements in other files, loops, and so on.)</source>
     <message>
         <source>Spotlight File Name Index</source>
         <translation>Spotlight ファイル名検索</translation>
+    </message>
+</context>
+<context>
+    <name>Beautifier::Internal::GeneralOptionsPage</name>
+    <message>
+        <source>Form</source>
+        <translation>フォーム</translation>
+    </message>
+    <message>
+        <source>Automatic Formatting on File Save</source>
+        <translation>ファイル保存時に自動的に整形する</translation>
+    </message>
+    <message>
+        <source>Enable auto format on file save</source>
+        <translation>ファイル保存時の自動整形を有効にする</translation>
+    </message>
+    <message>
+        <source>Tool:</source>
+        <translation>ツール:</translation>
+    </message>
+    <message>
+        <source>Restrict to MIME types:</source>
+        <translation>制限する MIME タイプ:</translation>
+    </message>
+    <message>
+        <source>Restrict to files contained in the current project</source>
+        <translation>現在のプロジェクトに含まれるファイルのみに制限する</translation>
+    </message>
+    <message>
+        <source>General</source>
+        <translation>一般</translation>
+    </message>
+</context>
+<context>
+    <name>Nim::NimCompilerBuildStepConfigWidget</name>
+    <message>
+        <source>Form</source>
+        <translation>フォーム</translation>
+    </message>
+    <message>
+        <source>Target:</source>
+        <translation>ターゲット:</translation>
+    </message>
+    <message>
+        <source>Extra arguments:</source>
+        <translation>追加引数:</translation>
+    </message>
+    <message>
+        <source>Command:</source>
+        <translation>コマンド:</translation>
+    </message>
+    <message>
+        <source>Default arguments:</source>
+        <translation>デフォルト引数:</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>なし</translation>
+    </message>
+    <message>
+        <source>Debug</source>
+        <translation>デバッグ</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>リリース</translation>
+    </message>
+</context>
+<context>
+    <name>Nim::NimCompilerCleanStepConfigWidget</name>
+    <message>
+        <source>Form</source>
+        <translation>フォーム</translation>
+    </message>
+    <message>
+        <source>Working directory:</source>
+        <translation>作業ディレクトリ:</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::OpenUiQmlFileDialog</name>
+    <message>
+        <source>Open ui.qml file</source>
+        <translation>.ui.qml ファイルを開く</translation>
+    </message>
+    <message>
+        <source>You are opening a .qml file in the designer. Do you want to open a .ui.qml file instead?</source>
+        <translation>Qt Quick Designer で .qml ファイルを開こうとしています。代わりに .ui.qml ファイルを開きますか？</translation>
+    </message>
+    <message>
+        <source>Do not show this dialog again</source>
+        <translation>今後このダイアログを表示しない</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>キャンセル</translation>
+    </message>
+</context>
+<context>
+    <name>AnchorButtons</name>
+    <message>
+        <source>Anchor item to the top.</source>
+        <translation>アイテムの上端をアンカーします。</translation>
+    </message>
+    <message>
+        <source>Anchor item to the bottom.</source>
+        <translation>アイテムの下端をアンカーします。</translation>
+    </message>
+    <message>
+        <source>Anchor item to the left.</source>
+        <translation>アイテムの左端をアンカーします。</translation>
+    </message>
+    <message>
+        <source>Anchor item to the right.</source>
+        <translation>アイテムの右端をアンカーします。</translation>
+    </message>
+    <message>
+        <source>Fill parent item.</source>
+        <translation>親アイテムのレイアウトに合わせます。</translation>
+    </message>
+    <message>
+        <source>Anchor item vertically.</source>
+        <translation>アイテムの垂直方向をアンカーします。</translation>
+    </message>
+    <message>
+        <source>Anchor item horizontally.</source>
+        <translation>アイテムの水平方向をアンカーします。</translation>
+    </message>
+</context>
+<context>
+    <name>ExtendedFunctionButton</name>
+    <message>
+        <source>Binding Editor</source>
+        <translation>バインディングエディタ</translation>
+    </message>
+</context>
+<context>
+    <name>qmt::V</name>
+    <message>
+        <source>Multi-Selection</source>
+        <translation>複数選択</translation>
+    </message>
+</context>
+<context>
+    <name>Utils::EnvironmentDialog</name>
+    <message>
+        <source>Enter one variable per line with the variable name separated from the variable value by &quot;=&quot;.&lt;br&gt;Environment variables can be referenced with ${OTHER}.</source>
+        <translation>一行に付き一つの変数をその名と値を &quot;=&quot; で繋ぐ形式で入力してください。&lt;br&gt;他の環境変数は ${OTHER} の形式で参照できます。</translation>
+    </message>
+    <message>
+        <source>Change environment by assigning one environment variable per line:</source>
+        <translation>各行に一つの環境変数を代入することで環境を変更する:</translation>
+    </message>
+    <message>
+        <source>Edit Environment</source>
+        <translation>環境変数の編集</translation>
+    </message>
+</context>
+<context>
+    <name>GTestFramework</name>
+    <message>
+        <source>Google Tests</source>
+        <translation>Google Tests</translation>
+    </message>
+</context>
+<context>
+    <name>GTestTreeItem</name>
+    <message>
+        <source>parameterized</source>
+        <translation>パラメータ化</translation>
+    </message>
+    <message>
+        <source>typed</source>
+        <translation>型付け</translation>
+    </message>
+</context>
+<context>
+    <name>QtTestFramework</name>
+    <message>
+        <source>Qt Tests</source>
+        <translation>Qt テスト</translation>
+    </message>
+</context>
+<context>
+    <name>QuickTestFramework</name>
+    <message>
+        <source>Quick Tests</source>
+        <translation>Quick テスト</translation>
+    </message>
+</context>
+<context>
+    <name>QuickTestTreeItem</name>
+    <message>
+        <source>&lt;unnamed&gt;</source>
+        <translation>&lt;無名&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;Give all test cases a name to ensure correct behavior when running test cases and to be able to select them.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;テストケースの実行や選択が正常に動作するようにすべてのテストケースに名前を付けてください。&lt;/p&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>Autotest::Internal::TestRunConfiguration</name>
+    <message>
+        <source>AutoTest Debug</source>
+        <translation>自動テストのデバッグ</translation>
+    </message>
+</context>
+<context>
+    <name>Autotest::Internal::TestSettingsWidget</name>
+    <message>
+        <source>No active test frameworks.</source>
+        <translation>アクティブなテストフレームワークが見つかりません。</translation>
+    </message>
+    <message>
+        <source>You will not be able to use the AutoTest plugin without having at least one active test framework.</source>
+        <translation>有効なテストフレームワークが存在しないため、AutoTest プラグインを使用できません。</translation>
+    </message>
+</context>
+<context>
+    <name>TestTreeItem</name>
+    <message>
+        <source> (none)</source>
+        <translation> (なし)</translation>
+    </message>
+</context>
+<context>
+    <name>Beautifier::Internal::ArtisticStyle::ArtisticStyle</name>
+    <message>
+        <source>Artistic Style</source>
+        <translation>Artistic スタイル</translation>
+    </message>
+</context>
+<context>
+    <name>Beautifier::Internal::ClangFormat::ClangFormat</name>
+    <message>
+        <source>ClangFormat</source>
+        <translation>Clang フォーマット</translation>
+    </message>
+</context>
+<context>
+    <name>Beautifier::Internal::Uncrustify::Uncrustify</name>
+    <message>
+        <source>Uncrustify</source>
+        <translation>Uncrustify</translation>
+    </message>
+</context>
+<context>
+    <name>ClangCodeModel::Internal::ClangDiagnosticManager</name>
+    <message>
+        <source>Inspect available fixits</source>
+        <translation>利用可能な修正の確認</translation>
+    </message>
+</context>
+<context>
+    <name>ClangStaticAnalyzer::Internal::LogFileReader</name>
+    <message>
+        <source>File &quot;%1&quot; does not exist or is not readable.</source>
+        <translation>ファイル &quot;%1&quot; が存在しないか読み込み可能ではありません。</translation>
+    </message>
+    <message>
+        <source>Could not read file &quot;%1&quot;: UnexpectedElementError.</source>
+        <translation>ファイル &quot;%1&quot; を読み込みませんでした: 想定外のエレメントです。</translation>
+    </message>
+    <message>
+        <source>Could not read file &quot;%1&quot;: CustomError.</source>
+        <translation>ファイル &quot;%1&quot; を読み込みませんでした: カスタムエラーです。</translation>
+    </message>
+    <message>
+        <source>Could not read file &quot;%1&quot;: NotWellFormedError.</source>
+        <translation>ファイル &quot;%1&quot; を読み込みませんでした: XML ファイルのフォーマットが不正です。</translation>
+    </message>
+    <message>
+        <source>Could not read file &quot;%1&quot;: PrematureEndOfDocumentError.</source>
+        <translation>ファイル &quot;%1&quot; を読み込みませんでした: XML ファイルが途中で終了しています。</translation>
+    </message>
+</context>
+<context>
+    <name>ClangStaticAnalyzer::Internal::ClangStaticAnalyzerLogFileReader</name>
+    <message>
+        <source>File is not a plist version 1.0 file.</source>
+        <translation>ファイルがバージョン 1.0 の plist ファイルではありません。</translation>
+    </message>
+    <message>
+        <source>Expected a string element.</source>
+        <translation>string エレメントではありません。</translation>
+    </message>
+    <message>
+        <source>Expected an array element.</source>
+        <translation>array エレメントではありません。</translation>
+    </message>
+    <message>
+        <source>Expected an integer element.</source>
+        <translation>integer エレメントではありません。</translation>
+    </message>
+</context>
+<context>
+    <name>ClangStaticAnalyzer::Internal::ClangStaticAnalyzerRunner</name>
+    <message>
+        <source>An error occurred with the Clang Static Analyzer process.</source>
+        <translation>Clang 静的解析のプロセスでエラーが発生しました。</translation>
+    </message>
+    <message>
+        <source>Clang Static Analyzer crashed.</source>
+        <translation>Clang 静的解析がクラッシュしました。</translation>
+    </message>
+    <message>
+        <source>Clang Static Analyzer finished with exit code: %1.</source>
+        <translation>Clang 静的解析は終了コード %1 で終了しました。</translation>
+    </message>
+    <message>
+        <source>Command line: %1
+Process Error: %2
+Output:
+%3</source>
+        <translation>コマンドライン：%1
+プロセスエラー: %2
+出力:
+%3</translation>
+    </message>
+</context>
+<context>
+    <name>ClangStaticAnalyzer::Internal::DummyRunConfiguration</name>
+    <message>
+        <source>Clang Static Analyzer</source>
+        <translation>Clang 静的解析</translation>
+    </message>
+</context>
+<context>
+    <name>CMakeProjectManager::Internal::CMakeBuildConfiguration</name>
+    <message>
+        <source>CMake configuration set by the kit was overridden in the project.</source>
+        <translation>キットで設定された CMake 設定はプロジェクトで上書きされました。</translation>
+    </message>
+</context>
+<context>
+    <name>CMakeProjectManager::Internal::CMakeEditorFactory</name>
+    <message>
+        <source>CMake Editor</source>
+        <translation>CMake エディタ</translation>
+    </message>
+</context>
+<context>
+    <name>Core::Internal::LocatorFiltersFilter</name>
+    <message>
+        <source>Available filters</source>
+        <translation>利用可能なフィルタ</translation>
+    </message>
+</context>
+<context>
+    <name>ModelEditor</name>
+    <message>
+        <source>Zoom: %1%</source>
+        <translation>拡大率: %1%</translation>
+    </message>
+</context>
+<context>
+    <name>NimRunConfiguration</name>
+    <message>
+        <source>Current Build Target</source>
+        <translation>現在のビルドターゲット</translation>
+    </message>
+</context>
+<context>
+    <name>NimBuildConfigurationWidget</name>
+    <message>
+        <source>General</source>
+        <translation>一般</translation>
+    </message>
+</context>
+<context>
+    <name>NimCompilerBuildStep</name>
+    <message>
+        <source>Nim Compiler Build Step</source>
+        <translation>Nim コンパイラビルドステップ</translation>
+    </message>
+</context>
+<context>
+    <name>NimCompilerBuildStepConfigWidget</name>
+    <message>
+        <source>Nim build step</source>
+        <translation>Nim ビルドステップ</translation>
+    </message>
+</context>
+<context>
+    <name>NimCompilerCleanStepFactory</name>
+    <message>
+        <source>Nim Compiler Clean Step</source>
+        <translation>Nim コンパイラクリーンステップ</translation>
+    </message>
+</context>
+<context>
+    <name>NimCompilerCleanStepWidget</name>
+    <message>
+        <source>Nim clean step</source>
+        <translation>Nim クリーンステップ</translation>
+    </message>
+</context>
+<context>
+    <name>NimCodeStyleSettingsPage</name>
+    <message>
+        <source>Code Style</source>
+        <translation>コードスタイル</translation>
+    </message>
+    <message>
+        <source>Nim</source>
+        <translation>Nim</translation>
+    </message>
+</context>
+<context>
+    <name>NimCodeStylePreferencesFactory</name>
+    <message>
+        <source>Nim</source>
+        <translation>Nim</translation>
+    </message>
+</context>
+<context>
+    <name>NimSnippetProvider</name>
+    <message>
+        <source>Nim</source>
+        <translation>Nim</translation>
+    </message>
+</context>
+<context>
+    <name>Nim::NimBuildConfigurationFactory</name>
+    <message>
+        <source>Build</source>
+        <translation>ビルド</translation>
+    </message>
+</context>
+<context>
+    <name>Nim::NimBuildConfigurationWidget</name>
+    <message>
+        <source>Build directory:</source>
+        <translation>ビルドディレクトリ:</translation>
+    </message>
+</context>
+<context>
+    <name>Nim::NimCompilerBuildStepFactory</name>
+    <message>
+        <source>Nim Compiler Build Step</source>
+        <translation>Nim コンパイラビルドステップ</translation>
+    </message>
+</context>
+<context>
+    <name>Nim::NimCompilerCleanStep</name>
+    <message>
+        <source>Nim Clean Step</source>
+        <translation>Nim クリーンステップ</translation>
+    </message>
+    <message>
+        <source>Build directory &quot;%1&quot; does not exist.</source>
+        <translation>ビルドディレクトリ &quot;%1&quot; が存在しません。</translation>
+    </message>
+    <message>
+        <source>Failed to delete the cache directory.</source>
+        <translation>キャッシュディレクトリの削除に失敗しました。</translation>
+    </message>
+    <message>
+        <source>Failed to delete the out file.</source>
+        <translation>出力ファイルの削除に失敗しました。</translation>
+    </message>
+    <message>
+        <source>Clean step completed successfully.</source>
+        <translation>クリーンステップが正常に完了しました。</translation>
+    </message>
+</context>
+<context>
+    <name>Nim::NimProjectManager</name>
+    <message>
+        <source>Failed opening project &quot;%1&quot;: Project is not a file.</source>
+        <translation>プロジェクト &quot;%1&quot; が開けません: プロジェクトがファイルではありません。</translation>
+    </message>
+</context>
+<context>
+    <name>Nim::NimRunControl</name>
+    <message>
+        <source>%1 crashed</source>
+        <translation>%1 がクラッシュしました</translation>
+    </message>
+    <message>
+        <source>%1 exited with code %2</source>
+        <translation>%1 は終了コード %2 で終了しました</translation>
+    </message>
+</context>
+<context>
+    <name>Nim::NimSettings</name>
+    <message>
+        <source>Global</source>
+        <comment>Settings</comment>
+        <translation>グローバル</translation>
+    </message>
+    <message>
+        <source>Nim</source>
+        <translation>Nim</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::FilesSelectionWizardPage</name>
+    <message>
+        <source>Files</source>
+        <translation>ファイル</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::SimpleProjectWizardDialog</name>
+    <message>
+        <source>Import Existing Project</source>
+        <translation>既存プロジェクトのインポート</translation>
+    </message>
+    <message>
+        <source>Project Name and Location</source>
+        <translation>プロジェクト名とパス</translation>
+    </message>
+    <message>
+        <source>Project name:</source>
+        <translation>プロジェクト名:</translation>
+    </message>
+    <message>
+        <source>Location:</source>
+        <translation>パス:</translation>
+    </message>
+    <message>
+        <source>File Selection</source>
+        <translation>ファイル選択</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::SimpleProjectWizard</name>
+    <message>
+        <source>Import as qmake Project (Limited Functionality)</source>
+        <translation>qmake プロジェクトとしてインポート(機能限定版)</translation>
+    </message>
+    <message>
+        <source>Imports existing projects that do not use qmake, CMake or Autotools.&lt;p&gt;This creates a qmake .pro file that allows you to use Qt Creator as a code editor and as a launcher for debugging and analyzing tools. If you want to build the project, you might need to edit the generated .pro file.</source>
+        <translation>qmake や CMake、Autotools を使用していない既存のプロジェクトをインポートします。&lt;p&gt;Qt Creator をコードエディタやデバッグ・解析ツールのランチャーとして使うための qmake 用 .pro ファイルを作成します。プロジェクトをビルドするためには、生成された .pro ファイルを編集する必要があるかもしれません。</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::BackgroundAction</name>
+    <message>
+        <source>Set the color of the canvas.</source>
+        <translation>キャンバスの色を設定します。</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProfiler::Internal::FlameGraphModel</name>
+    <message>
+        <source>Compile</source>
+        <translation>コンパイル</translation>
+    </message>
+    <message>
+        <source>Create</source>
+        <translation>生成</translation>
+    </message>
+    <message>
+        <source>Binding</source>
+        <translation>バインディング</translation>
+    </message>
+    <message>
+        <source>Signal</source>
+        <translation>シグナル</translation>
+    </message>
+    <message>
+        <source>JavaScript</source>
+        <translation>JavaScript</translation>
+    </message>
+    <message>
+        <source>Source code not available</source>
+        <translation>ソースコードが見つかりません</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProfiler::Internal::FlameGraphView</name>
+    <message>
+        <source>Show Full Range</source>
+        <translation>全体を表示</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProfiler::Internal::InputEventsModel</name>
+    <message>
+        <source>Mouse Events</source>
+        <translation>マウスイベント</translation>
+    </message>
+    <message>
+        <source>Keyboard Events</source>
+        <translation>キーボードイベント</translation>
+    </message>
+    <message>
+        <source>Timestamp</source>
+        <translation>タイムスタンプ</translation>
+    </message>
+    <message>
+        <source>Key Press</source>
+        <translation>キープレス</translation>
+    </message>
+    <message>
+        <source>Key Release</source>
+        <translation>キーリリース</translation>
+    </message>
+    <message>
+        <source>Key</source>
+        <translation>キー</translation>
+    </message>
+    <message>
+        <source>Modifiers</source>
+        <translation>修飾キー</translation>
+    </message>
+    <message>
+        <source>Double Click</source>
+        <translation>ダブルクリック</translation>
+    </message>
+    <message>
+        <source>Mouse Press</source>
+        <translation>マウスプレス</translation>
+    </message>
+    <message>
+        <source>Mouse Release</source>
+        <translation>マウスリリース</translation>
+    </message>
+    <message>
+        <source>Button</source>
+        <translation>ボタン</translation>
+    </message>
+    <message>
+        <source>Result</source>
+        <translation>結果</translation>
+    </message>
+    <message>
+        <source>Mouse Move</source>
+        <translation>マウス移動</translation>
+    </message>
+    <message>
+        <source>X</source>
+        <translation>X</translation>
+    </message>
+    <message>
+        <source>Y</source>
+        <translation>Y</translation>
+    </message>
+    <message>
+        <source>Mouse Wheel</source>
+        <translation>マウスホイール</translation>
+    </message>
+    <message>
+        <source>Angle X</source>
+        <translation>X軸角度</translation>
+    </message>
+    <message>
+        <source>Angle Y</source>
+        <translation>Y軸角度</translation>
+    </message>
+    <message>
+        <source>Keyboard Event</source>
+        <translation>キーボードイベント</translation>
+    </message>
+    <message>
+        <source>Mouse Event</source>
+        <translation>マウスイベント</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProfiler::Internal::MemoryUsageModel</name>
+    <message>
+        <source>Memory Allocation</source>
+        <translation>メモリ確保</translation>
+    </message>
+    <message>
+        <source>Memory Usage</source>
+        <translation>メモリ使用</translation>
+    </message>
+    <message>
+        <source>Memory Allocated</source>
+        <translation>確保済みメモリ</translation>
+    </message>
+    <message>
+        <source>Memory Freed</source>
+        <translation>解放済みメモリ</translation>
+    </message>
+    <message>
+        <source>Total</source>
+        <translation>トータル</translation>
+    </message>
+    <message>
+        <source>%1 bytes</source>
+        <translation>%1 バイト</translation>
+    </message>
+    <message>
+        <source>Allocated</source>
+        <translation>確保済み</translation>
+    </message>
+    <message>
+        <source>Allocations</source>
+        <translation>確保</translation>
+    </message>
+    <message>
+        <source>Deallocated</source>
+        <translation>解放済み</translation>
+    </message>
+    <message>
+        <source>Deallocations</source>
+        <translation>解放</translation>
+    </message>
+    <message>
+        <source>Heap Allocation</source>
+        <translation>ヒープメモリ</translation>
+    </message>
+    <message>
+        <source>Large Item Allocation</source>
+        <translation>巨大アイテム用メモリ</translation>
+    </message>
+    <message>
+        <source>Heap Usage</source>
+        <translation>ヒープ使用</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation>型</translation>
+    </message>
+    <message>
+        <source>Location</source>
+        <translation>パス</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProfiler::Internal::PixmapCacheModel</name>
+    <message>
+        <source>Cache Size</source>
+        <translation>キャッシュサイズ</translation>
+    </message>
+    <message>
+        <source>Image Cached</source>
+        <translation>キャッシュ済み画像</translation>
+    </message>
+    <message>
+        <source>Image Loaded</source>
+        <translation>読込済み画像</translation>
+    </message>
+    <message>
+        <source>Result</source>
+        <translation>結果</translation>
+    </message>
+    <message>
+        <source>Load Error</source>
+        <translation>読込エラー</translation>
+    </message>
+    <message>
+        <source>Duration</source>
+        <translation>持続時間</translation>
+    </message>
+    <message>
+        <source>File</source>
+        <translation>ファイル</translation>
+    </message>
+    <message>
+        <source>Width</source>
+        <translation>幅</translation>
+    </message>
+    <message>
+        <source>Height</source>
+        <translation>高さ</translation>
     </message>
 </context>
 </TS>

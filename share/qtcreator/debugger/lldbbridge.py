@@ -724,8 +724,13 @@ class Dumper(DumperBase):
             self.report('pid="%s"' % self.process.GetProcessID())
             # Even if it stops it seems that LLDB assumes it is running
             # and later detects that it did stop after all, so it is be
-            # better to mirror that and wait for the spontaneous stop.
-            self.reportState("enginerunandinferiorrunok")
+            # better to mirror that and wait for the spontaneous stop
+            if self.process and self.process.GetState() == lldb.eStateStopped:
+                # lldb stops the process after attaching. This happens before the
+                # eventloop starts. Relay the correct state back.
+                self.reportState("enginerunandinferiorstopok")
+            else:
+                self.reportState("enginerunandinferiorrunok")
         elif self.startMode_ == AttachToRemoteServer or self.startMode_ == AttachToRemoteProcess:
             self.process = self.target.ConnectRemote(
                 self.debugger.GetListener(),

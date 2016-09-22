@@ -819,7 +819,7 @@ QVector<int> MiniProjectTargetSelector::listWidgetWidths(int minSize, int maxSiz
         }
 
         widthToDistribute -= delta * i;
-        if (widthToDistribute == 0)
+        if (widthToDistribute <= 0)
             return result;
 
         first = result[indexes.first()];
