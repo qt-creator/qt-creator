@@ -96,8 +96,8 @@ LIBTOOLING_LIBS += $$CLANGTOOLING_LIBS $$LLVM_STATIC_LIBS
 contains(QMAKE_DEFAULT_INCDIRS, $$LLVM_INCLUDEPATH): LLVM_INCLUDEPATH =
 
 isEmpty(LLVM_VERSION): error("Cannot determine clang version at $$LLVM_INSTALL_DIR")
-!versionIsAtLeast($$LLVM_VERSION, 3, 8, 0): {
-    error("LLVM/Clang version >= 3.8.0 required, version provided: $$LLVM_VERSION")
+!versionIsAtLeast($$LLVM_VERSION, 3, 9, 0): {
+    error("LLVM/Clang version >= 3.9.0 required, version provided: $$LLVM_VERSION")
 }
 
 unix:LLVM_CXXFLAGS = -fno-rtti -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS

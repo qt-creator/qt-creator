@@ -25,7 +25,7 @@ Prerequisites:
     * cmake
 * On Mac OS X: latest Xcode
 * On Linux: g++ 4.8 or later
-* LLVM 3.8.0 or later (optional, needed for the Clang Code Model)
+* LLVM 3.9.0 or later (optional, needed for the Clang Code Model)
 
 The installed toolchains have to match the one Qt was compiled with.
 

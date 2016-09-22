@@ -1,7 +1,7 @@
 var Environment = loadExtension("qbs.Environment")
 var File = loadExtension("qbs.File")
 var FileInfo = loadExtension("qbs.FileInfo")
-var MinimumLLVMVersion = "3.8.0"
+var MinimumLLVMVersion = "3.9.0"
 var Process = loadExtension("qbs.Process")
 
 function readOutput(executable, args)
@@ -28,7 +28,7 @@ function llvmConfig(qbs, qtcFunctions)
 {
     var llvmInstallDirFromEnv = Environment.getEnv("LLVM_INSTALL_DIR")
     var llvmConfigVariants = [
-        "llvm-config", "llvm-config-3.8", "llvm-config-3.9", "llvm-config-4.0", "llvm-config-4.1"
+        "llvm-config", "llvm-config-3.9", "llvm-config-4.0", "llvm-config-4.1"
     ];
 
     // Prefer llvm-config* from LLVM_INSTALL_DIR
