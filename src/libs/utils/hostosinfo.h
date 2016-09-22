@@ -42,7 +42,7 @@ namespace Utils {
 class QTCREATOR_UTILS_EXPORT HostOsInfo
 {
 public:
-    static constexpr inline OsType hostOs()
+    static constexpr OsType hostOs()
     {
 #if defined(Q_OS_WIN)
         return OsTypeWindows;
@@ -64,7 +64,7 @@ public:
     static constexpr bool isWindowsHost() { return hostOs() == OsTypeWindows; }
     static constexpr bool isLinuxHost() { return hostOs() == OsTypeLinux; }
     static constexpr bool isMacHost() { return hostOs() == OsTypeMac; }
-    static constexpr inline bool isAnyUnixHost()
+    static constexpr bool isAnyUnixHost()
     {
 #ifdef Q_OS_UNIX
         return true;
