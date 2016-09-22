@@ -199,7 +199,9 @@ bool ClangStaticAnalyzerPreconfiguredSessionTests::switchToProjectAndTarget(Proj
     QSignalSpy waitUntilProjectUpdated(CppModelManager::instance(),
                                        &CppModelManager::projectPartsUpdated);
 
-    m_sessionManager.setActiveTarget(project, target, ProjectExplorer::SetActive::Cascade);
+    if (project != activeProject)
+        m_sessionManager.setStartupProject(project);
+    m_sessionManager.setActiveTarget(project, target, ProjectExplorer::SetActive::NoCascade);
 
     const bool waitResult = waitUntilProjectUpdated.wait(30000);
     if (!waitResult) {
