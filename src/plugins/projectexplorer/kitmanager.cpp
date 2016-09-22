@@ -205,7 +205,6 @@ void KitManager::restoreKits()
         defaultKit->setUnexpandedDisplayName(tr("Desktop"));
         defaultKit->setSdkProvided(false);
         defaultKit->setAutoDetected(false);
-        defaultKit->setIconPath(FileName::fromLatin1(ProjectExplorer::Constants::DESKTOP_DEVICE_ICON));
 
         defaultKit->setup();
 

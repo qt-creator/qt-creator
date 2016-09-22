@@ -95,11 +95,19 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k) :
     label = createLabel(tr("Name:"), toolTip);
     m_layout->addWidget(label, 0, LabelColumn, alignment);
     m_iconButton->setToolTip(toolTip);
+    auto setIconAction = new QAction(tr("Select a file as icon"), this);
+    m_iconButton->addAction(setIconAction);
+    auto resetIconAction = new QAction(tr("Reset to the device default icon"), this);
+    m_iconButton->addAction(resetIconAction);
 
     discard();
 
     connect(m_iconButton, &QAbstractButton::clicked,
             this, &KitManagerConfigWidget::setIcon);
+    connect(setIconAction, &QAction::triggered,
+            this, &KitManagerConfigWidget::setIcon);
+    connect(resetIconAction, &QAction::triggered,
+            this, &KitManagerConfigWidget::resetIcon);
     connect(m_nameEdit, &QLineEdit::textChanged,
             this, &KitManagerConfigWidget::setDisplayName);
 
@@ -289,19 +297,25 @@ void KitManagerConfigWidget::removeKit()
 
 void KitManagerConfigWidget::setIcon()
 {
-    const Utils::FileName path = Utils::FileName::fromString(
-                QFileDialog::getOpenFileName(this, tr("Select Icon"),
-                                             m_modifiedKit->iconPath().toString(),
-                                             tr("Images (*.png *.xpm *.jpg)")));
+    const QString path = QFileDialog::getOpenFileName(this, tr("Select Icon"),
+                                                      m_modifiedKit->iconPath().toString(),
+                                                      tr("Images (*.png *.xpm *.jpg)"));
     if (path.isEmpty())
         return;
 
-    const QIcon icon = Kit::icon(path);
+    const QIcon icon(path);
     if (icon.isNull())
         return;
 
     m_iconButton->setIcon(icon);
-    m_modifiedKit->setIconPath(path);
+    m_modifiedKit->setIconPath(Utils::FileName::fromString(path));
+    emit dirty();
+}
+
+void KitManagerConfigWidget::resetIcon()
+{
+    m_iconButton->setIcon(QIcon());
+    m_modifiedKit->setIconPath(Utils::FileName());
     emit dirty();
 }
 

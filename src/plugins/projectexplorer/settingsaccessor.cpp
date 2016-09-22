@@ -2087,12 +2087,14 @@ QVariantMap UserFileVersion11Upgrader::upgrade(const QVariantMap &map)
             const QVariantMap &bc = buildIt.value();
             Kit *tmpKit = rawKit;
 
+            const auto desktopDeviceIcon = FileName::fromLatin1(":///DESKTOP///");
+
             if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.AndroidDeviceTarget")) {
                 tmpKit->setIconPath(FileName::fromLatin1(":/android/images/QtAndroid.png"));
                 tmpKit->setValue("PE.Profile.DeviceType", QString::fromLatin1("Desktop"));
                 tmpKit->setValue("PE.Profile.Device", QString());
             } else if (oldTargetId == QLatin1String("RemoteLinux.EmbeddedLinuxTarget")) {
-                tmpKit->setIconPath(FileName::fromLatin1(Constants::DESKTOP_DEVICE_ICON));
+                tmpKit->setIconPath(desktopDeviceIcon);
                 tmpKit->setValue("PE.Profile.DeviceType", QString::fromLatin1("GenericLinuxOsType"));
                 tmpKit->setValue("PE.Profile.Device", QString());
             } else if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.HarmattanDeviceTarget")) {
@@ -2116,7 +2118,7 @@ QVariantMap UserFileVersion11Upgrader::upgrade(const QVariantMap &map)
                 tmpKit->setValue("PE.Profile.DeviceType", QString::fromLatin1("Desktop"));
                 tmpKit->setValue("PE.Profile.Device", QString::fromLatin1("Desktop Device"));
             } else {
-                tmpKit->setIconPath(FileName::fromLatin1(Constants::DESKTOP_DEVICE_ICON));
+                tmpKit->setIconPath(desktopDeviceIcon);
                 tmpKit->setValue("PE.Profile.DeviceType", QString::fromLatin1("Desktop"));
                 tmpKit->setValue("PE.Profile.Device", QString::fromLatin1("Desktop Device"));
             }

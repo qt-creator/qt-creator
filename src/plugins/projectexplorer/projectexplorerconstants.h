@@ -226,7 +226,6 @@ const char DEFAULT_WORKING_DIR_ALTERNATE[] = "%{sourceDir}";
 // Desktop Device related ids:
 const char DESKTOP_DEVICE_ID[] = "Desktop Device";
 const char DESKTOP_DEVICE_TYPE[] = "Desktop";
-const char DESKTOP_DEVICE_ICON[] = ":///DESKTOP///";
 const int DESKTOP_PORT_START = 30000;
 const int DESKTOP_PORT_END = 31000;
 

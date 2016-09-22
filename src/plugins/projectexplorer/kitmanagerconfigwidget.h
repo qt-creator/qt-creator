@@ -75,6 +75,7 @@ signals:
 
 private:
     void setIcon();
+    void resetIcon();
     void setDisplayName();
     void setFileSystemFriendlyName();
     void workingCopyWasUpdated(ProjectExplorer::Kit *k);

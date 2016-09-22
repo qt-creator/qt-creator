@@ -84,7 +84,6 @@ public:
     Core::Id id() const;
 
     QIcon icon() const;
-    static QIcon icon(const Utils::FileName &path);
     Utils::FileName iconPath() const;
     void setIconPath(const Utils::FileName &path);
 

@@ -25,6 +25,7 @@
 
 #include "kit.h"
 
+#include "kitinformation.h"
 #include "kitmanager.h"
 #include "ioutputparser.h"
 #include "osparser.h"
@@ -78,7 +79,6 @@ public:
             m_id = Id::fromString(QUuid::createUuid().toString());
 
         m_unexpandedDisplayName = QCoreApplication::translate("ProjectExplorer::Kit", "Unnamed");
-        m_iconPath = FileName::fromLatin1(Constants::DESKTOP_DEVICE_ICON);
 
         m_macroExpander.setDisplayName(tr("Kit"));
         m_macroExpander.setAccumulating(true);
@@ -116,7 +116,7 @@ public:
     bool m_hasWarning = false;
     bool m_hasValidityInfo = false;
     bool m_mustNotify = false;
-    QIcon m_icon;
+    QIcon m_cachedIcon;
     FileName m_iconPath;
 
     QHash<Id, QVariant> m_data;
@@ -136,8 +136,6 @@ Kit::Kit(Id id) :
 {
     foreach (KitInformation *sti, KitManager::kitInformation())
         d->m_data.insert(sti->id(), sti->defaultValue(this));
-
-    d->m_icon = icon(d->m_iconPath);
 }
 
 Kit::Kit(const QVariantMap &data) :
@@ -160,7 +158,6 @@ Kit::Kit(const QVariantMap &data) :
     d->m_fileSystemFriendlyName = data.value(QLatin1String(FILESYSTEMFRIENDLYNAME_KEY)).toString();
     d->m_iconPath = FileName::fromString(data.value(QLatin1String(ICON_KEY),
                                                     d->m_iconPath.toString()).toString());
-    d->m_icon = icon(d->m_iconPath);
 
     QVariantMap extra = data.value(QLatin1String(DATA_KEY)).toMap();
     d->m_data.clear(); // remove default values
@@ -213,7 +210,7 @@ Kit *Kit::clone(bool keepName) const
     k->d->m_data = d->m_data;
     // Do not clone m_fileSystemFriendlyName, needs to be unique
     k->d->m_isValid = d->m_isValid;
-    k->d->m_icon = d->m_icon;
+    k->d->m_cachedIcon = d->m_cachedIcon;
     k->d->m_iconPath = d->m_iconPath;
     k->d->m_sticky = d->m_sticky;
     k->d->m_mutable = d->m_mutable;
@@ -225,7 +222,7 @@ void Kit::copyFrom(const Kit *k)
     KitGuard g(this);
     d->m_data = k->d->m_data;
     d->m_iconPath = k->d->m_iconPath;
-    d->m_icon = k->d->m_icon;
+    d->m_cachedIcon = k->d->m_cachedIcon;
     d->m_autodetected = k->d->m_autodetected;
     d->m_autoDetectionSource = k->d->m_autoDetectionSource;
     d->m_unexpandedDisplayName = k->d->m_unexpandedDisplayName;
@@ -361,24 +358,28 @@ Id Kit::id() const
 
 QIcon Kit::icon() const
 {
-    return d->m_icon;
-}
+    if (!d->m_cachedIcon.isNull())
+        return d->m_cachedIcon;
 
-QIcon Kit::icon(const FileName &path)
-{
-    if (path.isEmpty())
-        return QIcon();
+    if (d->m_iconPath.exists()) {
+        d->m_cachedIcon = QIcon(d->m_iconPath.toString());
+        return d->m_cachedIcon;
+    }
 
-    if (path == FileName::fromLatin1(Constants::DESKTOP_DEVICE_ICON))
-        return creatorTheme()->flag(Theme::FlatSideBarIcons)
-                ? Icon::combinedIcon({Icons::DESKTOP_DEVICE.icon(),
-                                      Icons::DESKTOP_DEVICE_SMALL.icon()})
-                : QApplication::style()->standardIcon(QStyle::SP_ComputerIcon);
+    const IDevice::ConstPtr kitDevice = DeviceKitInformation::device(this);
+    if (!kitDevice.isNull()) {
+        const QIcon deviceIcon = kitDevice->deviceIcon();
+        if (!deviceIcon.isNull()) {
+            d->m_cachedIcon = deviceIcon;
+            return d->m_cachedIcon;
+        }
+    }
 
-    QFileInfo fi = path.toFileInfo();
-    if (fi.isFile() && fi.isReadable())
-        return QIcon(path.toString());
-    return QIcon();
+    d->m_cachedIcon = creatorTheme()->flag(Theme::FlatSideBarIcons)
+            ? Icon::combinedIcon({Icons::DESKTOP_DEVICE.icon(),
+                                  Icons::DESKTOP_DEVICE_SMALL.icon()})
+            : QApplication::style()->standardIcon(QStyle::SP_ComputerIcon);
+    return d->m_cachedIcon;
 }
 
 FileName Kit::iconPath() const
@@ -391,7 +392,6 @@ void Kit::setIconPath(const FileName &path)
     if (d->m_iconPath == path)
         return;
     d->m_iconPath = path;
-    d->m_icon = icon(path);
     kitUpdated();
 }
 
@@ -661,6 +661,7 @@ void Kit::kitUpdated()
         return;
     }
     d->m_hasValidityInfo = false;
+    d->m_cachedIcon = QIcon();
     KitManager::notifyAboutUpdate(this);
     d->m_mustNotify = false;
 }

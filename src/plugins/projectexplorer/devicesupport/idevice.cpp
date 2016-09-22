@@ -34,6 +34,8 @@
 #include "../runnables.h"
 
 #include <ssh/sshconnection.h>
+#include <utils/algorithm.h>
+#include <utils/icon.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
 
@@ -154,6 +156,8 @@ public:
     QSsh::SshConnectionParameters sshParameters;
     Utils::PortList freePorts;
     QString debugServerPath;
+
+    QList<Utils::Icon> deviceIcons;
 };
 } // namespace Internal
 
@@ -396,6 +400,18 @@ QString IDevice::deviceStateToString() const
     case IDevice::DeviceStateUnknown: return QCoreApplication::translate(context, "Unknown");
     default: return QCoreApplication::translate(context, "Invalid");
     }
+}
+
+void IDevice::setDeviceIcon(const QList<Utils::Icon> &deviceIcon)
+{
+    d->deviceIcons = deviceIcon;
+}
+
+QIcon IDevice::deviceIcon() const
+{
+    const QList<QIcon> icons =
+            Utils::transform(d->deviceIcons, [](const Utils::Icon &icon){return icon.icon();});
+    return Utils::Icon::combinedIcon(icons);
 }
 
 QSsh::SshConnectionParameters IDevice::sshParameters() const
