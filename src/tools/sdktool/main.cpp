@@ -58,6 +58,12 @@ void printHelp(const Operation *op)
     std::cout << std::endl;
 }
 
+const QString tabular(const Operation *o)
+{
+    const QString name = o->name();
+    return name + QString(16 - name.length(), QChar::Space) + o->helpText();
+}
+
 void printHelp(const QList<Operation *> &operations)
 {
     std::cout << "Qt Creator SDK setup tool." << std::endl;
@@ -70,7 +76,7 @@ void printHelp(const QList<Operation *> &operations)
     std::cout << "OPERATION:" << std::endl;
     std::cout << "    One of:" << std::endl;
     foreach (const Operation *o, operations)
-        std::cout << "        " << qPrintable(o->name()) << "\t\t" << qPrintable(o->helpText()) << std::endl;
+        std::cout << "        " << qPrintable(tabular(o)) << std::endl;
     std::cout << std::endl;
     std::cout << "OPERATION_ARGS:" << std::endl;
     std::cout << "   use \"--help <OPERATION>\" to get help on the arguments required for an operation." << std::endl;
