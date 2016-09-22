@@ -568,22 +568,22 @@ void AndroidSettingsWidget::openJDKLocationEditingFinished()
 
 void AndroidSettingsWidget::openSDKDownloadUrl()
 {
-    QDesktopServices::openUrl(QUrl::fromUserInput(QLatin1String("http://developer.android.com/sdk")));
+    QDesktopServices::openUrl(QUrl::fromUserInput("https://developer.android.com/studio/"));
 }
 
 void AndroidSettingsWidget::openNDKDownloadUrl()
 {
-    QDesktopServices::openUrl(QUrl::fromUserInput(QLatin1String("http://developer.android.com/tools/sdk/ndk/index.html#Downloads")));
+    QDesktopServices::openUrl(QUrl::fromUserInput("https://developer.android.com/ndk/downloads/"));
 }
 
 void AndroidSettingsWidget::openAntDownloadUrl()
 {
-    QDesktopServices::openUrl(QUrl::fromUserInput(QLatin1String("http://ant.apache.org/bindownload.cgi")));
+    QDesktopServices::openUrl(QUrl::fromUserInput("http://ant.apache.org/bindownload.cgi"));
 }
 
 void AndroidSettingsWidget::openOpenJDKDownloadUrl()
 {
-    QDesktopServices::openUrl(QUrl::fromUserInput(QLatin1String("http://www.oracle.com/technetwork/java/javase/downloads")));
+    QDesktopServices::openUrl(QUrl::fromUserInput("http://www.oracle.com/technetwork/java/javase/downloads/"));
 }
 
 void AndroidSettingsWidget::addAVD()
