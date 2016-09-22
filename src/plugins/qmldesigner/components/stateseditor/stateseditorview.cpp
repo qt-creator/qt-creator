@@ -372,11 +372,12 @@ void StatesEditorView::nodeOrderChanged(const NodeListProperty &listProperty, co
 
 void StatesEditorView::bindingPropertiesChanged(const QList<BindingProperty> &propertyList, AbstractView::PropertyChangeFlags /*propertyChange*/)
 {
-    foreach (const BindingProperty &property, propertyList) {
-            if (property.name() == "when" && QmlModelState::isValidQmlModelState(property.parentModelNode()))
-                resetModel();
-        }
+    Q_UNUSED(propertyChange)
 
+    foreach (const BindingProperty &property, propertyList) {
+        if (property.name() == "when" && QmlModelState::isValidQmlModelState(property.parentModelNode()))
+            resetModel();
+    }
 }
 
 void StatesEditorView::currentStateChanged(const ModelNode &node)
