@@ -3112,11 +3112,14 @@ void tst_Dumpers::dumper_data()
                     "l.takeFirst();\n"
                     "l << \" World \";\n\n"
 
-                    "QString str1(\"Hello Qt\");\n"
-                    "QString str2(\"Hello\\nQt\");\n"
-                    "QString str3(\"Hello\\rQt\");\n"
-                    "QString str4(\"Hello\\tQt\");\n"
-                    "unused(&str1, &str2, &str3, &str4);\n")
+                    "QString str1(\"Hello Qt\"); unused(&str1);\n"
+                    "QString str2(\"Hello\\nQt\"); unused(&str2);\n"
+                    "QString str3(\"Hello\\rQt\"); unused(&str3);\n"
+                    "QString str4(\"Hello\\tQt\"); unused(&str4);\n\n"
+
+                    "QStaticStringData<1> sd;\n"
+                    "sd.data[0] = 'Q';\n"
+                    "sd.data[1] = 0;\n")
 
                + CoreProfile()
 
@@ -3142,7 +3145,9 @@ void tst_Dumpers::dumper_data()
                + Check("str1", "\"Hello Qt\"", "@QString")
                + Check("str2", "\"Hello\nQt\"", "@QString")
                + Check("str3", "\"Hello\rQt\"", "@QString")
-               + Check("str4", "\"Hello\tQt\"", "@QString");
+               + Check("str4", "\"Hello\tQt\"", "@QString")
+
+               + Check("sd", "\"Q\"", "@QStaticStringData<1>");
 
 
     QTest::newRow("QStringReference")

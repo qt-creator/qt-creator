@@ -1280,6 +1280,12 @@ def qdump__QString(d, value):
     if d.isExpanded():
         d.putArrayData(data, size, d.createType("QChar"))
 
+def qdump__QStaticStringData(d, value):
+    size = value.type.templateArgument(0, numeric=True)
+    (ref, size, alloc, pad, offset, data) = value.split('iii@p%ss' % (2 * size))
+    d.putValue(d.hexencode(data), "utf16")
+    d.putPlainChildren(value)
+
 def qdump__QStringData(d, value):
     d.putStringValueByAddress(value.integer())
     d.putNumChild(0)
