@@ -417,10 +417,11 @@ bool Scanner::isKeyword(const QString &text) const
 
 QStringList Scanner::keywords()
 {
-    static QStringList words = [&]() {
+    static QStringList words = []() {
+        QStringList res;
         for (const QString *word = begin(js_keywords); word != end(js_keywords); ++word)
-            words.append(*word);
-        return words;
+            res.append(*word);
+        return res;
     }();
     return words;
 }
