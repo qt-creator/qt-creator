@@ -35,7 +35,9 @@
 #include <QContextMenuEvent>
 #include <QCoreApplication>
 #include <QVBoxLayout>
+#if QT_VERSION >= QT_VERSION_CHECK(5, 7, 0)
 #include <QWebEngineContextMenuData>
+#endif
 #include <QWebEngineHistory>
 #include <QWebEngineProfile>
 #include <QWebEngineSettings>
@@ -307,7 +309,7 @@ void WebView::contextMenuEvent(QContextMenuEvent *event)
         QUrl url = page()->contextMenuData().linkUrl();
         if (m_viewer->isActionVisible(HelpViewer::Action::NewPage)) {
             auto openLink = new QAction(QCoreApplication::translate("HelpViewer",
-                                        Constants::TR_OPEN_LINK_IN_NEW_PAGE), menu);
+                                        Constants::TR_OPEN_LINK_AS_NEW_PAGE), menu);
             connect(openLink, &QAction::triggered, m_viewer, [this, url] {
                 m_viewer->newPageRequested(url);
             });
