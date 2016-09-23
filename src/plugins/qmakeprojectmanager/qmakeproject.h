@@ -173,6 +173,11 @@ private:
     void startAsyncTimer(QmakeProFileNode::AsyncUpdateDelay delay);
     bool matchesKit(const ProjectExplorer::Kit *kit);
 
+    void warnOnToolChainMismatch(const QmakeProFileNode *pro) const;
+    void testToolChain(ProjectExplorer::ToolChain *tc, const Utils::FileName &path) const;
+
+    mutable QSet<const QPair<Utils::FileName, Utils::FileName>> m_toolChainWarnings;
+
     // Current configuration
     QString m_oldQtIncludePath;
     QString m_oldQtLibsPath;

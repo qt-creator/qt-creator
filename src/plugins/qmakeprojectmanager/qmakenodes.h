@@ -107,7 +107,9 @@ enum QmakeVariable {
     AndroidPackageSourceDir,
     AndroidExtraLibs,
     IsoIconsVar,
-    QmakeProjectName
+    QmakeProjectName,
+    QmakeCc,
+    QmakeCxx
 };
 
 namespace Internal {

@@ -49,6 +49,7 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/taskhub.h>
 #include <projectexplorer/projectexplorer.h>
 #include <proparser/qmakevfs.h>
 #include <qtsupport/profilereader.h>
@@ -393,6 +394,8 @@ void QmakeProject::updateCodeModels()
 
 void QmakeProject::updateCppCodeModel()
 {
+    m_toolChainWarnings.clear();
+
     typedef CppTools::ProjectPart ProjectPart;
     typedef CppTools::ProjectFile ProjectFile;
 
@@ -420,6 +423,8 @@ void QmakeProject::updateCppCodeModel()
     QList<ProjectExplorer::ExtraCompiler *> generators;
     QStringList allFiles;
     foreach (QmakeProFileNode *pro, proFiles) {
+        warnOnToolChainMismatch(pro);
+
         ProjectPart::Ptr templatePart(new ProjectPart);
         templatePart->project = this;
         templatePart->displayName = pro->displayName();
@@ -1530,6 +1535,51 @@ bool QmakeProject::matchesKit(const Kit *kit)
     if (!parentQts.isEmpty())
         return parentQts.contains(version);
     return false;
+}
+
+static Utils::FileName getFullPathOf(const QString &exe, const BuildConfiguration *bc)
+{
+    QTC_ASSERT(bc, return Utils::FileName::fromString(exe));
+    QFileInfo fi(exe);
+    if (fi.isAbsolute())
+        return Utils::FileName::fromString(exe);
+
+    return bc->environment().searchInPath(exe);
+}
+
+void QmakeProject::testToolChain(ToolChain *tc, const Utils::FileName &path) const
+{
+    if (!tc || path.isEmpty())
+        return;
+
+    const Utils::FileName expected = tc->compilerCommand();
+    if (expected != path) {
+        const QPair<Utils::FileName, Utils::FileName> pair = qMakePair(expected, path);
+        if (!m_toolChainWarnings.contains(pair)) {
+            TaskHub::addTask(Task(Task::Warning,
+                                  QCoreApplication::translate("QmakeProjectManager", "\"%1\" is used by qmake, but \"%2\" is configured in the kit.\n"
+                                                              "Please update your kit or choose a mkspec for qmake that matches your target environment better.").
+                                  arg(path.toUserOutput()).arg(expected.toUserOutput()),
+                                  Utils::FileName(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+            m_toolChainWarnings.insert(pair);
+        }
+    }
+}
+
+void QmakeProject::warnOnToolChainMismatch(const QmakeProFileNode *pro) const
+{
+    Target *t = activeTarget();
+    if (!t)
+        return;
+
+    const BuildConfiguration *bc = t ? t->activeBuildConfiguration() : nullptr;
+    if (!bc)
+        return;
+
+    testToolChain(ToolChainKitInformation::toolChain(t->kit(), ToolChain::Language::C),
+                  getFullPathOf(pro->singleVariableValue(QmakeCc), bc));
+    testToolChain(ToolChainKitInformation::toolChain(t->kit(), ToolChain::Language::Cxx),
+                  getFullPathOf(pro->singleVariableValue(QmakeCxx), bc));
 }
 
 QString QmakeProject::executableFor(const QmakeProFileNode *node)

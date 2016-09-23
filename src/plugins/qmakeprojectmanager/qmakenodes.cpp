@@ -2026,6 +2026,8 @@ EvalResult *QmakeProFileNode::evaluate(const EvalInput &input)
         result->newVarValues[AndroidExtraLibs] = input.readerExact->values(QLatin1String("ANDROID_EXTRA_LIBS"));
         result->newVarValues[IsoIconsVar] = input.readerExact->values(QLatin1String("ISO_ICONS"));
         result->newVarValues[QmakeProjectName] = input.readerExact->values(QLatin1String("QMAKE_PROJECT_NAME"));
+        result->newVarValues[QmakeCc] = input.readerExact->values("QMAKE_CC");
+        result->newVarValues[QmakeCxx] = input.readerExact->values("QMAKE_CXX");
 
         result->isDeployable = false;
         if (result->projectType == ApplicationTemplate) {
