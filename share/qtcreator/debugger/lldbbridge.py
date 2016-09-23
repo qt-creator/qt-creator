@@ -557,26 +557,6 @@ class Dumper(DumperBase):
         self.qtVersionAndNamespace()
         return self.qtVersionAndNamespace()[1]
 
-    def qtTypeInfoVersion(self):
-        try:
-            thread = self.currentThread()
-            frame = thread.GetFrameAtIndex(0)
-            #options = lldb.SBExpressionOptions()
-            exp = "((quintptr**)&qtHookData)[0]"
-            #hookVersion = lldb.target.EvaluateExpression(exp, options).GetValueAsUnsigned()
-            hookVersion = frame.EvaluateExpression(exp).GetValueAsUnsigned()
-            exp = "((quintptr**)&qtHookData)[6]"
-            #warn("EXP: %s" % exp)
-            #tiVersion = lldb.target.EvaluateExpression(exp, options).GetValueAsUnsigned()
-            tiVersion = frame.EvaluateExpression(exp).GetValueAsUnsigned()
-            #warn("HOOK: %s TI: %s" % (hookVersion, tiVersion))
-            if hookVersion >= 3:
-                self.qtTypeInfoVersion = lambda: tiVersion
-                return tiVersion
-        except:
-            pass
-        return None
-
     def ptrSize(self):
         return self.target.GetAddressByteSize()
 

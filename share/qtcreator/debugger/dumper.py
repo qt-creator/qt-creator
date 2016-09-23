@@ -2594,9 +2594,19 @@ class DumperBase:
                 if metaObjectPtr:
                     self.putQObjectGuts(value, metaObjectPtr)
 
+    def symbolAddress(self, symbolName):
+        return self.parseAndEvaluate("(size_t)&" + symbolName).pointer()
 
     def qtTypeInfoVersion(self):
-        return 11 # FIXME
+        addr = self.symbolAddress("qtHookData")
+        if addr:
+            # Only available with Qt 5.3+
+            (hookVersion, x, x, x, x, x, tiVersion) = self.split('ppppppp', addr)
+            #warn("HOOK: %s TI: %s" % (hookVersion, tiVersion))
+            if hookVersion >= 3:
+                self.qtTypeInfoVersion = lambda: tiVersion
+                return tiVersion
+        return None
 
     def lookupType(self, typestring):
         return self.fromNativeType(self.lookupNativeType(typestring))

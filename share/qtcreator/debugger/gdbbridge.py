@@ -764,19 +764,6 @@ class Dumper(DumperBase):
             # Use fallback until we have a better answer.
             return self.fallbackQtVersion
 
-    def qtTypeInfoVersion(self):
-        try:
-            # Only available with Qt 5.3+
-            hookVersion = int(str(gdb.parse_and_eval("((void**)&qtHookData)[0]")), 16)
-            tiVersion = int(str(gdb.parse_and_eval("((void**)&qtHookData)[6]")), 16)
-            #warn("HOOK: %s TI: %s" % (hookVersion, tiVersion))
-            if hookVersion >= 3:
-                self.qtTypeInfoVersion = lambda: tiVersion
-                return tiVersion
-        except:
-            pass
-        return None
-
     def isQt3Support(self):
         if self.qtVersion() >= 0x050000:
             return False
