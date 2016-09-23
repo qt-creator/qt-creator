@@ -370,7 +370,7 @@ void StatesEditorView::nodeOrderChanged(const NodeListProperty &listProperty, co
         resetModel();
 }
 
-void StatesEditorView::bindingPropertiesChanged(const QList<BindingProperty> &propertyList, AbstractView::PropertyChangeFlags /*propertyChange*/)
+void StatesEditorView::bindingPropertiesChanged(const QList<BindingProperty> &propertyList, AbstractView::PropertyChangeFlags propertyChange)
 {
     Q_UNUSED(propertyChange)
 
