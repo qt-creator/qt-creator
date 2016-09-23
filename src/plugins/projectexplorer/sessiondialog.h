@@ -49,17 +49,8 @@ public:
     bool autoLoadSession() const;
 
 private:
-    void createNew();
-    void clone();
-    void remove();
-    void rename();
-    void switchToSession();
+    void updateActions(const QString &session);
 
-    void updateActions();
-
-    void addItems(bool setDefaultSession);
-    void markItems();
-    void addSessionToUi(const QString &name, bool switchTo);
     Ui::SessionDialog m_ui;
 };
 

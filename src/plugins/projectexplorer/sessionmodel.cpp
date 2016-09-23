@@ -119,6 +119,18 @@ QVariant SessionModel::data(const QModelIndex &index, int role) const
                 break;
             } // switch (section)
             break;
+        case Qt::FontRole: {
+            QFont font;
+            if (SessionManager::isDefaultSession(sessionName))
+                font.setItalic(true);
+            else
+                font.setItalic(false);
+            if (SessionManager::activeSession() == sessionName && !SessionManager::isDefaultVirgin())
+                font.setBold(true);
+            else
+                font.setBold(false);
+            result = font;
+        } break;
         case DefaultSessionRole:
             result = SessionManager::isDefaultSession(sessionName);
             break;
