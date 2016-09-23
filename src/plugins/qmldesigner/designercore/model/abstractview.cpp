@@ -467,10 +467,17 @@ QString AbstractView::generateNewId(const QString &prefixName) const
 {
     int counter = 1;
 
-    QString newId = QString(QStringLiteral("%1%2")).arg(firstCharToLower(prefixName)).arg(counter);
+    /* First try just the prefixName without number as postfix, then continue with 2 and further as postfix
+     * until id does not already exist.
+     * Properties of the root node are not allowed for ids, because they are available in the complete context
+     * without qualification.
+     * The id "item" is explicitly not allowed, because it is too likely to clash.
+    */
+
+    QString newId = QString(QStringLiteral("%1")).arg(firstCharToLower(prefixName));
     newId.remove(QRegExp(QStringLiteral("[^a-zA-Z0-9_]")));
 
-    while (hasId(newId)) {
+    while (hasId(newId) || rootModelNode().hasProperty(newId.toUtf8()) || newId == "item") {
         counter += 1;
         newId = QString(QStringLiteral("%1%2")).arg(firstCharToLower(prefixName)).arg(counter);
         newId.remove(QRegExp(QStringLiteral("[^a-zA-Z0-9_]")));
