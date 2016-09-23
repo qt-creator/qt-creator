@@ -44,7 +44,7 @@ ConnectionClient::ConnectionClient()
 {
     processAliveTimer.setInterval(10000);
 
-    const bool startAliveTimer = !qgetenv("QTC_CLANG_NO_ALIVE_TIMER").toInt();
+    static const bool startAliveTimer = !qEnvironmentVariableIntValue("QTC_CLANG_NO_ALIVE_TIMER");
 
     if (startAliveTimer)
         connectAliveTimer();

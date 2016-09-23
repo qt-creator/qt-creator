@@ -58,10 +58,9 @@ namespace {
 
 int getIntervalFromEnviromentVariable()
 {
-    const QByteArray userIntervalAsByteArray = qgetenv("QTC_CLANG_DELAYED_REPARSE_TIMEOUT");
-
     bool isConversionOk = false;
-    const int intervalAsInt = userIntervalAsByteArray.toInt(&isConversionOk);
+    const int intervalAsInt = qEnvironmentVariableIntValue("QTC_CLANG_DELAYED_REPARSE_TIMEOUT",
+                                                           &isConversionOk);
 
     if (isConversionOk)
         return intervalAsInt;
