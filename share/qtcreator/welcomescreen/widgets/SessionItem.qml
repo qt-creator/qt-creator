@@ -72,6 +72,7 @@ Item {
                 id: titleText
                 x: 36
                 height: 30
+                width: parent.width - x
                 anchors.top: parent.top
                 elide: Text.ElideRight
                 color: creatorTheme.Welcome_LinkColor
