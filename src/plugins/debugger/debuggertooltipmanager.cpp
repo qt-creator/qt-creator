@@ -219,7 +219,7 @@ ToolTipWatchItem::ToolTipWatchItem(TreeItem *item)
     type = model->data(idx.sibling(idx.row(), 2), Qt::DisplayRole).toString();
     iname = model->data(idx.sibling(idx.row(), 0), LocalsINameRole).toString();
     valueColor = model->data(idx.sibling(idx.row(), 1), Qt::ForegroundRole).value<QColor>();
-    expandable = item->hasChildren();
+    expandable = model->hasChildren(idx);
     expression = model->data(idx.sibling(idx.row(), 0), Qt::EditRole).toString();
     foreach (TreeItem *child, item->children())
         appendChild(new ToolTipWatchItem(child));
@@ -270,7 +270,7 @@ public:
 
         WatchItem *it = m_engine->watchHandler()->findItem(iname);
         QTC_ASSERT(it, return);
-        it->fetchMore();
+        it->model()->fetchMore(it->index());
     }
 
     void restoreTreeModel(QXmlStreamReader &r);
