@@ -63,9 +63,10 @@ SessionView::SessionView(QWidget *parent)
 
     setModel(&m_sessionModel);
 
-    QItemSelection firstRow(m_sessionModel.index(0,0), m_sessionModel.index(0, 0));
-    selectionModel()->select(firstRow,
-        QItemSelectionModel::QItemSelectionModel::SelectCurrent);
+    QItemSelection firstRow(m_sessionModel.index(0,0), m_sessionModel.index(
+        0, m_sessionModel.columnCount() - 1));
+    selectionModel()->select(firstRow, QItemSelectionModel::QItemSelectionModel::
+        SelectCurrent);
 
     connect(this, &QTreeView::activated, [this](const QModelIndex &index){
         emit activated(m_sessionModel.sessionAt(index.row()));

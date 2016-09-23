@@ -39,7 +39,7 @@ namespace ProjectExplorer {
 namespace Internal {
 
 SessionModel::SessionModel(QObject *parent)
-    : QAbstractListModel(parent)
+    : QAbstractTableModel(parent)
 {
     connect(SessionManager::instance(), &SessionManager::sessionLoaded,
             this, &SessionModel::resetSessions);
@@ -53,6 +53,36 @@ int SessionModel::indexOfSession(const QString &session)
 QString SessionModel::sessionAt(int row)
 {
     return SessionManager::sessions().value(row, QString());
+}
+
+QVariant SessionModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    QVariant result;
+    if (orientation == Qt::Horizontal) {
+        switch (role) {
+        case Qt::DisplayRole:
+            switch (section) {
+            case 0: result = tr("Session");
+                break;
+            case 1: result = tr("Last Modified");
+                break;
+            } // switch (section)
+            break;
+        } // switch (role) {
+    }
+    return result;
+}
+
+int SessionModel::columnCount(const QModelIndex &) const
+{
+    static int sectionCount = 0;
+    if (sectionCount == 0) {
+        // headers sections defining possible columns
+        while (!headerData(sectionCount, Qt::Horizontal, Qt::DisplayRole).isNull())
+            sectionCount++;
+    }
+
+    return sectionCount;
 }
 
 int SessionModel::rowCount(const QModelIndex &) const
@@ -84,6 +114,8 @@ QVariant SessionModel::data(const QModelIndex &index, int role) const
         case Qt::DisplayRole:
             switch (index.column()) {
             case 0: result = sessionName;
+                break;
+            case 1: result = SessionManager::sessionDateTime(sessionName);
                 break;
             } // switch (section)
             break;
@@ -118,7 +150,7 @@ QHash<int, QByteArray> SessionModel::roleNames() const
         {ProjectsPathRole, "projectsPath"},
         {ProjectsDisplayRole, "projectsName"}
     };
-    return QAbstractListModel::roleNames().unite(extraRoles);
+    return QAbstractTableModel::roleNames().unite(extraRoles);
 }
 
 bool SessionModel::isDefaultVirgin() const
@@ -186,5 +218,6 @@ void SessionModel::runNewSessionDialog(const QString &suggestedName, std::functi
             switchToSession(newSession);
     }
 }
+
 } // namespace Internal
 } // namespace ProjectExplorer

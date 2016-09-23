@@ -33,6 +33,7 @@
 
 #include <QString>
 #include <QStringList>
+#include <QDateTime>
 
 namespace Core { class IEditor; }
 
@@ -61,6 +62,7 @@ public:
     static QString activeSession();
     static QString lastSession();
     static QStringList sessions();
+    static QDateTime sessionDateTime(const QString &session);
 
     static bool createSession(const QString &session);
 

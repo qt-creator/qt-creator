@@ -99,6 +99,7 @@ public:
     bool m_casadeSetActive = false;
 
     mutable QStringList m_sessions;
+    mutable QHash<QString, QDateTime> m_sessionDateTimes;
 
     mutable QHash<Project *, QStringList> m_projectFileCache;
 
@@ -466,7 +467,9 @@ bool SessionManager::save()
     data.insert(QLatin1String("valueKeys"), keys);
 
     bool result = d->m_writer->save(data, ICore::mainWindow());
-    if (!result) {
+    if (result) {
+        d->m_sessionDateTimes.insert(activeSession(), QDateTime::currentDateTime());
+    } else {
         QMessageBox::warning(ICore::dialogParent(), tr("Error while saving session"),
             tr("Could not save session to file %1").arg(d->m_writer->fileName().toUserOutput()));
     }
@@ -750,12 +753,19 @@ QStringList SessionManager::sessions()
         QDir sessionDir(ICore::userResourcePath());
         QList<QFileInfo> sessionFiles = sessionDir.entryInfoList(QStringList() << QLatin1String("*.qws"), QDir::NoFilter, QDir::Time);
         foreach (const QFileInfo &fileInfo, sessionFiles) {
-            if (fileInfo.completeBaseName() != QLatin1String("default"))
-                d->m_sessions << fileInfo.completeBaseName();
+            const QString &name = fileInfo.completeBaseName();
+            d->m_sessionDateTimes.insert(name, fileInfo.lastModified());
+            if (name != QLatin1String("default"))
+                d->m_sessions << name;
         }
         d->m_sessions.prepend(QLatin1String("default"));
     }
     return d->m_sessions;
+}
+
+QDateTime SessionManager::sessionDateTime(const QString &session)
+{
+    return d->m_sessionDateTimes.value(session);
 }
 
 FileName SessionManager::sessionNameToFileName(const QString &session)
@@ -820,6 +830,7 @@ bool SessionManager::cloneSession(const QString &original, const QString &clone)
     // If the file does not exist, we can still clone
     if (!fi.exists() || fi.copy(sessionNameToFileName(clone).toString())) {
         d->m_sessions.insert(1, clone);
+        d->m_sessionDateTimes.insert(clone, QFileInfo(sessionNameToFileName(clone).toString()).lastModified());
         return true;
     }
     return false;
