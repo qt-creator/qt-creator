@@ -1758,7 +1758,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     m_modeWindow = createModeWindow(Constants::MODE_DEBUG, m_mainWindow);
     m_mode->setWidget(m_modeWindow);
 
-    m_plugin->addAutoReleasedObject(new DebugModeContext(m_mainWindow));
+    m_plugin->addAutoReleasedObject(new DebugModeContext(m_modeWindow));
 
     m_plugin->addObject(m_mode);
 
