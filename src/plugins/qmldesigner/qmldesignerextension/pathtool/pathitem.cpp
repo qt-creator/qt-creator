@@ -247,7 +247,7 @@ static void drawCubicSegments(const QList<CubicSegment> &cubicSegments, QPainter
 
 static void drawControlLine(const CubicSegment &cubicSegment, QPainter *painter)
 {
-    static QPen solidPen(QColor(104, 183, 214), 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin);
+    static const QPen solidPen(QColor(104, 183, 214), 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin);
     painter->setPen(solidPen);
     painter->drawLine(cubicSegment.firstControlPoint().coordinate(),
                       cubicSegment.secondControlPoint().coordinate());
@@ -281,9 +281,9 @@ static QRectF controlPointShape(-2, -2, 5, 5);
 
 static void drawControlPoint(const ControlPoint &controlPoint, const QList<ControlPoint> &selectionPoints, QPainter *painter)
 {
-    static QColor editPointColor(0, 110, 255);
-    static QColor controlVertexColor(0, 110, 255);
-    static QColor selectionPointColor(0, 255, 0);
+    static const QColor editPointColor(0, 110, 255);
+    static const QColor controlVertexColor(0, 110, 255);
+    static const QColor selectionPointColor(0, 255, 0);
 
     double originX = controlPoint.coordinate().x();
     double originY = controlPoint.coordinate().y();

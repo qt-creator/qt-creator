@@ -157,17 +157,12 @@ void SearchWidget::showEvent(QShowEvent *event)
 
 void SearchWidget::search() const
 {
-    static QStringList charsToEscapeList;
-    if (charsToEscapeList.isEmpty()) {
-        charsToEscapeList << "\\" << "+"
-            << "-" << "!" << "("
-            << ")" << ":" << "^"
-            << "[" << "]" << "{"
-            << "}" << "~";
-    }
+    static const QStringList charsToEscapeList({
+        "\\", "+", "-", "!", "(", ")", ":", "^", "[", "]", "{", "}", "~"
+    });
 
-    static QString escapeChar("\\");
-    static QRegExp regExp("[\\+\\-\\!\\(\\)\\^\\[\\]\\{\\}~:]");
+    static const QString escapeChar("\\");
+    static const QRegExp regExp("[\\+\\-\\!\\(\\)\\^\\[\\]\\{\\}~:]");
 
     QList<QHelpSearchQuery> escapedQueries;
     const QList<QHelpSearchQuery> queries = searchEngine->queryWidget()->query();

@@ -60,9 +60,7 @@ MercurialSubmitHighlighter::MercurialSubmitHighlighter(QTextEdit *parent) :
         TextEditor::SyntaxHighlighter(parent),
         m_keywordPattern(QLatin1String("^\\w+:"))
 {
-    static QVector<TextEditor::TextStyle> categories;
-    if (categories.isEmpty())
-        categories << TextEditor::C_COMMENT;
+    static const QVector<TextEditor::TextStyle> categories({TextEditor::C_COMMENT});
 
     setTextFormatCategories(categories);
     QTC_CHECK(m_keywordPattern.isValid());

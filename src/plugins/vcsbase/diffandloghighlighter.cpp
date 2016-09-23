@@ -155,15 +155,14 @@ DiffAndLogHighlighter::DiffAndLogHighlighter(const QRegExp &filePattern, const Q
     TextEditor::SyntaxHighlighter(static_cast<QTextDocument *>(0)),
     d(new DiffAndLogHighlighterPrivate(this, filePattern, changePattern))
 {
-    static QVector<TextEditor::TextStyle> categories;
-    if (categories.isEmpty()) {
-        categories << TextEditor::C_TEXT
-                   << TextEditor::C_ADDED_LINE
-                   << TextEditor::C_REMOVED_LINE
-                   << TextEditor::C_DIFF_FILE
-                   << TextEditor::C_DIFF_LOCATION
-                   << TextEditor::C_LOG_CHANGE_LINE;
-    }
+    static const QVector<TextEditor::TextStyle> categories({
+        TextEditor::C_TEXT,
+        TextEditor::C_ADDED_LINE,
+        TextEditor::C_REMOVED_LINE,
+        TextEditor::C_DIFF_FILE,
+        TextEditor::C_DIFF_LOCATION,
+        TextEditor::C_LOG_CHANGE_LINE
+    });
     setTextFormatCategories(categories);
     d->updateOtherFormats();
 }

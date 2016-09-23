@@ -38,9 +38,7 @@ namespace Internal {
 ProFileHighlighter::ProFileHighlighter(const Keywords &keywords)
     : m_keywords(keywords)
 {
-    static QVector<TextStyle> categories;
-    if (categories.isEmpty())
-        categories << C_TYPE << C_KEYWORD << C_COMMENT << C_VISUAL_WHITESPACE;
+    static const QVector<TextStyle> categories({C_TYPE, C_KEYWORD, C_COMMENT, C_VISUAL_WHITESPACE});
     setTextFormatCategories(categories);
 }
 

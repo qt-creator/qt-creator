@@ -71,37 +71,33 @@ static inline bool isSupportedAttachedProperties(const QString &propertyName)
 static inline QStringList supportedVersionsList()
 {
     static const QStringList list = {
-        QStringLiteral("2.0"), QStringLiteral("2.1"),
-        QStringLiteral("2.2"), QStringLiteral("2.3"),
-        QStringLiteral("2.4"), QStringLiteral("2.5"),
-        QStringLiteral("2.6"), QStringLiteral("2.7"),
-        QStringLiteral("2.8")
+        "2.0", "2.1", "2.2", "2.3", "2.4", "2.5", "2.6", "2.7", "2.8"
     };
     return list;
 }
 
 static inline QStringList globalQtEnums()
 {
-    static QStringList list = QStringList() << QStringLiteral("Horizontal") << QStringLiteral("Vertical") << QStringLiteral("AlignVCenter")
-         << QStringLiteral("AlignLeft") << QStringLiteral("LeftToRight") << QStringLiteral("RightToLeft") <<  QStringLiteral("AlignHCenter")
-         << QStringLiteral("AlignRight") <<  QStringLiteral("AlignBottom") << QStringLiteral("AlignBaseline") <<  QStringLiteral("AlignTop")
-         << QStringLiteral("BottomLeft") <<  QStringLiteral("LeftEdge") <<  QStringLiteral("RightEdge") <<  QStringLiteral("BottomEdge");
+    static const QStringList list = {
+        "Horizontal", "Vertical", "AlignVCenter", "AlignLeft", "LeftToRight", "RightToLeft",
+        "AlignHCenter", "AlignRight", "AlignBottom", "AlignBaseline", "AlignTop", "BottomLeft",
+        "LeftEdge", "RightEdge", "BottomEdge"
+    };
 
     return list;
 }
 
 static inline QStringList knownEnumScopes()
 {
-    static QStringList list = QStringList() << QStringLiteral("TextInput") << QStringLiteral("TextEdit")
-                                            << QStringLiteral("Material") << QStringLiteral("Universal") ;;
+    static const QStringList list = {
+        "TextInput", "TextEdit", "Material", "Universal"
+    };
     return list;
 }
 
 static inline bool supportedQtQuickVersion(const QString &version)
 {
-    static QStringList supportedVersions = supportedVersionsList();
-
-    return supportedVersions.contains(version);
+    return supportedVersionsList().contains(version);
 }
 
 static inline QString stripQuotes(const QString &str)

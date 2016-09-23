@@ -76,9 +76,7 @@ BaseAnnotationHighlighter::BaseAnnotationHighlighter(const ChangeNumbers &change
     TextEditor::SyntaxHighlighter(document),
     d(new BaseAnnotationHighlighterPrivate(this))
 {
-    static QVector<TextEditor::TextStyle> categories;
-    if (categories.isEmpty())
-        categories << TextEditor::C_TEXT;
+    static const QVector<TextEditor::TextStyle> categories({TextEditor::C_TEXT});
 
     setTextFormatCategories(categories);
     d->updateOtherFormats();

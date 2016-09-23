@@ -280,8 +280,8 @@ bool AbstractMsvcToolChain::generateEnvironmentSettings(Utils::Environment &env,
     if (cmdPath.isEmpty())
         cmdPath = env.searchInPath(QLatin1String("cmd.exe"));
     // Windows SDK setup scripts require command line switches for environment expansion.
-    QStringList cmdArguments;
-    cmdArguments << QLatin1String("/E:ON") << QLatin1String("/V:ON") <<  QLatin1String("/c");
+    QStringList cmdArguments({
+        QLatin1String("/E:ON"), QLatin1String("/V:ON"), QLatin1String("/c")});
     cmdArguments << QDir::toNativeSeparators(saver.fileName());
     if (debug)
         qDebug() << "readEnvironmentSetting: " << call << cmdPath << cmdArguments.join(' ')

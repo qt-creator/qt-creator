@@ -42,10 +42,9 @@ QmlJSHighlighter::QmlJSHighlighter(QTextDocument *parent)
       m_inMultilineComment(false)
 {
     m_currentBlockParentheses.reserve(20);
-    static const QVector<TextStyle> categories{
-        C_NUMBER, C_STRING, C_TYPE,
-        C_KEYWORD, C_FIELD, C_COMMENT,
-        C_VISUAL_WHITESPACE};
+    static const QVector<TextStyle> categories({
+        C_NUMBER, C_STRING, C_TYPE, C_KEYWORD, C_FIELD, C_COMMENT, C_VISUAL_WHITESPACE
+    });
     setTextFormatCategories(categories);
 }
 

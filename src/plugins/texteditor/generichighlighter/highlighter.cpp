@@ -85,37 +85,36 @@ Highlighter::Highlighter(QTextDocument *parent) :
     m_dynamicContextsCounter(0),
     m_isBroken(false)
 {
-    static QVector<TextStyle> categories;
-    if (categories.isEmpty()) {
-        categories << C_TEXT              // Normal
-                   << C_VISUAL_WHITESPACE // VisualWhitespace
-                   << C_KEYWORD           // Keyword
-                   << C_TYPE              // DataType
-                   << C_COMMENT           // Comment
-                   << C_NUMBER            // Decimal
-                   << C_NUMBER            // BaseN
-                   << C_NUMBER            // Float
-                   << C_STRING            // Char
-                   << C_STRING            // SpecialChar
-                   << C_STRING            // String
-                   << C_WARNING           // Alert
-                   << C_TEXT              // Information
-                   << C_WARNING           // Warning
-                   << C_ERROR             // Error
-                   << C_FUNCTION          // Function
-                   << C_TEXT              // RegionMarker
-                   << C_PREPROCESSOR      // BuiltIn
-                   << C_PRIMITIVE_TYPE    // Extension
-                   << C_OPERATOR          // Operator
-                   << C_LOCAL             // Variable
-                   << C_LABEL             // Attribute
-                   << C_TEXT              // Annotation
-                   << C_COMMENT           // CommentVar
-                   << C_PREPROCESSOR      // Import
-                   << C_TEXT              // Others
-                   << C_LOCAL             // Identifier
-                   << C_DOXYGEN_COMMENT;  // Documentation
-    }
+    static const QVector<TextStyle> categories({
+        C_TEXT,              // Normal
+        C_VISUAL_WHITESPACE, // VisualWhitespace
+        C_KEYWORD,           // Keyword
+        C_TYPE,              // DataType
+        C_COMMENT,           // Comment
+        C_NUMBER,            // Decimal
+        C_NUMBER,            // BaseN
+        C_NUMBER,            // Float
+        C_STRING,            // Char
+        C_STRING,            // SpecialChar
+        C_STRING,            // String
+        C_WARNING,           // Alert
+        C_TEXT,              // Information
+        C_WARNING,           // Warning
+        C_ERROR,             // Error
+        C_FUNCTION,          // Function
+        C_TEXT,              // RegionMarker
+        C_PREPROCESSOR,      // BuiltIn
+        C_PRIMITIVE_TYPE,    // Extension
+        C_OPERATOR,          // Operator
+        C_LOCAL,             // Variable
+        C_LABEL,             // Attribute
+        C_TEXT,              // Annotation
+        C_COMMENT,           // CommentVar
+        C_PREPROCESSOR,      // Import
+        C_TEXT,              // Others
+        C_LOCAL,             // Identifier
+        C_DOXYGEN_COMMENT    // Documentation
+    });
 
     setTextFormatCategories(categories);
 }

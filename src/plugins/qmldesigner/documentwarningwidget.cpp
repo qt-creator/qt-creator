@@ -142,7 +142,7 @@ void DocumentWarningWidget::refreshContent()
 
 QString DocumentWarningWidget::generateNavigateLinks()
 {
-    static QString link(QLatin1String("<a href=\"%1\">%2</a>"));
+    static const QString link("<a href=\"%1\">%2</a>");
     QStringList links;
     if (m_messages.count() > 1) {
         if (m_currentMessage != 0)

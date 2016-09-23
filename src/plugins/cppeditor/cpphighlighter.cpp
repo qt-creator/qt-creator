@@ -42,21 +42,20 @@ using namespace CPlusPlus;
 CppHighlighter::CppHighlighter(QTextDocument *document) :
     SyntaxHighlighter(document)
 {
-    static QVector<TextStyle> categories;
-    if (categories.isEmpty()) {
-        categories << C_NUMBER
-                   << C_STRING
-                   << C_TYPE
-                   << C_KEYWORD
-                   << C_PRIMITIVE_TYPE
-                   << C_OPERATOR
-                   << C_PREPROCESSOR
-                   << C_LABEL
-                   << C_COMMENT
-                   << C_DOXYGEN_COMMENT
-                   << C_DOXYGEN_TAG
-                   << C_VISUAL_WHITESPACE;
-    }
+    static const QVector<TextStyle> categories({
+        C_NUMBER,
+        C_STRING,
+        C_TYPE,
+        C_KEYWORD,
+        C_PRIMITIVE_TYPE,
+        C_OPERATOR,
+        C_PREPROCESSOR,
+        C_LABEL,
+        C_COMMENT,
+        C_DOXYGEN_COMMENT,
+        C_DOXYGEN_TAG,
+        C_VISUAL_WHITESPACE
+    });
     setTextFormatCategories(categories);
 }
 

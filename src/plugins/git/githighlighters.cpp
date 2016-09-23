@@ -37,9 +37,7 @@ static const char CHANGE_PATTERN[] = "\\b[a-f0-9]{7,40}\\b";
 GitSubmitHighlighter::GitSubmitHighlighter(QTextEdit * parent) :
     TextEditor::SyntaxHighlighter(parent)
 {
-    static QVector<TextEditor::TextStyle> categories;
-    if (categories.isEmpty())
-        categories << TextEditor::C_COMMENT;
+    static const QVector<TextEditor::TextStyle> categories({TextEditor::C_COMMENT});
 
     setTextFormatCategories(categories);
     m_keywordPattern.setPattern("^[\\w-]+:");
@@ -98,18 +96,17 @@ GitRebaseHighlighter::GitRebaseHighlighter(QTextDocument *parent) :
     m_hashChar('#'),
     m_changeNumberPattern(CHANGE_PATTERN)
 {
-    static QVector<TextEditor::TextStyle> categories;
-    if (categories.isEmpty()) {
-        categories << TextEditor::C_COMMENT
-                   << TextEditor::C_DOXYGEN_COMMENT
-                   << TextEditor::C_STRING
-                   << TextEditor::C_KEYWORD
-                   << TextEditor::C_FIELD
-                   << TextEditor::C_TYPE
-                   << TextEditor::C_ENUMERATION
-                   << TextEditor::C_NUMBER
-                   << TextEditor::C_LABEL;
-    }
+    static const QVector<TextEditor::TextStyle> categories({
+        TextEditor::C_COMMENT,
+        TextEditor::C_DOXYGEN_COMMENT,
+        TextEditor::C_STRING,
+        TextEditor::C_KEYWORD,
+        TextEditor::C_FIELD,
+        TextEditor::C_TYPE,
+        TextEditor::C_ENUMERATION,
+        TextEditor::C_NUMBER,
+        TextEditor::C_LABEL
+    });
     setTextFormatCategories(categories);
 
     m_actions << RebaseAction("^(p|pick)\\b", Format_Pick);

@@ -1868,23 +1868,19 @@ static const char * const varExpandedKeys[] = {
 // Translate old-style ${} var expansions into new-style %{} ones
 static QVariant version8VarNodeTransform(const QVariant &var)
 {
-    static const char * const vars[] = {
-        "absoluteFilePath",
-        "absolutePath",
-        "baseName",
-        "canonicalPath",
-        "canonicalFilePath",
-        "completeBaseName",
-        "completeSuffix",
-        "fileName",
-        "filePath",
-        "path",
-        "suffix"
-    };
-    static QSet<QString> map;
-    if (map.isEmpty())
-        for (unsigned i = 0; i < sizeof(vars)/sizeof(vars[0]); ++i)
-            map.insert(QLatin1String("CURRENT_DOCUMENT:") + QLatin1String(vars[i]));
+    static const QSet<QString> map({
+            "CURRENT_DOCUMENT:absoluteFilePath",
+            "CURRENT_DOCUMENT:absolutePath",
+            "CURRENT_DOCUMENT:baseName",
+            "CURRENT_DOCUMENT:canonicalPath",
+            "CURRENT_DOCUMENT:canonicalFilePath",
+            "CURRENT_DOCUMENT:completeBaseName",
+            "CURRENT_DOCUMENT:completeSuffix",
+            "CURRENT_DOCUMENT:fileName",
+            "CURRENT_DOCUMENT:filePath",
+            "CURRENT_DOCUMENT:path",
+            "CURRENT_DOCUMENT:suffix"
+        });
 
     QString str = var.toString();
     int pos = 0;
