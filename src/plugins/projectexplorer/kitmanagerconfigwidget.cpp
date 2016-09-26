@@ -314,7 +314,6 @@ void KitManagerConfigWidget::setIcon()
 
 void KitManagerConfigWidget::resetIcon()
 {
-    m_iconButton->setIcon(QIcon());
     m_modifiedKit->setIconPath(Utils::FileName());
     emit dirty();
 }
