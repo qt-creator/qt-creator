@@ -349,6 +349,7 @@ void LldbEngine::setupInferior()
     cmd2.arg("dyldimagesuffix", rp.inferior.environment.value("DYLD_IMAGE_SUFFIX"));
     cmd2.arg("dyldframeworkpath", rp.inferior.environment.value("DYLD_LIBRARY_PATH"));
     cmd2.arg("dyldlibrarypath", rp.inferior.environment.value("DYLD_FRAMEWORK_PATH"));
+    cmd2.arg("workingdirectory", rp.inferior.workingDirectory);
 
     QJsonArray processArgs;
     foreach (const QString &arg, args.toUnixArgs())

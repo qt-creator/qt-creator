@@ -652,6 +652,9 @@ class Dumper(DumperBase):
         self.remoteChannel_ = args.get('remotechannel', '')
         self.platform_ = args.get('platform', '')
         self.nativeMixed = int(args.get('nativemixed', 0))
+        self.workingDirectory_ = args.get('workingdirectory', '')
+        if self.workingDirectory_ == '':
+            self.workingDirectory_ = os.getcwd()
 
         self.ignoreStops = 0
         self.silentStops = 0
@@ -729,7 +732,7 @@ class Dumper(DumperBase):
             self.reportState("enginerunokandinferiorunrunnable")
         else:
             launchInfo = lldb.SBLaunchInfo(self.processArgs_)
-            launchInfo.SetWorkingDirectory(os.getcwd())
+            launchInfo.SetWorkingDirectory(self.workingDirectory_)
             environmentList = [key + "=" + value for key,value in os.environ.items()]
             if self.dyldImageSuffix:
                 environmentList.append('DYLD_IMAGE_SUFFIX=' + self.dyldImageSuffix)
