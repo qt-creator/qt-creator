@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <coreplugin/coreconstants.h>
+
 #include <QUuid>
 
 namespace ProjectExplorer {
@@ -47,7 +49,8 @@ public:
     bool useJom = true;
     bool autorestoreLastSession = false; // This option is set in the Session Manager!
     bool prompToStopRunControl = false;
-    int  maxAppOutputLines = 100000;
+    int  maxAppOutputLines = Core::Constants::DEFAULT_MAX_LINE_COUNT;
+    int  maxBuildOutputLines = Core::Constants::DEFAULT_MAX_LINE_COUNT;
     StopBeforeBuild stopBeforeBuild = StopBeforeBuild::StopNone;
 
     // Add a UUid which is used to identify the development environment.
@@ -71,6 +74,7 @@ inline bool operator==(const ProjectExplorerSettings &p1, const ProjectExplorerS
             && p1.autorestoreLastSession == p2.autorestoreLastSession
             && p1.prompToStopRunControl == p2.prompToStopRunControl
             && p1.maxAppOutputLines == p2.maxAppOutputLines
+            && p1.maxBuildOutputLines == p2.maxBuildOutputLines
             && p1.environmentId == p2.environmentId
             && p1.stopBeforeBuild == p2.stopBeforeBuild;
 }

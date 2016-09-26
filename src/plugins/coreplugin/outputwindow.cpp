@@ -64,7 +64,7 @@ public:
     bool mousePressed = false;
     bool m_zoomEnabled = false;
     float m_originalFontSize = 0.;
-    int maxLineCount = 100000;
+    int maxLineCount = Core::Constants::DEFAULT_MAX_LINE_COUNT;
     QTextCursor cursor;
 };
 
