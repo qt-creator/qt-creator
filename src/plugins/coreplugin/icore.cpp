@@ -297,8 +297,8 @@ using namespace ExtensionSystem;
 namespace Core {
 
 // The Core Singleton
-static ICore *m_instance = 0;
-static MainWindow *m_mainwindow;
+static ICore *m_instance = nullptr;
+static MainWindow *m_mainwindow = nullptr;
 
 ICore *ICore::instance()
 {
@@ -517,7 +517,7 @@ void ICore::raiseWindow(QWidget *widget)
     if (!widget)
         return;
     QWidget *window = widget->window();
-    if (window == m_mainwindow) {
+    if (window && window == m_mainwindow) {
         m_mainwindow->raiseWindow();
     } else {
         window->raise();
