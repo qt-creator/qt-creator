@@ -25,44 +25,40 @@
 
 #pragma once
 
-#include <QAbstractListModel>
+#include "sessionmodel.h"
 
-#include <functional>
+#include <QAbstractTableModel>
+#include <QTreeView>
 
 namespace ProjectExplorer {
 namespace Internal {
 
-class SessionModel : public QAbstractListModel
-{
+class SessionView : public QTreeView {
     Q_OBJECT
 
 public:
-    enum { DefaultSessionRole = Qt::UserRole+1, LastSessionRole, ActiveSessionRole, ProjectsPathRole, ProjectsDisplayRole };
+    explicit SessionView(QWidget *parent = Q_NULLPTR);
 
-    explicit SessionModel(QObject *parent = nullptr);
+    void createNewSession();
+    void deleteCurrentSession();
+    void cloneCurrentSession();
+    void renameCurrentSession();
+    void switchToCurrentSession();
 
-    int indexOfSession(const QString &session);
-    QString sessionAt(int row);
+    QString currentSession();
+    SessionModel* sessionModel();
+    void selectActiveSession();
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    QVariant data(const QModelIndex &index, int role) const override;
-    QHash<int, QByteArray> roleNames() const override;
-
-    Q_SCRIPTABLE bool isDefaultVirgin() const;
+protected:
+    void showEvent(QShowEvent* event) override;
 
 signals:
+    void activated(const QString &session);
+    void selected(const QString &session);
     void sessionSwitched();
 
-public slots:
-    void resetSessions();
-    void newSession();
-    void cloneSession(const QString &session);
-    void deleteSession(const QString &session);
-    void renameSession(const QString &session);
-    void switchToSession(const QString &session);
-
 private:
-    void runNewSessionDialog(const QString &suggestedName, std::function<void(const QString &)> createSession);
+    SessionModel m_sessionModel;
 };
 
 } // namespace Internal

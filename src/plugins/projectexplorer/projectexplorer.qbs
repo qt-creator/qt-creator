@@ -137,6 +137,7 @@ Project {
                 "selectablefilesmodel.cpp", "selectablefilesmodel.h",
                 "session.cpp", "session.h",
                 "sessionmodel.cpp", "sessionmodel.h",
+                "sessionview.cpp", "sessionview.h",
                 "sessiondialog.cpp", "sessiondialog.h", "sessiondialog.ui",
                 "settingsaccessor.cpp", "settingsaccessor.h",
                 "showineditortaskhandler.cpp", "showineditortaskhandler.h",

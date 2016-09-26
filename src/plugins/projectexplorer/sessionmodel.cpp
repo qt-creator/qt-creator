@@ -45,6 +45,16 @@ SessionModel::SessionModel(QObject *parent)
             this, &SessionModel::resetSessions);
 }
 
+int SessionModel::indexOfSession(const QString &session)
+{
+    return SessionManager::sessions().indexOf(session);
+}
+
+QString SessionModel::sessionAt(int row)
+{
+    return SessionManager::sessions().value(row, QString());
+}
+
 int SessionModel::rowCount(const QModelIndex &) const
 {
     return SessionManager::sessions().count();

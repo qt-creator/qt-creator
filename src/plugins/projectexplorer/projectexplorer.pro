@@ -77,6 +77,7 @@ HEADERS += projectexplorer.h \
     buildprogress.h \
     projectnodes.h \
     sessiondialog.h \
+    sessionview.h \
     projectwizardpage.h \
     buildstepspage.h \
     nodesvisitor.h \
@@ -224,6 +225,7 @@ SOURCES += projectexplorer.cpp \
     buildprogress.cpp \
     projectnodes.cpp \
     sessiondialog.cpp \
+    sessionview.cpp \
     projectwizardpage.cpp \
     buildstepspage.cpp \
     nodesvisitor.cpp \
