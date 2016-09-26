@@ -296,7 +296,7 @@ void LldbEngine::startLldbStage2()
 
     const QString commands = stringSetting(GdbStartupCommands);
     if (!commands.isEmpty())
-        m_lldbProc.write(commands.toLocal8Bit());
+        m_lldbProc.write(commands.toLocal8Bit() + '\n');
 }
 
 void LldbEngine::setupInferior()
