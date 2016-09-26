@@ -357,6 +357,8 @@ public:
 
     void cutLine();
     void copyLine();
+    void duplicateSelection();
+    void duplicateSelectionAndComment();
     void deleteLine();
     void deleteEndOfWord();
     void deleteEndOfWordCamelCase();

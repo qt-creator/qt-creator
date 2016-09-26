@@ -142,6 +142,8 @@ public:
     QAction *m_unfoldAction;
     QAction *m_cutLineAction;
     QAction *m_copyLineAction;
+    QAction *m_duplicateSelectionAction;
+    QAction *m_duplicateSelectionAndCommentAction;
     QAction *m_deleteLineAction;
     QAction *m_deleteEndOfWordAction;
     QAction *m_deleteEndOfWordCamelCaseAction;
@@ -206,6 +208,8 @@ TextEditorActionHandlerPrivate::TextEditorActionHandlerPrivate
     m_unfoldAction(0),
     m_cutLineAction(0),
     m_copyLineAction(0),
+    m_duplicateSelectionAction(0),
+    m_duplicateSelectionAndCommentAction(0),
     m_deleteLineAction(0),
     m_deleteEndOfWordAction(0),
     m_deleteEndOfWordCamelCaseAction(0),
@@ -402,6 +406,14 @@ void TextEditorActionHandlerPrivate::createActions()
     m_copyLineAction = registerAction(COPY_LINE,
             [this] (TextEditorWidget *w) { w->copyLine(); }, false, tr("Copy &Line"),
             QKeySequence(tr("Ctrl+Ins")),
+            G_EDIT_TEXT, advancedEditMenu);
+    m_duplicateSelectionAction = registerAction(DUPLICATE_SELECTION,
+            [this] (TextEditorWidget *w) { w->duplicateSelection(); }, false, tr("&Duplicate Selection"),
+            QKeySequence(),
+            G_EDIT_TEXT, advancedEditMenu);
+    m_duplicateSelectionAndCommentAction = registerAction(DUPLICATE_SELECTION_AND_COMMENT,
+            [this] (TextEditorWidget *w) { w->duplicateSelectionAndComment(); }, false, tr("&Duplicate Selection and Comment"),
+            QKeySequence(),
             G_EDIT_TEXT, advancedEditMenu);
     m_upperCaseSelectionAction = registerAction(UPPERCASE_SELECTION,
             [this] (TextEditorWidget *w) { w->uppercaseSelection(); }, true, tr("Uppercase Selection"),

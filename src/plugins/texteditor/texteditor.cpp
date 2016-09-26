@@ -256,6 +256,8 @@ public:
     void print(QPrinter *printer);
 
     void maybeSelectLine();
+    void duplicateSelection(bool comment);
+    void duplicateBlockSelection(bool comment);
     void updateCannotDecodeInfo();
     void collectToCircularClipboard();
 
@@ -6163,6 +6165,128 @@ void TextEditorWidget::copyLine()
 {
     d->maybeSelectLine();
     copy();
+}
+
+void TextEditorWidgetPrivate::duplicateSelection(bool comment)
+{
+    if (m_inBlockSelectionMode) {
+        duplicateBlockSelection(comment);
+        return;
+    }
+
+    QTextCursor cursor = q->textCursor();
+
+    if (cursor.hasSelection()) {
+
+        // Cannot "duplicate and comment" files without multi-line comment
+        if (comment && !m_commentDefinition.hasMultiLineStyle())
+            return;
+
+        QString dupText = cursor.selectedText().replace(QChar::ParagraphSeparator, QLatin1Char('\n'));
+        if (comment)
+            dupText = (m_commentDefinition.multiLineStart + dupText + m_commentDefinition.multiLineEnd);
+        const int selStart = cursor.selectionStart();
+        const int selEnd   = cursor.selectionEnd();
+        const bool cursorAtStart = (cursor.position() == selStart);
+        cursor.setPosition(selEnd);
+        cursor.insertText(dupText);
+        cursor.setPosition(cursorAtStart ? selEnd : selStart);
+        cursor.setPosition(cursorAtStart ? selStart : selEnd, QTextCursor::KeepAnchor);
+    } else {
+        const int curPos = cursor.position();
+        const QTextBlock &block = cursor.block();
+        QString dupText = block.text() + QLatin1Char('\n');
+        if (comment && m_commentDefinition.hasSingleLineStyle())
+            dupText.append(m_commentDefinition.singleLine);
+        cursor.setPosition(block.position());
+        cursor.insertText(dupText);
+        cursor.setPosition(curPos);
+    }
+    q->setTextCursor(cursor);
+}
+
+void TextEditorWidgetPrivate::duplicateBlockSelection(bool comment)
+{
+    QTextCursor cursor = q->textCursor();
+
+    const TextBlockSelection curSel = m_blockSelection;
+
+    if (curSel.positionColumn == curSel.anchorColumn) {
+        // No columns selected, duplicating multiple lines
+
+        const bool isUp = curSel.positionBlock > curSel.anchorBlock;
+        const QString commentText =
+                (comment && m_commentDefinition.hasSingleLineStyle()) ?
+                    m_commentDefinition.singleLine : QString();
+
+        QTextBlock block = cursor.block();
+        QString dupText = commentText + block.text() + QLatin1Char('\n');
+
+        for (int b = curSel.firstBlockNumber(); b < curSel.lastBlockNumber(); ++b) {
+            if (isUp) {
+                block = block.previous();
+                dupText.prepend(commentText + block.text() + QLatin1Char('\n'));
+            } else {
+                block = block.next();
+                dupText.append(commentText + block.text() + QLatin1Char('\n'));
+            }
+        }
+
+        if (isUp)
+            block = cursor.block();
+
+        cursor.setPosition(block.position() + block.length());
+        cursor.insertText(dupText);
+
+    } else {
+        // Duplicating full block selection with columns
+
+        // Cannot "duplicate and comment" files without multi-line comment
+        if (comment && !m_commentDefinition.hasMultiLineStyle())
+            return;
+
+        const int fc = curSel.firstVisualColumn();
+        const int lc = curSel.lastVisualColumn();
+        const int l = lc - fc;
+
+        cursor.beginEditBlock();
+        for (int b = curSel.firstBlockNumber(); b <= curSel.lastBlockNumber(); ++b) {
+            const QTextBlock &block = m_document->document()->findBlockByNumber(b);
+            QString dupText = block.text();
+            const int dupTextLength = dupText.length();
+
+            if (dupTextLength < lc) {
+                const QString addSpace(lc - dupTextLength, ' ');
+                cursor.setPosition(block.position() + dupTextLength);
+                cursor.insertText(addSpace);
+                dupText.append(addSpace);
+            }
+
+            cursor.setPosition(block.position() + lc);
+            dupText = dupText.mid(fc, l);
+
+            if (comment)
+                dupText = (m_commentDefinition.multiLineStart + dupText + m_commentDefinition.multiLineEnd);
+            cursor.insertText(dupText);
+        }
+        cursor.endEditBlock();
+    }
+
+    enableBlockSelection(curSel.positionBlock, curSel.positionColumn,
+                         curSel.anchorBlock, curSel.anchorColumn);
+
+    cursor = m_blockSelection.cursor(m_document.data());
+    q->doSetTextCursor(cursor, m_blockSelection.hasSelection());
+}
+
+void TextEditorWidget::duplicateSelection()
+{
+    d->duplicateSelection(false);
+}
+
+void TextEditorWidget::duplicateSelectionAndComment()
+{
+    d->duplicateSelection(true);
 }
 
 void TextEditorWidget::deleteLine()
