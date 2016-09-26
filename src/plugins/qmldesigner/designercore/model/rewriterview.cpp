@@ -40,6 +40,7 @@
 #include <modelnode.h>
 
 #include <qmljs/parser/qmljsengine_p.h>
+#include <qmljs/qmljsmodelmanagerinterface.h>
 
 using namespace QmlDesigner::Internal;
 
@@ -659,8 +660,32 @@ QStringList RewriterView::autoComplete(const QString &text, int pos, bool explic
     return textModifier()->autoComplete(&textDocument, pos, explicitComplete);
 }
 
+QList<CppTypeData> RewriterView::getCppTypes()
+{
+    QList<CppTypeData> cppDataList;
+    for (const QmlJS::ModelManagerInterface::CppData &cppData : QmlJS::ModelManagerInterface::instance()->cppData().values())
+        for (const LanguageUtils::FakeMetaObject::ConstPtr &fakeMetaObject : cppData.exportedTypes) {
+            for (const LanguageUtils::FakeMetaObject::Export &exportItem : fakeMetaObject->exports()) {
+
+            CppTypeData cppData;
+            cppData.cppClassName = fakeMetaObject->className();
+            cppData.typeName = exportItem.type;
+            cppData.importUrl = exportItem.package;
+            cppData.versionString = exportItem.version.toString();
+            cppData.superClassName = fakeMetaObject->superclassName();
+            cppData.isSingleton = fakeMetaObject->isSingleton();
+
+            if (cppData.importUrl != "<cpp>") //ignore pure unregistered cpp types
+                cppDataList.append(cppData);
+            }
+        }
+
+    return cppDataList;
+}
+
 void RewriterView::qmlTextChanged()
 {
+    getCppTypes();
     if (inErrorState())
         return;
 

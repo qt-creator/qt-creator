@@ -28,6 +28,7 @@
 #include "ui_connectionviewwidget.h"
 
 #include "delegates.h"
+#include "backendmodel.h"
 #include "bindingmodel.h"
 #include "connectionmodel.h"
 #include "dynamicpropertiesmodel.h"
@@ -59,10 +60,14 @@ ConnectionViewWidget::ConnectionViewWidget(QWidget *parent) :
 
     //ui->tabWidget->tabBar()->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
+    ui->tabBar->setUsesScrollButtons(true);
+    ui->tabBar->setElideMode(Qt::ElideRight);
+
     ui->tabBar->addTab(tr("Connections", "Title of connection view"));
     ui->tabBar->addTab(tr("Bindings", "Title of connection view"));
     ui->tabBar->addTab(tr("Properties", "Title of dynamic properties view"));
-    ui->tabBar->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    ui->tabBar->addTab(tr("Backends", "Title of dynamic properties view"));
+    ui->tabBar->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
 
     ui->connectionView->setStyleSheet(Theming::replaceCssColors(
             QLatin1String(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css")))));
@@ -71,6 +76,9 @@ ConnectionViewWidget::ConnectionViewWidget(QWidget *parent) :
             QLatin1String(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css")))));
 
     ui->dynamicPropertiesView->setStyleSheet(Theming::replaceCssColors(
+                QLatin1String(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css")))));
+
+    ui->backendView->setStyleSheet(Theming::replaceCssColors(
                 QLatin1String(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css")))));
 
     connect(ui->tabBar, SIGNAL(currentChanged(int)),
@@ -93,8 +101,8 @@ void ConnectionViewWidget::setBindingModel(BindingModel *model)
     ui->bindingView->verticalHeader()->hide();
     ui->bindingView->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->bindingView->setItemDelegate(new BindingDelegate);
-    connect(ui->bindingView->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
-            this, SLOT(bindingTableViewSelectionChanged(QModelIndex,QModelIndex)));
+    connect(ui->bindingView->selectionModel(), &QItemSelectionModel::currentRowChanged,
+            this, &ConnectionViewWidget::bindingTableViewSelectionChanged);
 }
 
 void ConnectionViewWidget::setConnectionModel(ConnectionModel *model)
@@ -104,19 +112,30 @@ void ConnectionViewWidget::setConnectionModel(ConnectionModel *model)
     ui->connectionView->horizontalHeader()->setDefaultSectionSize(160);
     ui->connectionView->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->connectionView->setItemDelegate(new ConnectionDelegate);
-    connect(ui->connectionView->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
-            this, SLOT(connectionTableViewSelectionChanged(QModelIndex,QModelIndex)));
+    connect(ui->connectionView->selectionModel(), &QItemSelectionModel::currentRowChanged,
+            this, &ConnectionViewWidget::connectionTableViewSelectionChanged);
 
 }
 
-void ConnectionViewWidget::setDynamicPropertiesModelModel(DynamicPropertiesModel *model)
+void ConnectionViewWidget::setDynamicPropertiesModel(DynamicPropertiesModel *model)
 {
     ui->dynamicPropertiesView->setModel(model);
     ui->dynamicPropertiesView->verticalHeader()->hide();
     ui->dynamicPropertiesView->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->dynamicPropertiesView->setItemDelegate(new DynamicPropertiesDelegate);
-    connect(ui->dynamicPropertiesView->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
-            this, SLOT(dynamicPropertiesTableViewSelectionChanged(QModelIndex,QModelIndex)));
+    connect(ui->dynamicPropertiesView->selectionModel(), &QItemSelectionModel::currentRowChanged,
+            this, &ConnectionViewWidget::dynamicPropertiesTableViewSelectionChanged);
+}
+
+void ConnectionViewWidget::setBackendModel(BackendModel *model)
+{
+     ui->backendView->setModel(model);
+     ui->backendView->verticalHeader()->hide();
+     ui->backendView->setSelectionMode(QAbstractItemView::SingleSelection);
+     ui->backendView->setItemDelegate(new BackendDelegate);
+     model->resetModel();
+     connect(ui->backendView->selectionModel(), &QItemSelectionModel::currentRowChanged,
+             this, &ConnectionViewWidget::backendTableViewSelectionChanged);
 }
 
 QList<QToolButton *> ConnectionViewWidget::createToolBarWidgets()
@@ -145,6 +164,7 @@ ConnectionViewWidget::TabStatus ConnectionViewWidget::currentTab() const
     case 0: return ConnectionTab;
     case 1: return BindingTab;
     case 2: return DynamicPropertiesTab;
+    case 3: return BackendTab;
     default: return InvalidTab;
     }
 }
@@ -159,6 +179,8 @@ void ConnectionViewWidget::resetItemViews()
 
     } else if (currentTab() == DynamicPropertiesTab) {
         ui->dynamicPropertiesView->selectionModel()->clear();
+    } else if (currentTab() == BackendTab) {
+        ui->backendView->selectionModel()->clear();
     }
     invalidateButtonStatus();
 }
@@ -179,6 +201,9 @@ void ConnectionViewWidget::invalidateButtonStatus()
         DynamicPropertiesModel *dynamicPropertiesModel = qobject_cast<DynamicPropertiesModel*>(ui->dynamicPropertiesView->model());
         setEnabledAddButton(dynamicPropertiesModel->connectionView()->model() &&
             dynamicPropertiesModel->connectionView()->selectedModelNodes().count() == 1);
+    } else if (currentTab() == BackendTab) {
+        setEnabledAddButton(true);
+        emit setEnabledRemoveButton(ui->backendView->selectionModel()->hasSelection());
     }
 }
 
@@ -195,6 +220,11 @@ QTableView *ConnectionViewWidget::bindingTableView() const
 QTableView *ConnectionViewWidget::dynamicPropertiesTableView() const
 {
     return ui->dynamicPropertiesView;
+}
+
+QTableView *ConnectionViewWidget::backendView() const
+{
+    return ui->backendView;
 }
 
 void ConnectionViewWidget::handleTabChanged(int)
@@ -221,6 +251,11 @@ void ConnectionViewWidget::removeButtonClicked()
         DynamicPropertiesModel *dynamicPropertiesModel = qobject_cast<DynamicPropertiesModel*>(ui->dynamicPropertiesView->model());
         if (dynamicPropertiesModel)
             dynamicPropertiesModel->deleteDynamicPropertyByRow(currentRow);
+    }  else if (currentTab() == BackendTab) {
+        int currentRow =  ui->backendView->selectionModel()->selectedRows().first().row();
+        BackendModel *backendModel = qobject_cast<BackendModel*>(ui->backendView->model());
+        if (backendModel)
+            backendModel->deletePropertyByRow(currentRow);
     }
 
     invalidateButtonStatus();
@@ -244,6 +279,10 @@ void ConnectionViewWidget::addButtonClicked()
         DynamicPropertiesModel *dynamicPropertiesModel = qobject_cast<DynamicPropertiesModel*>(ui->dynamicPropertiesView->model());
         if (dynamicPropertiesModel)
             dynamicPropertiesModel->addDynamicPropertyForCurrentNode();
+    }  else if (currentTab() == BackendTab) {
+        BackendModel *backendModel = qobject_cast<BackendModel*>(ui->backendView->model());
+        if (backendModel)
+            backendModel->addNewBackend();
     }
 
     invalidateButtonStatus();
@@ -280,6 +319,18 @@ void ConnectionViewWidget::dynamicPropertiesTableViewSelectionChanged(const QMod
             emit setEnabledRemoveButton(false);
         }
     }
+}
+
+void ConnectionViewWidget::backendTableViewSelectionChanged(const QModelIndex &current, const QModelIndex & /*revious*/)
+{
+    if (currentTab() == BackendTab) {
+        if (current.isValid()) {
+            emit setEnabledRemoveButton(true);
+        } else {
+            emit setEnabledRemoveButton(false);
+        }
+    }
+
 }
 
 } // namespace Internal

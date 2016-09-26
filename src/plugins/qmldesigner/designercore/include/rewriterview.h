@@ -50,6 +50,16 @@ class ModelNodePositionStorage;
 
 } //Internal
 
+struct CppTypeData
+{
+    QString superClassName;
+    QString importUrl;
+    QString versionString;
+    QString cppClassName;
+    QString typeName;
+    bool isSingleton = false;
+};
+
 class QMLDESIGNERCORE_EXPORT RewriterView : public AbstractView
 {
     Q_OBJECT
@@ -139,6 +149,8 @@ public:
     void moveToComponent(const ModelNode &modelNode);
 
     QStringList autoComplete(const QString &text, int pos, bool explicitComplete = true);
+
+    QList<CppTypeData> getCppTypes();
 
 signals:
     void errorsChanged(const QList<RewriterError> &errors);

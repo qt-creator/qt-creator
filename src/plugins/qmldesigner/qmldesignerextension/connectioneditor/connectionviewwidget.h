@@ -31,6 +31,7 @@
 QT_BEGIN_NAMESPACE
 class QToolButton;
 class QTableView;
+class QListView;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -42,6 +43,7 @@ namespace Internal {
 class BindingModel;
 class ConnectionModel;
 class DynamicPropertiesModel;
+class BackendModel;
 
 class ConnectionViewWidget : public QFrame
 {
@@ -53,6 +55,7 @@ public:
         ConnectionTab,
         BindingTab,
         DynamicPropertiesTab,
+        BackendTab,
         InvalidTab
     };
 
@@ -61,7 +64,8 @@ public:
 
     void setBindingModel(BindingModel *model);
     void setConnectionModel(ConnectionModel *model);
-    void setDynamicPropertiesModelModel(DynamicPropertiesModel *model);
+    void setDynamicPropertiesModel(DynamicPropertiesModel *model);
+    void setBackendModel(BackendModel *model);
 
     QList<QToolButton*> createToolBarWidgets();
 
@@ -73,11 +77,13 @@ public:
     QTableView *connectionTableView() const;
     QTableView *bindingTableView() const;
     QTableView *dynamicPropertiesTableView() const;
+    QTableView *backendView() const;
 
 public slots:
     void bindingTableViewSelectionChanged(const QModelIndex &current, const QModelIndex &previous);
     void connectionTableViewSelectionChanged(const QModelIndex &current, const QModelIndex &previous);
     void dynamicPropertiesTableViewSelectionChanged(const QModelIndex &current, const QModelIndex &previous);
+    void backendTableViewSelectionChanged(const QModelIndex &current, const QModelIndex &previous);
 
 signals:
     void setEnabledAddButton(bool enabled);

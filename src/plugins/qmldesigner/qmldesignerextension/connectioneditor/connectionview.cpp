@@ -26,6 +26,7 @@
 #include "connectionview.h"
 #include "connectionviewwidget.h"
 
+#include "backendmodel.h"
 #include "bindingmodel.h"
 #include "connectionmodel.h"
 #include "dynamicpropertiesmodel.h"
@@ -42,11 +43,13 @@ ConnectionView::ConnectionView(QObject *parent) : AbstractView(parent),
     m_connectionViewWidget(new ConnectionViewWidget()),
     m_connectionModel(new ConnectionModel(this)),
     m_bindingModel(new BindingModel(this)),
-    m_dynamicPropertiesModel(new DynamicPropertiesModel(this))
+    m_dynamicPropertiesModel(new DynamicPropertiesModel(this)),
+    m_backendModel(new BackendModel(this))
 {
     connectionViewWidget()->setBindingModel(m_bindingModel);
     connectionViewWidget()->setConnectionModel(m_connectionModel);
-    connectionViewWidget()->setDynamicPropertiesModelModel(m_dynamicPropertiesModel);
+    connectionViewWidget()->setDynamicPropertiesModel(m_dynamicPropertiesModel);
+    connectionViewWidget()->setBackendModel(m_backendModel);
 }
 
 ConnectionView::~ConnectionView()
@@ -60,6 +63,7 @@ void ConnectionView::modelAttached(Model *model)
     dynamicPropertiesModel()->selectionChanged(QList<ModelNode>());
     connectionModel()->resetModel();
     connectionViewWidget()->resetItemViews();
+    backendModel()->resetModel();
 }
 
 void ConnectionView::modelAboutToBeDetached(Model *model)
@@ -115,6 +119,8 @@ void ConnectionView::variantPropertiesChanged(const QList<VariantProperty> &prop
     foreach (const VariantProperty &variantProperty, propertyList) {
         if (variantProperty.isDynamic())
             dynamicPropertiesModel()->variantPropertyChanged(variantProperty);
+        if (variantProperty.isDynamic() && variantProperty.parentModelNode().isRootNode())
+            backendModel()->resetModel();
 
         connectionModel()->variantPropertyChanged(variantProperty);
     }
@@ -128,6 +134,8 @@ void ConnectionView::bindingPropertiesChanged(const QList<BindingProperty> &prop
         bindingModel()->bindingChanged(bindingProperty);
         if (bindingProperty.isDynamic())
             dynamicPropertiesModel()->bindingPropertyChanged(bindingProperty);
+        if (bindingProperty.isDynamic() && bindingProperty.parentModelNode().isRootNode())
+            backendModel()->resetModel();
 
         connectionModel()->bindingPropertyChanged(bindingProperty);
     }
@@ -144,6 +152,11 @@ void ConnectionView::selectedNodesChanged(const QList<ModelNode> & selectedNodeL
     if (connectionViewWidget()->currentTab() == ConnectionViewWidget::BindingTab
             || connectionViewWidget()->currentTab() == ConnectionViewWidget::DynamicPropertiesTab)
         connectionViewWidget()->setEnabledAddButton(selectedNodeList.count() == 1);
+}
+
+void ConnectionView::importsChanged(const QList<Import> & /*addedImports*/, const QList<Import> & /*removedImports*/)
+{
+    backendModel()->resetModel();
 }
 
 WidgetInfo ConnectionView::widgetInfo()
@@ -176,6 +189,11 @@ QTableView *ConnectionView::dynamicPropertiesTableView() const
     return connectionViewWidget()->dynamicPropertiesTableView();
 }
 
+QTableView *ConnectionView::backendView() const
+{
+    return connectionViewWidget()->backendView();
+}
+
 ConnectionViewWidget *ConnectionView::connectionViewWidget() const
 {
     return m_connectionViewWidget.data();
@@ -194,6 +212,11 @@ BindingModel *ConnectionView::bindingModel() const
 DynamicPropertiesModel *ConnectionView::dynamicPropertiesModel() const
 {
     return m_dynamicPropertiesModel;
+}
+
+BackendModel *ConnectionView::backendModel() const
+{
+    return m_backendModel;
 }
 
 } // namesapce Internal

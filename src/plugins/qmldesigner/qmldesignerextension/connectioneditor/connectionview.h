@@ -32,6 +32,7 @@
 
 QT_BEGIN_NAMESPACE
 class QTableView;
+class QListView;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -42,6 +43,7 @@ class ConnectionViewWidget;
 class BindingModel;
 class ConnectionModel;
 class DynamicPropertiesModel;
+class BackendModel;
 
 class  ConnectionView : public AbstractView
 {
@@ -67,18 +69,22 @@ public:
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                               const QList<ModelNode> &lastSelectedNodeList) override;
 
+    void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports) override;
+
     WidgetInfo widgetInfo() override;
     bool hasWidget() const override;
 
     QTableView *connectionTableView() const;
     QTableView *bindingTableView() const;
     QTableView *dynamicPropertiesTableView() const;
+    QTableView *backendView() const;
 
 protected:
     ConnectionViewWidget *connectionViewWidget() const;
     ConnectionModel *connectionModel() const;
     BindingModel *bindingModel() const;
     DynamicPropertiesModel *dynamicPropertiesModel() const;
+    BackendModel *backendModel() const;
 
 
 private: //variables
@@ -86,6 +92,7 @@ private: //variables
     ConnectionModel *m_connectionModel;
     BindingModel *m_bindingModel;
     DynamicPropertiesModel *m_dynamicPropertiesModel;
+    BackendModel *m_backendModel;
 };
 
 } // namespace Internal

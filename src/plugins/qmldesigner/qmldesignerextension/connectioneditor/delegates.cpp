@@ -25,12 +25,15 @@
 
 #include "delegates.h"
 
+#include "backendmodel.h"
 #include "connectionmodel.h"
 #include "bindingmodel.h"
 #include "dynamicpropertiesmodel.h"
 #include "connectionview.h"
 
 #include <bindingproperty.h>
+
+#include <utils/qtcassert.h>
 
 #include <QStyleFactory>
 #include <QItemEditorFactory>
@@ -275,8 +278,6 @@ QWidget *ConnectionDelegate::createEditor(QWidget *parent, const QStyleOptionVie
 
     const ConnectionModel *connectionModel = qobject_cast<const ConnectionModel*>(index.model());
 
-    //model->connectionView()->allModelNodes();
-
     ConnectionComboBox *connectionComboBox = qobject_cast<ConnectionComboBox*>(widget);
 
     if (!connectionModel) {
@@ -330,6 +331,46 @@ QWidget *ConnectionDelegate::createEditor(QWidget *parent, const QStyleOptionVie
     });
 
     return widget;
+}
+
+BackendDelegate::BackendDelegate(QWidget *parent) : ConnectionEditorDelegate(parent)
+{
+}
+
+QWidget *BackendDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+        const BackendModel *model = qobject_cast<const BackendModel*>(index.model());
+
+        model->connectionView()->allModelNodes();
+
+        QWidget *widget = QStyledItemDelegate::createEditor(parent, option, index);
+
+        QTC_ASSERT(model, return widget);
+        QTC_ASSERT(model->connectionView(), return widget);
+
+        switch (index.column()) {
+        case BackendModel::TypeNameColumn: {
+            PropertiesComboBox *backendComboBox = new PropertiesComboBox(parent);
+            backendComboBox->addItems(model->possibleCppTypes());
+            connect(backendComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [=]() {
+                auto delegate = const_cast<BackendDelegate*>(this);
+                emit delegate->commitData(backendComboBox);
+            });
+            return backendComboBox;
+        } break;
+        case BackendModel::PropertyNameColumn: {
+            return widget;
+        } break;
+        case BackendModel::IsSingletonColumn: {
+            return 0;  //no editor
+        } break;
+        case BackendModel::IsLocalColumn: {
+            return 0;  //no editor
+        } break;
+        default: qWarning() << "BackendDelegate::createEditor column" << index.column();
+        }
+
+        return widget;
 }
 
 } // namesapce Internal
