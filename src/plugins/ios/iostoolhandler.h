@@ -33,7 +33,6 @@
 #include <QStringList>
 #include <QProcess>
 
-
 namespace Ios {
 namespace Internal {
 class IosToolHandlerPrivate;
@@ -56,7 +55,6 @@ public:
     };
 
     static QString iosDeviceToolPath();
-    static QString iosSimulatorToolPath();
 
     explicit IosToolHandler(const Internal::IosDeviceType &type, QObject *parent = 0);
     ~IosToolHandler();
@@ -66,6 +64,7 @@ public:
     void requestDeviceInfo(const QString &deviceId, int timeout = 1000);
     bool isRunning();
     void stop();
+    void debuggerStateChanged(int state);
 
 signals:
     void isTransferringApp(Ios::IosToolHandler *handler, const QString &bundlePath,
@@ -85,11 +84,10 @@ signals:
     void errorMsg(Ios::IosToolHandler *handler, const QString &msg);
     void toolExited(Ios::IosToolHandler *handler, int code);
     void finished(Ios::IosToolHandler *handler);
-private:
-    void subprocessError(QProcess::ProcessError error);
-    void subprocessFinished(int exitCode, QProcess::ExitStatus exitStatus);
-    void subprocessHasData();
+
+protected:
     void killProcess();
+
 private:
     friend class Ios::Internal::IosToolHandlerPrivate;
     Ios::Internal::IosToolHandlerPrivate *d;

@@ -27,6 +27,7 @@
 #include "iosconstants.h"
 #include "iosmanager.h"
 #include "iosdeploystep.h"
+#include "simulatorcontrol.h"
 
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
@@ -346,7 +347,7 @@ IosDeviceType IosRunConfiguration::deviceType() const
 {
     QList<IosDeviceType> availableSimulators;
     if (m_deviceType.type == IosDeviceType::SimulatedDevice)
-        availableSimulators = IosSimulator::availableDevices();
+        availableSimulators = SimulatorControl::availableSimulators();
     if (!availableSimulators.isEmpty()) {
         QList<IosDeviceType> elegibleDevices;
         QString devname = m_deviceType.identifier.split(QLatin1Char(',')).value(0);
@@ -417,7 +418,7 @@ void IosRunConfigurationWidget::updateValues()
     m_deviceTypeLabel->setVisible(showDeviceSelector);
     m_deviceTypeComboBox->setVisible(showDeviceSelector);
     if (showDeviceSelector && m_deviceTypeModel.rowCount() == 0) {
-        foreach (const IosDeviceType &dType, IosSimulator::availableDevices()) {
+        foreach (const IosDeviceType &dType, SimulatorControl::availableSimulators()) {
             QStandardItem *item = new QStandardItem(dType.displayName);
             QVariant v;
             v.setValue(dType);

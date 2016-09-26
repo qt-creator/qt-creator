@@ -169,6 +169,8 @@ IosDebugSupport::IosDebugSupport(IosRunConfiguration *runConfig,
             m_runner, &IosRunner::start);
     connect(m_runControl, &RunControl::finished,
             m_runner, &IosRunner::stop);
+    connect(m_runControl, &DebuggerRunControl::stateChanged,
+            m_runner, &IosRunner::debuggerStateChanged);
 
     connect(m_runner, &IosRunner::gotServerPorts,
         this, &IosDebugSupport::handleServerPorts);

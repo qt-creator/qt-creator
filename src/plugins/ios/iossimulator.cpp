@@ -44,9 +44,6 @@ static const QLatin1String iosDeviceTypeDisplayNameKey = QLatin1String("displayN
 static const QLatin1String iosDeviceTypeTypeKey = QLatin1String("type");
 static const QLatin1String iosDeviceTypeIdentifierKey = QLatin1String("identifier");
 
-QMutex IosSimulator::_mutex;
-QList<IosDeviceType> IosSimulator::_availableDevices;
-
 IosSimulator::IosSimulator(Core::Id id)
     : IDevice(Core::Id(Constants::IOS_SIMULATOR_TYPE),
               IDevice::AutoDetected,
@@ -117,48 +114,6 @@ DeviceProcessSignalOperation::Ptr IosSimulator::signalOperation() const
 IDevice::Ptr IosSimulator::clone() const
 {
     return IDevice::Ptr(new IosSimulator(*this));
-}
-
-QList<IosDeviceType> IosSimulator::availableDevices()
-{
-    QMutexLocker l(&_mutex);
-    return _availableDevices;
-}
-
-void IosSimulator::setAvailableDevices(QList<IosDeviceType> value)
-{
-    QMutexLocker l(&_mutex);
-    _availableDevices = value;
-}
-
-namespace {
-void handleDeviceInfo(Ios::IosToolHandler *handler, const QString &deviceId,
-                      const Ios::IosToolHandler::Dict &info)
-{
-    Q_UNUSED(deviceId);
-    QList<IosDeviceType> res;
-    QMapIterator<QString, QString> i(info);
-    while (i.hasNext()) {
-        i.next();
-        IosDeviceType simulatorType(IosDeviceType::SimulatedDevice);
-        simulatorType.displayName = i.value();
-        simulatorType.identifier = i.key();
-        QStringList ids = i.key().split(QLatin1Char(','));
-        if (ids.length() > 1)
-            simulatorType.displayName += QLatin1String(", iOS ") + ids.last().trimmed();
-        res.append(simulatorType);
-    }
-    handler->deleteLater();
-    std::stable_sort(res.begin(), res.end());
-    IosSimulator::setAvailableDevices(res);
-}
-}
-
-void IosSimulator::updateAvailableDevices()
-{
-    IosToolHandler *toolHandler = new IosToolHandler(IosDeviceType(IosDeviceType::SimulatedDevice));
-    QObject::connect(toolHandler, &IosToolHandler::deviceInfo, &handleDeviceInfo);
-    toolHandler->requestDeviceInfo(QString());
 }
 
 void IosSimulator::fromMap(const QVariantMap &map)
