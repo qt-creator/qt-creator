@@ -152,8 +152,6 @@ public:
 
 private:
     static void validateNewItemDialogIsRunning();
-    static void newItemDialogOpened();
-    static void newItemDialogClosed();
 };
 
 } // namespace Core

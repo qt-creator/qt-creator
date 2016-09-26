@@ -321,8 +321,6 @@ ICore::ICore(MainWindow *mainwindow)
         emit coreAboutToClose();
         QCoreApplication::exit(failedTests);
     });
-    connect(m_mainwindow, &MainWindow::newItemDialogRunningChanged,
-            this, &ICore::newItemDialogRunningChanged);
 }
 
 ICore::~ICore()

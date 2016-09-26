@@ -1158,12 +1158,5 @@ void MainWindow::restoreWindowState()
     m_statusBarManager->restoreSettings();
 }
 
-void MainWindow::newItemDialogFinished()
-{
-    m_newAction->setEnabled(true);
-    // fire signal when the dialog is actually destroyed
-    QTimer::singleShot(0, this, &MainWindow::newItemDialogRunningChanged);
-}
-
 } // namespace Internal
 } // namespace Core

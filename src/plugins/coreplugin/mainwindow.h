@@ -113,9 +113,6 @@ public:
 
     void saveSettings();
 
-signals:
-    void newItemDialogRunningChanged();
-
 public slots:
     void openFileWith();
     void exit();
@@ -142,7 +139,6 @@ private:
     void destroyVersionDialog();
     void openDroppedFiles(const QList<Utils::DropSupport::FileSpec> &files);
     void restoreWindowState();
-    void newItemDialogFinished();
 
     void updateContextObject(const QList<IContext *> &context);
     void updateContext();
