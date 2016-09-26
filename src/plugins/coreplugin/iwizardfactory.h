@@ -84,8 +84,8 @@ public:
     QString runPath(const QString &defaultPath);
 
     // Does bookkeeping and the calls runWizardImpl. Please implement that.
-    virtual Utils::Wizard *runWizard(const QString &path, QWidget *parent, Id platform,
-                                     const QVariantMap &variables);
+    Utils::Wizard *runWizard(const QString &path, QWidget *parent, Id platform,
+                             const QVariantMap &variables);
 
     virtual bool isAvailable(Id platformId) const;
     QSet<Id> supportedPlatforms() const;
