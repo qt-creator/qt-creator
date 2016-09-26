@@ -89,12 +89,11 @@ private:
     QString m_displayName;
     Utils::FileName m_executable;
 
-    bool m_isAutoRun;
+    bool m_isAutoRun = true;
+    bool m_isAutoDetected = false;
 
-    bool m_isAutoDetected;
-
-    mutable bool m_didAttemptToRun;
-    mutable bool m_didRun;
+    mutable bool m_didAttemptToRun = false;
+    mutable bool m_didRun = false;
 
     mutable QStringList m_generators;
     mutable QMap<QString, QStringList> m_functionArgs;

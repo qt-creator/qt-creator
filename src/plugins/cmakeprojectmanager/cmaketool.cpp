@@ -56,15 +56,15 @@ CMakeTool::CMakeTool(Detection d, const Core::Id &id) :
 
 CMakeTool::CMakeTool(const QVariantMap &map, bool fromSdk) : m_isAutoDetected(fromSdk)
 {
-    m_id = Core::Id::fromSetting(map.value(QLatin1String(CMAKE_INFORMATION_ID)));
-    m_displayName = map.value(QLatin1String(CMAKE_INFORMATION_DISPLAYNAME)).toString();
-    m_isAutoRun = map.value(QLatin1String(CMAKE_INFORMATION_AUTORUN), true).toBool();
+    m_id = Core::Id::fromSetting(map.value(CMAKE_INFORMATION_ID));
+    m_displayName = map.value(CMAKE_INFORMATION_DISPLAYNAME).toString();
+    m_isAutoRun = map.value(CMAKE_INFORMATION_AUTORUN, true).toBool();
 
     //loading a CMakeTool from SDK is always autodetection
     if (!fromSdk)
-        m_isAutoDetected = map.value(QLatin1String(CMAKE_INFORMATION_AUTODETECTED), false).toBool();
+        m_isAutoDetected = map.value(CMAKE_INFORMATION_AUTODETECTED, false).toBool();
 
-    setCMakeExecutable(Utils::FileName::fromString(map.value(QLatin1String(CMAKE_INFORMATION_COMMAND)).toString()));
+    setCMakeExecutable(Utils::FileName::fromString(map.value(CMAKE_INFORMATION_COMMAND).toString()));
 }
 
 Core::Id CMakeTool::createId()
@@ -129,11 +129,11 @@ Utils::SynchronousProcessResponse CMakeTool::run(const QString &arg) const
 QVariantMap CMakeTool::toMap() const
 {
     QVariantMap data;
-    data.insert(QLatin1String(CMAKE_INFORMATION_DISPLAYNAME), m_displayName);
-    data.insert(QLatin1String(CMAKE_INFORMATION_ID), m_id.toSetting());
-    data.insert(QLatin1String(CMAKE_INFORMATION_COMMAND), m_executable.toString());
-    data.insert(QLatin1String(CMAKE_INFORMATION_AUTORUN), m_isAutoRun);
-    data.insert(QLatin1String(CMAKE_INFORMATION_AUTODETECTED), m_isAutoDetected);
+    data.insert(CMAKE_INFORMATION_DISPLAYNAME, m_displayName);
+    data.insert(CMAKE_INFORMATION_ID, m_id.toSetting());
+    data.insert(CMAKE_INFORMATION_COMMAND, m_executable.toString());
+    data.insert(CMAKE_INFORMATION_AUTORUN, m_isAutoRun);
+    data.insert(CMAKE_INFORMATION_AUTODETECTED, m_isAutoDetected);
     return data;
 }
 
@@ -156,22 +156,22 @@ bool CMakeTool::isAutoRun() const
 QStringList CMakeTool::supportedGenerators() const
 {
     if (m_generators.isEmpty()) {
-        Utils::SynchronousProcessResponse response = run(QLatin1String("--help"));
+        Utils::SynchronousProcessResponse response = run("--help");
         if (response.result == Utils::SynchronousProcessResponse::Finished) {
             bool inGeneratorSection = false;
-            const QStringList lines = response.stdOut().split(QLatin1Char('\n'));
+            const QStringList lines = response.stdOut().split('\n');
             foreach (const QString &line, lines) {
                 if (line.isEmpty())
                     continue;
-                if (line == QLatin1String("Generators")) {
+                if (line == "Generators") {
                     inGeneratorSection = true;
                     continue;
                 }
                 if (!inGeneratorSection)
                     continue;
 
-                if (line.startsWith(QLatin1String("  ")) && line.at(3) != QLatin1Char(' ')) {
-                    int pos = line.indexOf(QLatin1Char('='));
+                if (line.startsWith("  ") && line.at(3) != ' ') {
+                    int pos = line.indexOf('=');
                     if (pos < 0)
                         pos = line.length();
                     if (pos >= 0) {
@@ -192,19 +192,19 @@ TextEditor::Keywords CMakeTool::keywords()
 {
     if (m_functions.isEmpty()) {
         Utils::SynchronousProcessResponse response;
-        response = run(QLatin1String("--help-command-list"));
+        response = run("--help-command-list");
         if (response.result == Utils::SynchronousProcessResponse::Finished)
-            m_functions = response.stdOut().split(QLatin1Char('\n'));
+            m_functions = response.stdOut().split('\n');
 
-        response = run(QLatin1String("--help-commands"));
+        response = run("--help-commands");
         if (response.result == Utils::SynchronousProcessResponse::Finished)
             parseFunctionDetailsOutput(response.stdOut());
 
-        response = run(QLatin1String("--help-property-list"));
+        response = run("--help-property-list");
         if (response.result == Utils::SynchronousProcessResponse::Finished)
             m_variables = parseVariableOutput(response.stdOut());
 
-        response = run(QLatin1String("--help-variable-list"));
+        response = run("--help-variable-list");
         if (response.result == Utils::SynchronousProcessResponse::Finished) {
             m_variables.append(parseVariableOutput(response.stdOut()));
             m_variables = Utils::filteredUnique(m_variables);
@@ -251,18 +251,18 @@ static QStringList parseDefinition(const QString &definition)
     QVector<QChar> braceStack;
 
     foreach (const QChar &c, definition) {
-        if (c == QLatin1Char('[') || c == QLatin1Char('<') || c == QLatin1Char('(')) {
+        if (c == '[' || c == '<' || c == '(') {
             braceStack.append(c);
             ignoreWord = false;
-        } else if (c == QLatin1Char(']') || c == QLatin1Char('>') || c == QLatin1Char(')')) {
-            if (braceStack.isEmpty() || braceStack.takeLast() == QLatin1Char('<'))
+        } else if (c == ']' || c == '>' || c == ')') {
+            if (braceStack.isEmpty() || braceStack.takeLast() == '<')
                 ignoreWord = true;
         }
 
-        if (c == QLatin1Char(' ') || c == QLatin1Char('[') || c == QLatin1Char('<') || c == QLatin1Char('(')
-                || c == QLatin1Char(']') || c == QLatin1Char('>') || c == QLatin1Char(')')) {
+        if (c == ' ' || c == '[' || c == '<' || c == '('
+                || c == ']' || c == '>' || c == ')') {
             if (!ignoreWord && !word.isEmpty()) {
-                if (result.isEmpty() || Utils::allOf(word, [](const QChar &c) { return c.isUpper() || c == QLatin1Char('_'); }))
+                if (result.isEmpty() || Utils::allOf(word, [](const QChar &c) { return c.isUpper() || c == '_'; }))
                     result.append(word);
             }
             word.clear();
@@ -282,17 +282,17 @@ void CMakeTool::parseFunctionDetailsOutput(const QString &output)
     bool expectDefinition = false;
     QString currentDefinition;
 
-    const QStringList lines = output.split(QLatin1Char('\n'));
+    const QStringList lines = output.split('\n');
     for (int i = 0; i < lines.count(); ++i) {
         const QString line = lines.at(i);
 
-        if (line == QLatin1String("::")) {
+        if (line == "::") {
             expectDefinition = true;
             continue;
         }
 
         if (expectDefinition) {
-            if (!line.startsWith(QLatin1Char(' ')) && !line.isEmpty()) {
+            if (!line.startsWith(' ') && !line.isEmpty()) {
                 expectDefinition = false;
                 QStringList words = parseDefinition(currentDefinition);
                 if (!words.isEmpty()) {
@@ -307,7 +307,7 @@ void CMakeTool::parseFunctionDetailsOutput(const QString &output)
                     m_functionArgs[words.at(0)];
                 currentDefinition.clear();
             } else {
-                currentDefinition.append(line.trimmed() + QLatin1Char(' '));
+                currentDefinition.append(line.trimmed() + ' ');
             }
         }
     }
@@ -315,7 +315,7 @@ void CMakeTool::parseFunctionDetailsOutput(const QString &output)
 
 QStringList CMakeTool::parseVariableOutput(const QString &output)
 {
-    const QStringList variableList = output.split(QLatin1Char('\n'));
+    const QStringList variableList = output.split('\n');
     QStringList result;
     foreach (const QString &v, variableList) {
         if (v.startsWith("CMAKE_COMPILER_IS_GNU<LANG>")) { // This key takes a compiler name :-/
@@ -327,7 +327,7 @@ QStringList CMakeTool::parseVariableOutput(const QString &output)
         } else if (v.contains("<LANG>")) {
             const QString tmp = QString(v).replace("<LANG>", "%1");
             result << tmp.arg("C") << tmp.arg("CXX");
-        } else if (!v.contains(QLatin1Char('<')) && !v.contains(QLatin1Char('['))) {
+        } else if (!v.contains('<') && !v.contains('[')) {
             result << v;
         }
     }
