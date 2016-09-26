@@ -101,6 +101,7 @@ public:
     static void registerFeatureProvider(IFeatureProvider *provider);
 
     static bool isWizardRunning();
+    static QWidget *currentWizard();
 
     static void requestNewItemDialog(const QString &title,
                                      const QList<IWizardFactory *> &factories,

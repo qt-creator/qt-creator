@@ -72,6 +72,7 @@ public:
     static ICore *instance();
 
     static bool isNewItemDialogRunning();
+    static QWidget *newItemDialog();
     static void showNewItemDialog(const QString &title,
                                   const QList<IWizardFactory *> &factories,
                                   const QString &defaultLocation = QString(),
@@ -138,7 +139,7 @@ public slots:
 signals:
     void coreAboutToOpen();
     void coreOpened();
-    void newItemDialogRunningChanged();
+    void newItemDialogStateChanged();
     void saveSettingsRequested();
     void optionsDialogRequested();
     void coreAboutToClose();
@@ -151,7 +152,7 @@ public:
     static void appendAboutInformation(const QString &line);
 
 private:
-    static void validateNewItemDialogIsRunning();
+    static void updateNewItemDialogState();
 };
 
 } // namespace Core

@@ -61,7 +61,7 @@ public:
     void showDialog();
     Id selectedPlatform() const;
 
-    static bool isRunning();
+    static QWidget *currentDialog();
 
 protected:
     bool event(QEvent *);
@@ -78,7 +78,7 @@ private:
     void addItem(QStandardItem *topLevelCategoryItem, IWizardFactory *factory);
     void saveState();
 
-    static bool m_isRunning;
+    static QWidget *m_currentDialog;
 
     Ui::NewDialog *m_ui;
     QStandardItemModel *m_model;

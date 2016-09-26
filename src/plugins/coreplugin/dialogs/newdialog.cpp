@@ -186,16 +186,16 @@ Q_DECLARE_METATYPE(WizardFactoryContainer)
 using namespace Core;
 using namespace Core::Internal;
 
-bool NewDialog::m_isRunning = false;
+QWidget *NewDialog::m_currentDialog = nullptr;
 
 NewDialog::NewDialog(QWidget *parent) :
     QDialog(parent),
     m_ui(new Ui::NewDialog),
     m_okButton(0)
 {
-    QTC_CHECK(!m_isRunning);
+    QTC_CHECK(m_currentDialog == nullptr);
 
-    m_isRunning = true;
+    m_currentDialog = this;
 
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setWindowFlags(windowFlags());
@@ -339,9 +339,9 @@ Id NewDialog::selectedPlatform() const
     return Id::fromSetting(m_ui->comboBox->itemData(index));
 }
 
-bool NewDialog::isRunning()
+QWidget *NewDialog::currentDialog()
 {
-    return m_isRunning;
+    return m_currentDialog;
 }
 
 bool NewDialog::event(QEvent *event)
@@ -358,8 +358,8 @@ bool NewDialog::event(QEvent *event)
 
 NewDialog::~NewDialog()
 {
-    QTC_CHECK(m_isRunning);
-    m_isRunning = false;
+    QTC_CHECK(m_currentDialog != nullptr);
+    m_currentDialog = nullptr;
 
     delete m_ui;
 }

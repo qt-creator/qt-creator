@@ -155,6 +155,7 @@ public:
 
     static QThreadPool *sharedThreadPool();
 
+    static void openNewProjectDialog();
     static void openOpenProjectDialog();
 
 signals:

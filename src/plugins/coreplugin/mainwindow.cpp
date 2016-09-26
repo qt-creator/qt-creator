@@ -513,11 +513,12 @@ void MainWindow::registerDefaultActions()
     cmd->setDefaultKeySequence(QKeySequence::New);
     mfile->addAction(cmd, Constants::G_FILE_NEW);
     connect(m_newAction, &QAction::triggered, this, [this]() {
-        ICore::showNewItemDialog(tr("New File or Project", "Title of dialog"),
-                                 IWizardFactory::allWizardFactories(), QString());
-    });
-    connect(ICore::instance(), &ICore::newItemDialogRunningChanged, m_newAction, [this]() {
-        m_newAction->setEnabled(!ICore::isNewItemDialogRunning());
+        if (!ICore::isNewItemDialogRunning()) {
+            ICore::showNewItemDialog(tr("New File or Project", "Title of dialog"),
+                                     IWizardFactory::allWizardFactories(), QString());
+        } else {
+            ICore::raiseWindow(ICore::newItemDialog());
+        }
     });
 
     // Open Action

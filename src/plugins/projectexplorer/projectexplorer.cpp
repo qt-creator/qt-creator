@@ -229,7 +229,6 @@ public:
     void handleUnloadProject();
     void unloadProjectContextMenu();
     void closeAllProjects();
-    void newProject();
     void showSessionManager();
     void updateSessionMenu();
     void setSession(QAction *action);
@@ -406,11 +405,6 @@ ProjectExplorerPlugin *ProjectExplorerPlugin::instance()
     return m_instance;
 }
 
-static void updateActions()
-{
-    dd->updateActions();
-}
-
 bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *error)
 {
     Q_UNUSED(error);
@@ -490,8 +484,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             dd, &ProjectExplorerPluginPrivate::startupProjectChanged);
     connect(sessionManager, &SessionManager::projectDisplayNameChanged,
             dd, &ProjectExplorerPluginPrivate::projectDisplayNameChanged);
-    connect(sessionManager, &SessionManager::dependencyChanged, updateActions);
-    connect(sessionManager, &SessionManager::sessionLoaded, updateActions);
+    connect(sessionManager, &SessionManager::dependencyChanged,
+            dd, &ProjectExplorerPluginPrivate::updateActions);
+    connect(sessionManager, &SessionManager::sessionLoaded,
+            dd, &ProjectExplorerPluginPrivate::updateActions);
     connect(sessionManager, &SessionManager::sessionLoaded,
             dd, &ProjectExplorerPluginPrivate::updateWelcomePage);
 
@@ -500,7 +496,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             dd, &ProjectExplorerPluginPrivate::updateContextMenuActions);
     connect(tree, &ProjectTree::currentNodeChanged,
             dd, &ProjectExplorerPluginPrivate::updateContextMenuActions);
-    connect(tree, &ProjectTree::currentProjectChanged, updateActions);
+    connect(tree, &ProjectTree::currentProjectChanged,
+            dd, &ProjectExplorerPluginPrivate::updateActions);
 
     addAutoReleasedObject(new CustomWizardMetaFactory<CustomProjectWizard>(IWizardFactory::ProjectWizard));
     addAutoReleasedObject(new CustomWizardMetaFactory<CustomWizard>(IWizardFactory::FileWizard));
@@ -1120,7 +1117,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(dd->m_sessionManagerAction, &QAction::triggered,
             dd, &ProjectExplorerPluginPrivate::showSessionManager);
     connect(dd->m_newAction, &QAction::triggered,
-            dd, &ProjectExplorerPluginPrivate::newProject);
+            dd, &ProjectExplorerPlugin::openNewProjectDialog);
     connect(dd->m_loadAction, &QAction::triggered,
             dd, &ProjectExplorerPluginPrivate::loadAction);
     connect(dd->m_buildProjectOnlyAction, &QAction::triggered,
@@ -1217,8 +1214,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(buildManager, &BuildManager::buildQueueFinished,
             dd, &ProjectExplorerPluginPrivate::buildQueueFinished, Qt::QueuedConnection);
 
-    connect(ICore::instance(), &ICore::newItemDialogRunningChanged, updateActions);
-    connect(ICore::instance(), &ICore::newItemDialogRunningChanged,
+    connect(ICore::instance(), &ICore::newItemDialogStateChanged,
             dd, &ProjectExplorerPluginPrivate::updateContextMenuActions);
 
     dd->updateWelcomePage();
@@ -1411,7 +1407,7 @@ void ProjectExplorerPlugin::unloadProject(Project *project)
     dd->addToRecentProjects(document->filePath().toString(), project->displayName());
 
     SessionManager::removeProject(project);
-    updateActions();
+    dd->updateActions();
 }
 
 void ProjectExplorerPluginPrivate::closeAllProjects()
@@ -1509,12 +1505,15 @@ ExtensionSystem::IPlugin::ShutdownFlag ProjectExplorerPlugin::aboutToShutdown()
     return AsynchronousShutdown;
 }
 
-void ProjectExplorerPluginPrivate::newProject()
+void ProjectExplorerPlugin::openNewProjectDialog()
 {
-    ICore::showNewItemDialog(tr("New Project", "Title of dialog"),
-                             Utils::filtered(IWizardFactory::allWizardFactories(),
-                                             [](IWizardFactory *f) { return !f->supportedProjectTypes().isEmpty(); }));
-    updateActions();
+    if (!ICore::isNewItemDialogRunning()) {
+        ICore::showNewItemDialog(tr("New Project", "Title of dialog"),
+                                 Utils::filtered(IWizardFactory::allWizardFactories(),
+                                 [](IWizardFactory *f) { return !f->supportedProjectTypes().isEmpty(); }));
+    } else {
+        ICore::raiseWindow(ICore::newItemDialog());
+    }
 }
 
 void ProjectExplorerPluginPrivate::showSessionManager()
@@ -1719,7 +1718,7 @@ ProjectExplorerPlugin::OpenProjectResult ProjectExplorerPlugin::openProjects(con
         if (fileNames.size() > 1)
             SessionManager::reportProjectLoadingProgress();
     }
-    updateActions();
+    dd->updateActions();
 
     bool switchToProjectsMode = Utils::anyOf(openedPro, &Project::needsConfiguration);
 
@@ -2039,8 +2038,6 @@ QString ProjectExplorerPlugin::directoryFor(Node *node)
 
 void ProjectExplorerPluginPrivate::updateActions()
 {
-    m_newAction->setEnabled(!ICore::isNewItemDialogRunning());
-
     Project *project = SessionManager::startupProject();
     Project *currentProject = ProjectTree::currentProject(); // for context menu actions
 

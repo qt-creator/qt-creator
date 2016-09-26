@@ -153,6 +153,7 @@ QList<IWizardFactory::FactoryCreator> s_factoryCreators;
 QAction *s_inspectWizardAction = 0;
 bool s_areFactoriesLoaded = false;
 bool s_isWizardRunning = false;
+QWidget *s_currentWizard = nullptr;
 
 // NewItemDialog reopening data:
 class NewItemDialogData
@@ -271,11 +272,12 @@ Utils::Wizard *IWizardFactory::runWizard(const QString &path, QWidget *parent, I
     QTC_ASSERT(!s_isWizardRunning, return 0);
 
     s_isWizardRunning = true;
-    ICore::validateNewItemDialogIsRunning();
+    ICore::updateNewItemDialogState();
 
     Utils::Wizard *wizard = runWizardImpl(path, parent, platform, variables);
 
     if (wizard) {
+        s_currentWizard = wizard;
         // Connect while wizard exists:
         connect(m_action, &QAction::triggered, wizard, [wizard]() { ICore::raiseWindow(wizard); });
         connect(s_inspectWizardAction, &QAction::triggered,
@@ -287,8 +289,9 @@ Utils::Wizard *IWizardFactory::runWizard(const QString &path, QWidget *parent, I
         });
         connect(wizard, &QObject::destroyed, this, [wizard]() {
             s_isWizardRunning = false;
+            s_currentWizard = nullptr;
             s_inspectWizardAction->setEnabled(false);
-            ICore::validateNewItemDialogIsRunning();
+            ICore::updateNewItemDialogState();
             s_reopenData.reopen();
         });
         s_inspectWizardAction->setEnabled(true);
@@ -296,7 +299,7 @@ Utils::Wizard *IWizardFactory::runWizard(const QString &path, QWidget *parent, I
         Core::ICore::registerWindow(wizard, Core::Context("Core.NewWizard"));
     } else {
         s_isWizardRunning = false;
-        ICore::validateNewItemDialogIsRunning();
+        ICore::updateNewItemDialogState();
         s_reopenData.reopen();
     }
     return wizard;
@@ -357,6 +360,11 @@ bool IWizardFactory::isWizardRunning()
     return s_isWizardRunning;
 }
 
+QWidget *IWizardFactory::currentWizard()
+{
+    return s_currentWizard;
+}
+
 void IWizardFactory::requestNewItemDialog(const QString &title,
                                           const QList<IWizardFactory *> &factories,
                                           const QString &defaultLocation,
@@ -413,7 +421,7 @@ void IWizardFactory::initialize()
     ActionManager::registerAction(resetAction, "Wizard.Factory.Reset");
 
     connect(resetAction, &QAction::triggered, &IWizardFactory::clearWizardFactories);
-    connect(ICore::instance(), &ICore::newItemDialogRunningChanged, resetAction,
+    connect(ICore::instance(), &ICore::newItemDialogStateChanged, resetAction,
             [resetAction]() { resetAction->setEnabled(!ICore::isNewItemDialogRunning()); });
 
     s_inspectWizardAction = new QAction(tr("Inspect Wizard State"), ActionManager::instance());

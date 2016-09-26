@@ -121,9 +121,7 @@ void ProjectWelcomePage::reloadWelcomeScreenData()
 
 void ProjectWelcomePage::newProject()
 {
-    Core::ICore::showNewItemDialog(tr("New Project"),
-                                   Utils::filtered(Core::IWizardFactory::allWizardFactories(),
-                                                   [](Core::IWizardFactory *f) { return !f->supportedProjectTypes().isEmpty(); }));
+    ProjectExplorerPlugin::openNewProjectDialog();
 }
 
 void ProjectWelcomePage::openProject()
