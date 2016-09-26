@@ -212,8 +212,7 @@ class Children:
         return True
 
 class PairedChildrenData:
-    def __init__(self, d, pairType, keyType, valueType, useKeyAndValue):
-        self.useKeyAndValue = useKeyAndValue
+    def __init__(self, d, pairType, keyType, valueType):
         self.pairType = pairType
         self.keyType = keyType
         self.valueType = valueType
@@ -228,7 +227,9 @@ class PairedChildren(Children):
             keyType = pairType[0].unqualified()
         if valueType is None:
             valueType = pairType[1]
-        d.pairData = PairedChildrenData(d, pairType, keyType, valueType, useKeyAndValue)
+        d.pairData = PairedChildrenData(d, pairType, keyType, valueType)
+        d.pairData.kname = "key" if useKeyAndValue else "first"
+        d.pairData.vname = "value" if useKeyAndValue else "second"
 
         Children.__init__(self, d, numChild,
             d.pairData.childType,
@@ -671,7 +672,10 @@ class DumperBase:
 
     def putIntItem(self, name, value):
         with SubItem(self, name):
-            self.putValue(value)
+            if isinstance(value, self.Value):
+                self.putValue(value.display())
+            else:
+                self.putValue(value)
             self.putType("int")
             self.putNumChild(0)
 
@@ -682,28 +686,23 @@ class DumperBase:
             self.putNumChild(0)
 
     def putPairItem(self, index, pair):
-        if isinstance(pair, tuple):
-            (first, second) = pair
-        elif self.pairData.useKeyAndValue:
-            (first, second) = (pair["key"], pair["value"])
-        else:
-            (first, second) = (pair["first"], pair["second"])
-
+        (first, second) = pair if isinstance(pair, tuple) else pair.members()
         with SubItem(self, index):
-            self.putNumChild(2)
             (keystr, keyenc, valstr, valenc) = (None, None, None, None)
             with Children(self):
-                with SubItem(self, "key"):
-                    self.putItem(first, True)
+                with SubItem(self, self.pairData.kname):
+                    self.putItem(first)
                     keystr = self.currentValue.value
                     keyenc = self.currentValue.encoding
-                with SubItem(self, "value"):
-                    self.putItem(second, True)
+                with SubItem(self, self.pairData.vname):
+                    self.putItem(second)
                     valstr = self.currentValue.value
                     valenc = self.currentValue.encoding
             if index is not None:
                 self.put('keyprefix="[%s] ",' % index)
-            self.put('keyencoded="%s",key="%s",' % (keyenc, keystr))
+            self.put('key="%s",' % keystr)
+            if keyenc is not None:
+                self.put('keyencoded="%s",' % keyenc)
             self.putValue(valstr, valenc)
 
     def putCallItem(self, name, rettype, value, func, *args):
@@ -713,9 +712,8 @@ class DumperBase:
             except Exception as error:
                 if self.passExceptions:
                     raise error
-                else:
-                    children = [('error', error)]
-                    self.putSpecialValue("notcallable", children=children)
+                children = [('error', error)]
+                self.putSpecialValue("notcallable", children=children)
             else:
                 self.putItem(result)
 
@@ -772,7 +770,7 @@ class DumperBase:
                     self.put('name="[%s]",' % field.name)
                     self.put('sortgroup="%s"' % (1000 - field.baseIndex))
                     self.putAddress(baseValue.address())
-                    self.putItem(baseValue, False)
+                    self.putItem(baseValue)
                 continue
 
             with SubItem(self, field.name):
@@ -1004,9 +1002,8 @@ class DumperBase:
 
     def putCStyleArray(self, value):
         arrayType = value.type.unqualified()
-        if self.isGdb and value.nativeValue is not None:
-            innerType = self.fromNativeType(value.nativeValue[0].type)
-        else:
+        innerType = arrayType.ltarget
+        if innerType is None:
             innerType = value.type.target()
         innerTypeName = innerType.unqualified().name
         address = value.address()
@@ -1332,22 +1329,22 @@ class DumperBase:
         #    warn("NO QOBJECT: %s" % value.type)
             pass
 
-    def couldBeQObject(self, objectPtr):
-        def canBePointer(p):
-            if self.ptrSize() == 4:
-                return p > 100000 and (p & 0x3 == 0)
-            else:
-                return p > 100000 and (p & 0x7 == 0) and (p < 0x7fffffffffff)
+    def canBePointer(self, p):
+        if self.ptrSize() == 4:
+            return p > 100000 and (p & 0x3 == 0)
+        else:
+            return p > 100000 and (p & 0x7 == 0) and (p < 0x7fffffffffff)
 
+    def couldBeQObject(self, objectPtr):
         try:
             (vtablePtr, dd) = self.split('pp', objectPtr)
         except:
             self.bump("nostruct-1")
             return False
-        if not canBePointer(vtablePtr):
+        if not self.canBePointer(vtablePtr):
             self.bump("vtable")
             return False
-        if not canBePointer(dd):
+        if not self.canBePointer(dd):
             self.bump("d_d_ptr")
             return False
 
@@ -1358,7 +1355,7 @@ class DumperBase:
             self.bump("nostruct-2")
             return False
         #warn("STRUCT DD: %s 0x%x" % (self.currentIName, qptr))
-        if not canBePointer(dvtablePtr):
+        if not self.canBePointer(dvtablePtr):
             self.bump("dvtable")
             #warn("DVT: 0x%x" % dvtablePtr)
             return False
@@ -1367,11 +1364,11 @@ class DumperBase:
             #warn("QPTR: 0x%x 0x%x" % (qptr, objectPtr))
             self.bump("q_ptr")
             return False
-        if parentPtr and not canBePointer(parentPtr):
+        if parentPtr and not self.canBePointer(parentPtr):
             #warn("PAREN")
             self.bump("parent")
             return False
-        if not canBePointer(childrenDPtr):
+        if not self.canBePointer(childrenDPtr):
             #warn("CHILD")
             self.bump("children")
             return False
@@ -1380,7 +1377,7 @@ class DumperBase:
         #    self.bump("flags")
         #    return False
         #warn("OK")
-        #if dynMetaObjectPtr and not canBePointer(dynMetaObjectPtr):
+        #if dynMetaObjectPtr and not self.canBePointer(dynMetaObjectPtr):
         #    self.bump("dynmo")
         #    return False
 
@@ -1926,13 +1923,13 @@ class DumperBase:
             displayFormat = self.typeformats.get(needle, AutomaticFormat)
         return displayFormat
 
-    def putSubItem(self, component, value, tryDynamic=True):
+    def putSubItem(self, component, value):
         if not isinstance(value, self.Value):
             error("WRONG VALUE TYPE IN putSubItem: %s" % type(value))
         if not isinstance(value.type, self.Type):
             error("WRONG TYPE TYPE IN putSubItem: %s" % type(value.type))
         with SubItem(self, component):
-            self.putItem(value, tryDynamic)
+            self.putItem(value)
 
     def putArrayData(self, base, n, innerType, childNumChild = None, maxNumChild = 10000):
         self.checkIntType(base)
@@ -2431,20 +2428,17 @@ class DumperBase:
                 return True
         return False
 
-    def putItem(self, value, tryDynamic=True):
+    def putItem(self, value):
         #warn("ITEM: %s" % value.stringify())
 
         typeobj = value.type #unqualified()
         typeName = typeobj.name
 
-        tryDynamic &= self.useDynamicType
         self.addToCache(typeobj) # Fill type cache
-        if tryDynamic:
-            self.putAddress(value.address())
+        self.putAddress(value.address())
 
-        if not value.isInScope():
+        if not value.lIsInScope:
             self.putSpecialValue("optimizedout")
-            #self.putValue("optimizedout: %s" % value.nativeValue)
             #self.putType(typeobj)
             #self.putSpecialValue('outofscope')
             self.putNumChild(0)
@@ -2500,50 +2494,13 @@ class DumperBase:
             return
 
         if typeobj.code == TypeCodeReference:
-            try:
-                # Try to recognize null references explicitly.
-                if value.address() is 0:
-                    self.putSpecialValue("nullreference")
-                    self.putNumChild(0)
-                    self.putType(typeobj)
-                    return
-            except:
-                pass
-
             if self.isLldb:
-                targetType = value.type.target()
-                item = value.cast(targetType.pointer()).dereference()
-                self.putItem(item)
-                self.putBetterType(value.type.name)
-                return
-
+                item = value.cast(typeobj.target().pointer()).dereference()
             else:
-                if tryDynamic:
-                    try:
-                        # Dynamic references are not supported by gdb, see
-                        # http://sourceware.org/bugzilla/show_bug.cgi?id=14077.
-                        # Find the dynamic type manually using referenced_type.
-                        val = value.referenced_value()
-                        val = val.cast(val.dynamic_type)
-                        self.putItem(val)
-                        self.putBetterType("%s &" % typeobj)
-                        return
-                    except:
-                        pass
-
-                try:
-                    # FIXME: This throws "RuntimeError: Attempt to dereference a
-                    # generic pointer." with MinGW's gcc 4.5 when it "identifies"
-                    # a "QWidget &" as "void &" and with optimized out code.
-                    self.putItem(value.cast(typeobj.target().unqualified()))
-                    self.putBetterType("%s &" % self.currentType.value)
-                    return
-                except Exception as error:
-                    self.putSpecialValue("optimizedout")
-                    #self.putValue("optimizedout: %s" % error)
-                    self.putType(typeobj)
-                    self.putNumChild(0)
-                    return
+                item = value.cast(typeobj.target().unqualified())
+            self.putItem(item)
+            self.putBetterType(typeobj.name)
+            return
 
         if typeobj.code == TypeCodeComplex:
             self.putType(typeobj)
@@ -2625,8 +2582,8 @@ class DumperBase:
             self.type = None
             self.ldata = None
             self.laddress = None
-            self.nativeValue = None
             self.lIsInScope = True
+            self.ldisplay = None
 
         def check(self):
             if self.laddress is not None and not self.dumper.isInt(self.laddress):
@@ -2639,11 +2596,9 @@ class DumperBase:
             return self.stringify()
 
         def stringify(self):
-            self.check()
             addr = "None" if self.laddress is None else ("0x%x" % self.laddress)
-            return "Value(name='%s',type=%s,data=%s,address=%s,nativeValue=%s)" \
-                    % (self.name, self.type.stringify(), self.dumper.hexencode(self.ldata),
-                        addr, self.nativeValue)
+            return "Value(name='%s',type=%s,data=%s,address=%s)" \
+                    % (self.name, self.type.stringify(), self.dumper.hexencode(self.ldata), addr)
 
         def display(self):
             if self.type.code == TypeCodeEnum:
@@ -2651,21 +2606,14 @@ class DumperBase:
             simple = self.value()
             if simple is not None:
                 return str(simple)
-            if self.type.code == TypeCodeComplex:
-                if self.nativeValue is not None:
-                    if self.dumper.isLldb:
-                        return str(self.nativeValue.GetValue())
-                    else:
-                        return str( self.nativeValue)
-            if self.nativeValue is not None:
-                return str(self.nativeValue)
-                #return "Value(nativeValue=%s)" % self.nativeValue
-            if self.ldata is not None:
-                if sys.version_info[0] == 2 and isinstance(self.ldata, buffer):
-                    return bytes(self.data).encode("hex")
-                return self.data.encode("hex")
+            if self.ldisplay is not None:
+                return self.ldisplay
+            #if self.ldata is not None:
+            #    if sys.version_info[0] == 2 and isinstance(self.ldata, buffer):
+            #        return bytes(self.ldata).encode("hex")
+            #    return self.ldata.encode("hex")
             if self.laddress is not None:
-                return "value of type %s at address 0x%x" % (self.type, self.laddress)
+                return "value of type %s at address 0x%x" % (self.type.name, self.laddress)
             return "<unknown data>"
 
         def simpleDisplay(self, showAddress=True):
@@ -2741,66 +2689,52 @@ class DumperBase:
             return self.extractField(field)
 
         def extractField(self, field):
-            #warn("PARENT BASE 0x%x" % self.address())
-            if self.type.code == TypeCodeTypedef:
-                error("WRONG")
+            self.dumper.check(self.type.code != TypeCodeTypedef)
             if not isinstance(field, self.dumper.Field):
                 error("BAD INDEX TYPE %s" % type(field))
 
-            val = None
-            if self.nativeValue is not None:
-                #warn("NATIVE, FIELD TYPE: %s " % field)
-                val = self.dumper.nativeValueChildFromField(self.nativeValue, field)
-                #warn("BAD INDEX XX VAL: %s TYPE: %s INDEX TYPE: %s "
-                #    % (self, self.type, type(field)))
-
             #warn("FIELD: %s " % field)
-            fieldType = field.fieldType()
             fieldBitsize = field.bitsize()
             fieldSize = None if fieldBitsize is None else fieldBitsize >> 3
-            #warn("BITPOS %s BITSIZE: %s" % (fieldBitpos, fieldBitsize))
+            fieldBitpos = field.bitpos()
+            fieldOffset = fieldBitpos >> 3
+            fieldBitpos -= fieldOffset * 8
 
-            if val is None:
-                val = self.dumper.Value(self.dumper)
-                val.type = fieldType
-                val.name = field.name
+            val = self.dumper.Value(self.dumper)
+            val.name = field.name
 
-                if self.laddress is not None:
-                    #warn("ADDRESS")
-                    fieldBitpos = field.bitpos()
-                    fieldOffset = None if fieldBitpos is None else fieldBitpos >> 3
-                    if  fieldBitpos is not None:
-                        #warn("BITPOS: %s" % fieldBitpos)
-                        val.laddress = self.laddress + fieldOffset
-                    else:
-                        error("NO IDEA 1")
-                elif len(self.ldata) > 0:
-                    #warn("DATA")
-                    fieldBitpos = field.bitpos()
-                    fieldOffset = None if fieldBitpos is None else fieldBitpos >> 3
-                    if fieldBitpos is not None:
-                        val.ldata = self.ldata[fieldOffset:fieldOffset + fieldSize]
-                    else:
-                        error("NO IDEA 2")
-                else:
-                    error("NO IDEA 3")
+            if self.laddress is not None:
+                val.laddress = self.laddress + fieldOffset
+            elif self.ldata is not None:
+                val.ldata = self.ldata[fieldOffset:fieldOffset + fieldSize]
+            else:
+                self.dumper.check(False)
 
-            #warn("BITPOS %s BITSIZE: %s" % (fieldBitpos, fieldBitsize))
             if fieldBitsize is not None and fieldBitsize % 8 != 0:
-                fieldBitpos = field.bitpos()
-                #warn("CORRECTING: FITPOS %s BITSIZE: %s" % (fieldBitpos, fieldBitsize))
-                typeobj = fieldType
-                typeobj.lbitsize = fieldBitsize
                 data = val.extractInteger(fieldBitsize, True)
-                data = data >> (fieldBitpos & 3)
+                data = data >> fieldBitpos
                 data = data & ((1 << fieldBitsize) - 1)
                 val.laddress = None
                 val.ldata = bytes(struct.pack('Q', data))
-                val.type = typeobj
+
+            val.type = None
+            fieldType = field.fieldType()
+            if val.laddress is not None and fieldType is not None:
+                if fieldType.code in (TypeCodePointer, TypeCodeReference):
+                    baseType = fieldType.dereference()
+                    address = self.dumper.extractPointer(val.laddress)
+                    dynTypeName = self.dumper.dynamicTypeName(baseType, address)
+                    if dynTypeName is not None:
+                        if fieldType.code == TypeCodePointer:
+                            val.type = self.dumper.createType(dynTypeName + '*')
+                        else:
+                            val.type = self.dumper.createType(dynTypeName + ' &')
+            if val.type is None:
+                val.type = fieldType
 
             #warn("GOT VAL %s FOR FIELD %s" % (val, field))
             val.check()
-            val.lbitsize = field.bitsize()
+            val.lbitsize = fieldBitsize
             return val
 
         def members(self):
@@ -2813,37 +2747,25 @@ class DumperBase:
         def __add__(self, other):
             self.check()
             if self.dumper.isInt(other):
-                #warn("OTHER INT: %s" % other)
-                if self.nativeValue is not None:
-                    #warn("OTHER NATIVE: %s" % self.nativeValue)
-                    #warn("OTHER RESULT 1: %s" % (self.nativeValue + other))
-                    res = self.dumper.fromNativeValue(self.nativeValue + other)
-                    #warn("OTHER RESULT 2: %s" % (self.nativeValue + other))
-                    #warn("OTHER COOKED: 0x%x" % res.pointer())
-                    #warn("OTHER COOKED X: 0x%x" % res.nativeValue)
-                    return res
+                stripped = self.type.stripTypedefs()
+                if stripped.code == TypeCodePointer:
+                    address = self.pointer() + stripped.dereference().size()
+                    val = self.dumper.Value(self.dumper)
+                    val.laddress = None
+                    val.ldata = bytes(struct.pack('Q', address))
+                    val.type = self.type
+                    return val
             error("BAD DATA TO ADD TO: %s %s" % (self.type, other))
 
         def dereference(self):
             self.check()
-            if self.nativeValue is not None:
-                res = self.dumper.nativeValueDereference(self.nativeValue)
-                if res is not None:
-                    return res
-            if self.laddress is not None:
-                val = self.dumper.Value(self.dumper)
-                val.type = self.type.dereference()
-                #val.ldata = bytes(self.dumper.readRawMemory(self.laddress, val.type.size()))
-                #val.laddress = self.dumper.extractPointer(self.laddress)
-                #val.ldata = bytes(self.data(self.dumper.ptrSize()))
-                #val.laddress = self.__int__()
-                bitsize = self.dumper.ptrSize() * 8
-                val.laddress = self.integer()
-                #warn("DEREFERENCING %s AT 0x%x -- %s TO %s AT 0x%x --- %s" %
-                #    (self.type, self.laddress, self.dumper.hexencode(self.data),
-                #    val.type, val.laddress, self.dumper.hexencode(val.data)))
-                return val
-            error("BAD DATA TO DEREFERENCE: %s %s" % (self.type, type(self)))
+            val = self.dumper.Value(self.dumper)
+            val.type = self.type.dereference()
+            val.laddress = self.pointer()
+            dynTypeName = self.dumper.dynamicTypeName(val.type, val.laddress)
+            if dynTypeName is not None:
+                val.type = self.dumper.createType(dynTypeName)
+            return val
 
         def extend(self, size):
             if self.type.size() < size:
@@ -2860,27 +2782,15 @@ class DumperBase:
 
         def cast(self, typish):
             self.check()
-            typeobj = self.dumper.createType(typish)
-            if self.nativeValue is not None and typeobj.nativeType is not None:
-                res = self.dumper.nativeValueCast(self.nativeValue, typeobj.nativeType)
-                if res is not None:
-                    return res
-                #error("BAD NATIVE DATA TO CAST: %s %s" % (self.type, typeobj))
             val = self.dumper.Value(self.dumper)
             val.laddress = self.laddress
             val.ldata = self.ldata
-            val.type = typeobj
-            #warn("CAST %s %s" % (self.type.stringify(), typeobj.stringify()))
+            val.type = self.dumper.createType(typish)
             return val
 
         def downcast(self):
             self.check()
-            if self.nativeValue is not None:
-                return self.dumper.nativeValueDownCast(self.nativeValue)
             return self
-
-        def isInScope(self):
-            return self.lIsInScope
 
         def address(self):
             self.check()
@@ -2896,38 +2806,28 @@ class DumperBase:
                         return self.ldata
                     if size < len(self.ldata):
                         return self.ldata[:size]
-                    error("DATA PRESENT, BUT NOT BIG ENOUGH: %s WANT: %s"
-                        % (self.stringify(), size))
             if self.laddress is not None:
                 if size is None:
                     size = self.type.size()
                 res = self.dumper.readRawMemory(self.laddress, size)
                 if len(res) > 0:
                     return res
-            if self.nativeValue is not None:
-                if size is None:
-                    size = self.type.size()
-                res = self.dumper.nativeValueAsBytes(self.nativeValue, size)
-                if len(res) > 0:
-                    return res
-                return res
             error("CANNOT CONVERT TO BYTES: %s" % self)
 
         def extractInteger(self, bitsize, unsigned):
             self.check()
-            size = (bitsize + 7) >> 3
-            if size == 8:
+            if bitsize > 32:
+                size = 8
                 code = "Q" if unsigned else "q"
-            elif size == 4:
+            elif bitsize > 16:
+                size = 4
                 code = "I" if unsigned else "i"
-            elif size == 2:
+            elif bitsize > 8:
+                size = 2
                 code = "H" if unsigned else "h"
-            elif size == 1:
-                code = "B" if unsigned else "b"
             else:
-                code = None
-            if code is None:
-                return None
+                size = 1
+                code = "B" if unsigned else "b"
             rawBytes = self.data(size)
             try:
                 return struct.unpack_from(code, rawBytes, 0)[0]
@@ -2971,6 +2871,18 @@ class DumperBase:
         ptr = p if self.isInt(p) else p.pointer()
         self.readRawMemory(ptr, 1)
 
+    def dynamicTypeName(self, baseType, address):
+        if baseType.code != TypeCodeStruct:
+            return None
+        try:
+            vtbl = self.extractPointer(address)
+        except:
+            return None
+        #warn("VTBL: 0x%x" % vtbl)
+        if not self.canBePointer(vtbl):
+            return None
+        return self.nativeDynamicTypeName(address, baseType)
+
     class Type:
         def __init__(self, dumper):
             self.dumper = dumper
@@ -2979,6 +2891,7 @@ class DumperBase:
             self.lfields = None
             self.lbitsize = None
             self.lbitpos = None
+            self.ltarget = None # Inner type for arrays
             self.templateArguments = None
             self.code = None
 
@@ -3206,7 +3119,9 @@ class DumperBase:
         def __str__(self):
             return ("Field(name='%s',ltype=%s,parentType=%s,bpos=%s,bsize=%s,"
                      + "bidx=%s,nidx=%s)") \
-                    % (self.name, self.ltype, self.parentType,
+                    % (self.name,
+                       None if self.ltype is None else self.ltype.name,
+                       None if self.parentType is None else self.parentType.name,
                        self.lbitpos, self.lbitsize,
                        self.baseIndex, self.nativeIndex)
 
@@ -3294,32 +3209,22 @@ class DumperBase:
             #warn("CREATE TYPE: %s" % typeobj)
             typeobj.check()
             return typeobj
-        if self.isInt(typish):
-            # Assume it is an typecode, create an "anonymous" Type
-            typeobj = self.Type(self)
-            typeobj.code = typish
-            typeobj.lbitsize = 8 * size
-            typeobj.name = ' '
-            return typeobj
         error("NEED TYPE, NOT %s" % type(typish))
 
     def createValue(self, datish, typish):
+        val = self.Value(self)
+        val.type = self.createType(typish)
         if self.isInt(datish):  # Used as address.
-            #warn("CREATING %s AT 0x%x" % (typish, address))
-            val = self.Value(self)
             val.laddress = datish
-            val.type = self.createType(typish)
-            val.check()
-            return val
-        if isinstance(datish, bytes):
-            #warn("CREATING %s WITH DATA %s" % (typish, self.hexencode(datish)))
-            val = self.Value(self)
+            #warn("CREATING %s AT 0x%x" % (val.type.name, address))
+        elif isinstance(datish, bytes):
             val.ldata = datish
-            val.type = self.createType(typish)
             val.type.lbitsize = 8 * len(datish)
-            val.check()
-            return val
-        error("EXPECTING ADDRESS OR BYTES, GOT %s" % type(datish))
+            #warn("CREATING %s WITH DATA %s" % (val.type.name, self.hexencode(datish)))
+        else:
+            error("EXPECTING ADDRESS OR BYTES, GOT %s" % type(datish))
+        val.check()
+        return val
 
     def createListItem(self, data, innerTypish):
         innerType = self.createType(innerTypish)

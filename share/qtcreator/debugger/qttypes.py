@@ -887,11 +887,11 @@ def qdump__QLocale(d, value):
     #d.check(index <= qqLocalesCount)
     dd = value.extractPointer()
     ns = d.qtNamespace()
-    (data, ref, numberOptions) = d.split("pi{int}", dd)
+    (data, ref, numberOptions) = d.split("pi4s", dd)
     (languageId, scriptId, countryId,
                   decimal, group, listt, percent, zero,
                   minus, plus, exponential) \
-        = d.split('{short}{short}{QChar}'
+        = d.split('2s{short}2s'
                 + '{QChar}{QChar}{short}{QChar}{QChar}'
                 + '{QChar}{QChar}{QChar}', data)
     d.putStringValue(d.call("const char *", value, "name"))
@@ -899,9 +899,9 @@ def qdump__QLocale(d, value):
     if d.isExpanded():
         with Children(d):
             prefix = ns + "QLocale::"
-            d.putSubItem("country", countryId.extend(4).cast(prefix + "Country"))
-            d.putSubItem("language", languageId.extend(4).cast(prefix + "Language"))
-            d.putSubItem("numberOptions", numberOptions.cast(prefix + "NumberOptions"))
+            d.putSubItem("country", d.createValue(countryId, prefix + "Country"))
+            d.putSubItem("language", d.createValue(languageId, prefix + "Language"))
+            d.putSubItem("numberOptions", d.createValue(numberOptions, prefix + "NumberOptions"))
             d.putSubItem("decimalPoint", decimal)
             d.putSubItem("exponential", exponential)
             d.putSubItem("percent", percent)
@@ -1189,7 +1189,7 @@ def qdump__QSet(d, value):
                     typeCode = 'Pi@{%s}' % keyType.name
                     (pnext, hashval, padding1, key) = d.split(typeCode, node)
                 with SubItem(d, i):
-                    d.putItem(key, i)
+                    d.putItem(key)
                 node = hashDataNextNode(node)
 
 

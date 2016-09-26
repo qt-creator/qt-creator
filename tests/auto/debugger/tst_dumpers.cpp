@@ -4106,34 +4106,34 @@ void tst_Dumpers::dumper_data()
                + CoreProfile()
 
                + Check("map1", "<3 items>", "std::map<@QString, Foo>")
-               + Check("map1.0", "[0]", "", "std::pair<@QString const, Foo>")
+               + Check("map1.0", "[0] \"22.0\"", "", "std::pair<@QString const, Foo>")
                + Check("map1.0.first", "\"22.0\"", "@QString")
                + Check("map1.0.second", "", "Foo")
                + Check("map1.0.second.a", "22", "int")
-               + Check("map1.1", "[1]", "", "std::pair<@QString const, Foo>")
+               + Check("map1.1", "[1] \"33.0\"", "", "std::pair<@QString const, Foo>")
                + Check("map1.2.first", "\"44.0\"", "@QString")
                + Check("map1.2.second", "", "Foo")
                + Check("map1.2.second.a", "44", "int")
 
                + Check("map2", "<2 items>", "std::map<char const*, Foo>")
-               + Check("map2.0", "[0]", "", "std::pair<char const* const, Foo>")
+               + Check("map2.0", "[0] \"22.0\"", "", "std::pair<char const* const, Foo>")
                + CheckType("map2.0.first", "char *")
 // FIXME
                //+ Check("map2.0.first.0", "50", "char")
                + Check("map2.0.second", "", "Foo")
                + Check("map2.0.second.a", "22", "int")
-               + Check("map2.1", "[1]", "", "std::pair<char const* const, Foo>")
+               + Check("map2.1", "[1] \"33.0\"", "", "std::pair<char const* const, Foo>")
                + CheckType("map2.1.first", "char *")
                //+ Check("map2.1.first.*first", "51 '3'", "char")
                + Check("map2.1.second", "", "Foo")
                + Check("map2.1.second.a", "33", "int")
 
                + Check("map3", "<2 items>", "std::map<unsigned int, @QStringList>")
-               + Check("map3.0", "[0]", "", "std::pair<unsigned int const, @QStringList>")
+               + Check("map3.0", "[0] 11", "<1 items>", "std::pair<unsigned int const, @QStringList>")
                + Check("map3.0.first", "11", "unsigned int")
                + Check("map3.0.second", "<1 items>", "@QStringList")
                + Check("map3.0.second.0", "[0]", "\"11\"", "@QString")
-               + Check("map3.1", "[1]", "", "std::pair<unsigned int const, @QStringList>")
+               + Check("map3.1", "[1] 22", "<1 items>", "std::pair<unsigned int const, @QStringList>")
                + Check("map3.1.first", "22", "unsigned int")
                + Check("map3.1.second", "<1 items>", "@QStringList")
                + Check("map3.1.second.0", "[0]", "\"22\"", "@QString")
@@ -4141,26 +4141,26 @@ void tst_Dumpers::dumper_data()
                + Check("map4.1.second.0", "[0]", "\"22\"", "@QString")
 
                + Check("map5", "<2 items>", "std::map<@QString, float>")
-               + Check("map5.0", "[0]", "", "std::pair<@QString const, float>")
+               + Check("map5.0", "[0] \"11.0\"", FloatValue("11"), "std::pair<@QString const, float>")
                + Check("map5.0.first", "\"11.0\"", "@QString")
                + Check("map5.0.second", FloatValue("11"), "float")
-               + Check("map5.1", "[1]", "", "std::pair<@QString const, float>")
+               + Check("map5.1", "[1] \"22.0\"", FloatValue("22"), "std::pair<@QString const, float>")
                + Check("map5.1.first", "\"22.0\"", "@QString")
                + Check("map5.1.second", FloatValue("22"), "float")
 
                + Check("map6", "<2 items>", "std::map<int, @QString>")
-               + Check("map6.0", "[0]", "", "std::pair<int const, @QString>")
+               + Check("map6.0", "[0] 11", "\"11.0\"", "std::pair<int const, @QString>")
                + Check("map6.0.first", "11", "int")
                + Check("map6.0.second", "\"11.0\"", "@QString")
-               + Check("map6.1", "[1]", "", "std::pair<int const, @QString>")
+               + Check("map6.1", "[1] 22", "\"22.0\"", "std::pair<int const, @QString>")
                + Check("map6.1.first", "22", "int")
                + Check("map6.1.second", "\"22.0\"", "@QString")
 
                + Check("map7", "<3 items>", "std::map<@QString, @QPointer<@QObject>>")
-               + Check("map7.0", "[0]", "", "std::pair<@QString const, @QPointer<@QObject>>")
+               + Check("map7.0", "[0] \".\"", "", "std::pair<@QString const, @QPointer<@QObject>>")
                + Check("map7.0.first", "\".\"", "@QString")
                + Check("map7.0.second", "", "@QPointer<@QObject>")
-               + Check("map7.2", "[2]", "", "std::pair<@QString const, @QPointer<@QObject>>")
+               + Check("map7.2", "[2] \"Welt\"", "", "std::pair<@QString const, @QPointer<@QObject>>")
                + Check("map7.2.first", "\"Welt\"", "@QString");
 
 
@@ -4948,9 +4948,10 @@ void tst_Dumpers::dumper_data()
     QTest::newRow("Bitfields")
             << Data("struct S\n"
                     "{\n"
-                    "    S() : x(2), y(3), c(1), b(0), f(5), d(6), i(7) {}\n"
+                    "    S() : x(2), y(3), z(39), c(1), b(0), f(5), d(6), i(7) {}\n"
                     "    unsigned int x : 3;\n"
                     "    unsigned int y : 4;\n"
+                    "    unsigned int z : 18;\n"
                     "    bool c : 1;\n"
                     "    bool b;\n"
                     "    float f;\n"
@@ -4966,7 +4967,8 @@ void tst_Dumpers::dumper_data()
                + Check("s.d", FloatValue("6"), "double")
                + Check("s.i", "7", "int")
                + Check("s.x", "2", "unsigned int")
-               + Check("s.y", "3", "unsigned int");
+               + Check("s.y", "3", "unsigned int")
+               + Check("s.z", "39", "unsigned int");
 
 
     QTest::newRow("Function")

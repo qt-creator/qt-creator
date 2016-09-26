@@ -248,13 +248,32 @@ class Dumper(DumperBase):
         return self.fromNativeValue(nativeValue)
 
     def fromNativeValue(self, nativeValue):
-        #self.check(isinstance(nativeType, gdb.Value))
+        #self.check(isinstance(nativeValue, gdb.Value))
+        nativeType = nativeValue.type
         val = self.Value(self)
-        val.nativeValue = nativeValue
         if not nativeValue.address is None:
             val.laddress = toInteger(nativeValue.address)
-        val.type = self.fromNativeType(nativeValue.type)
+        else:
+            size = nativeType.sizeof
+            chars = self.lookupNativeType("unsigned char")
+            y = nativeValue.cast(chars.array(0, int(nativeType.sizeof - 1)))
+            buf = bytearray(struct.pack('x' * size))
+            for i in range(size):
+                buf[i] = int(y[i])
+            val.ldata = bytes(buf)
+
+        val.type = self.fromNativeType(nativeType)
         val.lIsInScope = not nativeValue.is_optimized_out
+        code = nativeType.code
+        if code == gdb.TYPE_CODE_ENUM:
+            val.ldisplay = str(nativeValue)
+            intval = int(nativeValue)
+            if val.ldisplay != intval:
+                val.ldisplay += ' (%s)' % intval
+        elif code == gdb.TYPE_CODE_COMPLEX:
+            val.ldisplay = str(nativeValue)
+        elif code == gdb.TYPE_CODE_ARRAY:
+            val.type.ltarget = nativeValue[0].type.unqualified()
         return val
 
     def fromNativeType(self, nativeType):
@@ -284,18 +303,6 @@ class Dumper(DumperBase):
             gdb.TYPE_CODE_STRING : TypeCodeFortranString,
         }[nativeType.code]
         return typeobj
-
-    def nativeValueDereference(self, nativeValue):
-        return self.nativeValueDownCast(nativeValue.dereference())
-
-    def nativeValueCast(self, nativeValue, nativeType):
-        try:
-            return self.fromNativeValue(nativeValue.cast(nativeType))
-        except:
-            return None
-
-    def nativeValueAddressOf(self, nativeValue):
-        return toInteger(nativeValue.address)
 
     def nativeTypeDereference(self, nativeType):
         return self.fromNativeType(nativeType.strip_typedefs().target())
@@ -401,25 +408,6 @@ class Dumper(DumperBase):
         while typeobj.code == gdb.TYPE_CODE_TYPEDEF:
             typeobj = typeobj.strip_typedefs().unqualified()
         return self.fromNativeType(typeobj)
-
-    def nativeValueChildFromField(self, nativeValue, field):
-        #warn("EXTRACTING: %s FROM %s" % (field, nativeValue))
-        if field.nativeIndex is not None:
-            nativeField = nativeValue.type.fields()[field.nativeIndex]
-            #warn("NATIVE FIELD: %s" % nativeField)
-            if nativeField.is_base_class:
-                return self.fromNativeValue(nativeValue.cast(nativeField.type))
-            try:
-                # Fails with GDB 7.5.
-                return self.nativeValueDownCast(nativeValue[nativeField])
-            except:
-                # The generic handling is almost good enough, but does not
-                # downcast the produced values.
-                return None
-        if field.name is not None:
-            return self.nativeValueDownCast(nativeValue[field.name])
-        error("FIELD EXTARCTION FAILED: %s" % field)
-        return None
 
     def listOfLocals(self, partialVar):
         frame = gdb.selected_frame()
@@ -570,20 +558,6 @@ class Dumper(DumperBase):
             else:
                 return None
         return self.fromNativeValue(val)
-
-    def nativeValueAsBytes(self, nativeValue, size):
-        # Assume it's a (backend specific) Value.
-        if nativeValue.address:
-            return self.readRawMemory(nativeValue.address, size)
-        # No address. Possibly the result of an inferior call.
-        # Note: Only a cast to unsigned char[sizeof(origtype)] succeeds
-        # in this situation in gdb.
-        chars = self.lookupNativeType("unsigned char")
-        y = nativeValue.cast(chars.array(0, int(nativeValue.type.sizeof - 1)))
-        buf = bytearray(struct.pack('x' * size))
-        for i in range(size):
-            buf[i] = int(y[i])
-        return bytes(buf)
 
     def callHelper(self, rettype, value, function, args):
         # args is a tuple.
@@ -963,47 +937,16 @@ class Dumper(DumperBase):
             cmd = "set variable (%s)=%s" % (expr, value)
             gdb.execute(cmd)
 
-    def hasVTable(self, typeobj):
-        fields = typeobj.fields()
-        if len(fields) == 0:
-            return False
-        if fields[0].isBaseClass:
-            return hasVTable(fields[0].type)
-        return str(fields[0].type) ==  "int (**)(void)"
-
-    def dynamicTypeName(self, value):
-        if self.hasVTable(value.type):
-            #vtbl = str(gdb.parse_and_eval("{int(*)(int)}%s" % int(value.address)))
-            try:
-                # Fails on 7.1 due to the missing to_string.
-                vtbl = gdb.execute("info symbol {int*}%s" % int(value.address),
-                    to_string = True)
-                pos1 = vtbl.find("vtable ")
-                if pos1 != -1:
-                    pos1 += 11
-                    pos2 = vtbl.find(" +", pos1)
-                    if pos2 != -1:
-                        return vtbl[pos1 : pos2]
-            except:
-                pass
-        return str(value.type)
-
-    def nativeValueDownCast(self, nativeValue):
-        try:
-            return self.fromNativeValue(nativeValue.cast(nativeValue.dynamic_type))
-        except:
-            return self.fromNativeValue(nativeValue)
-
-    def expensiveDowncast(self, value):
-        try:
-            return value.cast(value.dynamic_type)
-        except:
-            pass
-        try:
-            return value.cast(self.lookupType(self.dynamicTypeName(value)))
-        except:
-            pass
-        return value
+    def nativeDynamicTypeName(self, address, baseType):
+        vtbl = gdb.execute("info symbol {%s*}0x%x" % (baseType.name, address), to_string = True)
+        pos1 = vtbl.find("vtable ")
+        if pos1 == -1:
+            return None
+        pos1 += 11
+        pos2 = vtbl.find(" +", pos1)
+        if pos2 == -1:
+            return None
+        return vtbl[pos1 : pos2]
 
     def enumExpression(self, enumType, enumValue):
         return self.qtNamespace() + "Qt::" + enumValue

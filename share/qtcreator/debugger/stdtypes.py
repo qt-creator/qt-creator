@@ -227,12 +227,11 @@ def qdump__std__map(d, value):
         pairPointer = pairType.pointer()
         with PairedChildren(d, size, pairType=pairType, maxNumChild=1000):
             node = impl["_M_header"]["_M_left"]
-            typeCode = "p@{%s}@{%s}" % (pairType[0].name, pairType[1].name)
+            nodeSize = node.dereference().type.size()
+            typeCode = "@{%s}@{%s}" % (pairType[0].name, pairType[1].name)
             for i in d.childRange():
-                pair = (node + 1).cast(pairPointer).dereference()
-                d.putPairItem(i, pair)
-                #(pp, pad1, key, pad2, value) = d.split(typeCode, node.integer())
-                #d.putPairItem(i, (key, value))
+                (pad1, key, pad2, value) = d.split(typeCode, node.pointer() + nodeSize)
+                d.putPairItem(i, (key, value))
                 if node["_M_right"].integer() == 0:
                     parent = node["_M_parent"]
                     while True:
@@ -384,9 +383,12 @@ def qdump__std__set(d, value):
     if d.isExpanded():
         valueType = value.type[0]
         node = impl["_M_header"]["_M_left"]
+        nodeSize = node.dereference().type.size()
+        typeCode = "@{%s}" % valueType.name
         with Children(d, size, maxNumChild=1000, childType=valueType):
             for i in d.childRange():
-                d.putSubItem(i, (node + 1).cast(valueType.pointer()).dereference())
+                (pad, val) = d.split(typeCode, node.pointer() + nodeSize)
+                d.putSubItem(i, val)
                 if node["_M_right"].integer() == 0:
                     parent = node["_M_parent"]
                     while node == parent["_M_right"]:

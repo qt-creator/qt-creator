@@ -57,20 +57,6 @@ def check(exp):
     if not exp:
         raise RuntimeError("Check failed")
 
-def impl_SBValue__add__(self, offset):
-    if self.GetType().IsPointerType():
-        itemsize = self.GetType().GetPointeeType().GetByteSize()
-        address = self.GetValueAsUnsigned() + offset * itemsize
-        address = address & 0xFFFFFFFFFFFFFFFF  # Force unsigned
-        return self.CreateValueFromAddress(None, address,
-                self.GetType().GetPointeeType()).AddressOf()
-
-    raise RuntimeError("SBValue.__add__ not implemented: %s" % self.GetType())
-    return NotImplemented
-
-
-lldb.SBValue.__add__ = impl_SBValue__add__
-
 class Dumper(DumperBase):
     def __init__(self):
         DumperBase.__init__(self)
@@ -154,15 +140,42 @@ class Dumper(DumperBase):
 
     def fromNativeValue(self, nativeValue):
         nativeValue.SetPreferSyntheticValue(False)
+        nativeType = nativeValue.GetType()
         val = self.Value(self)
-        val.nativeValue = nativeValue
-        val.type = self.fromNativeType(nativeValue.type)
+        val.type = self.fromNativeType(nativeType)
         val.lIsInScope = nativeValue.IsInScope()
         #val.name = nativeValue.GetName()
-        try:
+        data = nativeValue.GetData()
+        error = lldb.SBError()
+        size = nativeValue.GetType().GetByteSize()
+        if size > 0: # Happens regularly e.g. for cross-shared-object types.
+            val.ldata = data.ReadRawData(error, 0, size)
+        code = nativeType.GetTypeClass()
+        if code not in (lldb.eTypeClassPointer, lldb.eTypeClassReference):
             val.laddress = int(nativeValue.GetLoadAddress())
-        except:
-            pass
+        if code == lldb.eTypeClassEnumeration:
+            intval = nativeValue.GetValueAsSigned()
+            if hasattr(nativeType, 'get_enum_members_array'):
+                for enumMember in nativeType.get_enum_members_array():
+                    # Even when asking for signed we get unsigned with LLDB 3.8.
+                    diff = enumMember.GetValueAsSigned() - intval
+                    mask = (1 << nativeType.GetByteSize() * 8) - 1
+                    if diff & mask == 0:
+                        path = nativeType.GetName().split('::')
+                        path[-1] = enumMember.GetName()
+                        val.ldisplay = "%s (%d)" % ('::'.join(path), intval)
+            val.ldisplay = "%d" % intval
+        elif code in (lldb.eTypeClassComplexInteger, lldb.eTypeClassComplexFloat):
+            val.ldisplay = str(nativeValue.GetValue())
+        elif code == lldb.eTypeClassArray:
+            if hasattr(nativeType, "GetArrayElementType"): # New in 3.8(?) / 350.x
+                val.type.ltarget = self.fromNativeType(nativeType.GetArrayElementType())
+            else:
+                fields = nativeType.get_fields_array()
+                if len(fields):
+                    val.type.ltarget = self.fromNativeType(fields[0])
+        elif code == lldb.eTypeClassVector:
+            val.type.ltarget = self.fromNativeType(nativeType.GetVectorElementType())
         return val
 
     def fromNativeType(self, nativeType):
@@ -217,6 +230,7 @@ class Dumper(DumperBase):
             addr = 0x7fffffffe0a0
         sbaddr = lldb.SBAddress(addr, self.target)
         dummyValue = self.target.CreateValueFromAddress('x', sbaddr, nativeType)
+        dummyValue.SetPreferSyntheticValue(False)
 
         anonNumber = 0
 
@@ -246,8 +260,8 @@ class Dumper(DumperBase):
                 anonNumber += 1
                 fieldName = "#%s" % anonNumber
             fieldType = dummyChild.GetType()
-            #warn("CHILD AT: %s: %s %s" % (i, fieldName, fieldType))
-            #warn(" AT: %s: %s %s" % (i, fieldName, fieldType))
+            #warn("CHILD AT: %s: %s %s" % (i, fieldName, fieldType.GetName()))
+            #warn(" AT: %s: %s %s" % (i, fieldName, fieldType.GetName()))
             caddr = dummyChild.AddressOf().GetValueAsUnsigned()
             child = self.Value(self)
             child.type = self.fromNativeType(fieldType)
@@ -298,15 +312,6 @@ class Dumper(DumperBase):
         #warn("FIELDS: %s" % fields)
         return fields
 
-    def nativeValueDereference(self, nativeValue):
-        result = nativeValue.Dereference()
-        if not result.IsValid():
-            return None
-        return self.fromNativeValue(result)
-
-    def nativeValueCast(self, nativeValue, nativeType):
-        return self.fromNativeValue(nativeValue.Cast(nativeType))
-
     def nativeTypeUnqualified(self, nativeType):
         return self.fromNativeType(nativeType.GetUnqualifiedType())
 
@@ -317,46 +322,6 @@ class Dumper(DumperBase):
         if hasattr(typeobj, 'GetCanonicalType'):
             return self.fromNativeType(typeobj.GetCanonicalType())
         return self.fromNativeType(typeobj)
-
-    def nativeValueChildFromNameHelper(self, nativeValue, fieldName):
-        val = nativeValue.GetChildMemberWithName(fieldName)
-        if val.IsValid():
-            return val
-        nativeType = nativeValue.GetType()
-        for i in xrange(nativeType.GetNumberOfDirectBaseClasses()):
-            baseField = nativeType.GetDirectBaseClassAtIndex(i)
-            baseType = baseField.GetType()
-            base = nativeValue.Cast(baseType)
-            val = self.nativeValueChildFromNameHelper(base, fieldName)
-            if val is not None:
-                return val
-        return None
-
-    def nativeValueChildFromField(self, nativeValue, field):
-        val = None
-        if field.isVirtualBase is True:
-            #warn("FETCHING VIRTUAL BASE: %s: %s" % (field.baseIndex, field.name))
-            pass
-        if field.nativeIndex is not None:
-            #warn("FETCHING BY NATIVE INDEX: %s: %s" % (field.nativeIndex, field.name))
-            val = nativeValue.GetChildAtIndex(field.nativeIndex)
-            if val.IsValid():
-                return self.fromNativeValue(val)
-        elif field.baseIndex is not None:
-            baseClass = nativeValue.GetType().GetDirectBaseClassAtIndex(field.baseIndex)
-            if baseClass.IsValid():
-                #warn("BASE IS VALID, TYPE: %s" % baseClass.GetType())
-                #warn("BASE BITPOS: %s" % field.lbitpos)
-                #warn("BASE BITSIZE: %s" % field.lbitsize)
-                # FIXME: This is wrong for virtual bases.
-                return None  # Let standard behavior kick in.
-        else:
-            #warn("FETCHING BY NAME: %s: %s" % (field, field.name))
-            val = self.nativeValueChildFromNameHelper(nativeValue, field.name)
-        if val is not None:
-            return self.fromNativeValue(val)
-        raise RuntimeError("No such member '%s' in %s" % (field.name, nativeValue.type))
-        return None
 
     def nativeTypeFirstBase(self, nativeType):
         #warn("FIRST BASE FROM: %s" % nativeType)
@@ -377,6 +342,13 @@ class Dumper(DumperBase):
                     path[-1] = enumMember.GetName()
                     return "%s (%d)" % ('::'.join(path), intval)
         return "%d" % intval
+
+    def nativeDynamicTypeName(self, address, baseType):
+        return None # FIXME: Seems sufficient, no idea why.
+        addr = self.target.ResolveLoadAddress(address)
+        ctx = self.target.ResolveSymbolContextForAddress(addr, 0)
+        sym = ctx.GetSymbol()
+        return sym.GetName()
 
     def stateName(self, s):
         try:
@@ -479,9 +451,6 @@ class Dumper(DumperBase):
             inner = self.extractTemplateArgument(nativeType.GetName(), position)
             #warn("INNER: %s" % inner)
             return self.lookupType(inner)
-
-    def nativeValueAddressOf(self, nativeValue):
-        return int(value.GetLoadAddress())
 
     def nativeTypeDereference(self, nativeType):
         return self.fromNativeType(nativeType.GetPointeeType())
@@ -917,15 +886,6 @@ class Dumper(DumperBase):
             return bytes()
         return res
 
-    def nativeValueAsBytes(self, nativeValue, size):
-        data = nativeValue.GetData()
-        buf = bytearray(struct.pack('x' * size))
-        error = lldb.SBError()
-        #data.ReadRawData(error, 0, buf)
-        for i in range(size):
-            buf[i] = data.GetUnsignedInt8(error, i)
-        return bytes(buf)
-
     def findStaticMetaObject(self, typeName):
         symbolName = self.mangleName(typeName + '::staticMetaObject')
         symbol = self.target.FindFirstGlobalVariable(symbolName)
@@ -983,6 +943,7 @@ class Dumper(DumperBase):
                     if len(statics):
                         for i in xrange(len(statics)):
                             staticVar = statics[i]
+                            staticVar.SetPreferSyntheticValue(False)
                             typename = staticVar.GetType().GetName()
                             name = staticVar.GetName()
                             with SubItem(self, i):
@@ -1004,6 +965,7 @@ class Dumper(DumperBase):
 
         variables = []
         for val in values:
+            val.SetPreferSyntheticValue(False)
             if not val.IsValid():
                 continue
             self.currentContextValue = val

@@ -89,14 +89,18 @@ class Value:
 class Type:
     name() -> string                      # Full name of this type
     bitsize() -> int                      # Size of type in bits
-    arrayType() -> bool                   # Is this an array?
-    pointerType() -> bool                 # Is this a pointer
-    referenceType() -> bool               # ...
-    functionType() -> bool
-    typedefedType() -> bool
-    enumType() -> bool
-    integralType() -> bool
-    floatingPointType() -> bool
+    code() -> TypeCodeTypedef
+            | TypeCodeStruct
+            | TypeCodeVoid
+            | TypeCodeIntegral
+            | TypeCodeFloat
+            | TypeCodeEnum
+            | TypeCodePointer
+            | TypeCodeArray
+            | TypeCodeComplex
+            | TypeCodeReference
+            | TypeCodeFunction
+            | TypeCodeMemberPointer
 
     unqualified() -> Type                 # Type without const/volatile
     target() -> Type                      # Type dereferenced if it is a pointer type, element if array etc
