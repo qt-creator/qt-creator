@@ -43,6 +43,12 @@ const Icon RUN_FLAT({
         {":/projectexplorer/images/run_mask.png", Theme::IconsRunToolBarColor}});
 const Icon WINDOW(":/projectexplorer/images/window.png");
 const Icon DEBUG_START(":/projectexplorer/images/debugger_start.png");
+const Icon DEVICE_READY_INDICATOR({
+        {":/projectexplorer/images/devicestatusindicator.png", Theme::IconsRunToolBarColor}});
+const Icon DEVICE_CONNECTED_INDICATOR({
+        {":/projectexplorer/images/devicestatusindicator.png", Theme::IconsWarningToolBarColor}});
+const Icon DEVICE_DISCONNECTED_INDICATOR({
+        {":/projectexplorer/images/devicestatusindicator.png", Theme::IconsStopToolBarColor}});
 
 const Icon DEBUG_START_FLAT({
         {":/projectexplorer/images/run_mask.png", Theme::IconsRunToolBarColor},

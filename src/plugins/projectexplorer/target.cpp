@@ -41,6 +41,7 @@
 #include <coreplugin/coreconstants.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/projectexplorericons.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <utils/qtcassert.h>
@@ -94,17 +95,10 @@ public:
     BuildTargetInfoList m_appTargets;
     QVariantMap m_pluginSettings;
 
-    QPixmap m_connectedPixmap;
-    QPixmap m_readyToUsePixmap;
-    QPixmap m_disconnectedPixmap;
-
     Kit *const m_kit;
 };
 
 TargetPrivate::TargetPrivate(Kit *k) :
-    m_connectedPixmap(QLatin1String(":/projectexplorer/images/DeviceConnected.png")),
-    m_readyToUsePixmap(QLatin1String(":/projectexplorer/images/DeviceReadyToUse.png")),
-    m_disconnectedPixmap(QLatin1String(":/projectexplorer/images/DeviceDisconnected.png")),
     m_kit(k)
 { }
 
@@ -728,41 +722,35 @@ void Target::updateDeviceState()
 {
     IDevice::ConstPtr current = DeviceKitInformation::device(kit());
 
-    QPixmap overlay;
+    QIcon overlay;
+    static const QIcon disconnected = Icons::DEVICE_DISCONNECTED_INDICATOR.icon();
     if (current.isNull()) {
-        overlay = d->m_disconnectedPixmap;
+        overlay = disconnected;
     } else {
         switch (current->deviceState()) {
         case IDevice::DeviceStateUnknown:
-            setOverlayIcon(QIcon());
+            overlay = QIcon();
             setToolTip(QString());
             return;
-        case IDevice::DeviceReadyToUse:
-            overlay = d->m_readyToUsePixmap;
+        case IDevice::DeviceReadyToUse: {
+            static const QIcon ready = Icons::DEVICE_READY_INDICATOR.icon();
+            overlay = ready;
             break;
-        case IDevice::DeviceConnected:
-            overlay = d->m_connectedPixmap;
+        }
+        case IDevice::DeviceConnected: {
+            static const QIcon connected = Icons::DEVICE_CONNECTED_INDICATOR.icon();
+            overlay = connected;
             break;
+        }
         case IDevice::DeviceDisconnected:
-            overlay = d->m_disconnectedPixmap;
+            overlay = disconnected;
             break;
         default:
             break;
         }
     }
 
-    static const int TARGET_OVERLAY_ORIGINAL_SIZE = 32;
-
-    double factor = Core::Constants::TARGET_ICON_SIZE / (double)TARGET_OVERLAY_ORIGINAL_SIZE;
-    QSize overlaySize(overlay.size().width()*factor, overlay.size().height()*factor);
-    QPixmap pixmap(Core::Constants::TARGET_ICON_SIZE, Core::Constants::TARGET_ICON_SIZE);
-    pixmap.fill(Qt::transparent);
-    QPainter painter(&pixmap);
-    painter.drawPixmap(Core::Constants::TARGET_ICON_SIZE - overlaySize.width(),
-                       Core::Constants::TARGET_ICON_SIZE - overlaySize.height(),
-                       overlay.scaled(overlaySize));
-
-    setOverlayIcon(QIcon(pixmap));
+    setOverlayIcon(overlay);
     setToolTip(current.isNull() ? QString() : formatToolTip(current->deviceInformation()));
 }
 

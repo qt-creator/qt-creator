@@ -35,6 +35,7 @@
 #include "idevicefactory.h"
 #include "idevicewidget.h"
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorericons.h>
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
@@ -178,13 +179,13 @@ void DeviceSettingsWidget::displayCurrent()
     m_ui->deviceStateValueIconLabel->show();
     switch (current->deviceState()) {
     case IDevice::DeviceReadyToUse:
-        m_ui->deviceStateValueIconLabel->setPixmap(QPixmap(QLatin1String(":/projectexplorer/images/DeviceReadyToUse.png")));
+        m_ui->deviceStateValueIconLabel->setPixmap(Icons::DEVICE_READY_INDICATOR.pixmap());
         break;
     case IDevice::DeviceConnected:
-        m_ui->deviceStateValueIconLabel->setPixmap(QPixmap(QLatin1String(":/projectexplorer/images/DeviceConnected.png")));
+        m_ui->deviceStateValueIconLabel->setPixmap(Icons::DEVICE_CONNECTED_INDICATOR.pixmap());
         break;
     case IDevice::DeviceDisconnected:
-        m_ui->deviceStateValueIconLabel->setPixmap(QPixmap(QLatin1String(":/projectexplorer/images/DeviceDisconnected.png")));
+        m_ui->deviceStateValueIconLabel->setPixmap(Icons::DEVICE_DISCONNECTED_INDICATOR.pixmap());
         break;
     case IDevice::DeviceStateUnknown:
         m_ui->deviceStateValueIconLabel->hide();

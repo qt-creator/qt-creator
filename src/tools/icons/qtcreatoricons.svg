@@ -5931,5 +5931,23 @@
          id="path5131"
          inkscape:connector-curvature="0" />
     </g>
+    <g
+       transform="translate(-286,-205)"
+       style="display:inline"
+       id="src/plugins/projectexplorer/images/devicestatusindicator">
+      <rect
+         id="rect6782-96-9-2"
+         height="32"
+         width="32"
+         y="552"
+         x="936"
+         style="fill:#ffffff" />
+      <circle
+         style="fill:#000000"
+         id="path4864-5"
+         cx="961.5"
+         cy="577.5"
+         r="5.5" />
+    </g>
   </g>
 </svg>
