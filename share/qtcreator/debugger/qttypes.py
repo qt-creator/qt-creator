@@ -1051,36 +1051,25 @@ def qdump__QPixmap(d, value):
 
 
 def qdump__QPoint(d, value):
-    (x, y) = value.split("ii")
-    d.putValue("(%s, %s)" % (x, y))
+    d.putValue("(%s, %s)" % (value.split("ii")))
     d.putPlainChildren(value)
 
 
 def qdump__QPointF(d, value):
-    (x, y) = value.split("dd")
-    d.putValue("(%s, %s)" % (x, y))
+    d.putValue("(%s, %s)" % (value.split('dd')))
     d.putPlainChildren(value)
 
 
 def qdump__QRect(d, value):
-    def pp(l):
-        if int(l) >= 0: return "+%s" % l
-        return l
+    pp = lambda l: ('+' if l >= 0 else '') + str(l)
     (x1, y1, x2, y2) = d.split("iiii", value)
-    w = x2 - x1 + 1
-    h = y2 - y1 + 1
-    d.putValue("%sx%s%s%s" % (w, h, pp(x1), pp(y1)))
+    d.putValue("%sx%s%s%s" % (x2 - x1 + 1, y2 - y1 + 1, pp(x1), pp(y1)))
     d.putPlainChildren(value)
 
 
 def qdump__QRectF(d, value):
-    def pp(l):
-        if float(l) >= 0: return "+%s" % l
-        return l
-    x = value["xp"].display()
-    y = value["yp"].display()
-    w = value["w"].display()
-    h = value["h"].display()
+    pp = lambda l: ('+' if l >= 0 else '') + str(l)
+    (x, y, w, h) = value.split('dddd')
     d.putValue("%sx%s%s%s" % (w, h, pp(x), pp(y)))
     d.putPlainChildren(value)
 
@@ -1135,8 +1124,16 @@ def qdump__QRegion(d, value):
 
 
 def qdump__QScopedPointer(d, value):
-    d.putBetterType(d.currentType)
-    d.putItem(value["d"])
+    if value.integer() == 0:
+        d.putValue("(null)")
+        d.putNumChild(0)
+    else:
+        d.putItem(value["d"])
+        d.putValue(d.currentValue.value, d.currentValue.encoding)
+    typeName = value.type.name
+    if value.type[1].name == d.qtNamespace() + "QScopedPointerDeleter<%s>" % value.type[0].name:
+        typeName = d.qtNamespace() + "QScopedPointer<%s>" % value.type[0].name
+    d.putBetterType(typeName)
 
 
 def qdump__QSet(d, value):
@@ -1218,15 +1215,11 @@ def qdump__QSharedDataPointer(d, value):
 
 
 def qdump__QSize(d, value):
-    w = value["wd"].display()
-    h = value["ht"].display()
-    d.putValue("(%s, %s)" % (w, h))
+    d.putValue("(%s, %s)" % value.split('ii'))
     d.putPlainChildren(value)
 
 def qdump__QSizeF(d, value):
-    w = value["wd"].display()
-    h = value["ht"].display()
-    d.putValue("(%s, %s)" % (w, h))
+    d.putValue("(%s, %s)" % value.split('dd'))
     d.putPlainChildren(value)
 
 
@@ -1762,17 +1755,11 @@ def qdump_QWeakPointerHelper(d, value, isWeak):
     d.check(weakref <= 10*1000*1000)
 
     innerType = value.type[0]
-    if innerType.isSimpleType():
-        d.putValue(d.createValue(val, innerType).display())
-    else:
-        d.putEmptyValue()
-
-    d.putNumChild(3)
-    if d.isExpanded():
-        with Children(d):
-            d.putSubItem("data", d.createValue(val, innerType))
-            d.putIntItem("weakref", weakref)
-            d.putIntItem("strongref", strongref)
+    with Children(d):
+        short = d.putSubItem("data", d.createValue(val, innerType))
+        d.putIntItem("weakref", weakref)
+        d.putIntItem("strongref", strongref)
+    d.putValue(short.value, short.encoding)
 
 
 def qdump__QXmlAttributes__Attribute(d, value):

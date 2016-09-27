@@ -584,13 +584,12 @@ def qdump__std__shared_ptr(d, value):
         d.putValue("(null)")
         d.putNumChild(0)
         return
-    d.putValue(i.dereference().simpleDisplay())
-    d.putNumChild(3)
-    with Children(d, 3):
-        d.putSubItem("data", i)
+    with Children(d):
+        short = d.putSubItem("data", i)
         refcount = value["_M_refcount"]["_M_pi"]
         d.putIntItem("usecount", refcount["_M_use_count"])
         d.putIntItem("weakcount", refcount["_M_weak_count"])
+    d.putValue(short.value, short.encoding)
 
 def qdump__std____1__shared_ptr(d, value):
     i = value["__ptr_"]
@@ -598,13 +597,12 @@ def qdump__std____1__shared_ptr(d, value):
         d.putValue("(null)")
         d.putNumChild(0)
         return
-    d.putValue(i.dereference().simpleDisplay())
-    d.putNumChild(3)
-    with Children(d, 3):
-        d.putSubItem("data", i.dereference())
+    with Children(d):
+        short = d.putSubItem("data", i.dereference())
         d.putFields(value["__cntrl_"].dereference())
         #d.putIntItem("usecount", refcount["_M_use_count"])
         #d.putIntItem("weakcount", refcount["_M_weak_count"])
+    d.putValue(short.value, short.encoding)
 
 def qdump__std__unique_ptr(d, value):
     p = d.extractPointer(value)
@@ -612,11 +610,9 @@ def qdump__std__unique_ptr(d, value):
         d.putValue("(null)")
         d.putNumChild(0)
         return
-    val = d.createValue(p, value.type[0])
-    d.putValue(val.simpleDisplay())
-    d.putNumChild(1)
-    with Children(d, 1):
-        d.putSubItem("data", val)
+    with Children(d):
+        short = d.putSubItem("data", d.createValue(p, value.type[0]))
+    d.putValue(short.value, short.encoding)
 
 def qdump__std____1__unique_ptr(d, value):
     qdump__std__unique_ptr(d, value)

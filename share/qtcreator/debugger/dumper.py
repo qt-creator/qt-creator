@@ -695,22 +695,15 @@ class DumperBase:
     def putPairItem(self, index, pair):
         (first, second) = pair if isinstance(pair, tuple) else pair.members()
         with SubItem(self, index):
-            (keystr, keyenc, valstr, valenc) = (None, None, None, None)
             with Children(self):
-                with SubItem(self, self.pairData.kname):
-                    self.putItem(first)
-                    keystr = self.currentValue.value
-                    keyenc = self.currentValue.encoding
-                with SubItem(self, self.pairData.vname):
-                    self.putItem(second)
-                    valstr = self.currentValue.value
-                    valenc = self.currentValue.encoding
+                key = self.putSubItem(self.pairData.kname, first)
+                value = self.putSubItem(self.pairData.vname, second)
             if index is not None:
                 self.put('keyprefix="[%s] ",' % index)
-            self.put('key="%s",' % keystr)
-            if keyenc is not None:
-                self.put('keyencoded="%s",' % keyenc)
-            self.putValue(valstr, valenc)
+            self.put('key="%s",' % key.value)
+            if key.encoding is not None:
+                self.put('keyencoded="%s",' % key.encoding)
+            self.putValue(value.value, value.encoding)
 
     def putCallItem(self, name, rettype, value, func, *args):
         with SubItem(self, name):
@@ -1929,13 +1922,15 @@ class DumperBase:
             displayFormat = self.typeformats.get(needle, AutomaticFormat)
         return displayFormat
 
-    def putSubItem(self, component, value):
+    def putSubItem(self, component, value): # -> ReportItem
         if not isinstance(value, self.Value):
             error("WRONG VALUE TYPE IN putSubItem: %s" % type(value))
         if not isinstance(value.type, self.Type):
             error("WRONG TYPE TYPE IN putSubItem: %s" % type(value.type))
         with SubItem(self, component):
             self.putItem(value)
+            value = self.currentValue
+        return value  # The "short" display.
 
     def putArrayData(self, base, n, innerType, childNumChild = None, maxNumChild = 10000):
         self.checkIntType(base)
@@ -2615,18 +2610,6 @@ class DumperBase:
             if self.laddress is not None:
                 return "value of type %s at address 0x%x" % (self.type.name, self.laddress)
             return "<unknown data>"
-
-        def simpleDisplay(self, showAddress=True):
-            res = self.value()
-            if res is None:
-                res = ''
-            else:
-                res = str(res)
-            if showAddress and self.laddress:
-                if len(res):
-                    res += ' '
-                res += "@0x%x" % self.laddress
-            return res
 
         def integer(self):
             unsigned = self.type.stripTypedefs().name.startswith("unsigned")

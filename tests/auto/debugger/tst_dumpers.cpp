@@ -2870,6 +2870,25 @@ void tst_Dumpers::dumper_data()
             "    };\n";
 
 
+    QTest::newRow("QScopedPointer")
+            << Data("#include <QScopedPointer>\n"
+                    "#include <QString>\n",
+
+                    "QScopedPointer<int> ptr10; unused(&ptr10);\n"
+                    "QScopedPointer<int> ptr11(new int(32)); unused(&ptr11);\n\n"
+
+                    "QScopedPointer<QString> ptr20; unused(&ptr20);\n"
+                    "QScopedPointer<QString> ptr21(new QString(\"ABC\")); unused(&ptr21);\n\n")
+
+               + CoreProfile()
+
+               + Check("ptr10", "(null)", "@QScopedPointer<int>")
+               + Check("ptr11", "32", "@QScopedPointer<int>")
+
+               + Check("ptr20", "(null)", "@QScopedPointer<@QString>")
+               + Check("ptr21", "\"ABC\"", "@QScopedPointer<@QString>");
+
+
     QTest::newRow("QSharedPointer")
             << Data("#include <QSharedPointer>\n"
                     "#include <QString>\n" + fooData,
@@ -2908,7 +2927,7 @@ void tst_Dumpers::dumper_data()
                + Check("ptr11", "(null)", "@QSharedPointer<int>")
                + Check("ptr12", "(null)", "@QSharedPointer<int>")
 
-               + Check("ptr20", "", "@QSharedPointer<@QString>") % NoCdbEngine
+               + Check("ptr20", "\"hallo\"", "@QSharedPointer<@QString>") % NoCdbEngine
                + Check("ptr20", "class QSharedPointer<>", "@QSharedPointer<@QString>") % CdbEngine
                + Check("ptr20.data", "\"hallo\"", "@QString")
                + Check("ptr20.weakref", "3", "int")
@@ -2925,9 +2944,9 @@ void tst_Dumpers::dumper_data()
                + Check("ptr33", "class QWeakPointer<>", "@QWeakPointer<int>")  % CdbEngine
                + Check("ptr33.data", "43", "int")
 
-               + Check("ptr40", "", "@QSharedPointer<@QString>")
+               + Check("ptr40", "\"hallo\"", "@QSharedPointer<@QString>")
                + Check("ptr40.data", "\"hallo\"", "@QString")
-               + Check("ptr43", "", "@QWeakPointer<@QString>")
+               + Check("ptr43", "\"hallo\"", "@QWeakPointer<@QString>")
 
                + Check("ptr50", "", "@QSharedPointer<Foo>")
                + Check("ptr50.data", "", "Foo")
@@ -4198,42 +4217,44 @@ void tst_Dumpers::dumper_data()
 
 
     QTest::newRow("StdUniquePtr")
-            << Data("#include <memory>\n" + fooData,
-
-                    "std::unique_ptr<int> p0;\n"
-                    "unused(&p0);\n\n"
-
-                    "std::unique_ptr<int> p1(new int(32));\n"
-                    "unused(&p1);\n\n"
-
-                    "std::unique_ptr<Foo> p2(new Foo);\n"
-                    "unused(&p2);\n")
+            << Data("#include <memory>\n"
+                    "#include <string>\n" + fooData,
+                    "std::unique_ptr<int> p0; unused(&p0);\n\n"
+                    "std::unique_ptr<int> p1(new int(32)); unused(&p1);\n\n"
+                    "std::unique_ptr<Foo> p2(new Foo); unused(&p2);\n\n"
+                    "std::unique_ptr<std::string> p3(new std::string(\"ABC\")); unused(&p3);\n\n")
 
                + Cxx11Profile()
                + MacLibCppProfile()
 
                + Check("p0", "(null)", "std::unique_ptr<int, std::default_delete<int> >")
 
-               + Check("p1", Pointer("32"), "std::unique_ptr<int, std::default_delete<int> >")
+               + Check("p1", "32", "std::unique_ptr<int, std::default_delete<int> >")
                + Check("p1.data", "32", "int")
 
                + Check("p2", Pointer(), "std::unique_ptr<Foo, std::default_delete<Foo> >")
-               + CheckType("p2.data", "Foo");
+               + CheckType("p2.data", "Foo")
+
+               + Check("p3", "\"ABC\"", "std::unique_ptr<std::string, std::default_delete<std::string> >")
+               + Check("p3.data", "\"ABC\"", "std::string");
 
 
     QTest::newRow("StdSharedPtr")
-            << Data("#include <memory>\n" + fooData,
-                    "std::shared_ptr<int> pi(new int(32));\n"
-                    "std::shared_ptr<Foo> pf(new Foo);\n"
-                    "unused(&pi, &pf);\n")
+            << Data("#include <memory>\n"
+                    "#include <string>\n" + fooData,
+                    "std::shared_ptr<int> pi(new int(32)); unused(&pi);\n"
+                    "std::shared_ptr<Foo> pf(new Foo); unused(&pf);\n"
+                    "std::shared_ptr<std::string> ps(new std::string(\"ABC\")); unused(&ps);\n")
 
                + Cxx11Profile()
                + MacLibCppProfile()
 
-               + Check("pi", Pointer("32"), "std::shared_ptr<int>")
+               + Check("pi", "32", "std::shared_ptr<int>")
                + Check("pi.data", "32", "int")
                + Check("pf", Pointer(), "std::shared_ptr<Foo>")
-               + CheckType("pf.data", "Foo");
+               + CheckType("pf.data", "Foo")
+               + Check("ps", "\"ABC\"", "std::shared_ptr<std::string>")
+               + Check("ps.data", "\"ABC\"", "std::string");
 
 
     QTest::newRow("StdSet")
@@ -5406,7 +5427,7 @@ void tst_Dumpers::dumper_data()
              + Check("i.usecount", "2", "int")
              + Check("i.data", "43", "int")
              + Check("j", "43", "boost::shared_ptr<int>")
-             + Check("sl", "", " boost::shared_ptr<@QStringList>")
+             + Check("sl", "<1 items>", " boost::shared_ptr<@QStringList>")
              + Check("sl.data", "<1 items>", "@QStringList")
              + Check("sl.data.0", "[0]", "\"HUH!\"", "@QString");
 
