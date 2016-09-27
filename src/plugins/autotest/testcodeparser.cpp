@@ -365,6 +365,7 @@ void TestCodeParser::onTaskStarted(Core::Id type)
             m_fullUpdatePostponed = m_parserState == FullParse;
             m_partialUpdatePostponed = !m_fullUpdatePostponed;
             qCDebug(LOG) << "Canceling scan for test (CppModelParsing started)";
+            parsingHasFailed = true;
             Core::ProgressManager::instance()->cancelTasks(Constants::TASK_PARSE);
         }
     }
@@ -372,6 +373,10 @@ void TestCodeParser::onTaskStarted(Core::Id type)
 
 void TestCodeParser::onAllTasksFinished(Core::Id type)
 {
+    // if we cancel parsing ensure that progress animation is canceled as well
+    if (type == Constants::TASK_PARSE && parsingHasFailed)
+        emit parsingFailed();
+
     // only CPP parsing is relevant as we trigger Qml parsing internally anyway
     if (type != CppTools::Constants::TASK_INDEX)
         return;
