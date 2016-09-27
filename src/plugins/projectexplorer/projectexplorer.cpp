@@ -2830,10 +2830,8 @@ void ProjectExplorerPluginPrivate::updateRecentProjectMenu()
         if (fileName.endsWith(QLatin1String(".qws")))
             continue;
 
-        const QString textTemplate = acceleratorKey < 10 ? QStringLiteral("&%1: %2") : QStringLiteral("%1: %2");
-        const QString actionText = Utils::HostOsInfo::isMacHost()
-                ? Utils::withTildeHomePath(fileName)
-                : textTemplate.arg(acceleratorKey).arg(Utils::withTildeHomePath(fileName));
+        const QString actionText = ActionManager::withNumberAccelerator(
+                    Utils::withTildeHomePath(fileName), acceleratorKey);
         QAction *action = menu->addAction(actionText);
         connect(action, &QAction::triggered, this, [this, fileName] {
             openRecentProject(fileName);
@@ -3310,9 +3308,7 @@ void ProjectExplorerPluginPrivate::updateSessionMenu()
     for (int i = 0; i < sessions.size(); ++i) {
         const QString &session = sessions[i];
 
-        const int acceleratorKey = i + 1;
-        QString textTemplate = acceleratorKey < 10 ? QStringLiteral("&%1: %2") : QStringLiteral("%1: %2");
-        QString actionText = textTemplate.arg(acceleratorKey).arg(session);
+        const QString actionText = ActionManager::withNumberAccelerator(session, i + 1);
         QAction *act = ag->addAction(actionText);
         act->setData(session);
         act->setCheckable(true);

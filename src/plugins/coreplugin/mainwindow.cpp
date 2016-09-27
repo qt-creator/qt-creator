@@ -1070,12 +1070,8 @@ void MainWindow::aboutToShowRecentFiles()
     for (int i = 0; i < recentFiles.count(); ++i) {
         const DocumentManager::RecentFile file = recentFiles[i];
 
-        const int acceleratorKey = i + 1;
-        const QString textPattern = acceleratorKey < 10 ? QStringLiteral("&%1: %2") : QStringLiteral("%1: %2");
         const QString filePath = QDir::toNativeSeparators(withTildeHomePath(file.first));
-        const QString actionText = HostOsInfo::isMacHost()
-                ? filePath
-                : textPattern.arg(acceleratorKey).arg(filePath);
+        const QString actionText = ActionManager::withNumberAccelerator(filePath, i + 1);
         QAction *action = menu->addAction(actionText);
         connect(action, &QAction::triggered, this, [file] {
             EditorManager::openEditor(file.first, file.second);

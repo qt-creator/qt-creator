@@ -73,6 +73,8 @@ public:
     static void setPresentationModeEnabled(bool enabled);
     static bool isPresentationModeEnabled();
 
+    static QString withNumberAccelerator(const QString &text, const int number);
+
 signals:
     void commandListChanged();
     void commandAdded(Core::Id id);
