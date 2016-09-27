@@ -26,8 +26,8 @@ if test -L "$me"; then
         me=`readlink -nf "$me"`
     else
         # No readlink(1), so let's try ls -l
-        me=`ls -l "$me" | sed 's/^.*-> //'`
         base=`dirname "$me"`
+        me=`ls -l "$me" | sed 's/^.*-> //'`
         me=`makeAbsolute "$me" "$base"`
     fi
 fi
