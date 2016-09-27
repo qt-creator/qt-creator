@@ -56,7 +56,12 @@ public:
         ShowBackgroundControl = 0x2,
         ShowFontControls = 0x4,
         ShowUnderlineControl = 0x8,
-        ShowFontAndUnderlineControls = ShowFontControls | ShowUnderlineControl,
+        ShowRelativeForegroundControl = 0x10,
+        ShowRelativeBackgroundControl = 0x20,
+        ShowFontUnderlineAndRelativeControls = ShowFontControls
+                                             | ShowUnderlineControl
+                                             | ShowRelativeForegroundControl
+                                             | ShowRelativeBackgroundControl,
         AllControls = 0xF,
         AllControlsExceptUnderline = AllControls & ~ShowUnderlineControl,
     };

@@ -63,8 +63,12 @@ private:
     void currentItemChanged(const QModelIndex &index);
     void changeForeColor();
     void changeBackColor();
-    void eraseBackColor();
     void eraseForeColor();
+    void eraseBackColor();
+    void changeRelativeForeColor();
+    void changeRelativeBackColor();
+    void eraseRelativeForeColor();
+    void eraseRelativeBackColor();
     void checkCheckBoxes();
     void changeUnderlineColor();
     void eraseUnderlineColor();
@@ -73,6 +77,8 @@ private:
     void updateControls();
     void updateForegroundControls();
     void updateBackgroundControls();
+    void updateRelativeForegroundControls();
+    void updateRelativeBackgroundControls();
     void updateFontControls();
     void updateUnderlineControls();
     void setItemListBackground(const QColor &color);

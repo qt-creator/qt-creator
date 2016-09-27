@@ -52,6 +52,18 @@ public:
     QColor background() const { return m_background; }
     void setBackground(const QColor &background);
 
+    double relativeForegroundSaturation() const { return m_relativeForegroundSaturation; }
+    void setRelativeForegroundSaturation(double relativeForegroundSaturation);
+
+    double relativeForegroundLightness() const { return m_relativeForegroundLightness; }
+    void setRelativeForegroundLightness(double relativeForegroundLightness);
+
+    double relativeBackgroundSaturation() const { return m_relativeBackgroundSaturation; }
+    void setRelativeBackgroundSaturation(double relativeBackgroundSaturation);
+
+    double relativeBackgroundLightness() const { return m_relativeBackgroundLightness; }
+    void setRelativeBackgroundLightness(double relativeBackgroundLightness);
+
     bool bold() const { return m_bold; }
     void setBold(bool bold);
 
@@ -73,6 +85,10 @@ private:
     QColor m_foreground = Qt::black;
     QColor m_background = Qt::white;
     QColor m_underlineColor;
+    double m_relativeForegroundSaturation = 0.0;
+    double m_relativeForegroundLightness = 0.0;
+    double m_relativeBackgroundSaturation = 0.0;
+    double m_relativeBackgroundLightness = 0.0;
     QTextCharFormat::UnderlineStyle m_underlineStyle = QTextCharFormat::NoUnderline;
     bool m_bold = false;
     bool m_italic = false;

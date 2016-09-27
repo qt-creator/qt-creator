@@ -39,6 +39,8 @@
 #include <QSettings>
 #include <QTextCharFormat>
 
+#include <cmath>
+
 static const char fontFamilyKey[] = "FontFamily";
 static const char fontSizeKey[] = "FontSize";
 static const char fontZoomKey[] = "FontZoom";
@@ -193,26 +195,59 @@ bool operator==(const TextStyles &first, const TextStyles &second)
         && first.mixinStyles == second.mixinStyles;
 }
 
+namespace {
+
+double clamp(double value)
+{
+    return std::max(0.0, std::min(1.0, value));
+}
+
+QBrush mixBrush(const QBrush &original, double relativeSaturation, double relativeLightness)
+{
+    const QColor originalColor = original.color().toHsl();
+    QColor mixedColor(QColor::Hsl);
+
+    double mixedSaturation = clamp(originalColor.hslSaturationF() + relativeSaturation);
+
+    double mixedLightness = clamp(originalColor.lightnessF() + relativeLightness);
+
+    mixedColor.setHslF(originalColor.hslHueF(), mixedSaturation, mixedLightness);
+
+    return mixedColor;
+}
+}
+
 void FontSettings::addMixinStyle(QTextCharFormat &textCharFormat,
                                  const MixinTextStyles &mixinStyles) const
 {
     for (TextStyle mixinStyle : mixinStyles) {
-        const QTextCharFormat mixinTextCharFormat = toTextCharFormat(mixinStyle);
-        if (!textCharFormat.hasProperty(QTextFormat::ForegroundBrush))
-            textCharFormat.setForeground(mixinTextCharFormat.foreground());
+        const Format &format = m_scheme.formatFor(mixinStyle);
 
-        if (!textCharFormat.hasProperty(QTextFormat::BackgroundBrush))
-            textCharFormat.setBackground(mixinTextCharFormat.background());
+        if (textCharFormat.hasProperty(QTextFormat::ForegroundBrush)) {
+            textCharFormat.setForeground(mixBrush(textCharFormat.foreground(),
+                                                  format.relativeForegroundSaturation(),
+                                                  format.relativeForegroundLightness()));
+        }
+
+        if (textCharFormat.hasProperty(QTextFormat::BackgroundBrush)) {
+            textCharFormat.setBackground(mixBrush(textCharFormat.background(),
+                                                  format.relativeBackgroundSaturation(),
+                                                  format.relativeBackgroundLightness()));
+        } else {
+            textCharFormat.setBackground(mixBrush(m_scheme.formatFor(C_TEXT).background(),
+                                                  format.relativeBackgroundSaturation(),
+                                                  format.relativeBackgroundLightness()));
+        }
 
         if (!textCharFormat.fontItalic())
-            textCharFormat.setFontItalic(mixinTextCharFormat.fontItalic());
+            textCharFormat.setFontItalic(format.italic());
 
         if (textCharFormat.fontWeight() == QFont::Normal)
-            textCharFormat.setFontWeight(mixinTextCharFormat.fontWeight());
+            textCharFormat.setFontWeight(format.bold() ? QFont::Bold : QFont::Normal);
 
         if (textCharFormat.underlineStyle() == QTextCharFormat::NoUnderline) {
-            textCharFormat.setUnderlineStyle(mixinTextCharFormat.underlineStyle());
-            textCharFormat.setUnderlineColor(mixinTextCharFormat.underlineColor());
+            textCharFormat.setUnderlineStyle(format.underlineStyle());
+            textCharFormat.setUnderlineColor(format.underlineColor());
         }
     };
 }
@@ -373,6 +408,10 @@ bool FontSettings::loadColorScheme(const QString &fileName,
                 format.setForeground(descFormat.foreground());
                 format.setBackground(descFormat.background());
             }
+            format.setRelativeForegroundSaturation(descFormat.relativeForegroundSaturation());
+            format.setRelativeForegroundLightness(descFormat.relativeForegroundLightness());
+            format.setRelativeBackgroundSaturation(descFormat.relativeBackgroundSaturation());
+            format.setRelativeBackgroundLightness(descFormat.relativeBackgroundLightness());
             format.setBold(descFormat.bold());
             format.setItalic(descFormat.italic());
             format.setUnderlineColor(descFormat.underlineColor());

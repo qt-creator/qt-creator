@@ -312,7 +312,7 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
     formatDescr.emplace_back(C_DECLARATION,
                              tr("Declaration"),
                              tr("Declaration of a function, variable, and so on."),
-                             FormatDescription::ShowFontAndUnderlineControls);
+                             FormatDescription::ShowFontUnderlineAndRelativeControls);
 
     d->m_fontSettingsPage = new FontSettingsPage(formatDescr,
                                                    Constants::TEXT_EDITOR_FONT_SETTINGS,

@@ -58,6 +58,26 @@ void Format::setBackground(const QColor &background)
     m_background = background;
 }
 
+void Format::setRelativeForegroundSaturation(double relativeForegroundSaturation)
+{
+    m_relativeForegroundSaturation = relativeForegroundSaturation;
+}
+
+void Format::setRelativeForegroundLightness(double relativeForegroundLightness)
+{
+    m_relativeForegroundLightness = relativeForegroundLightness;
+}
+
+void Format::setRelativeBackgroundSaturation(double relativeBackgroundSaturation)
+{
+    m_relativeBackgroundSaturation = relativeBackgroundSaturation;
+}
+
+void Format::setRelativeBackgroundLightness(double relativeBackgroundLightness)
+{
+    m_relativeBackgroundLightness = relativeBackgroundLightness;
+}
+
 void Format::setBold(bool bold)
 {
     m_bold = bold;
@@ -138,7 +158,13 @@ bool Format::equals(const Format &other) const
         && m_underlineColor == other.m_underlineColor
         && m_underlineStyle == other.m_underlineStyle
         && m_bold == other.m_bold
-        && m_italic == other.m_italic;
+        && m_italic == other.m_italic
+        && qFuzzyCompare(m_relativeForegroundSaturation, other.m_relativeForegroundSaturation)
+        && qFuzzyCompare(m_relativeForegroundLightness, other.m_relativeForegroundLightness)
+        && qFuzzyCompare(m_relativeBackgroundSaturation, other.m_relativeBackgroundSaturation)
+        && qFuzzyCompare(m_relativeBackgroundLightness, other.m_relativeBackgroundLightness)
+
+            ;
 }
 
 QString Format::toString() const
@@ -148,7 +174,11 @@ QString Format::toString() const
                       m_bold ? QLatin1String(trueString) : QLatin1String(falseString),
                       m_italic ? QLatin1String(trueString) : QLatin1String(falseString),
                       m_underlineColor.name(),
-                      underlineStyleToString(m_underlineStyle)});
+                      underlineStyleToString(m_underlineStyle),
+                      QString::number(m_relativeForegroundSaturation),
+                      QString::number(m_relativeForegroundLightness),
+                      QString::number(m_relativeBackgroundSaturation),
+                      QString::number(m_relativeBackgroundLightness)});
 
     return text.join(QLatin1Char(';'));
 }
@@ -158,15 +188,23 @@ bool Format::fromString(const QString &str)
     *this = Format();
 
     const QStringList lst = str.split(QLatin1Char(';'));
-    if (lst.count() != 4 && lst.count() != 6)
+    if (lst.size() != 4 && lst.size() != 6 && lst.size() != 10)
         return false;
 
     m_foreground = stringToColor(lst.at(0));
     m_background = stringToColor(lst.at(1));
     m_bold = lst.at(2) == QLatin1String(trueString);
     m_italic = lst.at(3) == QLatin1String(trueString);
-    m_underlineColor = stringToColor(lst.at(4));
-    m_underlineStyle = stringToUnderlineStyle(lst.at(5));
+    if (lst.size() > 4) {
+        m_underlineColor = stringToColor(lst.at(4));
+        m_underlineStyle = stringToUnderlineStyle(lst.at(5));
+    }
+    if (lst.size() > 6) {
+        m_relativeForegroundSaturation = lst.at(6).toDouble();
+        m_relativeForegroundLightness = lst.at(7).toDouble();
+        m_relativeBackgroundSaturation = lst.at(8).toDouble();
+        m_relativeBackgroundLightness = lst.at(9).toDouble();
+    }
 
     return true;
 }
@@ -230,6 +268,14 @@ bool ColorScheme::save(const QString &fileName, QWidget *parent) const
                  w.writeAttribute(QStringLiteral("underlineColor"), format.underlineColor().name().toLower());
             if (format.underlineStyle() != QTextCharFormat::NoUnderline)
                  w.writeAttribute(QLatin1String("underlineStyle"), underlineStyleToString(format.underlineStyle()));
+            if (!qFuzzyIsNull(format.relativeForegroundSaturation()))
+                w.writeAttribute(QLatin1String("relativeForegroundSaturation"), QString::number(format.relativeForegroundSaturation()));
+            if (!qFuzzyIsNull(format.relativeForegroundLightness()))
+                w.writeAttribute(QLatin1String("relativeForegroundLightness"), QString::number(format.relativeForegroundLightness()));
+            if (!qFuzzyIsNull(format.relativeBackgroundSaturation()))
+                w.writeAttribute(QLatin1String("relativeBackgroundSaturation"), QString::number(format.relativeBackgroundSaturation()));
+            if (!qFuzzyIsNull(format.relativeBackgroundLightness()))
+                w.writeAttribute(QLatin1String("relativeBackgroundLightness"), QString::number(format.relativeBackgroundLightness()));
             w.writeEndElement();
         }
 
@@ -339,6 +385,10 @@ void ColorSchemeReader::readStyle()
     bool italic = attr.value(QLatin1String("italic")) == QLatin1String(trueString);
     QString underlineColor = attr.value(QLatin1String("underlineColor")).toString();
     QString underlineStyle = attr.value(QLatin1String("underlineStyle")).toString();
+    double relativeForegroundSaturation = attr.value(QLatin1String("relativeForegroundSaturation")).toDouble();
+    double relativeForegroundLightness = attr.value(QLatin1String("relativeForegroundLightness")).toDouble();
+    double relativeBackgroundSaturation = attr.value(QLatin1String("relativeBackgroundSaturation")).toDouble();
+    double relativeBackgroundLightness = attr.value(QLatin1String("relativeBackgroundLightness")).toDouble();
 
     Format format;
 
@@ -361,6 +411,11 @@ void ColorSchemeReader::readStyle()
         format.setUnderlineColor(QColor());
 
     format.setUnderlineStyle(stringToUnderlineStyle(underlineStyle));
+
+    format.setRelativeForegroundSaturation(relativeForegroundSaturation);
+    format.setRelativeForegroundLightness(relativeForegroundLightness);
+    format.setRelativeBackgroundSaturation(relativeBackgroundSaturation);
+    format.setRelativeBackgroundLightness(relativeBackgroundLightness);
 
     m_scheme->setFormatFor(Constants::styleFromName(name), format);
 
