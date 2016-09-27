@@ -574,6 +574,11 @@ Project {
             files: [
                 "colortool/colortool.cpp",
                 "colortool/colortool.h",
+                "connectioneditor/addnewbackenddialog.h",
+                "connectioneditor/addnewbackenddialog.cpp",
+                "connectioneditor/addnewbackenddialog.ui",
+                "connectioneditor/backendmodel.h",
+                "connectioneditor/backendmodel.cpp",
                 "connectioneditor/delegates.h",
                 "connectioneditor/delegates.cpp",
                 "connectioneditor/bindingmodel.cpp",
