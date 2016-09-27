@@ -1142,25 +1142,28 @@ void CdbEngine::runCommand(const DebuggerCommand &dbgCmd)
     }
 
     QString fullCmd;
-    StringInputStream str(fullCmd);
-    if (dbgCmd.flags & BuiltinCommand) {
-        // Post a built-in-command producing free-format output with a callback.
-        // In order to catch the output, it is enclosed in 'echo' commands
-        // printing a specially formatted token to be identifiable in the output.
-        const int token = m_nextCommandToken++;
-        str << ".echo \"" << m_tokenPrefix << token << "<\"\n"
-            << cmd << "\n.echo \"" << m_tokenPrefix << token << ">\"";
-        m_commandForToken.insert(token, dbgCmd);
-    } else if (dbgCmd.flags & ExtensionCommand) {
-        // Post an extension command producing one-line output with a callback,
-        // pass along token for identification in hash.
-        const int token = m_nextCommandToken++;
-        str << m_extensionCommandPrefix << dbgCmd.function << " -t " << token;
-        if (dbgCmd.args.isString())
-            str <<  ' ' << dbgCmd.argsToString();
-        m_commandForToken.insert(token, dbgCmd);
+    if (dbgCmd.flags == NoFlags) {
+        fullCmd = cmd;
     } else {
-        str << cmd;
+        const int token = m_nextCommandToken++;
+        StringInputStream str(fullCmd);
+        if (dbgCmd.flags == BuiltinCommand) {
+            // Post a built-in-command producing free-format output with a callback.
+            // In order to catch the output, it is enclosed in 'echo' commands
+            // printing a specially formatted token to be identifiable in the output.
+            str << ".echo \"" << m_tokenPrefix << token << "<\"\n"
+                << cmd << "\n"
+                << ".echo \"" << m_tokenPrefix << token << ">\"";
+        } else if (dbgCmd.flags == ExtensionCommand) {
+            // Post an extension command producing one-line output with a callback,
+            // pass along token for identification in hash.
+            str << m_extensionCommandPrefix << dbgCmd.function << "%1%2";
+            if (dbgCmd.args.isString())
+                str <<  ' ' << dbgCmd.argsToString();
+            cmd = fullCmd.arg("", "");
+            fullCmd = fullCmd.arg(" -t ").arg(token);
+        }
+        m_commandForToken.insert(token, dbgCmd);
     }
     if (debug) {
         qDebug("CdbEngine::postCommand %dms '%s' %s, pending=%d",
