@@ -346,6 +346,7 @@ void TestCodeParser::scanForTests(const QStringList &fileList)
             m_model->markForRemoval(filePath);
     }
 
+    qCDebug(LOG) << QDateTime::currentDateTime().toString("hh:mm:ss.zzz") << "StartParsing";
     foreach (ITestParser *parser, m_testCodeParsers)
         parser->init(list);
 
@@ -393,6 +394,7 @@ void TestCodeParser::onFinished()
         qCDebug(LOG) << "setting state to Idle (onFinished, PartialParse)";
         m_parserState = Idle;
         onPartialParsingFinished();
+        qCDebug(LOG) << QDateTime::currentDateTime().toString("hh:mm:ss.zzz") << "PartParsingFin";
         break;
     case FullParse:
         qCDebug(LOG) << "setting state to Idle (onFinished, FullParse)";
@@ -404,12 +406,14 @@ void TestCodeParser::onFinished()
             qCDebug(LOG) << "emitting parsingFinished"
                          << "(onFinished, FullParse, nothing postponed, parsing succeeded)";
             emit parsingFinished();
+            qCDebug(LOG) << QDateTime::currentDateTime().toString("hh:mm:ss.zzz") << "ParsingFin";
         }
         m_dirty = false;
         break;
     case Disabled: // can happen if all Test related widgets become hidden while parsing
         qCDebug(LOG) << "emitting parsingFinished (onFinished, Disabled)";
         emit parsingFinished();
+        qCDebug(LOG) << QDateTime::currentDateTime().toString("hh:mm:ss.zzz") << "ParsingFin";
         break;
     case Shutdown:
         qCDebug(LOG) << "Shutdown complete - not emitting parsingFinished (onFinished)";
@@ -437,10 +441,12 @@ void TestCodeParser::onPartialParsingFinished()
         m_dirty |= m_codeModelParsing;
         if (m_dirty) {
             emit parsingFailed();
+            qCDebug(LOG) << QDateTime::currentDateTime().toString("hh:mm:ss.zzz") << "ParsingFail";
         } else if (!m_singleShotScheduled) {
             qCDebug(LOG) << "emitting parsingFinished"
                          << "(onPartialParsingFinished, nothing postponed, not dirty)";
             emit parsingFinished();
+            qCDebug(LOG) << QDateTime::currentDateTime().toString("hh:mm:ss.zzz") << "ParsingFin";
         } else {
             qCDebug(LOG) << "not emitting parsingFinished"
                          << "(on PartialParsingFinished, singleshot scheduled)";
