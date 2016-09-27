@@ -3009,7 +3009,7 @@ class DumperBase:
                 fields = self.dumper.nativeTypeFields(nativeType)
                 #warn("FIELDS RES: %s FOR %s" % (fields, nativeType))
                 return fields
-            error("DONT KNOW FIELDS FOR: %s" % self)
+            error("DONT KNOW FIELDS FOR: %s" % self.stringify())
             return []
 
         def firstBase(self):

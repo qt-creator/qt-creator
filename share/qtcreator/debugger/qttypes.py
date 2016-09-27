@@ -1842,11 +1842,7 @@ def qdump__QV4__Heap__String(d, value):
             d.putFields(value)
 
 def qmlPutHeapChildren(d, value):
-    d.putEmptyValue()
-    if d.isExpanded():
-        with Children(d):
-            d.putFields(value)
-            d.putSubItem("heap", extractQmlData(d, value))
+    d.putItem(extractQmlData(d, value))
 
 
 def qdump__QV4__Object(d, value):
@@ -1894,8 +1890,64 @@ def qdump__QQmlSourceLocation(d, value):
 #            for i in range(0, argc):
 #                d.putSubItem(i, value["args"][i])
 #
-#def qdump__QV4__String(d, value):
-#    qmlPutHeapChildren(d, value)
+
+def qdump__QV4__String(d, value):
+    qmlPutHeapChildren(d, value)
+
+def qdump__QV4__Identifier(d, value):
+    d.putStringValue(value)
+    d.putPlainChildren(value)
+
+def qdump__QV4__PropertyHash(d, value):
+    data = value.extractPointer()
+    (ref, alloc, size, numBits, entries) = d.split('iiiip', data)
+    n = 0
+    innerType = d.qtNamespace() + "QV4::Identifier"
+    with Children(d):
+        for i in range(alloc):
+            (identifier, index) = d.split('pI', entries + i * 2 * d.ptrSize())
+            if identifier != 0:
+                n += 1
+                with SubItem(d):
+                    d.putItem(d, d.createValue(identifier, innerType))
+                    d.put("keysuffix", " %d" % index)
+    d.putItemCount(n)
+    d.putPlainChildren(value)
+
+def qdump__QV4__InternalClass__Transition(d, value):
+    identifier = d.createValue(value.extractPointer(), d.qtNamespace() + "QV4::Identifier")
+    d.putStringValue(identifier)
+    d.putPlainChildren(value)
+
+def qdump__QV4__InternalClassTransition(d, value):
+    qdump__QV4__InternalClass__Transition(d, value)
+
+def qdump__QV4__SharedInternalClassData(d, value):
+    (ref, alloc, size, pad, data) = value.split('iIIip')
+    val = d.createValue(data, value.type[0])
+    with Children(d):
+        with SubItem(d, "data"):
+            d.putItem(val)
+            short = d.currentValue
+        d.putIntItem("size", size)
+        d.putIntItem("alloc", alloc)
+        d.putIntItem("refcount", ref)
+    d.putValue(short.value, short.encoding)
+
+def qdump__QV4__IdentifierTable(d, value):
+    (engine, alloc, size, numBits, pad, entries) = value.split('piiiip')
+    n = 0
+    innerType = d.qtNamespace() + "QV4::Heap::String"
+    with Children(d):
+        for i in range(alloc):
+            identifierPtr = d.extractPointer(entries + i * d.ptrSize())
+            if identifierPtr != 0:
+                n += 1
+                with SubItem(d, None):
+                    d.putItem(d.createValue(identifierPtr, innerType))
+    d.putItemCount(n)
+    d.putPlainChildren(value)
+
 
 if False:
     # 32 bit.
@@ -2096,6 +2148,11 @@ def qdump__QV4__Scoped(d, value):
     #        d.putSubItem('[]', d.createValue(value.extractPointer(), innerType))
     #        d.putFields(value)
 
+def qdump__QV4__ScopedString(d, value):
+    innerType = value.type[0]
+    qdump__QV4__String(d, d.createValue(value.extractPointer(), innerType))
+
+
 def qdump__QJSValue(d, value):
     ns = d.qtNamespace()
     dd = value.split('Q')[0]
@@ -2107,9 +2164,9 @@ def qdump__QJSValue(d, value):
         d.putValue("(null)")
         d.putType(value.type.name + " (null)")
     else:
-        #d.putEmptyValue()
-        qdump__QV4__Value(d, d.createValue(dd, ns + 'QV4::Value'))
-        return
+        d.putEmptyValue()
+        #qdump__QV4__Value(d, d.createValue(dd, ns + 'QV4::Value'))
+        #return
     if d.isExpanded():
         with Children(d):
             with SubItem(d, "[raw]"):
