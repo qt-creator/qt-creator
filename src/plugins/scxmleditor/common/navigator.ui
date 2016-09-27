@@ -89,13 +89,6 @@
           <height>30</height>
          </size>
         </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="common.qrc">
-          <normaloff>:/scxmleditor/images/icon-close.png</normaloff>:/scxmleditor/images/icon-close.png</iconset>
-        </property>
         <property name="autoRaise">
          <bool>true</bool>
         </property>
@@ -139,8 +132,6 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="common.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

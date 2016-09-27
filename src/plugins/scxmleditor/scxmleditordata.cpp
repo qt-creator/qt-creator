@@ -45,6 +45,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/qtcassert.h>
+#include <utils/utilsicons.h>
 
 #include <QVBoxLayout>
 
@@ -136,11 +137,11 @@ void ScxmlEditorData::fullInit()
     // Create undo/redo group/actions
     m_undoGroup = new QUndoGroup(m_widgetToolBar);
     m_undoAction = m_undoGroup->createUndoAction(m_widgetToolBar);
-    m_undoAction->setIcon(QIcon(":/scxmleditor/images/icon-undo.png"));
+    m_undoAction->setIcon(Utils::Icons::UNDO.icon());
     m_undoAction->setToolTip(tr("Undo (Ctrl + Z)"));
 
     m_redoAction = m_undoGroup->createRedoAction(m_widgetToolBar);
-    m_redoAction->setIcon(QIcon(":/scxmleditor/images/icon-redo.png"));
+    m_redoAction->setIcon(Utils::Icons::REDO.icon());
     m_redoAction->setToolTip(tr("Redo (Ctrl + Y)"));
 
     ActionManager::registerAction(m_undoAction, Core::Constants::UNDO, m_contexts);

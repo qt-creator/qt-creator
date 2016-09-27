@@ -28,6 +28,8 @@
 #include "graphicsview.h"
 #include "sizegrip.h"
 
+#include <utils/utilsicons.h>
+
 #include <QResizeEvent>
 
 using namespace ScxmlEditor::Common;
@@ -36,6 +38,7 @@ Navigator::Navigator(QWidget *parent)
     : MovableFrame(parent)
 {
     m_ui.setupUi(this);
+    m_ui.m_closeButton->setIcon(Utils::Icons::CLOSE_TOOLBAR.icon());
     connect(m_ui.m_closeButton, &QToolButton::clicked, this, &Navigator::hideFrame);
     m_sizeGrip = new SizeGrip(this);
     m_sizeGrip->setGeometry(0, 0, 18, 18);

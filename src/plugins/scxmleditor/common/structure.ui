@@ -153,13 +153,6 @@
       </item>
       <item>
        <widget class="QToolButton" name="m_checkboxButton">
-        <property name="text">
-         <string>...</string>
-        </property>
-        <property name="icon">
-         <iconset resource="common.qrc">
-          <normaloff>:/scxmleditor/images/icon-filter.png</normaloff>:/scxmleditor/images/icon-filter.png</iconset>
-        </property>
         <property name="checkable">
          <bool>true</bool>
         </property>

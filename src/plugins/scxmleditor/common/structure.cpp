@@ -42,6 +42,7 @@
 #include <QRegExpValidator>
 #include <QUndoStack>
 
+#include <utils/utilsicons.h>
 #include <utils/qtcassert.h>
 
 using namespace ScxmlEditor::PluginInterface;
@@ -102,6 +103,8 @@ Structure::Structure(QWidget *parent)
     : QFrame(parent)
 {
     m_ui.setupUi(this);
+
+    m_ui.m_checkboxButton->setIcon(Utils::Icons::FILTER.icon());
 
     addCheckbox(tr("Common states"), State);
     addCheckbox(tr("Metadata"), Metadata);
