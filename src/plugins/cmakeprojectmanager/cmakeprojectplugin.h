@@ -49,6 +49,9 @@ public:
 private slots:
     void testCMakeParser_data();
     void testCMakeParser();
+
+    void testCMakeSplitValue_data();
+    void testCMakeSplitValue();
 #endif
 };
 

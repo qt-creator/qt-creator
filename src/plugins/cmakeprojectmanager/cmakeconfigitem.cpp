@@ -73,6 +73,67 @@ QString CMakeConfigItem::expandedValueOf(const ProjectExplorer::Kit *k, const QB
     return QString();
 }
 
+static QString between(const QString::ConstIterator it1, const QString::ConstIterator it2)
+{
+    QString result;
+    for (auto it = it1; it != it2; ++it)
+        result.append(*it);
+    return result;
+}
+
+QStringList CMakeConfigItem::cmakeSplitValue(const QString &in, bool keepEmpty)
+{
+    QStringList newArgs;
+    if (in.isEmpty())
+        return newArgs;
+
+    int squareNesting = 0;
+    QString newArg;
+    auto last = in.constBegin();
+    for (auto c = in.constBegin(); c != in.constEnd(); ++c) {
+        switch (c->unicode()) {
+        case '\\': {
+            auto next = c + 1;
+            if (next != in.constEnd() && *next == ';') {
+                newArg.append(between(last, c));
+                last = next;
+                c = next;
+            }
+        } break;
+        case '[': {
+            ++squareNesting;
+        } break;
+        case ']': {
+            --squareNesting;
+        } break;
+        case ';': {
+            // Break the string here if we are not nested inside square
+            // brackets.
+            if (squareNesting == 0) {
+              newArg.append(between(last, c));
+              // Skip over the semicolon
+              last = c + 1;
+              if (!newArg.isEmpty() || keepEmpty) {
+                // Add the last argument if the string is not empty.
+                newArgs.append(newArg);
+                newArg.clear();
+              }
+            }
+        } break;
+        default: {
+            // Just append this character.
+        } break;
+        }
+    }
+    newArg.append(between(last, in.constEnd()));
+    if (!newArg.isEmpty() || keepEmpty) {
+        // Add the last argument if the string is not empty.
+        newArgs.append(newArg);
+    }
+
+    return newArgs;
+}
+
 QString CMakeConfigItem::expandedValue(const ProjectExplorer::Kit *k) const
 {
     return k->macroExpander()->expand(QString::fromUtf8(value));
@@ -182,5 +243,73 @@ bool CMakeConfigItem::operator==(const CMakeConfigItem &o) const
     // type, isAdvanced and documentation do not matter for a match!
     return o.key == key && o.value == value;
 }
+
+#if WITH_TESTS
+
+} // namespace CMakeProjectManager
+
+#include "cmakeprojectplugin.h"
+
+#include <QTest>
+
+namespace CMakeProjectManager {
+namespace Internal {
+
+void CMakeProjectPlugin::testCMakeSplitValue_data()
+{
+    QTest::addColumn<QString>("input");
+    QTest::addColumn<bool>("keepEmpty");
+    QTest::addColumn<QStringList>("expectedOutput");
+
+    // negative tests
+    QTest::newRow("Empty input")
+            << "" << false << QStringList();
+    QTest::newRow("Empty input, keep empty")
+            << "" << true << QStringList();
+
+    QTest::newRow("single path")
+            << "C:/something" << false << QStringList({ "C:/something" });
+    QTest::newRow("single path, keep empty")
+            << "C:/something" << true << QStringList({ "C:/something" });
+
+    QTest::newRow(";single path")
+            << ";C:/something" << false << QStringList({ "C:/something" });
+    QTest::newRow(";single path, keep empty")
+            << ";C:/something" << true << QStringList({ "", "C:/something" });
+
+    QTest::newRow("single path;")
+            << "C:/something;" << false << QStringList({ "C:/something" });
+    QTest::newRow("single path;, keep empty")
+            << "C:/something;" << true << QStringList({ "C:/something", "" });
+
+    QTest::newRow("single path\\;")
+            << "C:/something\\;" << false << QStringList({ "C:/something;" });
+    QTest::newRow("single path\\;, keep empty")
+            << "C:/something\\;" << true << QStringList({ "C:/something;" });
+
+    QTest::newRow("single path\\;;second path")
+            << "C:/something\\;;/second/path" << false << QStringList({ "C:/something;", "/second/path" });
+    QTest::newRow("single path\\;;second path, keep empty")
+            << "C:/something\\;;/second/path" << true << QStringList({ "C:/something;", "/second/path" });
+
+    QTest::newRow("single path;;second path")
+            << "C:/something;;/second/path" << false << QStringList({ "C:/something", "/second/path" });
+    QTest::newRow("single path;;second path, keep empty")
+            << "C:/something;;/second/path" << true << QStringList({ "C:/something", "", "/second/path" });
+}
+
+void CMakeProjectPlugin::testCMakeSplitValue()
+{
+    QFETCH(QString, input);
+    QFETCH(bool, keepEmpty);
+    QFETCH(QStringList, expectedOutput);
+
+    const QStringList realOutput = CMakeConfigItem::cmakeSplitValue(input, keepEmpty);
+
+    QCOMPARE(expectedOutput, realOutput);
+}
+
+} // namespace Internal
+#endif
 
 } // namespace CMakeProjectManager
