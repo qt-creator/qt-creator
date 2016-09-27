@@ -253,7 +253,12 @@ void CMakeGeneratorKitConfigWidget::refresh()
     }
 
     const QString generator = CMakeGeneratorKitInformation::generator(m_kit);
-    m_comboBox->setCurrentIndex(m_comboBox->findData(generator));
+    const QString extraGenerator = CMakeGeneratorKitInformation::extraGenerator(m_kit);
+    QString fullName = extraGenerator;
+    if (!fullName.isEmpty())
+        fullName += " - ";
+    fullName += generator;
+    m_comboBox->setCurrentIndex(m_comboBox->findData(fullName));
 }
 
 QWidget *CMakeGeneratorKitConfigWidget::mainWidget() const

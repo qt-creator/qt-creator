@@ -170,12 +170,9 @@ void BuildDirManager::forceReparse()
     stopProcess();
 
     CMakeTool *tool = CMakeKitInformation::cmakeTool(kit());
-    const QString generator = CMakeGeneratorKitInformation::generator(kit());
-
     QTC_ASSERT(tool, return);
-    QTC_ASSERT(!generator.isEmpty(), return);
 
-    startCMake(tool, generator, intendedConfiguration());
+    startCMake(tool, CMakeGeneratorKitInformation::generatorArguments(kit()), intendedConfiguration());
 }
 
 void BuildDirManager::resetData()
@@ -210,16 +207,15 @@ void BuildDirManager::parse()
     checkConfiguration();
 
     CMakeTool *tool = CMakeKitInformation::cmakeTool(kit());
-    const QString generator = CMakeGeneratorKitInformation::generator(kit());
+    const QStringList generatorArgs = CMakeGeneratorKitInformation::generatorArguments(kit());
 
     QTC_ASSERT(tool, return);
-    QTC_ASSERT(!generator.isEmpty(), return);
 
     const QString cbpFile = CMakeManager::findCbpFile(QDir(workDirectory().toString()));
     const QFileInfo cbpFileFi = cbpFile.isEmpty() ? QFileInfo() : QFileInfo(cbpFile);
     if (!cbpFileFi.exists()) {
         // Initial create:
-        startCMake(tool, generator, intendedConfiguration());
+        startCMake(tool, generatorArgs, intendedConfiguration());
         return;
     }
 
@@ -228,7 +224,7 @@ void BuildDirManager::parse()
                    return f.toFileInfo().lastModified() > cbpFileFi.lastModified();
                });
     if (mustUpdate) {
-        startCMake(tool, generator, CMakeConfig());
+        startCMake(tool, generatorArgs, CMakeConfig());
     } else {
         extractData();
         m_hasData = true;
@@ -392,7 +388,7 @@ void BuildDirManager::extractData()
     m_buildTargets = cbpparser.buildTargets();
 }
 
-void BuildDirManager::startCMake(CMakeTool *tool, const QString &generator,
+void BuildDirManager::startCMake(CMakeTool *tool, const QStringList &generatorArgs,
                                  const CMakeConfig &config)
 {
     QTC_ASSERT(tool && tool->isValid(), return);
@@ -441,8 +437,7 @@ void BuildDirManager::startCMake(CMakeTool *tool, const QString &generator,
 
     QString args;
     Utils::QtcProcess::addArg(&args, srcDir);
-    if (!generator.isEmpty())
-        Utils::QtcProcess::addArg(&args, QString::fromLatin1("-G%1").arg(generator));
+    Utils::QtcProcess::addArgs(&args, generatorArgs);
     Utils::QtcProcess::addArgs(&args, toArguments(config, kit()));
 
     ProjectExplorer::TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
@@ -689,10 +684,8 @@ void BuildDirManager::maybeForceReparse()
 
     const CMakeTool *tool = CMakeKitInformation::cmakeTool(kit());
     QTC_ASSERT(tool, return); // No cmake... we should not have ended up here in the first place
-    const QString kitGenerator = CMakeGeneratorKitInformation::generator(kit());
-    int pos = kitGenerator.lastIndexOf(QLatin1String(" - "));
-    const QString extraKitGenerator = (pos > 0) ? kitGenerator.left(pos) : QString();
-    const QString mainKitGenerator = (pos > 0) ? kitGenerator.mid(pos + 3) : kitGenerator;
+    const QString extraKitGenerator = CMakeGeneratorKitInformation::extraGenerator(kit());
+    const QString mainKitGenerator = CMakeGeneratorKitInformation::generator(kit());
     CMakeConfig targetConfig = m_buildConfiguration->cmakeConfiguration();
     targetConfig.append(CMakeConfigItem(GENERATOR_KEY, CMakeConfigItem::INTERNAL,
                                         QByteArray(), mainKitGenerator.toUtf8()));

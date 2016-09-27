@@ -104,7 +104,7 @@ private:
     void cleanUpProcess();
     void extractData();
 
-    void startCMake(CMakeTool *tool, const QString &generator, const CMakeConfig &config);
+    void startCMake(CMakeTool *tool, const QStringList &generatorArgs, const CMakeConfig &config);
 
     void cmakeFinished(int code, QProcess::ExitStatus status);
     void processCMakeOutput();
