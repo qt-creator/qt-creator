@@ -637,6 +637,8 @@ struct CorePrivateProfile {};
 struct GuiProfile {};
 struct GuiPrivateProfile {};
 struct NetworkProfile {};
+struct QmlProfile {};
+struct QmlPrivateProfile {};
 
 struct BigArrayProfile {};
 
@@ -816,6 +818,28 @@ public:
         profileExtra +=
             "greaterThan(QT_MAJOR_VERSION, 4) {\n"
             "  QT += gui-private\n"
+            "  CONFIG += no_private_qt_headers_warning\n"
+            "}";
+
+        return *this;
+    }
+
+    const Data &operator+(const QmlProfile &) const
+    {
+        profileExtra +=
+            "greaterThan(QT_MAJOR_VERSION, 4) {\n"
+            "  QT += qml\n"
+            "}";
+
+        return *this;
+    }
+
+    const Data &operator+(const QmlPrivateProfile &) const
+    {
+        this->operator+(QmlProfile());
+        profileExtra +=
+            "greaterThan(QT_MAJOR_VERSION, 4) {\n"
+            "  QT += qml-private\n"
             "  CONFIG += no_private_qt_headers_warning\n"
             "}";
 
@@ -3117,6 +3141,12 @@ void tst_Dumpers::dumper_data()
                     "QString str3(\"Hello\\rQt\"); unused(&str3);\n"
                     "QString str4(\"Hello\\tQt\"); unused(&str4);\n\n"
 
+                    "static const QStaticStringData<3> qstring_literal = {\n"
+                    "    Q_STATIC_STRING_DATA_HEADER_INITIALIZER(3),\n"
+                    "    QT_UNICODE_LITERAL(u\"ABC\") };\n"
+                    "QStringDataPtr holder = { qstring_literal.data_ptr() };\n"
+                    "const QString qstring_literal_temp(holder); unused(&holder);\n\n"
+
                     "QStaticStringData<1> sd;\n"
                     "sd.data[0] = 'Q';\n"
                     "sd.data[1] = 0;\n")
@@ -3146,6 +3176,9 @@ void tst_Dumpers::dumper_data()
                + Check("str2", "\"Hello\nQt\"", "@QString")
                + Check("str3", "\"Hello\rQt\"", "@QString")
                + Check("str4", "\"Hello\tQt\"", "@QString")
+
+               + Check("holder", "", "@QStringDataPtr")
+               + Check("holder.ptr", "\"ABC\"", "@QStringData")
 
                + Check("sd", "\"Q\"", "@QStaticStringData<1>");
 
@@ -6102,6 +6135,53 @@ void tst_Dumpers::dumper_data()
             + Check("ob.2", "\"ccc\"",  "\"hallo\"",      "QJsonValue (String)")
             + Check("ob.3", "\"d\"",    "<1 items>",      "QJsonValue (Object)")
             + Check("ob.4", "\"s\"",    "\"ssss\"",       "QJsonValue (String)");
+
+    QTest::newRow("QV4")
+            << Data("#include <private/qv4value_p.h>\n"
+                    "#include <private/qjsvalue_p.h>\n"
+                    "#include <QGuiApplication>\n"
+                    "#include <QJSEngine>\n",
+                    "QGuiApplication app(argc, argv);\n"
+                    "QJSEngine eng;\n\n"
+                    "QV4::Value q0; unused(&q0);\n\n"
+                    "QV4::Value q1; unused(&q1);\n"
+                    "q1.setInt_32(1);\n\n"
+                    "QV4::Value q2; unused(&q2);\n"
+                    "q2.setDouble(2.5);\n\n"
+                    "QJSValue v10; unused(&v10);\n"
+                    "QJSValue v11 = QJSValue(true); unused(&v11);\n"
+                    "QJSValue v12 = QJSValue(1); unused(&v12);\n"
+                    "QJSValue v13 = QJSValue(2.5); unused(&v13);\n"
+                    "QJSValue v14 = QJSValue(QLatin1String(\"latin1\")); unused(&v14);\n"
+                    "QJSValue v15 = QJSValue(QString(\"utf16\")); unused(&v15);\n"
+                    "QJSValue v16 = QJSValue(bool(true)); unused(&v12);\n"
+                    "QJSValue v17 = eng.newArray(100); unused(&v17);\n"
+                    "QJSValue v18 = eng.newObject(); unused(&v18);\n\n"
+                    "v18.setProperty(\"PropA\", 1);\n"
+                    "v18.setProperty(\"PropB\", 2.5);\n"
+                    "v18.setProperty(\"PropC\", v10);\n\n"
+                    "QV4::Value s11, *p11 = QJSValuePrivate::valueForData(&v11, &s11); unused(&p11);\n"
+                    "QV4::Value s12, *p12 = QJSValuePrivate::valueForData(&v12, &s12); unused(&p12);\n"
+                    "QV4::Value s13, *p13 = QJSValuePrivate::valueForData(&v13, &s13); unused(&p13);\n"
+                    "QV4::Value s14, *p14 = QJSValuePrivate::valueForData(&v14, &s14); unused(&p14);\n"
+                    "QV4::Value s15, *p15 = QJSValuePrivate::valueForData(&v15, &s15); unused(&p15);\n"
+                    "QV4::Value s16, *p16 = QJSValuePrivate::valueForData(&v16, &s16); unused(&p16);\n"
+                    "QV4::Value s17, *p17 = QJSValuePrivate::valueForData(&v17, &s17); unused(&p17);\n"
+                    "QV4::Value s18, *p18 = QJSValuePrivate::valueForData(&v18, &s18); unused(&p18);\n"
+                    )
+            + QmlPrivateProfile()
+            + QtVersion(0x50000)
+            //+ Check("q0", "(null)", "@QV4::Value (null)") # Works in GUI. Why?
+            + Check("q1", "1", "@QV4::Value (int32)")
+            + Check("q2", FloatValue("2.5"), "@QV4::Value (double)")
+            //+ Check("v10", "(null)", "@QJSValue (null)") # Works in GUI. Why?
+            + Check("v11", "true", "@QJSValue (bool)")
+            + Check("v12", "1", "@QJSValue (int)")
+            + Check("v13", FloatValue("2.5"), "@QJSValue (double)")
+            + Check("v14", "\"latin1\"", "@QJSValue (QString)")
+            + Check("v14.2", "[2]", "116", "@QChar")
+            + Check("v15", "\"utf16\"", "@QJSValue (QString)")
+            + Check("v15.1", "[1]", "116", "@QChar");
 }
 
 int main(int argc, char *argv[])

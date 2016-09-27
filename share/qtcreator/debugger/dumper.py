@@ -283,6 +283,7 @@ class DumperBase:
         self.typesReported = {}
         self.typesToReport = {}
         self.qtNamespaceToReport = None
+        self.passExceptions = False
 
         self.resetCaches()
         self.resetStats()
@@ -669,6 +670,12 @@ class DumperBase:
     def putStringValue(self, value):
         elided, data = self.encodeStringHelper(self.extractPointer(value), self.displayStringLimit)
         self.putValue(data, "utf16", elided=elided)
+
+    def putPtrItem(self, name, value):
+        with SubItem(self, name):
+            self.putValue("0x%x" % value)
+            self.putType("void*")
+            self.putNumChild(0)
 
     def putIntItem(self, name, value):
         with SubItem(self, name):
@@ -1211,8 +1218,7 @@ class DumperBase:
             # Explicitly requested bald pointer.
             #warn("RAW")
             self.putType(typeName)
-            self.putValue(self.hexencode(str(value)), "utf8:1:0")
-            self.putNumChild(1)
+            self.putValue("0x%x" % pointer)
             if self.currentIName in self.expandedINames:
                 with Children(self):
                     with SubItem(self, '*'):
@@ -2411,12 +2417,6 @@ class DumperBase:
     def isReportableInterpreterFrame(self, functionName):
         return functionName and functionName.find("QV4::Moth::VME::exec") >= 0
 
-    def extractQmlData(self, value):
-        if value.type.code == TypeCodePointer:
-            value = value.dereference()
-        data = value["data"]
-        return data.cast(self.lookupType(value.type.name.replace("QV4::", "QV4::Heap::")))
-
     def extractInterpreterStack(self):
         return self.sendInterpreterRequest('backtrace', {'limit': 10 })
 
@@ -3174,7 +3174,7 @@ class DumperBase:
             return typish
         if isinstance(typish, str):
             if typish[0] == 'Q':
-                if typish in ("QByteArray", "QString", "QList", "QStringList"):
+                if typish in ("QByteArray", "QString", "QList", "QStringList", "QStringDataPtr"):
                     typish = self.qtNamespace() + typish
                     size = self.ptrSize()
                 elif typish == "QImage":

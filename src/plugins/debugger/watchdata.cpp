@@ -434,8 +434,12 @@ void WatchItem::parseHelper(const GdbMi &input, bool maySort)
 
     mi = input["value"];
     QString enc = input["valueencoded"].data();
-    if (mi.isValid() || !enc.isEmpty())
+    if (mi.isValid() || !enc.isEmpty()) {
         setValue(decodeData(mi.data(), enc));
+        mi = input["valuesuffix"];
+        if (mi.isValid())
+            value += mi.data();
+    }
 
     mi = input["size"];
     if (mi.isValid())

@@ -1287,8 +1287,11 @@ def qdump__QStaticStringData(d, value):
     d.putPlainChildren(value)
 
 def qdump__QStringData(d, value):
-    d.putStringValueByAddress(value.integer())
+    (ref, size, alloc, pad, offset) = value.split('III@p')
+    elided, shown = d.computeLimit(size, d.displayStringLimit)
+    data = d.readMemory(value.address() + offset, shown * 2)
     d.putNumChild(0)
+    d.putValue(data, "utf16", elided=elided)
 
 def qdump__QHashedString(d, value):
     qdump__QString(d, value)
@@ -1815,97 +1818,325 @@ def qdump__QXmlStreamAttribute(d, value):
 #
 #######################################################################
 
-def qdump__QV4__Object(d, value):
-    d.putBetterType(d.currentType)
-    d.putItem(d.extractQmlData(value))
+def extractQmlData(d, value):
+    #if value.type.code == TypeCodePointer:
+    #    value = value.dereference()
+    base = value.split('p')[0]
+    #mmdata = d.split('Q', base)[0]
+    #PointerMask = 0xfffffffffffffffd
+    #vtable = mmdata & PointerMask
+    #warn("QML DATA: %s" % value.stringify())
+    #data = value["data"]
+    #return #data.cast(d.lookupType(value.type.name.replace("QV4::", "QV4::Heap::")))
+    typeName = value.type.name.replace("QV4::", "QV4::Heap::")
+    #warn("TYOE DATA: %s" % typeName)
+    return d.createValue(base, typeName)
 
-def qdump__QV4__FunctionObject(d, value):
-    d.putBetterType(d.currentType)
-    d.putItem(d.extractQmlData(value))
-
-def qdump__QV4__CompilationUnit(d, value):
-    d.putBetterType(d.currentType)
-    d.putItem(d.extractQmlData(value))
-
-def qdump__QV4__CallContext(d, value):
-    d.putBetterType(d.currentType)
-    d.putItem(d.extractQmlData(value))
-
-def qdump__QV4__ScriptFunction(d, value):
-    d.putBetterType(d.currentType)
-    d.putItem(d.extractQmlData(value))
-
-def qdump__QV4__SimpleScriptFunction(d, value):
-    d.putBetterType(d.currentType)
-    d.putItem(d.extractQmlData(value))
-
-def qdump__QV4__ExecutionContext(d, value):
-    d.putBetterType(d.currentType)
-    d.putItem(d.extractQmlData(value))
-
-def qdump__QV4__TypedValue(d, value):
-    d.putBetterType(d.currentType)
-    qdump__QV4__Value(d, d.directBaseObject(value))
-
-def qdump__QV4__CallData(d, value):
-    argc = value["argc"].integer()
-    d.putItemCount(argc)
+def qdump__QV4__Heap__Base(d, value):
+    mm_data = value.extractPointer()
+    d.putValue("[%s]" % mm_data)
     if d.isExpanded():
         with Children(d):
-            d.putSubItem("[this]", value["thisObject"])
-            for i in range(0, argc):
-                d.putSubItem(i, value["args"][i])
+            with SubItem(d, "vtable"):
+                d.putItem(d.createValue(mm_data & (~3), d.qtNamespace() + "QV4::VTable"))
+            d.putBoolItem("isMarked", mm_data & 1)
+            d.putBoolItem("inUse", (mm_data & 2) == 0)
+            with SubItem(d, "nextFree"):
+                d.putItem(d.createValue(mm_data & (~3), value.type))
 
-def qdump__QV4__String(d, value):
-    d.putStringValue(value.address() + 2 * d.ptrSize())
+def qdump__QV4__Heap__String(d, value):
+    # Note: There's also the 'Identifier' case. And the largestSubLength != 0 case.
+    (baseClass, textOrLeft, idOrRight, subtype, stringHash, largestSub, length, mm) \
+        = value.split('QppIIIIp')
+    textPtr = d.split('{QStringDataPtr}', textOrLeft)[0]
+    qdump__QStringData(d, d.createValue(textOrLeft, d.qtNamespace() + "QStringData"))
+    if d.isExpanded():
+        with Children(d):
+            d.putFields(value)
+
+def qmlPutHeapChildren(d, value):
+    d.putEmptyValue()
+    if d.isExpanded():
+        with Children(d):
+            d.putFields(value)
+            d.putSubItem("heap", extractQmlData(d, value))
+
+
+def qdump__QV4__Object(d, value):
+    qmlPutHeapChildren(d, value)
+
+def qdump__QV4__FunctionObject(d, value):
+    #qmlPutHeapChildren(d, value)
+    d.putEmptyValue()
+    if d.isExpanded():
+        with Children(d):
+            d.putFields(value)
+            d.putSubItem("heap", extractQmlData(d, value))
+            d.putCallItem("sourceLocation", d.qtNamespace() + "QQmlSourceLocation",
+                          value, "sourceLocation")
+
+def qdump__QV4__CompilationUnit(d, value):
+    qmlPutHeapChildren(d, value)
+
+def qdump__QV4__CallContext(d, value):
+    qmlPutHeapChildren(d, value)
+
+def qdump__QV4__ScriptFunction(d, value):
+    qmlPutHeapChildren(d, value)
+
+def qdump__QV4__SimpleScriptFunction(d, value):
+    qdump__QV4__FunctionObject(d, value)
+
+def qdump__QV4__ExecutionContext(d, value):
+    qmlPutHeapChildren(d, value)
+
+def qdump__QQmlSourceLocation(d, value):
+    (sourceFile, line, col) = value.split("pHH")
+    (data, size, alloc) = d.stringData(value)
+    d.putValue(d.readMemory(data, 2 * size), "utf16")
+    d.put("valuesuffix=\":%s:%s\"," % (line, col))
+    d.putPlainChildren(value)
+
+
+#def qdump__QV4__CallData(d, value):
+#    argc = value["argc"].integer()
+#    d.putItemCount(argc)
+#    if d.isExpanded():
+#        with Children(d):
+#            d.putSubItem("[this]", value["thisObject"])
+#            for i in range(0, argc):
+#                d.putSubItem(i, value["args"][i])
+#
+#def qdump__QV4__String(d, value):
+#    qmlPutHeapChildren(d, value)
+
+if False:
+    # 32 bit.
+    QV4_Masks_SilentNaNBit           = 0x00040000
+    QV4_Masks_NaN_Mask               = 0x7ff80000
+    QV4_Masks_NotDouble_Mask         = 0x7ffa0000
+    QV4_Masks_Type_Mask              = 0xffffc000
+    QV4_Masks_Immediate_Mask         = QV4_Masks_NotDouble_Mask | 0x00004000 | QV4_Masks_SilentNaNBit
+    QV4_Masks_IsNullOrUndefined_Mask = QV4_Masks_Immediate_Mask |    0x08000
+    QV4_Masks_Tag_Shift = 32
+
+    QV4_ValueType_Undefined_Type     = QV4_Masks_Immediate_Mask | 0x00000
+    QV4_ValueType_Null_Type          = QV4_Masks_Immediate_Mask | 0x10000
+    QV4_ValueType_Boolean_Type       = QV4_Masks_Immediate_Mask | 0x08000
+    QV4_ValueType_Integer_Type       = QV4_Masks_Immediate_Mask | 0x18000
+    QV4_ValueType_Managed_Type       = QV4_Masks_NotDouble_Mask | 0x00000 | QV4_Masks_SilentNaNBit
+    QV4_ValueType_Empty_Type         = QV4_Masks_NotDouble_Mask | 0x18000 | QV4_Masks_SilentNaNBit
+
+    QV4_ConvertibleToInt             = QV4_Masks_Immediate_Mask | 0x1
+
+    QV4_ValueTypeInternal_Null_Type_Internal    = QV4_ValueType_Null_Type | QV4_ConvertibleToInt
+    QV4_ValueTypeInternal_Boolean_Type_Internal = QV4_ValueType_Boolean_Type | QV4_ConvertibleToInt
+    QV4_ValueTypeInternal_Integer_Type_Internal = QV4_ValueType_Integer_Type | QV4_ConvertibleToInt
+
+else:
+    # 64 bit.
+    QV4_NaNEncodeMask                = 0xffff800000000000
+    QV4_IsInt32Mask                  = 0x0002000000000000
+    QV4_IsDoubleMask                 = 0xfffc000000000000
+    QV4_IsNumberMask                 = QV4_IsInt32Mask | QV4_IsDoubleMask
+    QV4_IsNullOrUndefinedMask        = 0x0000800000000000
+    QV4_IsNullOrBooleanMask          = 0x0001000000000000
+    QV4_PointerMask                  = 0xfffffffffffffffd
+
+    QV4_Masks_NaN_Mask               = 0x7ff80000
+    QV4_Masks_Type_Mask              = 0xffff8000
+    QV4_Masks_IsDouble_Mask          = 0xfffc0000
+    QV4_Masks_Immediate_Mask         = 0x00018000
+    QV4_Masks_IsNullOrUndefined_Mask = 0x00008000
+    QV4_Masks_IsNullOrBoolean_Mask   = 0x00010000
+    QV4_Masks_Tag_Shift              = 32
+
+    QV4_ValueType_Undefined_Type     = QV4_Masks_IsNullOrUndefined_Mask
+    QV4_ValueType_Null_Type          = QV4_Masks_IsNullOrUndefined_Mask | QV4_Masks_IsNullOrBoolean_Mask
+    QV4_ValueType_Boolean_Type       = QV4_Masks_IsNullOrBoolean_Mask
+    QV4_ValueType_Integer_Type       = 0x20000 | QV4_Masks_IsNullOrBoolean_Mask
+    QV4_ValueType_Managed_Type       = 0
+    QV4_ValueType_Empty_Type         = QV4_ValueType_Undefined_Type | 0x4000
+
+    QV4_ValueTypeInternal_Null_Type_Internal    = QV4_ValueType_Null_Type
+    QV4_ValueTypeInternal_Boolean_Type_Internal = QV4_ValueType_Boolean_Type
+    QV4_ValueTypeInternal_Integer_Type_Internal = QV4_ValueType_Integer_Type
+
+    QV4_IsDouble_Shift               = 64-14
+    QV4_IsNumber_Shift               = 64-15
+    QV4_IsConvertibleToInt_Shift     = 64-16
+    QV4_IsManaged_Shift              = 64-17
+
+
+def QV4_getValue(d, jsval):  # (Dumper, QJSValue *jsval) -> QV4::Value *
+    dd = d.split('Q', jsval)[0]
+    if dd & 3:
+        return 0
+    return dd
+
+def QV4_getVariant(d, jsval):  # (Dumper, QJSValue *jsval) -> QVariant *
+    dd = d.split('Q', jsval)[0]
+    if dd & 1:
+        return dd & ~3
+    return 0
+
+def QV4_valueForData(d, jsval): # (Dumper, QJSValue *jsval) -> QV4::Value *
+    v = QV4_getValue(d, jsval)
+    if v:
+        return v
+    warn("Not implemented: VARIANT")
+    return 0
+
+def QV4_putObjectValue(d, objectPtr):
+    ns = d.qtNamespace()
+    base = d.extractPointer(objectPtr)
+    (inlineMemberOffset, inlineMemberSize, internalClass, prototype,
+     memberData, arrayData) = d.split('IIpppp', base)
+    d.putValue("PTR: 0x%x" % objectPtr)
+    if d.isExpanded():
+        with Children(d):
+            with SubItem(d, "[raw]"):
+                d.putValue("[0x%x]" % objectPtr)
+                d.putType(" ");
+                d.putNumChild(0)
+            d.putIntItem("inlineMemberOffset", inlineMemberOffset)
+            d.putIntItem("inlineMemberSize", inlineMemberSize)
+            d.putIntItem("internalClass", internalClass)
+            d.putIntItem("prototype", prototype)
+            d.putPtrItem("memberData", memberData)
+            d.putPtrItem("arrayData", arrayData)
+            d.putSubItem("OBJ", d.createValue(objectPtr, ns + "QV4::Object"))
+            #d.putFields(value)
+
+def qdump__QV4_Object(d, value):
+    ns = d.qtNamespace()
+    d.putEmptyValue()
+    if d.isExpanded():
+        with Children(d):
+            with SubItem(d, "[raw]"):
+                base = d.extractPointer(objectPtr)
+                (inlineMemberOffset, inlineMemberSize, internalClass, prototype,
+                 memberData, arrayData) = d.split('IIpppp', base)
+                d.putValue("PTR: 0x%x" % objectPtr)
 
 def qdump__QV4__Value(d, value):
-    v = int(str(value["_val"]))
-    NaNEncodeMask          = 0xffff800000000000
-    IsInt32Mask            = 0x0002000000000000
-    IsDoubleMask           = 0xfffc000000000000
-    IsNumberMask           = IsInt32Mask | IsDoubleMask
-    IsNullOrUndefinedMask  = 0x0000800000000000
-    IsNullOrBooleanMask    = 0x0001000000000000
-    IsConvertibleToIntMask = IsInt32Mask | IsNullOrBooleanMask
+    v = value.split('Q')[0]
+    if d.ptrSize() == 4:
+        d.putValue("[0x%x]" % v)
+        d.putPlainChildren(value)
+        return
+    tag = v >> QV4_Masks_Tag_Shift
+    vtable = v & QV4_PointerMask
     ns = d.qtNamespace()
-    if v & IsInt32Mask:
+    if (v >> QV4_IsNumber_Shift) == 1:
         d.putBetterType("%sQV4::Value (int32)" % ns)
         vv = v & 0xffffffff
         vv = vv if vv < 0x80000000 else -(0x100000000 - vv)
         d.putBetterType("%sQV4::Value (int32)" % ns)
         d.putValue("%d" % vv)
-    elif v & IsDoubleMask:
+    elif (v >> QV4_IsDouble_Shift):
         d.putBetterType("%sQV4::Value (double)" % ns)
-        d.putValue("%x" % (v ^ 0xffff800000000000), "float:8")
+        d.putValue("%x" % (v ^ QV4_NaNEncodeMask), "float:8")
+    elif tag == QV4_ValueType_Undefined_Type:
+        d.putBetterType("%sQV4::Value (undefined)" % ns)
+        d.putValue("(undefined)")
+    elif tag == QV4_ValueTypeInternal_Null_Type_Internal:
+        d.putBetterType("%sQV4::Value (null?)" % ns)
+        d.putValue("(null?)")
     elif v == 0:
         d.putBetterType("%sQV4::Value (null)" % ns)
         d.putValue("(null)")
-    elif v & IsNullOrUndefinedMask:
-        d.putBetterType("%sQV4::Value (null/undef)" % ns)
-        d.putValue("(null/undef)")
-    elif v & IsNullOrBooleanMask:
-        d.putBetterType("%sQV4::Value (null/bool)" % ns)
-        d.putValue("(null/bool)")
-        d.putValue(v & 1)
+    #elif ((v >> QV4_IsManaged_Shift) & ~1) == 1:
+    #    d.putBetterType("%sQV4::Value (null/undef)" % ns)
+    #    d.putValue("(null/undef)")
+    #elif v & QV4_IsNullOrBooleanMask:
+    #    d.putBetterType("%sQV4::Value (null/bool)" % ns)
+    #    d.putValue("(null/bool)")
+    #    d.putValue(v & 1)
     else:
-        vtable = value["m"]["vtable"]
-        if vtable["isString"].integer():
+        (parentv, flags, pad, className) = d.split('pIIp', vtable)
+        #vtable = value["m"]["vtable"]
+        if flags & 2: # isString"
             d.putBetterType("%sQV4::Value (string)" % ns)
-            d.putStringValue(d.extractPointer(value) + 2 * d.ptrSize())
-        elif vtable["isObject"].integer():
+            qdump__QV4__Heap__String(d, d.createValue(v, ns + "QV4::Heap::String"))
+            #d.putStringValue(d.extractPointer(value) + 2 * d.ptrSize())
+            #d.putValue("ptr: 0x%x" % d.extractPointer(value))
+            return
+        elif flags & 4: # isObject
             d.putBetterType("%sQV4::Value (object)" % ns)
-            d.putValue("[0x%x]" % v)
+            #QV4_putObjectValue(d, d.extractPointer(value) + 2 * d.ptrSize())
+            arrayVTable = d.symbolAddress(ns + "QV4::ArrayObject::static_vtbl")
+            warn("ARRAY VTABLE: 0x%x" % arrayVTable)
+            d.putNumChild(1)
+            d.putItem(d.createValue(d.extractPointer(value) + 2 * d.ptrSize(), ns + "QV4::Object"))
+            return
+        elif flags & 8: # isFunction
+            d.putBetterType("%sQV4::Value (function)" % ns)
+            d.putEmptyValue()
         else:
             d.putBetterType("%sQV4::Value (unknown)" % ns)
-            d.putValue("[0x%x]" % v)
-    d.putNumChild(1)
+            #d.putValue("[0x%x]" % v)
+            d.putValue("[0x%x : flag 0x%x : tag 0x%x]" % (v, flags, tag))
     if d.isExpanded():
         with Children(d):
             with SubItem(d, "[raw]"):
                 d.putValue("[0x%x]" % v)
                 d.putType(" ");
                 d.putNumChild(0)
+            with SubItem(d, "[vtable]"):
+                d.putItem(d.createValue(vtable, ns + "QV4::VTable"))
+                d.putType(" ");
+                d.putNumChild(0)
+            d.putFields(value)
+
+def qdump__QV__PropertyHashData(d, value):
+    (ref, alloc, size, numBits, entries) = value.split('IIIIp')
+    d.putItemCount(size)
+    if d.isExpanded():
+        with Children(d):
+            d.putFields(value)
+
+def qdump__QV__PropertyHash(d, value):
+    qdump__QV__PropertyHashData(d, d.createValue(d.extractPointer(), value.type.name + 'Data'))
+
+
+def qdump__QV4__Scoped(d, value):
+    innerType = value.type[0]
+    d.putItem(d.createValue(value.extractPointer(), innerType))
+    #d.putEmptyValue()
+    #if d.isExpanded():
+    #    with Children(d):
+    #        d.putSubItem('[]', d.createValue(value.extractPointer(), innerType))
+    #        d.putFields(value)
+
+def qdump__QJSValue(d, value):
+    ns = d.qtNamespace()
+    dd = value.split('Q')[0]
+    if dd & 1:
+        variant = d.createValue(dd & ~3, ns + "QVariant")
+        qdump__QVariant(d, variant)
+        d.putBetterType(d.currentType.value.replace('QVariant', 'QJSValue', 1))
+    elif dd == 0:
+        d.putValue("(null)")
+        d.putType(value.type.name + " (null)")
+    else:
+        #d.putEmptyValue()
+        qdump__QV4__Value(d, d.createValue(dd, ns + 'QV4::Value'))
+        return
+    if d.isExpanded():
+        with Children(d):
+            with SubItem(d, "[raw]"):
+                d.putValue("[0x%x]" % dd)
+                d.putType(" ");
+                d.putNumChild(0)
+            d.putFields(value)
+
+def qdump__QQmlBinding(d, value):
+    d.putEmptyValue()
+    if d.isExpanded():
+        with Children(d):
+            d.putCallItem("expressionIdentifier", d.qtNamespace() + "QString",
+                          value, "expressionIdentifier")
             d.putFields(value)
 
 
@@ -1972,7 +2203,6 @@ def qdump__QTJSC__JSValue(d, value):
                 d.putSubItem("variant", variant)
             except:
                 pass
-
 
 def qdump__QScriptValue(d, value):
     # structure:
@@ -2268,5 +2498,4 @@ def qdump__QJsonArray(d, value):
 
 def qdump__QJsonObject(d, value):
     qdumpHelper_QJsonObject(d, value["d"].integer(), value["o"].integer())
-
 
