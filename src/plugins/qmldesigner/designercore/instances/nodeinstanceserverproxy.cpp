@@ -96,7 +96,10 @@ static void showCannotConnectToPuppetWarningAndSwitchToEditMode()
 
 }
 
-NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceView, RunModus runModus, ProjectExplorer::Kit *kit)
+NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceView,
+                                                 RunModus runModus,
+                                                 ProjectExplorer::Kit *kit,
+                                                 ProjectExplorer::Project *project)
     : NodeInstanceServerInterface(nodeInstanceView),
       m_localServer(new QLocalServer(this)),
       m_nodeInstanceView(nodeInstanceView),
@@ -114,7 +117,7 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
    m_localServer->listen(socketToken);
    m_localServer->setMaxPendingConnections(3);
 
-   PuppetCreator puppetCreator(kit, QString(), nodeInstanceView->model());
+   PuppetCreator puppetCreator(kit, project, QString(), nodeInstanceView->model());
    puppetCreator.setQrcMappingString(qrcMappingString());
 
    puppetCreator.createPuppetExecutableIfMissing();

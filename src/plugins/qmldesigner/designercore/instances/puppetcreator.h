@@ -34,6 +34,7 @@
 
 namespace ProjectExplorer {
 class Kit;
+class Project;
 }
 
 namespace QmlDesigner {
@@ -49,7 +50,11 @@ public:
         UserSpacePuppet
     };
 
-    PuppetCreator(ProjectExplorer::Kit *kit, const QString &qtCreatorVersion, const Model *model);
+    PuppetCreator(ProjectExplorer::Kit *kit,
+                  ProjectExplorer::Project *project,
+                  const QString &qtCreatorVersion,
+                  const Model *model);
+
     ~PuppetCreator();
 
     void createPuppetExecutableIfMissing();
@@ -118,6 +123,7 @@ private:
     const DesignerSettings m_designerSettings;
 #endif
     QString m_qrcMapping;
+    ProjectExplorer::Project *m_currentProject = nullptr;
 };
 
 } // namespace QmlDesigner

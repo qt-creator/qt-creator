@@ -115,6 +115,7 @@ public slots:
     void undo();
     void redo();
     void updateActiveQtVersion();
+    void updateCurrentProject();
     void changeToSubComponent(const ModelNode &componentNode);
     void changeToMaster();
 

@@ -31,6 +31,7 @@
 
 namespace ProjectExplorer {
 class Kit;
+class Project;
 }
 
 namespace QmlDesigner {
@@ -63,6 +64,7 @@ public:
     void setComponentNode(const ModelNode &componentNode);
     void setComponentViewToMaster();
     void setNodeInstanceViewKit(ProjectExplorer::Kit *kit);
+    void setNodeInstanceViewProject(ProjectExplorer::Project *project);
 
     void resetPropertyEditorView();
 

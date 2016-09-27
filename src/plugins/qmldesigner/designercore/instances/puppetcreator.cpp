@@ -34,6 +34,7 @@
 
 
 #include <projectexplorer/kit.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/toolchain.h>
 #include <coreplugin/messagebox.h>
 #include <coreplugin/icore.h>
@@ -121,11 +122,16 @@ bool PuppetCreator::useOnlyFallbackPuppet() const
 #endif
 }
 
-PuppetCreator::PuppetCreator(ProjectExplorer::Kit *kit, const QString &qtCreatorVersion, const Model *model)
+PuppetCreator::PuppetCreator(ProjectExplorer::Kit *kit,
+                             ProjectExplorer::Project *project,
+                             const QString &qtCreatorVersion,
+                             const Model *model)
+
     : m_qtCreatorVersion(qtCreatorVersion)
-      ,m_kit(kit)
-      ,m_availablePuppetType(FallbackPuppet)
-      ,m_model(model)
+    ,m_kit(kit)
+    ,m_availablePuppetType(FallbackPuppet)
+    ,m_model(model)
+    ,m_currentProject(project)
 #ifndef QMLDESIGNER_TEST
       ,m_designerSettings(QmlDesignerPlugin::instance()->settings())
 #endif
@@ -141,7 +147,11 @@ void PuppetCreator::createPuppetExecutableIfMissing()
     createQml2PuppetExecutableIfMissing();
 }
 
-QProcess *PuppetCreator::createPuppetProcess(const QString &puppetMode, const QString &socketToken, QObject *handlerObject, const char *outputSlot, const char *finishSlot) const
+QProcess *PuppetCreator::createPuppetProcess(const QString &puppetMode,
+                                             const QString &socketToken,
+                                             QObject *handlerObject,
+                                             const char *outputSlot,
+                                             const char *finishSlot) const
 {
     return puppetProcess(qml2PuppetPath(m_availablePuppetType),
                          qmlPuppetDirectory(m_availablePuppetType),
@@ -367,7 +377,7 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
 #else
     const QString controlsStyle;
 #endif
-    if (!controlsStyle.isEmpty()) {
+    if (!controlsStyle.isEmpty() && controlsStyle != "Default") {
         environment.set(QLatin1String("QT_QUICK_CONTROLS_STYLE"), controlsStyle);
         environment.set(QLatin1String("QT_LABS_CONTROLS_STYLE"), controlsStyle);
     }
@@ -387,6 +397,14 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
     qCInfo(puppetStart) << "Puppet qrc mapping" << m_qrcMapping;
     qCInfo(puppetStart) << "Puppet import paths:" << importPaths;
     qCInfo(puppetStart) << "Puppet environment:" << environment.toStringList();
+
+    if (m_currentProject) {
+        for (const QString &fileName : m_currentProject->files(ProjectExplorer::Project::SourceFiles)) {
+            QFileInfo fileInfo(fileName);
+            if (fileInfo.fileName() == "qtquickcontrols2.conf")
+                environment.appendOrSet("QT_QUICK_CONTROLS_CONF", fileName);
+        }
+    }
 
     return environment.toProcessEnvironment();
 }
