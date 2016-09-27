@@ -48,6 +48,7 @@ public:
     QString currentSession();
     SessionModel* sessionModel();
     void selectActiveSession();
+    void selectSession(const QString &sessionName);
 
 protected:
     void showEvent(QShowEvent* event) override;

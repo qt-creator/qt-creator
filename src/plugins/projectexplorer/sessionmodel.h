@@ -55,6 +55,7 @@ public:
 
 signals:
     void sessionSwitched();
+    void sessionCreated(const QString &sessionName);
 
 public slots:
     void resetSessions();

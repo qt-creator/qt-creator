@@ -75,11 +75,13 @@ SessionView::SessionView(QWidget *parent)
             (const QModelIndex &index) {
         emit selected(m_sessionModel.sessionAt(index.row()));
     });
+
     connect(&m_sessionModel, &SessionModel::sessionSwitched,
         this, &SessionView::sessionSwitched);
-
     connect(&m_sessionModel, &SessionModel::modelReset,
         this, &SessionView::selectActiveSession);
+    connect(&m_sessionModel, &SessionModel::sessionCreated,
+        this, &SessionView::selectSession);
  }
 
 void SessionView::createNewSession()
@@ -119,7 +121,12 @@ SessionModel *SessionView::sessionModel()
 
 void SessionView::selectActiveSession()
 {
-    int row = m_sessionModel.indexOfSession(SessionManager::activeSession());
+    selectSession(SessionManager::activeSession());
+}
+
+void SessionView::selectSession(const QString &sessionName)
+{
+    int row = m_sessionModel.indexOfSession(sessionName);
     selectionModel()->setCurrentIndex(model()->index(row, 0),
         QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
 }

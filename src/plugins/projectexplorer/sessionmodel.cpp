@@ -228,6 +228,7 @@ void SessionModel::runNewSessionDialog(const QString &suggestedName, std::functi
 
         if (newSessionInputDialog.isSwitchToRequested())
             switchToSession(newSession);
+        emit sessionCreated(newSession);
     }
 }
 
