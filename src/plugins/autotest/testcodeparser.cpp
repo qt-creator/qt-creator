@@ -45,6 +45,7 @@
 #include <QFuture>
 #include <QFutureInterface>
 #include <QLoggingCategory>
+#include <QtConcurrent>
 
 static Q_LOGGING_CATEGORY(LOG, "qtc.autotest.testcodeparser")
 
@@ -168,35 +169,42 @@ void TestCodeParser::updateTestTree()
 // is not (yet) part of the CppModelManager's snapshot
 static bool parsingHasFailed;
 
-static bool checkDocumentForTestCode(QFutureInterface<TestParseResultPtr> &futureInterface,
-                                     const QString &fileName,
-                                     const QVector<ITestParser *> &parsers)
+class ParseFileForTest
 {
-    foreach (ITestParser *currentParser, parsers) {
-        if (futureInterface.isCanceled())
-            return false;
-        if (currentParser->processDocument(futureInterface, fileName))
-            return true;
+public:
+    ParseFileForTest(QFutureInterface<TestParseResultPtr> futureInterface,
+                     const QVector<ITestParser *> &parsers)
+        : m_futureInterface(futureInterface) , m_parsers(parsers)
+    {}
+
+    typedef QString result_type;
+
+    void operator() (const QString &fileName)
+    {
+        foreach (ITestParser *parser, m_parsers) {
+            if (m_futureInterface.isCanceled())
+                return;
+            if (parser->processDocument(m_futureInterface, fileName))
+                break;
+        }
+        m_futureInterface.setProgressValue(m_futureInterface.progressValue() + 1);
     }
-    return false;
-}
+
+private:
+    QFutureInterface<TestParseResultPtr> m_futureInterface;
+    QVector<ITestParser *> m_parsers;
+};
 
 static void performParse(QFutureInterface<TestParseResultPtr> &futureInterface,
                          const QStringList &list, const QVector<ITestParser *> &parsers)
 {
-    int progressValue = 0;
     futureInterface.setProgressRange(0, list.size());
-    futureInterface.setProgressValue(progressValue);
+    futureInterface.setProgressValue(0);
 
-    foreach (const QString &file, list) {
-        if (futureInterface.isCanceled())
-            return;
-        futureInterface.setProgressValue(++progressValue);
-        if (!checkDocumentForTestCode(futureInterface, file, parsers)) {
-            parsingHasFailed |= !CppTools::CppModelManager::instance()->snapshot().contains(file)
-                && (CppTools::ProjectFile::classify(file) != CppTools::ProjectFile::Unclassified);
-        }
-    }
+    QtConcurrent::blockingMap(list, ParseFileForTest(futureInterface, parsers));
+    if (futureInterface.isCanceled())
+        parsingHasFailed = true;
+
     futureInterface.setProgressValue(list.size());
 }
 
