@@ -45,14 +45,14 @@ public:
     static void setCMakeTool(ProjectExplorer::Kit *k, const Core::Id id);
 
     // KitInformation interface
-    QVariant defaultValue(const ProjectExplorer::Kit *k) const override;
-    QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *k) const override;
-    void setup(ProjectExplorer::Kit *k) override;
-    void fix(ProjectExplorer::Kit *k) override;
-    ItemList toUserOutput(const ProjectExplorer::Kit *k) const override;
-    ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const override;
+    QVariant defaultValue(const ProjectExplorer::Kit *k) const final;
+    QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *k) const final;
+    void setup(ProjectExplorer::Kit *k) final;
+    void fix(ProjectExplorer::Kit *k) final;
+    ItemList toUserOutput(const ProjectExplorer::Kit *k) const final;
+    ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const final;
 
-    void addToMacroExpander(ProjectExplorer::Kit *k, Utils::MacroExpander *expander) const override;
+    void addToMacroExpander(ProjectExplorer::Kit *k, Utils::MacroExpander *expander) const final;
 };
 
 class CMAKE_EXPORT CMakeGeneratorKitInformation : public ProjectExplorer::KitInformation
@@ -66,12 +66,12 @@ public:
     static QString generatorArgument(const ProjectExplorer::Kit *k);
 
     // KitInformation interface
-    QVariant defaultValue(const ProjectExplorer::Kit *k) const override;
-    QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *k) const override;
-    void setup(ProjectExplorer::Kit *k) override;
-    void fix(ProjectExplorer::Kit *k) override;
-    ItemList toUserOutput(const ProjectExplorer::Kit *k) const override;
-    ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const override;
+    QVariant defaultValue(const ProjectExplorer::Kit *k) const final;
+    QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *k) const final;
+    void setup(ProjectExplorer::Kit *k) final;
+    void fix(ProjectExplorer::Kit *k) final;
+    ItemList toUserOutput(const ProjectExplorer::Kit *k) const final;
+    ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const final;
 };
 
 class CMAKE_EXPORT CMakeConfigurationKitInformation : public ProjectExplorer::KitInformation
@@ -89,12 +89,12 @@ public:
     static CMakeConfig defaultConfiguration(const ProjectExplorer::Kit *k);
 
     // KitInformation interface
-    QVariant defaultValue(const ProjectExplorer::Kit *k) const override;
-    QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *k) const override;
-    void setup(ProjectExplorer::Kit *k) override;
-    void fix(ProjectExplorer::Kit *k) override;
-    ItemList toUserOutput(const ProjectExplorer::Kit *k) const override;
-    ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const override;
+    QVariant defaultValue(const ProjectExplorer::Kit *k) const final;
+    QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *k) const final;
+    void setup(ProjectExplorer::Kit *k) final;
+    void fix(ProjectExplorer::Kit *k) final;
+    ItemList toUserOutput(const ProjectExplorer::Kit *k) const final;
+    ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const final;
 };
 
 } // namespace CMakeProjectManager
