@@ -62,14 +62,21 @@ public:
     CMakeGeneratorKitInformation();
 
     static QString generator(const ProjectExplorer::Kit *k);
+    static QString extraGenerator(const ProjectExplorer::Kit *k);
+    static QString platform(const ProjectExplorer::Kit *k);
+    static QString toolset(const ProjectExplorer::Kit *k);
     static void setGenerator(ProjectExplorer::Kit *k, const QString &generator);
-    static QString generatorArgument(const ProjectExplorer::Kit *k);
+    static void setExtraGenerator(ProjectExplorer::Kit *k, const QString &extraGenerator);
+    static void setPlatform(ProjectExplorer::Kit *k, const QString &platform);
+    static void setToolset(ProjectExplorer::Kit *k, const QString &toolset);
+    static QStringList generatorArguments(const ProjectExplorer::Kit *k);
 
     // KitInformation interface
     QVariant defaultValue(const ProjectExplorer::Kit *k) const final;
     QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *k) const final;
     void setup(ProjectExplorer::Kit *k) final;
     void fix(ProjectExplorer::Kit *k) final;
+    void upgrade(ProjectExplorer::Kit *k) final;
     ItemList toUserOutput(const ProjectExplorer::Kit *k) const final;
     ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const final;
 };

@@ -141,6 +141,60 @@ void CMakeKitInformation::addToMacroExpander(Kit *k, Utils::MacroExpander *expan
 
 static const char GENERATOR_ID[] = "CMake.GeneratorKitInformation";
 
+static const char GENERATOR_KEY[] = "Generator";
+static const char EXTRA_GENERATOR_KEY[] = "ExtraGenerator";
+static const char PLATFORM_KEY[] = "Platform";
+static const char TOOLSET_KEY[] = "Toolset";
+
+namespace {
+
+struct GeneratorInfo {
+    QVariant toVariant() const {
+        QVariantMap result;
+        result.insert(GENERATOR_KEY, generator);
+        result.insert(EXTRA_GENERATOR_KEY, extraGenerator);
+        result.insert(PLATFORM_KEY, platform);
+        result.insert(TOOLSET_KEY, toolset);
+        return result;
+    }
+    void fromVariant(const QVariant &v) {
+        const QVariantMap value = v.toMap();
+
+        generator = value.value(GENERATOR_KEY).toString();
+        extraGenerator = value.value(EXTRA_GENERATOR_KEY).toString();
+        platform = value.value(PLATFORM_KEY).toString();
+        toolset = value.value(TOOLSET_KEY).toString();
+    }
+
+    QString fullName() const {
+        return extraGenerator.isEmpty() ? generator : extraGenerator + " - " + generator;
+    }
+
+    QString generator;
+    QString extraGenerator;
+    QString platform;
+    QString toolset;
+};
+
+} // namespace
+
+static GeneratorInfo generatorInfo(const Kit *k)
+{
+    GeneratorInfo info;
+    if (!k)
+        return info;
+
+    info.fromVariant(k->value(GENERATOR_ID));
+    return info;
+}
+
+static void setGeneratorInfo(Kit *k, const GeneratorInfo &info)
+{
+    if (!k)
+        return;
+    k->setValue(GENERATOR_ID, info.toVariant());
+}
+
 CMakeGeneratorKitInformation::CMakeGeneratorKitInformation()
 {
     setObjectName(QLatin1String("CMakeGeneratorKitInformation"));
@@ -150,35 +204,87 @@ CMakeGeneratorKitInformation::CMakeGeneratorKitInformation()
 
 QString CMakeGeneratorKitInformation::generator(const Kit *k)
 {
-    if (!k)
-        return QString();
-    return k->value(GENERATOR_ID).toString();
+    return generatorInfo(k).generator;
+}
+
+QString CMakeGeneratorKitInformation::extraGenerator(const Kit *k)
+{
+    return generatorInfo(k).extraGenerator;
+}
+
+QString CMakeGeneratorKitInformation::platform(const Kit *k)
+{
+    return generatorInfo(k).platform;
+}
+
+QString CMakeGeneratorKitInformation::toolset(const Kit *k)
+{
+    return generatorInfo(k).toolset;
 }
 
 void CMakeGeneratorKitInformation::setGenerator(Kit *k, const QString &generator)
 {
-    if (!k)
-        return;
-    k->setValue(GENERATOR_ID, generator);
+    GeneratorInfo info = generatorInfo(k);
+    info.generator = generator;
+    setGeneratorInfo(k, info);
 }
 
-QString CMakeGeneratorKitInformation::generatorArgument(const Kit *k)
+void CMakeGeneratorKitInformation::setExtraGenerator(Kit *k, const QString &extraGenerator)
 {
-    QString tmp = generator(k);
-    if (tmp.isEmpty())
-        return QString::fromLatin1("-G") + tmp;
-    return tmp;
+    GeneratorInfo info = generatorInfo(k);
+    info.extraGenerator = extraGenerator;
+    setGeneratorInfo(k, info);
+}
+
+void CMakeGeneratorKitInformation::setPlatform(Kit *k, const QString &platform)
+{
+    GeneratorInfo info = generatorInfo(k);
+    info.platform = platform;
+    setGeneratorInfo(k, info);
+}
+
+void CMakeGeneratorKitInformation::setToolset(Kit *k, const QString &toolset)
+{
+    GeneratorInfo info = generatorInfo(k);
+    info.toolset = toolset;
+    setGeneratorInfo(k, info);
+}
+
+QStringList CMakeGeneratorKitInformation::generatorArguments(const Kit *k)
+{
+    QStringList result;
+    GeneratorInfo info = generatorInfo(k);
+    if (info.generator.isEmpty())
+        return result;
+
+    if (info.extraGenerator.isEmpty()) {
+        result.append("-G" + info.generator);
+    } else {
+        result.append("-G" + info.generator + " - " + info.extraGenerator);
+    }
+
+    if (!info.platform.isEmpty())
+        result.append("-A" + info.platform);
+
+    if (!info.toolset.isEmpty())
+        result.append("-T" + info.toolset);
+
+    return result;
 }
 
 QVariant CMakeGeneratorKitInformation::defaultValue(const Kit *k) const
 {
     CMakeTool *tool = CMakeKitInformation::cmakeTool(k);
     if (!tool)
-        return QString();
+        return QVariant();
+    QString generator;
+    const QString extraGenerator = "CodeBlocks";
+
     QStringList known = tool->supportedGenerators();
     auto it = std::find_if(known.constBegin(), known.constEnd(),
                            [](const QString &s) { return s == QLatin1String("CodeBlocks - Ninja"); });
     if (it != known.constEnd()) {
+        generator = "Ninja";
         Utils::Environment env = Utils::Environment::systemEnvironment();
         k->addToEnvironment(env);
         const Utils::FileName ninjaExec = env.searchInPath(QLatin1String("ninja"));
@@ -206,15 +312,21 @@ QVariant CMakeGeneratorKitInformation::defaultValue(const Kit *k) const
     }
     if (it == known.constEnd())
         it = known.constBegin(); // Fallback to the first generator...
-    if (it != known.constEnd())
-        return *it;
-    return QString();
+    if (it == known.constEnd())
+        return QVariant();
+
+    GeneratorInfo info;
+    info.extraGenerator = "CodeBlocks";
+    const int pos = it->indexOf(" - ");
+    info.generator = (pos < 0) ? *it : it->mid(pos + 3);
+
+    return info.toVariant();
 }
 
 QList<Task> CMakeGeneratorKitInformation::validate(const Kit *k) const
 {
     CMakeTool *tool = CMakeKitInformation::cmakeTool(k);
-    QString generator = CMakeGeneratorKitInformation::generator(k);
+    GeneratorInfo info = generatorInfo(k);
 
     QList<Task> result;
     if (tool) {
@@ -223,11 +335,11 @@ QList<Task> CMakeGeneratorKitInformation::validate(const Kit *k) const
                            Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
         } else {
             QStringList known = tool->supportedGenerators();
-            if (!known.contains(generator)) {
+            if (!known.contains(info.fullName())) {
                 result << Task(Task::Warning, tr("CMake Tool does not support the configured generator."),
                                Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
             }
-            if (!generator.startsWith(QLatin1String("CodeBlocks -"))) {
+            if (info.extraGenerator != "CodeBlocks") {
                 result << Task(Task::Warning, tr("CMake generator does not generate a CodeBlocks file. "
                                                  "Qt Creator will not be able to parse the CMake project."),
                                Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
@@ -239,26 +351,57 @@ QList<Task> CMakeGeneratorKitInformation::validate(const Kit *k) const
 
 void CMakeGeneratorKitInformation::setup(Kit *k)
 {
-    CMakeGeneratorKitInformation::setGenerator(k, defaultValue(k).toString());
+    GeneratorInfo info;
+    info.fromVariant(defaultValue(k));
+    setGeneratorInfo(k, info);
 }
 
 void CMakeGeneratorKitInformation::fix(Kit *k)
 {
     const CMakeTool *tool = CMakeKitInformation::cmakeTool(k);
-    const QString generator = CMakeGeneratorKitInformation::generator(k);
+    const GeneratorInfo info = generatorInfo(k);
 
     if (!tool)
         return;
     QStringList known = tool->supportedGenerators();
-    if (generator.isEmpty() || !known.contains(generator))
-        CMakeGeneratorKitInformation::setGenerator(k, defaultValue(k).toString());
+    if (info.generator.isEmpty() || !known.contains(info.fullName())) {
+        GeneratorInfo dv;
+        dv.fromVariant(defaultValue(k));
+        setGeneratorInfo(k, dv);
+    }
+}
+
+void CMakeGeneratorKitInformation::upgrade(Kit *k)
+{
+    const QVariant value = k->value(GENERATOR_ID);
+    GeneratorInfo info;
+    if (value.type() != QVariant::Map) {
+        const QString fullName = value.toString();
+        const int pos = fullName.indexOf(" - ");
+        if (pos >= 0) {
+            info.generator = fullName.mid(pos + 3);
+            info.extraGenerator = fullName.mid(0, pos);
+        } else {
+            info.generator = fullName;
+        }
+    }
+    setGeneratorInfo(k, info);
 }
 
 KitInformation::ItemList CMakeGeneratorKitInformation::toUserOutput(const Kit *k) const
 {
-    const QString generator = CMakeGeneratorKitInformation::generator(k);
-    return ItemList() << qMakePair(tr("CMake Generator"),
-                                   generator.isEmpty() ? tr("<Use Default Generator>") : generator);
+    const GeneratorInfo info = generatorInfo(k);
+    QString message;
+    if (info.generator.isEmpty()) {
+        message = tr("<Use Default Generator>");
+    } else {
+        message = tr("Generator: %1<br>Extra Generator: %2").arg(info.generator).arg(info.extraGenerator);
+        if (!info.platform.isEmpty())
+            message += tr("<br>Platform: %1").arg(info.platform);
+        if (!info.toolset.isEmpty())
+            message += tr("<br>Toolset: %1").arg(info.toolset);
+    }
+    return ItemList() << qMakePair(tr("CMake Generator"), message);
 }
 
 KitConfigWidget *CMakeGeneratorKitInformation::createConfigWidget(Kit *k) const
