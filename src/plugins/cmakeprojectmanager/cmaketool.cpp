@@ -45,6 +45,12 @@ const char CMAKE_INFORMATION_DISPLAYNAME[] = "DisplayName";
 const char CMAKE_INFORMATION_AUTORUN[] = "AutoRun";
 const char CMAKE_INFORMATION_AUTODETECTED[] = "AutoDetected";
 
+
+bool CMakeTool::Generator::matches(const QString &n, const QString &ex) const
+{
+    return n == name && (ex.isEmpty() || extraGenerators.contains(ex));
+}
+
 ///////////////////////////
 // CMakeTool
 ///////////////////////////
@@ -153,37 +159,10 @@ bool CMakeTool::isAutoRun() const
     return m_isAutoRun;
 }
 
-QStringList CMakeTool::supportedGenerators() const
+QList<CMakeTool::Generator> CMakeTool::supportedGenerators() const
 {
     if (m_generators.isEmpty()) {
-        Utils::SynchronousProcessResponse response = run("--help");
-        if (response.result == Utils::SynchronousProcessResponse::Finished) {
-            bool inGeneratorSection = false;
-            const QStringList lines = response.stdOut().split('\n');
-            foreach (const QString &line, lines) {
-                if (line.isEmpty())
-                    continue;
-                if (line == "Generators") {
-                    inGeneratorSection = true;
-                    continue;
-                }
-                if (!inGeneratorSection)
-                    continue;
-
-                if (line.startsWith("  ") && line.at(3) != ' ') {
-                    int pos = line.indexOf('=');
-                    if (pos < 0)
-                        pos = line.length();
-                    if (pos >= 0) {
-                        --pos;
-                        while (pos > 2 && line.at(pos).isSpace())
-                            --pos;
-                    }
-                    if (pos > 2)
-                        m_generators.append(line.mid(2, pos - 1));
-                }
-            }
-        }
+        fetchGeneratorsFromHelp();
     }
     return m_generators;
 }
@@ -332,6 +311,62 @@ QStringList CMakeTool::parseVariableOutput(const QString &output)
         }
     }
     return result;
+}
+
+void CMakeTool::fetchGeneratorsFromHelp() const
+{
+    Utils::SynchronousProcessResponse response = run("--help");
+    if (response.result != Utils::SynchronousProcessResponse::Finished)
+        return;
+
+    bool inGeneratorSection = false;
+    QHash<QString, QStringList> generatorInfo;
+    const QStringList lines = response.stdOut().split('\n');
+    foreach (const QString &line, lines) {
+        if (line.isEmpty())
+            continue;
+        if (line == "Generators") {
+            inGeneratorSection = true;
+            continue;
+        }
+        if (!inGeneratorSection)
+            continue;
+
+        if (line.startsWith("  ") && line.at(3) != ' ') {
+            int pos = line.indexOf('=');
+            if (pos < 0)
+                pos = line.length();
+            if (pos >= 0) {
+                --pos;
+                while (pos > 2 && line.at(pos).isSpace())
+                    --pos;
+            }
+            if (pos > 2) {
+                const QString fullName = line.mid(2, pos - 1);
+                const int dashPos = fullName.indexOf(" - ");
+                QString generator;
+                QString extra;
+                if (dashPos < 0) {
+                    generator = fullName;
+                } else {
+                    extra = fullName.mid(0, dashPos);
+                    generator = fullName.mid(dashPos + 3);
+                }
+                QStringList value = generatorInfo.value(generator);
+                if (!extra.isEmpty())
+                    value.append(extra);
+                generatorInfo.insert(generator, value);
+            }
+        }
+    }
+
+    // Populate genertor list:
+    for (auto it = generatorInfo.constBegin(); it != generatorInfo.constEnd(); ++it) {
+        Generator info;
+        info.name = it.key();
+        info.extraGenerators = it.value();
+        m_generators.append(info);
+    }
 }
 
 } // namespace CMakeProjectManager

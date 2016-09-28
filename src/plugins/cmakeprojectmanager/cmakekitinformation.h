@@ -69,6 +69,8 @@ public:
     static void setExtraGenerator(ProjectExplorer::Kit *k, const QString &extraGenerator);
     static void setPlatform(ProjectExplorer::Kit *k, const QString &platform);
     static void setToolset(ProjectExplorer::Kit *k, const QString &toolset);
+    static void set(ProjectExplorer::Kit *k, const QString &generator,
+                    const QString &extraGenerator, const QString &platform, const QString &toolset);
     static QStringList generatorArguments(const ProjectExplorer::Kit *k);
 
     // KitInformation interface

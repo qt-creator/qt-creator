@@ -43,7 +43,9 @@
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QLabel>
+#include <QLineEdit>
 #include <QPlainTextEdit>
+#include <QPointer>
 #include <QPushButton>
 
 using namespace ProjectExplorer;
@@ -208,22 +210,21 @@ void CMakeKitConfigWidget::manageCMakeTools()
 CMakeGeneratorKitConfigWidget::CMakeGeneratorKitConfigWidget(Kit *kit,
                                                              const KitInformation *ki) :
     KitConfigWidget(kit, ki),
-    m_comboBox(new QComboBox)
+    m_label(new QLabel),
+    m_changeButton(new QPushButton)
 {
-    m_comboBox->setToolTip(toolTip());
+    m_label->setToolTip(toolTip());
+    m_changeButton->setText(tr("Change..."));
 
     refresh();
-    connect(m_comboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-            this, [this](int idx) {
-                m_ignoreChange = true;
-                CMakeGeneratorKitInformation::setGenerator(m_kit, m_comboBox->itemData(idx).toString());
-                m_ignoreChange = false;
-            });
+    connect(m_changeButton, &QPushButton::clicked,
+            this, &CMakeGeneratorKitConfigWidget::changeGenerator);
 }
 
 CMakeGeneratorKitConfigWidget::~CMakeGeneratorKitConfigWidget()
 {
-    delete m_comboBox;
+    delete m_label;
+    delete m_changeButton;
 }
 
 QString CMakeGeneratorKitConfigWidget::displayName() const
@@ -233,7 +234,7 @@ QString CMakeGeneratorKitConfigWidget::displayName() const
 
 void CMakeGeneratorKitConfigWidget::makeReadOnly()
 {
-    m_comboBox->setEnabled(false);
+    m_changeButton->setEnabled(false);
 }
 
 void CMakeGeneratorKitConfigWidget::refresh()
@@ -242,39 +243,122 @@ void CMakeGeneratorKitConfigWidget::refresh()
         return;
 
     CMakeTool *const tool = CMakeKitInformation::cmakeTool(m_kit);
-    if (tool != m_currentTool) {
+    if (tool != m_currentTool)
         m_currentTool = tool;
-        m_comboBox->clear();
-        m_comboBox->addItem(tr("<Use Default Generator>"), QString());
-        if (tool && tool->isValid()) {
-            foreach (const QString &g, tool->supportedGenerators())
-                m_comboBox->addItem(g, g);
-        }
-    }
 
-    const QString generator = CMakeGeneratorKitInformation::generator(m_kit);
-    const QString extraGenerator = CMakeGeneratorKitInformation::extraGenerator(m_kit);
-    QString fullName = extraGenerator;
-    if (!fullName.isEmpty())
-        fullName += " - ";
-    fullName += generator;
-    m_comboBox->setCurrentIndex(m_comboBox->findData(fullName));
+    m_changeButton->setEnabled(m_currentTool);
+    const QString generator = CMakeGeneratorKitInformation::generator(kit());
+    const QString extraGenerator = CMakeGeneratorKitInformation::extraGenerator(kit());
+    const QString platform = CMakeGeneratorKitInformation::platform(kit());
+    const QString toolset = CMakeGeneratorKitInformation::toolset(kit());
+
+    const QString message = tr("%1 - %2, Platform: %3, Toolset: %4")
+            .arg(extraGenerator.isEmpty() ? tr("<none>") : extraGenerator)
+            .arg(generator.isEmpty() ? tr("<none>") : generator)
+            .arg(platform.isEmpty() ? tr("<none>") : platform)
+            .arg(toolset.isEmpty() ? tr("<none>") : toolset);
+    m_label->setText(message);
 }
 
 QWidget *CMakeGeneratorKitConfigWidget::mainWidget() const
 {
-    return m_comboBox;
+    return m_label;
 }
 
 QWidget *CMakeGeneratorKitConfigWidget::buttonWidget() const
 {
-    return nullptr;
+    return m_changeButton;
 }
 
 QString CMakeGeneratorKitConfigWidget::toolTip() const
 {
     return tr("CMake generator defines how a project is built when using CMake.<br>"
               "This setting is ignored when using other build systems.");
+}
+
+void CMakeGeneratorKitConfigWidget::changeGenerator()
+{
+    QPointer<QDialog> changeDialog = new QDialog(m_changeButton);
+    changeDialog->setWindowTitle(tr("CMake Generator"));
+
+    auto *layout = new QGridLayout(changeDialog);
+
+    auto *cmakeLabel = new QLabel;
+
+    auto *generatorCombo = new QComboBox;
+    auto *extraGeneratorCombo = new QComboBox;
+    auto *platformEdit = new QLineEdit;
+    auto *toolsetEdit = new QLineEdit;
+
+    int row = 0;
+    layout->addWidget(new QLabel(QLatin1String("Executable:")));
+    layout->addWidget(cmakeLabel, row, 1);
+
+    ++row;
+    layout->addWidget(new QLabel(tr("Generator:")), row, 0);
+    layout->addWidget(generatorCombo, row, 1);
+
+    ++row;
+    layout->addWidget(new QLabel(tr("Extra Generator:")), row, 0);
+    layout->addWidget(extraGeneratorCombo, row, 1);
+
+    ++row;
+    layout->addWidget(new QLabel(tr("Platform:")), row, 0);
+    layout->addWidget(platformEdit, row, 1);
+
+    ++row;
+    layout->addWidget(new QLabel(tr("Toolset:")), row, 0);
+    layout->addWidget(toolsetEdit, row, 1);
+
+    ++row;
+    auto *bb = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel);
+    layout->addWidget(bb, row, 0, 1, 2);
+
+    connect(bb, &QDialogButtonBox::accepted, changeDialog, &QDialog::accept);
+    connect(bb, &QDialogButtonBox::rejected, changeDialog, &QDialog::reject);
+
+    cmakeLabel->setText(m_currentTool->cmakeExecutable().toUserOutput());
+
+    const QList<CMakeTool::Generator> generatorList = m_currentTool->supportedGenerators();
+
+    for (auto it = generatorList.constBegin(); it != generatorList.constEnd(); ++it)
+        generatorCombo->addItem(it->name);
+
+    auto updateDialog = [this, &generatorList, generatorCombo, extraGeneratorCombo,
+            platformEdit, toolsetEdit](const QString &name) {
+        auto it = std::find_if(generatorList.constBegin(), generatorList.constEnd(),
+                               [name](const CMakeTool::Generator &g) { return g.name == name; });
+        QTC_ASSERT(it != generatorList.constEnd(), return);
+        generatorCombo->setCurrentText(name);
+
+        extraGeneratorCombo->clear();
+        extraGeneratorCombo->addItem(tr("<none>"), QString());
+        foreach (const QString &eg, it->extraGenerators)
+            extraGeneratorCombo->addItem(eg, eg);
+        extraGeneratorCombo->setEnabled(extraGeneratorCombo->count() > 1);
+
+        platformEdit->setEnabled(it->supportsPlatform);
+        toolsetEdit->setEnabled(it->supportsToolset);
+    };
+
+    updateDialog(CMakeGeneratorKitInformation::generator(kit()));
+
+    generatorCombo->setCurrentText(CMakeGeneratorKitInformation::generator(kit()));
+    extraGeneratorCombo->setCurrentText(CMakeGeneratorKitInformation::extraGenerator(kit()));
+    platformEdit->setText(platformEdit->isEnabled() ? CMakeGeneratorKitInformation::platform(kit()) : QLatin1String("<unsupported>"));
+    toolsetEdit->setText(toolsetEdit->isEnabled() ? CMakeGeneratorKitInformation::toolset(kit()) : QLatin1String("<unsupported>"));
+
+    connect(generatorCombo, &QComboBox::currentTextChanged, updateDialog);
+
+    if (changeDialog->exec() == QDialog::Accepted) {
+        if (!changeDialog)
+            return;
+
+        CMakeGeneratorKitInformation::set(kit(), generatorCombo->currentText(),
+                                          extraGeneratorCombo->currentData().toString(),
+                                          platformEdit->isEnabled() ? platformEdit->text() : QString(),
+                                          toolsetEdit->isEnabled() ? toolsetEdit->text() : QString());
+    }
 }
 
 // --------------------------------------------------------------------

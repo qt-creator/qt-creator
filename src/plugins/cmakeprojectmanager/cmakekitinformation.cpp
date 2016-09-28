@@ -166,10 +166,6 @@ struct GeneratorInfo {
         toolset = value.value(TOOLSET_KEY).toString();
     }
 
-    QString fullName() const {
-        return extraGenerator.isEmpty() ? generator : extraGenerator + " - " + generator;
-    }
-
     QString generator;
     QString extraGenerator;
     QString platform;
@@ -250,6 +246,14 @@ void CMakeGeneratorKitInformation::setToolset(Kit *k, const QString &toolset)
     setGeneratorInfo(k, info);
 }
 
+void CMakeGeneratorKitInformation::set(Kit *k,
+                                       const QString &generator, const QString &extraGenerator,
+                                       const QString &platform, const QString &toolset)
+{
+    GeneratorInfo info = { generator, extraGenerator, platform, toolset };
+    setGeneratorInfo(k, info);
+}
+
 QStringList CMakeGeneratorKitInformation::generatorArguments(const Kit *k)
 {
     QStringList result;
@@ -277,50 +281,49 @@ QVariant CMakeGeneratorKitInformation::defaultValue(const Kit *k) const
     CMakeTool *tool = CMakeKitInformation::cmakeTool(k);
     if (!tool)
         return QVariant();
-    QString generator;
+
     const QString extraGenerator = "CodeBlocks";
 
-    QStringList known = tool->supportedGenerators();
+    QList<CMakeTool::Generator> known = tool->supportedGenerators();
     auto it = std::find_if(known.constBegin(), known.constEnd(),
-                           [](const QString &s) { return s == QLatin1String("CodeBlocks - Ninja"); });
+                           [extraGenerator](const CMakeTool::Generator &g) {
+        return g.matches("Ninja", extraGenerator);
+    });
     if (it != known.constEnd()) {
-        generator = "Ninja";
         Utils::Environment env = Utils::Environment::systemEnvironment();
         k->addToEnvironment(env);
         const Utils::FileName ninjaExec = env.searchInPath(QLatin1String("ninja"));
-        if (ninjaExec.isEmpty())
-            it = known.constEnd(); // Ignore ninja generator without ninja exectuable
+        if (!ninjaExec.isEmpty())
+            return GeneratorInfo({ "Ninja", extraGenerator, QString(), QString() }).toVariant();
     }
+
     if (Utils::HostOsInfo::isWindowsHost()) {
         // *sigh* Windows with its zoo of incompatible stuff again...
         ToolChain *tc = ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx);
         if (tc && tc->typeId() == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID) {
-            if (it == known.constEnd())
-                it = std::find_if(known.constBegin(), known.constEnd(),
-                                  [](const QString &s) { return s == QLatin1String("CodeBlocks - MinGW Makefiles"); });
+            it = std::find_if(known.constBegin(), known.constEnd(),
+                              [extraGenerator](const CMakeTool::Generator &g) {
+                return g.matches("MinGW Makefiles", extraGenerator);
+            });
         } else {
-            if (it == known.constEnd())
-                it = std::find_if(known.constBegin(), known.constEnd(),
-                                  [](const QString &s) { return s == QLatin1String("CodeBlocks - NMake Makefiles"); });
+            it = std::find_if(known.constBegin(), known.constEnd(),
+                              [extraGenerator](const CMakeTool::Generator &g) {
+                return g.matches("NMake Makefiles", extraGenerator);
+            });
         }
-
     } else {
         // Unix-oid OSes:
-        if (it == known.constEnd())
-            it = std::find_if(known.constBegin(), known.constEnd(),
-                              [](const QString &s) { return s == QLatin1String("CodeBlocks - Unix Makefiles"); });
+        it = std::find_if(known.constBegin(), known.constEnd(),
+                          [extraGenerator](const CMakeTool::Generator &g) {
+            return g.matches("Unix Makefiles", extraGenerator);
+        });
     }
     if (it == known.constEnd())
         it = known.constBegin(); // Fallback to the first generator...
     if (it == known.constEnd())
         return QVariant();
 
-    GeneratorInfo info;
-    info.extraGenerator = "CodeBlocks";
-    const int pos = it->indexOf(" - ");
-    info.generator = (pos < 0) ? *it : it->mid(pos + 3);
-
-    return info.toVariant();
+    return GeneratorInfo({ it->name, extraGenerator, QString(), QString() }).toVariant();
 }
 
 QList<Task> CMakeGeneratorKitInformation::validate(const Kit *k) const
@@ -334,10 +337,22 @@ QList<Task> CMakeGeneratorKitInformation::validate(const Kit *k) const
             result << Task(Task::Warning, tr("CMake Tool is unconfigured, CMake generator will be ignored."),
                            Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
         } else {
-            QStringList known = tool->supportedGenerators();
-            if (!known.contains(info.fullName())) {
+            QList<CMakeTool::Generator> known = tool->supportedGenerators();
+            auto it = std::find_if(known.constBegin(), known.constEnd(), [info](const CMakeTool::Generator &g) {
+                return g.matches(info.generator, info.extraGenerator);
+            });
+            if (it == known.constEnd()) {
                 result << Task(Task::Warning, tr("CMake Tool does not support the configured generator."),
                                Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
+            } else {
+                if (!it->supportsPlatform && !info.platform.isEmpty()) {
+                    result << Task(Task::Warning, tr("Platform is not supported by the selected CMake generator."),
+                                   Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
+                }
+                if (!it->supportsToolset && !info.toolset.isEmpty()) {
+                    result << Task(Task::Warning, tr("Toolset is not supported by the selected CMake generator."),
+                                   Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
+                }
             }
             if (info.extraGenerator != "CodeBlocks") {
                 result << Task(Task::Warning, tr("CMake generator does not generate a CodeBlocks file. "
@@ -363,10 +378,19 @@ void CMakeGeneratorKitInformation::fix(Kit *k)
 
     if (!tool)
         return;
-    QStringList known = tool->supportedGenerators();
-    if (info.generator.isEmpty() || !known.contains(info.fullName())) {
+    QList<CMakeTool::Generator> known = tool->supportedGenerators();
+    auto it = std::find_if(known.constBegin(), known.constEnd(),
+                           [info](const CMakeTool::Generator &g) {
+        return g.matches(info.generator, info.extraGenerator);
+    });
+    if (it == known.constEnd()) {
         GeneratorInfo dv;
         dv.fromVariant(defaultValue(k));
+        setGeneratorInfo(k, dv);
+    } else {
+        const GeneratorInfo dv = { info.generator, info.extraGenerator,
+                                   it->supportsPlatform ? info.platform : QString(),
+                                   it->supportsToolset ? info.toolset : QString() };
         setGeneratorInfo(k, dv);
     }
 }

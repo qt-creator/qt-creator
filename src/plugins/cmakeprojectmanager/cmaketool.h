@@ -52,6 +52,17 @@ public:
         AutoDetection
     };
 
+    class Generator
+    {
+    public:
+        QString name;
+        QStringList extraGenerators;
+        bool supportsPlatform = true;
+        bool supportsToolset = true;
+
+        bool matches(const QString &n, const QString &ex) const;
+    };
+
     typedef std::function<QString (const ProjectExplorer::Kit *, const QString &)> PathMapper;
 
     explicit CMakeTool(Detection d, const Core::Id &id);
@@ -70,7 +81,7 @@ public:
 
     Utils::FileName cmakeExecutable() const;
     bool isAutoRun() const;
-    QStringList supportedGenerators() const;
+    QList<Generator> supportedGenerators() const;
     TextEditor::Keywords keywords();
 
     bool isAutoDetected() const;
@@ -85,6 +96,8 @@ private:
     void parseFunctionDetailsOutput(const QString &output);
     QStringList parseVariableOutput(const QString &output);
 
+    void fetchGeneratorsFromHelp() const;
+
     Core::Id m_id;
     QString m_displayName;
     Utils::FileName m_executable;
@@ -95,7 +108,7 @@ private:
     mutable bool m_didAttemptToRun = false;
     mutable bool m_didRun = false;
 
-    mutable QStringList m_generators;
+    mutable QList<Generator> m_generators;
     mutable QMap<QString, QStringList> m_functionArgs;
     mutable QStringList m_variables;
     mutable QStringList m_functions;
