@@ -2010,6 +2010,8 @@ EvalResult *QmakeProFileNode::evaluate(const EvalInput &input)
         result->newVarValues[ConfigVar] = input.readerExact->values(QLatin1String("CONFIG"));
         result->newVarValues[QmlImportPathVar] = input.readerExact->absolutePathValues(
                     QLatin1String("QML_IMPORT_PATH"), input.projectDir);
+        result->newVarValues[QmlDesignerImportPathVar] = input.readerExact->absolutePathValues(
+                    QLatin1String("QML_DESIGNER_IMPORT_PATH"), input.projectDir);
         result->newVarValues[Makefile] = input.readerExact->values(QLatin1String("MAKEFILE"));
         result->newVarValues[QtVar] = input.readerExact->values(QLatin1String("QT"));
         result->newVarValues[ObjectExt] = input.readerExact->values(QLatin1String("QMAKE_EXT_OBJ"));

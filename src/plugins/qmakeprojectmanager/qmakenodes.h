@@ -94,6 +94,7 @@ enum QmakeVariable {
     ConfigVar,
     QtVar,
     QmlImportPathVar,
+    QmlDesignerImportPathVar,
     Makefile,
     ObjectExt,
     ObjectsDir,

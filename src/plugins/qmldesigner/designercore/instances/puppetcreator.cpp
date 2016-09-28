@@ -36,6 +36,8 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/toolchain.h>
+#include <qmakeprojectmanager/qmakeproject.h>
+#include <qmakeprojectmanager/qmakenodes.h>
 #include <coreplugin/messagebox.h>
 #include <coreplugin/icore.h>
 #include <qtsupport/baseqtversion.h>
@@ -388,6 +390,21 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
     }
 
     QStringList importPaths = m_model->importPaths();
+
+
+    if (m_currentProject) {
+        for (const QString &fileName : m_currentProject->files(ProjectExplorer::Project::SourceFiles)) {
+            QFileInfo fileInfo(fileName);
+            if (fileInfo.fileName() == "qtquickcontrols2.conf")
+                environment.appendOrSet("QT_QUICK_CONTROLS_CONF", fileName);
+        }
+        QmakeProjectManager::QmakeProject *qmakeProject = qobject_cast<QmakeProjectManager::QmakeProject *>(m_currentProject);
+        if (qmakeProject) {
+            QStringList designerImports = qmakeProject->rootProjectNode()->variableValue(QmakeProjectManager::QmlDesignerImportPathVar);
+            importPaths.append(designerImports);
+        }
+    }
+
     if (m_availablePuppetType == FallbackPuppet)
         importPaths.append(QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath));
     if (m_availablePuppetType != FallbackPuppet)
@@ -397,14 +414,6 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
     qCInfo(puppetStart) << "Puppet qrc mapping" << m_qrcMapping;
     qCInfo(puppetStart) << "Puppet import paths:" << importPaths;
     qCInfo(puppetStart) << "Puppet environment:" << environment.toStringList();
-
-    if (m_currentProject) {
-        for (const QString &fileName : m_currentProject->files(ProjectExplorer::Project::SourceFiles)) {
-            QFileInfo fileInfo(fileName);
-            if (fileInfo.fileName() == "qtquickcontrols2.conf")
-                environment.appendOrSet("QT_QUICK_CONTROLS_CONF", fileName);
-        }
-    }
 
     return environment.toProcessEnvironment();
 }
