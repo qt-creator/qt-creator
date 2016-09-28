@@ -50,6 +50,7 @@ public:
     ~KitManagerConfigWidget() override;
 
     QString displayName() const;
+    QIcon icon() const;
 
     void apply();
     void discard();

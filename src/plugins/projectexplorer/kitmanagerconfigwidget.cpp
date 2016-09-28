@@ -142,6 +142,11 @@ QString KitManagerConfigWidget::displayName() const
     return m_cachedDisplayName;
 }
 
+QIcon KitManagerConfigWidget::icon() const
+{
+    return m_modifiedKit->icon();
+}
+
 void KitManagerConfigWidget::apply()
 {
     bool mustSetDefault = m_isDefaultKit;

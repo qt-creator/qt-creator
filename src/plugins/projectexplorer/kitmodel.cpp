@@ -86,7 +86,7 @@ public:
                     static const QIcon warningIcon(Utils::Icons::WARNING.icon());
                     return warningIcon;
                 }
-                return QIcon();
+                return widget->icon();
             }
             if (role == Qt::ToolTipRole) {
                 return widget->validityMessage();
