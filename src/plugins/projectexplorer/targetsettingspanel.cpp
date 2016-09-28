@@ -354,7 +354,7 @@ public:
                 return Utils::Icons::ERROR.icon();
             if (k->hasWarning())
                 return Utils::Icons::WARNING.icon();
-            return Utils::Icons::EMPTY14.icon();
+            return k->icon();
         }
 
         case Qt::TextColorRole: {
