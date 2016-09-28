@@ -675,6 +675,7 @@ void HelpPlugin::slotSystemInformation()
 {
     auto dialog = new DialogClosingOnEscape(ICore::dialogParent());
     dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->setWindowFlags(Qt::Window);
     dialog->setModal(true);
     dialog->setWindowTitle(tr("System Information"));
     auto layout = new QVBoxLayout;
@@ -684,6 +685,10 @@ void HelpPlugin::slotSystemInformation()
     layout->addWidget(intro);
     const QString text = "{noformat}\n" + ICore::systemInformation() + "\n{noformat}";
     auto info = new QPlainTextEdit;
+    QFont font = info->font();
+    font.setFamily("Courier");
+    font.setStyleHint(QFont::TypeWriter);
+    info->setFont(font);
     info->setPlainText(text);
     layout->addWidget(info);
     auto buttonBox = new QDialogButtonBox;

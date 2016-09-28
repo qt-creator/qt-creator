@@ -445,7 +445,7 @@ QString PluginManager::systemInformation() const
                                         });
     int size = (*longestSpec)->name().size();
     for (const PluginSpec *spec : plugins()) {
-        result += QLatin1String(spec->isEffectivelyEnabled() ? "+ " : " ") + filled(spec->name(), size) +
+        result += QLatin1String(spec->isEffectivelyEnabled() ? "+ " : "  ") + filled(spec->name(), size) +
                   " " + spec->version() + "\n";
     }
     return result;
