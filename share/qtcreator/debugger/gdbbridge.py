@@ -748,17 +748,6 @@ class Dumper(DumperBase):
         self.isQt3Support = lambda: self.cachedIsQt3Suport
         return self.cachedIsQt3Suport
 
-    def readCString(self, base):
-        inferior = self.selectedInferior()
-        mem = ""
-        while True:
-            char = inferior.read_memory(base, 1)[0]
-            if not char:
-                break
-            mem += char
-            base += 1
-        return mem
-
     def createSpecialBreakpoints(self, args):
         self.specialBreakpoints = []
         def newSpecial(spec):
