@@ -254,32 +254,10 @@ def qdump__std__map__QNX(d, value):
     d.putItemCount(size)
 
     if d.isExpanded():
-        keyType = value.type[0]
-        valueType = value.type[1]
-        try:
-            # Does not work on gcc 4.4, the allocator type
-            # (fourth template argument) is not available.
-            pairType = value.type[3][0]
-            pairPointer = pairType.pointer()
-        except:
-            # So use this as workaround:
-            pairType = impl.type[1]
-            pairPointer = pairType.pointer()
-        isCompact = d.isMapCompact(keyType, valueType)
-        innerType = pairType
-        if isCompact:
-            innerType = valueType
         head = value['_Myhead']
         node = head['_Left']
         nodeType = head.type
-        childType = innerType
-        if size == 0:
-            childType = pairType
-        childNumChild = 2
-        if isCompact:
-            childNumChild = None
-        with Children(d, size, maxNumChild=1000,
-                childType=childType, childNumChild=childNumChild):
+        with Children(d, size, maxNumChild=1000):
             for i in d.childRange():
                 pair = node.cast(nodeType).dereference()['_Myval']
                 d.putPairItem(i, pair)
