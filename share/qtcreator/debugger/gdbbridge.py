@@ -1149,8 +1149,8 @@ class Dumper(DumperBase):
     def exitGdb(self, _):
         gdb.execute("quit")
 
-    def loadDumpers(self, args):
-        print(self.setupDumpers())
+    def reportResult(self, msg, args):
+        print(msg)
 
     def profile1(self, args):
         """Internal profiling"""
@@ -1176,8 +1176,6 @@ class CliDumper(Dumper):
         self.indent = 0
         self.isCli = True
 
-    def reportDumpers(self, msg):
-        return msg
 
     def put(self, line):
         if self.output.endswith('\n'):

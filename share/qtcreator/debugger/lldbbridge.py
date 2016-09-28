@@ -1485,10 +1485,6 @@ class Dumper(DumperBase):
             result += ',offset="%s"}' % (loadAddr - base)
         self.reportResult(result + ']', args)
 
-    def loadDumpers(self, args):
-        msg = self.setupDumpers()
-        self.reportResult(msg, args)
-
     def fetchMemory(self, args):
         address = args['address']
         length = args['length']
@@ -1537,9 +1533,6 @@ class Tester(Dumper):
         s = threading.Thread(target=self.testLoop, args=(args,))
         s.start()
         s.join(30)
-
-    def reportDumpers(self, msg):
-        pass
 
     def testLoop(self, args):
         # Disable intermediate reporting.

@@ -2238,6 +2238,10 @@ class DumperBase:
                 reload(m)
         self.setupDumpers(args)
 
+    def loadDumpers(self, args):
+        msg = self.setupDumpers()
+        self.reportResult(msg, args)
+
     def addDumperModule(self, args):
         path = args['path']
         (head, tail) = os.path.split(path)
