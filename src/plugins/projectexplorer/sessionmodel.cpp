@@ -202,7 +202,7 @@ void SessionModel::deleteSession(const QString &session)
 void SessionModel::renameSession(const QString &session)
 {
     runNewSessionDialog(session, [session](const QString &newName) {
-        SessionManager::cloneSession(session, newName);
+        SessionManager::renameSession(session, newName);
     });
 }
 
