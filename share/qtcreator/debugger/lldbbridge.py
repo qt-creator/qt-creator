@@ -124,11 +124,6 @@ class Dumper(DumperBase):
         self.dyldLibraryPath = None
         self.dyldFrameworkPath = None
 
-        self.charType_ = None
-        self.intType_ = None
-        self.sizetType_ = None
-        self.charPtrType_ = None
-        self.voidPtrType_ = None
         self.isShuttingDown_ = False
         self.isInterrupting_ = False
         self.interpreterBreakpointResolvers = []
@@ -524,26 +519,6 @@ class Dumper(DumperBase):
     def qtVersion(self):
         self.qtVersionAndNamespace()
         return self.qtVersionAndNamespace()[1]
-
-    def ptrSize(self):
-        return self.target.GetAddressByteSize()
-
-    def intType(self):
-        return self.fromNativeType(self.target.GetBasicType(lldb.eBasicTypeInt))
-
-    def charType(self):
-        return self.fromNativeType(self.target.GetBasicType(lldb.eBasicTypeChar))
-
-    def charPtrType(self):
-        return self.fromNativeType(self.target.GetBasicType(lldb.eBasicTypeChar).GetPointerType())
-
-    def voidPtrType(self):
-        return self.fromNativeType(self.target.GetBasicType(lldb.eBasicVoid).GetPointerType())
-
-    def sizetType(self):
-        if self.sizetType_ is None:
-             self.sizetType_ = self.lookupType('size_t')
-        return self.fromNativeType(self.sizetType)
 
     def handleCommand(self, command):
         result = lldb.SBCommandReturnObject()

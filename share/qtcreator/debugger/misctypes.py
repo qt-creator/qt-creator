@@ -242,7 +242,7 @@ if False:
     def qdump__tree(d, value):
         count = value["count"]
         entries = value["entries"]
-        base = value["base"].cast(d.charPtrType())
+        base = value["base"].pointer()
         d.putItemCount(count)
         d.putNumChild(count)
         if d.isExpanded():
@@ -366,7 +366,7 @@ def qdump__WTF__String(d, value):
 
     # WTF::StringImpl* -> WTF::StringImpl -> sizeof(WTF::StringImpl)
     offsetToData = data.type.target().size()
-    bufferPtr = data.cast(d.charPtrType()) + offsetToData
+    bufferPtr = data.pointer() + offsetToData
 
     is8Bit = data['m_is8Bit']
     charSize = 1

@@ -467,6 +467,21 @@ class DumperBase:
         self.cachedFormats[typeName] = stripped
         return stripped
 
+    def intType(self):
+        result = self.lookupType('int')
+        self.intType = lambda: result
+        return result
+
+    def charType(self):
+        result = self.lookupType('char')
+        self.intType = lambda: result
+        return result
+
+    def ptrSize(self):
+        result = self.lookupType('void*').size()
+        self.ptrSize = lambda: result
+        return result
+
     # Hex decoding operating on str, return str.
     def hexdecode(self, s):
         if sys.version_info[0] == 2:
@@ -625,15 +640,6 @@ class DumperBase:
 
     def stringData(self, value):
         return self.byteArrayDataHelper(self.extractPointer(value))
-
-    def encodeStdString(self, value, limit = 0):
-        data = value["_M_dataplus"]["_M_p"]
-        sizePtr = data.cast(self.sizetType().pointer())
-        size = int(sizePtr[-3])
-        alloc = int(sizePtr[-2])
-        self.check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
-        elided, shown = self.computeLimit(size, limit)
-        return self.readMemory(data, shown)
 
     def extractTemplateArgument(self, typename, position):
         level = 0

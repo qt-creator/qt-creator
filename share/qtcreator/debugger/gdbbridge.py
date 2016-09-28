@@ -614,28 +614,6 @@ class Dumper(DumperBase):
             return int(str(arg))
         return self.fromNativeType(arg)
 
-    def intType(self):
-        self.cachedIntType = self.lookupType('int')
-        self.intType = lambda: self.cachedIntType
-        return self.cachedIntType
-
-    def charType(self):
-        return self.lookupType('char')
-
-    def sizetType(self):
-        return self.lookupType('size_t')
-
-    def charPtrType(self):
-        return self.lookupType('char*')
-
-    def voidPtrType(self):
-        return self.lookupType('void*')
-
-    def ptrSize(self):
-        self.cachedPtrSize = self.lookupNativeType('void*').sizeof
-        self.ptrSize = lambda: self.cachedPtrSize
-        return self.cachedPtrSize
-
     def pokeValue(self, value):
         # Allocates inferior memory and copies the contents of value.
         # Returns a pointer to the copy.
