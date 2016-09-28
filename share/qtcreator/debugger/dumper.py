@@ -1015,8 +1015,7 @@ class DumperBase:
         arrayType = value.type.unqualified()
         innerType = arrayType.ltarget
         if innerType is None:
-            innerType = value.type.target()
-        innerTypeName = innerType.unqualified().name
+            innerType = value.type.target().unqualified()
         address = value.address()
         if address:
             self.putValue("@0x%x" % address, priority = -1)
@@ -1038,11 +1037,11 @@ class DumperBase:
         n = int(arrayByteSize / innerType.size())
         p = value.address()
         if displayFormat != RawFormat and p:
-            if innerTypeName in ("char", "wchar_t"):
+            if innerType.name in ("char", "wchar_t"):
                 self.putCharArrayHelper(p, n, innerType, self.currentItemFormat(),
                                         makeExpandable = False)
             else:
-                self.tryPutSimpleFormattedPointer(p, arrayType, innerTypeName,
+                self.tryPutSimpleFormattedPointer(p, arrayType, innerType,
                     displayFormat, arrayByteSize)
         self.putNumChild(n)
 
@@ -1116,16 +1115,18 @@ class DumperBase:
         self.put('editvalue="%s",' % value)
 
     # This is shared by pointer and array formatting.
-    def tryPutSimpleFormattedPointer(self, ptr, typeName, innerTypeName, displayFormat, limit):
+    def tryPutSimpleFormattedPointer(self, ptr, typeName, innerType, displayFormat, limit):
         if displayFormat == AutomaticFormat:
-            if innerTypeName == "char":
+            if innerType.name == "char":
                 # Use UTF-8 as default for char *.
                 self.putType(typeName)
-                (elided, data) = self.encodeCArray(ptr, 1, limit)
+                (elided, shown, data) = self.readToFirstZero(ptr, 1, limit)
                 self.putValue(data, "utf8", elided=elided)
+                if self.isExpanded():
+                    self.putArrayData(ptr, shown, innerType)
                 return True
 
-            if innerTypeName == "wchar_t":
+            if innerType.name == "wchar_t":
                 self.putType(typeName)
                 charSize = self.lookupType('wchar_t').size()
                 (elided, data) = self.encodeCArray(ptr, charSize, limit)
@@ -1209,9 +1210,8 @@ class DumperBase:
 
         displayFormat = self.currentItemFormat(value.type.name)
         innerType = value.type.target().unqualified()
-        innerTypeName = innerType.name
 
-        if innerTypeName == "void":
+        if innerType.name == "void":
             #warn("VOID POINTER: %s" % displayFormat)
             self.putType(typeName)
             self.putValue("0x%x" % pointer)
@@ -1233,8 +1233,8 @@ class DumperBase:
         if displayFormat in (SeparateLatin1StringFormat, SeparateUtf8StringFormat):
             limit = 1000000
         if self.tryPutSimpleFormattedPointer(pointer, typeName,
-                                             innerTypeName, displayFormat, limit):
-            self.putNumChild(0)
+                                             innerType, displayFormat, limit):
+            self.putNumChild(1)
             return
 
         if Array10Format <= displayFormat and displayFormat <= Array1000Format:
@@ -1253,14 +1253,14 @@ class DumperBase:
 
         #warn("AUTODEREF: %s" % self.autoDerefPointers)
         #warn("INAME: %s" % self.currentIName)
-        #warn("INNER: %s" % innerTypeName)
+        #warn("INNER: %s" % innerType.name)
         if self.autoDerefPointers or self.currentIName.endswith('.this'):
             # Generic pointer type with AutomaticFormat.
             # Never dereference char types.
-            if innerTypeName not in ("char", "signed char", "unsigned char", "wchar_t"):
-                self.putType(innerTypeName)
+            if innerType.name not in ("char", "signed char", "unsigned char", "wchar_t"):
+                self.putType(innerType)
                 savedCurrentChildType = self.currentChildType
-                self.currentChildType = self.stripClassTag(innerTypeName)
+                self.currentChildType = self.stripClassTag(innerType.name)
                 self.putItem(value.dereference())
                 self.currentChildType = savedCurrentChildType
                 self.putOriginalAddress(value)
@@ -2530,7 +2530,7 @@ class DumperBase:
             self.putType(typeName)
             self.putItemCount(n)
             if self.isExpanded():
-                self.putArrayData(base.type.target(), base, n)
+                self.putArrayData(base.pointer(), n, base.type.target())
             return
 
         #warn("SOME VALUE: %s" % value)
