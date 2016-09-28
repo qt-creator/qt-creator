@@ -612,25 +612,21 @@ def qdump__std__unordered_map(d, value):
         # gcc ~= 4.7
         size = value["_M_element_count"].integer()
         start = value["_M_before_begin"]["_M_nxt"]
-        offset = 0
     except:
         try:
             # libc++ (Mac)
             size = value["_M_h"]["_M_element_count"].integer()
             start = value["_M_h"]["_M_bbegin"]["_M_node"]["_M_nxt"]
-            offset = 0
         except:
             try:
                 # gcc 4.9.1
                 size = value["_M_h"]["_M_element_count"].integer()
                 start = value["_M_h"]["_M_before_begin"]["_M_nxt"]
-                offset = 0
             except:
                 # gcc 4.6.2
                 size = value["_M_element_count"].integer()
                 start = value["_M_buckets"].dereference()
                 # FIXME: Pointer-aligned?
-                offset = pairType.size()
                 d.putItemCount(size)
                 # We don't know where the data is
                 d.putNumChild(0)
@@ -638,18 +634,11 @@ def qdump__std__unordered_map(d, value):
 
     d.putItemCount(size)
     if d.isExpanded():
-        p = start.integer()
-        if d.isMapCompact(keyType, valueType):
-            with PairedChildren(d, size, pairType=pairType):
-                for i in d.childRange():
-                    pair = d.createValue(p + ptrSize, pairType)
-                    d.putPairItem(i, pair)
-                    p = d.extractPointer(p)
-        else:
-            with Children(d, size, childType=pairType):
-                for i in d.childRange():
-                    d.putSubItem(i, d.createValue(p + ptrSize - offset, pairType))
-                    p = d.extractPointer(p + offset)
+        p = start.pointer()
+        with PairedChildren(d, size, keyType=keyType, valueType=valueType):
+            for i in d.childRange():
+                d.putPairItem(i, d.createValue(p + ptrSize, pairType))
+                p = d.extractPointer(p)
 
 def qdump__std____debug__unordered_map(d, value):
     qdump__std__unordered_map(d, value)

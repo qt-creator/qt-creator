@@ -4647,10 +4647,10 @@ void tst_Dumpers::dumper_data()
                + Check("map1.1", "[1] 11", "1", "unsigned int")
 
                + Check("map2", "<2 items>", "std::unordered_map<std::string, float>")
-               //+ Check("map2.0", "[0]", "", "std::pair<std:string const, float>")
+               + Check("map2.0", "[0] \"22.0\"", FloatValue("22.0"), "")
                + Check("map2.0.first", "\"22.0\"", "std::string")
                + Check("map2.0.second", FloatValue("22"), "float")
-               //+ Check("map2.1", "[1]", "", "std::pair<std::string const, float>")
+               + Check("map2.1", "[1] \"11.0\"", FloatValue("11.0"), "")
                + Check("map2.1.first", "\"11.0\"", "std::string")
                + Check("map2.1.second", FloatValue("11"), "float");
 
