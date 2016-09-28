@@ -98,8 +98,17 @@ QVariant CMakeKitInformation::defaultValue(const Kit *k) const
 
 QList<Task> CMakeKitInformation::validate(const Kit *k) const
 {
-    Q_UNUSED(k);
-    return QList<Task>();
+    QList<Task> result;
+    CMakeTool *tool = CMakeKitInformation::cmakeTool(k);
+    if (tool) {
+        CMakeTool::Version version = tool->version();
+        if (version.major < 3) {
+            result << Task(Task::Warning, tr("CMake version %1 is unsupported. Please update to "
+                                             "version 3.0 or later.").arg(QString::fromUtf8(version.fullVersion)),
+                           Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
+        }
+    }
+    return result;
 }
 
 void CMakeKitInformation::setup(Kit *k)
