@@ -221,16 +221,6 @@ public:
         case ProjectDisplayNameRole:
             return m_project->displayName();
 
-        case Qt::DecorationRole: {
-            QVariant icon;
-            m_targetsItem->forChildrenAtLevel(1, [this, &icon](TreeItem *item) {
-                QVariant sicon = item->data(0, Qt::DecorationRole);
-                if (sicon.isValid())
-                    icon = sicon;
-            });
-            return icon;
-        }
-
         case Qt::FontRole: {
             QFont font;
             font.setBold(m_project == SessionManager::startupProject());
