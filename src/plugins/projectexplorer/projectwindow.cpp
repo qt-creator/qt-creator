@@ -589,7 +589,8 @@ void ProjectWindow::startupProjectChanged(Project *project)
 
 void ProjectWindow::projectSelected(int index)
 {
-    m_selectorModel->rootItem()->setCurrentProject(index);
+    Project *project = m_selectorModel->rootItem()->childAt(index)->project();
+    SessionManager::setStartupProject(project);
 }
 
 void ProjectWindow::itemActivated(const QModelIndex &index)
