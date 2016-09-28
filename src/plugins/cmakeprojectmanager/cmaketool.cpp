@@ -199,6 +199,14 @@ TextEditor::Keywords CMakeTool::keywords()
     return TextEditor::Keywords(m_variables, m_functions, m_functionArgs);
 }
 
+bool CMakeTool::hasServerMode() const
+{
+    supportedGenerators(); // server mode is queried from the output of -E capabilities,
+                           // just like the generators
+
+    return m_hasServerMode;
+}
+
 bool CMakeTool::isAutoDetected() const
 {
     return m_isAutoDetected;

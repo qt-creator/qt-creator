@@ -87,6 +87,7 @@ public:
     bool isAutoRun() const;
     QList<Generator> supportedGenerators() const;
     TextEditor::Keywords keywords();
+    bool hasServerMode() const;
 
     bool isAutoDetected() const;
     QString displayName() const;
