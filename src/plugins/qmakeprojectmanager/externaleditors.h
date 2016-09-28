@@ -52,6 +52,9 @@ class ExternalQtEditor : public Core::IExternalEditor
     Q_OBJECT
 
 public:
+    // Member function pointer for a QtVersion function return a string (command)
+    using CommandForQtVersion = std::function<QString(const QtSupport::BaseQtVersion *)>;
+
     static ExternalQtEditor *createLinguistEditor();
     static ExternalQtEditor *createDesignerEditor();
 
@@ -69,9 +72,6 @@ public:
     };
 
 protected:
-    // Member function pointer for a QtVersion function return a string (command)
-    using CommandForQtVersion = std::function<QString(const QtSupport::BaseQtVersion *)>;
-
     ExternalQtEditor(Core::Id id,
                      const QString &displayName,
                      const QString &mimetype,

@@ -25,6 +25,7 @@
 
 #include "externaleditors.h"
 
+#include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/synchronousprocess.h>
 #include <projectexplorer/project.h>
@@ -142,23 +143,51 @@ QString ExternalQtEditor::displayName() const
     return m_displayName;
 }
 
+static QString findFirstCommand(QVector<QtSupport::BaseQtVersion *> qtVersions,
+                                ExternalQtEditor::CommandForQtVersion command)
+{
+    foreach (QtSupport::BaseQtVersion *qt, qtVersions) {
+        if (qt) {
+            const QString binary = command(qt);
+            if (!binary.isEmpty())
+                return binary;
+        }
+    }
+    return QString();
+}
+
 bool ExternalQtEditor::getEditorLaunchData(const QString &fileName,
                                            LaunchData *data,
                                            QString *errorMessage) const
 {
-    // Get the binary either from the current Qt version of the project or Path
-    if (Project *project = SessionManager::projectForFile(Utils::FileName::fromString(fileName))) {
+    // Check in order for Qt version with the binary:
+    // - active kit of project
+    // - any other of the project
+    // - default kit
+    // - any other kit
+    // As fallback check PATH
+    data->workingDirectory.clear();
+    QVector<QtSupport::BaseQtVersion *> qtVersionsToCheck; // deduplicated after being filled
+    if (const Project *project = SessionManager::projectForFile(Utils::FileName::fromString(fileName))) {
+        data->workingDirectory = project->projectDirectory().toString();
+        // active kit
         if (const Target *target = project->activeTarget()) {
-            if (const QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(target->kit())) {
-                data->binary = m_commandForQtVersion(qtVersion);
-                data->workingDirectory = project->projectDirectory().toString();
-            }
+            qtVersionsToCheck << QtSupport::QtKitInformation::qtVersion(target->kit());
         }
+        // all kits of project
+        qtVersionsToCheck += Utils::transform<QVector>(project->targets(), [](Target *t) {
+            return QTC_GUARD(t) ? QtSupport::QtKitInformation::qtVersion(t->kit()) : nullptr;
+        });
     }
-    if (data->binary.isEmpty()) {
-        data->workingDirectory.clear();
+    // default kit
+    qtVersionsToCheck << QtSupport::QtKitInformation::qtVersion(KitManager::defaultKit());
+    // all kits
+    qtVersionsToCheck += Utils::transform<QVector>(KitManager::kits(), QtSupport::QtKitInformation::qtVersion);
+    qtVersionsToCheck = Utils::filteredUnique(qtVersionsToCheck); // can still contain nullptr
+    data->binary = findFirstCommand(qtVersionsToCheck, m_commandForQtVersion);
+    // fallback
+    if (data->binary.isEmpty())
         data->binary = Utils::SynchronousProcess::locateBinary(m_commandForQtVersion(nullptr));
-    }
     if (data->binary.isEmpty()) {
         *errorMessage = msgAppNotFound(id().toString());
         return false;
