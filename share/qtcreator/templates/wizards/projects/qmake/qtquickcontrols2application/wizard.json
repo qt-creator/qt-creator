@@ -3,7 +3,7 @@
     "supportedProjectTypes": [ "Qt4ProjectManager.Qt4Project" ],
     "id": "V.QtQuickControls2Application",
     "category": "F.Application",
-    "trDescription": "Creates a deployable Qt Quick 2 application using Qt Quick Controls 2.<br/><br/><b>Note:</b> Qt Quick Controls 2 are available with Qt 5.7 and later. Choose <em>Qt Labs Controls Application</em> when targeting Qt 5.6.",
+    "trDescription": "Creates a deployable Qt Quick 2 application using Qt Quick Controls 2.<br/><br/><b>Note:</b> Qt Quick Controls 2 are available with Qt 5.7 and later.",
     "trDisplayName": "Qt Quick Controls 2 Application",
     "trDisplayCategory": "Application",
     "icon": "../qtquickapplication/qml_wizard.png",
