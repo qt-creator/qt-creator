@@ -351,6 +351,11 @@ class DumperBase:
         elapsed = int(1000000 * (time.time() - self.pretimings[key]))
         self.timings.append([key, elapsed])
 
+    def childRange(self):
+        if self.currentMaxNumChild is None:
+            return xrange(0, self.currentNumChild)
+        return xrange(min(self.currentMaxNumChild, self.currentNumChild))
+
     def enterSubItem(self, item):
         if not item.iname:
             item.iname = "%s.%s" % (self.currentIName, item.name)

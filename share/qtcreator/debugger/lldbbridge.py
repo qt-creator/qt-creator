@@ -557,11 +557,6 @@ class Dumper(DumperBase):
     def put(self, stuff):
         self.output += stuff
 
-    def childRange(self):
-        if self.currentMaxNumChild is None:
-            return xrange(0, self.currentNumChild)
-        return xrange(min(self.currentMaxNumChild, self.currentNumChild))
-
     def canonicalTypeName(self, name):
         return re.sub('\\bconst\\b', '', name).replace(' ', '')
 

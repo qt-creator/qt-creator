@@ -692,11 +692,6 @@ class Dumper(DumperBase):
     def put(self, value):
         self.output.append(value)
 
-    def childRange(self):
-        if self.currentMaxNumChild is None:
-            return xrange(0, toInteger(self.currentNumChild))
-        return xrange(min(toInteger(self.currentMaxNumChild), toInteger(self.currentNumChild)))
-
     def isArmArchitecture(self):
         return 'arm' in gdb.TARGET_CONFIG.lower()
 
