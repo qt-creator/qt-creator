@@ -52,7 +52,6 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/algorithm.h>
-#include <utils/basetreeview.h>
 #include <utils/qtcassert.h>
 #include <utils/treemodel.h>
 #include <utils/utilsicons.h>
@@ -361,6 +360,7 @@ public:
         case Qt::TextColorRole: {
             if (!isEnabled())
                 return Utils::creatorTheme()->color(Theme::TextColorDisabled);
+            break;
         }
 
         case Qt::FontRole: {
@@ -602,7 +602,7 @@ public:
         auto result = new PanelsWidget;
         result->addPropertiesPanel(panel);
         return result;
-    };
+    }
 
     QWidget *panel() const
     {
