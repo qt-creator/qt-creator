@@ -34,6 +34,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QProcess>
+#include <QRegularExpression>
 #include <QSet>
 #include <QTextDocument>
 #include <QUuid>
@@ -163,12 +164,7 @@ bool CMakeTool::isAutoRun() const
 
 QList<CMakeTool::Generator> CMakeTool::supportedGenerators() const
 {
-    if (m_generators.isEmpty())
-        fetchGeneratorsFromCapabilities();
-    if (m_generators.isEmpty()) {
-        fetchGeneratorsFromHelp();
-    }
-
+    readInformation(QueryType::GENERATORS);
     return m_generators;
 }
 
@@ -201,10 +197,14 @@ TextEditor::Keywords CMakeTool::keywords()
 
 bool CMakeTool::hasServerMode() const
 {
-    supportedGenerators(); // server mode is queried from the output of -E capabilities,
-                           // just like the generators
-
+    readInformation(QueryType::SERVER_MODE);
     return m_hasServerMode;
+}
+
+CMakeTool::Version CMakeTool::version() const
+{
+    readInformation(QueryType::VERSION);
+    return m_version;
 }
 
 bool CMakeTool::isAutoDetected() const
@@ -233,6 +233,32 @@ QString CMakeTool::mapAllPaths(const ProjectExplorer::Kit *kit, const QString &i
     if (m_pathMapper)
         return m_pathMapper(kit, in);
     return in;
+}
+
+void CMakeTool::readInformation(CMakeTool::QueryType type) const
+{
+    if ((type == QueryType::GENERATORS && !m_generators.isEmpty())
+         || (type == QueryType::SERVER_MODE && m_queriedServerMode)
+         || (type == QueryType::VERSION && !m_version.fullVersion.isEmpty()))
+        return;
+
+    if (!m_triedCapabilities) {
+        fetchFromCapabilities();
+        m_triedCapabilities = true;
+        m_queriedServerMode = true; // Got added after "-E capabilities" support!
+        if (type == QueryType::GENERATORS && !m_generators.isEmpty())
+            return;
+    }
+
+    if (type == QueryType::GENERATORS) {
+        fetchGeneratorsFromHelp();
+    } else if (type == QueryType::SERVER_MODE) {
+        // Nothing to do...
+    } else if (type == QueryType::VERSION) {
+        fetchVersionFromVersionOutput();
+    } else {
+        QTC_ASSERT(false, return);
+    }
 }
 
 static QStringList parseDefinition(const QString &definition)
@@ -378,7 +404,27 @@ void CMakeTool::fetchGeneratorsFromHelp() const
         m_generators.append(Generator(it.key(), it.value()));
 }
 
-void CMakeTool::fetchGeneratorsFromCapabilities() const
+void CMakeTool::fetchVersionFromVersionOutput() const
+{
+    Utils::SynchronousProcessResponse response = run({ "--version" });
+    if (response.result != Utils::SynchronousProcessResponse::Finished)
+        return;
+
+    QRegularExpression versionLine("^cmake version ((\\d+).(\\d+).(\\d+).*)$");
+    for (const QString &line : response.stdOut().split('\n')) {
+        QRegularExpressionMatch match = versionLine.match(line);
+        if (!match.hasMatch())
+            continue;
+
+        m_version.major = match.captured(2).toInt();
+        m_version.minor = match.captured(3).toInt();
+        m_version.patch = match.captured(4).toInt();
+        m_version.fullVersion = match.captured(1).toUtf8();
+        break;
+    }
+}
+
+void CMakeTool::fetchFromCapabilities() const
 {
     Utils::SynchronousProcessResponse response = run({ "-E", "capabilities" }, true);
     if (response.result != Utils::SynchronousProcessResponse::Finished)
@@ -398,6 +444,12 @@ void CMakeTool::fetchGeneratorsFromCapabilities() const
                                       gen.value("platformSupport").toBool(),
                                       gen.value("toolsetSupport").toBool()));
     }
+
+    const QVariantMap versionInfo = data.value("version").toMap();
+    m_version.major = versionInfo.value("major").toInt();
+    m_version.minor = versionInfo.value("minor").toInt();
+    m_version.patch = versionInfo.value("patch").toInt();
+    m_version.fullVersion = versionInfo.value("string").toByteArray();
 }
 
 } // namespace CMakeProjectManager
