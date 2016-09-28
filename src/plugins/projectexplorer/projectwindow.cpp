@@ -502,9 +502,9 @@ ProjectWindow::ProjectWindow()
     auto styledBar = new StyledBar; // The black blob on top of the side bar
     styledBar->setObjectName("ProjectModeStyledBar");
 
-    auto styledBarLayout = new QHBoxLayout(styledBar);
-    styledBarLayout->setContentsMargins(0, 0, 0, 0);
-    styledBarLayout->addWidget(m_projectSelection);
+//    auto styledBarLayout = new QHBoxLayout(styledBar);
+//    styledBarLayout->setContentsMargins(0, 0, 0, 0);
+//    styledBarLayout->addWidget(m_projectSelection);
 
     auto selectorView = new QWidget; // Black blob + Project tree + Combobox below.
     selectorView->setObjectName("ProjectSelector"); // Needed for dock widget state saving
@@ -512,8 +512,9 @@ ProjectWindow::ProjectWindow()
     selectorView->setAutoFillBackground(true);
 
     auto innerLayout = new QVBoxLayout;
-    innerLayout->setContentsMargins(14, 0, 14, 0);
-    //innerLayout->addWidget(m_projectSelection);
+    innerLayout->setSpacing(10);
+    innerLayout->setContentsMargins(14, innerLayout->spacing(), 14, 0);
+    innerLayout->addWidget(m_projectSelection);
     innerLayout->addWidget(m_selectorTree);
 
     auto selectorLayout = new QVBoxLayout(selectorView);
