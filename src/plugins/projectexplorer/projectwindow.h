@@ -70,19 +70,11 @@ public:
 
 private:
     void contextMenuEvent(QContextMenuEvent *event) override;
-
     void openContextMenu(const QPoint &pos);
-    void registerProject(Project *project);
-    void deregisterProject(Project *project);
-    void startupProjectChanged(Project *project);
-    void projectSelected(int index);
-    void itemActivated(const QModelIndex &index);
-    ProjectItem *itemForProject(Project *project) const;
+    void setPanel(QWidget *panel);
 
     SelectorModel *m_selectorModel;
-    SelectorTree *m_selectorTree;
     QDockWidget *m_selectorDock;
-    QComboBox *m_projectSelection;
 };
 
 } // namespace Internal
