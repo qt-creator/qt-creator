@@ -55,6 +55,10 @@ public:
     class Generator
     {
     public:
+        Generator(const QString &n, const QStringList &eg, bool pl = true, bool ts = true) :
+            name(n), extraGenerators(eg), supportsPlatform(pl), supportsToolset(ts)
+        { }
+
         QString name;
         QStringList extraGenerators;
         bool supportsPlatform = true;
@@ -92,11 +96,12 @@ public:
     QString mapAllPaths(const ProjectExplorer::Kit *kit, const QString &in) const;
 
 private:
-    Utils::SynchronousProcessResponse run(const QString &arg) const;
+    Utils::SynchronousProcessResponse run(const QStringList &args, bool mayFail = false) const;
     void parseFunctionDetailsOutput(const QString &output);
     QStringList parseVariableOutput(const QString &output);
 
     void fetchGeneratorsFromHelp() const;
+    void fetchGeneratorsFromCapabilities() const;
 
     Core::Id m_id;
     QString m_displayName;
@@ -107,6 +112,7 @@ private:
 
     mutable bool m_didAttemptToRun = false;
     mutable bool m_didRun = false;
+    mutable bool m_hasServerMode = false;
 
     mutable QList<Generator> m_generators;
     mutable QMap<QString, QStringList> m_functionArgs;

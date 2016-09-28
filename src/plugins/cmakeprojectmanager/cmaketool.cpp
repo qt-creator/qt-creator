@@ -31,6 +31,8 @@
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QProcess>
 #include <QSet>
 #include <QTextDocument>
@@ -110,7 +112,7 @@ bool CMakeTool::isValid() const
     return m_didRun;
 }
 
-Utils::SynchronousProcessResponse CMakeTool::run(const QString &arg) const
+Utils::SynchronousProcessResponse CMakeTool::run(const QStringList &args, bool mayFail) const
 {
     if (m_didAttemptToRun && !m_didRun) {
         Utils::SynchronousProcessResponse response;
@@ -126,9 +128,9 @@ Utils::SynchronousProcessResponse CMakeTool::run(const QString &arg) const
     cmake.setProcessEnvironment(env.toProcessEnvironment());
     cmake.setTimeOutMessageBoxEnabled(false);
 
-    Utils::SynchronousProcessResponse response = cmake.runBlocking(m_executable.toString(), QStringList() << arg);
+    Utils::SynchronousProcessResponse response = cmake.runBlocking(m_executable.toString(), args);
     m_didAttemptToRun = true;
-    m_didRun = (response.result == Utils::SynchronousProcessResponse::Finished);
+    m_didRun = mayFail ? true : (response.result == Utils::SynchronousProcessResponse::Finished);
     return response;
 }
 
@@ -161,9 +163,12 @@ bool CMakeTool::isAutoRun() const
 
 QList<CMakeTool::Generator> CMakeTool::supportedGenerators() const
 {
+    if (m_generators.isEmpty())
+        fetchGeneratorsFromCapabilities();
     if (m_generators.isEmpty()) {
         fetchGeneratorsFromHelp();
     }
+
     return m_generators;
 }
 
@@ -171,19 +176,19 @@ TextEditor::Keywords CMakeTool::keywords()
 {
     if (m_functions.isEmpty()) {
         Utils::SynchronousProcessResponse response;
-        response = run("--help-command-list");
+        response = run({ "--help-command-list" });
         if (response.result == Utils::SynchronousProcessResponse::Finished)
             m_functions = response.stdOut().split('\n');
 
-        response = run("--help-commands");
+        response = run({ "--help-commands" });
         if (response.result == Utils::SynchronousProcessResponse::Finished)
             parseFunctionDetailsOutput(response.stdOut());
 
-        response = run("--help-property-list");
+        response = run({ "--help-property-list" });
         if (response.result == Utils::SynchronousProcessResponse::Finished)
             m_variables = parseVariableOutput(response.stdOut());
 
-        response = run("--help-variable-list");
+        response = run({ "--help-variable-list" });
         if (response.result == Utils::SynchronousProcessResponse::Finished) {
             m_variables.append(parseVariableOutput(response.stdOut()));
             m_variables = Utils::filteredUnique(m_variables);
@@ -315,7 +320,7 @@ QStringList CMakeTool::parseVariableOutput(const QString &output)
 
 void CMakeTool::fetchGeneratorsFromHelp() const
 {
-    Utils::SynchronousProcessResponse response = run("--help");
+    Utils::SynchronousProcessResponse response = run({ "--help" });
     if (response.result != Utils::SynchronousProcessResponse::Finished)
         return;
 
@@ -361,11 +366,29 @@ void CMakeTool::fetchGeneratorsFromHelp() const
     }
 
     // Populate genertor list:
-    for (auto it = generatorInfo.constBegin(); it != generatorInfo.constEnd(); ++it) {
-        Generator info;
-        info.name = it.key();
-        info.extraGenerators = it.value();
-        m_generators.append(info);
+    for (auto it = generatorInfo.constBegin(); it != generatorInfo.constEnd(); ++it)
+        m_generators.append(Generator(it.key(), it.value()));
+}
+
+void CMakeTool::fetchGeneratorsFromCapabilities() const
+{
+    Utils::SynchronousProcessResponse response = run({ "-E", "capabilities" }, true);
+    if (response.result != Utils::SynchronousProcessResponse::Finished)
+        return;
+
+    auto doc = QJsonDocument::fromJson(response.stdOut().toUtf8());
+    if (!doc.isObject())
+        return;
+
+    const QVariantMap data = doc.object().toVariantMap();
+    m_hasServerMode = data.value("serverMode").toBool();
+    const QVariantList generatorList = data.value("generators").toList();
+    for (const QVariant &v : generatorList) {
+        const QVariantMap gen = v.toMap();
+        m_generators.append(Generator(gen.value("name").toString(),
+                                      gen.value("extraGenerators").toStringList(),
+                                      gen.value("platformSupport").toBool(),
+                                      gen.value("toolsetSupport").toBool()));
     }
 }
 
