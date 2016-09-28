@@ -5949,5 +5949,39 @@
          cy="577.5"
          r="5.5" />
     </g>
+    <g
+       id="src/plugins/projectexplorer/images/enablekitbackground"
+       transform="translate(112,0)">
+      <rect
+         id="rect5759-5-9-0-8-6-3"
+         height="16"
+         width="16"
+         y="363"
+         x="570"
+         style="fill:#ffffff" />
+      <circle
+         style="opacity:1;fill:#000000"
+         id="path5134"
+         cx="582.5"
+         cy="375.5"
+         r="3.5" />
+    </g>
+    <g
+       id="src/plugins/projectexplorer/images/enablekitforeground"
+       transform="translate(128,0)">
+      <rect
+         id="rect5759-5-9-0-8-6-3-1"
+         height="16"
+         width="16"
+         y="363"
+         x="570"
+         style="fill:#ffffff" />
+      <path
+         style="fill:#000000;fill-opacity:1"
+         d="m 583,373 0,2 2,0 0,1 -2,0 0,2 -1,0 0,-2 -2,0 0,-1 2,0 0,-2 z"
+         id="path5157"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccccccccccccc" />
+    </g>
   </g>
 </svg>

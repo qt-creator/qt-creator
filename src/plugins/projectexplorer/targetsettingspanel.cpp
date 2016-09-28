@@ -57,11 +57,13 @@
 #include <utils/utilsicons.h>
 
 #include <QCoreApplication>
+#include <QApplication>
 #include <QDialogButtonBox>
 #include <QFileDialog>
 #include <QLabel>
 #include <QMenu>
 #include <QMessageBox>
+#include <QPainter>
 #include <QPushButton>
 #include <QTimer>
 #include <QToolTip>
@@ -336,6 +338,20 @@ public:
         return Qt::ItemFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
     }
 
+    static QIcon enableKitIcon(const Kit &kit)
+    {
+        static const QIcon overlay = Utils::Icons::ENABLE_KIT_OVERLAY.icon();
+        const QSize iconSize(16, 16);
+        const QRect iconRect(QPoint(), iconSize);
+        QPixmap result(iconSize * qApp->devicePixelRatio());
+        result.fill(Qt::transparent);
+        result.setDevicePixelRatio(qApp->devicePixelRatio());
+        QPainter p(&result);
+        kit.icon().paint(&p, iconRect, Qt::AlignCenter, QIcon::Disabled);
+        overlay.paint(&p, iconRect);
+        return result;
+    }
+
     QVariant data(int column, int role) const override
     {
         switch (role) {
@@ -346,10 +362,10 @@ public:
         }
 
         case Qt::DecorationRole: {
-            if (!isEnabled())
-                return Utils::Icons::PLUS.icon();
-            Kit *k = KitManager::find(m_kitId);
+            const Kit *k = KitManager::find(m_kitId);
             QTC_ASSERT(k, return QVariant());
+            if (!isEnabled())
+                return enableKitIcon(*k);
             if (!k->isValid())
                 return Utils::Icons::ERROR.icon();
             if (k->hasWarning())
