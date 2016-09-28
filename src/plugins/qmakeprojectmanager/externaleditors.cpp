@@ -61,27 +61,32 @@ static inline QString msgAppNotFound(const QString &id)
 }
 
 // -- Commands and helpers
-static QString linguistBinary()
+static QString linguistBinary(const QtSupport::BaseQtVersion *qtVersion)
 {
+    if (qtVersion)
+        return qtVersion->linguistCommand();
     return QLatin1String(Utils::HostOsInfo::isMacHost() ? "Linguist" : "linguist");
 }
 
-static QString designerBinary()
+static QString designerBinary(const QtSupport::BaseQtVersion *qtVersion)
 {
+    if (qtVersion)
+        return qtVersion->designerCommand();
     return QLatin1String(Utils::HostOsInfo::isMacHost() ? "Designer" : "designer");
 }
 
 // Mac: Change the call 'Foo.app/Contents/MacOS/Foo <filelist>' to
 // 'open -a Foo.app <filelist>'. doesn't support generic command line arguments
-static void createMacOpenCommand(QString *binary, QStringList *arguments)
+static ExternalQtEditor::LaunchData createMacOpenCommand(const ExternalQtEditor::LaunchData &data)
 {
-    const int appFolderIndex = binary->lastIndexOf(QLatin1String("/Contents/MacOS/"));
+    ExternalQtEditor::LaunchData openData = data;
+    const int appFolderIndex = data.binary.lastIndexOf(QLatin1String("/Contents/MacOS/"));
     if (appFolderIndex != -1) {
-        binary->truncate(appFolderIndex);
-        arguments->push_front(*binary);
-        arguments->push_front(QLatin1String("-a"));
-        *binary = QLatin1String("open");
+        openData.binary = "open";
+        openData.arguments = QStringList({ QString("-a"), data.binary.left(appFolderIndex) })
+                + data.arguments;
     }
+    return openData;
 }
 
 static const char designerIdC[] = "Qt.Designer";
@@ -94,12 +99,32 @@ static const char linguistDisplayName[] = QT_TRANSLATE_NOOP("OpenWith::Editors",
 ExternalQtEditor::ExternalQtEditor(Core::Id id,
                                    const QString &displayName,
                                    const QString &mimetype,
-                                   QObject *parent) :
-    Core::IExternalEditor(parent),
+                                   const CommandForQtVersion &commandForQtVersion) :
     m_mimeTypes(mimetype),
     m_id(id),
-    m_displayName(displayName)
+    m_displayName(displayName),
+    m_commandForQtVersion(commandForQtVersion)
 {
+}
+
+ExternalQtEditor *ExternalQtEditor::createLinguistEditor()
+{
+    return new ExternalQtEditor(linguistIdC,
+                                QLatin1String(linguistDisplayName),
+                                QLatin1String(ProjectExplorer::Constants::LINGUIST_MIMETYPE),
+                                linguistBinary);
+}
+
+ExternalQtEditor *ExternalQtEditor::createDesignerEditor()
+{
+    if (Utils::HostOsInfo::isMacHost()) {
+        return new ExternalQtEditor(designerIdC,
+                                    QLatin1String(designerDisplayName),
+                                    QLatin1String(ProjectExplorer::Constants::FORM_MIMETYPE),
+                                    designerBinary);
+    } else {
+        return new DesignerExternalEditor;
+    }
 }
 
 QStringList ExternalQtEditor::mimeTypes() const
@@ -118,41 +143,43 @@ QString ExternalQtEditor::displayName() const
 }
 
 bool ExternalQtEditor::getEditorLaunchData(const QString &fileName,
-                                           QtVersionCommandAccessor commandAccessor,
-                                           const QString &fallbackBinary,
-                                           const QStringList &additionalArguments,
-                                           bool useMacOpenCommand,
-                                           EditorLaunchData *data,
+                                           LaunchData *data,
                                            QString *errorMessage) const
 {
     // Get the binary either from the current Qt version of the project or Path
     if (Project *project = SessionManager::projectForFile(Utils::FileName::fromString(fileName))) {
         if (const Target *target = project->activeTarget()) {
             if (const QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(target->kit())) {
-                data->binary = (qtVersion->*commandAccessor)();
+                data->binary = m_commandForQtVersion(qtVersion);
                 data->workingDirectory = project->projectDirectory().toString();
             }
         }
     }
     if (data->binary.isEmpty()) {
         data->workingDirectory.clear();
-        data->binary = Utils::SynchronousProcess::locateBinary(fallbackBinary);
+        data->binary = Utils::SynchronousProcess::locateBinary(m_commandForQtVersion(nullptr));
     }
     if (data->binary.isEmpty()) {
         *errorMessage = msgAppNotFound(id().toString());
         return false;
     }
     // Setup binary + arguments, use Mac Open if appropriate
-    data->arguments = additionalArguments;
     data->arguments.push_back(fileName);
-    if (Utils::HostOsInfo::isMacHost() && useMacOpenCommand)
-        createMacOpenCommand(&(data->binary), &(data->arguments));
+    if (Utils::HostOsInfo::isMacHost())
+        *data = createMacOpenCommand(*data);
     if (debug)
         qDebug() << Q_FUNC_INFO << '\n' << data->binary << data->arguments;
     return true;
 }
 
-bool ExternalQtEditor::startEditorProcess(const EditorLaunchData &data, QString *errorMessage)
+bool ExternalQtEditor::startEditor(const QString &fileName, QString *errorMessage)
+{
+    LaunchData data;
+    return getEditorLaunchData(fileName, &data, errorMessage)
+            && startEditorProcess(data, errorMessage);
+}
+
+bool ExternalQtEditor::startEditorProcess(const LaunchData &data, QString *errorMessage)
 {
     if (debug)
         qDebug() << Q_FUNC_INFO << '\n' << data.binary << data.arguments << data.workingDirectory;
@@ -164,47 +191,12 @@ bool ExternalQtEditor::startEditorProcess(const EditorLaunchData &data, QString 
     return true;
 }
 
-// --------------- LinguistExternalEditor
-LinguistExternalEditor::LinguistExternalEditor(QObject *parent) :
-       ExternalQtEditor(linguistIdC,
-                        QLatin1String(linguistDisplayName),
-                        QLatin1String(ProjectExplorer::Constants::LINGUIST_MIMETYPE),
-                        parent)
-{
-}
-
-bool LinguistExternalEditor::startEditor(const QString &fileName, QString *errorMessage)
-{
-    EditorLaunchData data;
-    return getEditorLaunchData(fileName, &QtSupport::BaseQtVersion::linguistCommand,
-                            linguistBinary(), QStringList(), true, &data, errorMessage)
-            && startEditorProcess(data, errorMessage);
-}
-
-// --------------- MacDesignerExternalEditor, using Mac 'open'
-MacDesignerExternalEditor::MacDesignerExternalEditor(QObject *parent) :
-       ExternalQtEditor(designerIdC,
-                        QLatin1String(designerDisplayName),
-                        QLatin1String(ProjectExplorer::Constants::FORM_MIMETYPE),
-                        parent)
-{
-}
-
-bool MacDesignerExternalEditor::startEditor(const QString &fileName, QString *errorMessage)
-{
-    EditorLaunchData data;
-    return getEditorLaunchData(fileName, &QtSupport::BaseQtVersion::designerCommand,
-                            designerBinary(), QStringList(), true, &data, errorMessage)
-        && startEditorProcess(data, errorMessage);
-    return false;
-}
-
 // --------------- DesignerExternalEditor with Designer Tcp remote control.
-DesignerExternalEditor::DesignerExternalEditor(QObject *parent) :
+DesignerExternalEditor::DesignerExternalEditor() :
     ExternalQtEditor(designerIdC,
                      QLatin1String(designerDisplayName),
                      QLatin1String(Designer::Constants::FORM_MIMETYPE),
-                     parent)
+                     designerBinary)
 {
 }
 
@@ -225,10 +217,9 @@ void DesignerExternalEditor::processTerminated(const QString &binary)
 
 bool DesignerExternalEditor::startEditor(const QString &fileName, QString *errorMessage)
 {
-    EditorLaunchData data;
+    LaunchData data;
     // Find the editor binary
-    if (!getEditorLaunchData(fileName, &QtSupport::BaseQtVersion::designerCommand,
-                            designerBinary(), QStringList(), false, &data, errorMessage)) {
+    if (!getEditorLaunchData(fileName, &data, errorMessage)) {
         return false;
     }
     // Known one?

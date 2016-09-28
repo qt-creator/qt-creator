@@ -111,11 +111,8 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
     addAutoReleasedObject(new QmakeBuildConfigurationFactory);
     addAutoReleasedObject(new DesktopQmakeRunConfigurationFactory);
 
-    if (Utils::HostOsInfo::isMacHost())
-        addAutoReleasedObject(new MacDesignerExternalEditor);
-    else
-        addAutoReleasedObject(new DesignerExternalEditor);
-    addAutoReleasedObject(new LinguistExternalEditor);
+    addAutoReleasedObject(ExternalQtEditor::createDesignerEditor());
+    addAutoReleasedObject(ExternalQtEditor::createLinguistEditor());
 
     addAutoReleasedObject(new ProFileEditorFactory);
 
