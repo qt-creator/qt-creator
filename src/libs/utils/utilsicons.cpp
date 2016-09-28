@@ -94,7 +94,7 @@ const Icon MINUS({
 const Icon PLUS_TOOLBAR({
         {QLatin1String(":/utils/images/plus.png"), Theme::IconsBaseColor}});
 const Icon PLUS({
-        {QLatin1String(":/utils/images/plus.png"), Theme::PaletteText}});
+        {QLatin1String(":/utils/images/plus.png"), Theme::PaletteText}}, Icon::Tint);
 const Icon MAGNIFIER({
         {QLatin1String(":/utils/images/magnifier.png"), Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon CLEAN({
