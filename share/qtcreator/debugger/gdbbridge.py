@@ -900,7 +900,10 @@ class Dumper(DumperBase):
             gdb.execute(cmd)
 
     def nativeDynamicTypeName(self, address, baseType):
-        vtbl = gdb.execute("info symbol {%s*}0x%x" % (baseType.name, address), to_string = True)
+        try:
+            vtbl = gdb.execute("info symbol {%s*}0x%x" % (baseType.name, address), to_string = True)
+        except:
+            return None
         pos1 = vtbl.find("vtable ")
         if pos1 == -1:
             return None
