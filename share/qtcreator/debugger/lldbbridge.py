@@ -92,7 +92,6 @@ class Dumper(DumperBase):
         #    self.debugger.GetCategoryAtIndex(i).SetEnabled(False)
 
         self.isLldb = True
-        self.isGoodLldb = hasattr(lldb.SBValue, "SetPreferDynamicValue")
         self.process = None
         self.target = None
         self.eventState = lldb.eStateInvalid
@@ -893,12 +892,6 @@ class Dumper(DumperBase):
 
     def findSymbol(self, symbolName):
         return self.target.FindFirstGlobalVariable(symbolName)
-
-    def isFunctionType(self, typeobj):
-        if self.isGoodLldb:
-            return typeobj.IsFunctionType()
-        #warn("TYPE: %s" % typeobj)
-        return False
 
     def warn(self, msg):
         self.put('{name="%s",value="",type="",numchild="0"},' % msg)
