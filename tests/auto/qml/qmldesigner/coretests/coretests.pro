@@ -6,7 +6,8 @@ QTC_LIB_DEPENDS += \
 
 QTC_PLUGIN_DEPENDS += \
     coreplugin \
-    qmljseditor
+    qmljseditor \
+    qmakeprojectmanager
 
 include(../../../qttest.pri)
 
