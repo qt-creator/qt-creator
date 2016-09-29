@@ -251,10 +251,14 @@ bool ThreadsHandler::setData(const QModelIndex &idx, const QVariant &data, int r
     }
 
     if (role == BaseTreeView::ItemViewEventRole) {
-        auto menu = new QMenu;
-        menu->addAction(action(SettingsDialog));
-        menu->popup(data.value<ItemViewEvent>().globalPos());
-        return true;
+        ItemViewEvent ev = data.value<ItemViewEvent>();
+
+        if (ev.as<QContextMenuEvent>()) {
+            auto menu = new QMenu;
+            menu->addAction(action(SettingsDialog));
+            menu->popup(ev.globalPos());
+            return true;
+        }
     }
 
     return false;
