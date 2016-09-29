@@ -55,7 +55,6 @@ class TestResultModel : public Utils::TreeModel<>
 {
 public:
     explicit TestResultModel(QObject *parent = 0);
-    QVariant data(const QModelIndex &idx, int role) const;
 
     void addTestResult(const TestResultPtr &testResult, bool autoExpand = false);
     void removeCurrentTestMessage();

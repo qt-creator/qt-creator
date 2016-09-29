@@ -135,17 +135,6 @@ TestResultModel::TestResultModel(QObject *parent)
 {
 }
 
-QVariant TestResultModel::data(const QModelIndex &idx, int role) const
-{
-    if (!idx.isValid())
-        return QVariant();
-
-    if (role == Qt::DecorationRole || role == Qt::DisplayRole)
-        return itemForIndex(idx)->data(0, role);
-
-    return QVariant();
-}
-
 void TestResultModel::addTestResult(const TestResultPtr &testResult, bool autoExpand)
 {
     const bool isCurrentTestMssg = testResult->result() == Result::MessageCurrentTest;
