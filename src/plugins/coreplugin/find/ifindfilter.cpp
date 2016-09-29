@@ -28,6 +28,7 @@
 #include <coreplugin/coreicons.h>
 
 #include <QApplication>
+#include <QKeySequence>
 #include <QPainter>
 #include <QPixmap>
 
@@ -217,6 +218,11 @@
 */
 
 namespace Core {
+
+QKeySequence IFindFilter::defaultShortcut() const
+{
+    return QKeySequence();
+}
 
 FindFlags IFindFilter::supportedFindFlags() const
 {

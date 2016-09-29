@@ -386,11 +386,6 @@ QStringListModel *Find::replaceCompletionModel()
     return &(d->m_replaceCompletionModel);
 }
 
-QKeySequence IFindFilter::defaultShortcut() const
-{
-    return QKeySequence();
-}
-
 // declared in textfindconstants.h
 QTextDocument::FindFlags textDocumentFlagsForFindFlags(FindFlags flags)
 {
