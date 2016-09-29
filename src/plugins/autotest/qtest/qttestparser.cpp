@@ -101,7 +101,7 @@ static QString testClass(const CppTools::CppModelManager *modelManager,
     document = snapshot.preprocessedDocument(fileContent, fileName);
     document->check();
     CPlusPlus::AST *ast = document->translationUnit()->ast();
-    TestAstVisitor astVisitor(document);
+    TestAstVisitor astVisitor(document, snapshot);
     astVisitor.accept(ast);
     return astVisitor.className();
 }
@@ -178,7 +178,7 @@ static bool handleQtTest(QFutureInterface<TestParseResultPtr> futureInterface,
         if (declaringDoc.isNull())
             return false;
 
-        TestVisitor visitor(testCaseName);
+        TestVisitor visitor(testCaseName, snapshot);
         visitor.accept(declaringDoc->globalNamespace());
         if (!visitor.resultValid())
             return false;
