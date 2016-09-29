@@ -2605,6 +2605,9 @@ class DumperBase:
             #error("Not implemented")
             return self.stringify()
 
+        def __int__(self):
+            return self.integer()
+
         def stringify(self):
             addr = "None" if self.laddress is None else ("0x%x" % self.laddress)
             return "Value(name='%s',type=%s,data=%s,address=%s)" \
