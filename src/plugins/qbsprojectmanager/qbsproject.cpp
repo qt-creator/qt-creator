@@ -158,29 +158,40 @@ void QbsProject::projectLoaded()
     m_parsingDelay.start(0);
 }
 
-static void collectFilesForProject(const qbs::ProjectData &project, QSet<QString> &result)
+static void collectFilesForProject(const qbs::ProjectData &project, Project::FilesMode mode,
+                                   QSet<QString> &result)
 {
-    result.insert(project.location().filePath());
+    if (mode & Project::SourceFiles)
+        result.insert(project.location().filePath());
+
     foreach (const qbs::ProductData &prd, project.products()) {
-        foreach (const qbs::GroupData &grp, prd.groups()) {
-            foreach (const QString &file, grp.allFilePaths())
-                result.insert(file);
-            result.insert(grp.location().filePath());
+        if (mode & Project::SourceFiles) {
+            foreach (const qbs::GroupData &grp, prd.groups()) {
+                foreach (const QString &file, grp.allFilePaths())
+                    result.insert(file);
+                result.insert(grp.location().filePath());
+            }
+            result.insert(prd.location().filePath());
         }
-        result.insert(prd.location().filePath());
+        if (mode & Project::GeneratedFiles) {
+            foreach (const qbs::ProductData &prd, project.products()) {
+                foreach (const qbs::ArtifactData &artifact, prd.generatedArtifacts())
+                    result.insert(artifact.filePath());
+            }
+        }
     }
+
     foreach (const qbs::ProjectData &subProject, project.subProjects())
-        collectFilesForProject(subProject, result);
+        collectFilesForProject(subProject, mode, result);
 }
 
 QStringList QbsProject::files(Project::FilesMode fileMode) const
 {
-    Q_UNUSED(fileMode);
-    qCDebug(qbsPmLog) << Q_FUNC_INFO << m_qbsProject.isValid() << isParsing();
+    qCDebug(qbsPmLog) << Q_FUNC_INFO << fileMode << m_qbsProject.isValid() << isParsing();
     if (!m_qbsProject.isValid() || isParsing())
         return QStringList();
     QSet<QString> result;
-    collectFilesForProject(m_projectData, result);
+    collectFilesForProject(m_projectData, fileMode, result);
     result.unite(m_qbsProject.buildSystemFiles());
     qCDebug(qbsPmLog) << "file count:" << result.count();
     return result.toList();
