@@ -16,5 +16,4 @@ SOURCES += \
     $$PWD/warning.cpp
 
 FORMS += \
-    $$PWD/errorwidget.ui \
     $$PWD/outputtabwidget.ui

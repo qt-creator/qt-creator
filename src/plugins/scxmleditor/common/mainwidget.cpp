@@ -637,8 +637,8 @@ void MainWidget::createUi()
     m_stateProperties = new StateProperties;
     m_structure = new Structure;
     auto verticalSplitter = new Core::MiniSplitter(Qt::Vertical);
-    verticalSplitter->addWidget(m_stateProperties);
     verticalSplitter->addWidget(m_structure);
+    verticalSplitter->addWidget(m_stateProperties);
 
     m_horizontalSplitter = new Core::MiniSplitter(Qt::Horizontal);
     m_horizontalSplitter->addWidget(m_shapesFrame);

@@ -97,7 +97,6 @@ QtcPlugin {
             "warning.cpp", "warning.h",
             "warningmodel.cpp", "warningmodel.h",
 
-            "errorwidget.ui",
             "outputtabwidget.ui",
         ]
     }

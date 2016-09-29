@@ -26,14 +26,16 @@
 #pragma once
 
 #include "outputpane.h"
-#include "ui_errorwidget.h"
 #include "warningmodel.h"
 
+QT_FORWARD_DECLARE_CLASS(QToolButton)
 QT_FORWARD_DECLARE_CLASS(QSortFilterProxyModel)
 
 namespace ScxmlEditor {
 
 namespace OutputPane {
+
+class TableView;
 
 class ErrorWidget : public OutputPane
 {
@@ -68,6 +70,7 @@ signals:
     void warningDoubleClicked(Warning *w);
 
 private:
+    void createUi();
     void updateWarnings();
     void exportWarnings();
     void warningCountChanged(int c);
@@ -77,7 +80,13 @@ private:
     QString m_title;
     WarningModel *m_warningModel;
     QSortFilterProxyModel *m_proxyModel;
-    Ui::ErrorWidget m_ui;
+
+    TableView *m_errorsTable = nullptr;
+    QToolButton *m_clean = nullptr;
+    QToolButton *m_exportWarnings = nullptr;
+    QToolButton *m_showErrors = nullptr;
+    QToolButton *m_showWarnings = nullptr;
+    QToolButton *m_showInfos = nullptr;
 };
 
 } // namespace OutputPane
