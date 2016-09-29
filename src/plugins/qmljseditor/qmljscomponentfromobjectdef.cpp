@@ -111,6 +111,8 @@ public:
         QStringList result;
         QStringList sourcePreview;
 
+        QString suffix;
+
         if (!m_idName.isEmpty())
             sourcePreview.append(QLatin1String("    id: ") + m_idName);
         else
@@ -127,7 +129,7 @@ public:
         foreach (const QString &property, sortedPropertiesWithoutId)
             sourcePreview.append(QLatin1String("    ") + property + QLatin1String(": ") + propertyReader.readAstValue(property));
 
-        bool confirm = ComponentNameDialog::go(&componentName, &path,
+        const bool confirm = ComponentNameDialog::go(&componentName, &path, &suffix,
                                                sortedPropertiesWithoutId,
                                                sourcePreview,
                                                QFileInfo(currentFileName).fileName(),
@@ -140,7 +142,7 @@ public:
             return;
 
         const QString newFileName = path + QLatin1Char('/') + componentName
-                + QLatin1String(".qml");
+                + QLatin1String(".") + suffix;
 
         QString imports;
         UiProgram *prog = currentFile->qmljsDocument()->qmlProgram();

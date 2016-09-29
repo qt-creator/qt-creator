@@ -40,7 +40,7 @@ public:
     explicit ComponentNameDialog(QWidget *parent = 0);
     ~ComponentNameDialog();
 
-    static bool go(QString *proposedName, QString *proposedPath,
+    static bool go(QString *proposedName, QString *proposedPath, QString *proposedSuffix,
                    const QStringList &properties, const QStringList &sourcePreview, const QString &oldFileName,
                    QStringList *result,
                    QWidget *parent = 0);

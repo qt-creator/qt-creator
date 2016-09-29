@@ -51,6 +51,7 @@ ComponentNameDialog::~ComponentNameDialog()
 
 bool ComponentNameDialog::go(QString *proposedName,
                              QString *proposedPath,
+                             QString *proposedSuffix,
                              const QStringList &properties,
                              const QStringList &sourcePreview,
                              const QString &oldFileName,
@@ -59,6 +60,8 @@ bool ComponentNameDialog::go(QString *proposedName,
 {
     Q_ASSERT(proposedName);
     Q_ASSERT(proposedPath);
+
+    const bool isUiFile = QFileInfo(oldFileName).completeSuffix() == "ui.qml";
 
     ComponentNameDialog d(parent);
     d.ui->componentNameEdit->setNamespacesEnabled(false);
@@ -71,6 +74,8 @@ bool ComponentNameDialog::go(QString *proposedName,
     d.ui->pathEdit->setHistoryCompleter(QLatin1String("QmlJs.Component.History"));
     d.ui->pathEdit->setPath(*proposedPath);
     d.ui->label->setText(tr("Property assignments for %1:").arg(oldFileName));
+    d.ui->checkBox->setChecked(isUiFile);
+    d.ui->checkBox->setVisible(isUiFile);
     d.m_sourcePreview = sourcePreview;
 
     d.setProperties(properties);
@@ -83,6 +88,11 @@ bool ComponentNameDialog::go(QString *proposedName,
     if (QDialog::Accepted == d.exec()) {
         *proposedName = d.ui->componentNameEdit->text();
         *proposedPath = d.ui->pathEdit->path();
+
+        if (d.ui->checkBox->isChecked())
+            *proposedSuffix = "ui.qml";
+        else
+            *proposedSuffix = "qml";
 
         if (result)
             *result = d.propertiesToKeep();
