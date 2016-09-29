@@ -33,6 +33,9 @@
 
 QT_FORWARD_DECLARE_CLASS(QCheckBox)
 QT_FORWARD_DECLARE_CLASS(QKeyEvent)
+QT_FORWARD_DECLARE_CLASS(QLabel)
+QT_FORWARD_DECLARE_CLASS(QToolbar)
+QT_FORWARD_DECLARE_CLASS(QToolButton)
 
 namespace ScxmlEditor {
 
@@ -84,6 +87,7 @@ protected:
     void keyPressEvent(QKeyEvent *e) override;
 
 private:
+    void createUi();
     void rowActivated(const QModelIndex &index);
     void rowEntered(const QModelIndex &index);
     void childAdded(const QModelIndex &index);
@@ -99,6 +103,14 @@ private:
     QVector<QCheckBox*> m_checkboxes;
     TreeItemDelegate *m_customDelegate = nullptr;
     Ui::Structure m_ui;
+
+    QWidget *m_paneInnerFrame = nullptr;
+    TreeView *m_structureView = nullptr;
+    QToolButton *m_checkboxButton = nullptr;
+    QLabel *m_visibleTagsTitle = nullptr;
+    QWidget *m_tagVisibilityFrame = nullptr;
+    QWidget *m_checkboxFrame = nullptr;
+    QLayout *m_checkboxLayout = nullptr;
 };
 
 } // namespace Common

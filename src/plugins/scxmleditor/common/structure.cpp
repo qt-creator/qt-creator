@@ -34,12 +34,16 @@
 #include "scxmltagutils.h"
 #include "scxmluifactory.h"
 #include "structuremodel.h"
+#include "treeview.h"
 
 #include <QCheckBox>
 #include <QKeyEvent>
+#include <QLabel>
 #include <QLineEdit>
 #include <QRegExp>
 #include <QRegExpValidator>
+#include <QToolbar>
+#include <QToolButton>
 #include <QUndoStack>
 
 #include <utils/utilsicons.h>
@@ -102,17 +106,15 @@ bool StructureSortFilterProxyModel::filterAcceptsRow(int source_row, const QMode
 Structure::Structure(QWidget *parent)
     : QFrame(parent)
 {
-    m_ui.setupUi(this);
-
-    m_ui.m_checkboxButton->setIcon(Utils::Icons::FILTER.icon());
+    createUi();
 
     addCheckbox(tr("Common states"), State);
     addCheckbox(tr("Metadata"), Metadata);
     addCheckbox(tr("Other tags"), OnEntry);
     addCheckbox(tr("Unknown tags"), UnknownTag);
 
-    m_ui.m_tagVisibilityFrame->setVisible(false);
-    connect(m_ui.m_checkboxButton, &QToolButton::toggled, m_ui.m_tagVisibilityFrame, &QFrame::setVisible);
+    m_tagVisibilityFrame->setVisible(false);
+    connect(m_checkboxButton, &QToolButton::toggled, m_tagVisibilityFrame, &QFrame::setVisible);
 
     m_model = new StructureModel(this);
 
@@ -123,15 +125,15 @@ Structure::Structure(QWidget *parent)
     // Default set of the visible tags
     QVector<TagType> visibleTags;
     for (int i = 0; i < Finalize; ++i)
-        visibleTags << (TagType)i;
+        visibleTags << TagType(i);
     m_proxyModel->setVisibleTags(visibleTags);
 
-    m_ui.m_structureView->setModel(m_proxyModel);
-    m_ui.m_structureView->setItemDelegate(new TreeItemDelegate(this));
+    m_structureView->setModel(m_proxyModel);
+    m_structureView->setItemDelegate(new TreeItemDelegate(this));
 
-    connect(m_ui.m_structureView, &TreeView::pressed, this, &Structure::rowActivated);
-    connect(m_ui.m_structureView, &TreeView::rightButtonClicked, this, &Structure::showMenu);
-    connect(m_ui.m_structureView, &TreeView::entered, this, &Structure::rowEntered);
+    connect(m_structureView, &TreeView::pressed, this, &Structure::rowActivated);
+    connect(m_structureView, &TreeView::rightButtonClicked, this, &Structure::showMenu);
+    connect(m_structureView, &TreeView::entered, this, &Structure::rowEntered);
 
     connect(m_model, &StructureModel::selectIndex, this, &Structure::currentTagChanged);
     connect(m_model, &StructureModel::childAdded, this, &Structure::childAdded);
@@ -145,7 +147,7 @@ void Structure::addCheckbox(const QString &name, TagType type)
     box->setCheckable(true);
     box->setChecked(true);
     connect(box, &QCheckBox::clicked, this, &Structure::updateCheckBoxes);
-    m_ui.m_checkboxLayout->addWidget(box);
+    m_checkboxFrame->layout()->addWidget(box);
     m_checkboxes << box;
 }
 
@@ -154,7 +156,7 @@ void Structure::updateCheckBoxes()
     QVector<TagType> visibleTags;
     foreach (QCheckBox *box, m_checkboxes) {
         if (box->isChecked()) {
-            switch ((TagType)box->property(Constants::C_SCXMLTAG_TAGTYPE).toInt()) {
+            switch (TagType(box->property(Constants::C_SCXMLTAG_TAGTYPE).toInt())) {
             case State:
                 visibleTags << Initial << Final << History << State << Parallel << Transition << InitialTransition;
                 break;
@@ -183,13 +185,13 @@ void Structure::setDocument(ScxmlDocument *document)
     m_currentDocument = document;
     m_model->setDocument(document);
     m_proxyModel->invalidate();
-    m_ui.m_structureView->expandAll();
+    m_structureView->expandAll();
 }
 
 void Structure::setGraphicsScene(GraphicsScene *scene)
 {
     m_scene = scene;
-    connect(m_ui.m_structureView, &TreeView::mouseExited, m_scene, &GraphicsScene::unhighlightAll);
+    connect(m_structureView, &TreeView::mouseExited, m_scene, &GraphicsScene::unhighlightAll);
 }
 
 void Structure::rowEntered(const QModelIndex &index)
@@ -221,7 +223,7 @@ void Structure::currentTagChanged(const QModelIndex &sourceIndex)
 {
     QModelIndex ind = m_proxyModel->mapFromSource(sourceIndex);
     if (ind.isValid())
-        m_ui.m_structureView->setCurrentIndex(ind);
+        m_structureView->setCurrentIndex(ind);
 }
 
 void Structure::childAdded(const QModelIndex &childIndex)
@@ -229,15 +231,15 @@ void Structure::childAdded(const QModelIndex &childIndex)
     m_proxyModel->invalidate();
     QModelIndex ind = m_proxyModel->mapFromSource(childIndex);
     if (ind.isValid()) {
-        m_ui.m_structureView->setCurrentIndex(ind);
-        m_ui.m_structureView->expand(ind.parent());
+        m_structureView->setCurrentIndex(ind);
+        m_structureView->expand(ind.parent());
     }
 }
 
 void Structure::keyPressEvent(QKeyEvent *e)
 {
     if (e->key() == Qt::Key_Delete) {
-        QModelIndex ind = m_proxyModel->mapToSource(m_ui.m_structureView->currentIndex());
+        QModelIndex ind = m_proxyModel->mapToSource(m_structureView->currentIndex());
         auto tag = static_cast<ScxmlTag*>(ind.internalPointer());
         if (tag && m_currentDocument) {
             m_currentDocument->undoStack()->beginMacro(tr("Remove items"));
@@ -248,6 +250,49 @@ void Structure::keyPressEvent(QKeyEvent *e)
     QFrame::keyPressEvent(e);
 }
 
+void Structure::createUi()
+{
+    auto titleLabel = new QLabel(tr("Structure"));
+    titleLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+
+    m_checkboxButton = new QToolButton;
+    m_checkboxButton->setIcon(Utils::Icons::FILTER.icon());
+    m_checkboxButton->setCheckable(true);
+
+    auto toolBar = new QToolBar;
+    toolBar->addWidget(titleLabel);
+    toolBar->addWidget(m_checkboxButton);
+
+    m_structureView = new TreeView;
+
+    m_visibleTagsTitle = new QLabel;
+
+    m_checkboxFrame = new QWidget;
+    m_checkboxFrame->setLayout(new QVBoxLayout);
+    m_checkboxFrame->layout()->setMargin(0);
+    auto spacer = new QWidget;
+    spacer->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
+
+    m_tagVisibilityFrame = new QWidget;
+    m_tagVisibilityFrame->setLayout(new QVBoxLayout);
+    m_tagVisibilityFrame->layout()->addWidget(m_visibleTagsTitle);
+    m_tagVisibilityFrame->layout()->addWidget(m_checkboxFrame);
+    m_tagVisibilityFrame->layout()->addWidget(spacer);
+    m_tagVisibilityFrame->layout()->setMargin(0);
+
+    auto paneInnerFrame = new QWidget;
+    paneInnerFrame->setLayout(new QHBoxLayout);
+    paneInnerFrame->layout()->addWidget(m_structureView);
+    paneInnerFrame->layout()->addWidget(m_tagVisibilityFrame);
+    paneInnerFrame->layout()->setMargin(0);
+
+    setLayout(new QVBoxLayout);
+    layout()->addWidget(toolBar);
+    layout()->addWidget(paneInnerFrame);
+    layout()->setMargin(0);
+    layout()->setSpacing(0);
+}
+
 void Structure::showMenu(const QModelIndex &index, const QPoint &globalPos)
 {
     if (index.isValid()) {
@@ -255,8 +300,8 @@ void Structure::showMenu(const QModelIndex &index, const QPoint &globalPos)
         auto tag = static_cast<ScxmlTag*>(ind.internalPointer());
         if (tag) {
             auto menu = new QMenu;
-            menu->addAction(tr("Expand All"), m_ui.m_structureView, &TreeView::expandAll);
-            menu->addAction(tr("Collapse All"), m_ui.m_structureView, &TreeView::collapseAll);
+            menu->addAction(tr("Expand All"), m_structureView, &TreeView::expandAll);
+            menu->addAction(tr("Collapse All"), m_structureView, &TreeView::collapseAll);
             menu->addSeparator();
             menu->addAction(m_scene->actionHandler()->action(ActionCopy));
             menu->addAction(m_scene->actionHandler()->action(ActionPaste));
@@ -285,7 +330,7 @@ void Structure::showMenu(const QModelIndex &index, const QPoint &globalPos)
                     tag->document()->undoStack()->beginMacro(tr("Add child"));
                     ScxmlTag *childTag = SceneUtils::addChild(tag, data, m_scene);
                     if (childTag && childTag->tagType() <= MetadataItem)
-                        m_ui.m_structureView->edit(m_ui.m_structureView->currentIndex());
+                        m_structureView->edit(m_structureView->currentIndex());
                     tag->document()->undoStack()->endMacro();
                 }
             }

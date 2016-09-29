@@ -81,7 +81,6 @@ QtcPlugin {
             "stateview.ui",
             "statistics.ui",
             "statisticsdialog.ui",
-            "structure.ui",
         ]
     }
 

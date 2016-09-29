@@ -29,6 +29,5 @@
         <file>images/state.png</file>
         <file>images/state_color.png</file>
         <file>images/statistics.png</file>
-        <file>images/structure.png</file>
     </qresource>
 </RCC>

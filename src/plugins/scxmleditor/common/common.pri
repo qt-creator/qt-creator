@@ -69,8 +69,7 @@ FORMS += \
     $$PWD/stateproperties.ui \
     $$PWD/stateview.ui \
     $$PWD/statistics.ui \
-    $$PWD/statisticsdialog.ui \
-    $$PWD/structure.ui
+    $$PWD/statisticsdialog.ui
 
 RESOURCES += \
     $$PWD/common.qrc

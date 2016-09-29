@@ -39,6 +39,8 @@ TreeView::TreeView(QWidget *parent)
     setDropIndicatorShown(true);
     setDragDropMode(QAbstractItemView::DragDrop);
     setMouseTracking(true);
+    setFrameShape(QFrame::NoFrame);
+    setHeaderHidden(true);
 }
 
 void TreeView::leaveEvent(QEvent *e)
