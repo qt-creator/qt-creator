@@ -85,6 +85,8 @@ void Qt5NodeInstanceServer::resetAllItems()
 
 void Qt5NodeInstanceServer::setupScene(const CreateSceneCommand &command)
 {
+
+    setupMockupTypes(command.mockupTypes());
     setupFileUrl(command.fileUrl());
     setupImports(command.imports());
     setupDummyData(command.fileUrl());

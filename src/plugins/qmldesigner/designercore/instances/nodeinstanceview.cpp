@@ -34,6 +34,7 @@
 #include <model.h>
 #include <modelnode.h>
 #include <metainfo.h>
+#include <rewriterview.h>
 
 #include "abstractproperty.h"
 #include "variantproperty.h"
@@ -840,6 +841,44 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
     foreach (const Import &import, model()->imports())
         importVector.append(AddImportContainer(import.url(), import.file(), import.version(), import.alias(), import.importPaths()));
 
+    QVector<MockupTypeContainer> mockupTypesVector;
+
+    for (const CppTypeData &cppTypeData : model()->rewriterView()->getCppTypes()) {
+        const QString versionString = cppTypeData.versionString;
+        int majorVersion = -1;
+        int minorVersion = -1;
+
+        if (versionString.contains(QStringLiteral("."))) {
+            const QStringList splittedString = versionString.split(QStringLiteral("."));
+            majorVersion = splittedString.first().toInt();
+            minorVersion = splittedString.last().toInt();
+        }
+
+        bool isItem = false;
+
+        if (!cppTypeData.isSingleton) { /* Singletons only appear on the right hand sides of bindings and create just warnings. */
+            const TypeName typeName = cppTypeData.typeName.toUtf8();
+            const QString uri = cppTypeData.importUrl;
+
+            NodeMetaInfo metaInfo = model()->metaInfo(uri.toUtf8() + "." + typeName);
+
+            if (metaInfo.isValid())
+                isItem = metaInfo.isGraphicalItem();
+
+            MockupTypeContainer mockupType(typeName, uri, majorVersion, minorVersion, isItem);
+
+            mockupTypesVector.append(mockupType);
+        } else { /* We need a type for the signleton import */
+            const TypeName typeName = cppTypeData.typeName.toUtf8() + "Mockup";
+            const QString uri = cppTypeData.importUrl;
+
+            MockupTypeContainer mockupType(typeName, uri, majorVersion, minorVersion, isItem);
+
+            mockupTypesVector.append(mockupType);
+        }
+    }
+
+
     return CreateSceneCommand(instanceContainerList,
                               reparentContainerList,
                               idContainerList,
@@ -847,6 +886,7 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
                               bindingContainerList,
                               auxiliaryContainerVector,
                               importVector,
+                              mockupTypesVector,
                               model()->fileUrl());
 }
 

@@ -41,6 +41,10 @@
 
 #include <qmlprivategate.h>
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
+#include <private/qquickdesignersupportmetainfo_p.h>
+#endif
+
 #include <createinstancescommand.h>
 #include <changefileurlcommand.h>
 #include <clearscenecommand.h>
@@ -656,6 +660,25 @@ void NodeInstanceServer::setupDummysForContext(QQmlContext *context)
         if (dummyPair.second) {
             context->setContextProperty(dummyPair.first, dummyPair.second.data());
         }
+    }
+}
+
+void NodeInstanceServer::setupMockupTypes(const QVector<MockupTypeContainer> &container)
+{
+    for (const MockupTypeContainer &mockupType :  container) {
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
+        QQuickDesignerSupportMetaInfo::registerMockupObject(mockupType.importUri().toUtf8(),
+                                                            mockupType.majorVersion(),
+                                                            mockupType.minorVersion(),
+                                                            mockupType.typeName());
+#else
+        qmlRegisterType(QUrl("qrc:/qtquickplugin/mockfiles/GenericBackend.qml"),
+                        mockupType.importUri().toUtf8(),
+                        mockupType.majorVersion(),
+                        mockupType.minorVersion(),
+                        mockupType.typeName());
+#endif
+
     }
 }
 

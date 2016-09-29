@@ -40,6 +40,7 @@ CreateSceneCommand::CreateSceneCommand(const QVector<InstanceContainer> &instanc
                                        const QVector<PropertyBindingContainer> &bindingChangeVector,
                                        const QVector<PropertyValueContainer> &auxiliaryChangeVector,
                                        const QVector<AddImportContainer> &importVector,
+                                       const QVector<MockupTypeContainer> &mockupTypeVector,
                                        const QUrl &fileUrl)
     : m_instanceVector(instanceContainer),
       m_reparentInstanceVector(reparentContainer),
@@ -48,6 +49,7 @@ CreateSceneCommand::CreateSceneCommand(const QVector<InstanceContainer> &instanc
       m_bindingChangeVector(bindingChangeVector),
       m_auxiliaryChangeVector(auxiliaryChangeVector),
       m_importVector(importVector),
+      m_mockupTypeVector(mockupTypeVector),
       m_fileUrl(fileUrl)
 {
 }
@@ -87,6 +89,11 @@ QVector<AddImportContainer> CreateSceneCommand::imports() const
     return m_importVector;
 }
 
+QVector<MockupTypeContainer> CreateSceneCommand::mockupTypes() const
+{
+    return m_mockupTypeVector;
+}
+
 QUrl CreateSceneCommand::fileUrl() const
 {
     return m_fileUrl;
@@ -101,6 +108,7 @@ QDataStream &operator<<(QDataStream &out, const CreateSceneCommand &command)
     out << command.bindingChanges();
     out << command.auxiliaryChanges();
     out << command.imports();
+    out << command.mockupTypes();
     out << command.fileUrl();
 
     return out;
@@ -115,6 +123,7 @@ QDataStream &operator>>(QDataStream &in, CreateSceneCommand &command)
     in >> command.m_bindingChangeVector;
     in >> command.m_auxiliaryChangeVector;
     in >> command.m_importVector;
+    in >> command.m_mockupTypeVector;
     in >> command.m_fileUrl;
 
     return in;
@@ -130,6 +139,7 @@ QDebug operator <<(QDebug debug, const CreateSceneCommand &command)
                     << "bindingChanges: " << command.bindingChanges() << ", "
                     << "auxiliaryChanges: " << command.auxiliaryChanges() << ", "
                     << "imports: " << command.imports() << ", "
+                    << "mockupTypes: " << command.mockupTypes() << ", "
                     << "fileUrl: " << command.fileUrl() << ")";
 }
 

@@ -54,6 +54,7 @@ class ChildrenChangedCommand;
 class ReparentContainer;
 class ComponentCompletedCommand;
 class AddImportContainer;
+class MockupTypeContainer;
 class IdContainer;
 
 namespace Internal {
@@ -188,6 +189,7 @@ protected:
 
     void setupDummysForContext(QQmlContext *context);
 
+    void setupMockupTypes(const QVector<MockupTypeContainer> &container);
     void setupFileUrl(const QUrl &fileUrl);
     void setupImports(const QVector<AddImportContainer> &container);
     void setupDummyData(const QUrl &fileUrl);
