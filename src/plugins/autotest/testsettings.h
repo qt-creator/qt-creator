@@ -44,7 +44,6 @@ struct TestSettings
     TestSettings();
     void toSettings(QSettings *s) const;
     void fromSettings(QSettings *s);
-    static QString metricsTypeToOption(const MetricsType type);
 
     int timeout;
     bool omitInternalMssg = true;
