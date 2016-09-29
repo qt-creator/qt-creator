@@ -26,35 +26,41 @@
 #pragma once
 
 #include "mytypes.h"
-#include "ui_mainwidget.h"
+#include "scxmldocument.h"
 
 #include <QToolButton>
 #include <QWidget>
 
 QT_FORWARD_DECLARE_CLASS(QFileInfo)
 QT_FORWARD_DECLARE_CLASS(QResizeEvent)
+QT_FORWARD_DECLARE_CLASS(QSplitter)
+QT_FORWARD_DECLARE_CLASS(QStackedWidget)
+QT_FORWARD_DECLARE_CLASS(QUndoStack)
 
 namespace ScxmlEditor {
 
 namespace PluginInterface {
 class ActionHandler;
 class BaseItem;
-class ScxmlDocument;
 class ScxmlUiFactory;
 } // namespace PluginInterface
 
 namespace OutputPane {
 class ErrorWidget;
+class OutputTabWidget;
 class WarningModel;
 } // namespace OutputPane
 
 namespace Common {
 
-class StateView;
-class Navigator;
-class Magnifier;
-class Search;
 class ColorThemes;
+class Magnifier;
+class Navigator;
+class Search;
+class ShapesToolbox;
+class StateProperties;
+class StateView;
+class Structure;
 
 /**
  * @brief The MainWidget class is the main widget of the application.
@@ -104,6 +110,7 @@ signals:
 private:
     QToolButton *createToolButton(const QString &iconName, const QString &tooltip, QToolButton::ToolButtonPopupMode mode);
     void documentChanged();
+    void createUi();
     void init();
     void clear();
     void handleTabVisibilityChanged(bool visible);
@@ -128,7 +135,13 @@ private:
     bool m_autoFit = true;
     bool m_windowBlocked = false;
     PluginInterface::ActionHandler *m_actionHandler = nullptr;
-    Ui::MainWidget m_ui;
+    QStackedWidget *m_stackedWidget = nullptr;
+    OutputPane::OutputTabWidget *m_outputPaneWindow = nullptr;
+    StateProperties *m_stateProperties = nullptr;
+    Structure *m_structure = nullptr;
+    QSplitter *m_horizontalSplitter = nullptr;
+    QWidget *m_mainContentWidget = nullptr;
+    ShapesToolbox *m_shapesFrame = nullptr;
 };
 
 } // namespace Common

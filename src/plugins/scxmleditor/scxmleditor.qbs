@@ -72,7 +72,6 @@ QtcPlugin {
             "colorpicker.ui",
             "colorsettings.ui",
             "colorthemedialog.ui",
-            "mainwidget.ui",
             "navigator.ui",
             "navigatorslider.ui",
             "search.ui",

@@ -31,12 +31,16 @@
 #include "graphicsscene.h"
 #include "magnifier.h"
 #include "navigator.h"
+#include "outputtabwidget.h"
 #include "scxmltagutils.h"
 #include "scxmleditorconstants.h"
 #include "search.h"
+#include "shapestoolbox.h"
 #include "stateitem.h"
+#include "stateproperties.h"
 #include "stateview.h"
 #include "statisticsdialog.h"
+#include "structure.h"
 #include "undocommands.h"
 #include "warning.h"
 #include "warningprovider.h"
@@ -60,6 +64,7 @@
 #include <QPainter>
 #include <QProgressBar>
 #include <QProgressDialog>
+#include <QStackedWidget>
 #include <QStandardPaths>
 #include <QXmlStreamWriter>
 
@@ -70,6 +75,7 @@
 #include <iostream>
 
 #include <coreplugin/icore.h>
+#include <coreplugin/minisplitter.h>
 #include <utils/algorithm.h>
 
 using namespace ScxmlEditor::PluginInterface;
@@ -153,12 +159,12 @@ QToolButton *MainWidget::toolButton(ToolButtonType type)
 
 void MainWidget::init()
 {
-    m_ui.setupUi(this);
+    createUi();
 
     m_uiFactory = new ScxmlUiFactory(this);
-    m_ui.m_stateProperties->setUIFactory(m_uiFactory);
+    m_stateProperties->setUIFactory(m_uiFactory);
     m_colorThemes = new ColorThemes(this);
-    m_ui.m_shapesFrame->setUIFactory(m_uiFactory);
+    m_shapesFrame->setUIFactory(m_uiFactory);
 
     m_navigator = new Navigator(this);
     m_navigator->setVisible(false);
@@ -168,9 +174,9 @@ void MainWidget::init()
 
     // Create, init and connect Error-pane
     m_errorPane = new ErrorWidget;
-    m_ui.m_outputPaneWindow->addPane(m_errorPane);
+    m_outputPaneWindow->addPane(m_errorPane);
 
-    connect(m_ui.m_outputPaneWindow, &OutputTabWidget::visibilityChanged, this, &MainWidget::handleTabVisibilityChanged);
+    connect(m_outputPaneWindow, &OutputTabWidget::visibilityChanged, this, &MainWidget::handleTabVisibilityChanged);
 
     // Init warningProvider
     auto provider = static_cast<WarningProvider*>(m_uiFactory->object(Constants::C_OBJECTNAME_WARNINGPROVIDER));
@@ -203,13 +209,13 @@ void MainWidget::init()
 
     // Create and init Error-pane
     m_searchPane = new Search;
-    m_ui.m_outputPaneWindow->addPane(m_searchPane);
+    m_outputPaneWindow->addPane(m_searchPane);
 
     m_document = new ScxmlDocument;
     connect(m_document, &ScxmlDocument::endTagChange, this, &MainWidget::endTagChange);
     connect(m_document, &ScxmlDocument::documentChanged, this, &MainWidget::dirtyChanged);
 
-    connect(m_ui.stackedWidget, &QStackedWidget::currentChanged, this, &MainWidget::initView);
+    connect(m_stackedWidget, &QStackedWidget::currentChanged, this, &MainWidget::initView);
 
     m_actionHandler = new ActionHandler(this);
 
@@ -328,13 +334,8 @@ void MainWidget::init()
 
     m_toolButtons << stateColorButton << fontColorButton << alignToolButton << adjustToolButton;
 
-    // Init other ui:s
-    m_ui.m_horSplitter->setStretchFactor(1, 1);
-    m_ui.m_horSplitter->setStretchFactor(0, 0);
-    m_ui.m_horSplitter->setStretchFactor(2, 0);
-
     const QSettings *s = Core::ICore::settings();
-    m_ui.m_horSplitter->restoreState(s->value(Constants::C_SETTINGS_SPLITTER).toByteArray());
+    m_horizontalSplitter->restoreState(s->value(Constants::C_SETTINGS_SPLITTER).toByteArray());
 
     m_actionHandler->action(ActionPaste)->setEnabled(false);
 
@@ -431,7 +432,7 @@ void MainWidget::saveScreenShot()
 void MainWidget::saveSettings()
 {
     QSettings *s = Core::ICore::settings();
-    s->setValue(Constants::C_SETTINGS_SPLITTER, m_ui.m_horSplitter->saveState());
+    s->setValue(Constants::C_SETTINGS_SPLITTER, m_horizontalSplitter->saveState());
 }
 
 void MainWidget::addStateView(BaseItem *item)
@@ -447,8 +448,8 @@ void MainWidget::addStateView(BaseItem *item)
         m_views.removeAll(view);
         m_document->popRootTag();
         m_searchPane->setDocument(m_document);
-        m_ui.m_structure->setDocument(m_document);
-        m_ui.m_stateProperties->setDocument(m_document);
+        m_structure->setDocument(m_document);
+        m_stateProperties->setDocument(m_document);
         m_colorThemes->setDocument(m_document);
         StateItem *it = view->parentState();
         if (it) {
@@ -499,13 +500,13 @@ void MainWidget::addStateView(BaseItem *item)
         m_document->pushRootTag(item->tag());
         view->setDocument(m_document);
         m_searchPane->setDocument(m_document);
-        m_ui.m_structure->setDocument(m_document);
-        m_ui.m_stateProperties->setDocument(m_document);
+        m_structure->setDocument(m_document);
+        m_stateProperties->setDocument(m_document);
         m_colorThemes->setDocument(m_document);
     }
     m_views << view;
 
-    m_ui.stackedWidget->setCurrentIndex(m_ui.stackedWidget->addWidget(view));
+    m_stackedWidget->setCurrentIndex(m_stackedWidget->addWidget(view));
 }
 
 void MainWidget::initView(int id)
@@ -514,12 +515,12 @@ void MainWidget::initView(int id)
         m_views[i]->scene()->setTopMostScene(m_views[i] == m_views.last());
 
     // Init and connect current view
-    auto view = qobject_cast<StateView*>(m_ui.stackedWidget->widget(id));
+    auto view = qobject_cast<StateView*>(m_stackedWidget->widget(id));
     if (!view)
         return;
 
     m_searchPane->setGraphicsScene(view->scene());
-    m_ui.m_structure->setGraphicsScene(view->scene());
+    m_structure->setGraphicsScene(view->scene());
     m_navigator->setCurrentView(view->view());
     m_navigator->setCurrentScene(view->scene());
     m_magnifier->setCurrentView(view->view());
@@ -550,7 +551,7 @@ void MainWidget::clear()
 
 void MainWidget::handleTabVisibilityChanged(bool visible)
 {
-    QLayout *layout = m_ui.m_mainContentWidget->layout();
+    QLayout *layout = m_mainContentWidget->layout();
     if (visible) {
         // Ensure that old widget is not splitter
         if (!qobject_cast<QSplitter*>(layout->itemAt(0)->widget())) {
@@ -576,7 +577,7 @@ void MainWidget::handleTabVisibilityChanged(bool visible)
                 splitter->deleteLater();
             }
             delete layout;
-            m_ui.m_mainContentWidget->setLayout(newLayout);
+            m_mainContentWidget->setLayout(newLayout);
         }
     }
 }
@@ -600,9 +601,9 @@ void MainWidget::documentChanged()
 
     setEnabled(false);
 
-    m_ui.m_structure->setDocument(m_document);
+    m_structure->setDocument(m_document);
     m_searchPane->setDocument(m_document);
-    m_ui.m_stateProperties->setDocument(m_document);
+    m_stateProperties->setDocument(m_document);
     m_colorThemes->setDocument(m_document);
     view->setDocument(m_document);
 
@@ -619,6 +620,37 @@ void MainWidget::documentChanged()
     emit dirtyChanged(false);
 
     m_actionHandler->action(ActionFullNamespace)->setChecked(m_document->useFullNameSpace());
+}
+
+void MainWidget::createUi()
+{
+    m_outputPaneWindow = new OutputPane::OutputTabWidget;
+    m_stackedWidget = new QStackedWidget;
+    m_shapesFrame = new ShapesToolbox;
+
+    m_mainContentWidget = new QWidget;
+    m_mainContentWidget->setLayout(new QVBoxLayout);
+    m_mainContentWidget->layout()->setMargin(0);
+    m_mainContentWidget->layout()->addWidget(m_stackedWidget);
+    m_mainContentWidget->layout()->addWidget(m_outputPaneWindow);
+
+    m_stateProperties = new StateProperties;
+    m_structure = new Structure;
+    auto verticalSplitter = new Core::MiniSplitter(Qt::Vertical);
+    verticalSplitter->addWidget(m_stateProperties);
+    verticalSplitter->addWidget(m_structure);
+
+    m_horizontalSplitter = new Core::MiniSplitter(Qt::Horizontal);
+    m_horizontalSplitter->addWidget(m_shapesFrame);
+    m_horizontalSplitter->addWidget(m_mainContentWidget);
+    m_horizontalSplitter->addWidget(verticalSplitter);
+    m_horizontalSplitter->setStretchFactor(0, 0);
+    m_horizontalSplitter->setStretchFactor(1, 1);
+    m_horizontalSplitter->setStretchFactor(2, 0);
+
+    setLayout(new QVBoxLayout);
+    layout()->addWidget(m_horizontalSplitter);
+    layout()->setMargin(0);
 }
 
 void MainWidget::showEvent(QShowEvent *e)
@@ -644,15 +676,15 @@ void MainWidget::resizeEvent(QResizeEvent *e)
 
     int s = qMin(r.width(), r.height()) / 2;
     m_magnifier->setFixedSize(s, s);
-    m_magnifier->setTopLeft(QPoint(m_ui.m_shapesFrame->width(), 0));
+    m_magnifier->setTopLeft(QPoint(m_shapesFrame->width(), 0));
 }
 
 void MainWidget::mouseMoveEvent(QMouseEvent *event)
 {
     if (m_magnifier->isVisible()) {
         QPoint p = event->pos() - m_magnifier->rect().center();
-        p.setX(qBound(m_ui.stackedWidget->x(), p.x(), m_ui.stackedWidget->x() + m_ui.stackedWidget->width()));
-        p.setY(qBound(m_ui.stackedWidget->y(), p.y(), m_ui.stackedWidget->y() + m_ui.stackedWidget->height()));
+        p.setX(qBound(m_stackedWidget->x(), p.x(), m_stackedWidget->x() + m_stackedWidget->width()));
+        p.setY(qBound(m_stackedWidget->y(), p.y(), m_stackedWidget->y() + m_stackedWidget->height()));
         m_magnifier->move(p);
     }
 
@@ -663,7 +695,7 @@ void MainWidget::keyPressEvent(QKeyEvent *e)
 {
     if (e->modifiers() == Qt::ControlModifier) {
         if (e->key() == Qt::Key_F)
-            m_ui.m_outputPaneWindow->showPane(m_searchPane);
+            m_outputPaneWindow->showPane(m_searchPane);
     }
 
     QWidget::keyPressEvent(e);
