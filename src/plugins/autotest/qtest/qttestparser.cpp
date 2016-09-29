@@ -43,8 +43,7 @@ static bool includesQtTest(const CPlusPlus::Document::Ptr &doc, const CPlusPlus:
 {
     static QStringList expectedHeaderPrefixes
             = Utils::HostOsInfo::isMacHost()
-            ? QStringList({ QLatin1String("QtTest.framework/Headers"), QLatin1String("QtTest") })
-            : QStringList({ QLatin1String("QtTest") });
+            ? QStringList({ "QtTest.framework/Headers", "QtTest" }) : QStringList({ "QtTest" });
 
     const QList<CPlusPlus::Document::Include> includes = doc->resolvedIncludes();
 
@@ -53,7 +52,7 @@ static bool includesQtTest(const CPlusPlus::Document::Ptr &doc, const CPlusPlus:
         // bad, as there could be much more different approaches
         if (inc.unresolvedFileName() == QLatin1String("QtTest")) {
             foreach (const QString &prefix, expectedHeaderPrefixes) {
-                if (inc.resolvedFileName().endsWith(QString::fromLatin1("%1/QtTest").arg(prefix)))
+                if (inc.resolvedFileName().endsWith(QString("%1/QtTest").arg(prefix)))
                     return true;
             }
         }
@@ -62,7 +61,7 @@ static bool includesQtTest(const CPlusPlus::Document::Ptr &doc, const CPlusPlus:
     const QSet<QString> allIncludes = snapshot.allIncludesForDocument(doc->fileName());
     foreach (const QString &include, allIncludes) {
         foreach (const QString &prefix, expectedHeaderPrefixes) {
-        if (include.endsWith(QString::fromLatin1("%1/qtest.h").arg(prefix)))
+        if (include.endsWith(QString("%1/qtest.h").arg(prefix)))
             return true;
         }
     }
@@ -141,7 +140,7 @@ static QSet<QString> filesWithDataFunctionDefinitions(
 
     for ( ; it != end; ++it) {
         const QString &key = it.key();
-        if (key.endsWith(QLatin1String("_data")) && testFunctions.contains(key.left(key.size() - 5)))
+        if (key.endsWith("_data") && testFunctions.contains(key.left(key.size() - 5)))
             result.insert(it.value().m_name);
     }
     return result;
@@ -209,7 +208,7 @@ static bool handleQtTest(QFutureInterface<TestParseResultPtr> futureInterface,
             const TestCodeLocationAndType &location = it.value();
             QtTestParseResult *func = new QtTestParseResult(id);
             func->itemType = location.m_type;
-            func->name = testCaseName + QLatin1String("::") + it.key();
+            func->name = testCaseName + "::" + it.key();
             func->displayName = it.key();
             func->fileName = location.m_name;
             func->line = location.m_line;
@@ -220,7 +219,7 @@ static bool handleQtTest(QFutureInterface<TestParseResultPtr> futureInterface,
                 dataTag->itemType = tag.m_type;
                 dataTag->name = tag.m_name;
                 dataTag->displayName = tag.m_name;
-                dataTag->fileName = testFunctions.value(it.key() + QLatin1String("_data")).m_name;
+                dataTag->fileName = testFunctions.value(it.key() + "_data").m_name;
                 dataTag->line = tag.m_line;
                 dataTag->column = tag.m_column;
 

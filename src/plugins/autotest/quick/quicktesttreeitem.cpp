@@ -131,7 +131,7 @@ TestConfiguration *QuickTestTreeItem::testConfiguration() const
     case TestCase: {
         QStringList testFunctions;
         for (int row = 0, count = childCount(); row < count; ++row)
-            testFunctions << name() + QLatin1String("::") + childItem(row)->name();
+            testFunctions << name() + "::" + childItem(row)->name();
         config = new QuickTestConfiguration;
         config->setTestCases(testFunctions);
         config->setProFile(proFile());
@@ -140,7 +140,7 @@ TestConfiguration *QuickTestTreeItem::testConfiguration() const
     }
     case TestFunctionOrSet: {
         TestTreeItem *parent = parentItem();
-        QStringList testFunction(parent->name() + QLatin1String("::") + name());
+        QStringList testFunction(parent->name() + "::" + name());
         config = new QuickTestConfiguration;
         config->setTestCases(testFunction);
         config->setProFile(parent->proFile());
@@ -239,7 +239,7 @@ QList<TestConfiguration *> QuickTestTreeItem::getSelectedTestConfigurations() co
                 const TestTreeItem *grandChild = child->childItem(grandChildRow);
                 if (grandChild->type() != TestFunctionOrSet)
                     continue;
-                testFunctions << child->name() + QLatin1String("::") + grandChild->name();
+                testFunctions << child->name() + "::" + grandChild->name();
             }
             if (foundProFiles.contains(child->proFile())) {
                 tc = foundProFiles[child->proFile()];

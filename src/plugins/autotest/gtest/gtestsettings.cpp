@@ -43,24 +43,24 @@ QString GTestSettings::name() const
 
 void GTestSettings::fromSettings(const QSettings *s)
 {
-    runDisabled = s->value(QLatin1String(runDisabledKey), false).toBool();
-    repeat = s->value(QLatin1String(repeatKey), false).toBool();
-    shuffle = s->value(QLatin1String(shuffleKey), false).toBool();
-    iterations = s->value(QLatin1String(iterationsKey), 1).toInt();
-    seed = s->value(QLatin1String(seedKey), 0).toInt();
-    breakOnFailure = s->value(QLatin1String(breakOnFailureKey), true).toBool();
-    throwOnFailure = s->value(QLatin1String(throwOnFailureKey), false).toBool();
+    runDisabled = s->value(runDisabledKey, false).toBool();
+    repeat = s->value(repeatKey, false).toBool();
+    shuffle = s->value(shuffleKey, false).toBool();
+    iterations = s->value(iterationsKey, 1).toInt();
+    seed = s->value(seedKey, 0).toInt();
+    breakOnFailure = s->value(breakOnFailureKey, true).toBool();
+    throwOnFailure = s->value(throwOnFailureKey, false).toBool();
 }
 
 void GTestSettings::toSettings(QSettings *s) const
 {
-    s->setValue(QLatin1String(runDisabledKey), runDisabled);
-    s->setValue(QLatin1String(repeatKey), repeat);
-    s->setValue(QLatin1String(shuffleKey), shuffle);
-    s->setValue(QLatin1String(iterationsKey), iterations);
-    s->setValue(QLatin1String(seedKey), seed);
-    s->setValue(QLatin1String(breakOnFailureKey), breakOnFailure);
-    s->setValue(QLatin1String(throwOnFailureKey), throwOnFailure);
+    s->setValue(runDisabledKey, runDisabled);
+    s->setValue(repeatKey, repeat);
+    s->setValue(shuffleKey, shuffle);
+    s->setValue(iterationsKey, iterations);
+    s->setValue(seedKey, seed);
+    s->setValue(breakOnFailureKey, breakOnFailure);
+    s->setValue(throwOnFailureKey, throwOnFailure);
 }
 
 } // namespace Internal

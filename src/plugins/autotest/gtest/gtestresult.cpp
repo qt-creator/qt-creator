@@ -42,12 +42,12 @@ const QString GTestResult::outputString(bool selected) const
     case Result::Fail:
         output = m_testSetName;
         if (selected && !desc.isEmpty())
-            output.append(QLatin1Char('\n')).append(desc);
+            output.append('\n').append(desc);
         break;
     default:
         output = desc;
         if (!selected)
-            output = output.split(QLatin1Char('\n')).first();
+            output = output.split('\n').first();
     }
     return output;
 }

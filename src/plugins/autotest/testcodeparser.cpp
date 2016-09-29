@@ -338,7 +338,7 @@ void TestCodeParser::scanForTests(const QStringList &fileList)
     if (isFullParse) {
         // remove qml files as they will be found automatically by the referencing cpp file
         list = Utils::filtered(list, [] (const QString &fn) {
-            return !fn.endsWith(QLatin1String(".qml"));
+            return !fn.endsWith(".qml");
         });
         m_model->markAllForRemoval();
     } else {

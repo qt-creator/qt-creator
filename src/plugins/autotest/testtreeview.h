@@ -39,9 +39,9 @@ class TestTreeView : public Utils::NavigationTreeView
     Q_OBJECT
 
 public:
-    TestTreeView(QWidget *parent = 0);
+    explicit TestTreeView(QWidget *parent = 0);
 
-    void selectAll();
+    void selectAll() override;
     void deselectAll();
 
 private:

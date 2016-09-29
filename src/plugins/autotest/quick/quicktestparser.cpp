@@ -50,17 +50,16 @@ static bool includesQtQuickTest(const CPlusPlus::Document::Ptr &doc,
 {
     static QStringList expectedHeaderPrefixes
             = Utils::HostOsInfo::isMacHost()
-            ? QStringList({ QLatin1String("QtQuickTest.framework/Headers"),
-                            QLatin1String("QtQuickTest") })
-            : QStringList({ QLatin1String("QtQuickTest") });
+            ? QStringList({ "QtQuickTest.framework/Headers", "QtQuickTest" })
+            : QStringList({ "QtQuickTest" });
 
     const QList<CPlusPlus::Document::Include> includes = doc->resolvedIncludes();
 
     foreach (const CPlusPlus::Document::Include &inc, includes) {
-        if (inc.unresolvedFileName() == QLatin1String("QtQuickTest/quicktest.h")) {
+        if (inc.unresolvedFileName() == "QtQuickTest/quicktest.h") {
             foreach (const QString &prefix, expectedHeaderPrefixes) {
                 if (inc.resolvedFileName().endsWith(
-                            QString::fromLatin1("%1/quicktest.h").arg(prefix))) {
+                            QString("%1/quicktest.h").arg(prefix))) {
                     return true;
                 }
             }
@@ -69,7 +68,7 @@ static bool includesQtQuickTest(const CPlusPlus::Document::Ptr &doc,
 
     foreach (const QString &include, snapshot.allIncludesForDocument(doc->fileName())) {
         foreach (const QString &prefix, expectedHeaderPrefixes) {
-            if (include.endsWith(QString::fromLatin1("%1/quicktest.h").arg(prefix)))
+            if (include.endsWith(QString("%1/quicktest.h").arg(prefix)))
                 return true;
         }
     }
@@ -140,7 +139,7 @@ static QList<QmlJS::Document::Ptr> scanDirectoryForQuickTestQmlFiles(const QStri
         const QList<QmlJS::Document::Ptr> docs = snapshot.documentsInDirectory(path);
         foreach (const QmlJS::Document::Ptr &doc, docs) {
             const QString fileName(QFileInfo(doc->fileName()).fileName());
-            if (fileName.startsWith(QLatin1String("tst_")) && fileName.endsWith(QLatin1String(".qml")))
+            if (fileName.startsWith("tst_") && fileName.endsWith(".qml"))
                 foundDocs << doc;
         }
     }

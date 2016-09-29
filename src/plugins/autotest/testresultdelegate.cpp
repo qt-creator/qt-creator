@@ -98,11 +98,11 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     QString output = testResult->outputString(selected);
 
     if (selected) {
-        output.replace(QLatin1Char('\n'), QChar::LineSeparator);
+        output.replace('\n', QChar::LineSeparator);
 
         if (AutotestPlugin::instance()->settings()->limitResultOutput
                 && output.length() > outputLimit)
-            output = output.left(outputLimit).append(QLatin1String("..."));
+            output = output.left(outputLimit).append("...");
 
         recalculateTextLayout(index, output, painter->font(), positions.textAreaWidth());
 
@@ -115,7 +115,7 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     }
 
     QString file = testResult->fileName();
-    const int pos = file.lastIndexOf(QLatin1Char('/'));
+    const int pos = file.lastIndexOf('/');
     if (pos != -1)
         file = file.mid(pos + 1);
 
@@ -156,11 +156,11 @@ QSize TestResultDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
         const TestResult *testResult = resultFilterModel->testResult(index);
         QTC_ASSERT(testResult, return QSize());
         QString output = testResult->outputString(selected);
-        output.replace(QLatin1Char('\n'), QChar::LineSeparator);
+        output.replace('\n', QChar::LineSeparator);
 
         if (AutotestPlugin::instance()->settings()->limitResultOutput
                 && output.length() > outputLimit)
-            output = output.left(outputLimit).append(QLatin1String("..."));
+            output = output.left(outputLimit).append("...");
 
         recalculateTextLayout(index, output, opt.font, positions.textAreaWidth());
 

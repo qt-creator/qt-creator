@@ -33,8 +33,8 @@ namespace Internal {
 class QtTestTreeItem : public TestTreeItem
 {
 public:
-    QtTestTreeItem(const QString &name = QString(), const QString &filePath = QString(),
-                   Type type = Root) : TestTreeItem(name, filePath, type) {}
+    explicit QtTestTreeItem(const QString &name = QString(), const QString &filePath = QString(),
+                            Type type = Root) : TestTreeItem(name, filePath, type) {}
 
     static QtTestTreeItem *createTestItem(const TestParseResult *result);
 

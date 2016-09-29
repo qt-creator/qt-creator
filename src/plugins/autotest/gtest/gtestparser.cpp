@@ -42,7 +42,7 @@ TestTreeItem *GTestParseResult::createTestTreeItem() const
 static bool includesGTest(const CPlusPlus::Document::Ptr &doc,
                           const CPlusPlus::Snapshot &snapshot)
 {
-    const QString gtestH = QLatin1String("gtest/gtest.h");
+    static const QString gtestH("gtest/gtest.h");
     foreach (const CPlusPlus::Document::Include &inc, doc->resolvedIncludes()) {
         if (inc.resolvedFileName().endsWith(gtestH))
             return true;

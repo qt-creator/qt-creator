@@ -43,8 +43,7 @@ namespace Internal {
 
 TestTreeModel::TestTreeModel(QObject *parent) :
     TreeModel<>(parent),
-    m_parser(new TestCodeParser(this)),
-    m_connectionsInitialized(false)
+    m_parser(new TestCodeParser(this))
 {
     connect(m_parser, &TestCodeParser::aboutToPerformFullParse, this,
             &TestTreeModel::removeAllTestItems, Qt::QueuedConnection);
@@ -415,9 +414,7 @@ QMultiMap<QString, int> TestTreeModel::gtestNamesAndSets() const
 
 TestTreeSortFilterModel::TestTreeSortFilterModel(TestTreeModel *sourceModel, QObject *parent)
     : QSortFilterProxyModel(parent),
-      m_sourceModel(sourceModel),
-      m_sortMode(TestTreeItem::Alphabetically),
-      m_filterMode(Basic)
+      m_sourceModel(sourceModel)
 {
     setSourceModel(sourceModel);
 }

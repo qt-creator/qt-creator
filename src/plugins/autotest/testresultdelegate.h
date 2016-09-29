@@ -39,8 +39,8 @@ class TestResultDelegate : public QStyledItemDelegate
 public:
     explicit TestResultDelegate(QObject *parent = 0);
 
-    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
     void currentChanged(const QModelIndex &current, const QModelIndex &previous);
 
 private:
@@ -64,7 +64,7 @@ private:
             m_maxFileLength = srcModel->maxWidthOfFileName(options.font);
             m_maxLineLength = srcModel->maxWidthOfLineNumber(options.font);
             m_realFileLength = m_maxFileLength;
-            m_typeAreaWidth = QFontMetrics(options.font).width(QLatin1String("XXXXXXXX"));
+            m_typeAreaWidth = QFontMetrics(options.font).width("XXXXXXXX");
             m_indentation = options.widget ? options.widget->style()->pixelMetric(
                                                  QStyle::PM_TreeViewIndentation, &options) : 0;
             m_level = filterModel->mapToSource(options.index).parent() == srcModel->rootItem()->index() ? 1 : 2;

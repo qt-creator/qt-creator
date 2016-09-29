@@ -72,8 +72,8 @@ void GTestOutputReader::processOutput(const QByteArray &outputLine)
     if (line.trimmed().isEmpty())
         return;
 
-    if (!line.startsWith(QLatin1Char('['))) {
-        m_description.append(line).append(QLatin1Char('\n'));
+    if (!line.startsWith('[')) {
+        m_description.append(line).append('\n');
         if (iterations.exactMatch(line)) {
             m_iteration = iterations.cap(1).toInt();
             m_description.clear();
@@ -142,7 +142,7 @@ void GTestOutputReader::processOutput(const QByteArray &outputLine)
         m_description.chop(1);
         testResult->setDescription(m_description);
 
-        foreach (const QString &output, m_description.split(QLatin1Char('\n'))) {
+        foreach (const QString &output, m_description.split('\n')) {
             QRegExp *match = 0;
             if (failureLocation.exactMatch(output))
                 match = &failureLocation;

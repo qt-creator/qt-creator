@@ -48,34 +48,34 @@ TestResult::TestResult(const QString &name)
 
 const QString TestResult::outputString(bool selected) const
 {
-    return selected ? m_description : m_description.split(QLatin1Char('\n')).first();
+    return selected ? m_description : m_description.split('\n').first();
 }
 
 Result::Type TestResult::resultFromString(const QString &resultString)
 {
-    if (resultString == QLatin1String("pass"))
+    if (resultString == "pass")
         return Result::Pass;
-    if (resultString == QLatin1String("fail"))
+    if (resultString == "fail")
         return Result::Fail;
-    if (resultString == QLatin1String("xfail"))
+    if (resultString == "xfail")
         return Result::ExpectedFail;
-    if (resultString == QLatin1String("xpass"))
+    if (resultString == "xpass")
         return Result::UnexpectedPass;
-    if (resultString == QLatin1String("skip"))
+    if (resultString == "skip")
         return Result::Skip;
-    if (resultString == QLatin1String("qdebug"))
+    if (resultString == "qdebug")
         return Result::MessageDebug;
-    if (resultString == QLatin1String("qinfo"))
+    if (resultString == "qinfo")
         return Result::MessageInfo;
-    if (resultString == QLatin1String("warn") || resultString == QLatin1String("qwarn"))
+    if (resultString == "warn" || resultString == "qwarn")
         return Result::MessageWarn;
-    if (resultString == QLatin1String("qfatal"))
+    if (resultString == "qfatal")
         return Result::MessageFatal;
-    if (resultString == QLatin1String("system"))
+    if (resultString == "system")
         return Result::MessageSystem;
-    if (resultString == QLatin1String("bpass"))
+    if (resultString == "bpass")
         return Result::BlacklistedPass;
-    if (resultString == QLatin1String("bfail"))
+    if (resultString == "bfail")
         return Result::BlacklistedFail;
     qDebug("Unexpected test result: %s", qPrintable(resultString));
     return Result::Invalid;

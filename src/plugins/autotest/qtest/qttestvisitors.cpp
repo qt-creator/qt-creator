@@ -35,10 +35,7 @@
 namespace Autotest {
 namespace Internal {
 
-static QStringList specialFunctions({ QLatin1String("initTestCase"),
-                                      QLatin1String("cleanupTestCase"),
-                                      QLatin1String("init"),
-                                      QLatin1String("cleanup") });
+static QStringList specialFunctions({ "initTestCase", "cleanupTestCase", "init", "cleanup" });
 
 /************************** Cpp Test Symbol Visitor ***************************/
 
@@ -82,7 +79,7 @@ bool TestVisitor::visit(CPlusPlus::Class *symbol)
                 }
                 if (specialFunctions.contains(name))
                     locationAndType.m_type = TestTreeItem::TestSpecialFunction;
-                else if (name.endsWith(QLatin1String("_data")))
+                else if (name.endsWith("_data"))
                     locationAndType.m_type = TestTreeItem::TestDataFunction;
                 else
                     locationAndType.m_type = TestTreeItem::TestFunctionOrSet;
@@ -111,7 +108,7 @@ bool TestAstVisitor::visit(CPlusPlus::CallAST *ast)
             if (const auto qualifiedNameAST = idExpressionAST->name->asQualifiedName()) {
                 const CPlusPlus::Overview o;
                 const QString prettyName = o.prettyName(qualifiedNameAST->name);
-                if (prettyName == QLatin1String("QTest::qExec")) {
+                if (prettyName == "QTest::qExec") {
                     if (const auto expressionListAST = ast->expression_list) {
                         // first argument is the one we need
                         if (const auto argumentExpressionAST = expressionListAST->value) {
@@ -148,17 +145,14 @@ bool TestAstVisitor::visit(CPlusPlus::CompoundStatementAST *ast)
 
 TestDataFunctionVisitor::TestDataFunctionVisitor(CPlusPlus::Document::Ptr doc)
     : CPlusPlus::ASTVisitor(doc->translationUnit()),
-      m_currentDoc(doc),
-      m_currentAstDepth(0),
-      m_insideUsingQTestDepth(0),
-      m_insideUsingQTest(false)
+      m_currentDoc(doc)
 {
 }
 
 bool TestDataFunctionVisitor::visit(CPlusPlus::UsingDirectiveAST *ast)
 {
     if (auto nameAST = ast->name) {
-        if (m_overview.prettyName(nameAST->name) == QLatin1String("QTest")) {
+        if (m_overview.prettyName(nameAST->name) == "QTest") {
             m_insideUsingQTest = true;
             // we need the surrounding AST depth as using directive is an AST itself
             m_insideUsingQTestDepth = m_currentAstDepth - 1;
@@ -177,7 +171,7 @@ bool TestDataFunctionVisitor::visit(CPlusPlus::FunctionDefinitionAST *ast)
         CPlusPlus::LookupContext lc;
         const QString prettyName = m_overview.prettyName(lc.fullyQualifiedName(ast->symbol));
         // do not handle functions that aren't real test data functions
-        if (!prettyName.endsWith(QLatin1String("_data")))
+        if (!prettyName.endsWith("_data"))
             return false;
 
         m_currentFunction = prettyName.left(prettyName.size() - 5);
@@ -275,10 +269,10 @@ bool TestDataFunctionVisitor::newRowCallFound(CPlusPlus::CallAST *ast, unsigned 
             return false;
 
         if (const auto qualifiedNameAST = exp->name->asQualifiedName()) {
-            found = m_overview.prettyName(qualifiedNameAST->name) == QLatin1String("QTest::newRow");
+            found = m_overview.prettyName(qualifiedNameAST->name) == "QTest::newRow";
             *firstToken = qualifiedNameAST->firstToken();
         } else if (m_insideUsingQTest) {
-            found = m_overview.prettyName(exp->name->name) == QLatin1String("newRow");
+            found = m_overview.prettyName(exp->name->name) == "newRow";
             *firstToken = exp->name->firstToken();
         }
     }

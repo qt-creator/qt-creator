@@ -57,7 +57,7 @@ inline bool operator<(const GTestCaseSpec &spec1, const GTestCaseSpec &spec2)
 class GTestVisitor : public CPlusPlus::ASTVisitor
 {
 public:
-    GTestVisitor(CPlusPlus::Document::Ptr doc);
+    explicit GTestVisitor(CPlusPlus::Document::Ptr doc);
     bool visit(CPlusPlus::FunctionDefinitionAST *ast);
 
     QMap<GTestCaseSpec, GTestCodeLocationList> gtestFunctions() const { return m_gtestFunctions; }

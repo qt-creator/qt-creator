@@ -41,14 +41,14 @@ QStringList GTestConfiguration::argumentsForTestRunner(const TestSettings &setti
     QStringList arguments;
     const QStringList &testSets = testCases();
     if (testSets.size())
-        arguments << QLatin1String("--gtest_filter=") + testSets.join(QLatin1Char(':'));
+        arguments << "--gtest_filter=" + testSets.join(':');
     if (settings.gTestSettings.runDisabled)
-        arguments << QLatin1String("--gtest_also_run_disabled_tests");
+        arguments << "--gtest_also_run_disabled_tests";
     if (settings.gTestSettings.repeat)
-        arguments << QString::fromLatin1("--gtest_repeat=%1").arg(settings.gTestSettings.iterations);
+        arguments << QString("--gtest_repeat=%1").arg(settings.gTestSettings.iterations);
     if (settings.gTestSettings.shuffle) {
-        arguments << QLatin1String("--gtest_shuffle")
-                  << QString::fromLatin1("--gtest_random_seed=%1").arg(settings.gTestSettings.seed);
+        arguments << "--gtest_shuffle"
+                  << QString("--gtest_random_seed=%1").arg(settings.gTestSettings.seed);
     }
     if (settings.gTestSettings.throwOnFailure)
         arguments << "--gtest_throw_on_failure";

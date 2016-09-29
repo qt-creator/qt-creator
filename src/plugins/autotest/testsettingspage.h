@@ -60,9 +60,9 @@ public:
     explicit TestSettingsPage(const QSharedPointer<TestSettings> &settings);
     ~TestSettingsPage();
 
-    QWidget *widget();
-    void apply();
-    void finish() { }
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override { }
 
 private:
     QSharedPointer<TestSettings> m_settings;

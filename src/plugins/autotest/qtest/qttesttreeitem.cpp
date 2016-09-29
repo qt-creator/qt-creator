@@ -118,7 +118,7 @@ TestConfiguration *QtTestTreeItem::testConfiguration() const
         const TestTreeItem *parent = function ? function->parentItem() : 0;
         if (!parent)
             return 0;
-        const QString functionWithTag = function->name() + QLatin1Char(':') + name();
+        const QString functionWithTag = function->name() + ':' + name();
         config = new QtTestConfiguration();
         config->setTestCases(QStringList(functionWithTag));
         config->setProFile(parent->proFile());

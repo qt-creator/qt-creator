@@ -45,28 +45,28 @@ const QString QtTestResult::outputString(bool selected) const
     case Result::UnexpectedPass:
     case Result::BlacklistedFail:
     case Result::BlacklistedPass:
-        output = className + QLatin1String("::") + m_function;
+        output = className + "::" + m_function;
         if (!m_dataTag.isEmpty())
-            output.append(QString::fromLatin1(" (%1)").arg(m_dataTag));
+            output.append(QString(" (%1)").arg(m_dataTag));
         if (selected && !desc.isEmpty()) {
-            output.append(QLatin1Char('\n')).append(desc);
+            output.append('\n').append(desc);
         }
         break;
     case Result::Benchmark:
-        output = className + QLatin1String("::") + m_function;
+        output = className + "::" + m_function;
         if (!m_dataTag.isEmpty())
-            output.append(QString::fromLatin1(" (%1)").arg(m_dataTag));
+            output.append(QString(" (%1)").arg(m_dataTag));
         if (!desc.isEmpty()) {
-            int breakPos = desc.indexOf(QLatin1Char('('));
-            output.append(QLatin1String(": ")).append(desc.left(breakPos));
+            int breakPos = desc.indexOf('(');
+            output.append(": ").append(desc.left(breakPos));
             if (selected)
-                output.append(QLatin1Char('\n')).append(desc.mid(breakPos));
+                output.append('\n').append(desc.mid(breakPos));
         }
         break;
     default:
         output = desc;
         if (!selected)
-            output = output.split(QLatin1Char('\n')).first();
+            output = output.split('\n').first();
     }
     return output;
 }

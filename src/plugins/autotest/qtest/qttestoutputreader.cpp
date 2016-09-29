@@ -38,13 +38,13 @@ namespace Internal {
 static QString decode(const QString& original)
 {
     QString result(original);
-    static QRegExp regex(QLatin1String("&#((x[0-9A-F]+)|([0-9]+));"), Qt::CaseInsensitive);
+    static QRegExp regex("&#((x[0-9A-F]+)|([0-9]+));", Qt::CaseInsensitive);
     regex.setMinimal(true);
 
     int pos = 0;
     while ((pos = regex.indexIn(original, pos)) != -1) {
         const QString value = regex.cap(1);
-        if (value.startsWith(QLatin1Char('x')))
+        if (value.startsWith('x'))
             result.replace(regex.cap(0), QChar(value.midRef(1).toInt(0, 16)));
         else
             result.replace(regex.cap(0), QChar(value.toInt(0, 10)));
@@ -80,13 +80,13 @@ static QString formatResult(double value)
 
     beforeDecimalPoint.chop(beforeRemove);
     for (int i = 0; i < beforeRemove; ++i)
-        beforeDecimalPoint.append(QLatin1Char('0'));
+        beforeDecimalPoint.append('0');
 
     int afterUse = significantDigits - beforeUse;
     if (beforeDecimalPoint == QLatin1String("0") && !afterDecimalPoint.isEmpty()) {
         ++afterUse;
         int i = 0;
-        while (i < afterDecimalPoint.count() && afterDecimalPoint.at(i) == QLatin1Char('0'))
+        while (i < afterDecimalPoint.count() && afterDecimalPoint.at(i) == '0')
             ++i;
         afterUse += i;
     }
@@ -96,7 +96,7 @@ static QString formatResult(double value)
 
     QString result = beforeDecimalPoint;
     if (afterUse > 0)
-        result.append(QLatin1Char('.'));
+        result.append('.');
     result += afterDecimalPoint;
 
     return result;
@@ -105,16 +105,16 @@ static QString formatResult(double value)
 static QString constructBenchmarkInformation(const QString &metric, double value, int iterations)
 {
     QString metricsText;
-    if (metric == QLatin1String("WalltimeMilliseconds"))         // default
-        metricsText = QLatin1String("msecs");
-    else if (metric == QLatin1String("CPUTicks"))                // -tickcounter
-        metricsText = QLatin1String("CPU ticks");
-    else if (metric == QLatin1String("Events"))                  // -eventcounter
-        metricsText = QLatin1String("events");
-    else if (metric == QLatin1String("InstructionReads"))        // -callgrind
-        metricsText = QLatin1String("instruction reads");
-    else if (metric == QLatin1String("CPUCycles"))               // -perf
-        metricsText = QLatin1String("CPU cycles");
+    if (metric == "WalltimeMilliseconds")         // default
+        metricsText = "msecs";
+    else if (metric == "CPUTicks")                // -tickcounter
+        metricsText = "CPU ticks";
+    else if (metric == "Events")                  // -eventcounter
+        metricsText = "events";
+    else if (metric == "InstructionReads")        // -callgrind
+        metricsText = "instruction reads";
+    else if (metric == "CPUCycles")               // -perf
+        metricsText = "CPU cycles";
     return QtTestOutputReader::tr("%1 %2 per iteration (total: %3, iterations: %4)")
             .arg(formatResult(value))
             .arg(metricsText)
@@ -227,7 +227,7 @@ void QtTestOutputReader::processOutput(const QByteArray &outputLine)
                 break;
             case Description:
                 if (!m_description.isEmpty())
-                    m_description.append(QLatin1Char('\n'));
+                    m_description.append('\n');
                 m_description.append(text);
                 break;
             case QtVersion:

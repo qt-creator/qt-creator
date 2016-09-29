@@ -38,7 +38,7 @@ class TestUtils
 public:
     static QString getCMakeDisplayNameIfNecessary(const QString &filePath, const QString &proFile)
     {
-        static const QString CMAKE_LISTS = QLatin1String("CMakeLists.txt");
+        static const QString CMAKE_LISTS("CMakeLists.txt");
         if (!proFile.endsWith(CMAKE_LISTS))
             return QString();
 

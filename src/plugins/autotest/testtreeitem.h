@@ -64,8 +64,8 @@ public:
         Naturally
     };
 
-    TestTreeItem(const QString &name = QString(), const QString &filePath = QString(),
-                 Type type = Root);
+    explicit TestTreeItem(const QString &name = QString(), const QString &filePath = QString(),
+                          Type type = Root);
 
     virtual QVariant data(int column, int role) const override;
     virtual bool setData(int column, const QVariant &data, int role) override;
@@ -131,19 +131,19 @@ private:
     QString m_filePath;
     Qt::CheckState m_checked;
     Type m_type;
-    unsigned m_line;
-    unsigned m_column;
+    unsigned m_line = 0;
+    unsigned m_column = 0;
     QString m_proFile;
-    Status m_status;
+    Status m_status = NewlyAdded;
 };
 
 class TestCodeLocationAndType
 {
 public:
     QString m_name;     // tag name for m_type == TEST_DATATAG, file name for other values
-    unsigned m_line;
-    unsigned m_column;
-    TestTreeItem::Type m_type;
+    unsigned m_line = 0;
+    unsigned m_column = 0;
+    TestTreeItem::Type m_type = TestTreeItem::Root;
 };
 
 typedef QVector<TestCodeLocationAndType> TestCodeLocationList;

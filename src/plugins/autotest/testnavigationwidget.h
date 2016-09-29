@@ -60,7 +60,7 @@ class TestNavigationWidget : public QWidget
 public:
     explicit TestNavigationWidget(QWidget *parent = 0);
     ~TestNavigationWidget();
-    void contextMenuEvent(QContextMenuEvent *event);
+    void contextMenuEvent(QContextMenuEvent *event) override;
     QList<QToolButton *> createToolButtons();
 
 signals:
@@ -94,7 +94,7 @@ public:
     TestNavigationWidgetFactory();
 
 private:
-    Core::NavigationView createWidget();
+    Core::NavigationView createWidget() override;
 
 };
 

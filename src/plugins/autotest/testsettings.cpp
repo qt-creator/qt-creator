@@ -50,13 +50,13 @@ TestSettings::TestSettings()
 
 void TestSettings::toSettings(QSettings *s) const
 {
-    s->beginGroup(QLatin1String(group));
-    s->setValue(QLatin1String(timeoutKey), timeout);
-    s->setValue(QLatin1String(omitInternalKey), omitInternalMssg);
-    s->setValue(QLatin1String(omitRunConfigWarnKey), omitRunConfigWarn);
-    s->setValue(QLatin1String(limitResultOutputKey), limitResultOutput);
-    s->setValue(QLatin1String(autoScrollKey), autoScroll);
-    s->setValue(QLatin1String(alwaysParseKey), alwaysParse);
+    s->beginGroup(group);
+    s->setValue(timeoutKey, timeout);
+    s->setValue(omitInternalKey, omitInternalMssg);
+    s->setValue(omitRunConfigWarnKey, omitRunConfigWarn);
+    s->setValue(limitResultOutputKey, limitResultOutput);
+    s->setValue(autoScrollKey, autoScroll);
+    s->setValue(alwaysParseKey, alwaysParse);
     // store frameworks and their current active state
     for (const Core::Id &id : frameworks.keys())
         s->setValue(QLatin1String(id.name()), frameworks.value(id));
@@ -74,12 +74,12 @@ void TestSettings::toSettings(QSettings *s) const
 void TestSettings::fromSettings(QSettings *s)
 {
     s->beginGroup(group);
-    timeout = s->value(QLatin1String(timeoutKey), defaultTimeout).toInt();
-    omitInternalMssg = s->value(QLatin1String(omitInternalKey), true).toBool();
-    omitRunConfigWarn = s->value(QLatin1String(omitRunConfigWarnKey), false).toBool();
-    limitResultOutput = s->value(QLatin1String(limitResultOutputKey), true).toBool();
-    autoScroll = s->value(QLatin1String(autoScrollKey), true).toBool();
-    alwaysParse = s->value(QLatin1String(alwaysParseKey), true).toBool();
+    timeout = s->value(timeoutKey, defaultTimeout).toInt();
+    omitInternalMssg = s->value(omitInternalKey, true).toBool();
+    omitRunConfigWarn = s->value(omitRunConfigWarnKey, false).toBool();
+    limitResultOutput = s->value(limitResultOutputKey, true).toBool();
+    autoScroll = s->value(autoScrollKey, true).toBool();
+    alwaysParse = s->value(alwaysParseKey, true).toBool();
     // try to get settings for registered frameworks
     TestFrameworkManager *frameworkManager = TestFrameworkManager::instance();
     const QList<Core::Id> &registered = frameworkManager->registeredFrameworkIds();

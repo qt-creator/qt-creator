@@ -36,7 +36,7 @@ namespace Internal {
 class TestQmlVisitor : public QmlJS::AST::Visitor
 {
 public:
-    TestQmlVisitor(QmlJS::Document::Ptr doc);
+    explicit TestQmlVisitor(QmlJS::Document::Ptr doc);
 
     bool visit(QmlJS::AST::UiObjectDefinition *ast);
     bool visit(QmlJS::AST::ExpressionStatement *ast);

@@ -40,9 +40,7 @@ namespace Internal {
 TestTreeItem::TestTreeItem(const QString &name, const QString &filePath, Type type)
     : m_name(name),
       m_filePath(filePath),
-      m_type(type),
-      m_line(0),
-      m_status(NewlyAdded)
+      m_type(type)
 {
     m_checked = (m_type == TestCase || m_type == TestFunctionOrSet) ? Qt::Checked : Qt::Unchecked;
 }

@@ -30,10 +30,7 @@
 namespace Autotest {
 namespace Internal {
 
-static QStringList specialFunctions({ QLatin1String("initTestCase"),
-                                      QLatin1String("cleanupTestCase"),
-                                      QLatin1String("init"),
-                                      QLatin1String("cleanup") });
+static QStringList specialFunctions({ "initTestCase", "cleanupTestCase", "init", "cleanup" });
 
 TestQmlVisitor::TestQmlVisitor(QmlJS::Document::Ptr doc)
     : m_currentDoc(doc)
@@ -43,7 +40,7 @@ TestQmlVisitor::TestQmlVisitor(QmlJS::Document::Ptr doc)
 bool TestQmlVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
 {
     const QStringRef name = ast->qualifiedTypeNameId->name;
-    if (name != QLatin1String("TestCase"))
+    if (name != "TestCase")
         return true; // find nested TestCase items as well
 
     m_currentTestCaseName.clear();
@@ -64,15 +61,15 @@ bool TestQmlVisitor::visit(QmlJS::AST::ExpressionStatement *ast)
 bool TestQmlVisitor::visit(QmlJS::AST::UiScriptBinding *ast)
 {
     const QStringRef name = ast->qualifiedId->name;
-    return name == QLatin1String("name");
+    return name == "name";
 }
 
 bool TestQmlVisitor::visit(QmlJS::AST::FunctionDeclaration *ast)
 {
     const QStringRef name = ast->name;
-    if (name.startsWith(QLatin1String("test_"))
-            || name.startsWith(QLatin1String("benchmark_"))
-            || name.endsWith(QLatin1String("_data"))
+    if (name.startsWith("test_")
+            || name.startsWith("benchmark_")
+            || name.endsWith("_data")
             || specialFunctions.contains(name.toString())) {
         const auto sourceLocation = ast->firstSourceLocation();
         TestCodeLocationAndType locationAndType;
@@ -81,7 +78,7 @@ bool TestQmlVisitor::visit(QmlJS::AST::FunctionDeclaration *ast)
         locationAndType.m_column = sourceLocation.startColumn - 1;
         if (specialFunctions.contains(name.toString()))
             locationAndType.m_type = TestTreeItem::TestSpecialFunction;
-        else if (name.endsWith(QLatin1String("_data")))
+        else if (name.endsWith("_data"))
             locationAndType.m_type = TestTreeItem::TestDataFunction;
         else
             locationAndType.m_type = TestTreeItem::TestFunctionOrSet;

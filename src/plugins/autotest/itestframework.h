@@ -34,7 +34,7 @@ namespace Internal {
 class ITestFramework
 {
 public:
-    ITestFramework(bool activeByDefault) : m_active(activeByDefault) {}
+    explicit ITestFramework(bool activeByDefault) : m_active(activeByDefault) {}
     virtual ~ITestFramework()
     {
         delete m_rootNode;

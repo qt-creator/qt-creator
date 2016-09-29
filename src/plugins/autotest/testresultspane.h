@@ -55,7 +55,7 @@ class ResultsTreeView : public Utils::TreeView
 {
     Q_OBJECT
 public:
-    ResultsTreeView(QWidget *parent = 0);
+    explicit ResultsTreeView(QWidget *parent = 0);
 
 signals:
     void copyShortcutTriggered();
@@ -72,20 +72,20 @@ public:
     static TestResultsPane *instance();
 
     // IOutputPane interface
-    QWidget *outputWidget(QWidget *parent);
-    QList<QWidget *> toolBarWidgets() const;
-    QString displayName() const;
-    int priorityInStatusBar() const;
-    void clearContents();
-    void visibilityChanged(bool visible);
-    void setFocus();
-    bool hasFocus() const;
-    bool canFocus() const;
-    bool canNavigate() const;
-    bool canNext() const;
-    bool canPrevious() const;
-    void goToNext();
-    void goToPrev();
+    QWidget *outputWidget(QWidget *parent) override;
+    QList<QWidget *> toolBarWidgets() const override;
+    QString displayName() const override;
+    int priorityInStatusBar() const override;
+    void clearContents() override;
+    void visibilityChanged(bool visible) override;
+    void setFocus() override;
+    bool hasFocus() const override;
+    bool canFocus() const override;
+    bool canNavigate() const override;
+    bool canNext() const override;
+    bool canPrevious() const override;
+    void goToNext() override;
+    void goToPrev() override;
 
     void addTestResult(const TestResultPtr &result);
 
@@ -124,10 +124,10 @@ private:
     QToolButton *m_stopTestRun;
     QToolButton *m_filterButton;
     QMenu *m_filterMenu;
-    bool m_wasVisibleBefore;
-    bool m_autoScroll;
-    bool m_atEnd;
-    bool m_testRunning;
+    bool m_wasVisibleBefore = false;
+    bool m_autoScroll = false;
+    bool m_atEnd = false;
+    bool m_testRunning = false;
 };
 
 } // namespace Internal

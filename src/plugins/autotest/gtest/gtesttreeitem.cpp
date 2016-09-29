@@ -101,7 +101,7 @@ TestConfiguration *GTestTreeItem::testConfiguration() const
     GTestConfiguration *config = 0;
     switch (type()) {
     case TestCase: {
-        const QString &testSpecifier = gtestFilter(state()).arg(name()).arg(QLatin1Char('*'));
+        const QString &testSpecifier = gtestFilter(state()).arg(name()).arg('*');
         if (int count = childCount()) {
             config = new GTestConfiguration;
             config->setTestCases(QStringList(testSpecifier));
@@ -339,7 +339,7 @@ QString GTestTreeItem::nameSuffix() const
     if (m_state & Typed)
         suffix += (suffix.isEmpty() ? QLatin1String(" [") : QLatin1String(", ")) + markups[1];
     if (!suffix.isEmpty())
-        suffix += QLatin1Char(']');
+        suffix += ']';
     return suffix;
 }
 

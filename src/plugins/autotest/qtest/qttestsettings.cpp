@@ -56,14 +56,14 @@ QString QtTestSettings::name() const
 
 void QtTestSettings::fromSettings(const QSettings *s)
 {
-    metrics = intToMetrics(s->value(QLatin1String(metricsKey), Walltime).toInt());
-    noCrashHandler = s->value(QLatin1String(noCrashhandlerKey), true).toBool();
+    metrics = intToMetrics(s->value(metricsKey, Walltime).toInt());
+    noCrashHandler = s->value(noCrashhandlerKey, true).toBool();
 }
 
 void QtTestSettings::toSettings(QSettings *s) const
 {
-    s->setValue(QLatin1String(metricsKey), metrics);
-    s->setValue(QLatin1String(noCrashhandlerKey), noCrashHandler);
+    s->setValue(metricsKey, metrics);
+    s->setValue(noCrashhandlerKey, noCrashHandler);
 }
 
 QString QtTestSettings::metricsTypeToOption(const MetricsType type)

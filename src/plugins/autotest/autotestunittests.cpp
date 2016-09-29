@@ -65,7 +65,7 @@ void AutoTestUnitTests::initTestCase()
     if (allKits.count() != 1)
         QSKIP("This test requires exactly one kit to be present");
     if (auto qtVersion = QtSupport::QtKitInformation::qtVersion(allKits.first()))
-        m_isQt4 = qtVersion->qtVersionString().startsWith(QLatin1Char('4'));
+        m_isQt4 = qtVersion->qtVersionString().startsWith('4');
     else
         QSKIP("Could not figure out which Qt version is used for default kit.");
     const ToolChain * const toolchain = ToolChainKitInformation::toolChain(allKits.first(),

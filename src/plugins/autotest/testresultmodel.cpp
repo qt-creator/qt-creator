@@ -128,10 +128,7 @@ void TestResultItem::updateResult()
 /********************************* TestResultModel *****************************************/
 
 TestResultModel::TestResultModel(QObject *parent)
-    : Utils::TreeModel<>(parent),
-      m_widthOfLineNumber(0),
-      m_maxWidthOfFileName(0),
-      m_disabled(0)
+    : Utils::TreeModel<>(parent)
 {
 }
 
@@ -244,7 +241,7 @@ int TestResultModel::maxWidthOfFileName(const QFont &font)
                 const TestResultItem *item = static_cast<TestResultItem *>(children.at(childRow));
                 if (const TestResult *result = item->testResult()) {
                     QString fileName = result->fileName();
-                    const int pos = fileName.lastIndexOf(QLatin1Char('/'));
+                    const int pos = fileName.lastIndexOf('/');
                     if (pos != -1)
                         fileName = fileName.mid(pos + 1);
                     m_maxWidthOfFileName = qMax(m_maxWidthOfFileName, fm.width(fileName));
@@ -264,7 +261,7 @@ int TestResultModel::maxWidthOfLineNumber(const QFont &font)
     if (m_widthOfLineNumber == 0 || font != m_measurementFont) {
         QFontMetrics fm(font);
         m_measurementFont = font;
-        m_widthOfLineNumber = fm.width(QLatin1String("88888"));
+        m_widthOfLineNumber = fm.width("88888");
     }
     return m_widthOfLineNumber;
 }

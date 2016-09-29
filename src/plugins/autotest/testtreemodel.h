@@ -94,7 +94,7 @@ private:
     void setupParsingConnections();
 
     TestCodeParser *m_parser;
-    bool m_connectionsInitialized;
+    bool m_connectionsInitialized = false;
     QAtomicInt m_refCounter;
 };
 
@@ -109,7 +109,7 @@ public:
         ShowAll            = ShowInitAndCleanup | ShowTestData
     };
 
-    TestTreeSortFilterModel(TestTreeModel *sourceModel, QObject *parent = 0);
+    explicit TestTreeSortFilterModel(TestTreeModel *sourceModel, QObject *parent = 0);
     void setSortMode(TestTreeItem::SortMode sortMode);
     void setFilterMode(FilterMode filterMode);
     void toggleFilter(FilterMode filterMode);
@@ -121,8 +121,8 @@ protected:
 
 private:
     TestTreeModel *m_sourceModel;
-    TestTreeItem::SortMode m_sortMode;
-    FilterMode m_filterMode;
+    TestTreeItem::SortMode m_sortMode = TestTreeItem::Alphabetically;
+    FilterMode m_filterMode = Basic;
 
 };
 
