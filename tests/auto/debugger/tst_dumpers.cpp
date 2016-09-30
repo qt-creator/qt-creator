@@ -531,6 +531,12 @@ struct Check
         return *this;
     }
 
+    const Check &operator%(QtVersion version)
+    {
+        qtVersionForCheck = version;
+        return *this;
+    }
+
     QString iname;
     Name expectedName;
     Value expectedValue;
@@ -2246,6 +2252,7 @@ void tst_Dumpers::dumper_data()
               + Check("loc1.country", "@QLocale::UnitedStates (225)", "@QLocale::Country")
               + Check("loc1.language", "@QLocale::English (31)", "@QLocale::Language")
               + Check("loc1.numberOptions", "@QLocale::DefaultNumberOptions (0)", "@QLocale::NumberOptions")
+                    % QtVersion(0x0507000)  // New in 15b5b3b3f
               + Check("loc1.decimalPoint", "46", "@QChar")   // .
               + Check("loc1.exponential", "101", "@QChar")   // e
               + Check("loc1.percent", "37", "@QChar")        // %
