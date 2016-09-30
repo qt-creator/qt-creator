@@ -61,7 +61,7 @@ QList<BuildInfo *> NimBuildConfigurationFactory::availableBuilds(const Target *p
     QTC_ASSERT(project, return {});
 
     // Create the build info
-    BuildInfo *info = createBuildInfo(parent->kit(), project->projectFilePath(),
+    BuildInfo *info = createBuildInfo(parent->kit(), project->projectFilePath().toString(),
                                       BuildConfiguration::Debug);
 
     info->displayName.clear(); // ask for a name
@@ -87,7 +87,7 @@ BuildConfiguration *NimBuildConfigurationFactory::create(Target *parent, const B
     result->setDisplayName(info->displayName);
     result->setDefaultDisplayName(info->displayName);
     result->setBuildDirectory(defaultBuildDirectory(parent->kit(),
-                                                    project->projectFilePath(),
+                                                    project->projectFilePath().toString(),
                                                     info->displayName,
                                                     info->buildType));
 
