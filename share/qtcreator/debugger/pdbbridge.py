@@ -1522,7 +1522,7 @@ class Dumper:
     def itemFormat(self, item):
         format = self.formats.get(str(cleanAddress(item.value.address)))
         if format is None:
-            format = self.typeformats.get(self.stripClassTag(str(item.value.type)))
+            format = self.typeformats.get(str(item.value.type))
         return format
 
     # Hex encoding operating on str or bytes, return str.

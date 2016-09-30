@@ -173,7 +173,7 @@ class Children:
         if childType is None:
             self.childType = None
         else:
-            self.childType = d.stripClassTag(childType.name)
+            self.childType = childType.name
             if not self.d.isCli:
                 self.d.put('childtype="%s",' % self.childType)
             if childNumChild is not None:
@@ -405,7 +405,7 @@ class DumperBase:
             self.indent -= 1
             try:
                 if self.currentType.value:
-                    typeName = self.stripClassTag(self.currentType.value)
+                    typeName = self.currentType.value
                     self.put('<%s> = {' % typeName)
 
                 if  self.currentValue.value is None:
@@ -432,19 +432,6 @@ class DumperBase:
         self.currentType = item.savedType
         return True
 
-    def stripClassTag(self, typeName):
-        if not isinstance(typeName, str):
-            error("Expected string in stripClassTag(), got %s" % type(typeName))
-        if typeName.startswith("class "):
-            return typeName[6:]
-        if typeName.startswith("struct "):
-            return typeName[7:]
-        if typeName.startswith("const "):
-            return typeName[6:]
-        if typeName.startswith("volatile "):
-            return typeName[9:]
-        return typeName
-
     def stripForFormat(self, typeName):
         if not isinstance(typeName, str):
             error("Expected string in stripForFormat(), got %s" % type(typeName))
@@ -452,7 +439,7 @@ class DumperBase:
             return self.cachedFormats[typeName]
         stripped = ""
         inArray = 0
-        for c in self.stripClassTag(typeName):
+        for c in typeName:
             if c == '<':
                 break
             if c == ' ':
@@ -1056,17 +1043,16 @@ class DumperBase:
         return "0x%x" % toInteger(hex(addr), 16)
 
     def stripNamespaceFromType(self, typeName):
-        typename = self.stripClassTag(typeName)
         ns = self.qtNamespace()
-        if len(ns) > 0 and typename.startswith(ns):
-            typename = typename[len(ns):]
-        pos = typename.find("<")
+        if len(ns) > 0 and typeName.startswith(ns):
+            typeName = typeName[len(ns):]
+        pos = typeName.find("<")
         # FIXME: make it recognize  foo<A>::bar<B>::iterator?
         while pos != -1:
-            pos1 = typename.rfind(">", pos)
-            typename = typename[0:pos] + typename[pos1+1:]
-            pos = typename.find("<")
-        return typename
+            pos1 = typeName.rfind(">", pos)
+            typeName = typeName[0:pos] + typeName[pos1+1:]
+            pos = typeName.find("<")
+        return typeName
 
     def tryPutPrettyItem(self, typeName, value):
         value.check()
@@ -1260,7 +1246,7 @@ class DumperBase:
             if innerType.name not in ("char", "signed char", "unsigned char", "wchar_t"):
                 self.putType(innerType)
                 savedCurrentChildType = self.currentChildType
-                self.currentChildType = self.stripClassTag(innerType.name)
+                self.currentChildType = innerType.name
                 self.putItem(value.dereference())
                 self.currentChildType = savedCurrentChildType
                 self.putOriginalAddress(value)

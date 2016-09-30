@@ -572,7 +572,7 @@ class Dumper(DumperBase):
                 arg += a
 
         #warn("CALL: %s -> %s(%s)" % (value, function, arg))
-        typeName = self.stripClassTag(value.type.name)
+        typeName = value.type.name
         if typeName.find(":") >= 0:
             typeName = "'" + typeName + "'"
         # 'class' is needed, see http://sourceware.org/bugzilla/show_bug.cgi?id=11912
@@ -590,7 +590,7 @@ class Dumper(DumperBase):
         return self.fromNativeValue(result)
 
     def makeExpression(self, value):
-        typename = "::" + self.stripClassTag(value.type.name)
+        typename = "::" + value.type.name
         #warn("  TYPE: %s" % typename)
         exp = "(*(%s*)(0x%x))" % (typename, value.address())
         #warn("  EXP: %s" % exp)

@@ -168,7 +168,7 @@ def qdump__Eigen__Matrix(d, value):
 #######################################################################
 
 def cleanDType(type):
-    return d.stripClassTag(str(type)).replace("uns long long", "string")
+    return str(type).replace("uns long long", "string")
 
 def qdump_Array(d, value):
     n = value["length"]
