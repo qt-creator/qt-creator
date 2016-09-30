@@ -3963,11 +3963,11 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
         }
     } else if (input.is('b') || input.isShift(Key_Left)) {
         moveToNextWordStart(count, false, false);
-    } else if (input.is('B')) {
+    } else if (input.is('B') || input.isControl(Key_Left)) {
         moveToNextWordStart(count, true, false);
     } else if (input.is('e') && g.gflag) {
         moveToNextWordEnd(count, false, false);
-    } else if (input.is('e') || input.isShift(Key_Right)) {
+    } else if (input.is('e')) {
         moveToNextWordEnd(count, false, true, false);
     } else if (input.is('E') && g.gflag) {
         moveToNextWordEnd(count, true, false);
@@ -4059,11 +4059,12 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
         g.movetype = MoveExclusive;
         g.subsubmode = FtSubSubMode;
         g.subsubdata = input;
-    } else if (input.is('w') || input.is('W')) { // tested
+    } else if (input.is('w') || input.is('W')
+            || input.isShift(Key_Right) || input.isControl(Key_Right)) { // tested
         // Special case: "cw" and "cW" work the same as "ce" and "cE" if the
         // cursor is on a non-blank - except if the cursor is on the last
         // character of a word: only the current word will be changed
-        bool simple = input.is('W');
+        bool simple = input.is('W') || input.isControl(Key_Right);
         if (g.submode == ChangeSubMode && !characterAtCursor().isSpace()) {
             moveToWordEnd(count, simple, true);
         } else {
@@ -4984,7 +4985,7 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
         g.mode = ReplaceMode;
     } else if (input.isKey(Key_Left)) {
         moveLeft();
-    } else if (input.isControl(Key_Left)) {
+    } else if (input.isShift(Key_Left) || input.isControl(Key_Left)) {
         moveToNextWordStart(1, false, false);
     } else if (input.isKey(Key_Down)) {
         g.submode = NoSubMode;
@@ -4994,9 +4995,8 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
         moveUp();
     } else if (input.isKey(Key_Right)) {
         moveRight();
-    } else if (input.isControl(Key_Right)) {
+    } else if (input.isShift(Key_Right) || input.isControl(Key_Right)) {
         moveToNextWordStart(1, false, true);
-        moveRight(); // we need one more move since we are in insert mode
     } else if (input.isKey(Key_Home)) {
         moveToStartOfLine();
     } else if (input.isKey(Key_End)) {
