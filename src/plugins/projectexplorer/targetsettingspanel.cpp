@@ -39,7 +39,6 @@
 #include "projectimporter.h"
 #include "projecttree.h"
 #include "projectwindow.h"
-#include "propertiespanel.h"
 #include "runsettingspropertiespage.h"
 #include "session.h"
 #include "target.h"
@@ -257,29 +256,25 @@ void TargetGroupItemPrivate::ensureWidget()
 
     if (!m_configurePage) {
         auto panelsWidget = new PanelsWidget;
-        auto panel = new PropertiesPanel;
-        panel->setDisplayName(tr("Configure Project"));
         auto widget = new TargetSetupPageWrapper(m_project);
-        panel->setWidget(widget);
-        panel->setIcon(QIcon(":/projectexplorer/images/unconfigured.png"));
-        panelsWidget->addPropertiesPanel(panel);
+        panelsWidget->addPropertiesPanel(tr("Configure Project"),
+                                         QIcon(":/projectexplorer/images/unconfigured.png"),
+                                         widget);
         panelsWidget->setFocusProxy(widget);
         m_configurePage = panelsWidget;
     }
 
     if (!m_configuredPage) {
         auto panelsWidget = new PanelsWidget;
-        auto panel = new PropertiesPanel;
-        panel->setDisplayName(tr("Configure Project"));
         auto widget = new QWidget;
         auto label = new QLabel("This project is already configured.");
         auto layout = new QVBoxLayout(widget);
         layout->setMargin(0);
         layout->addWidget(label);
         layout->addStretch(10);
-        panel->setWidget(widget);
-        panel->setIcon(QIcon(":/projectexplorer/images/unconfigured.png"));
-        panelsWidget->addPropertiesPanel(panel);
+        panelsWidget->addPropertiesPanel(tr("Configure Project"),
+                                         QIcon(":/projectexplorer/images/unconfigured.png"),
+                                         widget);
         m_configuredPage = panelsWidget;
     }
 }
@@ -605,18 +600,14 @@ public:
 
     static QWidget *createPanelWidget(QWidget *widget, const QString &displayName, const QString &icon)
     {
-        auto panel = new PropertiesPanel;
         auto w = new QWidget();
         auto l = new QVBoxLayout(w);
         l->addWidget(widget);
         l->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
         l->setContentsMargins(QMargins());
-        panel->setWidget(w);
-        panel->setIcon(QIcon(icon));
-        panel->setDisplayName(displayName);
 
         auto result = new PanelsWidget;
-        result->addPropertiesPanel(panel);
+        result->addPropertiesPanel(displayName, QIcon(icon), w);
         return result;
     }
 

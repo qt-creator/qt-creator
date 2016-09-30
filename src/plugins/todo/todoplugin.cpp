@@ -37,7 +37,6 @@
 #include <coreplugin/editormanager/ieditor.h>
 
 #include <projectexplorer/projectpanelfactory.h>
-#include <projectexplorer/propertiespanel.h>
 
 #include <QtPlugin>
 #include <QFileInfo>

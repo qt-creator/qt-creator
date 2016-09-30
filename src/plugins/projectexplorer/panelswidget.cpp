@@ -25,8 +25,6 @@
 
 #include "panelswidget.h"
 
-#include "propertiespanel.h"
-
 #include <QPainter>
 #include <QVBoxLayout>
 #include <QLabel>
@@ -122,7 +120,6 @@ PanelsWidget::PanelsWidget(QWidget *parent) :
     pal.setColor(QPalette::All, QPalette::Window, background);
     m_root->setPalette(pal);
 
-
     m_scroller = new QScrollArea(this);
     m_scroller->setWidget(m_root);
     m_scroller->setFrameStyle(QFrame::NoFrame);
@@ -152,7 +149,6 @@ PanelsWidget::PanelsWidget(QWidget *parent) :
 
 PanelsWidget::~PanelsWidget()
 {
-    qDeleteAll(m_panels);
 }
 
 /*
@@ -168,23 +164,21 @@ PanelsWidget::~PanelsWidget()
  * |        | widget (with contentsmargins adjusted!)   |
  * +--------+-------------------------------------------+ BELOW_CONTENTS_MARGIN
  */
-void PanelsWidget::addPropertiesPanel(PropertiesPanel *panel)
+void PanelsWidget::addPropertiesPanel(const QString &displayName, const QIcon &icon, QWidget *widget)
 {
-    QTC_ASSERT(panel, return);
-
     const int headerRow = m_layout->rowCount();
 
     // icon:
-    if (!panel->icon().isNull()) {
+    if (!icon.isNull()) {
         auto iconLabel = new QLabel(m_root);
-        iconLabel->setPixmap(panel->icon().pixmap(ICON_SIZE, ICON_SIZE));
+        iconLabel->setPixmap(icon.pixmap(ICON_SIZE, ICON_SIZE));
         iconLabel->setContentsMargins(0, ABOVE_HEADING_MARGIN, 0, 0);
         m_layout->addWidget(iconLabel, headerRow, 0, 3, 1, Qt::AlignTop | Qt::AlignHCenter);
     }
 
     // name:
     auto nameLabel = new QLabel(m_root);
-    nameLabel->setText(panel->displayName());
+    nameLabel->setText(displayName);
     QPalette palette = nameLabel->palette();
     for (int i = QPalette::Active; i < QPalette::NColorGroups; ++i ) {
         // FIXME: theming
@@ -201,23 +195,16 @@ void PanelsWidget::addPropertiesPanel(PropertiesPanel *panel)
     m_layout->addWidget(nameLabel, headerRow, 1, 1, 1, Qt::AlignVCenter | Qt::AlignLeft);
 
     // line:
-    const int lineRow(headerRow + 1);
+    const int lineRow = headerRow + 1;
     auto line = new OnePixelBlackLine(m_root);
     m_layout->addWidget(line, lineRow, 1, 1, -1, Qt::AlignTop);
 
     // add the widget:
-    const int widgetRow(lineRow + 1);
-    addPanelWidget(panel, widgetRow);
-}
+    const int widgetRow = lineRow + 1;
 
-void PanelsWidget::addPanelWidget(PropertiesPanel *panel, int row)
-{
-    QWidget *widget = panel->widget();
     widget->setContentsMargins(PANEL_LEFT_MARGIN,
                                ABOVE_CONTENTS_MARGIN, 0,
                                BELOW_CONTENTS_MARGIN);
     widget->setParent(m_root);
-    m_layout->addWidget(widget, row, 0, 1, 2);
-
-    m_panels.append(panel);
+    m_layout->addWidget(widget, widgetRow, 0, 1, 2);
 }

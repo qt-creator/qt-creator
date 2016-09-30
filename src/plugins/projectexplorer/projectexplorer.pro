@@ -142,7 +142,6 @@ HEADERS += projectexplorer.h \
     ipotentialkit.h \
     selectablefilesmodel.h \
     xcodebuildparser.h \
-    propertiespanel.h \
     panelswidget.h \
     projectwelcomepage.h \
     sessionmodel.h \
@@ -283,7 +282,6 @@ SOURCES += projectexplorer.cpp \
     customparserconfigdialog.cpp \
     selectablefilesmodel.cpp \
     xcodebuildparser.cpp \
-    propertiespanel.cpp \
     panelswidget.cpp \
     projectwelcomepage.cpp \
     sessionmodel.cpp \

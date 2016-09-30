@@ -31,25 +31,23 @@
 
 QT_BEGIN_NAMESPACE
 class QGridLayout;
+class QIcon;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
-class PropertiesPanel;
 
 class PROJECTEXPLORER_EXPORT PanelsWidget : public QWidget
 {
     Q_OBJECT
+
 public:
     explicit PanelsWidget(QWidget *parent = nullptr);
     ~PanelsWidget() override;
 
-    // Adds a widget
-    void addPropertiesPanel(PropertiesPanel *panel);
+    void addPropertiesPanel(const QString &displayName, const QIcon &icon,
+                            QWidget *widget);
 
 private:
-    void addPanelWidget(PropertiesPanel *panel, int row);
-
-    QList<PropertiesPanel *> m_panels;
     QGridLayout *m_layout;
     QScrollArea *m_scroller;
     QWidget *m_root;

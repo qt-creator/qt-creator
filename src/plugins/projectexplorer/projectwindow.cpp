@@ -31,7 +31,6 @@
 #include "project.h"
 #include "projectexplorer.h"
 #include "projectpanelfactory.h"
-#include "propertiespanel.h"
 #include "session.h"
 #include "target.h"
 #include "targetsettingspanel.h"
@@ -97,12 +96,10 @@ QVariant MiscSettingsPanelItem::data(int column, int role) const
     if (role == PanelWidgetRole) {
         if (!m_widget) {
             auto panelsWidget = new PanelsWidget;
-            auto panel = new PropertiesPanel;
-            panel->setDisplayName(m_factory->displayName());
             QWidget *widget = m_factory->createWidget(m_project);
-            panel->setWidget(widget);
-            panel->setIcon(QIcon(m_factory->icon()));
-            panelsWidget->addPropertiesPanel(panel);
+            panelsWidget->addPropertiesPanel(m_factory->displayName(),
+                                             QIcon(m_factory->icon()),
+                                             widget);
             panelsWidget->setFocusProxy(widget);
             m_widget = panelsWidget;
         }
