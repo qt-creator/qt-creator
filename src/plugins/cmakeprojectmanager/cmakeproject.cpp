@@ -206,7 +206,7 @@ bool CMakeProject::extractCXXFlagsFromNinja(const CMakeBuildTarget &buildTarget,
     return !cache.isEmpty();
 }
 
-void CMakeProject::parseCMakeOutput()
+void CMakeProject::updateProjectData()
 {
     auto cmakeBc = qobject_cast<CMakeBuildConfiguration *>(sender());
     QTC_ASSERT(cmakeBc, return);

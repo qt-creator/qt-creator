@@ -156,7 +156,7 @@ void CMakeBuildConfiguration::ctor()
             m_buildDirManager, &BuildDirManager::forceReparse);
 
     connect(this, &CMakeBuildConfiguration::parsingStarted, project, &CMakeProject::handleParsingStarted);
-    connect(this, &CMakeBuildConfiguration::dataAvailable, project, &CMakeProject::parseCMakeOutput);
+    connect(this, &CMakeBuildConfiguration::dataAvailable, project, &CMakeProject::updateProjectData);
 }
 
 void CMakeBuildConfiguration::maybeForceReparse()

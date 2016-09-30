@@ -125,7 +125,7 @@ private:
     void handleActiveTargetChanged();
     void handleActiveBuildConfigurationChanged();
     void handleParsingStarted();
-    void parseCMakeOutput();
+    void updateProjectData();
     void updateQmlJSCodeModel();
 
     void buildTree(Internal::CMakeProjectNode *rootNode, QList<ProjectExplorer::FileNode *> list);
