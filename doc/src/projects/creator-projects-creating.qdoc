@@ -121,11 +121,9 @@
 
                 Create a Qt Quick application using
                 \l{http://doc.qt.io/qt-5/qtquickcontrols2-index.html}
-                {Qt Quick Controls 2} (requires Qt 5.7 or later),
+                {Qt Quick Controls 2} (requires Qt 5.7 or later) or
                 \l{http://doc.qt.io/qt-5/qtquickcontrols-index.html}
-                {Qt Quick Controls}, or
-                \l{http://doc.qt.io/qt-5/qtlabscontrols-index.html}
-                {Qt Labs Controls} (only for Qt 5.6)
+                {Qt Quick Controls}.
 
             \li Qt Canvas 3D Application
 

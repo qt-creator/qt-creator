@@ -51,14 +51,12 @@
     creating classic desktop-style user interfaces using Qt Quick 2.1. You can
     use the Qt Quick Controls Styles to customize Qt Quick Controls.
 
-    Since Qt 5.6, Qt Labs Controls provide lightweight QML types for creating
+    Since Qt 5.7, \l {Qt Quick Controls 2} replace Qt Quick Controls 1 and
+    Qt Labs Controls. These controls provide lightweight QML types for creating
     performant user interfaces for embedded and mobile devices. These controls
     achieve improved efficiency by employing a simplified styling architecture
     when compared to Qt Quick Controls, on which the module is based. These
     types work in conjunction with Qt Quick and Qt Quick Layouts.
-
-    Since Qt 5.7, \l {Qt Quick Controls 2} replace Qt Quick Controls 1 and
-    Qt Labs Controls.
 
     \section1 Adding Components to Screens
 

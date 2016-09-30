@@ -50,16 +50,13 @@
             a QQuickView. You can build the application and deploy it to desktop,
             embedded, and mobile target platforms.
 
-        \li \uicontrol {Qt Quick Controls Application},
-            \uicontrol {Qt Quick Controls 2 Application}, and
-            \uicontrol {Qt Labs Controls Application} are like
+        \li \uicontrol {Qt Quick Controls 2 Application} and
+            \uicontrol {Qt Quick Controls Application} are like
             \uicontrol {Qt Quick Application}, but using
             \l{http://doc.qt.io/qt-5/qtquickcontrols2-index.html}
-            {Qt Quick Controls 2} (requires Qt 5.7 or later),
+            {Qt Quick Controls 2} (requires Qt 5.7 or later) or
             \l{http://doc.qt.io/qt-5/qtquickcontrols-index.html}
-            {Qt Quick Controls}, or
-            \l{http://doc.qt.io/qt-5/qtlabscontrols-index.html}
-            {Qt Labs Controls} (only for Qt 5.6)
+            {Qt Quick Controls}.
 
         \li \uicontrol {Qt Canvas 3D Application} creates a Qt Quick application
             that imports the Qt Canvas 3D module and, optionally, includes
@@ -88,9 +85,8 @@
     \list 1
 
         \li Select \uicontrol File > \uicontrol {New File or Project} >
-            \uicontrol Application > \uicontrol {Qt Quick Application},
-            \uicontrol {Qt Quick Controls Application}, or
-            \uicontrol {Qt Labs Controls Application} > \uicontrol Choose.
+            \uicontrol Application > \uicontrol {Qt Quick Application} or
+            \uicontrol {Qt Quick Controls Application} > \uicontrol Choose.
 
         \li For some Qt Quick applications, you must select the Qt version to
             develop with in the \uicontrol {Minimal required Qt version} field.
