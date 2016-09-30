@@ -572,8 +572,8 @@ QList<Task> CMakeConfigurationKitInformation::validate(const Kit *k) const
                            Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
         }
     }
-    if (!qtLibDirs.contains(version->qmakeProperty("QT_INSTALL_LIBS")) && !isQt4) {
-        if (version && version->isValid()) {
+    if (version && !qtLibDirs.contains(version->qmakeProperty("QT_INSTALL_LIBS")) && !isQt4) {
+        if (version->isValid()) {
             result << Task(Task::Warning, tr("CMake configuration has no CMAKE_PREFIX_PATH set "
                                              "that points to the kit Qt version."),
                            Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
