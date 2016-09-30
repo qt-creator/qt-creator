@@ -1046,7 +1046,7 @@ public:
 
     bool isEscape() const
     {
-        return isKey(Key_Escape) || isKey(27) || isControl('c')
+        return isKey(Key_Escape) || isShift(Key_Escape) || isKey(27) || isShift(27) || isControl('c')
             || isControl(Key_BracketLeft);
     }
 
