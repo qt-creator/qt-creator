@@ -150,7 +150,7 @@ def qdump__std__list(d, value):
     else:
         # Need to count manually.
         p = d.extractPointer(value)
-        head = value.address
+        head = value.address()
         size = 0
         while head != p and size < 1001:
             size += 1
