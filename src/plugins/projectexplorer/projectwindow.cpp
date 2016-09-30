@@ -478,7 +478,7 @@ ProjectWindow::ProjectWindow()
 {
     setBackgroundRole(QPalette::Base);
 
-    m_selectorModel = new SelectorModel(this, [this](QWidget *panel) { setPanel(panel); });
+    auto selectorModel = new SelectorModel(this, [this](QWidget *panel) { setPanel(panel); });
 
     auto styledBar = new StyledBar; // The black blob on top of the side bar
     styledBar->setObjectName("ProjectModeStyledBar");
@@ -491,16 +491,16 @@ ProjectWindow::ProjectWindow()
     auto innerLayout = new QVBoxLayout;
     innerLayout->setSpacing(10);
     innerLayout->setContentsMargins(14, innerLayout->spacing(), 14, 0);
-    innerLayout->addWidget(m_selectorModel->m_projectSelection);
-    innerLayout->addWidget(m_selectorModel->m_selectorTree);
+    innerLayout->addWidget(selectorModel->m_projectSelection);
+    innerLayout->addWidget(selectorModel->m_selectorTree);
 
     auto selectorLayout = new QVBoxLayout(selectorView);
     selectorLayout->setContentsMargins(0, 0, 0, 0);
     selectorLayout->addWidget(styledBar);
     selectorLayout->addLayout(innerLayout);
 
-    m_selectorDock = addDockForWidget(selectorView, true);
-    addDockWidget(Qt::LeftDockWidgetArea, m_selectorDock);
+    auto selectorDock = addDockForWidget(selectorView, true);
+    addDockWidget(Qt::LeftDockWidgetArea, selectorDock);
 }
 
 void ProjectWindow::contextMenuEvent(QContextMenuEvent *event)
@@ -549,7 +549,6 @@ void SelectorDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     }
     QStyledItemDelegate::paint(painter, opt, index);
 }
-
 
 } // namespace Internal
 } // namespace ProjectExplorer
