@@ -1777,7 +1777,7 @@ class DumperBase:
                         if extraData:
                             byteArrayType = self.createType("QByteArray")
                             variantType = self.createType("QVariant")
-                            if self.qtVersion() >= 0x50700:
+                            if self.qtVersion() >= 0x50600:
                                 values = self.vectorChildrenGenerator(
                                     extraData + 2 * ptrSize, variantType)
                             elif self.qtVersion() >= 0x50000:
