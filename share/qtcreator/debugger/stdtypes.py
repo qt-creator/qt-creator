@@ -455,6 +455,9 @@ def qdump__std____1__set(d, value):
                     d.putBetterType(valueType)
                 node = std1TreeNext(d, node).cast(nodeType)
 
+def qdump__std____1__multiset(d, value):
+    qdump__std____1__set(d, value)
+
 def qform__std____1__map():
     return mapForms()
 
@@ -496,6 +499,17 @@ def qdump__std____1__map__iterator(d, value):
 
 def qdump__std____1__map__const_iterator(d, value):
     qdump__std____1__map__iterator(d, value)
+
+def qdump__std____1__set__iterator(d, value):
+    d.putEmptyValue()
+    if d.isExpanded():
+        with Children(d):
+            node = value['__ptr_'].dereference()['__value_']
+            node = node.cast(value.type[0])
+            d.putSubItem('value', node)
+
+def qdump__std____1__set_const_iterator(d, value):
+    qdump__std____1__set__iterator(d, value)
 
 def qdump__std__stack(d, value):
     d.putItem(value["c"])
