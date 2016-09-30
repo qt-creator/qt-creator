@@ -276,7 +276,7 @@ QStringList CMakeGeneratorKitInformation::generatorArguments(const Kit *k)
     if (info.extraGenerator.isEmpty()) {
         result.append("-G" + info.generator);
     } else {
-        result.append("-G" + info.generator + " - " + info.extraGenerator);
+        result.append("-G" + info.extraGenerator + " - " + info.generator);
     }
 
     if (!info.platform.isEmpty())
