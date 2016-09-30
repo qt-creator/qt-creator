@@ -133,10 +133,10 @@ PuppetCreator::PuppetCreator(ProjectExplorer::Kit *kit,
     ,m_kit(kit)
     ,m_availablePuppetType(FallbackPuppet)
     ,m_model(model)
-    ,m_currentProject(project)
 #ifndef QMLDESIGNER_TEST
       ,m_designerSettings(QmlDesignerPlugin::instance()->settings())
 #endif
+    ,m_currentProject(project)
 {
 }
 
