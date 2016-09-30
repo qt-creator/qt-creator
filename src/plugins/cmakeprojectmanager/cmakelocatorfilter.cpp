@@ -35,7 +35,6 @@
 #include <projectexplorer/buildsteplist.h>
 
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
 
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
@@ -50,12 +49,12 @@ CMakeLocatorFilter::CMakeLocatorFilter()
     setPriority(High);
 
     connect(SessionManager::instance(), &SessionManager::projectAdded,
-            this, &CMakeLocatorFilter::slotProjectListUpdated);
+            this, &CMakeLocatorFilter::projectListUpdated);
     connect(SessionManager::instance(), &SessionManager::projectRemoved,
-            this, &CMakeLocatorFilter::slotProjectListUpdated);
+            this, &CMakeLocatorFilter::projectListUpdated);
 
     // Initialize the filter
-    slotProjectListUpdated();
+    projectListUpdated();
 }
 
 void CMakeLocatorFilter::prepareSearch(const QString &entry)
@@ -63,13 +62,13 @@ void CMakeLocatorFilter::prepareSearch(const QString &entry)
     m_result.clear();
     foreach (Project *p, SessionManager::projects()) {
         CMakeProject *cmakeProject = qobject_cast<CMakeProject *>(p);
-        if (cmakeProject) {
-            foreach (const CMakeBuildTarget &ct, cmakeProject->buildTargets()) {
-                if (ct.title.contains(entry)) {
-                    Core::LocatorFilterEntry entry(this, ct.title, cmakeProject->projectFilePath().toString());
-                    entry.extraInfo = FileUtils::shortNativePath(cmakeProject->projectFilePath());
-                    m_result.append(entry);
-                }
+        if (!cmakeProject)
+            continue;
+        foreach (const CMakeBuildTarget &ct, cmakeProject->buildTargets()) {
+            if (ct.title.contains(entry)) {
+                Core::LocatorFilterEntry entry(this, ct.title, cmakeProject->projectFilePath().toString());
+                entry.extraInfo = FileUtils::shortNativePath(cmakeProject->projectFilePath());
+                m_result.append(entry);
             }
         }
     }
@@ -85,18 +84,15 @@ QList<Core::LocatorFilterEntry> CMakeLocatorFilter::matchesFor(QFutureInterface<
 void CMakeLocatorFilter::accept(Core::LocatorFilterEntry selection) const
 {
     // Get the project containing the target selected
-    CMakeProject *cmakeProject = nullptr;
-
-    foreach (Project *p, SessionManager::projects()) {
-        cmakeProject = qobject_cast<CMakeProject *>(p);
-        if (cmakeProject && cmakeProject->projectFilePath().toString() == selection.internalData.toString())
-            break;
-    }
+    const auto cmakeProject = qobject_cast<CMakeProject *>(
+                Utils::findOrDefault(SessionManager::projects(), [selection](Project *p) {
+                    return p->projectFilePath().toString() == selection.internalData.toString();
+                }));
     if (!cmakeProject || !cmakeProject->activeTarget() || !cmakeProject->activeTarget()->activeBuildConfiguration())
         return;
 
     // Find the make step
-    ProjectExplorer::BuildStepList *buildStepList = cmakeProject->activeTarget()->activeBuildConfiguration()
+    BuildStepList *buildStepList = cmakeProject->activeTarget()->activeBuildConfiguration()
             ->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
     auto buildStep = buildStepList->firstOfType<CMakeBuildStep>();
     if (!buildStep)
@@ -117,16 +113,8 @@ void CMakeLocatorFilter::refresh(QFutureInterface<void> &future)
     Q_UNUSED(future)
 }
 
-void CMakeLocatorFilter::slotProjectListUpdated()
+void CMakeLocatorFilter::projectListUpdated()
 {
-    CMakeProject *cmakeProject = 0;
-
-    foreach (Project *p, SessionManager::projects()) {
-        cmakeProject = qobject_cast<CMakeProject *>(p);
-        if (cmakeProject)
-            break;
-    }
-
     // Enable the filter if there's at least one CMake project
-    setEnabled(cmakeProject);
+    setEnabled(Utils::contains(SessionManager::projects(), [](Project *p) { return qobject_cast<CMakeProject *>(p); }));
 }

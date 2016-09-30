@@ -27,8 +27,6 @@
 
 #include <coreplugin/locator/ilocatorfilter.h>
 
-#include <QIcon>
-
 namespace CMakeProjectManager {
 namespace Internal {
 
@@ -46,7 +44,7 @@ public:
     void refresh(QFutureInterface<void> &future) override;
 
 private:
-    void slotProjectListUpdated();
+    void projectListUpdated();
 
     QList<Core::LocatorFilterEntry> m_result;
 };
