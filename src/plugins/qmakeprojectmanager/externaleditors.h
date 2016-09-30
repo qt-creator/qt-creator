@@ -27,6 +27,7 @@
 
 #include <coreplugin/editormanager/iexternaleditor.h>
 #include <coreplugin/id.h>
+#include <functional>
 
 #include <QStringList>
 #include <QMap>
