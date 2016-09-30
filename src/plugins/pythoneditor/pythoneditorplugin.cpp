@@ -50,6 +50,7 @@
 
 #include <texteditor/texteditorconstants.h>
 
+#include <utils/algorithm.h>
 #include <utils/detailswidget.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/pathchooser.h>
@@ -179,13 +180,6 @@ public:
     QString addFileFilter() const override;
 
     bool renameFile(const QString &filePath, const QString &newFilePath) override;
-    void refresh(QSet<QString> oldFileList = QSet<QString>());
-
-private:
-    typedef QHash<QString, FolderNode *> FolderByName;
-    FolderNode *createFolderByName(const QStringList &components, int end);
-    FolderNode *findFolderByName(const QStringList &components, int end);
-    void removeEmptySubFolders(FolderNode *gparent, FolderNode *parent);
 
 private:
     PythonProject *m_project;
@@ -615,18 +609,16 @@ private:
 
 void PythonProject::refresh()
 {
-    rootProjectNode()->removeFileNodes(rootProjectNode()->fileNodes());
     parseProject();
 
     QDir baseDir(projectDirectory().toString());
 
-    QList<FileNode *> fileNodes;
-    foreach (const QString &file, m_files) {
-        QString displayName = baseDir.relativeFilePath(file);
-        fileNodes.append(new PythonFileNode(FileName::fromString(file), displayName));
-    }
-
-    rootProjectNode()->addFileNodes(fileNodes);
+    QList<FileNode *> fileNodes
+            = Utils::transform(m_files, [baseDir](const QString &f) -> ProjectExplorer::FileNode* {
+        const QString displayName = baseDir.relativeFilePath(f);
+        return new PythonFileNode(FileName::fromString(f), displayName);
+    });
+    rootProjectNode()->buildTree(fileNodes);
 }
 
 /**
@@ -719,7 +711,7 @@ Project::RestoreResult PythonProject::fromMap(const QVariantMap &map, QString *e
 }
 
 PythonProjectNode::PythonProjectNode(PythonProject *project)
-    : ProjectNode(project->projectFilePath())
+    : ProjectNode(project->projectDirectory())
     , m_project(project)
 {
     setDisplayName(project->projectFilePath().toFileInfo().completeBaseName());
@@ -747,131 +739,6 @@ QHash<QString, QStringList> sortFilesIntoPaths(const QString &base, const QSet<Q
         filesInPath[relativeFilePath].append(absoluteFileName);
     }
     return filesInPath;
-}
-
-void PythonProjectNode::refresh(QSet<QString> oldFileList)
-{
-    typedef QHash<QString, QStringList> FilesInPathHash;
-    typedef FilesInPathHash::ConstIterator FilesInPathHashConstIt;
-
-    // Do those separately
-    oldFileList.remove(m_project->projectFilePath().toString());
-
-    QSet<QString> newFileList = m_project->files().toSet();
-    newFileList.remove(m_project->projectFilePath().toString());
-
-    QSet<QString> removed = oldFileList;
-    removed.subtract(newFileList);
-    QSet<QString> added = newFileList;
-    added.subtract(oldFileList);
-
-    QString baseDir = filePath().toFileInfo().absolutePath();
-    FilesInPathHash filesInPaths = sortFilesIntoPaths(baseDir, added);
-
-    FilesInPathHashConstIt cend = filesInPaths.constEnd();
-    for (FilesInPathHashConstIt it = filesInPaths.constBegin(); it != cend; ++it) {
-        const QString &filePath = it.key();
-        QStringList components;
-        if (!filePath.isEmpty())
-            components = filePath.split('/');
-        FolderNode *folder = findFolderByName(components, components.size());
-        if (!folder)
-            folder = createFolderByName(components, components.size());
-
-        QList<FileNode *> fileNodes;
-        foreach (const QString &file, it.value()) {
-            FileType fileType = SourceType; // ### FIXME
-            if (file.endsWith(".qrc"))
-                fileType = ResourceType;
-            FileNode *fileNode = new FileNode(FileName::fromString(file),
-                                              fileType, /*generated = */ false);
-            fileNodes.append(fileNode);
-        }
-
-        folder->addFileNodes(fileNodes);
-    }
-
-    filesInPaths = sortFilesIntoPaths(baseDir, removed);
-    cend = filesInPaths.constEnd();
-    for (FilesInPathHashConstIt it = filesInPaths.constBegin(); it != cend; ++it) {
-        const QString &filePath = it.key();
-        QStringList components;
-        if (!filePath.isEmpty())
-            components = filePath.split('/');
-        FolderNode *folder = findFolderByName(components, components.size());
-
-        QList<FileNode *> fileNodes;
-        foreach (const QString &file, it.value()) {
-            foreach (FileNode *fn, folder->fileNodes()) {
-                if (fn->filePath().toString() == file)
-                    fileNodes.append(fn);
-            }
-        }
-
-        folder->removeFileNodes(fileNodes);
-    }
-
-    foreach (FolderNode *fn, subFolderNodes())
-        removeEmptySubFolders(this, fn);
-
-}
-
-void PythonProjectNode::removeEmptySubFolders(FolderNode *gparent, FolderNode *parent)
-{
-    foreach (FolderNode *fn, parent->subFolderNodes())
-        removeEmptySubFolders(parent, fn);
-
-    if (parent->subFolderNodes().isEmpty() && parent->fileNodes().isEmpty())
-        gparent->removeFolderNodes(QList<FolderNode*>() << parent);
-}
-
-FolderNode *PythonProjectNode::createFolderByName(const QStringList &components, int end)
-{
-    if (end == 0)
-        return this;
-
-    QString folderName;
-    for (int i = 0; i < end; ++i) {
-        folderName.append(components.at(i));
-        folderName += '/';
-    }
-
-    const QString component = components.at(end - 1);
-
-    const FileName folderPath = filePath().parentDir().appendPath(folderName);
-    FolderNode *folder = new FolderNode(folderPath);
-    folder->setDisplayName(component);
-
-    FolderNode *parent = findFolderByName(components, end - 1);
-    if (!parent)
-        parent = createFolderByName(components, end - 1);
-    parent->addFolderNodes(QList<FolderNode*>() << folder);
-
-    return folder;
-}
-
-FolderNode *PythonProjectNode::findFolderByName(const QStringList &components, int end)
-{
-    if (end == 0)
-        return this;
-
-    QString folderName;
-    for (int i = 0; i < end; ++i) {
-        folderName.append(components.at(i));
-        folderName += '/';
-    }
-
-    FolderNode *parent = findFolderByName(components, end - 1);
-
-    if (!parent)
-        return 0;
-
-    const QString baseDir = filePath().toFileInfo().path();
-    foreach (FolderNode *fn, parent->subFolderNodes()) {
-        if (fn->filePath().toString() == baseDir + '/' + folderName)
-            return fn;
-    }
-    return 0;
 }
 
 bool PythonProjectNode::showInSimpleTree() const
