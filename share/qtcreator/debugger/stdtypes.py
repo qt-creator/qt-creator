@@ -486,6 +486,17 @@ def qform__std____1__multimap():
 def qdump__std____1__multimap(d, value):
     qdump__std____1__map(d, value)
 
+def qdump__std____1__map__iterator(d, value):
+    d.putEmptyValue()
+    if d.isExpanded():
+        with Children(d):
+            node = value['__i_']['__ptr_'].dereference()['__value_']['__cc']
+            d.putSubItem('first', node['first'])
+            d.putSubItem('second', node['second'])
+
+def qdump__std____1__map__const_iterator(d, value):
+    qdump__std____1__map__iterator(d, value)
+
 def qdump__std__stack(d, value):
     d.putItem(value["c"])
     d.putBetterType(value.type)

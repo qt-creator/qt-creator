@@ -2690,7 +2690,8 @@ class DumperBase:
             return self.extractField(field)
 
         def extractField(self, field):
-            self.dumper.check(self.type.code != TypeCodeTypedef)
+            if self.type.code == TypeCodeTypedef:
+                return self.cast(self.type.stripTypedefs()).extractField(field)
             if not isinstance(field, self.dumper.Field):
                 error("BAD INDEX TYPE %s" % type(field))
 

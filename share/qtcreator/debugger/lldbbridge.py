@@ -245,6 +245,7 @@ class Dumper(DumperBase):
         #warn("BASE NAMES: %s" % baseNames)
         #warn("VIRTUAL NAMES: %s" % virtualNames)
         #warn("FIELD BITS: %s" % fieldBits)
+        fieldParentType = self.fromNativeType(nativeType).stripTypedefs()
 
         # This does not list empty base entries.
         for i in xrange(dummyValue.GetNumChildren()):
@@ -262,7 +263,7 @@ class Dumper(DumperBase):
             child.name = fieldName
             field = self.Field(self)
             field.value = child
-            field.parentType = self.fromNativeType(nativeType)
+            field.parentType = fieldParentType
             field.ltype = self.fromNativeType(fieldType)
             field.nativeIndex = i
             field.name = fieldName
@@ -295,7 +296,7 @@ class Dumper(DumperBase):
                     field.value = child
                     field.isBaseClass = True
                     field.baseIndex = baseNames[fieldName]
-                    field.parentType = self.fromNativeType(nativeType)
+                    field.parentType = fieldParentType
                     field.ltype = self.fromNativeType(fieldType)
                     field.name = fieldName
                     field.lbitsize = 0
