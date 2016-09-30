@@ -27,6 +27,7 @@
 #include "cmakebuildstep.h"
 #include "cmakeproject.h"
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
