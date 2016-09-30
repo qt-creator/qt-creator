@@ -28,8 +28,8 @@
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
 
-CMakeProjectNode::CMakeProjectNode(const Utils::FileName &fileName)
-    : ProjectExplorer::ProjectNode(fileName)
+CMakeProjectNode::CMakeProjectNode(const Utils::FileName &dirName)
+    : ProjectExplorer::ProjectNode(dirName)
 {
 }
 

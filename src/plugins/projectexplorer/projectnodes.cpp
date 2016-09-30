@@ -269,9 +269,100 @@ QList<FileNode*> FolderNode::fileNodes() const
     return m_fileNodes;
 }
 
+QList<FileNode *> FolderNode::recursiveFileNodes() const
+{
+    QList<FileNode *> result = fileNodes();
+    foreach (ProjectExplorer::FolderNode *folder, subFolderNodes())
+        result.append(folder->recursiveFileNodes());
+    return result;
+}
+
 QList<FolderNode*> FolderNode::subFolderNodes() const
 {
     return m_subFolderNodes;
+}
+
+FolderNode *FolderNode::findOrCreateSubFolderNode(const QString &directory)
+{
+    Utils::FileName path = filePath();
+    QDir parentDir(path.toString());
+    QString relativePath = parentDir.relativeFilePath(directory);
+    if (relativePath == ".")
+        relativePath.clear();
+    QStringList parts = relativePath.split('/', QString::SkipEmptyParts);
+    ProjectExplorer::FolderNode *parent = this;
+    foreach (const QString &part, parts) {
+        path.appendPath(part);
+        // Find folder in subFolders
+        bool found = false;
+        foreach (ProjectExplorer::FolderNode *folder, parent->subFolderNodes()) {
+            if (folder->filePath() == path) {
+                // yeah found something :)
+                parent = folder;
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            // No FolderNode yet, so create it
+            auto tmp = new ProjectExplorer::FolderNode(path);
+            tmp->setDisplayName(part);
+            parent->addFolderNodes(QList<ProjectExplorer::FolderNode *>({ tmp }));
+            parent = tmp;
+        }
+    }
+    return parent;
+}
+
+static bool sortNodesByPath(Node *a, Node *b)
+{
+    return a->filePath() < b->filePath();
+}
+
+void FolderNode::buildTree(QList<FileNode *> &files)
+{
+    // Gather old list
+    QList<ProjectExplorer::FileNode *> oldFiles = recursiveFileNodes();
+    Utils::sort(oldFiles, sortNodesByPath);
+    Utils::sort(files, sortNodesByPath);
+
+    QList<ProjectExplorer::FileNode *> added;
+    QList<ProjectExplorer::FileNode *> deleted;
+
+    ProjectExplorer::compareSortedLists(oldFiles, files, deleted, added, sortNodesByPath);
+
+    qDeleteAll(ProjectExplorer::subtractSortedList(files, added, sortNodesByPath));
+
+    QHash<ProjectExplorer::FolderNode *, QList<ProjectExplorer::FileNode *> > addedFolderMapping;
+    QHash<ProjectExplorer::FolderNode *, QList<ProjectExplorer::FileNode *> > deletedFolderMapping;
+
+    // add added nodes
+    foreach (ProjectExplorer::FileNode *fn, added) {
+        // Get relative path to rootNode
+        QString parentDir = fn->filePath().toFileInfo().absolutePath();
+        ProjectExplorer::FolderNode *folder = findOrCreateSubFolderNode(parentDir);
+        addedFolderMapping[folder] << fn;
+    }
+
+    for (auto i = addedFolderMapping.constBegin(); i != addedFolderMapping.constEnd(); ++i)
+        i.key()->addFileNodes(i.value());
+
+    // remove old file nodes and check whether folder nodes can be removed
+    foreach (ProjectExplorer::FileNode *fn, deleted)
+        deletedFolderMapping[fn->parentFolderNode()] << fn;
+
+    for (auto i = deletedFolderMapping.constBegin(); i != deletedFolderMapping.constEnd(); ++i) {
+        ProjectExplorer::FolderNode *parent = i.key();
+        parent->removeFileNodes(i.value());
+        // Check for empty parent
+        while (parent->subFolderNodes().isEmpty() && parent->fileNodes().isEmpty()) {
+            ProjectExplorer::FolderNode *grandparent = parent->parentFolderNode();
+            grandparent->removeFolderNodes(QList<ProjectExplorer::FolderNode *>() << parent);
+            parent = grandparent;
+            if (parent == this)
+                break;
+        }
+    }
 }
 
 void FolderNode::accept(NodesVisitor *visitor)
@@ -707,7 +798,7 @@ ProjectNode *ProjectNode::asProjectNode()
 */
 
 SessionNode::SessionNode() :
-    FolderNode(Utils::FileName::fromString(QLatin1String("session")), SessionNodeType)
+    FolderNode(Utils::FileName::fromString("session"), SessionNodeType)
 { }
 
 QList<ProjectAction> SessionNode::supportedActions(Node *node) const
@@ -747,7 +838,7 @@ QList<ProjectNode*> SessionNode::projectNodes() const
 
 QString SessionNode::addFileFilter() const
 {
-    return QLatin1String("*.c; *.cc; *.cpp; *.cp; *.cxx; *.c++; *.h; *.hh; *.hpp; *.hxx;");
+    return QString::fromLatin1("*.c; *.cc; *.cpp; *.cp; *.cxx; *.c++; *.h; *.hh; *.hpp; *.hxx;");
 }
 
 void SessionNode::addProjectNodes(const QList<ProjectNode*> &projectNodes)

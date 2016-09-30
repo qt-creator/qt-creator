@@ -91,7 +91,7 @@ CMakeProject::CMakeProject(CMakeManager *manager, const FileName &fileName)
     setProjectManager(manager);
     setDocument(new Internal::CMakeFile(this, fileName));
 
-    setRootProjectNode(new CMakeProjectNode(fileName));
+    setRootProjectNode(new CMakeProjectNode(Utils::FileName::fromString(fileName.toFileInfo().absolutePath())));
     setProjectContext(Core::Context(CMakeProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
 
@@ -244,7 +244,8 @@ void CMakeProject::updateProjectData()
         m_watchedFiles.insert(cm);
     }
 
-    buildTree(static_cast<CMakeProjectNode *>(rootProjectNode()), bdm->files());
+    QList<FileNode *> fileNodes = bdm->files();
+    rootProjectNode()->buildTree(fileNodes);
     bdm->clearFiles(); // Some of the FileNodes in files() were deleted!
 
     updateApplicationAndDeploymentTargets();
@@ -416,98 +417,6 @@ bool CMakeProject::hasBuildTarget(const QString &title) const
     return Utils::anyOf(buildTargets(), [title](const CMakeBuildTarget &ct) { return ct.title == title; });
 }
 
-void CMakeProject::gatherFileNodes(ProjectExplorer::FolderNode *parent, QList<ProjectExplorer::FileNode *> &list) const
-{
-    foreach (ProjectExplorer::FolderNode *folder, parent->subFolderNodes())
-        gatherFileNodes(folder, list);
-    foreach (ProjectExplorer::FileNode *file, parent->fileNodes())
-        list.append(file);
-}
-
-bool sortNodesByPath(Node *a, Node *b)
-{
-    return a->filePath() < b->filePath();
-}
-
-void CMakeProject::buildTree(CMakeProjectNode *rootNode, QList<ProjectExplorer::FileNode *> newList)
-{
-    // Gather old list
-    QList<ProjectExplorer::FileNode *> oldList;
-    gatherFileNodes(rootNode, oldList);
-    Utils::sort(oldList, sortNodesByPath);
-    Utils::sort(newList, sortNodesByPath);
-
-    QList<ProjectExplorer::FileNode *> added;
-    QList<ProjectExplorer::FileNode *> deleted;
-
-    ProjectExplorer::compareSortedLists(oldList, newList, deleted, added, sortNodesByPath);
-
-    qDeleteAll(ProjectExplorer::subtractSortedList(newList, added, sortNodesByPath));
-
-    QHash<ProjectExplorer::FolderNode *, QList<ProjectExplorer::FileNode *> > addedFolderMapping;
-    QHash<ProjectExplorer::FolderNode *, QList<ProjectExplorer::FileNode *> > deletedFolderMapping;
-
-    // add added nodes
-    foreach (ProjectExplorer::FileNode *fn, added) {
-        // Get relative path to rootNode
-        QString parentDir = fn->filePath().toFileInfo().absolutePath();
-        ProjectExplorer::FolderNode *folder = findOrCreateFolder(rootNode, parentDir);
-        addedFolderMapping[folder] << fn;
-    }
-
-    for (auto i = addedFolderMapping.constBegin(); i != addedFolderMapping.constEnd(); ++i)
-        i.key()->addFileNodes(i.value());
-
-    // remove old file nodes and check whether folder nodes can be removed
-    foreach (ProjectExplorer::FileNode *fn, deleted)
-        deletedFolderMapping[fn->parentFolderNode()] << fn;
-
-    for (auto i = deletedFolderMapping.constBegin(); i != deletedFolderMapping.constEnd(); ++i) {
-        ProjectExplorer::FolderNode *parent = i.key();
-        parent->removeFileNodes(i.value());
-        // Check for empty parent
-        while (parent->subFolderNodes().isEmpty() && parent->fileNodes().isEmpty()) {
-            ProjectExplorer::FolderNode *grandparent = parent->parentFolderNode();
-            grandparent->removeFolderNodes(QList<ProjectExplorer::FolderNode *>() << parent);
-            parent = grandparent;
-            if (parent == rootNode)
-                break;
-        }
-    }
-}
-
-ProjectExplorer::FolderNode *CMakeProject::findOrCreateFolder(CMakeProjectNode *rootNode, QString directory)
-{
-    FileName path = rootNode->filePath().parentDir();
-    QDir rootParentDir(path.toString());
-    QString relativePath = rootParentDir.relativeFilePath(directory);
-    if (relativePath == QLatin1String("."))
-        relativePath.clear();
-    QStringList parts = relativePath.split(QLatin1Char('/'), QString::SkipEmptyParts);
-    ProjectExplorer::FolderNode *parent = rootNode;
-    foreach (const QString &part, parts) {
-        path.appendPath(part);
-        // Find folder in subFolders
-        bool found = false;
-        foreach (ProjectExplorer::FolderNode *folder, parent->subFolderNodes()) {
-            if (folder->filePath() == path) {
-                // yeah found something :)
-                parent = folder;
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
-            // No FolderNode yet, so create it
-            auto tmp = new ProjectExplorer::FolderNode(path);
-            tmp->setDisplayName(part);
-            parent->addFolderNodes(QList<ProjectExplorer::FolderNode *>() << tmp);
-            parent = tmp;
-        }
-    }
-    return parent;
-}
-
 QString CMakeProject::displayName() const
 {
     return rootProjectNode()->displayName();
@@ -515,9 +424,8 @@ QString CMakeProject::displayName() const
 
 QStringList CMakeProject::files(FilesMode fileMode) const
 {
-    QList<FileNode *> nodes;
-    gatherFileNodes(rootProjectNode(), nodes);
-    nodes = Utils::filtered(nodes, [fileMode](const FileNode *fn) {
+    const QList<FileNode *> nodes = Utils::filtered(rootProjectNode()->recursiveFileNodes(),
+                                                    [fileMode](const FileNode *fn) {
         const bool isGenerated = fn->isGenerated();
         switch (fileMode)
         {
