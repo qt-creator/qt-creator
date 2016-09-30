@@ -306,7 +306,7 @@ QVariant CMakeGeneratorKitInformation::defaultValue(const Kit *k) const
         k->addToEnvironment(env);
         const Utils::FileName ninjaExec = env.searchInPath(QLatin1String("ninja"));
         if (!ninjaExec.isEmpty())
-            return GeneratorInfo({ "Ninja", extraGenerator, QString(), QString() }).toVariant();
+            return GeneratorInfo({ QString("Ninja"), extraGenerator, QString(), QString() }).toVariant();
     }
 
     if (Utils::HostOsInfo::isWindowsHost()) {
