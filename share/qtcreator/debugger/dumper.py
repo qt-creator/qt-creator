@@ -1547,10 +1547,9 @@ class DumperBase:
 
     def vectorChildrenGenerator(self, addr, innerType):
         base = self.extractPointer(addr)
-        size = self.extractInt(base + 4)
-        data = base + self.extractPointer(base + 8 + self.ptrSize())
+        data, size, alloc = self.vectorDataHelper(base)
         for i in range(size):
-            yield self.createValue(data + i * 16, innerType)
+            yield self.createValue(data + i * innerType.size(), innerType)
 
     def putTypedPointer(self, name, addr, typeName):
         """ Prints a typed pointer, expandable if the type can be resolved,
@@ -3182,7 +3181,10 @@ class DumperBase:
                 elif typish == "QImage":
                     typish = self.qtNamespace() + typish
                     size = 2 * self.ptrSize()
-                elif typish in ("QVariant", "QPointF", "QDateTime", "QRect"):
+                elif typish == "QVariant":
+                    typish = self.qtNamespace() + typish
+                    size = 8 + self.ptrSize()
+                elif typish in ("QPointF", "QDateTime", "QRect"):
                     typish = self.qtNamespace() + typish
                     size = 16
                 elif typish == "QPoint":
