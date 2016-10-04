@@ -66,7 +66,6 @@ FORMS += \
     $$PWD/search.ui \
     $$PWD/shapegroupwidget.ui \
     $$PWD/shapestoolbox.ui \
-    $$PWD/stateproperties.ui \
     $$PWD/stateview.ui \
     $$PWD/statistics.ui \
     $$PWD/statisticsdialog.ui

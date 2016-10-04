@@ -27,10 +27,13 @@
 
 #include "scxmldocument.h"
 #include "scxmltag.h"
-#include "ui_stateproperties.h"
 
 #include <QFrame>
 #include <QTimer>
+
+QT_FORWARD_DECLARE_CLASS(QLabel)
+QT_FORWARD_DECLARE_CLASS(QPlainTextEdit)
+QT_FORWARD_DECLARE_CLASS(QTableView)
 
 namespace ScxmlEditor {
 
@@ -56,6 +59,7 @@ public:
     void setUIFactory(PluginInterface::ScxmlUiFactory *factory);
 
 private:
+    void createUi();
     void setCurrentTagName(const QString &state);
     void tagChange(PluginInterface::ScxmlDocument::TagChange change, PluginInterface::ScxmlTag *tag, const QVariant &value);
     void timerTimeout();
@@ -71,7 +75,11 @@ private:
     PluginInterface::ScxmlTag *m_tag = nullptr;
     QTimer m_contentTimer;
     QPointer<PluginInterface::ScxmlUiFactory> m_uiFactory;
-    Ui::StateProperties m_ui;
+
+    QWidget *m_contentFrame = nullptr;
+    QLabel *m_currentTagName = nullptr;
+    QPlainTextEdit *m_contentEdit = nullptr;
+    QTableView *m_tableView = nullptr;
 };
 
 } // namespace Common

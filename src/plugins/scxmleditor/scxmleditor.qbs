@@ -77,7 +77,6 @@ QtcPlugin {
             "search.ui",
             "shapegroupwidget.ui",
             "shapestoolbox.ui",
-            "stateproperties.ui",
             "stateview.ui",
             "statistics.ui",
             "statisticsdialog.ui",

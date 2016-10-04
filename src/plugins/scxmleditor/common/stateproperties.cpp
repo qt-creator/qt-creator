@@ -29,26 +29,35 @@
 #include "scxmleditorconstants.h"
 #include "scxmluifactory.h"
 
+#include <coreplugin/minisplitter.h>
+
+#include <QHeaderView>
+#include <QLabel>
+#include <QLayout>
+#include <QPlainTextEdit>
+#include <QTableView>
+#include <QToolBar>
+
 using namespace ScxmlEditor::PluginInterface;
 using namespace ScxmlEditor::Common;
 
 StateProperties::StateProperties(QWidget *parent)
     : QFrame(parent)
 {
-    m_ui.setupUi(this);
-    m_ui.m_contentFrame->setVisible(false);
-    m_ui.m_currentTagName->setText(QString());
+    createUi();
+
+    m_contentFrame->setVisible(false);
 
     m_contentTimer.setInterval(500);
     m_contentTimer.setSingleShot(true);
-    connect(m_ui.m_contentEdit, &QTextEdit::textChanged, &m_contentTimer, static_cast<void (QTimer::*)()>(&QTimer::start));
+    connect(m_contentEdit, &QPlainTextEdit::textChanged, &m_contentTimer, static_cast<void (QTimer::*)()>(&QTimer::start));
     connect(&m_contentTimer, &QTimer::timeout, this, &StateProperties::timerTimeout);
 }
 
 void StateProperties::setCurrentTagName(const QString &tagName)
 {
     QFontMetrics fontMetrics(font());
-    m_ui.m_currentTagName->setText(fontMetrics.elidedText(tagName, Qt::ElideRight, 100));
+    m_currentTagName->setText(fontMetrics.elidedText(tagName, Qt::ElideRight, 100));
 }
 
 void StateProperties::updateName()
@@ -104,9 +113,50 @@ void StateProperties::setUIFactory(ScxmlUiFactory *factory)
         m_attributeModel = static_cast<AttributeItemModel*>(m_uiFactory->object("attributeItemModel"));
         m_attributeDelegate = static_cast<AttributeItemDelegate*>(m_uiFactory->object("attributeItemDelegate"));
 
-        m_ui.m_tableView->setItemDelegate(m_attributeDelegate);
-        m_ui.m_tableView->setModel(m_attributeModel);
+        m_tableView->setItemDelegate(m_attributeDelegate);
+        m_tableView->setModel(m_attributeModel);
     }
+}
+
+void StateProperties::createUi()
+{
+    auto titleLabel = new QLabel(tr("Attributes"));
+    titleLabel->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
+
+    m_currentTagName = new QLabel;
+
+    auto propertiesToolBar = new QToolBar;
+    propertiesToolBar->setMinimumHeight(24);
+    propertiesToolBar->addWidget(titleLabel);
+    propertiesToolBar->addWidget(m_currentTagName);
+
+    m_tableView = new QTableView;
+    m_tableView->setEditTriggers(QAbstractItemView::CurrentChanged
+                                 | QAbstractItemView::DoubleClicked
+                                 | QAbstractItemView::SelectedClicked
+                                 | QAbstractItemView::EditKeyPressed
+                                 | QAbstractItemView::AnyKeyPressed);
+    m_tableView->setFrameShape(QFrame::NoFrame);
+    m_tableView->setAlternatingRowColors(true);
+    m_tableView->horizontalHeader()->setStretchLastSection(true);
+
+    m_contentEdit = new QPlainTextEdit;
+
+    m_contentFrame = new QWidget;
+    m_contentFrame->setLayout(new QVBoxLayout);
+    m_contentFrame->layout()->addWidget(new QLabel(tr("Content")));
+    m_contentFrame->layout()->addWidget(m_contentEdit);
+
+    auto splitter = new Core::MiniSplitter;
+    splitter->setOrientation(Qt::Vertical);
+    splitter->addWidget(m_tableView);
+    splitter->addWidget(m_contentFrame);
+
+    setLayout(new QVBoxLayout);
+    layout()->setMargin(0);
+    layout()->setSpacing(0);
+    layout()->addWidget(propertiesToolBar);
+    layout()->addWidget(splitter);
 }
 
 void StateProperties::setTag(ScxmlTag *tag)
@@ -120,8 +170,8 @@ void StateProperties::setTag(ScxmlTag *tag)
 
 void StateProperties::timerTimeout()
 {
-    if (m_tag && m_document && m_tag->info()->canIncludeContent && m_tag->content() != m_ui.m_contentEdit->toPlainText())
-        m_document->setContent(m_tag, m_ui.m_contentEdit->toPlainText());
+    if (m_tag && m_document && m_tag->info()->canIncludeContent && m_tag->content() != m_contentEdit->toPlainText())
+        m_document->setContent(m_tag, m_contentEdit->toPlainText());
 }
 
 QString StateProperties::content() const
@@ -134,15 +184,15 @@ QString StateProperties::content() const
 
 void StateProperties::setContentVisibility(bool visible)
 {
-    m_ui.m_contentFrame->setVisible(visible);
+    m_contentFrame->setVisible(visible);
     updateContent();
 }
 
 void StateProperties::updateContent()
 {
-    if (!m_ui.m_contentEdit->hasFocus()) {
-        m_ui.m_contentEdit->blockSignals(true);
-        m_ui.m_contentEdit->setPlainText(content());
-        m_ui.m_contentEdit->blockSignals(false);
+    if (!m_contentEdit->hasFocus()) {
+        m_contentEdit->blockSignals(true);
+        m_contentEdit->setPlainText(content());
+        m_contentEdit->blockSignals(false);
     }
 }
