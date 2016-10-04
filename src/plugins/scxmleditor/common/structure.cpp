@@ -36,6 +36,7 @@
 #include "structuremodel.h"
 #include "treeview.h"
 
+#include <QBoxLayout>
 #include <QCheckBox>
 #include <QKeyEvent>
 #include <QLabel>

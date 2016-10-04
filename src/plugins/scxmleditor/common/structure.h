@@ -25,7 +25,8 @@
 
 #pragma once
 
-#include "ui_structure.h"
+#include "scxmltypes.h"
+
 #include <QFrame>
 #include <QPointer>
 #include <QSortFilterProxyModel>
@@ -47,6 +48,7 @@ class GraphicsScene;
 namespace Common {
 
 class StructureModel;
+class TreeView;
 
 class TreeItemDelegate : public QStyledItemDelegate
 {
@@ -102,7 +104,6 @@ private:
     PluginInterface::GraphicsScene *m_scene = nullptr;
     QVector<QCheckBox*> m_checkboxes;
     TreeItemDelegate *m_customDelegate = nullptr;
-    Ui::Structure m_ui;
 
     QWidget *m_paneInnerFrame = nullptr;
     TreeView *m_structureView = nullptr;
