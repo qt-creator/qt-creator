@@ -37,6 +37,8 @@
 
 #include <QTextEdit>
 
+#include <functional>
+
 namespace TextEditor {
 class TextDocument;
 class QuickFixOperations;
@@ -69,10 +71,15 @@ public:
 
     virtual void editorDocumentTimerRestarted();
 
+public:
+    using HeaderErrorDiagnosticWidgetCreator = std::function<QWidget*()>;
+
 signals:
+
     // Signal interface to implement
     void codeWarningsUpdated(unsigned revision,
                              const QList<QTextEdit::ExtraSelection> selections,
+                             const HeaderErrorDiagnosticWidgetCreator &creator,
                              const TextEditor::RefactorMarkers &refactorMarkers);
 
     void ifdefedOutBlocksUpdated(unsigned revision,

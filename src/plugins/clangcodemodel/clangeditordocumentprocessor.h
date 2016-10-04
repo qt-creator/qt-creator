@@ -68,6 +68,7 @@ public:
     void clearProjectPart();
 
     void updateCodeWarnings(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
+                            const ClangBackEnd::DiagnosticContainer &firstHeaderErrorDiagnostic,
                             uint documentRevision);
     void updateHighlighting(const QVector<ClangBackEnd::HighlightingMarkContainer> &highlightingMarks,
                             const QVector<ClangBackEnd::SourceRangeContainer> &skippedPreprocessorRanges,
@@ -96,6 +97,8 @@ private:
     void registerTranslationUnitForEditor(CppTools::ProjectPart *projectPart);
     void updateTranslationUnitIfProjectPartExists();
     void requestDocumentAnnotations(const QString &projectpartId);
+    HeaderErrorDiagnosticWidgetCreator creatorForHeaderErrorDiagnosticWidget(
+            const ClangBackEnd::DiagnosticContainer &firstHeaderErrorDiagnostic);
     ClangBackEnd::FileContainer fileContainerWithArguments(CppTools::ProjectPart *projectPart) const;
     ClangBackEnd::FileContainer fileContainerWithDocumentContent(const QString &projectpartId) const;
 

@@ -182,7 +182,9 @@ void IpcReceiver::documentAnnotationsChanged(const DocumentAnnotationsChangedMes
         const QString documentProjectPartId = CppTools::CppToolsBridge::projectPartIdForFile(filePath);
         if (projectPartId == documentProjectPartId) {
             const quint32 documentRevision = message.fileContainer().documentRevision();
-            processor->updateCodeWarnings(message.diagnostics(), documentRevision);
+            processor->updateCodeWarnings(message.diagnostics(),
+                                          message.firstHeaderErrorDiagnostic(),
+                                          documentRevision);
             processor->updateHighlighting(message.highlightingMarks(),
                                           message.skippedPreprocessorRanges(),
                                           documentRevision);

@@ -40,7 +40,8 @@ static RequestDocumentAnnotationsJob::AsyncResult runAsyncHelper(
 
     RequestDocumentAnnotationsJob::AsyncResult asyncResult;
 
-    translationUnit.extractDocumentAnnotations(asyncResult.diagnostics,
+    translationUnit.extractDocumentAnnotations(asyncResult.firstHeaderErrorDiagnostic,
+                                               asyncResult.diagnostics,
                                                asyncResult.highlightingMarks,
                                                asyncResult.skippedSourceRanges);
 
@@ -83,6 +84,7 @@ void RequestDocumentAnnotationsJob::sendAnnotations(
 {
     const DocumentAnnotationsChangedMessage message(m_pinnedFileContainer,
                                                     result.diagnostics,
+                                                    result.firstHeaderErrorDiagnostic,
                                                     result.highlightingMarks,
                                                     result.skippedSourceRanges);
 

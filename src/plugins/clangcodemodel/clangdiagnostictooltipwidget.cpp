@@ -129,9 +129,10 @@ enum IndentType { IndentDiagnostic, DoNotIndentDiagnostic };
 
 QWidget *createDiagnosticLabel(const ClangBackEnd::DiagnosticContainer &diagnostic,
                                const QString &mainFilePath,
-                               IndentType indentType = DoNotIndentDiagnostic)
+                               IndentType indentType = DoNotIndentDiagnostic,
+                               bool enableClickableFixits = true)
 {
-    const bool hasFixit = !diagnostic.fixIts().isEmpty();
+    const bool hasFixit = enableClickableFixits ? !diagnostic.fixIts().isEmpty() : false;
     const QString diagnosticText = diagnostic.text().toString().toHtmlEscaped();
     const QString text = clickableLocation(mainFilePath, diagnostic.location())
                        + QStringLiteral(": ")
@@ -159,25 +160,35 @@ class MainDiagnosticWidget : public QWidget
 {
     Q_OBJECT
 public:
-    MainDiagnosticWidget(const ClangBackEnd::DiagnosticContainer &diagnostic)
+    MainDiagnosticWidget(const ClangBackEnd::DiagnosticContainer &diagnostic,
+                         const ClangCodeModel::Internal::DisplayHints &displayHints)
     {
         setContentsMargins(0, 0, 0, 0);
         auto *mainLayout = createLayout<QVBoxLayout>();
 
-        // Set up header row: category + responsible option
-        const QString category = diagnostic.category();
-        const QString responsibleOption = diagnostic.enableOption();
         const ClangBackEnd::SourceLocationContainer location = diagnostic.location();
 
-        auto *headerLayout = createLayout<QHBoxLayout>();
-        headerLayout->addWidget(new QLabel(wrapInBoldTags(category)), 1);
+        // Set up header row: category + responsible option
+        if (displayHints.showMainDiagnosticHeader) {
+            const QString category = diagnostic.category();
+            const QString responsibleOption = diagnostic.enableOption();
 
-        auto *responsibleOptionLabel = new QLabel(wrapInColor(responsibleOption, "gray"));
-        headerLayout->addWidget(responsibleOptionLabel, 0);
-        mainLayout->addLayout(headerLayout);
+            auto *headerLayout = createLayout<QHBoxLayout>();
+            headerLayout->addWidget(new QLabel(wrapInBoldTags(category)), 1);
+
+            auto *responsibleOptionLabel = new QLabel(wrapInColor(responsibleOption, "gray"));
+            headerLayout->addWidget(responsibleOptionLabel, 0);
+            mainLayout->addLayout(headerLayout);
+        }
 
         // Set up main row: diagnostic text
-        mainLayout->addWidget(createDiagnosticLabel(diagnostic, location.filePath()));
+        const Utf8String mainFilePath = displayHints.showFileNameInMainDiagnostic
+                ? Utf8String()
+                : location.filePath();
+        mainLayout->addWidget(createDiagnosticLabel(diagnostic,
+                                                    mainFilePath,
+                                                    DoNotIndentDiagnostic,
+                                                    displayHints.enableClickableFixits));
 
         setLayout(mainLayout);
     }
@@ -186,26 +197,35 @@ public:
 void addChildrenToLayout(const QString &mainFilePath,
                          const QVector<ClangBackEnd::DiagnosticContainer>::const_iterator first,
                          const QVector<ClangBackEnd::DiagnosticContainer>::const_iterator last,
+                         bool enableClickableFixits,
                          QLayout &boxLayout)
 {
-    for (auto it = first; it != last; ++it)
-        boxLayout.addWidget(createDiagnosticLabel(*it, mainFilePath, IndentDiagnostic));
+    for (auto it = first; it != last; ++it) {
+        boxLayout.addWidget(createDiagnosticLabel(*it,
+                                                  mainFilePath,
+                                                  IndentDiagnostic,
+                                                  enableClickableFixits));
+    }
 }
 
 void setupChildDiagnostics(const QString &mainFilePath,
                            const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
+                           bool enableClickableFixits,
                            QLayout &boxLayout)
 {
     if (diagnostics.size() <= 10) {
-        addChildrenToLayout(mainFilePath, diagnostics.begin(), diagnostics.end(), boxLayout);
+        addChildrenToLayout(mainFilePath, diagnostics.begin(), diagnostics.end(),
+                            enableClickableFixits, boxLayout);
     } else {
-        addChildrenToLayout(mainFilePath, diagnostics.begin(), diagnostics.begin() + 7, boxLayout);
+        addChildrenToLayout(mainFilePath, diagnostics.begin(), diagnostics.begin() + 7,
+                            enableClickableFixits, boxLayout);
 
         auto ellipsisLabel = new QLabel(QStringLiteral("..."));
         ellipsisLabel->setContentsMargins(childIndentationOnTheLeftInPixel, 0, 0, 0);
         boxLayout.addWidget(ellipsisLabel);
 
-        addChildrenToLayout(mainFilePath, diagnostics.end() - 3, diagnostics.end(), boxLayout);
+        addChildrenToLayout(mainFilePath, diagnostics.end() - 3, diagnostics.end(),
+                            enableClickableFixits, boxLayout);
     }
 }
 
@@ -214,13 +234,18 @@ void setupChildDiagnostics(const QString &mainFilePath,
 namespace ClangCodeModel {
 namespace Internal {
 
-void addToolTipToLayout(const ClangBackEnd::DiagnosticContainer &diagnostic, QLayout *target)
+void addToolTipToLayout(const ClangBackEnd::DiagnosticContainer &diagnostic,
+                        QLayout *target,
+                        const DisplayHints &displayHints)
 {
     // Set up header and text row for main diagnostic
-    target->addWidget(new MainDiagnosticWidget(diagnostic));
+    target->addWidget(new MainDiagnosticWidget(diagnostic, displayHints));
 
     // Set up child rows for notes
-    setupChildDiagnostics(diagnostic.location().filePath(), diagnostic.children(), *target);
+    setupChildDiagnostics(diagnostic.location().filePath(),
+                          diagnostic.children(),
+                          displayHints.enableClickableFixits,
+                          *target);
 }
 
 } // namespace Internal

@@ -41,10 +41,12 @@ public:
     DocumentAnnotationsChangedMessage() = default;
     DocumentAnnotationsChangedMessage(const FileContainer &fileContainer,
                                       const QVector<DiagnosticContainer> &diagnostics,
+                                      const DiagnosticContainer &firstHeaderErrorDiagnostic_,
                                       const QVector<HighlightingMarkContainer> &highlightingMarks,
                                       const QVector<SourceRangeContainer> &skippedPreprocessorRanges)
         : fileContainer_(fileContainer),
           diagnostics_(diagnostics),
+          firstHeaderErrorDiagnostic_(firstHeaderErrorDiagnostic_),
           highlightingMarks_(highlightingMarks),
           skippedPreprocessorRanges_(skippedPreprocessorRanges)
     {
@@ -58,6 +60,11 @@ public:
     const QVector<DiagnosticContainer> &diagnostics() const
     {
         return diagnostics_;
+    }
+
+    const DiagnosticContainer &firstHeaderErrorDiagnostic() const
+    {
+        return firstHeaderErrorDiagnostic_;
     }
 
     const QVector<HighlightingMarkContainer> &highlightingMarks() const
@@ -74,6 +81,7 @@ public:
     {
         out << message.fileContainer_;
         out << message.diagnostics_;
+        out << message.firstHeaderErrorDiagnostic_;
         out << message.highlightingMarks_;
         out << message.skippedPreprocessorRanges_;
 
@@ -84,6 +92,7 @@ public:
     {
         in >> message.fileContainer_;
         in >> message.diagnostics_;
+        in >> message.firstHeaderErrorDiagnostic_;
         in >> message.highlightingMarks_;
         in >> message.skippedPreprocessorRanges_;
 
@@ -95,6 +104,7 @@ public:
     {
         return first.fileContainer_ == second.fileContainer_
             && first.diagnostics_ == second.diagnostics_
+            && first.firstHeaderErrorDiagnostic_ == second.firstHeaderErrorDiagnostic_
             && first.highlightingMarks_ == second.highlightingMarks_
             && first.skippedPreprocessorRanges_ == second.skippedPreprocessorRanges_;
     }
@@ -102,6 +112,7 @@ public:
 private:
     FileContainer fileContainer_;
     QVector<DiagnosticContainer> diagnostics_;
+    DiagnosticContainer firstHeaderErrorDiagnostic_;
     QVector<HighlightingMarkContainer> highlightingMarks_;
     QVector<SourceRangeContainer> skippedPreprocessorRanges_;
 };

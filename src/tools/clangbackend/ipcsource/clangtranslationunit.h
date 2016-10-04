@@ -76,12 +76,14 @@ public:
 
     CodeCompletionResult complete(UnsavedFiles &unsavedFiles, uint line, uint column) const;
 
-    void extractDocumentAnnotations(QVector<DiagnosticContainer> &diagnostics,
+    void extractDiagnostics(DiagnosticContainer &firstHeaderErrorDiagnostic,
+                            QVector<DiagnosticContainer> &mainFileDiagnostics) const;
+    void extractDocumentAnnotations(DiagnosticContainer &firstHeaderErrorDiagnostic,
+                                    QVector<DiagnosticContainer> &mainFileDiagnostics,
                                     QVector<HighlightingMarkContainer> &highlightingMarks,
                                     QVector<SourceRangeContainer> &skippedSourceRanges) const;
 
     DiagnosticSet diagnostics() const;
-    QVector<DiagnosticContainer> mainFileDiagnostics() const;
 
     SourceLocation sourceLocationAt(uint line, uint column) const;
     SourceLocation sourceLocationAt(const Utf8String &filePath, uint line, uint column) const;

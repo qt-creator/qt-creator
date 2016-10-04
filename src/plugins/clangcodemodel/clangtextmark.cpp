@@ -84,7 +84,7 @@ void ClangTextMark::setIcon(ClangBackEnd::DiagnosticSeverity severity)
 
 bool ClangTextMark::addToolTipContent(QLayout *target)
 {
-    Internal::addToolTipToLayout(m_diagnostic, target);
+    Internal::addToolTipToLayout(m_diagnostic, target, Internal::DisplayHints());
     return true;
 }
 

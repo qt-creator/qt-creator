@@ -61,6 +61,7 @@ SOURCES += \
     clangrequestdocumentannotationsjob-test.cpp \
     clangsupportivetranslationunitinitializertest.cpp \
     clangstring-test.cpp \
+    clangtranslationunit-test.cpp \
     clangtranslationunits-test.cpp \
     clangupdatedocumentannotationsjob-test.cpp \
     codecompletionsextractor-test.cpp \

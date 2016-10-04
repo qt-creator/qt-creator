@@ -112,11 +112,12 @@ TranslationUnit::CodeCompletionResult TranslationUnit::complete(
 }
 
 void TranslationUnit::extractDocumentAnnotations(
-        QVector<DiagnosticContainer> &diagnostics,
+        DiagnosticContainer &firstHeaderErrorDiagnostic,
+        QVector<DiagnosticContainer> &mainFileDiagnostics,
         QVector<HighlightingMarkContainer> &highlightingMarks,
         QVector<SourceRangeContainer> &skippedSourceRanges) const
 {
-    diagnostics = mainFileDiagnostics();
+    extractDiagnostics(firstHeaderErrorDiagnostic, mainFileDiagnostics);
     highlightingMarks = this->highlightingMarks().toHighlightingMarksContainers();
     skippedSourceRanges = this->skippedSourceRanges().toSourceRangeContainers();
 }
@@ -124,15 +125,6 @@ void TranslationUnit::extractDocumentAnnotations(
 DiagnosticSet TranslationUnit::diagnostics() const
 {
     return DiagnosticSet(clang_getDiagnosticSetFromTU(m_cxTranslationUnit));
-}
-
-QVector<DiagnosticContainer> TranslationUnit::mainFileDiagnostics() const
-{
-    const auto isMainFileDiagnostic = [this](const Diagnostic &diagnostic) {
-        return diagnostic.location().filePath() == m_filePath;
-    };
-
-    return diagnostics().toDiagnosticContainers(isMainFileDiagnostic);
 }
 
 SourceLocation TranslationUnit::sourceLocationAt(uint line,uint column) const
@@ -191,6 +183,37 @@ HighlightingMarks TranslationUnit::highlightingMarksInRange(const SourceRange &r
 SkippedSourceRanges TranslationUnit::skippedSourceRanges() const
 {
     return SkippedSourceRanges(m_cxTranslationUnit, m_filePath.constData());
+}
+
+static bool isMainFileDiagnostic(const Utf8String &mainFilePath, const Diagnostic &diagnostic)
+{
+    return diagnostic.location().filePath() == mainFilePath;
+}
+
+static bool isHeaderErrorDiagnostic(const Utf8String &mainFilePath, const Diagnostic &diagnostic)
+{
+    const bool isCritical = diagnostic.severity() == DiagnosticSeverity::Error
+                         || diagnostic.severity() == DiagnosticSeverity::Fatal;
+    return isCritical && diagnostic.location().filePath() != mainFilePath;
+}
+
+void TranslationUnit::extractDiagnostics(DiagnosticContainer &firstHeaderErrorDiagnostic,
+                                         QVector<DiagnosticContainer> &mainFileDiagnostics) const
+{
+    mainFileDiagnostics.clear();
+    mainFileDiagnostics.reserve(int(diagnostics().size()));
+
+    bool hasFirstHeaderErrorDiagnostic = false;
+
+    for (const Diagnostic &diagnostic : diagnostics()) {
+        if (!hasFirstHeaderErrorDiagnostic && isHeaderErrorDiagnostic(m_filePath, diagnostic)) {
+            hasFirstHeaderErrorDiagnostic = true;
+            firstHeaderErrorDiagnostic = diagnostic.toDiagnosticContainer();
+        }
+
+        if (isMainFileDiagnostic(m_filePath, diagnostic))
+            mainFileDiagnostics.push_back(diagnostic.toDiagnosticContainer());
+    }
 }
 
 } // namespace ClangBackEnd

@@ -44,6 +44,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/documentmodel.h>
+#include <coreplugin/infobar.h>
 
 #include <cpptools/cppchecksymbols.h>
 #include <cpptools/cppcodeformatter.h>
@@ -77,6 +78,7 @@
 #include <cplusplus/FastPreprocessor.h>
 #include <cplusplus/MatchingText.h>
 #include <utils/qtcassert.h>
+#include <utils/utilsicons.h>
 
 #include <QApplication>
 #include <QAction>
@@ -126,9 +128,13 @@ public:
     QSharedPointer<FunctionDeclDefLink> m_declDefLink;
 
     QScopedPointer<FollowSymbolUnderCursor> m_followSymbolUnderCursor;
-    QToolButton *m_preprocessorButton;
+
+    QToolButton *m_preprocessorButton = nullptr;
+    QToolButton *m_headerErrorsIndicatorButton = nullptr;
 
     CppSelectionChanger m_cppSelectionChanger;
+
+    CppEditorWidget::HeaderErrorDiagnosticWidgetCreator m_headerErrorDiagnosticWidgetCreator;
 };
 
 CppEditorWidgetPrivate::CppEditorWidgetPrivate(CppEditorWidget *q)
@@ -139,7 +145,6 @@ CppEditorWidgetPrivate::CppEditorWidgetPrivate(CppEditorWidget *q)
     , m_useSelectionsUpdater(q)
     , m_declDefLinkFinder(new FunctionDeclDefLinkFinder(q))
     , m_followSymbolUnderCursor(new FollowSymbolUnderCursor(q))
-    , m_preprocessorButton(0)
     , m_cppSelectionChanger()
 {
 }
@@ -224,7 +229,15 @@ void CppEditorWidget::finalizeInitialization()
     connect(cmd, &Command::keySequenceChanged, this, &CppEditorWidget::updatePreprocessorButtonTooltip);
     updatePreprocessorButtonTooltip();
     connect(d->m_preprocessorButton, &QAbstractButton::clicked, this, &CppEditorWidget::showPreProcessorWidget);
+
+    d->m_headerErrorsIndicatorButton = new QToolButton(this);
+    d->m_headerErrorsIndicatorButton->setIcon(Utils::Icons::WARNING_TOOLBAR.pixmap());
+    connect(d->m_headerErrorsIndicatorButton, &QAbstractButton::clicked,
+            this, &CppEditorWidget::showHeaderErrorInfoBar);
+    d->m_headerErrorsIndicatorButton->setEnabled(false);
+
     insertExtraToolBarWidget(TextEditorWidget::Left, d->m_preprocessorButton);
+    insertExtraToolBarWidget(TextEditorWidget::Left, d->m_headerErrorsIndicatorButton);
     insertExtraToolBarWidget(TextEditorWidget::Left, d->m_cppEditorOutline->widget());
 }
 
@@ -287,6 +300,7 @@ void CppEditorWidget::onCppDocumentUpdated()
 
 void CppEditorWidget::onCodeWarningsUpdated(unsigned revision,
                                             const QList<QTextEdit::ExtraSelection> selections,
+                                            const HeaderErrorDiagnosticWidgetCreator &creator,
                                             const TextEditor::RefactorMarkers &refactorMarkers)
 {
     if (revision != documentRevision())
@@ -294,6 +308,9 @@ void CppEditorWidget::onCodeWarningsUpdated(unsigned revision,
 
     setExtraSelections(TextEditorWidget::CodeWarningsSelection, selections);
     setRefactorMarkers(refactorMarkersWithoutClangMarkers() + refactorMarkers);
+
+    d->m_headerErrorDiagnosticWidgetCreator = creator;
+    updateHeaderErrorWidgets();
 }
 
 void CppEditorWidget::onIfdefedOutBlocksUpdated(unsigned revision,
@@ -302,6 +319,24 @@ void CppEditorWidget::onIfdefedOutBlocksUpdated(unsigned revision,
     if (revision != documentRevision())
         return;
     setIfdefedOutBlocks(ifdefedOutBlocks);
+}
+
+void CppEditorWidget::updateHeaderErrorWidgets()
+{
+    const Id id(Constants::ERRORS_IN_HEADER_FILES);
+    InfoBar *infoBar = textDocument()->infoBar();
+
+    infoBar->removeInfo(id);
+
+    if (d->m_headerErrorDiagnosticWidgetCreator) {
+        if (infoBar->canInfoBeAdded(id)) {
+            addHeaderErrorInfoBarEntryAndHideIndicator();
+        } else {
+            d->m_headerErrorsIndicatorButton->setEnabled(true);
+        }
+    } else {
+        d->m_headerErrorsIndicatorButton->setEnabled(false);
+    }
 }
 
 void CppEditorWidget::findUsages()
@@ -397,6 +432,25 @@ void CppEditorWidget::renameSymbolUnderCursorBuiltin()
 
     if (!d->m_localRenaming.start()) // Rename local symbol
         renameUsages(); // Rename non-local symbol or macro
+}
+
+void CppEditorWidget::addHeaderErrorInfoBarEntryAndHideIndicator() const
+{
+    InfoBarEntry info(Constants::ERRORS_IN_HEADER_FILES,
+                      tr("<b>Warning</b>: The code model could not parse an included file, "
+                         "which might lead to slow or incorrect code completion and "
+                         "highlighting, for example."),
+                      InfoBarEntry::GlobalSuppressionEnabled);
+    info.setDetailsWidgetCreator(d->m_headerErrorDiagnosticWidgetCreator);
+    info.setShowDefaultCancelButton(false);
+    info.setSuppressionButtonInfo([this](){
+        d->m_headerErrorsIndicatorButton->setEnabled(true);
+    });
+
+    InfoBar *infoBar = textDocument()->infoBar();
+    infoBar->addInfo(info);
+
+    d->m_headerErrorsIndicatorButton->setEnabled(false);
 }
 
 namespace {
@@ -968,6 +1022,15 @@ void CppEditorWidget::showPreProcessorWidget()
                     preProcessorDialog.additionalPreProcessorDirectives().toUtf8());
         cppEditorDocument()->scheduleProcessDocument();
     }
+}
+
+void CppEditorWidget::showHeaderErrorInfoBar()
+{
+    const Id id(Constants::ERRORS_IN_HEADER_FILES);
+    QTC_CHECK(!textDocument()->infoBar()->canInfoBeAdded(id));
+
+    InfoBar::globallyUnsuppressInfo(id);
+    addHeaderErrorInfoBarEntryAndHideIndicator();
 }
 
 } // namespace Internal

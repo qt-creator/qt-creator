@@ -57,6 +57,8 @@
 #include <utils/runextensions.h>
 
 #include <QTextBlock>
+#include <QVBoxLayout>
+#include <QWidget>
 
 namespace ClangCodeModel {
 namespace Internal {
@@ -167,14 +169,21 @@ void ClangEditorDocumentProcessor::clearProjectPart()
     m_projectPart.clear();
 }
 
-void ClangEditorDocumentProcessor::updateCodeWarnings(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
-                                                      uint documentRevision)
+void ClangEditorDocumentProcessor::updateCodeWarnings(
+        const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
+        const ClangBackEnd::DiagnosticContainer &firstHeaderErrorDiagnostic,
+        uint documentRevision)
 {
     if (documentRevision == revision()) {
         m_diagnosticManager.processNewDiagnostics(diagnostics);
         const auto codeWarnings = m_diagnosticManager.takeExtraSelections();
         const auto fixitAvailableMarkers = m_diagnosticManager.takeFixItAvailableMarkers();
-        emit codeWarningsUpdated(revision(), codeWarnings, fixitAvailableMarkers);
+        const auto creator = creatorForHeaderErrorDiagnosticWidget(firstHeaderErrorDiagnostic);
+
+        emit codeWarningsUpdated(revision(),
+                                 codeWarnings,
+                                 creator,
+                                 fixitAvailableMarkers);
     }
 }
 namespace {
@@ -331,6 +340,38 @@ void ClangEditorDocumentProcessor::requestDocumentAnnotations(const QString &pro
     const auto fileContainer = fileContainerWithDocumentContent(projectpartId);
 
     m_ipcCommunicator.requestDocumentAnnotations(fileContainer);
+}
+
+static Internal::DisplayHints displayHintsForInfoBar()
+{
+    Internal::DisplayHints displayHints;
+    displayHints.showMainDiagnosticHeader = false;
+    displayHints.showFileNameInMainDiagnostic = true;
+    displayHints.enableClickableFixits = false; // Tool chain headers might be changed, so disable.
+
+    return displayHints;
+}
+
+CppTools::BaseEditorDocumentProcessor::HeaderErrorDiagnosticWidgetCreator
+ClangEditorDocumentProcessor::creatorForHeaderErrorDiagnosticWidget(
+        const ClangBackEnd::DiagnosticContainer &firstHeaderErrorDiagnostic)
+{
+    if (firstHeaderErrorDiagnostic.text().isEmpty())
+        return CppTools::BaseEditorDocumentProcessor::HeaderErrorDiagnosticWidgetCreator();
+
+    return [firstHeaderErrorDiagnostic]() {
+        auto vbox = new QVBoxLayout;
+        vbox->setMargin(0);
+        vbox->setContentsMargins(10, 0, 0, 2);
+        vbox->setSpacing(2);
+
+        addToolTipToLayout(firstHeaderErrorDiagnostic, vbox, displayHintsForInfoBar());
+
+        auto widget = new QWidget;
+        widget->setLayout(vbox);
+
+        return widget;
+    };
 }
 
 static CppTools::ProjectPart projectPartForLanguageOption(CppTools::ProjectPart *projectPart)

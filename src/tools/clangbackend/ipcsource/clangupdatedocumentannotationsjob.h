@@ -39,6 +39,7 @@ struct UpdateDocumentAnnotationsJobResult
 {
     TranslationUnitUpdateResult updateResult;
 
+    ClangBackEnd::DiagnosticContainer firstHeaderErrorDiagnostic;
     QVector<ClangBackEnd::DiagnosticContainer> diagnostics;
     QVector<HighlightingMarkContainer> highlightingMarks;
     QVector<SourceRangeContainer> skippedSourceRanges;
