@@ -3341,8 +3341,20 @@ class DumperBase:
             elif c == '{':
                 readingTypeName = True
                 typeName = ""
-            elif c == '@':  # Automatic padding.
-                builder.autoPadNext = True
+            elif c == '@':
+                if n is None:
+                    # Automatic padding depending on next item
+                    builder.autoPadNext = True
+                else:
+                    # Explicit padding.
+                    builder.currentBitsize = 8 * ((builder.currentBitsize + 7) >> 3)
+                    padding = (int(n) - (builder.currentBitsize >> 3)) % int(n)
+                    field = self.Field(self)
+                    field.code = None
+                    builder.pattern += "%ds" % padding
+                    builder.currentBitsize += padding * 8
+                    builder.fields.append(field)
+                    n = None
             else:
                 error("UNKNOWN STRUCT CODE: %s" % c)
         pp = builder.pattern
