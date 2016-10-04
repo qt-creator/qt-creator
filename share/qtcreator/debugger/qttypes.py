@@ -713,8 +713,12 @@ def qdump__QHostAddress(d, value):
             (ipString, scopeId, a4, pad, a6, protocol, isParsed) \
                 = d.split("{QString}{QString}{quint32}I16sI{bool}", dd)
     elif qtVersion >= 0x050600: # 5.6.0 at f3aabb42
-        (ipString, scopeId, a4, pad, a6, protocol, isParsed) \
-            = d.split("{QString}{QString}{quint32}I16sI{bool}", dd)
+        if d.ptrSize() == 8:
+            (ipString, scopeId, a4, pad, a6, protocol, isParsed) \
+                = d.split("{QString}{QString}{quint32}I16sI{bool}", dd)
+        else:
+            (ipString, scopeId, a4, a6, protocol, isParsed) \
+                = d.split("{QString}{QString}{quint32}16sI{bool}", dd)
     elif qtVersion >= 0x050000: # 5.2.0 at 62feb088
         (ipString, scopeId, a4, a6, protocol, isParsed) \
             = d.split("{QString}{QString}{quint32}16sI{bool}", dd)
