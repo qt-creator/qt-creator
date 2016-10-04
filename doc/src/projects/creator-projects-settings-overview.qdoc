@@ -52,30 +52,30 @@
 
     \image qtcreator-project-kits.png
 
-    To add kits for the project, select \uicontrol {Add Kit}. The list displays kits
-    that are configured in \uicontrol Tools > \uicontrol Options > \uicontrol {Build & Run} >
-    \uicontrol Kits. To add kits to the list, select \uicontrol {Manage Kits}.
-    For more information about adding kits, see \l{Adding Kits}.
+    To enable kits for the project, click them in \uicontrol {Build & Run}. The
+    list displays kits that are configured in \uicontrol Tools >
+    \uicontrol Options > \uicontrol {Build & Run} > \uicontrol Kits. To modify
+    kit configuration or to add kits to the list, select
+    \uicontrol {Manage Kits} in the context menu. For more information about
+    managing kits, see \l{Adding Kits}.
 
     Each kit consists of a set of values that define one environment, such as a
     device, compiler, and Qt version. For more information, see
     \l{Adding Qt Versions}, \l{Adding Compilers}, and \l{Adding Debuggers}.
 
     To copy the build and run settings for a kit to another kit, select
-    \uicontrol {Copy to Kit} in the kit menu.
+    \uicontrol {Copy Steps from Other Kit} in the context menu.
 
-    To change the kit, while preserving the build and run settings, select
-    \uicontrol {Change Kit}.
-
-    To remove a kit, select \uicontrol {Remove Kit}.
+    To disable a kit for the project, select \uicontrol {Disable Kit for Project}
+    in the context menu.
 
     \section1 Specifying Settings
 
-    The project pane consists of the following tabs:
+    The \uicontrol Projects mode displays one of the following views:
 
     \list
 
-        \li Build & Run
+        \li \uicontrol {Build & Run} settings for each configured kit:
 
             \list
 
@@ -86,25 +86,27 @@
             \endlist
 
                 \note If you have not configured the project for building, the
-                    \uicontrol {Build & Run} tab is replaced by the \l{Opening Projects}
-                    {Configure Projects} tab.
+                    \uicontrol {Build & Run} view is replaced by the
+                    \l{Opening Projects}{Configure Projects} view.
 
-        \li \l{Specifying Editor Settings}{Editor}
+        \li \uicontrol {Project Settings} for each project:
 
-        \li \l{Specifying Code Style Settings}{Code Style}
+            \list
 
-        \li \l{Specifying Dependencies}{Dependencies}
+                \li \l{Specifying Editor Settings}{Editor}
 
-        \li \l{Using Clang Static Analyzer}{Clang Static Analyzer}
+                \li \l{Specifying Code Style Settings}{Code Style}
 
-        \li \l{To-Do Entries}{To-Do} (experimental)
+                \li \l{Specifying Dependencies}{Dependencies}
 
+                \li \l{Using Clang Static Analyzer}{Clang Static Analyzer}
+
+                \li \l{To-Do Entries}{To-Do} (experimental)
+
+            \endlist
     \endlist
 
-    Use the \uicontrol Build and \uicontrol Run buttons to switch between the build and
-    run settings for the active project.
-
-    If you have multiple projects open in \QC, use the tabs at the top of the
-    window to navigate between their settings.
+    If you have multiple projects open in \QC, select the project to configure
+    in the list of projects.
 
 */

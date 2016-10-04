@@ -84,9 +84,8 @@
             \li Open a project for an application you want to develop for the
                 device.
 
-            \li Select \uicontrol Projects > \uicontrol {Build & Run} >
-                \uicontrol {Add Kit} to add a kit for building and running
-                applications on iOS.
+            \li Select \uicontrol Projects > \uicontrol {Build & Run} to select
+                the kit for building and running applications on iOS.
 
                 \image qtcreator-ios-add-kit.png "Build & Run Settings"
 
