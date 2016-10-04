@@ -99,6 +99,8 @@ QtcTool {
             "container/informationcontainer.h",
             "container/instancecontainer.cpp",
             "container/instancecontainer.h",
+            "container/mockuptypecontainer.cpp",
+            "container/mockuptypecontainer.h",
             "container/propertyabstractcontainer.cpp",
             "container/propertyabstractcontainer.h",
             "container/propertybindingcontainer.cpp",
