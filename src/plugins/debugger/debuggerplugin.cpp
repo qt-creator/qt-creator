@@ -1332,7 +1332,8 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     m_logWindow->setObjectName(QLatin1String(DOCKWIDGET_OUTPUT));
 
     m_breakHandler = new BreakHandler;
-    m_breakView = new BaseTreeView;;
+    m_breakView = new BaseTreeView;
+    m_breakView->setIconSize(QSize(10, 10));
     m_breakView->setWindowIcon(Icons::BREAKPOINTS.icon());
     m_breakView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     connect(action(UseAddressInBreakpointsView), &QAction::toggled,
