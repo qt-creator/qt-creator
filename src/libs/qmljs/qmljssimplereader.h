@@ -101,9 +101,11 @@ private:
     QVariant parsePropertyScriptBinding(AST::UiScriptBinding *ExpressionNode);
     QVariant parsePropertyExpression(AST::ExpressionNode *expressionNode);
     void setSourceLocation(const AST::SourceLocation &sourceLocation);
+    QString textAt(const AST::SourceLocation &from, const AST::SourceLocation &to);
 
     QStringList m_errors;
     AST::SourceLocation m_currentSourceLocation;
+    QString m_source;
 };
 
 class QMLJS_EXPORT SimpleReader: public SimpleAbstractStreamReader

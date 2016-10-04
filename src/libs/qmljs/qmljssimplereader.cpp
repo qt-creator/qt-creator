@@ -127,6 +127,8 @@ bool SimpleAbstractStreamReader::readFromSource(const QString &source)
     m_errors.clear();
     m_currentSourceLocation = AST::SourceLocation();
 
+    m_source = source;
+
     Engine engine;
     Lexer lexer(&engine);
     Parser parser(&engine);
@@ -175,6 +177,8 @@ bool SimpleAbstractStreamReader::readDocument(AST::UiProgram *ast)
         return false;
     }
     readChild(uiObjectDefinition);
+
+    m_source.clear();
 
     return errors().isEmpty();
 }
@@ -271,13 +275,18 @@ QVariant SimpleAbstractStreamReader::parsePropertyExpression(AST::ExpressionNode
     if (numericLiteral)
         return numericLiteral->value;
 
-    addError(tr("Expected expression statement to be a literal."), expressionNode->firstSourceLocation());
-    return QVariant();
+    return textAt(expressionNode->firstSourceLocation(), expressionNode->lastSourceLocation());
 }
 
 void SimpleAbstractStreamReader::setSourceLocation(const AST::SourceLocation &sourceLocation)
 {
     m_currentSourceLocation = sourceLocation;
+}
+
+QString SimpleAbstractStreamReader::textAt(const AST::SourceLocation &from,
+                                           const AST::SourceLocation &to)
+{
+    return m_source.mid(from.offset, to.end() - from.begin());
 }
 
 SimpleReader::SimpleReader()
