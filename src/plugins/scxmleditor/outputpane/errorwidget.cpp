@@ -163,11 +163,11 @@ void ErrorWidget::updateWarnings()
 
     m_title = tr("Errors(%1) / Warnings(%2) / Info(%3)").arg(errorCount).arg(warningCount).arg(infoCount);
     if (errorCount > 0)
-        m_icon = m_showInfos->icon();
+        m_icon = m_showErrors->icon();
     else if (warningCount > 0)
         m_icon = m_showWarnings->icon();
     else if (infoCount > 0)
-        m_icon = m_showErrors->icon();
+        m_icon = m_showInfos->icon();
     else
         m_icon = QIcon();
 
