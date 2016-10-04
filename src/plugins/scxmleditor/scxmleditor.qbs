@@ -94,8 +94,6 @@ QtcPlugin {
             "tableview.cpp", "tableview.h",
             "warning.cpp", "warning.h",
             "warningmodel.cpp", "warningmodel.h",
-
-            "outputtabwidget.ui",
         ]
     }
 

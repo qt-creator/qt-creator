@@ -25,13 +25,13 @@
 
 #pragma once
 
-#include "ui_outputtabwidget.h"
-
 #include <QFrame>
 #include <QPropertyAnimation>
-#include <QPushButton>
+#include <QToolButton>
 
 QT_FORWARD_DECLARE_CLASS(QPaintEvent)
+QT_FORWARD_DECLARE_CLASS(QStackedWidget)
+QT_FORWARD_DECLARE_CLASS(QToolBar)
 
 namespace ScxmlEditor {
 
@@ -39,13 +39,13 @@ namespace OutputPane {
 
 class OutputPane;
 
-class PanePushButton : public QPushButton
+class PaneTitleButton : public QToolButton
 {
     Q_OBJECT
     Q_PROPERTY(int colorOpacity READ colorOpacity WRITE setColorOpacity)
 
 public:
-    PanePushButton(OutputPane *pane, QWidget *parent = nullptr);
+    PaneTitleButton(OutputPane *pane, QWidget *parent = nullptr);
 
     int colorOpacity()
     {
@@ -85,13 +85,16 @@ signals:
     void visibilityChanged(bool visible);
 
 private:
+    void createUi();
     void close();
     void buttonClicked(bool para);
     void showAlert();
 
     QVector<OutputPane*> m_pages;
-    QVector<PanePushButton*> m_buttons;
-    Ui::OutputTabWidget m_ui;
+    QVector<PaneTitleButton*> m_buttons;
+
+    QToolBar *m_toolBar = nullptr;
+    QStackedWidget *m_stackedWidget = nullptr;
 };
 
 } // namespace OutputPane

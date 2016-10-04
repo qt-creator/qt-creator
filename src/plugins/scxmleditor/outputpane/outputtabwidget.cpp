@@ -28,13 +28,18 @@
 
 #include <utils/qtcassert.h>
 
+#include <QLayout>
 #include <QPainter>
+#include <QStackedWidget>
+#include <QToolBar>
 
 using namespace ScxmlEditor::OutputPane;
 
-PanePushButton::PanePushButton(OutputPane *pane, QWidget *parent)
-    : QPushButton(parent)
+PaneTitleButton::PaneTitleButton(OutputPane *pane, QWidget *parent)
+    : QToolButton(parent)
 {
+    setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+
     animator.setPropertyName("colorOpacity");
     animator.setTargetObject(this);
 
@@ -44,7 +49,7 @@ PanePushButton::PanePushButton(OutputPane *pane, QWidget *parent)
     setText(pane->title());
     setIcon(pane->icon());
 
-    connect(this, &PanePushButton::toggled, this, [this](bool toggled) {
+    connect(this, &PaneTitleButton::toggled, this, [this](bool toggled) {
         if (toggled)
             stopAlert();
     });
@@ -68,19 +73,19 @@ PanePushButton::PanePushButton(OutputPane *pane, QWidget *parent)
     });
 }
 
-void PanePushButton::startAlert(const QColor &color)
+void PaneTitleButton::startAlert(const QColor &color)
 {
     m_color = color;
     m_animCounter = 0;
     fadeIn();
 }
 
-void PanePushButton::stopAlert()
+void PaneTitleButton::stopAlert()
 {
     animator.stop();
 }
 
-void PanePushButton::fadeIn()
+void PaneTitleButton::fadeIn()
 {
     animator.stop();
     animator.setDuration(300);
@@ -89,7 +94,7 @@ void PanePushButton::fadeIn()
     animator.start();
 }
 
-void PanePushButton::fadeOut()
+void PaneTitleButton::fadeOut()
 {
     animator.stop();
     animator.setDuration(300);
@@ -98,15 +103,15 @@ void PanePushButton::fadeOut()
     animator.start();
 }
 
-void PanePushButton::setColorOpacity(int value)
+void PaneTitleButton::setColorOpacity(int value)
 {
     m_colorOpacity = value;
     update();
 }
 
-void PanePushButton::paintEvent(QPaintEvent *e)
+void PaneTitleButton::paintEvent(QPaintEvent *e)
 {
-    QPushButton::paintEvent(e);
+    QToolButton::paintEvent(e);
 
     QPainter p(this);
     p.save();
@@ -123,7 +128,7 @@ void PanePushButton::paintEvent(QPaintEvent *e)
 OutputTabWidget::OutputTabWidget(QWidget *parent)
     : QFrame(parent)
 {
-    m_ui.setupUi(this);
+    createUi();
     close();
 }
 
@@ -134,12 +139,12 @@ OutputTabWidget::~OutputTabWidget()
 int OutputTabWidget::addPane(OutputPane *pane)
 {
     if (pane) {
-        auto button = new PanePushButton(pane, this);
-        connect(button, &PanePushButton::clicked, this, &OutputTabWidget::buttonClicked);
+        auto button = new PaneTitleButton(pane, this);
+        connect(button, &PaneTitleButton::clicked, this, &OutputTabWidget::buttonClicked);
         connect(pane, &OutputPane::dataChanged, this, &OutputTabWidget::showAlert);
 
-        m_ui.m_buttonLayout->addWidget(button);
-        m_ui.m_stackedWidget->addWidget(pane);
+        m_toolBar->addWidget(button);
+        m_stackedWidget->addWidget(pane);
 
         m_buttons << button;
         m_pages << pane;
@@ -154,23 +159,35 @@ void OutputTabWidget::showPane(OutputPane *pane)
 {
     QTC_ASSERT(pane, return);
 
-    m_ui.m_stackedWidget->setCurrentWidget(pane);
+    m_stackedWidget->setCurrentWidget(pane);
     m_buttons[m_pages.indexOf(pane)]->setChecked(true);
     pane->setPaneFocus();
-    if (!m_ui.m_stackedWidget->isVisible()) {
-        m_ui.m_stackedWidget->setVisible(true);
+    if (!m_stackedWidget->isVisible()) {
+        m_stackedWidget->setVisible(true);
         emit visibilityChanged(true);
     }
 }
 
 void OutputTabWidget::showPane(int index)
 {
-    showPane(static_cast<OutputPane*>(m_ui.m_stackedWidget->widget(index)));
+    showPane(static_cast<OutputPane*>(m_stackedWidget->widget(index)));
+}
+
+void OutputTabWidget::createUi()
+{
+    m_toolBar = new QToolBar;
+    m_stackedWidget = new QStackedWidget;
+
+    setLayout(new QVBoxLayout);
+    layout()->setSpacing(0);
+    layout()->setMargin(0);
+    layout()->addWidget(m_toolBar);
+    layout()->addWidget(m_stackedWidget);
 }
 
 void OutputTabWidget::close()
 {
-    m_ui.m_stackedWidget->setVisible(false);
+    m_stackedWidget->setVisible(false);
     emit visibilityChanged(false);
 }
 
@@ -183,7 +200,7 @@ void OutputTabWidget::showAlert()
 
 void OutputTabWidget::buttonClicked(bool para)
 {
-    int index = m_buttons.indexOf(qobject_cast<PanePushButton*>(sender()));
+    int index = m_buttons.indexOf(qobject_cast<PaneTitleButton*>(sender()));
     if (index >= 0) {
         if (para) {
             for (int i = 0; i < m_buttons.count(); ++i) {

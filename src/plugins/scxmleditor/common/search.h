@@ -63,7 +63,7 @@ public:
 
     QIcon icon() const override
     {
-        return Utils::Icons::MAGNIFIER.icon();
+        return Utils::Icons::ZOOM_TOOLBAR.icon();
     }
 
     void setPaneFocus() override;
