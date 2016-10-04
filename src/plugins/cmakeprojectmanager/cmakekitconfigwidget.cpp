@@ -314,8 +314,8 @@ void CMakeGeneratorKitConfigWidget::changeGenerator()
     auto *bb = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel);
     layout->addWidget(bb, row, 0, 1, 2);
 
-    connect(bb, &QDialogButtonBox::accepted, changeDialog, &QDialog::accept);
-    connect(bb, &QDialogButtonBox::rejected, changeDialog, &QDialog::reject);
+    connect(bb, &QDialogButtonBox::accepted, changeDialog.data(), &QDialog::accept);
+    connect(bb, &QDialogButtonBox::rejected, changeDialog.data(), &QDialog::reject);
 
     cmakeLabel->setText(m_currentTool->cmakeExecutable().toUserOutput());
 
