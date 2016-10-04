@@ -128,7 +128,7 @@ Item {
                 spacing: 12
 
                 Repeater {
-                    model: projectsPath
+                    model: details.visible ? projectsPath : 0
                     delegate: Column {
                         spacing: 4
                         NativeText {
