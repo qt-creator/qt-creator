@@ -259,7 +259,7 @@
    <item row="8" column="2" colspan="2">
     <widget class="QLabel" name="relativeBackgroundLabel">
      <property name="text">
-      <string>Relative Backgound</string>
+      <string>Relative Background</string>
      </property>
     </widget>
    </item>
