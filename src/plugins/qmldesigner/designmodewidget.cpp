@@ -319,6 +319,7 @@ void DesignModeWidget::setup()
     m_warningWidget->setVisible(false);
     connect(m_warningWidget.data(), &DocumentWarningWidget::gotoCodeClicked, [=]
         (const QString &filePath, int codeLine, int codeColumn) {
+
         Q_UNUSED(filePath);
 
         QTC_ASSERT(textEditor(), return;);
@@ -568,6 +569,13 @@ void DesignModeWidget::showWarningMessageBox(const QList<RewriterError> &warning
     Q_ASSERT(!warnings.isEmpty());
     m_warningWidget->setWarnings(warnings);
     m_warningWidget->setVisible(true);
+}
+
+bool DesignModeWidget::gotoCodeWasClicked()
+{
+    if (m_warningWidget)
+        return m_warningWidget->gotoCodeWasClicked();
+    return false;
 }
 
 CrumbleBar *DesignModeWidget::crumbleBar() const

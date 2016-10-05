@@ -65,9 +65,8 @@ DocumentWarningWidget::DocumentWarningWidget(QWidget *parent)
 
     connect(m_navigateLabel, &QLabel::linkActivated, this, [=](const QString &link) {
         if (link == QLatin1String("goToCode")) {
-            RewriterError message = m_messages.at(m_currentMessage);
             hide();
-            emit gotoCodeClicked(message.url().toLocalFile(), message.line(), message.column() - 1);
+            emitGotoCodeClicked(m_messages.at(m_currentMessage));
         } else if (link == QLatin1String("previous")) {
             --m_currentMessage;
             refreshContent();
@@ -79,10 +78,8 @@ DocumentWarningWidget::DocumentWarningWidget(QWidget *parent)
 
     connect(m_continueButton, &QPushButton::clicked, this, [=]() {
         hide();
-        if (m_mode == ErrorMode) {
-            RewriterError message = m_messages.at(m_currentMessage);
-            emit gotoCodeClicked(message.url().toLocalFile(), message.line(), message.column() - 1);
-        }
+        if (m_mode == ErrorMode)
+            emitGotoCodeClicked(m_messages.at(m_currentMessage));
     });
 
     connect(m_ignoreWarningsCheckBox, &QCheckBox::toggled, this, &DocumentWarningWidget::ignoreCheckBoxToggled);
@@ -173,9 +170,21 @@ bool DocumentWarningWidget::eventFilter(QObject *object, QEvent *event)
 
 void DocumentWarningWidget::showEvent(QShowEvent *event)
 {
+    m_gotoCodeWasClicked = false;
     moveToParentCenter();
     refreshContent();
     Utils::FakeToolTip::showEvent(event);
+}
+
+bool DocumentWarningWidget::gotoCodeWasClicked()
+{
+    return m_gotoCodeWasClicked;
+}
+
+void DocumentWarningWidget::emitGotoCodeClicked(const RewriterError &message)
+{
+    m_gotoCodeWasClicked = true;
+    emit gotoCodeClicked(message.url().toLocalFile(), message.line(), message.column() - 1);
 }
 
 bool DocumentWarningWidget::warningsEnabled() const

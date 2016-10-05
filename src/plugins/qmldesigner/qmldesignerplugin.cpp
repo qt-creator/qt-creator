@@ -347,10 +347,11 @@ void QmlDesignerPlugin::showDesigner()
 
 void QmlDesignerPlugin::hideDesigner()
 {
-    if (currentDesignDocument()
-            && currentModel()
-            && !currentDesignDocument()->hasQmlParseErrors())
-        jumpTextCursorToSelectedModelNode();
+    if (currentDesignDocument() && currentModel()) {
+        // the message box handle the cursor jump itself
+        if (mainWidget()->gotoCodeWasClicked() == false)
+            jumpTextCursorToSelectedModelNode();
+    }
 
     if (d->documentManager.hasCurrentDesignDocument()) {
         deactivateAutoSynchronization();

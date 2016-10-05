@@ -54,6 +54,8 @@ public:
     void setWarnings(const QList<RewriterError> &warnings);
 
     bool warningsEnabled() const;
+    bool gotoCodeWasClicked();
+    void emitGotoCodeClicked(const RewriterError &message);
 signals:
     void gotoCodeClicked(const QString filePath, int codeLine, int codeColumn);
 protected:
@@ -74,6 +76,7 @@ private:
     QList<RewriterError> m_messages;
     int m_currentMessage = 0;
     Mode m_mode = NoMode;
+    bool m_gotoCodeWasClicked = false;
 };
 
 } // namespace Internal
