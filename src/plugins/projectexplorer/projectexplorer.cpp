@@ -388,6 +388,7 @@ ProjectExplorerPlugin::ProjectExplorerPlugin()
 
 ProjectExplorerPlugin::~ProjectExplorerPlugin()
 {
+    delete dd->m_proWindow; // Needs access to the kit manager.
     JsonWizardFactory::destroyAllFactories();
 
     // Force sequence of deletion:
@@ -513,7 +514,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     JsonWizardFactory::registerGeneratorFactory(new ScannerGeneratorFactory);
 
     dd->m_proWindow = new ProjectWindow;
-    addAutoReleasedObject(dd->m_proWindow);
 
     Context projecTreeContext(Constants::C_PROJECT_TREE);
 

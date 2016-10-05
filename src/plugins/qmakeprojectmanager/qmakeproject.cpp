@@ -298,6 +298,8 @@ QmakeProject::QmakeProject(QmakeManager *manager, const QString &fileName) :
 
 QmakeProject::~QmakeProject()
 {
+    delete m_projectImporter;
+    m_projectImporter = nullptr;
     m_codeModelFuture.cancel();
     m_asyncUpdateState = ShuttingDown;
 
@@ -1613,9 +1615,11 @@ void QmakeProject::emitBuildDirectoryInitialized()
     emit buildDirectoryInitialized();
 }
 
-ProjectImporter *QmakeProject::createProjectImporter() const
+ProjectImporter *QmakeProject::projectImporter() const
 {
-    return new QmakeProjectImporter(projectFilePath().toString());
+    if (!m_projectImporter)
+        m_projectImporter = new QmakeProjectImporter(projectFilePath().toString());
+    return m_projectImporter;
 }
 
 QmakeProject::AsyncUpdateState QmakeProject::asyncUpdateState() const

@@ -132,7 +132,6 @@ TargetSetupPageWrapper::TargetSetupPageWrapper(Project *project)
     : m_project(project)
 {
     m_targetSetupPage = new TargetSetupPage(this);
-    m_targetSetupPage->setProjectImporter(project->createProjectImporter());
     m_targetSetupPage->setUseScrollArea(false);
     m_targetSetupPage->setProjectPath(project->projectFilePath().toString());
     m_targetSetupPage->setRequiredKitMatcher(project->requiredKitMatcher());
@@ -209,7 +208,7 @@ class TargetGroupItemPrivate : public QObject
 
 public:
     TargetGroupItemPrivate(TargetGroupItem *q, Project *project);
-    ~TargetGroupItemPrivate() { /*delete m_importer;*/ }
+    ~TargetGroupItemPrivate();
 
     void handleRemovedKit(Kit *kit);
     void handleAddedKit(Kit *kit);
@@ -224,8 +223,7 @@ public:
 
     TargetGroupItem *q;
     QString m_displayName;
-    QPointer<Project> m_project;
-    ProjectImporter *m_importer;
+    Project *m_project;
 
     QPointer<QWidget> m_noKitLabel;
     QPointer<QWidget> m_configurePage;
@@ -281,12 +279,13 @@ void TargetGroupItemPrivate::ensureWidget()
 
 void TargetGroupItemPrivate::importTarget(const Utils::FileName &path)
 {
-    if (!m_importer)
+    ProjectImporter *importer = m_project->projectImporter();
+    if (!importer)
         return;
 
     Target *target = nullptr;
     BuildConfiguration *bc = nullptr;
-    QList<BuildInfo *> toImport = m_importer->import(path, false);
+    QList<BuildInfo *> toImport = importer->import(path, false);
     foreach (BuildInfo *info, toImport) {
         target = m_project->target(info->kitId);
         if (!target) {
@@ -519,7 +518,7 @@ public:
     bool isEnabled() const { return target() != 0; }
 
 public:
-    Project *m_project; // Not owned.
+    QPointer<Project> m_project; // Not owned.
     Id m_kitId;
     int m_currentChild = 1; // Use run page by default.
 };
@@ -706,13 +705,10 @@ TargetGroupItem::~TargetGroupItem()
     delete d;
 }
 
-TargetGroupItemPrivate::TargetGroupItemPrivate(TargetGroupItem *q,
-                                                               Project *project)
+TargetGroupItemPrivate::TargetGroupItemPrivate(TargetGroupItem *q, Project *project)
     : q(q), m_project(project)
 {
-    m_importer = project->createProjectImporter();
-
-    if (m_importer) {
+    if (project->projectImporter()) {
         auto importAction = new QAction(tr("Import existing build..."), 0);
         QObject::connect(importAction, &QAction::triggered, [this] {
             QString dir = m_project->projectDirectory().toString();
@@ -728,6 +724,11 @@ TargetGroupItemPrivate::TargetGroupItemPrivate(TargetGroupItem *q,
             this, &TargetGroupItemPrivate::handleRemovedKit);
 
     rebuildContents();
+}
+
+TargetGroupItemPrivate::~TargetGroupItemPrivate()
+{
+    disconnect();
 }
 
 QVariant TargetGroupItem::data(int column, int role) const

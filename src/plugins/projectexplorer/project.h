@@ -130,7 +130,7 @@ public:
     virtual void configureAsExampleProject(const QSet<Core::Id> &platforms);
 
     virtual bool requiresTargetPanel() const;
-    virtual ProjectImporter *createProjectImporter() const;
+    virtual ProjectImporter *projectImporter() const;
 
     KitMatcher requiredKitMatcher() const;
     void setRequiredKitMatcher(const KitMatcher &matcher);

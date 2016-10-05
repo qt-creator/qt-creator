@@ -218,9 +218,9 @@ void TargetSetupPage::setPreferredKitMatcher(const KitMatcher &matcher)
 
 TargetSetupPage::~TargetSetupPage()
 {
+    disconnect();
     reset();
     delete m_ui;
-    delete m_importer;
 }
 
 bool TargetSetupPage::isKitSelected(Core::Id id) const
