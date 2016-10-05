@@ -165,8 +165,10 @@ void QuickItemNodeInstance::initialize(const ObjectNodeInstance::Pointer &object
         quickItem()->setParentItem(qobject_cast<QQuickItem*>(nodeInstanceServer()->quickView()->rootObject()));
     }
 
-    if (s_createEffectItem || instanceId() == 0)
-        designerSupport()->refFromEffectItem(quickItem());
+    if (quickItem()->window()) {
+        if (s_createEffectItem || instanceId() == 0)
+            designerSupport()->refFromEffectItem(quickItem());
+    }
 
     ObjectNodeInstance::initialize(objectNodeInstance);
     quickItem()->update();
@@ -582,8 +584,7 @@ void QuickItemNodeInstance::reparent(const ObjectNodeInstance::Pointer &oldParen
 
     if (quickItem()->parentItem()) {
         refresh();
-        if (quickItem()->window())
-            DesignerSupport::updateDirtyNode(quickItem());
+        DesignerSupport::updateDirtyNode(quickItem());
 
         if (instanceIsValidLayoutable(oldParentInstance, oldParentProperty))
             oldParentInstance->refreshLayoutable();
