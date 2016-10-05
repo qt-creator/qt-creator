@@ -403,15 +403,15 @@ Import LinkPrivate::importNonFile(Document::Ptr doc, const ImportInfo &importInf
         error(doc, locationFromRange(importInfo.ast()->firstSourceLocation(),
                                      importInfo.ast()->lastSourceLocation()),
               Link::tr(
-                  "QML module not found.\n\n"
+                  "QML module not found(%1).\n\n"
                   "Import paths:\n"
-                  "%1\n\n"
+                  "%2\n\n"
                   "For qmake projects, use the QML_IMPORT_PATH variable to add import paths.\n"
                   "For Qbs projects, declare and set a qmlImportPaths property in your product "
                   "to add import paths.\n"
                   "For qmlproject projects, use the importPaths property to add import paths.\n"
                   "For CMake projects, make sure QML_IMPORT_PATH variable is in CMakeCache.txt.\n").arg(
-                  importPaths.join(QLatin1Char('\n'))));
+                  importInfo.name(), importPaths.join(QLatin1Char('\n'))));
     }
 
     return import;
