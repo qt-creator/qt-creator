@@ -74,7 +74,6 @@ QtcPlugin {
             "colorthemedialog.ui",
             "navigatorslider.ui",
             "search.ui",
-            "shapegroupwidget.ui",
             "shapestoolbox.ui",
             "stateview.ui",
             "statistics.ui",

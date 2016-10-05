@@ -30,18 +30,18 @@
 #include <utils/flowlayout.h>
 #include <utils/utilsicons.h>
 
+#include <QLabel>
+#include <QToolBar>
+
 using namespace ScxmlEditor::PluginInterface;
 using namespace ScxmlEditor::Common;
 
 ShapeGroupWidget::ShapeGroupWidget(ShapeProvider *shapeProvider, int groupIndex, QWidget *parent)
     : QWidget(parent)
 {
-    m_ui.setupUi(this);
-    m_ui.m_closeButton->setIcon(Utils::Icons::COLLAPSE_TOOLBAR.icon());
-    auto layout = new Utils::FlowLayout;
-    layout->setContentsMargins(0, 0, 0, 0);
+    createUi();
 
-    m_ui.m_title->setText(shapeProvider->groupTitle(groupIndex));
+    m_title->setText(shapeProvider->groupTitle(groupIndex));
 
     for (int i = 0; i < shapeProvider->shapeCount(groupIndex); ++i) {
         auto button = new DragShapeButton(this);
@@ -49,15 +49,35 @@ ShapeGroupWidget::ShapeGroupWidget(ShapeProvider *shapeProvider, int groupIndex,
         button->setIcon(shapeProvider->shapeIcon(groupIndex, i));
         button->setShapeInfo(groupIndex, i);
 
-        layout->addWidget(button);
+        m_content->layout()->addWidget(button);
     }
 
-    connect(m_ui.m_closeButton, &QToolButton::clicked, this, [this]() {
-        m_ui.m_content->setVisible(!m_ui.m_content->isVisible());
-        m_ui.m_closeButton->setIcon(m_ui.m_content->isVisible()
-                                                        ? Utils::Icons::COLLAPSE_TOOLBAR.icon()
-                                                        : Utils::Icons::EXPAND_TOOLBAR.icon());
+    connect(m_closeButton, &QToolButton::clicked, this, [this]() {
+        m_content->setVisible(!m_content->isVisible());
+        m_closeButton->setIcon(m_content->isVisible()
+                               ? Utils::Icons::COLLAPSE_TOOLBAR.icon()
+                               : Utils::Icons::EXPAND_TOOLBAR.icon());
     });
+}
 
-    m_ui.m_content->setLayout(layout);
+void ShapeGroupWidget::createUi()
+{
+    m_title = new QLabel;
+    m_title->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
+
+    m_closeButton = new QToolButton;
+    m_closeButton->setIcon(Utils::Icons::COLLAPSE_TOOLBAR.icon());
+
+    auto toolBar = new QToolBar;
+    toolBar->addWidget(m_title);
+    toolBar->addWidget(m_closeButton);
+
+    m_content = new QWidget;
+    m_content->setLayout(new Utils::FlowLayout);
+
+    setLayout(new QVBoxLayout);
+    layout()->setMargin(0);
+    layout()->setSpacing(0);
+    layout()->addWidget(toolBar);
+    layout()->addWidget(m_content);
 }

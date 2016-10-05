@@ -63,7 +63,6 @@ FORMS += \
     $$PWD/magnifier.ui \
     $$PWD/navigatorslider.ui \
     $$PWD/search.ui \
-    $$PWD/shapegroupwidget.ui \
     $$PWD/shapestoolbox.ui \
     $$PWD/stateview.ui \
     $$PWD/statistics.ui \
