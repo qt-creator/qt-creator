@@ -266,13 +266,6 @@ bool BaseQmakeProjectWizardDialog::writeUserFile(const QString &proFileName) con
     return success;
 }
 
-bool BaseQmakeProjectWizardDialog::setupProject(QmakeProject *project) const
-{
-    if (!m_targetSetupPage)
-        return true;
-    return m_targetSetupPage->setupProject(project);
-}
-
 bool BaseQmakeProjectWizardDialog::isQtPlatformSelected(Core::Id platform) const
 {
     QList<Core::Id> selectedKitList = selectedKits();
