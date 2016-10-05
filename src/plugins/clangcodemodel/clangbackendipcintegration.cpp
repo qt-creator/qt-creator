@@ -32,6 +32,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 
 #include <cpptools/abstracteditorsupport.h>
 #include <cpptools/baseeditordocumentprocessor.h>
@@ -68,6 +69,7 @@
 
 #include <cplusplus/Icons.h>
 
+#include <QDir>
 #include <QElapsedTimer>
 #include <QLoggingCategory>
 #include <QProcess>
@@ -304,10 +306,16 @@ public:
     void updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &) override {}
 };
 
+enum { backEndStartTimeOutInMs = 10000 };
+
 IpcCommunicator::IpcCommunicator()
     : m_connection(&m_ipcReceiver)
     , m_ipcSender(new DummyIpcSender)
 {
+    m_backendStartTimeOut.setSingleShot(true);
+    connect(&m_backendStartTimeOut, &QTimer::timeout,
+            this, &IpcCommunicator::logStartTimeOut);
+
     m_ipcReceiver.setAliveHandler([this]() { m_connection.resetProcessAliveTimer(); });
 
     connect(Core::EditorManager::instance(), &Core::EditorManager::editorAboutToClose,
@@ -326,8 +334,11 @@ IpcCommunicator::~IpcCommunicator()
 void IpcCommunicator::initializeBackend()
 {
     const QString clangBackEndProcessPath = backendProcessPath();
+    if (!QFileInfo(clangBackEndProcessPath).exists()) {
+        logExecutableDoesNotExist();
+        return;
+    }
     qCDebug(log) << "Starting" << clangBackEndProcessPath;
-    QTC_ASSERT(QFileInfo(clangBackEndProcessPath).exists(), return);
 
     m_connection.setProcessAliveTimerInterval(30 * 1000);
     m_connection.setProcessPath(clangBackEndProcessPath);
@@ -338,6 +349,7 @@ void IpcCommunicator::initializeBackend()
             this, &IpcCommunicator::setupDummySender);
 
     m_connection.startProcessAndConnectToServerAsynchronously();
+    m_backendStartTimeOut.start(backEndStartTimeOutInMs);
 }
 
 static QStringList projectPartOptions(const CppTools::ProjectPart::Ptr &projectPart)
@@ -622,11 +634,11 @@ void IpcCommunicator::updateUnsavedFile(Core::IDocument *document)
 
 void IpcCommunicator::onConnectedToBackend()
 {
+    m_backendStartTimeOut.stop();
+
     ++m_connectedCount;
-    if (m_connectedCount > 1) {
-        qWarning("Clang back end finished unexpectedly, restarted.");
-        qCDebug(log) << "Backend restarted, re-initializing with project data and unsaved files.";
-    }
+    if (m_connectedCount > 1)
+        logRestartedDueToUnexpectedFinish();
 
     m_ipcReceiver.deleteAndClearWaitingAssistProcessors();
     m_ipcSender.reset(new IpcSender(m_connection));
@@ -643,6 +655,42 @@ void IpcCommunicator::onEditorAboutToClose(Core::IEditor *editor)
 void IpcCommunicator::setupDummySender()
 {
     m_ipcSender.reset(new DummyIpcSender);
+}
+
+void IpcCommunicator::logExecutableDoesNotExist()
+{
+    const QString msg
+        = tr("Clang Code Model: Error: "
+             "The clangbackend executable \"%1\" does not exist.")
+                .arg(QDir::toNativeSeparators(backendProcessPath()));
+
+    logError(msg);
+}
+
+void IpcCommunicator::logStartTimeOut()
+{
+    const QString msg
+        = tr("Clang Code Model: Error: "
+             "The clangbackend executable \"%1\" could not be started (timeout after %2ms).")
+                .arg(QDir::toNativeSeparators(backendProcessPath()))
+                .arg(backEndStartTimeOutInMs);
+
+    logError(msg);
+}
+
+void IpcCommunicator::logRestartedDueToUnexpectedFinish()
+{
+    const QString msg
+        = tr("Clang Code Model: Error: "
+             "The clangbackend process has finished unexpectedly and was restarted.");
+
+    logError(msg);
+}
+
+void IpcCommunicator::logError(const QString &text)
+{
+    Core::MessageManager::write(text, Core::MessageManager::Flash);
+    qWarning("%s", qPrintable(text));
 }
 
 void IpcCommunicator::initializeBackendWithCurrentData()
