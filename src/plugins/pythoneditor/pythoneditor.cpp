@@ -35,6 +35,8 @@
 
 #include <utils/qtcassert.h>
 
+#include <QCoreApplication>
+
 using namespace TextEditor;
 
 namespace PythonEditor {

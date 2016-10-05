@@ -199,7 +199,7 @@ private:
     QLabel *m_scriptLabel;
 };
 
-class PythonRunConfiguration : public ProjectExplorer::RunConfiguration
+class PythonRunConfiguration : public RunConfiguration
 {
     Q_OBJECT
 
@@ -209,7 +209,7 @@ class PythonRunConfiguration : public ProjectExplorer::RunConfiguration
     Q_PROPERTY(QString arguments READ arguments)
 
 public:
-    PythonRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
+    PythonRunConfiguration(Target *parent, Core::Id id);
 
     QWidget *createConfigurationWidget() override;
     QVariantMap toMap() const override;
@@ -226,7 +226,7 @@ public:
 
 private:
     friend class PythonRunConfigurationFactory;
-    PythonRunConfiguration(ProjectExplorer::Target *parent, PythonRunConfiguration *source);
+    PythonRunConfiguration(Target *parent, PythonRunConfiguration *source);
     QString defaultDisplayName() const;
 
     QString m_interpreter;
@@ -594,11 +594,11 @@ void PythonProject::parseProject()
 /**
  * @brief Provides displayName relative to project node
  */
-class PythonFileNode : public ProjectExplorer::FileNode
+class PythonFileNode : public FileNode
 {
 public:
     PythonFileNode(const Utils::FileName &filePath, const QString &nodeDisplayName)
-        : ProjectExplorer::FileNode(filePath, SourceType, false)
+        : FileNode(filePath, SourceType, false)
         , m_displayName(nodeDisplayName)
     {}
 
@@ -614,7 +614,7 @@ void PythonProject::refresh()
     QDir baseDir(projectDirectory().toString());
 
     QList<FileNode *> fileNodes
-            = Utils::transform(m_files, [baseDir](const QString &f) -> ProjectExplorer::FileNode* {
+            = Utils::transform(m_files, [baseDir](const QString &f) -> FileNode * {
         const QString displayName = baseDir.relativeFilePath(f);
         return new PythonFileNode(FileName::fromString(f), displayName);
     });
