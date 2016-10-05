@@ -138,7 +138,7 @@ static void performTestRun(QFutureInterface<TestResultPtr> &futureInterface,
             continue;
         }
 
-        testProcess.setArguments(testConfiguration->argumentsForTestRunner(settings));
+        testProcess.setArguments(testConfiguration->argumentsForTestRunner());
         testProcess.setWorkingDirectory(testConfiguration->workingDirectory());
         if (Utils::HostOsInfo::isWindowsHost())
             environment.insert("QT_LOGGING_TO_CONSOLE", "1");
@@ -304,8 +304,7 @@ void TestRunner::debugTests()
 
     Debugger::DebuggerStartParameters sp;
     sp.inferior.executable = commandFilePath;
-    sp.inferior.commandLineArguments = config->argumentsForTestRunner(
-                *AutotestPlugin::instance()->settings()).join(' ');
+    sp.inferior.commandLineArguments = config->argumentsForTestRunner().join(' ');
     sp.inferior.environment = config->environment();
     sp.inferior.workingDirectory = config->workingDirectory();
     sp.displayName = config->displayName();

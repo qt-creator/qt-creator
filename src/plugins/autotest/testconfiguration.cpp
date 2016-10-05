@@ -27,7 +27,6 @@
 #include "testoutputreader.h"
 #include "testrunconfiguration.h"
 #include "testrunner.h"
-#include "testsettings.h"
 
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/projectinfo.h>

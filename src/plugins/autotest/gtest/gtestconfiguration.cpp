@@ -24,8 +24,10 @@
 ****************************************************************************/
 
 #include "gtestconfiguration.h"
+#include "gtestconstants.h"
 #include "gtestoutputreader.h"
-#include "../testsettings.h"
+#include "gtestsettings.h"
+#include "../testframeworkmanager.h"
 
 namespace Autotest {
 namespace Internal {
@@ -36,25 +38,32 @@ TestOutputReader *GTestConfiguration::outputReader(const QFutureInterface<TestRe
     return new GTestOutputReader(fi, app, buildDirectory());
 }
 
-QStringList GTestConfiguration::argumentsForTestRunner(const TestSettings &settings) const
+QStringList GTestConfiguration::argumentsForTestRunner() const
 {
+    static const Core::Id id
+            = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix(GTest::Constants::FRAMEWORK_NAME);
+
     QStringList arguments;
     const QStringList &testSets = testCases();
     if (testSets.size())
         arguments << "--gtest_filter=" + testSets.join(':');
-    if (settings.gTestSettings.runDisabled)
+
+    TestFrameworkManager *manager = TestFrameworkManager::instance();
+    auto gSettings = qSharedPointerCast<GTestSettings>(manager->settingsForTestFramework(id));
+    if (gSettings.isNull())
+        return arguments;
+
+    if (gSettings->runDisabled)
         arguments << "--gtest_also_run_disabled_tests";
-    if (settings.gTestSettings.repeat)
-        arguments << QString("--gtest_repeat=%1").arg(settings.gTestSettings.iterations);
-    if (settings.gTestSettings.shuffle) {
-        arguments << "--gtest_shuffle"
-                  << QString("--gtest_random_seed=%1").arg(settings.gTestSettings.seed);
-    }
-    if (settings.gTestSettings.throwOnFailure)
+    if (gSettings->repeat)
+        arguments << QString("--gtest_repeat=%1").arg(gSettings->iterations);
+    if (gSettings->shuffle)
+        arguments << "--gtest_shuffle" << QString("--gtest_random_seed=%1").arg(gSettings->seed);
+    if (gSettings->throwOnFailure)
         arguments << "--gtest_throw_on_failure";
 
     if (runMode() == DebuggableTestConfiguration::Debug) {
-        if (settings.gTestSettings.breakOnFailure)
+        if (gSettings->breakOnFailure)
             arguments << "--gtest_break_on_failure";
     }
     return arguments;

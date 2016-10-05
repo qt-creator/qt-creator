@@ -41,5 +41,7 @@ const char TASK_PARSE[]                 = "AutoTest.Task.Parse";
 const char AUTOTEST_SETTINGS_CATEGORY[] = "ZY.Tests";
 const char FRAMEWORK_PREFIX[]           = "AutoTest.Framework.";
 
+
+const char SETTINGSGROUP[]              = "Autotest";
 } // namespace Constants
 } // namespace Autotest

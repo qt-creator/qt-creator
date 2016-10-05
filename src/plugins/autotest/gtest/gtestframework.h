@@ -36,6 +36,8 @@ public:
     GTestFramework() : ITestFramework(true) {}
     const char *name() const override;
     unsigned priority() const override;
+    IFrameworkSettings *createFrameworkSettings() const override;
+    bool hasFrameworkSettings() const override;
 
 protected:
     ITestParser *createTestParser() const override;

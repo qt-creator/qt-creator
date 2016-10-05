@@ -80,6 +80,7 @@ HEADERS += \
     gtest/gtestvisitors.h \
     gtest/gtestframework.h \
     gtest/gtestsettings.h \
+    gtest/gtestconstants.h \
     qtest/qttesttreeitem.h \
     qtest/qttest_utils.h \
     qtest/qttestresult.h \
@@ -89,6 +90,7 @@ HEADERS += \
     qtest/qttestparser.h \
     qtest/qttestframework.h \
     qtest/qttestsettings.h \
+    qtest/qttestconstants.h \
     quick/quicktestconfiguration.h \
     quick/quicktestparser.h \
     quick/quicktesttreeitem.h \

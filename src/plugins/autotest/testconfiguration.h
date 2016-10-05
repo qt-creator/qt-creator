@@ -45,7 +45,6 @@ namespace Internal {
 class TestOutputReader;
 class TestResult;
 class TestRunConfiguration;
-struct TestSettings;
 
 using TestResultPtr = QSharedPointer<TestResult>;
 
@@ -86,7 +85,7 @@ public:
 
     virtual TestOutputReader *outputReader(const QFutureInterface<TestResultPtr> &fi,
                                            QProcess *app) const = 0;
-    virtual QStringList argumentsForTestRunner(const TestSettings &settings) const = 0;
+    virtual QStringList argumentsForTestRunner() const = 0;
 
 private:
     QStringList m_testCases;

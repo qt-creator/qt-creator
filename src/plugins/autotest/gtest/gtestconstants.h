@@ -25,19 +25,16 @@
 
 #pragma once
 
-#include "../testconfiguration.h"
+#include <QtGlobal>
 
 namespace Autotest {
-namespace Internal {
+namespace GTest {
+namespace Constants {
 
-class GTestConfiguration : public DebuggableTestConfiguration
-{
-public:
-    explicit GTestConfiguration() {}
-    TestOutputReader *outputReader(const QFutureInterface<TestResultPtr> &fi,
-                                   QProcess *app) const override;
-    QStringList argumentsForTestRunner() const override;
-};
+const char FRAMEWORK_NAME[]              = "GTest";
+const char FRAMEWORK_SETTINGS_CATEGORY[] = QT_TRANSLATE_NOOP("GTestFramework", "Google Test");
+const unsigned FRAMEWORK_PRIORITY        = 10;
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Constants
+} // namespace GTest
+} // namespace AutoTest

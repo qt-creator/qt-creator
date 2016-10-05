@@ -29,6 +29,11 @@
 #include "testsettings.h"
 #include "testtreemodel.h"
 
+#include "gtest/gtestconstants.h"
+#include "gtest/gtestsettings.h"
+#include "qtest/qttestconstants.h"
+#include "qtest/qttestsettings.h"
+
 #include <coreplugin/icore.h>
 
 #include <utils/hostosinfo.h>
@@ -36,6 +41,11 @@
 
 namespace Autotest {
 namespace Internal {
+
+static const Core::Id qid
+        = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix(QtTest::Constants::FRAMEWORK_NAME);
+static const Core::Id gid
+        = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix(GTest::Constants::FRAMEWORK_NAME);
 
 TestSettingsWidget::TestSettingsWidget(QWidget *parent)
     : QWidget(parent)
@@ -66,34 +76,43 @@ void TestSettingsWidget::setSettings(const TestSettings &settings)
     m_ui.alwaysParseCB->setChecked(settings.alwaysParse);
     populateFrameworksListWidget(settings.frameworks);
 
-    m_ui.disableCrashhandlerCB->setChecked(settings.qtTestSettings.noCrashHandler);
-    switch (settings.qtTestSettings.metrics) {
-    case MetricsType::Walltime:
-        m_ui.walltimeRB->setChecked(true);
-        break;
-    case MetricsType::TickCounter:
-        m_ui.tickcounterRB->setChecked(true);
-        break;
-    case MetricsType::EventCounter:
-        m_ui.eventCounterRB->setChecked(true);
-        break;
-    case MetricsType::CallGrind:
-        m_ui.callgrindRB->setChecked(true);
-        break;
-    case MetricsType::Perf:
-        m_ui.perfRB->setChecked(true);
-        break;
-    default:
-        m_ui.walltimeRB->setChecked(true);
+    auto qtTestSettings = qSharedPointerCast<QtTestSettings>(
+                TestFrameworkManager::instance()->settingsForTestFramework(qid));
+
+    if (!qtTestSettings.isNull()) {
+        m_ui.disableCrashhandlerCB->setChecked(qtTestSettings->noCrashHandler);
+        switch (qtTestSettings->metrics) {
+        case MetricsType::Walltime:
+            m_ui.walltimeRB->setChecked(true);
+            break;
+        case MetricsType::TickCounter:
+            m_ui.tickcounterRB->setChecked(true);
+            break;
+        case MetricsType::EventCounter:
+            m_ui.eventCounterRB->setChecked(true);
+            break;
+        case MetricsType::CallGrind:
+            m_ui.callgrindRB->setChecked(true);
+            break;
+        case MetricsType::Perf:
+            m_ui.perfRB->setChecked(true);
+            break;
+        default:
+            m_ui.walltimeRB->setChecked(true);
+        }
     }
 
-    m_ui.runDisabledGTestsCB->setChecked(settings.gTestSettings.runDisabled);
-    m_ui.repeatGTestsCB->setChecked(settings.gTestSettings.repeat);
-    m_ui.shuffleGTestsCB->setChecked(settings.gTestSettings.shuffle);
-    m_ui.repetitionSpin->setValue(settings.gTestSettings.iterations);
-    m_ui.seedSpin->setValue(settings.gTestSettings.seed);
-    m_ui.breakOnFailureCB->setChecked(settings.gTestSettings.breakOnFailure);
-    m_ui.throwOnFailureCB->setChecked(settings.gTestSettings.throwOnFailure);
+    auto gTestSettings = qSharedPointerCast<GTestSettings>(
+                TestFrameworkManager::instance()->settingsForTestFramework(gid));
+    if (!gTestSettings.isNull()) {
+        m_ui.runDisabledGTestsCB->setChecked(gTestSettings->runDisabled);
+        m_ui.repeatGTestsCB->setChecked(gTestSettings->repeat);
+        m_ui.shuffleGTestsCB->setChecked(gTestSettings->shuffle);
+        m_ui.repetitionSpin->setValue(gTestSettings->iterations);
+        m_ui.seedSpin->setValue(gTestSettings->seed);
+        m_ui.breakOnFailureCB->setChecked(gTestSettings->breakOnFailure);
+        m_ui.throwOnFailureCB->setChecked(gTestSettings->throwOnFailure);
+    }
 }
 
 TestSettings TestSettingsWidget::settings() const
@@ -108,26 +127,34 @@ TestSettings TestSettingsWidget::settings() const
     result.frameworks = frameworks();
 
     // QtTestSettings
-    result.qtTestSettings.noCrashHandler = m_ui.disableCrashhandlerCB->isChecked();
-    if (m_ui.walltimeRB->isChecked())
-        result.qtTestSettings.metrics = MetricsType::Walltime;
-    else if (m_ui.tickcounterRB->isChecked())
-        result.qtTestSettings.metrics = MetricsType::TickCounter;
-    else if (m_ui.eventCounterRB->isChecked())
-        result.qtTestSettings.metrics = MetricsType::EventCounter;
-    else if (m_ui.callgrindRB->isChecked())
-        result.qtTestSettings.metrics = MetricsType::CallGrind;
-    else if (m_ui.perfRB->isChecked())
-        result.qtTestSettings.metrics = MetricsType::Perf;
+    auto qtTestSettings = qSharedPointerCast<QtTestSettings>(
+                TestFrameworkManager::instance()->settingsForTestFramework(qid));
+    if (!qtTestSettings.isNull()) {
+        qtTestSettings->noCrashHandler = m_ui.disableCrashhandlerCB->isChecked();
+        if (m_ui.walltimeRB->isChecked())
+            qtTestSettings->metrics = MetricsType::Walltime;
+        else if (m_ui.tickcounterRB->isChecked())
+            qtTestSettings->metrics = MetricsType::TickCounter;
+        else if (m_ui.eventCounterRB->isChecked())
+            qtTestSettings->metrics = MetricsType::EventCounter;
+        else if (m_ui.callgrindRB->isChecked())
+            qtTestSettings->metrics = MetricsType::CallGrind;
+        else if (m_ui.perfRB->isChecked())
+            qtTestSettings->metrics = MetricsType::Perf;
+    }
 
     // GTestSettings
-    result.gTestSettings.runDisabled = m_ui.runDisabledGTestsCB->isChecked();
-    result.gTestSettings.repeat = m_ui.repeatGTestsCB->isChecked();
-    result.gTestSettings.shuffle = m_ui.shuffleGTestsCB->isChecked();
-    result.gTestSettings.iterations = m_ui.repetitionSpin->value();
-    result.gTestSettings.seed = m_ui.seedSpin->value();
-    result.gTestSettings.breakOnFailure = m_ui.breakOnFailureCB->isChecked();
-    result.gTestSettings.throwOnFailure = m_ui.throwOnFailureCB->isChecked();
+    auto gTestSettings = qSharedPointerCast<GTestSettings>(
+                TestFrameworkManager::instance()->settingsForTestFramework(gid));
+    if (!gTestSettings.isNull()) {
+        gTestSettings->runDisabled = m_ui.runDisabledGTestsCB->isChecked();
+        gTestSettings->repeat = m_ui.repeatGTestsCB->isChecked();
+        gTestSettings->shuffle = m_ui.shuffleGTestsCB->isChecked();
+        gTestSettings->iterations = m_ui.repetitionSpin->value();
+        gTestSettings->seed = m_ui.seedSpin->value();
+        gTestSettings->breakOnFailure = m_ui.breakOnFailureCB->isChecked();
+        gTestSettings->throwOnFailure = m_ui.throwOnFailureCB->isChecked();
+    }
 
     return result;
 }

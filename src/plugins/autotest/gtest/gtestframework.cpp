@@ -24,6 +24,8 @@
 ****************************************************************************/
 
 #include "gtestframework.h"
+#include "gtestconstants.h"
+#include "gtestsettings.h"
 #include "gtesttreeitem.h"
 #include "gtestparser.h"
 
@@ -37,18 +39,30 @@ ITestParser *GTestFramework::createTestParser() const
 
 TestTreeItem *GTestFramework::createRootNode() const
 {
-    return new GTestTreeItem(QCoreApplication::translate("GTestFramework", "Google Tests"),
-                                  QString(), TestTreeItem::Root);
+    return new GTestTreeItem(
+                QCoreApplication::translate("GTestFramework",
+                                            GTest::Constants::FRAMEWORK_SETTINGS_CATEGORY),
+                QString(), TestTreeItem::Root);
 }
 
 const char *GTestFramework::name() const
 {
-    return "GTest";
+    return GTest::Constants::FRAMEWORK_NAME;
 }
 
 unsigned GTestFramework::priority() const
 {
-    return 10;
+    return GTest::Constants::FRAMEWORK_PRIORITY;
+}
+
+IFrameworkSettings *GTestFramework::createFrameworkSettings() const
+{
+    return new GTestSettings;
+}
+
+bool GTestFramework::hasFrameworkSettings() const
+{
+    return true;
 }
 
 } // namespace Internal

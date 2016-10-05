@@ -31,6 +31,8 @@
 namespace Autotest {
 namespace Internal {
 
+class IFrameworkSettings;
+
 class ITestFramework
 {
 public:
@@ -43,6 +45,8 @@ public:
 
     virtual const char *name() const = 0;
     virtual unsigned priority() const = 0;          // should this be modifyable?
+    virtual bool hasFrameworkSettings() const { return false; }
+    virtual IFrameworkSettings *createFrameworkSettings() const { return 0; }
 
     TestTreeItem *rootNode()
     {   if (!m_rootNode)
