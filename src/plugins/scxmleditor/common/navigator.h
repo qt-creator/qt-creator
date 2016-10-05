@@ -26,8 +26,9 @@
 #pragma once
 
 #include "movableframe.h"
-#include "ui_navigator.h"
 #include <QPointer>
+
+QT_FORWARD_DECLARE_CLASS(QToolButton)
 
 namespace ScxmlEditor {
 
@@ -35,6 +36,8 @@ namespace PluginInterface { class GraphicsScene; }
 
 namespace Common {
 
+class NavigatorGraphicsView;
+class NavigatorSlider;
 class SizeGrip;
 class GraphicsView;
 
@@ -55,9 +58,13 @@ protected:
     void resizeEvent(QResizeEvent *e) override;
 
 private:
-    SizeGrip *m_sizeGrip;
+    void createUi();
+
     QPointer<GraphicsView> m_currentView;
-    Ui::Navigator m_ui;
+    NavigatorGraphicsView *m_navigatorView = nullptr;
+    NavigatorSlider *m_navigatorSlider = nullptr;
+    QToolButton *m_closeButton = nullptr;
+    SizeGrip *m_sizeGrip;
 };
 
 } // namespace Common
