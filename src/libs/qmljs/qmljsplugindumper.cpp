@@ -516,8 +516,12 @@ void PluginDumper::loadQmltypesFile(const QStringList &qmltypesFilePaths,
 void PluginDumper::runQmlDump(const QmlJS::ModelManagerInterface::ProjectInfo &info,
     const QStringList &arguments, const QString &importPath)
 {
+    QDir wd = QDir(importPath);
+    wd.cdUp();
     QProcess *process = new QProcess(this);
     process->setEnvironment(info.qmlDumpEnvironment.toStringList());
+    QString workingDir = wd.canonicalPath();
+    process->setWorkingDirectory(workingDir);
     connect(process, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
             this, &PluginDumper::qmlPluginTypeDumpDone);
     connect(process, &QProcess::errorOccurred, this, &PluginDumper::qmlPluginTypeDumpError);
@@ -567,7 +571,7 @@ void PluginDumper::dump(const Plugin &plugin)
         args << QLatin1String("-nonrelocatable");
     args << plugin.importUri;
     args << plugin.importVersion;
-    args << plugin.importPath;
+    args << (plugin.importPath.isEmpty() ? QLatin1String(".") : plugin.importPath);
     runQmlDump(info, args, plugin.qmldirPath);
 }
 

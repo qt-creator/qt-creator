@@ -494,22 +494,6 @@ void QbsProject::handleQbsParsingDone(bool success)
         m_qbsUpdateFutureInterface->reportCanceled();
     }
 
-    bool hasTargetArtifacts = false;
-    if (dataChanged) {
-        qCDebug(qbsPmLog) << "Project data changed.";
-        foreach (const qbs::ProductData &product, m_projectData.allProducts()) {
-            if (!product.targetArtifacts().isEmpty()) {
-                hasTargetArtifacts = true;
-                break;
-            }
-        }
-        if (!hasTargetArtifacts) {
-            qCDebug(qbsPmLog) << "No target artifacts present, executing rules";
-            m_qbsProjectParser->startRuleExecution();
-            return;
-        }
-    }
-
     m_qbsProjectParser->deleteLater();
     m_qbsProjectParser = 0;
     m_qbsUpdateFutureInterface->reportFinished();

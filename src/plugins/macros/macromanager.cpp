@@ -178,6 +178,8 @@ void MacroManager::MacroManagerPrivate::removeMacro(const QString &name)
 
     // Remove macro from the map
     Macro *macro = macros.take(name);
+    if (macro == currentMacro)
+        currentMacro = 0;
     delete macro;
 }
 

@@ -19,15 +19,14 @@ makeAbsolute() {
 
 me=`which "$0"` # Search $PATH if necessary
 if test -L "$me"; then
-    # Try readlink(1)
-    readlink=`type readlink 2>/dev/null` || readlink=
-    if test -n "$readlink"; then
-        # We have readlink(1), so we can use it. Assuming GNU readlink (for -f).
-        me=`readlink -nf "$me"`
+    # Try GNU readlink(1)
+    nme=`readlink -nf "$me" 2>/dev/null`
+    if test -n "$nme"; then
+        me=$nme
     else
-        # No readlink(1), so let's try ls -l
-        me=`ls -l "$me" | sed 's/^.*-> //'`
+        # No GNU readlink(1), so let's try ls -l
         base=`dirname "$me"`
+        me=`ls -l "$me" | sed 's/^.*-> //'`
         me=`makeAbsolute "$me" "$base"`
     fi
 fi

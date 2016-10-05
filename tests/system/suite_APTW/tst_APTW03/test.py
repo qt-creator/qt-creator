@@ -85,9 +85,9 @@ def main():
                                                                target=targets)
     virtualFunctionsAdded = False
     for kit, config in iterateBuildConfigs(len(checkedTargets), "Debug"):
+        is480Kit = "480" in Targets.getStringForTarget(checkedTargets[kit])
         verifyBuildConfig(len(checkedTargets), kit, config, True, True)
-        if (virtualFunctionsAdded and platform.system() in ('Microsoft', 'Windows')
-            and "480" in Targets.getStringForTarget(checkedTargets[kit])):
+        if virtualFunctionsAdded and platform.system() in ('Microsoft', 'Windows') and is480Kit:
             test.warning("Skipping building of Qt4.8 targets because of QTCREATORBUG-12251.")
             continue
         invokeMenuItem('Build', 'Build Project "%s"' % projectName)
@@ -125,12 +125,14 @@ def main():
             addReturn(editor, "QObject \*%s::create.*" % className, "0")
             virtualFunctionsAdded = True
             invokeMenuItem('File', 'Save All')
-            if (platform.system() in ('Microsoft', 'Windows')  # QTCREATORBUG-12251
-                and "480" in Targets.getStringForTarget(checkedTargets[kit])):
+            if platform.system() in ('Microsoft', 'Windows') and is480Kit: # QTCREATORBUG-12251
                 test.warning("Skipping building of Qt4.8 targets because of QTCREATORBUG-12251.")
                 continue
             invokeMenuItem('Build', 'Rebuild Project "%s"' % projectName)
             waitForCompile(10000)
+        if platform.system() == "Darwin" and is480Kit:
+            test.log("Skipping compile check (gcc on OSX is only clang with gcc frontend nowadays)")
+            continue
         checkCompile()
 
     invokeMenuItem("File", "Exit")

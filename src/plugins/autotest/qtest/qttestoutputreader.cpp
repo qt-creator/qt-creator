@@ -195,7 +195,7 @@ void QtTestOutputReader::processOutput(const QByteArray &outputLine)
                 m_lineNumber = attributes.value(QStringLiteral("line")).toInt();
             } else if (currentTag == QStringLiteral("BenchmarkResult")) {
                 const QXmlStreamAttributes &attributes = m_xmlReader.attributes();
-                const QString metric = attributes.value(QStringLiteral("metrics")).toString();
+                const QString metric = attributes.value(QStringLiteral("metric")).toString();
                 const double value = attributes.value(QStringLiteral("value")).toDouble();
                 const int iterations = attributes.value(QStringLiteral("iterations")).toInt();
                 m_description = constructBenchmarkInformation(metric, value, iterations);

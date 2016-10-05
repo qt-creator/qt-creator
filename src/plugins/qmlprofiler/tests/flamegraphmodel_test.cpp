@@ -111,8 +111,9 @@ void FlameGraphModelTest::testIndex()
 
 void FlameGraphModelTest::testCounts()
 {
-    QCOMPARE(model.rowCount(), 1);
+    QCOMPARE(model.rowCount(), 2);
     QCOMPARE(model.rowCount(model.index(0, 0)), 1);
+    QCOMPARE(model.rowCount(model.index(1, 0)), 1);
     QCOMPARE(model.columnCount(), 1);
 }
 
@@ -122,40 +123,65 @@ void FlameGraphModelTest::testData()
         FlameGraphModel::tr("JavaScript"),
         FlameGraphModel::tr("Signal"),
         FlameGraphModel::tr("Binding"),
-        FlameGraphModel::tr("Create"),
-        FlameGraphModel::tr("Compile"),
+        FlameGraphModel::tr("Create")
     });
 
     QModelIndex index = model.index(0, 0);
+    QModelIndex index2 = model.index(1, 0);
     QCOMPARE(model.data(index, FlameGraphModel::TypeIdRole).toInt(), 0);
+    QCOMPARE(model.data(index2, FlameGraphModel::TypeIdRole).toInt(), 4);
     QCOMPARE(model.data(index, FlameGraphModel::TypeRole).toString(),
              FlameGraphModel::tr("JavaScript"));
+    QCOMPARE(model.data(index2, FlameGraphModel::TypeRole).toString(),
+             FlameGraphModel::tr("Compile"));
     QCOMPARE(model.data(index, FlameGraphModel::DurationRole).toLongLong(), 20);
+    QCOMPARE(model.data(index2, FlameGraphModel::DurationRole).toLongLong(), 12);
     QCOMPARE(model.data(index, FlameGraphModel::CallCountRole).toInt(), 1);
+    QCOMPARE(model.data(index2, FlameGraphModel::CallCountRole).toInt(), 1);
     QCOMPARE(model.data(index, FlameGraphModel::DetailsRole).toString(),
+             QLatin1String("funcfunc"));
+    QCOMPARE(model.data(index2, FlameGraphModel::DetailsRole).toString(),
              QLatin1String("funcfunc"));
     QCOMPARE(model.data(index, FlameGraphModel::FilenameRole).toString(),
              QLatin1String("somefile.js"));
+    QCOMPARE(model.data(index2, FlameGraphModel::FilenameRole).toString(),
+             QLatin1String("somefile.js"));
     QCOMPARE(model.data(index, FlameGraphModel::LineRole).toInt(), 0);
+    QCOMPARE(model.data(index2, FlameGraphModel::LineRole).toInt(), 4);
     QCOMPARE(model.data(index, FlameGraphModel::ColumnRole).toInt(), 20);
+    QCOMPARE(model.data(index2, FlameGraphModel::ColumnRole).toInt(), 16);
     QCOMPARE(model.data(index, FlameGraphModel::NoteRole).toString(), QString("dings"));
+    QCOMPARE(model.data(index2, FlameGraphModel::NoteRole).toString(), QString());
     QCOMPARE(model.data(index, FlameGraphModel::TimePerCallRole).toLongLong(), 20);
-    QCOMPARE(model.data(index, FlameGraphModel::TimeInPercentRole).toInt(), 100);
+    QCOMPARE(model.data(index2, FlameGraphModel::TimePerCallRole).toLongLong(), 12);
+    QCOMPARE(model.data(index, FlameGraphModel::TimeInPercentRole).toInt(), 62);
+    QCOMPARE(model.data(index2, FlameGraphModel::TimeInPercentRole).toInt(), 37);
     QCOMPARE(model.data(index, FlameGraphModel::RangeTypeRole).toInt(),
              static_cast<int>(Javascript));
+    QCOMPARE(model.data(index2, FlameGraphModel::RangeTypeRole).toInt(),
+             static_cast<int>(Compiling));
     QCOMPARE(model.data(index, FlameGraphModel::LocationRole).toString(),
              QLatin1String("somefile.js:0"));
+    QCOMPARE(model.data(index2, FlameGraphModel::LocationRole).toString(),
+             QLatin1String("somefile.js:4"));
     QVERIFY(!model.data(index, -10).isValid());
+    QVERIFY(!model.data(index2, -10).isValid());
     QVERIFY(!model.data(QModelIndex(), FlameGraphModel::LineRole).isValid());
 
-    for (int i = 1; i < 10; ++i) {
+    for (int i = 1; i < 8; ++i) {
         index = model.index(0, 0, index);
         QCOMPARE(model.data(index, FlameGraphModel::TypeRole).toString(),
                  typeRoles[i % typeRoles.length()]);
         QCOMPARE(model.data(index, FlameGraphModel::NoteRole).toString(),
                  (i % typeRoles.length() == 0) ? QString("dings") : QString());
     }
-    QCOMPARE(model.data(index, FlameGraphModel::CallCountRole).toInt(), 2);
+    QCOMPARE(model.data(index, FlameGraphModel::CallCountRole).toInt(), 1);
+
+    index2 = model.index(0, 0, index2);
+    QCOMPARE(model.data(index2, FlameGraphModel::TypeRole).toString(),
+             FlameGraphModel::tr("Compile"));
+    QCOMPARE(model.data(index2, FlameGraphModel::NoteRole).toString(), QString());
+    QCOMPARE(model.data(index2, FlameGraphModel::CallCountRole).toInt(), 2);
 }
 
 void FlameGraphModelTest::testRoleNames()
