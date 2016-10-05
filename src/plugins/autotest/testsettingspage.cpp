@@ -29,30 +29,17 @@
 #include "testsettings.h"
 #include "testtreemodel.h"
 
-#include "gtest/gtestconstants.h"
-#include "gtest/gtestsettings.h"
-#include "qtest/qttestconstants.h"
-#include "qtest/qttestsettings.h"
-
 #include <coreplugin/icore.h>
 
-#include <utils/hostosinfo.h>
 #include <utils/utilsicons.h>
 
 namespace Autotest {
 namespace Internal {
 
-static const Core::Id qid
-        = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix(QtTest::Constants::FRAMEWORK_NAME);
-static const Core::Id gid
-        = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix(GTest::Constants::FRAMEWORK_NAME);
-
 TestSettingsWidget::TestSettingsWidget(QWidget *parent)
     : QWidget(parent)
 {
     m_ui.setupUi(this);
-    m_ui.callgrindRB->setEnabled(Utils::HostOsInfo::isAnyUnixHost()); // valgrind available on UNIX
-    m_ui.perfRB->setEnabled(Utils::HostOsInfo::isLinuxHost()); // according to docs perf Linux only
 
     m_ui.frameworksWarnIcon->setVisible(false);
     m_ui.frameworksWarnIcon->setPixmap(Utils::Icons::WARNING.pixmap());
@@ -60,8 +47,6 @@ TestSettingsWidget::TestSettingsWidget(QWidget *parent)
     m_ui.frameworksWarn->setText(tr("No active test frameworks."));
     m_ui.frameworksWarn->setToolTip(tr("You will not be able to use the AutoTest plugin without "
                                        "having at least one active test framework."));
-    connect(m_ui.repeatGTestsCB, &QCheckBox::toggled, m_ui.repetitionSpin, &QSpinBox::setEnabled);
-    connect(m_ui.shuffleGTestsCB, &QCheckBox::toggled, m_ui.seedSpin, &QSpinBox::setEnabled);
     connect(m_ui.frameworkListWidget, &QListWidget::itemChanged,
             this, &TestSettingsWidget::onFrameworkItemChanged);
 }
@@ -75,44 +60,6 @@ void TestSettingsWidget::setSettings(const TestSettings &settings)
     m_ui.autoScrollCB->setChecked(settings.autoScroll);
     m_ui.alwaysParseCB->setChecked(settings.alwaysParse);
     populateFrameworksListWidget(settings.frameworks);
-
-    auto qtTestSettings = qSharedPointerCast<QtTestSettings>(
-                TestFrameworkManager::instance()->settingsForTestFramework(qid));
-
-    if (!qtTestSettings.isNull()) {
-        m_ui.disableCrashhandlerCB->setChecked(qtTestSettings->noCrashHandler);
-        switch (qtTestSettings->metrics) {
-        case MetricsType::Walltime:
-            m_ui.walltimeRB->setChecked(true);
-            break;
-        case MetricsType::TickCounter:
-            m_ui.tickcounterRB->setChecked(true);
-            break;
-        case MetricsType::EventCounter:
-            m_ui.eventCounterRB->setChecked(true);
-            break;
-        case MetricsType::CallGrind:
-            m_ui.callgrindRB->setChecked(true);
-            break;
-        case MetricsType::Perf:
-            m_ui.perfRB->setChecked(true);
-            break;
-        default:
-            m_ui.walltimeRB->setChecked(true);
-        }
-    }
-
-    auto gTestSettings = qSharedPointerCast<GTestSettings>(
-                TestFrameworkManager::instance()->settingsForTestFramework(gid));
-    if (!gTestSettings.isNull()) {
-        m_ui.runDisabledGTestsCB->setChecked(gTestSettings->runDisabled);
-        m_ui.repeatGTestsCB->setChecked(gTestSettings->repeat);
-        m_ui.shuffleGTestsCB->setChecked(gTestSettings->shuffle);
-        m_ui.repetitionSpin->setValue(gTestSettings->iterations);
-        m_ui.seedSpin->setValue(gTestSettings->seed);
-        m_ui.breakOnFailureCB->setChecked(gTestSettings->breakOnFailure);
-        m_ui.throwOnFailureCB->setChecked(gTestSettings->throwOnFailure);
-    }
 }
 
 TestSettings TestSettingsWidget::settings() const
@@ -125,37 +72,6 @@ TestSettings TestSettingsWidget::settings() const
     result.autoScroll = m_ui.autoScrollCB->isChecked();
     result.alwaysParse = m_ui.alwaysParseCB->isChecked();
     result.frameworks = frameworks();
-
-    // QtTestSettings
-    auto qtTestSettings = qSharedPointerCast<QtTestSettings>(
-                TestFrameworkManager::instance()->settingsForTestFramework(qid));
-    if (!qtTestSettings.isNull()) {
-        qtTestSettings->noCrashHandler = m_ui.disableCrashhandlerCB->isChecked();
-        if (m_ui.walltimeRB->isChecked())
-            qtTestSettings->metrics = MetricsType::Walltime;
-        else if (m_ui.tickcounterRB->isChecked())
-            qtTestSettings->metrics = MetricsType::TickCounter;
-        else if (m_ui.eventCounterRB->isChecked())
-            qtTestSettings->metrics = MetricsType::EventCounter;
-        else if (m_ui.callgrindRB->isChecked())
-            qtTestSettings->metrics = MetricsType::CallGrind;
-        else if (m_ui.perfRB->isChecked())
-            qtTestSettings->metrics = MetricsType::Perf;
-    }
-
-    // GTestSettings
-    auto gTestSettings = qSharedPointerCast<GTestSettings>(
-                TestFrameworkManager::instance()->settingsForTestFramework(gid));
-    if (!gTestSettings.isNull()) {
-        gTestSettings->runDisabled = m_ui.runDisabledGTestsCB->isChecked();
-        gTestSettings->repeat = m_ui.repeatGTestsCB->isChecked();
-        gTestSettings->shuffle = m_ui.shuffleGTestsCB->isChecked();
-        gTestSettings->iterations = m_ui.repetitionSpin->value();
-        gTestSettings->seed = m_ui.seedSpin->value();
-        gTestSettings->breakOnFailure = m_ui.breakOnFailureCB->isChecked();
-        gTestSettings->throwOnFailure = m_ui.throwOnFailureCB->isChecked();
-    }
-
     return result;
 }
 
@@ -202,10 +118,10 @@ void TestSettingsWidget::onFrameworkItemChanged()
 TestSettingsPage::TestSettingsPage(const QSharedPointer<TestSettings> &settings)
     : m_settings(settings), m_widget(0)
 {
-    setId("A.AutoTest.General");
+    setId("A.AutoTest.0.General");
     setDisplayName(tr("General"));
     setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
-    setDisplayCategory(tr("Test Settings"));
+    setDisplayCategory(QCoreApplication::translate("AutoTest", Constants::AUTOTEST_SETTINGS_TR));
     setCategoryIcon(Utils::Icon(":/images/autotest.png"));
 }
 

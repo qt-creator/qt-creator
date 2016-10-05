@@ -34,10 +34,12 @@
 #include "testtreeitem.h"
 #include "testtreemodel.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QLoggingCategory>
+#include <QSettings>
 
 static Q_LOGGING_CATEGORY(LOG, "qtc.autotest.frameworkmanager")
 
@@ -77,9 +79,13 @@ bool TestFrameworkManager::registerTestFramework(ITestFramework *framework)
     qCDebug(LOG) << "Registering" << id;
     m_registeredFrameworks.insert(id, framework);
 
+    AutotestPlugin *plugin = AutotestPlugin::instance();
+
     if (framework->hasFrameworkSettings()) {
         QSharedPointer<IFrameworkSettings> frameworkSettings(framework->createFrameworkSettings());
         m_frameworkSettings.insert(id, frameworkSettings);
+        if (auto page = framework->createSettingsPage(frameworkSettings))
+            plugin->addAutoReleasedObject(page);
     }
     return true;
 }

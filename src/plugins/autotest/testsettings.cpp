@@ -25,7 +25,6 @@
 
 #include "testsettings.h"
 #include "autotestconstants.h"
-#include "iframeworksettings.h"
 #include "testframeworkmanager.h"
 
 #include <coreplugin/id.h>
@@ -62,13 +61,6 @@ void TestSettings::toSettings(QSettings *s) const
     for (const Core::Id &id : frameworks.keys())
         s->setValue(QLatin1String(id.name()), frameworks.value(id));
     s->endGroup();
-    TestFrameworkManager *frameworkManager = TestFrameworkManager::instance();
-    const QList<Core::Id> &registered = frameworkManager->registeredFrameworkIds();
-    for (const Core::Id &id : registered) {
-        QSharedPointer<IFrameworkSettings> fSettings = frameworkManager->settingsForTestFramework(id);
-        if (!fSettings.isNull())
-            fSettings->toSettings(s);
-    }
 }
 
 void TestSettings::fromSettings(QSettings *s)
@@ -89,11 +81,6 @@ void TestSettings::fromSettings(QSettings *s)
                                        frameworkManager->isActive(id)).toBool());
     }
     s->endGroup();
-    for (const Core::Id &id : registered) {
-        QSharedPointer<IFrameworkSettings> fSettings = frameworkManager->settingsForTestFramework(id);
-        if (!fSettings.isNull())
-            fSettings->fromSettings(s);
-    }
 }
 
 } // namespace Internal

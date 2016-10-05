@@ -31,6 +31,7 @@ SOURCES += \
     gtest/gtestvisitors.cpp \
     gtest/gtestframework.cpp \
     gtest/gtestsettings.cpp \
+    gtest/gtestsettingspage.cpp \
     qtest/qttesttreeitem.cpp \
     qtest/qttestvisitors.cpp \
     qtest/qttestconfiguration.cpp \
@@ -39,6 +40,7 @@ SOURCES += \
     qtest/qttestparser.cpp \
     qtest/qttestframework.cpp \
     qtest/qttestsettings.cpp \
+    qtest/qttestsettingspage.cpp \
     quick/quicktestconfiguration.cpp \
     quick/quicktestparser.cpp \
     quick/quicktesttreeitem.cpp \
@@ -80,6 +82,7 @@ HEADERS += \
     gtest/gtestvisitors.h \
     gtest/gtestframework.h \
     gtest/gtestsettings.h \
+    gtest/gtestsettingspage.h \
     gtest/gtestconstants.h \
     qtest/qttesttreeitem.h \
     qtest/qttest_utils.h \
@@ -90,6 +93,7 @@ HEADERS += \
     qtest/qttestparser.h \
     qtest/qttestframework.h \
     qtest/qttestsettings.h \
+    qtest/qttestsettingspage.h \
     qtest/qttestconstants.h \
     quick/quicktestconfiguration.h \
     quick/quicktestparser.h \
@@ -104,7 +108,9 @@ RESOURCES += \
     autotest.qrc
 
 FORMS += \
-    testsettingspage.ui
+    testsettingspage.ui \
+    qtest/qttestsettingspage.ui \
+    gtest/gtestsettingspage.ui
 
 equals(TEST, 1) {
     HEADERS += autotestunittests.h

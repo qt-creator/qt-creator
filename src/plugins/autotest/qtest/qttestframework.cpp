@@ -27,6 +27,7 @@
 #include "qttestconstants.h"
 #include "qttestparser.h"
 #include "qttestsettings.h"
+#include "qttestsettingspage.h"
 #include "qttesttreeitem.h"
 
 namespace Autotest {
@@ -48,6 +49,11 @@ TestTreeItem *QtTestFramework::createRootNode() const
 IFrameworkSettings *QtTestFramework::createFrameworkSettings() const
 {
     return new QtTestSettings;
+}
+
+Core::IOptionsPage *QtTestFramework::createSettingsPage(QSharedPointer<IFrameworkSettings> settings) const
+{
+    return new QtTestSettingsPage(settings);
 }
 
 bool QtTestFramework::hasFrameworkSettings() const

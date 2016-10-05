@@ -23,53 +23,48 @@
 **
 ****************************************************************************/
 
-#include "gtestframework.h"
-#include "gtestconstants.h"
-#include "gtestsettings.h"
-#include "gtestsettingspage.h"
-#include "gtesttreeitem.h"
-#include "gtestparser.h"
+#pragma once
+
+#include "ui_qttestsettingspage.h"
+
+#include <coreplugin/dialogs/ioptionspage.h>
+
+#include <QPointer>
 
 namespace Autotest {
 namespace Internal {
 
-ITestParser *GTestFramework::createTestParser() const
-{
-    return new GTestParser;
-}
+class IFrameworkSettings;
+class QtTestSettings;
 
-TestTreeItem *GTestFramework::createRootNode() const
+class QtTestSettingsWidget : public QWidget
 {
-    return new GTestTreeItem(
-                QCoreApplication::translate("GTestFramework",
-                                            GTest::Constants::FRAMEWORK_SETTINGS_CATEGORY),
-                QString(), TestTreeItem::Root);
-}
+    Q_OBJECT
+public:
+    explicit QtTestSettingsWidget(QWidget *parent = 0);
 
-const char *GTestFramework::name() const
-{
-    return GTest::Constants::FRAMEWORK_NAME;
-}
+    void setSettings(const QtTestSettings &settings);
+    QtTestSettings settings() const;
 
-unsigned GTestFramework::priority() const
-{
-    return GTest::Constants::FRAMEWORK_PRIORITY;
-}
+private:
+    Ui::QtTestSettingsPage m_ui;
+};
 
-IFrameworkSettings *GTestFramework::createFrameworkSettings() const
+class QtTestSettingsPage : public Core::IOptionsPage
 {
-    return new GTestSettings;
-}
+    Q_OBJECT
+public:
+    explicit QtTestSettingsPage(QSharedPointer<IFrameworkSettings> settings);
+    ~QtTestSettingsPage();
 
-Core::IOptionsPage *GTestFramework::createSettingsPage(QSharedPointer<IFrameworkSettings> settings) const
-{
-    return new GTestSettingsPage(settings);
-}
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override { }
 
-bool GTestFramework::hasFrameworkSettings() const
-{
-    return true;
-}
+private:
+    QSharedPointer<QtTestSettings> m_settings;
+    QPointer<QtTestSettingsWidget> m_widget;
+};
 
 } // namespace Internal
 } // namespace Autotest
