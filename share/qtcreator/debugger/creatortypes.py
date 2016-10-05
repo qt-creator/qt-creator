@@ -233,3 +233,22 @@ def qdump__Core__GeneratedFile(d, value):
     d.putStringValue(value["m_d"]["d"]["path"])
     d.putPlainChildren(value)
 
+def qdump__ProjectExplorer__Node(d, value):
+    d.putStringValue(value["m_filePath"])
+    d.putPlainChildren(value)
+
+def qdump__ProjectExplorer__FolderNode(d, value):
+    d.putStringValue(value["m_displayName"])
+    d.putPlainChildren(value)
+
+def qdump__ProjectExplorer__ProjectNode(d, value):
+    qdump__ProjectExplorer__FolderNode(d, value)
+
+def qdump__CMakeProjectManager__Internal__CMakeProjectNode(d, value):
+    qdump__ProjectExplorer__FolderNode(d, value)
+
+def qdump__QmakeProjectManager__QmakePriFileNode(d, value):
+    qdump__ProjectExplorer__FolderNode(d, value)
+
+def qdump__QmakeProjectManager__QmakeProFileNode(d, value):
+    qdump__ProjectExplorer__FolderNode(d, value)
