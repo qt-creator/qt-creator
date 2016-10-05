@@ -211,6 +211,66 @@ void DiffAllModifiedFilesController::reload()
 
 /////////////////
 
+class DiffModifiedFilesController : public DiffFilesController
+{
+    Q_OBJECT
+public:
+    DiffModifiedFilesController(Core::IDocument *document, const QStringList &fileNames);
+
+protected:
+    void reload();
+
+private:
+    QStringList m_fileNames;
+};
+
+DiffModifiedFilesController::DiffModifiedFilesController(Core::IDocument *document, const QStringList &fileNames) :
+    DiffFilesController(document), m_fileNames(fileNames)
+{ }
+
+void DiffModifiedFilesController::reload()
+{
+    QList<FileData> fileDataList;
+
+    foreach (const QString fileName, m_fileNames) {
+        TextEditor::TextDocument *textDocument = qobject_cast<TextEditor::TextDocument *>(
+                    Core::DocumentModel::documentForFilePath(fileName));
+
+        if (textDocument && textDocument->isModified()) {
+            QString errorString;
+            Utils::TextFileFormat format = textDocument->format();
+
+            QString leftText;
+            bool leftFileExists = true;
+            const QString fileName = textDocument->filePath().toString();
+            if (Utils::TextFileFormat::readFile(fileName,
+                                                format.codec,
+                                                &leftText, &format, &errorString)
+                    != Utils::TextFileFormat::ReadSuccess) {
+                leftFileExists = false;
+            }
+
+            const QString rightText = textDocument->plainText();
+
+            FileData fileData = diffFiles(leftText, rightText);
+            fileData.leftFileInfo.fileName = fileName;
+            fileData.rightFileInfo.fileName = fileName;
+            fileData.leftFileInfo.typeInfo = tr("Saved");
+            fileData.rightFileInfo.typeInfo = tr("Modified");
+
+            if (!leftFileExists)
+                fileData.fileOperation = FileData::NewFile;
+
+            fileDataList << fileData;
+        }
+    }
+
+    setDiffFiles(fileDataList);
+    reloadFinished(true);
+}
+
+/////////////////
+
 class DiffExternalFilesController : public DiffFilesController
 {
     Q_OBJECT
@@ -273,6 +333,26 @@ void DiffExternalFilesController::reload()
 
 /////////////////
 
+DiffEditorServiceImpl::DiffEditorServiceImpl(QObject *parent) :
+    QObject(parent)
+{
+}
+
+void DiffEditorServiceImpl::diffModifiedFiles(const QStringList &fileNames)
+{
+    const QString documentId = QLatin1String("Diff Modified Files");
+    const QString title = tr("Diff Modified Files");
+    auto const document = qobject_cast<DiffEditorDocument *>(
+                DiffEditorController::findOrCreateDocument(documentId, title));
+    if (!document)
+        return;
+
+    if (!DiffEditorController::controller(document))
+        new DiffModifiedFilesController(document, fileNames);
+    Core::EditorManager::activateEditorForDocument(document);
+    document->reload();
+}
+
 bool DiffEditorPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments)
@@ -309,6 +389,7 @@ bool DiffEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     updateActions();
 
     addAutoReleasedObject(new DiffEditorFactory(this));
+    addAutoReleasedObject(new DiffEditorServiceImpl(this));
 
     return true;
 }

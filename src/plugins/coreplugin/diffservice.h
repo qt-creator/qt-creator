@@ -25,49 +25,23 @@
 
 #pragma once
 
-#include <QList>
-#include <QDialog>
+#include "core_global.h"
+#include <QObject>
 
-#include "ui_saveitemsdialog.h"
-
-QT_BEGIN_NAMESPACE
-class QCheckBox;
-QT_END_NAMESPACE
+QT_FORWARD_DECLARE_CLASS(QStringList)
 
 namespace Core {
 
-class IDocument;
-class EditorManager;
-
-namespace Internal {
-
-class MainWindow;
-
-class SaveItemsDialog : public QDialog
+class CORE_EXPORT DiffService
 {
-    Q_OBJECT
-
 public:
-    SaveItemsDialog(QWidget *parent, QList<IDocument *> items);
+    virtual ~DiffService() {}
 
-    void setMessage(const QString &msg);
-    void setAlwaysSaveMessage(const QString &msg);
-    bool alwaysSaveChecked();
-    QList<IDocument *> itemsToSave() const;
-    QStringList filesToDiff() const;
-
-private:
-    void collectItemsToSave();
-    void collectFilesToDiff();
-    void discardAll();
-    void updateButtons();
-    void adjustButtonWidths();
-
-    Ui::SaveItemsDialog m_ui;
-    QList<IDocument*> m_itemsToSave;
-    QStringList m_filesToDiff;
-    QPushButton *m_diffButton = nullptr;
+    virtual void diffModifiedFiles(const QStringList &fileNames) = 0;
 };
 
-} // namespace Internal
 } // namespace Core
+
+QT_BEGIN_NAMESPACE
+Q_DECLARE_INTERFACE(Core::DiffService, "Core::DiffService")
+QT_END_NAMESPACE

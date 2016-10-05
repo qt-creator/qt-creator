@@ -27,6 +27,7 @@
 
 #include "diffeditor_global.h"
 
+#include <coreplugin/diffservice.h>
 #include <texteditor/textdocument.h>
 #include <extensionsystem/iplugin.h>
 
@@ -36,6 +37,16 @@ namespace Core { class IEditor; }
 
 namespace DiffEditor {
 namespace Internal {
+
+class DiffEditorServiceImpl : public QObject, public Core::DiffService
+{
+    Q_OBJECT
+    Q_INTERFACES(Core::DiffService)
+public:
+    explicit DiffEditorServiceImpl(QObject *parent = nullptr);
+
+    void diffModifiedFiles(const QStringList &fileNames) override;
+};
 
 class DiffEditorPlugin : public ExtensionSystem::IPlugin
 {

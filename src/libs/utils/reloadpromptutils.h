@@ -40,15 +40,19 @@ enum ReloadPromptAnswer {
     ReloadAll,
     ReloadSkipCurrent,
     ReloadNone,
+    ReloadNoneAndDiff,
     CloseCurrent
 };
 
 QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const FileName &fileName,
                                                        bool modified,
+                                                       bool enableDiffOption,
                                                        QWidget *parent);
 QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const QString &title,
                                                        const QString &prompt,
-                                                       const QString &details, QWidget *parent);
+                                                       const QString &details,
+                                                       bool enableDiffOption,
+                                                       QWidget *parent);
 
 enum FileDeletedPromptAnswer {
     FileDeletedClose,

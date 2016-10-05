@@ -39,6 +39,7 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/dialogs/openwithdialog.h>
 #include <coreplugin/dialogs/readonlyfilesdialog.h>
+#include <coreplugin/diffservice.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/editormanager/iexternaleditor.h>
@@ -2168,11 +2169,21 @@ void EditorManagerPrivate::revertToSaved(IDocument *document)
                            QMessageBox::Yes|QMessageBox::No, ICore::mainWindow());
         msgBox.button(QMessageBox::Yes)->setText(tr("Proceed"));
         msgBox.button(QMessageBox::No)->setText(tr("Cancel"));
+
+        QPushButton *diffButton = nullptr;
+        auto diffService = ExtensionSystem::PluginManager::getObject<DiffService>();
+        if (diffService)
+            diffButton = msgBox.addButton(tr("Cancel && &Diff"), QMessageBox::RejectRole);
+
         msgBox.setDefaultButton(QMessageBox::No);
         msgBox.setEscapeButton(QMessageBox::No);
         if (msgBox.exec() == QMessageBox::No)
             return;
 
+        if (diffService && msgBox.clickedButton() == diffButton) {
+            diffService->diffModifiedFiles(QStringList() << fileName);
+            return;
+        }
     }
     QString errorString;
     if (!document->reload(&errorString, IDocument::FlagReload, IDocument::TypeContents))

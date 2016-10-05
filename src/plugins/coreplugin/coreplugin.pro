@@ -218,7 +218,8 @@ HEADERS += corejsextensions.h \
     iwelcomepage.h \
     systemsettings.h \
     coreicons.h \
-    editormanager/documentmodel_p.h
+    editormanager/documentmodel_p.h \
+    diffservice.h
 
 FORMS += dialogs/newdialog.ui \
     dialogs/saveitemsdialog.ui \
