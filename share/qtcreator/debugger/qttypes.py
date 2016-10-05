@@ -2063,11 +2063,63 @@ def qdump__QV4_Object(d, value):
                 d.putValue("PTR: 0x%x" % objectPtr)
 
 def qdump__QV4__Value(d, value):
+    if  d.ptrSize() == 4:
+        qdump_32__QV4__Value(d, value)
+    else:
+        qdump_64__QV4__Value(d, value)
+
+def qdump_32__QV4__Value(d, value):
+    # QV4_Masks_SilentNaNBit           = 0x00040000
+    # QV4_Masks_NaN_Mask               = 0x7ff80000
+    # QV4_Masks_NotDouble_Mask         = 0x7ffa0000
+    # QV4_Masks_Type_Mask              = 0xffffc000
+    ns = d.qtNamespace()
     v = value.split('Q')[0]
-    if d.ptrSize() == 4:
-        d.putValue("[0x%x]" % v)
-        d.putPlainChildren(value)
-        return
+    tag = v >> 32
+    val = v & 0xffffffff
+    if (tag & 0x7fff2000) == 0x7fff2000: # Int
+        d.putValue(val)
+        d.putBetterType("%sQV4::Value (int32)" % ns)
+    elif (tag & 0x7fff4000) == 0x7fff4000: # Bool
+        d.putValue(val)
+        d.putBetterType("%sQV4::Value (bool)" % ns)
+    elif (tag & 0x7fff0000) == 0x7fff0000: # Null
+        d.putValue(val)
+        d.putBetterType("%sQV4::Value (null)" % ns)
+    elif (tag & 0x7ffa0000) != 0x7ffa0000: # Double
+        d.putValue(value.split('d')[0])
+        d.putBetterType("%sQV4::Value (double)" % ns)
+    elif tag == 0x7ffa0000:
+        if val == 0:
+            d.putValue("(undefined)")
+            d.putBetterType("%sQV4::Value (undefined)" % ns)
+        else:
+            managed = d.createValue(val, ns + "QV4::Heap::Base")
+            qdump__QV4__Heap__Base(d, managed)
+            #d.putValue("[0x%x]" % v)
+    #d.putPlainChildren(value)
+    if d.isExpanded():
+        with Children(d):
+            with SubItem(d, "[raw]"):
+                d.putValue("[0x%x]" % v)
+                d.putType(" ");
+                d.putNumChild(0)
+            with SubItem(d, "[val]"):
+                d.putValue("[0x%x]" % val)
+                d.putType(" ");
+                d.putNumChild(0)
+            with SubItem(d, "[tag]"):
+                d.putValue("[0x%x]" % tag)
+                d.putType(" ");
+                d.putNumChild(0)
+            #with SubItem(d, "[vtable]"):
+            #    d.putItem(d.createValue(vtable, ns + "QV4::VTable"))
+            #    d.putType(" ");
+            #    d.putNumChild(0)
+            d.putFields(value)
+
+def qdump_64__QV4__Value(d, value):
+    v = value.split('Q')[0]
     tag = v >> QV4_Masks_Tag_Shift
     vtable = v & QV4_PointerMask
     ns = d.qtNamespace()
@@ -2158,15 +2210,45 @@ def qdump__QV4__ScopedString(d, value):
 
 
 def qdump__QJSValue(d, value):
+    if d.ptrSize() == 4:
+        qdump_32__QJSValue(d, value)
+    else:
+        qdump_64__QJSValue(d, value)
+
+def qdump_32__QJSValue(d, value):
     ns = d.qtNamespace()
-    dd = value.split('Q')[0]
-    if dd & 1:
+    dd = value.split('I')[0]
+    d.putValue("[0x%x]" % dd)
+    if dd == 0:
+        d.putValue("(null)")
+        d.putType(value.type.name + " (null)")
+    elif dd & 1:
         variant = d.createValue(dd & ~3, ns + "QVariant")
         qdump__QVariant(d, variant)
         d.putBetterType(d.currentType.value.replace('QVariant', 'QJSValue', 1))
-    elif dd == 0:
+    elif dd & 3 == 0:
+        v4value = d.createValue(dd, ns + "QV4::Value")
+        qdump_32__QV4__Value(d, v4value)
+        d.putBetterType(d.currentType.value.replace('QV4::Value', 'QJSValue', 1))
+        return
+    if d.isExpanded():
+        with Children(d):
+            with SubItem(d, "[raw]"):
+                d.putValue("[0x%x]" % dd)
+                d.putType(" ");
+                d.putNumChild(0)
+            d.putFields(value)
+
+def qdump_64__QJSValue(d, value):
+    ns = d.qtNamespace()
+    dd = value.split('Q')[0]
+    if dd == 0:
         d.putValue("(null)")
         d.putType(value.type.name + " (null)")
+    elif dd & 1:
+        variant = d.createValue(dd & ~3, ns + "QVariant")
+        qdump__QVariant(d, variant)
+        d.putBetterType(d.currentType.value.replace('QVariant', 'QJSValue', 1))
     else:
         d.putEmptyValue()
         #qdump__QV4__Value(d, d.createValue(dd, ns + 'QV4::Value'))

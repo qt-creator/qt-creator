@@ -5022,13 +5022,13 @@ void tst_Dumpers::dumper_data()
 
                + Check("s", "", "S")
                + Check("s.b", "0", "bool")
-               + Check("s.c", "1", "bool")
+               + Check("s.c", "1", "bool : 1")
                + Check("s.f", FloatValue("5"), "float")
                + Check("s.d", FloatValue("6"), "double")
                + Check("s.i", "7", "int")
-               + Check("s.x", "2", "unsigned int")
-               + Check("s.y", "3", "unsigned int")
-               + Check("s.z", "39", "unsigned int");
+               + Check("s.x", "2", "unsigned int : 3")
+               + Check("s.y", "3", "unsigned int : 4")
+               + Check("s.z", "39", "unsigned int : 18");
 
 
     QTest::newRow("Function")
@@ -6170,9 +6170,9 @@ void tst_Dumpers::dumper_data()
                     "#include <QJSEngine>\n",
                     "QGuiApplication app(argc, argv);\n"
                     "QJSEngine eng;\n\n"
-                    "QV4::Value q0; unused(&q0);\n\n"
-                    "QV4::Value q1; unused(&q1);\n"
-                    "q1.setInt_32(1);\n\n"
+                    "//QV4::Value q0; unused(&q0); // Uninitialized data.\n\n"
+                    "//QV4::Value q1; unused(&q1); // Upper 32 bit uninitialized.\n"
+                    "//q1.setInt_32(1);\n\n"
                     "QV4::Value q2; unused(&q2);\n"
                     "q2.setDouble(2.5);\n\n"
                     "QJSValue v10; unused(&v10);\n"
@@ -6181,7 +6181,7 @@ void tst_Dumpers::dumper_data()
                     "QJSValue v13 = QJSValue(2.5); unused(&v13);\n"
                     "QJSValue v14 = QJSValue(QLatin1String(\"latin1\")); unused(&v14);\n"
                     "QJSValue v15 = QJSValue(QString(\"utf16\")); unused(&v15);\n"
-                    "QJSValue v16 = QJSValue(bool(true)); unused(&v12);\n"
+                    "QJSValue v16 = QJSValue(bool(true)); unused(&v16);\n"
                     "QJSValue v17 = eng.newArray(100); unused(&v17);\n"
                     "QJSValue v18 = eng.newObject(); unused(&v18);\n\n"
                     "v18.setProperty(\"PropA\", 1);\n"
@@ -6198,8 +6198,6 @@ void tst_Dumpers::dumper_data()
                     )
             + QmlPrivateProfile()
             + QtVersion(0x50000)
-            //+ Check("q0", "(null)", "@QV4::Value (null)") # Works in GUI. Why?
-            + Check("q1", "1", "@QV4::Value (int32)")
             + Check("q2", FloatValue("2.5"), "@QV4::Value (double)")
             //+ Check("v10", "(null)", "@QJSValue (null)") # Works in GUI. Why?
             + Check("v11", "true", "@QJSValue (bool)")

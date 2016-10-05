@@ -772,7 +772,7 @@ class DumperBase:
                 continue
 
             with SubItem(self, field.name):
-                self.putItem(value[field])
+                self.putItem(value.extractField(field))
 
 
     def putMembersItem(self, value, sortorder = 10):
@@ -2449,6 +2449,8 @@ class DumperBase:
         if typeobj.code == TypeCodeTypedef:
             strippedType = typeobj.stripTypedefs()
             self.putItem(value.cast(strippedType))
+            if value.lbitsize is not None and value.lbitsize != value.type.size() * 8:
+                typeName += " : %s" % value.lbitsize
             self.putBetterType(typeName)
             return
 
@@ -2478,7 +2480,9 @@ class DumperBase:
             #warn("INTEGER: %s %s" % (value.name, value))
             self.putValue(value.value())
             self.putNumChild(0)
-            self.putType(typeobj.name)
+            if value.lbitsize is not None and value.lbitsize != value.type.size() * 8:
+                typeName += " : %s" % value.lbitsize
+            self.putType(typeName)
             return
 
         if typeobj.code == TypeCodeFloat:
@@ -2579,6 +2583,7 @@ class DumperBase:
             self.laddress = None
             self.lIsInScope = True
             self.ldisplay = None
+            self.lbitsize = None
 
         def check(self):
             if self.laddress is not None and not self.dumper.isInt(self.laddress):
@@ -2595,8 +2600,9 @@ class DumperBase:
 
         def stringify(self):
             addr = "None" if self.laddress is None else ("0x%x" % self.laddress)
-            return "Value(name='%s',type=%s,data=%s,address=%s)" \
-                    % (self.name, self.type.stringify(), self.dumper.hexencode(self.ldata), addr)
+            return "Value(name='%s',type=%s,bsize=%s,data=%s,address=%s)" \
+                    % (self.name, self.type.name, self.lbitsize,
+                       self.dumper.hexencode(self.ldata), addr)
 
         def display(self):
             if self.type.code == TypeCodeEnum:
@@ -2686,6 +2692,7 @@ class DumperBase:
             fieldBitpos = field.bitpos()
             fieldOffset = fieldBitpos >> 3
             fieldBitpos -= fieldOffset * 8
+            fieldType = field.fieldType()
 
             val = self.dumper.Value(self.dumper)
             val.name = field.name
@@ -2697,7 +2704,7 @@ class DumperBase:
             else:
                 self.dumper.check(False)
 
-            if fieldBitsize is not None and fieldBitsize % 8 != 0:
+            if fieldBitsize is not None and fieldBitsize != fieldType.size() * 8:
                 data = val.extractInteger(fieldBitsize, True)
                 data = data >> fieldBitpos
                 data = data & ((1 << fieldBitsize) - 1)
@@ -2705,7 +2712,6 @@ class DumperBase:
                 val.ldata = bytes(struct.pack('Q', data))
 
             val.type = None
-            fieldType = field.fieldType()
             if val.laddress is not None and fieldType is not None:
                 if fieldType.code in (TypeCodePointer, TypeCodeReference):
                     baseType = fieldType.dereference()
@@ -2771,6 +2777,7 @@ class DumperBase:
             self.check()
             val = self.dumper.Value(self.dumper)
             val.laddress = self.laddress
+            val.lbitsize = self.lbitsize
             val.ldata = self.ldata
             val.type = self.dumper.createType(typish)
             return val
@@ -2889,8 +2896,8 @@ class DumperBase:
             #error("Not implemented")
 
         def stringify(self):
-            return "Type(name='%s',bsize=%s,bpos=%s,code=%s,native=%s)" \
-                    % (self.name, self.lbitsize, self.lbitpos, self.code, self.nativeType is not None)
+            return "Type(name='%s',bsize=%s,bpos=%s,code=%s,ntype=%s)" \
+                    % (self.name, self.lbitsize, self.lbitpos, self.code, self.nativeType)
 
         def __getitem__(self, index):
             if self.dumper.isInt(index):
