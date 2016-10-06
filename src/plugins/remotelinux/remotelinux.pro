@@ -48,7 +48,8 @@ HEADERS += \
     abstractremotelinuxrunsupport.h \
     linuxdeviceprocess.h \
     remotelinuxcustomrunconfiguration.h \
-    remotelinuxsignaloperation.h
+    remotelinuxsignaloperation.h \
+    deploymenttimeinfo.h
 
 SOURCES += \
     embeddedlinuxqtversion.cpp \
@@ -94,7 +95,8 @@ SOURCES += \
     abstractremotelinuxrunsupport.cpp \
     linuxdeviceprocess.cpp \
     remotelinuxcustomrunconfiguration.cpp \
-    remotelinuxsignaloperation.cpp
+    remotelinuxsignaloperation.cpp \
+    deploymenttimeinfo.cpp
 
 FORMS += \
     genericlinuxdeviceconfigurationwizardsetuppage.ui \

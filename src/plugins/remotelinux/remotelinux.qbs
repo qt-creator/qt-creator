@@ -27,6 +27,8 @@ Project {
             "abstractremotelinuxrunsupport.h",
             "abstractuploadandinstallpackageservice.cpp",
             "abstractuploadandinstallpackageservice.h",
+            "deploymenttimeinfo.cpp",
+            "deploymenttimeinfo.h",
             "embeddedlinuxqtversion.cpp",
             "embeddedlinuxqtversion.h",
             "embeddedlinuxqtversionfactory.cpp",
