@@ -286,9 +286,12 @@ void TargetSetupPage::reset()
 void TargetSetupPage::setProjectPath(const QString &path)
 {
     m_projectPath = path;
-    if (!m_projectPath.isEmpty())
+    if (!m_projectPath.isEmpty()) {
+        QFileInfo fileInfo(QDir::cleanPath(path));
+        QStringList subDirsList = fileInfo.absolutePath().split('/');
         m_ui->headerLabel->setText(tr("Qt Creator can use the following kits for project <b>%1</b>:",
-                                      "%1: Project name").arg(QFileInfo(m_projectPath).baseName()));
+                                      "%1: Project name").arg(subDirsList.last()));
+    }
     m_ui->headerLabel->setVisible(!m_projectPath.isEmpty());
 
     if (m_widgets.isEmpty())
