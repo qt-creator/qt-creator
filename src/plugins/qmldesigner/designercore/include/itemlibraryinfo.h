@@ -74,6 +74,7 @@ public:
     typedef QmlDesigner::PropertyContainer Property;
 
     QList<Property> properties() const;
+    QHash<QString, QString> hints() const;
 
     void setType(const TypeName &typeName, int majorVersion = -1, int minorVersion = -1);
     void setName(const QString &name);
@@ -84,6 +85,7 @@ public:
     void setCategory(const QString &category);
     void setQmlPath(const QString &qml);
     void setRequiredImport(const QString &requiredImport);
+    void addHints(const QHash<QString, QString> &hints);
 
 private:
     QExplicitlySharedDataPointer<Internal::ItemLibraryEntryData> m_data;
