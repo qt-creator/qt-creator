@@ -49,8 +49,9 @@ private:
     void highlightLine(const QString &line, int position, int length,
                        const QTextCharFormat &format);
 
-    void highlightDoxygenComment(const QString &text, int position,
-                                 int length);
+    void highlightComment(const QString &text, int position, int length);
+
+    void highlightDoxygenComment(const QString &text, int position, int length);
 
     bool isPPKeyword(const QStringRef &text) const;
 };

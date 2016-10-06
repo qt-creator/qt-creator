@@ -52,6 +52,7 @@ CppHighlighter::CppHighlighter(QTextDocument *document) :
         C_PREPROCESSOR,
         C_LABEL,
         C_COMMENT,
+        C_TODO_COMMENT,
         C_DOXYGEN_COMMENT,
         C_DOXYGEN_TAG,
         C_VISUAL_WHITESPACE
@@ -188,8 +189,7 @@ void CppHighlighter::highlightBlock(const QString &text)
         } else if (tk.isComment()) {
             const int startPosition = initialLexerState ? previousTokenEnd : tk.utf16charsBegin();
             if (tk.is(T_COMMENT) || tk.is(T_CPP_COMMENT)) {
-                highlightLine(text, startPosition, tk.utf16charsEnd() - startPosition,
-                              formatForCategory(CppCommentFormat));
+                highlightComment(text, startPosition, tk.utf16charsEnd() - startPosition);
             }
 
             else // a doxygen comment
@@ -393,6 +393,46 @@ void CppHighlighter::highlightWord(QStringRef word, int position, int length)
             }
 
             setFormat(position, length, formatForCategory(CppTypeFormat));
+        }
+    }
+}
+
+void CppHighlighter::highlightComment(const QString &text, int position, int length)
+{
+    const QTextCharFormat &commentFormat = formatForCategory(CppCommentFormat);
+    const QTextCharFormat &todoCommentFormat = formatForCategory(CppTodoCommentFormat);
+    QTextCharFormat visualSpaceFormat = formatForCategory(CppVisualWhitespace);
+    visualSpaceFormat.setBackground(commentFormat.background());
+
+    const int end = position + length;
+    int index = position;
+
+    while (index != end) {
+        const int start = index;
+
+        if (text.at(index).isSpace()) {
+            do { ++index; }
+            while (index != end && text.at(index).isSpace());
+            setFormat(start, index - start, visualSpaceFormat);
+            continue;
+        }
+
+        if (text.at(index).isLetter()) {
+            do { ++index; }
+            while (index != end && text.at(index).isLetter());
+            QStringRef str(&text, start, index - start);
+            if (str == "TODO" || str == "NOTE" || str == "FIXME"
+                || str == "BUG" || str == "WARNING")
+                setFormat(start, index - start, todoCommentFormat);
+            else
+                setFormat(start, index - start, commentFormat);
+            continue;
+        }
+
+        if (!text.at(index).isSpace() && !text.at(index).isLetter()) {
+            do { ++index; }
+            while (index != end && !text.at(index).isSpace() && !text.at(index).isLetter());
+            setFormat(start, index - start, commentFormat);
         }
     }
 }

@@ -232,6 +232,9 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
     formatDescr.emplace_back(C_COMMENT, tr("Comment"),
                              tr("All style of comments except Doxygen comments."),
                              Qt::darkGreen);
+    formatDescr.emplace_back(C_TODO_COMMENT, tr("TODO Comment"),
+                             tr("TODO, NOTE, FIXME, BUG, and WARNING tags in comments."),
+                             Qt::darkRed);
     formatDescr.emplace_back(C_DOXYGEN_COMMENT, tr("Doxygen Comment"),
                              tr("Doxygen comments."), Qt::darkBlue);
     formatDescr.emplace_back(C_DOXYGEN_TAG, tr("Doxygen Tag"), tr("Doxygen tags."),
