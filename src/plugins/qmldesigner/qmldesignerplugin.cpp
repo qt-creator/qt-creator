@@ -287,13 +287,13 @@ void QmlDesignerPlugin::createDesignModeWidget()
     connect(Core::ModeManager::instance(), &Core::ModeManager::currentModeChanged,
         [=] (Core::Id newMode, Core::Id oldMode) {
 
-        if (d && Core::EditorManager::currentEditor() && checkIfEditorIsQtQuick
-                (Core::EditorManager::currentEditor()) && !documentIsAlreadyOpen(
-                currentDesignDocument(), Core::EditorManager::currentEditor(), newMode)) {
+        Core::IEditor *currentEditor = Core::EditorManager::currentEditor();
+        if (d && currentEditor && checkIfEditorIsQtQuick(currentEditor) &&
+                !documentIsAlreadyOpen(currentDesignDocument(), currentEditor, newMode)) {
 
             if (!isDesignerMode(newMode) && isDesignerMode(oldMode))
                 hideDesigner();
-            else if (Core::EditorManager::currentEditor() && isDesignerMode(newMode))
+            else if (currentEditor && isDesignerMode(newMode))
                 showDesigner();
             else if (currentDesignDocument())
                 hideDesigner();
