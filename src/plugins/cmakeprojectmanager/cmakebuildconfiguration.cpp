@@ -159,11 +159,6 @@ void CMakeBuildConfiguration::maybeForceReparse()
     m_buildDirManager->maybeForceReparse();
 }
 
-BuildDirManager *CMakeBuildConfiguration::buildDirManager() const
-{
-    return m_buildDirManager;
-}
-
 bool CMakeBuildConfiguration::isParsing() const
 {
     return m_buildDirManager && m_buildDirManager->isParsing();
@@ -177,6 +172,37 @@ void CMakeBuildConfiguration::resetData()
 bool CMakeBuildConfiguration::persistCMakeState()
 {
     return m_buildDirManager->persistCMakeState();
+}
+
+void CMakeBuildConfiguration::runCMake()
+{
+    if (!m_buildDirManager || m_buildDirManager->isParsing())
+        return;
+
+    m_buildDirManager->checkConfiguration();
+    m_buildDirManager->forceReparse();
+}
+
+void CMakeBuildConfiguration::clearCache()
+{
+    if (m_buildDirManager)
+        m_buildDirManager->clearCache();
+}
+
+QList<CMakeBuildTarget> CMakeBuildConfiguration::buildTargets() const
+{
+    if (!m_buildDirManager || m_buildDirManager->isParsing())
+        return QList<CMakeBuildTarget>();
+
+    return m_buildDirManager->buildTargets();
+}
+
+void CMakeBuildConfiguration::generateProjectTree(CMakeProjectNode *root) const
+{
+    if (!m_buildDirManager || m_buildDirManager->isParsing())
+        return;
+
+    return m_buildDirManager->generateProjectTree(root);
 }
 
 FileName CMakeBuildConfiguration::shadowBuildDirectory(const FileName &projectFilePath,
@@ -196,7 +222,7 @@ FileName CMakeBuildConfiguration::shadowBuildDirectory(const FileName &projectFi
 
 QList<ConfigModel::DataItem> CMakeBuildConfiguration::completeCMakeConfiguration() const
 {
-    if (!m_buildDirManager && m_buildDirManager->isParsing())
+    if (!m_buildDirManager || m_buildDirManager->isParsing())
         return QList<ConfigModel::DataItem>();
 
     if (m_completeConfigurationCache.isEmpty())
@@ -234,7 +260,7 @@ QList<ConfigModel::DataItem> CMakeBuildConfiguration::completeCMakeConfiguration
 
 void CMakeBuildConfiguration::setCurrentCMakeConfiguration(const QList<ConfigModel::DataItem> &items)
 {
-    if (m_buildDirManager->isParsing())
+    if (!m_buildDirManager || m_buildDirManager->isParsing())
         return;
 
     const CMakeConfig newConfig = Utils::transform(items, [](const ConfigModel::DataItem &i) {

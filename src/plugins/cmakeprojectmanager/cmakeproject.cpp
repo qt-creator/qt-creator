@@ -25,7 +25,6 @@
 
 #include "cmakeproject.h"
 
-#include "builddirmanager.h"
 #include "cmakebuildconfiguration.h"
 #include "cmakekitinformation.h"
 #include "cmakeprojectconstants.h"
@@ -201,10 +200,7 @@ void CMakeProject::updateProjectData()
         return;
     Kit *k = t->kit();
 
-    BuildDirManager *bdm = cmakeBc->buildDirManager();
-    QTC_ASSERT(bdm, return);
-
-    bdm->generateProjectTree(static_cast<CMakeProjectNode *>(rootProjectNode()));
+    cmakeBc->generateProjectTree(static_cast<CMakeProjectNode *>(rootProjectNode()));
 
     updateApplicationAndDeploymentTargets();
     updateTargetRunConfigurations(t);
@@ -338,24 +334,17 @@ void CMakeProject::runCMake()
     if (activeTarget())
         bc = qobject_cast<CMakeBuildConfiguration *>(activeTarget()->activeBuildConfiguration());
 
-    if (!bc)
-        return;
-
-    BuildDirManager *bdm = bc->buildDirManager();
-    if (bdm && !bdm->isParsing()) {
-        bdm->checkConfiguration();
-        bdm->forceReparse();
-    }
+    if (bc)
+        bc->runCMake();
 }
 
 QList<CMakeBuildTarget> CMakeProject::buildTargets() const
 {
-    BuildDirManager *bdm = nullptr;
-    if (activeTarget() && activeTarget()->activeBuildConfiguration())
-        bdm = static_cast<CMakeBuildConfiguration *>(activeTarget()->activeBuildConfiguration())->buildDirManager();
-    if (!bdm)
-        return QList<CMakeBuildTarget>();
-    return bdm->buildTargets();
+    CMakeBuildConfiguration *bc = nullptr;
+    if (activeTarget())
+        bc = qobject_cast<CMakeBuildConfiguration *>(activeTarget()->activeBuildConfiguration());
+
+    return bc ? bc->buildTargets() : QList<CMakeBuildTarget>();
 }
 
 QStringList CMakeProject::buildTargetTitles(bool runnable) const

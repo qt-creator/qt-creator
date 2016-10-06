@@ -26,6 +26,7 @@
 #pragma once
 
 #include "cmakeconfigitem.h"
+#include "cmakeproject.h"
 #include "configmodel.h"
 
 #include <projectexplorer/buildconfiguration.h>
@@ -70,13 +71,16 @@ public:
     QString error() const;
     QString warning() const;
 
-    BuildDirManager *buildDirManager() const;
-
     bool isParsing() const;
 
     void maybeForceReparse();
     void resetData();
     bool persistCMakeState();
+    void runCMake();
+    void clearCache();
+
+    QList<CMakeBuildTarget> buildTargets() const;
+    void generateProjectTree(CMakeProjectNode *root) const;
 
     static Utils::FileName
     shadowBuildDirectory(const Utils::FileName &projectFilePath, const ProjectExplorer::Kit *k,
