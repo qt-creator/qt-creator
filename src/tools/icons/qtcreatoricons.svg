@@ -5950,7 +5950,7 @@
          r="5.5" />
     </g>
     <g
-       id="src/plugins/projectexplorer/images/enablekitbackground"
+       id="src/libs/utils/images/iconoverlay_add"
        transform="translate(112,0)">
       <rect
          id="rect5759-5-9-0-8-6-3"
@@ -5962,15 +5962,38 @@
       <circle
          style="opacity:1;fill:#000000"
          id="path5134"
-         cx="582.5"
-         cy="375.5"
-         r="3.5" />
+         cx="580.5"
+         cy="373.5"
+         r="4.5" />
+      <path
+         style="fill:#ffffff;fill-opacity:1"
+         d="m 581,371 0,2 2,0 0,1 -2,0 0,2 -1,0 0,-2 -2,0 0,-1 2,0 0,-2 z"
+         id="path5157-7"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccccccccccccc" />
     </g>
     <g
-       id="src/plugins/projectexplorer/images/enablekitforeground"
+       id="src/libs/utils/images/iconoverlay_add_background"
        transform="translate(128,0)">
       <rect
-         id="rect5759-5-9-0-8-6-3-1"
+         id="rect5759-5-9-0-8-6-3-0"
+         height="16"
+         width="16"
+         y="363"
+         x="570"
+         style="fill:#ffffff" />
+      <circle
+         style="opacity:1;fill:#000000;stroke:#000000;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="path5134-5"
+         cx="580.5"
+         cy="373.5"
+         r="4.5" />
+    </g>
+    <g
+       id="src/libs/utils/images/iconoverlay_warning"
+       transform="translate(144,0)">
+      <rect
+         id="rect5759-5-9-0-8-6-3-9"
          height="16"
          width="16"
          y="363"
@@ -5978,10 +6001,73 @@
          style="fill:#ffffff" />
       <path
          style="fill:#000000;fill-opacity:1"
-         d="m 583,373 0,2 2,0 0,1 -2,0 0,2 -1,0 0,-2 -2,0 0,-1 2,0 0,-2 z"
-         id="path5157"
+         d="m 585,378 0,-0.45879 L 580.5,368.5 576,377.58517 576,378 Z"
+         id="path5136"
          inkscape:connector-curvature="0"
-         sodipodi:nodetypes="ccccccccccccc" />
+         sodipodi:nodetypes="cccccc" />
+      <path
+         id="path5164-0-1"
+         style="fill:#ffffff;fill-opacity:1"
+         d="m 581,376 0,1 -1,0 0,-1 z m 0,-4 -0.25,3 -0.5,0 -0.25,-3 z"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cccccccccc" />
+    </g>
+    <g
+       id="src/libs/utils/images/iconoverlay_warning_background"
+       transform="translate(160,0)">
+      <rect
+         id="rect5759-5-9-0-8-6-3-9-2"
+         height="16"
+         width="16"
+         y="363"
+         x="570"
+         style="fill:#ffffff" />
+      <path
+         style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m 585,378 0,-0.45879 L 580.5,368.5 576,377.58517 576,378 Z"
+         id="path5136-9"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cccccc" />
+    </g>
+    <g
+       id="src/libs/utils/images/iconoverlay_error"
+       transform="translate(176,0)">
+      <rect
+         id="rect5759-5-9-0-8-6-3-9-1"
+         height="16"
+         width="16"
+         y="363"
+         x="570"
+         style="fill:#ffffff" />
+      <path
+         style="fill:#000000;fill-opacity:1"
+         d="m 578.5,370 4,0 2.5,4 -2.5,4 -4,0 -2.5,-4 z"
+         id="path5191"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccccccc" />
+      <path
+         id="path5164-0"
+         style="fill:#ffffff;fill-opacity:1"
+         d="m 581,376 0,1 -1,0 0,-1 z m 0,-4 -0.25,3 -0.5,0 -0.25,-3 z"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cccccccccc" />
+    </g>
+    <g
+       id="src/libs/utils/images/iconoverlay_error_background"
+       transform="translate(192,0)">
+      <rect
+         id="rect5759-5-9-0-8-6-3-9-1-2"
+         height="16"
+         width="16"
+         y="363"
+         x="570"
+         style="fill:#ffffff" />
+      <path
+         style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m 578.5,370 4,0 2.5,4 -2.5,4 -4,0 -2.5,-4 z"
+         id="path5191-2"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccccccc" />
     </g>
   </g>
 </svg>

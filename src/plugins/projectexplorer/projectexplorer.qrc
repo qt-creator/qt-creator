@@ -73,9 +73,5 @@
         <file>images/fileoverlay_h@2x.png</file>
         <file>images/fileoverlay_unknown.png</file>
         <file>images/fileoverlay_unknown@2x.png</file>
-        <file>images/enablekitbackground.png</file>
-        <file>images/enablekitbackground@2x.png</file>
-        <file>images/enablekitforeground.png</file>
-        <file>images/enablekitforeground@2x.png</file>
     </qresource>
 </RCC>

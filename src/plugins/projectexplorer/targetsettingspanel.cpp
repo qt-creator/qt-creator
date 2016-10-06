@@ -332,20 +332,6 @@ public:
         return Qt::ItemFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
     }
 
-    static QIcon enableKitIcon(const Kit &kit)
-    {
-        static const QIcon overlay = Utils::Icons::ENABLE_KIT_OVERLAY.icon();
-        const QSize iconSize(16, 16);
-        const QRect iconRect(QPoint(), iconSize);
-        QPixmap result(iconSize * qApp->devicePixelRatio());
-        result.fill(Qt::transparent);
-        result.setDevicePixelRatio(qApp->devicePixelRatio());
-        QPainter p(&result);
-        kit.icon().paint(&p, iconRect, Qt::AlignCenter, QIcon::Disabled);
-        overlay.paint(&p, iconRect);
-        return result;
-    }
-
     QVariant data(int column, int role) const override
     {
         switch (role) {
@@ -359,11 +345,11 @@ public:
             const Kit *k = KitManager::find(m_kitId);
             QTC_ASSERT(k, return QVariant());
             if (!isEnabled())
-                return enableKitIcon(*k);
+                return kitIconWithOverlay(*k, IconOverlay::Add);
             if (!k->isValid())
-                return Utils::Icons::ERROR.icon();
+                return kitIconWithOverlay(*k, IconOverlay::Error);
             if (k->hasWarning())
-                return Utils::Icons::WARNING.icon();
+                return kitIconWithOverlay(*k, IconOverlay::Warning);
             return k->icon();
         }
 
@@ -521,6 +507,45 @@ public:
     QPointer<Project> m_project; // Not owned.
     Id m_kitId;
     int m_currentChild = 1; // Use run page by default.
+
+private:
+    enum class IconOverlay {
+        Add,
+        Warning,
+        Error
+    };
+
+    static QIcon kitIconWithOverlay(const Kit &kit, IconOverlay overlayType)
+    {
+        QIcon overlayIcon;
+        switch (overlayType) {
+        case IconOverlay::Add: {
+            static const QIcon add = Utils::Icons::OVERLAY_ADD.icon();
+            overlayIcon = add;
+            break;
+        }
+        case IconOverlay::Warning: {
+            static const QIcon warning = Utils::Icons::OVERLAY_WARNING.icon();
+            overlayIcon = warning;
+            break;
+        }
+        case IconOverlay::Error: {
+            static const QIcon err = Utils::Icons::OVERLAY_ERROR.icon();
+            overlayIcon = err;
+            break;
+        }
+        }
+        const QSize iconSize(16, 16);
+        const QRect iconRect(QPoint(), iconSize);
+        QPixmap result(iconSize * qApp->devicePixelRatio());
+        result.fill(Qt::transparent);
+        result.setDevicePixelRatio(qApp->devicePixelRatio());
+        QPainter p(&result);
+        kit.icon().paint(&p, iconRect, Qt::AlignCenter,
+                         overlayType == IconOverlay::Add ? QIcon::Disabled : QIcon::Normal);
+        overlayIcon.paint(&p, iconRect);
+        return result;
+    }
 };
 
 //
