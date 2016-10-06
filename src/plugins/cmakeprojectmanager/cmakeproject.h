@@ -88,7 +88,6 @@ public:
 
     QStringList files(FilesMode fileMode) const final;
     QStringList buildTargetTitles(bool runnable = false) const;
-    QList<CMakeBuildTarget> buildTargets() const;
     bool hasBuildTarget(const QString &title) const;
 
     CMakeBuildTarget buildTargetForTitle(const QString &title);
@@ -110,6 +109,8 @@ protected:
     bool setupTarget(ProjectExplorer::Target *t) final;
 
 private:
+    QList<CMakeBuildTarget> buildTargets() const;
+
     void handleActiveTargetChanged();
     void handleActiveBuildConfigurationChanged();
     void handleParsingStarted();
