@@ -51,14 +51,6 @@ public:
     bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0) override;
     bool renameFile(const QString &filePath, const QString &newFilePath) override;
 
-    void refresh(QSet<QString> oldFileList = QSet<QString>());
-
-private:
-    typedef QHash<QString, FolderNode *> FolderByName;
-    FolderNode *createFolderByName(const QStringList &components, int end);
-    FolderNode *findFolderByName(const QStringList &components, int end);
-    void removeEmptySubFolders(FolderNode *gparent, FolderNode *parent);
-
 private:
     GenericProject *const m_project;
 };
