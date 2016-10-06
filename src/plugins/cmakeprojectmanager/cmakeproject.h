@@ -64,7 +64,6 @@ public:
     QString workingDirectory;
     QString sourceDirectory;
     QString makeCommand;
-    QString makeCleanCommand;
 
     // code model
     QStringList includeFiles;

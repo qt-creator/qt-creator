@@ -642,7 +642,6 @@ void CMakeBuildTarget::clear()
 {
     executable.clear();
     makeCommand.clear();
-    makeCleanCommand.clear();
     workingDirectory.clear();
     sourceDirectory.clear();
     title.clear();
