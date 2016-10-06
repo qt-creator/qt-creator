@@ -30,6 +30,8 @@
 #include <coreplugin/fileiconprovider.h>
 #include <projectexplorer/projectexplorer.h>
 
+#include <utils/algorithm.h>
+
 #include <QFileInfo>
 #include <QStyle>
 
@@ -37,7 +39,7 @@ namespace QmlProjectManager {
 namespace Internal {
 
 QmlProjectNode::QmlProjectNode(QmlProject *project)
-    : ProjectExplorer::ProjectNode(project->projectFilePath()),
+    : ProjectExplorer::ProjectNode(project->projectDirectory()),
       m_project(project)
 {
     setDisplayName(project->projectFilePath().toFileInfo().completeBaseName());
@@ -57,12 +59,6 @@ void QmlProjectNode::refresh()
 {
     using namespace ProjectExplorer;
 
-    // remove the existing nodes.
-    removeFileNodes(fileNodes());
-    removeFolderNodes(subFolderNodes());
-
-    //ProjectExplorerPlugin::instance()->setCurrentNode(0); // ### remove me
-
     FileNode *projectFilesNode = new FileNode(m_project->filesFileName(),
                                               ProjectFileType,
                                               /* generated = */ false);
@@ -70,91 +66,14 @@ void QmlProjectNode::refresh()
     QStringList files = m_project->files();
     files.removeAll(m_project->filesFileName().toString());
 
-    addFileNodes(QList<FileNode *>()
-                 << projectFilesNode);
+    QList<FileNode *> fileNodes = Utils::transform(files, [](const QString &f) {
+        FileType fileType = SourceType; // ### FIXME
+        return new FileNode(Utils::FileName::fromString(f), fileType, false);
 
-    QHash<QString, QStringList> filesInDirectory;
+    });
+    fileNodes.append(projectFilesNode);
 
-    foreach (const QString &fileName, files) {
-        QFileInfo fileInfo(fileName);
-
-        QString absoluteFilePath;
-        QString relativeDirectory;
-
-        if (fileInfo.isAbsolute()) {
-            // plain old file format
-            absoluteFilePath = fileInfo.filePath();
-            relativeDirectory = m_project->projectDir().relativeFilePath(fileInfo.path());
-            if (relativeDirectory == QLatin1String("."))
-                relativeDirectory.clear();
-        } else {
-            absoluteFilePath = m_project->projectDir().absoluteFilePath(fileInfo.filePath());
-            relativeDirectory = fileInfo.path();
-            if (relativeDirectory == QLatin1String("."))
-                relativeDirectory.clear();
-        }
-
-        filesInDirectory[relativeDirectory].append(absoluteFilePath);
-    }
-
-    const QHash<QString, QStringList>::ConstIterator cend = filesInDirectory.constEnd();
-    for (QHash<QString, QStringList>::ConstIterator it = filesInDirectory.constBegin(); it != cend; ++it) {
-        FolderNode *folder = findOrCreateFolderByName(it.key());
-
-        QList<FileNode *> fileNodes;
-        foreach (const QString &file, it.value()) {
-            FileType fileType = SourceType; // ### FIXME
-            FileNode *fileNode = new FileNode(Utils::FileName::fromString(file),
-                                              fileType, /*generated = */ false);
-            fileNodes.append(fileNode);
-        }
-
-        folder->addFileNodes(fileNodes);
-    }
-
-    m_folderByName.clear();
-}
-
-ProjectExplorer::FolderNode *QmlProjectNode::findOrCreateFolderByName(const QStringList &components, int end)
-{
-    if (! end)
-        return 0;
-
-    Utils::FileName folderPath = filePath().parentDir();
-
-    QString folderName;
-    for (int i = 0; i < end; ++i) {
-        folderName.append(components.at(i));
-        folderName += QLatin1Char('/'); // ### FIXME
-    }
-
-    const QString component = components.at(end - 1);
-
-    if (component.isEmpty())
-        return this;
-
-    else if (FolderNode *folder = m_folderByName.value(folderName))
-        return folder;
-
-    folderPath.appendPath(folderName);
-    FolderNode *folder = new FolderNode(folderPath);
-    folder->setDisplayName(component);
-
-    m_folderByName.insert(folderName, folder);
-
-    FolderNode *parent = findOrCreateFolderByName(components, end - 1);
-    if (! parent)
-        parent = this;
-
-    parent->addFolderNodes(QList<FolderNode*>() << folder);
-
-    return folder;
-}
-
-ProjectExplorer::FolderNode *QmlProjectNode::findOrCreateFolderByName(const QString &filePath)
-{
-    QStringList components = filePath.split(QLatin1Char('/'));
-    return findOrCreateFolderByName(components, components.length());
+    buildTree(fileNodes);
 }
 
 bool QmlProjectNode::showInSimpleTree() const
