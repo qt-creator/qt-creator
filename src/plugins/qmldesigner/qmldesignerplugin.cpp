@@ -130,17 +130,6 @@ static bool shouldAssertInException()
     return !processEnvironment.value("QMLDESIGNER_ASSERT_ON_EXCEPTION").isEmpty();
 }
 
-static void switchTextDesign()
-{
-    if (Core::ModeManager::currentMode() == Core::Constants::MODE_EDIT) {
-        Core::IEditor *editor = Core::EditorManager::currentEditor();
-        if (checkIfEditorIsQtQuick(editor))
-            Core::ModeManager::activateMode(Core::Constants::MODE_DESIGN);
-    } else if (Core::ModeManager::currentMode() == Core::Constants::MODE_DESIGN) {
-        Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
-    }
-}
-
 QmlDesignerPlugin::QmlDesignerPlugin()
 {
     m_instance = this;
@@ -206,7 +195,15 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
     MetaInfo::setPluginPaths(QStringList(pluginPath));
 
     createDesignModeWidget();
-    connect(switchTextDesignAction, &QAction::triggered, this, &switchTextDesign);
+    connect(switchTextDesignAction, &QAction::triggered, this, [](){
+        if (Core::ModeManager::currentMode() == Core::Constants::MODE_EDIT) {
+            Core::IEditor *editor = Core::EditorManager::currentEditor();
+            if (checkIfEditorIsQtQuick(editor))
+                Core::ModeManager::activateMode(Core::Constants::MODE_DESIGN);
+        } else if (Core::ModeManager::currentMode() == Core::Constants::MODE_DESIGN) {
+            Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
+        }
+    });
 
     addAutoReleasedObject(new Internal::SettingsPage);
 
