@@ -94,7 +94,7 @@ BreakpointAtJavaScriptThrow, \
     = range(0, 14)
 
 
-# Internal codes for types
+# Internal codes for types keep in sync with cdbextensions pytype.cpp
 TypeCodeTypedef, \
 TypeCodeStruct, \
 TypeCodeVoid, \

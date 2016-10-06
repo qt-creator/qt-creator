@@ -80,6 +80,8 @@ class Value:
     dereference() -> Value                # Dereference if value is pointer,
                                           # remove reference if value is reference.
     hasChildren() -> bool                 # Whether this object has subobjects.
+    expand() -> bool                      # Make sure that children are accessible.
+    nativeDebuggerValue() -> string       # Dumper value returned from the debugger
 
     childFromName(string name) -> Value   # (optional)
     childFromField(Field field) -> Value  # (optional)
@@ -122,6 +124,7 @@ class Field:
 parseAndEvaluate(string: expr) -> Value   # or None if not possible.
 lookupType(string: name) -> Type          # or None if not possible.
 listOfLocals() -> [ Value ]               # List of items currently in scope.
+readRawMemory(ULONG64 address, ULONG size) -> bytes # Read a block of data from the virtual address space
 
 
 

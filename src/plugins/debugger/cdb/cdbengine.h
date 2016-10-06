@@ -158,6 +158,7 @@ private:
         NoFlags = 0,
         BuiltinCommand,
         ExtensionCommand,
+        ScriptCommand
     };
 
     bool startConsole(const DebuggerRunParameters &sp, QString *errorMessage);
@@ -210,6 +211,7 @@ private:
     void handleWidgetAt(const DebuggerResponse &response);
     void handleBreakPoints(const DebuggerResponse &response);
     void handleAdditionalQmlStack(const DebuggerResponse &response);
+    void setupScripting(const DebuggerResponse &response);
     NormalizedSourceFileName sourceMapNormalizeFileNameFromDebugger(const QString &f);
     void doUpdateLocals(const UpdateParameters &params) override;
     void updateAll() override;
@@ -258,6 +260,7 @@ private:
     QVariantList m_customSpecialStopData;
     QList<SourcePathMapping> m_sourcePathMappings;
     QScopedPointer<GdbMi> m_coreStopReason;
+    int m_pythonVersion = 0; // 0xMMmmpp MM = major; mm = minor; pp = patch
 };
 
 } // namespace Internal

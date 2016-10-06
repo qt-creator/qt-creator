@@ -680,6 +680,9 @@ class Dumper(DumperBase):
         # We get i686-w64-mingw32
         return 'mingw' in gdb.TARGET_CONFIG.lower()
 
+    def isMsvcTarget(self):
+        return False
+
     def qtVersionString(self):
         try:
             return str(gdb.lookup_symbol("qVersion")[0].value()())

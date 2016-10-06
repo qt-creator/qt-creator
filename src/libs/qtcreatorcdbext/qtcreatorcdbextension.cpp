@@ -33,6 +33,7 @@
 
 #ifdef WITH_PYTHON
 #include <Python.h>
+#include "pystdoutredirect.h"
 #endif
 
 #include <cstdio>
@@ -579,26 +580,17 @@ extern "C" HRESULT CALLBACK script(CIDebugClient *client, PCSTR argsIn)
     for (std::string arg : commandTokens<StringList>(argsIn, &token))
         command << arg << ' ';
 
-    if (PyRun_SimpleString(command.str().c_str()) == 0) {
-        ExtensionContext::instance().reportLong('R', token, "script", "");
-    } else {
-        ExtensionContext::instance().report('N', token, 0, "script",
-                                            "Error while executing Python code.");
-    }
-
-    _Py_IDENTIFIER(stdout);
-    _Py_IDENTIFIER(flush);
-
-    PyObject *fout = _PySys_GetObjectId(&PyId_stdout);
-    PyObject *tmp;
-
-    if (fout != NULL && fout != Py_None) {
-        tmp = _PyObject_CallMethodId(fout, &PyId_flush, "");
-        if (tmp == NULL)
-            PyErr_WriteUnraisable(fout);
-        else
-            Py_DECREF(tmp);
-    }
+    PyObject *ptype      = NULL;
+    PyObject *pvalue     = NULL;
+    PyObject *ptraceback = NULL;
+    PyErr_Fetch(&ptype, &pvalue, &ptraceback);
+    startCapturePyStdout();
+    const char result = (PyRun_SimpleString(command.str().c_str()) == 0) ? 'R' : 'N';
+    if (PyErr_Occurred())
+        PyErr_Print();
+    ExtensionContext::instance().reportLong(result, token, "script", getPyStdout().c_str());
+    endCapturePyStdout();
+    PyErr_Restore(ptype, pvalue, ptraceback);
 #else
     commandTokens<StringList>(argsIn, &token);
     ExtensionContext::instance().report('N', token, 0, "script",

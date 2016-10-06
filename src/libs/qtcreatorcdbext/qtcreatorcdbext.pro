@@ -103,6 +103,20 @@ exists($$PYTHON_INSTALL_DIR) {
     INCLUDEPATH += $$PYTHON_INSTALL_DIR/include
     DEPENDPATH += $$PYTHON_INSTALL_DIR/include
 
+    SOURCES += \
+        pycdbextmodule.cpp \
+        pyfield.cpp \
+        pystdoutredirect.cpp \
+        pytype.cpp \
+        pyvalue.cpp
+
+    HEADERS += \
+        pycdbextmodule.h \
+        pyfield.h \
+        pystdoutredirect.h \
+        pytype.h \
+        pyvalue.h
+
     #TODO: parse version number for a generic approach
     CONFIG(release, debug|release): LIBS += -L$$PYTHON_INSTALL_DIR/libs -lpython35
     else:CONFIG(debug, debug|release): LIBS += -L$$PYTHON_INSTALL_DIR/libs -lpython35_d

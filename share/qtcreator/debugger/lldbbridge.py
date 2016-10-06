@@ -474,6 +474,9 @@ class Dumper(DumperBase):
     def isArmArchitecture(self):
         return False
 
+    def isMsvcTarget(self):
+        return False
+
     def qtVersionAndNamespace(self):
         for func in self.target.FindFunctions('qVersion'):
             name = func.GetSymbol().GetName()
