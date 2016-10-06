@@ -45,8 +45,11 @@ Jobs::Jobs(Documents &documents,
     , m_client(client)
     , m_queue(documents, projectParts)
 {
-    m_queue.setIsJobRunningHandler([this](const Utf8String &translationUnitId) {
-        return isJobRunning(translationUnitId);
+    m_queue.setIsJobRunningForTranslationUnitHandler([this](const Utf8String &translationUnitId) {
+        return isJobRunningForTranslationUnit(translationUnitId);
+    });
+    m_queue.setIsJobRunningForJobRequestHandler([this](const JobRequest &jobRequest) {
+        return isJobRunningForJobRequest(jobRequest);
     });
 }
 
@@ -146,10 +149,19 @@ JobRequests Jobs::queue() const
     return m_queue.queue();
 }
 
-bool Jobs::isJobRunning(const Utf8String &translationUnitId) const
+bool Jobs::isJobRunningForTranslationUnit(const Utf8String &translationUnitId) const
 {
-    const auto hasJobRequest = [translationUnitId](const RunningJob &runningJob) {
+    const auto hasTranslationUnitId = [translationUnitId](const RunningJob &runningJob) {
         return runningJob.translationUnitId == translationUnitId;
+    };
+
+    return Utils::anyOf(m_running.values(), hasTranslationUnitId);
+}
+
+bool Jobs::isJobRunningForJobRequest(const JobRequest &jobRequest) const
+{
+    const auto hasJobRequest = [jobRequest](const RunningJob &runningJob) {
+        return runningJob.jobRequest == jobRequest;
     };
 
     return Utils::anyOf(m_running.values(), hasJobRequest);

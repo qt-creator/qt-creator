@@ -42,6 +42,7 @@
 #include <cmbunregisterprojectsforeditormessage.h>
 #include <cmbunregistertranslationunitsforeditormessage.h>
 
+#include <QCoreApplication>
 #include <QFile>
 
 using testing::Property;
@@ -320,6 +321,20 @@ TEST_F(ClangClangCodeModelServer, SupportiveTranslationUnitIsSetupAfterFirstEdit
 
     ASSERT_TRUE(waitUntilAllJobsFinished());
     ASSERT_TRUE(isSupportiveTranslationUnitInitialized(filePathA));
+}
+
+TEST_F(ClangClangCodeModelServer, DoNotRunDuplicateJobs)
+{
+    registerProjectAndFile(filePathA, 3);
+    ASSERT_TRUE(waitUntilAllJobsFinished());
+    updateUnsavedContent(filePathA, unsavedContent(filePathAUnsavedVersion2), 1);
+    ASSERT_TRUE(waitUntilAllJobsFinished());
+    ASSERT_TRUE(isSupportiveTranslationUnitInitialized(filePathA));
+    updateUnsavedContent(filePathA, unsavedContent(filePathAUnsavedVersion2), 2);
+    QCoreApplication::processEvents(); // adds + runs a job
+    updateVisibilty(Utf8String(), Utf8String());
+
+    updateVisibilty(filePathA, filePathA); // triggers adding + runnings job on next processevents()
 }
 
 TEST_F(ClangClangCodeModelServer, OpenDocumentAndEdit)

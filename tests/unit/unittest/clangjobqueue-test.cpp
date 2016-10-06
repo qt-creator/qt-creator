@@ -95,6 +95,29 @@ TEST_F(JobQueue, AddJob)
     ASSERT_THAT(jobQueue.queue().size(), Eq(1));
 }
 
+TEST_F(JobQueue, DoNotAddDuplicate)
+{
+    const JobRequest request = createJobRequest(filePath1,
+                                                JobRequest::Type::UpdateDocumentAnnotations);
+    jobQueue.add(request);
+
+    const bool added = jobQueue.add(request);
+
+    ASSERT_FALSE(added);
+}
+
+TEST_F(JobQueue, DoNotAddDuplicateForWhichAJobIsAlreadyRunning)
+{
+    jobQueue.setIsJobRunningForJobRequestHandler([](const JobRequest &) {
+       return true;
+    });
+
+    const bool added = jobQueue.add(createJobRequest(filePath1,
+                                                     JobRequest::Type::UpdateDocumentAnnotations));
+
+    ASSERT_FALSE(added);
+}
+
 TEST_F(JobQueue, ProcessEmpty)
 {
     jobQueue.processQueue();
@@ -115,7 +138,7 @@ TEST_F(JobQueue, ProcessSingleJob)
 TEST_F(JobQueue, ProcessUntilEmpty)
 {
     jobQueue.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
-    jobQueue.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
+    jobQueue.add(createJobRequest(filePath1, JobRequest::Type::CreateInitialDocumentPreamble));
 
     JobRequests jobsToRun;
     ASSERT_THAT(jobQueue.size(), Eq(2));
@@ -235,7 +258,7 @@ TEST_F(JobQueue, PrioritizeCurrentDocumentOverVisible)
 TEST_F(JobQueue, RunNothingForNotCurrentOrVisibleDocument)
 {
     jobQueue.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
-    jobQueue.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
+    jobQueue.add(createJobRequest(filePath1, JobRequest::Type::CreateInitialDocumentPreamble));
     documents.setVisibleInEditors({});
     documents.setUsedByCurrentEditor(Utf8StringLiteral("aNonExistingFilePath"));
 
@@ -247,7 +270,7 @@ TEST_F(JobQueue, RunNothingForNotCurrentOrVisibleDocument)
 TEST_F(JobQueue, RunOnlyOneJobPerTranslationUnitIfMultipleAreInQueue)
 {
     jobQueue.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
-    jobQueue.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
+    jobQueue.add(createJobRequest(filePath1, JobRequest::Type::CreateInitialDocumentPreamble));
 
     const JobRequests jobsToRun = jobQueue.processQueue();
 
@@ -276,9 +299,9 @@ TEST_F(JobQueue, RunJobsForDistinctTranslationUnits)
 TEST_F(JobQueue, DoNotRunJobForTranslationUnittThatIsBeingProcessed)
 {
     jobQueue.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
-    jobQueue.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
+    jobQueue.add(createJobRequest(filePath1, JobRequest::Type::CreateInitialDocumentPreamble));
     JobRequests jobsToRun = jobQueue.processQueue();
-    jobQueue.setIsJobRunningHandler([](const Utf8String &) {
+    jobQueue.setIsJobRunningForTranslationUnitHandler([](const Utf8String &) {
        return true;
     });
 

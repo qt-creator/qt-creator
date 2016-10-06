@@ -68,7 +68,8 @@ public:
 public /*for tests*/:
     QList<RunningJob> runningJobs() const;
     JobRequests queue() const;
-    bool isJobRunning(const Utf8String &translationUnitId) const;
+    bool isJobRunningForTranslationUnit(const Utf8String &translationUnitId) const;
+    bool isJobRunningForJobRequest(const JobRequest &jobRequest) const;
 
 private:
     JobRequests runJobs(const JobRequests &jobRequest);

@@ -71,6 +71,8 @@ public:
 
     JobRequest();
 
+    bool operator==(const JobRequest &other) const;
+
 public:
     quint64 id = 0;
     Type type;

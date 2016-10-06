@@ -86,6 +86,23 @@ JobRequest::JobRequest()
     id = ++idCounter;
 }
 
+bool JobRequest::operator==(const JobRequest &other) const
+{
+    return type == other.type
+        && requirements == other.requirements
+
+        && filePath == other.filePath
+        && projectPartId == other.projectPartId
+        && unsavedFilesChangeTimePoint == other.unsavedFilesChangeTimePoint
+        && projectChangeTimePoint == other.projectChangeTimePoint
+        && documentRevision == other.documentRevision
+        && preferredTranslationUnit == other.preferredTranslationUnit
+
+        && line == other.line
+        && column == other.column
+        && ticketNumber == other.ticketNumber;
+}
+
 JobRequest::Requirements JobRequest::requirementsForType(Type type)
 {
     switch (type) {

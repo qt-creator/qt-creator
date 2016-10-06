@@ -41,11 +41,22 @@ JobQueue::JobQueue(Documents &documents, ProjectParts &projectParts)
 {
 }
 
-void JobQueue::add(const JobRequest &job)
+bool JobQueue::add(const JobRequest &job)
 {
-    qCDebug(jobsLog) << "Adding" << job;
+    if (m_queue.contains(job)) {
+        qCDebug(jobsLog) << "Not adding duplicate request" << job;
+        return false;
+    }
 
+    if (isJobRunningForJobRequest(job)) {
+        qCDebug(jobsLog) << "Not adding duplicate request for already running job" << job;
+        return false;
+    }
+
+    qCDebug(jobsLog) << "Adding" << job;
     m_queue.append(job);
+
+    return true;
 }
 
 int JobQueue::size() const
@@ -200,15 +211,30 @@ JobRequests JobQueue::takeJobRequestsToRunNow()
 
 bool JobQueue::isJobRunningForTranslationUnit(const Utf8String &translationUnitId)
 {
-    if (m_isJobRunningHandler)
-        return m_isJobRunningHandler(translationUnitId);
+    if (m_isJobRunningForTranslationUnitHandler)
+        return m_isJobRunningForTranslationUnitHandler(translationUnitId);
 
     return false;
 }
 
-void JobQueue::setIsJobRunningHandler(const IsJobRunningHandler &isJobRunningHandler)
+bool JobQueue::isJobRunningForJobRequest(const JobRequest &jobRequest)
 {
-    m_isJobRunningHandler = isJobRunningHandler;
+    if (m_isJobRunningForJobRequestHandler)
+        return m_isJobRunningForJobRequestHandler(jobRequest);
+
+    return false;
+}
+
+void JobQueue::setIsJobRunningForTranslationUnitHandler(
+        const IsJobRunningForTranslationUnitHandler &isJobRunningHandler)
+{
+    m_isJobRunningForTranslationUnitHandler = isJobRunningHandler;
+}
+
+void JobQueue::setIsJobRunningForJobRequestHandler(
+        const JobQueue::IsJobRunningForJobRequestHandler &isJobRunningHandler)
+{
+    m_isJobRunningForJobRequestHandler = isJobRunningHandler;
 }
 
 JobRequests JobQueue::queue() const

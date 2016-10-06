@@ -39,12 +39,17 @@ class JobQueue
 public:
     JobQueue(Documents &documents, ProjectParts &projects);
 
-    void add(const JobRequest &job);
+    bool add(const JobRequest &job);
 
     JobRequests processQueue();
 
-    using IsJobRunningHandler = std::function<bool(const Utf8String &)>;
-    void setIsJobRunningHandler(const IsJobRunningHandler &isJobRunningHandler);
+    using IsJobRunningForTranslationUnitHandler = std::function<bool(const Utf8String &)>;
+    void setIsJobRunningForTranslationUnitHandler(
+            const IsJobRunningForTranslationUnitHandler &isJobRunningHandler);
+
+    using IsJobRunningForJobRequestHandler = std::function<bool(const JobRequest &)>;
+    void setIsJobRunningForJobRequestHandler(
+            const IsJobRunningForJobRequestHandler &isJobRunningHandler);
 
 public: // for tests
     JobRequests queue() const;
@@ -53,6 +58,7 @@ public: // for tests
 
 private:
     bool isJobRunningForTranslationUnit(const Utf8String &translationUnitId);
+    bool isJobRunningForJobRequest(const JobRequest &jobRequest);
     JobRequests takeJobRequestsToRunNow();
     void removeOutDatedRequests();
     bool isJobRequestOutDated(const JobRequest &jobRequest) const;
@@ -61,7 +67,8 @@ private:
     Documents &m_documents;
     ProjectParts &m_projectParts;
 
-    IsJobRunningHandler m_isJobRunningHandler;
+    IsJobRunningForTranslationUnitHandler m_isJobRunningForTranslationUnitHandler;
+    IsJobRunningForJobRequestHandler m_isJobRunningForJobRequestHandler;
 
     JobRequests m_queue;
 };
