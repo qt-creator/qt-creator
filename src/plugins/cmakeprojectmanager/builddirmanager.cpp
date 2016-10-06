@@ -28,9 +28,11 @@
 #include "cmakekitinformation.h"
 #include "cmakeparser.h"
 #include "cmakeprojectmanager.h"
+#include "cmakeprojectnodes.h"
 #include "cmaketool.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <projectexplorer/kit.h>
@@ -54,6 +56,8 @@
 #include <QSet>
 #include <QTemporaryDir>
 
+using namespace ProjectExplorer;
+
 // --------------------------------------------------------------------
 // Helper:
 // --------------------------------------------------------------------
@@ -61,7 +65,7 @@
 namespace CMakeProjectManager {
 namespace Internal {
 
-static QStringList toArguments(const CMakeConfig &config, const ProjectExplorer::Kit *k) {
+static QStringList toArguments(const CMakeConfig &config, const Kit *k) {
     return Utils::transform(config, [k](const CMakeConfigItem &i) -> QString {
         QString a = QString::fromLatin1("-D");
         a.append(QString::fromUtf8(i.key));
@@ -110,10 +114,11 @@ BuildDirManager::~BuildDirManager()
 {
     stopProcess();
     resetData();
+    qDeleteAll(m_watchedFiles);
     delete m_tempDir;
 }
 
-const ProjectExplorer::Kit *BuildDirManager::kit() const
+const Kit *BuildDirManager::kit() const
 {
     return m_buildConfiguration->target()->kit();
 }
@@ -202,6 +207,38 @@ bool BuildDirManager::persistCMakeState()
     return true;
 }
 
+void BuildDirManager::generateProjectTree(CMakeProjectNode *root)
+{
+    root->setDisplayName(m_projectName);
+
+    // Delete no longer necessary file watcher:
+    const QSet<Utils::FileName> currentWatched
+            = Utils::transform(m_watchedFiles, [](CMakeFile *cmf) { return cmf->filePath(); });
+    const QSet<Utils::FileName> toWatch = m_cmakeFiles;
+    QSet<Utils::FileName> toDelete = currentWatched;
+    toDelete.subtract(toWatch);
+    m_watchedFiles = Utils::filtered(m_watchedFiles, [&toDelete](Internal::CMakeFile *cmf) {
+            if (toDelete.contains(cmf->filePath())) {
+                delete cmf;
+                return false;
+            }
+            return true;
+        });
+
+    // Add new file watchers:
+    QSet<Utils::FileName> toAdd = toWatch;
+    toAdd.subtract(currentWatched);
+    foreach (const Utils::FileName &fn, toAdd) {
+        CMakeFile *cm = new CMakeFile(this, fn);
+        Core::DocumentManager::addDocument(cm);
+        m_watchedFiles.insert(cm);
+    }
+
+    QList<FileNode *> fileNodes = m_files;
+    root->buildTree(fileNodes);
+    m_files.clear(); // Some of the FileNodes in files() were deleted!
+}
+
 void BuildDirManager::parse()
 {
     checkConfiguration();
@@ -247,29 +284,9 @@ void BuildDirManager::clearCache()
     forceReparse();
 }
 
-QString BuildDirManager::projectName() const
-{
-    return m_projectName;
-}
-
 QList<CMakeBuildTarget> BuildDirManager::buildTargets() const
 {
     return m_buildTargets;
-}
-
-QList<ProjectExplorer::FileNode *> BuildDirManager::files()
-{
-    return m_files;
-}
-
-QSet<Utils::FileName> BuildDirManager::cmakeFiles()
-{
-    return m_cmakeFiles;
-}
-
-void BuildDirManager::clearFiles()
-{
-    m_files.clear();
 }
 
 CMakeConfig BuildDirManager::parsedConfiguration() const
@@ -350,7 +367,7 @@ void BuildDirManager::extractData()
     resetData();
 
     m_projectName = sourceDirectory().fileName();
-    m_files.append(new ProjectExplorer::FileNode(topCMake, ProjectExplorer::ProjectFileType, false));
+    m_files.append(new FileNode(topCMake, ProjectFileType, false));
     // Do not insert topCMake into m_cmakeFiles: The project already watches that!
 
     // Find cbp file
@@ -376,13 +393,13 @@ void BuildDirManager::extractData()
     m_files = cbpparser.fileList();
     if (cbpparser.hasCMakeFiles()) {
         m_files.append(cbpparser.cmakeFileList());
-        foreach (const ProjectExplorer::FileNode *node, cbpparser.cmakeFileList())
+        foreach (const FileNode *node, cbpparser.cmakeFileList())
             m_cmakeFiles.insert(node->filePath());
     }
 
     // Make sure the top cmakelists.txt file is always listed:
-    if (!Utils::contains(m_files, [topCMake](ProjectExplorer::FileNode *fn) { return fn->filePath() == topCMake; })) {
-        m_files.append(new ProjectExplorer::FileNode(topCMake, ProjectExplorer::ProjectFileType, false));
+    if (!Utils::contains(m_files, [topCMake](FileNode *fn) { return fn->filePath() == topCMake; })) {
+        m_files.append(new FileNode(topCMake, ProjectFileType, false));
     }
 
     m_buildTargets = cbpparser.buildTargets();
@@ -409,14 +426,14 @@ void BuildDirManager::startCMake(CMakeTool *tool, const QStringList &generatorAr
 
     m_parser = new CMakeParser;
     QDir source = QDir(sourceDirectory().toString());
-    connect(m_parser, &ProjectExplorer::IOutputParser::addTask, m_parser,
-            [source](const ProjectExplorer::Task &task) {
+    connect(m_parser, &IOutputParser::addTask, m_parser,
+            [source](const Task &task) {
                 if (task.file.isEmpty() || task.file.toFileInfo().isAbsolute()) {
-                    ProjectExplorer::TaskHub::addTask(task);
+                    TaskHub::addTask(task);
                 } else {
-                    ProjectExplorer::Task t = task;
+                    Task t = task;
                     t.file = Utils::FileName::fromString(source.absoluteFilePath(task.file.toString()));
-                    ProjectExplorer::TaskHub::addTask(t);
+                    TaskHub::addTask(t);
                 }
             });
 
@@ -440,7 +457,7 @@ void BuildDirManager::startCMake(CMakeTool *tool, const QStringList &generatorAr
     Utils::QtcProcess::addArgs(&args, generatorArgs);
     Utils::QtcProcess::addArgs(&args, toArguments(config, kit()));
 
-    ProjectExplorer::TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
+    TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
 
     Core::MessageManager::write(tr("Running \"%1 %2\" in %3.")
                                 .arg(tool->cmakeExecutable().toUserOutput())
@@ -478,8 +495,7 @@ void BuildDirManager::cmakeFinished(int code, QProcess::ExitStatus status)
 
     if (!msg.isEmpty()) {
         Core::MessageManager::write(msg);
-        ProjectExplorer::TaskHub::addTask(ProjectExplorer::Task::Error, msg,
-                                          ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
+        TaskHub::addTask(Task::Error, msg, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
         m_future->reportCanceled();
     } else {
         m_future->setProgressValue(1);
@@ -526,7 +542,7 @@ void BuildDirManager::checkConfiguration()
     if (m_tempDir) // always throw away changes in the tmpdir!
         return;
 
-    ProjectExplorer::Kit *k = m_buildConfiguration->target()->kit();
+    Kit *k = m_buildConfiguration->target()->kit();
     const CMakeConfig cache = parsedConfiguration();
     if (cache.isEmpty())
         return; // No cache file yet.
@@ -662,6 +678,15 @@ CMakeConfig BuildDirManager::parseConfiguration(const Utils::FileName &cacheFile
     Utils::sort(result, CMakeConfigItem::sortOperator());
 
     return result;
+}
+
+void BuildDirManager::handleCmakeFileChange()
+{
+    Target *t = m_buildConfiguration->target()->project()->activeTarget();
+    BuildConfiguration *bc = t ? t->activeBuildConfiguration() : nullptr;
+
+    if (m_buildConfiguration->target() == t && m_buildConfiguration == bc)
+        cmakeFilesChanged();
 }
 
 void BuildDirManager::maybeForceReparse()

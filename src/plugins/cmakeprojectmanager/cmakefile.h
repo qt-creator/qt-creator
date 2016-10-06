@@ -28,20 +28,20 @@
 #include <coreplugin/idocument.h>
 
 namespace CMakeProjectManager {
-class CMakeProject;
-
 namespace Internal {
+
+class BuildDirManager;
 
 class CMakeFile : public Core::IDocument
 {
 public:
-    CMakeFile(CMakeProject *project, const Utils::FileName &fileName);
+    CMakeFile(BuildDirManager *bdm, const Utils::FileName &fileName);
 
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
 
 private:
-    CMakeProject *m_project;
+    BuildDirManager *m_buildDirManager;
 };
 
 } // namespace Internal

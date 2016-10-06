@@ -27,6 +27,7 @@
 
 #include "cmakecbpparser.h"
 #include "cmakeconfigitem.h"
+#include "cmakefile.h"
 
 #include <projectexplorer/task.h>
 
@@ -66,14 +67,7 @@ public:
     BuildDirManager(CMakeBuildConfiguration *bc);
     ~BuildDirManager() override;
 
-    const ProjectExplorer::Kit *kit() const;
-    const Utils::FileName buildDirectory() const;
-    const Utils::FileName workDirectory() const;
-    const Utils::FileName sourceDirectory() const;
-    const CMakeConfig intendedConfiguration() const;
     bool isParsing() const;
-
-    void cmakeFilesChanged();
 
     void parse();
     void clearCache();
@@ -82,24 +76,33 @@ public:
     void resetData();
     bool persistCMakeState();
 
-    QString projectName() const;
+    void generateProjectTree(CMakeProjectNode *root);
+
     QList<CMakeBuildTarget> buildTargets() const;
-    QList<ProjectExplorer::FileNode *> files();
-    QSet<Utils::FileName> cmakeFiles();
-    void clearFiles();
     CMakeConfig parsedConfiguration() const;
 
     void checkConfiguration();
 
-    static CMakeConfig parseConfiguration(const Utils::FileName &cacheFile,
-                                          QString *errorMessage);
+    void handleCmakeFileChange();
 
 signals:
     void configurationStarted() const;
     void dataAvailable() const;
     void errorOccured(const QString &err) const;
 
+protected:
+    static CMakeConfig parseConfiguration(const Utils::FileName &cacheFile,
+                                          QString *errorMessage);
+
+    const ProjectExplorer::Kit *kit() const;
+    const Utils::FileName buildDirectory() const;
+    const Utils::FileName workDirectory() const;
+    const Utils::FileName sourceDirectory() const;
+    const CMakeConfig intendedConfiguration() const;
+
 private:
+    void cmakeFilesChanged();
+
     void stopProcess();
     void cleanUpProcess();
     void extractData();
@@ -127,6 +130,8 @@ private:
     QFutureInterface<void> *m_future = nullptr;
 
     QTimer m_reparseTimer;
+
+    QSet<Internal::CMakeFile *> m_watchedFiles;
 };
 
 } // namespace Internal

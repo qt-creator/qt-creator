@@ -110,8 +110,6 @@ protected:
     bool setupTarget(ProjectExplorer::Target *t) final;
 
 private:
-    void handleCmakeFileChanged();
-
     void handleActiveTargetChanged();
     void handleActiveBuildConfigurationChanged();
     void handleParsingStarted();
@@ -132,8 +130,6 @@ private:
     QList<CMakeBuildTarget> m_buildTargets;
     QFuture<void> m_codeModelFuture;
     QList<ProjectExplorer::ExtraCompiler *> m_extraCompilers;
-
-    QSet<Internal::CMakeFile *> m_watchedFiles;
 
     friend class Internal::CMakeBuildConfiguration;
     friend class Internal::CMakeFile;

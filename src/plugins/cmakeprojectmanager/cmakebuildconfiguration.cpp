@@ -71,11 +71,6 @@ CMakeBuildConfiguration::~CMakeBuildConfiguration()
     m_buildDirManager->deleteLater(); // Do not block while waiting for cmake...
 }
 
-void CMakeBuildConfiguration::cmakeFilesChanged()
-{
-    m_buildDirManager->cmakeFilesChanged();
-}
-
 bool CMakeBuildConfiguration::isEnabled() const
 {
     return m_error.isEmpty();

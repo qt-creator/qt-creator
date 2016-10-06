@@ -53,6 +53,7 @@
 #include <projectexplorer/toolchain.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
+#include <texteditor/textdocument.h>
 
 #include <cpptools/generatedcodemodelsupport.h>
 #include <cpptools/cppmodelmanager.h>
@@ -89,13 +90,13 @@ CMakeProject::CMakeProject(CMakeManager *manager, const FileName &fileName)
 {
     setId(Constants::CMAKEPROJECT_ID);
     setProjectManager(manager);
-    setDocument(new Internal::CMakeFile(this, fileName));
+    setDocument(new TextEditor::TextDocument);
+    document()->setFilePath(fileName);
 
     setRootProjectNode(new CMakeProjectNode(Utils::FileName::fromString(fileName.toFileInfo().absolutePath())));
     setProjectContext(Core::Context(CMakeProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
 
-    Core::DocumentManager::addDocument(document());
     rootProjectNode()->setDisplayName(fileName.parentDir().fileName());
 
     connect(this, &CMakeProject::activeTargetChanged, this, &CMakeProject::handleActiveTargetChanged);
@@ -105,7 +106,6 @@ CMakeProject::~CMakeProject()
 {
     setRootProjectNode(nullptr);
     m_codeModelFuture.cancel();
-    qDeleteAll(m_watchedFiles);
     qDeleteAll(m_extraCompilers);
 }
 
@@ -219,34 +219,7 @@ void CMakeProject::updateProjectData()
     BuildDirManager *bdm = cmakeBc->buildDirManager();
     QTC_ASSERT(bdm, return);
 
-    rootProjectNode()->setDisplayName(bdm->projectName());
-
-    // Delete no longer necessary file watcher:
-    const QSet<Utils::FileName> currentWatched
-            = Utils::transform(m_watchedFiles, [](CMakeFile *cmf) { return cmf->filePath(); });
-    const QSet<Utils::FileName> toWatch = bdm->cmakeFiles();
-    QSet<Utils::FileName> toDelete = currentWatched;
-    toDelete.subtract(toWatch);
-    m_watchedFiles = Utils::filtered(m_watchedFiles, [&toDelete](Internal::CMakeFile *cmf) {
-            if (toDelete.contains(cmf->filePath())) {
-                delete cmf;
-                return false;
-            }
-            return true;
-        });
-
-    // Add new file watchers:
-    QSet<Utils::FileName> toAdd = toWatch;
-    toAdd.subtract(currentWatched);
-    foreach (const Utils::FileName &fn, toAdd) {
-        CMakeFile *cm = new CMakeFile(this, fn);
-        Core::DocumentManager::addDocument(cm);
-        m_watchedFiles.insert(cm);
-    }
-
-    QList<FileNode *> fileNodes = bdm->files();
-    rootProjectNode()->buildTree(fileNodes);
-    bdm->clearFiles(); // Some of the FileNodes in files() were deleted!
+    bdm->generateProjectTree(static_cast<CMakeProjectNode *>(rootProjectNode()));
 
     updateApplicationAndDeploymentTargets();
     updateTargetRunConfigurations(t);
@@ -457,15 +430,6 @@ bool CMakeProject::setupTarget(Target *t)
     t->updateDefaultDeployConfigurations();
 
     return true;
-}
-
-void CMakeProject::handleCmakeFileChanged()
-{
-    if (Target *t = activeTarget()) {
-        if (auto bc = qobject_cast<CMakeBuildConfiguration *>(t->activeBuildConfiguration())) {
-            bc->cmakeFilesChanged();
-        }
-    }
 }
 
 void CMakeProject::handleActiveTargetChanged()
