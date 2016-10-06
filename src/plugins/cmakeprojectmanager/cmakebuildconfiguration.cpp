@@ -61,7 +61,8 @@ const char INITIAL_ARGUMENTS[] = "CMakeProjectManager.CMakeBuildConfiguration.In
 const char CONFIGURATION_KEY[] = "CMake.Configuration";
 
 CMakeBuildConfiguration::CMakeBuildConfiguration(ProjectExplorer::Target *parent) :
-    BuildConfiguration(parent, Core::Id(Constants::CMAKE_BC_ID))
+    BuildConfiguration(parent, Core::Id(Constants::CMAKE_BC_ID)),
+    m_buildDirManager(new BuildDirManager(this))
 {
     ctor();
 }
@@ -84,7 +85,8 @@ QString CMakeBuildConfiguration::disabledReason() const
 CMakeBuildConfiguration::CMakeBuildConfiguration(ProjectExplorer::Target *parent,
                                                  CMakeBuildConfiguration *source) :
     BuildConfiguration(parent, source),
-    m_configuration(source->m_configuration)
+    m_configuration(source->m_configuration),
+    m_buildDirManager(new BuildDirManager(this))
 {
     ctor();
     cloneSteps(source);
@@ -137,7 +139,6 @@ void CMakeBuildConfiguration::ctor()
                                            target()->kit(),
                                            displayName(), BuildConfiguration::Unknown));
 
-    m_buildDirManager = new BuildDirManager(this);
     connect(m_buildDirManager, &BuildDirManager::dataAvailable,
             this, &CMakeBuildConfiguration::dataAvailable);
     connect(m_buildDirManager, &BuildDirManager::errorOccured,
@@ -172,6 +173,11 @@ void CMakeBuildConfiguration::resetData()
 bool CMakeBuildConfiguration::persistCMakeState()
 {
     return m_buildDirManager->persistCMakeState();
+}
+
+bool CMakeBuildConfiguration::updateCMakeStateBeforeBuild()
+{
+    return m_buildDirManager->updateCMakeStateBeforeBuild();
 }
 
 void CMakeBuildConfiguration::runCMake()

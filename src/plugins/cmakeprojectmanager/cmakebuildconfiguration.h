@@ -76,6 +76,7 @@ public:
     void maybeForceReparse();
     void resetData();
     bool persistCMakeState();
+    bool updateCMakeStateBeforeBuild();
     void runCMake();
     void clearCache();
 
@@ -111,7 +112,7 @@ private:
 
     mutable QList<CMakeConfigItem> m_completeConfigurationCache;
 
-    BuildDirManager *m_buildDirManager = nullptr;
+    BuildDirManager *const m_buildDirManager = nullptr;
 
     friend class CMakeBuildSettingsWidget;
     friend class CMakeProjectManager::CMakeProject;

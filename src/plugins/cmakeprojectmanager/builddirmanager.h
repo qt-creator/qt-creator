@@ -44,6 +44,8 @@
 QT_FORWARD_DECLARE_CLASS(QTemporaryDir);
 QT_FORWARD_DECLARE_CLASS(QFileSystemWatcher);
 
+namespace Core { class IDocument; }
+
 namespace ProjectExplorer {
 class FileNode;
 class IOutputParser;
@@ -74,6 +76,7 @@ public:
     void forceReparse();
     void maybeForceReparse(); // Only reparse if the configuration has changed...
     void resetData();
+    bool updateCMakeStateBeforeBuild();
     bool persistCMakeState();
 
     void generateProjectTree(CMakeProjectNode *root);
@@ -83,6 +86,7 @@ public:
 
     void checkConfiguration();
 
+    void handleDocumentSaves(Core::IDocument *document);
     void handleCmakeFileChange();
 
 signals:

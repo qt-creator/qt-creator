@@ -34,6 +34,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/messagemanager.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/project.h>
@@ -106,8 +107,10 @@ BuildDirManager::BuildDirManager(CMakeBuildConfiguration *bc) :
     m_projectName = sourceDirectory().fileName();
 
     m_reparseTimer.setSingleShot(true);
-    m_reparseTimer.setInterval(2000);
+
     connect(&m_reparseTimer, &QTimer::timeout, this, &BuildDirManager::parse);
+    connect(Core::EditorManager::instance(), &Core::EditorManager::aboutToSave,
+            this, &BuildDirManager::handleDocumentSaves);
 }
 
 BuildDirManager::~BuildDirManager()
@@ -164,7 +167,7 @@ void BuildDirManager::cmakeFilesChanged()
     if (!tool->isAutoRun())
         return;
 
-    m_reparseTimer.start();
+    m_reparseTimer.start(1000);
 }
 
 void BuildDirManager::forceReparse()
@@ -189,6 +192,11 @@ void BuildDirManager::resetData()
     m_buildTargets.clear();
     qDeleteAll(m_files);
     m_files.clear();
+}
+
+bool BuildDirManager::updateCMakeStateBeforeBuild()
+{
+    return m_reparseTimer.isActive();
 }
 
 bool BuildDirManager::persistCMakeState()
@@ -590,6 +598,14 @@ void BuildDirManager::checkConfiguration()
         if (ret == QMessageBox::Apply)
             m_buildConfiguration->setCMakeConfiguration(newConfig);
     }
+}
+
+void BuildDirManager::handleDocumentSaves(Core::IDocument *document)
+{
+    if (!m_cmakeFiles.contains(document->filePath()))
+        return;
+
+    m_reparseTimer.start(100);
 }
 
 static QByteArray trimCMakeCacheLine(const QByteArray &in) {
