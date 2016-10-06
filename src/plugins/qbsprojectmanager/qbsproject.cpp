@@ -993,8 +993,6 @@ void QbsProject::updateDeploymentInfo()
 {
     DeploymentData deploymentData;
     if (m_qbsProject.isValid()) {
-        qbs::InstallOptions installOptions;
-        installOptions.setInstallRoot(QLatin1String("/"));
         foreach (const qbs::ArtifactData &f, m_projectData.installableArtifacts()) {
             deploymentData.addFile(f.filePath(), f.installData().installDir(),
                     f.isExecutable() ? DeployableFile::TypeExecutable : DeployableFile::TypeNormal);
