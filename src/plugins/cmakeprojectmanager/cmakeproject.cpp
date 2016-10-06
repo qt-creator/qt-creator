@@ -301,9 +301,8 @@ void CMakeProject::updateQmlJSCodeModel()
         }
     }
 
-    foreach (const QString &cmakeImport, cmakeImports.split(QLatin1Char(';'))) {
+    foreach (const QString &cmakeImport, CMakeConfigItem::cmakeSplitValue(cmakeImports))
         projectInfo.importPaths.maybeInsert(FileName::fromString(cmakeImport),QmlJS::Dialect::Qml);
-    }
 
     modelManager->updateProjectInfo(projectInfo, this);
 }
