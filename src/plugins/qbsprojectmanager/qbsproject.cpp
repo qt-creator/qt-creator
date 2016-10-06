@@ -622,7 +622,12 @@ void QbsProject::cancelParsing()
 void QbsProject::updateAfterBuild()
 {
     QTC_ASSERT(m_qbsProject.isValid(), return);
-    m_projectData = m_qbsProject.projectData();
+    const qbs::ProjectData &projectData = m_qbsProject.projectData();
+    if (projectData == m_projectData)
+        return;
+    qCDebug(qbsPmLog) << "Updating data after build";
+    m_projectData = projectData;
+    rootProjectNode()->update();
     updateBuildTargetData();
     updateCppCompilerCallData();
     if (m_extraCompilersPending) {
