@@ -111,9 +111,9 @@ def checkWelcomePage(sessionName, isCurrent=False):
     waitForObject("{container='%s' id='sessionsTitle' text='Sessions' type='Text' "
                   "unnamed='1' visible='true'}" % welcomePage)
     if isCurrent:
-        sessions = ["default", "%s (current session)" % sessionName]
+        sessions = ["1: default", "2: %s (current session)" % sessionName]
     else:
-        sessions = ["default (current session)", sessionName]
+        sessions = ["1: default (current session)", "2: %s" % sessionName]
     for sessionName in sessions:
         test.verify(object.exists("{container='%s' enabled='true' type='Text' unnamed='1' "
                                   "visible='true' text='%s'}" % (welcomePage, sessionName)),
