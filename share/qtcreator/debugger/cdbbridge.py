@@ -35,29 +35,8 @@ from dumper import *
 class Dumper(DumperBase):
     def __init__(self):
         DumperBase.__init__(self)
-
         self.outputLock = threading.Lock()
-
         self.isCdb = True
-        self.expandedINames = {}
-        self.passExceptions = False
-        self.showQObjectNames = False
-        self.autoDerefPointers = True
-        self.useDynamicType = True
-        self.useFancy = True
-        self.formats = {}
-        self.typeformats = {}
-        self.currentContextValue = None
-
-        self.currentIName = None
-        self.currentValue = ReportItem()
-        self.currentType = ReportItem()
-        self.currentNumChild = None
-        self.currentMaxNumChild = None
-        self.currentPrintsAddress = True
-        self.currentChildType = None
-        self.currentChildNumChild = -1
-        self.currentWatchers = {}
 
     def fromNativeValue(self, nativeValue):
         val = self.Value(self)
@@ -183,19 +162,9 @@ class Dumper(DumperBase):
             self.reportResult(res, args)
             return
 
-        self.expandedINames = set(args.get('expanded', []))
-        self.autoDerefPointers = int(args.get('autoderef', '0'))
-        self.useDynamicType = int(args.get('dyntype', '0'))
-        self.useFancy = int(args.get('fancy', '0'))
-        self.passExceptions = int(args.get('passexceptions', '0'))
-        self.showQObjectNames = int(args.get('qobjectnames', '0'))
-        self.currentWatchers = args.get('watchers', {})
-        self.typeformats = args.get('typeformats', {})
-        self.formats = args.get('formats', {})
+        self.setVariableFetchingOptions(args)
 
         self.output = ''
-        partialVariable = args.get('partialvar', "")
-        isPartial = len(partialVariable) > 0
 
         self.currentIName = 'local'
         self.put('data=[')
@@ -212,7 +181,7 @@ class Dumper(DumperBase):
         self.handleLocals(variables)
         self.handleWatches(args)
 
-        self.put('],partial="%d"' % isPartial)
+        self.put('],partial="%d"' % (len(self.partialVariable) > 0))
         self.reportResult(self.output, args)
 
     def report(self, stuff):

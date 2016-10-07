@@ -302,6 +302,44 @@ class DumperBase:
             "personaltypes",
         ]
 
+        # These values are never used, but the variables need to have
+        # some value base for the swapping logic in Children.__enter__()
+        # and Children.__exit__().
+        self.currentIName = None
+        self.currentValue = None
+        self.currentType = None
+        self.currentNumChild = None
+        self.currentMaxNumChild = None
+        self.currentPrintsAddress = True
+        self.currentChildType = None
+        self.currentChildNumChild = None
+
+    def setVariableFetchingOptions(self, args):
+        self.resultVarName = args.get('resultvarname', '')
+        self.expandedINames = set(args.get('expanded', []))
+        self.stringCutOff = int(args.get('stringcutoff', 10000))
+        self.displayStringLimit = int(args.get('displaystringlimit', 100))
+        self.typeformats = args.get('typeformats', {})
+        self.formats = args.get('formats', {})
+        self.watchers = args.get('watchers', {})
+        self.useDynamicType = int(args.get('dyntype', '0'))
+        self.useFancy = int(args.get('fancy', '0'))
+        self.forceQtNamespace = int(args.get('forcens', '0'))
+        self.passExceptions = int(args.get('passexceptions', '0'))
+        self.showQObjectNames = int(args.get('qobjectnames', '0'))
+        self.nativeMixed = int(args.get('nativemixed', '0'))
+        self.autoDerefPointers = int(args.get('autoderef', '0'))
+        self.partialVariable = args.get('partialvar', '')
+        self.partialUpdate = int(args.get('partial', '0'))
+        self.fallbackQtVersion = 0x50200
+        #warn('NAMESPACE: "%s"' % self.qtNamespace())
+        #warn('EXPANDED INAMES: %s' % self.expandedINames)
+        #warn('WATCHERS: %s' % self.watchers)
+
+        # The guess does not need to be updated during a fetchVariables()
+        # as the result is fixed during that time (ignoring "active"
+        # dumpers causing loading of shared objects etc).
+        self.currentQtNamespaceGuess = None
 
     def resetCaches(self):
         # This is a cache mapping from 'type name' to 'display alternatives'.
