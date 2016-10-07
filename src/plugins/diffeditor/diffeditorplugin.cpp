@@ -326,7 +326,7 @@ void DiffEditorPlugin::updateCurrentEditor(Core::IEditor *editor)
         TextEditor::TextEditorWidget *editorWidget = qobject_cast<TextEditor::TextEditorWidget *>(editor->widget());
         if (editorWidget) {
             m_currentTextDocument = editorWidget->textDocument();
-            connect(m_currentTextDocument, &Core::IDocument::changed,
+            connect(m_currentTextDocument.data(), &Core::IDocument::changed,
                     this, &DiffEditorPlugin::updateActions);
         }
     }
