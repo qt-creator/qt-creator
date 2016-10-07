@@ -61,6 +61,8 @@ public:
 private slots:
     void testQmakeOutputParsers_data();
     void testQmakeOutputParsers();
+    void testMakefileParser_data();
+    void testMakefileParser();
 #endif
 
 private:

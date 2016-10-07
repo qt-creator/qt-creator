@@ -62,6 +62,8 @@ public:
 
     static const QLoggingCategory &logging();
 
+    void parseCommandLine(const QString &command);
+
 private:
     void parseArgs(const QString &args, QList<QMakeAssignment> *assignments, QList<QMakeAssignment> *afterAssignments);
     void parseAssignments(QList<QMakeAssignment> *assignments);
