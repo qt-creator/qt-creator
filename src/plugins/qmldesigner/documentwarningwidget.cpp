@@ -27,6 +27,10 @@
 
 #include <qmldesignerplugin.h>
 
+
+#include <utils/theme/theme.h>
+#include <utils/stylehelper.h>
+
 #include <QLabel>
 #include <QPushButton>
 #include <QCheckBox>
@@ -170,6 +174,13 @@ bool DocumentWarningWidget::eventFilter(QObject *object, QEvent *event)
 
 void DocumentWarningWidget::showEvent(QShowEvent *event)
 {
+    const QColor backgroundColor = Utils::creatorTheme()->color(Utils::Theme::QmlDesigner_BackgroundColor);
+    QPalette pal = palette();
+    QColor color = pal.color(QPalette::ToolTipBase);
+    const QColor backgroundNoAlpha = Utils::StyleHelper::alphaBlendedColors(color, backgroundColor);
+    color.setAlpha(255);
+    pal.setColor(QPalette::ToolTipBase, backgroundNoAlpha);
+    setPalette(pal);
     m_gotoCodeWasClicked = false;
     moveToParentCenter();
     refreshContent();
