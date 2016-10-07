@@ -3041,7 +3041,7 @@ class DumperBase:
                     innerType.code = TypeCodeArray
                 return innerType
 
-            strippedType = self.stripTypdefs()
+            strippedType = self.stripTypedefs()
             if strippedType.name != self.name:
                 return strippedType.target()
             error("DONT KNOW TARGET FOR: %s" % self)
