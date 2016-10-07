@@ -239,8 +239,12 @@ class Dumper(DumperBase):
             base = nativeType.GetVirtualBaseClassAtIndex(i)
             virtualNames[base.GetName()] = i
 
-        fieldBits = dict((field.name, (field.GetBitfieldSizeInBits(), field.GetOffsetInBits()))
-                        for field in nativeType.get_fields_array())
+        fieldBits = dict((f.name,
+                         ((f.GetBitfieldSizeInBits()
+                              if f.GetBitfieldSizeInBits() else
+                          (f.GetType().GetByteSize() * 8)),
+                          f.GetOffsetInBits()))
+                        for f in nativeType.get_fields_array())
 
         #warn("BASE NAMES: %s" % baseNames)
         #warn("VIRTUAL NAMES: %s" % virtualNames)
@@ -299,7 +303,7 @@ class Dumper(DumperBase):
                     field.parentType = fieldParentType
                     field.ltype = self.fromNativeType(fieldType)
                     field.name = fieldName
-                    field.lbitsize = 0
+                    field.lbitsize = field.ltype.lbitsize * 8
                     field.lbitpos = 0
                     fields.append(field)
 
