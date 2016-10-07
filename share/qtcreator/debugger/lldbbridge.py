@@ -94,6 +94,7 @@ class Dumper(DumperBase):
         self.process = None
         self.target = None
         self.eventState = lldb.eStateInvalid
+        self.runEngineAttempted = False
 
         self.executable_ = None
         self.startMode_ = None
@@ -612,6 +613,9 @@ class Dumper(DumperBase):
             % (state, error, self.executable_), args)
 
     def runEngine(self, args):
+        if self.runEngineAttempted:
+            return
+        self.runEngineAttempted = True
         self.prepare(args)
         s = threading.Thread(target=self.loop, args=[])
         s.start()
