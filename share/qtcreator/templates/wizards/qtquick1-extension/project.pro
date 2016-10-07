@@ -1,7 +1,7 @@
 TEMPLATE = lib
 TARGET = %ProjectName%
 QT += declarative
-CONFIG += qt plugin
+CONFIG += qt plugin c++11
 
 TARGET = $$qtLibraryTarget($$TARGET)
 uri = %Uri%

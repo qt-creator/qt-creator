@@ -29,9 +29,9 @@ class %{CN}
 @endif
 public:
 @if '%{Base}' === 'QObject'
-    explicit %{CN}(QObject *parent = 0);
+    explicit %{CN}(QObject *parent = nullptr);
 @elsif '%{Base}' === 'QWidget' || '%{Base}' === 'QMainWindow'
-    explicit %{CN}(QWidget *parent = 0);
+    explicit %{CN}(QWidget *parent = nullptr);
 @else
     %{CN}();
 @endif

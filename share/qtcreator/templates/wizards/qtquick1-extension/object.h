@@ -9,7 +9,7 @@ class %ObjectName% : public QDeclarativeItem
     Q_DISABLE_COPY(%ObjectName%)
 
 public:
-    %ObjectName%(QDeclarativeItem *parent = 0);
+    %ObjectName%(QDeclarativeItem *parent = nullptr);
     ~%ObjectName%();
 };
 

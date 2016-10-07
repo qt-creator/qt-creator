@@ -9,7 +9,7 @@ class %ObjectName% : public QQuickItem
     Q_DISABLE_COPY(%ObjectName%)
 
 public:
-    %ObjectName%(QQuickItem *parent = 0);
+    %ObjectName%(QQuickItem *parent = nullptr);
     ~%ObjectName%();
 };
 

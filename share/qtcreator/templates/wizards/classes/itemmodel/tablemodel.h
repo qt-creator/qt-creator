@@ -10,7 +10,7 @@ class %{CN} : public %{Base}
      Q_OBJECT
 
 public:
-    explicit %{CN}(QObject *parent = 0);
+    explicit %{CN}(QObject *parent = nullptr);
 
 @if %{CustomHeader}
     // Header:
