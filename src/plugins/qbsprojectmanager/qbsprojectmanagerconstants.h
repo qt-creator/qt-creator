@@ -65,5 +65,7 @@ const char QBS_FORCE_PROBES_KEY[] = "qbspm.forceProbes";
 static const char QBS_GROUP_ICON[] = ":/qbsprojectmanager/images/groups.png";
 static const char QBS_PRODUCT_OVERLAY_ICON[] = ":/qbsprojectmanager/images/productgear.png";
 
+const char QBS_PROFILING_ENV[] = "QTC_QBS_PROFILING";
+
 } // namespace Constants
 } // namespace QbsProjectManager
