@@ -68,7 +68,6 @@ public:
     QString fallbackSaveAsPath() const override;
     QString fallbackSaveAsFileName() const override;
 
-    bool isModified() const override { return false; }
     bool isSaveAsAllowed() const override { return true; }
     bool save(QString *errorString, const QString &fileName, bool autoSave) override;
     void reload();
