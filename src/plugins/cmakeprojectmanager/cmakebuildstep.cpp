@@ -283,7 +283,7 @@ void CMakeBuildStep::stdOutput(const QString &line)
         if (ok) {
             int all = m_ninjaProgress.cap(2).toInt(&ok);
             if (ok && all != 0) {
-                int percent = 100.0 * done/all;
+                const int percent = static_cast<int>(100.0 * done/all);
                 futureInterface()->setProgressValue(percent);
             }
         }
