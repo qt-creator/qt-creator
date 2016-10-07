@@ -236,13 +236,16 @@ void TextDocumentPrivate::updateRevisions()
 TextDocument::TextDocument(Id id)
     : d(new TextDocumentPrivate)
 {
-    QObject::connect(&d->m_document, &QTextDocument::modificationChanged, [this](bool modified) {
+    connect(&d->m_document, &QTextDocument::modificationChanged, [this](bool modified) {
         // we only want to update the block revisions when going back to the saved version,
         // e.g. with undo
         if (!modified)
             d->updateRevisions();
-        emit changed();
+        setModified(modified);
     });
+    connect(this, &IDocument::modificationChanged, &d->m_document, &QTextDocument::setModified);
+
+    setModified(d->m_document.isModified());
 
     connect(&d->m_document, &QTextDocument::contentsChanged,
             this, &Core::IDocument::contentsChanged);
@@ -593,11 +596,6 @@ bool TextDocument::isFileReadOnly() const
     if (filePath().isEmpty()) //have no corresponding file, so editing is ok
         return false;
     return d->m_fileIsReadOnly;
-}
-
-bool TextDocument::isModified() const
-{
-    return d->m_document.isModified();
 }
 
 void TextDocument::checkPermissions()

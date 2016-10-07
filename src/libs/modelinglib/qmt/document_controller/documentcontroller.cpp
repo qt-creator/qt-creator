@@ -76,17 +76,20 @@ DocumentController::DocumentController(QObject *parent) :
 {
     // project controller
     connect(m_projectController, &ProjectController::changed, this, &DocumentController::changed);
+    connect(m_projectController, &ProjectController::modificationChanged, this, &DocumentController::modificationChanged);
 
     // model controller
     m_modelController->setUndoController(m_undoController);
-    connect(m_modelController, &ModelController::modified,
-            m_projectController, &ProjectController::setModified);
+    connect(m_modelController, &ModelController::modified, [this](){
+        m_projectController->setModified(true);
+    });
 
     // diagram controller
     m_diagramController->setModelController(m_modelController);
     m_diagramController->setUndoController(m_undoController);
-    connect(m_diagramController, &DiagramController::modified,
-            m_projectController, &ProjectController::setModified);
+    connect(m_diagramController, &DiagramController::modified, [this](){
+        m_projectController->setModified(true);
+    });
 
     // diagram scene controller
     m_diagramSceneController->setModelController(m_modelController);

@@ -106,6 +106,9 @@ public:
     bool isTemporary() const;
     void setTemporary(bool temporary);
 
+    bool isModified() const;
+    void setModified(bool modified);
+
     virtual QString fallbackSaveAsPath() const;
     virtual QString fallbackSaveAsFileName() const;
 
@@ -113,7 +116,6 @@ public:
     void setMimeType(const QString &mimeType);
 
     virtual bool shouldAutoSave() const;
-    virtual bool isModified() const;
     virtual bool isSaveAsAllowed() const;
     bool isSuspendAllowed() const;
     void setSuspendAllowed(bool value);
@@ -135,6 +137,8 @@ public:
 signals:
     // For meta data changes: file name, modified state, ...
     void changed();
+
+    void modificationChanged(bool modified);
 
     // For changes in the contents of the document
     void contentsChanged();

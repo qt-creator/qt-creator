@@ -101,7 +101,7 @@ Project *androidProject(const Utils::FileName &fileName)
 
 AndroidManifestEditorWidget::AndroidManifestEditorWidget()
     : QStackedWidget(),
-      m_dirty(false),
+      m_modified(false),
       m_stayClean(false)
 {
     m_textEditorWidget = new AndroidManifestTextEditorWidget(this);
@@ -138,7 +138,7 @@ void AndroidManifestEditorWidget::initializePage()
     QGroupBox *packageGroupBox = new QGroupBox(mainWidget);
     topLayout->addWidget(packageGroupBox);
 
-    auto setDirtyFunc = [this] { setDirty(); };
+    auto setDirtyFunc = [this] { setModified(); };
     packageGroupBox->setTitle(tr("Package"));
     {
         QFormLayout *formLayout = new QFormLayout();
@@ -206,7 +206,7 @@ void AndroidManifestEditorWidget::initializePage()
         connect(m_packageNameLineEdit, &QLineEdit::textEdited,
                 this, &AndroidManifestEditorWidget::setPackageName);
         connect(m_versionCode, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
-                this, &AndroidManifestEditorWidget::setDirty);
+                this, &AndroidManifestEditorWidget::setModified);
         connect(m_versionNameLinedit, &QLineEdit::textEdited,
                 this, setDirtyFunc);
         connect(m_androidMinSdkVersion,
@@ -524,17 +524,17 @@ void AndroidManifestEditorWidget::updateAfterFileLoad()
     setActivePage(Source);
 }
 
-void AndroidManifestEditorWidget::setDirty(bool dirty)
+void AndroidManifestEditorWidget::setModified(bool modified)
 {
-    if (m_stayClean || dirty == m_dirty)
+    if (m_stayClean || modified == m_modified)
         return;
-    m_dirty = dirty;
-    emit guiChanged();
+    m_modified = modified;
+    emit modificationChanged(modified);
 }
 
 bool AndroidManifestEditorWidget::isModified() const
 {
-    return m_dirty
+    return m_modified
             || !m_hIconPath.isEmpty()
             || !m_mIconPath.isEmpty()
             || !m_lIconPath.isEmpty();
@@ -819,7 +819,7 @@ void AndroidManifestEditorWidget::syncToWidgets(const QDomDocument &doc)
     updateAddRemovePermissionButtons();
 
     m_stayClean = false;
-    m_dirty = false;
+    m_modified = false;
 }
 
 int extractVersion(const QString &string)
@@ -862,7 +862,7 @@ void AndroidManifestEditorWidget::syncToEditor()
     m_textEditorWidget->setPlainText(result);
     m_textEditorWidget->document()->setModified(true);
 
-    m_dirty = false;
+    m_modified = false;
 }
 
 namespace {
@@ -1253,7 +1253,7 @@ void AndroidManifestEditorWidget::setLDPIIcon()
         return;
     m_lIconPath = file;
     m_lIconButton->setIcon(QIcon(file));
-    setDirty(true);
+    setModified(true);
 }
 
 void AndroidManifestEditorWidget::setMDPIIcon()
@@ -1263,7 +1263,7 @@ void AndroidManifestEditorWidget::setMDPIIcon()
         return;
     m_mIconPath = file;
     m_mIconButton->setIcon(QIcon(file));
-    setDirty(true);
+    setModified(true);
 }
 
 void AndroidManifestEditorWidget::setHDPIIcon()
@@ -1273,12 +1273,12 @@ void AndroidManifestEditorWidget::setHDPIIcon()
         return;
     m_hIconPath = file;
     m_hIconButton->setIcon(QIcon(file));
-    setDirty(true);
+    setModified(true);
 }
 
 void AndroidManifestEditorWidget::defaultPermissionOrFeatureCheckBoxClicked()
 {
-    setDirty(true);
+    setModified(true);
 }
 
 void AndroidManifestEditorWidget::updateAddRemovePermissionButtons()
@@ -1293,7 +1293,7 @@ void AndroidManifestEditorWidget::addPermission()
 {
     m_permissionsModel->addPermission(m_permissionsComboBox->currentText());
     updateAddRemovePermissionButtons();
-    setDirty(true);
+    setModified(true);
 }
 
 void AndroidManifestEditorWidget::removePermission()
@@ -1302,7 +1302,7 @@ void AndroidManifestEditorWidget::removePermission()
     if (idx.isValid())
         m_permissionsModel->removePermission(idx.row());
     updateAddRemovePermissionButtons();
-    setDirty(true);
+    setModified(true);
 }
 
 void AndroidManifestEditorWidget::setPackageName()
@@ -1312,7 +1312,7 @@ void AndroidManifestEditorWidget::setPackageName()
     bool valid = checkPackageName(packageName);
     m_packageNameWarning->setVisible(!valid);
     m_packageNameWarningIcon->setVisible(!valid);
-    setDirty(true);
+    setModified(true);
 }
 
 

@@ -45,14 +45,10 @@ public:
     QByteArray contents() const override;
     bool setContents(const QByteArray &contents) override;
 
-    bool isModified() const override { return m_modified; }
     bool save(QString *errorString, const QString &fileName, bool autoSave) override;
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override;
 
-    void setModified(bool modified = true);
-
 private:
-    bool m_modified;
     VcsBaseSubmitEditor *m_editor;
 };
 

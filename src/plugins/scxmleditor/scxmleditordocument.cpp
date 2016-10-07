@@ -52,9 +52,12 @@ ScxmlEditorDocument::ScxmlEditorDocument(MainWidget *designWidget, QObject *pare
 
     // Designer needs UTF-8 regardless of settings.
     setCodec(QTextCodec::codecForName("UTF-8"));
-    connect(m_designWidget.data(), &Common::MainWidget::dirtyChanged, this, [this]{
-        emit changed();
+    connect(m_designWidget.data(), &Common::MainWidget::dirtyChanged, this, [this](bool modified){
+        setModified(modified);
     });
+    connect(this, &IDocument::modificationChanged, m_designWidget.data(), &Common::MainWidget::setDirty);
+
+    setModified(m_designWidget->isDirty());
 }
 
 Core::IDocument::OpenResult ScxmlEditorDocument::open(QString *errorString, const QString &fileName, const QString &realFileName)
@@ -127,11 +130,6 @@ bool ScxmlEditorDocument::isSaveAsAllowed() const
 MainWidget *ScxmlEditorDocument::designWidget() const
 {
     return m_designWidget;
-}
-
-bool ScxmlEditorDocument::isModified() const
-{
-    return m_designWidget && m_designWidget->isDirty();
 }
 
 bool ScxmlEditorDocument::reload(QString *errorString, ReloadFlag flag, ChangeType type)
