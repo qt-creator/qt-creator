@@ -85,7 +85,7 @@
 
 #include <designersupportdelegate.h>
 
-#include <utils/algorithm.h>
+#include <algorithm>
 
 namespace {
 bool testImportStatements(const QStringList &importStatementList, const QUrl &url, QString *errorMessage = 0) {
