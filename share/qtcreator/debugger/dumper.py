@@ -1696,8 +1696,8 @@ class DumperBase:
                         = self.split('ppppIIp' + 'pppppp', dd)
 
         if qobjectPtr:
-            qobjectType = self.createType(ns + 'QObject')
-            qobjectPtrType = self.createType(ns + 'QObject') # FIXME.
+            qobjectType = self.createType('QObject')
+            qobjectPtrType = self.createType('QObject') # FIXME.
             with SubItem(self, '[parent]'):
                 self.putField('sortgroup', 9)
                 self.putItem(self.createValue(dd + 2 * ptrSize, qobjectPtrType))
@@ -1794,8 +1794,8 @@ class DumperBase:
                             if qobject:
                                 # LLDB doesn't like calling it on a derived class, possibly
                                 # due to type information living in a different shared object.
-                                base = self.createValue(qobjectPtr, ns + 'QObject')
-                                self.putCallItem(name, ns + 'QVariant', base, 'property', '"' + name + '"')
+                                base = self.createValue(qobjectPtr, '@QObject')
+                                self.putCallItem(name, '@QVariant', base, 'property', '"' + name + '"')
                             else:
                                 putt(name, ' ')
 
@@ -1873,21 +1873,21 @@ class DumperBase:
 
         if isQObject:
             with SubItem(self, '[d]'):
-                self.putItem(self.createValue(dd, self.qtNamespace() + 'QObjectPrivate'))
+                self.putItem(self.createValue(dd, '@QObjectPrivate'))
                 self.putField('sortgroup', 15)
 
         if isQMetaObject:
             with SubItem(self, '[superdata]'):
                 self.putField('sortgroup', 12)
                 if superDataPtr:
-                    self.putType(self.qtNamespace() + 'QMetaObject')
+                    self.putType('@QMetaObject')
                     self.putAddress(superDataPtr)
                     self.putNumChild(1)
                     if self.isExpanded():
                         with Children(self):
                             self.putQObjectGutsHelper(0, 0, -1, superDataPtr, 'QMetaObject')
                 else:
-                    self.putType(self.qtNamespace() + 'QMetaObject *')
+                    self.putType('@QMetaObject *')
                     self.putValue('0x0')
                     self.putNumChild(0)
 
@@ -1919,9 +1919,7 @@ class DumperBase:
         with SubItem(self, '[connections]'):
             ptrSize = self.ptrSize()
             self.putNoType()
-            ns = self.qtNamespace()
-            privateTypeName = ns + 'QObjectPrivate'
-            privateType = self.lookupType(privateTypeName)
+            privateType = self.createType('@QObjectPrivate')
             d_ptr = dd.cast(privateType.pointer()).dereference()
             connections = d_ptr['connectionLists']
             if self.connections.integer() == 0:
@@ -1938,7 +1936,7 @@ class DumperBase:
                     # Should check:  innerType == ns::QObjectPrivate::ConnectionList
                     base = self.extractPointer(connections)
                     data, size, alloc = self.vectorDataHelper(base)
-                    connectionType = self.lookupType(ns + 'QObjectPrivate::Connection*')
+                    connectionType = self.createType('@QObjectPrivate::Connection*')
                     for i in xrange(size):
                         first = self.extractPointer(data + i * 2 * ptrSize)
                         while first:
@@ -3209,28 +3207,33 @@ class DumperBase:
             typish.check()
             return typish
         if isinstance(typish, str):
-            if typish[0] == 'Q':
-                if typish in ('QByteArray', 'QString', 'QList', 'QStringList', 'QStringDataPtr'):
-                    typish = self.qtNamespace() + typish
-                    size = self.ptrSize()
-                elif typish == 'QImage':
-                    typish = self.qtNamespace() + typish
-                    size = 2 * self.ptrSize()
-                elif typish == 'QVariant':
-                    typish = self.qtNamespace() + typish
-                    size = 8 + self.ptrSize()
-                elif typish in ('QPointF', 'QDateTime', 'QRect'):
-                    typish = self.qtNamespace() + typish
-                    size = 16
-                elif typish == 'QPoint':
-                    typish = self.qtNamespace() + typish
-                    size = 8
-                elif typish == 'QChar':
-                    typish = self.qtNamespace() + typish
-                    size = 2
-            elif typish in ('quint32', 'qint32'):
-                typish = self.qtNamespace() + typish
-                size = 4
+            def knownSize(tn):
+                if tn[0] == 'Q':
+                    if tn in ('QByteArray', 'QString', 'QList', 'QStringList',
+                              'QStringDataPtr'):
+                        return self.ptrSize()
+                    if tn in ('QImage', 'QObject'):
+                        return 2 * self.ptrSize()
+                    if tn == 'QVariant':
+                        return 8 + self.ptrSize()
+                    if typish in ('QPointF', 'QDateTime', 'QRect'):
+                        return 16
+                    if typish == 'QPoint':
+                        return 8
+                    if typish == 'QChar':
+                        return 2
+                if typish in ('quint32', 'qint32'):
+                    return 4
+                return None
+
+            ns = self.qtNamespace()
+            typish = typish.replace('@', ns)
+            if typish.startswith(ns):
+                size = knownSize(typish[len(ns):])
+            else:
+                size = knownSize(typish)
+                if size is not None:
+                    typish = ns + typish
 
             #typeobj = self.Type(self)
             #typeobj.name = typish
