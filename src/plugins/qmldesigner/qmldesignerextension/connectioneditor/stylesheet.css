@@ -13,6 +13,12 @@ QTableView {
 
 }
 
+QTabBar QToolButton {
+    background-color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate;
+    border: 1px solid creatorTheme.QmlDesignerBackgroundColorDarker;
+    border-radius: 0px;
+}
+
 QTableView::item
 {
     border: 0px;
