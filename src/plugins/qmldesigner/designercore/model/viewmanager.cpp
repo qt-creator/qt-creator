@@ -267,7 +267,7 @@ void ViewManager::enableWidgets()
         widgetInfo.widget->setEnabled(true);
 }
 
-void ViewManager::pushFileOnCrumbleBar(const QString &fileName)
+void ViewManager::pushFileOnCrumbleBar(const Utils::FileName &fileName)
 {
     crumbleBar()->pushFile(fileName);
 }

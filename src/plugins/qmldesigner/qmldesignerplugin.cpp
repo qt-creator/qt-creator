@@ -274,7 +274,7 @@ void QmlDesignerPlugin::createDesignModeWidget()
     connect(Core::EditorManager::instance(), &Core::EditorManager::editorsClosed, [=] (QList<Core::IEditor*> editors) {
         if (d) {
             if (d->documentManager.hasCurrentDesignDocument()
-                    && editors.contains(d->documentManager.currentDesignDocument()->textEditor()))
+                    && editors.contains(currentDesignDocument()->textEditor()))
                 hideDesigner();
 
             d->documentManager.removeEditors(editors);
@@ -336,7 +336,7 @@ void QmlDesignerPlugin::showDesigner()
     if (d->documentManager.hasCurrentDesignDocument()) {
         activateAutoSynchronization();
         d->shortCutManager.updateActions(currentDesignDocument()->textEditor());
-        d->viewManager.pushFileOnCrumbleBar(d->documentManager.currentDesignDocument()->fileName().toString());
+        d->viewManager.pushFileOnCrumbleBar(currentDesignDocument()->fileName());
     }
 
     d->shortCutManager.updateUndoActions(currentDesignDocument());
@@ -374,7 +374,7 @@ void QmlDesignerPlugin::changeEditor()
 
     if (d->documentManager.hasCurrentDesignDocument()) {
         activateAutoSynchronization();
-        d->viewManager.pushFileOnCrumbleBar(d->documentManager.currentDesignDocument()->fileName().toString());
+        d->viewManager.pushFileOnCrumbleBar(currentDesignDocument()->fileName());
         d->viewManager.setComponentViewToMaster();
     }
 

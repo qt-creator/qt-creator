@@ -27,6 +27,7 @@
 
 #include <QObject>
 #include <utils/crumblepath.h>
+#include <utils/fileutils.h>
 #include <modelnode.h>
 
 namespace QmlDesigner {
@@ -38,7 +39,7 @@ public:
     explicit CrumbleBar(QObject *parent = 0);
     ~CrumbleBar();
 
-    void pushFile(const QString &fileName);
+    void pushFile(const Utils::FileName &fileName);
     void pushInFileComponent(const ModelNode &modelNode);
 
     void nextFileIsCalledInternally();
@@ -59,7 +60,7 @@ private:
 
 class CrumbleBarInfo {
 public:
-    QString fileName;
+    Utils::FileName fileName;
     QString displayName;
     ModelNode modelNode;
 };
