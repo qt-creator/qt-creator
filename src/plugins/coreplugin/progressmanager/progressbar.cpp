@@ -297,7 +297,7 @@ void ProgressBar::paintEvent(QPaintEvent *)
         p.fillRect(inner, c);
     } else {
         const static QImage bar(StyleHelper::dpiSpecificImageFile(
-                                    QLatin1String(":/core/images/progressbar.png")));
+                                    QLatin1String(":/utils/images/progressbar.png")));
         StyleHelper::drawCornerImage(bar, &p, rect, 3, 3, 3, 3);
 
         // Draw line and shadow after the gradient fill

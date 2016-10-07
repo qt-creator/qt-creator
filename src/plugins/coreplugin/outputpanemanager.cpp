@@ -693,26 +693,26 @@ void OutputPaneToggleButton::paintEvent(QPaintEvent*)
         const QImage *image = 0;
         if (isDown()) {
             static const QImage pressed(
-                        StyleHelper::dpiSpecificImageFile(":/core/images/panel_button_pressed.png"));
+                        StyleHelper::dpiSpecificImageFile(":/utils/images/panel_button_pressed.png"));
             image = &pressed;
         } else if (isChecked()) {
             if (hovered) {
                 static const QImage checkedHover(
-                            StyleHelper::dpiSpecificImageFile(":/core/images/panel_button_checked_hover.png"));
+                            StyleHelper::dpiSpecificImageFile(":/utils/images/panel_button_checked_hover.png"));
                 image = &checkedHover;
             } else {
                 static const QImage checked(
-                            StyleHelper::dpiSpecificImageFile(":/core/images/panel_button_checked.png"));
+                            StyleHelper::dpiSpecificImageFile(":/utils/images/panel_button_checked.png"));
                 image = &checked;
             }
         } else {
             if (hovered) {
                 static const QImage hover(
-                            StyleHelper::dpiSpecificImageFile(":/core/images/panel_button_hover.png"));
+                            StyleHelper::dpiSpecificImageFile(":/utils/images/panel_button_hover.png"));
                 image = &hover;
             } else {
                 static const QImage button(
-                            StyleHelper::dpiSpecificImageFile(":/core/images/panel_button.png"));
+                            StyleHelper::dpiSpecificImageFile(":/utils/images/panel_button.png"));
                 image = &button;
             }
         }
@@ -794,7 +794,7 @@ void OutputPaneManageButton::paintEvent(QPaintEvent*)
 {
     QPainter p(this);
     if (!creatorTheme()->flag(Theme::FlatToolBars)) {
-        static const QImage button(StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/panel_manage_button.png")));
+        static const QImage button(StyleHelper::dpiSpecificImageFile(QStringLiteral(":/utils/images/panel_manage_button.png")));
         StyleHelper::drawCornerImage(button, &p, rect(), buttonBorderWidth, buttonBorderWidth, buttonBorderWidth, buttonBorderWidth);
     }
     QStyle *s = style();
