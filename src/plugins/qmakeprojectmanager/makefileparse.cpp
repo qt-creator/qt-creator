@@ -66,7 +66,9 @@ static QString trimLine(const QString &line)
     return line.mid(firstSpace).trimmed();
 }
 
-void MakeFileParse::parseArgs(const QString &args, QList<QMakeAssignment> *assignments, QList<QMakeAssignment> *afterAssignments)
+void MakeFileParse::parseArgs(const QString &args, const QString &project,
+                              QList<QMakeAssignment> *assignments,
+                              QList<QMakeAssignment> *afterAssignments)
 {
     QRegExp regExp(QLatin1String("([^\\s\\+-]*)\\s*(\\+=|=|-=|~=)(.*)"));
     bool after = false;
@@ -77,6 +79,8 @@ void MakeFileParse::parseArgs(const QString &args, QList<QMakeAssignment> *assig
         if (ignoreNext) {
             // Ignoring
             ignoreNext = false;
+            ait.deleteArg();
+        } else if (ait.value() == project) {
             ait.deleteArg();
         } else if (ait.value() == QLatin1String("-after")) {
             after = true;
@@ -110,7 +114,6 @@ void MakeFileParse::parseArgs(const QString &args, QList<QMakeAssignment> *assig
             ait.deleteArg();
         }
     }
-    ait.deleteArg();  // The .pro file is always the last arg
 }
 
 void dumpQMakeAssignments(const QList<QMakeAssignment> &list)
@@ -279,29 +282,29 @@ MakeFileParse::MakeFileParse(const QString &makefile)
     m_qmakePath = findQMakeBinaryFromMakefile(makefile);
     qCDebug(logging()) << "  qmake:" << m_qmakePath;
 
-    QString line = findQMakeLine(makefile, QLatin1String("# Project:")).trimmed();
-    if (line.isEmpty()) {
+    QString project = findQMakeLine(makefile, QLatin1String("# Project:")).trimmed();
+    if (project.isEmpty()) {
         m_state = CouldNotParse;
         qCDebug(logging()) << "**No Project line";
         return;
     }
 
-    line.remove(0, line.indexOf(QLatin1Char(':')) + 1);
-    line = line.trimmed();
+    project.remove(0, project.indexOf(QLatin1Char(':')) + 1);
+    project = project.trimmed();
 
     // Src Pro file
-    m_srcProFile = QDir::cleanPath(QFileInfo(makefile).absoluteDir().filePath(line));
+    m_srcProFile = QDir::cleanPath(QFileInfo(makefile).absoluteDir().filePath(project));
     qCDebug(logging()) << "  source .pro file:" << m_srcProFile;
 
-    line = findQMakeLine(makefile, QLatin1String("# Command:"));
-    if (line.trimmed().isEmpty()) {
+    QString command = findQMakeLine(makefile, QLatin1String("# Command:")).trimmed();
+    if (command.isEmpty()) {
         m_state = CouldNotParse;
         qCDebug(logging()) << "**No Command line found";
         return;
     }
 
-    line = trimLine(line);
-    parseCommandLine(line);
+    command = trimLine(command);
+    parseCommandLine(command, project);
 
     m_state = Okay;
 }
@@ -352,13 +355,13 @@ const QLoggingCategory &MakeFileParse::logging()
     return category;
 }
 
-void MakeFileParse::parseCommandLine(const QString &command)
+void MakeFileParse::parseCommandLine(const QString &command, const QString &project)
 {
 
     QList<QMakeAssignment> assignments;
     QList<QMakeAssignment> afterAssignments;
     // Split up args into assignments and other arguments, writes m_unparsedArguments
-    parseArgs(command, &assignments, &afterAssignments);
+    parseArgs(command, project, &assignments, &afterAssignments);
     qCDebug(logging()) << "  Initial assignments:";
     dumpQMakeAssignments(assignments);
 
