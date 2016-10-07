@@ -76,6 +76,7 @@ public:
 
 signals:
     void connectedToLocalSocket();
+    void disconnectedFromLocalSocket();
     void processFinished();
 
 protected:
@@ -102,6 +103,7 @@ private:
     void printStandardError();
 
     void connectLocalSocketConnected();
+    void connectLocalSocketDisconnected();
     void connectProcessFinished(QProcess *process) const;
     void connectProcessStarted(QProcess *process) const;
     void disconnectProcessFinished(QProcess *process) const;

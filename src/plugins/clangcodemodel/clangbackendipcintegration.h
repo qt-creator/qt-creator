@@ -116,6 +116,7 @@ public:
 
 public:
     IpcCommunicator();
+    ~IpcCommunicator();
 
     void registerTranslationUnitsForEditor(const FileContainers &fileContainers);
     void updateTranslationUnitsForEditor(const FileContainers &fileContainers);
@@ -164,9 +165,11 @@ private:
     void registerVisibleCppEditorDocumentAndMarkInvisibleDirty();
     void registerCurrentCodeModelUiHeaders();
 
+    void setupDummySender();
+
     void onConnectedToBackend();
+    void onDisconnectedFromBackend();
     void onEditorAboutToClose(Core::IEditor *editor);
-    void onCoreAboutToClose();
 
     void updateTranslationUnitVisiblity(const Utf8String &currentEditorFilePath,
                                         const Utf8StringVector &visibleEditorsFilePaths);

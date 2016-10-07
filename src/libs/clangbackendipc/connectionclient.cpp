@@ -51,6 +51,7 @@ ConnectionClient::ConnectionClient()
 
     connectLocalSocketError();
     connectLocalSocketConnected();
+    connectLocalSocketDisconnected();
 }
 
 void ConnectionClient::startProcessAndConnectToServerAsynchronously()
@@ -228,6 +229,14 @@ void ConnectionClient::connectLocalSocketConnected()
             &QLocalSocket::connected,
             this,
             &ConnectionClient::resetProcessIsStarting);
+}
+
+void ConnectionClient::connectLocalSocketDisconnected()
+{
+    connect(&localSocket,
+            &QLocalSocket::disconnected,
+            this,
+            &ConnectionClient::disconnectedFromLocalSocket);
 }
 
 void ConnectionClient::finishProcess()
