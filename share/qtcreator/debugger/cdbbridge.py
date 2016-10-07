@@ -26,7 +26,6 @@
 import inspect
 import os
 import sys
-import threading
 import cdbext
 
 sys.path.insert(1, os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))))
@@ -217,8 +216,7 @@ class Dumper(DumperBase):
         self.reportResult(self.output, args)
 
     def report(self, stuff):
-        with self.outputLock:
-            sys.stdout.write(stuff + "\n")
+        sys.stdout.write(stuff + "\n")
 
     def loadDumpers(self, args):
         msg = self.setupDumpers()
