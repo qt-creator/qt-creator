@@ -313,6 +313,8 @@ class TargetItem : public TypedTreeItem<TreeItem, TargetGroupItem>
     Q_DECLARE_TR_FUNCTIONS(TargetSettingsPanelWidget)
 
 public:
+    enum { DefaultPage = 1 }; // Run page.
+
     TargetItem(Project *project, Id kitId)
         : m_project(project), m_kitId(kitId)
     {
@@ -405,10 +407,16 @@ public:
         if (role == ItemActivatedDirectlyRole) {
             QTC_ASSERT(!data.isValid(), return false);
             if (!isEnabled()) {
+                m_currentChild = DefaultPage;
                 Kit *k = KitManager::find(m_kitId);
                 m_project->addTarget(m_project->createTarget(k));
             } else {
+                // Go to Run page, when on Run previously etc.
+                TargetItem *previousItem = parent()->currentTargetItem();
+                m_currentChild = previousItem ? previousItem->m_currentChild : DefaultPage;
                 SessionManager::setActiveTarget(m_project, target(), SetActive::Cascade);
+                parent()->setData(column, QVariant::fromValue(static_cast<TreeItem *>(this)),
+                                  ItemActivatedFromBelowRole);
             }
             return true;
         }
@@ -506,7 +514,7 @@ public:
 public:
     QPointer<Project> m_project; // Not owned.
     Id m_kitId;
-    int m_currentChild = 1; // Use run page by default.
+    int m_currentChild = DefaultPage; // Use run page by default.
 
 private:
     enum class IconOverlay {
@@ -792,7 +800,7 @@ bool TargetGroupItem::setData(int column, const QVariant &data, int role)
 
 Qt::ItemFlags TargetGroupItem::flags(int) const
 {
-    return Qt::ItemIsEnabled;
+    return Qt::NoItemFlags;
 }
 
 TargetItem *TargetGroupItem::currentTargetItem() const

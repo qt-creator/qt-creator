@@ -148,7 +148,7 @@ public:
 
     Qt::ItemFlags flags(int) const override
     {
-        return Qt::ItemIsEnabled;
+        return Qt::NoItemFlags;
     }
 
     QVariant data(int column, int role) const override
@@ -174,13 +174,6 @@ public:
             QTC_ASSERT(item, return false);
             m_currentPanelIndex = children().indexOf(item);
             QTC_ASSERT(m_currentPanelIndex != -1, return false);
-            parent()->setData(0, QVariant::fromValue(static_cast<TreeItem *>(this)),
-                              ItemActivatedFromBelowRole);
-            return true;
-        }
-
-        if (role == ItemActivatedDirectlyRole) {
-            m_currentPanelIndex = 0; // Use the first ('Editor') page.
             parent()->setData(0, QVariant::fromValue(static_cast<TreeItem *>(this)),
                               ItemActivatedFromBelowRole);
             return true;
@@ -541,10 +534,13 @@ void SelectorDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     QStyleOptionViewItem opt = option;
     if (TreeItem *item = model->itemForIndex(index)) {
         switch (item->level()) {
-        case 2:
+        case 2: {
+            QColor col = creatorTheme()->color(Theme::TextColorNormal);
+            opt.palette.setColor(QPalette::Text, col);
             opt.font.setBold(true);
             opt.font.setPointSizeF(opt.font.pointSizeF() * 1.2);
             break;
+            }
         }
     }
     QStyledItemDelegate::paint(painter, opt, index);
