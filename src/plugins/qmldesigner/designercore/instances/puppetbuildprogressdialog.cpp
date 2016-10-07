@@ -40,6 +40,7 @@ PuppetBuildProgressDialog::PuppetBuildProgressDialog() :
     m_useFallbackPuppet(false)
 {
     setWindowFlags(Qt::SplashScreen);
+    setWindowModality(Qt::ApplicationModal);
     ui->setupUi(this);
     ui->buildProgressBar->setMaximum(85);
     connect(ui->useFallbackPuppetPushButton, SIGNAL(clicked()), this, SLOT(setUseFallbackPuppet()));
