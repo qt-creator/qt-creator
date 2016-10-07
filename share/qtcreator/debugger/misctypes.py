@@ -176,6 +176,21 @@ def qdump__NimGenericSequence__(d, value, regex = '^TY[\d]+$'):
         d.putEmptyValue()
         d.putPlainChildren(value)
 
+def qdump__TNimNode(d, value):
+    name = value['name'].pointer()
+    d.putSimpleCharArray(name) if name != 0 else d.putEmptyValue()
+    if d.isExpanded():
+        with Children(d):
+            sons = value['sons'].pointer()
+            size = value['len'].integer()
+            for i in range(size):
+                val = d.createValue(d.extractPointer(sons + i * d.ptrSize()), value.type)
+                with SubItem(d, '[%d]' % i):
+                    d.putItem(val)
+            with SubItem(d, '[raw]'):
+                d.putPlainChildren(value)
+
+
 #######################################################################
 #
 # D
