@@ -593,8 +593,6 @@ protected slots:
     bool inFindScope(const QTextCursor &cursor);
     bool inFindScope(int selectionStart, int selectionEnd);
 
-    void doFoo();
-
 private:
     Internal::TextEditorWidgetPrivate *d;
     friend class BaseTextEditor;
