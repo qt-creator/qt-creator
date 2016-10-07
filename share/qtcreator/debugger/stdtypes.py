@@ -529,6 +529,9 @@ def qdumpHelper_std__string(d, value, charType, format):
     if d.isQnxTarget():
         qdumpHelper__std__string__QNX(d, value, charType, format)
         return
+    if d.isMsvcTarget():
+        qdumpHelper__std__string__MSVC(d, value, charType, format)
+        return
 
     data = value.extractPointer()
     # We can't lookup the std::string::_Rep type without crashing LLDB,
@@ -554,6 +557,23 @@ def qdumpHelper__std__string__QNX(d, value, charType, format):
     d.check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
     d.putCharArrayHelper(sizePtr, size, charType, format)
 
+def qdumpHelper__std__string__MSVC(d, value, charType, format):
+    val = value
+    try:
+        size = value['_Mysize'].integer()
+        alloc = value['_Myres'].integer()
+    except:
+        val = value['_Mypair']['_Myval2']
+        size = d.extractUInt64(val['_Mysize'])
+        alloc = d.extractUInt64(val['_Myres'])
+
+    _BUF_SIZE = int(16 / charType.size());
+    d.check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
+    if _BUF_SIZE <= alloc:
+        data = val['_Bx']['_Ptr'].pointer()
+    else:
+        data = val['_Bx']['_Buf'].address()
+    d.putCharArrayHelper(data, size, charType, format)
 
 def qdump__std____1__string(d, value):
     firstByte = value.split('b')[0]
