@@ -824,6 +824,9 @@
             For example, to turn the first character in the line edit to upper
             case.
 
+        \li \c isPassword is a boolean value that specifies that the line edit
+            contains a password, which will be masked.
+
     \endlist
 
     \section2 Path Chooser

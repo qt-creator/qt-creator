@@ -404,6 +404,7 @@ bool LineEditField::parseData(const QVariant &data, QString *errorMessage)
 
     QVariantMap tmp = data.toMap();
 
+    m_isPassword = tmp.value("isPassword", false).toBool();
     m_defaultText = JsonWizardFactory::localizedString(tmp.value(QLatin1String("trText")).toString());
     m_disabledText = JsonWizardFactory::localizedString(tmp.value(QLatin1String("trDisabledText")).toString());
     m_placeholderText = JsonWizardFactory::localizedString(tmp.value(QLatin1String("trPlaceholder")).toString());
@@ -438,6 +439,8 @@ QWidget *LineEditField::createWidget(const QString &displayName, JsonFieldPage *
 
     if (!m_historyId.isEmpty())
         w->setHistoryCompleter(m_historyId, m_restoreLastHistoryItem);
+
+    w->setEchoMode(m_isPassword ? QLineEdit::Password : QLineEdit::Normal);
 
     return w;
 }
