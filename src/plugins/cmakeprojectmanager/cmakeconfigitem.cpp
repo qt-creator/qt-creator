@@ -42,7 +42,7 @@ CMakeConfigItem::CMakeConfigItem() = default;
 
 CMakeConfigItem::CMakeConfigItem(const CMakeConfigItem &other) :
     key(other.key), type(other.type), isAdvanced(other.isAdvanced),
-    value(other.value), documentation(other.documentation)
+    value(other.value), documentation(other.documentation), values(other.values)
 { }
 
 CMakeConfigItem::CMakeConfigItem(const QByteArray &k, Type t,

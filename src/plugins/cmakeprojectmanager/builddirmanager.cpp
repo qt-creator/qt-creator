@@ -794,6 +794,7 @@ CMakeConfig BuildDirManager::parseConfiguration(const Utils::FileName &cacheFile
     }
 
     QSet<QByteArray> advancedSet;
+    QMap<QByteArray, QByteArray> valuesMap;
     QByteArray documentation;
     while (!cache.atEnd()) {
         const QByteArray line = trimCMakeCacheLine(cache.readLine());
@@ -817,6 +818,8 @@ CMakeConfig BuildDirManager::parseConfiguration(const Utils::FileName &cacheFile
 
         if (key.endsWith("-ADVANCED") && value == "1") {
             advancedSet.insert(key.left(key.count() - 9 /* "-ADVANCED" */));
+        } else if (key.endsWith("-STRINGS") && fromByteArray(type) == CMakeConfigItem::INTERNAL) {
+            valuesMap[key.left(key.count() - 8) /* "-STRINGS" */] = value;
         } else {
             CMakeConfigItem::Type t = fromByteArray(type);
             result << CMakeConfigItem(key, t, documentation, value);
@@ -827,6 +830,13 @@ CMakeConfig BuildDirManager::parseConfiguration(const Utils::FileName &cacheFile
     for (int i = 0; i < result.count(); ++i) {
         CMakeConfigItem &item = result[i];
         item.isAdvanced = advancedSet.contains(item.key);
+
+        if (valuesMap.contains(item.key)) {
+            item.values = CMakeConfigItem::cmakeSplitValue(QString::fromUtf8(valuesMap[item.key]));
+        } else if (item.key  == "CMAKE_BUILD_TYPE") {
+            // WA for known options
+            item.values << "" << "Debug" << "Release" << "MinSizeRel" << "RelWithDebInfo";
+        }
     }
 
     Utils::sort(result, CMakeConfigItem::sortOperator());
