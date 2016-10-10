@@ -27,6 +27,8 @@
 #include "textdocumentlayout.h"
 #include "texteditor.h"
 
+#include <utils/icon.h>
+
 #include <QPainter>
 
 #include <QDebug>
@@ -37,7 +39,9 @@ RefactorOverlay::RefactorOverlay(TextEditor::TextEditorWidget *editor) :
     QObject(editor),
     m_editor(editor),
     m_maxWidth(0),
-    m_icon(QLatin1String(":/texteditor/images/refactormarker.png"))
+    m_icon(Utils::Icon({
+        {QLatin1String(":/texteditor/images/lightbulbcap.png"), Utils::Theme::PanelTextColorMid},
+        {QLatin1String(":/texteditor/images/lightbulb.png"), Utils::Theme::IconsWarningColor}}, Utils::Icon::Tint).icon())
 {
 }
 

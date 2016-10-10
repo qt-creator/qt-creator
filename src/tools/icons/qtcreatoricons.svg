@@ -3360,6 +3360,42 @@
          style="fill:#000000"
          id="rect5132-95" />
     </g>
+    <g
+       style="display:inline"
+       id="src/plugins/texteditor/images/lightbulbcap"
+       transform="translate(28,2)">
+      <rect
+         style="fill:#ffffff"
+         x="1180"
+         y="571"
+         width="10"
+         height="11"
+         id="rect6782-96-0-0-7-8-1-0-4-4" />
+      <path
+         style="fill:#000000"
+         d="m 1183,578.3334 0,0.6666 0.5,0 0,1 -0.5,0 0,1 1,0 0.5,1 1,0 0.5,-1 1,0 0,-1 -0.5,0 0,-1 0.5,0 0,-0.6666 z"
+         id="path4355"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccccccccccccccccc" />
+    </g>
+    <g
+       style="display:inline"
+       id="src/plugins/texteditor/images/lightbulb"
+       transform="translate(38,2)">
+      <rect
+         style="fill:#ffffff"
+         x="1180"
+         y="571"
+         width="10"
+         height="11"
+         id="rect6782-96-0-0-7-8-1-0-4-4-9" />
+      <path
+         style="fill:#000000"
+         d="m 1183,578 c 0,0 0,0.17678 -1.5,-2.32322 -1.5,-2.5 0.5,-4.67678 3.5,-4.67678 3,0 5,2.17678 3.5,4.67678 -1.5,2.5 -1.5,2.32322 -1.5,2.32322 z"
+         id="path4349-1"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="czzzcc" />
+    </g>
   </g>
   <g
      inkscape:groupmode="layer"
