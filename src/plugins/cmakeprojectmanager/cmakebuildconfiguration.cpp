@@ -211,6 +211,11 @@ void CMakeBuildConfiguration::generateProjectTree(CMakeProjectNode *root) const
     return m_buildDirManager->generateProjectTree(root);
 }
 
+QSet<Core::Id> CMakeBuildConfiguration::updateCodeModel(CppTools::ProjectPartBuilder &ppBuilder)
+{
+    return m_buildDirManager->updateCodeModel(ppBuilder);
+}
+
 FileName CMakeBuildConfiguration::shadowBuildDirectory(const FileName &projectFilePath,
                                                        const Kit *k,
                                                        const QString &bcName,

@@ -94,102 +94,6 @@ CMakeProject::~CMakeProject()
     qDeleteAll(m_extraCompilers);
 }
 
-QStringList CMakeProject::getCXXFlagsFor(const CMakeBuildTarget &buildTarget,
-                                         QHash<QString, QStringList> &cache)
-{
-    // check cache:
-    auto it = cache.constFind(buildTarget.title);
-    if (it != cache.constEnd())
-        return *it;
-
-    if (extractCXXFlagsFromMake(buildTarget, cache))
-        return cache.value(buildTarget.title);
-
-    if (extractCXXFlagsFromNinja(buildTarget, cache))
-        return cache.value(buildTarget.title);
-
-    cache.insert(buildTarget.title, QStringList());
-    return QStringList();
-}
-
-bool CMakeProject::extractCXXFlagsFromMake(const CMakeBuildTarget &buildTarget,
-                                           QHash<QString, QStringList> &cache)
-{
-    QString makeCommand = QDir::fromNativeSeparators(buildTarget.makeCommand);
-    int startIndex = makeCommand.indexOf('\"');
-    int endIndex = makeCommand.indexOf('\"', startIndex + 1);
-    if (startIndex != -1 && endIndex != -1) {
-        startIndex += 1;
-        QString makefile = makeCommand.mid(startIndex, endIndex - startIndex);
-        int slashIndex = makefile.lastIndexOf('/');
-        makefile.truncate(slashIndex);
-        makefile.append("/CMakeFiles/" + buildTarget.title + ".dir/flags.make");
-        QFile file(makefile);
-        if (file.exists()) {
-            file.open(QIODevice::ReadOnly | QIODevice::Text);
-            QTextStream stream(&file);
-            while (!stream.atEnd()) {
-                QString line = stream.readLine().trimmed();
-                if (line.startsWith("CXX_FLAGS =")) {
-                    // Skip past =
-                    cache.insert(buildTarget.title,
-                                 line.mid(11).trimmed().split(' ', QString::SkipEmptyParts));
-                    return true;
-                }
-            }
-        }
-    }
-    return false;
-}
-
-bool CMakeProject::extractCXXFlagsFromNinja(const CMakeBuildTarget &buildTarget,
-                                            QHash<QString, QStringList> &cache)
-{
-    Q_UNUSED(buildTarget)
-    if (!cache.isEmpty()) // We fill the cache in one go!
-        return false;
-
-    // Attempt to find build.ninja file and obtain FLAGS (CXX_FLAGS) from there if no suitable flags.make were
-    // found
-    // Get "all" target's working directory
-    QByteArray ninjaFile;
-    QString buildNinjaFile = QDir::fromNativeSeparators(buildTargets().at(0).workingDirectory);
-    buildNinjaFile += "/build.ninja";
-    QFile buildNinja(buildNinjaFile);
-    if (buildNinja.exists()) {
-        buildNinja.open(QIODevice::ReadOnly | QIODevice::Text);
-        ninjaFile = buildNinja.readAll();
-        buildNinja.close();
-    }
-
-    if (ninjaFile.isEmpty())
-        return false;
-
-    QTextStream stream(ninjaFile);
-    bool cxxFound = false;
-    const QString targetSignature = "# Object build statements for ";
-    QString currentTarget;
-
-    while (!stream.atEnd()) {
-        // 1. Look for a block that refers to the current target
-        // 2. Look for a build rule which invokes CXX_COMPILER
-        // 3. Return the FLAGS definition
-        QString line = stream.readLine().trimmed();
-        if (line.startsWith('#')) {
-            if (line.startsWith(targetSignature)) {
-                int pos = line.lastIndexOf(' ');
-                currentTarget = line.mid(pos + 1);
-            }
-        } else if (!currentTarget.isEmpty() && line.startsWith("build")) {
-            cxxFound = line.indexOf("CXX_COMPILER") != -1;
-        } else if (cxxFound && line.startsWith("FLAGS =")) {
-            // Skip past =
-            cache.insert(currentTarget, line.mid(7).trimmed().split(' ', QString::SkipEmptyParts));
-        }
-    }
-    return !cache.isEmpty();
-}
-
 void CMakeProject::updateProjectData()
 {
     auto cmakeBc = qobject_cast<CMakeBuildConfiguration *>(sender());
@@ -225,39 +129,11 @@ void CMakeProject::updateProjectData()
             activeQtVersion = CppTools::ProjectPart::Qt5;
     }
 
-    const FileName sysroot = SysRootKitInformation::sysRoot(k);
-
     ppBuilder.setQtVersion(activeQtVersion);
 
-    QHash<QString, QStringList> targetDataCache;
-    foreach (const CMakeBuildTarget &cbt, buildTargets()) {
-        if (cbt.targetType == UtilityType)
-            continue;
-
-        // CMake shuffles the include paths that it reports via the CodeBlocks generator
-        // So remove the toolchain include paths, so that at least those end up in the correct
-        // place.
-        QStringList cxxflags = getCXXFlagsFor(cbt, targetDataCache);
-        QSet<QString> tcIncludes;
-        foreach (const HeaderPath &hp, tc->systemHeaderPaths(cxxflags, sysroot)) {
-            tcIncludes.insert(hp.path());
-        }
-        QStringList includePaths;
-        foreach (const QString &i, cbt.includeFiles) {
-            if (!tcIncludes.contains(i))
-                includePaths.append(i);
-        }
-        includePaths += projectDirectory().toString();
-        ppBuilder.setIncludePaths(includePaths);
-        ppBuilder.setCFlags(cxxflags);
-        ppBuilder.setCxxFlags(cxxflags);
-        ppBuilder.setDefines(cbt.defines);
-        ppBuilder.setDisplayName(cbt.title);
-
-        const QList<Core::Id> languages = ppBuilder.createProjectPartsForFiles(cbt.files);
-        foreach (Core::Id language, languages)
-            setProjectLanguage(language, true);
-    }
+    const QSet<Core::Id> languages = cmakeBc->updateCodeModel(ppBuilder);
+    for (const auto &lid : languages)
+        setProjectLanguage(lid, true);
 
     m_codeModelFuture.cancel();
     pinfo.finish();
