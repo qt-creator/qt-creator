@@ -191,6 +191,9 @@ void BuildDirManager::resetData()
 {
     m_hasData = false;
 
+    qDeleteAll(m_watchedFiles);
+    m_watchedFiles.clear();
+
     m_cmakeCache.clear();
     m_projectName.clear();
     m_buildTargets.clear();
