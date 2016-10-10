@@ -368,6 +368,8 @@ void OutputWindow::clear()
 {
     d->enforceNewline = false;
     QPlainTextEdit::clear();
+    if (d->formatter)
+        d->formatter->clear();
 }
 
 void OutputWindow::scrollToBottom()

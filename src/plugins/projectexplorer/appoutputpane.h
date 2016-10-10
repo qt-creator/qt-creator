@@ -160,6 +160,7 @@ private:
     QToolButton *m_attachButton;
     QToolButton *m_zoomInButton;
     QToolButton *m_zoomOutButton;
+    QWidget *m_formatterWidget;
     float m_zoom;
 };
 

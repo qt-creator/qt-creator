@@ -59,6 +59,8 @@ public:
     virtual void appendMessage(const QString &text, OutputFormat format);
     virtual void appendMessage(const QString &text, const QTextCharFormat &format);
     virtual void handleLink(const QString &href);
+    virtual QList<QWidget *> toolbarWidgets() const { return {}; }
+    virtual void clear() {}
 
 protected:
     void initFormats();

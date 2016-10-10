@@ -74,6 +74,15 @@ static QString msgAttachDebuggerTooltip(const QString &handleDescription = QStri
            AppOutputPane::tr("Attach debugger to %1").arg(handleDescription);
 }
 
+static void replaceAllChildWidgets(QLayout *layout, const QList<QWidget *> &newChildren)
+{
+    while (QLayoutItem *child = layout->takeAt(0))
+        delete child;
+
+    foreach (QWidget *widget, newChildren)
+        layout->addWidget(widget);
+}
+
 namespace {
 const char SETTINGS_KEY[] = "ProjectExplorer/AppOutput/Zoom";
 }
@@ -152,7 +161,8 @@ AppOutputPane::AppOutputPane() :
     m_stopButton(new QToolButton),
     m_attachButton(new QToolButton),
     m_zoomInButton(new QToolButton),
-    m_zoomOutButton(new QToolButton)
+    m_zoomOutButton(new QToolButton),
+    m_formatterWidget(new QWidget)
 {
     setObjectName(QLatin1String("AppOutputPane")); // Used in valgrind engine
 
@@ -199,6 +209,10 @@ AppOutputPane::AppOutputPane() :
 
     connect(m_zoomOutButton, &QToolButton::clicked,
             this, &AppOutputPane::zoomOut);
+
+    auto formatterWidgetsLayout = new QHBoxLayout;
+    formatterWidgetsLayout->setContentsMargins(QMargins());
+    m_formatterWidget->setLayout(formatterWidgetsLayout);
 
     // Spacer (?)
 
@@ -321,7 +335,8 @@ QWidget *AppOutputPane::outputWidget(QWidget *)
 
 QList<QWidget*> AppOutputPane::toolBarWidgets() const
 {
-    return {m_reRunButton, m_stopButton, m_attachButton, m_zoomInButton, m_zoomOutButton};
+    return { m_reRunButton, m_stopButton, m_attachButton, m_zoomInButton,
+                m_zoomOutButton, m_formatterWidget };
 }
 
 QString AppOutputPane::displayName() const
@@ -639,6 +654,10 @@ void AppOutputPane::enableButtons(const RunControl *rc, bool isRunning)
         }
         m_zoomInButton->setEnabled(true);
         m_zoomOutButton->setEnabled(true);
+
+        replaceAllChildWidgets(m_formatterWidget->layout(), rc->outputFormatter() ?
+                                   rc->outputFormatter()->toolbarWidgets() :
+                                   QList<QWidget *>());
     } else {
         m_reRunButton->setEnabled(false);
         m_reRunButton->setIcon(Utils::Icons::RUN_SMALL_TOOLBAR.icon());
@@ -648,6 +667,7 @@ void AppOutputPane::enableButtons(const RunControl *rc, bool isRunning)
         m_zoomInButton->setEnabled(false);
         m_zoomOutButton->setEnabled(false);
     }
+    m_formatterWidget->setVisible(m_formatterWidget->layout()->count());
 }
 
 void AppOutputPane::tabChanged(int i)

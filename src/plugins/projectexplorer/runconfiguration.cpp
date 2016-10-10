@@ -573,7 +573,7 @@ RunControl::~RunControl()
     delete d;
 }
 
-Utils::OutputFormatter *RunControl::outputFormatter()
+Utils::OutputFormatter *RunControl::outputFormatter() const
 {
     return d->outputFormatter;
 }

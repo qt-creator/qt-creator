@@ -379,7 +379,7 @@ public:
     Project *project() const;
     bool canReUseOutputPane(const RunControl *other) const;
 
-    Utils::OutputFormatter *outputFormatter();
+    Utils::OutputFormatter *outputFormatter() const;
     Core::Id runMode() const;
 
     const Runnable &runnable() const;
