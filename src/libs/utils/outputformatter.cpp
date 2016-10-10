@@ -68,6 +68,8 @@ QPlainTextEdit *OutputFormatter::plainTextEdit() const
 
 void OutputFormatter::setPlainTextEdit(QPlainTextEdit *plainText)
 {
+    plainText->setReadOnly(true);
+    plainText->setTextInteractionFlags(plainText->textInteractionFlags() | Qt::TextSelectableByKeyboard);
     d->plainTextEdit = plainText;
     d->cursor = plainText ? plainText->textCursor() : QTextCursor();
     initFormats();
