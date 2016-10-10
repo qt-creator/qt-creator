@@ -11,7 +11,7 @@ QTC_PLUGIN_DEPENDS += \
 
 include(../../../qttest.pri)
 
-QT += network core-private
+QT += qml network core-private
 
 greaterThan(QT_MAJOR_VERSION, 4) {
     QT += printsupport
