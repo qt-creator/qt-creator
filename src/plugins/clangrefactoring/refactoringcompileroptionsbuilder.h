@@ -34,7 +34,6 @@
 #include <coreplugin/icore.h>
 
 #include <QDir>
-#include <QRegularExpression>
 
 namespace ClangRefactoring {
 
