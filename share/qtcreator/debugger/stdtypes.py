@@ -213,12 +213,20 @@ def qform__std__map():
 
 def qdump__std__map(d, value):
     if d.isQnxTarget():
-        qdump__std__map__QNX(d, value)
+        proxy, head, size = value.split('ppI')
+        d.putItemCount(size)
+        qdump_std__map__helper(d, size, value)
         return
+    elif d.isMsvcTarget():
+        proxy, head, size = value.split('ppQ')
+        d.putItemCount(size)
+        try:
+            qdump_std__map__helper(d, size, value['_Mypair']['_Myval2']['_Myval2'])
+        finally:
+            return
 
     # stuff is actually (color, pad) with 'I@', but we can save cycles/
     (compare, stuff, parent, left, right, size) = value.split('pppppp')
-    impl = value["_M_t"]["_M_impl"]
     d.check(0 <= size and size <= 100*1000*1000)
     d.putItemCount(size)
 
@@ -226,7 +234,7 @@ def qdump__std__map(d, value):
         pairType = value.type[3][0]
         pairPointer = pairType.pointer()
         with PairedChildren(d, size, pairType=pairType, maxNumChild=1000):
-            node = impl["_M_header"]["_M_left"]
+            node = value["_M_t"]["_M_impl"]["_M_header"]["_M_left"]
             nodeSize = node.dereference().type.size()
             typeCode = "@{%s}@{%s}" % (pairType[0].name, pairType[1].name)
             for i in d.childRange():
@@ -248,26 +256,23 @@ def qdump__std__map(d, value):
                             break
                         node = node["_M_left"]
 
-def qdump__std__map__QNX(d, value):
-    size = value['_Mysize']
-    d.check(0 <= size and size <= 100*1000*1000)
-    d.putItemCount(size)
-
+def qdump_std__map__helper(d, size, value):
     if d.isExpanded():
         head = value['_Myhead']
         node = head['_Left']
         nodeType = head.type
-        with Children(d, size, maxNumChild=1000):
+        pairType = head.type[0]
+        with PairedChildren(d, size, pairType=pairType, maxNumChild=1000):
             for i in d.childRange():
                 pair = node.cast(nodeType).dereference()['_Myval']
                 d.putPairItem(i, pair)
-                if not node['_Right']['_Isnil']:
+                if node['_Right']['_Isnil'].integer() == 0:
                     node = node['_Right']
-                    while not node['_Left']['_Isnil']:
+                    while node['_Left']['_Isnil'].integer() == 0:
                         node = node['_Left']
                 else:
                     parent = node['_Parent']
-                    while node == parent['_Right']['_Isnil']:
+                    while node and parent['_Right']['_Isnil'].integer() == 0:
                         node = parent
                         parent = parent['_Parent']
                     if node['_Right'] != parent:
