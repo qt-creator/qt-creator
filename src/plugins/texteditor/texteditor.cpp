@@ -113,8 +113,6 @@
 #include <QTimer>
 #include <QToolBar>
 
-//#define DO_FOO
-
 /*!
     \namespace TextEditor
     \brief The TextEditor namespace contains the base text editor and several classes which
@@ -726,14 +724,6 @@ void TextEditorWidgetPrivate::ctor(const QSharedPointer<TextDocument> &doc)
 
     QObject::connect(q, &QPlainTextEdit::selectionChanged,
                      this, &TextEditorWidgetPrivate::slotSelectionChanged);
-
-//     (void) new QShortcut(tr("CTRL+L"), this, SLOT(centerCursor()), 0, Qt::WidgetShortcut);
-//     (void) new QShortcut(tr("F9"), this, SLOT(slotToggleMark()), 0, Qt::WidgetShortcut);
-//     (void) new QShortcut(tr("F11"), this, SLOT(slotToggleBlockVisible()));
-
-#ifdef DO_FOO
-    (void) new QShortcut(TextEditorWidget::tr("CTRL+D"), this, SLOT(doFoo()));
-#endif
 
     // parentheses matcher
     m_formatRange = true;
@@ -7215,19 +7205,6 @@ void TextEditorWidget::setRefactorMarkers(const RefactorMarkers &markers)
     d->m_refactorOverlay->setMarkers(markers);
     foreach (const RefactorMarker &marker, markers)
         requestBlockUpdate(marker.cursor.block());
-}
-
-void TextEditorWidget::doFoo()
-{
-#ifdef DO_FOO
-    qDebug() << Q_FUNC_INFO;
-    RefactorMarkers markers = d->m_refactorOverlay->markers();
-    RefactorMarker marker;
-    marker.tooltip = "Hello World";
-    marker.cursor = textCursor();
-    markers += marker;
-    setRefactorMarkers(markers);
-#endif
 }
 
 TextBlockSelection::TextBlockSelection(const TextBlockSelection &other)

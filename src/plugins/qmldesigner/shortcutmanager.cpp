@@ -25,6 +25,8 @@
 
 #include "shortcutmanager.h"
 
+#include "designersettings.h"
+
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
@@ -33,7 +35,13 @@
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/coreconstants.h>
+#include <qmljseditor/qmljseditorconstants.h>
+#include <qmljseditor/qmljseditordocument.h>
+
 #include <utils/hostosinfo.h>
+#include <utils/qtcassert.h>
+
+#include <qmljs/qmljsreformatter.h>
 
 #include "qmldesignerconstants.h"
 #include "qmldesignerplugin.h"
@@ -106,13 +114,29 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
             SLOT(toggleRightSidebar()));
 
     // Revert to saved
-    QObject *em = Core::EditorManager::instance();
+    Core::EditorManager *em = Core::EditorManager::instance();
     Core::ActionManager::registerAction(&m_revertToSavedAction,Core::Constants::REVERTTOSAVED, qmlDesignerMainContext);
     connect(&m_revertToSavedAction, SIGNAL(triggered()), em, SLOT(revertToSaved()));
 
     //Save
     Core::ActionManager::registerAction(&m_saveAction, Core::Constants::SAVE, qmlDesignerMainContext);
-    connect(&m_saveAction, SIGNAL(triggered()), em, SLOT(saveDocument()));
+    connect(&m_saveAction, &QAction::triggered, em, [em] {
+        DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
+        /* Reformat document if we have a .ui.qml file */
+        if (settings.value(DesignerSettingsKey::REFORMAT_UI_QML_FILES).toBool()
+                && em->currentDocument()->filePath().toString().endsWith(".ui.qml"))
+            if (QmlJSEditor::QmlJSEditorDocument *document
+                    = qobject_cast<QmlJSEditor::QmlJSEditorDocument *>(em->currentDocument())) {
+                const QString &newText = QmlJS::reformat(document->semanticInfo().document);
+                QTextCursor tc(document->document());
+                tc.movePosition(QTextCursor::Start);
+                tc.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+                tc.insertText(newText);
+            }
+        em->saveDocument();
+    });
+
+
 
     //Save As
     Core::ActionManager::registerAction(&m_saveAsAction, Core::Constants::SAVEAS, qmlDesignerMainContext);

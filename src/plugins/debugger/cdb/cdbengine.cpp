@@ -254,6 +254,8 @@ CdbEngine::CdbEngine(const DebuggerRunParameters &sp) :
             this, &CdbEngine::readyReadStandardOut);
     connect(&m_process, &QProcess::readyReadStandardError,
             this, &CdbEngine::readyReadStandardOut);
+    connect(action(UseDebuggingHelpers), &SavedAction::valueChanged,
+            this, &CdbEngine::updateLocals);
 }
 
 void CdbEngine::init()

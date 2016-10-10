@@ -622,7 +622,12 @@ void QbsProject::cancelParsing()
 void QbsProject::updateAfterBuild()
 {
     QTC_ASSERT(m_qbsProject.isValid(), return);
-    m_projectData = m_qbsProject.projectData();
+    const qbs::ProjectData &projectData = m_qbsProject.projectData();
+    if (projectData == m_projectData)
+        return;
+    qCDebug(qbsPmLog) << "Updating data after build";
+    m_projectData = projectData;
+    rootProjectNode()->update();
     updateBuildTargetData();
     updateCppCompilerCallData();
     if (m_extraCompilersPending) {
@@ -993,8 +998,6 @@ void QbsProject::updateDeploymentInfo()
 {
     DeploymentData deploymentData;
     if (m_qbsProject.isValid()) {
-        qbs::InstallOptions installOptions;
-        installOptions.setInstallRoot(QLatin1String("/"));
         foreach (const qbs::ArtifactData &f, m_projectData.installableArtifacts()) {
             deploymentData.addFile(f.filePath(), f.installData().installDir(),
                     f.isExecutable() ? DeployableFile::TypeExecutable : DeployableFile::TypeNormal);

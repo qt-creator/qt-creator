@@ -27,7 +27,12 @@
 
 #include "diffeditor_global.h"
 
+#include <texteditor/textdocument.h>
 #include <extensionsystem/iplugin.h>
+
+QT_FORWARD_DECLARE_CLASS(QAction)
+
+namespace Core { class IEditor; }
 
 namespace DiffEditor {
 namespace Internal {
@@ -42,7 +47,11 @@ public:
     void extensionsInitialized();
 
 private slots:
-    void diff();
+    void updateCurrentEditor(Core::IEditor *editor);
+    void updateActions();
+    void diffCurrentFile();
+    void diffAllModifiedFiles();
+    void diffExternalFiles();
 
 #ifdef WITH_TESTS
     void testMakePatch_data();
@@ -50,6 +59,9 @@ private slots:
     void testReadPatch_data();
     void testReadPatch();
 #endif // WITH_TESTS
+private:
+    QAction *m_diffCurrentFileAction;
+    QPointer<TextEditor::TextDocument> m_currentTextDocument;
 };
 
 } // namespace Internal
