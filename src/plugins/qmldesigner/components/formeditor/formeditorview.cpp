@@ -164,6 +164,7 @@ void FormEditorView::nodeCreated(const ModelNode &createdNode)
 
 void FormEditorView::modelAboutToBeDetached(Model *model)
 {
+    m_currentTool->setItems(QList<FormEditorItem*>());
     m_selectionTool->clear();
     m_moveTool->clear();
     m_resizeTool->clear();
