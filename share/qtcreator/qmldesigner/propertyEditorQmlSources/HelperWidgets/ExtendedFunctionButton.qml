@@ -42,6 +42,8 @@ Item {
 
     property bool active: true
 
+    signal reseted
+
 
     function setIcon() {
         if (backendValue == null) {
@@ -122,6 +124,7 @@ Item {
                 backendValue.resetValue();
                 backendValue.resetValue();
                 transaction.end();
+                extendedFunctionButton.reseted()
             }
         }
         Controls.MenuItem {

@@ -130,6 +130,17 @@ SectionLayout {
                 id: colorLogic
             }
 
+            ExtendedFunctionButton {
+                x: 2
+                anchors.verticalCenter: parent.verticalCenter
+                backendValue: backendValues.Layout_alignment
+                visible: horizontalAlignmentComboBox.enabled
+                onReseted:  {
+                    horizontalAlignmentComboBox.currentIndex = 0
+                    verticalAlignmentComboBox.currentIndex = 0
+                }
+            }
+
             id: horizontalAlignmentComboBox
 
             property bool __isCompleted: false
@@ -168,6 +179,17 @@ SectionLayout {
 
         Controls.ComboBox {
             id: verticalAlignmentComboBox
+
+            ExtendedFunctionButton {
+                x: 2
+                anchors.verticalCenter: parent.verticalCenter
+                backendValue: backendValues.Layout_alignment
+                visible: verticalAlignmentComboBox.enabled
+                onReseted:  {
+                    horizontalAlignmentComboBox.currentIndex = 0
+                    verticalAlignmentComboBox.currentIndex = 0
+                }
+            }
 
             property bool __isCompleted: false
             property color textColor: currentIndex === 0 ? colorLogic.__defaultTextColor : colorLogic.__changedTextColor
