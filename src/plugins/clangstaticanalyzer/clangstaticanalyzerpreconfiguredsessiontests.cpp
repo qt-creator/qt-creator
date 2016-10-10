@@ -107,7 +107,8 @@ void ClangStaticAnalyzerPreconfiguredSessionTests::testPreconfiguredSession()
     QSignalSpy waitUntilAnalyzerFinished(&m_analyzerTool, SIGNAL(finished(bool)));
     QVERIFY(waitUntilAnalyzerFinished.wait(30000));
     const QList<QVariant> arguments = waitUntilAnalyzerFinished.takeFirst();
-    QVERIFY(arguments.first().toBool());
+    const bool analyzerFinishedSuccessfully = arguments.first().toBool();
+    QVERIFY(analyzerFinishedSuccessfully);
     QCOMPARE(m_analyzerTool.diagnostics().count(), 0);
 }
 
