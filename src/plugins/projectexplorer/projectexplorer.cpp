@@ -1061,6 +1061,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     connect(ICore::instance(), &ICore::saveSettingsRequested,
             dd, &ProjectExplorerPluginPrivate::savePersistentSettings);
+    connect(EditorManager::instance(), &EditorManager::autoSaved, this, [this] {
+        if (!dd->m_shuttingDown && !SessionManager::loadingSession())
+            SessionManager::save();
+    });
 
     addAutoReleasedObject(new ProjectTreeWidgetFactory);
     addAutoReleasedObject(new FolderNavigationWidgetFactory);

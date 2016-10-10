@@ -1970,6 +1970,7 @@ void EditorManagerPrivate::autoSave()
     if (!errors.isEmpty())
         QMessageBox::critical(ICore::mainWindow(), tr("File Error"),
                               errors.join(QLatin1Char('\n')));
+    emit m_instance->autoSaved();
 }
 
 void EditorManagerPrivate::handleContextChange(const QList<IContext *> &context)
