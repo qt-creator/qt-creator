@@ -150,5 +150,7 @@
         <file>images/iconoverlay_warning@2x.png</file>
         <file>images/iconoverlay_warning_background.png</file>
         <file>images/iconoverlay_warning_background@2x.png</file>
+        <file>images/bookmark.png</file>
+        <file>images/bookmark@2x.png</file>
     </qresource>
 </RCC>

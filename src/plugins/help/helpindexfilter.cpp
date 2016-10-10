@@ -34,6 +34,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
 #include <utils/algorithm.h>
+#include <utils/utilsicons.h>
 
 #include <QIcon>
 #include <QSqlDatabase>
@@ -54,7 +55,7 @@ HelpIndexFilter::HelpIndexFilter()
     setIncludedByDefault(false);
     setShortcutString(QString(QLatin1Char('?')));
 
-    m_icon = Icons::BOOKMARK.icon();
+    m_icon = Utils::Icons::BOOKMARK.icon();
     connect(HelpManager::instance(), &HelpManager::setupFinished,
             this, &HelpIndexFilter::invalidateCache);
     connect(HelpManager::instance(), &HelpManager::documentationChanged,

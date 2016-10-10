@@ -57,6 +57,12 @@ const Icon BROKEN({
 const Icon ERROR({
         {QLatin1String(":/utils/images/warningfill.png"), Theme::BackgroundColorNormal},
         {QLatin1String(":/utils/images/error.png"), Theme::IconsErrorColor}}, Icon::Tint);
+const Icon BOOKMARK({
+        {QLatin1String(":/utils/images/bookmark.png"), Theme::PanelTextColorMid}}, Icon::Tint);
+const Icon BOOKMARK_TOOLBAR({
+        {QLatin1String(":/utils/images/bookmark.png"), Theme::IconsBaseColor}});
+const Icon BOOKMARK_TEXTEDITOR({
+        {QLatin1String(":/utils/images/bookmark.png"), Theme::Bookmarks_TextMarkColor}}, Icon::Tint);
 
 const Icon NEWFILE(
         QLatin1String(":/utils/images/filenew.png"));

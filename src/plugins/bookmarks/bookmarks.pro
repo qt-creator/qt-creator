@@ -8,5 +8,3 @@ HEADERS += bookmarksplugin.h \
 SOURCES += bookmarksplugin.cpp \
            bookmark.cpp \
            bookmarkmanager.cpp
-
-RESOURCES += bookmarks.qrc

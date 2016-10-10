@@ -24,9 +24,10 @@
 ****************************************************************************/
 
 #include "xbelsupport.h"
-#include "helpicons.h"
 
 #include <bookmarkmanager.h>
+
+#include <utils/utilsicons.h>
 
 #include <QCoreApplication>
 
@@ -97,7 +98,7 @@ XbelReader::XbelReader(BookmarkModel *tree, BookmarkModel *list)
     , treeModel(tree)
     , listModel(list)
 {
-    bookmarkIcon = Icons::BOOKMARK.icon();
+    bookmarkIcon = Utils::Icons::BOOKMARK.icon();
     folderIcon = QApplication::style()->standardIcon(QStyle::SP_DirClosedIcon);
 }
 
