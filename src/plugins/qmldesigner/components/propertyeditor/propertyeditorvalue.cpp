@@ -24,6 +24,9 @@
 ****************************************************************************/
 
 #include "propertyeditorvalue.h"
+
+#include <bindingproperty.h>
+
 #include <QRegExp>
 #include <QUrl>
 #include <abstractview.h>
@@ -287,6 +290,34 @@ void PropertyEditorValue::setEnumeration(const QString &scope, const QString &na
     QmlDesigner::Enumeration newEnumeration(scope, name);
 
     setValueWithEmit(QVariant::fromValue(newEnumeration));
+}
+
+void PropertyEditorValue::exportPopertyAsAlias()
+{
+    emit exportPopertyAsAliasRequested(nameAsQString());
+}
+
+bool PropertyEditorValue::hasPropertyAlias() const
+{
+    if (modelNode().isValid())
+        if (modelNode().isRootNode())
+            return false;
+
+    if (!modelNode().hasId())
+        return false;
+
+    QString id = modelNode().id();
+
+    for (const QmlDesigner::BindingProperty &property : modelNode().view()->rootModelNode().bindingProperties())
+        if (property.expression() == (id + "." + name()))
+            return true;
+
+    return false;
+}
+
+void PropertyEditorValue::removeAliasExport()
+{
+    emit removeAliasExportRequested(nameAsQString());
 }
 
 void PropertyEditorValue::registerDeclarativeTypes()

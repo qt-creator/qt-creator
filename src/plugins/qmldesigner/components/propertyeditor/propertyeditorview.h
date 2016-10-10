@@ -89,6 +89,8 @@ public:
 public slots:
     void changeValue(const QString &name);
     void changeExpression(const QString &name);
+    void exportPopertyAsAlias(const QString &name);
+    void removeAliasExport(const QString &name);
 
 protected:
     void timerEvent(QTimerEvent *event) override;

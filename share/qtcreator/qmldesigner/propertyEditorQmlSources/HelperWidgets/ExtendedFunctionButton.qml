@@ -106,9 +106,14 @@ Item {
     }
 
     Controls.Menu {
+
         id: menu
+
+
+        onAboutToShow: exportMenuItem.checked = backendValue.hasPropertyAlias()
+
         Controls.MenuItem {
-            text: "Reset"
+            text: qsTr("Reset")
             onTriggered: {
                 transaction.start();
                 backendValue.resetValue();
@@ -117,13 +122,23 @@ Item {
             }
         }
         Controls.MenuItem {
-            text: "Set Binding"
+            text: qsTr("Set Binding")
             onTriggered: {
                 textField.text = backendValue.expression
                 expressionDialog.visible = true
                 textField.forceActiveFocus()
-
             }
+        }
+        Controls.MenuItem {
+            id: exportMenuItem
+            text: qsTr("Export Property as Alias")
+            onTriggered: {
+                if (checked)
+                    backendValue.exportPopertyAsAlias();
+                else
+                    backendValue.removeAliasExport();
+            }
+            checkable: true
         }
     }
 
