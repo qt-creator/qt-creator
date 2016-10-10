@@ -41,6 +41,7 @@ enum {
 const QString rootElementName = QStringLiteral("MetaInfo");
 const QString typeElementName = QStringLiteral("Type");
 const QString ItemLibraryEntryElementName = QStringLiteral("ItemLibraryEntry");
+const QString HintsElementName = QStringLiteral("Hints");
 const QString QmlSourceElementName = QStringLiteral("QmlSource");
 const QString PropertyElementName = QStringLiteral("Property");
 
@@ -91,6 +92,7 @@ void MetaInfoReader::elementStart(const QString &name)
     case ParsingItemLibrary: setParserState(readItemLibraryEntryElement(name)); break;
     case ParsingProperty: setParserState(readPropertyElement(name)); break;
     case ParsingQmlSource: setParserState(readQmlSourceElement(name)); break;
+    case ParsingHints:
     case Finished:
     case Undefined: setParserState(Error);
         addError(tr("Illegal state while parsing"), currentSourceLocation());
@@ -105,6 +107,7 @@ void MetaInfoReader::elementEnd()
     case ParsingMetaInfo: setParserState(Finished); break;
     case ParsingType: setParserState(ParsingMetaInfo); break;
     case ParsingItemLibrary: keepCurrentItemLibraryEntry(); setParserState((ParsingType)); break;
+    case ParsingHints: setParserState(ParsingType); break;
     case ParsingProperty: insertProperty(); setParserState(ParsingItemLibrary);  break;
     case ParsingQmlSource: setParserState(ParsingItemLibrary); break;
     case ParsingDocument:
@@ -125,6 +128,7 @@ void MetaInfoReader::propertyDefinition(const QString &name, const QVariant &val
     case ParsingQmlSource: readQmlSourceProperty(name, value); break;
     case ParsingMetaInfo: addError(tr("No property definition allowed"), currentSourceLocation()); break;
     case ParsingDocument:
+    case ParsingHints: readHint(name, value); break;
     case Finished:
     case Undefined: setParserState(Error);
         addError(tr("Illegal state while parsing"), currentSourceLocation());
@@ -163,7 +167,12 @@ MetaInfoReader::ParserSate MetaInfoReader::readTypeElement(const QString &name)
         m_currentEntry = ItemLibraryEntry();
         m_currentEntry.setType(m_currentClassName);
         m_currentEntry.setTypeIcon(QIcon(m_currentIcon));
+
+        m_currentEntry.addHints(m_currentHints);
+
         return ParsingItemLibrary;
+    } else if (name == HintsElementName) {
+        return ParsingHints;
     } else {
         addErrorInvalidType(name);
         return Error;
@@ -251,6 +260,11 @@ void MetaInfoReader::readQmlSourceProperty(const QString &name, const QVariant &
         addError(tr("Unknown property for QmlSource %1").arg(name), currentSourceLocation());
         setParserState(Error);
     }
+}
+
+void MetaInfoReader::readHint(const QString &name, const QVariant &value)
+{
+    m_currentHints.insert(name, value.toString());
 }
 
 void MetaInfoReader::setVersion(const QString &versionNumber)

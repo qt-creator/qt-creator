@@ -235,9 +235,18 @@ void CMakeBuildStep::run(QFutureInterface<bool> &fi)
         bc = qobject_cast<CMakeBuildConfiguration *>(target()->activeBuildConfiguration());
     QTC_ASSERT(bc, return);
 
+    bool mustDelay = false;
     if (bc->persistCMakeState()) {
         emit addOutput(tr("Persisting CMake state..."), BuildStep::MessageOutput);
+        mustDelay = true;
+    } else if (bc->updateCMakeStateBeforeBuild()) {
+        emit addOutput(tr("Running CMake in preparation to build..."), BuildStep::MessageOutput);
+        mustDelay = true;
+    } else {
+        mustDelay = false;
+    }
 
+    if (mustDelay) {
         m_runTrigger = connect(bc, &CMakeBuildConfiguration::dataAvailable,
                                this, [this, &fi]() { runImpl(fi); });
         m_errorTrigger = connect(bc, &CMakeBuildConfiguration::errorOccured,
@@ -283,7 +292,7 @@ void CMakeBuildStep::stdOutput(const QString &line)
         if (ok) {
             int all = m_ninjaProgress.cap(2).toInt(&ok);
             if (ok && all != 0) {
-                int percent = 100.0 * done/all;
+                const int percent = static_cast<int>(100.0 * done/all);
                 futureInterface()->setProgressValue(percent);
             }
         }

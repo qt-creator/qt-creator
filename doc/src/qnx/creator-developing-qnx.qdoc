@@ -44,4 +44,11 @@
     Adding a QNX Neutrino device is very similar to \l{Connecting Embedded
     Linux Devices}, except you need to select \uicontrol {QNX Device} in the
     \uicontrol {Device Configuration} wizard.
+
+    \section1 Adding Kits for QNX Devices
+
+    To view QNX device settings, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol Devices > \uicontrol QNX. Select the \uicontrol {Generate kits}
+    check box to allow \QC to generate kits for QNX development. For more
+    information about how to create the kits manually, see \l {Adding Kits}.
 */

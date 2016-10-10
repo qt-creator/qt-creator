@@ -181,9 +181,15 @@ const Icon COLLAPSE({
 const Icon COLLAPSE_TOOLBAR({
         {QLatin1String(":/utils/images/collapse.png"), Theme::IconsBaseColor}});
 const Icon EMPTY14(":/utils/images/empty14.png");
-const Icon ENABLE_KIT_OVERLAY({
-        {":/projectexplorer/images/enablekitbackground.png", Theme::IconsRunColor},
-        {":/projectexplorer/images/enablekitforeground.png", Theme::BackgroundColorNormal}}, Icon::Tint);
+const Icon OVERLAY_ADD({
+        {":/utils/images/iconoverlay_add_background.png", Theme::BackgroundColorNormal},
+        {":/utils/images/iconoverlay_add.png", Theme::IconsRunColor}}, Icon::Tint);
+const Icon OVERLAY_WARNING({
+        {":/utils/images/iconoverlay_warning_background.png", Theme::BackgroundColorNormal},
+        {":/utils/images/iconoverlay_warning.png", Theme::IconsWarningColor}}, Icon::Tint);
+const Icon OVERLAY_ERROR({
+        {":/utils/images/iconoverlay_error_background.png", Theme::BackgroundColorNormal},
+        {":/utils/images/iconoverlay_error.png", Theme::IconsErrorColor}}, Icon::Tint);
 
 } // namespace Icons
 } // namespace Utils

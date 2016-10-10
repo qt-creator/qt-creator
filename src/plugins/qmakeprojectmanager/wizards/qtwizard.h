@@ -124,7 +124,6 @@ public:
     void setDeselectedModules(const QString &);
 
     bool writeUserFile(const QString &proFileName) const;
-    bool setupProject(QmakeProject *project) const;
     bool isQtPlatformSelected(Core::Id platform) const;
     QList<Core::Id> selectedKits() const;
 

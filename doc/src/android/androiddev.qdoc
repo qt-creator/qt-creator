@@ -137,8 +137,8 @@
 
     \list 1
 
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Android to add paths to the
-            Android NDK and SDK.
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Devices >
+            \uicontrol Android to add paths to the Android NDK and SDK.
 
             You can use the \inlineimage download.png
             (\uicontrol Download) buttons to go to the sites where you can download
@@ -219,7 +219,8 @@
     \section1 Using the Android Emulator
 
     To run your application on the Android Emulator, you must create Android
-    virtual devices (AVD). Select \uicontrol Tools > \uicontrol Options > \uicontrol Android >
+    virtual devices (AVD). Select \uicontrol Tools > \uicontrol Options >
+    \uicontrol Devices > \uicontrol Android >
     \uicontrol Add. If you run an application without a device connected to the
     development PC and without an AVD specified, \QC asks you to add an AVD.
 

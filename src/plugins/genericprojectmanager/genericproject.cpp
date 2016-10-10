@@ -273,14 +273,17 @@ void GenericProject::parseProject(RefreshOptions options)
 
 void GenericProject::refresh(RefreshOptions options)
 {
-    QSet<QString> oldFileList;
-    if (options & Files)
-        oldFileList = m_files.toSet();
-
     parseProject(options);
 
-    if (options & Files)
-        static_cast<GenericProjectNode *>(rootProjectNode())->refresh(oldFileList);
+    if (options & Files) {
+        QList<FileNode *> fileNodes = Utils::transform(files(), [](const QString &f) {
+            FileType fileType = SourceType; // ### FIXME
+            if (f.endsWith(QLatin1String(".qrc")))
+                fileType = ResourceType;
+            return new FileNode(Utils::FileName::fromString(f), fileType, false);
+        });
+        rootProjectNode()->buildTree(fileNodes);
+    }
 
     refreshCppCodeModel();
 }

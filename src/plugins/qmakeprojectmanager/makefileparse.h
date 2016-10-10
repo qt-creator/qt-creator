@@ -62,8 +62,11 @@ public:
 
     static const QLoggingCategory &logging();
 
+    void parseCommandLine(const QString &command, const QString &project);
+
 private:
-    void parseArgs(const QString &args, QList<QMakeAssignment> *assignments, QList<QMakeAssignment> *afterAssignments);
+    void parseArgs(const QString &args, const QString &project,
+                   QList<QMakeAssignment> *assignments, QList<QMakeAssignment> *afterAssignments);
     void parseAssignments(QList<QMakeAssignment> *assignments);
 
     class QmakeBuildConfig

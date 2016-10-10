@@ -659,6 +659,8 @@ void CdbEngine::setupInferior()
                 + " maxStackDepth="
                 + action(MaximalStackDepth)->value().toString(), NoFlags});
 
+    runCommand({"print(sys.version)", ScriptCommand, CB(setupScripting)});
+
     runCommand({"pid", ExtensionCommand, [this](const DebuggerResponse &response) {
         // Fails for core dumps.
         if (response.resultClass == ResultDone)
@@ -1164,6 +1166,14 @@ void CdbEngine::runCommand(const DebuggerCommand &dbgCmd)
                 str <<  ' ' << dbgCmd.argsToString();
             cmd = fullCmd.arg("", "");
             fullCmd = fullCmd.arg(" -t ").arg(token);
+        } else if (dbgCmd.flags == ScriptCommand) {
+            // Add extension prefix and quotes the script command
+            // pass along token for identification in hash.
+            str << m_extensionCommandPrefix + "script %1%2 " << dbgCmd.function;
+            if (!dbgCmd.args.isNull())
+                str << '(' << dbgCmd.argsToPython() << ')';
+            cmd = fullCmd.arg("", "");
+            fullCmd = fullCmd.arg(" -t ").arg(token);
         }
         m_commandForToken.insert(token, dbgCmd);
     }
@@ -1206,97 +1216,136 @@ void CdbEngine::activateFrame(int index)
 
 void CdbEngine::doUpdateLocals(const UpdateParameters &updateParameters)
 {
-    typedef QHash<QString, int> WatcherHash;
+    if (m_pythonVersion > 0x030000) {
+        watchHandler()->notifyUpdateStarted(updateParameters.partialVariables());
 
-    const bool partialUpdate = !updateParameters.partialVariable.isEmpty();
-    const bool isWatch = isWatchIName(updateParameters.partialVariable);
+        DebuggerCommand cmd("theDumper.fetchVariables", ScriptCommand);
+        watchHandler()->appendFormatRequests(&cmd);
+        watchHandler()->appendWatchersAndTooltipRequests(&cmd);
 
-    const int frameIndex = stackHandler()->currentIndex();
-    if (frameIndex < 0 && !isWatch) {
-        watchHandler()->removeAllData();
-        return;
-    }
-    const StackFrame frame = stackHandler()->currentFrame();
-    if (!frame.isUsable()) {
-        watchHandler()->removeAllData();
-        return;
-    }
+        const static bool alwaysVerbose = !qgetenv("QTC_DEBUGGER_PYTHON_VERBOSE").isEmpty();
+        cmd.arg("passexceptions", alwaysVerbose);
+        cmd.arg("fancy", boolSetting(UseDebuggingHelpers));
+        cmd.arg("autoderef", boolSetting(AutoDerefPointers));
+        cmd.arg("dyntype", boolSetting(UseDynamicType));
+        cmd.arg("partialvar", updateParameters.partialVariable);
+        cmd.arg("qobjectnames", boolSetting(ShowQObjectNames));
 
-    watchHandler()->notifyUpdateStarted(updateParameters.partialVariables());
+        StackFrame frame = stackHandler()->currentFrame();
+        cmd.arg("context", frame.context);
+        cmd.arg("nativemixed", isNativeMixedActive());
 
-    /* Watchers: Forcibly discard old symbol group as switching from
+        cmd.arg("stringcutoff", action(MaximalStringLength)->value().toString());
+        cmd.arg("displaystringlimit", action(DisplayStringLimit)->value().toString());
+
+        //cmd.arg("resultvarname", m_resultVarName);
+        cmd.arg("partialvar", updateParameters.partialVariable);
+
+        cmd.callback = [this](const DebuggerResponse &response) {
+            if (response.resultClass == ResultDone) {
+                showMessage(response.data.toString(), LogMisc);
+                updateLocalsView(response.data);
+            } else {
+                showMessage(response.data["msg"].data(), LogError);
+            }
+            watchHandler()->notifyUpdateFinished();
+        };
+
+        runCommand(cmd);
+    } else {
+
+        typedef QHash<QString, int> WatcherHash;
+
+        const bool partialUpdate = !updateParameters.partialVariable.isEmpty();
+        const bool isWatch = isWatchIName(updateParameters.partialVariable);
+
+        const int frameIndex = stackHandler()->currentIndex();
+        if (frameIndex < 0 && !isWatch) {
+            watchHandler()->removeAllData();
+            return;
+        }
+        const StackFrame frame = stackHandler()->currentFrame();
+        if (!frame.isUsable()) {
+            watchHandler()->removeAllData();
+            return;
+        }
+
+        watchHandler()->notifyUpdateStarted(updateParameters.partialVariables());
+
+        /* Watchers: Forcibly discard old symbol group as switching from
      * thread 0/frame 0 -> thread 1/assembly -> thread 0/frame 0 will otherwise re-use it
      * and cause errors as it seems to go 'stale' when switching threads.
      * Initial expand, get uninitialized and query */
-    QString arguments;
-    StringInputStream str(arguments);
+        QString arguments;
+        StringInputStream str(arguments);
 
-    if (!partialUpdate) {
-        str << "-D";
-        // Pre-expand
-        const QSet<QString> expanded = watchHandler()->expandedINames();
-        if (!expanded.isEmpty()) {
-            str << blankSeparator << "-e ";
-            int i = 0;
-            foreach (const QString &e, expanded) {
-                if (i++)
-                    str << ',';
-                str << e;
+        if (!partialUpdate) {
+            str << "-D";
+            // Pre-expand
+            const QSet<QString> expanded = watchHandler()->expandedINames();
+            if (!expanded.isEmpty()) {
+                str << blankSeparator << "-e ";
+                int i = 0;
+                foreach (const QString &e, expanded) {
+                    if (i++)
+                        str << ',';
+                    str << e;
+                }
             }
         }
-    }
-    str << blankSeparator << "-v";
-    if (boolSetting(UseDebuggingHelpers))
-        str << blankSeparator << "-c";
-    if (boolSetting(SortStructMembers))
-        str << blankSeparator << "-a";
-    const QString typeFormats = watchHandler()->typeFormatRequests();
-    if (!typeFormats.isEmpty())
-        str << blankSeparator << "-T " << typeFormats;
-    const QString individualFormats = watchHandler()->individualFormatRequests();
-    if (!individualFormats.isEmpty())
-        str << blankSeparator << "-I " << individualFormats;
-    // Uninitialized variables if desired. Quote as safeguard against shadowed
-    // variables in case of errors in uninitializedVariables().
-    if (boolSetting(UseCodeModel)) {
-        QStringList uninitializedVariables;
-        getUninitializedVariables(Internal::cppCodeModelSnapshot(),
-                                  frame.function, frame.file, frame.line, &uninitializedVariables);
-        if (!uninitializedVariables.isEmpty()) {
-            str << blankSeparator << "-u \"";
-            int i = 0;
-            foreach (const QString &u, uninitializedVariables) {
-                if (i++)
-                    str << ',';
-                str << localsPrefixC << u;
-            }
-            str << '"';
-        }
-    }
-    // Perform watches synchronization only for full updates
-    if (!partialUpdate)
-        str << blankSeparator << "-W";
-    if (!partialUpdate || isWatch) {
-        const WatcherHash watcherHash = WatchHandler::watcherNames();
-        if (!watcherHash.isEmpty()) {
-            const WatcherHash::const_iterator cend = watcherHash.constEnd();
-            for (WatcherHash::const_iterator it = watcherHash.constBegin(); it != cend; ++it) {
-                str << blankSeparator << "-w " << "watch." + QString::number(it.value())
-                    << " \"" << it.key() << '"';
+        str << blankSeparator << "-v";
+        if (boolSetting(UseDebuggingHelpers))
+            str << blankSeparator << "-c";
+        if (boolSetting(SortStructMembers))
+            str << blankSeparator << "-a";
+        const QString typeFormats = watchHandler()->typeFormatRequests();
+        if (!typeFormats.isEmpty())
+            str << blankSeparator << "-T " << typeFormats;
+        const QString individualFormats = watchHandler()->individualFormatRequests();
+        if (!individualFormats.isEmpty())
+            str << blankSeparator << "-I " << individualFormats;
+        // Uninitialized variables if desired. Quote as safeguard against shadowed
+        // variables in case of errors in uninitializedVariables().
+        if (boolSetting(UseCodeModel)) {
+            QStringList uninitializedVariables;
+            getUninitializedVariables(Internal::cppCodeModelSnapshot(),
+                                      frame.function, frame.file, frame.line, &uninitializedVariables);
+            if (!uninitializedVariables.isEmpty()) {
+                str << blankSeparator << "-u \"";
+                int i = 0;
+                foreach (const QString &u, uninitializedVariables) {
+                    if (i++)
+                        str << ',';
+                    str << localsPrefixC << u;
+                }
+                str << '"';
             }
         }
+        // Perform watches synchronization only for full updates
+        if (!partialUpdate)
+            str << blankSeparator << "-W";
+        if (!partialUpdate || isWatch) {
+            const WatcherHash watcherHash = WatchHandler::watcherNames();
+            if (!watcherHash.isEmpty()) {
+                const WatcherHash::const_iterator cend = watcherHash.constEnd();
+                for (WatcherHash::const_iterator it = watcherHash.constBegin(); it != cend; ++it) {
+                    str << blankSeparator << "-w " << "watch." + QString::number(it.value())
+                        << " \"" << it.key() << '"';
+                }
+            }
+        }
+
+        // Required arguments: frame
+        str << blankSeparator << frameIndex;
+
+        if (partialUpdate)
+            str << blankSeparator << updateParameters.partialVariable;
+
+        DebuggerCommand cmd("locals", ExtensionCommand);
+        cmd.args = arguments;
+        cmd.callback = [this, partialUpdate](const DebuggerResponse &r) { handleLocals(r, partialUpdate); };
+        runCommand(cmd);
     }
-
-    // Required arguments: frame
-    str << blankSeparator << frameIndex;
-
-    if (partialUpdate)
-        str << blankSeparator << updateParameters.partialVariable;
-
-    DebuggerCommand cmd("locals", ExtensionCommand);
-    cmd.args = arguments;
-    cmd.callback = [this, partialUpdate](const DebuggerResponse &r) { handleLocals(r, partialUpdate); };
-    runCommand(cmd);
 }
 
 void CdbEngine::updateAll()
@@ -2194,8 +2243,11 @@ void CdbEngine::handleExtensionMessage(char t, int token, const QString &what, c
             qDebug("### Completed extension command '%s' for token=%d, pending=%d",
                    qPrintable(command.function), token, m_commandForToken.size());
 
-        if (!command.callback)
+        if (!command.callback) {
+            if (!message.isEmpty()) // log unhandled output
+                showMessage(message, LogMisc);
             return;
+        }
         DebuggerResponse response;
         response.data.m_name = "data";
         if (t == 'R') {
@@ -2847,6 +2899,46 @@ void CdbEngine::handleAdditionalQmlStack(const DebuggerResponse &response)
     } while (false);
     if (!errorMessage.isEmpty())
         showMessage("Unable to obtain QML stack trace: " + errorMessage, LogError);
+}
+
+void CdbEngine::setupScripting(const DebuggerResponse &response)
+{
+    GdbMi data = response.data;
+    if (response.resultClass != ResultDone) {
+        showMessage(data["msg"].data(), LogMisc);
+        return;
+    }
+    const QString &verOutput = data.data();
+    const QStringList pythonVersion = verOutput.split(' ').first().split('.');
+
+    bool ok = false;
+    if (pythonVersion.size() == 3) {
+        m_pythonVersion |= pythonVersion[0].toInt(&ok);
+        if (ok) {
+            m_pythonVersion = m_pythonVersion << 8;
+            m_pythonVersion |= pythonVersion[1].toInt(&ok);
+            if (ok) {
+                m_pythonVersion = m_pythonVersion << 8;
+                m_pythonVersion |= pythonVersion[2].toInt(&ok);
+            }
+        }
+    }
+    if (!ok) {
+        m_pythonVersion = 0;
+        showMessage(QString("Can not parse sys.version:\n%1").arg(verOutput), LogWarning);
+        return;
+    }
+
+    QString dumperPath = QDir::toNativeSeparators(Core::ICore::resourcePath() + "/debugger");
+    dumperPath.replace('\\', "\\\\");
+    runCommand({"sys.path.insert(1, '" + dumperPath + "')", ScriptCommand});
+    runCommand({"from cdbbridge import Dumper", ScriptCommand});
+    runCommand({"print(dir())", ScriptCommand});
+    runCommand({"theDumper = Dumper()", ScriptCommand});
+    runCommand({"theDumper.loadDumpers(None)", ScriptCommand,
+                [this](const DebuggerResponse &response) {
+                    watchHandler()->addDumpers(response.data["dumpers"]);
+    }});
 }
 
 void CdbEngine::mergeStartParametersSourcePathMap()

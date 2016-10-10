@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "testsettings.h"
+#include "autotestconstants.h"
 #include "testframeworkmanager.h"
 
 #include <coreplugin/id.h>
@@ -33,7 +34,6 @@
 namespace Autotest {
 namespace Internal {
 
-static const char group[]                   = "Autotest";
 static const char timeoutKey[]              = "Timeout";
 static const char omitInternalKey[]         = "OmitInternal";
 static const char omitRunConfigWarnKey[]    = "OmitRCWarnings";
@@ -50,7 +50,7 @@ TestSettings::TestSettings()
 
 void TestSettings::toSettings(QSettings *s) const
 {
-    s->beginGroup(group);
+    s->beginGroup(Constants::SETTINGSGROUP);
     s->setValue(timeoutKey, timeout);
     s->setValue(omitInternalKey, omitInternalMssg);
     s->setValue(omitRunConfigWarnKey, omitRunConfigWarn);
@@ -60,20 +60,12 @@ void TestSettings::toSettings(QSettings *s) const
     // store frameworks and their current active state
     for (const Core::Id &id : frameworks.keys())
         s->setValue(QLatin1String(id.name()), frameworks.value(id));
-
-    s->beginGroup(qtTestSettings.name());
-    qtTestSettings.toSettings(s);
-    s->endGroup();
-    s->beginGroup(gTestSettings.name());
-    gTestSettings.toSettings(s);
-    s->endGroup();
-
     s->endGroup();
 }
 
 void TestSettings::fromSettings(QSettings *s)
 {
-    s->beginGroup(group);
+    s->beginGroup(Constants::SETTINGSGROUP);
     timeout = s->value(timeoutKey, defaultTimeout).toInt();
     omitInternalMssg = s->value(omitInternalKey, true).toBool();
     omitRunConfigWarn = s->value(omitRunConfigWarnKey, false).toBool();
@@ -88,14 +80,6 @@ void TestSettings::fromSettings(QSettings *s)
         frameworks.insert(id, s->value(QLatin1String(id.name()),
                                        frameworkManager->isActive(id)).toBool());
     }
-
-    s->beginGroup(qtTestSettings.name());
-    qtTestSettings.fromSettings(s);
-    s->endGroup();
-    s->beginGroup(gTestSettings.name());
-    gTestSettings.fromSettings(s);
-    s->endGroup();
-
     s->endGroup();
 }
 

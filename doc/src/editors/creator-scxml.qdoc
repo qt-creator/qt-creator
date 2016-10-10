@@ -1,0 +1,297 @@
+/****************************************************************************
+**
+** Copyright (C) 2016 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** $QT_BEGIN_LICENSE:LGPL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 3 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU Lesser General Public License version 3 requirements
+** will be met: https://www.gnu.org/licenses/lgpl-3.0.html.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 2.0 or (at your option) the GNU General
+** Public license version 3 or any later version approved by the KDE Free
+** Qt Foundation. The licenses are as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL2 and LICENSE.GPL3
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-2.0.html and
+** https://www.gnu.org/licenses/gpl-3.0.html.
+**
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage {Qt Creator Manual}
+    \previouspage creator-modeling.html
+    \page creator-scxml.html
+    \nextpage creator-building-running.html
+
+    \title Editing State Charts
+
+    State charts provide a graphical way of modeling how a system reacts to
+    stimuli. This is done by defining the possible \e states that the system can
+    be in, and how the system can move from one state to another (\e transitions
+    between states). A key characteristic of event-driven systems (such as Qt
+    applications) is that behavior often depends not only on the last or current
+    \e event, but also the events that preceded it. With state charts, this
+    information is easy to express.
+
+    \QC provides a project wizard for adding \l{https://www.w3.org/TR/scxml/}
+    {State Chart XML (SCXML)} files with boilerplate code to projects and an
+    experimental SCXML editor for editing the state charts. You can use the
+    SCXML editor to add \e states and \e transitions to the files. You can then
+    use the classes in the Qt SCXML module to embed the state machines created
+    from the files in Qt applications.
+
+    \image qtcreator-scxml-editor.png SXCML Editor
+
+    You can drag and drop states from the \uicontrol {Common States} view (1) to
+    the state editor (2). Select a state in the state editor and use the tool
+    buttons (3) to create a transition (4) and its \e {target state}.
+
+    You can view the state chart structure in the \uicontrol Structure view (5)
+    and specify attributes for the selected state or transition in the
+    \uicontrol Attributes view (6).
+
+    You can use the toolbar buttons (7) to execute functions such as editing,
+    zooming, magnifying, navigating, and panning state charts, as well as
+    taking screenshots and viewing statistics.
+
+    To zoom into and out of the whole state chart in the state editor, select
+    \inlineimage icon-zoom-in.png
+    (\uicontrol {Zoom In}) or \inlineimage icon-zoom-out.png
+    (\uicontrol {Zoom Out}) or press \key Ctrl and use the mouse wheel. To make
+    the whole state chart visible in the state editor at a time, select
+    \inlineimage icon-fit-screen.png
+    (\uicontrol {Fit to View}).
+
+    To view a particular part of a large state chart in the state editor, select
+    \inlineimage navigator.png
+    (\uicontrol {Navigator}) and move the navigator frame on the part you want
+    to view.
+
+    To use the magnifier to zoom into a part of the state chart, select
+    \inlineimage zoom.png
+    (\uicontrol Magnifier). To move the magnifier faster, press down the
+    \key Alt key.
+
+    To pan the state chart, select \inlineimage icon-pan.png
+    (\uicontrol Panning). To increase the pace of panning, press down the
+    \key Shift key.
+
+    To view statistics about the numbers of states and transitions in the state
+    chart, select \inlineimage statistics.png
+    (\uicontrol {View Statistics}).
+
+    To search from the state chart, use the \uicontrol Search pane. The search
+    checks the whole SCXML tree for attributes that match the search criteria.
+
+    To save the currently visible part of the state chart as an image, select
+    \inlineimage screenshot.png
+    (\uicontrol {Save Screenshot}). To save the whole state chart as an image,
+    select \inlineimage icon-export-canvas.png
+    (\uicontrol {Export Canvas to Image}).
+
+    \section1 Creating State Charts
+
+    To create a state chart:
+
+    \list 1
+
+        \li Select \uicontrol Help > \uicontrol {About Plugins} >
+            \uicontrol Modeling > \uicontrol ScxmlEditor and restart \QC to
+            enable the plugin.
+
+        \li Select \uicontrol File > \uicontrol {New File or Project} >
+            \uicontrol {Files and Classes} > \uicontrol Modeling >
+            \uicontrol {State Chart} > \uicontrol Choose to create an empty
+            state chart and to open it in the SCXML editor.
+
+        \li Drag and drop a state from the \uicontrol {Common States} view to
+            the state editor.
+
+        \li Drag and drop child states to the initial state to create a
+            \e {compound state} or use the tool buttons to create a transition
+            from the selected state and its target state.
+
+        \li Select a state to edit its attributes in the \uicontrol Attributes
+            view.
+
+        \li Select the transition line to add edge points to it.
+
+        \li To raise or send events, for example, use the context menu commands
+            to add executable content to the \c <onentry> and \c <onexit>
+            elements of states or to transitions.
+
+    \endlist
+
+    The following sections describe how to manage states, transitions, and
+    executable content.
+
+    \section1 Managing States
+
+    When the state machine enters a state in response to an event, the state
+    that it entered becomes the \e {active state}.
+
+    State charts are hierarchical, and therefore states can be nested inside
+    other states, to create compound states.
+
+    In addition to basic states, you can create the following types of states:
+
+    \list
+
+        \li \e Initial state is the state the state machine enters when it
+            starts.
+
+        \li \e {Parallel state} contains child states that execute in parallel
+            and are all active simultaneously. Events are processed
+            independently by each child state and may trigger different
+            transitions for each child.
+
+        \li \e {Final state} enables a state machine to finish. When the state
+            machine enters a top-level final state, it emits the finished signal
+            and halts. You can create final states in compound states to hide
+            the internal details of a compound state. The outside world can only
+            enter the state and get a notification when the state has finished.
+            A parallel state finishes when all its child states reach final
+            states.
+
+        \li \e {History state} is a pseudo-state that represents the child state
+            the parent state was in the last time the parent state was exited.
+
+            Create a history state as a child of the state for which you want to
+            record the current child state. When the state machine detects the
+            presence of such a state at runtime, it automatically records the
+            current (real) child state when the parent state is exited. A
+            transition to the history state is in fact a transition to the child
+            state that the state machine previously saved. The state machine
+            automatically forwards the transition to the real child state.
+
+    \endlist
+
+    You can add new states to the state chart in the following ways:
+
+    \list
+
+        \li Drag and drop states from the \uicontrol {Common States} view to the
+            state editor.
+
+        \li Select a state in the state editor, and then select the
+            \uicontrol State tool button to create a transition and its target
+            state.
+
+        \li Copy and paste states within the SCXML editor or between the SCXML
+            editor and the \uicontrol Edit mode.
+
+    \endlist
+
+    You can drag states on top of other states to create compound states, or
+    you can drag child states out of their parent state. To move child states
+    within their parent, press down the \key Ctrl key while moving them.
+
+    You can use toolbar buttons to align states in the state editor, to adjust
+    their size, and to change the default color scheme. Overlapping states are
+    marked in red color.
+
+    To expand or collapse the state tree structure in the \uicontrol Structure
+    view, double-click a state.
+
+    To view a child state of a nested state in more detail in the state editor,
+    select \uicontrol {Zoom to State}.
+
+    To ensure that the state ids are unique within a compound state machine,
+    select \inlineimage fullnamespace.png
+    (\uicontrol {Toggle Full Namespace}). The name of the parent state is
+    added to the names of the child states, separated by two colons (::).
+    For example:
+
+    \badcode
+    <state id="broken">
+    ...
+        <state id="broken::blinking">
+        ...
+        </state>
+        <state id="broken::unblinking">
+        ...
+        </state>
+    </state>
+    \endcode
+
+    \section1 Managing Transitions
+
+    Transitions define how a state reacts to \e events that are generated either
+    by the state machine or external entities. When events occur, the state
+    machine checks for a matching transition defined in the active state and
+    moves to its target state.
+
+    To create a transition from the selected state to a new state, drag and
+    release the mouse at the location where you want to add the target state.
+    When you draw a transition to the center of another state, it points to the
+    center of the state, but you can also draw a transition to the edge of the
+    state.
+
+    To add edge points to transitions, select a transition line. Only two edge
+    points are permitted for each line, and unnecessary edge points are removed
+    automatically. To remove the selected edge point, select
+    \uicontrol {Remove Point} in the context menu.
+
+    To add new edge points with a mouse click, select the \uicontrol Transition
+    tool button.
+
+    A transition label is automatically center-aligned, but you can drag it to
+    another position.
+
+    To remove the selected transition, select \uicontrol Remove in the context
+    menu.
+
+    \section1 Adding Executable Content
+
+    You can add \e {executable content} to a state chart to enable the state
+    machine to modify its data model and to interact with external entities.
+
+    Use the context menu commands to add executable content to the \c <onentry>
+    and \c <onexit> elements or to transitions:
+
+    \list
+        \li \c <raise> to raise events
+        \li \c <send> to communicate with external entities
+        \li \c <script> to run scripts
+        \li \c <assign> to modify the data model
+        \li \c <cancel> to cancel action execution
+        \li \c <log> to record information in a log
+        \li \c <if> to execute actions conditionally
+        \li \c <foreach> to iterate over the items in a collection and execute
+            an action for each of them
+    \endlist
+
+    During a transition, the state machine executes the content that you specify
+    for the \c <onexit> element in the state it is leaving, then the content in
+    the transition, and then the content for the \c <onentry> element in the
+    state it is entering.
+
+    You can add attributes for the selected executable content in the
+    \uicontrol Attributes view.
+*/

@@ -34,8 +34,8 @@ using namespace AutotoolsProjectManager;
 using namespace AutotoolsProjectManager::Internal;
 using namespace ProjectExplorer;
 
-AutotoolsProjectNode::AutotoolsProjectNode(const Utils::FileName &projectFilePath) :
-    ProjectNode(projectFilePath)
+AutotoolsProjectNode::AutotoolsProjectNode(const Utils::FileName &projectDirectory) :
+    ProjectNode(projectDirectory)
 { }
 
 bool AutotoolsProjectNode::showInSimpleTree() const

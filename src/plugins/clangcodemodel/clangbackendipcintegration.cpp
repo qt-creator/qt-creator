@@ -313,9 +313,14 @@ IpcCommunicator::IpcCommunicator()
     connect(Core::EditorManager::instance(), &Core::EditorManager::editorAboutToClose,
             this, &IpcCommunicator::onEditorAboutToClose);
     connect(Core::ICore::instance(), &Core::ICore::coreAboutToClose,
-            this, &IpcCommunicator::onCoreAboutToClose);
+            this, &IpcCommunicator::setupDummySender);
 
     initializeBackend();
+}
+
+IpcCommunicator::~IpcCommunicator()
+{
+    disconnect(&m_connection, 0, this, 0);
 }
 
 void IpcCommunicator::initializeBackend()
@@ -329,6 +334,8 @@ void IpcCommunicator::initializeBackend()
 
     connect(&m_connection, &ConnectionClient::connectedToLocalSocket,
             this, &IpcCommunicator::onConnectedToBackend);
+    connect(&m_connection, &ConnectionClient::disconnectedFromLocalSocket,
+            this, &IpcCommunicator::setupDummySender);
 
     m_connection.startProcessAndConnectToServerAsynchronously();
 }
@@ -633,7 +640,7 @@ void IpcCommunicator::onEditorAboutToClose(Core::IEditor *editor)
         m_ipcReceiver.deleteProcessorsOfEditorWidget(textEditor->editorWidget());
 }
 
-void IpcCommunicator::onCoreAboutToClose()
+void IpcCommunicator::setupDummySender()
 {
     m_ipcSender.reset(new DummyIpcSender);
 }

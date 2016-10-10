@@ -28,11 +28,16 @@
 #include <QHash>
 #include <QSharedPointer>
 
+QT_BEGIN_NAMESPACE
+class QSettings;
+QT_END_NAMESPACE
+
 namespace Core { class Id; }
 
 namespace Autotest {
 namespace Internal {
 
+class IFrameworkSettings;
 class ITestFramework;
 class ITestParser;
 class TestRunner;
@@ -55,6 +60,8 @@ public:
 
     TestTreeItem *rootNodeForTestFramework(const Core::Id &frameworkId) const;
     ITestParser *testParserForTestFramework(const Core::Id &frameworkId) const;
+    QSharedPointer<IFrameworkSettings> settingsForTestFramework(const Core::Id &frameworkId) const;
+    void synchronizeSettings(QSettings *s);
     bool isActive(const Core::Id &frameworkId) const;
     bool hasActiveFrameworks() const;
 
@@ -62,6 +69,7 @@ private:
     QVector<Core::Id> activeFrameworkIds() const;
     explicit TestFrameworkManager();
     QHash<Core::Id, ITestFramework *> m_registeredFrameworks;
+    QHash<Core::Id, QSharedPointer<IFrameworkSettings> > m_frameworkSettings;
     TestTreeModel *m_testTreeModel;
     TestRunner *m_testRunner;
 

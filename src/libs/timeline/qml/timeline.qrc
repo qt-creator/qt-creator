@@ -30,5 +30,6 @@
         <file>SynchronousReloader.qml</file>
         <file>TimelineText.qml</file>
         <file>ImageToolButton.qml</file>
+        <file>TimelineRulers.qml</file>
     </qresource>
 </RCC>

@@ -135,7 +135,7 @@ bool AutotestPlugin::initialize(const QStringList &arguments, QString *errorStri
     m_frameworkManager->registerTestFramework(new QuickTestFramework);
     m_frameworkManager->registerTestFramework(new GTestFramework);
 
-    m_settings->fromSettings(ICore::settings());
+    m_frameworkManager->synchronizeSettings(ICore::settings());
     addAutoReleasedObject(new TestSettingsPage(m_settings));
     addAutoReleasedObject(new TestNavigationWidgetFactory);
     addAutoReleasedObject(TestResultsPane::instance());

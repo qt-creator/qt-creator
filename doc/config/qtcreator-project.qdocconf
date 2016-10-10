@@ -18,6 +18,7 @@ imagedirs = $SRCDIR/images \
             $SRCDIR/../src/plugins/projectexplorer/images \
             $SRCDIR/../src/plugins/qmldesigner/components/formeditor \
             $SRCDIR/../src/plugins/qmldesigner/components/navigator \
+            $SRCDIR/../src/plugins/scxmleditor/common/images \
             $SRCDIR/../src/plugins/texteditor/images
 
 outputdir = $OUTDIR

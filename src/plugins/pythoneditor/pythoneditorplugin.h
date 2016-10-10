@@ -26,10 +26,6 @@
 #pragma once
 
 #include <extensionsystem/iplugin.h>
-#include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/target.h>
-
-#include <QSet>
 
 namespace PythonEditor {
 namespace Internal {
@@ -45,11 +41,6 @@ public:
 
     bool initialize(const QStringList &arguments, QString *errorMessage) override;
     void extensionsInitialized() override {}
-
-private:
-    QSet<QString> m_keywords;
-    QSet<QString> m_magics;
-    QSet<QString> m_builtins;
 };
 
 } // namespace Internal

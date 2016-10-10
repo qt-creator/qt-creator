@@ -36,6 +36,8 @@
 #include <projectexplorer/target.h>
 #include <texteditor/textdocument.h>
 
+#include <utils/algorithm.h>
+
 #include <QFileInfo>
 #include <QQueue>
 
@@ -47,16 +49,15 @@ namespace Nim {
 const int MIN_TIME_BETWEEN_PROJECT_SCANS = 4500;
 
 NimProject::NimProject(NimProjectManager *projectManager, const QString &fileName)
-    : m_projectManager(projectManager)
-    , m_document(new TextEditor::TextDocument)
 {
-    setDocument(m_document);
     setId(Constants::C_NIMPROJECT_ID);
-    m_document->setFilePath(FileName::fromString(fileName));
-    m_projectFile = QFileInfo(fileName);
-    m_projectDir = m_projectFile.dir();
-    m_rootNode = new NimProjectNode(FileName::fromString(m_projectDir.absolutePath()));
-    m_rootNode->setDisplayName(m_projectDir.dirName());
+    setProjectManager(projectManager);
+    setDocument(new TextEditor::TextDocument);
+    document()->setFilePath(FileName::fromString(fileName));
+    QFileInfo fi = QFileInfo(fileName);
+    QDir dir = fi.dir();
+    setRootProjectNode(new NimProjectNode(FileName::fromString(dir.absolutePath())));
+    rootProjectNode()->setDisplayName(dir.dirName());
 
     m_projectScanTimer.setSingleShot(true);
     connect(&m_projectScanTimer, &QTimer::timeout, this, &NimProject::populateProject);
@@ -68,17 +69,7 @@ NimProject::NimProject(NimProjectManager *projectManager, const QString &fileNam
 
 QString NimProject::displayName() const
 {
-    return m_projectDir.dirName();
-}
-
-IProjectManager *NimProject::projectManager() const
-{
-    return m_projectManager;
-}
-
-ProjectNode *NimProject::rootProjectNode() const
-{
-    return m_rootNode;
+    return rootProjectNode()->displayName();
 }
 
 QStringList NimProject::files(FilesMode) const
@@ -89,16 +80,6 @@ QStringList NimProject::files(FilesMode) const
 bool NimProject::needsConfiguration() const
 {
     return targets().empty();
-}
-
-QString NimProject::projectDirectoryPath() const
-{
-    return m_projectDir.absolutePath();
-}
-
-QString NimProject::projectFilePath() const
-{
-    return m_projectFile.absoluteFilePath();
 }
 
 void NimProject::scheduleProjectScan()
@@ -118,19 +99,19 @@ void NimProject::populateProject()
 {
     m_lastProjectScan.start();
 
-    QSet<QString> oldFiles(m_files);
+    QSet<QString> oldFiles = m_files;
     m_files.clear();
+    recursiveScanDirectory(QDir(projectDirectory().toString()), m_files);
 
-    recursiveScanDirectory(m_projectDir, m_files);
+    if (m_files == oldFiles)
+        return;
 
-    QSet<QString> removedFiles = oldFiles - m_files;
-    QSet<QString> addedFiles = m_files - oldFiles;
+    QList<FileNode *> fileNodes = Utils::transform(m_files.toList(), [](const QString &f) {
+        return new FileNode(FileName::fromString(f), SourceType, false);
+    });
+    rootProjectNode()->buildTree(fileNodes);
 
-    removeNodes(removedFiles);
-    addNodes(addedFiles);
-
-    if (removedFiles.size() || addedFiles.size())
-        emit fileListChanged();
+    emit fileListChanged();
 }
 
 void NimProject::recursiveScanDirectory(const QDir &dir, QSet<QString> &container)
@@ -149,70 +130,6 @@ void NimProject::recursiveScanDirectory(const QDir &dir, QSet<QString> &containe
     m_fsWatcher.addPath(dir.absolutePath());
 }
 
-void NimProject::addNodes(const QSet<QString> &nodes)
-{
-    QStringList path;
-    foreach (const QString &node, nodes) {
-        path = m_projectDir.relativeFilePath(node).split(QDir::separator());
-        path.pop_back();
-        FolderNode *folder = findFolderFor(path);
-        auto fileNode = new FileNode(FileName::fromString(node), SourceType, false);
-        folder->addFileNodes({fileNode});
-    }
-}
-
-void NimProject::removeNodes(const QSet<QString> &nodes)
-{
-    QStringList path;
-    foreach (const QString &node, nodes) {
-        path = m_projectDir.relativeFilePath(node).split(QDir::separator());
-        path.pop_back();
-        FolderNode *folder = findFolderFor(path);
-
-        for (FileNode *fileNode : folder->fileNodes()) {
-            if (fileNode->filePath().toString() == node) {
-                folder->removeFileNodes({fileNode});
-                break;
-            }
-        }
-    }
-}
-
-FolderNode *NimProject::findFolderFor(const QStringList &path)
-{
-    FolderNode *folder = m_rootNode;
-
-    QString currentPath = m_projectDir.absolutePath();
-
-    foreach (const QString &part, path) {
-        // Create relative path
-        if (!currentPath.isEmpty())
-            currentPath += QDir::separator();
-        currentPath += part;
-
-        // Find the child with the given name
-        QList<FolderNode *> subFolderNodes = folder->subFolderNodes();
-        auto predicate = [&part] (const FolderNode * f) {
-            return f->displayName() == part;
-        };
-        auto it = std::find_if(subFolderNodes.begin(), subFolderNodes.end(), predicate);
-
-        if (it != subFolderNodes.end()) {
-            folder = *it;
-            continue;
-        }
-
-        // Folder not found. Add it
-        QString newFolderPath = QDir::cleanPath(currentPath + QDir::separator() + part);
-        auto newFolder = new FolderNode(FileName::fromString(newFolderPath),
-                                        FolderNodeType,
-                                        part);
-        folder->addFolderNodes({newFolder});
-        folder = newFolder;
-    }
-    return folder;
-}
-
 bool NimProject::supportsKit(Kit *k, QString *) const
 {
     return k->isValid();
@@ -223,7 +140,7 @@ FileNameList NimProject::nimFiles() const
     FileNameList result;
 
     QQueue<FolderNode *> folders;
-    folders.enqueue(m_rootNode);
+    folders.enqueue(rootProjectNode());
 
     while (!folders.isEmpty()) {
         FolderNode *folder = folders.takeFirst();

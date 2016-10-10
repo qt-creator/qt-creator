@@ -28,8 +28,12 @@
 #include "testtreeitem.h"
 #include "itestparser.h"
 
+namespace Core { class IOptionsPage; }
+
 namespace Autotest {
 namespace Internal {
+
+class IFrameworkSettings;
 
 class ITestFramework
 {
@@ -43,6 +47,13 @@ public:
 
     virtual const char *name() const = 0;
     virtual unsigned priority() const = 0;          // should this be modifyable?
+    virtual bool hasFrameworkSettings() const { return false; }
+    virtual IFrameworkSettings *createFrameworkSettings() const { return 0; }
+    virtual Core::IOptionsPage *createSettingsPage(QSharedPointer<IFrameworkSettings> settings) const
+    {
+        Q_UNUSED(settings);
+        return 0;
+    }
 
     TestTreeItem *rootNode()
     {   if (!m_rootNode)

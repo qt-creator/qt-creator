@@ -61,7 +61,7 @@ class Dumper(DumperBase):
     def __init__(self):
         DumperBase.__init__(self)
         lldb.theDumper = self
-
+        self.isLldb = True
         self.outputLock = threading.Lock()
         self.debugger = lldb.SBDebugger.Create()
         #self.debugger.SetLoggingCallback(loggingCallback)
@@ -91,30 +91,10 @@ class Dumper(DumperBase):
         #for i in range(self.debugger.GetNumCategories()):
         #    self.debugger.GetCategoryAtIndex(i).SetEnabled(False)
 
-        self.isLldb = True
         self.process = None
         self.target = None
         self.eventState = lldb.eStateInvalid
-        self.expandedINames = {}
-        self.passExceptions = False
-        self.showQObjectNames = False
-        self.useLldbDumpers = False
-        self.autoDerefPointers = True
-        self.useDynamicType = True
-        self.useFancy = True
-        self.formats = {}
-        self.typeformats = {}
-        self.currentContextValue = None
-
-        self.currentIName = None
-        self.currentValue = ReportItem()
-        self.currentType = ReportItem()
-        self.currentNumChild = None
-        self.currentMaxNumChild = None
-        self.currentPrintsAddress = True
-        self.currentChildType = None
-        self.currentChildNumChild = -1
-        self.currentWatchers = {}
+        self.runEngineAttempted = False
 
         self.executable_ = None
         self.startMode_ = None
@@ -478,6 +458,9 @@ class Dumper(DumperBase):
     def isArmArchitecture(self):
         return False
 
+    def isMsvcTarget(self):
+        return False
+
     def qtVersionAndNamespace(self):
         for func in self.target.FindFunctions('qVersion'):
             name = func.GetSymbol().GetName()
@@ -630,9 +613,13 @@ class Dumper(DumperBase):
                 self.target.BreakpointCreateByName("qt_qmlDebugMessageAvailable")
 
         state = 1 if self.target.IsValid() else 0
-        self.reportResult('success="%s",msg="%s",exe="%s"' % (state, error, self.executable_), args)
+        self.reportResult('success="%s",msg="%s",exe="%s"'
+            % (state, error, self.executable_), args)
 
     def runEngine(self, args):
+        if self.runEngineAttempted:
+            return
+        self.runEngineAttempted = True
         self.prepare(args)
         s = threading.Thread(target=self.loop, args=[])
         s.start()
@@ -877,15 +864,7 @@ class Dumper(DumperBase):
             self.reportResult(res, args)
             return
 
-        self.expandedINames = set(args.get('expanded', []))
-        self.autoDerefPointers = int(args.get('autoderef', '0'))
-        self.useDynamicType = int(args.get('dyntype', '0'))
-        self.useFancy = int(args.get('fancy', '0'))
-        self.passExceptions = int(args.get('passexceptions', '0'))
-        self.showQObjectNames = int(args.get('qobjectnames', '0'))
-        self.currentWatchers = args.get('watchers', {})
-        self.typeformats = args.get('typeformats', {})
-        self.formats = args.get('formats', {})
+        self.setVariableFetchingOptions(args)
 
         frame = self.currentFrame()
         if frame is None:
@@ -893,9 +872,7 @@ class Dumper(DumperBase):
             return
 
         self.output = ''
-        self.currentAddress = None
-        partialVariable = args.get('partialvar', "")
-        isPartial = len(partialVariable) > 0
+        isPartial = len(self.partialVariable) > 0
 
         self.currentIName = 'local'
         self.put('data=[')

@@ -85,28 +85,65 @@
 
 #include <designersupportdelegate.h>
 
+#include <algorithm>
 
 namespace {
-    bool testImportStatements(const QStringList &importStatementList, const QUrl &url, QString *errorMessage = 0) {
-        QQmlEngine engine;
-        QQmlComponent testImportComponent(&engine);
+bool testImportStatements(const QStringList &importStatementList, const QUrl &url, QString *errorMessage = 0) {
+    // ToDo: move engine outside of this function, this makes it expensive
+    QQmlEngine engine;
+    QQmlComponent testImportComponent(&engine);
 
-        QByteArray testComponentCode = QStringList(importStatementList).join("\n").toUtf8();
+    QByteArray testComponentCode = QStringList(importStatementList).join("\n").toUtf8();
 
-        testImportComponent.setData(testComponentCode.append("\nItem {}\n"), url);
-        testImportComponent.create();
+    testImportComponent.setData(testComponentCode.append("\nItem {}\n"), url);
+    testImportComponent.create();
 
-        if (testImportComponent.errors().isEmpty()) {
-            return true;
-        } else {
-            if (errorMessage) {
-                errorMessage->append("found not working imports: ");
-                errorMessage->append(testImportComponent.errorString());
+    if (testImportComponent.isError()) {
+        if (errorMessage) {
+            errorMessage->append("found not working imports: ");
+            errorMessage->append(testImportComponent.errorString());
+        }
+        return false;
+    }
+    return true;
+}
+
+void sortFilterImports(const QStringList &imports, QStringList *workingImports, QStringList *failedImports, const QUrl &url, QString *errorMessage)
+{
+    for (const QString &import : imports) {
+        const QStringList alreadyTestedImports = *workingImports + *failedImports;
+        if (!alreadyTestedImports.contains(import)) {
+            QStringList readyForTestImports = *workingImports;
+            readyForTestImports.append(import);
+
+            QString lastErrorMessage;
+            if (testImportStatements(readyForTestImports, url, &lastErrorMessage)) {
+                Q_ASSERT(!workingImports->contains(import));
+                workingImports->append(import);
+            } else {
+                if (imports.endsWith(import) == false) {
+                    // the not working import is not the last import, so there could be some
+                    // import dependency which we try with the reorderd remaining imports
+                    QStringList reorderedImports;
+                    std::copy_if(imports.cbegin(), imports.cend(), std::back_inserter(reorderedImports),
+                                 [&import, &alreadyTestedImports] (const QString &checkForResortingImport){
+                        if (checkForResortingImport == import)
+                            return false;
+                        return !alreadyTestedImports.contains(checkForResortingImport);
+                    });
+                    reorderedImports.append(import);
+                    sortFilterImports(reorderedImports, workingImports, failedImports, url, errorMessage);
+                } else {
+                    Q_ASSERT(!failedImports->contains(import));
+                    failedImports->append(import);
+                    if (errorMessage)
+                        errorMessage->append(lastErrorMessage);
+                }
             }
-            return false;
         }
     }
 }
+} // anonymous
 
 namespace QmlDesigner {
 
@@ -415,32 +452,17 @@ void NodeInstanceServer::setupImports(const QVector<AddImportContainer> &contain
     QStringList workingImportStatementList;
 
     // check possible import statements combinations
-    QString errorMessage;
-    // maybe it just works
+    // but first try the current order -> maybe it just works
     if (testImportStatements(importStatementList, fileUrl())) {
         workingImportStatementList = importStatementList;
     } else {
-        QString firstWorkingImportStatement; //usually this will be "import QtQuick x.x"
-        QStringList otherImportStatements;
-        foreach (const QString &importStatement, importStatementList) {
-            if (testImportStatements(QStringList(importStatement), fileUrl()))
-                firstWorkingImportStatement = importStatement;
-            else
-                otherImportStatements.append(importStatement);
-        }
-
-        // find the bad imports from otherImportStatements
-        foreach (const QString &importStatement, otherImportStatements) {
-            if (testImportStatements(QStringList(firstWorkingImportStatement) <<
-                importStatement, fileUrl(), &errorMessage)) {
-                workingImportStatementList.append(importStatement);
-            }
-        }
-        workingImportStatementList.prepend(firstWorkingImportStatement);
+        QString errorMessage;
+        QStringList failedImportList;
+        sortFilterImports(importStatementList, &workingImportStatementList, &failedImportList, fileUrl(), &errorMessage);
+        if (!errorMessage.isEmpty())
+            sendDebugOutput(DebugOutputCommand::WarningType, errorMessage);
     }
 
-    if (!errorMessage.isEmpty())
-        sendDebugOutput(DebugOutputCommand::WarningType, errorMessage);
     setupOnlyWorkingImports(workingImportStatementList);
 }
 

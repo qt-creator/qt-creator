@@ -64,7 +64,6 @@ public:
     QString workingDirectory;
     QString sourceDirectory;
     QString makeCommand;
-    QString makeCleanCommand;
 
     // code model
     QStringList includeFiles;
@@ -88,7 +87,6 @@ public:
 
     QStringList files(FilesMode fileMode) const final;
     QStringList buildTargetTitles(bool runnable = false) const;
-    QList<CMakeBuildTarget> buildTargets() const;
     bool hasBuildTarget(const QString &title) const;
 
     CMakeBuildTarget buildTargetForTitle(const QString &title);
@@ -110,7 +108,7 @@ protected:
     bool setupTarget(ProjectExplorer::Target *t) final;
 
 private:
-    void handleCmakeFileChanged();
+    QList<CMakeBuildTarget> buildTargets() const;
 
     void handleActiveTargetChanged();
     void handleActiveBuildConfigurationChanged();
@@ -118,9 +116,6 @@ private:
     void updateProjectData();
     void updateQmlJSCodeModel();
 
-    void buildTree(Internal::CMakeProjectNode *rootNode, QList<ProjectExplorer::FileNode *> list);
-    void gatherFileNodes(ProjectExplorer::FolderNode *parent, QList<ProjectExplorer::FileNode *> &list) const;
-    ProjectExplorer::FolderNode *findOrCreateFolder(Internal::CMakeProjectNode *rootNode, QString directory);
     void createGeneratedCodeModelSupport();
     QStringList filesGeneratedFrom(const QString &sourceFile) const final;
     void updateTargetRunConfigurations(ProjectExplorer::Target *t);
@@ -135,8 +130,6 @@ private:
     QList<CMakeBuildTarget> m_buildTargets;
     QFuture<void> m_codeModelFuture;
     QList<ProjectExplorer::ExtraCompiler *> m_extraCompilers;
-
-    QSet<Internal::CMakeFile *> m_watchedFiles;
 
     friend class Internal::CMakeBuildConfiguration;
     friend class Internal::CMakeFile;

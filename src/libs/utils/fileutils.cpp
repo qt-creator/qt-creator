@@ -471,6 +471,22 @@ bool FileSaverBase::setResult(QXmlStreamWriter *stream)
 FileSaver::FileSaver(const QString &filename, QIODevice::OpenMode mode)
 {
     m_fileName = filename;
+    // Workaround an assert in Qt -- and provide a useful error message, too:
+    if (HostOsInfo::isWindowsHost()) {
+        // Taken from: https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247(v=vs.85).aspx
+        static const QStringList reservedNames
+                = { "CON", "PRN", "AUX", "NUL",
+                    "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
+                    "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9" };
+        const QString fn = QFileInfo(filename).baseName().toUpper();
+        for (const QString &rn : reservedNames) {
+            if (fn == rn) {
+                m_errorString = tr("%1: Is a reserved filename on Windows. Cannot save.").arg(filename);
+                m_hasError = true;
+                return;
+            }
+        }
+    }
     if (mode & (QIODevice::ReadOnly | QIODevice::Append)) {
         m_file = new QFile(filename);
         m_isSafe = false;

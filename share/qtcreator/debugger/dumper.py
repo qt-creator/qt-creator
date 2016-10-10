@@ -32,6 +32,7 @@ import re
 import time
 import json
 import inspect
+import threading
 
 if sys.version_info[0] >= 3:
     xrange = range
@@ -94,7 +95,7 @@ BreakpointAtJavaScriptThrow, \
     = range(0, 14)
 
 
-# Internal codes for types
+# Internal codes for types keep in sync with cdbextensions pytype.cpp
 TypeCodeTypedef, \
 TypeCodeStruct, \
 TypeCodeVoid, \
@@ -301,6 +302,44 @@ class DumperBase:
             "personaltypes",
         ]
 
+        # These values are never used, but the variables need to have
+        # some value base for the swapping logic in Children.__enter__()
+        # and Children.__exit__().
+        self.currentIName = None
+        self.currentValue = None
+        self.currentType = None
+        self.currentNumChild = None
+        self.currentMaxNumChild = None
+        self.currentPrintsAddress = True
+        self.currentChildType = None
+        self.currentChildNumChild = None
+
+    def setVariableFetchingOptions(self, args):
+        self.resultVarName = args.get('resultvarname', '')
+        self.expandedINames = set(args.get('expanded', []))
+        self.stringCutOff = int(args.get('stringcutoff', 10000))
+        self.displayStringLimit = int(args.get('displaystringlimit', 100))
+        self.typeformats = args.get('typeformats', {})
+        self.formats = args.get('formats', {})
+        self.watchers = args.get('watchers', {})
+        self.useDynamicType = int(args.get('dyntype', '0'))
+        self.useFancy = int(args.get('fancy', '0'))
+        self.forceQtNamespace = int(args.get('forcens', '0'))
+        self.passExceptions = int(args.get('passexceptions', '0'))
+        self.showQObjectNames = int(args.get('qobjectnames', '0'))
+        self.nativeMixed = int(args.get('nativemixed', '0'))
+        self.autoDerefPointers = int(args.get('autoderef', '0'))
+        self.partialVariable = args.get('partialvar', '')
+        self.partialUpdate = int(args.get('partial', '0'))
+        self.fallbackQtVersion = 0x50200
+        #warn('NAMESPACE: "%s"' % self.qtNamespace())
+        #warn('EXPANDED INAMES: %s' % self.expandedINames)
+        #warn('WATCHERS: %s' % self.watchers)
+
+        # The guess does not need to be updated during a fetchVariables()
+        # as the result is fixed during that time (ignoring "active"
+        # dumpers causing loading of shared objects etc).
+        self.currentQtNamespaceGuess = None
 
     def resetCaches(self):
         # This is a cache mapping from 'type name' to 'display alternatives'.
@@ -772,7 +811,7 @@ class DumperBase:
                 continue
 
             with SubItem(self, field.name):
-                self.putItem(value[field])
+                self.putItem(value.extractField(field))
 
 
     def putMembersItem(self, value, sortorder = 10):
@@ -1015,7 +1054,8 @@ class DumperBase:
         if arrayByteSize == 0:
             # This should not happen. But it does, see QTCREATORBUG-14755.
             # GDB/GCC produce sizeof == 0 for QProcess arr[3]
-            s = str(value.type)
+            # And in the Nim string dumper.
+            s = value.type.name
             itemCount = s[s.find('[')+1:s.find(']')]
             if not itemCount:
                 itemCount = '100'
@@ -2449,6 +2489,8 @@ class DumperBase:
         if typeobj.code == TypeCodeTypedef:
             strippedType = typeobj.stripTypedefs()
             self.putItem(value.cast(strippedType))
+            if value.lbitsize is not None and value.lbitsize != value.type.size() * 8:
+                typeName += " : %s" % value.lbitsize
             self.putBetterType(typeName)
             return
 
@@ -2478,7 +2520,9 @@ class DumperBase:
             #warn("INTEGER: %s %s" % (value.name, value))
             self.putValue(value.value())
             self.putNumChild(0)
-            self.putType(typeobj.name)
+            if value.lbitsize is not None and value.lbitsize != value.type.size() * 8:
+                typeName += " : %s" % value.lbitsize
+            self.putType(typeName)
             return
 
         if typeobj.code == TypeCodeFloat:
@@ -2579,6 +2623,7 @@ class DumperBase:
             self.laddress = None
             self.lIsInScope = True
             self.ldisplay = None
+            self.lbitsize = None
 
         def check(self):
             if self.laddress is not None and not self.dumper.isInt(self.laddress):
@@ -2595,8 +2640,9 @@ class DumperBase:
 
         def stringify(self):
             addr = "None" if self.laddress is None else ("0x%x" % self.laddress)
-            return "Value(name='%s',type=%s,data=%s,address=%s)" \
-                    % (self.name, self.type.stringify(), self.dumper.hexencode(self.ldata), addr)
+            return "Value(name='%s',type=%s,bsize=%s,data=%s,address=%s)" \
+                    % (self.name, self.type.name, self.lbitsize,
+                       self.dumper.hexencode(self.ldata), addr)
 
         def display(self):
             if self.type.code == TypeCodeEnum:
@@ -2686,6 +2732,7 @@ class DumperBase:
             fieldBitpos = field.bitpos()
             fieldOffset = fieldBitpos >> 3
             fieldBitpos -= fieldOffset * 8
+            fieldType = field.fieldType()
 
             val = self.dumper.Value(self.dumper)
             val.name = field.name
@@ -2697,7 +2744,7 @@ class DumperBase:
             else:
                 self.dumper.check(False)
 
-            if fieldBitsize is not None and fieldBitsize % 8 != 0:
+            if fieldBitsize is not None and fieldBitsize != fieldType.size() * 8:
                 data = val.extractInteger(fieldBitsize, True)
                 data = data >> fieldBitpos
                 data = data & ((1 << fieldBitsize) - 1)
@@ -2705,7 +2752,6 @@ class DumperBase:
                 val.ldata = bytes(struct.pack('Q', data))
 
             val.type = None
-            fieldType = field.fieldType()
             if val.laddress is not None and fieldType is not None:
                 if fieldType.code in (TypeCodePointer, TypeCodeReference):
                     baseType = fieldType.dereference()
@@ -2771,6 +2817,7 @@ class DumperBase:
             self.check()
             val = self.dumper.Value(self.dumper)
             val.laddress = self.laddress
+            val.lbitsize = self.lbitsize
             val.ldata = self.ldata
             val.type = self.dumper.createType(typish)
             return val
@@ -2889,8 +2936,8 @@ class DumperBase:
             #error("Not implemented")
 
         def stringify(self):
-            return "Type(name='%s',bsize=%s,bpos=%s,code=%s,native=%s)" \
-                    % (self.name, self.lbitsize, self.lbitpos, self.code, self.nativeType is not None)
+            return "Type(name='%s',bsize=%s,bpos=%s,code=%s,ntype=%s)" \
+                    % (self.name, self.lbitsize, self.lbitpos, self.code, self.nativeType)
 
         def __getitem__(self, index):
             if self.dumper.isInt(index):
@@ -2994,7 +3041,7 @@ class DumperBase:
                     innerType.code = TypeCodeArray
                 return innerType
 
-            strippedType = self.stripTypdefs()
+            strippedType = self.stripTypedefs()
             if strippedType.name != self.name:
                 return strippedType.target()
             error("DONT KNOW TARGET FOR: %s" % self)
@@ -3334,8 +3381,20 @@ class DumperBase:
             elif c == '{':
                 readingTypeName = True
                 typeName = ""
-            elif c == '@':  # Automatic padding.
-                builder.autoPadNext = True
+            elif c == '@':
+                if n is None:
+                    # Automatic padding depending on next item
+                    builder.autoPadNext = True
+                else:
+                    # Explicit padding.
+                    builder.currentBitsize = 8 * ((builder.currentBitsize + 7) >> 3)
+                    padding = (int(n) - (builder.currentBitsize >> 3)) % int(n)
+                    field = self.Field(self)
+                    field.code = None
+                    builder.pattern += "%ds" % padding
+                    builder.currentBitsize += padding * 8
+                    builder.fields.append(field)
+                    n = None
             else:
                 error("UNKNOWN STRUCT CODE: %s" % c)
         pp = builder.pattern

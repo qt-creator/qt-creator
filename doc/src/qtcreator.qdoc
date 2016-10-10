@@ -84,6 +84,7 @@
                     \li \l{Refactoring}
                     \li \l{Configuring the Editor}
                     \li \l{Modeling}
+                    \li \l{Editing State Charts}
                 \endlist
         \row
             \li \inlineimage creator_buildingrunning.png
@@ -227,6 +228,8 @@
             \endlist
             \li \l{Editing MIME Types}
             \li \l{Modeling}
+            \li \l{Editing State Charts}
+
         \endlist
         \li \l{Building and Running}
         \list

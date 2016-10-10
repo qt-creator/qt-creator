@@ -372,13 +372,6 @@ void CMakeCbpParser::parseBuildTargetBuild()
 
 void CMakeCbpParser::parseBuildTargetClean()
 {
-    if (attributes().hasAttribute(QLatin1String("command"))) {
-        m_buildTarget.makeCleanCommand = attributes().value(QLatin1String("command")).toString();
-
-        CMakeTool *tool = CMakeKitInformation::cmakeTool(m_kit);
-        if (tool)
-            m_buildTarget.makeCleanCommand = tool->mapAllPaths(m_kit, m_buildTarget.makeCleanCommand);
-    }
     while (!atEnd()) {
         readNext();
         if (isEndElement())

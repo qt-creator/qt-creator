@@ -466,9 +466,9 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
                 painter->fillRect(backgroundRect, option->palette.base());
 
                 static const QImage bg(StyleHelper::dpiSpecificImageFile(
-                                           QLatin1String(":/core/images/inputfield.png")));
+                                           QLatin1String(":/utils/images/inputfield.png")));
                 static const QImage bg_disabled(StyleHelper::dpiSpecificImageFile(
-                                                    QLatin1String(":/core/images/inputfield_disabled.png")));
+                                                    QLatin1String(":/utils/images/inputfield_disabled.png")));
 
                 StyleHelper::drawCornerImage(enabled ? bg : bg_disabled,
                                              painter, option->rect, 5, 5, 5, 5);

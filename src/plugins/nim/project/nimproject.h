@@ -47,12 +47,8 @@ public:
     NimProject(NimProjectManager *projectManager, const QString &fileName);
 
     QString displayName() const override;
-    ProjectExplorer::IProjectManager *projectManager() const override;
-    ProjectExplorer::ProjectNode *rootProjectNode() const override;
     QStringList files(FilesMode) const override;
     bool needsConfiguration() const override;
-    QString projectDirectoryPath() const;
-    QString projectFilePath() const;
     bool supportsKit(ProjectExplorer::Kit *k, QString *errorMessage) const override;
     Utils::FileNameList nimFiles() const;
 
@@ -60,17 +56,7 @@ private:
     void scheduleProjectScan();
     void populateProject();
     void recursiveScanDirectory(const QDir &dir, QSet<QString> &container);
-    void addNodes(const QSet<QString> &nodes);
-    void removeNodes(const QSet<QString> &nodes);
 
-    ProjectExplorer::FolderNode *findFolderFor(const QStringList &projectDirectoryPath);
-
-    NimProjectManager *m_projectManager;
-    TextEditor::TextDocument *m_document;
-    NimProjectNode *m_rootNode;
-
-    QDir m_projectDir;
-    QFileInfo m_projectFile;
     QSet<QString> m_files;
     QFileSystemWatcher m_fsWatcher;
 

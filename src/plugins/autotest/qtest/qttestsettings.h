@@ -44,12 +44,14 @@ class QtTestSettings : public IFrameworkSettings
 public:
     QtTestSettings() {}
     QString name() const override;
-    void fromSettings(const QSettings *s) override;
-    void toSettings(QSettings *s) const override;
     static QString metricsTypeToOption(const MetricsType type);
 
     MetricsType metrics = Walltime;
     bool noCrashHandler = true;
+
+protected:
+    void fromFrameworkSettings(const QSettings *s) override;
+    void toFrameworkSettings(QSettings *s) const override;
 };
 
 } // namespace Internal

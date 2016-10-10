@@ -6,6 +6,7 @@ QtcTool {
     installDir: qbs.targetOS.contains("macos")
                 ? qtc.ide_libexec_path + "/qmldesigner" : qtc.ide_libexec_path
 
+    Depends { name: "Utils" }
     Depends { name: "bundle" }
     Depends {
         name: "Qt"

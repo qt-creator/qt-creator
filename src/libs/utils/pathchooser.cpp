@@ -542,7 +542,7 @@ bool PathChooser::validatePath(FancyLineEdit *edit, QString *errorMessage) const
         }
         if (!fi.isFile()) {
             if (errorMessage)
-                *errorMessage = tr("The path <b>%1</b> is not a file.").arg(QDir::toNativeSeparators(expandedPath));
+                *errorMessage = tr("The path \"%1\" is not a file.").arg(QDir::toNativeSeparators(expandedPath));
             return false;
         }
         break;
@@ -554,7 +554,7 @@ bool PathChooser::validatePath(FancyLineEdit *edit, QString *errorMessage) const
         }
         if (fi.exists() && fi.isDir()) {
             if (errorMessage)
-                *errorMessage = tr("The path <b>%1</b> is not a file.").arg(QDir::toNativeSeparators(fi.absolutePath()));
+                *errorMessage = tr("The path \"%1\" is not a file.").arg(QDir::toNativeSeparators(fi.absolutePath()));
             return false;
         }
         break;
@@ -566,7 +566,7 @@ bool PathChooser::validatePath(FancyLineEdit *edit, QString *errorMessage) const
         }
         if (!fi.isFile() || !fi.isExecutable()) {
             if (errorMessage)
-                *errorMessage = tr("The path <b>%1</b> is not an executable file.").arg(QDir::toNativeSeparators(expandedPath));
+                *errorMessage = tr("The path \"%1\" is not an executable file.").arg(QDir::toNativeSeparators(expandedPath));
             return false;
         }
         break;
@@ -590,7 +590,7 @@ bool PathChooser::validatePath(FancyLineEdit *edit, QString *errorMessage) const
     }
 
     if (errorMessage)
-        *errorMessage = tr("Full path: <b>%1</b>").arg(QDir::toNativeSeparators(expandedPath));
+        *errorMessage = tr("Full path: \"%1\"").arg(QDir::toNativeSeparators(expandedPath));
     return true;
 }
 

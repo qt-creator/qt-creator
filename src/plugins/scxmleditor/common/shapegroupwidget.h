@@ -25,9 +25,10 @@
 
 #pragma once
 
-#include "ui_shapegroupwidget.h"
-
 #include <QWidget>
+
+QT_FORWARD_DECLARE_CLASS(QLabel)
+QT_FORWARD_DECLARE_CLASS(QToolButton)
 
 namespace ScxmlEditor {
 
@@ -43,7 +44,11 @@ public:
     explicit ShapeGroupWidget(PluginInterface::ShapeProvider *shapeProvider, int groupIndex, QWidget *parent = nullptr);
 
 private:
-    Ui::ShapeGroupWidget m_ui;
+    void createUi();
+
+    QLabel *m_title = nullptr;
+    QToolButton *m_closeButton = nullptr;
+    QWidget *m_content = nullptr;
 };
 
 } // namespace Common

@@ -129,7 +129,7 @@ public:
     void emitBuildDirectoryInitialized();
     static void proFileParseError(const QString &errorMessage);
 
-    ProjectExplorer::ProjectImporter *createProjectImporter() const override;
+    ProjectExplorer::ProjectImporter *projectImporter() const override;
 
     enum AsyncUpdateState { Base, AsyncFullUpdatePending, AsyncPartialUpdatePending, AsyncUpdateInProgress, ShuttingDown };
     AsyncUpdateState asyncUpdateState() const;
@@ -203,6 +203,7 @@ private:
     Internal::CentralizedFolderWatcher *m_centralizedFolderWatcher = nullptr;
 
     ProjectExplorer::Target *m_activeTarget = nullptr;
+    mutable ProjectExplorer::ProjectImporter *m_projectImporter = nullptr;
 
     friend class Internal::QmakeProjectFile;
     friend class Internal::QmakeProjectConfigWidget;

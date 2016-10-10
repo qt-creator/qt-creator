@@ -103,25 +103,6 @@ private:
     void onFileChanged(const QString &file);
 
     /**
-     * Creates folder-nodes and file-nodes for the project tree.
-     */
-    void buildFileNodeTree(const QDir &directory,
-                           const QStringList &files);
-
-    /**
-     * Helper function for buildFileNodeTree(): Inserts a new folder-node for
-     * the directory \p nodeDir and inserts it into \p nodes. If no parent
-     * folder exists, it will be created recursively.
-     */
-    ProjectExplorer::FolderNode *insertFolderNode(const QDir &nodeDir,
-                                                  QHash<QString, ProjectExplorer::Node *> &nodes);
-
-    /**
-     * @return All nodes (including sub-folder- and file-nodes) for the given parent folder.
-     */
-    QList<ProjectExplorer::Node *> nodes(ProjectExplorer::FolderNode *parent) const;
-
-    /**
      * This function is in charge of the code completion.
      */
     void updateCppCodeModel();

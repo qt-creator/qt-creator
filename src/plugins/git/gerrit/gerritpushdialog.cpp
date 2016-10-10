@@ -257,6 +257,7 @@ void GerritPushDialog::setRemoteBranches(bool includeOld)
         m_ui->targetBranchComboBox->addItem(tr("... Include older branches ..."), 1);
     setChangeRange();
     m_ui->targetBranchComboBox->blockSignals(blocked);
+    validate();
 }
 
 void GerritPushDialog::updateCommits(int index)

@@ -27,25 +27,10 @@
 
 #include "projectexplorer_export.h"
 
-#include <QPointer>
-#include <QWidget>
-
 #include <utils/fancymainwindow.h>
 
-QT_BEGIN_NAMESPACE
-class QComboBox;
-QT_END_NAMESPACE
-
 namespace ProjectExplorer {
-
-class Project;
-class Target;
-
 namespace Internal {
-
-class SelectorModel;
-class SelectorTree;
-class ProjectItem;
 
 enum {
     ContextMenuItemAdderRole // To augment a context menu, data has a QMenu*
@@ -70,19 +55,7 @@ public:
 
 private:
     void contextMenuEvent(QContextMenuEvent *event) override;
-
-    void openContextMenu(const QPoint &pos);
-    void registerProject(Project *project);
-    void deregisterProject(Project *project);
-    void startupProjectChanged(Project *project);
-    void projectSelected(int index);
-    void itemActivated(const QModelIndex &index);
-    ProjectItem *itemForProject(Project *project) const;
-
-    SelectorModel *m_selectorModel;
-    SelectorTree *m_selectorTree;
-    QDockWidget *m_selectorDock;
-    QComboBox *m_projectSelection;
+    void setPanel(QWidget *panel);
 };
 
 } // namespace Internal

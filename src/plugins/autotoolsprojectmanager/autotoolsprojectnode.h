@@ -48,7 +48,7 @@ class AutotoolsProject;
 class AutotoolsProjectNode : public ProjectExplorer::ProjectNode
 {
 public:
-    AutotoolsProjectNode(const Utils::FileName &projectFilePath);
+    AutotoolsProjectNode(const Utils::FileName &projectDirectory);
 
     bool showInSimpleTree() const override;
     QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const override;

@@ -67,6 +67,7 @@ private:
                       ParsingMetaInfo,
                       ParsingType,
                       ParsingItemLibrary,
+                      ParsingHints,
                       ParsingProperty,
                       ParsingQmlSource
                     };
@@ -83,6 +84,7 @@ private:
     void readItemLibraryEntryProperty(const QString &name, const QVariant &value);
     void readPropertyProperty(const QString &name, const QVariant &value);
     void readQmlSourceProperty(const QString &name, const QVariant &value);
+    void readHint(const QString &name, const QVariant &value);
 
     void setVersion(const QString &versionNumber);
 
@@ -103,6 +105,7 @@ private:
 
     TypeName m_currentClassName;
     QString m_currentIcon;
+    QHash<QString, QString> m_currentHints;
     QString m_currentSource;
     ItemLibraryEntry m_currentEntry;
     QList<ItemLibraryEntry> m_bufferedEntries;

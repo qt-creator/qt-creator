@@ -25,9 +25,6 @@
 
 #pragma once
 
-#include "gtest/gtestsettings.h"
-#include "qtest/qttestsettings.h"
-
 #include <QHash>
 
 namespace Core { class Id; }
@@ -52,9 +49,6 @@ struct TestSettings
     bool autoScroll = true;
     bool alwaysParse = true;
     QHash<Core::Id, bool> frameworks;
-
-    QtTestSettings qtTestSettings;
-    GTestSettings gTestSettings;
 };
 
 } // namespace Internal

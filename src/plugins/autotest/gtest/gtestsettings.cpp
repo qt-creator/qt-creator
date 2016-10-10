@@ -41,7 +41,7 @@ QString GTestSettings::name() const
     return QString("GTest");
 }
 
-void GTestSettings::fromSettings(const QSettings *s)
+void GTestSettings::fromFrameworkSettings(const QSettings *s)
 {
     runDisabled = s->value(runDisabledKey, false).toBool();
     repeat = s->value(repeatKey, false).toBool();
@@ -52,7 +52,7 @@ void GTestSettings::fromSettings(const QSettings *s)
     throwOnFailure = s->value(throwOnFailureKey, false).toBool();
 }
 
-void GTestSettings::toSettings(QSettings *s) const
+void GTestSettings::toFrameworkSettings(QSettings *s) const
 {
     s->setValue(runDisabledKey, runDisabled);
     s->setValue(repeatKey, repeat);

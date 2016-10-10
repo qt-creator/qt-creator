@@ -35,7 +35,7 @@ namespace Internal {
 class CMakeProjectNode : public ProjectExplorer::ProjectNode
 {
 public:
-    CMakeProjectNode(const Utils::FileName &fileName);
+    CMakeProjectNode(const Utils::FileName &dirName);
     bool showInSimpleTree() const override;
     QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const override;
 };

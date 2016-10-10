@@ -51,7 +51,7 @@
 
         \li Restart \QC to be able to use the plugin.
 
-        \li Select \uicontrol Tools > \uicontrol Options >
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Devices >
             \uicontrol {Bare Metal} > \uicontrol Add > \uicontrol Default,
             \uicontrol OpenCD, or \uicontrol {ST-LINK Utility} to specify
             connections to GDB servers or hardware debuggers:
@@ -113,10 +113,9 @@
         \li Open a project for an application you want to develop for the
             device.
 
-        \li Select \uicontrol Projects > \uicontrol {Build & Run} >
-            \uicontrol {Add Kit}, and then select the kit for building and
-            running the application on the bare metal device specified in the
-            kit.
+        \li Select \uicontrol Projects > \uicontrol {Build & Run}, and then
+            select the kit for building and running the application on the bare
+            metal device specified in the kit.
 
             \image creator-baremetal-kit-for-project.png "Adding a bare metal kit for a project"
 

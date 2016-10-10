@@ -24,8 +24,10 @@
 ****************************************************************************/
 
 #include "quicktestconfiguration.h"
+#include "../qtest/qttestconstants.h"
 #include "../qtest/qttestoutputreader.h"
-#include "../testsettings.h"
+#include "../qtest/qttestsettings.h"
+#include "../testframeworkmanager.h"
 
 namespace Autotest {
 namespace Internal {
@@ -36,16 +38,23 @@ TestOutputReader *QuickTestConfiguration::outputReader(const QFutureInterface<Te
     return new QtTestOutputReader(fi, app, buildDirectory());
 }
 
-QStringList QuickTestConfiguration::argumentsForTestRunner(const TestSettings &settings) const
+QStringList QuickTestConfiguration::argumentsForTestRunner() const
 {
-    QStringList arguments({"-xml"});
+    static const Core::Id id
+            = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix(QtTest::Constants::FRAMEWORK_NAME);
 
-    const QString &metricsOption
-            = QtTestSettings::metricsTypeToOption(settings.qtTestSettings.metrics);
-    if (!metricsOption.isEmpty())
-        arguments << metricsOption;
+    QStringList arguments("-xml");
     if (testCases().count())
         arguments << testCases();
+
+    TestFrameworkManager *manager = TestFrameworkManager::instance();
+    auto qtSettings = qSharedPointerCast<QtTestSettings>(manager->settingsForTestFramework(id));
+    if (qtSettings.isNull())
+        return arguments;
+
+    const QString &metricsOption = QtTestSettings::metricsTypeToOption(qtSettings->metrics);
+    if (!metricsOption.isEmpty())
+        arguments << metricsOption;
     return arguments;
 }
 

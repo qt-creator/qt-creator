@@ -172,8 +172,11 @@ public:
     QString displayName() const override;
     QIcon icon() const;
 
-    QList<FileNode*> fileNodes() const;
-    QList<FolderNode*> subFolderNodes() const;
+    QList<FileNode *> fileNodes() const;
+    QList<FileNode *> recursiveFileNodes() const;
+    QList<FolderNode *> subFolderNodes() const;
+    FolderNode *findOrCreateSubFolderNode(const QString &directory);
+    void buildTree(QList<FileNode *> &files);
 
     virtual void accept(NodesVisitor *visitor);
 

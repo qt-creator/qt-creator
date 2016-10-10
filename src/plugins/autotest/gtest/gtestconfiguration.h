@@ -36,7 +36,7 @@ public:
     explicit GTestConfiguration() {}
     TestOutputReader *outputReader(const QFutureInterface<TestResultPtr> &fi,
                                    QProcess *app) const override;
-    QStringList argumentsForTestRunner(const TestSettings &settings) const override;
+    QStringList argumentsForTestRunner() const override;
 };
 
 } // namespace Internal

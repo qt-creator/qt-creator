@@ -39,11 +39,12 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 
+#include <utils/algorithm.h>
+#include <utils/basetreeview.h>
 #include <utils/navigationtreeview.h>
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
 #include <utils/treemodel.h>
-#include <utils/basetreeview.h>
 
 #include <QApplication>
 #include <QComboBox>
@@ -62,7 +63,6 @@ namespace ProjectExplorer {
 namespace Internal {
 
 class MiscSettingsGroupItem;
-class RootItem;
 
 // Standard third level for the generic case: i.e. all except for the Build/Run page
 class MiscSettingsPanelItem : public TreeItem // TypedTreeItem<TreeItem, MiscSettingsGroupItem>
@@ -148,7 +148,7 @@ public:
 
     Qt::ItemFlags flags(int) const override
     {
-        return Qt::ItemIsEnabled;
+        return Qt::NoItemFlags;
     }
 
     QVariant data(int column, int role) const override
@@ -179,13 +179,6 @@ public:
             return true;
         }
 
-        if (role == ItemActivatedDirectlyRole) {
-            m_currentPanelIndex = 0; // Use the first ('Editor') page.
-            parent()->setData(0, QVariant::fromValue(static_cast<TreeItem *>(this)),
-                              ItemActivatedFromBelowRole);
-            return true;
-        }
-
         return false;
     }
 
@@ -197,11 +190,14 @@ private:
     Project * const m_project;
 };
 
-// The first tree level, i.e. projects (nowadays in the combobox in the top bar...)
-class ProjectItem : public TreeItem // TypedTreeItem<TreeItem, RootItem>
+// The first tree level, i.e. projects.
+class ProjectItem : public TreeItem
 {
 public:
-    explicit ProjectItem(Project *project) : m_project(project)
+    ProjectItem() {}
+
+    ProjectItem(Project *project, const std::function<void()> &changeListener)
+        : m_project(project), m_changeListener(changeListener)
     {
         QTC_ASSERT(m_project, return);
         QString display = ProjectWindow::tr("Build & Run");
@@ -234,22 +230,22 @@ public:
         return QVariant();
     }
 
-    bool setData(int column, const QVariant &data, int role) override
+    bool setData(int column, const QVariant &dat, int role) override
     {
         Q_UNUSED(column)
 
         if (role == ItemDeactivatedFromBelowRole) {
-            parent()->setData(0, QVariant::fromValue(static_cast<TreeItem *>(this)), role);
+            announceChange();
             return true;
         }
 
         if (role == ItemActivatedFromBelowRole) {
-            TreeItem *item = data.value<TreeItem *>();
+            TreeItem *item = dat.value<TreeItem *>();
             QTC_ASSERT(item, return false);
             int res = children().indexOf(item);
             QTC_ASSERT(res >= 0, return false);
             m_currentChildIndex = res;
-            parent()->setData(0, QVariant::fromValue(static_cast<TreeItem *>(this)), role);
+            announceChange();
             return true;
         }
 
@@ -257,127 +253,35 @@ public:
             // Someone selected the project using the combobox or similar.
             SessionManager::setStartupProject(m_project);
             m_currentChildIndex = 0; // Use some Target page by defaults
-            m_targetsItem->setData(column, data, ItemActivatedFromAboveRole); // And propagate downwards.
-            parent()->setData(0, QVariant::fromValue(static_cast<TreeItem *>(this)),
-                              ItemActivatedFromBelowRole);
-            return true;
-        }
-
-        if (role == ItemActivatedFromAboveRole) {
-            // Someone selected the project using the combobox or similar.
-            // Do not change the previous active subitem,
-            SessionManager::setStartupProject(m_project);
-            // Downwards.
-            if (m_currentChildIndex == 0)
-                m_targetsItem->setData(column, data, role);
-            else if (m_currentChildIndex == 1)
-                m_miscItem->setData(column, data, role);
-
+            m_targetsItem->setData(column, dat, ItemActivatedFromAboveRole); // And propagate downwards.
+            announceChange();
             return true;
         }
 
         return false;
+    }
+
+    void announceChange()
+    {
+        m_changeListener();
     }
 
     Project *project() const { return m_project; }
 
+    QModelIndex activeIndex() const
+    {
+        TreeItem *activeItem = data(0, ActiveItemRole).value<TreeItem *>();
+        return activeItem ? activeItem->index() : QModelIndex();
+    }
+
 private:
     int m_currentChildIndex = 0; // Start with Build & Run.
-    Project *m_project;
-    TargetGroupItem *m_targetsItem;
-    MiscSettingsGroupItem *m_miscItem;
+    Project *m_project = nullptr;
+    TargetGroupItem *m_targetsItem = nullptr;
+    MiscSettingsGroupItem *m_miscItem = nullptr;
+    const std::function<void ()> m_changeListener;
 };
 
-
-class RootItem : public TypedTreeItem<ProjectItem>
-{
-public:
-    QVariant data(int column, int role) const override
-    {
-        if (role == PanelWidgetRole || role == ActiveItemRole) {
-            if (0 <= m_currentProjectIndex && m_currentProjectIndex < childCount())
-                return childAt(m_currentProjectIndex)->data(column, role);
-        }
-
-        return QVariant();
-    }
-
-    bool setData(int column, const QVariant &data, int role) override
-    {
-        Q_UNUSED(column)
-
-        switch (role) {
-        case ItemActivatedFromBelowRole: {
-            TreeItem *t = data.value<TreeItem *>();
-            QTC_CHECK(t);
-            m_currentProjectIndex = children().indexOf(t);
-            updateAll();
-            updateExternals();
-            return true;
-        }
-        case ItemDeactivatedFromBelowRole: {
-            QTC_CHECK(data.isValid());
-            updateAll();
-            updateExternals();
-            return true;
-        }
-        case ItemActivatedFromAboveRole:
-        case ItemActivatedDirectlyRole: {
-            QTC_CHECK(!data.isValid());
-            updateAll();
-            updateExternals();
-            return true;
-        }
-        }
-
-        return false;
-    }
-
-    void setCurrentProject(int index)
-    {
-        m_currentProjectIndex = index;
-        m_tree->setRootIndex(childAt(index)->index());
-        updateExternals();
-    }
-
-    void updateExternals() const
-    {
-        QTimer::singleShot(0, [this] {
-            // Needs to be async to be run after selection changes
-            // triggered by the normal QTreeView machinery.
-            TreeItem *item = data(0, ActiveItemRole).value<TreeItem *>();
-            QTC_ASSERT(item, return);
-            QWidget *widget = item->data(0, PanelWidgetRole).value<QWidget *>();
-            m_updater(widget);
-            QModelIndex idx = item->index();
-            m_tree->selectionModel()->clear();
-            m_tree->selectionModel()->select(idx, QItemSelectionModel::Select);
-        });
-    }
-
-public:
-    int m_currentProjectIndex = -1;
-    std::function<void(QWidget *)> m_updater;
-    QTreeView *m_tree = 0;
-};
-
-
-//
-// SelectorModel
-//
-
-class SelectorModel : public TreeModel<RootItem, ProjectItem, TreeItem>
-{
-public:
-    SelectorModel(QObject *parent)
-        : TreeModel<RootItem, ProjectItem, TreeItem>(parent)
-    {}
-};
-
-
-//
-// SelectorDelegate
-//
 
 class SelectorDelegate : public QStyledItemDelegate
 {
@@ -385,33 +289,11 @@ public:
     SelectorDelegate() {}
 
     QSize sizeHint(const QStyleOptionViewItem &option,
-                   const QModelIndex &index) const override
-    {
-        QSize s = QStyledItemDelegate::sizeHint(option, index);
-        auto model = static_cast<const SelectorModel *>(index.model());
-        if (TreeItem *item = model->itemForIndex(index)) {
-            switch (item->level()) {
-                case 2: s = QSize(s.width(), 3 * s.height()); break;
-            }
-        }
-        return s;
-    }
+                   const QModelIndex &index) const final;
 
     void paint(QPainter *painter,
-               const QStyleOptionViewItem &option, const QModelIndex &index) const override
-    {
-        auto model = static_cast<const SelectorModel *>(index.model());
-        QStyleOptionViewItem opt = option;
-        if (TreeItem *item = model->itemForIndex(index)) {
-            switch (item->level()) {
-                case 2:
-                    opt.font.setBold(true);
-                    opt.font.setPointSizeF(opt.font.pointSizeF() * 1.2);
-                    break;
-            }
-        }
-        QStyledItemDelegate::paint(painter, opt, index);
-    }
+               const QStyleOptionViewItem &option,
+               const QModelIndex &index) const final;
 };
 
 //
@@ -440,12 +322,146 @@ public:
     }
 
     // remove branch indicators
-    void drawBranches(QPainter *, const QRect &, const QModelIndex &) const override
+    void drawBranches(QPainter *, const QRect &, const QModelIndex &) const final
     {
         return;
     }
 };
 
+class ComboBoxItem : public TreeItem
+{
+public:
+    ComboBoxItem(ProjectItem *item) : m_projectItem(item) {}
+
+    QVariant data(int column, int role) const final
+    {
+        return m_projectItem->data(column, role);
+    }
+
+    ProjectItem *m_projectItem;
+};
+
+using ProjectsModel = TreeModel<TypedTreeItem<ProjectItem>, ProjectItem>;
+using ComboBoxModel = TreeModel<TypedTreeItem<ComboBoxItem>, ComboBoxItem>;
+
+class SelectorModel : public QObject
+{
+public:
+    SelectorModel(QObject *parent, const std::function<void (QWidget *)> &changeListener)
+        : QObject(parent)
+    {
+        m_projectsModel.setHeader({ ProjectWindow::tr("Projects") });
+        m_changeListener = changeListener;
+
+        m_selectorTree = new SelectorTree;
+        m_selectorTree->setModel(&m_projectsModel);
+        m_selectorTree->setItemDelegate(new SelectorDelegate);
+        connect(m_selectorTree, &QAbstractItemView::activated,
+                this, &SelectorModel::itemActivated);
+
+        m_projectSelection = new QComboBox;
+        m_projectSelection->setModel(&m_comboBoxModel);
+        connect(m_projectSelection, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated),
+                this, &SelectorModel::projectSelected, Qt::QueuedConnection);
+
+        SessionManager *sessionManager = SessionManager::instance();
+        connect(sessionManager, &SessionManager::projectAdded,
+                this, &SelectorModel::registerProject);
+        connect(sessionManager, &SessionManager::aboutToRemoveProject,
+                this, &SelectorModel::deregisterProject);
+        connect(sessionManager, &SessionManager::startupProjectChanged,
+                this, &SelectorModel::startupProjectChanged);
+        connect(m_selectorTree, &QWidget::customContextMenuRequested,
+                this, &SelectorModel::openContextMenu);
+    }
+
+    void announceChange()
+    {
+        m_changeListener(m_projectsModel.rootItem()->childAt(0)->data(0, PanelWidgetRole).value<QWidget *>());
+    }
+
+    void updatePanel()
+    {
+        announceChange();
+
+        QModelIndex activeIndex = m_projectsModel.rootItem()->childAt(0)->activeIndex();
+        m_selectorTree->selectionModel()->clear();
+        m_selectorTree->selectionModel()->select(activeIndex, QItemSelectionModel::Select);
+    }
+
+    void registerProject(Project *project)
+    {
+        QTC_ASSERT(itemForProject(project) == nullptr, return);
+        auto projectItem = new ProjectItem(project, [this] { updatePanel(); });
+        m_comboBoxModel.rootItem()->appendChild(new ComboBoxItem(projectItem));
+    }
+
+    void deregisterProject(Project *project)
+    {
+        ComboBoxItem *item = itemForProject(project);
+        QTC_ASSERT(item, return);
+        if (item->m_projectItem->parent())
+            m_projectsModel.takeItem(item->m_projectItem);
+        delete item->m_projectItem;
+        m_comboBoxModel.destroyItem(item);
+    }
+
+    void projectSelected(int index)
+    {
+        Project *project = m_comboBoxModel.rootItem()->childAt(index)->m_projectItem->project();
+        SessionManager::setStartupProject(project);
+    }
+
+    ComboBoxItem *itemForProject(Project *project) const
+    {
+        return m_comboBoxModel.findItemAtLevel<1>([project](ComboBoxItem *item) {
+            return item->m_projectItem->project() == project;
+        });
+    }
+
+    void startupProjectChanged(Project *project)
+    {
+        if (ProjectItem *current = m_projectsModel.rootItem()->childAt(0))
+            m_projectsModel.takeItem(current); // Keep item as such alive.
+        if (!project) // Shutting down.
+            return;
+        ComboBoxItem *comboboxItem = itemForProject(project);
+        QTC_ASSERT(comboboxItem, return);
+        m_projectsModel.rootItem()->appendChild(comboboxItem->m_projectItem);
+        m_projectSelection->setCurrentIndex(comboboxItem->indexInParent());
+        m_selectorTree->expandAll();
+        m_selectorTree->setRootIndex(m_projectsModel.index(0, 0, QModelIndex()));
+        updatePanel();
+    }
+
+    void itemActivated(const QModelIndex &index)
+    {
+        if (TreeItem *item = m_projectsModel.itemForIndex(index))
+            item->setData(0, QVariant(), ItemActivatedDirectlyRole);
+    }
+
+    void openContextMenu(const QPoint &pos)
+    {
+        auto menu = new QMenu;
+        menu->setAttribute(Qt::WA_DeleteOnClose);
+
+        QModelIndex index = m_selectorTree->indexAt(pos);
+        if (TreeItem *item = m_projectsModel.itemForIndex(index))
+            item->setData(0, QVariant::fromValue(menu), ContextMenuItemAdderRole);
+
+        if (menu->actions().isEmpty())
+            delete menu;
+        else
+            menu->popup(m_selectorTree->mapToGlobal(pos));
+    }
+
+public:
+    std::function<void (QWidget *)> m_changeListener;
+    ProjectsModel m_projectsModel;
+    ComboBoxModel m_comboBoxModel;
+    QComboBox *m_projectSelection;
+    SelectorTree *m_selectorTree;
+};
 
 //
 // ProjectWindow
@@ -455,43 +471,10 @@ ProjectWindow::ProjectWindow()
 {
     setBackgroundRole(QPalette::Base);
 
-    m_selectorModel = new SelectorModel(this);
-    m_selectorModel->setHeader({ tr("Projects") });
-    m_selectorModel->rootItem()->m_updater = [this](QWidget *panel) {
-        if (QWidget *widget = centralWidget()) {
-            takeCentralWidget();
-            widget->hide(); // Don't delete.
-        }
-        if (panel) {
-            setCentralWidget(panel);
-            panel->show();
-            if (hasFocus()) // we get assigned focus from setFocusToCurrentMode, pass that on
-                panel->setFocus();
-        }
-    };
-
-    m_selectorTree = new SelectorTree;
-    m_selectorTree->setModel(m_selectorModel);
-    m_selectorTree->setItemDelegate(new SelectorDelegate);
-    m_selectorModel->rootItem()->m_tree = m_selectorTree;
-    connect(m_selectorTree, &QAbstractItemView::activated,
-            this, &ProjectWindow::itemActivated);
-
-    m_projectSelection = new QComboBox;
-    m_projectSelection->setModel(m_selectorModel);
-//    m_projectSelection->setProperty("hideicon", true);
-//    m_projectSelection->setProperty("notelideasterisk", true);
-//    m_projectSelection->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-
-    connect(m_projectSelection, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated),
-            this, &ProjectWindow::projectSelected, Qt::QueuedConnection);
+    auto selectorModel = new SelectorModel(this, [this](QWidget *panel) { setPanel(panel); });
 
     auto styledBar = new StyledBar; // The black blob on top of the side bar
     styledBar->setObjectName("ProjectModeStyledBar");
-
-//    auto styledBarLayout = new QHBoxLayout(styledBar);
-//    styledBarLayout->setContentsMargins(0, 0, 0, 0);
-//    styledBarLayout->addWidget(m_projectSelection);
 
     auto selectorView = new QWidget; // Black blob + Project tree + Combobox below.
     selectorView->setObjectName("ProjectSelector"); // Needed for dock widget state saving
@@ -501,40 +484,16 @@ ProjectWindow::ProjectWindow()
     auto innerLayout = new QVBoxLayout;
     innerLayout->setSpacing(10);
     innerLayout->setContentsMargins(14, innerLayout->spacing(), 14, 0);
-    innerLayout->addWidget(m_projectSelection);
-    innerLayout->addWidget(m_selectorTree);
+    innerLayout->addWidget(selectorModel->m_projectSelection);
+    innerLayout->addWidget(selectorModel->m_selectorTree);
 
     auto selectorLayout = new QVBoxLayout(selectorView);
     selectorLayout->setContentsMargins(0, 0, 0, 0);
     selectorLayout->addWidget(styledBar);
     selectorLayout->addLayout(innerLayout);
 
-    m_selectorDock = addDockForWidget(selectorView, true);
-    addDockWidget(Qt::LeftDockWidgetArea, m_selectorDock);
-
-    SessionManager *sessionManager = SessionManager::instance();
-    connect(sessionManager, &SessionManager::projectAdded,
-            this, &ProjectWindow::registerProject);
-    connect(sessionManager, &SessionManager::aboutToRemoveProject,
-            this, &ProjectWindow::deregisterProject);
-    connect(sessionManager, &SessionManager::startupProjectChanged,
-            this, &ProjectWindow::startupProjectChanged);
-    connect(m_selectorTree, &QWidget::customContextMenuRequested,
-            this, &ProjectWindow::openContextMenu);
-}
-
-void ProjectWindow::openContextMenu(const QPoint &pos)
-{
-    auto menu = new QMenu;
-    menu->setAttribute(Qt::WA_DeleteOnClose);
-
-    QModelIndex index = m_selectorTree->indexAt(pos);
-    m_selectorModel->setData(index, QVariant::fromValue(menu), ContextMenuItemAdderRole);
-
-    if (menu->actions().isEmpty())
-        delete menu;
-    else
-        menu->popup(m_selectorTree->mapToGlobal(pos));
+    auto selectorDock = addDockForWidget(selectorView, true);
+    addDockWidget(Qt::LeftDockWidgetArea, selectorDock);
 }
 
 void ProjectWindow::contextMenuEvent(QContextMenuEvent *event)
@@ -543,63 +502,48 @@ void ProjectWindow::contextMenuEvent(QContextMenuEvent *event)
     // Do nothing to avoid creation of the dock window selection menu.
 }
 
-void ProjectWindow::registerProject(Project *project)
+void ProjectWindow::setPanel(QWidget *panel)
 {
-    QTC_ASSERT(itemForProject(project) == nullptr, return);
-
-    auto newTab = new ProjectItem(project);
-
-    m_selectorModel->rootItem()->appendChild(newTab);
-
-    // FIXME: Add a TreeModel::insert(item, comparator)
-    m_selectorModel->rootItem()->sortChildren([this](const ProjectItem *a, const ProjectItem *b) {
-        Project *pa = a->project();
-        Project *pb = b->project();
-        QString aName = pa->displayName();
-        QString bName = pb->displayName();
-        if (aName != bName)
-            return aName < bName;
-        FileName aPath = pa->projectFilePath();
-        FileName bPath = pb->projectFilePath();
-        if (aPath != bPath)
-            return aPath < bPath;
-        return pa < pb;
-    });
-
-    m_selectorTree->expandAll();
-}
-
-void ProjectWindow::deregisterProject(Project *project)
-{
-    delete m_selectorModel->takeItem(itemForProject(project));
-}
-
-void ProjectWindow::startupProjectChanged(Project *project)
-{
-    if (ProjectItem *projectItem = itemForProject(project)) {
-        int index = projectItem->indexInParent();
-        QTC_ASSERT(index != -1, return);
-        m_projectSelection->setCurrentIndex(index);
-        m_selectorModel->rootItem()->setCurrentProject(index);
+    if (QWidget *widget = centralWidget()) {
+        takeCentralWidget();
+        widget->hide(); // Don't delete.
+    }
+    if (panel) {
+        setCentralWidget(panel);
+        panel->show();
+        if (hasFocus()) // we get assigned focus from setFocusToCurrentMode, pass that on
+            panel->setFocus();
     }
 }
 
-void ProjectWindow::projectSelected(int index)
+QSize SelectorDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    Project *project = m_selectorModel->rootItem()->childAt(index)->project();
-    SessionManager::setStartupProject(project);
+    QSize s = QStyledItemDelegate::sizeHint(option, index);
+    auto model = static_cast<const ProjectsModel *>(index.model());
+    if (TreeItem *item = model->itemForIndex(index)) {
+        switch (item->level()) {
+        case 2: s = QSize(s.width(), 3 * s.height()); break;
+        }
+    }
+    return s;
 }
 
-void ProjectWindow::itemActivated(const QModelIndex &index)
+void SelectorDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    m_selectorModel->setData(index, QVariant(), ItemActivatedDirectlyRole);
-}
-
-ProjectItem *ProjectWindow::itemForProject(Project *project) const
-{
-    return m_selectorModel->findItemAtLevel<1>([project](ProjectItem *item) {
-        return item->project() == project;
-    });
+    auto model = static_cast<const ProjectsModel *>(index.model());
+    QStyleOptionViewItem opt = option;
+    if (TreeItem *item = model->itemForIndex(index)) {
+        switch (item->level()) {
+        case 2: {
+            QColor col = creatorTheme()->color(Theme::TextColorNormal);
+            opt.palette.setColor(QPalette::Text, col);
+            opt.font.setBold(true);
+            opt.font.setPointSizeF(opt.font.pointSizeF() * 1.2);
+            break;
+            }
+        }
+    }
+    QStyledItemDelegate::paint(painter, opt, index);
 }
 
 } // namespace Internal

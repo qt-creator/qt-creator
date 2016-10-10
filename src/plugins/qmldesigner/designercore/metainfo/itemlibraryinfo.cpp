@@ -50,6 +50,7 @@ public:
     QString qml;
     QString qmlSource;
     QString requiredImport;
+    QHash<QString, QString> hints;
 };
 
 } // namespace Internal
@@ -84,6 +85,11 @@ void ItemLibraryEntry::addProperty(const Property &property)
 QList<ItemLibraryEntry::Property> ItemLibraryEntry::properties() const
 {
     return m_data->properties;
+}
+
+QHash<QString, QString> ItemLibraryEntry::hints() const
+{
+    return m_data->hints;
 }
 
 ItemLibraryEntry::ItemLibraryEntry() : m_data(new Internal::ItemLibraryEntryData)
@@ -189,6 +195,11 @@ void ItemLibraryEntry::setRequiredImport(const QString &requiredImport)
     m_data->requiredImport = requiredImport;
 }
 
+void ItemLibraryEntry::addHints(const QHash<QString, QString> &hints)
+{
+    m_data->hints.unite(hints);
+}
+
 void ItemLibraryEntry::addProperty(PropertyName &name, QString &type, QVariant &value)
 {
     Property property;
@@ -206,6 +217,7 @@ QDataStream& operator<<(QDataStream& stream, const ItemLibraryEntry &itemLibrary
     stream << itemLibraryEntry.libraryEntryIconPath();
     stream << itemLibraryEntry.category();
     stream << itemLibraryEntry.requiredImport();
+    stream << itemLibraryEntry.hints();
 
     stream << itemLibraryEntry.m_data->properties;
     stream << itemLibraryEntry.m_data->qml;
@@ -224,6 +236,7 @@ QDataStream& operator>>(QDataStream& stream, ItemLibraryEntry &itemLibraryEntry)
     stream >> itemLibraryEntry.m_data->libraryEntryIconPath;
     stream >> itemLibraryEntry.m_data->category;
     stream >> itemLibraryEntry.m_data->requiredImport;
+    stream >> itemLibraryEntry.m_data->hints;
 
     stream >> itemLibraryEntry.m_data->properties;
     stream >> itemLibraryEntry.m_data->qml;
@@ -242,6 +255,7 @@ QDebug operator<<(QDebug debug, const ItemLibraryEntry &itemLibraryEntry)
     debug << itemLibraryEntry.m_data->libraryEntryIconPath;
     debug << itemLibraryEntry.m_data->category;
     debug << itemLibraryEntry.m_data->requiredImport;
+    debug << itemLibraryEntry.m_data->hints;
 
     debug << itemLibraryEntry.m_data->properties;
     debug << itemLibraryEntry.m_data->qml;

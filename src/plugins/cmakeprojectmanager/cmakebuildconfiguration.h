@@ -26,6 +26,7 @@
 #pragma once
 
 #include "cmakeconfigitem.h"
+#include "cmakeproject.h"
 #include "configmodel.h"
 
 #include <projectexplorer/buildconfiguration.h>
@@ -52,8 +53,6 @@ public:
     CMakeBuildConfiguration(ProjectExplorer::Target *parent);
     ~CMakeBuildConfiguration();
 
-    void cmakeFilesChanged();
-
     bool isEnabled() const override;
     QString disabledReason() const override;
 
@@ -72,13 +71,17 @@ public:
     QString error() const;
     QString warning() const;
 
-    BuildDirManager *buildDirManager() const;
-
     bool isParsing() const;
 
     void maybeForceReparse();
     void resetData();
     bool persistCMakeState();
+    bool updateCMakeStateBeforeBuild();
+    void runCMake();
+    void clearCache();
+
+    QList<CMakeBuildTarget> buildTargets() const;
+    void generateProjectTree(CMakeProjectNode *root) const;
 
     static Utils::FileName
     shadowBuildDirectory(const Utils::FileName &projectFilePath, const ProjectExplorer::Kit *k,
@@ -109,7 +112,7 @@ private:
 
     mutable QList<CMakeConfigItem> m_completeConfigurationCache;
 
-    BuildDirManager *m_buildDirManager = nullptr;
+    BuildDirManager *const m_buildDirManager = nullptr;
 
     friend class CMakeBuildSettingsWidget;
     friend class CMakeProjectManager::CMakeProject;

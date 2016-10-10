@@ -646,33 +646,11 @@ struct NetworkProfile {};
 struct QmlProfile {};
 struct QmlPrivateProfile {};
 
+struct NimProfile {};
+
 struct BigArrayProfile {};
 
-struct DataBase
-{
-    DataBase()
-      : useQt(false), useQHash(false),
-        forceC(false), engines(AllEngines),
-        glibcxxDebug(false), useDebugImage(false),
-        bigArray(false)
-    {}
-
-    mutable bool useQt;
-    mutable bool useQHash;
-    mutable bool forceC;
-    mutable int engines;
-    mutable bool glibcxxDebug;
-    mutable bool useDebugImage;
-    mutable bool bigArray;
-    mutable GdbVersion neededGdbVersion;     // DEC. 70600
-    mutable LldbVersion neededLldbVersion;
-    mutable QtVersion neededQtVersion;       // HEX! 0x50300
-    mutable GccVersion neededGccVersion;     // DEC. 40702  for 4.7.2
-    mutable ClangVersion neededClangVersion; // DEC.
-    mutable BoostVersion neededBoostVersion; // DEC. 105400 for 1.54.0
-};
-
-class Data : public DataBase
+class Data
 {
 public:
     Data() {}
@@ -854,14 +832,37 @@ public:
 
     const Data &operator+(const ForceC &) const
     {
-        forceC = true;
+        mainFile = "main.c";
         return *this;
     }
 
 public:
+    mutable bool useQt = false;
+    mutable bool useQHash = false;
+    mutable int engines = AllEngines;
+    mutable int skipLevels = 0;              // Levels to go 'up' before dumping variables.
+    mutable bool glibcxxDebug = false;
+    mutable bool useDebugImage = false;
+    mutable bool bigArray = false;
+    mutable GdbVersion neededGdbVersion;     // DEC. 70600
+    mutable LldbVersion neededLldbVersion;
+    mutable QtVersion neededQtVersion;       // HEX! 0x50300
+    mutable GccVersion neededGccVersion;     // DEC. 40702  for 4.7.2
+    mutable ClangVersion neededClangVersion; // DEC.
+    mutable BoostVersion neededBoostVersion; // DEC. 105400 for 1.54.0
+
+    mutable QString configTest;
+
+    mutable QString allProfile;      // Overrides anything below if not empty.
+    mutable QString allCode;         // Overrides anything below if not empty.
+
+    mutable QString mainFile = "main.cpp";
+    mutable QString projectFile = "doit.pro";
+
     mutable QString profileExtra;
     mutable QString includes;
     mutable QString code;
+
     mutable QList<Check> checks;
 };
 
@@ -1150,28 +1151,42 @@ void tst_Dumpers::dumper()
                 + QByteArray::number(data.neededGccVersion.max));
     }
 
-    const char *mainFile = data.forceC ? "main.c" : "main.cpp";
+    if (!data.configTest.isEmpty()) {
+        QProcess configTest;
+        configTest.start(data.configTest);
+        QVERIFY(configTest.waitForFinished());
+        output = configTest.readAllStandardOutput();
+        error = configTest.readAllStandardError();
+        if (configTest.exitCode()) {
+            MSKIP_SINGLE("Configure test failed: '"
+                + data.configTest.toUtf8() + "' " + output + ' ' + error);
+        }
+    }
 
-    QFile proFile(t->buildPath + QLatin1String("/doit.pro"));
+    QFile proFile(t->buildPath + '/' + data.projectFile);
     QVERIFY(proFile.open(QIODevice::ReadWrite));
-    proFile.write("SOURCES = ");
-    proFile.write(mainFile);
-    proFile.write("\nTARGET = doit\n");
-    proFile.write("\nCONFIG -= app_bundle\n");
-    proFile.write("\nCONFIG -= release\n");
-    proFile.write("\nCONFIG += debug\n");
-    if (data.useQt)
-        proFile.write("QT -= widgets gui\n");
-    else
-        proFile.write("CONFIG -= QT\n");
-    if (m_useGLibCxxDebug)
-        proFile.write("DEFINES += _GLIBCXX_DEBUG\n");
-    if (m_debuggerEngine == GdbEngine && m_debuggerVersion < 70500)
-        proFile.write("QMAKE_CXXFLAGS += -gdwarf-3\n");
-    proFile.write(data.profileExtra.toUtf8());
+    if (data.allProfile.isEmpty()) {
+        proFile.write("SOURCES = ");
+        proFile.write(data.mainFile.toUtf8());
+        proFile.write("\nTARGET = doit\n");
+        proFile.write("\nCONFIG -= app_bundle\n");
+        proFile.write("\nCONFIG -= release\n");
+        proFile.write("\nCONFIG += debug\n");
+        if (data.useQt)
+            proFile.write("QT -= widgets gui\n");
+        else
+            proFile.write("CONFIG -= QT\n");
+        if (m_useGLibCxxDebug)
+            proFile.write("DEFINES += _GLIBCXX_DEBUG\n");
+        if (m_debuggerEngine == GdbEngine && m_debuggerVersion < 70500)
+            proFile.write("QMAKE_CXXFLAGS += -gdwarf-3\n");
+        proFile.write(data.profileExtra.toUtf8());
+    } else {
+        proFile.write(data.allProfile.toUtf8());
+    }
     proFile.close();
 
-    QFile source(t->buildPath + QLatin1Char('/') + QLatin1String(mainFile));
+    QFile source(t->buildPath + QLatin1Char('/') + data.mainFile);
     QVERIFY(source.open(QIODevice::ReadWrite));
     QString fullCode = QString() +
             "\n\n#if defined(_MSC_VER)" + (data.useQt ?
@@ -1234,6 +1249,8 @@ void tst_Dumpers::dumper()
             "\n    BREAK;"
             "\n    return 0;"
             "\n}\n";
+    if (!data.allCode.isEmpty())
+        fullCode = data.allCode;
     source.write(fullCode.toUtf8());
     source.close();
 
@@ -1251,7 +1268,12 @@ void tst_Dumpers::dumper()
     output = qmake.readAllStandardOutput();
     error = qmake.readAllStandardError();
     //qDebug() << "stdout: " << output;
-    if (!error.isEmpty()) { qDebug() << error; QVERIFY(false); }
+
+    if (data.allProfile.isEmpty()) { // Nim...
+        if (!error.isEmpty()) {
+            qDebug() << error; QVERIFY(false);
+        }
+    }
 
     QProcess make;
     make.setWorkingDirectory(t->buildPath);
@@ -1267,7 +1289,7 @@ void tst_Dumpers::dumper()
         qDebug() << "\n------------------ CODE --------------------";
         qDebug() << fullCode;
         qDebug() << "\n------------------ CODE --------------------";
-        qDebug() << ".pro: " << qPrintable(proFile.fileName());
+        qDebug() << "Project file: " << qPrintable(proFile.fileName());
     }
 
     QByteArray dumperDir = DUMPERDIR;
@@ -1321,6 +1343,7 @@ void tst_Dumpers::dumper()
                 "python from gdbbridge import *\n"
                 "python theDumper.setupDumpers()\n"
                 "run " + nograb + "\n"
+                "up " + QString::number(data.skipLevels) + "\n"
                 "python theDumper.fetchVariables({"
                     "'token':2,'fancy':1,'forcens':1,"
                     "'autoderef':1,'dyntype':1,'passexceptions':1,"
@@ -5022,13 +5045,13 @@ void tst_Dumpers::dumper_data()
 
                + Check("s", "", "S")
                + Check("s.b", "0", "bool")
-               + Check("s.c", "1", "bool")
+               + Check("s.c", "1", "bool : 1")
                + Check("s.f", FloatValue("5"), "float")
                + Check("s.d", FloatValue("6"), "double")
                + Check("s.i", "7", "int")
-               + Check("s.x", "2", "unsigned int")
-               + Check("s.y", "3", "unsigned int")
-               + Check("s.z", "39", "unsigned int");
+               + Check("s.x", "2", "unsigned int : 3")
+               + Check("s.y", "3", "unsigned int : 4")
+               + Check("s.z", "39", "unsigned int : 18");
 
 
     QTest::newRow("Function")
@@ -6170,9 +6193,9 @@ void tst_Dumpers::dumper_data()
                     "#include <QJSEngine>\n",
                     "QGuiApplication app(argc, argv);\n"
                     "QJSEngine eng;\n\n"
-                    "QV4::Value q0; unused(&q0);\n\n"
-                    "QV4::Value q1; unused(&q1);\n"
-                    "q1.setInt_32(1);\n\n"
+                    "//QV4::Value q0; unused(&q0); // Uninitialized data.\n\n"
+                    "//QV4::Value q1; unused(&q1); // Upper 32 bit uninitialized.\n"
+                    "//q1.setInt_32(1);\n\n"
                     "QV4::Value q2; unused(&q2);\n"
                     "q2.setDouble(2.5);\n\n"
                     "QJSValue v10; unused(&v10);\n"
@@ -6181,7 +6204,7 @@ void tst_Dumpers::dumper_data()
                     "QJSValue v13 = QJSValue(2.5); unused(&v13);\n"
                     "QJSValue v14 = QJSValue(QLatin1String(\"latin1\")); unused(&v14);\n"
                     "QJSValue v15 = QJSValue(QString(\"utf16\")); unused(&v15);\n"
-                    "QJSValue v16 = QJSValue(bool(true)); unused(&v12);\n"
+                    "QJSValue v16 = QJSValue(bool(true)); unused(&v16);\n"
                     "QJSValue v17 = eng.newArray(100); unused(&v17);\n"
                     "QJSValue v18 = eng.newObject(); unused(&v18);\n\n"
                     "v18.setProperty(\"PropA\", 1);\n"
@@ -6198,8 +6221,6 @@ void tst_Dumpers::dumper_data()
                     )
             + QmlPrivateProfile()
             + QtVersion(0x50000)
-            //+ Check("q0", "(null)", "@QV4::Value (null)") # Works in GUI. Why?
-            + Check("q1", "1", "@QV4::Value (int32)")
             + Check("q2", FloatValue("2.5"), "@QV4::Value (double)")
             //+ Check("v10", "(null)", "@QJSValue (null)") # Works in GUI. Why?
             + Check("v11", "true", "@QJSValue (bool)")
@@ -6209,6 +6230,54 @@ void tst_Dumpers::dumper_data()
             + Check("v14.2", "[2]", "116", "@QChar")
             + Check("v15", "\"utf16\"", "@QJSValue (QString)")
             + Check("v15.1", "[1]", "116", "@QChar");
+
+#ifdef Q_OS_LINUX
+    // Hint: To open a failing test in Creator, do:
+    //  touch qt_tst_dumpers_Nim_.../dummy.nimproject
+    //  qtcreator qt_tst_dumpers_Nim_*/dummy.nimproject
+    Data nimData;
+    nimData.configTest = "which nim";
+    nimData.allProfile =
+        "CONFIG -= qt\n"
+        "# Prevents linking\n"
+        "TARGET=\n"
+        "# Overwrites qmake-generated 'all' target.\n"
+        "all.commands = nim c --debugInfo --lineDir:on --out:doit main.nim\n"
+        "all.depends = main.nim\n"
+        "all.CONFIG = phony\n\n"
+        "QMAKE_EXTRA_TARGETS += all\n";
+    nimData.allCode =
+        "type Mirror = ref object\n"
+        "  tag:int\n"
+        "  other:array[0..1, Mirror]\n\n"
+        "proc mainProc =\n"
+        "  var name: string = \"Hello World\"\n"
+        "  var i: int = 43\n"
+        "  var x: seq[int]\n"
+        "  x = @[1, 2, 3, 4, 5, 6]\n\n"
+        "  # Crash it.\n"
+        "  var m1 = Mirror(tag:1)\n"
+        "  var m2 = Mirror(tag:2)\n"
+        "  var m3 = Mirror(tag:3)\n\n"
+        "  m1.other[0] = m2; m1.other[1] = m3\n"
+        "  m2.other[0] = m1; m2.other[1] = m3\n"
+        "  m3.other[0] = m1; m3.other[1] = m2\n\n"
+        "  for i in 1..30000:\n"
+        //"    echo i\n"
+        "    var mx : Mirror; mx.deepCopy(m1)\n"
+        "    m1 = mx\n\n"
+        "if isMainModule:\n"
+        "  mainProc()\n";
+    nimData.mainFile = "main.nim";
+    nimData.skipLevels = 15;
+
+    QTest::newRow("Nim")
+        << nimData
+        + GdbEngine
+        + Check("name", "\"Hello World\"", "NimStringDesc")
+        + Check("x", "<6 items>", Pattern("TY.*NI.6..")) // Something like "TY95019 (NI[6])"
+        + Check("x.2", "[2]", "3", "NI");
+#endif
 }
 
 int main(int argc, char *argv[])

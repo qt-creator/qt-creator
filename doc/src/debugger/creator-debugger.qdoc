@@ -902,100 +902,125 @@
     structures, but it does usually not give enough insight into more complex
     structures, such as \c QObjects or associative containers. These items are
     internally represented by a complex arrangement of pointers, often highly
-    optimized, with part of the data not directly accessible through either
-    sub-structures or pointers.
+    optimized, with part of the data not directly accessible through neither
+    sub-structures nor pointers.
 
-    To give the user simple access also to these items, \QC employs so-called
-    \e{debugging helpers}. Debugging helpers come in two varieties, a compiled
-    one, for use with the CDB backend, and a set of Python scripts for use with
-    the GDB and LLDB backends.
-
+    To give the user simple access also to these items, \QC employs Python
+    scripts that are called \e {debugging helpers}.
     Debugging helpers are always automatically used. To force a plain C-like
     display of structures, select \uicontrol Tools > \uicontrol Options >
     \uicontrol Debugger > \uicontrol {Locals & Expressions}, and then deselect
-    the \uicontrol {Use Debugging Helper} check box. For GDB and LLDB this will
-    still use the Python scripts, but generate more basic output. To force plain
-    display for a single object or for all objects of a given type, select the
+    the \uicontrol {Use Debugging Helper} check box. This will still use the
+    Python scripts, but generate more basic output. To force the plain display
+    for a single object or for all objects of a given type, select the
     corresponding option from the context menu.
 
-    \QC ships with debugging helpers for more than 130 of the most popular Qt
-    classes, Standard C++ containers and smart pointers, covering the usual
+    \QC ships with debugging helpers for more than 200 of the most popular Qt
+    classes, standard C++ containers, and smart pointers, covering the usual
     needs of a C++ application developer out-of-the-box.
 
-    \section1 Extending GDB and LLDB Debugging Helpers
+    \section1 Extending Debugging Helpers
 
-    When using either GDB or LLDB as the debugging backend, \QC uses Python
-    scripts to display information in the \uicontrol {Locals and Expressions}
+    \QC uses Python scripts to translate raw memory contents and type information
+    data from native debugger backends (GDB, LLDB, and CDB are currently supported)
+    into the form presented to the user in the  \uicontrol {Locals and Expressions}
     view.
 
-    You can easily extend these scripts to cover your own types, using the same
-    code for both the GDB and the LLDB backend. No compilation is required, just
-    adding a few lines of Python. The scripts can address multiple versions of
-    Qt, or of your own library, at the same time.
+    Unlike GDB's
+    \l{https://sourceware.org/gdb/onlinedocs/gdb/Pretty-Printing.html#Pretty-Printing}
+    {pretty printers} and LLDB's \l{http://lldb.llvm.org/varformats.html}
+    {data formatters}, Qt Creator's debugging helpers are independent of the
+    native debugging backend. That is, the same code can be used with GDB on
+    Linux, LLDB on macOS, and CDB on Windows, or any other platform on which at
+    least one of the three supported backends is available.
 
-    To extend the shipped Python based debugging helpers for custom types, add
-    debugging helper implementations to the GDB startup file \c{~/.gdbinit}, or
-    specify them directly in the \uicontrol {Additional Startup Commands} in
-    \uicontrol Tools > \uicontrol Options > \uicontrol Debugger >
-    \uicontrol GDB.
+    To add debugging helpers for your own types, no compilation is required,
+    just adding a few lines of Python. The scripts can address multiple versions
+    of Qt, or of your own library, at the same time.
+
+    To add debugging helpers for custom types, add debugging helper
+    implementations to the startup file of the native debuggers (for example,
+    \c{~/.gdbinit} or \c{~/.lldbinit}) or specify them directly in the
+    \uicontrol {Additional Startup Commands} in \uicontrol Tools >
+    \uicontrol Options > \uicontrol Debugger > \uicontrol GDB.
+
+    \section2 Debugging Helper Overview
 
     The implementation of a debugging helper typically consists of a single
     Python function, which needs to be named \c{qdump__NS__Foo}, where
     \c{NS::Foo} is the class or class template to be examined. Note that the
-    \c{::} scope resolution operator is replaced by double underscores \c{__}.
+    \c{::} scope resolution operator is replaced by double underscores: \c{__}.
     Nested namespaces are possible.
 
-    The debugger plugin calls this function whenever you want to display an
+    \QC's debugger plugin calls this function whenever you want to display an
     object of this type. The function is passed the following parameters:
 
     \list
 
-       \li \c d of type \c Dumper, an object containing current settings and
-            providing facilities to build up an object representing part of the
-            Locals and Expressions view,
+        \li \c d of type \c Dumper, an object containing the current settings and
+            providing facilities to build up an object representing a part of
+            the \uicontrol {Locals and Expressions} view.
 
-       \li \c value of type \c Value, wrapping either a
-           \l{https://sourceware.org/gdb/onlinedocs/gdb/Values-From-Inferior.html}{gdb.Value}
-           or an
-           \l{http://lldb.llvm.org/cpp_reference/html/classlldb_1_1SBValue.html}{lldb.SBValue}.
+        \li \c value of type \c Value, wrapping either a
+            \l{https://sourceware.org/gdb/onlinedocs/gdb/Values-From-Inferior.html}
+            {gdb.Value} or an
+            \l{http://lldb.llvm.org/cpp_reference/html/classlldb_1_1SBValue.html}
+            {lldb.SBValue}.
 
     \endlist
 
     The \c{qdump__*} function has to feed the Dumper object with certain
-    information which is used to build up the object and its children's display
+    information that is used to build up the object and its children's display
     in the \uicontrol {Locals and Expressions} view.
 
     Example:
 
     \code
     def qdump__QFiniteStack(d, value):
-        alloc = int(value["_alloc"])
-        size = int(value["_size"])
+        alloc = value["_alloc"].integer()
+        size = value["_size"].integer()
         d.putItemCount(size)
-        d.putNumChild(size)
         if d.isExpanded():
-            innerType = d.templateArgument(value.type, 0)
-            d.putArrayData(innerType, value["_array"], size)
+            d.putArrayData(value.type[0], value["_array"], size)
     \endcode
 
     \note To create dumper functions usable with both LLDB and GDB backends,
-    avoid direct access to the \c gdb.* and \c lldb.* namespaces and use
+    avoid direct access to the \c gdb.* and \c lldb.* namespaces and use the
     functions of the \c Dumper class instead.
 
-    \section2 Dumper Class
+    Debugging helpers can be set up to be called whenever a type name matches
+    a regular expression. To do so, the debugging helper's function name must
+    begin with \c{qdump__} (with two underscore characters). In addition,
+    the function needs to have a third parameter called \c regex with a default
+    value that specifies the regular expression that the type name should match.
+
+    For example, the Nim 0.12 compiler assigns artificial names, such as \c{TY1}
+    and \c{TY2}, to all generic sequences it compiles. To visualize these in
+    \QC, the following debugging helper may be used:
+
+    \code
+    def qdump__NimGenericSequence__(d, value, regex = "^TY.*$"):
+        size = value["Sup"]["len"]
+        base = value["data"].dereference()
+        typeobj = base.dereference().type
+        d.putArrayData(base, size, typeobj)
+    \endcode
+
+    \section2 Debugging Helper Implementation
+
+    A debugging helper creates a description of the displayed data item
+    in a format that is similar to GDB/MI and JSON.
 
     For each line in the \uicontrol {Locals and Expressions} view, a string like
     the following needs to be created and channeled to the debugger plugin.
 
     \code
-    {iname='some internal name',           # optional
-      addr='object address in memory',      # optional
+    { iname='some internal name',           # optional
+      address='object address in memory',   # optional
       name='contents of the name column',   # optional
       value='contents of the value column',
       type='contents of the type column',
       numchild='number of children',        # zero/nonzero is sufficient
-      childtype='default type of children', # optional
-      childnumchild='default number of grandchildren', # optional
       children=[              # only needed if item is expanded in view
          {iname='internal name of first child',
            },
@@ -1006,99 +1031,42 @@
     \endcode
 
     The value of the \c iname field is the internal name of the object,
-    constituting a dot-separated list of identifiers, corresponding to the
+    which consists of a dot-separated list of identifiers, corresponding to the
     position of the object's representation in the view. If it is not present,
-    is it generated by concatenating the parent object's iname, a dot, and a
+    it is generated by concatenating the parent object's \c iname, a dot, and a
     sequential number.
 
     The value of the \c name field is displayed in the \uicontrol Name column
     of the view. If it is not specified, a simple number in brackets is used
     instead.
 
-    While in theory you can build up the entire string above manually, it is
-    easier to employ the Dumper Python class for that purpose. The Dumper Python
-    class contains a complete framework to take care of the \c iname and \c addr
-    fields, to handle children of simple types, references, pointers, enums,
-    known and unknown structs as well as some convenience functions to handle
+    As the format is not guaranteed to be stable, it is strongly recommended
+    not to generate the wire format directly, but to use the abstraction
+    layer provided by the Python Dumper classes, specifically the \c{Dumper}
+    class itself, and the \c{Dumper:Value} and \c{Dumper:Type} abstractions.
+
+    These provide a complete framework to take care of the \c iname and \c addr
+    fields, to handle children of simple types, references, pointers, enums, and
+    known and unknown structs, as well as some convenience functions to handle
     common situations.
+
+    \section3 Dumper Class
+
+    The \c Dumper class contains generic bookkeeping, low-level, and convenience
+    functions.
 
     The member functions of the \c Dumper class are the following:
 
     \list
-
-        \li \c{__init__(self)} - Initializes the output to an empty string and
-            empties the child stack. This should not be used in user code.
-
-        \li \c{put(self, value)} - Low level function to directly append to the
-            output string. That is also the fastest way to append output.
-
-        \li \c{putField(self, name, value)} - Appends a \c{name='value'} field.
-
-        \li \c{childRange(self)} - Returns the range of children specified in
-            the current \c Children scope.
-
-        \li \c{putItemCount(self, count)} - Appends a field
-            \c {value='<%d items'} to the output.
-
-        \li \c{putName(self, name)} - Appends a \c {name=''} field.
-
-        \li \c{putType(self, type, priority=0)} - Appends a field \c {type=''}
-            unless the \a type coincides with the parent's default child type or
-            \c putType was already called for the current item with a higher
-            value of \c priority.
-
-        \li \c{putBetterType(self, type)} - Overrides the last recorded
-            \c type.
-
-        \li \c{putNumChild(self, numchild)} - Appends a field \c {numchild=''}
-            unless the \c numchild coincides with the parent's default child
-            numchild value.
-
-        \li \c{putValue(self, value, encoding = None)} - Append a file
-            \c {value=''}, optionally followed by a field \c {valueencoding=''}.
-            The \c value needs to be convertible to a string entirely consisting
-            of alphanumerical values. The \c encoding parameter can be used to
-            specify the encoding in case the real value had to be encoded in
-            some way to meet the alphanumerical-only requirement. Currently the
-            following encodings are supported:
-
-        \list
-
-            \li 0: unencoded 8 bit data, interpreted as Latin1.
-
-            \li 1: base64 encoded 8 bit data, used for QByteArray, double quotes
-                are added.
-
-            \li 2: base64 encoded 16 bit data, used for QString, double quotes
-                are added.
-
-            \li 3: base64 encoded 32 bit data, double quotes are added.
-
-            \li 4: base64 encoded 16 bit data, without quotes (see 2)
-
-            \li 5: base64 encoded 8 bit data, without quotes (see 1)
-
-            \li 6: %02x encoded 8 bit data (as with \c QByteArray::toHex),
-                double quotes are added.
-
-            \li 7: %04x encoded 16 bit data (as with \c QByteArray::toHex),
-                double quotes are added.
-        \endlist
-
-        \li \c{putStringValue(self, value)} - Encodes a QString and calls
-            \c putValue with the correct \c encoding setting.
-
-        \li \c{putByteArrayValue(self, value)} - Encodes a QByteArray and calls
-            \c putValue with the correct \c encoding setting.
-
-        \li \c{isExpanded()} - Checks whether the current item is expanded in
-            the view.
+        \li \c{putItem(self, value)} - The \e {master function} that handles
+            basic types, references, pointers, and enums directly, iterates over
+            base classes and class members of compound types, and calls
+            \c qdump__* functions when appropriate.
 
         \li \c{putIntItem(self, name, value)} - Equivalent to:
             \code
             with SubItem(self, name):
                 self.putValue(value)
-                self.putAddress(value.address)
                 self.putType("int")
                 self.putNumChild(0)
             \endcode
@@ -1111,21 +1079,32 @@
                 self.putNumChild(0)
             \endcode
 
-        \li \c{putCallItem(self, name, value, func, *args)} - Uses GDB to call
-            the function \c func on the value specified by \a {value} and output
-            the resulting item. Use \c{putCallItem} only if there is no other
-            way to access the data. Calls cannot be executed when inspecting a
-            core file, they are expensive to execute and have the potential to
-            change the state of the debugged program.
+        \li \c{putCallItem(self, name, value, func, *args)} - Uses the native
+            debugger backend to place the function call \c func on the value
+            specified by \a {value} and output the resulting item.
 
-        \li \c{putArrayData(self, type, address, size)} - Creates \c size
-            children of type \c type of an array-like object located at
-            \c address.
+            Native calls are extremely powerful and can leverage existing
+            debugging or logging facilities in the debugged process, for
+            example. However, they should only be used in a controlled
+            environment, and only if there is no other way to access the data,
+            for the following reasons:
 
-        \li \c{putItem(self, value)} - The "master function", handling basic
-            types, references, pointers and enums directly, iterates over base
-            classes and class members of compound types and calls \c qdump__*
-            functions whenever appropriate.
+            \list
+
+                \li Direct execution of code is dangerous. It runs native code
+                    with the privileges of the debugged process, with the
+                    potential to not only corrupt the debugged process, but also
+                    to access the disk and network.
+
+                \li Calls cannot be executed when inspecting a core file.
+
+                \li Calls are expensive to set up and execute in the debugger.
+
+            \endlist
+
+        \li \c{putArrayData(self, type, address, itemCount)} - Creates the
+            number of children specified by \c itemCount of the type \c type of
+            an array-like object located at \c address.
 
         \li \c{putSubItem(self, component, value)} - Equivalent to:
             \code
@@ -1141,9 +1120,247 @@
                 d.put('value="<invalid>",type="<unknown>",numchild="0",')
             \endcode
 
+        \li \c{put(self, value)} - A low-level function to directly append to
+            the output string. That is also the fastest way to append output.
+
+        \li \c{putField(self, name, value)} - Appends a \c{name='value'} field.
+
+        \li \c{childRange(self)} - Returns the range of children specified in
+            the current \c Children scope.
+
+        \li \c{putItemCount(self, count)} - Appends the field
+            \c {value='<%d items>'} to the output.
+
+        \li \c{putName(self, name)} - Appends the \c {name=''} field.
+
+        \li \c{putType(self, type, priority=0)} - Appends the field \c {type=''},
+            unless the \a type coincides with the parent's default child type or
+            \c putType was already called for the current item with a higher
+            value of \c priority.
+
+        \li \c{putBetterType(self, type)} - Overrides the last recorded \c type.
+
+        \li \c{putNumChild(self, numchild)} - Announces the existence
+            (\c numchild > 0) or non-existence of child items for the current
+            value. If \c putNumChild is not explicitly called, the
+            existence of child items is implied.
+
+        \li \c{putValue(self, value, encoding = None)} - Appends the file
+            \c {value=''}, optionally followed by the field \c {valueencoding=''}.
+            The \c value needs to be convertible to a string entirely consisting
+            of alphanumerical values. The \c encoding parameter can be used to
+            specify the encoding in case the real value had to be encoded in
+            some way to meet the alphanumerical-only requirement. The parameter
+            \c{encoding} is either a string of the form \c codec:itemsize:quote
+            where \c{codec} is any of \c{latin1}, \c{utf8}, \c{utf16}, \c{ucs4},
+            \c{int}, or \c{float}. \c{itemsize} gives the size of the basic
+            component of the object if it is not implied by \c codec and
+            \c quote specifies whether or not the value should be surrounded by
+            quotes in the display.
+
+            Example:
+
+            \code
+                # Safe transport of quirky data. Put quotes around the result.
+                d.putValue(d.hexencode("ABC\"DEF"), "utf8:1:1")
+            \endcode
+
+        \li \c{putStringValue(self, value)} - Encodes a QString and calls
+            \c putValue with the correct \c encoding setting.
+
+        \li \c{putByteArrayValue(self, value)} - Encodes a QByteArray and calls
+            \c putValue with the correct \c encoding setting.
+
+        \li \c{isExpanded(self)} - Checks whether the current item is expanded in
+            the view.
+
+        \li \c{createType(self, pattern, size = None)} - Creates a \c{Dumper.Type}
+            object. The exact operation depends on \c pattern.
+
+            \list
+
+            \li If \c pattern matches the name of a well-known type, a
+                \c{Dumper.Type} object describing this type is returned.
+
+            \li If \c pattern is the name of a type known to the native backend,
+                the returned type describes the native type.
+
+            \li Otherwise, \c pattern is used to construct a type description by
+                interpreting a sequence of items describing the field of a
+                structure as follows. Field descriptions consist of one or
+                more characters as follows:
+
+                \list
+
+                \li \c q - Signed 8-byte integral value
+                \li \c Q - Unsigned 8-byte integral value
+                \li \c i - Signed 4-byte integral value
+                \li \c I - Unsigned 4-byte integral value
+                \li \c h - Signed 2-byte integral value
+                \li \c H - Unsigned 2-byte integral value
+                \li \c b - Signed 1-byte integral value
+                \li \c B - Unsigned 1-byte integral value
+                \li \c d - 8-byte IEEE 754 floating point value
+                \li \c f - 4-byte IEEE 754 floating point value
+                \li \c p - A pointer, that is, an unsigned integral value of
+                    suitable size according to the target architecture
+                \li \c @ - Suitable padding. The size is determined by the
+                    preceding and following field and the target architecture
+                \li \c <n>s - A blob of <n> bytes, with implied alignment of 1
+                \li \c {<typename>} - A blob of suitable size and suitable
+                    alignment determined by a \c{Dumper.Type} with the name
+                    \c typename
+
+                \endlist
+
+            \endlist
+
     \endlist
 
-    \section2 Children and SubItem Class
+    \section3 Dumper.Type Class
+
+    The \c{Dumper.Type} class describes the type of a piece of data, typically
+    a C++ class or struct, a pointer to a struct, or a primitive type, such as
+    an integral or floating point type.
+
+    Type objects, that is, instances of the \c{Dumper.Type} class, can be
+    created by native debugger backends, usually by evaluating Debug Information
+    built into or shipped alongside the debugged binary, or created on-the-fly
+    by the debugging helper.
+
+    \QC uses the possibility to provide type information on-the-fly for most Qt
+    classes, obliterating the need to use \e Debug builds of Qt for the purpose
+    of object introspection.
+
+    The member functions of the \c{Dumper.Type} class are the following:
+
+    \list
+
+        \li \c{name} - The name of this type as a string, or \c None if the type
+            is anonymous.
+
+        \li \c{size(self)} - Returns the size of an object of this type in
+            bytes.
+
+        \li \c{bitsize(self)} - Returns the size of an object of this type in
+            bits.
+
+        \li \c{(alignment(self)} - Returns the required alignment for objects of
+            this type in bytes.
+
+        \li \c{deference(self)} - Returns the dereferences type for pointer
+            type, \c None otherwise.
+
+        \li \c{pointer(self)} - Returns a pointer type that can be dereferenced
+            to this type.
+
+        \li \c{target(self)} - A convenience function that returns the item type
+            for array types and the dereferenced type for pointers and
+            references.
+
+        \li \c{stripTypedefs(self)} - Returns the underlying type if this type
+            is an alias.
+
+        \li \c{templateArgument(self, position, numeric = False)} - Returns the
+            template parameter located at \c{position} if this is a templated
+            type. If \c numeric is \c True, returns the parameter as an integral
+            value.
+
+        \li \c{fields(self)} - Returns a list of \c{Dumper:Fields} describing
+            the base classes and data members of this type.
+
+    \endlist
+
+
+    \section3 Dumper.Field Class
+
+    The \c{Dumper.Field} class describes a base class or a data member of a type
+    object.
+
+    The member function and properties of the \c{Dumper.Field} class are the
+    following:
+
+    \list
+
+        \li \c{isBaseClass} - Distinguishes between base classes and data
+            members.
+
+        \li \c{fieldType(self)} - Returns the type of this base class or data
+            member.
+
+        \li \c{parentType(self)} - Returns the owning type.
+
+        \li \c{bitsize(self)} - Returns the size of this field in bits.
+
+        \li \c{bitpos(self)} - Returns the offset of this field in the owning
+            type in bits.
+
+    \endlist
+
+
+    \section3 Dumper.Value Class
+
+    The \c{Dumper.Value} class describes a piece of data, such as instances of
+    C++ classes or primitive data types. It can also be used to describe
+    artificial items that have no direct representation in memory, such as
+    file contents, non-contiguous objects, or collections.
+
+    A \c{Dumper.Value} has always an associated \c{Dumper.Type}. The two
+    main representations of the value's actual data are:
+
+    \list
+
+        \li Python object following the Python buffer protocol, such as a Python
+            \c memoryview, or a \c bytes object. The \c size() should match the
+            size of this value's type.
+
+        \li An integral value representing a pointer to the begin of the object
+            in the current address space. The size of the object is given by its
+            type's \c{size()}.
+
+    \endlist
+
+    Knowledge of the internal representation of a \c{Dumper.Value} is typically
+    not required when creating a debugger helper for it.
+
+    The member function and properties of the \c{Dumper.Value} class are the
+    following:
+
+    \list
+
+        \li \c{integer(self)} - Returns an interpretation of this value as a
+            signed integral value of a suitable size.
+
+        \li \c{pointer(self)} - Returns an interpretation of this value as a
+            pointer in the current address space.
+
+        \li \c{members(self)} - Returns a list of \c{Dumper.Value} objects
+            representing the base objects and data members of this value.
+
+        \li \c{dereference(self)} - For values describing pointers, returns the
+            dereferenced value, and \c None otherwise.
+
+        \li \c{cast(self, type)} - Returns a value that has the same data as
+            this value, but the type \c type.
+
+        \li \c{address(self)} - Returns the address of this value if it consists
+            of a contiguous region in the current address space, and \c None
+            otherwise.
+
+        \li \c{data(self)} - Returns the data of this value as a Python \c bytes
+            object.
+
+        \li \c{split(self, pattern)} - Returns a list of values created
+            according to \c pattern from this value's data. Acceptable patterns
+            are the same as for \c{Dumper.createType}.
+
+        \li \c{dynamicTypeName(self)} - Tries to retrieve the name of the
+            dynamic type of this value if this is a base class object. Returns
+            \c None if that is not possible.
+
+    \endlist
+
+    \section3 Children and SubItem Class
 
     The attempt to create child items might lead to errors if data is
     uninitialized or corrupted. To gracefully recover in such situations, use
@@ -1164,7 +1381,6 @@
 
     Example:
     \code
-    d.putNumChild(2)  # Annouce children to make the item expandable in the view.
     if d.isExpanded():
         with Children(d):
             with SubItem(d):

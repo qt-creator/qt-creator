@@ -64,9 +64,9 @@ void CMakeLocatorFilter::prepareSearch(const QString &entry)
         CMakeProject *cmakeProject = qobject_cast<CMakeProject *>(p);
         if (!cmakeProject)
             continue;
-        foreach (const CMakeBuildTarget &ct, cmakeProject->buildTargets()) {
-            if (ct.title.contains(entry)) {
-                Core::LocatorFilterEntry entry(this, ct.title, cmakeProject->projectFilePath().toString());
+        foreach (const QString &title, cmakeProject->buildTargetTitles()) {
+            if (title.contains(entry)) {
+                Core::LocatorFilterEntry entry(this, title, cmakeProject->projectFilePath().toString());
                 entry.extraInfo = FileUtils::shortNativePath(cmakeProject->projectFilePath());
                 m_result.append(entry);
             }

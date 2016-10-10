@@ -117,7 +117,7 @@ void CMakeManager::clearCMakeCache(Project *project)
     if (!bc)
         return;
 
-    bc->buildDirManager()->clearCache();
+    bc->clearCache();
 }
 
 void CMakeManager::runCMake(Project *project)

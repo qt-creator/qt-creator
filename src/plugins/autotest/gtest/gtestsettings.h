@@ -35,8 +35,6 @@ class GTestSettings : public IFrameworkSettings
 public:
     GTestSettings() {}
     QString name() const override;
-    void fromSettings(const QSettings *s) override;
-    void toSettings(QSettings *s) const override;
 
     int iterations = 1;
     int seed = 0;
@@ -45,6 +43,10 @@ public:
     bool repeat = false;
     bool throwOnFailure = false;
     bool breakOnFailure = true;
+
+protected:
+    void fromFrameworkSettings(const QSettings *s) override;
+    void toFrameworkSettings(QSettings *s) const override;
 };
 
 } // namespace Internal

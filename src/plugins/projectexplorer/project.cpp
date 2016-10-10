@@ -714,7 +714,7 @@ Utils::MacroExpander *Project::macroExpander() const
     return &d->m_macroExpander;
 }
 
-ProjectImporter *Project::createProjectImporter() const
+ProjectImporter *Project::projectImporter() const
 {
     return nullptr;
 }

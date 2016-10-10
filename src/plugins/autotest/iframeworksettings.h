@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "autotestconstants.h"
+
 #include <QSettings>
 
 namespace Autotest {
@@ -37,8 +39,28 @@ public:
     virtual ~IFrameworkSettings() {}
 
     virtual QString name() const = 0;
-    virtual void toSettings(QSettings *s) const = 0;
-    virtual void fromSettings(const QSettings *s) = 0;
+
+    void toSettings(QSettings *s) const
+    {
+        s->beginGroup(Constants::SETTINGSGROUP);
+        s->beginGroup(name());
+        toFrameworkSettings(s);
+        s->endGroup();
+        s->endGroup();
+    }
+
+    void fromSettings(QSettings *s)
+    {
+        s->beginGroup(Constants::SETTINGSGROUP);
+        s->beginGroup(name());
+        fromFrameworkSettings(s);
+        s->endGroup();
+        s->endGroup();
+    }
+
+protected:
+    virtual void toFrameworkSettings(QSettings *s) const = 0;
+    virtual void fromFrameworkSettings(const QSettings *s) = 0;
 };
 
 } // namespace Internal

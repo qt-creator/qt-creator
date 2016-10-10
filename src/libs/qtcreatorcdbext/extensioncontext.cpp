@@ -35,6 +35,7 @@
 
 #ifdef WITH_PYTHON
 #include <Python.h>
+#include "pycdbextmodule.h"
 #endif
 
 // wdbgexts.h declares 'extern WINDBG_EXTENSION_APIS ExtensionApis;'
@@ -160,7 +161,10 @@ HRESULT ExtensionContext::initialize(PULONG Version, PULONG Flags)
     *Flags = 0;
 
 #ifdef WITH_PYTHON
+    initCdbextPythonModule();
     Py_Initialize();
+    PyRun_SimpleString("import cdbext");
+    PyRun_SimpleString("import sys");
 #endif
 
     IInterfacePointer<CIDebugClient> client;

@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "abstractremotelinuxdeployservice.h"
+#include "deploymenttimeinfo.h"
 
 #include <projectexplorer/deployablefile.h>
 #include <projectexplorer/target.h>
@@ -44,49 +45,22 @@ namespace RemoteLinux {
 namespace Internal {
 
 namespace {
-class DeployParameters
-{
-public:
-    DeployParameters(const DeployableFile &d, const QString &h, const QString &s)
-        : file(d), host(h), sysroot(s) {}
-
-    bool operator==(const DeployParameters &other) const {
-        return file == other.file && host == other.host && sysroot == other.sysroot;
-    }
-
-    DeployableFile file;
-    QString host;
-    QString sysroot;
-};
-uint qHash(const DeployParameters &p) {
-    return qHash(qMakePair(qMakePair(p.file, p.host), p.sysroot));
-}
-
 enum State { Inactive, SettingUpDevice, Connecting, Deploying };
-
-// TODO: Just change these...
-const char LastDeployedHostsKey[] = "Qt4ProjectManager.MaemoRunConfiguration.LastDeployedHosts";
-const char LastDeployedSysrootsKey[] = "Qt4ProjectManager.MaemoRunConfiguration.LastDeployedSysroots";
-const char LastDeployedFilesKey[] = "Qt4ProjectManager.MaemoRunConfiguration.LastDeployedFiles";
-const char LastDeployedRemotePathsKey[] = "Qt4ProjectManager.MaemoRunConfiguration.LastDeployedRemotePaths";
-const char LastDeployedTimesKey[] = "Qt4ProjectManager.MaemoRunConfiguration.LastDeployedTimes";
-
 } // anonymous namespace
 
 class AbstractRemoteLinuxDeployServicePrivate
 {
 public:
     AbstractRemoteLinuxDeployServicePrivate()
-        : kit(0), connection(0), state(Inactive), stopRequested(false) {}
+        : connection(0), state(Inactive), stopRequested(false) {}
 
     IDevice::ConstPtr deviceConfiguration;
     QPointer<Target> target;
-    Kit *kit;
+
+    DeploymentTimeInfo deployTimes;
     SshConnection *connection;
     State state;
     bool stopRequested;
-
-    QHash<DeployParameters, QDateTime> lastDeployed;
 };
 } // namespace Internal
 
@@ -109,7 +83,7 @@ const Target *AbstractRemoteLinuxDeployService::target() const
 
 const Kit *AbstractRemoteLinuxDeployService::profile() const
 {
-    return d->kit;
+    return d->target ? d->target->kit() : nullptr;
 }
 
 IDevice::ConstPtr AbstractRemoteLinuxDeployService::deviceConfiguration() const
@@ -124,38 +98,18 @@ SshConnection *AbstractRemoteLinuxDeployService::connection() const
 
 void AbstractRemoteLinuxDeployService::saveDeploymentTimeStamp(const DeployableFile &deployableFile)
 {
-    if (!d->target)
-        return;
-    QString systemRoot;
-    if (SysRootKitInformation::hasSysRoot(d->kit))
-        systemRoot = SysRootKitInformation::sysRoot(d->kit).toString();
-    d->lastDeployed.insert(DeployParameters(deployableFile,
-                                            deviceConfiguration()->sshParameters().host,
-                                            systemRoot),
-                           QDateTime::currentDateTime());
+    d->deployTimes.saveDeploymentTimeStamp(deployableFile, profile());
 }
 
 bool AbstractRemoteLinuxDeployService::hasChangedSinceLastDeployment(const DeployableFile &deployableFile) const
 {
-    if (!target())
-        return true;
-    QString systemRoot;
-    if (SysRootKitInformation::hasSysRoot(d->kit))
-        systemRoot = SysRootKitInformation::sysRoot(d->kit).toString();
-    const QDateTime &lastDeployed = d->lastDeployed.value(DeployParameters(deployableFile,
-        deviceConfiguration()->sshParameters().host, systemRoot));
-    return !lastDeployed.isValid()
-        || deployableFile.localFilePath().toFileInfo().lastModified() > lastDeployed;
+    return d->deployTimes.hasChangedSinceLastDeployment(deployableFile, profile());
 }
 
 void AbstractRemoteLinuxDeployService::setTarget(Target *target)
 {
     d->target = target;
-    if (target)
-        d->kit = target->kit();
-    else
-        d->kit = 0;
-    d->deviceConfiguration = DeviceKitInformation::device(d->kit);
+    d->deviceConfiguration = DeviceKitInformation::device(profile());
 }
 
 void AbstractRemoteLinuxDeployService::setDevice(const IDevice::ConstPtr &device)
@@ -218,44 +172,12 @@ bool AbstractRemoteLinuxDeployService::isDeploymentPossible(QString *whyNot) con
 
 QVariantMap AbstractRemoteLinuxDeployService::exportDeployTimes() const
 {
-    QVariantMap map;
-    QVariantList hostList;
-    QVariantList fileList;
-    QVariantList sysrootList;
-    QVariantList remotePathList;
-    QVariantList timeList;
-    typedef QHash<DeployParameters, QDateTime>::ConstIterator DepIt;
-    for (DepIt it = d->lastDeployed.constBegin(); it != d->lastDeployed.constEnd(); ++it) {
-        fileList << it.key().file.localFilePath().toString();
-        remotePathList << it.key().file.remoteDirectory();
-        hostList << it.key().host;
-        sysrootList << it.key().sysroot;
-        timeList << it.value();
-    }
-    map.insert(QLatin1String(LastDeployedHostsKey), hostList);
-    map.insert(QLatin1String(LastDeployedSysrootsKey), sysrootList);
-    map.insert(QLatin1String(LastDeployedFilesKey), fileList);
-    map.insert(QLatin1String(LastDeployedRemotePathsKey), remotePathList);
-    map.insert(QLatin1String(LastDeployedTimesKey), timeList);
-    return map;
+    return d->deployTimes.exportDeployTimes();
 }
 
 void AbstractRemoteLinuxDeployService::importDeployTimes(const QVariantMap &map)
 {
-    const QVariantList &hostList = map.value(QLatin1String(LastDeployedHostsKey)).toList();
-    const QVariantList &sysrootList = map.value(QLatin1String(LastDeployedSysrootsKey)).toList();
-    const QVariantList &fileList = map.value(QLatin1String(LastDeployedFilesKey)).toList();
-    const QVariantList &remotePathList
-        = map.value(QLatin1String(LastDeployedRemotePathsKey)).toList();
-    const QVariantList &timeList = map.value(QLatin1String(LastDeployedTimesKey)).toList();
-    const int elemCount
-        = qMin(qMin(qMin(hostList.size(), fileList.size()),
-              qMin(remotePathList.size(), timeList.size())), sysrootList.size());
-    for (int i = 0; i < elemCount; ++i) {
-        const DeployableFile df(fileList.at(i).toString(), remotePathList.at(i).toString());
-        d->lastDeployed.insert(DeployParameters(df, hostList.at(i).toString(),
-            sysrootList.at(i).toString()), timeList.at(i).toDateTime());
-    }
+    d->deployTimes.importDeployTimes(map);
 }
 
 void AbstractRemoteLinuxDeployService::handleDeviceSetupDone(bool success)

@@ -24,7 +24,8 @@
 ****************************************************************************/
 
 #include "cmakefile.h"
-#include "cmakeproject.h"
+
+#include "builddirmanager.h"
 #include "cmakeprojectconstants.h"
 
 #include <projectexplorer/target.h>
@@ -36,7 +37,7 @@ using namespace Utils;
 namespace CMakeProjectManager {
 namespace Internal {
 
-CMakeFile::CMakeFile(CMakeProject *project, const FileName &fileName) : m_project(project)
+CMakeFile::CMakeFile(BuildDirManager *bdm, const FileName &fileName) : m_buildDirManager(bdm)
 {
     setId("Cmake.ProjectFile");
     setMimeType(QLatin1String(Constants::CMAKEPROJECTMIMETYPE));
@@ -56,7 +57,7 @@ bool CMakeFile::reload(QString *errorString, Core::IDocument::ReloadFlag flag, C
     Q_UNUSED(flag);
 
     if (type != TypePermissions)
-        m_project->handleCmakeFileChanged();
+        m_buildDirManager->handleCmakeFileChange();
     return true;
 }
 

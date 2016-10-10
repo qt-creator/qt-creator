@@ -32,6 +32,9 @@
 #include <QCoreApplication>
 
 namespace ProjectExplorer {
+
+class Target;
+
 namespace Internal {
 
 class TargetItem;

@@ -61,10 +61,8 @@ FORMS += \
     $$PWD/colorsettings.ui \
     $$PWD/colorthemedialog.ui \
     $$PWD/magnifier.ui \
-    $$PWD/navigator.ui \
     $$PWD/navigatorslider.ui \
     $$PWD/search.ui \
-    $$PWD/shapegroupwidget.ui \
     $$PWD/shapestoolbox.ui \
     $$PWD/stateview.ui \
     $$PWD/statistics.ui \
