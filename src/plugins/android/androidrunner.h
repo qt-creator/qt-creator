@@ -76,6 +76,9 @@ signals:
     void adbParametersChanged(const QString &packageName, const QStringList &selector);
     void avdDetected();
 
+    void pidFound(qint64, const QString &name);
+    void pidLost(qint64);
+
 private:
     void checkAVD();
     void launchAVD();

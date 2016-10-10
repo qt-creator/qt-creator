@@ -186,6 +186,16 @@ AndroidDebugSupport::AndroidDebugSupport(AndroidRunConfiguration *runConfig,
             QTC_ASSERT(m_runControl, return);
             m_runControl->showMessage(output, AppOutput);
         });
+
+    QTC_ASSERT(runControl, return);
+    auto formatter = qobject_cast<AndroidOutputFormatter*>(runControl->outputFormatter());
+    QTC_ASSERT(formatter, return);
+    connect(m_runner, &AndroidRunner::pidFound, formatter, &AndroidOutputFormatter::appendPid);
+    connect(m_runner, &AndroidRunner::pidLost, formatter, &AndroidOutputFormatter::removePid);
+    connect(m_runner, &AndroidRunner::remoteProcessFinished, formatter,
+        [formatter] {
+            formatter->removePid(-1);
+        });
 }
 
 void AndroidDebugSupport::handleRemoteProcessStarted(Utils::Port gdbServerPort, Utils::Port qmlPort)
