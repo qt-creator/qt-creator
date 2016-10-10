@@ -241,7 +241,7 @@ PyObject *type_TemplateArgument(Type *self, PyObject *args)
     if (innerTypes.size() <= index)
         Py_RETURN_NONE;
 
-    const std::string &innerType = innerTypes.at(index);
+    const std::string &innerType = SymbolGroupValue::stripConst(innerTypes.at(index));
     if (numeric) {
         try {
             return Py_BuildValue("i", std::stoi(innerType));
