@@ -420,8 +420,8 @@ void CMakeGeneratorKitInformation::upgrade(Kit *k)
         } else {
             info.generator = fullName;
         }
+        setGeneratorInfo(k, info);
     }
-    setGeneratorInfo(k, info);
 }
 
 KitInformation::ItemList CMakeGeneratorKitInformation::toUserOutput(const Kit *k) const
