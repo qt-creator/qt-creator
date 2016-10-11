@@ -110,7 +110,10 @@ Item {
         id: menu
 
 
-        onAboutToShow: exportMenuItem.checked = backendValue.hasPropertyAlias()
+        onAboutToShow: {
+            exportMenuItem.checked = backendValue.hasPropertyAlias()
+            exportMenuItem.enabled = !backendValue.isAttachedProperty()
+        }
 
         Controls.MenuItem {
             text: qsTr("Reset")

@@ -315,6 +315,14 @@ bool PropertyEditorValue::hasPropertyAlias() const
     return false;
 }
 
+bool PropertyEditorValue::isAttachedProperty() const
+{
+    if (nameAsQString().isEmpty())
+        return false;
+
+    return nameAsQString().at(0).isUpper();
+}
+
 void PropertyEditorValue::removeAliasExport()
 {
     emit removeAliasExportRequested(nameAsQString());

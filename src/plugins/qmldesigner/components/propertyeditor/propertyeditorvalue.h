@@ -125,6 +125,7 @@ public:
 
     Q_INVOKABLE void exportPopertyAsAlias();
     Q_INVOKABLE bool hasPropertyAlias() const;
+    Q_INVOKABLE bool isAttachedProperty() const;
     Q_INVOKABLE void removeAliasExport();
 
 public slots:
