@@ -279,9 +279,9 @@ int LogItemDelegate::currentRow() const
     return m_widget->commitIndex();
 }
 
-IconItemDelegate::IconItemDelegate(LogChangeWidget *widget, const QString &icon)
+IconItemDelegate::IconItemDelegate(LogChangeWidget *widget, const Utils::Icon &icon)
     : LogItemDelegate(widget)
-    , m_icon(icon)
+    , m_icon(icon.icon())
 {
 }
 

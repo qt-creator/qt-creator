@@ -743,7 +743,7 @@ class RebaseItemDelegate : public IconItemDelegate
 {
 public:
     RebaseItemDelegate(LogChangeWidget *widget)
-        : IconItemDelegate(widget, Utils::Icons::UNDO.imageFileName())
+        : IconItemDelegate(widget, Utils::Icons::UNDO)
     {
     }
 

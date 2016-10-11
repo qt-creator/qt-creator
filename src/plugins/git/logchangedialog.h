@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <utils/icon.h>
 #include <utils/itemviews.h>
 
 #include <QDialog>
@@ -114,7 +115,7 @@ private:
 class IconItemDelegate : public LogItemDelegate
 {
 public:
-    IconItemDelegate(LogChangeWidget *widget, const QString &icon);
+    IconItemDelegate(LogChangeWidget *widget, const Utils::Icon &icon);
 
     virtual bool hasIcon(int row) const = 0;
 
