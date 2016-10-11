@@ -2535,12 +2535,13 @@ class DumperBase:
             return
 
         if typeobj.code == TypeCodeReference:
+            target = typeobj.target()
             if self.isLldb:
-                item = value.cast(typeobj.target().pointer()).dereference()
+                item = value.cast(target.pointer()).dereference()
             else:
-                item = value.cast(typeobj.target().unqualified())
+                item = value.cast(target.unqualified())
             self.putItem(item)
-            self.putBetterType(typeobj.name)
+            self.putBetterType(target.name + ' &')
             return
 
         if typeobj.code == TypeCodeComplex:
