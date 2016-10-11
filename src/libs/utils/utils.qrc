@@ -70,6 +70,7 @@
         <file>images/plus.png</file>
         <file>images/plus@2x.png</file>
         <file>images/redo.png</file>
+        <file>images/redo@2x.png</file>
         <file>images/replace_a.png</file>
         <file>images/replace_a@2x.png</file>
         <file>images/replace_b.png</file>
@@ -80,6 +81,7 @@
         <file>images/splitbutton_horizontal.png</file>
         <file>images/splitbutton_horizontal@2x.png</file>
         <file>images/undo.png</file>
+        <file>images/undo@2x.png</file>
         <file>images/unknownfile.png</file>
         <file>images/extension.png</file>
         <file>images/extension@2x.png</file>

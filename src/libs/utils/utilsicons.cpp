@@ -72,10 +72,10 @@ const Icon SAVEFILE({
         {QLatin1String(":/utils/images/filesave.png"), Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon SAVEFILE_TOOLBAR({
         {QLatin1String(":/utils/images/filesave.png"), Theme::IconsBaseColor}});
-const Icon UNDO(
-        QLatin1String(":/utils/images/undo.png"));
-const Icon REDO(
-        QLatin1String(":/utils/images/redo.png"));
+const Icon UNDO({
+        {QLatin1String(":/utils/images/undo.png"), Theme::PanelTextColorMid}}, Icon::Tint);
+const Icon REDO({
+        {QLatin1String(":/utils/images/redo.png"), Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon COPY(
         QLatin1String(":/utils/images/editcopy.png"));
 const Icon PASTE(

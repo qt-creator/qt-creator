@@ -3396,6 +3396,36 @@
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="czzzcc" />
     </g>
+    <g
+       id="src/libs/utils/images/undo">
+      <rect
+         style="fill:#ffffff;fill-opacity:1"
+         x="1228"
+         y="568"
+         width="16"
+         height="16"
+         id="rect6782-96-0-0-7-8-1-0-4-0" />
+      <path
+         sodipodi:nodetypes="cccc"
+         inkscape:connector-curvature="0"
+         id="path4757-1"
+         d="m 1233,569.5 -3,3 3,3 z"
+         style="fill:#000000" />
+      <path
+         sodipodi:nodetypes="cccc"
+         inkscape:connector-curvature="0"
+         id="path5163"
+         d="m 1233,580.5 3,0 c 6,0 6,-8 0,-8 l -5,0"
+         style="fill:none;stroke:#000000" />
+    </g>
+    <use
+       x="0"
+       y="0"
+       xlink:href="#src/libs/utils/images/undo"
+       id="src/libs/utils/images/redo"
+       transform="matrix(-1,0,0,1,2488,0)"
+       width="100%"
+       height="100%" />
   </g>
   <g
      inkscape:groupmode="layer"
