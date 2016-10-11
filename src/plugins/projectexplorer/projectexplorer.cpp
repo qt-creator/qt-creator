@@ -1518,11 +1518,7 @@ void ProjectExplorerPlugin::openNewProjectDialog()
 
 void ProjectExplorerPluginPrivate::showSessionManager()
 {
-    if (SessionManager::isDefaultVirgin()) {
-        // do not save new virgin default sessions
-    } else {
-        SessionManager::save();
-    }
+    SessionManager::save();
     SessionDialog sessionDialog(ICore::mainWindow());
     sessionDialog.setAutoLoadSession(dd->m_projectExplorerSettings.autorestoreLastSession);
     sessionDialog.exec();
@@ -1551,11 +1547,7 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
         foreach (Project *pro, SessionManager::projects())
             pro->saveSettings();
 
-        if (SessionManager::isDefaultVirgin()) {
-            // do not save new virgin default sessions
-        } else {
-            SessionManager::save();
-        }
+        SessionManager::save();
     }
 
     QSettings *s = ICore::settings();

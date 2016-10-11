@@ -408,6 +408,10 @@ bool SessionManager::loadingSession()
 
 bool SessionManager::save()
 {
+    // do not save new virgin default sessions
+    if (isDefaultVirgin())
+        return true;
+
     emit m_instance->aboutToSaveSession();
 
     if (!d->m_writer || d->m_writer->fileName() != sessionNameToFileName(d->m_sessionName)) {
@@ -961,11 +965,9 @@ bool SessionManager::loadSession(const QString &session)
     // Allow everyone to set something in the session and before saving
     emit m_instance->aboutToUnloadSession(d->m_sessionName);
 
-    if (!isDefaultVirgin()) {
-        if (!save()) {
-            d->m_loadingSession = false;
-            return false;
-        }
+    if (!save()) {
+        d->m_loadingSession = false;
+        return false;
     }
 
     // Clean up
