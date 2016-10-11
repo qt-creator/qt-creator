@@ -25,48 +25,16 @@
 
 #pragma once
 
-#include "highlightingmarksiterator.h"
-
 #include <clang-c/Index.h>
 
-#include <vector>
-
-namespace ClangBackEnd {
-
-using uint = unsigned int;
-class HighlightingMarkContainer;
-
-class HighlightingMarks
+inline
+bool operator==(const CXSourceLocation &first, const CXSourceLocation &second)
 {
-public:
-    using const_iterator = HighlightingMarksIterator;
-    using value_type = HighlightingMark;
+    return clang_equalLocations(first, second);
+}
 
-public:
-    HighlightingMarks() = default;
-    HighlightingMarks(CXTranslationUnit cxTranslationUnit, CXToken *tokens, uint tokensCount);
-    ~HighlightingMarks();
-
-    bool isEmpty() const;
-    bool isNull() const;
-    uint size() const;
-
-    HighlightingMark operator[](size_t index) const;
-
-    const_iterator begin() const;
-    const_iterator end() const;
-
-    QVector<HighlightingMarkContainer> toHighlightingMarksContainers() const;
-
-    bool currentOutputArgumentRangesAreEmpty() const;
-
-private:
-    mutable std::vector<CXSourceRange> currentOutputArgumentRanges;
-    CXTranslationUnit cxTranslationUnit = nullptr;
-    CXToken *const cxToken = nullptr;
-    const uint cxTokenCount = 0;
-
-    std::vector<CXCursor> cxCursor;
-};
-
-} // namespace ClangBackEnd
+inline
+bool operator==(const CXSourceRange &first, const CXSourceRange &second)
+{
+    return clang_equalRanges(first, second);
+}

@@ -69,7 +69,7 @@ bool Type::isReferencingConstant() const
     return (isPointer() || isLValueReference()) && pointeeType().isConstant();
 }
 
-bool Type::isOutputParameter() const
+bool Type::isOutputArgument() const
 {
     return (isPointer() || isLValueReference()) && !pointeeType().isConstant();
 }

@@ -118,6 +118,7 @@ HEADERS += \
     chunksreportedmonitor.h \
     clangasyncjob-base.h \
     diagnosticcontainer-matcher.h \
+    clangcompareoperators.h \
     dummyclangipcclient.h \
     mockclangcodemodelclient.h \
     mockclangcodemodelserver.h

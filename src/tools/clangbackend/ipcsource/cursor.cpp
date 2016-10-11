@@ -213,7 +213,17 @@ SourceLocation Cursor::sourceLocation() const
     return clang_getCursorLocation(cxCursor);
 }
 
+CXSourceLocation Cursor::cxSourceLocation() const
+{
+    return clang_getCursorLocation(cxCursor);
+}
+
 SourceRange Cursor::sourceRange() const
+{
+    return clang_getCursorExtent(cxCursor);
+}
+
+CXSourceRange Cursor::cxSourceRange() const
 {
     return clang_getCursorExtent(cxCursor);
 }
@@ -221,6 +231,12 @@ SourceRange Cursor::sourceRange() const
 SourceRange Cursor::commentRange() const
 {
     return clang_Cursor_getCommentRange(cxCursor);
+}
+
+bool Cursor::hasSameSourceLocationAs(const Cursor &other) const
+{
+    return clang_equalLocations(clang_getCursorLocation(cxCursor),
+                                clang_getCursorLocation(other.cxCursor));
 }
 
 Cursor Cursor::definition() const
@@ -279,32 +295,42 @@ Cursor Cursor::argument(int index) const
 {
     return clang_Cursor_getArgument(cxCursor, index);
 }
+
 namespace {
-void collectOutputArguments(const Cursor &callExpression,
-                            std::vector<Cursor> &outputArguments)
+
+bool isNotUnexposedLValueReference(const Cursor &argument, const Type &argumentType)
 {
-    auto callExpressionType = callExpression.referenced().type();
-    auto argumentCount = callExpression.argumentCount();
-    outputArguments.reserve(argumentCount);
+    return !(argument.isUnexposed() && argumentType.isLValueReference());
+}
+
+}
+
+void Cursor::collectOutputArgumentRangesTo(std::vector<CXSourceRange> &outputArgumentRanges) const
+{
+    const Type callExpressionType = referenced().type();
+    const int argumentCount = this->argumentCount();
+    const std::size_t maxSize = std::size_t(std::max(0, argumentCount))
+            + outputArgumentRanges.size();
+    outputArgumentRanges.reserve(maxSize);
 
     for (int argumentIndex = 0; argumentIndex < argumentCount; ++argumentIndex) {
-        auto argument = callExpression.argument(argumentIndex);
-        auto argumentType = callExpressionType.argument(argumentIndex);
+        const Cursor argument = this->argument(argumentIndex);
+        const Type argumentType = callExpressionType.argument(argumentIndex);
 
-        if (!argument.isUnexposed() && argumentType.isOutputParameter())
-            outputArguments.push_back(callExpression.argument(argumentIndex));
+        if (isNotUnexposedLValueReference(argument, argumentType)
+                && argumentType.isOutputArgument()) {
+            outputArgumentRanges.push_back(argument.cxSourceRange());
+        }
     }
 }
-}
 
-std::vector<Cursor> Cursor::outputArguments() const
+std::vector<CXSourceRange> Cursor::outputArgumentRanges() const
 {
-    std::vector<Cursor> outputArguments;
+    std::vector<CXSourceRange> outputArgumentRanges;
 
-    if (kind() == CXCursor_CallExpr)
-        collectOutputArguments(*this, outputArguments);
+    collectOutputArgumentRangesTo(outputArgumentRanges);
 
-    return outputArguments;
+    return outputArgumentRanges;
 }
 
 CXCursorKind Cursor::kind() const
@@ -315,6 +341,11 @@ CXCursorKind Cursor::kind() const
 bool operator==(const Cursor &first, const Cursor &second)
 {
     return clang_equalCursors(first.cxCursor, second.cxCursor);
+}
+
+bool operator!=(const Cursor &first, const Cursor &second)
+{
+    return !(first == second);
 }
 
 void PrintTo(CXCursorKind cursorKind, ::std::ostream *os)

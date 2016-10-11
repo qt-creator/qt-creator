@@ -47,12 +47,18 @@ HighlightingMarks::~HighlightingMarks()
 
 HighlightingMarks::const_iterator HighlightingMarks::begin() const
 {
-    return const_iterator(cxCursor.cbegin(), cxToken, cxTranslationUnit);
+    return const_iterator(cxCursor.cbegin(),
+                          cxToken,
+                          cxTranslationUnit,
+                          currentOutputArgumentRanges);
 }
 
 HighlightingMarks::const_iterator HighlightingMarks::end() const
 {
-    return const_iterator(cxCursor.cend(), cxToken + cxTokenCount, cxTranslationUnit);
+    return const_iterator(cxCursor.cend(),
+                          cxToken + cxTokenCount,
+                          cxTranslationUnit,
+                          currentOutputArgumentRanges);
 }
 
 QVector<HighlightingMarkContainer> HighlightingMarks::toHighlightingMarksContainers() const
@@ -67,9 +73,17 @@ QVector<HighlightingMarkContainer> HighlightingMarks::toHighlightingMarksContain
              && !highlightMark.hasMainType(HighlightingType::Comment);
     };
 
-    std::copy_if(begin(), end(), std::back_inserter(containers), isValidHighlightMark);
+    for (const HighlightingMark &highlightMark : *this) {
+        if (isValidHighlightMark(highlightMark))
+            containers.push_back(highlightMark);
+    }
 
     return containers;
+}
+
+bool HighlightingMarks::currentOutputArgumentRangesAreEmpty() const
+{
+    return currentOutputArgumentRanges.empty();
 }
 
 bool HighlightingMarks::isEmpty() const
@@ -89,7 +103,10 @@ uint HighlightingMarks::size() const
 
 HighlightingMark HighlightingMarks::operator[](size_t index) const
 {
-    return HighlightingMark(cxCursor[index], cxToken + index, cxTranslationUnit);
+    return HighlightingMark(cxCursor[index],
+                            cxToken + index,
+                            cxTranslationUnit,
+                            currentOutputArgumentRanges);
 }
 
 } // namespace ClangBackEnd
