@@ -123,6 +123,7 @@ protected:
 
     void notifyInferiorSetupOk() override;
     void notifyEngineRemoteServerRunning(const QString &, int pid) override;
+    void loadAdditionalQmlStack() override;
 
 private:
     void engineStateChanged(DebuggerState newState);

@@ -3232,56 +3232,11 @@ static quint64 findJsExecutionContextAddress(const GdbMi &stackArgsResponse, con
 
 void GdbEngine::loadAdditionalQmlStack()
 {
-    // Scan for QV4::ExecutionContext parameter in the parameter list of a V4 call.
-    DebuggerCommand cmd("-stack-list-arguments --simple-values", NeedsStop);
-    cmd.callback = [this](const DebuggerResponse &response) {
-        if (!response.data.isValid()) {
-            showMessage(msgCannotLoadQmlStack("No stack obtained."), LogError);
-            return;
-        }
-        const quint64 contextAddress = findJsExecutionContextAddress(response.data, qtNamespace());
-        if (!contextAddress) {
-            showMessage(msgCannotLoadQmlStack("The address of the JS execution context could not be found."), LogError);
-            return;
-        }
-        // Call the debug function of QML with the context address to obtain the QML stack trace.
-        DebuggerCommand cmd;
-        cmd.function = "-data-evaluate-expression \"qt_v4StackTrace((QV4::ExecutionContext *)0x"
-                            + QString::number(contextAddress, 16) + ")\"";
-        cmd.callback = CB(handleQmlStackTrace);
-        runCommand(cmd);
-    };
+    DebuggerCommand cmd = stackCommand(-1);
+    cmd.arg("extraqml", "1");
+    cmd.callback = [this](const DebuggerResponse &r) { handleStackListFrames(r, true); };
+    cmd.flags = Discardable | PythonCommand;
     runCommand(cmd);
-}
-
-// Scan the arguments of a stack list for the address of a QV4::ExecutionContext.
-void GdbEngine::handleQmlStackTrace(const DebuggerResponse &response)
-{
-    if (!response.data.isValid()) {
-        showMessage(msgCannotLoadQmlStack("No result obtained."), LogError);
-        return;
-    }
-    // Prepend QML stack frames to existing C++ stack frames.
-    QString stackData = response.data["value"].data();
-    const int index = stackData.indexOf("stack=");
-    if (index == -1) {
-        showMessage(msgCannotLoadQmlStack("Malformed result."), LogError);
-        return;
-    }
-    stackData.remove(0, index);
-    stackData.replace("\\\"", "\"");
-    GdbMi stackMi;
-    stackMi.fromString(stackData);
-    const int qmlFrameCount = stackMi.childCount();
-    if (!qmlFrameCount) {
-        showMessage(msgCannotLoadQmlStack("No stack frames obtained."), LogError);
-        return;
-    }
-    QList<StackFrame> qmlFrames;
-    qmlFrames.reserve(qmlFrameCount);
-    for (int i = 0; i < qmlFrameCount; ++i)
-        qmlFrames.append(StackFrame::parseFrame(stackMi.childAt(i), runParameters()));
-    stackHandler()->prependFrames(qmlFrames);
 }
 
 DebuggerCommand GdbEngine::stackCommand(int depth)

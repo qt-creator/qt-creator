@@ -779,5 +779,11 @@ void QmlCppEngine::setActiveEngine(DebuggerEngine *engine)
     updateViews();
 }
 
+void QmlCppEngine::loadAdditionalQmlStack()
+{
+    if (m_cppEngine)
+        m_cppEngine->loadAdditionalQmlStack();
+}
+
 } // namespace Internal
 } // namespace Debugger

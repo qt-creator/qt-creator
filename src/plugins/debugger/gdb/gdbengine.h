@@ -360,9 +360,8 @@ protected:
     void handleThreadNames(const DebuggerResponse &response);
     DebuggerCommand stackCommand(int depth);
     void reloadStack();
-    virtual void reloadFullStack() override;
-    virtual void loadAdditionalQmlStack() override;
-    void handleQmlStackTrace(const DebuggerResponse &response);
+    void reloadFullStack() override;
+    void loadAdditionalQmlStack() override;
     int currentFrame() const;
 
     //
