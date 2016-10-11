@@ -318,7 +318,8 @@ void PropertyEditorView::exportPopertyAsAlias(const QString &name)
         const QString id = m_selectedNode.validId();
         QString upperCasePropertyName = name;
         upperCasePropertyName.replace(0, 1, upperCasePropertyName.at(0).toUpper());
-        const QString aliasName = id + upperCasePropertyName;
+        QString aliasName = id + upperCasePropertyName;
+        aliasName.replace(".", ""); //remove all dots
 
         PropertyName propertyName = aliasName.toUtf8();
         if (rootModelNode().hasProperty(propertyName)) {
