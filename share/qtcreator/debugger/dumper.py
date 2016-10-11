@@ -302,6 +302,8 @@ class DumperBase:
             'personaltypes',
         ]
 
+        self.currentQtNamespaceGuess = None
+
         # These values are never used, but the variables need to have
         # some value base for the swapping logic in Children.__enter__()
         # and Children.__exit__().
