@@ -75,6 +75,8 @@ public:
 
     void clearMoveDelay();
 
+    void focusLost() override;
+
 protected:
     void abort();
     void createQmlItemNode(const ItemLibraryEntry &itemLibraryEntry, const QmlItemNode &parentNode, const QPointF &scenePos);

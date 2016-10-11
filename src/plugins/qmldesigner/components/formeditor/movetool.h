@@ -67,6 +67,8 @@ public:
 
     void formEditorItemsChanged(const QList<FormEditorItem*> &itemList) override;
 
+    void focusLost() override;
+
 protected:
     static bool haveSameParent(const QList<FormEditorItem*> &itemList);
 

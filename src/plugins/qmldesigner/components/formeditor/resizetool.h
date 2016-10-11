@@ -63,6 +63,8 @@ public:
     void instancesCompleted(const QList<FormEditorItem*> &itemList) override;
     void instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList) override;
 
+    void focusLost() override;
+
 private:
     SelectionIndicator m_selectionIndicator;
     ResizeIndicator m_resizeIndicator;

@@ -326,6 +326,12 @@ void FormEditorScene::keyReleaseEvent(QKeyEvent *keyEvent)
         currentTool()->keyReleaseEvent(keyEvent);
 }
 
+void FormEditorScene::focusOutEvent(QFocusEvent *)
+{
+    if (currentTool())
+        currentTool()->focusLost();
+}
+
 FormEditorView *FormEditorScene::editorView() const
 {
     return m_editorView;

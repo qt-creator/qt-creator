@@ -77,6 +77,8 @@ public:
 
     void setCursor(const QCursor &cursor);
 
+    void focusLost() override;
+
 private:
     RubberBandSelectionManipulator m_rubberbandSelectionManipulator;
     SingleSelectionManipulator m_singleSelectionManipulator;

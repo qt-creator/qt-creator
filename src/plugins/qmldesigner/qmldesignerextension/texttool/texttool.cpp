@@ -257,6 +257,14 @@ QString TextTool::name() const
     return QCoreApplication::translate("TextTool", "Text Tool");
 }
 
+void TextTool::focusLost()
+{
+    if (textItem()) {
+        textItem()->writeTextToProperty();
+        view()->changeToSelectionTool();
+    }
+}
+
 TextEditItem *TextTool::textItem() const
 {
     return m_textItem.data();

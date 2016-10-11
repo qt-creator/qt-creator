@@ -370,4 +370,8 @@ void MoveTool::formEditorItemsChanged(const QList<FormEditorItem*> &itemList)
     m_contentNotEditableIndicator.updateItems(selectedItemList);
 }
 
+void MoveTool::focusLost()
+{
+}
+
 }

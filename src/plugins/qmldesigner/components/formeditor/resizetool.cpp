@@ -203,6 +203,10 @@ void ResizeTool::instancePropertyChange(const QList<QPair<ModelNode, PropertyNam
 {
 }
 
+void ResizeTool::focusLost()
+{
+}
+
 
 void ResizeTool::instancesParentChanged(const QList<FormEditorItem *> &/*itemList*/)
 {
