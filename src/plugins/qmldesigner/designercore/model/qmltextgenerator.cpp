@@ -61,6 +61,23 @@ inline static QString doubleToString(double d)
     return string;
 }
 
+static QString unicodeEscape(const QString &stringValue)
+{
+    if (stringValue.count() == 1) {
+        ushort code = stringValue.at(0).unicode();
+        bool isUnicode = code <= 127;
+        if (isUnicode) {
+            return stringValue;
+        } else {
+            QString escaped;
+            escaped += "\\u";
+            escaped += QString::number(code, 16).rightJustified(4, '0');
+            return escaped;
+        }
+    }
+    return stringValue;
+}
+
 QmlTextGenerator::QmlTextGenerator(const PropertyNameList &propertyOrder, int indentDepth):
         m_propertyOrder(propertyOrder),
         m_indentDepth(indentDepth)
@@ -131,7 +148,9 @@ QString QmlTextGenerator::toQml(const AbstractProperty &property, int indentDept
             case QMetaType::UInt:
             case QMetaType::ULongLong:
                 return stringValue;
-
+            case QMetaType::QString:
+            case QMetaType::QChar:
+                return QStringLiteral("\"%1\"").arg(escape(unicodeEscape(stringValue)));
             default:
                 return QStringLiteral("\"%1\"").arg(escape(stringValue));
             }
