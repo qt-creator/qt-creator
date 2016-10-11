@@ -799,7 +799,7 @@ def qedit__std__vector(d, value, data):
     gdb.execute(cmd)
 
 def qdump__std__vector(d, value):
-    if d.isQnxTarget():
+    if d.isQnxTarget() or d.isMsvcTarget():
         qdumpHelper__std__vector__QNX(d, value)
     else:
         qdumpHelper__std__vector(d, value, False)
@@ -840,20 +840,26 @@ def qdumpHelper__std__vector(d, value, isLibCpp):
 
 def qdumpHelper__std__vector__QNX(d, value):
     innerType = value.type[0]
-    isBool = str(innerType) == 'bool'
+    isBool = innerType.name == 'bool'
     if isBool:
-        impl = value['_Myvec']
-        start = impl['_Myfirst']
-        last = impl['_Mylast']
-        end = impl['_Myend']
-        size = value['_Mysize']
+        try:
+            impl = value['_Myvec']['_Mypair']['_Myval2']
+        except:
+            impl = value['_Myvec']
+        start = impl['_Myfirst'].pointer()
+        last = impl['_Mylast'].pointer()
+        end = impl['_Myend'].pointer()
+        size = value['_Mysize'].integer()
         storagesize = start.dereference().type.size() * 8
     else:
-        start = value['_Myfirst']
-        last = value['_Mylast']
-        end = value['_Myend']
-        size = (last.integer() - start.integer()) / innerType.size()
-        alloc = (end.integer() - start.integer()) / innerType.size()
+        try:
+            impl = value['_Mypair']['_Myval2']
+        except:
+            impl = value
+        start = impl['_Myfirst'].pointer()
+        last = impl['_Mylast'].pointer()
+        end = impl['_Myend'].pointer()
+        size = (last - start) // innerType.size()
 
     d.check(0 <= size and size <= 1000 * 1000 * 1000)
     d.check(last <= end)
@@ -868,11 +874,11 @@ def qdumpHelper__std__vector__QNX(d, value):
                 for i in d.childRange():
                     q = start + int(i / storagesize)
                     with SubItem(d, i):
-                        d.putValue((q.dereference() >> (i % storagesize)) & 1)
+                        d.putValue((q.dereference().pointer() >> (i % storagesize)) & 1)
                         d.putType("bool")
                         d.putNumChild(0)
         else:
-            d.putArrayData(start, size, innerType)
+            d.putPlotData(start, size, innerType)
 
 def qdump__std____1__vector(d, value):
     qdumpHelper__std__vector(d, value, True)
