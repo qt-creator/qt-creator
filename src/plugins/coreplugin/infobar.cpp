@@ -68,6 +68,11 @@ void InfoBarEntry::setCancelButtonInfo(const QString &_cancelButtonText, CallBac
     m_cancelButtonCallBack = callBack;
 }
 
+void InfoBarEntry::setShowDefaultCancelButton(bool yesno)
+{
+    m_showDefaultCancelButton = yesno;
+}
+
 void InfoBarEntry::setDetailsWidgetCreator(const InfoBarEntry::DetailsWidgetCreator &creator)
 {
     m_detailsWidgetCreator = creator;
@@ -277,12 +282,17 @@ void InfoBarDisplay::update()
         });
 
         if (info.cancelButtonText.isEmpty()) {
-            infoWidgetCloseButton->setAutoRaise(true);
-            infoWidgetCloseButton->setIcon(Utils::Icons::CLOSE_FOREGROUND.icon());
-            infoWidgetCloseButton->setToolTip(tr("Close"));
+            if (info.m_showDefaultCancelButton) {
+                infoWidgetCloseButton->setAutoRaise(true);
+                infoWidgetCloseButton->setIcon(Utils::Icons::CLOSE_FOREGROUND.icon());
+                infoWidgetCloseButton->setToolTip(tr("Close"));
+            }
+
             if (infoWidgetSuppressButton)
                 hbox->addWidget(infoWidgetSuppressButton);
-            hbox->addWidget(infoWidgetCloseButton);
+
+            if (info.m_showDefaultCancelButton)
+                hbox->addWidget(infoWidgetCloseButton);
         } else {
             infoWidgetCloseButton->setText(info.cancelButtonText);
             hbox->addWidget(infoWidgetCloseButton);
