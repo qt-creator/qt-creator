@@ -92,12 +92,16 @@ public:
     void enableInfo(Id id);
     void clear();
     static void globallySuppressInfo(Id id);
+    static void globallyUnsuppressInfo(Id id);
     static void initializeGloballySuppressed();
     static void clearGloballySuppressed();
     static bool anyGloballySuppressed();
 
 signals:
     void changed();
+
+private:
+    static void writeGloballySuppressedToSettings();
 
 private:
     QList<InfoBarEntry> m_infoBarEntries;

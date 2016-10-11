@@ -139,10 +139,13 @@ void InfoBar::clear()
 void InfoBar::globallySuppressInfo(Id id)
 {
     globallySuppressed.insert(id);
-    QStringList list;
-    foreach (Id i, globallySuppressed)
-        list << QLatin1String(i.name());
-    ICore::settings()->setValue(QLatin1String(C_SUPPRESSED_WARNINGS), list);
+    writeGloballySuppressedToSettings();
+}
+
+void InfoBar::globallyUnsuppressInfo(Id id)
+{
+    globallySuppressed.remove(id);
+    writeGloballySuppressedToSettings();
 }
 
 void InfoBar::initializeGloballySuppressed()
@@ -161,6 +164,14 @@ void InfoBar::clearGloballySuppressed()
 bool InfoBar::anyGloballySuppressed()
 {
     return !globallySuppressed.isEmpty();
+}
+
+void InfoBar::writeGloballySuppressedToSettings()
+{
+    QStringList list;
+    foreach (Id i, globallySuppressed)
+        list << QLatin1String(i.name());
+    ICore::settings()->setValue(QLatin1String(C_SUPPRESSED_WARNINGS), list);
 }
 
 
