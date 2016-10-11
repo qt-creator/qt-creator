@@ -68,6 +68,11 @@ void InfoBarEntry::setCancelButtonInfo(const QString &_cancelButtonText, CallBac
     m_cancelButtonCallBack = callBack;
 }
 
+void InfoBarEntry::setSuppressionButtonInfo(InfoBarEntry::CallBack callback)
+{
+    m_suppressionButtonCallBack = callback;
+}
+
 void InfoBarEntry::setShowDefaultCancelButton(bool yesno)
 {
     m_showDefaultCancelButton = yesno;
@@ -266,7 +271,9 @@ void InfoBarDisplay::update()
         if (info.globalSuppression == InfoBarEntry::GlobalSuppressionEnabled) {
             infoWidgetSuppressButton = new QToolButton;
             infoWidgetSuppressButton->setText(tr("Do Not Show Again"));
-            connect(infoWidgetSuppressButton, &QAbstractButton::clicked, this, [this, id] {
+            connect(infoWidgetSuppressButton, &QAbstractButton::clicked, this, [this, info, id] {
+                if (info.m_suppressionButtonCallBack)
+                    info.m_suppressionButtonCallBack();
                 m_infoBar->removeInfo(id);
                 InfoBar::globallySuppressInfo(id);
             });
