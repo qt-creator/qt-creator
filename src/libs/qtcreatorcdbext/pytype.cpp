@@ -53,11 +53,30 @@ PyObject *lookupType(const std::string &typeNameIn)
 {
     std::string typeName = typeNameIn;
     CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
+    std::string fullTypeName = typeName;
+    // GetSymbolTypeId doesn't support pointer types so we need to strip off the '*' first
+    while (endsWith(typeName, '*'))
+        typeName.pop_back();
     ULONG64 module;
     ULONG typeId;
     if (FAILED(symbols->GetSymbolTypeId(typeName.c_str(), &typeId, &module)))
         Py_RETURN_NONE;
-    return createType(module, typeId);
+    if (typeName != fullTypeName) {
+        if (module == 0) { // found some builtin type like char so we take the first module available to look up the pointer type
+            ULONG loaded, unloaded;
+            if (FAILED(symbols->GetNumberModules(&loaded, &unloaded)))
+                Py_RETURN_NONE;
+            if ((loaded + unloaded == 0) || FAILED(symbols->GetModuleByIndex(0, &module)))
+                Py_RETURN_NONE;
+        }
+        if (FAILED(symbols->GetTypeId(module, fullTypeName.c_str(), &typeId)))
+            Py_RETURN_NONE;
+    }
+    size_t typeNameLength = fullTypeName.length();
+    char *cTypeName = new char[typeNameLength + 1];
+    fullTypeName.copy(cTypeName, fullTypeName.length());
+    cTypeName[typeNameLength] = 0;
+    return createType(module, typeId, cTypeName);
 }
 
 char *getTypeName(ULONG64 module, ULONG typeId)
@@ -143,13 +162,8 @@ PyObject *type_Target(Type *self)
         Py_XINCREF(self);
         return (PyObject *)self;
     }
-    typeName = typeName.substr(0, typeName.length() - 1);
-
-    CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
-    ULONG typeId;
-    if (FAILED(symbols->GetTypeId(self->m_module, typeName.c_str(), &typeId)))
-        return NULL;
-    return createType(self->m_module, typeId);
+    typeName.pop_back();
+    return lookupType(typeName);
 }
 
 PyObject *type_StripTypedef(Type *self)
@@ -270,12 +284,12 @@ void type_Dealloc(Type *self)
     delete[] self->m_name;
 }
 
-PyObject *createType(ULONG64 module, ULONG typeId)
+PyObject *createType(ULONG64 module, ULONG typeId, char* name)
 {
     Type *type = PyObject_New(Type, type_pytype());
     type->m_module = module;
     type->m_typeId = typeId;
-    type->m_name = nullptr;
+    type->m_name = name;
     return reinterpret_cast<PyObject *>(type);
 }
 
