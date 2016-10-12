@@ -819,7 +819,23 @@ static void removeUsedImports(QHash<QString, ImportKey> &filteredPossibleImportK
         filteredPossibleImportKeys.remove(import.info.path());
 }
 
-static QList<QmlDesigner::Import> generatePossibleImports(const QHash<QString, ImportKey> &filteredPossibleImportKeys)
+static QList<QmlDesigner::Import> generatePossibleFileImports(const QString &path)
+{
+    QList<QmlDesigner::Import> possibleImports;
+
+    foreach (const QString &subDir, QDir(path).entryList(QDir::Dirs | QDir::NoDot | QDir::NoDotDot)) {
+        QDir dir(path + "/" + subDir);
+        if (!dir.entryInfoList(QStringList("*.qml"), QDir::Files).isEmpty()
+                && dir.entryInfoList(QStringList("qmldir"), QDir::Files).isEmpty()) {
+            QmlDesigner::Import import = QmlDesigner::Import::createFileImport(subDir);
+            possibleImports.append(import);
+        }
+    }
+
+    return possibleImports;
+}
+
+static QList<QmlDesigner::Import> generatePossibleLibraryImports(const QHash<QString, ImportKey> &filteredPossibleImportKeys)
 {
     QList<QmlDesigner::Import> possibleImports;
 
@@ -842,9 +858,11 @@ void TextToModelMerger::setupPossibleImports(const QmlJS::Snapshot &snapshot, co
 
     removeUsedImports(filteredPossibleImportKeys, m_scopeChain->context()->imports(m_document.data())->all());
 
-    QList<QmlDesigner::Import> possibleImports = generatePossibleImports(filteredPossibleImportKeys);
+    QList<QmlDesigner::Import> possibleImports = generatePossibleLibraryImports(filteredPossibleImportKeys);
 
-    if ( m_rewriterView->isAttached())
+    possibleImports.append(generatePossibleFileImports(document()->path()));
+
+    if (m_rewriterView->isAttached())
         m_rewriterView->model()->setPossibleImports(possibleImports);
 }
 
