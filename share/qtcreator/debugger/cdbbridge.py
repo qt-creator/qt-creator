@@ -196,3 +196,9 @@ class Dumper(DumperBase):
 
     def nativeDynamicTypeName(self, address, baseType):
         return None # FIXME: Seems sufficient, no idea why.
+
+    def callHelper(self, rettype, value, function, args):
+        raise Exception("cdb does not support calling functions")
+
+    def putCallItem(self, name, rettype, value, func, *args):
+        return
