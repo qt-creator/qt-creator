@@ -36,6 +36,7 @@ Column {
         showIsWrapping: true
         showVerticalAlignment: true
         showFormatProperty: true
+        showElide: true
     }
 
     Section {

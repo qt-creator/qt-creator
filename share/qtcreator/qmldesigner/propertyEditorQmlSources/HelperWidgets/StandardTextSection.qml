@@ -33,6 +33,7 @@ Section {
     caption: qsTr("Text")
 
     property bool showIsWrapping: false
+    property bool showElide: false
     property bool showVerticalAlignment: false
     property bool useLineEdit: true
     property bool showFormatProperty: false
@@ -60,6 +61,19 @@ Section {
             backendValue: backendValues.wrapMode
             scope: "Text"
             model: ["NoWrap", "WordWrap", "WrapAnywhere", "WrapAtWordBoundaryOrAnywhere"]
+        }
+
+        Label {
+            visible: showElide
+            text: qsTr("Elide")
+        }
+
+        ComboBox {
+            visible: showElide
+            Layout.fillWidth: true
+            backendValue: backendValues.elide
+            scope: "Text"
+            model: ["ElideNone", "ElideLeft", "ElideMiddle", "ElideRight"]
         }
 
         Label {
