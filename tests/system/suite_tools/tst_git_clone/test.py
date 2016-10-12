@@ -124,7 +124,7 @@ def main():
             if button == ":Git Repository Clone.Finish_QPushButton":
                 try:
                     # Projects mode shown
-                    clickButton(waitForObject(":*Qt Creator.Cancel_QPushButton", 5000))
+                    clickButton(waitForObject(":Qt Creator.Configure Project_QPushButton", 5000))
                     test.passes("The checked out project was being opened.")
                 except:
                     clickButton(waitForObject(":Cannot Open Project.Show Details..._QPushButton"))

@@ -1,7 +1,6 @@
 :*Qt Creator.Add Kit_QPushButton	{text='Add Kit' type='QPushButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.Build Project_Core::Internal::FancyToolButton	{text?='Build Project*' type='Core::Internal::FancyToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.Cancel Build_QToolButton	{text='Cancel Build' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:*Qt Creator.Cancel_QPushButton	{text='Cancel' type='QPushButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.Clear_QToolButton	{text='Clear' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.Continue_Core::Internal::FancyToolButton	{toolTip?='Continue *' type='Core::Internal::FancyToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.Events_QDockWidget	{name='QmlProfilerStatisticsViewDockWidget' type='QDockWidget' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
@@ -125,6 +124,7 @@
 :Qt Creator.CloseDoc_QToolButton	{toolTip?='Close Document *' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.CloseFind_QToolButton	{name='close' type='QToolButton' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.Compile Output_Core::OutputWindow	{type='Core::OutputWindow' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow' windowTitle='Compile Output'}
+:Qt Creator.Configure Project_QPushButton	{text='Configure Project' type='QPushButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.DebugModeWidget_QSplitter	{name='DebugModeWidget' type='QSplitter' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.Issues_QListView	{type='QListView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow' windowTitle='Issues'}
 :Qt Creator.Project.Menu.File_QMenu	{name='Project.Menu.File' type='QMenu'}
