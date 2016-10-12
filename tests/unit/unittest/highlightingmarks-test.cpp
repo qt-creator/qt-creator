@@ -1059,6 +1059,16 @@ TEST_F(HighlightingMarks, NonConstPointerArgumentAsMemberOfClass)
                 HasTwoTypes(HighlightingType::Field, HighlightingType::OutputArgument));
 }
 
+TEST_F(HighlightingMarks, DISABLED_NonConstReferenceArgumentConstructor)
+{
+    const auto infos = translationUnit.highlightingMarksInRange(sourceRange(540, 57));
+
+    infos[2];
+
+    ASSERT_THAT(infos[3],
+                HasTwoTypes(HighlightingType::LocalVariable, HighlightingType::OutputArgument));
+}
+
 TEST_F(HighlightingMarks, DISABLED_EnumerationTypeDef)
 {
     const auto infos = translationUnit.highlightingMarksInRange(sourceRange(424, 41));
