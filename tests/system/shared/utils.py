@@ -628,6 +628,8 @@ def openVcsLog():
                                  "window=':Qt Creator_Core::Internal::MainWindow'}", 2000)
         if className(foundObj) != 'Core::OutputWindow':
             raise Exception("Found derived class, but not a pure QPlainTextEdit.")
+        waitForObject("{text='Version Control' type='QLabel' unnamed='1' visible='1' "
+                      "window=':Qt Creator_Core::Internal::MainWindow'}", 2000)
     except:
         invokeMenuItem("Window", "Output Panes", "Version Control")
 
