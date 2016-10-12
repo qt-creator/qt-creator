@@ -37,6 +37,7 @@ QDebug operator<<(QDebug debug, const DocumentAnnotationsChangedMessage &message
     debug.nospace() << "DocumentAnnotationsChangedMessage("
                     << message.fileContainer()
                     << ", " << message.diagnostics().size()
+                    << ", " << !message.firstHeaderErrorDiagnostic().text().isEmpty()
                     << ", " << message.highlightingMarks().size()
                     << ", " << message.skippedPreprocessorRanges().size()
                     << ")";
@@ -49,6 +50,7 @@ void PrintTo(const DocumentAnnotationsChangedMessage &message, ::std::ostream* o
     *os << "DocumentAnnotationsChangedMessage(";
     PrintTo(message.fileContainer(), os);
     *os << "," << message.diagnostics().size();
+    *os << "," << !message.firstHeaderErrorDiagnostic().text().isEmpty();
     *os << "," << message.highlightingMarks().size();
     *os << "," << message.skippedPreprocessorRanges().size();
     *os << ")";

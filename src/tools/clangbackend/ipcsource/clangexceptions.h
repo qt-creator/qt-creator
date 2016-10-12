@@ -74,4 +74,24 @@ public:
     DocumentIsNullException();
 };
 
+class DocumentProcessorAlreadyExists : public ClangBaseException
+{
+public:
+    DocumentProcessorAlreadyExists(const Utf8String &filePath,
+                                   const Utf8String &projectPartId);
+};
+
+class DocumentProcessorDoesNotExist : public ClangBaseException
+{
+public:
+    DocumentProcessorDoesNotExist(const Utf8String &filePath,
+                                  const Utf8String &projectPartId);
+};
+
+class TranslationUnitDoesNotExist : public ClangBaseException
+{
+public:
+    TranslationUnitDoesNotExist(const Utf8String &filePath);
+};
+
 } // namespace ClangBackEnd

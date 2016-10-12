@@ -57,11 +57,14 @@ public:
     };
 
 public:
-    TranslationUnit(const Utf8String &filePath,
+    TranslationUnit(const Utf8String &id,
+                    const Utf8String &filePath,
                     CXIndex &cxIndex,
                     CXTranslationUnit &cxTranslationUnit);
 
     bool isNull() const;
+
+    Utf8String id() const;
 
     Utf8String filePath() const;
     CXIndex &cxIndex() const;
@@ -73,12 +76,14 @@ public:
 
     CodeCompletionResult complete(UnsavedFiles &unsavedFiles, uint line, uint column) const;
 
-    void extractDocumentAnnotations(QVector<DiagnosticContainer> &diagnostics,
+    void extractDiagnostics(DiagnosticContainer &firstHeaderErrorDiagnostic,
+                            QVector<DiagnosticContainer> &mainFileDiagnostics) const;
+    void extractDocumentAnnotations(DiagnosticContainer &firstHeaderErrorDiagnostic,
+                                    QVector<DiagnosticContainer> &mainFileDiagnostics,
                                     QVector<HighlightingMarkContainer> &highlightingMarks,
                                     QVector<SourceRangeContainer> &skippedSourceRanges) const;
 
     DiagnosticSet diagnostics() const;
-    QVector<DiagnosticContainer> mainFileDiagnostics() const;
 
     SourceLocation sourceLocationAt(uint line, uint column) const;
     SourceLocation sourceLocationAt(const Utf8String &filePath, uint line, uint column) const;
@@ -94,6 +99,7 @@ public:
     SkippedSourceRanges skippedSourceRanges() const;
 
 private:
+    const Utf8String m_id;
     const Utf8String m_filePath;
     CXIndex &m_cxIndex;
     CXTranslationUnit &m_cxTranslationUnit;

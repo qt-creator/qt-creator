@@ -29,6 +29,7 @@ HEADERS += $$PWD/clangcodemodelserver.h \
     $$PWD/highlightingmarksiterator.h \
     $$PWD/utf8positionfromlinecolumn.h \
     $$PWD/clangasyncjob.h \
+    $$PWD/clangbackend_global.h \
     $$PWD/clangcompletecodejob.h \
     $$PWD/clangcreateinitialdocumentpreamblejob.h \
     $$PWD/clangfilepath.h \
@@ -41,7 +42,14 @@ HEADERS += $$PWD/clangcodemodelserver.h \
     $$PWD/clangtranslationunit.h \
     $$PWD/clangunsavedfilesshallowarguments.h \
     $$PWD/clangupdatedocumentannotationsjob.h \
-    $$PWD/clangexceptions.h
+    $$PWD/clangexceptions.h \
+    $$PWD/clangdocumentprocessor.h \
+    $$PWD/clangdocumentprocessors.h \
+    $$PWD/clangtranslationunits.h \
+    $$PWD/clangclock.h \
+    $$PWD/clangsupportivetranslationunitinitializer.h \
+    $$PWD/clangparsesupportivetranslationunitjob.h \
+    $$PWD/clangreparsesupportivetranslationunitjob.h \
 
 SOURCES += $$PWD/clangcodemodelserver.cpp \
     $$PWD/codecompleter.cpp \
@@ -80,4 +88,10 @@ SOURCES += $$PWD/clangcodemodelserver.cpp \
     $$PWD/clangtranslationunit.cpp \
     $$PWD/clangunsavedfilesshallowarguments.cpp \
     $$PWD/clangupdatedocumentannotationsjob.cpp \
-    $$PWD/clangexceptions.cpp
+    $$PWD/clangexceptions.cpp \
+    $$PWD/clangdocumentprocessor.cpp \
+    $$PWD/clangdocumentprocessors.cpp \
+    $$PWD/clangtranslationunits.cpp \
+    $$PWD/clangsupportivetranslationunitinitializer.cpp \
+    $$PWD/clangparsesupportivetranslationunitjob.cpp \
+    $$PWD/clangreparsesupportivetranslationunitjob.cpp \

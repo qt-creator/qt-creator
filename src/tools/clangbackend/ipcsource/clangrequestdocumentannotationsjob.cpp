@@ -40,33 +40,35 @@ static RequestDocumentAnnotationsJob::AsyncResult runAsyncHelper(
 
     RequestDocumentAnnotationsJob::AsyncResult asyncResult;
 
-    translationUnit.extractDocumentAnnotations(asyncResult.diagnostics,
+    translationUnit.extractDocumentAnnotations(asyncResult.firstHeaderErrorDiagnostic,
+                                               asyncResult.diagnostics,
                                                asyncResult.highlightingMarks,
                                                asyncResult.skippedSourceRanges);
 
     return asyncResult;
 }
 
-bool RequestDocumentAnnotationsJob::prepareAsyncRun()
+IAsyncJob::AsyncPrepareResult RequestDocumentAnnotationsJob::prepareAsyncRun()
 {
     const JobRequest jobRequest = context().jobRequest;
-    QTC_ASSERT(jobRequest.type == JobRequest::Type::RequestDocumentAnnotations, return false);
+    QTC_ASSERT(jobRequest.type == JobRequest::Type::RequestDocumentAnnotations,
+               return AsyncPrepareResult());
 
     try {
         m_pinnedDocument = context().documentForJobRequest();
         m_pinnedFileContainer = m_pinnedDocument.fileContainer();
 
-        const TranslationUnit translationUnit = m_pinnedDocument.translationUnit();
+        const TranslationUnit translationUnit
+                = m_pinnedDocument.translationUnit(jobRequest.preferredTranslationUnit);
         setRunner([translationUnit]() {
             return runAsyncHelper(translationUnit);
         });
+        return AsyncPrepareResult{translationUnit.id()};
 
     } catch (const std::exception &exception) {
         qWarning() << "Error in RequestDocumentAnnotationsJob::prepareAsyncRun:" << exception.what();
-        return false;
+        return AsyncPrepareResult();
     }
-
-    return true;
 }
 
 void RequestDocumentAnnotationsJob::finalizeAsyncRun()
@@ -82,6 +84,7 @@ void RequestDocumentAnnotationsJob::sendAnnotations(
 {
     const DocumentAnnotationsChangedMessage message(m_pinnedFileContainer,
                                                     result.diagnostics,
+                                                    result.firstHeaderErrorDiagnostic,
                                                     result.highlightingMarks,
                                                     result.skippedSourceRanges);
 

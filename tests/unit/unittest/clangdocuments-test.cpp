@@ -43,6 +43,7 @@ using ClangBackEnd::ProjectPartContainer;
 using testing::IsNull;
 using testing::NotNull;
 using testing::Gt;
+using testing::Eq;
 using testing::Not;
 using testing::Contains;
 
@@ -156,6 +157,18 @@ TEST_F(Documents, UpdateSingle)
 
     ASSERT_THAT(documents.document(filePath, projectPartId),
                 IsDocument(filePath, projectPartId, 75u));
+}
+
+TEST_F(Documents, UpdateReturnsUpdatedDocument)
+{
+    ClangBackEnd::FileContainer createFileContainer(filePath, projectPartId, Utf8StringVector(), 74u);
+    ClangBackEnd::FileContainer updateFileContainer(filePath, Utf8String(), Utf8StringVector(), 75u);
+    documents.create({createFileContainer});
+
+    const std::vector<Document> updatedDocuments = documents.update({updateFileContainer});
+
+    ASSERT_THAT(updatedDocuments.size(), Eq(1u));
+    ASSERT_THAT(updatedDocuments.front().documentRevision(), Eq(75u));
 }
 
 TEST_F(Documents, UpdateMultiple)

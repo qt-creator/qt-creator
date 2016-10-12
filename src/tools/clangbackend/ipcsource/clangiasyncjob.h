@@ -41,6 +41,11 @@ class IAsyncJob
 public:
     static IAsyncJob *create(JobRequest::Type type);
 
+    struct AsyncPrepareResult {
+        operator bool() const { return !translationUnitId.isEmpty(); }
+        Utf8String translationUnitId;
+    };
+
 public:
     IAsyncJob();
     virtual ~IAsyncJob();
@@ -52,9 +57,11 @@ public:
     FinishedHandler finishedHandler() const;
     void setFinishedHandler(const FinishedHandler &finishedHandler);
 
-    virtual bool prepareAsyncRun() = 0;
+    virtual AsyncPrepareResult prepareAsyncRun() = 0;
     virtual QFuture<void> runAsync() = 0;
     virtual void finalizeAsyncRun() = 0;
+
+    virtual void preventFinalization() = 0;
 
 public: // for tests
     bool isFinished() const;

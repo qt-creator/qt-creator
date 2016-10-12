@@ -25,6 +25,8 @@
 
 #include "googletest.h"
 
+#include "clangcompareoperators.h"
+
 #include <clangdocument.h>
 #include <clangdocuments.h>
 #include <clangstring.h>
@@ -68,6 +70,7 @@ struct Data {
                       {},
                       documents};
     TranslationUnit translationUnit{filePath,
+                                    filePath,
                                     document.translationUnit().cxIndex(),
                                     document.translationUnit().cxTranslationUnit()};
 };
@@ -83,6 +86,8 @@ protected:
     const Document &document = d->document;
     const TranslationUnit &translationUnit = d->translationUnit;
 };
+
+
 
 TEST_F(Cursor, CreateNullCursor)
 {
@@ -488,21 +493,21 @@ TEST_F(Cursor, HasNotFinaAttributeInClass)
 TEST_F(Cursor, HasOutputValues)
 {
     auto callExpressionCursor = translationUnit.cursorAt(117, 19);
-    auto outputArgumentExpectedCursor = translationUnit.cursorAt(117, 20);
+    auto outputArgumentExpectedSourceLocation = translationUnit.cursorAt(117, 20).cxSourceRange();
 
-    auto outputArguments = callExpressionCursor.outputArguments();
+    auto outputArgumentLocations = callExpressionCursor.outputArgumentRanges();
 
-    ASSERT_THAT(outputArguments.size(), 1);
-    ASSERT_THAT(outputArguments[0], outputArgumentExpectedCursor);
+    ASSERT_THAT(outputArgumentLocations.size(), 2);
+    ASSERT_THAT(outputArgumentLocations[0], outputArgumentExpectedSourceLocation);
 }
 
 TEST_F(Cursor, HasOnlyInputValues)
 {
     auto callExpressionCursor = translationUnit.cursorAt(118, 18);
 
-    auto outputArguments = callExpressionCursor.outputArguments();
+    auto outputArgumentLocations = callExpressionCursor.outputArgumentRanges();
 
-    ASSERT_THAT(outputArguments, IsEmpty());
+    ASSERT_THAT(outputArgumentLocations, IsEmpty());
 }
 
 TEST_F(Cursor, ArgumentCountIsZero)
@@ -747,58 +752,58 @@ TEST_F(Cursor, PointerIsNotRefencingConstant)
     ASSERT_FALSE(argument.isReferencingConstant());
 }
 
-TEST_F(Cursor, PointerIsOutputParameter)
+TEST_F(Cursor, PointerIsOutputArgument)
 {
     auto callExpressionCursor = translationUnit.cursorAt(127, 13);
 
     auto argument = callExpressionCursor.type().argument(0);
 
-    ASSERT_TRUE(argument.isOutputParameter());
+    ASSERT_TRUE(argument.isOutputArgument());
 }
 
-TEST_F(Cursor, ConstantReferenceIsNotOutputParameter)
+TEST_F(Cursor, ConstantReferenceIsNotOutputArgument)
 {
     auto callExpressionCursor = translationUnit.cursorAt(125, 26);
 
     auto argument = callExpressionCursor.type().argument(0);
 
-    ASSERT_FALSE(argument.isOutputParameter());
+    ASSERT_FALSE(argument.isOutputArgument());
 }
 
-TEST_F(Cursor, PointerToConstantIsNotOutputParameter)
+TEST_F(Cursor, PointerToConstantIsNotOutputArgument)
 {
     auto callExpressionCursor = translationUnit.cursorAt(126, 20);
 
     auto argument = callExpressionCursor.type().argument(0);
 
-    ASSERT_FALSE(argument.isOutputParameter()) << argument.isConstant() << argument.pointeeType().isConstant();
+    ASSERT_FALSE(argument.isOutputArgument()) << argument.isConstant() << argument.pointeeType().isConstant();
 }
 
-TEST_F(Cursor, ConstantPointerIsNotOutputParameter)
+TEST_F(Cursor, ConstantPointerIsNotOutputArgument)
 {
     auto callExpressionCursor = translationUnit.cursorAt(128, 21);
 
     auto argument = callExpressionCursor.type().argument(0);
 
-    ASSERT_TRUE(argument.isOutputParameter());
+    ASSERT_TRUE(argument.isOutputArgument());
 }
 
-TEST_F(Cursor, ReferenceIsOutputParameter)
+TEST_F(Cursor, ReferenceIsOutputArgument)
 {
     auto callExpressionCursor = translationUnit.cursorAt(124, 21);
 
     auto argument = callExpressionCursor.type().argument(0);
 
-    ASSERT_TRUE(argument.isOutputParameter());
+    ASSERT_TRUE(argument.isOutputArgument());
 }
 
-TEST_F(Cursor, ConstReferenceIsNotOutputParameter)
+TEST_F(Cursor, ConstReferenceIsNotOutputArgument)
 {
     auto callExpressionCursor = translationUnit.cursorAt(125, 26);
 
     auto argument = callExpressionCursor.type().argument(0);
 
-    ASSERT_FALSE(argument.isOutputParameter());
+    ASSERT_FALSE(argument.isOutputArgument());
 }
 
 Data *Cursor::d;

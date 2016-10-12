@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "clangclock.h"
+
 #include <filecontainer.h>
 
 #include <QSharedPointer>
@@ -32,11 +34,7 @@
 
 #include <clang-c/Index.h>
 
-#include <chrono>
-
 namespace ClangBackEnd {
-
-using time_point = std::chrono::steady_clock::time_point;
 
 class UnsavedFile;
 class UnsavedFilesData;
@@ -61,7 +59,7 @@ public:
 
     UnsavedFilesShallowArguments shallowArguments() const;
 
-    const time_point lastChangeTimePoint() const;
+    const TimePoint lastChangeTimePoint() const;
 
 private:
     void updateUnsavedFileWithFileContainer(const FileContainer &fileContainer);

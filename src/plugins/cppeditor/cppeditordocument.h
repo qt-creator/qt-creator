@@ -59,9 +59,13 @@ public:
                                  const QByteArray &defines);
     void scheduleProcessDocument();
 
+public:
+    using HeaderErrorDiagnosticWidgetCreator = std::function<QWidget*()>;
+
 signals:
     void codeWarningsUpdated(unsigned contentsRevision,
                              const QList<QTextEdit::ExtraSelection> selections,
+                             const HeaderErrorDiagnosticWidgetCreator &creator,
                              const TextEditor::RefactorMarkers &refactorMarkers);
 
     void ifdefedOutBlocksUpdated(unsigned contentsRevision,

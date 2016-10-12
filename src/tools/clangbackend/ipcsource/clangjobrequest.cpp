@@ -25,6 +25,8 @@
 
 #include "clangjobrequest.h"
 
+#include <QFileInfo>
+
 namespace ClangBackEnd {
 
 #define RETURN_TEXT_FOR_CASE(enumValue) case JobRequest::Type::enumValue: return #enumValue
@@ -32,12 +34,27 @@ static const char *JobRequestTypeToText(JobRequest::Type type)
 {
     switch (type) {
         RETURN_TEXT_FOR_CASE(UpdateDocumentAnnotations);
+        RETURN_TEXT_FOR_CASE(ParseSupportiveTranslationUnit);
+        RETURN_TEXT_FOR_CASE(ReparseSupportiveTranslationUnit);
         RETURN_TEXT_FOR_CASE(CreateInitialDocumentPreamble);
         RETURN_TEXT_FOR_CASE(CompleteCode);
         RETURN_TEXT_FOR_CASE(RequestDocumentAnnotations);
     }
 
     return "UnhandledJobRequestType";
+}
+#undef RETURN_TEXT_FOR_CASE
+
+#define RETURN_TEXT_FOR_CASE(enumValue) case PreferredTranslationUnit::enumValue: return #enumValue
+const char *preferredTranslationUnitToText(PreferredTranslationUnit type)
+{
+    switch (type) {
+        RETURN_TEXT_FOR_CASE(RecentlyParsed);
+        RETURN_TEXT_FOR_CASE(PreviouslyParsed);
+        RETURN_TEXT_FOR_CASE(LastUninitialized);
+    }
+
+    return "UnhandledPreferredTranslationUnitType";
 }
 #undef RETURN_TEXT_FOR_CASE
 
@@ -53,18 +70,37 @@ QDebug operator<<(QDebug debug, const JobRequest &jobRequest)
     debug.nospace() << "Job<"
                     << jobRequest.id
                     << ","
+                    << QFileInfo(jobRequest.filePath).fileName()
+                    << ","
                     << JobRequestTypeToText(jobRequest.type)
                     << ","
-                    << jobRequest.filePath
+                    << preferredTranslationUnitToText(jobRequest.preferredTranslationUnit)
                     << ">";
 
-    return debug;
+    return debug.space();
 }
 
 JobRequest::JobRequest()
 {
     static quint64 idCounter = 0;
     id = ++idCounter;
+}
+
+bool JobRequest::operator==(const JobRequest &other) const
+{
+    return type == other.type
+        && requirements == other.requirements
+
+        && filePath == other.filePath
+        && projectPartId == other.projectPartId
+        && unsavedFilesChangeTimePoint == other.unsavedFilesChangeTimePoint
+        && projectChangeTimePoint == other.projectChangeTimePoint
+        && documentRevision == other.documentRevision
+        && preferredTranslationUnit == other.preferredTranslationUnit
+
+        && line == other.line
+        && column == other.column
+        && ticketNumber == other.ticketNumber;
 }
 
 JobRequest::Requirements JobRequest::requirementsForType(Type type)
@@ -77,6 +113,8 @@ JobRequest::Requirements JobRequest::requirementsForType(Type type)
                                        |JobRequest::CurrentDocumentRevision);
     case JobRequest::Type::CompleteCode:
     case JobRequest::Type::CreateInitialDocumentPreamble:
+    case JobRequest::Type::ParseSupportiveTranslationUnit:
+    case JobRequest::Type::ReparseSupportiveTranslationUnit:
         return JobRequest::Requirements(JobRequest::DocumentValid);
     }
 

@@ -26,6 +26,7 @@
 #include "cmakebuildsettingswidget.h"
 
 #include "configmodel.h"
+#include "configmodelitemdelegate.h"
 #include "cmakeproject.h"
 #include "cmakebuildconfiguration.h"
 
@@ -140,6 +141,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     m_configView->setSelectionBehavior(QAbstractItemView::SelectItems);
     m_configView->setFrameShape(QFrame::NoFrame);
     m_configView->hideColumn(2); // Hide isAdvanced column
+    m_configView->setItemDelegate(new ConfigModelItemDelegate(m_configView));
     QFrame *findWrapper = Core::ItemViewFind::createSearchableWrapper(m_configView, Core::ItemViewFind::LightColored);
     findWrapper->setFrameStyle(QFrame::StyledPanel);
 

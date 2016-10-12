@@ -97,7 +97,7 @@ TEST_F(UpdateDocumentAnnotationsJob, DontSendAnnotationsIfDocumentRevisionChange
 
 TEST_F(UpdateDocumentAnnotationsJob, UpdatesTranslationUnit)
 {
-    const time_point timePointBefore = document.lastProjectPartChangeTimePoint();
+    const TimePoint timePointBefore = document.lastProjectPartChangeTimePoint();
     const QSet<Utf8String> dependendOnFilesBefore = document.dependedFilePaths();
     job.setContext(jobContext);
     job.prepareAsyncRun();

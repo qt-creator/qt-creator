@@ -39,28 +39,28 @@ static void runAsyncHelper(const TranslationUnit &translationUnit,
     translationUnit.reparse(translationUnitUpdateInput);
 }
 
-bool CreateInitialDocumentPreambleJob::prepareAsyncRun()
+IAsyncJob::AsyncPrepareResult CreateInitialDocumentPreambleJob::prepareAsyncRun()
 {
     const JobRequest jobRequest = context().jobRequest;
-    QTC_ASSERT(jobRequest.type == JobRequest::Type::CreateInitialDocumentPreamble, return false);
+    QTC_ASSERT(jobRequest.type == JobRequest::Type::CreateInitialDocumentPreamble, return AsyncPrepareResult());
 
     try {
         m_pinnedDocument = context().documentForJobRequest();
         m_pinnedFileContainer = m_pinnedDocument.fileContainer();
 
-        const TranslationUnit translationUnit = m_pinnedDocument.translationUnit();
+        const TranslationUnit translationUnit
+                = m_pinnedDocument.translationUnit(jobRequest.preferredTranslationUnit);
         const TranslationUnitUpdateInput updateInput = m_pinnedDocument.createUpdateInput();
         setRunner([translationUnit, updateInput]() {
             return runAsyncHelper(translationUnit, updateInput);
         });
+        return AsyncPrepareResult{translationUnit.id()};
 
     } catch (const std::exception &exception) {
         qWarning() << "Error in CreateInitialDocumentPreambleJob::prepareAsyncRun:"
                    << exception.what();
-        return false;
+        return AsyncPrepareResult();
     }
-
-    return true;
 }
 
 void CreateInitialDocumentPreambleJob::finalizeAsyncRun()

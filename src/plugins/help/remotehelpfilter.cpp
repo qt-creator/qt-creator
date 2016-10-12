@@ -93,7 +93,8 @@ RemoteHelpFilter::RemoteHelpFilter()
     m_remoteUrls.append("https://www.bing.com/search?q=%1");
     m_remoteUrls.append("https://www.google.com/search?q=%1");
     m_remoteUrls.append("https://search.yahoo.com/search?p=%1");
-    m_remoteUrls.append("https://www.cplusplus.com/reference/stl/%1");
+    m_remoteUrls.append("https://stackoverflow.com/search?q=%1");
+    m_remoteUrls.append("http://en.cppreference.com/mwiki/index.php?title=Special%3ASearch&search=%1");
     m_remoteUrls.append("https://en.wikipedia.org/w/index.php?search=%1");
 }
 

@@ -45,7 +45,10 @@ class HighlightingMark
     };
 
 public:
-    HighlightingMark(const CXCursor &cxCursor, CXToken *cxToken, CXTranslationUnit cxTranslationUnit);
+    HighlightingMark(const CXCursor &cxCursor,
+                     CXToken *cxToken,
+                     CXTranslationUnit cxTranslationUnit,
+                     std::vector<CXSourceRange> &currentOutputArgumentRanges);
     HighlightingMark(uint line, uint column, uint length, HighlightingTypes types);
     HighlightingMark(uint line, uint column, uint length, HighlightingType type);
 
@@ -61,18 +64,26 @@ private:
     void identifierKind(const Cursor &cursor, Recursion recursion);
     void referencedTypeKind(const Cursor &cursor);
     void variableKind(const Cursor &cursor);
+    void fieldKind(const Cursor &cursor);
     bool isVirtualMethodDeclarationOrDefinition(const Cursor &cursor) const;
     void functionKind(const Cursor &cursor, Recursion recursion);
     void memberReferenceKind(const Cursor &cursor);
+    HighlightingType punctuationKind(const Cursor &cursor);
     void collectKinds(CXToken *cxToken, const Cursor &cursor);
     bool isRealDynamicCall(const Cursor &cursor) const;
     void addExtraTypeIfFirstPass(HighlightingType type, Recursion recursion);
+    bool isOutputArgument() const;
+    void collectOutputArguments(const Cursor &cursor);
+    void filterOutPreviousOutputArguments();
+    bool isArgumentInCurrentOutputArgumentLocations() const;
 
 private:
+    std::vector<CXSourceRange> *currentOutputArgumentRanges = nullptr;
     Cursor originalCursor;
     uint line;
     uint column;
     uint length;
+    uint offset = 0;
     HighlightingTypes types;
 };
 

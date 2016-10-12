@@ -38,10 +38,12 @@
 
 namespace ClangBackEnd {
 
-TranslationUnit::TranslationUnit(const Utf8String &filepath,
+TranslationUnit::TranslationUnit(const Utf8String &id,
+                                 const Utf8String &filepath,
                                  CXIndex &cxIndex,
                                  CXTranslationUnit &cxTranslationUnit)
-    : m_filePath(filepath)
+    : m_id(id)
+    , m_filePath(filepath)
     , m_cxIndex(cxIndex)
     , m_cxTranslationUnit(cxTranslationUnit)
 {
@@ -49,7 +51,12 @@ TranslationUnit::TranslationUnit(const Utf8String &filepath,
 
 bool TranslationUnit::isNull() const
 {
-    return !m_cxTranslationUnit || !m_cxIndex || m_filePath.isEmpty();
+    return !m_cxTranslationUnit || !m_cxIndex || m_filePath.isEmpty() || m_id.isEmpty();
+}
+
+Utf8String TranslationUnit::id() const
+{
+    return m_id;
 }
 
 Utf8String TranslationUnit::filePath() const
@@ -70,7 +77,7 @@ CXTranslationUnit &TranslationUnit::cxTranslationUnit() const
 TranslationUnitUpdateResult TranslationUnit::update(
         const TranslationUnitUpdateInput &parseInput) const
 {
-    TranslationUnitUpdater updater(cxIndex(), cxTranslationUnit(), parseInput);
+    TranslationUnitUpdater updater(id(), cxIndex(), cxTranslationUnit(), parseInput);
 
     return updater.update(TranslationUnitUpdater::UpdateMode::AsNeeded);
 }
@@ -78,7 +85,7 @@ TranslationUnitUpdateResult TranslationUnit::update(
 TranslationUnitUpdateResult TranslationUnit::parse(
         const TranslationUnitUpdateInput &parseInput) const
 {
-    TranslationUnitUpdater updater(cxIndex(), cxTranslationUnit(), parseInput);
+    TranslationUnitUpdater updater(id(), cxIndex(), cxTranslationUnit(), parseInput);
 
     return updater.update(TranslationUnitUpdater::UpdateMode::ParseIfNeeded);
 }
@@ -86,7 +93,7 @@ TranslationUnitUpdateResult TranslationUnit::parse(
 TranslationUnitUpdateResult TranslationUnit::reparse(
         const TranslationUnitUpdateInput &parseInput) const
 {
-    TranslationUnitUpdater updater(cxIndex(), cxTranslationUnit(), parseInput);
+    TranslationUnitUpdater updater(id(), cxIndex(), cxTranslationUnit(), parseInput);
 
     return updater.update(TranslationUnitUpdater::UpdateMode::ForceReparse);
 }
@@ -105,11 +112,12 @@ TranslationUnit::CodeCompletionResult TranslationUnit::complete(
 }
 
 void TranslationUnit::extractDocumentAnnotations(
-        QVector<DiagnosticContainer> &diagnostics,
+        DiagnosticContainer &firstHeaderErrorDiagnostic,
+        QVector<DiagnosticContainer> &mainFileDiagnostics,
         QVector<HighlightingMarkContainer> &highlightingMarks,
         QVector<SourceRangeContainer> &skippedSourceRanges) const
 {
-    diagnostics = mainFileDiagnostics();
+    extractDiagnostics(firstHeaderErrorDiagnostic, mainFileDiagnostics);
     highlightingMarks = this->highlightingMarks().toHighlightingMarksContainers();
     skippedSourceRanges = this->skippedSourceRanges().toSourceRangeContainers();
 }
@@ -117,15 +125,6 @@ void TranslationUnit::extractDocumentAnnotations(
 DiagnosticSet TranslationUnit::diagnostics() const
 {
     return DiagnosticSet(clang_getDiagnosticSetFromTU(m_cxTranslationUnit));
-}
-
-QVector<DiagnosticContainer> TranslationUnit::mainFileDiagnostics() const
-{
-    const auto isMainFileDiagnostic = [this](const Diagnostic &diagnostic) {
-        return diagnostic.location().filePath() == m_filePath;
-    };
-
-    return diagnostics().toDiagnosticContainers(isMainFileDiagnostic);
 }
 
 SourceLocation TranslationUnit::sourceLocationAt(uint line,uint column) const
@@ -184,6 +183,37 @@ HighlightingMarks TranslationUnit::highlightingMarksInRange(const SourceRange &r
 SkippedSourceRanges TranslationUnit::skippedSourceRanges() const
 {
     return SkippedSourceRanges(m_cxTranslationUnit, m_filePath.constData());
+}
+
+static bool isMainFileDiagnostic(const Utf8String &mainFilePath, const Diagnostic &diagnostic)
+{
+    return diagnostic.location().filePath() == mainFilePath;
+}
+
+static bool isHeaderErrorDiagnostic(const Utf8String &mainFilePath, const Diagnostic &diagnostic)
+{
+    const bool isCritical = diagnostic.severity() == DiagnosticSeverity::Error
+                         || diagnostic.severity() == DiagnosticSeverity::Fatal;
+    return isCritical && diagnostic.location().filePath() != mainFilePath;
+}
+
+void TranslationUnit::extractDiagnostics(DiagnosticContainer &firstHeaderErrorDiagnostic,
+                                         QVector<DiagnosticContainer> &mainFileDiagnostics) const
+{
+    mainFileDiagnostics.clear();
+    mainFileDiagnostics.reserve(int(diagnostics().size()));
+
+    bool hasFirstHeaderErrorDiagnostic = false;
+
+    for (const Diagnostic &diagnostic : diagnostics()) {
+        if (!hasFirstHeaderErrorDiagnostic && isHeaderErrorDiagnostic(m_filePath, diagnostic)) {
+            hasFirstHeaderErrorDiagnostic = true;
+            firstHeaderErrorDiagnostic = diagnostic.toDiagnosticContainer();
+        }
+
+        if (isMainFileDiagnostic(m_filePath, diagnostic))
+            mainFileDiagnostics.push_back(diagnostic.toDiagnosticContainer());
+    }
 }
 
 } // namespace ClangBackEnd

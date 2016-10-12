@@ -44,6 +44,7 @@
 #include <cplusplus/Scope.h>
 #include <cplusplus/BackwardsScanner.h>
 
+#include <utils/algorithm.h>
 #include <utils/changeset.h>
 
 #include <iostream>
@@ -1663,7 +1664,7 @@ void generateASTPatternBuilder_h(const QDir &cplusplusDir)
     }
 
     QStringList classesList = classesSet.toList();
-    qSort(classesList);
+    Utils::sort(classesList);
     foreach (const QString &className, classesList) {
         const QString methodName = className.left(className.length() - 3);
         const QString elementName = className.left(className.length() - 7) + QLatin1String("AST");

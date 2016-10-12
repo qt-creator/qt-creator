@@ -43,7 +43,7 @@ class CompleteCodeJob : public AsyncJob<CompleteCodeJobResult>
 public:
     using AsyncResult = CompleteCodeJobResult;
 
-    bool prepareAsyncRun() override;
+    AsyncPrepareResult prepareAsyncRun() override;
     void finalizeAsyncRun() override;
 
 private:

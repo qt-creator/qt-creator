@@ -313,6 +313,10 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
                              tr("Declaration"),
                              tr("Declaration of a function, variable, and so on."),
                              FormatDescription::ShowFontUnderlineAndRelativeControls);
+    formatDescr.emplace_back(C_OUTPUT_ARGUMENT,
+                             tr("Output Argument"),
+                             tr("Writable arguments of a function call."),
+                             FormatDescription::ShowFontUnderlineAndRelativeControls);
 
     d->m_fontSettingsPage = new FontSettingsPage(formatDescr,
                                                    Constants::TEXT_EDITOR_FONT_SETTINGS,

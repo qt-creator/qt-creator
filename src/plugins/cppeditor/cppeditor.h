@@ -31,6 +31,10 @@
 
 #include <QScopedPointer>
 
+namespace Core {
+class InfoBarEntry;
+}
+
 namespace CppTools {
 class CppEditorOutline;
 class RefactoringEngineInterface;
@@ -87,6 +91,7 @@ public:
 
     void switchDeclarationDefinition(bool inNextSplit);
     void showPreProcessorWidget();
+    void showHeaderErrorInfoBar();
 
     void findUsages();
     void renameSymbolUnderCursor();
@@ -108,6 +113,9 @@ protected:
 
     void slotCodeStyleSettingsChanged(const QVariant &) override;
 
+public:
+    using HeaderErrorDiagnosticWidgetCreator = std::function<QWidget*()>;
+
 private:
     void updateFunctionDeclDefLink();
     void updateFunctionDeclDefLinkNow();
@@ -118,10 +126,12 @@ private:
 
     void onCodeWarningsUpdated(unsigned revision,
                                const QList<QTextEdit::ExtraSelection> selections,
+                               const HeaderErrorDiagnosticWidgetCreator &creator,
                                const TextEditor::RefactorMarkers &refactorMarkers);
     void onIfdefedOutBlocksUpdated(unsigned revision,
                                    const QList<TextEditor::BlockRange> ifdefedOutBlocks);
 
+    void updateHeaderErrorWidgets();
     void updateSemanticInfo(const CppTools::SemanticInfo &semanticInfo,
                             bool updateUseSelectionSynchronously = false);
     void updatePreprocessorButtonTooltip();
@@ -139,6 +149,8 @@ private:
 
     void renameSymbolUnderCursorClang();
     void renameSymbolUnderCursorBuiltin();
+
+    void addHeaderErrorInfoBarEntryAndHideIndicator() const;
 
     CppTools::ProjectPart *projectPart() const;
 

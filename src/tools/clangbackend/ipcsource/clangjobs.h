@@ -31,6 +31,8 @@
 
 #include <QFuture>
 
+#include <functional>
+
 namespace ClangBackEnd {
 
 class ClangCodeModelClientInterface;
@@ -43,9 +45,12 @@ class Jobs
 public:
     struct RunningJob {
         JobRequest jobRequest;
+        Utf8String translationUnitId;
         QFuture<void> future;
     };
+
     using RunningJobs = QHash<IAsyncJob *, RunningJob>;
+    using JobFinishedCallback = std::function<void(RunningJob)>;
 
 public:
     Jobs(Documents &documents,
@@ -58,10 +63,13 @@ public:
 
     JobRequests process();
 
+    void setJobFinishedCallback(const JobFinishedCallback &jobFinishedCallback);
+
 public /*for tests*/:
-    int runningJobs() const;
+    QList<RunningJob> runningJobs() const;
     JobRequests queue() const;
-    bool isJobRunning(const Utf8String &filePath, const Utf8String &projectPartId) const;
+    bool isJobRunningForTranslationUnit(const Utf8String &translationUnitId) const;
+    bool isJobRunningForJobRequest(const JobRequest &jobRequest) const;
 
 private:
     JobRequests runJobs(const JobRequests &jobRequest);
@@ -75,6 +83,7 @@ private:
 
     JobQueue m_queue;
     RunningJobs m_running;
+    JobFinishedCallback m_jobFinishedCallback;
 };
 
 } // namespace ClangBackEnd

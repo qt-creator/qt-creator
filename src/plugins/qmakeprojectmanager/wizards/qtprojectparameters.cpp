@@ -93,6 +93,7 @@ void QtProjectParameters::writeProFile(QTextStream &str) const
     case ConsoleApp:
         // Mac: Command line apps should not be bundles
         str << "CONFIG   += console\nCONFIG   -= app_bundle\n\n";
+        // fallthrough
     case GuiApp:
         str << "TEMPLATE = app\n";
         break;

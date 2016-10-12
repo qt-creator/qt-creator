@@ -100,6 +100,7 @@ enum TextStyle : quint8 {
     C_ERROR_CONTEXT,
 
     C_DECLARATION,
+    C_OUTPUT_ARGUMENT,
 
     C_LAST_STYLE_SENTINEL
 };

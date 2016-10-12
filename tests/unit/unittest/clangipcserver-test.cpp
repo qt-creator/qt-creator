@@ -32,6 +32,7 @@
 #include <highlightingmarkcontainer.h>
 #include <clangcodemodelclientproxy.h>
 #include <clangcodemodelserverproxy.h>
+#include <clangtranslationunits.h>
 #include <requestdocumentannotations.h>
 #include <clangexceptions.h>
 
@@ -41,6 +42,7 @@
 #include <cmbunregisterprojectsforeditormessage.h>
 #include <cmbunregistertranslationunitsforeditormessage.h>
 
+#include <QCoreApplication>
 #include <QFile>
 
 using testing::Property;
@@ -134,6 +136,8 @@ protected:
                       const Utf8String &projectPartId = Utf8String());
     void completeCodeInFileA();
     void completeCodeInFileB();
+
+    bool isSupportiveTranslationUnitInitialized(const Utf8String &filePath);
 
     void expectDocumentAnnotationsChanged(int count);
     void expectCompletion(const CodeCompletion &completion);
@@ -286,6 +290,64 @@ TEST_F(ClangClangCodeModelServer, SetCurrentAndVisibleEditor)
     ASSERT_TRUE(functionDocument.isVisibleInEditor());
 }
 
+TEST_F(ClangClangCodeModelServer, StartCompletionJobFirstOnEditThatTriggersCompletion)
+{
+    registerProjectAndFile(filePathA, 2);
+    ASSERT_TRUE(waitUntilAllJobsFinished());
+    expectCompletionFromFileA();
+
+    updateUnsavedContent(filePathA, unsavedContent(filePathAUnsavedVersion2), 1);
+    completeCodeInFileA();
+
+    const QList<Jobs::RunningJob> jobs = clangServer.runningJobsForTestsOnly();
+    ASSERT_THAT(jobs.size(), Eq(1));
+    ASSERT_THAT(jobs.first().jobRequest.type, Eq(JobRequest::Type::CompleteCode));
+}
+
+TEST_F(ClangClangCodeModelServer, SupportiveTranslationUnitNotInitializedAfterRegister)
+{
+    registerProjectAndFile(filePathA, 1);
+
+    ASSERT_TRUE(waitUntilAllJobsFinished());
+    ASSERT_FALSE(isSupportiveTranslationUnitInitialized(filePathA));
+}
+
+TEST_F(ClangClangCodeModelServer, SupportiveTranslationUnitIsSetupAfterFirstEdit)
+{
+    registerProjectAndFile(filePathA, 2);
+    ASSERT_TRUE(waitUntilAllJobsFinished());
+
+    updateUnsavedContent(filePathA, unsavedContent(filePathAUnsavedVersion2), 1);
+
+    ASSERT_TRUE(waitUntilAllJobsFinished());
+    ASSERT_TRUE(isSupportiveTranslationUnitInitialized(filePathA));
+}
+
+TEST_F(ClangClangCodeModelServer, DoNotRunDuplicateJobs)
+{
+    registerProjectAndFile(filePathA, 3);
+    ASSERT_TRUE(waitUntilAllJobsFinished());
+    updateUnsavedContent(filePathA, unsavedContent(filePathAUnsavedVersion2), 1);
+    ASSERT_TRUE(waitUntilAllJobsFinished());
+    ASSERT_TRUE(isSupportiveTranslationUnitInitialized(filePathA));
+    updateUnsavedContent(filePathA, unsavedContent(filePathAUnsavedVersion2), 2);
+    QCoreApplication::processEvents(); // adds + runs a job
+    updateVisibilty(Utf8String(), Utf8String());
+
+    updateVisibilty(filePathA, filePathA); // triggers adding + runnings job on next processevents()
+}
+
+TEST_F(ClangClangCodeModelServer, OpenDocumentAndEdit)
+{
+    registerProjectAndFile(filePathA, 4);
+    ASSERT_TRUE(waitUntilAllJobsFinished());
+
+    for (unsigned revision = 1; revision <= 3; ++revision) {
+        updateUnsavedContent(filePathA, unsavedContent(filePathAUnsavedVersion2), revision);
+        ASSERT_TRUE(waitUntilAllJobsFinished());
+    }
+}
+
 TEST_F(ClangClangCodeModelServer, IsNotCurrentCurrentAndVisibleEditorAnymore)
 {
     registerProjectAndFilesAndWaitForFinished();
@@ -323,8 +385,8 @@ void ClangClangCodeModelServer::TearDown()
 bool ClangClangCodeModelServer::waitUntilAllJobsFinished(int timeOutInMs)
 {
     const auto noJobsRunningAnymore = [this]() {
-        return clangServer.jobsForTestOnly().runningJobs() == 0
-            && clangServer.jobsForTestOnly().queue().size() == 0
+        return clangServer.runningJobsForTestsOnly().isEmpty()
+            && clangServer.queueSizeForTestsOnly() == 0
             && !clangServer.isTimerRunningForTestOnly();
     };
 
@@ -409,6 +471,16 @@ void ClangClangCodeModelServer::completeCodeInFileA()
 void ClangClangCodeModelServer::completeCodeInFileB()
 {
     completeCode(filePathB, 35, 1);
+}
+
+bool ClangClangCodeModelServer::isSupportiveTranslationUnitInitialized(const Utf8String &filePath)
+{
+    Document document = clangServer.documentsForTestOnly().document(filePath, projectPartId);
+    DocumentProcessor documentProcessor = clangServer.documentProcessors().processor(document);
+
+    return document.translationUnits().size() == 2
+        && documentProcessor.hasSupportiveTranslationUnit()
+        && documentProcessor.isSupportiveTranslationUnitInitialized();
 }
 
 void ClangClangCodeModelServer::expectCompletion(const CodeCompletion &completion)

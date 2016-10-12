@@ -27,6 +27,7 @@
 #include "clangjobqueue.h"
 #include "clangdocument.h"
 #include "clangdocuments.h"
+#include "clangtranslationunits.h"
 #include "projects.h"
 #include "unsavedfiles.h"
 
@@ -40,11 +41,22 @@ JobQueue::JobQueue(Documents &documents, ProjectParts &projectParts)
 {
 }
 
-void JobQueue::add(const JobRequest &job)
+bool JobQueue::add(const JobRequest &job)
 {
-    qCDebug(jobsLog) << "Adding" << job;
+    if (m_queue.contains(job)) {
+        qCDebug(jobsLog) << "Not adding duplicate request" << job;
+        return false;
+    }
 
+    if (isJobRunningForJobRequest(job)) {
+        qCDebug(jobsLog) << "Not adding duplicate request for already running job" << job;
+        return false;
+    }
+
+    qCDebug(jobsLog) << "Adding" << job;
     m_queue.append(job);
+
+    return true;
 }
 
 int JobQueue::size() const
@@ -164,50 +176,65 @@ void JobQueue::prioritizeRequests()
 JobRequests JobQueue::takeJobRequestsToRunNow()
 {
     JobRequests jobsToRun;
-    QSet<DocumentId> documentsScheduledForThisRun;
+    using TranslationUnitIds = QSet<Utf8String>;
+    TranslationUnitIds translationUnitsScheduledForThisRun;
 
     QMutableVectorIterator<JobRequest> i(m_queue);
     while (i.hasNext()) {
-        const JobRequest &jobRequest = i.next();
+        const JobRequest &request = i.next();
 
         try {
-            const Document &document
-                    = m_documents.document(jobRequest.filePath,
-                                                         jobRequest.projectPartId);
-            const DocumentId documentId = DocumentId(jobRequest.filePath, jobRequest.projectPartId);
+            const Document &document = m_documents.document(request.filePath,
+                                                            request.projectPartId);
 
             if (!document.isUsedByCurrentEditor() && !document.isVisibleInEditor())
                 continue;
 
-            if (documentsScheduledForThisRun.contains(documentId))
+            const Utf8String id = document.translationUnit(request.preferredTranslationUnit).id();
+            if (translationUnitsScheduledForThisRun.contains(id))
                 continue;
 
-            if (isJobRunningForDocument(documentId))
+            if (isJobRunningForTranslationUnit(id))
                 continue;
 
-            documentsScheduledForThisRun.insert(documentId);
-            jobsToRun += jobRequest;
+            translationUnitsScheduledForThisRun.insert(id);
+            jobsToRun += request;
             i.remove();
         } catch (const std::exception &exception) {
             qWarning() << "Error in Jobs::takeJobRequestsToRunNow for"
-                       << jobRequest << ":" << exception.what();
+                       << request << ":" << exception.what();
         }
     }
 
     return jobsToRun;
 }
 
-bool JobQueue::isJobRunningForDocument(const JobQueue::DocumentId &documentId)
+bool JobQueue::isJobRunningForTranslationUnit(const Utf8String &translationUnitId)
 {
-    if (m_isJobRunningHandler)
-        return m_isJobRunningHandler(documentId.first, documentId.second);
+    if (m_isJobRunningForTranslationUnitHandler)
+        return m_isJobRunningForTranslationUnitHandler(translationUnitId);
 
     return false;
 }
 
-void JobQueue::setIsJobRunningHandler(const IsJobRunningHandler &isJobRunningHandler)
+bool JobQueue::isJobRunningForJobRequest(const JobRequest &jobRequest)
 {
-    m_isJobRunningHandler = isJobRunningHandler;
+    if (m_isJobRunningForJobRequestHandler)
+        return m_isJobRunningForJobRequestHandler(jobRequest);
+
+    return false;
+}
+
+void JobQueue::setIsJobRunningForTranslationUnitHandler(
+        const IsJobRunningForTranslationUnitHandler &isJobRunningHandler)
+{
+    m_isJobRunningForTranslationUnitHandler = isJobRunningHandler;
+}
+
+void JobQueue::setIsJobRunningForJobRequestHandler(
+        const JobQueue::IsJobRunningForJobRequestHandler &isJobRunningHandler)
+{
+    m_isJobRunningForJobRequestHandler = isJobRunningHandler;
 }
 
 JobRequests JobQueue::queue() const

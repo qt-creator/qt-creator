@@ -58,7 +58,10 @@ public:
 
     QVector<HighlightingMarkContainer> toHighlightingMarksContainers() const;
 
+    bool currentOutputArgumentRangesAreEmpty() const;
+
 private:
+    mutable std::vector<CXSourceRange> currentOutputArgumentRanges;
     CXTranslationUnit cxTranslationUnit = nullptr;
     CXToken *const cxToken = nullptr;
     const uint cxTokenCount = 0;

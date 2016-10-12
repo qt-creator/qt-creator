@@ -36,6 +36,7 @@ namespace ClangBackEnd {
 
 struct RequestDocumentAnnotationsJobResult
 {
+    ClangBackEnd::DiagnosticContainer firstHeaderErrorDiagnostic;
     QVector<ClangBackEnd::DiagnosticContainer> diagnostics;
     QVector<HighlightingMarkContainer> highlightingMarks;
     QVector<SourceRangeContainer> skippedSourceRanges;
@@ -46,7 +47,7 @@ class RequestDocumentAnnotationsJob : public AsyncJob<RequestDocumentAnnotations
 public:
     using AsyncResult = RequestDocumentAnnotationsJobResult;
 
-    bool prepareAsyncRun() override;
+    AsyncPrepareResult prepareAsyncRun() override;
     void finalizeAsyncRun() override;
 
 private:

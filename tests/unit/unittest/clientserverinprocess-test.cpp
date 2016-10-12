@@ -277,6 +277,7 @@ TEST_F(ClientServerInProcess, SendDocumentAnnotationsChangedMessage)
 
     ClangBackEnd::DocumentAnnotationsChangedMessage message(fileContainer,
                                                             {diagnostic},
+                                                            {},
                                                             {highlightingMark},
                                                             QVector<SourceRangeContainer>());
 

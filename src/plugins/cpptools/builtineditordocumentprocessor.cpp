@@ -310,7 +310,10 @@ void BuiltinEditorDocumentProcessor::onCodeWarningsUpdated(
 
     m_codeWarnings += toTextEditorSelections(codeWarnings, textDocument());
     m_codeWarningsUpdated = true;
-    emit codeWarningsUpdated(revision(), m_codeWarnings, TextEditor::RefactorMarkers());
+    emit codeWarningsUpdated(revision(),
+                             m_codeWarnings,
+                             HeaderErrorDiagnosticWidgetCreator(),
+                             TextEditor::RefactorMarkers());
 }
 
 SemanticInfo::Source BuiltinEditorDocumentProcessor::createSemanticInfoSource(bool force) const

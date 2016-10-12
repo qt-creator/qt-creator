@@ -25,14 +25,18 @@
 
 #include "googletest.h"
 
+#include <clangclock.h>
 #include <clangtranslationunitupdater.h>
 
 #include <clang-c/Index.h>
 
+using ClangBackEnd::Clock;
+using ClangBackEnd::TimePoint;
 using ClangBackEnd::TranslationUnitUpdater;
 using ClangBackEnd::TranslationUnitUpdateInput;
 using ClangBackEnd::TranslationUnitUpdateResult;
 
+using testing::Eq;
 using testing::Gt;
 
 namespace {
@@ -42,7 +46,8 @@ class TranslationUnitUpdater : public ::testing::Test
 protected:
     void TearDown() override;
 
-    ::TranslationUnitUpdater createUpdater(const TranslationUnitUpdateInput &input);
+    ::TranslationUnitUpdater createUpdater(const TranslationUnitUpdateInput &input,
+                                           const Utf8String &translationUnitId = Utf8String());
 
     enum ReparseMode { SetReparseNeeded, DoNotSetReparseNeeded };
     TranslationUnitUpdateInput createInput(ReparseMode reparseMode = DoNotSetReparseNeeded);
@@ -73,10 +78,20 @@ TEST_F(TranslationUnitUpdater, ReparsesIfNeeded)
     ASSERT_TRUE(result.hasReparsed());
 }
 
+TEST_F(TranslationUnitUpdater, PropagatesTranslationUnitId)
+{
+    const Utf8String translationUnitId = Utf8StringLiteral("myId");
+    ::TranslationUnitUpdater updater = createUpdater(createInput(SetReparseNeeded), translationUnitId);
+
+    TranslationUnitUpdateResult result = updater.update(::TranslationUnitUpdater::UpdateMode::AsNeeded);
+
+    ASSERT_THAT(result.translationUnitId, Eq(translationUnitId));
+}
+
 TEST_F(TranslationUnitUpdater, UpdatesParseTimePoint)
 {
     ::TranslationUnitUpdater updater = createUpdater(createInput());
-    const std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
+    const TimePoint now = Clock::now();
 
     TranslationUnitUpdateResult result = updater.update(::TranslationUnitUpdater::UpdateMode::AsNeeded);
 
@@ -111,9 +126,10 @@ void TranslationUnitUpdater::TearDown()
 }
 
 ::TranslationUnitUpdater
-TranslationUnitUpdater::createUpdater(const TranslationUnitUpdateInput &input)
+TranslationUnitUpdater::createUpdater(const TranslationUnitUpdateInput &input,
+                                      const Utf8String &translationUnitId)
 {
-    return ::TranslationUnitUpdater(cxIndex, cxTranslationUnit, input);
+    return ::TranslationUnitUpdater(translationUnitId, cxIndex, cxTranslationUnit, input);
 }
 
 TranslationUnitUpdateInput

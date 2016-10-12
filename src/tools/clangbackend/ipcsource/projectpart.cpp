@@ -39,13 +39,13 @@ public:
     ~ProjectPartData();
 
 public:
-    time_point lastChangeTimePoint;
+    TimePoint lastChangeTimePoint;
     Utf8StringVector arguments;
     Utf8String projectPartId;
 };
 
 ProjectPartData::ProjectPartData(const Utf8String &projectPartId)
-    : lastChangeTimePoint(std::chrono::steady_clock::now()),
+    : lastChangeTimePoint(Clock::now()),
       projectPartId(projectPartId)
 {
 }
@@ -111,14 +111,14 @@ const Utf8StringVector ProjectPart::arguments() const
     return d->arguments;
 }
 
-const time_point &ProjectPart::lastChangeTimePoint() const
+const TimePoint &ProjectPart::lastChangeTimePoint() const
 {
     return d->lastChangeTimePoint;
 }
 
 void ProjectPart::updateLastChangeTimePoint()
 {
-    d->lastChangeTimePoint = std::chrono::steady_clock::now();
+    d->lastChangeTimePoint = Clock::now();
 }
 
 bool operator==(const ProjectPart &first, const ProjectPart &second)

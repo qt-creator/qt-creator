@@ -39,6 +39,7 @@ struct UpdateDocumentAnnotationsJobResult
 {
     TranslationUnitUpdateResult updateResult;
 
+    ClangBackEnd::DiagnosticContainer firstHeaderErrorDiagnostic;
     QVector<ClangBackEnd::DiagnosticContainer> diagnostics;
     QVector<HighlightingMarkContainer> highlightingMarks;
     QVector<SourceRangeContainer> skippedSourceRanges;
@@ -49,7 +50,7 @@ class UpdateDocumentAnnotationsJob : public AsyncJob<UpdateDocumentAnnotationsJo
 public:
     using AsyncResult = UpdateDocumentAnnotationsJobResult;
 
-    bool prepareAsyncRun() override;
+    AsyncPrepareResult prepareAsyncRun() override;
     void finalizeAsyncRun() override;
 
 private:

@@ -41,6 +41,7 @@
 #include <utils/proxyaction.h>
 #include <utils/qtcassert.h>
 
+#include <QFileInfo>
 #include <QTextBlock>
 
 namespace  {

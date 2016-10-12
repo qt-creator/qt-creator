@@ -622,25 +622,25 @@ void HelpPlugin::handleHelpRequest(const QUrl &url, HelpManager::HelpViewerLocat
     if (HelpViewer::launchWithExternalApp(url))
         return;
 
-    QString address = url.toString();
     if (!HelpManager::findFile(url).isValid()) {
+        const QString address = url.toString();
         if (address.startsWith("qthelp://org.qt-project.")
-            || address.startsWith("qthelp://com.nokia.")
-            || address.startsWith("qthelp://com.trolltech.")) {
-                // local help not installed, resort to external web help
-                QString urlPrefix = "http://doc.qt.io/";
-                if (url.authority() == "org.qt-project.qtcreator")
-                    urlPrefix.append(QString::fromLatin1("qtcreator"));
-                else
-                    urlPrefix.append("qt-5");
-            address = urlPrefix + address.mid(address.lastIndexOf(QLatin1Char('/')));
+                || address.startsWith("qthelp://com.nokia.")
+                || address.startsWith("qthelp://com.trolltech.")) {
+            // local help not installed, resort to external web help
+            QString urlPrefix = "http://doc.qt.io/";
+            if (url.authority() == "org.qt-project.qtcreator")
+                urlPrefix.append(QString::fromLatin1("qtcreator"));
+            else
+                urlPrefix.append("qt-5");
+            QDesktopServices::openUrl(QUrl(urlPrefix + address.mid(address.lastIndexOf(QLatin1Char('/')))));
+            return;
         }
     }
 
-    const QUrl newUrl(address);
     HelpViewer *viewer = viewerForHelpViewerLocation(location);
     QTC_ASSERT(viewer, return);
-    viewer->setSource(newUrl);
+    viewer->setSource(url);
     ICore::raiseWindow(viewer);
 }
 

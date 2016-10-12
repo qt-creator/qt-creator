@@ -49,13 +49,20 @@ SOURCES += \
     clangdiagnosticfilter-test.cpp \
     clangdocuments-test.cpp \
     clangdocument-test.cpp \
+    clangdocumentprocessor-test.cpp \
+    clangdocumentprocessors-test.cpp \
     clangfixitoperation-test.cpp \
     clangipcserver-test.cpp \
     clangisdiagnosticrelatedtolocation-test.cpp \
     clangjobqueue-test.cpp \
     clangjobs-test.cpp \
+    clangparsesupportivetranslationunitjobtest.cpp \
+    clangreparsesupportivetranslationunitjobtest.cpp \
     clangrequestdocumentannotationsjob-test.cpp \
+    clangsupportivetranslationunitinitializertest.cpp \
     clangstring-test.cpp \
+    clangtranslationunit-test.cpp \
+    clangtranslationunits-test.cpp \
     clangupdatedocumentannotationsjob-test.cpp \
     codecompletionsextractor-test.cpp \
     codecompletion-test.cpp \
@@ -111,6 +118,7 @@ HEADERS += \
     chunksreportedmonitor.h \
     clangasyncjob-base.h \
     diagnosticcontainer-matcher.h \
+    clangcompareoperators.h \
     dummyclangipcclient.h \
     mockclangcodemodelclient.h \
     mockclangcodemodelserver.h

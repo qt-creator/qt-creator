@@ -49,7 +49,7 @@ public:
     bool isConstantPointer() const;
     bool isLValueReference() const;
     bool isReferencingConstant() const;
-    bool isOutputParameter() const;
+    bool isOutputArgument() const;
 
     Utf8String utf8Spelling() const;
     ClangString spelling() const;

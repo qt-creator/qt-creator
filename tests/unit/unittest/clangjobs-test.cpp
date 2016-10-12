@@ -79,7 +79,7 @@ TEST_F(Jobs, ProcessEmptyQueue)
     const JobRequests jobsStarted = jobs.process();
 
     ASSERT_THAT(jobsStarted.size(), Eq(0));
-    ASSERT_THAT(jobs.runningJobs(), Eq(0));
+    ASSERT_TRUE(jobs.runningJobs().isEmpty());
 }
 
 TEST_F(Jobs, ProcessQueueWithSingleJob)
@@ -89,7 +89,7 @@ TEST_F(Jobs, ProcessQueueWithSingleJob)
     const JobRequests jobsStarted = jobs.process();
 
     ASSERT_THAT(jobsStarted.size(), Eq(1));
-    ASSERT_THAT(jobs.runningJobs(), Eq(1));
+    ASSERT_THAT(jobs.runningJobs().size(), Eq(1));
 }
 
 TEST_F(Jobs, ProcessQueueUntilEmpty)
@@ -108,7 +108,7 @@ TEST_F(Jobs, IsJobRunning)
     jobs.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
     jobs.process();
 
-    const bool isJobRunning = jobs.isJobRunning(filePath1, projectPartId);
+    const bool isJobRunning = jobs.isJobRunningForTranslationUnit(document.translationUnit().id());
 
     ASSERT_TRUE(isJobRunning);
 }
@@ -130,7 +130,7 @@ void Jobs::TearDown()
 
 bool Jobs::waitUntilAllJobsFinished(int timeOutInMs) const
 {
-    const auto noJobsRunningAnymore = [this](){ return jobs.runningJobs() == 0; };
+    const auto noJobsRunningAnymore = [this](){ return jobs.runningJobs().isEmpty(); };
 
     return ProcessEventUtilities::processEventsUntilTrue(noJobsRunningAnymore, timeOutInMs);
 }
@@ -138,7 +138,7 @@ bool Jobs::waitUntilAllJobsFinished(int timeOutInMs) const
 bool Jobs::waitUntilJobChainFinished(int timeOutInMs) const
 {
     const auto noJobsRunningAnymore = [this]() {
-        return jobs.runningJobs() == 0 && jobs.queue().isEmpty();
+        return jobs.runningJobs().isEmpty() && jobs.queue().isEmpty();
     };
 
     return ProcessEventUtilities::processEventsUntilTrue(noJobsRunningAnymore, timeOutInMs);

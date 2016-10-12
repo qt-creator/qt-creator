@@ -43,11 +43,13 @@ class HighlightingMarksIterator : public std::iterator<std::forward_iterator_tag
 {
 public:
     HighlightingMarksIterator(std::vector<CXCursor>::const_iterator cxCursorIterator,
-                                     CXToken *cxToken,
-                                     CXTranslationUnit cxTranslationUnit)
+                              CXToken *cxToken,
+                              CXTranslationUnit cxTranslationUnit,
+                              std::vector<CXSourceRange> &currentOutputArgumentRanges)
         : cxCursorIterator(cxCursorIterator),
           cxToken(cxToken),
-          cxTranslationUnit(cxTranslationUnit)
+          cxTranslationUnit(cxTranslationUnit),
+          currentOutputArgumentRanges(currentOutputArgumentRanges)
     {}
 
     HighlightingMarksIterator& operator++()
@@ -60,7 +62,10 @@ public:
 
     HighlightingMarksIterator operator++(int)
     {
-        return HighlightingMarksIterator(cxCursorIterator++, cxToken++, cxTranslationUnit);
+        return HighlightingMarksIterator(cxCursorIterator++,
+                                         cxToken++,
+                                         cxTranslationUnit,
+                                         currentOutputArgumentRanges);
     }
 
     bool operator==(HighlightingMarksIterator other) const
@@ -75,13 +80,17 @@ public:
 
     HighlightingMark operator*()
     {
-        return HighlightingMark(*cxCursorIterator, cxToken, cxTranslationUnit);
+        return HighlightingMark(*cxCursorIterator,
+                                cxToken,
+                                cxTranslationUnit,
+                                currentOutputArgumentRanges);
     }
 
 private:
     std::vector<CXCursor>::const_iterator cxCursorIterator;
     CXToken *cxToken;
     CXTranslationUnit cxTranslationUnit;
+    std::vector<CXSourceRange> &currentOutputArgumentRanges;
 };
 
 } // namespace ClangBackEnd

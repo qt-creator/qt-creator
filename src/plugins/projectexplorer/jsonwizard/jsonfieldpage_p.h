@@ -105,6 +105,7 @@ private:
     bool m_isModified;
     bool m_isValidating;
     bool m_restoreLastHistoryItem;
+    bool m_isPassword;
     QString m_placeholderText;
     QString m_defaultText;
     QString m_disabledText;

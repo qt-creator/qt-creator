@@ -45,34 +45,36 @@ static UpdateDocumentAnnotationsJob::AsyncResult runAsyncHelper(
     asyncResult.updateResult = translationUnit.update(translationUnitUpdatInput);
 
     // Collect
-    translationUnit.extractDocumentAnnotations(asyncResult.diagnostics,
+    translationUnit.extractDocumentAnnotations(asyncResult.firstHeaderErrorDiagnostic,
+                                               asyncResult.diagnostics,
                                                asyncResult.highlightingMarks,
                                                asyncResult.skippedSourceRanges);
 
     return asyncResult;
 }
 
-bool UpdateDocumentAnnotationsJob::prepareAsyncRun()
+IAsyncJob::AsyncPrepareResult UpdateDocumentAnnotationsJob::prepareAsyncRun()
 {
     const JobRequest jobRequest = context().jobRequest;
-    QTC_ASSERT(jobRequest.type == JobRequest::Type::UpdateDocumentAnnotations, return false);
+    QTC_ASSERT(jobRequest.type == JobRequest::Type::UpdateDocumentAnnotations,
+               return AsyncPrepareResult());
 
     try {
         m_pinnedDocument = context().documentForJobRequest();
         m_pinnedFileContainer = m_pinnedDocument.fileContainer();
 
-        const TranslationUnit translationUnit = m_pinnedDocument.translationUnit();
+        const TranslationUnit translationUnit
+                = m_pinnedDocument.translationUnit(jobRequest.preferredTranslationUnit);
         const TranslationUnitUpdateInput updateInput = m_pinnedDocument.createUpdateInput();
         setRunner([translationUnit, updateInput]() {
             return runAsyncHelper(translationUnit, updateInput);
         });
+        return AsyncPrepareResult{translationUnit.id()};
 
     } catch (const std::exception &exception) {
         qWarning() << "Error in UpdateDocumentAnnotationsJob::prepareAsyncRun:" << exception.what();
-        return false;
+        return AsyncPrepareResult();
     }
-
-    return true;
 }
 
 void UpdateDocumentAnnotationsJob::finalizeAsyncRun()
@@ -94,6 +96,7 @@ void UpdateDocumentAnnotationsJob::sendAnnotations(const AsyncResult &result)
 {
     const DocumentAnnotationsChangedMessage message(m_pinnedFileContainer,
                                                     result.diagnostics,
+                                                    result.firstHeaderErrorDiagnostic,
                                                     result.highlightingMarks,
                                                     result.skippedSourceRanges);
 

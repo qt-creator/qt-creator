@@ -45,17 +45,25 @@ Jobs::Jobs(Documents &documents,
     , m_client(client)
     , m_queue(documents, projectParts)
 {
-    m_queue.setIsJobRunningHandler([this](const Utf8String &filePath,
-                                          const Utf8String &projectPartId) {
-        return isJobRunning(filePath, projectPartId);
+    m_queue.setIsJobRunningForTranslationUnitHandler([this](const Utf8String &translationUnitId) {
+        return isJobRunningForTranslationUnit(translationUnitId);
+    });
+    m_queue.setIsJobRunningForJobRequestHandler([this](const JobRequest &jobRequest) {
+        return isJobRunningForJobRequest(jobRequest);
     });
 }
 
 Jobs::~Jobs()
 {
+    foreach (IAsyncJob *asyncJob, m_running.keys())
+        asyncJob->preventFinalization();
+
     QFutureSynchronizer<void> waitForFinishedJobs;
     foreach (const RunningJob &runningJob, m_running.values())
         waitForFinishedJobs.addFuture(runningJob.future);
+
+    foreach (IAsyncJob *asyncJob, m_running.keys())
+        delete asyncJob;
 }
 
 void Jobs::add(const JobRequest &job)
@@ -87,22 +95,25 @@ JobRequests Jobs::runJobs(const JobRequests &jobsRequests)
 
 bool Jobs::runJob(const JobRequest &jobRequest)
 {
-    if (IAsyncJob *asyncJob = IAsyncJob::create(jobRequest.type)) {
-        JobContext context(jobRequest, &m_documents, &m_unsavedFiles, &m_client);
-        asyncJob->setContext(context);
+    IAsyncJob *asyncJob = IAsyncJob::create(jobRequest.type);
+    QTC_ASSERT(asyncJob, return false);
 
-        if (asyncJob->prepareAsyncRun()) {
-            qCDebug(jobsLog) << "Running" << jobRequest;
+    JobContext context(jobRequest, &m_documents, &m_unsavedFiles, &m_client);
+    asyncJob->setContext(context);
 
-            asyncJob->setFinishedHandler([this](IAsyncJob *asyncJob){ onJobFinished(asyncJob); });
-            const QFuture<void> future = asyncJob->runAsync();
+    if (const IAsyncJob::AsyncPrepareResult prepareResult = asyncJob->prepareAsyncRun()) {
+        qCDebug(jobsLog) << "Running" << jobRequest
+                         << "with TranslationUnit" << prepareResult.translationUnitId;
 
-            m_running.insert(asyncJob, RunningJob{jobRequest, future});
-            return true;
-        } else {
-            qCDebug(jobsLog) << "Preparation failed for " << jobRequest;
-            delete asyncJob;
-        }
+        asyncJob->setFinishedHandler([this](IAsyncJob *asyncJob){ onJobFinished(asyncJob); });
+        const QFuture<void> future = asyncJob->runAsync();
+
+        const RunningJob runningJob{jobRequest, prepareResult.translationUnitId, future};
+        m_running.insert(asyncJob, runningJob);
+        return true;
+    } else {
+        qCDebug(jobsLog) << "Preparation failed for " << jobRequest;
+        delete asyncJob;
     }
 
     return false;
@@ -112,15 +123,25 @@ void Jobs::onJobFinished(IAsyncJob *asyncJob)
 {
     qCDebug(jobsLog) << "Finishing" << asyncJob->context().jobRequest;
 
+    if (m_jobFinishedCallback) {
+        const RunningJob runningJob = m_running.value(asyncJob);
+        m_jobFinishedCallback(runningJob);
+    }
+
     m_running.remove(asyncJob);
     delete asyncJob;
 
     process();
 }
 
-int Jobs::runningJobs() const
+void Jobs::setJobFinishedCallback(const JobFinishedCallback &jobFinishedCallback)
 {
-    return m_running.size();
+    m_jobFinishedCallback = jobFinishedCallback;
+}
+
+QList<Jobs::RunningJob> Jobs::runningJobs() const
+{
+    return m_running.values();
 }
 
 JobRequests Jobs::queue() const
@@ -128,12 +149,19 @@ JobRequests Jobs::queue() const
     return m_queue.queue();
 }
 
-bool Jobs::isJobRunning(const Utf8String &filePath, const Utf8String &projectPartId) const
+bool Jobs::isJobRunningForTranslationUnit(const Utf8String &translationUnitId) const
 {
-    const auto hasJobRequest = [filePath, projectPartId](const RunningJob &runningJob) {
-        const JobRequest &jobRequest = runningJob.jobRequest;
-        return filePath == jobRequest.filePath
-            && projectPartId == jobRequest.projectPartId;
+    const auto hasTranslationUnitId = [translationUnitId](const RunningJob &runningJob) {
+        return runningJob.translationUnitId == translationUnitId;
+    };
+
+    return Utils::anyOf(m_running.values(), hasTranslationUnitId);
+}
+
+bool Jobs::isJobRunningForJobRequest(const JobRequest &jobRequest) const
+{
+    const auto hasJobRequest = [jobRequest](const RunningJob &runningJob) {
+        return runningJob.jobRequest == jobRequest;
     };
 
     return Utils::anyOf(m_running.values(), hasJobRequest);

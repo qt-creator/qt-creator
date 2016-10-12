@@ -711,10 +711,11 @@ public:
         return m_tool->createRunControl(runConfiguration, mode);
     }
 
-    IRunConfigurationAspect *createRunConfigurationAspect(ProjectExplorer::RunConfiguration *rc) override
-    {
-        return createValgrindRunConfigurationAspect(rc);
-    }
+    // Do not create an aspect, let the Callgrind tool create one and use that, too.
+//    IRunConfigurationAspect *createRunConfigurationAspect(ProjectExplorer::RunConfiguration *rc) override
+//    {
+//        return createValgrindRunConfigurationAspect(rc);
+//    }
 
 public:
     MemcheckTool *m_tool;

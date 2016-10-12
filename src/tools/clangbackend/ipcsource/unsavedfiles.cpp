@@ -40,12 +40,12 @@ public:
     UnsavedFilesData();
 
 public:
-    time_point lastChangeTimePoint;
+    TimePoint lastChangeTimePoint;
     QVector<UnsavedFile> unsavedFiles;
 };
 
 UnsavedFilesData::UnsavedFilesData()
-    : lastChangeTimePoint(std::chrono::steady_clock::now())
+    : lastChangeTimePoint(Clock::now())
 {
 }
 
@@ -116,7 +116,7 @@ UnsavedFilesShallowArguments UnsavedFiles::shallowArguments() const
     return UnsavedFilesShallowArguments(*this);
 }
 
-const time_point UnsavedFiles::lastChangeTimePoint() const
+const TimePoint UnsavedFiles::lastChangeTimePoint() const
 {
     return d->lastChangeTimePoint;
 }
@@ -154,7 +154,7 @@ void UnsavedFiles::addOrUpdateUnsavedFile(const FileContainer &fileContainer)
 
 void UnsavedFiles::updateLastChangeTimePoint()
 {
-    d->lastChangeTimePoint = std::chrono::steady_clock::now();
+    d->lastChangeTimePoint = Clock::now();
 }
 
 } // namespace ClangBackEnd

@@ -186,6 +186,7 @@ TEST_F(ReadAndWriteMessageBlock, CompareDocumentAnnotationsChangedMessage)
 
     CompareMessage(ClangBackEnd::DocumentAnnotationsChangedMessage(fileContainer,
                                                                    {diagnostic},
+                                                                   {},
                                                                    {highlightingMark},
                                                                    QVector<ClangBackEnd::SourceRangeContainer>()));
 }

@@ -30,6 +30,7 @@
 #include "highlightingmark.h"
 #include "sourcelocation.h"
 #include "sourcerange.h"
+#include "sourcerangecontainer.h"
 
 #include <cstring>
 #include <ostream>
@@ -39,16 +40,19 @@
 namespace ClangBackEnd {
 
 HighlightingMark::HighlightingMark(const CXCursor &cxCursor,
-                                                 CXToken *cxToken,
-                                                 CXTranslationUnit cxTranslationUnit)
+                                   CXToken *cxToken,
+                                   CXTranslationUnit cxTranslationUnit,
+                                   std::vector<CXSourceRange> &currentOutputArgumentRanges)
+    : currentOutputArgumentRanges(&currentOutputArgumentRanges),
+      originalCursor(cxCursor)
 {
     const SourceRange sourceRange = clang_getTokenExtent(cxTranslationUnit, *cxToken);
     const auto start = sourceRange.start();
     const auto end = sourceRange.end();
 
-    originalCursor = cxCursor;
     line = start.line();
     column = start.column();
+    offset = start.offset();
     length = end.offset() - start.offset();
     collectKinds(cxToken, originalCursor);
 }
@@ -159,6 +163,17 @@ void HighlightingMark::variableKind(const Cursor &cursor)
         types.mainHighlightingType = HighlightingType::LocalVariable;
     else
         types.mainHighlightingType = HighlightingType::GlobalVariable;
+
+    if (isOutputArgument())
+        types.mixinHighlightingTypes.push_back(HighlightingType::OutputArgument);
+}
+
+void HighlightingMark::fieldKind(const Cursor &)
+{
+    types.mainHighlightingType = HighlightingType::Field;
+
+    if (isOutputArgument())
+        types.mixinHighlightingTypes.push_back(HighlightingType::OutputArgument);
 }
 
 bool HighlightingMark::isVirtualMethodDeclarationOrDefinition(const Cursor &cursor) const
@@ -185,6 +200,68 @@ void HighlightingMark::addExtraTypeIfFirstPass(HighlightingType type,
         types.mixinHighlightingTypes.push_back(type);
 }
 
+bool HighlightingMark::isArgumentInCurrentOutputArgumentLocations() const
+{
+    auto originalSourceLocation = originalCursor.cxSourceLocation();
+
+    const auto isNotSameOutputArgument = [&] (const CXSourceRange &currentSourceRange) {
+        return !(originalSourceLocation.int_data >= currentSourceRange.begin_int_data
+                 && originalSourceLocation.int_data <= currentSourceRange.end_int_data);
+    };
+
+    auto partitionPoint = std::partition(currentOutputArgumentRanges->begin(),
+                                         currentOutputArgumentRanges->end(),
+                                         isNotSameOutputArgument);
+
+    bool isOutputArgument = partitionPoint != currentOutputArgumentRanges->end();
+
+    if (isOutputArgument)
+        currentOutputArgumentRanges->erase(partitionPoint, currentOutputArgumentRanges->end());
+
+    return isOutputArgument;
+}
+
+bool HighlightingMark::isOutputArgument() const
+{
+    if (currentOutputArgumentRanges->empty())
+        return false;
+
+    return isArgumentInCurrentOutputArgumentLocations();
+}
+
+void HighlightingMark::collectOutputArguments(const Cursor &cursor)
+{
+    cursor.collectOutputArgumentRangesTo(*currentOutputArgumentRanges);
+    filterOutPreviousOutputArguments();
+}
+
+namespace {
+
+uint getStart(CXSourceRange cxSourceRange)
+{
+    CXSourceLocation startSourceLocation = clang_getRangeStart(cxSourceRange);
+
+    uint startOffset;
+
+    clang_getFileLocation(startSourceLocation, nullptr, nullptr, nullptr, &startOffset);
+
+    return startOffset;
+}
+}
+
+void HighlightingMark::filterOutPreviousOutputArguments()
+{
+    auto isAfterLocation = [this] (CXSourceRange outputRange) {
+        return getStart(outputRange) > offset;
+    };
+
+    auto precedingBegin = std::partition(currentOutputArgumentRanges->begin(),
+                                         currentOutputArgumentRanges->end(),
+                                         isAfterLocation);
+
+    currentOutputArgumentRanges->erase(precedingBegin, currentOutputArgumentRanges->end());
+}
+
 void HighlightingMark::functionKind(const Cursor &cursor, Recursion recursion)
 {
     if (isRealDynamicCall(cursor) || isVirtualMethodDeclarationOrDefinition(cursor))
@@ -204,12 +281,13 @@ void HighlightingMark::identifierKind(const Cursor &cursor, Recursion recursion)
         case CXCursor_CallExpr:
         case CXCursor_CXXMethod:                 functionKind(cursor, recursion); break;
         case CXCursor_NonTypeTemplateParameter:
-        case CXCursor_ParmDecl:                  types.mainHighlightingType = HighlightingType::LocalVariable; break;
+        case CXCursor_CompoundStmt:              types.mainHighlightingType = HighlightingType::LocalVariable; break;
+        case CXCursor_ParmDecl:
         case CXCursor_VarDecl:                   variableKind(cursor); break;
         case CXCursor_DeclRefExpr:               identifierKind(cursor.referenced(), Recursion::RecursivePass); break;
         case CXCursor_MemberRefExpr:             memberReferenceKind(cursor); break;
         case CXCursor_FieldDecl:
-        case CXCursor_MemberRef:
+        case CXCursor_MemberRef:                 fieldKind(cursor); break;
         case CXCursor_ObjCIvarDecl:
         case CXCursor_ObjCPropertyDecl:
         case CXCursor_ObjCClassMethodDecl:
@@ -282,15 +360,17 @@ HighlightingType operatorKind(const Cursor &cursor)
         return HighlightingType::Invalid;
 }
 
-HighlightingType punctationKind(const Cursor &cursor)
+}
+
+HighlightingType HighlightingMark::punctuationKind(const Cursor &cursor)
 {
     switch (cursor.kind()) {
         case CXCursor_DeclRefExpr: return operatorKind(cursor);
+        case CXCursor_CallExpr:    collectOutputArguments(cursor);
         default:                   return HighlightingType::Invalid;
     }
 }
 
-}
 void HighlightingMark::collectKinds(CXToken *cxToken, const Cursor &cursor)
 {
     auto cxTokenKind = clang_getTokenKind(*cxToken);
@@ -299,7 +379,7 @@ void HighlightingMark::collectKinds(CXToken *cxToken, const Cursor &cursor)
 
     switch (cxTokenKind) {
         case CXToken_Keyword:     types.mainHighlightingType = HighlightingType::Keyword; break;
-        case CXToken_Punctuation: types.mainHighlightingType = punctationKind(cursor); break;
+        case CXToken_Punctuation: types.mainHighlightingType = punctuationKind(cursor); break;
         case CXToken_Identifier:  identifierKind(cursor, Recursion::FirstPass); break;
         case CXToken_Comment:     types.mainHighlightingType = HighlightingType::Comment; break;
         case CXToken_Literal:     types.mainHighlightingType = literalKind(cursor); break;

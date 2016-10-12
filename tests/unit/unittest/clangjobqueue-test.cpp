@@ -28,6 +28,8 @@
 
 #include <clangdocument.h>
 #include <clangdocuments.h>
+#include <clangtranslationunit.h>
+#include <clangtranslationunits.h>
 #include <clangjobs.h>
 #include <filecontainer.h>
 #include <projectpart.h>
@@ -60,7 +62,9 @@ protected:
     Utf8String createTranslationUnitForDeletedFile();
 
     JobRequest createJobRequest(const Utf8String &filePath,
-                                JobRequest::Type type) const;
+                                JobRequest::Type type,
+                                PreferredTranslationUnit preferredTranslationUnit
+                                    = PreferredTranslationUnit::RecentlyParsed) const;
 
     void updateDocumentRevision();
     void updateUnsavedFiles();
@@ -91,6 +95,29 @@ TEST_F(JobQueue, AddJob)
     ASSERT_THAT(jobQueue.queue().size(), Eq(1));
 }
 
+TEST_F(JobQueue, DoNotAddDuplicate)
+{
+    const JobRequest request = createJobRequest(filePath1,
+                                                JobRequest::Type::UpdateDocumentAnnotations);
+    jobQueue.add(request);
+
+    const bool added = jobQueue.add(request);
+
+    ASSERT_FALSE(added);
+}
+
+TEST_F(JobQueue, DoNotAddDuplicateForWhichAJobIsAlreadyRunning)
+{
+    jobQueue.setIsJobRunningForJobRequestHandler([](const JobRequest &) {
+       return true;
+    });
+
+    const bool added = jobQueue.add(createJobRequest(filePath1,
+                                                     JobRequest::Type::UpdateDocumentAnnotations));
+
+    ASSERT_FALSE(added);
+}
+
 TEST_F(JobQueue, ProcessEmpty)
 {
     jobQueue.processQueue();
@@ -111,7 +138,7 @@ TEST_F(JobQueue, ProcessSingleJob)
 TEST_F(JobQueue, ProcessUntilEmpty)
 {
     jobQueue.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
-    jobQueue.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
+    jobQueue.add(createJobRequest(filePath1, JobRequest::Type::CreateInitialDocumentPreamble));
 
     JobRequests jobsToRun;
     ASSERT_THAT(jobQueue.size(), Eq(2));
@@ -231,7 +258,7 @@ TEST_F(JobQueue, PrioritizeCurrentDocumentOverVisible)
 TEST_F(JobQueue, RunNothingForNotCurrentOrVisibleDocument)
 {
     jobQueue.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
-    jobQueue.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
+    jobQueue.add(createJobRequest(filePath1, JobRequest::Type::CreateInitialDocumentPreamble));
     documents.setVisibleInEditors({});
     documents.setUsedByCurrentEditor(Utf8StringLiteral("aNonExistingFilePath"));
 
@@ -240,10 +267,10 @@ TEST_F(JobQueue, RunNothingForNotCurrentOrVisibleDocument)
     ASSERT_THAT(jobsToRun.size(), Eq(0));
 }
 
-TEST_F(JobQueue, RunOnlyOneJobPerDocumentIfMultipleAreInQueue)
+TEST_F(JobQueue, RunOnlyOneJobPerTranslationUnitIfMultipleAreInQueue)
 {
     jobQueue.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
-    jobQueue.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
+    jobQueue.add(createJobRequest(filePath1, JobRequest::Type::CreateInitialDocumentPreamble));
 
     const JobRequests jobsToRun = jobQueue.processQueue();
 
@@ -251,12 +278,30 @@ TEST_F(JobQueue, RunOnlyOneJobPerDocumentIfMultipleAreInQueue)
     ASSERT_THAT(jobQueue.size(), Eq(1));
 }
 
-TEST_F(JobQueue, DoNotRunJobForDocumentThatIsBeingProcessed)
+TEST_F(JobQueue, RunJobsForDistinctTranslationUnits)
+{
+    const TranslationUnit initialTu = document.translationUnit();
+    document.translationUnits().updateParseTimePoint(initialTu.id(), std::chrono::steady_clock::now());
+    const TranslationUnit alternativeTu = document.translationUnits().createAndAppend();
+    document.translationUnits().updateParseTimePoint(alternativeTu.id(), std::chrono::steady_clock::now());
+    jobQueue.add(createJobRequest(filePath1,
+                                  JobRequest::Type::UpdateDocumentAnnotations,
+                                  PreferredTranslationUnit::RecentlyParsed));
+    jobQueue.add(createJobRequest(filePath1,
+                                  JobRequest::Type::UpdateDocumentAnnotations,
+                                  PreferredTranslationUnit::PreviouslyParsed));
+
+    const JobRequests jobsToRun = jobQueue.processQueue();
+
+    ASSERT_THAT(jobsToRun.size(), Eq(2));
+    ASSERT_THAT(jobQueue.size(), Eq(0));
+}
+TEST_F(JobQueue, DoNotRunJobForTranslationUnittThatIsBeingProcessed)
 {
     jobQueue.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
-    jobQueue.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
+    jobQueue.add(createJobRequest(filePath1, JobRequest::Type::CreateInitialDocumentPreamble));
     JobRequests jobsToRun = jobQueue.processQueue();
-    jobQueue.setIsJobRunningHandler([](const Utf8String &, const Utf8String &) {
+    jobQueue.setIsJobRunningForTranslationUnitHandler([](const Utf8String &) {
        return true;
     });
 
@@ -397,8 +442,10 @@ Utf8String JobQueue::createTranslationUnitForDeletedFile()
     return temporaryFilePath;
 }
 
-JobRequest JobQueue::createJobRequest(const Utf8String &filePath,
-                                      JobRequest::Type type) const
+JobRequest JobQueue::createJobRequest(
+        const Utf8String &filePath,
+        JobRequest::Type type,
+        PreferredTranslationUnit preferredTranslationUnit) const
 {
     JobRequest jobRequest;
     jobRequest.type = type;
@@ -407,6 +454,7 @@ JobRequest JobQueue::createJobRequest(const Utf8String &filePath,
     jobRequest.projectPartId = projectPartId;
     jobRequest.unsavedFilesChangeTimePoint = unsavedFiles.lastChangeTimePoint();
     jobRequest.documentRevision = document.documentRevision();
+    jobRequest.preferredTranslationUnit = preferredTranslationUnit;
     jobRequest.projectChangeTimePoint = projects.project(projectPartId).lastChangeTimePoint();
 
     return jobRequest;

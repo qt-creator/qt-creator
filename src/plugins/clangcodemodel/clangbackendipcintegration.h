@@ -171,12 +171,18 @@ private:
     void onDisconnectedFromBackend();
     void onEditorAboutToClose(Core::IEditor *editor);
 
+    void logExecutableDoesNotExist();
+    void logRestartedDueToUnexpectedFinish();
+    void logStartTimeOut();
+    void logError(const QString &text);
+
     void updateTranslationUnitVisiblity(const Utf8String &currentEditorFilePath,
                                         const Utf8StringVector &visibleEditorsFilePaths);
 
 private:
     IpcReceiver m_ipcReceiver;
     ClangBackEnd::ClangCodeModelConnectionClient m_connection;
+    QTimer m_backendStartTimeOut;
     QScopedPointer<IpcSenderInterface> m_ipcSender;
     int m_connectedCount = 0;
 };

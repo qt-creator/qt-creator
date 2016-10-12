@@ -107,10 +107,11 @@ struct Data {
     Utf8String filePath{Utf8StringLiteral(TESTDATA_DIR"/highlightingmarks.cpp")};
     Document document{filePath,
                       ProjectPart(Utf8StringLiteral("projectPartId"),
-                                  {Utf8StringLiteral("-std=c++14")}),
+                                  {Utf8StringLiteral("-std=c++14"), Utf8StringLiteral("-I" TESTDATA_DIR)}),
                       {},
                       documents};
     TranslationUnit translationUnit{filePath,
+                                    filePath,
                                     document.translationUnit().cxIndex(),
                                     document.translationUnit().cxTranslationUnit()};
 };
@@ -956,6 +957,106 @@ TEST_F(HighlightingMarks, TypeDefDeclarationUsage)
     const auto infos = translationUnit.highlightingMarksInRange(sourceRange(419, 48));
 
     ASSERT_THAT(infos[0], HasOnlyType(HighlightingType::Type));
+}
+
+TEST_F(HighlightingMarks, NonConstReferenceArgument)
+{
+    const auto infos = translationUnit.highlightingMarksInRange(sourceRange(455, 35));
+
+    infos[1];
+
+    ASSERT_THAT(infos[2],
+                HasTwoTypes(HighlightingType::LocalVariable, HighlightingType::OutputArgument));
+}
+
+TEST_F(HighlightingMarks, ConstReferenceArgument)
+{
+    const auto infos = translationUnit.highlightingMarksInRange(sourceRange(464, 32));
+
+    infos[1];
+
+    ASSERT_THAT(infos[2],
+                HasOnlyType(HighlightingType::LocalVariable));
+}
+
+TEST_F(HighlightingMarks, RValueReferenceArgument)
+{
+    const auto infos = translationUnit.highlightingMarksInRange(sourceRange(473, 52));
+
+    infos[1];
+
+    ASSERT_THAT(infos[8],
+                HasOnlyType(HighlightingType::LocalVariable));
+}
+
+TEST_F(HighlightingMarks, NonConstPointerArgument)
+{
+    const auto infos = translationUnit.highlightingMarksInRange(sourceRange(482, 33));
+
+    infos[1];
+
+    ASSERT_THAT(infos[2],
+                HasTwoTypes(HighlightingType::LocalVariable, HighlightingType::OutputArgument));
+}
+
+TEST_F(HighlightingMarks, ConstPointerArgument)
+{
+    const auto infos = translationUnit.highlightingMarksInRange(sourceRange(491, 30));
+
+    infos[1];
+
+    ASSERT_THAT(infos[2],
+                HasOnlyType(HighlightingType::LocalVariable));
+}
+
+TEST_F(HighlightingMarks, NonConstReferenceArgumentCallInsideCall)
+{
+    const auto infos = translationUnit.highlightingMarksInRange(sourceRange(501, 64));
+    infos[1];
+
+    infos[3];
+
+    ASSERT_THAT(infos[7],
+                HasTwoTypes(HighlightingType::LocalVariable, HighlightingType::OutputArgument));
+}
+
+TEST_F(HighlightingMarks, OutputArgumentsAreEmptyAfterIteration)
+{
+    const auto infos = translationUnit.highlightingMarksInRange(sourceRange(501, 63));
+
+    for (const auto &info : infos ) {}
+
+    ASSERT_TRUE(infos.currentOutputArgumentRangesAreEmpty());
+}
+
+TEST_F(HighlightingMarks, NonConstReferenceArgumentFromFunctionParameter)
+{
+    const auto infos = translationUnit.highlightingMarksInRange(sourceRange(506, 42));
+
+    infos[1];
+
+    ASSERT_THAT(infos[2],
+                HasTwoTypes(HighlightingType::LocalVariable, HighlightingType::OutputArgument));
+}
+
+TEST_F(HighlightingMarks, NonConstPointerArgumentAsExpression)
+{
+    const auto infos = translationUnit.highlightingMarksInRange(sourceRange(513, 33));
+
+    infos[1];
+
+    ASSERT_THAT(infos[3],
+                HasTwoTypes(HighlightingType::LocalVariable, HighlightingType::OutputArgument));
+}
+
+TEST_F(HighlightingMarks, NonConstPointerArgumentAsMemberOfClass)
+{
+    const auto infos = translationUnit.highlightingMarksInRange(sourceRange(525, 46));
+
+    infos[1];
+
+    ASSERT_THAT(infos[4],
+                HasTwoTypes(HighlightingType::Field, HighlightingType::OutputArgument));
 }
 
 TEST_F(HighlightingMarks, DISABLED_EnumerationTypeDef)

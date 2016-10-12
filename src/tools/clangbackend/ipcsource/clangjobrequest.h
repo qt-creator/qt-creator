@@ -25,17 +25,20 @@
 
 #pragma once
 
+#include "clangbackend_global.h"
+#include "clangclock.h"
+
 #include <utf8string.h>
 
 #include <QFlags>
 #include <QDebug>
 #include <QVector>
 
-#include <chrono>
+#include <functional>
 
 namespace ClangBackEnd {
 
-using time_point = std::chrono::steady_clock::time_point;
+class Document;
 
 class JobRequest
 {
@@ -43,6 +46,10 @@ public:
     enum class Type {
         UpdateDocumentAnnotations,
         CreateInitialDocumentPreamble,
+
+        ParseSupportiveTranslationUnit,
+        ReparseSupportiveTranslationUnit,
+
         CompleteCode,
         RequestDocumentAnnotations,
     };
@@ -64,6 +71,8 @@ public:
 
     JobRequest();
 
+    bool operator==(const JobRequest &other) const;
+
 public:
     quint64 id = 0;
     Type type;
@@ -72,9 +81,10 @@ public:
     // General
     Utf8String filePath;
     Utf8String projectPartId;
-    time_point unsavedFilesChangeTimePoint;
-    time_point projectChangeTimePoint;
+    TimePoint unsavedFilesChangeTimePoint;
+    TimePoint projectChangeTimePoint;
     uint documentRevision = 0;
+    PreferredTranslationUnit preferredTranslationUnit = PreferredTranslationUnit::RecentlyParsed;
 
     // For code completion
     quint32 line = 0;
@@ -83,6 +93,9 @@ public:
 };
 
 using JobRequests = QVector<JobRequest>;
+using JobRequestCreator = std::function<JobRequest(const Document &,
+                                                   JobRequest::Type ,
+                                                   PreferredTranslationUnit)>;
 
 QDebug operator<<(QDebug debug, const JobRequest &jobRequest);
 

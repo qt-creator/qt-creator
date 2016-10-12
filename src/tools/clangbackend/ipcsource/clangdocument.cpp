@@ -32,6 +32,7 @@
 #include "projectpart.h"
 #include "clangexceptions.h"
 #include "clangtranslationunit.h"
+#include "clangtranslationunits.h"
 #include "clangtranslationunitupdater.h"
 #include "unsavedfiles.h"
 #include "unsavedfile.h"
@@ -62,15 +63,14 @@ public:
     const Utf8StringVector fileArguments;
 
     ProjectPart projectPart;
-    time_point lastProjectPartChangeTimePoint;
+    TimePoint lastProjectPartChangeTimePoint;
 
-    CXTranslationUnit translationUnit = nullptr;
-    CXIndex index = nullptr;
+    TranslationUnits translationUnits;
 
     QSet<Utf8String> dependedFilePaths;
 
     uint documentRevision = 0;
-    time_point needsToBeReparsedChangeTimePoint;
+    TimePoint needsToBeReparsedChangeTimePoint;
     bool hasParseOrReparseFailed = false;
     bool needsToBeReparsed = false;
     bool isUsedByCurrentEditor = false;
@@ -85,16 +85,16 @@ DocumentData::DocumentData(const Utf8String &filePath,
       filePath(filePath),
       fileArguments(fileArguments),
       projectPart(projectPart),
-      lastProjectPartChangeTimePoint(std::chrono::steady_clock::now()),
+      lastProjectPartChangeTimePoint(Clock::now()),
+      translationUnits(filePath),
       needsToBeReparsedChangeTimePoint(lastProjectPartChangeTimePoint)
 {
     dependedFilePaths.insert(filePath);
+    translationUnits.createAndAppend();
 }
 
 DocumentData::~DocumentData()
 {
-    clang_disposeTranslationUnit(translationUnit);
-    clang_disposeIndex(index);
 }
 
 Document::Document(const Utf8String &filePath,
@@ -183,7 +183,7 @@ const ProjectPart &Document::projectPart() const
     return d->projectPart;
 }
 
-const time_point Document::lastProjectPartChangeTimePoint() const
+const TimePoint Document::lastProjectPartChangeTimePoint() const
 {
     checkIfNull();
 
@@ -239,7 +239,7 @@ void Document::setIsVisibleInEditor(bool isVisibleInEditor)
     d->isVisibleInEditor = isVisibleInEditor;
 }
 
-time_point Document::isNeededReparseChangeTimePoint() const
+TimePoint Document::isNeededReparseChangeTimePoint() const
 {
     checkIfNull();
 
@@ -282,8 +282,13 @@ TranslationUnitUpdateInput Document::createUpdateInput() const
 
 TranslationUnitUpdater Document::createUpdater() const
 {
+    TranslationUnit unit = translationUnit();
+
     const TranslationUnitUpdateInput updateInput = createUpdateInput();
-    TranslationUnitUpdater updater(d->index, d->translationUnit, updateInput);
+    TranslationUnitUpdater updater(unit.id(),
+                                   unit.cxIndex(),
+                                   unit.cxTranslationUnit(),
+                                   updateInput);
 
     return updater;
 }
@@ -304,8 +309,12 @@ void Document::incorporateUpdaterResult(const TranslationUnitUpdateResult &resul
     if (result.hasParsed())
         d->lastProjectPartChangeTimePoint = result.parseTimePoint;
 
-    if (result.hasParsed() || result.hasReparsed())
+    if (result.hasParsed() || result.hasReparsed()) {
         d->dependedFilePaths = result.dependedOnFilePaths;
+
+        const TimePoint timePoint = qMax(result.parseTimePoint, result.reparseTimePoint);
+        d->translationUnits.updateParseTimePoint(result.translationUnitId, timePoint);
+    }
 
     d->documents.addWatchedFiles(d->dependedFilePaths);
 
@@ -315,11 +324,16 @@ void Document::incorporateUpdaterResult(const TranslationUnitUpdateResult &resul
     }
 }
 
-TranslationUnit Document::translationUnit() const
+TranslationUnit Document::translationUnit(PreferredTranslationUnit preferredTranslationUnit) const
 {
     checkIfNull();
 
-    return TranslationUnit(d->filePath, d->index, d->translationUnit);
+    return d->translationUnits.get(preferredTranslationUnit);
+}
+
+TranslationUnits &Document::translationUnits() const
+{
+    return d->translationUnits;
 }
 
 void Document::parse() const
@@ -352,7 +366,7 @@ const QSet<Utf8String> Document::dependedFilePaths() const
 
 void Document::setDirty()
 {
-    d->needsToBeReparsedChangeTimePoint = std::chrono::steady_clock::now();
+    d->needsToBeReparsedChangeTimePoint = Clock::now();
     d->needsToBeReparsed = true;
 }
 
