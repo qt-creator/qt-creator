@@ -105,5 +105,16 @@ Section {
             backendValue: backendValues.textFormat
             Layout.fillWidth: true
         }
+
+        Label {
+            text: qsTr("Render type")
+            toolTip: qsTr("Override the default rendering type for this item.")
+        }
+        ComboBox {
+            scope: "Text"
+            model:  ["QtRendering", "NativeRendering"]
+            backendValue: backendValues.renderType
+            Layout.fillWidth: true
+        }
     }
 }
