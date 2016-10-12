@@ -143,6 +143,18 @@ Section {
         }
 
         Label {
+            text: qsTr("Font weight")
+            toolTip: qsTr("Sets the font's weight.")
+        }
+
+        ComboBox {
+            Layout.fillWidth: true
+            backendValue: backendValues.font_weight
+            model:  ["Normal", "Light", "ExtraLight", "Thin", "Medium", "DemiBold", "Bold", "ExtraBold", "Black"]
+            scope: "Font"
+        }
+
+        Label {
             visible: showStyle
             text: qsTr("Style")
         }
