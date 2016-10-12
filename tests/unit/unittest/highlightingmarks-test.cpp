@@ -1024,7 +1024,7 @@ TEST_F(HighlightingMarks, OutputArgumentsAreEmptyAfterIteration)
 {
     const auto infos = translationUnit.highlightingMarksInRange(sourceRange(501, 63));
 
-    for (const auto &info : infos ) {}
+    for (const auto &info : infos ) { Q_UNUSED(info) }
 
     ASSERT_TRUE(infos.currentOutputArgumentRangesAreEmpty());
 }
