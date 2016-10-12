@@ -230,6 +230,26 @@
         <translation>Build-Verzeichnis:</translation>
     </message>
     <message>
+        <source>&amp;Add</source>
+        <translation>Hinzu&amp;fügen</translation>
+    </message>
+    <message>
+        <source>&amp;Boolean</source>
+        <translation>&amp;Boolesche Variable</translation>
+    </message>
+    <message>
+        <source>&amp;String</source>
+        <translation>&amp;Zeichenkette</translation>
+    </message>
+    <message>
+        <source>&amp;Directory</source>
+        <translation>&amp;Verzeichnis</translation>
+    </message>
+    <message>
+        <source>&amp;File</source>
+        <translation>&amp;Datei</translation>
+    </message>
+    <message>
         <source>&amp;Edit</source>
         <translation>B&amp;earbeiten</translation>
     </message>
@@ -244,6 +264,10 @@
     <message>
         <source>Apply Configuration Changes</source>
         <translation>Konfigurationsänderungen anwenden</translation>
+    </message>
+    <message>
+        <source>&lt;UNSET&gt;</source>
+        <translation>&lt;Nicht gesetzt&gt;</translation>
     </message>
     <message>
         <source>CMake</source>
@@ -1350,121 +1374,6 @@ Trotzdem fortfahren?</translation>
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::CompletionSettingsPage</name>
-    <message>
-        <source>Completion</source>
-        <translation>Ergänzung</translation>
-    </message>
-    <message>
-        <source>Behavior</source>
-        <translation>Verhalten</translation>
-    </message>
-    <message>
-        <source>&amp;Case-sensitivity:</source>
-        <translation>&amp;Groß/Kleinschreibung:</translation>
-    </message>
-    <message>
-        <source>Full</source>
-        <translation>Vollständig</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation>Keine</translation>
-    </message>
-    <message>
-        <source>First Letter</source>
-        <translation>Erster Buchstabe</translation>
-    </message>
-    <message>
-        <source>Activate completion:</source>
-        <translation>Code-Vervollständigung aktivieren:</translation>
-    </message>
-    <message>
-        <source>Manually</source>
-        <translation>Manuell</translation>
-    </message>
-    <message>
-        <source>When Triggered</source>
-        <translation>Auf Anforderung</translation>
-    </message>
-    <message>
-        <source>Always</source>
-        <translation>Immer</translation>
-    </message>
-    <message>
-        <source>Autocomplete common &amp;prefix</source>
-        <translation>Gemeinsamen &amp;Präfix ergänzen</translation>
-    </message>
-    <message>
-        <source>&amp;Automatically insert matching characters</source>
-        <translation>&amp;Passende Zeichen automatisch einfügen</translation>
-    </message>
-    <message>
-        <source>Surround &amp;text selections</source>
-        <translation>Ausgewählten Text &amp;einschließen</translation>
-    </message>
-    <message>
-        <source>Insert &amp;space after function name</source>
-        <translation>Leerzeichen nach &amp;Funktionsname einfügen</translation>
-    </message>
-    <message>
-        <source>Documentation Comments</source>
-        <translation>Kommentare für Dokumentation</translation>
-    </message>
-    <message>
-        <source>Enable Doxygen blocks</source>
-        <translation>Doxygen-Blöcke aktivieren</translation>
-    </message>
-    <message>
-        <source>Generate brief description</source>
-        <translation>Kurzbeschreibung erstellen</translation>
-    </message>
-    <message>
-        <source>Add leading asterisks</source>
-        <translation>Vorangehenden Asterisk einfügen</translation>
-    </message>
-    <message>
-        <source>Inserts the common prefix of available completion items.</source>
-        <translation>Fügt den gemeinsamen Präfix aller verfügbaren Vervollständigungen ein.</translation>
-    </message>
-    <message>
-        <source>Automatically inserts semicolons and closing brackets, parentheses, curly braces, and quotes when appropriate.</source>
-        <translation>Fügt sofern angebracht automatisch Semikola und schließende eckige Klammern, schließende runde Klammern, schließende geschweifte Klammern und schließende Anführungszeichen ein.</translation>
-    </message>
-    <message>
-        <source>When typing a matching character and there is a text selection, instead of removing the selection, surrounds it with the corresponding characters.</source>
-        <translation>Wenn eine Textauswahl existiert und man ein passendes Zeichen eingibt, wird die Auswahl in die entsprechenden Zeichen eingeschlossen, anstatt sie zu löschen.</translation>
-    </message>
-    <message>
-        <source>Generates a &lt;i&gt;brief&lt;/i&gt; command with an initial description for the corresponding declaration.</source>
-        <translation>Erstellt ein &lt;i&gt;brief&lt;/i&gt;-Kommando mit einer anfänglichen Beschreibung für die entsprechende Deklaration.</translation>
-    </message>
-    <message>
-        <source>Automatically creates a Doxygen comment upon pressing enter after a &apos;/**&apos;, &apos;/*!&apos;, &apos;//!&apos; or &apos;///&apos;.</source>
-        <translation>Erstellt automatisch einen Doxygen-Kommentar, wenn man nach &apos;/**&apos;, &apos;/*!&apos;, &apos;//!&apos; oder &apos;///&apos; die Enter-Taste betätigt.</translation>
-    </message>
-    <message>
-        <source>Adds leading asterisks when continuing C/C++ &quot;/*&quot;, Qt &quot;/*!&quot; and Java &quot;/**&quot; style comments on new lines.</source>
-        <translation>Fügt voranstehende Asterisk-Zeichen ein, wenn Kommentare im C/C++-Stil &quot;/*&quot;, Qt-Stil &quot;/*!&quot; oder Java-Stil &quot;/**&quot; auf neuen Zeilen fortgesetzt werden.</translation>
-    </message>
-    <message>
-        <source>Automatically split strings</source>
-        <translation>Zeichenketten automatisch teilen</translation>
-    </message>
-    <message>
-        <source>Splits a string into two lines by adding an end quote at the cursor position when you press Enter and a start quote to the next line, before the rest of the string.
-
-In addition, Shift+Enter inserts an escape character at the cursor position and moves the rest of the string to the next line.</source>
-        <translation>Fügt Anführungszeichen an der aktuellen Position und am Beginn der nächsten Zeile vor der restlichen Zeichenkette ein, um eine Zeichenkette zu teilen, wenn Sie die Eingabetaste drücken.
-
-Drücken Sie zusätzlich die Umschalttaste, wird ein Escape-Zeichen an der aktuellen Position eingefügt und der Rest der Zeichenkette in die nächste Zeile verschoben.</translation>
-    </message>
-    <message>
-        <source>Timeout in ms:</source>
-        <translation>Zeitüberschreitung nach (ms):</translation>
-    </message>
-</context>
-<context>
     <name>CppTools::Internal::CppCurrentDocumentFilter</name>
     <message>
         <source>C++ Symbols in Current Document</source>
@@ -2494,10 +2403,6 @@ Versuchen Sie: %2</translation>
         <translation>Es konnte keine Snapshot-Datei erstellt werden.</translation>
     </message>
     <message>
-        <source>Finished retrieving data</source>
-        <translation>Alle Daten erhalten</translation>
-    </message>
-    <message>
         <source>Cannot read widget data: %1</source>
         <translation>Die Widget-Daten konnten nicht gelesen werden: %1</translation>
     </message>
@@ -3038,6 +2943,10 @@ markers in the source code editor.</source>
         <translation>&lt;ungültig&gt;</translation>
     </message>
     <message>
+        <source>&lt;out of scope&gt;</source>
+        <translation>&lt;nicht im Scope&gt;</translation>
+    </message>
+    <message>
         <source>&lt;not accessible&gt;</source>
         <translation>&lt;unzugänglich&gt;</translation>
     </message>
@@ -3137,6 +3046,14 @@ markers in the source code editor.</source>
     <message>
         <source>Latin1 String in Separate Window</source>
         <translation>Latin1-Zeichenkette in eigenem Fenster</translation>
+    </message>
+    <message>
+        <source>Normal</source>
+        <translation>Normal</translation>
+    </message>
+    <message>
+        <source>Separate Window</source>
+        <translation>Separates Fenster</translation>
     </message>
     <message>
         <source>UTF-8 String in Separate Window</source>
@@ -3729,9 +3646,12 @@ Grund: %3</translation>
 </context>
 <context>
     <name>Git::Internal::BranchDialog</name>
-    <message>
-        <source>Include branches and tags that have not been active for %1 days.</source>
-        <translation>Branches und Tags einschließen, die seit %1 Tagen nicht benutzt wurden.</translation>
+    <message numerus="yes">
+        <source>Include branches and tags that have not been active for %n days.</source>
+        <translation>
+            <numerusform>Branches und Tags einschließen, die seit einem Tag nicht benutzt wurden.</numerusform>
+            <numerusform>Branches und Tags einschließen, die seit %n Tagen nicht benutzt wurden.</numerusform>
+        </translation>
     </message>
     <message>
         <source>Checkout</source>
@@ -3940,10 +3860,6 @@ Grund: %3</translation>
         <translation>Beschreibung:</translation>
     </message>
     <message>
-        <source>Cannot run &quot;%1 %2&quot; in &quot;%2&quot;: %3</source>
-        <translation>Das Kommando &quot;%1 %2&quot; konnte im Verzeichnis &quot;%2&quot; nicht ausgeführt werden: %3</translation>
-    </message>
-    <message>
         <source>Git Diff Project</source>
         <translation>Git Diff für Projekt</translation>
     </message>
@@ -4060,6 +3976,10 @@ Jetzt Commit durchführen?</translation>
     <message>
         <source>Git Diff Files</source>
         <translation>Git Diff von Dateien</translation>
+    </message>
+    <message>
+        <source>Cannot run &quot;%1&quot; in &quot;%2&quot;: %3</source>
+        <translation>Das Kommando &quot;%1&quot; konnte im Verzeichnis &quot;%2&quot; nicht ausgeführt werden: %3</translation>
     </message>
     <message>
         <source>Git Diff &quot;%1&quot;</source>
@@ -5301,6 +5221,14 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>GLSL/ES Geometrie Shader-Datei</translation>
     </message>
     <message>
+        <source>Nim project file</source>
+        <translation>Nim-Projektdatei</translation>
+    </message>
+    <message>
+        <source>Nim source file </source>
+        <translation>Nim-Quelldatei</translation>
+    </message>
+    <message>
         <source>Linguist translated messages (machine-readable)</source>
         <translation>Linguist-Übersetzungen (maschinenlesbar)</translation>
     </message>
@@ -5372,6 +5300,10 @@ Add, modify, and remove document filters, which determine the documentation set 
     <message>
         <source>Qt Project feature file</source>
         <translation>Qt-Projekt-Feature-Datei</translation>
+    </message>
+    <message>
+        <source>Scxml State Chart</source>
+        <translation>Scxml-Zustandsdiagramm</translation>
     </message>
     <message>
         <source>Qt Resource file</source>
@@ -5454,6 +5386,10 @@ Add, modify, and remove document filters, which determine the documentation set 
     <message>
         <source>Model Editor</source>
         <translation>Model-Editor</translation>
+    </message>
+    <message>
+        <source>Nim Editor</source>
+        <translation>Nim-Editor</translation>
     </message>
 </context>
 <context>
@@ -5950,29 +5886,6 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>PluginDialog</name>
-    <message>
-        <source>Details</source>
-        <translation>Beschreibung</translation>
-    </message>
-    <message>
-        <source>Error Details</source>
-        <translation>Fehlermeldungen</translation>
-    </message>
-    <message>
-        <source>Installed Plugins</source>
-        <translation>Installierte Plugins</translation>
-    </message>
-    <message>
-        <source>Plugin Details of %1</source>
-        <translation>Beschreibung zu %1</translation>
-    </message>
-    <message>
-        <source>Plugin Errors of %1</source>
-        <translation>Fehlermeldungen von %1</translation>
-    </message>
-</context>
-<context>
     <name>PluginManager</name>
     <message>
         <source>The plugin &quot;%1&quot; is specified twice for testing.</source>
@@ -6159,6 +6072,10 @@ Add, modify, and remove document filters, which determine the documentation set 
     <message>
         <source>Error while building/deploying project %1 (kit: %2)</source>
         <translation>Fehler beim Erstellen/Deployment des Projekts %1 (Kit: %2)</translation>
+    </message>
+    <message>
+        <source>The kit %1 has configuration issues which might be the root cause for this problem.</source>
+        <translation>Das Kit %1 enthält Konfigurationsprobleme, die die Ursache für dieses Problem sein könnten.</translation>
     </message>
     <message>
         <source>Running steps for project %1...</source>
@@ -6572,6 +6489,10 @@ Add, modify, and remove document filters, which determine the documentation set 
     <message>
         <source>&lt;i&gt;jom&lt;/i&gt; is a drop-in replacement for &lt;i&gt;nmake&lt;/i&gt; which distributes the compilation process to multiple CPU cores. The latest binary is available at &lt;a href=&quot;http://download.qt.io/official_releases/jom/&quot;&gt;http://download.qt.io/official_releases/jom/&lt;/a&gt;. Disable it if you experience problems with your builds.</source>
         <translation>&lt;i&gt;jom&lt;/i&gt; ist ein Ersatz für &lt;i&gt;nmake&lt;/i&gt;, der den Kompilationsprozess auf mehrere Prozessorkerne verteilt. Eine aktuelle Version erhalten Sie unter &lt;a href=&quot;http://download.qt.io/official_releases/jom/&quot;&gt;http://download.qt.io/official_releases/jom/&lt;/a&gt;. Deaktivieren Sie es, wenn Probleme beim Build auftreten.</translation>
+    </message>
+    <message>
+        <source>Same Build Directory</source>
+        <translation>Gleiches Build-Verzeichnis</translation>
     </message>
 </context>
 <context>
@@ -7114,6 +7035,10 @@ Möchten Sie sie ignorieren?</translation>
         <translation>Neues Teilprojekt...</translation>
     </message>
     <message>
+        <source>Duplicate File...</source>
+        <translation>Datei duplizieren...</translation>
+    </message>
+    <message>
         <source>Ctrl+T</source>
         <translation>Ctrl+T</translation>
     </message>
@@ -7218,6 +7143,22 @@ Möchten Sie sie ignorieren?</translation>
     <message>
         <source>Could not add following files to project %1:</source>
         <translation>Die folgenden Dateien konnten nicht zum Projekt &quot;%1&quot; hinzugefügt werden:</translation>
+    </message>
+    <message>
+        <source>_copy</source>
+        <translation>_kopie</translation>
+    </message>
+    <message>
+        <source>_copy%1</source>
+        <translation>_kopie%1</translation>
+    </message>
+    <message>
+        <source>Duplicating File Failed</source>
+        <translation>Datei konnte nicht dupliziert werden</translation>
+    </message>
+    <message>
+        <source>Could not duplicate the file %1.</source>
+        <translation>Die Datei %1 konnte nicht dupliziert werden.</translation>
     </message>
     <message>
         <source>Delete File</source>
@@ -7526,6 +7467,14 @@ Rename %2 to %3 anyway?</source>
     <message>
         <source>Classes for displaying the contents of SVG files</source>
         <translation>Klassen zur Anzeige des Inhalts von SVG-Dateien</translation>
+    </message>
+    <message>
+        <source>Classes for displaying and editing Web content using Chromium backend</source>
+        <translation>Klassen zum Anzeigen und Bearbeiten von Web-Inhalten mithilfe des Chromium-Backends</translation>
+    </message>
+    <message>
+        <source>WebEngine and QWidget-based classes using Chromium backend</source>
+        <translation>Auf WebEngine und QWidget basierende Klassen, die das Chromium-Backend verwenden</translation>
     </message>
     <message>
         <source>Classes for displaying and editing Web content</source>
@@ -8199,480 +8148,6 @@ Rename %2 to %3 anyway?</source>
     </message>
 </context>
 <context>
-    <name>TextEditor::TextEditorSettings</name>
-    <message>
-        <source>Text</source>
-        <translation>Text</translation>
-    </message>
-    <message>
-        <source>Link</source>
-        <translation>Verweis</translation>
-    </message>
-    <message>
-        <source>Links that follow symbol under cursor.</source>
-        <translation>Verweise, die dem Symbol unter der Einfügemarke folgen.</translation>
-    </message>
-    <message>
-        <source>Selection</source>
-        <translation>Auswahl</translation>
-    </message>
-    <message>
-        <source>Selected text.</source>
-        <translation>Ausgewählter Text.</translation>
-    </message>
-    <message>
-        <source>Line Number</source>
-        <translation>Zeilennummer</translation>
-    </message>
-    <message>
-        <source>Line numbers located on the left side of the editor.</source>
-        <translation>Zeilennummern an der linken Seite des Editors.</translation>
-    </message>
-    <message>
-        <source>Search Result</source>
-        <translation>Suchergebnisse</translation>
-    </message>
-    <message>
-        <source>Highlighted search results inside the editor.</source>
-        <translation>Hervorgehobene Suchergebnisse im Editor.</translation>
-    </message>
-    <message>
-        <source>Search Scope</source>
-        <translation>Suchbereich</translation>
-    </message>
-    <message>
-        <source>Section where the pattern is searched in.</source>
-        <translation>Bereich, in dem das Muster gesucht wird.</translation>
-    </message>
-    <message>
-        <source>Parentheses</source>
-        <translation>Klammern</translation>
-    </message>
-    <message>
-        <source>Mismatched Parentheses</source>
-        <translation>Unpaarige Klammern</translation>
-    </message>
-    <message>
-        <source>Displayed when mismatched parentheses, square brackets, or curly brackets are found.</source>
-        <translation>Wird angezeigt, wenn runde, eckige oder geschweifte Klammern nicht paarweise vorkommen.</translation>
-    </message>
-    <message>
-        <source>Current Line</source>
-        <translation>Aktuelle Zeile</translation>
-    </message>
-    <message>
-        <source>Line where the cursor is placed in.</source>
-        <translation>Zeile, in der sich die Einfügemarke befindet.</translation>
-    </message>
-    <message>
-        <source>Current Line Number</source>
-        <translation>Zeilennummer</translation>
-    </message>
-    <message>
-        <source>Line number located on the left side of the editor where the cursor is placed in.</source>
-        <translation>Nummer der Zeile, in der sich die Einfügemarke befindet, an der linken Seite des Editors.</translation>
-    </message>
-    <message>
-        <source>Occurrences</source>
-        <translation>Vorkommen</translation>
-    </message>
-    <message>
-        <source>Unused Occurrence</source>
-        <translation>Nicht verwendet</translation>
-    </message>
-    <message>
-        <source>Renaming Occurrence</source>
-        <translation>Umbenennung</translation>
-    </message>
-    <message>
-        <source>Number</source>
-        <translation>Zahl</translation>
-    </message>
-    <message>
-        <source>Number literal.</source>
-        <translation>Zahlenliteral.</translation>
-    </message>
-    <message>
-        <source>String</source>
-        <translation>Zeichenkette</translation>
-    </message>
-    <message>
-        <source>Character and string literals.</source>
-        <translation>Zeichen- und Zeichenkettenliterale.</translation>
-    </message>
-    <message>
-        <source>Primitive Type</source>
-        <translation>Einfacher Typ</translation>
-    </message>
-    <message>
-        <source>Name of a primitive data type.</source>
-        <translation>Name eines einfachen Datentyps.</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation>Typ</translation>
-    </message>
-    <message>
-        <source>Name of a type.</source>
-        <translation>Typname.</translation>
-    </message>
-    <message>
-        <source>Local</source>
-        <translation>Lokale Variable</translation>
-    </message>
-    <message>
-        <source>Local variables.</source>
-        <translation>Lokale Variablen.</translation>
-    </message>
-    <message>
-        <source>Field</source>
-        <translation>Feld</translation>
-    </message>
-    <message>
-        <source>Class&apos; data members.</source>
-        <translation>Mitgliedsvariablen von Klassen.</translation>
-    </message>
-    <message>
-        <source>Enumeration</source>
-        <translation>Aufzählung</translation>
-    </message>
-    <message>
-        <source>Applied to enumeration items.</source>
-        <translation>Wird auf Aufzählungen angewandt.</translation>
-    </message>
-    <message>
-        <source>Virtual Function</source>
-        <translation>Virtuelle Funktion</translation>
-    </message>
-    <message>
-        <source>Name of function declared as virtual.</source>
-        <translation>Name einer als virtuell deklarierten Funktion.</translation>
-    </message>
-    <message>
-        <source>QML item id within a QML file.</source>
-        <translation>QML-Element-ID in einer QML-Datei.</translation>
-    </message>
-    <message>
-        <source>QML property of a parent item.</source>
-        <translation>QML-Eigenschaft eines externen QML-Objektes.</translation>
-    </message>
-    <message>
-        <source>Property of the same QML item.</source>
-        <translation>Eigenschaft desselben QML-Objektes.</translation>
-    </message>
-    <message>
-        <source>Function</source>
-        <translation>Funktion</translation>
-    </message>
-    <message>
-        <source>Name of a function.</source>
-        <translation>Funktionsname.</translation>
-    </message>
-    <message>
-        <source>QML Binding</source>
-        <translation>QML-Binding</translation>
-    </message>
-    <message>
-        <source>QML item property, that allows a binding to another property.</source>
-        <translation>QML-Eigenschaft, die ein Binding zu einer anderen Eigenschaft ermöglicht.</translation>
-    </message>
-    <message>
-        <source>QML Local Id</source>
-        <translation>Lokale QML-Id</translation>
-    </message>
-    <message>
-        <source>Displayed when matching parentheses, square brackets or curly brackets are found.</source>
-        <translation>Wird angezeigt, wenn passende Klammern, eckige oder geschweifte Klammern gefunden werden.</translation>
-    </message>
-    <message>
-        <source>Occurrences of the symbol under the cursor.
-(Only the background will be applied.)</source>
-        <translation>Vorkommen des unter der Einfügemarke befindlichen Symbols.
-(Nur der Hintergrund wird benutzt.)</translation>
-    </message>
-    <message>
-        <source>Generic text.
-Applied to text, if no other rules matching.</source>
-        <translation>Generischer Text.
-Wird auf Text angewandt, sofern keine andere Regel zutrifft.</translation>
-    </message>
-    <message>
-        <source>Occurrences of unused variables.</source>
-        <translation>Vorkommen unbenutzter Variablen.</translation>
-    </message>
-    <message>
-        <source>Occurrences of a symbol that will be renamed.</source>
-        <translation>Vorkommen eines umzubenennenden Symbols.</translation>
-    </message>
-    <message>
-        <source>QML State Name</source>
-        <translation>Name eines States in QML</translation>
-    </message>
-    <message>
-        <source>Name of a QML state.</source>
-        <translation>Name eines States in QML.</translation>
-    </message>
-    <message>
-        <source>QML Type Name</source>
-        <translation>Name eines QML-Typs</translation>
-    </message>
-    <message>
-        <source>Name of a QML type.</source>
-        <translation>Name eines QML-Typs.</translation>
-    </message>
-    <message>
-        <source>QML External Id</source>
-        <translation>Externe QML-Id</translation>
-    </message>
-    <message>
-        <source>QML id defined in another QML file.</source>
-        <translation>In einer anderen QML-Datei definierte QML-Element-Id.</translation>
-    </message>
-    <message>
-        <source>QML External Object Property</source>
-        <translation>Eigenschaft eines externen QML-Objektes</translation>
-    </message>
-    <message>
-        <source>QML property defined in another QML file.</source>
-        <translation>In einer anderen QML-Datei definierte QML-Eigenschaft.</translation>
-    </message>
-    <message>
-        <source>JavaScript Scope Var</source>
-        <translation>JavaScript-Variable im Bereich
-</translation>
-    </message>
-    <message>
-        <source>Variables defined inside the JavaScript file.</source>
-        <translation>In einer JavaScript-Datei definierte Variable.</translation>
-    </message>
-    <message>
-        <source>JavaScript Import</source>
-        <translation>JavaScript-Import</translation>
-    </message>
-    <message>
-        <source>Name of a JavaScript import inside a QML file.</source>
-        <translation>Name eines JavaScript-Imports in einer QML-Datei.</translation>
-    </message>
-    <message>
-        <source>JavaScript Global Variable</source>
-        <translation>Globale JavaScript-Variable</translation>
-    </message>
-    <message>
-        <source>Variables defined outside the script.</source>
-        <translation>Außerhalb des Skripts definierte Variablen.</translation>
-    </message>
-    <message>
-        <source>Keyword</source>
-        <translation>Schlüsselwort</translation>
-    </message>
-    <message>
-        <source>Operator</source>
-        <translation>Operator</translation>
-    </message>
-    <message>
-        <source>Operators (for example operator++ or operator-=).</source>
-        <translation>Operatoren (zum Beispiel operator++ operator-=).</translation>
-    </message>
-    <message>
-        <source>Preprocessor</source>
-        <translation>Präprozessor</translation>
-    </message>
-    <message>
-        <source>Preprocessor directives.</source>
-        <translation>Präprozessor-Anweisungen.</translation>
-    </message>
-    <message>
-        <source>Label</source>
-        <translation>Sprungmarke</translation>
-    </message>
-    <message>
-        <source>Comment</source>
-        <translation>Kommentar</translation>
-    </message>
-    <message>
-        <source>All style of comments except Doxygen comments.</source>
-        <translation>Nicht-Doxygen-Kommentare.</translation>
-    </message>
-    <message>
-        <source>Doxygen Comment</source>
-        <translation>Doxygen-Kommentar</translation>
-    </message>
-    <message>
-        <source>Doxygen comments.</source>
-        <translation>Doxygen-Kommentare.</translation>
-    </message>
-    <message>
-        <source>Doxygen Tag</source>
-        <translation>Doxygen-Schlüsselwort</translation>
-    </message>
-    <message>
-        <source>Visual Whitespace</source>
-        <translation>Leerzeichen darstellen</translation>
-    </message>
-    <message>
-        <source>Applied to added lines in differences (in diff editor).</source>
-        <translation>Wird auf hinzugefügte Zeilen angewandt (in Diff-Editor).</translation>
-    </message>
-    <message>
-        <source>Applied to removed lines in differences (in diff editor).</source>
-        <translation>Wird auf entfernte Zeilen angewandt (in Diff-Editor).</translation>
-    </message>
-    <message>
-        <source>Disabled Code</source>
-        <translation>Deaktivierter Code</translation>
-    </message>
-    <message>
-        <source>QML Root Object Property</source>
-        <translation>Eigenschaft des QML-Wurzelelements</translation>
-    </message>
-    <message>
-        <source>QML Scope Object Property</source>
-        <translation>Objekteigenschaft im Gültigkeitsbereich von QML</translation>
-    </message>
-    <message>
-        <source>Reserved keywords of the programming language except keywords denoting primitive types.</source>
-        <translation>Reservierte Schlüsselworte der Programmiersprache außer Schlüsselworte, die einfache Typen bezeichnen.</translation>
-    </message>
-    <message>
-        <source>Labels for goto statements.</source>
-        <translation>Sprungmarken für goto-Befehle.</translation>
-    </message>
-    <message>
-        <source>Doxygen tags.</source>
-        <translation>Doxygen-Schlüsselworte.</translation>
-    </message>
-    <message>
-        <source>Whitespace.
-Will not be applied to whitespace in comments and strings.</source>
-        <translation>Leerzeichen.
-Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
-    </message>
-    <message>
-        <source>Code disabled by preprocessor directives.</source>
-        <translation>Durch Präprozessor-Anweisungen deaktivierter Code.</translation>
-    </message>
-    <message>
-        <source>Added Line</source>
-        <translation>Hinzugefügte Zeile</translation>
-    </message>
-    <message>
-        <source>Removed Line</source>
-        <translation>Entfernte Zeile</translation>
-    </message>
-    <message>
-        <source>Diff File</source>
-        <translation>Diff-Dateiangabe</translation>
-    </message>
-    <message>
-        <source>Compared files (in diff editor).</source>
-        <translation>Verglichene Dateien (in Diff-Editor).</translation>
-    </message>
-    <message>
-        <source>Diff Location</source>
-        <translation>Diff-Zeilenangabe</translation>
-    </message>
-    <message>
-        <source>Location in the files where the difference is (in diff editor).</source>
-        <translation>Stelle, an der sich der Unterschied befindet (in Diff-Editor).</translation>
-    </message>
-    <message>
-        <source>Diff File Line</source>
-        <translation>Diff-Dateizeile</translation>
-    </message>
-    <message>
-        <source>Applied to lines with file information in differences (in side-by-side diff editor).</source>
-        <translation>Wird auf Zeilen mit Dateiinformationen in den Unterschieden angewandt (bei Anzeige mit Gegenüberstellung der Unterschiede).</translation>
-    </message>
-    <message>
-        <source>Diff Context Line</source>
-        <translation>Diff-Kontextzeile</translation>
-    </message>
-    <message>
-        <source>Applied to lines describing hidden context in differences (in side-by-side diff editor).</source>
-        <translation>Wird auf Zeilen angewandt, die verborgenen Kontext in den Unterschieden beschreiben (bei Anzeige mit Gegenüberstellung der Unterschiede).</translation>
-    </message>
-    <message>
-        <source>Diff Source Line</source>
-        <translation>Diff-Zeile aus Quelldatei</translation>
-    </message>
-    <message>
-        <source>Applied to source lines with changes in differences (in side-by-side diff editor).</source>
-        <translation>Wird auf geänderte Zeilen der Quelldatei in den Unterschieden angewandt (bei Anzeige mit Gegenüberstellung der Unterschiede).</translation>
-    </message>
-    <message>
-        <source>Diff Source Character</source>
-        <translation>Diff-Zeichen aus Quelldatei</translation>
-    </message>
-    <message>
-        <source>Applied to removed characters in differences (in side-by-side diff editor).</source>
-        <translation>Wird auf gelöschte Zeichen in den Unterschieden angewandt (bei Anzeige mit Gegenüberstellung der Unterschiede).</translation>
-    </message>
-    <message>
-        <source>Diff Destination Line</source>
-        <translation>Diff-Zeile aus Zieldatei</translation>
-    </message>
-    <message>
-        <source>Applied to destination lines with changes in differences (in side-by-side diff editor).</source>
-        <translation>Wird auf geänderte Zeilen der Zieldatei in den Unterschieden angewandt (bei Anzeige mit Gegenüberstellung der Unterschiede).</translation>
-    </message>
-    <message>
-        <source>Diff Destination Character</source>
-        <translation>Diff-Zeichen aus Zieldatei</translation>
-    </message>
-    <message>
-        <source>Applied to added characters in differences (in side-by-side diff editor).</source>
-        <translation>Wird auf hinzugefügte Zeichen in den Unterschieden angewandt (bei Anzeige mit Gegenüberstellung der Unterschiede).</translation>
-    </message>
-    <message>
-        <source>Log Change Line</source>
-        <translation>Zeile in Änderungslogs</translation>
-    </message>
-    <message>
-        <source>Applied to lines describing changes in VCS log.</source>
-        <translation>Wird auf Zeilen angewendet, die Änderungen in einem Versionskontroll-Log beschreiben.</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Fehler</translation>
-    </message>
-    <message>
-        <source>Underline color of error diagnostics.</source>
-        <translation>Unterstreichung von Fehlern.</translation>
-    </message>
-    <message>
-        <source>Error Context</source>
-        <translation>Fehlerkontext</translation>
-    </message>
-    <message>
-        <source>Underline color of the contexts of error diagnostics.</source>
-        <translation>Unterstreichung der Kontexte von Fehlern.</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation>Warnung</translation>
-    </message>
-    <message>
-        <source>Underline color of warning diagnostics.</source>
-        <translation>Unterstreichung von Warnungen.</translation>
-    </message>
-    <message>
-        <source>Warning Context</source>
-        <translation>Warnungskontext</translation>
-    </message>
-    <message>
-        <source>Underline color of the contexts of warning diagnostics.</source>
-        <translation>Unterstreichung der Kontexte von Warnungen.</translation>
-    </message>
-    <message>
-        <source>Behavior</source>
-        <translation>Verhalten</translation>
-    </message>
-    <message>
-        <source>Display</source>
-        <translation>Anzeige</translation>
-    </message>
-</context>
-<context>
     <name>TopicChooser</name>
     <message>
         <source>Filter</source>
@@ -9157,64 +8632,88 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
 <context>
     <name>QmlParser</name>
     <message>
-        <source>Unclosed string at end of line</source>
-        <translation>Zeichenkette am Zeilenende nicht geschlossen</translation>
+        <source>Illegal syntax for exponential number.</source>
+        <translation>Ungültige Syntax des Exponenten der Zahl.</translation>
     </message>
     <message>
-        <source>Illegal unicode escape sequence</source>
-        <translation>Ungültige Unicode-Escape-Sequenz</translation>
+        <source>Stray newline in string literal.</source>
+        <translation>Nicht zugehöriges Zeilenende-Zeichen in Zeichenkettenliteral.</translation>
     </message>
     <message>
-        <source>Illegal syntax for exponential number</source>
-        <translation>Ungültige Syntax des Exponenten der Zahl</translation>
+        <source>Illegal unicode escape sequence.</source>
+        <translation>Ungültige Unicode-Escape-Sequenz.</translation>
     </message>
     <message>
-        <source>Stray newline in string literal</source>
-        <translation>Nicht zugehöriges Zeilenende-Zeichen in Zeichenkettenliteral</translation>
+        <source>Illegal hexadecimal escape sequence.</source>
+        <translation>Ungültige hexadezimale Escape-Sequenz.</translation>
     </message>
     <message>
-        <source>Illegal hexadecimal escape sequence</source>
-        <translation>Ungültige hexadezimale Escape-Sequenz</translation>
+        <source>Octal escape sequences are not allowed.</source>
+        <translation>Oktale Escape-Sequenzen sind nicht zulässig.</translation>
     </message>
     <message>
-        <source>Octal escape sequences are not allowed</source>
-        <translation>Oktale Escape-Sequenzen sind nicht zulässig</translation>
+        <source>Unclosed string at end of line.</source>
+        <translation>Zeichenkette am Zeilenende nicht geschlossen.</translation>
     </message>
     <message>
-        <source>Decimal numbers can&apos;t start with &apos;0&apos;</source>
-        <translation>Dezimalzahlen dürfen nicht mit &apos;0&apos; beginnen</translation>
+        <source>Decimal numbers cannot start with &quot;0&quot;.</source>
+        <translation>Dezimalzahlen dürfen nicht mit &quot;0&quot; beginnen.</translation>
     </message>
     <message>
-        <source>At least one hexadecimal digit is required after &apos;0%1&apos;</source>
-        <translation>Auf &apos;0%1&apos; muss mindestens eine Hexadezimalziffer folgen</translation>
+        <source>At least one hexadecimal digit is required after &quot;0%1&quot;.</source>
+        <translation>Auf &quot;0%1&quot; muss mindestens eine Hexadezimalziffer folgen.</translation>
     </message>
     <message>
-        <source>Unterminated regular expression literal</source>
-        <translation>Regulärer Ausdruck nicht abgeschlossen</translation>
+        <source>Invalid regular expression flag &quot;%0&quot;.</source>
+        <translation>Ungültiger Modifikator für regulären Ausdruck &quot;%0&quot;.</translation>
     </message>
     <message>
-        <source>Invalid regular expression flag &apos;%0&apos;</source>
-        <translation>Ungültiger Modifikator für regulären Ausdruck &apos;%0&apos;</translation>
+        <source>Unterminated regular expression backslash sequence.</source>
+        <translation>Der reguläre Ausdruck endet mit einer nicht abgeschlossenen Backslash-Sequenz.</translation>
     </message>
     <message>
-        <source>Unterminated regular expression backslash sequence</source>
-        <translation>Der reguläre Ausdruck endet mit einer nicht abgeschlossenen Backslash-Sequenz</translation>
+        <source>Unterminated regular expression class.</source>
+        <translation>Nicht abgeschlossene Zeichenklassenangabe innerhalb des regulären Ausdrucks.</translation>
     </message>
     <message>
-        <source>Unterminated regular expression class</source>
-        <translation>Nicht abgeschlossene Zeichenklassenangabe innerhalb des regulären Ausdrucks</translation>
+        <source>Unterminated regular expression literal.</source>
+        <translation>Regulärer Ausdruck nicht abgeschlossen.</translation>
     </message>
     <message>
-        <source>Syntax error</source>
-        <translation>Syntaxfehler</translation>
+        <source>Syntax error.</source>
+        <translation>Syntaxfehler.</translation>
     </message>
     <message>
-        <source>Unexpected token `%1&apos;</source>
-        <translation>Unerwartetes Token &apos;%1&apos;</translation>
+        <source>Imported file must be a script.</source>
+        <translation>Importierte Datei muss ein Skript sein.</translation>
     </message>
     <message>
-        <source>Expected token `%1&apos;</source>
-        <translation>Es wird das Token &apos;%1&apos; erwartet</translation>
+        <source>Invalid module URI.</source>
+        <translation>Ungültiger Modul-URI.</translation>
+    </message>
+    <message>
+        <source>Module import requires a version.</source>
+        <translation>Modul-Import benötigt eine Version.</translation>
+    </message>
+    <message>
+        <source>File import requires a qualifier.</source>
+        <translation>Datei-Import benötigt einen Qualifier.</translation>
+    </message>
+    <message>
+        <source>Module import requires a qualifier.</source>
+        <translation>Modul-Import benötigt einen Qualifier.</translation>
+    </message>
+    <message>
+        <source>Invalid import qualifier.</source>
+        <translation>Ungültiger Import-Qualifier.</translation>
+    </message>
+    <message>
+        <source>Unexpected token &quot;%1&quot;.</source>
+        <translation>Unerwartetes Token &quot;%1&quot;.</translation>
+    </message>
+    <message>
+        <source>Expected token &quot;%1&quot;.</source>
+        <translation>Es wird das Token &quot;%1&quot; erwartet.</translation>
     </message>
 </context>
 <context>
@@ -9468,10 +8967,6 @@ Sie können die Änderungen in einem Stash ablegen oder zurücksetzen.</translat
 <context>
     <name>ProjectExplorer::Internal::TargetSettingsWidget</name>
     <message>
-        <source>TargetSettingsWidget</source>
-        <translation>TargetSettingsWidget</translation>
-    </message>
-    <message>
         <source>Add Kit</source>
         <translation>Kit hinzufügen</translation>
     </message>
@@ -9641,6 +9136,30 @@ Sie können die Änderungen in einem Stash ablegen oder zurücksetzen.</translat
     <message>
         <source>Debug QML emulation layer:</source>
         <translation>Debug-QML-Emulationsschicht:</translation>
+    </message>
+    <message>
+        <source>Controls 2 style</source>
+        <translation>Controls-2-Stil</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation>Default</translation>
+    </message>
+    <message>
+        <source>Material</source>
+        <translation>Material</translation>
+    </message>
+    <message>
+        <source>Universal</source>
+        <translation>Universal</translation>
+    </message>
+    <message>
+        <source>Qt Quick Designer will propose to open .ui.qml files instead of opening a .qml file.</source>
+        <translation>Qt Quick Designer wird vorschlagen, .ui.qml-Dateien statt einer .qml-Datei zu öffnen.</translation>
+    </message>
+    <message>
+        <source>Warn about using .qml files instead of .ui.qml files</source>
+        <translation>Bei der Benutzung von .qml-Dateien statt .ui.qml-Dateien warnen</translation>
     </message>
 </context>
 <context>
@@ -10351,6 +9870,10 @@ Sie können die Änderungen in einem Stash ablegen oder zurücksetzen.</translat
         <translation>Name der gegenwärtigen Build-Konfiguration</translation>
     </message>
     <message>
+        <source>Main file of current project</source>
+        <translation>Hauptdatei des aktuellen Projekts</translation>
+    </message>
+    <message>
         <source>Name of current project</source>
         <translation>Name des aktuellen Projekts</translation>
     </message>
@@ -10492,14 +10015,6 @@ Dies ist unabhängig vom Wert der Eigenschaft &quot;visible&quot; in QML.</trans
 <context>
     <name>WidgetPluginManager</name>
     <message>
-        <source>Failed to create instance.</source>
-        <translation>Es konnte keine Instanz erzeugt werden.</translation>
-    </message>
-    <message>
-        <source>Not a QmlDesigner plugin.</source>
-        <translation>Kein QmlDesigner-Plugin.</translation>
-    </message>
-    <message>
         <source>Failed to create instance of file &apos;%1&apos;: %2</source>
         <translation>Es konnte keine Instanz der Datei &apos;%1&apos; erzeugt werden: %2</translation>
     </message>
@@ -10521,53 +10036,38 @@ Dies ist unabhängig vom Wert der Eigenschaft &quot;visible&quot; in QML.</trans
     </message>
 </context>
 <context>
-    <name>QmlDesigner::RewriterView</name>
-    <message>
-        <source>Error parsing</source>
-        <translation>Fehler beim Parsen</translation>
-    </message>
-    <message>
-        <source>Internal error</source>
-        <translation>Interner Fehler</translation>
-    </message>
-    <message>
-        <source>&quot;%1&quot;</source>
-        <translation>&quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>line %1</source>
-        <translation>Zeile %1</translation>
-    </message>
-    <message>
-        <source>column %1</source>
-        <translation>Spalte %1</translation>
-    </message>
-</context>
-<context>
     <name>QmlDesigner::Internal::DocumentWarningWidget</name>
     <message>
-        <source>Placeholder</source>
-        <translation>Platzhalter</translation>
+        <source>Cannot open this QML document because of an error in the QML file:</source>
+        <translation>Dieses QML-Dokument kann wegen eines Fehlers in der QML-Datei nicht geöffnet werden:</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;goToError&quot;&gt;Go to error&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;goToError&quot;&gt;Gehe zu Fehler&lt;/a&gt;</translation>
+        <source>OK</source>
+        <translation>OK</translation>
     </message>
     <message>
-        <source>%3 (%1:%2)</source>
-        <translation>%3 (%1:%2)</translation>
+        <source>This QML file contains features which are not supported by Qt Quick Designer at:</source>
+        <translation>Diese QML-Datei enthält Features, die von Qt Quick Designer nicht unterstützt werden:</translation>
     </message>
     <message>
-        <source>Internal error (%1)</source>
-        <translation>Interner Fehler (%1)</translation>
+        <source>Ignore</source>
+        <translation>Ignorieren</translation>
     </message>
     <message>
-        <source>Cannot open this QML document because of an error in the QML file:
-
-</source>
-        <translation>Dieses QML-Dokument kann wegen eines Fehlers in der QML-Datei nicht geöffnet werden:
-
-</translation>
+        <source>Previous</source>
+        <translation>Vorige Meldung</translation>
+    </message>
+    <message>
+        <source>Next</source>
+        <translation>Nächste Meldung</translation>
+    </message>
+    <message>
+        <source>Go to error</source>
+        <translation>Zu Fehler gehen</translation>
+    </message>
+    <message>
+        <source>Go to warning</source>
+        <translation>Zu Warnung gehen</translation>
     </message>
 </context>
 <context>
@@ -10896,13 +10396,6 @@ Dies ist unabhängig vom Wert der Eigenschaft &quot;visible&quot; in QML.</trans
     </message>
 </context>
 <context>
-    <name>QmlDesigner::PluginManager</name>
-    <message>
-        <source>About Plugins</source>
-        <translation>Über Plugins</translation>
-    </message>
-</context>
-<context>
     <name>Core::DesignMode</name>
     <message>
         <source>Design</source>
@@ -11227,7 +10720,9 @@ Import paths:
 
 For qmake projects, use the QML_IMPORT_PATH variable to add import paths.
 For Qbs projects, declare and set a qmlImportPaths property in your product to add import paths.
-For qmlproject projects, use the importPaths property to add import paths.</source>
+For qmlproject projects, use the importPaths property to add import paths.
+For CMake projects, make sure QML_IMPORT_PATH variable is in CMakeCache.txt.
+</source>
         <translation>QML-Modul nicht gefunden.
 
 Importpfade:
@@ -11235,7 +10730,9 @@ Importpfade:
 
 Für qmake-Projekte benutzen Sie die Variable QML_IMPORT_PATH, um Importpfade hinzuzufügen.
 Für Qbs-Projekte geben Sie eine qmlImportPaths-Eigenschaft in Ihrem Produkt an, um Importpfade hinzuzufügen.
-Für qmlproject-Projekte benutzen Sie die Eigenschaft importPaths, um Importpfade hinzuzufügen.</translation>
+Für qmlproject-Projekte benutzen Sie die Eigenschaft importPaths, um Importpfade hinzuzufügen.
+Für CMake-Projekte stellen Sie sicher, dass die Variable QML_IMPORT_PATH in CMakeCache.txt steht.
+</translation>
     </message>
     <message>
         <source>QML module contains C++ plugins, currently reading type information...</source>
@@ -11362,46 +10859,6 @@ Für qmlproject-Projekte benutzen Sie die Eigenschaft importPaths, um Importpfad
     <message>
         <source>Qt Creator Plugin</source>
         <translation>Qt Creator-Plugin</translation>
-    </message>
-    <message>
-        <source>Creates a new project including auto test skeleton.</source>
-        <translation>Erzeugt ein neues Projekt mit Autotestgerüst.</translation>
-    </message>
-    <message>
-        <source>Auto Test</source>
-        <translation>Autotest</translation>
-    </message>
-    <message>
-        <source>Project and Test Information</source>
-        <translation>Projekt- und Testinformation</translation>
-    </message>
-    <message>
-        <source>GUI Application</source>
-        <translation>GUI-Anwendung</translation>
-    </message>
-    <message>
-        <source>Test Case Name:</source>
-        <translation>Testfallname:</translation>
-    </message>
-    <message>
-        <source>Requires QApplication</source>
-        <translation>Benötigt QApplication</translation>
-    </message>
-    <message>
-        <source>Generate initialization and cleanup code</source>
-        <translation>Code für Initialisierung und Bereinigung erzeugen</translation>
-    </message>
-    <message>
-        <source>Build auto tests</source>
-        <translation>Erstelle Autotests</translation>
-    </message>
-    <message>
-        <source>always</source>
-        <translation>immer</translation>
-    </message>
-    <message>
-        <source>debug only</source>
-        <translation>Nur Debug</translation>
     </message>
     <message>
         <source>Creates a qmake-based test project for which a code snippet can be entered.</source>
@@ -12452,14 +11909,6 @@ Flags: %3</translation>
         <translation>Der Debugger konnte nicht gestartet werden</translation>
     </message>
     <message>
-        <source>Normal</source>
-        <translation>Normal</translation>
-    </message>
-    <message>
-        <source>Separate Window</source>
-        <translation>Separates Fenster</translation>
-    </message>
-    <message>
         <source>There is no CDB executable specified.</source>
         <translation>Es wurde keine ausführbare Datei für CDB angegeben.</translation>
     </message>
@@ -13173,6 +12622,16 @@ wenn es außerhalb von git bash aufgerufen wird.</translation>
         <translation>Befehl:</translation>
     </message>
     <message>
+        <source>NOTE: This log contains possibly confidential information about your machine, environment variables, in-memory data of the processes you are debugging, and more. It is never transferred over the internet by Qt Creator, and only stored to disk if you manually use the respective option from the context menu, or through mechanisms that are not under Qt Creator&apos;s control, for instance in swap files.
+You may be asked to share the contents of this log when reporting bugs related to debugger operation. In this case, make sure your submission does not contain data you do not want to or you are not allowed to share.
+
+</source>
+        <translation>Hinweis: Dieses Log enhält möglicherweise vertrauliche Informationen über Ihren Computer, Umgebungsvariablen, Speicherinhalte der untersuchten Prozesse und weiteres. Es wird von Qt Creator nie über das Internet übertragen und nur auf der Festplatte gespeichert, wenn Sie die entsprechende Option aus dem Kontextmenü aufrufen, oder durch Abläufe, die Qt Creator nicht beeinflussen kann, bespielsweise Auslagerungsdateien.
+Sie werden möglicherweise gebeten, den Inhalt dieses Logs mitzuteilen, wenn Sie Fehlfunktionen des Debugger berichten. In diesem Fall achten Sie darauf, dass Ihre Einsendung nur Daten enthält, die Sie weitergeben wollen und dürfen.
+
+</translation>
+    </message>
+    <message>
         <source>User commands are not accepted in the current state.</source>
         <translation>Die Eingabe von Nutzerkommandos ist in diesem Zustand nicht möglich.</translation>
     </message>
@@ -13184,8 +12643,8 @@ wenn es außerhalb von git bash aufgerufen wird.</translation>
 <context>
     <name>QmlJSEditor::Internal::ComponentNameDialog</name>
     <message>
-        <source>Choose a path</source>
-        <translation>Pfad auswählen</translation>
+        <source>Property assignments for %1:</source>
+        <translation>Eigenschaftszuweisungen für %1:</translation>
     </message>
     <message>
         <source>Invalid component name</source>
@@ -13206,6 +12665,14 @@ wenn es außerhalb von git bash aufgerufen wird.</translation>
     <message>
         <source>Move Component into Separate File</source>
         <translation>Verschiebe Komponente in separate Datei</translation>
+    </message>
+    <message>
+        <source>Property assignments for</source>
+        <translation>Eigenschaftszuweisungen für</translation>
+    </message>
+    <message>
+        <source>Component Name</source>
+        <translation>Komponentenname</translation>
     </message>
 </context>
 <context>
@@ -13266,19 +12733,6 @@ wenn es außerhalb von git bash aufgerufen wird.</translation>
     <message>
         <source>Searching for Usages</source>
         <translation>Suche nach Referenzen</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::QmlDumpTool</name>
-    <message>
-        <source>qmldump could not be built in any of the directories:
-- %1
-
-Reason: %2</source>
-        <translation>qmldump konnte in keinem der folgenden Ordner erstellt werden:
-- %1
-
-Fehler: %2</translation>
     </message>
 </context>
 <context>
@@ -13394,6 +12848,14 @@ Fehler: %2</translation>
     <message>
         <source>Major version different from 1 not supported.</source>
         <translation>Andere Hauptversionen als 1 werden nicht unterstützt.</translation>
+    </message>
+    <message>
+        <source>Expected dependency definitions</source>
+        <translation>Abhängigkeitsdefinitionen erwartet</translation>
+    </message>
+    <message>
+        <source>Cannot read dependency: skipping.</source>
+        <translation>Abhängigkeiten können nicht gelesen werden: Werden übersprungen.</translation>
     </message>
     <message>
         <source>Expected only Property, Method, Signal and Enum object definitions, not &quot;%1&quot;.</source>
@@ -14158,6 +13620,10 @@ Soll es noch einmal versucht werden?</translation>
         <translation>Kein Port für QML-Debuggen gesetzt: %1 kann nicht in eine vorzeichenlose Ganzzahl gewandelt werden.</translation>
     </message>
     <message>
+        <source>Waiting for JavaScript engine to interrupt on next statement.</source>
+        <translation>Warte, dass die JavaScript-Engine am nächsten Ausdruck unterbricht.</translation>
+    </message>
+    <message>
         <source>Run to line %1 (%2) requested...</source>
         <translation>Ausführung bis Zeile %1 (%2) angefordert...</translation>
     </message>
@@ -14681,6 +14147,14 @@ Lokale Pull-Operationen werden nicht auf den Master-Branch angewandt.</translati
     <message>
         <source>Add Category</source>
         <translation>Kategorie hinzufügen</translation>
+    </message>
+    <message>
+        <source>PATH=C:\dev\bin;${PATH}</source>
+        <translation>PATH=C:\dev\bin;${PATH}</translation>
+    </message>
+    <message>
+        <source>PATH=/opt/bin:${PATH}</source>
+        <translation>PATH=/opt/bin:${PATH}</translation>
     </message>
     <message>
         <source>Show in Pane</source>
@@ -15747,6 +15221,14 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
     <message>
         <source>Function declarations</source>
         <translation>Funktionsdeklarationen</translation>
+    </message>
+    <message>
+        <source>Getter and Setter</source>
+        <translation>Getter und Setter</translation>
+    </message>
+    <message>
+        <source>Prefer getter names without &quot;get&quot;</source>
+        <translation>Getter-Namen ohne &quot;get&quot; bevorzugen</translation>
     </message>
 </context>
 <context>
@@ -16845,8 +16327,8 @@ Bei vollständiger Cache-Simulation werden weitere Ereigniszähler aktiviert:
         <translation>Vergangen: %1</translation>
     </message>
     <message>
-        <source>QML traces (*%1)</source>
-        <translation>QML-Traces (*%1)</translation>
+        <source>QML traces (*%1 *%2)</source>
+        <translation>QML-Traces (*%1 *%2)</translation>
     </message>
     <message>
         <source>You are about to discard the profiling data, including unsaved notes. Do you want to continue?</source>
@@ -17944,18 +17426,6 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
         <source>Could not delete file %1.</source>
         <translation>Die Datei %1 konnte nicht gelöscht werden.</translation>
     </message>
-    <message>
-        <source>Click and type the new key sequence.</source>
-        <translation>Hier klicken, um die neue Tastenkombination einzutippen.</translation>
-    </message>
-    <message>
-        <source>Stop Recording</source>
-        <translation>Aufnahme beenden</translation>
-    </message>
-    <message>
-        <source>Record</source>
-        <translation>Aufnehmen</translation>
-    </message>
 </context>
 <context>
     <name>BaseFileWizard</name>
@@ -18889,6 +18359,14 @@ Diese Präfixe werden zusätzlich zum Dateinamen beim Wechseln zwischen Header- 
     <message>
         <source>Configuration unchanged, skipping qmake step.</source>
         <translation>Unveränderte Konfiguration, qmake-Schritt wird übersprungen.</translation>
+    </message>
+    <message>
+        <source>&lt;no Qt version&gt;</source>
+        <translation>&lt;keine Qt-Version&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;no Make step found&gt;</source>
+        <translation>&lt;kein Make-Schritt gefunden&gt;</translation>
     </message>
 </context>
 <context>
@@ -19857,13 +19335,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::EnvironmentItemsDialog</name>
-    <message>
-        <source>Edit Environment</source>
-        <translation>Umgebung bearbeiten</translation>
-    </message>
-</context>
-<context>
     <name>ProjectExplorer::Internal::ProjectListWidget</name>
     <message>
         <source>%1 (%2)</source>
@@ -20822,6 +20293,14 @@ should a repository require SSH-authentication (see documentation on SSH and the
 <context>
     <name>QSsh::Internal::SshChannelManager</name>
     <message>
+        <source>Unexpected request success packet.</source>
+        <translation>Unerwartetes Paket über Erfolg einer Anfrage.</translation>
+    </message>
+    <message>
+        <source>Unexpected request failure packet.</source>
+        <translation>Unerwartetes Paket über Scheitern einer Anfrage.</translation>
+    </message>
+    <message>
         <source>Invalid channel id %1</source>
         <translation>Ungültiger Kanalbezeichner %1</translation>
     </message>
@@ -21027,24 +20506,12 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation>Die C++-Debuggerports konnten nicht übermittelt werden. Grund: %1.</translation>
     </message>
     <message>
-        <source>Failed to forward C++ debugging ports.</source>
-        <translation>C++-Debuggerports konnten nicht übermittelt werden.</translation>
-    </message>
-    <message>
         <source>Failed to forward ping pong ports. Reason: %1.</source>
         <translation>Die Ping-Pong-Ports konnten nicht übermittelt werden. Grund: %1.</translation>
     </message>
     <message>
-        <source>Failed to forward ping pong ports.</source>
-        <translation>Die Ping-Pong-Ports konnten nicht übermittelt werden.</translation>
-    </message>
-    <message>
         <source>Failed to forward QML debugging ports. Reason: %1.</source>
         <translation>Die QML-Debuggerports konnten nicht übermittelt werden. Grund: %1.</translation>
-    </message>
-    <message>
-        <source>Failed to forward QML debugging ports.</source>
-        <translation>QML-Debuggerports konnten nicht übermittelt werden.</translation>
     </message>
     <message>
         <source>Failed to start the activity. Reason: %1.</source>
@@ -21246,8 +20713,8 @@ Wählen Sie Einstellungen &gt; Erstellung und Ausführung &gt; Qt Versionen, um 
 <context>
     <name>Debugger::Internal::GdbAttachEngine</name>
     <message>
-        <source>Attached to process %1.</source>
-        <translation>An Prozess %1 angehängt.</translation>
+        <source>Attaching to process %1.</source>
+        <translation>Anhängen an Prozess %1.</translation>
     </message>
     <message>
         <source>Attached to running application</source>
@@ -21346,6 +20813,22 @@ Wählen Sie Einstellungen &gt; Erstellung und Ausführung &gt; Qt Versionen, um 
     <message>
         <source>Reading debug information failed:</source>
         <translation>Das Lesen der Debug-Informationen schlug fehl:</translation>
+    </message>
+    <message>
+        <source>No Remote Executable or Process ID Specified</source>
+        <translation>Keine entfernte ausführbare Datei oder Prozess-ID angegeben</translation>
+    </message>
+    <message>
+        <source>No remote executable could be determined from your build system files.&lt;p&gt;In case you use qmake, consider adding&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;target.path = /tmp/your_executable # path on device&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;INSTALLS += target&lt;/p&gt;to your .pro file.</source>
+        <translation>Keine entfernte ausführbare Datei konnte anhand der Dateien Ihres Build-Systems bestimmt werden.&lt;p&gt;Falls Sie qmake verwenden, könnten Sie &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;target.path = /tmp/ihre_ausführbare_datei # Pfad auf Gerät&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;INSTALLS += target&lt;/p&gt;in Ihre .pro-Datei einfügen.</translation>
+    </message>
+    <message>
+        <source>Continue Debugging</source>
+        <translation>Debuggen fortsetzen</translation>
+    </message>
+    <message>
+        <source>Stop Debugging</source>
+        <translation>Debuggen beenden</translation>
     </message>
     <message>
         <source>Interrupting not possible</source>
@@ -21744,6 +21227,14 @@ Einzelschritt in den Modul und das Setzen von Haltepunkten nach Datei und Zeilen
         <translation>Inhalt der Ansicht in Zwischenablage kopieren</translation>
     </message>
     <message>
+        <source>Copy Current Value to Clipboard</source>
+        <translation>Aktuellen Wert in Zwischenablage kopieren</translation>
+    </message>
+    <message>
+        <source>Copy Selected Rows to Clipboard</source>
+        <translation>Ausgewählte Zeilen in Zwischenablage kopieren</translation>
+    </message>
+    <message>
         <source>Open View Contents in Editor</source>
         <translation>Inhalt der Ansicht in einem Editor öffnen</translation>
     </message>
@@ -21878,10 +21369,6 @@ Einzelschritt in den Modul und das Setzen von Haltepunkten nach Datei und Zeilen
     <message>
         <source>Open Memory Editor Showing Stack Layout</source>
         <translation>Speicher-Editor an Adresse des Stack-Rahmens öffnen</translation>
-    </message>
-    <message>
-        <source>Copy Value to Clipboard</source>
-        <translation>Wert in Zwischenablage kopieren</translation>
     </message>
     <message>
         <source>Close Editor Tooltips</source>
@@ -22297,28 +21784,32 @@ Soll es noch einmal versucht werden?</translation>
 <context>
     <name>QmlProfiler::Internal::QmlProfilerStateWidget</name>
     <message>
+        <source>Profiling application: %1 events</source>
+        <translation>Profiling der Anwendung: %1 Ereignisse</translation>
+    </message>
+    <message>
         <source>Profiling application</source>
-        <translation>Profiliere Anwendung</translation>
+        <translation>Profiling der Anwendung</translation>
     </message>
     <message>
         <source>No QML events recorded</source>
         <translation>Es wurden keine QML-Ereignisse aufgenommen</translation>
     </message>
     <message>
-        <source>Processing data</source>
-        <translation>Verarbeite Daten</translation>
+        <source>Processing data: %1 / %2</source>
+        <translation>Verarbeite Daten: %1 / %2</translation>
     </message>
     <message>
-        <source>Waiting for more data</source>
-        <translation>Warte auf mehr Daten</translation>
+        <source>Loading buffered data: %1 events</source>
+        <translation>Lade zwischengespeicherte Daten: %1 Ereignisse</translation>
+    </message>
+    <message>
+        <source>Loading offline data: %1 events</source>
+        <translation>Lade Offline-Daten: %1 Ereignisse</translation>
     </message>
     <message>
         <source>Clearing old trace</source>
         <translation>Lösche alten Trace</translation>
-    </message>
-    <message>
-        <source>Application stopped before loading all data</source>
-        <translation>Anwendung vor Laden aller Daten gestoppt</translation>
     </message>
     <message>
         <source>Waiting for data</source>
@@ -22378,27 +21869,6 @@ Soll es noch einmal versucht werden?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxDeviceConfigurationFactory</name>
-    <message>
-        <source>QNX Device</source>
-        <translation>QNX-Gerät</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDeviceConfigurationWizard</name>
-    <message>
-        <source>New QNX Device Configuration Setup</source>
-        <translation>Neue QNX-Geräte-Konfiguration</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDeviceConfigurationWizardSetupPage</name>
-    <message>
-        <source>QNX Device</source>
-        <translation>QNX-Gerät</translation>
-    </message>
-</context>
-<context>
     <name>Qnx::Internal::QnxRunConfiguration</name>
     <message>
         <source>Path to Qt libraries on device:</source>
@@ -22410,47 +21880,6 @@ Soll es noch einmal versucht werden?</translation>
     <message>
         <source>%1 on QNX Device</source>
         <translation>%1 auf QNX-Gerät</translation>
-    </message>
-</context>
-<context>
-    <name>QtSupport::Internal::CustomExecutableConfigurationWidget</name>
-    <message>
-        <source>Executable:</source>
-        <translation>Ausführbare Datei:</translation>
-    </message>
-    <message>
-        <source>Working directory:</source>
-        <translation>Arbeitsverzeichnis:</translation>
-    </message>
-</context>
-<context>
-    <name>QtSupport::CustomExecutableRunConfiguration</name>
-    <message>
-        <source>No executable.</source>
-        <translation>Keine ausführbare Datei.</translation>
-    </message>
-    <message>
-        <source>The executable
-%1
-cannot be found in the path.</source>
-        <translation>Die ausführbare Datei
-%1
-konnte nicht im Pfad gefunden werden.</translation>
-    </message>
-    <message>
-        <source>Custom Executable</source>
-        <translation>Benutzerdefinierte ausführbare Datei</translation>
-    </message>
-    <message>
-        <source>Run %1</source>
-        <translation>Führe %1 aus</translation>
-    </message>
-</context>
-<context>
-    <name>QtSupport::CustomExecutableRunConfigurationFactory</name>
-    <message>
-        <source>Custom Executable</source>
-        <translation>Benutzerdefinierte ausführbare Datei</translation>
     </message>
 </context>
 <context>
@@ -22619,17 +22048,6 @@ Qt Creator know about a likely URI.</source>
     <message>
         <source>must be a string literal to be available in the QML editor</source>
         <translation>muss eine Zeichenkette sein, um im QML-Editor verfügbar zu sein</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::QnxDeviceConfiguration</name>
-    <message>
-        <source>QNX</source>
-        <translation>QNX</translation>
-    </message>
-    <message>
-        <source>Deploy Qt libraries...</source>
-        <translation>Deployment der Qt-Bibliotheken...</translation>
     </message>
 </context>
 <context>
@@ -22802,6 +22220,14 @@ Qt Creator know about a likely URI.</source>
     <message>
         <source>Checking available ports...</source>
         <translation>Prüfe Verfügbarkeit der angegebenen Ports...</translation>
+    </message>
+    <message>
+        <source>Not enough free ports on device for C++ debugging.</source>
+        <translation>Auf dem Gerät sind nicht genügend freie Ports zum C++-Debuggen vorhanden.</translation>
+    </message>
+    <message>
+        <source>Not enough free ports on device for QML debugging.</source>
+        <translation>Auf dem Gerät sind nicht genügend freie Ports zum QML-Debuggen vorhanden.</translation>
     </message>
     <message>
         <source>Debugging failed.</source>
@@ -23572,6 +22998,10 @@ Qt Creator know about a likely URI.</source>
         <translation>Der Pfad zum Debugger muss als absoluter Pfad angegeben werden (%1).</translation>
     </message>
     <message>
+        <source>The ABI of the selected debugger does not match the toolchain ABI.</source>
+        <translation>Die ABI des gewählten Debuggers passt nicht zur ABI der Toolchain.</translation>
+    </message>
+    <message>
         <source>Name of Debugger</source>
         <translation>Name des Debuggers</translation>
     </message>
@@ -23673,8 +23103,16 @@ Qt Creator know about a likely URI.</source>
 <context>
     <name>ProjectExplorer::SysRootKitInformation</name>
     <message>
+        <source>Sys Root &quot;%1&quot; does not exist in the file system.</source>
+        <translation>Sys Root &quot;%1&quot; gibt es nicht im Dateisystem.</translation>
+    </message>
+    <message>
         <source>Sys Root &quot;%1&quot; is not a directory.</source>
         <translation>Sys-Root &quot;%1&quot; ist kein Ordner.</translation>
+    </message>
+    <message>
+        <source>Sys Root &quot;%1&quot; is empty.</source>
+        <translation>Sys Root &quot;%1&quot; ist leer.</translation>
     </message>
     <message>
         <source>Sys Root</source>
@@ -23916,8 +23354,16 @@ Qt Creator know about a likely URI.</source>
         <translation>Das Installationsverzeichnis für Demoprojekte der aktuellen Qt-Version.</translation>
     </message>
     <message>
-        <source>The current Qt version&apos;s default mkspecs.</source>
-        <translation>Die Vorgabe-mkspec der aktuellen Qt-Version.</translation>
+        <source>The current Qt version&apos;s default mkspecs (Qt 4).</source>
+        <translation>Die Vorgabe-mkspecs der aktuellen Qt-Version (Qt 4).</translation>
+    </message>
+    <message>
+        <source>The current Qt version&apos;s default mkspec (Qt 5; host system)</source>
+        <translation>Die Vorgabe-mkspecs der aktuellen Qt-Version (Qt 5; Host-System).</translation>
+    </message>
+    <message>
+        <source>The current Qt version&apos;s default mkspec (Qt 5; target system).</source>
+        <translation>Die Vorgabe-mkspecs der aktuellen Qt-Version (Qt 5; Zielsystem).</translation>
     </message>
     <message>
         <source>The current Qt&apos;s qmake version.</source>
@@ -23949,13 +23395,6 @@ Qt Creator know about a likely URI.</source>
     <message>
         <source>Unknown error.</source>
         <translation>Unbekannter Fehler.</translation>
-    </message>
-</context>
-<context>
-    <name>CustomExecutableDialog</name>
-    <message>
-        <source>Could not find the executable, please specify one.</source>
-        <translation>Es konnte keine ausführbare Datei gefunden werden; bitte geben Sie eine an.</translation>
     </message>
 </context>
 <context>
@@ -24328,6 +23767,14 @@ Entfernt: %4</translation>
         <translation>&amp;Gelöscht</translation>
     </message>
     <message>
+        <source>Unchanged File</source>
+        <translation>Unveränderte Datei</translation>
+    </message>
+    <message>
+        <source>Was the merge successful?</source>
+        <translation>War die Merge-Aktion erfolgreich?</translation>
+    </message>
+    <message>
         <source>Continue Merging</source>
         <translation>Mergen fortsetzen</translation>
     </message>
@@ -24538,6 +23985,14 @@ Entfernt: %4</translation>
         <translation>Zu Implementierung gehen</translation>
     </message>
     <message>
+        <source>Add New Signal Handler</source>
+        <translation>Neuen Signal-Handler hinzufügen</translation>
+    </message>
+    <message>
+        <source>Move to Component</source>
+        <translation>In Komponente verschieben</translation>
+    </message>
+    <message>
         <source>Reset z Property</source>
         <translation>Z-Wert zurücksetzen</translation>
     </message>
@@ -24682,6 +24137,14 @@ Entfernt: %4</translation>
 </context>
 <context>
     <name>QmlDesigner::QmlDesignerPlugin</name>
+    <message>
+        <source>Cannot Open Design Mode</source>
+        <translation>Design-Modus kann nicht geöffnet werden</translation>
+    </message>
+    <message>
+        <source>The QML file is not currently opened in a QML Editor.</source>
+        <translation>Die QML-Datei ist in keinem QML-Editor geöffnet.</translation>
+    </message>
     <message>
         <source>Switch Text/Design</source>
         <translation>Text/Design umschalten</translation>
@@ -24980,6 +24443,10 @@ Entfernt: %4</translation>
         <translation>Bezüge auf das übergeordnete Element des Wurzelelements werden in einem Qt Quick UI-Formular nicht unterstützt.</translation>
     </message>
     <message>
+        <source>A State cannot have a child item (%1).</source>
+        <translation>Ein State kann kein Kind-Item haben (%1).</translation>
+    </message>
+    <message>
         <source>Do not use &quot;%1&quot; as a constructor.</source>
         <translation>&quot;%1&quot; darf nicht als Konstruktor verwendet werden.</translation>
     </message>
@@ -25182,6 +24649,10 @@ Entfernt: %4</translation>
     <message>
         <source>Clean install root</source>
         <translation>Install-Root bereinigen</translation>
+    </message>
+    <message>
+        <source>Force probes</source>
+        <translation>Probes erzwingen</translation>
     </message>
 </context>
 <context>
@@ -25897,6 +25368,10 @@ Teilnamen können verwendet werden, sofern sie eindeutig sind.</translation>
         <translation>Der Start des Adapters schlug fehl.</translation>
     </message>
     <message>
+        <source>Run in Terminal is not supported with the LLDB backend.</source>
+        <translation>Das LLDB-Backend unterstützt &quot;Im Terminal ausführen&quot; nicht.</translation>
+    </message>
+    <message>
         <source>LLDB I/O Error</source>
         <translation>LLDB-Ein/Ausgabefehler</translation>
     </message>
@@ -26350,17 +25825,22 @@ Teilnamen können verwendet werden, sofern sie eindeutig sind.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractRemoteLinuxRunSupport</name>
-    <message>
-        <source>Not enough free ports on device for debugging.</source>
-        <translation>Auf dem Gerät sind nicht genügend freie Ports für das Debuggen vorhanden.</translation>
-    </message>
-</context>
-<context>
     <name>RemoteLinux::RemoteLinuxAnalyzeSupport</name>
     <message>
         <source>Checking available ports...</source>
         <translation>Prüfe Verfügbarkeit von Ports...</translation>
+    </message>
+    <message>
+        <source>Creating remote socket ...</source>
+        <translation>Erstelle entfernten Socket...</translation>
+    </message>
+    <message>
+        <source>Not enough free ports on device for profiling.</source>
+        <translation>Auf dem Gerät sind nicht genügend freie Ports für das Profiling vorhanden.</translation>
+    </message>
+    <message>
+        <source>FIFO for profiling data could not be created.</source>
+        <translation>FIFO für Profiler-Daten konnte nicht erstellt werden.</translation>
     </message>
     <message>
         <source>Failure running remote process.</source>
@@ -26633,21 +26113,6 @@ Teilnamen können verwendet werden, sofern sie eindeutig sind.</translation>
     <message>
         <source>Executable:</source>
         <translation>Ausführbare Datei:</translation>
-    </message>
-</context>
-<context>
-    <name>Core::ICore</name>
-    <message>
-        <source> (%1)</source>
-        <translation> (%1)</translation>
-    </message>
-    <message>
-        <source>Qt Creator %1%2</source>
-        <translation>Qt Creator %1%2</translation>
-    </message>
-    <message>
-        <source>Based on Qt %1 (%2, %3 bit)</source>
-        <translation>Based on Qt %1 (%2, %3 bit)</translation>
     </message>
 </context>
 <context>
@@ -27084,6 +26549,22 @@ Bitte schließen Sie alle laufenden Instanzen Ihrer Anwendung vor dem Erstellen.
         <source>Error while parsing trace data file: %1</source>
         <translation>Fehler beim Auswerten der Trace-Datei: %1</translation>
     </message>
+    <message>
+        <source>Invalid magic: %1</source>
+        <translation>Ungültige Dateiformatkennzeichnung: %1</translation>
+    </message>
+    <message>
+        <source>Unknown data stream version: %1</source>
+        <translation>Unbekannte Datenstromversion: %1</translation>
+    </message>
+    <message>
+        <source>Invalid type index %1</source>
+        <translation>Ungültiger Typindex %1</translation>
+    </message>
+    <message>
+        <source>Corrupt data before position %1.</source>
+        <translation>Unbrauchbare Daten vor Position %1.</translation>
+    </message>
 </context>
 <context>
     <name>QmlProjectManager::QmlProjectFileFormat</name>
@@ -27096,11 +26577,11 @@ Bitte schließen Sie alle laufenden Instanzen Ihrer Anwendung vor dem Erstellen.
     <name>Valgrind::Internal::CallgrindRunControl</name>
     <message>
         <source>Profiling</source>
-        <translation>Profiler</translation>
+        <translation>Profiling</translation>
     </message>
     <message>
         <source>Profiling %1</source>
-        <translation>Profiliere %1</translation>
+        <translation>Profiling von %1</translation>
     </message>
 </context>
 <context>
@@ -27349,12 +26830,16 @@ Bitte schließen Sie alle laufenden Instanzen Ihrer Anwendung vor dem Erstellen.
         <translation>Vorkompilierte Header-Dateien nicht beachten</translation>
     </message>
     <message>
-        <source>&lt;i&gt;Activate the Clang Code Model plugin to enable the options here.&lt;/i&gt;</source>
-        <translation>&lt;i&gt;Aktivieren Sie das Clang Code-Modell um auf diese Einstellungen zuzugreifen.&lt;/i&gt;</translation>
-    </message>
-    <message>
         <source>Clang Code Model Warnings</source>
         <translation>Clang Codemodell Warnungen</translation>
+    </message>
+    <message>
+        <source>&lt;i&gt;The Clang Code Model is enabled because the corresponding plugin is loaded.&lt;/i&gt;</source>
+        <translation>&lt;i&gt;Das Clang Codemodell ist aktiv, weil das entsprechende Plugin geladen ist.&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;i&gt;The Clang Code Model is disabled because the corresponding plugin is not loaded.&lt;/i&gt;</source>
+        <translation>&lt;i&gt;Das Clang Codemodell ist inaktiv, weil das entsprechende Plugin nicht geladen ist.&lt;/i&gt;</translation>
     </message>
 </context>
 <context>
@@ -27538,28 +27023,12 @@ Wollen Sie das bestehende Paket entfernen?</translation>
         <translation>Paket-Deployment: Führe Kommando &quot;%1 %2&quot; aus.</translation>
     </message>
     <message>
-        <source>Packaging error: Could not start command &quot;%1 %2&quot;. Reason: %3</source>
-        <translation>Fehler bei Paketerstellung: Das Kommando &quot;%1 %2&quot; konnte nicht ausgeführt werden. Grund: %3</translation>
-    </message>
-    <message>
         <source>Install failed</source>
         <translation>Installation gescheitert</translation>
     </message>
     <message>
         <source>Pulling files necessary for debugging.</source>
         <translation>Die für das Debuggen erforderlichen Dateien werden installiert.</translation>
-    </message>
-    <message>
-        <source>Packaging error: Command &quot;%1 %2&quot; failed.</source>
-        <translation>Fehler bei Paketerstellung: Das Kommando &quot;%1 %2&quot; schlug fehl.</translation>
-    </message>
-    <message>
-        <source>Reason: %1</source>
-        <translation>Ursache: %1</translation>
-    </message>
-    <message>
-        <source>Exit code: %1</source>
-        <translation>Rückgabewert: %1</translation>
     </message>
 </context>
 <context>
@@ -27615,13 +27084,6 @@ Wollen Sie das bestehende Paket entfernen?</translation>
     <message>
         <source>Cannot debug: Device has no GDB server provider configuration.</source>
         <translation>Kann nicht debuggen: Für das Gerät ist kein GDB Server Provider konfiguriert.</translation>
-    </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppIncludeHierarchyWidget</name>
-    <message>
-        <source>No include hierarchy available</source>
-        <translation>Keine Include-Hierarchie verfügbar</translation>
     </message>
 </context>
 <context>
@@ -27739,8 +27201,8 @@ Wollen Sie das bestehende Paket entfernen?</translation>
         <translation>Deployment schlug fehl: Es wurde kein iOS-Gerät gefunden.</translation>
     </message>
     <message>
-        <source>Deployment failed. The settings in the Organizer window of Xcode might be incorrect.</source>
-        <translation>Deployment schlug fehl: Möglicherweise sind die Einstellungen im Fenster &quot;Organizer&quot; von Xcode fehlerhaft.</translation>
+        <source>Deployment failed. The settings in the Devices window of Xcode might be incorrect.</source>
+        <translation>Deployment schlug fehl: Möglicherweise sind die Einstellungen im Fenster &quot;Devices&quot; von Xcode fehlerhaft.</translation>
     </message>
     <message>
         <source>Deployment failed.</source>
@@ -28925,6 +28387,10 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
         <source>mkspec</source>
         <translation>mkspec</translation>
     </message>
+    <message>
+        <source>Mkspec configured for qmake by the Kit.</source>
+        <translation>Vom Kit für qmake konfigurierte mkspec.</translation>
+    </message>
 </context>
 <context>
     <name>QmakeProjectManager::Internal::QmakeProjectImporter</name>
@@ -28978,10 +28444,6 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     <message>
         <source>Disables QML debugging. QML profiling will still work.</source>
         <translation>Deaktiviert QML-Debuggen. QML-Profiling funktioniert weiterhin.</translation>
-    </message>
-    <message>
-        <source>&lt;No Qt version&gt;</source>
-        <translation>&lt;Keine Qt-Version&gt;</translation>
     </message>
 </context>
 <context>
@@ -29143,35 +28605,8 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
         <translation>Das qmake-Kommando &quot;%1&quot; konnte nicht gefunden werden, oder die Datei ist nicht ausführbar.</translation>
     </message>
     <message>
-        <source>Qmake does not support build directories below the source directory.</source>
-        <translation>qmake unterstützt keine Build-Vorgänge in Verzeichnissen, die sich unterhalb des Quellverzeichnisses befinden.</translation>
-    </message>
-    <message>
         <source>The build directory needs to be at the same level as the source directory.</source>
         <translation>Das Build-Verzeichnis muss sich auf der Ebene des Quellverzeichnisses befinden.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmlDumpTool</name>
-    <message>
-        <source>Only available for Qt for Desktop.</source>
-        <translation>Nur verfügbar für Qt für Desktop.</translation>
-    </message>
-    <message>
-        <source>Only available for Qt 4.7.1 or newer.</source>
-        <translation>Erfordert Qt 4.7.1 oder neuer.</translation>
-    </message>
-    <message>
-        <source>Not needed.</source>
-        <translation>Nicht notwendig.</translation>
-    </message>
-    <message>
-        <source>Private headers are missing for this Qt version.</source>
-        <translation>Die privaten Header-Dateien fehlen bei dieser Qt-Version.</translation>
-    </message>
-    <message>
-        <source>qmldump</source>
-        <translation>qmldump</translation>
     </message>
 </context>
 <context>
@@ -29423,7 +28858,7 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
     </message>
     <message>
         <source>State charts</source>
-        <translation>Statusdiagramme</translation>
+        <translation>Zustandsdiagramme</translation>
     </message>
     <message>
         <source>Resources</source>
@@ -29735,6 +29170,10 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
         <source>Use customized style:</source>
         <translation>Verwende angepassten Stil:</translation>
     </message>
+    <message>
+        <source>Restrict to MIME types:</source>
+        <translation>Auf MIME-Typen beschränken:</translation>
+    </message>
 </context>
 <context>
     <name>Beautifier::Internal::ClangFormat::ClangFormatOptionsPage</name>
@@ -29773,6 +29212,10 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     <message>
         <source>Format entire file if no text was selected</source>
         <translation>Formatiere die ganze Datei falls kein Text selektiert ist</translation>
+    </message>
+    <message>
+        <source>Restrict to MIME types:</source>
+        <translation>Auf MIME-Typen beschränken:</translation>
     </message>
 </context>
 <context>
@@ -29863,6 +29306,10 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     <message>
         <source>Format entire file if no text was selected</source>
         <translation>Formatiere die ganze Datei falls kein Text selektiert ist</translation>
+    </message>
+    <message>
+        <source>Restrict to MIME types:</source>
+        <translation>Auf MIME-Typen beschränken:</translation>
     </message>
 </context>
 <context>
@@ -30157,37 +29604,6 @@ Bitte erstellen Sie die Anwendung qmldump auf der Einstellungsseite der Qt-Versi
     </message>
 </context>
 <context>
-    <name>AbstractSettings</name>
-    <message>
-        <source>Cannot save styles. %1 does not exist.</source>
-        <translation>Die Stile konnten nicht gespeichert werden. %1 existiert nicht.</translation>
-    </message>
-    <message>
-        <source>Cannot open file &quot;%1&quot;: %2.</source>
-        <translation>Die Datei &quot;%1&quot; kann nicht geöffnet werden: %2.</translation>
-    </message>
-    <message>
-        <source>Cannot save file &quot;%1&quot;: %2.</source>
-        <translation>Die Datei &quot;%1&quot; kann nicht gespeichert werden: %2.</translation>
-    </message>
-    <message>
-        <source>No documentation file specified.</source>
-        <translation>Keine Dokumentationsdatei angegeben.</translation>
-    </message>
-    <message>
-        <source>Cannot open documentation file &quot;%1&quot;.</source>
-        <translation>Die Dokumentationsdatei &quot;%1&quot; kann nicht geöffnet werden.</translation>
-    </message>
-    <message>
-        <source>The file &quot;%1&quot; is not a valid documentation file.</source>
-        <translation>Die Datei &quot;%1&quot; ist keine gültige Dokumentationsdatei.</translation>
-    </message>
-    <message>
-        <source>Cannot read documentation file &quot;%1&quot;: %2.</source>
-        <translation>Die Dokumentationsdatei &quot;%1&quot; kann nicht gelesen werden: %2.</translation>
-    </message>
-</context>
-<context>
     <name>Beautifier</name>
     <message>
         <source>Beautifier</source>
@@ -30196,6 +29612,26 @@ Bitte erstellen Sie die Anwendung qmldump auf der Einstellungsseite der Qt-Versi
 </context>
 <context>
     <name>Beautifier::Internal::BeautifierPlugin</name>
+    <message>
+        <source>Cannot create temporary file &quot;%1&quot;: %2.</source>
+        <translation>Die temporäre Datei &quot;%1&quot; konnte nicht erstellt werden: %2.</translation>
+    </message>
+    <message>
+        <source>Failed to format: %1.</source>
+        <translation>Konnte nicht formatieren: %1.</translation>
+    </message>
+    <message>
+        <source>Cannot read file &quot;%1&quot;: %2.</source>
+        <translation>Die Datei &quot;%1&quot; kann nicht gelesen werden: %2.</translation>
+    </message>
+    <message>
+        <source>Cannot call %1 or some other error occurred.</source>
+        <translation>%1 konnte nicht aufgerufen werden, oder es trat ein anderer Fehler auf.</translation>
+    </message>
+    <message>
+        <source>Cannot call %1 or some other error occurred. Timeout reached while formatting file %2.</source>
+        <translation>%1 konnte nicht aufgerufen werden, oder es trat ein anderer Fehler auf. Zeitüberschreitung während die Datei %2 formatiert wurde.</translation>
+    </message>
     <message>
         <source>File was modified.</source>
         <translation>Datei geändert.</translation>
@@ -30230,36 +29666,6 @@ Bitte erstellen Sie die Anwendung qmldump auf der Einstellungsseite der Qt-Versi
         <source>%1 Command</source>
         <extracomment>File dialog title for path chooser when choosing binary</extracomment>
         <translation>Ausführbare Datei für %1</translation>
-    </message>
-</context>
-<context>
-    <name>ClangFormatSettings</name>
-    <message>
-        <source>No description available.</source>
-        <translation>Keine Beschreibung verfügbar.</translation>
-    </message>
-</context>
-<context>
-    <name>Core::FindPlugin</name>
-    <message>
-        <source>&amp;Find/Replace</source>
-        <translation>&amp;Suchen/Ersetzen</translation>
-    </message>
-    <message>
-        <source>Advanced Find</source>
-        <translation>Erweiterte Suche</translation>
-    </message>
-    <message>
-        <source>Open Advanced Find...</source>
-        <translation>Erweiterte Suche öffnen...</translation>
-    </message>
-    <message>
-        <source>Advanced...</source>
-        <translation>Erweitert...</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+F</source>
-        <translation>Ctrl+Shift+F</translation>
     </message>
 </context>
 <context>
@@ -30772,6 +30178,10 @@ Möchten Sie es beenden?</translation>
         <source>Remote: &quot;%1:%2&quot; - Process %3</source>
         <translation>Entfernt: &quot;%1:%2&quot; - Prozess %3</translation>
     </message>
+    <message>
+        <source>Attaching failed.</source>
+        <translation>Anhängen fehlgeschlagen.</translation>
+    </message>
 </context>
 <context>
     <name>FontSettings_C_OCCURRENCES_UNUSED</name>
@@ -30967,6 +30377,30 @@ Möchten Sie es beenden?</translation>
     <message>
         <source>Target</source>
         <translation>Ziel</translation>
+    </message>
+    <message>
+        <source>Anchor to the top of the target.</source>
+        <translation>Am oberen Ende des Ziels verankern.</translation>
+    </message>
+    <message>
+        <source>Anchor to the left of the target.</source>
+        <translation>An der linken Seite des Ziels verankern.</translation>
+    </message>
+    <message>
+        <source>Anchor to the vertical center of the target.</source>
+        <translation>Vertikal in der Mitte des Ziels verankern.</translation>
+    </message>
+    <message>
+        <source>Anchor to the horizontal center of the target.</source>
+        <translation>Horizontal in der Mitte des Ziels verankern.</translation>
+    </message>
+    <message>
+        <source>Anchor to the bottom of the target.</source>
+        <translation>Am unteren Ende des Ziels verankern.</translation>
+    </message>
+    <message>
+        <source>Anchor to the right of the target.</source>
+        <translation>An der rechten Seite des Ziels verankern.</translation>
     </message>
 </context>
 <context>
@@ -31447,17 +30881,6 @@ Bitte installieren Sie ein Android-SDK der API-Version %1 oder neuer.</translati
 %2.</source>
         <translation>Das Projektverzeichnis %1 enthält Dateien, die nicht überschrieben werden können:
 %2.</translation>
-    </message>
-</context>
-<context>
-    <name>Core::DocumentModelPrivate</name>
-    <message>
-        <source>&lt;no document&gt;</source>
-        <translation>&lt;kein Dokument&gt;</translation>
-    </message>
-    <message>
-        <source>No document is selected.</source>
-        <translation>Es ist kein Dokument ausgewählt.</translation>
     </message>
 </context>
 <context>
@@ -32657,8 +32080,8 @@ Lokale Qt-Bibliotheken zu kopieren ist inkompatibel zu Android 5.</translation>
         <translation>Dateifehler</translation>
     </message>
     <message>
-        <source>The file is too big for the Binary Editor (max. 2GB).</source>
-        <translation>Die Datei ist zu groß für den Binäreditor (höchstens 2GB).</translation>
+        <source>The file is too big for the Binary Editor (max. 32GB).</source>
+        <translation>Die Datei ist zu groß für den Binäreditor (höchstens 32GB).</translation>
     </message>
     <message>
         <source>Cannot open %1: %2</source>
@@ -33729,14 +33152,6 @@ Dies betrifft die Haltepunkte %1</translation>
         <translation>Qt Ressourcen-Datei</translation>
     </message>
     <message>
-        <source>Creates a QML file with boilerplate code, starting with &quot;import QtQuick 1.1&quot;.</source>
-        <translation>Erzeugt eine QML-Datei mit allgemeingültigem Quelltext, beginnend mit &quot;import QtQuick 1.1&quot;.</translation>
-    </message>
-    <message>
-        <source>QML File (Qt Quick 1)</source>
-        <translation>QML-Datei (Qt Quick 1)</translation>
-    </message>
-    <message>
         <source>Creates a QML file with boilerplate code, starting with &quot;import QtQuick 2.0&quot;.</source>
         <translation>Erzeugt eine QML-Datei mit allgemeingültigem Quelltext, beginnend mit &quot;import QtQuick 2.0&quot;.</translation>
     </message>
@@ -33874,10 +33289,6 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
         <translation>Qt Canvas 3D-Anwendung</translation>
     </message>
     <message>
-        <source>Creates a deployable Qt Quick 2 application using Qt Labs Controls.</source>
-        <translation>Erzeugt eine installierbare Qt Quick 2 Anwendung mit Qt Labs Controls.</translation>
-    </message>
-    <message>
         <source>Qt Labs Controls Application</source>
         <translation>Qt Labs Controls Anwendung</translation>
     </message>
@@ -33907,7 +33318,7 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
     </message>
     <message>
         <source>Creates a deployable Qt Quick 2 application.</source>
-        <translation>Erzeugt eine zum Deployment geeignete Qt Quick 2-Anwendung.</translation>
+        <translation>Erzeugt eine zum Deployment geeignete Qt Quick 2 Anwendung.</translation>
     </message>
     <message>
         <source>Qt Quick Application</source>
@@ -33919,7 +33330,7 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
     </message>
     <message>
         <source>Creates a deployable Qt Quick 2 application using Qt Quick Controls.</source>
-        <translation>Erzeugt eine zum Deployment geeignete Qt Quick 2-Anwendung, die Qt Quick Controls nutzt.</translation>
+        <translation>Erzeugt eine zum Deployment geeignete Qt Quick 2 Anwendung, die Qt Quick Controls nutzt.</translation>
     </message>
     <message>
         <source>Qt Quick Controls Application</source>
@@ -33973,6 +33384,126 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
     <message>
         <source>&quot;%{JS: Util.toNativeSeparators(&apos;%{TargetPath}&apos;)}&quot; exists in the filesystem.</source>
         <translation>&quot;%{JS: Util.toNativeSeparators(&apos;%{TargetPath}&apos;)}&quot; ist im Dateisystem vorhanden.</translation>
+    </message>
+    <message>
+        <source>This wizard creates a simple Qmake based project with additional auto test skeleton.</source>
+        <translation>Dieser Assistent erzeugt ein einfaches Qmake-basiertes Projekt mit zusätzlichem Autotest-Gerüst.</translation>
+    </message>
+    <message>
+        <source>Qt Test</source>
+        <translation>Qt Test</translation>
+    </message>
+    <message>
+        <source>Googletest</source>
+        <translation>Googletest</translation>
+    </message>
+    <message>
+        <source>Test Framework:</source>
+        <translation>Test Framework:</translation>
+    </message>
+    <message>
+        <source>GUI Application</source>
+        <translation>GUI-Anwendung</translation>
+    </message>
+    <message>
+        <source>Test Case Name:</source>
+        <translation>Testfallname:</translation>
+    </message>
+    <message>
+        <source>Requires QApplication</source>
+        <translation>Erfordert QApplication</translation>
+    </message>
+    <message>
+        <source>Generate initialization and cleanup code</source>
+        <translation>Code für Initialisierung und Bereinigung erzeugen</translation>
+    </message>
+    <message>
+        <source>Test Set Name:</source>
+        <translation>Testreihenname:</translation>
+    </message>
+    <message>
+        <source>Enable C++11</source>
+        <translation>C++11 aktivieren</translation>
+    </message>
+    <message>
+        <source>always</source>
+        <translation>immer</translation>
+    </message>
+    <message>
+        <source>debug only</source>
+        <translation>Nur Debug</translation>
+    </message>
+    <message>
+        <source>Build auto tests</source>
+        <translation>Erstelle Autotests</translation>
+    </message>
+    <message>
+        <source>Googletest repository:</source>
+        <translation>Googletest Repository:</translation>
+    </message>
+    <message>
+        <source>Project and Test Information</source>
+        <translation>Projekt- und Testinformationen</translation>
+    </message>
+    <message>
+        <source>Creates a new project including auto test skeleton.</source>
+        <translation>Erzeugt ein neues Projekt mit Autotest-Gerüst.</translation>
+    </message>
+    <message>
+        <source>Auto Test Project</source>
+        <translation>Autotest-Projekt</translation>
+    </message>
+    <message>
+        <source>Creates an empty Nim file using UTF-8 charset.</source>
+        <translation>Erzeugt eine leere Nim-Datei, die den UTF-8 Zeichensatz verwendet.</translation>
+    </message>
+    <message>
+        <source>Nim</source>
+        <translation>Nim</translation>
+    </message>
+    <message>
+        <source>Nim File</source>
+        <translation>Nim-Datei</translation>
+    </message>
+    <message>
+        <source>State Chart name:</source>
+        <translation>Zustandsdiagrammname:</translation>
+    </message>
+    <message>
+        <source>State Chart Name and Location</source>
+        <translation>Zustandsdiagrammname und Ort</translation>
+    </message>
+    <message>
+        <source>Creates a new, empty, state chart.</source>
+        <translation>Erzeugt ein neues, leeres Zustandsdiagramm.</translation>
+    </message>
+    <message>
+        <source>State Chart</source>
+        <translation>Zustandsdiagramm</translation>
+    </message>
+    <message>
+        <source>Creates a simple Nim application.</source>
+        <translation>Erzeugt eine einfache Nim-Anwendung.</translation>
+    </message>
+    <message>
+        <source>Nim Application</source>
+        <translation>Nim-Anwendung</translation>
+    </message>
+    <message>
+        <source>Creates a deployable Qt Quick 2 application using Qt Labs Controls.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Note:&lt;/b&gt; Qt Labs Controls are only available with Qt 5.6. Choose &lt;em&gt;Qt Quick Controls 2 Application&lt;/em&gt; when targeting Qt 5.7 or later.</source>
+        <translation>Erzeugt eine installierbare Qt Quick 2 Anwendung mit Qt Labs Controls.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Hinweis:&lt;/b&gt; Qt Labs Controls sind nur mit Qt 5.6 verfügbar. Wählen Sie &lt;em&gt;Qt Quick Controls 2 Anwendung&lt;/em&gt;, wenn sie Qt 5.7 oder höher verwenden wollen.</translation>
+    </message>
+    <message>
+        <source>Qt 5.7</source>
+        <translation>Qt 5.7</translation>
+    </message>
+    <message>
+        <source>Creates a deployable Qt Quick 2 application using Qt Quick Controls 2.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Note:&lt;/b&gt; Qt Quick Controls 2 are available with Qt 5.7 and later. Choose &lt;em&gt;Qt Labs Controls Application&lt;/em&gt; when targeting Qt 5.6.</source>
+        <translation>Erzeugt eine installierbare Qt Quick 2 Anwendung mit Qt Labs Controls 2.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Hinweis:&lt;/b&gt; Qt Labs Controls 2 sind nur mit Qt 5.7 oder höher verfügbar. Wählen Sie &lt;em&gt;Qt Quick Controls-Anwendung&lt;/em&gt;, wenn sie Qt 5.6 verwenden wollen.</translation>
+    </message>
+    <message>
+        <source>Qt Quick Controls 2 Application</source>
+        <translation>Qt Quick Controls 2 Anwendung</translation>
     </message>
     <message>
         <source>Use existing directory</source>
@@ -34847,20 +34378,12 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
         <translation>Umgebung:</translation>
     </message>
     <message>
-        <source>Additional environment settings when using this kit.</source>
-        <translation>Zusätzliche Umgebungseinstellungen bei Benutzung dieses Kits.</translation>
+        <source>Additional build environment settings when using this kit.</source>
+        <translation>Zusätzliche Build-Umgebungseinstellungen bei Benutzung dieses Kits.</translation>
     </message>
     <message>
         <source>No changes to apply.</source>
         <translation>Keine anzuwendenden Änderungen.</translation>
-    </message>
-    <message>
-        <source>Enter one variable per line with the variable name separated from the variable value by &quot;=&quot;.&lt;br&gt;Environment variables can be referenced with ${OTHER}.</source>
-        <translation>Geben Sie eine Variable pro Zeile ein. Trennen Sie Variablennamen und Wert durch &quot;=&quot;.&lt;br&gt;Umgebungsvariablen können mit ${ANDERE} referenziert werden.</translation>
-    </message>
-    <message>
-        <source>Edit Environment Changes</source>
-        <translation>Umgebungsänderungen bearbeiten</translation>
     </message>
 </context>
 <context>
@@ -35125,10 +34648,6 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
 <context>
     <name>TextEditor::TextEditorWidget</name>
     <message>
-        <source>CTRL+D</source>
-        <translation>CTRL+D</translation>
-    </message>
-    <message>
         <source>Print Document</source>
         <translation>Dokument drucken</translation>
     </message>
@@ -35141,14 +34660,6 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
         <translation>Texte dieser Größe (%1 MB) können nicht angezeigt werden.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Error:&lt;/b&gt; Could not decode &quot;%1&quot; with &quot;%2&quot;-encoding. Editing not possible.</source>
-        <translation>&lt;b&gt;Fehler:&lt;/b&gt; Die Datei &quot;%1&quot; kann nicht mit der Zeichenkodierung &quot;%2&quot; dargestellt werden. Sie kann nicht bearbeitet werden.</translation>
-    </message>
-    <message>
-        <source>Select Encoding</source>
-        <translation>Zeichenkodierung auswählen</translation>
-    </message>
-    <message>
         <source>Zoom: %1%</source>
         <translation>Vergrößerung: %1%</translation>
     </message>
@@ -35159,14 +34670,6 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
     <message>
         <source>Add UTF-8 BOM on Save</source>
         <translation>UTF-8 BOM beim Speichern hinzufügen</translation>
-    </message>
-    <message>
-        <source>Line: %1, Col: %2</source>
-        <translation>Zeile: %1, Spalte: %2</translation>
-    </message>
-    <message>
-        <source>Line: 9999, Col: 999</source>
-        <translation>Zeile: 9999, Spalte: 999</translation>
     </message>
 </context>
 <context>
@@ -35330,6 +34833,22 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
         <source>Influences how file names are matched to decide if they are the same.</source>
         <translation>Beeinflusst wie die Gleichheit von Dateinamen geprüft wird.</translation>
     </message>
+    <message>
+        <source>Automatically free resources of old documents that are not visible and not modified. They stay visible in the list of open documents.</source>
+        <translation>Ressourcen alter Dokumente, die nicht sichtbar sind oder geändert wurden, automatisch freigeben. In der Liste offener Dokumente bleiben sie sichtbar.</translation>
+    </message>
+    <message>
+        <source>Auto-suspend unmodified files</source>
+        <translation>Ressourcen unveränderter Dateien automatisch freigeben</translation>
+    </message>
+    <message>
+        <source>Minimum number of open documents that should be kept in memory. Increasing this number will lead to greater resource usage of Qt Creator when not manually closing documents.</source>
+        <translation>Mindestanzahl offener Dokumente, die im Speicher vorgehalten werden sollen. Diese Zahl zu erhöhen führt zu größerem Ressourcenverbrauch durch Qt Creator, wenn Dateien nicht manuell geschlossen werden.</translation>
+    </message>
+    <message>
+        <source>Files to keep open:</source>
+        <translation>Vorzuhaltende Dateien:</translation>
+    </message>
 </context>
 <context>
     <name>QbsProjectManager::Internal::CustomQbsPropertiesDialog</name>
@@ -35444,21 +34963,6 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
     </message>
 </context>
 <context>
-    <name>QmlDesigner::QmlWarningDialog</name>
-    <message>
-        <source>Warning</source>
-        <translation>Warnung</translation>
-    </message>
-    <message>
-        <source>This QML file contains features which are not supported by Qt Quick Designer</source>
-        <translation>Diese QML-Datei enthält Features, die von Qt Quick Designer nicht unterstützt werden</translation>
-    </message>
-    <message>
-        <source>Warn about unsupported features</source>
-        <translation>Zeige eine Warnung bei nicht unterstützten Features an</translation>
-    </message>
-</context>
-<context>
     <name>QmlDesigner::PuppetBuildProgressDialog</name>
     <message>
         <source>Build Progress</source>
@@ -35549,6 +35053,10 @@ und gestoppt werden.</translation>
     <message>
         <source>To-Do</source>
         <translation>To-do</translation>
+    </message>
+    <message>
+        <source>&lt;Enter regular expression to exclude&gt;</source>
+        <translation>&lt;Regulären Ausdruck zum Ausschließen eingeben&gt;</translation>
     </message>
 </context>
 <context>
@@ -35647,131 +35155,6 @@ und gestoppt werden.</translation>
     <message>
         <source>Column Spacing</source>
         <translation>Spaltenabstand</translation>
-    </message>
-</context>
-<context>
-    <name>QObject</name>
-    <message>
-        <source>&lt;Enter regular expression to exclude&gt;</source>
-        <translation>&lt;Regulären Ausdruck zum Ausschließen eingeben&gt;</translation>
-    </message>
-    <message>
-        <source>%1 %2 per iteration (total: %3, iterations: %4)</source>
-        <translation>%1 %2 pro Durchlauf (Summe: %3, Durchläufe: %4)</translation>
-    </message>
-    <message>
-        <source>Test run canceled by user.</source>
-        <translation>Testlauf durch den Benutzer abgebrochen.</translation>
-    </message>
-    <message>
-        <source>Project is null for &quot;%1&quot;. Removing from test run.
-Check the test environment.</source>
-        <translation>Kein Projekt für &quot;%1&quot;. Entferne den Testlauf.
-Überprüfen Sie die Testumgebung.</translation>
-    </message>
-    <message>
-        <source>Could not find command &quot;%1&quot;. (%2)</source>
-        <translation>Kommando &quot;%1&quot; nicht gefunden. (%2)</translation>
-    </message>
-    <message>
-        <source>Test case canceled due to timeout. 
-Maybe raise the timeout?</source>
-        <translation>Testlauf wegen Timeout abgebrochen. 
-Vielleicht sollten Sie die Zeit erhöhen?</translation>
-    </message>
-    <message>
-        <source> (none)</source>
-        <translation> (nichts)</translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;Give all test cases a name to ensure correct behavior when running test cases and to be able to select them.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Geben Sie allen Testfällen einen Namen, um die korrekte Durchführung sicherzustellen und sie auswählen zu können.&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>parameterized</source>
-        <translation>parametrisiert</translation>
-    </message>
-    <message>
-        <source>typed</source>
-        <translation>typisiert</translation>
-    </message>
-    <message>
-        <source>Cannot create temporary file &quot;%1&quot;: %2.</source>
-        <translation>Die temporäre Datei &quot;%1&quot; konnte nicht erstellt werden: %2.</translation>
-    </message>
-    <message>
-        <source>Cannot call %1 or some other error occurred. Time out reached while formatting file %2.</source>
-        <translation>Entweder konnte %1 nicht aufgerufen werden oder ein anderer Fehler ist aufgetreten. Zeitüberschreitung während die Datei %2 formatiert wurde.</translation>
-    </message>
-    <message>
-        <source>Cannot read file &quot;%1&quot;: %2.</source>
-        <translation>Die Datei &quot;%1&quot; kann nicht gelesen werden: %2.</translation>
-    </message>
-    <message>
-        <source>Cannot call %1 or some other error occurred.</source>
-        <translation>%1 konnte nicht aufgerufen werden, oder es trat ein anderer Fehler auf.</translation>
-    </message>
-    <message>
-        <source>Inspect available fixits</source>
-        <translation>Verfügbare &quot;fixits&quot;</translation>
-    </message>
-    <message>
-        <source>File &quot;%1&quot; does not exist or is not readable.</source>
-        <translation>Die Datei &quot;%1&quot; fehlt oder ist nicht lesbar.</translation>
-    </message>
-    <message>
-        <source>Could not read file &quot;%1&quot;: UnexpectedElementError.</source>
-        <translation>Konnte die Datei &quot;%1&quot; nicht lesen: UnexpectedElementError.</translation>
-    </message>
-    <message>
-        <source>Could not read file &quot;%1&quot;: CustomError.</source>
-        <translation>Konnte die Datei &quot;%1&quot; nicht lesen: CustomError.</translation>
-    </message>
-    <message>
-        <source>Could not read file &quot;%1&quot;: NotWellFormedError.</source>
-        <translation>Konnte die Datei &quot;%1&quot; nicht lesen: NotWellFormedError.</translation>
-    </message>
-    <message>
-        <source>Could not read file &quot;%1&quot;: PrematureEndOfDocumentError.</source>
-        <translation>Konnte die Datei &quot;%1&quot; nicht lesen: PrematureEndOfDocumentError.</translation>
-    </message>
-    <message>
-        <source>File is not a plist version 1.0 file.</source>
-        <translation>Die Datei ist keine plist mit Version 1.0.</translation>
-    </message>
-    <message>
-        <source>Expected a string element.</source>
-        <translation>Erwartete ein Stringelement.</translation>
-    </message>
-    <message>
-        <source>Expected an array element.</source>
-        <translation>Erwartete ein Arrayelement.</translation>
-    </message>
-    <message>
-        <source>Expected an integer element.</source>
-        <translation>Erwartete ein Integerelement.</translation>
-    </message>
-    <message>
-        <source>An error occurred with the Clang Static Analyzer process.</source>
-        <translation>Im Clang Static Analyzer Prozess trat ein Fehler auf.</translation>
-    </message>
-    <message>
-        <source>Clang Static Analyzer crashed.</source>
-        <translation>Der Clang Static Analyser ist abgestürzt.</translation>
-    </message>
-    <message>
-        <source>Clang Static Analyzer finished with exit code: %1.</source>
-        <translation>Der Clang Static Analyser lieferte den Fehlercode: %1.</translation>
-    </message>
-    <message>
-        <source>Command line: &quot;%1&quot;
-Process Error: %2
-Output:
-%3</source>
-        <translation>Kommandozeile: &quot;%1&quot;
-Prozessfehler: %2
-Ausgabe:
-%3</translation>
     </message>
 </context>
 <context>
@@ -35878,10 +35261,6 @@ Ausgabe:
     <message>
         <source>Unknown</source>
         <translation>Unbekannt</translation>
-    </message>
-    <message>
-        <source>Error: Executable timed out after %1 s.</source>
-        <translation>Fehler: Zeitüberschreitung nach %1 s.</translation>
     </message>
 </context>
 <context>
@@ -36204,6 +35583,10 @@ Ausgabe:
         <source>Unconfigured</source>
         <translation>Nicht konfiguriert</translation>
     </message>
+    <message>
+        <source>Path to the cmake executable</source>
+        <translation>Pfad zur ausführbaren Datei von cmake</translation>
+    </message>
 </context>
 <context>
     <name>CMakeProjectManager::CMakeProject</name>
@@ -36294,25 +35677,6 @@ Ausgabe:
     <message>
         <source>File Generation Failure</source>
         <translation>Fehler bei Dateierzeugung</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::EnvironmentChangesDialog</name>
-    <message>
-        <source>Edit Environment Changes</source>
-        <translation>Umgebungsänderungen bearbeiten</translation>
-    </message>
-    <message>
-        <source>Change system environment by assigning one environment variable per line:</source>
-        <translation>Ändern Sie die Systemumgebung indem Sie eine Umgebungsvariable pro Zeile zuweisen:</translation>
-    </message>
-    <message>
-        <source>PATH=C:\dev\bin;${PATH}</source>
-        <translation>PATH=C:\dev\bin;${PATH}</translation>
-    </message>
-    <message>
-        <source>PATH=/opt/bin:${PATH}</source>
-        <translation>PATH=/opt/bin:${PATH}</translation>
     </message>
 </context>
 <context>
@@ -36594,6 +35958,10 @@ Vielleicht können Symbole nicht untersucht werden oder Haltepunkte nicht anhand
 Setting breakpoints by file name and line number may fail.</source>
         <translation>Es liegt offenbar kein &quot;Debug&quot;-Build vor.
 Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehlschlagen.</translation>
+    </message>
+    <message>
+        <source>Finished retrieving data</source>
+        <translation>Alle Daten erhalten</translation>
     </message>
     <message>
         <source>Run to Address 0x%1</source>
@@ -36985,8 +36353,36 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
         <translation>Diagramm exportieren...</translation>
     </message>
     <message>
+        <source>Zoom In</source>
+        <translation>Vergrößern</translation>
+    </message>
+    <message>
+        <source>Zoom Out</source>
+        <translation>Verkleinern</translation>
+    </message>
+    <message>
+        <source>Reset Zoom</source>
+        <translation>Vergrößerung zurücksetzen</translation>
+    </message>
+    <message>
         <source>Open Parent Diagram</source>
         <translation>Elterndiagramm öffnen</translation>
+    </message>
+    <message>
+        <source>Add Package</source>
+        <translation>Paket hinzufügen</translation>
+    </message>
+    <message>
+        <source>Add Component</source>
+        <translation>Komponente hinzufügen</translation>
+    </message>
+    <message>
+        <source>Add Class</source>
+        <translation>Klasse hinzufügen</translation>
+    </message>
+    <message>
+        <source>Add Canvas Diagram</source>
+        <translation>Canvasdiagramm hinzufügen</translation>
     </message>
     <message>
         <source>Edit Element Properties</source>
@@ -37414,10 +36810,9 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
         <translation>Datenbindungen</translation>
     </message>
     <message>
-        <source>Dynamic Properties</source>
+        <source>Properties</source>
         <comment>Title of dynamic properties view</comment>
-        <translatorcomment>The GUI element is too narrow to display the whole string.</translatorcomment>
-        <translation>Dyn. Eigenschaften</translation>
+        <translation>Eigenschaften</translation>
     </message>
     <message>
         <source>Add binding or connection.</source>
@@ -37743,6 +37138,10 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     <message>
         <source>Ctrl+Return</source>
         <translation>Ctrl+Return</translation>
+    </message>
+    <message>
+        <source>Toggle UTF-8 BOM</source>
+        <translation>UTF-8 BOM umschalten</translation>
     </message>
     <message>
         <source>Indent</source>
@@ -38334,6 +37733,14 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
         <source>Test Settings</source>
         <translation>Testeinstellungen</translation>
     </message>
+    <message>
+        <source>Active Test Frameworks</source>
+        <translation>Aktive Test-Frameworks</translation>
+    </message>
+    <message>
+        <source>Select the test frameworks to be handled by the AutoTest plugin.</source>
+        <translation>Wählen Sie die Test-Frameworks, die vom AutoTest-Plugin genutzt werden sollen.</translation>
+    </message>
 </context>
 <context>
     <name>ClangCodeModel::Internal::ClangProjectSettingsWidget</name>
@@ -38371,6 +37778,26 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     <message>
         <source>Clang Command</source>
         <translation>Clang Kommando</translation>
+    </message>
+    <message>
+        <source>Version: %1, supported.</source>
+        <translation>Version: %1, unterstützt.</translation>
+    </message>
+    <message>
+        <source>Version: %1, unsupported (supported version is %2).</source>
+        <translation>Version: %1, nicht unterstützt (unterstützte Version ist %2).</translation>
+    </message>
+    <message>
+        <source>Version: Could not determine version.</source>
+        <translation>Version: Konnte nicht bestimmt werden.</translation>
+    </message>
+    <message>
+        <source>Version: Set valid executable first.</source>
+        <translation>Version: Wählen Sie erst eine gültige ausführbare Datei aus.</translation>
+    </message>
+    <message>
+        <source>TextLabel</source>
+        <translation>TextLabel</translation>
     </message>
 </context>
 <context>
@@ -38970,13 +38397,6 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     </message>
 </context>
 <context>
-    <name>Autotest::Constants</name>
-    <message>
-        <source>&lt;unnamed&gt;</source>
-        <translation>&lt;namenlos&gt;</translation>
-    </message>
-</context>
-<context>
     <name>Autotest::Internal::AutotestPlugin</name>
     <message>
         <source>&amp;Tests</source>
@@ -39021,8 +38441,24 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
         <translation>Tests</translation>
     </message>
     <message>
+        <source>No active test frameworks.</source>
+        <translation>Keine aktiven Test-Frameworks.</translation>
+    </message>
+    <message>
         <source>Run This Test</source>
         <translation>Diesen Test starten</translation>
+    </message>
+    <message>
+        <source>Run Without Deployment</source>
+        <translation>Ausführung ohne Deployment</translation>
+    </message>
+    <message>
+        <source>Debug This Test</source>
+        <translation>Diesen Test debuggen</translation>
+    </message>
+    <message>
+        <source>Debug Without Deployment</source>
+        <translation>Debuggen ohne Deployment</translation>
     </message>
     <message>
         <source>Select All</source>
@@ -39070,6 +38506,10 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
 </context>
 <context>
     <name>Autotest::Internal::QtTestOutputReader</name>
+    <message>
+        <source>%1 %2 per iteration (total: %3, iterations: %4)</source>
+        <translation>%1 %2 pro Durchlauf (Summe: %3, Durchläufe: %4)</translation>
+    </message>
     <message>
         <source>Executing test case %1</source>
         <translation>Führe Testfall %1 aus</translation>
@@ -39259,6 +38699,26 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
 <context>
     <name>Autotest::Internal::TestRunner</name>
     <message>
+        <source>Test run canceled by user.</source>
+        <translation>Testlauf durch den Benutzer abgebrochen.</translation>
+    </message>
+    <message>
+        <source>Project is null for &quot;%1&quot;. Removing from test run.
+Check the test environment.</source>
+        <translation>Kein Projekt für &quot;%1&quot;. Entferne den Testlauf.
+Überprüfen Sie die Testumgebung.</translation>
+    </message>
+    <message>
+        <source>Could not find command &quot;%1&quot;. (%2)</source>
+        <translation>Kommando &quot;%1&quot; nicht gefunden. (%2)</translation>
+    </message>
+    <message>
+        <source>Test case canceled due to timeout. 
+Maybe raise the timeout?</source>
+        <translation>Testlauf wegen Timeout abgebrochen. 
+Vielleicht sollten Sie die Zeit erhöhen?</translation>
+    </message>
+    <message>
         <source>Project&apos;s run configuration was guessed for &quot;%1&quot;.
 This might cause trouble during execution.</source>
         <translation>Die Ausführungskonfiguration wurde für &quot;%1&quot; geraten.
@@ -39283,23 +38743,18 @@ Nur Desktopkits sind erlaubt. Stellen Sie sicher, dass das aktive Kit ein Deskto
         <translation>Laufende Tests</translation>
     </message>
     <message>
+        <source>Failed to get run configuration.</source>
+        <translation>Ausführungskonfiguration konnte nicht bestimmt werden.</translation>
+    </message>
+    <message>
+        <source>Failed to create run configuration.
+%1</source>
+        <translation>Ausführungskonfiguration konnte nicht erzeugt werden.
+%1</translation>
+    </message>
+    <message>
         <source>Build failed. Canceling test run.</source>
         <translation>Erstellung fehlgeschlagen. Testlauf wird abgebrochen.</translation>
-    </message>
-</context>
-<context>
-    <name>Autotest::Internal::TestTreeModel</name>
-    <message>
-        <source>Auto Tests</source>
-        <translation>Autotests</translation>
-    </message>
-    <message>
-        <source>Qt Quick Tests</source>
-        <translation>Qt-Quick Tests</translation>
-    </message>
-    <message>
-        <source>Google Tests</source>
-        <translation>Google Tests</translation>
     </message>
 </context>
 <context>
@@ -39400,6 +38855,14 @@ Nur Desktopkits sind erlaubt. Stellen Sie sicher, dass das aktive Kit ein Deskto
     <message>
         <source>Clang Static Analyzer: Invalid executable &quot;%1&quot;, stop.</source>
         <translation>Clang Static Analyzer: Fehlerhafte ausführbare Datei &quot;%1&quot;. Ende.</translation>
+    </message>
+    <message>
+        <source>Clang Static Analyzer: Running with possibly unsupported version, could not determine version from executable &quot;%1&quot;.</source>
+        <translation>Clang Static Analyzer: Ausführung mit möglicherweise nicht unterstützter Version, die Version der ausführbaren Datei &quot;%1&quot; konnte nicht bestimmt werden.</translation>
+    </message>
+    <message>
+        <source>Clang Static Analyzer: Running with unsupported version %1, supported version is %2.</source>
+        <translation>Clang Static Analyzer: Ausführung mit nicht unterstützter Version %1, die unterstützte Version ist %2.</translation>
     </message>
     <message>
         <source>Clang Static Analyzer: Failed to create temporary dir, stop.</source>
@@ -39511,8 +38974,8 @@ Bitte wählen Sie eine korrekte ausführbare Clang-Datei.</translation>
 <context>
     <name>CMakeProjectManager::Internal::BuildDirManager</name>
     <message>
-        <source>The build directory is not for %1</source>
-        <translation>Das Erstellungsverzeichnis gehört nicht zu %1</translation>
+        <source>The build directory is not for %1 but for %2</source>
+        <translation>Das Erstellungsverzeichnis gehört nicht zu %1 sondern zu %2</translation>
     </message>
     <message>
         <source>Running &quot;%1 %2&quot; in %3.</source>
@@ -39529,6 +38992,22 @@ Bitte wählen Sie eine korrekte ausführbare Clang-Datei.</translation>
     <message>
         <source>*** cmake process exited with exit code %1.</source>
         <translation>*** cmake Prozess endete mit Fehlercode %1.</translation>
+    </message>
+    <message>
+        <source>&lt;removed&gt;</source>
+        <translation>&lt;gelöscht&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;empty&gt;</source>
+        <translation>&lt;leer&gt;</translation>
+    </message>
+    <message>
+        <source>CMake configuration has changed on disk.</source>
+        <translation>CMake-Konfiguration hat sich außerhalb Qt Creators geändert.</translation>
+    </message>
+    <message>
+        <source>The CMakeCache.txt file has changed: %1</source>
+        <translation>Die Datei CMakeCache.txt hat sich geändert: %1</translation>
     </message>
     <message>
         <source>Failed to open %1 for reading.</source>
@@ -39608,10 +39087,6 @@ Bitte wählen Sie eine korrekte ausführbare Clang-Datei.</translation>
         <translation>CMake-Konfiguration</translation>
     </message>
     <message>
-        <source>&lt;No Changes to Apply&gt;</source>
-        <translation>&lt;Keine Änderungen anzuwenden&gt;</translation>
-    </message>
-    <message>
         <source>Default configuration passed to CMake when setting up a project.</source>
         <translation>Die Standardkonfiguration wird an CMake beim Anlegen eines Projekts übergeben.</translation>
     </message>
@@ -39627,10 +39102,6 @@ Bitte wählen Sie eine korrekte ausführbare Clang-Datei.</translation>
 <context>
     <name>CMakeProjectManager::CMakeGeneratorKitInformation</name>
     <message>
-        <source>No CMake Tool configured, CMake generator will be ignored.</source>
-        <translation>Es ist kein CMake-Tool konfiguriert. Der CMake-Generator wird ignoriert.</translation>
-    </message>
-    <message>
         <source>CMake Tool is unconfigured, CMake generator will be ignored.</source>
         <translation>Das CMake-Tool ist nicht konfiguriert. Der CMake-Generator wird ignoriert.</translation>
     </message>
@@ -39639,7 +39110,7 @@ Bitte wählen Sie eine korrekte ausführbare Clang-Datei.</translation>
         <translation>Das CMake-Tool unterstützt den konfigurierten Generator nicht.</translation>
     </message>
     <message>
-        <source>CMake generator does not generate CodeBlocks file. Qt Creator will not be able to parse the CMake project.</source>
+        <source>CMake generator does not generate a CodeBlocks file. Qt Creator will not be able to parse the CMake project.</source>
         <translation>Der CMake-Generator erzeugt keine CodeBlocks-Datei. Qt Creator wird das CMake Projekt nicht anzeigen können.</translation>
     </message>
     <message>
@@ -39908,7 +39379,7 @@ Bitte wählen Sie eine korrekte ausführbare Clang-Datei.</translation>
     <message>
         <source>&lt;not in scope&gt;</source>
         <extracomment>Value of variable in Debugger Locals display for variables out of scope (stopped above initialization).</extracomment>
-        <translation>&lt;nicht im Bereich&gt;</translation>
+        <translation>&lt;nicht im Scope&gt;</translation>
     </message>
     <message>
         <source>%1 &lt;shadowed %2&gt;</source>
@@ -40123,20 +39594,6 @@ Sie werden erhalten.</numerusform>
         <translation>&lt;bytecode&gt;</translation>
     </message>
     <message>
-        <source>(Opt)</source>
-        <translation>(Opt)</translation>
-    </message>
-    <message>
-        <source>Binding is evaluated by the optimized engine.</source>
-        <translation>Das Binding wird von der optimierten Engine ausgewertet.</translation>
-    </message>
-    <message>
-        <source>Binding not optimized (might have side effects or assignments,
-references to elements in other files, loops, and so on.)</source>
-        <translation>Das Binding ist nicht optimiert (d.h., es hat Seiteneffekte oder Zuweisungen,
-Referenzen zu Elementen in anderen Dateien, Schleifen, o.ä.)</translation>
-    </message>
-    <message>
         <source>Source code not available</source>
         <translation>Kein Quellcode verfügbar</translation>
     </message>
@@ -40227,274 +39684,6 @@ Referenzen zu Elementen in anderen Dateien, Schleifen, o.ä.)</translation>
     </message>
 </context>
 <context>
-    <name>QmlProfilerExtension::Internal::DebugMessagesModel</name>
-    <message>
-        <source>Unknown Message %1</source>
-        <translation>Unbekannte Nachricht %1</translation>
-    </message>
-    <message>
-        <source>Timestamp</source>
-        <translation>Zeitstempel</translation>
-    </message>
-    <message>
-        <source>Message</source>
-        <translation>Nachricht</translation>
-    </message>
-    <message>
-        <source>Location</source>
-        <translation>Ort</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfilerExtension::Internal::FlameGraphModel</name>
-    <message>
-        <source>Paint</source>
-        <translation>Paint</translation>
-    </message>
-    <message>
-        <source>Compile</source>
-        <translation>Kompilierung</translation>
-    </message>
-    <message>
-        <source>Create</source>
-        <translation>Erzeugung</translation>
-    </message>
-    <message>
-        <source>Binding</source>
-        <translation>Binding</translation>
-    </message>
-    <message>
-        <source>Signal</source>
-        <translation>Signal</translation>
-    </message>
-    <message>
-        <source>JavaScript</source>
-        <translation>JavaScript</translation>
-    </message>
-    <message>
-        <source>Source code not available</source>
-        <translation>Kein Quellcode verfügbar</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfilerExtension::Internal::FlameGraphView</name>
-    <message>
-        <source>Show Full Range</source>
-        <translation>Ganzen Bereich anzeigen</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfilerExtension::Internal::InputEventsModel</name>
-    <message>
-        <source>Mouse Events</source>
-        <translation>Mausereignisse</translation>
-    </message>
-    <message>
-        <source>Keyboard Events</source>
-        <translation>Tastaturereignisse</translation>
-    </message>
-    <message>
-        <source>Timestamp</source>
-        <translation>Zeitstempel</translation>
-    </message>
-    <message>
-        <source>Key Press</source>
-        <translation>Tastendruck</translation>
-    </message>
-    <message>
-        <source>Key Release</source>
-        <translation>Tastenfreigabe</translation>
-    </message>
-    <message>
-        <source>Key</source>
-        <translation>Taste</translation>
-    </message>
-    <message>
-        <source>Modifiers</source>
-        <translation>Modifizierer</translation>
-    </message>
-    <message>
-        <source>Double Click</source>
-        <translation>Doppelklick</translation>
-    </message>
-    <message>
-        <source>Mouse Press</source>
-        <translation>Mausdruck</translation>
-    </message>
-    <message>
-        <source>Mouse Release</source>
-        <translation>Mausfreigabe</translation>
-    </message>
-    <message>
-        <source>Button</source>
-        <translation>Taste</translation>
-    </message>
-    <message>
-        <source>Result</source>
-        <translation>Ergebnis</translation>
-    </message>
-    <message>
-        <source>Mouse Move</source>
-        <translation>Mausbewegung</translation>
-    </message>
-    <message>
-        <source>X</source>
-        <translation>X</translation>
-    </message>
-    <message>
-        <source>Y</source>
-        <translation>Y</translation>
-    </message>
-    <message>
-        <source>Mouse Wheel</source>
-        <translation>Mausrad</translation>
-    </message>
-    <message>
-        <source>Angle X</source>
-        <translation>X-Winkel</translation>
-    </message>
-    <message>
-        <source>Angle Y</source>
-        <translation>Y-Winkel</translation>
-    </message>
-    <message>
-        <source>Keyboard Event</source>
-        <translation>Tastaturereignis</translation>
-    </message>
-    <message>
-        <source>Mouse Event</source>
-        <translation>Mausereignis</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfilerExtension::Internal::MemoryUsageModel</name>
-    <message>
-        <source>Memory Allocation</source>
-        <translation>Speicherallokation</translation>
-    </message>
-    <message>
-        <source>Memory Usage</source>
-        <translation>Speicherverbrauch</translation>
-    </message>
-    <message>
-        <source>Memory Allocated</source>
-        <translation>Speicher allokiert</translation>
-    </message>
-    <message>
-        <source>Memory Freed</source>
-        <translation>Speicher freigegeben</translation>
-    </message>
-    <message>
-        <source>Total</source>
-        <translation>Summe</translation>
-    </message>
-    <message>
-        <source>Allocated</source>
-        <translation>Allokiert</translation>
-    </message>
-    <message>
-        <source>Allocations</source>
-        <translation>Allokationen</translation>
-    </message>
-    <message>
-        <source>Deallocated</source>
-        <translation>Freigegeben</translation>
-    </message>
-    <message>
-        <source>Deallocations</source>
-        <translation>Freigaben</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation>Typ</translation>
-    </message>
-    <message>
-        <source>Location</source>
-        <translation>Ort</translation>
-    </message>
-    <message>
-        <source>Heap Allocation</source>
-        <translation>Heap-Allokation</translation>
-    </message>
-    <message>
-        <source>Large Item Allocation</source>
-        <translation>Allokation großer Elemente</translation>
-    </message>
-    <message>
-        <source>Heap Usage</source>
-        <translation>Heap-Verbrauch</translation>
-    </message>
-    <message>
-        <source>Unknown</source>
-        <translation>Unbekannt</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfilerExtension::Internal::PixmapCacheModel</name>
-    <message>
-        <source>Image Cached</source>
-        <translation>Bild gepuffert</translation>
-    </message>
-    <message>
-        <source>Image Loaded</source>
-        <translation>Bild geladen</translation>
-    </message>
-    <message>
-        <source>Result</source>
-        <translation>Ergebnis</translation>
-    </message>
-    <message>
-        <source>Load Error</source>
-        <translation>Ladefehler</translation>
-    </message>
-    <message>
-        <source>Duration</source>
-        <translation>Dauer</translation>
-    </message>
-    <message>
-        <source>Cache Size</source>
-        <translation>Puffergröße</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation>Datei</translation>
-    </message>
-    <message>
-        <source>Width</source>
-        <translation>Breite</translation>
-    </message>
-    <message>
-        <source>Height</source>
-        <translation>Höhe</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfilerExtension::Internal::QmlProfilerExtensionPlugin</name>
-    <message>
-        <source>Action Triggered</source>
-        <translation>Aktion ausgelöst</translation>
-    </message>
-    <message>
-        <source>This is an action from QML Profiler Extension.</source>
-        <translation>Dies ist eine Aktion der Qml Profiler Extension.</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfilerExtension::Internal::SceneGraphTimelineModel</name>
-    <message>
-        <source>Stage</source>
-        <translation>Phase</translation>
-    </message>
-    <message>
-        <source>Duration</source>
-        <translation>Dauer</translation>
-    </message>
-    <message>
-        <source>Glyphs</source>
-        <translation>Glyphen</translation>
-    </message>
-</context>
-<context>
     <name>Valgrind::Internal::CallgrindTool</name>
     <message>
         <source>Valgrind Function Profiler uses the Callgrind tool to record function calls when a program runs.</source>
@@ -40542,7 +39731,7 @@ Referenzen zu Elementen in anderen Dateien, Schleifen, o.ä.)</translation>
     </message>
     <message>
         <source>Pause event logging. No events are counted which will speed up program execution during profiling.</source>
-        <translation>Pausiert die Ereignissprotokollierung, was die Ausführung des Programmes während des Profilens beschleunigt.</translation>
+        <translation>Pausiert die Ereignissprotokollierung, was die Ausführung des Programmes während des Profilings beschleunigt.</translation>
     </message>
     <message>
         <source>Go back one step in history. This will select the previously selected item.</source>
@@ -40847,6 +40036,1860 @@ Möchten Sie sie überschreiben?</translation>
     <message>
         <source>Export Image</source>
         <translation>Bild exportieren</translation>
+    </message>
+</context>
+<context>
+    <name>Beautifier::Internal::GeneralOptionsPage</name>
+    <message>
+        <source>Form</source>
+        <translation>Formular</translation>
+    </message>
+    <message>
+        <source>Automatic Formatting on File Save</source>
+        <translation>Automatische Formatierung beim Speichern einer Datei</translation>
+    </message>
+    <message>
+        <source>Enable auto format on file save</source>
+        <translation>Beim Speichern einer Datei automatisch formatieren</translation>
+    </message>
+    <message>
+        <source>Tool:</source>
+        <translation>Werkzeug:</translation>
+    </message>
+    <message>
+        <source>Restrict to MIME types:</source>
+        <translation>Auf MIME-Typen beschränken:</translation>
+    </message>
+    <message>
+        <source>Restrict to files contained in the current project</source>
+        <translation>Auf Dateien des aktuellen Projekts beschränken</translation>
+    </message>
+    <message>
+        <source>General</source>
+        <translation>Allgemein</translation>
+    </message>
+</context>
+<context>
+    <name>Nim::NimCompilerBuildStepConfigWidget</name>
+    <message>
+        <source>Form</source>
+        <translation>Formular</translation>
+    </message>
+    <message>
+        <source>Target:</source>
+        <translation>Ziel:</translation>
+    </message>
+    <message>
+        <source>Extra arguments:</source>
+        <translation>Zusätzliche Argumente:</translation>
+    </message>
+    <message>
+        <source>Command:</source>
+        <translation>Kommando:</translation>
+    </message>
+    <message>
+        <source>Default arguments:</source>
+        <translation>Standardargumente:</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Keine</translation>
+    </message>
+    <message>
+        <source>Debug</source>
+        <translation>Debug</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Release</translation>
+    </message>
+</context>
+<context>
+    <name>Nim::NimCompilerCleanStepConfigWidget</name>
+    <message>
+        <source>Form</source>
+        <translation>Formular</translation>
+    </message>
+    <message>
+        <source>Working directory:</source>
+        <translation>Arbeitsverzeichnis:</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::OpenUiQmlFileDialog</name>
+    <message>
+        <source>Open ui.qml file</source>
+        <translation>ui.qml-Datei öffnen</translation>
+    </message>
+    <message>
+        <source>You are opening a .qml file in the designer. Do you want to open a .ui.qml file instead?</source>
+        <translation>Sie öffnen eine .qml-Datei im Designer. Wollen Sie stattdessen eine ui.qml-Datei öffnen?</translation>
+    </message>
+    <message>
+        <source>Do not show this dialog again</source>
+        <translation>Diesen Dialog nicht noch einmal anzeigen</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Abbrechen</translation>
+    </message>
+</context>
+<context>
+    <name>TextEditor::Internal::CompletionSettingsPage</name>
+    <message>
+        <source>Behavior</source>
+        <translation>Verhalten</translation>
+    </message>
+    <message>
+        <source>Activate completion:</source>
+        <translation>Code-Vervollständigung aktivieren:</translation>
+    </message>
+    <message>
+        <source>&amp;Case-sensitivity:</source>
+        <translation>&amp;Groß/Kleinschreibung:</translation>
+    </message>
+    <message>
+        <source>Full</source>
+        <translation>Vollständig</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Keine</translation>
+    </message>
+    <message>
+        <source>First Letter</source>
+        <translation>Erster Buchstabe</translation>
+    </message>
+    <message>
+        <source>Manually</source>
+        <translation>Manuell</translation>
+    </message>
+    <message>
+        <source>When Triggered</source>
+        <translation>Auf Anforderung</translation>
+    </message>
+    <message>
+        <source>Always</source>
+        <translation>Immer</translation>
+    </message>
+    <message>
+        <source>Timeout in ms:</source>
+        <translation>Zeitüberschreitung nach (ms):</translation>
+    </message>
+    <message>
+        <source>Inserts the common prefix of available completion items.</source>
+        <translation>Fügt den gemeinsamen Präfix aller verfügbaren Vervollständigungen ein.</translation>
+    </message>
+    <message>
+        <source>Autocomplete common &amp;prefix</source>
+        <translation>Gemeinsamen &amp;Präfix ergänzen</translation>
+    </message>
+    <message>
+        <source>Splits a string into two lines by adding an end quote at the cursor position when you press Enter and a start quote to the next line, before the rest of the string.
+
+In addition, Shift+Enter inserts an escape character at the cursor position and moves the rest of the string to the next line.</source>
+        <translation>Fügt Anführungszeichen an der aktuellen Position und am Beginn der nächsten Zeile vor der restlichen Zeichenkette ein, um eine Zeichenkette zu teilen, wenn Sie die Eingabetaste drücken.
+
+Drücken Sie zusätzlich die Umschalttaste, wird ein Escape-Zeichen an der aktuellen Position eingefügt und der Rest der Zeichenkette in die nächste Zeile verschoben.</translation>
+    </message>
+    <message>
+        <source>Automatically split strings</source>
+        <translation>Zeichenketten automatisch teilen</translation>
+    </message>
+    <message>
+        <source>&amp;Automatically insert matching characters</source>
+        <translation>&amp;Passende Zeichen automatisch einfügen</translation>
+    </message>
+    <message>
+        <source>Insert opening or closing brackets</source>
+        <translation>Öffnende und schließende Klammern einfügen</translation>
+    </message>
+    <message>
+        <source>Insert closing quote</source>
+        <translation>Abschließende Anführungszeichen einfügen</translation>
+    </message>
+    <message>
+        <source>When typing a matching bracket and there is a text selection, instead of removing the selection, surrounds it with the corresponding characters.</source>
+        <translation>Wenn eine Textauswahl existiert und man ein passendes Klammerzeichen eingibt, wird die Auswahl in die entsprechenden Klammerzeichen eingeschlossen, anstatt sie zu löschen.</translation>
+    </message>
+    <message>
+        <source>Surround text selection with brackets</source>
+        <translation>Textauswahl in Klammern einschließen</translation>
+    </message>
+    <message>
+        <source>Insert &amp;space after function name</source>
+        <translation>Leerzeichen nach &amp;Funktionsname einfügen</translation>
+    </message>
+    <message>
+        <source>When typing a matching quote and there is a text selection, instead of removing the selection, surrounds it with the corresponding characters.</source>
+        <translation>Wenn eine Textauswahl existiert und man ein passendes Anführungszeichen eingibt, wird die Auswahl in die entsprechenden Anführungszeichen eingeschlossen, anstatt sie zu löschen.</translation>
+    </message>
+    <message>
+        <source>Surround text selection with quotes</source>
+        <translation>Textauswahl in Anführungszeichen einschließen</translation>
+    </message>
+    <message>
+        <source>Show a visual hint when for example a brace or a quote is automatically inserted by the editor.</source>
+        <translation>Einen sichtbaren Hinweis anzeigen, wenn beispielsweise eine Klammer oder ein Anführungszeichen vom Editor automatisch eingefügt wird.</translation>
+    </message>
+    <message>
+        <source>Animate automatically inserted text</source>
+        <translation>Automatisch eingefügten Text animieren</translation>
+    </message>
+    <message>
+        <source>Highlight automatically inserted text</source>
+        <translation>Automatisch eingefügten Text hervorheben</translation>
+    </message>
+    <message>
+        <source>Skip automatically inserted character if re-typed manually after completion.</source>
+        <translation>Automatisch eingefügtes Zeichen überspringen, wenn es nach der Vervollständigung erneut eingegeben wird.</translation>
+    </message>
+    <message>
+        <source>Skip automatically inserted character when typing</source>
+        <translation>Automatisch eingefügtes Zeichen beim Tippen überspringen</translation>
+    </message>
+    <message>
+        <source>Remove the automatically inserted character if the trigger is deleted by backspace after the completion.</source>
+        <translation>Das automatisch eingefügte Zeichen entfernen, wenn das auslösende Zeichen nach der Vervollständigung durch die Rückschritttaste entfernt wird.</translation>
+    </message>
+    <message>
+        <source>Remove automatically inserted text on backspace</source>
+        <translation>Das automatisch eingefügte Zeichen bei Rückschritt entfernen</translation>
+    </message>
+    <message>
+        <source>Documentation Comments</source>
+        <translation>Kommentare für Dokumentation</translation>
+    </message>
+    <message>
+        <source>Automatically creates a Doxygen comment upon pressing enter after a &apos;/**&apos;, &apos;/*!&apos;, &apos;//!&apos; or &apos;///&apos;.</source>
+        <translation>Erstellt automatisch einen Doxygen-Kommentar, wenn man nach &apos;/**&apos;, &apos;/*!&apos;, &apos;//!&apos; oder &apos;///&apos; die Enter-Taste betätigt.</translation>
+    </message>
+    <message>
+        <source>Enable Doxygen blocks</source>
+        <translation>Doxygen-Blöcke aktivieren</translation>
+    </message>
+    <message>
+        <source>Generates a &lt;i&gt;brief&lt;/i&gt; command with an initial description for the corresponding declaration.</source>
+        <translation>Erstellt ein &lt;i&gt;brief&lt;/i&gt;-Kommando mit einer anfänglichen Beschreibung für die entsprechende Deklaration.</translation>
+    </message>
+    <message>
+        <source>Generate brief description</source>
+        <translation>Kurzbeschreibung erstellen</translation>
+    </message>
+    <message>
+        <source>Adds leading asterisks when continuing C/C++ &quot;/*&quot;, Qt &quot;/*!&quot; and Java &quot;/**&quot; style comments on new lines.</source>
+        <translation>Fügt voranstehende Asterisk-Zeichen ein, wenn Kommentare im C/C++-Stil &quot;/*&quot;, Qt-Stil &quot;/*!&quot; oder Java-Stil &quot;/**&quot; auf neuen Zeilen fortgesetzt werden.</translation>
+    </message>
+    <message>
+        <source>Add leading asterisks</source>
+        <translation>Vorangehenden Asterisk einfügen</translation>
+    </message>
+    <message>
+        <source>Completion</source>
+        <translation>Code-Vervollständigung</translation>
+    </message>
+</context>
+<context>
+    <name>AnchorButtons</name>
+    <message>
+        <source>Anchor item to the top.</source>
+        <translation>Item am oberen Ende verankern.</translation>
+    </message>
+    <message>
+        <source>Anchor item to the bottom.</source>
+        <translation>Item am unteren Ende verankern.</translation>
+    </message>
+    <message>
+        <source>Anchor item to the left.</source>
+        <translation>Item an der linken Seite verankern.</translation>
+    </message>
+    <message>
+        <source>Anchor item to the right.</source>
+        <translation>Item an der rechten Seite verankern.</translation>
+    </message>
+    <message>
+        <source>Fill parent item.</source>
+        <translation>Übergeordnetes Element ausfüllen.</translation>
+    </message>
+    <message>
+        <source>Anchor item vertically.</source>
+        <translation>Item vertikal verankern.</translation>
+    </message>
+    <message>
+        <source>Anchor item horizontally.</source>
+        <translation>Item horizontal verankern.</translation>
+    </message>
+</context>
+<context>
+    <name>ExtendedFunctionButton</name>
+    <message>
+        <source>Binding Editor</source>
+        <translation>Binding-Editor</translation>
+    </message>
+</context>
+<context>
+    <name>Utils::EnvironmentDialog</name>
+    <message>
+        <source>Enter one variable per line with the variable name separated from the variable value by &quot;=&quot;.&lt;br&gt;Environment variables can be referenced with ${OTHER}.</source>
+        <translation>Geben Sie eine Variable pro Zeile ein. Trennen Sie Variablennamen und Wert durch &quot;=&quot;.&lt;br&gt;Umgebungsvariablen können mit ${ANDERE} referenziert werden.</translation>
+    </message>
+    <message>
+        <source>Change environment by assigning one environment variable per line:</source>
+        <translation>Ändern Sie die Umgebung, indem Sie eine Umgebungsvariable pro Zeile zuweisen:</translation>
+    </message>
+    <message>
+        <source>Edit Environment</source>
+        <translation>Umgebung bearbeiten</translation>
+    </message>
+</context>
+<context>
+    <name>GTestFramework</name>
+    <message>
+        <source>Google Tests</source>
+        <translation>Google Tests</translation>
+    </message>
+</context>
+<context>
+    <name>GTestTreeItem</name>
+    <message>
+        <source>parameterized</source>
+        <translation>parametrisiert</translation>
+    </message>
+    <message>
+        <source>typed</source>
+        <translation>typisiert</translation>
+    </message>
+</context>
+<context>
+    <name>QtTestFramework</name>
+    <message>
+        <source>Qt Tests</source>
+        <translation>Qt Tests</translation>
+    </message>
+</context>
+<context>
+    <name>QuickTestFramework</name>
+    <message>
+        <source>Quick Tests</source>
+        <translation>Quick Tests</translation>
+    </message>
+</context>
+<context>
+    <name>QuickTestTreeItem</name>
+    <message>
+        <source>&lt;unnamed&gt;</source>
+        <translation>&lt;unbenannt&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;Give all test cases a name to ensure correct behavior when running test cases and to be able to select them.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Geben Sie allen Testfällen einen Namen, um die korrekte Durchführung sicherzustellen und sie auswählen zu können.&lt;/p&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>Autotest::Internal::TestRunConfiguration</name>
+    <message>
+        <source>AutoTest Debug</source>
+        <translation>AutoTest Debug</translation>
+    </message>
+</context>
+<context>
+    <name>Autotest::Internal::TestSettingsWidget</name>
+    <message>
+        <source>No active test frameworks.</source>
+        <translation>Keine aktiven Test-Frameworks.</translation>
+    </message>
+    <message>
+        <source>You will not be able to use the AutoTest plugin without having at least one active test framework.</source>
+        <translation>Ohne ein aktives Test-Framework können Sie das AutoTest-Plugin nicht verwenden.</translation>
+    </message>
+</context>
+<context>
+    <name>TestTreeItem</name>
+    <message>
+        <source> (none)</source>
+        <translation> (keine)</translation>
+    </message>
+</context>
+<context>
+    <name>Beautifier::Internal::AbstractSettings</name>
+    <message>
+        <source>Cannot save styles. %1 does not exist.</source>
+        <translation>Die Stile konnten nicht gespeichert werden. %1 existiert nicht.</translation>
+    </message>
+    <message>
+        <source>Cannot open file &quot;%1&quot;: %2.</source>
+        <translation>Die Datei &quot;%1&quot; kann nicht geöffnet werden: %2.</translation>
+    </message>
+    <message>
+        <source>Cannot save file &quot;%1&quot;: %2.</source>
+        <translation>Die Datei &quot;%1&quot; kann nicht gespeichert werden: %2.</translation>
+    </message>
+    <message>
+        <source>No documentation file specified.</source>
+        <translation>Keine Dokumentationsdatei angegeben.</translation>
+    </message>
+    <message>
+        <source>Cannot open documentation file &quot;%1&quot;.</source>
+        <translation>Die Dokumentationsdatei &quot;%1&quot; kann nicht geöffnet werden.</translation>
+    </message>
+    <message>
+        <source>The file &quot;%1&quot; is not a valid documentation file.</source>
+        <translation>Die Datei &quot;%1&quot; ist keine gültige Dokumentationsdatei.</translation>
+    </message>
+    <message>
+        <source>Cannot read documentation file &quot;%1&quot;: %2.</source>
+        <translation>Die Dokumentationsdatei &quot;%1&quot; kann nicht gelesen werden: %2.</translation>
+    </message>
+</context>
+<context>
+    <name>Beautifier::Internal::ArtisticStyle::ArtisticStyle</name>
+    <message>
+        <source>Artistic Style</source>
+        <translation>Artistic Style</translation>
+    </message>
+</context>
+<context>
+    <name>Beautifier::Internal::ClangFormat::ClangFormat</name>
+    <message>
+        <source>ClangFormat</source>
+        <translation>ClangFormat</translation>
+    </message>
+</context>
+<context>
+    <name>Beautifier::Internal::ClangFormat::ClangFormatSettings</name>
+    <message>
+        <source>No description available.</source>
+        <translation>Keine Beschreibung verfügbar.</translation>
+    </message>
+</context>
+<context>
+    <name>Beautifier::Internal::Uncrustify::Uncrustify</name>
+    <message>
+        <source>Uncrustify</source>
+        <translation>Uncrustify</translation>
+    </message>
+</context>
+<context>
+    <name>ClangCodeModel::Internal::ClangDiagnosticManager</name>
+    <message>
+        <source>Inspect available fixits</source>
+        <translation>Verfügbare &quot;fixits&quot; untersuchen</translation>
+    </message>
+</context>
+<context>
+    <name>ClangStaticAnalyzer::Internal::LogFileReader</name>
+    <message>
+        <source>File &quot;%1&quot; does not exist or is not readable.</source>
+        <translation>Die Datei &quot;%1&quot; fehlt oder ist nicht lesbar.</translation>
+    </message>
+    <message>
+        <source>Could not read file &quot;%1&quot;: UnexpectedElementError.</source>
+        <translation>Konnte die Datei &quot;%1&quot; nicht lesen: UnexpectedElementError.</translation>
+    </message>
+    <message>
+        <source>Could not read file &quot;%1&quot;: CustomError.</source>
+        <translation>Konnte die Datei &quot;%1&quot; nicht lesen: CustomError.</translation>
+    </message>
+    <message>
+        <source>Could not read file &quot;%1&quot;: NotWellFormedError.</source>
+        <translation>Konnte die Datei &quot;%1&quot; nicht lesen: NotWellFormedError.</translation>
+    </message>
+    <message>
+        <source>Could not read file &quot;%1&quot;: PrematureEndOfDocumentError.</source>
+        <translation>Konnte die Datei &quot;%1&quot; nicht lesen: PrematureEndOfDocumentError.</translation>
+    </message>
+</context>
+<context>
+    <name>ClangStaticAnalyzer::Internal::ClangStaticAnalyzerLogFileReader</name>
+    <message>
+        <source>File is not a plist version 1.0 file.</source>
+        <translation>Die Datei ist keine plist mit Version 1.0.</translation>
+    </message>
+    <message>
+        <source>Expected a string element.</source>
+        <translation>Erwartete ein Zeichenkettenelement.</translation>
+    </message>
+    <message>
+        <source>Expected an array element.</source>
+        <translation>Erwartete ein Feldelement.</translation>
+    </message>
+    <message>
+        <source>Expected an integer element.</source>
+        <translation>Erwartete ein Ganzzahlelement.</translation>
+    </message>
+</context>
+<context>
+    <name>ClangStaticAnalyzer::Internal::ClangStaticAnalyzerRunner</name>
+    <message>
+        <source>An error occurred with the Clang Static Analyzer process.</source>
+        <translation>Im Clang Static Analyzer-Prozess trat ein Fehler auf.</translation>
+    </message>
+    <message>
+        <source>Clang Static Analyzer crashed.</source>
+        <translation>Der Clang Static Analyzer ist abgestürzt.</translation>
+    </message>
+    <message>
+        <source>Clang Static Analyzer finished with exit code: %1.</source>
+        <translation>Der Clang Static Analyzer lieferte den Fehlercode: %1.</translation>
+    </message>
+    <message>
+        <source>Command line: %1
+Process Error: %2
+Output:
+%3</source>
+        <translation>Kommandozeile: %1
+Prozessfehler: %2
+Ausgabe:
+%3</translation>
+    </message>
+</context>
+<context>
+    <name>CMakeProjectManager::Internal::CMakeBuildConfiguration</name>
+    <message>
+        <source>CMake configuration set by the kit was overridden in the project.</source>
+        <translation>Die im Kit festgelegte CMake-Einstellung wurde im Projekt überschrieben.</translation>
+    </message>
+</context>
+<context>
+    <name>CMakeProjectManager::Internal::CMakeEditorFactory</name>
+    <message>
+        <source>CMake Editor</source>
+        <translation>CMake-Editor</translation>
+    </message>
+</context>
+<context>
+    <name>Core::Internal::ShortcutButton</name>
+    <message>
+        <source>Click and type the new key sequence.</source>
+        <translation>Hier klicken, um die neue Tastenkombination einzutippen.</translation>
+    </message>
+    <message>
+        <source>Stop Recording</source>
+        <translation>Aufnahme beenden</translation>
+    </message>
+    <message>
+        <source>Record</source>
+        <translation>Aufnehmen</translation>
+    </message>
+</context>
+<context>
+    <name>Core::Internal::DocumentModelPrivate</name>
+    <message>
+        <source>&lt;no document&gt;</source>
+        <translation>&lt;kein Dokument&gt;</translation>
+    </message>
+    <message>
+        <source>No document is selected.</source>
+        <translation>Es ist kein Dokument ausgewählt.</translation>
+    </message>
+</context>
+<context>
+    <name>Core::Find</name>
+    <message>
+        <source>&amp;Find/Replace</source>
+        <translation>&amp;Suchen/Ersetzen</translation>
+    </message>
+    <message>
+        <source>Advanced Find</source>
+        <translation>Erweiterte Suche</translation>
+    </message>
+    <message>
+        <source>Open Advanced Find...</source>
+        <translation>Erweiterte Suche öffnen...</translation>
+    </message>
+    <message>
+        <source>Advanced...</source>
+        <translation>Erweitert...</translation>
+    </message>
+    <message>
+        <source>Ctrl+Shift+F</source>
+        <translation>Ctrl+Shift+F</translation>
+    </message>
+</context>
+<context>
+    <name>ICore</name>
+    <message>
+        <source> (%1)</source>
+        <translation> (%1)</translation>
+    </message>
+    <message>
+        <source>Qt Creator %1%2</source>
+        <translation>Qt Creator %1%2</translation>
+    </message>
+    <message>
+        <source>Based on Qt %1 (%2, %3 bit)</source>
+        <translation>Based on Qt %1 (%2, %3 bit)</translation>
+    </message>
+</context>
+<context>
+    <name>Core::Internal::SpotlightLocatorFilter</name>
+    <message>
+        <source>Spotlight File Name Index</source>
+        <translation>Spotlight-Dateinamensindex</translation>
+    </message>
+</context>
+<context>
+    <name>CppEditor::CppIncludeHierarchy</name>
+    <message>
+        <source>No include hierarchy available</source>
+        <translation>Keine Include-Hierarchie verfügbar</translation>
+    </message>
+</context>
+<context>
+    <name>ModelEditor</name>
+    <message>
+        <source>Zoom: %1%</source>
+        <translation>Vergrößerung: %1%</translation>
+    </message>
+</context>
+<context>
+    <name>NimRunConfiguration</name>
+    <message>
+        <source>Current Build Target</source>
+        <translation>Aktuelles Build-Ziel</translation>
+    </message>
+</context>
+<context>
+    <name>NimBuildConfigurationWidget</name>
+    <message>
+        <source>General</source>
+        <translation>Allgemein</translation>
+    </message>
+</context>
+<context>
+    <name>NimCompilerBuildStep</name>
+    <message>
+        <source>Nim Compiler Build Step</source>
+        <translation>Nim-Compiler Build-Schritt</translation>
+    </message>
+</context>
+<context>
+    <name>NimCompilerBuildStepConfigWidget</name>
+    <message>
+        <source>Nim build step</source>
+        <translation>Nim-Build-Schritt</translation>
+    </message>
+</context>
+<context>
+    <name>NimCompilerCleanStepFactory</name>
+    <message>
+        <source>Nim Compiler Clean Step</source>
+        <translation>Nim-Compiler-Schritt zur Bereinigung</translation>
+    </message>
+</context>
+<context>
+    <name>NimCompilerCleanStepWidget</name>
+    <message>
+        <source>Nim clean step</source>
+        <translation>Nim-Schritt zur Bereinigung</translation>
+    </message>
+</context>
+<context>
+    <name>NimCodeStyleSettingsPage</name>
+    <message>
+        <source>Code Style</source>
+        <translation>Coding-Stil</translation>
+    </message>
+    <message>
+        <source>Nim</source>
+        <translation>Nim</translation>
+    </message>
+</context>
+<context>
+    <name>NimCodeStylePreferencesFactory</name>
+    <message>
+        <source>Nim</source>
+        <translation>Nim</translation>
+    </message>
+</context>
+<context>
+    <name>NimSnippetProvider</name>
+    <message>
+        <source>Nim</source>
+        <translation>Nim</translation>
+    </message>
+</context>
+<context>
+    <name>Nim::NimBuildConfigurationFactory</name>
+    <message>
+        <source>Build</source>
+        <translation>Erstellen</translation>
+    </message>
+</context>
+<context>
+    <name>Nim::NimBuildConfigurationWidget</name>
+    <message>
+        <source>Build directory:</source>
+        <translation>Build-Verzeichnis:</translation>
+    </message>
+</context>
+<context>
+    <name>Nim::NimCompilerBuildStepFactory</name>
+    <message>
+        <source>Nim Compiler Build Step</source>
+        <translation>Nim-Compiler Build-Schritt</translation>
+    </message>
+</context>
+<context>
+    <name>Nim::NimCompilerCleanStep</name>
+    <message>
+        <source>Nim Clean Step</source>
+        <translation>Nim-Schritt zur Bereinigung</translation>
+    </message>
+    <message>
+        <source>Build directory &quot;%1&quot; does not exist.</source>
+        <translation>Build-Verzeichnis &quot;%1&quot; existiert nicht.</translation>
+    </message>
+    <message>
+        <source>Failed to delete the cache directory.</source>
+        <translation>Das Cache-Verzeichnis konnte nicht gelöscht werden.</translation>
+    </message>
+    <message>
+        <source>Failed to delete the out file.</source>
+        <translation>Die Ausgabedatei konnte nicht gelöscht werden.</translation>
+    </message>
+    <message>
+        <source>Clean step completed successfully.</source>
+        <translation>Der Schritt zur Bereinigung war erfolgreich.</translation>
+    </message>
+</context>
+<context>
+    <name>Nim::NimProjectManager</name>
+    <message>
+        <source>Failed opening project &quot;%1&quot;: Project is not a file.</source>
+        <translation>Das Projekt &quot;%1&quot; konnte nicht geöffnet werden: Die angegebene Projektdatei ist keine Datei.</translation>
+    </message>
+</context>
+<context>
+    <name>Nim::NimRunControl</name>
+    <message>
+        <source>%1 crashed</source>
+        <translation>%1 ist abgestürzt</translation>
+    </message>
+    <message>
+        <source>%1 exited with code %2</source>
+        <translation>%1 beendet, Rückgabewert %2</translation>
+    </message>
+</context>
+<context>
+    <name>Nim::NimSettings</name>
+    <message>
+        <source>Global</source>
+        <comment>Settings</comment>
+        <translation>Global</translation>
+    </message>
+    <message>
+        <source>Nim</source>
+        <translation>Nim</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::Internal::CustomExecutableConfigurationWidget</name>
+    <message>
+        <source>Executable:</source>
+        <translation>Ausführbare Datei:</translation>
+    </message>
+    <message>
+        <source>Working directory:</source>
+        <translation>Arbeitsverzeichnis:</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::CustomExecutableDialog</name>
+    <message>
+        <source>Could not find the executable, please specify one.</source>
+        <translation>Es konnte keine ausführbare Datei gefunden werden; bitte geben Sie eine an.</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::CustomExecutableRunConfiguration</name>
+    <message>
+        <source>No executable.</source>
+        <translation>Keine ausführbare Datei.</translation>
+    </message>
+    <message>
+        <source>The executable
+%1
+cannot be found in the path.</source>
+        <translation>Die ausführbare Datei
+%1
+konnte nicht im Pfad gefunden werden.</translation>
+    </message>
+    <message>
+        <source>Custom Executable</source>
+        <translation>Benutzerdefinierte ausführbare Datei</translation>
+    </message>
+    <message>
+        <source>Run %1</source>
+        <translation>%1 ausführen</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::CustomExecutableRunConfigurationFactory</name>
+    <message>
+        <source>Custom Executable</source>
+        <translation>Benutzerdefinierte ausführbare Datei</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::FilesSelectionWizardPage</name>
+    <message>
+        <source>Files</source>
+        <translation>Dateien</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::SimpleProjectWizardDialog</name>
+    <message>
+        <source>Import Existing Project</source>
+        <translation>Import eines existierenden Projekts</translation>
+    </message>
+    <message>
+        <source>Project Name and Location</source>
+        <translation>Name und Verzeichnis des Projekts</translation>
+    </message>
+    <message>
+        <source>Project name:</source>
+        <translation>Projektname:</translation>
+    </message>
+    <message>
+        <source>Location:</source>
+        <translation>Verzeichnis:</translation>
+    </message>
+    <message>
+        <source>File Selection</source>
+        <translation>Dateiauswahl</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::SimpleProjectWizard</name>
+    <message>
+        <source>Import as qmake Project (Limited Functionality)</source>
+        <translation>Als qmake-Projekt importieren (Funktion eingeschränkt)</translation>
+    </message>
+    <message>
+        <source>Imports existing projects that do not use qmake, CMake or Autotools.&lt;p&gt;This creates a qmake .pro file that allows you to use Qt Creator as a code editor and as a launcher for debugging and analyzing tools. If you want to build the project, you might need to edit the generated .pro file.</source>
+        <translation>Importiert bestehende Projekte, die qmake, CMake und Autotools nicht verwenden.&lt;p&gt;Dies erstellt eine qmake .pro-Datei, wodurch Sie Qt Creator als Quelltexteditor und zum Starten von Debuggern und Analysewerkzeugen verwenden können. Wenn Sie das Projekt erstellen wollen, müssen Sie möglicherweise die erzeugte .pro-Datei bearbeiten.</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::BackgroundAction</name>
+    <message>
+        <source>Set the color of the canvas.</source>
+        <translation>Die Farbe der Leinwand einstellen</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::RewriterError</name>
+    <message>
+        <source>Error parsing</source>
+        <translation>Fehler beim Parsen</translation>
+    </message>
+    <message>
+        <source>Internal error</source>
+        <translation>Interner Fehler</translation>
+    </message>
+    <message>
+        <source>line %1</source>
+        <translation>Zeile %1</translation>
+    </message>
+    <message>
+        <source>column %1</source>
+        <translation>Spalte %1</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProfiler::Internal::DebugMessagesModel</name>
+    <message>
+        <source>Unknown Message %1</source>
+        <translation>Unbekannte Nachricht %1</translation>
+    </message>
+    <message>
+        <source>Timestamp</source>
+        <translation>Zeitstempel</translation>
+    </message>
+    <message>
+        <source>Message</source>
+        <translation>Nachricht</translation>
+    </message>
+    <message>
+        <source>Location</source>
+        <translation>Ort</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProfiler::Internal::FlameGraphModel</name>
+    <message>
+        <source>Compile</source>
+        <translation>Kompilierung</translation>
+    </message>
+    <message>
+        <source>Create</source>
+        <translation>Erzeugung</translation>
+    </message>
+    <message>
+        <source>Binding</source>
+        <translation>Binding</translation>
+    </message>
+    <message>
+        <source>Signal</source>
+        <translation>Signal</translation>
+    </message>
+    <message>
+        <source>JavaScript</source>
+        <translation>JavaScript</translation>
+    </message>
+    <message>
+        <source>Source code not available</source>
+        <translation>Kein Quelltext verfügbar</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProfiler::Internal::FlameGraphView</name>
+    <message>
+        <source>Show Full Range</source>
+        <translation>Ganzen Bereich anzeigen</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProfiler::Internal::InputEventsModel</name>
+    <message>
+        <source>Mouse Events</source>
+        <translation>Mausereignisse</translation>
+    </message>
+    <message>
+        <source>Keyboard Events</source>
+        <translation>Tastaturereignisse</translation>
+    </message>
+    <message>
+        <source>Timestamp</source>
+        <translation>Zeitstempel</translation>
+    </message>
+    <message>
+        <source>Key Press</source>
+        <translation>Tastendruck</translation>
+    </message>
+    <message>
+        <source>Key Release</source>
+        <translation>Tastenfreigabe</translation>
+    </message>
+    <message>
+        <source>Key</source>
+        <translation>Taste</translation>
+    </message>
+    <message>
+        <source>Modifiers</source>
+        <translation>Modifizierer</translation>
+    </message>
+    <message>
+        <source>Double Click</source>
+        <translation>Doppelklick</translation>
+    </message>
+    <message>
+        <source>Mouse Press</source>
+        <translation>Mausdruck</translation>
+    </message>
+    <message>
+        <source>Mouse Release</source>
+        <translation>Mausfreigabe</translation>
+    </message>
+    <message>
+        <source>Button</source>
+        <translation>Maustaste</translation>
+    </message>
+    <message>
+        <source>Result</source>
+        <translation>Ergebnis</translation>
+    </message>
+    <message>
+        <source>Mouse Move</source>
+        <translation>Mausbewegung</translation>
+    </message>
+    <message>
+        <source>X</source>
+        <translation>X</translation>
+    </message>
+    <message>
+        <source>Y</source>
+        <translation>Y</translation>
+    </message>
+    <message>
+        <source>Mouse Wheel</source>
+        <translation>Mausrad</translation>
+    </message>
+    <message>
+        <source>Angle X</source>
+        <translation>X-Winkel</translation>
+    </message>
+    <message>
+        <source>Angle Y</source>
+        <translation>Y-Winkel</translation>
+    </message>
+    <message>
+        <source>Keyboard Event</source>
+        <translation>Tastaturereignis</translation>
+    </message>
+    <message>
+        <source>Mouse Event</source>
+        <translation>Mausereignis</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProfiler::Internal::MemoryUsageModel</name>
+    <message>
+        <source>Memory Allocation</source>
+        <translation>Speicherallokation</translation>
+    </message>
+    <message>
+        <source>Memory Usage</source>
+        <translation>Speicherverbrauch</translation>
+    </message>
+    <message>
+        <source>Memory Allocated</source>
+        <translation>Speicher allokiert</translation>
+    </message>
+    <message>
+        <source>Memory Freed</source>
+        <translation>Speicher freigegeben</translation>
+    </message>
+    <message>
+        <source>Total</source>
+        <translation>Summe</translation>
+    </message>
+    <message>
+        <source>%1 bytes</source>
+        <translation>%1 Bytes</translation>
+    </message>
+    <message>
+        <source>Allocated</source>
+        <translation>Allokiert</translation>
+    </message>
+    <message>
+        <source>Allocations</source>
+        <translation>Allokationen</translation>
+    </message>
+    <message>
+        <source>Deallocated</source>
+        <translation>Freigegeben</translation>
+    </message>
+    <message>
+        <source>Deallocations</source>
+        <translation>Freigaben</translation>
+    </message>
+    <message>
+        <source>Heap Allocation</source>
+        <translation>Heap-Allokation</translation>
+    </message>
+    <message>
+        <source>Large Item Allocation</source>
+        <translation>Allokation großer Elemente</translation>
+    </message>
+    <message>
+        <source>Heap Usage</source>
+        <translation>Heap-Verbrauch</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation>Typ</translation>
+    </message>
+    <message>
+        <source>Location</source>
+        <translation>Ort</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProfiler::Internal::PixmapCacheModel</name>
+    <message>
+        <source>Cache Size</source>
+        <translation>Puffergröße</translation>
+    </message>
+    <message>
+        <source>Image Cached</source>
+        <translation>Bild gepuffert</translation>
+    </message>
+    <message>
+        <source>Image Loaded</source>
+        <translation>Bild geladen</translation>
+    </message>
+    <message>
+        <source>Result</source>
+        <translation>Ergebnis</translation>
+    </message>
+    <message>
+        <source>Load Error</source>
+        <translation>Ladefehler</translation>
+    </message>
+    <message>
+        <source>Duration</source>
+        <translation>Dauer</translation>
+    </message>
+    <message>
+        <source>File</source>
+        <translation>Datei</translation>
+    </message>
+    <message>
+        <source>Width</source>
+        <translation>Breite</translation>
+    </message>
+    <message>
+        <source>Height</source>
+        <translation>Höhe</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProfiler::Internal::SceneGraphTimelineModel</name>
+    <message>
+        <source>Stage</source>
+        <translation>Phase</translation>
+    </message>
+    <message>
+        <source>Duration</source>
+        <translation>Dauer</translation>
+    </message>
+    <message>
+        <source>Glyphs</source>
+        <translation>Glyphen</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProfiler::Internal::DebugMessagesModelTest</name>
+    <message>
+        <source>Timestamp</source>
+        <translation>Zeitstempel</translation>
+    </message>
+    <message>
+        <source>Message</source>
+        <translation>Nachricht</translation>
+    </message>
+    <message>
+        <source>Location</source>
+        <translation>Ort</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProfiler::Internal::InputEventsModelTest</name>
+    <message>
+        <source>Mouse Events</source>
+        <translation>Mausereignisse</translation>
+    </message>
+    <message>
+        <source>Keyboard Events</source>
+        <translation>Tastaturereignisse</translation>
+    </message>
+    <message>
+        <source>Timestamp</source>
+        <translation>Zeitstempel</translation>
+    </message>
+    <message>
+        <source>Key Press</source>
+        <translation>Tastendruck</translation>
+    </message>
+    <message>
+        <source>Key</source>
+        <translation>Taste</translation>
+    </message>
+    <message>
+        <source>Modifiers</source>
+        <translation>Modifizierer</translation>
+    </message>
+    <message>
+        <source>Key Release</source>
+        <translation>Tastenfreigabe</translation>
+    </message>
+    <message>
+        <source>Keyboard Event</source>
+        <translation>Tastaturereignis</translation>
+    </message>
+    <message>
+        <source>Mouse Press</source>
+        <translation>Mausdruck</translation>
+    </message>
+    <message>
+        <source>Button</source>
+        <translation>Maustaste</translation>
+    </message>
+    <message>
+        <source>Result</source>
+        <translation>Ergebnis</translation>
+    </message>
+    <message>
+        <source>Mouse Release</source>
+        <translation>Mausfreigabe</translation>
+    </message>
+    <message>
+        <source>Mouse Move</source>
+        <translation>Mausbewegung</translation>
+    </message>
+    <message>
+        <source>X</source>
+        <translation>X</translation>
+    </message>
+    <message>
+        <source>Y</source>
+        <translation>Y</translation>
+    </message>
+    <message>
+        <source>Double Click</source>
+        <translation>Doppelklick</translation>
+    </message>
+    <message>
+        <source>Mouse Wheel</source>
+        <translation>Mausrad</translation>
+    </message>
+    <message>
+        <source>Angle X</source>
+        <translation>X-Winkel</translation>
+    </message>
+    <message>
+        <source>Angle Y</source>
+        <translation>Y-Winkel</translation>
+    </message>
+    <message>
+        <source>Mouse Event</source>
+        <translation>Mausereignis</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProfiler::Internal::MemoryUsageModelTest</name>
+    <message>
+        <source>Memory Allocation</source>
+        <translation>Speicherallokation</translation>
+    </message>
+    <message>
+        <source>Memory Usage</source>
+        <translation>Speicherverbrauch</translation>
+    </message>
+    <message>
+        <source>Memory Allocated</source>
+        <translation>Speicher allokiert</translation>
+    </message>
+    <message>
+        <source>Total</source>
+        <translation>Summe</translation>
+    </message>
+    <message>
+        <source>%1 bytes</source>
+        <translation>%1 Bytes</translation>
+    </message>
+    <message>
+        <source>Allocated</source>
+        <translation>Allokiert</translation>
+    </message>
+    <message>
+        <source>Allocations</source>
+        <translation>Allokationen</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation>Typ</translation>
+    </message>
+    <message>
+        <source>Heap Allocation</source>
+        <translation>Heap-Allokation</translation>
+    </message>
+    <message>
+        <source>Location</source>
+        <translation>Ort</translation>
+    </message>
+    <message>
+        <source>Deallocated</source>
+        <translation>Freigegeben</translation>
+    </message>
+    <message>
+        <source>Deallocations</source>
+        <translation>Freigaben</translation>
+    </message>
+    <message>
+        <source>Large Item Allocation</source>
+        <translation>Allokation großer Elemente</translation>
+    </message>
+    <message>
+        <source>Memory Freed</source>
+        <translation>Speicher freigegeben</translation>
+    </message>
+    <message>
+        <source>Heap Usage</source>
+        <translation>Heap-Verbrauch</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProfiler::Internal::PixmapCacheModelTest</name>
+    <message>
+        <source>Image Cached</source>
+        <translation>Bild gepuffert</translation>
+    </message>
+    <message>
+        <source>Image Loaded</source>
+        <translation>Bild geladen</translation>
+    </message>
+    <message>
+        <source>Duration</source>
+        <translation>Dauer</translation>
+    </message>
+    <message>
+        <source>Cache Size</source>
+        <translation>Puffergröße</translation>
+    </message>
+    <message>
+        <source>File</source>
+        <translation>Datei</translation>
+    </message>
+    <message>
+        <source>Width</source>
+        <translation>Breite</translation>
+    </message>
+    <message>
+        <source>Height</source>
+        <translation>Höhe</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::QnxDevice</name>
+    <message>
+        <source>QNX</source>
+        <translation>QNX</translation>
+    </message>
+    <message>
+        <source>Deploy Qt libraries...</source>
+        <translation>Deployment der Qt-Bibliotheken...</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::QnxDeviceFactory</name>
+    <message>
+        <source>QNX Device</source>
+        <translation>QNX-Gerät</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::QnxDeviceWizard</name>
+    <message>
+        <source>QNX Device</source>
+        <translation>QNX-Gerät</translation>
+    </message>
+    <message>
+        <source>New QNX Device Configuration Setup</source>
+        <translation>Neue QNX-Geräte-Konfiguration</translation>
+    </message>
+</context>
+<context>
+    <name>TextEditorWidget</name>
+    <message>
+        <source>CTRL+D</source>
+        <translation>CTRL+D</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Error:&lt;/b&gt; Could not decode &quot;%1&quot; with &quot;%2&quot;-encoding. Editing not possible.</source>
+        <translation>&lt;b&gt;Fehler:&lt;/b&gt; Die Datei &quot;%1&quot; kann nicht mit der Zeichenkodierung &quot;%2&quot; dargestellt werden. Sie kann nicht bearbeitet werden.</translation>
+    </message>
+    <message>
+        <source>Select Encoding</source>
+        <translation>Zeichenkodierung auswählen</translation>
+    </message>
+    <message>
+        <source>Line: %1, Col: %2</source>
+        <translation>Zeile: %1, Spalte: %2</translation>
+    </message>
+    <message>
+        <source>Line: 9999, Col: 999</source>
+        <translation>Zeile: 9999, Spalte: 999</translation>
+    </message>
+</context>
+<context>
+    <name>TextEditorSettings</name>
+    <message>
+        <source>Text</source>
+        <translation>Text</translation>
+    </message>
+    <message>
+        <source>Generic text.
+Applied to text, if no other rules matching.</source>
+        <translation>Generischer Text.
+Wird auf Text angewendet, sofern keine andere Regel zutrifft.</translation>
+    </message>
+    <message>
+        <source>Link</source>
+        <translation>Verweis</translation>
+    </message>
+    <message>
+        <source>Links that follow symbol under cursor.</source>
+        <translation>Verweise, die dem Symbol unter der Einfügemarke folgen.</translation>
+    </message>
+    <message>
+        <source>Selection</source>
+        <translation>Auswahl</translation>
+    </message>
+    <message>
+        <source>Selected text.</source>
+        <translation>Ausgewählter Text.</translation>
+    </message>
+    <message>
+        <source>Line Number</source>
+        <translation>Zeilennummer</translation>
+    </message>
+    <message>
+        <source>Line numbers located on the left side of the editor.</source>
+        <translation>Zeilennummern an der linken Seite des Editors.</translation>
+    </message>
+    <message>
+        <source>Search Result</source>
+        <translation>Suchergebnis</translation>
+    </message>
+    <message>
+        <source>Highlighted search results inside the editor.</source>
+        <translation>Hervorgehobene Suchergebnisse im Editor.</translation>
+    </message>
+    <message>
+        <source>Search Scope</source>
+        <translation>Suchbereich</translation>
+    </message>
+    <message>
+        <source>Section where the pattern is searched in.</source>
+        <translation>Bereich, in dem das Muster gesucht wird.</translation>
+    </message>
+    <message>
+        <source>Parentheses</source>
+        <translation>Klammern</translation>
+    </message>
+    <message>
+        <source>Displayed when matching parentheses, square brackets or curly brackets are found.</source>
+        <translation>Wird angezeigt, wenn passende runde, eckige oder geschweifte Klammern gefunden werden.</translation>
+    </message>
+    <message>
+        <source>Mismatched Parentheses</source>
+        <translation>Alleinstehende Klammern</translation>
+    </message>
+    <message>
+        <source>Displayed when mismatched parentheses, square brackets, or curly brackets are found.</source>
+        <translation>Wird angezeigt, wenn runde, eckige oder geschweifte Klammern nicht paarweise vorkommen.</translation>
+    </message>
+    <message>
+        <source>Auto Complete</source>
+        <translation>Automatische Vervollständigung</translation>
+    </message>
+    <message>
+        <source>Displayed when a character is automatically inserted like brackets or quotes.</source>
+        <translation>Wird angezeigt, wenn ein Zeichen wie Klammern oder Anführungszeichen automatisch eingefügt wird.</translation>
+    </message>
+    <message>
+        <source>Current Line</source>
+        <translation>Aktuelle Zeile</translation>
+    </message>
+    <message>
+        <source>Line where the cursor is placed in.</source>
+        <translation>Zeile, in der sich die Einfügemarke befindet.</translation>
+    </message>
+    <message>
+        <source>Current Line Number</source>
+        <translation>Aktuelle Zeilennummer</translation>
+    </message>
+    <message>
+        <source>Line number located on the left side of the editor where the cursor is placed in.</source>
+        <translation>Nummer der Zeile, in der sich die Einfügemarke befindet, an der linken Seite des Editors.</translation>
+    </message>
+    <message>
+        <source>Occurrences</source>
+        <translation>Vorkommen</translation>
+    </message>
+    <message>
+        <source>Occurrences of the symbol under the cursor.
+(Only the background will be applied.)</source>
+        <translation>Vorkommen des unter der Einfügemarke befindlichen Symbols.
+(Nur der Hintergrund wird benutzt.)</translation>
+    </message>
+    <message>
+        <source>Unused Occurrence</source>
+        <translation>Nicht verwendet</translation>
+    </message>
+    <message>
+        <source>Occurrences of unused variables.</source>
+        <translation>Vorkommen unbenutzter Variablen.</translation>
+    </message>
+    <message>
+        <source>Renaming Occurrence</source>
+        <translation>Umbenennung</translation>
+    </message>
+    <message>
+        <source>Occurrences of a symbol that will be renamed.</source>
+        <translation>Vorkommen eines umzubenennenden Symbols.</translation>
+    </message>
+    <message>
+        <source>Number</source>
+        <translation>Zahl</translation>
+    </message>
+    <message>
+        <source>Number literal.</source>
+        <translation>Zahlenliteral.</translation>
+    </message>
+    <message>
+        <source>String</source>
+        <translation>Zeichenkette</translation>
+    </message>
+    <message>
+        <source>Character and string literals.</source>
+        <translation>Zeichen- und Zeichenkettenliterale.</translation>
+    </message>
+    <message>
+        <source>Primitive Type</source>
+        <translation>Einfacher Typ</translation>
+    </message>
+    <message>
+        <source>Name of a primitive data type.</source>
+        <translation>Name eines einfachen Datentyps.</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation>Typ</translation>
+    </message>
+    <message>
+        <source>Name of a type.</source>
+        <translation>Typname.</translation>
+    </message>
+    <message>
+        <source>Local</source>
+        <translation>Lokale Variable</translation>
+    </message>
+    <message>
+        <source>Local variables.</source>
+        <translation>Lokale Variablen.</translation>
+    </message>
+    <message>
+        <source>Field</source>
+        <translation>Feld</translation>
+    </message>
+    <message>
+        <source>Class&apos; data members.</source>
+        <translation>Mitgliedsvariablen von Klassen.</translation>
+    </message>
+    <message>
+        <source>Global</source>
+        <translation>Global</translation>
+    </message>
+    <message>
+        <source>Global variables.</source>
+        <translation>Globale Variablen.</translation>
+    </message>
+    <message>
+        <source>Enumeration</source>
+        <translation>Aufzählung</translation>
+    </message>
+    <message>
+        <source>Applied to enumeration items.</source>
+        <translation>Wird auf Aufzählungen angewandt.</translation>
+    </message>
+    <message>
+        <source>Function</source>
+        <translation>Funktion</translation>
+    </message>
+    <message>
+        <source>Name of a function.</source>
+        <translation>Name einer Funktion.</translation>
+    </message>
+    <message>
+        <source>Virtual Function</source>
+        <translation>Virtuelle Funktion</translation>
+    </message>
+    <message>
+        <source>Name of function declared as virtual.</source>
+        <translation>Name einer als virtuell deklarierten Funktion.</translation>
+    </message>
+    <message>
+        <source>QML Binding</source>
+        <translation>QML-Binding</translation>
+    </message>
+    <message>
+        <source>QML item property, that allows a binding to another property.</source>
+        <translation>QML-Eigenschaft, die ein Binding zu einer anderen Eigenschaft ermöglicht.</translation>
+    </message>
+    <message>
+        <source>QML Local Id</source>
+        <translation>Lokale QML-Id</translation>
+    </message>
+    <message>
+        <source>QML item id within a QML file.</source>
+        <translation>QML-Element-Id in einer QML-Datei.</translation>
+    </message>
+    <message>
+        <source>QML Root Object Property</source>
+        <translation>Eigenschaft des QML-Wurzelelements</translation>
+    </message>
+    <message>
+        <source>QML property of a parent item.</source>
+        <translation>QML-Eigenschaft eines übergeordneten QML-Objektes.</translation>
+    </message>
+    <message>
+        <source>QML Scope Object Property</source>
+        <translation>Objekteigenschaft im Gültigkeitsbereich von QML</translation>
+    </message>
+    <message>
+        <source>Property of the same QML item.</source>
+        <translation>Eigenschaft des selben QML-Objektes.</translation>
+    </message>
+    <message>
+        <source>QML State Name</source>
+        <translation>QML-Statusnname</translation>
+    </message>
+    <message>
+        <source>Name of a QML state.</source>
+        <translation>Name eines States in QML.</translation>
+    </message>
+    <message>
+        <source>QML Type Name</source>
+        <translation>QML-Typname</translation>
+    </message>
+    <message>
+        <source>Name of a QML type.</source>
+        <translation>Name eines QML-Typs.</translation>
+    </message>
+    <message>
+        <source>QML External Id</source>
+        <translation>Externe QML-Id</translation>
+    </message>
+    <message>
+        <source>QML id defined in another QML file.</source>
+        <translation>In einer anderen QML-Datei definierte QML-Element-Id.</translation>
+    </message>
+    <message>
+        <source>QML External Object Property</source>
+        <translation>Eigenschaft eines externen QML-Objektes</translation>
+    </message>
+    <message>
+        <source>QML property defined in another QML file.</source>
+        <translation>In einer anderen QML-Datei definierte QML-Eigenschaft.</translation>
+    </message>
+    <message>
+        <source>JavaScript Scope Var</source>
+        <translation>JavaScript-Variable im Bereich</translation>
+    </message>
+    <message>
+        <source>Variables defined inside the JavaScript file.</source>
+        <translation>In einer JavaScript-Datei definierte Variablen.</translation>
+    </message>
+    <message>
+        <source>JavaScript Import</source>
+        <translation>JavaScript-Import</translation>
+    </message>
+    <message>
+        <source>Name of a JavaScript import inside a QML file.</source>
+        <translation>Name eines JavaScript-Imports in einer QML-Datei.</translation>
+    </message>
+    <message>
+        <source>JavaScript Global Variable</source>
+        <translation>Globale JavaScript-Variable</translation>
+    </message>
+    <message>
+        <source>Variables defined outside the script.</source>
+        <translation>Außerhalb des Skripts definierte Variablen.</translation>
+    </message>
+    <message>
+        <source>Keyword</source>
+        <translation>Schlüsselwort</translation>
+    </message>
+    <message>
+        <source>Reserved keywords of the programming language except keywords denoting primitive types.</source>
+        <translation>Reservierte Schlüsselworte der Programmiersprache außer Schlüsselworte, die einfache Typen bezeichnen.</translation>
+    </message>
+    <message>
+        <source>Operator</source>
+        <translation>Operator</translation>
+    </message>
+    <message>
+        <source>Operators (for example operator++ or operator-=).</source>
+        <translation>Operatoren (zum Beispiel operator++ oder operator-=).</translation>
+    </message>
+    <message>
+        <source>Preprocessor</source>
+        <translation>Präprozessor</translation>
+    </message>
+    <message>
+        <source>Preprocessor directives.</source>
+        <translation>Präprozessor-Anweisungen.</translation>
+    </message>
+    <message>
+        <source>Label</source>
+        <translation>Sprungmarke</translation>
+    </message>
+    <message>
+        <source>Labels for goto statements.</source>
+        <translation>Sprungmarken für goto-Befehle.</translation>
+    </message>
+    <message>
+        <source>Comment</source>
+        <translation>Kommentar</translation>
+    </message>
+    <message>
+        <source>All style of comments except Doxygen comments.</source>
+        <translation>Alle Arten von Kommentaren außer Doxygen-Kommentaren.</translation>
+    </message>
+    <message>
+        <source>Doxygen Comment</source>
+        <translation>Doxygen-Kommentar</translation>
+    </message>
+    <message>
+        <source>Doxygen comments.</source>
+        <translation>Doxygen-Kommentare.</translation>
+    </message>
+    <message>
+        <source>Doxygen Tag</source>
+        <translation>Doxygen-Tag</translation>
+    </message>
+    <message>
+        <source>Doxygen tags.</source>
+        <translation>Doxygen-Tags.</translation>
+    </message>
+    <message>
+        <source>Visual Whitespace</source>
+        <translation>Leerzeichen darstellen</translation>
+    </message>
+    <message>
+        <source>Whitespace.
+Will not be applied to whitespace in comments and strings.</source>
+        <translation>Leerzeichen.
+Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
+    </message>
+    <message>
+        <source>Disabled Code</source>
+        <translation>Deaktivierter Code</translation>
+    </message>
+    <message>
+        <source>Code disabled by preprocessor directives.</source>
+        <translation>Durch Präprozessor-Anweisungen deaktivierter Code.</translation>
+    </message>
+    <message>
+        <source>Added Line</source>
+        <translation>Hinzugefügte Zeile</translation>
+    </message>
+    <message>
+        <source>Applied to added lines in differences (in diff editor).</source>
+        <translation>Wird auf hinzugefügte Zeilen angewendet (in Diff-Editor).</translation>
+    </message>
+    <message>
+        <source>Removed Line</source>
+        <translation>Entfernte Zeile</translation>
+    </message>
+    <message>
+        <source>Applied to removed lines in differences (in diff editor).</source>
+        <translation>Wird auf entfernte Zeilen angewendet (in Diff-Editor).</translation>
+    </message>
+    <message>
+        <source>Diff File</source>
+        <translation>Diff-Dateiangabe</translation>
+    </message>
+    <message>
+        <source>Compared files (in diff editor).</source>
+        <translation>Verglichene Dateien (in Diff-Editor).</translation>
+    </message>
+    <message>
+        <source>Diff Location</source>
+        <translation>Diff-Zeilenangabe</translation>
+    </message>
+    <message>
+        <source>Location in the files where the difference is (in diff editor).</source>
+        <translation>Stelle, an der sich der Unterschied befindet (in Diff-Editor).</translation>
+    </message>
+    <message>
+        <source>Diff File Line</source>
+        <translation>Diff-Dateizeile</translation>
+    </message>
+    <message>
+        <source>Applied to lines with file information in differences (in side-by-side diff editor).</source>
+        <translation>Wird auf Zeilen mit Dateiinformationen in den Unterschieden angewendet (bei Anzeige mit Gegenüberstellung der Unterschiede).</translation>
+    </message>
+    <message>
+        <source>Diff Context Line</source>
+        <translation>Diff-Kontextzeile</translation>
+    </message>
+    <message>
+        <source>Applied to lines describing hidden context in differences (in side-by-side diff editor).</source>
+        <translation>Wird auf Zeilen angewendet, die verborgenen Kontext in den Unterschieden beschreiben (bei Anzeige mit Gegenüberstellung der Unterschiede).</translation>
+    </message>
+    <message>
+        <source>Diff Source Line</source>
+        <translation>Diff-Zeile aus Quelldatei</translation>
+    </message>
+    <message>
+        <source>Applied to source lines with changes in differences (in side-by-side diff editor).</source>
+        <translation>Wird auf geänderte Zeilen der Quelldatei in den Unterschieden angewendet (bei Anzeige mit Gegenüberstellung der Unterschiede).</translation>
+    </message>
+    <message>
+        <source>Diff Source Character</source>
+        <translation>Diff-Zeichen aus Quelldatei</translation>
+    </message>
+    <message>
+        <source>Applied to removed characters in differences (in side-by-side diff editor).</source>
+        <translation>Wird auf gelöschte Zeichen in den Unterschieden angewendet (bei Anzeige mit Gegenüberstellung der Unterschiede).</translation>
+    </message>
+    <message>
+        <source>Diff Destination Line</source>
+        <translation>Diff-Zeile aus Zieldatei</translation>
+    </message>
+    <message>
+        <source>Applied to destination lines with changes in differences (in side-by-side diff editor).</source>
+        <translation>Wird auf geänderte Zeilen der Zieldatei in den Unterschieden angewendet (bei Anzeige mit Gegenüberstellung der Unterschiede).</translation>
+    </message>
+    <message>
+        <source>Diff Destination Character</source>
+        <translation>Diff-Zeichen aus Zieldatei</translation>
+    </message>
+    <message>
+        <source>Applied to added characters in differences (in side-by-side diff editor).</source>
+        <translation>Wird auf hinzugefügte Zeichen in den Unterschieden angewendet (bei Anzeige mit Gegenüberstellung der Unterschiede).</translation>
+    </message>
+    <message>
+        <source>Log Change Line</source>
+        <translation>Zeile in Änderungslogs</translation>
+    </message>
+    <message>
+        <source>Applied to lines describing changes in VCS log.</source>
+        <translation>Wird auf Zeilen angewendet, die Änderungen in einem Versionskontroll-Log beschreiben.</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Fehler</translation>
+    </message>
+    <message>
+        <source>Underline color of error diagnostics.</source>
+        <translation>Unterstreichung von Fehlern.</translation>
+    </message>
+    <message>
+        <source>Error Context</source>
+        <translation>Fehlerkontext</translation>
+    </message>
+    <message>
+        <source>Underline color of the contexts of error diagnostics.</source>
+        <translation>Unterstreichung der Kontexte von Fehlern.</translation>
+    </message>
+    <message>
+        <source>Warning</source>
+        <translation>Warnung</translation>
+    </message>
+    <message>
+        <source>Underline color of warning diagnostics.</source>
+        <translation>Unterstreichung von Warnungen.</translation>
+    </message>
+    <message>
+        <source>Warning Context</source>
+        <translation>Warnungskontext</translation>
+    </message>
+    <message>
+        <source>Underline color of the contexts of warning diagnostics.</source>
+        <translation>Unterstreichung der Kontexte von Warnungen.</translation>
+    </message>
+    <message>
+        <source>Declaration</source>
+        <translation>Deklaration</translation>
+    </message>
+    <message>
+        <source>Declaration of a function, variable, and so on.</source>
+        <translation>Deklaration einer Funktion, Variable oder vergleichbarem.</translation>
+    </message>
+    <message>
+        <source>Behavior</source>
+        <translation>Verhalten</translation>
+    </message>
+    <message>
+        <source>Display</source>
+        <translation>Anzeige</translation>
     </message>
 </context>
 </TS>

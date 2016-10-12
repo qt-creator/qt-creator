@@ -237,7 +237,7 @@ QList<TestConfiguration *> QuickTestTreeItem::getSelectedTestConfigurations() co
             int grandChildCount = child->childCount();
             for (int grandChildRow = 0; grandChildRow < grandChildCount; ++grandChildRow) {
                 const TestTreeItem *grandChild = child->childItem(grandChildRow);
-                if (grandChild->type() != TestFunctionOrSet)
+                if (grandChild->checked() != Qt::Checked || grandChild->type() != TestFunctionOrSet)
                     continue;
                 testFunctions << child->name() + "::" + grandChild->name();
             }
