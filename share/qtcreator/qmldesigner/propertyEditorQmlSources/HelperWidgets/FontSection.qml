@@ -143,6 +143,18 @@ Section {
         }
 
         Label {
+            text: qsTr("Font capitalization")
+            toolTip: qsTr("Sets the capitalization for the text.")
+        }
+
+        ComboBox {
+            Layout.fillWidth: true
+            backendValue: backendValues.font_capitalization
+            model:  ["MixedCase", "AllUppercase", "AllLowercase", "SmallCaps", "Capitalize"]
+            scope: "Font"
+        }
+
+        Label {
             text: qsTr("Font weight")
             toolTip: qsTr("Sets the font's weight.")
         }
