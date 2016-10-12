@@ -77,7 +77,7 @@ exists(../shared/qbs/qbs.pro)|!isEmpty(QBS_INSTALL_DIR): \
 isEmpty(LLVM_INSTALL_DIR):LLVM_INSTALL_DIR=$$(LLVM_INSTALL_DIR)
 exists($$LLVM_INSTALL_DIR) {
     SUBDIRS += clangcodemodel
-    SUBDIRS += clangrefactoring
+#    SUBDIRS += clangrefactoring
 } else {
     warning("Set LLVM_INSTALL_DIR to build the Clang Code Model. " \
             "For details, see doc/src/editors/creator-clang-codemodel.qdoc.")
