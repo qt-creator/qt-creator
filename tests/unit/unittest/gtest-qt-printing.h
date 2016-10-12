@@ -69,6 +69,14 @@ QT_END_NAMESPACE
 #ifdef CLANG_UNIT_TESTS
 namespace clang {
 
+inline
+std::ostream &operator<<(std::ostream &out, const StringRef stringReference)
+{
+    out.write(stringReference.data(), std::streamsize(stringReference.size()));
+
+    return out;
+}
+
 inline void PrintTo(const clang::FullSourceLoc &sourceLocation, ::std::ostream *os)
 {
     auto &&sourceManager = sourceLocation.getManager();
