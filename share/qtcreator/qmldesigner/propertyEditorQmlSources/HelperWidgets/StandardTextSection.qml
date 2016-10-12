@@ -37,6 +37,7 @@ Section {
     property bool showVerticalAlignment: false
     property bool useLineEdit: true
     property bool showFormatProperty: false
+    property bool showFontSizeMode: false
 
     SectionLayout {
         columns: 2
@@ -114,6 +115,17 @@ Section {
             scope: "Text"
             model:  ["QtRendering", "NativeRendering"]
             backendValue: backendValues.renderType
+            Layout.fillWidth: true
+        }
+
+        Label {
+            text: qsTr("Font size mode")
+            toolTip: qsTr("Specifies how the font size of the displayed text is determined.")
+        }
+        ComboBox {
+            scope: "Text"
+            model:  ["FixedSize", "HorizontalFit", "VerticalFit", "Fit"]
+            backendValue: backendValues.fontSizeMode
             Layout.fillWidth: true
         }
     }

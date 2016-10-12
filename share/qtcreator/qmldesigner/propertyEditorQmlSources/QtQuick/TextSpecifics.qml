@@ -37,6 +37,7 @@ Column {
         showVerticalAlignment: true
         showFormatProperty: true
         showElide: true
+        showFontSizeMode: true
     }
 
     Section {
