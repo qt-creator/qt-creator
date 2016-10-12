@@ -128,7 +128,7 @@ def main():
                 except:
                     clickButton(waitForObject(":Cannot Open Project.Show Details..._QPushButton"))
                     test.fail("The checked out project was not being opened.",
-                              waitForObject(":Cannot Open Project_QTextEdit").plainText)
+                              str(waitForObject(":Cannot Open Project_QTextEdit").plainText))
                     clickButton(waitForObject(":Cannot Open Project.OK_QPushButton"))
         verifyVersionControlView(targetDir, button == "Cancel immediately")
     invokeMenuItem("File", "Exit")
