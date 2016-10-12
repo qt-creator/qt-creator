@@ -3203,33 +3203,6 @@ void GdbEngine::reloadFullStack()
     runCommand(cmd);
 }
 
-static QString msgCannotLoadQmlStack(const QString &why)
-{
-    return "Unable to load QML stack: " + why;
-}
-
-static quint64 findJsExecutionContextAddress(const GdbMi &stackArgsResponse, const QString &qtNamespace)
-{
-    const GdbMi frameList = stackArgsResponse.childAt(0);
-    if (!frameList.childCount())
-        return 0;
-    QString jsExecutionContextType = qtNamespace;
-    if (!jsExecutionContextType.isEmpty())
-        jsExecutionContextType.append("::");
-    jsExecutionContextType.append("QV4::ExecutionContext *");
-    foreach (const GdbMi &frameNode, frameList.children()) {
-        foreach (const GdbMi &argNode, frameNode["args"].children()) {
-            if (argNode["type"].data() == jsExecutionContextType) {
-                bool ok;
-                const quint64 address = argNode["value"].data().toULongLong(&ok, 16);
-                if (ok && address)
-                    return address;
-            }
-        }
-    }
-    return 0;
-}
-
 void GdbEngine::loadAdditionalQmlStack()
 {
     DebuggerCommand cmd = stackCommand(-1);
