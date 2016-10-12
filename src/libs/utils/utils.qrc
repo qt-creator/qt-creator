@@ -38,8 +38,11 @@
         <file>images/compile_error_taskbar@2x.png</file>
         <file>images/dir.png</file>
         <file>images/editcopy.png</file>
+        <file>images/editcopy@2x.png</file>
         <file>images/editcut.png</file>
+        <file>images/editcut@2x.png</file>
         <file>images/editpaste.png</file>
+        <file>images/editpaste@2x.png</file>
         <file>images/empty14.png</file>
         <file>images/filenew.png</file>
         <file>images/fileopen.png</file>

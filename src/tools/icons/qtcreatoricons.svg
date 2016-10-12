@@ -440,6 +440,17 @@
          height="16"
          id="rect6129" />
     </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath6310">
+      <rect
+         style="display:inline;opacity:0.93000004;fill:#ffffff;fill-opacity:1"
+         x="1260"
+         y="568"
+         width="16"
+         height="16"
+         id="rect6312" />
+    </clipPath>
   </defs>
   <sodipodi:namedview
      id="base"
@@ -3409,13 +3420,13 @@
          sodipodi:nodetypes="cccc"
          inkscape:connector-curvature="0"
          id="path4757-1"
-         d="m 1233,569.5 -3,3 3,3 z"
+         d="m 1234,569.5 -3,3 3,3 z"
          style="fill:#000000" />
       <path
          sodipodi:nodetypes="cccc"
          inkscape:connector-curvature="0"
          id="path5163"
-         d="m 1233,580.5 3,0 c 6,0 6,-8 0,-8 l -5,0"
+         d="m 1233,580.5 4,0 c 6,0 6,-8 0,-8 l -5,0"
          style="fill:none;stroke:#000000" />
     </g>
     <use
@@ -3426,6 +3437,154 @@
        transform="matrix(-1,0,0,1,2488,0)"
        width="100%"
        height="100%" />
+    <g
+       id="src/libs/utils/images/editcut"
+       clip-path="url(#clipPath6310)">
+      <rect
+         style="fill:#ffffff;fill-opacity:1"
+         x="1260"
+         y="568"
+         width="16"
+         height="16"
+         id="rect6782-96-0-0-7-8-1-0-4-0-4" />
+      <g
+         id="g5241">
+        <path
+           sodipodi:nodetypes="ccccc"
+           style="fill:#000000;stroke:#ffffff"
+           d="m 1265,579.5 8.5,-12 0,4 -8.4999,12 z"
+           id="path5192"
+           inkscape:connector-curvature="0" />
+        <ellipse
+           ry="2"
+           rx="1.5"
+           cx="1264"
+           cy="580.5"
+           style="fill:none;stroke:#000000"
+           id="path5186" />
+      </g>
+      <use
+         height="100%"
+         width="100%"
+         transform="matrix(-1,0,0,1,2536.017,0)"
+         id="use5245"
+         xlink:href="#g5241"
+         y="0"
+         x="0" />
+    </g>
+    <g
+       id="src/libs/utils/images/editcopy">
+      <rect
+         style="fill:#ffffff;fill-opacity:1"
+         x="1276"
+         y="568"
+         width="16"
+         height="16"
+         id="rect6782-96-0-0-7-8-1-0-4-0-9" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#edidcopypastedocument"
+         id="use5178"
+         transform="translate(4,-3)"
+         width="100%"
+         height="100%" />
+      <g
+         id="edidcopypastedocument"
+         transform="translate(48,0)">
+        <path
+           sodipodi:nodetypes="cccccc"
+           inkscape:connector-curvature="0"
+           id="path5168"
+           d="m 1229.5,572.5 5,0 3,3 0,7 -8,0 z"
+           style="fill:#ffffff;stroke:#000000" />
+        <path
+           sodipodi:nodetypes="ccc"
+           inkscape:connector-curvature="0"
+           id="path5172"
+           d="m 1234.5,572.5 0,3 3,0"
+           style="fill:none;stroke:#000000" />
+      </g>
+      <rect
+         y="571.5"
+         x="1281"
+         height="0.5"
+         width="1"
+         id="rect5180"
+         style="fill:#ffffff" />
+      <use
+         height="100%"
+         width="100%"
+         transform="matrix(0,1,-1,0,1858,-702)"
+         id="use5182"
+         xlink:href="#rect5180"
+         y="0"
+         x="0" />
+    </g>
+    <g
+       transform="translate(16,0)"
+       style="display:inline"
+       id="src/libs/utils/images/editpaste">
+      <rect
+         style="fill:#ffffff;fill-opacity:1"
+         x="1276"
+         y="568"
+         width="16"
+         height="16"
+         id="rect6782-96-0-0-7-8-1-0-4-0-9-5" />
+      <rect
+         style="fill:#ffffff;stroke:#000000"
+         id="rect5253"
+         width="8"
+         height="10"
+         x="1277.5"
+         y="570.5"
+         ry="1" />
+      <g
+         transform="translate(53,0)"
+         id="use5236">
+        <path
+           style="fill:#ffffff;stroke:#000000"
+           d="m 1230.5,573.5 4,0 3,3 0,6 -7,0 z"
+           id="path5259"
+           inkscape:connector-curvature="0"
+           sodipodi:nodetypes="cccccc" />
+        <path
+           style="fill:none;stroke:#000000"
+           d="m 1234.5,573.5 0,3 3,0"
+           id="path5261"
+           inkscape:connector-curvature="0"
+           sodipodi:nodetypes="ccc" />
+        <path
+           id="path5297"
+           style="fill:#000000;fill-opacity:1"
+           d="m 1232,580 0,0.5 3,0 0,-0.5 -3,0 z m 0,-2 0,0.5 4,0 0,-0.5 -4,0 z m 0,-2 0,0.5 2,0 0,-0.5 -2,0 z"
+           inkscape:connector-curvature="0" />
+      </g>
+      <rect
+         style="fill:#000000;fill-opacity:1"
+         id="rect5255"
+         width="4"
+         height="3"
+         x="1279.5"
+         y="569"
+         ry="1" />
+      <rect
+         y="572.5"
+         x="1285"
+         height="0.5"
+         width="1"
+         id="rect5180-3"
+         style="display:inline;fill:#ffffff" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#rect5180-3"
+         id="use5314"
+         transform="matrix(0,1,-1,0,1855.5,-705)"
+         width="100%"
+         height="100%" />
+    </g>
   </g>
   <g
      inkscape:groupmode="layer"

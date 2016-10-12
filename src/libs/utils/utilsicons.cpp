@@ -76,12 +76,12 @@ const Icon UNDO({
         {QLatin1String(":/utils/images/undo.png"), Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon REDO({
         {QLatin1String(":/utils/images/redo.png"), Theme::PanelTextColorMid}}, Icon::Tint);
-const Icon COPY(
-        QLatin1String(":/utils/images/editcopy.png"));
-const Icon PASTE(
-        QLatin1String(":/utils/images/editpaste.png"));
-const Icon CUT(
-        QLatin1String(":/utils/images/editcut.png"));
+const Icon COPY({
+        {QLatin1String(":/utils/images/editcopy.png"), Theme::PanelTextColorMid}}, Icon::Tint);
+const Icon PASTE({
+        {QLatin1String(":/utils/images/editpaste.png"), Theme::PanelTextColorMid}}, Icon::Tint);
+const Icon CUT({
+        {QLatin1String(":/utils/images/editcut.png"), Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon DIR(
         QLatin1String(":/utils/images/dir.png"));
 const Icon RESET({
