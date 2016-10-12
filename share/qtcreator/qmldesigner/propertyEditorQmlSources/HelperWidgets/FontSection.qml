@@ -178,5 +178,41 @@ Section {
             model:  ["Normal", "Outline", "Raised", "Sunken"]
             scope: "Text"
         }
+
+        Label {
+            text: qsTr("Spacing")
+        }
+
+        SecondColumnLayout {
+            Label {
+                text: qsTr("Word")
+                tooltip: qsTr("Sets the word spacing for the font.")
+                width: 42
+            }
+            SpinBox {
+                maximumValue: 9999999
+                minimumValue: -9999999
+                decimals: 0
+                backendValue: backendValues.font_wordSpacing
+                Layout.fillWidth: true
+            }
+            Item {
+                width: 4
+                height: 4
+            }
+
+            Label {
+                text: qsTr("Letter")
+                tooltip: qsTr("Sets the letter spacing for the font.")
+                width: 42
+            }
+            SpinBox {
+                maximumValue: 9999999
+                minimumValue: -9999999
+                decimals: 0
+                backendValue: backendValues.font_letterSpacing
+                Layout.fillWidth: true
+            }
+        }
     }
 }
