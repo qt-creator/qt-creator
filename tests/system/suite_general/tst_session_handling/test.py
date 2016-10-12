@@ -84,7 +84,7 @@ def prepareTestExamples():
 def switchSession(toSession):
     test.log("Switching to session '%s'" % toSession)
     invokeMenuItem("File", "Session Manager...")
-    clickItem(waitForObject("{name='sessionList' type='QListWidget' visible='1' "
+    clickItem(waitForObject("{name='sessionView' type='ProjectExplorer::Internal::SessionView' visible='1' "
                             "window=':Session Manager_ProjectExplorer::Internal::SessionDialog'}"),
                             toSession, 5, 5, 0, Qt.LeftButton)
     clickButton(waitForObject("{name='btSwitch' text='Switch to' type='QPushButton' visible='1' "
@@ -111,9 +111,9 @@ def checkWelcomePage(sessionName, isCurrent=False):
     waitForObject("{container='%s' id='sessionsTitle' text='Sessions' type='Text' "
                   "unnamed='1' visible='true'}" % welcomePage)
     if isCurrent:
-        sessions = ["1: default", "2: %s (current session)" % sessionName]
+        sessions = ["default", "%s (current session)" % sessionName]
     else:
-        sessions = ["1: default (current session)", "2: %s" % sessionName]
+        sessions = ["default (current session)", sessionName]
     for sessionName in sessions:
         test.verify(object.exists("{container='%s' enabled='true' type='Text' unnamed='1' "
                                   "visible='true' text='%s'}" % (welcomePage, sessionName)),
