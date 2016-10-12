@@ -309,7 +309,7 @@ bool PropertyEditorValue::hasPropertyAlias() const
     QString id = modelNode().id();
 
     for (const QmlDesigner::BindingProperty &property : modelNode().view()->rootModelNode().bindingProperties())
-        if (property.expression() == (id + "." + name()))
+        if (property.expression() == (id + "." + nameAsQString()))
             return true;
 
     return false;
