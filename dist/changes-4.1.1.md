@@ -51,7 +51,7 @@ QML Profiler
 * Separated compile events from other QML/JS events in statistics and
   flamegraph, since compilation can happen asynchronously
 
-Beatifier
+Beautifier
 
 * Fixed that beautifier was not enabled for Objective-C/C++ files
   (QTCREATORBUG-16806)
