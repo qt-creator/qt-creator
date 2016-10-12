@@ -109,12 +109,14 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     addAction(separatorAction);
     upperActions.append(separatorAction);
 
-    m_rootWidthAction = new LineEditAction(tr("Width"), this);
+    m_rootWidthAction = new LineEditAction(tr("Override Width"), this);
+    m_rootWidthAction->setToolTip(tr("Override width of root item."));
     connect(m_rootWidthAction.data(), SIGNAL(textChanged(QString)), this, SLOT(changeRootItemWidth(QString)));
     addAction(m_rootWidthAction.data());
     upperActions.append(m_rootWidthAction.data());
 
-    m_rootHeightAction =  new LineEditAction(tr("Height"), this);
+    m_rootHeightAction =  new LineEditAction(tr("Override Height"), this);
+    m_rootHeightAction->setToolTip(tr("Override height of root item."));
     connect(m_rootHeightAction.data(), SIGNAL(textChanged(QString)), this, SLOT(changeRootItemHeight(QString)));
     addAction(m_rootHeightAction.data());
     upperActions.append(m_rootHeightAction.data());

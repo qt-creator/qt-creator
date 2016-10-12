@@ -39,5 +39,9 @@ void AbstractCustomTool::selectedItemsChanged(const QList<FormEditorItem *> & /*
     view()->changeToSelectionTool();
 }
 
+void AbstractCustomTool::focusLost()
+{
+}
+
 
 } // namespace QmlDesigner

@@ -294,4 +294,8 @@ void SelectionTool::selectUnderPoint(QGraphicsSceneMouseEvent *event)
     m_singleSelectionManipulator.end(event->scenePos());
 }
 
+void SelectionTool::focusLost()
+{
+}
+
 }

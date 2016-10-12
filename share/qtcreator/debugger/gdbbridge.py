@@ -998,9 +998,10 @@ class Dumper(DumperBase):
         gdb.execute('continue')
 
     def fetchStack(self, args):
-        def fromNativePath(str):
-            return str.replace('\\', '/')
+        def fromNativePath(string):
+            return string.replace('\\', '/')
 
+        extraQml = int(args.get('extraqml', '0'))
         limit = int(args['limit'])
         if limit <= 0:
            limit = 10000
@@ -1008,8 +1009,42 @@ class Dumper(DumperBase):
         self.prepare(args)
         self.output = []
 
-        frame = gdb.newest_frame()
         i = 0
+        if extraQml:
+            frame = gdb.newest_frame()
+            ns = self.qtNamespace()
+            needle = self.qtNamespace() + 'QV4::ExecutionEngine'
+            pat = "%sqt_v4StackTrace(((%sQV4::ExecutionEngine *)0x%x)->currentContext)"
+            done = False
+            while i < limit and frame and not done:
+                block = None
+                try:
+                    block = frame.block()
+                except:
+                    pass
+                if block is not None:
+                    for symbol in block:
+                        if symbol.is_variable or symbol.is_argument:
+                            value = symbol.value(frame)
+                            typeobj = value.type
+                            if typeobj.code == gdb.TYPE_CODE_PTR:
+                               dereftype = typeobj.target().unqualified()
+                               if dereftype.name == needle:
+                                    addr = toInteger(value)
+                                    expr = pat % (ns, ns, addr)
+                                    res = str(gdb.parse_and_eval(expr))
+                                    pos = res.find('"stack=[')
+                                    if pos != -1:
+                                        res = res[pos + 8:-2]
+                                        res = res.replace('\\\"', '\"')
+                                        res = res.replace('func=', 'function=')
+                                        self.put(res)
+                                        done = True
+                                        break
+                frame = frame.older()
+                i += 1
+
+        frame = gdb.newest_frame()
         self.currentCallContext = None
         while i < limit and frame:
             with OutputSafer(self):

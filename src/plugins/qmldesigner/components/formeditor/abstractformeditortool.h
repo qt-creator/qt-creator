@@ -74,6 +74,8 @@ public:
     virtual void instancesParentChanged(const QList<FormEditorItem*> &itemList) = 0;
     virtual void instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList) = 0;
 
+    virtual void focusLost() = 0;
+
     void setItems(const QList<FormEditorItem*> &itemList);
     QList<FormEditorItem*> items() const;
 

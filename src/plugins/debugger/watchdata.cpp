@@ -40,11 +40,6 @@ bool isPointerType(const QString &type)
     return type.endsWith('*') || type.endsWith("* const");
 }
 
-bool isCharPointerType(const QString &type)
-{
-    return type == "char *" || type == "const char *" || type == "char const *";
-}
-
 bool isIntType(const QString &type)
 {
     if (type.isEmpty())
@@ -128,8 +123,7 @@ bool WatchItem::isVTablePointer() const
 {
     // First case: Cdb only. No user type can be named like this, this is safe.
     // Second case: Python dumper only.
-    return type.startsWith("__fptr()")
-        || (type.isEmpty() && name == QLatin1String("[vptr]"));
+    return type.startsWith("__fptr()") || (type.isEmpty() && name == "[vptr]");
 }
 
 void WatchItem::setError(const QString &msg)
@@ -146,87 +140,6 @@ void WatchItem::setValue(const QString &value0)
     if (value == QLatin1String("{...}")) {
         value.clear();
         wantsChildren = true; // at least one...
-    }
-    // strip off quoted characters for chars.
-    if (value.endsWith(QLatin1Char('\'')) && type.endsWith("char")) {
-        const int blankPos = value.indexOf(QLatin1Char(' '));
-        if (blankPos != -1)
-            value.truncate(blankPos);
-    }
-
-    // avoid duplicated information
-    if (value.startsWith(QLatin1Char('(')) && value.contains(QLatin1String(") 0x")))
-        value.remove(0, value.lastIndexOf(QLatin1String(") 0x")) + 2);
-
-    // doubles are sometimes displayed as "@0x6141378: 1.2".
-    // I don't want that.
-    if (/*isIntOrFloatType(type) && */ value.startsWith(QLatin1String("@0x"))
-         && value.contains(QLatin1Char(':'))) {
-        value.remove(0, value.indexOf(QLatin1Char(':')) + 2);
-        setHasChildren(false);
-    }
-
-    // "numchild" is sometimes lying
-    //MODEL_DEBUG("\n\n\nPOINTER: " << type << value);
-    if (isPointerType(type))
-        setHasChildren(value != QLatin1String("0x0") && value != QLatin1String("<null>")
-            && !isCharPointerType(type));
-
-    // pointer type information is available in the 'type'
-    // column. No need to duplicate it here.
-    if (value.startsWith('(' + type + ") 0x"))
-        value = value.section(QLatin1Char(' '), -1, -1);
-}
-
-enum GuessChildrenResult { HasChildren, HasNoChildren, HasPossiblyChildren };
-
-static GuessChildrenResult guessChildren(const QString &type)
-{
-    if (isIntOrFloatType(type))
-        return HasNoChildren;
-    if (isCharPointerType(type))
-        return HasNoChildren;
-    if (isPointerType(type))
-        return HasChildren;
-    if (type.endsWith("QString"))
-        return HasNoChildren;
-    return HasPossiblyChildren;
-}
-
-void WatchItem::setType(const QString &str, bool guessChildrenFromType)
-{
-    type = str.trimmed();
-    bool changed = true;
-    while (changed) {
-        if (type.endsWith("const"))
-            type.chop(5);
-        else if (type.endsWith(' '))
-            type.chop(1);
-        else if (type.startsWith("const "))
-            type = type.mid(6);
-        else if (type.startsWith("volatile "))
-            type = type.mid(9);
-        else if (type.startsWith("class "))
-            type = type.mid(6);
-        else if (type.startsWith("struct "))
-            type = type.mid(7);
-        else if (type.startsWith(' '))
-            type = type.mid(1);
-        else
-            changed = false;
-    }
-    if (guessChildrenFromType) {
-        switch (guessChildren(type)) {
-        case HasChildren:
-            setHasChildren(true);
-            break;
-        case HasNoChildren:
-            setHasChildren(false);
-            break;
-        case HasPossiblyChildren:
-            setHasChildren(true); // FIXME: bold assumption
-            break;
-        }
     }
 }
 
@@ -397,7 +310,7 @@ void WatchItem::parseHelper(const GdbMi &input, bool maySort)
 {
     GdbMi mi = input["type"];
     if (mi.isValid())
-        setType(mi.data());
+        type = mi.data();
 
     editvalue = input["editvalue"].data();
     editformat = input["editformat"].data();
@@ -428,7 +341,7 @@ void WatchItem::parseHelper(const GdbMi &input, bool maySort)
                 // *(class X*)0xdeadbeef for gdb.
                 exp = name;
             else
-                exp = "*(" + gdbQuoteTypes(type) + "*)" + hexAddress();
+                exp = "*(" + type + "*)" + hexAddress();
         }
     }
 
@@ -497,7 +410,7 @@ void WatchItem::parseHelper(const GdbMi &input, bool maySort)
                 const GdbMi &subinput = children.children().at(i);
                 WatchItem *child = new WatchItem;
                 if (childType.isValid())
-                    child->setType(childType.data());
+                    child->type = childType.data();
                 if (childNumChild.isValid())
                     child->setHasChildren(childNumChild.toInt() > 0);
                 GdbMi name = subinput["name"];
@@ -516,7 +429,7 @@ void WatchItem::parseHelper(const GdbMi &input, bool maySort)
                     child->iname = this->iname + '.' + nn;
                 if (addressStep) {
                     child->address = addressBase + i * addressStep;
-                    child->exp = "*(" + gdbQuoteTypes(child->type) + "*)0x"
+                    child->exp = "*(" + child->type + "*)0x"
                                       + QString::number(child->address, 16);
                 }
                 QString key = subinput["key"].data();

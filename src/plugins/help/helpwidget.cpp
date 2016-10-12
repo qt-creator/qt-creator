@@ -180,7 +180,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     button->setPopupMode(QToolButton::DelayedPopup);
     layout->addWidget(button);
 
-    m_addBookmarkAction = new QAction(Icons::BOOKMARK_TOOLBAR.icon(), tr("Add Bookmark"), this);
+    m_addBookmarkAction = new QAction(Utils::Icons::BOOKMARK_TOOLBAR.icon(), tr("Add Bookmark"), this);
     cmd = Core::ActionManager::registerAction(m_addBookmarkAction, Constants::HELP_ADDBOOKMARK, context);
     cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+M") : tr("Ctrl+M")));
     connect(m_addBookmarkAction, &QAction::triggered, this, &HelpWidget::addBookmark);

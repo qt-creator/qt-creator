@@ -34,6 +34,13 @@
 namespace Autotest {
 namespace Internal {
 
+QtTestTreeItem::QtTestTreeItem(const QString &name, const QString &filePath, TestTreeItem::Type type)
+    : TestTreeItem(name, filePath, type)
+{
+    if (type == TestDataTag)
+        setChecked(Qt::Checked);
+}
+
 QtTestTreeItem *QtTestTreeItem::createTestItem(const TestParseResult *result)
 {
     QtTestTreeItem *item = new QtTestTreeItem(result->displayName, result->fileName,
@@ -55,7 +62,6 @@ QVariant QtTestTreeItem::data(int column, int role) const
         case Root:
         case TestDataFunction:
         case TestSpecialFunction:
-        case TestDataTag:
             return QVariant();
         default:
             return checked();
@@ -70,6 +76,19 @@ QVariant QtTestTreeItem::data(int column, int role) const
         }
     }
     return TestTreeItem::data(column, role);
+}
+
+Qt::ItemFlags QtTestTreeItem::flags(int column) const
+{
+    static const Qt::ItemFlags defaultFlags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+    switch (type()) {
+    case TestDataTag:
+        return defaultFlags | Qt::ItemIsUserCheckable;
+    case TestFunctionOrSet:
+        return defaultFlags | Qt::ItemIsAutoTristate | Qt::ItemIsUserCheckable;
+    default:
+        return TestTreeItem::flags(column);
+    }
 }
 
 bool QtTestTreeItem::canProvideTestConfiguration() const
@@ -193,8 +212,17 @@ QList<TestConfiguration *> QtTestTreeItem::getSelectedTestConfigurations() const
             QStringList testCases;
             for (int grandChildRow = 0; grandChildRow < grandChildCount; ++grandChildRow) {
                 const TestTreeItem *grandChild = child->childItem(grandChildRow);
-                if (grandChild->checked() == Qt::Checked)
+                if (grandChild->checked() == Qt::Checked) {
                     testCases << grandChild->name();
+                } else if (grandChild->checked() == Qt::PartiallyChecked) {
+                    const int dtCount = grandChild->childCount();
+                    const QString funcName = grandChild->name();
+                    for (int dtRow = 0; dtRow < dtCount; ++dtRow) {
+                        const TestTreeItem *dataTag = grandChild->childItem(dtRow);
+                        if (dataTag->checked() == Qt::Checked)
+                            testCases << funcName + ':' + dataTag->name();
+                    }
+                }
             }
 
             testConfiguration = new QtTestConfiguration();

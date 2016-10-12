@@ -42,6 +42,8 @@ Item {
 
     property bool active: true
 
+    signal reseted
+
 
     function setIcon() {
         if (backendValue == null) {
@@ -106,24 +108,43 @@ Item {
     }
 
     Controls.Menu {
+
         id: menu
+
+
+        onAboutToShow: {
+            exportMenuItem.checked = backendValue.hasPropertyAlias()
+            exportMenuItem.enabled = !backendValue.isAttachedProperty()
+        }
+
         Controls.MenuItem {
-            text: "Reset"
+            text: qsTr("Reset")
             onTriggered: {
                 transaction.start();
                 backendValue.resetValue();
                 backendValue.resetValue();
                 transaction.end();
+                extendedFunctionButton.reseted()
             }
         }
         Controls.MenuItem {
-            text: "Set Binding"
+            text: qsTr("Set Binding")
             onTriggered: {
                 textField.text = backendValue.expression
                 expressionDialog.visible = true
                 textField.forceActiveFocus()
-
             }
+        }
+        Controls.MenuItem {
+            id: exportMenuItem
+            text: qsTr("Export Property as Alias")
+            onTriggered: {
+                if (checked)
+                    backendValue.exportPopertyAsAlias();
+                else
+                    backendValue.removeAliasExport();
+            }
+            checkable: true
         }
     }
 

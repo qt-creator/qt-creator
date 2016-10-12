@@ -51,7 +51,10 @@ QWidget *LineEditAction::createWidget(QWidget *parent)
     QLineEdit *lineEdit = new QLineEdit(parent);
 
     lineEdit->setPlaceholderText(m_placeHolderText);
-    lineEdit->setFixedWidth(80);
+    lineEdit->setFixedWidth(100);
+    QFont font = lineEdit->font();
+    font.setPixelSize(9);
+    lineEdit->setFont(font);
     lineEdit->setValidator(new QIntValidator(0, 4096, this));
 
     connect(lineEdit, SIGNAL(textEdited(QString)), this, SIGNAL(textChanged(QString)));

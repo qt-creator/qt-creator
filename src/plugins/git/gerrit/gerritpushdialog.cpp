@@ -31,6 +31,8 @@
 #include "../gitclient.h"
 #include "../gitconstants.h"
 
+#include <utils/icon.h>
+
 #include <QDateTime>
 #include <QDir>
 #include <QPushButton>
@@ -45,7 +47,7 @@ class PushItemDelegate : public IconItemDelegate
 {
 public:
     PushItemDelegate(LogChangeWidget *widget)
-        : IconItemDelegate(widget, ":/git/images/arrowup.png")
+        : IconItemDelegate(widget, Utils::Icon(":/git/images/arrowup.png"))
     {
     }
 

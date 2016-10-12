@@ -3001,7 +3001,7 @@
          transform="translate(336,208)" />
     </g>
     <g
-       id="src/plugins/help/images/bookmark">
+       id="src/libs/utils/images/bookmark">
       <rect
          id="rect6782-96"
          height="16"
@@ -3050,25 +3050,6 @@
          cx="960"
          cy="576"
          r="6" />
-    </g>
-    <g
-       id="src/plugins/bookmarks/images/bookmark">
-      <rect
-         style="display:inline;fill:#ffffff;fill-opacity:1"
-         x="1016"
-         y="568"
-         width="16"
-         height="16"
-         id="rect6782-96-0" />
-      <use
-         transform="translate(61,0)"
-         height="100%"
-         width="100%"
-         id="use4979"
-         xlink:href="#bookmarkribbon"
-         y="0"
-         x="0"
-         style="display:inline" />
     </g>
     <g
        style="display:inline"
@@ -3379,6 +3360,72 @@
          style="fill:#000000"
          id="rect5132-95" />
     </g>
+    <g
+       style="display:inline"
+       id="src/plugins/texteditor/images/lightbulbcap"
+       transform="translate(28,2)">
+      <rect
+         style="fill:#ffffff"
+         x="1180"
+         y="571"
+         width="10"
+         height="11"
+         id="rect6782-96-0-0-7-8-1-0-4-4" />
+      <path
+         style="fill:#000000"
+         d="m 1183,578.3334 0,0.6666 0.5,0 0,1 -0.5,0 0,1 1,0 0.5,1 1,0 0.5,-1 1,0 0,-1 -0.5,0 0,-1 0.5,0 0,-0.6666 z"
+         id="path4355"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccccccccccccccccc" />
+    </g>
+    <g
+       style="display:inline"
+       id="src/plugins/texteditor/images/lightbulb"
+       transform="translate(38,2)">
+      <rect
+         style="fill:#ffffff"
+         x="1180"
+         y="571"
+         width="10"
+         height="11"
+         id="rect6782-96-0-0-7-8-1-0-4-4-9" />
+      <path
+         style="fill:#000000"
+         d="m 1183,578 c 0,0 0,0.17678 -1.5,-2.32322 -1.5,-2.5 0.5,-4.67678 3.5,-4.67678 3,0 5,2.17678 3.5,4.67678 -1.5,2.5 -1.5,2.32322 -1.5,2.32322 z"
+         id="path4349-1"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="czzzcc" />
+    </g>
+    <g
+       id="src/libs/utils/images/undo">
+      <rect
+         style="fill:#ffffff;fill-opacity:1"
+         x="1228"
+         y="568"
+         width="16"
+         height="16"
+         id="rect6782-96-0-0-7-8-1-0-4-0" />
+      <path
+         sodipodi:nodetypes="cccc"
+         inkscape:connector-curvature="0"
+         id="path4757-1"
+         d="m 1233,569.5 -3,3 3,3 z"
+         style="fill:#000000" />
+      <path
+         sodipodi:nodetypes="cccc"
+         inkscape:connector-curvature="0"
+         id="path5163"
+         d="m 1233,580.5 3,0 c 6,0 6,-8 0,-8 l -5,0"
+         style="fill:none;stroke:#000000" />
+    </g>
+    <use
+       x="0"
+       y="0"
+       xlink:href="#src/libs/utils/images/undo"
+       id="src/libs/utils/images/redo"
+       transform="matrix(-1,0,0,1,2488,0)"
+       width="100%"
+       height="100%" />
   </g>
   <g
      inkscape:groupmode="layer"

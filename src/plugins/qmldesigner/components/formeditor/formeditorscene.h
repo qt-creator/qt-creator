@@ -92,22 +92,24 @@ public slots:
     bool showBoundingRects() const;
 
 protected:
-    bool event(QEvent *event);
-    void dropEvent(QGraphicsSceneDragDropEvent * event);
-    void dragEnterEvent(QGraphicsSceneDragDropEvent * event);
-    void dragLeaveEvent(QGraphicsSceneDragDropEvent * event);
-    void dragMoveEvent(QGraphicsSceneDragDropEvent * event);
-    void mousePressEvent(QGraphicsSceneMouseEvent *event);
-    void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
-    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
-    void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
+    bool event(QEvent *event) override;
+    void dropEvent(QGraphicsSceneDragDropEvent * event) override;
+    void dragEnterEvent(QGraphicsSceneDragDropEvent * event) override;
+    void dragLeaveEvent(QGraphicsSceneDragDropEvent * event) override;
+    void dragMoveEvent(QGraphicsSceneDragDropEvent * event) override;
+    void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
+    void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event) override;
 
     void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
     void hoverMoveEvent(QGraphicsSceneHoverEvent *event);
     void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
 
-    void keyPressEvent(QKeyEvent *keyEvent);
-    void keyReleaseEvent(QKeyEvent *keyEvent);
+    void keyPressEvent(QKeyEvent *keyEvent) override;
+    void keyReleaseEvent(QKeyEvent *keyEvent) override;
+
+    void focusOutEvent(QFocusEvent *focusEvent) override;
 
 private:
     QList<QGraphicsItem *> removeLayerItems(const QList<QGraphicsItem *> &itemList);

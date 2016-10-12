@@ -34,11 +34,12 @@ class QtTestTreeItem : public TestTreeItem
 {
 public:
     explicit QtTestTreeItem(const QString &name = QString(), const QString &filePath = QString(),
-                            Type type = Root) : TestTreeItem(name, filePath, type) {}
+                            Type type = Root);
 
     static QtTestTreeItem *createTestItem(const TestParseResult *result);
 
     QVariant data(int column, int role) const override;
+    Qt::ItemFlags flags(int column) const override;
     bool canProvideTestConfiguration() const override;
     bool canProvideDebugConfiguration() const override;
     TestConfiguration *testConfiguration() const override;

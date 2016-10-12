@@ -30,10 +30,6 @@
 namespace Help {
 namespace Icons {
 
-const Utils::Icon BOOKMARK({
-        {QLatin1String(":/help/images/bookmark.png"), Utils::Theme::PanelTextColorMid}}, Utils::Icon::Tint);
-const Utils::Icon BOOKMARK_TOOLBAR({
-        {QLatin1String(":/help/images/bookmark.png"), Utils::Theme::IconsBaseColor}});
 const Utils::Icon HOME_TOOLBAR({
         {QLatin1String(":/help/images/home.png"), Utils::Theme::IconsBaseColor}});
 const Utils::Icon MODE_HELP_CLASSIC(

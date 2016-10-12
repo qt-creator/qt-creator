@@ -69,7 +69,6 @@ public:
 
     void setError(const QString &);
     void setValue(const QString &);
-    void setType(const QString &, bool guessChildrenFromType = true);
 
     QString toString() const;
 

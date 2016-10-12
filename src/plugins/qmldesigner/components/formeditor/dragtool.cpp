@@ -196,6 +196,10 @@ void DragTool::clearMoveDelay()
     }
 }
 
+void DragTool::focusLost()
+{
+}
+
 void DragTool::abort()
 {
     if (!m_isAborted) {

@@ -38,6 +38,8 @@ public:
     virtual QString name() const = 0;
 
     virtual int wantHandleItem(const ModelNode &modelNode) const = 0;
+
+    void focusLost() override;
 };
 
 } // namespace QmlDesigner

@@ -77,6 +77,8 @@ public:
 
     QString name() const override;
 
+    void focusLost() override;
+
 protected:
     TextEditItem *textItem() const;
 

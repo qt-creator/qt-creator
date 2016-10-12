@@ -57,6 +57,12 @@ const Icon BROKEN({
 const Icon ERROR({
         {QLatin1String(":/utils/images/warningfill.png"), Theme::BackgroundColorNormal},
         {QLatin1String(":/utils/images/error.png"), Theme::IconsErrorColor}}, Icon::Tint);
+const Icon BOOKMARK({
+        {QLatin1String(":/utils/images/bookmark.png"), Theme::PanelTextColorMid}}, Icon::Tint);
+const Icon BOOKMARK_TOOLBAR({
+        {QLatin1String(":/utils/images/bookmark.png"), Theme::IconsBaseColor}});
+const Icon BOOKMARK_TEXTEDITOR({
+        {QLatin1String(":/utils/images/bookmark.png"), Theme::Bookmarks_TextMarkColor}}, Icon::Tint);
 
 const Icon NEWFILE(
         QLatin1String(":/utils/images/filenew.png"));
@@ -66,10 +72,10 @@ const Icon SAVEFILE({
         {QLatin1String(":/utils/images/filesave.png"), Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon SAVEFILE_TOOLBAR({
         {QLatin1String(":/utils/images/filesave.png"), Theme::IconsBaseColor}});
-const Icon UNDO(
-        QLatin1String(":/utils/images/undo.png"));
-const Icon REDO(
-        QLatin1String(":/utils/images/redo.png"));
+const Icon UNDO({
+        {QLatin1String(":/utils/images/undo.png"), Theme::PanelTextColorMid}}, Icon::Tint);
+const Icon REDO({
+        {QLatin1String(":/utils/images/redo.png"), Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon COPY(
         QLatin1String(":/utils/images/editcopy.png"));
 const Icon PASTE(

@@ -249,9 +249,12 @@ void GdbMi::parseList(const QChar *&from, const QChar *to)
         }
         GdbMi child;
         child.parseResultOrValue(from, to);
-        if (child.isValid())
+        if (child.isValid()) {
             m_children.push_back(child);
-        skipCommas(from, to);
+            skipCommas(from, to);
+        } else {
+            ++from;
+        }
     }
 }
 

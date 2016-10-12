@@ -42,6 +42,7 @@
 #include <utils/checkablemessagebox.h>
 #include <utils/theme/theme.h>
 #include <utils/dropsupport.h>
+#include <utils/utilsicons.h>
 
 #include <QAction>
 #include <QContextMenuEvent>
@@ -319,8 +320,7 @@ void BookmarkView::gotoBookmark(const QModelIndex &index)
 ////
 
 BookmarkManager::BookmarkManager() :
-    m_bookmarkIcon(Utils::Icon({{QLatin1String(":/bookmarks/images/bookmark.png"),
-                                 Theme::Bookmarks_TextMarkColor}}, Icon::Tint).pixmap()),
+    m_bookmarkIcon(Utils::Icons::BOOKMARK_TEXTEDITOR.pixmap()),
     m_selectionModel(new QItemSelectionModel(this, this))
 {
     connect(ICore::instance(), &ICore::contextChanged,

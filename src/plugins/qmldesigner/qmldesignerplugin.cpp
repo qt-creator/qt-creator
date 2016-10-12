@@ -130,17 +130,6 @@ static bool shouldAssertInException()
     return !processEnvironment.value("QMLDESIGNER_ASSERT_ON_EXCEPTION").isEmpty();
 }
 
-static void switchTextDesign()
-{
-    if (Core::ModeManager::currentMode() == Core::Constants::MODE_EDIT) {
-        Core::IEditor *editor = Core::EditorManager::currentEditor();
-        if (checkIfEditorIsQtQuick(editor))
-            Core::ModeManager::activateMode(Core::Constants::MODE_DESIGN);
-    } else if (Core::ModeManager::currentMode() == Core::Constants::MODE_DESIGN) {
-        Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
-    }
-}
-
 QmlDesignerPlugin::QmlDesignerPlugin()
 {
     m_instance = this;
@@ -206,7 +195,15 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
     MetaInfo::setPluginPaths(QStringList(pluginPath));
 
     createDesignModeWidget();
-    connect(switchTextDesignAction, &QAction::triggered, this, &switchTextDesign);
+    connect(switchTextDesignAction, &QAction::triggered, this, [](){
+        if (Core::ModeManager::currentMode() == Core::Constants::MODE_EDIT) {
+            Core::IEditor *editor = Core::EditorManager::currentEditor();
+            if (checkIfEditorIsQtQuick(editor))
+                Core::ModeManager::activateMode(Core::Constants::MODE_DESIGN);
+        } else if (Core::ModeManager::currentMode() == Core::Constants::MODE_DESIGN) {
+            Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
+        }
+    });
 
     addAutoReleasedObject(new Internal::SettingsPage);
 
@@ -287,13 +284,13 @@ void QmlDesignerPlugin::createDesignModeWidget()
     connect(Core::ModeManager::instance(), &Core::ModeManager::currentModeChanged,
         [=] (Core::Id newMode, Core::Id oldMode) {
 
-        if (d && Core::EditorManager::currentEditor() && checkIfEditorIsQtQuick
-                (Core::EditorManager::currentEditor()) && !documentIsAlreadyOpen(
-                currentDesignDocument(), Core::EditorManager::currentEditor(), newMode)) {
+        Core::IEditor *currentEditor = Core::EditorManager::currentEditor();
+        if (d && currentEditor && checkIfEditorIsQtQuick(currentEditor) &&
+                !documentIsAlreadyOpen(currentDesignDocument(), currentEditor, newMode)) {
 
             if (!isDesignerMode(newMode) && isDesignerMode(oldMode))
                 hideDesigner();
-            else if (Core::EditorManager::currentEditor() && isDesignerMode(newMode))
+            else if (currentEditor && isDesignerMode(newMode))
                 showDesigner();
             else if (currentDesignDocument())
                 hideDesigner();

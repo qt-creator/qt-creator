@@ -220,22 +220,6 @@ bool isKeyWord(const QString &exp)
     return false;
 }
 
-bool startsWithDigit(const QString &str)
-{
-    return !str.isEmpty() && str.at(0).isDigit();
-}
-
-QString stripPointerType(QString type)
-{
-    if (type.endsWith('*'))
-        type.chop(1);
-    if (type.endsWith("* const"))
-        type.chop(7);
-    if (type.endsWith(' '))
-        type.chop(1);
-    return type;
-}
-
 // Format a hex address with colons as in the memory editor.
 QString formatToolTipAddress(quint64 a)
 {
@@ -254,62 +238,6 @@ QString formatToolTipAddress(quint64 a)
         }
     }
     return "0x" + rc;
-}
-
-QString gdbQuoteTypes(const QString &type)
-{
-    // gdb does not understand sizeof(Core::IDocument*).
-    // "sizeof('Core::IDocument*')" is also not acceptable,
-    // it needs to be "sizeof('Core::IDocument'*)"
-    //
-    // We never will have a perfect solution here (even if we had a full blown
-    // C++ parser as we do not have information on what is a type and what is
-    // a variable name. So "a<b>::c" could either be two comparisons of values
-    // 'a', 'b' and '::c', or a nested type 'c' in a template 'a<b>'. We
-    // assume here it is the latter.
-    //return type;
-
-    // (*('myns::QPointer<myns::QObject>*'*)0x684060)" is not acceptable
-    // (*('myns::QPointer<myns::QObject>'**)0x684060)" is acceptable
-    if (isPointerType(type))
-        return gdbQuoteTypes(stripPointerType(type)) + '*';
-
-    QString accu;
-    QString result;
-    int templateLevel = 0;
-
-    const char colon = ':';
-    const char singleQuote = '\'';
-    const char lessThan = '<';
-    const char greaterThan = '>';
-    for (int i = 0; i != type.size(); ++i) {
-        const QChar c = type.at(i);
-        if (isLetterOrNumber(c.unicode()) || c == '_' || c == colon || c == ' ') {
-            accu += c;
-        } else if (c == lessThan) {
-            ++templateLevel;
-            accu += c;
-        } else if (c == greaterThan) {
-            --templateLevel;
-            accu += c;
-        } else if (templateLevel > 0) {
-            accu += c;
-        } else {
-            if (accu.contains(colon) || accu.contains(lessThan))
-                result += singleQuote + accu + singleQuote;
-            else
-                result += accu;
-            accu.clear();
-            result += c;
-        }
-    }
-    if (accu.contains(colon) || accu.contains(lessThan))
-        result += singleQuote + accu + singleQuote;
-    else
-        result += accu;
-    //qDebug() << "GDB_QUOTING" << type << " TO " << result;
-
-    return result;
 }
 
 } // namespace Internal

@@ -301,6 +301,67 @@ void PropertyEditorView::changeExpression(const QString &propertyName)
     }
 }
 
+void PropertyEditorView::exportPopertyAsAlias(const QString &name)
+{
+    if (name.isNull())
+        return;
+
+    if (m_locked)
+        return;
+
+    if (!m_selectedNode.isValid())
+        return;
+
+    RewriterTransaction transaction = beginRewriterTransaction(QByteArrayLiteral("PropertyEditorView::exportPopertyAsAlias"));
+
+    try {
+        const QString id = m_selectedNode.validId();
+        QString upperCasePropertyName = name;
+        upperCasePropertyName.replace(0, 1, upperCasePropertyName.at(0).toUpper());
+        QString aliasName = id + upperCasePropertyName;
+        aliasName.replace(".", ""); //remove all dots
+
+        PropertyName propertyName = aliasName.toUtf8();
+        if (rootModelNode().hasProperty(propertyName)) {
+            Core::AsynchronousMessageBox::warning(tr("Cannot Export Property as Alias"),
+                                                  tr("Property %1 does already exist for root item.").arg(aliasName));
+            return;
+        }
+        rootModelNode().bindingProperty(propertyName).setDynamicTypeNameAndExpression("alias", id + "." + name);
+
+        transaction.commit(); //committing in the try block
+    } catch (const RewritingException &e) {
+        e.showException();
+    }
+}
+
+void PropertyEditorView::removeAliasExport(const QString &name)
+{
+    if (name.isNull())
+        return;
+
+    if (m_locked)
+        return;
+
+    if (!m_selectedNode.isValid())
+        return;
+
+    RewriterTransaction transaction = beginRewriterTransaction(QByteArrayLiteral("PropertyEditorView::exportPopertyAsAlias"));
+
+    try {
+        const QString id = m_selectedNode.validId();
+
+        for (const BindingProperty &property : rootModelNode().bindingProperties())
+            if (property.expression() == (id + "." + name)) {
+                rootModelNode().removeProperty(property.name());
+                break;
+            }
+        transaction.commit(); //committing in the try block
+    } catch (const RewritingException &e) {
+        e.showException();
+    }
+}
+
 void PropertyEditorView::updateSize()
 {
     if (!m_qmlBackEndForCurrentType)
