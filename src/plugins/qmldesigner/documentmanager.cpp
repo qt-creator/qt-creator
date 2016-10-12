@@ -299,7 +299,7 @@ bool DocumentManager::hasCurrentDesignDocument() const
     return m_currentDesignDocument.data();
 }
 
-void DocumentManager::removeEditors(QList<Core::IEditor *> editors)
+void DocumentManager::removeEditors(const QList<Core::IEditor *> &editors)
 {
     foreach (Core::IEditor *editor, editors)
         delete m_designDocumentHash.take(editor).data();

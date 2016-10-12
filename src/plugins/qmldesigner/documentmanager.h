@@ -49,7 +49,7 @@ public:
     DesignDocument *currentDesignDocument() const;
     bool hasCurrentDesignDocument() const;
 
-    void removeEditors(QList<Core::IEditor*> editors);
+    void removeEditors(const QList<Core::IEditor *> &editors);
 
     static void goIntoComponent(const ModelNode &modelNode);
 
