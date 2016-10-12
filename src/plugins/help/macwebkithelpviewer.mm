@@ -169,7 +169,7 @@ static QPoint flipPoint(const NSPoint &p)
 
     NSURL *resolvedURL = data.resolvedUrl.toNSURL();
     NSString *mimeType = data.mimeType.toNSString();
-    NSData *nsdata = QtMac::toNSData(data.data); // Qt 5.3 has this in QByteArray
+    NSData *nsdata = data.data.toNSData();
     NSURLResponse *response = [[NSURLResponse alloc] initWithURL:resolvedURL
                                                         MIMEType:mimeType
                                            expectedContentLength:data.data.length()
