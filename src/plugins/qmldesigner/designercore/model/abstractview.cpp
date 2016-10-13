@@ -672,6 +672,21 @@ QmlModelState AbstractView::currentState() const
     return QmlModelState(currentStateNode());
 }
 
+static int getMinorVersionFromImport(const Model *model)
+{
+    foreach (const Import &import, model->imports()) {
+        if (import.isLibraryImport() && import.url() == "QtQuick") {
+            const QString versionString = import.version();
+            if (versionString.contains(".")) {
+                const QString minorVersionString = versionString.split(".").last();
+                return minorVersionString.toInt();
+            }
+        }
+    }
+
+    return -1;
+}
+
 static int getMajorVersionFromImport(const Model *model)
 {
     foreach (const Import &import, model->imports()) {
@@ -702,6 +717,21 @@ static int getMajorVersionFromNode(const ModelNode &modelNode)
     return 1; //default
 }
 
+static int getMinorVersionFromNode(const ModelNode &modelNode)
+{
+    if (modelNode.metaInfo().isValid()) {
+        if (modelNode.type() == "QtQuick.QtObject" || modelNode.type() == "QtQuick.Item")
+            return modelNode.minorVersion();
+
+        foreach (const NodeMetaInfo &superClass,  modelNode.metaInfo().superClasses()) {
+            if (modelNode.type() == "QtQuick.QtObject" || modelNode.type() == "QtQuick.Item")
+                return superClass.minorVersion();
+        }
+    }
+
+    return 1; //default
+}
+
 int AbstractView::majorQtQuickVersion() const
 {
     int majorVersionFromImport = getMajorVersionFromImport(model());
@@ -710,5 +740,15 @@ int AbstractView::majorQtQuickVersion() const
 
     return getMajorVersionFromNode(rootModelNode());
 }
+
+int AbstractView::minorQtQuickVersion() const
+{
+    int minorVersionFromImport = getMinorVersionFromImport(model());
+    if (minorVersionFromImport >= 0)
+        return minorVersionFromImport;
+
+    return getMinorVersionFromNode(rootModelNode());
+}
+
 
 } // namespace QmlDesigner

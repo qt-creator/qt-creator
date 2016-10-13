@@ -328,10 +328,12 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
         } else {
             contextObject()->setMajorVersion(-1);
             contextObject()->setMinorVersion(-1);
-             contextObject()->setMajorQtQuickVersion(-1);
+            contextObject()->setMajorQtQuickVersion(-1);
+            contextObject()->setMinorQtQuickVersion(-1);
         }
 
         contextObject()->setMajorQtQuickVersion(qmlObjectNode.view()->majorQtQuickVersion());
+        contextObject()->setMinorQtQuickVersion(qmlObjectNode.view()->minorQtQuickVersion());
     } else {
         qWarning() << "PropertyEditor: invalid node for setup";
     }

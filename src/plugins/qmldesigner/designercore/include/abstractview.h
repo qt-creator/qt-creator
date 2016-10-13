@@ -236,6 +236,7 @@ public:
     QmlModelState currentState() const;
 
     int majorQtQuickVersion() const;
+    int minorQtQuickVersion() const;
 
     void resetView();
 

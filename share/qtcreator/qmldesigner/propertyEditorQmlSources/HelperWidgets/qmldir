@@ -38,3 +38,4 @@ Tab 2.0 Tab.qml
 TabView 2.0 TabView.qml
 ToolTipArea 2.0 ToolTipArea.qml
 UrlChooser 2.0 UrlChooser.qml
+PaddingSection 2.0 PaddingSection.qml

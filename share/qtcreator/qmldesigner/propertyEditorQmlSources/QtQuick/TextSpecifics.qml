@@ -67,4 +67,8 @@ Column {
    FontSection {
        showStyle: true
    }
+
+   PaddingSection {
+       visible: minorQtQuickVersion > 5
+   }
 }
