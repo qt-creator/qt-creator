@@ -336,6 +336,10 @@ void ObjectNodeInstance::addToNewProperty(QObject *object, QObject *newParent, c
         list.append(object);
     } else if (isObject(property)) {
         property.write(objectToVariant(object));
+
+        if (QQuickItem *item = qobject_cast<QQuickItem *>(object))
+            if (QQuickItem *newParentItem = qobject_cast<QQuickItem *>(newParent))
+                item->setParentItem(newParentItem);
     }
 
     Q_ASSERT(objectToVariant(object).isValid());
