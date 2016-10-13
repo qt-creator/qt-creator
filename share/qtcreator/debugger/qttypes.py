@@ -821,12 +821,8 @@ def qdump__QImage(d, value):
         d.putValue('(invalid)')
         return
 
-    if d.ptrSize() == 8:
-        (ref, width, height, depth, nbytes, padding, devicePixelRatio, colorTable,
-            bits, iformat) = d.split('iiiii@dppi', imageData)
-    else:
-        (ref, width, height, depth, nbytes, devicePixelRatio, colorTable,
-            bits, iformat) = d.split('iiiiidppi', imageData)
+    (ref, width, height, depth, nbytes, padding, devicePixelRatio, colorTable,
+        bits, iformat) = d.split('iiiii@dppi', imageData)
 
     d.putValue('(%dx%d)' % (width, height))
     d.putNumChild(1)
