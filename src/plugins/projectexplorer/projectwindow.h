@@ -42,6 +42,7 @@ enum {
     ItemActivatedFromBelowRole,   // A subitem gots activated and gives us the opportunity to adjust
     ItemActivatedFromAboveRole,   // A parent item gots activated and makes us its active child.
     ItemDeactivatedFromBelowRole, // A subitem got deactivated and gives us the opportunity to adjust
+    ItemUpdatedFromBelowRole,     // A subitem got updated, re-expansion is necessary.
     ActiveItemRole,               // The index of the currently selected item in the tree view
     PanelWidgetRole               // This item's widget to be shown as central widget.
 };
