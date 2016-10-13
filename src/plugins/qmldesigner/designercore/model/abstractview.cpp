@@ -477,9 +477,9 @@ QString AbstractView::generateNewId(const QString &prefixName) const
     QString newId = QString(QStringLiteral("%1")).arg(firstCharToLower(prefixName));
     newId.remove(QRegExp(QStringLiteral("[^a-zA-Z0-9_]")));
 
-    while (hasId(newId) || rootModelNode().hasProperty(newId.toUtf8()) || newId == "item") {
+    while (!ModelNode::isValidId(newId) || hasId(newId) || rootModelNode().hasProperty(newId.toUtf8()) || newId == "item") {
         counter += 1;
-        newId = QString(QStringLiteral("%1%2")).arg(firstCharToLower(prefixName)).arg(counter);
+        newId = QString(QStringLiteral("%1%2")).arg(firstCharToLower(prefixName)).arg(counter - 1);
         newId.remove(QRegExp(QStringLiteral("[^a-zA-Z0-9_]")));
     }
 
