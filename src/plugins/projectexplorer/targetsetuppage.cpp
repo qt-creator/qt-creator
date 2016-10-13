@@ -305,10 +305,8 @@ void TargetSetupPage::setProjectImporter(ProjectImporter *importer)
 {
     if (importer == m_importer)
         return;
-    if (m_importer)
-        delete m_importer;
-    m_importer = importer;
 
+    m_importer = importer;
     m_importWidget->setVisible(m_importer);
 
     reset();
