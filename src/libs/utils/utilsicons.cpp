@@ -64,10 +64,10 @@ const Icon BOOKMARK_TOOLBAR({
 const Icon BOOKMARK_TEXTEDITOR({
         {QLatin1String(":/utils/images/bookmark.png"), Theme::Bookmarks_TextMarkColor}}, Icon::Tint);
 
-const Icon NEWFILE(
-        QLatin1String(":/utils/images/filenew.png"));
-const Icon OPENFILE(
-        QLatin1String(":/utils/images/fileopen.png"));
+const Icon NEWFILE({
+        {QLatin1String(":/utils/images/filenew.png"), Theme::PanelTextColorMid}}, Icon::Tint);
+const Icon OPENFILE({
+        {QLatin1String(":/utils/images/fileopen.png"), Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon SAVEFILE({
         {QLatin1String(":/utils/images/filesave.png"), Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon SAVEFILE_TOOLBAR({
