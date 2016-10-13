@@ -45,10 +45,10 @@ namespace Internal {
 ////
 
 namespace {
-int distance(const QString &targetDirectory, const FileName &fileName)
+int distance(const FileName &targetDirectory, const FileName &fileName)
 {
-    const QString commonParent = commonPath(QStringList() << targetDirectory << fileName.toString());
-    return targetDirectory.mid(commonParent.size()).count('/')
+    const QString commonParent = commonPath(QStringList({ targetDirectory.toString(), fileName.toString() }));
+    return targetDirectory.toString().mid(commonParent.size()).count('/')
             + fileName.toString().mid(commonParent.size()).count('/');
 }
 } // namespace
@@ -102,7 +102,7 @@ void CMakeCbpParser::sortFiles()
             foreach (const QString &unitTarget, unitTargets) {
                 int index = indexOf(m_buildTargets, equal(&CMakeBuildTarget::title, unitTarget));
                 if (index != -1) {
-                    m_buildTargets[index].files.append(fileName.toString());
+                    m_buildTargets[index].files.append(fileName);
                     qCDebug(log) << "  into" << m_buildTargets[index].title << "(target attribute)";
                     continue;
                 }
@@ -113,7 +113,7 @@ void CMakeCbpParser::sortFiles()
         // fallback for cmake < 3.3:
         if (fileName.parentDir() == parentDirectory && last) {
             // easy case, same parent directory as last file
-            last->files.append(fileName.toString());
+            last->files.append(fileName);
             qCDebug(log) << "  into" << last->title << "(same parent)";
         } else {
             int bestDistance = std::numeric_limits<int>::max();
@@ -141,7 +141,7 @@ void CMakeCbpParser::sortFiles()
             }
 
             if (bestIndex != -1) {
-                m_buildTargets[bestIndex].files.append(fileName.toString());
+                m_buildTargets[bestIndex].files.append(fileName);
                 last = &m_buildTargets[bestIndex];
                 parentDirectory = fileName.parentDir();
                 qCDebug(log) << "  into" << last->title;
@@ -156,14 +156,15 @@ void CMakeCbpParser::sortFiles()
         qCDebug(log) << target.title << target.sourceDirectory << target.includeFiles << target.defines << target.files << "\n";
 }
 
-bool CMakeCbpParser::parseCbpFile(CMakeTool::PathMapper mapper, const QString &fileName,
-                                  const QString &sourceDirectory)
+bool CMakeCbpParser::parseCbpFile(CMakeTool::PathMapper mapper, const FileName &fileName,
+                                  const FileName &sourceDirectory)
 {
+
     m_pathMapper = mapper;
-    m_buildDirectory = QFileInfo(fileName).absolutePath();
+    m_buildDirectory = FileName::fromString(fileName.toFileInfo().absolutePath());
     m_sourceDirectory = sourceDirectory;
 
-    QFile fi(fileName);
+    QFile fi(fileName.toString());
     if (fi.exists() && fi.open(QFile::ReadOnly)) {
         setDevice(&fi);
 
@@ -267,7 +268,7 @@ void CMakeCbpParser::parseBuildTarget()
 void CMakeCbpParser::parseBuildTargetOption()
 {
     if (attributes().hasAttribute("output")) {
-        m_buildTarget.executable = m_pathMapper(attributes().value("output").toString());
+        m_buildTarget.executable = m_pathMapper(FileName::fromString(attributes().value("output").toString()));
     } else if (attributes().hasAttribute("type")) {
         const QStringRef value = attributes().value("type");
         if (value == "0" || value == "1")
@@ -279,9 +280,9 @@ void CMakeCbpParser::parseBuildTargetOption()
         else
             m_buildTarget.targetType = UtilityType;
     } else if (attributes().hasAttribute("working_dir")) {
-        m_buildTarget.workingDirectory = attributes().value("working_dir").toString();
+        m_buildTarget.workingDirectory = FileName::fromUserInput(attributes().value("working_dir").toString());
 
-        QFile cmakeSourceInfoFile(m_buildTarget.workingDirectory
+        QFile cmakeSourceInfoFile(m_buildTarget.workingDirectory.toString()
                                   + QStringLiteral("/CMakeFiles/CMakeDirectoryInformation.cmake"));
         if (cmakeSourceInfoFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
             QTextStream stream(&cmakeSourceInfoFile);
@@ -289,18 +290,19 @@ void CMakeCbpParser::parseBuildTargetOption()
             while (!stream.atEnd()) {
                 const QString lineTopSource = stream.readLine().trimmed();
                 if (lineTopSource.startsWith(searchSource, Qt::CaseInsensitive)) {
-                    m_buildTarget.sourceDirectory = lineTopSource.mid(searchSource.size());
-                    m_buildTarget.sourceDirectory.chop(2); // cut off ")
+                    QString src = lineTopSource.mid(searchSource.size());
+                    src.chop(2);
+                    m_buildTarget.sourceDirectory = FileName::fromString(src);
                     break;
                 }
             }
         }
 
         if (m_buildTarget.sourceDirectory.isEmpty()) {
-            QDir dir(m_buildDirectory);
-            const QString relative = dir.relativeFilePath(m_buildTarget.workingDirectory);
-            m_buildTarget.sourceDirectory
-                    = FileName::fromString(m_sourceDirectory).appendPath(relative).toString();
+            QDir dir(m_buildDirectory.toString());
+            const QString relative = dir.relativeFilePath(m_buildTarget.workingDirectory.toString());
+            m_buildTarget.sourceDirectory = m_sourceDirectory;
+            m_buildTarget.sourceDirectory.appendPath(relative).toString();
         }
     }
     while (!atEnd()) {
@@ -352,7 +354,7 @@ void CMakeCbpParser::parseMakeCommands()
 void CMakeCbpParser::parseBuildTargetBuild()
 {
     if (attributes().hasAttribute("command"))
-        m_buildTarget.makeCommand = m_pathMapper(attributes().value("command").toString());
+        m_buildTarget.makeCommand = m_pathMapper(FileName::fromUserInput(attributes().value("command").toString()));
     while (!atEnd()) {
         readNext();
         if (isEndElement())
@@ -391,7 +393,8 @@ void CMakeCbpParser::parseAdd()
     // CMake only supports <Add option=\> and <Add directory=\>
     const QXmlStreamAttributes addAttributes = attributes();
 
-    QString includeDirectory = m_pathMapper(addAttributes.value("directory").toString());
+    FileName includeDirectory
+            = m_pathMapper(FileName::fromString(addAttributes.value("directory").toString()));
 
     // allow adding multiple times because order happens
     if (!includeDirectory.isEmpty())
@@ -424,8 +427,7 @@ void CMakeCbpParser::parseAdd()
 void CMakeCbpParser::parseUnit()
 {
     FileName fileName =
-            FileName::fromString(m_pathMapper(FileName::fromUserInput(attributes().value("filename")
-                                                                      .toString()).toString()));
+            m_pathMapper(FileName::fromUserInput(attributes().value("filename").toString()));
 
     m_parsingCMakeUnit = false;
     m_unitTargets.clear();

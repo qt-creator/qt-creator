@@ -232,7 +232,7 @@ CMakeTool::PathMapper CMakeTool::pathMapper() const
 {
     if (m_pathMapper)
         return m_pathMapper;
-    return [](const QString &s) { return s; };
+    return [](const Utils::FileName &fn) { return fn; };
 }
 
 void CMakeTool::readInformation(CMakeTool::QueryType type) const

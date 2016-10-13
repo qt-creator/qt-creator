@@ -393,7 +393,7 @@ void CMakeProject::updateTargetRunConfigurations(Target *t)
         auto btIt = buildTargetHash.constFind(cmakeRc->title());
         cmakeRc->setEnabled(btIt != buildTargetHash.constEnd());
         if (btIt != buildTargetHash.constEnd()) {
-            cmakeRc->setExecutable(btIt.value()->executable);
+            cmakeRc->setExecutable(btIt.value()->executable.toString());
             cmakeRc->setBaseWorkingDirectory(btIt.value()->workingDirectory);
         }
     }
@@ -434,12 +434,10 @@ void CMakeProject::updateApplicationAndDeploymentTargets()
             continue;
 
         if (ct.targetType == ExecutableType || ct.targetType == DynamicLibraryType)
-            deploymentData.addFile(ct.executable, deploymentPrefix + buildDir.relativeFilePath(QFileInfo(ct.executable).dir().path()), DeployableFile::TypeExecutable);
+            deploymentData.addFile(ct.executable.toString(), deploymentPrefix + buildDir.relativeFilePath(ct.executable.toFileInfo().dir().path()), DeployableFile::TypeExecutable);
         if (ct.targetType == ExecutableType) {
             // TODO: Put a path to corresponding .cbp file into projectFilePath?
-            appTargetList.list << BuildTargetInfo(ct.title,
-                                                  FileName::fromString(ct.executable),
-                                                  FileName::fromString(ct.executable));
+            appTargetList.list << BuildTargetInfo(ct.title, ct.executable, ct.executable);
         }
     }
 

@@ -47,8 +47,8 @@ namespace Internal {
 class CMakeCbpParser : public QXmlStreamReader
 {
 public:
-    bool parseCbpFile(CMakeTool::PathMapper mapper, const QString &fileName,
-                      const QString &sourceDirectory);
+    bool parseCbpFile(CMakeTool::PathMapper mapper, const Utils::FileName &fileName,
+                      const Utils::FileName &sourceDirectory);
     QList<ProjectExplorer::FileNode *> fileList();
     QList<ProjectExplorer::FileNode *> cmakeFileList();
     QList<CMakeBuildTarget> buildTargets();
@@ -84,8 +84,8 @@ private:
     QList<CMakeBuildTarget> m_buildTargets;
     QString m_projectName;
     QString m_compiler;
-    QString m_sourceDirectory;
-    QString m_buildDirectory;
+    Utils::FileName m_sourceDirectory;
+    Utils::FileName m_buildDirectory;
     QStringList m_unitTargets;
 };
 

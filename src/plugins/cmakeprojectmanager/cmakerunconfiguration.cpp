@@ -60,7 +60,7 @@ const char TITLE_KEY[] = "CMakeProjectManager.CMakeRunConfiguation.Title";
 } // namespace
 
 CMakeRunConfiguration::CMakeRunConfiguration(Target *parent, Core::Id id, const QString &target,
-                                             const QString &workingDirectory, const QString &title) :
+                                             const Utils::FileName &workingDirectory, const QString &title) :
     RunConfiguration(parent, id),
     m_buildTarget(target),
     m_title(title)
@@ -70,7 +70,7 @@ CMakeRunConfiguration::CMakeRunConfiguration(Target *parent, Core::Id id, const 
     addExtraAspect(new TerminalAspect(this, QStringLiteral("CMakeProjectManager.CMakeRunConfiguration.UseTerminal")));
 
     auto wd = new WorkingDirectoryAspect(this, QStringLiteral("CMakeProjectManager.CMakeRunConfiguration.UserWorkingDirectory"));
-    wd->setDefaultWorkingDirectory(Utils::FileName::fromString(workingDirectory));
+    wd->setDefaultWorkingDirectory(workingDirectory);
     addExtraAspect(wd);
 
     ctor();
@@ -119,10 +119,9 @@ void CMakeRunConfiguration::setExecutable(const QString &executable)
     m_buildTarget = executable;
 }
 
-void CMakeRunConfiguration::setBaseWorkingDirectory(const QString &wd)
+void CMakeRunConfiguration::setBaseWorkingDirectory(const Utils::FileName &wd)
 {
-    extraAspect<WorkingDirectoryAspect>()
-        ->setDefaultWorkingDirectory(Utils::FileName::fromString(wd));
+    extraAspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(wd);
 }
 
 QVariantMap CMakeRunConfiguration::toMap() const
@@ -246,7 +245,7 @@ RunConfiguration *CMakeRunConfigurationFactory::doCreate(Target *parent, Core::I
     CMakeProject *project = static_cast<CMakeProject *>(parent->project());
     const QString title(buildTargetFromId(id));
     const CMakeBuildTarget &ct = project->buildTargetForTitle(title);
-    return new CMakeRunConfiguration(parent, id, ct.executable, ct.workingDirectory, ct.title);
+    return new CMakeRunConfiguration(parent, id, ct.executable.toString(), ct.workingDirectory, ct.title);
 }
 
 bool CMakeRunConfigurationFactory::canClone(Target *parent, RunConfiguration *source) const
@@ -273,7 +272,7 @@ bool CMakeRunConfigurationFactory::canRestore(Target *parent, const QVariantMap 
 
 RunConfiguration *CMakeRunConfigurationFactory::doRestore(Target *parent, const QVariantMap &map)
 {
-    return new CMakeRunConfiguration(parent, idFromMap(map), QString(), QString(), QString());
+    return new CMakeRunConfiguration(parent, idFromMap(map), QString(), Utils::FileName(), QString());
 }
 
 QString CMakeRunConfigurationFactory::buildTargetFromId(Core::Id id)
