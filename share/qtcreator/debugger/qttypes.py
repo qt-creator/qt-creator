@@ -1043,7 +1043,7 @@ def qdump__QPixmap(d, value):
     else:
         (dummy, width, height) = d.split('pii', dataPtr)
         d.putValue('(%dx%d)' % (width, height))
-    d.putNumChild(0)
+    d.putPlainChildren(value)
 
 
 def qdump__QPoint(d, value):

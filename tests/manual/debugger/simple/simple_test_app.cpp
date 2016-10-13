@@ -177,6 +177,7 @@ void dummyStatement(...) {}
 #include <QFont>
 #include <QLabel>
 #include <QPainter>
+#include <QPixmap>
 #include <QPainterPath>
 #include <QRegion>
 #include <QStandardItemModel>
@@ -1144,12 +1145,13 @@ namespace painting {
         pain.drawLine(2, 2, 130, 130);
         pain.end();
         QPixmap pm = QPixmap::fromImage(im);
+        QSize size = pm.size();
         BREAK_HERE;
         // Check im (200x200) QImage.
         // CheckType pain QPainter.
         // Check pm (200x200) QPixmap.
         // Continue.
-        dummyStatement(&im, &pm);
+        dummyStatement(&im, &pm, &size);
         #endif
     }
 
