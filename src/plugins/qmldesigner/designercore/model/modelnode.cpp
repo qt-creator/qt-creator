@@ -29,8 +29,6 @@
 #include <model.h>
 #include <nodemetainfo.h>
 #include "internalnode_p.h"
-#include <QHash>
-#include <QTextStream>
 #include "invalidargumentexception.h"
 #include "invalididexception.h"
 #include "invalidmodelnodeexception.h"
@@ -43,6 +41,10 @@
 #include "nodelistproperty.h"
 #include "nodeproperty.h"
 #include <rewriterview.h>
+
+#include <QHash>
+#include <QSet>
+#include <QTextStream>
 
 namespace QmlDesigner {
 using namespace QmlDesigner::Internal;
@@ -143,34 +145,36 @@ QString ModelNode::validId()
 
 static bool idIsQmlKeyWord(const QString& id)
 {
-    QStringList keywords = { "import",
-                             "as",
-                             "break",
-                             "case",
-                             "catch",
-                             "continue",
-                             "debugger",
-                             "default",
-                             "delete",
-                             "do",
-                             "else",
-                             "finally",
-                             "for",
-                             "function",
-                             "if",
-                             "in",
-                             "instanceof",
-                             "new",
-                             "return",
-                             "switch",
-                             "this",
-                             "throw",
-                             "try",
-                             "typeof",
-                             "var",
-                             "void",
-                             "while",
-                             "with" };
+    static const QSet<QString> keywords = {
+        "as",
+        "break",
+        "case",
+        "catch",
+        "continue",
+        "debugger",
+        "default",
+        "delete",
+        "do",
+        "else",
+        "finally",
+        "for",
+        "function",
+        "if",
+        "import",
+        "in",
+        "instanceof",
+        "new",
+        "return",
+        "switch",
+        "this",
+        "throw",
+        "try",
+        "typeof",
+        "var",
+        "void",
+        "while",
+        "with"
+    };
 
     return keywords.contains(id);
 }
