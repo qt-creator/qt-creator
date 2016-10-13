@@ -112,7 +112,9 @@ PyObject *type_bitSize(Type *self)
 {
     ULONG size;
     auto extcmd = ExtensionCommandContext::instance();
-    if (FAILED(extcmd->symbols()->GetTypeSize(self->m_module, self->m_typeId, &size)))
+    if (endsWith(getTypeName(self), '*'))
+        size = SUCCEEDED(ExtensionCommandContext::instance()->control()->IsPointer64Bit()) ? 8 : 4;
+    else if (FAILED(extcmd->symbols()->GetTypeSize(self->m_module, self->m_typeId, &size)))
         return NULL;
     return Py_BuildValue("k", size * 8);
 }
