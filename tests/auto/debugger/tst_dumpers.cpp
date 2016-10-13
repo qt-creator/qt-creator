@@ -2105,8 +2105,8 @@ void tst_Dumpers::dumper_data()
                + Check("l4.0", "[0]", "42", "unsigned long long") % NoCdbEngine
                + Check("l4.1", "[1]", "43", "unsigned long long") % NoCdbEngine
                + Check("l4", "<2 items>", "@QLinkedList<unsigned __int64>") % CdbEngine
-               + Check("l4.0", "[0]", "42", "unsigned __int64") % CdbEngine
-               + Check("l4.1", "[1]", "43", "unsigned __int64") % CdbEngine
+               + Check("l4.0", "[0]", "42", "unsigned int64") % CdbEngine
+               + Check("l4.1", "[1]", "43", "unsigned int64") % CdbEngine
 
 
                + Check("l5", "<2 items>", "@QLinkedList<Foo>")
@@ -2249,8 +2249,8 @@ void tst_Dumpers::dumper_data()
                + Check("l11.0", "[0]", "100", "unsigned long long") % NoCdbEngine
                + Check("l11.2", "[2]", "102", "unsigned long long") % NoCdbEngine
                + Check("l11", "<3 items>", "@QList<unsigned __int64>") % CdbEngine
-               + Check("l11.0", "[0]", "100", "unsigned __int64") % CdbEngine
-               + Check("l11.2", "[2]", "102", "unsigned __int64") % CdbEngine
+               + Check("l11.0", "[0]", "100", "unsigned int64") % CdbEngine
+               + Check("l11.2", "[2]", "102", "unsigned int64") % CdbEngine
 
                + Check("l12", "<0 items>", "@QList<std::string>")
                + Check("l13", "<4 items>", "@QList<std::string>")

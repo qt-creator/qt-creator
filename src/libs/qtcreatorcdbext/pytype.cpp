@@ -62,6 +62,8 @@ PyObject *lookupType(const std::string &typeNameIn)
     if (typeName.find("enum ") == 0)
         typeName.erase(0, 5);
     trimBack(typeName);
+    if (typeName == "__int64" || typeName == "unsigned __int64")
+        typeName.erase(typeName.find("__"), 2);
     std::string fullTypeName = typeName;
     // GetSymbolTypeId doesn't support pointer types so we need to strip off the '*' first
     while (endsWith(typeName, '*')) {
@@ -140,7 +142,7 @@ PyObject *type_Code(Type *self)
     static const std::vector<std::string> integralTypes({"bool",
             "char", "unsigned char", "char16_t", "char32_t", "wchar_t",
             "short", "unsigned short", "int", "unsigned int",
-            "long", "unsigned long", "int64", "unsigned int64"});
+            "long", "unsigned long", "int64", "unsigned int64", "__int64", "unsigned __int64"});
     static const std::vector<std::string> floatTypes({"float", "double"});
 
     TypeCodes code = TypeCodeStruct;
