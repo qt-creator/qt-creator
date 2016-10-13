@@ -267,3 +267,21 @@ void CppToolsSettings::setSortedEditorDocumentOutline(bool sorted)
     ICore::settings()->setValue(sortEditorDocumentOutlineKey(), sorted);
     emit editorDocumentOutlineSortingChanged(sorted);
 }
+
+static QString showHeaderErrorInfoBarKey()
+{
+    return QLatin1String(CppTools::Constants::CPPTOOLS_SETTINGSGROUP)
+         + QLatin1Char('/')
+         + QLatin1String(CppTools::Constants::CPPTOOLS_SHOW_INFO_BAR_FOR_HEADER_ERRORS);
+}
+
+bool CppToolsSettings::showHeaderErrorInfoBar() const
+{
+    return ICore::settings()->value(showHeaderErrorInfoBarKey(), true).toBool();
+}
+
+void CppToolsSettings::setShowHeaderErrorInfoBar(bool show)
+{
+    ICore::settings()->setValue(showHeaderErrorInfoBarKey(), show);
+    emit showHeaderErrorInfoBarChanged(show);
+}

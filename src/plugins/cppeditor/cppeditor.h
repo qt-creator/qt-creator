@@ -31,10 +31,6 @@
 
 #include <QScopedPointer>
 
-namespace Core {
-class InfoBarEntry;
-}
-
 namespace CppTools {
 class CppEditorOutline;
 class RefactoringEngineInterface;
@@ -91,7 +87,6 @@ public:
 
     void switchDeclarationDefinition(bool inNextSplit);
     void showPreProcessorWidget();
-    void showHeaderErrorInfoBar();
 
     void findUsages();
     void renameSymbolUnderCursor();
@@ -150,7 +145,7 @@ private:
     void renameSymbolUnderCursorClang();
     void renameSymbolUnderCursorBuiltin();
 
-    void addHeaderErrorInfoBarEntryAndHideIndicator() const;
+    void addHeaderErrorInfoBarEntry() const;
 
     CppTools::ProjectPart *projectPart() const;
 
