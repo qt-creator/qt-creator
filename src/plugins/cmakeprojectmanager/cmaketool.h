@@ -75,7 +75,7 @@ public:
         bool matches(const QString &n, const QString &ex) const;
     };
 
-    typedef std::function<QString (const ProjectExplorer::Kit *, const QString &)> PathMapper;
+    typedef std::function<QString (const QString &)> PathMapper;
 
     explicit CMakeTool(Detection d, const Core::Id &id);
     explicit CMakeTool(const QVariantMap &map, bool fromSdk);
@@ -103,7 +103,7 @@ public:
     void setDisplayName(const QString &displayName);
 
     void setPathMapper(const PathMapper &includePathMapper);
-    QString mapAllPaths(const ProjectExplorer::Kit *kit, const QString &in) const;
+    PathMapper pathMapper() const;
 
 private:
     enum class QueryType {

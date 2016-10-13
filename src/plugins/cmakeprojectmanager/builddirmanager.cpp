@@ -437,8 +437,9 @@ void BuildDirManager::extractData()
 
     // setFolderName
     CMakeCbpParser cbpparser;
+    CMakeTool *cmake = CMakeKitInformation::cmakeTool(kit());
     // Parsing
-    if (!cbpparser.parseCbpFile(kit(), cbpFile, sourceDirectory().toString()))
+    if (!cbpparser.parseCbpFile(cmake->pathMapper(), cbpFile, sourceDirectory().toString()))
         return;
 
     m_projectName = cbpparser.projectName();

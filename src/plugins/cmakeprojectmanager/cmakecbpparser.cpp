@@ -47,7 +47,7 @@ namespace Internal {
 namespace {
 int distance(const QString &targetDirectory, const FileName &fileName)
 {
-    const QString commonParent = Utils::commonPath(QStringList() << targetDirectory << fileName.toString());
+    const QString commonParent = commonPath(QStringList() << targetDirectory << fileName.toString());
     return targetDirectory.mid(commonParent.size()).count(QLatin1Char('/'))
             + fileName.toString().mid(commonParent.size()).count(QLatin1Char('/'));
 }
@@ -60,9 +60,9 @@ int distance(const QString &targetDirectory, const FileName &fileName)
 void CMakeCbpParser::sortFiles()
 {
     QLoggingCategory log("qtc.cmakeprojectmanager.filetargetmapping");
-    FileNameList fileNames = Utils::transform(m_fileList, &FileNode::filePath);
+    FileNameList fileNames = transform(m_fileList, &FileNode::filePath);
 
-    Utils::sort(fileNames);
+    sort(fileNames);
 
 
     CMakeBuildTarget *last = 0;
@@ -101,7 +101,7 @@ void CMakeCbpParser::sortFiles()
         if (!unitTargets.isEmpty()) {
             // cmake >= 3.3:
             foreach (const QString &unitTarget, unitTargets) {
-                int index = Utils::indexOf(m_buildTargets, Utils::equal(&CMakeBuildTarget::title, unitTarget));
+                int index = indexOf(m_buildTargets, equal(&CMakeBuildTarget::title, unitTarget));
                 if (index != -1) {
                     m_buildTargets[index].files.append(fileName.toString());
                     qCDebug(log) << "  into" << m_buildTargets[index].title << "(target attribute)";
@@ -157,9 +157,10 @@ void CMakeCbpParser::sortFiles()
         qCDebug(log) << target.title << target.sourceDirectory << target.includeFiles << target.defines << target.files << "\n";
 }
 
-bool CMakeCbpParser::parseCbpFile(const Kit *const kit, const QString &fileName, const QString &sourceDirectory)
+bool CMakeCbpParser::parseCbpFile(CMakeTool::PathMapper mapper, const QString &fileName,
+                                  const QString &sourceDirectory)
 {
-    m_kit = kit;
+    m_pathMapper = mapper;
     m_buildDirectory = QFileInfo(fileName).absolutePath();
     m_sourceDirectory = sourceDirectory;
 
@@ -267,10 +268,7 @@ void CMakeCbpParser::parseBuildTarget()
 void CMakeCbpParser::parseBuildTargetOption()
 {
     if (attributes().hasAttribute(QLatin1String("output"))) {
-        m_buildTarget.executable = attributes().value(QLatin1String("output")).toString();
-        CMakeTool *tool = CMakeKitInformation::cmakeTool(m_kit);
-        if (tool)
-            m_buildTarget.executable = tool->mapAllPaths(m_kit, m_buildTarget.executable);
+        m_buildTarget.executable = m_pathMapper(attributes().value(QLatin1String("output")).toString());
     } else if (attributes().hasAttribute(QLatin1String("type"))) {
         const QStringRef value = attributes().value(QLatin1String("type"));
         if (value == "0" || value == "1")
@@ -354,13 +352,8 @@ void CMakeCbpParser::parseMakeCommands()
 
 void CMakeCbpParser::parseBuildTargetBuild()
 {
-    if (attributes().hasAttribute(QLatin1String("command"))) {
-        m_buildTarget.makeCommand = attributes().value(QLatin1String("command")).toString();
-
-        CMakeTool *tool = CMakeKitInformation::cmakeTool(m_kit);
-        if (tool)
-            m_buildTarget.makeCommand = tool->mapAllPaths(m_kit, m_buildTarget.makeCommand);
-    }
+    if (attributes().hasAttribute(QLatin1String("command")))
+        m_buildTarget.makeCommand = m_pathMapper(attributes().value(QLatin1String("command")).toString());
     while (!atEnd()) {
         readNext();
         if (isEndElement())
@@ -399,11 +392,7 @@ void CMakeCbpParser::parseAdd()
     // CMake only supports <Add option=\> and <Add directory=\>
     const QXmlStreamAttributes addAttributes = attributes();
 
-    QString includeDirectory = addAttributes.value(QLatin1String("directory")).toString();
-
-    CMakeTool *tool = CMakeKitInformation::cmakeTool(m_kit);
-    if (tool)
-        includeDirectory = tool->mapAllPaths(m_kit, includeDirectory);
+    QString includeDirectory = m_pathMapper(addAttributes.value(QLatin1String("directory")).toString());
 
     // allow adding multiple times because order happens
     if (!includeDirectory.isEmpty())
@@ -437,13 +426,9 @@ void CMakeCbpParser::parseUnit()
 {
     //qDebug()<<stream.attributes().value("filename");
     FileName fileName =
-            FileName::fromUserInput(attributes().value(QLatin1String("filename")).toString());
-
-    CMakeTool *tool = CMakeKitInformation::cmakeTool(m_kit);
-    if (tool) {
-        QString mappedFile = tool->mapAllPaths(m_kit, fileName.toString());
-        fileName = FileName::fromUserInput(mappedFile);
-    }
+            FileName::fromString(m_pathMapper(FileName::fromUserInput(
+                                                  attributes().value(QLatin1String("filename"))
+                                                  .toString()).toString()));
 
     m_parsingCMakeUnit = false;
     m_unitTargets.clear();
@@ -453,7 +438,7 @@ void CMakeCbpParser::parseUnit()
             if (!fileName.endsWith(QLatin1String(".rule")) && !m_processedUnits.contains(fileName)) {
                 // Now check whether we found a virtual element beneath
                 if (m_parsingCMakeUnit) {
-                    m_cmakeFileList.append( new ProjectExplorer::FileNode(fileName, ProjectExplorer::ProjectFileType, false));
+                    m_cmakeFileList.append( new FileNode(fileName, ProjectFileType, false));
                 } else {
                     bool generated = false;
                     QString onlyFileName = fileName.fileName();
@@ -463,9 +448,9 @@ void CMakeCbpParser::parseUnit()
                         generated = true;
 
                     if (fileName.endsWith(QLatin1String(".qrc")))
-                        m_fileList.append( new ProjectExplorer::FileNode(fileName, ProjectExplorer::ResourceType, generated));
+                        m_fileList.append( new FileNode(fileName, ResourceType, generated));
                     else
-                        m_fileList.append( new ProjectExplorer::FileNode(fileName, ProjectExplorer::SourceType, generated));
+                        m_fileList.append( new FileNode(fileName, SourceType, generated));
                 }
                 m_unitTargetMap.insert(fileName, m_unitTargets);
                 m_processedUnits.insert(fileName);
@@ -513,12 +498,12 @@ void CMakeCbpParser::parseUnknownElement()
     }
 }
 
-QList<ProjectExplorer::FileNode *> CMakeCbpParser::fileList()
+QList<FileNode *> CMakeCbpParser::fileList()
 {
     return m_fileList;
 }
 
-QList<ProjectExplorer::FileNode *> CMakeCbpParser::cmakeFileList()
+QList<FileNode *> CMakeCbpParser::cmakeFileList()
 {
     return m_cmakeFileList;
 }

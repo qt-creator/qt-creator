@@ -228,11 +228,11 @@ void CMakeTool::setPathMapper(const CMakeTool::PathMapper &pathMapper)
     m_pathMapper = pathMapper;
 }
 
-QString CMakeTool::mapAllPaths(const ProjectExplorer::Kit *kit, const QString &in) const
+CMakeTool::PathMapper CMakeTool::pathMapper() const
 {
     if (m_pathMapper)
-        return m_pathMapper(kit, in);
-    return in;
+        return m_pathMapper;
+    return [](const QString &s) { return s; };
 }
 
 void CMakeTool::readInformation(CMakeTool::QueryType type) const

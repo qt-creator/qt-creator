@@ -26,6 +26,7 @@
 #pragma once
 
 #include "cmakeproject.h"
+#include "cmaketool.h"
 
 #include <utils/fileutils.h>
 
@@ -46,7 +47,7 @@ namespace Internal {
 class CMakeCbpParser : public QXmlStreamReader
 {
 public:
-    bool parseCbpFile(const ProjectExplorer::Kit *const kit, const QString &fileName,
+    bool parseCbpFile(CMakeTool::PathMapper mapper, const QString &fileName,
                       const QString &sourceDirectory);
     QList<ProjectExplorer::FileNode *> fileList();
     QList<ProjectExplorer::FileNode *> cmakeFileList();
@@ -73,7 +74,7 @@ private:
     void sortFiles();
 
     QMap<Utils::FileName, QStringList> m_unitTargetMap;
-    const ProjectExplorer::Kit *m_kit = 0;
+    CMakeTool::PathMapper m_pathMapper;
     QList<ProjectExplorer::FileNode *> m_fileList;
     QList<ProjectExplorer::FileNode *> m_cmakeFileList;
     QSet<Utils::FileName> m_processedUnits;
