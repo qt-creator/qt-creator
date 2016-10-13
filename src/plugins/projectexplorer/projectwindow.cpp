@@ -50,6 +50,7 @@
 #include <QComboBox>
 #include <QDockWidget>
 #include <QHeaderView>
+#include <QLabel>
 #include <QMenu>
 #include <QStyledItemDelegate>
 #include <QTimer>
@@ -483,9 +484,16 @@ ProjectWindow::ProjectWindow()
     selectorView->setWindowTitle(tr("Project Selector"));
     selectorView->setAutoFillBackground(true);
 
+    auto activeLabel = new QLabel(tr("Active Project"));
+    QFont font = activeLabel->font();
+    font.setBold(true);
+    font.setPointSizeF(font.pointSizeF() * 1.2);
+    activeLabel->setFont(font);
+
     auto innerLayout = new QVBoxLayout;
     innerLayout->setSpacing(10);
     innerLayout->setContentsMargins(14, innerLayout->spacing(), 14, 0);
+    innerLayout->addWidget(activeLabel);
     innerLayout->addWidget(selectorModel->m_projectSelection);
     innerLayout->addWidget(selectorModel->m_selectorTree);
 
