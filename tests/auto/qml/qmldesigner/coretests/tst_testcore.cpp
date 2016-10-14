@@ -86,6 +86,8 @@ using namespace QmlDesigner;
 #  define SHARE_PATH "/share/qtcreator"
 #endif
 
+QT_BEGIN_NAMESPACE
+
 //Allow comparison of QByteArray and QString. We always assume utf8 as the encoding.
 namespace QTest {
  bool qCompare(const QString &string, const QByteArray &array, const char *actual,
@@ -102,6 +104,8 @@ namespace QTest {
 
 
 }
+
+QT_END_NAMESPACE
 
 QString resourcePath()
 {
