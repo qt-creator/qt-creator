@@ -60,7 +60,7 @@ Section {
             text: qsTr("Font")
         }
         FontComboBox {
-            backendValue: fontFamily
+            backendValue: fontSection.fontFamily
             Layout.fillWidth: true
         }
 
