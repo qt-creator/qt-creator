@@ -43,7 +43,7 @@ public:
 
 private:
     QByteArray m_prefix;
-    bool m_previousIsEndingWithNewLine;
+    bool m_previousIsEndingWithNewLine = true;
 };
 
 } // namespace ClangBackEnd
