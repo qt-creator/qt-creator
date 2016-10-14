@@ -52,6 +52,13 @@ RowLayout {
     Controls.ComboBox {
         id: comboBox
 
+        ExtendedFunctionButton {
+            x: 2
+            anchors.verticalCenter: parent.verticalCenter
+            backendValue: urlChooser.backendValue
+            visible: comboBox.enabled
+        }
+
         property bool isComplete: false
 
         function setCurrentText(text) {

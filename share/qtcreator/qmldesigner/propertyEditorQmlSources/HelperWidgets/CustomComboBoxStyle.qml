@@ -33,6 +33,8 @@ ComboBoxStyle {
 
     }
 
+    padding.left: 20
+
     background: Item {
         implicitWidth: 120
         implicitHeight: 24
@@ -65,17 +67,13 @@ ComboBoxStyle {
         }
     }
 
-    label: Item {
-        implicitWidth: textitem.implicitWidth + 20
-        Text {
-            id: textitem
-            anchors.left: parent.left
-            anchors.leftMargin: 14
-            anchors.verticalCenter: parent.verticalCenter
-            text: control.currentText
-            renderType: Text.NativeRendering
-            color: control.textColor
-        }
+    label: Text {
+        id: textitem
+        anchors.left: parent.left
+        anchors.verticalCenter: parent.verticalCenter
+        text: control.currentText
+        renderType: Text.NativeRendering
+        color: control.textColor
     }
 
     __dropDownStyle: MenuStyle {
