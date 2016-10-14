@@ -375,6 +375,7 @@ void ClangClangCodeModelServer::SetUp()
 {
     clangServer.setClient(&mockClangCodeModelClient);
     clangServer.setUpdateDocumentAnnotationsTimeOutInMsForTestsOnly(0);
+    clangServer.setUpdateVisibleButNotCurrentDocumentsTimeOutInMsForTestsOnly(0);
 }
 
 void ClangClangCodeModelServer::TearDown()
