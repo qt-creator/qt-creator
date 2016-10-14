@@ -91,6 +91,7 @@ private:
     QAction m_toggleLeftSidebarAction;
     QAction m_toggleRightSidebarAction;
     QAction m_goIntoComponentAction;
+    QAction m_escapeAction;
 };
 
 } // namespace QmlDesigner

@@ -218,6 +218,11 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
     command->setAttribute(Core::Command::CA_Hide);
     viewsMenu->addAction(command);
 
+    /* Registering disabled action for Escape, because Qt Quick does not support shortcut overrides. */
+    command = Core::ActionManager::registerAction(&m_escapeAction, Core::Constants::S_RETURNTOEDITOR, qmlDesignerMainContext);
+    command->setDefaultKeySequence(QKeySequence(Qt::Key_Escape));
+    m_escapeAction.setEnabled(false);
+
     Core::ActionManager::registerAction(&m_hideSidebarsAction, Core::Constants::TOGGLE_SIDEBAR, qmlDesignerMainContext);
 }
 
