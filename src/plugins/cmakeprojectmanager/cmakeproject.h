@@ -41,7 +41,6 @@ QT_END_NAMESPACE
 namespace CMakeProjectManager {
 
 namespace Internal {
-class CMakeFile;
 class CMakeBuildSettingsWidget;
 class CMakeBuildConfiguration;
 class CMakeProjectNode;
@@ -129,7 +128,6 @@ private:
     QList<ProjectExplorer::ExtraCompiler *> m_extraCompilers;
 
     friend class Internal::CMakeBuildConfiguration;
-    friend class Internal::CMakeFile;
 };
 
 } // namespace CMakeProjectManager
