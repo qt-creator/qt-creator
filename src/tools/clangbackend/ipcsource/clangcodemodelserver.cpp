@@ -55,34 +55,9 @@
 
 namespace ClangBackEnd {
 
-namespace {
-
-int getIntervalFromEnviromentVariable()
-{
-    bool isConversionOk = false;
-    const int intervalAsInt = qEnvironmentVariableIntValue("QTC_CLANG_DELAYED_REPARSE_TIMEOUT",
-                                                           &isConversionOk);
-
-    if (isConversionOk)
-        return intervalAsInt;
-    else
-        return -1;
-}
-
-int delayedDocumentAnnotationsTimerInterval()
-{
-    static const int defaultInterval = 1500;
-    static const int userDefinedInterval = getIntervalFromEnviromentVariable();
-    static const int interval = userDefinedInterval >= 0 ? userDefinedInterval : defaultInterval;
-
-    return interval;
-}
-
-} // anonymous
-
 ClangCodeModelServer::ClangCodeModelServer()
     : documents(projects, unsavedFiles)
-    , updateDocumentAnnotationsTimeOutInMs(delayedDocumentAnnotationsTimerInterval())
+    , updateDocumentAnnotationsTimeOutInMs(1500)
 {
     updateDocumentAnnotationsTimer.setSingleShot(true);
 
