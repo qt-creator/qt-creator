@@ -69,7 +69,8 @@ ShortCutManager::ShortCutManager()
     m_restoreDefaultViewAction(tr("&Restore Default View"), 0),
     m_toggleLeftSidebarAction(tr("Toggle &Left Sidebar"), 0),
     m_toggleRightSidebarAction(tr("Toggle &Right Sidebar"), 0),
-    m_goIntoComponentAction (tr("&Go into Component"), 0)
+    m_goIntoComponentAction(tr("&Go into Component"), 0),
+    m_escapeAction(this)
 {
 
 }
