@@ -629,6 +629,8 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False):
         version = None
     if 'only available with Qt 5.6' in text:
         result = [Targets.DESKTOP_561_DEFAULT]
+    elif 'available with Qt 5.7 and later' in text:
+        result = [] # FIXME we have currently no Qt5.7+ available in predefined settings
     elif 'Supported Platforms' in text:
         supports = text[text.find('Supported Platforms'):].split(":")[1].strip().split(" ")
         result = []
