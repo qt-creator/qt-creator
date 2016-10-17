@@ -54,7 +54,7 @@ public:
 
     static std::function<bool(const CMakeConfigItem &a, const CMakeConfigItem &b)> sortOperator();
     static CMakeConfigItem fromString(const QString &s);
-    QString toString() const;
+    QString toString(const Utils::MacroExpander *expander = nullptr) const;
 
     bool operator==(const CMakeConfigItem &o) const;
 
