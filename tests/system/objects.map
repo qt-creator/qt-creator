@@ -38,6 +38,8 @@
 :Breakpoints_Debugger::Internal::BreakTreeView	{container=':Debugger.Docks.BreakDockWidget.Debugger.Docks.Break_QFrame' type='Utils::BaseTreeView' unnamed='1' visible='1'}
 :Build and Run.Save all files before build_QCheckBox	{name='saveAllFilesCheckBox' type='QCheckBox' visible='1'}
 :BuildAndRun_QTreeView	{container=':qt_tabwidget_stackedwidget_QWidget' type='QTreeView' unnamed='1' visible='1'}
+:CCompiler:_QComboBox	{container=':qt_tabwidget_stackedwidget_QWidget' leftWidget=':CCompiler:_QLabel' type='QComboBox' unnamed='1' visible='1'}
+:CCompiler:_QLabel	{container=':qt_tabwidget_stackedwidget_QWidget' text='C:' type='QLabel' unnamed='1' visible='1'}
 :Cannot Open Project.OK_QPushButton	{text='OK' type='QPushButton' unnamed='1' visible='1' window=':Cannot Open Project_QMessageBox'}
 :Cannot Open Project.Show Details..._QPushButton	{text='Show Details...' type='QPushButton' unnamed='1' visible='1' window=':Cannot Open Project_QMessageBox'}
 :Cannot Open Project_QMessageBox	{text?='Failed to open project in *' type='QMessageBox' unnamed='1' visible='1'}
@@ -49,9 +51,9 @@
 :CodePaster__Internal__PasteSelectDialog.listWidget_QListWidget	{name='listWidget' type='QListWidget' visible='1' window=':CodePaster__Internal__PasteSelectDialog_CodePaster::PasteSelectDialog'}
 :CodePaster__Internal__PasteSelectDialog.protocolBox_QComboBox	{name='protocolBox' type='QComboBox' visible='1' window=':CodePaster__Internal__PasteSelectDialog_CodePaster::PasteSelectDialog'}
 :CodePaster__Internal__PasteSelectDialog_CodePaster::PasteSelectDialog	{name='CodePaster__Internal__PasteSelectDialog' type='CodePaster::PasteSelectDialog' visible='1'}
-:Compiler:_QComboBox	{aboveWidget=':Path.Utils_BaseValidatingLineEdit' container=':qt_tabwidget_stackedwidget_QWidget' leftWidget=':Compiler:_QLabel' type='QComboBox' unnamed='1' visible='1'}
-:Compiler:_QLabel	{container=':qt_tabwidget_stackedwidget_QWidget' text='Compiler:' type='QLabel' unnamed='1' visible='1'}
 :Core__Internal__GeneralSettings.User Interface_QGroupBox	{container=':qt_tabwidget_stackedwidget.Core__Internal__GeneralSettings_QWidget' name='interfaceBox' title='User Interface' type='QGroupBox' visible='1'}
+:CppCompiler:_QComboBox	{container=':qt_tabwidget_stackedwidget_QWidget' leftWidget=':CppCompiler:_QLabel' type='QComboBox' unnamed='1' visible='1'}
+:CppCompiler:_QLabel	{container=':qt_tabwidget_stackedwidget_QWidget' text='C++:' type='QLabel' unnamed='1' visible='1'}
 :CppTools__Internal__CompletionSettingsPage.Behavior_QGroupBox	{container=':qt_tabwidget_stackedwidget_QScrollArea' name='groupBox' title='Behavior' type='QGroupBox' visible='1'}
 :DebugModeWidget.Debugger Log_QDockWidget	{container=':Qt Creator.DebugModeWidget_QSplitter' name='Debugger.Docks.OutputDockWidget' type='QDockWidget' visible='1'}
 :DebugModeWidget.Debugger.Docks.BreakDockWidget_QDockWidget	{container=':Qt Creator.DebugModeWidget_QSplitter' name='Debugger.Docks.BreakDockWidget' type='QDockWidget' visible='1'}

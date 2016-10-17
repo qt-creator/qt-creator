@@ -84,27 +84,40 @@ def __checkBuildAndRun__():
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Kits")
     __iterateTree__(":BuildAndRun_QTreeView", __kitFunc__, foundQt, foundCompilerNames)
 
+def __processSubItems__(treeObjStr, section, parModelIndexStr, doneItems,
+                        additionalFunc, *additionalParameters):
+    global currentSelectedTreeItem
+    model = waitForObject(treeObjStr).model()
+    items = dumpIndices(model, section)
+    for it in items:
+        indexName = str(it.data().toString())
+        itObj = "%s container=%s}" % (objectMap.realName(it)[:-1], parModelIndexStr)
+        alreadyDone = doneItems.count(itObj)
+        doneItems.append(itObj)
+        if alreadyDone:
+            itObj = "%s occurrence='%d'}" % (itObj[:-1], alreadyDone + 1)
+        currentSelectedTreeItem = waitForObject(itObj, 3000)
+        mouseClick(currentSelectedTreeItem, 5, 5, 0, Qt.LeftButton)
+        additionalFunc(indexName, *additionalParameters)
+        currentSelectedTreeItem = None
+        if model.rowCount(it) > 0:
+            __processSubItems__(treeObjStr, it, itObj, doneItems,
+                                additionalFunc, *additionalParameters)
+
 def __iterateTree__(treeObjStr, additionalFunc, *additionalParameters):
     global currentSelectedTreeItem
     model = waitForObject(treeObjStr).model()
     # 1st row: Auto-detected, 2nd row: Manual
     for sect in dumpIndices(model):
-        sObj = "%s container='%s'}" % (objectMap.realName(sect)[:-1], treeObjStr)
-        items = dumpIndices(model, sect)
         doneItems = []
-        for it in items:
-            indexName = str(it.data().toString())
-            itObj = "%s container=%s}" % (objectMap.realName(it)[:-1], sObj)
-            alreadyDone = doneItems.count(itObj)
-            doneItems.append(itObj)
-            if alreadyDone:
-                itObj = "%s occurrence='%d'}" % (itObj[:-1], alreadyDone + 1)
-            currentSelectedTreeItem = waitForObject(itObj, 3000)
-            mouseClick(currentSelectedTreeItem, 5, 5, 0, Qt.LeftButton)
-            additionalFunc(indexName, *additionalParameters)
-            currentSelectedTreeItem = None
+        parentModelIndex = "%s container='%s'}" % (objectMap.realName(sect)[:-1], treeObjStr)
+        __processSubItems__(treeObjStr, sect, parentModelIndex, doneItems,
+                            additionalFunc, *additionalParameters)
 
 def __compFunc__(it, foundComp, foundCompNames):
+    # skip sub section items (will continue on its children)
+    if str(it) == "C" or str(it) == "C++":
+        return
     try:
         waitFor("object.exists(':Path.Utils_BaseValidatingLineEdit')", 1000)
         pathLineEdit = findObject(":Path.Utils_BaseValidatingLineEdit")
@@ -144,12 +157,17 @@ def __kitFunc__(it, foundQt, foundCompNames):
     test.compare(it, "Desktop (default)", "Verifying whether default Desktop kit has been created.")
     if foundQt:
         test.compare(qtVersionStr, foundQt, "Verifying if Qt versions match.")
-    compilerCombo = findObject(":Compiler:_QComboBox")
-    test.compare(compilerCombo.enabled, compilerCombo.count > 1,
-                 "Verifying whether compiler combo is enabled/disabled correctly.")
+    cCompilerCombo = findObject(":CCompiler:_QComboBox")
+    test.compare(cCompilerCombo.enabled, cCompilerCombo.count > 1,
+                 "Verifying whether C compiler combo is enabled/disabled correctly.")
+    cppCompilerCombo = findObject(":CppCompiler:_QComboBox")
+    test.compare(cppCompilerCombo.enabled, cppCompilerCombo.count > 1,
+                 "Verifying whether C++ compiler combo is enabled/disabled correctly.")
 
-    test.verify(str(compilerCombo.currentText) in foundCompNames,
-                "Verifying if one of the found compilers had been set.")
+    test.verify(str(cCompilerCombo.currentText) in foundCompNames,
+                "Verifying if one of the found C compilers had been set.")
+    test.verify(str(cppCompilerCombo.currentText) in foundCompNames,
+                "Verifying if one of the found C++ compilers had been set.")
     if currentSelectedTreeItem:
         foundWarningOrError = warningOrError.search(str(currentSelectedTreeItem.toolTip))
         if foundWarningOrError:
@@ -158,12 +176,13 @@ def __kitFunc__(it, foundQt, foundCompNames):
             test.warning("Detected error and/or warning: %s" % details)
 
 def __getExpectedCompilers__():
+    # TODO: enhance this to distinguish between C and C++ compilers
     expected = []
     if platform.system() in ('Microsoft', 'Windows'):
         expected.extend(__getWinCompilers__())
-    compilers = ["g++"]
+    compilers = ["g++", "gcc"]
     if platform.system() in ('Linux', 'Darwin'):
-        compilers.extend(["g++-4.0", "g++-4.2", "clang++"])
+        compilers.extend(["g++-4.0", "g++-4.2", "clang++", "clang"])
     if platform.system() == 'Darwin':
         xcodeClang = getOutputFromCmdline(["xcrun", "--find", "clang++"]).strip("\n")
         if xcodeClang and os.path.exists(xcodeClang) and xcodeClang not in expected:
@@ -171,7 +190,7 @@ def __getExpectedCompilers__():
     for compiler in compilers:
         compilerPath = which(compiler)
         if compilerPath:
-            if compiler.endswith('clang++'):
+            if compiler.endswith('clang++') or compiler.endswith('clang'):
                 if subprocess.call([compiler, '-dumpmachine']) != 0:
                     test.warning("clang found in PATH, but version is not supported.")
                     continue
