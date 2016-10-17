@@ -293,3 +293,34 @@ def invokeContextMenuOnProject(projectName, menuItem):
     else:
         activateItem(waitForObjectItem("{name='Project.Menu.Project' type='QMenu' visible='1'}", menuItem))
     return projItem
+
+def addAndActivateKit(kit):
+    clickToActivate = "<h3>Click to activate:</h3>"
+    bAndRIndex = getQModelIndexStr("text='Build & Run'", ":Projects.ProjectNavigationTreeView")
+    kitString = Targets.getStringForTarget(kit)
+    switchViewTo(ViewConstants.PROJECTS)
+    try:
+        treeView = waitForObject(":Projects.ProjectNavigationTreeView")
+        wanted = getQModelIndexStr("text='%s'" % kitString, bAndRIndex)
+        index = findObject(wanted)
+        if str(index.toolTip).startswith(clickToActivate):
+            mouseClick(index)
+            test.verify(waitFor("not str(index.toolTip).startswith(clickToActivate)", 1500),
+                        "Kit added for this project")
+            try:
+                findObject(":Projects.ProjectNavigationTreeView")
+            except:
+                test.warning("Squish issue - QC switches automatically to Edit view after enabling "
+                             "a new kit when running tst_opencreator_qbs - works as expected when "
+                             "running without Squish")
+                switchViewTo(ViewConstants.PROJECTS)
+        else:
+            test.warning("Kit is already added for this project.")
+        mouseClick(index)
+        test.verify(waitFor("index.font.bold == True", 1500),
+                    "Verifying whether kit is current active")
+    except:
+        return False
+    finally:
+        switchViewTo(ViewConstants.EDIT)
+    return True
