@@ -496,6 +496,7 @@ void CMakeBuildTarget::clear()
     includeFiles.clear();
     compilerOptions.clear();
     defines.clear();
+    files.clear();
 }
 
 } // namespace CMakeProjectManager
