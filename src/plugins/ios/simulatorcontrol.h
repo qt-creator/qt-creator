@@ -28,7 +28,9 @@
 #include <QHash>
 #include "utils/fileutils.h"
 
+QT_BEGIN_NAMESPACE
 class QProcess;
+QT_END_NAMESPACE
 
 namespace Ios {
 namespace Internal {
