@@ -50,8 +50,7 @@ def openQmakeProject(projectPath, targets=Targets.desktopTargetClasses(), fromWe
     except:
         pass
     checkedTargets = __chooseTargets__(targets)
-    configureButton = waitForObject("{text='Configure Project' type='QPushButton' unnamed='1' visible='1'"
-                                    "window=':Qt Creator_Core::Internal::MainWindow'}")
+    configureButton = waitForObject(":Qt Creator.Configure Project_QPushButton")
     clickButton(configureButton)
     return checkedTargets
 
@@ -74,8 +73,7 @@ def openCmakeProject(projectPath, buildDir):
     selectFromFileDialog(projectPath)
     __chooseTargets__(0) # uncheck all
     __chooseTargets__(Targets.DESKTOP_480_DEFAULT, additionalFunc=additionalFunction)
-    clickButton(waitForObject("{text='Configure Project' type='QPushButton' unnamed='1' visible='1'"
-                              "window=':Qt Creator_Core::Internal::MainWindow'}"))
+    clickButton(waitForObject(":Qt Creator.Configure Project_QPushButton"))
     return True
 
 # this function returns a list of available targets - this is not 100% error proof

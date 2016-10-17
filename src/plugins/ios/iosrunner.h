@@ -29,6 +29,7 @@
 #include "iostoolhandler.h"
 #include "iossimulator.h"
 
+#include <debugger/debuggerconstants.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <qmldebug/qmldebugcommandlinearguments.h>
 
@@ -63,6 +64,9 @@ public:
 
     void start();
     void stop();
+
+public slots:
+    void debuggerStateChanged(Debugger::DebuggerState state);
 
 signals:
     void didStartApp(Ios::IosToolHandler::OpStatus status);

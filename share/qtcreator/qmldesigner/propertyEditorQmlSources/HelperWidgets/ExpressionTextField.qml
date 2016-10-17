@@ -133,6 +133,8 @@ Controls.TextField {
         event.accepted = true
         if (textField.completionActive) {
             listView.model = null
+        } else {
+            textField.rejected()
         }
     }
 

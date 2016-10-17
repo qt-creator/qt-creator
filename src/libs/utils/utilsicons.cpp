@@ -64,10 +64,10 @@ const Icon BOOKMARK_TOOLBAR({
 const Icon BOOKMARK_TEXTEDITOR({
         {QLatin1String(":/utils/images/bookmark.png"), Theme::Bookmarks_TextMarkColor}}, Icon::Tint);
 
-const Icon NEWFILE(
-        QLatin1String(":/utils/images/filenew.png"));
-const Icon OPENFILE(
-        QLatin1String(":/utils/images/fileopen.png"));
+const Icon NEWFILE({
+        {QLatin1String(":/utils/images/filenew.png"), Theme::PanelTextColorMid}}, Icon::Tint);
+const Icon OPENFILE({
+        {QLatin1String(":/utils/images/fileopen.png"), Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon SAVEFILE({
         {QLatin1String(":/utils/images/filesave.png"), Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon SAVEFILE_TOOLBAR({
@@ -76,12 +76,12 @@ const Icon UNDO({
         {QLatin1String(":/utils/images/undo.png"), Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon REDO({
         {QLatin1String(":/utils/images/redo.png"), Theme::PanelTextColorMid}}, Icon::Tint);
-const Icon COPY(
-        QLatin1String(":/utils/images/editcopy.png"));
-const Icon PASTE(
-        QLatin1String(":/utils/images/editpaste.png"));
-const Icon CUT(
-        QLatin1String(":/utils/images/editcut.png"));
+const Icon COPY({
+        {QLatin1String(":/utils/images/editcopy.png"), Theme::PanelTextColorMid}}, Icon::Tint);
+const Icon PASTE({
+        {QLatin1String(":/utils/images/editpaste.png"), Theme::PanelTextColorMid}}, Icon::Tint);
+const Icon CUT({
+        {QLatin1String(":/utils/images/editcut.png"), Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon DIR(
         QLatin1String(":/utils/images/dir.png"));
 const Icon RESET({

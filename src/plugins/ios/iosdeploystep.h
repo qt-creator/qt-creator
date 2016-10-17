@@ -101,6 +101,7 @@ private:
     QFutureInterface<bool> m_futureInterface;
     ProjectExplorer::IDevice::ConstPtr m_device;
     QString m_bundlePath;
+    IosDeviceType m_deviceType;
     static const Core::Id Id;
     bool m_expectFail;
 };

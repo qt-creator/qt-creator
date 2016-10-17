@@ -56,6 +56,7 @@
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cpptoolsplugin.h>
 #include <cpptools/cpptoolsreuse.h>
+#include <cpptools/cpptoolssettings.h>
 #include <cpptools/cppworkingcopy.h>
 #include <cpptools/symbolfinder.h>
 #include <cpptools/refactoringengineinterface.h>
@@ -130,7 +131,7 @@ public:
     QScopedPointer<FollowSymbolUnderCursor> m_followSymbolUnderCursor;
 
     QToolButton *m_preprocessorButton = nullptr;
-    QToolButton *m_headerErrorsIndicatorButton = nullptr;
+    QAction *m_headerErrorsIndicatorAction = nullptr;
 
     CppSelectionChanger m_cppSelectionChanger;
 
@@ -229,15 +230,20 @@ void CppEditorWidget::finalizeInitialization()
     connect(cmd, &Command::keySequenceChanged, this, &CppEditorWidget::updatePreprocessorButtonTooltip);
     updatePreprocessorButtonTooltip();
     connect(d->m_preprocessorButton, &QAbstractButton::clicked, this, &CppEditorWidget::showPreProcessorWidget);
-
-    d->m_headerErrorsIndicatorButton = new QToolButton(this);
-    d->m_headerErrorsIndicatorButton->setIcon(Utils::Icons::WARNING_TOOLBAR.pixmap());
-    connect(d->m_headerErrorsIndicatorButton, &QAbstractButton::clicked,
-            this, &CppEditorWidget::showHeaderErrorInfoBar);
-    d->m_headerErrorsIndicatorButton->setEnabled(false);
-
     insertExtraToolBarWidget(TextEditorWidget::Left, d->m_preprocessorButton);
-    insertExtraToolBarWidget(TextEditorWidget::Left, d->m_headerErrorsIndicatorButton);
+
+    auto *headerErrorsIndicatorButton = new QToolButton(this);
+    headerErrorsIndicatorButton->setToolTip(tr("Show First Error in Included Files"));
+    headerErrorsIndicatorButton->setIcon(Utils::Icons::WARNING_TOOLBAR.pixmap());
+    connect(headerErrorsIndicatorButton, &QAbstractButton::clicked, []() {
+        CppToolsSettings::instance()->setShowHeaderErrorInfoBar(true);
+    });
+    d->m_headerErrorsIndicatorAction = insertExtraToolBarWidget(TextEditorWidget::Left,
+                                                                headerErrorsIndicatorButton);
+    d->m_headerErrorsIndicatorAction->setVisible(false);
+    connect(CppToolsSettings::instance(), &CppToolsSettings::showHeaderErrorInfoBarChanged,
+            this, &CppEditorWidget::updateHeaderErrorWidgets);
+
     insertExtraToolBarWidget(TextEditorWidget::Left, d->m_cppEditorOutline->widget());
 }
 
@@ -252,6 +258,10 @@ void CppEditorWidget::finalizeInitializationAfterDuplication(TextEditorWidget *o
     d->m_cppEditorOutline->update();
     const Id selectionKind = CodeWarningsSelection;
     setExtraSelections(selectionKind, cppEditorWidget->extraSelections(selectionKind));
+
+    d->m_headerErrorDiagnosticWidgetCreator
+            = cppEditorWidget->d->m_headerErrorDiagnosticWidgetCreator;
+    updateHeaderErrorWidgets();
 }
 
 CppEditorWidget::~CppEditorWidget()
@@ -329,13 +339,14 @@ void CppEditorWidget::updateHeaderErrorWidgets()
     infoBar->removeInfo(id);
 
     if (d->m_headerErrorDiagnosticWidgetCreator) {
-        if (infoBar->canInfoBeAdded(id)) {
-            addHeaderErrorInfoBarEntryAndHideIndicator();
+        if (CppToolsSettings::instance()->showHeaderErrorInfoBar()) {
+            addHeaderErrorInfoBarEntry();
+            d->m_headerErrorsIndicatorAction->setVisible(false);
         } else {
-            d->m_headerErrorsIndicatorButton->setEnabled(true);
+            d->m_headerErrorsIndicatorAction->setVisible(true);
         }
     } else {
-        d->m_headerErrorsIndicatorButton->setEnabled(false);
+        d->m_headerErrorsIndicatorAction->setVisible(false);
     }
 }
 
@@ -434,23 +445,20 @@ void CppEditorWidget::renameSymbolUnderCursorBuiltin()
         renameUsages(); // Rename non-local symbol or macro
 }
 
-void CppEditorWidget::addHeaderErrorInfoBarEntryAndHideIndicator() const
+void CppEditorWidget::addHeaderErrorInfoBarEntry() const
 {
     InfoBarEntry info(Constants::ERRORS_IN_HEADER_FILES,
                       tr("<b>Warning</b>: The code model could not parse an included file, "
                          "which might lead to slow or incorrect code completion and "
-                         "highlighting, for example."),
-                      InfoBarEntry::GlobalSuppressionEnabled);
+                         "highlighting, for example."));
     info.setDetailsWidgetCreator(d->m_headerErrorDiagnosticWidgetCreator);
     info.setShowDefaultCancelButton(false);
-    info.setSuppressionButtonInfo([this](){
-        d->m_headerErrorsIndicatorButton->setEnabled(true);
+    info.setCustomButtonInfo("Minimize", [](){
+         CppToolsSettings::instance()->setShowHeaderErrorInfoBar(false);
     });
 
     InfoBar *infoBar = textDocument()->infoBar();
     infoBar->addInfo(info);
-
-    d->m_headerErrorsIndicatorButton->setEnabled(false);
 }
 
 namespace {
@@ -1022,15 +1030,6 @@ void CppEditorWidget::showPreProcessorWidget()
                     preProcessorDialog.additionalPreProcessorDirectives().toUtf8());
         cppEditorDocument()->scheduleProcessDocument();
     }
-}
-
-void CppEditorWidget::showHeaderErrorInfoBar()
-{
-    const Id id(Constants::ERRORS_IN_HEADER_FILES);
-    QTC_CHECK(!textDocument()->infoBar()->canInfoBeAdded(id));
-
-    InfoBar::globallyUnsuppressInfo(id);
-    addHeaderErrorInfoBarEntryAndHideIndicator();
 }
 
 } // namespace Internal

@@ -46,7 +46,7 @@ public:
     // Add options based on project part
     virtual void addTargetTriple();
     virtual void enableExceptions();
-    void addHeaderPathOptions(bool addAsNativePath = false);
+    void addHeaderPathOptions();
     void addToolchainAndProjectDefines();
     void addDefines(const QByteArray &defineDirectives);
     virtual void addLanguageOption(ProjectFile::Kind fileKind);

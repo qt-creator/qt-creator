@@ -50,6 +50,7 @@
 #include <QComboBox>
 #include <QDockWidget>
 #include <QHeaderView>
+#include <QLabel>
 #include <QMenu>
 #include <QStyledItemDelegate>
 #include <QTimer>
@@ -234,6 +235,11 @@ public:
     {
         Q_UNUSED(column)
 
+        if (role == ItemUpdatedFromBelowRole) {
+            announceChange();
+            return true;
+        }
+
         if (role == ItemDeactivatedFromBelowRole) {
             announceChange();
             return true;
@@ -375,16 +381,13 @@ public:
                 this, &SelectorModel::openContextMenu);
     }
 
-    void announceChange()
-    {
-        m_changeListener(m_projectsModel.rootItem()->childAt(0)->data(0, PanelWidgetRole).value<QWidget *>());
-    }
-
     void updatePanel()
     {
-        announceChange();
+        ProjectItem *projectItem = m_projectsModel.rootItem()->childAt(0);
+        m_changeListener(projectItem->data(0, PanelWidgetRole).value<QWidget *>());
 
-        QModelIndex activeIndex = m_projectsModel.rootItem()->childAt(0)->activeIndex();
+        QModelIndex activeIndex = projectItem->activeIndex();
+        m_selectorTree->expandAll();
         m_selectorTree->selectionModel()->clear();
         m_selectorTree->selectionModel()->select(activeIndex, QItemSelectionModel::Select);
     }
@@ -481,9 +484,16 @@ ProjectWindow::ProjectWindow()
     selectorView->setWindowTitle(tr("Project Selector"));
     selectorView->setAutoFillBackground(true);
 
+    auto activeLabel = new QLabel(tr("Active Project"));
+    QFont font = activeLabel->font();
+    font.setBold(true);
+    font.setPointSizeF(font.pointSizeF() * 1.2);
+    activeLabel->setFont(font);
+
     auto innerLayout = new QVBoxLayout;
     innerLayout->setSpacing(10);
     innerLayout->setContentsMargins(14, innerLayout->spacing(), 14, 0);
+    innerLayout->addWidget(activeLabel);
     innerLayout->addWidget(selectorModel->m_projectSelection);
     innerLayout->addWidget(selectorModel->m_selectorTree);
 

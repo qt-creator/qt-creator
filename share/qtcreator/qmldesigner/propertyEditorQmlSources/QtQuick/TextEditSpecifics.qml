@@ -68,4 +68,8 @@ Column {
 
     TextInputSection {
     }
+
+    PaddingSection {
+        visible: minorQtQuickVersion > 5
+    }
 }

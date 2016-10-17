@@ -38,12 +38,14 @@
     \title Specifying Build Settings
 
     Different build configurations allow you to quickly switch between
-    different build settings. By default, \QC creates \b debug
-    and \b release build configurations. A debug build contains additional
+    different build settings. By default, \QC creates \e debug, \e release, and
+    \e profile build configurations. A debug build contains additional
     debug symbols that you need for debugging the application but that you
     can leave out from the release version. Generally, you use the debug
     configuration for testing and the release configuration for creating
-    the final installation file.
+    the final installation file. A profile configuration is an optimized release
+    build that is delivered with separate debug information. It is best suited
+    for analyzing applications.
 
     You specify build settings in the \uicontrol Projects mode.
     To add a new build configuration, click \uicontrol Add and select the type of

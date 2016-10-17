@@ -2999,6 +2999,8 @@ class DumperBase:
             return self.code in (TypeCodeIntegral, TypeCodeFloat, TypeCodeEnum)
 
         def alignment(self):
+            if self.code == TypeCodeTypedef:
+                return self.stripTypedefs().alignment()
             if self.isSimpleType():
                 if self.name == 'double':
                     return self.dumper.ptrSize() # Crude approximation.
@@ -3371,7 +3373,9 @@ class DumperBase:
                 builder.addField(ptrSize, 'Q' if ptrSize == 8 else 'I')
             elif c == 'P': # Pointer as Value
                 builder.addField(ptrSize, '%ss' % ptrSize)
-            elif c in ('q', 'Q', 'd'):
+            elif c in ('d'):
+                builder.addField(8, c, fieldType = 'double')
+            elif c in ('q', 'Q'):
                 builder.addField(8, c)
             elif c in ('i', 'I', 'f'):
                 builder.addField(4, c)

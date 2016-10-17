@@ -63,7 +63,7 @@ static CrumbleBarInfo createCrumbleBarInfoFromModelNode(const ModelNode &modelNo
 {
     CrumbleBarInfo crumbleBarInfo;
     crumbleBarInfo.displayName = componentIdForModelNode(modelNode);
-    crumbleBarInfo.fileName = currentDesignDocument()->textEditor()->document()->filePath().toString();
+    crumbleBarInfo.fileName = currentDesignDocument()->textEditor()->document()->filePath();
     crumbleBarInfo.modelNode = modelNode;
 
     return crumbleBarInfo;
@@ -87,7 +87,7 @@ CrumbleBar::~CrumbleBar()
     delete m_crumblePath;
 }
 
-void CrumbleBar::pushFile(const QString &fileName)
+void CrumbleBar::pushFile(const Utils::FileName &fileName)
 {
     if (m_isInternalCalled == false) {
         crumblePath()->clear();
@@ -102,7 +102,7 @@ void CrumbleBar::pushFile(const QString &fileName)
     CrumbleBarInfo crumbleBarInfo;
     crumbleBarInfo.fileName = fileName;
 
-    crumblePath()->pushElement(fileName.split(QLatin1String("/")).last(), QVariant::fromValue(crumbleBarInfo));
+    crumblePath()->pushElement(fileName.fileName(), QVariant::fromValue(crumbleBarInfo));
 
     m_isInternalCalled = false;
 
@@ -171,7 +171,7 @@ void CrumbleBar::onCrumblePathElementClicked(const QVariant &data)
 
     m_isInternalCalled = true;
     if (!clickedCrumbleBarInfo.modelNode.isValid()
-            && Utils::FileName::fromString(clickedCrumbleBarInfo.fileName) == currentDesignDocument()->fileName()) {
+            && clickedCrumbleBarInfo.fileName == currentDesignDocument()->fileName()) {
         nextFileIsCalledInternally();
         currentDesignDocument()->changeToDocumentModel();
         QmlDesignerPlugin::instance()->viewManager().setComponentViewToMaster();
@@ -179,8 +179,8 @@ void CrumbleBar::onCrumblePathElementClicked(const QVariant &data)
         showSaveDialog();
         crumblePath()->popElement();
         nextFileIsCalledInternally();
-        Core::EditorManager::openEditor(clickedCrumbleBarInfo.fileName, Core::Id(),
-                                        Core::EditorManager::DoNotMakeVisible);
+        Core::EditorManager::openEditor(clickedCrumbleBarInfo.fileName.toString(),
+            Core::Id(), Core::EditorManager::DoNotMakeVisible);
         if (clickedCrumbleBarInfo.modelNode.isValid()) {
             currentDesignDocument()->changeToSubComponent(clickedCrumbleBarInfo.modelNode);
             QmlDesignerPlugin::instance()->viewManager().setComponentNode(clickedCrumbleBarInfo.modelNode);

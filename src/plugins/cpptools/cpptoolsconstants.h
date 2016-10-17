@@ -49,6 +49,7 @@ const char CPPTOOLS_SETTINGSGROUP[] = "CppTools";
 const char LOWERCASE_CPPFILES_KEY[] = "LowerCaseFiles";
 enum { lowerCaseFilesDefault = 1 };
 const char CPPTOOLS_SORT_EDITOR_DOCUMENT_OUTLINE[] = "SortedMethodOverview";
+const char CPPTOOLS_SHOW_INFO_BAR_FOR_HEADER_ERRORS[] = "ShowInfoBarForHeaderErrors";
 const char CPPTOOLS_MODEL_MANAGER_PCH_USAGE[] = "PCHUsage";
 const char CPPTOOLS_SKIP_INDEXING_BIG_FILES[] = "SkipIndexingBigFiles";
 const char CPPTOOLS_INDEXER_FILE_SIZE_LIMIT[] = "IndexerFileSizeLimit";

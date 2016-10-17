@@ -452,7 +452,7 @@ ViewManager &DesignModeWidget::viewManager()
 void DesignModeWidget::setupNavigatorHistory(Core::IEditor *editor)
 {
     if (!m_keepNavigatorHistory)
-        addNavigatorHistoryEntry(editor->document()->filePath().toString());
+        addNavigatorHistoryEntry(editor->document()->filePath());
 
     const bool canGoBack = m_navigatorHistoryCounter > 0;
     const bool canGoForward = m_navigatorHistoryCounter < (m_navigatorHistory.size() - 1);
@@ -461,12 +461,12 @@ void DesignModeWidget::setupNavigatorHistory(Core::IEditor *editor)
     m_toolBar->setCurrentEditor(editor);
 }
 
-void DesignModeWidget::addNavigatorHistoryEntry(const QString &fileName)
+void DesignModeWidget::addNavigatorHistoryEntry(const Utils::FileName &fileName)
 {
     if (m_navigatorHistoryCounter > 0)
-        m_navigatorHistory.insert(m_navigatorHistoryCounter + 1, fileName);
+        m_navigatorHistory.insert(m_navigatorHistoryCounter + 1, fileName.toString());
     else
-        m_navigatorHistory.append(fileName);
+        m_navigatorHistory.append(fileName.toString());
 
     ++m_navigatorHistoryCounter;
 }

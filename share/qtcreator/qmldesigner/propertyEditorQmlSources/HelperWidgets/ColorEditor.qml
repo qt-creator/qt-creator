@@ -190,8 +190,9 @@ Column {
                 ButtonRowButton {
                     iconSource: "images/icon_color_solid.png"
                     onClicked: {
-                        colorEditor.backendValue.resetValue()
                         gradientLine.deleteGradient()
+                        textField.text = colorEditor.color
+                        colorEditor.backendValue.resetValue()
                     }
                     tooltip: qsTr("Solid Color")
                 }

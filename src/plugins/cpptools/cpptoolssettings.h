@@ -63,8 +63,12 @@ public:
     bool sortedEditorDocumentOutline() const;
     void setSortedEditorDocumentOutline(bool sorted);
 
+    bool showHeaderErrorInfoBar() const;
+    void setShowHeaderErrorInfoBar(bool show);
+
 signals:
     void editorDocumentOutlineSortingChanged(bool isSorted);
+    void showHeaderErrorInfoBarChanged(bool isShown);
 
 private:
     Internal::CppToolsSettingsPrivate *d;

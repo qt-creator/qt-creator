@@ -321,7 +321,7 @@ void DesignDocument::changeToMaster()
     if (m_inFileComponentModel)
         changeToDocumentModel();
 
-    QmlDesignerPlugin::instance()->viewManager().pushFileOnCrumbleBar(fileName().toString());
+    QmlDesignerPlugin::instance()->viewManager().pushFileOnCrumbleBar(fileName());
     QmlDesignerPlugin::instance()->viewManager().setComponentNode(rootModelNode());
 }
 

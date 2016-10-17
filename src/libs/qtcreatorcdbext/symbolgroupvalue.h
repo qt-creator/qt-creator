@@ -71,6 +71,7 @@ public:
     SymbolGroupValue operator[](const char *name) const;
     SymbolGroupValue operator[](unsigned) const;
     unsigned childCount() const;
+    ULONG64 offsetOfChild(const SymbolGroupValue &child) const;
     SymbolGroupValue parent() const;
     // take address and cast to desired (pointer) type
     SymbolGroupValue typeCast(const char *type) const;

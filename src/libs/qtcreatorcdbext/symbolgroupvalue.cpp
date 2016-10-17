@@ -154,6 +154,15 @@ int SymbolGroupValue::readIntegerFromAncestor(const std::string &name, int defau
     return readPODFromAncestor<int>(name, defaultValue);
 }
 
+ULONG64 SymbolGroupValue::offsetOfChild(const SymbolGroupValue &child) const
+{
+    const ULONG64 base = isPointerType(type()) ? pointerValue() : address();
+    const ULONG64 childAddress = child.address();
+    if (base == 0 || childAddress == 0)
+        return 0;
+    return childAddress - base;
+}
+
 LONG64 SymbolGroupValue::offsetOfAncestor(const std::string &name) const
 {
     return infoOfAncestor(name).offset;
@@ -204,7 +213,7 @@ SymbolAncestorInfo SymbolGroupValue::infoOfAncestor(const std::string &name) con
                     continue;
                 info = child.infoOfAncestor(name);
                 if (info.isValid()) {
-                    info.offset += offsetOfAncestor(child.name());
+                    info.offset += offsetOfChild(child);
                     break;
                 }
             }

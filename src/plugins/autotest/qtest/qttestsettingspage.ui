@@ -36,9 +36,6 @@
          <property name="title">
           <string>Benchmark Metrics</string>
          </property>
-         <property name="flat">
-          <bool>true</bool>
-         </property>
          <layout class="QVBoxLayout" name="verticalLayout_3">
           <item>
            <widget class="QRadioButton" name="walltimeRB">

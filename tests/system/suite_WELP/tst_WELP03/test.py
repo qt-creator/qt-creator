@@ -90,8 +90,7 @@ def main():
                 "Verifying: The example application is opened inside Help.")
     sendEvent("QCloseEvent", helpWidget)
     # assume the correct kit is selected, hit Configure Project
-    clickButton(waitForObject("{text='Configure Project' type='QPushButton' unnamed='1' visible='1'"
-                              "window=':Qt Creator_Core::Internal::MainWindow'}"))
+    clickButton(waitForObject(":Qt Creator.Configure Project_QPushButton"))
     test.verify(checkIfObjectExists("{column='0' container=':Qt Creator_Utils::NavigationTreeView'"
                                     " text='2dpainting' type='QModelIndex'}"),
                 "Verifying: The project is shown in 'Edit' mode.")
@@ -124,8 +123,7 @@ def main():
                 "Verifying: The example application is opened inside Help.")
     sendEvent("QCloseEvent", helpWidget)
     # assume the correct kit is selected, hit Configure Project
-    clickButton(waitForObject("{text='Configure Project' type='QPushButton' unnamed='1' visible='1'"
-                              "window=':Qt Creator_Core::Internal::MainWindow'}"))
+    clickButton(waitForObject(":Qt Creator.Configure Project_QPushButton"))
     # close second example application
     test.verify(checkIfObjectExists("{column='0' container=':Qt Creator_Utils::NavigationTreeView'"
                                     " text='propertyanimation' type='QModelIndex'}", False) and

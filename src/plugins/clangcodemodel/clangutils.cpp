@@ -38,7 +38,6 @@
 
 #include <QDir>
 #include <QFile>
-#include <QRegularExpression>
 #include <QStringList>
 
 using namespace ClangCodeModel;
@@ -100,7 +99,7 @@ public:
 
         optionsBuilder.addPredefinedMacrosAndHeaderPathsOptions();
         optionsBuilder.addWrappedQtHeadersIncludePath();
-        optionsBuilder.addHeaderPathOptions(/*addAsNativePath*/ true);
+        optionsBuilder.addHeaderPathOptions();
         optionsBuilder.addProjectConfigFileInclude();
 
         optionsBuilder.addMsvcCompatibilityVersion();
@@ -118,18 +117,12 @@ private:
 
     bool excludeHeaderPath(const QString &path) const override
     {
-        if (path.contains(QLatin1String("lib/gcc/i686-apple-darwin")))
-            return true;
+        if (m_projectPart.toolchainType == ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID) {
+            if (path.contains(QLatin1String("lib/gcc/i686-apple-darwin")))
+                return true;
+        }
 
-        // We already provide a custom clang include path matching the used libclang version,
-        // so better ignore the clang include paths from the system as this might lead to an
-        // unfavorable order with regard to include_next.
-        static QRegularExpression clangIncludeDir(
-                    QLatin1String("\\A.*/lib/clang/\\d+\\.\\d+(\\.\\d+)?/include\\z"));
-        if (clangIncludeDir.match(path).hasMatch())
-            return true;
-
-        return false;
+        return CompilerOptionsBuilder::excludeHeaderPath(path);
     }
 
     void addPredefinedMacrosAndHeaderPathsOptions()

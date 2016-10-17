@@ -1061,6 +1061,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     connect(ICore::instance(), &ICore::saveSettingsRequested,
             dd, &ProjectExplorerPluginPrivate::savePersistentSettings);
+    connect(EditorManager::instance(), &EditorManager::autoSaved, this, [this] {
+        if (!dd->m_shuttingDown && !SessionManager::loadingSession())
+            SessionManager::save();
+    });
 
     addAutoReleasedObject(new ProjectTreeWidgetFactory);
     addAutoReleasedObject(new FolderNavigationWidgetFactory);
@@ -1518,11 +1522,7 @@ void ProjectExplorerPlugin::openNewProjectDialog()
 
 void ProjectExplorerPluginPrivate::showSessionManager()
 {
-    if (SessionManager::isDefaultVirgin()) {
-        // do not save new virgin default sessions
-    } else {
-        SessionManager::save();
-    }
+    SessionManager::save();
     SessionDialog sessionDialog(ICore::mainWindow());
     sessionDialog.setAutoLoadSession(dd->m_projectExplorerSettings.autorestoreLastSession);
     sessionDialog.exec();
@@ -1551,11 +1551,7 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
         foreach (Project *pro, SessionManager::projects())
             pro->saveSettings();
 
-        if (SessionManager::isDefaultVirgin()) {
-            // do not save new virgin default sessions
-        } else {
-            SessionManager::save();
-        }
+        SessionManager::save();
     }
 
     QSettings *s = ICore::settings();

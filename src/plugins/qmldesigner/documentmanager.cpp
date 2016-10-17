@@ -270,8 +270,7 @@ DocumentManager::DocumentManager()
 
 DocumentManager::~DocumentManager()
 {
-    foreach (const QPointer<DesignDocument> &designDocument, m_designDocumentHash)
-        delete designDocument.data();
+    qDeleteAll(m_designDocumentHash);
 }
 
 void DocumentManager::setCurrentDesignDocument(Core::IEditor *editor)
@@ -299,7 +298,7 @@ bool DocumentManager::hasCurrentDesignDocument() const
     return m_currentDesignDocument.data();
 }
 
-void DocumentManager::removeEditors(QList<Core::IEditor *> editors)
+void DocumentManager::removeEditors(const QList<Core::IEditor *> &editors)
 {
     foreach (Core::IEditor *editor, editors)
         delete m_designDocumentHash.take(editor).data();

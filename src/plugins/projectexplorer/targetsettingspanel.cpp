@@ -212,6 +212,7 @@ public:
 
     void handleRemovedKit(Kit *kit);
     void handleAddedKit(Kit *kit);
+    void handleUpdatedKit(Kit *kit);
 
     void handleTargetAdded(Target *target);
     void handleTargetRemoved(Target *target);
@@ -755,6 +756,8 @@ TargetGroupItemPrivate::TargetGroupItemPrivate(TargetGroupItem *q, Project *proj
             this, &TargetGroupItemPrivate::handleAddedKit);
     connect(KitManager::instance(), &KitManager::kitRemoved,
             this, &TargetGroupItemPrivate::handleRemovedKit);
+    connect(KitManager::instance(), &KitManager::kitUpdated,
+            this, &TargetGroupItemPrivate::handleUpdatedKit);
 
     rebuildContents();
 }
@@ -789,7 +792,7 @@ QVariant TargetGroupItem::data(int column, int role) const
 bool TargetGroupItem::setData(int column, const QVariant &data, int role)
 {
     Q_UNUSED(data)
-    if (role == ItemActivatedFromBelowRole) {
+    if (role == ItemActivatedFromBelowRole || role == ItemUpdatedFromBelowRole) {
         // Bubble up to trigger setting the active project.
         parent()->setData(column, QVariant::fromValue(static_cast<TreeItem *>(this)), role);
         return true;
@@ -823,9 +826,16 @@ void TargetGroupItemPrivate::handleRemovedKit(Kit *kit)
     rebuildContents();
 }
 
+void TargetGroupItemPrivate::handleUpdatedKit(Kit *kit)
+{
+    Q_UNUSED(kit);
+    rebuildContents();
+}
+
 void TargetGroupItemPrivate::handleAddedKit(Kit *kit)
 {
-    q->appendChild(new TargetItem(m_project, kit->id()));
+    if (m_project->supportsKit(kit))
+        q->appendChild(new TargetItem(m_project, kit->id()));
 }
 
 void TargetItem::updateSubItems()
@@ -843,8 +853,14 @@ void TargetGroupItemPrivate::rebuildContents()
 {
     q->removeChildren();
 
-    foreach (Kit *kit, KitManager::sortKits(KitManager::kits()))
+    KitMatcher matcher([this](const Kit *kit) { return m_project->supportsKit(const_cast<Kit *>(kit)); });
+    const QList<Kit *> kits = KitManager::sortKits(KitManager::matchingKits(matcher));
+    for (Kit *kit : kits)
         q->appendChild(new TargetItem(m_project, kit->id()));
+
+    if (q->parent())
+        q->parent()->setData(0, QVariant::fromValue(static_cast<TreeItem *>(q)),
+                             ItemUpdatedFromBelowRole);
 }
 
 void TargetGroupItemPrivate::handleTargetAdded(Target *target)

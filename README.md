@@ -19,6 +19,9 @@ Prerequisites:
     * ActiveState Active Perl
     * MinGW with g++ 4.8 or Visual Studio 2015 or later
     * jom
+
+  The optional Clang code model requires LLVM. A manual build of it requires in addition:
+    * cmake
 * On Mac OS X: latest Xcode
 * On Linux: g++ 4.8 or later
 * LLVM 3.8.0 or later (optional, needed for the Clang Code Model)
@@ -118,9 +121,32 @@ For detailed information on the supported compilers, see
        command...` error. If a `sh.exe` is found, the compile process will fail.
        You have to remove it from the path.
 
-  10.  To enable the Clang-based code model: Install Clang (>= version 3.8.0)
-       and set the environment variable LLVM_INSTALL_DIR to point to the
+   10. As of Qt Creator 4.2, a complete build of LLVM and Clang is required
+       to enable the Clang-based code model (recommmended: 3.9). For 32bit,
+       a pre-built package can be downloaded from:
+       https://download.qt.io/development_releases/prebuilt/libclang/.
+       The environment variable LLVM_INSTALL_DIR needs to be set to point to the
        installation location.
+       It is also possible to build Clang manually, roughly following the
+       instructions at http://llvm.org/docs/GettingStarted.html#git-mirror .
+       * Clone LLVM
+             git clone http://llvm.org/git/llvm.git
+       * Switch to a suitable branch, for example, release_39
+             cd llvm
+             git checkout -b release_39
+       * Clone Clang under llvm\tools
+             cd tools
+             git clone http://llvm.org/git/clang.git
+       * Switch Clang to a suitable branch
+             cd clang
+             git checkout -b release_39
+       * Create a shadow build directory and build
+             cd ..\..\..
+             mkdir build
+             cd build
+             cmake -G "NMake Makefiles JOM" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=<installation location> -DLLVM_ENABLE_RTTI=ON ..\llvm
+             jom install
+
 
   11.  You are now ready to configure and build Qt and Qt Creator.
        Please see <https://wiki.qt.io/Building_Qt_5_from_Git> for

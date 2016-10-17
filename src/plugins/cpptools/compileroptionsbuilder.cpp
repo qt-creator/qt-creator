@@ -28,6 +28,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <QDir>
+#include <QRegularExpression>
 
 namespace CppTools {
 
@@ -100,7 +101,7 @@ void CompilerOptionsBuilder::enableExceptions()
     add(QLatin1String("-fexceptions"));
 }
 
-void CompilerOptionsBuilder::addHeaderPathOptions(bool addAsNativePath)
+void CompilerOptionsBuilder::addHeaderPathOptions()
 {
     typedef ProjectPartHeaderPath HeaderPath;
     const QString defaultPrefix = includeOption();
@@ -126,10 +127,7 @@ void CompilerOptionsBuilder::addHeaderPathOptions(bool addAsNativePath)
             break;
         }
 
-        QString path = prefix + headerPath.path;
-        path = addAsNativePath ? QDir::toNativeSeparators(path) : path;
-
-        result.append(path);
+        result.append(prefix + QDir::toNativeSeparators(headerPath.path));
     }
 
     m_options.append(result);
@@ -393,7 +391,15 @@ bool CompilerOptionsBuilder::excludeDefineLine(const QByteArray &defineLine) con
 
 bool CompilerOptionsBuilder::excludeHeaderPath(const QString &headerPath) const
 {
-    Q_UNUSED(headerPath);
+    // A clang tool chain might have another version and passing in the
+    // intrinsics path from that version will lead to errors (unknown
+    // intrinsics, unfavorable order with regard to include_next).
+    if (m_projectPart.toolchainType == ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID) {
+        static QRegularExpression clangIncludeDir(
+                    QLatin1String("\\A.*/lib/clang/\\d+\\.\\d+(\\.\\d+)?/include\\z"));
+        return clangIncludeDir.match(headerPath).hasMatch();
+    }
+
     return false;
 }
 

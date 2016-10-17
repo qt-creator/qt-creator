@@ -60,7 +60,7 @@ Section {
             text: qsTr("Font")
         }
         FontComboBox {
-            backendValue: fontFamily
+            backendValue: fontSection.fontFamily
             Layout.fillWidth: true
         }
 
@@ -143,6 +143,30 @@ Section {
         }
 
         Label {
+            text: qsTr("Font capitalization")
+            toolTip: qsTr("Sets the capitalization for the text.")
+        }
+
+        ComboBox {
+            Layout.fillWidth: true
+            backendValue: backendValues.font_capitalization
+            model:  ["MixedCase", "AllUppercase", "AllLowercase", "SmallCaps", "Capitalize"]
+            scope: "Font"
+        }
+
+        Label {
+            text: qsTr("Font weight")
+            toolTip: qsTr("Sets the font's weight.")
+        }
+
+        ComboBox {
+            Layout.fillWidth: true
+            backendValue: backendValues.font_weight
+            model:  ["Normal", "Light", "ExtraLight", "Thin", "Medium", "DemiBold", "Bold", "ExtraBold", "Black"]
+            scope: "Font"
+        }
+
+        Label {
             visible: showStyle
             text: qsTr("Style")
         }
@@ -153,6 +177,42 @@ Section {
             backendValue: (backendValues.style === undefined) ? dummyBackendValue : backendValues.style
             model:  ["Normal", "Outline", "Raised", "Sunken"]
             scope: "Text"
+        }
+
+        Label {
+            text: qsTr("Spacing")
+        }
+
+        SecondColumnLayout {
+            Label {
+                text: qsTr("Word")
+                tooltip: qsTr("Sets the word spacing for the font.")
+                width: 42
+            }
+            SpinBox {
+                maximumValue: 9999999
+                minimumValue: -9999999
+                decimals: 0
+                backendValue: backendValues.font_wordSpacing
+                Layout.fillWidth: true
+            }
+            Item {
+                width: 4
+                height: 4
+            }
+
+            Label {
+                text: qsTr("Letter")
+                tooltip: qsTr("Sets the letter spacing for the font.")
+                width: 42
+            }
+            SpinBox {
+                maximumValue: 9999999
+                minimumValue: -9999999
+                decimals: 0
+                backendValue: backendValues.font_letterSpacing
+                Layout.fillWidth: true
+            }
         }
     }
 }

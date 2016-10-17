@@ -80,9 +80,6 @@ PropertyEditorContextObject::PropertyEditorContextObject(QObject *parent) :
     m_isBaseState(false),
     m_selectionChanged(false),
     m_backendValues(0),
-    m_majorVersion(-1),
-    m_minorVersion(-1),
-    m_majorQtQuickVersion(-1),
     m_qmlComponent(0),
     m_qmlContext(0)
 {
@@ -167,7 +164,12 @@ int PropertyEditorContextObject::majorVersion() const
 
 int PropertyEditorContextObject::majorQtQuickVersion() const
 {
-      return m_majorQtQuickVersion;
+    return m_majorQtQuickVersion;
+}
+
+int PropertyEditorContextObject::minorQtQuickVersion() const
+{
+    return m_minorQtQuickVersion;
 }
 
 void PropertyEditorContextObject::setMajorVersion(int majorVersion)
@@ -189,6 +191,16 @@ void PropertyEditorContextObject::setMajorQtQuickVersion(int majorVersion)
 
     emit majorQtQuickVersionChanged();
 
+}
+
+void PropertyEditorContextObject::setMinorQtQuickVersion(int minorVersion)
+{
+    if (m_minorQtQuickVersion == minorVersion)
+        return;
+
+    m_minorQtQuickVersion = minorVersion;
+
+    emit minorQtQuickVersionChanged();
 }
 
 int PropertyEditorContextObject::minorVersion() const

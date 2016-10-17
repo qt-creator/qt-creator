@@ -15,7 +15,6 @@ QtcPlugin {
         "bookmark.h",
         "bookmarkmanager.cpp",
         "bookmarkmanager.h",
-        "bookmarks.qrc",
         "bookmarks_global.h",
         "bookmarksplugin.cpp",
         "bookmarksplugin.h",

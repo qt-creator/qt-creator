@@ -7035,8 +7035,8 @@ QWidget *BaseTextEditor::toolBar()
     return editorWidget()->d->m_toolBar;
 }
 
-void TextEditorWidget::insertExtraToolBarWidget(TextEditorWidget::Side side,
-                                              QWidget *widget)
+QAction * TextEditorWidget::insertExtraToolBarWidget(TextEditorWidget::Side side,
+                                                     QWidget *widget)
 {
     if (widget->sizePolicy().horizontalPolicy() & QSizePolicy::ExpandFlag) {
         if (d->m_stretchWidget)
@@ -7045,9 +7045,9 @@ void TextEditorWidget::insertExtraToolBarWidget(TextEditorWidget::Side side,
     }
 
     if (side == Right)
-        d->m_toolBar->insertWidget(d->m_cursorPositionLabelAction, widget);
+        return d->m_toolBar->insertWidget(d->m_cursorPositionLabelAction, widget);
     else
-        d->m_toolBar->insertWidget(d->m_toolBar->actions().first(), widget);
+        return d->m_toolBar->insertWidget(d->m_toolBar->actions().first(), widget);
 }
 
 void TextEditorWidget::keepAutoCompletionHighlight(bool keepHighlight)

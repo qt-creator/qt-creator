@@ -25,8 +25,8 @@
 
 source("../../shared/qtcreator.py")
 
-cloneUrl = "https://codereview.qt-project.org/p/qt-labs/jom"
-cloneDir = "myCloneOfJom"
+cloneUrl = "https://code.qt.io/installer-framework/installer-framework.git"
+cloneDir = "myCloneOfIfw"
 
 def verifyCloneLog(targetDir, canceled):
     if canceled:
@@ -39,8 +39,7 @@ def verifyCloneLog(targetDir, canceled):
             test.warning("Cloning failed outside Creator.")
             return False
         # test for QTCREATORBUG-10112
-        test.compare(cloneLog.count("remote: Counting objects:"), 1)
-        test.compare(cloneLog.count("remote: Finding sources:"), 1)
+        test.compare(cloneLog.count("remote: Total"), 1)
         test.compare(cloneLog.count("Receiving objects:"), 1)
         test.compare(cloneLog.count("Resolving deltas:"), 1)
         test.verify(not "Stopping..." in cloneLog,
@@ -75,9 +74,9 @@ def verifyVersionControlView(targetDir, canceled):
     clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
 
 def verifyFiles(targetDir):
-    for file in [".gitignore", "CMakeLists.txt", "jom.pro",
-                 os.path.join("bin", "ibjom.bat"),
-                 os.path.join("src", "app", "main.cpp")]:
+    for file in [".gitignore", "LGPL_EXCEPTION.txt", "installerfw.pro",
+                 os.path.join("tests", "test-installer", "create-test-installer.bat"),
+                 os.path.join("src", "sdk", "main.cpp")]:
         test.verify(os.path.exists(os.path.join(targetDir, cloneDir, file)),
                     "Verify the existence of %s" % file)
 
@@ -95,7 +94,7 @@ def main():
         replaceEditorContent(waitForObject(":Working Copy_Utils::BaseValidatingLineEdit"),
                              targetDir)
         cloneDirEdit = waitForObject("{name='Dir' type='QLineEdit' visible='1'}")
-        test.compare(cloneDirEdit.text, "jom")
+        test.compare(cloneDirEdit.text, "installer-framework")
         replaceEditorContent(cloneDirEdit, cloneDir)
         clickButton(waitForObject(":Next_QPushButton"))
         cloneLog = waitForObject(":Git Repository Clone.logPlainTextEdit_QPlainTextEdit", 1000)
@@ -124,12 +123,12 @@ def main():
             if button == ":Git Repository Clone.Finish_QPushButton":
                 try:
                     # Projects mode shown
-                    clickButton(waitForObject(":*Qt Creator.Cancel_QPushButton", 5000))
+                    clickButton(waitForObject(":Qt Creator.Configure Project_QPushButton", 5000))
                     test.passes("The checked out project was being opened.")
                 except:
                     clickButton(waitForObject(":Cannot Open Project.Show Details..._QPushButton"))
                     test.fail("The checked out project was not being opened.",
-                              waitForObject(":Cannot Open Project_QTextEdit").plainText)
+                              str(waitForObject(":Cannot Open Project_QTextEdit").plainText))
                     clickButton(waitForObject(":Cannot Open Project.OK_QPushButton"))
         verifyVersionControlView(targetDir, button == "Cancel immediately")
     invokeMenuItem("File", "Exit")

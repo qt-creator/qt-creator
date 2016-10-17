@@ -36,6 +36,8 @@ Column {
         showIsWrapping: true
         showVerticalAlignment: true
         showFormatProperty: true
+        showElide: true
+        showFontSizeMode: true
     }
 
     Section {
@@ -65,5 +67,9 @@ Column {
 
    FontSection {
        showStyle: true
+   }
+
+   PaddingSection {
+       visible: minorQtQuickVersion > 5
    }
 }

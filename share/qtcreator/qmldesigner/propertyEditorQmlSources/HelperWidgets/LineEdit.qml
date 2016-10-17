@@ -108,7 +108,7 @@ Controls.TextField {
 
         selectionColor: creatorTheme.PanelTextColorLight
         selectedTextColor: creatorTheme.PanelTextColorMid
-        textColor: creatorTheme.PanelTextColorLight
+        textColor: lineEdit.textColor
         placeholderTextColor: creatorTheme.PanelTextColorMid
 
         padding.top: 3

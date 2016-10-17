@@ -322,7 +322,7 @@ public:
     bool isMissingSyntaxDefinition() const;
 
     enum Side { Left, Right };
-    void insertExtraToolBarWidget(Side side, QWidget *widget);
+    QAction *insertExtraToolBarWidget(Side side, QWidget *widget);
 
     // keep the auto completion even if the focus is lost
     void keepAutoCompletionHighlight(bool keepHighlight);

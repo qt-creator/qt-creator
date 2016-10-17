@@ -185,6 +185,7 @@ signals:
     void editorsClosed(QList<Core::IEditor *> editors);
     void findOnFileSystemRequest(const QString &path);
     void aboutToSave(IDocument *document);
+    void autoSaved();
 
 public slots:
     static void saveDocument();

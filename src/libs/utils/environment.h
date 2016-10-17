@@ -100,7 +100,9 @@ public:
     Environment::const_iterator constFind(const QString &name) const;
 
     FileName searchInPath(const QString &executable,
-                          const QStringList &additionalDirs = QStringList()) const;
+                          const QStringList &additionalDirs = QStringList(),
+                          bool (*func)(const QString &name) = nullptr) const;
+
     QStringList path() const;
     QStringList appendExeExtensions(const QString &executable) const;
 

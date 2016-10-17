@@ -33,9 +33,11 @@ Section {
     caption: qsTr("Text")
 
     property bool showIsWrapping: false
+    property bool showElide: false
     property bool showVerticalAlignment: false
     property bool useLineEdit: true
     property bool showFormatProperty: false
+    property bool showFontSizeMode: false
 
     SectionLayout {
         columns: 2
@@ -60,6 +62,19 @@ Section {
             backendValue: backendValues.wrapMode
             scope: "Text"
             model: ["NoWrap", "WordWrap", "WrapAnywhere", "WrapAtWordBoundaryOrAnywhere"]
+        }
+
+        Label {
+            visible: showElide
+            text: qsTr("Elide")
+        }
+
+        ComboBox {
+            visible: showElide
+            Layout.fillWidth: true
+            backendValue: backendValues.elide
+            scope: "Text"
+            model: ["ElideNone", "ElideLeft", "ElideMiddle", "ElideRight"]
         }
 
         Label {
@@ -89,6 +104,28 @@ Section {
             visible: showFormatProperty
             model:  ["PlainText", "RichText", "AutoText"]
             backendValue: backendValues.textFormat
+            Layout.fillWidth: true
+        }
+
+        Label {
+            text: qsTr("Render type")
+            toolTip: qsTr("Override the default rendering type for this item.")
+        }
+        ComboBox {
+            scope: "Text"
+            model:  ["QtRendering", "NativeRendering"]
+            backendValue: backendValues.renderType
+            Layout.fillWidth: true
+        }
+
+        Label {
+            text: qsTr("Font size mode")
+            toolTip: qsTr("Specifies how the font size of the displayed text is determined.")
+        }
+        ComboBox {
+            scope: "Text"
+            model:  ["FixedSize", "HorizontalFit", "VerticalFit", "Fit"]
+            backendValue: backendValues.fontSizeMode
             Layout.fillWidth: true
         }
     }

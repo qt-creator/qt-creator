@@ -71,10 +71,10 @@ static bool importLess(const Import &firstImport, const Import &secondImport)
         return false;
 
     if (firstImport.isLibraryImport() && secondImport.isFileImport())
-        return true;
+        return false;
 
     if (firstImport.isFileImport() && secondImport.isLibraryImport())
-        return false;
+        return true;
 
     if (firstImport.isFileImport() && secondImport.isFileImport())
         return QString::localeAwareCompare(firstImport.file(), secondImport.file()) < 0;

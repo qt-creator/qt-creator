@@ -69,7 +69,8 @@ ShortCutManager::ShortCutManager()
     m_restoreDefaultViewAction(tr("&Restore Default View"), 0),
     m_toggleLeftSidebarAction(tr("Toggle &Left Sidebar"), 0),
     m_toggleRightSidebarAction(tr("Toggle &Right Sidebar"), 0),
-    m_goIntoComponentAction (tr("&Go into Component"), 0)
+    m_goIntoComponentAction(tr("&Go into Component"), 0),
+    m_escapeAction(this)
 {
 
 }
@@ -217,6 +218,11 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
     command = Core::ActionManager::registerAction(&m_restoreDefaultViewAction,  Constants::RESTORE_DEFAULT_VIEW, qmlDesignerMainContext);
     command->setAttribute(Core::Command::CA_Hide);
     viewsMenu->addAction(command);
+
+    /* Registering disabled action for Escape, because Qt Quick does not support shortcut overrides. */
+    command = Core::ActionManager::registerAction(&m_escapeAction, Core::Constants::S_RETURNTOEDITOR, qmlDesignerMainContext);
+    command->setDefaultKeySequence(QKeySequence(Qt::Key_Escape));
+    m_escapeAction.setEnabled(false);
 
     Core::ActionManager::registerAction(&m_hideSidebarsAction, Core::Constants::TOGGLE_SIDEBAR, qmlDesignerMainContext);
 }

@@ -353,7 +353,8 @@ def qdump__QDateTime(d, value):
 
 
 def qdump__QDir(d, value):
-    d.putNumChild(1)
+    if not d.isMsvcTarget():
+        d.putNumChild(1)
     privAddress = d.extractPointer(value)
     bit32 = d.ptrSize() == 4
     qt5 = d.qtVersion() >= 0x050000
@@ -424,7 +425,7 @@ def qdump__QDir(d, value):
         absoluteDirEntryOffset = dirEntryOffset + fileSystemEntrySize
 
     d.putStringValue(privAddress + dirEntryOffset)
-    if d.isExpanded():
+    if d.isExpanded() and not d.isMsvcTarget():
         with Children(d):
             ns = d.qtNamespace()
             d.call('int', value, 'count')  # Fill cache.
@@ -1042,7 +1043,7 @@ def qdump__QPixmap(d, value):
     else:
         (dummy, width, height) = d.split('pii', dataPtr)
         d.putValue('(%dx%d)' % (width, height))
-    d.putNumChild(0)
+    d.putPlainChildren(value)
 
 
 def qdump__QPoint(d, value):
