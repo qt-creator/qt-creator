@@ -127,10 +127,11 @@ void CompilerOptionsBuilder::addHeaderPathOptions(bool addAsNativePath)
             break;
         }
 
-        QString path = prefix + headerPath.path;
-        path = addAsNativePath ? QDir::toNativeSeparators(path) : path;
+        const QString path = addAsNativePath
+                ? QDir::toNativeSeparators(headerPath.path)
+                : headerPath.path;
 
-        result.append(path);
+        result.append(prefix + path);
     }
 
     m_options.append(result);
