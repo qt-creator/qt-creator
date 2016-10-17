@@ -30,6 +30,7 @@ HEADERS = builddirmanager.h \
     cmakeautocompleter.h \
     configmodel.h \
     configmodelitemdelegate.h \
+    servermode.h \
     tealeafreader.h
 
 SOURCES = builddirmanager.cpp \
@@ -58,6 +59,7 @@ SOURCES = builddirmanager.cpp \
     cmakeautocompleter.cpp \
     configmodel.cpp \
     configmodelitemdelegate.cpp \
+    servermode.cpp \
     tealeafreader.cpp
 
 RESOURCES += cmakeproject.qrc

@@ -74,6 +74,8 @@ QtcPlugin {
         "configmodel.h",
         "configmodelitemdelegate.cpp",
         "configmodelitemdelegate.h",
+        "servermode.cpp",
+        "servermode.h",
         "tealeafreader.cpp",
         "tealeafreader.h"
     ]
