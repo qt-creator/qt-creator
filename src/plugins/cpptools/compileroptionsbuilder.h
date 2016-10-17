@@ -44,6 +44,7 @@ public:
     void addDefine(const QByteArray &defineDirective);
 
     // Add options based on project part
+    void addWordWidth();
     virtual void addTargetTriple();
     virtual void enableExceptions();
     void addHeaderPathOptions();

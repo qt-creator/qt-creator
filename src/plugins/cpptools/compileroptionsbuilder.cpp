@@ -87,6 +87,14 @@ void CompilerOptionsBuilder::addDefine(const QByteArray &defineDirective)
     m_options.append(defineDirectiveToDefineOption(defineDirective));
 }
 
+void CompilerOptionsBuilder::addWordWidth()
+{
+    const QString argument = m_projectPart.toolChainWordWidth == ProjectPart::WordWidth64Bit
+            ? QLatin1String("-m64")
+            : QLatin1String("-m32");
+    add(argument);
+}
+
 void CompilerOptionsBuilder::addTargetTriple()
 {
     if (!m_projectPart.targetTriple.isEmpty()) {

@@ -89,6 +89,7 @@ public:
 
         LibClangOptionsBuilder optionsBuilder(*projectPart.data());
 
+        optionsBuilder.addWordWidth();
         optionsBuilder.addTargetTriple();
         optionsBuilder.addLanguageOption(fileKind);
         optionsBuilder.addOptionsForLanguage(/*checkForBorlandExtensions*/ true);

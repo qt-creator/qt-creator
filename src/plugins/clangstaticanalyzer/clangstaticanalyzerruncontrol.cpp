@@ -86,18 +86,18 @@ ClangStaticAnalyzerRunControl::ClangStaticAnalyzerRunControl(
 
     ToolChain *toolChain = ToolChainKitInformation::toolChain(target->kit(), ToolChain::Language::Cxx);
     QTC_ASSERT(toolChain, return);
-    m_extraToolChainInfo.wordWidth = toolChain->targetAbi().wordWidth();
-    m_extraToolChainInfo.targetTriple = toolChain->originalTargetTriple();
+    m_targetTriple = toolChain->originalTargetTriple();
 }
 
-static void prependWordWidthArgumentIfNotIncluded(QStringList *arguments, unsigned char wordWidth)
+static void prependWordWidthArgumentIfNotIncluded(QStringList *arguments,
+                                                  ProjectPart::ToolChainWordWidth wordWidth)
 {
     QTC_ASSERT(arguments, return);
 
     const QString m64Argument = QLatin1String("-m64");
     const QString m32Argument = QLatin1String("-m32");
 
-    const QString argument = wordWidth == 64 ? m64Argument : m32Argument;
+    const QString argument = wordWidth == ProjectPart::WordWidth64Bit ? m64Argument : m32Argument;
     if (!arguments->contains(argument))
         arguments->prepend(argument);
 
@@ -165,11 +165,11 @@ class ClangStaticAnalyzerOptionsBuilder : public CompilerOptionsBuilder
 {
 public:
     static QStringList build(const CppTools::ProjectPart &projectPart,
-                             CppTools::ProjectFile::Kind fileKind,
-                             const ExtraToolChainInfo &extraParams)
+                             CppTools::ProjectFile::Kind fileKind)
     {
         ClangStaticAnalyzerOptionsBuilder optionsBuilder(projectPart);
 
+        optionsBuilder.addWordWidth();
         optionsBuilder.addTargetTriple();
         optionsBuilder.addLanguageOption(fileKind);
         optionsBuilder.addOptionsForLanguage(false);
@@ -195,10 +195,7 @@ public:
         if (type != ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
             optionsBuilder.add(QLatin1String("-fPIC")); // TODO: Remove?
 
-        QStringList options = optionsBuilder.options();
-        prependWordWidthArgumentIfNotIncluded(&options, extraParams.wordWidth);
-
-        return options;
+        return optionsBuilder.options();
     }
 
     ClangStaticAnalyzerOptionsBuilder(const CppTools::ProjectPart &projectPart)
@@ -325,11 +322,11 @@ static QStringList createHeaderPathsOptionsForClangOnMac(const ProjectPart &proj
 static QStringList tweakedArguments(const ProjectPart &projectPart,
                                     const QString &filePath,
                                     const QStringList &arguments,
-                                    const ExtraToolChainInfo &extraParams)
+                                    const QString &targetTriple)
 {
     QStringList newArguments = inputAndOutputArgumentsRemoved(filePath, arguments);
-    prependWordWidthArgumentIfNotIncluded(&newArguments, extraParams.wordWidth);
-    prependTargetTripleIfNotIncludedAndNotEmpty(&newArguments, extraParams.targetTriple);
+    prependWordWidthArgumentIfNotIncluded(&newArguments, projectPart.toolChainWordWidth);
+    prependTargetTripleIfNotIncludedAndNotEmpty(&newArguments, targetTriple);
     newArguments.append(createHeaderPathsOptionsForClangOnMac(projectPart));
     newArguments.append(createMsCompatibilityVersionOption(projectPart));
     newArguments.append(createOptionsToUndefineClangVersionMacrosForMsvc(projectPart));
@@ -341,7 +338,7 @@ static QStringList tweakedArguments(const ProjectPart &projectPart,
 static AnalyzeUnits unitsToAnalyzeFromCompilerCallData(
             const QHash<QString, ProjectPart::Ptr> &projectFileToProjectPart,
             const ProjectInfo::CompilerCallData &compilerCallData,
-            const ExtraToolChainInfo &extraParams)
+            const QString &targetTriple)
 {
     qCDebug(LOG) << "Taking arguments for analyzing from CompilerCallData.";
 
@@ -361,7 +358,7 @@ static AnalyzeUnits unitsToAnalyzeFromCompilerCallData(
                 const QStringList arguments = tweakedArguments(*projectPart,
                                                                file,
                                                                options,
-                                                               extraParams);
+                                                               targetTriple);
                 unitsToAnalyze << AnalyzeUnit(file, arguments);
             }
         }
@@ -370,8 +367,7 @@ static AnalyzeUnits unitsToAnalyzeFromCompilerCallData(
     return unitsToAnalyze;
 }
 
-static AnalyzeUnits unitsToAnalyzeFromProjectParts(const QList<ProjectPart::Ptr> projectParts,
-                                                   const ExtraToolChainInfo &extraParams)
+static AnalyzeUnits unitsToAnalyzeFromProjectParts(const QList<ProjectPart::Ptr> projectParts)
 {
     qCDebug(LOG) << "Taking arguments for analyzing from ProjectParts.";
 
@@ -387,9 +383,7 @@ static AnalyzeUnits unitsToAnalyzeFromProjectParts(const QList<ProjectPart::Ptr>
             QTC_CHECK(file.kind != ProjectFile::Unclassified);
             if (ProjectFile::isSource(file.kind)) {
                 const QStringList arguments
-                    = ClangStaticAnalyzerOptionsBuilder::build(*projectPart.data(),
-                                                               file.kind,
-                                                               extraParams);
+                    = ClangStaticAnalyzerOptionsBuilder::build(*projectPart.data(), file.kind);
                 unitsToAnalyze << AnalyzeUnit(file.path, arguments);
             }
         }
@@ -418,13 +412,13 @@ AnalyzeUnits ClangStaticAnalyzerRunControl::sortedUnitsToAnalyze()
     AnalyzeUnits units;
     const ProjectInfo::CompilerCallData compilerCallData = m_projectInfo.compilerCallData();
     if (compilerCallData.isEmpty()) {
-        units = unitsToAnalyzeFromProjectParts(m_projectInfo.projectParts(), m_extraToolChainInfo);
+        units = unitsToAnalyzeFromProjectParts(m_projectInfo.projectParts());
     } else {
         const QHash<QString, ProjectPart::Ptr> projectFileToProjectPart
                 = generateProjectFileToProjectPartMapping(m_projectInfo.projectParts());
         units = unitsToAnalyzeFromCompilerCallData(projectFileToProjectPart,
                                                    compilerCallData,
-                                                   m_extraToolChainInfo);
+                                                   m_targetTriple);
     }
 
     Utils::sort(units, &AnalyzeUnit::file);

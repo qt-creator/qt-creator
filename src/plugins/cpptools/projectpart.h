@@ -81,6 +81,11 @@ public: // Types
         Qt5 = 2
     };
 
+    enum ToolChainWordWidth {
+        WordWidth32Bit,
+        WordWidth64Bit,
+    };
+
     using Ptr = QSharedPointer<ProjectPart>;
 
 
@@ -103,6 +108,7 @@ public: // fields
     QByteArray projectDefines;
     QByteArray toolchainDefines;
     Core::Id toolchainType;
+    ToolChainWordWidth toolChainWordWidth;
     bool isMsvc2015Toolchain;
     QString targetTriple;
     ProjectPartHeaderPaths headerPaths;

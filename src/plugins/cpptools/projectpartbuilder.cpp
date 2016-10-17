@@ -343,6 +343,9 @@ void ProjectPartBuilder::evaluateProjectPartToolchain(
     projectPart->toolchainType = toolChain->typeId();
     projectPart->isMsvc2015Toolchain
             = toolChain->targetAbi().osFlavor() == ProjectExplorer::Abi::WindowsMsvc2015Flavor;
+    projectPart->toolChainWordWidth = toolChain->targetAbi().wordWidth() == 64
+            ? ProjectPart::WordWidth64Bit
+            : ProjectPart::WordWidth32Bit;
     projectPart->targetTriple = targetTriple(projectPart->project, toolChain->typeId());
     projectPart->updateLanguageFeatures();
 }

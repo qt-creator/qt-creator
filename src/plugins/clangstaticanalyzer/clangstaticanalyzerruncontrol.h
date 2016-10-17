@@ -47,11 +47,6 @@ struct AnalyzeUnit {
 };
 typedef QList<AnalyzeUnit> AnalyzeUnits;
 
-struct ExtraToolChainInfo {
-    unsigned char wordWidth = 0;
-    QString targetTriple;
-};
-
 class ClangStaticAnalyzerRunControl : public ProjectExplorer::RunControl
 {
     Q_OBJECT
@@ -88,7 +83,7 @@ private:
 
 private:
     const CppTools::ProjectInfo m_projectInfo;
-    ExtraToolChainInfo m_extraToolChainInfo;
+    QString m_targetTriple;
 
     Utils::Environment m_environment;
     QString m_clangExecutable;
