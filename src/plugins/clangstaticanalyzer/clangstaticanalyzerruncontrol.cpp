@@ -175,15 +175,8 @@ public:
         optionsBuilder.addOptionsForLanguage(false);
         optionsBuilder.enableExceptions();
 
-        // In gcc headers, lots of built-ins are referenced that clang does not understand.
-        // Therefore, prevent the inclusion of the header that references them. Of course, this
-        // will break if code actually requires stuff from there, but that should be the less common
-        // case.
+        optionsBuilder.addDefineToAvoidIncludingGccOrMinGwIntrinsics();
         const Core::Id type = projectPart.toolchainType;
-        if (type == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID
-                || type == ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID)
-            optionsBuilder.addDefine("#define _X86INTRIN_H_INCLUDED");
-
         if (type != ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
             optionsBuilder.addDefines(projectPart.toolchainDefines);
         optionsBuilder.addDefines(projectPart.projectDefines);

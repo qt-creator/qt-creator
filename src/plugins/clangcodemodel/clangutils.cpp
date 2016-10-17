@@ -95,6 +95,7 @@ public:
         optionsBuilder.addOptionsForLanguage(/*checkForBorlandExtensions*/ true);
         optionsBuilder.enableExceptions();
 
+        optionsBuilder.addDefineToAvoidIncludingGccOrMinGwIntrinsics();
         optionsBuilder.addToolchainAndProjectDefines();
         optionsBuilder.undefineCppLanguageFeatureMacrosForMsvc2015();
 

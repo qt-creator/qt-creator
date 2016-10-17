@@ -270,6 +270,20 @@ void CompilerOptionsBuilder::addOptionsForLanguage(bool checkForBorlandExtension
     m_options.append(opts);
 }
 
+void CompilerOptionsBuilder::addDefineToAvoidIncludingGccOrMinGwIntrinsics()
+{
+    // In gcc headers, lots of built-ins are referenced that clang does not understand.
+    // Therefore, prevent the inclusion of the header that references them. Of course, this
+    // will break if code actually requires stuff from there, but that should be the less common
+    // case.
+
+    const Core::Id type = m_projectPart.toolchainType;
+    if (type == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID
+            || type == ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID) {
+        addDefine("#define _X86INTRIN_H_INCLUDED");
+    }
+}
+
 static QByteArray toMsCompatibilityVersionFormat(const QByteArray &mscFullVer)
 {
     return mscFullVer.left(2)

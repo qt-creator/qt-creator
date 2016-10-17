@@ -53,6 +53,8 @@ public:
     virtual void addLanguageOption(ProjectFile::Kind fileKind);
     virtual void addOptionsForLanguage(bool checkForBorlandExtensions = true);
 
+    void addDefineToAvoidIncludingGccOrMinGwIntrinsics();
+
     void addMsvcCompatibilityVersion();
     void undefineCppLanguageFeatureMacrosForMsvc2015();
 
