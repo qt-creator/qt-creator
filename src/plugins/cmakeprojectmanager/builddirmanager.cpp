@@ -734,8 +734,9 @@ void BuildDirManager::checkConfiguration()
         QPointer<QMessageBox> box = new QMessageBox(Core::ICore::mainWindow());
         box->setText(tr("CMake configuration has changed on disk."));
         box->setInformativeText(tr("The CMakeCache.txt file has changed: %1").arg(table));
-        box->setStandardButtons(QMessageBox::Discard | QMessageBox::Apply);
-        box->setDefaultButton(QMessageBox::Discard);
+        auto *defaultButton = box->addButton(tr("Overwrite Changes in CMake"), QMessageBox::RejectRole);
+        box->addButton(tr("Apply Changes to Project"), QMessageBox::AcceptRole);
+        box->setDefaultButton(defaultButton);
 
         int ret = box->exec();
         if (ret == QMessageBox::Apply)
