@@ -101,7 +101,12 @@ bool IosDeployStep::init(QList<const BuildStep *> &earlierSteps)
                 this->target()->activeRunConfiguration());
     QTC_ASSERT(runConfig, return false);
     m_bundlePath = runConfig->bundleDirectory().toString();
-    if (m_device.isNull()) {
+
+    if (iosdevice()) {
+        m_deviceType = IosDeviceType(IosDeviceType::IosDevice, deviceId());
+    } else if (iossimulator()) {
+        m_deviceType = runConfig->deviceType();
+    } else {
         emit addOutput(tr("Error: no device available, deploy failed."),
                        BuildStep::ErrorMessageOutput);
         return false;
@@ -113,17 +118,15 @@ void IosDeployStep::run(QFutureInterface<bool> &fi)
 {
     m_futureInterface = fi;
     QTC_CHECK(m_transferStatus == NoTransfer);
-    if (iosdevice().isNull()) {
-        if (iossimulator().isNull())
-            TaskHub::addTask(Task::Error, tr("Deployment failed. No iOS device found."),
-                             ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
+    if (device().isNull()) {
+        TaskHub::addTask(Task::Error, tr("Deployment failed. No iOS device found."),
+                         ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
         reportRunResult(m_futureInterface, !iossimulator().isNull());
         cleanup();
         return;
     }
+    m_toolHandler = new IosToolHandler(m_deviceType, this);
     m_transferStatus = TransferInProgress;
-    QTC_CHECK(m_toolHandler == 0);
-    m_toolHandler = new IosToolHandler(IosDeviceType(IosDeviceType::IosDevice), this);
     m_futureInterface.setProgressRange(0, 200);
     m_futureInterface.setProgressValueAndText(0, QLatin1String("Transferring application"));
     m_futureInterface.reportStarted();
@@ -136,7 +139,7 @@ void IosDeployStep::run(QFutureInterface<bool> &fi)
     connect(m_toolHandler, &IosToolHandler::errorMsg,
             this, &IosDeployStep::handleErrorMsg);
     checkProvisioningProfile();
-    m_toolHandler->requestTransferApp(appBundle(), deviceId());
+    m_toolHandler->requestTransferApp(appBundle(), m_deviceType.identifier);
 }
 
 void IosDeployStep::cancel()
@@ -150,7 +153,7 @@ void IosDeployStep::cleanup()
     QTC_CHECK(m_transferStatus != TransferInProgress);
     m_transferStatus = NoTransfer;
     m_device.clear();
-    m_toolHandler = 0;
+    m_toolHandler = nullptr;
     m_expectFail = false;
 }
 

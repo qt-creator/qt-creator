@@ -67,10 +67,6 @@ public:
     typedef QSharedPointer<IosSimulator> Ptr;
     ProjectExplorer::IDevice::DeviceInfo deviceInformation() const override;
 
-    static QList<IosDeviceType> availableDevices();
-    static void setAvailableDevices(QList<IosDeviceType> value);
-    static void updateAvailableDevices();
-
     QString displayType() const override;
     ProjectExplorer::IDeviceWidget *createWidget() override;
     QList<Core::Id> actionIds() const override;
@@ -91,8 +87,6 @@ protected:
     IosSimulator(const IosSimulator &other);
 private:
     mutable quint16 m_lastPort;
-    static QMutex _mutex;
-    static QList<IosDeviceType> _availableDevices;
 };
 
 namespace IosKitInformation {

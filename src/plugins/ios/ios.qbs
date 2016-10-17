@@ -69,6 +69,8 @@ QtcPlugin {
         "iossimulatorfactory.cpp",
         "iossimulatorfactory.h",
         "iostoolhandler.cpp",
-        "iostoolhandler.h"
+        "iostoolhandler.h",
+        "simulatorcontrol.cpp",
+        "simulatorcontrol.h"
     ]
 }
