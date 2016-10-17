@@ -20,6 +20,8 @@ QtcPlugin {
     files: [
         "builddirmanager.cpp",
         "builddirmanager.h",
+        "builddirreader.cpp",
+        "builddirreader.h",
         "cmake_global.h",
         "cmakebuildconfiguration.cpp",
         "cmakebuildconfiguration.h",
@@ -34,8 +36,6 @@ QtcPlugin {
         "cmakeconfigitem.h",
         "cmakeeditor.cpp",
         "cmakeeditor.h",
-        "cmakefile.cpp",
-        "cmakefile.h",
         "cmakefilecompletionassist.cpp",
         "cmakefilecompletionassist.h",
         "cmakekitconfigwidget.h",
@@ -73,6 +73,8 @@ QtcPlugin {
         "configmodel.cpp",
         "configmodel.h",
         "configmodelitemdelegate.cpp",
-        "configmodelitemdelegate.h"
+        "configmodelitemdelegate.h",
+        "tealeafreader.cpp",
+        "tealeafreader.h"
     ]
 }

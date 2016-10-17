@@ -2,6 +2,7 @@ DEFINES += CMAKEPROJECTMANAGER_LIBRARY
 include(../../qtcreatorplugin.pri)
 
 HEADERS = builddirmanager.h \
+    builddirreader.h \
     cmakebuildinfo.h \
     cmakebuildstep.h \
     cmakeconfigitem.h \
@@ -24,14 +25,15 @@ HEADERS = builddirmanager.h \
     cmakekitinformation.h \
     cmakekitconfigwidget.h \
     cmakecbpparser.h \
-    cmakefile.h \
     cmakebuildsettingswidget.h \
     cmakeindenter.h \
     cmakeautocompleter.h \
     configmodel.h \
-    configmodelitemdelegate.h
+    configmodelitemdelegate.h \
+    tealeafreader.h
 
 SOURCES = builddirmanager.cpp \
+    builddirreader.cpp \
     cmakebuildstep.cpp \
     cmakeconfigitem.cpp \
     cmakeproject.cpp \
@@ -51,11 +53,11 @@ SOURCES = builddirmanager.cpp \
     cmakekitinformation.cpp \
     cmakekitconfigwidget.cpp \
     cmakecbpparser.cpp \
-    cmakefile.cpp \
     cmakebuildsettingswidget.cpp \
     cmakeindenter.cpp \
     cmakeautocompleter.cpp \
     configmodel.cpp \
-    configmodelitemdelegate.cpp
+    configmodelitemdelegate.cpp \
+    tealeafreader.cpp
 
 RESOURCES += cmakeproject.qrc

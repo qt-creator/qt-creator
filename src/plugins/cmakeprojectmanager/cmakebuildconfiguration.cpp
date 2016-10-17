@@ -139,17 +139,17 @@ void CMakeBuildConfiguration::ctor()
                                            target()->kit(),
                                            displayName(), BuildConfiguration::Unknown));
 
-    connect(m_buildDirManager, &BuildDirManager::dataAvailable,
+    connect(m_buildDirManager.get(), &BuildDirManager::dataAvailable,
             this, &CMakeBuildConfiguration::dataAvailable);
-    connect(m_buildDirManager, &BuildDirManager::errorOccured,
+    connect(m_buildDirManager.get(), &BuildDirManager::errorOccured,
             this, &CMakeBuildConfiguration::setError);
-    connect(m_buildDirManager, &BuildDirManager::configurationStarted,
+    connect(m_buildDirManager.get(), &BuildDirManager::configurationStarted,
             this, [this]() { m_completeConfigurationCache.clear(); emit parsingStarted(); });
 
     connect(this, &CMakeBuildConfiguration::environmentChanged,
-            m_buildDirManager, &BuildDirManager::forceReparse);
+            m_buildDirManager.get(), &BuildDirManager::forceReparse);
     connect(this, &CMakeBuildConfiguration::buildDirectoryChanged,
-            m_buildDirManager, &BuildDirManager::forceReparse);
+            m_buildDirManager.get(), &BuildDirManager::forceReparse);
 
     connect(this, &CMakeBuildConfiguration::parsingStarted, project, &CMakeProject::handleParsingStarted);
     connect(this, &CMakeBuildConfiguration::dataAvailable, project, &CMakeProject::updateProjectData);

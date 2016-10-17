@@ -63,18 +63,8 @@
 
 using namespace ProjectExplorer;
 
-// --------------------------------------------------------------------
-// Helper:
-// --------------------------------------------------------------------
-
 namespace CMakeProjectManager {
 namespace Internal {
-
-static QStringList toArguments(const CMakeConfig &config, const Kit *k) {
-    return Utils::transform(config, [k](const CMakeConfigItem &i) -> QString {
-        return i.toArgument(k->macroExpander());
-    });
-}
 
 // --------------------------------------------------------------------
 // BuildDirManager:
@@ -84,63 +74,54 @@ BuildDirManager::BuildDirManager(CMakeBuildConfiguration *bc) :
     m_buildConfiguration(bc)
 {
     QTC_ASSERT(bc, return);
-    m_projectName = sourceDirectory().fileName();
 
     m_reparseTimer.setSingleShot(true);
 
     connect(&m_reparseTimer, &QTimer::timeout, this, &BuildDirManager::parse);
-    connect(Core::EditorManager::instance(), &Core::EditorManager::aboutToSave,
-            this, &BuildDirManager::handleDocumentSaves);
-}
-
-BuildDirManager::~BuildDirManager()
-{
-    stopProcess();
-    resetData();
-    qDeleteAll(m_watchedFiles);
-    delete m_tempDir;
-}
-
-const Kit *BuildDirManager::kit() const
-{
-    return m_buildConfiguration->target()->kit();
-}
-
-const Utils::FileName BuildDirManager::buildDirectory() const
-{
-    return m_buildConfiguration->buildDirectory();
 }
 
 const Utils::FileName BuildDirManager::workDirectory() const
 {
-    const Utils::FileName bdir = buildDirectory();
+    const Utils::FileName bdir = m_buildConfiguration->buildDirectory();
     if (bdir.exists())
         return bdir;
-    if (m_tempDir)
-        return Utils::FileName::fromString(m_tempDir->path());
-    return bdir;
+    if (!m_tempDir)
+        m_tempDir.reset(new QTemporaryDir(QDir::tempPath() + QLatin1String("/qtc-cmake-XXXXXX")));
+    return Utils::FileName::fromString(m_tempDir->path());
 }
 
-const Utils::FileName BuildDirManager::sourceDirectory() const
+void BuildDirManager::updateReader()
 {
-    return m_buildConfiguration->target()->project()->projectDirectory();
-}
+    BuildDirReader::Parameters p(m_buildConfiguration);
+    p.buildDirectory = workDirectory();
 
-const CMakeConfig BuildDirManager::intendedConfiguration() const
-{
-    return m_buildConfiguration->cmakeConfiguration();
+    if (!m_reader || !m_reader->isCompatible(p)) {
+        m_reader.reset(BuildDirReader::createReader(p));
+        connect(m_reader.get(), &BuildDirReader::configurationStarted,
+                this, &BuildDirManager::configurationStarted);
+        connect(m_reader.get(), &BuildDirReader::dataAvailable,
+                this, &BuildDirManager::dataAvailable);
+        connect(m_reader.get(), &BuildDirReader::errorOccured,
+                this, &BuildDirManager::errorOccured);
+        connect(m_reader.get(), &BuildDirReader::dirty, this, &BuildDirManager::becameDirty);
+    }
+    m_reader->setParameters(p);
 }
 
 bool BuildDirManager::isParsing() const
 {
-    if (m_cmakeProcess)
-        return m_cmakeProcess->state() != QProcess::NotRunning;
-    return false;
+    return m_reader && m_reader->isParsing();
 }
 
-void BuildDirManager::cmakeFilesChanged()
+void BuildDirManager::becameDirty()
 {
     if (isParsing())
+        return;
+
+    Target *t = m_buildConfiguration->target()->project()->activeTarget();
+    BuildConfiguration *bc = t ? t->activeBuildConfiguration() : nullptr;
+
+    if (bc != m_buildConfiguration)
         return;
 
     const CMakeTool *tool = CMakeKitInformation::cmakeTool(m_buildConfiguration->target()->kit());
@@ -155,26 +136,22 @@ void BuildDirManager::forceReparse()
     if (m_buildConfiguration->target()->activeBuildConfiguration() != m_buildConfiguration)
         return;
 
-    stopProcess();
 
-    CMakeTool *tool = CMakeKitInformation::cmakeTool(kit());
+    CMakeTool *tool = CMakeKitInformation::cmakeTool(m_buildConfiguration->target()->kit());
     QTC_ASSERT(tool, return);
 
-    startCMake(tool, CMakeGeneratorKitInformation::generatorArguments(kit()), intendedConfiguration());
+    m_reader->stop();
+    m_reader->parse(true);
 }
 
 void BuildDirManager::resetData()
 {
-    m_hasData = false;
-
-    qDeleteAll(m_watchedFiles);
-    m_watchedFiles.clear();
+    if (m_reader)
+        m_reader->resetData();
 
     m_cmakeCache.clear();
-    m_projectName.clear();
-    m_buildTargets.clear();
-    qDeleteAll(m_files);
-    m_files.clear();
+
+    m_reader.reset(nullptr);
 }
 
 bool BuildDirManager::updateCMakeStateBeforeBuild()
@@ -187,116 +164,34 @@ bool BuildDirManager::persistCMakeState()
     if (!m_tempDir)
         return false;
 
-    QDir dir(buildDirectory().toString());
-    dir.mkpath(buildDirectory().toString());
+    const QString buildDir = m_buildConfiguration->buildDirectory().toString();
+    QDir dir(buildDir);
+    dir.mkpath(buildDir);
 
-    delete m_tempDir;
-    m_tempDir = nullptr;
+    m_tempDir.reset(nullptr);
 
-    resetData();
     QTimer::singleShot(0, this, &BuildDirManager::parse); // make sure signals only happen afterwards!
     return true;
 }
 
 void BuildDirManager::generateProjectTree(CMakeProjectNode *root)
 {
-    root->setDisplayName(m_projectName);
-
-    // Delete no longer necessary file watcher:
-    const QSet<Utils::FileName> currentWatched
-            = Utils::transform(m_watchedFiles, [](CMakeFile *cmf) { return cmf->filePath(); });
-    const QSet<Utils::FileName> toWatch = m_cmakeFiles;
-    QSet<Utils::FileName> toDelete = currentWatched;
-    toDelete.subtract(toWatch);
-    m_watchedFiles = Utils::filtered(m_watchedFiles, [&toDelete](Internal::CMakeFile *cmf) {
-            if (toDelete.contains(cmf->filePath())) {
-                delete cmf;
-                return false;
-            }
-            return true;
-        });
-
-    // Add new file watchers:
-    QSet<Utils::FileName> toAdd = toWatch;
-    toAdd.subtract(currentWatched);
-    foreach (const Utils::FileName &fn, toAdd) {
-        CMakeFile *cm = new CMakeFile(this, fn);
-        Core::DocumentManager::addDocument(cm);
-        m_watchedFiles.insert(cm);
-    }
-
-    QList<FileNode *> fileNodes = m_files;
-    root->buildTree(fileNodes);
-    m_files.clear(); // Some of the FileNodes in files() were deleted!
+    QTC_ASSERT(m_reader, return);
+    m_reader->generateProjectTree(root);
 }
 
 QSet<Core::Id> BuildDirManager::updateCodeModel(CppTools::ProjectPartBuilder &ppBuilder)
 {
-    QSet<Core::Id> languages;
-    ToolChain *tc = ToolChainKitInformation::toolChain(kit(), ToolChain::Language::Cxx);
-    const Utils::FileName sysroot = SysRootKitInformation::sysRoot(kit());
-
-    QHash<QString, QStringList> targetDataCache;
-    foreach (const CMakeBuildTarget &cbt, buildTargets()) {
-        if (cbt.targetType == UtilityType)
-            continue;
-
-        // CMake shuffles the include paths that it reports via the CodeBlocks generator
-        // So remove the toolchain include paths, so that at least those end up in the correct
-        // place.
-        QStringList cxxflags = getCXXFlagsFor(cbt, targetDataCache);
-        QSet<Utils::FileName> tcIncludes;
-        foreach (const HeaderPath &hp, tc->systemHeaderPaths(cxxflags, sysroot))
-            tcIncludes.insert(Utils::FileName::fromString(hp.path()));
-        QStringList includePaths;
-        foreach (const Utils::FileName &i, cbt.includeFiles) {
-            if (!tcIncludes.contains(i))
-                includePaths.append(i.toString());
-        }
-        includePaths += buildDirectory().toString();
-        ppBuilder.setIncludePaths(includePaths);
-        ppBuilder.setCFlags(cxxflags);
-        ppBuilder.setCxxFlags(cxxflags);
-        ppBuilder.setDefines(cbt.defines);
-        ppBuilder.setDisplayName(cbt.title);
-
-        const QSet<Core::Id> partLanguages
-                = QSet<Core::Id>::fromList(ppBuilder.createProjectPartsForFiles(
-                                               Utils::transform(cbt.files, [](const Utils::FileName &fn) { return fn.toString(); })));
-
-        languages.unite(partLanguages);
-    }
-    return languages;
+    QTC_ASSERT(m_reader, return QSet<Core::Id>());
+    return m_reader->updateCodeModel(ppBuilder);
 }
 
 void BuildDirManager::parse()
 {
+    updateReader();
     checkConfiguration();
-
-    CMakeTool *tool = CMakeKitInformation::cmakeTool(kit());
-    const QStringList generatorArgs = CMakeGeneratorKitInformation::generatorArguments(kit());
-
-    QTC_ASSERT(tool, return);
-
-    const QString cbpFile = CMakeManager::findCbpFile(QDir(workDirectory().toString()));
-    const QFileInfo cbpFileFi = cbpFile.isEmpty() ? QFileInfo() : QFileInfo(cbpFile);
-    if (!cbpFileFi.exists()) {
-        // Initial create:
-        startCMake(tool, generatorArgs, intendedConfiguration());
-        return;
-    }
-
-    const bool mustUpdate = m_cmakeFiles.isEmpty()
-            || Utils::anyOf(m_cmakeFiles, [&cbpFileFi](const Utils::FileName &f) {
-                   return f.toFileInfo().lastModified() > cbpFileFi.lastModified();
-               });
-    if (mustUpdate) {
-        startCMake(tool, generatorArgs, CMakeConfig());
-    } else {
-        extractData();
-        m_hasData = true;
-        emit dataAvailable();
-    }
+    QTC_ASSERT(m_reader, return);
+    m_reader->parse(false);
 }
 
 void BuildDirManager::clearCache()
@@ -316,352 +211,16 @@ void BuildDirManager::clearCache()
 
 QList<CMakeBuildTarget> BuildDirManager::buildTargets() const
 {
-    return m_buildTargets;
+    QTC_ASSERT(m_reader, return QList<CMakeBuildTarget>());
+    return m_reader->buildTargets();
 }
 
 CMakeConfig BuildDirManager::parsedConfiguration() const
 {
-    if (m_cmakeCache.isEmpty()) {
-        Utils::FileName cacheFile = workDirectory();
-        cacheFile.appendPath(QLatin1String("CMakeCache.txt"));
-        if (!cacheFile.exists())
-            return m_cmakeCache;
-        QString errorMessage;
-        m_cmakeCache = parseConfiguration(cacheFile, &errorMessage);
-        if (!errorMessage.isEmpty())
-            emit errorOccured(errorMessage);
-        const Utils::FileName sourceOfBuildDir
-                = Utils::FileName::fromUtf8(CMakeConfigItem::valueOf("CMAKE_HOME_DIRECTORY", m_cmakeCache));
-        const Utils::FileName canonicalSourceOfBuildDir = Utils::FileUtils::canonicalPath(sourceOfBuildDir);
-        const Utils::FileName canonicalSourceDirectory = Utils::FileUtils::canonicalPath(sourceDirectory());
-        if (canonicalSourceOfBuildDir != canonicalSourceDirectory) // Uses case-insensitive compare where appropriate
-            emit errorOccured(tr("The build directory is not for %1 but for %2")
-                    .arg(canonicalSourceOfBuildDir.toUserOutput(),
-                         canonicalSourceDirectory.toUserOutput()));
-    }
+    QTC_ASSERT(m_reader, return m_cmakeCache);
+    if (m_cmakeCache.isEmpty())
+        m_cmakeCache = m_reader->parsedConfiguration();
     return m_cmakeCache;
-}
-
-void BuildDirManager::stopProcess()
-{
-    if (!m_cmakeProcess)
-        return;
-
-    m_cmakeProcess->disconnect();
-
-    if (m_cmakeProcess->state() == QProcess::Running) {
-        m_cmakeProcess->terminate();
-        if (!m_cmakeProcess->waitForFinished(500) && m_cmakeProcess->state() == QProcess::Running)
-            m_cmakeProcess->kill();
-    }
-
-    cleanUpProcess();
-
-    if (!m_future)
-      return;
-    m_future->reportCanceled();
-    m_future->reportFinished();
-    delete m_future;
-    m_future = nullptr;
-}
-
-void BuildDirManager::cleanUpProcess()
-{
-    if (!m_cmakeProcess)
-        return;
-
-    QTC_ASSERT(m_cmakeProcess->state() == QProcess::NotRunning, return);
-
-    m_cmakeProcess->disconnect();
-
-    if (m_cmakeProcess->state() == QProcess::Running) {
-        m_cmakeProcess->terminate();
-        if (!m_cmakeProcess->waitForFinished(500) && m_cmakeProcess->state() == QProcess::Running)
-            m_cmakeProcess->kill();
-    }
-    m_cmakeProcess->waitForFinished();
-    delete m_cmakeProcess;
-    m_cmakeProcess = nullptr;
-
-    // Delete issue parser:
-    m_parser->flush();
-    delete m_parser;
-    m_parser = nullptr;
-}
-
-void BuildDirManager::extractData()
-{
-    const Utils::FileName topCMake
-            = Utils::FileName::fromString(sourceDirectory().toString() + QLatin1String("/CMakeLists.txt"));
-
-    resetData();
-
-    m_projectName = sourceDirectory().fileName();
-    m_files.append(new FileNode(topCMake, ProjectFileType, false));
-    // Do not insert topCMake into m_cmakeFiles: The project already watches that!
-
-    // Find cbp file
-    Utils::FileName cbpFile = Utils::FileName::fromString(CMakeManager::findCbpFile(workDirectory().toString()));
-    if (cbpFile.isEmpty())
-        return;
-    m_cmakeFiles.insert(cbpFile);
-
-    // Add CMakeCache.txt file:
-    Utils::FileName cacheFile = workDirectory();
-    cacheFile.appendPath(QLatin1String("CMakeCache.txt"));
-    if (cacheFile.toFileInfo().exists())
-        m_cmakeFiles.insert(cacheFile);
-
-    // setFolderName
-    CMakeCbpParser cbpparser;
-    CMakeTool *cmake = CMakeKitInformation::cmakeTool(kit());
-    // Parsing
-    if (!cbpparser.parseCbpFile(cmake->pathMapper(), cbpFile, sourceDirectory()))
-        return;
-
-    m_projectName = cbpparser.projectName();
-
-    m_files = cbpparser.fileList();
-    if (cbpparser.hasCMakeFiles()) {
-        m_files.append(cbpparser.cmakeFileList());
-        foreach (const FileNode *node, cbpparser.cmakeFileList())
-            m_cmakeFiles.insert(node->filePath());
-    }
-
-    // Make sure the top cmakelists.txt file is always listed:
-    if (!Utils::contains(m_files, [topCMake](FileNode *fn) { return fn->filePath() == topCMake; })) {
-        m_files.append(new FileNode(topCMake, ProjectFileType, false));
-    }
-
-    m_buildTargets = cbpparser.buildTargets();
-}
-
-void BuildDirManager::startCMake(CMakeTool *tool, const QStringList &generatorArgs,
-                                 const CMakeConfig &config)
-{
-    QTC_ASSERT(tool && tool->isValid(), return);
-
-    QTC_ASSERT(!m_cmakeProcess, return);
-    QTC_ASSERT(!m_parser, return);
-    QTC_ASSERT(!m_future, return);
-
-    // Find a directory to set up into:
-    if (!buildDirectory().exists()) {
-        if (!m_tempDir)
-            m_tempDir = new QTemporaryDir(QDir::tempPath() + QLatin1String("/qtc-cmake-XXXXXX"));
-        QTC_ASSERT(m_tempDir->isValid(), return);
-    }
-
-    // Make sure work directory exists:
-    QTC_ASSERT(workDirectory().exists(), return);
-
-    m_parser = new CMakeParser;
-    QDir source = QDir(sourceDirectory().toString());
-    connect(m_parser, &IOutputParser::addTask, m_parser,
-            [source](const Task &task) {
-                if (task.file.isEmpty() || task.file.toFileInfo().isAbsolute()) {
-                    TaskHub::addTask(task);
-                } else {
-                    Task t = task;
-                    t.file = Utils::FileName::fromString(source.absoluteFilePath(task.file.toString()));
-                    TaskHub::addTask(t);
-                }
-            });
-
-    // Always use the sourceDir: If we are triggered because the build directory is getting deleted
-    // then we are racing against CMakeCache.txt also getting deleted.
-    const QString srcDir = sourceDirectory().toString();
-
-    m_cmakeProcess = new Utils::QtcProcess(this);
-    m_cmakeProcess->setWorkingDirectory(workDirectory().toString());
-    m_cmakeProcess->setEnvironment(m_buildConfiguration->environment());
-
-    connect(m_cmakeProcess, &QProcess::readyReadStandardOutput,
-            this, &BuildDirManager::processCMakeOutput);
-    connect(m_cmakeProcess, &QProcess::readyReadStandardError,
-            this, &BuildDirManager::processCMakeError);
-    connect(m_cmakeProcess, static_cast<void(QProcess::*)(int,  QProcess::ExitStatus)>(&QProcess::finished),
-            this, &BuildDirManager::cmakeFinished);
-
-    QString args;
-    Utils::QtcProcess::addArg(&args, srcDir);
-    Utils::QtcProcess::addArgs(&args, generatorArgs);
-    Utils::QtcProcess::addArgs(&args, toArguments(config, kit()));
-
-    TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
-
-    Core::MessageManager::write(tr("Running \"%1 %2\" in %3.")
-                                .arg(tool->cmakeExecutable().toUserOutput())
-                                .arg(args)
-                                .arg(workDirectory().toUserOutput()));
-
-    m_future = new QFutureInterface<void>();
-    m_future->setProgressRange(0, 1);
-    Core::ProgressManager::addTask(m_future->future(),
-                                   tr("Configuring \"%1\"").arg(m_buildConfiguration->target()->project()->displayName()),
-                                   "CMake.Configure");
-
-    m_cmakeProcess->setCommand(tool->cmakeExecutable().toString(), args);
-    m_cmakeProcess->start();
-    emit configurationStarted();
-}
-
-void BuildDirManager::cmakeFinished(int code, QProcess::ExitStatus status)
-{
-    QTC_ASSERT(m_cmakeProcess, return);
-
-    // process rest of the output:
-    processCMakeOutput();
-    processCMakeError();
-
-    cleanUpProcess();
-
-    extractData(); // try even if cmake failed...
-
-    QString msg;
-    if (status != QProcess::NormalExit)
-        msg = tr("*** cmake process crashed!");
-    else if (code != 0)
-        msg = tr("*** cmake process exited with exit code %1.").arg(code);
-
-    if (!msg.isEmpty()) {
-        Core::MessageManager::write(msg);
-        TaskHub::addTask(Task::Error, msg, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
-        m_future->reportCanceled();
-    } else {
-        m_future->setProgressValue(1);
-    }
-
-    m_future->reportFinished();
-    delete m_future;
-    m_future = nullptr;
-
-    m_hasData = true;
-    emit dataAvailable();
-}
-
-static QString lineSplit(const QString &rest, const QByteArray &array, std::function<void(const QString &)> f)
-{
-    QString tmp = rest + Utils::SynchronousProcess::normalizeNewlines(QString::fromLocal8Bit(array));
-    int start = 0;
-    int end = tmp.indexOf(QLatin1Char('\n'), start);
-    while (end >= 0) {
-        f(tmp.mid(start, end - start));
-        start = end + 1;
-        end = tmp.indexOf(QLatin1Char('\n'), start);
-    }
-    return tmp.mid(start);
-}
-
-void BuildDirManager::processCMakeOutput()
-{
-    static QString rest;
-    rest = lineSplit(rest, m_cmakeProcess->readAllStandardOutput(), [this](const QString &s) { Core::MessageManager::write(s); });
-}
-
-void BuildDirManager::processCMakeError()
-{
-    static QString rest;
-    rest = lineSplit(rest, m_cmakeProcess->readAllStandardError(), [this](const QString &s) {
-        m_parser->stdError(s);
-        Core::MessageManager::write(s);
-    });
-}
-
-QStringList BuildDirManager::getCXXFlagsFor(const CMakeBuildTarget &buildTarget,
-                                            QHash<QString, QStringList> &cache)
-{
-    // check cache:
-    auto it = cache.constFind(buildTarget.title);
-    if (it != cache.constEnd())
-        return *it;
-
-    if (extractCXXFlagsFromMake(buildTarget, cache))
-        return cache.value(buildTarget.title);
-
-    if (extractCXXFlagsFromNinja(buildTarget, cache))
-        return cache.value(buildTarget.title);
-
-    cache.insert(buildTarget.title, QStringList());
-    return QStringList();
-}
-
-bool BuildDirManager::extractCXXFlagsFromMake(const CMakeBuildTarget &buildTarget,
-                                              QHash<QString, QStringList> &cache)
-{
-    QString makeCommand = buildTarget.makeCommand.toString();
-    int startIndex = makeCommand.indexOf('\"');
-    int endIndex = makeCommand.indexOf('\"', startIndex + 1);
-    if (startIndex != -1 && endIndex != -1) {
-        startIndex += 1;
-        QString makefile = makeCommand.mid(startIndex, endIndex - startIndex);
-        int slashIndex = makefile.lastIndexOf('/');
-        makefile.truncate(slashIndex);
-        makefile.append("/CMakeFiles/" + buildTarget.title + ".dir/flags.make");
-        QFile file(makefile);
-        if (file.exists()) {
-            file.open(QIODevice::ReadOnly | QIODevice::Text);
-            QTextStream stream(&file);
-            while (!stream.atEnd()) {
-                QString line = stream.readLine().trimmed();
-                if (line.startsWith("CXX_FLAGS =")) {
-                    // Skip past =
-                    cache.insert(buildTarget.title,
-                                 line.mid(11).trimmed().split(' ', QString::SkipEmptyParts));
-                    return true;
-                }
-            }
-        }
-    }
-    return false;
-}
-
-bool BuildDirManager::extractCXXFlagsFromNinja(const CMakeBuildTarget &buildTarget,
-                                               QHash<QString, QStringList> &cache)
-{
-    Q_UNUSED(buildTarget)
-    if (!cache.isEmpty()) // We fill the cache in one go!
-        return false;
-
-    // Attempt to find build.ninja file and obtain FLAGS (CXX_FLAGS) from there if no suitable flags.make were
-    // found
-    // Get "all" target's working directory
-    QByteArray ninjaFile;
-    QString buildNinjaFile = buildTargets().at(0).workingDirectory.toString();
-    buildNinjaFile += "/build.ninja";
-    QFile buildNinja(buildNinjaFile);
-    if (buildNinja.exists()) {
-        buildNinja.open(QIODevice::ReadOnly | QIODevice::Text);
-        ninjaFile = buildNinja.readAll();
-        buildNinja.close();
-    }
-
-    if (ninjaFile.isEmpty())
-        return false;
-
-    QTextStream stream(ninjaFile);
-    bool cxxFound = false;
-    const QString targetSignature = "# Object build statements for ";
-    QString currentTarget;
-
-    while (!stream.atEnd()) {
-        // 1. Look for a block that refers to the current target
-        // 2. Look for a build rule which invokes CXX_COMPILER
-        // 3. Return the FLAGS definition
-        QString line = stream.readLine().trimmed();
-        if (line.startsWith('#')) {
-            if (line.startsWith(targetSignature)) {
-                int pos = line.lastIndexOf(' ');
-                currentTarget = line.mid(pos + 1);
-            }
-        } else if (!currentTarget.isEmpty() && line.startsWith("build")) {
-            cxxFound = line.indexOf("CXX_COMPILER") != -1;
-        } else if (cxxFound && line.startsWith("FLAGS =")) {
-            // Skip past =
-            cache.insert(currentTarget, line.mid(7).trimmed().split(' ', QString::SkipEmptyParts));
-        }
-    }
-    return !cache.isEmpty();
 }
 
 void BuildDirManager::checkConfiguration()
@@ -669,15 +228,17 @@ void BuildDirManager::checkConfiguration()
     if (m_tempDir) // always throw away changes in the tmpdir!
         return;
 
+    updateReader();
+
     Kit *k = m_buildConfiguration->target()->kit();
-    const CMakeConfig cache = parsedConfiguration();
+    const CMakeConfig cache = m_reader->parsedConfiguration();
     if (cache.isEmpty())
         return; // No cache file yet.
 
     CMakeConfig newConfig;
     QSet<QString> changedKeys;
     QSet<QString> removedKeys;
-    foreach (const CMakeConfigItem &iBc, intendedConfiguration()) {
+    foreach (const CMakeConfigItem &iBc, m_buildConfiguration->cmakeConfiguration()) {
         const CMakeConfigItem &iCache
                 = Utils::findOrDefault(cache, [&iBc](const CMakeConfigItem &i) { return i.key == iBc.key; });
         if (iCache.isNull()) {
@@ -715,129 +276,11 @@ void BuildDirManager::checkConfiguration()
         box->setDefaultButton(defaultButton);
 
         int ret = box->exec();
-        if (ret == QMessageBox::Apply)
+        if (ret == QMessageBox::Apply) {
             m_buildConfiguration->setCMakeConfiguration(newConfig);
-    }
-}
-
-void BuildDirManager::handleDocumentSaves(Core::IDocument *document)
-{
-    Target *t = m_buildConfiguration->target()->project()->activeTarget();
-    BuildConfiguration *bc = t ? t->activeBuildConfiguration() : nullptr;
-
-    if (!m_cmakeFiles.contains(document->filePath()) ||
-        m_buildConfiguration->target() != t ||
-        m_buildConfiguration != bc)
-        return;
-
-    m_reparseTimer.start(100);
-}
-
-static QByteArray trimCMakeCacheLine(const QByteArray &in) {
-    int start = 0;
-    while (start < in.count() && (in.at(start) == ' ' || in.at(start) == '\t'))
-        ++start;
-
-    return in.mid(start, in.count() - start - 1);
-}
-
-static QByteArrayList splitCMakeCacheLine(const QByteArray &line) {
-    const int colonPos = line.indexOf(':');
-    if (colonPos < 0)
-        return QByteArrayList();
-
-    const int equalPos = line.indexOf('=', colonPos + 1);
-    if (equalPos < colonPos)
-        return QByteArrayList();
-
-    return QByteArrayList() << line.mid(0, colonPos)
-                            << line.mid(colonPos + 1, equalPos - colonPos - 1)
-                            << line.mid(equalPos + 1);
-}
-
-static CMakeConfigItem::Type fromByteArray(const QByteArray &type) {
-    if (type == "BOOL")
-        return CMakeConfigItem::BOOL;
-    if (type == "STRING")
-        return CMakeConfigItem::STRING;
-    if (type == "FILEPATH")
-        return CMakeConfigItem::FILEPATH;
-    if (type == "PATH")
-        return CMakeConfigItem::PATH;
-    QTC_CHECK(type == "INTERNAL" || type == "STATIC");
-
-    return CMakeConfigItem::INTERNAL;
-}
-
-CMakeConfig BuildDirManager::parseConfiguration(const Utils::FileName &cacheFile,
-                                                QString *errorMessage)
-{
-    CMakeConfig result;
-    QFile cache(cacheFile.toString());
-    if (!cache.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        if (errorMessage)
-            *errorMessage = tr("Failed to open %1 for reading.").arg(cacheFile.toUserOutput());
-        return CMakeConfig();
-    }
-
-    QSet<QByteArray> advancedSet;
-    QMap<QByteArray, QByteArray> valuesMap;
-    QByteArray documentation;
-    while (!cache.atEnd()) {
-        const QByteArray line = trimCMakeCacheLine(cache.readLine());
-
-        if (line.isEmpty() || line.startsWith('#'))
-            continue;
-
-        if (line.startsWith("//")) {
-            documentation = line.mid(2);
-            continue;
-        }
-
-        const QByteArrayList pieces = splitCMakeCacheLine(line);
-        if (pieces.isEmpty())
-            continue;
-
-        QTC_ASSERT(pieces.count() == 3, continue);
-        const QByteArray key = pieces.at(0);
-        const QByteArray type = pieces.at(1);
-        const QByteArray value = pieces.at(2);
-
-        if (key.endsWith("-ADVANCED") && value == "1") {
-            advancedSet.insert(key.left(key.count() - 9 /* "-ADVANCED" */));
-        } else if (key.endsWith("-STRINGS") && fromByteArray(type) == CMakeConfigItem::INTERNAL) {
-            valuesMap[key.left(key.count() - 8) /* "-STRINGS" */] = value;
-        } else {
-            CMakeConfigItem::Type t = fromByteArray(type);
-            result << CMakeConfigItem(key, t, documentation, value);
+            updateReader(); // Apply changes to reader
         }
     }
-
-    // Set advanced flags:
-    for (int i = 0; i < result.count(); ++i) {
-        CMakeConfigItem &item = result[i];
-        item.isAdvanced = advancedSet.contains(item.key);
-
-        if (valuesMap.contains(item.key)) {
-            item.values = CMakeConfigItem::cmakeSplitValue(QString::fromUtf8(valuesMap[item.key]));
-        } else if (item.key  == "CMAKE_BUILD_TYPE") {
-            // WA for known options
-            item.values << "" << "Debug" << "Release" << "MinSizeRel" << "RelWithDebInfo";
-        }
-    }
-
-    Utils::sort(result, CMakeConfigItem::sortOperator());
-
-    return result;
-}
-
-void BuildDirManager::handleCmakeFileChange()
-{
-    Target *t = m_buildConfiguration->target()->project()->activeTarget();
-    BuildConfiguration *bc = t ? t->activeBuildConfiguration() : nullptr;
-
-    if (m_buildConfiguration->target() == t && m_buildConfiguration == bc)
-        cmakeFilesChanged();
 }
 
 void BuildDirManager::maybeForceReparse()
@@ -851,17 +294,18 @@ void BuildDirManager::maybeForceReparse()
     const QByteArrayList criticalKeys
             = QByteArrayList() << GENERATOR_KEY << CMAKE_COMMAND_KEY;
 
-    if (!m_hasData) {
+    if (!m_reader->hasData()) {
         forceReparse();
         return;
     }
 
     const CMakeConfig currentConfig = parsedConfiguration();
 
-    const CMakeTool *tool = CMakeKitInformation::cmakeTool(kit());
+    Kit *k = m_buildConfiguration->target()->kit();
+    const CMakeTool *tool = CMakeKitInformation::cmakeTool(k);
     QTC_ASSERT(tool, return); // No cmake... we should not have ended up here in the first place
-    const QString extraKitGenerator = CMakeGeneratorKitInformation::extraGenerator(kit());
-    const QString mainKitGenerator = CMakeGeneratorKitInformation::generator(kit());
+    const QString extraKitGenerator = CMakeGeneratorKitInformation::extraGenerator(k);
+    const QString mainKitGenerator = CMakeGeneratorKitInformation::generator(k);
     CMakeConfig targetConfig = m_buildConfiguration->cmakeConfiguration();
     targetConfig.append(CMakeConfigItem(GENERATOR_KEY, CMakeConfigItem::INTERNAL,
                                         QByteArray(), mainKitGenerator.toUtf8()));

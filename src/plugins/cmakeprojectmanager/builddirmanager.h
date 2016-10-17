@@ -25,26 +25,17 @@
 
 #pragma once
 
-#include "cmakecbpparser.h"
+#include "builddirreader.h"
 #include "cmakeconfigitem.h"
-#include "cmakefile.h"
 
-#include <projectexplorer/task.h>
-
-#include <utils/environment.h>
-#include <utils/qtcprocess.h>
 #include <utils/fileutils.h>
 
-#include <QByteArray>
-#include <QFutureInterface>
 #include <QObject>
-#include <QSet>
+#include <QTemporaryDir>
 #include <QTimer>
 
-QT_FORWARD_DECLARE_CLASS(QTemporaryDir);
-QT_FORWARD_DECLARE_CLASS(QFileSystemWatcher);
+#include <memory>
 
-namespace Core { class IDocument; }
 namespace CppTools { class ProjectPartBuilder; }
 
 namespace ProjectExplorer {
@@ -68,7 +59,6 @@ class BuildDirManager : public QObject
 
 public:
     BuildDirManager(CMakeBuildConfiguration *bc);
-    ~BuildDirManager() override;
 
     bool isParsing() const;
 
@@ -87,9 +77,6 @@ public:
 
     void checkConfiguration();
 
-    void handleDocumentSaves(Core::IDocument *document);
-    void handleCmakeFileChange();
-
 signals:
     void configurationStarted() const;
     void dataAvailable() const;
@@ -99,50 +86,22 @@ protected:
     static CMakeConfig parseConfiguration(const Utils::FileName &cacheFile,
                                           QString *errorMessage);
 
-    const ProjectExplorer::Kit *kit() const;
-    const Utils::FileName buildDirectory() const;
     const Utils::FileName workDirectory() const;
-    const Utils::FileName sourceDirectory() const;
-    const CMakeConfig intendedConfiguration() const;
 
 private:
+    void updateReader();
+
     void parse();
 
-    void cmakeFilesChanged();
-
-    void stopProcess();
-    void cleanUpProcess();
-    void extractData();
-
-    void startCMake(CMakeTool *tool, const QStringList &generatorArgs, const CMakeConfig &config);
-
-    void cmakeFinished(int code, QProcess::ExitStatus status);
-    void processCMakeOutput();
-    void processCMakeError();
-
-    QStringList getCXXFlagsFor(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache);
-    bool extractCXXFlagsFromMake(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache);
-    bool extractCXXFlagsFromNinja(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache);
-
-    bool m_hasData = false;
+    void becameDirty();
 
     CMakeBuildConfiguration *m_buildConfiguration = nullptr;
-    Utils::QtcProcess *m_cmakeProcess = nullptr;
-    QTemporaryDir *m_tempDir = nullptr;
+    mutable std::unique_ptr<QTemporaryDir> m_tempDir = nullptr;
     mutable CMakeConfig m_cmakeCache;
-
-    QSet<Utils::FileName> m_cmakeFiles;
-    QString m_projectName;
-    QList<CMakeBuildTarget> m_buildTargets;
-    QList<ProjectExplorer::FileNode *> m_files;
-
-    // For error reporting:
-    ProjectExplorer::IOutputParser *m_parser = nullptr;
-    QFutureInterface<void> *m_future = nullptr;
 
     QTimer m_reparseTimer;
 
-    QSet<Internal::CMakeFile *> m_watchedFiles;
+    std::unique_ptr<BuildDirReader> m_reader;
 };
 
 } // namespace Internal

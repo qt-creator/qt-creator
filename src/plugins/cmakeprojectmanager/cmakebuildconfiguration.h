@@ -32,6 +32,8 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/abi.h>
 
+#include <memory>
+
 namespace CppTools { class ProjectPartBuilder; }
 namespace ProjectExplorer { class ToolChain; }
 
@@ -114,7 +116,7 @@ private:
 
     mutable QList<CMakeConfigItem> m_completeConfigurationCache;
 
-    BuildDirManager *const m_buildDirManager = nullptr;
+    std::unique_ptr<BuildDirManager> m_buildDirManager;
 
     friend class CMakeBuildSettingsWidget;
     friend class CMakeProjectManager::CMakeProject;
