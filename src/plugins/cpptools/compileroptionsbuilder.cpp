@@ -82,9 +82,9 @@ QByteArray Macro::toDefineOption(const QByteArray &option) const
     return result;
 }
 
-void CompilerOptionsBuilder::addDefine(const QByteArray &defineLine)
+void CompilerOptionsBuilder::addDefine(const QByteArray &defineDirective)
 {
-    m_options.append(defineLineToDefineOption(defineLine));
+    m_options.append(defineDirectiveToDefineOption(defineDirective));
 }
 
 void CompilerOptionsBuilder::addTargetTriple()
@@ -144,10 +144,10 @@ void CompilerOptionsBuilder::addDefines(const QByteArray &defineDirectives)
     QStringList result;
 
     foreach (QByteArray def, defineDirectives.split('\n')) {
-        if (def.isEmpty() || excludeDefineLine(def))
+        if (def.isEmpty() || excludeDefineDirective(def))
             continue;
 
-        const QString defineOption = defineLineToDefineOption(def);
+        const QString defineOption = defineDirectiveToDefineOption(def);
         if (!result.contains(defineOption))
             result.append(defineOption);
     }
@@ -351,9 +351,9 @@ QString CompilerOptionsBuilder::includeOption() const
     return QLatin1String("-I");
 }
 
-QString CompilerOptionsBuilder::defineLineToDefineOption(const QByteArray &defineLine)
+QString CompilerOptionsBuilder::defineDirectiveToDefineOption(const QByteArray &defineDirective)
 {
-    const Macro macro = Macro::fromDefineDirective(defineLine);
+    const Macro macro = Macro::fromDefineDirective(defineDirective);
     const QByteArray option = macro.toDefineOption(defineOption().toLatin1());
 
     return QString::fromLatin1(option);
@@ -370,11 +370,11 @@ static bool isGccOrMinGwToolchain(const Core::Id &toolchainType)
         || toolchainType == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID;
 }
 
-bool CompilerOptionsBuilder::excludeDefineLine(const QByteArray &defineLine) const
+bool CompilerOptionsBuilder::excludeDefineDirective(const QByteArray &defineDirective) const
 {
     // This is a quick fix for QTCREATORBUG-11501.
     // TODO: do a proper fix, see QTCREATORBUG-11709.
-    if (defineLine.startsWith("#define __cplusplus"))
+    if (defineDirective.startsWith("#define __cplusplus"))
         return true;
 
     // gcc 4.9 has:
@@ -383,8 +383,10 @@ bool CompilerOptionsBuilder::excludeDefineLine(const QByteArray &defineLine) con
     // The right-hand sides are gcc built-ins that clang does not understand, and they'd
     // override clang's own (non-macro, it seems) definitions of the symbols on the left-hand
     // side.
-    if (isGccOrMinGwToolchain(m_projectPart.toolchainType) && defineLine.contains("has_include"))
+    if (isGccOrMinGwToolchain(m_projectPart.toolchainType)
+            && defineDirective.contains("has_include")) {
         return true;
+    }
 
     return false;
 }
