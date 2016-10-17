@@ -189,7 +189,7 @@ public:
         optionsBuilder.addDefines(projectPart.projectDefines);
         optionsBuilder.undefineClangVersionMacrosForMsvc();
         optionsBuilder.undefineCppLanguageFeatureMacrosForMsvc2015();
-        optionsBuilder.addHeaderPathOptions(true);
+        optionsBuilder.addHeaderPathOptions();
         optionsBuilder.addMsvcCompatibilityVersion();
 
         if (type != ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)

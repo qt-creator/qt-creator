@@ -101,7 +101,7 @@ void CompilerOptionsBuilder::enableExceptions()
     add(QLatin1String("-fexceptions"));
 }
 
-void CompilerOptionsBuilder::addHeaderPathOptions(bool addAsNativePath)
+void CompilerOptionsBuilder::addHeaderPathOptions()
 {
     typedef ProjectPartHeaderPath HeaderPath;
     const QString defaultPrefix = includeOption();
@@ -127,11 +127,7 @@ void CompilerOptionsBuilder::addHeaderPathOptions(bool addAsNativePath)
             break;
         }
 
-        const QString path = addAsNativePath
-                ? QDir::toNativeSeparators(headerPath.path)
-                : headerPath.path;
-
-        result.append(prefix + path);
+        result.append(prefix + QDir::toNativeSeparators(headerPath.path));
     }
 
     m_options.append(result);

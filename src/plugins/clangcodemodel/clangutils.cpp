@@ -99,7 +99,7 @@ public:
 
         optionsBuilder.addPredefinedMacrosAndHeaderPathsOptions();
         optionsBuilder.addWrappedQtHeadersIncludePath();
-        optionsBuilder.addHeaderPathOptions(/*addAsNativePath*/ true);
+        optionsBuilder.addHeaderPathOptions();
         optionsBuilder.addProjectConfigFileInclude();
 
         optionsBuilder.addMsvcCompatibilityVersion();
