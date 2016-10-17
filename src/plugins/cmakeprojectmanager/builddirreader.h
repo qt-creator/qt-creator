@@ -86,13 +86,14 @@ public:
     };
 
     static BuildDirReader *createReader(const BuildDirReader::Parameters &p);
-    void setParameters(const Parameters &p);
+    virtual void setParameters(const Parameters &p);
 
     virtual bool isCompatible(const Parameters &p) = 0;
     virtual void resetData() = 0;
     virtual void parse(bool force) = 0;
     virtual void stop() = 0;
 
+    virtual bool isReady() const { return true; }
     virtual bool isParsing() const = 0;
     virtual bool hasData() const = 0;
 
@@ -102,6 +103,7 @@ public:
     virtual QSet<Core::Id> updateCodeModel(CppTools::ProjectPartBuilder &ppBuilder) = 0;
 
 signals:
+    void isReadyNow() const;
     void configurationStarted() const;
     void dataAvailable() const;
     void dirty() const;
