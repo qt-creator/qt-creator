@@ -245,6 +245,11 @@ QString CMakeConfigItem::toString(const Utils::MacroExpander *expander) const
     return QString::fromUtf8(key) + QLatin1Char(':') + typeStr + QLatin1Char('=') + expandedValue;
 }
 
+QString CMakeConfigItem::toArgument(const Utils::MacroExpander *expander) const
+{
+    return "-D" + toString(expander);
+}
+
 bool CMakeConfigItem::operator==(const CMakeConfigItem &o) const
 {
     // type, isAdvanced and documentation do not matter for a match!
