@@ -136,7 +136,12 @@ QStringList CMakeConfigItem::cmakeSplitValue(const QString &in, bool keepEmpty)
 
 QString CMakeConfigItem::expandedValue(const ProjectExplorer::Kit *k) const
 {
-    return k->macroExpander()->expand(QString::fromUtf8(value));
+    return expandedValue(k->macroExpander());
+}
+
+QString CMakeConfigItem::expandedValue(const Utils::MacroExpander *expander) const
+{
+    return expander->expand(QString::fromUtf8(value));
 }
 
 std::function<bool (const CMakeConfigItem &a, const CMakeConfigItem &b)> CMakeConfigItem::sortOperator()

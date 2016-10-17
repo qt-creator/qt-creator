@@ -31,6 +31,7 @@
 #include <functional>
 
 namespace ProjectExplorer { class Kit; }
+namespace Utils { class MacroExpander; }
 
 namespace CMakeProjectManager {
 
@@ -49,6 +50,7 @@ public:
     bool isNull() const { return key.isEmpty(); }
 
     QString expandedValue(const ProjectExplorer::Kit *k) const;
+    QString expandedValue(const Utils::MacroExpander *expander) const;
 
     static std::function<bool(const CMakeConfigItem &a, const CMakeConfigItem &b)> sortOperator();
     static CMakeConfigItem fromString(const QString &s);
