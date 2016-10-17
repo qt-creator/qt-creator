@@ -34,6 +34,7 @@
 #include <QTemporaryDir>
 #include <QTimer>
 
+#include <functional>
 #include <memory>
 
 namespace CppTools { class ProjectPartBuilder; }
@@ -59,6 +60,7 @@ class BuildDirManager : public QObject
 
 public:
     BuildDirManager(CMakeBuildConfiguration *bc);
+    ~BuildDirManager() final;
 
     bool isParsing() const;
 
@@ -75,8 +77,6 @@ public:
     QList<CMakeBuildTarget> buildTargets() const;
     CMakeConfig parsedConfiguration() const;
 
-    void checkConfiguration();
-
 signals:
     void configurationStarted() const;
     void dataAvailable() const;
@@ -89,7 +89,13 @@ protected:
     const Utils::FileName workDirectory() const;
 
 private:
-    void updateReader();
+    void checkConfiguration();
+
+    void updateReaderType(std::function<void()> todo);
+    void updateReaderData();
+
+    void parseOnceReaderReady(bool force);
+    void maybeForceReparseOnceReaderReady();
 
     void parse();
 

@@ -185,7 +185,6 @@ void CMakeBuildConfiguration::runCMake()
     if (!m_buildDirManager || m_buildDirManager->isParsing())
         return;
 
-    m_buildDirManager->checkConfiguration();
     m_buildDirManager->forceReparse();
 }
 

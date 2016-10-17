@@ -432,20 +432,7 @@ void ServerModeReader::extractCacheData(const QVariantMap &data)
         CMakeConfigItem item;
         item.key = eData.value("key").toByteArray();
         item.value = eData.value("value").toByteArray();
-        item.type = CMakeConfigItem::STRING;
-        const QByteArray typeId = eData.value("type").toByteArray();
-        if (typeId == "FILEPATH")
-            item.type = CMakeConfigItem::STRING;
-        else if (typeId == "PATH")
-            item.type = CMakeConfigItem::PATH;
-        else if (typeId == "BOOL")
-            item.type = CMakeConfigItem::BOOL;
-        else if (typeId == "INTERNAL")
-            item.type = CMakeConfigItem::INTERNAL;
-        else if (typeId == "STRING")
-            item.type = CMakeConfigItem::STRING;
-        else if (typeId == "STATIC")
-            item.type = CMakeConfigItem::STATIC;
+        item.type = CMakeConfigItem::typeStringToType(eData.value("type").toByteArray());
         const QVariantMap properties = eData.value("properties").toMap();
         item.isAdvanced = properties.value("ADVANCED", false).toBool();
         item.documentation = properties.value("HELPSTRING").toByteArray();

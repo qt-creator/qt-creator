@@ -164,8 +164,7 @@ TeaLeafReader::~TeaLeafReader()
 
 bool TeaLeafReader::isCompatible(const BuildDirReader::Parameters &p)
 {
-    Q_UNUSED(p);
-    return true; // FIXME: Needs to take server mode into account!
+    return !p.cmakeHasServerMode;
 }
 
 void TeaLeafReader::resetData()
