@@ -58,6 +58,8 @@ public:
     void addMsvcCompatibilityVersion();
     void undefineCppLanguageFeatureMacrosForMsvc2015();
 
+    void addDefineFloat128ForMingw();
+
 protected:
     virtual bool excludeDefineDirective(const QByteArray &defineDirective) const;
     virtual bool excludeHeaderPath(const QString &headerPath) const;

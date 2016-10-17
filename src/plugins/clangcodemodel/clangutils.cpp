@@ -96,6 +96,7 @@ public:
         optionsBuilder.enableExceptions();
 
         optionsBuilder.addDefineToAvoidIncludingGccOrMinGwIntrinsics();
+        optionsBuilder.addDefineFloat128ForMingw();
         optionsBuilder.addToolchainAndProjectDefines();
         optionsBuilder.undefineCppLanguageFeatureMacrosForMsvc2015();
 

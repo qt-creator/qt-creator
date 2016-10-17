@@ -368,6 +368,14 @@ void CompilerOptionsBuilder::undefineCppLanguageFeatureMacrosForMsvc2015()
     }
 }
 
+void CompilerOptionsBuilder::addDefineFloat128ForMingw()
+{
+    // TODO: Remove once this is fixed in clang >= 3.9.
+    // https://llvm.org/bugs/show_bug.cgi?id=30685
+    if (m_projectPart.toolchainType == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID)
+        addDefine("#define __float128 void");
+}
+
 QString CompilerOptionsBuilder::includeOption() const
 {
     return QLatin1String("-I");

@@ -175,6 +175,7 @@ public:
         optionsBuilder.addOptionsForLanguage(false);
         optionsBuilder.enableExceptions();
 
+        optionsBuilder.addDefineFloat128ForMingw();
         optionsBuilder.addDefineToAvoidIncludingGccOrMinGwIntrinsics();
         const Core::Id type = projectPart.toolchainType;
         if (type != ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
