@@ -182,7 +182,7 @@ public:
         const Core::Id type = projectPart.toolchainType;
         if (type == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID
                 || type == ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID)
-            optionsBuilder.addDefine("#define _X86INTRIN_H_INCLUDED\n");
+            optionsBuilder.addDefine("#define _X86INTRIN_H_INCLUDED");
 
         if (type != ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
             optionsBuilder.addDefines(projectPart.toolchainDefines);
