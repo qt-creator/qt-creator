@@ -11,7 +11,8 @@ hoverBackground=18ffffff
 selectedBackground=66000000
 normalBackground=ff333333
 alternateBackground=ff515151
-error=ffff0000
+error=ffd84044
+warning=ffe0b716
 textColorLink=ff007af4
 textColorLinkVisited=ffa57aff
 backgroundColorDisabled=ff444444
@@ -56,9 +57,9 @@ IconsBaseColor=ffdcdcdc
 IconsDisabledColor=textDisabled
 IconsInfoColor=ff3099dc
 IconsInfoToolBarColor=ff3099dc
-IconsWarningColor=ffe0b716
+IconsWarningColor=warning
 IconsWarningToolBarColor=ffe0b716
-IconsErrorColor=ffd84044
+IconsErrorColor=error
 IconsErrorToolBarColor=ffd84044
 IconsRunColor=ff7fc341
 IconsRunToolBarColor=ff7fc341
@@ -184,11 +185,11 @@ Bookmarks_TextMarkColor=ff8080ff
 TextEditor_SearchResult_ScrollBarColor=ff00c000
 TextEditor_CurrentLine_ScrollBarColor=ffffffff
 
-ProjectExplorer_TaskError_TextMarkColor=ffff4040
-ProjectExplorer_TaskWarn_TextMarkColor=ffffff40
+ProjectExplorer_TaskError_TextMarkColor=error
+ProjectExplorer_TaskWarn_TextMarkColor=warning
 
-ClangCodeModel_Error_TextMarkColor=ffff882f
-ClangCodeModel_Warning_TextMarkColor=ffceff40
+ClangCodeModel_Error_TextMarkColor=error
+ClangCodeModel_Warning_TextMarkColor=warning
 
 PaletteWindow=normalBackground
 PaletteWindowText=text

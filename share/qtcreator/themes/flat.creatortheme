@@ -14,7 +14,8 @@ hoverBackground=22ffffff
 selectedBackground=66000000
 normalBackground=ffffffff
 alternateBackground=ff515151
-error=ffe41e25
+error=ffdf4f4f
+warning=ffecbc1c
 splitter=ff313131
 
 [Colors]
@@ -57,9 +58,9 @@ IconsBaseColor=toolBarItem
 IconsDisabledColor=toolBarItemDisabled
 IconsInfoColor=ff3099dc
 IconsInfoToolBarColor=ff71b2db
-IconsWarningColor=ffecbc1c
+IconsWarningColor=warning
 IconsWarningToolBarColor=fff2d76e
-IconsErrorColor=ffdf4f4f
+IconsErrorColor=error
 IconsErrorToolBarColor=ffdb6f71
 IconsRunColor=ff6da838
 IconsRunToolBarColor=ff93be6c
@@ -107,7 +108,7 @@ PanelsWidgetSeparatorLineColor=0
 PanelTextColorDark=text
 PanelTextColorMid=ff666666
 PanelTextColorLight=fancyBarsNormalTextColor
-ProgressBarColorError=ffdb6f71
+ProgressBarColorError=error
 ProgressBarColorFinished=dda4d576
 ProgressBarColorNormal=ff999999
 ProgressBarTitleColor=fancyBarsBoldTextColor
@@ -185,11 +186,11 @@ Bookmarks_TextMarkColor=ffa0a0ff
 TextEditor_SearchResult_ScrollBarColor=ff00c000
 TextEditor_CurrentLine_ScrollBarColor=ff404040
 
-ProjectExplorer_TaskError_TextMarkColor=ffff0000
-ProjectExplorer_TaskWarn_TextMarkColor=ffffa500
+ProjectExplorer_TaskError_TextMarkColor=error
+ProjectExplorer_TaskWarn_TextMarkColor=warning
 
-ClangCodeModel_Error_TextMarkColor=ffff882f
-ClangCodeModel_Warning_TextMarkColor=ffc6c132
+ClangCodeModel_Error_TextMarkColor=error
+ClangCodeModel_Warning_TextMarkColor=warning
 
 QmlDesigner_BackgroundColor=ff4c4e50
 QmlDesigner_HighlightColor=ff46a2da
