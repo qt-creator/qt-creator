@@ -60,6 +60,7 @@ protected:
     virtual bool excludeHeaderPath(const QString &headerPath) const;
 
     virtual QString defineOption() const;
+    virtual QString undefineOption() const;
     virtual QString includeOption() const;
 
     const ProjectPart m_projectPart;

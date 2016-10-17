@@ -263,6 +263,13 @@ private:
         return CompilerOptionsBuilder::defineOption();
     }
 
+    QString undefineOption() const override
+    {
+        if (m_isMsvcToolchain)
+            return QLatin1String("/U");
+        return CompilerOptionsBuilder::undefineOption();
+    }
+
     void enableExceptions() override
     {
         if (m_isMsvcToolchain)

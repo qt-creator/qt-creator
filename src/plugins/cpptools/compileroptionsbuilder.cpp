@@ -342,7 +342,7 @@ void CompilerOptionsBuilder::undefineCppLanguageFeatureMacrosForMsvc2015()
         // Undefine the language feature macros that are pre-defined in clang-cl 3.8.0,
         // but not in MSVC2015's cl.exe.
         foreach (const QString &macroName, languageFeatureMacros())
-            m_options.append(QLatin1String("/U") + macroName);
+            m_options.append(undefineOption() + macroName);
     }
 }
 
@@ -362,6 +362,11 @@ QString CompilerOptionsBuilder::defineDirectiveToDefineOption(const QByteArray &
 QString CompilerOptionsBuilder::defineOption() const
 {
     return QLatin1String("-D");
+}
+
+QString CompilerOptionsBuilder::undefineOption() const
+{
+    return QLatin1String("-U");
 }
 
 static bool isGccOrMinGwToolchain(const Core::Id &toolchainType)
