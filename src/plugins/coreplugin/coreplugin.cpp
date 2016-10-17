@@ -32,6 +32,7 @@
 #include "modemanager.h"
 #include "infobar.h"
 #include "iwizardfactory.h"
+#include "reaper_p.h"
 #include "themechooser.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>

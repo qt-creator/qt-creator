@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "reaper_p.h"
+
 #include <extensionsystem/iplugin.h>
 
 QT_BEGIN_NAMESPACE
@@ -85,6 +87,7 @@ private:
     EditMode *m_editMode;
     DesignMode *m_designMode;
     Locator *m_locator;
+    ReaperPrivate m_reaper;
 };
 
 } // namespace Internal

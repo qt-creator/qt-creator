@@ -56,6 +56,7 @@ SOURCES += corejsextensions.cpp \
     progressmanager/progressview.cpp \
     progressmanager/progressbar.cpp \
     progressmanager/futureprogress.cpp \
+    reaper.cpp \
     statusbarwidget.cpp \
     coreplugin.cpp \
     modemanager.cpp \
@@ -160,6 +161,8 @@ HEADERS += corejsextensions.h \
     progressmanager/progressbar.h \
     progressmanager/futureprogress.h \
     progressmanager/progressmanager.h \
+    reaper.h \
+    reaper_p.h \
     icontext.h \
     icore.h \
     infobar.h \
