@@ -3680,6 +3680,60 @@
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="cc" />
     </g>
+    <g
+       transform="translate(128,0)"
+       style="display:inline"
+       id="src/plugins/scxmleditor/common/images/icon-export-canvas">
+      <rect
+         style="fill:#ffffff;fill-opacity:1"
+         x="1228"
+         y="568"
+         width="16"
+         height="16"
+         id="rect6782-96-0-0-7-8-1-0-4-0-1-7-9-1" />
+      <path
+         style="display:inline;fill:#ffffff;stroke:#000000"
+         d="m 1231.5,570.5 6,0 3,3 0,9 -9,0 z"
+         id="path5168-9-0"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cccccc" />
+      <path
+         id="path5395"
+         style="fill:none;stroke:#ffffff;stroke-width:0.5"
+         d="m 1230.5,570.19616 c 0.7537,0.30603 1.4871,0.80218 2.1105,1.42819 m -2.5289,0.0848 c 0.9971,0.19177 2.056,1.54867 2.4887,2.36904 l -2.0781,2.1718 3.0078,0"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cccccc" />
+      <path
+         style="display:inline;fill:none;stroke:#000000"
+         d="m 1237.5,570.5 0,3 3,0"
+         id="path5172-7-3"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccc" />
+      <path
+         style="fill:none;stroke:#000000"
+         d="m 1229,570.5 c 3.1056,0.69368 3.8892,2.71353 5,4.5"
+         id="path4741-3"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cc" />
+      <path
+         style="fill:#000000"
+         d="m 1235,576 -4,0 4,-4 z"
+         id="path4743-2"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cccc" />
+      <path
+         id="rect5364-4"
+         style="fill:none;stroke:#000000;stroke-width:0.5"
+         d="m 1233.25,578.25 2.5,0 0,2.5 -2.5,0 z m 3,-3 2.5,0 0,2.5 -2.5,0 z"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cccccccccc" />
+      <path
+         sodipodi:nodetypes="ccc"
+         inkscape:connector-curvature="0"
+         id="path5391"
+         d="m 1236,579.75 1.75,0 0,-1.75"
+         style="fill:none;stroke:#808080;stroke-width:0.5" />
+    </g>
   </g>
   <g
      inkscape:groupmode="layer"
