@@ -118,7 +118,7 @@ public:
     template<typename Type,
              typename = typename std::enable_if<std::is_pointer<Type>::value>::type
              >
-    SmallString(Type characterPointer) noexcept
+    SmallString(Type characterPointer)
         : SmallString(characterPointer, std::strlen(characterPointer))
     {
         static_assert(!std::is_array<Type>::value, "Input type is array and not char pointer!");
