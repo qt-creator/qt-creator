@@ -144,6 +144,11 @@ public:
             && first.location_ == second.location_;
     }
 
+    friend bool operator!=(const DiagnosticContainer &first, const DiagnosticContainer &second)
+    {
+        return !(first == second);
+    }
+
 private:
     SourceLocationContainer location_;
     QVector<SourceRangeContainer> ranges_;

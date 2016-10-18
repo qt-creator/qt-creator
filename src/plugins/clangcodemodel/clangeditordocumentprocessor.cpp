@@ -263,8 +263,12 @@ void ClangEditorDocumentProcessor::addDiagnosticToolTipToLayout(uint line,
                                                                 uint column,
                                                                 QLayout *target) const
 {
-    foreach (const auto &diagnostic, m_diagnosticManager.diagnosticsAt(line, column))
-        addToolTipToLayout(diagnostic, target);
+    using Internal::ClangDiagnosticWidget;
+
+    const QVector<ClangBackEnd::DiagnosticContainer> diagnostics
+        = m_diagnosticManager.diagnosticsAt(line, column);
+
+    target->addWidget(ClangDiagnosticWidget::create(diagnostics, ClangDiagnosticWidget::ToolTip));
 }
 
 void ClangEditorDocumentProcessor::editorDocumentTimerRestarted()
@@ -342,16 +346,6 @@ void ClangEditorDocumentProcessor::requestDocumentAnnotations(const QString &pro
     m_ipcCommunicator.requestDocumentAnnotations(fileContainer);
 }
 
-static Internal::DisplayHints displayHintsForInfoBar()
-{
-    Internal::DisplayHints displayHints;
-    displayHints.showMainDiagnosticHeader = false;
-    displayHints.showFileNameInMainDiagnostic = true;
-    displayHints.enableClickableFixits = false; // Tool chain headers might be changed, so disable.
-
-    return displayHints;
-}
-
 CppTools::BaseEditorDocumentProcessor::HeaderErrorDiagnosticWidgetCreator
 ClangEditorDocumentProcessor::creatorForHeaderErrorDiagnosticWidget(
         const ClangBackEnd::DiagnosticContainer &firstHeaderErrorDiagnostic)
@@ -365,7 +359,8 @@ ClangEditorDocumentProcessor::creatorForHeaderErrorDiagnosticWidget(
         vbox->setContentsMargins(10, 0, 0, 2);
         vbox->setSpacing(2);
 
-        addToolTipToLayout(firstHeaderErrorDiagnostic, vbox, displayHintsForInfoBar());
+        vbox->addWidget(ClangDiagnosticWidget::create({firstHeaderErrorDiagnostic},
+                                                      ClangDiagnosticWidget::InfoBar));
 
         auto widget = new QWidget;
         widget->setLayout(vbox);

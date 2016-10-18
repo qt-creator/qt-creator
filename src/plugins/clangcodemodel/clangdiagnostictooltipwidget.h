@@ -34,15 +34,13 @@ QT_END_NAMESPACE
 namespace ClangCodeModel {
 namespace Internal {
 
-struct DisplayHints {
-    bool showMainDiagnosticHeader = true;
-    bool showFileNameInMainDiagnostic = false;
-    bool enableClickableFixits = true;
-};
+class ClangDiagnosticWidget {
+public:
+    enum Destination { ToolTip, InfoBar };
 
-void addToolTipToLayout(const ClangBackEnd::DiagnosticContainer &diagnostic,
-                        QLayout *target,
-                        const DisplayHints &displayHints = DisplayHints());
+    static QWidget *create(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
+                           const Destination &destination);
+};
 
 } // namespace Internal
 } // namespace ClangCodeModel
