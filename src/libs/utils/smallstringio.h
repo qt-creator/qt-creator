@@ -30,7 +30,12 @@
 #include <QDataStream>
 #include <QDebug>
 
+#include <iterator>
 #include <ostream>
+
+#ifdef UNIT_TESTS
+#include <gtest/gtest.h>
+#endif
 
 namespace Utils {
 
@@ -78,7 +83,7 @@ std::ostream &operator<<(std::ostream &stream, const SmallString &string)
 {
     using std::operator<<;
 
-    return stream << std::string(string.data());
+    return stream << std::string(string.data(), string.size());
 }
 
 inline
@@ -220,6 +225,37 @@ QDataStream &operator>>(QDataStream &in, vector<Type> &vector)
     return in;
 }
 
+#ifdef UNIT_TESTS
+template <typename T>
+ostream &operator<<(ostream &out, const vector<T> &vector)
+{
+    out << "[";
+
+    ostream_iterator<string> outIterator(out, ", ");
+
+    for (const auto &entry : vector)
+        outIterator = ::testing::PrintToString(entry);
+
+    out << "]";
+
+    return out;
+}
+#else
+template <typename T>
+ostream &operator<<(ostream &out, const vector<T> &vector)
+{
+    out << "[";
+
+    copy(vector.cbegin(), vector.cend(), ostream_iterator<T>(out, ", "));
+
+    out << "]";
+
+    return out;
+}
+#endif
+
+} // namespace std
+
 QT_BEGIN_NAMESPACE
 
 template<typename Type>
@@ -234,5 +270,3 @@ QDebug &operator<<(QDebug &debug, const std::vector<Type> &vector)
 }
 
 QT_END_NAMESPACE
-
-} // namespace std
