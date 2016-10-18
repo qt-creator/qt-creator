@@ -423,6 +423,13 @@ public:
         setSize(newSize);
     }
 
+    SmallString &operator+=(SmallStringView string)
+    {
+        append(string);
+
+        return *this;
+    }
+
     void replace(SmallStringView fromText, SmallStringView toText)
     {
         if (toText.size() == fromText.size())
