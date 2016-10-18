@@ -547,6 +547,15 @@ bool CdbEngine::launchCDB(const DebuggerRunParameters &sp, QString *errorMessage
     if (!sourcePaths.isEmpty())
         arguments << "-srcpath" << sourcePaths.join(';');
 
+    QStringList symbolPaths = stringListSetting(CdbSymbolPaths);
+    QString symbolPath = sp.inferior.environment.value("_NT_ALT_SYMBOL_PATH");
+    if (!symbolPath.isEmpty())
+        symbolPaths += symbolPath;
+    symbolPath = sp.inferior.environment.value("_NT_SYMBOL_PATH");
+    if (!symbolPath.isEmpty())
+        symbolPaths += symbolPath;
+    arguments << "-y" << (symbolPaths.isEmpty() ? "\"\"" : symbolPaths.join(';'));
+
     // Compile argument string preserving quotes
     QString nativeArguments = expand(stringSetting(CdbAdditionalArguments));
     switch (sp.startMode) {
@@ -639,17 +648,6 @@ void CdbEngine::setupInferior()
         runCommand({function, BuiltinCommand,
                     [this, id](const DebuggerResponse &r) { handleBreakInsert(r, id); }});
     }
-
-    // setting up symbol search path
-    QStringList symbolPaths = stringListSetting(CdbSymbolPaths);
-    const QProcessEnvironment &env = m_process.processEnvironment();
-    QString symbolPath = env.value("_NT_ALT_SYMBOL_PATH");
-    if (!symbolPath.isEmpty())
-        symbolPaths += symbolPath;
-    symbolPath = env.value("_NT_SYMBOL_PATH");
-    if (!symbolPath.isEmpty())
-        symbolPaths += symbolPath;
-    runCommand({".sympath \"" + symbolPaths.join(';') + '"', NoFlags});
 
     runCommand({"sxn 0x4000001f", NoFlags}); // Do not break on WowX86 exceptions.
     runCommand({"sxn ibp", NoFlags}); // Do not break on initial breakpoints.
