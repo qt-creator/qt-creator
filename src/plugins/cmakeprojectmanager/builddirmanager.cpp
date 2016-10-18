@@ -722,7 +722,12 @@ void BuildDirManager::checkConfiguration()
 
 void BuildDirManager::handleDocumentSaves(Core::IDocument *document)
 {
-    if (!m_cmakeFiles.contains(document->filePath()))
+    Target *t = m_buildConfiguration->target()->project()->activeTarget();
+    BuildConfiguration *bc = t ? t->activeBuildConfiguration() : nullptr;
+
+    if (!m_cmakeFiles.contains(document->filePath()) ||
+        m_buildConfiguration->target() != t ||
+        m_buildConfiguration != bc)
         return;
 
     m_reparseTimer.start(100);
