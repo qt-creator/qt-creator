@@ -55,7 +55,7 @@ ActionHandler::ActionHandler(QObject *parent)
         { Utils::Icon({{":/utils/images/editcopy.png",  Utils::Theme::IconsBaseColor}}), AH::tr("Copy"), AH::tr("Copy (Ctrl + C)"), "Ctrl+C", false },
         { Utils::Icon({{":/utils/images/editcut.png",  Utils::Theme::IconsBaseColor}}), AH::tr("Cut"), AH::tr("Cut (Ctrl + X)"), "Ctrl+X", false },
         { Utils::Icon({{":/utils/images/editpaste.png",  Utils::Theme::IconsBaseColor}}), AH::tr("Paste"), AH::tr("Paste (Ctrl + V)"), "Ctrl+V", false },
-        { Utils::Icon(":/scxmleditor/images/screenshot.png"), AH::tr("Screenshot"), AH::tr("Screenshot (Ctrl + Shift + C)"), "Ctrl+Shift+C", false },
+        { Utils::Icons::SNAPSHOT_TOOLBAR, AH::tr("Screenshot"), AH::tr("Screenshot (Ctrl + Shift + C)"), "Ctrl+Shift+C", false },
         { Utils::Icon(":/scxmleditor/images/icon-export-canvas.png"), AH::tr("Export to Image"), AH::tr("Export to Image"), "Ctrl+Shift+E", false },
         { Utils::Icon(":/scxmleditor/images/fullnamespace.png"), AH::tr("Toggle Full Namespace"), AH::tr("Toggle Full Namespace"), "Ctrl+Shift+N", true },
 
