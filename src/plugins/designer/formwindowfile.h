@@ -53,7 +53,6 @@ public:
     QByteArray contents() const override;
     bool setContents(const QByteArray &contents) override;
     bool shouldAutoSave() const override;
-    bool isModified() const override;
     bool isSaveAsAllowed() const override;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
     QString fallbackSaveAsFileName() const override;
@@ -82,7 +81,6 @@ private:
     // Might actually go out of scope before the IEditor due
     // to deleting the WidgetHost which owns it.
     QPointer<QDesignerFormWindowInterface> m_formWindow;
-    bool m_isModified = false;
     ResourceHandler *m_resourceHandler = nullptr;
 };
 

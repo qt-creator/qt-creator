@@ -6,6 +6,8 @@ PreferredStyles=
 brightText=ffffffff
 darkText=ff000000
 textDisabled=88a0a0a0
+error=ffdf4f4f
+warning=ffecbc1c
 
 [Colors]
 BackgroundColorAlternate=ff3d3d3d
@@ -47,9 +49,9 @@ IconsBaseColor=ffdcdcdc
 IconsDisabledColor=textDisabled
 IconsInfoColor=ff3099dc
 IconsInfoToolBarColor=ff71b2db
-IconsWarningColor=ffecbc1c
+IconsWarningColor=warning
 IconsWarningToolBarColor=fff2d76e
-IconsErrorColor=ffdf4f4f
+IconsErrorColor=error
 IconsErrorToolBarColor=ffdb6f71
 IconsRunColor=ff6da838
 IconsRunToolBarColor=ffa4d576
@@ -97,7 +99,7 @@ PanelsWidgetSeparatorLineColor=ffbfbcb8
 PanelTextColorDark=darkText
 PanelTextColorMid=ff909090
 PanelTextColorLight=brightText
-ProgressBarColorError=d2ff3c00
+ProgressBarColorError=error
 ProgressBarColorFinished=ff5aaa3c
 ProgressBarColorNormal=b4ffffff
 ProgressBarTitleColor=ffffffff
@@ -175,11 +177,11 @@ Bookmarks_TextMarkColor=ffa0a0ff
 TextEditor_SearchResult_ScrollBarColor=ff00c000
 TextEditor_CurrentLine_ScrollBarColor=ff404040
 
-ProjectExplorer_TaskError_TextMarkColor=ffff0000
-ProjectExplorer_TaskWarn_TextMarkColor=ffffa500
+ProjectExplorer_TaskError_TextMarkColor=error
+ProjectExplorer_TaskWarn_TextMarkColor=warning
 
-ClangCodeModel_Error_TextMarkColor=ffff882f
-ClangCodeModel_Warning_TextMarkColor=ffc6c132
+ClangCodeModel_Error_TextMarkColor=error
+ClangCodeModel_Warning_TextMarkColor=warning
 
 QmlDesigner_BackgroundColor=ff4c4e50
 QmlDesigner_HighlightColor=ff46a2da

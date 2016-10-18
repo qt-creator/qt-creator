@@ -58,6 +58,7 @@ public:
 signals:
     void changed();
     void fileNameChanged(const QString &fileName);
+    void modificationChanged(bool modified);
 
 public:
     Project *project() const { return m_project.data(); }
@@ -65,7 +66,7 @@ public:
 
     void newProject(const QString &fileName);
     void setFileName(const QString &fileName);
-    void setModified();
+    void setModified(bool modified);
 
     void load();
     void save();
@@ -73,7 +74,7 @@ public:
 
 private:
     QScopedPointer<Project> m_project;
-    bool m_isModified;
+    bool m_isModified = false;
 };
 
 } // namespace qmt

@@ -101,10 +101,10 @@ public:
     Core::IEditor *editor() const;
     TextEditor::TextEditorWidget *textEditorWidget() const;
 
-    void setDirty(bool dirty = true);
+    void setModified(bool modified = true);
 
 signals:
-    void guiChanged();
+    void modificationChanged(bool modified);
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
@@ -150,7 +150,7 @@ private:
     QString parseComment(QXmlStreamReader &reader, QXmlStreamWriter &writer);
     void parseUnknownElement(QXmlStreamReader &reader, QXmlStreamWriter &writer);
 
-    bool m_dirty; // indicates that we need to call syncToEditor()
+    bool m_modified; // indicates that we need to call syncToEditor()
     bool m_stayClean;
     int m_errorLine;
     int m_errorColumn;

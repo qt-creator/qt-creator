@@ -41,7 +41,7 @@ public:
 
     // Add custom options
     void add(const QString &option);
-    void addDefine(const QByteArray &defineLine);
+    void addDefine(const QByteArray &defineDirective);
 
     // Add options based on project part
     virtual void addTargetTriple();
@@ -56,7 +56,7 @@ public:
     void undefineCppLanguageFeatureMacrosForMsvc2015();
 
 protected:
-    virtual bool excludeDefineLine(const QByteArray &defineLine) const;
+    virtual bool excludeDefineDirective(const QByteArray &defineDirective) const;
     virtual bool excludeHeaderPath(const QString &headerPath) const;
 
     virtual QString defineOption() const;
@@ -65,7 +65,7 @@ protected:
     const ProjectPart m_projectPart;
 
 private:
-    QString defineLineToDefineOption(const QByteArray &defineLine);
+    QString defineDirectiveToDefineOption(const QByteArray &defineDirective);
 
     QStringList m_options;
 };

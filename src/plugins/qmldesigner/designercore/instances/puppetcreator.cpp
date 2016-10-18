@@ -381,6 +381,7 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
     environment.set(QLatin1String("QML_BAD_GUI_RENDER_LOOP"), QLatin1String("true"));
     environment.set(QLatin1String("QML_USE_MOCKUPS"), QLatin1String("true"));
     environment.set(QLatin1String("QML_PUPPET_MODE"), QLatin1String("true"));
+    environment.set(QLatin1String("QT_AUTO_SCREEN_SCALE_FACTOR"), QLatin1String("1"));
 
 #ifndef QMLDESIGNER_TEST
     const QString controlsStyle = m_designerSettings.value(DesignerSettingsKey::

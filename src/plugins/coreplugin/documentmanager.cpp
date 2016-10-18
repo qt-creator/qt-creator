@@ -1052,6 +1052,7 @@ void DocumentManager::checkForReload()
             documentsToClose << document;
         } else if (defaultBehavior == IDocument::IgnoreAll) {
             // content change or removed, but settings say ignore
+            document->setModified(true);
             success = document->reload(&errorString, IDocument::FlagIgnore, type);
         // either the default behavior is to always ask,
         // or the ReloadUnmodified default behavior didn't kick in,
@@ -1069,6 +1070,7 @@ void DocumentManager::checkForReload()
                 // content change, IDocument wants to ask user
                 if (previousReloadAnswer == ReloadNone) {
                     // answer already given, ignore
+                    document->setModified(true);
                     success = document->reload(&errorString, IDocument::FlagIgnore, IDocument::TypeContents);
                 } else if (previousReloadAnswer == ReloadAll) {
                     // answer already given, reload
@@ -1084,6 +1086,7 @@ void DocumentManager::checkForReload()
                         break;
                     case ReloadSkipCurrent:
                     case ReloadNone:
+                        document->setModified(true);
                         success = document->reload(&errorString, IDocument::FlagIgnore, IDocument::TypeContents);
                         break;
                     case CloseCurrent:

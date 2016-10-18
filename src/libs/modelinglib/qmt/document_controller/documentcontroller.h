@@ -61,6 +61,7 @@ public:
 
 signals:
     void changed();
+    void modificationChanged(bool modified);
     void modelClipboardChanged(bool isEmpty);
     void diagramClipboardChanged(bool isEmpty);
 

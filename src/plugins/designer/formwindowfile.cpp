@@ -59,6 +59,9 @@ FormWindowFile::FormWindowFile(QDesignerFormWindowInterface *form, QObject *pare
     connect(m_formWindow->commandHistory(), &QUndoStack::indexChanged,
             this, &FormWindowFile::setShouldAutoSave);
     connect(m_formWindow.data(), &QDesignerFormWindowInterface::changed, this, &FormWindowFile::updateIsModified);
+    connect(this, &IDocument::modificationChanged, m_formWindow.data(), &QDesignerFormWindowInterface::setDirty);
+
+    setModified(m_formWindow->isDirty());
 
     m_resourceHandler = new ResourceHandler(form);
     connect(this, &FormWindowFile::filePathChanged,
@@ -186,20 +189,12 @@ void FormWindowFile::updateIsModified()
     bool value = m_formWindow && m_formWindow->isDirty();
     if (value)
         emit contentsChanged();
-    if (value == m_isModified)
-        return;
-    m_isModified = value;
-    emit changed();
+    setModified(value);
 }
 
 bool FormWindowFile::shouldAutoSave() const
 {
     return m_shouldAutoSave;
-}
-
-bool FormWindowFile::isModified() const
-{
-    return m_formWindow && m_formWindow->isDirty();
 }
 
 bool FormWindowFile::isSaveAsAllowed() const

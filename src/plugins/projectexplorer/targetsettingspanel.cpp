@@ -26,18 +26,14 @@
 #include "targetsettingspanel.h"
 
 #include "buildconfiguration.h"
-#include "buildinfo.h"
 #include "buildmanager.h"
 #include "buildsettingspropertiespage.h"
 #include "ipotentialkit.h"
 #include "kit.h"
 #include "kitmanager.h"
-#include "kitoptionspage.h"
 #include "panelswidget.h"
 #include "project.h"
 #include "projectexplorer.h"
-#include "projectimporter.h"
-#include "projecttree.h"
 #include "projectwindow.h"
 #include "runsettingspropertiespage.h"
 #include "session.h"
@@ -48,8 +44,6 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/modemanager.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/treemodel.h>
@@ -58,7 +52,6 @@
 #include <QCoreApplication>
 #include <QApplication>
 #include <QDialogButtonBox>
-#include <QFileDialog>
 #include <QLabel>
 #include <QMenu>
 #include <QMessageBox>
@@ -136,6 +129,7 @@ TargetSetupPageWrapper::TargetSetupPageWrapper(Project *project)
     m_targetSetupPage->setProjectPath(project->projectFilePath().toString());
     m_targetSetupPage->setRequiredKitMatcher(project->requiredKitMatcher());
     m_targetSetupPage->setPreferredKitMatcher(project->preferredKitMatcher());
+    m_targetSetupPage->setProjectImporter(project->projectImporter());
     m_targetSetupPage->initializePage();
     m_targetSetupPage->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     updateNoteText();
@@ -218,7 +212,6 @@ public:
     void handleTargetRemoved(Target *target);
     void handleTargetChanged(Target *target);
 
-    void importTarget(const Utils::FileName &path);
     void ensureWidget();
     void rebuildContents();
 
@@ -276,34 +269,6 @@ void TargetGroupItemPrivate::ensureWidget()
                                          widget);
         m_configuredPage = panelsWidget;
     }
-}
-
-void TargetGroupItemPrivate::importTarget(const Utils::FileName &path)
-{
-    ProjectImporter *importer = m_project->projectImporter();
-    if (!importer)
-        return;
-
-    Target *target = nullptr;
-    BuildConfiguration *bc = nullptr;
-    QList<BuildInfo *> toImport = importer->import(path, false);
-    foreach (BuildInfo *info, toImport) {
-        target = m_project->target(info->kitId);
-        if (!target) {
-            target = m_project->createTarget(KitManager::find(info->kitId));
-            m_project->addTarget(target);
-        }
-        bc = info->factory()->create(target, info);
-        QTC_ASSERT(bc, continue);
-        target->addBuildConfiguration(bc);
-    }
-
-    SessionManager::setActiveTarget(m_project, target, SetActive::Cascade);
-
-    if (target && bc)
-        SessionManager::setActiveBuildConfiguration(target, bc, SetActive::Cascade);
-
-    qDeleteAll(toImport);
 }
 
 //
@@ -498,16 +463,6 @@ public:
         } else {
             copyMenu->setEnabled(false);
         }
-
-        menu->addSeparator();
-
-        QAction *manageKits = menu->addAction(tr("Manage Kits"));
-        QObject::connect(manageKits, &QAction::triggered, menu, [this] {
-            KitOptionsPage *page = ExtensionSystem::PluginManager::getObject<KitOptionsPage>();
-            if (page)
-                page->showKit(KitManager::find(m_kitId));
-            ICore::showOptionsDialog(Constants::KITS_SETTINGS_PAGE_ID, ICore::mainWindow());
-        });
     }
 
     bool isEnabled() const { return target() != 0; }
@@ -604,6 +559,9 @@ public:
 
         case ActiveItemRole:
             return QVariant::fromValue<TreeItem *>(const_cast<BuildOrRunItem *>(this));
+
+        case KitIdRole:
+            return m_kitId.toSetting();
 
         case Qt::DecorationRole:
             return Utils::Icons::EMPTY14.icon();
@@ -742,15 +700,6 @@ TargetGroupItem::~TargetGroupItem()
 TargetGroupItemPrivate::TargetGroupItemPrivate(TargetGroupItem *q, Project *project)
     : q(q), m_project(project)
 {
-    if (project->projectImporter()) {
-        auto importAction = new QAction(tr("Import existing build..."), 0);
-        QObject::connect(importAction, &QAction::triggered, [this] {
-            QString dir = m_project->projectDirectory().toString();
-            QString toImport = QFileDialog::getExistingDirectory(ICore::mainWindow(), tr("Import directory"), dir);
-            importTarget(FileName::fromString(toImport));
-        });
-    }
-
     // force a signal since the index has changed
     connect(KitManager::instance(), &KitManager::kitAdded,
             this, &TargetGroupItemPrivate::handleAddedKit);

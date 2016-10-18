@@ -43,8 +43,12 @@ AndroidManifestDocument::AndroidManifestDocument(AndroidManifestEditorWidget *ed
     setId(Constants::ANDROID_MANIFEST_EDITOR_ID);
     setMimeType(QLatin1String(Constants::ANDROID_MANIFEST_MIME_TYPE));
     setSuspendAllowed(false);
-    connect(editorWidget, &AndroidManifestEditorWidget::guiChanged,
-            this, &Core::IDocument::changed);
+    connect(editorWidget, &AndroidManifestEditorWidget::modificationChanged,
+            this, &Core::IDocument::setModified);
+    connect(this, &Core::IDocument::modificationChanged,
+            editorWidget, &AndroidManifestEditorWidget::setModified);
+
+    setModified(editorWidget->isModified());
 }
 
 bool AndroidManifestDocument::save(QString *errorString, const QString &fileName, bool autoSave)
@@ -53,11 +57,6 @@ bool AndroidManifestDocument::save(QString *errorString, const QString &fileName
     bool result = TextDocument::save(errorString, fileName, autoSave);
     m_editorWidget->postSave();
     return result;
-}
-
-bool AndroidManifestDocument::isModified() const
-{
-    return TextDocument::isModified() ||  m_editorWidget->isModified();
 }
 
 bool AndroidManifestDocument::isSaveAsAllowed() const

@@ -84,7 +84,7 @@ Rectangle {
                             ToolTipArea {
                                 anchors.fill: parent
                                 onClicked: toogleExportAlias()
-                                tooltip: qsTr("Toggle if selected item is alias exported.")
+                                tooltip: qsTr("Toggles whether this item is exported as an alias property of the root item.")
                             }
                         }
                     }

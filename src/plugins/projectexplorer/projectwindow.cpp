@@ -25,11 +25,14 @@
 
 #include "projectwindow.h"
 
+#include "buildinfo.h"
 #include "kit.h"
 #include "kitmanager.h"
+#include "kitoptionspage.h"
 #include "panelswidget.h"
 #include "project.h"
 #include "projectexplorer.h"
+#include "projectimporter.h"
 #include "projectpanelfactory.h"
 #include "session.h"
 #include "target.h"
@@ -38,6 +41,8 @@
 #include <coreplugin/coreicons.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
+
+#include <extensionsystem/pluginmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/basetreeview.h>
@@ -49,6 +54,7 @@
 #include <QApplication>
 #include <QComboBox>
 #include <QDockWidget>
+#include <QFileDialog>
 #include <QHeaderView>
 #include <QLabel>
 #include <QMenu>
@@ -362,8 +368,11 @@ public:
         m_selectorTree = new SelectorTree;
         m_selectorTree->setModel(&m_projectsModel);
         m_selectorTree->setItemDelegate(new SelectorDelegate);
+        m_selectorTree->setContextMenuPolicy(Qt::CustomContextMenu);
         connect(m_selectorTree, &QAbstractItemView::activated,
                 this, &SelectorModel::itemActivated);
+        connect(m_selectorTree, &QWidget::customContextMenuRequested,
+                this, &SelectorModel::openContextMenu);
 
         m_projectSelection = new QComboBox;
         m_projectSelection->setModel(&m_comboBoxModel);
@@ -377,8 +386,6 @@ public:
                 this, &SelectorModel::deregisterProject);
         connect(sessionManager, &SessionManager::startupProjectChanged,
                 this, &SelectorModel::startupProjectChanged);
-        connect(m_selectorTree, &QWidget::customContextMenuRequested,
-                this, &SelectorModel::openContextMenu);
     }
 
     void updatePanel()
@@ -445,17 +452,54 @@ public:
 
     void openContextMenu(const QPoint &pos)
     {
-        auto menu = new QMenu;
-        menu->setAttribute(Qt::WA_DeleteOnClose);
+        QMenu menu;
+
+        ProjectItem *projectItem = m_projectsModel.rootItem()->childAt(0);
+        Project *project = projectItem ? projectItem->project() : 0;
+        ProjectImporter *projectImporter = project ? project->projectImporter() : 0;
 
         QModelIndex index = m_selectorTree->indexAt(pos);
-        if (TreeItem *item = m_projectsModel.itemForIndex(index))
-            item->setData(0, QVariant::fromValue(menu), ContextMenuItemAdderRole);
+        TreeItem *item = m_projectsModel.itemForIndex(index);
+        if (item)
+            item->setData(0, QVariant::fromValue(&menu), ContextMenuItemAdderRole);
 
-        if (menu->actions().isEmpty())
-            delete menu;
-        else
-            menu->popup(m_selectorTree->mapToGlobal(pos));
+        if (!menu.actions().isEmpty())
+            menu.addSeparator();
+
+        QAction *importBuild = menu.addAction(tr("Import Existing Build..."));
+        importBuild->setEnabled(projectImporter != 0);
+        QAction *manageKits = menu.addAction(tr("Manage Kits..."));
+
+        QAction *act = menu.exec(m_selectorTree->mapToGlobal(pos));
+
+        if (act == importBuild) {
+            QString dir = project->projectDirectory().toString();
+            QString importDir = QFileDialog::getExistingDirectory(ICore::mainWindow(),
+                                                                  ProjectWindow::tr("Import directory"),
+                                                                  dir);
+            FileName path = FileName::fromString(importDir);
+
+            const QList<BuildInfo *> toImport = projectImporter->import(path, false);
+            for (BuildInfo *info : toImport) {
+                Target *target = project->target(info->kitId);
+                if (!target) {
+                    target = project->createTarget(KitManager::find(info->kitId));
+                    if (target)
+                        project->addTarget(target);
+                }
+                if (target) {
+                    projectImporter->makePersistent(target->kit());
+                    BuildConfiguration *bc = info->factory()->create(target, info);
+                    QTC_ASSERT(bc, continue);
+                    target->addBuildConfiguration(bc);
+                }
+            }
+            qDeleteAll(toImport);
+        } else if (act == manageKits) {
+            if (KitOptionsPage *page = ExtensionSystem::PluginManager::getObject<KitOptionsPage>())
+               page->showKit(KitManager::find(Id::fromSetting(item->data(0, KitIdRole))));
+            ICore::showOptionsDialog(Constants::KITS_SETTINGS_PAGE_ID, ICore::mainWindow());
+        };
     }
 
 public:
@@ -473,16 +517,20 @@ public:
 ProjectWindow::ProjectWindow()
 {
     setBackgroundRole(QPalette::Base);
+    setContextMenuPolicy(Qt::CustomContextMenu);
 
     auto selectorModel = new SelectorModel(this, [this](QWidget *panel) { setPanel(panel); });
 
     auto styledBar = new StyledBar; // The black blob on top of the side bar
     styledBar->setObjectName("ProjectModeStyledBar");
 
-    auto selectorView = new QWidget; // Black blob + Project tree + Combobox below.
+    auto selectorView = new QWidget; // Black blob + Combobox + Project tree below.
     selectorView->setObjectName("ProjectSelector"); // Needed for dock widget state saving
     selectorView->setWindowTitle(tr("Project Selector"));
     selectorView->setAutoFillBackground(true);
+    selectorView->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(selectorView, &QWidget::customContextMenuRequested,
+            selectorModel, &SelectorModel::openContextMenu);
 
     auto activeLabel = new QLabel(tr("Active Project"));
     QFont font = activeLabel->font();
@@ -504,6 +552,9 @@ ProjectWindow::ProjectWindow()
 
     auto selectorDock = addDockForWidget(selectorView, true);
     addDockWidget(Qt::LeftDockWidgetArea, selectorDock);
+
+    connect(this, &QWidget::customContextMenuRequested,
+            selectorModel, &SelectorModel::openContextMenu);
 }
 
 void ProjectWindow::contextMenuEvent(QContextMenuEvent *event)

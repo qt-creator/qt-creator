@@ -44,6 +44,7 @@ enum {
     ItemDeactivatedFromBelowRole, // A subitem got deactivated and gives us the opportunity to adjust
     ItemUpdatedFromBelowRole,     // A subitem got updated, re-expansion is necessary.
     ActiveItemRole,               // The index of the currently selected item in the tree view
+    KitIdRole,                    // The kit id in case the item is associated with a kit.
     PanelWidgetRole               // This item's widget to be shown as central widget.
 };
 
