@@ -589,7 +589,8 @@ IosDeviceToolHandlerPrivate::IosDeviceToolHandlerPrivate(const IosDeviceType &de
     QObject::connect(process, static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
                      std::bind(&IosDeviceToolHandlerPrivate::subprocessFinished,this, _1,_2));
 
-    QObject::connect(process, &QProcess::errorOccurred, std::bind(&IosDeviceToolHandlerPrivate::subprocessError, this, _1));
+    QObject::connect(process, static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
+                     std::bind(&IosDeviceToolHandlerPrivate::subprocessError, this, _1));
 
     QObject::connect(&killTimer, &QTimer::timeout, std::bind(&IosDeviceToolHandlerPrivate::killProcess, this));
 }
@@ -749,7 +750,8 @@ void IosSimulatorToolHandlerPrivate::requestRunApp(const QString &bundlePath,
                              std::bind(&IosSimulatorToolHandlerPrivate::simAppProcessHasErrorOutput,this));
             QObject::connect(process, static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
                              std::bind(&IosSimulatorToolHandlerPrivate::simAppProcessFinished,this, _1,_2));
-            QObject::connect(process, &QProcess::errorOccurred, std::bind(&IosSimulatorToolHandlerPrivate::simAppProcessError, this, _1));
+            QObject::connect(process, static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
+                             std::bind(&IosSimulatorToolHandlerPrivate::simAppProcessError, this, _1));
 
             appPId = pId;
             gotInferiorPid(bundlePath,deviceId,pId);
