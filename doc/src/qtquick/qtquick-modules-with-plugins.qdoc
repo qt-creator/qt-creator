@@ -52,6 +52,9 @@
     is available, and therefore, you must explicitly generate type information
     for QML modules with plugins before distributing them.
 
+    Classes registered with \c qmlRegisterType() can be used as backend objects
+    in the \QMLD. For more information, see \l {Adding Connections}.
+
     Ideally, QML modules have a \c{plugins.qmltypes} file in the same directory
     as the \c qmldir file. The \c qmltypes file contains a description of the
     types exported by the module's plugins and is loaded by \QC when the
