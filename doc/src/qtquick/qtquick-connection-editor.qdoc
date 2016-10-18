@@ -58,6 +58,9 @@
 
         \li Select the \uicontrol {Connections} tab.
 
+        \li Select the \inlineimage plus.png
+            (\uicontrol Add) button to add a connection.
+
         \li Select \uicontrol Target to add the object to connect to a signal.
 
         \li Select \uicontrol {Signal Handler} to select the signal that the connection
@@ -104,6 +107,9 @@
     \list 1
 
         \li Select the \uicontrol {Bindings} tab.
+
+        \li Select the \inlineimage plus.png
+            (\uicontrol Add) button to add a binding.
 
         \li Select \uicontrol Item to select the target object whose property you want
             to change dynamically.
