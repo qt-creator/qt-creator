@@ -61,6 +61,14 @@ public:
             push_back(Utils::SmallString::fromQString(string));
     }
 
+    explicit SmallStringVector(const std::vector<std::string> &stringVector)
+    {
+        reserve(std::size_t(stringVector.size()));
+
+        for (const std::string &string : stringVector)
+           emplace_back(string);
+    }
+
 #if !defined(UNIT_TESTS) && !(defined(_MSC_VER) && _MSC_VER < 1900)
     SmallStringVector(const SmallStringVector &) = delete;
     SmallStringVector &operator=(const SmallStringVector &) = delete;
