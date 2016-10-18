@@ -28,7 +28,6 @@
 #include "diffeditor_global.h"
 
 #include <coreplugin/diffservice.h>
-#include <texteditor/textdocument.h>
 #include <extensionsystem/iplugin.h>
 
 QT_FORWARD_DECLARE_CLASS(QAction)
@@ -58,10 +57,10 @@ public:
     void extensionsInitialized();
 
 private slots:
-    void updateCurrentEditor(Core::IEditor *editor);
-    void updateActions();
+    void updateDiffCurrentFileAction();
+    void updateDiffOpenFilesAction();
     void diffCurrentFile();
-    void diffAllModifiedFiles();
+    void diffOpenFiles();
     void diffExternalFiles();
 
 #ifdef WITH_TESTS
@@ -72,7 +71,7 @@ private slots:
 #endif // WITH_TESTS
 private:
     QAction *m_diffCurrentFileAction;
-    QPointer<TextEditor::TextDocument> m_currentTextDocument;
+    QAction *m_diffOpenFilesAction;
 };
 
 } // namespace Internal

@@ -1906,9 +1906,9 @@ void EditorManagerPrivate::handleDocumentStateChange()
     IDocument *document = qobject_cast<IDocument *>(sender());
     if (!document->isModified())
         document->removeAutoSaveFile();
-    if (EditorManager::currentDocument() == document) {
+    if (EditorManager::currentDocument() == document)
         emit m_instance->currentDocumentStateChanged();
-    }
+    emit m_instance->documentStateChanged(document);
 }
 
 void EditorManagerPrivate::editorAreaDestroyed(QObject *area)
