@@ -3633,6 +3633,47 @@
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="ccc" />
     </g>
+    <g
+       transform="translate(112,0)"
+       style="display:inline;fill:#ffffff"
+       id="src/libs/utils/images/snapshot">
+      <rect
+         style="fill:#ffffff;fill-opacity:1"
+         x="1228"
+         y="568"
+         width="16"
+         height="16"
+         id="rect6782-96-0-0-7-8-1-0-4-0-1-7-9" />
+      <path
+         style="stroke:#000000"
+         d="m 1234.5,572.5 1.5,-2 2,0 1.5,2"
+         id="path5235"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cccc" />
+      <path
+         style="stroke:#000000"
+         d="m 1229.5,581.5 13,0 0,-9 -13,0 z"
+         id="path5231"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccccc" />
+      <circle
+         style="stroke:#000000"
+         id="path5233"
+         cx="1237"
+         cy="577"
+         r="2.5" />
+      <path
+         style="stroke:#000000"
+         d="m 1231.5,574 0,6"
+         id="path5237"
+         inkscape:connector-curvature="0" />
+      <path
+         style="stroke:#000000"
+         d="m 1230,572 3,0"
+         id="path5254"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cc" />
+    </g>
   </g>
   <g
      inkscape:groupmode="layer"
