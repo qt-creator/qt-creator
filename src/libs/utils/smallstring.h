@@ -128,8 +128,11 @@ public:
         : SmallString(SmallString::fromQString(qString))
     {}
 
-    SmallString(const std::string &stdString)
-        : SmallString(stdString.data(), stdString.size())
+    template<typename Type,
+             typename = typename std::enable_if<
+                 std::is_same<typename std::decay<Type>::type, std::string>::value>::type>
+    SmallString(Type &&string)
+        : SmallString(string.data(), string.size())
     {}
 
     template<typename BeginIterator,
