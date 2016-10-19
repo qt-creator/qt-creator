@@ -111,6 +111,9 @@
     (\uicontrol {Variables}) button in a field to select from a list of variables that
     are available in a particular context.
 
+    The following syntax enables you to use environment variables as \QC
+    variables: %{Env:VARNAME}.
+
     \QC uses pattern substitution when expanding variable names. To replace the
     first match of \e pattern within \e variable with \e replacement, use:
 
