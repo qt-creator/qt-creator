@@ -26,6 +26,7 @@
 #include "componenttextmodifier.h"
 
 using namespace QmlDesigner;
+
 ComponentTextModifier::ComponentTextModifier(TextModifier *originalModifier, int componentStartOffset, int componentEndOffset, int rootStartOffset) :
         m_originalModifier(originalModifier),
         m_componentStartOffset(componentStartOffset),
