@@ -129,8 +129,6 @@ if [ ! -d "$1/Contents/Frameworks/QtCore.framework" ]; then
         "-executable=$1/Contents/Resources/qtpromaker" \
         "-executable=$1/Contents/Resources/sdktool" \
         "-executable=$1/Contents/Resources/ios/iostool" \
-        "-executable=$1/Contents/Resources/ios/iossim" \
-        "-executable=$1/Contents/Resources/ios/iossim_1_8_2" \
         "-executable=$1/Contents/Resources/buildoutputparser" \
         "-executable=$1/Contents/Resources/cpaster" \
         "-executable=$qbsapp" \
