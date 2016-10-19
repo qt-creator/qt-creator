@@ -87,7 +87,9 @@ DiffEditorController *DiffEditorDocument::controller() const
     return m_controller;
 }
 
-QString DiffEditorDocument::makePatch(int fileIndex, int chunkIndex, bool revert, bool addPrefix) const
+QString DiffEditorDocument::makePatch(int fileIndex, int chunkIndex,
+                                      bool revert, bool addPrefix,
+                                      const QString &overriddenFileName) const
 {
     if (fileIndex < 0 || chunkIndex < 0)
         return QString();
@@ -102,9 +104,10 @@ QString DiffEditorDocument::makePatch(int fileIndex, int chunkIndex, bool revert
     const ChunkData &chunkData = fileData.chunks.at(chunkIndex);
     const bool lastChunk = (chunkIndex == fileData.chunks.count() - 1);
 
-    const QString fileName = revert
-            ? fileData.rightFileInfo.fileName
-            : fileData.leftFileInfo.fileName;
+    const QString fileName = !overriddenFileName.isEmpty()
+            ? overriddenFileName : revert
+              ? fileData.rightFileInfo.fileName
+              : fileData.leftFileInfo.fileName;
 
     QString leftPrefix, rightPrefix;
     if (addPrefix) {

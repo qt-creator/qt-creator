@@ -143,6 +143,7 @@ void DiffCurrentFileController::reload()
         fileData.rightFileInfo.fileName = m_fileName;
         fileData.leftFileInfo.typeInfo = tr("Saved");
         fileData.rightFileInfo.typeInfo = tr("Modified");
+        fileData.rightFileInfo.patchBehaviour = DiffFileInfo::PatchEditor;
 
         if (!leftFileExists)
             fileData.fileOperation = FileData::NewFile;
@@ -201,6 +202,7 @@ void DiffOpenFilesController::reload()
             fileData.rightFileInfo.fileName = fileName;
             fileData.leftFileInfo.typeInfo = tr("Saved");
             fileData.rightFileInfo.typeInfo = tr("Modified");
+            fileData.rightFileInfo.patchBehaviour = DiffFileInfo::PatchEditor;
 
             if (!leftFileExists)
                 fileData.fileOperation = FileData::NewFile;
@@ -261,6 +263,7 @@ void DiffModifiedFilesController::reload()
             fileData.rightFileInfo.fileName = fileName;
             fileData.leftFileInfo.typeInfo = tr("Saved");
             fileData.rightFileInfo.typeInfo = tr("Modified");
+            fileData.rightFileInfo.patchBehaviour = DiffFileInfo::PatchEditor;
 
             if (!leftFileExists)
                 fileData.fileOperation = FileData::NewFile;

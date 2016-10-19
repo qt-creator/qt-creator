@@ -634,7 +634,11 @@ Core::IDocument::OpenResult TextDocument::openImpl(QString *errorString, const Q
         readResult = read(realFileName, &content, errorString);
         const int chunks = content.size();
 
-        d->m_document.setUndoRedoEnabled(reload);
+        // Don't call setUndoRedoEnabled(true) when reload is true and filenames are different,
+        // since it will reset the undo's clear index
+        if (!reload || fileName == realFileName)
+            d->m_document.setUndoRedoEnabled(reload);
+
         QTextCursor c(&d->m_document);
         c.beginEditBlock();
         if (reload) {
@@ -663,7 +667,11 @@ Core::IDocument::OpenResult TextDocument::openImpl(QString *errorString, const Q
         }
 
         c.endEditBlock();
-        d->m_document.setUndoRedoEnabled(true);
+
+        // Don't call setUndoRedoEnabled(true) when reload is true and filenames are different,
+        // since it will reset the undo's clear index
+        if (!reload || fileName == realFileName)
+            d->m_document.setUndoRedoEnabled(true);
 
         TextDocumentLayout *documentLayout =
             qobject_cast<TextDocumentLayout*>(d->m_document.documentLayout());
@@ -687,6 +695,11 @@ bool TextDocument::reload(QString *errorString, QTextCodec *codec)
 
 bool TextDocument::reload(QString *errorString)
 {
+    return reload(errorString, filePath().toString());
+}
+
+bool TextDocument::reload(QString *errorString, const QString &realFileName)
+{
     emit aboutToReload();
     TextDocumentLayout *documentLayout =
         qobject_cast<TextDocumentLayout*>(d->m_document.documentLayout());
@@ -695,7 +708,7 @@ bool TextDocument::reload(QString *errorString)
         marks = documentLayout->documentClosing(); // removes text marks non-permanently
 
     const QString &file = filePath().toString();
-    bool success = openImpl(errorString, file, file, /*reload =*/ true) == OpenResult::Success;
+    bool success = openImpl(errorString, file, realFileName, /*reload =*/ true) == OpenResult::Success;
 
     if (documentLayout)
         documentLayout->documentReloaded(marks, this); // re-adds text marks

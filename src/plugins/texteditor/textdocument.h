@@ -118,6 +118,7 @@ public:
     OpenResult open(QString *errorString, const QString &fileName,
                     const QString &realFileName) override;
     virtual bool reload(QString *errorString);
+    bool reload(QString *errorString, const QString &realFileName);
 
     bool setPlainText(const QString &text);
     QTextDocument *document() const;
