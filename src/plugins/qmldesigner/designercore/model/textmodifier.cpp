@@ -26,11 +26,20 @@
 #include "textmodifier.h"
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
+#include <texteditor/convenience.h>
 
 using namespace QmlDesigner;
 
 TextModifier::~TextModifier()
 {
+}
+
+int TextModifier::getLineInDocument(QTextDocument *document, int offset)
+{
+    int line = -1;
+    int column = -1;
+    TextEditor::Convenience::convertPosition(document, offset, &line, &column);
+    return line;
 }
 
 QmlJS::Snapshot TextModifier::qmljsSnapshot()

@@ -74,6 +74,7 @@ public:
     virtual QTextDocument *textDocument() const = 0;
     virtual QString text() const = 0;
     virtual QTextCursor textCursor() const = 0;
+    static int getLineInDocument(QTextDocument* document, int offset);
 
     virtual void deactivateChangeSignals() = 0;
     virtual void reactivateChangeSignals() = 0;
