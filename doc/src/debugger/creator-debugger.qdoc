@@ -417,6 +417,9 @@
     \uicontrol Window > \uicontrol Views > \uicontrol {Reset to Default Layout}
     to reset the views to their original sizes and positions.
 
+    To save space on the screen, select \uicontrol Window > \uicontrol Views >
+    \uicontrol {Automatically Hide View Titlebars}.
+
     Once the program starts running under the control of the debugger, it
     behaves and performs as usual. You can interrupt a running C++ program by
     selecting \uicontrol Debug > \uicontrol Interrupt. The program is
