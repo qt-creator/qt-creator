@@ -13,6 +13,7 @@ QtcPlugin {
     Depends { name: "QtSupport" }
 
     files: [
+        "baremetal.qrc",
         "baremetalconstants.h",
         "baremetalcustomrunconfiguration.cpp", "baremetalcustomrunconfiguration.h",
         "baremetaldevice.cpp", "baremetaldevice.h",

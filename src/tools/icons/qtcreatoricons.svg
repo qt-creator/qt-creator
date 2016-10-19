@@ -6424,5 +6424,127 @@
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="ccccccc" />
     </g>
+    <g
+       transform="translate(-48,32)"
+       id="src/plugins/baremetal/images/baremetaldevice">
+      <rect
+         style="fill:#ffffff"
+         x="554"
+         y="347"
+         width="32"
+         height="32"
+         id="rect5230-4-4" />
+      <path
+         style="fill:#808080;fill-opacity:1;stroke:#000000;stroke-opacity:1"
+         d="m 563.5,354.5 13,0 2,2 0,13 -2,2 -13,0 -2,-2 0,-13 z"
+         id="rect5155"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccccccccc" />
+      <circle
+         style="fill:#000000"
+         id="path5159"
+         cx="565"
+         cy="368"
+         r="1.5" />
+      <g
+         id="g5189"
+         transform="translate(-0.5,-1)">
+        <path
+           id="path5432-0"
+           style="color:#000000"
+           d="m 565.5,352 1,0 0,3 -1,0 z m 3,0 1,0 0,3 -1,0 z m 3,0 1,0 0,3 -1,0 z m 3,0 1,0 0,3 -1,0 z"
+           inkscape:connector-curvature="0"
+           sodipodi:nodetypes="cccccccccccccccccccc" />
+      </g>
+      <use
+         x="0"
+         y="0"
+         xlink:href="#g5189"
+         id="use5200"
+         transform="matrix(1,0,0,-1,0,726)"
+         width="100%"
+         height="100%" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#g5189"
+         id="use5202"
+         transform="matrix(0,1,-1,0,933,-207)"
+         width="100%"
+         height="100%" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#g5189"
+         id="use5204"
+         transform="matrix(0,-1,1,0,207,933)"
+         width="100%"
+         height="100%" />
+      <path
+         id="rect5208-6-6"
+         style="fill:#000000"
+         d="m 565,363 7,0 0,1 -7,0 z m 0,-2 6,0 0,1 -6,0 z m 0,-3 10,0 0,2 -10,0 z"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccccccccccccccc" />
+    </g>
+    <g
+       id="src/plugins/baremetal/images/baremetaldevicesmall"
+       transform="translate(-32,32)">
+      <rect
+         id="rect5759-5-9-0-8-6-4"
+         height="16"
+         width="16"
+         y="363"
+         x="570"
+         style="fill:#ffffff" />
+      <path
+         style="fill:#999999;fill-opacity:1;stroke:#000000;stroke-width:0.5"
+         d="m 575.5,367.25 6,0 1.25,1.25 0,6 -1.25,1.25 -6,0 -1.25,-1.25 0,-6 z"
+         id="rect5492"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccccccccc" />
+      <path
+         id="rect5494-5"
+         style="fill:#4d4d4d"
+         d="m 580,365 1,0 0,2 -1,0 z m -2,0 1,0 0,2 -1,0 z m -2,0 1,0 0,2 -1,0 z"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccccccccccccscc" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#rect5494-5"
+         id="use5529"
+         transform="matrix(0,1,-1,0,950,-207)"
+         width="100%"
+         height="100%" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#rect5494-5"
+         id="use5531"
+         transform="matrix(1,0,0,-1,0,743)"
+         width="100%"
+         height="100%" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#rect5494-5"
+         id="use5533"
+         transform="matrix(0,-1,1,0,207,950)"
+         width="100%"
+         height="100%" />
+      <circle
+         style="fill:#000000"
+         id="path5159-4"
+         cx="576"
+         cy="374"
+         r="1" />
+      <path
+         id="rect5535-8"
+         style="fill:#000000;fill-opacity:1"
+         d="m 576,371 4,0 0,0.5 -4,0 z m 0,-2 5,0 0,0.5 -5,0 z"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cccccccccc" />
+    </g>
   </g>
 </svg>

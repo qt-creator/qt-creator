@@ -33,6 +33,7 @@
 #include <coreplugin/id.h>
 
 #include <ssh/sshconnection.h>
+#include <utils/icon.h>
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>
@@ -152,16 +153,28 @@ DeviceProcess *BareMetalDevice::createProcess(QObject *parent) const
     return new GdbServerProviderProcess(sharedFromThis(), parent);
 }
 
+static const QList<Utils::Icon> &bareMetalDeviceIcon()
+{
+    static const QList<Utils::Icon> icon = {
+        Utils::Icon({{":/baremetal/images/baremetaldevicesmall.png",
+                      Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint),
+        Utils::Icon({{":/baremetal/images/baremetaldevice.png",
+                      Utils::Theme::IconsBaseColor}})};
+    return icon;
+}
+
 BareMetalDevice::BareMetalDevice(const QString &name, Core::Id type, MachineType machineType, Origin origin, Core::Id id)
     : IDevice(type, origin, machineType, id)
 {
     setDisplayName(name);
+    setDeviceIcon(bareMetalDeviceIcon());
 }
 
 BareMetalDevice::BareMetalDevice(const BareMetalDevice &other)
     : IDevice(other)
 {
     setGdbServerProviderId(other.gdbServerProviderId());
+    setDeviceIcon(bareMetalDeviceIcon());
 }
 
 } //namespace Internal

@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/baremetal">
+        <file>images/baremetaldevice.png</file>
+        <file>images/baremetaldevice@2x.png</file>
+        <file>images/baremetaldevicesmall.png</file>
+        <file>images/baremetaldevicesmall@2x.png</file>
+    </qresource>
+</RCC>
