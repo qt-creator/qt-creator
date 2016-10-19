@@ -87,12 +87,14 @@ char *getTypeName(ULONG64 module, ULONG typeId)
     symbols->GetTypeName(module, typeId, NULL, 0, &size);
     if (size > 0) {
         typeName = new char[size];
-        if (FAILED(symbols->GetTypeName(module, typeId, typeName, size, &size))) {
+        if (SUCCEEDED(symbols->GetTypeName(module, typeId, typeName, size, &size)))
+            return typeName;
+        else
             delete[] typeName;
-            typeName = new char[1];
-            typeName[0] = 0;
-        }
     }
+    typeName = new char[1];
+    typeName[0] = 0;
+
     return typeName;
 }
 
