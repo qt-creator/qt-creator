@@ -64,6 +64,7 @@ public:
     virtual void replace(int offset, int length, const QString& replacement) = 0;
     virtual void move(const MoveInfo &moveInfo) = 0;
     virtual void indent(int offset, int length) = 0;
+    virtual void indentLines(int startLine, int endLine) = 0;
 
     virtual int indentDepth() const = 0;
 

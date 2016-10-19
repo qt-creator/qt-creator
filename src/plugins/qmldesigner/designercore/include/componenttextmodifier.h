@@ -39,6 +39,7 @@ public:
     void replace(int offset, int length, const QString& replacement) override;
     void move(const MoveInfo &moveInfo) override;
     void indent(int offset, int length) override;
+    void indentLines(int startLine, int endLine) override;
 
     int indentDepth() const override;
 
