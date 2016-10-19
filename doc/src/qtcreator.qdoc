@@ -124,6 +124,9 @@
         \row
             \li {4,1} \note To report bugs and suggestions to the Qt Bug
                 Tracker, select \uicontrol {Help > Report Bug}.
+                To copy and paste detailed information about your system to the
+                bug report, select \uicontrol Help >
+                \uicontrol {System Information}.
 
                 You can also join the \QC mailing list at:
                 \l{http://lists.qt-project.org/mailman/listinfo/}
