@@ -198,6 +198,8 @@ void QmlProject::refresh(RefreshOptions options)
                                             QmlJS::Dialect::Qml);
 
     modelManager()->updateProjectInfo(projectInfo, this);
+
+    emit parsingFinished();
 }
 
 QStringList QmlProject::convertToAbsoluteFiles(const QStringList &paths) const

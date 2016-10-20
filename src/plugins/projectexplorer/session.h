@@ -138,6 +138,9 @@ signals:
     void aboutToSaveSession();
     void dependencyChanged(ProjectExplorer::Project *a, ProjectExplorer::Project *b);
 
+signals: // for tests only
+    void projectFinishedParsing(ProjectExplorer::Project *project);
+
 private:
     static void saveActiveMode(Core::Id mode);
     void clearProjectFileCache();

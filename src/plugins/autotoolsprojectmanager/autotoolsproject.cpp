@@ -231,6 +231,8 @@ void AutotoolsProject::makefileParsingFinished()
 
     m_makefileParserThread->deleteLater();
     m_makefileParserThread = 0;
+
+    emit parsingFinished();
 }
 
 void AutotoolsProject::onFileChanged(const QString &file)

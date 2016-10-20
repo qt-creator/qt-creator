@@ -112,6 +112,8 @@ void NimProject::populateProject()
     rootProjectNode()->buildTree(fileNodes);
 
     emit fileListChanged();
+
+    emit parsingFinished();
 }
 
 void NimProject::recursiveScanDirectory(const QDir &dir, QSet<QString> &container)

@@ -503,6 +503,7 @@ void QbsProject::handleQbsParsingDone(bool success)
     if (dataChanged)
         updateAfterParse();
     emit projectParsingDone(success);
+    emit parsingFinished();
 }
 
 void QbsProject::handleRuleExecutionDone()
