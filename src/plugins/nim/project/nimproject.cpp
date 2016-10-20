@@ -30,6 +30,7 @@
 
 #include "../nimconstants.h"
 
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -37,6 +38,8 @@
 #include <texteditor/textdocument.h>
 
 #include <utils/algorithm.h>
+#include <utils/qtcassert.h>
+#include <utils/runextensions.h>
 
 #include <QFileInfo>
 #include <QQueue>
@@ -60,9 +63,12 @@ NimProject::NimProject(NimProjectManager *projectManager, const QString &fileNam
     rootProjectNode()->setDisplayName(dir.dirName());
 
     m_projectScanTimer.setSingleShot(true);
-    connect(&m_projectScanTimer, &QTimer::timeout, this, &NimProject::populateProject);
+    connect(&m_projectScanTimer, &QTimer::timeout, this, &NimProject::collectProjectFiles);
 
-    populateProject();
+    m_futureWatcher.setFuture(m_futureInterface.future());
+    connect(&m_futureWatcher, &QFutureWatcher<QList<FileNode *>>::finished, this, &NimProject::updateProject);
+
+    collectProjectFiles();
 
     connect(&m_fsWatcher, &QFileSystemWatcher::directoryChanged, this, &NimProject::scheduleProjectScan);
 }
@@ -74,7 +80,7 @@ QString NimProject::displayName() const
 
 QStringList NimProject::files(FilesMode) const
 {
-    return QStringList(m_files.toList());
+    return m_files;
 }
 
 bool NimProject::needsConfiguration() const
@@ -91,43 +97,49 @@ void NimProject::scheduleProjectScan()
             m_projectScanTimer.start();
         }
     } else {
-        populateProject();
+        collectProjectFiles();
     }
 }
 
-void NimProject::populateProject()
+void NimProject::collectProjectFiles()
 {
     m_lastProjectScan.start();
+    QTC_ASSERT(!m_futureInterface.isRunning(), return);
 
-    QSet<QString> oldFiles = m_files;
+    runAsync([this]() {
+        m_futureInterface.reportStarted();
+        QList<FileNode *> nodes
+                = FileNode::scanForFiles(projectDirectory(),
+                                         [](const FileName &fn) { return new FileNode(fn, SourceType, false); },
+                                         &m_futureInterface);
+        m_futureInterface.setProgressValue(m_futureInterface.progressMaximum());
+        m_futureInterface.reportResult(nodes);
+        m_futureInterface.reportFinished();
+    });
+    Core::ProgressManager::addTask(m_futureInterface.future(), tr("Scanning for Nim files"), "Nim.Project.Scan");
+}
+
+void NimProject::updateProject()
+{
+    QStringList oldFiles = m_files;
     m_files.clear();
-    recursiveScanDirectory(QDir(projectDirectory().toString()), m_files);
 
-    if (m_files == oldFiles)
+    QList<FileNode *> fileNodes = Utils::filtered(m_futureInterface.future().result(),
+                                                  [](const FileNode *fn) {
+        const QString fileName = fn->filePath().fileName();
+        return !fileName.endsWith(".nimproject", HostOsInfo::fileNameCaseSensitivity())
+                && !fileName.contains(".nimproject.user", HostOsInfo::fileNameCaseSensitivity());
+    });
+
+    m_files = Utils::transform(fileNodes, [](const FileNode *fn) { return fn->filePath().toString(); });
+    Utils::sort(m_files, [](const QString &a, const QString &b) { return a < b; });
+
+    if (oldFiles == m_files)
         return;
 
-    QList<FileNode *> fileNodes = Utils::transform(m_files.toList(), [](const QString &f) {
-        return new FileNode(FileName::fromString(f), SourceType, false);
-    });
     rootProjectNode()->buildTree(fileNodes);
 
     emit fileListChanged();
-}
-
-void NimProject::recursiveScanDirectory(const QDir &dir, QSet<QString> &container)
-{
-    static const QRegExp projectFilePattern(QLatin1String(".*\\.nimproject(?:\\.user)?$"));
-    for (const QFileInfo &info : dir.entryInfoList(QDir::AllDirs |
-                                                   QDir::Files |
-                                                   QDir::NoDotAndDotDot |
-                                                   QDir::NoSymLinks |
-                                                   QDir::CaseSensitive)) {
-        if (info.isDir())
-            recursiveScanDirectory(QDir(info.filePath()), container);
-        else if (projectFilePattern.indexIn(info.fileName()) == -1)
-            container << info.filePath();
-    }
-    m_fsWatcher.addPath(dir.absolutePath());
 }
 
 bool NimProject::supportsKit(Kit *k, QString *) const

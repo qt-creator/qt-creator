@@ -28,8 +28,9 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 
-#include <QFileSystemWatcher>
 #include <QElapsedTimer>
+#include <QFileSystemWatcher>
+#include <QFutureWatcher>
 #include <QTimer>
 
 namespace TextEditor { class TextDocument; }
@@ -54,11 +55,13 @@ public:
 
 private:
     void scheduleProjectScan();
-    void populateProject();
-    void recursiveScanDirectory(const QDir &dir, QSet<QString> &container);
+    void collectProjectFiles();
+    void updateProject();
 
-    QSet<QString> m_files;
+    QStringList m_files;
     QFileSystemWatcher m_fsWatcher;
+    QFutureInterface<QList<ProjectExplorer::FileNode *>> m_futureInterface;
+    QFutureWatcher<QList<ProjectExplorer::FileNode *>> m_futureWatcher;
 
     QElapsedTimer m_lastProjectScan;
     QTimer m_projectScanTimer;
