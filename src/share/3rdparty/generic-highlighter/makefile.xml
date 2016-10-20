@@ -8,7 +8,7 @@
 <!-- v2.1 by Alex Turbov <i.zaufi@gmail.com>
      improve comments handling -->
 <language name="Makefile" section="Other"
-          version="2.1" kateversion="3.4"
+          version="3" kateversion="3.4"
           extensions="GNUmakefile;Makefile;makefile;GNUmakefile.*;Makefile.*;makefile.*;*.mk"
           mimetype="text/x-makefile"
           author="Per Wigren (wigren@home.se)" license="">

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE language SYSTEM "language.dtd">
-<language name="Java" version="1.22" kateversion="5.0" section="Sources" extensions="*.java" mimetype="text/x-java" license="LGPL" author="Alfredo Luiz Foltran Fialho (alfoltran@ig.com.br)">
+<language name="Java" version="2" kateversion="5.0" section="Sources" extensions="*.java" mimetype="text/x-java" license="LGPL" author="Alfredo Luiz Foltran Fialho (alfoltran@ig.com.br)">
 	<highlighting>
 		<list name="java15">
 			<item> ACTIVE </item>

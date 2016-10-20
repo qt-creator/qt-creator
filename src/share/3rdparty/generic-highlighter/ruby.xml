@@ -31,7 +31,7 @@
 
 <!-- Hold the "language" opening tag on a single line, as mentioned in "language.dtd". -->
 <language name="Ruby" section="Scripts"
-	  version="1.29" kateversion="3.3"
+	  version="2" kateversion="3.3"
 	  extensions="*.rb;*.rjs;*.rxml;*.xml.erb;*.js.erb;*.rake;Rakefile;Gemfile;*.gemspec;Vagrantfile"
 	  mimetype="application/x-ruby"
 	  style="ruby" indenter="ruby"

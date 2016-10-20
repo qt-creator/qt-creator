@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE language SYSTEM "language.dtd">
-<language name="Javadoc" version="1.05" kateversion="2.4" section="Markup" extensions="" license="LGPL" author="Alfredo Luiz Foltran Fialho (alfoltran@ig.com.br)">
+<language name="Javadoc" version="2" kateversion="2.4" section="Markup" extensions="" license="LGPL" author="Alfredo Luiz Foltran Fialho (alfoltran@ig.com.br)">
 	<highlighting>
 		<contexts>
 			<context name="Start" attribute="Normal Text" lineEndContext="#stay">

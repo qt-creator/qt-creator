@@ -30,7 +30,7 @@
   Introduce 3 alert levels and sort keywords according importance.
   Few more keywords has been added.
 -->
-<language version="1.11" kateversion="3.1" name="Alerts" section="Other" extensions="" mimetype="" author="Dominik Haumann (dhdev@gmx.de)" license="LGPL" hidden="true">
+<language version="2" kateversion="3.1" name="Alerts" section="Other" extensions="" mimetype="" author="Dominik Haumann (dhdev@gmx.de)" license="LGPL" hidden="true">
   <highlighting>
     <list name="alerts_hi">
       <item> ALERT </item>

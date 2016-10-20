@@ -4,7 +4,7 @@
 	<!ENTITY name    "[A-Za-z_:][\w.:_-]*">
 	<!ENTITY entref  "&amp;(#[0-9]+|#[xX][0-9A-Fa-f]+|&name;);">
 ]>
-<language name="HTML" version="2.1" kateversion="3.4" section="Markup" extensions="*.htm;*.html;*.shtml;*.shtm" mimetype="text/html"  author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL" priority="10">
+<language name="HTML" version="4" kateversion="3.4" section="Markup" extensions="*.htm;*.html;*.shtml;*.shtm" mimetype="text/html"  author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL" priority="10">
 
 <highlighting>
 <contexts>
@@ -211,7 +211,7 @@
   <itemData name="Doctype" defStyleNum="dsDataType" bold="1" spellChecking="false" />
   <itemData name="Element" defStyleNum="dsKeyword" spellChecking="false" />
   <itemData name="Attribute" defStyleNum="dsOthers" spellChecking="false" />
-  <itemData name="Value" defStyleNum="dsString" color="#a00" spellChecking="false" />
+  <itemData name="Value" defStyleNum="dsString" spellChecking="false" />
   <itemData name="EntityRef" defStyleNum="dsDecVal" spellChecking="false" />
   <itemData name="PEntityRef" defStyleNum="dsDecVal" spellChecking="false" />
   <itemData name="Error" defStyleNum="dsError" spellChecking="false" />

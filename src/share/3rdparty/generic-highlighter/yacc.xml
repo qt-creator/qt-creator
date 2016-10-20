@@ -25,7 +25,7 @@ This code is released under the LGPL as part of kdelibs/kate.
 
 ========================================================================
 -->
-<language name="Yacc/Bison" version="1.04" kateversion="2.4" section="Sources" extensions="*.y;*.yy" author="Jan Villat (jan.villat@net2000.ch)" license="LGPL">
+<language name="Yacc/Bison" version="3" kateversion="2.4" section="Sources" extensions="*.y;*.yy" author="Jan Villat (jan.villat@net2000.ch)" license="LGPL">
 
 <highlighting>
 <contexts>
@@ -92,7 +92,7 @@ This code is released under the LGPL as part of kdelibs/kate.
     <IncludeRules context="Comment" />
     <RegExpr attribute="Normal Text" context="Percent Command In" String="\W" lookAhead="true" />
   </context>
-  <context name="Percent Command In" attribute="NormalText" lineEndContext="#pop#pop">
+  <context name="Percent Command In" attribute="Normal Text" lineEndContext="#pop#pop">
     <IncludeRules context="StringOrChar" />
     <DetectChar attribute="Data Type" context="PC type" char="&lt;" />
   </context>
@@ -112,7 +112,7 @@ This code is released under the LGPL as part of kdelibs/kate.
     <RegExpr attribute="Comment" context="#pop" String="[^\\]$" />
   </context>
 
-  <context name="StringOrChar" attribute="NormalText" lineEndContext="#stay">
+  <context name="StringOrChar" attribute="Normal Text" lineEndContext="#stay">
     <DetectChar attribute="String Char" context="Char" char="'" />
     <DetectChar attribute="String" context="String" char="&quot;" />
   </context>
