@@ -45,23 +45,23 @@ class MercurialControl : public Core::IVersionControl
 public:
     explicit MercurialControl(MercurialClient *mercurialClient);
 
-    QString displayName() const override;
-    Core::Id id() const override;
-    bool managesDirectory(const QString &filename, QString *topLevel = 0) const override;
-    bool managesFile(const QString &workingDirectory, const QString &fileName) const override;
-    bool isConfigured() const override;
-    bool supportsOperation(Operation operation) const override;
-    bool vcsOpen(const QString &fileName) override;
-    bool vcsAdd(const QString &filename) override;
-    bool vcsDelete(const QString &filename) override;
-    bool vcsMove(const QString &from, const QString &to) override;
-    bool vcsCreateRepository(const QString &directory) override;
-    bool vcsAnnotate(const QString &file, int line) override;
+    QString displayName() const final;
+    Core::Id id() const final;
+    bool managesDirectory(const QString &filename, QString *topLevel = 0) const final;
+    bool managesFile(const QString &workingDirectory, const QString &fileName) const final;
+    bool isConfigured() const final;
+    bool supportsOperation(Operation operation) const final;
+    bool vcsOpen(const QString &fileName) final;
+    bool vcsAdd(const QString &filename) final;
+    bool vcsDelete(const QString &filename) final;
+    bool vcsMove(const QString &from, const QString &to) final;
+    bool vcsCreateRepository(const QString &directory) final;
+    bool vcsAnnotate(const QString &file, int line) final;
 
     Core::ShellCommand *createInitialCheckoutCommand(const QString &url,
                                                      const Utils::FileName &baseDirectory,
                                                      const QString &localName,
-                                                     const QStringList &extraArgs) override;
+                                                     const QStringList &extraArgs) final;
 
     bool sccManaged(const QString &filename);
 

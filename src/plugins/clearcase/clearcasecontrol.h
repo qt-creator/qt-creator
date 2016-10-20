@@ -39,28 +39,28 @@ class ClearCaseControl : public Core::IVersionControl
     Q_OBJECT
 public:
     explicit ClearCaseControl(ClearCasePlugin *plugin);
-    QString displayName() const override;
-    Core::Id id() const override;
+    QString displayName() const final;
+    Core::Id id() const final;
 
-    bool managesDirectory(const QString &directory, QString *topLevel = 0) const override;
-    bool managesFile(const QString &workingDirectory, const QString &fileName) const override;
+    bool managesDirectory(const QString &directory, QString *topLevel = 0) const final;
+    bool managesFile(const QString &workingDirectory, const QString &fileName) const final;
 
-    bool isConfigured() const override;
+    bool isConfigured() const final;
 
-    bool supportsOperation(Operation operation) const override;
-    OpenSupportMode openSupportMode(const QString &fileName) const override;
-    bool vcsOpen(const QString &fileName) override;
-    SettingsFlags settingsFlags() const override;
-    bool vcsAdd(const QString &fileName) override;
-    bool vcsDelete(const QString &filename) override;
-    bool vcsMove(const QString &from, const QString &to) override;
-    bool vcsCreateRepository(const QString &directory) override;
+    bool supportsOperation(Operation operation) const final;
+    OpenSupportMode openSupportMode(const QString &fileName) const final;
+    bool vcsOpen(const QString &fileName) final;
+    SettingsFlags settingsFlags() const final;
+    bool vcsAdd(const QString &fileName) final;
+    bool vcsDelete(const QString &filename) final;
+    bool vcsMove(const QString &from, const QString &to) final;
+    bool vcsCreateRepository(const QString &directory) final;
 
-    bool vcsAnnotate(const QString &file, int line) override;
+    bool vcsAnnotate(const QString &file, int line) final;
 
-    QString vcsOpenText() const override;
-    QString vcsMakeWritableText() const override;
-    QString vcsTopic(const QString &directory) override;
+    QString vcsOpenText() const final;
+    QString vcsMakeWritableText() const final;
+    QString vcsTopic(const QString &directory) final;
 
     void emitRepositoryChanged(const QString &);
     void emitFilesChanged(const QStringList &);

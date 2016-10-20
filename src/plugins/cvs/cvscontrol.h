@@ -39,28 +39,28 @@ class CvsControl : public Core::IVersionControl
 
 public:
     explicit CvsControl(CvsPlugin *plugin);
-    QString displayName() const override;
-    Core::Id id() const override;
+    QString displayName() const final;
+    Core::Id id() const final;
 
-    bool managesDirectory(const QString &directory, QString *topLevel = 0) const override;
-    bool managesFile(const QString &workingDirectory, const QString &fileName) const override;
+    bool managesDirectory(const QString &directory, QString *topLevel = 0) const final;
+    bool managesFile(const QString &workingDirectory, const QString &fileName) const final;
 
-    bool isConfigured() const override;
-    bool supportsOperation(Operation operation) const override;
-    OpenSupportMode openSupportMode(const QString &fileName) const override;
-    bool vcsOpen(const QString &fileName) override;
-    bool vcsAdd(const QString &fileName) override;
-    bool vcsDelete(const QString &filename) override;
-    bool vcsMove(const QString &from, const QString &to) override;
-    bool vcsCreateRepository(const QString &directory) override;
-    bool vcsAnnotate(const QString &file, int line) override;
+    bool isConfigured() const final;
+    bool supportsOperation(Operation operation) const final;
+    OpenSupportMode openSupportMode(const QString &fileName) const final;
+    bool vcsOpen(const QString &fileName) final;
+    bool vcsAdd(const QString &fileName) final;
+    bool vcsDelete(const QString &filename) final;
+    bool vcsMove(const QString &from, const QString &to) final;
+    bool vcsCreateRepository(const QString &directory) final;
+    bool vcsAnnotate(const QString &file, int line) final;
 
-    QString vcsOpenText() const override;
+    QString vcsOpenText() const final;
 
     Core::ShellCommand *createInitialCheckoutCommand(const QString &url,
                                                      const Utils::FileName &baseDirectory,
                                                      const QString &localName,
-                                                     const QStringList &extraArgs) override;
+                                                     const QStringList &extraArgs) final;
 
     void emitRepositoryChanged(const QString &s);
     void emitFilesChanged(const QStringList &l);
