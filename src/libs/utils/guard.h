@@ -26,11 +26,13 @@
 #pragma once
 
 #include "utils_global.h"
+#include <QtGlobal>
 
 namespace Utils {
 
 class QTCREATOR_UTILS_EXPORT Guard
 {
+    Q_DISABLE_COPY(Guard)
 public:
     Guard();
     ~Guard();
@@ -42,6 +44,7 @@ private:
 
 class QTCREATOR_UTILS_EXPORT GuardLocker
 {
+    Q_DISABLE_COPY(GuardLocker)
 public:
     GuardLocker(Guard &guard);
     ~GuardLocker();

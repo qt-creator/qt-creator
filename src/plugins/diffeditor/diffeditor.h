@@ -29,6 +29,7 @@
 
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/idocument.h>
+#include <utils/guard.h>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
@@ -103,7 +104,7 @@ private:
     QPair<QString, QString> m_currentFileChunk;
     int m_currentViewIndex;
     int m_currentDiffFileIndex;
-    int m_ignoreChanges;
+    Utils::Guard m_ignoreChanges;
     bool m_sync;
     bool m_showDescription;
 };
