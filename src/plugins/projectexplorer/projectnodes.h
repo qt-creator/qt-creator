@@ -29,11 +29,14 @@
 
 #include <utils/fileutils.h>
 
+#include <QFutureInterface>
 #include <QIcon>
 
 #include <QObject>
 #include <QStringList>
 #include <QDebug>
+
+#include <functional>
 
 QT_BEGIN_NAMESPACE
 class QFileInfo;
@@ -151,6 +154,10 @@ public:
     bool isGenerated() const;
 
     FileNode *asFileNode() override;
+
+    static QList<FileNode *> scanForFiles(const Utils::FileName &directory,
+                                          const std::function<FileNode *(const Utils::FileName &fileName)> factory,
+                                          QFutureInterface<QList<FileNode *>> *future = nullptr);
 
 private:
     // managed by ProjectNode
