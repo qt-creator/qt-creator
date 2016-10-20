@@ -43,7 +43,8 @@ ProjectIsModifiedException::ProjectIsModifiedException()
 }
 
 ProjectController::ProjectController(QObject *parent)
-    : QObject(parent)
+    : QObject(parent),
+      m_isModified(false)
 {
 }
 
@@ -58,7 +59,7 @@ void ProjectController::newProject(const QString &fileName)
     rootPackage->setName(tr("Model"));
     m_project->setRootPackage(rootPackage);
     m_project->setFileName(fileName);
-    setModified(false);
+    m_isModified = false;
     emit fileNameChanged(m_project->fileName());
     emit changed();
 }
@@ -67,18 +68,17 @@ void ProjectController::setFileName(const QString &fileName)
 {
     if (fileName != m_project->fileName()) {
         m_project->setFileName(fileName);
-        setModified(true);
+        setModified();
         emit fileNameChanged(m_project->fileName());
     }
 }
 
-void ProjectController::setModified(bool modified)
+void ProjectController::setModified()
 {
-    if (m_isModified == modified)
-        return;
-
-    m_isModified = modified;
-    emit modificationChanged(modified);
+    if (!m_isModified) {
+        m_isModified = true;
+        emit changed();
+    }
 }
 
 void ProjectController::load()
@@ -89,7 +89,7 @@ void ProjectController::load()
         throw NoFileNameException();
     ProjectSerializer serializer;
     serializer.load(m_project->fileName(), m_project.data());
-    setModified(false);
+    m_isModified = false;
     emit changed();
 }
 
@@ -99,7 +99,7 @@ void ProjectController::save()
         throw NoFileNameException();
     ProjectSerializer serializer;
     serializer.save(m_project->fileName(), m_project.data());
-    setModified(false);
+    m_isModified = false;
     emit changed();
 }
 

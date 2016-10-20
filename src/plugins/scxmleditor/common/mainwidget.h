@@ -87,7 +87,6 @@ public:
     QString contents() const;
     QUndoStack *undoStack() const;
     bool isDirty() const;
-    void setDirty(bool dirty);
     void newDocument();
     void refresh();
     OutputPane::WarningModel *warningModel() const;

@@ -63,13 +63,9 @@ ResourceEditorDocument::ResourceEditorDocument(QObject *parent) :
     setId(ResourceEditor::Constants::RESOURCEEDITOR_ID);
     setMimeType(QLatin1String(ResourceEditor::Constants::C_RESOURCE_MIMETYPE));
     connect(m_model, &RelativeResourceModel::dirtyChanged,
-            this, &ResourceEditorDocument::setModified);
-    connect(this, &IDocument::modificationChanged,
-            m_model, &RelativeResourceModel::setDirty);
+            this, &ResourceEditorDocument::dirtyChanged);
     connect(m_model, &ResourceModel::contentsChanged,
             this, &IDocument::contentsChanged);
-
-    setModified(m_model->dirty());
 
     if (debugResourceEditorW)
         qDebug() <<  "ResourceEditorFile::ResourceEditorFile()";
@@ -128,16 +124,20 @@ Core::IDocument::OpenResult ResourceEditorDocument::open(QString *errorString,
     if (debugResourceEditorW)
         qDebug() <<  "ResourceEditorW::open: " << fileName;
 
+    setBlockDirtyChanged(true);
+
     m_model->setFileName(realFileName);
 
     OpenResult openResult = m_model->reload();
     if (openResult != OpenResult::Success) {
         *errorString = m_model->errorMessage();
+        setBlockDirtyChanged(false);
         emit loaded(false);
         return openResult;
     }
 
     setFilePath(FileName::fromString(fileName));
+    setBlockDirtyChanged(false);
     m_model->setDirty(fileName != realFileName);
     m_shouldAutoSave = false;
 
@@ -155,10 +155,12 @@ bool ResourceEditorDocument::save(QString *errorString, const QString &name, boo
     if (actualName.isEmpty())
         return false;
 
+    m_blockDirtyChanged = true;
     m_model->setFileName(actualName.toString());
     if (!m_model->save()) {
         *errorString = m_model->errorMessage();
         m_model->setFileName(oldFileName.toString());
+        m_blockDirtyChanged = false;
         return false;
     }
 
@@ -166,10 +168,12 @@ bool ResourceEditorDocument::save(QString *errorString, const QString &name, boo
     if (autoSave) {
         m_model->setFileName(oldFileName.toString());
         m_model->setDirty(true);
+        m_blockDirtyChanged = false;
         return true;
     }
 
     setFilePath(actualName);
+    m_blockDirtyChanged = false;
 
     emit changed();
     return true;
@@ -209,6 +213,11 @@ void ResourceEditorDocument::setFilePath(const FileName &newName)
     IDocument::setFilePath(newName);
 }
 
+void ResourceEditorDocument::setBlockDirtyChanged(bool value)
+{
+    m_blockDirtyChanged = value;
+}
+
 RelativeResourceModel *ResourceEditorDocument::model() const
 {
     return m_model;
@@ -227,6 +236,11 @@ QWidget *ResourceEditorW::toolBar()
 bool ResourceEditorDocument::shouldAutoSave() const
 {
     return m_shouldAutoSave;
+}
+
+bool ResourceEditorDocument::isModified() const
+{
+    return m_model->dirty();
 }
 
 bool ResourceEditorDocument::isSaveAsAllowed() const
@@ -248,6 +262,16 @@ bool ResourceEditorDocument::reload(QString *errorString, ReloadFlag flag, Chang
         return success;
     }
     return true;
+}
+
+void ResourceEditorDocument::dirtyChanged(bool dirty)
+{
+    if (m_blockDirtyChanged)
+        return; // We emit changed() afterwards, unless it was an autosave
+
+    if (debugResourceEditorW)
+        qDebug() << " ResourceEditorW::dirtyChanged" <<  dirty;
+    emit changed();
 }
 
 void ResourceEditorW::onUndoStackChanged(bool canUndo, bool canRedo)

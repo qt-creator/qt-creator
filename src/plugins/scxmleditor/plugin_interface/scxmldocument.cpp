@@ -643,14 +643,6 @@ bool ScxmlDocument::changed() const
     return !m_undoStack->isClean();
 }
 
-void ScxmlDocument::setChanged(bool modified)
-{
-    if (modified)
-        ; // we lack a setDirty method in QUndoStack
-    else
-        m_undoStack->setClean();
-}
-
 ScxmlTag *ScxmlDocument::scxmlRootTag() const
 {
     ScxmlTag *tag = rootTag();

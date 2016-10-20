@@ -92,7 +92,7 @@ void ExtPropertiesMView::onConfigPathChanged(const QString &path)
     if (path.isEmpty()) {
         if (!project->configPath().isEmpty()) {
             project->setConfigPath(QString());
-            m_projectController->setModified(true);
+            m_projectController->setModified();
             modified = true;
         }
     } else {
@@ -103,7 +103,7 @@ void ExtPropertiesMView::onConfigPathChanged(const QString &path)
         QString configPath = projectDir.relativeFilePath(absConfigPath.filePath());
         if (configPath != project->configPath()) {
             project->setConfigPath(configPath);
-            m_projectController->setModified(true);
+            m_projectController->setModified();
             modified = true;
         }
     }

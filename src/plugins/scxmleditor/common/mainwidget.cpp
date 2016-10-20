@@ -789,11 +789,6 @@ bool MainWidget::isDirty() const
     return m_document->changed();
 }
 
-void MainWidget::setDirty(bool dirty)
-{
-    m_document->setChanged(dirty);
-}
-
 void MainWidget::fitToView()
 {
     StateView *view = m_views.last();
