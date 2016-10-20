@@ -39,6 +39,7 @@
 #include <texteditor/generichighlighter/highlighter.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/documentmodel.h>
+#include <utils/guard.h>
 #include <utils/mimetypes/mimedatabase.h>
 
 #include <QApplication>
@@ -106,6 +107,7 @@ public:
     int m_autoSaveRevision;
 
     TextMarks m_marksCache; // Marks not owned
+    Utils::Guard m_modificationChangedGuard;
 };
 
 QTextCursor TextDocumentPrivate::indentOrUnindent(const QTextCursor &textCursor, bool doIndent,
@@ -236,14 +238,8 @@ void TextDocumentPrivate::updateRevisions()
 TextDocument::TextDocument(Id id)
     : d(new TextDocumentPrivate)
 {
-    QObject::connect(&d->m_document, &QTextDocument::modificationChanged, [this](bool modified) {
-        // we only want to update the block revisions when going back to the saved version,
-        // e.g. with undo
-        if (!modified)
-            d->updateRevisions();
-        emit changed();
-    });
-
+    connect(&d->m_document, &QTextDocument::modificationChanged,
+            this, &TextDocument::modificationChanged);
     connect(&d->m_document, &QTextDocument::contentsChanged,
             this, &Core::IDocument::contentsChanged);
     connect(&d->m_document, &QTextDocument::contentsChange,
@@ -723,8 +719,21 @@ bool TextDocument::setPlainText(const QString &text)
 
 bool TextDocument::reload(QString *errorString, ReloadFlag flag, ChangeType type)
 {
-    if (flag == FlagIgnore)
+    if (flag == FlagIgnore) {
+        if (type != TypeContents)
+            return true;
+
+        const bool wasModified = document()->isModified();
+        {
+            Utils::GuardLocker locker(d->m_modificationChangedGuard);
+            // hack to ensure we clean the clear state in QTextDocument
+            document()->setModified(false);
+            document()->setModified(true);
+        }
+        if (!wasModified)
+            modificationChanged(true);
         return true;
+    }
     if (type == TypePermissions) {
         checkPermissions();
         return true;
@@ -806,6 +815,17 @@ void TextDocument::ensureFinalNewLine(QTextCursor& cursor)
         cursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
         cursor.insertText(QLatin1String("\n"));
     }
+}
+
+void TextDocument::modificationChanged(bool modified)
+{
+    if (d->m_modificationChangedGuard.isLocked())
+        return;
+    // we only want to update the block revisions when going back to the saved version,
+    // e.g. with undo
+    if (!modified)
+        d->updateRevisions();
+    emit changed();
 }
 
 TextMarks TextDocument::marks() const

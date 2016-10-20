@@ -151,6 +151,7 @@ private:
                         bool reload);
     void cleanWhitespace(QTextCursor &cursor, bool cleanIndentation, bool inEntireDocument);
     void ensureFinalNewLine(QTextCursor &cursor);
+    void modificationChanged(bool modified);
 
     TextDocumentPrivate *d;
 };

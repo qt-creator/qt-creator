@@ -114,6 +114,8 @@ Project {
             "flowlayout.cpp",
             "flowlayout.h",
             "functiontraits.h",
+            "guard.cpp",
+            "guard.h",
             "historycompleter.cpp",
             "historycompleter.h",
             "hostosinfo.h",

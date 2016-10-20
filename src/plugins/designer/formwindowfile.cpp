@@ -183,6 +183,9 @@ void FormWindowFile::setFilePath(const FileName &newName)
 
 void FormWindowFile::updateIsModified()
 {
+    if (m_modificationChangedGuard.isLocked())
+        return;
+
     bool value = m_formWindow && m_formWindow->isDirty();
     if (value)
         emit contentsChanged();
@@ -209,8 +212,20 @@ bool FormWindowFile::isSaveAsAllowed() const
 
 bool FormWindowFile::reload(QString *errorString, ReloadFlag flag, ChangeType type)
 {
-    if (flag == FlagIgnore)
+    if (flag == FlagIgnore) {
+        if (!m_formWindow || type != TypeContents)
+            return true;
+        const bool wasModified = m_formWindow->isDirty();
+        {
+            Utils::GuardLocker locker(m_modificationChangedGuard);
+            // hack to ensure we clean the clear state in form window
+            m_formWindow->setDirty(false);
+            m_formWindow->setDirty(true);
+        }
+        if (!wasModified)
+            updateIsModified();
         return true;
+    }
     if (type == TypePermissions) {
         emit changed();
     } else {

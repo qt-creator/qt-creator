@@ -100,7 +100,8 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/icon.cpp \
     $$PWD/port.cpp \
     $$PWD/runextensions.cpp \
-    $$PWD/utilsicons.cpp
+    $$PWD/utilsicons.cpp \
+    $$PWD/guard.cpp
 
 win32:SOURCES += $$PWD/consoleprocess_win.cpp
 else:SOURCES += $$PWD/consoleprocess_unix.cpp
@@ -217,7 +218,8 @@ HEADERS += \
     $$PWD/smallstringvector.h \
     $$PWD/smallstringlayout.h \
     $$PWD/sizedarray.h \
-    $$PWD/smallstringio.h
+    $$PWD/smallstringio.h \
+    $$PWD/guard.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \
