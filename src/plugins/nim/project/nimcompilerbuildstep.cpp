@@ -26,6 +26,7 @@
 #include "nimcompilerbuildstep.h"
 #include "nimbuildconfiguration.h"
 #include "nimcompilerbuildstepconfigwidget.h"
+#include "nimproject.h"
 
 #include "../nimconstants.h"
 
@@ -50,6 +51,8 @@ NimCompilerBuildStep::NimCompilerBuildStep(BuildStepList *parentList)
             this, &NimCompilerBuildStep::updateProcessParameters);
     connect(this, &NimCompilerBuildStep::outFilePathChanged,
             bc, &NimBuildConfiguration::outFilePathChanged);
+    connect(bc->target()->project(), &ProjectExplorer::Project::fileListChanged,
+            this, &NimCompilerBuildStep::updateTargetNimFile);
     updateProcessParameters();
 }
 
@@ -202,5 +205,13 @@ void NimCompilerBuildStep::updateEnvironment()
     processParameters()->setEnvironment(bc->environment());
 }
 
+void NimCompilerBuildStep::updateTargetNimFile()
+{
+    if (!m_targetNimFile.isEmpty())
+        return;
+    const Utils::FileNameList nimFiles = static_cast<NimProject *>(project())->nimFiles();
+    if (!nimFiles.isEmpty())
+        setTargetNimFile(nimFiles.at(0));
 }
 
+} // namespace Nim

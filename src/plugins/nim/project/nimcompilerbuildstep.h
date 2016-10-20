@@ -74,6 +74,8 @@ private:
     void updateArguments();
     void updateEnvironment();
 
+    void updateTargetNimFile();
+
     DefaultBuildOptions m_defaultOptions;
     QStringList m_userCompilerOptions;
     Utils::FileName m_targetNimFile;

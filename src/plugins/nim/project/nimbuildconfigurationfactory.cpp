@@ -108,7 +108,9 @@ BuildConfiguration *NimBuildConfigurationFactory::create(Target *parent, const B
             break;
         }
         nimCompilerBuildStep->setDefaultCompilerOptions(defaultOption);
-        nimCompilerBuildStep->setTargetNimFile(project->nimFiles().first());
+        Utils::FileNameList nimFiles = project->nimFiles();
+        if (!nimFiles.isEmpty())
+            nimCompilerBuildStep->setTargetNimFile(nimFiles.first());
         buildSteps->appendStep(nimCompilerBuildStep);
     }
 
