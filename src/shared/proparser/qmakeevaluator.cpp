@@ -1239,7 +1239,7 @@ bool QMakeEvaluator::loadSpec()
                 goto cool;
             }
         }
-        evalError(fL1S("Could not find qmake configuration file %1.").arg(qmakespec));
+        evalError(fL1S("Could not find qmake spec '%1'.").arg(qmakespec));
         return false;
     }
   cool:
