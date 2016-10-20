@@ -247,6 +247,11 @@ QString ItemLibraryWidget::qmlSourcesPath()
     return Core::ICore::resourcePath() + QStringLiteral("/qmldesigner/itemLibraryQmlSources");
 }
 
+void ItemLibraryWidget::clearSearchFilter()
+{
+    m_filterLineEdit->clear();
+}
+
 void ItemLibraryWidget::reloadQmlSource()
 {
     QString itemLibraryQmlFilePath = qmlSourcesPath() + QStringLiteral("/ItemsView.qml");

@@ -86,6 +86,8 @@ public:
     void setImportsWidget(QWidget *importsWidget);
 
     static QString qmlSourcesPath();
+    void clearSearchFilter();
+
 public slots:
     void setSearchFilter(const QString &searchFilter);
     void delayedUpdateModel();
