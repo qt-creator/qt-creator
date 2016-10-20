@@ -77,6 +77,11 @@ Core::Id SubversionControl::id() const
     return Core::Id(VcsBase::Constants::VCS_ID_SUBVERSION);
 }
 
+bool SubversionControl::isVcsFileOrDirectory(const Utils::FileName &fileName) const
+{
+    return m_plugin->isVcsDirectory(fileName);
+}
+
 bool SubversionControl::isConfigured() const
 {
     const Utils::FileName binary = m_plugin->client()->vcsBinary();

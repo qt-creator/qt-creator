@@ -73,6 +73,8 @@ public:
 
     bool initialize(const QStringList &arguments, QString *errorMessage);
 
+    bool isVcsDirectory(const Utils::FileName &fileName);
+
     SubversionClient *client() const;
 
     SubversionSubmitEditor *openSubversionSubmitEditor(const QString &fileName);

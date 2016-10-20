@@ -33,6 +33,7 @@
 #include <vcsbase/vcsbaseeditorparameterwidget.h>
 #include <utils/synchronousprocess.h>
 #include <utils/fileutils.h>
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
 #include <QDateTime>
@@ -331,6 +332,12 @@ void MercurialClient::revertAll(const QString &workingDir, const QString &revisi
 {
     VcsBaseClient::revertAll(workingDir, revision,
                              QStringList(extraOptions) << QLatin1String("--all"));
+}
+
+bool MercurialClient::isVcsDirectory(const FileName &fileName) const
+{
+    return fileName.toFileInfo().isDir()
+            && fileName.fileName().compare(Constants::MERCURIALREPO, HostOsInfo::fileNameCaseSensitivity());
 }
 
 void MercurialClient::view(const QString &source, const QString &id,

@@ -78,6 +78,11 @@ Core::Id MercurialControl::id() const
     return Core::Id(VcsBase::Constants::VCS_ID_MERCURIAL);
 }
 
+bool MercurialControl::isVcsFileOrDirectory(const Utils::FileName &fileName) const
+{
+    return mercurialClient->isVcsDirectory(fileName);
+}
+
 bool MercurialControl::managesDirectory(const QString &directory, QString *topLevel) const
 {
     QFileInfo dir(directory);

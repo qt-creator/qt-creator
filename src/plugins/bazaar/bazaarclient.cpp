@@ -32,6 +32,8 @@
 #include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/vcsbaseeditorparameterwidget.h>
 
+#include <utils/hostosinfo.h>
+
 #include <QDir>
 #include <QFileInfo>
 #include <QTextStream>
@@ -169,6 +171,12 @@ VcsBaseEditorWidget *BazaarClient::annotate(
 {
     return VcsBaseClient::annotate(workingDir, file, revision, lineNumber,
                                    QStringList(extraOptions) << QLatin1String("--long"));
+}
+
+bool BazaarClient::isVcsDirectory(const FileName &fileName) const
+{
+    return fileName.toFileInfo().isDir()
+            && fileName.fileName().compare(Constants::BAZAARREPO, HostOsInfo::fileNameCaseSensitivity());
 }
 
 QString BazaarClient::findTopLevelForFile(const QFileInfo &file) const

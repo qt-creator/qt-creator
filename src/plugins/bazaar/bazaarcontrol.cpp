@@ -52,6 +52,11 @@ Core::Id BazaarControl::id() const
     return Core::Id(VcsBase::Constants::VCS_ID_BAZAAR);
 }
 
+bool BazaarControl::isVcsFileOrDirectory(const Utils::FileName &fileName) const
+{
+    return m_bazaarClient->isVcsDirectory(fileName);
+}
+
 bool BazaarControl::managesDirectory(const QString &directory, QString *topLevel) const
 {
     QFileInfo dir(directory);

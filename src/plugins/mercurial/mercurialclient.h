@@ -70,6 +70,7 @@ public:
     void revertAll(const QString &workingDir, const QString &revision = QString(),
                    const QStringList &extraOptions = QStringList()) override;
 
+    bool isVcsDirectory(const Utils::FileName &fileName) const;
     QString findTopLevelForFile(const QFileInfo &file) const override;
 
 public slots:

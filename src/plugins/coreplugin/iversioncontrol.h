@@ -93,6 +93,17 @@ public:
     virtual Id id() const = 0;
 
     /*!
+     * \brief isVcsFileOrDirectory
+     * \param fileName
+     * \return True if filename is a file or directory that is maintained by the
+     * version control system.
+     *
+     * It will return true only for exact matches of the name, not for e.g. files in a
+     * directory owned by the version control system (e.g. .git/control).
+     */
+    virtual bool isVcsFileOrDirectory(const Utils::FileName &fileName) const = 0;
+
+    /*!
      * Returns whether files in this directory should be managed with this
      * version control.
      * If \a topLevel is non-null, it should return the topmost directory,
@@ -231,6 +242,9 @@ public:
         m_id(id), m_displayName(name), m_dirCount(0), m_fileCount(0)
     { }
     ~TestVersionControl();
+
+    bool isVcsFileOrDirectory(const Utils::FileName &fileName) const final
+    { Q_UNUSED(fileName); return false; }
 
     void setManagedDirectories(const QHash<QString, QString> &dirs);
     void setManagedFiles(const QSet<QString> &files);

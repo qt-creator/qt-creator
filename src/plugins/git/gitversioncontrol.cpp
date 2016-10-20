@@ -30,6 +30,8 @@
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcscommand.h>
 
+#include <utils/hostosinfo.h>
+
 #include <QFileInfo>
 #include <QProcessEnvironment>
 
@@ -72,6 +74,12 @@ QString GitVersionControl::displayName() const
 Core::Id GitVersionControl::id() const
 {
     return Core::Id(VcsBase::Constants::VCS_ID_GIT);
+}
+
+bool GitVersionControl::isVcsFileOrDirectory(const Utils::FileName &fileName) const
+{
+    return fileName.toFileInfo().isDir()
+            && fileName.fileName().compare(".git", Utils::HostOsInfo::fileNameCaseSensitivity());
 }
 
 bool GitVersionControl::isConfigured() const

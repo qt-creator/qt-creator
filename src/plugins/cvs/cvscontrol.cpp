@@ -33,6 +33,7 @@
 #include <vcsbase/vcscommand.h>
 
 #include <utils/fileutils.h>
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>
@@ -52,6 +53,12 @@ QString CvsControl::displayName() const
 Core::Id CvsControl::id() const
 {
     return Core::Id(VcsBase::Constants::VCS_ID_CVS);
+}
+
+bool CvsControl::isVcsFileOrDirectory(const Utils::FileName &fileName) const
+{
+    return fileName.toFileInfo().isDir()
+            && fileName.fileName().compare("CVS", Utils::HostOsInfo::fileNameCaseSensitivity());
 }
 
 bool CvsControl::isConfigured() const

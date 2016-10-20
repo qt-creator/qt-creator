@@ -54,6 +54,7 @@
 #include <coreplugin/locator/commandlocator.h>
 #include <coreplugin/messagemanager.h>
 
+#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/mimetypes/mimedatabase.h>
@@ -406,6 +407,15 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
     ActionManager::registerAction(m_submitRedoAction, Core::Constants::REDO, svncommitcontext);
 
     return true;
+}
+
+bool SubversionPlugin::isVcsDirectory(const FileName &fileName)
+{
+    const QString baseName = fileName.fileName();
+    return fileName.toFileInfo().isDir()
+            && contains(m_svnDirectories, [baseName](const QString &s) {
+        return baseName.compare(s, HostOsInfo::fileNameCaseSensitivity());
+    });
 }
 
 SubversionClient *SubversionPlugin::client() const
