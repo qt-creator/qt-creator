@@ -123,6 +123,7 @@ Column {
                 if (supportGradient && gradientLine.hasGradient) {
                     colorEditor.color = gradientLine.currentColor
                     gradientLine.currentColor = color
+                    textField.text = colorEditor.color
                 }
                 gradientLine.isInValidState = true
             }
