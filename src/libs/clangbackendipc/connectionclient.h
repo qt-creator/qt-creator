@@ -30,6 +30,8 @@
 
 #include <QLocalSocket>
 #include <QProcessEnvironment>
+#include <QScopedPointer>
+#include <QTemporaryDir>
 
 #include <memory>
 
@@ -102,6 +104,8 @@ private:
     void printStandardOutput();
     void printStandardError();
 
+    void resetTemporaryDir();
+
     void connectLocalSocketConnected();
     void connectLocalSocketDisconnected();
     void connectProcessFinished(QProcess *process) const;
@@ -121,6 +125,7 @@ private:
 
     mutable std::unique_ptr<QProcess> process_;
     QLocalSocket localSocket;
+    QScopedPointer<QTemporaryDir> temporaryDirectory_;
     QTimer processAliveTimer;
     QString processPath_;
     bool isAliveTimerResetted = false;
