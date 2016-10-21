@@ -202,14 +202,22 @@ static std::string findModule(CIDebugSymbols *syms,
 }
 
 // Try to find a JS execution context passed as parameter in a complete stack dump (kp)
-static ULONG64 jsExecutionContextFromStackTrace(const std::wstring &stack)
+static ULONG64 jsExecutionEngineFromStackTrace(const std::wstring &stack)
 {
-    // Search for "QV4::ExecutionContext * - varying variable names - 0x...[,)]"
-    const wchar_t needle[] = L"struct QV4::ExecutionContext * "; // .. varying variable names .. 0x...
-    const std::string::size_type varPos = stack.find(needle);
-    if (varPos == std::string::npos)
+    // Search for "QV4::ExecutionEngine * - varying variable names - 0x...[,)]"
+    const wchar_t needle[] = L"struct QV4::ExecutionEngine * "; // Qt 5.7 onwards
+    std::string::size_type varEnd = std::string::npos;
+    std::string::size_type varPos = stack.find(needle);
+    if (varPos != std::string::npos) {
+        varEnd = varPos + sizeof(needle) / sizeof(wchar_t) - 1;
+    } else {
+        const wchar_t needle56[] = L"struct QV4::ExecutionContext * "; // up to Qt 5.6
+        varPos = stack.find(needle56);
+        if (varPos != std::string::npos)
+            varEnd = varPos + sizeof(needle56) / sizeof(wchar_t) - 1;
+    }
+    if (varEnd == std::string::npos)
         return 0;
-    const std::string::size_type varEnd = varPos + sizeof(needle) / sizeof(wchar_t) - 1;
     std::string::size_type numPos = stack.find(L"0x", varEnd);
     if (numPos == std::string::npos || numPos > (varEnd + 20))
         return 0;
@@ -227,10 +235,10 @@ static ULONG64 jsExecutionContextFromStackTrace(const std::wstring &stack)
     return str.fail() ? 0 : result;
 }
 
-// Try to find address of jsExecutionContext by looking at the
+// Try to find address of jsExecutionEngine by looking at the
 // stack trace in case QML is loaded.
-ULONG64 ExtensionContext::jsExecutionContext(ExtensionCommandContext &exc,
-                                             std::string *errorMessage)
+ULONG64 ExtensionContext::jsExecutionEngine(ExtensionCommandContext &exc,
+                                            std::string *errorMessage)
 {
 
     const QtInfo &qtInfo = QtInfo::get(SymbolGroupValueContext(exc.dataSpaces(), exc.symbols()));
@@ -241,7 +249,7 @@ ULONG64 ExtensionContext::jsExecutionContext(ExtensionCommandContext &exc,
             *errorMessage = "QML not loaded";
         return 0;
     }
-    // Retrieve full stack (costly) and try to find a JS execution context passed as parameter
+    // Retrieve full stack (costly) and try to find a JS execution engine passed as parameter
     startRecordingOutput();
     StateNotificationBlocker blocker(this);
     const HRESULT hr = m_control->Execute(DEBUG_OUTCTL_ALL_CLIENTS, "kp", DEBUG_EXECUTE_ECHO);
@@ -255,9 +263,9 @@ ULONG64 ExtensionContext::jsExecutionContext(ExtensionCommandContext &exc,
         *errorMessage = "Unable to obtain stack (output redirection in place?)";
         return 0;
     }
-    const ULONG64 result = jsExecutionContextFromStackTrace(fullStackTrace);
+    const ULONG64 result = jsExecutionEngineFromStackTrace(fullStackTrace);
     if (!result)
-        *errorMessage = "JS ExecutionContext address not found in stack";
+        *errorMessage = "JS ExecutionEngine address not found in stack";
     return result;
 }
 

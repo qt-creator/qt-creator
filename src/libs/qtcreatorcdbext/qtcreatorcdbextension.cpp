@@ -1091,7 +1091,7 @@ extern "C" HRESULT CALLBACK qmlstack(CIDebugClient *client, PCSTR argsIn)
 
     int token = 0;
     bool humanReadable = false;
-    ULONG64 jsExecutionContext = 0;
+    ULONG64 jsExecutionEngine = 0;
     std::string stackDump;
 
     do {
@@ -1101,16 +1101,16 @@ extern "C" HRESULT CALLBACK qmlstack(CIDebugClient *client, PCSTR argsIn)
              tokens.pop_front();
         }
         if (!tokens.empty()) {
-            if (!integerFromString(tokens.front(), &jsExecutionContext)) {
+            if (!integerFromString(tokens.front(), &jsExecutionEngine)) {
                 errorMessage = "Invalid address " + tokens.front();
                 break;
             }
             tokens.pop_front();
         }
         ExtensionCommandContext exc(client);
-        if (!jsExecutionContext) { // Try to find execution context unless it was given.
-            jsExecutionContext = ExtensionContext::instance().jsExecutionContext(exc, &errorMessage);
-            if (!jsExecutionContext)
+        if (!jsExecutionEngine) { // Try to find execution engine unless it was given.
+            jsExecutionEngine = ExtensionContext::instance().jsExecutionEngine(exc, &errorMessage);
+            if (!jsExecutionEngine)
                 break;
         }
         // call function to get stack trace. Call with exceptions handled right from
@@ -1118,7 +1118,7 @@ extern "C" HRESULT CALLBACK qmlstack(CIDebugClient *client, PCSTR argsIn)
         std::ostringstream callStr;
         const QtInfo &qtInfo = QtInfo::get(SymbolGroupValueContext(exc.dataSpaces(), exc.symbols()));
         callStr << qtInfo.prependQtModule("qt_v4StackTrace(", QtInfo::Qml) << std::showbase << std::hex
-                << jsExecutionContext << std::dec << std::noshowbase << ')';
+                << jsExecutionEngine << std::dec << std::noshowbase << ')';
         std::wstring wOutput;
         if (!ExtensionContext::instance().call(callStr.str(), ExtensionContext::CallWithExceptionsHandled, &wOutput, &errorMessage))
             break;
