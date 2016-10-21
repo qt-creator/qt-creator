@@ -197,17 +197,19 @@ bool ClangStaticAnalyzerPreconfiguredSessionTests::switchToProjectAndTarget(Proj
     if (project == activeProject && target == activeProject->activeTarget())
         return true; // OK, desired project/target already active.
 
-    QSignalSpy waitUntilProjectUpdated(CppModelManager::instance(),
-                                       &CppModelManager::projectPartsUpdated);
-
     if (project != activeProject)
         m_sessionManager.setStartupProject(project);
-    m_sessionManager.setActiveTarget(project, target, ProjectExplorer::SetActive::NoCascade);
 
-    const bool waitResult = waitUntilProjectUpdated.wait(30000);
-    if (!waitResult) {
-        qWarning() << "waitUntilProjectUpdated() failed";
-        return false;
+    if (target != project->activeTarget()) {
+        QSignalSpy waitUntilProjectUpdated(CppModelManager::instance(),
+                                           &CppModelManager::projectPartsUpdated);
+        m_sessionManager.setActiveTarget(project, target, ProjectExplorer::SetActive::NoCascade);
+
+        const bool waitResult = waitUntilProjectUpdated.wait(30000);
+        if (!waitResult) {
+            qWarning() << "waitUntilProjectUpdated() failed";
+            return false;
+        }
     }
 
     return true;
