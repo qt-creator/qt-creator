@@ -622,19 +622,13 @@ QStringList QmakePriFileNode::fullVPaths(const QStringList &baseVPaths, QtSuppor
 QSet<FileName> QmakePriFileNode::recursiveEnumerate(const QString &folder)
 {
     QSet<FileName> result;
-    QFileInfo fi(folder);
-    if (fi.isDir()) {
-        QDir dir(folder);
-        dir.setFilter(dir.filter() | QDir::NoDotAndDotDot);
-
-        foreach (const QFileInfo &file, dir.entryInfoList()) {
-            if (file.isDir() && !file.isSymLink())
-                result += recursiveEnumerate(file.absoluteFilePath());
-            else if (!Core::EditorManager::isAutoSaveFile(file.fileName()))
-                result += FileName(file);
-        }
-    } else if (fi.exists()) {
-        result << FileName(fi);
+    QDir dir(folder);
+    dir.setFilter(dir.filter() | QDir::NoDotAndDotDot);
+    foreach (const QFileInfo &file, dir.entryInfoList()) {
+        if (file.isDir() && !file.isSymLink())
+            result += recursiveEnumerate(file.absoluteFilePath());
+        else if (!Core::EditorManager::isAutoSaveFile(file.fileName()))
+            result += FileName(file);
     }
     return result;
 }
