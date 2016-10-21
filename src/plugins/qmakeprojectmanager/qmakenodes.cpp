@@ -237,7 +237,6 @@ public:
     TargetInformation targetInformation;
     InstallsList installsList;
     QHash<QmakeVariable, QStringList> newVarValues;
-    bool isDeployable;
     QStringList errors;
 };
 
@@ -1614,11 +1613,6 @@ QByteArray QmakeProFileNode::cxxDefines() const
     return result;
 }
 
-bool QmakeProFileNode::isDeployable() const
-{
-    return m_isDeployable;
-}
-
 /*!
   \class QmakeProFileNode
   Implements abstract ProjectNode class
@@ -1991,19 +1985,6 @@ EvalResult *QmakeProFileNode::evaluate(const EvalInput &input)
         result->newVarValues[QmakeCc] = input.readerExact->values("QMAKE_CC");
         result->newVarValues[QmakeCxx] = input.readerExact->values("QMAKE_CXX");
 
-        result->isDeployable = false;
-        if (result->projectType == ApplicationTemplate) {
-            result->isDeployable = true;
-        } else {
-            foreach (const QString &item, input.readerExact->values(QLatin1String("DEPLOYMENT"))) {
-                if (!input.readerExact->values(item + QLatin1String(".sources")).isEmpty()) {
-                    result->isDeployable = true;
-                    break;
-                }
-            }
-        }
-
-
         if (readerBuildPass && readerBuildPass != input.readerExact)
             delete readerBuildPass;
     }
@@ -2253,7 +2234,6 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
 
         m_subProjectsNotToDeploy = result->subProjectsNotToDeploy;
         m_installsList = result->installsList;
-        m_isDeployable = result->isDeployable;
 
         if (m_varValues != result->newVarValues)
             m_varValues = result->newVarValues;

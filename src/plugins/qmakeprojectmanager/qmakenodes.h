@@ -354,7 +354,6 @@ public:
     QString objectExtension() const;
     QString objectsDirectory() const;
     QByteArray cxxDefines() const;
-    bool isDeployable() const;
 
     enum AsyncUpdateDelay { ParseNow, ParseLater };
     void scheduleUpdate(AsyncUpdateDelay delay);
@@ -400,8 +399,6 @@ private:
 
     static TargetInformation targetInformation(QtSupport::ProFileReader *reader, QtSupport::ProFileReader *readerBuildPass, const QString &buildDir, const QString &projectFilePath);
     static InstallsList installsList(const QtSupport::ProFileReader *reader, const QString &projectFilePath, const QString &projectDir);
-
-    bool m_isDeployable = false;
 
     bool m_validParse = false;
     bool m_parseInProgress = true;
