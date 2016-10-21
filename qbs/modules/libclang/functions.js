@@ -58,12 +58,12 @@ function llvmConfig(qbs, qtcFunctions)
 
 function includeDir(llvmConfig)
 {
-    return FileInfo.toNativeSeparators(readOutput(llvmConfig, ["--includedir"]));
+    return FileInfo.fromNativeSeparators(readOutput(llvmConfig, ["--includedir"]));
 }
 
 function libDir(llvmConfig)
 {
-    return FileInfo.toNativeSeparators(readOutput(llvmConfig, ["--libdir"]));
+    return FileInfo.fromNativeSeparators(readOutput(llvmConfig, ["--libdir"]));
 }
 
 function version(llvmConfig)
