@@ -1376,10 +1376,11 @@ QStringList QmakePriFileNode::varNames(FileType type, QtSupport::ProFileReader *
         foreach (const QString &var, listOfExtraCompilers) {
             QStringList inputs = readerExact->values(var + QLatin1String(".input"));
             foreach (const QString &input, inputs)
-                // FORMS, RESOURCES, and STATECHARTS are handled below, HEADERS above
+                // FORMS, RESOURCES, and STATECHARTS are handled below, HEADERS and SOURCES above
                 if (input != QLatin1String("FORMS")
                         && input != QLatin1String("STATECHARTS")
                         && input != QLatin1String("RESOURCES")
+                        && input != QLatin1String("SOURCES")
                         && input != QLatin1String("HEADERS"))
                     vars << input;
         }
