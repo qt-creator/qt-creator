@@ -891,7 +891,7 @@ void QmakeProject::proFileParseError(const QString &errorMessage)
 QtSupport::ProFileReader *QmakeProject::createProFileReader(const QmakeProFileNode *qmakeProFileNode, QmakeBuildConfiguration *bc)
 {
     if (!m_qmakeGlobals) {
-        m_qmakeGlobals = new ProFileGlobals;
+        m_qmakeGlobals = new QMakeGlobals;
         m_qmakeGlobalsRefCnt = 0;
 
         Kit *k;
@@ -912,7 +912,7 @@ QtSupport::ProFileReader *QmakeProject::createProFileReader(const QmakeProFileNo
         }
 
         QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(k);
-        QString systemRoot = SysRootKitInformation::hasSysRoot(k)
+        m_qmakeSysroot = SysRootKitInformation::hasSysRoot(k)
                 ? SysRootKitInformation::sysRoot(k).toString() : QString();
 
         if (qtVersion && qtVersion->isValid()) {
@@ -920,7 +920,6 @@ QtSupport::ProFileReader *QmakeProject::createProFileReader(const QmakeProFileNo
             m_qmakeGlobals->setProperties(qtVersion->versionInfo());
         }
         m_qmakeGlobals->setDirectories(rootProjectNode()->sourceDir(), rootProjectNode()->buildDir());
-        m_qmakeGlobals->sysroot = systemRoot;
 
         Environment::const_iterator eit = env.constBegin(), eend = env.constEnd();
         for (; eit != eend; ++eit)
@@ -953,7 +952,7 @@ QtSupport::ProFileReader *QmakeProject::createProFileReader(const QmakeProFileNo
     return reader;
 }
 
-ProFileGlobals *QmakeProject::qmakeGlobals()
+QMakeGlobals *QmakeProject::qmakeGlobals()
 {
     return m_qmakeGlobals;
 }
@@ -961,6 +960,11 @@ ProFileGlobals *QmakeProject::qmakeGlobals()
 QMakeVfs *QmakeProject::qmakeVfs()
 {
     return m_qmakeVfs;
+}
+
+QString QmakeProject::qmakeSysroot()
+{
+    return m_qmakeSysroot;
 }
 
 void QmakeProject::destroyProFileReader(QtSupport::ProFileReader *reader)

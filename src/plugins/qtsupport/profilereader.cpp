@@ -74,7 +74,7 @@ void ProMessageHandler::fileMessage(int type, const QString &msg)
 }
 
 
-ProFileReader::ProFileReader(ProFileGlobals *option, QMakeVfs *vfs)
+ProFileReader::ProFileReader(QMakeGlobals *option, QMakeVfs *vfs)
     : QMakeParser(ProFileCacheManager::instance()->cache(), vfs, this)
     , ProFileEvaluator(option, this, vfs, this)
     , m_ignoreLevel(0)

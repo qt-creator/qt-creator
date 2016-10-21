@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "qmake_global.h"
+
 #include <qstring.h>
 
 QT_BEGIN_NAMESPACE
@@ -35,7 +37,7 @@ namespace QMakeInternal {
   This class provides replacement functionality for QFileInfo, QFile & QDir,
   as these are abysmally slow.
 */
-class IoUtils {
+class QMAKE_EXPORT IoUtils {
 public:
     enum FileType {
         FileNotFound = 0,

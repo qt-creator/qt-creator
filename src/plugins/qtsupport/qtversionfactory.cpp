@@ -54,7 +54,7 @@ BaseQtVersion *QtVersionFactory::createQtVersionFromQMakePath(const Utils::FileN
     Utils::FileName mkspec = BaseQtVersion::mkspecFromVersionInfo(versionInfo);
 
     QMakeVfs vfs;
-    ProFileGlobals globals;
+    QMakeGlobals globals;
     globals.setProperties(versionInfo);
     ProMessageHandler msgHandler(false);
     ProFileCacheManager::instance()->incRefCount();

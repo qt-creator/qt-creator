@@ -40,12 +40,6 @@ class QMakeParser;
 class QMakeEvaluator;
 class QMakeHandler;
 
-class QMAKE_EXPORT ProFileGlobals : public QMakeGlobals
-{
-public:
-    QString sysroot;
-};
-
 class QMAKE_EXPORT ProFileEvaluator
 {
 public:
@@ -62,7 +56,7 @@ public:
     // Call this from a concurrency-free context
     static void initialize();
 
-    ProFileEvaluator(ProFileGlobals *option, QMakeParser *parser, QMakeVfs *vfs,
+    ProFileEvaluator(QMakeGlobals *option, QMakeParser *parser, QMakeVfs *vfs,
                      QMakeHandler *handler);
     ~ProFileEvaluator();
 
@@ -91,8 +85,6 @@ public:
     QString propertyValue(const QString &val) const;
 
 private:
-    QString sysrootify(const QString &path, const QString &baseDir) const;
-
     QMakeEvaluator *d;
 };
 

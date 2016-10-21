@@ -39,7 +39,7 @@ void ProFileEvaluator::initialize()
     QMakeEvaluator::initStatics();
 }
 
-ProFileEvaluator::ProFileEvaluator(ProFileGlobals *option, QMakeParser *parser, QMakeVfs *vfs,
+ProFileEvaluator::ProFileEvaluator(QMakeGlobals *option, QMakeParser *parser, QMakeVfs *vfs,
                                    QMakeHandler *handler)
   : d(new QMakeEvaluator(option, parser, vfs, handler))
 {
@@ -86,29 +86,13 @@ QStringList ProFileEvaluator::values(const QString &variableName, const ProFile 
     return ret;
 }
 
-QString ProFileEvaluator::sysrootify(const QString &path, const QString &baseDir) const
-{
-    ProFileGlobals *option = static_cast<ProFileGlobals *>(d->m_option);
-#ifdef Q_OS_WIN
-    Qt::CaseSensitivity cs = Qt::CaseInsensitive;
-#else
-    Qt::CaseSensitivity cs = Qt::CaseSensitive;
-#endif
-    const bool isHostSystemPath =
-        option->sysroot.isEmpty() || path.startsWith(option->sysroot, cs)
-        || path.startsWith(baseDir, cs) || path.startsWith(d->m_outputDir, cs)
-        || !QFileInfo::exists(option->sysroot + path);
-
-    return isHostSystemPath ? path : option->sysroot + path;
-}
-
 QStringList ProFileEvaluator::fixifiedValues(
         const QString &variable, const QString &baseDirectory, const QString &buildDirectory) const
 {
     QStringList result;
     foreach (const QString &el, values(variable)) {
         if (IoUtils::isAbsolutePath(el)) {
-            result << sysrootify(el, baseDirectory);
+            result << el;
         } else {
             QString fn = QDir::cleanPath(baseDirectory + QLatin1Char('/') + el);
             if (IoUtils::exists(fn))
@@ -125,10 +109,9 @@ QStringList ProFileEvaluator::absolutePathValues(
 {
     QStringList result;
     foreach (const QString &el, values(variable)) {
-        QString absEl = IoUtils::isAbsolutePath(el)
-            ? sysrootify(el, baseDirectory) : IoUtils::resolvePath(baseDirectory, el);
+        QString absEl = IoUtils::resolvePath(baseDirectory, el);
         if (IoUtils::fileType(absEl) == IoUtils::FileIsDir)
-            result << QDir::cleanPath(absEl);
+            result << absEl;
     }
     return result;
 }
@@ -141,12 +124,11 @@ QStringList ProFileEvaluator::absoluteFileValues(
     foreach (const QString &el, pro ? values(variable, pro) : values(variable)) {
         QString absEl;
         if (IoUtils::isAbsolutePath(el)) {
-            const QString elWithSysroot = sysrootify(el, baseDirectory);
-            if (IoUtils::exists(elWithSysroot)) {
-                result << QDir::cleanPath(elWithSysroot);
+            if (IoUtils::exists(el)) {
+                result << el;
                 goto next;
             }
-            absEl = elWithSysroot;
+            absEl = el;
         } else {
             foreach (const QString &dir, searchDirs) {
                 QString fn = dir + QLatin1Char('/') + el;

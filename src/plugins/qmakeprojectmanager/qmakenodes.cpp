@@ -66,6 +66,7 @@
 #include <utils/theme/theme.h>
 #include <proparser/prowriter.h>
 #include <proparser/qmakevfs.h>
+#include <proparser/ioutils.h>
 
 #include <QApplication>
 #include <QDebug>
@@ -80,6 +81,7 @@
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
+using namespace QMakeInternal;
 
 // Static cached data in struct QmakeNodeStaticData providing information and icons
 // for file types and the project. Do some magic via qAddPostRoutine()
@@ -195,9 +197,10 @@ public:
     QString projectDir;
     FileName projectFilePath;
     QString buildDirectory;
+    QString sysroot;
     QtSupport::ProFileReader *readerExact;
     QtSupport::ProFileReader *readerCumulative;
-    ProFileGlobals *qmakeGlobals;
+    QMakeGlobals *qmakeGlobals;
     QMakeVfs *qmakeVfs;
 };
 
@@ -1773,6 +1776,7 @@ EvalInput QmakeProFileNode::evalInput() const
     input.projectDir = m_projectDir;
     input.projectFilePath = m_projectFilePath;
     input.buildDirectory = buildDir();
+    input.sysroot = m_project->qmakeSysroot();
     input.readerExact = m_readerExact;
     input.readerCumulative = m_readerCumulative;
     input.qmakeGlobals = m_project->qmakeGlobals();
@@ -1937,7 +1941,8 @@ EvalResult *QmakeProFileNode::evaluate(const EvalInput &input)
 
         // update other variables
         result->newVarValues[DefinesVar] = input.readerExact->values(QLatin1String("DEFINES"));
-        result->newVarValues[IncludePathVar] = includePaths(input.readerExact, input.buildDirectory, input.projectDir);
+        result->newVarValues[IncludePathVar] = includePaths(input.readerExact, input.sysroot,
+                                                            input.buildDirectory, input.projectDir);
         result->newVarValues[CppFlagsVar] = input.readerExact->values(QLatin1String("QMAKE_CXXFLAGS"));
         result->newVarValues[CppHeaderVar] = fileListForVar(input.readerExact, input.readerCumulative,
                                                     QLatin1String("HEADERS"), input.projectDir, input.buildDirectory);
@@ -2298,7 +2303,24 @@ QString QmakeProFileNode::mocDirPath(QtSupport::ProFileReader *reader, const QSt
     return path;
 }
 
-QStringList QmakeProFileNode::includePaths(QtSupport::ProFileReader *reader, const QString &buildDir, const QString &projectDir)
+QString QmakeProFileNode::sysrootify(const QString &path, const QString &sysroot,
+                                     const QString &baseDir, const QString &outputDir)
+{
+#ifdef Q_OS_WIN
+    Qt::CaseSensitivity cs = Qt::CaseInsensitive;
+#else
+    Qt::CaseSensitivity cs = Qt::CaseSensitive;
+#endif
+    if (sysroot.isEmpty() || path.startsWith(sysroot, cs)
+        || path.startsWith(baseDir, cs) || path.startsWith(outputDir, cs)) {
+        return path;
+    }
+    QString sysrooted = QDir::cleanPath(sysroot + path);
+    return !IoUtils::exists(sysrooted) ? path : sysrooted;
+}
+
+QStringList QmakeProFileNode::includePaths(QtSupport::ProFileReader *reader, const QString &sysroot,
+                                           const QString &buildDir, const QString &projectDir)
 {
     QStringList paths;
     foreach (const QString &cxxflags, reader->values(QLatin1String("QMAKE_CXXFLAGS"))) {
@@ -2306,7 +2328,8 @@ QStringList QmakeProFileNode::includePaths(QtSupport::ProFileReader *reader, con
             paths.append(cxxflags.mid(2));
     }
 
-    paths.append(reader->fixifiedValues(QLatin1String("INCLUDEPATH"), projectDir, buildDir));
+    foreach (const QString &el, reader->fixifiedValues(QLatin1String("INCLUDEPATH"), projectDir, buildDir))
+        paths << sysrootify(el, sysroot, projectDir, buildDir);
     // paths already contains moc dir and ui dir, due to corrrectly parsing uic.prf and moc.prf
     // except if those directories don't exist at the time of parsing
     // thus we add those directories manually (without checking for existence)

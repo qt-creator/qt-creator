@@ -393,7 +393,8 @@ private:
                                       const QString &varName, const QString &projectDir, const QString &buildDir);
     static QString uiDirPath(QtSupport::ProFileReader *reader, const QString &buildDir);
     static QString mocDirPath(QtSupport::ProFileReader *reader, const QString &buildDir);
-    static QStringList includePaths(QtSupport::ProFileReader *reader, const QString &buildDir, const QString &projectDir);
+    static QString sysrootify(const QString &path, const QString &sysroot, const QString &baseDir, const QString &outputDir);
+    static QStringList includePaths(QtSupport::ProFileReader *reader, const QString &sysroot, const QString &buildDir, const QString &projectDir);
     static QStringList libDirectories(QtSupport::ProFileReader *reader);
     static Utils::FileNameList subDirsPaths(QtSupport::ProFileReader *reader, const QString &projectDir, QStringList *subProjectsNotToDeploy, QStringList *errors);
 
