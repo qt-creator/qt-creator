@@ -1611,7 +1611,9 @@ void ModelValidator::variantValuesDiffer(VariantProperty &modelProperty, const Q
         QTC_ASSERT(modelProperty.dynamicTypeName() == dynamicTypeName, return);
     }
 
-    QTC_ASSERT(equals(modelProperty.value(), qmlVariantValue), return);
+
+
+    QTC_ASSERT(equals(modelProperty.value(), qmlVariantValue), qWarning() << modelProperty.value() << qmlVariantValue);
     QTC_ASSERT(0, return);
 }
 
