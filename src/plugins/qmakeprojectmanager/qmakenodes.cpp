@@ -199,7 +199,6 @@ public:
     QtSupport::ProFileReader *readerCumulative;
     ProFileGlobals *qmakeGlobals;
     QMakeVfs *qmakeVfs;
-    bool isQt5;
 };
 
 class PriFileEvalResult
@@ -639,7 +638,7 @@ PriFileEvalResult QmakePriFileNode::extractValues(const EvalInput &input,
     // all the files from those folders and add watchers for them. That's too
     // dangerous if we get the folders wrong and enumerate the whole project
     // tree multiple times.
-    QStringList dynamicVariables = dynamicVarNames(input.readerExact, input.isQt5);
+    QStringList dynamicVariables = dynamicVarNames(input.readerExact);
     foreach (ProFile *includeFileExact, includeFilesExact)
         foreach (const QString &dynamicVar, dynamicVariables)
             result.folders += input.readerExact->values(dynamicVar, includeFileExact);
@@ -1461,25 +1460,15 @@ QStringList QmakePriFileNode::varNamesForRemoving()
     return vars;
 }
 
-QStringList QmakePriFileNode::dynamicVarNames(QtSupport::ProFileReader *readerExact,
-                                            bool isQt5)
+QStringList QmakePriFileNode::dynamicVarNames(QtSupport::ProFileReader *reader)
 {
     QStringList result;
 
-    // Figure out DEPLOYMENT and INSTALLS
-    const QString deployment = QLatin1String("DEPLOYMENT");
-    const QString sources = QLatin1String(isQt5 ? ".files" : ".sources");
-    QStringList listOfVars = readerExact->values(deployment);
-    foreach (const QString &var, listOfVars) {
-        result << (var + sources);
-    }
-
+    // Figure out INSTALLS (and DEPLOYMENT, as it's aliased)
     const QString installs = QLatin1String("INSTALLS");
     const QString files = QLatin1String(".files");
-    listOfVars = readerExact->values(installs);
-    foreach (const QString &var, listOfVars) {
+    foreach (const QString &var, reader->values(installs))
         result << (var + files);
-    }
     result.removeDuplicates();
     return result;
 }
@@ -1792,10 +1781,6 @@ EvalInput QmakeProFileNode::evalInput() const
     input.buildDirectory = buildDir();
     input.readerExact = m_readerExact;
     input.readerCumulative = m_readerCumulative;
-    Target *t = m_project->activeTarget();
-    Kit *k = t ? t->kit() : KitManager::defaultKit();
-    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(k);
-    input.isQt5 = !qtVersion || qtVersion->qtVersion() >= QtSupport::QtVersionNumber(5,0,0);
     input.qmakeGlobals = m_project->qmakeGlobals();
     input.qmakeVfs = m_project->qmakeVfs();
     return input;
