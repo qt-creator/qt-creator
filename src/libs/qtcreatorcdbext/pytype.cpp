@@ -33,6 +33,9 @@
 #include "stringutils.h"
 #include "symbolgroupvalue.h"
 
+constexpr bool debugPyType = false;
+constexpr bool debuggingEnabled() { return debugPyType || debugPyCdbextModule; }
+
 enum TypeCodes {
     TypeCodeTypedef,
     TypeCodeStruct,
@@ -51,6 +54,8 @@ enum TypeCodes {
 
 PyObject *lookupType(const std::string &typeNameIn)
 {
+    if (debuggingEnabled())
+        DebugPrint() << "lookup type '" << typeNameIn << "'";
     std::string typeName = typeNameIn;
     CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
     std::string fullTypeName = typeName;
@@ -281,8 +286,12 @@ PyObject *type_TemplateArgument(Type *self, PyObject *args)
 PyObject *type_TemplateArguments(Type *self)
 {
     std::vector<std::string> innerTypes = innerTypesOf(getTypeName(self));
+    if (debuggingEnabled())
+        DebugPrint() << "template arguments of: " << getTypeName(self);
     auto templateArguments = PyList_New(0);
     for (const std::string &innerType : innerTypes) {
+        if (debuggingEnabled())
+            DebugPrint() << "    template argument: " << innerType;
         PyObject* childValue;
         try {
             int integer = std::stoi(innerType);
