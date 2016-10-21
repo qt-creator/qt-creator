@@ -69,6 +69,7 @@
 
 #include <cplusplus/Icons.h>
 
+#include <QDateTime>
 #include <QDir>
 #include <QElapsedTimer>
 #include <QLoggingCategory>
@@ -691,8 +692,10 @@ void IpcCommunicator::logRestartedDueToUnexpectedFinish()
 
 void IpcCommunicator::logError(const QString &text)
 {
-    Core::MessageManager::write(text, Core::MessageManager::Flash);
-    qWarning("%s", qPrintable(text));
+    const QString textWithTimestamp = QDateTime::currentDateTime().toString(Qt::ISODate)
+            + ' ' + text;
+    Core::MessageManager::write(textWithTimestamp, Core::MessageManager::Flash);
+    qWarning("%s", qPrintable(textWithTimestamp));
 }
 
 void IpcCommunicator::initializeBackendWithCurrentData()
