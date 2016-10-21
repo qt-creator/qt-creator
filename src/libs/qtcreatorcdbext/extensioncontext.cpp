@@ -249,10 +249,10 @@ ULONG64 ExtensionContext::jsExecutionEngine(ExtensionCommandContext &exc,
             *errorMessage = "QML not loaded";
         return 0;
     }
-    // Retrieve full stack (costly) and try to find a JS execution engine passed as parameter
+    // Retrieve top frames of stack and try to find a JS execution engine passed as parameter
     startRecordingOutput();
     StateNotificationBlocker blocker(this);
-    const HRESULT hr = m_control->Execute(DEBUG_OUTCTL_ALL_CLIENTS, "kp", DEBUG_EXECUTE_ECHO);
+    const HRESULT hr = m_control->Execute(DEBUG_OUTCTL_ALL_CLIENTS, "kp 15", DEBUG_EXECUTE_ECHO);
     if (FAILED(hr)) {
         stopRecordingOutput();
         *errorMessage = msgDebugEngineComFailed("Execute", hr);
