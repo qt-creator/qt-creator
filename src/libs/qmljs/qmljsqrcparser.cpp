@@ -271,6 +271,7 @@ QrcParserPrivate::QrcParserPrivate(QrcParser *)
 
 bool QrcParserPrivate::parseFile(const QString &path)
 {
+    QDir baseDir(QFileInfo(path).path());
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly)) {
         m_errorMessages.append(file.errorString());
@@ -304,9 +305,8 @@ bool QrcParserPrivate::parseFile(const QString &path)
         QDomElement felt = relt.firstChildElement(QLatin1String("file"));
         for (; !felt.isNull(); felt = felt.nextSiblingElement(QLatin1String("file"))) {
             const QString fileName = felt.text();
-            QTC_CHECK(!QDir::isAbsolutePath(fileName));
             const QString alias = felt.attribute(QLatin1String("alias"));
-            QString filePath = QFileInfo(path).path() + QLatin1Char('/') + fileName;
+            QString filePath = baseDir.absoluteFilePath(fileName);
             QString accessPath;
             if (!alias.isEmpty())
                 accessPath = language + prefix + alias;
