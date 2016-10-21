@@ -646,17 +646,15 @@ PriFileEvalResult QmakePriFileNode::extractValues(const EvalInput &input,
 {
     PriFileEvalResult result;
 
-    // Figure out DEPLOYMENT and INSTALL folders
-    QStringList dynamicVariables = dynamicVarNames(input.readerExact, input.readerCumulative, input.isQt5);
+    // Figure out DEPLOYMENT and INSTALL folders.
+    // Ignore stuff from cumulative parse, as we are recursively enumerating
+    // all the files from those folders and add watchers for them. That's too
+    // dangerous if we get the folders wrong and enumerate the whole project
+    // tree multiple times.
+    QStringList dynamicVariables = dynamicVarNames(input.readerExact, input.isQt5);
     foreach (ProFile *includeFileExact, includeFilesExact)
-        foreach (const QString &dynamicVar, dynamicVariables) {
+        foreach (const QString &dynamicVar, dynamicVariables)
             result.folders += input.readerExact->values(dynamicVar, includeFileExact);
-            // Ignore stuff from cumulative parse
-            // we are recursively enumerating all the files from those folders
-            // and add watchers for them, that's too dangerous if we get the folders
-            // wrong and enumerate the whole project tree multiple times
-        }
-
 
     for (int i=0; i < result.folders.size(); ++i) {
         const QFileInfo fi(result.folders.at(i));
@@ -1475,7 +1473,7 @@ QStringList QmakePriFileNode::varNamesForRemoving()
     return vars;
 }
 
-QStringList QmakePriFileNode::dynamicVarNames(QtSupport::ProFileReader *readerExact, QtSupport::ProFileReader *readerCumulative,
+QStringList QmakePriFileNode::dynamicVarNames(QtSupport::ProFileReader *readerExact,
                                             bool isQt5)
 {
     QStringList result;
@@ -1487,24 +1485,12 @@ QStringList QmakePriFileNode::dynamicVarNames(QtSupport::ProFileReader *readerEx
     foreach (const QString &var, listOfVars) {
         result << (var + sources);
     }
-    if (readerCumulative) {
-        QStringList listOfVars = readerCumulative->values(deployment);
-        foreach (const QString &var, listOfVars) {
-            result << (var + sources);
-        }
-    }
 
     const QString installs = QLatin1String("INSTALLS");
     const QString files = QLatin1String(".files");
     listOfVars = readerExact->values(installs);
     foreach (const QString &var, listOfVars) {
         result << (var + files);
-    }
-    if (readerCumulative) {
-        QStringList listOfVars = readerCumulative->values(installs);
-        foreach (const QString &var, listOfVars) {
-            result << (var + files);
-        }
     }
     result.removeDuplicates();
     return result;
