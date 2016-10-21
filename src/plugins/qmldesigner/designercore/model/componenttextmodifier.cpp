@@ -56,6 +56,7 @@ void ComponentTextModifier::move(const MoveInfo &moveInfo)
 void ComponentTextModifier::indent(int offset, int length)
 {
     m_originalModifier->indent(offset, length);
+}
 
 void ComponentTextModifier::indentLines(int startLine, int endLine)
 {
