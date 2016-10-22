@@ -54,8 +54,8 @@
 
   void MyClass::updateOtherObject()
   {
-  GuardLocker updatelocker(updateGuard);
-  otherObject->update(); // this may trigger a signal
+      GuardLocker updatelocker(updateGuard);
+      otherObject->update(); // this may trigger a signal
   }
   \endcode
 
@@ -66,16 +66,16 @@
   \code
   void MyClass::otherObjectUpdated()
   {
-  if (updateGuard.isLocked)
-      return;
+      if (updateGuard.isLocked())
+          return;
 
-  // we didn't trigger the update
-  // so do update now
-  \dots
+      // we didn't trigger the update
+      // so do update now
+      \dots
   }
   \endcode
 
-  The GuardLock unlocks the Guard in it's destructor.
+  The GuardLocker unlocks the Guard in its destructor.
 
   The Guard object is recursive, you may declare many GuardLocker
   objects for the same Guard instance and the Guard will be locked
