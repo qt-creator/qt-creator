@@ -176,7 +176,7 @@ VcsBaseEditorWidget *BazaarClient::annotate(
 bool BazaarClient::isVcsDirectory(const FileName &fileName) const
 {
     return fileName.toFileInfo().isDir()
-            && fileName.fileName().compare(Constants::BAZAARREPO, HostOsInfo::fileNameCaseSensitivity());
+            && !fileName.fileName().compare(Constants::BAZAARREPO, HostOsInfo::fileNameCaseSensitivity());
 }
 
 QString BazaarClient::findTopLevelForFile(const QFileInfo &file) const

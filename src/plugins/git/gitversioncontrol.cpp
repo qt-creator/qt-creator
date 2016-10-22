@@ -79,7 +79,7 @@ Core::Id GitVersionControl::id() const
 bool GitVersionControl::isVcsFileOrDirectory(const Utils::FileName &fileName) const
 {
     return fileName.toFileInfo().isDir()
-            && fileName.fileName().compare(".git", Utils::HostOsInfo::fileNameCaseSensitivity());
+            && !fileName.fileName().compare(".git", Utils::HostOsInfo::fileNameCaseSensitivity());
 }
 
 bool GitVersionControl::isConfigured() const

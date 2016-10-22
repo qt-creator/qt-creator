@@ -337,7 +337,7 @@ void MercurialClient::revertAll(const QString &workingDir, const QString &revisi
 bool MercurialClient::isVcsDirectory(const FileName &fileName) const
 {
     return fileName.toFileInfo().isDir()
-            && fileName.fileName().compare(Constants::MERCURIALREPO, HostOsInfo::fileNameCaseSensitivity());
+            && !fileName.fileName().compare(Constants::MERCURIALREPO, HostOsInfo::fileNameCaseSensitivity());
 }
 
 void MercurialClient::view(const QString &source, const QString &id,

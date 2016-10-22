@@ -58,7 +58,7 @@ Core::Id CvsControl::id() const
 bool CvsControl::isVcsFileOrDirectory(const Utils::FileName &fileName) const
 {
     return fileName.toFileInfo().isDir()
-            && fileName.fileName().compare("CVS", Utils::HostOsInfo::fileNameCaseSensitivity());
+            && !fileName.fileName().compare("CVS", Utils::HostOsInfo::fileNameCaseSensitivity());
 }
 
 bool CvsControl::isConfigured() const
