@@ -125,44 +125,6 @@ private:
     friend class QbsBuildStepConfigWidget;
 };
 
-namespace Ui { class QbsBuildStepConfigWidget; }
-
-class QbsBuildStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
-{
-    Q_OBJECT
-public:
-    QbsBuildStepConfigWidget(QbsBuildStep *step);
-    ~QbsBuildStepConfigWidget();
-    QString summaryText() const;
-    QString displayName() const;
-
-private:
-    void updateState();
-    void updateQmlDebuggingOption();
-    void updatePropertyEdit(const QVariantMap &data);
-
-    void changeBuildVariant(int);
-    void changeShowCommandLines(bool show);
-    void changeKeepGoing(bool kg);
-    void changeJobCount(int count);
-    void changeInstall(bool install);
-    void changeCleanInstallRoot(bool clean);
-    void changeForceProbes(bool forceProbes);
-    void applyCachedProperties();
-
-    // QML debugging:
-    void linkQmlDebuggingLibraryChecked(bool checked);
-
-    bool validateProperties(Utils::FancyLineEdit *edit, QString *errorMessage);
-
-    Ui::QbsBuildStepConfigWidget *m_ui;
-
-    QList<QPair<QString, QString> > m_propertyCache;
-    QbsBuildStep *m_step;
-    QString m_summary;
-    bool m_ignoreChange;
-};
-
 class QbsBuildStepFactory : public ProjectExplorer::IBuildStepFactory
 {
     Q_OBJECT
