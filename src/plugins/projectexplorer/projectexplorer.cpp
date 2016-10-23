@@ -276,6 +276,8 @@ public:
 
     void runConfigurationConfigurationFinished();
 
+    QList<QPair<QString, QString> > recentProjects() const;
+
 public:
     QMenu *m_sessionMenu;
     QMenu *m_openWithMenu;
@@ -1065,6 +1067,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         if (!dd->m_shuttingDown && !SessionManager::loadingSession())
             SessionManager::save();
     });
+    connect(qApp, &QApplication::applicationStateChanged, this, [](Qt::ApplicationState state) {
+        if (state == Qt::ApplicationActive)
+            dd->updateWelcomePage();
+    });
 
     addAutoReleasedObject(new ProjectTreeWidgetFactory);
     addAutoReleasedObject(new FolderNavigationWidgetFactory);
@@ -1077,8 +1083,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             s->value(QLatin1String("ProjectExplorer/RecentProjects/DisplayNames")).toStringList();
     if (fileNames.size() == displayNames.size()) {
         for (int i = 0; i < fileNames.size(); ++i) {
-            if (QFileInfo(fileNames.at(i)).isFile())
-                dd->m_recentProjects.append(qMakePair(fileNames.at(i), displayNames.at(i)));
+            dd->m_recentProjects.append(qMakePair(fileNames.at(i), displayNames.at(i)));
         }
     }
 
@@ -1979,6 +1984,13 @@ void ProjectExplorerPluginPrivate::runConfigurationConfigurationFinished()
         executeRunConfiguration(rc, runMode);
 }
 
+QList<QPair<QString, QString> > ProjectExplorerPluginPrivate::recentProjects() const
+{
+    return Utils::filtered(dd->m_recentProjects, [](const QPair<QString, QString> &p) {
+        return QFileInfo(p.first).isFile();
+    });
+}
+
 static QString pathOrDirectoryFor(Node *node, bool dir)
 {
     Utils::FileName path = node->filePath();
@@ -2814,11 +2826,11 @@ void ProjectExplorerPluginPrivate::updateRecentProjectMenu()
     QMenu *menu = aci->menu();
     menu->clear();
 
-    bool hasRecentProjects = false;
     int acceleratorKey = 1;
+    auto projects = recentProjects();
     //projects (ignore sessions, they used to be in this list)
-    const StringPairListConstIterator end = dd->m_recentProjects.constEnd();
-    for (StringPairListConstIterator it = dd->m_recentProjects.constBegin(); it != end; ++it, ++acceleratorKey) {
+    const StringPairListConstIterator end = projects.constEnd();
+    for (StringPairListConstIterator it = projects.constBegin(); it != end; ++it, ++acceleratorKey) {
         const QString fileName = it->first;
         if (fileName.endsWith(QLatin1String(".qws")))
             continue;
@@ -2829,8 +2841,8 @@ void ProjectExplorerPluginPrivate::updateRecentProjectMenu()
         connect(action, &QAction::triggered, this, [this, fileName] {
             openRecentProject(fileName);
         });
-        hasRecentProjects = true;
     }
+    const bool hasRecentProjects = !projects.empty();
     menu->setEnabled(hasRecentProjects);
 
     // add the Clear Menu item
@@ -3356,7 +3368,7 @@ void ProjectExplorerPlugin::openOpenProjectDialog()
 
 QList<QPair<QString, QString> > ProjectExplorerPlugin::recentProjects()
 {
-    return dd->m_recentProjects;
+    return dd->recentProjects();
 }
 
 } // namespace ProjectExplorer
