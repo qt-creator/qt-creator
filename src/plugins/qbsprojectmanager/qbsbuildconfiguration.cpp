@@ -123,7 +123,7 @@ QVariantMap QbsBuildConfiguration::qbsConfiguration() const
     QVariantMap config;
     QbsBuildStep *qbsBs = qbsStep();
     if (qbsBs)
-        config = qbsBs->qbsConfiguration();
+        config = qbsBs->qbsConfiguration(QbsBuildStep::ExpandVariables);
     return config;
 }
 
