@@ -52,7 +52,7 @@ class VcsBaseClientSettings;
 class VcsJob;
 class VcsBaseClientImplPrivate;
 class VcsBaseClientPrivate;
-class VcsBaseEditorParameterWidget;
+class VcsBaseEditorConfig;
 
 class VCSBASE_EXPORT VcsBaseClientImpl : public QObject
 {
@@ -224,9 +224,9 @@ protected:
 
     virtual QStringList revisionSpec(const QString &revision) const = 0;
 
-    typedef std::function<VcsBaseEditorParameterWidget *(QToolBar *)> ParameterWidgetCreator;
-    void setDiffParameterWidgetCreator(ParameterWidgetCreator creator);
-    void setLogParameterWidgetCreator(ParameterWidgetCreator creator);
+    typedef std::function<VcsBaseEditorConfig *(QToolBar *)> ConfigCreator;
+    void setDiffConfigCreator(ConfigCreator creator);
+    void setLogConfigCreator(ConfigCreator creator);
 
     virtual StatusItem parseStatusLine(const QString &line) const = 0;
 

@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "vcsbaseeditorparameterwidget.h"
+#include "vcsbaseeditorconfig.h"
 
 #include <QComboBox>
 #include <QAction>
@@ -74,10 +74,10 @@ private:
     Type m_type;
 };
 
-class VcsBaseEditorParameterWidgetPrivate
+class VcsBaseEditorConfigPrivate
 {
 public:
-    VcsBaseEditorParameterWidgetPrivate(QToolBar *toolBar) : m_toolBar(toolBar)
+    VcsBaseEditorConfigPrivate(QToolBar *toolBar) : m_toolBar(toolBar)
     {
         if (!toolBar)
             return;
@@ -86,7 +86,7 @@ public:
     }
 
     QStringList m_baseArguments;
-    QList<VcsBaseEditorParameterWidget::OptionMapping> m_optionMappings;
+    QList<VcsBaseEditorConfig::OptionMapping> m_optionMappings;
     QHash<QObject *, SettingMappingData> m_settingMapping;
     QToolBar *m_toolBar;
 };
@@ -94,9 +94,9 @@ public:
 } // namespace Internal
 
 /*!
-    \class VcsBase::VcsBaseEditorParameterWidget
+    \class VcsBase::VcsBaseEditorConfig
 
-    \brief The VcsBaseEditorParameterWidget is a widget/action aggregator for use
+    \brief The VcsBaseEditorConfig is a widget/action aggregator for use
     with VcsBase::VcsBaseEditor, influencing for example the generation of VCS diff output.
 
     The class maintains a list of command line arguments (starting from baseArguments())
@@ -104,36 +104,35 @@ public:
     that should trigger the rerun of the VCS operation.
 */
 
-VcsBaseEditorParameterWidget::ComboBoxItem::ComboBoxItem(const QString &text,
-                                                         const QVariant &val) :
+VcsBaseEditorConfig::ComboBoxItem::ComboBoxItem(const QString &text, const QVariant &val) :
     displayText(text),
     value(val)
 {
 }
 
-VcsBaseEditorParameterWidget::VcsBaseEditorParameterWidget(QToolBar *toolBar) :
-    QObject(toolBar), d(new Internal::VcsBaseEditorParameterWidgetPrivate(toolBar))
+VcsBaseEditorConfig::VcsBaseEditorConfig(QToolBar *toolBar) :
+    QObject(toolBar), d(new Internal::VcsBaseEditorConfigPrivate(toolBar))
 {
-    connect(this, &VcsBaseEditorParameterWidget::argumentsChanged,
-            this, &VcsBaseEditorParameterWidget::handleArgumentsChanged);
+    connect(this, &VcsBaseEditorConfig::argumentsChanged,
+            this, &VcsBaseEditorConfig::handleArgumentsChanged);
 }
 
-VcsBaseEditorParameterWidget::~VcsBaseEditorParameterWidget()
+VcsBaseEditorConfig::~VcsBaseEditorConfig()
 {
     delete d;
 }
 
-QStringList VcsBaseEditorParameterWidget::baseArguments() const
+QStringList VcsBaseEditorConfig::baseArguments() const
 {
     return d->m_baseArguments;
 }
 
-void VcsBaseEditorParameterWidget::setBaseArguments(const QStringList &b)
+void VcsBaseEditorConfig::setBaseArguments(const QStringList &b)
 {
     d->m_baseArguments = b;
 }
 
-QStringList VcsBaseEditorParameterWidget::arguments() const
+QStringList VcsBaseEditorConfig::arguments() const
 {
     // Compile effective arguments
     QStringList args = baseArguments();
@@ -142,21 +141,21 @@ QStringList VcsBaseEditorParameterWidget::arguments() const
     return args;
 }
 
-QAction *VcsBaseEditorParameterWidget::addToggleButton(const QString &option,
-                                                       const QString &label,
-                                                       const QString &tooltip)
+QAction *VcsBaseEditorConfig::addToggleButton(const QString &option,
+                                              const QString &label,
+                                              const QString &tooltip)
 {
     return addToggleButton(option.isEmpty() ? QStringList() : QStringList(option), label, tooltip);
 }
 
-QAction *VcsBaseEditorParameterWidget::addToggleButton(const QStringList &options,
-                                                       const QString &label,
-                                                       const QString &tooltip)
+QAction *VcsBaseEditorConfig::addToggleButton(const QStringList &options,
+                                              const QString &label,
+                                              const QString &tooltip)
 {
     auto action = new QAction(label, d->m_toolBar);
     action->setToolTip(tooltip);
     action->setCheckable(true);
-    connect(action, &QAction::toggled, this, &VcsBaseEditorParameterWidget::argumentsChanged);
+    connect(action, &QAction::toggled, this, &VcsBaseEditorConfig::argumentsChanged);
     const QList<QAction *> actions = d->m_toolBar->actions();
     // Insert the action before line/column and split actions.
     d->m_toolBar->insertAction(actions.at(qMax(actions.count() - 2, 0)), action);
@@ -164,20 +163,20 @@ QAction *VcsBaseEditorParameterWidget::addToggleButton(const QStringList &option
     return action;
 }
 
-QComboBox *VcsBaseEditorParameterWidget::addComboBox(const QStringList &options,
-                                                     const QList<ComboBoxItem> &items)
+QComboBox *VcsBaseEditorConfig::addComboBox(const QStringList &options,
+                                            const QList<ComboBoxItem> &items)
 {
     auto cb = new QComboBox;
     foreach (const ComboBoxItem &item, items)
         cb->addItem(item.displayText, item.value);
     connect(cb, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-            this, &VcsBaseEditorParameterWidget::argumentsChanged);
+            this, &VcsBaseEditorConfig::argumentsChanged);
     d->m_toolBar->addWidget(cb);
     d->m_optionMappings.append(OptionMapping(options, cb));
     return cb;
 }
 
-void VcsBaseEditorParameterWidget::mapSetting(QAction *button, bool *setting)
+void VcsBaseEditorConfig::mapSetting(QAction *button, bool *setting)
 {
     if (!d->m_settingMapping.contains(button) && button) {
         d->m_settingMapping.insert(button, Internal::SettingMappingData(setting));
@@ -189,7 +188,7 @@ void VcsBaseEditorParameterWidget::mapSetting(QAction *button, bool *setting)
     }
 }
 
-void VcsBaseEditorParameterWidget::mapSetting(QComboBox *comboBox, QString *setting)
+void VcsBaseEditorConfig::mapSetting(QComboBox *comboBox, QString *setting)
 {
     if (!d->m_settingMapping.contains(comboBox) && comboBox) {
         d->m_settingMapping.insert(comboBox, Internal::SettingMappingData(setting));
@@ -203,7 +202,7 @@ void VcsBaseEditorParameterWidget::mapSetting(QComboBox *comboBox, QString *sett
     }
 }
 
-void VcsBaseEditorParameterWidget::mapSetting(QComboBox *comboBox, int *setting)
+void VcsBaseEditorConfig::mapSetting(QComboBox *comboBox, int *setting)
 {
     if (d->m_settingMapping.contains(comboBox) || !comboBox)
         return;
@@ -218,36 +217,36 @@ void VcsBaseEditorParameterWidget::mapSetting(QComboBox *comboBox, int *setting)
     comboBox->blockSignals(false);
 }
 
-void VcsBaseEditorParameterWidget::handleArgumentsChanged()
+void VcsBaseEditorConfig::handleArgumentsChanged()
 {
     updateMappedSettings();
     executeCommand();
 }
 
-void VcsBaseEditorParameterWidget::executeCommand()
+void VcsBaseEditorConfig::executeCommand()
 {
     emit commandExecutionRequested();
 }
 
-VcsBaseEditorParameterWidget::OptionMapping::OptionMapping(const QString &option, QObject *obj) :
+VcsBaseEditorConfig::OptionMapping::OptionMapping(const QString &option, QObject *obj) :
     object(obj)
 {
     if (!option.isEmpty())
         options << option;
 }
 
-VcsBaseEditorParameterWidget::OptionMapping::OptionMapping(const QStringList &optionList, QObject *obj) :
+VcsBaseEditorConfig::OptionMapping::OptionMapping(const QStringList &optionList, QObject *obj) :
     options(optionList),
     object(obj)
 {
 }
 
-const QList<VcsBaseEditorParameterWidget::OptionMapping> &VcsBaseEditorParameterWidget::optionMappings() const
+const QList<VcsBaseEditorConfig::OptionMapping> &VcsBaseEditorConfig::optionMappings() const
 {
     return d->m_optionMappings;
 }
 
-QStringList VcsBaseEditorParameterWidget::argumentsForOption(const OptionMapping &mapping) const
+QStringList VcsBaseEditorConfig::argumentsForOption(const OptionMapping &mapping) const
 {
     const QAction *action = qobject_cast<const QAction *>(mapping.object);
     if (action && action->isChecked())
@@ -265,7 +264,7 @@ QStringList VcsBaseEditorParameterWidget::argumentsForOption(const OptionMapping
     return QStringList();
 }
 
-void VcsBaseEditorParameterWidget::updateMappedSettings()
+void VcsBaseEditorConfig::updateMappedSettings()
 {
     foreach (const OptionMapping &optMapping, d->m_optionMappings) {
         if (d->m_settingMapping.contains(optMapping.object)) {

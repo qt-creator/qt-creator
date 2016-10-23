@@ -53,7 +53,7 @@
 #include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsoutputwindow.h>
-#include <vcsbase/vcsbaseeditorparameterwidget.h>
+#include <vcsbase/vcsbaseeditorconfig.h>
 
 #include <QAction>
 #include <QDebug>
@@ -1195,11 +1195,11 @@ struct PerforceDiffParameters
 };
 
 // Parameter widget controlling whitespace diff mode, associated with a parameter
-class PerforceDiffParameterWidget : public VcsBaseEditorParameterWidget
+class PerforceDiffConfig : public VcsBaseEditorConfig
 {
     Q_OBJECT
 public:
-    explicit PerforceDiffParameterWidget(const PerforceDiffParameters &p, QToolBar *toolBar);
+    explicit PerforceDiffConfig(const PerforceDiffParameters &p, QToolBar *toolBar);
     void triggerReRun();
 
 signals:
@@ -1209,16 +1209,15 @@ private:
     const PerforceDiffParameters m_parameters;
 };
 
-PerforceDiffParameterWidget::PerforceDiffParameterWidget(const PerforceDiffParameters &p,
-                                                         QToolBar *toolBar) :
-    VcsBaseEditorParameterWidget(toolBar), m_parameters(p)
+PerforceDiffConfig::PerforceDiffConfig(const PerforceDiffParameters &p, QToolBar *toolBar) :
+    VcsBaseEditorConfig(toolBar), m_parameters(p)
 {
     setBaseArguments(p.diffArguments);
     addToggleButton(QLatin1String("w"), tr("Ignore Whitespace"));
-    connect(this, &VcsBaseEditorParameterWidget::argumentsChanged, this, &PerforceDiffParameterWidget::triggerReRun);
+    connect(this, &VcsBaseEditorConfig::argumentsChanged, this, &PerforceDiffConfig::triggerReRun);
 }
 
-void PerforceDiffParameterWidget::triggerReRun()
+void PerforceDiffConfig::triggerReRun()
 {
     PerforceDiffParameters effectiveParameters = m_parameters;
     effectiveParameters.diffArguments = arguments();
@@ -1270,11 +1269,11 @@ void PerforcePlugin::p4Diff(const PerforceDiffParameters &p)
     auto diffEditorWidget = qobject_cast<VcsBaseEditorWidget *>(editor->widget());
     // Wire up the parameter widget to trigger a re-run on
     // parameter change and 'revert' from inside the diff editor.
-    auto pw = new PerforceDiffParameterWidget(p, diffEditorWidget->toolBar());
-    connect(pw, &PerforceDiffParameterWidget::reRunDiff,
+    auto pw = new PerforceDiffConfig(p, diffEditorWidget->toolBar());
+    connect(pw, &PerforceDiffConfig::reRunDiff,
             this, [this](const PerforceDiffParameters &p) { p4Diff(p); });
     connect(diffEditorWidget, &VcsBaseEditorWidget::diffChunkReverted,
-            pw, &PerforceDiffParameterWidget::triggerReRun);
+            pw, &PerforceDiffConfig::triggerReRun);
     diffEditorWidget->setConfigurationAdded();
 }
 

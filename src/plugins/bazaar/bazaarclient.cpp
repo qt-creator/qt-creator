@@ -30,7 +30,7 @@
 
 #include <vcsbase/vcsbaseplugin.h>
 #include <vcsbase/vcsoutputwindow.h>
-#include <vcsbase/vcsbaseeditorparameterwidget.h>
+#include <vcsbase/vcsbaseeditorconfig.h>
 
 #include <utils/hostosinfo.h>
 
@@ -46,12 +46,12 @@ namespace Bazaar {
 namespace Internal {
 
 // Parameter widget controlling whitespace diff mode, associated with a parameter
-class BazaarDiffParameterWidget : public VcsBaseEditorParameterWidget
+class BazaarDiffConfig : public VcsBaseEditorConfig
 {
     Q_OBJECT
 public:
-    BazaarDiffParameterWidget(VcsBaseClientSettings &settings, QToolBar *toolBar) :
-        VcsBaseEditorParameterWidget(toolBar)
+    BazaarDiffConfig(VcsBaseClientSettings &settings, QToolBar *toolBar) :
+        VcsBaseEditorConfig(toolBar)
     {
         mapSetting(addToggleButton(QLatin1String("-w"), tr("Ignore Whitespace")),
                    settings.boolPointer(BazaarSettings::diffIgnoreWhiteSpaceKey));
@@ -63,7 +63,7 @@ public:
     {
         QStringList args;
         // Bazaar wants "--diff-options=-w -B.."
-        const QStringList formatArguments = VcsBaseEditorParameterWidget::arguments();
+        const QStringList formatArguments = VcsBaseEditorConfig::arguments();
         if (!formatArguments.isEmpty()) {
             const QString a = QLatin1String("--diff-options=")
                     + formatArguments.join(QString(QLatin1Char(' ')));
@@ -73,12 +73,12 @@ public:
     }
 };
 
-class BazaarLogParameterWidget : public VcsBaseEditorParameterWidget
+class BazaarLogConfig : public VcsBaseEditorConfig
 {
     Q_OBJECT
 public:
-    BazaarLogParameterWidget(VcsBaseClientSettings &settings, QToolBar *toolBar) :
-        VcsBaseEditorParameterWidget(toolBar)
+    BazaarLogConfig(VcsBaseClientSettings &settings, QToolBar *toolBar) :
+        VcsBaseEditorConfig(toolBar)
     {
         mapSetting(addToggleButton(QLatin1String("--verbose"), tr("Verbose"),
                                    tr("Show files changed in each revision.")),
@@ -102,11 +102,11 @@ public:
 
 BazaarClient::BazaarClient() : VcsBaseClient(new BazaarSettings)
 {
-    setDiffParameterWidgetCreator([this](QToolBar *toolBar) {
-        return new BazaarDiffParameterWidget(settings(), toolBar);
+    setDiffConfigCreator([this](QToolBar *toolBar) {
+        return new BazaarDiffConfig(settings(), toolBar);
     });
-    setLogParameterWidgetCreator([this](QToolBar *toolBar) {
-        return new BazaarLogParameterWidget(settings(), toolBar);
+    setLogConfigCreator([this](QToolBar *toolBar) {
+        return new BazaarLogConfig(settings(), toolBar);
     });
 }
 

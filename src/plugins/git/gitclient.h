@@ -50,7 +50,6 @@ namespace VcsBase {
     class VcsCommand;
     class SubmitFileModel;
     class VcsBaseEditorWidget;
-    class VcsBaseEditorParameterWidget;
 }
 
 namespace DiffEditor {

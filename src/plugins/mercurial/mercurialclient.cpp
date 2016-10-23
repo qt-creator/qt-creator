@@ -30,7 +30,7 @@
 #include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/vcsbaseplugin.h>
 #include <vcsbase/vcsbaseeditor.h>
-#include <vcsbase/vcsbaseeditorparameterwidget.h>
+#include <vcsbase/vcsbaseeditorconfig.h>
 #include <utils/synchronousprocess.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
@@ -50,12 +50,12 @@ namespace Mercurial {
 namespace Internal  {
 
 // Parameter widget controlling whitespace diff mode, associated with a parameter
-class MercurialDiffParameterWidget : public VcsBaseEditorParameterWidget
+class MercurialDiffConfig : public VcsBaseEditorConfig
 {
     Q_OBJECT
 public:
-    MercurialDiffParameterWidget(VcsBaseClientSettings &settings, QToolBar *toolBar) :
-        VcsBaseEditorParameterWidget(toolBar)
+    MercurialDiffConfig(VcsBaseClientSettings &settings, QToolBar *toolBar) :
+        VcsBaseEditorConfig(toolBar)
     {
         mapSetting(addToggleButton(QLatin1String("-w"), tr("Ignore Whitespace")),
                    settings.boolPointer(MercurialSettings::diffIgnoreWhiteSpaceKey));
@@ -66,8 +66,8 @@ public:
 
 MercurialClient::MercurialClient() : VcsBaseClient(new MercurialSettings)
 {
-    setDiffParameterWidgetCreator([this](QToolBar *toolBar) {
-        return new MercurialDiffParameterWidget(settings(), toolBar);
+    setDiffConfigCreator([this](QToolBar *toolBar) {
+        return new MercurialDiffConfig(settings(), toolBar);
     });
 }
 

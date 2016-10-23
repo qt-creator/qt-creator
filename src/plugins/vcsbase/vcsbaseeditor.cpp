@@ -28,7 +28,7 @@
 #include "baseannotationhighlighter.h"
 #include "basevcseditorfactory.h"
 #include "vcsbaseplugin.h"
-#include "vcsbaseeditorparameterwidget.h"
+#include "vcsbaseeditorconfig.h"
 #include "vcscommand.h"
 
 #include <coreplugin/icore.h>

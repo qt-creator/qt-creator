@@ -31,7 +31,7 @@
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseeditor.h>
-#include <vcsbase/vcsbaseeditorparameterwidget.h>
+#include <vcsbase/vcsbaseeditorconfig.h>
 #include <vcsbase/vcsbaseplugin.h>
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
@@ -52,12 +52,12 @@ using namespace VcsBase;
 namespace Subversion {
 namespace Internal {
 
-class SubversionLogParameterWidget : public VcsBaseEditorParameterWidget
+class SubversionLogConfig : public VcsBaseEditorConfig
 {
     Q_OBJECT
 public:
-    SubversionLogParameterWidget(VcsBaseClientSettings &settings, QToolBar *toolBar) :
-        VcsBaseEditorParameterWidget(toolBar)
+    SubversionLogConfig(VcsBaseClientSettings &settings, QToolBar *toolBar) :
+        VcsBaseEditorConfig(toolBar)
     {
         mapSetting(addToggleButton(QLatin1String("--verbose"), tr("Verbose"),
                                    tr("Show files changed in each revision")),
@@ -67,8 +67,8 @@ public:
 
 SubversionClient::SubversionClient() : VcsBaseClient(new SubversionSettings)
 {
-    setLogParameterWidgetCreator([this](QToolBar *toolBar) {
-        return new SubversionLogParameterWidget(settings(), toolBar);
+    setLogConfigCreator([this](QToolBar *toolBar) {
+        return new SubversionLogConfig(settings(), toolBar);
     });
 }
 

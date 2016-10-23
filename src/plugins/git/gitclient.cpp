@@ -54,7 +54,7 @@
 
 #include <vcsbase/submitfilemodel.h>
 #include <vcsbase/vcsbaseeditor.h>
-#include <vcsbase/vcsbaseeditorparameterwidget.h>
+#include <vcsbase/vcsbaseeditorconfig.h>
 #include <vcsbase/vcsbaseplugin.h>
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
@@ -389,13 +389,13 @@ void ShowController::reloadFinished(bool success)
 
 ///////////////////////////////
 
-class BaseGitDiffArgumentsWidget : public VcsBaseEditorParameterWidget
+class BaseGitDiffArgumentsWidget : public VcsBaseEditorConfig
 {
     Q_OBJECT
 
 public:
     BaseGitDiffArgumentsWidget(VcsBaseClientSettings &settings, QToolBar *toolBar) :
-        VcsBaseEditorParameterWidget(toolBar)
+        VcsBaseEditorConfig(toolBar)
     {
         m_patienceButton
                 = addToggleButton("--patience", tr("Patience"),
@@ -412,13 +412,13 @@ protected:
     QAction *m_ignoreWSButton;
 };
 
-class GitBlameArgumentsWidget : public VcsBaseEditorParameterWidget
+class GitBlameArgumentsWidget : public VcsBaseEditorConfig
 {
     Q_OBJECT
 
 public:
     GitBlameArgumentsWidget(VcsBaseClientSettings &settings, QToolBar *toolBar) :
-        VcsBaseEditorParameterWidget(toolBar)
+        VcsBaseEditorConfig(toolBar)
     {
         mapSetting(addToggleButton(QString(), tr("Omit Date"),
                                    tr("Hide the date of a change from the output.")),
@@ -828,7 +828,7 @@ void GitClient::log(const QString &workingDirectory, const QString &fileName,
     if (!editor->configurationAdded()) {
         auto *argWidget = new GitLogArgumentsWidget(settings(), editor->toolBar());
         argWidget->setBaseArguments(args);
-        connect(argWidget, &VcsBaseEditorParameterWidget::commandExecutionRequested,
+        connect(argWidget, &VcsBaseEditorConfig::commandExecutionRequested,
                 [=]() { this->log(workingDir, fileName, enableAnnotationContextMenu, argWidget->arguments()); });
         effectiveArgs = argWidget->arguments();
         editor->setConfigurationAdded();
@@ -914,7 +914,7 @@ VcsBaseEditorWidget *GitClient::annotate(
     if (!editor->configurationAdded()) {
         auto *argWidget = new GitBlameArgumentsWidget(settings(), editor->toolBar());
         argWidget->setBaseArguments(extraOptions);
-        connect(argWidget, &VcsBaseEditorParameterWidget::commandExecutionRequested,
+        connect(argWidget, &VcsBaseEditorConfig::commandExecutionRequested,
                 [=] {
                     const int line = VcsBaseEditor::lineNumberOfCurrentEditor();
                     annotate(workingDir, file, revision, line, argWidget->arguments());

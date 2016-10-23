@@ -46,7 +46,7 @@ class VcsBaseEditorWidgetPrivate;
 
 class BaseAnnotationHighlighter;
 class VcsBaseEditorWidget;
-class VcsBaseEditorParameterWidget;
+class VcsBaseEditorConfig;
 class VcsCommand;
 
 // Documentation inside

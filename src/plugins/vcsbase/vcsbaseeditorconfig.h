@@ -40,16 +40,16 @@ namespace VcsBase {
 
 class VcsBaseEditorWidget;
 
-namespace Internal { class VcsBaseEditorParameterWidgetPrivate; }
+namespace Internal { class VcsBaseEditorConfigPrivate; }
 
 // Documentation->inside.
-class VCSBASE_EXPORT VcsBaseEditorParameterWidget : public QObject
+class VCSBASE_EXPORT VcsBaseEditorConfig : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit VcsBaseEditorParameterWidget(QToolBar *toolBar);
-    ~VcsBaseEditorParameterWidget() override;
+    explicit VcsBaseEditorConfig(QToolBar *toolBar);
+    ~VcsBaseEditorConfig() override;
 
     class VCSBASE_EXPORT ComboBoxItem
     {
@@ -102,8 +102,8 @@ protected:
     void updateMappedSettings();
 
 private:
-    friend class Internal::VcsBaseEditorParameterWidgetPrivate;
-    Internal::VcsBaseEditorParameterWidgetPrivate *const d;
+    friend class Internal::VcsBaseEditorConfigPrivate;
+    Internal::VcsBaseEditorConfigPrivate *const d;
 };
 
 } // namespace VcsBase
