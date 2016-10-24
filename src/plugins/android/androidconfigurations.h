@@ -27,6 +27,8 @@
 
 #include "android_global.h"
 
+#include <projectexplorer/toolchain.h>
+
 #include <QObject>
 #include <QString>
 #include <QStringList>
@@ -126,7 +128,9 @@ public:
     Utils::FileName emulatorToolPath() const;
 
 
-    Utils::FileName gccPath(const ProjectExplorer::Abi &abi, const QString &ndkToolChainVersion) const;
+    Utils::FileName gccPath(const ProjectExplorer::Abi &abi,
+                            ProjectExplorer::ToolChain::Language lang,
+                            const QString &ndkToolChainVersion) const;
     Utils::FileName gdbPath(const ProjectExplorer::Abi &abi, const QString &ndkToolChainVersion) const;
 
     Utils::FileName keytoolPath() const;

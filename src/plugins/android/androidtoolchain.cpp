@@ -302,16 +302,17 @@ QList<AndroidToolChainFactory::AndroidToolChainInformation> AndroidToolChainFact
         int idx = versionRegExp.indexIn(fileName);
         if (idx == -1)
             continue;
-        AndroidToolChainInformation ati;
-        ati.version = fileName.mid(idx + 1);
-        QString platform = fileName.left(idx);
-        ati.abi = AndroidConfig::abiForToolChainPrefix(platform);
-        if (ati.abi.architecture() == Abi::UnknownArchitecture) // e.g. mipsel which is not yet supported
-            continue;
-        // AndroidToolChain *tc = new AndroidToolChain(arch, version, true);
-        ati.compilerCommand = AndroidConfigurations::currentConfig().gccPath(ati.abi, ati.version);
-        // tc->setCompilerCommand(compilerPath);
-        result.append(ati);
+        for (const ToolChain::Language lang : { ToolChain::Language::Cxx, ToolChain::Language::C }) {
+            AndroidToolChainInformation ati;
+            ati.language = lang;
+            ati.version = fileName.mid(idx + 1);
+            QString platform = fileName.left(idx);
+            ati.abi = AndroidConfig::abiForToolChainPrefix(platform);
+            if (ati.abi.architecture() == Abi::UnknownArchitecture) // e.g. mipsel which is not yet supported
+                continue;
+            ati.compilerCommand = AndroidConfigurations::currentConfig().gccPath(ati.abi, lang, ati.version);
+            result.append(ati);
+        }
     }
     return result;
 }
@@ -353,19 +354,22 @@ bool AndroidToolChainFactory::versionCompareLess(const QList<int> &a, const QLis
     return false;
 }
 
-bool AndroidToolChainFactory::versionCompareLess(AndroidToolChain *atc, AndroidToolChain *btc)
+bool AndroidToolChainFactory::versionCompareLess(QList<AndroidToolChain *> atc,
+                                                 QList<AndroidToolChain *> btc)
 {
-    QList<int> a = versionNumberFromString(atc->ndkToolChainVersion());
-    QList<int> b = versionNumberFromString(btc->ndkToolChainVersion());
+    const QList<int> a = versionNumberFromString(atc.at(0)->ndkToolChainVersion());
+    const QList<int> b = versionNumberFromString(btc.at(0)->ndkToolChainVersion());
 
     return versionCompareLess(a, b);
 }
 
-static AndroidToolChain *findToolChain(Utils::FileName &compilerPath, const QList<ToolChain *> &alreadyKnown)
+static AndroidToolChain *findToolChain(Utils::FileName &compilerPath, ToolChain::Language lang,
+                                       const QList<ToolChain *> &alreadyKnown)
 {
     return static_cast<AndroidToolChain *>(
-                Utils::findOrDefault(alreadyKnown, [compilerPath](ToolChain *tc) {
+                Utils::findOrDefault(alreadyKnown, [compilerPath, lang](ToolChain *tc) {
                                                        return tc->typeId() == Constants::ANDROID_TOOLCHAIN_ID
+                                                           && tc->language() == lang
                                                            && tc->compilerCommand() == compilerPath;
                                                    }));
 }
@@ -382,7 +386,7 @@ AndroidToolChainFactory::autodetectToolChainsForNdk(const FileName &ndkPath,
     FileName path = ndkPath;
     QDirIterator it(path.appendPath(QLatin1String("toolchains")).toString(),
                     QStringList() << QLatin1String("*"), QDir::Dirs);
-    QHash<Abi, AndroidToolChain *> newestToolChainForArch;
+    QHash<Abi, QList<AndroidToolChain *>> newestToolChainForArch;
 
     while (it.hasNext()) {
         const QString &fileName = FileName::fromString(it.next()).fileName();
@@ -394,26 +398,30 @@ AndroidToolChainFactory::autodetectToolChainsForNdk(const FileName &ndkPath,
         Abi abi = AndroidConfig::abiForToolChainPrefix(platform);
         if (abi.architecture() == Abi::UnknownArchitecture) // e.g. mipsel which is not yet supported
             continue;
-        FileName compilerPath = AndroidConfigurations::currentConfig().gccPath(abi, version);
+        QList<AndroidToolChain *> toolChainBundle;
+        for (ToolChain::Language lang : { ToolChain::Language::Cxx, ToolChain::Language::C }) {
+            FileName compilerPath = AndroidConfigurations::currentConfig().gccPath(abi, lang, version);
 
-        AndroidToolChain *tc = findToolChain(compilerPath, alreadyKnown);
-        if (!tc) {
-            tc = new AndroidToolChain(abi, version, ToolChain::Language::Cxx,
-                                      ToolChain::AutoDetection);
-            tc->resetToolChain(compilerPath);
+            AndroidToolChain *tc = findToolChain(compilerPath, lang, alreadyKnown);
+            if (!tc) {
+                tc = new AndroidToolChain(abi, version, lang,
+                                          ToolChain::AutoDetection);
+                tc->resetToolChain(compilerPath);
+            }
+            result.append(tc);
+            toolChainBundle.append(tc);
         }
-        result.append(tc);
 
         auto it = newestToolChainForArch.constFind(abi);
         if (it == newestToolChainForArch.constEnd())
-            newestToolChainForArch.insert(abi, tc);
-        else if (versionCompareLess(it.value(), tc))
-            newestToolChainForArch[abi] = tc;
+            newestToolChainForArch.insert(abi, toolChainBundle);
+        else if (versionCompareLess(it.value(), toolChainBundle))
+            newestToolChainForArch[abi] = toolChainBundle;
     }
 
     foreach (ToolChain *tc, result) {
         AndroidToolChain *atc = static_cast<AndroidToolChain *>(tc);
-        atc->setSecondaryToolChain(newestToolChainForArch.value(atc->targetAbi()) != atc);
+        atc->setSecondaryToolChain(!newestToolChainForArch.value(atc->targetAbi()).contains(atc));
     }
 
     return result;

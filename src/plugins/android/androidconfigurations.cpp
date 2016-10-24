@@ -507,9 +507,12 @@ FileName AndroidConfig::toolPath(const Abi &abi, const QString &ndkToolChainVers
             .arg(toolsPrefix(abi)));
 }
 
-FileName AndroidConfig::gccPath(const Abi &abi, const QString &ndkToolChainVersion) const
+FileName AndroidConfig::gccPath(const Abi &abi, ToolChain::Language lang,
+                                const QString &ndkToolChainVersion) const
 {
-    return toolPath(abi, ndkToolChainVersion).appendString(QLatin1String("-gcc" QTC_HOST_EXE_SUFFIX));
+    const QString tool
+            = HostOsInfo::withExecutableSuffix(QString::fromLatin1(lang == ToolChain::Language::C ? "-gcc" : "-g++"));
+    return toolPath(abi, ndkToolChainVersion).appendString(tool);
 }
 
 FileName AndroidConfig::gdbPath(const Abi &abi, const QString &ndkToolChainVersion) const
@@ -1198,24 +1201,32 @@ QString AndroidConfigurations::defaultDevice(Project *project, const QString &ab
     return map.value(abi);
 }
 
-static bool equalKits(Kit *a, Kit *b)
+static bool matchToolChain(const ToolChain *atc, const ToolChain *btc)
+{
+    if (atc == btc)
+        return true;
+
+    if (!atc || !btc)
+        return false;
+
+    if (atc->typeId() != Constants::ANDROID_TOOLCHAIN_ID || btc->typeId() != Constants::ANDROID_TOOLCHAIN_ID)
+        return false;
+
+    auto aatc = static_cast<const AndroidToolChain *>(atc);
+    auto abtc = static_cast<const AndroidToolChain *>(btc);
+    return aatc->ndkToolChainVersion() == abtc->ndkToolChainVersion()
+            && aatc->targetAbi() == abtc->targetAbi();
+}
+
+static bool matchKits(const Kit *a, const Kit *b)
 {
     if (QtSupport::QtKitInformation::qtVersion(a) != QtSupport::QtKitInformation::qtVersion(b))
         return false;
-    ToolChain *atc = ToolChainKitInformation::toolChain(a, ToolChain::Language::Cxx);
-    ToolChain *btc = ToolChainKitInformation::toolChain(b, ToolChain::Language::Cxx);
-    if (atc == btc)
-        return true;
-    if (!atc || atc->typeId() != Constants::ANDROID_TOOLCHAIN_ID)
-        return false;
-    if (!btc || btc->typeId() != Constants::ANDROID_TOOLCHAIN_ID)
-        return false;
-    AndroidToolChain *aatc = static_cast<AndroidToolChain *>(atc);
-    AndroidToolChain *bbtc = static_cast<AndroidToolChain *>(btc);
-    if (aatc->ndkToolChainVersion() == bbtc->ndkToolChainVersion()
-            && aatc->targetAbi() == bbtc->targetAbi())
-        return true;
-    return false;
+
+    return matchToolChain(ToolChainKitInformation::toolChain(a, ToolChain::Language::Cxx),
+                          ToolChainKitInformation::toolChain(b, ToolChain::Language::Cxx))
+            && matchToolChain(ToolChainKitInformation::toolChain(a, ToolChain::Language::C),
+                              ToolChainKitInformation::toolChain(b, ToolChain::Language::C));
 }
 
 void AndroidConfigurations::registerNewToolChains()
@@ -1243,23 +1254,7 @@ void AndroidConfigurations::removeOldToolChains()
 
 void AndroidConfigurations::updateAutomaticKitList()
 {
-    QList<AndroidToolChain *> toolchains;
-    if (AndroidConfigurations::currentConfig().automaticKitCreation()) {
-        // having a empty toolchains list will remove all autodetected kits for android
-        // exactly what we want in that case
-        foreach (ToolChain *tc, ToolChainManager::toolChains()) {
-            if (!tc->isAutoDetected())
-                continue;
-            if (tc->typeId() != Constants::ANDROID_TOOLCHAIN_ID)
-                continue;
-            if (!tc->isValid()) // going to be deleted
-                continue;
-            toolchains << static_cast<AndroidToolChain *>(tc);
-        }
-    }
-
     QList<Kit *> existingKits;
-
     foreach (Kit *k, KitManager::kits()) {
         if (DeviceTypeKitInformation::deviceTypeId(k) != Core::Id(Constants::ANDROID_DEVICE_TYPE))
             continue;
@@ -1305,15 +1300,29 @@ void AndroidConfigurations::updateAutomaticKitList()
 
     // register new kits
     QList<Kit *> newKits;
-    foreach (AndroidToolChain *tc, toolchains) {
-        if (tc->isSecondaryToolChain())
+    const QList<ToolChain *> tmp = Utils::filtered(ToolChainManager::toolChains(), [](ToolChain *tc) {
+        return tc->isAutoDetected()
+            && tc->isValid()
+            && tc->typeId() == Constants::ANDROID_TOOLCHAIN_ID
+            && !static_cast<AndroidToolChain *>(tc)->isSecondaryToolChain();
+    });
+    const QList<AndroidToolChain *> toolchains = Utils::transform(tmp, [](ToolChain *tc) {
+            return static_cast<AndroidToolChain *>(tc);
+    });
+    for (AndroidToolChain *tc : toolchains) {
+        if (tc->isSecondaryToolChain() || tc->language() != ToolChain::Language::Cxx)
             continue;
+        const QList<AndroidToolChain *> allLanguages = Utils::filtered(toolchains,
+                                                                       [tc](AndroidToolChain *otherTc) {
+            return tc->targetAbi() == otherTc->targetAbi();
+        });
         QList<QtSupport::BaseQtVersion *> qtVersions = qtVersionsForArch.value(tc->targetAbi());
         foreach (QtSupport::BaseQtVersion *qt, qtVersions) {
             Kit *newKit = new Kit;
             newKit->setAutoDetected(true);
             DeviceTypeKitInformation::setDeviceTypeId(newKit, Core::Id(Constants::ANDROID_DEVICE_TYPE));
-            ToolChainKitInformation::setToolChain(newKit, tc);
+            for (AndroidToolChain *tc : allLanguages)
+                ToolChainKitInformation::setToolChain(newKit, tc);
             QtSupport::QtKitInformation::setQtVersion(newKit, qt);
             DeviceKitInformation::setDevice(newKit, device);
 
@@ -1337,12 +1346,13 @@ void AndroidConfigurations::updateAutomaticKitList()
         Kit *existingKit = existingKits.at(i);
         for (int j = 0; j < newKits.count(); ++j) {
             Kit *newKit = newKits.at(j);
-            if (equalKits(existingKit, newKit)) {
+            if (matchKits(existingKit, newKit)) {
                 // Kit is already registered, nothing to do
                 newKits.removeAt(j);
                 existingKits.at(i)->makeSticky();
                 existingKits.removeAt(i);
-                ToolChainKitInformation::setToolChain(existingKit, ToolChainKitInformation::toolChain(newKit, ToolChain::Language::Cxx));
+                for (ToolChain::Language lang : ToolChain::allLanguages())
+                    ToolChainKitInformation::setToolChain(existingKit, ToolChainKitInformation::toolChain(newKit, lang));
                 KitManager::deleteKit(newKit);
                 j = newKits.count();
             }

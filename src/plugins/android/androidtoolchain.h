@@ -104,6 +104,7 @@ public:
     class AndroidToolChainInformation
     {
     public:
+        ProjectExplorer::ToolChain::Language language;
         Utils::FileName compilerCommand;
         ProjectExplorer::Abi abi;
         QString version;
@@ -116,7 +117,8 @@ public:
 
     static QList<int> versionNumberFromString(const QString &version);
     static bool versionCompareLess(const QList<int> &a, const QList<int> &b);
-    static bool versionCompareLess(AndroidToolChain *atc, AndroidToolChain *btc);
+    static bool versionCompareLess(QList<AndroidToolChain *> atc,
+                                   QList<AndroidToolChain *> btc);
     static QList<int> newestToolChainVersionForArch(const ProjectExplorer::Abi &abi);
 private:
     static QHash<ProjectExplorer::Abi, QList<int> > m_newestVersionForAbi;
