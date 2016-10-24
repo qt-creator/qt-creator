@@ -213,7 +213,7 @@ private:
     QStringList formResources(const QString &formFile) const;
     static QStringList baseVPaths(QtSupport::ProFileReader *reader, const QString &projectDir, const QString &buildDir);
     static QStringList fullVPaths(const QStringList &baseVPaths, QtSupport::ProFileReader *reader, const QString &qmakeVariable, const QString &projectDir);
-    static Internal::PriFileEvalResult extractValues(const Internal::EvalInput &input, QVector<ProFile *> includeFilesExact, QVector<ProFile *> includeFilesCumlative,
+    static Internal::PriFileEvalResult extractValues(const Internal::EvalInput &input, ProFile *proFile, bool haveExact,
                                                      const QList<QList<Internal::VariableAndVPathInformation>> &variableAndVPathInformation);
     void watchFolders(const QSet<QString> &folders);
 
