@@ -130,6 +130,18 @@ static bool shouldAssertInException()
     return !processEnvironment.value("QMLDESIGNER_ASSERT_ON_EXCEPTION").isEmpty();
 }
 
+static bool warningsForQmlFilesInsteadOfUiQmlEnabled()
+{
+    DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
+    return settings.value(DesignerSettingsKey::WARNING_FOR_QML_FILES_INSTEAD_OF_UIQML_FILES).toBool();
+}
+
+static bool showWarningsForFeaturesInDesigner()
+{
+    DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
+    return settings.value(DesignerSettingsKey::WARNING_FOR_FEATURES_IN_DESIGNER).toBool();
+}
+
 QmlDesignerPlugin::QmlDesignerPlugin()
 {
     m_instance = this;
@@ -296,18 +308,6 @@ void QmlDesignerPlugin::createDesignModeWidget()
                 hideDesigner();
         }
     });
-}
-
-static bool warningsForQmlFilesInsteadOfUiQmlEnabled()
-{
-    DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
-    return settings.value(DesignerSettingsKey::WARNING_FOR_QML_FILES_INSTEAD_OF_UIQML_FILES).toBool();
-}
-
-static bool showWarningsForFeaturesInDesigner()
-{
-    DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
-    return settings.value(DesignerSettingsKey::WARNING_FOR_FEATURES_IN_DESIGNER).toBool();
 }
 
 void QmlDesignerPlugin::showDesigner()
