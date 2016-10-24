@@ -130,6 +130,12 @@ static bool shouldAssertInException()
     return !processEnvironment.value("QMLDESIGNER_ASSERT_ON_EXCEPTION").isEmpty();
 }
 
+static bool useTextEditInDesignMode()
+{
+    DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
+    return settings.value(DesignerSettingsKey::TEXTEDIT_IN_DESIGNMODE, false).toBool();
+}
+
 static bool warningsForQmlFilesInsteadOfUiQmlEnabled()
 {
     DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
@@ -208,12 +214,11 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
 
     createDesignModeWidget();
     connect(switchTextDesignAction, &QAction::triggered, this, [](){
-        if (Core::ModeManager::currentMode() == Core::Constants::MODE_EDIT) {
-            Core::IEditor *editor = Core::EditorManager::currentEditor();
-            if (checkIfEditorIsQtQuick(editor))
-                Core::ModeManager::activateMode(Core::Constants::MODE_DESIGN);
-        } else if (Core::ModeManager::currentMode() == Core::Constants::MODE_DESIGN) {
-            Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
+        if (Core::ModeManager::currentMode() == Core::Constants::MODE_DESIGN) {
+            if (useTextEditInDesignMode())
+                qDebug() << "not implemented";
+            else
+                Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
         }
     });
 
