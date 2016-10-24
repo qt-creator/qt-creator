@@ -27,7 +27,7 @@
 
 #include "ui_gtestsettingspage.h"
 
-#include <coreplugin/dialogs/ioptionspage.h>
+#include "../itestsettingspage.h"
 
 #include <QPointer>
 
@@ -50,12 +50,11 @@ private:
     Ui::GTestSettingsPage m_ui;
 };
 
-class GTestSettingsPage : public Core::IOptionsPage
+class GTestSettingsPage : public ITestSettingsPage
 {
     Q_OBJECT
 public:
-    explicit GTestSettingsPage(QSharedPointer<IFrameworkSettings> settings);
-    ~GTestSettingsPage();
+    GTestSettingsPage(QSharedPointer<IFrameworkSettings> settings, const ITestFramework *framework);
 
     QWidget *widget() override;
     void apply() override;

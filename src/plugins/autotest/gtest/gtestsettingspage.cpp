@@ -65,18 +65,14 @@ GTestSettings GTestSettingsWidget::settings() const
     return result;
 }
 
-GTestSettingsPage::GTestSettingsPage(QSharedPointer<IFrameworkSettings> settings)
-    : m_settings(qSharedPointerCast<GTestSettings>(settings)), m_widget(0)
+GTestSettingsPage::GTestSettingsPage(QSharedPointer<IFrameworkSettings> settings,
+                                     const ITestFramework *framework)
+    : ITestSettingsPage(framework),
+      m_settings(qSharedPointerCast<GTestSettings>(settings)),
+      m_widget(0)
 {
-    setId("A.AutoTest.10.GTest"); // FIXME
     setDisplayName(QCoreApplication::translate("GTestFramework",
                                                GTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
-    setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("AutoTest", Constants::AUTOTEST_SETTINGS_TR));
-}
-
-GTestSettingsPage::~GTestSettingsPage()
-{
 }
 
 QWidget *GTestSettingsPage::widget()

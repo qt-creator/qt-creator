@@ -23,53 +23,48 @@
 **
 ****************************************************************************/
 
-#include "qttestframework.h"
-#include "qttestconstants.h"
-#include "qttestparser.h"
-#include "qttestsettings.h"
-#include "qttestsettingspage.h"
-#include "qttesttreeitem.h"
+#pragma once
+
+#include "autotestconstants.h"
+#include "itestframework.h"
+
+#include <coreplugin/dialogs/ioptionspage.h>
 
 namespace Autotest {
 namespace Internal {
 
-ITestParser *QtTestFramework::createTestParser() const
-{
-    return new QtTestParser;
-}
+class IFrameworkSettings;
 
-TestTreeItem *QtTestFramework::createRootNode() const
+class ITestSettingsPage : public Core::IOptionsPage
 {
-    return new QtTestTreeItem(
-                QCoreApplication::translate("QtTestFramework",
-                                            QtTest::Constants::FRAMEWORK_SETTINGS_CATEGORY),
-                QString(), TestTreeItem::Root);
-}
+public:
+    explicit ITestSettingsPage(const ITestFramework *framework)
+    {
+        setId(Core::Id(Constants::SETTINGSPAGE_PREFIX).withSuffix(
+                QString("%1.%2").arg(framework->priority()).arg(QLatin1String(framework->name()))));
+        setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
+        setDisplayCategory(QCoreApplication::translate("AutoTest",
+                                                       Constants::AUTOTEST_SETTINGS_TR));
+    }
 
-IFrameworkSettings *QtTestFramework::createFrameworkSettings() const
-{
-    return new QtTestSettings;
-}
+    virtual ~ITestSettingsPage() {}
 
-ITestSettingsPage *QtTestFramework::createSettingsPage(QSharedPointer<IFrameworkSettings> settings) const
-{
-    return new QtTestSettingsPage(settings, this);
-}
+private:
+    void setId(Core::Id id)
+    {
+        Core::IOptionsPage::setId(id);
+    }
 
-bool QtTestFramework::hasFrameworkSettings() const
-{
-    return true;
-}
+    void setCategory(Core::Id category)
+    {
+        Core::IOptionsPage::setCategory(category);
+    }
 
-const char *QtTestFramework::name() const
-{
-    return QtTest::Constants::FRAMEWORK_NAME;
-}
-
-unsigned QtTestFramework::priority() const
-{
-    return QtTest::Constants::FRAMEWORK_PRIORITY;
-}
+    void setDisplayCategory(const QString &displayCategory)
+    {
+        Core::IOptionsPage::setDisplayCategory(displayCategory);
+    }
+};
 
 } // namespace Internal
 } // namespace Autotest

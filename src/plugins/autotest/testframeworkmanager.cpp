@@ -29,12 +29,12 @@
 #include "iframeworksettings.h"
 #include "itestframework.h"
 #include "itestparser.h"
+#include "itestsettingspage.h"
 #include "testrunner.h"
 #include "testsettings.h"
 #include "testtreeitem.h"
 #include "testtreemodel.h"
 
-#include <coreplugin/dialogs/ioptionspage.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
