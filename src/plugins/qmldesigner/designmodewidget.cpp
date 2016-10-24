@@ -471,7 +471,7 @@ void DesignModeWidget::addNavigatorHistoryEntry(const Utils::FileName &fileName)
     ++m_navigatorHistoryCounter;
 }
 
-static QWidget *createWidgetsInTabWidget(const QList<WidgetInfo> &widgetInfos)
+static QTabWidget *createWidgetsInTabWidget(const QList<WidgetInfo> &widgetInfos)
 {
     QTabWidget *tabWidget = new QTabWidget;
 
@@ -512,13 +512,18 @@ static Core::MiniSplitter *createCentralSplitter(const QList<WidgetInfo> &widget
 
     auto outputPanePlaceholder = new StyledOutputpanePlaceHolder(Core::Constants::MODE_DESIGN, outputPlaceholderSplitter);
 
-    if (centralWidgetInfos.count() == 1)
-        outputPlaceholderSplitter->addWidget(centralWidgetInfos.first().widget);
-    else
-         outputPlaceholderSplitter->addWidget(createWidgetsInTabWidget(centralWidgetInfos));
+    QTabWidget* tabWidget = createWidgetsInTabWidget(centralWidgetInfos);
+    tabWidget->setObjectName("centralTabWidget");
+    tabWidget->setTabPosition(QTabWidget::East);
+    tabWidget->setTabBarAutoHide(true);
+
+    outputPlaceholderSplitter->addWidget(tabWidget);
 
     outputPlaceholderSplitter->addWidget(outputPanePlaceholder);
 
+    QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/centerwidget.css");
+    tabWidget->setStyleSheet(Theming::replaceCssColors(QString::fromUtf8(sheet)));
+    outputPlaceholderSplitter->setStyleSheet(Theming::replaceCssColors(QString::fromUtf8(sheet)));
     return outputPlaceholderSplitter;
 }
 
