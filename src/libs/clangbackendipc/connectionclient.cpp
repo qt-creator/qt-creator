@@ -43,6 +43,7 @@ namespace ClangBackEnd {
 ConnectionClient::ConnectionClient()
 {
     processAliveTimer.setInterval(10000);
+    resetTemporaryDir();
 
     static const bool startAliveTimer = !qEnvironmentVariableIntValue("QTC_CLANG_NO_ALIVE_TIMER");
 
@@ -113,9 +114,7 @@ QProcessEnvironment ConnectionClient::processEnvironment() const
 
 const QTemporaryDir &ConnectionClient::temporaryDirectory() const
 {
-    static QTemporaryDir temporaryDirectory(QDir::tempPath() + QStringLiteral("/qtc-clang-XXXXXX"));
-
-    return temporaryDirectory;
+    return *temporaryDirectory_.data();
 }
 
 LinePrefixer &ConnectionClient::stdErrPrefixer()
@@ -147,6 +146,7 @@ void ConnectionClient::restartProcessAsynchronously()
 {
     if (!processIsStarting) {
         finishProcess(std::move(process_));
+        resetTemporaryDir(); // clear left-over preambles
 
         startProcessAndConnectToServerAsynchronously();
     }
@@ -216,6 +216,12 @@ void ConnectionClient::printStandardOutput()
 void ConnectionClient::printStandardError()
 {
     qDebug("%s", stdErrPrefixer_.prefix(process_->readAllStandardError()).constData());
+}
+
+void ConnectionClient::resetTemporaryDir()
+{
+    const QString templatePath = QDir::tempPath() + QStringLiteral("/qtc-clang-XXXXXX");
+    temporaryDirectory_.reset(new QTemporaryDir(templatePath));
 }
 
 void ConnectionClient::connectLocalSocketConnected()

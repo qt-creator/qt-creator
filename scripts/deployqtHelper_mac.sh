@@ -144,8 +144,6 @@ if [ ! -d "$app_path/Contents/Frameworks/QtCore.framework" ]; then
         "-executable=$app_path/Contents/Resources/qtpromaker" \
         "-executable=$app_path/Contents/Resources/sdktool" \
         "-executable=$app_path/Contents/Resources/ios/iostool" \
-        "-executable=$app_path/Contents/Resources/ios/iossim" \
-        "-executable=$app_path/Contents/Resources/ios/iossim_1_8_2" \
         "-executable=$app_path/Contents/Resources/buildoutputparser" \
         "-executable=$app_path/Contents/Resources/cpaster" \
         "-executable=$app_path/Contents/MacOS/qtdiag" \

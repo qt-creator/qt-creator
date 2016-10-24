@@ -289,6 +289,42 @@ TEST_F(Documents, HasNotDocument)
     ASSERT_FALSE(documents.hasDocument(filePath, projectPartId));
 }
 
+TEST_F(Documents, FilteredPositive)
+{
+    documents.create({{filePath, projectPartId}});
+    const auto isMatchingFilePath = [this](const Document &document) {
+        return document.filePath() == filePath;
+    };
+
+    const bool hasMatches = !documents.filtered(isMatchingFilePath).empty();
+
+    ASSERT_TRUE(hasMatches);
+}
+
+TEST_F(Documents, FilteredNegative)
+{
+    documents.create({{filePath, projectPartId}});
+    const auto isMatchingNothing = [](const Document &) {
+        return false;
+    };
+
+    const bool hasMatches = !documents.filtered(isMatchingNothing).empty();
+
+    ASSERT_FALSE(hasMatches);
+}
+
+TEST_F(Documents, DirtyAndVisibleButNotCurrentDocuments)
+{
+    documents.create({{filePath, projectPartId}});
+    documents.updateDocumentsWithChangedDependency(filePath);
+    documents.setVisibleInEditors({filePath});
+    documents.setUsedByCurrentEditor(Utf8String());
+
+    const bool hasMatches = !documents.dirtyAndVisibleButNotCurrentDocuments().empty();
+
+    ASSERT_TRUE(hasMatches);
+}
+
 TEST_F(Documents, isUsedByCurrentEditor)
 {
     documents.create({fileContainer});

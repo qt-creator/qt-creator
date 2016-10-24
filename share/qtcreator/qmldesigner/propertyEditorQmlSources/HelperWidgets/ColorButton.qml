@@ -133,62 +133,35 @@ Item {
         fillMode: Image.Tile
 
         // note we smoothscale the shader from a smaller version to improve performance
-        ShaderEffect {
-            id: map
+        Canvas {
+            id: hubeBox
             opacity: colorButton.alpha
-            scale: surround.width / width;
-            layer.enabled: true
-            layer.smooth: true
             anchors.fill: parent
             property real hue: colorButton.hue
+            onHueChanged: requestPaint()
 
-            fragmentShader: "
-           varying mediump vec2 qt_TexCoord0;
-           uniform highp float qt_Opacity;
-           uniform highp float hue;
+            onPaint: {
+                var ctx = hubeBox.getContext('2d')
 
-           highp float hueToIntensity(highp float v1, highp float v2, highp float h) {
-               h = fract(h);
-               if (h < 1.0 / 6.0)
-                   return v1 + (v2 - v1) * 6.0 * h;
-               else if (h < 1.0 / 2.0)
-                   return v2;
-               else if (h < 2.0 / 3.0)
-                   return v1 + (v2 - v1) * 6.0 * (2.0 / 3.0 - h);
+                ctx.save()
 
-               return v1;
-           }
+                ctx.clearRect(0, 0, hubeBox.width, hubeBox.height);
 
-           highp vec3 HSLtoRGB(highp vec3 color) {
-               highp float h = color.x;
-               highp float l = color.z;
-               highp float s = color.y;
+                for (var row = 0; row < hubeBox.height; row++){
+                    var gradient = ctx.createLinearGradient(0, 0, hubeBox.width,0);
+                    var l = Math.abs(row  - hubeBox.height) / hubeBox.height
 
-               if (s < 1.0 / 256.0)
-                   return vec3(l, l, l);
+                    gradient.addColorStop(0, Qt.hsla(hubeBox.hue, 0, l, 1));
+                    gradient.addColorStop(1, Qt.hsla(hubeBox.hue, 1, l, 1));
 
-               highp float v1;
-               highp float v2;
-               if (l < 0.5)
-                   v2 = l * (1.0 + s);
-               else
-                   v2 = (l + s) - (s * l);
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(0, row, hubeBox.width, 1);
+                }
 
-               v1 = 2.0 * l - v2;
+                ctx.restore()
 
-               highp float d = 1.0 / 3.0;
-               highp float r = hueToIntensity(v1, v2, h + d);
-               highp float g = hueToIntensity(v1, v2, h);
-               highp float b = hueToIntensity(v1, v2, h - d);
-               return vec3(r, g, b);
-           }
+            }
 
-           void main() {
-               lowp vec4 c = vec4(1.0);
-               c.rgb = HSLtoRGB(vec3(hue, 1.0 - qt_TexCoord0.t, qt_TexCoord0.s));
-               gl_FragColor = c * qt_Opacity;
-           }
-           "
         }
 
         Canvas {
@@ -215,9 +188,8 @@ Item {
 
                 context.clearRect(0, 0, canvas.width, canvas.height);
 
-                var yy = canvas.height - colorButton.saturation * canvas.height
-
-                var xx = colorButton.lightness * canvas.width
+                var yy = canvas.height -colorButton.lightness * canvas.height
+                var xx = colorButton.saturation * canvas.width
 
                 ctx.strokeStyle = canvas.strokeStyle
                 ctx.lineWidth = 1
@@ -245,13 +217,9 @@ Item {
                 if (pressed) {
                     var xx = Math.max(0, Math.min(mouse.x, parent.width))
                     var yy = Math.max(0, Math.min(mouse.y, parent.height))
-                    //saturationSlider.value = 1.0 - yy / parent.height
-                    //lightnessSlider.value = xx / parent.width
-                    //var myHue = colorButton.hue
-                    colorButton.saturation =  1.0 - yy / parent.height;
-                    colorButton.lightness =  xx / parent.width;
-                    //colorButton.hue = myHue
-                    //colorButton.color = Qt.hsla(colorButton.hue, 1.0 - yy / parent.height, xx / parent.width, colorButton.alpha)
+
+                    colorButton.lightness =  1.0 - yy / parent.height;
+                    colorButton.saturation =  xx / parent.width;
                 }
             }
             onPressed: positionChanged(mouse)

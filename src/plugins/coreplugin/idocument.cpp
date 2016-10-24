@@ -79,7 +79,6 @@ public:
     bool hasWriteWarning = false;
     bool restored = false;
     bool isSuspendAllowed = false;
-    bool isModified = false;
 };
 
 } // namespace Internal
@@ -201,17 +200,7 @@ bool IDocument::shouldAutoSave() const
 
 bool IDocument::isModified() const
 {
-    return d->isModified;
-}
-
-void IDocument::setModified(bool modified)
-{
-    if (d->isModified == modified)
-        return;
-
-    d->isModified = modified;
-    emit modificationChanged(modified);
-    emit changed();
+    return false;
 }
 
 bool IDocument::isSaveAsAllowed() const

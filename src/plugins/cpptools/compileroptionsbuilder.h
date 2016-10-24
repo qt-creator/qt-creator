@@ -44,6 +44,7 @@ public:
     void addDefine(const QByteArray &defineDirective);
 
     // Add options based on project part
+    void addWordWidth();
     virtual void addTargetTriple();
     virtual void enableExceptions();
     void addHeaderPathOptions();
@@ -52,14 +53,19 @@ public:
     virtual void addLanguageOption(ProjectFile::Kind fileKind);
     virtual void addOptionsForLanguage(bool checkForBorlandExtensions = true);
 
+    void addDefineToAvoidIncludingGccOrMinGwIntrinsics();
+
     void addMsvcCompatibilityVersion();
     void undefineCppLanguageFeatureMacrosForMsvc2015();
+
+    void addDefineFloat128ForMingw();
 
 protected:
     virtual bool excludeDefineDirective(const QByteArray &defineDirective) const;
     virtual bool excludeHeaderPath(const QString &headerPath) const;
 
     virtual QString defineOption() const;
+    virtual QString undefineOption() const;
     virtual QString includeOption() const;
 
     const ProjectPart m_projectPart;

@@ -103,6 +103,7 @@ public:
     bool setContents(const QByteArray &contents) override;
     bool shouldAutoSave() const override;
     bool isFileReadOnly() const override;
+    bool isModified() const override;
     bool isSaveAsAllowed() const override;
     void checkPermissions() override;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
@@ -117,6 +118,7 @@ public:
     OpenResult open(QString *errorString, const QString &fileName,
                     const QString &realFileName) override;
     virtual bool reload(QString *errorString);
+    bool reload(QString *errorString, const QString &realFileName);
 
     bool setPlainText(const QString &text);
     QTextDocument *document() const;
@@ -150,6 +152,7 @@ private:
                         bool reload);
     void cleanWhitespace(QTextCursor &cursor, bool cleanIndentation, bool inEntireDocument);
     void ensureFinalNewLine(QTextCursor &cursor);
+    void modificationChanged(bool modified);
 
     TextDocumentPrivate *d;
 };

@@ -35,6 +35,7 @@ namespace Utils {
 
 QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const FileName &fileName,
                                                        bool modified,
+                                                       bool enableDiffOption,
                                                        QWidget *parent)
 {
 
@@ -50,12 +51,13 @@ QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const FileName &fileName,
                 "The file <i>%1</i> has changed outside Qt Creator. Do you want to reload it?");
     }
     msg = msg.arg(fileName.fileName());
-    return reloadPrompt(title, msg, fileName.toUserOutput(), parent);
+    return reloadPrompt(title, msg, fileName.toUserOutput(), enableDiffOption, parent);
 }
 
 QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const QString &title,
                                                        const QString &prompt,
                                                        const QString &details,
+                                                       bool enableDiffOption,
                                                        QWidget *parent)
 {
     QMessageBox msg(parent);
@@ -69,7 +71,19 @@ QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const QString &title,
     msg.button(QMessageBox::Close)->setText(QCoreApplication::translate("Utils::reloadPrompt",
                                                                         "&Close"));
 
-    switch (msg.exec()) {
+    QPushButton *diffButton = nullptr;
+    if (enableDiffOption) {
+        diffButton = msg.addButton(QCoreApplication::translate(
+                                   "Utils::reloadPrompt", "No to All && &Diff"),
+                                   QMessageBox::NoRole);
+    }
+
+    const int result = msg.exec();
+
+    if (msg.clickedButton() == diffButton)
+        return ReloadNoneAndDiff;
+
+    switch (result) {
     case QMessageBox::Yes:
         return  ReloadCurrent;
     case QMessageBox::YesToAll:

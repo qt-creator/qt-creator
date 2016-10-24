@@ -41,6 +41,7 @@ Project {
                 "corejsextensions.cpp", "corejsextensions.h",
                 "coreplugin.cpp", "coreplugin.h",
                 "designmode.cpp", "designmode.h",
+                "diffservice.h",
                 "documentmanager.cpp", "documentmanager.h",
                 "editmode.cpp", "editmode.h",
                 "editortoolbar.cpp", "editortoolbar.h",

@@ -59,9 +59,6 @@ FormWindowFile::FormWindowFile(QDesignerFormWindowInterface *form, QObject *pare
     connect(m_formWindow->commandHistory(), &QUndoStack::indexChanged,
             this, &FormWindowFile::setShouldAutoSave);
     connect(m_formWindow.data(), &QDesignerFormWindowInterface::changed, this, &FormWindowFile::updateIsModified);
-    connect(this, &IDocument::modificationChanged, m_formWindow.data(), &QDesignerFormWindowInterface::setDirty);
-
-    setModified(m_formWindow->isDirty());
 
     m_resourceHandler = new ResourceHandler(form);
     connect(this, &FormWindowFile::filePathChanged,
@@ -186,15 +183,26 @@ void FormWindowFile::setFilePath(const FileName &newName)
 
 void FormWindowFile::updateIsModified()
 {
+    if (m_modificationChangedGuard.isLocked())
+        return;
+
     bool value = m_formWindow && m_formWindow->isDirty();
     if (value)
         emit contentsChanged();
-    setModified(value);
+    if (value == m_isModified)
+        return;
+    m_isModified = value;
+    emit changed();
 }
 
 bool FormWindowFile::shouldAutoSave() const
 {
     return m_shouldAutoSave;
+}
+
+bool FormWindowFile::isModified() const
+{
+    return m_formWindow && m_formWindow->isDirty();
 }
 
 bool FormWindowFile::isSaveAsAllowed() const
@@ -204,8 +212,20 @@ bool FormWindowFile::isSaveAsAllowed() const
 
 bool FormWindowFile::reload(QString *errorString, ReloadFlag flag, ChangeType type)
 {
-    if (flag == FlagIgnore)
+    if (flag == FlagIgnore) {
+        if (!m_formWindow || type != TypeContents)
+            return true;
+        const bool wasModified = m_formWindow->isDirty();
+        {
+            Utils::GuardLocker locker(m_modificationChangedGuard);
+            // hack to ensure we clean the clear state in form window
+            m_formWindow->setDirty(false);
+            m_formWindow->setDirty(true);
+        }
+        if (!wasModified)
+            updateIsModified();
         return true;
+    }
     if (type == TypePermissions) {
         emit changed();
     } else {

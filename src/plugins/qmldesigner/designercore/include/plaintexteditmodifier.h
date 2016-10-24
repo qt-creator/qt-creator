@@ -58,6 +58,7 @@ public:
     void replace(int offset, int length, const QString &replacement) override;
     void move(const MoveInfo &moveInfo) override;
     void indent(int offset, int length) override = 0;
+    void indentLines(int startLine, int endLine) override = 0;
 
     int indentDepth() const override = 0;
 
@@ -102,10 +103,12 @@ public:
         : PlainTextEditModifier(textEdit)
     {}
 
-    virtual void indent(int /*offset*/, int /*length*/)
+    void indent(int /*offset*/, int /*length*/) override
+    {}
+    void indentLines(int /*offset*/, int /*length*/) override
     {}
 
-    virtual int indentDepth() const
+    int indentDepth() const override
     { return 0; }
 };
 

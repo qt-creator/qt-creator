@@ -29,6 +29,7 @@
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
+class QDialog;
 class QLabel;
 class QPlainTextEdit;
 class QPushButton;

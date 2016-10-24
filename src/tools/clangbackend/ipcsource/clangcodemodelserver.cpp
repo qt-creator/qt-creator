@@ -50,46 +50,28 @@
 #include <updatetranslationunitsforeditormessage.h>
 #include <updatevisibletranslationunitsmessage.h>
 
+#include <utils/qtcassert.h>
+
 #include <QCoreApplication>
 #include <QDebug>
 
 namespace ClangBackEnd {
 
-namespace {
-
-int getIntervalFromEnviromentVariable()
-{
-    bool isConversionOk = false;
-    const int intervalAsInt = qEnvironmentVariableIntValue("QTC_CLANG_DELAYED_REPARSE_TIMEOUT",
-                                                           &isConversionOk);
-
-    if (isConversionOk)
-        return intervalAsInt;
-    else
-        return -1;
-}
-
-int delayedDocumentAnnotationsTimerInterval()
-{
-    static const int defaultInterval = 1500;
-    static const int userDefinedInterval = getIntervalFromEnviromentVariable();
-    static const int interval = userDefinedInterval >= 0 ? userDefinedInterval : defaultInterval;
-
-    return interval;
-}
-
-} // anonymous
-
 ClangCodeModelServer::ClangCodeModelServer()
     : documents(projects, unsavedFiles)
-    , updateDocumentAnnotationsTimeOutInMs(delayedDocumentAnnotationsTimerInterval())
 {
     updateDocumentAnnotationsTimer.setSingleShot(true);
-
     QObject::connect(&updateDocumentAnnotationsTimer,
                      &QTimer::timeout,
                      [this]() {
         processJobsForDirtyAndVisibleDocuments();
+    });
+
+    updateVisibleButNotCurrentDocumentsTimer.setSingleShot(true);
+    QObject::connect(&updateVisibleButNotCurrentDocumentsTimer,
+                     &QTimer::timeout,
+                     [this]() {
+        processJobsForDirtyAndVisibleButNotCurrentDocuments();
     });
 
     QObject::connect(documents.clangFileSystemWatcher(),
@@ -290,16 +272,44 @@ bool ClangCodeModelServer::isTimerRunningForTestOnly() const
 
 void ClangCodeModelServer::processJobsForDirtyAndVisibleDocuments()
 {
-    for (const auto &document : documents.documents()) {
-        if (document.isNeedingReparse() && document.isVisibleInEditor()) {
-            DocumentProcessor processor = documentProcessors().processor(document);
-            processor.addJob(createJobRequest(document,
-                                              JobRequest::Type::UpdateDocumentAnnotations,
-                                              PreferredTranslationUnit::PreviouslyParsed));
-        }
-    }
+    processJobsForDirtyCurrentDocument();
+    processTimerForVisibleButNotCurrentDocuments();
+}
 
-    documentProcessors().process();
+void ClangCodeModelServer::processJobsForDirtyCurrentDocument()
+{
+    const auto currentDirtyDocuments = documents.filtered([](const Document &document) {
+        return document.isNeedingReparse() && document.isUsedByCurrentEditor();
+    });
+    QTC_CHECK(currentDirtyDocuments.size() <= 1);
+
+    addAndRunUpdateJobs(currentDirtyDocuments);
+}
+
+void ClangCodeModelServer::addAndRunUpdateJobs(const std::vector<Document> &documents)
+{
+    for (const auto &document : documents) {
+        DocumentProcessor processor = documentProcessors().processor(document);
+        processor.addJob(createJobRequest(document,
+                                          JobRequest::Type::UpdateDocumentAnnotations,
+                                          PreferredTranslationUnit::PreviouslyParsed));
+        processor.process();
+    }
+}
+
+void ClangCodeModelServer::processTimerForVisibleButNotCurrentDocuments()
+{
+    if (documents.dirtyAndVisibleButNotCurrentDocuments().empty()) {
+        updateVisibleButNotCurrentDocumentsTimer.stop();
+    } else {
+        updateVisibleButNotCurrentDocumentsTimer.start(
+                    updateVisibleButNotCurrentDocumentsTimeOutInMs);
+    }
+}
+
+void ClangCodeModelServer::processJobsForDirtyAndVisibleButNotCurrentDocuments()
+{
+    addAndRunUpdateJobs(documents.dirtyAndVisibleButNotCurrentDocuments());
 }
 
 void ClangCodeModelServer::processInitialJobsForDocuments(const std::vector<Document> &documents)
@@ -355,6 +365,11 @@ JobRequest ClangCodeModelServer::createJobRequest(
 void ClangCodeModelServer::setUpdateDocumentAnnotationsTimeOutInMsForTestsOnly(int value)
 {
     updateDocumentAnnotationsTimeOutInMs = value;
+}
+
+void ClangCodeModelServer::setUpdateVisibleButNotCurrentDocumentsTimeOutInMsForTestsOnly(int value)
+{
+    updateVisibleButNotCurrentDocumentsTimeOutInMs = value;
 }
 
 DocumentProcessors &ClangCodeModelServer::documentProcessors()

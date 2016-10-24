@@ -34,6 +34,7 @@
 #include "panelswidget.h"
 #include "project.h"
 #include "projectexplorer.h"
+#include "projectexplorericons.h"
 #include "projectwindow.h"
 #include "runsettingspropertiespage.h"
 #include "session.h"
@@ -563,8 +564,19 @@ public:
         case KitIdRole:
             return m_kitId.toSetting();
 
-        case Qt::DecorationRole:
-            return Utils::Icons::EMPTY14.icon();
+        case Qt::DecorationRole: {
+            switch (m_subIndex) {
+            case BuildPage: {
+                static const QIcon buildIcon = ProjectExplorer::Icons::BUILD_SMALL.icon();
+                return buildIcon;
+            }
+            case RunPage: {
+                static const QIcon runIcon = Utils::Icons::RUN_SMALL.icon();
+                return runIcon;
+            }
+            }
+            break;
+        }
 
         default:
             break;

@@ -41,6 +41,7 @@ class QMLDESIGNERCORE_EXPORT BaseTextEditModifier: public PlainTextEditModifier
 public:
     BaseTextEditModifier(TextEditor::TextEditorWidget *textEdit);
 
+    void indentLines(int startLine, int endLine) override;
     void indent(int offset, int length) override;
 
     int indentDepth() const override;

@@ -8,7 +8,7 @@
         <!ENTITY noword   "(?![\w$+-])">                <!-- no word, $, + or - following -->
         <!ENTITY pathpart "([\w_@.&#37;*?+-]|\\ )">     <!-- valid character in a file name -->
 ]>
-<language name="Bash" version="2.18" kateversion="5.0" section="Scripts" extensions="*.sh;*.bash;*.ebuild;*.eclass;.bashrc;.bash_profile;.bash_login;.profile" mimetype="application/x-shellscript" casesensitive="1" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL">
+<language name="Bash" version="3" kateversion="5.0" section="Scripts" extensions="*.sh;*.bash;*.ebuild;*.eclass;*.nix;.bashrc;.bash_profile;.bash_login;.profile" mimetype="application/x-shellscript" casesensitive="1" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL">
 
 <!-- (c) 2004 by Wilbert Berendsen (wilbert@kde.nl)
     Changes by Matthew Woehlke (mw_triad@users.sourceforge.net)
@@ -312,6 +312,14 @@
       <item> gawk </item>
       <item> gc </item>
       <item> gcc </item>
+      <item> clang </item>
+      <item> valgrind </item>
+      <item> xdg-open </item>
+      <item> cmake </item>
+      <item> qmake </item>
+      <item> svn </item>
+      <item> git </item>
+      <item> rsync </item>
       <item> gdb </item>
       <item> getent </item>
       <item> getopt </item>
@@ -550,7 +558,7 @@
         <RegExpr attribute="Redirection" context="#stay" String="([0-9]*(&gt;{1,2}|&lt;)(&amp;[0-9]+-?)?|&amp;&gt;|&gt;&amp;|[0-9]*&lt;&gt;)" />
         <!-- handle &, &&, | and || -->
         <RegExpr attribute="Control" context="#stay" String="([|&amp;])\1?" />
-      </context>      
+      </context>
       <context attribute="Normal Text" lineEndContext="#stay" name="FindNormalCommands">
         <keyword attribute="Builtin" context="CommandArgs" String="builtins" />
         <keyword attribute="Command" context="CommandArgs" String="unixcommands" />
@@ -559,11 +567,11 @@
         <RegExpr attribute="OtherCommand" context="#stay" String="/&pathpart;*(?=([/);$`'&quot;]|$))" />
         <RegExpr attribute="OtherCommand" context="CommandArgs" String="/&pathpart;*(?=([\s);$`'&quot;]|$))" />
         <!-- This list is not complete. ie, ":" is missing but as it is in bash completition. -->
-        <RegExpr attribute="OtherCommand" context="CommandArgs" String="&pathpart;*" />        
+        <RegExpr attribute="OtherCommand" context="CommandArgs" String="&pathpart;*" />
       </context>
-      
+
       <!-- CommandArgs matches the items after a command -->
-      <context attribute="Normal Text" lineEndContext="#pop" name="CommandArgs">  
+      <context attribute="Normal Text" lineEndContext="#pop" name="CommandArgs">
         <LineContinue />
         <IncludeRules context="FindMost" />
         <RegExpr attribute="Keyword" context="#stay" String="\\$" />
@@ -578,12 +586,12 @@
         <!-- handle redirection -->
         <RegExpr attribute="Redirection" context="#stay" String="([0-9]*(&gt;{1,2}|&lt;)(&amp;[0-9]+-?)?|&amp;&gt;|&gt;&amp;|[0-9]*&lt;&gt;)" />
         <!-- handle &, &&, | and || -->
-        <RegExpr attribute="Control" context="#pop" String="([|&amp;;])\1?" />        
+        <RegExpr attribute="Control" context="#pop" String="([|&amp;;])\1?" />
         <RegExpr attribute="Option" context="#stay" String="-?-[a-z][A-Za-z0-9_-]*" />
         <keyword attribute="Option" context="#stay" String="keywords" />
         <AnyChar String=")}" context="#pop" lookAhead="true"/>
       </context>
-      
+
       <!-- FindCommands matches many items that can be expected outside strings, substitutions etc, when inside a Backquote -->
       <context attribute="Normal Text" lineEndContext="#stay" name="FindCommandsBackq">
         <IncludeRules context="FindSpecialCommands" />
@@ -598,12 +606,12 @@
         <RegExpr attribute="OtherCommand" context="CommandArgsBackq" String="/&pathpart;*(?=([\s);$`'&quot;]|$))" />
         <RegExpr attribute="OtherCommand" context="CommandArgsBackq" String="&pathpart;*" />
       </context>
-      <context attribute="Normal Text" lineEndContext="#pop" name="CommandArgsBackq"> 
+      <context attribute="Normal Text" lineEndContext="#pop" name="CommandArgsBackq">
         <LineContinue />
         <DetectChar attribute="Keyword" context="#pop" char="`" lookAhead="true"/>
         <IncludeRules context="CommandArgs" />
       </context>
-          
+
       <!-- FindOthers contains various rules to mark different shell input -->
       <context attribute="Normal Text" lineEndContext="#stay" name="FindOthers">
         <RegExpr attribute="Escape" context="#stay" String="\\[][;\\$`{}()|&amp;&lt;&gt;* ]" />

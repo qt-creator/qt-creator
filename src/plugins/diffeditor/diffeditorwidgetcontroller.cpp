@@ -32,6 +32,7 @@
 #include <coreplugin/patchtool.h>
 
 #include <texteditor/fontsettings.h>
+#include <texteditor/textdocument.h>
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -42,6 +43,7 @@
 #include <QDir>
 #include <QMenu>
 #include <QMessageBox>
+#include <QTemporaryFile>
 #include <QTextCodec>
 
 using namespace Core;
@@ -77,27 +79,60 @@ void DiffEditorWidgetController::patch(bool revert)
         return;
     }
 
-    const int strip = m_document->baseDirectory().isEmpty() ? -1 : 0;
-
     const FileData fileData = m_contextFileData.at(m_contextMenuFileIndex);
     const QString fileName = revert
             ? fileData.rightFileInfo.fileName
             : fileData.leftFileInfo.fileName;
+    const DiffFileInfo::PatchBehaviour patchBehaviour = revert
+            ? fileData.rightFileInfo.patchBehaviour
+            : fileData.leftFileInfo.patchBehaviour;
 
     const QString workingDirectory = m_document->baseDirectory().isEmpty()
             ? QFileInfo(fileName).absolutePath()
             : m_document->baseDirectory();
+    const QString absFileName = QFileInfo(workingDirectory + '/' + QFileInfo(fileName).fileName()).absoluteFilePath();
 
-    const QString patch = m_document->makePatch(m_contextMenuFileIndex, m_contextMenuChunkIndex, revert);
+    if (patchBehaviour == DiffFileInfo::PatchFile) {
+        const int strip = m_document->baseDirectory().isEmpty() ? -1 : 0;
 
-    if (patch.isEmpty())
-        return;
+        const QString patch = m_document->makePatch(m_contextMenuFileIndex, m_contextMenuChunkIndex, revert);
 
-    const QString absFileName = QFileInfo(workingDirectory + '/' + fileName).absoluteFilePath();
-    FileChangeBlocker fileChangeBlocker(absFileName);
-    if (PatchTool::runPatch(EditorManager::defaultTextCodec()->fromUnicode(patch),
-                            workingDirectory, strip, revert))
-        m_document->reload();
+        if (patch.isEmpty())
+            return;
+
+        FileChangeBlocker fileChangeBlocker(absFileName);
+        if (PatchTool::runPatch(EditorManager::defaultTextCodec()->fromUnicode(patch),
+                                workingDirectory, strip, revert))
+            m_document->reload();
+    } else { // PatchEditor
+        TextEditor::TextDocument *textDocument = qobject_cast<TextEditor::TextDocument *>(
+                    DocumentModel::documentForFilePath(absFileName));
+        if (!textDocument)
+            return;
+
+        QTemporaryFile contentsCopy;
+        if (!contentsCopy.open())
+            return;
+
+        contentsCopy.write(textDocument->contents());
+        contentsCopy.close();
+
+        const QString contentsCopyFileName = contentsCopy.fileName();
+        const QString contentsCopyDir = QFileInfo(contentsCopyFileName).absolutePath();
+
+        const QString patch = m_document->makePatch(m_contextMenuFileIndex,
+                              m_contextMenuChunkIndex, revert, false, QFileInfo(contentsCopyFileName).fileName());
+
+        if (patch.isEmpty())
+            return;
+
+        if (PatchTool::runPatch(EditorManager::defaultTextCodec()->fromUnicode(patch),
+                                contentsCopyDir, 0, revert)) {
+            QString errorString;
+            if (textDocument->reload(&errorString, contentsCopyFileName))
+                m_document->reload();
+        }
+    }
 }
 
 void DiffEditorWidgetController::jumpToOriginalFile(const QString &fileName,

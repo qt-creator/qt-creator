@@ -1209,6 +1209,8 @@ void CdbEngine::activateFrame(int index)
                qPrintable(frame.file), frame.line);
     stackHandler()->setCurrentIndex(index);
     gotoLocation(frame);
+    if (m_pythonVersion > 0x030000)
+        runCommand({".frame " + QString::number(index), NoFlags});
     updateLocals();
 }
 

@@ -64,6 +64,7 @@ public:
     virtual void replace(int offset, int length, const QString& replacement) = 0;
     virtual void move(const MoveInfo &moveInfo) = 0;
     virtual void indent(int offset, int length) = 0;
+    virtual void indentLines(int startLine, int endLine) = 0;
 
     virtual int indentDepth() const = 0;
 
@@ -74,6 +75,7 @@ public:
     virtual QTextDocument *textDocument() const = 0;
     virtual QString text() const = 0;
     virtual QTextCursor textCursor() const = 0;
+    static int getLineInDocument(QTextDocument* document, int offset);
 
     virtual void deactivateChangeSignals() = 0;
     virtual void reactivateChangeSignals() = 0;

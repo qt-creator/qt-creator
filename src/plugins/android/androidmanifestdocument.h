@@ -39,6 +39,7 @@ public:
     bool save(QString *errorString, const QString &fileName = QString(),
               bool autoSave = false) override;
 
+    bool isModified() const override;
     bool isSaveAsAllowed() const override;
 
 private:

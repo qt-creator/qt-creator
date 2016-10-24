@@ -94,7 +94,7 @@ bool ModelDocument::save(QString *errorString, const QString &name, bool autoSav
     }
 
     if (autoSave) {
-        d->documentController->projectController()->setModified(true);
+        d->documentController->projectController()->setModified();
     } else {
         setFilePath(Utils::FileName::fromString(d->documentController->projectController()->project()->fileName()));
         emit changed();
@@ -106,6 +106,11 @@ bool ModelDocument::save(QString *errorString, const QString &name, bool autoSav
 bool ModelDocument::shouldAutoSave() const
 {
     return isModified();
+}
+
+bool ModelDocument::isModified() const
+{
+    return d->documentController ? d->documentController->projectController()->isModified() : false;
 }
 
 bool ModelDocument::isSaveAsAllowed() const
@@ -135,10 +140,6 @@ Core::IDocument::OpenResult ModelDocument::load(QString *errorString, const QStr
 {
     d->documentController = ModelEditorPlugin::modelsManager()->createModel(this);
     connect(d->documentController, &qmt::DocumentController::changed, this, &IDocument::changed);
-    connect(d->documentController, &qmt::DocumentController::modificationChanged, this, &IDocument::setModified);
-    connect(this, &IDocument::modificationChanged,
-            d->documentController->projectController(), &qmt::ProjectController::setModified);
-    setModified(d->documentController->projectController()->isModified());
 
     try {
         d->documentController->loadProject(fileName);

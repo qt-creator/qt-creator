@@ -65,15 +65,21 @@ public: // for tests
     int queueSizeForTestsOnly();
     bool isTimerRunningForTestOnly() const;
     void setUpdateDocumentAnnotationsTimeOutInMsForTestsOnly(int value);
+    void setUpdateVisibleButNotCurrentDocumentsTimeOutInMsForTestsOnly(int value);
     DocumentProcessors &documentProcessors();
 
 private:
-
     void startDocumentAnnotationsTimerIfFileIsNotOpenAsDocument(const Utf8String &filePath);
-    void addJobRequestsForDirtyAndVisibleDocuments();
-    void processJobsForDirtyAndVisibleDocuments();
+
     void processInitialJobsForDocuments(const std::vector<Document> &documents);
     void startInitializingSupportiveTranslationUnits(const std::vector<Document> &documents);
+
+    void processJobsForDirtyAndVisibleDocuments();
+    void processJobsForDirtyCurrentDocument();
+    void processTimerForVisibleButNotCurrentDocuments();
+    void processJobsForDirtyAndVisibleButNotCurrentDocuments();
+
+    void addAndRunUpdateJobs(const std::vector<Document> &documents);
 
     JobRequest createJobRequest(const Document &document,
                                 JobRequest::Type type,
@@ -88,7 +94,10 @@ private:
     QScopedPointer<DocumentProcessors> documentProcessors_; // Delayed initialization
 
     QTimer updateDocumentAnnotationsTimer;
-    int updateDocumentAnnotationsTimeOutInMs;
+    int updateDocumentAnnotationsTimeOutInMs = 1500;
+
+    QTimer updateVisibleButNotCurrentDocumentsTimer;
+    int updateVisibleButNotCurrentDocumentsTimeOutInMs = 2000;
 };
 
 } // namespace ClangBackEnd

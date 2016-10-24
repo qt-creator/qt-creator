@@ -179,6 +179,7 @@ public: // for tests
 signals:
     void currentEditorChanged(Core::IEditor *editor);
     void currentDocumentStateChanged();
+    void documentStateChanged(Core::IDocument *document);
     void editorCreated(Core::IEditor *editor, const QString &fileName);
     void editorOpened(Core::IEditor *editor);
     void editorAboutToClose(Core::IEditor *editor);

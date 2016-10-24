@@ -41,6 +41,8 @@
 
         \li Create bindings between the properties of two objects.
 
+        \li Manage backend QObjects.
+
     \endlist
 
     For examples of adding connections, see
@@ -57,6 +59,9 @@
     \list 1
 
         \li Select the \uicontrol {Connections} tab.
+
+        \li Select the \inlineimage plus.png
+            (\uicontrol Add) button to add a connection.
 
         \li Select \uicontrol Target to add the object to connect to a signal.
 
@@ -105,6 +110,9 @@
 
         \li Select the \uicontrol {Bindings} tab.
 
+        \li Select the \inlineimage plus.png
+            (\uicontrol Add) button to add a binding.
+
         \li Select \uicontrol Item to select the target object whose property you want
             to change dynamically.
 
@@ -116,6 +124,55 @@
 
         \li Select \uicontrol {Source Property} to select the property to bind the
             target property to.
+
+    \endlist
+
+    \section1 Managing C++ Backend Objects
+
+    Many applications provide QObject objects implemented in C++ that work as a
+    bridge between QML and C++. Such objects are typically registered with
+    qmlRegisterType or qmlRegisterSingletonType and then used by QML to
+    communicate with the C++ backend. Another example of such objects are the
+    state machines created by the \l {Using the Qt SCXML Compiler (qscxmlc)}
+    {Qt SCXML Compiler}.
+
+    Backend objects in a QML file are accessible if the QML file contains the
+    required imports. In addition, for a non-singleton QObject, a dynamic
+    property that contains the QObject must be specified.
+
+    A \e local QObject is instantiated in the current \e .qml file, as follows:
+
+    \badcode
+    property MyType myType: MyType {}.
+    \endcode
+
+    Otherwise the property is just defined, as follows:
+
+    \badcode
+    property MyType myType
+    \endcode
+
+    To manage backend objects:
+
+    \list 1
+
+        \li Select the \uicontrol Backends tab to view accessible backend
+            objects.
+
+            \image qmldesigner-backends.png
+
+        \li Select the \inlineimage plus.png
+            (\uicontrol Add) button to add a backend object in the
+            \uicontrol {Add New C++ Backend} dialog.
+
+        \li In the \uicontrol Type field, select the type of the backend QObject
+            to add.
+
+        \li Select the \uicontrol {Define object locally} check box if the
+            QObject is not registered as a singleton.
+
+        \li Select \uicontrol OK to add the required import and to create the
+            property for a non-singleton object.
 
     \endlist
 

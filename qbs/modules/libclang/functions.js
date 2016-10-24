@@ -1,5 +1,6 @@
 var Environment = loadExtension("qbs.Environment")
 var File = loadExtension("qbs.File")
+var FileInfo = loadExtension("qbs.FileInfo")
 var MinimumLLVMVersion = "3.8.0"
 var Process = loadExtension("qbs.Process")
 
@@ -57,12 +58,12 @@ function llvmConfig(qbs, qtcFunctions)
 
 function includeDir(llvmConfig)
 {
-    return readOutput(llvmConfig, ["--includedir"])
+    return FileInfo.fromNativeSeparators(readOutput(llvmConfig, ["--includedir"]));
 }
 
 function libDir(llvmConfig)
 {
-    return readOutput(llvmConfig, ["--libdir"])
+    return FileInfo.fromNativeSeparators(readOutput(llvmConfig, ["--libdir"]));
 }
 
 function version(llvmConfig)

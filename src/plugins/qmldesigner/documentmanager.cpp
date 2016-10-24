@@ -53,13 +53,14 @@ namespace QmlDesigner {
 
 Q_LOGGING_CATEGORY(documentManagerLog, "qtc.qtquickdesigner.documentmanager")
 
-static inline DesignDocument* currentDesignDocument()
+static inline QmlDesigner::DesignDocument* designDocument()
 {
-    return QmlDesignerPlugin::instance()->documentManager().currentDesignDocument();
+    return QmlDesigner::QmlDesignerPlugin::instance()->documentManager().currentDesignDocument();
 }
 
-static inline void getProperties(const ModelNode &node, QHash<PropertyName, QVariant> &propertyHash)
+static inline QHash<PropertyName, QVariant> getProperties(const ModelNode &node)
 {
+    QHash<PropertyName, QVariant> propertyHash;
     if (QmlObjectNode::isValidQmlObjectNode(node)) {
         foreach (const AbstractProperty &abstractProperty, node.properties()) {
             if (abstractProperty.isVariantProperty()
@@ -79,6 +80,7 @@ static inline void getProperties(const ModelNode &node, QHash<PropertyName, QVar
             propertyHash.remove("opacity");
         }
     }
+    return propertyHash;
 }
 
 static inline void applyProperties(ModelNode &node, const QHash<PropertyName, QVariant> &propertyHash)
@@ -111,14 +113,8 @@ static inline void applyProperties(ModelNode &node, const QHash<PropertyName, QV
 static void openFileComponent(const ModelNode &modelNode)
 {
     QmlDesignerPlugin::instance()->viewManager().nextFileIsCalledInternally();
-
-    QHash<PropertyName, QVariant> propertyHash;
-
-    getProperties(modelNode, propertyHash);
-    Core::EditorManager::openEditor(modelNode.metaInfo().componentFileName(), Core::Id(), Core::EditorManager::DoNotMakeVisible);
-
-    ModelNode rootModelNode = currentDesignDocument()->rewriterView()->rootModelNode();
-    applyProperties(rootModelNode, propertyHash);
+    Core::EditorManager::openEditor(modelNode.metaInfo().componentFileName(),
+        Core::Id(), Core::EditorManager::DoNotMakeVisible);
 }
 
 static void openFileComponentForDelegate(const ModelNode &modelNode)
@@ -129,10 +125,6 @@ static void openFileComponentForDelegate(const ModelNode &modelNode)
 static void openComponentSourcePropertyOfLoader(const ModelNode &modelNode)
 {
     QmlDesignerPlugin::instance()->viewManager().nextFileIsCalledInternally();
-
-    QHash<PropertyName, QVariant> propertyHash;
-
-    getProperties(modelNode, propertyHash);
 
     ModelNode componentModelNode;
 
@@ -149,32 +141,23 @@ static void openComponentSourcePropertyOfLoader(const ModelNode &modelNode)
     }
 
     Core::EditorManager::openEditor(componentModelNode.metaInfo().componentFileName(), Core::Id(), Core::EditorManager::DoNotMakeVisible);
-
-    ModelNode rootModelNode = currentDesignDocument()->rewriterView()->rootModelNode();
-    applyProperties(rootModelNode, propertyHash);
 }
 
 static void openSourcePropertyOfLoader(const ModelNode &modelNode)
 {
     QmlDesignerPlugin::instance()->viewManager().nextFileIsCalledInternally();
 
-    QHash<PropertyName, QVariant> propertyHash;
-
     QString componentFileName = modelNode.variantProperty("source").value().toString();
     QString componentFilePath = modelNode.model()->fileUrl().resolved(QUrl::fromLocalFile(componentFileName)).toLocalFile();
 
-    getProperties(modelNode, propertyHash);
     Core::EditorManager::openEditor(componentFilePath, Core::Id(), Core::EditorManager::DoNotMakeVisible);
-
-    ModelNode rootModelNode = currentDesignDocument()->rewriterView()->rootModelNode();
-    applyProperties(rootModelNode, propertyHash);
 }
 
 
 static void handleComponent(const ModelNode &modelNode)
 {
     if (modelNode.nodeSourceType() == ModelNode::NodeWithComponentSource)
-        currentDesignDocument()->changeToSubComponent(modelNode);
+        designDocument()->changeToSubComponent(modelNode);
 }
 
 static void handleDelegate(const ModelNode &modelNode)
@@ -182,36 +165,25 @@ static void handleDelegate(const ModelNode &modelNode)
     if (modelNode.metaInfo().isView()
             && modelNode.hasNodeProperty("delegate")
             && modelNode.nodeProperty("delegate").modelNode().nodeSourceType() == ModelNode::NodeWithComponentSource)
-        currentDesignDocument()->changeToSubComponent(modelNode.nodeProperty("delegate").modelNode());
+        designDocument()->changeToSubComponent(modelNode.nodeProperty("delegate").modelNode());
 }
 
 static void handleTabComponent(const ModelNode &modelNode)
 {
     if (modelNode.hasNodeProperty("component")
             && modelNode.nodeProperty("component").modelNode().nodeSourceType() == ModelNode::NodeWithComponentSource) {
-        currentDesignDocument()->changeToSubComponent(modelNode.nodeProperty("component").modelNode());
+        designDocument()->changeToSubComponent(modelNode.nodeProperty("component").modelNode());
     }
 }
 
 static inline void openInlineComponent(const ModelNode &modelNode)
 {
-
-    if (!modelNode.isValid() || !modelNode.metaInfo().isValid())
+    if (!modelNode.metaInfo().isValid())
         return;
-
-    if (!currentDesignDocument())
-        return;
-
-    QHash<PropertyName, QVariant> propertyHash;
-
-    getProperties(modelNode, propertyHash);
 
     handleComponent(modelNode);
     handleDelegate(modelNode);
     handleTabComponent(modelNode);
-
-    ModelNode rootModelNode = currentDesignDocument()->rewriterView()->rootModelNode();
-    applyProperties(rootModelNode, propertyHash);
 }
 
 static bool isFileComponent(const ModelNode &node)
@@ -249,7 +221,6 @@ static bool isLoaderWithSourceComponent(const ModelNode &modelNode)
     }
 
     return false;
-
 }
 
 static bool hasSourceWithFileComponent(const ModelNode &modelNode)
@@ -295,7 +266,7 @@ DesignDocument *DocumentManager::currentDesignDocument() const
 
 bool DocumentManager::hasCurrentDesignDocument() const
 {
-    return m_currentDesignDocument.data();
+    return !m_currentDesignDocument.isNull();
 }
 
 void DocumentManager::removeEditors(const QList<Core::IEditor *> &editors)
@@ -306,8 +277,9 @@ void DocumentManager::removeEditors(const QList<Core::IEditor *> &editors)
 
 void DocumentManager::goIntoComponent(const ModelNode &modelNode)
 {
-    if (modelNode.isValid() && modelNode.isComponent()) {
+    if (modelNode.isValid() && modelNode.isComponent() && designDocument()) {
         QmlDesignerPlugin::instance()->viewManager().setComponentNode(modelNode);
+        QHash<PropertyName, QVariant> oldProperties = getProperties(modelNode);
         if (isFileComponent(modelNode))
             openFileComponent(modelNode);
         else if (hasDelegateWithFileComponent(modelNode))
@@ -318,6 +290,8 @@ void DocumentManager::goIntoComponent(const ModelNode &modelNode)
             openComponentSourcePropertyOfLoader(modelNode);
         else
             openInlineComponent(modelNode);
+        ModelNode rootModelNode = designDocument()->rewriterView()->rootModelNode();
+        applyProperties(rootModelNode, oldProperties);
     }
 }
 

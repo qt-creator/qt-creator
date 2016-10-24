@@ -89,11 +89,14 @@ public:
 
         LibClangOptionsBuilder optionsBuilder(*projectPart.data());
 
+        optionsBuilder.addWordWidth();
         optionsBuilder.addTargetTriple();
         optionsBuilder.addLanguageOption(fileKind);
         optionsBuilder.addOptionsForLanguage(/*checkForBorlandExtensions*/ true);
         optionsBuilder.enableExceptions();
 
+        optionsBuilder.addDefineToAvoidIncludingGccOrMinGwIntrinsics();
+        optionsBuilder.addDefineFloat128ForMingw();
         optionsBuilder.addToolchainAndProjectDefines();
         optionsBuilder.undefineCppLanguageFeatureMacrosForMsvc2015();
 

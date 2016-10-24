@@ -33,6 +33,8 @@
 #include <skippedsourceranges.h>
 #include <unsavedfiles.h>
 
+#include <utils/algorithm.h>
+
 #include <QDebug>
 
 #include <algorithm>
@@ -141,6 +143,20 @@ bool Documents::hasDocument(const Utf8String &filePath,
 const std::vector<Document> &Documents::documents() const
 {
     return documents_;
+}
+
+const std::vector<Document> Documents::filtered(const IsMatchingDocument &isMatchingDocument) const
+{
+    return Utils::filtered(documents_, isMatchingDocument);
+}
+
+std::vector<Document> Documents::dirtyAndVisibleButNotCurrentDocuments() const
+{
+    return filtered([](const Document &document) {
+        return document.isNeedingReparse()
+            && document.isVisibleInEditor()
+            && !document.isUsedByCurrentEditor();
+    });
 }
 
 UnsavedFiles Documents::unsavedFiles() const

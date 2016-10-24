@@ -52,6 +52,7 @@ public:
                                const QString &realFileName) override;
     bool save(QString *errorString, const QString &fileName, bool autoSave) override;
     bool shouldAutoSave() const override;
+    bool isModified() const override;
     bool isSaveAsAllowed() const override;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
 

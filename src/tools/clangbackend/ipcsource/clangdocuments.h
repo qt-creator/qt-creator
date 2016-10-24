@@ -32,6 +32,7 @@
 
 #include <QVector>
 
+#include <functional>
 #include <vector>
 
 namespace ClangBackEnd {
@@ -57,6 +58,9 @@ public:
     bool hasDocumentWithFilePath(const Utf8String &filePath) const;
 
     const std::vector<Document> &documents() const;
+    using IsMatchingDocument = std::function<bool(const Document &document)>;
+    const std::vector<Document> filtered(const IsMatchingDocument &isMatchingDocument) const;
+    std::vector<Document> dirtyAndVisibleButNotCurrentDocuments() const;
 
     UnsavedFiles unsavedFiles() const;
 

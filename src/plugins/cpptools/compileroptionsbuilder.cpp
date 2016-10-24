@@ -87,6 +87,14 @@ void CompilerOptionsBuilder::addDefine(const QByteArray &defineDirective)
     m_options.append(defineDirectiveToDefineOption(defineDirective));
 }
 
+void CompilerOptionsBuilder::addWordWidth()
+{
+    const QString argument = m_projectPart.toolChainWordWidth == ProjectPart::WordWidth64Bit
+            ? QLatin1String("-m64")
+            : QLatin1String("-m32");
+    add(argument);
+}
+
 void CompilerOptionsBuilder::addTargetTriple()
 {
     if (!m_projectPart.targetTriple.isEmpty()) {
@@ -262,6 +270,20 @@ void CompilerOptionsBuilder::addOptionsForLanguage(bool checkForBorlandExtension
     m_options.append(opts);
 }
 
+void CompilerOptionsBuilder::addDefineToAvoidIncludingGccOrMinGwIntrinsics()
+{
+    // In gcc headers, lots of built-ins are referenced that clang does not understand.
+    // Therefore, prevent the inclusion of the header that references them. Of course, this
+    // will break if code actually requires stuff from there, but that should be the less common
+    // case.
+
+    const Core::Id type = m_projectPart.toolchainType;
+    if (type == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID
+            || type == ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID) {
+        addDefine("#define _X86INTRIN_H_INCLUDED");
+    }
+}
+
 static QByteArray toMsCompatibilityVersionFormat(const QByteArray &mscFullVer)
 {
     return mscFullVer.left(2)
@@ -342,8 +364,16 @@ void CompilerOptionsBuilder::undefineCppLanguageFeatureMacrosForMsvc2015()
         // Undefine the language feature macros that are pre-defined in clang-cl 3.8.0,
         // but not in MSVC2015's cl.exe.
         foreach (const QString &macroName, languageFeatureMacros())
-            m_options.append(QLatin1String("/U") + macroName);
+            m_options.append(undefineOption() + macroName);
     }
+}
+
+void CompilerOptionsBuilder::addDefineFloat128ForMingw()
+{
+    // TODO: Remove once this is fixed in clang >= 3.9.
+    // https://llvm.org/bugs/show_bug.cgi?id=30685
+    if (m_projectPart.toolchainType == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID)
+        addDefine("#define __float128 void");
 }
 
 QString CompilerOptionsBuilder::includeOption() const
@@ -362,6 +392,11 @@ QString CompilerOptionsBuilder::defineDirectiveToDefineOption(const QByteArray &
 QString CompilerOptionsBuilder::defineOption() const
 {
     return QLatin1String("-D");
+}
+
+QString CompilerOptionsBuilder::undefineOption() const
+{
+    return QLatin1String("-U");
 }
 
 static bool isGccOrMinGwToolchain(const Core::Id &toolchainType)

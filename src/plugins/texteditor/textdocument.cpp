@@ -39,6 +39,7 @@
 #include <texteditor/generichighlighter/highlighter.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/documentmodel.h>
+#include <utils/guard.h>
 #include <utils/mimetypes/mimedatabase.h>
 
 #include <QApplication>
@@ -106,6 +107,7 @@ public:
     int m_autoSaveRevision;
 
     TextMarks m_marksCache; // Marks not owned
+    Utils::Guard m_modificationChangedGuard;
 };
 
 QTextCursor TextDocumentPrivate::indentOrUnindent(const QTextCursor &textCursor, bool doIndent,
@@ -236,17 +238,8 @@ void TextDocumentPrivate::updateRevisions()
 TextDocument::TextDocument(Id id)
     : d(new TextDocumentPrivate)
 {
-    connect(&d->m_document, &QTextDocument::modificationChanged, [this](bool modified) {
-        // we only want to update the block revisions when going back to the saved version,
-        // e.g. with undo
-        if (!modified)
-            d->updateRevisions();
-        setModified(modified);
-    });
-    connect(this, &IDocument::modificationChanged, &d->m_document, &QTextDocument::setModified);
-
-    setModified(d->m_document.isModified());
-
+    connect(&d->m_document, &QTextDocument::modificationChanged,
+            this, &TextDocument::modificationChanged);
     connect(&d->m_document, &QTextDocument::contentsChanged,
             this, &Core::IDocument::contentsChanged);
     connect(&d->m_document, &QTextDocument::contentsChange,
@@ -598,6 +591,11 @@ bool TextDocument::isFileReadOnly() const
     return d->m_fileIsReadOnly;
 }
 
+bool TextDocument::isModified() const
+{
+    return d->m_document.isModified();
+}
+
 void TextDocument::checkPermissions()
 {
     bool previousReadOnly = d->m_fileIsReadOnly;
@@ -636,7 +634,11 @@ Core::IDocument::OpenResult TextDocument::openImpl(QString *errorString, const Q
         readResult = read(realFileName, &content, errorString);
         const int chunks = content.size();
 
-        d->m_document.setUndoRedoEnabled(reload);
+        // Don't call setUndoRedoEnabled(true) when reload is true and filenames are different,
+        // since it will reset the undo's clear index
+        if (!reload || fileName == realFileName)
+            d->m_document.setUndoRedoEnabled(reload);
+
         QTextCursor c(&d->m_document);
         c.beginEditBlock();
         if (reload) {
@@ -665,7 +667,11 @@ Core::IDocument::OpenResult TextDocument::openImpl(QString *errorString, const Q
         }
 
         c.endEditBlock();
-        d->m_document.setUndoRedoEnabled(true);
+
+        // Don't call setUndoRedoEnabled(true) when reload is true and filenames are different,
+        // since it will reset the undo's clear index
+        if (!reload || fileName == realFileName)
+            d->m_document.setUndoRedoEnabled(true);
 
         TextDocumentLayout *documentLayout =
             qobject_cast<TextDocumentLayout*>(d->m_document.documentLayout());
@@ -689,6 +695,11 @@ bool TextDocument::reload(QString *errorString, QTextCodec *codec)
 
 bool TextDocument::reload(QString *errorString)
 {
+    return reload(errorString, filePath().toString());
+}
+
+bool TextDocument::reload(QString *errorString, const QString &realFileName)
+{
     emit aboutToReload();
     TextDocumentLayout *documentLayout =
         qobject_cast<TextDocumentLayout*>(d->m_document.documentLayout());
@@ -697,7 +708,7 @@ bool TextDocument::reload(QString *errorString)
         marks = documentLayout->documentClosing(); // removes text marks non-permanently
 
     const QString &file = filePath().toString();
-    bool success = openImpl(errorString, file, file, /*reload =*/ true) == OpenResult::Success;
+    bool success = openImpl(errorString, file, realFileName, /*reload =*/ true) == OpenResult::Success;
 
     if (documentLayout)
         documentLayout->documentReloaded(marks, this); // re-adds text marks
@@ -721,8 +732,21 @@ bool TextDocument::setPlainText(const QString &text)
 
 bool TextDocument::reload(QString *errorString, ReloadFlag flag, ChangeType type)
 {
-    if (flag == FlagIgnore)
+    if (flag == FlagIgnore) {
+        if (type != TypeContents)
+            return true;
+
+        const bool wasModified = document()->isModified();
+        {
+            Utils::GuardLocker locker(d->m_modificationChangedGuard);
+            // hack to ensure we clean the clear state in QTextDocument
+            document()->setModified(false);
+            document()->setModified(true);
+        }
+        if (!wasModified)
+            modificationChanged(true);
         return true;
+    }
     if (type == TypePermissions) {
         checkPermissions();
         return true;
@@ -804,6 +828,17 @@ void TextDocument::ensureFinalNewLine(QTextCursor& cursor)
         cursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
         cursor.insertText(QLatin1String("\n"));
     }
+}
+
+void TextDocument::modificationChanged(bool modified)
+{
+    if (d->m_modificationChangedGuard.isLocked())
+        return;
+    // we only want to update the block revisions when going back to the saved version,
+    // e.g. with undo
+    if (!modified)
+        d->updateRevisions();
+    emit changed();
 }
 
 TextMarks TextDocument::marks() const

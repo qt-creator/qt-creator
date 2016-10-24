@@ -29,6 +29,7 @@
 #include "idocument.h"
 #include "coreconstants.h"
 
+#include <coreplugin/diffservice.h>
 #include <coreplugin/dialogs/readonlyfilesdialog.h>
 #include <coreplugin/dialogs/saveitemsdialog.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -37,6 +38,8 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/editormanager/iexternaleditor.h>
+
+#include <extensionsystem/pluginmanager.h>
 
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
@@ -606,6 +609,11 @@ static bool saveModifiedFilesHelper(const QList<IDocument *> &documents,
                     (*alwaysSave) = dia.alwaysSaveChecked();
                 if (failedToSave)
                     (*failedToSave) = modifiedDocuments;
+                const QStringList filesToDiff = dia.filesToDiff();
+                if (!filesToDiff.isEmpty()) {
+                    if (auto diffService = ExtensionSystem::PluginManager::getObject<DiffService>())
+                        diffService->diffModifiedFiles(filesToDiff);
+                }
                 return false;
             }
             if (alwaysSave)
@@ -978,6 +986,7 @@ void DocumentManager::checkForReload()
 
     // handle the IDocuments
     QStringList errorStrings;
+    QStringList filesToDiff;
     foreach (IDocument *document, changedIDocuments) {
         IDocument::ChangeTrigger trigger = IDocument::TriggerInternal;
         IDocument::ChangeType type = IDocument::TypePermissions;
@@ -1052,7 +1061,6 @@ void DocumentManager::checkForReload()
             documentsToClose << document;
         } else if (defaultBehavior == IDocument::IgnoreAll) {
             // content change or removed, but settings say ignore
-            document->setModified(true);
             success = document->reload(&errorString, IDocument::FlagIgnore, type);
         // either the default behavior is to always ask,
         // or the ReloadUnmodified default behavior didn't kick in,
@@ -1068,9 +1076,8 @@ void DocumentManager::checkForReload()
             // IDocument wants us to ask
             } else if (type == IDocument::TypeContents) {
                 // content change, IDocument wants to ask user
-                if (previousReloadAnswer == ReloadNone) {
+                if (previousReloadAnswer == ReloadNone || previousReloadAnswer == ReloadNoneAndDiff) {
                     // answer already given, ignore
-                    document->setModified(true);
                     success = document->reload(&errorString, IDocument::FlagIgnore, IDocument::TypeContents);
                 } else if (previousReloadAnswer == ReloadAll) {
                     // answer already given, reload
@@ -1078,7 +1085,8 @@ void DocumentManager::checkForReload()
                 } else {
                     // Ask about content change
                     previousReloadAnswer = reloadPrompt(document->filePath(), document->isModified(),
-                                                               ICore::dialogParent());
+                                                        ExtensionSystem::PluginManager::getObject<DiffService>(),
+                                                        ICore::dialogParent());
                     switch (previousReloadAnswer) {
                     case ReloadAll:
                     case ReloadCurrent:
@@ -1086,7 +1094,7 @@ void DocumentManager::checkForReload()
                         break;
                     case ReloadSkipCurrent:
                     case ReloadNone:
-                        document->setModified(true);
+                    case ReloadNoneAndDiff:
                         success = document->reload(&errorString, IDocument::FlagIgnore, IDocument::TypeContents);
                         break;
                     case CloseCurrent:
@@ -1094,6 +1102,9 @@ void DocumentManager::checkForReload()
                         break;
                     }
                 }
+                if (previousReloadAnswer == ReloadNoneAndDiff)
+                    filesToDiff.append(document->filePath().toString());
+
             // IDocument wants us to ask, and it's the TypeRemoved case
             } else {
                 // Ask about removed file
@@ -1137,6 +1148,12 @@ void DocumentManager::checkForReload()
 
         d->m_blockedIDocument = 0;
     }
+
+    if (!filesToDiff.isEmpty()) {
+        if (auto diffService = ExtensionSystem::PluginManager::getObject<DiffService>())
+            diffService->diffModifiedFiles(filesToDiff);
+    }
+
     if (!errorStrings.isEmpty())
         QMessageBox::critical(ICore::dialogParent(), tr("File Error"),
                               errorStrings.join(QLatin1Char('\n')));

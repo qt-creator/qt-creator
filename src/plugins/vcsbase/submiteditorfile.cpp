@@ -44,6 +44,7 @@ using namespace Utils;
 
 SubmitEditorFile::SubmitEditorFile(const VcsBaseSubmitEditorParameters *parameters, VcsBaseSubmitEditor *parent) :
     Core::IDocument(parent),
+    m_modified(false),
     m_editor(parent)
 {
     setId(parameters->id);
@@ -80,6 +81,14 @@ QByteArray SubmitEditorFile::contents() const
 bool SubmitEditorFile::setContents(const QByteArray &contents)
 {
     return m_editor->setFileContents(contents);
+}
+
+void SubmitEditorFile::setModified(bool modified)
+{
+    if (m_modified == modified)
+        return;
+    m_modified = modified;
+    emit changed();
 }
 
 bool SubmitEditorFile::save(QString *errorString, const QString &fileName, bool autoSave)

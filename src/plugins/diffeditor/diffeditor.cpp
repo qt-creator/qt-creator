@@ -69,19 +69,6 @@ static const char useDiffEditorKeyC[] = "UseDiffEditor";
 
 using namespace TextEditor;
 
-namespace {
-
-class Guard
-{
-public:
-    Guard(int *state) : m_state(state) { ++(*state); }
-    ~Guard() { --(*m_state); QTC_ASSERT(*m_state >= 0, return); }
-private:
-    int *m_state;
-};
-
-} // namespace
-
 namespace DiffEditor {
 namespace Internal {
 
@@ -226,7 +213,6 @@ DiffEditor::DiffEditor()
     , m_viewSwitcherAction(0)
     , m_currentViewIndex(-1)
     , m_currentDiffFileIndex(-1)
-    , m_ignoreChanges(0)
     , m_sync(false)
     , m_showDescription(true)
 {
@@ -329,7 +315,7 @@ void DiffEditor::setDocument(QSharedPointer<DiffEditorDocument>(doc))
 
 DiffEditor::DiffEditor(DiffEditorDocument *doc) : DiffEditor()
 {
-    Guard guard(&m_ignoreChanges);
+    Utils::GuardLocker guard(m_ignoreChanges);
     setDocument(QSharedPointer<DiffEditorDocument>(doc));
     setupView(loadSettings());
 }
@@ -343,7 +329,7 @@ DiffEditor::~DiffEditor()
 Core::IEditor *DiffEditor::duplicate()
 {
     DiffEditor *editor = new DiffEditor();
-    Guard guard(&editor->m_ignoreChanges);
+    Utils::GuardLocker guard(editor->m_ignoreChanges);
 
     editor->setDocument(m_document);
     editor->m_sync = m_sync;
@@ -371,7 +357,7 @@ QWidget *DiffEditor::toolBar()
 
 void DiffEditor::documentHasChanged()
 {
-    Guard guard(&m_ignoreChanges);
+    Utils::GuardLocker guard(m_ignoreChanges);
     const QList<FileData> diffFileList = m_document->diffFiles();
 
     updateDescription();
@@ -430,7 +416,7 @@ void DiffEditor::documentHasChanged()
 
 void DiffEditor::toggleDescription()
 {
-    if (m_ignoreChanges > 0)
+    if (m_ignoreChanges.isLocked())
         return;
 
     m_showDescription = !m_showDescription;
@@ -446,7 +432,7 @@ void DiffEditor::updateDescription()
     m_descriptionWidget->setPlainText(description);
     m_descriptionWidget->setVisible(m_showDescription && !description.isEmpty());
 
-    Guard guard(&m_ignoreChanges);
+    Utils::GuardLocker guard(m_ignoreChanges);
     m_toggleDescriptionAction->setChecked(m_showDescription);
     m_toggleDescriptionAction->setToolTip(m_showDescription ? tr("Hide Change Description")
                                                       : tr("Show Change Description"));
@@ -458,7 +444,7 @@ void DiffEditor::updateDescription()
 void DiffEditor::contextLineCountHasChanged(int lines)
 {
     QTC_ASSERT(!m_document->isContextLineCountForced(), return);
-    if (m_ignoreChanges > 0 || lines == m_document->contextLineCount())
+    if (m_ignoreChanges.isLocked() || lines == m_document->contextLineCount())
         return;
 
     m_document->setContextLineCount(lines);
@@ -471,7 +457,7 @@ void DiffEditor::ignoreWhitespaceHasChanged()
 {
     const bool ignore = m_whitespaceButtonAction->isChecked();
 
-    if (m_ignoreChanges > 0 || ignore == m_document->ignoreWhitespace())
+    if (m_ignoreChanges.isLocked() || ignore == m_document->ignoreWhitespace())
         return;
     m_document->setIgnoreWhitespace(ignore);
     saveSetting(QLatin1String(ignoreWhitespaceKeyC), ignore);
@@ -494,7 +480,7 @@ void DiffEditor::prepareForReload()
     }
 
     {
-        Guard guard(&m_ignoreChanges);
+        Utils::GuardLocker guard(m_ignoreChanges);
         m_contextSpinBox->setValue(m_document->contextLineCount());
         m_whitespaceButtonAction->setChecked(m_document->ignoreWhitespace());
     }
@@ -539,12 +525,12 @@ void DiffEditor::updateEntryToolTip()
 
 void DiffEditor::setCurrentDiffFileIndex(int index)
 {
-    if (m_ignoreChanges > 0)
+    if (m_ignoreChanges.isLocked())
         return;
 
     QTC_ASSERT((index < 0) != (m_entriesComboBox->count() > 0), return);
 
-    Guard guard(&m_ignoreChanges);
+    Utils::GuardLocker guard(m_ignoreChanges);
     m_currentDiffFileIndex = index;
     currentView()->setCurrentDiffFileIndex(index);
 
@@ -575,7 +561,7 @@ void DiffEditor::updateDiffEditorSwitcher()
 
 void DiffEditor::toggleSync()
 {
-    if (m_ignoreChanges > 0)
+    if (m_ignoreChanges.isLocked())
         return;
 
     QTC_ASSERT(currentView(), return);
@@ -669,7 +655,7 @@ void DiffEditor::setupView(IDiffView *view)
     saveSetting(QLatin1String(diffViewKeyC), currentView()->id().toSetting());
 
     {
-        Guard guard(&m_ignoreChanges);
+        Utils::GuardLocker guard(m_ignoreChanges);
         m_toggleSyncAction->setVisible(currentView()->supportsSync());
         m_toggleSyncAction->setToolTip(currentView()->syncToolTip());
         m_toggleSyncAction->setText(currentView()->syncToolTip());

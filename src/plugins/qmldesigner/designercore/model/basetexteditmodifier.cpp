@@ -43,41 +43,41 @@ BaseTextEditModifier::BaseTextEditModifier(TextEditor::TextEditorWidget *textEdi
 {
 }
 
+void BaseTextEditModifier::indentLines(int startLine, int endLine)
+{
+    if (startLine < 0)
+        return;
+    TextEditor::TextEditorWidget *baseTextEditorWidget = qobject_cast<TextEditor::TextEditorWidget*>(plainTextEdit());
+    if (!baseTextEditorWidget)
+        return;
+
+    QTextDocument *textDocument = plainTextEdit()->document();
+    TextEditor::TextDocument *baseTextEditorDocument = baseTextEditorWidget->textDocument();
+    TextEditor::TabSettings tabSettings = baseTextEditorDocument->tabSettings();
+    QTextCursor tc(textDocument);
+
+    tc.beginEditBlock();
+    for (int i = startLine; i <= endLine; i++) {
+        QTextBlock start = textDocument->findBlockByNumber(i);
+
+        if (start.isValid()) {
+            QmlJSEditor::Internal::Indenter indenter;
+            indenter.indentBlock(textDocument, start, QChar::Null, tabSettings);
+        }
+    }
+    tc.endEditBlock();
+}
+
 void BaseTextEditModifier::indent(int offset, int length)
 {
     if (length == 0 || offset < 0 || offset + length >= text().length())
         return;
 
-    if (TextEditor::TextEditorWidget *baseTextEditorWidget = qobject_cast<TextEditor::TextEditorWidget*>(plainTextEdit())) {
+    int startLine = getLineInDocument(textDocument(), offset);
+    int endLine = getLineInDocument(textDocument(), offset + length);
 
-        TextEditor::TextDocument *baseTextEditorDocument = baseTextEditorWidget->textDocument();
-        QTextDocument *textDocument = baseTextEditorWidget->document();
-
-        int startLine = -1;
-        int endLine = -1;
-        int column;
-
-        baseTextEditorWidget->convertPosition(offset, &startLine, &column); //get line
-        baseTextEditorWidget->convertPosition(offset + length, &endLine, &column); //get line
-
-        QTextDocument *doc = baseTextEditorDocument->document();
-        QTextCursor tc(doc);
-        tc.beginEditBlock();
-
-        if (startLine > 0) {
-            TextEditor::TabSettings tabSettings = baseTextEditorDocument->tabSettings();
-            for (int i = startLine; i <= endLine; i++) {
-                QTextBlock start = textDocument->findBlockByNumber(i);
-
-                if (start.isValid()) {
-                    QmlJSEditor::Internal::Indenter indenter;
-                    indenter.indentBlock(textDocument, start, QChar::Null, tabSettings);
-                }
-            }
-        }
-
-        tc.endEditBlock();
-    }
+    if (startLine > -1 && endLine > -1)
+        indentLines(startLine, endLine);
 }
 
 int BaseTextEditModifier::indentDepth() const
@@ -134,7 +134,6 @@ bool BaseTextEditModifier::moveToComponent(int nodeOffset)
 
             QmlJSEditor::ComponentFromObjectDef::perform(document->filePath().toString(), object);
             return true;
-
         }
     }
     return false;

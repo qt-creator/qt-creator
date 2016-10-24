@@ -28,34 +28,22 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <utils/qtcassert.h>
 #include <utils/tooltip/tooltip.h>
 
+#include <QApplication>
+#include <QDesktopWidget>
 #include <QFileInfo>
-#include <QHBoxLayout>
+#include <QHash>
 #include <QLabel>
-#include <QPushButton>
-#include <QVBoxLayout>
+
+using namespace ClangCodeModel;
+using Internal::ClangDiagnosticWidget;
 
 namespace {
 
 const char LINK_ACTION_GOTO_LOCATION[] = "#gotoLocation";
 const char LINK_ACTION_APPLY_FIX[] = "#applyFix";
-const int childIndentationOnTheLeftInPixel = 10;
-
-QString wrapInBoldTags(const QString &text)
-{
-    return QStringLiteral("<b>") + text + QStringLiteral("</b>");
-}
-
-QString wrapInLink(const QString &text, const QString &target)
-{
-    return QStringLiteral("<a href='%1' style='text-decoration:none'>%2</a>").arg(target, text);
-}
-
-QString wrapInColor(const QString &text, const QByteArray &color)
-{
-    return QStringLiteral("<font color='%2'>%1</font>").arg(text, QString::fromUtf8(color));
-}
 
 QString fileNamePrefix(const QString &mainFilePath,
                        const ClangBackEnd::SourceLocationContainer &location)
@@ -74,181 +62,293 @@ QString locationToString(const ClangBackEnd::SourceLocationContainer &location)
          + QString::number(location.column());
 }
 
-QString clickableLocation(const QString &mainFilePath,
-                          const ClangBackEnd::SourceLocationContainer &location)
+void openEditorAt(const ClangBackEnd::DiagnosticContainer &diagnostic)
 {
-    const QString filePrefix = fileNamePrefix(mainFilePath, location);
-    const QString lineColumn = locationToString(location);
-    const QString linkText = filePrefix + lineColumn;
+    const ClangBackEnd::SourceLocationContainer location = diagnostic.location();
 
-    return wrapInLink(linkText, QLatin1String(LINK_ACTION_GOTO_LOCATION));
-}
-
-QString clickableFixIt(const QString &text, bool hasFixIt)
-{
-    if (!hasFixIt)
-        return text;
-
-    QString clickableText = text;
-    QString nonClickableCategory;
-    const int colonPosition = text.indexOf(QStringLiteral(": "));
-
-    if (colonPosition != -1) {
-        nonClickableCategory = text.mid(0, colonPosition + 2);
-        clickableText = text.mid(colonPosition + 2);
-    }
-
-    return nonClickableCategory + wrapInLink(clickableText, QLatin1String(LINK_ACTION_APPLY_FIX));
-}
-
-void openEditorAt(const ClangBackEnd::SourceLocationContainer &location)
-{
     Core::EditorManager::openEditorAt(location.filePath().toString(),
                                       int(location.line()),
                                       int(location.column() - 1));
 }
 
-void applyFixit(const QVector<ClangBackEnd::FixItContainer> &fixits)
+void applyFixit(const ClangBackEnd::DiagnosticContainer &diagnostic)
 {
-    ClangCodeModel::ClangFixItOperation operation(Utf8String(), fixits);
+    ClangCodeModel::ClangFixItOperation operation(Utf8String(), diagnostic.fixIts());
 
     operation.perform();
 }
 
-template <typename LayoutType>
-LayoutType *createLayout()
+class WidgetFromDiagnostics
 {
-    auto *layout = new LayoutType;
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(2);
-
-    return layout;
-}
-
-enum IndentType { IndentDiagnostic, DoNotIndentDiagnostic };
-
-QWidget *createDiagnosticLabel(const ClangBackEnd::DiagnosticContainer &diagnostic,
-                               const QString &mainFilePath,
-                               IndentType indentType = DoNotIndentDiagnostic,
-                               bool enableClickableFixits = true)
-{
-    const bool hasFixit = enableClickableFixits ? !diagnostic.fixIts().isEmpty() : false;
-    const QString diagnosticText = diagnostic.text().toString().toHtmlEscaped();
-    const QString text = clickableLocation(mainFilePath, diagnostic.location())
-                       + QStringLiteral(": ")
-                       + clickableFixIt(diagnosticText, hasFixit);
-    const ClangBackEnd::SourceLocationContainer location = diagnostic.location();
-    const QVector<ClangBackEnd::FixItContainer> fixits = diagnostic.fixIts();
-
-    auto *label = new QLabel(text);
-    if (indentType == IndentDiagnostic)
-        label->setContentsMargins(childIndentationOnTheLeftInPixel, 0, 0, 0);
-    label->setTextFormat(Qt::RichText);
-    QObject::connect(label, &QLabel::linkActivated, [location, fixits](const QString &action) {
-        if (action == QLatin1String(LINK_ACTION_APPLY_FIX))
-            applyFixit(fixits);
-        else
-            openEditorAt(location);
-
-        Utils::ToolTip::hideImmediately();
-    });
-
-    return label;
-}
-
-class MainDiagnosticWidget : public QWidget
-{
-    Q_OBJECT
 public:
-    MainDiagnosticWidget(const ClangBackEnd::DiagnosticContainer &diagnostic,
-                         const ClangCodeModel::Internal::DisplayHints &displayHints)
+    struct DisplayHints {
+        bool showCategoryAndEnableOption;
+        bool showFileNameInMainDiagnostic;
+        bool enableClickableFixits;
+        bool limitWidth;
+        bool hideTooltipAfterLinkActivation;
+    };
+
+    static QWidget *create(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
+                           const DisplayHints &displayHints)
     {
-        setContentsMargins(0, 0, 0, 0);
-        auto *mainLayout = createLayout<QVBoxLayout>();
+        WidgetFromDiagnostics converter(displayHints);
+        return converter.createWidget(diagnostics);
+    }
 
-        const ClangBackEnd::SourceLocationContainer location = diagnostic.location();
+private:
+    enum class IndentMode { Indent, DoNotIndent };
 
-        // Set up header row: category + responsible option
-        if (displayHints.showMainDiagnosticHeader) {
-            const QString category = diagnostic.category();
-            const QString responsibleOption = diagnostic.enableOption();
+    WidgetFromDiagnostics(const DisplayHints &displayHints)
+        : m_displayHints(displayHints)
+    {
+    }
 
-            auto *headerLayout = createLayout<QHBoxLayout>();
-            headerLayout->addWidget(new QLabel(wrapInBoldTags(category)), 1);
+    QWidget *createWidget(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics)
+    {
+        const QString text = htmlText(diagnostics);
 
-            auto *responsibleOptionLabel = new QLabel(wrapInColor(responsibleOption, "gray"));
-            headerLayout->addWidget(responsibleOptionLabel, 0);
-            mainLayout->addLayout(headerLayout);
+        auto *label = new QLabel;
+        label->setTextFormat(Qt::RichText);
+        label->setText(text);
+        label->setTextInteractionFlags(Qt::TextBrowserInteraction);
+        // Using "setWordWrap(true)" alone will wrap the text already for small
+        // widths, so do not require word wrapping until we hit limits.
+        if (m_displayHints.limitWidth && label->sizeHint().width() > widthLimit()) {
+            label->setMaximumWidth(widthLimit());
+            label->setWordWrap(true);
         }
 
-        // Set up main row: diagnostic text
-        const Utf8String mainFilePath = displayHints.showFileNameInMainDiagnostic
+        const TargetIdToDiagnosticTable table = m_targetIdsToDiagnostics;
+        const bool hideToolTipAfterLinkActivation = m_displayHints.hideTooltipAfterLinkActivation;
+        QObject::connect(label, &QLabel::linkActivated, [table, hideToolTipAfterLinkActivation]
+                         (const QString &action) {
+            const ClangBackEnd::DiagnosticContainer diagnostic = table.value(action);
+            QTC_ASSERT(diagnostic != ClangBackEnd::DiagnosticContainer(), return);
+
+            if (action.startsWith(LINK_ACTION_APPLY_FIX))
+                applyFixit(diagnostic);
+            else
+                openEditorAt(diagnostic);
+
+            if (hideToolTipAfterLinkActivation)
+                Utils::ToolTip::hideImmediately();
+        });
+
+        return label;
+    }
+
+    QString htmlText(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics)
+    {
+        // For debugging, add: style='border-width:1px;border-color:black'
+        QString text = "<table cellspacing='0' cellpadding='0'>";
+
+        foreach (const ClangBackEnd::DiagnosticContainer &diagnostic, diagnostics)
+            text.append(tableRows(diagnostic));
+
+        text.append("</table>");
+
+        return text;
+    }
+
+    QString tableRows(const ClangBackEnd::DiagnosticContainer &diagnostic)
+    {
+        m_mainFilePath = m_displayHints.showFileNameInMainDiagnostic
                 ? Utf8String()
-                : location.filePath();
-        mainLayout->addWidget(createDiagnosticLabel(diagnostic,
-                                                    mainFilePath,
-                                                    DoNotIndentDiagnostic,
-                                                    displayHints.enableClickableFixits));
+                : diagnostic.location().filePath();
 
-        setLayout(mainLayout);
+        QString text;
+
+        if (m_displayHints.showCategoryAndEnableOption)
+            text.append(diagnosticCategoryAndEnableOptionRow(diagnostic));
+        text.append(diagnosticRow(diagnostic, IndentMode::DoNotIndent));
+        text.append(diagnosticRowsForChildren(diagnostic));
+
+        return text;
     }
+
+    static QString diagnosticCategoryAndEnableOptionRow(
+            const ClangBackEnd::DiagnosticContainer &diagnostic)
+    {
+        const QString text = QString::fromLatin1(
+            "  <tr>"
+            "    <td align='left'><b>%1</b></td>"
+            "    <td align='right'><font color='gray'>%2</font></td>"
+            "  </tr>")
+            .arg(diagnostic.category(), diagnostic.enableOption());
+
+        return text;
+    }
+
+    QString diagnosticText(const ClangBackEnd::DiagnosticContainer &diagnostic)
+    {
+        const bool hasFixit = m_displayHints.enableClickableFixits
+                && !diagnostic.fixIts().isEmpty();
+        const QString diagnosticText = diagnostic.text().toString().toHtmlEscaped();
+
+        // For debugging, add to <table>: style='border-width:1px;border-color:red'
+        const QString text = QString::fromLatin1(
+            "<table cellspacing='0' cellpadding='0'>"
+            "  <tr>"
+            "    <td>%1: </td>"
+            "    <td width='100%'>%2</td>"
+            "  </tr>"
+            "</table>")
+            .arg(clickableLocation(diagnostic, m_mainFilePath),
+                 clickableFixIt(diagnostic, diagnosticText, hasFixit));
+
+        return text;
+    }
+
+    QString diagnosticRow(const ClangBackEnd::DiagnosticContainer &diagnostic,
+                          IndentMode indentMode)
+    {
+        const QString text = QString::fromLatin1(
+            "  <tr>"
+            "    <td colspan='2' align='left' style='%1'>%2</td>"
+            "  </tr>")
+            .arg(indentModeToHtmlStyle(indentMode),
+                 diagnosticText(diagnostic));
+
+        return text;
+    }
+
+    QString diagnosticRowsForChildren(const ClangBackEnd::DiagnosticContainer &diagnostic)
+    {
+        const QVector<ClangBackEnd::DiagnosticContainer> children = diagnostic.children();
+        QString text;
+
+        if (children.size() <= 10) {
+            text += diagnosticRowsForChildren(children.begin(), children.end());
+        } else {
+            text += diagnosticRowsForChildren(children.begin(), children.begin() + 7);
+            text += ellipsisRow();
+            text += diagnosticRowsForChildren(children.end() - 3, children.end());
+        }
+
+        return text;
+    }
+
+    QString diagnosticRowsForChildren(
+            const QVector<ClangBackEnd::DiagnosticContainer>::const_iterator first,
+            const QVector<ClangBackEnd::DiagnosticContainer>::const_iterator last)
+    {
+        QString text;
+
+        for (auto it = first; it != last; ++it)
+            text.append(diagnosticRow(*it, IndentMode::Indent));
+
+        return text;
+    }
+
+    QString clickableLocation(const ClangBackEnd::DiagnosticContainer &diagnostic,
+                              const QString &mainFilePath)
+    {
+        const ClangBackEnd::SourceLocationContainer location = diagnostic.location();
+
+        const QString filePrefix = fileNamePrefix(mainFilePath, location);
+        const QString lineColumn = locationToString(location);
+        const QString linkText = filePrefix + lineColumn;
+        const QString targetId = generateTargetId(LINK_ACTION_GOTO_LOCATION, diagnostic);
+
+        return wrapInLink(linkText, targetId);
+    }
+
+    QString clickableFixIt(const ClangBackEnd::DiagnosticContainer &diagnostic,
+                           const QString &text,
+                           bool hasFixIt)
+    {
+        if (!hasFixIt)
+            return text;
+
+        QString clickableText = text;
+        QString nonClickableCategory;
+        const int colonPosition = text.indexOf(QStringLiteral(": "));
+
+        if (colonPosition != -1) {
+            nonClickableCategory = text.mid(0, colonPosition + 2);
+            clickableText = text.mid(colonPosition + 2);
+        }
+
+        const QString targetId = generateTargetId(LINK_ACTION_APPLY_FIX, diagnostic);
+
+        return nonClickableCategory + wrapInLink(clickableText, targetId);
+    }
+
+    QString generateTargetId(const QString &targetPrefix,
+                             const ClangBackEnd::DiagnosticContainer &diagnostic)
+    {
+        const QString idAsString = QString::number(++m_targetIdCounter);
+        const QString targetId = targetPrefix + idAsString;
+        m_targetIdsToDiagnostics.insert(targetId, diagnostic);
+
+        return targetId;
+    }
+
+    static QString wrapInLink(const QString &text, const QString &target)
+    {
+        return QStringLiteral("<a href='%1' style='text-decoration:none'>%2</a>").arg(target, text);
+    }
+
+    static QString ellipsisRow()
+    {
+        return QString::fromLatin1(
+            "  <tr>"
+            "    <td colspan='2' align='left' style='%1'>...</td>"
+            "  </tr>")
+            .arg(indentModeToHtmlStyle(IndentMode::Indent));
+    }
+
+    static QString indentModeToHtmlStyle(IndentMode indentMode)
+    {
+        return indentMode == IndentMode::Indent
+             ? QString("padding-left:10px")
+             : QString();
+    }
+
+    static int widthLimit()
+    {
+        return QApplication::desktop()->availableGeometry(QCursor::pos()).width() / 2;
+    }
+
+private:
+    const DisplayHints m_displayHints;
+
+    using TargetIdToDiagnosticTable = QHash<QString, ClangBackEnd::DiagnosticContainer>;
+    TargetIdToDiagnosticTable m_targetIdsToDiagnostics;
+    unsigned m_targetIdCounter = 0;
+
+    QString m_mainFilePath;
 };
-
-void addChildrenToLayout(const QString &mainFilePath,
-                         const QVector<ClangBackEnd::DiagnosticContainer>::const_iterator first,
-                         const QVector<ClangBackEnd::DiagnosticContainer>::const_iterator last,
-                         bool enableClickableFixits,
-                         QLayout &boxLayout)
-{
-    for (auto it = first; it != last; ++it) {
-        boxLayout.addWidget(createDiagnosticLabel(*it,
-                                                  mainFilePath,
-                                                  IndentDiagnostic,
-                                                  enableClickableFixits));
-    }
-}
-
-void setupChildDiagnostics(const QString &mainFilePath,
-                           const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
-                           bool enableClickableFixits,
-                           QLayout &boxLayout)
-{
-    if (diagnostics.size() <= 10) {
-        addChildrenToLayout(mainFilePath, diagnostics.begin(), diagnostics.end(),
-                            enableClickableFixits, boxLayout);
-    } else {
-        addChildrenToLayout(mainFilePath, diagnostics.begin(), diagnostics.begin() + 7,
-                            enableClickableFixits, boxLayout);
-
-        auto ellipsisLabel = new QLabel(QStringLiteral("..."));
-        ellipsisLabel->setContentsMargins(childIndentationOnTheLeftInPixel, 0, 0, 0);
-        boxLayout.addWidget(ellipsisLabel);
-
-        addChildrenToLayout(mainFilePath, diagnostics.end() - 3, diagnostics.end(),
-                            enableClickableFixits, boxLayout);
-    }
-}
 
 } // anonymous namespace
 
 namespace ClangCodeModel {
 namespace Internal {
 
-void addToolTipToLayout(const ClangBackEnd::DiagnosticContainer &diagnostic,
-                        QLayout *target,
-                        const DisplayHints &displayHints)
+QWidget *ClangDiagnosticWidget::create(
+        const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
+        const Destination &destination)
 {
-    // Set up header and text row for main diagnostic
-    target->addWidget(new MainDiagnosticWidget(diagnostic, displayHints));
+    WidgetFromDiagnostics::DisplayHints hints;
 
-    // Set up child rows for notes
-    setupChildDiagnostics(diagnostic.location().filePath(),
-                          diagnostic.children(),
-                          displayHints.enableClickableFixits,
-                          *target);
+    if (destination == ToolTip) {
+        hints.showCategoryAndEnableOption = true;
+        hints.showFileNameInMainDiagnostic = false;
+        hints.enableClickableFixits = true;
+        hints.limitWidth = true;
+        hints.hideTooltipAfterLinkActivation = true;
+    } else { // Info Bar
+        hints.showCategoryAndEnableOption = false;
+        hints.showFileNameInMainDiagnostic = true;
+        // Clickable fixits might change toolchain headers, so disable.
+        hints.enableClickableFixits = false;
+        hints.limitWidth = false;
+        hints.hideTooltipAfterLinkActivation = false;
+    }
+
+    return WidgetFromDiagnostics::create(diagnostics, hints);
 }
 
 } // namespace Internal
 } // namespace ClangCodeModel
-
-#include "clangdiagnostictooltipwidget.moc"

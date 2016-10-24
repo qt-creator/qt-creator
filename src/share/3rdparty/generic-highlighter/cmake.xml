@@ -28,7 +28,7 @@
 <!-- generated for "cmake version 2.8.12.1, 3.0.2, 3.1.2 and 3.3.0" -->
 <language
     name="CMake"
-    version="1.36"
+    version="2"
     kateversion="5.0"
     section="Other"
     extensions="CMakeLists.txt;*.cmake;*.cmake.in"

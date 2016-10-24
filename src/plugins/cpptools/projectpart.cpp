@@ -32,6 +32,7 @@ namespace CppTools {
 
 ProjectPart::ProjectPart()
     : project(0)
+    , toolChainWordWidth(WordWidth32Bit)
     , isMsvc2015Toolchain(false)
     , languageVersion(CXX14)
     , languageExtensions(NoExtensions)

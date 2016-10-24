@@ -65,6 +65,7 @@ WidgetInfo ItemLibraryView::widgetInfo()
 void ItemLibraryView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
+    m_widget->clearSearchFilter();
     m_widget->setModel(model);
     updateImports();
     model->attachView(m_importManagerView);
@@ -75,6 +76,7 @@ void ItemLibraryView::modelAboutToBeDetached(Model *model)
     model->detachView(m_importManagerView);
 
     AbstractView::modelAboutToBeDetached(model);
+
     m_widget->setModel(0);
 }
 

@@ -87,12 +87,14 @@ char *getTypeName(ULONG64 module, ULONG typeId)
     symbols->GetTypeName(module, typeId, NULL, 0, &size);
     if (size > 0) {
         typeName = new char[size];
-        if (FAILED(symbols->GetTypeName(module, typeId, typeName, size, &size))) {
+        if (SUCCEEDED(symbols->GetTypeName(module, typeId, typeName, size, &size)))
+            return typeName;
+        else
             delete[] typeName;
-            typeName = new char[1];
-            typeName[0] = 0;
-        }
     }
+    typeName = new char[1];
+    typeName[0] = 0;
+
     return typeName;
 }
 
@@ -270,6 +272,24 @@ PyObject *type_TemplateArgument(Type *self, PyObject *args)
     return lookupType(innerType);
 }
 
+PyObject *type_TemplateArguments(Type *self)
+{
+    std::vector<std::string> innerTypes = innerTypesOf(getTypeName(self));
+    auto templateArguments = PyList_New(0);
+    for (const std::string &innerType : innerTypes) {
+        PyObject* childValue;
+        try {
+            int integer = std::stoi(innerType);
+            childValue = Py_BuildValue("i", integer);
+        }
+        catch (std::invalid_argument) {
+            childValue = lookupType(innerType);
+        }
+        PyList_Append(templateArguments, childValue);
+    }
+    return templateArguments;
+}
+
 PyObject *type_New(PyTypeObject *type, PyObject *, PyObject *)
 {
     Type *self = reinterpret_cast<Type *>(type->tp_alloc(type, 0));
@@ -313,6 +333,8 @@ static PyMethodDef typeMethods[] = {
 
     {"templateArgument",    PyCFunction(type_TemplateArgument),     METH_VARARGS,
      "Returns template argument at position"},
+    {"templateArguments",   PyCFunction(type_TemplateArguments),    METH_NOARGS,
+     "Returns all template arguments."},
 
     {NULL}  /* Sentinel */
 };

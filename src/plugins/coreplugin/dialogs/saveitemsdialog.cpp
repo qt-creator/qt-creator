@@ -25,11 +25,14 @@
 
 #include "saveitemsdialog.h"
 
+#include <coreplugin/diffservice.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/idocument.h>
 
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+
+#include <extensionsystem/pluginmanager.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -51,6 +54,12 @@ SaveItemsDialog::SaveItemsDialog(QWidget *parent,
     // QDialogButtonBox's behavior for "destructive" is wrong, the "do not save" should be left-aligned
     const QDialogButtonBox::ButtonRole discardButtonRole = Utils::HostOsInfo::isMacHost()
             ? QDialogButtonBox::ResetRole : QDialogButtonBox::DestructiveRole;
+
+    if (ExtensionSystem::PluginManager::getObject<Core::DiffService>()) {
+        m_diffButton = m_ui.buttonBox->addButton(tr("&Diff"), discardButtonRole);
+        connect(m_diffButton, &QAbstractButton::clicked, this, &SaveItemsDialog::collectFilesToDiff);
+    }
+
     QPushButton *discardButton = m_ui.buttonBox->addButton(tr("Do not Save"), discardButtonRole);
     m_ui.buttonBox->button(QDialogButtonBox::Save)->setDefault(true);
     m_ui.treeWidget->setFocus();
@@ -80,13 +89,13 @@ SaveItemsDialog::SaveItemsDialog(QWidget *parent,
     if (Utils::HostOsInfo::isMacHost())
         m_ui.treeWidget->setAlternatingRowColors(true);
     adjustButtonWidths();
-    updateSaveButton();
+    updateButtons();
 
     connect(m_ui.buttonBox->button(QDialogButtonBox::Save), &QAbstractButton::clicked,
             this, &SaveItemsDialog::collectItemsToSave);
     connect(discardButton, &QAbstractButton::clicked, this, &SaveItemsDialog::discardAll);
     connect(m_ui.treeWidget, &QTreeWidget::itemSelectionChanged,
-            this, &SaveItemsDialog::updateSaveButton);
+            this, &SaveItemsDialog::updateButtons);
 }
 
 void SaveItemsDialog::setMessage(const QString &msg)
@@ -94,19 +103,27 @@ void SaveItemsDialog::setMessage(const QString &msg)
     m_ui.msgLabel->setText(msg);
 }
 
-void SaveItemsDialog::updateSaveButton()
+void SaveItemsDialog::updateButtons()
 {
     int count = m_ui.treeWidget->selectedItems().count();
-    QPushButton *button = m_ui.buttonBox->button(QDialogButtonBox::Save);
+    QPushButton *saveButton = m_ui.buttonBox->button(QDialogButtonBox::Save);
+    bool buttonsEnabled = true;
+    QString saveText = tr("Save");
+    QString diffText = tr("&Diff && Cancel");
     if (count == m_ui.treeWidget->topLevelItemCount()) {
-        button->setEnabled(true);
-        button->setText(tr("Save All"));
+        saveText = tr("Save All");
+        diffText = tr("&Diff All && Cancel");
     } else if (count == 0) {
-        button->setEnabled(false);
-        button->setText(tr("Save"));
+        buttonsEnabled = false;
     } else {
-        button->setEnabled(true);
-        button->setText(tr("Save Selected"));
+        saveText = tr("Save Selected");
+        diffText = tr("&Diff Selected && Cancel");
+    }
+    saveButton->setEnabled(buttonsEnabled);
+    saveButton->setText(saveText);
+    if (m_diffButton) {
+        m_diffButton->setEnabled(buttonsEnabled);
+        m_diffButton->setText(diffText);
     }
 }
 
@@ -145,6 +162,16 @@ void SaveItemsDialog::collectItemsToSave()
     accept();
 }
 
+void SaveItemsDialog::collectFilesToDiff()
+{
+    m_filesToDiff.clear();
+    foreach (QTreeWidgetItem *item, m_ui.treeWidget->selectedItems()) {
+        if (IDocument *doc = item->data(0, Qt::UserRole).value<IDocument*>())
+            m_filesToDiff.append(doc->filePath().toString());
+    }
+    reject();
+}
+
 void SaveItemsDialog::discardAll()
 {
     m_ui.treeWidget->clearSelection();
@@ -154,6 +181,11 @@ void SaveItemsDialog::discardAll()
 QList<IDocument*> SaveItemsDialog::itemsToSave() const
 {
     return m_itemsToSave;
+}
+
+QStringList SaveItemsDialog::filesToDiff() const
+{
+    return m_filesToDiff;
 }
 
 void SaveItemsDialog::setAlwaysSaveMessage(const QString &msg)

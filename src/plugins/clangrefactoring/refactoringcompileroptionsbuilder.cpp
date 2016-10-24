@@ -124,11 +124,14 @@ Utils::SmallStringVector RefactoringCompilerOptionsBuilder::build(CppTools::Proj
 
     RefactoringCompilerOptionsBuilder optionsBuilder(projectPart);
 
+    optionsBuilder.addWordWidth();
     optionsBuilder.addTargetTriple();
     optionsBuilder.addLanguageOption(fileKind);
     optionsBuilder.addOptionsForLanguage(/*checkForBorlandExtensions*/ true);
     optionsBuilder.enableExceptions();
 
+    optionsBuilder.addDefineFloat128ForMingw();
+    optionsBuilder.addDefineToAvoidIncludingGccOrMinGwIntrinsics();
     optionsBuilder.addToolchainAndProjectDefines();
     optionsBuilder.undefineCppLanguageFeatureMacrosForMsvc2015();
 

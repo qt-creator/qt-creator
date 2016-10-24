@@ -320,6 +320,12 @@ public:
     }
 
 public:
+    bool isModified() const override
+    {
+        return isTemporary()/*e.g. memory view*/ ? false
+                                                 : m_widget->isModified();
+    }
+
     bool isFileReadOnly() const override {
         const FileName fn = filePath();
         if (fn.isEmpty())
@@ -385,12 +391,7 @@ public:
         connect(m_addressEdit, &QLineEdit::editingFinished,
                 this, &BinEditor::jumpToAddress);
         connect(widget, &BinEditorWidget::modificationChanged,
-                m_file, &IDocument::setModified);
-        connect(m_file, &IDocument::modificationChanged,
-                widget, &BinEditorWidget::setModified);
-
-        m_file->setModified(widget->isModified());
-
+                m_file, &IDocument::changed);
         updateCursorPosition(widget->cursorPosition());
     }
 

@@ -3,7 +3,7 @@
   <!ENTITY nmtoken "[\-\w\d\.:_]+">
   <!ENTITY entref  "(#[0-9]+|#[xX][0-9A-Fa-f]+|&nmtoken;);">
 ]>
-<language name="DTD" version="1.02" kateversion="3.4" section="Markup" extensions="*.dtd" mimetype="application/xml-dtd" author="Andriy Lesyuk (s-andy@in.if.ua)" license="LGPL">
+<language name="DTD" version="2" kateversion="3.4" section="Markup" extensions="*.dtd" mimetype="application/xml-dtd" author="Andriy Lesyuk (s-andy@in.if.ua)" license="LGPL">
   <highlighting>
 
     <list name="Category">

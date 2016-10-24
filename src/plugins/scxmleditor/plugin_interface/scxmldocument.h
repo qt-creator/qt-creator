@@ -156,7 +156,6 @@ public:
      * @return - true if changed, false otherwise
      */
     bool changed() const;
-    void setChanged(bool modified);
 
     /**
      * @brief rootTag - return rootTag of the document
@@ -278,7 +277,6 @@ private:
     ScxmlTag *createScxmlTag();
     QString m_fileName;
     QUndoStack *m_undoStack;
-    int m_cleanIndex;
     QVector<ScxmlTag*> m_tags;
     QHash<QString, int> m_nextIdHash;
     QHash<QString, QString> m_idMap;

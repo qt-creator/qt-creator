@@ -63,6 +63,8 @@ const Icon BOOKMARK_TOOLBAR({
         {QLatin1String(":/utils/images/bookmark.png"), Theme::IconsBaseColor}});
 const Icon BOOKMARK_TEXTEDITOR({
         {QLatin1String(":/utils/images/bookmark.png"), Theme::Bookmarks_TextMarkColor}}, Icon::Tint);
+const Icon SNAPSHOT_TOOLBAR({
+        {QLatin1String(":/utils/images/snapshot.png"), Theme::IconsBaseColor}});
 
 const Icon NEWFILE({
         {QLatin1String(":/utils/images/filenew.png"), Theme::PanelTextColorMid}}, Icon::Tint);
