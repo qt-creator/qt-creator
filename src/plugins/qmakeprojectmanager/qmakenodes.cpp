@@ -1858,8 +1858,8 @@ EvalResult *QmakeProFileNode::evaluate(const EvalInput &input)
     if (result->state == EvalResult::EvalOk) {
         if (result->projectType == SubDirsTemplate) {
             QStringList errors;
-            result->errors.append(errors);
             FileNameList subDirs = subDirsPaths(input.readerExact, input.projectDir, &result->subProjectsNotToDeploy, &errors);
+            result->errors.append(errors);
 
             foreach (const Utils::FileName &subDirName, subDirs) {
                 IncludedPriFile *subDir = new IncludedPriFile;
