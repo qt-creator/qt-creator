@@ -566,6 +566,11 @@ void QmakeProject::updateQmlJSCodeModel()
                                                 QmlJS::Dialect::Qml);
         projectInfo.activeResourceFiles.append(node->variableValue(ExactResourceVar));
         projectInfo.allResourceFiles.append(node->variableValue(ResourceVar));
+        foreach (const QString &rc, projectInfo.allResourceFiles) {
+            QString contents;
+            if (m_qmakeVfs->readVirtualFile(rc, &contents))
+                projectInfo.resourceFileContents[rc] = contents;
+        }
         if (!hasQmlLib) {
             QStringList qtLibs = node->variableValue(QtVar);
             hasQmlLib = qtLibs.contains(QLatin1String("declarative")) ||

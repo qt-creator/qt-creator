@@ -527,7 +527,7 @@ void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root,
             using ResourceEditor::ResourceTopLevelNode;
             if (!fn) {
                 if (isQrcFile) {
-                    fn = new ResourceTopLevelNode(Utils::FileName::fromString(c->path()), root);
+                    fn = new ResourceTopLevelNode(Utils::FileName::fromString(c->path()), QString(), root);
                 } else {
                     fn = new QbsFolderNode(Utils::FileName::fromString(c->path()),
                                            ProjectExplorer::FolderNodeType,

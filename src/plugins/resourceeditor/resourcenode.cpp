@@ -108,12 +108,19 @@ static bool sortNodesByPath(ProjectExplorer::Node *a, ProjectExplorer::Node *b)
     return a->filePath() < b->filePath();
 }
 
-ResourceTopLevelNode::ResourceTopLevelNode(const Utils::FileName &filePath, FolderNode *parent)
+ResourceTopLevelNode::ResourceTopLevelNode(
+        const Utils::FileName &filePath, const QString &contents,
+        ProjectExplorer::FolderNode *parent)
     : ProjectExplorer::FolderNode(filePath)
 {
     setIcon(Core::FileIconProvider::icon(filePath.toString()));
-    m_document = new ResourceFileWatcher(this);
-    Core::DocumentManager::addDocument(m_document);
+    if (contents.isEmpty()) {
+        m_document = new ResourceFileWatcher(this);
+        Core::DocumentManager::addDocument(m_document);
+    } else {
+        m_contents = contents;
+        m_document = nullptr;
+    }
 
     Utils::FileName base = parent->filePath();
     if (filePath.isChildOf(base))
@@ -124,7 +131,8 @@ ResourceTopLevelNode::ResourceTopLevelNode(const Utils::FileName &filePath, Fold
 
 ResourceTopLevelNode::~ResourceTopLevelNode()
 {
-    Core::DocumentManager::removeDocument(m_document);
+    if (m_document)
+        Core::DocumentManager::removeDocument(m_document);
     delete m_document;
 }
 
@@ -135,7 +143,7 @@ void ResourceTopLevelNode::update()
     QMap<PrefixFolderLang, QList<ProjectExplorer::FolderNode *>> foldersToAddToFolders;
     QMap<PrefixFolderLang, QList<ProjectExplorer::FolderNode *>> foldersToAddToPrefix;
 
-    ResourceFile file(filePath().toString());
+    ResourceFile file(filePath().toString(), m_contents);
     if (file.load() == Core::IDocument::OpenResult::Success) {
         QMap<PrefixFolderLang, ProjectExplorer::FolderNode *> prefixNodes;
         QMap<PrefixFolderLang, ProjectExplorer::FolderNode *> folderNodes;

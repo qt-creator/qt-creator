@@ -26,6 +26,7 @@
 #include "profileevaluator.h"
 
 #include "qmakeglobals.h"
+#include "qmakevfs.h"
 #include "ioutils.h"
 
 #include <QDir>
@@ -41,7 +42,8 @@ void ProFileEvaluator::initialize()
 
 ProFileEvaluator::ProFileEvaluator(QMakeGlobals *option, QMakeParser *parser, QMakeVfs *vfs,
                                    QMakeHandler *handler)
-  : d(new QMakeEvaluator(option, parser, vfs, handler))
+  : d(new QMakeEvaluator(option, parser, vfs, handler)),
+    m_vfs(vfs)
 {
 }
 
@@ -104,6 +106,7 @@ QStringList ProFileEvaluator::fixifiedValues(
     return result;
 }
 
+// VFS note: all search paths are assumed to be real.
 QStringList ProFileEvaluator::absolutePathValues(
         const QString &variable, const QString &baseDirectory) const
 {
@@ -124,25 +127,24 @@ QStringList ProFileEvaluator::absoluteFileValues(
     foreach (const QString &el, pro ? values(variable, pro) : values(variable)) {
         QString absEl;
         if (IoUtils::isAbsolutePath(el)) {
-            if (IoUtils::exists(el)) {
+            if (m_vfs->exists(el)) {
                 result << el;
                 goto next;
             }
             absEl = el;
         } else {
             foreach (const QString &dir, searchDirs) {
-                QString fn = dir + QLatin1Char('/') + el;
-                if (IoUtils::exists(fn)) {
-                    result << QDir::cleanPath(fn);
+                QString fn = QDir::cleanPath(dir + QLatin1Char('/') + el);
+                if (m_vfs->exists(fn)) {
+                    result << fn;
                     goto next;
                 }
             }
             if (baseDirectory.isEmpty())
                 goto next;
-            absEl = baseDirectory + QLatin1Char('/') + el;
+            absEl = QDir::cleanPath(baseDirectory + QLatin1Char('/') + el);
         }
         {
-            absEl = QDir::cleanPath(absEl);
             int nameOff = absEl.lastIndexOf(QLatin1Char('/'));
             QString absDir = d->m_tmp1.setRawData(absEl.constData(), nameOff);
             if (IoUtils::exists(absDir)) {

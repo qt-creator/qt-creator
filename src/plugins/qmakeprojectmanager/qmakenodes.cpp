@@ -578,8 +578,12 @@ struct InternalNode
         QList<FolderNode *> nodesToAdd;
         nodesToAdd.reserve(resourcesToAdd.size());
 
-        foreach (const FileName &file, resourcesToAdd)
-            nodesToAdd.append(new ResourceEditor::ResourceTopLevelNode(file, folder));
+        foreach (const FileName &file, resourcesToAdd) {
+            auto vfs = static_cast<QmakePriFileNode *>(folder->projectNode())->m_project->qmakeVfs();
+            QString contents;
+            vfs->readVirtualFile(file.toString(), &contents);
+            nodesToAdd.append(new ResourceEditor::ResourceTopLevelNode(file, contents, folder));
+        }
 
         folder->removeFolderNodes(resourcesToRemove);
         folder->addFolderNodes(nodesToAdd);

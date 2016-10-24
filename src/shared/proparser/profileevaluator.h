@@ -86,6 +86,7 @@ public:
 
 private:
     QMakeEvaluator *d;
+    QMakeVfs *m_vfs;
 };
 
 QT_END_NAMESPACE

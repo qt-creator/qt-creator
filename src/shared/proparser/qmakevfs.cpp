@@ -97,6 +97,23 @@ bool QMakeVfs::writeFile(const QString &fn, QIODevice::OpenMode mode, bool exe,
 #endif
 }
 
+#ifndef PROEVALUATOR_FULL
+bool QMakeVfs::readVirtualFile(const QString &fn, QString *contents)
+{
+# ifdef PROEVALUATOR_THREAD_SAFE
+    QMutexLocker locker(&m_mutex);
+# endif
+    QHash<QString, QString>::ConstIterator it = m_files.constFind(fn);
+    if (it != m_files.constEnd()
+        && it->constData() != m_magicMissing.constData()
+        && it->constData() != m_magicExisting.constData()) {
+        *contents = *it;
+        return true;
+    }
+    return false;
+}
+#endif
+
 bool QMakeVfs::readFile(const QString &fn, QString *contents, QString *errStr)
 {
 #ifndef PROEVALUATOR_FULL

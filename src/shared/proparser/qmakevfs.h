@@ -48,6 +48,8 @@ public:
     bool exists(const QString &fn);
 
 #ifndef PROEVALUATOR_FULL
+    bool readVirtualFile(const QString &fn, QString *contents);
+
     void invalidateCache();
     void invalidateContents();
 #endif
