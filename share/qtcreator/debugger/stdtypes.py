@@ -56,7 +56,7 @@ def qdump__std____1__complex(d, value):
 
 
 def qdump__std__deque(d, value):
-    if d.isQnxTarget():
+    if d.isQnxTarget() or d.isMsvcTarget():
         qdump__std__deque__QNX(d, value)
         return
 
@@ -117,15 +117,20 @@ def qdump__std__deque__QNX(d, value):
     else:
         bufsize = 1
 
-    myoff = value['_Myoff']
-    mysize = value['_Mysize']
-    mapsize = value['_Mapsize']
+    try:
+        val = value['_Mypair']['_Myval2']
+    except:
+        val = value
+
+    myoff = val['_Myoff'].integer()
+    mysize = val['_Mysize'].integer()
+    mapsize = val['_Mapsize'].integer()
 
     d.check(0 <= mapsize and mapsize <= 1000 * 1000 * 1000)
     d.putItemCount(mysize)
     if d.isExpanded():
         with Children(d, mysize, maxNumChild=2000, childType=innerType):
-            map = value['_Map']
+            map = val['_Map']
             for i in d.childRange():
                 block = myoff / bufsize
                 offset = myoff - (block * bufsize)
@@ -139,7 +144,7 @@ def qdump__std____debug__deque(d, value):
 
 
 def qdump__std__list(d, value):
-    if d.isQnxTarget():
+    if d.isQnxTarget() or d.isMsvcTarget():
         qdump__std__list__QNX(d, value)
         return
 
@@ -167,7 +172,7 @@ def qdump__std__list(d, value):
 
 def qdump__std__list__QNX(d, value):
     node = value["_Myhead"]
-    size = value["_Mysize"]
+    size = value["_Mysize"].integer()
 
     d.putItemCount(size, 1000)
 
@@ -607,16 +612,25 @@ def qdump__std____1__wstring(d, value):
 
 
 def qdump__std__shared_ptr(d, value):
-    i = value["_M_ptr"]
+    if d.isMsvcTarget:
+        i = value["_Ptr"]
+    else:
+        i = value["_M_ptr"]
+
     if i.integer() == 0:
         d.putValue("(null)")
         d.putNumChild(0)
         return
     with Children(d):
         short = d.putSubItem("data", i)
-        refcount = value["_M_refcount"]["_M_pi"]
-        d.putIntItem("usecount", refcount["_M_use_count"])
-        d.putIntItem("weakcount", refcount["_M_weak_count"])
+        if d.isMsvcTarget:
+            refcount = value["_Rep"]
+            d.putIntItem("usecount", refcount["_Uses"])
+            d.putIntItem("weakcount", refcount["_Weaks"])
+        else:
+            refcount = value["_M_refcount"]["_M_pi"]
+            d.putIntItem("usecount", refcount["_M_use_count"])
+            d.putIntItem("weakcount", refcount["_M_weak_count"])
     d.putValue(short.value, short.encoding)
 
 def qdump__std____1__shared_ptr(d, value):
@@ -767,7 +781,10 @@ def qform__std__valarray():
     return arrayForms()
 
 def qdump__std__valarray(d, value):
-    (size, data) = value.split('pp')
+    if d.isMsvcTarget():
+        (data, size) = value.split('pp')
+    else:
+        (size, data) = value.split('pp')
     d.putItemCount(size)
     d.putPlotData(data, size, value.type[0])
 
