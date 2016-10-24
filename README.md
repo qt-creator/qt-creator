@@ -15,6 +15,7 @@ macOS 10.8 or later
 Prerequisites:
 
 * Qt 5.6.0 or later
+* Qt WebEngine module for QtWebEngine based help viewer
 * On Windows:
     * ActiveState Active Perl
     * MinGW with g++ 4.8 or Visual Studio 2015 or later
