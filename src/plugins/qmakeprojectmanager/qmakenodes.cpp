@@ -681,7 +681,6 @@ PriFileEvalResult QmakePriFileNode::extractValues(const EvalInput &input,
 
     const QVector<QmakeNodeStaticData::FileTypeData> &fileTypes = qmakeNodeStaticData()->fileTypeData;
     // update files
-    QFileInfo tmpFi;
     for (int i = 0; i < fileTypes.size(); ++i) {
         FileType type = fileTypes.at(i).type;
         const QList<VariableAndVPathInformation> &qmakeVariables = variableAndVPathInformation.at(i);
@@ -689,19 +688,13 @@ PriFileEvalResult QmakePriFileNode::extractValues(const EvalInput &input,
         foreach (const VariableAndVPathInformation &qmakeVariable, qmakeVariables) {
             foreach (ProFile *includeFileExact, includeFilesExact) {
                 QStringList tmp = input.readerExact->absoluteFileValues(qmakeVariable.variable, input.projectDir, qmakeVariable.vPathsExact, includeFileExact);
-                foreach (const QString &t, tmp) {
-                    tmpFi.setFile(t);
-                    if (tmpFi.isFile())
-                        newFilePaths += FileName::fromString(t);
-                }
+                foreach (const QString &t, tmp)
+                    newFilePaths += FileName::fromString(t);
             }
             foreach (ProFile *includeFileCumlative, includeFilesCumlative) {
                 QStringList tmp = input.readerCumulative->absoluteFileValues(qmakeVariable.variable, input.projectDir, qmakeVariable.vPathsCumulative, includeFileCumlative);
-                foreach (const QString &t, tmp) {
-                    tmpFi.setFile(t);
-                    if (tmpFi.isFile())
-                        newFilePaths += FileName::fromString(t);
-                }
+                foreach (const QString &t, tmp)
+                    newFilePaths += FileName::fromString(t);
             }
         }
 

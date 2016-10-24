@@ -169,7 +169,7 @@ bool QMakeVfs::exists(const QString &fn)
     if (it != m_files.constEnd())
         return it->constData() != m_magicMissing.constData();
 #endif
-    bool ex = IoUtils::exists(fn);
+    bool ex = IoUtils::fileType(fn) == IoUtils::FileIsRegular;
 #ifndef PROEVALUATOR_FULL
     m_files[fn] = ex ? m_magicExisting : m_magicMissing;
 #endif

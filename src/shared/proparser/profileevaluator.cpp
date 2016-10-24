@@ -153,6 +153,7 @@ QStringList ProFileEvaluator::absoluteFileValues(
                 if (wildcard.contains(QLatin1Char('*')) || wildcard.contains(QLatin1Char('?'))) {
                     wildcard.detach(); // Keep m_tmp out of QRegExp's cache
                     QDir theDir(absDir);
+                    theDir.setFilter(theDir.filter() & ~QDir::AllDirs);
                     foreach (const QString &fn, theDir.entryList(QStringList(wildcard)))
                         if (fn != QLatin1String(".") && fn != QLatin1String(".."))
                             result << absDir + QLatin1Char('/') + fn;
