@@ -369,8 +369,8 @@ void RewriterView::applyChanges()
 
     if (inErrorState()) {
         const QString content = textModifierContent();
-        qDebug() << "RewriterView::applyChanges() got called while in error state. Will do a quick-exit now.";
-        qDebug() << "Content:" << content;
+        qDebug().noquote() << "RewriterView::applyChanges() got called while in error state. Will do a quick-exit now.";
+        qDebug().noquote() << "Content: " << content;
         throw RewritingException(__LINE__, __FUNCTION__, __FILE__, "RewriterView::applyChanges() already in error state", content);
     }
 
@@ -382,8 +382,8 @@ void RewriterView::applyChanges()
             enterErrorState(errors().first().description());
     } catch (const Exception &e) {
         const QString content = textModifierContent();
-        qDebug() << "RewriterException:" << m_rewritingErrorMessage;
-        qDebug() << "Content:" << content;
+        qDebug().noquote() << "RewriterException:" << m_rewritingErrorMessage;
+        qDebug().noquote() << "Content: " << qPrintable(content);
         enterErrorState(e.description());
     }
 
@@ -391,10 +391,10 @@ void RewriterView::applyChanges()
 
     if (inErrorState()) {
         const QString content = textModifierContent();
-        qDebug() << "RewriterException:" << m_rewritingErrorMessage;
-        qDebug() << "Content:" << content;
+        qDebug().noquote() << "RewriterException: " << m_rewritingErrorMessage;
+        qDebug().noquote() << "Content: " << content;
         if (!errors().isEmpty())
-            qDebug() << "Error:" << errors().first().description();
+            qDebug().noquote() << "Error:" << errors().first().description();
         throw RewritingException(__LINE__, __FUNCTION__, __FILE__, qPrintable(m_rewritingErrorMessage), content);
     }
 }
