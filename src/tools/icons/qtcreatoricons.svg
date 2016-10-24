@@ -3734,6 +3734,41 @@
          d="m 1236,579.75 1.75,0 0,-1.75"
          style="fill:none;stroke:#808080;stroke-width:0.5" />
     </g>
+    <g
+       transform="translate(144,0)"
+       style="display:inline"
+       id="src/libs/utils/images/zoomin_overlay">
+      <rect
+         style="fill:#ffffff;fill-opacity:1"
+         x="1228"
+         y="568"
+         width="16"
+         height="16"
+         id="rect6782-96-0-0-7-8-1-0-4-0-1-7-9-1-9" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path5247"
+         style="stroke:#000000"
+         d="m 1237.5,572 0,5 m 2.5,-2.5 -5,0" />
+    </g>
+    <g
+       transform="translate(160,0)"
+       style="display:inline"
+       id="src/libs/utils/images/zoomout_overlay">
+      <rect
+         style="fill:#ffffff;fill-opacity:1"
+         x="1228"
+         y="568"
+         width="16"
+         height="16"
+         id="rect6782-96-0-0-7-8-1-0-4-0-1-7-9-1-9-5" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path5247-8"
+         style="stroke:#000000"
+         d="m 1240,574.5 -5,0"
+         sodipodi:nodetypes="cc" />
+    </g>
   </g>
   <g
      inkscape:groupmode="layer"

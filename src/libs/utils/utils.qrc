@@ -161,5 +161,9 @@
         <file>images/bookmark@2x.png</file>
         <file>images/snapshot.png</file>
         <file>images/snapshot@2x.png</file>
+        <file>images/zoomin_overlay.png</file>
+        <file>images/zoomin_overlay@2x.png</file>
+        <file>images/zoomout_overlay.png</file>
+        <file>images/zoomout_overlay@2x.png</file>
     </qresource>
 </RCC>

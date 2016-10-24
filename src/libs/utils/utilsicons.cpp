@@ -48,6 +48,12 @@ const Icon ZOOM({
         {QLatin1String(":/utils/images/zoom.png"), Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon ZOOM_TOOLBAR({
         {QLatin1String(":/utils/images/zoom.png"), Theme::IconsBaseColor}});
+const Icon ZOOMIN_TOOLBAR({
+        {QLatin1String(":/utils/images/zoom.png"), Theme::IconsBaseColor},
+        {QLatin1String(":/utils/images/zoomin_overlay.png"), Theme::IconsBaseColor}});
+const Icon ZOOMOUT_TOOLBAR({
+        {QLatin1String(":/utils/images/zoom.png"), Theme::IconsBaseColor},
+        {QLatin1String(":/utils/images/zoomout_overlay.png"), Theme::IconsBaseColor}});
 const Icon OK({
         {QLatin1String(":/utils/images/ok.png"), Theme::IconsRunToolBarColor}}, Icon::Tint);
 const Icon NOTLOADED({
