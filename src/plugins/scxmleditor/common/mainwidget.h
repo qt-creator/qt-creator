@@ -108,7 +108,7 @@ signals:
     void dirtyChanged(bool dirty);
 
 private:
-    QToolButton *createToolButton(const QString &iconName, const QString &tooltip, QToolButton::ToolButtonPopupMode mode);
+    QToolButton *createToolButton(const QIcon &icon, const QString &tooltip, QToolButton::ToolButtonPopupMode mode);
     void documentChanged();
     void createUi();
     void init();

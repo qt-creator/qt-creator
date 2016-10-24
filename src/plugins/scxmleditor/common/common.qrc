@@ -1,14 +1,23 @@
 <RCC>
     <qresource prefix="/scxmleditor">
         <file>images/adjust_height.png</file>
+        <file>images/adjust_height@2x.png</file>
         <file>images/adjust_size.png</file>
+        <file>images/adjust_size@2x.png</file>
         <file>images/adjust_width.png</file>
+        <file>images/adjust_width@2x.png</file>
         <file>images/align_bottom.png</file>
+        <file>images/align_bottom@2x.png</file>
         <file>images/align_horizontal.png</file>
+        <file>images/align_horizontal@2x.png</file>
         <file>images/align_left.png</file>
+        <file>images/align_left@2x.png</file>
         <file>images/align_right.png</file>
+        <file>images/align_right@2x.png</file>
         <file>images/align_top.png</file>
+        <file>images/align_top@2x.png</file>
         <file>images/align_vertical.png</file>
+        <file>images/align_vertical@2x.png</file>
         <file>images/colorthemes.png</file>
         <file>images/final.png</file>
         <file>images/font_color.png</file>

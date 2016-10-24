@@ -289,8 +289,8 @@ void MainWidget::init()
     // Init ToolButtons
     auto stateColorButton = new ColorToolButton("StateColor", ":/scxmleditor/images/state_color.png", tr("State Color"));
     auto fontColorButton = new ColorToolButton("FontColor", ":/scxmleditor/images/font_color.png", tr("Font Color"));
-    QToolButton *alignToolButton = createToolButton(":/scxmleditor/images/align_left.png", tr("Align Left"), QToolButton::MenuButtonPopup);
-    QToolButton *adjustToolButton = createToolButton(":/scxmleditor/images/adjust_width.png", tr("Adjust Width"), QToolButton::MenuButtonPopup);
+    QToolButton *alignToolButton = createToolButton(m_actionHandler->action(ActionAlignLeft)->icon(), tr("Align Left"), QToolButton::MenuButtonPopup);
+    QToolButton *adjustToolButton = createToolButton(m_actionHandler->action(ActionAdjustWidth)->icon(), tr("Adjust Width"), QToolButton::MenuButtonPopup);
 
     // Connect state color change
     connect(stateColorButton, &ColorToolButton::colorSelected, [this](const QString &color) {
@@ -725,10 +725,10 @@ void MainWidget::setMagnifier(bool m)
     }
 }
 
-QToolButton *MainWidget::createToolButton(const QString &iconName, const QString &tooltip, QToolButton::ToolButtonPopupMode mode)
+QToolButton *MainWidget::createToolButton(const QIcon &icon, const QString &tooltip, QToolButton::ToolButtonPopupMode mode)
 {
     auto button = new QToolButton;
-    button->setIcon(QIcon(iconName));
+    button->setIcon(icon);
     button->setToolTip(tooltip);
     button->setPopupMode(mode);
 

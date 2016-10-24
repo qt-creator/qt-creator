@@ -3770,6 +3770,226 @@
          d="m 1240,574.5 -5,0"
          sodipodi:nodetypes="cc" />
     </g>
+    <g
+       transform="translate(176,0)"
+       style="display:inline"
+       id="src/plugins/scxmleditor/common/images/adjust_height">
+      <rect
+         style="fill:#ffffff;fill-opacity:1"
+         x="1228"
+         y="568"
+         width="16"
+         height="16"
+         id="rect6782-96-0-0-7-8-1-0-4-0-1-7-9-1-9-5-6" />
+      <rect
+         style="fill:#b3b3b3;fill-opacity:1;stroke:#000000;stroke-width:0.5"
+         id="rect4532"
+         width="3.5"
+         height="13.5"
+         x="1229.25"
+         y="569.25" />
+      <rect
+         style="fill:#b3b3b3;fill-opacity:1;stroke:#000000;stroke-width:0.5"
+         id="rect4534"
+         width="3.5"
+         height="8.5"
+         x="1235.25"
+         y="569.25" />
+      <path
+         style="stroke:#000000"
+         d="m 1240,569.5 3,0"
+         id="path4536"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cc" />
+      <path
+         style="stroke:#000000"
+         d="m 1240,582.5 3,0"
+         id="path4538"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cc" />
+      <path
+         style="stroke:#000000"
+         d="m 1241.5,569.5 c 0,13 0,13 0,13"
+         id="path4540"
+         inkscape:connector-curvature="0" />
+      <rect
+         style="fill:#cccccc"
+         id="rect5232"
+         width="4"
+         height="5"
+         x="1235"
+         y="578" />
+    </g>
+    <use
+       x="0"
+       y="0"
+       xlink:href="#src/plugins/scxmleditor/common/images/adjust_height"
+       id="src/plugins/scxmleditor/common/images/adjust_width"
+       transform="matrix(0,1,1,0,852,-836)"
+       width="100%"
+       height="100%" />
+    <g
+       transform="translate(208,0)"
+       style="display:inline"
+       id="src/plugins/scxmleditor/common/images/adjust_size">
+      <rect
+         style="fill:#ffffff;fill-opacity:1"
+         x="1228"
+         y="568"
+         width="16"
+         height="16"
+         id="rect6782-96-0-0-7-8-1-0-4-0-1-7-9-1-9-5-6-6" />
+      <g
+         id="g5500">
+        <path
+           sodipodi:nodetypes="cc"
+           inkscape:connector-curvature="0"
+           id="path4536-4"
+           d="m 1229,569.5 3,0"
+           style="stroke:#000000" />
+        <path
+           sodipodi:nodetypes="cc"
+           inkscape:connector-curvature="0"
+           id="path4540-7"
+           d="m 1230.5,569.5 0,13.5"
+           style="stroke:#000000" />
+      </g>
+      <g
+         id="g5496"
+         transform="matrix(0,1,-1,0,1813.5,-651.5)" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#g5500"
+         id="use5504"
+         transform="matrix(0,1,-1,0,1812,-649)"
+         width="100%"
+         height="100%" />
+      <rect
+         style="fill:#cccccc"
+         id="rect5232-6"
+         width="11"
+         height="11"
+         x="1232"
+         y="569" />
+      <rect
+         style="fill:#b3b3b3;fill-opacity:1;stroke:#000000;stroke-width:0.5"
+         id="rect4534-2"
+         width="4.5"
+         height="6.5"
+         x="1232.25"
+         y="573.25" />
+    </g>
+    <g
+       transform="translate(224,0)"
+       style="display:inline"
+       id="src/plugins/scxmleditor/common/images/align_bottom">
+      <rect
+         style="fill:#ffffff;fill-opacity:1"
+         x="1228"
+         y="568"
+         width="16"
+         height="16"
+         id="rect6782-96-0-0-7-8-1-0-4-0-1-7-9-1-9-5-6-3" />
+      <path
+         style="stroke:#000000"
+         d="m 1243,582.5 -14,0"
+         id="path4540-6"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cc" />
+      <rect
+         style="fill:#b3b3b3;fill-opacity:1;stroke:#000000;stroke-width:0.5"
+         id="rect4534-6-5"
+         width="3.5"
+         height="11.5"
+         x="1229.25"
+         y="569.25" />
+      <rect
+         style="fill:#b3b3b3;fill-opacity:1;stroke:#000000;stroke-width:0.5"
+         id="rect4534-6-5-4"
+         width="3.5"
+         height="8.5"
+         x="1239.25"
+         y="572.25" />
+      <rect
+         style="fill:#b3b3b3;fill-opacity:1;stroke:#000000;stroke-width:0.5"
+         id="rect4534-6-5-0"
+         width="3.5"
+         height="4.5"
+         x="1234.25"
+         y="576.25" />
+    </g>
+    <use
+       x="0"
+       y="0"
+       xlink:href="#src/plugins/scxmleditor/common/images/align_bottom"
+       id="src/plugins/scxmleditor/common/images/align_right"
+       transform="matrix(0,1,1,0,900,-884)"
+       width="100%"
+       height="100%" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#src/plugins/scxmleditor/common/images/align_bottom"
+       id="src/plugins/scxmleditor/common/images/align_top"
+       transform="matrix(1,0,0,-1,32,1152)"
+       width="100%"
+       height="100%" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#src/plugins/scxmleditor/common/images/align_bottom"
+       id="src/plugins/scxmleditor/common/images/align_left"
+       transform="matrix(0,1,-1,0,2084,-884)"
+       width="100%"
+       height="100%" />
+    <g
+       transform="translate(288,0)"
+       style="display:inline"
+       id="src/plugins/scxmleditor/common/images/align_horizontal">
+      <rect
+         style="fill:#ffffff;fill-opacity:1"
+         x="1228"
+         y="568"
+         width="16"
+         height="16"
+         id="rect6782-96-0-0-7-8-1-0-4-0-1-7-9-1-9-5-6-3-0" />
+      <rect
+         style="fill:#b3b3b3;fill-opacity:1;stroke:#000000;stroke-width:0.5"
+         id="rect4534-6-5-6"
+         width="3.5"
+         height="12.5"
+         x="1229.25"
+         y="570.25" />
+      <rect
+         style="fill:#b3b3b3;fill-opacity:1;stroke:#000000;stroke-width:0.5"
+         id="rect4534-6-5-4-0"
+         width="3.5"
+         height="8.5"
+         x="1239.25"
+         y="572.25" />
+      <rect
+         style="fill:#b3b3b3;fill-opacity:1;stroke:#000000;stroke-width:0.5"
+         id="rect4534-6-5-0-8"
+         width="3.5"
+         height="4.5"
+         x="1234.25"
+         y="574.25" />
+      <path
+         style="stroke:#000000"
+         d="m 1243,576.5 -14,0"
+         id="path4540-6-4"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cc" />
+    </g>
+    <use
+       x="0"
+       y="0"
+       xlink:href="#src/plugins/scxmleditor/common/images/align_horizontal"
+       id="src/plugins/scxmleditor/common/images/align_vertical"
+       transform="matrix(0,1,1,0,964,-948)"
+       width="100%"
+       height="100%" />
   </g>
   <g
      inkscape:groupmode="layer"
