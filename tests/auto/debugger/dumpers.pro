@@ -2,10 +2,6 @@ QT = core network
 
 QTC_LIB_DEPENDS += utils
 
-!win32 {
-CONFIG -= release
-CONFIG += debug
-}
 include(../qttest.pri)
 
 msvc {
