@@ -1932,7 +1932,8 @@ EvalResult *QmakeProFileNode::evaluate(const EvalInput &input)
         }
         result->targetInformation = targetInformation(input.readerExact, readerBuildPass,
                                                       input.buildDirectory, input.projectFilePath.toString());
-        result->installsList = installsList(readerBuildPass, input.projectFilePath.toString(), input.projectDir);
+        result->installsList = installsList(readerBuildPass, input.projectFilePath.toString(),
+                                            input.projectDir, input.buildDirectory);
 
         // update other variables
         result->newVarValues[DefinesVar] = input.readerExact->values(QLatin1String("DEFINES"));
@@ -1955,11 +1956,8 @@ EvalResult *QmakeProFileNode::evaluate(const EvalInput &input)
         result->newVarValues[ExactResourceVar] = fileListForVar(input.readerExact, 0,
                                                         QLatin1String("RESOURCES"), input.projectDir, input.buildDirectory);
         result->newVarValues[PkgConfigVar] = input.readerExact->values(QLatin1String("PKGCONFIG"));
-        result->newVarValues[PrecompiledHeaderVar] =
-                input.readerExact->absoluteFileValues(QLatin1String("PRECOMPILED_HEADER"),
-                                                      input.projectDir,
-                                                      QStringList() << input.projectDir,
-                                                      0);
+        result->newVarValues[PrecompiledHeaderVar] = input.readerExact->fixifiedValues(
+                    QLatin1String("PRECOMPILED_HEADER"), input.projectDir, input.buildDirectory);
         result->newVarValues[LibDirectoriesVar] = libDirectories(input.readerExact);
         result->newVarValues[ConfigVar] = input.readerExact->values(QLatin1String("CONFIG"));
         result->newVarValues[QmlImportPathVar] = input.readerExact->absolutePathValues(
@@ -2308,7 +2306,7 @@ QStringList QmakeProFileNode::includePaths(QtSupport::ProFileReader *reader, con
             paths.append(cxxflags.mid(2));
     }
 
-    paths.append(reader->absolutePathValues(QLatin1String("INCLUDEPATH"), projectDir));
+    paths.append(reader->fixifiedValues(QLatin1String("INCLUDEPATH"), projectDir, buildDir));
     // paths already contains moc dir and ui dir, due to corrrectly parsing uic.prf and moc.prf
     // except if those directories don't exist at the time of parsing
     // thus we add those directories manually (without checking for existence)
@@ -2415,7 +2413,8 @@ TargetInformation QmakeProFileNode::targetInformation() const
     return m_qmakeTargetInformation;
 }
 
-InstallsList QmakeProFileNode::installsList(const QtSupport::ProFileReader *reader, const QString &projectFilePath, const QString &projectDir)
+InstallsList QmakeProFileNode::installsList(const QtSupport::ProFileReader *reader, const QString &projectFilePath,
+                                            const QString &projectDir, const QString &buildDir)
 {
     InstallsList result;
     if (!reader)
@@ -2438,21 +2437,11 @@ InstallsList QmakeProFileNode::installsList(const QtSupport::ProFileReader *read
         }
         itemPath = itemPaths.last();
 
-        const QStringList &itemFiles
-            = reader->absoluteFileValues(item + QLatin1String(".files"),
-                  projectDir, QStringList() << projectDir, 0);
         if (item == QLatin1String("target")) {
             result.targetPath = itemPath;
         } else {
-            if (itemFiles.isEmpty()) {
-                // TODO: Fix QMAKE_SUBSTITUTES handling in pro file reader, then uncomment again
-//                if (!reader->values(item + QLatin1String(".CONFIG"))
-//                    .contains(QLatin1String("no_check_exist"))) {
-//                    qDebug("%s: Ignoring INSTALLS item '%s', because it has no files.",
-//                        qPrintable(m_projectFilePath), qPrintable(item));
-//                }
-                continue;
-            }
+            const QStringList &itemFiles = reader->fixifiedValues(
+                        item + QLatin1String(".files"), projectDir, buildDir);
             result.items << InstallsItem(itemPath, itemFiles);
         }
     }

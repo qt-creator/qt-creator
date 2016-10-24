@@ -82,6 +82,8 @@ public:
     QString value(const QString &variableName) const;
     QStringList values(const QString &variableName) const;
     QStringList values(const QString &variableName, const ProFile *pro) const;
+    QStringList fixifiedValues(
+            const QString &variable, const QString &baseDirectory, const QString &buildDirectory) const;
     QStringList absolutePathValues(const QString &variable, const QString &baseDirectory) const;
     QStringList absoluteFileValues(
             const QString &variable, const QString &baseDirectory, const QStringList &searchDirs,

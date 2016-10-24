@@ -102,6 +102,24 @@ QString ProFileEvaluator::sysrootify(const QString &path, const QString &baseDir
     return isHostSystemPath ? path : option->sysroot + path;
 }
 
+QStringList ProFileEvaluator::fixifiedValues(
+        const QString &variable, const QString &baseDirectory, const QString &buildDirectory) const
+{
+    QStringList result;
+    foreach (const QString &el, values(variable)) {
+        if (IoUtils::isAbsolutePath(el)) {
+            result << sysrootify(el, baseDirectory);
+        } else {
+            QString fn = QDir::cleanPath(baseDirectory + QLatin1Char('/') + el);
+            if (IoUtils::exists(fn))
+                result << fn;
+            else
+                result << QDir::cleanPath(buildDirectory + QLatin1Char('/') + el);
+        }
+    }
+    return result;
+}
+
 QStringList ProFileEvaluator::absolutePathValues(
         const QString &variable, const QString &baseDirectory) const
 {
