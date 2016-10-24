@@ -71,10 +71,6 @@ public:
     void renameMacroUses(const CPlusPlus::Macro &macro, const QString &replacement = QString());
 
 private:
-    void displayResults(int first, int last);
-    void searchFinished();
-    void cancel();
-    void setPaused(bool paused);
     void openEditor(const Core::SearchResultItem &item);
     void onReplaceButtonClicked(const QString &text, const QList<Core::SearchResultItem> &items, bool preserveCase);
     void searchAgain();
@@ -91,7 +87,6 @@ private:
 
 private:
     QPointer<CppModelManager> m_modelManager;
-    QMap<QFutureWatcher<CPlusPlus::Usage> *, QPointer<Core::SearchResult> > m_watchers;
 };
 
 } // namespace Internal
