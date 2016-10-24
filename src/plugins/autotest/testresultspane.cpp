@@ -208,8 +208,6 @@ void TestResultsPane::addTestResult(const TestResultPtr &result)
     m_atEnd = scrollBar ? scrollBar->value() == scrollBar->maximum() : true;
 
     m_model->addTestResult(result, m_expandCollapse->isChecked());
-    if (!m_treeView->isVisible())
-        popup(Core::IOutputPane::NoModeSwitch);
     setIconBadgeNumber(m_model->resultTypeCount(Result::Fail)
                        + m_model->resultTypeCount(Result::UnexpectedPass));
     flash();
@@ -498,6 +496,8 @@ void TestResultsPane::onTestRunFinished()
     m_model->removeCurrentTestMessage();
     disconnect(m_treeView->verticalScrollBar(), &QScrollBar::rangeChanged,
                this, &TestResultsPane::onScrollBarRangeChanged);
+    if (!m_treeView->isVisible())
+        popup(Core::IOutputPane::NoModeSwitch);
 }
 
 void TestResultsPane::onScrollBarRangeChanged(int, int max)
