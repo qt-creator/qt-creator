@@ -45,7 +45,6 @@
 #include <QFuture>
 #include <QFutureInterface>
 #include <QLoggingCategory>
-#include <QTimer>
 
 static Q_LOGGING_CATEGORY(LOG, "qtc.autotest.testcodeparser")
 
@@ -54,13 +53,7 @@ namespace Internal {
 
 TestCodeParser::TestCodeParser(TestTreeModel *parent)
     : QObject(parent),
-      m_model(parent),
-      m_codeModelParsing(false),
-      m_fullUpdatePostponed(false),
-      m_partialUpdatePostponed(false),
-      m_dirty(false),
-      m_singleShotScheduled(false),
-      m_parserState(Disabled)
+      m_model(parent)
 {
     // connect to ProgressManager to postpone test parsing when CppModelManager is parsing
     auto progressManager = qobject_cast<Core::ProgressManager *>(Core::ProgressManager::instance());
@@ -77,6 +70,8 @@ TestCodeParser::TestCodeParser(TestTreeModel *parent)
         emit testParseResultReady(m_futureWatcher.resultAt(index));
     });
     connect(this, &TestCodeParser::parsingFinished, this, &TestCodeParser::releaseParserInternals);
+    m_reparseTimer.setSingleShot(true);
+    connect(&m_reparseTimer, &QTimer::timeout, this, &TestCodeParser::parsePostponedFiles);
 }
 
 TestCodeParser::~TestCodeParser()
@@ -111,7 +106,8 @@ void TestCodeParser::setState(State state)
         } else if (m_partialUpdatePostponed) {
             m_partialUpdatePostponed = false;
             qCDebug(LOG) << "calling scanForTests with postponed files (setState)";
-            scanForTests(m_postponedFiles.toList());
+            if (!m_reparseTimer.isActive())
+                scanForTests(m_postponedFiles.toList());
         }
     }
 }
@@ -267,6 +263,30 @@ bool TestCodeParser::postponed(const QStringList &fileList)
 {
     switch (m_parserState) {
     case Idle:
+        if (fileList.size() == 1) {
+            if (m_reparseTimerTimedOut)
+                return false;
+            switch (m_postponedFiles.size()) {
+            case 0:
+                m_postponedFiles.insert(fileList.first());
+                m_reparseTimer.setInterval(1000);
+                m_reparseTimer.start();
+                return true;
+            case 1:
+                if (m_postponedFiles.contains(fileList.first())) {
+                    m_reparseTimer.start();
+                    return true;
+                }
+                // intentional fall-through
+            default:
+                m_postponedFiles.insert(fileList.first());
+                m_reparseTimer.stop();
+                m_reparseTimer.setInterval(0);
+                m_reparseTimerTimedOut = false;
+                m_reparseTimer.start();
+                return true;
+            }
+        }
         return false;
     case PartialParse:
     case FullParse:
@@ -313,6 +333,8 @@ void TestCodeParser::scanForTests(const QStringList &fileList)
     if (postponed(fileList))
         return;
 
+    m_reparseTimer.stop();
+    m_reparseTimerTimedOut = false;
     m_postponedFiles.clear();
     bool isFullParse = fileList.isEmpty();
     QStringList list;
@@ -436,7 +458,8 @@ void TestCodeParser::onPartialParsingFinished()
     } else if (m_partialUpdatePostponed) {
         m_partialUpdatePostponed = false;
         qCDebug(LOG) << "calling scanForTests with postponed files (onPartialParsingFinished)";
-        scanForTests(m_postponedFiles.toList());
+        if (!m_reparseTimer.isActive())
+            scanForTests(m_postponedFiles.toList());
     } else {
         m_dirty |= m_codeModelParsing;
         if (m_dirty) {
@@ -452,6 +475,12 @@ void TestCodeParser::onPartialParsingFinished()
                          << "(on PartialParsingFinished, singleshot scheduled)";
         }
     }
+}
+
+void TestCodeParser::parsePostponedFiles()
+{
+    m_reparseTimerTimedOut = true;
+    scanForTests(m_postponedFiles.toList());
 }
 
 void TestCodeParser::releaseParserInternals()

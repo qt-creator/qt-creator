@@ -32,6 +32,7 @@
 #include <QObject>
 #include <QMap>
 #include <QFutureWatcher>
+#include <QTimer>
 
 namespace Core {
 class Id;
@@ -89,19 +90,22 @@ private:
     void onAllTasksFinished(Core::Id type);
     void onFinished();
     void onPartialParsingFinished();
+    void parsePostponedFiles();
     void releaseParserInternals();
 
     TestTreeModel *m_model;
 
-    bool m_codeModelParsing;
-    bool m_fullUpdatePostponed;
-    bool m_partialUpdatePostponed;
-    bool m_dirty;
-    bool m_singleShotScheduled;
+    bool m_codeModelParsing = false;
+    bool m_fullUpdatePostponed = false;
+    bool m_partialUpdatePostponed = false;
+    bool m_dirty = false;
+    bool m_singleShotScheduled = false;
+    bool m_reparseTimerTimedOut = false;
     QSet<QString> m_postponedFiles;
-    State m_parserState;
+    State m_parserState = Disabled;
     QFutureWatcher<TestParseResultPtr> m_futureWatcher;
     QVector<ITestParser *> m_testCodeParsers; // ptrs are still owned by TestFrameworkManager
+    QTimer m_reparseTimer;
 };
 
 } // namespace Internal
