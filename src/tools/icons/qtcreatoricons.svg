@@ -3697,12 +3697,13 @@
          id="path5168-9-0"
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="cccccc" />
-      <path
-         id="path5395"
-         style="fill:none;stroke:#ffffff;stroke-width:0.5"
-         d="m 1230.5,570.19616 c 0.7537,0.30603 1.4871,0.80218 2.1105,1.42819 m -2.5289,0.0848 c 0.9971,0.19177 2.056,1.54867 2.4887,2.36904 l -2.0781,2.1718 3.0078,0"
-         inkscape:connector-curvature="0"
-         sodipodi:nodetypes="cccccc" />
+      <rect
+         style="fill:#ffffff"
+         id="rect5212"
+         width="2"
+         height="7"
+         x="1231"
+         y="570" />
       <path
          style="display:inline;fill:none;stroke:#000000"
          d="m 1237.5,570.5 0,3 3,0"
@@ -3711,7 +3712,7 @@
          sodipodi:nodetypes="ccc" />
       <path
          style="fill:none;stroke:#000000"
-         d="m 1229,570.5 c 3.1056,0.69368 3.8892,2.71353 5,4.5"
+         d="m 1229,570.5 c 2.572,-0.0534 3.8818,2.70315 5,4.5"
          id="path4741-3"
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="cc" />
