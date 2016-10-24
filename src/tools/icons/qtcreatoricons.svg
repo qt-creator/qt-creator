@@ -3603,7 +3603,7 @@
          height="16"
          id="rect6782-96-0-0-7-8-1-0-4-0-1" />
       <path
-         style="fill:#ffffff;stroke:#000000"
+         style="fill:#b3b3b3;stroke:#000000"
          d="m 1231.5,569.5 6,0 3,3 0,10 -9,0 z"
          id="path5168-9"
          inkscape:connector-curvature="0"
@@ -3627,13 +3627,13 @@
          height="16"
          id="rect6782-96-0-0-7-8-1-0-4-0-1-7" />
       <path
-         style="fill:#ffffff;stroke:#000000"
+         style="fill:#b3b3b3;stroke:#000000"
          d="m 1241.5,575.5 0,-3 -6,0 -1,-1 -4,0 0,10 11,0 1.7031,-6 -10.5,0 -2.035,5.70381"
          id="polygon4927-6-0"
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="cccccccccc" />
       <path
-         style="fill:none;stroke:#ffffff"
+         style="fill:none;stroke:#b3b3b3"
          d="m 1231.5,576 0,4.5 2.5,0"
          id="path6121"
          inkscape:connector-curvature="0"
