@@ -85,7 +85,8 @@ public:
             const QString &variable, const QString &baseDirectory, const QString &buildDirectory) const;
     QStringList absolutePathValues(const QString &variable, const QString &baseDirectory) const;
     QVector<SourceFile> absoluteFileValues(
-            const QString &variable, const QString &baseDirectory, const QStringList &searchDirs) const;
+            const QString &variable, const QString &baseDirectory, const QStringList &searchDirs,
+            QHash<ProString, bool> *handled) const;
     QString propertyValue(const QString &val) const;
 
 private:

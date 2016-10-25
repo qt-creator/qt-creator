@@ -120,11 +120,16 @@ QStringList ProFileEvaluator::absolutePathValues(
 }
 
 QVector<ProFileEvaluator::SourceFile> ProFileEvaluator::absoluteFileValues(
-        const QString &variable, const QString &baseDirectory, const QStringList &searchDirs) const
+        const QString &variable, const QString &baseDirectory, const QStringList &searchDirs,
+        QHash<ProString, bool> *handled) const
 {
     QMakeVfs::VfsFlags flags = (d->m_cumulative ? QMakeVfs::VfsCumulative : QMakeVfs::VfsExact);
     QVector<SourceFile> result;
     foreach (const ProString &str, d->values(ProKey(variable))) {
+        bool &seen = (*handled)[str];
+        if (seen)
+            continue;
+        seen = true;
         const QString &el = d->m_option->expandEnvVars(str.toQString());
         QString absEl;
         if (IoUtils::isAbsolutePath(el)) {

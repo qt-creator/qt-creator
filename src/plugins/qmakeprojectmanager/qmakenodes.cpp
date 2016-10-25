@@ -1934,18 +1934,19 @@ EvalResult *QmakeProFileNode::evaluate(const EvalInput &input)
         FileType type = fileTypes.at(i).type;
         QStringList qmakeVariables = varNames(type, exactReader);
         foreach (const QString &qmakeVariable, qmakeVariables) {
+            QHash<ProString, bool> handled;
             if (result->state == EvalResult::EvalOk) {
                 QStringList vPathsExact = fullVPaths(
                             baseVPathsExact, exactReader, qmakeVariable, input.projectDir);
                 auto sourceFiles = exactReader->absoluteFileValues(
-                            qmakeVariable, input.projectDir, vPathsExact);
+                            qmakeVariable, input.projectDir, vPathsExact, &handled);
                 exactSourceFiles[qmakeVariable] = sourceFiles;
                 extractSources(proToResult, &result->includedFiles.result, sourceFiles, type);
             }
             QStringList vPathsCumulative = fullVPaths(
                         baseVPathsCumulative, cumulativeReader, qmakeVariable, input.projectDir);
             auto sourceFiles = cumulativeReader->absoluteFileValues(
-                        qmakeVariable, input.projectDir, vPathsCumulative);
+                        qmakeVariable, input.projectDir, vPathsCumulative, &handled);
             cumulativeSourceFiles[qmakeVariable] = sourceFiles;
             extractSources(proToResult, &result->includedFiles.result, sourceFiles, type);
         }
@@ -1962,15 +1963,13 @@ EvalResult *QmakeProFileNode::evaluate(const EvalInput &input)
         result->newVarValues[IncludePathVar] = includePaths(exactReader, input.sysroot,
                                                             input.buildDirectory, input.projectDir);
         result->newVarValues[CppFlagsVar] = exactReader->values(QLatin1String("QMAKE_CXXFLAGS"));
-        QStringList allSources =
+        result->newVarValues[SourceVar] =
                 fileListForVar(exactSourceFiles, QLatin1String("SOURCES")) +
                 fileListForVar(cumulativeSourceFiles, QLatin1String("SOURCES")) +
                 fileListForVar(exactSourceFiles, QLatin1String("HEADERS")) +
                 fileListForVar(cumulativeSourceFiles, QLatin1String("HEADERS")) +
                 fileListForVar(exactSourceFiles, QLatin1String("OBJECTIVE_HEADERS")) +
                 fileListForVar(cumulativeSourceFiles, QLatin1String("OBJECTIVE_HEADERS"));
-        allSources.removeDuplicates();
-        result->newVarValues[SourceVar] = allSources;
         result->newVarValues[UiDirVar] = QStringList() << uiDirPath(exactReader, input.buildDirectory);
         result->newVarValues[HeaderExtensionVar] = QStringList() << exactReader->value(QLatin1String("QMAKE_EXT_H"));
         result->newVarValues[CppExtensionVar] = QStringList() << exactReader->value(QLatin1String("QMAKE_EXT_CPP"));
