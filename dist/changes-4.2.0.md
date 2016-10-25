@@ -91,7 +91,7 @@ QML Profiler
 
 Qt Quick Designer
 
-* Added completion expression editor
+* Added completion to expression editor
 * Added menu for editing `when` condition of states
 * Added editor for managing C++ backend objects
 * Added reformatting of `.ui.qml` files on save
@@ -106,9 +106,11 @@ Qt Quick Designer
 
 Diff Viewer
 
-* Added local diff for modified files in Qt Creator (`Diff` >
-  `Diff Current File`, `Diff` > `Diff All Modified Files`)
+* Added local diff for modified files in Qt Creator (`Tools` > `Diff` >
+  `Diff Current File`, `Tools` > `Diff` > `Diff Open Files`)
   (QTCREATORBUG-9732)
+* Added option to diff files when they changed on disk
+  (QTCREATORBUG-1531)
 * Fixed that reload prompt was shown when reverting change
 
 Version Control Systems
