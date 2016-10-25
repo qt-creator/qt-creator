@@ -38,7 +38,13 @@ class CrashHandler : public QObject
 {
     Q_OBJECT
 public:
-    explicit CrashHandler(pid_t pid, const QString &signalName, QObject *parent = 0);
+    enum RestartCapability { EnableRestart, DisableRestart };
+
+    explicit CrashHandler(pid_t pid,
+                          const QString &signalName,
+                          const QString &appName,
+                          RestartCapability restartCap = EnableRestart,
+                          QObject *parent = 0);
     ~CrashHandler();
 
     void run();

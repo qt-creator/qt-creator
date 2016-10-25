@@ -39,12 +39,14 @@ class CrashHandlerDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit CrashHandlerDialog(CrashHandler *handler, const QString &signalName,
+    explicit CrashHandlerDialog(CrashHandler *handler,
+                                const QString &signalName,
+                                const QString &appName,
                                 QWidget *parent = 0);
     ~CrashHandlerDialog();
 
 public:
-    void setApplicationInfo(const QString &signalName);
+    void setApplicationInfo(const QString &signalName, const QString &appName);
     void appendDebugInfo(const QString &chunk);
     void selectLineWithContents(const QString &text);
     void setToFinalState();

@@ -39,7 +39,9 @@ static const char SettingsApplication[] = "QtCreator";
 static const char SettingsKeySkipWarningAbortingBacktrace[]
     = "CrashHandler/SkipWarningAbortingBacktrace";
 
-CrashHandlerDialog::CrashHandlerDialog(CrashHandler *handler, const QString &signalName,
+CrashHandlerDialog::CrashHandlerDialog(CrashHandler *handler,
+                                       const QString &signalName,
+                                       const QString &appName,
                                        QWidget *parent) :
     QDialog(parent),
     m_crashHandler(handler),
@@ -51,6 +53,7 @@ CrashHandlerDialog::CrashHandlerDialog(CrashHandler *handler, const QString &sig
     m_ui->debugInfoEdit->setReadOnly(true);
     m_ui->progressBar->setMinimum(0);
     m_ui->progressBar->setMaximum(0);
+    m_ui->restartAppCheckBox->setText(tr("&Restart %1 on close").arg(appName));
 
     const QStyle * const style = QApplication::style();
     m_ui->closeButton->setIcon(style->standardIcon(QStyle::SP_DialogCloseButton));
@@ -67,7 +70,7 @@ CrashHandlerDialog::CrashHandlerDialog(CrashHandler *handler, const QString &sig
             m_crashHandler, &CrashHandler::debugApplication);
     connect(m_ui->closeButton, &QAbstractButton::clicked, this, &CrashHandlerDialog::close);
 
-    setApplicationInfo(signalName);
+    setApplicationInfo(signalName, appName);
 }
 
 CrashHandlerDialog::~CrashHandlerDialog()
@@ -120,10 +123,9 @@ void CrashHandlerDialog::disableDebugAppButton()
     m_ui->debugAppButton->setDisabled(true);
 }
 
-void CrashHandlerDialog::setApplicationInfo(const QString &signalName)
+void CrashHandlerDialog::setApplicationInfo(const QString &signalName, const QString &appName)
 {
-    const QString ideName = QLatin1String("Qt Creator");
-    const QString title = tr("%1 has closed unexpectedly (Signal \"%2\")").arg(ideName, signalName);
+    const QString title = tr("%1 has closed unexpectedly (Signal \"%2\")").arg(appName, signalName);
     const QString introLabelContents = tr(
         "<p><b>%1.</b></p>"
         "<p>Please file a <a href='%2'>bug report</a> with the debug information provided below.</p>")
@@ -137,7 +139,7 @@ void CrashHandlerDialog::setApplicationInfo(const QString &signalName)
 #endif
     const QString versionInformation = tr(
         "%1 %2%3, based on Qt %4 (%5 bit)\n")
-            .arg(ideName, QLatin1String(Core::Constants::IDE_VERSION_LONG), revision,
+            .arg(appName, QLatin1String(Core::Constants::IDE_VERSION_LONG), revision,
                  QLatin1String(QT_VERSION_STR),
                  QString::number(QSysInfo::WordSize));
     m_ui->debugInfoEdit->append(versionInformation);
