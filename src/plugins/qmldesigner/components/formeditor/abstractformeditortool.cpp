@@ -134,7 +134,6 @@ bool AbstractFormEditorTool::topSelectedItemIsMovable(const QList<QGraphicsItem*
 
 }
 
-
 bool AbstractFormEditorTool::topItemIsResizeHandle(const QList<QGraphicsItem*> &/*itemList*/)
 {
     return false;
@@ -149,6 +148,7 @@ QGraphicsItem *AbstractFormEditorTool::topMovableGraphicsItem(const QList<QGraph
 
     return 0;
 }
+
 FormEditorItem *AbstractFormEditorTool::topMovableFormEditorItem(const QList<QGraphicsItem*> &itemList, bool selectOnlyContentItems)
 {
     foreach (QGraphicsItem *item, itemList) {
