@@ -95,6 +95,7 @@ void AutotestPlugin::initializeMenuEntries()
 {
     ActionContainer *menu = ActionManager::createMenu(Constants::MENU_ID);
     menu->menu()->setTitle(tr("&Tests"));
+    menu->setOnAllDisabledBehavior(ActionContainer::Show);
 
     QAction *action = new QAction(tr("Run &All Tests"), this);
     Command *command = ActionManager::registerAction(action, Constants::ACTION_RUN_ALL_ID);
