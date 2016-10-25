@@ -293,6 +293,7 @@ public:
 };
 
 struct QMAKEPROJECTMANAGER_EXPORT InstallsItem {
+    InstallsItem() = default;
     InstallsItem(QString p, QStringList f) : path(p), files(f) {}
     QString path;
     QStringList files;
@@ -301,7 +302,7 @@ struct QMAKEPROJECTMANAGER_EXPORT InstallsItem {
 struct QMAKEPROJECTMANAGER_EXPORT InstallsList {
     void clear() { targetPath.clear(); items.clear(); }
     QString targetPath;
-    QList<InstallsItem> items;
+    QVector<InstallsItem> items;
 };
 
 // Implements ProjectNode for qmake .pro files
