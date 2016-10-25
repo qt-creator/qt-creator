@@ -39,6 +39,8 @@
 #include <diffeditor/diffutils.h>
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <utils/hostosinfo.h>
+
 #include <QDir>
 #include <QFileInfo>
 #include <QTextStream>
@@ -136,19 +138,20 @@ QStringList SubversionClient::addAuthenticationOptions(const VcsBaseClientSettin
 QString SubversionClient::synchronousTopic(const QString &repository)
 {
     QStringList args;
-    args << QLatin1String("info");
 
-    const SynchronousProcessResponse result = vcsFullySynchronousExec(repository, args);
+    QString svnVersionBinary = vcsBinary().toString();
+    int pos = svnVersionBinary.lastIndexOf('/');
+    if (pos < 0)
+        svnVersionBinary.clear();
+    else
+        svnVersionBinary = svnVersionBinary.left(pos + 1);
+    svnVersionBinary.append(HostOsInfo::withExecutableSuffix("svnversion"));
+    const SynchronousProcessResponse result
+            = vcsFullySynchronousExec(repository, FileName::fromString(svnVersionBinary), args);
     if (result.result != SynchronousProcessResponse::Finished)
         return QString();
 
-    const QString revisionString = QLatin1String("Revision: ");
-    // stdOut is ASCII only (at least in those areas we care about).
-    foreach (const QString &line, result.stdOut().split(QLatin1Char('\n'))) {
-        if (line.startsWith(revisionString))
-            return QString::fromLatin1("r") + line.mid(revisionString.count());
-    }
-    return QString();
+    return result.stdOut().trimmed();
 }
 
 class DiffController : public DiffEditorController
