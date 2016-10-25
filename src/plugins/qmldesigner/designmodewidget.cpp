@@ -248,21 +248,6 @@ void DesignModeWidget::updateErrorStatus(const QList<RewriterError> &errors)
     }
 }
 
-TextEditor::BaseTextEditor *DesignModeWidget::textEditor() const
-{
-    return currentDesignDocument()->textEditor();
-}
-
-void DesignModeWidget::setCurrentDesignDocument(DesignDocument *newDesignDocument)
-{
-    if (debug)
-        qDebug() << Q_FUNC_INFO << newDesignDocument;
-
-    //viewManager().setDesignDocument(newDesignDocument);
-
-
-}
-
 static void hideToolButtons(QList<QToolButton*> &buttons)
 {
     foreach (QToolButton *button, buttons)
@@ -319,13 +304,10 @@ void DesignModeWidget::setup()
     m_warningWidget->setVisible(false);
     connect(m_warningWidget.data(), &DocumentWarningWidget::gotoCodeClicked, [=]
         (const QString &filePath, int codeLine, int codeColumn) {
-
         Q_UNUSED(filePath);
 
-        QTC_ASSERT(textEditor(), return;);
-        QTC_ASSERT(textEditor()->textDocument()->filePath().toString() == filePath,
-            qDebug() << Q_FUNC_INFO << textEditor()->textDocument()->filePath().toString() << filePath; );
-        textEditor()->gotoLine(codeLine, codeColumn);
+        if (currentDesignDocument() && currentDesignDocument()->textEditor())
+            currentDesignDocument()->textEditor()->gotoLine(codeLine, codeColumn);
         Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
     });
 
