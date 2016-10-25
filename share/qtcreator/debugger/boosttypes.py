@@ -117,25 +117,25 @@ def qdump__boost__unordered__unordered_set(d, value):
         innerType = value.type[0]
         bucketCount = d.extractInt(base + ptrSize)
         #warn("A BUCKET COUNT: %s" % bucketCount)
-        #warn("X BUCKET COUNT: %s" % d.parseAndEvaluate("s1.table_.bucket_count_"))
+        #warn("X BUCKET COUNT: %s" % d.parseAndEvaluate("s1.table_.bucket_count_").value())
         try:
             # boost 1.58
             table = value["table_"]
             bucketsAddr = table["buckets_"].integer()
             #warn("A BUCKETS: 0x%x" % bucketsAddr)
-            #warn("X BUCKETS: %s" % d.parseAndEvaluate("s1.table_.buckets_"))
+            #warn("X BUCKETS: 0x%x" % d.parseAndEvaluate("s1.table_.buckets_").pointer())
             lastBucketAddr = bucketsAddr + bucketCount * ptrSize
             #warn("A LAST BUCKET: 0x%x" % lastBucketAddr)
-            #warn("X LAST BUCKET: %s" % d.parseAndEvaluate("s1.table_.get_bucket(s1.table_.bucket_count_)"))
+            #warn("X LAST BUCKET: 0x%x" % d.parseAndEvaluate("s1.table_.get_bucket(s1.table_.bucket_count_)").pointer())
             previousStartAddr = lastBucketAddr
             #warn("A PREVIOUS START: 0x%x" % previousStartAddr)
-            #warn("X PREVIOUS START: %s" % d.parseAndEvaluate("s1.table_.get_previous_start()"))
+            #warn("X PREVIOUS START: 0x%x" % d.parseAndEvaluate("s1.table_.get_previous_start()").pointer())
             item = d.extractPointer(previousStartAddr)
             #warn("A KEY ADDR: 0x%x" % item)
-            #warn("X KEY ADDR: %s" % d.parseAndEvaluate("s1.table_.get_previous_start()->next_"))
+            #warn("X KEY ADDR: 0x%x" % d.parseAndEvaluate("s1.table_.get_previous_start()->next_").pointer())
             item = d.extractPointer(previousStartAddr)
             #warn("A  VALUE: %x" % d.extractInt(item + ptrSize))
-            #warn("X  VALUE: %s" % d.parseAndEvaluate("*(int*)(s1.table_.get_previous_start()->next_ + 1)"))
+            #warn("X  VALUE: %x" % d.parseAndEvaluate("*(int*)(s1.table_.get_previous_start()->next_ + 1)").integer())
             with Children(d, size, maxNumChild=10000):
                 for j in d.childRange():
                     d.putSubItem(j, d.createValue(item + 2 * ptrSize, innerType))

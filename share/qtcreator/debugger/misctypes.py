@@ -121,7 +121,7 @@ def qdump__Eigen__Matrix(d, value):
         storage = value['m_storage']
         nrows = storage['m_rows'].integer() if argRow == -1 else argRow
         ncols = storage['m_cols'].integer() if argCol == -1 else argCol
-        p = storage['m_data'].integer()
+        p = storage['m_data'].pointer()
     innerSize = innerType.size()
     d.putValue('(%s x %s), %s' % (nrows, ncols, ['ColumnMajor', 'RowMajor'][rowMajor]))
     d.putField('keeporder', '1')

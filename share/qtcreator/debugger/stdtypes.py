@@ -76,17 +76,17 @@ def qdump__std__deque(d, value):
     impl = value["_M_impl"]
     start = impl["_M_start"]
     finish = impl["_M_finish"]
-    size = bufsize * int((finish["_M_node"].integer() - start["_M_node"].integer()) / d.ptrSize() - 1)
-    size += int((finish["_M_cur"].integer() - finish["_M_first"].integer()) / innerSize)
-    size += int((start["_M_last"].integer() - start["_M_cur"].integer()) / innerSize)
+    size = bufsize * ((finish["_M_node"].pointer() - start["_M_node"].pointer()) // d.ptrSize() - 1)
+    size += ((finish["_M_cur"].pointer() - finish["_M_first"].pointer()) // innerSize)
+    size += ((start["_M_last"].pointer() - start["_M_cur"].pointer()) // innerSize)
 
     d.check(0 <= size and size <= 1000 * 1000 * 1000)
     d.putItemCount(size)
     if d.isExpanded():
         with Children(d, size, maxNumChild=2000, childType=innerType):
-            pcur = start["_M_cur"].integer()
+            pcur = start["_M_cur"].pointer()
             pfirst = start["_M_first"]
-            plast = start["_M_last"].integer()
+            plast = start["_M_last"].pointer()
             pnode = start["_M_node"]
             for i in d.childRange():
                 d.putSubItem(i, d.createValue(pcur, innerType))
@@ -99,7 +99,7 @@ def qdump__std__deque(d, value):
                     #warn("NEWNODE: 0x%x %s" % (newnode.pointer(), newnode))
                     pnode = newnode
                     #warn("PNODE 2: 0x%x %s" % (pnode.pointer(), pnode))
-                    pfirst = newnode.dereference().integer()
+                    pfirst = newnode.dereference().pointer()
                     plast = pfirst + bufsize * d.ptrSize()
                     pcur = pfirst
 
@@ -237,7 +237,6 @@ def qdump__std__map(d, value):
 
     if d.isExpanded():
         pairType = value.type[3][0]
-        pairPointer = pairType.pointer()
         with PairedChildren(d, size, pairType=pairType, maxNumChild=1000):
             node = value["_M_t"]["_M_impl"]["_M_header"]["_M_left"]
             nodeSize = node.dereference().type.size()
@@ -245,10 +244,10 @@ def qdump__std__map(d, value):
             for i in d.childRange():
                 (pad1, key, pad2, value) = d.split(typeCode, node.pointer() + nodeSize)
                 d.putPairItem(i, (key, value))
-                if node["_M_right"].integer() == 0:
+                if node["_M_right"].pointer() == 0:
                     parent = node["_M_parent"]
                     while True:
-                        if node.integer() != parent["_M_right"].integer():
+                        if node.pointer() != parent["_M_right"].pointer():
                             break
                         node = parent
                         parent = parent["_M_parent"]
@@ -257,7 +256,7 @@ def qdump__std__map(d, value):
                 else:
                     node = node["_M_right"]
                     while True:
-                        if node["_M_left"].integer() == 0:
+                        if node["_M_left"].pointer() == 0:
                             break
                         node = node["_M_left"]
 
@@ -271,13 +270,13 @@ def qdump_std__map__helper(d, size, value):
             for i in d.childRange():
                 pair = node.cast(nodeType).dereference()['_Myval']
                 d.putPairItem(i, pair)
-                if node['_Right']['_Isnil'].integer() == 0:
+                if node['_Right']['_Isnil'].pointer() == 0:
                     node = node['_Right']
-                    while node['_Left']['_Isnil'].integer() == 0:
+                    while node['_Left']['_Isnil'].pointer() == 0:
                         node = node['_Left']
                 else:
                     parent = node['_Parent']
-                    while node and parent['_Right']['_Isnil'].integer() == 0:
+                    while node and parent['_Right']['_Isnil'].pointer() == 0:
                         node = parent
                         parent = parent['_Parent']
                     if node['_Right'] != parent:
@@ -377,7 +376,7 @@ def qdump__std__set(d, value):
             for i in d.childRange():
                 (pad, val) = d.split(typeCode, node.pointer() + nodeSize)
                 d.putSubItem(i, val)
-                if node["_M_right"].integer() == 0:
+                if node["_M_right"].pointer() == 0:
                     parent = node["_M_parent"]
                     while node == parent["_M_right"]:
                         node = parent
@@ -386,7 +385,7 @@ def qdump__std__set(d, value):
                         node = parent
                 else:
                     node = node["_M_right"]
-                    while node["_M_left"].integer() != 0:
+                    while node["_M_left"].pointer() != 0:
                         node = node["_M_left"]
 
 def qdump__std__set__QNX(d, value):
@@ -419,7 +418,7 @@ def std1TreeMin(d, node):
     #    return __x;
     #
     left = node['__left_']
-    if left.integer():
+    if left.pointer():
         node = left
     return node
 
@@ -428,7 +427,7 @@ def std1TreeIsLeftChild(d, node):
     #     return __x == __x->__parent_->__left_;
     #
     other = node['__parent_']['__left_']
-    return node.integer() == other.integer()
+    return node.pointer() == other.pointer()
 
 
 def std1TreeNext(d, node):
@@ -440,7 +439,7 @@ def std1TreeNext(d, node):
     #    return __x->__parent_;
     #
     right = node['__right_']
-    if right.integer():
+    if right.pointer():
         return std1TreeMin(d, right)
     while not std1TreeIsLeftChild(d, node):
         node = node['__parent_']
@@ -612,18 +611,18 @@ def qdump__std____1__wstring(d, value):
 
 
 def qdump__std__shared_ptr(d, value):
-    if d.isMsvcTarget:
+    if d.isMsvcTarget():
         i = value["_Ptr"]
     else:
         i = value["_M_ptr"]
 
-    if i.integer() == 0:
+    if i.pointer() == 0:
         d.putValue("(null)")
         d.putNumChild(0)
         return
     with Children(d):
-        short = d.putSubItem("data", i)
-        if d.isMsvcTarget:
+        short = d.putSubItem("data", i.dereference())
+        if d.isMsvcTarget():
             refcount = value["_Rep"]
             d.putIntItem("usecount", refcount["_Uses"])
             d.putIntItem("weakcount", refcount["_Weaks"])
@@ -635,7 +634,7 @@ def qdump__std__shared_ptr(d, value):
 
 def qdump__std____1__shared_ptr(d, value):
     i = value["__ptr_"]
-    if i.integer() == 0:
+    if i.pointer() == 0:
         d.putValue("(null)")
         d.putNumChild(0)
         return
@@ -733,7 +732,7 @@ def qdump__std__unordered_set(d, value):
 
     d.putItemCount(size)
     if d.isExpanded():
-        p = start.integer()
+        p = start.pointer()
         valueType = value.type[0]
         with Children(d, size, childType=valueType):
             ptrSize = d.ptrSize()
@@ -974,10 +973,10 @@ def qdump____gnu_cxx__hash_set(d, value):
             bucketFinish = buckets["_M_finish"]
             p = bucketStart
             itemCount = 0
-            for i in xrange(int((bucketFinish.integer() - bucketStart.integer()) / d.ptrSize())):
-                if p.dereference().integer():
+            for i in xrange((bucketFinish.pointer() - bucketStart.pointer()) // d.ptrSize()):
+                if p.dereference().pointer():
                     cur = p.dereference()
-                    while cur.integer():
+                    while cur.pointer():
                         d.putSubItem(itemCount, cur["_M_val"])
                         cur = cur["_M_next"]
                         itemCount += 1
