@@ -85,7 +85,7 @@ void ModelToTextMerger::propertiesChanged(const QList<AbstractProperty>& propert
 
         ModelNode containedModelNode;
         const int indentDepth = m_rewriterView->textModifier()->indentDepth();
-        const QString propertyTextValue = QmlTextGenerator(getPropertyOrder(),
+        const QString propertyTextValue = QmlTextGenerator(propertyOrder(),
                                                            indentDepth)(property);
 
         switch (propertyChange) {
@@ -162,14 +162,14 @@ void ModelToTextMerger::nodeReparented(const ModelNode &node, const NodeAbstract
         switch (propertyChange) {
         case AbstractView::PropertiesAdded:
             schedule(new AddPropertyRewriteAction(newPropertyParent,
-                                                  QmlTextGenerator(getPropertyOrder())(node),
+                                                  QmlTextGenerator(propertyOrder())(node),
                                                   propertyType(newPropertyParent),
                                                   node));
             break;
 
         case AbstractView::NoAdditionalChanges:
             schedule(new ChangePropertyRewriteAction(newPropertyParent,
-                                                     QmlTextGenerator(getPropertyOrder())(node),
+                                                     QmlTextGenerator(propertyOrder())(node),
                                                      propertyType(newPropertyParent),
                                                      node));
             break;
@@ -212,7 +212,7 @@ void ModelToTextMerger::applyChanges()
         return;
 
     dumpRewriteActions(QStringLiteral("Before compression"));
-    RewriteActionCompressor compress(getPropertyOrder());
+    RewriteActionCompressor compress(propertyOrder());
     compress(m_rewriteActions);
     dumpRewriteActions(QStringLiteral("After compression"));
 
@@ -241,7 +241,7 @@ void ModelToTextMerger::applyChanges()
         ModelNodePositionRecalculator positionRecalculator(m_rewriterView->positionStorage(), m_rewriterView->positionStorage()->modelNodes());
         positionRecalculator.connectTo(textModifier);
 
-        QmlRefactoring refactoring(tmpDocument, *textModifier, getPropertyOrder());
+        QmlRefactoring refactoring(tmpDocument, *textModifier, propertyOrder());
 
         textModifier->deactivateChangeSignals();
         textModifier->startGroup();
@@ -348,31 +348,27 @@ QmlRefactoring::PropertyType ModelToTextMerger::propertyType(const AbstractPrope
     return (QmlRefactoring::PropertyType) -1;
 }
 
-PropertyNameList ModelToTextMerger::m_propertyOrder;
-
-PropertyNameList ModelToTextMerger::getPropertyOrder()
+PropertyNameList ModelToTextMerger::propertyOrder()
 {
-    if (m_propertyOrder.isEmpty()) {
-        m_propertyOrder
-                << PropertyName("id")
-                << PropertyName("name")
-                << PropertyName("target")
-                << PropertyName("property")
-                << PropertyName("x")
-                << PropertyName("y")
-                << PropertyName("width")
-                << PropertyName("height")
-                << PropertyName("position")
-                << PropertyName("color")
-                << PropertyName("radius")
-                << PropertyName("text")
-                << PropertyName()
-                << PropertyName("states")
-                << PropertyName("transitions")
-                ;
-    }
+    static const PropertyNameList properties = {
+        PropertyName("id"),
+        PropertyName("name"),
+        PropertyName("target"),
+        PropertyName("property"),
+        PropertyName("x"),
+        PropertyName("y"),
+        PropertyName("width"),
+        PropertyName("height"),
+        PropertyName("position"),
+        PropertyName("color"),
+        PropertyName("radius"),
+        PropertyName("text"),
+        PropertyName(),
+        PropertyName("states"),
+        PropertyName("transitions")
+    };
 
-    return m_propertyOrder;
+    return properties;
 }
 
 bool ModelToTextMerger::isInHierarchy(const AbstractProperty &property) {
