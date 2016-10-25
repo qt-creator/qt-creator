@@ -46,7 +46,7 @@ ActionHandler::ActionHandler(QObject *parent)
     } actionInfos[] = {
         { Utils::Icons::ZOOMIN_TOOLBAR, AH::tr("Zoom In"), AH::tr("Zoom In (Ctrl + + / Ctrl + Wheel)"), "Ctrl++", false },
         { Utils::Icons::ZOOMOUT_TOOLBAR, AH::tr("Zoom Out"), AH::tr("Zoom Out (Ctrl + - / Ctrl + Wheel)"), "Ctrl+-", false },
-        { Utils::Icon(":/scxmleditor/images/icon-fit-screen.png"), AH::tr("Fit to View"), AH::tr("Fit to View (F11)"), "F11", false },
+        { Utils::Icons::FITTOVIEW_TOOLBAR, AH::tr("Fit to View"), AH::tr("Fit to View (F11)"), "F11", false },
         { Utils::Icon(":/scxmleditor/images/icon-pan.png"), AH::tr("Panning"), AH::tr("Panning (Shift)"), "Shift", true },
 
         { Utils::Icons::ZOOM_TOOLBAR, AH::tr("Magnifier"), AH::tr("Magnifier Tool (Alt)"), "Alt", true },
