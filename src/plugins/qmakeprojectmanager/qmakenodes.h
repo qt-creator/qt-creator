@@ -27,6 +27,7 @@
 
 #include "qmakeprojectmanager_global.h"
 #include "proparser/prowriter.h"
+#include "proparser/profileevaluator.h"
 
 #include <coreplugin/idocument.h>
 #include <projectexplorer/projectnodes.h>
@@ -37,11 +38,6 @@
 #include <QDateTime>
 #include <QMap>
 #include <QFutureWatcher>
-
-// defined in proitems.h
-QT_BEGIN_NAMESPACE
-class ProFile;
-QT_END_NAMESPACE
 
 namespace Utils { class FileName; }
 
@@ -117,15 +113,6 @@ struct InternalNode;
 class EvalInput;
 class EvalResult;
 class PriFileEvalResult;
-// TOOD can probably move into the .cpp file
-class VariableAndVPathInformation
-{
-public:
-    QString variable;
-    QStringList vPathsExact;
-    QStringList vPathsCumulative;
-};
-
 }
 
 // Implements ProjectNode for qmake .pri files
@@ -210,8 +197,12 @@ private:
     QStringList formResources(const QString &formFile) const;
     static QStringList baseVPaths(QtSupport::ProFileReader *reader, const QString &projectDir, const QString &buildDir);
     static QStringList fullVPaths(const QStringList &baseVPaths, QtSupport::ProFileReader *reader, const QString &qmakeVariable, const QString &projectDir);
-    static Internal::PriFileEvalResult extractValues(const Internal::EvalInput &input, ProFile *proFile, bool haveExact,
-                                                     const QList<QList<Internal::VariableAndVPathInformation>> &variableAndVPathInformation);
+    static void extractSources(
+            QHash<const ProFile *, Internal::PriFileEvalResult *> proToResult,
+            Internal::PriFileEvalResult *fallback,
+            QVector<ProFileEvaluator::SourceFile> sourceFiles, ProjectExplorer::FileType type);
+    static void extractValues(
+            const Internal::EvalInput &input, ProFile *proFile, Internal::PriFileEvalResult &result);
     void watchFolders(const QSet<QString> &folders);
 
     QmakeProject *m_project;
@@ -387,8 +378,9 @@ private:
 
     void updateGeneratedFiles(const QString &buildDir);
 
-    static QStringList fileListForVar(QtSupport::ProFileReader *readerExact, QtSupport::ProFileReader *readerCumulative,
-                                      const QString &varName, const QString &projectDir, const QString &buildDir);
+    static QStringList fileListForVar(
+            const QHash<QString, QVector<ProFileEvaluator::SourceFile> > &sourceFiles,
+            const QString &varName);
     static QString uiDirPath(QtSupport::ProFileReader *reader, const QString &buildDir);
     static QString mocDirPath(QtSupport::ProFileReader *reader, const QString &buildDir);
     static QString sysrootify(const QString &path, const QString &sysroot, const QString &baseDir, const QString &outputDir);

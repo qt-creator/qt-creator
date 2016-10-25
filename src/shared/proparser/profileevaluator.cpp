@@ -119,17 +119,17 @@ QStringList ProFileEvaluator::absolutePathValues(
     return result;
 }
 
-QStringList ProFileEvaluator::absoluteFileValues(
-        const QString &variable, const QString &baseDirectory, const QStringList &searchDirs,
-        const ProFile *pro) const
+QVector<ProFileEvaluator::SourceFile> ProFileEvaluator::absoluteFileValues(
+        const QString &variable, const QString &baseDirectory, const QStringList &searchDirs) const
 {
     QMakeVfs::VfsFlags flags = (d->m_cumulative ? QMakeVfs::VfsCumulative : QMakeVfs::VfsExact);
-    QStringList result;
-    foreach (const QString &el, pro ? values(variable, pro) : values(variable)) {
+    QVector<SourceFile> result;
+    foreach (const ProString &str, d->values(ProKey(variable))) {
+        const QString &el = d->m_option->expandEnvVars(str.toQString());
         QString absEl;
         if (IoUtils::isAbsolutePath(el)) {
             if (m_vfs->exists(el, flags)) {
-                result << el;
+                result << SourceFile{ el, str.sourceFile() };
                 goto next;
             }
             absEl = el;
@@ -137,7 +137,7 @@ QStringList ProFileEvaluator::absoluteFileValues(
             foreach (const QString &dir, searchDirs) {
                 QString fn = QDir::cleanPath(dir + QLatin1Char('/') + el);
                 if (m_vfs->exists(fn, flags)) {
-                    result << fn;
+                    result << SourceFile{ QDir::cleanPath(fn), str.sourceFile() };
                     goto next;
                 }
             }
@@ -157,7 +157,7 @@ QStringList ProFileEvaluator::absoluteFileValues(
                     theDir.setFilter(theDir.filter() & ~QDir::AllDirs);
                     foreach (const QString &fn, theDir.entryList(QStringList(wildcard)))
                         if (fn != QLatin1String(".") && fn != QLatin1String(".."))
-                            result << absDir + QLatin1Char('/') + fn;
+                            result << SourceFile{ absDir + QLatin1Char('/') + fn, str.sourceFile() };
                 } // else if (acceptMissing)
             }
         }

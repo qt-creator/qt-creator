@@ -53,6 +53,11 @@ public:
         TT_Subdirs
     };
 
+    struct SourceFile {
+        QString fileName;
+        const ProFile *proFile;
+    };
+
     // Call this from a concurrency-free context
     static void initialize();
 
@@ -79,14 +84,15 @@ public:
     QStringList fixifiedValues(
             const QString &variable, const QString &baseDirectory, const QString &buildDirectory) const;
     QStringList absolutePathValues(const QString &variable, const QString &baseDirectory) const;
-    QStringList absoluteFileValues(
-            const QString &variable, const QString &baseDirectory, const QStringList &searchDirs,
-            const ProFile *pro) const;
+    QVector<SourceFile> absoluteFileValues(
+            const QString &variable, const QString &baseDirectory, const QStringList &searchDirs) const;
     QString propertyValue(const QString &val) const;
 
 private:
     QMakeEvaluator *d;
     QMakeVfs *m_vfs;
 };
+
+Q_DECLARE_TYPEINFO(ProFileEvaluator::SourceFile, Q_MOVABLE_TYPE);
 
 QT_END_NAMESPACE
