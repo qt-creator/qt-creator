@@ -3990,6 +3990,23 @@
        transform="matrix(0,1,1,0,964,-948)"
        width="100%"
        height="100%" />
+    <g
+       transform="translate(320,0)"
+       id="src/libs/utils/images/fittoview"
+       style="display:inline;fill:#ffffff">
+      <rect
+         style="fill:#ffffff;fill-opacity:1"
+         x="1228"
+         y="568"
+         width="16"
+         height="16"
+         id="rect6782-96-0-0-7-8-1-0-4-0-1-7-9-1-9-5-6-3-0-3" />
+      <path
+         id="use6687"
+         style="stroke:#000000"
+         d="m 1234,579.5 -2.5,0 0,-2.5 m 9,0 0,2.5 -2.5,0 m 0,-7 2.5,0 0,2.5 m -9,0 0,-2.5 2.5,0 m -4.5,-2 13,0 0,11 -13,0 z"
+         inkscape:connector-curvature="0" />
+    </g>
   </g>
   <g
      inkscape:groupmode="layer"
