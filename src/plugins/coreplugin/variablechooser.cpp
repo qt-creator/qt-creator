@@ -42,6 +42,7 @@
 #include <QMenu>
 #include <QPlainTextEdit>
 #include <QPointer>
+#include <QSortFilterProxyModel>
 #include <QTextEdit>
 #include <QTimer>
 #include <QTreeView>
@@ -257,7 +258,10 @@ VariableChooserPrivate::VariableChooserPrivate(VariableChooser *parent)
     m_variableTree = new VariableTreeView(q, this);
     m_variableDescription = new QLabel(q);
 
-    m_variableTree->setModel(&m_model);
+    auto sorter = new QSortFilterProxyModel(this);
+    sorter->setSourceModel(&m_model);
+    sorter->sort(0);
+    m_variableTree->setModel(sorter);
     m_variableDescription->setText(m_defaultDescription);
     m_variableDescription->setMinimumSize(QSize(0, 60));
     m_variableDescription->setAlignment(Qt::AlignLeft|Qt::AlignTop);
