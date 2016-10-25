@@ -280,7 +280,7 @@ class TargetItem : public TypedTreeItem<TreeItem, TargetGroupItem>
     Q_DECLARE_TR_FUNCTIONS(TargetSettingsPanelWidget)
 
 public:
-    enum { DefaultPage = 1 }; // Run page.
+    enum { DefaultPage = 0 }; // Build page.
 
     TargetItem(Project *project, Id kitId)
         : m_project(project), m_kitId(kitId)
@@ -802,7 +802,7 @@ void TargetGroupItemPrivate::handleAddedKit(Kit *kit)
 void TargetItem::updateSubItems()
 {
     if (children().isEmpty() && isEnabled())
-        m_currentChild = 1; // We will add children below. Use 'Run' item by default.
+        m_currentChild = DefaultPage; // We will add children below.
     removeChildren();
     if (isEnabled()) {
         appendChild(new BuildOrRunItem(m_project, m_kitId, BuildOrRunItem::BuildPage));
