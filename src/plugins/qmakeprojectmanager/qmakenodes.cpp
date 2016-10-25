@@ -1794,13 +1794,50 @@ void QmakeProFileNode::setupReader()
     m_readerCumulative->setCumulative(true);
 }
 
+bool QmakeProFileNode::evaluateOne(
+        const EvalInput &input, ProFile *pro, QtSupport::ProFileReader *reader,
+        QtSupport::ProFileReader **buildPassReader)
+{
+    if (!reader->accept(pro, QMakeEvaluator::LoadAll))
+        return false;
+
+    QStringList builds = reader->values(QLatin1String("BUILDS"));
+    if (builds.isEmpty()) {
+        *buildPassReader = reader;
+    } else {
+        QString build = builds.first();
+        QHash<QString, QStringList> basevars;
+        QStringList basecfgs = reader->values(build + QLatin1String(".CONFIG"));
+        basecfgs += build;
+        basecfgs += QLatin1String("build_pass");
+        basevars[QLatin1String("BUILD_PASS")] = QStringList(build);
+        QStringList buildname = reader->values(build + QLatin1String(".name"));
+        basevars[QLatin1String("BUILD_NAME")] = (buildname.isEmpty() ? QStringList(build) : buildname);
+
+        // We don't increase/decrease m_qmakeGlobalsRefCnt here, because the outer profilereaders keep m_qmakeGlobals alive anyway
+        auto bpReader = new QtSupport::ProFileReader(input.qmakeGlobals, input.qmakeVfs); // needs to access m_qmakeGlobals, m_qmakeVfs
+        bpReader->setOutputDir(input.buildDirectory);
+        bpReader->setExtraVars(basevars);
+        bpReader->setExtraConfigs(basecfgs);
+
+        if (bpReader->accept(pro, QMakeEvaluator::LoadAll))
+            *buildPassReader = bpReader;
+        else
+            delete bpReader;
+    }
+
+    return true;
+}
+
 EvalResult *QmakeProFileNode::evaluate(const EvalInput &input)
 {
     EvalResult *result = new EvalResult;
+    QtSupport::ProFileReader *exactBuildPassReader = nullptr;
+    QtSupport::ProFileReader *cumulativeBuildPassReader = nullptr;
     ProFile *pro;
     if ((pro = input.readerExact->parsedProFile(input.projectFilePath.toString()))) {
-        bool exactOk = input.readerExact->accept(pro, QMakeEvaluator::LoadAll);
-        bool cumulOk = input.readerCumulative->accept(pro, QMakeEvaluator::LoadPreFiles);
+        bool exactOk = evaluateOne(input, pro, input.readerExact, &exactBuildPassReader);
+        bool cumulOk = evaluateOne(input, pro, input.readerCumulative, &cumulativeBuildPassReader);
         pro->deref();
         result->state = exactOk ? EvalResult::EvalOk : cumulOk ? EvalResult::EvalPartial : EvalResult::EvalFail;
     } else {
@@ -1884,105 +1921,70 @@ EvalResult *QmakeProFileNode::evaluate(const EvalInput &input)
         toBuild.append(current->children.values());
     }
 
+    auto exactReader = exactBuildPassReader ? exactBuildPassReader : input.readerExact;
+    auto cumulativeReader = cumulativeBuildPassReader ? cumulativeBuildPassReader : input.readerCumulative;
+
     if (result->state == EvalResult::EvalOk) {
-        // create build_pass reader
-        QtSupport::ProFileReader *readerBuildPass = 0;
-        QStringList builds = input.readerExact->values(QLatin1String("BUILDS"));
-        if (builds.isEmpty()) {
-            readerBuildPass = input.readerExact;
-        } else {
-            QString build = builds.first();
-            QHash<QString, QStringList> basevars;
-            QStringList basecfgs = input.readerExact->values(build + QLatin1String(".CONFIG"));
-            basecfgs += build;
-            basecfgs += QLatin1String("build_pass");
-            basevars[QLatin1String("BUILD_PASS")] = QStringList(build);
-            QStringList buildname = input.readerExact->values(build + QLatin1String(".name"));
-            basevars[QLatin1String("BUILD_NAME")] = (buildname.isEmpty() ? QStringList(build) : buildname);
-
-            // We don't increase/decrease m_qmakeGlobalsRefCnt here, because the outer profilereaders keep m_qmakeGlobals alive anyway
-            readerBuildPass = new QtSupport::ProFileReader(input.qmakeGlobals, input.qmakeVfs); // needs to access m_qmakeGlobals, m_qmakeVfs
-            readerBuildPass->setOutputDir(input.buildDirectory);
-            readerBuildPass->setExtraVars(basevars);
-            readerBuildPass->setExtraConfigs(basecfgs);
-
-            EvalResult::EvalResultState evalResultBuildPass = EvalResult::EvalOk;
-            if (ProFile *pro = readerBuildPass->parsedProFile(input.projectFilePath.toString())) {
-                if (!readerBuildPass->accept(pro, QMakeEvaluator::LoadAll))
-                    evalResultBuildPass = EvalResult::EvalPartial;
-                pro->deref();
-            } else {
-                evalResultBuildPass = EvalResult::EvalFail;
-            }
-
-            if (evalResultBuildPass != EvalResult::EvalOk) {
-                delete readerBuildPass;
-                readerBuildPass = 0;
-            }
-        }
-        result->targetInformation = targetInformation(input.readerExact, readerBuildPass,
+        result->targetInformation = targetInformation(input.readerExact, exactBuildPassReader,
                                                       input.buildDirectory, input.projectFilePath.toString());
-        result->installsList = installsList(readerBuildPass, input.projectFilePath.toString(),
+        result->installsList = installsList(exactBuildPassReader, input.projectFilePath.toString(),
                                             input.projectDir, input.buildDirectory);
 
         // update other variables
-        result->newVarValues[DefinesVar] = input.readerExact->values(QLatin1String("DEFINES"));
-        result->newVarValues[IncludePathVar] = includePaths(input.readerExact, input.sysroot,
+        result->newVarValues[DefinesVar] = exactReader->values(QLatin1String("DEFINES"));
+        result->newVarValues[IncludePathVar] = includePaths(exactReader, input.sysroot,
                                                             input.buildDirectory, input.projectDir);
-        result->newVarValues[CppFlagsVar] = input.readerExact->values(QLatin1String("QMAKE_CXXFLAGS"));
+        result->newVarValues[CppFlagsVar] = exactReader->values(QLatin1String("QMAKE_CXXFLAGS"));
         result->newVarValues[SourceVar] =
-                fileListForVar(input.readerExact, input.readerCumulative,
+                fileListForVar(exactReader, cumulativeReader,
                                QLatin1String("SOURCES"), input.projectDir, input.buildDirectory) +
-                fileListForVar(input.readerExact, input.readerCumulative,
+                fileListForVar(exactReader, cumulativeReader,
                                QLatin1String("HEADERS"), input.projectDir, input.buildDirectory) +
-                fileListForVar(input.readerExact, input.readerCumulative,
+                fileListForVar(exactReader, cumulativeReader,
                                QLatin1String("OBJECTIVE_HEADERS"), input.projectDir, input.buildDirectory);
-        result->newVarValues[UiDirVar] = QStringList() << uiDirPath(input.readerExact, input.buildDirectory);
-        result->newVarValues[HeaderExtensionVar] = QStringList() <<  input.readerExact->value(QLatin1String("QMAKE_EXT_H"));
-        result->newVarValues[CppExtensionVar] = QStringList() <<  input.readerExact->value(QLatin1String("QMAKE_EXT_CPP"));
-        result->newVarValues[MocDirVar] = QStringList() << mocDirPath(input.readerExact, input.buildDirectory);
-        result->newVarValues[ExactResourceVar] = fileListForVar(input.readerExact, 0,
+        result->newVarValues[UiDirVar] = QStringList() << uiDirPath(exactReader, input.buildDirectory);
+        result->newVarValues[HeaderExtensionVar] = QStringList() << exactReader->value(QLatin1String("QMAKE_EXT_H"));
+        result->newVarValues[CppExtensionVar] = QStringList() << exactReader->value(QLatin1String("QMAKE_EXT_CPP"));
+        result->newVarValues[MocDirVar] = QStringList() << mocDirPath(exactReader, input.buildDirectory);
+        result->newVarValues[ExactResourceVar] = fileListForVar(exactReader, 0,
                                                         QLatin1String("RESOURCES"), input.projectDir, input.buildDirectory);
-        result->newVarValues[CumulativeResourceVar] = fileListForVar(input.readerCumulative, 0,
+        result->newVarValues[CumulativeResourceVar] = fileListForVar(cumulativeReader, 0,
                                                    QLatin1String("RESOURCES"), input.projectDir, input.buildDirectory);
-        result->newVarValues[PkgConfigVar] = input.readerExact->values(QLatin1String("PKGCONFIG"));
-        result->newVarValues[PrecompiledHeaderVar] = input.readerExact->fixifiedValues(
+        result->newVarValues[PkgConfigVar] = exactReader->values(QLatin1String("PKGCONFIG"));
+        result->newVarValues[PrecompiledHeaderVar] = exactReader->fixifiedValues(
                     QLatin1String("PRECOMPILED_HEADER"), input.projectDir, input.buildDirectory);
-        result->newVarValues[LibDirectoriesVar] = libDirectories(input.readerExact);
-        result->newVarValues[ConfigVar] = input.readerExact->values(QLatin1String("CONFIG"));
-        result->newVarValues[QmlImportPathVar] = input.readerExact->absolutePathValues(
+        result->newVarValues[LibDirectoriesVar] = libDirectories(exactReader);
+        result->newVarValues[ConfigVar] = exactReader->values(QLatin1String("CONFIG"));
+        result->newVarValues[QmlImportPathVar] = exactReader->absolutePathValues(
                     QLatin1String("QML_IMPORT_PATH"), input.projectDir);
-        result->newVarValues[QmlDesignerImportPathVar] = input.readerExact->absolutePathValues(
+        result->newVarValues[QmlDesignerImportPathVar] = exactReader->absolutePathValues(
                     QLatin1String("QML_DESIGNER_IMPORT_PATH"), input.projectDir);
-        result->newVarValues[Makefile] = input.readerExact->values(QLatin1String("MAKEFILE"));
-        result->newVarValues[QtVar] = input.readerExact->values(QLatin1String("QT"));
-        result->newVarValues[ObjectExt] = input.readerExact->values(QLatin1String("QMAKE_EXT_OBJ"));
-        result->newVarValues[ObjectsDir] = input.readerExact->values(QLatin1String("OBJECTS_DIR"));
-        result->newVarValues[VersionVar] = input.readerExact->values(QLatin1String("VERSION"));
-        result->newVarValues[TargetExtVar] = input.readerExact->values(QLatin1String("TARGET_EXT"));
+        result->newVarValues[Makefile] = exactReader->values(QLatin1String("MAKEFILE"));
+        result->newVarValues[QtVar] = exactReader->values(QLatin1String("QT"));
+        result->newVarValues[ObjectExt] = exactReader->values(QLatin1String("QMAKE_EXT_OBJ"));
+        result->newVarValues[ObjectsDir] = exactReader->values(QLatin1String("OBJECTS_DIR"));
+        result->newVarValues[VersionVar] = exactReader->values(QLatin1String("VERSION"));
+        result->newVarValues[TargetExtVar] = exactReader->values(QLatin1String("TARGET_EXT"));
         result->newVarValues[TargetVersionExtVar]
-                = input.readerExact->values(QLatin1String("TARGET_VERSION_EXT"));
-        result->newVarValues[StaticLibExtensionVar] = input.readerExact->values(QLatin1String("QMAKE_EXTENSION_STATICLIB"));
-        result->newVarValues[ShLibExtensionVar] = input.readerExact->values(QLatin1String("QMAKE_EXTENSION_SHLIB"));
-        result->newVarValues[AndroidArchVar] = input.readerExact->values(QLatin1String("ANDROID_TARGET_ARCH"));
-        result->newVarValues[AndroidDeploySettingsFile] = input.readerExact->values(QLatin1String("ANDROID_DEPLOYMENT_SETTINGS_FILE"));
-        result->newVarValues[AndroidPackageSourceDir] = input.readerExact->values(QLatin1String("ANDROID_PACKAGE_SOURCE_DIR"));
-        result->newVarValues[AndroidExtraLibs] = input.readerExact->values(QLatin1String("ANDROID_EXTRA_LIBS"));
-        result->newVarValues[IsoIconsVar] = input.readerExact->values(QLatin1String("ISO_ICONS"));
-        result->newVarValues[QmakeProjectName] = input.readerExact->values(QLatin1String("QMAKE_PROJECT_NAME"));
-        result->newVarValues[QmakeCc] = input.readerExact->values("QMAKE_CC");
-        result->newVarValues[QmakeCxx] = input.readerExact->values("QMAKE_CXX");
-
-        if (readerBuildPass && readerBuildPass != input.readerExact)
-            delete readerBuildPass;
+                = exactReader->values(QLatin1String("TARGET_VERSION_EXT"));
+        result->newVarValues[StaticLibExtensionVar] = exactReader->values(QLatin1String("QMAKE_EXTENSION_STATICLIB"));
+        result->newVarValues[ShLibExtensionVar] = exactReader->values(QLatin1String("QMAKE_EXTENSION_SHLIB"));
+        result->newVarValues[AndroidArchVar] = exactReader->values(QLatin1String("ANDROID_TARGET_ARCH"));
+        result->newVarValues[AndroidDeploySettingsFile] = exactReader->values(QLatin1String("ANDROID_DEPLOYMENT_SETTINGS_FILE"));
+        result->newVarValues[AndroidPackageSourceDir] = exactReader->values(QLatin1String("ANDROID_PACKAGE_SOURCE_DIR"));
+        result->newVarValues[AndroidExtraLibs] = exactReader->values(QLatin1String("ANDROID_EXTRA_LIBS"));
+        result->newVarValues[IsoIconsVar] = exactReader->values(QLatin1String("ISO_ICONS"));
+        result->newVarValues[QmakeProjectName] = exactReader->values(QLatin1String("QMAKE_PROJECT_NAME"));
+        result->newVarValues[QmakeCc] = exactReader->values("QMAKE_CC");
+        result->newVarValues[QmakeCxx] = exactReader->values("QMAKE_CXX");
     }
 
     if (result->state == EvalResult::EvalOk || result->state == EvalResult::EvalPartial) {
 
         QList<QList<VariableAndVPathInformation>> variableAndVPathInformation;
         { // Collect information on VPATHS and qmake variables
-            QStringList baseVPathsExact = baseVPaths(input.readerExact, input.projectDir, input.buildDirectory);
-            QStringList baseVPathsCumulative = baseVPaths(input.readerCumulative, input.projectDir, input.buildDirectory);
+            QStringList baseVPathsExact = baseVPaths(exactReader, input.projectDir, input.buildDirectory);
+            QStringList baseVPathsCumulative = baseVPaths(cumulativeReader, input.projectDir, input.buildDirectory);
 
             const QVector<QmakeNodeStaticData::FileTypeData> &fileTypes = qmakeNodeStaticData()->fileTypeData;
 
@@ -1991,13 +1993,13 @@ EvalResult *QmakeProFileNode::evaluate(const EvalInput &input)
                 FileType type = fileTypes.at(i).type;
 
                 QList<VariableAndVPathInformation> list;
-                QStringList qmakeVariables = varNames(type, input.readerExact);
+                QStringList qmakeVariables = varNames(type, exactReader);
                 list.reserve(qmakeVariables.size());
                 foreach (const QString &qmakeVariable, qmakeVariables) {
                     VariableAndVPathInformation info;
                     info.variable = qmakeVariable;
-                    info.vPathsExact = fullVPaths(baseVPathsExact, input.readerExact, qmakeVariable, input.projectDir);
-                    info.vPathsCumulative = fullVPaths(baseVPathsCumulative, input.readerCumulative, qmakeVariable, input.projectDir);
+                    info.vPathsExact = fullVPaths(baseVPathsExact, exactReader, qmakeVariable, input.projectDir);
+                    info.vPathsCumulative = fullVPaths(baseVPathsCumulative, cumulativeReader, qmakeVariable, input.projectDir);
                     list.append(info);
                 }
                 variableAndVPathInformation.append(list);
@@ -2013,6 +2015,11 @@ EvalResult *QmakeProFileNode::evaluate(const EvalInput &input)
             toExtract.append(current->children.values());
         }
     }
+
+    if (exactBuildPassReader && exactBuildPassReader != input.readerExact)
+        delete exactBuildPassReader;
+    if (cumulativeBuildPassReader && cumulativeBuildPassReader != input.readerCumulative)
+        delete cumulativeBuildPassReader;
 
     return result;
 }
