@@ -80,9 +80,15 @@
     \uicontrol {Switch to}.
 
     When you launch \QC, a list of existing sessions is displayed in the
-    \uicontrol Welcome mode.
+    \uicontrol Welcome mode. To open a session, select it or press
+    \key Ctrl+Alt+<number>, where \e <number> is the number of the session to
+    open (available for the first nine sessions).
 
     \image qtcreator-welcome-session.png
+
+    To view more information about a session, select the down arrow icon that
+    appears when you move the mouse cursor over the session name. Select actions
+    to clone, rename, and delete sessions.
 
     When you start \QC from the command line, you can give the name of
     a session as argument and \QC will start with this session.
