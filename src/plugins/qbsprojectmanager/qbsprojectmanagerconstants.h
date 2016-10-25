@@ -65,6 +65,28 @@ const char QBS_FORCE_PROBES_KEY[] = "qbspm.forceProbes";
 static const char QBS_GROUP_ICON[] = ":/qbsprojectmanager/images/groups.png";
 static const char QBS_PRODUCT_OVERLAY_ICON[] = ":/qbsprojectmanager/images/productgear.png";
 
+// Toolchain related settings:
+const char QBS_TARGETOS[] = "qbs.targetOS";
+const char QBS_SYSROOT[] = "qbs.sysroot";
+const char QBS_ARCHITECTURE[] = "qbs.architecture";
+const char QBS_TOOLCHAIN[] = "qbs.toolchain";
+const char CPP_TOOLCHAINPATH[] = "cpp.toolchainInstallPath";
+const char CPP_TOOLCHAINPREFIX[] = "cpp.toolchainPrefix";
+const char CPP_COMPILERNAME[] = "cpp.compilerName";
+const char CPP_CXXCOMPILERNAME[] = "cpp.cxxCompilerName";
+const char CPP_PLATFORMCOMMONCOMPILERFLAGS[] = "cpp.platformCommonCompilerFlags";
+const char CPP_PLATFORMLINKERFLAGS[] = "cpp.platformLinkerFlags";
+const char CPP_PLATFORMPATH[] = "cpp.platformPath";
+const char CPP_XCODESDKNAME[] = "cpp.xcodeSdkName";
+const char CPP_XCODESDKVERSION[] = "cpp.xcodeSdkVersion";
+
+// Settings page
+const char QBS_SETTINGS_CATEGORY[]  = "YM.qbs";
+const char QBS_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("QbsProjectManager", "Qbs");
+const char QBS_SETTINGS_CATEGORY_ICON[]  = ":/projectexplorer/images/build.png";
+
+const char QBS_PROPERTIES_KEY_FOR_KITS[] = "QbsProjectManager.qbs-properties";
+
 const char QBS_PROFILING_ENV[] = "QTC_QBS_PROFILING";
 
 } // namespace Constants

@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "defaultpropertyprovider.h"
-#include "qbsconstants.h"
+#include "qbsprojectmanagerconstants.h"
 
 #include <coreplugin/messagemanager.h>
 #include <projectexplorer/abi.h>
