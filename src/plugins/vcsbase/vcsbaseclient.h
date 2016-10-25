@@ -103,6 +103,10 @@ public:
     Utils::SynchronousProcessResponse
     vcsFullySynchronousExec(const QString &workingDir, const QStringList &args,
                             unsigned flags = 0, int timeoutS = -1, QTextCodec *codec = nullptr) const;
+    Utils::SynchronousProcessResponse
+    vcsFullySynchronousExec(const QString &workingDir, const Utils::FileName &binary, const QStringList &args,
+                            unsigned flags = 0, int timeoutS = -1, QTextCodec *codec = nullptr) const;
+
 
     // Simple helper to execute a single command using createCommand and enqueueJob.
     VcsCommand *vcsExec(const QString &workingDirectory, const QStringList &arguments,
