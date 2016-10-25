@@ -23,6 +23,8 @@
 **
 ****************************************************************************/
 
+#include "../qtcreatorcrashhandler/crashhandlersetup.h"
+
 #include <QCommandLineParser>
 #include <QCoreApplication>
 #include <QLoggingCategory>
@@ -61,8 +63,10 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationVersion(QStringLiteral("1.0.0"));
 
     QCoreApplication application(argc, argv);
+    CrashHandlerSetup setupCrashHandler(QCoreApplication::applicationName(),
+                                        CrashHandlerSetup::DisableRestart);
 
-    const QString connection =  processArguments(application);
+    const QString connection = processArguments(application);
 
     clang_toggleCrashRecovery(true);
     clang_enableStackTraces();
