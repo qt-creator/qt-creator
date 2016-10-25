@@ -1953,21 +1953,32 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateFeatureFile(
     // needs to be determined. Failed lookups are represented via non-null empty strings.
     QString *fnp = &m_featureRoots->cache[qMakePair(fn, currFn)];
     if (fnp->isNull()) {
-        int start_root = 0;
-        const QStringList &paths = m_featureRoots->paths;
-        if (!currFn.isEmpty()) {
-            QStringRef currPath = IoUtils::pathName(currFn);
-            for (int root = 0; root < paths.size(); ++root)
-                if (currPath == paths.at(root)) {
-                    start_root = root + 1;
-                    break;
-                }
-        }
-        for (int root = start_root; root < paths.size(); ++root) {
-            QString fname = paths.at(root) + fn;
-            if (IoUtils::exists(fname)) {
-                fn = fname;
+#ifdef QMAKE_OVERRIDE_PRFS
+        {
+            QString ovrfn(QLatin1String(":/qmake/override_features/") + fn);
+            if (QFileInfo::exists(ovrfn)) {
+                fn = ovrfn;
                 goto cool;
+            }
+        }
+#endif
+        {
+            int start_root = 0;
+            const QStringList &paths = m_featureRoots->paths;
+            if (!currFn.isEmpty()) {
+                QStringRef currPath = IoUtils::pathName(currFn);
+                for (int root = 0; root < paths.size(); ++root)
+                    if (currPath == paths.at(root)) {
+                        start_root = root + 1;
+                        break;
+                    }
+            }
+            for (int root = start_root; root < paths.size(); ++root) {
+                QString fname = paths.at(root) + fn;
+                if (IoUtils::exists(fname)) {
+                    fn = fname;
+                    goto cool;
+                }
             }
         }
 #ifdef QMAKE_BUILTIN_PRFS

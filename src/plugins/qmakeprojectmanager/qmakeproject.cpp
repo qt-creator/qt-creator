@@ -458,40 +458,27 @@ void QmakeProject::updateCppCodeModel()
         // part->precompiledHeaders
         templatePart->precompiledHeaders.append(pro->variableValue(PrecompiledHeaderVar));
 
-        templatePart->updateLanguageFeatures();
+        // TODO: there is no LANG_OBJCXX, so:
+        const QStringList cxxflags = pro->variableValue(CppFlagsVar);
+        CppTools::ProjectPartBuilder::evaluateProjectPartToolchain(
+                    templatePart.data(), ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx),
+                    cxxflags, SysRootKitInformation::sysRoot(k));
+        setProjectLanguage(ProjectExplorer::Constants::LANG_CXX, true);
 
         ProjectPart::Ptr cppPart = templatePart->copy();
-        { // C++ files:
-            // part->files
-            foreach (const QString &file, pro->variableValue(CppSourceVar)) {
-                cppPart->files << ProjectFile(file, ProjectFile::CXXSource);
-            }
-            foreach (const QString &file, pro->variableValue(CppHeaderVar)) {
-                cppPart->files << ProjectFile(file, ProjectFile::CXXHeader);
-            }
-        }
-
         ProjectPart::Ptr objcppPart = templatePart->copy();
-        { // ObjC++ files:
-            foreach (const QString &file, pro->variableValue(ObjCSourceVar)) {
-                // Although the enum constant is called ObjCSourceVar, it actually is ObjC++ source
-                // code, as qmake does not handle C (and ObjC).
-                objcppPart->files << ProjectFile(file, ProjectFile::ObjCXXSource);
-            }
-            foreach (const QString &file, pro->variableValue(ObjCHeaderVar)) {
-                objcppPart->files << ProjectFile(file, ProjectFile::ObjCXXHeader);
-            }
-
-            const QStringList cxxflags = pro->variableValue(CppFlagsVar);
-            CppTools::ProjectPartBuilder::evaluateProjectPartToolchain(objcppPart.data(),
-                                                                       ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx),
-                                                                       cxxflags,
-                                                                       SysRootKitInformation::sysRoot(k));
-
-            if (!objcppPart->files.isEmpty()) {
-                pinfo.appendProjectPart(objcppPart);
-                // TODO: there is no LANG_OBJCXX, so:
-                setProjectLanguage(ProjectExplorer::Constants::LANG_CXX, true);
+        foreach (const QString &file, pro->variableValue(SourceVar)) {
+            ProjectFile::Kind kind = ProjectFile::classify(file);
+            switch (kind) {
+            case ProjectFile::ObjCHeader:
+            case ProjectFile::ObjCSource:
+            case ProjectFile::ObjCXXHeader:
+            case ProjectFile::ObjCXXSource:
+                objcppPart->files << ProjectFile(file, kind);
+                break;
+            default:
+                cppPart->files << ProjectFile(file, kind);
+                break;
             }
         }
 
@@ -523,19 +510,12 @@ void QmakeProject::updateCppCodeModel()
 
         cppPart->files.prepend(ProjectFile(CppTools::CppModelManager::configurationFileName(),
                                            ProjectFile::CXXSource));
-        const QStringList cxxflags = pro->variableValue(CppFlagsVar);
-        CppTools::ProjectPartBuilder::evaluateProjectPartToolchain(
-                    cppPart.data(), ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx),
-                    cxxflags, SysRootKitInformation::sysRoot(k));
-        if (!cppPart->files.isEmpty()) {
-            pinfo.appendProjectPart(cppPart);
-            setProjectLanguage(ProjectExplorer::Constants::LANG_CXX, true);
-        }
-
-        if (!objcppPart->files.isEmpty())
+        pinfo.appendProjectPart(cppPart);
+        objcppPart->displayName += QLatin1String(" (ObjC++)");
+        if (!objcppPart->files.isEmpty()) {
+            pinfo.appendProjectPart(objcppPart);
             cppPart->displayName += QLatin1String(" (C++)");
-        if (!cppPart->files.isEmpty())
-            objcppPart->displayName += QLatin1String(" (ObjC++)");
+        }
     }
     pinfo.finish();
 
