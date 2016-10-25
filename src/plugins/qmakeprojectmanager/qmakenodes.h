@@ -115,6 +115,8 @@ class EvalResult;
 class PriFileEvalResult;
 }
 
+struct InstallsList;
+
 // Implements ProjectNode for qmake .pri files
 class QMAKEPROJECTMANAGER_EXPORT QmakePriFileNode : public ProjectExplorer::ProjectNode
 {
@@ -164,7 +166,6 @@ protected:
     static QStringList varNames(ProjectExplorer::FileType type, QtSupport::ProFileReader *readerExact);
     static QStringList varNamesForRemoving();
     static QString varNameForAdding(const QString &mimeType);
-    static QStringList dynamicVarNames(QtSupport::ProFileReader *readerExact);
     static QSet<Utils::FileName> filterFilesProVariables(ProjectExplorer::FileType fileType, const QSet<Utils::FileName> &files);
     static QSet<Utils::FileName> filterFilesRecursiveEnumerata(ProjectExplorer::FileType fileType, const QSet<Utils::FileName> &files);
 
@@ -201,8 +202,11 @@ private:
             QHash<const ProFile *, Internal::PriFileEvalResult *> proToResult,
             Internal::PriFileEvalResult *fallback,
             QVector<ProFileEvaluator::SourceFile> sourceFiles, ProjectExplorer::FileType type);
-    static void extractValues(
-            const Internal::EvalInput &input, ProFile *proFile, Internal::PriFileEvalResult &result);
+    static void extractInstalls(
+            QHash<const ProFile *, Internal::PriFileEvalResult *> proToResult,
+            Internal::PriFileEvalResult *fallback,
+            const InstallsList &installList);
+    static void processValues(Internal::PriFileEvalResult &result);
     void watchFolders(const QSet<QString> &folders);
 
     QmakeProject *m_project;
@@ -294,9 +298,11 @@ public:
 
 struct QMAKEPROJECTMANAGER_EXPORT InstallsItem {
     InstallsItem() = default;
-    InstallsItem(QString p, QStringList f) : path(p), files(f) {}
+    InstallsItem(QString p, QVector<ProFileEvaluator::SourceFile> f, bool a)
+        : path(p), files(f), active(a) {}
     QString path;
-    QStringList files;
+    QVector<ProFileEvaluator::SourceFile> files;
+    bool active;
 };
 
 struct QMAKEPROJECTMANAGER_EXPORT InstallsList {

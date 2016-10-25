@@ -1388,8 +1388,10 @@ void QmakeProject::collectData(const QmakeProFileNode *node, DeploymentData &dep
 
     const InstallsList &installsList = node->installsList();
     foreach (const InstallsItem &item, installsList.items) {
-        foreach (const QString &localFile, item.files)
-            deploymentData.addFile(localFile, item.path);
+        if (!item.active)
+            continue;
+        foreach (const auto &localFile, item.files)
+            deploymentData.addFile(localFile.fileName, item.path);
     }
 
     switch (node->projectType()) {

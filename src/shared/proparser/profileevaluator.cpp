@@ -76,33 +76,32 @@ QStringList ProFileEvaluator::values(const QString &variableName) const
     return ret;
 }
 
-QStringList ProFileEvaluator::values(const QString &variableName, const ProFile *pro) const
-{
-    // It makes no sense to put any kind of magic into expanding these
-    const ProStringList &values = d->m_valuemapStack.first().value(ProKey(variableName));
-    QStringList ret;
-    ret.reserve(values.size());
-    foreach (const ProString &str, values)
-        if (str.sourceFile() == pro)
-            ret << d->m_option->expandEnvVars(str.toQString());
-    return ret;
-}
-
-QStringList ProFileEvaluator::fixifiedValues(
+QVector<ProFileEvaluator::SourceFile> ProFileEvaluator::fixifiedValues(
         const QString &variable, const QString &baseDirectory, const QString &buildDirectory) const
 {
-    QStringList result;
-    foreach (const QString &el, values(variable)) {
+    QVector<SourceFile> result;
+    foreach (const ProString &str, d->values(ProKey(variable))) {
+        const QString &el = d->m_option->expandEnvVars(str.toQString());
         if (IoUtils::isAbsolutePath(el)) {
-            result << el;
+            result << SourceFile{ el, str.sourceFile() };
         } else {
             QString fn = QDir::cleanPath(baseDirectory + QLatin1Char('/') + el);
             if (IoUtils::exists(fn))
-                result << fn;
+                result << SourceFile{ fn, str.sourceFile() };
             else
-                result << QDir::cleanPath(buildDirectory + QLatin1Char('/') + el);
+                result << SourceFile{ QDir::cleanPath(buildDirectory + QLatin1Char('/') + el),
+                                      str.sourceFile() };
         }
     }
+    return result;
+}
+
+QStringList ProFileEvaluator::sourcesToFiles(const QVector<ProFileEvaluator::SourceFile> &sources)
+{
+    QStringList result;
+    result.reserve(sources.size());
+    for (const auto &src : sources)
+        result << src.fileName;
     return result;
 }
 

@@ -660,24 +660,22 @@ void QmakePriFileNode::extractSources(
     }
 }
 
-void QmakePriFileNode::extractValues(
-        const EvalInput &input, ProFile *proFile, PriFileEvalResult &result)
+void QmakePriFileNode::extractInstalls(
+        QHash<const ProFile *, PriFileEvalResult *> proToResult, PriFileEvalResult *fallback,
+        const InstallsList &installList)
 {
-    // Figure out DEPLOYMENT and INSTALL folders.
-    // Ignore stuff from cumulative parse, as we are recursively enumerating
-    // all the files from those folders and add watchers for them. That's too
-    // dangerous if we get the folders wrong and enumerate the whole project
-    // tree multiple times.
-    QStringList dynamicVariables = dynamicVarNames(input.readerExact);
-    foreach (const QString &dynamicVar, dynamicVariables)
-        result.folders += input.readerExact->values(dynamicVar, proFile);
-
-    for (int i=0; i < result.folders.size(); ++i) {
-        const QFileInfo fi(result.folders.at(i));
-        if (fi.isRelative())
-            result.folders[i] = QDir::cleanPath(input.projectDir + QLatin1Char('/') + result.folders.at(i));
+    for (const InstallsItem &item : installList.items) {
+        for (const ProFileEvaluator::SourceFile &source : item.files) {
+            auto *result = proToResult.value(source.proFile);
+            if (!result)
+                result = fallback;
+            result->folders << source.fileName;
+        }
     }
+}
 
+void QmakePriFileNode::processValues(PriFileEvalResult &result)
+{
     result.folders.removeDuplicates();
 
     // Remove non existing items and non folders
@@ -1456,19 +1454,6 @@ QStringList QmakePriFileNode::varNamesForRemoving()
     return vars;
 }
 
-QStringList QmakePriFileNode::dynamicVarNames(QtSupport::ProFileReader *reader)
-{
-    QStringList result;
-
-    // Figure out INSTALLS (and DEPLOYMENT, as it's aliased)
-    const QString installs = QLatin1String("INSTALLS");
-    const QString files = QLatin1String(".files");
-    foreach (const QString &var, reader->values(installs))
-        result << (var + files);
-    result.removeDuplicates();
-    return result;
-}
-
 QSet<FileName> QmakePriFileNode::filterFilesProVariables(FileType fileType, const QSet<FileName> &files)
 {
     if (fileType != QMLType && fileType != UnknownFileType)
@@ -1952,11 +1937,18 @@ EvalResult *QmakeProFileNode::evaluate(const EvalInput &input)
         }
     }
 
+    // This is used for two things:
+    // - Actual deployment, in which case we need exact values.
+    // - The project tree, in which case we also want exact values to avoid recursively
+    //   watching bogus paths. However, we accept the values even if the evaluation
+    //   failed, to at least have a best-effort result.
+    result->installsList = installsList(exactBuildPassReader, input.projectFilePath.toString(),
+                                        input.projectDir, input.buildDirectory);
+    extractInstalls(proToResult, &result->includedFiles.result, result->installsList);
+
     if (result->state == EvalResult::EvalOk) {
         result->targetInformation = targetInformation(input.readerExact, exactBuildPassReader,
                                                       input.buildDirectory, input.projectFilePath.toString());
-        result->installsList = installsList(exactBuildPassReader, input.projectFilePath.toString(),
-                                            input.projectDir, input.buildDirectory);
 
         // update other variables
         result->newVarValues[DefinesVar] = exactReader->values(QLatin1String("DEFINES"));
@@ -1977,8 +1969,8 @@ EvalResult *QmakeProFileNode::evaluate(const EvalInput &input)
         result->newVarValues[ExactResourceVar] = fileListForVar(exactSourceFiles, QLatin1String("RESOURCES"));
         result->newVarValues[CumulativeResourceVar] = fileListForVar(cumulativeSourceFiles, QLatin1String("RESOURCES"));
         result->newVarValues[PkgConfigVar] = exactReader->values(QLatin1String("PKGCONFIG"));
-        result->newVarValues[PrecompiledHeaderVar] = exactReader->fixifiedValues(
-                    QLatin1String("PRECOMPILED_HEADER"), input.projectDir, input.buildDirectory);
+        result->newVarValues[PrecompiledHeaderVar] = ProFileEvaluator::sourcesToFiles(exactReader->fixifiedValues(
+                    QLatin1String("PRECOMPILED_HEADER"), input.projectDir, input.buildDirectory));
         result->newVarValues[LibDirectoriesVar] = libDirectories(exactReader);
         result->newVarValues[ConfigVar] = exactReader->values(QLatin1String("CONFIG"));
         result->newVarValues[QmlImportPathVar] = exactReader->absolutePathValues(
@@ -2007,11 +1999,10 @@ EvalResult *QmakeProFileNode::evaluate(const EvalInput &input)
 
     if (result->state == EvalResult::EvalOk || result->state == EvalResult::EvalPartial) {
 
-        // extract values for each .pri file and add it to IncludedPriFiles structure
         QList<IncludedPriFile *> toExtract = { &result->includedFiles };
         while (!toExtract.isEmpty()) {
             IncludedPriFile *current = toExtract.takeFirst();
-            extractValues(input, current->proFile, current->result);
+            processValues(current->result);
             toExtract.append(current->children.values());
         }
     }
@@ -2295,8 +2286,10 @@ QStringList QmakeProFileNode::includePaths(QtSupport::ProFileReader *reader, con
             paths.append(cxxflags.mid(2));
     }
 
-    foreach (const QString &el, reader->fixifiedValues(QLatin1String("INCLUDEPATH"), projectDir, buildDir))
-        paths << sysrootify(el, sysroot, projectDir, buildDir);
+    foreach (const ProFileEvaluator::SourceFile &el,
+             reader->fixifiedValues(QLatin1String("INCLUDEPATH"), projectDir, buildDir)) {
+        paths << sysrootify(el.fileName, sysroot, projectDir, buildDir);
+    }
     // paths already contains moc dir and ui dir, due to corrrectly parsing uic.prf and moc.prf
     // except if those directories don't exist at the time of parsing
     // thus we add those directories manually (without checking for existence)
@@ -2411,8 +2404,8 @@ InstallsList QmakeProFileNode::installsList(const QtSupport::ProFileReader *read
         return result;
     const QStringList &itemList = reader->values(QLatin1String("INSTALLS"));
     foreach (const QString &item, itemList) {
-        if (reader->values(item + QLatin1String(".CONFIG")).contains(QLatin1String("no_default_install")))
-            continue;
+        bool active = !reader->values(item + QLatin1String(".CONFIG"))
+                        .contains(QLatin1String("no_default_install"));
         QString itemPath;
         const QString pathVar = item + QLatin1String(".path");
         const QStringList &itemPaths = reader->values(pathVar);
@@ -2428,11 +2421,12 @@ InstallsList QmakeProFileNode::installsList(const QtSupport::ProFileReader *read
         itemPath = itemPaths.last();
 
         if (item == QLatin1String("target")) {
-            result.targetPath = itemPath;
+            if (active)
+                result.targetPath = itemPath;
         } else {
-            const QStringList &itemFiles = reader->fixifiedValues(
+            const auto &itemFiles = reader->fixifiedValues(
                         item + QLatin1String(".files"), projectDir, buildDir);
-            result.items << InstallsItem(itemPath, itemFiles);
+            result.items << InstallsItem(itemPath, itemFiles, active);
         }
     }
     return result;
