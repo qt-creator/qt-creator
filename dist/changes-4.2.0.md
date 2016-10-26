@@ -142,3 +142,45 @@ Android
 * Fixed handling of minimum required API level (QTCREATORBUG-16740)
 
 Credits for these changes go to:  
+Aaron Barany  
+Alessandro Portale  
+Alexander Drozdov  
+Andre Hartmann  
+André Pönitz  
+Arnold Dumas  
+Christian Kandeler  
+Christian Stenger  
+Daniel Langner  
+Daniel Trevitz  
+David Schulz  
+Eike Ziller  
+Florian Apolloner  
+Francois Ferrand  
+Friedemann Kleint  
+Giuseppe D'Angelo  
+Jake Petroules  
+Jaroslaw Kobus  
+Jochen Becher  
+Konstantin Shtepa  
+Kudryavtsev Alexander  
+Leena Miettinen  
+Louai Al-Khanji  
+Marc Reilly  
+Marco Benelli  
+Marco Bubke  
+Mitch Curtis  
+Nazar Gerasymchuk  
+Nikita Baryshnikov  
+Nikolai Kosjar  
+Orgad Shaneh  
+Oswald Buddenhagen  
+Øystein Walle  
+Robert Löhning  
+Serhii Moroz  
+Takumi ASAKI  
+Tasuku Suzuki  
+Thomas Hartmann  
+Tim Jenssen  
+Tobias Hunger  
+Ulf Hermann  
+Vikas Pachdha  
