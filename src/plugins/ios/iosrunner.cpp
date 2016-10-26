@@ -58,7 +58,7 @@ IosRunner::IosRunner(QObject *parent, IosRunConfiguration *runConfig, bool cppDe
       m_arguments(runConfig->commandLineArguments()),
       m_device(DeviceKitInformation::device(runConfig->target()->kit())),
       m_cppDebug(cppDebug), m_qmlDebugServices(qmlDebugServices), m_cleanExit(false),
-      m_qmlPort(0), m_pid(0)
+      m_pid(0)
 {
     m_deviceType = runConfig->deviceType();
 }
