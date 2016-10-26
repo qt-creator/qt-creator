@@ -166,5 +166,7 @@
         <file>images/zoomout_overlay@2x.png</file>
         <file>images/fittoview.png</file>
         <file>images/fittoview@2x.png</file>
+        <file>images/namespace.png</file>
+        <file>images/namespace@2x.png</file>
     </qresource>
 </RCC>

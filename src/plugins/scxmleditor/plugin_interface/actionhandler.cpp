@@ -57,7 +57,7 @@ ActionHandler::ActionHandler(QObject *parent)
         { Utils::Icon({{":/utils/images/editpaste.png",  Utils::Theme::IconsBaseColor}}), AH::tr("Paste"), AH::tr("Paste (Ctrl + V)"), "Ctrl+V", false },
         { Utils::Icons::SNAPSHOT_TOOLBAR, AH::tr("Screenshot"), AH::tr("Screenshot (Ctrl + Shift + C)"), "Ctrl+Shift+C", false },
         { Utils::Icon({{":/scxmleditor/images/icon-export-canvas.png",  Utils::Theme::IconsBaseColor}}), AH::tr("Export to Image"), AH::tr("Export to Image"), "Ctrl+Shift+E", false },
-        { Utils::Icon(":/scxmleditor/images/fullnamespace.png"), AH::tr("Toggle Full Namespace"), AH::tr("Toggle Full Namespace"), "Ctrl+Shift+N", true },
+        { Utils::Icon({{":/utils/images/namespace.png", Utils::Theme::IconsBaseColor}}), AH::tr("Toggle Full Namespace"), AH::tr("Toggle Full Namespace"), "Ctrl+Shift+N", true },
 
         { Utils::Icon({{":/scxmleditor/images/align_left.png", Utils::Theme::IconsBaseColor}}), AH::tr("Align Left"), AH::tr("Align Left (Ctrl+L,1)"), "Ctrl+L,1", false },
         { Utils::Icon({{":/scxmleditor/images/align_right.png", Utils::Theme::IconsBaseColor}}), AH::tr("Align Right"), AH::tr("Align Right (Ctrl+L,2)"), "Ctrl+L,2", false },
