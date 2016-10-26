@@ -161,6 +161,8 @@
 
         \li Keyword completion
 
+        \li Code completion
+
         \li Auto-indentation
 
         \li Matching parentheses and quotes
