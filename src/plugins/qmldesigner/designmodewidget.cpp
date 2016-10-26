@@ -25,7 +25,7 @@
 
 #include "designmodewidget.h"
 
-#include "styledoutputpaneplaceholder.h"
+#include <coreplugin/outputpane.h>
 #include "qmldesignerplugin.h"
 #include "crumblebar.h"
 #include "documentwarningwidget.h"
@@ -492,20 +492,25 @@ static Core::MiniSplitter *createCentralSplitter(const QList<WidgetInfo> &widget
     outputPlaceholderSplitter->setStretchFactor(1, 0);
     outputPlaceholderSplitter->setOrientation(Qt::Vertical);
 
-    auto outputPanePlaceholder = new StyledOutputpanePlaceHolder(Core::Constants::MODE_DESIGN, outputPlaceholderSplitter);
+    auto outputPanePlaceholder = new Core::OutputPanePlaceHolder(Core::Constants::MODE_DESIGN, outputPlaceholderSplitter);
 
     QTabWidget* tabWidget = createWidgetsInTabWidget(centralWidgetInfos);
     tabWidget->setObjectName("centralTabWidget");
     tabWidget->setTabPosition(QTabWidget::East);
-    tabWidget->setTabBarAutoHide(true);
+    tabWidget->tabBar()->setObjectName("centralTabBar");
 
-    outputPlaceholderSplitter->addWidget(tabWidget);
-
-    outputPlaceholderSplitter->addWidget(outputPanePlaceholder);
+    QWidget *backgroundWidget = new QWidget();
+    backgroundWidget->setObjectName("backgroundWidget");
+    backgroundWidget->setLayout(new QVBoxLayout());
+    backgroundWidget->layout()->setMargin(0);
+    backgroundWidget->layout()->addWidget(tabWidget);
 
     QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/centerwidget.css");
-    tabWidget->setStyleSheet(Theming::replaceCssColors(QString::fromUtf8(sheet)));
-    outputPlaceholderSplitter->setStyleSheet(Theming::replaceCssColors(QString::fromUtf8(sheet)));
+    backgroundWidget->setStyleSheet(Theming::replaceCssColors(QString::fromUtf8(sheet)));
+
+    outputPlaceholderSplitter->addWidget(backgroundWidget);
+    outputPlaceholderSplitter->addWidget(outputPanePlaceholder);
+
     return outputPlaceholderSplitter;
 }
 

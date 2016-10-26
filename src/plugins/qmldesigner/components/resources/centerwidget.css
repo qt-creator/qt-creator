@@ -1,4 +1,4 @@
-QWidget {
+QWidget#backgroundWidget {
     background-color: creatorTheme.QmlDesignerTabDark
 }
 
@@ -15,7 +15,7 @@ QTabBar::tab:selected {
     color: creatorTheme.QmlDesignerTabDark;
 }
 
-QTabBar::tab {
+QTabBar#centralTabBar::tab {
     width: 16px;
     height: 80px;
 
