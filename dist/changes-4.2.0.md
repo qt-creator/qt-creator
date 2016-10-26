@@ -65,12 +65,12 @@ C++ Support
 
 * Added preview of images to tool tip on Qt resource URLs
 * Added option to skip big files when indexing (QTCREATORBUG-16712)
-* Added notification for parsing errors in headers
 * Fixed `Move Definition to Class` for functions in template class and
   template member functions (QTCREATORBUG-14354)
 * Fixed issues with `Add Declaration`, `Add Definition`, and
   `Move Definition Outside Class` for template functions
 * Clang Code Model
+    * Added notification for parsing errors in headers
     * Improved responsiveness of completion and highlighting
 
 Debugging
