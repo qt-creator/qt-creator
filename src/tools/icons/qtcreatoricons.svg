@@ -4007,6 +4007,51 @@
          d="m 1234,579.5 -2.5,0 0,-2.5 m 9,0 0,2.5 -2.5,0 m 0,-7 2.5,0 0,2.5 m -9,0 0,-2.5 2.5,0 m -4.5,-2 13,0 0,11 -13,0 z"
          inkscape:connector-curvature="0" />
     </g>
+    <g
+       transform="translate(336,0)"
+       style="display:inline"
+       id="src/plugins/scxmleditor/common/images/icon-pan">
+      <rect
+         style="fill:#ffffff;fill-opacity:1"
+         x="1228"
+         y="568"
+         width="16"
+         height="16"
+         id="rect6782-96-0-0-7-8-1-0-4-0-1-7-9-1-9-5-6-3-0-4" />
+      <path
+         id="path5290"
+         style="stroke:#000000;stroke-width:1px;fill:none"
+         d="m 1236.5,570.5 0,6.5 m -2.5,-4 2.5,-2.5 2.5,2.5"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccccc" />
+      <use
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#path5290"
+         id="use5293"
+         transform="matrix(0,1,-1,0,1812.9931,-659.99311)"
+         width="100%"
+         height="100%" />
+      <use
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#path5290"
+         id="use5295"
+         transform="matrix(-1,0,0,-1,2473,1153)"
+         width="100%"
+         height="100%" />
+      <use
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#use5293"
+         id="use5297"
+         transform="matrix(-1,0,0,1,2472.9931,-0.006937)"
+         width="100%"
+         height="100%" />
+    </g>
   </g>
   <g
      inkscape:groupmode="layer"

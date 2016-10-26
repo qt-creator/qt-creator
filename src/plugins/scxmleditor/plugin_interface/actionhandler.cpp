@@ -47,7 +47,7 @@ ActionHandler::ActionHandler(QObject *parent)
         { Utils::Icons::ZOOMIN_TOOLBAR, AH::tr("Zoom In"), AH::tr("Zoom In (Ctrl + + / Ctrl + Wheel)"), "Ctrl++", false },
         { Utils::Icons::ZOOMOUT_TOOLBAR, AH::tr("Zoom Out"), AH::tr("Zoom Out (Ctrl + - / Ctrl + Wheel)"), "Ctrl+-", false },
         { Utils::Icons::FITTOVIEW_TOOLBAR, AH::tr("Fit to View"), AH::tr("Fit to View (F11)"), "F11", false },
-        { Utils::Icon(":/scxmleditor/images/icon-pan.png"), AH::tr("Panning"), AH::tr("Panning (Shift)"), "Shift", true },
+        { Utils::Icon({{":/scxmleditor/images/icon-pan.png", Utils::Theme::IconsBaseColor}}), AH::tr("Panning"), AH::tr("Panning (Shift)"), "Shift", true },
 
         { Utils::Icons::ZOOM_TOOLBAR, AH::tr("Magnifier"), AH::tr("Magnifier Tool (Alt)"), "Alt", true },
         { Utils::Icon(":/scxmleditor/images/navigator.png"), AH::tr("Navigator"), AH::tr("Navigator (Ctrl+E)"), "Ctrl+E", true },
