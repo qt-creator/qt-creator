@@ -41,4 +41,5 @@ HEADERS += \
 INCLUDEPATH += $$DEBUGGERDIR
 
 # clang 3.5 does not like to optimize long functions.
-clang: QMAKE_CXXFLAGS_RELEASE =
+# likewise gcc 5.4
+QMAKE_CXXFLAGS_RELEASE =
