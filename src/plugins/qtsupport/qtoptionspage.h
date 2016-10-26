@@ -85,7 +85,6 @@ private:
 
 private:
     void updateQtVersions(const QList<int> &, const QList<int> &, const QList<int> &);
-    void qtVersionChanged();
     void versionChanged(const QModelIndex &current, const QModelIndex &previous);
     void addQtDir();
     void removeQtDir();
