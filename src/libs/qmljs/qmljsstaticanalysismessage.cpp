@@ -221,7 +221,7 @@ StaticAnalysisMessages::StaticAnalysisMessages()
     newMsg(WarnStatesOnlyInRootItemForVisualDesigner, Warning,
             tr("Qt Quick Designer only supports states in the root item."));
     newMsg(ErrInvalidIdeInVisualDesigner, Error,
-           tr("This id might be ambiguous and is not supported in the Qt Quick Designer"));
+           tr("This id might be ambiguous and is not supported in the Qt Quick Designer."));
     newMsg(WarnAboutQtQuick1InsteadQtQuick2, Warning,
             tr("Using Qt Quick 1 code model instead of Qt Quick 2."));
     newMsg(ErrUnsupportedRootTypeInVisualDesigner, Error,
