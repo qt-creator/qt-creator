@@ -407,7 +407,6 @@ RelayServer::~RelayServer()
 bool RelayServer::startServer(int port, bool ipv6)
 {
     QTC_CHECK(!m_server.isListening());
-    m_server.setMaxPendingConnections(1);
     connect(&m_server, &QTcpServer::newConnection, this, &RelayServer::handleNewRelayConnection);
     quint16 portValue = static_cast<quint16>(port);
     if (port < 0 || port > 0xFFFF)
