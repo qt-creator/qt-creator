@@ -489,6 +489,42 @@ private:
     bool _seenNonDeclarationStatement;
 };
 
+class IdsThatShouldNotBeUsedInDesigner  : public QStringList
+{
+public:
+    IdsThatShouldNotBeUsedInDesigner() : QStringList({ "top",
+                                                   "bottom",
+                                                   "left",
+                                                   "right",
+                                                   "width",
+                                                   "height",
+                                                   "x",
+                                                   "y",
+                                                   "opacity",
+                                                   "parent",
+                                                   "item",
+                                                   "flow",
+                                                   "color",
+                                                   "margin",
+                                                   "padding",
+                                                   "border",
+                                                   "font",
+                                                   "text",
+                                                   "source",
+                                                   "state",
+                                                   "visible",
+                                                   "focus",
+                                                   "data",
+                                                   "clip",
+                                                   "layer",
+                                                   "scale",
+                                                   "enabled",
+                                                   "anchors"})
+    {
+    }
+
+};
+
 class VisualAspectsPropertyBlackList : public QStringList
 {
 public:
@@ -563,6 +599,7 @@ public:
 
 } // end of anonymous namespace
 
+Q_GLOBAL_STATIC(IdsThatShouldNotBeUsedInDesigner, idsThatShouldNotBeUsedInDesigner)
 Q_GLOBAL_STATIC(VisualAspectsPropertyBlackList, visualAspectsPropertyBlackList)
 Q_GLOBAL_STATIC(UnsupportedTypesByVisualDesigner, unsupportedTypesByVisualDesigner)
 Q_GLOBAL_STATIC(UnsupportedRootObjectTypesByVisualDesigner, unsupportedRootObjectTypesByVisualDesigner)
@@ -634,6 +671,7 @@ void Check::enableQmlDesignerChecks()
     enableMessage(WarnReferenceToParentItemNotSupportedByVisualDesigner);
     enableMessage(WarnAboutQtQuick1InsteadQtQuick2);
     enableMessage(ErrUnsupportedRootTypeInVisualDesigner);
+    enableMessage(ErrInvalidIdeInVisualDesigner);
     //## triggers too often ## check.enableMessage(StaticAnalysis::WarnUndefinedValueForVisualDesigner);
 }
 
@@ -645,6 +683,7 @@ void Check::disableQmlDesignerChecks()
     disableMessage(WarnUndefinedValueForVisualDesigner);
     disableMessage(WarnStatesOnlyInRootItemForVisualDesigner);
     disableMessage(ErrUnsupportedRootTypeInVisualDesigner);
+    disableMessage(ErrInvalidIdeInVisualDesigner);
 }
 
 void Check::enableQmlDesignerUiFileChecks()
@@ -925,6 +964,10 @@ bool Check::visit(UiScriptBinding *ast)
         if (id.isEmpty() || (!id.at(0).isLower() && id.at(0) != QLatin1Char('_'))) {
             addMessage(ErrInvalidId, loc);
             return false;
+        }
+
+        if (idsThatShouldNotBeUsedInDesigner->contains(id)) {
+            addMessage(ErrInvalidIdeInVisualDesigner, loc);
         }
 
         if (m_idStack.top().contains(id)) {
