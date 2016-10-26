@@ -77,6 +77,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
 #include <utils/algorithm.h>
+#include <utils/icon.h>
 
 using namespace ScxmlEditor::PluginInterface;
 using namespace ScxmlEditor::Common;
@@ -118,6 +119,47 @@ void msgHandler(QtMsgType type, const QMessageLogContext &context, const QString
 
     if (type == QtFatalMsg)
         abort();
+}
+
+static QIcon toolButtonIcon(ActionType actionType)
+{
+    QString iconFileName;
+
+    switch (actionType) {
+    case ActionAlignLeft:
+        iconFileName = ":/scxmleditor/images/align_left.png";
+        break;
+    case ActionAlignRight:
+        iconFileName = ":/scxmleditor/images/align_right.png";
+        break;
+    case ActionAlignTop:
+        iconFileName = ":/scxmleditor/images/align_top.png";
+        break;
+    case ActionAlignBottom:
+        iconFileName = ":/scxmleditor/images/align_bottom.png";
+        break;
+    case ActionAlignHorizontal:
+        iconFileName = ":/scxmleditor/images/align_horizontal.png";
+        break;
+    case ActionAlignVertical:
+        iconFileName = ":/scxmleditor/images/align_vertical.png";
+        break;
+
+    case ActionAdjustWidth:
+        iconFileName = ":/scxmleditor/images/adjust_width.png";
+        break;
+    case ActionAdjustHeight:
+        iconFileName = ":/scxmleditor/images/adjust_height.png";
+        break;
+    case ActionAdjustSize:
+        iconFileName = ":/scxmleditor/images/adjust_size.png";
+        break;
+
+    default:
+        return QIcon();
+    }
+
+    return Utils::Icon({{iconFileName, Utils::Theme::IconsBaseColor}}).icon();
 }
 
 MainWidget::MainWidget(QWidget *parent)
@@ -289,8 +331,8 @@ void MainWidget::init()
     // Init ToolButtons
     auto stateColorButton = new ColorToolButton("StateColor", ":/scxmleditor/images/state_color.png", tr("State Color"));
     auto fontColorButton = new ColorToolButton("FontColor", ":/scxmleditor/images/font_color.png", tr("Font Color"));
-    QToolButton *alignToolButton = createToolButton(m_actionHandler->action(ActionAlignLeft)->icon(), tr("Align Left"), QToolButton::MenuButtonPopup);
-    QToolButton *adjustToolButton = createToolButton(m_actionHandler->action(ActionAdjustWidth)->icon(), tr("Adjust Width"), QToolButton::MenuButtonPopup);
+    QToolButton *alignToolButton = createToolButton(toolButtonIcon(ActionAlignLeft), tr("Align Left"), QToolButton::MenuButtonPopup);
+    QToolButton *adjustToolButton = createToolButton(toolButtonIcon(ActionAdjustWidth), tr("Adjust Width"), QToolButton::MenuButtonPopup);
 
     // Connect state color change
     connect(stateColorButton, &ColorToolButton::colorSelected, [this](const QString &color) {
@@ -738,7 +780,7 @@ QToolButton *MainWidget::createToolButton(const QIcon &icon, const QString &tool
 void MainWidget::alignButtonClicked(ActionType alignType)
 {
     if (alignType >= ActionAlignLeft && alignType <= ActionAlignVertical) {
-        m_toolButtons[ToolButtonAlignment]->setIcon(m_actionHandler->action(alignType)->icon());
+        m_toolButtons[ToolButtonAlignment]->setIcon(toolButtonIcon(alignType));
         m_toolButtons[ToolButtonAlignment]->setToolTip(m_actionHandler->action(alignType)->toolTip());
         m_toolButtons[ToolButtonAlignment]->setProperty("currentAlignment", alignType);
         StateView *view = m_views.last();
@@ -750,7 +792,7 @@ void MainWidget::alignButtonClicked(ActionType alignType)
 void MainWidget::adjustButtonClicked(ActionType adjustType)
 {
     if (adjustType >= ActionAdjustWidth && adjustType <= ActionAdjustSize) {
-        m_toolButtons[ToolButtonAdjustment]->setIcon(m_actionHandler->action(adjustType)->icon());
+        m_toolButtons[ToolButtonAdjustment]->setIcon(toolButtonIcon(adjustType));
         m_toolButtons[ToolButtonAdjustment]->setToolTip(m_actionHandler->action(adjustType)->toolTip());
         m_toolButtons[ToolButtonAdjustment]->setProperty("currentAdjustment", adjustType);
         StateView *view = m_views.last();
