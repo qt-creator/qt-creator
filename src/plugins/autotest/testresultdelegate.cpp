@@ -130,7 +130,7 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     }
 
     painter->setClipRect(opt.rect);
-    painter->setPen(opt.palette.midlight().color());
+    painter->setPen(opt.palette.mid().color());
     painter->drawLine(0, opt.rect.bottom(), opt.rect.right(), opt.rect.bottom());
     painter->restore();
 }
