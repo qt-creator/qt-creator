@@ -102,8 +102,10 @@ void IosAnalyzeSupport::handleRemoteOutput(const QString &output)
 
 void IosAnalyzeSupport::handleRemoteErrorOutput(const QString &output)
 {
-    if (m_runControl)
+    if (m_runControl) {
         m_runControl->appendMessage(output, Utils::StdErrFormat);
+        m_outputParser.processOutput(output);
+    }
 }
 
 } // namespace Internal
