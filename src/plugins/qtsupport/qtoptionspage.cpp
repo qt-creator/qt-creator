@@ -116,6 +116,8 @@ public:
 
     void setIcon(const QIcon &icon)
     {
+        if (m_icon.cacheKey() == icon.cacheKey())
+            return;
         m_icon = icon;
         update();
     }
