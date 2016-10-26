@@ -321,6 +321,7 @@ QWidget *ConnectionDelegate::createEditor(QWidget *parent, const QStyleOptionVie
                 connectionComboBox->addItem(itemText, source);
             }
         }
+        connectionComboBox->disableValidator();
     } break;
 
     default: qWarning() << "ConnectionDelegate::createEditor column" << index.column();
