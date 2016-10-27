@@ -23,8 +23,8 @@
          <string>?</string>
         </property>
         <property name="icon">
-         <iconset resource="core.qrc">
-          <normaloff>:/core/images/help.png</normaloff>:/core/images/help.png</iconset>
+         <iconset resource="../../libs/utils/utils.qrc">
+          <normaloff>:/utils/images/help.png</normaloff>:/utils/images/help.png</iconset>
         </property>
        </widget>
       </item>
@@ -390,7 +390,7 @@
   <tabstop>bigFilesLimitSpinBox</tabstop>
  </tabstops>
  <resources>
-  <include location="core.qrc"/>
+  <include location="../../libs/utils/utils.qrc"/>
  </resources>
  <connections/>
 </ui>
