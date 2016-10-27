@@ -116,6 +116,8 @@ public:
 
     void setIcon(const QIcon &icon)
     {
+        if (m_icon.cacheKey() == icon.cacheKey())
+            return;
         m_icon = icon;
         update();
     }
@@ -224,7 +226,7 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent)
     m_manualItem = new StaticTreeItem(tr("Manual"));
 
     m_model = new TreeModel<Utils::TreeItem, Utils::TreeItem, QtVersionItem>();
-    m_model->setHeader({tr("Name"), tr("qmake Location"), tr("Type")});
+    m_model->setHeader({tr("Name"), tr("qmake Location")});
     m_model->rootItem()->appendChild(m_autoItem);
     m_model->rootItem()->appendChild(m_manualItem);
 

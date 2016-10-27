@@ -25,7 +25,7 @@
 
 #include "designmodewidget.h"
 
-#include "styledoutputpaneplaceholder.h"
+#include <coreplugin/outputpane.h>
 #include "qmldesignerplugin.h"
 #include "crumblebar.h"
 #include "documentwarningwidget.h"
@@ -248,21 +248,6 @@ void DesignModeWidget::updateErrorStatus(const QList<RewriterError> &errors)
     }
 }
 
-TextEditor::BaseTextEditor *DesignModeWidget::textEditor() const
-{
-    return currentDesignDocument()->textEditor();
-}
-
-void DesignModeWidget::setCurrentDesignDocument(DesignDocument *newDesignDocument)
-{
-    if (debug)
-        qDebug() << Q_FUNC_INFO << newDesignDocument;
-
-    //viewManager().setDesignDocument(newDesignDocument);
-
-
-}
-
 static void hideToolButtons(QList<QToolButton*> &buttons)
 {
     foreach (QToolButton *button, buttons)
@@ -319,13 +304,10 @@ void DesignModeWidget::setup()
     m_warningWidget->setVisible(false);
     connect(m_warningWidget.data(), &DocumentWarningWidget::gotoCodeClicked, [=]
         (const QString &filePath, int codeLine, int codeColumn) {
-
         Q_UNUSED(filePath);
 
-        QTC_ASSERT(textEditor(), return;);
-        QTC_ASSERT(textEditor()->textDocument()->filePath().toString() == filePath,
-            qDebug() << Q_FUNC_INFO << textEditor()->textDocument()->filePath().toString() << filePath; );
-        textEditor()->gotoLine(codeLine, codeColumn);
+        if (currentDesignDocument() && currentDesignDocument()->textEditor())
+            currentDesignDocument()->textEditor()->gotoLine(codeLine, codeColumn);
         Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
     });
 
@@ -471,7 +453,7 @@ void DesignModeWidget::addNavigatorHistoryEntry(const Utils::FileName &fileName)
     ++m_navigatorHistoryCounter;
 }
 
-static QWidget *createWidgetsInTabWidget(const QList<WidgetInfo> &widgetInfos)
+static QTabWidget *createWidgetsInTabWidget(const QList<WidgetInfo> &widgetInfos)
 {
     QTabWidget *tabWidget = new QTabWidget;
 
@@ -510,13 +492,23 @@ static Core::MiniSplitter *createCentralSplitter(const QList<WidgetInfo> &widget
     outputPlaceholderSplitter->setStretchFactor(1, 0);
     outputPlaceholderSplitter->setOrientation(Qt::Vertical);
 
-    auto outputPanePlaceholder = new StyledOutputpanePlaceHolder(Core::Constants::MODE_DESIGN, outputPlaceholderSplitter);
+    auto outputPanePlaceholder = new Core::OutputPanePlaceHolder(Core::Constants::MODE_DESIGN, outputPlaceholderSplitter);
 
-    if (centralWidgetInfos.count() == 1)
-        outputPlaceholderSplitter->addWidget(centralWidgetInfos.first().widget);
-    else
-         outputPlaceholderSplitter->addWidget(createWidgetsInTabWidget(centralWidgetInfos));
+    QTabWidget* tabWidget = createWidgetsInTabWidget(centralWidgetInfos);
+    tabWidget->setObjectName("centralTabWidget");
+    tabWidget->setTabPosition(QTabWidget::East);
+    tabWidget->tabBar()->setObjectName("centralTabBar");
 
+    QWidget *backgroundWidget = new QWidget();
+    backgroundWidget->setObjectName("backgroundWidget");
+    backgroundWidget->setLayout(new QVBoxLayout());
+    backgroundWidget->layout()->setMargin(0);
+    backgroundWidget->layout()->addWidget(tabWidget);
+
+    QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/centerwidget.css");
+    backgroundWidget->setStyleSheet(Theming::replaceCssColors(QString::fromUtf8(sheet)));
+
+    outputPlaceholderSplitter->addWidget(backgroundWidget);
     outputPlaceholderSplitter->addWidget(outputPanePlaceholder);
 
     return outputPlaceholderSplitter;

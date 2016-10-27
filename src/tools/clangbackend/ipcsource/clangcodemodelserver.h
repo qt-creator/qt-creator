@@ -72,6 +72,7 @@ private:
     void startDocumentAnnotationsTimerIfFileIsNotOpenAsDocument(const Utf8String &filePath);
 
     void processInitialJobsForDocuments(const std::vector<Document> &documents);
+    void delayStartInitializingSupportiveTranslationUnits(const std::vector<Document> &documents);
     void startInitializingSupportiveTranslationUnits(const std::vector<Document> &documents);
 
     void processJobsForDirtyAndVisibleDocuments();

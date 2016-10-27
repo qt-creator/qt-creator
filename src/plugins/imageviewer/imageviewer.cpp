@@ -107,9 +107,9 @@ void ImageViewer::ctor()
             {QLatin1String(":/utils/images/desktopdevicesmall.png"), Utils::Theme::IconsBaseColor}});
     d->ui_toolbar.toolButtonBackground->setIcon(backgroundIcon.icon());
     d->ui_toolbar.toolButtonOutline->setIcon(Utils::Icons::BOUNDING_RECT.icon());
-    d->ui_toolbar.toolButtonZoomIn->setIcon(Utils::Icons::PLUS_TOOLBAR.icon());
-    d->ui_toolbar.toolButtonZoomOut->setIcon(Utils::Icons::MINUS.icon());
-    d->ui_toolbar.toolButtonFitToScreen->setIcon(Utils::Icons::ZOOM_TOOLBAR.icon());
+    d->ui_toolbar.toolButtonZoomIn->setIcon(Utils::Icons::ZOOMIN_TOOLBAR.icon());
+    d->ui_toolbar.toolButtonZoomOut->setIcon(Utils::Icons::ZOOMOUT_TOOLBAR.icon());
+    d->ui_toolbar.toolButtonFitToScreen->setIcon(Utils::Icons::FITTOVIEW_TOOLBAR.icon());
     d->ui_toolbar.toolButtonOriginalSize->setIcon(Utils::Icons::EYE_OPEN_TOOLBAR.icon());
     // icons update - try to use system theme
     updateButtonIconByTheme(d->ui_toolbar.toolButtonZoomIn, QLatin1String("zoom-in"));

@@ -313,6 +313,7 @@ QWidget *ConnectionDelegate::createEditor(QWidget *parent, const QStyleOptionVie
             QString itemText = tr("Change to default state");
             QString source = QString::fromLatin1("{ %1.state = \"\" }").arg(rootModelNode.id());
             connectionComboBox->addItem(itemText, source);
+            connectionComboBox->disableValidator();
 
             foreach (const QmlModelState &state, QmlItemNode(rootModelNode).states().allStates()) {
                 QString itemText = tr("Change state to %1").arg(state.name());
@@ -320,6 +321,7 @@ QWidget *ConnectionDelegate::createEditor(QWidget *parent, const QStyleOptionVie
                 connectionComboBox->addItem(itemText, source);
             }
         }
+        connectionComboBox->disableValidator();
     } break;
 
     default: qWarning() << "ConnectionDelegate::createEditor column" << index.column();

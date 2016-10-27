@@ -2,10 +2,6 @@ QT = core network
 
 QTC_LIB_DEPENDS += utils
 
-!win32 {
-CONFIG -= release
-CONFIG += debug
-}
 include(../qttest.pri)
 
 msvc {
@@ -45,4 +41,5 @@ HEADERS += \
 INCLUDEPATH += $$DEBUGGERDIR
 
 # clang 3.5 does not like to optimize long functions.
-clang: QMAKE_CXXFLAGS_RELEASE =
+# likewise gcc 5.4
+QMAKE_CXXFLAGS_RELEASE =

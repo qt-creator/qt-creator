@@ -44,7 +44,6 @@ QString DesignModeContext::contextHelpId() const
     return qobject_cast<DesignModeWidget *>(m_widget)->contextHelpId();
 }
 
-
 FormEditorContext::FormEditorContext(QWidget *widget)
   : IContext(widget)
 {

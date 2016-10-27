@@ -41,8 +41,7 @@ HEADERS = \
     qbsprojectmanagerplugin.h \
     qbsprojectmanagersettings.h \
     qbsprojectparser.h \
-    qbsrunconfiguration.h \
-    qbsconstants.h
+    qbsrunconfiguration.h
 
 SOURCES = \
     customqbspropertiesdialog.cpp \

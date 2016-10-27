@@ -646,8 +646,6 @@ Project {
             "settingspage.ui",
             "shortcutmanager.cpp",
             "shortcutmanager.h",
-            "styledoutputpaneplaceholder.cpp",
-            "styledoutputpaneplaceholder.h",
         ]
     }
 }

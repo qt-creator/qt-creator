@@ -344,7 +344,7 @@ void QmlProfilerModelManager::save(const QString &filename)
             writer->saveQtd(file);
         else
             writer->saveQzt(file);
-        delete writer;
+        writer->deleteLater();
         file->deleteLater();
     });
 

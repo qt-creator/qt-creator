@@ -86,18 +86,14 @@ QtTestSettings QtTestSettingsWidget::settings() const
     return result;
 }
 
-QtTestSettingsPage::QtTestSettingsPage(QSharedPointer<IFrameworkSettings> settings)
-    : m_settings(qSharedPointerCast<QtTestSettings>(settings)), m_widget(0)
+QtTestSettingsPage::QtTestSettingsPage(QSharedPointer<IFrameworkSettings> settings,
+                                       const ITestFramework *framework)
+    : ITestSettingsPage(framework),
+      m_settings(qSharedPointerCast<QtTestSettings>(settings)),
+      m_widget(0)
 {
-    setId("A.AutoTest.1.QtTest"); // FIXME
     setDisplayName(QCoreApplication::translate("QtTestFramework",
                                                QtTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
-    setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("AutoTest", Constants::AUTOTEST_SETTINGS_TR));
-}
-
-QtTestSettingsPage::~QtTestSettingsPage()
-{
 }
 
 QWidget *QtTestSettingsPage::widget()

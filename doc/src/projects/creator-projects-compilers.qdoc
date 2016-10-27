@@ -82,8 +82,9 @@
     \list 1
 
         \li Select \uicontrol Tools > \uicontrol Options >
-            \uicontrol {Build & Run} > \uicontrol Compilers > \uicontrol Add
-            and select a compiler in the list.
+            \uicontrol {Build & Run} > \uicontrol Compilers > \uicontrol Add,
+            then select a compiler in the list, and then select \uicontrol C or
+            \uicontrol C++ to add a C or C++ compiler.
 
             \image qtcreator-toolchains.png
 
@@ -124,7 +125,8 @@
     \list 1
 
         \li Select \uicontrol Tools > \uicontrol Options > \uicontrol {Build & Run} >
-            \uicontrol Compilers > \uicontrol Add > \uicontrol Custom.
+            \uicontrol Compilers > \uicontrol Add > \uicontrol Custom >
+            \uicontrol C or \uicontrol C++.
 
         \li In the \uicontrol Name field, enter a name for the compiler.
 

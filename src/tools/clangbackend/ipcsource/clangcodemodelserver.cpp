@@ -55,6 +55,12 @@
 #include <QCoreApplication>
 #include <QDebug>
 
+static bool useSupportiveTranslationUnit()
+{
+    static bool use = !qEnvironmentVariableIntValue("QTC_CLANG_NO_SUPPORTIVE_TRANSLATIONUNIT");
+    return use;
+}
+
 namespace ClangBackEnd {
 
 ClangCodeModelServer::ClangCodeModelServer()
@@ -116,9 +122,7 @@ void ClangCodeModelServer::updateTranslationUnitsForEditor(const UpdateTranslati
             // we might block the translation unit for a completion request
             // that comes right after this message.
             updateDocumentAnnotationsTimer.start(0);
-            QTimer::singleShot(0, [this, updateDocuments](){
-                startInitializingSupportiveTranslationUnits(updateDocuments);
-            });
+            delayStartInitializingSupportiveTranslationUnits(updateDocuments);
         }
     } catch (const std::exception &exception) {
         qWarning() << "Error in ClangCodeModelServer::updateTranslationUnitsForEditor:" << exception.what();
@@ -326,6 +330,16 @@ void ClangCodeModelServer::processInitialJobsForDocuments(const std::vector<Docu
         processor.addJob(createJobRequest(document, JobRequest::Type::UpdateDocumentAnnotations));
         processor.addJob(createJobRequest(document, JobRequest::Type::CreateInitialDocumentPreamble));
         processor.process();
+    }
+}
+
+void ClangCodeModelServer::delayStartInitializingSupportiveTranslationUnits(
+        const std::vector<Document> &documents)
+{
+    if (useSupportiveTranslationUnit()) {
+        QTimer::singleShot(0, [this, documents](){
+            startInitializingSupportiveTranslationUnits(documents);
+        });
     }
 }
 

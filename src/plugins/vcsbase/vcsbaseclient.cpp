@@ -175,6 +175,18 @@ QString VcsBaseClientImpl::stripLastNewline(const QString &in)
     return in;
 }
 
+Utils::SynchronousProcessResponse
+VcsBaseClientImpl::vcsFullySynchronousExec(const QString &workingDir, const Utils::FileName &binary,
+                                           const QStringList &args, unsigned flags,
+                                           int timeoutS, QTextCodec *codec) const
+{
+    VcsCommand command(workingDir, processEnvironment());
+    command.addFlags(flags);
+    if (codec)
+        command.setCodec(codec);
+    return command.runCommand(binary, args, (timeoutS > 0) ? timeoutS : vcsTimeoutS());
+}
+
 void VcsBaseClientImpl::resetCachedVcsInfo(const QString &workingDir)
 {
     Core::VcsManager::resetVersionControlForDirectory(workingDir);
@@ -197,11 +209,7 @@ Utils::SynchronousProcessResponse
 VcsBaseClientImpl::vcsFullySynchronousExec(const QString &workingDir, const QStringList &args,
                                            unsigned flags, int timeoutS, QTextCodec *codec) const
 {
-    VcsCommand command(workingDir, processEnvironment());
-    command.addFlags(flags);
-    if (codec)
-        command.setCodec(codec);
-    return command.runCommand(vcsBinary(), args, (timeoutS > 0) ? timeoutS : vcsTimeoutS());
+    return vcsFullySynchronousExec(workingDir, vcsBinary(), args, flags, timeoutS, codec);
 }
 
 VcsCommand *VcsBaseClientImpl::vcsExec(const QString &workingDirectory, const QStringList &arguments,

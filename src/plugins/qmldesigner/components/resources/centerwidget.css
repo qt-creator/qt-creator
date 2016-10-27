@@ -1,0 +1,33 @@
+QWidget#backgroundWidget {
+    background-color: creatorTheme.QmlDesignerTabDark
+}
+
+QTabWidget#centralTabWidget::pane {
+    border: 0px;
+    background-color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate;
+}
+
+QTabWidget#centralTabWidget::tab-bar { alignment: right; }
+
+QTabBar::tab:selected {
+    border: none;
+    background-color: creatorTheme.QmlDesignerTabLight;
+    color: creatorTheme.QmlDesignerTabDark;
+}
+
+QTabBar#centralTabBar::tab {
+    width: 16px;
+    height: 80px;
+
+    border-image: none;
+    background-color: creatorTheme.QmlDesignerTabDark;
+    color: creatorTheme.QmlDesignerTabLight;
+
+    margin-top: 0x;
+    margin-bottom: 0px;
+    margin-left: 0px;
+    margin-right: 0px;
+    font: bold;
+    font-size: 11px;
+}
+

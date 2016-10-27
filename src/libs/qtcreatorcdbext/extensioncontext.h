@@ -115,7 +115,7 @@ public:
     const Parameters &parameters() const { return m_parameters; }
     Parameters &parameters() { return m_parameters; }
 
-    ULONG64 jsExecutionContext(ExtensionCommandContext &exc, std::string *errorMessage);
+    ULONG64 jsExecutionEngine(ExtensionCommandContext &exc, std::string *errorMessage);
 
     bool stateNotification() const { return m_stateNotification; }
     void setStateNotification(bool s) { m_stateNotification = s; }

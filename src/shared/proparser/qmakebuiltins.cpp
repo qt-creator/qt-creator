@@ -47,6 +47,8 @@
 # include <qthreadpool.h>
 #endif
 
+#include <algorithm>
+
 #ifdef Q_OS_UNIX
 #include <time.h>
 #include <utime.h>
@@ -92,7 +94,7 @@ enum ExpandFunc {
 enum TestFunc {
     T_INVALID = 0, T_REQUIRES, T_GREATERTHAN, T_LESSTHAN, T_EQUALS,
     T_EXISTS, T_EXPORT, T_CLEAR, T_UNSET, T_EVAL, T_CONFIG, T_SYSTEM,
-    T_DEFINED, T_CONTAINS, T_INFILE,
+    T_DEFINED, T_DISCARD_FROM, T_CONTAINS, T_INFILE,
     T_COUNT, T_ISEMPTY, T_PARSE_JSON, T_INCLUDE, T_LOAD, T_DEBUG, T_LOG, T_MESSAGE, T_WARNING, T_ERROR, T_IF,
     T_MKPATH, T_WRITE_FILE, T_TOUCH, T_CACHE
 };
@@ -173,6 +175,7 @@ void QMakeEvaluator::initFunctionStatics()
         { "if", T_IF },
         { "isActiveConfig", T_CONFIG },
         { "system", T_SYSTEM },
+        { "discard_from", T_DISCARD_FROM },
         { "defined", T_DEFINED },
         { "contains", T_CONTAINS },
         { "infile", T_INFILE },
@@ -441,12 +444,13 @@ void QMakeEvaluator::runProcess(QProcess *proc, const QString &command) const
 }
 #endif
 
-QByteArray QMakeEvaluator::getCommandOutput(const QString &args) const
+QByteArray QMakeEvaluator::getCommandOutput(const QString &args, int *exitCode) const
 {
     QByteArray out;
 #ifndef QT_BOOTSTRAPPED
     QProcess proc;
     runProcess(&proc, args);
+    *exitCode = (proc.exitStatus() == QProcess::NormalExit) ? proc.exitCode() : -1;
     QByteArray errout = proc.readAllStandardError();
 # ifdef PROEVALUATOR_FULL
     // FIXME: Qt really should have the option to set forwarding per channel
@@ -476,7 +480,12 @@ QByteArray QMakeEvaluator::getCommandOutput(const QString &args) const
                 break;
             out += QByteArray(buff, read_in);
         }
-        QT_PCLOSE(proc);
+        int ec = QT_PCLOSE(proc);
+# ifdef Q_OS_WIN
+        *exitCode = ec >= 0 ? ec : -1;
+# else
+        *exitCode = WIFEXITED(ec) ? WEXITSTATUS(ec) : -1;
+# endif
     }
 # ifdef Q_OS_WIN
     out.replace("\r\n", "\n");
@@ -866,8 +875,8 @@ ProStringList QMakeEvaluator::evaluateBuiltinExpand(
         break;
     case E_SYSTEM:
         if (!m_skipLevel) {
-            if (args.count() < 1 || args.count() > 2) {
-                evalError(fL1S("system(execute) requires one or two arguments."));
+            if (args.count() < 1 || args.count() > 3) {
+                evalError(fL1S("system(command, [mode], [stsvar]) requires one to three arguments."));
             } else {
                 bool blob = false;
                 bool lines = false;
@@ -881,7 +890,12 @@ ProStringList QMakeEvaluator::evaluateBuiltinExpand(
                     else if (!m_tmp2.compare(QLatin1String("lines"), Qt::CaseInsensitive))
                         lines = true;
                 }
-                QByteArray bytes = getCommandOutput(args.at(0).toQString(m_tmp2));
+                int exitCode;
+                QByteArray bytes = getCommandOutput(args.at(0).toQString(m_tmp2), &exitCode);
+                if (args.count() > 2 && !args.at(2).isEmpty()) {
+                    m_valuemapStack.top()[args.at(2).toKey()] =
+                            ProStringList(ProString(QString::number(exitCode)));
+                }
                 if (lines) {
                     QTextStream stream(bytes);
                     while (!stream.atEnd())
@@ -1277,6 +1291,38 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
         }
         return ReturnTrue;
     }
+    case T_DISCARD_FROM: {
+        if (args.count() != 1 || args.at(0).isEmpty()) {
+            evalError(fL1S("discard_from(file) requires one argument."));
+            return ReturnFalse;
+        }
+        if (m_valuemapStack.count() != 1) {
+            evalError(fL1S("discard_from() cannot be called from functions."));
+            return ReturnFalse;
+        }
+        QString fn = resolvePath(args.at(0).toQString(m_tmp1));
+        ProFile *pro = m_parser->parsedProFile(fn, QMakeParser::ParseOnlyCached);
+        if (!pro)
+            return ReturnFalse;
+        ProValueMap &vmap = m_valuemapStack.first();
+        for (auto vit = vmap.begin(); vit != vmap.end(); ) {
+            if (!vit->isEmpty()) {
+                auto isFrom = [pro](const ProString &s) {
+                    return s.sourceFile() == pro;
+                };
+                vit->erase(std::remove_if(vit->begin(), vit->end(), isFrom), vit->end());
+                if (vit->isEmpty()) {
+                    // When an initially non-empty variable becomes entirely empty,
+                    // undefine it altogether.
+                    vit = vmap.erase(vit);
+                    continue;
+                }
+            }
+            ++vit;
+        }
+        pro->deref();
+        return ReturnTrue;
+    }
     case T_INFILE:
         if (args.count() < 2 || args.count() > 3) {
             evalError(fL1S("infile(file, var, [values]) requires two or three arguments."));
@@ -1581,7 +1627,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
 #ifdef PROEVALUATOR_FULL
                 fputs(msg.toLatin1().constData(), stderr);
 #endif
-            } else {
+            } else if (!msg.isEmpty() || func_t != T_ERROR) {
                 m_handler->fileMessage(
                         (func_t == T_ERROR   ? QMakeHandler::ErrorMessage :
                          func_t == T_WARNING ? QMakeHandler::WarningMessage :

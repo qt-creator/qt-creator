@@ -51,9 +51,9 @@ IFrameworkSettings *QtTestFramework::createFrameworkSettings() const
     return new QtTestSettings;
 }
 
-Core::IOptionsPage *QtTestFramework::createSettingsPage(QSharedPointer<IFrameworkSettings> settings) const
+ITestSettingsPage *QtTestFramework::createSettingsPage(QSharedPointer<IFrameworkSettings> settings) const
 {
-    return new QtTestSettingsPage(settings);
+    return new QtTestSettingsPage(settings, this);
 }
 
 bool QtTestFramework::hasFrameworkSettings() const

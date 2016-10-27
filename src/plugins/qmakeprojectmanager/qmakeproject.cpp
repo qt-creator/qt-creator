@@ -423,7 +423,6 @@ void QmakeProject::updateCppCodeModel()
     }
 
     QList<ProjectExplorer::ExtraCompiler *> generators;
-    QStringList allFiles;
     foreach (QmakeProFileNode *pro, proFiles) {
         warnOnToolChainMismatch(pro);
 
@@ -465,11 +464,9 @@ void QmakeProject::updateCppCodeModel()
         { // C++ files:
             // part->files
             foreach (const QString &file, pro->variableValue(CppSourceVar)) {
-                allFiles << file;
                 cppPart->files << ProjectFile(file, ProjectFile::CXXSource);
             }
             foreach (const QString &file, pro->variableValue(CppHeaderVar)) {
-                allFiles << file;
                 cppPart->files << ProjectFile(file, ProjectFile::CXXHeader);
             }
         }
@@ -477,13 +474,11 @@ void QmakeProject::updateCppCodeModel()
         ProjectPart::Ptr objcppPart = templatePart->copy();
         { // ObjC++ files:
             foreach (const QString &file, pro->variableValue(ObjCSourceVar)) {
-                allFiles << file;
                 // Although the enum constant is called ObjCSourceVar, it actually is ObjC++ source
                 // code, as qmake does not handle C (and ObjC).
                 objcppPart->files << ProjectFile(file, ProjectFile::ObjCXXSource);
             }
             foreach (const QString &file, pro->variableValue(ObjCHeaderVar)) {
-                allFiles << file;
                 objcppPart->files << ProjectFile(file, ProjectFile::ObjCXXHeader);
             }
 
@@ -505,7 +500,6 @@ void QmakeProject::updateCppCodeModel()
         foreach (ProjectExplorer::ExtraCompiler *ec, proGenerators) {
             ec->forEachTarget([&](const Utils::FileName &generatedFile) {
                 QString name = generatedFile.toString();
-                allFiles << name;
                 ProjectFile::Kind kind = ProjectFile::classify(name);
                 switch (kind) {
                 case ProjectFile::CHeader:

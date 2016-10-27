@@ -42,7 +42,7 @@ const char AUTOTEST_SETTINGS_CATEGORY[] = "ZY.Tests";
 const char AUTOTEST_SETTINGS_TR[]       = QT_TRANSLATE_NOOP("AutoTest", "Test Settings");
 const char FRAMEWORK_PREFIX[]           = "AutoTest.Framework.";
 
-
+const char SETTINGSPAGE_PREFIX[]        = "A.AutoTest.";
 const char SETTINGSGROUP[]              = "Autotest";
 } // namespace Constants
 } // namespace Autotest

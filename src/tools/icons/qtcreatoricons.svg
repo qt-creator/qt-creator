@@ -3697,12 +3697,13 @@
          id="path5168-9-0"
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="cccccc" />
-      <path
-         id="path5395"
-         style="fill:none;stroke:#ffffff;stroke-width:0.5"
-         d="m 1230.5,570.19616 c 0.7537,0.30603 1.4871,0.80218 2.1105,1.42819 m -2.5289,0.0848 c 0.9971,0.19177 2.056,1.54867 2.4887,2.36904 l -2.0781,2.1718 3.0078,0"
-         inkscape:connector-curvature="0"
-         sodipodi:nodetypes="cccccc" />
+      <rect
+         style="fill:#ffffff"
+         id="rect5212"
+         width="2"
+         height="7"
+         x="1231"
+         y="570" />
       <path
          style="display:inline;fill:none;stroke:#000000"
          d="m 1237.5,570.5 0,3 3,0"
@@ -3711,7 +3712,7 @@
          sodipodi:nodetypes="ccc" />
       <path
          style="fill:none;stroke:#000000"
-         d="m 1229,570.5 c 3.1056,0.69368 3.8892,2.71353 5,4.5"
+         d="m 1229,570.5 c 2.572,-0.0534 3.8818,2.70315 5,4.5"
          id="path4741-3"
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="cc" />
@@ -3733,6 +3734,323 @@
          id="path5391"
          d="m 1236,579.75 1.75,0 0,-1.75"
          style="fill:none;stroke:#808080;stroke-width:0.5" />
+    </g>
+    <g
+       transform="translate(144,0)"
+       style="display:inline"
+       id="src/libs/utils/images/zoomin_overlay">
+      <rect
+         style="fill:#ffffff;fill-opacity:1"
+         x="1228"
+         y="568"
+         width="16"
+         height="16"
+         id="rect6782-96-0-0-7-8-1-0-4-0-1-7-9-1-9" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path5247"
+         style="stroke:#000000"
+         d="m 1237.5,572 0,5 m 2.5,-2.5 -5,0" />
+    </g>
+    <g
+       transform="translate(160,0)"
+       style="display:inline"
+       id="src/libs/utils/images/zoomout_overlay">
+      <rect
+         style="fill:#ffffff;fill-opacity:1"
+         x="1228"
+         y="568"
+         width="16"
+         height="16"
+         id="rect6782-96-0-0-7-8-1-0-4-0-1-7-9-1-9-5" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path5247-8"
+         style="stroke:#000000"
+         d="m 1240,574.5 -5,0"
+         sodipodi:nodetypes="cc" />
+    </g>
+    <g
+       transform="translate(176,0)"
+       style="display:inline"
+       id="src/plugins/scxmleditor/common/images/adjust_height">
+      <rect
+         style="fill:#ffffff;fill-opacity:1"
+         x="1228"
+         y="568"
+         width="16"
+         height="16"
+         id="rect6782-96-0-0-7-8-1-0-4-0-1-7-9-1-9-5-6" />
+      <rect
+         style="fill:#b3b3b3;fill-opacity:1;stroke:#000000;stroke-width:0.5"
+         id="rect4532"
+         width="3.5"
+         height="13.5"
+         x="1229.25"
+         y="569.25" />
+      <rect
+         style="fill:#b3b3b3;fill-opacity:1;stroke:#000000;stroke-width:0.5"
+         id="rect4534"
+         width="3.5"
+         height="8.5"
+         x="1235.25"
+         y="569.25" />
+      <path
+         style="stroke:#000000"
+         d="m 1240,569.5 3,0"
+         id="path4536"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cc" />
+      <path
+         style="stroke:#000000"
+         d="m 1240,582.5 3,0"
+         id="path4538"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cc" />
+      <path
+         style="stroke:#000000"
+         d="m 1241.5,569.5 c 0,13 0,13 0,13"
+         id="path4540"
+         inkscape:connector-curvature="0" />
+      <rect
+         style="fill:#cccccc"
+         id="rect5232"
+         width="4"
+         height="5"
+         x="1235"
+         y="578" />
+    </g>
+    <use
+       x="0"
+       y="0"
+       xlink:href="#src/plugins/scxmleditor/common/images/adjust_height"
+       id="src/plugins/scxmleditor/common/images/adjust_width"
+       transform="matrix(0,1,1,0,852,-836)"
+       width="100%"
+       height="100%" />
+    <g
+       transform="translate(208,0)"
+       style="display:inline"
+       id="src/plugins/scxmleditor/common/images/adjust_size">
+      <rect
+         style="fill:#ffffff;fill-opacity:1"
+         x="1228"
+         y="568"
+         width="16"
+         height="16"
+         id="rect6782-96-0-0-7-8-1-0-4-0-1-7-9-1-9-5-6-6" />
+      <g
+         id="g5500">
+        <path
+           sodipodi:nodetypes="cc"
+           inkscape:connector-curvature="0"
+           id="path4536-4"
+           d="m 1229,569.5 3,0"
+           style="stroke:#000000" />
+        <path
+           sodipodi:nodetypes="cc"
+           inkscape:connector-curvature="0"
+           id="path4540-7"
+           d="m 1230.5,569.5 0,13.5"
+           style="stroke:#000000" />
+      </g>
+      <g
+         id="g5496"
+         transform="matrix(0,1,-1,0,1813.5,-651.5)" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#g5500"
+         id="use5504"
+         transform="matrix(0,1,-1,0,1812,-649)"
+         width="100%"
+         height="100%" />
+      <rect
+         style="fill:#cccccc"
+         id="rect5232-6"
+         width="11"
+         height="11"
+         x="1232"
+         y="569" />
+      <rect
+         style="fill:#b3b3b3;fill-opacity:1;stroke:#000000;stroke-width:0.5"
+         id="rect4534-2"
+         width="4.5"
+         height="6.5"
+         x="1232.25"
+         y="573.25" />
+    </g>
+    <g
+       transform="translate(224,0)"
+       style="display:inline"
+       id="src/plugins/scxmleditor/common/images/align_bottom">
+      <rect
+         style="fill:#ffffff;fill-opacity:1"
+         x="1228"
+         y="568"
+         width="16"
+         height="16"
+         id="rect6782-96-0-0-7-8-1-0-4-0-1-7-9-1-9-5-6-3" />
+      <path
+         style="stroke:#000000"
+         d="m 1243,582.5 -14,0"
+         id="path4540-6"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cc" />
+      <rect
+         style="fill:#b3b3b3;fill-opacity:1;stroke:#000000;stroke-width:0.5"
+         id="rect4534-6-5"
+         width="3.5"
+         height="11.5"
+         x="1229.25"
+         y="569.25" />
+      <rect
+         style="fill:#b3b3b3;fill-opacity:1;stroke:#000000;stroke-width:0.5"
+         id="rect4534-6-5-4"
+         width="3.5"
+         height="8.5"
+         x="1239.25"
+         y="572.25" />
+      <rect
+         style="fill:#b3b3b3;fill-opacity:1;stroke:#000000;stroke-width:0.5"
+         id="rect4534-6-5-0"
+         width="3.5"
+         height="4.5"
+         x="1234.25"
+         y="576.25" />
+    </g>
+    <use
+       x="0"
+       y="0"
+       xlink:href="#src/plugins/scxmleditor/common/images/align_bottom"
+       id="src/plugins/scxmleditor/common/images/align_right"
+       transform="matrix(0,1,1,0,900,-884)"
+       width="100%"
+       height="100%" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#src/plugins/scxmleditor/common/images/align_bottom"
+       id="src/plugins/scxmleditor/common/images/align_top"
+       transform="matrix(1,0,0,-1,32,1152)"
+       width="100%"
+       height="100%" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#src/plugins/scxmleditor/common/images/align_bottom"
+       id="src/plugins/scxmleditor/common/images/align_left"
+       transform="matrix(0,1,-1,0,2084,-884)"
+       width="100%"
+       height="100%" />
+    <g
+       transform="translate(288,0)"
+       style="display:inline"
+       id="src/plugins/scxmleditor/common/images/align_horizontal">
+      <rect
+         style="fill:#ffffff;fill-opacity:1"
+         x="1228"
+         y="568"
+         width="16"
+         height="16"
+         id="rect6782-96-0-0-7-8-1-0-4-0-1-7-9-1-9-5-6-3-0" />
+      <rect
+         style="fill:#b3b3b3;fill-opacity:1;stroke:#000000;stroke-width:0.5"
+         id="rect4534-6-5-6"
+         width="3.5"
+         height="12.5"
+         x="1229.25"
+         y="570.25" />
+      <rect
+         style="fill:#b3b3b3;fill-opacity:1;stroke:#000000;stroke-width:0.5"
+         id="rect4534-6-5-4-0"
+         width="3.5"
+         height="8.5"
+         x="1239.25"
+         y="572.25" />
+      <rect
+         style="fill:#b3b3b3;fill-opacity:1;stroke:#000000;stroke-width:0.5"
+         id="rect4534-6-5-0-8"
+         width="3.5"
+         height="4.5"
+         x="1234.25"
+         y="574.25" />
+      <path
+         style="stroke:#000000"
+         d="m 1243,576.5 -14,0"
+         id="path4540-6-4"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cc" />
+    </g>
+    <use
+       x="0"
+       y="0"
+       xlink:href="#src/plugins/scxmleditor/common/images/align_horizontal"
+       id="src/plugins/scxmleditor/common/images/align_vertical"
+       transform="matrix(0,1,1,0,964,-948)"
+       width="100%"
+       height="100%" />
+    <g
+       transform="translate(320,0)"
+       id="src/libs/utils/images/fittoview"
+       style="display:inline;fill:#ffffff">
+      <rect
+         style="fill:#ffffff;fill-opacity:1"
+         x="1228"
+         y="568"
+         width="16"
+         height="16"
+         id="rect6782-96-0-0-7-8-1-0-4-0-1-7-9-1-9-5-6-3-0-3" />
+      <path
+         id="use6687"
+         style="stroke:#000000"
+         d="m 1234,579.5 -2.5,0 0,-2.5 m 9,0 0,2.5 -2.5,0 m 0,-7 2.5,0 0,2.5 m -9,0 0,-2.5 2.5,0 m -4.5,-2 13,0 0,11 -13,0 z"
+         inkscape:connector-curvature="0" />
+    </g>
+    <g
+       transform="translate(336,0)"
+       style="display:inline"
+       id="src/plugins/scxmleditor/common/images/icon-pan">
+      <rect
+         style="fill:#ffffff;fill-opacity:1"
+         x="1228"
+         y="568"
+         width="16"
+         height="16"
+         id="rect6782-96-0-0-7-8-1-0-4-0-1-7-9-1-9-5-6-3-0-4" />
+      <path
+         id="path5290"
+         style="stroke:#000000;stroke-width:1px;fill:none"
+         d="m 1236.5,570.5 0,6.5 m -2.5,-4 2.5,-2.5 2.5,2.5"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccccc" />
+      <use
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#path5290"
+         id="use5293"
+         transform="matrix(0,1,-1,0,1812.9931,-659.99311)"
+         width="100%"
+         height="100%" />
+      <use
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#path5290"
+         id="use5295"
+         transform="matrix(-1,0,0,-1,2473,1153)"
+         width="100%"
+         height="100%" />
+      <use
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#use5293"
+         id="use5297"
+         transform="matrix(-1,0,0,1,2472.9931,-0.006937)"
+         width="100%"
+         height="100%" />
     </g>
   </g>
   <g
@@ -4457,7 +4775,7 @@
          style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.69999999;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     </g>
     <g
-       id="src/libs/cplusplus/images/namespace">
+       id="src/libs/utils/images/namespace">
       <rect
          y="552"
          x="361"
@@ -6423,6 +6741,128 @@
          id="path5191-2"
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="ccccccc" />
+    </g>
+    <g
+       transform="translate(-48,32)"
+       id="src/plugins/baremetal/images/baremetaldevice">
+      <rect
+         style="fill:#ffffff"
+         x="554"
+         y="347"
+         width="32"
+         height="32"
+         id="rect5230-4-4" />
+      <path
+         style="fill:#808080;fill-opacity:1;stroke:#000000;stroke-opacity:1"
+         d="m 563.5,354.5 13,0 2,2 0,13 -2,2 -13,0 -2,-2 0,-13 z"
+         id="rect5155"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccccccccc" />
+      <circle
+         style="fill:#000000"
+         id="path5159"
+         cx="565"
+         cy="368"
+         r="1.5" />
+      <g
+         id="g5189"
+         transform="translate(-0.5,-1)">
+        <path
+           id="path5432-0"
+           style="color:#000000"
+           d="m 565.5,352 1,0 0,3 -1,0 z m 3,0 1,0 0,3 -1,0 z m 3,0 1,0 0,3 -1,0 z m 3,0 1,0 0,3 -1,0 z"
+           inkscape:connector-curvature="0"
+           sodipodi:nodetypes="cccccccccccccccccccc" />
+      </g>
+      <use
+         x="0"
+         y="0"
+         xlink:href="#g5189"
+         id="use5200"
+         transform="matrix(1,0,0,-1,0,726)"
+         width="100%"
+         height="100%" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#g5189"
+         id="use5202"
+         transform="matrix(0,1,-1,0,933,-207)"
+         width="100%"
+         height="100%" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#g5189"
+         id="use5204"
+         transform="matrix(0,-1,1,0,207,933)"
+         width="100%"
+         height="100%" />
+      <path
+         id="rect5208-6-6"
+         style="fill:#000000"
+         d="m 565,363 7,0 0,1 -7,0 z m 0,-2 6,0 0,1 -6,0 z m 0,-3 10,0 0,2 -10,0 z"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccccccccccccccc" />
+    </g>
+    <g
+       id="src/plugins/baremetal/images/baremetaldevicesmall"
+       transform="translate(-32,32)">
+      <rect
+         id="rect5759-5-9-0-8-6-4"
+         height="16"
+         width="16"
+         y="363"
+         x="570"
+         style="fill:#ffffff" />
+      <path
+         style="fill:#999999;fill-opacity:1;stroke:#000000;stroke-width:0.5"
+         d="m 575.5,367.25 6,0 1.25,1.25 0,6 -1.25,1.25 -6,0 -1.25,-1.25 0,-6 z"
+         id="rect5492"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccccccccc" />
+      <path
+         id="rect5494-5"
+         style="fill:#4d4d4d"
+         d="m 580,365 1,0 0,2 -1,0 z m -2,0 1,0 0,2 -1,0 z m -2,0 1,0 0,2 -1,0 z"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccccccccccccscc" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#rect5494-5"
+         id="use5529"
+         transform="matrix(0,1,-1,0,950,-207)"
+         width="100%"
+         height="100%" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#rect5494-5"
+         id="use5531"
+         transform="matrix(1,0,0,-1,0,743)"
+         width="100%"
+         height="100%" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#rect5494-5"
+         id="use5533"
+         transform="matrix(0,-1,1,0,207,950)"
+         width="100%"
+         height="100%" />
+      <circle
+         style="fill:#000000"
+         id="path5159-4"
+         cx="576"
+         cy="374"
+         r="1" />
+      <path
+         id="rect5535-8"
+         style="fill:#000000;fill-opacity:1"
+         d="m 576,371 4,0 0,0.5 -4,0 z m 0,-2 5,0 0,0.5 -5,0 z"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cccccccccc" />
     </g>
   </g>
 </svg>

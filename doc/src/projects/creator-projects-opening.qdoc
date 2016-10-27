@@ -75,11 +75,33 @@
 
     \list 1
 
-        \li Select \uicontrol File > \uicontrol{Open File or Project} and select the project
-            to open.
+        \li Select \uicontrol File > \uicontrol {Open File or Project}
+            (\key Ctrl+O or \key Cmd+O on \macos) and select the project to
+            open.
 
         \li In the \uicontrol {Configure Project} tab, select kits for building and running your
             project, and click \uicontrol {Configure Project}.
+
+    \endlist
+
+    You can use the following keyboard shortcuts to open projects, depending on
+    the mode you are currently in:
+
+    \list
+
+        \li In all modes, select \key Ctrl+O (\key Cmd+O on \macos) to open the
+            \uicontrol {Open File} dialog, where you can select a project file
+            to open a project.
+
+        \li In all modes, except the \uicontrol Help mode, select
+            \key Ctrl+Shift+O (\key Cmd+Shift+O on \macos) to open the
+            \uicontrol {Load Project} dialog, where you can select a project
+            file to open a project.
+
+        \li In the \uicontrol Welcome mode, \uicontrol Projects tab, select
+            \key Ctrl+Shift+number (\key Cmd+Shift+number on \macos), where
+            the number is the number of a project in the list of recently opened
+            projects.
 
     \endlist
 

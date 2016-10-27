@@ -180,7 +180,7 @@ protected:
     static QStringList varNames(ProjectExplorer::FileType type, QtSupport::ProFileReader *readerExact);
     static QStringList varNamesForRemoving();
     static QString varNameForAdding(const QString &mimeType);
-    static QStringList dynamicVarNames(QtSupport::ProFileReader *readerExact, QtSupport::ProFileReader *readerCumulative, bool isQt5);
+    static QStringList dynamicVarNames(QtSupport::ProFileReader *readerExact, bool isQt5);
     static QSet<Utils::FileName> filterFilesProVariables(ProjectExplorer::FileType fileType, const QSet<Utils::FileName> &files);
     static QSet<Utils::FileName> filterFilesRecursiveEnumerata(ProjectExplorer::FileType fileType, const QSet<Utils::FileName> &files);
 

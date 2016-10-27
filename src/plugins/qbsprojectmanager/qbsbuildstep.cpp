@@ -62,6 +62,42 @@ static const char QBS_CLEAN_INSTALL_ROOT[] = "Qbs.CleanInstallRoot";
 namespace QbsProjectManager {
 namespace Internal {
 
+class QbsBuildStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
+{
+    Q_OBJECT
+public:
+    QbsBuildStepConfigWidget(QbsBuildStep *step);
+    ~QbsBuildStepConfigWidget();
+    QString summaryText() const;
+    QString displayName() const;
+
+private:
+    void updateState();
+    void updateQmlDebuggingOption();
+    void updatePropertyEdit(const QVariantMap &data);
+
+    void changeBuildVariant(int);
+    void changeShowCommandLines(bool show);
+    void changeKeepGoing(bool kg);
+    void changeJobCount(int count);
+    void changeInstall(bool install);
+    void changeCleanInstallRoot(bool clean);
+    void changeForceProbes(bool forceProbes);
+    void applyCachedProperties();
+
+    // QML debugging:
+    void linkQmlDebuggingLibraryChecked(bool checked);
+
+    bool validateProperties(Utils::FancyLineEdit *edit, QString *errorMessage);
+
+    Ui::QbsBuildStepConfigWidget *m_ui;
+
+    QList<QPair<QString, QString> > m_propertyCache;
+    QbsBuildStep *m_step;
+    QString m_summary;
+    bool m_ignoreChange;
+};
+
 // --------------------------------------------------------------------
 // QbsBuildStep:
 // --------------------------------------------------------------------
@@ -752,3 +788,5 @@ ProjectExplorer::BuildStep *QbsBuildStepFactory::clone(ProjectExplorer::BuildSte
 
 } // namespace Internal
 } // namespace QbsProjectManager
+
+#include "qbsbuildstep.moc"

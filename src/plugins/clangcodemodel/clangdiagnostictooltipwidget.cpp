@@ -190,7 +190,7 @@ private:
         const QString text = QString::fromLatin1(
             "<table cellspacing='0' cellpadding='0'>"
             "  <tr>"
-            "    <td>%1: </td>"
+            "    <td>%1:&nbsp;</td>"
             "    <td width='100%'>%2</td>"
             "  </tr>"
             "</table>")

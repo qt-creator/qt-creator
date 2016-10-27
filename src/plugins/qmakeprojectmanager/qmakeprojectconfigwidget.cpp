@@ -31,6 +31,7 @@
 #include "ui_qmakeprojectconfigwidget.h"
 
 #include <coreplugin/coreicons.h>
+#include <coreplugin/variablechooser.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/qtkitinformation.h>
 
@@ -81,6 +82,9 @@ QmakeProjectConfigWidget::QmakeProjectConfigWidget(QmakeBuildConfiguration *bc)
     m_ui->inSourceBuildDirEdit->setFileName(bc->target()->project()->projectDirectory());
     m_ui->inSourceBuildDirEdit->setReadOnly(true);
     m_ui->inSourceBuildDirEdit->setEnabled(false);
+
+    auto chooser = new Core::VariableChooser(this);
+    chooser->addSupportedWidget(m_ui->shadowBuildDirEdit->lineEdit());
 
     m_ui->shadowBuildCheckBox->setChecked(isShadowBuild);
 

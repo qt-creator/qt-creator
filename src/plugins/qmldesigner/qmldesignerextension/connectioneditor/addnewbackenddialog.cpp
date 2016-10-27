@@ -26,6 +26,8 @@
 #include "addnewbackenddialog.h"
 #include "ui_addnewbackenddialog.h"
 
+#include <QPushButton>
+
 namespace QmlDesigner {
 
 AddNewBackendDialog::AddNewBackendDialog(QWidget *parent) :
@@ -57,6 +59,7 @@ void AddNewBackendDialog::setupPossibleTypes(const QList<CppTypeData> &types)
     for (const CppTypeData &typeData : types)
         m_ui->comboBox->addItem(typeData.typeName);
 
+    m_ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(m_ui->comboBox->count() > 0);
     invalidate();
     blockSignals(block);
 }

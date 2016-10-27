@@ -68,8 +68,6 @@ public:
     void readSettings();
     void saveSettings();
 
-    TextEditor::BaseTextEditor *textEditor() const;
-
     DesignDocument *currentDesignDocument() const;
     ViewManager &viewManager();
 
@@ -97,7 +95,6 @@ private slots:
 private: // functions
     enum InitializeStatus { NotInitialized, Initializing, Initialized };
 
-    void setCurrentDesignDocument(DesignDocument *newDesignDocument);
     void setup();
     bool isInNodeDefinition(int nodeOffset, int nodeLength, int cursorPos) const;
     QmlDesigner::ModelNode nodeForPosition(int cursorPos) const;

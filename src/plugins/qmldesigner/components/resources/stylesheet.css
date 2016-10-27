@@ -21,18 +21,7 @@ QStackedWidget {
      background-color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate;
 }
 
-
 QGraphicsView {
-     border: 0px;
-     background-color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate;
-}
-
-QTabWidget {
-     border: 0px;
-     background-color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate;
-}
-
-QTabWidget::pane { /* The tab widget frame */
      border: 0px;
      background-color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate;
 }
@@ -70,21 +59,30 @@ QLineEdit#itemLibrarySearchInput
 	 selection-color: #404040;
  }
 
+QTabWidget {
+     border: 0px;
+     background-color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate;
+}
+
+QTabWidget::pane { /* The tab widget frame */
+     border: 0px;
+     background-color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate;
+}
+
 QTabBar::tab {
-    border-image: none;
-
     width: 80px;
-
     height: 22px;
+
+    border-image: none;
+    background-color: creatorTheme.QmlDesignerTabDark;
+    color: creatorTheme.QmlDesignerTabLight;
+
     margin-top: 0x;
     margin-bottom: 0px;
     margin-left: 0px;
     margin-right: 0px;
     font: bold;
-	font-size: 11px;
-    background-color: creatorTheme.QmlDesignerTabDark;
-
-    color: creatorTheme.QmlDesignerTabLight;
+    font-size: 11px;
 }
 
 QTabBar::tab:selected {

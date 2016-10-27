@@ -97,6 +97,7 @@ enum Type
     WarnUndefinedValueForVisualDesigner = 206,
     WarnStatesOnlyInRootItemForVisualDesigner = 207,
     ErrUnsupportedRootTypeInVisualDesigner = 208,
+    ErrInvalidIdeInVisualDesigner = 209,
     ErrUnsupportedRootTypeInQmlUi = 220,
     ErrUnsupportedTypeInQmlUi = 221,
     ErrFunctionsNotSupportedInQmlUi = 222,

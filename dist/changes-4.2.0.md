@@ -65,12 +65,12 @@ C++ Support
 
 * Added preview of images to tool tip on Qt resource URLs
 * Added option to skip big files when indexing (QTCREATORBUG-16712)
-* Added notification for parsing errors in headers
 * Fixed `Move Definition to Class` for functions in template class and
   template member functions (QTCREATORBUG-14354)
 * Fixed issues with `Add Declaration`, `Add Definition`, and
   `Move Definition Outside Class` for template functions
 * Clang Code Model
+    * Added notification for parsing errors in headers
     * Improved responsiveness of completion and highlighting
 
 Debugging
@@ -91,7 +91,7 @@ QML Profiler
 
 Qt Quick Designer
 
-* Added completion expression editor
+* Added completion to expression editor
 * Added menu for editing `when` condition of states
 * Added editor for managing C++ backend objects
 * Added reformatting of `.ui.qml` files on save
@@ -106,9 +106,11 @@ Qt Quick Designer
 
 Diff Viewer
 
-* Added local diff for modified files in Qt Creator (`Diff` >
-  `Diff Current File`, `Diff` > `Diff All Modified Files`)
+* Added local diff for modified files in Qt Creator (`Tools` > `Diff` >
+  `Diff Current File`, `Tools` > `Diff` > `Diff Open Files`)
   (QTCREATORBUG-9732)
+* Added option to diff files when they changed on disk
+  (QTCREATORBUG-1531)
 * Fixed that reload prompt was shown when reverting change
 
 Version Control Systems
@@ -140,3 +142,45 @@ Android
 * Fixed handling of minimum required API level (QTCREATORBUG-16740)
 
 Credits for these changes go to:  
+Aaron Barany  
+Alessandro Portale  
+Alexander Drozdov  
+Andre Hartmann  
+André Pönitz  
+Arnold Dumas  
+Christian Kandeler  
+Christian Stenger  
+Daniel Langner  
+Daniel Trevitz  
+David Schulz  
+Eike Ziller  
+Florian Apolloner  
+Francois Ferrand  
+Friedemann Kleint  
+Giuseppe D'Angelo  
+Jake Petroules  
+Jaroslaw Kobus  
+Jochen Becher  
+Konstantin Shtepa  
+Kudryavtsev Alexander  
+Leena Miettinen  
+Louai Al-Khanji  
+Marc Reilly  
+Marco Benelli  
+Marco Bubke  
+Mitch Curtis  
+Nazar Gerasymchuk  
+Nikita Baryshnikov  
+Nikolai Kosjar  
+Orgad Shaneh  
+Oswald Buddenhagen  
+Øystein Walle  
+Robert Löhning  
+Serhii Moroz  
+Takumi ASAKI  
+Tasuku Suzuki  
+Thomas Hartmann  
+Tim Jenssen  
+Tobias Hunger  
+Ulf Hermann  
+Vikas Pachdha  

@@ -55,6 +55,11 @@
     Classes registered with \c qmlRegisterType() can be used as backend objects
     in the \QMLD. For more information, see \l {Adding Connections}.
 
+    By default, \QC will look in the QML import path of Qt for QML modules.
+    If your applications adds additional import paths that \QC should use,
+    then you can specify those using \c{QML_IMPORT_PATH} in the \c{.pro} file of your
+    application.
+
     Ideally, QML modules have a \c{plugins.qmltypes} file in the same directory
     as the \c qmldir file. The \c qmltypes file contains a description of the
     types exported by the module's plugins and is loaded by \QC when the
@@ -116,5 +121,10 @@
     in the \uicontrol Design mode. You can use the value of the QML_PUPPET_MODE
     environment variable to check whether the plugin is currently being run
     by an application or edited in the \uicontrol Design mode.
+
+    If you want to use a different module in \QMLD than in your actual
+    application for example to mockup C++ items, then you can use \c{QML_DESIGNER_IMPORT_PATH}
+    in the \c{.pro} file.
+    Modules in the import paths defined in \c{QML_DESIGNER_IMPORT_PATH} will be used only in \QMLD.
 
 */

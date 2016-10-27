@@ -102,7 +102,8 @@ HEADERS += \
     quick/quicktestvisitors.h \
     quick/quicktestframework.h \
     testframeworkmanager.h \
-    testrunconfiguration.h
+    testrunconfiguration.h \
+    itestsettingspage.h
 
 RESOURCES += \
     autotest.qrc

@@ -111,6 +111,33 @@
     (\uicontrol {Variables}) button in a field to select from a list of variables that
     are available in a particular context.
 
+    The following syntax enables you to use environment variables as \QC
+    variables: %{Env:VARNAME}.
+
+    \QC uses pattern substitution when expanding variable names. To replace the
+    first match of \e pattern within \e variable with \e replacement, use:
+
+    \badcode
+    %{variable/pattern/replacement}
+    \endcode
+
+    To replace all matches of \e pattern within \e variable with \e replacement,
+    use:
+
+    \badcode
+    %{variable//pattern/replacement}
+    \endcode
+
+    The pattern can be a regular expression and the replacement can contain
+    backreferences. For example, if \c %{variable} is \c my123var, then
+    \c %{variable/(..)(\d+)/\2\1} is expanded to \c {123myvar}.
+
+    To use the default value if the variable is not set, use:
+
+    \badcode
+    %{variable:-default}
+    \endcode
+
     \section1 Build Steps
 
     The build system of \QC is built on qmake and make. In \uicontrol{Build Steps} you

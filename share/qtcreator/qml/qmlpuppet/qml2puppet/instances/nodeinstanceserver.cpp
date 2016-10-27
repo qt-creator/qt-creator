@@ -685,16 +685,36 @@ void NodeInstanceServer::setupDummysForContext(QQmlContext *context)
     }
 }
 
+static bool isTypeAvailable(const MockupTypeContainer &mockupType, QQmlEngine *engine)
+{
+    QString qmlSource;
+    qmlSource.append("import " +
+                     mockupType.importUri()
+                     + " "
+                     + QString::number(mockupType.majorVersion())
+                     + "." + QString::number(mockupType.minorVersion())
+                     + "\n");
+
+    qmlSource.append(QString::fromUtf8(mockupType.typeName()) + "{\n}\n");
+
+    QQmlComponent component(engine);
+    component.setData(qmlSource.toUtf8(), QUrl());
+
+    return !component.isError();
+}
+
 void NodeInstanceServer::setupMockupTypes(const QVector<MockupTypeContainer> &container)
 {
     for (const MockupTypeContainer &mockupType :  container) {
+        if (!isTypeAvailable(mockupType, engine()))
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
-        QQuickDesignerSupportMetaInfo::registerMockupObject(mockupType.importUri().toUtf8(),
+
+            QQuickDesignerSupportMetaInfo::registerMockupObject(mockupType.importUri().toUtf8(),
                                                             mockupType.majorVersion(),
                                                             mockupType.minorVersion(),
                                                             mockupType.typeName());
 #else
-        qmlRegisterType(QUrl("qrc:/qtquickplugin/mockfiles/GenericBackend.qml"),
+            qmlRegisterType(QUrl("qrc:/qtquickplugin/mockfiles/GenericBackend.qml"),
                         mockupType.importUri().toUtf8(),
                         mockupType.majorVersion(),
                         mockupType.minorVersion(),

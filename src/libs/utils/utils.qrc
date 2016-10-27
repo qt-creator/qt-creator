@@ -31,7 +31,6 @@
         <file>images/notloaded@2x.png</file>
         <file>images/ok.png</file>
         <file>images/ok@2x.png</file>
-
         <file>images/clean_pane_small.png</file>
         <file>images/clean_pane_small@2x.png</file>
         <file>images/compile_error_taskbar.png</file>
@@ -161,5 +160,13 @@
         <file>images/bookmark@2x.png</file>
         <file>images/snapshot.png</file>
         <file>images/snapshot@2x.png</file>
+        <file>images/zoomin_overlay.png</file>
+        <file>images/zoomin_overlay@2x.png</file>
+        <file>images/zoomout_overlay.png</file>
+        <file>images/zoomout_overlay@2x.png</file>
+        <file>images/fittoview.png</file>
+        <file>images/fittoview@2x.png</file>
+        <file>images/namespace.png</file>
+        <file>images/namespace@2x.png</file>
     </qresource>
 </RCC>

@@ -23,32 +23,38 @@
 **
 ****************************************************************************/
 
-#pragma once
+import QtQuick 2.7
 
-namespace QbsProjectManager {
-namespace Constants {
+Rectangle {
+    property alias mouseArea: mouseArea
+    property alias textEdit: textEdit
 
-// Toolchain related settings:
-const char QBS_TARGETOS[] = "qbs.targetOS";
-const char QBS_SYSROOT[] = "qbs.sysroot";
-const char QBS_ARCHITECTURE[] = "qbs.architecture";
-const char QBS_TOOLCHAIN[] = "qbs.toolchain";
-const char CPP_TOOLCHAINPATH[] = "cpp.toolchainInstallPath";
-const char CPP_TOOLCHAINPREFIX[] = "cpp.toolchainPrefix";
-const char CPP_COMPILERNAME[] = "cpp.compilerName";
-const char CPP_CXXCOMPILERNAME[] = "cpp.cxxCompilerName";
-const char CPP_PLATFORMCOMMONCOMPILERFLAGS[] = "cpp.platformCommonCompilerFlags";
-const char CPP_PLATFORMLINKERFLAGS[] = "cpp.platformLinkerFlags";
-const char CPP_PLATFORMPATH[] = "cpp.platformPath";
-const char CPP_XCODESDKNAME[] = "cpp.xcodeSdkName";
-const char CPP_XCODESDKVERSION[] = "cpp.xcodeSdkVersion";
+    width: 360
+    height: 360
 
-// Settings page
-const char QBS_SETTINGS_CATEGORY[]  = "YM.qbs";
-const char QBS_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("QbsProjectManager", "Qbs");
-const char QBS_SETTINGS_CATEGORY_ICON[]  = ":/projectexplorer/images/build.png";
+    MouseArea {
+        id: mouseArea
+        anchors.fill: parent
 
-const char QBS_PROPERTIES_KEY_FOR_KITS[] = "QbsProjectManager.qbs-properties";
+        MyComponent {
+            id: myComponent
+            x: 174
+            y: 180
+        }
+    }
 
-} // namespace Constants
-} // namespace QbsProjectManager
+    TextEdit {
+        id: textEdit
+        text: qsTr("Enter some text...")
+        verticalAlignment: Text.AlignVCenter
+        anchors.top: parent.top
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.topMargin: 20
+        Rectangle {
+            anchors.fill: parent
+            anchors.margins: -10
+            color: "transparent"
+            border.width: 1
+        }
+    }
+}

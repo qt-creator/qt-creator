@@ -38,9 +38,13 @@
     \title Keyboard Shortcuts
 
     \QC provides various keyboard shortcuts to speed up your development
-    process.
+    process. In addition, you can specify your own keyboard shortcuts for some
+    functions that can be easily performed with a mouse, and therefore do not
+    appear in menus or have default keyboard shortcuts. For example, selecting
+    and deleting words or lines in an editor.
 
-    To view all keyboard shortcuts defined in \QC, and to change them, select
+    To view all functions available in \QC and the keyboard shortcuts defined
+    for them, select
     \uicontrol {Tools > Options > Environment > Keyboard}. The shortcuts are listed by
     category. To find a keyboard
     shortcut in the list, enter a function name or shortcut in the \uicontrol Filter

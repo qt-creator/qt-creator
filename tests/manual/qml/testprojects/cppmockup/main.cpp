@@ -23,24 +23,20 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include <mybackendobject.h>
 
-#include <coreplugin/outputpane.h>
+#include <QGuiApplication>
+#include <QtQml>
+#include <QQmlApplicationEngine>
 
-namespace QmlDesigner {
-namespace Internal {
-
-class StyledOutputpanePlaceHolder : public Core::OutputPanePlaceHolder
+int main(int argc, char *argv[])
 {
-public:
-    explicit StyledOutputpanePlaceHolder(Core::Id mode, QSplitter *parent = 0);
+    QGuiApplication app(argc, argv);
 
-protected:
-    void childEvent(QChildEvent *event) override;;
+    QQmlApplicationEngine engine;
+    engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
 
-private:
-    QString m_customStylesheet;
-};
+    qmlRegisterType<MyBackendObject>("MyPlugin", 1, 0, "MyObject");
 
-} // namespace Internal
-} // namespace QmlDesigner
+    return app.exec();
+}

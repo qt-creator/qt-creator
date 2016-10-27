@@ -215,7 +215,7 @@ QIcon Icons::iconForType(IconType type)
     }
     case NamespaceIconType: {
         const static QIcon icon(Icon({
-            {QLatin1String(":/codemodel/images/namespace.png"), Theme::IconsCodeModelKeywordColor}
+            {QLatin1String(":/utils/images/namespace.png"), Theme::IconsCodeModelKeywordColor}
         }, Icon::Tint).icon());
         return icon;
     }

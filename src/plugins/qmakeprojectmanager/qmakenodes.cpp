@@ -622,19 +622,13 @@ QStringList QmakePriFileNode::fullVPaths(const QStringList &baseVPaths, QtSuppor
 QSet<FileName> QmakePriFileNode::recursiveEnumerate(const QString &folder)
 {
     QSet<FileName> result;
-    QFileInfo fi(folder);
-    if (fi.isDir()) {
-        QDir dir(folder);
-        dir.setFilter(dir.filter() | QDir::NoDotAndDotDot);
-
-        foreach (const QFileInfo &file, dir.entryInfoList()) {
-            if (file.isDir() && !file.isSymLink())
-                result += recursiveEnumerate(file.absoluteFilePath());
-            else if (!Core::EditorManager::isAutoSaveFile(file.fileName()))
-                result += FileName(file);
-        }
-    } else if (fi.exists()) {
-        result << FileName(fi);
+    QDir dir(folder);
+    dir.setFilter(dir.filter() | QDir::NoDotAndDotDot);
+    foreach (const QFileInfo &file, dir.entryInfoList()) {
+        if (file.isDir() && !file.isSymLink())
+            result += recursiveEnumerate(file.absoluteFilePath());
+        else if (!Core::EditorManager::isAutoSaveFile(file.fileName()))
+            result += FileName(file);
     }
     return result;
 }
@@ -646,17 +640,15 @@ PriFileEvalResult QmakePriFileNode::extractValues(const EvalInput &input,
 {
     PriFileEvalResult result;
 
-    // Figure out DEPLOYMENT and INSTALL folders
-    QStringList dynamicVariables = dynamicVarNames(input.readerExact, input.readerCumulative, input.isQt5);
+    // Figure out DEPLOYMENT and INSTALL folders.
+    // Ignore stuff from cumulative parse, as we are recursively enumerating
+    // all the files from those folders and add watchers for them. That's too
+    // dangerous if we get the folders wrong and enumerate the whole project
+    // tree multiple times.
+    QStringList dynamicVariables = dynamicVarNames(input.readerExact, input.isQt5);
     foreach (ProFile *includeFileExact, includeFilesExact)
-        foreach (const QString &dynamicVar, dynamicVariables) {
+        foreach (const QString &dynamicVar, dynamicVariables)
             result.folders += input.readerExact->values(dynamicVar, includeFileExact);
-            // Ignore stuff from cumulative parse
-            // we are recursively enumerating all the files from those folders
-            // and add watchers for them, that's too dangerous if we get the folders
-            // wrong and enumerate the whole project tree multiple times
-        }
-
 
     for (int i=0; i < result.folders.size(); ++i) {
         const QFileInfo fi(result.folders.at(i));
@@ -1376,10 +1368,11 @@ QStringList QmakePriFileNode::varNames(FileType type, QtSupport::ProFileReader *
         foreach (const QString &var, listOfExtraCompilers) {
             QStringList inputs = readerExact->values(var + QLatin1String(".input"));
             foreach (const QString &input, inputs)
-                // FORMS, RESOURCES, and STATECHARTS are handled below, HEADERS above
+                // FORMS, RESOURCES, and STATECHARTS are handled below, HEADERS and SOURCES above
                 if (input != QLatin1String("FORMS")
                         && input != QLatin1String("STATECHARTS")
                         && input != QLatin1String("RESOURCES")
+                        && input != QLatin1String("SOURCES")
                         && input != QLatin1String("HEADERS"))
                     vars << input;
         }
@@ -1474,7 +1467,7 @@ QStringList QmakePriFileNode::varNamesForRemoving()
     return vars;
 }
 
-QStringList QmakePriFileNode::dynamicVarNames(QtSupport::ProFileReader *readerExact, QtSupport::ProFileReader *readerCumulative,
+QStringList QmakePriFileNode::dynamicVarNames(QtSupport::ProFileReader *readerExact,
                                             bool isQt5)
 {
     QStringList result;
@@ -1486,24 +1479,12 @@ QStringList QmakePriFileNode::dynamicVarNames(QtSupport::ProFileReader *readerEx
     foreach (const QString &var, listOfVars) {
         result << (var + sources);
     }
-    if (readerCumulative) {
-        QStringList listOfVars = readerCumulative->values(deployment);
-        foreach (const QString &var, listOfVars) {
-            result << (var + sources);
-        }
-    }
 
     const QString installs = QLatin1String("INSTALLS");
     const QString files = QLatin1String(".files");
     listOfVars = readerExact->values(installs);
     foreach (const QString &var, listOfVars) {
         result << (var + files);
-    }
-    if (readerCumulative) {
-        QStringList listOfVars = readerCumulative->values(installs);
-        foreach (const QString &var, listOfVars) {
-            result << (var + files);
-        }
     }
     result.removeDuplicates();
     return result;
@@ -1858,8 +1839,8 @@ EvalResult *QmakeProFileNode::evaluate(const EvalInput &input)
     if (result->state == EvalResult::EvalOk) {
         if (result->projectType == SubDirsTemplate) {
             QStringList errors;
-            result->errors.append(errors);
             FileNameList subDirs = subDirsPaths(input.readerExact, input.projectDir, &result->subProjectsNotToDeploy, &errors);
+            result->errors.append(errors);
 
             foreach (const Utils::FileName &subDirName, subDirs) {
                 IncludedPriFile *subDir = new IncludedPriFile;

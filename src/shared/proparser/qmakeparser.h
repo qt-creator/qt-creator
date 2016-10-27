@@ -74,7 +74,8 @@ public:
     enum ParseFlag {
         ParseDefault = 0,
         ParseUseCache = 1,
-        ParseReportMissing = 2
+        ParseOnlyCached = 2,
+        ParseReportMissing = 4
     };
     Q_DECLARE_FLAGS(ParseFlags, ParseFlag)
 

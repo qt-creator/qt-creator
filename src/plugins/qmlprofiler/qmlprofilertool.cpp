@@ -169,13 +169,13 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
 
     QAction *act = d->m_loadQmlTrace = new QAction(tr("Load QML Trace"), options);
     command = ActionManager::registerAction(act, Constants::QmlProfilerLoadActionId);
-    connect(act, &QAction::triggered, this, &QmlProfilerTool::showLoadDialog);
+    connect(act, &QAction::triggered, this, &QmlProfilerTool::showLoadDialog, Qt::QueuedConnection);
     options->addAction(command);
 
     act = d->m_saveQmlTrace = new QAction(tr("Save QML Trace"), options);
     d->m_saveQmlTrace->setEnabled(false);
     command = ActionManager::registerAction(act, Constants::QmlProfilerSaveActionId);
-    connect(act, &QAction::triggered, this, &QmlProfilerTool::showSaveDialog);
+    connect(act, &QAction::triggered, this, &QmlProfilerTool::showSaveDialog, Qt::QueuedConnection);
     options->addAction(command);
 
     d->m_recordingTimer.setInterval(100);

@@ -141,16 +141,18 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
                                                                      SLOT(processFinished(int,QProcess::ExitStatus)));
    }
 
-   if (m_qmlPuppetEditorProcess->waitForStarted(10000)) {
+   const int second = 1000;
+   const int waitConstant = 8 * second;
+   if (m_qmlPuppetEditorProcess->waitForStarted(waitConstant)) {
        connect(m_qmlPuppetEditorProcess.data(), static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
             m_qmlPuppetEditorProcess.data(), &QProcess::deleteLater);
 
        if (runModus == NormalModus) {
-           m_qmlPuppetPreviewProcess->waitForStarted();
+           m_qmlPuppetPreviewProcess->waitForStarted(waitConstant / 2);
            connect(m_qmlPuppetPreviewProcess.data(), static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
                 m_qmlPuppetPreviewProcess.data(), &QProcess::deleteLater);
 
-           m_qmlPuppetRenderProcess->waitForStarted();
+           m_qmlPuppetRenderProcess->waitForStarted(waitConstant / 2);
            connect(m_qmlPuppetRenderProcess.data(), static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
                 m_qmlPuppetRenderProcess.data(), &QProcess::deleteLater);
        }
@@ -158,7 +160,7 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
        bool connectedToPuppet = true;
 
        if (!m_localServer->hasPendingConnections())
-           connectedToPuppet = m_localServer->waitForNewConnection(3000);
+           connectedToPuppet = m_localServer->waitForNewConnection(waitConstant / 4);
 
        if (connectedToPuppet) {
            m_firstSocket = m_localServer->nextPendingConnection();
@@ -166,14 +168,14 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
 
            if (runModus == NormalModus) {
                if (!m_localServer->hasPendingConnections())
-                   connectedToPuppet = m_localServer->waitForNewConnection(3000);
+                   connectedToPuppet = m_localServer->waitForNewConnection(waitConstant / 4);
 
                if (connectedToPuppet) {
                    m_secondSocket = m_localServer->nextPendingConnection();
                    connect(m_secondSocket.data(), SIGNAL(readyRead()), this, SLOT(readSecondDataStream()));
 
                    if (!m_localServer->hasPendingConnections())
-                        connectedToPuppet = m_localServer->waitForNewConnection(3000);
+                        connectedToPuppet = m_localServer->waitForNewConnection(waitConstant / 4);
 
                    if (connectedToPuppet) {
                        m_thirdSocket = m_localServer->nextPendingConnection();

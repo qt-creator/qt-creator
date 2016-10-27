@@ -26,7 +26,7 @@
 #include "qbsinfopage.h"
 #include "ui_qbsinfowidget.h"
 
-#include "qbsconstants.h"
+#include "qbsprojectmanagerconstants.h"
 
 #include <qbs.h>
 

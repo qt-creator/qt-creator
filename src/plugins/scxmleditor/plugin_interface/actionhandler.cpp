@@ -44,10 +44,10 @@ ActionHandler::ActionHandler(QObject *parent)
         const char *keyseq;
         bool checkable;
     } actionInfos[] = {
-        { Utils::Icon(":/scxmleditor/images/icon-zoom-in.png"), AH::tr("Zoom In"), AH::tr("Zoom In (Ctrl + + / Ctrl + Wheel)"), "Ctrl++", false },
-        { Utils::Icon(":/scxmleditor/images/icon-zoom-out.png"), AH::tr("Zoom Out"), AH::tr("Zoom Out (Ctrl + - / Ctrl + Wheel)"), "Ctrl+-", false },
-        { Utils::Icon(":/scxmleditor/images/icon-fit-screen.png"), AH::tr("Fit to View"), AH::tr("Fit to View (F11)"), "F11", false },
-        { Utils::Icon(":/scxmleditor/images/icon-pan.png"), AH::tr("Panning"), AH::tr("Panning (Shift)"), "Shift", true },
+        { Utils::Icons::ZOOMIN_TOOLBAR, AH::tr("Zoom In"), AH::tr("Zoom In (Ctrl + + / Ctrl + Wheel)"), "Ctrl++", false },
+        { Utils::Icons::ZOOMOUT_TOOLBAR, AH::tr("Zoom Out"), AH::tr("Zoom Out (Ctrl + - / Ctrl + Wheel)"), "Ctrl+-", false },
+        { Utils::Icons::FITTOVIEW_TOOLBAR, AH::tr("Fit to View"), AH::tr("Fit to View (F11)"), "F11", false },
+        { Utils::Icon({{":/scxmleditor/images/icon-pan.png", Utils::Theme::IconsBaseColor}}), AH::tr("Panning"), AH::tr("Panning (Shift)"), "Shift", true },
 
         { Utils::Icons::ZOOM_TOOLBAR, AH::tr("Magnifier"), AH::tr("Magnifier Tool (Alt)"), "Alt", true },
         { Utils::Icon(":/scxmleditor/images/navigator.png"), AH::tr("Navigator"), AH::tr("Navigator (Ctrl+E)"), "Ctrl+E", true },
@@ -57,17 +57,17 @@ ActionHandler::ActionHandler(QObject *parent)
         { Utils::Icon({{":/utils/images/editpaste.png",  Utils::Theme::IconsBaseColor}}), AH::tr("Paste"), AH::tr("Paste (Ctrl + V)"), "Ctrl+V", false },
         { Utils::Icons::SNAPSHOT_TOOLBAR, AH::tr("Screenshot"), AH::tr("Screenshot (Ctrl + Shift + C)"), "Ctrl+Shift+C", false },
         { Utils::Icon({{":/scxmleditor/images/icon-export-canvas.png",  Utils::Theme::IconsBaseColor}}), AH::tr("Export to Image"), AH::tr("Export to Image"), "Ctrl+Shift+E", false },
-        { Utils::Icon(":/scxmleditor/images/fullnamespace.png"), AH::tr("Toggle Full Namespace"), AH::tr("Toggle Full Namespace"), "Ctrl+Shift+N", true },
+        { Utils::Icon({{":/utils/images/namespace.png", Utils::Theme::IconsBaseColor}}), AH::tr("Toggle Full Namespace"), AH::tr("Toggle Full Namespace"), "Ctrl+Shift+N", true },
 
-        { Utils::Icon(":/scxmleditor/images/align_left.png"), AH::tr("Align Left"), AH::tr("Align Left (Ctrl+L,1)"), "Ctrl+L,1", false },
-        { Utils::Icon(":/scxmleditor/images/align_right.png"), AH::tr("Align Right"), AH::tr("Align Right (Ctrl+L,2)"), "Ctrl+L,2", false },
-        { Utils::Icon(":/scxmleditor/images/align_top.png"), AH::tr("Align Top"), AH::tr("Align Top (Ctrl+L,3)"), "Ctrl+L,3", false },
-        { Utils::Icon(":/scxmleditor/images/align_bottom.png"), AH::tr("Align Bottom"), AH::tr("Align Bottom (Ctrl+L,4)"), "Ctrl+L,4", false },
-        { Utils::Icon(":/scxmleditor/images/align_horizontal.png"), AH::tr("Align Horizontal"), AH::tr("Align Horizontal (Ctrl+L,5)"), "Ctrl+L,5", false },
-        { Utils::Icon(":/scxmleditor/images/align_vertical.png"), AH::tr("Align Vertical"), AH::tr("Align Vertical (Ctrl+L,6)"), "Ctrl+L,6", false },
-        { Utils::Icon(":/scxmleditor/images/adjust_width.png"), AH::tr("Adjust Width"), AH::tr("Adjust Width (Ctrl+L,7)"), "Ctrl+L,7", false },
-        { Utils::Icon(":/scxmleditor/images/adjust_height.png"), AH::tr("Adjust Height"), AH::tr("Adjust Height (Ctrl+L,8)"), "Ctrl+L,8", false },
-        { Utils::Icon(":/scxmleditor/images/adjust_size.png"), AH::tr("Adjust Size"), AH::tr("Adjust Size (Ctrl+L,9)"), "Ctrl+L,9", false },
+        { Utils::Icon({{":/scxmleditor/images/align_left.png", Utils::Theme::PanelTextColorMid}}, Utils::Icon::Tint), AH::tr("Align Left"), AH::tr("Align Left (Ctrl+L,1)"), "Ctrl+L,1", false },
+        { Utils::Icon({{":/scxmleditor/images/align_right.png", Utils::Theme::PanelTextColorMid}}, Utils::Icon::Tint), AH::tr("Align Right"), AH::tr("Align Right (Ctrl+L,2)"), "Ctrl+L,2", false },
+        { Utils::Icon({{":/scxmleditor/images/align_top.png", Utils::Theme::PanelTextColorMid}}, Utils::Icon::Tint), AH::tr("Align Top"), AH::tr("Align Top (Ctrl+L,3)"), "Ctrl+L,3", false },
+        { Utils::Icon({{":/scxmleditor/images/align_bottom.png", Utils::Theme::PanelTextColorMid}}, Utils::Icon::Tint), AH::tr("Align Bottom"), AH::tr("Align Bottom (Ctrl+L,4)"), "Ctrl+L,4", false },
+        { Utils::Icon({{":/scxmleditor/images/align_horizontal.png", Utils::Theme::PanelTextColorMid}}, Utils::Icon::Tint), AH::tr("Align Horizontal"), AH::tr("Align Horizontal (Ctrl+L,5)"), "Ctrl+L,5", false },
+        { Utils::Icon({{":/scxmleditor/images/align_vertical.png", Utils::Theme::PanelTextColorMid}}, Utils::Icon::Tint), AH::tr("Align Vertical"), AH::tr("Align Vertical (Ctrl+L,6)"), "Ctrl+L,6", false },
+        { Utils::Icon({{":/scxmleditor/images/adjust_width.png", Utils::Theme::PanelTextColorMid}}, Utils::Icon::Tint), AH::tr("Adjust Width"), AH::tr("Adjust Width (Ctrl+L,7)"), "Ctrl+L,7", false },
+        { Utils::Icon({{":/scxmleditor/images/adjust_height.png", Utils::Theme::PanelTextColorMid}}, Utils::Icon::Tint), AH::tr("Adjust Height"), AH::tr("Adjust Height (Ctrl+L,8)"), "Ctrl+L,8", false },
+        { Utils::Icon({{":/scxmleditor/images/adjust_size.png", Utils::Theme::PanelTextColorMid}}, Utils::Icon::Tint), AH::tr("Adjust Size"), AH::tr("Adjust Size (Ctrl+L,9)"), "Ctrl+L,9", false },
 
         { Utils::Icon(":/scxmleditor/images/statistics.png"), AH::tr("Show Statistics..."), AH::tr("Show Statistics"), "", false }
     };

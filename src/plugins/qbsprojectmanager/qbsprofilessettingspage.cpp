@@ -27,8 +27,8 @@
 #include "ui_qbsprofilessettingswidget.h"
 
 #include "customqbspropertiesdialog.h"
-#include "qbsconstants.h"
 #include "qbsprojectmanager.h"
+#include "qbsprojectmanagerconstants.h"
 #include "qbsprojectmanagersettings.h"
 
 #include <coreplugin/icore.h>
