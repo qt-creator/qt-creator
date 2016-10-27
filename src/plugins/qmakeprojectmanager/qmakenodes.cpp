@@ -87,26 +87,25 @@ using namespace Utils;
 
 struct FileTypeDataStorage {
     FileType type;
-    Theme::ImageFile themeImage;
     const char *typeName;
     const char *icon;
     const char *addFileFilter;
 };
 
 static const FileTypeDataStorage fileTypeDataStorage[] = {
-    { HeaderType, Theme::ProjectExplorerHeader, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Headers"),
+    { HeaderType, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Headers"),
       ProjectExplorer::Constants::FILEOVERLAY_H, "*.h; *.hh; *.hpp; *.hxx;"},
-    { SourceType, Theme::ProjectExplorerSource, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Sources"),
+    { SourceType, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Sources"),
       ProjectExplorer::Constants::FILEOVERLAY_CPP, "*.c; *.cc; *.cpp; *.cp; *.cxx; *.c++;" },
-    { FormType, Theme::ProjectExplorerForm, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Forms"),
+    { FormType, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Forms"),
       Constants::FILEOVERLAY_UI, "*.ui;" },
-    { StateChartType, Theme::ProjectExplorerForm, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "State charts"),
+    { StateChartType, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "State charts"),
       ProjectExplorer::Constants::FILEOVERLAY_SCXML, "*.scxml;" },
-    { ResourceType, Theme::ProjectExplorerResource, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Resources"),
+    { ResourceType, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Resources"),
       ProjectExplorer::Constants::FILEOVERLAY_QRC, "*.qrc;" },
-    { QMLType, Theme::ProjectExplorerQML, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "QML"),
+    { QMLType, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "QML"),
       ProjectExplorer::Constants::FILEOVERLAY_QML, "*.qml;" },
-    { UnknownFileType, Theme::ProjectExplorerOtherFiles, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Other files"),
+    { UnknownFileType, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Other files"),
       ProjectExplorer::Constants::FILEOVERLAY_UNKNOWN, "*;" }
 };
 
@@ -159,10 +158,7 @@ QmakeNodeStaticData::QmakeNodeStaticData()
 
     const QPixmap dirPixmap = qApp->style()->standardIcon(QStyle::SP_DirIcon).pixmap(desiredSize);
     for (unsigned i = 0 ; i < count; ++i) {
-        QIcon overlayIcon;
-        const QString iconFile = creatorTheme()->imageFile(fileTypeDataStorage[i].themeImage,
-                                                           QString::fromLatin1(fileTypeDataStorage[i].icon));
-        overlayIcon = QIcon(iconFile);
+        const QIcon overlayIcon(QLatin1String(fileTypeDataStorage[i].icon));
         QIcon folderIcon;
         folderIcon.addPixmap(FileIconProvider::overlayIcon(dirPixmap, overlayIcon));
         const QString desc = QCoreApplication::translate("QmakeProjectManager::QmakePriFileNode", fileTypeDataStorage[i].typeName);
@@ -171,9 +167,7 @@ QmakeNodeStaticData::QmakeNodeStaticData()
                                                                  desc, filter, folderIcon));
     }
     // Project icon
-    const QString fileName = creatorTheme()->imageFile(Theme::ProjectFileIcon,
-                                                       QLatin1String(ProjectExplorer::Constants::FILEOVERLAY_QT));
-    const QIcon projectBaseIcon(fileName);
+    const QIcon projectBaseIcon(ProjectExplorer::Constants::FILEOVERLAY_QT);
     const QPixmap projectPixmap = FileIconProvider::overlayIcon(dirPixmap, projectBaseIcon);
     projectIcon.addPixmap(projectPixmap);
 

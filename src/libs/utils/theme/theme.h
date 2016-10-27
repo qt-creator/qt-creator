@@ -149,9 +149,7 @@ public:
         PaletteShadow,
 
         PaletteWindowDisabled,
-        PaletteBackgroundDisabled,
         PaletteWindowTextDisabled,
-        PaletteForegroundDisabled,
         PaletteBaseDisabled,
         PaletteAlternateBaseDisabled,
         PaletteToolTipBaseDisabled,
@@ -299,18 +297,9 @@ public:
 
     enum Gradient {
         DetailsWidgetHeaderGradient,
-        Welcome_Button_GradientNormal,
-        Welcome_Button_GradientPressed
     };
 
     enum ImageFile {
-        ProjectExplorerHeader,
-        ProjectExplorerSource,
-        ProjectExplorerForm,
-        ProjectExplorerResource,
-        ProjectExplorerQML,
-        ProjectExplorerOtherFiles,
-        ProjectFileIcon,
         IconOverlayCSource,
         IconOverlayCppHeader,
         IconOverlayCppSource,
