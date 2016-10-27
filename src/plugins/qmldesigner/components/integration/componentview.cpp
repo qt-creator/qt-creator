@@ -25,6 +25,9 @@
 
 #include "componentview.h"
 #include "componentaction.h"
+
+#include <nodemetainfo.h>
+
 #include <QDebug>
 
 #include <nodeabstractproperty.h>
@@ -193,7 +196,9 @@ void ComponentView::searchForComponentAndAddToList(const ModelNode &node)
     foreach (const ModelNode &node, node.allSubModelNodesAndThisNode()) {
         if (node.nodeSourceType() == ModelNode::NodeWithComponentSource
                 || (node.hasParentProperty()
-                    && !node.parentProperty().isDefaultProperty())) {
+                    && !node.parentProperty().isDefaultProperty()
+                    && node.metaInfo().isValid()
+                    && node.metaInfo().isGraphicalItem())) {
             if (masterNotAdded) {
                 masterNotAdded = true;
                 addMasterDocument();
