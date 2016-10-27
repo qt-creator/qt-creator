@@ -414,10 +414,10 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::parseJsonInto(const QByteArray &json
 
 QMakeEvaluator::VisitReturn
 QMakeEvaluator::writeFile(const QString &ctx, const QString &fn, QIODevice::OpenMode mode,
-                          bool exe, const QString &contents)
+                          QMakeVfs::VfsFlags flags, const QString &contents)
 {
     QString errStr;
-    if (!m_vfs->writeFile(fn, mode, exe, contents, &errStr)) {
+    if (!m_vfs->writeFile(fn, mode, flags, contents, &errStr)) {
         evalError(fL1S("Cannot write %1file %2: %3")
                   .arg(ctx, QDir::toNativeSeparators(fn), errStr));
         return ReturnFalse;
@@ -1714,7 +1714,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
             return ReturnFalse;
         }
         QIODevice::OpenMode mode = QIODevice::Truncate;
-        bool exe = false;
+        QMakeVfs::VfsFlags flags = (m_cumulative ? QMakeVfs::VfsCumulative : QMakeVfs::VfsExact);
         QString contents;
         if (args.count() >= 2) {
             const ProStringList &vals = values(args.at(1).toKey());
@@ -1727,7 +1727,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
                     if (m_tmp3 == QLatin1String("append")) {
                         mode = QIODevice::Append;
                     } else if (m_tmp3 == QLatin1String("exe")) {
-                        exe = true;
+                        flags |= QMakeVfs::VfsExecutable;
                     } else {
                         evalError(fL1S("write_file(): invalid flag %1.").arg(m_tmp3));
                         return ReturnFalse;
@@ -1737,7 +1737,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
         }
         QString path = resolvePath(args.at(0).toQString(m_tmp1));
         path.detach(); // make sure to not leak m_tmp1 into the map of written files.
-        return writeFile(QString(), path, mode, exe, contents);
+        return writeFile(QString(), path, mode, flags, contents);
     }
     case T_TOUCH: {
         if (args.count() != 2) {
@@ -1921,6 +1921,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
             varstr += QLatin1Char('\n');
         }
         QString fn;
+        QMakeVfs::VfsFlags flags = (m_cumulative ? QMakeVfs::VfsCumulative : QMakeVfs::VfsExact);
         if (target == TargetSuper) {
             if (m_superfile.isEmpty()) {
                 m_superfile = QDir::cleanPath(m_outputDir + QLatin1String("/.qmake.super"));
@@ -1944,12 +1945,12 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
             fn = m_stashfile;
             if (fn.isEmpty())
                 fn = QDir::cleanPath(m_outputDir + QLatin1String("/.qmake.stash"));
-            if (!m_vfs->exists(fn)) {
+            if (!m_vfs->exists(fn, flags)) {
                 printf("Info: creating stash file %s\n", qPrintable(QDir::toNativeSeparators(fn)));
                 valuesRef(ProKey("_QMAKE_STASH_")) << ProString(fn);
             }
         }
-        return writeFile(fL1S("cache "), fn, QIODevice::Append, false, varstr);
+        return writeFile(fL1S("cache "), fn, QIODevice::Append, flags, varstr);
     }
     default:
         evalError(fL1S("Function '%1' is not implemented.").arg(function.toQString(m_tmp1)));

@@ -564,11 +564,19 @@ void QmakeProject::updateQmlJSCodeModel()
         foreach (const QString &path, node->variableValue(QmlImportPathVar))
             projectInfo.importPaths.maybeInsert(FileName::fromString(path),
                                                 QmlJS::Dialect::Qml);
-        projectInfo.activeResourceFiles.append(node->variableValue(ExactResourceVar));
-        projectInfo.allResourceFiles.append(node->variableValue(ResourceVar));
-        foreach (const QString &rc, projectInfo.allResourceFiles) {
+        const QStringList &exactResources = node->variableValue(ExactResourceVar);
+        const QStringList &cumulativeResources = node->variableValue(CumulativeResourceVar);
+        projectInfo.activeResourceFiles.append(exactResources);
+        projectInfo.allResourceFiles.append(exactResources);
+        projectInfo.allResourceFiles.append(cumulativeResources);
+        foreach (const QString &rc, exactResources) {
             QString contents;
-            if (m_qmakeVfs->readVirtualFile(rc, &contents))
+            if (m_qmakeVfs->readVirtualFile(rc, QMakeVfs::VfsExact, &contents))
+                projectInfo.resourceFileContents[rc] = contents;
+        }
+        foreach (const QString &rc, cumulativeResources) {
+            QString contents;
+            if (m_qmakeVfs->readVirtualFile(rc, QMakeVfs::VfsCumulative, &contents))
                 projectInfo.resourceFileContents[rc] = contents;
         }
         if (!hasQmlLib) {

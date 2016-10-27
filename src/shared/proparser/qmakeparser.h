@@ -26,6 +26,7 @@
 #pragma once
 
 #include "qmake_global.h"
+#include "qmakevfs.h"
 #include "proitems.h"
 
 #include <qhash.h>
@@ -75,7 +76,12 @@ public:
         ParseDefault = 0,
         ParseUseCache = 1,
         ParseOnlyCached = 2,
-        ParseReportMissing = 4
+        ParseReportMissing = 4,
+#ifdef PROEVALUATOR_DUAL_VFS
+        ParseCumulative = 8
+#else
+        ParseCumulative = 0
+#endif
     };
     Q_DECLARE_FLAGS(ParseFlags, ParseFlag)
 
@@ -126,7 +132,7 @@ private:
         ushort terminator; // '}' if replace function call is braced, ':' if test function
     };
 
-    bool read(ProFile *pro, ParseFlags flags);
+    bool readFile(const QString &fn, QMakeVfs::VfsFlags vfsFlags, QMakeParser::ParseFlags flags, QString *contents);
     void read(ProFile *pro, const QStringRef &content, int line, SubGrammar grammar);
 
     ALWAYS_INLINE void putTok(ushort *&tokPtr, ushort tok);

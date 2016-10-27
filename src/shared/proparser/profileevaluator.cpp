@@ -123,11 +123,12 @@ QStringList ProFileEvaluator::absoluteFileValues(
         const QString &variable, const QString &baseDirectory, const QStringList &searchDirs,
         const ProFile *pro) const
 {
+    QMakeVfs::VfsFlags flags = (d->m_cumulative ? QMakeVfs::VfsCumulative : QMakeVfs::VfsExact);
     QStringList result;
     foreach (const QString &el, pro ? values(variable, pro) : values(variable)) {
         QString absEl;
         if (IoUtils::isAbsolutePath(el)) {
-            if (m_vfs->exists(el)) {
+            if (m_vfs->exists(el, flags)) {
                 result << el;
                 goto next;
             }
@@ -135,7 +136,7 @@ QStringList ProFileEvaluator::absoluteFileValues(
         } else {
             foreach (const QString &dir, searchDirs) {
                 QString fn = QDir::cleanPath(dir + QLatin1Char('/') + el);
-                if (m_vfs->exists(fn)) {
+                if (m_vfs->exists(fn, flags)) {
                     result << fn;
                     goto next;
                 }

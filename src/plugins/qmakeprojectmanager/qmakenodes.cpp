@@ -581,7 +581,12 @@ struct InternalNode
         foreach (const FileName &file, resourcesToAdd) {
             auto vfs = static_cast<QmakePriFileNode *>(folder->projectNode())->m_project->qmakeVfs();
             QString contents;
-            vfs->readVirtualFile(file.toString(), &contents);
+            // Prefer the cumulative file if it's non-empty, based on the assumption
+            // that it contains more "stuff".
+            vfs->readVirtualFile(file.toString(), QMakeVfs::VfsCumulative, &contents);
+            // If the cumulative evaluation botched the file too much, try the exact one.
+            if (contents.isEmpty())
+                vfs->readVirtualFile(file.toString(), QMakeVfs::VfsExact, &contents);
             nodesToAdd.append(new ResourceEditor::ResourceTopLevelNode(file, contents, folder));
         }
 
@@ -1953,10 +1958,10 @@ EvalResult *QmakeProFileNode::evaluate(const EvalInput &input)
         result->newVarValues[HeaderExtensionVar] = QStringList() <<  input.readerExact->value(QLatin1String("QMAKE_EXT_H"));
         result->newVarValues[CppExtensionVar] = QStringList() <<  input.readerExact->value(QLatin1String("QMAKE_EXT_CPP"));
         result->newVarValues[MocDirVar] = QStringList() << mocDirPath(input.readerExact, input.buildDirectory);
-        result->newVarValues[ResourceVar] = fileListForVar(input.readerExact, input.readerCumulative,
-                                                   QLatin1String("RESOURCES"), input.projectDir, input.buildDirectory);
         result->newVarValues[ExactResourceVar] = fileListForVar(input.readerExact, 0,
                                                         QLatin1String("RESOURCES"), input.projectDir, input.buildDirectory);
+        result->newVarValues[CumulativeResourceVar] = fileListForVar(input.readerCumulative, 0,
+                                                   QLatin1String("RESOURCES"), input.projectDir, input.buildDirectory);
         result->newVarValues[PkgConfigVar] = input.readerExact->values(QLatin1String("PKGCONFIG"));
         result->newVarValues[PrecompiledHeaderVar] = input.readerExact->fixifiedValues(
                     QLatin1String("PRECOMPILED_HEADER"), input.projectDir, input.buildDirectory);
