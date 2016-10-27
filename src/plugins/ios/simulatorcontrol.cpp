@@ -64,6 +64,16 @@ static bool checkForTimeout(const std::chrono::time_point< std::chrono::high_res
     return timedOut;
 }
 
+static QByteArray runSimCtlCommand(QStringList args)
+{
+    QProcess simCtlProcess;
+    args.prepend(QStringLiteral("simctl"));
+    simCtlProcess.start(QStringLiteral("xcrun"), args, QProcess::ReadOnly);
+    if (!simCtlProcess.waitForFinished())
+        qCDebug(simulatorLog) << "simctl command failed." << simCtlProcess.errorString();
+    return simCtlProcess.readAll();
+}
+
 class SimulatorControlPrivate :QObject {
     Q_OBJECT
 private:
@@ -79,7 +89,6 @@ private:
 
     SimulatorControlPrivate(QObject *parent = nullptr);
     ~SimulatorControlPrivate();
-    QByteArray runSimCtlCommand(QStringList args) const;
     SimDeviceInfo deviceInfo(const QString &simUdid) const;
     bool runCommand(QString command, const QStringList &args, QByteArray *output = nullptr);
 
@@ -105,7 +114,7 @@ QList<Ios::Internal::IosDeviceType> SimulatorControl::availableSimulators()
 
 void SimulatorControl::updateAvailableSimulators()
 {
-    const QByteArray output = d->runSimCtlCommand({QLatin1String("list"), QLatin1String("-j"), QLatin1String("devices")});
+    const QByteArray output = runSimCtlCommand({QLatin1String("list"), QLatin1String("-j"), QLatin1String("devices")});
     QJsonDocument doc = QJsonDocument::fromJson(output);
     if (!doc.isNull()) {
         QList<IosDeviceType> availableDevices;
@@ -185,7 +194,7 @@ bool SimulatorControl::installApp(const QString &simUdid, const Utils::FileName 
 {
     bool installed = false;
     if (isSimulatorRunning(simUdid)) {
-        commandOutput = d->runSimCtlCommand(QStringList() << QStringLiteral("install") << simUdid << bundlePath.toString());
+        commandOutput = runSimCtlCommand(QStringList() << QStringLiteral("install") << simUdid << bundlePath.toString());
         installed = commandOutput.isEmpty();
     } else {
         commandOutput = "Simulator device not running.";
@@ -199,7 +208,7 @@ qint64 SimulatorControl::launchApp(const QString &simUdid, const QString &bundle
     pId = -1;
     if (!bundleIdentifier.isEmpty() && isSimulatorRunning(simUdid)) {
         const QStringList args({QStringLiteral("launch"), simUdid , bundleIdentifier});
-        const QByteArray output = d->runSimCtlCommand(args);
+        const QByteArray output = runSimCtlCommand(args);
         const QByteArray pIdStr = output.trimmed().split(' ').last().trimmed();
         bool validInt = false;
         pId = pIdStr.toLongLong(&validInt);
@@ -264,16 +273,6 @@ SimulatorControlPrivate::~SimulatorControlPrivate()
 
 }
 
-QByteArray SimulatorControlPrivate::runSimCtlCommand(QStringList args) const
-{
-    QProcess simCtlProcess;
-    args.prepend(QStringLiteral("simctl"));
-    simCtlProcess.start(QStringLiteral("xcrun"), args, QProcess::ReadOnly);
-    if (!simCtlProcess.waitForFinished())
-        qCDebug(simulatorLog) << "simctl command failed." << simCtlProcess.errorString();
-    return simCtlProcess.readAll();
-}
-
 // The simctl spawns the process and returns the pId but the application process might not have started, at least in a state where you can interrupt it.
 // Use SimulatorControl::waitForProcessSpawn to be sure.
 QProcess *SimulatorControl::spawnAppProcess(const QString &simUdid, const Utils::FileName &bundlePath, qint64 &pId, bool waitForDebugger, const QStringList &extraArgs)
@@ -282,7 +281,7 @@ QProcess *SimulatorControl::spawnAppProcess(const QString &simUdid, const Utils:
     if (isSimulatorRunning(simUdid)) {
         QString bundleId = bundleIdentifier(bundlePath);
         QString executableName = bundleExecutable(bundlePath);
-        QByteArray appPath = d->runSimCtlCommand(QStringList() << QStringLiteral("get_app_container") << simUdid << bundleId).trimmed();
+        QByteArray appPath = runSimCtlCommand(QStringList() << QStringLiteral("get_app_container") << simUdid << bundleId).trimmed();
         if (!appPath.isEmpty() && !executableName.isEmpty()) {
             // Spawn the app. The spawned app is started in suspended mode.
             appPath.append('/' + executableName.toLocal8Bit());
