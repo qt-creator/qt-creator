@@ -31,6 +31,7 @@
 #include <QCoreApplication>
 #include <QFuture>
 #include <QFutureInterface>
+#include <QFutureWatcher>
 #include <QRunnable>
 #include <QThread>
 #include <QThreadPool>
@@ -491,6 +492,60 @@ runAsync(QThreadPool *pool, Function &&function, Args&&... args)
 {
     return runAsync(pool, QThread::InheritPriority, std::forward<Function>(function),
                     std::forward<Args>(args)...);
+}
+
+
+/*!
+    Adds a handler for when a result is ready.
+    This creates a new QFutureWatcher. Do not use if you intend to react on multiple conditions
+    or create a QFutureWatcher already for other reasons.
+*/
+template <typename R, typename T>
+const QFuture<T> &onResultReady(const QFuture<T> &future, R *receiver, void(R::*member)(const T &))
+{
+    auto watcher = new QFutureWatcher<T>();
+    watcher->setFuture(future);
+    QObject::connect(watcher, &QFutureWatcherBase::finished, watcher, &QObject::deleteLater);
+    QObject::connect(watcher, &QFutureWatcherBase::resultReadyAt, receiver,
+                     [receiver, member, watcher](int index) {
+                         (receiver->*member)(watcher->future().resultAt(index));
+                     });
+    return future;
+}
+
+/*!
+    Adds a handler for when a result is ready. The guard object determines the lifetime of
+    the connection.
+    This creates a new QFutureWatcher. Do not use if you intend to react on multiple conditions
+    or create a QFutureWatcher already for other reasons.
+*/
+template <typename T, typename Function>
+const QFuture<T> &onResultReady(const QFuture<T> &future, QObject *guard, Function f)
+{
+    auto watcher = new QFutureWatcher<T>();
+    watcher->setFuture(future);
+    QObject::connect(watcher, &QFutureWatcherBase::finished, watcher, &QObject::deleteLater);
+    QObject::connect(watcher, &QFutureWatcherBase::resultReadyAt, guard, [f, watcher](int index) {
+        f(watcher->future().resultAt(index));
+    });
+    return future;
+}
+
+/*!
+    Adds a handler for when a result is ready.
+    This creates a new QFutureWatcher. Do not use if you intend to react on multiple conditions
+    or create a QFutureWatcher already for other reasons.
+*/
+template <typename T, typename Function>
+const QFuture<T> &onResultReady(const QFuture<T> &future, Function f)
+{
+    auto watcher = new QFutureWatcher<T>();
+    watcher->setFuture(future);
+    QObject::connect(watcher, &QFutureWatcherBase::finished, watcher, &QObject::deleteLater);
+    QObject::connect(watcher, &QFutureWatcherBase::resultReadyAt, [f, watcher](int index) {
+        f(watcher->future().resultAt(index));
+    });
+    return future;
 }
 
 } // Utils
