@@ -557,14 +557,26 @@
     \section2 Visualizing Statistics as Flame Graphs
 
     The \uicontrol {Flame Graph} view shows a more concise statistical overview
-    of QML and JavaScript execution. The horizontal bars show the amount of
+    of QML and JavaScript execution. In the \uicontrol {Visualize Total Time}
+    view, the horizontal bars show the amount of
     time all invocations of a certain function took together, relative to the
     total runtime of all JavaScript and QML events. The nesting shows which
-    functions were called by which other ones. Mind that, unlike the
+    functions were called by which other ones.
+
+    \image qml-profiler-flamegraph.png "Flame Graph View"
+
+    To view the total amount of memory allocated by the functions in the
+    \uicontrol {Visualize Memory} view, select \uicontrol Memory in the
+    drop-down menu (1).
+
+    To view the the number of memory allocations performed by the functions in
+    the \uicontrol {Visualize Allocations} view, select \uicontrol Allocations
+    in the drop-down menu.
+
+    Unlike the
     \uicontrol Timeline view, the \uicontrol {Flame Graph} view does not show the
     time spans when no QML or JavaScript is running at all. Thus, it is not
     suitable for analyzing per frame execution times. However, it is very easy
     to see the total impact of the various QML and JavaScript events there.
 
-    \image qml-profiler-flamegraph.png "Flame Graph View"
 */
