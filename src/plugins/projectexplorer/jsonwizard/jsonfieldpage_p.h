@@ -63,36 +63,28 @@ public:
 
 class LabelField : public JsonFieldPage::Field
 {
-public:
-    LabelField();
-
 private:
     QWidget *createWidget(const QString &displayName, JsonFieldPage *page) override;
     bool parseData(const QVariant &data, QString *errorMessage) override;
 
-    bool m_wordWrap;
+    bool m_wordWrap = false;
     QString m_text;
 };
 
 class SpacerField : public JsonFieldPage::Field
 {
 public:
-    SpacerField();
-
     bool suppressName() const override { return true; }
 
 private:
     bool parseData(const QVariant &data, QString *errorMessage) override;
     QWidget *createWidget(const QString &displayName, JsonFieldPage *page) override;
 
-    int m_factor;
+    int m_factor = 1;
 };
 
 class LineEditField : public JsonFieldPage::Field
 {
-public:
-    LineEditField();
-
 private:
     bool parseData(const QVariant &data, QString *errorMessage) override;
     QWidget *createWidget(const QString &displayName, JsonFieldPage *page) override;
@@ -102,10 +94,10 @@ private:
     bool validate(Utils::MacroExpander *expander, QString *message) override;
     void initializeData(Utils::MacroExpander *expander) override;
 
-    bool m_isModified;
-    bool m_isValidating;
-    bool m_restoreLastHistoryItem;
-    bool m_isPassword;
+    bool m_isModified = false;
+    bool m_isValidating = false;
+    bool m_restoreLastHistoryItem = false;
+    bool m_isPassword = false;
     QString m_placeholderText;
     QString m_defaultText;
     QString m_disabledText;
@@ -117,9 +109,6 @@ private:
 
 class TextEditField : public JsonFieldPage::Field
 {
-public:
-    TextEditField();
-
 private:
     bool parseData(const QVariant &data, QString *errorMessage) override;
     QWidget *createWidget(const QString &displayName, JsonFieldPage *page) override;
@@ -130,7 +119,7 @@ private:
     void initializeData(Utils::MacroExpander *expander) override;
 
     QString m_defaultText;
-    bool m_acceptRichText;
+    bool m_acceptRichText = false;
     QString m_disabledText;
 
     mutable QString m_currentText;
@@ -138,9 +127,6 @@ private:
 
 class PathChooserField : public JsonFieldPage::Field
 {
-public:
-    PathChooserField();
-
 private:
     bool parseData(const QVariant &data, QString *errorMessage) override;
 
@@ -155,7 +141,7 @@ private:
     QString m_path;
     QString m_basePath;
     QString m_historyId;
-    Utils::PathChooser::Kind m_kind;
+    Utils::PathChooser::Kind m_kind = Utils::PathChooser::ExistingDirectory;
 
     QString m_currentPath;
 };
@@ -163,8 +149,6 @@ private:
 class CheckBoxField : public JsonFieldPage::Field
 {
 public:
-    CheckBoxField();
-
     bool suppressName() const override { return true; }
 
 private:
@@ -177,8 +161,8 @@ private:
     bool validate(Utils::MacroExpander *expander, QString *message) override;
     void initializeData(Utils::MacroExpander *expander) override;
 
-    QString m_checkedValue;
-    QString m_uncheckedValue;
+    QString m_checkedValue = "0";
+    QString m_uncheckedValue = "1";
     QVariant m_checkedExpression;
 
     bool m_isModified = false;
@@ -186,9 +170,6 @@ private:
 
 class ComboBoxField : public JsonFieldPage::Field
 {
-public:
-    ComboBoxField() = default;
-
 private:
     bool parseData(const QVariant &data, QString *errorMessage) override;
 
