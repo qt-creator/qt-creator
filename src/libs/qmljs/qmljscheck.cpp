@@ -1252,7 +1252,12 @@ bool Check::visit(BinaryExpression *ast)
 
 bool Check::visit(Block *ast)
 {
-    addMessage(ErrBlocksNotSupportedInQmlUi, locationFromRange(ast->firstSourceLocation(), ast->lastSourceLocation()));
+
+    bool isDirectInConnectionsScope =
+            (!m_typeStack.isEmpty() && m_typeStack.last() == QLatin1String("Connections"));
+
+    if (!isDirectInConnectionsScope)
+        addMessage(ErrBlocksNotSupportedInQmlUi, locationFromRange(ast->firstSourceLocation(), ast->lastSourceLocation()));
 
     if (Node *p = parent()) {
         if (!cast<UiScriptBinding *>(p)
