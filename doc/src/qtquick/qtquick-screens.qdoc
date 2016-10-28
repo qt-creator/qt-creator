@@ -133,12 +133,23 @@
 
     \image qmldesigner-set-expression.png "Type properties context menu"
 
+    The \uicontrol {Binding Editor} supports code completion. Start typing a
+    string and press \key Ctrl+Space to display a list of properties, IDs, and
+    code snippets. When you enter a period (.) after a property name, a list of
+    available values is displayed. Press \key Enter to accept the first
+    suggestion in the list and to complete the code.
+
+    \image qmldesigner-binding-editor.png "Binding Editor"
+
     To remove bindings, select \uicontrol Reset in the context menu.
+
+    You can set bindings also in the \uicontrol Connections view. For more
+    information, see \l {Adding Bindings Between Properties}.
 
     For more information on the JavaScript environment provided by QML, see
     \l{Integrating QML and JavaScript}.
 
-    \QMLD cannot show bindings and using them might have a negative impact on
+    Bindings are a black box for \QMLD and using them might have a negative impact on
     performance, so consider setting anchors and margins for items, instead.
     For example, instead of setting \c {parent.width} for an item, you could
     anchor the item to its sibling items on the left and the right.
