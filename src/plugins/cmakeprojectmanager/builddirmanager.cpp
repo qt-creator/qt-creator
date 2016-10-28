@@ -27,6 +27,7 @@
 #include "cmakebuildconfiguration.h"
 #include "cmakekitinformation.h"
 #include "cmakeparser.h"
+#include "cmakeprojectconstants.h"
 #include "cmakeprojectmanager.h"
 #include "cmakeprojectnodes.h"
 #include "cmaketool.h"
@@ -36,6 +37,7 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <cpptools/cpptoolsconstants.h>
 #include <cpptools/projectpartbuilder.h>
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/kit.h>
@@ -49,8 +51,10 @@
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/runextensions.h>
 #include <utils/synchronousprocess.h>
 
 #include <QDateTime>
@@ -78,6 +82,9 @@ BuildDirManager::BuildDirManager(CMakeBuildConfiguration *bc) :
     m_reparseTimer.setSingleShot(true);
 
     connect(&m_reparseTimer, &QTimer::timeout, this, &BuildDirManager::parse);
+
+    connect(&m_futureWatcher, &QFutureWatcher<QList<FileNode *>>::finished,
+            this, &BuildDirManager::emitDataAvailable);
 }
 
 BuildDirManager::~BuildDirManager() = default;
@@ -96,6 +103,12 @@ const Utils::FileName BuildDirManager::workDirectory() const
     return Utils::FileName::fromString(m_tempDir->path());
 }
 
+void BuildDirManager::emitDataAvailable()
+{
+    if (!isParsing() && m_futureWatcher.isFinished())
+        emit dataAvailable();
+}
+
 void BuildDirManager::updateReaderType(std::function<void()> todo)
 {
     BuildDirReader::Parameters p(m_buildConfiguration);
@@ -106,7 +119,7 @@ void BuildDirManager::updateReaderType(std::function<void()> todo)
         connect(m_reader.get(), &BuildDirReader::configurationStarted,
                 this, &BuildDirManager::configurationStarted);
         connect(m_reader.get(), &BuildDirReader::dataAvailable,
-                this, &BuildDirManager::dataAvailable);
+                this, &BuildDirManager::emitDataAvailable);
         connect(m_reader.get(), &BuildDirReader::errorOccured,
                 this, &BuildDirManager::errorOccured);
         connect(m_reader.get(), &BuildDirReader::dirty, this, &BuildDirManager::becameDirty);
@@ -129,6 +142,12 @@ void BuildDirManager::updateReaderData()
 
 void BuildDirManager::parseOnceReaderReady(bool force)
 {
+    m_futureInterface.reset(new QFutureInterface<QList<ProjectExplorer::FileNode *>>());
+    m_futureWatcher.setFuture(m_futureInterface->future());
+
+    Core::ProgressManager::addTask(m_futureInterface->future(), "Scan CMake project tree", "CMake.Scan.Tree");
+    Utils::runAsync([this]() { BuildDirManager::asyncScanForFiles(*m_futureInterface); });
+
     checkConfiguration();
     m_reader->stop();
     m_reader->parse(force);
@@ -218,6 +237,49 @@ void BuildDirManager::becameDirty()
     m_reparseTimer.start(1000);
 }
 
+void BuildDirManager::asyncScanForFiles(QFutureInterface<QList<FileNode *> > &fi)
+{
+    fi.reportStarted();
+    Utils::MimeDatabase mdb;
+
+    QList<FileNode *> nodes
+            = FileNode::scanForFiles(m_buildConfiguration->target()->project()->projectDirectory(),
+                                     [&mdb](const Utils::FileName &fn) -> FileNode * {
+                                         QTC_ASSERT(!fn.isEmpty(), return nullptr);
+                                         const Utils::MimeType mimeType = mdb.mimeTypeForFile(fn.toString());
+                                         FileType type = FileType::Unknown;
+                                         if (mimeType.isValid()) {
+                                             const QString mt = mimeType.name();
+                                             if (mt == CppTools::Constants::C_SOURCE_MIMETYPE
+                                                     || mt == CppTools::Constants::CPP_SOURCE_MIMETYPE
+                                                     || mt == CppTools::Constants::OBJECTIVE_C_SOURCE_MIMETYPE
+                                                     || mt == CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE
+                                                     || mt == CppTools::Constants::QDOC_MIMETYPE
+                                                     || mt == CppTools::Constants::MOC_MIMETYPE)
+                                                 type = FileType::Source;
+                                             else if (mt == CppTools::Constants::C_HEADER_MIMETYPE
+                                                      || mt == CppTools::Constants::CPP_HEADER_MIMETYPE)
+                                                 type = FileType::Header;
+                                             else if (mt == ProjectExplorer::Constants::FORM_MIMETYPE)
+                                                 type = FileType::Form;
+                                             else if (mt == ProjectExplorer::Constants::RESOURCE_MIMETYPE)
+                                                 type = FileType::Resource;
+                                             else if (mt == ProjectExplorer::Constants::SCXML_MIMETYPE)
+                                                 type = FileType::StateChart;
+                                             else if (mt == CMakeProjectManager::Constants::CMAKEPROJECTMIMETYPE
+                                                      || mt == CMakeProjectManager::Constants::CMAKEMIMETYPE)
+                                                 type = FileType::Project;
+                                             else if (mt == ProjectExplorer::Constants::QML_MIMETYPE)
+                                                 type = FileType::QML;
+                                         }
+                                         return new FileNode(fn, type, false);
+                                     },
+                                     &fi);
+    fi.setProgressValue(m_futureInterface->progressMaximum());
+    fi.reportResult(nodes);
+    fi.reportFinished();
+}
+
 void BuildDirManager::forceReparse()
 {
     if (m_buildConfiguration->target()->activeBuildConfiguration() != m_buildConfiguration)
@@ -236,6 +298,7 @@ void BuildDirManager::resetData()
         m_reader->resetData();
 
     m_cmakeCache.clear();
+    m_futureInterface.reset();
 
     m_reader.reset(nullptr);
 }

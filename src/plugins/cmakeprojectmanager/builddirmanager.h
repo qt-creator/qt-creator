@@ -30,6 +30,7 @@
 
 #include <utils/fileutils.h>
 
+#include <QFutureWatcher>
 #include <QObject>
 #include <QTemporaryDir>
 #include <QTimer>
@@ -89,6 +90,7 @@ protected:
     const Utils::FileName workDirectory() const;
 
 private:
+    void emitDataAvailable();
     void checkConfiguration();
 
     void updateReaderType(std::function<void()> todo);
@@ -101,6 +103,8 @@ private:
 
     void becameDirty();
 
+    void asyncScanForFiles(QFutureInterface<QList<ProjectExplorer::FileNode*>> &fi);
+
     CMakeBuildConfiguration *m_buildConfiguration = nullptr;
     mutable std::unique_ptr<QTemporaryDir> m_tempDir = nullptr;
     mutable CMakeConfig m_cmakeCache;
@@ -108,6 +112,8 @@ private:
     QTimer m_reparseTimer;
 
     std::unique_ptr<BuildDirReader> m_reader;
+    std::unique_ptr<QFutureInterface<QList<ProjectExplorer::FileNode*>>> m_futureInterface;
+    QFutureWatcher<QList<ProjectExplorer::FileNode*>> m_futureWatcher;
 };
 
 } // namespace Internal
