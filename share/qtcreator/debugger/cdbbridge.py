@@ -32,6 +32,51 @@ sys.path.insert(1, os.path.dirname(os.path.abspath(inspect.getfile(inspect.curre
 
 from dumper import *
 
+class FakeVoidType(cdbext.Type):
+    def __init__(self, name , dumper):
+        cdbext.Type.__init__(self)
+        self.typeName = name.strip()
+        self.dumper = dumper
+
+    def name(self):
+        return self.typeName
+
+    def bitsize(self):
+        return 0 if self.typeName == 'void' else self.dumper.ptrSize() * 8
+
+    def code(self):
+        if self.typeName.endswith('*'):
+            return TypeCodePointer
+        if self.typeName.endswith(']'):
+            return TypeCodeArray
+        return TypeCodeVoid
+
+    def unqualified(self):
+        return self
+
+    def target(self):
+        code = self.code()
+        if code == TypeCodePointer:
+            return FakeVoidType(self.typeName[:-1], self.dumper)
+        if code == TypeCodeVoid:
+            return self
+        try:
+            return FakeVoidType(self.typeName[:self.typeName.rindex('[')], self.dumper)
+        except:
+            return FakeVoidType('void', self.dumper)
+
+    def stripTypedef(self):
+        return self
+
+    def fields(self):
+        return []
+
+    def templateArgument(self, pos, numeric):
+        return None
+
+    def templateArguments(self):
+        return []
+
 class Dumper(DumperBase):
     def __init__(self):
         DumperBase.__init__(self)
@@ -121,6 +166,8 @@ class Dumper(DumperBase):
         self.output += stuff
 
     def lookupNativeType(self, name):
+        if name.startswith('void'):
+            return FakeVoidType(name, self)
         return cdbext.lookupType(name)
 
     def reportResult(self, result, args):
