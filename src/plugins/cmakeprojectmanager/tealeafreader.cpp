@@ -353,7 +353,7 @@ void TeaLeafReader::generateProjectTree(CMakeProjectNode *root)
 QSet<Id> TeaLeafReader::updateCodeModel(CppTools::ProjectPartBuilder &ppBuilder)
 {
     QSet<Id> languages;
-    ToolChain *tc = ToolChainManager::findToolChain(m_parameters.toolChainId);
+    const ToolChain *tc = ToolChainManager::findToolChain(m_parameters.toolChainId);
     const FileName sysroot = m_parameters.sysRoot;
 
     QHash<QString, QStringList> targetDataCache;
@@ -364,7 +364,7 @@ QSet<Id> TeaLeafReader::updateCodeModel(CppTools::ProjectPartBuilder &ppBuilder)
         // CMake shuffles the include paths that it reports via the CodeBlocks generator
         // So remove the toolchain include paths, so that at least those end up in the correct
         // place.
-        QStringList cxxflags = getCXXFlagsFor(cbt, targetDataCache);
+        const QStringList cxxflags = getCXXFlagsFor(cbt, targetDataCache);
         QSet<FileName> tcIncludes;
         QStringList includePaths;
         if (tc) {
@@ -413,8 +413,7 @@ void TeaLeafReader::extractData()
 {
     const FileName srcDir = m_parameters.sourceDirectory;
     const FileName bldDir = m_parameters.buildDirectory;
-    const FileName topCMake
-            = FileName::fromString(srcDir.toString() + QLatin1String("/CMakeLists.txt"));
+    const FileName topCMake = Utils::FileName(srcDir).appendPath("CMakeLists.txt");
 
     resetData();
 
