@@ -231,6 +231,7 @@ void BuildDirManager::forceReparse()
     CMakeTool *tool = CMakeKitInformation::cmakeTool(m_buildConfiguration->target()->kit());
     QTC_ASSERT(tool, return);
 
+    m_reader.reset(); // Force reparse by forcing in a new reader
     updateReaderType([this]() { parseOnceReaderReady(true); });
 }
 
