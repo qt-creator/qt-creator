@@ -242,8 +242,9 @@ bool QMakeParser::read(ProFile *pro, ParseFlags flags)
 {
     QString content;
     QString errStr;
-    if (!m_vfs->readFile(pro->fileName(), &content, &errStr)) {
-        if (m_handler && ((flags & ParseReportMissing) || m_vfs->exists(pro->fileName())))
+    QMakeVfs::ReadResult result = m_vfs->readFile(pro->fileName(), &content, &errStr);
+    if (result != QMakeVfs::ReadOk) {
+        if (m_handler && ((flags & ParseReportMissing) || result != QMakeVfs::ReadNotFound))
             m_handler->message(QMakeParserHandler::ParserIoError,
                                fL1S("Cannot read %1: %2").arg(pro->fileName(), errStr));
         return false;

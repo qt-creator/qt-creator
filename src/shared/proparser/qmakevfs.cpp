@@ -114,7 +114,7 @@ bool QMakeVfs::readVirtualFile(const QString &fn, QString *contents)
 }
 #endif
 
-bool QMakeVfs::readFile(const QString &fn, QString *contents, QString *errStr)
+QMakeVfs::ReadResult QMakeVfs::readFile(const QString &fn, QString *contents, QString *errStr)
 {
 #ifndef PROEVALUATOR_FULL
 # ifdef PROEVALUATOR_THREAD_SAFE
@@ -124,25 +124,26 @@ bool QMakeVfs::readFile(const QString &fn, QString *contents, QString *errStr)
     if (it != m_files.constEnd()) {
         if (it->constData() == m_magicMissing.constData()) {
             *errStr = fL1S("No such file or directory");
-            return false;
+            return ReadNotFound;
         }
         if (it->constData() != m_magicExisting.constData()) {
             *contents = *it;
-            return true;
+            return ReadOk;
         }
     }
 #endif
 
     QFile file(fn);
     if (!file.open(QIODevice::ReadOnly)) {
+        if (!file.exists()) {
 #ifndef PROEVALUATOR_FULL
-        if (!IoUtils::exists(fn)) {
             m_files[fn] = m_magicMissing;
-            *errStr = fL1S("No such file or directory");
-        } else
 #endif
-            *errStr = file.errorString();
-        return false;
+            *errStr = fL1S("No such file or directory");
+            return ReadNotFound;
+        }
+        *errStr = file.errorString();
+        return ReadOtherError;
     }
 #ifndef PROEVALUATOR_FULL
     m_files[fn] = m_magicExisting;
@@ -152,10 +153,10 @@ bool QMakeVfs::readFile(const QString &fn, QString *contents, QString *errStr)
     if (bcont.startsWith("\xef\xbb\xbf")) {
         // UTF-8 BOM will cause subtle errors
         *errStr = fL1S("Unexpected UTF-8 BOM");
-        return false;
+        return ReadOtherError;
     }
     *contents = QString::fromLocal8Bit(bcont);
-    return true;
+    return ReadOk;
 }
 
 bool QMakeVfs::exists(const QString &fn)

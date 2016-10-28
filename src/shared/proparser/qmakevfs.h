@@ -41,10 +41,16 @@ QT_BEGIN_NAMESPACE
 class QMAKE_EXPORT QMakeVfs
 {
 public:
+    enum ReadResult {
+        ReadOk,
+        ReadNotFound,
+        ReadOtherError
+    };
+
     QMakeVfs();
 
     bool writeFile(const QString &fn, QIODevice::OpenMode mode, bool exe, const QString &contents, QString *errStr);
-    bool readFile(const QString &fn, QString *contents, QString *errStr);
+    ReadResult readFile(const QString &fn, QString *contents, QString *errStr);
     bool exists(const QString &fn);
 
 #ifndef PROEVALUATOR_FULL
