@@ -93,15 +93,6 @@ class Dumper(DumperBase):
     def parseAndEvaluate(self, exp):
         return cdbext.parseAndEvaluate(exp)
 
-    def nativeTypeTemplateArgument(self, nativeType, position, numeric = False):
-        return self.fromNativeType(nativeType.templateArgument(position, numeric))
-
-    def nativeTypeDereference(self, nativeType):
-        return self.fromNativeType(nativeType.target())
-
-    def nativeTypeTarget(self, nativeType):
-        return self.fromNativeType(nativeType.target())
-
     def isWindowsTarget(self):
         return True
 
@@ -121,11 +112,7 @@ class Dumper(DumperBase):
         return self.qtVersionAndNamespace()[0]
 
     def qtVersion(self):
-        self.qtVersionAndNamespace()
         return self.qtVersionAndNamespace()[1]
-
-    def qtTypeInfoVersion(self):
-        return None
 
     def ptrSize(self):
         return cdbext.pointerSize()
@@ -135,12 +122,6 @@ class Dumper(DumperBase):
 
     def lookupNativeType(self, name):
         return cdbext.lookupType(name)
-
-    def currentThread(self):
-        return None
-
-    def currentFrame(self):
-        return None
 
     def reportResult(self, result, args):
         self.report('result={%s}' % (result))
