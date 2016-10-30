@@ -573,7 +573,7 @@ MsvcToolChainFactory::MsvcToolChainFactory()
 
 QSet<ToolChain::Language> MsvcToolChainFactory::supportedLanguages() const
 {
-    return { ProjectExplorer::ToolChain::Language::Cxx };
+    return { ToolChain::Language::C, ToolChain::Language::Cxx };
 }
 
 bool MsvcToolChainFactory::checkForVisualStudioInstallation(const QString &vsName)
@@ -617,24 +617,32 @@ QString MsvcToolChainFactory::vcVarsBatFor(const QString &basePath, MsvcToolChai
     return QString();
 }
 
-static ToolChain *findOrCreateToolChain(const QList<ToolChain *> &alreadyKnown,
-                                        const QString &name, const Abi &abi,
-                                        const QString &varsBat, const QString &varsBatArg,
-                                        ToolChain::Detection d = ToolChain::ManualDetection)
+static QList<ToolChain *> findOrCreateToolChain(
+        const QList<ToolChain *> &alreadyKnown,
+        const QString &name, const Abi &abi,
+        const QString &varsBat, const QString &varsBatArg,
+        ToolChain::Detection d = ToolChain::ManualDetection)
 {
-    ToolChain *tc = Utils::findOrDefault(alreadyKnown,
-                                         [&varsBat, &varsBatArg, &abi](ToolChain *tc) -> bool {
-                                              if (tc->typeId() != Constants::MSVC_TOOLCHAIN_TYPEID)
-                                                  return false;
-                                              if (tc->targetAbi() != abi)
-                                                  return false;
-                                              auto mtc = static_cast<MsvcToolChain *>(tc);
-                                              return mtc->varsBat() == varsBat
-                                                      && mtc->varsBatArg() == varsBatArg;
-                                         });
-    if (!tc)
-        tc = new MsvcToolChain(name, abi, varsBat, varsBatArg, ToolChain::Language::Cxx, d);
-    return tc;
+    QList<ToolChain *> res;
+    for (auto language: {ToolChain::Language::C, ToolChain::Language::Cxx}) {
+        ToolChain *tc = Utils::findOrDefault(
+                    alreadyKnown,
+                    [&varsBat, &varsBatArg, &abi, &language](ToolChain *tc) -> bool {
+            if (tc->typeId() != Constants::MSVC_TOOLCHAIN_TYPEID)
+                return false;
+            if (tc->targetAbi() != abi)
+                return false;
+            if (tc->language() != language)
+                return false;
+            auto mtc = static_cast<MsvcToolChain *>(tc);
+            return mtc->varsBat() == varsBat
+                    && mtc->varsBatArg() == varsBatArg;
+        });
+        if (!tc)
+            tc = new MsvcToolChain(name, abi, varsBat, varsBatArg, language, d);
+        res << tc;
+    }
+    return res;
 }
 
 // Detect build tools introduced with MSVC2015
@@ -670,10 +678,11 @@ static void detectCppBuildTools(QList<ToolChain *> *list)
         const Entry &e = entries[i];
         const Abi abi(e.architecture, Abi::WindowsOS, Abi::WindowsMsvc2015Flavor,
                       e.format, e.wordSize);
-        list->append(new MsvcToolChain(name + QLatin1String(e.postFix), abi,
-                                       vcVarsBat, QLatin1String(e.varsBatArg),
-                                       ToolChain::Language::Cxx,
-                                       ToolChain::AutoDetection));
+        for (auto language: {ToolChain::Language::C, ToolChain::Language::Cxx}) {
+            list->append(new MsvcToolChain(name + QLatin1String(e.postFix), abi,
+                                           vcVarsBat, QLatin1String(e.varsBatArg),
+                                           language, ToolChain::AutoDetection));
+        }
     }
 }
 
