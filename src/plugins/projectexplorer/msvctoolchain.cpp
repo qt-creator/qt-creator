@@ -743,19 +743,18 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect(const QList<ToolChain *> &al
                 continue;
 
             QList<ToolChain *> tmp;
-            tmp.append(findOrCreateToolChain(alreadyKnown,
-                                             generateDisplayName(name, MsvcToolChain::WindowsSDK, MsvcToolChain::x86),
-                                             findAbiOfMsvc(MsvcToolChain::WindowsSDK, MsvcToolChain::x86, sdkKey),
-                                             fi.absoluteFilePath(), QLatin1String("/x86"), ToolChain::AutoDetection));
-            // Add all platforms, cross-compiler is automatically selected by SetEnv.cmd if needed
-            tmp.append(findOrCreateToolChain(alreadyKnown,
-                                             generateDisplayName(name, MsvcToolChain::WindowsSDK, MsvcToolChain::amd64),
-                                             findAbiOfMsvc(MsvcToolChain::WindowsSDK, MsvcToolChain::amd64, sdkKey),
-                                             fi.absoluteFilePath(), QLatin1String("/x64"), ToolChain::AutoDetection));
-            tmp.append(findOrCreateToolChain(alreadyKnown,
-                                             generateDisplayName(name, MsvcToolChain::WindowsSDK, MsvcToolChain::ia64),
-                                             findAbiOfMsvc(MsvcToolChain::WindowsSDK, MsvcToolChain::ia64, sdkKey),
-                                             fi.absoluteFilePath(), QLatin1String("/ia64"), ToolChain::AutoDetection));
+            const QVector<QPair<MsvcToolChain::Platform, QString> > platforms = {
+                {MsvcToolChain::x86, "x86"},
+                {MsvcToolChain::amd64, "x64"},
+                {MsvcToolChain::ia64, "ia64"},
+            };
+            for (auto platform: platforms) {
+                tmp.append(findOrCreateToolChain(
+                               alreadyKnown,
+                               generateDisplayName(name, MsvcToolChain::WindowsSDK, platform.first),
+                               findAbiOfMsvc(MsvcToolChain::WindowsSDK, platform.first, sdkKey),
+                               fi.absoluteFilePath(), "/" + platform.second, ToolChain::AutoDetection));
+            }
             // Make sure the default is front.
             if (folder == defaultSdkPath)
                 results = tmp + results;
@@ -786,14 +785,16 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect(const QList<ToolChain *> &al
         const int version = vsName.leftRef(dotPos).toInt();
         const QString vcvarsAllbat = path + QLatin1String("/vcvarsall.bat");
         if (QFileInfo(vcvarsAllbat).isFile()) {
-            QList<MsvcToolChain::Platform> platforms; // prioritized list
+            // prioritized list.
             // x86_arm was put before amd64_arm as a workaround for auto detected windows phone
             // toolchains. As soon as windows phone builds support x64 cross builds, this change
             // can be reverted.
-            platforms << MsvcToolChain::x86 << MsvcToolChain::amd64_x86
-                      << MsvcToolChain::amd64 << MsvcToolChain::x86_amd64
-                      << MsvcToolChain::arm << MsvcToolChain::x86_arm << MsvcToolChain::amd64_arm
-                      << MsvcToolChain::ia64 << MsvcToolChain::x86_ia64;
+            const QVector<MsvcToolChain::Platform> platforms = {
+                MsvcToolChain::x86, MsvcToolChain::amd64_x86,
+                MsvcToolChain::amd64, MsvcToolChain::x86_amd64,
+                MsvcToolChain::arm, MsvcToolChain::x86_arm, MsvcToolChain::amd64_arm,
+                MsvcToolChain::ia64, MsvcToolChain::x86_ia64
+            };
             foreach (const MsvcToolChain::Platform &platform, platforms) {
                 const bool toolchainInstalled = QFileInfo(vcVarsBatFor(path, platform)).isFile();
                 if (hostSupportsPlatform(platform) && toolchainInstalled) {
