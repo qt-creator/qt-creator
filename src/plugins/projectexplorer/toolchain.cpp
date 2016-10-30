@@ -202,7 +202,9 @@ bool ToolChain::operator == (const ToolChain &tc) const
         return true;
 
     // We ignore displayname
-    return typeId() == tc.typeId() && isAutoDetected() == tc.isAutoDetected();
+    return typeId() == tc.typeId()
+            && isAutoDetected() == tc.isAutoDetected()
+            && language() == tc.language();
 }
 
 /*!
