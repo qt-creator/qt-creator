@@ -161,8 +161,8 @@ private:
     bool validate(Utils::MacroExpander *expander, QString *message) override;
     void initializeData(Utils::MacroExpander *expander) override;
 
-    QString m_checkedValue = "0";
-    QString m_uncheckedValue = "1";
+    QString m_checkedValue = QString("0");
+    QString m_uncheckedValue = QString("1");
     QVariant m_checkedExpression;
 
     bool m_isModified = false;
