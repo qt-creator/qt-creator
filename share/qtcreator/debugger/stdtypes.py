@@ -659,6 +659,17 @@ def qdump__std____1__unique_ptr(d, value):
     qdump__std__unique_ptr(d, value)
 
 
+def qdump__std__pair(d, value):
+    typeCode = '{%s}@{%s}' % (value.type[0].name, value.type[1].name)
+    first, pad, second = value.split(typeCode)
+    with Children(d):
+        key = d.putSubItem('first', first)
+        value = d.putSubItem('second', second)
+    d.putField('key', key.value)
+    if key.encoding is not None:
+        d.putField('keyencoded', key.encoding)
+    d.putValue(value.value, value.encoding)
+
 def qform__std__unordered_map():
     return mapForms()
 
