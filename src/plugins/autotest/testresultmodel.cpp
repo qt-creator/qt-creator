@@ -135,17 +135,9 @@ TestResultModel::TestResultModel(QObject *parent)
 
 void TestResultModel::addTestResult(const TestResultPtr &testResult, bool autoExpand)
 {
-    const bool isCurrentTestMssg = testResult->result() == Result::MessageCurrentTest;
-
-    QVector<Utils::TreeItem *> topLevelItems = rootItem()->children();
-    int lastRow = topLevelItems.size() - 1;
-    // we'll add the new item, so raising it's counter
-    if (!isCurrentTestMssg) {
-        int count = m_testResultCount.value(testResult->result(), 0);
-        if (testResult->result() == Result::MessageDisabledTests)
-            m_disabled += testResult->line();
-        m_testResultCount.insert(testResult->result(), ++count);
-    } else {
+    const QVector<Utils::TreeItem *> &topLevelItems = rootItem()->children();
+    const int lastRow = topLevelItems.size() - 1;
+    if (testResult->result() == Result::MessageCurrentTest) {
         // MessageCurrentTest should always be the last top level item
         if (lastRow >= 0) {
             TestResultItem *current = static_cast<TestResultItem *>(topLevelItems.at(lastRow));
@@ -160,6 +152,10 @@ void TestResultModel::addTestResult(const TestResultPtr &testResult, bool autoEx
         rootItem()->appendChild(new TestResultItem(testResult));
         return;
     }
+
+    if (testResult->result() == Result::MessageDisabledTests)
+        m_disabled += testResult->line();
+    m_testResultCount[testResult->result()]++;
 
     TestResultItem *newItem = new TestResultItem(testResult);
     // FIXME this might be totally wrong... we need some more unique information!
@@ -188,7 +184,7 @@ void TestResultModel::addTestResult(const TestResultPtr &testResult, bool autoEx
             return;
         }
     }
-
+    // there is no MessageCurrentTest at the last row, but we have a toplevel item - just add it
     rootItem()->appendChild(newItem);
 }
 
