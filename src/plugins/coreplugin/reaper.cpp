@@ -95,7 +95,6 @@ void reap(QProcess *process, int timeoutMs)
 
     Internal::d->m_synchronizer.addFuture(f);
     auto watcher = new QFutureWatcher<void>();
-    watcher->setFuture(f);
 
     QObject::connect(watcher, &QFutureWatcher<void>::finished, [watcher, reaper]() {
         watcher->deleteLater();
@@ -107,6 +106,7 @@ void reap(QProcess *process, int timeoutMs)
 
         delete reaper;
     });
+    watcher->setFuture(f);
 }
 
 } // namespace Reaper
