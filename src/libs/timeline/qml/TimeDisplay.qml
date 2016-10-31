@@ -82,12 +82,12 @@ Item {
     }
 
     Item {
-        x: Math.floor(firstBlock * timeDisplay.pixelsPerBlock - timeDisplay.offsetX)
+        x: -(timeDisplay.offsetX % timeDisplay.pixelsPerBlock)
         y: 0
         id: row
 
         property int firstBlock: timeDisplay.offsetX / timeDisplay.pixelsPerBlock
-        property int offset: firstBlock % repeater.model
+        property int offset: repeater.model - (firstBlock % repeater.model);
 
         Repeater {
             id: repeater
@@ -98,19 +98,16 @@ Item {
 
                 // Changing the text in text nodes is expensive. We minimize the number of changes
                 // by rotating the nodes during scrolling.
-                property int stableIndex: row.offset > index ? repeater.model - row.offset + index :
-                                                               index - row.offset
+                property int stableIndex: (index + row.offset) % repeater.model
+
                 height: timeDisplay.height
                 y: 0
                 x: width * stableIndex
                 width: timeDisplay.pixelsPerBlock
 
-                // Manually control this. We don't want it to happen when firstBlock
-                // changes before stableIndex changes.
-                onStableIndexChanged: block = row.firstBlock + stableIndex
-                property int block: -1
-                property double blockStartTime: block * timeDisplay.timePerBlock +
-                                                timeDisplay.alignedWindowStart
+                property double blockStartTime: (row.firstBlock + stableIndex)
+                                                * timeDisplay.timePerBlock
+                                                + timeDisplay.alignedWindowStart
 
                 TimelineText {
                     id: timeLabel
