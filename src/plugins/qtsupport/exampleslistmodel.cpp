@@ -760,6 +760,14 @@ void ExamplesListModelFilter::updateFilter()
     }
 }
 
+void ExamplesListModelFilter::setFilterStrings(const QStringList &arg)
+{
+    if (m_filterStrings != arg) {
+        m_filterStrings = arg;
+        delayedUpdateFilter();
+    }
+}
+
 bool containsSubString(const QStringList &list, const QString &substr, Qt::CaseSensitivity cs)
 {
     return Utils::contains(list, [&substr, &cs](const QString &elem) {
@@ -789,11 +797,11 @@ bool ExamplesListModelFilter::filterAcceptsRow(int sourceRow, const QModelIndex 
         });
     }
 
-    if (!m_searchString.isEmpty()) {
+    if (!m_filterStrings.isEmpty()) {
         const QString description = sourceModel()->index(sourceRow, 0, sourceParent).data(Description).toString();
         const QString name = sourceModel()->index(sourceRow, 0, sourceParent).data(Name).toString();
 
-        foreach (const QString &subString, m_searchString) {
+        foreach (const QString &subString, m_filterStrings) {
             bool wordMatch = false;
             wordMatch |= (bool)name.contains(subString, Qt::CaseInsensitive);
             if (wordMatch)
@@ -833,6 +841,14 @@ void ExamplesListModelFilter::filterForExampleSet(int index)
         return;
 
     m_sourceModel->selectExampleSet(index);
+}
+
+void ExamplesListModelFilter::setFilterTags(const QStringList &arg)
+{
+    if (m_filterTags != arg) {
+        m_filterTags = arg;
+        emit filterTagsChanged(arg);
+    }
 }
 
 void ExamplesListModelFilter::setShowTutorialsOnly(bool showTutorialsOnly)
@@ -984,8 +1000,13 @@ struct SearchStringLexer
     }
 };
 
-void ExamplesListModelFilter::parseSearchString(const QString &arg)
+void ExamplesListModelFilter::setSearchString(const QString &arg)
 {
+    if (m_searchString == arg)
+        return;
+    m_searchString = arg;
+    emit searchStringChanged(m_searchString);
+    // parse and update
     QStringList tags;
     QStringList searchTerms;
     SearchStringLexer lex(arg);
@@ -1007,9 +1028,14 @@ void ExamplesListModelFilter::parseSearchString(const QString &arg)
         }
     }
 
-    setSearchStrings(searchTerms);
+    setFilterStrings(searchTerms);
     setFilterTags(tags);
     delayedUpdateFilter();
+}
+
+QString ExamplesListModelFilter::searchString() const
+{
+    return m_searchString;
 }
 
 } // namespace Internal
