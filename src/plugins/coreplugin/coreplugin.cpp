@@ -93,53 +93,29 @@ CorePlugin::~CorePlugin()
     setCreatorTheme(0);
 }
 
-void CorePlugin::parseArguments(const QStringList &arguments)
-{
-    const Id settingsThemeId = Id::fromSetting(ICore::settings()->value(
-                QLatin1String(Constants::SETTINGS_THEME), QLatin1String(Constants::DEFAULT_THEME)));
-    Id themeId = settingsThemeId;
+struct CoreArguments {
     QColor overrideColor;
+    Id themeId;
     bool presentationMode = false;
+};
 
+CoreArguments parseArguments(const QStringList &arguments)
+{
+    CoreArguments args;
     for (int i = 0; i < arguments.size(); ++i) {
         if (arguments.at(i) == QLatin1String("-color")) {
             const QString colorcode(arguments.at(i + 1));
-            overrideColor = QColor(colorcode);
+            args.overrideColor = QColor(colorcode);
             i++; // skip the argument
         }
         if (arguments.at(i) == QLatin1String("-presentationMode"))
-            presentationMode = true;
+            args.presentationMode = true;
         if (arguments.at(i) == QLatin1String("-theme")) {
-            themeId = Id::fromString(arguments.at(i + 1));
-            i++;
+            args.themeId = Id::fromString(arguments.at(i + 1));
+            i++; // skip the argument
         }
     }
-    const QList<ThemeEntry> availableThemes = ThemeEntry::availableThemes();
-    int themeIndex = Utils::indexOf(availableThemes, Utils::equal(&ThemeEntry::id, themeId));
-    if (themeIndex < 0) {
-        themeIndex = Utils::indexOf(availableThemes,
-                                    Utils::equal(&ThemeEntry::id, settingsThemeId));
-    }
-    if (themeIndex < 0)
-        themeIndex = 0;
-    if (themeIndex < availableThemes.size()) {
-        const ThemeEntry themeEntry = availableThemes.at(themeIndex);
-        QSettings themeSettings(themeEntry.filePath(), QSettings::IniFormat);
-        Theme *theme = new Theme(themeEntry.id().toString(), qApp);
-        theme->readSettings(themeSettings);
-        if (theme->flag(Theme::ApplyThemePaletteGlobally))
-            QApplication::setPalette(theme->palette());
-        setCreatorTheme(theme);
-    }
-
-    // defer creation of these widgets until here,
-    // because they need a valid theme set
-    m_mainWindow = new MainWindow;
-    ActionManager::setPresentationModeEnabled(presentationMode);
-    m_locator = new Locator;
-
-    if (overrideColor.isValid())
-        m_mainWindow->setOverrideColor(overrideColor);
+    return args;
 }
 
 bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
@@ -148,10 +124,18 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
         *errorMessage = tr("No themes found in installation.");
         return false;
     }
-    new ActionManager(this);
+    const CoreArguments args = parseArguments(arguments);
     Theme::initialPalette(); // Initialize palette before setting it
+    Theme *themeFromArg = ThemeEntry::createTheme(args.themeId);
+    setCreatorTheme(themeFromArg ? themeFromArg
+                                 : ThemeEntry::createTheme(ThemeEntry::themeSetting()));
+    new ActionManager(this);
+    ActionManager::setPresentationModeEnabled(args.presentationMode);
+    m_mainWindow = new MainWindow;
+    if (args.overrideColor.isValid())
+        m_mainWindow->setOverrideColor(args.overrideColor);
+    m_locator = new Locator;
     qsrand(QDateTime::currentDateTime().toTime_t());
-    parseArguments(arguments);
     const bool success = m_mainWindow->init(errorMessage);
     if (success) {
         m_editMode = new EditMode;

@@ -171,8 +171,7 @@ void ThemeChooser::apply()
         return;
     const QString themeId = d->m_themeListModel->themeAt(index).id().toString();
     QSettings *settings = ICore::settings();
-    const QString currentThemeId = settings->value(QLatin1String(Constants::SETTINGS_THEME),
-                                                   QLatin1String(Constants::DEFAULT_THEME)).toString();
+    const QString currentThemeId = ThemeEntry::themeSetting().toString();
     if (currentThemeId != themeId) {
         QMessageBox::information(ICore::mainWindow(), tr("Restart Required"),
                                  tr("The theme change will take effect after a restart of Qt Creator."));
@@ -213,6 +212,26 @@ QList<ThemeEntry> ThemeEntry::availableThemes()
     }
     addThemesFromPath(userThemeDir, &themes);
     return themes;
+}
+
+Id ThemeEntry::themeSetting()
+{
+    return Id::fromSetting(ICore::settings()->value(QLatin1String(Constants::SETTINGS_THEME),
+                                                    QLatin1String(Constants::DEFAULT_THEME)));
+}
+
+Theme *ThemeEntry::createTheme(Id id)
+{
+    if (!id.isValid())
+        return nullptr;
+    const ThemeEntry entry = Utils::findOrDefault(availableThemes(),
+                                                  Utils::equal(&ThemeEntry::id, id));
+    if (!entry.id().isValid())
+        return nullptr;
+    QSettings themeSettings(entry.filePath(), QSettings::IniFormat);
+    Theme *theme = new Theme(entry.id().toString());
+    theme->readSettings(themeSettings);
+    return theme;
 }
 
 } // namespace Internal

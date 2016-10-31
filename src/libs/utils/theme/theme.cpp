@@ -58,6 +58,8 @@ void setCreatorTheme(Theme *theme)
         return;
     delete m_creatorTheme;
     m_creatorTheme = theme;
+    if (theme && theme->flag(Theme::ApplyThemePaletteGlobally))
+        QApplication::setPalette(theme->palette());
 }
 
 Theme::Theme(const QString &id, QObject *parent)
