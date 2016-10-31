@@ -25,6 +25,8 @@
 
 #include "qttestresult.h"
 
+#include <utils/qtcassert.h>
+
 namespace Autotest {
 namespace Internal {
 
@@ -69,6 +71,48 @@ const QString QtTestResult::outputString(bool selected) const
             output = output.split('\n').first();
     }
     return output;
+}
+
+bool QtTestResult::isDirectParentOf(const TestResult *other, bool *needsIntermediate) const
+{
+    if (!TestResult::isDirectParentOf(other, needsIntermediate))
+        return false;
+    const QtTestResult *qtOther = static_cast<const QtTestResult *>(other);
+    if (result() == Result::MessageTestCaseStart || result() == Result::MessageIntermediate) {
+        if (qtOther->isDataTag()) {
+            if (qtOther->m_function == m_function) {
+                if (m_dataTag.isEmpty()) {
+                    // avoid adding function's TestCaseEnd to the data tag
+                    *needsIntermediate = qtOther->result() != Result::MessageTestCaseEnd;
+                    return true;
+                }
+                return qtOther->m_dataTag == m_dataTag;
+            }
+        } else if (qtOther->isTestFunction()) {
+            return isTestCase() || m_function == qtOther->m_function;
+        }
+    }
+    return false;
+}
+
+bool QtTestResult::isIntermediateFor(const TestResult *other) const
+{
+    QTC_ASSERT(other, return false);
+    const QtTestResult *qtOther = static_cast<const QtTestResult *>(other);
+    return m_dataTag == qtOther->m_dataTag && m_function == qtOther->m_function
+            && name() == qtOther->name();
+}
+
+TestResult *QtTestResult::createIntermediateResultFor(const TestResult *other)
+{
+    QTC_ASSERT(other, return 0);
+    const QtTestResult *qtOther = static_cast<const QtTestResult *>(other);
+    QtTestResult *intermediate = new QtTestResult(qtOther->name());
+    intermediate->m_function = qtOther->m_function;
+    intermediate->m_dataTag = qtOther->m_dataTag;
+    // intermediates will be needed only for data tags
+    intermediate->setDescription("Data tag: " + qtOther->m_dataTag);
+    return intermediate;
 }
 
 } // namespace Internal

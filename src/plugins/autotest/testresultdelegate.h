@@ -67,7 +67,14 @@ private:
             m_typeAreaWidth = QFontMetrics(options.font).width("XXXXXXXX");
             m_indentation = options.widget ? options.widget->style()->pixelMetric(
                                                  QStyle::PM_TreeViewIndentation, &options) : 0;
-            m_level = filterModel->mapToSource(options.index).parent() == srcModel->rootItem()->index() ? 1 : 2;
+
+            const QModelIndex &rootIndex = srcModel->rootItem()->index();
+            QModelIndex parentIndex = filterModel->mapToSource(options.index).parent();
+            m_level = 1;
+            while (rootIndex != parentIndex) {
+                ++m_level;
+                parentIndex = parentIndex.parent();
+            }
             int flexibleArea = lineAreaLeft() - textAreaLeft() - ITEM_SPACING;
             if (m_maxFileLength > flexibleArea / 2)
                 m_realFileLength = flexibleArea / 2;
@@ -84,12 +91,10 @@ private:
         int fontHeight() const { return m_fontHeight; }
         int typeAreaLeft() const { return left() + ICON_SIZE + ITEM_SPACING; }
         int typeAreaWidth() const { return m_typeAreaWidth; }
-        int textAreaLeft() const { return typeAreaLeft() + m_typeAreaWidth + ITEM_SPACING
-                                          + (1 - m_level) * m_indentation; }
+        int textAreaLeft() const { return typeAreaLeft() + m_typeAreaWidth + ITEM_SPACING; }
         int textAreaWidth() const { return fileAreaLeft() - ITEM_SPACING - textAreaLeft(); }
         int fileAreaLeft() const { return lineAreaLeft() - ITEM_SPACING - m_realFileLength; }
         int lineAreaLeft() const { return right() - m_maxLineLength; }
-        int indentation() const { return m_indentation; }
 
         QRect typeArea() const { return QRect(typeAreaLeft(), top(),
                                               typeAreaWidth(), m_fontHeight); }

@@ -25,6 +25,7 @@
 
 #include "testresult.h"
 
+#include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
 
 namespace Autotest {
@@ -156,6 +157,25 @@ QColor TestResult::colorForType(const Result::Type type)
     default:
         return creatorTheme->color(Utils::Theme::OutputPanes_StdOutTextColor);
     }
+}
+
+bool TestResult::isDirectParentOf(const TestResult *other, bool * /*needsIntermediate*/) const
+{
+    QTC_ASSERT(other, return false);
+    return m_name == other->m_name;
+}
+
+bool TestResult::isIntermediateFor(const TestResult *other) const
+{
+    QTC_ASSERT(other, return false);
+    return m_name == other->m_name;
+}
+
+TestResult *TestResult::createIntermediateResultFor(const TestResult *other)
+{
+    QTC_ASSERT(other, return 0);
+    TestResult *intermediate = new TestResult(other->m_name);
+    return intermediate;
 }
 
 } // namespace Internal

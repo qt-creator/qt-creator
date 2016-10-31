@@ -162,14 +162,18 @@ void QtTestOutputReader::processOutput(const QByteArray &outputLine)
             if (currentTag == QStringLiteral("TestCase")) {
                 m_className = m_xmlReader.attributes().value(QStringLiteral("name")).toString();
                 QTC_ASSERT(!m_className.isEmpty(), continue);
-                TestResultPtr testResult = TestResultPtr(new QtTestResult(m_className));
+                TestResultPtr testResult = TestResultPtr(createDefaultResult());
                 testResult->setResult(Result::MessageTestCaseStart);
                 testResult->setDescription(tr("Executing test case %1").arg(m_className));
                 m_futureInterface.reportResult(testResult);
             } else if (currentTag == QStringLiteral("TestFunction")) {
                 m_testCase = m_xmlReader.attributes().value(QStringLiteral("name")).toString();
                 QTC_ASSERT(!m_testCase.isEmpty(), continue);
-                TestResultPtr testResult = TestResultPtr(new QtTestResult());
+                TestResultPtr testResult = TestResultPtr(createDefaultResult());
+                testResult->setResult(Result::MessageTestCaseStart);
+                testResult->setDescription(tr("Executing test function %1").arg(m_testCase));
+                m_futureInterface.reportResult(testResult);
+                testResult = TestResultPtr(new QtTestResult);
                 testResult->setResult(Result::MessageCurrentTest);
                 testResult->setDescription(tr("Entering test function %1::%2").arg(m_className,
                                                                                    m_testCase));
@@ -179,7 +183,6 @@ void QtTestOutputReader::processOutput(const QByteArray &outputLine)
                 QTC_ASSERT(!m_duration.isEmpty(), continue);
             } else if (currentTag == QStringLiteral("Message")
                        || currentTag == QStringLiteral("Incident")) {
-                m_dataTag.clear();
                 m_description.clear();
                 m_duration.clear();
                 m_file.clear();
@@ -189,15 +192,15 @@ void QtTestOutputReader::processOutput(const QByteArray &outputLine)
                 m_result = TestResult::resultFromString(
                             attributes.value(QStringLiteral("type")).toString());
                 m_file = decode(attributes.value(QStringLiteral("file")).toString());
-                if (!m_file.isEmpty()) {
+                if (!m_file.isEmpty())
                     m_file = constructSourceFilePath(m_buildDir, m_file);
-                }
                 m_lineNumber = attributes.value(QStringLiteral("line")).toInt();
             } else if (currentTag == QStringLiteral("BenchmarkResult")) {
                 const QXmlStreamAttributes &attributes = m_xmlReader.attributes();
                 const QString metric = attributes.value(QStringLiteral("metric")).toString();
                 const double value = attributes.value(QStringLiteral("value")).toDouble();
                 const int iterations = attributes.value(QStringLiteral("iterations")).toInt();
+                m_dataTag = attributes.value(QStringLiteral("tag")).toString();
                 m_description = constructBenchmarkInformation(metric, value, iterations);
                 m_result = Result::Benchmark;
             } else if (currentTag == QStringLiteral("DataTag")) {
@@ -250,30 +253,31 @@ void QtTestOutputReader::processOutput(const QByteArray &outputLine)
             m_cdataMode = None;
             const QStringRef currentTag = m_xmlReader.name();
             if (currentTag == QStringLiteral("TestFunction")) {
-                if (!m_duration.isEmpty()) {
-                    QtTestResult *testResult = new QtTestResult(m_className);
-                    testResult->setFunctionName(m_testCase);
-                    testResult->setResult(Result::MessageInternal);
-                    testResult->setDescription(tr("Execution took %1 ms.").arg(m_duration));
-                    m_futureInterface.reportResult(TestResultPtr(testResult));
-                }
+                QtTestResult *testResult = createDefaultResult();
+                testResult->setResult(Result::MessageTestCaseEnd);
+                testResult->setDescription(
+                            m_duration.isEmpty() ? tr("Test function finished.")
+                                                 : tr("Execution took %1 ms.").arg(m_duration));
+                m_futureInterface.reportResult(TestResultPtr(testResult));
                 m_futureInterface.setProgressValue(m_futureInterface.progressValue() + 1);
+                m_dataTag.clear();
+                m_testCase.clear();
             } else if (currentTag == QStringLiteral("TestCase")) {
-                QtTestResult *testResult = new QtTestResult(m_className);
+                QtTestResult *testResult = createDefaultResult();
                 testResult->setResult(Result::MessageTestCaseEnd);
                 testResult->setDescription(
                             m_duration.isEmpty() ? tr("Test finished.")
                                                  : tr("Test execution took %1 ms.").arg(m_duration));
                 m_futureInterface.reportResult(TestResultPtr(testResult));
             } else if (validEndTags.contains(currentTag.toString())) {
-                QtTestResult *testResult = new QtTestResult(m_className);
-                testResult->setFunctionName(m_testCase);
-                testResult->setDataTag(m_dataTag);
+                QtTestResult *testResult = createDefaultResult();
                 testResult->setResult(m_result);
                 testResult->setFileName(m_file);
                 testResult->setLine(m_lineNumber);
                 testResult->setDescription(m_description);
                 m_futureInterface.reportResult(TestResultPtr(testResult));
+                if (currentTag == QStringLiteral("Incident"))
+                    m_dataTag.clear();
             }
             break;
         }
@@ -281,6 +285,14 @@ void QtTestOutputReader::processOutput(const QByteArray &outputLine)
             break;
         }
     }
+}
+
+QtTestResult *QtTestOutputReader::createDefaultResult() const
+{
+    QtTestResult *result = new QtTestResult(m_className);
+    result->setFunctionName(m_testCase);
+    result->setDataTag(m_dataTag);
+    return result;
 }
 
 } // namespace Internal

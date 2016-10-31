@@ -99,7 +99,8 @@ void TestResultItem::updateDescription(const QString &description)
 
 void TestResultItem::updateResult()
 {
-    if (m_testResult->result() != Result::MessageTestCaseStart)
+    if (m_testResult->result() != Result::MessageTestCaseStart
+            && m_testResult->result() != Result::MessageIntermediate)
         return;
 
     Result::Type newResult = Result::MessageTestCaseSuccess;
@@ -110,6 +111,7 @@ void TestResultItem::updateResult()
             case Result::Fail:
             case Result::MessageFatal:
             case Result::UnexpectedPass:
+            case Result::MessageTestCaseFail:
                 m_testResult->setResult(Result::MessageTestCaseFail);
                 return;
             case Result::ExpectedFail:
@@ -117,6 +119,7 @@ void TestResultItem::updateResult()
             case Result::Skip:
             case Result::BlacklistedFail:
             case Result::BlacklistedPass:
+            case Result::MessageTestCaseWarn:
                 newResult = Result::MessageTestCaseWarn;
                 break;
             default: {}
@@ -124,6 +127,40 @@ void TestResultItem::updateResult()
         }
     }
     m_testResult->setResult(newResult);
+}
+
+void TestResultItem::updateIntermediateChildren()
+{
+    for (Utils::TreeItem *child : children()) {
+        TestResultItem *childItem = static_cast<TestResultItem *>(child);
+        if (childItem->testResult()->result() == Result::MessageIntermediate)
+            childItem->updateResult();
+    }
+}
+
+TestResultItem *TestResultItem::intermediateFor(const TestResultItem *item) const
+{
+    QTC_ASSERT(item, return nullptr);
+    const TestResult *otherResult = item->testResult();
+    for (int row = childCount() - 1; row >= 0; --row) {
+        TestResultItem *child = static_cast<TestResultItem *>(childAt(row));
+        const TestResult *testResult = child->testResult();
+        if (testResult->result() != Result::MessageIntermediate)
+            continue;
+        if (testResult->isIntermediateFor(otherResult))
+            return child;
+    }
+    return 0;
+}
+
+TestResultItem *TestResultItem::createAndAddIntermediateFor(const TestResultItem *child)
+{
+    TestResultPtr result(m_testResult->createIntermediateResultFor(child->testResult()));
+    QTC_ASSERT(!result.isNull(), return 0);
+    result->setResult(Result::MessageIntermediate);
+    TestResultItem *intermediate = new TestResultItem(result);
+    appendChild(intermediate);
+    return intermediate;
 }
 
 /********************************* TestResultModel *****************************************/
@@ -135,12 +172,11 @@ TestResultModel::TestResultModel(QObject *parent)
 
 void TestResultModel::addTestResult(const TestResultPtr &testResult, bool autoExpand)
 {
-    const QVector<Utils::TreeItem *> &topLevelItems = rootItem()->children();
-    const int lastRow = topLevelItems.size() - 1;
+    const int lastRow = rootItem()->childCount() - 1;
     if (testResult->result() == Result::MessageCurrentTest) {
         // MessageCurrentTest should always be the last top level item
         if (lastRow >= 0) {
-            TestResultItem *current = static_cast<TestResultItem *>(topLevelItems.at(lastRow));
+            TestResultItem *current = static_cast<TestResultItem *>(rootItem()->childAt(lastRow));
             const TestResult *result = current->testResult();
             if (result && result->result() == Result::MessageCurrentTest) {
                 current->updateDescription(testResult->description());
@@ -158,34 +194,29 @@ void TestResultModel::addTestResult(const TestResultPtr &testResult, bool autoEx
     m_testResultCount[testResult->result()]++;
 
     TestResultItem *newItem = new TestResultItem(testResult);
-    // FIXME this might be totally wrong... we need some more unique information!
-    if (!testResult->name().isEmpty()) {
-        for (int row = lastRow; row >= 0; --row) {
-            TestResultItem *current = static_cast<TestResultItem *>(topLevelItems.at(row));
+    TestResultItem *parentItem = findParentItemFor(newItem);
+    addFileName(testResult->fileName()); // ensure we calculate the results pane correctly
+    if (parentItem) {
+        parentItem->appendChild(newItem);
+        if (autoExpand)
+            parentItem->expand();
+        if (testResult->result() == Result::MessageTestCaseEnd) {
+            parentItem->updateIntermediateChildren();
+            parentItem->updateResult();
+            emit dataChanged(parentItem->index(), parentItem->index());
+        }
+    } else {
+        if (lastRow >= 0) {
+            TestResultItem *current = static_cast<TestResultItem *>(rootItem()->childAt(lastRow));
             const TestResult *result = current->testResult();
-            if (result && result->name() == testResult->name()) {
-                current->appendChild(newItem);
-                if (autoExpand)
-                    current->expand();
-                if (testResult->result() == Result::MessageTestCaseEnd) {
-                    current->updateResult();
-                    emit dataChanged(current->index(), current->index());
-                }
+            if (result && result->result() == Result::MessageCurrentTest) {
+                rootItem()->insertChild(current->index().row(), newItem);
                 return;
             }
         }
+        // there is no MessageCurrentTest at the last row, but we have a toplevel item - just add it
+        rootItem()->appendChild(newItem);
     }
-    // if we have a MessageCurrentTest present, add the new top level item before it
-    if (lastRow >= 0) {
-        TestResultItem *current = static_cast<TestResultItem *>(topLevelItems.at(lastRow));
-        const TestResult *result = current->testResult();
-        if (result && result->result() == Result::MessageCurrentTest) {
-            rootItem()->insertChild(current->index().row(), newItem);
-            return;
-        }
-    }
-    // there is no MessageCurrentTest at the last row, but we have a toplevel item - just add it
-    rootItem()->appendChild(newItem);
 }
 
 void TestResultModel::removeCurrentTestMessage()
@@ -205,7 +236,7 @@ void TestResultModel::clearTestResults()
     clear();
     m_testResultCount.clear();
     m_disabled = 0;
-    m_processedIndices.clear();
+    m_fileNames.clear();
     m_maxWidthOfFileName = 0;
     m_widthOfLineNumber = 0;
 }
@@ -218,38 +249,28 @@ const TestResult *TestResultModel::testResult(const QModelIndex &idx)
     return 0;
 }
 
+void TestResultModel::recalculateMaxWidthOfFileName(const QFont &font)
+{
+    const QFontMetrics fm(font);
+    m_maxWidthOfFileName = 0;
+    for (const QString &fileName : m_fileNames) {
+        int pos = fileName.lastIndexOf('/');
+        m_maxWidthOfFileName = qMax(m_maxWidthOfFileName, fm.width(fileName.mid(pos + 1)));
+    }
+}
+
+void TestResultModel::addFileName(const QString &fileName)
+{
+    const QFontMetrics fm(m_measurementFont);
+    int pos = fileName.lastIndexOf('/');
+    m_maxWidthOfFileName = qMax(m_maxWidthOfFileName, fm.width(fileName.mid(pos + 1)));
+    m_fileNames.insert(fileName);
+}
+
 int TestResultModel::maxWidthOfFileName(const QFont &font)
 {
-    if (font != m_measurementFont) {
-        m_processedIndices.clear();
-        m_maxWidthOfFileName = 0;
-        m_measurementFont = font;
-    }
-
-    const QFontMetrics fm(font);
-    const QVector<Utils::TreeItem *> &topLevelItems = rootItem()->children();
-    const int count = topLevelItems.size();
-    for (int row = 0; row < count; ++row) {
-        int processed = row < m_processedIndices.size() ? m_processedIndices.at(row) : 0;
-        const QVector<Utils::TreeItem *> &children = topLevelItems.at(row)->children();
-        const int itemCount = children.size();
-        if (processed < itemCount) {
-            for (int childRow = processed; childRow < itemCount; ++childRow) {
-                const TestResultItem *item = static_cast<TestResultItem *>(children.at(childRow));
-                if (const TestResult *result = item->testResult()) {
-                    QString fileName = result->fileName();
-                    const int pos = fileName.lastIndexOf('/');
-                    if (pos != -1)
-                        fileName = fileName.mid(pos + 1);
-                    m_maxWidthOfFileName = qMax(m_maxWidthOfFileName, fm.width(fileName));
-                }
-            }
-            if (row < m_processedIndices.size())
-                m_processedIndices.replace(row, itemCount);
-            else
-                m_processedIndices.insert(row, itemCount);
-        }
-    }
+    if (font != m_measurementFont)
+        recalculateMaxWidthOfFileName(font);
     return m_maxWidthOfFileName;
 }
 
@@ -261,6 +282,44 @@ int TestResultModel::maxWidthOfLineNumber(const QFont &font)
         m_widthOfLineNumber = fm.width("88888");
     }
     return m_widthOfLineNumber;
+}
+
+TestResultItem *TestResultModel::findParentItemFor(const TestResultItem *item,
+                                                   const TestResultItem *startItem) const
+{
+    QTC_ASSERT(item, return nullptr);
+    TestResultItem *root = startItem ? const_cast<TestResultItem *>(startItem) : nullptr;
+    const TestResult *result = item->testResult();
+    const QString &name = result->name();
+
+    if (root == nullptr) {
+        for (int row = rootItem()->childCount() - 1; row >= 0; --row) {
+            TestResultItem *tmp = static_cast<TestResultItem *>(rootItem()->childAt(row));
+            if (tmp->testResult()->name() == name) {
+                root = tmp;
+                break;
+            }
+        }
+    }
+    if (root == nullptr)
+        return root;
+
+    bool needsIntermediate = false;
+    auto predicate = [result, &needsIntermediate](Utils::TreeItem *it) {
+        TestResultItem *currentItem = static_cast<TestResultItem *>(it);
+        return currentItem->testResult()->isDirectParentOf(result, &needsIntermediate);
+    };
+    TestResultItem *parent = static_cast<TestResultItem *>(root->findAnyChild(predicate));
+    if (parent) {
+        if (needsIntermediate) {
+            // check if the intermediate is present already
+            if (TestResultItem *intermediate = parent->intermediateFor(item))
+                return intermediate;
+            return parent->createAndAddIntermediateFor(item);
+        }
+        return parent;
+    }
+    return root;
 }
 
 /********************************** Filter Model **********************************/
@@ -279,7 +338,7 @@ void TestResultFilterModel::enableAllResultTypes()
               << Result::UnexpectedPass << Result::Skip << Result::MessageDebug
               << Result::MessageWarn << Result::MessageInternal
               << Result::MessageFatal << Result::Invalid << Result::BlacklistedPass
-              << Result::BlacklistedFail << Result::Benchmark
+              << Result::BlacklistedFail << Result::Benchmark << Result::MessageIntermediate
               << Result::MessageCurrentTest << Result::MessageTestCaseStart
               << Result::MessageTestCaseSuccess << Result::MessageTestCaseWarn
               << Result::MessageTestCaseFail << Result::MessageTestCaseEnd
@@ -337,15 +396,19 @@ bool TestResultFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &s
     }
 }
 
-bool TestResultFilterModel::acceptTestCaseResult(const QModelIndex &index) const
+bool TestResultFilterModel::acceptTestCaseResult(const QModelIndex &srcIndex) const
 {
-    Utils::TreeItem *item = m_sourceModel->itemForIndex(index);
-    QTC_ASSERT(item, return false);
-
-    for (const Utils::TreeItem *child : item->children()) {
-        const TestResultItem *resultItem = static_cast<const TestResultItem *>(child);
-        if (m_enabled.contains(resultItem->testResult()->result()))
+    for (int row = 0, count = m_sourceModel->rowCount(srcIndex); row < count; ++row) {
+        const QModelIndex &child = srcIndex.child(row, 0);
+        Result::Type type = m_sourceModel->testResult(child)->result();
+        if (type == Result::MessageTestCaseSuccess)
+            type = Result::Pass;
+        if (type == Result::MessageTestCaseFail || type == Result::MessageTestCaseWarn) {
+            if (acceptTestCaseResult(child))
+                return true;
+        } else if (m_enabled.contains(type)) {
             return true;
+        }
     }
     return false;
 }

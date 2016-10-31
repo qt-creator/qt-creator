@@ -46,6 +46,10 @@ public:
     const TestResult *testResult() const { return m_testResult.data(); }
     void updateDescription(const QString &description);
     void updateResult();
+    void updateIntermediateChildren();
+
+    TestResultItem *intermediateFor(const TestResultItem *item) const;
+    TestResultItem *createAndAddIntermediateFor(const TestResultItem *child);
 
 private:
     TestResultPtr m_testResult;
@@ -69,11 +73,15 @@ public:
     int disabledTests() const { return m_disabled; }
 
 private:
+    void recalculateMaxWidthOfFileName(const QFont &font);
+    void addFileName(const QString &fileName);
+    TestResultItem *findParentItemFor(const TestResultItem *item,
+                                      const TestResultItem *startItem = 0) const;
     QMap<Result::Type, int> m_testResultCount;
     int m_widthOfLineNumber = 0;
     int m_maxWidthOfFileName = 0;
     int m_disabled = 0;
-    QList<int> m_processedIndices;
+    QSet<QString> m_fileNames;  // TODO: check whether this caching is necessary at all
     QFont m_measurementFont;
 };
 
@@ -93,7 +101,7 @@ protected:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
 
 private:
-    bool acceptTestCaseResult(const QModelIndex &index) const;
+    bool acceptTestCaseResult(const QModelIndex &srcIndex) const;
     TestResultModel *m_sourceModel;
     QSet<Result::Type> m_enabled;
 };

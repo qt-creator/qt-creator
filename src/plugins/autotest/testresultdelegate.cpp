@@ -31,7 +31,6 @@
 #include <utils/qtcassert.h>
 
 #include <QAbstractItemView>
-#include <QDebug>
 #include <QPainter>
 #include <QTextLayout>
 
@@ -49,15 +48,13 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
 {
     QStyleOptionViewItem opt = option;
     initStyleOption(&opt, index);
-    // make sure we paint the complete delegate instead of keeping an offset
-    opt.rect.adjust(-opt.rect.x(), 0, 0, 0);
     painter->save();
 
     QFontMetrics fm(opt.font);
     QColor foreground;
 
     const QAbstractItemView *view = qobject_cast<const QAbstractItemView *>(opt.widget);
-    const bool selected = view->selectionModel()->currentIndex() == index;
+    const bool selected = opt.state & QStyle::State_Selected;
 
     if (selected) {
         painter->setBrush(opt.palette.highlight().color());
@@ -74,11 +71,6 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     LayoutPositions positions(opt, resultFilterModel);
     const TestResult *testResult = resultFilterModel->testResult(index);
     QTC_ASSERT(testResult, painter->restore();return);
-
-    // draw the indicator by ourself as we paint across it with the delegate
-    QStyleOptionViewItem indicatorOpt = option;
-    indicatorOpt.rect = QRect(0, opt.rect.y(), positions.indentation(), opt.rect.height());
-    opt.widget->style()->drawPrimitive(QStyle::PE_IndicatorBranch, &indicatorOpt, painter);
 
     QIcon icon = index.data(Qt::DecorationRole).value<QIcon>();
     if (!icon.isNull())
@@ -140,7 +132,6 @@ QSize TestResultDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
     QStyleOptionViewItem opt = option;
     // make sure opt.rect is initialized correctly - otherwise we might get a width of 0
     opt.initFrom(opt.widget);
-    initStyleOption(&opt, index);
 
     const QAbstractItemView *view = qobject_cast<const QAbstractItemView *>(opt.widget);
     const bool selected = view->selectionModel()->currentIndex() == index;

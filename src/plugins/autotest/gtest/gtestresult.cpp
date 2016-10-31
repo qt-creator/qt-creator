@@ -52,5 +52,14 @@ const QString GTestResult::outputString(bool selected) const
     return output;
 }
 
+bool GTestResult::isDirectParentOf(const TestResult *other, bool *needsIntermediate) const
+{
+    if (!TestResult::isDirectParentOf(other, needsIntermediate))
+        return false;
+
+    const GTestResult *gtOther = static_cast<const GTestResult *>(other);
+    return isTest() && gtOther->isTestSet();
+}
+
 } // namespace Internal
 } // namespace Autotest

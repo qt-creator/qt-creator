@@ -33,6 +33,8 @@
 namespace Autotest {
 namespace Internal {
 
+class QtTestResult;
+
 class QtTestOutputReader : public TestOutputReader
 {
     Q_DECLARE_TR_FUNCTIONS(Autotest::Internal::QtTestOutputReader)
@@ -45,6 +47,8 @@ protected:
     void processOutput(const QByteArray &outputLine) override;
 
 private:
+    QtTestResult *createDefaultResult() const;
+
     enum CDATAMode
     {
         None,
