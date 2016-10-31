@@ -1289,7 +1289,7 @@ void tst_Dumpers::dumper()
         qDebug() << "\n------------------ CODE --------------------";
         qDebug() << fullCode;
         qDebug() << "\n------------------ CODE --------------------";
-        qDebug() << "Project file: " << qPrintable(proFile.fileName());
+        qDebug() << "Project file: " << proFile.fileName();
     }
 
     QByteArray dumperDir = DUMPERDIR;
@@ -1558,12 +1558,24 @@ void tst_Dumpers::dumper()
         m_keepTemp = false;
     } else {
         local.forAllChildren([](WatchItem *item) { qDebug() << item->internalName(); });
+
+        int pos1 = 0, pos2 = -1;
+        while (true) {
+            pos1 = fullOutput.indexOf("bridgemessage={msg=", pos2 + 1);
+            if (pos1 == -1)
+                break;
+            pos1 += 21;
+            pos2 = fullOutput.indexOf("\"}", pos1 + 1);
+            if (pos2 == -1)
+                break;
+            qDebug() << "MSG: " << fullOutput.mid(pos1, pos2 - pos1 - 1);
+        }
         qDebug() << "CONTENTS     : " << contents;
         qDebug() << "FULL OUTPUT  : " << fullOutput;
-        qDebug() << "Qt VERSION   : " << qPrintable(QString::number(context.qtVersion, 16));
+        qDebug() << "Qt VERSION   : " << QString::number(context.qtVersion, 16);
         if (m_debuggerEngine != CdbEngine)
             qDebug() << "GCC VERSION   : " << context.gccVersion;
-        qDebug() << "BUILD DIR    : " << qPrintable(t->buildPath);
+        qDebug() << "BUILD DIR    : " << t->buildPath;
     }
     QVERIFY(ok);
     disarm();
