@@ -143,20 +143,6 @@ static QByteArrayList splitCMakeCacheLine(const QByteArray &line) {
                             << line.mid(equalPos + 1);
 }
 
-static CMakeConfigItem::Type fromByteArray(const QByteArray &type) {
-    if (type == "BOOL")
-        return CMakeConfigItem::BOOL;
-    if (type == "STRING")
-        return CMakeConfigItem::STRING;
-    if (type == "FILEPATH")
-        return CMakeConfigItem::FILEPATH;
-    if (type == "PATH")
-        return CMakeConfigItem::PATH;
-    QTC_CHECK(type == "INTERNAL" || type == "STATIC");
-
-    return CMakeConfigItem::INTERNAL;
-}
-
 // --------------------------------------------------------------------
 // TeaLeafReader:
 // --------------------------------------------------------------------
@@ -305,10 +291,10 @@ CMakeConfig TeaLeafReader::parseConfiguration(const Utils::FileName &cacheFile, 
 
         if (key.endsWith("-ADVANCED") && value == "1") {
             advancedSet.insert(key.left(key.count() - 9 /* "-ADVANCED" */));
-        } else if (key.endsWith("-STRINGS") && fromByteArray(type) == CMakeConfigItem::INTERNAL) {
+        } else if (key.endsWith("-STRINGS") && CMakeConfigItem::typeStringToType(type) == CMakeConfigItem::INTERNAL) {
             valuesMap[key.left(key.count() - 8) /* "-STRINGS" */] = value;
         } else {
-            CMakeConfigItem::Type t = fromByteArray(type);
+            CMakeConfigItem::Type t = CMakeConfigItem::typeStringToType(type);
             result << CMakeConfigItem(key, t, documentation, value);
         }
     }

@@ -47,6 +47,7 @@ public:
     static QString expandedValueOf(const ProjectExplorer::Kit *k, const QByteArray &key,
                                    const QList<CMakeConfigItem> &input);
     static QStringList cmakeSplitValue(const QString &in, bool keepEmpty = false);
+    static Type typeStringToType(const QByteArray &typeString);
     bool isNull() const { return key.isEmpty(); }
 
     QString expandedValue(const ProjectExplorer::Kit *k) const;

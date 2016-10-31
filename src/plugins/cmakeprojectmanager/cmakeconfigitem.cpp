@@ -134,6 +134,23 @@ QStringList CMakeConfigItem::cmakeSplitValue(const QString &in, bool keepEmpty)
     return newArgs;
 }
 
+CMakeConfigItem::Type CMakeConfigItem::typeStringToType(const QByteArray &type)
+{
+    if (type == "BOOL")
+        return CMakeConfigItem::BOOL;
+    if (type == "STRING")
+        return CMakeConfigItem::STRING;
+    if (type == "FILEPATH")
+        return CMakeConfigItem::FILEPATH;
+    if (type == "PATH")
+        return CMakeConfigItem::PATH;
+    if (type == "STATIC")
+        return CMakeConfigItem::STATIC;
+
+    QTC_CHECK(type == "INTERNAL");
+    return CMakeConfigItem::INTERNAL;
+}
+
 QString CMakeConfigItem::expandedValue(const ProjectExplorer::Kit *k) const
 {
     return expandedValue(k->macroExpander());
@@ -195,20 +212,8 @@ CMakeConfigItem CMakeConfigItem::fromString(const QString &s)
     // Fill in item:
     CMakeConfigItem item;
     if (!key.isEmpty()) {
-        CMakeConfigItem::Type t = CMakeConfigItem::STRING;
-        if (type == QLatin1String("FILEPATH"))
-            t = CMakeConfigItem::FILEPATH;
-        else if (type == QLatin1String("PATH"))
-            t = CMakeConfigItem::PATH;
-        else if (type == QLatin1String("BOOL"))
-            t = CMakeConfigItem::BOOL;
-        else if (type == QLatin1String("INTERNAL"))
-            t = CMakeConfigItem::INTERNAL;
-        else if (type == QLatin1String("STATIC"))
-            t = CMakeConfigItem::STATIC;
-
         item.key = key.toUtf8();
-        item.type = t;
+        item.type = CMakeConfigItem::typeStringToType(type.toUtf8());
         item.value = value.toUtf8();
     }
     return item;
