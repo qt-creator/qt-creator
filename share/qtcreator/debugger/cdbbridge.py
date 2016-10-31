@@ -91,37 +91,89 @@ class Dumper(DumperBase):
         val.laddress = nativeValue.address()
         return val
 
-    def fromNativeType(self, nativeType):
-        typeobj = self.Type(self)
-        typeobj.nativeType = nativeType
-        typeobj.name = nativeType.name()
-        typeobj.lbitsize = nativeType.bitsize()
-        typeobj.code = nativeType.code()
-        return typeobj
+    def nativeTypeId(self, nativeType):
+        self.check(isinstance(nativeType, cdbext.Type))
+        name = nativeType.name()
+        if name is None or len(name) == 0:
+            c = '0'
+        elif name == 'struct {...}':
+            c = 's'
+        elif name == 'union {...}':
+            c = 'u'
+        else:
+            return name
+        typeId = c + ''.join(['{%s:%s}' % (f.name(), self.nativeTypeId(f.type())) for f in nativeType.fields()])
+        return typeId
 
-    def nativeTypeFields(self, nativeType):
+    def fromNativeType(self, nativeType):
+        self.check(isinstance(nativeType, cdbext.Type))
+        code = nativeType.code()
+
+        if code == TypeCodePointer:
+            targetType = self.fromNativeType(nativeType.target().unqualified())
+            return self.createPointerType(targetType)
+
+        if code == TypeCodeArray:
+            nativeTargetType = nativeType.target().unqualified()
+            targetType = self.fromNativeType(nativeTargetType)
+            count = nativeType.bitsize() // nativeTargetType.bitsize()
+            return self.createArrayType(targetType, count)
+
+        typeId = self.nativeTypeId(nativeType)
+        if self.typeData.get(typeId, None) is None:
+            tdata = self.TypeData(self)
+            tdata.name = nativeType.name()
+            tdata.typeId = typeId
+            tdata.lbitsize = nativeType.bitsize()
+            tdata.code = code
+            self.registerType(typeId, tdata) # Prevent recursion in fields.
+            tdata.lfields = self.listFields(nativeType, self.Type(self, typeId))
+            tdata.templateArguments = self.listTemplateParameters(nativeType)
+            self.registerType(typeId, tdata) # Fix up fields and template args
+        return self.Type(self, typeId)
+
+    def listFields(self, nativeType, parentType):
         fields = []
-        for nativeField in nativeType.fields():
+
+        if not nativeType.code() == TypeCodeStruct:
+            return fields
+
+        nativeIndex = 0
+        nativeFields = nativeType.fields()
+        for nativeField in nativeFields:
             field = self.Field(self)
+            fieldType = nativeField.type().unqualified()
+            if fieldType is None:
+                fieldType = FakeVoidType('void', self)
+            field.ltype = self.fromNativeType(fieldType)
+            field.parentType = parentType
             field.name = nativeField.name()
-            field.parentType = self.fromNativeType(nativeType)
-            field.ltype = self.fromNativeType(nativeField.type())
-            field.lbitsize = nativeField.bitsize()
+            field.isBaseClass = False
             field.lbitpos = nativeField.bitpos()
+            field.lbitsize = nativeField.bitsize()
+            field.nativeIndex = nativeIndex
+            #warn("FIELD RESULT: %s" % field)
             fields.append(field)
+            nativeIndex += 1
+
         return fields
 
-    def nativeTypeUnqualified(self, nativeType):
-        return self.fromNativeType(nativeType.unqualified())
-
-    def nativeTypePointer(self, nativeType):
-        return self.fromNativeType(nativeType.target())
-
-    def nativeTypeStripTypedefs(self, typeobj):
-        return self.fromNativeType(nativeType.stripTypedef())
-
-    def nativeTypeFirstBase(self, nativeType):
-        return None
+    def listTemplateParameters(self, nativeType):
+        targs = []
+        for targ in nativeType.templateArguments():
+            if isinstance(targ, str):
+                if self.typeData.get(targ, None) is None:
+                    targs.append(self.lookupType(targ))
+                else:
+                    targs.append(self.Type(self, targ))
+            elif isinstance(targ, int):
+                value = self.Value(self)
+                value.type = self.lookupType('int')
+                value.ldata = targ.to_bytes(4, sys.byteorder)
+                targs.append(value)
+            else:
+                error('CDBCRAP %s' % type(targ))
+        return targs
 
     def nativeTypeEnumDisplay(self, nativeType, intval):
         # TODO: generate fake value
@@ -164,6 +216,14 @@ class Dumper(DumperBase):
 
     def put(self, stuff):
         self.output += stuff
+
+    def lookupType(self, typeName):
+        if len(typeName) == 0:
+            return None
+        if self.typeData.get(typeName, None) is None:
+            nativeType = self.lookupNativeType(typeName)
+            return None if nativeType is None else self.fromNativeType(nativeType)
+        return self.Type(self, typeName)
 
     def lookupNativeType(self, name):
         if name.startswith('void'):

@@ -298,7 +298,7 @@ PyObject *type_TemplateArguments(Type *self)
             childValue = Py_BuildValue("i", integer);
         }
         catch (std::invalid_argument) {
-            childValue = lookupType(innerType);
+            childValue = Py_BuildValue("s", innerType.c_str());
         }
         PyList_Append(templateArguments, childValue);
     }
