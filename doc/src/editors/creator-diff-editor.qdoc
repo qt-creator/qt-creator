@@ -80,6 +80,26 @@
     \inlineimage sidebysidediff.png
     (\uicontrol {Switch to Side by Side Diff Editor}).
 
+    To only show text changes, select \uicontrol {Ignore Whitespace}.
+
+    To expand the context for the changes, set the number of unchanged lines to
+    show in \uicontrol {Context lines}. Set the value to -1 to show the whole
+    file.
+
+    By default, the horizontal scroll bars in the left and right pane are
+    synchronized. To use them independently of each other, select the
+    \inlineimage linkicon.png
+    (\uicontrol {Synchronize Horizontal Scroll Bars}) button.
+
+    If the files change outside \QC, select \inlineimage reload_gray.png
+    (\uicontrol {Reload Editor}) to compare them again and to show the results.
+
+    To send a chunk of changes to a \l{Pasting and Fetching Code Snippets}
+    {code pasting service}, select \uicontrol {Send Chunk to CodePaster} in the
+    context menu.
+
+    \section1 Changing the Colors
+
     To change the default colors, select \uicontrol Tools > \uicontrol Options >
     \uicontrol {Text Editor} > \uicontrol {Font & Colors}. Create your own color
     scheme and select new colors for the following options:
@@ -105,22 +125,4 @@
             indicates added characters.
 
     \endlist
-
-    To only show text changes, select \uicontrol {Ignore Whitespace}.
-
-    To expand the context for the changes, set the number of unchanged lines to
-    show in \uicontrol {Context lines}. Set the value to -1 to show the whole
-    file.
-
-    By default, the horizontal scroll bars in the left and right pane are
-    synchronized. To use them independently of each other, select the
-    \inlineimage linkicon.png
-    (\uicontrol {Synchronize Horizontal Scroll Bars}) button.
-
-    If the files change outside \QC, select \inlineimage reload_gray.png
-    (\uicontrol {Reload Editor}) to compare them again and to show the results.
-
-    To send a chunk of changes to a \l{Pasting and Fetching Code Snippets}
-    {code pasting service}, select \uicontrol {Send Chunk to CodePaster} in the
-    context menu.
 */
