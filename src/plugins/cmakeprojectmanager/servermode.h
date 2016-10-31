@@ -104,6 +104,7 @@ private:
     const QString m_extraGenerator;
     const QString m_platform;
     const QString m_toolset;
+    QString m_socketName;
     const bool m_useExperimental;
     bool m_gotHello = false;
     bool m_isConnected = false;

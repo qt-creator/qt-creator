@@ -32,9 +32,11 @@
 #include <utils/qtcprocess.h>
 
 #include <QByteArray>
+#include <QCryptographicHash>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLocalSocket>
+#include <QUuid>
 
 using namespace Utils;
 
@@ -58,6 +60,10 @@ const char END_MAGIC[] = "\n]== \"CMake Server\" ==]\n";
 
 QString socketName(const Utils::FileName &buildDirectory)
 {
+    if (HostOsInfo::isWindowsHost()) {
+        QUuid uuid = QUuid::createUuid();
+        return "\\\\.\\pipe\\" + uuid.toString();
+    }
     return buildDirectory.toString() + "/socket";
 }
 
@@ -90,7 +96,8 @@ ServerMode::ServerMode(const Environment &env,
 
     m_cmakeProcess->setEnvironment(env);
     m_cmakeProcess->setWorkingDirectory(buildDirectory.toString());
-    const QStringList args = QStringList({ "-E", "server", "--pipe=" + socketName(buildDirectory) });
+    m_socketName = socketName(buildDirectory);
+    const QStringList args = QStringList({ "-E", "server", "--pipe=" + m_socketName });
 
     connect(m_cmakeProcess.get(), &QtcProcess::started, this, [this]() { m_connectionTimer.start(); });
     connect(m_cmakeProcess.get(),
@@ -159,8 +166,6 @@ void ServerMode::connectToServer()
     if (m_cmakeSocket)
         return; // We connected in the meantime...
 
-    const QString socketString = socketName(m_buildDirectory);
-
     static int counter = 0;
     ++counter;
 
@@ -169,7 +174,7 @@ void ServerMode::connectToServer()
         m_cmakeProcess->disconnect();
         reportError(tr("Running \"%1\" failed: Timeout waiting for pipe \"%2\".")
                     .arg(m_cmakeExecutable.toUserOutput())
-                    .arg(socketString));
+                    .arg(m_socketName));
 
         Core::Reaper::reap(m_cmakeProcess.release());
         emit disconnected();
@@ -194,7 +199,7 @@ void ServerMode::connectToServer()
         socket->deleteLater();
     });
 
-    socket->connectToServer(socketString);
+    socket->connectToServer(m_socketName);
     m_connectionTimer.start();
 }
 
@@ -218,7 +223,8 @@ void ServerMode::handleCMakeFinished(int code, QProcess::ExitStatus status)
         m_cmakeSocket = nullptr;
     }
 
-    QFile::remove(socketName(m_buildDirectory));
+    if (!HostOsInfo::isWindowsHost())
+        QFile::remove(m_socketName);
 
     emit disconnected();
 }
