@@ -6221,6 +6221,7 @@ void tst_Dumpers::dumper_data()
             + Check("v15", "\"utf16\"", "@QJSValue (QString)")
             + Check("v15.1", "[1]", "116", "@QChar");
 
+#if 0
 #ifdef Q_OS_LINUX
     // Hint: To open a failing test in Creator, do:
     //  touch qt_tst_dumpers_Nim_.../dummy.nimproject
@@ -6229,6 +6230,7 @@ void tst_Dumpers::dumper_data()
     nimData.configTest = "which nim";
     nimData.allProfile =
         "CONFIG -= qt\n"
+        "SOURCES += main.nim\n"
         "# Prevents linking\n"
         "TARGET=\n"
         "# Overwrites qmake-generated 'all' target.\n"
@@ -6243,8 +6245,10 @@ void tst_Dumpers::dumper_data()
         "proc mainProc =\n"
         "  var name: string = \"Hello World\"\n"
         "  var i: int = 43\n"
+        "  var j: int\n"
         "  var x: seq[int]\n"
         "  x = @[1, 2, 3, 4, 5, 6]\n\n"
+        "  j = i + name.len()\n"
         "  # Crash it.\n"
         "  var m1 = Mirror(tag:1)\n"
         "  var m2 = Mirror(tag:2)\n"
@@ -6267,6 +6271,7 @@ void tst_Dumpers::dumper_data()
         + Check("name", "\"Hello World\"", "NimStringDesc")
         + Check("x", "<6 items>", Pattern("TY.*NI.6..")) // Something like "TY95019 (NI[6])"
         + Check("x.2", "[2]", "3", "NI");
+#endif
 #endif
 }
 
