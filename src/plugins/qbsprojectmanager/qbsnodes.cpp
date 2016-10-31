@@ -323,7 +323,7 @@ QbsGroupNode::QbsGroupNode(const qbs::GroupData &grp, const QString &productPath
     setIcon(m_groupIcon);
 
     QbsFileNode *idx = new QbsFileNode(Utils::FileName::fromString(grp.location().filePath()),
-                                       ProjectExplorer::ProjectFileType, false,
+                                       ProjectExplorer::FileType::Project, false,
                                        grp.location().line());
     addFileNodes(QList<ProjectExplorer::FileNode *>() << idx);
 
@@ -493,8 +493,8 @@ void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root,
     foreach (FileTreeNode *c, fileTree->children) {
         Utils::FileName path = Utils::FileName::fromString(c->path());
         const ProjectExplorer::FileType newFileType =
-                fileTypeHash.value(c->path(), ProjectExplorer::UnknownFileType);
-        const bool isQrcFile = newFileType == ProjectExplorer::ResourceType;
+                fileTypeHash.value(c->path(), ProjectExplorer::FileType::Unknown);
+        const bool isQrcFile = newFileType == ProjectExplorer::FileType::Resource;
 
         // Handle files:
         if (c->isFile() && !isQrcFile) {
@@ -555,23 +555,23 @@ void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root,
 
 ProjectExplorer::FileType QbsGroupNode::fileType(const qbs::ArtifactData &artifact)
 {
-    QTC_ASSERT(artifact.isValid(), return ProjectExplorer::UnknownFileType);
+    QTC_ASSERT(artifact.isValid(), return ProjectExplorer::FileType::Unknown);
 
     if (artifact.fileTags().contains(QLatin1String("c"))
             || artifact.fileTags().contains(QLatin1String("cpp"))
             || artifact.fileTags().contains(QLatin1String("objc"))
             || artifact.fileTags().contains(QLatin1String("objcpp"))) {
-        return ProjectExplorer::SourceType;
+        return ProjectExplorer::FileType::Source;
     }
     if (artifact.fileTags().contains(QLatin1String("hpp")))
-        return ProjectExplorer::HeaderType;
+        return ProjectExplorer::FileType::Header;
     if (artifact.fileTags().contains(QLatin1String("qrc")))
-        return ProjectExplorer::ResourceType;
+        return ProjectExplorer::FileType::Resource;
     if (artifact.fileTags().contains(QLatin1String("ui")))
-        return ProjectExplorer::FormType;
+        return ProjectExplorer::FileType::Form;
     if (artifact.fileTags().contains(QLatin1String("scxml")))
-        return ProjectExplorer::StateChartType;
-    return ProjectExplorer::UnknownFileType;
+        return ProjectExplorer::FileType::StateChart;
+    return ProjectExplorer::FileType::Unknown;
 }
 
 // --------------------------------------------------------------------
@@ -591,7 +591,7 @@ QbsProductNode::QbsProductNode(const qbs::Project &project, const qbs::ProductDa
 
     addFolderNodes(QList<ProjectExplorer::FolderNode *>() << m_generatedFilesNode);
     auto idx = new QbsFileNode(Utils::FileName::fromString(prd.location().filePath()),
-                               ProjectExplorer::ProjectFileType, false,
+                               ProjectExplorer::FileType::Project, false,
                                prd.location().line());
     addFileNodes(QList<ProjectExplorer::FileNode *>() << idx);
 
@@ -828,7 +828,7 @@ void QbsProjectNode::ctor()
 
     setIcon(m_projectIcon);
     addFileNodes(QList<ProjectExplorer::FileNode *>()
-                 << new ProjectExplorer::FileNode(filePath(), ProjectExplorer::ProjectFileType, false));
+                 << new ProjectExplorer::FileNode(filePath(), ProjectExplorer::FileType::Project, false));
 }
 
 QbsProductNode *QbsProjectNode::findProductNode(const QString &uniqueName)

@@ -92,15 +92,15 @@ GenericProject::GenericProject(Manager *manager, const QString &fileName)
     DocumentManager::addDocument(m_configIDocument);
 
     FileNode *projectFilesNode = new FileNode(Utils::FileName::fromString(m_filesFileName),
-                                              ProjectFileType,
+                                              FileType::Project,
                                               /* generated = */ false);
 
     FileNode *projectIncludesNode = new FileNode(Utils::FileName::fromString(m_includesFileName),
-                                                 ProjectFileType,
+                                                 FileType::Project,
                                                  /* generated = */ false);
 
     FileNode *projectConfigNode = new FileNode(Utils::FileName::fromString(m_configFileName),
-                                               ProjectFileType,
+                                               FileType::Project,
                                                /* generated = */ false);
 
     rootProjectNode()->addFileNodes(QList<FileNode *>() << projectFilesNode
@@ -277,9 +277,9 @@ void GenericProject::refresh(RefreshOptions options)
 
     if (options & Files) {
         QList<FileNode *> fileNodes = Utils::transform(files(), [](const QString &f) {
-            FileType fileType = SourceType; // ### FIXME
+            FileType fileType = FileType::Source; // ### FIXME
             if (f.endsWith(QLatin1String(".qrc")))
-                fileType = ResourceType;
+                fileType = FileType::Resource;
             return new FileNode(Utils::FileName::fromString(f), fileType, false);
         });
         rootProjectNode()->buildTree(fileNodes);

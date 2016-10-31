@@ -136,14 +136,14 @@ public:
     void clear();
     bool equals(const QmakeProjectFiles &f) const;
 
-    QStringList files[FileTypeSize];
-    QStringList generatedFiles[FileTypeSize];
+    QStringList files[static_cast<int>(FileType::FileTypeSize)];
+    QStringList generatedFiles[static_cast<int>(FileType::FileTypeSize)];
     QStringList proFiles;
 };
 
 void QmakeProjectFiles::clear()
 {
-    for (int i = 0; i < FileTypeSize; ++i) {
+    for (int i = 0; i < static_cast<int>(FileType::FileTypeSize); ++i) {
         files[i].clear();
         generatedFiles[i].clear();
     }
@@ -152,7 +152,7 @@ void QmakeProjectFiles::clear()
 
 bool QmakeProjectFiles::equals(const QmakeProjectFiles &f) const
 {
-    for (int i = 0; i < FileTypeSize; ++i)
+    for (int i = 0; i < static_cast<int>(FileType::FileTypeSize); ++i)
         if (files[i] != f.files[i] || generatedFiles[i] != f.generatedFiles[i])
             return false;
     if (proFiles != f.proFiles)
@@ -170,7 +170,7 @@ QDebug operator<<(QDebug d, const  QmakeProjectFiles &f)
 {
     QDebug nsp = d.nospace();
     nsp << "QmakeProjectFiles: proFiles=" <<  f.proFiles << '\n';
-    for (int i = 0; i < FileTypeSize; ++i)
+    for (int i = 0; i < static_cast<int>(FileType::FileTypeSize); ++i)
         nsp << "Type " << i << " files=" << f.files[i] <<  " generated=" << f.generatedFiles[i] << '\n';
     return d;
 }
@@ -209,7 +209,7 @@ void ProjectFilesVisitor::findProjectFiles(QmakeProFileNode *rootNode, QmakeProj
     files->clear();
     ProjectFilesVisitor visitor(files);
     rootNode->accept(&visitor);
-    for (int i = 0; i < FileTypeSize; ++i) {
+    for (int i = 0; i < static_cast<int>(FileType::FileTypeSize); ++i) {
         Utils::sort(files->files[i]);
         unique(files->files[i]);
         Utils::sort(files->generatedFiles[i]);
@@ -228,10 +228,10 @@ void ProjectFilesVisitor::visitProjectNode(ProjectNode *projectNode)
 void ProjectFilesVisitor::visitFolderNode(FolderNode *folderNode)
 {
     if (dynamic_cast<ResourceEditor::ResourceTopLevelNode *>(folderNode))
-        m_files->files[ResourceType].push_back(folderNode->filePath().toString());
+        m_files->files[static_cast<int>(FileType::Resource)].push_back(folderNode->filePath().toString());
 
     foreach (FileNode *fileNode, folderNode->fileNodes()) {
-        const int type = fileNode->fileType();
+        const int type = static_cast<int>(fileNode->fileType());
         QStringList &targetList = fileNode->isGenerated() ? m_files->generatedFiles[type] : m_files->files[type];
         targetList.push_back(fileNode->filePath().toString());
     }
@@ -822,7 +822,7 @@ QString QmakeProject::displayName() const
 QStringList QmakeProject::files(FilesMode fileMode) const
 {
     QStringList files;
-    for (int i = 0; i < FileTypeSize; ++i) {
+    for (int i = 0; i < static_cast<int>(FileType::FileTypeSize); ++i) {
         if (fileMode & SourceFiles)
             files += m_projectFiles->files[i];
         if (fileMode & GeneratedFiles)

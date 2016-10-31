@@ -593,7 +593,7 @@ bool ResourceFileWatcher::reload(QString *errorString, ReloadFlag flag, ChangeTy
 }
 
 ResourceFileNode::ResourceFileNode(const Utils::FileName &filePath, const QString &qrcPath, const QString &displayName)
-    : ProjectExplorer::FileNode(filePath, ProjectExplorer::UnknownFileType, false)
+    : ProjectExplorer::FileNode(filePath, ProjectExplorer::FileType::Unknown, false)
     , m_qrcPath(qrcPath)
     , m_displayName(displayName)
 {

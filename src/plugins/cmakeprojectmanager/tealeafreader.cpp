@@ -418,7 +418,7 @@ void TeaLeafReader::extractData()
     resetData();
 
     m_projectName = m_parameters.projectName;
-    m_files.append(new FileNode(topCMake, ProjectFileType, false));
+    m_files.append(new FileNode(topCMake, FileType::Project, false));
     // Do not insert topCMake into m_cmakeFiles: The project already watches that!
 
     // Find cbp file
@@ -450,7 +450,7 @@ void TeaLeafReader::extractData()
 
     // Make sure the top cmakelists.txt file is always listed:
     if (!contains(m_files, [topCMake](FileNode *fn) { return fn->filePath() == topCMake; })) {
-        m_files.append(new FileNode(topCMake, ProjectFileType, false));
+        m_files.append(new FileNode(topCMake, FileType::Project, false));
     }
 
     m_buildTargets = cbpparser.buildTargets();

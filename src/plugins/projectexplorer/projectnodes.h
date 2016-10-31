@@ -54,15 +54,15 @@ enum class NodeType : quint16 {
 };
 
 // File types common for qt projects
-enum FileType {
-    UnknownFileType = 0,
-    HeaderType,
-    SourceType,
-    FormType,
-    StateChartType,
-    ResourceType,
-    QMLType,
-    ProjectFileType,
+enum class FileType : quint16 {
+    Unknown = 0,
+    Header,
+    Source,
+    Form,
+    StateChart,
+    Resource,
+    QML,
+    Project,
     FileTypeSize
 };
 

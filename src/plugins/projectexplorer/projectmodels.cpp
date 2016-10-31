@@ -58,8 +58,8 @@ bool sortNodes(Node *n1, Node *n2)
     // project files
     FileNode *file1 = n1->asFileNode();
     FileNode *file2 = n2->asFileNode();
-    if (file1 && file1->fileType() == ProjectFileType) {
-        if (file2 && file2->fileType() == ProjectFileType) {
+    if (file1 && file1->fileType() == FileType::Project) {
+        if (file2 && file2->fileType() == FileType::Project) {
             const QString fileName1 = file1->filePath().fileName();
             const QString fileName2 = file2->filePath().fileName();
 
@@ -72,7 +72,7 @@ bool sortNodes(Node *n1, Node *n2)
             return true; // project file is before everything else
         }
     } else {
-        if (file2 && file2->fileType() == ProjectFileType)
+        if (file2 && file2->fileType() == FileType::Project)
             return false;
     }
 

@@ -156,7 +156,7 @@ void AppManagerProject::addNodes(const QSet<QString> &nodes)
         path = QDir(projectDirectory().toString()).relativeFilePath(node).split(QDir::separator());
         path.pop_back();
         FolderNode *folder = findFolderFor(path);
-        auto fileNode = new FileNode(FileName::fromString(node), SourceType, false);
+        auto fileNode = new FileNode(FileName::fromString(node), FileType::Source, false);
         folder->addFileNodes({fileNode});
     }
 }

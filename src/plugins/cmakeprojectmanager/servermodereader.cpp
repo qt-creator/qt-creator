@@ -224,7 +224,7 @@ void ServerModeReader::generateProjectTree(CMakeProjectNode *root)
             const int oldCount = knownFiles.count();
             knownFiles.insert(s);
             if (oldCount != knownFiles.count())
-                fileGroupNodes.append(new FileNode(s, SourceType, fg->isGenerated));
+                fileGroupNodes.append(new FileNode(s, FileType::Source, fg->isGenerated));
         }
     }
     root->buildTree(fileGroupNodes);
@@ -418,7 +418,7 @@ void ServerModeReader::extractCMakeInputsData(const QVariantMap &data)
             const int oldCount = m_cmakeFiles.count();
             m_cmakeFiles.insert(sfn);
             if (!isCMake && oldCount < m_cmakeFiles.count())
-                m_cmakeInputsFileNodes.append(new FileNode(sfn, ProjectFileType, isTemporary));
+                m_cmakeInputsFileNodes.append(new FileNode(sfn, FileType::Project, isTemporary));
         }
     }
 }

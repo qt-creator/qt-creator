@@ -437,7 +437,7 @@ void CMakeCbpParser::parseUnit()
             if (!fileName.endsWith(".rule") && !m_processedUnits.contains(fileName)) {
                 // Now check whether we found a virtual element beneath
                 if (m_parsingCMakeUnit) {
-                    m_cmakeFileList.append( new FileNode(fileName, ProjectFileType, false));
+                    m_cmakeFileList.append( new FileNode(fileName, FileType::Project, false));
                 } else {
                     bool generated = false;
                     QString onlyFileName = fileName.fileName();
@@ -447,9 +447,9 @@ void CMakeCbpParser::parseUnit()
                         generated = true;
 
                     if (fileName.endsWith(".qrc"))
-                        m_fileList.append( new FileNode(fileName, ResourceType, generated));
+                        m_fileList.append( new FileNode(fileName, FileType::Resource, generated));
                     else
-                        m_fileList.append( new FileNode(fileName, SourceType, generated));
+                        m_fileList.append( new FileNode(fileName, FileType::Source, generated));
                 }
                 m_unitTargetMap.insert(fileName, m_unitTargets);
                 m_processedUnits.insert(fileName);

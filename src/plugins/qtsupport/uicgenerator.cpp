@@ -88,7 +88,7 @@ FileNameToContentsHash UicGenerator::handleProcessFinished(QProcess *process)
 
 FileType UicGeneratorFactory::sourceType() const
 {
-    return FormType;
+    return FileType::Form;
 }
 
 QString UicGeneratorFactory::sourceTag() const

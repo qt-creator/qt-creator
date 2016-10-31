@@ -328,7 +328,7 @@ void QmakeProjectManagerPlugin::updateContextActions(ProjectExplorer::Node *node
     }
     ProjectExplorer::FileNode *fileNode = node ? node->asFileNode() : nullptr;
     bool buildFilePossible = subProjectNode && fileNode
-            && (fileNode->fileType() == ProjectExplorer::SourceType);
+            && (fileNode->fileType() == ProjectExplorer::FileType::Source);
 
     m_qmakeProjectManager->setContextNode(subProjectNode);
     m_qmakeProjectManager->setContextProject(qmakeProject);

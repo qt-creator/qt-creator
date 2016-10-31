@@ -68,7 +68,7 @@ void QrcFilesVisitor::visitProjectNode(ProjectNode *projectNode)
 void QrcFilesVisitor::visitFolderNode(FolderNode *folderNode)
 {
     foreach (const FileNode *fileNode, folderNode->fileNodes()) {
-        if (fileNode->fileType() == ResourceType)
+        if (fileNode->fileType() == FileType::Resource)
             m_qrcFiles.append(fileNode->filePath().toString());
     }
     if (dynamic_cast<ResourceEditor::ResourceTopLevelNode *>(folderNode))

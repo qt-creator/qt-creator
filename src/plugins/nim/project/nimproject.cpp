@@ -110,7 +110,7 @@ void NimProject::collectProjectFiles()
         m_futureInterface.reportStarted();
         QList<FileNode *> nodes
                 = FileNode::scanForFiles(projectDirectory(),
-                                         [](const FileName &fn) { return new FileNode(fn, SourceType, false); },
+                                         [](const FileName &fn) { return new FileNode(fn, FileType::Source, false); },
                                          &m_futureInterface);
         m_futureInterface.setProgressValue(m_futureInterface.progressMaximum());
         m_futureInterface.reportResult(nodes);

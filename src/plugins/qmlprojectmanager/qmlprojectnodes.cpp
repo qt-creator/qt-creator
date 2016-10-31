@@ -60,14 +60,14 @@ void QmlProjectNode::refresh()
     using namespace ProjectExplorer;
 
     FileNode *projectFilesNode = new FileNode(m_project->filesFileName(),
-                                              ProjectFileType,
+                                              FileType::Project,
                                               /* generated = */ false);
 
     QStringList files = m_project->files();
     files.removeAll(m_project->filesFileName().toString());
 
     QList<FileNode *> fileNodes = Utils::transform(files, [](const QString &f) {
-        FileType fileType = SourceType; // ### FIXME
+        FileType fileType = FileType::Source; // ### FIXME
         return new FileNode(Utils::FileName::fromString(f), fileType, false);
 
     });
@@ -89,7 +89,7 @@ QList<ProjectExplorer::ProjectAction> QmlProjectNode::supportedActions(Node *nod
     actions.append(ProjectExplorer::EraseFile);
     if (node->nodeType() == ProjectExplorer::NodeType::File) {
         ProjectExplorer::FileNode *fileNode = static_cast<ProjectExplorer::FileNode *>(node);
-        if (fileNode->fileType() != ProjectExplorer::ProjectFileType)
+        if (fileNode->fileType() != ProjectExplorer::FileType::Project)
             actions.append(ProjectExplorer::Rename);
     }
     return actions;

@@ -598,7 +598,7 @@ class PythonFileNode : public FileNode
 {
 public:
     PythonFileNode(const Utils::FileName &filePath, const QString &nodeDisplayName)
-        : FileNode(filePath, SourceType, false)
+        : FileNode(filePath, FileType::Source, false)
         , m_displayName(nodeDisplayName)
     {}
 

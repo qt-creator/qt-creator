@@ -95,19 +95,19 @@ struct FileTypeDataStorage {
 };
 
 static const FileTypeDataStorage fileTypeDataStorage[] = {
-    { HeaderType, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Headers"),
+    { FileType::Header, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Headers"),
       ProjectExplorer::Constants::FILEOVERLAY_H, "*.h; *.hh; *.hpp; *.hxx;"},
-    { SourceType, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Sources"),
+    { FileType::Source, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Sources"),
       ProjectExplorer::Constants::FILEOVERLAY_CPP, "*.c; *.cc; *.cpp; *.cp; *.cxx; *.c++;" },
-    { FormType, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Forms"),
+    { FileType::Form, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Forms"),
       Constants::FILEOVERLAY_UI, "*.ui;" },
-    { StateChartType, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "State charts"),
+    { FileType::StateChart, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "State charts"),
       ProjectExplorer::Constants::FILEOVERLAY_SCXML, "*.scxml;" },
-    { ResourceType, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Resources"),
+    { FileType::Resource, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Resources"),
       ProjectExplorer::Constants::FILEOVERLAY_QRC, "*.qrc;" },
-    { QMLType, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "QML"),
+    { FileType::QML, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "QML"),
       ProjectExplorer::Constants::FILEOVERLAY_QML, "*.qml;" },
-    { UnknownFileType, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Other files"),
+    { FileType::Unknown, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Other files"),
       ProjectExplorer::Constants::FILEOVERLAY_UNKNOWN, "*;" }
 };
 
@@ -129,7 +129,7 @@ class QmakeNodeStaticData {
 public:
     class FileTypeData {
     public:
-        FileTypeData(FileType t = UnknownFileType,
+        FileTypeData(FileType t = FileType::Unknown,
                      const QString &tN = QString(),
                      const QString &aff = QString(),
                      const QIcon &i = QIcon()) :
@@ -321,7 +321,7 @@ struct InternalNode
     QList<InternalNode *> virtualfolders;
     QMap<QString, InternalNode *> subnodes;
     FileNameList files;
-    FileType type = UnknownFileType;
+    FileType type = FileType::Unknown;
     int priority = 0;
     QString displayName;
     QString typeName;
@@ -440,7 +440,7 @@ struct InternalNode
     // Makes the projectNode's subtree below the given folder match this internal node's subtree
     void updateSubFolders(FolderNode *folder)
     {
-        if (type == ResourceType)
+        if (type == FileType::Resource)
             updateResourceFiles(folder);
         else
             updateFiles(folder, type);
@@ -715,7 +715,7 @@ void QmakePriFileNode::update(const Internal::PriFileEvalResult &result)
 {
     // add project file node
     if (m_fileNodes.isEmpty())
-        addFileNodes(QList<FileNode *>() << new FileNode(m_projectFilePath, ProjectFileType, false));
+        addFileNodes(QList<FileNode *>() << new FileNode(m_projectFilePath, FileType::Project, false));
 
     m_recursiveEnumerateFiles = result.recursiveEnumerateFiles;
     watchFolders(result.folders.toSet());
@@ -931,7 +931,7 @@ QList<ProjectAction> QmakePriFileNode::supportedActions(Node *node) const
     }
 
     FileNode *fileNode = node->asFileNode();
-    if ((fileNode && fileNode->fileType() != ProjectFileType)
+    if ((fileNode && fileNode->fileType() != FileType::Project)
             || dynamic_cast<ResourceEditor::ResourceTopLevelNode *>(node)) {
         actions << Rename;
         actions << DuplicateFile;
@@ -1347,11 +1347,11 @@ QStringList QmakePriFileNode::varNames(FileType type, QtSupport::ProFileReader *
 {
     QStringList vars;
     switch (type) {
-    case HeaderType:
+    case FileType::Header:
         vars << QLatin1String("HEADERS");
         vars << QLatin1String("PRECOMPILED_HEADER");
         break;
-    case SourceType: {
+    case FileType::Source: {
         vars << QLatin1String("SOURCES");
         QStringList listOfExtraCompilers = readerExact->values(QLatin1String("QMAKE_EXTRA_COMPILERS"));
         foreach (const QString &var, listOfExtraCompilers) {
@@ -1367,19 +1367,19 @@ QStringList QmakePriFileNode::varNames(FileType type, QtSupport::ProFileReader *
         }
         break;
     }
-    case ResourceType:
+    case FileType::Resource:
         vars << QLatin1String("RESOURCES");
         break;
-    case FormType:
+    case FileType::Form:
         vars << QLatin1String("FORMS");
         break;
-    case StateChartType:
+    case FileType::StateChart:
         vars << QLatin1String("STATECHARTS");
         break;
-    case ProjectFileType:
+    case FileType::Project:
         vars << QLatin1String("SUBDIRS");
         break;
-    case QMLType:
+    case FileType::QML:
         vars << QLatin1String("OTHER_FILES");
         vars << QLatin1String("DISTFILES");
         break;
@@ -1456,10 +1456,10 @@ QStringList QmakePriFileNode::varNamesForRemoving()
 
 QSet<FileName> QmakePriFileNode::filterFilesProVariables(FileType fileType, const QSet<FileName> &files)
 {
-    if (fileType != QMLType && fileType != UnknownFileType)
+    if (fileType != FileType::QML && fileType != FileType::Unknown)
         return files;
     QSet<FileName> result;
-    if (fileType == QMLType) {
+    if (fileType == FileType::QML) {
         foreach (const FileName &file, files)
             if (file.toString().endsWith(QLatin1String(".qml")))
                 result << file;
@@ -1474,9 +1474,9 @@ QSet<FileName> QmakePriFileNode::filterFilesProVariables(FileType fileType, cons
 QSet<FileName> QmakePriFileNode::filterFilesRecursiveEnumerata(FileType fileType, const QSet<FileName> &files)
 {
     QSet<FileName> result;
-    if (fileType != QMLType && fileType != UnknownFileType)
+    if (fileType != FileType::QML && fileType != FileType::Unknown)
         return result;
-    if (fileType == QMLType) {
+    if (fileType == FileType::QML) {
         foreach (const FileName &file, files)
             if (file.toString().endsWith(QLatin1String(".qml")))
                 result << file;
@@ -2462,7 +2462,7 @@ QStringList QmakeProFileNode::generatedFiles(const QString &buildDir,
     // ui_*.h files into a special directory, or even change the .h suffix, we
     // cannot help doing this here.
     switch (sourceFile->fileType()) {
-    case FormType: {
+    case FileType::Form: {
         FileName location;
         auto it = m_varValues.constFind(UiDirVar);
         if (it != m_varValues.constEnd() && !it.value().isEmpty())
@@ -2476,7 +2476,7 @@ QStringList QmakeProFileNode::generatedFiles(const QString &buildDir,
                             + singleVariableValue(HeaderExtensionVar));
         return QStringList(QDir::cleanPath(location.toString()));
     }
-    case StateChartType: {
+    case FileType::StateChart: {
         if (buildDir.isEmpty())
             return QStringList();
         QString location = QDir::cleanPath(FileName::fromString(buildDir).appendPath(

@@ -222,8 +222,9 @@ void AutotoolsProject::makefileParsingFinished()
     QList<FileNode *> fileNodes = Utils::transform(files, [dir](const QString &f) {
         const Utils::FileName path = Utils::FileName::fromString(dir.absoluteFilePath(f));
         return new FileNode(path,
-                            (f == QLatin1String("Makefile.am") || f == QLatin1String("configure.ac"))
-                            ? ProjectFileType : ResourceType, false);
+                            (f == QLatin1String("Makefile.am") ||
+                             f == QLatin1String("configure.ac")) ? FileType::Project : FileType::Resource,
+                            false);
     });
     rootProjectNode()->buildTree(fileNodes);
 

@@ -136,7 +136,7 @@ Utils::FileName QScxmlcGenerator::tmpFile() const
 
 FileType QScxmlcGeneratorFactory::sourceType() const
 {
-    return StateChartType;
+    return FileType::StateChart;
 }
 
 QString QScxmlcGeneratorFactory::sourceTag() const
