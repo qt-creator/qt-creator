@@ -110,9 +110,9 @@ void ServerModeReader::setParameters(const BuildDirReader::Parameters &p)
         connect(m_cmakeServer.get(), &ServerMode::message,
                 this, [](const QString &m) { Core::MessageManager::write(m); });
         connect(m_cmakeServer.get(), &ServerMode::connected,
-                this, &ServerModeReader::isReadyNow);
+                this, &ServerModeReader::isReadyNow, Qt::QueuedConnection); // Delay
         connect(m_cmakeServer.get(), &ServerMode::disconnected,
-                this, [this]() { m_cmakeServer.reset(); });
+                this, [this]() { m_cmakeServer.reset(); }, Qt::QueuedConnection); // Delay
     }
 }
 

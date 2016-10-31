@@ -128,7 +128,7 @@ ServerMode::~ServerMode()
         m_cmakeProcess->disconnect();
     if (m_cmakeSocket) {
         m_cmakeSocket->disconnect();
-        m_cmakeSocket->disconnectFromServer();
+        m_cmakeSocket->abort();
         delete(m_cmakeSocket);
     }
     m_cmakeSocket = nullptr;
@@ -184,16 +184,18 @@ void ServerMode::connectToServer()
     QTC_ASSERT(!m_cmakeSocket, return);
 
     auto socket = new QLocalSocket(m_cmakeProcess.get());
-    connect(socket, &QLocalSocket::readyRead,
-            this, &ServerMode::handleRawCMakeServerData);
+    connect(socket, &QLocalSocket::readyRead, this, &ServerMode::handleRawCMakeServerData);
     connect(socket, static_cast<void(QLocalSocket::*)(QLocalSocket::LocalSocketError)>(&QLocalSocket::error),
-            [this, socket]() {
+            this, [this, socket]() {
         reportError(socket->errorString());
+        m_cmakeSocket = nullptr;
         socket->disconnect();
         socket->deleteLater();
     });
-    connect(socket, &QLocalSocket::connected, [this, socket]() { m_cmakeSocket = socket; });
-    connect(socket, &QLocalSocket::disconnected, [this, socket]() {
+    connect(socket, &QLocalSocket::connected, this, [this, socket]() { m_cmakeSocket = socket; });
+    connect(socket, &QLocalSocket::disconnected, this, [this, socket]() {
+        if (m_cmakeSocket)
+            emit disconnected();
         m_cmakeSocket = nullptr;
         socket->disconnect();
         socket->deleteLater();
@@ -352,6 +354,7 @@ void ServerMode::parseJson(const QVariantMap &data)
         emit cmakeError(data.value("errorMessage").toString(), replyTo, cookie);
         if (replyTo == HANDSHAKE_TYPE) {
             Core::Reaper::reap(m_cmakeProcess.release());
+            m_cmakeSocket->disconnect();
             m_cmakeSocket->disconnectFromServer();
             m_cmakeSocket = nullptr;
             emit disconnected();

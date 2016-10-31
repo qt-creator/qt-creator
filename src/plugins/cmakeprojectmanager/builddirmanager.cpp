@@ -145,11 +145,6 @@ void BuildDirManager::maybeForceReparseOnceReaderReady()
     const QByteArrayList criticalKeys
             = QByteArrayList() << GENERATOR_KEY << CMAKE_COMMAND_KEY;
 
-    if (!m_reader->hasData()) {
-        forceReparse();
-        return;
-    }
-
     const CMakeConfig currentConfig = parsedConfiguration();
 
     Kit *k = m_buildConfiguration->target()->kit();
@@ -371,6 +366,11 @@ void BuildDirManager::checkConfiguration()
 
 void BuildDirManager::maybeForceReparse()
 {
+    if (!m_reader || !m_reader->hasData()) {
+        forceReparse();
+        return;
+    }
+
     updateReaderType([this]() { maybeForceReparseOnceReaderReady(); });
 }
 
