@@ -330,14 +330,6 @@ QbsGroupNode::QbsGroupNode(const qbs::GroupData &grp, const QString &productPath
     updateQbsGroupData(grp, productPath, true, true);
 }
 
-bool QbsGroupNode::isEnabled() const
-{
-    if (!parentFolderNode() || !m_qbsGroupData.isValid())
-        return false;
-    return static_cast<QbsProductNode *>(parentFolderNode())->isEnabled()
-            && m_qbsGroupData.isEnabled();
-}
-
 QList<ProjectExplorer::ProjectAction> QbsGroupNode::supportedActions(ProjectExplorer::Node *node) const
 {
     return supportedNodeActions(node, true);
@@ -412,6 +404,8 @@ void QbsGroupNode::updateQbsGroupData(const qbs::GroupData &grp, const QString &
             && m_qbsGroupData.isEnabled();
     bool groupIsEnabled = productIsEnabled && grp.isEnabled();
     bool updateExisting = groupWasEnabled != groupIsEnabled;
+
+    setEnabled(groupIsEnabled);
 
     m_productPath = productPath;
     m_qbsGroupData = grp;
@@ -598,11 +592,6 @@ QbsProductNode::QbsProductNode(const qbs::Project &project, const qbs::ProductDa
     setQbsProductData(project, prd);
 }
 
-bool QbsProductNode::isEnabled() const
-{
-    return m_qbsProductData.isEnabled();
-}
-
 bool QbsProductNode::showInSimpleTree() const
 {
     return true;
@@ -674,6 +663,8 @@ void QbsProductNode::setQbsProductData(const qbs::Project &project, const qbs::P
     bool productWasEnabled = m_qbsProductData.isValid() && m_qbsProductData.isEnabled();
     bool productIsEnabled = prd.isEnabled();
     bool updateExisting = productWasEnabled != productIsEnabled;
+
+    setEnabled(prd.isEnabled());
 
     setDisplayName(QbsProject::productDisplayName(project, prd));
     setAbsoluteFilePathAndLine(Utils::FileName::fromString(prd.location().filePath()), line());

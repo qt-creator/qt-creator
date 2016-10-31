@@ -92,7 +92,6 @@ class QbsGroupNode : public QbsBaseProjectNode
 public:
     QbsGroupNode(const qbs::GroupData &grp, const QString &productPath);
 
-    bool isEnabled() const override;
     QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const override;
     bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0) override;
     bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0) override;
@@ -130,7 +129,6 @@ class QbsProductNode : public QbsBaseProjectNode
 public:
     explicit QbsProductNode(const qbs::Project &project, const qbs::ProductData &prd);
 
-    bool isEnabled() const override;
     bool showInSimpleTree() const override;
     QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const override;
     bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0) override;

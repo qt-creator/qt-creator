@@ -115,10 +115,11 @@ public:
     int line() const;
     virtual QString displayName() const;
     virtual QString tooltip() const;
-    virtual bool isEnabled() const;
+    bool isEnabled() const;
 
     virtual QList<ProjectAction> supportedActions(Node *node) const;
 
+    void setEnabled(bool enabled);
     void setAbsoluteFilePathAndLine(const Utils::FileName &filePath, int line);
 
     void emitNodeUpdated();
@@ -143,6 +144,7 @@ private:
     Utils::FileName m_filePath;
     int m_line;
     NodeType m_nodeType;
+    bool m_isEnabled = true;
 };
 
 class PROJECTEXPLORER_EXPORT FileNode : public Node
@@ -270,8 +272,6 @@ public:
 
     void accept(NodesVisitor *visitor) override;
 
-    bool isEnabled() const override { return true; }
-
     // to be called in implementation of
     // the corresponding public functions
     void addProjectNodes(const QList<ProjectNode*> &subProjects);
@@ -305,8 +305,6 @@ public:
     QString addFileFilter() const override;
 
     void accept(NodesVisitor *visitor) override;
-
-    bool isEnabled() const override { return true; }
 
     bool showInSimpleTree() const override;
     void projectDisplayNameChanged(Node *node);

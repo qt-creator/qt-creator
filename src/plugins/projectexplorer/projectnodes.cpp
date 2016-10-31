@@ -134,7 +134,10 @@ QString Node::tooltip() const
 
 bool Node::isEnabled() const
 {
-    return parentFolderNode()->isEnabled();
+    if (!m_isEnabled)
+        return false;
+    FolderNode *parent = parentFolderNode();
+    return parent ? parent->isEnabled() : true;
 }
 
 QList<ProjectAction> Node::supportedActions(Node *node) const
@@ -142,6 +145,14 @@ QList<ProjectAction> Node::supportedActions(Node *node) const
     QList<ProjectAction> list = parentFolderNode()->supportedActions(node);
     list.append(InheritedFromParent);
     return list;
+}
+
+void Node::setEnabled(bool enabled)
+{
+    if (m_isEnabled == enabled)
+        return;
+    m_isEnabled = enabled;
+    emitNodeUpdated();
 }
 
 void Node::setProjectNode(ProjectNode *project)
