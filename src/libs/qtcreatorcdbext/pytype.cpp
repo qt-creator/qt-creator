@@ -162,12 +162,18 @@ PyObject *type_Unqualified(Type *self)
 PyObject *type_Target(Type *self)
 {
     std::string typeName(getTypeName(self));
-    if (!endsWith(typeName, "*")) {
-        Py_XINCREF(self);
-        return (PyObject *)self;
+    if (endsWith(typeName, "*")) {
+        typeName.pop_back();
+        return lookupType(typeName);
     }
-    typeName.pop_back();
-    return lookupType(typeName);
+    if (SymbolGroupValue::isArrayType(typeName)) {
+        typeName.pop_back();
+        typeName.pop_back();
+        return lookupType(typeName);
+    }
+
+    Py_XINCREF(self);
+    return (PyObject *)self;
 }
 
 PyObject *type_StripTypedef(Type *self)
