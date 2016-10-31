@@ -219,7 +219,7 @@ void ServerModeReader::generateProjectTree(CMakeProjectNode *root)
         knownFiles.insert((*it)->filePath());
 
     QList<FileNode *> fileGroupNodes = m_cmakeInputsFileNodes;
-    for (const FileGroup *fg : qAsConst(m_fileGroups)) {
+    foreach (const FileGroup *fg, m_fileGroups) {
         for (const FileName &s : fg->sources) {
             const int oldCount = knownFiles.count();
             knownFiles.insert(s);
@@ -234,7 +234,7 @@ QSet<Core::Id> ServerModeReader::updateCodeModel(CppTools::ProjectPartBuilder &p
 {
     QSet<Core::Id> languages;
     int counter = 0;
-    for (const FileGroup *fg : qAsConst(m_fileGroups)) {
+    foreach (const FileGroup *fg, m_fileGroups) {
         ++counter;
         const QString defineArg
                 = transform(fg->defines, [](const QString &s) -> QString { return QString::fromLatin1("#define ") + s; }).join('\n');
