@@ -448,7 +448,7 @@ struct InternalNode
         // updateFolders
         QMultiMap<QString, FolderNode *> existingFolderNodes;
         foreach (FolderNode *node, folder->subFolderNodes())
-            if (node->nodeType() != ProjectNodeType && !dynamic_cast<ResourceEditor::ResourceTopLevelNode *>(node))
+            if (node->nodeType() != NodeType::Project && !dynamic_cast<ResourceEditor::ResourceTopLevelNode *>(node))
                 existingFolderNodes.insert(node->filePath().toString(), node);
 
         QList<FolderNode *> foldersToRemove;
@@ -466,7 +466,7 @@ struct InternalNode
                 QMultiMap<QString, FolderNode *>::const_iterator oldit
                         = existingFolderNodes.constFind(path);
                 while (oldit != existingFolderNodes.constEnd() && oldit.key() == path) {
-                    if (oldit.value()->nodeType() == VirtualFolderNodeType) {
+                    if (oldit.value()->nodeType() == NodeType::VirtualFolder) {
                         VirtualFolderNode *vfn = dynamic_cast<VirtualFolderNode *>(oldit.value());
                         if (vfn->priority() == (*it)->priority) {
                             found = true;
@@ -495,7 +495,7 @@ struct InternalNode
                 QMultiMap<QString, FolderNode *>::const_iterator oldit
                         = existingFolderNodes.constFind(path);
                 while (oldit != existingFolderNodes.constEnd() && oldit.key() == path) {
-                    if (oldit.value()->nodeType() == FolderNodeType) {
+                    if (oldit.value()->nodeType() == NodeType::Folder) {
                         found = true;
                         break;
                     }
@@ -904,7 +904,7 @@ QList<ProjectAction> QmakePriFileNode::supportedActions(Node *node) const
             actions << RemoveFile;
 
         bool addExistingFiles = true;
-        if (node->nodeType() == VirtualFolderNodeType) {
+        if (node->nodeType() == NodeType::VirtualFolder) {
             // A virtual folder, we do what the projectexplorer does
             FolderNode *folder = node->asFolderNode();
             if (folder) {

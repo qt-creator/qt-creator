@@ -205,7 +205,7 @@ FolderNode *AppManagerProject::findFolderFor(const QStringList &path)
         // Folder not found. Add it
         QString newFolderPath = QDir::cleanPath(currentPath + QDir::separator() + part);
         auto newFolder = new FolderNode(FileName::fromString(newFolderPath),
-                                        FolderNodeType,
+                                        NodeType::Folder,
                                         part);
         folder->addFolderNodes({newFolder});
         folder = newFolder;

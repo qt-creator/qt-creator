@@ -258,7 +258,7 @@ void QbsProjectManagerPlugin::updateContextActions()
             && m_selectedProject && !m_selectedProject->isParsing()
             && m_selectedNode && m_selectedNode->isEnabled();
 
-    bool isFile = m_selectedProject && m_selectedNode && (m_selectedNode->nodeType() == FileNodeType);
+    bool isFile = m_selectedProject && m_selectedNode && (m_selectedNode->nodeType() == NodeType::File);
     bool isProduct = m_selectedProject && m_selectedNode && dynamic_cast<QbsProductNode *>(m_selectedNode->projectNode());
     QbsProjectNode *subproject = dynamic_cast<QbsProjectNode *>(m_selectedNode);
     bool isSubproject = m_selectedProject && subproject && subproject != m_selectedProject->rootProjectNode();

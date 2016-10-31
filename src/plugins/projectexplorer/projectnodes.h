@@ -45,12 +45,12 @@ QT_END_NAMESPACE
 namespace ProjectExplorer {
 class RunConfiguration;
 
-enum NodeType {
-    FileNodeType = 1,
-    FolderNodeType,
-    VirtualFolderNodeType,
-    ProjectNodeType,
-    SessionNodeType
+enum class NodeType : quint16 {
+    File = 1,
+    Folder,
+    VirtualFolder,
+    Project,
+    Session
 };
 
 // File types common for qt projects
@@ -107,7 +107,7 @@ class SessionManager;
 class PROJECTEXPLORER_EXPORT Node
 {
 public:
-    virtual ~Node();
+    virtual ~Node() = default;
     NodeType nodeType() const;
     ProjectNode *projectNode() const;     // managing project
     FolderNode *parentFolderNode() const; // parent folder or project
@@ -138,11 +138,11 @@ protected:
     void emitNodeSortKeyChanged();
 
 private:
-    NodeType m_nodeType;
-    int m_line;
     ProjectNode *m_projectNode = nullptr;
     FolderNode *m_folderNode = nullptr;
     Utils::FileName m_filePath;
+    int m_line;
+    NodeType m_nodeType;
 };
 
 class PROJECTEXPLORER_EXPORT FileNode : public Node
@@ -172,7 +172,7 @@ private:
 class PROJECTEXPLORER_EXPORT FolderNode : public Node
 {
 public:
-    explicit FolderNode(const Utils::FileName &folderPath, NodeType nodeType = FolderNodeType,
+    explicit FolderNode(const Utils::FileName &folderPath, NodeType nodeType = NodeType::Folder,
                         const QString &displayName = QString());
     ~FolderNode() override;
 

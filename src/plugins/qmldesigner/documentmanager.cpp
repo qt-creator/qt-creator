@@ -381,18 +381,20 @@ void DocumentManager::findPathToIsoProFile(bool *iconResourceFileAlreadyExists, 
     ProjectExplorer::Node *iconQrcFileNode = nullptr;
 
     while (node && !iconQrcFileNode) {
-        qCDebug(documentManagerLog) << "Checking" << node->displayName() << "(" << node << node->nodeType() << ")";
+        qCDebug(documentManagerLog) << "Checking" << node->displayName()
+                                    << "(" << node << static_cast<int>(node->nodeType()) << ")";
 
-        if (node->nodeType() == ProjectExplorer::VirtualFolderNodeType && node->displayName() == "Resources") {
+        if (node->nodeType() == ProjectExplorer::NodeType::VirtualFolder && node->displayName() == "Resources") {
             ProjectExplorer::VirtualFolderNode *virtualFolderNode = dynamic_cast<ProjectExplorer::VirtualFolderNode*>(node);
 
             for (int subFolderIndex = 0; subFolderIndex < virtualFolderNode->subFolderNodes().size() && !iconQrcFileNode; ++subFolderIndex) {
                 ProjectExplorer::FolderNode *subFolderNode = virtualFolderNode->subFolderNodes().at(subFolderIndex);
 
                 qCDebug(documentManagerLog) << "Checking if" << subFolderNode->displayName() << "("
-                    << subFolderNode << subFolderNode->nodeType() << ") is" << isoIconsQrcFile;
+                    << subFolderNode << static_cast<int>(subFolderNode->nodeType())
+                    << ") is" << isoIconsQrcFile;
 
-                if (subFolderNode->nodeType() == ProjectExplorer::FolderNodeType
+                if (subFolderNode->nodeType() == ProjectExplorer::NodeType::Folder
                     && subFolderNode->displayName() == isoIconsQrcFile) {
                     qCDebug(documentManagerLog) << "Found" << isoIconsQrcFile << "in" << virtualFolderNode->filePath();
 

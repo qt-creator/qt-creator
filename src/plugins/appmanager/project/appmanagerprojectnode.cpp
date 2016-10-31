@@ -47,10 +47,10 @@ QList<ProjectAction> AppManagerProjectNode::supportedActions(Node *node) const
                                                         ProjectAction::RemoveFile
                                                       };
     switch (node->nodeType()) {
-    case FileNodeType:
+    case NodeType::File:
         return fileActions;
-    case FolderNodeType:
-    case ProjectNodeType:
+    case NodeType::Folder:
+    case NodeType::Project:
         return folderActions;
     default:
         return ProjectNode::supportedActions(node);

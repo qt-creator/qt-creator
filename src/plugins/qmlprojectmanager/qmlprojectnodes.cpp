@@ -87,7 +87,7 @@ QList<ProjectExplorer::ProjectAction> QmlProjectNode::supportedActions(Node *nod
     QList<ProjectExplorer::ProjectAction> actions;
     actions.append(ProjectExplorer::AddNewFile);
     actions.append(ProjectExplorer::EraseFile);
-    if (node->nodeType() == ProjectExplorer::FileNodeType) {
+    if (node->nodeType() == ProjectExplorer::NodeType::File) {
         ProjectExplorer::FileNode *fileNode = static_cast<ProjectExplorer::FileNode *>(node);
         if (fileNode->fileType() != ProjectExplorer::ProjectFileType)
             actions.append(ProjectExplorer::Rename);

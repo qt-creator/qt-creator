@@ -252,7 +252,7 @@ static QList<ProjectExplorer::ProjectAction> supportedNodeActions(ProjectExplore
         return actions;
     if (managesFiles)
         actions << ProjectExplorer::AddNewFile << ProjectExplorer::AddExistingFile;
-    if (node->nodeType() == ProjectExplorer::FileNodeType
+    if (node->nodeType() == ProjectExplorer::NodeType::File
             && !project->qbsProject().buildSystemFiles().contains(node->filePath().toString())) {
         actions << ProjectExplorer::RemoveFile << ProjectExplorer::Rename;
     }
@@ -482,7 +482,7 @@ void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root,
 
     QList<ProjectExplorer::FolderNode *> foldersToRemove;
     foreach (ProjectExplorer::FolderNode *fn, root->subFolderNodes()) {
-        if (fn->nodeType() == ProjectExplorer::ProjectNodeType)
+        if (fn->nodeType() == ProjectExplorer::NodeType::Project)
             continue; // Skip ProjectNodes mixed into the folders...
         const auto * const qbsFolder = dynamic_cast<QbsFolderNode *>(fn);
         if (qbsFolder && qbsFolder->isGeneratedFilesFolder())
@@ -530,7 +530,7 @@ void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root,
                     fn = new ResourceTopLevelNode(Utils::FileName::fromString(c->path()), QString(), root);
                 } else {
                     fn = new QbsFolderNode(Utils::FileName::fromString(c->path()),
-                                           ProjectExplorer::FolderNodeType,
+                                           ProjectExplorer::NodeType::Folder,
                                            displayNameFromPath(c->path(), baseDir), false);
                 }
                 root->addFolderNodes(QList<FolderNode *>() << fn);
@@ -581,7 +581,7 @@ ProjectExplorer::FileType QbsGroupNode::fileType(const qbs::ArtifactData &artifa
 QbsProductNode::QbsProductNode(const qbs::Project &project, const qbs::ProductData &prd) :
     QbsBaseProjectNode(Utils::FileName::fromString(prd.location().filePath())),
     m_generatedFilesNode(new QbsFolderNode(Utils::FileName::fromString(prd.buildDirectory()),
-            ProjectExplorer::FolderNodeType,
+            ProjectExplorer::NodeType::Folder,
             QCoreApplication::translate("QbsProductNode", "Generated files"), true))
 {
     if (m_productIcon.isNull())
@@ -859,7 +859,7 @@ QbsRootProjectNode::QbsRootProjectNode(QbsProject *project) :
     QbsProjectNode(project->projectFilePath()),
     m_project(project),
     m_buildSystemFiles(new ProjectExplorer::FolderNode(project->projectDirectory(),
-                                                       ProjectExplorer::FolderNodeType,
+                                                       ProjectExplorer::NodeType::Folder,
                                                        QCoreApplication::translate("QbsRootProjectNode", "Qbs files")))
 {
     addFolderNodes(QList<FolderNode *>() << m_buildSystemFiles);

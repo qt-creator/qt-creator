@@ -610,7 +610,7 @@ Node *SessionManager::nodeForFile(const Utils::FileName &fileName)
     Node *node = nullptr;
     foreach (Node *n, nodesForFile(fileName)) {
         // prefer file nodes
-        if (!node || (node->nodeType() != FileNodeType && n->nodeType() == FileNodeType))
+        if (!node || (node->nodeType() != NodeType::File && n->nodeType() == NodeType::File))
             node = n;
     }
     return node;

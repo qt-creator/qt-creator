@@ -492,22 +492,22 @@ void ProjectTree::showContextMenu(ProjectTreeWidget *focus, const QPoint &global
 
     if (!node)
         node = SessionManager::sessionNode();
-    if (node->nodeType() != SessionNodeType) {
+    if (node->nodeType() != NodeType::Session) {
         Project *project = SessionManager::projectForNode(node);
 
         emit s_instance->aboutToShowContextMenu(project, node);
         switch (node->nodeType()) {
-        case ProjectNodeType:
+        case NodeType::Project:
             if (node->parentFolderNode() == SessionManager::sessionNode())
                 contextMenu = Core::ActionManager::actionContainer(Constants::M_PROJECTCONTEXT)->menu();
             else
                 contextMenu = Core::ActionManager::actionContainer(Constants::M_SUBPROJECTCONTEXT)->menu();
             break;
-        case VirtualFolderNodeType:
-        case FolderNodeType:
+        case NodeType::VirtualFolder:
+        case NodeType::Folder:
             contextMenu = Core::ActionManager::actionContainer(Constants::M_FOLDERCONTEXT)->menu();
             break;
-        case FileNodeType:
+        case NodeType::File:
             contextMenu = Core::ActionManager::actionContainer(Constants::M_FILECONTEXT)->menu();
             break;
         default:

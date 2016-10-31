@@ -60,12 +60,7 @@ namespace ProjectExplorer {
 */
 
 Node::Node(NodeType nodeType, const Utils::FileName &filePath, int line) :
-    m_nodeType(nodeType),
-    m_line(line),
-    m_filePath(filePath)
-{ }
-
-Node::~Node()
+    m_filePath(filePath), m_line(line), m_nodeType(nodeType)
 { }
 
 void Node::emitNodeSortKeyAboutToChange()
@@ -197,7 +192,7 @@ void Node::setParentFolderNode(FolderNode *parentFolder)
 
 FileNode::FileNode(const Utils::FileName &filePath,
                    const FileType fileType,
-                   bool generated, int line) : Node(FileNodeType, filePath, line),
+                   bool generated, int line) : Node(NodeType::File, filePath, line),
     m_fileType(fileType),
     m_generated(generated)
 { }
@@ -585,7 +580,7 @@ void FolderNode::addFolderNodes(const QList<FolderNode*> &subFolders)
         }
 
         // project nodes have to be added via addProjectNodes
-        QTC_ASSERT(folder->nodeType() != ProjectNodeType,
+        QTC_ASSERT(folder->nodeType() != NodeType::Project,
                    qDebug("project nodes have to be added via addProjectNodes"));
     }
 
@@ -613,7 +608,7 @@ void FolderNode::removeFolderNodes(const QList<FolderNode*> &subFolders)
     auto toRemoveIter = toRemove.constBegin();
     auto folderIter = m_subFolderNodes.begin();
     for (; toRemoveIter != toRemove.constEnd(); ++toRemoveIter) {
-        QTC_ASSERT((*toRemoveIter)->nodeType() != ProjectNodeType,
+        QTC_ASSERT((*toRemoveIter)->nodeType() != NodeType::Project,
                    qDebug("project nodes have to be removed via removeProjectNodes"));
         while (*folderIter != *toRemoveIter) {
             ++folderIter;
@@ -649,7 +644,7 @@ bool FolderNode::showInSimpleTree() const
   \sa ProjectExplorer::FileNode, ProjectExplorer::ProjectNode
 */
 VirtualFolderNode::VirtualFolderNode(const Utils::FileName &folderPath, int priority) :
-    FolderNode(folderPath, VirtualFolderNodeType),
+    FolderNode(folderPath, NodeType::VirtualFolder),
     m_priority(priority)
 { }
 
@@ -672,7 +667,7 @@ int VirtualFolderNode::priority() const
   Creates an uninitialized project node object.
   */
 ProjectNode::ProjectNode(const Utils::FileName &projectFilePath) :
-    FolderNode(projectFilePath, ProjectNodeType)
+    FolderNode(projectFilePath, NodeType::Project)
 {
     // project node "manages" itself
     setProjectNode(this);
@@ -849,7 +844,7 @@ ProjectNode *ProjectNode::asProjectNode()
 */
 
 SessionNode::SessionNode() :
-    FolderNode(Utils::FileName::fromString("session"), SessionNodeType)
+    FolderNode(Utils::FileName::fromString("session"), NodeType::Session)
 { }
 
 QList<ProjectAction> SessionNode::supportedActions(Node *node) const

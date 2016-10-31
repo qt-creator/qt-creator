@@ -77,8 +77,8 @@ bool sortNodes(Node *n1, Node *n2)
     }
 
     // projects
-    if (n1Type == ProjectNodeType) {
-        if (n2Type == ProjectNodeType) {
+    if (n1Type == NodeType::Project) {
+        if (n2Type == NodeType::Project) {
             auto project1 = static_cast<ProjectNode*>(n1);
             auto project2 = static_cast<ProjectNode*>(n2);
 
@@ -95,11 +95,11 @@ bool sortNodes(Node *n1, Node *n2)
            return true; // project is before folder & file
        }
     }
-    if (n2Type == ProjectNodeType)
+    if (n2Type == NodeType::Project)
         return false;
 
-    if (n1Type == VirtualFolderNodeType) {
-        if (n2Type == VirtualFolderNodeType) {
+    if (n1Type == NodeType::VirtualFolder) {
+        if (n2Type == NodeType::VirtualFolder) {
             auto folder1 = static_cast<VirtualFolderNode *>(n1);
             auto folder2 = static_cast<VirtualFolderNode *>(n2);
 
@@ -118,12 +118,12 @@ bool sortNodes(Node *n1, Node *n2)
         }
     }
 
-    if (n2Type == VirtualFolderNodeType)
+    if (n2Type == NodeType::VirtualFolder)
         return false;
 
 
-    if (n1Type == FolderNodeType) {
-        if (n2Type == FolderNodeType) {
+    if (n1Type == NodeType::Folder) {
+        if (n2Type == NodeType::Folder) {
             auto folder1 = static_cast<FolderNode*>(n1);
             auto folder2 = static_cast<FolderNode*>(n2);
 
@@ -137,35 +137,32 @@ bool sortNodes(Node *n1, Node *n2)
             return true; // folder is before file
         }
     }
-    if (n2Type == FolderNodeType)
+    if (n2Type == NodeType::Folder)
         return false;
 
     // must be file nodes
-    {
-        int result = caseFriendlyCompare(n1->displayName(), n2->displayName());
+    int result = caseFriendlyCompare(n1->displayName(), n2->displayName());
+    if (result != 0)
+        return result < 0;
+
+    const QString filePath1 = n1->filePath().toString();
+    const QString filePath2 = n2->filePath().toString();
+
+    const QString fileName1 = n1->filePath().fileName();
+    const QString fileName2 = n2->filePath().fileName();
+
+    result = caseFriendlyCompare(fileName1, fileName2);
+    if (result != 0) {
+        return result < 0; // sort by filename
+    } else {
+        result = caseFriendlyCompare(filePath1, filePath2);
         if (result != 0)
-            return result < 0;
+            return result < 0; // sort by filepath
 
-        const QString filePath1 = n1->filePath().toString();
-        const QString filePath2 = n2->filePath().toString();
-
-        const QString fileName1 = n1->filePath().fileName();
-        const QString fileName2 = n2->filePath().fileName();
-
-        result = caseFriendlyCompare(fileName1, fileName2);
-        if (result != 0) {
-            return result < 0; // sort by filename
-        } else {
-            result = caseFriendlyCompare(filePath1, filePath2);
-            if (result != 0)
-                return result < 0; // sort by filepath
-
-            if (n1->line() != n2->line())
-                return n1->line() < n2->line(); // sort by line numbers
-            return n1 < n2; // sort by pointer value
-        }
+        if (n1->line() != n2->line())
+            return n1->line() < n2->line(); // sort by line numbers
+        return n1 < n2; // sort by pointer value
     }
-    return false;
 }
 
 } // namespace anon
@@ -252,9 +249,9 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
         case Qt::DisplayRole: {
             QString name = node->displayName();
 
-            if (node->nodeType() == ProjectNodeType
+            if (node->nodeType() == NodeType::Project
                     && node->parentFolderNode()
-                    && node->parentFolderNode()->nodeType() == SessionNodeType) {
+                    && node->parentFolderNode()->nodeType() == NodeType::Session) {
                 const QString vcsTopic = static_cast<ProjectNode *>(node)->vcsTopic();
 
                 if (!vcsTopic.isEmpty())
@@ -422,7 +419,7 @@ QList<Node*> FlatModel::childNodes(FolderNode *parentNode, const QSet<Node*> &bl
     qCDebug(logger()) << "    FlatModel::childNodes for " << parentNode->filePath();
     QList<Node*> nodeList;
 
-    if (parentNode->nodeType() == SessionNodeType) {
+    if (parentNode->nodeType() == NodeType::Session) {
         auto sessionNode = static_cast<SessionNode*>(parentNode);
         QList<ProjectNode*> projectList = sessionNode->projectNodes();
         for (int i = 0; i < projectList.size(); ++i) {
