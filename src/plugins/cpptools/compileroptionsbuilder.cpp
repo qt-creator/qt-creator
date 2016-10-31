@@ -423,6 +423,16 @@ bool CompilerOptionsBuilder::excludeDefineDirective(const QByteArray &defineDire
         return true;
     }
 
+    // If _FORTIFY_SOURCE is defined (typically in release mode), it will
+    // enable the inclusion of extra headers to help catching buffer overflows
+    // (e.g. wchar.h includes wchar2.h). These extra headers use
+    // __builtin_va_arg_pack, which clang does not support (yet), so avoid
+    // including those.
+    if (m_projectPart.toolchainType == ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID
+            && defineDirective.startsWith("#define _FORTIFY_SOURCE")) {
+        return true;
+    }
+
     return false;
 }
 
