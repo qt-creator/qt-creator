@@ -848,27 +848,34 @@ class DumperBase:
                 for n, v in zip(names, values):
                     self.putSubItem(n, v)
 
+    def prettySymbolByAddress(self, address):
+        return '0x%x' % address
+
+    def putSymbolValue(self, address):
+        self.putValue(self.prettySymbolByAddress(address))
+
     def putFields(self, value, dumpBase = True):
         for item in value.members(True):
             #warn('FIELD: %s' % item)
             if item.name is not None and item.name.startswith('_vptr.'):
                 with SubItem(self, '[vptr]'):
                     # int (**)(void)
-                    n = 100
                     self.putType(' ')
                     self.putField('sortgroup', 20)
                     self.putValue(item.name)
-                    self.putNumChild(n)
+                    n = 10
                     if self.isExpanded():
                         with Children(self):
-                            p = item
+                            p = item.pointer()
                             for i in xrange(n):
-                                deref = p.dereference()
-                                if deref.pointer() != 0:
-                                    with SubItem(self, i):
-                                        self.putItem(deref)
-                                        self.putType(' ')
-                                        p.laddress += self.ptrSize()
+                                deref = self.extractPointer(p)
+                                if deref == 0:
+                                    n = i
+                                    break
+                                with SubItem(self, i):
+                                    self.putItem(self.createPointerValue(deref, 'void'))
+                                    p += self.ptrSize()
+                    self.putNumChild(n)
                 continue
 
             if item.isBaseClass and dumpBase:
@@ -1287,8 +1294,6 @@ class DumperBase:
 
         typeName = value.type.name
 
-        self.putAddress(value.address())
-
         try:
             self.readRawMemory(pointer, 1)
         except:
@@ -1306,7 +1311,7 @@ class DumperBase:
         if innerType.name == 'void':
             #warn('VOID POINTER: %s' % displayFormat)
             self.putType(typeName)
-            self.putValue('0x%x' % pointer)
+            self.putSymbolValue(pointer)
             self.putNumChild(0)
             return
 
@@ -1338,7 +1343,7 @@ class DumperBase:
 
         if innerType.code == TypeCodeFunction:
             # A function pointer.
-            self.putValue('0x%x' % pointer)
+            self.putSymbolValue(pointer)
             self.putType(typeName)
             self.putNumChild(0)
             return
@@ -2570,8 +2575,9 @@ class DumperBase:
             return
 
         if typeobj.code == TypeCodeFunction:
+            #warn('FUNCTION VALUE: %s' % value)
             self.putType(typeobj)
-            self.putValue(value)
+            self.putSymbolValue(value.pointer())
             self.putNumChild(0)
             return
 

@@ -752,6 +752,12 @@ class Dumper(DumperBase):
     def isMsvcTarget(self):
         return False
 
+    def prettySymbolByAddress(self, address):
+        try:
+            return str(gdb.parse_and_eval('(void(*))0x%x' % address))
+        except:
+            return '0x%x' % address
+
     def qtVersionString(self):
         try:
             return str(gdb.lookup_symbol("qVersion")[0].value()())
