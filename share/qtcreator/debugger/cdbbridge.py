@@ -243,9 +243,8 @@ class Dumper(DumperBase):
         return cdbext.readRawMemory(address, size)
 
     def findStaticMetaObject(self, typeName):
-        symbolName = self.mangleName(typeName + '::staticMetaObject')
-        symbol = self.target.FindFirstGlobalVariable(symbolName)
-        return symbol.AddressOf().GetValueAsUnsigned() if symbol.IsValid() else 0
+        ptr = self.findValueByExpression('&' + typeName + '::staticMetaObject')
+        return ptr
 
     def warn(self, msg):
         self.put('{name="%s",value="",type="",numchild="0"},' % msg)
