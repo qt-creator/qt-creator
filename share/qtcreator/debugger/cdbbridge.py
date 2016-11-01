@@ -188,7 +188,13 @@ class Dumper(DumperBase):
         return None
 
     def parseAndEvaluate(self, exp):
-        return cdbext.parseAndEvaluate(exp)
+        val = cdbext.parseAndEvaluate(exp)
+        if val is None:
+            return None
+        value = self.Value(self)
+        value.type = self.lookupType('void *')
+        value.ldata = val.to_bytes(8, sys.byteorder)
+        return value
 
     def isWindowsTarget(self):
         return True
