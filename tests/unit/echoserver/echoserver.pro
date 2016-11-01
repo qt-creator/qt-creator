@@ -10,7 +10,6 @@ unix:LIBS += -ldl
 
 osx:QMAKE_CXXFLAGS = -stdlib=libc++
 
-include(../../../src/libs/utils/utils-lib.pri)
 include(../../../src/libs/clangbackendipc/clangbackendipc-lib.pri)
 include(../../../src/libs/sqlite/sqlite-lib.pri)
 
