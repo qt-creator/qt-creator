@@ -140,6 +140,8 @@ void NimProject::updateProject()
     rootProjectNode()->buildTree(fileNodes);
 
     emit fileListChanged();
+
+    emit parsingFinished();
 }
 
 bool NimProject::supportsKit(Kit *k, QString *) const

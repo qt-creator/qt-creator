@@ -87,7 +87,8 @@ void QmakeKitInformation::setup(Kit *k)
                     break;
             }
         }
-        ToolChainKitInformation::setToolChain(k, possibleTc);
+        if (possibleTc)
+            ToolChainKitInformation::setToolChain(k, possibleTc);
     }
 }
 

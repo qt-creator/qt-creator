@@ -685,11 +685,6 @@ void QtOptionsPageWidget::userChangedCurrentVersion()
     updateDescriptionLabel();
 }
 
-void QtOptionsPageWidget::qtVersionChanged()
-{
-    updateDescriptionLabel();
-}
-
 void QtOptionsPageWidget::updateDescriptionLabel()
 {
     QtVersionItem *item = currentItem();
@@ -736,7 +731,7 @@ void QtOptionsPageWidget::updateWidgets()
             m_versionUi->formLayout->addRow(m_configurationWidget);
             m_configurationWidget->setEnabled(!version->isAutodetected());
             connect(m_configurationWidget, &QtConfigWidget::changed,
-                    this, &QtOptionsPageWidget::qtVersionChanged);
+                    this, &QtOptionsPageWidget::updateDescriptionLabel);
         }
     } else {
         m_versionUi->nameEdit->clear();

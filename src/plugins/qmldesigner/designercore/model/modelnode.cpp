@@ -223,7 +223,7 @@ static bool idContainsWrongLetter(const QString& id)
 
 bool ModelNode::isValidId(const QString &id)
 {
-    return id.isEmpty() || (!idContainsWrongLetter(id) && !idIsQmlKeyWord(id)) && !isIdToAvoid(id);
+    return id.isEmpty() || (!idContainsWrongLetter(id) && !idIsQmlKeyWord(id) && !isIdToAvoid(id));
 }
 
 bool ModelNode::hasId() const

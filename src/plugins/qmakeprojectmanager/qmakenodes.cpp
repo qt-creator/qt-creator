@@ -87,26 +87,25 @@ using namespace Utils;
 
 struct FileTypeDataStorage {
     FileType type;
-    Theme::ImageFile themeImage;
     const char *typeName;
     const char *icon;
     const char *addFileFilter;
 };
 
 static const FileTypeDataStorage fileTypeDataStorage[] = {
-    { HeaderType, Theme::ProjectExplorerHeader, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Headers"),
+    { HeaderType, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Headers"),
       ProjectExplorer::Constants::FILEOVERLAY_H, "*.h; *.hh; *.hpp; *.hxx;"},
-    { SourceType, Theme::ProjectExplorerSource, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Sources"),
+    { SourceType, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Sources"),
       ProjectExplorer::Constants::FILEOVERLAY_CPP, "*.c; *.cc; *.cpp; *.cp; *.cxx; *.c++;" },
-    { FormType, Theme::ProjectExplorerForm, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Forms"),
+    { FormType, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Forms"),
       Constants::FILEOVERLAY_UI, "*.ui;" },
-    { StateChartType, Theme::ProjectExplorerForm, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "State charts"),
+    { StateChartType, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "State charts"),
       ProjectExplorer::Constants::FILEOVERLAY_SCXML, "*.scxml;" },
-    { ResourceType, Theme::ProjectExplorerResource, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Resources"),
+    { ResourceType, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Resources"),
       ProjectExplorer::Constants::FILEOVERLAY_QRC, "*.qrc;" },
-    { QMLType, Theme::ProjectExplorerQML, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "QML"),
+    { QMLType, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "QML"),
       ProjectExplorer::Constants::FILEOVERLAY_QML, "*.qml;" },
-    { UnknownFileType, Theme::ProjectExplorerOtherFiles, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Other files"),
+    { UnknownFileType, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Other files"),
       ProjectExplorer::Constants::FILEOVERLAY_UNKNOWN, "*;" }
 };
 
@@ -159,10 +158,7 @@ QmakeNodeStaticData::QmakeNodeStaticData()
 
     const QPixmap dirPixmap = qApp->style()->standardIcon(QStyle::SP_DirIcon).pixmap(desiredSize);
     for (unsigned i = 0 ; i < count; ++i) {
-        QIcon overlayIcon;
-        const QString iconFile = creatorTheme()->imageFile(fileTypeDataStorage[i].themeImage,
-                                                           QString::fromLatin1(fileTypeDataStorage[i].icon));
-        overlayIcon = QIcon(iconFile);
+        const QIcon overlayIcon(QLatin1String(fileTypeDataStorage[i].icon));
         QIcon folderIcon;
         folderIcon.addPixmap(FileIconProvider::overlayIcon(dirPixmap, overlayIcon));
         const QString desc = QCoreApplication::translate("QmakeProjectManager::QmakePriFileNode", fileTypeDataStorage[i].typeName);
@@ -171,9 +167,7 @@ QmakeNodeStaticData::QmakeNodeStaticData()
                                                                  desc, filter, folderIcon));
     }
     // Project icon
-    const QString fileName = creatorTheme()->imageFile(Theme::ProjectFileIcon,
-                                                       QLatin1String(ProjectExplorer::Constants::FILEOVERLAY_QT));
-    const QIcon projectBaseIcon(fileName);
+    const QIcon projectBaseIcon(ProjectExplorer::Constants::FILEOVERLAY_QT);
     const QPixmap projectPixmap = FileIconProvider::overlayIcon(dirPixmap, projectBaseIcon);
     projectIcon.addPixmap(projectPixmap);
 
@@ -205,7 +199,6 @@ public:
     QtSupport::ProFileReader *readerCumulative;
     ProFileGlobals *qmakeGlobals;
     QMakeVfs *qmakeVfs;
-    bool isQt5;
 };
 
 class PriFileEvalResult
@@ -244,7 +237,6 @@ public:
     TargetInformation targetInformation;
     InstallsList installsList;
     QHash<QmakeVariable, QStringList> newVarValues;
-    bool isDeployable;
     QStringList errors;
 };
 
@@ -645,7 +637,7 @@ PriFileEvalResult QmakePriFileNode::extractValues(const EvalInput &input,
     // all the files from those folders and add watchers for them. That's too
     // dangerous if we get the folders wrong and enumerate the whole project
     // tree multiple times.
-    QStringList dynamicVariables = dynamicVarNames(input.readerExact, input.isQt5);
+    QStringList dynamicVariables = dynamicVarNames(input.readerExact);
     foreach (ProFile *includeFileExact, includeFilesExact)
         foreach (const QString &dynamicVar, dynamicVariables)
             result.folders += input.readerExact->values(dynamicVar, includeFileExact);
@@ -1467,25 +1459,15 @@ QStringList QmakePriFileNode::varNamesForRemoving()
     return vars;
 }
 
-QStringList QmakePriFileNode::dynamicVarNames(QtSupport::ProFileReader *readerExact,
-                                            bool isQt5)
+QStringList QmakePriFileNode::dynamicVarNames(QtSupport::ProFileReader *reader)
 {
     QStringList result;
 
-    // Figure out DEPLOYMENT and INSTALLS
-    const QString deployment = QLatin1String("DEPLOYMENT");
-    const QString sources = QLatin1String(isQt5 ? ".files" : ".sources");
-    QStringList listOfVars = readerExact->values(deployment);
-    foreach (const QString &var, listOfVars) {
-        result << (var + sources);
-    }
-
+    // Figure out INSTALLS (and DEPLOYMENT, as it's aliased)
     const QString installs = QLatin1String("INSTALLS");
     const QString files = QLatin1String(".files");
-    listOfVars = readerExact->values(installs);
-    foreach (const QString &var, listOfVars) {
+    foreach (const QString &var, reader->values(installs))
         result << (var + files);
-    }
     result.removeDuplicates();
     return result;
 }
@@ -1629,11 +1611,6 @@ QByteArray QmakeProFileNode::cxxDefines() const
         }
     }
     return result;
-}
-
-bool QmakeProFileNode::isDeployable() const
-{
-    return m_isDeployable;
 }
 
 /*!
@@ -1798,10 +1775,6 @@ EvalInput QmakeProFileNode::evalInput() const
     input.buildDirectory = buildDir();
     input.readerExact = m_readerExact;
     input.readerCumulative = m_readerCumulative;
-    Target *t = m_project->activeTarget();
-    Kit *k = t ? t->kit() : KitManager::defaultKit();
-    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(k);
-    input.isQt5 = !qtVersion || qtVersion->qtVersion() >= QtSupport::QtVersionNumber(5,0,0);
     input.qmakeGlobals = m_project->qmakeGlobals();
     input.qmakeVfs = m_project->qmakeVfs();
     return input;
@@ -2011,19 +1984,6 @@ EvalResult *QmakeProFileNode::evaluate(const EvalInput &input)
         result->newVarValues[QmakeProjectName] = input.readerExact->values(QLatin1String("QMAKE_PROJECT_NAME"));
         result->newVarValues[QmakeCc] = input.readerExact->values("QMAKE_CC");
         result->newVarValues[QmakeCxx] = input.readerExact->values("QMAKE_CXX");
-
-        result->isDeployable = false;
-        if (result->projectType == ApplicationTemplate) {
-            result->isDeployable = true;
-        } else {
-            foreach (const QString &item, input.readerExact->values(QLatin1String("DEPLOYMENT"))) {
-                if (!input.readerExact->values(item + QLatin1String(".sources")).isEmpty()) {
-                    result->isDeployable = true;
-                    break;
-                }
-            }
-        }
-
 
         if (readerBuildPass && readerBuildPass != input.readerExact)
             delete readerBuildPass;
@@ -2274,7 +2234,6 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
 
         m_subProjectsNotToDeploy = result->subProjectsNotToDeploy;
         m_installsList = result->installsList;
-        m_isDeployable = result->isDeployable;
 
         if (m_varValues != result->newVarValues)
             m_varValues = result->newVarValues;

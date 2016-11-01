@@ -66,9 +66,9 @@ Item {
         anchors.leftMargin: 18
         anchors.rightMargin: 20
         anchors.right: parent.right
-
+        text: examplesModel.searchString
         placeholderText: qsTr("Search in Examples...")
-        onTextChanged: examplesModel.parseSearchString(text)
+        onTextChanged: examplesModel.setSearchString(text)
     }
 
     CustomizedGridView {

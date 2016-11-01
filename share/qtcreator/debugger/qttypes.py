@@ -152,7 +152,7 @@ def qdump_X_QModelIndex(d, value):
     except:
         p = value['i']
     m = value['m']
-    if m.integer() == 0 or r < 0 or c < 0:
+    if m.pointer() == 0 or r < 0 or c < 0:
         d.putValue('(invalid)')
         d.putPlainChildren(value)
         return
@@ -196,7 +196,7 @@ def qdump_X_QModelIndex(d, value):
 
 
 def qdump__QDate(d, value):
-    jd = value.integer()
+    jd = value.pointer()
     if jd:
         d.putValue(jd, 'juliandate')
         d.putNumChild(1)
@@ -332,6 +332,7 @@ def qdump__QDateTime(d, value):
         d.putNumChild(0)
         return
 
+    d.putNumChild(1)
     if d.isExpanded():
         with Children(d):
             ns = d.qtNamespace()
@@ -1120,7 +1121,7 @@ def qdump__QRegion(d, value):
 
 
 def qdump__QScopedPointer(d, value):
-    if value.integer() == 0:
+    if value.pointer() == 0:
         d.putValue('(null)')
         d.putNumChild(0)
     else:
@@ -1187,13 +1188,13 @@ def qdump__QSet(d, value):
 
 
 def qdump__QSharedData(d, value):
-    d.putValue('ref: %s' % d.extractInt(value['ref'].address))
+    d.putValue('ref: %s' % value.to('i'))
     d.putNumChild(0)
 
 
 def qdump__QSharedDataPointer(d, value):
     d_ptr = value['d']
-    if d_ptr.integer() == 0:
+    if d_ptr.pointer() == 0:
         d.putValue('(null)')
         d.putNumChild(0)
     else:
@@ -1206,7 +1207,7 @@ def qdump__QSharedDataPointer(d, value):
             d.putPlainChildren(value)
             return
         d.putBetterType(d.currentType)
-        d.putItem(d_ptr.cast(innerType.pointer()).dereference())
+        d.putItem(d_ptr.dereference())
 
 
 
@@ -1404,6 +1405,7 @@ def qdump__QUrl(d, value):
     if displayFormat == SeparateFormat:
         d.putDisplay('utf16:separate', url)
 
+    d.putNumChild(1)
     if d.isExpanded():
         with Children(d):
             d.putIntItem('port', port)
@@ -1684,12 +1686,12 @@ def qdump__QVariant(d, value):
             ptr = p.pointer()
             (elided, blob) = d.encodeCArray(ptr, 1, 100)
             typeName = d.hexdecode(blob)
-            base = data.extractPointer()
             # Prefer namespaced version.
             if len(ns) > 0:
                 if not d.lookupNativeType(ns + typeName) is None:
                     typeName = ns + typeName
-            d.putSubItem('data', d.createValue(base, d.createType(typeName)))
+            data.type = d.createType(typeName + ' *')
+            d.putSubItem('data', data)
         if not typeName is None:
             d.putBetterType('%sQVariant (%s)' % (ns, typeName))
     return None
@@ -1706,7 +1708,7 @@ def qedit__QVector(d, value, data):
         base = value['d'].address() + offset
     except:
         # Qt 4.
-        base = value['p']['array'].integer()
+        base = value['p']['array'].pointer()
     d.setValues(base, innerType, values)
 
 
@@ -1766,6 +1768,7 @@ def qdump_QWeakPointerHelper(d, value, isWeak):
 
 def qdump__QXmlAttributes__Attribute(d, value):
     d.putEmptyValue()
+    d.putNumChild(1)
     if d.isExpanded():
         with Children(d):
             (qname, uri, localname, val) = value.split('{QString}' * 4)
@@ -2345,7 +2348,7 @@ def qdump__QScriptValue(d, value):
     #d.putEmptyValue()
     dd = value['d_ptr']['d']
     ns = d.qtNamespace()
-    if dd.integer() == 0:
+    if dd.pointer() == 0:
         d.putValue('(invalid)')
         d.putNumChild(0)
         return
@@ -2621,9 +2624,9 @@ def qdump__QJsonValue(d, value):
 
 
 def qdump__QJsonArray(d, value):
-    qdumpHelper_QJsonArray(d, value['d'].integer(), value['a'].integer())
+    qdumpHelper_QJsonArray(d, value['d'].pointer(), value['a'].pointer())
 
 
 def qdump__QJsonObject(d, value):
-    qdumpHelper_QJsonObject(d, value['d'].integer(), value['o'].integer())
+    qdumpHelper_QJsonObject(d, value['d'].pointer(), value['o'].pointer())
 

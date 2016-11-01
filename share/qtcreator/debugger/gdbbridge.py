@@ -205,17 +205,46 @@ class Dumper(DumperBase):
         self.output = []
         self.setVariableFetchingOptions(args)
 
-    def fromNativeDowncastableValue(self, nativeValue):
+    def fromFrameValue(self, nativeValue):
+        val = nativeValue
         if self.useDynamicType:
             try:
-               return self.fromNativeValue(nativeValue.cast(nativeValue.dynamic_type))
+               val = nativeValue.cast(nativeValue.dynamic_type)
             except:
                pass
-        return self.fromNativeValue(nativeValue)
+        return self.fromNativeValue(val)
 
     def fromNativeValue(self, nativeValue):
-        #self.check(isinstance(nativeValue, gdb.Value))
+        #warn("FROM NATIVE VALUE: %s" % nativeValue)
+        self.check(isinstance(nativeValue, gdb.Value))
         nativeType = nativeValue.type
+        code = nativeType.code
+        if code == gdb.TYPE_CODE_REF:
+            targetType = self.fromNativeType(nativeType.target().unqualified())
+            val = self.createReferenceValue(toInteger(nativeValue.address), targetType)
+            #warn("CREATED REF: %s" % val)
+            return val
+        if code == gdb.TYPE_CODE_PTR:
+            targetType = self.fromNativeType(nativeType.target().unqualified())
+            val = self.createPointerValue(toInteger(nativeValue), targetType)
+            #warn("CREATED PTR 1: %s" % val)
+            if not nativeValue.address is None:
+                val.laddress = toInteger(nativeValue.address)
+            #warn("CREATED PTR 2: %s" % val)
+            return val
+        if code == gdb.TYPE_CODE_TYPEDEF:
+            targetType = nativeType.strip_typedefs().unqualified()
+            #warn("TARGET TYPE: %s" % targetType)
+            if targetType.code == gdb.TYPE_CODE_ARRAY:
+                val = self.Value(self)
+                val.laddress = toInteger(nativeValue.address)
+            else:
+                # Cast may fail (e.g for arrays, see test for Bug5799)
+                val = self.fromNativeValue(nativeValue.cast(targetType))
+            val.type = self.fromNativeType(nativeType)
+            #warn("CREATED TYPEDEF: %s" % val)
+            return val
+
         val = self.Value(self)
         if not nativeValue.address is None:
             val.laddress = toInteger(nativeValue.address)
@@ -238,82 +267,131 @@ class Dumper(DumperBase):
                 val.ldisplay += ' (%s)' % intval
         elif code == gdb.TYPE_CODE_COMPLEX:
             val.ldisplay = str(nativeValue)
-        elif code == gdb.TYPE_CODE_ARRAY:
-            val.type.ltarget = nativeValue[0].type.unqualified()
+        #elif code == gdb.TYPE_CODE_ARRAY:
+        #    val.type.ltarget = nativeValue[0].type.unqualified()
         return val
+
+    def ptrSize(self):
+        result = gdb.lookup_type('void').pointer().sizeof
+        self.ptrSize = lambda: result
+        return result
 
     def fromNativeType(self, nativeType):
         self.check(isinstance(nativeType, gdb.Type))
-        typeobj = self.Type(self)
-        typeobj.nativeType = nativeType.unqualified()
-        typeobj.name = str(typeobj.nativeType)
-        typeobj.lbitsize = nativeType.sizeof * 8
-        typeobj.code = {
-            gdb.TYPE_CODE_TYPEDEF : TypeCodeTypedef,
-            gdb.TYPE_CODE_METHOD : TypeCodeFunction,
-            gdb.TYPE_CODE_VOID : TypeCodeVoid,
-            gdb.TYPE_CODE_FUNC : TypeCodeFunction,
-            gdb.TYPE_CODE_METHODPTR : TypeCodeFunction,
-            gdb.TYPE_CODE_MEMBERPTR : TypeCodeFunction,
-            gdb.TYPE_CODE_PTR : TypeCodePointer,
-            gdb.TYPE_CODE_REF : TypeCodeReference,
-            gdb.TYPE_CODE_BOOL : TypeCodeIntegral,
-            gdb.TYPE_CODE_CHAR : TypeCodeIntegral,
-            gdb.TYPE_CODE_INT : TypeCodeIntegral,
-            gdb.TYPE_CODE_FLT : TypeCodeFloat,
-            gdb.TYPE_CODE_ENUM : TypeCodeEnum,
-            gdb.TYPE_CODE_ARRAY : TypeCodeArray,
-            gdb.TYPE_CODE_STRUCT : TypeCodeStruct,
-            gdb.TYPE_CODE_UNION : TypeCodeStruct,
-            gdb.TYPE_CODE_COMPLEX : TypeCodeComplex,
-            gdb.TYPE_CODE_STRING : TypeCodeFortranString,
-        }[nativeType.code]
-        return typeobj
+        code = nativeType.code
+        #warn('FROM NATIVE TYPE: %s' % nativeType)
+        #nativeType = nativeType.unqualified()
 
-    def nativeTypeDereference(self, nativeType):
-        return self.fromNativeType(nativeType.strip_typedefs().target())
+        if code == gdb.TYPE_CODE_PTR:
+            #warn('PTR')
+            targetType = self.fromNativeType(nativeType.target().unqualified())
+            return self.createPointerType(targetType)
 
-    def nativeTypeUnqualified(self, nativeType):
-        return self.fromNativeType(nativeType.unqualified())
+        if code == gdb.TYPE_CODE_REF:
+            #warn('REF')
+            targetType = self.fromNativeType(nativeType.target().unqualified())
+            return self.createReferenceType(targetType)
 
-    def nativeTypePointer(self, nativeType):
-        return self.fromNativeType(nativeType.pointer())
+        if code == gdb.TYPE_CODE_ARRAY:
+            #warn('ARRAY')
+            nativeTargetType = nativeType.target().unqualified()
+            targetType = self.fromNativeType(nativeTargetType)
+            count = nativeType.sizeof // nativeTargetType.sizeof
+            return self.createArrayType(targetType, count)
 
-    def nativeTypeTarget(self, nativeType):
-        while nativeType.code == gdb.TYPE_CODE_TYPEDEF:
-            nativeType = nativeType.strip_typedefs().unqualified()
-        return self.fromNativeType(nativeType.target())
+        if code == gdb.TYPE_CODE_TYPEDEF:
+            #warn('TYPEDEF')
+            nativeTargetType = nativeType.unqualified()
+            while nativeTargetType.code == gdb.TYPE_CODE_TYPEDEF:
+                nativeTargetType = nativeTargetType.strip_typedefs().unqualified()
+            targetType = self.fromNativeType(nativeTargetType)
+            return self.createTypedefedType(targetType, str(nativeType))
 
-    def nativeTypeFirstBase(self, nativeType):
-        nativeFields = nativeType.fields()
-        if len(nativeFields) and nativeFields[0].is_base_class:
-            return self.fromNativeType(nativeFields[0].type)
+        if code == gdb.TYPE_CODE_ERROR:
+            warn('Type error: %s' % nativeType)
+            return self.Type(self, '')
+
+        typeId = self.nativeTypeId(nativeType)
+        res = self.typeData.get(typeId, None)
+        if res is None:
+            tdata = self.TypeData(self)
+            tdata.name = str(nativeType)
+            tdata.typeId = typeId
+            tdata.lbitsize = nativeType.sizeof * 8
+            tdata.code = {
+                #gdb.TYPE_CODE_TYPEDEF : TypeCodeTypedef, # Handled above.
+                gdb.TYPE_CODE_METHOD : TypeCodeFunction,
+                gdb.TYPE_CODE_VOID : TypeCodeVoid,
+                gdb.TYPE_CODE_FUNC : TypeCodeFunction,
+                gdb.TYPE_CODE_METHODPTR : TypeCodeFunction,
+                gdb.TYPE_CODE_MEMBERPTR : TypeCodeFunction,
+                #gdb.TYPE_CODE_PTR : TypeCodePointer,  # Handled above.
+                #gdb.TYPE_CODE_REF : TypeCodeReference,  # Handled above.
+                gdb.TYPE_CODE_BOOL : TypeCodeIntegral,
+                gdb.TYPE_CODE_CHAR : TypeCodeIntegral,
+                gdb.TYPE_CODE_INT : TypeCodeIntegral,
+                gdb.TYPE_CODE_FLT : TypeCodeFloat,
+                gdb.TYPE_CODE_ENUM : TypeCodeEnum,
+                #gdb.TYPE_CODE_ARRAY : TypeCodeArray,
+                gdb.TYPE_CODE_STRUCT : TypeCodeStruct,
+                gdb.TYPE_CODE_UNION : TypeCodeStruct,
+                gdb.TYPE_CODE_COMPLEX : TypeCodeComplex,
+                gdb.TYPE_CODE_STRING : TypeCodeFortranString,
+            }[code]
+            if tdata.code == TypeCodeEnum:
+                tdata.enumDisplay = lambda intval: self.nativeTypeEnumDisplay(nativeType, intval)
+            self.registerType(typeId, tdata) # Prevent recursion in fields.
+            tdata.lfields = self.listFields(nativeType, self.Type(self, typeId))
+            tdata.templateArguments = self.listTemplateParameters(nativeType)
+            self.registerType(typeId, tdata) # Fix up fields and template args
+        #    warn('CREATE TYPE: %s' % typeId)
+        #else:
+        #    warn('REUSE TYPE: %s' % typeId)
+        return self.Type(self, typeId)
+
+    def listTemplateParameters(self, nativeType):
+        targs = []
+        pos = 0
+        while True:
+            try:
+                targ = nativeType.template_argument(pos)
+            except:
+                break
+            if isinstance(targ, gdb.Type):
+                targs.append(self.fromNativeType(targ.unqualified()))
+            elif isinstance(targ, gdb.Value):
+                #targs.append(self.fromNativeValue(targ))
+                targs.append(self.fromNativeValue(targ).value())
+            else:
+                error('CRAP')
+            pos += 1
+        return targs
 
     def nativeTypeEnumDisplay(self, nativeType, intval):
         try:
-            val = gdb.parse_and_eval("(%s)%d" % (nativeType, intval))
-            return  "%s (%d)" % (val, intval)
+            val = gdb.parse_and_eval('(%s)%d' % (nativeType, intval))
+            return  '%s (%d)' % (val, intval)
         except:
-            return "%d" % intval
+            return '%d' % intval
 
-    def nativeTypeFields(self, nativeType):
-        if nativeType.code == gdb.TYPE_CODE_TYPEDEF:
-            return self.nativeTypeFields(nativeType.strip_typedefs())
+    def nativeTypeId(self, nativeType):
+        name = str(nativeType)
+        if len(name) == 0:
+            c = '0'
+        elif name == 'struct {...}':
+            c = 's'
+        elif name == 'union {...}':
+            c = 'u'
+        else:
+            return name
+        typeId = c + ''.join(['{%s:%s}' % (f.name, self.nativeTypeId(f.type)) for f in nativeType.fields()])
+        return typeId
+
+    def listFields(self, nativeType, parentType):
+        #if nativeType.code == gdb.TYPE_CODE_TYPEDEF:
+        #    return self.listFields(nativeType.strip_typedefs(), parentType)
 
         fields = []
-        if nativeType.code == gdb.TYPE_CODE_ARRAY:
-            # An array.
-            typeobj = nativeType.strip_typedefs()
-            innerType = typeobj.target()
-            for i in xrange(int(typeobj.sizeof / innerType.sizeof)):
-                field = self.Field(self)
-                field.ltype = self.fromNativeType(innerType)
-                field.parentType = self.fromNativeType(nativeType)
-                field.isBaseClass = False
-                field.lbitsize = innerType.sizeof
-                field.lbitpos = i * innerType.sizeof * 8
-                fields.append(field)
-            return fields
 
         if not nativeType.code in (gdb.TYPE_CODE_STRUCT, gdb.TYPE_CODE_UNION):
             return fields
@@ -321,18 +399,20 @@ class Dumper(DumperBase):
         nativeIndex = 0
         baseIndex = 0
         nativeFields = nativeType.fields()
-        #warn("NATIVE FIELDS: %s" % nativeFields)
+        #warn('NATIVE FIELDS: %s' % nativeFields)
+        anonNumber = 0
         for nativeField in nativeFields:
-            #warn("FIELD: %s" % nativeField)
-            #warn("  DIR: %s" % dir(nativeField))
-            #warn("  BITSIZE: %s" % nativeField.bitsize)
-            #warn("  ARTIFICIAL: %s" % nativeField.artificial)
-            #warn("FIELD NAME: %s" % nativeField.name)
-            #warn("FIELD TYPE: %s" % nativeField.type)
+            #warn('FIELD: %s' % nativeField)
+            #warn('  DIR: %s' % dir(nativeField))
+            #warn('  BITSIZE: %s' % nativeField.bitsize)
+            #warn('  ARTIFICIAL: %s' % nativeField.artificial)
+            #warn('FIELD NAME: %s' % nativeField.name)
+            #warn('FIELD TYPE: %s' % nativeField.type)
+            #warn('FIELD TYPE ID: %s' % self.nativeTypeId(nativeField.type))
             #self.check(isinstance(nativeField, gdb.Field))
             field = self.Field(self)
-            field.ltype = self.fromNativeType(nativeField.type)
-            field.parentType = self.fromNativeType(nativeType)
+            field.ltype = self.fromNativeType(nativeField.type.unqualified())
+            field.parentType = parentType
             field.name = nativeField.name
             field.isBaseClass = nativeField.is_base_class
             if hasattr(nativeField, 'bitpos'):
@@ -356,36 +436,31 @@ class Dumper(DumperBase):
                     # Something without a name.
                     # Anonymous union? We need a dummy name to distinguish
                     # multiple anonymous unions in the struct.
-                    self.anonNumber += 1
-                    field.name = "#%s" % self.anonNumber
+                    anonNumber += 1
+                    field.name = '#%s' % anonNumber
                 else:
                     # Normal named field.
                     field.name = nativeField.name
 
             field.nativeIndex = nativeIndex
+            #warn('FIELD RESULT: %s' % field)
             fields.append(field)
             nativeIndex += 1
 
-        #warn("FIELDS: %s" % fields)
+        #warn('FIELDS: %s' % fields)
         return fields
-
-    def nativeTypeStripTypedefs(self, typeobj):
-        typeobj = typeobj.unqualified()
-        while typeobj.code == gdb.TYPE_CODE_TYPEDEF:
-            typeobj = typeobj.strip_typedefs().unqualified()
-        return self.fromNativeType(typeobj)
 
     def listOfLocals(self, partialVar):
         frame = gdb.selected_frame()
 
         try:
             block = frame.block()
-            #warn("BLOCK: %s " % block)
+            #warn('BLOCK: %s ' % block)
         except RuntimeError as error:
-            #warn("BLOCK IN FRAME NOT ACCESSIBLE: %s" % error)
+            #warn('BLOCK IN FRAME NOT ACCESSIBLE: %s' % error)
             return []
         except:
-            warn("BLOCK NOT ACCESSIBLE FOR UNKNOWN REASONS")
+            warn('BLOCK NOT ACCESSIBLE FOR UNKNOWN REASONS')
             return []
 
         items = []
@@ -409,10 +484,18 @@ class Dumper(DumperBase):
                 # "NotImplementedError: Symbol type not yet supported in
                 # Python scripts."
                 #warn("SYMBOL %s  (%s, %s)): " % (symbol, name, symbol.name))
-                try:
-                    value = self.fromNativeDowncastableValue(frame.read_var(name, block))
-                    #warn("READ 1: %s" % value)
+                if False and self.passExceptions:
+                    value = self.fromFrameValue(frame.read_var(name, block))
                     value.name = name
+                    #warn("READ 1: %s" % value.stringify())
+                    items.append(value)
+                    continue
+
+                try:
+                    # Same as above, but for production.
+                    value = self.fromFrameValue(frame.read_var(name, block))
+                    value.name = name
+                    #warn("READ 1: %s" % value.stringify())
                     items.append(value)
                     continue
                 except:
@@ -420,7 +503,7 @@ class Dumper(DumperBase):
 
                 try:
                     #warn("READ 2: %s" % item.value)
-                    value = self.fromNativeDowncastableValue(frame.read_var(name))
+                    value = self.fromFrameValue(frame.read_var(name))
                     value.name = name
                     items.append(value)
                     continue
@@ -435,7 +518,8 @@ class Dumper(DumperBase):
                 try:
                     #warn("READ 3: %s %s" % (name, item.value))
                     #warn("ITEM 3: %s" % item.value)
-                    value = self.fromNativeDowncastableValue(gdb.parse_and_eval(name))
+                    value = self.fromFrameValue(gdb.parse_and_eval(name))
+                    value.name = name
                     items.append(value)
                 except:
                     # Can happen in inlined code (see last line of
@@ -550,10 +634,11 @@ class Dumper(DumperBase):
         exp = "((%s*)0x%x)->%s(%s)" % (typeName, addr, function, arg)
         #warn("CALL: %s" % exp)
         result = gdb.parse_and_eval(exp)
-        #warn("  -> %s" % result)
+        warn("  -> %s" % result)
+        res = self.fromNativeValue(result)
         if not value.address():
             gdb.parse_and_eval("free((void*)0x%x)" % addr)
-        return self.fromNativeValue(result)
+        return res
 
     def makeExpression(self, value):
         typename = "::" + value.type.name
@@ -572,13 +657,6 @@ class Dumper(DumperBase):
         #warn("  ADDR: %s" % value.address)
         #warn("  VALUE: %s" % value)
         return value
-
-    def nativeTypeTemplateArgument(self, nativeType, position, numeric):
-        #warn("NATIVE TYPE: %s" % dir(nativeType))
-        arg = nativeType.template_argument(position)
-        if numeric:
-            return int(str(arg))
-        return self.fromNativeType(arg)
 
     def pokeValue(self, value):
         # Allocates inferior memory and copies the contents of value.
@@ -885,9 +963,6 @@ class Dumper(DumperBase):
     def enumExpression(self, enumType, enumValue):
         return self.qtNamespace() + "Qt::" + enumValue
 
-    def lookupType(self, typeName):
-        return self.fromNativeType(self.lookupNativeType(typeName))
-
     def lookupNativeType(self, typeName):
         nativeType = self.lookupNativeTypeHelper(typeName)
         if not nativeType is None:
@@ -1154,7 +1229,7 @@ class CliDumper(Dumper):
     def putNumChild(self, numchild):
         pass
 
-    def putOriginalAddress(self, value):
+    def putOriginalAddress(self, address):
         pass
 
     def fetchVariables(self, args):
@@ -1205,4 +1280,4 @@ class InterpreterMessageBreakpoint(gdb.Breakpoint):
         print("Interpreter event received.")
         return theDumper.handleInterpreterMessage()
 
-InterpreterMessageBreakpoint()
+#InterpreterMessageBreakpoint()

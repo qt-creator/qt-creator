@@ -573,7 +573,7 @@ MsvcToolChainFactory::MsvcToolChainFactory()
 
 QSet<ToolChain::Language> MsvcToolChainFactory::supportedLanguages() const
 {
-    return { ProjectExplorer::ToolChain::Language::Cxx };
+    return { ToolChain::Language::C, ToolChain::Language::Cxx };
 }
 
 bool MsvcToolChainFactory::checkForVisualStudioInstallation(const QString &vsName)
@@ -617,24 +617,32 @@ QString MsvcToolChainFactory::vcVarsBatFor(const QString &basePath, MsvcToolChai
     return QString();
 }
 
-static ToolChain *findOrCreateToolChain(const QList<ToolChain *> &alreadyKnown,
-                                        const QString &name, const Abi &abi,
-                                        const QString &varsBat, const QString &varsBatArg,
-                                        ToolChain::Detection d = ToolChain::ManualDetection)
+static QList<ToolChain *> findOrCreateToolChain(
+        const QList<ToolChain *> &alreadyKnown,
+        const QString &name, const Abi &abi,
+        const QString &varsBat, const QString &varsBatArg,
+        ToolChain::Detection d = ToolChain::ManualDetection)
 {
-    ToolChain *tc = Utils::findOrDefault(alreadyKnown,
-                                         [&varsBat, &varsBatArg, &abi](ToolChain *tc) -> bool {
-                                              if (tc->typeId() != Constants::MSVC_TOOLCHAIN_TYPEID)
-                                                  return false;
-                                              if (tc->targetAbi() != abi)
-                                                  return false;
-                                              auto mtc = static_cast<MsvcToolChain *>(tc);
-                                              return mtc->varsBat() == varsBat
-                                                      && mtc->varsBatArg() == varsBatArg;
-                                         });
-    if (!tc)
-        tc = new MsvcToolChain(name, abi, varsBat, varsBatArg, ToolChain::Language::Cxx, d);
-    return tc;
+    QList<ToolChain *> res;
+    for (auto language: {ToolChain::Language::C, ToolChain::Language::Cxx}) {
+        ToolChain *tc = Utils::findOrDefault(
+                    alreadyKnown,
+                    [&varsBat, &varsBatArg, &abi, &language](ToolChain *tc) -> bool {
+            if (tc->typeId() != Constants::MSVC_TOOLCHAIN_TYPEID)
+                return false;
+            if (tc->targetAbi() != abi)
+                return false;
+            if (tc->language() != language)
+                return false;
+            auto mtc = static_cast<MsvcToolChain *>(tc);
+            return mtc->varsBat() == varsBat
+                    && mtc->varsBatArg() == varsBatArg;
+        });
+        if (!tc)
+            tc = new MsvcToolChain(name, abi, varsBat, varsBatArg, language, d);
+        res << tc;
+    }
+    return res;
 }
 
 // Detect build tools introduced with MSVC2015
@@ -670,10 +678,11 @@ static void detectCppBuildTools(QList<ToolChain *> *list)
         const Entry &e = entries[i];
         const Abi abi(e.architecture, Abi::WindowsOS, Abi::WindowsMsvc2015Flavor,
                       e.format, e.wordSize);
-        list->append(new MsvcToolChain(name + QLatin1String(e.postFix), abi,
-                                       vcVarsBat, QLatin1String(e.varsBatArg),
-                                       ToolChain::Language::Cxx,
-                                       ToolChain::AutoDetection));
+        for (auto language: {ToolChain::Language::C, ToolChain::Language::Cxx}) {
+            list->append(new MsvcToolChain(name + QLatin1String(e.postFix), abi,
+                                           vcVarsBat, QLatin1String(e.varsBatArg),
+                                           language, ToolChain::AutoDetection));
+        }
     }
 }
 
@@ -743,19 +752,18 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect(const QList<ToolChain *> &al
                 continue;
 
             QList<ToolChain *> tmp;
-            tmp.append(findOrCreateToolChain(alreadyKnown,
-                                             generateDisplayName(name, MsvcToolChain::WindowsSDK, MsvcToolChain::x86),
-                                             findAbiOfMsvc(MsvcToolChain::WindowsSDK, MsvcToolChain::x86, sdkKey),
-                                             fi.absoluteFilePath(), QLatin1String("/x86"), ToolChain::AutoDetection));
-            // Add all platforms, cross-compiler is automatically selected by SetEnv.cmd if needed
-            tmp.append(findOrCreateToolChain(alreadyKnown,
-                                             generateDisplayName(name, MsvcToolChain::WindowsSDK, MsvcToolChain::amd64),
-                                             findAbiOfMsvc(MsvcToolChain::WindowsSDK, MsvcToolChain::amd64, sdkKey),
-                                             fi.absoluteFilePath(), QLatin1String("/x64"), ToolChain::AutoDetection));
-            tmp.append(findOrCreateToolChain(alreadyKnown,
-                                             generateDisplayName(name, MsvcToolChain::WindowsSDK, MsvcToolChain::ia64),
-                                             findAbiOfMsvc(MsvcToolChain::WindowsSDK, MsvcToolChain::ia64, sdkKey),
-                                             fi.absoluteFilePath(), QLatin1String("/ia64"), ToolChain::AutoDetection));
+            const QVector<QPair<MsvcToolChain::Platform, QString> > platforms = {
+                {MsvcToolChain::x86, "x86"},
+                {MsvcToolChain::amd64, "x64"},
+                {MsvcToolChain::ia64, "ia64"},
+            };
+            for (auto platform: platforms) {
+                tmp.append(findOrCreateToolChain(
+                               alreadyKnown,
+                               generateDisplayName(name, MsvcToolChain::WindowsSDK, platform.first),
+                               findAbiOfMsvc(MsvcToolChain::WindowsSDK, platform.first, sdkKey),
+                               fi.absoluteFilePath(), "/" + platform.second, ToolChain::AutoDetection));
+            }
             // Make sure the default is front.
             if (folder == defaultSdkPath)
                 results = tmp + results;
@@ -786,14 +794,16 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect(const QList<ToolChain *> &al
         const int version = vsName.leftRef(dotPos).toInt();
         const QString vcvarsAllbat = path + QLatin1String("/vcvarsall.bat");
         if (QFileInfo(vcvarsAllbat).isFile()) {
-            QList<MsvcToolChain::Platform> platforms; // prioritized list
+            // prioritized list.
             // x86_arm was put before amd64_arm as a workaround for auto detected windows phone
             // toolchains. As soon as windows phone builds support x64 cross builds, this change
             // can be reverted.
-            platforms << MsvcToolChain::x86 << MsvcToolChain::amd64_x86
-                      << MsvcToolChain::amd64 << MsvcToolChain::x86_amd64
-                      << MsvcToolChain::arm << MsvcToolChain::x86_arm << MsvcToolChain::amd64_arm
-                      << MsvcToolChain::ia64 << MsvcToolChain::x86_ia64;
+            const QVector<MsvcToolChain::Platform> platforms = {
+                MsvcToolChain::x86, MsvcToolChain::amd64_x86,
+                MsvcToolChain::amd64, MsvcToolChain::x86_amd64,
+                MsvcToolChain::arm, MsvcToolChain::x86_arm, MsvcToolChain::amd64_arm,
+                MsvcToolChain::ia64, MsvcToolChain::x86_ia64
+            };
             foreach (const MsvcToolChain::Platform &platform, platforms) {
                 const bool toolchainInstalled = QFileInfo(vcVarsBatFor(path, platform)).isFile();
                 if (hostSupportsPlatform(platform) && toolchainInstalled) {

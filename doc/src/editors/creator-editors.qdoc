@@ -915,6 +915,9 @@
 
         \li C++ code snippets, which specify C++ code constructs
 
+        \li CMake code snippets that you can use when editing \c CMakeLists.txt
+            files in the CMake editor
+
         \li QML code snippets, which specify QML code constructs
 
         \li Nim code snippets, which specify Nim code constructs

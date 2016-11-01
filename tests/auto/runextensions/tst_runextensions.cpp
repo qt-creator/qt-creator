@@ -44,6 +44,7 @@ private slots:
     void threadPriority();
     void runAsyncNoFutureInterface();
     void crefFunction();
+    void onResultReady();
 };
 
 void report3(QFutureInterface<int> &fi)
@@ -555,6 +556,64 @@ void tst_RunExtensions::crefFunction()
     value = false;
     Utils::runAsync(std::cref(member2), &obj2, &value).waitForFinished();
     QCOMPARE(value, true);
+}
+
+class ObjWithProperty : public QObject
+{
+    Q_OBJECT
+
+public slots:
+    void setValue(const QString &s)
+    {
+        value = s;
+    }
+
+public:
+    QString value;
+};
+
+void tst_RunExtensions::onResultReady()
+{
+    { // lambda
+        QFuture<QString> f = Utils::runAsync([](QFutureInterface<QString> &fi) {
+                fi.reportResult("Hi");
+                fi.reportResult("there");
+        });
+        int count = 0;
+        QString res;
+        Utils::onResultReady(f, [&count, &res](const QString &s) {
+            ++count;
+            res = s;
+        });
+        f.waitForFinished();
+        QCoreApplication::processEvents();
+        QCOMPARE(count, 2);
+        QCOMPARE(res, QString("there"));
+    }
+    { // lambda with guard
+        QFuture<QString> f = Utils::runAsync([](QFutureInterface<QString> &fi) {
+                fi.reportResult("Hi");
+                fi.reportResult("there");
+        });
+        int count = 0;
+        ObjWithProperty obj;
+        Utils::onResultReady(f, &obj, [&count, &obj](const QString &s) {
+            ++count;
+            obj.setValue(s);
+        });
+        f.waitForFinished();
+        QCoreApplication::processEvents();
+        QCOMPARE(count, 2);
+        QCOMPARE(obj.value, QString("there"));
+    }
+    { // member
+        QFuture<QString> f = Utils::runAsync([]() { return QString("Hi"); });
+        ObjWithProperty obj;
+        Utils::onResultReady(f, &obj, &ObjWithProperty::setValue);
+        f.waitForFinished();
+        QCoreApplication::processEvents();
+        QCOMPARE(obj.value, QString("Hi"));
+    }
 }
 
 QTEST_MAIN(tst_RunExtensions)

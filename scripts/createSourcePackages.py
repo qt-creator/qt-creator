@@ -78,7 +78,7 @@ def package_repos(repos, combined_prefix, target_file_base):
     print('Creating .tar.gz...')
     createTarGz(archive_path(crlf=False), target_file_base + '.tar.gz')
     print('Creating .tar.xz...')
-    createTarGz(archive_path(crlf=False), target_file_base + '.tar.xz')
+    createTarXz(archive_path(crlf=False), target_file_base + '.tar.xz')
     print('Creating .zip with CRLF...')
     createZip(archive_path(crlf=True), target_file_base + '.zip')
     print('Removing temporary directory...')

@@ -340,9 +340,8 @@ QIcon ManhattanStyle::standardIcon(StandardPixmap standardIcon, const QStyleOpti
     if (standardIcon == QStyle::SP_ComputerIcon) {
         // Ubuntu has in some versions a 16x16 icon, see QTCREATORBUG-12832
         const QList<QSize> &sizes = icon.availableSizes();
-        if (Utils::allOf(sizes, [](const QSize &size) { return size.width() < 32;})) {
-            icon = QIcon(QLatin1String(":/core/images/Desktop.png"));
-        }
+        if (Utils::allOf(sizes, [](const QSize &size) { return size.width() < 32;}))
+            icon = QIcon(":/utils/images/Desktop.png");
     }
     return icon;
 }

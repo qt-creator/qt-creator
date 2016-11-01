@@ -129,6 +129,8 @@ void AppManagerProject::populateProject()
         foreach (ProjectExplorer::Target *target, targets())
             targetUpdateDeployableFiles(target, files);
     }
+
+    emit parsingFinished();
 }
 
 void AppManagerProject::recursiveScanDirectory(const QDir &dir, QSet<QString> &container)

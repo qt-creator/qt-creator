@@ -619,6 +619,8 @@ void PythonProject::refresh()
         return new PythonFileNode(FileName::fromString(f), displayName);
     });
     rootProjectNode()->buildTree(fileNodes);
+
+    emit parsingFinished();
 }
 
 /**

@@ -171,23 +171,25 @@
     recorded. Move the cursor on an event on a row to see how long it takes and
     where in the source it is being called. To display the information only when
     an event is selected, disable the \uicontrol {View Event Information on Mouseover}
-    button (5).
+    button (4).
 
     The outline (10) summarizes the period for which data was collected. Drag
     the zoom range (8) or click the outline to move on the outline. You can
-    also move between events by selecting the \uicontrol {Jump to Previous Event} (1)
-    and \uicontrol {Jump to Next Event} (2) buttons.
+    also move between events by selecting the \uicontrol {Jump to Previous Event}
+    and \uicontrol {Jump to Next Event} buttons (1).
 
-    Select the \uicontrol {Show Zoom Slider} button (3) to open a slider that you can
+    Select the \uicontrol {Show Zoom Slider} button (2) to open a slider that you can
     use to set the zoom level. You can also drag the zoom handles (9). To reset
     the default zoom level, right-click the timeline to open the context menu,
     and select \uicontrol {Reset Zoom}.
+
+    Click the time ruler to add vertical orientation lines (5) to the timeline.
 
     \section2 Selecting Event Ranges
 
     You can select an event range (7) to view the frame rate of events and to
     compare it with the frame rate of similar events. Select the
-    \uicontrol {Select Range} button (4) to activate the selection tool. Then click in
+    \uicontrol {Select Range} button (3) to activate the selection tool. Then click in
     the timeline to specify the beginning of the event range. Drag the selection
     handle to define the end of the range. The length of the range indicates the
     frame rate of the event.
@@ -557,14 +559,26 @@
     \section2 Visualizing Statistics as Flame Graphs
 
     The \uicontrol {Flame Graph} view shows a more concise statistical overview
-    of QML and JavaScript execution. The horizontal bars show the amount of
+    of QML and JavaScript execution. In the \uicontrol {Visualize Total Time}
+    view, the horizontal bars show the amount of
     time all invocations of a certain function took together, relative to the
     total runtime of all JavaScript and QML events. The nesting shows which
-    functions were called by which other ones. Mind that, unlike the
+    functions were called by which other ones.
+
+    \image qml-profiler-flamegraph.png "Flame Graph View"
+
+    To view the total amount of memory allocated by the functions in the
+    \uicontrol {Visualize Memory} view, select \uicontrol Memory in the
+    drop-down menu (1).
+
+    To view the the number of memory allocations performed by the functions in
+    the \uicontrol {Visualize Allocations} view, select \uicontrol Allocations
+    in the drop-down menu.
+
+    Unlike the
     \uicontrol Timeline view, the \uicontrol {Flame Graph} view does not show the
     time spans when no QML or JavaScript is running at all. Thus, it is not
     suitable for analyzing per frame execution times. However, it is very easy
     to see the total impact of the various QML and JavaScript events there.
 
-    \image qml-profiler-flamegraph.png "Flame Graph View"
 */

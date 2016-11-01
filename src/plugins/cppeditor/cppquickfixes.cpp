@@ -3018,10 +3018,12 @@ public:
         if (passByValue) {
             paramString = oo.prettyType(fullySpecifiedType, paramName);
         } else {
-            FullySpecifiedType constParamType(fullySpecifiedType);
+            const ReferenceType *refType = type->asReferenceType();
+            FullySpecifiedType constParamType(refType ? refType->elementType()
+                                                      : fullySpecifiedType);
             constParamType.setConst(true);
             QScopedPointer<ReferenceType> referenceType(new ReferenceType(constParamType, false));
-            FullySpecifiedType referenceToConstParamType(referenceType.data());
+            const FullySpecifiedType referenceToConstParamType(referenceType.data());
             paramString = oo.prettyType(referenceToConstParamType, paramName);
         }
 

@@ -44,17 +44,12 @@ ConfigModel::ConfigModel(QObject *parent) : QAbstractTableModel(parent)
 
 int ConfigModel::rowCount(const QModelIndex &parent) const
 {
-    QTC_ASSERT(parent.model() == nullptr || parent.model() == this, return 0);
-    if (parent.isValid())
-        return 0;
-    return m_configuration.count();
+    return parent.isValid() ? 0 : m_configuration.count();
 }
 
 int ConfigModel::columnCount(const QModelIndex &parent) const
 {
-    QTC_ASSERT(!parent.isValid(), return 0);
-    QTC_ASSERT(parent.model() == nullptr, return 0);
-    return 3;
+    return parent.isValid() ? 0 : 3;
 }
 
 Qt::ItemFlags ConfigModel::flags(const QModelIndex &index) const

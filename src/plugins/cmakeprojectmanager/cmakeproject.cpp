@@ -145,6 +145,8 @@ void CMakeProject::updateProjectData()
     emit fileListChanged();
 
     emit cmakeBc->emitBuildTypeChanged();
+
+    emit parsingFinished();
 }
 
 void CMakeProject::updateQmlJSCodeModel()

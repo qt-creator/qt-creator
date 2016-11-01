@@ -163,7 +163,7 @@ class ExamplesListModelFilter : public QSortFilterProxyModel
 public:
     Q_PROPERTY(bool showTutorialsOnly READ showTutorialsOnly WRITE setShowTutorialsOnly NOTIFY showTutorialsOnlyChanged)
     Q_PROPERTY(QStringList filterTags READ filterTags WRITE setFilterTags NOTIFY filterTagsChanged)
-    Q_PROPERTY(QStringList searchStrings READ searchStrings WRITE setSearchStrings NOTIFY searchStrings)
+    Q_PROPERTY(QString searchString READ searchString WRITE setSearchString NOTIFY searchStringChanged)
 
     Q_PROPERTY(int exampleSetIndex READ exampleSetIndex NOTIFY exampleSetIndexChanged)
 
@@ -171,9 +171,11 @@ public:
 
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
 
+    Q_INVOKABLE void setSearchString(const QString &arg);
+    QString searchString() const;
+
     bool showTutorialsOnly() { return m_showTutorialsOnly; }
     QStringList filterTags() const { return m_filterTags; }
-    QStringList searchStrings() const { return m_searchString; }
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
@@ -182,35 +184,21 @@ public:
     Q_INVOKABLE void filterForExampleSet(int index);
 
 public slots:
-    void setFilterTags(const QStringList &arg)
-    {
-        if (m_filterTags != arg) {
-            m_filterTags = arg;
-            emit filterTagsChanged(arg);
-        }
-    }
+    void setFilterTags(const QStringList &arg);
     void updateFilter();
 
-    void setSearchStrings(const QStringList &arg)
-    {
-        if (m_searchString != arg) {
-            m_searchString = arg;
-            emit searchStrings(arg);
-            delayedUpdateFilter();
-        }
-    }
-
-    void parseSearchString(const QString &arg);
     void setShowTutorialsOnly(bool showTutorialsOnly);
     void handleQtVersionsChanged();
 
 signals:
     void showTutorialsOnlyChanged();
     void filterTagsChanged(const QStringList &arg);
-    void searchStrings(const QStringList &arg);
+    void searchStringChanged(const QString &arg);
     void exampleSetIndexChanged();
 
 private:
+    void setFilterStrings(const QStringList &arg);
+
     void qtVersionManagerLoaded();
     void helpManagerInitialized();
 
@@ -221,8 +209,9 @@ private:
     int exampleSetIndex() const;
 
     bool m_showTutorialsOnly;
+    QString m_searchString;
     QStringList m_filterTags;
-    QStringList m_searchString;
+    QStringList m_filterStrings;
     ExamplesListModel *m_sourceModel;
     int m_timerId;
     bool m_blockIndexUpdate;

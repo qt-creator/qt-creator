@@ -753,6 +753,7 @@ void QmakeProject::decrementPendingEvaluateFutures()
                 activeTarget()->updateDefaultDeployConfigurations();
             updateRunConfigurations();
             emit proFilesEvaluated();
+            emit parsingFinished();
             if (debug)
                 qDebug()<<"  Setting state to Base";
         }

@@ -39,9 +39,9 @@ Item {
         anchors.rightMargin: 20
         anchors.left: parent.left
         anchors.leftMargin: 30
-
+        text: tutorialsModel.searchString
         placeholderText: qsTr("Search in Tutorials...")
-        onTextChanged: tutorialsModel.parseSearchString(text)
+        onTextChanged: tutorialsModel.setSearchString(text)
     }
 
     CustomizedGridView {

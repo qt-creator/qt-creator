@@ -37,22 +37,32 @@
 
     \title Comparing Files
 
-    You can use a diff editor from \QC to compare two text files. They can be
-    either versions of the same file or arbitrary files.
+    You can use a diff editor to display unsaved changed in the current file or
+    all open files or to compare any two text files that can be either versions
+    of the same file or arbitrary files.
 
-    \image creator-diff-editor.png "Diff editor output in the Edit mode"
+    To view unsaved changes in the current file, select \uicontrol Tools >
+    \uicontrol Diff > \uicontrol {Diff Current File}.
 
-    To compare files:
+    To view unsaved changes in all open files, select \uicontrol Tools >
+    \uicontrol Diff > \uicontrol {Diff Open Files}.
+
+    To compare two files:
 
     \list 1
 
-        \li Select \uicontrol Tools > \uicontrol Diff.
+        \li Select \uicontrol Tools > \uicontrol Diff >
+            \uicontrol {Diff External Files}.
 
         \li Select two files to compare.
 
     \endlist
 
-    The differences are output in the \uicontrol Edit mode. Color coding is used
+    \section1 Viewing the Changes
+
+    \image creator-diff-editor.png "Diff editor output in the Edit mode"
+
+    The changes are displayed in the \uicontrol Edit mode. Color coding is used
     to mark changed lines. By default, light red indicates lines that contain
     removed text (painted a darker red) in the left pane and light green
     indicates lines that contain added text (painted a darker green) in the
@@ -69,6 +79,26 @@
     To switch back to the side-by-side view, select
     \inlineimage sidebysidediff.png
     (\uicontrol {Switch to Side by Side Diff Editor}).
+
+    To only show text changes, select \uicontrol {Ignore Whitespace}.
+
+    To expand the context for the changes, set the number of unchanged lines to
+    show in \uicontrol {Context lines}. Set the value to -1 to show the whole
+    file.
+
+    By default, the horizontal scroll bars in the left and right pane are
+    synchronized. To use them independently of each other, select the
+    \inlineimage linkicon.png
+    (\uicontrol {Synchronize Horizontal Scroll Bars}) button.
+
+    If the files change outside \QC, select \inlineimage reload_gray.png
+    (\uicontrol {Reload Editor}) to compare them again and to show the results.
+
+    To send a chunk of changes to a \l{Pasting and Fetching Code Snippets}
+    {code pasting service}, select \uicontrol {Send Chunk to CodePaster} in the
+    context menu.
+
+    \section1 Changing the Colors
 
     To change the default colors, select \uicontrol Tools > \uicontrol Options >
     \uicontrol {Text Editor} > \uicontrol {Font & Colors}. Create your own color
@@ -95,22 +125,4 @@
             indicates added characters.
 
     \endlist
-
-    To only show text changes, select \uicontrol {Ignore Whitespace}.
-
-    To expand the context for the changes, set the number of unchanged lines to
-    show in \uicontrol {Context lines}. Set the value to -1 to show the whole
-    file.
-
-    By default, the horizontal scroll bars in the left and right pane are
-    synchronized. To use them independently of each other, select the
-    \inlineimage linkicon.png
-    (\uicontrol {Synchronize Horizontal Scroll Bars}) button.
-
-    If the files change outside \QC, select \inlineimage reload_gray.png
-    (\uicontrol {Reload Editor}) to compare them again and to show the results.
-
-    To send a chunk of changes to a \l{Pasting and Fetching Code Snippets}
-    {code pasting service}, select \uicontrol {Send Chunk to CodePaster} in the
-    context menu.
 */

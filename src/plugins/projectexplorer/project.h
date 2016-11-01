@@ -168,6 +168,9 @@ signals:
     void projectContextUpdated();
     void projectLanguagesUpdated();
 
+signals: // for tests only
+    void parsingFinished();
+
 protected:
     virtual RestoreResult fromMap(const QVariantMap &map, QString *errorMessage);
     virtual bool setupTarget(Target *t);

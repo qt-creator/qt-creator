@@ -1689,6 +1689,9 @@ ProjectExplorerPlugin::OpenProjectResult ProjectExplorerPlugin::openProjects(con
                     foundProjectManager = true;
                     QString tmp;
                     if (Project *pro = manager->openProject(filePath, &tmp)) {
+                        QObject::connect(pro, &Project::parsingFinished, [pro]() {
+                            emit SessionManager::instance()->projectFinishedParsing(pro);
+                        });
                         QString restoreError;
                         Project::RestoreResult restoreResult = pro->restoreSettings(&restoreError);
                         if (restoreResult == Project::RestoreResult::Ok) {

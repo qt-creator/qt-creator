@@ -314,6 +314,8 @@ void AndroidSettingsWidget::check(AndroidSettingsWidget::Mode mode)
             // Check for a gdb with a broken python
             QStringList gdbPaths;
             foreach (const AndroidToolChainFactory::AndroidToolChainInformation &ati, compilerPaths) {
+                if (ati.language == ProjectExplorer::ToolChain::Language::C)
+                    continue;
                 // we only check the arm gdbs, that's indicative enough
                 if (ati.abi.architecture() != ProjectExplorer::Abi::ArmArchitecture)
                     continue;
@@ -329,8 +331,10 @@ void AndroidSettingsWidget::check(AndroidSettingsWidget::Mode mode)
 
             // See if we have qt versions for those toolchains
             QSet<ProjectExplorer::Abi> toolchainsForAbi;
-            foreach (const AndroidToolChainFactory::AndroidToolChainInformation &ati, compilerPaths)
-                toolchainsForAbi.insert(ati.abi);
+            foreach (const AndroidToolChainFactory::AndroidToolChainInformation &ati, compilerPaths) {
+                if (ati.language == ProjectExplorer::ToolChain::Language::Cxx)
+                    toolchainsForAbi.insert(ati.abi);
+            }
 
             QSet<ProjectExplorer::Abi> qtVersionsForAbi;
             foreach (QtSupport::BaseQtVersion *qtVersion, QtSupport::QtVersionManager::unsortedVersions()) {
@@ -494,16 +498,6 @@ void AndroidSettingsWidget::saveSettings()
     openJDKLocationEditingFinished();
     dataPartitionSizeEditingFinished();
     AndroidConfigurations::setConfig(m_androidConfig);
-}
-
-int indexOf(const QList<AndroidToolChainFactory::AndroidToolChainInformation> &list, const Utils::FileName &f)
-{
-    int end = list.count();
-    for (int i = 0; i < end; ++i) {
-        if (list.at(i).compilerCommand == f)
-            return i;
-    }
-    return -1;
 }
 
 void AndroidSettingsWidget::sdkLocationEditingFinished()

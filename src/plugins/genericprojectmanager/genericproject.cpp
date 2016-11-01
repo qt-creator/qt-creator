@@ -286,6 +286,7 @@ void GenericProject::refresh(RefreshOptions options)
     }
 
     refreshCppCodeModel();
+    emit parsingFinished();
 }
 
 /**
