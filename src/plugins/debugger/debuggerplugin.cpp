@@ -1360,6 +1360,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     m_stackView = new StackTreeView;
     m_stackView->setSettings(settings, "Debugger.StackView");
+    m_stackView->setIconSize(QSize(10, 10));
     m_stackWindow = addSearch(m_stackView, tr("Stack"), DOCKWIDGET_STACK);
 
     m_sourceFilesView = new BaseTreeView;
@@ -1373,6 +1374,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     m_threadsView = new BaseTreeView;
     m_threadsView->setSortingEnabled(true);
     m_threadsView->setSettings(settings, "Debugger.ThreadsView");
+    m_threadsView->setIconSize(QSize(10, 10));
     m_threadsWindow = addSearch(m_threadsView, tr("Threads"), DOCKWIDGET_THREADS);
 
     m_returnView = new WatchTreeView(ReturnType); // No settings.
