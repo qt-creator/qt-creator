@@ -225,6 +225,22 @@ PyObject *type_Fields(Type *self)
     return fields;
 }
 
+PyObject *type_Module(Type *self)
+{
+    CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
+    ULONG size;
+    symbols->GetModuleNameString(DEBUG_MODNAME_MODULE, DEBUG_ANY_ID, self->m_module, NULL, 0, &size);
+    char *modName = new char[size];
+    if (FAILED(symbols->GetModuleNameString(DEBUG_MODNAME_MODULE, DEBUG_ANY_ID,
+                                            self->m_module, modName, size, NULL))) {
+        delete[] modName;
+        Py_RETURN_NONE;
+    }
+    PyObject *ret = Py_BuildValue("s", modName);
+    delete[] modName;
+    return ret;
+}
+
 std::vector<std::string> innerTypesOf(const std::string &t)
 {
     std::vector<std::string> rc;
@@ -367,6 +383,8 @@ static PyMethodDef typeMethods[] = {
      "Type with typedefs removed"},
     {"fields",              PyCFunction(type_Fields),               METH_NOARGS,
      "List of fields (member and base classes) of this type"},
+    {"module",              PyCFunction(type_Module),               METH_NOARGS,
+     "Returns name for the module containing this type"},
 
     {"templateArgument",    PyCFunction(type_TemplateArgument),     METH_VARARGS,
      "Returns template argument at position"},
