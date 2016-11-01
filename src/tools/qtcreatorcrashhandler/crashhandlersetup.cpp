@@ -146,6 +146,10 @@ CrashHandlerSetup::CrashHandlerSetup(const QString &appName,
                 strsignal(signalsToHandle[i]), Q_FUNC_INFO);
         }
     }
+#else
+    Q_UNUSED(appName);
+    Q_UNUSED(restartCap);
+    Q_UNUSED(executableDirPath);
 #endif // BUILD_CRASH_HANDLER
 }
 
