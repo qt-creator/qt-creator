@@ -75,6 +75,11 @@ static void openUrlInWindow(const QUrl &url)
     Core::ICore::raiseWindow(viewer);
 }
 
+static bool isBookmarkable(const QUrl &url)
+{
+    return !url.isEmpty() && url != QUrl(Help::Constants::AboutBlank);
+}
+
 HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget *parent) :
     QWidget(parent),
     m_style(style)
@@ -436,6 +441,7 @@ void HelpWidget::setCurrentViewer(HelpViewer *viewer)
     m_viewerStack->setCurrentWidget(viewer);
     m_backAction->setEnabled(viewer->isBackwardAvailable());
     m_forwardAction->setEnabled(viewer->isForwardAvailable());
+    m_addBookmarkAction->setEnabled(isBookmarkable(viewer->source()));
     if (m_style == ExternalWindow)
         updateWindowTitle();
     emit sourceChanged(viewer->source());
@@ -453,8 +459,10 @@ void HelpWidget::addViewer(HelpViewer *viewer)
     viewer->setActionVisible(HelpViewer::Action::NewPage, m_style == ModeWidget);
     viewer->setActionVisible(HelpViewer::Action::ExternalWindow, m_style != ExternalWindow);
     connect(viewer, &HelpViewer::sourceChanged, this, [viewer, this](const QUrl &url) {
-        if (currentViewer() == viewer)
+        if (currentViewer() == viewer) {
+            m_addBookmarkAction->setEnabled(isBookmarkable(url));
             emit sourceChanged(url);
+        }
     });
     connect(viewer, &HelpViewer::forwardAvailable, this, [viewer, this](bool available) {
         if (currentViewer() == viewer)
@@ -601,7 +609,7 @@ void HelpWidget::addBookmark()
     QTC_ASSERT(viewer, return);
 
     const QString &url = viewer->source().toString();
-    if (url.isEmpty() || url == Help::Constants::AboutBlank)
+    if (!isBookmarkable(url))
         return;
 
     BookmarkManager *manager = &LocalHelpManager::bookmarkManager();
