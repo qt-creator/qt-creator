@@ -192,6 +192,13 @@ struct QtVersion : VersionBase
     {}
 };
 
+struct DwarfVersion : VersionBase
+{
+    DwarfVersion(int minimum = 0, int maximum = INT_MAX)
+        : VersionBase(minimum, maximum)
+    {}
+};
+
 struct GccVersion : VersionBase
 {
     GccVersion(int minimum = 0, int maximum = INT_MAX)
@@ -291,12 +298,6 @@ struct Value
                 }
             }
         }
-        if (minimalGccVersion && context.gccVersion) {
-            if (minimalGccVersion >= context.gccVersion) {
-                //QWARN("Current GCC is too old for this test.")
-                return true;
-            }
-        }
         QString actualValue = actualValue0;
         if (actualValue == " ")
             actualValue.clear(); // FIXME: Remove later.
@@ -332,15 +333,12 @@ struct Value
         return actualValue == expectedValue;
     }
 
-    void setMinimalGccVersion(int version) { minimalGccVersion = version; }
-
     QString value;
     bool hasPtrSuffix = false;
     bool isFloatValue = false;
     bool substituteNamespace = true;
     bool isPattern = false;
     int qtVersion = 0;
-    int minimalGccVersion = 0;
 };
 
 struct ValuePattern : Value
@@ -443,9 +441,9 @@ struct Type5 : Type
     Type5(const QString &ba) : Type(ba) { qtVersion = 5; }
 };
 
-struct Pattern : Type
+struct TypePattern : Type
 {
-    Pattern(const QString &ba) : Type(ba) { isPattern = true; }
+    TypePattern(const QString &ba) : Type(ba) { isPattern = true; }
 };
 
 enum DebuggerEngine
@@ -637,6 +635,7 @@ struct MacLibCppProfile : public Profile
 struct ForceC {};
 struct EigenProfile {};
 struct UseDebugImage {};
+struct DwarfProfile { explicit DwarfProfile(int v) : version(v) {} int version; };
 
 struct CoreProfile {};
 struct CorePrivateProfile {};
@@ -708,6 +707,12 @@ public:
         return *this;
     }
 
+    const Data &operator+(const DwarfVersion &dwarfVersion) const
+    {
+        neededDwarfVersion = dwarfVersion;
+        return *this;
+    }
+
     const Data &operator+(const DebuggerEngine &enginesForTest) const
     {
         engines = enginesForTest;
@@ -735,6 +740,14 @@ public:
             "    INCLUDEPATH += /usr/local/include/eigen2\n"
             "}\n";
 
+        return *this;
+    }
+
+    const Data &operator+(const DwarfProfile &p)
+    {
+        profileExtra +=
+            "QMAKE_CXXFLAGS -= -g\n"
+            "QMAKE_CXXFLAGS += -gdwarf-" + QString::number(p.version) + "\n";
         return *this;
     }
 
@@ -850,6 +863,7 @@ public:
     mutable GccVersion neededGccVersion;     // DEC. 40702  for 4.7.2
     mutable ClangVersion neededClangVersion; // DEC.
     mutable BoostVersion neededBoostVersion; // DEC. 105400 for 1.54.0
+    mutable DwarfVersion neededDwarfVersion; // DEC. 105400 for 1.54.0
 
     mutable QString configTest;
 
@@ -889,19 +903,7 @@ class tst_Dumpers : public QObject
     Q_OBJECT
 
 public:
-    tst_Dumpers()
-    {
-        t = 0;
-        m_keepTemp = true;
-        m_forceKeepTemp = false;
-        m_debuggerVersion = 0;
-        m_gdbBuildVersion = 0;
-        m_qtVersion = 0;
-        m_gccVersion = 0;
-        m_isMacGdb = false;
-        m_isQnxGdb = false;
-        m_useGLibCxxDebug = false;
-    }
+    tst_Dumpers() {}
 
 private slots:
     void initTestCase();
@@ -913,21 +915,21 @@ private slots:
 private:
     void disarm() { t->buildTemp.setAutoRemove(!keepTemp()); }
     bool keepTemp() const { return m_keepTemp || m_forceKeepTemp; }
-    TempStuff *t;
+    TempStuff *t = 0;
     QString m_debuggerBinary;
     QString m_qmakeBinary;
     QProcessEnvironment m_env;
     DebuggerEngine m_debuggerEngine;
     QString m_makeBinary;
-    bool m_keepTemp;
-    bool m_forceKeepTemp;
-    int m_debuggerVersion; // GDB: 7.5.1 -> 70501
-    int m_gdbBuildVersion;
-    int m_qtVersion; // 5.2.0 -> 50200
-    int m_gccVersion;
-    bool m_isMacGdb;
-    bool m_isQnxGdb;
-    bool m_useGLibCxxDebug;
+    bool m_keepTemp = true;
+    bool m_forceKeepTemp = false;
+    int m_debuggerVersion = 0; // GDB: 7.5.1 -> 70501
+    int m_gdbBuildVersion = 0;
+    int m_qtVersion = 0; // 5.2.0 -> 50200
+    int m_gccVersion = 0;
+    bool m_isMacGdb = false;
+    bool m_isQnxGdb = false;
+    bool m_useGLibCxxDebug = false;
 };
 
 void tst_Dumpers::initTestCase()
@@ -1293,6 +1295,28 @@ void tst_Dumpers::dumper()
         qDebug() << fullCode;
         qDebug() << "\n------------------ CODE --------------------";
         qDebug() << "Project file: " << proFile.fileName();
+    }
+
+    if (data.neededDwarfVersion.isRestricted) {
+        QProcess readelf;
+        readelf.setWorkingDirectory(t->buildPath);
+        readelf.start("readelf", { "-wi", "doit" });
+        QVERIFY(readelf.waitForFinished());
+        output = readelf.readAllStandardOutput();
+        error = readelf.readAllStandardError();
+        int pos1 = output.indexOf("Version:") + 8;
+        int pos2 = output.indexOf("\n", pos1);
+        int dwarfVersion = output.mid(pos1, pos2 - pos1).toInt();
+        //qDebug() << "OUT: " << output;
+        //qDebug() << "ERR: " << error;
+        qDebug() << "DWARF Version : " << dwarfVersion;
+
+        if (data.neededDwarfVersion.min > dwarfVersion)
+            MSKIP_SINGLE("Need minimum DWARF version "
+                + QByteArray::number(data.neededDwarfVersion.min));
+        if (data.neededDwarfVersion.max < dwarfVersion)
+            MSKIP_SINGLE("Need maximum DWARF version "
+                + QByteArray::number(data.neededDwarfVersion.max));
     }
 
     QByteArray dumperDir = DUMPERDIR;
@@ -2293,7 +2317,7 @@ void tst_Dumpers::dumper_data()
               + Check("loc1.groupSeparator", "44", "@QChar") // ,
               + Check("loc1.negativeSign", "45", "@QChar")   // -
               + Check("loc1.positiveSign", "43", "@QChar")   // +
-              + Check("m1", ValuePattern(".*Imperial.*System (1)"), Pattern(".*MeasurementSystem"));
+              + Check("m1", ValuePattern(".*Imperial.*System (1)"), TypePattern(".*MeasurementSystem"));
 
 
    QTest::newRow("QMap")
@@ -3359,7 +3383,7 @@ void tst_Dumpers::dumper_data()
                + Check("list.1", "[1]", "2", "int")
                + Check("list.2", "[2]", "3", "int")
                //+ Check("v3", "", "@QVariant (@QList<int>)")
-               + Check("v3.data", "<3 items>", Pattern(".*QList<int>"))
+               + Check("v3.data", "<3 items>", TypePattern(".*QList<int>"))
                + Check("v3.data.0", "[0]", "1", "int")
                + Check("v3.data.1", "[1]", "2", "int")
                + Check("v3.data.2", "[2]", "3", "int");
@@ -3869,9 +3893,9 @@ void tst_Dumpers::dumper_data()
                + Cxx11Profile()
                + MacLibCppProfile()
 
-               + Check("a", "<4 items>", Pattern("std::array<int, 4.*>"))
+               + Check("a", "<4 items>", TypePattern("std::array<int, 4.*>"))
                + Check("a.0", "[0]", "1", "int")
-               + Check("b", "<4 items>", Pattern("std::array<@QString, 4.*>"))
+               + Check("b", "<4 items>", TypePattern("std::array<@QString, 4.*>"))
                + Check("b.0", "[0]", "\"1\"", "@QString");
 
 
@@ -5197,7 +5221,7 @@ void tst_Dumpers::dumper_data()
                + Check("d1", "43", "Ref1")
 
                + Check("a2", "\"hello\"", "std::string")
-               + Check("b2", "\"bababa\"", Pattern("(std::)?string &")) // Clang...
+               + Check("b2", "\"bababa\"", TypePattern("(std::)?string &")) // Clang...
                + Check("c2", "\"world\"", "std::string")
                + Check("d2", "\"hello\"", "Ref2") % NoLldbEngine
 
@@ -5352,8 +5376,23 @@ void tst_Dumpers::dumper_data()
                + Check("y2", "", "X")
                + Check("y3", "", "X");
 
-    QTest::newRow("RValueReference")
+    QTest::newRow("RValueReference2")
             << Data(rvalueData)
+               + DwarfProfile(2)
+               + Check("x1", "", "X &")
+               + Check("x2", "", "X &")
+               + Check("x3", "", "X &");
+
+    // GCC emits rvalue references with DWARF-4, i.e. after 4.7.4.
+    // GDB doesn't understand them,
+    // https://sourceware.org/bugzilla/show_bug.cgi?id=14441
+    // and produces: 'x1 = <unknown type in [...]/doit, CU 0x0, DIE 0x355>'
+    // LLdb reports plain references.
+
+    QTest::newRow("RValueReference4")
+            << Data(rvalueData)
+               + DwarfProfile(4)
+               + LldbEngine
                + Check("x1", "", "X &")
                + Check("x2", "", "X &")
                + Check("x3", "", "X &");
@@ -5502,7 +5541,7 @@ void tst_Dumpers::dumper_data()
                     "l.push_back(p(15, 65));\n"
                     "l.push_back(p(16, 66));\n")
              + BoostProfile()
-             + Check("l", "<4 items>", Pattern("boost::container::list<std::pair<int,double>.*>"))
+             + Check("l", "<4 items>", TypePattern("boost::container::list<std::pair<int,double>.*>"))
              + Check("l.2.second", FloatValue("65"), "double");
 
 
@@ -6014,7 +6053,7 @@ void tst_Dumpers::dumper_data()
                     "unused(&v, &n);\n")
 
                + Check("v", "", "{...}") % GdbEngine
-               + Check("v", "", Pattern(".*anonymous .*")) % LldbEngine
+               + Check("v", "", TypePattern(".*anonymous .*")) % LldbEngine
                + Check("n", "", "S")
                //+ Check("v.a", "2", "int") % GdbVersion(0, 70699)
                //+ Check("v.0.a", "2", "int") % GdbVersion(70700)
@@ -6240,7 +6279,7 @@ void tst_Dumpers::dumper_data()
         << nimData
         + GdbEngine
         + Check("name", "\"Hello World\"", "NimStringDesc")
-        + Check("x", "<6 items>", Pattern("TY.*NI.6..")) // Something like "TY95019 (NI[6])"
+        + Check("x", "<6 items>", TypePattern("TY.*NI.6..")) // Something like "TY95019 (NI[6])"
         + Check("x.2", "[2]", "3", "NI");
 #endif
 #endif
