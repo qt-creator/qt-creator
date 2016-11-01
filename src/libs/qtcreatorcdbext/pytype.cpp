@@ -49,7 +49,8 @@ enum TypeCodes {
     TypeCodeReference,
     TypeCodeFunction,
     TypeCodeMemberPointer,
-    TypeCodeFortranString
+    TypeCodeFortranString,
+    TypeCodeUnresolvable
 };
 
 PyObject *lookupType(const std::string &typeNameIn)
@@ -58,30 +59,31 @@ PyObject *lookupType(const std::string &typeNameIn)
         DebugPrint() << "lookup type '" << typeNameIn << "'";
     std::string typeName = typeNameIn;
     CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
+    if (typeName.find("enum ") == 0)
+        typeName.erase(0, 5);
+    trimBack(typeName);
     std::string fullTypeName = typeName;
     // GetSymbolTypeId doesn't support pointer types so we need to strip off the '*' first
-    while (endsWith(typeName, '*'))
+    while (endsWith(typeName, '*')) {
         typeName.pop_back();
+        trimBack(typeName);
+    }
     ULONG64 module;
     ULONG typeId;
     if (FAILED(symbols->GetSymbolTypeId(typeName.c_str(), &typeId, &module)))
-        Py_RETURN_NONE;
+        return createUnresolvedType(typeNameIn);
     if (typeName != fullTypeName) {
         if (module == 0) { // found some builtin type like char so we take the first module available to look up the pointer type
             ULONG loaded, unloaded;
             if (FAILED(symbols->GetNumberModules(&loaded, &unloaded)))
-                Py_RETURN_NONE;
+                return createUnresolvedType(typeNameIn);
             if ((loaded + unloaded == 0) || FAILED(symbols->GetModuleByIndex(0, &module)))
-                Py_RETURN_NONE;
+                return createUnresolvedType(typeNameIn);
         }
         if (FAILED(symbols->GetTypeId(module, fullTypeName.c_str(), &typeId)))
-            Py_RETURN_NONE;
+            return createUnresolvedType(typeNameIn);
     }
-    size_t typeNameLength = fullTypeName.length();
-    char *cTypeName = new char[typeNameLength + 1];
-    fullTypeName.copy(cTypeName, fullTypeName.length());
-    cTypeName[typeNameLength] = 0;
-    return createType(module, typeId, cTypeName);
+    return createType(module, typeId);
 }
 
 char *getTypeName(ULONG64 module, ULONG typeId)
@@ -119,10 +121,12 @@ PyObject *type_bitSize(Type *self)
 {
     ULONG size;
     auto extcmd = ExtensionCommandContext::instance();
-    if (endsWith(getTypeName(self), '*'))
+    if (!self->m_resolved)
+        size = 0;
+    else if (endsWith(getTypeName(self), '*'))
         size = SUCCEEDED(ExtensionCommandContext::instance()->control()->IsPointer64Bit()) ? 8 : 4;
     else if (FAILED(extcmd->symbols()->GetTypeSize(self->m_module, self->m_typeId, &size)))
-        return NULL;
+        Py_RETURN_NONE;
     return Py_BuildValue("k", size * 8);
 }
 
@@ -140,20 +144,24 @@ PyObject *type_Code(Type *self)
     static const std::vector<std::string> floatTypes({"float", "double"});
 
     TypeCodes code = TypeCodeStruct;
-    const char *typeNameCstr = getTypeName(self);
-    if (typeNameCstr == 0)
-        Py_RETURN_NONE;
-    const std::string typeName(typeNameCstr);
-    if (SymbolGroupValue::isArrayType(typeName))
-        code = TypeCodeArray;
-    else if (endsWith(typeName, "*"))
-        code = TypeCodePointer;
-    else if (typeName.find("<function>") != std::string::npos)
-        code = TypeCodeFunction;
-    else if (isType(typeName, integralTypes))
-        code = TypeCodeIntegral;
-    else if (isType(typeName, floatTypes))
-        code = TypeCodeFloat;
+    if (!self->m_resolved) {
+        code = TypeCodeUnresolvable;
+    } else {
+        const char *typeNameCstr = getTypeName(self);
+        if (typeNameCstr == 0)
+            Py_RETURN_NONE;
+        const std::string typeName(typeNameCstr);
+        if (SymbolGroupValue::isArrayType(typeName))
+            code = TypeCodeArray;
+        else if (typeName.find("<function>") != std::string::npos)
+            code = TypeCodeFunction;
+        else if (endsWith(typeName, "*"))
+            code = TypeCodePointer;
+        else if (isType(typeName, integralTypes))
+            code = TypeCodeIntegral;
+        else if (isType(typeName, floatTypes))
+            code = TypeCodeFloat;
+    }
 
     return Py_BuildValue("k", code);
 }
@@ -312,6 +320,7 @@ PyObject *type_New(PyTypeObject *type, PyObject *, PyObject *)
         self->m_name = nullptr;
         self->m_typeId = 0;
         self->m_module = 0;
+        self->m_resolved = false;
     }
     return reinterpret_cast<PyObject *>(self);
 }
@@ -327,6 +336,17 @@ PyObject *createType(ULONG64 module, ULONG typeId, char* name)
     type->m_module = module;
     type->m_typeId = typeId;
     type->m_name = name;
+    type->m_resolved = true;
+    return reinterpret_cast<PyObject *>(type);
+}
+
+PyObject *createUnresolvedType(const std::string &name)
+{
+    Type *type = PyObject_New(Type, type_pytype());
+    type->m_module = 0;
+    type->m_typeId = 0;
+    type->m_name = strdup(name.c_str());
+    type->m_resolved = false;
     return reinterpret_cast<PyObject *>(type);
 }
 

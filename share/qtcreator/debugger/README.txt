@@ -103,6 +103,7 @@ class Type:
             | TypeCodeReference
             | TypeCodeFunction
             | TypeCodeMemberPointer
+            | TypeCodeUnresolvable
 
     unqualified() -> Type                 # Type without const/volatile
     target() -> Type                      # Type dereferenced if it is a pointer type, element if array etc

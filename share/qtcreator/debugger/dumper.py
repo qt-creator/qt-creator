@@ -109,7 +109,8 @@ TypeCodeReference, \
 TypeCodeFunction, \
 TypeCodeMemberPointer, \
 TypeCodeFortranString, \
-    = range(0, 13)
+TypeCodeUnresolvable, \
+    = range(0, 14)
 
 def isIntegralTypeName(name):
     return name in ('int', 'unsigned int', 'signed int',
