@@ -499,6 +499,14 @@ void Snapshot::insertLibraryInfo(const QString &path, const LibraryInfo &info)
         QRegExp safeName(QLatin1String("^[a-zA-Z_][[a-zA-Z0-9_]*$"));
         int majorVersion = LanguageUtils::ComponentVersion::NoVersion;
         int minorVersion = LanguageUtils::ComponentVersion::NoVersion;
+
+        foreach (const QmlDirParser::Component &component, info.components()) {
+            if (component.majorVersion > majorVersion)
+                majorVersion = component.majorVersion;
+            if (component.minorVersion > minorVersion)
+                minorVersion = component.minorVersion;
+        }
+
         if (vNr.indexIn(splitPath.last()) == 0) {
             splitPath.last() = vNr.cap(1);
             bool ok;
