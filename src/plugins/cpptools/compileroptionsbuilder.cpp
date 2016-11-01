@@ -433,6 +433,13 @@ bool CompilerOptionsBuilder::excludeDefineDirective(const QByteArray &defineDire
         return true;
     }
 
+    // MinGW 6 supports some fancy asm output flags and uses them in an
+    // intrinsics header pulled in by windows.h. Clang does not know them.
+    if (m_projectPart.toolchainType == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID
+            && defineDirective.startsWith("#define __GCC_ASM_FLAG_OUTPUTS__")) {
+        return true;
+    }
+
     return false;
 }
 
