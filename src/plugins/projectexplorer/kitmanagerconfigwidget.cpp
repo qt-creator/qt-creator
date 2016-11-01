@@ -95,9 +95,9 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k) :
     label = createLabel(tr("Name:"), toolTip);
     m_layout->addWidget(label, 0, LabelColumn, alignment);
     m_iconButton->setToolTip(toolTip);
-    auto setIconAction = new QAction(tr("Select a file as icon"), this);
+    auto setIconAction = new QAction(tr("Select Icon File"), this);
     m_iconButton->addAction(setIconAction);
-    auto resetIconAction = new QAction(tr("Reset to the device default icon"), this);
+    auto resetIconAction = new QAction(tr("Reset to Device Default Icon"), this);
     m_iconButton->addAction(resetIconAction);
 
     discard();
