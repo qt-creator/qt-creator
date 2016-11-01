@@ -1,10 +1,10 @@
-dll {
+contains(CONFIG, dll) {
     DEFINES += QTCREATOR_UTILS_LIB
 } else {
     DEFINES += QTCREATOR_UTILS_STATIC_LIB
 }
 
-QT += gui network qml
+QT += widgets gui network qml
 
 CONFIG += exceptions # used by portlist.cpp, textfileformat.cpp, and ssh/*
 
