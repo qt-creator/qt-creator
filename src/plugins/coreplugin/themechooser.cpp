@@ -38,6 +38,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QHBoxLayout>
+#include <QLabel>
 #include <QMessageBox>
 #include <QSettings>
 #include <QSpacerItem>
@@ -136,13 +137,17 @@ ThemeChooserPrivate::ThemeChooserPrivate(QWidget *widget)
 {
     QHBoxLayout *layout = new QHBoxLayout(widget);
     layout->addWidget(m_themeComboBox);
+    auto overriddenLabel = new QLabel;
+    overriddenLabel->setText(ThemeChooser::tr("Current theme: %1")
+                             .arg(creatorTheme()->displayName()));
+    layout->addWidget(overriddenLabel);
     layout->setMargin(0);
     auto horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
     layout->addSpacerItem(horizontalSpacer);
     m_themeComboBox->setModel(m_themeListModel);
     const QList<ThemeEntry> themes = ThemeEntry::availableThemes();
-    const Id activeTheme = Id::fromString(creatorTheme()->id());
-    const int selected = Utils::indexOf(themes, Utils::equal(&ThemeEntry::id, activeTheme));
+    const Id themeSetting = ThemeEntry::themeSetting();
+    const int selected = Utils::indexOf(themes, Utils::equal(&ThemeEntry::id, themeSetting));
     m_themeListModel->setThemes(themes);
     if (selected >= 0)
         m_themeComboBox->setCurrentIndex(selected);
