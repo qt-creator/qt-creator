@@ -131,9 +131,9 @@
     \endlist
 
     To specify settings for running Google tests, select \uicontrol Tools >
-    \uicontrol Options > \uicontrol {Test Settings}.
+    \uicontrol Options > \uicontrol {Test Settings} > \uicontrol {Google Test}.
 
-    \image qtcreator-autotests-options.png
+    \image qtcreator-autotests-options-google.png
 
     To run disabled tests, select the \uicontrol {Run disabled tests} check box.
 
@@ -142,6 +142,11 @@
     \uicontrol Iterations field. To make sure that the tests are independent and
     repeatable, you can run them in a different order each time by selecting the
     \uicontrol {Shuffle tests} check box.
+
+    To turn failures into debugger breakpoints, select the
+    \uicontrol {Break on failure while debugging} check box. To turn assertion
+    failures into C++ exceptions, select the \uicontrol {Throw on failure} check
+    box.
 
     For more information about creating Google tests, see the
     \l{https://github.com/google/googletest/blob/master/googletest/docs/Primer.md}
@@ -172,7 +177,9 @@
 
     If a test takes more than a minute to execute, the default timeout might
     stop the test execution. To increase the timeout, select \uicontrol Tools >
-    \uicontrol Options > \uicontrol {Test Settings}.
+    \uicontrol Options > \uicontrol {Test Settings} > \uicontrol General.
+
+    \image qtcreator-autotests-options.png
 
     \QC scans the project for tests when you open the project and updates the
     test list when you edit tests. To only update the test list when the
@@ -181,9 +188,16 @@
 
     The code inside a benchmark test is measured, and possibly also repeated
     several times in order to get an accurate measurement. This depends on the
-    measurement back-end that you can select in \uicontrol {Test Settings}:
-    walltime, CPU tick counter, event counter, Vallgrind Callgring, and Linux
+    measurement back-end that you can select in the
+    \uicontrol {Benchmark Metrics} group in \uicontrol Tools >
+    \uicontrol Options > \uicontrol {Test Settings} > \uicontrol {Qt Test}:
+    walltime, CPU tick counter, event counter, Valgrind Callgrind, and Linux
     Perf. For more information, see \l{Creating a Benchmark}.
+
+    \image qtcreator-autotests-options-qt.png
+
+    To allow the debugger to interrupt Qt tests on assertions, select the
+    \uicontrol {Disable crash handler while debugging} check box.
 
     \section1 Viewing Test Output
 
@@ -238,5 +252,6 @@
     show.
 
     To hide internal messages and run configuration warnings, select
-    \uicontrol Tools > \uicontrol Options > \uicontrol {Test Settings}.
+    \uicontrol Tools > \uicontrol Options > \uicontrol {Test Settings} >
+    \uicontrol General.
 */
