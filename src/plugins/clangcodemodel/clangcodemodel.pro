@@ -1,10 +1,7 @@
 include(../../qtcreatorplugin.pri)
 include(../../shared/clang/clang_installation.pri)
 
-# The following defines are used to determine the clang include path for intrinsics.
-DEFINES += CLANG_VERSION=\\\"$${LLVM_VERSION}\\\"
-CLANG_RESOURCE_DIR=$$clean_path($${LLVM_LIBDIR}/clang/$${LLVM_VERSION}/include)
-DEFINES += "\"CLANG_RESOURCE_DIR=\\\"$${CLANG_RESOURCE_DIR}\\\"\""
+include(../../shared/clang/clang_defines.pri)
 
 SOURCES += \
     clangactivationsequencecontextprocessor.cpp \
