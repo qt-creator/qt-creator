@@ -63,7 +63,8 @@
 
 namespace Utils {
 
-class SmallString
+template<uint Size>
+class BasicSmallString
 {
 public:
     using iterator = Internal::SmallStringIterator<std::random_access_iterator_tag, char>;
@@ -72,25 +73,25 @@ public:
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
     using size_type = std::size_t;
 
-    SmallString() noexcept
-        : m_data(Internal::StringDataLayout())
+    BasicSmallString() noexcept
+        : m_data(Internal::StringDataLayout<Size>())
     {
     }
 
     constexpr
-    SmallString(const SmallStringLiteral &stringReference)
+    BasicSmallString(const BasicSmallStringLiteral<Size> &stringReference)
         : m_data(stringReference.m_data)
     {
     }
 
-    template<size_type Size>
+    template<size_type ArraySize>
     constexpr
-    SmallString(const char(&string)[Size])
+    BasicSmallString(const char(&string)[ArraySize])
         : m_data(string)
     {
     }
 
-    SmallString(const char *string, size_type size, size_type capacity)
+    BasicSmallString(const char *string, size_type size, size_type capacity)
     {
         if (Q_LIKELY(capacity <= shortStringCapacity())) {
             std::memcpy(m_data.shortString.string, string, size);
@@ -110,62 +111,62 @@ public:
         }
     }
 
-    SmallString(const char *string, size_type size)
-        : SmallString(string, size, size)
+    BasicSmallString(const char *string, size_type size)
+        : BasicSmallString(string, size, size)
     {
     }
 
     template<typename Type,
              typename = typename std::enable_if<std::is_pointer<Type>::value>::type
              >
-    SmallString(Type characterPointer)
-        : SmallString(characterPointer, std::strlen(characterPointer))
+    BasicSmallString(Type characterPointer)
+        : BasicSmallString(characterPointer, std::strlen(characterPointer))
     {
         static_assert(!std::is_array<Type>::value, "Input type is array and not char pointer!");
     }
 
-    SmallString(const QString &qString)
-        : SmallString(SmallString::fromQString(qString))
+    BasicSmallString(const QString &qString)
+        : BasicSmallString(BasicSmallString::fromQString(qString))
     {}
 
     template<typename Type,
              typename = typename std::enable_if<
                  std::is_same<typename std::decay<Type>::type, std::string>::value>::type>
-    SmallString(Type &&string)
-        : SmallString(string.data(), string.size())
+    BasicSmallString(Type &&string)
+        : BasicSmallString(string.data(), string.size())
     {}
 
     template<typename BeginIterator,
              typename EndIterator,
              typename = typename std::enable_if<std::is_same<BeginIterator, EndIterator>::value>::type
              >
-    SmallString(BeginIterator begin, EndIterator end)
-        : SmallString(&(*begin), size_type(end - begin))
+    BasicSmallString(BeginIterator begin, EndIterator end)
+        : BasicSmallString(&(*begin), size_type(end - begin))
     {
     }
 
 
-    ~SmallString() noexcept
+    ~BasicSmallString() noexcept
     {
         if (Q_UNLIKELY(hasAllocatedMemory()))
             Memory::deallocate(m_data.allocated.data.pointer);
     }
 
 #if !defined(UNIT_TESTS) && !(defined(_MSC_VER) && _MSC_VER < 1900)
-    SmallString(const SmallString &other) = delete;
-    SmallString &operator=(const SmallString &other) = delete;
+    BasicSmallString(const BasicSmallString &other) = delete;
+    BasicSmallString &operator=(const BasicSmallString &other) = delete;
 #else
-    SmallString(const SmallString &string)
+    BasicSmallString(const BasicSmallString &string)
     {
         if (string.isShortString() || string.isReadOnlyReference())
             m_data = string.m_data;
         else
-            new (this) SmallString{string.data(), string.size()};
+            new (this) BasicSmallString{string.data(), string.size()};
     }
 
-    SmallString &operator=(const SmallString &other)
+    BasicSmallString &operator=(const BasicSmallString &other)
     {
-        SmallString copy = other;
+        BasicSmallString copy = other;
 
         swap(*this, copy);
 
@@ -173,31 +174,31 @@ public:
     }
 #endif
 
-    SmallString(SmallString &&other) noexcept
+    BasicSmallString(BasicSmallString &&other) noexcept
     {
         m_data = other.m_data;
-        other.m_data = Internal::StringDataLayout();
+        other.m_data = Internal::StringDataLayout<Size>();
     }
 
-    SmallString &operator=(SmallString &&other) noexcept
+    BasicSmallString &operator=(BasicSmallString &&other) noexcept
     {
         swap(*this, other);
 
         return *this;
     }
 
-    SmallString clone() const
+    BasicSmallString clone() const
     {
-        SmallString clonedString(m_data);
+        BasicSmallString clonedString(m_data);
 
         if (Q_UNLIKELY(hasAllocatedMemory()))
-            new (&clonedString) SmallString{m_data.allocated.data.pointer, m_data.allocated.data.size};
+            new (&clonedString) BasicSmallString{m_data.allocated.data.pointer, m_data.allocated.data.size};
 
         return clonedString;
     }
 
     friend
-    void swap(SmallString &first, SmallString &second)
+    void swap(BasicSmallString &first, BasicSmallString &second)
     {
         using std::swap;
 
@@ -230,9 +231,9 @@ public:
     }
 
     static
-    SmallString fromUtf8(const char *characterPointer)
+    BasicSmallString fromUtf8(const char *characterPointer)
     {
-        return SmallString(characterPointer, std::strlen(characterPointer));
+        return BasicSmallString(characterPointer, std::strlen(characterPointer));
     }
 
     void reserve(size_type newCapacity)
@@ -245,7 +246,7 @@ public:
             } else {
                 const size_type oldSize = size();
 
-                new (this) SmallString(data(), oldSize, newCapacity);
+                new (this) BasicSmallString(data(), oldSize, newCapacity);
             }
         }
     }
@@ -259,8 +260,8 @@ public:
 
     void clear() noexcept
     {
-        this->~SmallString();
-        m_data = Internal::StringDataLayout();
+        this->~BasicSmallString();
+        m_data = Internal::StringDataLayout<Size>();
     }
 
     char *data() noexcept
@@ -319,17 +320,17 @@ public:
     }
 
     static
-    SmallString fromQString(const QString &qString)
+    BasicSmallString fromQString(const QString &qString)
     {
         const QByteArray &utf8ByteArray = qString.toUtf8();
 
-        return SmallString(utf8ByteArray.constData(), uint(utf8ByteArray.size()));
+        return BasicSmallString(utf8ByteArray.constData(), uint(utf8ByteArray.size()));
     }
 
     static
-    SmallString fromQByteArray(const QByteArray &utf8ByteArray)
+    BasicSmallString fromQByteArray(const QByteArray &utf8ByteArray)
     {
-        return SmallString(utf8ByteArray.constData(), uint(utf8ByteArray.size()));
+        return BasicSmallString(utf8ByteArray.constData(), uint(utf8ByteArray.size()));
     }
 
     bool contains(SmallStringView subStringToSearch) const
@@ -426,7 +427,7 @@ public:
         setSize(newSize);
     }
 
-    SmallString &operator+=(SmallStringView string)
+    BasicSmallString &operator+=(SmallStringView string)
     {
         append(string);
 
@@ -464,7 +465,7 @@ public:
     constexpr static
     size_type shortStringCapacity() noexcept
     {
-        return SmallStringLiteral::shortStringCapacity();
+        return BasicSmallStringLiteral<Size>::shortStringCapacity();
     }
 
     size_type optimalCapacity(const size_type size)
@@ -481,16 +482,16 @@ public:
     }
 
     static
-    SmallString join(std::initializer_list<SmallString> list)
+    BasicSmallString join(std::initializer_list<BasicSmallString> list)
     {
         size_type totalSize = 0;
-        for (const SmallString &string : list)
+        for (const BasicSmallString &string : list)
             totalSize += string.size();
 
-        SmallString joinedString;
+        BasicSmallString joinedString;
         joinedString.reserve(totalSize);
 
-        for (const SmallString &string : list)
+        for (const BasicSmallString &string : list)
             joinedString.append(string);
 
         return joinedString;
@@ -537,8 +538,105 @@ UNIT_TEST_PUBLIC:
         return cacheLineBlocks * cacheLineSize;
     }
 
+    template<size_type ArraySize>
+    friend bool operator==(const BasicSmallString& first, const char(&second)[ArraySize]) noexcept
+    {
+        return first == SmallStringView(second);
+    }
+
+    template<size_type ArraySize>
+    friend bool operator==(const char(&first)[ArraySize], const BasicSmallString& second) noexcept
+    {
+        return second == first;
+    }
+
+    template<typename Type,
+             typename = typename std::enable_if<std::is_pointer<Type>::value>::type
+             >
+    friend bool operator==(const BasicSmallString& first, Type second) noexcept
+    {
+        return first == SmallStringView(second);
+    }
+
+    template<typename Type,
+             typename = typename std::enable_if<std::is_pointer<Type>::value>::type
+             >
+    friend bool operator==(Type first, const BasicSmallString& second) noexcept
+    {
+        return second == first;
+    }
+
+    friend bool operator==(const BasicSmallString& first, const BasicSmallString& second) noexcept
+    {
+        return first.size() == second.size()
+            && std::memcmp(first.data(), second.data(), first.size()) == 0;
+    }
+
+    friend bool operator==(const BasicSmallString& first, const SmallStringView& second) noexcept
+    {
+        return first.size() == second.size()
+            && std::memcmp(first.data(), second.data(), first.size()) == 0;
+    }
+
+    friend bool operator==(const SmallStringView& first, const BasicSmallString& second) noexcept
+    {
+        return second == first;
+    }
+
+    friend bool operator!=(const BasicSmallString& first, const SmallStringView& second) noexcept
+    {
+        return !(first == second);
+    }
+
+    friend bool operator!=(const SmallStringView& first, const BasicSmallString& second) noexcept
+    {
+        return second == first;
+    }
+
+    friend bool operator!=(const BasicSmallString& first, const BasicSmallString& second) noexcept
+    {
+        return !(first == second);
+    }
+
+    template<size_type ArraySize>
+    friend bool operator!=(const BasicSmallString& first, const char(&second)[ArraySize]) noexcept
+    {
+        return !(first == second);
+    }
+
+    template<size_type ArraySize>
+    friend bool operator!=(const char(&first)[ArraySize], const BasicSmallString& second) noexcept
+    {
+        return second != first;
+    }
+
+    template<typename Type,
+             typename = typename std::enable_if<std::is_pointer<Type>::value>::type
+             >
+    friend bool operator!=(const BasicSmallString& first, Type second) noexcept
+    {
+        return !(first == second);
+    }
+
+    template<typename Type,
+             typename = typename std::enable_if<std::is_pointer<Type>::value>::type
+             >
+    friend bool operator!=(Type first, const BasicSmallString& second) noexcept
+    {
+        return second != first;
+    }
+
+    friend bool operator<(const BasicSmallString& first, const BasicSmallString& second) noexcept
+    {
+        size_type minimalSize = std::min(first.size(), second.size());
+
+        const int comparison = std::memcmp(first.data(), second.data(), minimalSize + 1);
+
+        return comparison < 0;
+    }
+
 private:
-    SmallString(Internal::StringDataLayout data) noexcept
+    BasicSmallString(Internal::StringDataLayout<Size> data) noexcept
         : m_data(data)
     {
     }
@@ -677,112 +775,8 @@ private:
     }
 
 private:
-    Internal::StringDataLayout m_data;
+    Internal::StringDataLayout<Size> m_data;
 };
-
-template<SmallString::size_type Size>
-bool operator==(const SmallString& first, const char(&second)[Size]) noexcept
-{
-    return first == SmallStringView(second);
-}
-
-template<SmallString::size_type Size>
-bool operator==(const char(&first)[Size], const SmallString& second) noexcept
-{
-    return second == first;
-}
-
-template<typename Type,
-         typename = typename std::enable_if<std::is_pointer<Type>::value>::type
-         >
-bool operator==(const SmallString& first, Type second) noexcept
-{
-    return first == SmallStringView(second);
-}
-
-template<typename Type,
-         typename = typename std::enable_if<std::is_pointer<Type>::value>::type
-         >
-bool operator==(Type first, const SmallString& second) noexcept
-{
-    return second == first;
-}
-
-inline
-bool operator==(const SmallString& first, const SmallString& second) noexcept
-{
-    return first.size() == second.size()
-        && std::memcmp(first.data(), second.data(), first.size()) == 0;
-}
-
-inline
-bool operator==(const SmallString& first, const SmallStringView& second) noexcept
-{
-    return first.size() == second.size()
-        && std::memcmp(first.data(), second.data(), first.size()) == 0;
-}
-
-inline
-bool operator==(const SmallStringView& first, const SmallString& second) noexcept
-{
-    return second == first;
-}
-
-inline
-bool operator!=(const SmallString& first, const SmallStringView& second) noexcept
-{
-    return !(first == second);
-}
-
-inline
-bool operator!=(const SmallStringView& first, const SmallString& second) noexcept
-{
-    return second == first;
-}
-
-inline
-bool operator!=(const SmallString& first, const SmallString& second) noexcept
-{
-    return !(first == second);
-}
-
-template<SmallString::size_type Size>
-bool operator!=(const SmallString& first, const char(&second)[Size]) noexcept
-{
-    return !(first == second);
-}
-
-template<SmallString::size_type Size>
-bool operator!=(const char(&first)[Size], const SmallString& second) noexcept
-{
-    return second != first;
-}
-
-template<typename Type,
-         typename = typename std::enable_if<std::is_pointer<Type>::value>::type
-         >
-bool operator!=(const SmallString& first, Type second) noexcept
-{
-    return !(first == second);
-}
-
-template<typename Type,
-         typename = typename std::enable_if<std::is_pointer<Type>::value>::type
-         >
-bool operator!=(Type first, const SmallString& second) noexcept
-{
-    return second != first;
-}
-
-inline
-bool operator<(const SmallString& first, const SmallString& second) noexcept
-{
-    SmallString::size_type minimalSize = std::min(first.size(), second.size());
-
-    const int comparison = std::memcmp(first.data(), second.data(), minimalSize + 1);
-
-    return comparison < 0;
-}
 
 template<typename Key,
          typename Value,
@@ -812,6 +806,8 @@ std::vector<Type> clone(const std::vector<Type> &vector)
 
     return clonedVector;
 }
+
+using SmallString = BasicSmallString<31>;
 
 } // namespace Utils
 

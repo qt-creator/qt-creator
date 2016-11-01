@@ -51,41 +51,44 @@ namespace Internal {
 
 using size_type = std::size_t;
 
-static const int smallStringLayoutByteSize = 32;
-static const int maximumShortStringDataAreaSize = smallStringLayoutByteSize - 1;
-
+template <uint MaximumShortStringDataAreaSize>
 struct AllocatedLayout {
     struct Data {
         char *pointer;
         size_type size;
         size_type capacity;
     } data;
-    char dummy[maximumShortStringDataAreaSize - sizeof(Data)];
+    char dummy[MaximumShortStringDataAreaSize - sizeof(Data)];
     std::uint8_t shortStringSize: 6;
     std::uint8_t isReadOnlyReference : 1;
     std::uint8_t isReference : 1;
 };
 
+template <uint MaximumShortStringDataAreaSize>
 struct ReferenceLayout {
     struct Data {
         const char *pointer;
         size_type size;
         size_type capacity;
     } data;
-    char dummy[maximumShortStringDataAreaSize - sizeof(Data)];
+    char dummy[MaximumShortStringDataAreaSize - sizeof(Data)];
     std::uint8_t shortStringSize: 6;
     std::uint8_t isReadOnlyReference : 1;
     std::uint8_t isReference : 1;
 };
 
+template <uint MaximumShortStringDataAreaSize>
 struct ShortStringLayout {
-    char string[maximumShortStringDataAreaSize];
+    char string[MaximumShortStringDataAreaSize];
     std::uint8_t shortStringSize: 6;
     std::uint8_t isReadOnlyReference : 1;
     std::uint8_t isReference : 1;
 };
 
+template <uint MaximumShortStringDataAreaSize>
 struct ALIGNAS_16 StringDataLayout {
+    static_assert( MaximumShortStringDataAreaSize >= 15, "Size must be greater equal than 15 bytes!");
+    static_assert(((MaximumShortStringDataAreaSize + 1) % 16) == 0, "Size + 1 must be dividable by 16!");
     StringDataLayout() noexcept = default;
 
     constexpr StringDataLayout(const char *string,
@@ -101,7 +104,7 @@ struct ALIGNAS_16 StringDataLayout {
 #endif
     {
 #if __cpp_constexpr >= 201304
-        if (Size <= maximumShortStringDataAreaSize) {
+        if (Size <= MaximumShortStringDataAreaSize) {
             for (size_type i = 0; i < Size; ++i)
                 shortString.string[i] = string[i];
 
@@ -125,9 +128,9 @@ struct ALIGNAS_16 StringDataLayout {
     }
 
     union {
-        AllocatedLayout allocated;
-        ReferenceLayout reference;
-        ShortStringLayout shortString = ShortStringLayout();
+        AllocatedLayout<MaximumShortStringDataAreaSize> allocated;
+        ReferenceLayout<MaximumShortStringDataAreaSize> reference;
+        ShortStringLayout<MaximumShortStringDataAreaSize> shortString = ShortStringLayout<MaximumShortStringDataAreaSize>();
     };
 };
 
