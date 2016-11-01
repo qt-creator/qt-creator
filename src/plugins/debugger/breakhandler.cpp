@@ -446,7 +446,7 @@ BreakpointDialog::BreakpointDialog(Breakpoint b, QWidget *parent)
     const QString moduleToolTip =
         tr("<p>Specifying the module (base name of the library or executable) "
            "for function or file type breakpoints can significantly speed up "
-           "debugger start-up times (CDB, LLDB).");
+           "debugger startup times (CDB, LLDB).");
     m_lineEditModule = new QLineEdit(groupBoxAdvanced);
     m_lineEditModule->setToolTip(moduleToolTip);
     m_labelModule = new QLabel(tr("&Module:"), groupBoxAdvanced);
@@ -1972,8 +1972,8 @@ bool BreakHandler::contextMenuEvent(const ItemViewEvent &ev)
     // FIXME BP: m_engine->threadsHandler()->currentThreadId();
     int threadId = 0;
     addAction(menu,
-              threadId == -1 ? tr("Associate Breakpoint With All Threads")
-                             : tr("Associate Breakpoint With Thread %1").arg(threadId),
+              threadId == -1 ? tr("Associate Breakpoint with All Threads")
+                             : tr("Associate Breakpoint with Thread %1").arg(threadId),
               !selectedItems.isEmpty(),
               [this, selectedItems, threadId] {
                     for (Breakpoint bp : selectedItems)

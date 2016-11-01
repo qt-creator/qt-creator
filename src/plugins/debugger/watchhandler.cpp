@@ -1534,7 +1534,7 @@ void WatchModel::inputNewExpression()
 
     auto hint = new QLabel(QString("<html>%1</html>").arg(
                     tr("Note: Evaluators will be re-evaluated after each step. "
-                       "For details check the <a href=\""
+                       "For details, see the <a href=\""
                        "qthelp://org.qt-project.qtcreator/doc/creator-debug-mode.html#locals-and-expressions"
                        "\">documentation</a>.")), &dlg);
 
@@ -1669,8 +1669,7 @@ QMenu *WatchModel::createBreakpointMenu(WatchItem *item)
     BreakpointParameters bp(WatchpointAtAddress);
     bp.address = item->address;
     act->setChecked(bh->findWatchpoint(bp));
-    act->setToolTip(tr("Setting a data breakpoint on an address will cause the program "
-                       "to stop when the data at the address is modified."));
+    act->setToolTip(tr("Stop the program when the data at the address is modified."));
 
     act = addAction(menu, tr("Add Data Breakpoint at Pointer's Address (0x%1)").arg(item->origaddr, 0, 16),
                      tr("Add Data Breakpoint at Pointer's Address"),
@@ -1687,8 +1686,7 @@ QMenu *WatchModel::createBreakpointMenu(WatchItem *item)
                      tr("Add Data Breakpoint at Expression"),
                      m_engine->hasCapability(WatchpointByExpressionCapability) && !item->name.isEmpty(),
                      [bh, item] { bh->setWatchpointAtExpression(item->name); });
-    act->setToolTip(tr("Setting a data breakpoint on an expression will cause the program "
-                       "to stop when the data at the address given by the expression "
+    act->setToolTip(tr("Stop the program when the data at the address given by the expression "
                        "is modified."));
 
     return menu;
