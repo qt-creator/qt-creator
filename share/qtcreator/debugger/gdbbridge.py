@@ -339,9 +339,15 @@ class Dumper(DumperBase):
                 gdb.TYPE_CODE_STRING : TypeCodeFortranString,
             }[code]
             if tdata.code == TypeCodeEnum:
-                tdata.enumDisplay = lambda intval: self.nativeTypeEnumDisplay(nativeType, intval)
-            self.registerType(typeId, tdata) # Prevent recursion in fields.
-            tdata.lfields = self.listFields(nativeType, self.Type(self, typeId))
+                tdata.enumDisplay = lambda intval : \
+                    self.nativeTypeEnumDisplay(nativeType, intval)
+            if tdata.code == TypeCodeStruct:
+                tdata.lalignment = lambda : \
+                    self.nativeStructAlignment(nativeType)
+                tdata.lfields = lambda value : \
+                    self.listMembers(nativeType, value)
+                #tdata.lfieldByName = lambda name : \
+                #    self.nativeTypeFieldTypeByName(nativeType, name)
             tdata.templateArguments = self.listTemplateParameters(nativeType)
             self.registerType(typeId, tdata) # Fix up fields and template args
         #    warn('CREATE TYPE: %s' % typeId)
@@ -360,10 +366,9 @@ class Dumper(DumperBase):
             if isinstance(targ, gdb.Type):
                 targs.append(self.fromNativeType(targ.unqualified()))
             elif isinstance(targ, gdb.Value):
-                #targs.append(self.fromNativeValue(targ))
                 targs.append(self.fromNativeValue(targ).value())
             else:
-                error('CRAP')
+                error('UNKNOWN TEMPLATE PARAMETER')
             pos += 1
         return targs
 
@@ -378,79 +383,95 @@ class Dumper(DumperBase):
         name = str(nativeType)
         if len(name) == 0:
             c = '0'
-        elif name == 'struct {...}':
-            c = 's'
         elif name == 'union {...}':
             c = 'u'
+        elif name.endswith('{...}'):
+            c = 's'
         else:
             return name
-        typeId = c + ''.join(['{%s:%s}' % (f.name, self.nativeTypeId(f.type)) for f in nativeType.fields()])
+        typeId = c + ''.join(['{%s:%s}' % (f.name, self.nativeTypeId(f.type))
+                              for f in nativeType.fields()])
         return typeId
 
-    def listFields(self, nativeType, parentType):
-        #if nativeType.code == gdb.TYPE_CODE_TYPEDEF:
-        #    return self.listFields(nativeType.strip_typedefs(), parentType)
+    def nativeStructAlignment(self, nativeType):
+        #warn("NATIVE ALIGN FOR %s" % nativeType.name)
+        def handleItem(nativeFieldType, align):
+            a = self.fromNativeType(nativeFieldType).alignment()
+            return a if a > align else align
+        align = 1
+        for f in nativeType.fields():
+            align = handleItem(f.type, align)
+        return align
 
-        fields = []
-
+    def listMembers(self, nativeType, value):
         if not nativeType.code in (gdb.TYPE_CODE_STRUCT, gdb.TYPE_CODE_UNION):
-            return fields
+            return
 
-        nativeIndex = 0
+        if value.laddress == 0:
+            warn("CANNOT LIST MEMBERS OF NULL VALUE OF %s" % nativeType)
+            return
+        if value.laddress is None:
+            # FIXME: Happens e.g. for QVariant(QBitArray)
+            addr = self.pokeValue(value)  # FIXME: Far too expensive.
+        else:
+            addr = value.laddress
+        nativeTypePointer = nativeType.unqualified().pointer()
+        nativeValue = gdb.Value(addr).cast(nativeTypePointer).dereference()
+
         baseIndex = 0
-        nativeFields = nativeType.fields()
-        #warn('NATIVE FIELDS: %s' % nativeFields)
         anonNumber = 0
-        for nativeField in nativeFields:
+        #warn('FIELDS FOR %s' % nativeType)
+        for nativeField in nativeType.fields():
             #warn('FIELD: %s' % nativeField)
-            #warn('  DIR: %s' % dir(nativeField))
             #warn('  BITSIZE: %s' % nativeField.bitsize)
             #warn('  ARTIFICIAL: %s' % nativeField.artificial)
-            #warn('FIELD NAME: %s' % nativeField.name)
-            #warn('FIELD TYPE: %s' % nativeField.type)
-            #warn('FIELD TYPE ID: %s' % self.nativeTypeId(nativeField.type))
-            #self.check(isinstance(nativeField, gdb.Field))
-            field = self.Field(self)
-            field.ltype = self.fromNativeType(nativeField.type.unqualified())
-            field.parentType = parentType
-            field.name = nativeField.name
-            field.isBaseClass = nativeField.is_base_class
-            if hasattr(nativeField, 'bitpos'):
-                field.lbitpos = nativeField.bitpos
-            if hasattr(nativeField, 'bitsize') and nativeField.bitsize != 0:
-                field.lbitsize = nativeField.bitsize
-            else:
-                field.lbitsize = 8 * nativeField.type.sizeof
-
+            #warn('  NAME: %s' % nativeField.name)
+            #warn('  TYPE: %s' % nativeField.type)
+            #warn('  TYPEID: %s' % self.nativeTypeId(nativeField.type))
+            val = nativeValue[nativeField]
+            #warn('VAL: %s' % val)
+            try:
+                # Remove 'const', fails for 'const bool' members in some containers.
+                val = val.cast(nativeField.type.unqualified())
+            except:
+                pass
+            try:
+                member = self.fromNativeValue(val)
+            except:
+                #warn('CANNOT CREATE FIELD: %s' % nativeField.name)
+                continue
             if nativeField.is_base_class:
-                # Field is base type. We cannot use nativeField.name as part
-                # of the iname as it might contain spaces and other
-                # strange characters.
-                field.name = nativeField.name
-                field.baseIndex = baseIndex
+                member.isBaseClass = True
+                member.baseIndex = baseIndex
                 baseIndex += 1
+                member.name = nativeField.name
             else:
-                # Since GDB commit b5b08fb4 anonymous structs get also reported
-                # with a 'None' name.
                 if nativeField.name is None or len(nativeField.name) == 0:
                     # Something without a name.
                     # Anonymous union? We need a dummy name to distinguish
                     # multiple anonymous unions in the struct.
                     anonNumber += 1
-                    field.name = '#%s' % anonNumber
+                    member.name = '#%s' % anonNumber
                 else:
-                    # Normal named field.
-                    field.name = nativeField.name
+                    # Normal named member.
+                    member.name = nativeField.name
+                if hasattr(nativeField, 'bitpos'):
+                    member.lbitpos = nativeField.bitpos
+                    # Correction for some bitfields. Size 0 can occur for
+                    # types without debug information.
+                    bitsize = 8 * nativeField.type.sizeof
+                    if bitsize > 0:
+                        member.lbitpos = nativeField.bitpos % bitsize
+                if hasattr(nativeField, 'bitsize') and nativeField.bitsize != 0:
+                    member.lbitsize = nativeField.bitsize
+                else:
+                    member.lbitsize = 8 * nativeField.type.sizeof
+            #warn('MEMBER: %s' % member)
+            yield member
+        if value.laddress is None:
+            self.releaseValue(addr)
 
-            field.nativeIndex = nativeIndex
-            #warn('FIELD RESULT: %s' % field)
-            fields.append(field)
-            nativeIndex += 1
-
-        #warn('FIELDS: %s' % fields)
-        return fields
-
-    def listOfLocals(self, partialVar):
+    def listLocals(self, partialVar):
         frame = gdb.selected_frame()
 
         try:
@@ -557,7 +578,7 @@ class Dumper(DumperBase):
         isPartial = len(partialVar) > 0
         partialName = partialVar.split('.')[1].split('@')[0] if isPartial else None
 
-        variables = self.listOfLocals(partialName)
+        variables = self.listLocals(partialName)
 
         # Take care of the return value of the last function call.
         if len(self.resultVarName) > 0:
@@ -626,18 +647,18 @@ class Dumper(DumperBase):
         if typeName.find(":") >= 0:
             typeName = "'" + typeName + "'"
         # 'class' is needed, see http://sourceware.org/bugzilla/show_bug.cgi?id=11912
-        #exp = "((class %s*)%s)->%s(%s)" % (typeName, value.address, function, arg)
-        addr = value.address()
-        if not addr:
-            addr = self.pokeValue(value)
+        #exp = "((class %s*)%s)->%s(%s)" % (typeName, value.laddress, function, arg)
+        addr = value.laddress
+        if addr is None:
+           addr = self.pokeValue(value)
         #warn("PTR: %s -> %s(%s)" % (value, function, addr))
         exp = "((%s*)0x%x)->%s(%s)" % (typeName, addr, function, arg)
         #warn("CALL: %s" % exp)
         result = gdb.parse_and_eval(exp)
         warn("  -> %s" % result)
         res = self.fromNativeValue(result)
-        if not value.address():
-            gdb.parse_and_eval("free((void*)0x%x)" % addr)
+        if value.laddress is None:
+            self.releaseValue(addr)
         return res
 
     def makeExpression(self, value):
@@ -667,11 +688,15 @@ class Dumper(DumperBase):
         h = self.hexencode(data)
         #warn("DATA: %s" % h
         string = ''.join("\\x" + h[2*i:2*i+2] for i in range(size))
-        exp = '(%s*)memcpy(calloc(%d, 1), "%s", %d)' % (value.type.name, size, string, size)
+        exp = '(%s*)memcpy(calloc(%d, 1), "%s", %d)' \
+            % (value.type.name, size, string, size)
         #warn("EXP: %s" % exp)
         res = gdb.parse_and_eval(exp)
         #warn("RES: %s" % res)
         return toInteger(res)
+
+    def releaseValue(self, address):
+        gdb.parse_and_eval('free(0x%x)' % address)
 
     def setValue(self, address, typename, value):
         cmd = "set {%s}%s=%s" % (typename, address, value)

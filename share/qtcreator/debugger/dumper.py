@@ -802,7 +802,7 @@ class DumperBase:
             self.putNumChild(0)
 
     def putPairItem(self, index, pair):
-        (first, second) = pair if isinstance(pair, tuple) else pair.members()
+        (first, second) = pair if isinstance(pair, tuple) else pair.members(False)
         with SubItem(self, index):
             with Children(self):
                 key = self.putSubItem(self.pairData.kname, first)
@@ -849,41 +849,41 @@ class DumperBase:
                     self.putSubItem(n, v)
 
     def putFields(self, value, dumpBase = True):
-        for field in value.type.fields():
-            #warn('FIELD: %s' % field)
-            if field.name is not None and field.name.startswith('_vptr.'):
+        for item in value.members(True):
+            #warn('FIELD: %s' % item)
+            if item.name is not None and item.name.startswith('_vptr.'):
                 with SubItem(self, '[vptr]'):
                     # int (**)(void)
                     n = 100
                     self.putType(' ')
                     self.putField('sortgroup', 20)
-                    self.putValue(field.name)
+                    self.putValue(item.name)
                     self.putNumChild(n)
                     if self.isExpanded():
                         with Children(self):
-                            p = value[field.name]
+                            p = item
                             for i in xrange(n):
-                                if p.dereference().integer() != 0:
+                                deref = p.dereference()
+                                if deref.pointer() != 0:
                                     with SubItem(self, i):
-                                        self.putItem(p.dereference())
+                                        self.putItem(deref)
                                         self.putType(' ')
-                                        p = p + 1
+                                        p.laddress += self.ptrSize()
                 continue
 
-            if field.isBaseClass and dumpBase:
+            if item.isBaseClass and dumpBase:
                 # We cannot use nativeField.name as part of the iname as
                 # it might contain spaces and other strange characters.
-                with UnnamedSubItem(self, "@%d" % (field.baseIndex + 1)):
-                    baseValue = value[field]
+                with UnnamedSubItem(self, "@%d" % (item.baseIndex + 1)):
                     self.putField('iname', self.currentIName)
-                    self.putField('name', '[%s]' % field.name)
-                    self.putField('sortgroup', 1000 - field.baseIndex)
-                    self.putAddress(baseValue.address())
-                    self.putItem(baseValue)
+                    self.putField('name', '[%s]' % item.name)
+                    self.putField('sortgroup', 1000 - item.baseIndex)
+                    self.putAddress(item.address())
+                    self.putItem(item)
                 continue
 
-            with SubItem(self, field.name):
-                self.putItem(value.extractField(field))
+            with SubItem(self, item.name):
+                self.putItem(item)
 
 
     def putMembersItem(self, value, sortorder = 10):
@@ -1525,8 +1525,9 @@ class DumperBase:
             isQObjectProper = typeName == self.qtNamespace() + 'QObject'
 
             if not isQObjectProper:
-                if someTypeObj.firstBase() is None:
-                    return 0
+                #if someTypeObj.firstBase() is None:
+                #    warn("FIRST BASE IS NONE")
+                #    return 0
 
                 # No templates for now.
                 if typeName.find('<') >= 0:
@@ -2029,10 +2030,11 @@ class DumperBase:
             error('WRONG VALUE TYPE IN putSubItem: %s' % type(value))
         if not isinstance(value.type, self.Type):
             error('WRONG TYPE TYPE IN putSubItem: %s' % type(value.type))
+        res = None
         with SubItem(self, component):
             self.putItem(value)
-            value = self.currentValue
-        return value  # The 'short' display.
+            res = self.currentValue
+        return res  # The 'short' display.
 
     def putArrayData(self, base, n, innerType, childNumChild = None, maxNumChild = 10000):
         self.checkIntType(base)
@@ -2587,10 +2589,15 @@ class DumperBase:
 
         if typeobj.code == TypeCodeIntegral:
             #warn('INTEGER: %s %s' % (value.name, value))
-            self.putValue(value.value())
+            val = value.value()
             self.putNumChild(0)
             if value.lbitsize is not None and value.lbitsize != value.type.size() * 8:
                 typeName += ' : %s' % value.lbitsize
+                val = val >> value.lbitpos
+                val = val & ((1 << value.lbitsize) - 1)
+                #warn('VAL: %s BITPOS: %s BITSIZE: %s'
+                #    % (val, value.lbitpos, value.lbitsize))
+            self.putValue(val)
             self.putType(typeName)
             return
 
@@ -2690,8 +2697,10 @@ class DumperBase:
             self.laddress = None    # Own address.
             self.lIsInScope = True
             self.ldisplay = None
+            self.lbitpos = None
             self.lbitsize = None
             self.targetValue = None # For references.
+            self.isBaseClass = None
 
         def check(self):
             if self.laddress is not None and not self.dumper.isInt(self.laddress):
@@ -2708,14 +2717,14 @@ class DumperBase:
 
         def stringify(self):
             addr = 'None' if self.laddress is None else ('0x%x' % self.laddress)
-            return "Value(name='%s',type=%s,bsize=%s,data=%s,address=%s)" \
-                    % (self.name, self.type.name, self.lbitsize,
+            return "Value(name='%s',type=%s,bsize=%s,bpos=%s,data=%s,address=%s)" \
+                    % (self.name, self.type.name, self.lbitsize, self.lbitpos,
                        self.dumper.hexencode(self.ldata), addr)
 
         def display(self):
             if self.type.code == TypeCodeEnum:
                 intval = self.extractInteger(self.type.bitsize(), False)
-                return self.type.typeData.enumDisplay(intval)
+                return self.type.typeData().enumDisplay(intval)
             simple = self.value()
             if simple is not None:
                 return str(simple)
@@ -2767,6 +2776,31 @@ class DumperBase:
         def extractPointer(self):
             return self.split('p')[0]
 
+        def findMemberByName(self, name):
+            self.check()
+            if self.type.code == TypeCodeTypedef:
+                return self.findMemberByName(self.detypedef())
+            if self.type.code in (TypeCodePointer, TypeCodeReference):
+                res = self.dereference().findMemberByName(name)
+                if res is not None:
+                    return res
+            if self.type.code == TypeCodeStruct:
+                #warn('SEARCHING FOR MEMBER: %s IN %s' % (name, self.type.name))
+                members = self.members(True)
+                for member in members:
+                    #warn('CHECKING FIELD %s' % member.name)
+                    if member.name == name:
+                        return member
+                for member in members:
+                    #warn('CHECKING BASE %s' % member.name)
+                    #if member.name == name:
+                    #    return member
+                    if member.type.code == TypeCodeStruct:
+                        res = member.findMemberByName(name)
+                        if res is not None:
+                            return res
+            return None
+
         def __getitem__(self, index):
             #warn('GET ITEM %s %s' % (self, index))
             self.check()
@@ -2777,13 +2811,17 @@ class DumperBase:
                 if self.type.code == TypeCodePointer:
                     #warn('GET ITEM %s DEREFERENCE TO %s' % (self, self.dereference()))
                     return self.dereference().__getitem__(index)
-                field = self.dumper.Field(self.dumper)
-                field.parentType = self.type
-                field.name = index
+                #field = self.dumper.Field(self.dumper)
+                #field.name = index
+                res = self.findMemberByName(index)
+                if res is None:
+                    raise RuntimeError('No member named %s in type %s'
+                        % (index, self.type.name))
+                return res
             elif isinstance(index, self.dumper.Field):
                 field = index
             elif self.dumper.isInt(index):
-                return self.members()[index]
+                return self.members(False)[index]
             else:
                 error('BAD INDEX TYPE %s' % type(index))
             field.check()
@@ -2793,7 +2831,6 @@ class DumperBase:
                 #warn('IS TYPEDEFED POINTER!')
                 res = self.dereference()
                 #warn('WAS POINTER: %s' % res)
-                return res.extractField(field)
 
             return self.extractField(field)
 
@@ -2843,15 +2880,24 @@ class DumperBase:
 
             #warn('GOT VAL %s FOR FIELD %s' % (val, field))
             val.check()
+            val.name = field.name
             val.lbitsize = fieldBitsize
+            val.isBaseClass = field.isBaseClass
+            val.baseIndex = field.baseIndex
             return val
 
-        def members(self):
-            members = []
-            for field in self.type.fields():
-                if not field.isBaseClass:
-                    members.append(self.extractField(field))
-            return members
+        # This is the generic version for synthetic values.
+        # The native backends replace it in their fromNativeValue()
+        # implementations.
+        def members(self, includeBases):
+            if self.type.code == TypeCodeTypedef:
+                return self.detypedef().members(includeBases)
+            res = []
+            for field in self.type.fields(self):
+                if field.isBaseClass and not includeBases:
+                    continue
+                res.append(field)
+            return res
 
         def __add__(self, other):
             self.check()
@@ -2993,8 +3039,8 @@ class DumperBase:
             def structFixer(field, thing):
                 #warn('STRUCT MEMBER: %s' % type(thing))
                 if field.isStruct:
-                    if field.ltype != field.fieldType():
-                        error('DO NOT SIMPLIFY')
+                    #if field.ltype != field.fieldType():
+                    #    error('DO NOT SIMPLIFY')
                     #warn('FIELD POS: %s' % field.ltype.stringify())
                     #warn('FIELD TYE: %s' % field.fieldType().stringify())
                     res = self.dumper.createValue(thing, field.fieldType())
@@ -3028,15 +3074,33 @@ class DumperBase:
     class TypeData:
         def __init__(self, dumper):
             self.dumper = dumper
-            self.lfields = []
+            self.lfields = None # None or Value -> list of member Values
+            self.lalignment = None # Function returning alignment of this struct
             self.lbitsize = None
             self.lbitpos = None
+            self.lfirstBase = None
             self.ltarget = None # Inner type for arrays
             self.templateArguments = []
             self.code = None
             self.name = None
             self.typeId = None
             self.enumDisplay = str
+
+        def copy(self):
+            tdata = self.dumper.TypeData(self.dumper)
+            tdata.dumper = self.dumper
+            tdata.lfields = self.lfields
+            tdata.lalignment = self.lalignment
+            tdata.lbitsize = self.lbitsize
+            tdata.lbitpos = self.lbitpos
+            tdata.lfirstBase = self.lfirstBase
+            tdata.ltarget = self.ltarget
+            tdata.templateArguments = self.templateArguments
+            tdata.code = self.code
+            tdata.name = self.name
+            tdata.typeId = self.typeId
+            tdata.enumDisplay = self.enumDisplay
+            return tdata
 
     class Type:
         def __init__(self, dumper, typeId):
@@ -3047,7 +3111,6 @@ class DumperBase:
             #return self.typeId
             return self.stringify()
 
-        @property
         def typeData(self):
             tdata = self.dumper.typeData.get(self.typeId, None)
             if tdata is not None:
@@ -3063,33 +3126,29 @@ class DumperBase:
 
         @property
         def name(self):
-            tdata = self.typeData
+            tdata = self.typeData()
             if tdata is None:
                 return self.typeId
             return tdata.name
 
         @property
         def code(self):
-            return self.typeData.code
+            return self.typeData().code
 
         @property
         def lbitsize(self):
-            return self.typeData.lbitsize
+            return self.typeData().lbitsize
 
         @property
         def lbitpos(self):
-            return self.typeData.lbitpos
+            return self.typeData().lbitpos
 
         @property
         def ltarget(self):
-            return self.typeData.ltarget
-
-        @property
-        def lfields(self):
-            return self.typeData.lfields
+            return self.typeData().ltarget
 
         def stringify(self):
-            tdata = self.typeData
+            tdata = self.typeData()
             if tdata is None:
                 return 'Type(id="%s")' % self.typeId
             return 'Type(name="%s",bsize=%s,bpos=%s,code=%s)' \
@@ -3101,7 +3160,7 @@ class DumperBase:
             error('CANNOT INDEX TYPE')
 
         def dynamicTypeName(self, address):
-            tdata = self.typeData
+            tdata = self.typeData()
             if tdata is None:
                 return None
             if tdata.code != TypeCodeStruct:
@@ -3122,7 +3181,7 @@ class DumperBase:
             return self
 
         def check(self):
-            tdata = self.typeData
+            tdata = self.typeData()
             if tdata is None:
                 error('TYPE WITHOUT DATA: %s ALL: %s' % (self.typeId, self.dumper.typeData.keys()))
             if tdata.name is None:
@@ -3138,7 +3197,7 @@ class DumperBase:
             return self
 
         def templateArgument(self, position, numeric = False):
-            tdata = self.typeData
+            tdata = self.typeData()
             #warn('TDATA: %s' % tdata)
             #warn('ID: %s' % self.typeId)
             if tdata is None:
@@ -3178,25 +3237,31 @@ class DumperBase:
             return self.code in (TypeCodeIntegral, TypeCodeFloat, TypeCodeEnum)
 
         def alignment(self):
-            #warn('ALIGN: %s' % self.stringify())
-            if self.code == TypeCodeTypedef:
-                return self.ltarget.alignment()
+            tdata = self.typeData()
+            if tdata.code == TypeCodeTypedef:
+                return tdata.ltarget.alignment()
             if self.isSimpleType():
-                if self.name in ('double', 'long long', 'unsigned long long'):
+                if tdata.name in ('double', 'long long', 'unsigned long long'):
                     return self.dumper.ptrSize() # Crude approximation.
                 return self.size()
-            if self.code == TypeCodePointer:
+            if tdata.code in (TypeCodePointer, TypeCodeReference):
                 return self.dumper.ptrSize()
-            fields = self.fields()
-            align = 1
-            for field in fields:
-                #warn('  SUBFIELD: %s TYPE %s' % (field.name, field.fieldType().name))
-                a = field.fieldType().alignment()
-                #warn('  SUBFIELD: %s ALIGN: %s' % (field.name, a))
-                if a is not None and a > align:
-                    align = a
-            #warn('COMPUTED ALIGNMENT: %s ' % align)
-            return align
+            if tdata.lalignment is not None:
+                #if isinstance(tdata.lalignment, function): # Does not work that way.
+                if hasattr(tdata.lalignment, '__call__'):
+                    return tdata.lalignment()
+                return tdata.lalignment
+            return 1
+
+            #align = 1
+            #for field in self.fields():
+            #    #warn('  SUBFIELD: %s TYPE %s' % (field.name, field.fieldType().name))
+            #    a = field.fieldType().alignment()
+            #    #warn('  SUBFIELD: %s ALIGN: %s' % (field.name, a))
+            #    if a is not None and a > align:
+            #        align = a
+            ##warn('COMPUTED ALIGNMENT: %s ' % align)
+            #return align
 
         def pointer(self):
             return self.dumper.createPointerType(self)
@@ -3212,22 +3277,26 @@ class DumperBase:
             return (self.dumper.createType(s[0:pos1].strip()), int(s[pos1+1:pos2]))
 
         def target(self):
-            return self.typeData.ltarget
+            return self.typeData().ltarget
 
-        def fields(self):
-            if self.code == TypeCodeTypedef:
-                return self.ltarget.fields()
-            return self.lfields
+        def fields(self, value):
+            tdata = self.typeData()
+            if tdata.code == TypeCodeTypedef:
+                return tdata.ltarget.fields(value)
+            if tdata.lfields is not None:
+                return tdata.lfields(value)
+            return []
 
         def firstBase(self):
-            lfields = self.fields()
-            if len(lfields) > 0 and lfields[0].isBaseClass:
-                return lfields[0].ltype
-            return None
+            #lfields = self.fields()
+            #if len(lfields) > 0 and lfields[0].isBaseClass:
+            #    return lfields[0].ltype
+            #return None
+            return self.typeData().lfirstBase
 
-        def field(self, name, bitoffset = 0):
+        def field(self, value, name, bitoffset = 0):
             #warn('GETTING FIELD %s FOR: %s' % (name, self.name))
-            for f in self.fields():
+            for f in self.fields(value):
                 #warn('EXAMINING MEMBER %s' % f.name)
                 if f.name == name:
                     ff = copy.copy(f)
@@ -3293,25 +3362,20 @@ class DumperBase:
             self.isBaseClass = False
             self.isVirtualBase = False
             self.ltype = None
-            self.parentType = None
             self.lbitsize = None
             self.lbitpos = None
             self.isStruct = False
 
         def __str__(self):
-            return ('Field(name="%s",ltype=%s,parentType=%s,bpos=%s,bsize=%s,'
+            typename = None if self.ltype is None else self.ltype.stringify()
+            return ('Field(name="%s",ltype=%s,bpos=%s,bsize=%s,'
                      + 'bidx=%s,nidx=%s)') \
-                    % (self.name,
-                       self.ltype.stringify(),
-                       self.parentType.typeId,
+                    % (self.name, typename,
                        self.lbitpos, self.lbitsize,
                        self.baseIndex, self.nativeIndex)
 
         def check(self):
-            if self.parentType.code == TypeCodePointer:
-                error('POINTER NOT POSSIBLE AS FIELD PARENT')
-            if self.parentType.code == TypeCodeTypedef:
-                error('TYPEDEFS NOT ALLOWED AS FIELD PARENT')
+            pass
 
         def size(self):
             return self.bitsize() >> 3
@@ -3333,21 +3397,12 @@ class DumperBase:
             if self.lbitpos is not None:
                 #warn('BITPOS KNOWN: %s %s' % (self.name, self.lbitpos))
                 return self.lbitpos
-            self.check()
-            f = self.parentType.field(self.name)
-            if f is not None:
-                #warn('BITPOS FROM PARENT: %s' % self.parentType)
-                return f.bitpos()
             error('DONT KNOW BITPOS FOR FIELD: %s ' % self)
 
         def fieldType(self):
             if self.ltype is not None:
                 return self.ltype
-            if self.name is not None:
-                field = self.parentType.field(self.name)
-                if field is not None:
-                    return field.fieldType()
-            #error('CANT GET FIELD TYPE FOR %s' % self)
+            error('CANT GET FIELD TYPE FOR %s' % self)
             return None
 
     def toPointerData(self, address):
@@ -3357,16 +3412,16 @@ class DumperBase:
         code = 'I' if size == 4 else 'Q'
         return bytes(struct.pack(code, address))
 
-    def createPointerValue(self, targetAddress, targetType):
-        if not isinstance(targetType, self.Type):
+    def createPointerValue(self, targetAddress, targetTypish):
+        if not isinstance(targetTypish, self.Type) and not isinstance(targetTypish, str):
             error('Expected type in createPointerValue(), got %s'
-                % type(targetType))
+                % type(targetTypish))
         if not self.isInt(targetAddress):
             error('Expected integral address value in createPointerValue(), got %s'
-                % type(targetType))
+                % type(targetTypish))
         val = self.Value(self)
         val.ldata = self.toPointerData(targetAddress)
-        targetType = targetType.dynamicType(targetAddress)
+        targetType = self.createType(targetTypish).dynamicType(targetAddress)
         val.type = self.createPointerType(targetType)
         return val
 
@@ -3394,7 +3449,6 @@ class DumperBase:
         tdata.lbitsize = 8 * self.ptrSize()
         tdata.code = TypeCodePointer
         tdata.ltarget = targetType
-        tdata.lfields = []
         self.registerType(typeId, tdata)
         return self.Type(self, typeId)
 
@@ -3417,23 +3471,13 @@ class DumperBase:
         if not isinstance(targetType, self.Type):
             error('Expected type in createArrayType(), got %s'
                 % type(targetType))
-        typeId = '%s[%d]' % (targetType.typeId, count)
+        targetTypeId = targetType.typeId
+        typeId = '%s[%d]' % (targetTypeId, count)
         tdata = self.TypeData(self)
         tdata.name = '%s[%d]' % (targetType.name, count)
         tdata.typeId = typeId
         tdata.code = TypeCodeArray
         tdata.ltarget = targetType
-        tdata.lbitsize = count * targetType.lbitsize
-        fields = []
-        for i in range(count):
-            field = self.Field(self)
-            field.ltype = targetType
-            field.parentType = None
-            field.isBaseClass = False
-            field.lbitsize = targetType.lbitsize
-            field.lbitpos = i * targetType.lbitsize * 8
-            fields.append(field)
-        #tdata.lfields = fields
         self.registerType(typeId, tdata)
         return self.Type(self, typeId)
 
@@ -3450,7 +3494,7 @@ class DumperBase:
         tdata.code = TypeCodeTypedef
         tdata.ltarget = targetType
         tdata.lbitsize = targetType.lbitsize
-        tdata.lfields = targetType.lfields
+        #tdata.lfields = targetType.lfields
         self.registerType(typeId, tdata)
         return self.Type(self, typeId)
 
