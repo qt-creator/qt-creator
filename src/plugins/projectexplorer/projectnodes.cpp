@@ -186,6 +186,11 @@ SessionNode *Node::asSessionNode()
     return nullptr;
 }
 
+bool Node::sortByPath(Node *a, Node *b)
+{
+    return a->filePath() < b->filePath();
+}
+
 void Node::setParentFolderNode(FolderNode *parentFolder)
 {
     m_folderNode = parentFolder;
@@ -371,24 +376,19 @@ FolderNode *FolderNode::findOrCreateSubFolderNode(const QString &directory)
     return parent;
 }
 
-static bool sortNodesByPath(Node *a, Node *b)
-{
-    return a->filePath() < b->filePath();
-}
-
 void FolderNode::buildTree(QList<FileNode *> &files)
 {
     // Gather old list
     QList<ProjectExplorer::FileNode *> oldFiles = recursiveFileNodes();
-    Utils::sort(oldFiles, sortNodesByPath);
-    Utils::sort(files, sortNodesByPath);
+    Utils::sort(oldFiles, Node::sortByPath);
+    Utils::sort(files, Node::sortByPath);
 
     QList<ProjectExplorer::FileNode *> added;
     QList<ProjectExplorer::FileNode *> deleted;
 
-    ProjectExplorer::compareSortedLists(oldFiles, files, deleted, added, sortNodesByPath);
+    ProjectExplorer::compareSortedLists(oldFiles, files, deleted, added, Node::sortByPath);
 
-    qDeleteAll(ProjectExplorer::subtractSortedList(files, added, sortNodesByPath));
+    qDeleteAll(ProjectExplorer::subtractSortedList(files, added, Node::sortByPath));
 
     QHash<ProjectExplorer::FolderNode *, QList<ProjectExplorer::FileNode *> > addedFolderMapping;
     QHash<ProjectExplorer::FolderNode *, QList<ProjectExplorer::FileNode *> > deletedFolderMapping;

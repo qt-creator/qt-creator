@@ -129,6 +129,8 @@ public:
     virtual ProjectNode *asProjectNode();
     virtual SessionNode *asSessionNode();
 
+    static bool sortByPath(Node *a, Node *b);
+
 protected:
     Node(NodeType nodeType, const Utils::FileName &filePath, int line = -1);
 
