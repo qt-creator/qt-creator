@@ -19865,6 +19865,38 @@ Ids must begin with a lowercase letter.</source>
         <source>iOS tool Error %1</source>
         <translation>Ошибка %1 утилиты iOS</translation>
     </message>
+    <message>
+        <source>Application install on Simulator failed. %1</source>
+        <translation>Не удалось установить приложение на эмулятор. %1</translation>
+    </message>
+    <message>
+        <source>Application install on Simulator failed. Simulator not running.</source>
+        <translation>Не удалось установить приложение на эмулятор. Он не запущен.</translation>
+    </message>
+    <message>
+        <source>Application launch on Simulator failed. Invalid Bundle path %1</source>
+        <translation>Запуск приложения на эмуляторе не удался. Неверный путь пакета %1</translation>
+    </message>
+    <message>
+        <source>Spawning the Application process on Simulator failed.</source>
+        <translation>Не удалось породить процесс приложения на эмуляторе.</translation>
+    </message>
+    <message>
+        <source>Application launch on Simulator failed. Simulator not running.</source>
+        <translation>Не удалось запустить приложение на эмуляторе. Он не запущен.</translation>
+    </message>
+    <message>
+        <source>Application launch on Simulator failed. %1</source>
+        <translation>Запуск приложения на эмуляторе не удался. %1</translation>
+    </message>
+    <message>
+        <source>Spawning the Application process on Simulator failed. Spawning timed out.</source>
+        <translation>Не удалось породить процесс приложения на эмуляторе. Время порождения истекло.</translation>
+    </message>
+    <message>
+        <source>Simulator application process error %1</source>
+        <translation>Приложение из эмулятора вернуло ошибку %1</translation>
+    </message>
 </context>
 <context>
     <name>IosDeployStepWidget</name>
@@ -21336,14 +21368,14 @@ Ids must begin with a lowercase letter.</source>
     <name>Nim::NimCompilerBuildStepFactory</name>
     <message>
         <source>Nim Compiler Build Step</source>
-        <translation type="unfinished">Этап сборки компилятора Nim</translation>
+        <translation>Этап сборки компилятора Nim</translation>
     </message>
 </context>
 <context>
     <name>Nim::NimCompilerCleanStep</name>
     <message>
         <source>Nim Clean Step</source>
-        <translation type="unfinished">Этап очистки компилятора Nim</translation>
+        <translation>Этап очистки компилятора Nim</translation>
     </message>
     <message>
         <source>Build directory &quot;%1&quot; does not exist.</source>
@@ -21432,28 +21464,28 @@ Ids must begin with a lowercase letter.</source>
     <name>NimCompilerBuildStep</name>
     <message>
         <source>Nim Compiler Build Step</source>
-        <translation type="unfinished">Этап сборки компилятора Nim</translation>
+        <translation>Этап сборки компилятора Nim</translation>
     </message>
 </context>
 <context>
     <name>NimCompilerBuildStepConfigWidget</name>
     <message>
         <source>Nim build step</source>
-        <translation type="unfinished">Этап сборки Nim</translation>
+        <translation>Этап сборки Nim</translation>
     </message>
 </context>
 <context>
     <name>NimCompilerCleanStepFactory</name>
     <message>
         <source>Nim Compiler Clean Step</source>
-        <translation type="unfinished">Этап очистки компилятора Nim</translation>
+        <translation>Этап очистки компилятора Nim</translation>
     </message>
 </context>
 <context>
     <name>NimCompilerCleanStepWidget</name>
     <message>
         <source>Nim clean step</source>
-        <translation type="unfinished">Этап очистки Nim</translation>
+        <translation>Этап очистки Nim</translation>
     </message>
 </context>
 <context>
@@ -36642,11 +36674,11 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
     </message>
     <message>
         <source>Remove the automatically inserted character if the trigger is deleted by backspace after the completion.</source>
-        <translation type="unfinished">Удалять автоматически вставленный символ, если флаг удалён бекспейсом после дополнения.</translation>
+        <translation>Удалять автоматически вставленный символ, если флаг удалён бекспейсом после дополнения.</translation>
     </message>
     <message>
         <source>Remove automatically inserted text on backspace</source>
-        <translation type="unfinished">Удалять автоматически вставленный текст по бекспейсу</translation>
+        <translation>Удалять автоматически вставленный текст по бекспейсу</translation>
     </message>
     <message>
         <source>Documentation Comments</source>
