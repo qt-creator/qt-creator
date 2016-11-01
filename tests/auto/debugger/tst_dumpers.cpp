@@ -187,49 +187,49 @@ struct VersionBase
 
 struct QtVersion : VersionBase
 {
-    QtVersion(int minimum = 0, int maximum = INT_MAX)
+    explicit QtVersion(int minimum = 0, int maximum = INT_MAX)
         : VersionBase(minimum, maximum)
     {}
 };
 
 struct DwarfVersion : VersionBase
 {
-    DwarfVersion(int minimum = 0, int maximum = INT_MAX)
+    explicit DwarfVersion(int minimum = 0, int maximum = INT_MAX)
         : VersionBase(minimum, maximum)
     {}
 };
 
 struct GccVersion : VersionBase
 {
-    GccVersion(int minimum = 0, int maximum = INT_MAX)
+    explicit GccVersion(int minimum = 0, int maximum = INT_MAX)
         : VersionBase(minimum, maximum)
     {}
 };
 
 struct ClangVersion : VersionBase
 {
-    ClangVersion(int minimum = 0, int maximum = INT_MAX)
+    explicit ClangVersion(int minimum = 0, int maximum = INT_MAX)
         : VersionBase(minimum, maximum)
     {}
 };
 
 struct GdbVersion : VersionBase
 {
-    GdbVersion(int minimum = 0, int maximum = INT_MAX)
+    explicit GdbVersion(int minimum = 0, int maximum = INT_MAX)
         : VersionBase(minimum, maximum)
     {}
 };
 
 struct LldbVersion : VersionBase
 {
-    LldbVersion(int minimum = 0, int maximum = INT_MAX)
+    explicit LldbVersion(int minimum = 0, int maximum = INT_MAX)
         : VersionBase(minimum, maximum)
     {}
 };
 
 struct BoostVersion : VersionBase
 {
-    BoostVersion(int minimum = 0, int maximum = INT_MAX)
+    explicit BoostVersion(int minimum = 0, int maximum = INT_MAX)
         : VersionBase(minimum, maximum)
     {}
 };
@@ -489,47 +489,47 @@ struct Check
         return *this;
     }
 
-    const Check &operator%(DebuggerEngine engine)
+    const Check &operator%(DebuggerEngine engine) const
     {
         enginesForCheck = engine;
         return *this;
     }
 
-    const Check &operator%(GdbVersion version)
+    const Check &operator%(GdbVersion version) const
     {
         enginesForCheck = GdbEngine;
         debuggerVersionForCheck = version;
         return *this;
     }
 
-    const Check &operator%(LldbVersion version)
+    const Check &operator%(LldbVersion version) const
     {
         enginesForCheck = LldbEngine;
         debuggerVersionForCheck = version;
         return *this;
     }
 
-    const Check &operator%(GccVersion version)
+    const Check &operator%(GccVersion version) const
     {
         enginesForCheck = GdbEngine;
         gccVersionForCheck = version;
         return *this;
     }
 
-    const Check &operator%(ClangVersion version)
+    const Check &operator%(ClangVersion version) const
     {
         enginesForCheck = GdbEngine;
         clangVersionForCheck = version;
         return *this;
     }
 
-    const Check &operator%(BoostVersion version)
+    const Check &operator%(BoostVersion version) const
     {
         boostVersionForCheck = version;
         return *this;
     }
 
-    const Check &operator%(QtVersion version)
+    const Check &operator%(QtVersion version) const
     {
         qtVersionForCheck = version;
         return *this;
@@ -2306,18 +2306,19 @@ void tst_Dumpers::dumper_data()
               + CheckType("loc", "@QLocale")
               + CheckType("m", "@QLocale::MeasurementSystem")
               + Check("loc1", "\"en_US\"", "@QLocale")
-              + Check("loc1.country", "@QLocale::UnitedStates (225)", "@QLocale::Country")
-              + Check("loc1.language", "@QLocale::English (31)", "@QLocale::Language")
+              + Check("loc1.country", "@QLocale::UnitedStates (225)", "@QLocale::Country") % Qt5
+              + Check("loc1.language", "@QLocale::English (31)", "@QLocale::Language") % Qt5
               + Check("loc1.numberOptions", "@QLocale::DefaultNumberOptions (0)", "@QLocale::NumberOptions")
                     % QtVersion(0x0507000)  // New in 15b5b3b3f
-              + Check("loc1.decimalPoint", "46", "@QChar")   // .
-              + Check("loc1.exponential", "101", "@QChar")   // e
-              + Check("loc1.percent", "37", "@QChar")        // %
-              + Check("loc1.zeroDigit", "48", "@QChar")      // 0
-              + Check("loc1.groupSeparator", "44", "@QChar") // ,
-              + Check("loc1.negativeSign", "45", "@QChar")   // -
-              + Check("loc1.positiveSign", "43", "@QChar")   // +
-              + Check("m1", ValuePattern(".*Imperial.*System (1)"), TypePattern(".*MeasurementSystem"));
+              + Check("loc1.decimalPoint", "46", "@QChar") % Qt5   // .
+              + Check("loc1.exponential", "101", "@QChar")  % Qt5  // e
+              + Check("loc1.percent", "37", "@QChar")  % Qt5       // %
+              + Check("loc1.zeroDigit", "48", "@QChar") % Qt5      // 0
+              + Check("loc1.groupSeparator", "44", "@QChar") % Qt5 // ,
+              + Check("loc1.negativeSign", "45", "@QChar")  % Qt5  // -
+              + Check("loc1.positiveSign", "43", "@QChar") % Qt5   // +
+              + Check("m1", ValuePattern(".*Imperial.*System (1)"),
+                      TypePattern(".*MeasurementSystem")) % Qt5;
 
 
    QTest::newRow("QMap")
@@ -3212,6 +3213,7 @@ void tst_Dumpers::dumper_data()
                     "QString str3(\"Hello\\rQt\"); unused(&str3);\n"
                     "QString str4(\"Hello\\tQt\"); unused(&str4);\n\n"
 
+                    "#if QT_VERSION > 0x50000\n"
                     "static const QStaticStringData<3> qstring_literal = {\n"
                     "    Q_STATIC_STRING_DATA_HEADER_INITIALIZER(3),\n"
                     "    QT_UNICODE_LITERAL(u\"ABC\") };\n"
@@ -3220,7 +3222,8 @@ void tst_Dumpers::dumper_data()
 
                     "QStaticStringData<1> sd;\n"
                     "sd.data[0] = 'Q';\n"
-                    "sd.data[1] = 0;\n")
+                    "sd.data[1] = 0;\n"
+                    "#endif\n")
 
                + CoreProfile()
 
@@ -3248,11 +3251,10 @@ void tst_Dumpers::dumper_data()
                + Check("str3", "\"Hello\rQt\"", "@QString")
                + Check("str4", "\"Hello\tQt\"", "@QString")
 
-               + Check("holder", "", "@QStringDataPtr")
-               + Check("holder.ptr", "\"ABC\"", "@QStringData") % NoCdbEngine
-               + Check("holder.ptr", "\"ABC\"", "@QTypedArrayData<unsigned short>") % CdbEngine
-
-               + Check("sd", "\"Q\"", "@QStaticStringData<1>");
+               + Check("holder", "", "@QStringDataPtr") % Qt5
+               + Check("holder.ptr", "\"ABC\"", "@QStringData") % NoCdbEngine % Qt5
+               + Check("holder.ptr", "\"ABC\"", "@QTypedArrayData<unsigned short>") % CdbEngine % Qt5
+               + Check("sd", "\"Q\"", "@QStaticStringData<1>") % Qt5;
 
 
     QTest::newRow("QStringReference")

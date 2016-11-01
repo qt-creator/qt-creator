@@ -623,11 +623,9 @@ class Dumper(DumperBase):
         try:
             val = gdb.parse_and_eval(exp)
         except RuntimeError as error:
-            warn("Cannot evaluate '%s': %s" % (exp, error))
             if self.passExceptions:
-                raise error
-            else:
-                return None
+                warn("Cannot evaluate '%s': %s" % (exp, error))
+            return None
         return self.fromNativeValue(val)
 
     def callHelper(self, rettype, value, function, args):

@@ -882,8 +882,13 @@ def qdump__QLocale(d, value):
     #        index = int(value['d']['d']['m_data']...)
     #d.check(index >= 0)
     #d.check(index <= qqLocalesCount)
-    dd = value.extractPointer()
+    if d.qtVersion() < 0x50000:
+        d.putStringValue(d.call('const char *', value, 'name'))
+        d.putPlainChildren(value)
+        return
+
     ns = d.qtNamespace()
+    dd = value.extractPointer()
     (data, ref, numberOptions) = d.split('pi4s', dd)
     (languageId, scriptId, countryId,
                   decimal, group, listt, percent, zero,
@@ -926,8 +931,8 @@ def qdump__QMapNode(d, value):
 
 def qdumpHelper_Qt4_QMap(d, value, keyType, valueType):
     dd = value.extractPointer()
-    (backward, forward, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11,
-        ref, toplevel, n) = d.split('P' + 'p'* 12 + 'iii', dd)
+    (dummy, it, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11,
+        ref, toplevel, n) = d.split('p' * 13 + 'iii', dd)
     d.check(0 <= n and n <= 100*1000*1000)
     d.checkRef(ref)
     d.putItemCount(n)
@@ -935,30 +940,14 @@ def qdumpHelper_Qt4_QMap(d, value, keyType, valueType):
         if n > 10000:
             n = 10000
 
-        ## QMapPayloadNode is QMapNode except for the 'forward' member, so
-        ## its size is most likely the offset of the 'forward' member therein.
-        ## Or possibly 2 * sizeof(void *)
-        ## Note: Keeping the spacing in the type lookup
-        ## below is important for LLDB.
-        needle = value.type.name.replace('QMap', 'QMapNode', 1)
-        needle = d.qtNamespace() + 'QMapNode<%s,%s>' % (keyType, valueType)
-        nodeType = d.lookupType(needle)
-        ## symbols reports payload size at wrong size 24
-        if d.isArmArchitecture() and d.isQnxTarget() and valueType.name() == 'QVariant':
-            payloadSize = 28
-        else:
-            payloadSize = nodeType.size() - 2 * d.ptrSize()
+        typeCode = '{%s}@{%s}' % (keyType.name, valueType.name)
+        pp, payloadSize, fields = d.describeStruct(typeCode)
 
-        # New approach:
-        typeCode = '{%s}@{%s}' % (keyType, valueType)
-        #(pp, payloadSize, fields) = d.describeStruct(typeCode)
-
-        it = forward
         with PairedChildren(d, n, useKeyAndValue=True, keyType=keyType, valueType=valueType):
             for i in d.childRange():
-                (key, pad, value) = d.split(typeCode, it - payloadSize)
+                key, pad, value = d.split(typeCode, it - payloadSize)
                 d.putPairItem(i, (key, value))
-                (backward, it) = d.split('Pp', it)
+                dummy, it = d.split('Pp', it)
 
 
 def qdumpHelper_Qt5_QMap(d, value, keyType, valueType):

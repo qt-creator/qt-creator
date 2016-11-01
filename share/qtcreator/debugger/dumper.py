@@ -2671,7 +2671,8 @@ class DumperBase:
                     self.putQObjectGuts(value, metaObjectPtr)
 
     def symbolAddress(self, symbolName):
-        return self.parseAndEvaluate('(size_t)&' + symbolName).pointer()
+        res = self.parseAndEvaluate('(size_t)&' + symbolName)
+        return None if res is None else res.pointer()
 
     def qtHookDataSymbolName(self):
         return 'qtHookData'
@@ -3338,7 +3339,7 @@ class DumperBase:
             if self.code == TypeCodeArray:
                 (innerType, itemCount) = self.splitArrayType()
                 return itemCount * innerType.bitsize()
-            error('DONT KNOW SIZE: %s' % self.name)
+            error('DONT KNOW SIZE: %s' % self)
 
         def isMovableType(self):
             if self.code in (TypeCodePointer, TypeCodeIntegral, TypeCodeFloat):
@@ -3614,22 +3615,10 @@ class DumperBase:
             self.currentBitsize = 0
             self.fields = []
             self.autoPadNext = False
-
-        def fieldAlignment(self, fieldSize, fieldType):
-            if fieldType is not None:
-                align = self.dumper.createType(fieldType).alignment()
-                #warn('COMPUTED ALIGNMENT FOR %s: %s' % (fieldType, align))
-                if align is not None:
-                    return align
-            if fieldSize <= 8:
-                align = (0, 1, 2, 4, 4, 8, 8, 8, 8)[fieldSize]
-                #warn('GUESSED ALIGNMENT FROM SIZE: %s' % align)
-                return align
-            #warn('GUESSED ALIGNMENT: %s' % 8)
-            return 8
+            self.maxAlign = 1
 
         def addField(self, fieldSize, fieldCode = None, fieldIsStruct = False,
-                     fieldName = None, fieldType = None):
+                     fieldName = None, fieldType = None, fieldAlign = 1):
 
             if fieldType is not None:
                 fieldType = self.dumper.createType(fieldType)
@@ -3639,9 +3628,8 @@ class DumperBase:
                 fieldCode = '%ss' % fieldSize
 
             if self.autoPadNext:
-                align = self.fieldAlignment(fieldSize, fieldType)
                 self.currentBitsize = 8 * ((self.currentBitsize + 7) >> 3)  # Fill up byte.
-                padding = (align - (self.currentBitsize >> 3)) % align
+                padding = (fieldAlign - (self.currentBitsize >> 3)) % fieldAlign
                 #warn('AUTO PADDING AT %s BITS BY %s BYTES' % (self.currentBitsize, padding))
                 field = self.dumper.Field(self.dumper)
                 field.code = None
@@ -3651,6 +3639,10 @@ class DumperBase:
                 self.currentBitsize += padding * 8
                 self.fields.append(field)
                 self.autoPadNext = False
+
+            if fieldAlign > self.maxAlign:
+                self.maxAlign = fieldAlign
+            #warn("MAX ALIGN: %s" % self.maxAlign)
 
             field = self.dumper.Field(self.dumper)
             field.name = fieldName
@@ -3676,31 +3668,33 @@ class DumperBase:
             if readingTypeName:
                 if c == '}':
                     readingTypeName = False
-                    builder.addField(n, fieldIsStruct = True, fieldType = typeName)
+                    fieldType = self.createType(typeName)
+                    fieldAlign = fieldType.alignment()
+                    builder.addField(n, fieldIsStruct = True, fieldType = fieldType, fieldAlign = fieldAlign)
                     typeName = None
                     n = None
                 else:
                     typeName += c
             elif c == 'p': # Pointer as int
-                builder.addField(ptrSize, 'Q' if ptrSize == 8 else 'I')
+                builder.addField(ptrSize, 'Q' if ptrSize == 8 else 'I', fieldAlign = ptrSize)
             elif c == 'P': # Pointer as Value
-                builder.addField(ptrSize, '%ss' % ptrSize)
+                builder.addField(ptrSize, '%ss' % ptrSize, fieldAlign = ptrSize)
             elif c in ('d'):
-                builder.addField(8, c, fieldType = 'double')
+                builder.addField(8, c, fieldAlign = ptrSize) # fieldType = 'double' ?
             elif c in ('q', 'Q'):
-                builder.addField(8, c)
+                builder.addField(8, c, fieldAlign = ptrSize)
             elif c in ('i', 'I', 'f'):
-                builder.addField(4, c)
+                builder.addField(4, c, fieldAlign = 4)
             elif c in ('h', 'H'):
-                builder.addField(2, c)
+                builder.addField(2, c, fieldAlign = 2)
             elif c in ('b', 'B', 'c'):
-                builder.addField(1, c)
+                builder.addField(1, c, fieldAlign = 1)
             elif c >= '0' and c <= '9':
                 if n is None:
                     n = ''
                 n += c
             elif c == 's':
-                builder.addField(int(n))
+                builder.addField(int(n), fieldAlign = 1)
                 n = None
             elif c == '{':
                 readingTypeName = True
@@ -3722,8 +3716,9 @@ class DumperBase:
             else:
                 error('UNKNOWN STRUCT CODE: %s' % c)
         pp = builder.pattern
-        size = (builder.currentBitsize + 7) >> 3  # FIXME: Tail padding missing.
+        size = (builder.currentBitsize + 7) >> 3
         fields = builder.fields
+        tailPad = (builder.maxAlign - size) % builder.maxAlign
+        size += tailPad
         self.structPatternCache[pattern] = (pp, size, fields)
-        #warn('PP: %s -> %s %s %s' % (pattern, pp, size, fields))
         return (pp, size, fields)
