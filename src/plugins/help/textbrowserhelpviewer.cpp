@@ -262,12 +262,16 @@ void TextBrowserHelpViewer::stop()
 
 void TextBrowserHelpViewer::forward()
 {
+    slotLoadStarted();
     m_textBrowser->forward();
+    slotLoadFinished();
 }
 
 void TextBrowserHelpViewer::backward()
 {
+    slotLoadStarted();
     m_textBrowser->backward();
+    slotLoadFinished();
 }
 
 void TextBrowserHelpViewer::print(QPrinter *printer)
