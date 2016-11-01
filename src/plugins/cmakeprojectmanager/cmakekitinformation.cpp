@@ -431,7 +431,7 @@ KitInformation::ItemList CMakeGeneratorKitInformation::toUserOutput(const Kit *k
     if (info.generator.isEmpty()) {
         message = tr("<Use Default Generator>");
     } else {
-        message = tr("Generator: %1<br>Extra Generator: %2").arg(info.generator).arg(info.extraGenerator);
+        message = tr("Generator: %1<br>Extra generator: %2").arg(info.generator).arg(info.extraGenerator);
         if (!info.platform.isEmpty())
             message += tr("<br>Platform: %1").arg(info.platform);
         if (!info.toolset.isEmpty())
