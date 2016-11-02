@@ -280,7 +280,7 @@ class Dumper(DumperBase):
         self.check(isinstance(nativeType, gdb.Type))
         code = nativeType.code
         #warn('FROM NATIVE TYPE: %s' % nativeType)
-        #nativeType = nativeType.unqualified()
+        nativeType = nativeType.unqualified()
 
         if code == gdb.TYPE_CODE_PTR:
             #warn('PTR')
