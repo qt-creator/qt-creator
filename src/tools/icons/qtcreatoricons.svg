@@ -7181,5 +7181,41 @@
          width="100%"
          height="100%" />
     </g>
+    <g
+       transform="translate(54.25,362.5)"
+       id="src/vxworksqtdevice">
+      <rect
+         style="display:inline;fill:#ffffff;fill-opacity:1"
+         x="499.75"
+         y="48.5"
+         width="32"
+         height="32"
+         id="rect5759-5-9-0-5-9" />
+      <path
+         style="fill:#000000"
+         d="M 521.18792,71.036287 523.69993,75.5 518.68,75.5 Z M 502.39828,53.5 l 8.75116,0 8.36478,14.341164 -4.39783,7.401968 z m 14.5378,4.930014 2.79243,-4.930014 8.49821,0 -7.09801,12.136563 z"
+         id="vxworxkslogo"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cccccccccccccc" />
+    </g>
+    <g
+       id="src/vxworksdevicesmall"
+       transform="translate(16,64)">
+      <rect
+         id="rect5759-5-9-0-8-6-4-8-8"
+         height="16"
+         width="16"
+         y="363"
+         x="570"
+         style="fill:#ffffff;fill-opacity:1" />
+      <use
+         transform="matrix(0.54545415,0,0,0.54545415,297.22355,335.8182)"
+         x="0"
+         y="0"
+         xlink:href="#vxworxkslogo"
+         id="use5311"
+         width="100%"
+         height="100%" />
+    </g>
   </g>
 </svg>
