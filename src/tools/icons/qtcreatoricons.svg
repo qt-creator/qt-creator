@@ -5128,7 +5128,7 @@
          sodipodi:nodetypes="cccccccc" />
     </g>
     <g
-       id="src/plugins/debugger/images/breakpoint"
+       id="src/libs/utils/images/filledcircle"
        transform="translate(-422,-48)">
       <rect
          y="584"
