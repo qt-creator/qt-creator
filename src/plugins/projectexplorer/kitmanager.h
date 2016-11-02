@@ -155,6 +155,8 @@ public:
 
     static void saveKits();
 
+    static bool isLoaded();
+
 signals:
     void kitAdded(ProjectExplorer::Kit *);
     // Kit is still valid when this call happens!

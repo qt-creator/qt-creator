@@ -253,7 +253,7 @@ void KitManager::saveKits()
     d->m_writer->save(data, ICore::mainWindow());
 }
 
-static bool isLoaded()
+bool KitManager::isLoaded()
 {
     return d->m_initialized;
 }
