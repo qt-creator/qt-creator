@@ -1,5 +1,6 @@
 import qbs
 import qbs.Environment
+import qbs.FileInfo
 import "qtc.js" as HelperFunctions
 
 Module {
@@ -62,6 +63,13 @@ Module {
     property stringList generalDefines: [
         "QT_CREATOR",
         'IDE_LIBRARY_BASENAME="' + libDirName + '"',
+        'RELATIVE_PLUGIN_PATH="' + FileInfo.relativePath('/' + ide_bin_path,
+                                                         '/' + ide_plugin_path) + '"',
+        'RELATIVE_LIBEXEC_PATH="' + FileInfo.relativePath('/' + ide_bin_path,
+                                                          '/' + ide_libexec_path) + '"',
+        'RELATIVE_DATA_PATH="' + FileInfo.relativePath('/' + ide_bin_path,
+                                                       '/' + ide_data_path) + '"',
+        'RELATIVE_DOC_PATH="' + FileInfo.relativePath('/' + ide_bin_path, '/' + ide_doc_path) + '"',
         "QT_NO_CAST_TO_ASCII",
         "QT_RESTRICTED_CAST_FROM_ASCII",
         "QT_DISABLE_DEPRECATED_BEFORE=0x050600",

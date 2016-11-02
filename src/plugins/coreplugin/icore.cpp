@@ -402,9 +402,7 @@ QString ICore::userInterfaceLanguage()
 
 QString ICore::resourcePath()
 {
-    const QString sharePath = QLatin1String(Utils::HostOsInfo::isMacHost()
-                                            ? "/../Resources" : "/../share/qtcreator");
-    return QDir::cleanPath(QCoreApplication::applicationDirPath() + sharePath);
+    return QDir::cleanPath(QCoreApplication::applicationDirPath() + '/' + RELATIVE_DATA_PATH);
 }
 
 QString ICore::userResourcePath()
@@ -424,9 +422,7 @@ QString ICore::userResourcePath()
 
 QString ICore::documentationPath()
 {
-    const QString docPath = QLatin1String(Utils::HostOsInfo::isMacHost()
-                                            ? "/../Resources/doc" : "/../share/doc/qtcreator");
-    return QDir::cleanPath(QCoreApplication::applicationDirPath() + docPath);
+    return QDir::cleanPath(QCoreApplication::applicationDirPath() + '/' + RELATIVE_DOC_PATH);
 }
 
 /*!
@@ -435,21 +431,7 @@ QString ICore::documentationPath()
  */
 QString ICore::libexecPath()
 {
-    QString path;
-    switch (Utils::HostOsInfo::hostOs()) {
-    case Utils::OsTypeWindows:
-        path = QCoreApplication::applicationDirPath();
-        break;
-    case Utils::OsTypeMac:
-        path = QCoreApplication::applicationDirPath() + QLatin1String("/../Resources");
-        break;
-    case Utils::OsTypeLinux:
-    case Utils::OsTypeOtherUnix:
-    case Utils::OsTypeOther:
-        path = QCoreApplication::applicationDirPath() + QLatin1String("/../libexec/qtcreator");
-        break;
-    }
-    return QDir::cleanPath(path);
+    return QDir::cleanPath(QApplication::applicationDirPath() + '/' + RELATIVE_LIBEXEC_PATH);
 }
 
 static QString compilerString()
