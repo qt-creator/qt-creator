@@ -1,0 +1,32 @@
+From a0d2825e7a15f8d2d5ac4e7dd315a8d29ab804e6 Mon Sep 17 00:00:00 2001
+From: Orgad Shaneh <orgad.shaneh@audiocodes.com>
+Date: Wed, 2 Nov 2016 11:52:52 +0200
+Subject: [PATCH] Fix C++ compilation on MinGW
+
+When compiling with MinGW, pyconfig.h renames hypot to _hypot.
+
+If math.h is included later, hypot is not declared correctly.
+
+When g++ is used, it has 'using ::hypot', which doesn't exist.
+---
+ gdb/python/python-internal.h | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/gdb/python/python-internal.h b/gdb/python/python-internal.h
+index 8545c7b..5e80dce 100644
+--- a/gdb/python/python-internal.h
++++ b/gdb/python/python-internal.h
+@@ -88,6 +88,10 @@
+ /* Request clean size types from Python.  */
+ #define PY_SSIZE_T_CLEAN
+ 
++/* math.h has to be included before Python.h, since pyconfig.h
++   renames hypot to _hypot, and this breaks MinGW compilation with g++. */
++#include <math.h>
++
+ /* Include the Python header files using angle brackets rather than
+    double quotes.  On case-insensitive filesystems, this prevents us
+    from including our python/python.h header file.  */
+-- 
+2.10.1.windows.1
+
