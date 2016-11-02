@@ -153,6 +153,8 @@ private:
     void buildFinished(bool success);
     void activeTargetWasChanged();
 
+    void setAllBuildConfigurationsEnabled(bool enabled);
+
     QString executableFor(const QmakeProFileNode *node);
     void updateRunConfigurations();
 

@@ -137,7 +137,7 @@ private:
     LastKitState m_lastKitState;
 
     bool m_shadowBuild = true;
-    bool m_isEnabled = false;
+    bool m_isEnabled = true;
     QtSupport::BaseQtVersion::QmakeBuildConfigs m_qmakeBuildConfiguration = 0;
     QmakeProjectManager::QmakeProFileNode *m_subNodeBuild = nullptr;
     ProjectExplorer::FileNode *m_fileNodeBuild = nullptr;

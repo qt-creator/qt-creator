@@ -71,25 +71,6 @@ using namespace Utils;
 
 enum { debug = 0 };
 
-// -----------------------------------------------------------------------
-// Helpers:
-// -----------------------------------------------------------------------
-
-namespace {
-
-QmakeBuildConfiguration *enableActiveQmakeBuildConfiguration(Target *t, bool enabled)
-{
-    if (!t)
-        return 0;
-    QmakeBuildConfiguration *bc = static_cast<QmakeBuildConfiguration *>(t->activeBuildConfiguration());
-    if (!bc)
-        return 0;
-    bc->setEnabled(enabled);
-    return bc;
-}
-
-} // namespace
-
 namespace QmakeProjectManager {
 namespace Internal {
 
@@ -603,7 +584,8 @@ void QmakeProject::scheduleAsyncUpdate(QmakeProFileNode *node, QmakeProFileNode:
         return;
     }
 
-    enableActiveQmakeBuildConfiguration(activeTarget(), false);
+    node->setParseInProgressRecursive(true);
+    setAllBuildConfigurationsEnabled(false);
 
     if (m_asyncUpdateState == AsyncFullUpdatePending) {
         // Just postpone
@@ -643,7 +625,6 @@ void QmakeProject::scheduleAsyncUpdate(QmakeProFileNode *node, QmakeProFileNode:
         m_codeModelFuture.cancel();
 
         startAsyncTimer(delay);
-
     } else if (m_asyncUpdateState == AsyncUpdateInProgress) {
         // A update is in progress
         // And this slot only gets called if a file changed on disc
@@ -671,21 +652,21 @@ void QmakeProject::scheduleAsyncUpdate(QmakeProFileNode::AsyncUpdateDelay delay)
             qDebug()<<"  canceling is in progress, doing nothing";
         return;
     }
+
+    rootProjectNode()->setParseInProgressRecursive(true);
+    setAllBuildConfigurationsEnabled(false);
+
     if (m_asyncUpdateState == AsyncUpdateInProgress) {
         if (debug)
             qDebug()<<"  update in progress, canceling and setting state to full update pending";
         m_cancelEvaluate = true;
         m_asyncUpdateState = AsyncFullUpdatePending;
-        enableActiveQmakeBuildConfiguration(activeTarget(), false);
-        rootProjectNode()->setParseInProgressRecursive(true);
         return;
     }
 
     if (debug)
         qDebug()<<"  starting timer for full update, setting state to full update pending";
     m_partialEvaluate.clear();
-    enableActiveQmakeBuildConfiguration(activeTarget(), false);
-    rootProjectNode()->setParseInProgressRecursive(true);
     m_asyncUpdateState = AsyncFullUpdatePending;
 
     // Cancel running code model update
@@ -734,11 +715,14 @@ void QmakeProject::decrementPendingEvaluateFutures()
         if (m_asyncUpdateState == AsyncFullUpdatePending || m_asyncUpdateState == AsyncPartialUpdatePending) {
             if (debug)
                 qDebug()<<"  Oh update is pending start the timer";
+            rootProjectNode()->setParseInProgressRecursive(true);
+            setAllBuildConfigurationsEnabled(false);
             startAsyncTimer(QmakeProFileNode::ParseLater);
         } else  if (m_asyncUpdateState != ShuttingDown){
             // After being done, we need to call:
+            setAllBuildConfigurationsEnabled(true);
+
             m_asyncUpdateState = Base;
-            enableActiveQmakeBuildConfiguration(activeTarget(), true);
             updateFileList();
             updateCodeModels();
             updateBuildSystemData();
@@ -1069,6 +1053,17 @@ void QmakeProject::activeTargetWasChanged()
             this, &QmakeProject::scheduleAsyncUpdateLater);
 
     scheduleAsyncUpdate();
+}
+
+void QmakeProject::setAllBuildConfigurationsEnabled(bool enabled)
+{
+    foreach (Target *t, targets()) {
+        foreach (BuildConfiguration *bc, t->buildConfigurations()) {
+            auto qmakeBc = qobject_cast<QmakeBuildConfiguration *>(bc);
+            if (qmakeBc)
+                qmakeBc->setEnabled(enabled);
+        }
+    }
 }
 
 bool QmakeProject::hasSubNode(QmakePriFileNode *root, const FileName &path)

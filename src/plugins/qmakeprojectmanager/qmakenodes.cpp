@@ -1322,8 +1322,6 @@ void QmakePriFileNode::save(const QStringList &lines)
         FileSaver saver(m_projectFilePath.toString(), QIODevice::Text);
         saver.write(lines.join(QLatin1Char('\n')).toLocal8Bit());
         saver.finalize(Core::ICore::mainWindow());
-
-        m_project->projectManager()->notifyChanged(m_projectFilePath);
     }
 
     // This is a hack.

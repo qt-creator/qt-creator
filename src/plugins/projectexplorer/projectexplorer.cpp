@@ -267,6 +267,7 @@ public:
     void startupProjectChanged(); // Calls updateRunAction
     void activeTargetChanged();
     void activeRunConfigurationChanged();
+    void activeBuildConfigurationChanged();
 
     void slotUpdateRunActions();
 
@@ -2617,13 +2618,18 @@ void ProjectExplorerPluginPrivate::activeTargetChanged()
     if (previousTarget) {
         disconnect(previousTarget.data(), &Target::activeRunConfigurationChanged,
                    this, &ProjectExplorerPluginPrivate::activeRunConfigurationChanged);
+        disconnect(previousTarget.data(), &Target::activeBuildConfigurationChanged,
+                   this, &ProjectExplorerPluginPrivate::activeBuildConfigurationChanged);
     }
     previousTarget = target;
     if (target) {
         connect(target, &Target::activeRunConfigurationChanged,
                 this, &ProjectExplorerPluginPrivate::activeRunConfigurationChanged);
+        connect(previousTarget.data(), &Target::activeBuildConfigurationChanged,
+                this, &ProjectExplorerPluginPrivate::activeBuildConfigurationChanged);
     }
 
+    activeBuildConfigurationChanged();
     activeRunConfigurationChanged();
     updateDeployActions();
 }
@@ -2644,6 +2650,27 @@ void ProjectExplorerPluginPrivate::activeRunConfigurationChanged()
     previousRunConfiguration = rc;
     if (rc) {
         connect(rc, &RunConfiguration::requestRunActionsUpdate,
+                m_instance, &ProjectExplorerPlugin::updateRunActions);
+    }
+    emit m_instance->updateRunActions();
+}
+
+void ProjectExplorerPluginPrivate::activeBuildConfigurationChanged()
+{
+    static QPointer<BuildConfiguration> previousBuildConfiguration = nullptr;
+    BuildConfiguration *bc = nullptr;
+    Project *startupProject = SessionManager::startupProject();
+    if (startupProject && startupProject->activeTarget())
+        bc = startupProject->activeTarget()->activeBuildConfiguration();
+    if (bc == previousBuildConfiguration)
+        return;
+    if (previousBuildConfiguration) {
+        disconnect(previousBuildConfiguration.data(), &BuildConfiguration::enabledChanged,
+                   m_instance, &ProjectExplorerPlugin::updateRunActions);
+    }
+    previousBuildConfiguration = bc;
+    if (bc) {
+        connect(bc, &BuildConfiguration::enabledChanged,
                 m_instance, &ProjectExplorerPlugin::updateRunActions);
     }
     emit m_instance->updateRunActions();
