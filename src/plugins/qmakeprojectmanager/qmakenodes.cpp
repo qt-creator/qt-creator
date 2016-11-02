@@ -1776,7 +1776,7 @@ void QmakeProFileNode::setupReader()
 
 bool QmakeProFileNode::evaluateOne(
         const EvalInput &input, ProFile *pro, QtSupport::ProFileReader *reader,
-        QtSupport::ProFileReader **buildPassReader)
+        bool cumulative, QtSupport::ProFileReader **buildPassReader)
 {
     if (!reader->accept(pro, QMakeEvaluator::LoadAll))
         return false;
@@ -1797,6 +1797,7 @@ bool QmakeProFileNode::evaluateOne(
         // We don't increase/decrease m_qmakeGlobalsRefCnt here, because the outer profilereaders keep m_qmakeGlobals alive anyway
         auto bpReader = new QtSupport::ProFileReader(input.qmakeGlobals, input.qmakeVfs); // needs to access m_qmakeGlobals, m_qmakeVfs
         bpReader->setOutputDir(input.buildDirectory);
+        bpReader->setCumulative(cumulative);
         bpReader->setExtraVars(basevars);
         bpReader->setExtraConfigs(basecfgs);
 
@@ -1816,8 +1817,8 @@ EvalResult *QmakeProFileNode::evaluate(const EvalInput &input)
     QtSupport::ProFileReader *cumulativeBuildPassReader = nullptr;
     ProFile *pro;
     if ((pro = input.readerExact->parsedProFile(input.projectFilePath.toString()))) {
-        bool exactOk = evaluateOne(input, pro, input.readerExact, &exactBuildPassReader);
-        bool cumulOk = evaluateOne(input, pro, input.readerCumulative, &cumulativeBuildPassReader);
+        bool exactOk = evaluateOne(input, pro, input.readerExact, false, &exactBuildPassReader);
+        bool cumulOk = evaluateOne(input, pro, input.readerCumulative, true, &cumulativeBuildPassReader);
         pro->deref();
         result->state = exactOk ? EvalResult::EvalOk : cumulOk ? EvalResult::EvalPartial : EvalResult::EvalFail;
     } else {

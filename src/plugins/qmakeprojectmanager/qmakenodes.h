@@ -374,7 +374,9 @@ private:
     void setupReader();
     Internal::EvalInput evalInput() const;
 
-    static bool evaluateOne(const Internal::EvalInput &input, ProFile *pro, QtSupport::ProFileReader *reader, QtSupport::ProFileReader **buildPassReader);
+    static bool evaluateOne(
+            const Internal::EvalInput &input, ProFile *pro, QtSupport::ProFileReader *reader,
+            bool cumulative, QtSupport::ProFileReader **buildPassReader);
     static Internal::EvalResult *evaluate(const Internal::EvalInput &input);
     void applyEvaluate(Internal::EvalResult *parseResult);
 
