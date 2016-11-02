@@ -82,7 +82,7 @@ QStringList tst_QrcParser::allPaths(QrcParser::ConstPtr p)
 void tst_QrcParser::firstAtTest()
 {
     QFETCH(QString, path);
-    QrcParser::Ptr p = QrcParser::parseQrcFile(path);
+    QrcParser::Ptr p = QrcParser::parseQrcFile(path, QString());
     foreach (const QString &qrcPath, allPaths(p)) {
         QString s1 = p->firstFileAtPath(qrcPath, m_locale);
         if (s1.isEmpty())
@@ -99,7 +99,7 @@ void tst_QrcParser::firstAtTest()
 void tst_QrcParser::firstInTest()
 {
     QFETCH(QString, path);
-    QrcParser::Ptr p = QrcParser::parseQrcFile(path);
+    QrcParser::Ptr p = QrcParser::parseQrcFile(path, QString());
     foreach (const QString &qrcPath, allPaths(p)) {
         if (!qrcPath.endsWith(QLatin1Char('/')))
             continue;
@@ -137,15 +137,15 @@ void tst_QrcParser::cacheTest()
 {
     QFETCH(QString, path);
     QVERIFY(m_cache.parsedPath(path).isNull());
-    QrcParser::ConstPtr p0 = m_cache.addPath(path);
+    QrcParser::ConstPtr p0 = m_cache.addPath(path, QString());
     QVERIFY(!p0.isNull());
     QrcParser::ConstPtr p1 = m_cache.parsedPath(path);
     QVERIFY(p1.data() == p0.data());
-    QrcParser::ConstPtr p2 = m_cache.addPath(path);
+    QrcParser::ConstPtr p2 = m_cache.addPath(path, QString());
     QVERIFY(p2.data() == p1.data());
     QrcParser::ConstPtr p3 = m_cache.parsedPath(path);
     QVERIFY(p3.data() == p2.data());
-    QrcParser::ConstPtr p4 = m_cache.updatePath(path);
+    QrcParser::ConstPtr p4 = m_cache.updatePath(path, QString());
     QVERIFY(p4.data() != p3.data());
     QrcParser::ConstPtr p5 = m_cache.parsedPath(path);
     QVERIFY(p5.data() == p4.data());
@@ -159,7 +159,7 @@ void tst_QrcParser::cacheTest()
 
 void tst_QrcParser::simpleTest()
 {
-    QrcParser::Ptr p = QrcParser::parseQrcFile(QString::fromLatin1(TESTSRCDIR).append(QLatin1String("/simple.qrc")));
+    QrcParser::Ptr p = QrcParser::parseQrcFile(QString::fromLatin1(TESTSRCDIR).append(QLatin1String("/simple.qrc")), QString());
     QStringList paths = allPaths(p);
     paths.sort();
     QVERIFY(paths == QStringList()

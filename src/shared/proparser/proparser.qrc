@@ -3,4 +3,7 @@
         <file>spec_pre.prf</file>
         <file>spec_post.prf</file>
     </qresource>
+    <qresource prefix="/qmake/override_features" >
+        <file>objective_c.prf</file>
+    </qresource>
 </RCC>

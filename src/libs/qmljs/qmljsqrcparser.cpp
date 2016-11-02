@@ -68,7 +68,7 @@ class QrcParserPrivate
 public:
     typedef QMap<QString,QStringList> SMap;
     QrcParserPrivate(QrcParser *q);
-    bool parseFile(const QString &path);
+    bool parseFile(const QString &path, const QString &contents);
     QString firstFileAtPath(const QString &path, const QLocale &locale) const;
     void collectFilesAtPath(const QString &path, QStringList *res, const QLocale *locale = 0) const;
     bool hasDirAtPath(const QString &path, const QLocale *locale = 0) const;
@@ -94,9 +94,9 @@ class QrcCachePrivate
     Q_DECLARE_TR_FUNCTIONS(QmlJS::QrcCachePrivate)
 public:
     QrcCachePrivate(QrcCache *q);
-    QrcParser::Ptr addPath(const QString &path);
+    QrcParser::Ptr addPath(const QString &path, const QString &contents);
     void removePath(const QString &path);
-    QrcParser::Ptr updatePath(const QString &path);
+    QrcParser::Ptr updatePath(const QString &path, const QString &contents);
     QrcParser::Ptr parsedPath(const QString &path);
     void clear();
 private:
@@ -149,9 +149,9 @@ QrcParser::~QrcParser()
     delete d;
 }
 
-bool QrcParser::parseFile(const QString &path)
+bool QrcParser::parseFile(const QString &path, const QString &contents)
 {
-    return d->parseFile(path);
+    return d->parseFile(path, contents);
 }
 
 /*! \brief returns fs path of the first (active) file at the given qrc path
@@ -217,11 +217,11 @@ bool QrcParser::isValid() const
     return errorMessages().isEmpty();
 }
 
-QrcParser::Ptr QrcParser::parseQrcFile(const QString &path)
+QrcParser::Ptr QrcParser::parseQrcFile(const QString &path, const QString &contents)
 {
     Ptr res(new QrcParser);
     if (!path.isEmpty())
-        res->parseFile(path);
+        res->parseFile(path, contents);
     return res;
 }
 
@@ -237,9 +237,9 @@ QrcCache::~QrcCache()
     delete d;
 }
 
-QrcParser::ConstPtr QrcCache::addPath(const QString &path)
+QrcParser::ConstPtr QrcCache::addPath(const QString &path, const QString &contents)
 {
-    return d->addPath(path);
+    return d->addPath(path, contents);
 }
 
 void QrcCache::removePath(const QString &path)
@@ -247,9 +247,9 @@ void QrcCache::removePath(const QString &path)
     d->removePath(path);
 }
 
-QrcParser::ConstPtr QrcCache::updatePath(const QString &path)
+QrcParser::ConstPtr QrcCache::updatePath(const QString &path, const QString &contents)
 {
-    return d->updatePath(path);
+    return d->updatePath(path, contents);
 }
 
 QrcParser::ConstPtr QrcCache::parsedPath(const QString &path)
@@ -269,23 +269,35 @@ namespace Internal {
 QrcParserPrivate::QrcParserPrivate(QrcParser *)
 { }
 
-bool QrcParserPrivate::parseFile(const QString &path)
+bool QrcParserPrivate::parseFile(const QString &path, const QString &contents)
 {
-    QDir baseDir(QFileInfo(path).path());
-    QFile file(path);
-    if (!file.open(QIODevice::ReadOnly)) {
-        m_errorMessages.append(file.errorString());
-        return false;
-    }
-
     QDomDocument doc;
+    QDir baseDir(QFileInfo(path).path());
 
-    QString error_msg;
-    int error_line, error_col;
-    if (!doc.setContent(&file, &error_msg, &error_line, &error_col)) {
-        m_errorMessages.append(tr("XML error on line %1, col %2: %3")
-                               .arg(error_line).arg(error_col).arg(error_msg));
-        return false;
+    if (contents.isEmpty()) {
+        // Regular file
+        QFile file(path);
+        if (!file.open(QIODevice::ReadOnly)) {
+            m_errorMessages.append(file.errorString());
+            return false;
+        }
+
+        QString error_msg;
+        int error_line, error_col;
+        if (!doc.setContent(&file, &error_msg, &error_line, &error_col)) {
+            m_errorMessages.append(tr("XML error on line %1, col %2: %3")
+                                   .arg(error_line).arg(error_col).arg(error_msg));
+            return false;
+        }
+    } else {
+        // Virtual file from qmake evaluator
+        QString error_msg;
+        int error_line, error_col;
+        if (!doc.setContent(contents, &error_msg, &error_line, &error_col)) {
+            m_errorMessages.append(tr("XML error on line %1, col %2: %3")
+                                   .arg(error_line).arg(error_col).arg(error_msg));
+            return false;
+        }
     }
 
     QDomElement root = doc.firstChildElement(QLatin1String("RCC"));
@@ -470,7 +482,7 @@ QStringList QrcParserPrivate::allUiLanguages(const QLocale *locale) const
 QrcCachePrivate::QrcCachePrivate(QrcCache *)
 { }
 
-QrcParser::Ptr QrcCachePrivate::addPath(const QString &path)
+QrcParser::Ptr QrcCachePrivate::addPath(const QString &path, const QString &contents)
 {
     QPair<QrcParser::Ptr,int> currentValue;
     {
@@ -482,7 +494,7 @@ QrcParser::Ptr QrcCachePrivate::addPath(const QString &path)
             return currentValue.first;
         }
     }
-    QrcParser::Ptr newParser = QrcParser::parseQrcFile(path);
+    QrcParser::Ptr newParser = QrcParser::parseQrcFile(path, contents);
     if (!newParser->isValid())
         qCWarning(qmljsLog) << "adding invalid qrc " << path << " to the cache:" << newParser->errorMessages();
     {
@@ -513,9 +525,9 @@ void QrcCachePrivate::removePath(const QString &path)
     }
 }
 
-QrcParser::Ptr QrcCachePrivate::updatePath(const QString &path)
+QrcParser::Ptr QrcCachePrivate::updatePath(const QString &path, const QString &contents)
 {
-    QrcParser::Ptr newParser = QrcParser::parseQrcFile(path);
+    QrcParser::Ptr newParser = QrcParser::parseQrcFile(path, contents);
     {
         QMutexLocker l(&m_mutex);
         QPair<QrcParser::Ptr,int> currentValue = m_cache.value(path, qMakePair(QrcParser::Ptr(0), 0));

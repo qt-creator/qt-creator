@@ -27,6 +27,7 @@
 
 #include "qmakeprojectmanager_global.h"
 #include "proparser/prowriter.h"
+#include "proparser/profileevaluator.h"
 
 #include <coreplugin/idocument.h>
 #include <projectexplorer/projectnodes.h>
@@ -37,11 +38,6 @@
 #include <QDateTime>
 #include <QMap>
 #include <QFutureWatcher>
-
-// defined in proitems.h
-QT_BEGIN_NAMESPACE
-class ProFile;
-QT_END_NAMESPACE
 
 namespace Utils { class FileName; }
 
@@ -78,12 +74,9 @@ enum QmakeVariable {
     DefinesVar = 1,
     IncludePathVar,
     CppFlagsVar,
-    CppHeaderVar,
-    CppSourceVar,
-    ObjCSourceVar,
-    ObjCHeaderVar,
-    ResourceVar,
+    SourceVar,
     ExactResourceVar,
+    CumulativeResourceVar,
     UiDirVar,
     HeaderExtensionVar,
     CppExtensionVar,
@@ -120,16 +113,9 @@ struct InternalNode;
 class EvalInput;
 class EvalResult;
 class PriFileEvalResult;
-// TOOD can probably move into the .cpp file
-class VariableAndVPathInformation
-{
-public:
-    QString variable;
-    QStringList vPathsExact;
-    QStringList vPathsCumulative;
-};
-
 }
+
+struct InstallsList;
 
 // Implements ProjectNode for qmake .pri files
 class QMAKEPROJECTMANAGER_EXPORT QmakePriFileNode : public ProjectExplorer::ProjectNode
@@ -180,7 +166,6 @@ protected:
     static QStringList varNames(ProjectExplorer::FileType type, QtSupport::ProFileReader *readerExact);
     static QStringList varNamesForRemoving();
     static QString varNameForAdding(const QString &mimeType);
-    static QStringList dynamicVarNames(QtSupport::ProFileReader *readerExact);
     static QSet<Utils::FileName> filterFilesProVariables(ProjectExplorer::FileType fileType, const QSet<Utils::FileName> &files);
     static QSet<Utils::FileName> filterFilesRecursiveEnumerata(ProjectExplorer::FileType fileType, const QSet<Utils::FileName> &files);
 
@@ -213,8 +198,15 @@ private:
     QStringList formResources(const QString &formFile) const;
     static QStringList baseVPaths(QtSupport::ProFileReader *reader, const QString &projectDir, const QString &buildDir);
     static QStringList fullVPaths(const QStringList &baseVPaths, QtSupport::ProFileReader *reader, const QString &qmakeVariable, const QString &projectDir);
-    static Internal::PriFileEvalResult extractValues(const Internal::EvalInput &input, QVector<ProFile *> includeFilesExact, QVector<ProFile *> includeFilesCumlative,
-                                                     const QList<QList<Internal::VariableAndVPathInformation>> &variableAndVPathInformation);
+    static void extractSources(
+            QHash<const ProFile *, Internal::PriFileEvalResult *> proToResult,
+            Internal::PriFileEvalResult *fallback,
+            QVector<ProFileEvaluator::SourceFile> sourceFiles, ProjectExplorer::FileType type);
+    static void extractInstalls(
+            QHash<const ProFile *, Internal::PriFileEvalResult *> proToResult,
+            Internal::PriFileEvalResult *fallback,
+            const InstallsList &installList);
+    static void processValues(Internal::PriFileEvalResult &result);
     void watchFolders(const QSet<QString> &folders);
 
     QmakeProject *m_project;
@@ -305,15 +297,18 @@ public:
 };
 
 struct QMAKEPROJECTMANAGER_EXPORT InstallsItem {
-    InstallsItem(QString p, QStringList f) : path(p), files(f) {}
+    InstallsItem() = default;
+    InstallsItem(QString p, QVector<ProFileEvaluator::SourceFile> f, bool a)
+        : path(p), files(f), active(a) {}
     QString path;
-    QStringList files;
+    QVector<ProFileEvaluator::SourceFile> files;
+    bool active;
 };
 
 struct QMAKEPROJECTMANAGER_EXPORT InstallsList {
     void clear() { targetPath.clear(); items.clear(); }
     QString targetPath;
-    QList<InstallsItem> items;
+    QVector<InstallsItem> items;
 };
 
 // Implements ProjectNode for qmake .pro files
@@ -379,6 +374,9 @@ private:
     void setupReader();
     Internal::EvalInput evalInput() const;
 
+    static bool evaluateOne(
+            const Internal::EvalInput &input, ProFile *pro, QtSupport::ProFileReader *reader,
+            bool cumulative, QtSupport::ProFileReader **buildPassReader);
     static Internal::EvalResult *evaluate(const Internal::EvalInput &input);
     void applyEvaluate(Internal::EvalResult *parseResult);
 
@@ -389,16 +387,18 @@ private:
 
     void updateGeneratedFiles(const QString &buildDir);
 
-    static QStringList fileListForVar(QtSupport::ProFileReader *readerExact, QtSupport::ProFileReader *readerCumulative,
-                                      const QString &varName, const QString &projectDir, const QString &buildDir);
+    static QStringList fileListForVar(
+            const QHash<QString, QVector<ProFileEvaluator::SourceFile> > &sourceFiles,
+            const QString &varName);
     static QString uiDirPath(QtSupport::ProFileReader *reader, const QString &buildDir);
     static QString mocDirPath(QtSupport::ProFileReader *reader, const QString &buildDir);
-    static QStringList includePaths(QtSupport::ProFileReader *reader, const QString &buildDir, const QString &projectDir);
+    static QString sysrootify(const QString &path, const QString &sysroot, const QString &baseDir, const QString &outputDir);
+    static QStringList includePaths(QtSupport::ProFileReader *reader, const QString &sysroot, const QString &buildDir, const QString &projectDir);
     static QStringList libDirectories(QtSupport::ProFileReader *reader);
     static Utils::FileNameList subDirsPaths(QtSupport::ProFileReader *reader, const QString &projectDir, QStringList *subProjectsNotToDeploy, QStringList *errors);
 
     static TargetInformation targetInformation(QtSupport::ProFileReader *reader, QtSupport::ProFileReader *readerBuildPass, const QString &buildDir, const QString &projectFilePath);
-    static InstallsList installsList(const QtSupport::ProFileReader *reader, const QString &projectFilePath, const QString &projectDir);
+    static InstallsList installsList(const QtSupport::ProFileReader *reader, const QString &projectFilePath, const QString &projectDir, const QString &buildDir);
 
     bool m_validParse = false;
     bool m_parseInProgress = true;

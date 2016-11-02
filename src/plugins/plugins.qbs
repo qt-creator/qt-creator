@@ -5,7 +5,6 @@ Project {
 
     references: [
         "android/android.qbs",
-        "appmanager/appmanager.qbs",
         "autotest/autotest.qbs",
         "autotoolsprojectmanager/autotoolsprojectmanager.qbs",
         "baremetal/baremetal.qbs",

@@ -26,6 +26,7 @@
 #include "profileevaluator.h"
 
 #include "qmakeglobals.h"
+#include "qmakevfs.h"
 #include "ioutils.h"
 
 #include <QDir>
@@ -39,9 +40,10 @@ void ProFileEvaluator::initialize()
     QMakeEvaluator::initStatics();
 }
 
-ProFileEvaluator::ProFileEvaluator(ProFileGlobals *option, QMakeParser *parser, QMakeVfs *vfs,
+ProFileEvaluator::ProFileEvaluator(QMakeGlobals *option, QMakeParser *parser, QMakeVfs *vfs,
                                    QMakeHandler *handler)
-  : d(new QMakeEvaluator(option, parser, vfs, handler))
+  : d(new QMakeEvaluator(option, parser, vfs, handler)),
+    m_vfs(vfs)
 {
 }
 
@@ -74,75 +76,80 @@ QStringList ProFileEvaluator::values(const QString &variableName) const
     return ret;
 }
 
-QStringList ProFileEvaluator::values(const QString &variableName, const ProFile *pro) const
+QVector<ProFileEvaluator::SourceFile> ProFileEvaluator::fixifiedValues(
+        const QString &variable, const QString &baseDirectory, const QString &buildDirectory) const
 {
-    // It makes no sense to put any kind of magic into expanding these
-    const ProStringList &values = d->m_valuemapStack.first().value(ProKey(variableName));
-    QStringList ret;
-    ret.reserve(values.size());
-    foreach (const ProString &str, values)
-        if (str.sourceFile() == pro)
-            ret << d->m_option->expandEnvVars(str.toQString());
-    return ret;
+    QVector<SourceFile> result;
+    foreach (const ProString &str, d->values(ProKey(variable))) {
+        const QString &el = d->m_option->expandEnvVars(str.toQString());
+        if (IoUtils::isAbsolutePath(el)) {
+            result << SourceFile{ el, str.sourceFile() };
+        } else {
+            QString fn = QDir::cleanPath(baseDirectory + QLatin1Char('/') + el);
+            if (IoUtils::exists(fn))
+                result << SourceFile{ fn, str.sourceFile() };
+            else
+                result << SourceFile{ QDir::cleanPath(buildDirectory + QLatin1Char('/') + el),
+                                      str.sourceFile() };
+        }
+    }
+    return result;
 }
 
-QString ProFileEvaluator::sysrootify(const QString &path, const QString &baseDir) const
+QStringList ProFileEvaluator::sourcesToFiles(const QVector<ProFileEvaluator::SourceFile> &sources)
 {
-    ProFileGlobals *option = static_cast<ProFileGlobals *>(d->m_option);
-#ifdef Q_OS_WIN
-    Qt::CaseSensitivity cs = Qt::CaseInsensitive;
-#else
-    Qt::CaseSensitivity cs = Qt::CaseSensitive;
-#endif
-    const bool isHostSystemPath =
-        option->sysroot.isEmpty() || path.startsWith(option->sysroot, cs)
-        || path.startsWith(baseDir, cs) || path.startsWith(d->m_outputDir, cs)
-        || !QFileInfo::exists(option->sysroot + path);
-
-    return isHostSystemPath ? path : option->sysroot + path;
+    QStringList result;
+    result.reserve(sources.size());
+    for (const auto &src : sources)
+        result << src.fileName;
+    return result;
 }
 
+// VFS note: all search paths are assumed to be real.
 QStringList ProFileEvaluator::absolutePathValues(
         const QString &variable, const QString &baseDirectory) const
 {
     QStringList result;
     foreach (const QString &el, values(variable)) {
-        QString absEl = IoUtils::isAbsolutePath(el)
-            ? sysrootify(el, baseDirectory) : IoUtils::resolvePath(baseDirectory, el);
+        QString absEl = IoUtils::resolvePath(baseDirectory, el);
         if (IoUtils::fileType(absEl) == IoUtils::FileIsDir)
-            result << QDir::cleanPath(absEl);
+            result << absEl;
     }
     return result;
 }
 
-QStringList ProFileEvaluator::absoluteFileValues(
+QVector<ProFileEvaluator::SourceFile> ProFileEvaluator::absoluteFileValues(
         const QString &variable, const QString &baseDirectory, const QStringList &searchDirs,
-        const ProFile *pro) const
+        QHash<ProString, bool> *handled) const
 {
-    QStringList result;
-    foreach (const QString &el, pro ? values(variable, pro) : values(variable)) {
+    QMakeVfs::VfsFlags flags = (d->m_cumulative ? QMakeVfs::VfsCumulative : QMakeVfs::VfsExact);
+    QVector<SourceFile> result;
+    foreach (const ProString &str, d->values(ProKey(variable))) {
+        bool &seen = (*handled)[str];
+        if (seen)
+            continue;
+        seen = true;
+        const QString &el = d->m_option->expandEnvVars(str.toQString());
         QString absEl;
         if (IoUtils::isAbsolutePath(el)) {
-            const QString elWithSysroot = sysrootify(el, baseDirectory);
-            if (IoUtils::exists(elWithSysroot)) {
-                result << QDir::cleanPath(elWithSysroot);
+            if (m_vfs->exists(el, flags)) {
+                result << SourceFile{ el, str.sourceFile() };
                 goto next;
             }
-            absEl = elWithSysroot;
+            absEl = el;
         } else {
             foreach (const QString &dir, searchDirs) {
-                QString fn = dir + QLatin1Char('/') + el;
-                if (IoUtils::exists(fn)) {
-                    result << QDir::cleanPath(fn);
+                QString fn = QDir::cleanPath(dir + QLatin1Char('/') + el);
+                if (m_vfs->exists(fn, flags)) {
+                    result << SourceFile{ QDir::cleanPath(fn), str.sourceFile() };
                     goto next;
                 }
             }
             if (baseDirectory.isEmpty())
                 goto next;
-            absEl = baseDirectory + QLatin1Char('/') + el;
+            absEl = QDir::cleanPath(baseDirectory + QLatin1Char('/') + el);
         }
         {
-            absEl = QDir::cleanPath(absEl);
             int nameOff = absEl.lastIndexOf(QLatin1Char('/'));
             QString absDir = d->m_tmp1.setRawData(absEl.constData(), nameOff);
             if (IoUtils::exists(absDir)) {
@@ -151,9 +158,10 @@ QStringList ProFileEvaluator::absoluteFileValues(
                 if (wildcard.contains(QLatin1Char('*')) || wildcard.contains(QLatin1Char('?'))) {
                     wildcard.detach(); // Keep m_tmp out of QRegExp's cache
                     QDir theDir(absDir);
+                    theDir.setFilter(theDir.filter() & ~QDir::AllDirs);
                     foreach (const QString &fn, theDir.entryList(QStringList(wildcard)))
                         if (fn != QLatin1String(".") && fn != QLatin1String(".."))
-                            result << absDir + QLatin1Char('/') + fn;
+                            result << SourceFile{ absDir + QLatin1Char('/') + fn, str.sourceFile() };
                 } // else if (acceptMissing)
             }
         }

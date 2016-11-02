@@ -31,6 +31,8 @@ void initCdbextPythonModule();
 
 PyObject *pyBool(bool);
 
+constexpr bool debugPyCdbextModule = false;
+
 /* TODO's
 class Field:
     isBaseClass() -> bool                 # Whether this is a base class or normal member

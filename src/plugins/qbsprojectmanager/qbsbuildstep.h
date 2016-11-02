@@ -45,6 +45,12 @@ class QbsBuildStep : public ProjectExplorer::BuildStep
     Q_OBJECT
 
 public:
+    enum VariableHandling
+    {
+        PreserveVariables,
+        ExpandVariables
+    };
+
     explicit QbsBuildStep(ProjectExplorer::BuildStepList *bsl);
     QbsBuildStep(ProjectExplorer::BuildStepList *bsl, const QbsBuildStep *other);
     ~QbsBuildStep() override;
@@ -58,7 +64,7 @@ public:
     bool runInGuiThread() const override;
     void cancel() override;
 
-    QVariantMap qbsConfiguration() const;
+    QVariantMap qbsConfiguration(VariableHandling variableHandling) const;
     void setQbsConfiguration(const QVariantMap &config);
 
     bool keepGoing() const;

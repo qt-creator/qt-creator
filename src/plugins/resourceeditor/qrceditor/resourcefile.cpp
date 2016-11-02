@@ -99,9 +99,10 @@ bool FileList::containsFile(File *file)
 ** ResourceFile
 */
 
-ResourceFile::ResourceFile(const QString &file_name)
+ResourceFile::ResourceFile(const QString &file_name, const QString &contents)
 {
     setFileName(file_name);
+    m_contents = contents;
 }
 
 ResourceFile::~ResourceFile()
@@ -118,28 +119,44 @@ Core::IDocument::OpenResult ResourceFile::load()
         return Core::IDocument::OpenResult::ReadError;
     }
 
-    QFile file(m_file_name);
-    if (!file.open(QIODevice::ReadOnly)) {
-        m_error_message = file.errorString();
-        return Core::IDocument::OpenResult::ReadError;
-    }
-    QByteArray data = file.readAll();
-    // Detect line ending style
-    m_textFileFormat = Utils::TextFileFormat::detect(data);
-    // we always write UTF-8 when saving
-    m_textFileFormat.codec = QTextCodec::codecForName("UTF-8");
-    file.close();
-
     clearPrefixList();
 
     QDomDocument doc;
 
-    QString error_msg;
-    int error_line, error_col;
-    if (!doc.setContent(data, &error_msg, &error_line, &error_col)) {
-        m_error_message = tr("XML error on line %1, col %2: %3")
-                    .arg(error_line).arg(error_col).arg(error_msg);
-        return Core::IDocument::OpenResult::CannotHandle;
+    if (m_contents.isEmpty()) {
+
+        // Regular file
+        QFile file(m_file_name);
+        if (!file.open(QIODevice::ReadOnly)) {
+            m_error_message = file.errorString();
+            return Core::IDocument::OpenResult::ReadError;
+        }
+        QByteArray data = file.readAll();
+        // Detect line ending style
+        m_textFileFormat = Utils::TextFileFormat::detect(data);
+        // we always write UTF-8 when saving
+        m_textFileFormat.codec = QTextCodec::codecForName("UTF-8");
+        file.close();
+
+        QString error_msg;
+        int error_line, error_col;
+        if (!doc.setContent(data, &error_msg, &error_line, &error_col)) {
+            m_error_message = tr("XML error on line %1, col %2: %3")
+                        .arg(error_line).arg(error_col).arg(error_msg);
+            return Core::IDocument::OpenResult::CannotHandle;
+        }
+
+    } else {
+
+        // Virtual file from qmake evaluator
+        QString error_msg;
+        int error_line, error_col;
+        if (!doc.setContent(m_contents, &error_msg, &error_line, &error_col)) {
+            m_error_message = tr("XML error on line %1, col %2: %3")
+                        .arg(error_line).arg(error_col).arg(error_msg);
+            return Core::IDocument::OpenResult::CannotHandle;
+        }
+
     }
 
     QDomElement root = doc.firstChildElement(QLatin1String("RCC"));

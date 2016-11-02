@@ -38,6 +38,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QHBoxLayout>
+#include <QLabel>
 #include <QMessageBox>
 #include <QSettings>
 #include <QSpacerItem>
@@ -136,13 +137,17 @@ ThemeChooserPrivate::ThemeChooserPrivate(QWidget *widget)
 {
     QHBoxLayout *layout = new QHBoxLayout(widget);
     layout->addWidget(m_themeComboBox);
+    auto overriddenLabel = new QLabel;
+    overriddenLabel->setText(ThemeChooser::tr("Current theme: %1")
+                             .arg(creatorTheme()->displayName()));
+    layout->addWidget(overriddenLabel);
     layout->setMargin(0);
     auto horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
     layout->addSpacerItem(horizontalSpacer);
     m_themeComboBox->setModel(m_themeListModel);
     const QList<ThemeEntry> themes = ThemeEntry::availableThemes();
-    const Id activeTheme = Id::fromString(creatorTheme()->id());
-    const int selected = Utils::indexOf(themes, Utils::equal(&ThemeEntry::id, activeTheme));
+    const Id themeSetting = ThemeEntry::themeSetting();
+    const int selected = Utils::indexOf(themes, Utils::equal(&ThemeEntry::id, themeSetting));
     m_themeListModel->setThemes(themes);
     if (selected >= 0)
         m_themeComboBox->setCurrentIndex(selected);
@@ -171,8 +176,7 @@ void ThemeChooser::apply()
         return;
     const QString themeId = d->m_themeListModel->themeAt(index).id().toString();
     QSettings *settings = ICore::settings();
-    const QString currentThemeId = settings->value(QLatin1String(Constants::SETTINGS_THEME),
-                                                   QLatin1String(Constants::DEFAULT_THEME)).toString();
+    const QString currentThemeId = ThemeEntry::themeSetting().toString();
     if (currentThemeId != themeId) {
         QMessageBox::information(ICore::mainWindow(), tr("Restart Required"),
                                  tr("The theme change will take effect after a restart of Qt Creator."));
@@ -213,6 +217,26 @@ QList<ThemeEntry> ThemeEntry::availableThemes()
     }
     addThemesFromPath(userThemeDir, &themes);
     return themes;
+}
+
+Id ThemeEntry::themeSetting()
+{
+    return Id::fromSetting(ICore::settings()->value(QLatin1String(Constants::SETTINGS_THEME),
+                                                    QLatin1String(Constants::DEFAULT_THEME)));
+}
+
+Theme *ThemeEntry::createTheme(Id id)
+{
+    if (!id.isValid())
+        return nullptr;
+    const ThemeEntry entry = Utils::findOrDefault(availableThemes(),
+                                                  Utils::equal(&ThemeEntry::id, id));
+    if (!entry.id().isValid())
+        return nullptr;
+    QSettings themeSettings(entry.filePath(), QSettings::IniFormat);
+    Theme *theme = new Theme(entry.id().toString());
+    theme->readSettings(themeSettings);
+    return theme;
 }
 
 } // namespace Internal

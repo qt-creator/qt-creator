@@ -331,7 +331,6 @@ void CppFindReferences::findUsages(Symbol *symbol,
     search->setTextToReplace(replacement);
     connect(search, &SearchResult::replaceButtonClicked,
             this, &CppFindReferences::onReplaceButtonClicked);
-    connect(search, &SearchResult::paused, this, &CppFindReferences::setPaused);
     search->setSearchAgainSupported(true);
     connect(search, &SearchResult::searchAgainRequested, this, &CppFindReferences::searchAgain);
     CppFindReferencesParameters parameters;
@@ -358,7 +357,6 @@ void CppFindReferences::findAll_helper(SearchResult *search, Symbol *symbol,
         search->finishSearch(false);
         return;
     }
-    connect(search, &SearchResult::cancelled, this, &CppFindReferences::cancel);
     connect(search, &SearchResult::activated,
             this, &CppFindReferences::openEditor);
 
@@ -466,15 +464,9 @@ Symbol *CppFindReferences::findSymbol(const CppFindReferencesParameters &paramet
     return 0;
 }
 
-void CppFindReferences::displayResults(int first, int last)
+static void displayResults(SearchResult *search, QFutureWatcher<Usage> *watcher,
+                           int first, int last)
 {
-    QFutureWatcher<Usage> *watcher = static_cast<QFutureWatcher<Usage> *>(sender());
-    SearchResult *search = m_watchers.value(watcher);
-    if (!search) {
-        // search was deleted while it was running
-        watcher->cancel();
-        return;
-    }
     for (int index = first; index != last; ++index) {
         Usage result = watcher->future().resultAt(index);
         search->addResult(result.path,
@@ -483,35 +475,6 @@ void CppFindReferences::displayResults(int first, int last)
                           result.col,
                           result.len);
     }
-}
-
-void CppFindReferences::searchFinished()
-{
-    QFutureWatcher<Usage> *watcher = static_cast<QFutureWatcher<Usage> *>(sender());
-    SearchResult *search = m_watchers.value(watcher);
-    if (search)
-        search->finishSearch(watcher->isCanceled());
-    m_watchers.remove(watcher);
-    watcher->deleteLater();
-}
-
-void CppFindReferences::cancel()
-{
-    SearchResult *search = qobject_cast<SearchResult *>(sender());
-    QTC_ASSERT(search, return);
-    QFutureWatcher<Usage> *watcher = m_watchers.key(search);
-    QTC_ASSERT(watcher, return);
-    watcher->cancel();
-}
-
-void CppFindReferences::setPaused(bool paused)
-{
-    SearchResult *search = qobject_cast<SearchResult *>(sender());
-    QTC_ASSERT(search, return);
-    QFutureWatcher<Usage> *watcher = m_watchers.key(search);
-    QTC_ASSERT(watcher, return);
-    if (!paused || watcher->isRunning()) // guard against pausing when the search is finished
-        watcher->setPaused(paused);
 }
 
 void CppFindReferences::openEditor(const SearchResultItem &item)
@@ -652,8 +615,6 @@ void CppFindReferences::findMacroUses(const Macro &macro, const QString &replace
 
     connect(search, &SearchResult::activated,
             this, &CppFindReferences::openEditor);
-    connect(search, &SearchResult::cancelled, this, &CppFindReferences::cancel);
-    connect(search, &SearchResult::paused, this, &CppFindReferences::setPaused);
 
     const Snapshot snapshot = m_modelManager->snapshot();
     const WorkingCopy workingCopy = m_modelManager->workingCopy();
@@ -688,9 +649,21 @@ void CppFindReferences::renameMacroUses(const Macro &macro, const QString &repla
 void CppFindReferences::createWatcher(const QFuture<Usage> &future, SearchResult *search)
 {
     QFutureWatcher<Usage> *watcher = new QFutureWatcher<Usage>();
+    // auto-delete:
+    connect(watcher, &QFutureWatcherBase::finished, watcher, &QObject::deleteLater);
+
+    connect(watcher, &QFutureWatcherBase::resultsReadyAt, search,
+            [search, watcher](int first, int last) {
+                displayResults(search, watcher, first, last);
+            });
+    connect(watcher, &QFutureWatcherBase::finished, search, [search, watcher]() {
+        search->finishSearch(watcher->isCanceled());
+    });
+    connect(search, &SearchResult::cancelled, watcher, [watcher]() { watcher->cancel(); });
+    connect(search, &SearchResult::paused, watcher, [watcher](bool paused) {
+        if (!paused || watcher->isRunning()) // guard against pausing when the search is finished
+            watcher->setPaused(paused);
+    });
     watcher->setPendingResultsLimit(1);
-    connect(watcher, &QFutureWatcherBase::resultsReadyAt, this, &CppFindReferences::displayResults);
-    connect(watcher, &QFutureWatcherBase::finished, this, &CppFindReferences::searchFinished);
-    m_watchers.insert(watcher, search);
     watcher->setFuture(future);
 }

@@ -109,7 +109,7 @@ Rectangle {
             id: contextMenu
 
             MenuItem {
-                text: qsTr("Set when condition")
+                text: qsTr("Set when Condition")
                 onTriggered: {
                     expressionTextField.text = delegateWhenConditionString
                     expressionTextField.visible = true
@@ -120,7 +120,7 @@ Rectangle {
 
             MenuItem {
                 visible: delegateHasWhenCondition
-                text: qsTr("Reset when condition")
+                text: qsTr("Reset when Condition")
                 onTriggered: {
                    statesEditorModel.resetWhenCondition(internalNodeId)
                 }

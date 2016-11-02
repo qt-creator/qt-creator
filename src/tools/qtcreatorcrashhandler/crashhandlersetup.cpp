@@ -57,8 +57,10 @@
 #include <X11/Xlib.h>
 #endif
 
-static const char *crashHandlerPathC;
-static void *signalHandlerStack;
+static const char *appNameC = nullptr;
+static const char *disableRestartOptionC = nullptr;
+static const char *crashHandlerPathC = nullptr;
+static void *signalHandlerStack = nullptr;
 
 extern "C" void signalHandler(int signal)
 {
@@ -72,7 +74,12 @@ extern "C" void signalHandler(int signal)
     case -1: // error
         break;
     case 0: // child
-        execl(crashHandlerPathC, crashHandlerPathC, strsignal(signal), (char *) 0);
+        if (disableRestartOptionC) {
+            execl(crashHandlerPathC, crashHandlerPathC, strsignal(signal), appNameC,
+                  disableRestartOptionC, (char *) 0);
+        } else {
+            execl(crashHandlerPathC, crashHandlerPathC, strsignal(signal), appNameC, (char *) 0);
+        }
         _exit(EXIT_FAILURE);
     default: // parent
         prctl(PR_SET_PTRACER, pid, 0, 0, 0);
@@ -83,14 +90,23 @@ extern "C" void signalHandler(int signal)
 }
 #endif // BUILD_CRASH_HANDLER
 
-CrashHandlerSetup::CrashHandlerSetup()
+CrashHandlerSetup::CrashHandlerSetup(const QString &appName,
+                                     RestartCapability restartCap,
+                                     const QString &executableDirPath)
 {
 #ifdef BUILD_CRASH_HANDLER
     if (qgetenv("QTC_USE_CRASH_HANDLER").isEmpty())
         return;
 
-    const QString crashHandlerPath = qApp->applicationDirPath()
-        + QLatin1String("/qtcreator_crash_handler");
+    appNameC = qstrdup(qPrintable(appName));
+
+    if (restartCap == DisableRestart)
+        disableRestartOptionC = "--disable-restart";
+
+    const QString execDirPath = executableDirPath.isEmpty()
+            ? qApp->applicationDirPath()
+            : executableDirPath;
+    const QString crashHandlerPath = execDirPath + QLatin1String("/qtcreator_crash_handler");
     crashHandlerPathC = qstrdup(qPrintable(crashHandlerPath));
 
     // Setup an alternative stack for the signal handler. This way we are able to handle SIGSEGV
@@ -130,6 +146,10 @@ CrashHandlerSetup::CrashHandlerSetup()
                 strsignal(signalsToHandle[i]), Q_FUNC_INFO);
         }
     }
+#else
+    Q_UNUSED(appName);
+    Q_UNUSED(restartCap);
+    Q_UNUSED(executableDirPath);
 #endif // BUILD_CRASH_HANDLER
 }
 
@@ -137,6 +157,7 @@ CrashHandlerSetup::~CrashHandlerSetup()
 {
 #ifdef BUILD_CRASH_HANDLER
     delete[] crashHandlerPathC;
+    delete[] appNameC;
     free(signalHandlerStack);
 #endif
 }

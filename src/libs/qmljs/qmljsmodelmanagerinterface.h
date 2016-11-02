@@ -86,6 +86,7 @@ public:
         PathsAndLanguages importPaths;
         QStringList activeResourceFiles;
         QStringList allResourceFiles;
+        QHash<QString, QString> resourceFileContents;
 
         // whether trying to run qmldump makes sense
         bool tryQmlDump;
@@ -273,6 +274,7 @@ private:
     QHash<QString, QPair<CPlusPlus::Document::Ptr, bool> > m_queuedCppDocuments;
     QFuture<void> m_cppQmlTypesUpdater;
     QrcCache m_qrcCache;
+    QHash<QString, QString> m_qrcContents;
 
     CppDataHash m_cppDataHash;
     QHash<QString, QList<CPlusPlus::Document::Ptr> > m_cppDeclarationFiles;

@@ -92,7 +92,6 @@ public:
     bool multiProcess = false; // Whether to set detach-on-fork off.
 
     ProjectExplorer::StandardRunnable debugger;
-    QString coreFile;
     QString overrideStartScript; // Used in attach to core and remote debugging
     QString startMessage; // First status message shown.
     QString debugInfoLocation; // Gdb "set-debug-file-directory".

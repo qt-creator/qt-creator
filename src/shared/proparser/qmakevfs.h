@@ -36,18 +36,45 @@
 # endif
 #endif
 
+#ifdef PROEVALUATOR_DUAL_VFS
+# ifndef PROEVALUATOR_CUMULATIVE
+#  error PROEVALUATOR_DUAL_VFS requires PROEVALUATOR_CUMULATIVE
+# endif
+#endif
+
 QT_BEGIN_NAMESPACE
 
 class QMAKE_EXPORT QMakeVfs
 {
 public:
+    enum ReadResult {
+        ReadOk,
+        ReadNotFound,
+        ReadOtherError
+    };
+
+    enum VfsFlag {
+        VfsExecutable = 1,
+        VfsExact = 0,
+#ifdef PROEVALUATOR_DUAL_VFS
+        VfsCumulative = 2,
+        VfsNoVirtual = 4
+#else
+        VfsCumulative = 0,
+        VfsNoVirtual = 0
+#endif
+    };
+    Q_DECLARE_FLAGS(VfsFlags, VfsFlag)
+
     QMakeVfs();
 
-    bool writeFile(const QString &fn, QIODevice::OpenMode mode, bool exe, const QString &contents, QString *errStr);
-    bool readFile(const QString &fn, QString *contents, QString *errStr);
-    bool exists(const QString &fn);
+    bool writeFile(const QString &fn, QIODevice::OpenMode mode, VfsFlags flags, const QString &contents, QString *errStr);
+    ReadResult readFile(const QString &fn, VfsFlags flags, QString *contents, QString *errStr);
+    bool exists(const QString &fn, VfsFlags flags);
 
 #ifndef PROEVALUATOR_FULL
+    bool readVirtualFile(const QString &fn, VfsFlags flags, QString *contents);
+
     void invalidateCache();
     void invalidateContents();
 #endif
@@ -62,5 +89,7 @@ private:
     QString m_magicExisting;
 #endif
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(QMakeVfs::VfsFlags)
 
 QT_END_NAMESPACE

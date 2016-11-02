@@ -80,7 +80,6 @@ private slots:
 #endif
 
 private:
-    void parseArguments(const QStringList & arguments);
     static void addToPathChooserContextMenu(Utils::PathChooser *pathChooser, QMenu *menu);
 
     MainWindow *m_mainWindow;

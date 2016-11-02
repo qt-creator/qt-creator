@@ -458,40 +458,27 @@ void QmakeProject::updateCppCodeModel()
         // part->precompiledHeaders
         templatePart->precompiledHeaders.append(pro->variableValue(PrecompiledHeaderVar));
 
-        templatePart->updateLanguageFeatures();
+        // TODO: there is no LANG_OBJCXX, so:
+        const QStringList cxxflags = pro->variableValue(CppFlagsVar);
+        CppTools::ProjectPartBuilder::evaluateProjectPartToolchain(
+                    templatePart.data(), ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx),
+                    cxxflags, SysRootKitInformation::sysRoot(k));
+        setProjectLanguage(ProjectExplorer::Constants::LANG_CXX, true);
 
         ProjectPart::Ptr cppPart = templatePart->copy();
-        { // C++ files:
-            // part->files
-            foreach (const QString &file, pro->variableValue(CppSourceVar)) {
-                cppPart->files << ProjectFile(file, ProjectFile::CXXSource);
-            }
-            foreach (const QString &file, pro->variableValue(CppHeaderVar)) {
-                cppPart->files << ProjectFile(file, ProjectFile::CXXHeader);
-            }
-        }
-
         ProjectPart::Ptr objcppPart = templatePart->copy();
-        { // ObjC++ files:
-            foreach (const QString &file, pro->variableValue(ObjCSourceVar)) {
-                // Although the enum constant is called ObjCSourceVar, it actually is ObjC++ source
-                // code, as qmake does not handle C (and ObjC).
-                objcppPart->files << ProjectFile(file, ProjectFile::ObjCXXSource);
-            }
-            foreach (const QString &file, pro->variableValue(ObjCHeaderVar)) {
-                objcppPart->files << ProjectFile(file, ProjectFile::ObjCXXHeader);
-            }
-
-            const QStringList cxxflags = pro->variableValue(CppFlagsVar);
-            CppTools::ProjectPartBuilder::evaluateProjectPartToolchain(objcppPart.data(),
-                                                                       ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx),
-                                                                       cxxflags,
-                                                                       SysRootKitInformation::sysRoot(k));
-
-            if (!objcppPart->files.isEmpty()) {
-                pinfo.appendProjectPart(objcppPart);
-                // TODO: there is no LANG_OBJCXX, so:
-                setProjectLanguage(ProjectExplorer::Constants::LANG_CXX, true);
+        foreach (const QString &file, pro->variableValue(SourceVar)) {
+            ProjectFile::Kind kind = ProjectFile::classify(file);
+            switch (kind) {
+            case ProjectFile::ObjCHeader:
+            case ProjectFile::ObjCSource:
+            case ProjectFile::ObjCXXHeader:
+            case ProjectFile::ObjCXXSource:
+                objcppPart->files << ProjectFile(file, kind);
+                break;
+            default:
+                cppPart->files << ProjectFile(file, kind);
+                break;
             }
         }
 
@@ -523,19 +510,12 @@ void QmakeProject::updateCppCodeModel()
 
         cppPart->files.prepend(ProjectFile(CppTools::CppModelManager::configurationFileName(),
                                            ProjectFile::CXXSource));
-        const QStringList cxxflags = pro->variableValue(CppFlagsVar);
-        CppTools::ProjectPartBuilder::evaluateProjectPartToolchain(
-                    cppPart.data(), ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx),
-                    cxxflags, SysRootKitInformation::sysRoot(k));
-        if (!cppPart->files.isEmpty()) {
-            pinfo.appendProjectPart(cppPart);
-            setProjectLanguage(ProjectExplorer::Constants::LANG_CXX, true);
-        }
-
-        if (!objcppPart->files.isEmpty())
+        pinfo.appendProjectPart(cppPart);
+        objcppPart->displayName += QLatin1String(" (ObjC++)");
+        if (!objcppPart->files.isEmpty()) {
+            pinfo.appendProjectPart(objcppPart);
             cppPart->displayName += QLatin1String(" (C++)");
-        if (!cppPart->files.isEmpty())
-            objcppPart->displayName += QLatin1String(" (ObjC++)");
+        }
     }
     pinfo.finish();
 
@@ -564,8 +544,21 @@ void QmakeProject::updateQmlJSCodeModel()
         foreach (const QString &path, node->variableValue(QmlImportPathVar))
             projectInfo.importPaths.maybeInsert(FileName::fromString(path),
                                                 QmlJS::Dialect::Qml);
-        projectInfo.activeResourceFiles.append(node->variableValue(ExactResourceVar));
-        projectInfo.allResourceFiles.append(node->variableValue(ResourceVar));
+        const QStringList &exactResources = node->variableValue(ExactResourceVar);
+        const QStringList &cumulativeResources = node->variableValue(CumulativeResourceVar);
+        projectInfo.activeResourceFiles.append(exactResources);
+        projectInfo.allResourceFiles.append(exactResources);
+        projectInfo.allResourceFiles.append(cumulativeResources);
+        foreach (const QString &rc, exactResources) {
+            QString contents;
+            if (m_qmakeVfs->readVirtualFile(rc, QMakeVfs::VfsExact, &contents))
+                projectInfo.resourceFileContents[rc] = contents;
+        }
+        foreach (const QString &rc, cumulativeResources) {
+            QString contents;
+            if (m_qmakeVfs->readVirtualFile(rc, QMakeVfs::VfsCumulative, &contents))
+                projectInfo.resourceFileContents[rc] = contents;
+        }
         if (!hasQmlLib) {
             QStringList qtLibs = node->variableValue(QtVar);
             hasQmlLib = qtLibs.contains(QLatin1String("declarative")) ||
@@ -891,7 +884,7 @@ void QmakeProject::proFileParseError(const QString &errorMessage)
 QtSupport::ProFileReader *QmakeProject::createProFileReader(const QmakeProFileNode *qmakeProFileNode, QmakeBuildConfiguration *bc)
 {
     if (!m_qmakeGlobals) {
-        m_qmakeGlobals = new ProFileGlobals;
+        m_qmakeGlobals = new QMakeGlobals;
         m_qmakeGlobalsRefCnt = 0;
 
         Kit *k;
@@ -912,7 +905,7 @@ QtSupport::ProFileReader *QmakeProject::createProFileReader(const QmakeProFileNo
         }
 
         QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(k);
-        QString systemRoot = SysRootKitInformation::hasSysRoot(k)
+        m_qmakeSysroot = SysRootKitInformation::hasSysRoot(k)
                 ? SysRootKitInformation::sysRoot(k).toString() : QString();
 
         if (qtVersion && qtVersion->isValid()) {
@@ -920,7 +913,6 @@ QtSupport::ProFileReader *QmakeProject::createProFileReader(const QmakeProFileNo
             m_qmakeGlobals->setProperties(qtVersion->versionInfo());
         }
         m_qmakeGlobals->setDirectories(rootProjectNode()->sourceDir(), rootProjectNode()->buildDir());
-        m_qmakeGlobals->sysroot = systemRoot;
 
         Environment::const_iterator eit = env.constBegin(), eend = env.constEnd();
         for (; eit != eend; ++eit)
@@ -953,7 +945,7 @@ QtSupport::ProFileReader *QmakeProject::createProFileReader(const QmakeProFileNo
     return reader;
 }
 
-ProFileGlobals *QmakeProject::qmakeGlobals()
+QMakeGlobals *QmakeProject::qmakeGlobals()
 {
     return m_qmakeGlobals;
 }
@@ -961,6 +953,11 @@ ProFileGlobals *QmakeProject::qmakeGlobals()
 QMakeVfs *QmakeProject::qmakeVfs()
 {
     return m_qmakeVfs;
+}
+
+QString QmakeProject::qmakeSysroot()
+{
+    return m_qmakeSysroot;
 }
 
 void QmakeProject::destroyProFileReader(QtSupport::ProFileReader *reader)
@@ -1391,8 +1388,10 @@ void QmakeProject::collectData(const QmakeProFileNode *node, DeploymentData &dep
 
     const InstallsList &installsList = node->installsList();
     foreach (const InstallsItem &item, installsList.items) {
-        foreach (const QString &localFile, item.files)
-            deploymentData.addFile(localFile, item.path);
+        if (!item.active)
+            continue;
+        foreach (const auto &localFile, item.files)
+            deploymentData.addFile(localFile.fileName, item.path);
     }
 
     switch (node->projectType()) {

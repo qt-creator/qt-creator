@@ -68,7 +68,7 @@ class QTSUPPORT_EXPORT ProFileReader : public ProMessageHandler, public QMakePar
     Q_OBJECT
 
 public:
-    ProFileReader(ProFileGlobals *option, QMakeVfs *vfs);
+    ProFileReader(QMakeGlobals *option, QMakeVfs *vfs);
     ~ProFileReader();
 
     void setCumulative(bool on);

@@ -6,7 +6,7 @@ pyversion=2.7
 pydir=${broot}/python
 expatversion=2.1.1
 iconvversion=1.14
-version=7.11.1
+version=7.12
 targetdir=${broot}/qtcreator-gdb-${version}
 packageparts=${targetdir}/lib ${targetdir}/data-directory ${targetdir}/libiconv-2.dll ${targetdir}/python27.dll ${targetdir}/libexpat-1.dll
 arch=`uname -sm | sed 's/ /-/g' | tr A-Z a-z`
@@ -71,7 +71,8 @@ ${staging}/gdb-${version}/configure: ${source}/gdb-${version}.tar.xz | makestagi
 	echo "Extracting gdb..." && \
 	tar xf ${source}/gdb-${version}.tar.xz && \
 	cd gdb-${version} && \
-	touch configure
+	touch configure && \
+	patch -p1 < ${broot}/patches/mingw-python.patch
 
 ${staging}/lib/libiconv.a: ${source}/libiconv-${iconvversion}.tar.gz | makestagingdir
 	cd ${staging} && \

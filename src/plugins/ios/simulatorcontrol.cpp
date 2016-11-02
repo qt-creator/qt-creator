@@ -27,6 +27,8 @@
 #include "iossimulator.h"
 #include "iosconfigurations.h"
 
+#include <utils/runextensions.h>
+
 #ifdef Q_OS_MAC
 #include <CoreFoundation/CoreFoundation.h>
 #endif
@@ -95,7 +97,6 @@ private:
     QHash<QString, QProcess*> simulatorProcesses;
     QReadWriteLock processDataLock;
     QList<IosDeviceType> availableDevices;
-    QReadWriteLock deviceDataLock;
     friend class SimulatorControl;
 };
 
@@ -108,16 +109,15 @@ SimulatorControl::SimulatorControl()
 
 QList<Ios::Internal::IosDeviceType> SimulatorControl::availableSimulators()
 {
-    QReadLocker locer(&d->deviceDataLock);
     return d->availableDevices;
 }
 
-void SimulatorControl::updateAvailableSimulators()
+static QList<IosDeviceType> getAvailableSimulators()
 {
+    QList<IosDeviceType> availableDevices;
     const QByteArray output = runSimCtlCommand({QLatin1String("list"), QLatin1String("-j"), QLatin1String("devices")});
     QJsonDocument doc = QJsonDocument::fromJson(output);
     if (!doc.isNull()) {
-        QList<IosDeviceType> availableDevices;
         const QJsonObject buildInfo = doc.object().value("devices").toObject();
         foreach (const QString &buildVersion, buildInfo.keys()) {
             QJsonArray devices = buildInfo.value(buildVersion).toArray();
@@ -134,14 +134,18 @@ void SimulatorControl::updateAvailableSimulators()
             }
         }
         std::stable_sort(availableDevices.begin(), availableDevices.end());
-
-        {
-            QWriteLocker locker(&d->deviceDataLock);
-            d->availableDevices = availableDevices;
-        }
     } else {
         qCDebug(simulatorLog) << "Error parsing json output from simctl. Output:" << output;
     }
+    return availableDevices;
+}
+
+void SimulatorControl::updateAvailableSimulators()
+{
+    QFuture<QList<IosDeviceType>> future = Utils::runAsync(getAvailableSimulators);
+    Utils::onResultReady(future, d, [](const QList<IosDeviceType> &devices) {
+        SimulatorControl::d->availableDevices = devices;
+    });
 }
 
 // Blocks until simulators reaches "Booted" state.

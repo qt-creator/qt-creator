@@ -3,7 +3,6 @@ import qbs 1.0
 QtcTool {
     name: "qtcreator_crash_handler"
     condition: qbs.targetOS.contains("linux") && qbs.buildVariant == "debug"
-    installDir: qtc.ide_bin_path
 
     Depends { name: "Utils" }
     Depends { name: "Qt.widgets" }

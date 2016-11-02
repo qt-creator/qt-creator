@@ -1009,7 +1009,7 @@ void BaseQtVersion::ensureMkSpecParsed() const
         return;
 
     QMakeVfs vfs;
-    ProFileGlobals option;
+    QMakeGlobals option;
     option.setProperties(versionInfo());
     option.environment = qmakeRunEnvironment().toProcessEnvironment();
     ProMessageHandler msgHandler(true);

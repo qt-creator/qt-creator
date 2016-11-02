@@ -3,9 +3,9 @@ source=${broot}/source
 targets=x86_64-unknown-linux-gnu,i686-unknown-linux-gnu,arm-none-linux-gnueabi,x86_64-apple-darwin10
 staging=${broot}/staging
 pyversion=2.7
-expatversion=2.1.0
+expatversion=2.1.1
 arch=`uname -sm | sed 's/ /-/g' | tr A-Z a-z`
-version=7.11.1
+version=7.12
 targetdir=${broot}/qtcreator-gdb-${version}
 packagename=qtcreator-gdb-${version}-${arch}.tar.gz
 
@@ -23,11 +23,11 @@ maketargetdir:
 makestagingdir:
 	@test -e ${staging} || mkdir ${staging}
 
-${source}/expat-${expatversion}.tar.gz: | makesourcedir
+${source}/expat-${expatversion}.tar.bz2: | makesourcedir
 	cd ${source} && \
 	echo "Downloading expat..." && \
-	curl -LsOf http://sourceforge.net/projects/expat/files/expat/${expatversion}/expat-${expatversion}.tar.gz && \
-	touch ${source}/expat-${expatversion}.tar.gz
+	curl -LsOf http://sourceforge.net/projects/expat/files/expat/${expatversion}/expat-${expatversion}.tar.bz2 && \
+	touch ${source}/expat-${expatversion}.tar.bz2
 
 ${source}/Python-${pyversion}.tgz: | makesourcedir
 	cd ${source} && \
@@ -42,10 +42,10 @@ ${source}/gdb-${version}.tar.xz: | makesourcedir
 	curl -osf gdb-${version}.tar.xz http://ftp.gnu.org/gnu/gdb/gdb-${version}a.tar.xz && \
 	touch gdb-*.tar.xz
 
-${staging}/lib/libexpat.a: ${source}/expat-${expatversion}.tar.gz | makestagingdir
+${staging}/lib/libexpat.a: ${source}/expat-${expatversion}.tar.bz2 | makestagingdir
 	cd ${staging} && \
 	echo "Extracting expat..." && \
-	tar xf ${source}/expat-${expatversion}.tar.gz && cd expat-${expatversion} && \
+	tar xf ${source}/expat-${expatversion}.tar.bz2 && cd expat-${expatversion} && \
 	./configure --disable-shared -prefix=${staging} && ${MAKE} && ${MAKE} install
 
 ${staging}/lib/libpython${pyversion}.a: ${source}/Python-${pyversion}.tgz | makestagingdir

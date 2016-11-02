@@ -156,13 +156,12 @@ class Dumper(DumperBase):
         if not address is None:
             val.laddress = address
         if True:
-            #val.name = nativeValue.GetName()
             data = nativeValue.GetData()
             error = lldb.SBError()
             size = nativeValue.GetType().GetByteSize()
             if size > 1:
                 # 0 happens regularly e.g. for cross-shared-object types.
-                # 1 happens on Linux
+                # 1 happens on Linux e.g. for QObject uses outside of QtCore.
                 try:
                     val.ldata = data.ReadRawData(error, 0, size)
                 except:
@@ -171,8 +170,6 @@ class Dumper(DumperBase):
         val.type = self.fromNativeType(nativeType)
         val.lIsInScope = nativeValue.IsInScope()
 
-        #if code not in (lldb.eTypeClassPointer, lldb.eTypeClassReference):
-        #    val.laddress = int(nativeValue.GetLoadAddress())
         if code == lldb.eTypeClassEnumeration:
             intval = nativeValue.GetValueAsSigned()
             if hasattr(nativeType, 'get_enum_members_array'):
@@ -188,8 +185,6 @@ class Dumper(DumperBase):
         elif code in (lldb.eTypeClassComplexInteger, lldb.eTypeClassComplexFloat):
             val.ldisplay = str(nativeValue.GetValue())
         elif code == lldb.eTypeClassReference:
-            #val.laddress = int(nativeValue.GetLoadAddress())
-            #val.ldata = None
             derefNativeValue = nativeValue.Dereference()
             derefNativeValue = derefNativeValue.Cast(derefNativeValue.GetType().GetUnqualifiedType())
             val1 = self.Value(self)
@@ -205,7 +200,101 @@ class Dumper(DumperBase):
         #            val.type.ltarget = self.fromNativeType(fields[0])
         #elif code == lldb.eTypeClassVector:
         #    val.type.ltarget = self.fromNativeType(nativeType.GetVectorElementType())
+
+        val.name = nativeValue.GetName()
         return val
+
+    def nativeTypeFieldTypeByName(self, nativeType, name):
+        for i in range(nativeType.GetNumberOfFields()):
+            field = nativeType.GetFieldAtIndex(i)
+            if field.GetName() == name:
+                return self.fromNativeType(field.GetType())
+        return None
+
+    def nativeStructAlignment(self, nativeType):
+        def handleItem(nativeFieldType, align):
+            a = self.fromNativeType(nativeFieldType).alignment()
+            return a if a > align else align
+        align = 1
+        for i in range(nativeType.GetNumberOfDirectBaseClasses()):
+            base = nativeType.GetDirectBaseClassAtIndex(i)
+            align = handleItem(base.GetType(), align)
+        for i in range(nativeType.GetNumberOfFields()):
+            child = nativeType.GetFieldAtIndex(i)
+            align = handleItem(child.GetType(), align)
+        return align
+
+    def listMembers(self, nativeType, value):
+        if value.laddress is not None:
+            sbaddr = lldb.SBAddress(value.laddress, self.target)
+            nativeValue = self.target.CreateValueFromAddress('x', sbaddr, nativeType)
+        else:
+            nativeValue = self.target.CreateValueFromData('x', sbaddr, nativeType)
+
+        nativeValue.SetPreferSyntheticValue(False)
+        nativeType = nativeValue.GetType()
+
+        anonNumber = 0
+        baseNames = {}
+        for i in range(nativeType.GetNumberOfDirectBaseClasses()):
+            base = nativeType.GetDirectBaseClassAtIndex(i)
+            baseNames[base.GetName()] = i
+
+        fieldBits = {}
+        for f in nativeType.get_fields_array():
+            bitsize = f.GetBitfieldSizeInBits()
+            if bitsize == 0:
+                bitsize = f.GetType().GetByteSize() * 8
+            bitpos = f.GetOffsetInBits()
+            # Correction for some bitfields. Size 0 can occur for
+            # types without debug information.
+            if bitsize > 0:
+                #bitpos = bitpos % bitsize
+                bitpos = bitpos % 8 # Reported type is always wrapping type!
+            #warn("BIT SIZE: %s POS: %s NAME: %s" % (bitsize, bitpos, f.name))
+            fieldBits[f.name] = (bitsize, bitpos)
+
+        # Normal members and non-empty base classes.
+        for i in range(nativeValue.GetNumChildren()):
+            fieldObj = nativeValue.GetChildAtIndex(i)
+            fieldObj.SetPreferSyntheticValue(False)
+            fieldName = fieldObj.GetName()
+            member = self.fromNativeValue(fieldObj)
+            if fieldName is None or len(fieldName) == 0:
+                # Something without a name.
+                anonNumber += 1
+                member.name = '#%s' % anonNumber
+            else:
+                member.name = fieldName
+            if fieldName in baseNames:
+                member.isBaseClass = True
+                member.baseIndex = baseNames[fieldName]
+            if fieldName in fieldBits:
+                (member.lbitsize, member.lbitpos) = fieldBits[fieldName]
+            else:
+                member.lbitsize = fieldObj.GetType().GetByteSize() * 8
+                #member.lbitpos = (caddr - addr) * 8
+            #warn("MEMBER: %s" % member)
+            yield member
+
+        # Empty bases are not covered above.
+        for i in range(nativeType.GetNumberOfDirectBaseClasses()):
+            fieldObj = nativeType.GetDirectBaseClassAtIndex(i)
+            fieldType = fieldObj.GetType()
+            if fieldType.GetNumberOfFields() == 0:
+                if fieldType.GetNumberOfDirectBaseClasses() == 0:
+                    member = self.Value(self)
+                    fieldName = fieldObj.GetName()
+                    member.type = self.fromNativeType(fieldType)
+                    member.name = fieldName
+                    member.fields = []
+                    member.ldata = bytes()
+                    member.lbitsize = fieldType.GetByteSize() * 8
+                    member.isBaseClass = True
+                    member.baseIndex = baseNames[fieldName]
+                    member.ltype = self.fromNativeType(fieldType)
+                    member.name = fieldName
+                    yield member
 
     def ptrSize(self):
         result = self.target.GetAddressByteSize()
@@ -215,6 +304,30 @@ class Dumper(DumperBase):
     def fromNativeType(self, nativeType):
         self.check(isinstance(nativeType, lldb.SBType))
         code = nativeType.GetTypeClass()
+
+        # eTypeClassInvalid           = (0u),
+        # eTypeClassArray             = (1u << 0),
+        # eTypeClassBlockPointer      = (1u << 1),
+        # eTypeClassBuiltin           = (1u << 2),
+        # eTypeClassClass             = (1u << 3),
+        # eTypeClassComplexFloat      = (1u << 4),
+        # eTypeClassComplexInteger    = (1u << 5),
+        # eTypeClassEnumeration       = (1u << 6),
+        # eTypeClassFunction          = (1u << 7),
+        # eTypeClassMemberPointer     = (1u << 8),
+        # eTypeClassObjCObject        = (1u << 9),
+        # eTypeClassObjCInterface     = (1u << 10),
+        # eTypeClassObjCObjectPointer = (1u << 11),
+        # eTypeClassPointer           = (1u << 12),
+        # eTypeClassReference         = (1u << 13),
+        # eTypeClassStruct            = (1u << 14),
+        # eTypeClassTypedef           = (1u << 15),
+        # eTypeClassUnion             = (1u << 16),
+        # eTypeClassVector            = (1u << 17),
+        # // Define the last type class as the MSBit of a 32 bit value
+        # eTypeClassOther             = (1u << 31),
+        # // Define a mask that can be used for any type when finding types
+        # eTypeClassAny               = (0xffffffffu)
 
         #warn('CURRENT: %s' % self.typeData.keys())
         #warn('FROM NATIVE TYPE: %s' % nativeType.GetName())
@@ -240,25 +353,6 @@ class Dumper(DumperBase):
             #warn('REF: %s' % nativeTargetType.name)
             return self.createReferenceType(self.fromNativeType(nativeTargetType))
 
-        if code in (lldb.eTypeClassArray, lldb.eTypeClassVector):
-            #warn('ARRAY: %s' % nativeType.GetName())
-            if hasattr(nativeType, 'GetArrayElementType'): # New in 3.8(?) / 350.x
-                nativeTargetType = nativeType.GetArrayElementType()
-                if not nativeTargetType.IsValid():
-                    if hasattr(nativeType, 'GetVectorElementType'): # New in 3.8(?) / 350.x
-                        #warn('BAD: %s ' % nativeTargetType.get_fields_array())
-                        nativeTargetType = nativeType.GetVectorElementType()
-            elif hasattr(nativeType, 'GetVectorElementType'): # New in 3.8(?) / 350.x
-                nativeTargetType = nativeType.GetVectorElementType()
-            else:
-                return self.createType(nativeType.GetName())
-
-            #warn('NATIVE TARGET TYPE: %s' % nativeTargetType)
-            #warn('NATIVE TARGE NAME: %s' % nativeTargetType.GetName())
-            targetType = self.fromNativeType(nativeTargetType)
-            count = nativeType.GetByteSize() // nativeTargetType.GetByteSize()
-            return self.createArrayType(targetType, count)
-
         if code == lldb.eTypeClassTypedef:
             #warn('TYPEDEF')
             nativeTargetType = nativeType.GetUnqualifiedType()
@@ -268,71 +362,80 @@ class Dumper(DumperBase):
             return self.createTypedefedType(targetType, nativeType.GetName())
 
         nativeType = nativeType.GetUnqualifiedType()
+        if hasattr(nativeType, 'GetDisplayTypeName'):
+            typeName = nativeType.GetDisplayTypeName()  # Xcode 6 (lldb-320)
+        else:
+            typeName = nativeType.GetName()             # Xcode 5 (lldb-310)
+
+        if code in (lldb.eTypeClassArray, lldb.eTypeClassVector):
+            #warn('ARRAY: %s' % nativeType.GetName())
+            if hasattr(nativeType, 'GetArrayElementType'): # New in 3.8(?) / 350.x
+                nativeTargetType = nativeType.GetArrayElementType()
+                if not nativeTargetType.IsValid():
+                    if hasattr(nativeType, 'GetVectorElementType'): # New in 3.8(?) / 350.x
+                        #warn('BAD: %s ' % nativeTargetType.get_fields_array())
+                        nativeTargetType = nativeType.GetVectorElementType()
+                count = nativeType.GetByteSize() // nativeTargetType.GetByteSize()
+                targetTypeName = nativeTargetType.GetName()
+                if targetTypeName.startswith('(anon'):
+                    typeName = nativeType.GetName()
+                    pos1 = typeName.rfind('[')
+                    targetTypeName = typeName[0:pos1].strip()
+                #warn("TARGET TYPENAME: %s" % targetTypeName)
+                targetType = self.fromNativeType(nativeTargetType)
+                tdata = targetType.typeData().copy()
+                tdata.name = targetTypeName
+                targetType.typeData = lambda : tdata
+                return self.createArrayType(targetType, count)
+            if hasattr(nativeType, 'GetVectorElementType'): # New in 3.8(?) / 350.x
+                nativeTargetType = nativeType.GetVectorElementType()
+                count = nativeType.GetByteSize() // nativeTargetType.GetByteSize()
+                targetType = self.fromNativeType(nativeTargetType)
+                return self.createArrayType(targetType, count)
+            return self.createType(nativeType.GetName())
+
         typeId = self.nativeTypeId(nativeType)
         res = self.typeData.get(typeId, None)
         if res is None:
             #  # This strips typedefs for pointers. We don't want that.
             #  typeobj.nativeType = nativeType.GetUnqualifiedType()
             tdata = self.TypeData(self)
-            if hasattr(nativeType, 'GetDisplayTypeName'):
-                tdata.name = nativeType.GetDisplayTypeName()  # Xcode 6 (lldb-320)
-            else:
-                tdata.name = nativeType.GetName()             # Xcode 5 (lldb-310)
             tdata.typeId = typeId
+            tdata.name = typeName
             tdata.lbitsize = nativeType.GetByteSize() * 8
             if code == lldb.eTypeClassBuiltin:
-                if isFloatingPointTypeName(tdata.name):
+                if isFloatingPointTypeName(typeName):
                     tdata.code = TypeCodeFloat
-                elif isIntegralTypeName(tdata.name):
+                elif isIntegralTypeName(typeName):
                     tdata.code = TypeCodeIntegral
-                elif tdata.name == 'void':
+                elif typeName == 'void':
                     tdata.code = TypeCodeVoid
                 else:
-                    warn('UNKNOWN TYPE KEY: %s: %s' % (tdata.name, code))
-            else:
-                # eTypeClassInvalid           = (0u),
-                # eTypeClassArray             = (1u << 0),
-                # eTypeClassBlockPointer      = (1u << 1),
-                # eTypeClassBuiltin           = (1u << 2),
-                # eTypeClassClass             = (1u << 3),
-                # eTypeClassComplexFloat      = (1u << 4),
-                # eTypeClassComplexInteger    = (1u << 5),
-                # eTypeClassEnumeration       = (1u << 6),
-                # eTypeClassFunction          = (1u << 7),
-                # eTypeClassMemberPointer     = (1u << 8),
-                # eTypeClassObjCObject        = (1u << 9),
-                # eTypeClassObjCInterface     = (1u << 10),
-                # eTypeClassObjCObjectPointer = (1u << 11),
-                # eTypeClassPointer           = (1u << 12),
-                # eTypeClassReference         = (1u << 13),
-                # eTypeClassStruct            = (1u << 14),
-                # eTypeClassTypedef           = (1u << 15),
-                # eTypeClassUnion             = (1u << 16),
-                # eTypeClassVector            = (1u << 17),
-                # // Define the last type class as the MSBit of a 32 bit value
-                # eTypeClassOther             = (1u << 31),
-                # // Define a mask that can be used for any type when finding types
-                # eTypeClassAny               = (0xffffffffu)
-                tdata.code = {
-                    #lldb.eTypeClassArray : TypeCodeArray,
-                    #lldb.eTypeClassVector : TypeCodeArray,
-                    lldb.eTypeClassComplexInteger : TypeCodeComplex,
-                    lldb.eTypeClassComplexFloat : TypeCodeComplex,
-                    lldb.eTypeClassClass : TypeCodeStruct,
-                    lldb.eTypeClassStruct : TypeCodeStruct,
-                    lldb.eTypeClassUnion : TypeCodeStruct,
-                    lldb.eTypeClassEnumeration : TypeCodeEnum,
-                    #lldb.eTypeClassTypedef : TypeCodeTypedef,
-                    #lldb.eTypeClassReference : TypeCodeReference,
-                    #lldb.eTypeClassPointer : TypeCodePointer,
-                    lldb.eTypeClassFunction : TypeCodeFunction,
-                    lldb.eTypeClassMemberPointer : TypeCodeMemberPointer
-                }[code]
-            if tdata.code == TypeCodeEnum:
-                tdata.enumDisplay = lambda intval: self.nativeTypeEnumDisplay(nativeType, intval)
-            self.registerType(typeId, tdata) # Prevent recursion in fields.
-            tdata.lfields = self.listFields(nativeType, self.Type(self, typeId))
-            tdata.templateArguments = self.listTemplateParametersHelper(nativeType)
+                    warn('UNKNOWN TYPE KEY: %s: %s' % (typeName, code))
+            elif code == lldb.eTypeClassEnumeration:
+                tdata.code = TypeCodeEnum
+                tdata.enumDisplay = lambda intval : \
+                    self.nativeTypeEnumDisplay(nativeType, intval)
+            elif code in (lldb.eTypeClassComplexInteger, lldb.eTypeClassComplexFloat):
+                tdata.code = TypeCodeComplex
+            elif code in (lldb.eTypeClassClass, lldb.eTypeClassStruct, lldb.eTypeClassUnion):
+                tdata.code = TypeCodeStruct
+                #if nativeType.GetNumberOfDirectBaseClasses() > 0:
+                #    firstBase = nativeType.GetDirectBaseClassAtIndex(0).GetType()
+                #    if firstBase.GetByteSize() >= 2 * self.ptrSize():
+                #        tdata.lfirstBase = self.fromNativeType(firstBase)
+                tdata.lalignment = lambda : \
+                    self.nativeStructAlignment(nativeType)
+                tdata.lfields = lambda value : \
+                    self.listMembers(nativeType, value)
+                tdata.lfieldByName = lambda name : \
+                    self.nativeTypeFieldTypeByName(nativeType, name)
+                tdata.templateArguments = self.listTemplateParametersHelper(nativeType)
+            elif code == lldb.eTypeClassFunction:
+                tdata.code = TypeCodeFunction,
+            elif code == lldb.eTypeClassMemberPointer:
+                tdata.code = TypeCodeMemberPointer
+
             self.registerType(typeId, tdata) # Fix up fields and template args
         #    warn('CREATE TYPE: %s' % typeId)
         #else:
@@ -403,103 +506,6 @@ class Dumper(DumperBase):
         typeId = c + ''.join(['{%s:%s}' % (f.name, self.nativeTypeId(f.GetType())) for f in fields])
         #warn('NATIVE TYPE ID FOR %s IS %s' % (name, typeId))
         return typeId
-
-    def listFields(self, nativeType, parentType):
-        fields = []
-        if self.currentContextValue is not None:
-            addr = self.currentContextValue.AddressOf().GetValueAsUnsigned()
-        else:
-            warn('CREATING DUMMY CONTEXT')
-            addr = 0 # FIXME: 0 doesn't produce valid member offsets.
-            addr = 0x7fffffffe0a0
-        sbaddr = lldb.SBAddress(addr, self.target)
-        dummyValue = self.target.CreateValueFromAddress('x', sbaddr, nativeType)
-        dummyValue.SetPreferSyntheticValue(False)
-
-        anonNumber = 0
-
-        baseNames = {}
-        virtualNames = {}
-        # baseNames = set(base.GetName() for base in nativeType.get_bases_array())
-        for i in range(nativeType.GetNumberOfDirectBaseClasses()):
-            base = nativeType.GetDirectBaseClassAtIndex(i)
-            baseNames[base.GetName()] = i
-
-        for i in range(nativeType.GetNumberOfVirtualBaseClasses()):
-            base = nativeType.GetVirtualBaseClassAtIndex(i)
-            virtualNames[base.GetName()] = i
-
-        fieldBits = dict((f.name,
-                         ((f.GetBitfieldSizeInBits()
-                              if f.GetBitfieldSizeInBits() else
-                          (f.GetType().GetByteSize() * 8)),
-                          f.GetOffsetInBits()))
-                        for f in nativeType.get_fields_array())
-
-        #warn('BASE NAMES: %s' % baseNames)
-        #warn('VIRTUAL NAMES: %s' % virtualNames)
-        #warn('FIELD BITS: %s' % fieldBits)
-        fieldParentType = self.fromNativeType(nativeType).stripTypedefs()
-
-        # This does not list empty base entries.
-        for i in xrange(dummyValue.GetNumChildren()):
-            dummyChild = dummyValue.GetChildAtIndex(i)
-            fieldName = dummyChild.GetName()
-            if fieldName is None:
-                anonNumber += 1
-                fieldName = '#%s' % anonNumber
-            fieldType = dummyChild.GetType().GetUnqualifiedType()
-            #warn('CHILD AT: %s: %s %s' % (i, fieldName, fieldType.GetName()))
-            #warn(' AT: %s: %s %s' % (i, fieldName, fieldType.GetName()))
-            caddr = dummyChild.AddressOf().GetValueAsUnsigned()
-            child = self.Value(self)
-            child.type = self.fromNativeType(fieldType)
-            child.name = fieldName
-            field = self.Field(self)
-            field.value = child
-            field.parentType = fieldParentType
-            field.ltype = self.fromNativeType(fieldType)
-            field.nativeIndex = i
-            field.name = fieldName
-            if fieldName in fieldBits:
-                (field.lbitsize, field.lbitpos) = fieldBits[fieldName]
-            else:
-                field.lbitsize = fieldType.GetByteSize() * 8
-                field.lbitpos = (caddr - addr) * 8
-            if fieldName in baseNames:
-                #warn('BASE: %s P0S: 0x%x - 0x%x = %s' % (fieldName, caddr, addr, caddr - addr))
-                field.isBaseClass = True
-                field.baseIndex = baseNames[fieldName]
-            if fieldName in virtualNames:
-                field.isVirtualBase = True
-                #warn('ADDING VIRTUAL BASE: %s' % fieldName)
-            fields.append(field)
-
-        # Add empty bases.
-        for i in range(nativeType.GetNumberOfDirectBaseClasses()):
-            fieldObj = nativeType.GetDirectBaseClassAtIndex(i)
-            fieldType = fieldObj.GetType()
-            if fieldType.GetNumberOfFields() == 0:
-                if fieldType.GetNumberOfDirectBaseClasses() == 0:
-                    fieldName = fieldObj.GetName()
-                    child = self.Value(self)
-                    child.type = self.fromNativeType(fieldType)
-                    child.name = fieldName
-                    child.ldata = bytes()
-                    field = self.Field(self)
-                    field.value = child
-                    field.isBaseClass = True
-                    field.baseIndex = baseNames[fieldName]
-                    field.parentType = fieldParentType
-                    field.ltype = self.fromNativeType(fieldType)
-                    field.name = fieldName
-                    field.lbitsize = field.ltype.lbitsize * 8
-                    field.lbitpos = 0
-                    fields.append(field)
-
-        #warn('FIELD NAMES: %s' % [field.name for field in fields])
-        #warn('FIELDS: %s' % fields)
-        return fields
 
     def nativeTypeEnumDisplay(self, nativeType, intval):
         if hasattr(nativeType, 'get_enum_members_array'):

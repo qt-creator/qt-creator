@@ -110,6 +110,9 @@ public:
     QString deviceSymbolsRoot;
     bool continueAfterAttach = false;
     QString sysRoot;
+
+    // Used by general core file debugging. Public access requested in QTCREATORBUG-17158.
+    QString coreFile;
 };
 
 } // namespace Debugger

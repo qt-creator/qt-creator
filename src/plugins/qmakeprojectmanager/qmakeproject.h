@@ -38,7 +38,7 @@
 #include <QFuture>
 
 QT_BEGIN_NAMESPACE
-class ProFileGlobals;
+class QMakeGlobals;
 class QMakeVfs;
 QT_END_NAMESPACE
 
@@ -91,9 +91,11 @@ public:
     /// \internal
     QtSupport::ProFileReader *createProFileReader(const QmakeProFileNode *qmakeProFileNode, QmakeBuildConfiguration *bc = 0);
     /// \internal
-    ProFileGlobals *qmakeGlobals();
+    QMakeGlobals *qmakeGlobals();
     /// \internal
     QMakeVfs *qmakeVfs();
+    /// \internal
+    QString qmakeSysroot();
     /// \internal
     void destroyProFileReader(QtSupport::ProFileReader *reader);
 
@@ -188,8 +190,10 @@ private:
     QMakeVfs *m_qmakeVfs = nullptr;
 
     // cached data during project rescan
-    ProFileGlobals *m_qmakeGlobals = nullptr;
+    QMakeGlobals *m_qmakeGlobals = nullptr;
     int m_qmakeGlobalsRefCnt = 0;
+
+    QString m_qmakeSysroot;
 
     QTimer m_asyncUpdateTimer;
     QFutureInterface<void> *m_asyncUpdateFutureInterface = nullptr;

@@ -27,6 +27,7 @@
 #include "utils.h"
 
 #include <QApplication>
+#include <QCommandLineParser>
 #include <QFile>
 #include <QProcess>
 #include <QString>
@@ -37,27 +38,52 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-// Called by signal handler of qtcreator.
-// Usage: $0 <name of signal causing the crash>
+static void printErrorAndExit()
+{
+    QTextStream err(stderr);
+    err << QString::fromLatin1("This crash handler will be called by Qt Creator itself. "
+                               "Do not call this manually.\n");
+    exit(EXIT_FAILURE);
+}
+
+static bool hasProcessOriginFromQtCreatorBuildDir(Q_PID pid)
+{
+    const QString executable = QFile::symLinkTarget(QString::fromLatin1("/proc/%1/exe")
+        .arg(QString::number(pid)));
+    return executable.contains("qtcreator");
+}
+
+// Called by signal handler of crashing application.
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     app.setApplicationName(QLatin1String(APPLICATION_NAME));
     app.setWindowIcon(QApplication::style()->standardIcon(QStyle::SP_MessageBoxCritical));
 
+    // Parse arguments.
+    QCommandLineParser parser;
+    parser.addPositionalArgument("signal-name", QString());
+    parser.addPositionalArgument("app-name", QString());
+    const QCommandLineOption disableRestartOption("disable-restart");
+    parser.addOption(disableRestartOption);
+    parser.process(app);
+
     // Check usage.
+    const QStringList positionalArguments = parser.positionalArguments();
+    if (positionalArguments.size() != 2)
+        printErrorAndExit();
+
     Q_PID parentPid = getppid();
-    QString parentExecutable = QFile::symLinkTarget(QString::fromLatin1("/proc/%1/exe")
-        .arg(QString::number(parentPid)));
-    if (argc > 2 || !parentExecutable.contains(QLatin1String("qtcreator"))) {
-        QTextStream err(stderr);
-        err << QString::fromLatin1("This crash handler will be called by Qt Creator itself. "
-                                   "Do not call this manually.\n");
-        return EXIT_FAILURE;
-    }
+    if (!hasProcessOriginFromQtCreatorBuildDir(parentPid))
+        printErrorAndExit();
 
     // Run.
-    CrashHandler *crashHandler = new CrashHandler(parentPid, app.arguments().at(1));
+    const QString signalName = parser.positionalArguments().at(0);
+    const QString appName = parser.positionalArguments().at(1);
+    CrashHandler::RestartCapability restartCap = CrashHandler::EnableRestart;
+    if (parser.isSet(disableRestartOption))
+        restartCap = CrashHandler::DisableRestart;
+    CrashHandler *crashHandler = new CrashHandler(parentPid, signalName, appName, restartCap);
     crashHandler->run();
 
     return app.exec();

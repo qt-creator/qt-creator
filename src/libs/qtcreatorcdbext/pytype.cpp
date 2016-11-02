@@ -33,6 +33,9 @@
 #include "stringutils.h"
 #include "symbolgroupvalue.h"
 
+constexpr bool debugPyType = false;
+constexpr bool debuggingEnabled() { return debugPyType || debugPyCdbextModule; }
+
 enum TypeCodes {
     TypeCodeTypedef,
     TypeCodeStruct,
@@ -46,37 +49,43 @@ enum TypeCodes {
     TypeCodeReference,
     TypeCodeFunction,
     TypeCodeMemberPointer,
-    TypeCodeFortranString
+    TypeCodeFortranString,
+    TypeCodeUnresolvable
 };
 
 PyObject *lookupType(const std::string &typeNameIn)
 {
+    if (debuggingEnabled())
+        DebugPrint() << "lookup type '" << typeNameIn << "'";
     std::string typeName = typeNameIn;
     CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
+    if (typeName.find("enum ") == 0)
+        typeName.erase(0, 5);
+    trimBack(typeName);
+    if (typeName == "__int64" || typeName == "unsigned __int64")
+        typeName.erase(typeName.find("__"), 2);
     std::string fullTypeName = typeName;
     // GetSymbolTypeId doesn't support pointer types so we need to strip off the '*' first
-    while (endsWith(typeName, '*'))
+    while (endsWith(typeName, '*')) {
         typeName.pop_back();
+        trimBack(typeName);
+    }
     ULONG64 module;
     ULONG typeId;
     if (FAILED(symbols->GetSymbolTypeId(typeName.c_str(), &typeId, &module)))
-        Py_RETURN_NONE;
+        return createUnresolvedType(typeNameIn);
     if (typeName != fullTypeName) {
         if (module == 0) { // found some builtin type like char so we take the first module available to look up the pointer type
             ULONG loaded, unloaded;
             if (FAILED(symbols->GetNumberModules(&loaded, &unloaded)))
-                Py_RETURN_NONE;
+                return createUnresolvedType(typeNameIn);
             if ((loaded + unloaded == 0) || FAILED(symbols->GetModuleByIndex(0, &module)))
-                Py_RETURN_NONE;
+                return createUnresolvedType(typeNameIn);
         }
         if (FAILED(symbols->GetTypeId(module, fullTypeName.c_str(), &typeId)))
-            Py_RETURN_NONE;
+            return createUnresolvedType(typeNameIn);
     }
-    size_t typeNameLength = fullTypeName.length();
-    char *cTypeName = new char[typeNameLength + 1];
-    fullTypeName.copy(cTypeName, fullTypeName.length());
-    cTypeName[typeNameLength] = 0;
-    return createType(module, typeId, cTypeName);
+    return createType(module, typeId);
 }
 
 char *getTypeName(ULONG64 module, ULONG typeId)
@@ -114,10 +123,12 @@ PyObject *type_bitSize(Type *self)
 {
     ULONG size;
     auto extcmd = ExtensionCommandContext::instance();
-    if (endsWith(getTypeName(self), '*'))
+    if (!self->m_resolved)
+        size = 0;
+    else if (endsWith(getTypeName(self), '*'))
         size = SUCCEEDED(ExtensionCommandContext::instance()->control()->IsPointer64Bit()) ? 8 : 4;
     else if (FAILED(extcmd->symbols()->GetTypeSize(self->m_module, self->m_typeId, &size)))
-        return NULL;
+        Py_RETURN_NONE;
     return Py_BuildValue("k", size * 8);
 }
 
@@ -131,24 +142,28 @@ PyObject *type_Code(Type *self)
     static const std::vector<std::string> integralTypes({"bool",
             "char", "unsigned char", "char16_t", "char32_t", "wchar_t",
             "short", "unsigned short", "int", "unsigned int",
-            "long", "unsigned long", "int64", "unsigned int64"});
+            "long", "unsigned long", "int64", "unsigned int64", "__int64", "unsigned __int64"});
     static const std::vector<std::string> floatTypes({"float", "double"});
 
     TypeCodes code = TypeCodeStruct;
-    const char *typeNameCstr = getTypeName(self);
-    if (typeNameCstr == 0)
-        Py_RETURN_NONE;
-    const std::string typeName(typeNameCstr);
-    if (SymbolGroupValue::isArrayType(typeName))
-        code = TypeCodeArray;
-    else if (endsWith(typeName, "*"))
-        code = TypeCodePointer;
-    else if (typeName.find("<function>") != std::string::npos)
-        code = TypeCodeFunction;
-    else if (isType(typeName, integralTypes))
-        code = TypeCodeIntegral;
-    else if (isType(typeName, floatTypes))
-        code = TypeCodeFloat;
+    if (!self->m_resolved) {
+        code = TypeCodeUnresolvable;
+    } else {
+        const char *typeNameCstr = getTypeName(self);
+        if (typeNameCstr == 0)
+            Py_RETURN_NONE;
+        const std::string typeName(typeNameCstr);
+        if (SymbolGroupValue::isArrayType(typeName))
+            code = TypeCodeArray;
+        else if (typeName.find("<function>") != std::string::npos)
+            code = TypeCodeFunction;
+        else if (endsWith(typeName, "*"))
+            code = TypeCodePointer;
+        else if (isType(typeName, integralTypes))
+            code = TypeCodeIntegral;
+        else if (isType(typeName, floatTypes))
+            code = TypeCodeFloat;
+    }
 
     return Py_BuildValue("k", code);
 }
@@ -162,12 +177,18 @@ PyObject *type_Unqualified(Type *self)
 PyObject *type_Target(Type *self)
 {
     std::string typeName(getTypeName(self));
-    if (!endsWith(typeName, "*")) {
-        Py_XINCREF(self);
-        return (PyObject *)self;
+    if (endsWith(typeName, "*")) {
+        typeName.pop_back();
+        return lookupType(typeName);
     }
-    typeName.pop_back();
-    return lookupType(typeName);
+    if (SymbolGroupValue::isArrayType(typeName)) {
+        typeName.pop_back();
+        typeName.pop_back();
+        return lookupType(typeName);
+    }
+
+    Py_XINCREF(self);
+    return (PyObject *)self;
 }
 
 PyObject *type_StripTypedef(Type *self)
@@ -202,6 +223,22 @@ PyObject *type_Fields(Type *self)
         PyList_Append(fields, reinterpret_cast<PyObject*>(field));
     }
     return fields;
+}
+
+PyObject *type_Module(Type *self)
+{
+    CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
+    ULONG size;
+    symbols->GetModuleNameString(DEBUG_MODNAME_MODULE, DEBUG_ANY_ID, self->m_module, NULL, 0, &size);
+    char *modName = new char[size];
+    if (FAILED(symbols->GetModuleNameString(DEBUG_MODNAME_MODULE, DEBUG_ANY_ID,
+                                            self->m_module, modName, size, NULL))) {
+        delete[] modName;
+        Py_RETURN_NONE;
+    }
+    PyObject *ret = Py_BuildValue("s", modName);
+    delete[] modName;
+    return ret;
 }
 
 std::vector<std::string> innerTypesOf(const std::string &t)
@@ -275,15 +312,19 @@ PyObject *type_TemplateArgument(Type *self, PyObject *args)
 PyObject *type_TemplateArguments(Type *self)
 {
     std::vector<std::string> innerTypes = innerTypesOf(getTypeName(self));
+    if (debuggingEnabled())
+        DebugPrint() << "template arguments of: " << getTypeName(self);
     auto templateArguments = PyList_New(0);
     for (const std::string &innerType : innerTypes) {
+        if (debuggingEnabled())
+            DebugPrint() << "    template argument: " << innerType;
         PyObject* childValue;
         try {
             int integer = std::stoi(innerType);
             childValue = Py_BuildValue("i", integer);
         }
         catch (std::invalid_argument) {
-            childValue = lookupType(innerType);
+            childValue = Py_BuildValue("s", innerType.c_str());
         }
         PyList_Append(templateArguments, childValue);
     }
@@ -297,6 +338,7 @@ PyObject *type_New(PyTypeObject *type, PyObject *, PyObject *)
         self->m_name = nullptr;
         self->m_typeId = 0;
         self->m_module = 0;
+        self->m_resolved = false;
     }
     return reinterpret_cast<PyObject *>(self);
 }
@@ -312,6 +354,17 @@ PyObject *createType(ULONG64 module, ULONG typeId, char* name)
     type->m_module = module;
     type->m_typeId = typeId;
     type->m_name = name;
+    type->m_resolved = true;
+    return reinterpret_cast<PyObject *>(type);
+}
+
+PyObject *createUnresolvedType(const std::string &name)
+{
+    Type *type = PyObject_New(Type, type_pytype());
+    type->m_module = 0;
+    type->m_typeId = 0;
+    type->m_name = strdup(name.c_str());
+    type->m_resolved = false;
     return reinterpret_cast<PyObject *>(type);
 }
 
@@ -330,6 +383,8 @@ static PyMethodDef typeMethods[] = {
      "Type with typedefs removed"},
     {"fields",              PyCFunction(type_Fields),               METH_NOARGS,
      "List of fields (member and base classes) of this type"},
+    {"module",              PyCFunction(type_Module),               METH_NOARGS,
+     "Returns name for the module containing this type"},
 
     {"templateArgument",    PyCFunction(type_TemplateArgument),     METH_VARARGS,
      "Returns template argument at position"},
@@ -351,43 +406,43 @@ PyTypeObject *type_pytype()
 {
     static PyTypeObject cdbext_TypeType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "cdbext.Type",              /* tp_name */
-        sizeof(Type),               /* tp_basicsize */
-        0,                          /* tp_itemsize */
-        (destructor)type_Dealloc,   /* tp_dealloc */
-        0,                          /* tp_print */
-        0,                          /* tp_getattr */
-        0,                          /* tp_setattr */
-        0,                          /* tp_as_async */
-        0,                          /* tp_repr */
-        0,                          /* tp_as_number */
-        0,                          /* tp_as_sequence */
-        0,                          /* tp_as_mapping */
-        0,                          /* tp_hash  */
-        0,                          /* tp_call */
-        0,                          /* tp_str */
-        0,                          /* tp_getattro */
-        0,                          /* tp_setattro */
-        0,                          /* tp_as_buffer */
-        Py_TPFLAGS_DEFAULT,         /* tp_flags */
-        "Type objects",             /* tp_doc */
-        0,                          /* tp_traverse */
-        0,                          /* tp_clear */
-        0,                          /* tp_richcompare */
-        0,                          /* tp_weaklistoffset */
-        0,                          /* tp_iter */
-        0,                          /* tp_iternext */
-        typeMethods,                /* tp_methods */
-        typeMembers,                /* tp_members (just for debugging)*/
-        0,                          /* tp_getset */
-        0,                          /* tp_base */
-        0,                          /* tp_dict */
-        0,                          /* tp_descr_get */
-        0,                          /* tp_descr_set */
-        0,                          /* tp_dictoffset */
-        0,                          /* tp_init */
-        0,                          /* tp_alloc */
-        type_New,                   /* tp_new */
+        "cdbext.Type",                              /* tp_name */
+        sizeof(Type),                               /* tp_basicsize */
+        0,                                          /* tp_itemsize */
+        (destructor)type_Dealloc,                   /* tp_dealloc */
+        0,                                          /* tp_print */
+        0,                                          /* tp_getattr */
+        0,                                          /* tp_setattr */
+        0,                                          /* tp_as_async */
+        0,                                          /* tp_repr */
+        0,                                          /* tp_as_number */
+        0,                                          /* tp_as_sequence */
+        0,                                          /* tp_as_mapping */
+        0,                                          /* tp_hash  */
+        0,                                          /* tp_call */
+        0,                                          /* tp_str */
+        0,                                          /* tp_getattro */
+        0,                                          /* tp_setattro */
+        0,                                          /* tp_as_buffer */
+        Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,   /* tp_flags */
+        "Type objects",                             /* tp_doc */
+        0,                                          /* tp_traverse */
+        0,                                          /* tp_clear */
+        0,                                          /* tp_richcompare */
+        0,                                          /* tp_weaklistoffset */
+        0,                                          /* tp_iter */
+        0,                                          /* tp_iternext */
+        typeMethods,                                /* tp_methods */
+        typeMembers,                                /* tp_members (just for debugging)*/
+        0,                                          /* tp_getset */
+        0,                                          /* tp_base */
+        0,                                          /* tp_dict */
+        0,                                          /* tp_descr_get */
+        0,                                          /* tp_descr_set */
+        0,                                          /* tp_dictoffset */
+        0,                                          /* tp_init */
+        0,                                          /* tp_alloc */
+        type_New,                                   /* tp_new */
     };
 
     return &cdbext_TypeType;

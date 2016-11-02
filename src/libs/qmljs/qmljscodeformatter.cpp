@@ -300,8 +300,9 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             case Question:
             case Delimiter:
             case LeftBracket:
-            case LeftParenthesis:  leave(); continue;
-            default:               leave(true); continue;
+            case LeftParenthesis:
+            case LeftBrace:         leave(); continue;
+            default:                leave(true); continue;
             } break;
 
         case paren_open:

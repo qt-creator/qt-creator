@@ -66,6 +66,9 @@
     specify other command line arguments for the tools, select \uicontrol {Tools >
     External > Configure}.
 
+    To open TS files in Qt Linguist, right-click a TS file in the
+    \uicontrol Projects view and select \uicontrol {Open With} >
+    \uicontrol {Qt Linguist} in the context menu.
     For more information about Qt Linguist, see \l{Qt Linguist Manual}.
 
     \section1 Previewing QML Files

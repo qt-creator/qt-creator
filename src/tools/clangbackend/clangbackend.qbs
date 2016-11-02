@@ -14,6 +14,14 @@ QtcTool {
         ]
     }
 
+    Group {
+        prefix: "../qtcreatorcrashhandler/"
+        files: [
+            "crashhandlersetup.h",
+            "crashhandlersetup.cpp",
+        ]
+    }
+
     files: [ "clangbackendmain.cpp" ]
 
     condition: libclang.present

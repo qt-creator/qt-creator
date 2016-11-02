@@ -63,9 +63,6 @@ public:
     static Utils::FileName lldbPath();
     static void updateAutomaticKitList();
 
-signals:
-    void updated();
-
 private:
     IosConfigurations(QObject *parent);
     void load();

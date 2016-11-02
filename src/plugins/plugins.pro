@@ -3,7 +3,6 @@ include(../../qtcreator.pri)
 TEMPLATE  = subdirs
 
 SUBDIRS   = \
-    appmanager \
     autotest \
     clangstaticanalyzer \
     coreplugin \

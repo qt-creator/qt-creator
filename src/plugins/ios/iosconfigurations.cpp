@@ -292,7 +292,6 @@ void IosConfigurations::setIgnoreAllDevices(bool ignoreDevices)
     if (ignoreDevices != m_instance->m_ignoreAllDevices) {
         m_instance->m_ignoreAllDevices = ignoreDevices;
         m_instance->save();
-        emit m_instance->updated();
     }
 }
 
@@ -348,7 +347,6 @@ void IosConfigurations::setDeveloperPath(const FileName &devPath)
                                &IosDeviceManager::monitorAvailableDevices);
             m_instance->updateSimulators();
         }
-        emit m_instance->updated();
     }
 }
 

@@ -81,11 +81,10 @@
     taking screenshots and viewing statistics.
 
     To zoom into and out of the whole state chart in the state editor, select
-    \inlineimage icon-zoom-in.png
-    (\uicontrol {Zoom In}) or \inlineimage icon-zoom-out.png
-    (\uicontrol {Zoom Out}) or press \key Ctrl and use the mouse wheel. To make
+    \uicontrol {Zoom In} or \uicontrol {Zoom Out} or press \key Ctrl and use the
+    mouse wheel. To make
     the whole state chart visible in the state editor at a time, select
-    \inlineimage icon-fit-screen.png
+    \inlineimage fittoview.png
     (\uicontrol {Fit to View}).
 
     To view a particular part of a large state chart in the state editor, select
@@ -95,8 +94,8 @@
 
     To use the magnifier to zoom into a part of the state chart, select
     \inlineimage zoom.png
-    (\uicontrol Magnifier). To move the magnifier faster, press down the
-    \key Alt key.
+    (\uicontrol {Magnifier Tool}). To move the magnifier tool faster, press down
+    the \key Alt key.
 
     To pan the state chart, select \inlineimage icon-pan.png
     (\uicontrol Panning). To increase the pace of panning, press down the
@@ -110,7 +109,7 @@
     checks the whole SCXML tree for attributes that match the search criteria.
 
     To save the currently visible part of the state chart as an image, select
-    \inlineimage screenshot.png
+    \inlineimage snapshot.png
     (\uicontrol {Save Screenshot}). To save the whole state chart as an image,
     select \inlineimage icon-export-canvas.png
     (\uicontrol {Export Canvas to Image}).
@@ -223,7 +222,7 @@
     select \uicontrol {Zoom to State}.
 
     To ensure that the state ids are unique within a compound state machine,
-    select \inlineimage fullnamespace.png
+    select \inlineimage namespace.png
     (\uicontrol {Toggle Full Namespace}). The name of the parent state is
     added to the names of the child states, separated by two colons (::).
     For example:

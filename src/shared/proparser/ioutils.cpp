@@ -52,7 +52,7 @@ IoUtils::FileType IoUtils::fileType(const QString &fileName)
     struct ::stat st;
     if (::stat(fileName.toLocal8Bit().constData(), &st))
         return FileNotFound;
-    return S_ISDIR(st.st_mode) ? FileIsDir : FileIsRegular;
+    return S_ISDIR(st.st_mode) ? FileIsDir : S_ISREG(st.st_mode) ? FileIsRegular : FileNotFound;
 #endif
 }
 
