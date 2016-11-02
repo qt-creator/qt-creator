@@ -208,6 +208,9 @@ class Dumper(DumperBase):
     def isMsvcTarget(self):
         return True
 
+    def qtHookDataSymbolName(self):
+        return 'Qt5Cored#!qtHookData'
+
     def qtVersionAndNamespace(self):
         return ('', 0x50700) #FIXME: use a general approach in dumper or qttypes
 

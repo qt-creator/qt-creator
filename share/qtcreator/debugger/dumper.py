@@ -2660,8 +2660,11 @@ class DumperBase:
     def symbolAddress(self, symbolName):
         return self.parseAndEvaluate('(size_t)&' + symbolName).pointer()
 
+    def qtHookDataSymbolName(self):
+        return 'qtHookData'
+
     def qtTypeInfoVersion(self):
-        addr = self.symbolAddress('qtHookData')
+        addr = self.symbolAddress(self.qtHookDataSymbolName())
         if addr:
             # Only available with Qt 5.3+
             (hookVersion, x, x, x, x, x, tiVersion) = self.split('ppppppp', addr)
