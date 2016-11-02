@@ -11,13 +11,13 @@ QtcTool {
     Depends { name: "app_version_header" }
 
     files: [
+        "Info.plist",
         "main.cpp",
         "iosdevicemanager.cpp",
         "iosdevicemanager.h"
     ]
     cpp.frameworks: base.concat(["CoreFoundation", "CoreServices", "IOKit", "Security",
                                  "SystemConfiguration"])
-    bundle.infoPlistFile: "Info.plist"
 
     installDir: qtc.ide_libexec_path + "/ios"
 }
