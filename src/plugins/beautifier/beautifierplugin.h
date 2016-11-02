@@ -31,6 +31,7 @@
 
 #include <QPlainTextEdit>
 #include <QPointer>
+#include <QSharedPointer>
 
 namespace Core {
 class IDocument;
@@ -86,7 +87,7 @@ public:
 private:
     void updateActions(Core::IEditor *editor = nullptr);
     QList<BeautifierAbstractTool *> m_tools;
-    GeneralSettings *m_generalSettings = nullptr;
+    QSharedPointer<GeneralSettings> m_generalSettings;
     QHash<QObject*, QMetaObject::Connection> m_autoFormatConnections;
     void formatEditor(TextEditor::TextEditorWidget *editor, const Command &command,
                       int startPos = -1, int endPos = 0);
