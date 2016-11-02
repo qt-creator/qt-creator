@@ -723,7 +723,7 @@ void Target::updateDeviceState()
     IDevice::ConstPtr current = DeviceKitInformation::device(kit());
 
     QIcon overlay;
-    static const QIcon disconnected = Icons::DEVICE_DISCONNECTED_INDICATOR.icon();
+    static const QIcon disconnected = Icons::DEVICE_DISCONNECTED_INDICATOR_OVERLAY.icon();
     if (current.isNull()) {
         overlay = disconnected;
     } else {
@@ -733,12 +733,12 @@ void Target::updateDeviceState()
             setToolTip(QString());
             return;
         case IDevice::DeviceReadyToUse: {
-            static const QIcon ready = Icons::DEVICE_READY_INDICATOR.icon();
+            static const QIcon ready = Icons::DEVICE_READY_INDICATOR_OVERLAY.icon();
             overlay = ready;
             break;
         }
         case IDevice::DeviceConnected: {
-            static const QIcon connected = Icons::DEVICE_CONNECTED_INDICATOR.icon();
+            static const QIcon connected = Icons::DEVICE_CONNECTED_INDICATOR_OVERLAY.icon();
             overlay = connected;
             break;
         }
