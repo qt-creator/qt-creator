@@ -23,7 +23,6 @@ QtcProduct {
     installDir: qtc.ide_bin_path
     property bool qtcRunnable: true
 
-    cpp.defines: base.concat(['IDE_LIBEXEC_PATH="' + qtc.ide_libexec_path + '"'])
     cpp.rpaths: qbs.targetOS.contains("macos") ? ["@executable_path/../Frameworks"]
                                              : ["$ORIGIN/../" + qtc.libDirName + "/qtcreator"]
     cpp.includePaths: [

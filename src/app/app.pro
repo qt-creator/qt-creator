@@ -8,8 +8,6 @@ DESTDIR = $$IDE_APP_PATH
 VERSION = $$QTCREATOR_VERSION
 QT -= testlib
 
-DEFINES += IDE_LIBEXEC_PATH=\\\"$$IDE_LIBEXEC_PATH\\\"
-
 HEADERS += ../tools/qtcreatorcrashhandler/crashhandlersetup.h
 SOURCES += main.cpp ../tools/qtcreatorcrashhandler/crashhandlersetup.cpp
 

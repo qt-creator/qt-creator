@@ -327,8 +327,9 @@ int main(int argc, char **argv)
     const int threadCount = QThreadPool::globalInstance()->maxThreadCount();
     QThreadPool::globalInstance()->setMaxThreadCount(qMax(4, 2 * threadCount));
 
-    // Display a backtrace once a serious signal is delivered.
-    CrashHandlerSetup setupCrashHandler(IDE_LIBEXEC_PATH);
+    // Display a backtrace once a serious signal is delivered (Linux only).
+    const QString libexecPath = QCoreApplication::applicationDirPath() + "/../libexec/qtcreator";
+    CrashHandlerSetup setupCrashHandler(appNameC, CrashHandlerSetup::EnableRestart, libexecPath);
 
 #ifdef ENABLE_QT_BREAKPAD
     QtSystemExceptionHandler systemExceptionHandler;
