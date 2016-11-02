@@ -30,8 +30,6 @@
 #include "cmbregistertranslationunitsforeditormessage.h"
 #include "cmbunregistertranslationunitsforeditormessage.h"
 
-#include <utils/hostosinfo.h>
-
 #include <QCoreApplication>
 #include <QMetaMethod>
 #include <QProcess>
@@ -183,10 +181,13 @@ void ConnectionClient::endProcess(QProcess *process)
 
 void ConnectionClient::terminateProcess(QProcess *process)
 {
-    if (!Utils::HostOsInfo::isWindowsHost() && isProcessIsRunning()) {
+    Q_UNUSED(process)
+#ifndef Q_OS_WIN32
+    if (isProcessIsRunning()) {
         process->terminate();
         process->waitForFinished();
     }
+#endif
 }
 
 void ConnectionClient::killProcess(QProcess *process)
