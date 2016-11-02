@@ -364,7 +364,6 @@ public:
     void setParseInProgressRecursive(bool b);
     void setValidParse(bool b);
     void setValidParseRecursive(bool b);
-    void emitProFileUpdatedRecursive();
 
     void asyncUpdate();
 

@@ -1673,16 +1673,6 @@ QString QmakeProFileNode::singleVariableValue(const QmakeVariable var) const
     return values.isEmpty() ? QString() : values.first();
 }
 
-void QmakeProFileNode::emitProFileUpdatedRecursive()
-{
-    emit m_project->proFileUpdated(this, m_validParse, m_parseInProgress);
-
-    foreach (ProjectNode *subNode, subProjectNodes()) {
-        if (QmakeProFileNode *node = dynamic_cast<QmakeProFileNode *>(subNode))
-            node->emitProFileUpdatedRecursive();
-    }
-}
-
 void QmakeProFileNode::setParseInProgressRecursive(bool b)
 {
     setParseInProgress(b);
