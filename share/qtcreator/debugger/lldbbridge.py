@@ -420,10 +420,6 @@ class Dumper(DumperBase):
                 tdata.code = TypeCodeComplex
             elif code in (lldb.eTypeClassClass, lldb.eTypeClassStruct, lldb.eTypeClassUnion):
                 tdata.code = TypeCodeStruct
-                #if nativeType.GetNumberOfDirectBaseClasses() > 0:
-                #    firstBase = nativeType.GetDirectBaseClassAtIndex(0).GetType()
-                #    if firstBase.GetByteSize() >= 2 * self.ptrSize():
-                #        tdata.lfirstBase = self.fromNativeType(firstBase)
                 tdata.lalignment = lambda : \
                     self.nativeStructAlignment(nativeType)
                 tdata.lfields = lambda value : \

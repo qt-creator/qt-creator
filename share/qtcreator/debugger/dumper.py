@@ -1444,17 +1444,51 @@ class DumperBase:
         else:
             return p > 100000 and (p & 0x7 == 0) and (p < 0x7fffffffffff)
 
+    def canBeVTableEntry(self, p):
+        if self.ptrSize() == 4:
+            return p > 100000 and (p & 0x1 == 0)
+        else:
+            return p > 100000 and (p & 0x1 == 0) and (p < 0x7fffffffffff)
+
     def couldBeQObject(self, objectPtr):
         try:
             (vtablePtr, dd) = self.split('pp', objectPtr)
         except:
             self.bump('nostruct-1')
             return False
+
         if not self.canBePointer(vtablePtr):
             self.bump('vtable')
             return False
         if not self.canBePointer(dd):
             self.bump('d_d_ptr')
+            return False
+
+        try:
+            metaObjectFunc, metaCastFunc, metaCallFunc = self.split('ppp', vtablePtr)
+        except:
+            return False
+
+        # The first three entries are in a fairly rigid relationship defined
+        # by the Q_OBJECT macro.
+        if not self.canBeVTableEntry(metaObjectFunc):
+            return False
+        if not self.canBeVTableEntry(metaCastFunc):
+            return False
+        if not self.canBeVTableEntry(metaCallFunc):
+            return False
+        if metaCastFunc < metaObjectFunc or metaCastFunc > metaObjectFunc + 200:
+            # The metaObject implementation is just that:
+            # QObject::d_ptr->metaObject ? QObject::d_ptr->dynamicMetaObject()
+            #                            : &staticMetaObject;
+            # That should not exceed 200 bytes. Observed on x86_64 debug 72.
+            return False
+        if metaCallFunc < metaCastFunc or metaCallFunc > metaCastFunc + 200:
+            # if (!_clname) return nullptr;
+            # if (!strcmp(_clname, qt_meta_stringdata_Bar__TestObject.stringdata0))
+            #     return static_cast<void*>(const_cast< TestObject*>(this));
+            # return QWidget::qt_metacast(_clname);
+            # That should not exceed 200 bytes. Observed on x86_64 debug 80.
             return False
 
         try:
@@ -1529,14 +1563,9 @@ class DumperBase:
             typeName = someTypeObj.name
             isQObjectProper = typeName == self.qtNamespace() + 'QObject'
 
-            if not isQObjectProper:
-                #if someTypeObj.firstBase() is None:
-                #    warn("FIRST BASE IS NONE")
-                #    return 0
-
-                # No templates for now.
-                if typeName.find('<') >= 0:
-                    return 0
+            # No templates for now.
+            if typeName.find('<') >= 0:
+                return 0
 
             result = self.findStaticMetaObject(typeName)
 
@@ -1568,10 +1597,10 @@ class DumperBase:
             #except:
             #    warn('METAOBJECT EXTRACTION FAILED FOR UNKNOWN REASON')
 
-            if not result:
-                base = someTypeObj.firstBase()
-                if base is not None and base != someTypeObj: # sanity check
-                    result = extractStaticMetaObjectPtrFromType(base)
+            #if not result:
+            #    base = someTypeObj.firstBase()
+            #    if base is not None and base != someTypeObj: # sanity check
+            #        result = extractStaticMetaObjectPtrFromType(base)
 
             self.knownStaticMetaObjects[someTypeName] = result
             return result
@@ -1999,7 +2028,7 @@ class DumperBase:
                 self.putItemCount(0)
             else:
                 connections = connections.dereference()
-                connections = connections.cast(connections.type.firstBase())
+                #connections = connections.cast(connections.type.firstBase())
                 self.putSpecialValue('minimumitemcount', 0)
                 self.putNumChild(1)
             if self.isExpanded():
@@ -3085,7 +3114,6 @@ class DumperBase:
             self.lalignment = None # Function returning alignment of this struct
             self.lbitsize = None
             self.lbitpos = None
-            self.lfirstBase = None
             self.ltarget = None # Inner type for arrays
             self.templateArguments = []
             self.code = None
@@ -3100,7 +3128,6 @@ class DumperBase:
             tdata.lalignment = self.lalignment
             tdata.lbitsize = self.lbitsize
             tdata.lbitpos = self.lbitpos
-            tdata.lfirstBase = self.lfirstBase
             tdata.ltarget = self.ltarget
             tdata.templateArguments = self.templateArguments
             tdata.code = self.code
@@ -3293,13 +3320,6 @@ class DumperBase:
             if tdata.lfields is not None:
                 return tdata.lfields(value)
             return []
-
-        def firstBase(self):
-            #lfields = self.fields()
-            #if len(lfields) > 0 and lfields[0].isBaseClass:
-            #    return lfields[0].ltype
-            #return None
-            return self.typeData().lfirstBase
 
         def field(self, value, name, bitoffset = 0):
             #warn('GETTING FIELD %s FOR: %s' % (name, self.name))
