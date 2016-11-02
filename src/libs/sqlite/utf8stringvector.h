@@ -28,6 +28,7 @@
 #include "sqliteglobal.h"
 #include "utf8string.h"
 
+#include <QDataStream>
 #include <QVector>
 
 class SQLITE_EXPORT Utf8StringVector : public QVector<Utf8String>
@@ -63,6 +64,11 @@ bool Utf8StringVector::removeFast(const Utf8String &valueToBeRemoved)
     return hasEntry;
 }
 
+inline QDataStream &operator<<(QDataStream &s, const Utf8StringVector &v)
+{ return s << static_cast<const QVector<Utf8String> &>(v); }
+
+inline QDataStream &operator>>(QDataStream &s, Utf8StringVector &v)
+{ return s >> static_cast<QVector<Utf8String> &>(v); }
 
 SQLITE_EXPORT QDebug operator<<(QDebug debug, const Utf8StringVector &textVector);
 SQLITE_EXPORT void PrintTo(const Utf8StringVector &textVector, ::std::ostream* os);
