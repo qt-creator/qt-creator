@@ -168,7 +168,6 @@ signals:
     void projectContextUpdated();
     void projectLanguagesUpdated();
 
-signals: // for tests only
     void parsingFinished();
 
 protected:
