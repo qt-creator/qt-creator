@@ -112,6 +112,15 @@ public:
                     + text.mid(matchEnd + resetColor.size());
         }
         single.matchingLine = text;
+
+        if (m_parameters.flags & FindRegularExpression) {
+            const QRegularExpression::PatternOptions patternOptions =
+                    (m_parameters.flags & QTextDocument::FindCaseSensitively)
+                    ? QRegularExpression::NoPatternOption : QRegularExpression::CaseInsensitiveOption;
+            QRegularExpression regexp(m_parameters.text, patternOptions);
+            QRegularExpressionMatch regexpMatch = regexp.match(line);
+            single.regexpCapturedTexts = regexpMatch.capturedTexts();
+        }
         foreach (auto match, matches) {
             single.matchStart = match.first;
             single.matchLength = match.second;
