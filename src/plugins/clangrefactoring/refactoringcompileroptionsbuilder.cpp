@@ -117,7 +117,8 @@ void RefactoringCompilerOptionsBuilder::addExtraOptions()
 }
 
 Utils::SmallStringVector RefactoringCompilerOptionsBuilder::build(CppTools::ProjectPart *projectPart,
-                                                                  CppTools::ProjectFile::Kind fileKind)
+                                                                  CppTools::ProjectFile::Kind fileKind,
+                                                                  PchUsage pchUsage)
 {
     if (projectPart == nullptr)
         return Utils::SmallStringVector();
@@ -138,6 +139,7 @@ Utils::SmallStringVector RefactoringCompilerOptionsBuilder::build(CppTools::Proj
     optionsBuilder.addPredefinedMacrosAndHeaderPathsOptions();
     optionsBuilder.addWrappedQtHeadersIncludePath();
     optionsBuilder.addHeaderPathOptions();
+    optionsBuilder.addPrecompiledHeaderOptions(pchUsage);
     optionsBuilder.addProjectConfigFileInclude();
 
     optionsBuilder.addMsvcCompatibilityVersion();

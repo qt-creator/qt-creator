@@ -40,6 +40,7 @@
 #include <cpptools/compileroptionsbuilder.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cppprojectfile.h>
+#include <cpptools/cpptoolsreuse.h>
 #include <cpptools/projectinfo.h>
 
 #include <projectexplorer/abi.h>
@@ -165,7 +166,8 @@ class ClangStaticAnalyzerOptionsBuilder : public CompilerOptionsBuilder
 {
 public:
     static QStringList build(const CppTools::ProjectPart &projectPart,
-                             CppTools::ProjectFile::Kind fileKind)
+                             CppTools::ProjectFile::Kind fileKind,
+                             PchUsage pchUsage)
     {
         ClangStaticAnalyzerOptionsBuilder optionsBuilder(projectPart);
 
@@ -184,6 +186,7 @@ public:
         optionsBuilder.undefineClangVersionMacrosForMsvc();
         optionsBuilder.undefineCppLanguageFeatureMacrosForMsvc2015();
         optionsBuilder.addHeaderPathOptions();
+        optionsBuilder.addPrecompiledHeaderOptions(pchUsage);
         optionsBuilder.addMsvcCompatibilityVersion();
 
         if (type != ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
@@ -243,8 +246,15 @@ private:
     QString includeOption() const override
     {
         if (m_isMsvcToolchain)
-            return QLatin1String("/I");
+            return QLatin1String("/FI");
         return CompilerOptionsBuilder::includeOption();
+    }
+
+    QString includeDirOption() const override
+    {
+        if (m_isMsvcToolchain)
+            return QLatin1String("/I");
+        return CompilerOptionsBuilder::includeDirOption();
     }
 
     QString defineOption() const override
@@ -376,8 +386,9 @@ static AnalyzeUnits unitsToAnalyzeFromProjectParts(const QList<ProjectPart::Ptr>
                 continue;
             QTC_CHECK(file.kind != ProjectFile::Unclassified);
             if (ProjectFile::isSource(file.kind)) {
+                const CompilerOptionsBuilder::PchUsage pchUsage = CppTools::getPchUsage();
                 const QStringList arguments
-                    = ClangStaticAnalyzerOptionsBuilder::build(*projectPart.data(), file.kind);
+                    = ClangStaticAnalyzerOptionsBuilder::build(*projectPart.data(), file.kind, pchUsage);
                 unitsToAnalyze << AnalyzeUnit(file.path, arguments);
             }
         }

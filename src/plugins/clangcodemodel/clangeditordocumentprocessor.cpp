@@ -401,9 +401,30 @@ static QStringList warningOptions(CppTools::ProjectPart *projectPart)
     return CppTools::codeModelSettings()->clangDiagnosticConfig().commandLineOptions();
 }
 
+static QStringList precompiledHeaderOptions(
+        const QString& filePath,
+        CppTools::ProjectPart *projectPart)
+{
+    using namespace CppTools;
+
+    if (CppTools::getPchUsage() == CompilerOptionsBuilder::PchUsage::None)
+        return QStringList();
+
+    if (projectPart->precompiledHeaders.contains(filePath))
+        return QStringList();
+
+    const CppTools::ProjectPart theProjectPart = projectPartForLanguageOption(projectPart);
+    CppTools::CompilerOptionsBuilder builder(theProjectPart);
+    builder.addPrecompiledHeaderOptions(CompilerOptionsBuilder::PchUsage::Use);
+
+    return builder.options();
+}
+
 static QStringList fileArguments(const QString &filePath, CppTools::ProjectPart *projectPart)
 {
-    return languageOptions(filePath, projectPart) + warningOptions(projectPart);
+    return languageOptions(filePath, projectPart)
+            + warningOptions(projectPart)
+            + precompiledHeaderOptions(filePath, projectPart);
 }
 
 ClangBackEnd::FileContainer

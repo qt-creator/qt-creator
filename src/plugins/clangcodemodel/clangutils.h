@@ -34,7 +34,6 @@ QStringList createClangOptions(const CppTools::ProjectPart::Ptr &pPart,
                                CppTools::ProjectFile::Kind fileKind);
 QStringList createClangOptions(const CppTools::ProjectPart::Ptr &pPart,
                                const QString &fileName = QString());
-QStringList createPCHInclusionOptions(const QString &pchFile);
 
 CppTools::ProjectPart::Ptr projectPartForFile(const QString &filePath);
 CppTools::ProjectPart::Ptr projectPartForFileBasedOnProcessor(const QString &filePath);

@@ -30,6 +30,8 @@
 #include <refactoringserverinterface.h>
 #include <requestsourcelocationforrenamingmessage.h>
 
+#include <cpptools/cpptoolsreuse.h>
+
 #include <QTextCursor>
 #include <QTextDocument>
 
@@ -89,7 +91,8 @@ void RefactoringEngine::startLocalRenaming(const QTextCursor &textCursor,
     client.setLocalRenamingCallback(std::move(renameSymbolsCallback));
 
     auto commandLine = RefactoringCompilerOptionsBuilder::build(projectPart,
-                                                                fileKind(projectPart, filePath.toString()));
+                                                                fileKind(projectPart, filePath.toString()),
+                                                                CppTools::getPchUsage());
 
     commandLine.push_back(filePath.toString());
     qDebug() << commandLine.join(" ");

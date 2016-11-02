@@ -34,6 +34,11 @@ namespace CppTools {
 class CPPTOOLS_EXPORT CompilerOptionsBuilder
 {
 public:
+    enum class PchUsage {
+        None,
+        Use
+    };
+
     CompilerOptionsBuilder(const ProjectPart &projectPart);
     virtual ~CompilerOptionsBuilder() {}
 
@@ -48,6 +53,7 @@ public:
     virtual void addTargetTriple();
     virtual void enableExceptions();
     void addHeaderPathOptions();
+    void addPrecompiledHeaderOptions(PchUsage pchUsage);
     void addToolchainAndProjectDefines();
     void addDefines(const QByteArray &defineDirectives);
     virtual void addLanguageOption(ProjectFile::Kind fileKind);
@@ -67,6 +73,7 @@ protected:
     virtual QString defineOption() const;
     virtual QString undefineOption() const;
     virtual QString includeOption() const;
+    virtual QString includeDirOption() const;
 
     const ProjectPart m_projectPart;
 

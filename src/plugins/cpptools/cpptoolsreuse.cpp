@@ -288,4 +288,12 @@ bool fileSizeExceedsLimit(const QFileInfo &fileInfo, int sizeLimitInMb)
     return false;
 }
 
+CompilerOptionsBuilder::PchUsage getPchUsage()
+{
+    const QSharedPointer<CppCodeModelSettings> cms = codeModelSettings();
+    if (cms->pchUsage() == CppCodeModelSettings::PchUse_None)
+        return CompilerOptionsBuilder::PchUsage::None;
+    return CompilerOptionsBuilder::PchUsage::Use;
+}
+
 } // CppTools
