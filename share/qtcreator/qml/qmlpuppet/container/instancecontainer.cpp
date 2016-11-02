@@ -99,8 +99,8 @@ QDataStream &operator<<(QDataStream &out, const InstanceContainer &container)
     out << container.minorNumber();
     out << container.componentPath();
     out << container.nodeSource();
-    out << container.nodeSourceType();
-    out << container.metaType();
+    out << qint32(container.nodeSourceType());
+    out << qint32(container.metaType());
 
     return out;
 }

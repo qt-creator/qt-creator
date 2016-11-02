@@ -106,7 +106,7 @@ void QmlEngineControlClient::sendCommand(QmlEngineControlClient::CommandType com
 {
     QByteArray data;
     QDataStream stream(&data, QIODevice::WriteOnly);
-    stream << command << engineId;
+    stream << int(command) << engineId;
     QmlDebugClient::sendMessage(data);
 }
 
