@@ -38,5 +38,39 @@ const Utils::Icon RUN_SELECTED_OVERLAY({
         {QLatin1String(":/images/runselected_boxes.png"), Utils::Theme::BackgroundColorDark},
         {QLatin1String(":/images/runselected_tickmarks.png"), Utils::Theme::IconsBaseColor}});
 
+const Utils::Icon RESULT_PASS({
+        {":/utils/images/filledcircle.png", Utils::Theme::OutputPanes_TestPassTextColor}},
+        Utils::Icon::Tint);
+const Utils::Icon RESULT_FAIL({
+        {":/utils/images/filledcircle.png", Utils::Theme::OutputPanes_TestFailTextColor}},
+        Utils::Icon::Tint);
+const Utils::Icon RESULT_XFAIL({
+        {":/utils/images/filledcircle.png", Utils::Theme::OutputPanes_TestXFailTextColor}},
+        Utils::Icon::Tint);
+const Utils::Icon RESULT_XPASS({
+        {":/utils/images/filledcircle.png", Utils::Theme::OutputPanes_TestXPassTextColor}},
+        Utils::Icon::Tint);
+const Utils::Icon RESULT_SKIP({
+        {":/utils/images/filledcircle.png", Utils::Theme::OutputPanes_TestSkipTextColor}},
+        Utils::Icon::Tint);
+const Utils::Icon RESULT_BLACKLISTEDPASS({
+        {":/utils/images/filledcircle.png", Utils::Theme::OutputPanes_TestPassTextColor},
+        {":/projectexplorer/images/buildstepdisable.png", Utils::Theme::PanelTextColorDark}},
+        Utils::Icon::Tint | Utils::Icon::PunchEdges);
+const Utils::Icon RESULT_BLACKLISTEDFAIL({
+        {":/utils/images/filledcircle.png", Utils::Theme::OutputPanes_TestFailTextColor},
+        {":/projectexplorer/images/buildstepdisable.png", Utils::Theme::PanelTextColorDark}},
+        Utils::Icon::Tint | Utils::Icon::PunchEdges);
+const Utils::Icon RESULT_BENCHMARK(":/images/benchmark.png");
+const Utils::Icon RESULT_MESSAGEDEBUG({
+        {":/utils/images/filledcircle.png", Utils::Theme::OutputPanes_TestDebugTextColor}},
+        Utils::Icon::Tint);
+const Utils::Icon RESULT_MESSAGEWARN({
+        {":/utils/images/filledcircle.png", Utils::Theme::OutputPanes_TestWarnTextColor}},
+        Utils::Icon::Tint);
+const Utils::Icon RESULT_MESSAGEFATAL({
+        {":/utils/images/filledcircle.png", Utils::Theme::OutputPanes_TestFatalTextColor}},
+        Utils::Icon::Tint);
+
 } // namespace Icons
 } // namespace Autotest

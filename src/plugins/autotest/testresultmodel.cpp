@@ -23,6 +23,7 @@
 **
 ****************************************************************************/
 
+#include "autotesticons.h"
 #include "testresultdelegate.h"
 #include "testresultmodel.h"
 
@@ -46,20 +47,20 @@ TestResultItem::~TestResultItem()
 }
 
 static QIcon testResultIcon(Result::Type result) {
-    static QIcon icons[] = {
-        QIcon(QLatin1String(":/images/pass.png")),
-        QIcon(QLatin1String(":/images/fail.png")),
-        QIcon(QLatin1String(":/images/xfail.png")),
-        QIcon(QLatin1String(":/images/xpass.png")),
-        QIcon(QLatin1String(":/images/skip.png")),
-        QIcon(QLatin1String(":/images/blacklisted_pass.png")),
-        QIcon(QLatin1String(":/images/blacklisted_fail.png")),
-        QIcon(QLatin1String(":/images/benchmark.png")),
-        QIcon(QLatin1String(":/images/debug.png")),
-        QIcon(QLatin1String(":/images/debug.png")), // Info get's the same handling as Debug for now
-        QIcon(QLatin1String(":/images/warn.png")),
-        QIcon(QLatin1String(":/images/fatal.png")),
-        QIcon(QLatin1String(":/images/fatal.png")), // System get's same handling as Fatal for now
+    const static QIcon icons[] = {
+        Icons::RESULT_PASS.icon(),
+        Icons::RESULT_FAIL.icon(),
+        Icons::RESULT_XFAIL.icon(),
+        Icons::RESULT_XPASS.icon(),
+        Icons::RESULT_SKIP.icon(),
+        Icons::RESULT_BLACKLISTEDPASS.icon(),
+        Icons::RESULT_BLACKLISTEDFAIL.icon(),
+        Icons::RESULT_BENCHMARK.icon(),
+        Icons::RESULT_MESSAGEDEBUG.icon(),
+        Icons::RESULT_MESSAGEDEBUG.icon(), // Info gets the same handling as Debug for now
+        Icons::RESULT_MESSAGEWARN.icon(),
+        Icons::RESULT_MESSAGEFATAL.icon(),
+        Icons::RESULT_MESSAGEFATAL.icon(), // System gets same handling as Fatal for now
     }; // provide an icon for unknown??
 
     if (result < 0 || result >= Result::MessageInternal) {
