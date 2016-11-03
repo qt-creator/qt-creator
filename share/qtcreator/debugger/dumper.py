@@ -2240,24 +2240,28 @@ class DumperBase:
         shadowed = {}
         for value in variables:
             self.anonNumber = 0
-            if value.name == 'argv' and value.type.name == 'char **':
-                self.putSpecialArgv(value)
+            if value.name == 'argv':
+                if value.type.code == TypeCodePointer:
+                    if value.type.ltarget.code == TypeCodePointer:
+                        if value.type.ltarget.ltarget.name == 'char':
+                            self.putSpecialArgv(value)
+                            continue
+
+            name = value.name
+            if name in shadowed:
+                level = shadowed[name]
+                shadowed[name] = level + 1
+                name += '@%d' % level
             else:
-                name = value.name
-                if name in shadowed:
-                    level = shadowed[name]
-                    shadowed[name] = level + 1
-                    name += '@%d' % level
-                else:
-                    shadowed[name] = 1
-                # A 'normal' local variable or parameter.
-                iname = value.iname if hasattr(value, 'iname') else 'local.' + name
-                with TopLevelItem(self, iname):
-                    self.preping('all-' + iname)
-                    self.putField('iname', iname)
-                    self.putField('name', name)
-                    self.putItem(value)
-                    self.ping('all-' + iname)
+                shadowed[name] = 1
+            # A 'normal' local variable or parameter.
+            iname = value.iname if hasattr(value, 'iname') else 'local.' + name
+            with TopLevelItem(self, iname):
+                self.preping('all-' + iname)
+                self.putField('iname', iname)
+                self.putField('name', name)
+                self.putItem(value)
+                self.ping('all-' + iname)
         self.ping('locals')
 
     def handleWatches(self, args):
