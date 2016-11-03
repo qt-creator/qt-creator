@@ -99,9 +99,6 @@ public:
     TemplateArgumentIterator firstTemplateArgument() const { return _templateArguments.begin(); }
     TemplateArgumentIterator lastTemplateArgument() const { return _templateArguments.end(); }
     bool isSpecialization() const { return _isSpecialization; }
-    // this is temporary solution needed in ClassOrNamespace::nestedType
-    // when we try to find correct specialization for instantiation
-    void setIsSpecialization(bool isSpecialization) { _isSpecialization = isSpecialization; }
 
     // Comparator needed to distinguish between two different TemplateNameId(e.g.:used in std::map)
     struct Compare: std::binary_function<const TemplateNameId *, const TemplateNameId *, bool> {

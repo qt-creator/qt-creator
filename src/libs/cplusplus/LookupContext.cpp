@@ -1086,12 +1086,15 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
                     = reference->_instantiations.constFind(templId);
             if (citInstantiation != reference->_instantiations.constEnd())
                 return citInstantiation.value();
-            TemplateNameId *nonConstTemplId = const_cast<TemplateNameId *>(templId);
-            // make this instantiation looks like specialization which help to find
-            // full specialization for this instantiation
-            nonConstTemplId->setIsSpecialization(true);
+
             const TemplateNameIdTable &specializations = reference->_specializations;
-            TemplateNameIdTable::const_iterator cit = specializations.find(templId);
+            const TemplateNameId templIdAsSpecialization(templId->identifier(),
+                                                         /*isSpecializaton=*/ true,
+                                                         templId->firstTemplateArgument(),
+                                                         templId->lastTemplateArgument());
+            TemplateNameIdTable::const_iterator cit
+                    = specializations.find(&templIdAsSpecialization);
+
             if (cit != specializations.end()) {
                 // we found full specialization
                 reference = cit->second;
@@ -1102,8 +1105,6 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
                     reference = specializationWithPointer;
                 // TODO: find the best specialization(probably partial) for this instantiation
             }
-            // let's instantiation be instantiation
-            nonConstTemplId->setIsSpecialization(false);
         }
     }
 
