@@ -100,7 +100,7 @@ void ComponentTextModifier::flushGroup()
 {
     m_originalModifier->flushGroup();
 
-    uint textLength = m_originalModifier->text().length();
+    int textLength = m_originalModifier->text().length();
     m_componentEndOffset += (textLength - m_startLength);
     m_startLength = textLength;
 
@@ -110,7 +110,7 @@ void ComponentTextModifier::commitGroup()
 {
     m_originalModifier->commitGroup();
 
-    uint textLength = m_originalModifier->text().length();
+    int textLength = m_originalModifier->text().length();
     m_componentEndOffset += (textLength - m_startLength);
     m_startLength = textLength;
 }
