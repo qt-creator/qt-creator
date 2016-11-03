@@ -147,7 +147,7 @@ CMakeConfigItem::Type CMakeConfigItem::typeStringToType(const QByteArray &type)
     if (type == "STATIC")
         return CMakeConfigItem::STATIC;
 
-    QTC_CHECK(type == "INTERNAL");
+    QTC_CHECK(type == "INTERNAL" || type == "UNINITIALIZED");
     return CMakeConfigItem::INTERNAL;
 }
 
