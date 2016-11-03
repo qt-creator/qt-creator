@@ -45,7 +45,7 @@ std::string getSymbolName(CIDebugSymbolGroup *sg, ULONG index)
 PyObject *value_Name(Value *self)
 {
     if (!self->m_symbolGroup)
-        return NULL;
+        Py_RETURN_NONE;
     const std::string &symbolName = getSymbolName(self->m_symbolGroup, self->m_index);
     if (symbolName.empty())
         Py_RETURN_NONE;
@@ -55,30 +55,30 @@ PyObject *value_Name(Value *self)
 PyObject *value_Type(Value *self)
 {
     if (!self->m_symbolGroup)
-        return NULL;
+        Py_RETURN_NONE;
     DEBUG_SYMBOL_PARAMETERS params;
     const HRESULT hr = self->m_symbolGroup->GetSymbolParameters(self->m_index, 1, &params);
     if (FAILED(hr))
-        return NULL;
+        Py_RETURN_NONE;
     return createType(params.Module, params.TypeId);
 }
 
 PyObject *value_AsBytes(Value *self)
 {
     if (!self->m_symbolGroup)
-        return NULL;
+        Py_RETURN_NONE;
     ULONG64 address = 0;
     if (FAILED(self->m_symbolGroup->GetSymbolOffset(self->m_index, &address)))
-        return NULL;
+        Py_RETURN_NONE;
     ULONG size;
     if (FAILED(self->m_symbolGroup->GetSymbolSize(self->m_index, &size)))
-        return NULL;
+        Py_RETURN_NONE;
 
     char *buffer = new char[size];
     auto data = ExtensionCommandContext::instance()->dataSpaces();
     ULONG received = 0;
     if (FAILED(data->ReadVirtual(address, buffer, size, &received)))
-        return NULL;
+        Py_RETURN_NONE;
 
     return PyByteArray_FromStringAndSize(buffer, received);
 }
@@ -117,11 +117,11 @@ ULONG numberOfChildren(Value *v)
 PyObject *value_Dereference(Value *self)
 {
     if (!self->m_symbolGroup)
-        return NULL;
+        Py_RETURN_NONE;
     DEBUG_SYMBOL_PARAMETERS params;
     const HRESULT hr = self->m_symbolGroup->GetSymbolParameters(self->m_index, 1, &params);
     if (FAILED(hr))
-        return NULL;
+        Py_RETURN_NONE;
 
     char *name = getTypeName(params.Module, params.TypeId);
 
@@ -147,21 +147,21 @@ PyObject *value_Dereference(Value *self)
 PyObject *value_HasChildren(Value *self)
 {
     if (!self->m_symbolGroup)
-        return NULL;
+        Py_RETURN_NONE;
     return pyBool(numberOfChildren(self) != 0);
 }
 
 PyObject *value_Expand(Value *self)
 {
     if (!self->m_symbolGroup)
-        return NULL;
+        Py_RETURN_NONE;
     return pyBool(expandValue(self));
 }
 
 PyObject *value_NativeDebuggerValue(Value *self)
 {
     if (!self->m_symbolGroup)
-        return NULL;
+        Py_RETURN_NONE;
     ULONG size = 0;
     self->m_symbolGroup->GetSymbolValueText(self->m_index, NULL, 0, &size);
     char *name = new char[size];
@@ -177,10 +177,10 @@ PyObject *value_NativeDebuggerValue(Value *self)
 PyObject *value_ChildFromName(Value *self, PyObject *args)
 {
     if (!self->m_symbolGroup)
-        return NULL;
+        Py_RETURN_NONE;
     char *name;
     if (!PyArg_ParseTuple(args, "s", &name))
-        return NULL;
+        Py_RETURN_NONE;
 
     const ULONG childCount = numberOfChildren(self);
     if (childCount == 0 || !expandValue(self))
@@ -213,17 +213,17 @@ std::string pointedToSymbolName(ULONG64 address, const std::string &type)
 PyObject *value_ChildFromField(Value *self, PyObject *args)
 {
     if (!self->m_symbolGroup)
-        return NULL;
+        Py_RETURN_NONE;
     Field *field;
     if (!PyArg_ParseTuple(args, "O", &field))
-        return NULL;
+        Py_RETURN_NONE;
 
     if (!field->m_initialized && !initTypeAndOffset(field))
-        return NULL;
+        Py_RETURN_NONE;
 
     ULONG64 address = valueAddress(self);
     if (address == 0)
-        return NULL;
+        Py_RETURN_NONE;
     address += field->m_offset;
 
     auto symbols = ExtensionCommandContext::instance()->symbols();
@@ -234,12 +234,12 @@ PyObject *value_ChildFromField(Value *self, PyObject *args)
             childTypeNameSize, &childTypeNameSize);
 
     if (childTypeName.empty())
-        return NULL;
+        Py_RETURN_NONE;
 
     std::string name = pointedToSymbolName(address, childTypeName);
     ULONG index = DEBUG_ANY_ID;
     if (FAILED(self->m_symbolGroup->AddSymbol(name.c_str(), &index)))
-        return NULL;
+        Py_RETURN_NONE;
 
     Value *childValue = PyObject_New(Value, value_pytype());
     if (childValue != NULL) {
@@ -252,13 +252,13 @@ PyObject *value_ChildFromField(Value *self, PyObject *args)
 PyObject *value_ChildFromIndex(Value *self, PyObject *args)
 {
     if (!self->m_symbolGroup)
-        return NULL;
+        Py_RETURN_NONE;
     unsigned int index;
     if (!PyArg_ParseTuple(args, "I", &index))
-        return NULL;
+        Py_RETURN_NONE;
 
     if (index < 0)
-        return NULL;
+        Py_RETURN_NONE;
 
     const ULONG childCount = numberOfChildren(self);
     if (childCount <= index || !expandValue(self))

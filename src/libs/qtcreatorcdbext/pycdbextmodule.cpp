@@ -41,7 +41,7 @@ static PyObject *cdbext_parseAndEvaluate(PyObject *, PyObject *args) // -> Value
 {
     char *expr;
     if (!PyArg_ParseTuple(args, "s", &expr))
-        return NULL;
+        Py_RETURN_NONE;
     CIDebugControl *control = ExtensionCommandContext::instance()->control();
     control->SetExpressionSyntax(DEBUG_EXPR_CPLUSPLUS);
     DEBUG_VALUE value;
@@ -54,7 +54,7 @@ static PyObject *cdbext_lookupType(PyObject *, PyObject *args) // -> Type
 {
     char *type;
     if (!PyArg_ParseTuple(args, "s", &type))
-        return NULL;
+        Py_RETURN_NONE;
     return lookupType(type);
 }
 
@@ -63,13 +63,13 @@ static PyObject *cdbext_listOfLocals(PyObject *, PyObject *) // -> [ Value ]
     ExtensionCommandContext *extCmdCtx = ExtensionCommandContext::instance();
     ULONG frame;
     if (FAILED(extCmdCtx->symbols()->GetCurrentScopeFrameIndex(&frame)))
-        return NULL;
+        Py_RETURN_NONE;
 
     std::string errorMessage;
     LocalsSymbolGroup *sg = ExtensionContext::instance().symbolGroup(
                 extCmdCtx->symbols(), extCmdCtx->threadId(), int(frame), &errorMessage);
     if (!sg)
-        return NULL;
+        Py_RETURN_NONE;
 
     const auto children = sg->root()->children();
     auto locals = PyList_New(0);
@@ -98,7 +98,7 @@ static PyObject *cdbext_readRawMemory(PyObject *, PyObject *args)
     ULONG64 address = 0;
     ULONG size = 0;
     if (!PyArg_ParseTuple(args, "Kk", &address, &size))
-        return NULL;
+        Py_RETURN_NONE;
 
     char *buffer = new char[size];
 
@@ -140,21 +140,21 @@ PyMODINIT_FUNC
 PyInit_cdbext(void)
 {
     if (PyType_Ready(field_pytype()) < 0)
-        return NULL;
+        Py_RETURN_NONE;
 
     if (PyType_Ready(type_pytype()) < 0)
-        return NULL;
+        Py_RETURN_NONE;
 
     if (PyType_Ready(value_pytype()) < 0)
-        return NULL;
+        Py_RETURN_NONE;
 
     stdoutRedirect_pytype()->tp_new = PyType_GenericNew;
     if (PyType_Ready(stdoutRedirect_pytype()) < 0)
-        return NULL;
+        Py_RETURN_NONE;
 
     PyObject *module = PyModule_Create(&cdbextModule);
     if (module == NULL)
-        return NULL;
+        Py_RETURN_NONE;
 
     Py_INCREF(field_pytype());
     Py_INCREF(stdoutRedirect_pytype());
