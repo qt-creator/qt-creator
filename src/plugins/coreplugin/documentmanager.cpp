@@ -738,40 +738,36 @@ QString DocumentManager::getSaveFileNameWithExtension(const QString &title, cons
 /*!
     Asks the user for a new file name (\gui {Save File As}) for \a document.
 */
-QString DocumentManager::getSaveAsFileName(const IDocument *document, const QString &filter, QString *selectedFilter)
+QString DocumentManager::getSaveAsFileName(const IDocument *document)
 {
-    if (!document)
-        return QLatin1String("");
-    QString absoluteFilePath = document->filePath().toString();
-    const QFileInfo fi(absoluteFilePath);
-    QString path;
-    QString fileName;
-    if (absoluteFilePath.isEmpty()) {
-        fileName = document->fallbackSaveAsFileName();
+    QTC_ASSERT(document, return QString());
+    Utils::MimeDatabase mdb;
+    const QString filter = Utils::MimeDatabase::allFiltersString();
+    const QString filePath = document->filePath().toString();
+    QString selectedFilter;
+    QString fileDialogPath = filePath;
+    if (!filePath.isEmpty()) {
+        selectedFilter = mdb.mimeTypeForFile(filePath).filterString();
+    } else {
+        const QString suggestedName = document->fallbackSaveAsFileName();
+        if (!suggestedName.isEmpty()) {
+            const QList<MimeType> types = mdb.mimeTypesForFileName(suggestedName);
+            if (!types.isEmpty())
+                selectedFilter = types.first().filterString();
+        }
         const QString defaultPath = document->fallbackSaveAsPath();
         if (!defaultPath.isEmpty())
-            path = defaultPath;
-    } else {
-        path = fi.absolutePath();
-        fileName = fi.fileName();
+            fileDialogPath = defaultPath + (suggestedName.isEmpty()
+                    ? QString()
+                    : '/' + suggestedName);
     }
+    if (selectedFilter.isEmpty())
+        selectedFilter = mdb.mimeTypeForName(document->mimeType()).filterString();
 
-    QString filterString;
-    if (filter.isEmpty()) {
-        Utils::MimeDatabase mdb;
-        const Utils::MimeType &mt = mdb.mimeTypeForFile(fi);
-        if (mt.isValid())
-            filterString = mt.filterString();
-        selectedFilter = &filterString;
-    } else {
-        filterString = filter;
-    }
-
-    absoluteFilePath = getSaveFileName(tr("Save File As"),
-        path + QLatin1Char('/') + fileName,
-        filterString,
-        selectedFilter);
-    return absoluteFilePath;
+    return getSaveFileName(tr("Save File As"),
+                           fileDialogPath,
+                           filter,
+                           &selectedFilter);
 }
 
 /*!
