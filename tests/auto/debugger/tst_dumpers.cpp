@@ -6239,6 +6239,11 @@ void tst_Dumpers::dumper_data()
             + Check("v15", "\"utf16\"", "@QJSValue (QString)")
             + Check("v15.1", "[1]", "116", "@QChar");
 
+    QTest::newRow("Internal1")
+            << Data("struct QtcDumperTest_FieldAccessByIndex { int d[3] = { 10, 11, 12 }; };\n",
+                    "QtcDumperTest_FieldAccessByIndex d; unused(&d);\n")
+            + Check("d", "12", "QtcDumperTest_FieldAccessByIndex");
+
 #if 0
 #ifdef Q_OS_LINUX
     // Hint: To open a failing test in Creator, do:

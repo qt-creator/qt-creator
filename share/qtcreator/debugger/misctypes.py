@@ -315,3 +315,14 @@ def qdump__WTF__String(d, value):
         charSize = 2
 
     d.putCharArrayHelper(bufferPtr, stringLength, charSize)
+
+
+#######################################################################
+#
+# Internal test
+#
+#######################################################################
+
+def qdump__QtcDumperTest_FieldAccessByIndex(d, value):
+    d.putValue(value["d"][2].integer())
+
