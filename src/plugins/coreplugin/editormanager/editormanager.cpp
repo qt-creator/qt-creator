@@ -2100,7 +2100,6 @@ bool EditorManagerPrivate::saveDocumentAs(IDocument *document)
     if (!document)
         return false;
 
-    emit m_instance->aboutToSave(document);
     Utils::MimeDatabase mdb;
     const QString filter = Utils::MimeDatabase::allFiltersString();
     QString selectedFilter;
@@ -2130,6 +2129,7 @@ bool EditorManagerPrivate::saveDocumentAs(IDocument *document)
             EditorManager::closeDocuments(QList<IDocument *>() << otherDocument, false);
     }
 
+    emit m_instance->aboutToSave(document);
     const bool success = DocumentManager::saveDocument(document, absoluteFilePath);
     document->checkPermissions();
 
