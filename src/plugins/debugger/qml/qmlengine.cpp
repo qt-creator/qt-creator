@@ -1087,6 +1087,12 @@ void QmlEngine::quitDebugger()
     shutdownInferior();
 }
 
+void QmlEngine::doUpdateLocals(const UpdateParameters &params)
+{
+    Q_UNUSED(params);
+    d->updateLocals();
+}
+
 void QmlEngine::disconnected()
 {
     showMessage(tr("QML Debugger disconnected."), StatusBar);
