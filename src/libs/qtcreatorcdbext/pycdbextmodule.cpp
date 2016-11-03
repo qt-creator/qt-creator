@@ -74,14 +74,8 @@ static PyObject *cdbext_listOfLocals(PyObject *, PyObject *) // -> [ Value ]
     const auto children = sg->root()->children();
     auto locals = PyList_New(0);
     for (AbstractSymbolGroupNode *abstractChild : children) {
-        Value *childValue = PyObject_New(Value, value_pytype());
-        if (childValue != NULL) {
-            if (SymbolGroupNode* child = abstractChild->asSymbolGroupNode()) {
-                childValue->m_index = child->index();
-                childValue->m_symbolGroup = sg->debugSymbolGroup();
-            }
-        }
-        PyList_Append(locals, reinterpret_cast<PyObject*>(childValue));
+        if (SymbolGroupNode* child = abstractChild->asSymbolGroupNode())
+            PyList_Append(locals, createValue(child->index(), sg->debugSymbolGroup()));
     }
 
     return locals;

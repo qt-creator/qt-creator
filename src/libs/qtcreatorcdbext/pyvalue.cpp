@@ -125,23 +125,18 @@ PyObject *value_Dereference(Value *self)
 
     char *name = getTypeName(params.Module, params.TypeId);
 
-    Value *ret = self;
+    PyObject *ret = reinterpret_cast<PyObject*>(self);
     if (endsWith(std::string(name), "*")) {
         if (numberOfChildren(self) > 0 && expandValue(self)) {
             ULONG symbolCount = 0;
             self->m_symbolGroup->GetNumberSymbols(&symbolCount);
-            if (symbolCount > self->m_index + 1) {
-                ret = PyObject_New(Value, value_pytype());
-                if (ret != NULL) {
-                    ret->m_index = self->m_index + 1;
-                    ret->m_symbolGroup = self->m_symbolGroup;
-                }
-            }
+            if (symbolCount > self->m_index + 1)
+                ret = createValue(self->m_index + 1, self->m_symbolGroup);
         }
     }
 
     delete[] name;
-    return reinterpret_cast<PyObject*>(ret);
+    return ret;
 }
 
 PyObject *value_HasChildren(Value *self)
@@ -187,14 +182,8 @@ PyObject *value_ChildFromName(Value *self, PyObject *args)
         Py_RETURN_NONE;
 
     for (ULONG childIndex = self->m_index + 1 ; childIndex <= self->m_index + childCount; ++childIndex) {
-        if (getSymbolName(self->m_symbolGroup, childIndex) == name) {
-            Value *childValue = PyObject_New(Value, value_pytype());
-            if (childValue != NULL) {
-                childValue->m_index = childIndex;
-                childValue->m_symbolGroup = self->m_symbolGroup;
-            }
-            return reinterpret_cast<PyObject*>(childValue);
-        }
+        if (getSymbolName(self->m_symbolGroup, childIndex) == name)
+            return createValue(childIndex, self->m_symbolGroup);
     }
 
     Py_RETURN_NONE;
@@ -241,12 +230,7 @@ PyObject *value_ChildFromField(Value *self, PyObject *args)
     if (FAILED(self->m_symbolGroup->AddSymbol(name.c_str(), &index)))
         Py_RETURN_NONE;
 
-    Value *childValue = PyObject_New(Value, value_pytype());
-    if (childValue != NULL) {
-        childValue->m_index = index;
-        childValue->m_symbolGroup = self->m_symbolGroup;
-    }
-    return reinterpret_cast<PyObject*>(childValue);
+    return createValue(index, self->m_symbolGroup);
 }
 
 PyObject *value_ChildFromIndex(Value *self, PyObject *args)
@@ -264,13 +248,7 @@ PyObject *value_ChildFromIndex(Value *self, PyObject *args)
     if (childCount <= index || !expandValue(self))
         Py_RETURN_NONE;
 
-    Value *childValue = PyObject_New(Value, value_pytype());
-    if (childValue != NULL) {
-        childValue->m_index = self->m_index + index + 1;
-        childValue->m_symbolGroup = self->m_symbolGroup;
-    }
-
-    return reinterpret_cast<PyObject*>(childValue);
+    return createValue(self->m_index + index + 1, self->m_symbolGroup);
 }
 
 void value_Dealloc(Value *)
@@ -288,6 +266,16 @@ void initValue(Value *value)
 {
     value->m_index = 0;
     value->m_symbolGroup = nullptr;
+}
+
+PyObject *createValue(ULONG index, CIDebugSymbolGroup *symbolGroup)
+{
+    Value *value = PyObject_New(Value, value_pytype());
+    if (value != NULL) {
+        value->m_index = index;
+        value->m_symbolGroup = symbolGroup;
+    }
+    return reinterpret_cast<PyObject*>(value);
 }
 
 static PyMethodDef valueMethods[] = {
