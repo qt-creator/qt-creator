@@ -748,7 +748,7 @@ bool RegisterHandler::contextMenuEvent(const ItemViewEvent &ev)
     };
 
     addFormatAction(tr("Hexadecimal"), HexadecimalFormat);
-    addFormatAction(tr("DecimalFormat"), DecimalFormat);
+    addFormatAction(tr("Decimal"), DecimalFormat);
     addFormatAction(tr("Octal"), OctalFormat);
     addFormatAction(tr("Binary"), BinaryFormat);
 
