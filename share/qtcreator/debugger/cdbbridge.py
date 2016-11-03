@@ -85,6 +85,7 @@ class Dumper(DumperBase):
 
     def fromNativeValue(self, nativeValue):
         val = self.Value(self)
+        val.name = nativeValue.name()
         val.nativeValue = nativeValue
         val.type = self.fromNativeType(nativeValue.type())
         val.lIsInScope = True
