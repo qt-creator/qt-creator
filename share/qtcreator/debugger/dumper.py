@@ -1370,7 +1370,7 @@ class DumperBase:
         #warn('GENERIC PLAIN POINTER: %s' % value.type)
         #warn('ADDR PLAIN POINTER: 0x%x' % value.laddress)
         self.putType(typeName)
-        self.putValue('0x%x' % pointer)
+        self.putSymbolValue(pointer)
         self.putNumChild(1)
         if self.currentIName in self.expandedINames:
             with Children(self):
