@@ -27,6 +27,7 @@
 
 #include "extensioncontext.h"
 #include "symbolgroup.h"
+#include "symbolgroupvalue.h"
 
 #include "pyfield.h"
 #include "pystdoutredirect.h"
@@ -106,6 +107,57 @@ static PyObject *cdbext_readRawMemory(PyObject *, PyObject *args)
     return ret;
 }
 
+static PyObject *cdbext_createValue(PyObject *, PyObject *args)
+{
+    ULONG64 address = 0;
+    Type *type = 0;
+    if (!PyArg_ParseTuple(args, "KO", &address, &type))
+        Py_RETURN_NONE;
+
+    if (debugPyCdbextModule) {
+        DebugPrint() << "Create Value address: 0x" << std::hex << address
+                     << " type name: " << getTypeName(type->m_module, type->m_typeId);
+    }
+
+    ExtensionCommandContext *extCmdCtx = ExtensionCommandContext::instance();
+    CIDebugSymbols *symbols = extCmdCtx->symbols();
+
+    ULONG frame;
+    if (FAILED(symbols->GetCurrentScopeFrameIndex(&frame)))
+        Py_RETURN_NONE;
+
+    std::string errorMessage;
+    LocalsSymbolGroup *lsg = ExtensionContext::instance().symbolGroup(
+                symbols, extCmdCtx->threadId(), int(frame), &errorMessage);
+    if (!lsg)
+        Py_RETURN_NONE;
+
+    CIDebugSymbolGroup *dsg = lsg->debugSymbolGroup();
+    ULONG numberOfSymbols = 0;
+    dsg->GetNumberSymbols(&numberOfSymbols);
+    ULONG index = 0;
+    for (;index < numberOfSymbols; ++index) {
+        ULONG64 offset;
+        dsg->GetSymbolOffset(index, &offset);
+        if (offset == address) {
+            DEBUG_SYMBOL_PARAMETERS params;
+            if (SUCCEEDED(dsg->GetSymbolParameters(index, 1, &params))) {
+                if (params.TypeId == type->m_typeId && params.Module == type->m_module)
+                    break;
+            }
+        }
+    }
+
+    if (index >= numberOfSymbols) {
+        index = DEBUG_ANY_ID;
+        const std::string name = SymbolGroupValue::pointedToSymbolName(
+                    address, getTypeName(type->m_module, type->m_typeId));
+        if (FAILED(dsg->AddSymbol(name.c_str(), &index)))
+            Py_RETURN_NONE;
+    }
+    return createValue(index, dsg);
+}
+
 static PyMethodDef cdbextMethods[] = {
     {"parseAndEvaluate",    cdbext_parseAndEvaluate,    METH_VARARGS,
      "Returns value of expression or None if the expression can not be resolved"},
@@ -117,6 +169,8 @@ static PyMethodDef cdbextMethods[] = {
      "Returns the size of a pointer"},
     {"readRawMemory",       cdbext_readRawMemory,       METH_VARARGS,
      "Read a block of data from the virtual address space"},
+    {"createValue",         cdbext_createValue,         METH_VARARGS,
+     "Creates a value with the given type at the given address"},
     {NULL,                  NULL,               0,
      NULL}        /* Sentinel */
 };
