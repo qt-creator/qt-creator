@@ -1999,8 +1999,12 @@ void WatchHandler::resetWatchers()
     loadSessionData();
 }
 
-void WatchHandler::notifyUpdateStarted(const QStringList &inames)
+void WatchHandler::notifyUpdateStarted(const UpdateParameters &updateParameters)
 {
+    QStringList inames = updateParameters.partialVariables();
+    if (inames.isEmpty())
+        inames.append("local");
+
     auto marker = [](WatchItem *item) { item->outdated = true; };
 
     if (inames.isEmpty()) {

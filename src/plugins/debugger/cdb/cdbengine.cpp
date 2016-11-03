@@ -1217,7 +1217,7 @@ void CdbEngine::activateFrame(int index)
 void CdbEngine::doUpdateLocals(const UpdateParameters &updateParameters)
 {
     if (m_pythonVersion > 0x030000) {
-        watchHandler()->notifyUpdateStarted(updateParameters.partialVariables());
+        watchHandler()->notifyUpdateStarted(updateParameters);
 
         DebuggerCommand cmd("theDumper.fetchVariables", ScriptCommand);
         watchHandler()->appendFormatRequests(&cmd);
@@ -1270,7 +1270,7 @@ void CdbEngine::doUpdateLocals(const UpdateParameters &updateParameters)
             return;
         }
 
-        watchHandler()->notifyUpdateStarted(updateParameters.partialVariables());
+        watchHandler()->notifyUpdateStarted(updateParameters);
 
         /* Watchers: Forcibly discard old symbol group as switching from
      * thread 0/frame 0 -> thread 1/assembly -> thread 0/frame 0 will otherwise re-use it

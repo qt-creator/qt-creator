@@ -2156,7 +2156,7 @@ void QmlEnginePrivate::handleFrame(const QVariantMap &response)
 
     StackHandler *stackHandler = engine->stackHandler();
     WatchHandler * watchHandler = engine->watchHandler();
-    watchHandler->notifyUpdateStarted({"local"});
+    watchHandler->notifyUpdateStarted();
 
     const int frameIndex = stackHandler->currentIndex();
     if (frameIndex < 0)

@@ -122,7 +122,8 @@ public:
 class UpdateParameters
 {
 public:
-    UpdateParameters() {}
+    UpdateParameters(const QString &partialVariable = QString()) :
+        partialVariable(partialVariable) {}
 
     QStringList partialVariables() const
     {

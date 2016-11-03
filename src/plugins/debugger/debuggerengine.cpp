@@ -2061,7 +2061,7 @@ void DebuggerEngine::updateItem(const QString &iname)
         WatchModelBase *model = handler->model();
         QTC_CHECK(model);
         if (item && !model->hasChildren(model->indexForItem(item))) {
-            handler->notifyUpdateStarted({iname});
+            handler->notifyUpdateStarted(UpdateParameters(iname));
             item->setValue(decodeData({}, "notaccessible"));
             item->setHasChildren(false);
             item->outdated = false;

@@ -796,7 +796,7 @@ void LldbEngine::assignValueInDebugger(WatchItem *,
 
 void LldbEngine::doUpdateLocals(const UpdateParameters &params)
 {
-    watchHandler()->notifyUpdateStarted(params.partialVariables());
+    watchHandler()->notifyUpdateStarted(params);
 
     DebuggerCommand cmd("fetchVariables");
     watchHandler()->appendFormatRequests(&cmd);

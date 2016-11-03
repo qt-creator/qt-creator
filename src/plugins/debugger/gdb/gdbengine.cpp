@@ -4493,7 +4493,7 @@ void GdbEngine::doUpdateLocals(const UpdateParameters &params)
 {
     m_pendingBreakpointRequests = 0;
 
-    watchHandler()->notifyUpdateStarted(params.partialVariables());
+    watchHandler()->notifyUpdateStarted(params);
 
     DebuggerCommand cmd("fetchVariables", Discardable|InUpdateLocals|PythonCommand);
     watchHandler()->appendFormatRequests(&cmd);

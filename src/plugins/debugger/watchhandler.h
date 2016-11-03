@@ -26,6 +26,7 @@
 #pragma once
 
 #include "watchdata.h"
+#include "debuggerengine.h"
 
 #include <QVector>
 
@@ -111,7 +112,7 @@ public:
     void resetValueCache();
     void resetWatchers();
 
-    void notifyUpdateStarted(const QStringList &inames = {});
+    void notifyUpdateStarted(const UpdateParameters &updateParameters = UpdateParameters());
     void notifyUpdateFinished();
 
     void reexpandItems();
