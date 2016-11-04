@@ -1104,7 +1104,7 @@ void PropertiesView::MView::onClassMembersStatusChanged(bool valid)
     if (valid)
         m_classMembersStatusLabel->clear();
     else
-        m_classMembersStatusLabel->setText(tr("<font color=red>Invalid syntax!</font>"));
+        m_classMembersStatusLabel->setText(tr("<font color=red>Invalid syntax.</font>"));
 }
 
 void PropertiesView::MView::onParseClassMembers()

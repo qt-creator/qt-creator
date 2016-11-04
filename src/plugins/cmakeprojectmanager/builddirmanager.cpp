@@ -539,7 +539,7 @@ void BuildDirManager::cmakeFinished(int code, QProcess::ExitStatus status)
 
     QString msg;
     if (status != QProcess::NormalExit)
-        msg = tr("*** cmake process crashed!");
+        msg = tr("*** cmake process crashed.");
     else if (code != 0)
         msg = tr("*** cmake process exited with exit code %1.").arg(code);
 
