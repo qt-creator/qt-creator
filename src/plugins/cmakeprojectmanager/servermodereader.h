@@ -122,7 +122,7 @@ private:
     bool m_hasData = false;
 
     std::unique_ptr<ServerMode> m_cmakeServer;
-    QFutureInterface<void> *m_future = nullptr;
+    std::unique_ptr<QFutureInterface<void>> m_future;
 
     int m_progressStepMinimum;
     int m_progressStepMaximum;

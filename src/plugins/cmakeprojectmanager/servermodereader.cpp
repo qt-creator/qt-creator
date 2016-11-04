@@ -148,7 +148,7 @@ void ServerModeReader::parse(bool force)
             return i.toArgument(m_parameters.expander);
         })));
 
-    m_future = new QFutureInterface<void>();
+    m_future.reset(new QFutureInterface<void>());
     m_future->setProgressRange(0, MAX_PROGRESS);
     m_progressStepMinimum = 0;
     m_progressStepMaximum = 1000;
@@ -164,8 +164,7 @@ void ServerModeReader::stop()
     if (m_future) {
         m_future->reportCanceled();
         m_future->reportFinished();
-        delete m_future;
-        m_future = nullptr;
+        m_future.reset();
     }
 }
 
@@ -176,7 +175,7 @@ bool ServerModeReader::isReady() const
 
 bool ServerModeReader::isParsing() const
 {
-    return false;
+    return static_cast<bool>(m_future);
 }
 
 bool ServerModeReader::hasData() const
@@ -288,8 +287,7 @@ void ServerModeReader::handleReply(const QVariantMap &data, const QString &inRep
         if (m_future) {
             m_future->setProgressValue(MAX_PROGRESS);
             m_future->reportFinished();
-            delete m_future;
-            m_future = nullptr;
+            m_future.reset();
         }
         m_hasData = true;
         emit dataAvailable();
