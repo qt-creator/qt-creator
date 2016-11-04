@@ -45,207 +45,10 @@
 using namespace Core;
 using namespace Debugger::Constants;
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace Debugger {
 namespace Internal {
-
-class CommonOptionsPageWidget : public QWidget
-{
-    Q_OBJECT
-
-public:
-    explicit CommonOptionsPageWidget(const QSharedPointer<Utils::SavedActionSet> &group);
-
-    GlobalDebuggerOptions globalOptions() const;
-    void setGlobalOptions(const GlobalDebuggerOptions &go);
-
-private:
-    QCheckBox *checkBoxUseAlternatingRowColors;
-    QCheckBox *checkBoxFontSizeFollowsEditor;
-    QCheckBox *checkBoxUseToolTipsInMainEditor;
-    QCheckBox *checkBoxCloseSourceBuffersOnExit;
-    QCheckBox *checkBoxCloseMemoryBuffersOnExit;
-    QCheckBox *checkBoxSwitchModeOnExit;
-    QCheckBox *checkBoxBringToForegroundOnInterrrupt;
-    QCheckBox *checkBoxShowQmlObjectTree;
-    QCheckBox *checkBoxBreakpointsFullPath;
-    QCheckBox *checkBoxRegisterForPostMortem;
-    QCheckBox *checkBoxWarnOnReleaseBuilds;
-    QCheckBox *checkBoxKeepEditorStationaryWhileStepping;
-    QLabel *labelMaximalStackDepth;
-    QSpinBox *spinBoxMaximalStackDepth;
-
-    DebuggerSourcePathMappingWidget *sourcesMappingWidget;
-    const QSharedPointer<Utils::SavedActionSet> m_group;
-};
-
-CommonOptionsPageWidget::CommonOptionsPageWidget
-    (const QSharedPointer<Utils::SavedActionSet> &group)
-  : m_group(group)
-{
-    QGroupBox *behaviorBox = new QGroupBox(this);
-    behaviorBox->setTitle(tr("Behavior"));
-
-    checkBoxUseAlternatingRowColors = new QCheckBox(behaviorBox);
-    checkBoxUseAlternatingRowColors->setText(tr("Use alternating row colors in debug views"));
-
-    checkBoxFontSizeFollowsEditor = new QCheckBox(behaviorBox);
-    checkBoxFontSizeFollowsEditor->setToolTip(tr("Changes the font size in the debugger views when the font size in the main editor changes."));
-    checkBoxFontSizeFollowsEditor->setText(tr("Debugger font size follows main editor"));
-
-    checkBoxUseToolTipsInMainEditor = new QCheckBox(behaviorBox);
-    checkBoxUseToolTipsInMainEditor->setText(tr("Use tooltips in main editor while debugging"));
-
-    QString t = tr("Stopping and stepping in the debugger "
-        "will automatically open views associated with the current location.") + QLatin1Char('\n');
-    checkBoxCloseSourceBuffersOnExit = new QCheckBox(behaviorBox);
-    checkBoxCloseSourceBuffersOnExit->setText(tr("Close temporary source views on debugger exit"));
-    checkBoxCloseSourceBuffersOnExit->setToolTip(t + tr("Select this option to close "
-            "automatically opened source views when the debugger exits."));
-
-    checkBoxCloseMemoryBuffersOnExit = new QCheckBox(behaviorBox);
-    checkBoxCloseMemoryBuffersOnExit->setText(tr("Close temporary memory views on debugger exit"));
-    checkBoxCloseMemoryBuffersOnExit->setToolTip(t + tr("Select this option to close "
-             "automatically opened memory views when the debugger exits."));
-
-    checkBoxSwitchModeOnExit = new QCheckBox(behaviorBox);
-    checkBoxSwitchModeOnExit->setText(tr("Switch to previous mode on debugger exit"));
-
-    checkBoxBringToForegroundOnInterrrupt = new QCheckBox(behaviorBox);
-    checkBoxBringToForegroundOnInterrrupt->setText(tr("Bring Qt Creator to foreground when application interrupts"));
-
-    checkBoxShowQmlObjectTree = new QCheckBox(behaviorBox);
-    checkBoxShowQmlObjectTree->setToolTip(tr("Shows QML object tree in Locals and Expressions when connected and not stepping."));
-    checkBoxShowQmlObjectTree->setText(tr("Show QML object tree"));
-
-    checkBoxBreakpointsFullPath = new QCheckBox(behaviorBox);
-    checkBoxBreakpointsFullPath->setToolTip(tr("Enables a full file path in breakpoints by default also for GDB."));
-    checkBoxBreakpointsFullPath->setText(tr("Set breakpoints using a full absolute path"));
-
-    checkBoxRegisterForPostMortem = new QCheckBox(behaviorBox);
-    checkBoxRegisterForPostMortem->setToolTip(tr("Registers Qt Creator for debugging crashed applications."));
-    checkBoxRegisterForPostMortem->setText(tr("Use Qt Creator for post-mortem debugging"));
-
-    checkBoxWarnOnReleaseBuilds = new QCheckBox(behaviorBox);
-    checkBoxWarnOnReleaseBuilds->setText(tr("Warn when debugging \"Release\" builds"));
-    checkBoxWarnOnReleaseBuilds->setToolTip(tr("Shows a warning when starting the debugger "
-                                            "on a binary with insufficient debug information."));
-
-    checkBoxKeepEditorStationaryWhileStepping = new QCheckBox(behaviorBox);
-    checkBoxKeepEditorStationaryWhileStepping->setText(tr("Keep editor stationary when stepping"));
-    checkBoxKeepEditorStationaryWhileStepping->setToolTip(tr("Scrolls the editor only when it is necessary "
-                                                             "to keep the current line in view, "
-                                                             "instead of keeping the next statement centered at "
-                                                             "all times."));
-
-    labelMaximalStackDepth = new QLabel(tr("Maximum stack depth:"), behaviorBox);
-
-    spinBoxMaximalStackDepth = new QSpinBox(behaviorBox);
-    spinBoxMaximalStackDepth->setSpecialValueText(tr("<unlimited>"));
-    spinBoxMaximalStackDepth->setMaximum(999);
-    spinBoxMaximalStackDepth->setSingleStep(5);
-    spinBoxMaximalStackDepth->setValue(10);
-
-    sourcesMappingWidget = new DebuggerSourcePathMappingWidget(this);
-
-    QHBoxLayout *horizontalLayout = new QHBoxLayout();
-    horizontalLayout->addWidget(labelMaximalStackDepth);
-    horizontalLayout->addWidget(spinBoxMaximalStackDepth);
-    horizontalLayout->addStretch();
-
-    QGridLayout *gridLayout = new QGridLayout(behaviorBox);
-    gridLayout->addWidget(checkBoxUseAlternatingRowColors, 0, 0, 1, 1);
-    gridLayout->addWidget(checkBoxUseToolTipsInMainEditor, 1, 0, 1, 1);
-    gridLayout->addWidget(checkBoxCloseSourceBuffersOnExit, 2, 0, 1, 1);
-    gridLayout->addWidget(checkBoxCloseMemoryBuffersOnExit, 3, 0, 1, 1);
-    gridLayout->addWidget(checkBoxBringToForegroundOnInterrrupt, 4, 0, 1, 1);
-    gridLayout->addWidget(checkBoxBreakpointsFullPath, 5, 0, 1, 1);
-    gridLayout->addWidget(checkBoxWarnOnReleaseBuilds, 6, 0, 1, 1);
-    gridLayout->addLayout(horizontalLayout, 7, 0, 1, 2);
-
-    gridLayout->addWidget(checkBoxFontSizeFollowsEditor, 0, 1, 1, 1);
-    gridLayout->addWidget(checkBoxSwitchModeOnExit, 1, 1, 1, 1);
-    gridLayout->addWidget(checkBoxShowQmlObjectTree, 2, 1, 1, 1);
-    gridLayout->addWidget(checkBoxKeepEditorStationaryWhileStepping, 3, 1, 1, 1);
-    gridLayout->addWidget(checkBoxRegisterForPostMortem, 4, 1, 1, 1);
-
-    QVBoxLayout *verticalLayout = new QVBoxLayout(this);
-    verticalLayout->addWidget(behaviorBox);
-    verticalLayout->addWidget(sourcesMappingWidget);
-    verticalLayout->addStretch();
-
-    m_group->clear();
-
-    m_group->insert(action(UseAlternatingRowColors),
-        checkBoxUseAlternatingRowColors);
-    m_group->insert(action(UseToolTipsInMainEditor),
-        checkBoxUseToolTipsInMainEditor);
-    m_group->insert(action(CloseSourceBuffersOnExit),
-        checkBoxCloseSourceBuffersOnExit);
-    m_group->insert(action(CloseMemoryBuffersOnExit),
-        checkBoxCloseMemoryBuffersOnExit);
-    m_group->insert(action(SwitchModeOnExit),
-        checkBoxSwitchModeOnExit);
-    m_group->insert(action(BreakpointsFullPathByDefault),
-        checkBoxBreakpointsFullPath);
-    m_group->insert(action(RaiseOnInterrupt),
-        checkBoxBringToForegroundOnInterrrupt);
-    m_group->insert(action(ShowQmlObjectTree),
-        checkBoxShowQmlObjectTree);
-    m_group->insert(action(WarnOnReleaseBuilds),
-        checkBoxWarnOnReleaseBuilds);
-    m_group->insert(action(StationaryEditorWhileStepping),
-        checkBoxKeepEditorStationaryWhileStepping);
-    m_group->insert(action(FontSizeFollowsEditor),
-        checkBoxFontSizeFollowsEditor);
-    m_group->insert(action(AutoDerefPointers), 0);
-    m_group->insert(action(UseToolTipsInLocalsView), 0);
-    m_group->insert(action(AlwaysAdjustColumnWidths), 0);
-    m_group->insert(action(UseToolTipsInBreakpointsView), 0);
-    m_group->insert(action(UseToolTipsInStackView), 0);
-    m_group->insert(action(UseAddressInBreakpointsView), 0);
-    m_group->insert(action(UseAddressInStackView), 0);
-    m_group->insert(action(MaximalStackDepth), spinBoxMaximalStackDepth);
-    m_group->insert(action(ShowStdNamespace), 0);
-    m_group->insert(action(ShowQtNamespace), 0);
-    m_group->insert(action(ShowQObjectNames), 0);
-    m_group->insert(action(SortStructMembers), 0);
-    m_group->insert(action(LogTimeStamps), 0);
-    m_group->insert(action(BreakOnThrow), 0);
-    m_group->insert(action(BreakOnCatch), 0);
-    if (Utils::HostOsInfo::isWindowsHost()) {
-        Utils::SavedAction *registerAction = action(RegisterForPostMortem);
-        m_group->insert(registerAction,
-                checkBoxRegisterForPostMortem);
-        connect(registerAction, &QAction::toggled,
-                checkBoxRegisterForPostMortem, &QAbstractButton::setChecked);
-    } else {
-        checkBoxRegisterForPostMortem->setVisible(false);
-    }
-}
-
-GlobalDebuggerOptions CommonOptionsPageWidget::globalOptions() const
-{
-    GlobalDebuggerOptions o;
-    SourcePathMap allPathMap = sourcesMappingWidget->sourcePathMap();
-    for (auto it = allPathMap.begin(), end = allPathMap.end(); it != end; ++it) {
-        const QString key = it.key();
-        if (key.startsWith(QLatin1Char('(')))
-            o.sourcePathRegExpMap.append(qMakePair(QRegExp(key), it.value()));
-        else
-            o.sourcePathMap.insert(key, it.value());
-    }
-    return o;
-}
-
-void CommonOptionsPageWidget::setGlobalOptions(const GlobalDebuggerOptions &go)
-{
-    SourcePathMap allPathMap = go.sourcePathMap;
-    foreach (auto regExpMap, go.sourcePathRegExpMap)
-        allPathMap.insert(regExpMap.first.pattern(), regExpMap.second);
-
-    sourcesMappingWidget->setSourcePathMap(allPathMap);
-}
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -260,41 +63,184 @@ CommonOptionsPage::CommonOptionsPage(const QSharedPointer<GlobalDebuggerOptions>
     setDisplayName(QCoreApplication::translate("Debugger", "General"));
     setCategory(DEBUGGER_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Debugger", DEBUGGER_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(Utils::Icon(DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON));
-}
-
-CommonOptionsPage::~CommonOptionsPage()
-{
+    setCategoryIcon(Icon(DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON));
 }
 
 void CommonOptionsPage::apply()
 {
-    QTC_ASSERT(!m_widget.isNull() && !m_group.isNull(), return);
+    m_group.apply(ICore::settings());
 
-    m_group->apply(ICore::settings());
+    GlobalDebuggerOptions newOptions;
+    SourcePathMap allPathMap = m_sourceMappingWidget->sourcePathMap();
+    for (auto it = allPathMap.begin(), end = allPathMap.end(); it != end; ++it) {
+        const QString key = it.key();
+        if (key.startsWith(QLatin1Char('(')))
+            newOptions.sourcePathRegExpMap.append(qMakePair(QRegExp(key), it.value()));
+        else
+            newOptions.sourcePathMap.insert(key, it.value());
+    }
 
-    const GlobalDebuggerOptions newGlobalOptions = m_widget->globalOptions();
-    if (newGlobalOptions != *m_options) {
-        *m_options = newGlobalOptions;
+    if (newOptions.sourcePathMap != m_options->sourcePathMap
+            || newOptions.sourcePathRegExpMap != m_options->sourcePathRegExpMap) {
+        *m_options = newOptions;
         m_options->toSettings();
     }
 }
 
 void CommonOptionsPage::finish()
 {
-    if (!m_group.isNull())
-        m_group->finish();
+    m_group.finish();
     delete m_widget;
 }
 
 QWidget *CommonOptionsPage::widget()
 {
-    if (m_group.isNull())
-        m_group = QSharedPointer<Utils::SavedActionSet>(new Utils::SavedActionSet);
-
     if (!m_widget) {
-        m_widget = new CommonOptionsPageWidget(m_group);
-        m_widget->setGlobalOptions(*m_options);
+        m_widget = new QWidget;
+
+        auto behaviorBox = new QGroupBox(m_widget);
+        behaviorBox->setTitle(tr("Behavior"));
+
+        auto checkBoxUseAlternatingRowColors = new QCheckBox(behaviorBox);
+        checkBoxUseAlternatingRowColors->setText(tr("Use alternating row colors in debug views"));
+
+        auto checkBoxFontSizeFollowsEditor = new QCheckBox(behaviorBox);
+        checkBoxFontSizeFollowsEditor->setToolTip(tr("Changes the font size in the debugger views when the font size in the main editor changes."));
+        checkBoxFontSizeFollowsEditor->setText(tr("Debugger font size follows main editor"));
+
+        auto checkBoxUseToolTipsInMainEditor = new QCheckBox(behaviorBox);
+        checkBoxUseToolTipsInMainEditor->setText(tr("Use tooltips in main editor while debugging"));
+
+        QString t = tr("Stopping and stepping in the debugger "
+                       "will automatically open views associated with the current location.") + QLatin1Char('\n');
+        auto checkBoxCloseSourceBuffersOnExit = new QCheckBox(behaviorBox);
+        checkBoxCloseSourceBuffersOnExit->setText(tr("Close temporary source views on debugger exit"));
+        checkBoxCloseSourceBuffersOnExit->setToolTip(t + tr("Select this option to close "
+                                                            "automatically opened source views when the debugger exits."));
+
+        auto checkBoxCloseMemoryBuffersOnExit = new QCheckBox(behaviorBox);
+        checkBoxCloseMemoryBuffersOnExit->setText(tr("Close temporary memory views on debugger exit"));
+        checkBoxCloseMemoryBuffersOnExit->setToolTip(t + tr("Select this option to close "
+                                                            "automatically opened memory views when the debugger exits."));
+
+        auto checkBoxSwitchModeOnExit = new QCheckBox(behaviorBox);
+        checkBoxSwitchModeOnExit->setText(tr("Switch to previous mode on debugger exit"));
+
+        auto checkBoxBringToForegroundOnInterrrupt = new QCheckBox(behaviorBox);
+        checkBoxBringToForegroundOnInterrrupt->setText(tr("Bring Qt Creator to foreground when application interrupts"));
+
+        auto checkBoxShowQmlObjectTree = new QCheckBox(behaviorBox);
+        checkBoxShowQmlObjectTree->setToolTip(tr("Shows QML object tree in Locals and Expressions when connected and not stepping."));
+        checkBoxShowQmlObjectTree->setText(tr("Show QML object tree"));
+
+        auto checkBoxBreakpointsFullPath = new QCheckBox(behaviorBox);
+        checkBoxBreakpointsFullPath->setToolTip(tr("Enables a full file path in breakpoints by default also for GDB."));
+        checkBoxBreakpointsFullPath->setText(tr("Set breakpoints using a full absolute path"));
+
+        auto checkBoxRegisterForPostMortem = new QCheckBox(behaviorBox);
+        checkBoxRegisterForPostMortem->setToolTip(tr("Registers Qt Creator for debugging crashed applications."));
+        checkBoxRegisterForPostMortem->setText(tr("Use Qt Creator for post-mortem debugging"));
+
+        auto checkBoxWarnOnReleaseBuilds = new QCheckBox(behaviorBox);
+        checkBoxWarnOnReleaseBuilds->setText(tr("Warn when debugging \"Release\" builds"));
+        checkBoxWarnOnReleaseBuilds->setToolTip(tr("Shows a warning when starting the debugger "
+                                                   "on a binary with insufficient debug information."));
+
+        auto checkBoxKeepEditorStationaryWhileStepping = new QCheckBox(behaviorBox);
+        checkBoxKeepEditorStationaryWhileStepping->setText(tr("Keep editor stationary when stepping"));
+        checkBoxKeepEditorStationaryWhileStepping->setToolTip(tr("Scrolls the editor only when it is necessary "
+                                                                 "to keep the current line in view, "
+                                                                 "instead of keeping the next statement centered at "
+                                                                 "all times."));
+
+        auto labelMaximalStackDepth = new QLabel(tr("Maximum stack depth:"), behaviorBox);
+
+        auto spinBoxMaximalStackDepth = new QSpinBox(behaviorBox);
+        spinBoxMaximalStackDepth->setSpecialValueText(tr("<unlimited>"));
+        spinBoxMaximalStackDepth->setMaximum(999);
+        spinBoxMaximalStackDepth->setSingleStep(5);
+        spinBoxMaximalStackDepth->setValue(10);
+
+        m_sourceMappingWidget = new DebuggerSourcePathMappingWidget(m_widget);
+
+        auto horizontalLayout = new QHBoxLayout;
+        horizontalLayout->addWidget(labelMaximalStackDepth);
+        horizontalLayout->addWidget(spinBoxMaximalStackDepth);
+        horizontalLayout->addStretch();
+
+        auto gridLayout = new QGridLayout(behaviorBox);
+        gridLayout->addWidget(checkBoxUseAlternatingRowColors, 0, 0, 1, 1);
+        gridLayout->addWidget(checkBoxUseToolTipsInMainEditor, 1, 0, 1, 1);
+        gridLayout->addWidget(checkBoxCloseSourceBuffersOnExit, 2, 0, 1, 1);
+        gridLayout->addWidget(checkBoxCloseMemoryBuffersOnExit, 3, 0, 1, 1);
+        gridLayout->addWidget(checkBoxBringToForegroundOnInterrrupt, 4, 0, 1, 1);
+        gridLayout->addWidget(checkBoxBreakpointsFullPath, 5, 0, 1, 1);
+        gridLayout->addWidget(checkBoxWarnOnReleaseBuilds, 6, 0, 1, 1);
+        gridLayout->addLayout(horizontalLayout, 7, 0, 1, 2);
+
+        gridLayout->addWidget(checkBoxFontSizeFollowsEditor, 0, 1, 1, 1);
+        gridLayout->addWidget(checkBoxSwitchModeOnExit, 1, 1, 1, 1);
+        gridLayout->addWidget(checkBoxShowQmlObjectTree, 2, 1, 1, 1);
+        gridLayout->addWidget(checkBoxKeepEditorStationaryWhileStepping, 3, 1, 1, 1);
+        gridLayout->addWidget(checkBoxRegisterForPostMortem, 4, 1, 1, 1);
+
+        auto verticalLayout = new QVBoxLayout(m_widget);
+        verticalLayout->addWidget(behaviorBox);
+        verticalLayout->addWidget(m_sourceMappingWidget);
+        verticalLayout->addStretch();
+
+        m_group.clear();
+
+        m_group.insert(action(UseAlternatingRowColors),
+                       checkBoxUseAlternatingRowColors);
+        m_group.insert(action(UseToolTipsInMainEditor),
+                       checkBoxUseToolTipsInMainEditor);
+        m_group.insert(action(CloseSourceBuffersOnExit),
+                       checkBoxCloseSourceBuffersOnExit);
+        m_group.insert(action(CloseMemoryBuffersOnExit),
+                       checkBoxCloseMemoryBuffersOnExit);
+        m_group.insert(action(SwitchModeOnExit),
+                       checkBoxSwitchModeOnExit);
+        m_group.insert(action(BreakpointsFullPathByDefault),
+                       checkBoxBreakpointsFullPath);
+        m_group.insert(action(RaiseOnInterrupt),
+                       checkBoxBringToForegroundOnInterrrupt);
+        m_group.insert(action(ShowQmlObjectTree),
+                       checkBoxShowQmlObjectTree);
+        m_group.insert(action(WarnOnReleaseBuilds),
+                       checkBoxWarnOnReleaseBuilds);
+        m_group.insert(action(StationaryEditorWhileStepping),
+                       checkBoxKeepEditorStationaryWhileStepping);
+        m_group.insert(action(FontSizeFollowsEditor),
+                       checkBoxFontSizeFollowsEditor);
+        m_group.insert(action(AutoDerefPointers), 0);
+        m_group.insert(action(UseToolTipsInLocalsView), 0);
+        m_group.insert(action(AlwaysAdjustColumnWidths), 0);
+        m_group.insert(action(UseToolTipsInBreakpointsView), 0);
+        m_group.insert(action(UseToolTipsInStackView), 0);
+        m_group.insert(action(UseAddressInBreakpointsView), 0);
+        m_group.insert(action(UseAddressInStackView), 0);
+        m_group.insert(action(MaximalStackDepth), spinBoxMaximalStackDepth);
+        m_group.insert(action(ShowStdNamespace), 0);
+        m_group.insert(action(ShowQtNamespace), 0);
+        m_group.insert(action(ShowQObjectNames), 0);
+        m_group.insert(action(SortStructMembers), 0);
+        m_group.insert(action(LogTimeStamps), 0);
+        m_group.insert(action(BreakOnThrow), 0);
+        m_group.insert(action(BreakOnCatch), 0);
+        if (HostOsInfo::isWindowsHost()) {
+            SavedAction *registerAction = action(RegisterForPostMortem);
+            m_group.insert(registerAction, checkBoxRegisterForPostMortem);
+            connect(registerAction, &QAction::toggled,
+                    checkBoxRegisterForPostMortem, &QAbstractButton::setChecked);
+        } else {
+            checkBoxRegisterForPostMortem->setVisible(false);
+        }
+
+        SourcePathMap allPathMap = m_options->sourcePathMap;
+        foreach (auto regExpMap, m_options->sourcePathRegExpMap)
+            allPathMap.insert(regExpMap.first.pattern(), regExpMap.second);
+        m_sourceMappingWidget->setSourcePathMap(allPathMap);
     }
     return m_widget;
 }
@@ -331,7 +277,7 @@ LocalsAndExpressionsOptionsPage::LocalsAndExpressionsOptionsPage()
     setDisplayName(QCoreApplication::translate("Debugger", "Locals && Expressions"));
     setCategory(DEBUGGER_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Debugger", DEBUGGER_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(Utils::Icon(DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON));
+    setCategoryIcon(Icon(DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON));
 }
 
 void LocalsAndExpressionsOptionsPage::apply()
@@ -428,5 +374,3 @@ QWidget *LocalsAndExpressionsOptionsPage::widget()
 
 } // namespace Internal
 } // namespace Debugger
-
-#include "commonoptionspage.moc"

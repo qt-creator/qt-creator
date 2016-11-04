@@ -45,15 +45,6 @@ class GlobalDebuggerOptions
 public:
     void toSettings() const;
     void fromSettings();
-    bool operator==(const GlobalDebuggerOptions &rhs) const
-    {
-        return sourcePathMap == rhs.sourcePathMap
-                && sourcePathRegExpMap == rhs.sourcePathRegExpMap;
-    }
-    bool operator!=(const GlobalDebuggerOptions &rhs) const
-    {
-        return !(*this == rhs);
-    }
 
     SourcePathMap sourcePathMap;
     SourcePathRegExpMap sourcePathRegExpMap;
