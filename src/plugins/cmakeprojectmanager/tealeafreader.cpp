@@ -449,9 +449,10 @@ void TeaLeafReader::extractData()
     }
 
     // Make sure the top cmakelists.txt file is always listed:
-    if (!contains(m_files, [topCMake](FileNode *fn) { return fn->filePath() == topCMake; })) {
+    if (!contains(m_files, [topCMake](FileNode *fn) { return fn->filePath() == topCMake; }))
         m_files.append(new FileNode(topCMake, FileType::Project, false));
-    }
+
+    Utils::sort(m_files, &Node::sortByPath);
 
     m_buildTargets = cbpparser.buildTargets();
 }
