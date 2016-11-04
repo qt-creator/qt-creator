@@ -411,6 +411,10 @@ void FolderNode::buildTree(QList<FileNode *> &files)
     for (auto i = deletedFolderMapping.constBegin(); i != deletedFolderMapping.constEnd(); ++i) {
         ProjectExplorer::FolderNode *parent = i.key();
         parent->removeFileNodes(i.value());
+
+        if (parent == this) // Never delete this node!
+            continue;
+
         // Check for empty parent
         while (parent->subFolderNodes().isEmpty() && parent->fileNodes().isEmpty()) {
             ProjectExplorer::FolderNode *grandparent = parent->parentFolderNode();
