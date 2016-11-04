@@ -211,8 +211,9 @@ CMakeConfig ServerModeReader::parsedConfiguration() const
     return m_cmakeCache;
 }
 
-void ServerModeReader::generateProjectTree(CMakeProjectNode *root)
+void ServerModeReader::generateProjectTree(CMakeProjectNode *root, const QList<FileNode *> &allFiles)
 {
+    Q_UNUSED(allFiles);
     QSet<Utils::FileName> knownFiles;
     for (auto it = m_cmakeInputsFileNodes.constBegin(); it != m_cmakeInputsFileNodes.constEnd(); ++it)
         knownFiles.insert((*it)->filePath());

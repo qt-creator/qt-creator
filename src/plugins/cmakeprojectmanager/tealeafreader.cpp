@@ -318,8 +318,9 @@ CMakeConfig TeaLeafReader::parseConfiguration(const FileName &cacheFile, QString
     return result;
 }
 
-void TeaLeafReader::generateProjectTree(CMakeProjectNode *root)
+void TeaLeafReader::generateProjectTree(CMakeProjectNode *root, const QList<FileNode *> &allFiles)
 {
+    Q_UNUSED(allFiles);
     root->setDisplayName(m_projectName);
 
     // Delete no longer necessary file watcher:

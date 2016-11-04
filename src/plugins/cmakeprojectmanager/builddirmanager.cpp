@@ -326,7 +326,28 @@ bool BuildDirManager::persistCMakeState()
 void BuildDirManager::generateProjectTree(CMakeProjectNode *root)
 {
     QTC_ASSERT(m_reader, return);
-    m_reader->generateProjectTree(root);
+    QTC_ASSERT(m_futureInterface, return);
+
+    const Utils::FileName projectFile = m_buildConfiguration->target()->project()->projectFilePath();
+    QList<FileNode *> tmp = Utils::filtered(m_futureInterface->future().result(),
+                                            [projectFile](const FileNode *fn) -> bool {
+            const Utils::FileName &path = fn->filePath();
+            return path != projectFile && !path.toString().startsWith(projectFile.toString() + ".user");
+    });
+    Utils::sort(tmp, ProjectExplorer::Node::sortByPath);
+
+    m_futureInterface.reset(); // Make sure to flush the stale results
+
+    const QList<FileNode *> allFiles = tmp;
+    m_reader->generateProjectTree(root, allFiles);
+    QSet<FileNode *> usedNodes;
+    foreach (FileNode *fn, root->recursiveFileNodes())
+        usedNodes.insert(fn);
+
+    QList<FileNode *> leftOvers = Utils::filtered(allFiles, [&usedNodes](FileNode *fn) {
+            return !usedNodes.contains(fn);
+    });
+    qDeleteAll(leftOvers);
 }
 
 QSet<Core::Id> BuildDirManager::updateCodeModel(CppTools::ProjectPartBuilder &ppBuilder)
