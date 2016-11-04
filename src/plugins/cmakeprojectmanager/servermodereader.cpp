@@ -219,6 +219,7 @@ void ServerModeReader::generateProjectTree(CMakeProjectNode *root, const QList<F
         knownFiles.insert((*it)->filePath());
 
     QList<FileNode *> fileGroupNodes = m_cmakeInputsFileNodes;
+    m_cmakeInputsFileNodes.clear(); // Clean out, they are not going to be used anymore!
     foreach (const FileGroup *fg, m_fileGroups) {
         for (const FileName &s : fg->sources) {
             const int oldCount = knownFiles.count();
@@ -251,6 +252,12 @@ QSet<Core::Id> ServerModeReader::updateCodeModel(CppTools::ProjectPartBuilder &p
 
         languages.unite(QSet<Core::Id>::fromList(ppBuilder.createProjectPartsForFiles(transform(fg->sources, &FileName::toString))));
     }
+
+    qDeleteAll(m_projects); // Not used anymore!
+    m_projects.clear();
+    m_targets.clear();
+    m_fileGroups.clear();
+
     return languages;
 }
 
