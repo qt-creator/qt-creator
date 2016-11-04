@@ -380,13 +380,15 @@ void BuildDirManager::clearCache()
 
 QList<CMakeBuildTarget> BuildDirManager::buildTargets() const
 {
-    QTC_ASSERT(m_reader, return QList<CMakeBuildTarget>());
+    if (!m_reader)
+        return QList<CMakeBuildTarget>();
     return m_reader->buildTargets();
 }
 
 CMakeConfig BuildDirManager::parsedConfiguration() const
 {
-    QTC_ASSERT(m_reader, return m_cmakeCache);
+    if (!m_reader)
+        return m_cmakeCache;
     if (m_cmakeCache.isEmpty())
         m_cmakeCache = m_reader->parsedConfiguration();
     return m_cmakeCache;

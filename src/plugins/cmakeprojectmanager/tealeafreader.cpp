@@ -320,10 +320,9 @@ CMakeConfig TeaLeafReader::parseConfiguration(const FileName &cacheFile, QString
 
 void TeaLeafReader::generateProjectTree(CMakeProjectNode *root, const QList<FileNode *> &allFiles)
 {
-    Q_UNUSED(allFiles);
     root->setDisplayName(m_projectName);
 
-    // Delete no longer necessary file watcher:
+    // Delete no longer necessary file watcher based on m_cmakeFiles:
     const QSet<FileName> currentWatched
             = transform(m_watchedFiles, [](CMakeFile *cmf) { return cmf->filePath(); });
     const QSet<FileName> toWatch = m_cmakeFiles;
@@ -346,8 +345,59 @@ void TeaLeafReader::generateProjectTree(CMakeProjectNode *root, const QList<File
         m_watchedFiles.insert(cm);
     }
 
-    QList<FileNode *> fileNodes = m_files;
-    root->buildTree(fileNodes);
+    QList<FileNode *> added;
+    QList<FileNode *> deleted;
+
+    ProjectExplorer::compareSortedLists(m_files, allFiles, deleted, added, Node::sortByPath);
+
+    QSet<FileName> allIncludePathSet;
+    for (const CMakeBuildTarget &bt : m_buildTargets) {
+        const QList<Utils::FileName> targetIncludePaths
+                = Utils::filtered(bt.includeFiles, [root](const Utils::FileName &fn) {
+            return fn.isChildOf(root->filePath());
+        });
+        allIncludePathSet.unite(QSet<FileName>::fromList(targetIncludePaths));
+    }
+    const QList<FileName> allIncludePaths = allIncludePathSet.toList();
+
+    QList<FileNode *> includedHeaderFiles;
+    QList<FileNode *> unusedFileNodes;
+    std::tie(includedHeaderFiles, unusedFileNodes)
+            = Utils::partition(allFiles, [&allIncludePaths](const FileNode *fn) -> bool {
+        if (fn->fileType() != FileType::Header)
+            return false;
+
+        for (const FileName &inc : allIncludePaths) {
+            if (fn->filePath().isChildOf(inc))
+                return true;
+        }
+        return false;
+    });
+
+    const auto knownFiles = QSet<FileName>::fromList(Utils::transform(m_files, [](const FileNode *fn) { return fn->filePath(); }));
+    QList<FileNode *> uniqueHeaders;
+    foreach (FileNode *ifn, includedHeaderFiles) {
+        if (!knownFiles.contains(ifn->filePath())) {
+            uniqueHeaders.append(ifn);
+            ifn->setEnabled(false);
+        }
+    }
+
+    QList<FileNode *> fileNodes = m_files + uniqueHeaders;
+
+    // Filter out duplicate nodes that e.g. the servermode reader introduces:
+    QSet<FileName> uniqueFileNames;
+    QSet<Node *> uniqueNodes;
+    foreach (FileNode *fn, root->recursiveFileNodes()) {
+        const int count = uniqueFileNames.count();
+        uniqueFileNames.insert(fn->filePath());
+        if (count != uniqueFileNames.count())
+            uniqueNodes.insert(static_cast<Node *>(fn));
+    }
+    root->trim(uniqueNodes);
+    root->removeProjectNodes(root->projectNodes()); // Remove all project nodes
+
+    root->buildTree(fileNodes, m_parameters.sourceDirectory);
     m_files.clear(); // Some of the FileNodes in files() were deleted!
 }
 
