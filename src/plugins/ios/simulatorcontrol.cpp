@@ -27,13 +27,16 @@
 #include "iossimulator.h"
 #include "iosconfigurations.h"
 
-#include <utils/runextensions.h>
+#include "utils/runextensions.h"
+#include "utils/qtcassert.h"
+#include "utils/synchronousprocess.h"
 
 #ifdef Q_OS_MAC
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
 #include <chrono>
+#include <memory>
 
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -47,6 +50,8 @@
 #include <QUrl>
 #include <QWriteLocker>
 
+using namespace std;
+
 namespace {
 Q_LOGGING_CATEGORY(simulatorLog, "qtc.ios.simulator")
 }
@@ -55,29 +60,61 @@ namespace Ios {
 namespace Internal {
 
 static int COMMAND_TIMEOUT = 10000;
-static int SIMULATOR_TIMEOUT = 60000;
+static int SIMULATOR_START_TIMEOUT = 60000;
+static QString SIM_UDID_TAG = QStringLiteral("SimUdid");
 
-static bool checkForTimeout(const std::chrono::time_point< std::chrono::high_resolution_clock, std::chrono::nanoseconds> &start, int msecs = COMMAND_TIMEOUT)
+static bool checkForTimeout(const chrono::time_point< chrono::high_resolution_clock, chrono::nanoseconds> &start, int msecs = COMMAND_TIMEOUT)
 {
     bool timedOut = false;
-    auto end = std::chrono::high_resolution_clock::now();
-    if (std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count() > msecs)
+    auto end = chrono::high_resolution_clock::now();
+    if (chrono::duration_cast<chrono::milliseconds>(end-start).count() > msecs)
         timedOut = true;
     return timedOut;
 }
 
-static QByteArray runSimCtlCommand(QStringList args)
+static bool runCommand(QString command, const QStringList &args, QByteArray *output)
 {
-    QProcess simCtlProcess;
-    args.prepend(QStringLiteral("simctl"));
-    simCtlProcess.start(QStringLiteral("xcrun"), args, QProcess::ReadOnly);
-    if (!simCtlProcess.waitForFinished())
-        qCDebug(simulatorLog) << "simctl command failed." << simCtlProcess.errorString();
-    return simCtlProcess.readAll();
+    Utils::SynchronousProcess p;
+    Utils::SynchronousProcessResponse resp = p.runBlocking(command, args);
+    if (output)
+        *output = resp.allRawOutput();
+    return resp.result == Utils::SynchronousProcessResponse::Finished;
 }
 
-class SimulatorControlPrivate :QObject {
-    Q_OBJECT
+static QByteArray runSimCtlCommand(QStringList args)
+{
+    QByteArray output;
+    args.prepend(QStringLiteral("simctl"));
+    runCommand(QStringLiteral("xcrun"), args, &output);
+    return output;
+}
+
+static bool waitForProcessSpawn(qint64 processPId, QFutureInterface<SimulatorControl::ResponseData> &fi)
+{
+    bool success = false;
+    if (processPId != -1) {
+        // Wait for app to reach intruptible sleep state.
+        const QStringList args = {QStringLiteral("-p"), QString::number(processPId),
+                                  QStringLiteral("-o"), QStringLiteral("wq=")};
+        int wqCount = -1;
+        QByteArray wqStr;
+        auto begin = chrono::high_resolution_clock::now();
+        do {
+            if (fi.isCanceled() || !runCommand(QStringLiteral("ps"), args, &wqStr))
+                break;
+            bool validInt = false;
+            wqCount = wqStr.trimmed().toInt(&validInt);
+            if (!validInt)
+                wqCount = -1;
+        } while (wqCount < 0 && !checkForTimeout(begin));
+        success = wqCount >= 0;
+    } else {
+        qCDebug(simulatorLog) << "Wait for spawned failed. Invalid Process ID." << processPId;
+    }
+    return success;
+}
+
+class SimulatorControlPrivate {
 private:
     struct SimDeviceInfo {
         bool isBooted() const { return state.compare(QStringLiteral("Booted")) == 0; }
@@ -89,27 +126,40 @@ private:
         QString sdk;
     };
 
-    SimulatorControlPrivate(QObject *parent = nullptr);
+    SimulatorControlPrivate();
     ~SimulatorControlPrivate();
-    SimDeviceInfo deviceInfo(const QString &simUdid) const;
-    bool runCommand(QString command, const QStringList &args, QByteArray *output = nullptr);
 
-    QHash<QString, QProcess*> simulatorProcesses;
-    QReadWriteLock processDataLock;
-    QList<IosDeviceType> availableDevices;
+    static SimDeviceInfo deviceInfo(const QString &simUdid);
+    static QString bundleIdentifier(const Utils::FileName &bundlePath);
+    static QString bundleExecutable(const Utils::FileName &bundlePath);
+
+    void startSimulator(QFutureInterface<SimulatorControl::ResponseData> &fi, const QString &simUdid);
+    void installApp(QFutureInterface<SimulatorControl::ResponseData> &fi, const QString &simUdid,
+                    const Utils::FileName &bundlePath);
+    void spawnAppProcess(QFutureInterface<SimulatorControl::ResponseData> &fi, const QString &simUdid,
+                         const Utils::FileName &bundlePath, bool waitForDebugger, QStringList extraArgs,
+                         QThread *mainThread);
+    void launchApp(QFutureInterface<SimulatorControl::ResponseData> &fi, const QString &simUdid,
+                   const QString &bundleIdentifier, qint64 spawnedPID);
+
+    static QList<IosDeviceType> availableDevices;
     friend class SimulatorControl;
 };
 
-SimulatorControlPrivate *SimulatorControl::d = new SimulatorControlPrivate;
-
-SimulatorControl::SimulatorControl()
+SimulatorControl::SimulatorControl(QObject *parent) :
+    QObject(parent),
+    d(new SimulatorControlPrivate)
 {
+}
 
+SimulatorControl::~SimulatorControl()
+{
+    delete d;
 }
 
 QList<Ios::Internal::IosDeviceType> SimulatorControl::availableSimulators()
 {
-    return d->availableDevices;
+    return SimulatorControlPrivate::availableDevices;
 }
 
 static QList<IosDeviceType> getAvailableSimulators()
@@ -133,7 +183,7 @@ static QList<IosDeviceType> getAvailableSimulators()
                 }
             }
         }
-        std::stable_sort(availableDevices.begin(), availableDevices.end());
+        stable_sort(availableDevices.begin(), availableDevices.end());
     } else {
         qCDebug(simulatorLog) << "Error parsing json output from simctl. Output:" << output;
     }
@@ -142,133 +192,59 @@ static QList<IosDeviceType> getAvailableSimulators()
 
 void SimulatorControl::updateAvailableSimulators()
 {
-    QFuture<QList<IosDeviceType>> future = Utils::runAsync(getAvailableSimulators);
-    Utils::onResultReady(future, d, [](const QList<IosDeviceType> &devices) {
-        SimulatorControl::d->availableDevices = devices;
+    QFuture< QList<IosDeviceType> > future = Utils::runAsync(getAvailableSimulators);
+    Utils::onResultReady(future, [](const QList<IosDeviceType> &devices) {
+        SimulatorControlPrivate::availableDevices = devices;
     });
-}
-
-// Blocks until simulators reaches "Booted" state.
-bool SimulatorControl::startSimulator(const QString &simUdid)
-{
-    QWriteLocker locker(&d->processDataLock);
-    bool simulatorRunning = isSimulatorRunning(simUdid);
-    if (!simulatorRunning && d->deviceInfo(simUdid).isAvailable()) {
-        // Simulator is not running but it's available. Start the simulator.
-        QProcess *p = new QProcess;
-        QObject::connect(p, static_cast<void(QProcess::*)(int)>(&QProcess::finished), [simUdid]() {
-            QWriteLocker locker(&d->processDataLock);
-            d->simulatorProcesses[simUdid]->deleteLater();
-            d->simulatorProcesses.remove(simUdid);
-        });
-
-        const QString cmd = IosConfigurations::developerPath().appendPath(QStringLiteral("/Applications/Simulator.app")).toString();
-        const QStringList args({QStringLiteral("--args"), QStringLiteral("-CurrentDeviceUDID"), simUdid});
-        p->start(cmd, args);
-
-        if (p->waitForStarted()) {
-            d->simulatorProcesses[simUdid] = p;
-            // At this point the sim device exists, available and was not running.
-            // So the simulator is started and we'll wait for it to reach to a state
-            // where we can interact with it.
-            auto start = std::chrono::high_resolution_clock::now();
-            SimulatorControlPrivate::SimDeviceInfo info;
-            do {
-                info = d->deviceInfo(simUdid);
-            } while (!info.isBooted()
-                     && p->state() == QProcess::Running
-                     && !checkForTimeout(start, SIMULATOR_TIMEOUT));
-            simulatorRunning = info.isBooted();
-        } else {
-            qCDebug(simulatorLog) << "Error starting simulator." << p->errorString();
-            delete p;
-        }
-    }
-    return simulatorRunning;
 }
 
 bool SimulatorControl::isSimulatorRunning(const QString &simUdid)
 {
     if (simUdid.isEmpty())
         return false;
-    return d->deviceInfo(simUdid).isBooted();
-}
-
-bool SimulatorControl::installApp(const QString &simUdid, const Utils::FileName &bundlePath, QByteArray &commandOutput)
-{
-    bool installed = false;
-    if (isSimulatorRunning(simUdid)) {
-        commandOutput = runSimCtlCommand(QStringList() << QStringLiteral("install") << simUdid << bundlePath.toString());
-        installed = commandOutput.isEmpty();
-    } else {
-        commandOutput = "Simulator device not running.";
-    }
-    return installed;
-}
-
-qint64 SimulatorControl::launchApp(const QString &simUdid, const QString &bundleIdentifier, QByteArray* commandOutput)
-{
-    qint64 pId = -1;
-    pId = -1;
-    if (!bundleIdentifier.isEmpty() && isSimulatorRunning(simUdid)) {
-        const QStringList args({QStringLiteral("launch"), simUdid , bundleIdentifier});
-        const QByteArray output = runSimCtlCommand(args);
-        const QByteArray pIdStr = output.trimmed().split(' ').last().trimmed();
-        bool validInt = false;
-        pId = pIdStr.toLongLong(&validInt);
-        if (!validInt) {
-            // Launch Failed.
-            qCDebug(simulatorLog) << "Launch app failed. Process id returned is not valid. PID =" << pIdStr;
-            pId = -1;
-            if (commandOutput)
-                *commandOutput = output;
-        }
-    }
-    return pId;
+    return SimulatorControlPrivate::deviceInfo(simUdid).isBooted();
 }
 
 QString SimulatorControl::bundleIdentifier(const Utils::FileName &bundlePath)
 {
-    QString bundleID;
-#ifdef Q_OS_MAC
-    if (bundlePath.exists()) {
-        CFStringRef cFBundlePath = bundlePath.toString().toCFString();
-        CFURLRef bundle_url = CFURLCreateWithFileSystemPath (kCFAllocatorDefault, cFBundlePath, kCFURLPOSIXPathStyle, true);
-        CFRelease(cFBundlePath);
-        CFBundleRef bundle = CFBundleCreate (kCFAllocatorDefault, bundle_url);
-        CFRelease(bundle_url);
-        CFStringRef cFBundleID = CFBundleGetIdentifier(bundle);
-        bundleID = QString::fromCFString(cFBundleID).trimmed();
-        CFRelease(bundle);
-    }
-#else
-    Q_UNUSED(bundlePath)
-#endif
-    return bundleID;
+    return SimulatorControlPrivate::bundleIdentifier(bundlePath);
 }
 
 QString SimulatorControl::bundleExecutable(const Utils::FileName &bundlePath)
 {
-    QString executable;
-#ifdef Q_OS_MAC
-    if (bundlePath.exists()) {
-        CFStringRef cFBundlePath = bundlePath.toString().toCFString();
-        CFURLRef bundle_url = CFURLCreateWithFileSystemPath (kCFAllocatorDefault, cFBundlePath, kCFURLPOSIXPathStyle, true);
-        CFRelease(cFBundlePath);
-        CFBundleRef bundle = CFBundleCreate (kCFAllocatorDefault, bundle_url);
-        CFStringRef cFStrExecutableName = (CFStringRef)CFBundleGetValueForInfoDictionaryKey(bundle, kCFBundleExecutableKey);
-        executable = QString::fromCFString(cFStrExecutableName).trimmed();
-        CFRelease(bundle);
-    }
-#else
-    Q_UNUSED(bundlePath)
-#endif
-    return executable;
+    return SimulatorControlPrivate::bundleExecutable(bundlePath);
 }
 
-SimulatorControlPrivate::SimulatorControlPrivate(QObject *parent):
-    QObject(parent),
-    processDataLock(QReadWriteLock::Recursive)
+QFuture<SimulatorControl::ResponseData> SimulatorControl::startSimulator(const QString &simUdid)
+{
+    return Utils::runAsync(&SimulatorControlPrivate::startSimulator, d, simUdid);
+}
+
+QFuture<SimulatorControl::ResponseData>
+SimulatorControl::installApp(const QString &simUdid, const Utils::FileName &bundlePath) const
+{
+    return Utils::runAsync(&SimulatorControlPrivate::installApp, d, simUdid, bundlePath);
+}
+
+QFuture<SimulatorControl::ResponseData>
+SimulatorControl::spawnAppProcess(const QString &simUdid, const Utils::FileName &bundlePath,
+                                  bool waitForDebugger, const QStringList &extraArgs) const
+{
+    return Utils::runAsync(&SimulatorControlPrivate::spawnAppProcess, d, simUdid, bundlePath,
+                           waitForDebugger, extraArgs, QThread::currentThread());
+}
+
+QFuture<SimulatorControl::ResponseData>
+SimulatorControl::launchApp(const QString &simUdid, const QString &bundleIdentifier,
+                            qint64 spawnedPID) const
+{
+    return Utils::runAsync(&SimulatorControlPrivate::launchApp, d, simUdid,
+                                    bundleIdentifier, spawnedPID);
+}
+
+QList<IosDeviceType> SimulatorControlPrivate::availableDevices;
+
+SimulatorControlPrivate::SimulatorControlPrivate()
 {
 }
 
@@ -277,107 +253,11 @@ SimulatorControlPrivate::~SimulatorControlPrivate()
 
 }
 
-// The simctl spawns the process and returns the pId but the application process might not have started, at least in a state where you can interrupt it.
-// Use SimulatorControl::waitForProcessSpawn to be sure.
-QProcess *SimulatorControl::spawnAppProcess(const QString &simUdid, const Utils::FileName &bundlePath, qint64 &pId, bool waitForDebugger, const QStringList &extraArgs)
-{
-    QProcess *simCtlProcess = nullptr;
-    if (isSimulatorRunning(simUdid)) {
-        QString bundleId = bundleIdentifier(bundlePath);
-        QString executableName = bundleExecutable(bundlePath);
-        QByteArray appPath = runSimCtlCommand(QStringList() << QStringLiteral("get_app_container") << simUdid << bundleId).trimmed();
-        if (!appPath.isEmpty() && !executableName.isEmpty()) {
-            // Spawn the app. The spawned app is started in suspended mode.
-            appPath.append('/' + executableName.toLocal8Bit());
-            simCtlProcess = new QProcess;
-            QStringList args;
-            args << QStringLiteral("simctl");
-            args << QStringLiteral("spawn");
-            if (waitForDebugger)
-                args << QStringLiteral("-w");
-            args << simUdid;
-            args << QString::fromLocal8Bit(appPath);
-            args << extraArgs;
-            simCtlProcess->start(QStringLiteral("xcrun"), args);
-            if (!simCtlProcess->waitForStarted()){
-                // Spawn command failed.
-                qCDebug(simulatorLog) << "Spawning the app failed." << simCtlProcess->errorString();
-                delete simCtlProcess;
-                simCtlProcess = nullptr;
-            }
-
-            // Find the process id of the the app process.
-            if (simCtlProcess) {
-                qint64 simctlPId = simCtlProcess->processId();
-                pId = -1;
-                QByteArray commandOutput;
-                QStringList pGrepArgs;
-                pGrepArgs << QStringLiteral("-f") << QString::fromLocal8Bit(appPath);
-                auto begin = std::chrono::high_resolution_clock::now();
-                // Find the pid of the spawned app.
-                while (pId == -1 && d->runCommand(QStringLiteral("pgrep"), pGrepArgs, &commandOutput)) {
-                    foreach (auto pidStr, commandOutput.trimmed().split('\n')) {
-                        qint64 parsedPId = pidStr.toLongLong();
-                        if (parsedPId != simctlPId)
-                            pId = parsedPId;
-                    }
-                    if (checkForTimeout(begin)) {
-                        qCDebug(simulatorLog) << "Spawning the app failed. Process timed out";
-                        break;
-                    }
-                }
-            }
-
-            if (pId == -1) {
-                // App process id can't be found.
-                qCDebug(simulatorLog) << "Spawning the app failed. PID not found.";
-                delete simCtlProcess;
-                simCtlProcess = nullptr;
-            }
-        } else {
-            qCDebug(simulatorLog) << "Spawning the app failed. Check installed app." << appPath;
-        }
-    } else {
-        qCDebug(simulatorLog) << "Spawning the app failed. Simulator not running." << simUdid;
-    }
-    return simCtlProcess;
-}
-
-bool SimulatorControl::waitForProcessSpawn(qint64 processPId)
-{
-    bool success = true;
-    if (processPId != -1) {
-        // Wait for app to reach intruptible sleep state.
-        QByteArray wqStr;
-        QStringList args;
-        int wqCount = -1;
-        args << QStringLiteral("-p") << QString::number(processPId) << QStringLiteral("-o") << QStringLiteral("wq=");
-        auto begin = std::chrono::high_resolution_clock::now();
-        do {
-            if (!d->runCommand(QStringLiteral("ps"), args, &wqStr)) {
-                success = false;
-                break;
-            }
-            bool validInt = false;
-            wqCount = wqStr.toInt(&validInt);
-            if (!validInt) {
-                wqCount = -1;
-            }
-        } while (wqCount < 0 && !checkForTimeout(begin));
-        success = wqCount >= 0;
-    } else {
-        qCDebug(simulatorLog) << "Wait for spawned failed. Invalid Process ID." << processPId;
-    }
-    return success;
-}
-
-SimulatorControlPrivate::SimDeviceInfo SimulatorControlPrivate::deviceInfo(const QString &simUdid) const
+SimulatorControlPrivate::SimDeviceInfo SimulatorControlPrivate::deviceInfo(const QString &simUdid)
 {
     SimDeviceInfo info;
     bool found = false;
     if (!simUdid.isEmpty()) {
-        // It might happend that the simulator is not started by SimControl.
-        // Check of intances started externally.
         const QByteArray output = runSimCtlCommand({QLatin1String("list"), QLatin1String("-j"), QLatin1String("devices")});
         QJsonDocument doc = QJsonDocument::fromJson(output);
         if (!doc.isNull()) {
@@ -409,17 +289,208 @@ SimulatorControlPrivate::SimDeviceInfo SimulatorControlPrivate::deviceInfo(const
     return info;
 }
 
-bool SimulatorControlPrivate::runCommand(QString command, const QStringList &args, QByteArray *output)
+QString SimulatorControlPrivate::bundleIdentifier(const Utils::FileName &bundlePath)
 {
-    bool success = false;
-    QProcess process;
-    process.start(command, args);
-    success = process.waitForFinished();
-    if (output)
-        *output = process.readAll().trimmed();
-    return success;
+    QString bundleID;
+#ifdef Q_OS_MAC
+    if (bundlePath.exists()) {
+        CFStringRef cFBundlePath = bundlePath.toString().toCFString();
+        CFURLRef bundle_url = CFURLCreateWithFileSystemPath (kCFAllocatorDefault, cFBundlePath, kCFURLPOSIXPathStyle, true);
+        CFRelease(cFBundlePath);
+        CFBundleRef bundle = CFBundleCreate (kCFAllocatorDefault, bundle_url);
+        CFRelease(bundle_url);
+        CFStringRef cFBundleID = CFBundleGetIdentifier(bundle);
+        bundleID = QString::fromCFString(cFBundleID).trimmed();
+        CFRelease(bundle);
+    }
+#else
+    Q_UNUSED(bundlePath)
+#endif
+    return bundleID;
+}
+
+QString SimulatorControlPrivate::bundleExecutable(const Utils::FileName &bundlePath)
+{
+    QString executable;
+#ifdef Q_OS_MAC
+    if (bundlePath.exists()) {
+        CFStringRef cFBundlePath = bundlePath.toString().toCFString();
+        CFURLRef bundle_url = CFURLCreateWithFileSystemPath (kCFAllocatorDefault, cFBundlePath, kCFURLPOSIXPathStyle, true);
+        CFRelease(cFBundlePath);
+        CFBundleRef bundle = CFBundleCreate (kCFAllocatorDefault, bundle_url);
+        CFStringRef cFStrExecutableName = (CFStringRef)CFBundleGetValueForInfoDictionaryKey(bundle, kCFBundleExecutableKey);
+        executable = QString::fromCFString(cFStrExecutableName).trimmed();
+        CFRelease(bundle);
+    }
+#else
+    Q_UNUSED(bundlePath)
+#endif
+    return executable;
+}
+
+void SimulatorControlPrivate::startSimulator(QFutureInterface<SimulatorControl::ResponseData> &fi,
+                                             const QString &simUdid)
+{
+    SimulatorControl::ResponseData response(simUdid);
+    if (deviceInfo(simUdid).isAvailable()) {
+        // Simulator is available.
+        const QString cmd = IosConfigurations::developerPath()
+                .appendPath(QStringLiteral("/Applications/Simulator.app/Contents/MacOS/Simulator"))
+                .toString();
+        const QStringList args({QStringLiteral("--args"), QStringLiteral("-CurrentDeviceUDID"), simUdid});
+
+        if (QProcess::startDetached(cmd, args)) {
+            if (fi.isCanceled())
+                return;
+            // At this point the sim device exists, available and was not running.
+            // So the simulator is started and we'll wait for it to reach to a state
+            // where we can interact with it.
+            auto start = chrono::high_resolution_clock::now();
+            SimulatorControlPrivate::SimDeviceInfo info;
+            do {
+                info = deviceInfo(simUdid);
+                if (fi.isCanceled())
+                    return;
+            } while (!info.isBooted()
+                     && !checkForTimeout(start, SIMULATOR_START_TIMEOUT));
+            if (info.isBooted()) {
+                response.success = true;
+            }
+        } else {
+            qCDebug(simulatorLog) << "Error starting simulator.";
+        }
+    }
+
+    if (!fi.isCanceled()) {
+        fi.reportResult(response);
+    }
+}
+
+void SimulatorControlPrivate::installApp(QFutureInterface<SimulatorControl::ResponseData> &fi,
+                                         const QString &simUdid, const Utils::FileName &bundlePath)
+{
+    QTC_CHECK(bundlePath.exists());
+    QByteArray output = runSimCtlCommand({QStringLiteral("install"), simUdid, bundlePath.toString()});
+    SimulatorControl::ResponseData response(simUdid);
+    response.success = output.isEmpty();
+    response.commandOutput = output;
+
+    if (!fi.isCanceled()) {
+        fi.reportResult(response);
+    }
+}
+
+void SimulatorControlPrivate::spawnAppProcess(QFutureInterface<SimulatorControl::ResponseData> &fi,
+                                              const QString &simUdid, const Utils::FileName &bundlePath,
+                                              bool waitForDebugger, QStringList extraArgs, QThread *mainThread)
+{
+    SimulatorControl::ResponseData response(simUdid);
+
+    // Find the path of the installed app.
+    QString bundleId = bundleIdentifier(bundlePath);
+    QByteArray appContainer = runSimCtlCommand({QStringLiteral("get_app_container"), simUdid, bundleId});
+    QString appPath = QString::fromLocal8Bit(appContainer.trimmed());
+
+    if (fi.isCanceled())
+        return;
+
+    QString executableName = bundleExecutable(bundlePath);
+    if (!appPath.isEmpty() && !executableName.isEmpty()) {
+        appPath.append('/' + executableName);
+        QStringList args = {QStringLiteral("simctl"), QStringLiteral("spawn"), simUdid, appPath};
+        if (waitForDebugger)
+            args.insert(2, QStringLiteral("-w"));
+        args << extraArgs;
+
+        // Spawn the app. The spawned app is started in suspended mode.
+        shared_ptr<QProcess> simCtlProcess(new QProcess, [](QProcess *p) {
+            if (p->state() != QProcess::NotRunning) {
+                p->kill();
+                p->waitForFinished(COMMAND_TIMEOUT);
+            }
+            delete p;
+        });
+        simCtlProcess->start(QStringLiteral("xcrun"), args);
+        if (simCtlProcess->waitForStarted()) {
+            if (fi.isCanceled())
+                return;
+            // Find the process id of the spawned app.
+            qint64 simctlPId = simCtlProcess->processId();
+            QByteArray commandOutput;
+            const QStringList pGrepArgs = {QStringLiteral("-f"), appPath};
+            auto begin = chrono::high_resolution_clock::now();
+            int processID = -1;
+            while (processID == -1 && runCommand(QStringLiteral("pgrep"), pGrepArgs, &commandOutput)) {
+                if (fi.isCanceled()) {
+                    qCDebug(simulatorLog) <<"Spawning the app failed. Future cancelled.";
+                    return;
+                }
+                foreach (auto pidStr, commandOutput.trimmed().split('\n')) {
+                    qint64 parsedPId = pidStr.toLongLong();
+                    if (parsedPId != simctlPId)
+                        processID = parsedPId;
+                }
+                if (checkForTimeout(begin)) {
+                    qCDebug(simulatorLog) << "Spawning the app failed. Process timed out";
+                    break;
+                }
+            }
+
+            if (processID == -1) {
+                qCDebug(simulatorLog) << "Spawning the app failed. App PID not found.";
+                simCtlProcess->waitForReadyRead(COMMAND_TIMEOUT);
+                response.commandOutput = simCtlProcess->readAllStandardError();
+            } else {
+                response.processInstance = simCtlProcess;
+                response.processInstance->moveToThread(mainThread);
+                response.pID = processID;
+                response.success = true;
+            }
+        } else {
+            qCDebug(simulatorLog) << "Spawning the app failed." << simCtlProcess->errorString();
+            response.commandOutput = simCtlProcess->errorString().toLatin1();
+        }
+    } else {
+        qCDebug(simulatorLog) << "Spawning the app failed. Check installed app." << appPath;
+    }
+
+    if (!fi.isCanceled()) {
+        fi.reportResult(response);
+    }
+}
+
+void SimulatorControlPrivate::launchApp(QFutureInterface<SimulatorControl::ResponseData> &fi,
+                                        const QString &simUdid, const QString &bundleIdentifier,
+                                        qint64 spawnedPID)
+{
+    SimulatorControl::ResponseData response(simUdid);
+    if (!bundleIdentifier.isEmpty()) {
+        bool processSpawned = true;
+        // Wait for the process to be spawned properly before launching app.
+        if (spawnedPID > -1)
+            processSpawned = waitForProcessSpawn(spawnedPID, fi);
+
+        if (fi.isCanceled())
+            return;
+
+        if (processSpawned) {
+            const QStringList args({QStringLiteral("launch"), simUdid , bundleIdentifier});
+            response.commandOutput = runSimCtlCommand(args);
+            const QByteArray pIdStr = response.commandOutput.trimmed().split(' ').last().trimmed();
+            bool validInt = false;
+            response.pID = pIdStr.toLongLong(&validInt);
+            if (!validInt) {
+                // Launch Failed.
+                qCDebug(simulatorLog) << "Launch app failed. Process id returned is not valid. PID =" << pIdStr;
+                response.pID = -1;
+            }
+        }
+    }
+
+    if (!fi.isCanceled()) {
+        fi.reportResult(response);
+    }
 }
 
 } // namespace Internal
 } // namespace Ios
-#include "simulatorcontrol.moc"

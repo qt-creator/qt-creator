@@ -22,10 +22,10 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-#ifndef SIMULATORCONTROL_H
-#define SIMULATORCONTROL_H
+#pragma once
 
-#include <QHash>
+#include <QObject>
+#include <QFuture>
 #include "utils/fileutils.h"
 
 QT_BEGIN_NAMESPACE
@@ -38,29 +38,44 @@ namespace Internal {
 class IosDeviceType;
 class SimulatorControlPrivate;
 
-class SimulatorControl
+class SimulatorControl : public QObject
 {
-    explicit SimulatorControl();
+    Q_OBJECT
+public:
+    struct ResponseData {
+        ResponseData(const QString & udid):
+            simUdid(udid) { }
+
+        QString simUdid;
+        bool success = false;
+        qint64 pID = -1;
+        QByteArray commandOutput = "";
+        // For response type APP_SPAWN, the processInstance represents the control process of the spwaned app
+        // For other response types its null.
+        std::shared_ptr<QProcess> processInstance;
+    };
+
+public:
+    explicit SimulatorControl(QObject* parent = nullptr);
+    ~SimulatorControl();
 
 public:
     static QList<IosDeviceType> availableSimulators();
     static void updateAvailableSimulators();
-
-    static bool startSimulator(const QString &simUdid);
     static bool isSimulatorRunning(const QString &simUdid);
-
-    static bool installApp(const QString &simUdid, const Utils::FileName &bundlePath, QByteArray &commandOutput);
-    static QProcess* spawnAppProcess(const QString &simUdid, const Utils::FileName &bundlePath, qint64 &pId,
-                                     bool waitForDebugger, const QStringList &extraArgs);
-
-    static qint64 launchApp(const QString &simUdid, const QString &bundleIdentifier, QByteArray *commandOutput = nullptr);
     static QString bundleIdentifier(const Utils::FileName &bundlePath);
     static QString bundleExecutable(const Utils::FileName &bundlePath);
-    static bool waitForProcessSpawn(qint64 processPId);
+
+public:
+    QFuture<ResponseData> startSimulator(const QString &simUdid);
+    QFuture<ResponseData> installApp(const QString &simUdid, const Utils::FileName &bundlePath) const;
+    QFuture<ResponseData> spawnAppProcess(const QString &simUdid, const Utils::FileName &bundlePath,
+                                          bool waitForDebugger, const QStringList &extraArgs) const;
+    QFuture<ResponseData> launchApp(const QString &simUdid, const QString &bundleIdentifier,
+                                    qint64 spawnedPID = -1) const;
 
 private:
-    static SimulatorControlPrivate *d;
+    SimulatorControlPrivate *d;
 };
 } // namespace Internal
 } // namespace Ios
-#endif // SIMULATORCONTROL_H
