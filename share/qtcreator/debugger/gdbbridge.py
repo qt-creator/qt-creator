@@ -418,7 +418,6 @@ class Dumper(DumperBase):
         nativeTypePointer = nativeType.unqualified().pointer()
         nativeValue = gdb.Value(addr).cast(nativeTypePointer).dereference()
 
-        baseIndex = 0
         anonNumber = 0
         #warn('FIELDS FOR %s' % nativeType)
         for nativeField in nativeType.fields():
@@ -442,8 +441,6 @@ class Dumper(DumperBase):
                 continue
             if nativeField.is_base_class:
                 member.isBaseClass = True
-                member.baseIndex = baseIndex
-                baseIndex += 1
                 member.name = nativeField.name
             else:
                 if nativeField.name is None or len(nativeField.name) == 0:

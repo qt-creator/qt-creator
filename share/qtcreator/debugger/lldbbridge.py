@@ -229,7 +229,10 @@ class Dumper(DumperBase):
             sbaddr = lldb.SBAddress(value.laddress, self.target)
             nativeValue = self.target.CreateValueFromAddress('x', sbaddr, nativeType)
         else:
-            nativeValue = self.target.CreateValueFromData('x', sbaddr, nativeType)
+            try:
+                nativeValue = self.target.CreateValueFromData('x', value.data(), nativeType)
+            except:
+                return
 
         nativeValue.SetPreferSyntheticValue(False)
         nativeType = nativeValue.GetType()
@@ -268,7 +271,6 @@ class Dumper(DumperBase):
                 member.name = fieldName
             if fieldName in baseNames:
                 member.isBaseClass = True
-                member.baseIndex = baseNames[fieldName]
             if fieldName in fieldBits:
                 (member.lbitsize, member.lbitpos) = fieldBits[fieldName]
             else:
@@ -291,7 +293,6 @@ class Dumper(DumperBase):
                     member.ldata = bytes()
                     member.lbitsize = fieldType.GetByteSize() * 8
                     member.isBaseClass = True
-                    member.baseIndex = baseNames[fieldName]
                     member.ltype = self.fromNativeType(fieldType)
                     member.name = fieldName
                     yield member

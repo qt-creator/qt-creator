@@ -855,6 +855,7 @@ class DumperBase:
         self.putValue(self.prettySymbolByAddress(address))
 
     def putFields(self, value, dumpBase = True):
+        baseIndex = 0
         for item in value.members(True):
             #warn('FIELD: %s' % item)
             if item.name is not None and item.name.startswith('_vptr.'):
@@ -881,10 +882,11 @@ class DumperBase:
             if item.isBaseClass and dumpBase:
                 # We cannot use nativeField.name as part of the iname as
                 # it might contain spaces and other strange characters.
-                with UnnamedSubItem(self, "@%d" % (item.baseIndex + 1)):
+                baseIndex += 1
+                with UnnamedSubItem(self, "@%d" % baseIndex):
                     self.putField('iname', self.currentIName)
                     self.putField('name', '[%s]' % item.name)
-                    self.putField('sortgroup', 1000 - item.baseIndex)
+                    self.putField('sortgroup', 1000 - baseIndex)
                     self.putAddress(item.address())
                     self.putItem(item)
                 continue
@@ -2923,7 +2925,6 @@ class DumperBase:
             val.name = field.name
             val.lbitsize = fieldBitsize
             val.isBaseClass = field.isBaseClass
-            val.baseIndex = field.baseIndex
             return val
 
         # This is the generic version for synthetic values.
@@ -3388,7 +3389,6 @@ class DumperBase:
         def __init__(self, dumper):
             self.dumper = dumper
             self.name = None
-            self.baseIndex = None    # Base class index if parent is structure
             self.nativeIndex = None   # Backend-defined index value
             self.isBaseClass = False
             self.isVirtualBase = False
@@ -3399,11 +3399,9 @@ class DumperBase:
 
         def __str__(self):
             typename = None if self.ltype is None else self.ltype.stringify()
-            return ('Field(name="%s",ltype=%s,bpos=%s,bsize=%s,'
-                     + 'bidx=%s,nidx=%s)') \
-                    % (self.name, typename,
-                       self.lbitpos, self.lbitsize,
-                       self.baseIndex, self.nativeIndex)
+            return ('Field(name="%s",ltype=%s,bpos=%s,bsize=%s,nidx=%s)') \
+                    % (self.name, typename, self.lbitpos, self.lbitsize,
+                       self.nativeIndex)
 
         def check(self):
             pass

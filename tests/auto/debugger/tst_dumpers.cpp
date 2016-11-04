@@ -5958,13 +5958,19 @@ void tst_Dumpers::dumper_data()
                     "tt.T2::v = 45;\n"
                     "unused(&tt.T2::v);\n")
                 + Check("c.c", "1", "int")
-                + Check("c.@1.@2.a", "42", "int")
-                + Check("c.@1.@4.v", "45", "int")
-                + Check("c.@2.@2.a", "43", "int")
-                + Check("c.@2.@4.v", "45", "int")
+                + Check("c.@1.@2.a", "42", "int") % NoLldbEngine
+                + Check("c.@1.@4.v", "45", "int") % NoLldbEngine
+                + Check("c.@2.@2.a", "43", "int") % NoLldbEngine
+                + Check("c.@2.@4.v", "45", "int") % NoLldbEngine
+                + Check("c.@1.@1.a", "42", "int") % LldbEngine
+                + Check("c.@1.@2.v", "45", "int") % LldbEngine
+                + Check("c.@2.@1.a", "43", "int") % LldbEngine
+                + Check("c.@2.@2.v", "45", "int") % LldbEngine
                 + Check("tt.c", "1", "int")
-                + Check("tt.@1.@2.v", "45", "int")
-                + Check("tt.@2.@2.v", "45", "int");
+                + Check("tt.@1.@2.v", "45", "int") % NoLldbEngine
+                + Check("tt.@2.@2.v", "45", "int") % NoLldbEngine
+                + Check("tt.@1.@1.v", "45", "int") % LldbEngine
+                + Check("tt.@2.@1.v", "45", "int") % LldbEngine;
 
     QTest::newRow("Gdb13393")
             << Data(
