@@ -27,10 +27,6 @@
 
 #include <iostream>
 
-// <debug>
-#include <QDebug>
-// </debug>
-
 QString FindValueOperation::name() const
 {
     return QLatin1String("find");
