@@ -237,7 +237,6 @@ class Dumper(DumperBase):
         nativeValue.SetPreferSyntheticValue(False)
         nativeType = nativeValue.GetType()
 
-        anonNumber = 0
         baseNames = {}
         for i in range(nativeType.GetNumberOfDirectBaseClasses()):
             base = nativeType.GetDirectBaseClassAtIndex(i)
@@ -263,12 +262,7 @@ class Dumper(DumperBase):
             fieldObj.SetPreferSyntheticValue(False)
             fieldName = fieldObj.GetName()
             member = self.fromNativeValue(fieldObj)
-            if fieldName is None or len(fieldName) == 0:
-                # Something without a name.
-                anonNumber += 1
-                member.name = '#%s' % anonNumber
-            else:
-                member.name = fieldName
+            member.name = fieldName
             if fieldName in baseNames:
                 member.isBaseClass = True
             if fieldName in fieldBits:
@@ -1064,7 +1058,6 @@ class Dumper(DumperBase):
 
         self.currentIName = 'local'
         self.put('data=[')
-        self.anonNumber = 0
 
         with SubItem(self, '[statics]'):
             self.put('iname="%s",' % self.currentIName)

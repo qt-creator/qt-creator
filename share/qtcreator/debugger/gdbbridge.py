@@ -418,7 +418,6 @@ class Dumper(DumperBase):
         nativeTypePointer = nativeType.unqualified().pointer()
         nativeValue = gdb.Value(addr).cast(nativeTypePointer).dereference()
 
-        anonNumber = 0
         #warn('FIELDS FOR %s' % nativeType)
         for nativeField in nativeType.fields():
             #warn('FIELD: %s' % nativeField)
@@ -439,19 +438,10 @@ class Dumper(DumperBase):
             except:
                 #warn('CANNOT CREATE FIELD: %s' % nativeField.name)
                 continue
+            member.name = nativeField.name
             if nativeField.is_base_class:
                 member.isBaseClass = True
-                member.name = nativeField.name
             else:
-                if nativeField.name is None or len(nativeField.name) == 0:
-                    # Something without a name.
-                    # Anonymous union? We need a dummy name to distinguish
-                    # multiple anonymous unions in the struct.
-                    anonNumber += 1
-                    member.name = '#%s' % anonNumber
-                else:
-                    # Normal named member.
-                    member.name = nativeField.name
                 if hasattr(nativeField, 'bitpos'):
                     member.lbitpos = nativeField.bitpos
                     # Correction for some bitfields. Size 0 can occur for

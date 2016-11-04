@@ -2241,7 +2241,6 @@ class DumperBase:
         self.preping('locals')
         shadowed = {}
         for value in variables:
-            self.anonNumber = 0
             if value.name == 'argv':
                 if value.type.code == TypeCodePointer:
                     if value.type.ltarget.code == TypeCodePointer:
@@ -2934,9 +2933,16 @@ class DumperBase:
             if self.type.code == TypeCodeTypedef:
                 return self.detypedef().members(includeBases)
             res = []
+            anonNumber = 0
             for field in self.type.fields(self):
                 if field.isBaseClass and not includeBases:
                     continue
+                if field.name is None or len(field.name) == 0:
+                    # Something without a name.
+                    # Anonymous union? We need a dummy name to distinguish
+                    # multiple anonymous unions in the struct.
+                    anonNumber += 1
+                    field.name = '#%s' % anonNumber
                 res.append(field)
             return res
 
