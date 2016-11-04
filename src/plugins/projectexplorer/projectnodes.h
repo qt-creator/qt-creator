@@ -143,7 +143,7 @@ private:
     FolderNode *m_folderNode = nullptr;
     Utils::FileName m_filePath;
     int m_line;
-    NodeType m_nodeType;
+    const NodeType m_nodeType;
     bool m_isEnabled = true;
 };
 
