@@ -584,18 +584,270 @@ TEST_F(TokenProcessor, NonFinalVirtualFunctionCallPointer)
     ASSERT_THAT(infos[2], HasOnlyType(HighlightingType::VirtualFunction));
 }
 
-TEST_F(TokenProcessor, PlusOperator)
+TEST_F(TokenProcessor, OverriddenPlusOperatorDeclaration)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(220, 67));
+
+    ASSERT_THAT(infos[2], HasTwoTypes(HighlightingType::Operator, HighlightingType::OverloadedOperator));
+}
+
+TEST_F(TokenProcessor, CallToOverriddenPlusOperator)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(224, 49));
 
-    ASSERT_THAT(infos[6], HasOnlyType(HighlightingType::Operator));
+    ASSERT_THAT(infos[6], HasTwoTypes(HighlightingType::Operator, HighlightingType::OverloadedOperator));
 }
 
-TEST_F(TokenProcessor, PlusAssignOperator)
+TEST_F(TokenProcessor, CallToOverriddenPlusAssignOperator)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(226, 24));
 
-    ASSERT_THAT(infos[1], HasOnlyType(HighlightingType::Operator));
+    ASSERT_THAT(infos[1], HasTwoTypes(HighlightingType::Operator, HighlightingType::OverloadedOperator));
+}
+
+TEST_F(TokenProcessor, OverriddenStarOperatorMemberDefinition)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(604, 26));
+
+    ASSERT_THAT(infos[2], HasTwoTypes(HighlightingType::Operator, HighlightingType::OverloadedOperator));
+}
+
+TEST_F(TokenProcessor, OverriddenStarOperatorNonMemberDefinition)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(607, 29));
+
+    ASSERT_THAT(infos[2], HasTwoTypes(HighlightingType::Operator, HighlightingType::OverloadedOperator));
+}
+
+TEST_F(TokenProcessor, IntegerCallToOverriddenBinaryOperator)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(613, 9));
+
+    ASSERT_THAT(infos[1], HasTwoTypes(HighlightingType::Operator, HighlightingType::OverloadedOperator));
+}
+
+TEST_F(TokenProcessor, FloatCallToOverriddenBinaryOperator)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(614, 9));
+
+    ASSERT_THAT(infos[1], HasTwoTypes(HighlightingType::Operator, HighlightingType::OverloadedOperator));
+}
+
+TEST_F(TokenProcessor, LeftShiftAssignmentOperatorMemberDefinition)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(618, 32));
+
+    ASSERT_THAT(infos[2], HasTwoTypes(HighlightingType::Operator, HighlightingType::OverloadedOperator));
+    ASSERT_THAT(infos[3], HasOnlyType(HighlightingType::Invalid));  // ( is a punctuation.
+}
+
+TEST_F(TokenProcessor, CalledLeftShiftAssignmentOperator)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(629, 18));
+
+    ASSERT_THAT(infos[1], HasTwoTypes(HighlightingType::Operator, HighlightingType::OverloadedOperator));
+    ASSERT_THAT(infos[2], HasOnlyType(HighlightingType::NumberLiteral));
+}
+
+TEST_F(TokenProcessor, FunctionCallOperatorMemberDefinition)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(619, 29));
+
+    ASSERT_THAT(infos[2], HasTwoTypes(HighlightingType::Operator, HighlightingType::OverloadedOperator));
+    ASSERT_THAT(infos[3], HasTwoTypes(HighlightingType::Operator, HighlightingType::OverloadedOperator));
+    ASSERT_THAT(infos[4], HasOnlyType(HighlightingType::Invalid));  // ( is a punctuation.
+}
+
+TEST_F(TokenProcessor, CalledFunctionCallOperator)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(632, 16));
+    ASSERT_THAT(infos[1], HasTwoTypes(HighlightingType::Operator, HighlightingType::OverloadedOperator));
+    ASSERT_THAT(infos[3], HasTwoTypes(HighlightingType::Operator, HighlightingType::OverloadedOperator));
+}
+
+TEST_F(TokenProcessor, AccessOperatorMemberDefinition)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(620, 38));
+
+    ASSERT_THAT(infos[3], HasTwoTypes(HighlightingType::Operator, HighlightingType::OverloadedOperator));
+    ASSERT_THAT(infos[4], HasTwoTypes(HighlightingType::Operator, HighlightingType::OverloadedOperator));
+    ASSERT_THAT(infos[5], HasOnlyType(HighlightingType::Invalid));  // ( is a punctuation.
+}
+
+TEST_F(TokenProcessor, CalledAccessOperator)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(633, 16));
+
+    ASSERT_THAT(infos[1], HasTwoTypes(HighlightingType::Operator, HighlightingType::OverloadedOperator));
+    ASSERT_THAT(infos[3], HasTwoTypes(HighlightingType::Operator, HighlightingType::OverloadedOperator));
+}
+
+TEST_F(TokenProcessor, NewOperatorMemberDefinition)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(621, 39));
+
+    ASSERT_THAT(infos[3], HasTwoTypes(HighlightingType::Keyword, HighlightingType::OverloadedOperator));
+    ASSERT_THAT(infos[4], HasOnlyType(HighlightingType::Invalid));  // ( is a punctuation.
+}
+
+TEST_F(TokenProcessor, CalledNewOperator)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(635, 34));
+
+    ASSERT_THAT(infos[3], HasOnlyType(HighlightingType::Invalid));  // = is not marked.
+    // CLANG-UPGRADE-CHECK: Check if 'new' keyword usage cursor correctly returns referenced() cursor
+    // and uncomment this test in that case.
+    // ASSERT_THAT(infos[4], HasTwoTypes(HighlightingType::Keyword, HighlightingType::OverloadedOperator));  // new
+}
+
+TEST_F(TokenProcessor, DeleteOperatorMemberDefinition)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(622, 37));
+
+    ASSERT_THAT(infos[2], HasTwoTypes(HighlightingType::Keyword, HighlightingType::OverloadedOperator));  // delete
+    ASSERT_THAT(infos[3], HasOnlyType(HighlightingType::Invalid));  // ( is a punctuation.
+}
+
+TEST_F(TokenProcessor, CalledDeleteOperator)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(636, 20));
+
+    // CLANG-UPGRADE-CHECK: Check if 'delete' keyword usage cursor correctly returns referenced() cursor
+    // and uncomment this test in that case.
+    // ASSERT_THAT(infos[0], HasTwoTypes(HighlightingType::Keyword, HighlightingType::OverloadedOperator));  // delete
+    ASSERT_THAT(infos[1], HasOnlyType(HighlightingType::LocalVariable));
+    ASSERT_THAT(infos[2], HasOnlyType(HighlightingType::Invalid));  // ; is a punctuation.
+}
+
+TEST_F(TokenProcessor, NewArrayOperatorMemberDefinition)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(623, 41));
+
+    ASSERT_THAT(infos[3], HasTwoTypes(HighlightingType::Keyword, HighlightingType::OverloadedOperator));  // new
+    ASSERT_THAT(infos[4], HasTwoTypes(HighlightingType::Operator, HighlightingType::OverloadedOperator));  // [
+    ASSERT_THAT(infos[5], HasTwoTypes(HighlightingType::Operator, HighlightingType::OverloadedOperator));  // ]
+    ASSERT_THAT(infos[6], HasOnlyType(HighlightingType::Invalid));  // ( is a punctuation.
+}
+
+TEST_F(TokenProcessor, CalledNewArrayOperator)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(637, 34));
+
+    ASSERT_THAT(infos[3], HasOnlyType(HighlightingType::Invalid));  // = is not marked.
+    // CLANG-UPGRADE-CHECK: Check if 'new' keyword usage cursor correctly returns referenced() cursor
+    // and uncomment this test in that case.
+    // ASSERT_THAT(infos[4], HasTwoTypes(HighlightingType::Keyword, HighlightingType::OverloadedOperator));  // new
+}
+
+TEST_F(TokenProcessor, DeleteArrayOperatorMemberDefinition)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(624, 39));
+
+    ASSERT_THAT(infos[2], HasTwoTypes(HighlightingType::Keyword, HighlightingType::OverloadedOperator));  // delete
+    ASSERT_THAT(infos[3], HasTwoTypes(HighlightingType::Operator, HighlightingType::OverloadedOperator));  // [
+    ASSERT_THAT(infos[4], HasTwoTypes(HighlightingType::Operator, HighlightingType::OverloadedOperator));  // ]
+    ASSERT_THAT(infos[5], HasOnlyType(HighlightingType::Invalid));  // ( is a punctuation.
+}
+
+TEST_F(TokenProcessor, CalledDeleteArrayOperator)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(638, 20));
+
+    // CLANG-UPGRADE-CHECK: Check if 'delete' keyword usage cursor correctly returns referenced() cursor
+    // and uncomment this test in that case.
+    // ASSERT_THAT(infos[0], HasTwoTypes(HighlightingType::Keyword, HighlightingType::OverloadedOperator));  // delete
+}
+
+TEST_F(TokenProcessor, CalledNotOverloadedOperator)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(634, 22));
+
+    ASSERT_THAT(infos[4], HasOnlyType(HighlightingType::Keyword)); // new
+}
+
+TEST_F(TokenProcessor, ParenthesisOperatorWithoutArguments)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(654, 25));
+
+    ASSERT_THAT(infos[1], HasTwoTypes(HighlightingType::Keyword, HighlightingType::OverloadedOperator)); // operator
+    ASSERT_THAT(infos[2], HasTwoTypes(HighlightingType::Operator, HighlightingType::OverloadedOperator)); // '('
+    ASSERT_THAT(infos[3], HasTwoTypes(HighlightingType::Operator, HighlightingType::OverloadedOperator)); // ')'
+    ASSERT_THAT(infos[4], HasOnlyType(HighlightingType::Invalid)); // second '(' is a punctuation
+}
+
+TEST_F(TokenProcessor, CalledParenthesisOperatorWithoutArguments)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(662, 14));
+
+    ASSERT_THAT(infos[1], HasTwoTypes(HighlightingType::Operator, HighlightingType::OverloadedOperator)); // '('
+    ASSERT_THAT(infos[2], HasTwoTypes(HighlightingType::Operator, HighlightingType::OverloadedOperator)); // ')'
+}
+
+TEST_F(TokenProcessor, OperatorWithOnePunctuationTokenWithoutArguments)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(655, 25));
+
+    ASSERT_THAT(infos[1], HasTwoTypes(HighlightingType::Keyword, HighlightingType::OverloadedOperator)); // operator
+    ASSERT_THAT(infos[2], HasTwoTypes(HighlightingType::Operator, HighlightingType::OverloadedOperator)); // '*'
+    ASSERT_THAT(infos[3], HasOnlyType(HighlightingType::Invalid)); // ( is a punctuation
+}
+
+TEST_F(TokenProcessor, CalledOperatorWithOnePunctuationTokenWithoutArguments)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(663, 13));
+
+    ASSERT_THAT(infos[0], HasTwoTypes(HighlightingType::Operator, HighlightingType::OverloadedOperator)); // '*'
+}
+
+TEST_F(TokenProcessor, EqualsOperatorOverload)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(656, 43));
+
+    ASSERT_THAT(infos[1], HasTwoTypes(HighlightingType::Keyword, HighlightingType::OverloadedOperator)); // operator
+    ASSERT_THAT(infos[2], HasTwoTypes(HighlightingType::Operator, HighlightingType::OverloadedOperator)); // '='
+    ASSERT_THAT(infos[3], HasOnlyType(HighlightingType::Invalid)); // ( is a punctuation
+}
+
+TEST_F(TokenProcessor, CalledEqualsOperatorOverload)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(664, 23));
+
+    ASSERT_THAT(infos[1], HasTwoTypes(HighlightingType::Operator, HighlightingType::OverloadedOperator)); // '='
+}
+
+TEST_F(TokenProcessor, LeftParenthesisIsAPunctuation)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(607, 29));
+
+    ASSERT_THAT(infos[3], HasOnlyType(HighlightingType::Invalid));
+}
+
+TEST_F(TokenProcessor, SeparatingCommaIsAPunctuation)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(607, 29));
+
+    ASSERT_THAT(infos[5], HasOnlyType(HighlightingType::Invalid));
+}
+
+TEST_F(TokenProcessor, RightParenthesisIsAPunctuation)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(607, 29));
+
+    ASSERT_THAT(infos[7], HasOnlyType(HighlightingType::Invalid));
+}
+
+TEST_F(TokenProcessor, CurlyLeftParenthesisIsAPunctuation)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(607, 29));
+
+    ASSERT_THAT(infos[8], HasOnlyType(HighlightingType::Invalid));
+}
+
+TEST_F(TokenProcessor, CurlyRightParenthesisIsAPunctuation)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(607, 29));
+
+    ASSERT_THAT(infos[9], HasOnlyType(HighlightingType::Invalid));
 }
 
 TEST_F(TokenProcessor, Comment)
@@ -1326,7 +1578,7 @@ TEST_F(TokenProcessor, CursorRange)
 
 TEST_F(TokenProcessor, AnonymousEnum)
 {
-    const auto infos = translationUnit.fullTokenInfosInRange(sourceRange(603, 7));
+    const auto infos = translationUnit.fullTokenInfosInRange(sourceRange(641, 7));
 
     ClangBackEnd::TokenInfoContainer container(infos[0]);
 
@@ -1336,7 +1588,7 @@ TEST_F(TokenProcessor, AnonymousEnum)
 
 TEST_F(TokenProcessor, AnonymousNamespace)
 {
-    const auto infos = translationUnit.fullTokenInfosInRange(sourceRange(607, 12));
+    const auto infos = translationUnit.fullTokenInfosInRange(sourceRange(645, 12));
 
     ClangBackEnd::TokenInfoContainer container(infos[0]);
 
@@ -1346,7 +1598,7 @@ TEST_F(TokenProcessor, AnonymousNamespace)
 
 TEST_F(TokenProcessor, AnonymousStruct)
 {
-    const auto infos = translationUnit.fullTokenInfosInRange(sourceRange(609, 13));
+    const auto infos = translationUnit.fullTokenInfosInRange(sourceRange(647, 13));
 
     ClangBackEnd::TokenInfoContainer container(infos[0]);
 

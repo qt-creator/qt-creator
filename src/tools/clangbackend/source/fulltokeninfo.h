@@ -48,7 +48,8 @@ protected:
     void variableKind(const Cursor &cursor) override;
     void fieldKind(const Cursor &cursor) override;
     void memberReferenceKind(const Cursor &cursor) override;
-    void keywordKind(const Cursor &cursor) override;
+    void keywordKind() override;
+    void overloadedOperatorKind() override;
 private:
     void updateTypeSpelling(const Cursor &cursor, bool functionLike = false);
     void updatePropertyData();

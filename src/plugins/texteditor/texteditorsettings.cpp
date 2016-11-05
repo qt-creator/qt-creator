@@ -226,7 +226,8 @@ TextEditorSettings::TextEditorSettings()
                              tr("Reserved keywords of the programming language except "
                                 "keywords denoting primitive types."), Qt::darkYellow);
     formatDescr.emplace_back(C_OPERATOR, tr("Operator"),
-                             tr("Operators (for example operator++ or operator-=)."));
+                             tr("Non user-defined language operators.\n"
+                                "To style user-defined operators, use Overloaded Operator."));
     formatDescr.emplace_back(C_PREPROCESSOR, tr("Preprocessor"),
                              tr("Preprocessor directives."), Qt::darkBlue);
     formatDescr.emplace_back(C_LABEL, tr("Label"), tr("Labels for goto statements."),
@@ -313,6 +314,10 @@ TextEditorSettings::TextEditorSettings()
                              QColor(255, 190, 0),
                              QTextCharFormat::DotLine,
                              FormatDescription::ShowUnderlineControl);
+    formatDescr.emplace_back(C_OVERLOADED_OPERATOR,
+                             tr("Overloaded Operators"),
+                             tr("Calls and declarations of overloaded (user-defined) operators."),
+                             Format::createMixinFormat());
     Format declarationFormat = Format::createMixinFormat();
     declarationFormat.setBold(true);
     formatDescr.emplace_back(C_DECLARATION,

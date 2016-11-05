@@ -255,7 +255,8 @@ CPlusPlus::Icons::IconType iconTypeForToken(const ClangBackEnd::TokenInfoContain
 
     ClangBackEnd::StorageClass storageClass = extraInfo.storageClass;
     if (mainType == ClangBackEnd::HighlightingType::VirtualFunction
-            || mainType == ClangBackEnd::HighlightingType::Function) {
+            || mainType == ClangBackEnd::HighlightingType::Function
+            || mainType == ClangBackEnd::HighlightingType::Operator) {
         if (storageClass != ClangBackEnd::StorageClass::Static) {
             switch (access) {
             case ClangBackEnd::AccessSpecifier::Public:

@@ -70,6 +70,8 @@ TextEditor::TextStyle toTextStyle(ClangBackEnd::HighlightingType type)
         return TextEditor::C_OUTPUT_ARGUMENT;
     case HighlightingType::Operator:
         return TextEditor::C_OPERATOR;
+    case HighlightingType::OverloadedOperator:
+        return TextEditor::C_OVERLOADED_OPERATOR;
     case HighlightingType::Comment:
         return TextEditor::C_COMMENT;
     case HighlightingType::StringLiteral:

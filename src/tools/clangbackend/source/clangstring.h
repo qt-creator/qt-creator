@@ -91,6 +91,11 @@ public:
         return !isNull() && std::strlen(cString()) > 0;
     }
 
+    bool startsWith(const char* str) const
+    {
+        return std::strncmp(cString(), str, strlen(str)) == 0;
+    }
+
     friend bool operator==(const ClangString &first, const ClangString &second)
     {
         return std::strcmp(first.cString(), second.cString()) == 0;
@@ -107,6 +112,7 @@ public:
     {
         return second == first;
     }
+
     template<typename Type,
              typename = typename std::enable_if<std::is_pointer<Type>::value>::type
              >
@@ -121,6 +127,39 @@ public:
     friend bool operator==(Type first, const ClangString &second)
     {
         return second == first;
+    }
+
+    friend bool operator!=(const ClangString &first, const ClangString &second)
+    {
+        return !(first == second);
+    }
+
+    template<std::size_t Size>
+    friend bool operator!=(const ClangString &first, const char(&second)[Size])
+    {
+        return !(first == second);
+    }
+
+    template<std::size_t Size>
+    friend bool operator!=(const char(&first)[Size], const ClangString &second)
+    {
+        return second != first;
+    }
+
+    template<typename Type,
+             typename = typename std::enable_if<std::is_pointer<Type>::value>::type
+             >
+    friend bool operator!=(const ClangString &first, Type second)
+    {
+        return !(first == second);
+    }
+
+    template<typename Type,
+             typename = typename std::enable_if<std::is_pointer<Type>::value>::type
+             >
+    friend bool operator!=(Type first, const ClangString &second)
+    {
+        return !(first == second);
     }
 
     friend std::ostream &operator<<(std::ostream &os, const ClangString &string)

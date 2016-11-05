@@ -600,6 +600,44 @@ class Property {
     Q_PROPERTY(const QString str READ getStr)
 };
 
+struct X {
+    void operator*(int) {}
+};
+
+void operator*(X, float) {}
+
+void CallSite() {
+    X x;
+    int y = 10;
+    float z = 10;
+    x * y;
+    x * z;
+}
+
+struct Dummy {
+    Dummy operator<<=(int key);
+    Dummy operator()(int a);
+    int& operator[] (unsigned index);
+    void* operator new(unsigned size);
+    void operator delete(void* ptr);
+    void* operator new[](unsigned size);
+    void operator delete[](void* ptr);
+};
+
+void TryOverloadedOperators(Dummy object)
+{
+    object <<= 3;
+
+    Dummy stacked;
+    stacked(4);
+    stacked[1];
+    int *i = new int;
+    Dummy* use_new = new Dummy();
+    delete use_new;
+    Dummy* many = new Dummy[10];
+    delete [] many;
+}
+
 enum {
     Test = 0
 };
@@ -610,4 +648,18 @@ class B {
         int a;
     };
 };
+}
+
+struct Dummy2 {
+    Dummy2 operator()();
+    int operator*();
+    Dummy2 operator=(int foo);
+};
+
+void TryOverloadedOperators2(Dummy object)
+{
+    Dummy2 dummy2;
+    dummy2();
+    *dummy2;
+    dummy2 = 3;
 }

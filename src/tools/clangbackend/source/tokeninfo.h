@@ -93,10 +93,11 @@ protected:
     virtual void fieldKind(const Cursor &cursor);
     virtual void functionKind(const Cursor &cursor, Recursion recursion);
     virtual void memberReferenceKind(const Cursor &cursor);
-    virtual HighlightingType punctuationKind(const Cursor &cursor);
     virtual void typeKind(const Cursor &cursor);
-    virtual void keywordKind(const Cursor &cursor);
+    virtual void keywordKind();
     virtual void invalidFileKind();
+    virtual void overloadedOperatorKind();
+    virtual void punctuationOrOperatorKind();
 
     Cursor m_originalCursor;
     CXToken *m_cxToken = nullptr;

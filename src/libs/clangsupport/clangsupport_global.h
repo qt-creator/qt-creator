@@ -82,6 +82,7 @@ enum class HighlightingType : quint8
     GlobalVariable,
     Enumeration,
     Operator,
+    OverloadedOperator,
     Preprocessor,
     PreprocessorDefinition,
     PreprocessorExpansion,

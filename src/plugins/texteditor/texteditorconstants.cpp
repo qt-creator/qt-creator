@@ -63,6 +63,7 @@ const char *nameForStyle(TextStyle style)
     case C_KEYWORD:             return "Keyword";
     case C_PRIMITIVE_TYPE:      return "PrimitiveType";
     case C_OPERATOR:            return "Operator";
+    case C_OVERLOADED_OPERATOR: return "Overloaded Operator";
     case C_PREPROCESSOR:        return "Preprocessor";
     case C_LABEL:               return "Label";
     case C_COMMENT:             return "Comment";

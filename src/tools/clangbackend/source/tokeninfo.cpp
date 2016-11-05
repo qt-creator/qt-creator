@@ -98,9 +98,7 @@ TokenInfo::operator TokenInfoContainer() const
     return TokenInfoContainer(m_line, m_column, m_length, m_types);
 }
 
-namespace {
-
-bool isFinalFunction(const Cursor &cursor)
+static bool isFinalFunction(const Cursor &cursor)
 {
     auto referencedCursor = cursor.referenced();
     if (referencedCursor.hasFinalFunctionAttribute())
@@ -109,14 +107,13 @@ bool isFinalFunction(const Cursor &cursor)
         return false;
 }
 
-bool isFunctionInFinalClass(const Cursor &cursor)
+static bool isFunctionInFinalClass(const Cursor &cursor)
 {
     auto functionBase = cursor.functionBaseDeclaration();
     if (functionBase.isValid() && functionBase.hasFinalClassAttribute())
         return true;
 
     return false;
-}
 }
 
 void TokenInfo::memberReferenceKind(const Cursor &cursor)
@@ -196,12 +193,11 @@ bool TokenInfo::isVirtualMethodDeclarationOrDefinition(const Cursor &cursor) con
         && (m_originalCursor.isDeclaration() || m_originalCursor.isDefinition());
 }
 
-namespace {
-bool isNotFinalFunction(const Cursor &cursor)
+static bool isNotFinalFunction(const Cursor &cursor)
 {
     return !cursor.hasFinalFunctionAttribute();
 }
-}
+
 bool TokenInfo::isRealDynamicCall(const Cursor &cursor) const
 {
     return m_originalCursor.isDynamicCall() && isNotFinalFunction(cursor);
@@ -246,9 +242,7 @@ void TokenInfo::collectOutputArguments(const Cursor &cursor)
     filterOutPreviousOutputArguments();
 }
 
-namespace {
-
-uint getEnd(CXSourceRange cxSourceRange)
+static uint getEnd(CXSourceRange cxSourceRange)
 {
     CXSourceLocation startSourceLocation = clang_getRangeEnd(cxSourceRange);
 
@@ -257,7 +251,6 @@ uint getEnd(CXSourceRange cxSourceRange)
     clang_getFileLocation(startSourceLocation, nullptr, nullptr, nullptr, &endOffset);
 
     return endOffset;
-}
 }
 
 void TokenInfo::filterOutPreviousOutputArguments()
@@ -456,8 +449,7 @@ void TokenInfo::identifierKind(const Cursor &cursor, Recursion recursion)
     }
 }
 
-namespace {
-HighlightingType literalKind(const Cursor &cursor)
+static HighlightingType literalKind(const Cursor &cursor)
 {
     switch (cursor.kind()) {
         case CXCursor_CharacterLiteral:
@@ -476,32 +468,86 @@ HighlightingType literalKind(const Cursor &cursor)
     Q_UNREACHABLE();
 }
 
-bool hasOperatorName(const char *operatorString)
+static bool isTokenPartOfOperator(const Cursor &declarationCursor, CXToken *token)
 {
-    return std::strncmp(operatorString, "operator", 8) == 0;
+    Q_ASSERT(declarationCursor.isDeclaration());
+    const CXTranslationUnit cxTranslationUnit = declarationCursor.cxTranslationUnit();
+    const ClangString tokenName = clang_getTokenSpelling(cxTranslationUnit, *token);
+    if (tokenName == "operator")
+        return true;
+
+    if (tokenName == "(") {
+        // Valid operator declarations have at least one token after '(' so
+        // it's safe to proceed to token + 1 without extra checks.
+        const ClangString nextToken = clang_getTokenSpelling(cxTranslationUnit, *(token + 1));
+        if (nextToken != ")") {
+            // Argument lists' parentheses are not operator tokens.
+            // This '('-token opens a (non-empty) argument list.
+            return false;
+        }
+    }
+
+    // It's safe to evaluate the preceding token because we will at least have
+    // the 'operator'-keyword's token to the left.
+    CXToken *prevToken = token - 1;
+    if (clang_getTokenKind(*prevToken) == CXToken_Punctuation) {
+        if (tokenName == "(") {
+            // In an operator declaration, when a '(' follows another punctuation
+            // then this '(' opens an argument list. Ex: operator*()|operator()().
+            return false;
+        }
+
+        // This token is preceded by another punctuation token so this token
+        // could be the second token of a two-tokened operator such as
+        // operator+=|-=|*=|/=|<<|==|<=|++ or the third token of operator
+        // new[]|delete[]. We decrement one more time to hit one of the keywords:
+        // "operator" / "delete" / "new".
+        --prevToken;
+    }
+
+    const ClangString precedingKeyword =
+            clang_getTokenSpelling(cxTranslationUnit, *prevToken);
+
+    return precedingKeyword == "operator" ||
+           precedingKeyword == "new" ||
+           precedingKeyword == "delete";
 }
 
-HighlightingType operatorKind(const Cursor &cursor)
+void TokenInfo::overloadedOperatorKind()
 {
-    if (hasOperatorName(cursor.spelling().cString()))
-        return HighlightingType::Operator;
-    else
-        return HighlightingType::Invalid;
+    bool inOperatorDeclaration = m_originalCursor.isDeclaration();
+    Cursor declarationCursor =
+            inOperatorDeclaration ? m_originalCursor :
+                                    m_originalCursor.referenced();
+    if (!declarationCursor.displayName().startsWith("operator"))
+        return;
+
+    if (inOperatorDeclaration && !isTokenPartOfOperator(declarationCursor, m_cxToken))
+        return;
+
+    if (m_types.mainHighlightingType == HighlightingType::Invalid)
+        m_types.mainHighlightingType = HighlightingType::Operator;
+    m_types.mixinHighlightingTypes.push_back(HighlightingType::OverloadedOperator);
 }
 
-}
-
-HighlightingType TokenInfo::punctuationKind(const Cursor &cursor)
+void TokenInfo::punctuationOrOperatorKind()
 {
-    HighlightingType highlightingType = HighlightingType::Invalid;
-
-    switch (cursor.kind()) {
+    auto kind = m_originalCursor.kind();
+    switch (kind) {
+        case CXCursor_CallExpr:
+            collectOutputArguments(m_originalCursor);
+            Q_FALLTHROUGH();
+        case CXCursor_FunctionDecl:
+        case CXCursor_CXXMethod:
         case CXCursor_DeclRefExpr:
-            highlightingType = operatorKind(cursor);
+            // TODO(QTCREATORBUG-19948): Mark calls to overloaded new and delete.
+            // Today we can't because libclang sets these cursors' spelling to "".
+            // case CXCursor_CXXNewExpr:
+            // case CXCursor_CXXDeleteExpr:
+            overloadedOperatorKind();
             break;
         case CXCursor_Constructor:
-        case CXCursor_CallExpr:
-            collectOutputArguments(cursor);
+            collectOutputArguments(m_originalCursor);
             break;
         default:
             break;
@@ -509,8 +555,6 @@ HighlightingType TokenInfo::punctuationKind(const Cursor &cursor)
 
     if (isOutputArgument())
         m_types.mixinHighlightingTypes.push_back(HighlightingType::OutputArgument);
-
-    return highlightingType;
 }
 
 enum class PropertyPart
@@ -582,17 +626,20 @@ void TokenInfo::invalidFileKind()
     }
 }
 
-static HighlightingType highlightingTypeForKeyword(CXTranslationUnit cxTranslationUnit,
-                                                   CXToken *cxToken,
-                                                   const Cursor &cursor)
+void TokenInfo::keywordKind()
 {
-    switch (cursor.kind()) {
-        case CXCursor_PreprocessingDirective: return HighlightingType::Preprocessor;
-        case CXCursor_InclusionDirective: return HighlightingType::StringLiteral;
-        default: break;
+    switch (m_originalCursor.kind()) {
+        case CXCursor_PreprocessingDirective:
+            m_types.mainHighlightingType = HighlightingType::Preprocessor;
+            return;
+        case CXCursor_InclusionDirective:
+            m_types.mainHighlightingType = HighlightingType::StringLiteral;
+            return;
+        default:
+            break;
     }
 
-    const ClangString spelling = clang_getTokenSpelling(cxTranslationUnit, *cxToken);
+    const ClangString spelling = clang_getTokenSpelling(m_cxTranslationUnit, *m_cxToken);
     if (spelling == "bool"
             || spelling == "char"
             || spelling == "char16_t"
@@ -606,17 +653,14 @@ static HighlightingType highlightingTypeForKeyword(CXTranslationUnit cxTranslati
             || spelling == "unsigned"
             || spelling == "void"
             || spelling == "wchar_t") {
-        return HighlightingType::PrimitiveType;
+        m_types.mainHighlightingType =  HighlightingType::PrimitiveType;
+        return;
     }
 
-    return HighlightingType::Keyword;
-}
+    m_types.mainHighlightingType = HighlightingType::Keyword;
 
-void TokenInfo::keywordKind(const Cursor &cursor)
-{
-    m_types.mainHighlightingType = highlightingTypeForKeyword(m_cxTranslationUnit,
-                                                              m_cxToken,
-                                                              cursor);
+    if (spelling == "new" || spelling == "delete" || spelling == "operator")
+        overloadedOperatorKind();
 }
 
 void TokenInfo::evaluate()
@@ -627,10 +671,10 @@ void TokenInfo::evaluate()
 
     switch (cxTokenKind) {
         case CXToken_Keyword:
-            keywordKind(m_originalCursor);
+            keywordKind();
             break;
         case CXToken_Punctuation:
-            m_types.mainHighlightingType = punctuationKind(m_originalCursor);
+            punctuationOrOperatorKind();
             break;
         case CXToken_Identifier:
             identifierKind(m_originalCursor, Recursion::FirstPass);

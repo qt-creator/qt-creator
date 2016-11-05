@@ -216,16 +216,16 @@ void FullTokenInfo::memberReferenceKind(const Cursor &cursor)
     }
 }
 
-void FullTokenInfo::keywordKind(const Cursor &cursor)
+void FullTokenInfo::keywordKind()
 {
-    TokenInfo::keywordKind(cursor);
+    TokenInfo::keywordKind();
 
-    CXCursorKind cursorKind = cursor.kind();
+    CXCursorKind cursorKind = m_originalCursor.kind();
     bool anonymous = false;
-    if (clang_Cursor_isAnonymous(cursor.cx())) {
+    if (clang_Cursor_isAnonymous(m_originalCursor.cx())) {
         anonymous = true;
     } else {
-        const Utf8String type = fullyQualifiedType(cursor);
+        const Utf8String type = fullyQualifiedType(m_originalCursor);
         if (type.endsWith(Utf8StringLiteral(")"))
                 && static_cast<const QByteArray &>(type).indexOf("(anonymous") >= 0) {
             anonymous = true;
@@ -242,9 +242,31 @@ void FullTokenInfo::keywordKind(const Cursor &cursor)
             m_types.mixinHighlightingTypes.push_back(HighlightingType::Namespace);
         m_extraInfo.declaration = m_extraInfo.definition = true;
         m_extraInfo.token = Utf8StringLiteral("anonymous");
-        updateTypeSpelling(cursor);
-        m_extraInfo.cursorRange = cursor.sourceRange();
+        updateTypeSpelling(m_originalCursor);
+        m_extraInfo.cursorRange = m_originalCursor.sourceRange();
     }
+}
+
+void FullTokenInfo::overloadedOperatorKind()
+{
+    TokenInfo::overloadedOperatorKind();
+
+    if (m_types.mixinHighlightingTypes.front() != HighlightingType::OverloadedOperator)
+        return;
+
+    // Overloaded operator
+    m_extraInfo.identifier = true;
+    if (!m_originalCursor.isDeclaration())
+        return;
+
+    // Overloaded operator declaration
+    m_extraInfo.declaration = true;
+    m_extraInfo.definition = m_originalCursor.isDefinition();
+
+    updateTypeSpelling(m_originalCursor, true);
+    m_extraInfo.cursorRange = m_originalCursor.sourceRange();
+    m_extraInfo.accessSpecifier = m_originalCursor.accessSpecifier();
+    m_extraInfo.storageClass = m_originalCursor.storageClass();
 }
 
 void FullTokenInfo::evaluate()
