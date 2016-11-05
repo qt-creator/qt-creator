@@ -1748,30 +1748,41 @@ void EditorManagerPrivate::updateWindowTitleForDocument(IDocument *document, QWi
     QString windowTitle;
     const QString dashSep(" - ");
 
+    const QString documentName = document ? document->displayName() : QString();
+    if (!documentName.isEmpty())
+        windowTitle.append(documentName);
+
     QString filePath = document ? document->filePath().toFileInfo().absoluteFilePath()
                               : QString();
-
     const QString windowTitleAddition = d->m_titleAdditionHandler
             ? d->m_titleAdditionHandler(filePath)
             : QString();
-
-    QString windowTitleVcsTopic;
-    if (d->m_titleVcsTopicHandler)
-        windowTitleVcsTopic = d->m_titleVcsTopicHandler(filePath);
-    if (!windowTitleVcsTopic.isEmpty())
-        windowTitleVcsTopic = QStringLiteral(" [") + windowTitleVcsTopic + QStringLiteral("]");
-
-    const QString documentName = document ? document->displayName() : QString();
-
-    if (!documentName.isEmpty())
-        windowTitle.append(documentName + windowTitleVcsTopic + dashSep);
     if (!windowTitleAddition.isEmpty()) {
+        if (!windowTitle.isEmpty())
+            windowTitle.append(" ");
         windowTitle.append(windowTitleAddition);
-        if (documentName.isEmpty()) // vcs topic not already added
-            windowTitle.append(windowTitleVcsTopic);
-        windowTitle.append(dashSep);
     }
 
+    const QString windowTitleVcsTopic = d->m_titleVcsTopicHandler
+           ? d->m_titleVcsTopicHandler(filePath)
+           : QString();
+    if (!windowTitleVcsTopic.isEmpty()) {
+        if (!windowTitle.isEmpty())
+            windowTitle.append(" ");
+        windowTitle.append(QStringLiteral("[") + windowTitleVcsTopic + QStringLiteral("]"));
+    }
+
+    const QString sessionTitle = d->m_sessionTitleHandler
+           ? d->m_sessionTitleHandler(filePath)
+           : QString();
+    if (!sessionTitle.isEmpty()) {
+        if (!windowTitle.isEmpty())
+            windowTitle.append(dashSep);
+        windowTitle.append(sessionTitle);
+    }
+
+    if (!windowTitle.isEmpty())
+        windowTitle.append(dashSep);
     windowTitle.append(tr("Qt Creator"));
     window->window()->setWindowTitle(windowTitle);
     window->window()->setWindowFilePath(filePath);
@@ -3062,6 +3073,11 @@ qint64 EditorManager::maxTextFileSize()
 void EditorManager::setWindowTitleAdditionHandler(WindowTitleHandler handler)
 {
     d->m_titleAdditionHandler = handler;
+}
+
+void EditorManager::setSessionTitleHandler(WindowTitleHandler handler)
+{
+    d->m_sessionTitleHandler = handler;
 }
 
 void EditorManager::updateWindowTitles()

@@ -91,6 +91,7 @@ public:
 
 public:
     static QString windowTitleAddition(const QString &filePath);
+    static QString sessionTitle(const QString &filePath);
 
     std::unique_ptr<SessionNode> m_sessionNode;
     QString m_sessionName = QLatin1String("default");
@@ -110,6 +111,9 @@ public:
     QMap<QString, QVariant> m_values;
     QFutureInterface<void> m_future;
     PersistentSettingsWriter *m_writer = nullptr;
+
+private:
+    static QString locationInProject(const QString &filePath);
 };
 
 static SessionManager *m_instance = nullptr;
@@ -139,6 +143,7 @@ SessionManager::SessionManager(QObject *parent) : QObject(parent)
             [this] { markSessionFileDirty(); });
 
     EditorManager::setWindowTitleAdditionHandler(&SessionManagerPrivate::windowTitleAddition);
+    EditorManager::setSessionTitleHandler(&SessionManagerPrivate::sessionTitle);
 }
 
 SessionManager::~SessionManager()
@@ -517,7 +522,7 @@ void SessionManagerPrivate::dependencies(const QString &proName, QStringList &re
         result.append(proName);
 }
 
-QString SessionManagerPrivate::windowTitleAddition(const QString &filePath)
+QString SessionManagerPrivate::sessionTitle(const QString &filePath)
 {
     if (SessionManager::isDefaultSession(d->m_sessionName)) {
         if (filePath.isEmpty()) {
@@ -525,12 +530,6 @@ QString SessionManagerPrivate::windowTitleAddition(const QString &filePath)
             const QList<Project *> projects = SessionManager::projects();
             if (projects.size() == 1)
                 return projects.first()->displayName();
-            return QString();
-        } else if (Project *project = SessionManager::projectForFile(
-                       Utils::FileName::fromString(filePath))) {
-            return project->displayName();
-        } else {
-            return QString();
         }
     } else {
         QString sessionName = d->m_sessionName;
@@ -538,6 +537,33 @@ QString SessionManagerPrivate::windowTitleAddition(const QString &filePath)
             sessionName = SessionManager::tr("Untitled");
         return sessionName;
     }
+    return QString();
+}
+
+QString SessionManagerPrivate::locationInProject(const QString &filePath) {
+    Project *project = SessionManager::projectForFile(Utils::FileName::fromString(filePath));
+    if (!project)
+        return QString();
+
+    Utils::FileName file = Utils::FileName::fromString(filePath);
+    Utils::FileName parentDir = file.parentDir();
+    if (parentDir == project->projectDirectory())
+        return "@ " + project->displayName();
+
+    if (file.isChildOf(project->projectDirectory())) {
+        Utils::FileName dirInProject = parentDir.relativeChildPath(project->projectDirectory());
+        return "(" + dirInProject.toUserOutput() + " @ " + project->displayName() + ")";
+    }
+
+    // For a file that is "outside" the project it belongs to, we display its
+    // dir's full path because it is easier to read than a series of  "../../.".
+    // Example: /home/hugo/GenericProject/App.files lists /home/hugo/lib/Bar.cpp
+   return "(" + parentDir.toUserOutput() + " @ " + project->displayName() + ")";
+}
+
+QString SessionManagerPrivate::windowTitleAddition(const QString &filePath)
+{
+    return locationInProject(filePath);
 }
 
 QStringList SessionManagerPrivate::dependenciesOrder() const

@@ -256,6 +256,7 @@ private:
     IDocument::ReloadSetting m_reloadSetting = IDocument::AlwaysAsk;
 
     EditorManager::WindowTitleHandler m_titleAdditionHandler;
+    EditorManager::WindowTitleHandler m_sessionTitleHandler;
     EditorManager::WindowTitleHandler m_titleVcsTopicHandler;
 
     bool m_autoSaveEnabled = true;

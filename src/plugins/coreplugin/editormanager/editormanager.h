@@ -167,6 +167,7 @@ public:
     static qint64 maxTextFileSize();
 
     static void setWindowTitleAdditionHandler(WindowTitleHandler handler);
+    static void setSessionTitleHandler(WindowTitleHandler handler);
     static void setWindowTitleVcsTopicHandler(WindowTitleHandler handler);
 
     static void addSaveAndCloseEditorActions(QMenu *contextMenu, DocumentModel::Entry *entry,
