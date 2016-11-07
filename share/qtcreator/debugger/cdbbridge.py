@@ -42,7 +42,7 @@ class FakeVoidType(cdbext.Type):
         return self.typeName
 
     def bitsize(self):
-        return 0 if self.typeName == 'void' else self.dumper.ptrSize() * 8
+        return self.dumper.ptrSize() * 8
 
     def code(self):
         if self.typeName.endswith('*'):
