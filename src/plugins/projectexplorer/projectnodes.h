@@ -124,6 +124,8 @@ public:
 
     void emitNodeUpdated();
 
+    virtual Node *trim(const QSet<Node *> &keepers);
+
     virtual FileNode *asFileNode();
     virtual FolderNode *asFolderNode();
     virtual ProjectNode *asProjectNode();
@@ -182,6 +184,8 @@ public:
 
     QString displayName() const override;
     QIcon icon() const;
+
+    Node *trim(const QSet<Node *> &keepers) override;
 
     QList<FileNode *> fileNodes() const;
     FileNode *fileNode(const Utils::FileName &file) const;
@@ -281,6 +285,8 @@ public:
     void removeProjectNodes(const QList<ProjectNode*> &subProjects);
 
     ProjectNode *asProjectNode() override;
+
+    Node *trim(const QSet<Node *> &keepers) override;
 
 protected:
     // this is just the in-memory representation, a subclass

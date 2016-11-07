@@ -166,6 +166,11 @@ void Node::emitNodeUpdated()
         ProjectTree::instance()->emitNodeUpdated(this);
 }
 
+Node *Node::trim(const QSet<Node *> &keepers)
+{
+    return keepers.contains(this) ? nullptr : this;
+}
+
 FileNode *Node::asFileNode()
 {
     return nullptr;
@@ -328,6 +333,26 @@ QIcon FolderNode::icon() const
     if (m_icon.isNull())
         m_icon = Core::FileIconProvider::icon(QFileIconProvider::Folder);
     return m_icon;
+}
+
+Node *FolderNode::trim(const QSet<Node *> &keepers)
+{
+    if (keepers.contains(this))
+        return nullptr;
+
+    bool keepThis = false;
+    QList<Node *> toTrim = Utils::transform(m_fileNodes, [&keepers](Node *n) { return n->trim(keepers); });
+    int count = toTrim.count();
+    toTrim = Utils::filtered(toTrim, [](const Node *n) { return n; });
+    keepThis = (count != toTrim.count());
+    removeFileNodes(Utils::transform(toTrim, [](Node *n) { return static_cast<FileNode *>(n); }));
+
+    toTrim = Utils::transform(m_folderNodes, [&keepers](Node *n) { return n->trim(keepers); });
+    count = toTrim.count();
+    toTrim = Utils::filtered(toTrim, [](const Node *n) { return n; });
+    keepThis = keepThis || (count != toTrim.count());
+    removeFolderNodes(Utils::transform(toTrim, [](Node *n) { return static_cast<FolderNode *>(n); }));
+    return keepThis ? nullptr : this;
 }
 
 QList<FileNode*> FolderNode::fileNodes() const
@@ -899,6 +924,22 @@ ProjectNode *ProjectNode::asProjectNode()
     return this;
 }
 
+Node *ProjectNode::trim(const QSet<Node *> &keepers)
+{
+    if (keepers.contains(this))
+        return nullptr;
+
+    QList<Node *> toTrim
+            = Utils::transform(m_projectNodes, [&keepers](Node *n) { return n->trim(keepers); });
+    int count = toTrim.count();
+    toTrim = Utils::filtered(toTrim, [](Node *n) { return n; });
+    removeProjectNodes(Utils::transform(toTrim, [](Node *n) { return static_cast<ProjectNode *>(n); }));
+
+    if (!FolderNode::trim(keepers))
+        return nullptr;
+
+    return (toTrim.count() != count) ? nullptr : this;
+}
 
 /*!
   \class ProjectExplorer::SessionNode
