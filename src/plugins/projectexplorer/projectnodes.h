@@ -257,9 +257,6 @@ class PROJECTEXPLORER_EXPORT ProjectNode : public FolderNode
 public:
     QString vcsTopic() const;
 
-    // all subFolders that are projects
-    QList<ProjectNode*> projectNodes() const;
-
     virtual bool canAddSubProject(const QString &proFilePath) const;
     virtual bool addSubProjects(const QStringList &proFilePaths);
     virtual bool removeSubProjects(const QStringList &proFilePaths);
@@ -277,8 +274,9 @@ public:
 
     void accept(NodesVisitor *visitor) override;
 
-    // to be called in implementation of
-    // the corresponding public functions
+    ProjectNode *projectNode(const Utils::FileName &file) const;
+    // all subFolders that are projects
+    QList<ProjectNode*> projectNodes() const;
     void addProjectNodes(const QList<ProjectNode*> &subProjects);
     void removeProjectNodes(const QList<ProjectNode*> &subProjects);
 

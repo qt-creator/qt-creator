@@ -730,11 +730,6 @@ QString ProjectNode::vcsTopic() const
     return QString();
 }
 
-QList<ProjectNode*> ProjectNode::projectNodes() const
-{
-    return m_projectNodes;
-}
-
 bool ProjectNode::canAddSubProject(const QString &proFilePath) const
 {
     Q_UNUSED(proFilePath)
@@ -809,6 +804,18 @@ void ProjectNode::accept(NodesVisitor *visitor)
 
     foreach (FolderNode *folder, m_folderNodes)
         folder->accept(visitor);
+}
+
+ProjectNode *ProjectNode::projectNode(const Utils::FileName &file) const
+{
+    return Utils::findOrDefault(m_projectNodes, [&file](const ProjectNode *fn) {
+        return fn->filePath() == file;
+    });
+}
+
+QList<ProjectNode*> ProjectNode::projectNodes() const
+{
+    return m_projectNodes;
 }
 
 /*!
