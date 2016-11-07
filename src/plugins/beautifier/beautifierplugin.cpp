@@ -196,7 +196,11 @@ bool BeautifierPlugin::initialize(const QStringList &arguments, QString *errorSt
     menu->menu()->setTitle(QCoreApplication::translate("Beautifier", Constants::OPTION_TR_CATEGORY));
     menu->setOnAllDisabledBehavior(Core::ActionContainer::Show);
     Core::ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(menu);
+    return true;
+}
 
+void BeautifierPlugin::extensionsInitialized()
+{
     m_tools << new ArtisticStyle::ArtisticStyle(this);
     m_tools << new ClangFormat::ClangFormat(this);
     m_tools << new Uncrustify::Uncrustify(this);
@@ -216,11 +220,7 @@ bool BeautifierPlugin::initialize(const QStringList &arguments, QString *errorSt
     addAutoReleasedObject(settingsPage);
 
     updateActions();
-    return true;
-}
 
-void BeautifierPlugin::extensionsInitialized()
-{
     const Core::EditorManager *editorManager = Core::EditorManager::instance();
     connect(editorManager, &Core::EditorManager::currentEditorChanged,
             this, &BeautifierPlugin::updateActions);
