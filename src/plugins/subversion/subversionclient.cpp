@@ -39,6 +39,7 @@
 #include <diffeditor/diffutils.h>
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 
 #include <QDir>
@@ -87,7 +88,7 @@ VcsCommand *SubversionClient::createCommitCmd(const QString &repositoryRoot,
     VcsCommand *cmd = createCommand(repositoryRoot);
     cmd->addFlags(VcsCommand::ShowStdOut);
     QStringList args(vcsCommandString(CommitCommand));
-    cmd->addJob(vcsBinary(), args << svnExtraOptions << files);
+    cmd->addJob(vcsBinary(), args << svnExtraOptions << escapeFiles(files));
     return cmd;
 }
 
@@ -154,6 +155,16 @@ QString SubversionClient::synchronousTopic(const QString &repository)
     return result.stdOut().trimmed();
 }
 
+QString SubversionClient::escapeFile(const QString &file)
+{
+    return (file.contains('@') && !file.endsWith('@')) ? file + '@' : file;
+}
+
+QStringList SubversionClient::escapeFiles(const QStringList &files)
+{
+    return Utils::transform(files, &SubversionClient::escapeFile);
+}
+
 class DiffController : public DiffEditorController
 {
     Q_OBJECT
@@ -198,7 +209,7 @@ void DiffController::setFilesList(const QStringList &filesList)
     if (isReloading())
         return;
 
-    m_filesList = filesList;
+    m_filesList = SubversionClient::escapeFiles(filesList);
 }
 
 void DiffController::setChangeNumber(int changeNumber)
@@ -308,13 +319,9 @@ void SubversionClient::log(const QString &workingDir,
     if (logCount > 0)
         svnExtraOptions << QLatin1String("-l") << QString::number(logCount);
 
-    QStringList nativeFiles;
-    foreach (const QString& file, files)
-        nativeFiles.append(QDir::toNativeSeparators(file));
-
     // subversion stores log in UTF-8 and returns it back in user system locale.
     // So we do not need to encode it.
-    VcsBaseClient::log(workingDir, files, svnExtraOptions, enableAnnotationContextMenu);
+    VcsBaseClient::log(workingDir, escapeFiles(files), svnExtraOptions, enableAnnotationContextMenu);
 }
 
 void SubversionClient::describe(const QString &workingDirectory, int changeNumber, const QString &title)

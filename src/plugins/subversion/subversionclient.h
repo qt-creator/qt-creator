@@ -71,6 +71,9 @@ public:
 
     QString synchronousTopic(const QString &repository);
 
+    static QString escapeFile(const QString &file);
+    static QStringList escapeFiles(const QStringList &files);
+
 protected:
     Core::Id vcsEditorKind(VcsCommandTag cmd) const override;
 
