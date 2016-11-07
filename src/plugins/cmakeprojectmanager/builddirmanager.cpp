@@ -298,9 +298,10 @@ void BuildDirManager::resetData()
         m_reader->resetData();
 
     m_cmakeCache.clear();
+    QTC_ASSERT(!m_futureInterface || m_futureInterface->isFinished(), return);
     m_futureInterface.reset();
 
-    m_reader.reset(nullptr);
+    m_reader.reset();
 }
 
 bool BuildDirManager::updateCMakeStateBeforeBuild()
@@ -323,7 +324,7 @@ bool BuildDirManager::persistCMakeState()
     return true;
 }
 
-void BuildDirManager::generateProjectTree(CMakeProjectNode *root)
+void BuildDirManager::generateProjectTree(CMakeListsNode *root)
 {
     QTC_ASSERT(m_reader, return);
     QTC_ASSERT(m_futureInterface, return);

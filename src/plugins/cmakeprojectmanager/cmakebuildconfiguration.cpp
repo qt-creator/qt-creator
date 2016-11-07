@@ -202,7 +202,7 @@ QList<CMakeBuildTarget> CMakeBuildConfiguration::buildTargets() const
     return m_buildDirManager->buildTargets();
 }
 
-void CMakeBuildConfiguration::generateProjectTree(CMakeProjectNode *root) const
+void CMakeBuildConfiguration::generateProjectTree(CMakeListsNode *root) const
 {
     if (!m_buildDirManager || m_buildDirManager->isParsing())
         return;

@@ -211,24 +211,90 @@ CMakeConfig ServerModeReader::parsedConfiguration() const
     return m_cmakeCache;
 }
 
-void ServerModeReader::generateProjectTree(CMakeProjectNode *root, const QList<FileNode *> &allFiles)
+FolderNode *setupCMakeVFolder(FolderNode *base, const Utils::FileName &basePath, int priority,
+                              const QString &displayName, QList<FileNode *> &files)
 {
-    Q_UNUSED(allFiles);
-    QSet<Utils::FileName> knownFiles;
-    for (auto it = m_cmakeInputsFileNodes.constBegin(); it != m_cmakeInputsFileNodes.constEnd(); ++it)
-        knownFiles.insert((*it)->filePath());
-
-    QList<FileNode *> fileGroupNodes = m_cmakeInputsFileNodes;
-    m_cmakeInputsFileNodes.clear(); // Clean out, they are not going to be used anymore!
-    foreach (const FileGroup *fg, m_fileGroups) {
-        for (const FileName &s : fg->sources) {
-            const int oldCount = knownFiles.count();
-            knownFiles.insert(s);
-            if (oldCount != knownFiles.count())
-                fileGroupNodes.append(new FileNode(s, FileType::Source, fg->isGenerated));
+    FolderNode *folder
+            = findOrDefault(base->folderNodes(), [basePath](const FolderNode *fn) {
+        return fn->filePath() == basePath;
+    });
+    if (files.isEmpty()) {
+        return folder;
+    } else {
+        if (!folder) {
+            folder = new VirtualFolderNode(basePath, priority);
+            folder->setDisplayName(displayName);
+            base->addFolderNodes({ folder });
         }
+        folder->buildTree(files);
     }
-    root->buildTree(fileGroupNodes);
+    return nullptr;
+}
+
+static ProjectNode *updateCMakeInputs(CMakeListsNode *root,
+                                      const Utils::FileName &sourceDir,
+                                      const Utils::FileName &buildDir,
+                                      QList<FileNode *> &sourceInputs,
+                                      QList<FileNode *> &buildInputs,
+                                      QList<FileNode *> &rootInputs)
+{
+    ProjectNode *cmakeVFolder
+            = root->projectNode(CMakeInputsNode::inputsPathFromCMakeListsPath(root->filePath()));
+    if (!cmakeVFolder) {
+        cmakeVFolder = new CMakeInputsNode(root->filePath());
+        root->addProjectNodes({ cmakeVFolder });
+    }
+
+    QList<FolderNode *> foldersToDelete;
+    foldersToDelete.append(setupCMakeVFolder(cmakeVFolder, sourceDir, 1000,
+                                             QCoreApplication::translate("CMakeProjectManager::Internal", "Source Directory"),
+                                             sourceInputs));
+    foldersToDelete.append(setupCMakeVFolder(cmakeVFolder, buildDir, 100,
+                                             QCoreApplication::translate("CMakeProjectManager::Internal", "Build Directory"),
+                                             buildInputs));
+    foldersToDelete.append(setupCMakeVFolder(cmakeVFolder, Utils::FileName(), 10,
+                                             QCoreApplication::translate("CMakeProjectManager::Internal", "Other Locations"),
+                                             rootInputs));
+
+    // Clean out unused nodes in "CMake Files":
+    const QList<FolderNode *> tmp = filtered(foldersToDelete, [](const FolderNode *fn) { return fn; });
+    cmakeVFolder->removeFolderNodes(tmp);
+
+    return cmakeVFolder;
+}
+
+void ServerModeReader::generateProjectTree(CMakeListsNode *root, const QList<FileNode *> &allFiles)
+{
+    // Split up cmake inputs into useful chunks:
+    QList<FileNode *> cmakeFilesSource;
+    QList<FileNode *> cmakeFilesBuild;
+    QList<FileNode *> cmakeFilesOther;
+    QList<FileNode *> cmakeLists;
+    foreach (FileNode *fn, m_cmakeInputsFileNodes) {
+        const FileName path = fn->filePath();
+        if (path.fileName().compare("CMakeLists.txt", HostOsInfo::fileNameCaseSensitivity()) == 0)
+            cmakeLists.append(fn);
+        else if (path.isChildOf(m_parameters.sourceDirectory))
+            cmakeFilesSource.append(fn);
+        else if (path.isChildOf(m_parameters.buildDirectory))
+            cmakeFilesBuild.append(fn);
+        else
+            cmakeFilesOther.append(fn);
+    }
+    m_cmakeInputsFileNodes.clear(); // Clean out, they are not going to be used anymore!
+
+    if (!m_projects.isEmpty())
+        root->setDisplayName(m_projects.at(0)->name);
+
+    QSet<Node *> usedNodes;
+    usedNodes.insert(updateCMakeInputs(root, m_parameters.sourceDirectory, m_parameters.buildDirectory,
+                                       cmakeFilesSource, cmakeFilesBuild, cmakeFilesOther));
+
+    usedNodes.unite(updateCMakeLists(root, cmakeLists));
+    usedNodes.unite(updateProjects(root, m_projects, allFiles));
+
+    // Trim out unused nodes:
+    root->trim(usedNodes);
 }
 
 QSet<Core::Id> ServerModeReader::updateCodeModel(CppTools::ProjectPartBuilder &ppBuilder)
@@ -446,6 +512,232 @@ void ServerModeReader::extractCacheData(const QVariantMap &data)
         config.append(item);
     }
     m_cmakeCache = config;
+}
+
+QSet<Node *> ServerModeReader::updateCMakeLists(CMakeListsNode *root,
+                                                const QList<FileNode *> &cmakeLists)
+{
+    QSet<Node *> usedNodes;
+
+    const QDir baseDir = QDir(root->filePath().parentDir().toString());
+
+    QHash<QString, FileNode *> nodeHash;
+    for (FileNode *cm : cmakeLists) {
+        const QString relPath = baseDir.relativeFilePath(cm->filePath().parentDir().toString());
+        QTC_CHECK(!nodeHash.contains(relPath));
+        nodeHash[(relPath == ".") ? QString() : relPath ] = cm;
+    }
+    QStringList tmp = nodeHash.keys();
+    Utils::sort(tmp, [](const QString &a, const QString &b) { return a.count() < b.count(); });
+    const QStringList keys = tmp;
+
+    QHash<QString, CMakeListsNode *> knownNodes;
+    knownNodes[QString()] = root;
+
+    for (const QString &k : keys) {
+        FileNode *fn = nodeHash[k];
+        CMakeListsNode *parentNode = nullptr;
+        QString prefix = k;
+        forever {
+            if (knownNodes.contains(prefix)) {
+                parentNode = knownNodes.value(prefix);
+                break;
+            }
+            const int pos = prefix.lastIndexOf('/');
+            prefix = (pos < 0) ? QString() : prefix.left(prefix.lastIndexOf('/'));
+        }
+
+        // Find or create CMakeListsNode:
+        CMakeListsNode *cmln = nullptr;
+        if (parentNode->filePath() == fn->filePath())
+            cmln = parentNode; // Top level!
+        else
+            cmln = static_cast<CMakeListsNode *>(parentNode->projectNode(fn->filePath()));
+        if (!cmln) {
+            cmln = new CMakeListsNode(fn->filePath());
+            parentNode->addProjectNodes({ cmln });
+        }
+
+        // Find or create CMakeLists.txt filenode below CMakeListsNode:
+        FileNode *cmFn = cmln->fileNode(fn->filePath());
+        if (!cmFn) {
+            cmFn = fn;
+            cmln->addFileNodes({ cmFn });
+        }
+        usedNodes.insert(cmFn); // register existing CMakeLists.txt filenode
+
+        // Update displayName of CMakeListsNode:
+        const QString dn = prefix.isEmpty() ? k : k.mid(prefix.count() + 1);
+        if (!dn.isEmpty())
+            cmln->setDisplayName(dn); // Set partial path as display name
+
+        knownNodes.insert(k, cmln);
+    }
+
+    return usedNodes;
+}
+
+static CMakeListsNode *findCMakeNode(CMakeListsNode *root, const Utils::FileName &dir)
+{
+    Utils::FileName stepDir = dir;
+
+    CMakeListsNode *base = root;
+    forever {
+        Utils::FileName stepLists = stepDir;
+        stepLists.appendPath("CMakeLists.txt");
+
+        CMakeListsNode *cmln = nullptr;
+        if (base->filePath() == stepLists) {
+            cmln = base;
+        } else {
+            ProjectNode *pcmln = base->projectNode(stepLists);
+            cmln = static_cast<CMakeListsNode *>(pcmln);
+        }
+
+        if (!cmln) {
+            stepDir = stepDir.parentDir();
+            if (stepDir.isEmpty())
+                return nullptr;
+        } else {
+            if (cmln->filePath().parentDir() == dir)
+                return cmln;
+            stepDir = dir;
+            base = cmln;
+        }
+    }
+}
+
+static CMakeProjectNode *findOrCreateProjectNode(CMakeListsNode *root, const Utils::FileName &dir,
+                                                 const QString &displayName)
+{
+    CMakeListsNode *cmln = findCMakeNode(root, dir);
+    QTC_ASSERT(cmln, return nullptr);
+
+    Utils::FileName projectName = dir;
+    projectName.appendPath(".project::" + displayName);
+
+    CMakeProjectNode *pn = static_cast<CMakeProjectNode *>(cmln->projectNode(projectName));
+    if (!pn) {
+        pn = new CMakeProjectNode(projectName);
+        cmln->addProjectNodes({ pn });
+    }
+    pn->setDisplayName(displayName);
+    return pn;
+}
+
+QSet<Node *> ServerModeReader::updateProjects(CMakeListsNode *root,
+                                              const QList<Project *> &projects,
+                                              const QList<FileNode *> &allFiles)
+{
+    QSet<Node *> usedNodes;
+
+    QHash<Utils::FileName, QList<FileNode *>> includeFiles;
+    for (FileNode *f : allFiles) {
+        if (f->fileType() != FileType::Header)
+            continue;
+        includeFiles[f->filePath().parentDir()].append(f);
+    }
+
+    for (const Project *p : projects) {
+        CMakeProjectNode *pNode = findOrCreateProjectNode(root, p->sourceDirectory, p->name);
+        QTC_ASSERT(pNode, continue);
+        usedNodes.insert(pNode); // Mark as leaf to keep.
+
+        usedNodes.unite(updateTargets(root, p->targets, includeFiles));
+    }
+    return usedNodes;
+}
+
+static CMakeTargetNode *findOrCreateTargetNode(CMakeListsNode *root, const Utils::FileName &dir,
+                                                const QString &displayName)
+{
+    CMakeListsNode *cmln = findCMakeNode(root, dir);
+    QTC_ASSERT(cmln, return nullptr);
+
+    Utils::FileName targetName = dir;
+    targetName.appendPath(".target::" + displayName);
+
+    CMakeTargetNode *tn = static_cast<CMakeTargetNode *>(cmln->projectNode(targetName));
+    if (!tn) {
+        tn = new CMakeTargetNode(targetName);
+        cmln->addProjectNodes({ tn });
+    }
+    tn->setDisplayName(displayName);
+    return tn;
+}
+
+QSet<Node *> ServerModeReader::updateTargets(CMakeListsNode *root,
+                                             const QList<ServerModeReader::Target *> &targets,
+                                             const QHash<FileName, QList<FileNode *> > &headers)
+{
+    QSet<Node *> usedNodes;
+    for (const Target *t : targets) {
+
+        CMakeTargetNode *tNode = findOrCreateTargetNode(root, t->sourceDirectory, t->name);
+        tNode->setTargetInformation(t->artifacts, t->type);
+
+        usedNodes.unite(updateFileGroups(tNode, t->sourceDirectory, t->buildDirectory,
+                                         t->fileGroups, headers));
+    }
+    return usedNodes;
+}
+
+static Utils::FileName mapFileName(const Utils::FileName &fn, const Utils::FileName &sourceDirectory,
+                                   const Utils::FileName &buildDirectory)
+{
+    if (fn.isChildOf(buildDirectory)) {
+        Utils::FileName mapped = sourceDirectory;
+        mapped.appendPath(QCoreApplication::translate("CMakeProjectManager::Internal", "<Build Directory>"));
+        QDir bd = QDir(buildDirectory.toString());
+        mapped.appendPath(bd.relativeFilePath(fn.toString()));
+        return mapped;
+    }
+    return fn;
+}
+
+QSet<Node *> ServerModeReader::updateFileGroups(ProjectNode *targetRoot,
+                                                const Utils::FileName &sourceDirectory,
+                                                const Utils::FileName &buildDirectory,
+                                                const QList<ServerModeReader::FileGroup *> &fileGroups,
+                                                const QHash<FileName, QList<FileNode *> > &headers)
+{
+    QSet<Node *> usedNodes;
+    QList<FileNode *> toList;
+    QSet<Utils::FileName> alreadyListed;
+    for (const FileGroup *f : fileGroups) {
+        const QList<FileName> newSources = Utils::filtered(f->sources, [&alreadyListed](const Utils::FileName &fn) {
+            const int count = alreadyListed.count();
+            alreadyListed.insert(fn);
+            return count != alreadyListed.count();
+        });
+        const QList<FileNode *> newFileNodes = Utils::transform(newSources, [f, &sourceDirectory, &buildDirectory](const Utils::FileName &fn) {
+            return new FileNode(mapFileName(fn, sourceDirectory, buildDirectory), FileType::Source, f->isGenerated);
+        });
+        toList.append(newFileNodes);
+
+        // Add scanned header files:
+        for (const IncludePath *i : f->includePaths) {
+            const QList<FileNode *> &headerFiles = headers.value(i->path);
+            const QList<FileNode *> unseenHeaders = Utils::filtered(headerFiles, [&alreadyListed](const FileNode *fn) {
+                const int count = alreadyListed.count();
+                alreadyListed.insert(fn->filePath());
+                return count != alreadyListed.count();
+            });
+            toList.append(Utils::transform(unseenHeaders, [&sourceDirectory, &buildDirectory](FileNode *fn) -> FileNode * {
+                              const Utils::FileName mappedPath = mapFileName(fn->filePath(), sourceDirectory, buildDirectory);
+                              auto copy = new FileNode(mappedPath, fn->fileType(), fn->isGenerated());
+                              copy->setEnabled(false);
+                              return copy;
+                          }));
+        }
+    }
+
+    targetRoot->buildTree(toList, sourceDirectory);
+
+    foreach (FileNode *fn, toList)
+        usedNodes.insert(static_cast<Node *>(fn)); // Mark all leaves as keeper!
+
+    return usedNodes;
 }
 
 } // namespace Internal

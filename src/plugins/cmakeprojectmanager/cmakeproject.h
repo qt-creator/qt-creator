@@ -41,9 +41,8 @@ QT_END_NAMESPACE
 namespace CMakeProjectManager {
 
 namespace Internal {
-class CMakeBuildSettingsWidget;
 class CMakeBuildConfiguration;
-class CMakeProjectNode;
+class CMakeBuildSettingsWidget;
 class CMakeManager;
 } // namespace Internal
 
@@ -76,8 +75,7 @@ public:
 class CMAKE_EXPORT CMakeProject : public ProjectExplorer::Project
 {
     Q_OBJECT
-    // for changeBuildDirectory
-    friend class Internal::CMakeBuildSettingsWidget;
+
 public:
     CMakeProject(Internal::CMakeManager *manager, const Utils::FileName &filename);
     ~CMakeProject() final;
@@ -128,6 +126,7 @@ private:
     QList<ProjectExplorer::ExtraCompiler *> m_extraCompilers;
 
     friend class Internal::CMakeBuildConfiguration;
+    friend class Internal::CMakeBuildSettingsWidget;
 };
 
 } // namespace CMakeProjectManager

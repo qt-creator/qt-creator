@@ -52,7 +52,7 @@ public:
 
     QList<CMakeBuildTarget> buildTargets() const final;
     CMakeConfig parsedConfiguration() const final;
-    void generateProjectTree(CMakeProjectNode *root,
+    void generateProjectTree(CMakeListsNode *root,
                              const QList<ProjectExplorer::FileNode *> &allFiles) final;
     QSet<Core::Id> updateCodeModel(CppTools::ProjectPartBuilder &ppBuilder) final;
 

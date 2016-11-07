@@ -46,6 +46,7 @@ namespace Internal {
 class BuildDirManager;
 class CMakeBuildConfigurationFactory;
 class CMakeBuildSettingsWidget;
+class CMakeListsNode;
 
 class CMakeBuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
@@ -84,7 +85,7 @@ public:
     void clearCache();
 
     QList<CMakeBuildTarget> buildTargets() const;
-    void generateProjectTree(CMakeProjectNode *root) const;
+    void generateProjectTree(CMakeListsNode *root) const;
     QSet<Core::Id> updateCodeModel(CppTools::ProjectPartBuilder &ppBuilder);
 
     static Utils::FileName
