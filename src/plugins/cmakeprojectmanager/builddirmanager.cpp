@@ -331,8 +331,7 @@ void BuildDirManager::generateProjectTree(CMakeProjectNode *root)
     const Utils::FileName projectFile = m_buildConfiguration->target()->project()->projectFilePath();
     QList<FileNode *> tmp = Utils::filtered(m_futureInterface->future().result(),
                                             [projectFile](const FileNode *fn) -> bool {
-            const Utils::FileName &path = fn->filePath();
-            return path != projectFile && !path.toString().startsWith(projectFile.toString() + ".user");
+        return !fn->filePath().toString().startsWith(projectFile.toString() + ".user");
     });
     Utils::sort(tmp, ProjectExplorer::Node::sortByPath);
 
@@ -343,6 +342,19 @@ void BuildDirManager::generateProjectTree(CMakeProjectNode *root)
     QSet<FileNode *> usedNodes;
     foreach (FileNode *fn, root->recursiveFileNodes())
         usedNodes.insert(fn);
+
+    // Make sure the top level CMakeLists.txt is always visible:
+    if (root->fileNodes().isEmpty()
+            && root->folderNodes().isEmpty()
+            && root->projectNodes().isEmpty()) {
+        FileNode *cm = Utils::findOrDefault(allFiles, [&projectFile](const FileNode *fn) {
+            return fn->filePath() == projectFile;
+        });
+        if (cm) {
+            root->addFileNodes({ cm });
+            usedNodes.insert(cm);
+        }
+    }
 
     QList<FileNode *> leftOvers = Utils::filtered(allFiles, [&usedNodes](FileNode *fn) {
             return !usedNodes.contains(fn);
