@@ -291,7 +291,6 @@ void ItemItem::updateGeometry()
             m_contextLabel->setMaxWidth(maxContextWidth);
         }
         m_contextLabel->setPos(-m_contextLabel->boundingRect().width() / 2.0, y);
-        y += m_contextLabel->boundingRect().height();
     }
 
     updateSelectionMarkerGeometry(rect);

@@ -252,7 +252,6 @@ void DiagramItem::updateGeometry()
     }
     if (nameItem()) {
         nameItem()->setPos(-nameItem()->boundingRect().width() / 2.0, y);
-        y += nameItem()->boundingRect().height();
     }
 
     updateSelectionMarkerGeometry(rect);
