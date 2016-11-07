@@ -40,7 +40,7 @@ public:
     ~PythonEditorPlugin() override;
 
     bool initialize(const QStringList &arguments, QString *errorMessage) override;
-    void extensionsInitialized() override {}
+    void extensionsInitialized() override;
 };
 
 } // namespace Internal
