@@ -1632,6 +1632,7 @@ def qdump__QVariant(d, value):
         else:
             #warn('DIRECT ITEM 1: %s' % innerType)
             val = d.createValue(data, innerType)
+            val.laddress = value.laddress
 
         d.putEmptyValue(-99)
         d.putItem(val)

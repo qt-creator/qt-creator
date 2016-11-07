@@ -225,17 +225,11 @@ class Dumper(DumperBase):
         return align
 
     def listMembers(self, nativeType, value):
-        if value.laddress is not None:
-            sbaddr = lldb.SBAddress(value.laddress, self.target)
-            nativeValue = self.target.CreateValueFromAddress('x', sbaddr, nativeType)
-        else:
-            try:
-                nativeValue = self.target.CreateValueFromData('x', value.data(), nativeType)
-            except:
-                return
-
-        nativeValue.SetPreferSyntheticValue(False)
-        nativeType = nativeValue.GetType()
+        #warn("ADDR: 0x%x" % self.fakeAddress)
+        fakeAddress = self.fakeAddress if value.laddress is None else value.laddress
+        sbaddr = lldb.SBAddress(fakeAddress, self.target)
+        fakeValue = self.target.CreateValueFromAddress('x', sbaddr, nativeType)
+        fakeValue.SetPreferSyntheticValue(False)
 
         baseNames = {}
         for i in range(nativeType.GetNumberOfDirectBaseClasses()):
@@ -253,25 +247,44 @@ class Dumper(DumperBase):
             if bitsize > 0:
                 #bitpos = bitpos % bitsize
                 bitpos = bitpos % 8 # Reported type is always wrapping type!
-            #warn("BIT SIZE: %s POS: %s NAME: %s" % (bitsize, bitpos, f.name))
             fieldBits[f.name] = (bitsize, bitpos)
 
         # Normal members and non-empty base classes.
-        for i in range(nativeValue.GetNumChildren()):
-            fieldObj = nativeValue.GetChildAtIndex(i)
-            fieldObj.SetPreferSyntheticValue(False)
-            fieldName = fieldObj.GetName()
-            member = self.fromNativeValue(fieldObj)
-            member.name = fieldName
-            if fieldName in baseNames:
-                member.isBaseClass = True
-            if fieldName in fieldBits:
-                (member.lbitsize, member.lbitpos) = fieldBits[fieldName]
+        for i in range(fakeValue.GetNumChildren()):
+            nativeField = fakeValue.GetChildAtIndex(i)
+            nativeField.SetPreferSyntheticValue(False)
+
+            field = self.Field(self)
+            field.name = nativeField.GetName()
+            nativeFieldType = nativeField.GetType()
+
+            if field.name in fieldBits:
+                (field.lbitsize, field.lbitpos) = fieldBits[field.name]
             else:
-                member.lbitsize = fieldObj.GetType().GetByteSize() * 8
-                #member.lbitpos = (caddr - addr) * 8
-            #warn("MEMBER: %s" % member)
-            yield member
+                field.lbitsize = nativeFieldType.GetByteSize() * 8
+
+            if field.lbitsize != nativeFieldType.GetByteSize() * 8:
+                field.ltype = self.createBitfieldType(self.typeName(nativeFieldType), field.lbitsize)
+            else:
+                fakeMember = fakeValue.GetChildAtIndex(i)
+                #try:
+                fakeMemberAddress = fakeMember.GetLoadAddress()
+                #except:
+                #    # Happens in the BoostList dumper for a 'const bool'
+                #    # item named 'constant_time_size'. There isn't anything we can do
+                #    # in this case.
+                #    continue
+
+                offset = fakeMemberAddress - fakeAddress
+
+                field.lbitpos = 8 * offset
+                field.ltype = self.fromNativeType(nativeFieldType)
+
+                if field.name in baseNames:
+                    field.isBaseClass = True
+                    field.baseIndex = baseNames[field.name]
+
+            yield field
 
         # Empty bases are not covered above.
         for i in range(nativeType.GetNumberOfDirectBaseClasses()):
@@ -357,10 +370,7 @@ class Dumper(DumperBase):
             return self.createTypedefedType(targetType, nativeType.GetName())
 
         nativeType = nativeType.GetUnqualifiedType()
-        if hasattr(nativeType, 'GetDisplayTypeName'):
-            typeName = nativeType.GetDisplayTypeName()  # Xcode 6 (lldb-320)
-        else:
-            typeName = nativeType.GetName()             # Xcode 5 (lldb-310)
+        typeName = self.typeName(nativeType)
 
         if code in (lldb.eTypeClassArray, lldb.eTypeClassVector):
             #warn('ARRAY: %s' % nativeType.GetName())
@@ -480,11 +490,16 @@ class Dumper(DumperBase):
         #warn('TARGS: %s %s' % (nativeType.GetName(), [str(x) for x in  targs]))
         return targs
 
-    def nativeTypeId(self, nativeType):
+    def typeName(self, nativeType):
         if hasattr(nativeType, 'GetDisplayTypeName'):
-            name = nativeType.GetDisplayTypeName()  # Xcode 6 (lldb-320)
-        else:
-            name = nativeType.GetName()             # Xcode 5 (lldb-310)
+            return nativeType.GetDisplayTypeName()  # Xcode 6 (lldb-320)
+        return nativeType.GetName()             # Xcode 5 (lldb-310)
+
+    def nativeTypeId(self, nativeType):
+        name = self.typeName(nativeType)
+
+    def nativeTypeId(self, nativeType):
+        name = self.typeName(nativeType)
         if name is None or len(name) == 0:
             c = '0'
         elif name == '(anonymous struct)' and nativeType.GetTypeClass() == lldb.eTypeClassStruct:
@@ -1047,6 +1062,10 @@ class Dumper(DumperBase):
             return
 
         self.setVariableFetchingOptions(args)
+
+        anyModule = self.target.GetModuleAtIndex(0)
+        anySymbol = anyModule.GetSymbolAtIndex(0)
+        self.fakeAddress = int(anySymbol.GetStartAddress())
 
         frame = self.currentFrame()
         if frame is None:
