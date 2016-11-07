@@ -6,7 +6,6 @@
     "trDescription": "Creates a Qt Resource file (.qrc).",
     "trDisplayName": "Qt Resource File",
     "trDisplayCategory": "Qt",
-    "icon": "../../global/genericfilewizard.png",
     "enabled": "%{JS: [ %{Plugins} ].indexOf('ResourceEditor') >= 0}",
 
     "pages" :

@@ -6,7 +6,6 @@
     "trDescription": "Creates a scratch buffer using a temporary file.",
     "trDisplayName": "Scratch Buffer",
     "trDisplayCategory": "General",
-    "icon": "../../global/genericfilewizard.png",
     "platformIndependent": true,
     "enabled": "%{JS: [ %{Plugins} ].indexOf('TextEditor') >= 0}",
 

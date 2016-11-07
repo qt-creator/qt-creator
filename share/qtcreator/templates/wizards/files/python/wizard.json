@@ -6,7 +6,6 @@
     "trDescription": "Creates an empty Python script file using UTF-8 charset.",
     "trDisplayName": "Python File",
     "trDisplayCategory": "Python",
-    "icon": "../../global/genericfilewizard.png",
     "enabled": "%{JS: [ %{Plugins} ].indexOf('PythonEditor') >= 0}",
 
     "pages" :

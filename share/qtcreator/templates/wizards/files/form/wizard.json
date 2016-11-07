@@ -6,7 +6,6 @@
     "trDescription": "Creates a Qt Designer form that you can add to a Qt Widget Project. This is useful if you already have an existing class for the UI business logic.",
     "trDisplayName": "Qt Designer Form",
     "trDisplayCategory": "Qt",
-    "icon": "../../global/genericfilewizard.png",
     "enabled": "%{JS: [ %{Plugins} ].indexOf('Designer') >= 0}",
 
     "options": [

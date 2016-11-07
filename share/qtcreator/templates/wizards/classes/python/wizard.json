@@ -6,7 +6,6 @@
     "trDescription": "Creates new Python class file.",
     "trDisplayName": "Python Class",
     "trDisplayCategory": "Python",
-    "icon": "../../global/genericfilewizard.png",
     "enabled": "%{JS: [ %{Plugins} ].indexOf('PythonEditor') >= 0}",
 
     "options":

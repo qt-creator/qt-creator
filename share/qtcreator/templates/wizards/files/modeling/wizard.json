@@ -7,7 +7,6 @@
     "trDisplayName": "Model",
     "trDisplayCategory": "Modeling",
     "platformIndependent": true,
-    "icon": "../../global/genericfilewizard.png",
     "enabled": "%{JS: [ %{Plugins} ].indexOf('ModelEditor') >= 0}",
 
     "options":
