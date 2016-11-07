@@ -133,15 +133,14 @@ QmlProfilerFileReader::QmlProfilerFileReader(QObject *parent) :
 void QmlProfilerFileReader::setFuture(QFutureInterface<void> *future)
 {
     m_future = future;
-}
-
-bool QmlProfilerFileReader::loadQtd(QIODevice *device)
-{
     if (m_future) {
         m_future->setProgressRange(0, 1000);
         m_future->setProgressValue(0);
     }
+}
 
+bool QmlProfilerFileReader::loadQtd(QIODevice *device)
+{
     QXmlStreamReader stream(device);
 
     bool validVersion = true;
@@ -200,11 +199,6 @@ bool QmlProfilerFileReader::loadQtd(QIODevice *device)
 
 bool QmlProfilerFileReader::loadQzt(QIODevice *device)
 {
-    if (m_future) {
-        m_future->setProgressRange(0, 1000);
-        m_future->setProgressValue(0);
-    }
-
     QDataStream stream(device);
     stream.setVersion(QDataStream::Qt_5_5);
 
