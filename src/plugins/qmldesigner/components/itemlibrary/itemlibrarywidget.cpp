@@ -170,8 +170,7 @@ void ItemLibraryWidget::setItemLibraryInfo(ItemLibraryInfo *itemLibraryInfo)
     if (itemLibraryInfo)
         connect(m_itemLibraryInfo.data(), SIGNAL(entriesChanged()),
                 this, SLOT(delayedUpdateModel()));
-
-    updateModel();
+    delayedUpdateModel();
 }
 
 void ItemLibraryWidget::updateImports()
@@ -229,7 +228,6 @@ void ItemLibraryWidget::setModel(Model *model)
     if (!model)
         return;
     setItemLibraryInfo(model->metaInfo().itemLibraryInfo());
-    updateModel();
 }
 
 void ItemLibraryWidget::setCurrentIndexOfStackedWidget(int index)
