@@ -110,6 +110,9 @@ class Dumper(DumperBase):
         self.check(isinstance(nativeType, cdbext.Type))
         code = nativeType.code()
 
+        if nativeType.name().startswith('void'):
+            nativeType = FakeVoidType(nativeType.name(), self)
+
         if code == TypeCodePointer:
             targetType = self.fromNativeType(nativeType.target().unqualified())
             return self.createPointerType(targetType)
