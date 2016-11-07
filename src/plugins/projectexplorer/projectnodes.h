@@ -184,9 +184,12 @@ public:
     QIcon icon() const;
 
     QList<FileNode *> fileNodes() const;
+    FileNode *fileNode(const Utils::FileName &file) const;
+    FileNode *recursiveFileNode(const Utils::FileName &file) const;
     QList<FileNode *> recursiveFileNodes() const;
     QList<FolderNode *> folderNodes() const;
-    FolderNode *findOrCreateFolderNode(const QString &directory);
+    FolderNode *folderNode(const Utils::FileName &directory) const;
+    FolderNode *recursiveFindOrCreateFolderNode(const QString &directory);
     void buildTree(QList<FileNode *> &files);
 
     virtual void accept(NodesVisitor *visitor);

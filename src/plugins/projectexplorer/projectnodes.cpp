@@ -331,6 +331,35 @@ QList<FileNode*> FolderNode::fileNodes() const
     return m_fileNodes;
 }
 
+FileNode *FolderNode::fileNode(const Utils::FileName &file) const
+{
+    return Utils::findOrDefault(m_fileNodes, [&file](const FileNode *fn) {
+        return fn->filePath() == file;
+    });
+}
+
+FileNode *FolderNode::recursiveFileNode(const Utils::FileName &file) const
+{
+    Utils::FileName dir = file.parentDir();
+
+    const QDir thisDir(filePath().toString());
+    QString relativePath = thisDir.relativeFilePath(dir.toString());
+    if (relativePath == ".")
+        relativePath.clear();
+    QStringList parts = relativePath.split('/', QString::SkipEmptyParts);
+    const ProjectExplorer::FolderNode *parent = this;
+    foreach (const QString &part, parts) {
+        dir.appendPath(part);
+        // Find folder in subFolders
+        parent = Utils::findOrDefault(parent->folderNodes(), [&dir](const FolderNode *fn) {
+            return fn->filePath() == dir;
+        });
+        if (!parent)
+            return nullptr;
+    }
+    return parent->fileNode(file);
+}
+
 QList<FileNode *> FolderNode::recursiveFileNodes() const
 {
     QList<FileNode *> result = fileNodes();
@@ -344,34 +373,35 @@ QList<FolderNode*> FolderNode::folderNodes() const
     return m_folderNodes;
 }
 
-FolderNode *FolderNode::findOrCreateFolderNode(const QString &directory)
+FolderNode *FolderNode::folderNode(const Utils::FileName &directory) const
+{
+    return Utils::findOrDefault(m_folderNodes, [&directory](const FolderNode *fn) {
+        return fn->filePath() == directory;
+    });
+}
+
+FolderNode *FolderNode::recursiveFindOrCreateFolderNode(const QString &directory)
 {
     Utils::FileName path = filePath();
     QDir parentDir(path.toString());
     QString relativePath = parentDir.relativeFilePath(directory);
     if (relativePath == ".")
         relativePath.clear();
+
     QStringList parts = relativePath.split('/', QString::SkipEmptyParts);
     ProjectExplorer::FolderNode *parent = this;
     foreach (const QString &part, parts) {
         path.appendPath(part);
         // Find folder in subFolders
-        bool found = false;
-        foreach (ProjectExplorer::FolderNode *folder, parent->folderNodes()) {
-            if (folder->filePath() == path) {
-                // yeah found something :)
-                parent = folder;
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
+        FolderNode *next = parent->folderNode(path);
+        if (!next) {
             // No FolderNode yet, so create it
             auto tmp = new ProjectExplorer::FolderNode(path);
             tmp->setDisplayName(part);
             parent->addFolderNodes(QList<ProjectExplorer::FolderNode *>({ tmp }));
-            parent = tmp;
+            next = tmp;
         }
+        parent = next;
     }
     return parent;
 }
@@ -397,7 +427,7 @@ void FolderNode::buildTree(QList<FileNode *> &files)
     foreach (ProjectExplorer::FileNode *fn, added) {
         // Get relative path to rootNode
         QString parentDir = fn->filePath().toFileInfo().absolutePath();
-        ProjectExplorer::FolderNode *folder = findOrCreateFolderNode(parentDir);
+        ProjectExplorer::FolderNode *folder = recursiveFindOrCreateFolderNode(parentDir);
         addedFolderMapping[folder] << fn;
     }
 
