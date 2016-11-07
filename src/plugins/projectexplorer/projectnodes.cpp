@@ -383,12 +383,17 @@ FolderNode *FolderNode::folderNode(const Utils::FileName &directory) const
 FolderNode *FolderNode::recursiveFindOrCreateFolderNode(const QString &directory)
 {
     Utils::FileName path = filePath();
-    QDir parentDir(path.toString());
-    QString relativePath = parentDir.relativeFilePath(directory);
-    if (relativePath == ".")
-        relativePath.clear();
+    QString workPath;
+    if (path.isEmpty() || path.toFileInfo().isRoot()) {
+        workPath = directory;
+    } else {
+        QDir parentDir(path.toString());
+        workPath = parentDir.relativeFilePath(directory);
+        if (workPath == ".")
+            workPath.clear();
+    }
+    const QStringList parts = workPath.split('/', QString::SkipEmptyParts);
 
-    QStringList parts = relativePath.split('/', QString::SkipEmptyParts);
     ProjectExplorer::FolderNode *parent = this;
     foreach (const QString &part, parts) {
         path.appendPath(part);
