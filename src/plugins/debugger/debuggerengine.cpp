@@ -1879,7 +1879,6 @@ void DebuggerEngine::validateExecutable(DebuggerRunParameters *sp)
     switch (sp->toolChainAbi.binaryFormat()) {
     case Abi::PEFormat: {
         if (sp->masterEngineType != CdbEngineType) {
-            warnOnInappropriateDebugger = true;
             detailedWarning = tr(
                         "The inferior is in the Portable Executable format.\n"
                         "Selecting CDB as debugger would improve the debugging "
@@ -1903,7 +1902,6 @@ void DebuggerEngine::validateExecutable(DebuggerRunParameters *sp)
     }
     case Abi::ElfFormat: {
         if (sp->masterEngineType == CdbEngineType) {
-            warnOnInappropriateDebugger = true;
             detailedWarning = tr(
                         "The inferior is in the ELF format.\n"
                         "Selecting GDB or LLDB as debugger would improve the debugging "
