@@ -1082,13 +1082,19 @@ FileName BaseQtVersion::mkspecPath() const
 
 bool BaseQtVersion::hasMkspec(const FileName &spec) const
 {
-    QFileInfo fi;
-    fi.setFile(QDir::fromNativeSeparators(qmakeProperty("QT_HOST_DATA"))
-               + QLatin1String("/mkspecs/") + spec.toString());
-    if (fi.isDir())
+    if (spec.isEmpty())
+        return true; // default spec of a Qt version
+
+    QDir mkspecDir = QDir(QDir::fromNativeSeparators(qmakeProperty("QT_HOST_DATA"))
+                          + QLatin1String("/mkspecs/"));
+    const QString absSpec = mkspecDir.absoluteFilePath(spec.toString());
+    if (QFileInfo(absSpec).isDir() && QFileInfo(absSpec + "/qmake.conf").isFile())
         return true;
-    fi.setFile(sourcePath().toString() + QLatin1String("/mkspecs/") + spec.toString());
-    return fi.isDir();
+    mkspecDir.setPath(sourcePath().toString() + QLatin1String("/mkspecs/"));
+    const QString absSrcSpec = mkspecDir.absoluteFilePath(spec.toString());
+    return absSrcSpec != absSpec
+            && QFileInfo(absSrcSpec).isDir()
+            && QFileInfo(absSrcSpec + "/qmake.conf").isFile();
 }
 
 BaseQtVersion::QmakeBuildConfigs BaseQtVersion::defaultBuildConfig() const
