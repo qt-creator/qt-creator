@@ -388,6 +388,9 @@ void AndroidRunnerWorker::forceStop()
 void AndroidRunnerWorker::asyncStart(const QString &intentName,
                                      const QVector<QStringList> &adbCommands)
 {
+    m_tries = 0;
+    m_wasStarted = false;
+
     // Its assumed that the device or avd serial returned by selector() is online.
     m_adbLogcatProcess->start(m_adb, selector() << "logcat");
     m_psProc->start(m_adb, selector() << "shell"
@@ -526,9 +529,6 @@ void AndroidRunnerWorker::asyncStart(const QString &intentName,
         }
 
     }
-
-    m_tries = 0;
-    m_wasStarted = false;
 }
 
 bool AndroidRunnerWorker::adbShellAmNeedsQuotes()
