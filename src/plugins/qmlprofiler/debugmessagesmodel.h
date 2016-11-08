@@ -38,7 +38,7 @@ public:
     DebugMessagesModel(QmlProfilerModelManager *manager, QObject *parent = 0);
 
     int typeId(int index) const override;
-    QColor color(int index) const override;
+    QRgb color(int index) const override;
     QVariantList labels() const override;
     QVariantMap details(int index) const override;
     int expandedRow(int index) const override;

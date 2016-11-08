@@ -39,7 +39,7 @@ int DebugMessagesModel::typeId(int index) const
     return m_data[index].typeId;
 }
 
-QColor DebugMessagesModel::color(int index) const
+QRgb DebugMessagesModel::color(int index) const
 {
     return colorBySelectionId(index);
 }

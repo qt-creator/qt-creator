@@ -707,10 +707,10 @@ int NodeUpdater::updateNodes(const int from, const int to) const
         if (start > end)
             continue;
 
-        QColor color = m_model->color(i);
-        item.red = color.red();
-        item.green = color.green();
-        item.blue = color.blue();
+        QRgb color = m_model->color(i);
+        item.red = qRed(color);
+        item.green = qGreen(color);
+        item.blue = qBlue(color);
 
         item.width = end > start ? (end - start) * m_parentState->scale() :
                                    std::numeric_limits<float>::min();

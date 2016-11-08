@@ -94,7 +94,7 @@ int SceneGraphTimelineModel::typeId(int index) const
     return m_data[index].typeId;
 }
 
-QColor SceneGraphTimelineModel::color(int index) const
+QRgb SceneGraphTimelineModel::color(int index) const
 {
     return colorBySelectionId(index);
 }

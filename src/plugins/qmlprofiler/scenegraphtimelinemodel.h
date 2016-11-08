@@ -88,7 +88,7 @@ public:
     int expandedRow(int index) const override;
     int collapsedRow(int index) const override;
     int typeId(int index) const override;
-    QColor color(int index) const override;
+    QRgb color(int index) const override;
 
     QVariantList labels() const override;
 

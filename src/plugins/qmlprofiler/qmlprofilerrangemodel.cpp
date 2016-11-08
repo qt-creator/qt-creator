@@ -180,7 +180,7 @@ int QmlProfilerRangeModel::bindingLoopDest(int index) const
     return m_data[index].bindingLoopHead;
 }
 
-QColor QmlProfilerRangeModel::color(int index) const
+QRgb QmlProfilerRangeModel::color(int index) const
 {
     return colorBySelectionId(index);
 }

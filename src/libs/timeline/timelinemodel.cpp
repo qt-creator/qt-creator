@@ -400,21 +400,20 @@ QList<const TimelineRenderPass *> TimelineModel::supportedRenderPasses() const
     return passes;
 }
 
-QColor TimelineModel::colorBySelectionId(int index) const
+QRgb TimelineModel::colorBySelectionId(int index) const
 {
     return colorByHue(selectionId(index) * TimelineModelPrivate::SelectionIdHueMultiplier);
 }
 
-QColor TimelineModel::colorByFraction(double fraction) const
+QRgb TimelineModel::colorByFraction(double fraction) const
 {
     return colorByHue(fraction * TimelineModelPrivate::FractionHueMultiplier +
                       TimelineModelPrivate::FractionHueMininimum);
 }
 
-QColor TimelineModel::colorByHue(int hue) const
+QRgb TimelineModel::colorByHue(int hue) const
 {
-    return QColor::fromHsl(hue % 360, TimelineModelPrivate::Saturation,
-                           TimelineModelPrivate::Lightness);
+    return TimelineModelPrivate::hueTable[hue];
 }
 
 /*!
@@ -518,10 +517,10 @@ int TimelineModel::rowCount() const
     return d->expanded ? d->expandedRowCount : d->collapsedRowCount;
 }
 
-QColor TimelineModel::color(int index) const
+QRgb TimelineModel::color(int index) const
 {
     Q_UNUSED(index);
-    return QColor();
+    return QRgb();
 }
 
 QVariantList TimelineModel::labels() const
@@ -612,6 +611,15 @@ int TimelineModel::prevItemByTypeId(int requestedTypeId, qint64 time, int curren
         return typeId(index) == requestedTypeId;
     }, time, currentItem);
 }
+
+HueLookupTable::HueLookupTable() {
+    for (int hue = 0; hue < 360; ++hue) {
+        table[hue] = QColor::fromHsl(hue, TimelineModel::TimelineModelPrivate::Saturation,
+                                     TimelineModel::TimelineModelPrivate::Lightness).rgb();
+    }
+}
+
+const HueLookupTable TimelineModel::TimelineModelPrivate::hueTable;
 
 int TimelineModel::TimelineModelPrivate::nextItemById(std::function<bool(int)> matchesId,
                                                       qint64 time, int currentItem) const

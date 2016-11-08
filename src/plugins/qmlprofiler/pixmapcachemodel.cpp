@@ -60,7 +60,7 @@ int PixmapCacheModel::typeId(int index) const
     return m_data[index].typeId;
 }
 
-QColor PixmapCacheModel::color(int index) const
+QRgb PixmapCacheModel::color(int index) const
 {
     if (m_data[index].pixmapEventType == PixmapCacheCountChanged)
         return colorByHue(s_pixmapCacheCountHue);

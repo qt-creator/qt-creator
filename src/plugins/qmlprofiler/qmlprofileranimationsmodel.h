@@ -58,7 +58,7 @@ public:
     Q_INVOKABLE int expandedRow(int index) const override;
     Q_INVOKABLE int collapsedRow(int index) const override;
 
-    QColor color(int index) const override;
+    QRgb color(int index) const override;
     float relativeHeight(int index) const override;
 
     QVariantList labels() const override;

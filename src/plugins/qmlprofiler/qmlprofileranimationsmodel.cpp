@@ -137,7 +137,7 @@ int QmlProfilerAnimationsModel::collapsedRow(int index) const
     return rowFromThreadId(selectionId(index));
 }
 
-QColor QmlProfilerAnimationsModel::color(int index) const
+QRgb QmlProfilerAnimationsModel::color(int index) const
 {
     double fpsFraction = m_data[index].framerate / 60.0;
     if (fpsFraction > 1.0)

@@ -61,7 +61,7 @@ int MemoryUsageModel::typeId(int index) const
     return m_data[index].typeId;
 }
 
-QColor MemoryUsageModel::color(int index) const
+QRgb MemoryUsageModel::color(int index) const
 {
     return colorBySelectionId(index);
 }

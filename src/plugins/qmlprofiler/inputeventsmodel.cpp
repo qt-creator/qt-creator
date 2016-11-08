@@ -45,7 +45,7 @@ int InputEventsModel::typeId(int index) const
     return selectionId(index) == Mouse ? m_mouseTypeId : m_keyTypeId;
 }
 
-QColor InputEventsModel::color(int index) const
+QRgb InputEventsModel::color(int index) const
 {
     return colorBySelectionId(index);
 }
