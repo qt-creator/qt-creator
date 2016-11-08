@@ -23,19 +23,34 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "gtest_utils.h"
 
-#include <QHash>
-
-namespace Core { class Id; }
+#include <QStringList>
 
 namespace Autotest {
 namespace Internal {
-namespace QTestUtils {
+namespace GTestUtils {
 
-bool isQTestMacro(const QByteArray &macro);
-QHash<QString, QString> testCaseNamesForFiles(const Core::Id &id, const QStringList &files);
+static const QStringList valid = {
+    QStringLiteral("TEST"), QStringLiteral("TEST_F"), QStringLiteral("TEST_P"),
+    QStringLiteral("TYPED_TEST"), QStringLiteral("TYPED_TEST_P")
+};
 
-} // namespace QTestUtils
+bool isGTestMacro(const QString &macro)
+{
+    return valid.contains(macro);
+}
+
+bool isGTestParameterized(const QString &macro)
+{
+    return macro == QStringLiteral("TEST_P") || macro == QStringLiteral("TYPED_TEST_P");
+}
+
+bool isGTestTyped(const QString &macro)
+{
+    return macro == QStringLiteral("TYPED_TEST") || macro == QStringLiteral("TYPED_TEST_P");
+}
+
+} // namespace GTestUtils
 } // namespace Internal
 } // namespace Autotest
