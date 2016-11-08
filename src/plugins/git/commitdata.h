@@ -71,6 +71,7 @@ enum FileState {
     RenamedFile  = 0x10,
     CopiedFile   = 0x20,
     UnmergedFile = 0x40,
+    TypeChangedFile = 0x80,
 
     UnmergedUs   = 0x100,
     UnmergedThem = 0x200,

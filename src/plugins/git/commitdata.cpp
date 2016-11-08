@@ -94,6 +94,8 @@ static FileStates stateFor(const QChar &c)
         return CopiedFile;
     case 'U':
         return UnmergedFile;
+    case 'T':
+        return TypeChangedFile;
     case '?':
         return UntrackedFile;
     default:
@@ -209,6 +211,8 @@ QString CommitData::stateDisplayName(const FileStates &state)
         resultState.append(tr("renamed"));
     else if (state & CopiedFile)
         resultState.append(tr("copied"));
+    else if (state & TypeChangedFile)
+        resultState.append(tr("typechange"));
     if (state & UnmergedUs) {
         if (state & UnmergedThem)
             resultState.append(tr(" by both"));

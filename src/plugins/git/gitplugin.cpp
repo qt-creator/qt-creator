@@ -1396,6 +1396,10 @@ void GitPlugin::testStatusParsing_data()
 
     QTest::newRow(" M") << FileStates(ModifiedFile) << FileStates(UnknownFileState);
     QTest::newRow(" D") << FileStates(DeletedFile) << FileStates(UnknownFileState);
+    QTest::newRow(" T") << FileStates(TypeChangedFile) << FileStates(UnknownFileState);
+    QTest::newRow("T ") << (TypeChangedFile | StagedFile) << FileStates(UnknownFileState);
+    QTest::newRow("TM") << (TypeChangedFile | StagedFile) << FileStates(ModifiedFile);
+    QTest::newRow("MT") << (ModifiedFile | StagedFile) << FileStates(TypeChangedFile);
     QTest::newRow("M ") << (ModifiedFile | StagedFile) << FileStates(UnknownFileState);
     QTest::newRow("MM") << (ModifiedFile | StagedFile) << FileStates(ModifiedFile);
     QTest::newRow("MD") << (ModifiedFile | StagedFile) << FileStates(DeletedFile);
