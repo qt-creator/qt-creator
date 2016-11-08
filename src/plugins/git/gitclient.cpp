@@ -2698,7 +2698,8 @@ void GitClient::synchronousAbortCommand(const QString &workingDir, const QString
     }
 
     const SynchronousProcessResponse resp = vcsFullySynchronousExec(
-                workingDir, { abortCommand, "--abort" }, VcsCommand::ExpectRepoChanges);
+                workingDir, { abortCommand, "--abort" },
+                VcsCommand::ExpectRepoChanges | VcsCommand::ShowSuccessMessage);
     VcsOutputWindow::append(resp.stdOut());
 }
 
