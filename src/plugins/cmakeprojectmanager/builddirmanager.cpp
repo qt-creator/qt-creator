@@ -740,7 +740,8 @@ void BuildDirManager::checkConfiguration()
 
 void BuildDirManager::handleDocumentSaves(Core::IDocument *document)
 {
-    if (!m_cmakeFiles.contains(document->filePath()))
+    CMakeTool *tool = CMakeKitInformation::cmakeTool(m_buildConfiguration->target()->kit());
+    if (!m_cmakeFiles.contains(document->filePath()) || !tool || !tool->isAutoRun())
         return;
 
     m_reparseTimer.start(100);
