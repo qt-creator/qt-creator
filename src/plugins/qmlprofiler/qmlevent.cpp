@@ -59,14 +59,14 @@ enum SerializationTypeOffset {
 };
 
 template<typename Number>
-static void readNumbers(QDataStream &stream, Number *data, quint16 length)
+static inline void readNumbers(QDataStream &stream, Number *data, quint16 length)
 {
     for (quint16 i = 0; i != length; ++i)
         stream >> data[i];
 }
 
 template<typename Number>
-static Number readNumber(QDataStream &stream, qint8 type)
+static inline Number readNumber(QDataStream &stream, qint8 type)
 {
     switch (type) {
     case OneByte: {
@@ -150,7 +150,7 @@ QDataStream &operator>>(QDataStream &stream, QmlEvent &event)
     return stream;
 }
 
-static qint8 minimumType(const QmlEvent &event, quint16 length, quint16 origBitsPerNumber)
+static inline qint8 minimumType(const QmlEvent &event, quint16 length, quint16 origBitsPerNumber)
 {
     qint8 type = OneByte;
     bool ok = true;
@@ -182,7 +182,7 @@ static qint8 minimumType(const QmlEvent &event, quint16 length, quint16 origBits
 }
 
 template<typename Number>
-static qint8 minimumType(Number number)
+static inline qint8 minimumType(Number number)
 {
      if (static_cast<qint8>(number) == number)
          return OneByte;
@@ -194,14 +194,14 @@ static qint8 minimumType(Number number)
 }
 
 template<typename Number>
-static void writeNumbers(QDataStream &stream, const QmlEvent &event, quint16 length)
+static inline void writeNumbers(QDataStream &stream, const QmlEvent &event, quint16 length)
 {
     for (quint16 i = 0; i != length; ++i)
         stream << event.number<Number>(i);
 }
 
 template<typename Number>
-static void writeNumber(QDataStream &stream, Number number, qint8 type)
+static inline void writeNumber(QDataStream &stream, Number number, qint8 type)
 {
     switch (type) {
     case OneByte:
