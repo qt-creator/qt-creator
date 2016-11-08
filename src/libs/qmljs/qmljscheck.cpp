@@ -869,6 +869,8 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
     const QString typeName = getRightMostIdentifier(typeId)->name.toString();
 
     if (!m_typeStack.isEmpty() && m_typeStack.last() == QLatin1String("State")
+            && typeId->name.toString() != "AnchorChanges"
+            && typeId->name.toString() != "ParentChange"
             && typeId->name.toString() != "PropertyChanges"
             && typeId->name.toString() != "StateChangeScript")
         addMessage(StateCannotHaveChildItem, typeErrorLocation, typeName);
