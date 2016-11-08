@@ -49,7 +49,6 @@ public:
         Idle,
         PartialParse,
         FullParse,
-        Disabled,
         Shutdown
     };
 
@@ -57,6 +56,8 @@ public:
     virtual ~TestCodeParser();
     void setState(State state);
     State state() const { return m_parserState; }
+    void setEnabled(bool enabled) { m_enabled = enabled; }
+    bool enabled() const { return m_enabled; }
     bool isParsing() const { return m_parserState == PartialParse || m_parserState == FullParse; }
     void setDirty() { m_dirty = true; }
     void syncTestFrameworks(const QVector<Core::Id> &frameworkIds);
@@ -95,6 +96,7 @@ private:
 
     TestTreeModel *m_model;
 
+    bool m_enabled = false;
     bool m_codeModelParsing = false;
     bool m_fullUpdatePostponed = false;
     bool m_partialUpdatePostponed = false;
@@ -102,7 +104,7 @@ private:
     bool m_singleShotScheduled = false;
     bool m_reparseTimerTimedOut = false;
     QSet<QString> m_postponedFiles;
-    State m_parserState = Disabled;
+    State m_parserState = Idle;
     QFutureWatcher<TestParseResultPtr> m_futureWatcher;
     QVector<ITestParser *> m_testCodeParsers; // ptrs are still owned by TestFrameworkManager
     QTimer m_reparseTimer;

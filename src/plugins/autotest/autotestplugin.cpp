@@ -178,6 +178,7 @@ void AutotestPlugin::onRunSelectedTriggered()
 void AutotestPlugin::updateMenuItemsEnabledState()
 {
     const bool enabled = !TestRunner::instance()->isTestRunning()
+            && TestTreeModel::instance()->parser()->enabled()
             && TestTreeModel::instance()->parser()->state() == TestCodeParser::Idle;
     const bool hasTests = TestTreeModel::instance()->hasTests();
 

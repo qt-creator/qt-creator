@@ -115,7 +115,7 @@ TestNavigationWidget::~TestNavigationWidget()
 void TestNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
 {
     const bool enabled = !TestRunner::instance()->isTestRunning()
-            && m_model->parser()->state() == TestCodeParser::Idle;
+            && m_model->parser()->enabled() && m_model->parser()->state() == TestCodeParser::Idle;
     const bool hasTests = m_model->hasTests();
 
     QMenu menu;
