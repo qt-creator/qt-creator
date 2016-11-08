@@ -123,7 +123,7 @@ QmlProfilerFileReader::QmlProfilerFileReader(QObject *parent) :
     m_loadedFeatures(0)
 {
     static int meta[] = {
-        qRegisterMetaType<QmlEvent>(),
+        qRegisterMetaType<QVector<QmlEvent> >(),
         qRegisterMetaType<QVector<QmlEventType> >(),
         qRegisterMetaType<QVector<QmlNote> >()
     };
@@ -248,7 +248,9 @@ bool QmlProfilerFileReader::loadQzt(QIODevice *device)
     emit notesLoaded(m_notes);
     updateProgress(device);
 
-    QmlEvent event;
+    const int eventBufferLength = 1024;
+    QVector<QmlEvent> eventBuffer(eventBufferLength);
+    int eventBufferIndex = 0;
     while (!stream.atEnd()) {
         stream >> data;
         buffer.setData(qUncompress(data));
@@ -256,6 +258,7 @@ bool QmlProfilerFileReader::loadQzt(QIODevice *device)
         while (!buffer.atEnd()) {
             if (isCanceled())
                 return false;
+            QmlEvent &event = eventBuffer[eventBufferIndex];
             bufferStream >> event;
             if (bufferStream.status() == QDataStream::Ok) {
                 if (event.typeIndex() >= m_eventTypes.length()) {
@@ -263,7 +266,6 @@ bool QmlProfilerFileReader::loadQzt(QIODevice *device)
                     return false;
                 }
                 m_loadedFeatures |= (1ULL << m_eventTypes[event.typeIndex()].feature());
-                emit qmlEventLoaded(event);
             } else if (bufferStream.status() == QDataStream::ReadPastEnd) {
                 break; // Apparently EOF is a character so we end up here after the last event.
             } else if (bufferStream.status() == QDataStream::ReadCorruptData) {
@@ -272,10 +274,16 @@ bool QmlProfilerFileReader::loadQzt(QIODevice *device)
             } else {
                 Q_UNREACHABLE();
             }
+            if (++eventBufferIndex == eventBufferLength) {
+                emit qmlEventsLoaded(eventBuffer);
+                eventBufferIndex = 0;
+            }
         }
         buffer.close();
         updateProgress(device);
     }
+    eventBuffer.resize(eventBufferIndex);
+    emit qmlEventsLoaded(eventBuffer);
     emit success();
     return true;
 }
@@ -499,8 +507,7 @@ void QmlProfilerFileReader::loadEvents(QXmlStreamReader &stream)
                 std::sort(events.begin(), events.end(), [](const QmlEvent &a, const QmlEvent &b) {
                     return a.timestamp() < b.timestamp();
                 });
-                foreach (const QmlEvent &event, events)
-                    emit qmlEventLoaded(event);
+                emit qmlEventsLoaded(events);
                 return;
             }
             break;

@@ -378,8 +378,8 @@ void QmlProfilerModelManager::load(const QString &filename)
     connect(reader, &QmlProfilerFileReader::notesLoaded,
             d->notesModel, &QmlProfilerNotesModel::setNotes);
 
-    connect(reader, &QmlProfilerFileReader::qmlEventLoaded,
-            d->model, &QmlProfilerDataModel::addEvent);
+    connect(reader, &QmlProfilerFileReader::qmlEventsLoaded,
+            d->model, &QmlProfilerDataModel::addEvents);
 
     connect(reader, &QmlProfilerFileReader::success, this, [this, reader]() {
         d->traceTime->setTime(reader->traceStart(), reader->traceEnd());

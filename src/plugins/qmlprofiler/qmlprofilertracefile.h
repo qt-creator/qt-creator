@@ -62,7 +62,7 @@ public:
 signals:
     void typesLoaded(const QVector<QmlProfiler::QmlEventType> &types);
     void notesLoaded(const QVector<QmlProfiler::QmlNote> &notes);
-    void qmlEventLoaded(const QmlProfiler::QmlEvent &event);
+    void qmlEventsLoaded(const QVector<QmlProfiler::QmlEvent> &event);
     void error(const QString &error);
     void success();
 

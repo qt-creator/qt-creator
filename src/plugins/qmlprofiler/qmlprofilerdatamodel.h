@@ -52,6 +52,7 @@ public:
     void clear();
     bool isEmpty() const;
     void addEvent(const QmlEvent &event);
+    void addEvents(const QVector<QmlEvent> &events);
     void replayEvents(qint64 startTime, qint64 endTime,
                       QmlProfilerModelManager::EventLoader loader) const;
     void finalize();

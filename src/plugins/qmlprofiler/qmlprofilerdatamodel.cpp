@@ -154,6 +154,15 @@ void QmlProfilerDataModel::addEvent(const QmlEvent &event)
     d->eventStream << event;
 }
 
+void QmlProfilerDataModel::addEvents(const QVector<QmlEvent> &events)
+{
+    Q_D(QmlProfilerDataModel);
+    for (const QmlEvent &event : events) {
+        d->modelManager->dispatch(event, d->eventTypes[event.typeIndex()]);
+        d->eventStream << event;
+    }
+}
+
 void QmlProfilerDataModel::clear()
 {
     Q_D(QmlProfilerDataModel);
