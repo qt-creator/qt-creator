@@ -507,7 +507,7 @@ CMakeConfig CMakeConfigurationKitInformation::defaultConfiguration(const Kit *k)
     // Qt4:
     config << CMakeConfigItem(CMAKE_QMAKE_KEY, "%{Qt:qmakeExecutable}");
     // Qt5:
-    config << CMakeConfigItem(CMAKE_PREFIX_PATH_KEY, "%{Qt:QT_INSTALL_LIBS}");
+    config << CMakeConfigItem(CMAKE_PREFIX_PATH_KEY, "%{Qt:QT_INSTALL_PREFIX}");
 
     config << CMakeConfigItem(CMAKE_C_TOOLCHAIN_KEY, "%{Compiler:Executable:C}");
     config << CMakeConfigItem(CMAKE_CXX_TOOLCHAIN_KEY, "%{Compiler:Executable:Cxx}");
@@ -535,7 +535,7 @@ QList<Task> CMakeConfigurationKitInformation::validate(const Kit *k) const
 
     const bool isQt4 = version && version->qtVersion() < QtSupport::QtVersionNumber(5, 0, 0);
     Utils::FileName qmakePath;
-    QStringList qtLibDirs;
+    QStringList qtInstallDirs;
     Utils::FileName tcCPath;
     Utils::FileName tcCxxPath;
     foreach (const CMakeConfigItem &i, config) {
@@ -549,7 +549,7 @@ QList<Task> CMakeConfigurationKitInformation::validate(const Kit *k) const
         else if (i.key == CMAKE_CXX_TOOLCHAIN_KEY)
             tcCxxPath = expandedValue;
         else if (i.key == CMAKE_PREFIX_PATH_KEY)
-            qtLibDirs = CMakeConfigItem::cmakeSplitValue(expandedValue.toString());
+            qtInstallDirs = CMakeConfigItem::cmakeSplitValue(expandedValue.toString());
     }
 
     QList<Task> result;
@@ -572,7 +572,7 @@ QList<Task> CMakeConfigurationKitInformation::validate(const Kit *k) const
                            Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
         }
     }
-    if (version && !qtLibDirs.contains(version->qmakeProperty("QT_INSTALL_LIBS")) && !isQt4) {
+    if (version && !qtInstallDirs.contains(version->qmakeProperty("QT_INSTALL_PREFIX")) && !isQt4) {
         if (version->isValid()) {
             result << Task(Task::Warning, tr("CMake configuration has no CMAKE_PREFIX_PATH set "
                                              "that points to the kit Qt version."),
