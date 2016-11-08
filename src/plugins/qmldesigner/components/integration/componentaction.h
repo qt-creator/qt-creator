@@ -47,7 +47,7 @@ public:
 
 
 protected:
-    QWidget  *createWidget(QWidget *parent);
+    QWidget *createWidget(QWidget *parent);
 
 signals:
     void currentComponentChanged(const ModelNode &node);

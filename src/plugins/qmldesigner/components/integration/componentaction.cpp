@@ -46,7 +46,7 @@ void ComponentAction::setCurrentIndex(int index)
     dontEmitCurrentComponentChanged = false;
 }
 
-QWidget  *ComponentAction::createWidget(QWidget *parent)
+QWidget *ComponentAction::createWidget(QWidget *parent)
 {
     QComboBox *comboBox = new QComboBox(parent);
     comboBox->setMinimumWidth(120);

@@ -83,7 +83,6 @@ void ComponentView::removeSingleNodeFromList(const ModelNode &node)
     }
 }
 
-
 int ComponentView::indexForNode(const ModelNode &node) const
 {
     for (int row = 0; row < m_standardItemModel->rowCount(); row++) {
