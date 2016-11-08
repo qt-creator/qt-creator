@@ -82,6 +82,7 @@ private:
     QString m_localInfo;
     FileState m_remoteState = UnknownState;
     QString m_remoteInfo;
+    QByteArray m_line;
     bool m_merging = false;
 };
 
