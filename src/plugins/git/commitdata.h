@@ -82,6 +82,8 @@ Q_DECLARE_FLAGS(FileStates, FileState)
 
 class CommitData
 {
+    Q_DECLARE_TR_FUNCTIONS(Git::Internal::CommitData)
+
 public:
     CommitData(CommitType type = SimpleCommit);
     // A pair of state string/file name ('modified', 'file.cpp').
