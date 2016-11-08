@@ -549,29 +549,38 @@ public:
 class UnsupportedTypesByVisualDesigner : public QStringList
 {
 public:
-    UnsupportedTypesByVisualDesigner()
+    UnsupportedTypesByVisualDesigner() : QStringList({"Transform",
+                                                     "Timer",
+                                                     "Rotation",
+                                                     "Scale",
+                                                     "Translate",
+                                                     "Package",
+                                                     "Particles",
+                                                     "Dialog"})
     {
-        (*this) << QLatin1String("Transform") << QLatin1String("Timer")
-            << QLatin1String("Rotation") << QLatin1String("Scale")
-            << QLatin1String("Translate") << QLatin1String("Package")
-            << QLatin1String("Particles");
-    }
 
+    }
 };
 
 class UnsupportedTypesByQmlUi : public QStringList
 {
 public:
-    UnsupportedTypesByQmlUi()
+    UnsupportedTypesByQmlUi() : QStringList({"Binding",
+                                            "ShaderEffect",
+                                            "ShaderEffectSource",
+                                            "Component",
+                                            "Loader",
+                                            "Transition",
+                                            "PropertyAnimation",
+                                            "SequentialAnimation",
+                                            "PropertyAnimation",
+                                            "SequentialAnimation",
+                                            "ParallelAnimation",
+                                            "NumberAnimation",
+                                            "Drawer"})
     {
-        (*this) << UnsupportedTypesByVisualDesigner()
-                << QLatin1String("Binding") << QLatin1String("ShaderEffect")
-                << QLatin1String("ShaderEffectSource") << QLatin1String("Canvas")
-                << QLatin1String("Component") << QLatin1String("Loader") << QLatin1String("Transition")
-                << QLatin1String("PropertyAnimation") << QLatin1String("SequentialAnimation")
-                << QLatin1String("ParallelAnimation") << QLatin1String("NumberAnimation");
+        append(UnsupportedTypesByVisualDesigner());
     }
-
 };
 
 class UnsupportedRootObjectTypesByVisualDesigner : public QStringList
