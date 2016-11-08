@@ -29,7 +29,7 @@ def qform__std__array():
     return arrayForms()
 
 def qdump__std__array(d, value):
-    size = value.type.templateArgument(1, numeric=True)
+    size = value.type[1]
     d.putItemCount(size)
     if d.isExpanded():
         d.putPlotData(value.address(), size, value.type[0])

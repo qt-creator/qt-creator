@@ -1260,7 +1260,7 @@ def qdump__QString(d, value):
         d.putArrayData(data, size, d.createType('QChar'))
 
 def qdump__QStaticStringData(d, value):
-    size = value.type.templateArgument(0, numeric=True)
+    size = value.type[0]
     (ref, size, alloc, pad, offset, data) = value.split('iii@p%ss' % (2 * size))
     d.putValue(d.hexencode(data), 'utf16')
     d.putPlainChildren(value)

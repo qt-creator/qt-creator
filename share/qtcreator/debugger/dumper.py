@@ -2947,18 +2947,14 @@ class DumperBase:
             else:
                 self.dumper.check(False)
 
-            val.type = None
             if fieldType.code == TypeCodeReference:
                 if val.laddress is not None:
                     val = self.dumper.createReferenceValue(val.laddress, fieldType.ltarget)
                     val.name = field.name
-            if val.type is None:
-                val.type = fieldType
 
             #warn('GOT VAL %s FOR FIELD %s' % (val, field))
-            val.check()
-            val.name = field.name
             val.lbitsize = fieldBitsize
+            val.check()
             return val
 
         # This is the generic version for synthetic values.
@@ -3299,7 +3295,7 @@ class DumperBase:
         def unqualified(self):
             return self
 
-        def templateArgument(self, position, numeric = False):
+        def templateArgument(self, position):
             tdata = self.typeData()
             #warn('TDATA: %s' % tdata)
             #warn('ID: %s' % self.typeId)
@@ -3313,11 +3309,7 @@ class DumperBase:
                 return res
             #warn('TA: %s %s' % (position, self.typeId))
             #warn('ARGS: %s' % tdata.templateArguments)
-            res = tdata.templateArguments[position]
-            #if tdata.templateArguments is not None:
-            #if numeric:
-            #    return tdata.templateArguments[position].value()
-            return res
+            return tdata.templateArguments[position]
 
         def simpleEncoding(self):
             res = {
@@ -3343,7 +3335,7 @@ class DumperBase:
             tdata = self.typeData()
             if tdata.code == TypeCodeTypedef:
                 return tdata.ltarget.alignment()
-            if self.isSimpleType():
+            if tdata.code in (TypeCodeIntegral, TypeCodeFloat, TypeCodeEnum):
                 if tdata.name in ('double', 'long long', 'unsigned long long'):
                     return self.dumper.ptrSize() # Crude approximation.
                 return self.size()
@@ -3355,16 +3347,6 @@ class DumperBase:
                     return tdata.lalignment()
                 return tdata.lalignment
             return 1
-
-            #align = 1
-            #for field in self.fields():
-            #    #warn('  SUBFIELD: %s TYPE %s' % (field.name, field.fieldType().name))
-            #    a = field.fieldType().alignment()
-            #    #warn('  SUBFIELD: %s ALIGN: %s' % (field.name, a))
-            #    if a is not None and a > align:
-            #        align = a
-            ##warn('COMPUTED ALIGNMENT: %s ' % align)
-            #return align
 
         def pointer(self):
             return self.dumper.createPointerType(self)
