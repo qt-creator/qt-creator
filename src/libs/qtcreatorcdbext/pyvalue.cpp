@@ -63,24 +63,35 @@ PyObject *value_Type(Value *self)
     return createType(params.Module, params.TypeId);
 }
 
-PyObject *value_AsBytes(Value *self)
+char *valueData(Value *self, PULONG received)
 {
     if (!self->m_symbolGroup)
-        Py_RETURN_NONE;
+        nullptr;
     ULONG64 address = 0;
     if (FAILED(self->m_symbolGroup->GetSymbolOffset(self->m_index, &address)))
-        Py_RETURN_NONE;
+        nullptr;
     ULONG size;
     if (FAILED(self->m_symbolGroup->GetSymbolSize(self->m_index, &size)))
-        Py_RETURN_NONE;
+        nullptr;
 
     char *buffer = new char[size];
     auto data = ExtensionCommandContext::instance()->dataSpaces();
-    ULONG received = 0;
-    if (FAILED(data->ReadVirtual(address, buffer, size, &received)))
-        Py_RETURN_NONE;
+    if (SUCCEEDED(data->ReadVirtual(address, buffer, size, received)))
+        return buffer;
 
-    return PyByteArray_FromStringAndSize(buffer, received);
+    delete[] buffer;
+    return nullptr;
+}
+
+PyObject *value_AsBytes(Value *self)
+{
+    ULONG received;
+    if (char *data = valueData(self, &received)) {
+        auto byteArray = PyByteArray_FromStringAndSize(data, received);
+        delete[] data;
+        return byteArray;
+    }
+    Py_RETURN_NONE;
 }
 
 ULONG64 valueAddress(Value *value)
