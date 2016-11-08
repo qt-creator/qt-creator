@@ -83,8 +83,7 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     rootContext->setContextProperty(QStringLiteral("itemLibraryIconWidth"), m_itemIconSize.width());
     rootContext->setContextProperty(QStringLiteral("itemLibraryIconHeight"), m_itemIconSize.height());
     rootContext->setContextProperty(QStringLiteral("rootView"), this);
-    Theming::insertTheme(&m_themeProperties);
-    rootContext->setContextProperty(QLatin1String("creatorTheme"), &m_themeProperties);
+    rootContext->setContextProperty(QLatin1String("creatorTheme"), Theming::theme());
 
     m_itemViewQuickWidget->rootContext()->setContextProperty(QStringLiteral("highlightColor"), Utils::StyleHelper::notTooBrightHighlightColor());
 

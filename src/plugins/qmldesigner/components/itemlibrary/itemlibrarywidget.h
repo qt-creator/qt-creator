@@ -132,7 +132,6 @@ private:
     QPointer<Model> m_model;
     FilterChangeFlag m_filterFlag;
     ItemLibraryEntry m_currentitemLibraryEntry;
-    QQmlPropertyMap m_themeProperties;
 };
 
 }

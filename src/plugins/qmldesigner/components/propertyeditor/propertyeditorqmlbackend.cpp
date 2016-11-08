@@ -103,8 +103,7 @@ PropertyEditorQmlBackend::PropertyEditorQmlBackend(PropertyEditorView *propertyE
     m_contextObject->setModel(propertyEditor->model());
     m_contextObject->insertInQmlContext(context());
 
-    Theming::insertTheme(&m_themeProperties);
-    context()->setContextProperty(QLatin1String("creatorTheme"), &m_themeProperties);
+    context()->setContextProperty(QLatin1String("creatorTheme"), Theming::theme());
 
     QObject::connect(&m_backendValuesPropertyMap, &DesignerPropertyMap::valueChanged, propertyEditor, &PropertyEditorView::changeValue);
 }

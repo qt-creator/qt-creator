@@ -104,12 +104,8 @@ public:
 
 void TimelineTheme::setupTheme(QQmlEngine *engine)
 {
-    QQmlPropertyMap *themePropertyMap = new QQmlPropertyMap(engine);
-    const QVariantHash creatorTheme = Utils::creatorTheme()->values();
-    for (auto it = creatorTheme.constBegin(); it != creatorTheme.constEnd(); ++it)
-        themePropertyMap->insert(it.key(), it.value());
-
-    engine->rootContext()->setContextProperty(QLatin1String("creatorTheme"), themePropertyMap);
+    engine->rootContext()->setContextProperty(QLatin1String("creatorTheme"),
+                                              Utils::creatorTheme()->values());
 
     engine->addImageProvider(QLatin1String("icons"), new TimelineImageIconProvider);
 }
