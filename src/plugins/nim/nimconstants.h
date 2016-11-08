@@ -104,6 +104,7 @@ const char C_NIMCODESTYLEPREVIEWSNIPPET[] =
  * MIME type
  ******************************************************************************/
 const char C_NIM_MIMETYPE[] = "text/x-nim";
+const char C_NIM_SCRIPT_MIMETYPE[] = "text/x-nim-script";
 const char C_NIM_MIME_ICON[] = "text-x-nim";
 const char C_NIM_PROJECT_MIMETYPE[] = "text/x-nim-project";
 
