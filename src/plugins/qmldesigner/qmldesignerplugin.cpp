@@ -68,6 +68,8 @@
 #include <QDebug>
 #include <QProcessEnvironment>
 
+Q_LOGGING_CATEGORY(qmldesignerLog, "qtc.qmldesigner")
+
 namespace QmlDesigner {
 
 class QmlDesignerPluginPrivate {
@@ -460,8 +462,15 @@ void QmlDesignerPlugin::deactivateAutoSynchronization()
 
 void QmlDesignerPlugin::resetModelSelection()
 {
-    if (rewriterView() && currentModel())
-        rewriterView()->setSelectedModelNodes(QList<ModelNode>());
+    if (!rewriterView()) {
+        qCWarning(qmldesignerLog) << "No rewriter existing while calling resetModelSelection";
+        return;
+    }
+    if (!currentModel()) {
+        qCWarning(qmldesignerLog) << "No current QmlDesigner document model while calling resetModelSelection";
+        return;
+    }
+    rewriterView()->setSelectedModelNodes(QList<ModelNode>());
 }
 
 RewriterView *QmlDesignerPlugin::rewriterView() const
