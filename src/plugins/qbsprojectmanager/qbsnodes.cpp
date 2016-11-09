@@ -87,7 +87,7 @@ QIcon QbsProductNode::m_productIcon;
 
 static QbsProjectNode *parentQbsProjectNode(ProjectExplorer::Node *node)
 {
-    for (ProjectExplorer::FolderNode *pn = node->projectNode(); pn; pn = pn->parentFolderNode()) {
+    for (ProjectExplorer::FolderNode *pn = node->parentProjectNode(); pn; pn = pn->parentFolderNode()) {
         QbsProjectNode *prjNode = dynamic_cast<QbsProjectNode *>(pn);
         if (prjNode)
             return prjNode;
@@ -719,7 +719,7 @@ void QbsProductNode::setQbsProductData(const qbs::Project &project, const qbs::P
 QList<ProjectExplorer::RunConfiguration *> QbsProductNode::runConfigurations() const
 {
     QList<ProjectExplorer::RunConfiguration *> result;
-    QbsProjectNode *pn = dynamic_cast<QbsProjectNode *>(projectNode());
+    QbsProjectNode *pn = dynamic_cast<QbsProjectNode *>(parentProjectNode());
     if (!isEnabled() || !pn || m_qbsProductData.targetExecutable().isEmpty())
         return result;
 

@@ -96,7 +96,7 @@ NodeType Node::nodeType() const
   The project that owns and manages the node. It is the first project in the list
   of ancestors.
   */
-ProjectNode *Node::projectNode() const
+ProjectNode *Node::parentProjectNode() const
 {
     return m_projectNode;
 }
@@ -485,36 +485,36 @@ QString FolderNode::addFileFilter() const
 
 bool FolderNode::addFiles(const QStringList &filePaths, QStringList *notAdded)
 {
-    if (projectNode())
-        return projectNode()->addFiles(filePaths, notAdded);
+    if (parentProjectNode())
+        return parentProjectNode()->addFiles(filePaths, notAdded);
     return false;
 }
 
 bool FolderNode::removeFiles(const QStringList &filePaths, QStringList *notRemoved)
 {
-    if (projectNode())
-        return projectNode()->removeFiles(filePaths, notRemoved);
+    if (parentProjectNode())
+        return parentProjectNode()->removeFiles(filePaths, notRemoved);
     return false;
 }
 
 bool FolderNode::deleteFiles(const QStringList &filePaths)
 {
-    if (projectNode())
-        return projectNode()->deleteFiles(filePaths);
+    if (parentProjectNode())
+        return parentProjectNode()->deleteFiles(filePaths);
     return false;
 }
 
 bool FolderNode::canRenameFile(const QString &filePath, const QString &newFilePath)
 {
-    if (projectNode())
-        return projectNode()->canRenameFile(filePath, newFilePath);
+    if (parentProjectNode())
+        return parentProjectNode()->canRenameFile(filePath, newFilePath);
     return false;
 }
 
 bool FolderNode::renameFile(const QString &filePath, const QString &newFilePath)
 {
-    if (projectNode())
-        return projectNode()->renameFile(filePath, newFilePath);
+    if (parentProjectNode())
+        return parentProjectNode()->renameFile(filePath, newFilePath);
     return false;
 }
 
@@ -534,7 +534,7 @@ FolderNode::AddNewInformation FolderNode::addNewInformation(const QStringList &f
 
 void FolderNode::addFileNodes(const QList<FileNode *> &files)
 {
-    Q_ASSERT(projectNode());
+    Q_ASSERT(parentProjectNode());
     if (files.isEmpty())
         return;
 
@@ -545,7 +545,7 @@ void FolderNode::addFileNodes(const QList<FileNode *> &files)
                    qDebug("File node has already a parent folder"));
 
         file->setParentFolderNode(this);
-        file->setProjectNode(projectNode());
+        file->setProjectNode(parentProjectNode());
         // Now find the correct place to insert file
         if (m_fileNodes.count() == 0
                 || m_fileNodes.last() < file) {
@@ -570,7 +570,7 @@ void FolderNode::addFileNodes(const QList<FileNode *> &files)
 
 void FolderNode::removeFileNodes(const QList<FileNode *> &files)
 {
-    Q_ASSERT(projectNode());
+    Q_ASSERT(parentProjectNode());
 
     if (files.isEmpty())
         return;
@@ -601,7 +601,7 @@ void FolderNode::removeFileNodes(const QList<FileNode *> &files)
 */
 void FolderNode::addFolderNodes(const QList<FolderNode*> &subFolders)
 {
-    Q_ASSERT(projectNode());
+    Q_ASSERT(parentProjectNode());
 
     if (subFolders.isEmpty())
         return;
@@ -611,7 +611,7 @@ void FolderNode::addFolderNodes(const QList<FolderNode*> &subFolders)
         QTC_ASSERT(!folder->parentFolderNode(),
                    qDebug("Project node has already a parent folder"));
         folder->setParentFolderNode(this);
-        folder->setProjectNode(projectNode());
+        folder->setProjectNode(parentProjectNode());
 
         // Find the correct place to insert
         if (m_folderNodes.count() == 0
@@ -640,7 +640,7 @@ void FolderNode::addFolderNodes(const QList<FolderNode*> &subFolders)
 */
 void FolderNode::removeFolderNodes(const QList<FolderNode*> &subFolders)
 {
-    Q_ASSERT(projectNode());
+    Q_ASSERT(parentProjectNode());
 
     if (subFolders.isEmpty())
         return;

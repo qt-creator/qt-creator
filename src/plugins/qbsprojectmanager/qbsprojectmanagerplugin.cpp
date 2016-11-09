@@ -259,7 +259,9 @@ void QbsProjectManagerPlugin::updateContextActions()
             && m_selectedNode && m_selectedNode->isEnabled();
 
     bool isFile = m_selectedProject && m_selectedNode && (m_selectedNode->nodeType() == NodeType::File);
-    bool isProduct = m_selectedProject && m_selectedNode && dynamic_cast<QbsProductNode *>(m_selectedNode->projectNode());
+    bool isProduct = m_selectedProject
+            && m_selectedNode
+            && dynamic_cast<QbsProductNode *>(m_selectedNode->parentProjectNode());
     QbsProjectNode *subproject = dynamic_cast<QbsProjectNode *>(m_selectedNode);
     bool isSubproject = m_selectedProject && subproject && subproject != m_selectedProject->rootProjectNode();
 
@@ -293,10 +295,10 @@ void QbsProjectManagerPlugin::updateBuildActions()
                 && !m_editorProject->isParsing();
 
         fileName = m_editorNode->filePath().fileName();
-        fileVisible = m_editorProject && m_editorNode && dynamic_cast<QbsBaseProjectNode *>(m_editorNode->projectNode());
+        fileVisible = m_editorProject && m_editorNode && dynamic_cast<QbsBaseProjectNode *>(m_editorNode->parentProjectNode());
 
         QbsProductNode *productNode
-                = dynamic_cast<QbsProductNode *>(m_editorNode ? m_editorNode->projectNode() : 0);
+                = dynamic_cast<QbsProductNode *>(m_editorNode ? m_editorNode->parentProjectNode() : 0);
         if (productNode) {
             productVisible = true;
             productName = productNode->displayName();
@@ -393,7 +395,7 @@ void QbsProjectManagerPlugin::buildProduct()
     if (!m_editorProject || !m_editorNode)
         return;
 
-    QbsProductNode *product = dynamic_cast<QbsProductNode *>(m_editorNode->projectNode());
+    QbsProductNode *product = dynamic_cast<QbsProductNode *>(m_editorNode->parentProjectNode());
 
     if (!product)
         return;
@@ -423,7 +425,7 @@ void QbsProjectManagerPlugin::buildSubproject()
         return;
 
     QbsProjectNode *subproject = 0;
-    QbsBaseProjectNode *start = dynamic_cast<QbsBaseProjectNode *>(m_editorNode->projectNode());
+    QbsBaseProjectNode *start = dynamic_cast<QbsBaseProjectNode *>(m_editorNode->parentProjectNode());
     while (start && start != m_editorProject->rootProjectNode()) {
         QbsProjectNode *tmp = dynamic_cast<QbsProjectNode *>(start);
         if (tmp) {

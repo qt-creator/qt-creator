@@ -146,7 +146,7 @@ void TodoItemsProvider::setItemsListWithinSubproject()
     // TODO prefer current editor as source of sub-project
     Node *node = ProjectTree::currentNode();
     if (node) {
-        ProjectNode *projectNode = node->projectNode();
+        ProjectNode *projectNode = node->parentProjectNode();
         if (projectNode) {
 
             FindAllFilesVisitor filesVisitor;

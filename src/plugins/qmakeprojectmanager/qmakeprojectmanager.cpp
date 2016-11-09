@@ -221,7 +221,7 @@ void QmakeManager::buildFile()
         Project *project = SessionManager::projectForFile(file);
 
         if (project && node)
-            handleSubDirContextMenu(BUILD, true, project, node->projectNode(), node);
+            handleSubDirContextMenu(BUILD, true, project, node->parentProjectNode(), node);
     }
 }
 

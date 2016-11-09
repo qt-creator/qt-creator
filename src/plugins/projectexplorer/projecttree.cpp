@@ -341,10 +341,10 @@ void ProjectTree::emitFoldersAboutToBeRemoved(FolderNode *parentFolder, const QL
     while (n) {
         if (FolderNode *fn = n->asFolderNode()) {
             if (staleFolders.contains(fn)) {
-                ProjectNode *pn = n->projectNode();
+                ProjectNode *pn = n->parentProjectNode();
                 // Make sure the node we are switching too isn't going to be removed also
                 while (staleFolders.contains(pn))
-                    pn = pn->parentFolderNode()->projectNode();
+                    pn = pn->parentFolderNode()->parentProjectNode();
                 m_resetCurrentNodeFolder = true;
                 break;
             }

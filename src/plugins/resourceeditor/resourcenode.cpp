@@ -345,7 +345,7 @@ ProjectExplorer::FolderNode::AddNewInformation ResourceTopLevelNode::addNewInfor
         p = 110;
         if (context == this)
             p = 120;
-        else if (projectNode() == context)
+        else if (parentProjectNode() == context)
             p = 150; // steal from our project node
         // The ResourceFolderNode '/' defers to us, as otherwise
         // two nodes would be responsible for '/'

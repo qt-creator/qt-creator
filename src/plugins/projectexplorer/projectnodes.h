@@ -109,7 +109,7 @@ class PROJECTEXPLORER_EXPORT Node
 public:
     virtual ~Node() = default;
     NodeType nodeType() const;
-    ProjectNode *projectNode() const;     // managing project
+    ProjectNode *parentProjectNode() const; // managing project
     FolderNode *parentFolderNode() const; // parent folder or project
     const Utils::FileName &filePath() const;  // file system path
     int line() const;

@@ -399,7 +399,7 @@ void DocumentManager::findPathToIsoProFile(bool *iconResourceFileAlreadyExists, 
                     qCDebug(documentManagerLog) << "Found" << isoIconsQrcFile << "in" << virtualFolderNode->filePath();
 
                     iconQrcFileNode = subFolderNode;
-                    *resourceFileProPath = iconQrcFileNode->projectNode()->filePath().toString();
+                    *resourceFileProPath = iconQrcFileNode->parentProjectNode()->filePath().toString();
                 }
             }
         }
@@ -416,7 +416,7 @@ void DocumentManager::findPathToIsoProFile(bool *iconResourceFileAlreadyExists, 
         *resourceFilePath = project->projectDirectory().toString() + "/" + isoIconsQrcFile;
 
         // We assume that the .pro containing the QML file is an acceptable place to add the .qrc file.
-        ProjectExplorer::ProjectNode *projectNode = ProjectExplorer::SessionManager::nodeForFile(qmlFileName)->projectNode();
+        ProjectExplorer::ProjectNode *projectNode = ProjectExplorer::SessionManager::nodeForFile(qmlFileName)->parentProjectNode();
         *resourceFileProPath = projectNode->filePath().toString();
     } else {
         // We found the QRC file that we want.

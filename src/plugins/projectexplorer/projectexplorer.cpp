@@ -2914,7 +2914,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
 
     Node *currentNode = ProjectTree::currentNode();
 
-    if (currentNode && currentNode->projectNode()) {
+    if (currentNode && currentNode->parentProjectNode()) {
         QList<ProjectAction> actions = currentNode->supportedActions(currentNode);
 
         if (ProjectNode *pn = currentNode->asProjectNode()) {
@@ -3082,7 +3082,7 @@ void ProjectExplorerPlugin::addExistingFiles(FolderNode *folderNode, const QStri
 
     if (!notAdded.isEmpty()) {
         const QString message = tr("Could not add following files to project %1:")
-                .arg(folderNode->projectNode()->displayName()) + QLatin1Char('\n');
+                .arg(folderNode->parentProjectNode()->displayName()) + QLatin1Char('\n');
         const QStringList nativeFiles
                 = Utils::transform(notAdded,
                                    [](const QString &f) { return QDir::toNativeSeparators(f); });
@@ -3100,7 +3100,7 @@ void ProjectExplorerPluginPrivate::removeProject()
     Node *node = ProjectTree::currentNode();
     if (!node)
         return;
-    ProjectNode *subProjectNode = node->projectNode();
+    ProjectNode *subProjectNode = node->parentProjectNode();
     if (!subProjectNode)
         return;
     ProjectNode *projectNode = subProjectNode->parentFolderNode()->asProjectNode();
@@ -3157,7 +3157,7 @@ void ProjectExplorerPluginPrivate::removeFile()
             QMessageBox::warning(ICore::mainWindow(), tr("Removing File Failed"),
                                  tr("Could not remove file %1 from project %2.")
                                  .arg(QDir::toNativeSeparators(filePath))
-                                 .arg(folderNode->projectNode()->displayName()));
+                                 .arg(folderNode->parentProjectNode()->displayName()));
             if (!deleteFile)
                 return;
         }
@@ -3251,7 +3251,7 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &newFilePath)
 {
     const QString oldFilePath = node->filePath().toFileInfo().absoluteFilePath();
     FolderNode *folderNode = node->parentFolderNode();
-    const QString projectFileName = folderNode->projectNode()->filePath().fileName();
+    const QString projectFileName = folderNode->parentProjectNode()->filePath().fileName();
 
     if (oldFilePath == newFilePath)
         return;

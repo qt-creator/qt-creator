@@ -578,7 +578,7 @@ struct InternalNode
         nodesToAdd.reserve(resourcesToAdd.size());
 
         foreach (const FileName &file, resourcesToAdd) {
-            auto vfs = static_cast<QmakePriFileNode *>(folder->projectNode())->m_project->qmakeVfs();
+            auto vfs = static_cast<QmakePriFileNode *>(folder->parentProjectNode())->m_project->qmakeVfs();
             QString contents;
             // Prefer the cumulative file if it's non-empty, based on the assumption
             // that it contains more "stuff".
@@ -1110,7 +1110,7 @@ bool QmakePriFileNode::renameFile(const QString &filePath, const QString &newFil
 FolderNode::AddNewInformation QmakePriFileNode::addNewInformation(const QStringList &files, Node *context) const
 {
     Q_UNUSED(files)
-    return FolderNode::AddNewInformation(filePath().fileName(), context && context->projectNode() == this ? 120 : 90);
+    return FolderNode::AddNewInformation(filePath().fileName(), context && context->parentProjectNode() == this ? 120 : 90);
 }
 
 bool QmakePriFileNode::priFileWritable(const QString &path)
@@ -1637,7 +1637,7 @@ bool QmakeProFileNode::showInSimpleTree() const
 FolderNode::AddNewInformation QmakeProFileNode::addNewInformation(const QStringList &files, Node *context) const
 {
     Q_UNUSED(files)
-    return AddNewInformation(filePath().fileName(), context && context->projectNode() == this ? 120 : 100);
+    return AddNewInformation(filePath().fileName(), context && context->parentProjectNode() == this ? 120 : 100);
 }
 
 bool QmakeProFileNode::showInSimpleTree(QmakeProjectType projectType) const

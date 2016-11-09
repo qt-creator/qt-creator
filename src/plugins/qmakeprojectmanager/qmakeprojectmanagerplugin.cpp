@@ -323,7 +323,7 @@ void QmakeProjectManagerPlugin::updateContextActions(ProjectExplorer::Node *node
     auto qmakeProject = qobject_cast<QmakeProject *>(project);
     QmakeProFileNode *subProjectNode = nullptr;
     if (node) {
-        if (auto subPriFileNode = dynamic_cast<QmakePriFileNode *>(node->projectNode()))
+        if (auto subPriFileNode = dynamic_cast<QmakePriFileNode *>(node->parentProjectNode()))
             subProjectNode = subPriFileNode->proFileNode();
     }
     ProjectExplorer::FileNode *fileNode = node ? node->asFileNode() : nullptr;
@@ -397,7 +397,7 @@ void QmakeProjectManagerPlugin::updateBuildFileAction()
         m_buildFileAction->setParameter(file.fileName());
         visible = qobject_cast<QmakeProject *>(project)
                 && node
-                && dynamic_cast<QmakePriFileNode *>(node->projectNode());
+                && dynamic_cast<QmakePriFileNode *>(node->parentProjectNode());
 
         enabled = !BuildManager::isBuilding(project);
     }
