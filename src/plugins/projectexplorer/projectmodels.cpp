@@ -383,7 +383,7 @@ bool FlatModel::canFetchMore(const QModelIndex & parent) const
 
 void FlatModel::recursiveAddFolderNodes(FolderNode *startNode, QList<Node *> *list, const QSet<Node *> &blackList) const
 {
-    foreach (FolderNode *folderNode, startNode->subFolderNodes()) {
+    foreach (FolderNode *folderNode, startNode->folderNodes()) {
         if (folderNode && !blackList.contains(folderNode))
             recursiveAddFolderNodesImpl(folderNode, list, blackList);
     }
@@ -395,7 +395,7 @@ void FlatModel::recursiveAddFolderNodesImpl(FolderNode *startNode, QList<Node *>
         if (!blackList.contains(startNode))
             list->append(startNode);
     } else {
-        foreach (FolderNode *folderNode, startNode->subFolderNodes()) {
+        foreach (FolderNode *folderNode, startNode->folderNodes()) {
             if (folderNode && !blackList.contains(folderNode))
                 recursiveAddFolderNodesImpl(folderNode, list, blackList);
         }
@@ -404,7 +404,7 @@ void FlatModel::recursiveAddFolderNodesImpl(FolderNode *startNode, QList<Node *>
 
 void FlatModel::recursiveAddFileNodes(FolderNode *startNode, QList<Node *> *list, const QSet<Node *> &blackList) const
 {
-    foreach (FolderNode *subFolderNode, startNode->subFolderNodes()) {
+    foreach (FolderNode *subFolderNode, startNode->folderNodes()) {
         if (!blackList.contains(subFolderNode))
             recursiveAddFileNodes(subFolderNode, list, blackList);
     }
@@ -852,7 +852,7 @@ void FlatModel::foldersAboutToBeRemoved(FolderNode *parentFolder, const QList<Fo
 void FlatModel::removeFromCache(QList<FolderNode *> list)
 {
     foreach (FolderNode *fn, list) {
-        removeFromCache(fn->subFolderNodes());
+        removeFromCache(fn->folderNodes());
         m_childNodes.remove(fn);
     }
 }

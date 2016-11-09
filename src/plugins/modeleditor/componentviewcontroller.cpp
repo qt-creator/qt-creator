@@ -296,7 +296,7 @@ void UpdateIncludeDependenciesVisitor::collectElementPaths(const ProjectExplorer
         QStringList elementsPath = qmt::NameController::buildElementsPath(nodePath, false);
         filePathsMap->insertMulti(elementName, Node(fileNode->filePath().toString(), elementsPath));
     }
-    foreach (const ProjectExplorer::FolderNode *subNode, folderNode->subFolderNodes())
+    foreach (const ProjectExplorer::FolderNode *subNode, folderNode->folderNodes())
         collectElementPaths(subNode, filePathsMap);
 }
 
@@ -419,7 +419,7 @@ void ComponentViewController::createComponentModel(const ProjectExplorer::Folder
         }
     }
 
-    foreach (const ProjectExplorer::FolderNode *subNode, folderNode->subFolderNodes())
+    foreach (const ProjectExplorer::FolderNode *subNode, folderNode->folderNodes())
         createComponentModel(subNode, diagram, anchorFolder);
 }
 

@@ -232,7 +232,7 @@ static inline AddNewTree *createNoneNode(BestNodeSelector *selector)
 static inline AddNewTree *buildAddProjectTree(ProjectNode *root, const QString &projectPath, Node *contextNode, BestNodeSelector *selector)
 {
     QList<AddNewTree *> children;
-    foreach (ProjectNode *pn, root->subProjectNodes()) {
+    foreach (ProjectNode *pn, root->projectNodes()) {
         AddNewTree *child = buildAddProjectTree(pn, projectPath, contextNode, selector);
         if (child)
             children.append(child);
@@ -269,7 +269,7 @@ static inline AddNewTree *buildAddFilesTree(FolderNode *root, const QStringList 
                                             Node *contextNode, BestNodeSelector *selector)
 {
     QList<AddNewTree *> children;
-    foreach (FolderNode *fn, root->subFolderNodes()) {
+    foreach (FolderNode *fn, root->folderNodes()) {
         AddNewTree *child = buildAddFilesTree(fn, files, contextNode, selector);
         if (child)
             children.append(child);

@@ -475,7 +475,7 @@ void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root,
     QList<ProjectExplorer::FileNode *> filesToAdd;
 
     QList<ProjectExplorer::FolderNode *> foldersToRemove;
-    foreach (ProjectExplorer::FolderNode *fn, root->subFolderNodes()) {
+    foreach (ProjectExplorer::FolderNode *fn, root->folderNodes()) {
         if (fn->nodeType() == ProjectExplorer::NodeType::Project)
             continue; // Skip ProjectNodes mixed into the folders...
         const auto * const qbsFolder = dynamic_cast<QbsFolderNode *>(fn);
@@ -511,7 +511,7 @@ void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root,
             continue;
         } else {
             ProjectExplorer::FolderNode *fn = 0;
-            foreach (ProjectExplorer::FolderNode *f, root->subFolderNodes()) {
+            foreach (ProjectExplorer::FolderNode *f, root->folderNodes()) {
                 // There can be one match only here!
                 if (f->filePath() != path)
                     continue;
@@ -682,7 +682,7 @@ void QbsProductNode::setQbsProductData(const qbs::Project &project, const qbs::P
                         prd.location().line());
 
     QList<ProjectExplorer::ProjectNode *> toAdd;
-    QList<ProjectExplorer::ProjectNode *> toRemove = subProjectNodes();
+    QList<ProjectExplorer::ProjectNode *> toRemove = projectNodes();
 
     foreach (const qbs::GroupData &grp, prd.groups()) {
         if (grp.name() == prd.name() && grp.location() == prd.location()) {
@@ -736,7 +736,7 @@ QList<ProjectExplorer::RunConfiguration *> QbsProductNode::runConfigurations() c
 
 QbsGroupNode *QbsProductNode::findGroupNode(const QString &name)
 {
-    foreach (ProjectExplorer::ProjectNode *n, subProjectNodes()) {
+    foreach (ProjectExplorer::ProjectNode *n, projectNodes()) {
         QbsGroupNode *qn = static_cast<QbsGroupNode *>(n);
         if (qn->qbsGroupData().name() == name)
             return qn;
@@ -762,7 +762,7 @@ QbsProjectNode::~QbsProjectNode()
 void QbsProjectNode::update(const qbs::Project &qbsProject, const qbs::ProjectData &prjData)
 {
     QList<ProjectExplorer::ProjectNode *> toAdd;
-    QList<ProjectExplorer::ProjectNode *> toRemove = subProjectNodes();
+    QList<ProjectExplorer::ProjectNode *> toRemove = projectNodes();
 
     foreach (const qbs::ProjectData &subData, prjData.subProjects()) {
         QbsProjectNode *qn = findProjectNode(subData.name());
@@ -824,7 +824,7 @@ void QbsProjectNode::ctor()
 
 QbsProductNode *QbsProjectNode::findProductNode(const QString &uniqueName)
 {
-    foreach (ProjectExplorer::ProjectNode *n, subProjectNodes()) {
+    foreach (ProjectExplorer::ProjectNode *n, projectNodes()) {
         QbsProductNode *qn = dynamic_cast<QbsProductNode *>(n);
         if (qn && QbsProject::uniqueProductName(qn->qbsProductData()) == uniqueName)
             return qn;
@@ -834,7 +834,7 @@ QbsProductNode *QbsProjectNode::findProductNode(const QString &uniqueName)
 
 QbsProjectNode *QbsProjectNode::findProjectNode(const QString &name)
 {
-    foreach (ProjectExplorer::ProjectNode *n, subProjectNodes()) {
+    foreach (ProjectExplorer::ProjectNode *n, projectNodes()) {
         QbsProjectNode *qn = dynamic_cast<QbsProjectNode *>(n);
         if (qn && qn->qbsProjectData().name() == name)
             return qn;

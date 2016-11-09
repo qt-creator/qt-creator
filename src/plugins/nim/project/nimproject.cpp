@@ -162,7 +162,7 @@ FileNameList NimProject::nimFiles() const
             if (file->displayName().endsWith(QLatin1String(".nim")))
                 result.append(file->filePath());
         }
-        folders.append(folder->subFolderNodes());
+        folders.append(folder->folderNodes());
     }
 
     return result;

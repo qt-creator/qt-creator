@@ -840,7 +840,7 @@ static FolderNode *folderOf(FolderNode *in, const FileName &fileName)
     foreach (FileNode *fn, in->fileNodes())
         if (fn->filePath() == fileName)
             return in;
-    foreach (FolderNode *folder, in->subFolderNodes())
+    foreach (FolderNode *folder, in->folderNodes())
         if (FolderNode *pn = folderOf(folder, fileName))
             return pn;
     return 0;
@@ -1002,7 +1002,7 @@ void QmakeProject::collectAllProFiles(QList<QmakeProFileNode *> &list, QmakeProF
     if (parse == ExactAndCumulativeParse || node->includedInExactParse())
         if (projectTypes.isEmpty() || projectTypes.contains(node->projectType()))
             list.append(node);
-    foreach (ProjectNode *n, node->subProjectNodes()) {
+    foreach (ProjectNode *n, node->projectNodes()) {
         QmakeProFileNode *qmakeProFileNode = dynamic_cast<QmakeProFileNode *>(n);
         if (qmakeProFileNode)
             collectAllProFiles(list, qmakeProFileNode, parse, projectTypes);
@@ -1075,7 +1075,7 @@ bool QmakeProject::hasSubNode(QmakePriFileNode *root, const FileName &path)
 {
     if (root->filePath() == path)
         return true;
-    foreach (FolderNode *fn, root->subFolderNodes()) {
+    foreach (FolderNode *fn, root->folderNodes()) {
         if (dynamic_cast<QmakeProFileNode *>(fn)) {
             // we aren't interested in pro file nodes
         } else if (QmakePriFileNode *qt4prifilenode = dynamic_cast<QmakePriFileNode *>(fn)) {
@@ -1091,7 +1091,7 @@ void QmakeProject::findProFile(const FileName &fileName, QmakeProFileNode *root,
     if (hasSubNode(root, fileName))
         list.append(root);
 
-    foreach (FolderNode *fn, root->subFolderNodes())
+    foreach (FolderNode *fn, root->folderNodes())
         if (QmakeProFileNode *qt4proFileNode = dynamic_cast<QmakeProFileNode *>(fn))
             findProFile(fileName, qt4proFileNode, list);
 }

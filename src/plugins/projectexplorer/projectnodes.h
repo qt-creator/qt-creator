@@ -185,8 +185,8 @@ public:
 
     QList<FileNode *> fileNodes() const;
     QList<FileNode *> recursiveFileNodes() const;
-    QList<FolderNode *> subFolderNodes() const;
-    FolderNode *findOrCreateSubFolderNode(const QString &directory);
+    QList<FolderNode *> folderNodes() const;
+    FolderNode *findOrCreateFolderNode(const QString &directory);
     void buildTree(QList<FileNode *> &files);
 
     virtual void accept(NodesVisitor *visitor);
@@ -227,7 +227,7 @@ public:
     FolderNode *asFolderNode() override;
 
 protected:
-    QList<FolderNode*> m_subFolderNodes;
+    QList<FolderNode*> m_folderNodes;
     QList<FileNode*> m_fileNodes;
 
 private:
@@ -255,7 +255,7 @@ public:
     QString vcsTopic() const;
 
     // all subFolders that are projects
-    QList<ProjectNode*> subProjectNodes() const;
+    QList<ProjectNode*> projectNodes() const;
 
     virtual bool canAddSubProject(const QString &proFilePath) const;
     virtual bool addSubProjects(const QStringList &proFilePaths);
@@ -287,7 +287,7 @@ protected:
     explicit ProjectNode(const Utils::FileName &projectFilePath);
 
 private:
-    QList<ProjectNode*> m_subProjectNodes;
+    QList<ProjectNode*> m_projectNodes;
 
     // let SessionNode call setParentFolderNode
     friend class SessionNode;

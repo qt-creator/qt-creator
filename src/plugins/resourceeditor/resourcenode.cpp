@@ -226,7 +226,7 @@ void ResourceTopLevelNode::update()
     }
 
 
-    QList<ProjectExplorer::FolderNode *> oldPrefixList = subFolderNodes();
+    QList<ProjectExplorer::FolderNode *> oldPrefixList = folderNodes();
     QList<ProjectExplorer::FolderNode *> prefixesToAdd;
     QList<ProjectExplorer::FolderNode *> prefixesToRemove;
 
@@ -242,12 +242,12 @@ void ResourceTopLevelNode::update()
     // delete nodes that weren't added
     qDeleteAll(ProjectExplorer::subtractSortedList(newPrefixList, prefixesToAdd, sortByPrefixAndLang));
 
-    foreach (FolderNode *sfn, subFolderNodes()) {
+    foreach (FolderNode *sfn, folderNodes()) {
         ResourceFolderNode *srn = static_cast<ResourceFolderNode *>(sfn);
         PrefixFolderLang folderId(srn->prefix(), QString(), srn->lang());
         srn->updateFiles(filesToAdd[folderId]);
         srn->updateFolders(foldersToAddToPrefix[folderId]);
-        foreach (FolderNode* ssfn, sfn->subFolderNodes()) {
+        foreach (FolderNode* ssfn, sfn->folderNodes()) {
             SimpleResourceFolderNode *sssn = static_cast<SimpleResourceFolderNode *>(ssfn);
             sssn->addFilesAndSubfolders(filesToAdd, foldersToAddToFolders, srn->prefix(), srn->lang());
         }
@@ -552,7 +552,7 @@ void ResourceFolderNode::updateFiles(QList<ProjectExplorer::FileNode *> newList)
 
 void ResourceFolderNode::updateFolders(QList<ProjectExplorer::FolderNode *> newList)
 {
-    QList<ProjectExplorer::FolderNode *> oldList = subFolderNodes();
+    QList<ProjectExplorer::FolderNode *> oldList = folderNodes();
     QList<ProjectExplorer::FolderNode *> foldersToAdd;
     QList<ProjectExplorer::FolderNode *> foldersToRemove;
 
@@ -737,7 +737,7 @@ void SimpleResourceFolderNode::updateFiles(QList<ProjectExplorer::FileNode *> ne
 
 void SimpleResourceFolderNode::updateFolders(QList<ProjectExplorer::FolderNode *> newList)
 {
-    QList<ProjectExplorer::FolderNode *> oldList = subFolderNodes();
+    QList<ProjectExplorer::FolderNode *> oldList = folderNodes();
     QList<ProjectExplorer::FolderNode *> foldersToAdd;
     QList<ProjectExplorer::FolderNode *> foldersToRemove;
 
@@ -761,7 +761,7 @@ void SimpleResourceFolderNode::addFilesAndSubfolders(QMap<PrefixFolderLang,
 {
     updateFiles(filesToAdd.value(PrefixFolderLang(prefix, m_folderName, lang)));
     updateFolders(foldersToAdd.value(PrefixFolderLang(prefix, m_folderName, lang)));
-    foreach (FolderNode* subNode, subFolderNodes()) {
+    foreach (FolderNode* subNode, folderNodes()) {
         SimpleResourceFolderNode* sn = static_cast<SimpleResourceFolderNode*>(subNode);
         sn->addFilesAndSubfolders(filesToAdd, foldersToAdd, prefix, lang);
     }

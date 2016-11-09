@@ -447,7 +447,7 @@ struct InternalNode
 
         // updateFolders
         QMultiMap<QString, FolderNode *> existingFolderNodes;
-        foreach (FolderNode *node, folder->subFolderNodes())
+        foreach (FolderNode *node, folder->folderNodes())
             if (node->nodeType() != NodeType::Project && !dynamic_cast<ResourceEditor::ResourceTopLevelNode *>(node))
                 existingFolderNodes.insert(node->filePath().toString(), node);
 
@@ -560,7 +560,7 @@ struct InternalNode
     void updateResourceFiles(FolderNode *folder)
     {
         QList<FolderNode *> existingResourceNodes; // for resource special handling
-        foreach (FolderNode *folderNode, folder->subFolderNodes()) {
+        foreach (FolderNode *folderNode, folder->folderNodes()) {
             if (ResourceEditor::ResourceTopLevelNode *rn = dynamic_cast<ResourceEditor::ResourceTopLevelNode *>(folderNode))
                 existingResourceNodes << rn;
         }
@@ -855,7 +855,7 @@ QList<RunConfiguration *> QmakePriFileNode::runConfigurations() const
 QList<QmakePriFileNode *> QmakePriFileNode::subProjectNodesExact() const
 {
     QList<QmakePriFileNode *> nodes;
-    foreach (ProjectNode *node, subProjectNodes()) {
+    foreach (ProjectNode *node, projectNodes()) {
         QmakePriFileNode *n = dynamic_cast<QmakePriFileNode *>(node);
         if (n && n->includedInExactParse())
             nodes << n;
@@ -909,7 +909,7 @@ QList<ProjectAction> QmakePriFileNode::supportedActions(Node *node) const
             FolderNode *folder = node->asFolderNode();
             if (folder) {
                 QStringList list;
-                foreach (FolderNode *f, folder->subFolderNodes())
+                foreach (FolderNode *f, folder->folderNodes())
                     list << f->filePath().toString() + QLatin1Char('/');
                 if (deploysFolder(Utils::commonPath(list)))
                     addExistingFiles = false;
@@ -1543,7 +1543,7 @@ QmakeProFileNode *QmakeProFileNode::findProFileFor(const FileName &fileName) con
 {
     if (fileName == filePath())
         return const_cast<QmakeProFileNode *>(this);
-    foreach (ProjectNode *pn, subProjectNodes())
+    foreach (ProjectNode *pn, projectNodes())
         if (QmakeProFileNode *qmakeProFileNode = dynamic_cast<QmakeProFileNode *>(pn))
             if (QmakeProFileNode *result = qmakeProFileNode->findProFileFor(fileName))
                 return result;
@@ -1677,7 +1677,7 @@ void QmakeProFileNode::emitProFileUpdatedRecursive()
 {
     emit m_project->proFileUpdated(this, m_validParse, m_parseInProgress);
 
-    foreach (ProjectNode *subNode, subProjectNodes()) {
+    foreach (ProjectNode *subNode, projectNodes()) {
         if (QmakeProFileNode *node = dynamic_cast<QmakeProFileNode *>(subNode))
             node->emitProFileUpdatedRecursive();
     }
@@ -1686,7 +1686,7 @@ void QmakeProFileNode::emitProFileUpdatedRecursive()
 void QmakeProFileNode::setParseInProgressRecursive(bool b)
 {
     setParseInProgress(b);
-    foreach (ProjectNode *subNode, subProjectNodes()) {
+    foreach (ProjectNode *subNode, projectNodes()) {
         if (QmakeProFileNode *node = dynamic_cast<QmakeProFileNode *>(subNode))
             node->setParseInProgressRecursive(b);
     }
@@ -1703,7 +1703,7 @@ void QmakeProFileNode::setParseInProgress(bool b)
 void QmakeProFileNode::setValidParseRecursive(bool b)
 {
     setValidParse(b);
-    foreach (ProjectNode *subNode, subProjectNodes()) {
+    foreach (ProjectNode *subNode, projectNodes()) {
         if (QmakeProFileNode *node = dynamic_cast<QmakeProFileNode *>(subNode))
             node->setValidParseRecursive(b);
     }
@@ -2062,8 +2062,8 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
 
             // delete files && folders && projects
             removeFileNodes(fileNodes());
-            removeProjectNodes(subProjectNodes());
-            removeFolderNodes(subFolderNodes());
+            removeProjectNodes(projectNodes());
+            removeFolderNodes(folderNodes());
 
             m_projectType = InvalidProject;
         }
@@ -2076,7 +2076,7 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
     if (result->projectType != m_projectType) {
         // probably all subfiles/projects have changed anyway
         // delete files && folders && projects
-        foreach (ProjectNode *projectNode, subProjectNodes()) {
+        foreach (ProjectNode *projectNode, projectNodes()) {
             if (QmakeProFileNode *qmakeProFileNode = dynamic_cast<QmakeProFileNode *>(projectNode)) {
                 qmakeProFileNode->setValidParseRecursive(false);
                 qmakeProFileNode->setParseInProgressRecursive(false);
@@ -2084,8 +2084,8 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
         }
 
         removeFileNodes(fileNodes());
-        removeProjectNodes(subProjectNodes());
-        removeFolderNodes(subFolderNodes());
+        removeProjectNodes(projectNodes());
+        removeFolderNodes(folderNodes());
 
         bool changesShowInSimpleTree = showInSimpleTree() ^ showInSimpleTree(result->projectType);
 
@@ -2114,7 +2114,7 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
         IncludedPriFile *tree = toCompare.first().second;
         toCompare.pop_front();
 
-        QList<ProjectNode*> existingProjectNodes = pn->subProjectNodes();
+        QList<ProjectNode*> existingProjectNodes = pn->projectNodes();
         Utils::sort(existingProjectNodes, sortByPath);
         // result is already sorted
 

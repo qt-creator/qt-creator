@@ -2002,12 +2002,12 @@ static QString pathOrDirectoryFor(Node *node, bool dir)
     if (node->nodeType() == NodeType::VirtualFolder && folder) {
         // Virtual Folder case
         // If there are files directly below or no subfolders, take the folder path
-        if (!folder->fileNodes().isEmpty() || folder->subFolderNodes().isEmpty()) {
+        if (!folder->fileNodes().isEmpty() || folder->folderNodes().isEmpty()) {
             location = path.toString();
         } else {
             // Otherwise we figure out a commonPath from the subfolders
             QStringList list;
-            foreach (FolderNode *f, folder->subFolderNodes())
+            foreach (FolderNode *f, folder->folderNodes())
                 list << f->filePath().toString() + QLatin1Char('/');
             location = Utils::commonPath(list);
         }

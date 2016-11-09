@@ -718,7 +718,7 @@ QStringList Parser::projectNodeFileList(const FolderNode *node) const
         return list;
 
     QList<FileNode *> fileNodes = node->fileNodes();
-    QList<FolderNode *> subFolderNodes = node->subFolderNodes();
+    QList<FolderNode *> subFolderNodes = node->folderNodes();
 
     foreach (const FileNode *file, fileNodes) {
         if (file->isGenerated())
@@ -768,7 +768,7 @@ QStringList Parser::addProjectNode(const ParserTreeItem::Ptr &item, const Projec
     }
 
     // subnodes
-    QList<ProjectNode *> projectNodes = node->subProjectNodes();
+    QList<ProjectNode *> projectNodes = node->projectNodes();
 
     foreach (const ProjectNode *project, projectNodes) {
         ParserTreeItem::Ptr itemPrj(new ParserTreeItem());
@@ -804,7 +804,7 @@ QStringList Parser::getAllFiles(const ProjectNode *node)
         d->cachedPrjFileLists[nodePath] = fileList;
     }
     // subnodes
-    QList<ProjectNode *> projectNodes = node->subProjectNodes();
+    QList<ProjectNode *> projectNodes = node->projectNodes();
 
     foreach (const ProjectNode *project, projectNodes)
         fileList += getAllFiles(project);

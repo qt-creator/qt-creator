@@ -387,8 +387,8 @@ void DocumentManager::findPathToIsoProFile(bool *iconResourceFileAlreadyExists, 
         if (node->nodeType() == ProjectExplorer::NodeType::VirtualFolder && node->displayName() == "Resources") {
             ProjectExplorer::VirtualFolderNode *virtualFolderNode = dynamic_cast<ProjectExplorer::VirtualFolderNode*>(node);
 
-            for (int subFolderIndex = 0; subFolderIndex < virtualFolderNode->subFolderNodes().size() && !iconQrcFileNode; ++subFolderIndex) {
-                ProjectExplorer::FolderNode *subFolderNode = virtualFolderNode->subFolderNodes().at(subFolderIndex);
+            for (int subFolderIndex = 0; subFolderIndex < virtualFolderNode->folderNodes().size() && !iconQrcFileNode; ++subFolderIndex) {
+                ProjectExplorer::FolderNode *subFolderNode = virtualFolderNode->folderNodes().at(subFolderIndex);
 
                 qCDebug(documentManagerLog) << "Checking if" << subFolderNode->displayName() << "("
                     << subFolderNode << static_cast<int>(subFolderNode->nodeType())
