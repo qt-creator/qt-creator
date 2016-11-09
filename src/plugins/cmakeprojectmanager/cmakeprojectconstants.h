@@ -54,5 +54,8 @@ const char CMAKE_SETTINGSPAGE_ID[] = "Z.CMake";
 // Snippets
 const char CMAKE_SNIPPETS_GROUP_ID[] = "CMake";
 
+// Icons
+const char FILEOVERLAY_CMAKE[] = ":/cmakeproject/images/fileoverlay_cmake.png";
+
 } // namespace Constants
 } // namespace CMakeProjectManager

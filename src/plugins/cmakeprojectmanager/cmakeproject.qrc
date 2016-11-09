@@ -1,5 +1,7 @@
 <RCC>
     <qresource prefix="/cmakeproject">
         <file>CMakeProjectManager.mimetypes.xml</file>
+        <file>images/fileoverlay_cmake.png</file>
+        <file>images/fileoverlay_cmake@2x.png</file>
     </qresource>
 </RCC>

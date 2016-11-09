@@ -6765,6 +6765,39 @@
          sodipodi:nodetypes="ccccccc" />
     </g>
     <g
+       id="src/plugins/cmakeprojectmanager/images/fileoverlay_cmake">
+      <rect
+         style="fill:none"
+         id="rect6843-2-6"
+         width="16"
+         height="16"
+         x="192"
+         y="520" />
+      <path
+         d="m 197,535 5,-9.5 5,9.5 z"
+         id="path5434"
+         inkscape:connector-curvature="0"
+         style="fill:#ffffff;fill-opacity:0.74901961;stroke:#ffffff;stroke-width:2;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:0.74901961" />
+      <path
+         sodipodi:nodetypes="cccc"
+         inkscape:connector-curvature="0"
+         id="path4544"
+         d="M 202.70313,533.34375 207,535 l -5,-9.5 z"
+         style="fill:#ce3434;fill-opacity:1" />
+      <path
+         sodipodi:nodetypes="cccc"
+         inkscape:connector-curvature="0"
+         id="path4544-6"
+         d="M 202.46673,530.56042 202,525.5 197,535 Z"
+         style="fill:#4a4bd0;fill-opacity:1" />
+      <path
+         sodipodi:nodetypes="cccc"
+         inkscape:connector-curvature="0"
+         id="path4544-6-2"
+         d="M 200.23323,532.37183 197,535 l 10,0 z"
+         style="fill:#0dbf0d;fill-opacity:1" />
+    </g>
+    <g
        transform="translate(-48,32)"
        id="src/plugins/baremetal/images/baremetaldevice">
       <rect
