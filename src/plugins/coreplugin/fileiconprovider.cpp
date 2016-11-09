@@ -74,6 +74,14 @@ public:
     QIcon icon(const QFileInfo &info);
     using QFileIconProvider::icon;
 
+    void registerIconOverlayForFilename(const QIcon &icon, const QString &filename)
+    {
+        QTC_ASSERT(!icon.isNull() && !filename.isEmpty(), return);
+
+        const QPixmap fileIconPixmap = FileIconProvider::overlayIcon(QStyle::SP_FileIcon, icon, QSize(16, 16));
+        m_filenameCache.insert(filename, fileIconPixmap);
+    }
+
     void registerIconOverlayForSuffix(const QIcon &icon, const QString &suffix)
     {
         if (debug)
@@ -83,7 +91,7 @@ public:
 
         const QPixmap fileIconPixmap = FileIconProvider::overlayIcon(QStyle::SP_FileIcon, icon, QSize(16, 16));
         // replace old icon, if it exists
-        m_cache.insert(suffix, fileIconPixmap);
+        m_suffixCache.insert(suffix, fileIconPixmap);
     }
 
     void registerIconOverlayForMimeType(const QIcon &icon, const Utils::MimeType &mimeType)
@@ -93,7 +101,8 @@ public:
     }
 
     // Mapping of file suffix to icon.
-    QHash<QString, QIcon> m_cache;
+    QHash<QString, QIcon> m_suffixCache;
+    QHash<QString, QIcon> m_filenameCache;
 
     QIcon m_unknownFileIcon;
 };
@@ -115,19 +124,27 @@ QIcon FileIconProviderImplementation::icon(const QFileInfo &fileInfo)
         qDebug() << "FileIconProvider::icon" << fileInfo.absoluteFilePath();
     // Check for cached overlay icons by file suffix.
     bool isDir = fileInfo.isDir();
-    QString suffix = !isDir ? fileInfo.suffix() : QString();
-    if (!m_cache.isEmpty() && !isDir && !suffix.isEmpty()) {
-        if (m_cache.contains(suffix))
-            return m_cache.value(suffix);
+    const QString filename = !isDir ? fileInfo.fileName() : QString();
+    if (!filename.isEmpty()) {
+        auto it = m_filenameCache.constFind(filename);
+        if (it != m_filenameCache.constEnd())
+            return it.value();
     }
-    // Get icon from OS.
+    const QString suffix = !isDir ? fileInfo.suffix() : QString();
+    if (!suffix.isEmpty()) {
+        auto it = m_suffixCache.constFind(suffix);
+        if (it != m_suffixCache.constEnd())
+            return it.value();
+    }
+
+    // Get icon from OS (and cache it based on suffix!)
     QIcon icon;
     if (HostOsInfo::isWindowsHost() || HostOsInfo::isMacHost())
         icon = QFileIconProvider::icon(fileInfo);
     else // File icons are unknown on linux systems.
         icon = isDir ? QFileIconProvider::icon(fileInfo) : m_unknownFileIcon;
     if (!isDir && !suffix.isEmpty())
-        m_cache.insert(suffix, icon);
+        m_suffixCache.insert(suffix, icon);
     return icon;
 }
 
@@ -197,6 +214,12 @@ void registerIconOverlayForMimeType(const char *path, const char *mimeType)
     Utils::MimeDatabase mdb;
     instance()->registerIconOverlayForMimeType(QIcon(QLatin1String(path)),
                                                mdb.mimeTypeForName(QString::fromLatin1(mimeType)));
+}
+
+void registerIconOverlayForFilename(const char *path, const char *filename)
+{
+    instance()->registerIconOverlayForFilename(QIcon(QString::fromLatin1(path)),
+                                               QString::fromLatin1(filename));
 }
 
 } // namespace FileIconProvider
