@@ -74,15 +74,15 @@ void InputEventsModelTest::testTypeId()
 
 void InputEventsModelTest::testColor()
 {
-    QColor keyColor;
-    QColor mouseColor;
+    QRgb keyColor = 0;
+    QRgb mouseColor = 0;
     for (int i = 0; i < 10; ++i) {
         InputEventType type = static_cast<InputEventType>(i % MaximumInputEventType);
         int selectionId = (type <= InputKeyUnknown ? Key : Mouse);
         QCOMPARE(selectionId, model.selectionId(i));
 
-        QColor &expectedColor = selectionId == Key ? keyColor : mouseColor;
-        if (expectedColor.isValid())
+        QRgb &expectedColor = selectionId == Key ? keyColor : mouseColor;
+        if (expectedColor != 0)
             QCOMPARE(model.color(i), expectedColor);
         else
             expectedColor = model.color(i);

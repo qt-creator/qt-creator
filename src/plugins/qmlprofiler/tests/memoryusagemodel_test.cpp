@@ -122,9 +122,9 @@ void MemoryUsageModelTest::testTypeId()
 
 void MemoryUsageModelTest::testColor()
 {
-    QColor heapPageColor = model.color(0);
-    QColor smallItemColor = model.color(1);
-    QColor largeItemColor = model.color(2);
+    QRgb heapPageColor = model.color(0);
+    QRgb smallItemColor = model.color(1);
+    QRgb largeItemColor = model.color(2);
     QVERIFY(smallItemColor != heapPageColor);
     QVERIFY(largeItemColor != heapPageColor);
     QVERIFY(smallItemColor != largeItemColor);

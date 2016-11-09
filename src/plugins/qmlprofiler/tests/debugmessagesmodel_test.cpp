@@ -64,7 +64,7 @@ void DebugMessagesModelTest::testColor()
     // TimelineModel::colorBySelectionId ...
     for (int i = 0; i < 10; ++i) {
         QCOMPARE(model.color(i),
-                 QColor::fromHsl((i % (QtMsgType::QtInfoMsg + 1) * 25) % 360, 150, 166));
+                 QColor::fromHsl((i % (QtMsgType::QtInfoMsg + 1) * 25) % 360, 150, 166).rgb());
     }
 }
 

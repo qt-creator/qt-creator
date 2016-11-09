@@ -270,20 +270,20 @@ void PixmapCacheModelTest::testRowMaxValue()
 
 void PixmapCacheModelTest::testColor()
 {
-    QColor row1Color;
-    QColor dingsColor;
-    QColor blahColor;
+    QRgb row1Color = 0;
+    QRgb dingsColor = 0;
+    QRgb blahColor = 0;
     for (int i = 0; i < model.count(); ++i) {
         if (model.collapsedRow(i) == 1) {
-            if (!row1Color.isValid())
+            if (row1Color == 0)
                 row1Color = model.color(i);
             else
                 QCOMPARE(model.color(i), row1Color);
         } else {
             const QmlEventType &type = manager.qmlModel()->eventTypes()[model.typeId(i)];
-            QColor &pixmapColor = (type.location().filename() == QString("blah.png")) ?
+            QRgb &pixmapColor = (type.location().filename() == QString("blah.png")) ?
                         blahColor : dingsColor;
-            if (!pixmapColor.isValid())
+            if (pixmapColor == 0)
                 pixmapColor = model.color(i);
             else
                 QCOMPARE(model.color(i), pixmapColor);
