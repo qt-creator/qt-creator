@@ -368,7 +368,7 @@ void tst_TimelineModel::defaultValues()
     QCOMPARE(dummy.rowMinValue(0), 0);
     QCOMPARE(dummy.rowMaxValue(0), 0);
     QCOMPARE(dummy.typeId(0), -1);
-    QCOMPARE(dummy.color(0), QColor());
+    QCOMPARE(dummy.color(0), QRgb());
     QCOMPARE(dummy.labels(), QVariantList());
     QCOMPARE(dummy.details(0), QVariantMap());
     QCOMPARE(dummy.collapsedRow(0), 0);
@@ -387,21 +387,21 @@ void tst_TimelineModel::row()
 void tst_TimelineModel::colorByHue()
 {
     DummyModel dummy;
-    QCOMPARE(dummy.colorByHue(10), QColor::fromHsl(10, 150, 166));
-    QCOMPARE(dummy.colorByHue(500), QColor::fromHsl(140, 150, 166));
+    QCOMPARE(dummy.colorByHue(10), QColor::fromHsl(10, 150, 166).rgb());
+    QCOMPARE(dummy.colorByHue(500), QColor::fromHsl(140, 150, 166).rgb());
 }
 
 void tst_TimelineModel::colorBySelectionId()
 {
     DummyModel dummy;
     dummy.loadData();
-    QCOMPARE(dummy.colorBySelectionId(5), QColor::fromHsl(6 * 25, 150, 166));
+    QCOMPARE(dummy.colorBySelectionId(5), QColor::fromHsl(6 * 25, 150, 166).rgb());
 }
 
 void tst_TimelineModel::colorByFraction()
 {
     DummyModel dummy;
-    QCOMPARE(dummy.colorByFraction(0.5), QColor::fromHsl(0.5 * 96 + 10, 150, 166));
+    QCOMPARE(dummy.colorByFraction(0.5), QColor::fromHsl(0.5 * 96 + 10, 150, 166).rgb());
 }
 
 void tst_TimelineModel::supportedRenderPasses()
