@@ -27,6 +27,7 @@
 
 #include "gitsettings.h" // CommitType
 
+#include <QCoreApplication>
 #include <QStringList>
 #include <QPair>
 
