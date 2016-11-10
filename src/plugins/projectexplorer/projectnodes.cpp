@@ -409,9 +409,10 @@ FolderNode *FolderNode::folderNode(const Utils::FileName &directory) const
     });
 }
 
-FolderNode *FolderNode::recursiveFindOrCreateFolderNode(const QString &directory)
+FolderNode *FolderNode::recursiveFindOrCreateFolderNode(const QString &directory,
+                                                        const Utils::FileName &overrideBaseDir)
 {
-    Utils::FileName path = filePath();
+    Utils::FileName path = overrideBaseDir.isEmpty() ? filePath() : overrideBaseDir;
     QString workPath;
     if (path.isEmpty() || path.toFileInfo().isRoot()) {
         workPath = directory;
@@ -440,7 +441,7 @@ FolderNode *FolderNode::recursiveFindOrCreateFolderNode(const QString &directory
     return parent;
 }
 
-void FolderNode::buildTree(QList<FileNode *> &files)
+void FolderNode::buildTree(QList<FileNode *> &files, const Utils::FileName &overrideBaseDir)
 {
     // Gather old list
     QList<ProjectExplorer::FileNode *> oldFiles = recursiveFileNodes();
@@ -461,7 +462,8 @@ void FolderNode::buildTree(QList<FileNode *> &files)
     foreach (ProjectExplorer::FileNode *fn, added) {
         // Get relative path to rootNode
         QString parentDir = fn->filePath().toFileInfo().absolutePath();
-        ProjectExplorer::FolderNode *folder = recursiveFindOrCreateFolderNode(parentDir);
+        ProjectExplorer::FolderNode *folder
+                = recursiveFindOrCreateFolderNode(parentDir, overrideBaseDir);
         addedFolderMapping[folder] << fn;
     }
 
