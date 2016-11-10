@@ -53,21 +53,19 @@ PathView {
             colorCode: "green"
         }
     }
-    delegate: Component {
-        Column {
-            spacing: 5
-            Rectangle {
-                width: 40
-                height: 40
-                color: colorCode
-                anchors.horizontalCenter: parent.horizontalCenter
-            }
-            Text {
-                x: 5
-                text: name
-                anchors.horizontalCenter: parent.horizontalCenter
-                font.bold: true
-            }
+    delegate: Column {
+        spacing: 5
+        Rectangle {
+            width: 40
+            height: 40
+            color: colorCode
+            anchors.horizontalCenter: parent.horizontalCenter
+        }
+        Text {
+            x: 5
+            text: name
+            anchors.horizontalCenter: parent.horizontalCenter
+            font.bold: true
         }
     }
 }
