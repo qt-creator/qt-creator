@@ -399,7 +399,7 @@ class DumperBase:
 
     def ping(self, key):
         return
-        elapsed = int(1000000 * (time.time() - self.pretimings[key]))
+        elapsed = int(1000 * (time.time() - self.pretimings[key]))
         self.timings.append([key, elapsed])
 
     def childRange(self):

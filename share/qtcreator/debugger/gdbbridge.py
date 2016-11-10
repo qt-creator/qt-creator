@@ -725,11 +725,12 @@ class Dumper(DumperBase):
             self.qtNamespaceToReport = None
 
         self.output.append(',partial="%d"' % isPartial)
+        self.output.append(',counts=%s' % self.counts)
+        self.output.append(',timimgs=%s' % self.timings)
 
-        self.preping('safePrint')
+        tt = time.time()
         safePrint(''.join(self.output))
-        self.ping('safePrint')
-        safePrint('"%s"' % str(self.dumpStats()))
+        print(',time="%d"' % int(1000 * (tt - time.time())))
 
     def parseAndEvaluate(self, exp):
         #warn('EVALUATE '%s'' % exp)
