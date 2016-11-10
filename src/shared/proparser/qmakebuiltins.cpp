@@ -1088,16 +1088,22 @@ ProStringList QMakeEvaluator::evaluateBuiltinExpand(
         break;
 #ifdef PROEVALUATOR_FULL
     case E_PROMPT: {
-        if (args.count() != 1) {
-            evalError(fL1S("prompt(question) requires one argument."));
+        if (args.count() != 1 && args.count() != 2) {
+            evalError(fL1S("prompt(question, [decorate=true]) requires one or two arguments."));
 //        } else if (currentFileName() == QLatin1String("-")) {
 //            evalError(fL1S("prompt(question) cannot be used when '-o -' is used"));
         } else {
             QString msg = m_option->expandEnvVars(args.at(0).toQString(m_tmp1));
-            if (!msg.endsWith(QLatin1Char('?')))
-                msg += QLatin1Char('?');
-            fprintf(stderr, "Project PROMPT: %s ", qPrintable(msg));
-
+            bool decorate = true;
+            if (args.count() == 2)
+                decorate = isTrue(args.at(1));
+            if (decorate) {
+                if (!msg.endsWith(QLatin1Char('?')))
+                    msg += QLatin1Char('?');
+                fprintf(stderr, "Project PROMPT: %s ", qPrintable(msg));
+            } else {
+                fputs(qPrintable(msg), stderr);
+            }
             QFile qfile;
             if (qfile.open(stdin, QIODevice::ReadOnly)) {
                 QTextStream t(&qfile);
