@@ -1147,7 +1147,7 @@ class DumperBase:
         n = arrayByteSize // innerType.size()
         p = value.address()
         if displayFormat != RawFormat and p:
-            if innerType.name in ('char', 'wchar_t'):
+            if innerType.name in ('char', 'wchar_t', 'unsigned char', 'signed char'):
                 self.putCharArrayHelper(p, n, innerType, self.currentItemFormat(),
                                         makeExpandable = False)
             else:
@@ -1226,7 +1226,7 @@ class DumperBase:
     # This is shared by pointer and array formatting.
     def tryPutSimpleFormattedPointer(self, ptr, typeName, innerType, displayFormat, limit):
         if displayFormat == AutomaticFormat:
-            if innerType.name == 'char':
+            if innerType.name in ('char', 'signed char', 'unsigned char'):
                 # Use UTF-8 as default for char *.
                 self.putType(typeName)
                 (elided, shown, data) = self.readToFirstZero(ptr, 1, limit)
