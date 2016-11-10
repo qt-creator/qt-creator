@@ -50,119 +50,20 @@ namespace {
 
 bool sortNodes(Node *n1, Node *n2)
 {
-    // Ordering is: project files, project, folder, file
-
-    const NodeType n1Type = n1->nodeType();
-    const NodeType n2Type = n2->nodeType();
-
-    // project files
-    FileNode *file1 = n1->asFileNode();
-    FileNode *file2 = n2->asFileNode();
-    if (file1 && file1->fileType() == FileType::Project) {
-        if (file2 && file2->fileType() == FileType::Project) {
-            const QString fileName1 = file1->filePath().fileName();
-            const QString fileName2 = file2->filePath().fileName();
-
-            int result = caseFriendlyCompare(fileName1, fileName2);
-            if (result != 0)
-                return result < 0;
-            else
-                return file1 < file2;
-        } else {
-            return true; // project file is before everything else
-        }
-    } else {
-        if (file2 && file2->fileType() == FileType::Project)
-            return false;
-    }
-
-    // projects
-    if (n1Type == NodeType::Project) {
-        if (n2Type == NodeType::Project) {
-            auto project1 = static_cast<ProjectNode*>(n1);
-            auto project2 = static_cast<ProjectNode*>(n2);
-
-            int result = caseFriendlyCompare(project1->displayName(), project2->displayName());
-            if (result != 0)
-                return result < 0;
-
-            result = caseFriendlyCompare(project1->filePath().toString(),
-                                         project2->filePath().toString());
-            if (result != 0)
-                return result < 0;
-            return project1 < project2; // sort by pointer value
-        } else {
-           return true; // project is before folder & file
-       }
-    }
-    if (n2Type == NodeType::Project)
+    if (n1->priority() > n2->priority())
+        return true;
+    if (n1->priority() < n2->priority())
         return false;
 
-    if (n1Type == NodeType::VirtualFolder) {
-        if (n2Type == NodeType::VirtualFolder) {
-            auto folder1 = static_cast<VirtualFolderNode *>(n1);
-            auto folder2 = static_cast<VirtualFolderNode *>(n2);
+    const int displayNameResult = caseFriendlyCompare(n1->displayName(), n2->displayName());
+    if (displayNameResult != 0)
+        return displayNameResult < 0;
 
-            if (folder1->priority() > folder2->priority())
-                return true;
-            if (folder1->priority() < folder2->priority())
-                return false;
-            int result = caseFriendlyCompare(folder1->filePath().toString(),
-                                             folder2->filePath().toString());
-            if (result != 0)
-                return result < 0;
-            else
-                return folder1 < folder2;
-        } else {
-            return true; // virtual folder is before folder
-        }
-    }
-
-    if (n2Type == NodeType::VirtualFolder)
-        return false;
-
-
-    if (n1Type == NodeType::Folder) {
-        if (n2Type == NodeType::Folder) {
-            auto folder1 = static_cast<FolderNode*>(n1);
-            auto folder2 = static_cast<FolderNode*>(n2);
-
-            int result = caseFriendlyCompare(folder1->filePath().toString(),
-                                             folder2->filePath().toString());
-            if (result != 0)
-                return result < 0;
-            else
-                return folder1 < folder2;
-        } else {
-            return true; // folder is before file
-        }
-    }
-    if (n2Type == NodeType::Folder)
-        return false;
-
-    // must be file nodes
-    int result = caseFriendlyCompare(n1->displayName(), n2->displayName());
-    if (result != 0)
-        return result < 0;
-
-    const QString filePath1 = n1->filePath().toString();
-    const QString filePath2 = n2->filePath().toString();
-
-    const QString fileName1 = n1->filePath().fileName();
-    const QString fileName2 = n2->filePath().fileName();
-
-    result = caseFriendlyCompare(fileName1, fileName2);
-    if (result != 0) {
-        return result < 0; // sort by filename
-    } else {
-        result = caseFriendlyCompare(filePath1, filePath2);
-        if (result != 0)
-            return result < 0; // sort by filepath
-
-        if (n1->line() != n2->line())
-            return n1->line() < n2->line(); // sort by line numbers
-        return n1 < n2; // sort by pointer value
-    }
+    const int filePathResult = caseFriendlyCompare(n1->filePath().toString(),
+                                 n2->filePath().toString());
+    if (filePathResult != 0)
+        return filePathResult < 0;
+    return n1 < n2; // sort by pointer value
 }
 
 } // namespace anon

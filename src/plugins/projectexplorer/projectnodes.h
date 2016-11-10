@@ -107,8 +107,18 @@ class SessionManager;
 class PROJECTEXPLORER_EXPORT Node
 {
 public:
+    enum PriorityLevel {
+        DefaultPriority = 0,
+        DefaultFilePriority = 100000,
+        DefaultFolderPriority = 200000,
+        DefaultVirtualFolderPriority = 300000,
+        DefaultProjectPriority = 400000,
+        DefaultProjectFilePriority = 500000
+    };
+
     virtual ~Node() = default;
     NodeType nodeType() const;
+    int priority() const;
 
     ProjectNode *parentProjectNode() const; // parent project, will be nullptr for the top-level project
     FolderNode *parentFolderNode() const; // parent folder or project
@@ -148,6 +158,7 @@ public:
 protected:
     Node(NodeType nodeType, const Utils::FileName &filePath, int line = -1);
 
+    void setPriority(int priority);
     void setParentFolderNode(FolderNode *parentFolder);
 
     void emitNodeSortKeyAboutToChange();
@@ -156,7 +167,8 @@ protected:
 private:
     FolderNode *m_parentFolderNode = nullptr;
     Utils::FileName m_filePath;
-    int m_line;
+    int m_line = -1;
+    int m_priority = DefaultPriority;
     const NodeType m_nodeType;
     bool m_isEnabled = true;
 };
@@ -251,21 +263,17 @@ protected:
     QList<FileNode*> m_fileNodes;
 
 private:
-    // managed by ProjectNode
-    friend class ProjectNode;
     QString m_displayName;
     mutable QIcon m_icon;
+
+    // managed by ProjectNode
+    friend class ProjectNode;
 };
 
 class PROJECTEXPLORER_EXPORT VirtualFolderNode : public FolderNode
 {
 public:
     explicit VirtualFolderNode(const Utils::FileName &folderPath, int priority);
-
-    int priority() const;
-
-private:
-    int m_priority;
 };
 
 // Documentation inside.

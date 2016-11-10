@@ -44,7 +44,7 @@
 using namespace ResourceEditor;
 using namespace ResourceEditor::Internal;
 
-static bool priority(const QStringList &files)
+static bool hasPriority(const QStringList &files)
 {
     if (files.isEmpty())
         return false;
@@ -341,7 +341,7 @@ ProjectExplorer::FolderNode::AddNewInformation ResourceTopLevelNode::addNewInfor
             .arg(QLatin1Char('/'));
 
     int p = -1;
-    if (priority(files)) { // images/* and qml/js mimetypes
+    if (hasPriority(files)) { // images/* and qml/js mimetypes
         p = 110;
         if (context == this)
             p = 120;
@@ -497,7 +497,7 @@ ProjectExplorer::FolderNode::AddNewInformation ResourceFolderNode::addNewInforma
             .arg(displayName());
 
     int p = -1; // never the default
-    if (priority(files)) { // image/* and qml/js mimetypes
+    if (hasPriority(files)) { // image/* and qml/js mimetypes
         p = 105; // prefer against .pro and .pri files
         if (context == this)
             p = 120;

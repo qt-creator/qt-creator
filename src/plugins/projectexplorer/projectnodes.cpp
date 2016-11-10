@@ -63,6 +63,11 @@ Node::Node(NodeType nodeType, const Utils::FileName &filePath, int line) :
     m_filePath(filePath), m_line(line), m_nodeType(nodeType)
 { }
 
+void Node::setPriority(int p)
+{
+    m_priority = p;
+}
+
 void Node::emitNodeSortKeyAboutToChange()
 {
     if (parentFolderNode())
@@ -90,6 +95,11 @@ void Node::setAbsoluteFilePathAndLine(const Utils::FileName &path, int line)
 NodeType Node::nodeType() const
 {
     return m_nodeType;
+}
+
+int Node::priority() const
+{
+    return m_priority;
 }
 
 /*!
@@ -209,7 +219,12 @@ FileNode::FileNode(const Utils::FileName &filePath,
                    bool generated, int line) : Node(NodeType::File, filePath, line),
     m_fileType(fileType),
     m_generated(generated)
-{ }
+{
+    if (fileType == FileType::Project)
+        setPriority(DefaultProjectFilePriority);
+    else
+        setPriority(DefaultFilePriority);
+}
 
 FileType FileNode::fileType() const
 {
@@ -287,9 +302,10 @@ QList<FileNode *> FileNode::scanForFiles(const Utils::FileName &directory,
   \sa ProjectExplorer::FileNode, ProjectExplorer::ProjectNode
 */
 FolderNode::FolderNode(const Utils::FileName &folderPath, NodeType nodeType, const QString &displayName) :
-    Node(nodeType, folderPath),
+    Node(nodeType, folderPath, -1),
     m_displayName(displayName)
 {
+    setPriority(DefaultFolderPriority);
     if (m_displayName.isEmpty())
         m_displayName = folderPath.toUserOutput();
 }
@@ -712,13 +728,9 @@ bool FolderNode::showInSimpleTree() const
   \sa ProjectExplorer::FileNode, ProjectExplorer::ProjectNode
 */
 VirtualFolderNode::VirtualFolderNode(const Utils::FileName &folderPath, int priority) :
-    FolderNode(folderPath, NodeType::VirtualFolder),
-    m_priority(priority)
-{ }
-
-int VirtualFolderNode::priority() const
+    FolderNode(folderPath, NodeType::VirtualFolder, QString())
 {
-    return m_priority;
+    setPriority(priority);
 }
 
 /*!
@@ -737,6 +749,7 @@ int VirtualFolderNode::priority() const
 ProjectNode::ProjectNode(const Utils::FileName &projectFilePath) :
     FolderNode(projectFilePath, NodeType::Project)
 {
+    setPriority(DefaultProjectPriority);
     setDisplayName(projectFilePath.fileName());
 }
 

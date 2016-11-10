@@ -322,7 +322,7 @@ struct InternalNode
     QMap<QString, InternalNode *> subnodes;
     FileNameList files;
     FileType type = FileType::Unknown;
-    int priority = 0;
+    int priority = Node::DefaultVirtualFolderPriority;
     QString displayName;
     QString typeName;
     QString addFileFilter;
@@ -739,7 +739,7 @@ void QmakePriFileNode::update(const Internal::PriFileEvalResult &result)
             subfolder->fullPath = m_projectDir;
             subfolder->typeName = fileTypes.at(i).typeName;
             subfolder->addFileFilter = fileTypes.at(i).addFileFilter;
-            subfolder->priority = -i;
+            subfolder->priority = Node::DefaultVirtualFolderPriority - i;
             subfolder->displayName = fileTypes.at(i).typeName;
             contents.virtualfolders.append(subfolder);
             // create the hierarchy with subdirectories
@@ -816,7 +816,7 @@ bool QmakePriFileNode::folderChanged(const QString &changedFolder, const QSet<Fi
             subfolder->icon = fileTypes.at(i).icon;
             subfolder->fullPath = m_projectDir;
             subfolder->typeName = fileTypes.at(i).typeName;
-            subfolder->priority = -i;
+            subfolder->priority = Node::DefaultVirtualFolderPriority - i;
             subfolder->displayName = fileTypes.at(i).typeName;
             contents.virtualfolders.append(subfolder);
             // create the hierarchy with subdirectories
