@@ -467,9 +467,9 @@ public:
         if (!menu.actions().isEmpty())
             menu.addSeparator();
 
-        QAction *importBuild = menu.addAction(tr("Import Existing Build..."));
+        QAction *importBuild = menu.addAction(ProjectWindow::tr("Import Existing Build..."));
         importBuild->setEnabled(projectImporter != 0);
-        QAction *manageKits = menu.addAction(tr("Manage Kits..."));
+        QAction *manageKits = menu.addAction(ProjectWindow::tr("Manage Kits..."));
 
         QAction *act = menu.exec(m_selectorTree->mapToGlobal(pos));
 

@@ -50,6 +50,7 @@ class ScxmlDocument;
  */
 class ScxmlTag : public QObject
 {
+    Q_OBJECT
 public:
     ScxmlTag(TagType type, ScxmlDocument *document = nullptr);
     ScxmlTag(const QString &prefix, const QString &name, ScxmlDocument *document = nullptr);

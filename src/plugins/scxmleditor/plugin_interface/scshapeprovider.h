@@ -37,6 +37,7 @@ class ScxmlTag;
 
 class SCShapeProvider : public ShapeProvider
 {
+    Q_OBJECT
 public:
     SCShapeProvider(QObject *parent = nullptr);
     ~SCShapeProvider() override;
