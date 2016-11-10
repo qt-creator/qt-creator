@@ -6,7 +6,7 @@ CppApplication {
     targetName: "tst_benchtest"
 
     Depends { name: "cpp" }
-    Depends { name: "Qt.test" }
+    Depends { name: "Qt.testlib" }
 
     files: [ "tst_benchtest.cpp" ]
 

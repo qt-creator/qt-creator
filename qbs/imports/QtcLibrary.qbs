@@ -8,7 +8,7 @@ QtcProduct {
     useNonGuiPchFile: true
     Depends {
         condition: qtc.testsEnabled
-        name: "Qt.test"
+        name: "Qt.testlib"
     }
 
     targetName: QtcFunctions.qtLibraryName(qbs, name)
