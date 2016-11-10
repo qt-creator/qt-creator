@@ -191,35 +191,32 @@ QPixmap overlayIcon(QStyle::StandardPixmap baseIcon, const QIcon &overlay, const
   Registers an icon for a given suffix, overlaying the system file icon.
   See platform note in class documentation about recommended usage.
   */
-void registerIconOverlayForSuffix(const char *path, const char *suffix)
+void registerIconOverlayForSuffix(const QString &path, const QString &suffix)
 {
-    instance()->registerIconOverlayForSuffix(QIcon(QLatin1String(path)), QLatin1String(suffix));
+    instance()->registerIconOverlayForSuffix(QIcon(path), suffix);
 }
 
 /*!
   Registers an icon for all the suffixes of a given mime type, overlaying the system file icon.
   */
-void registerIconOverlayForMimeType(const QIcon &icon, const char *mimeType)
+void registerIconOverlayForMimeType(const QIcon &icon, const QString &mimeType)
 {
     Utils::MimeDatabase mdb;
-    instance()->registerIconOverlayForMimeType(icon,
-                                               mdb.mimeTypeForName(QString::fromLatin1(mimeType)));
+    instance()->registerIconOverlayForMimeType(icon, mdb.mimeTypeForName(mimeType));
 }
 
 /*!
  * \overload
  */
-void registerIconOverlayForMimeType(const char *path, const char *mimeType)
+void registerIconOverlayForMimeType(const QString &path, const QString &mimeType)
 {
     Utils::MimeDatabase mdb;
-    instance()->registerIconOverlayForMimeType(QIcon(QLatin1String(path)),
-                                               mdb.mimeTypeForName(QString::fromLatin1(mimeType)));
+    instance()->registerIconOverlayForMimeType(QIcon(path), mdb.mimeTypeForName(mimeType));
 }
 
-void registerIconOverlayForFilename(const char *path, const char *filename)
+void registerIconOverlayForFilename(const QString &path, const QString &filename)
 {
-    instance()->registerIconOverlayForFilename(QIcon(QString::fromLatin1(path)),
-                                               QString::fromLatin1(filename));
+    instance()->registerIconOverlayForFilename(QIcon(path), filename);
 }
 
 } // namespace FileIconProvider

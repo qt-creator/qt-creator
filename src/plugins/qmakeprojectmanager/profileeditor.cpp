@@ -195,11 +195,11 @@ ProFileEditorFactory::ProFileEditorFactory()
 
     const QString defaultOverlay = QLatin1String(ProjectExplorer::Constants::FILEOVERLAY_QT);
     Core::FileIconProvider::registerIconOverlayForSuffix(
-                creatorTheme()->imageFile(Theme::IconOverlayPro, defaultOverlay).toLatin1().data(), "pro");
+                creatorTheme()->imageFile(Theme::IconOverlayPro, defaultOverlay), "pro");
     Core::FileIconProvider::registerIconOverlayForSuffix(
-                creatorTheme()->imageFile(Theme::IconOverlayPri, defaultOverlay).toLatin1().data(), "pri");
+                creatorTheme()->imageFile(Theme::IconOverlayPri, defaultOverlay), "pri");
     Core::FileIconProvider::registerIconOverlayForSuffix(
-                creatorTheme()->imageFile(Theme::IconOverlayPrf, defaultOverlay).toLatin1().data(), "prf");
+                creatorTheme()->imageFile(Theme::IconOverlayPrf, defaultOverlay), "prf");
 }
 
 } // namespace Internal
