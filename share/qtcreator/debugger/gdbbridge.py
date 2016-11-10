@@ -1068,6 +1068,8 @@ class Dumper(DumperBase):
     def nativeDynamicTypeName(self, address, baseType):
         # Needed for Gdb13393 test.
         nativeType = self.lookupNativeType(baseType.name)
+        if nativeType is None:
+            return None
         nativeTypePointer = nativeType.pointer()
         nativeValue = gdb.Value(address).cast(nativeTypePointer).dereference()
         val = nativeValue.cast(nativeValue.dynamic_type)
@@ -1088,6 +1090,8 @@ class Dumper(DumperBase):
     def nativeDynamicType(self, address, baseType):
         # Needed for Gdb13393 test.
         nativeType = self.lookupNativeType(baseType.name)
+        if nativeType is None:
+            return baseType
         nativeTypePointer = nativeType.pointer()
         nativeValue = gdb.Value(address).cast(nativeTypePointer).dereference()
         return self.fromNativeType(nativeValue.dynamic_type)
