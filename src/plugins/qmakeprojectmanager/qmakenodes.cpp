@@ -2157,6 +2157,7 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
                         qmakeProFileNode->setIncludedInExactParse(
                                     result->exactSubdirs.contains(qmakeProFileNode->filePath())
                                     && pn->includedInExactParse());
+                        qmakeProFileNode->setParseInProgress(true);
                         qmakeProFileNode->asyncUpdate();
                         toAdd << qmakeProFileNode;
                     }
