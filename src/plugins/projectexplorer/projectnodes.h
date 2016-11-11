@@ -148,7 +148,7 @@ protected:
 
 private:
     ProjectNode *m_projectNode = nullptr;
-    FolderNode *m_folderNode = nullptr;
+    FolderNode *m_parentFolderNode = nullptr;
     Utils::FileName m_filePath;
     int m_line;
     const NodeType m_nodeType;

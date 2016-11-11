@@ -106,7 +106,7 @@ ProjectNode *Node::parentProjectNode() const
   */
 FolderNode *Node::parentFolderNode() const
 {
-    return m_folderNode;
+    return m_parentFolderNode;
 }
 
 /*!
@@ -178,7 +178,7 @@ bool Node::sortByPath(Node *a, Node *b)
 
 void Node::setParentFolderNode(FolderNode *parentFolder)
 {
-    m_folderNode = parentFolder;
+    m_parentFolderNode = parentFolder;
 }
 
 /*!
