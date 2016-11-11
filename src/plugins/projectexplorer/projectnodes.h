@@ -109,8 +109,16 @@ class PROJECTEXPLORER_EXPORT Node
 public:
     virtual ~Node() = default;
     NodeType nodeType() const;
-    ProjectNode *parentProjectNode() const; // managing project
+
+    ProjectNode *parentProjectNode() const; // parent project, will be nullptr for the top-level project
     FolderNode *parentFolderNode() const; // parent folder or project
+
+    ProjectNode *managingProject();  // project managing this node.
+                                     // result is nullptr if node is the SessionNode
+                                     // or node if node is a ProjectNode directly below SessionNode
+                                     // or node->parentProjectNode() for all other cases.
+    const ProjectNode *managingProject() const; // see above.
+
     const Utils::FileName &filePath() const;  // file system path
     int line() const;
     virtual QString displayName() const;
@@ -140,14 +148,12 @@ public:
 protected:
     Node(NodeType nodeType, const Utils::FileName &filePath, int line = -1);
 
-    void setProjectNode(ProjectNode *project);
     void setParentFolderNode(FolderNode *parentFolder);
 
     void emitNodeSortKeyAboutToChange();
     void emitNodeSortKeyChanged();
 
 private:
-    ProjectNode *m_projectNode = nullptr;
     FolderNode *m_parentFolderNode = nullptr;
     Utils::FileName m_filePath;
     int m_line;
