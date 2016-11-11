@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <qsystemdetection.h>
+
 #include <cstdlib>
 #include <cstring>
 #include <memory>
@@ -35,7 +37,7 @@ namespace Memory {
 
 inline char *allocate(std::size_t size)
 {
-#ifdef WIN32
+#ifdef Q_OS_WIN32
     return static_cast<char*>(_aligned_malloc(size, 64));
 #else
     return static_cast<char*>(std::malloc(size));
@@ -44,7 +46,7 @@ inline char *allocate(std::size_t size)
 
 inline void deallocate(char *memory)
 {
-#ifdef WIN32
+#ifdef Q_OS_WIN32
     _aligned_free(memory);
 #else
 #pragma GCC diagnostic push
@@ -58,7 +60,7 @@ inline void deallocate(char *memory)
 
 inline char *reallocate(char *oldMemory, std::size_t newSize)
 {
-#ifdef WIN32
+#ifdef Q_OS_WIN32
     return static_cast<char*>(_aligned_realloc(oldMemory, newSize, 64));
 #else
     return static_cast<char*>(std::realloc(oldMemory, newSize));

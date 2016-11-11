@@ -58,7 +58,7 @@ Utils::SmallString fromNativePath(Container container)
 {
     Utils::SmallString path(container.data(), container.size());
 
-#ifdef WIN32
+#ifdef _WIN32
     std::replace(path.begin(), path.end(), '\\', '/');
 #endif
 
