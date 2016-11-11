@@ -392,14 +392,47 @@ static void addJsonValue(const QJsonValue &value, const QString &keyPrefix, ProV
     }
 }
 
+struct ErrorPosition {
+    int line;
+    int column;
+};
+
+static ErrorPosition calculateErrorPosition(const QByteArray &json, int offset)
+{
+    ErrorPosition pos = { 0, 0 };
+    offset--; // offset is 1-based, switching to 0-based
+    for (int i = 0; i < offset; ++i) {
+        switch (json.at(i)) {
+        case '\n':
+            pos.line++;
+            pos.column = 0;
+            break;
+        case '\r':
+            break;
+        case '\t':
+            pos.column = (pos.column + 8) & ~7;
+            break;
+        default:
+            pos.column++;
+            break;
+        }
+    }
+    // Lines and columns in text editors are 1-based:
+    pos.line++;
+    pos.column++;
+    return pos;
+}
+
 QMakeEvaluator::VisitReturn QMakeEvaluator::parseJsonInto(const QByteArray &json, const QString &into, ProValueMap *value)
 {
     QJsonParseError error;
     QJsonDocument document = QJsonDocument::fromJson(json, &error);
     if (document.isNull()) {
-        if (error.error != QJsonParseError::NoError)
-            evalError(fL1S("Error parsing json at offset %1: %2")
-                      .arg(error.offset).arg(error.errorString()));
+        if (error.error != QJsonParseError::NoError) {
+            ErrorPosition errorPos = calculateErrorPosition(json, error.offset);
+            evalError(fL1S("Error parsing JSON at %1:%2: %3")
+                      .arg(errorPos.line).arg(errorPos.column).arg(error.errorString()));
+        }
         return QMakeEvaluator::ReturnFalse;
     }
 
