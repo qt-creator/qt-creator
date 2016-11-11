@@ -44,6 +44,7 @@
 
 #include <QDir>
 #include <QFileInfo>
+#include <QRegularExpression>
 #include <QSettings>
 
 namespace QbsProjectManager {
