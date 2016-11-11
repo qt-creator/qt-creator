@@ -518,6 +518,9 @@ public:
 ProjectWindow::ProjectWindow()
 {
     setBackgroundRole(QPalette::Base);
+
+    // Request custom context menu but do not provide any to avoid
+    // the creation of the dock window selection menu.
     setContextMenuPolicy(Qt::CustomContextMenu);
 
     auto selectorModel = new SelectorModel(this, [this](QWidget *panel) { setPanel(panel); });
@@ -553,15 +556,6 @@ ProjectWindow::ProjectWindow()
 
     auto selectorDock = addDockForWidget(selectorView, true);
     addDockWidget(Qt::LeftDockWidgetArea, selectorDock);
-
-    connect(this, &QWidget::customContextMenuRequested,
-            selectorModel, &SelectorModel::openContextMenu);
-}
-
-void ProjectWindow::contextMenuEvent(QContextMenuEvent *event)
-{
-    Q_UNUSED(event)
-    // Do nothing to avoid creation of the dock window selection menu.
 }
 
 void ProjectWindow::setPanel(QWidget *panel)
