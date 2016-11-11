@@ -142,11 +142,12 @@ void BuildDirManager::updateReaderData()
 
 void BuildDirManager::parseOnceReaderReady(bool force)
 {
-    m_futureInterface.reset(new QFutureInterface<QList<ProjectExplorer::FileNode *>>());
-    m_futureWatcher.setFuture(m_futureInterface->future());
+    auto fi = new QFutureInterface<QList<ProjectExplorer::FileNode *>>();
+    m_scanFuture = fi->future();
+    m_futureWatcher.setFuture(m_scanFuture);
 
-    Core::ProgressManager::addTask(m_futureInterface->future(), "Scan CMake project tree", "CMake.Scan.Tree");
-    Utils::runAsync([this]() { BuildDirManager::asyncScanForFiles(*m_futureInterface); });
+    Core::ProgressManager::addTask(fi->future(), "Scan CMake project tree", "CMake.Scan.Tree");
+    Utils::runAsync([this, fi]() { BuildDirManager::asyncScanForFiles(fi); });
 
     checkConfiguration();
     m_reader->stop();
@@ -237,9 +238,10 @@ void BuildDirManager::becameDirty()
     m_reparseTimer.start(1000);
 }
 
-void BuildDirManager::asyncScanForFiles(QFutureInterface<QList<FileNode *> > &fi)
+void BuildDirManager::asyncScanForFiles(QFutureInterface<QList<FileNode *>> *fi)
 {
-    fi.reportStarted();
+    std::unique_ptr<QFutureInterface<QList<FileNode *>>> fip(fi);
+    fip->reportStarted();
     Utils::MimeDatabase mdb;
 
     QList<FileNode *> nodes
@@ -274,10 +276,10 @@ void BuildDirManager::asyncScanForFiles(QFutureInterface<QList<FileNode *> > &fi
                                          }
                                          return new FileNode(fn, type, false);
                                      },
-                                     &fi);
-    fi.setProgressValue(m_futureInterface->progressMaximum());
-    fi.reportResult(nodes);
-    fi.reportFinished();
+                                     fip.get());
+    fip->setProgressValue(fip->progressMaximum());
+    fip->reportResult(nodes);
+    fip->reportFinished();
 }
 
 void BuildDirManager::forceReparse()
@@ -298,9 +300,7 @@ void BuildDirManager::resetData()
         m_reader->resetData();
 
     m_cmakeCache.clear();
-    QTC_ASSERT(!m_futureInterface || m_futureInterface->isFinished(), return);
-    m_futureInterface.reset();
-
+    m_futureWatcher.setFuture(QFuture<QList<FileNode *>>());
     m_reader.reset();
 }
 
@@ -327,16 +327,16 @@ bool BuildDirManager::persistCMakeState()
 void BuildDirManager::generateProjectTree(CMakeListsNode *root)
 {
     QTC_ASSERT(m_reader, return);
-    QTC_ASSERT(m_futureInterface, return);
+    QTC_ASSERT(m_scanFuture.isFinished(), return);
 
     const Utils::FileName projectFile = m_buildConfiguration->target()->project()->projectFilePath();
-    QList<FileNode *> tmp = Utils::filtered(m_futureInterface->future().result(),
+    QList<FileNode *> tmp = Utils::filtered(m_scanFuture.result(),
                                             [projectFile](const FileNode *fn) -> bool {
         return !fn->filePath().toString().startsWith(projectFile.toString() + ".user");
     });
     Utils::sort(tmp, ProjectExplorer::Node::sortByPath);
 
-    m_futureInterface.reset(); // Make sure to flush the stale results
+    m_scanFuture = QFuture<QList<FileNode *>>(); // flush stale results
 
     const QList<FileNode *> allFiles = tmp;
     m_reader->generateProjectTree(root, allFiles);

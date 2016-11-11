@@ -103,7 +103,7 @@ private:
 
     void becameDirty();
 
-    void asyncScanForFiles(QFutureInterface<QList<ProjectExplorer::FileNode*>> &fi);
+    void asyncScanForFiles(QFutureInterface<QList<ProjectExplorer::FileNode *>> *fi);
 
     CMakeBuildConfiguration *m_buildConfiguration = nullptr;
     mutable std::unique_ptr<QTemporaryDir> m_tempDir = nullptr;
@@ -112,8 +112,8 @@ private:
     QTimer m_reparseTimer;
 
     std::unique_ptr<BuildDirReader> m_reader;
-    std::unique_ptr<QFutureInterface<QList<ProjectExplorer::FileNode*>>> m_futureInterface;
     QFutureWatcher<QList<ProjectExplorer::FileNode*>> m_futureWatcher;
+    QFuture<QList<ProjectExplorer::FileNode*>> m_scanFuture;
 };
 
 } // namespace Internal
