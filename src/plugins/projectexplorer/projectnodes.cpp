@@ -171,26 +171,6 @@ Node *Node::trim(const QSet<Node *> &keepers)
     return keepers.contains(this) ? nullptr : this;
 }
 
-FileNode *Node::asFileNode()
-{
-    return nullptr;
-}
-
-FolderNode *Node::asFolderNode()
-{
-    return nullptr;
-}
-
-ProjectNode *Node::asProjectNode()
-{
-    return nullptr;
-}
-
-SessionNode *Node::asSessionNode()
-{
-    return nullptr;
-}
-
 bool Node::sortByPath(Node *a, Node *b)
 {
     return a->filePath() < b->filePath();
@@ -229,11 +209,6 @@ FileType FileNode::fileType() const
 bool FileNode::isGenerated() const
 {
     return m_generated;
-}
-
-FileNode *FileNode::asFileNode()
-{
-    return this;
 }
 
 static QList<FileNode *> scanForFilesRecursively(const Utils::FileName &directory,
@@ -703,11 +678,6 @@ void FolderNode::removeFolderNodes(const QList<FolderNode*> &subFolders)
     ProjectTree::instance()->emitFoldersRemoved(this);
 }
 
-FolderNode *FolderNode::asFolderNode()
-{
-    return this;
-}
-
 bool FolderNode::showInSimpleTree() const
 {
     return false;
@@ -921,11 +891,6 @@ void ProjectNode::removeProjectNodes(const QList<ProjectNode*> &subProjects)
     }
 }
 
-ProjectNode *ProjectNode::asProjectNode()
-{
-    return this;
-}
-
 Node *ProjectNode::trim(const QSet<Node *> &keepers)
 {
     if (keepers.contains(this))
@@ -974,11 +939,6 @@ void SessionNode::projectDisplayNameChanged(Node *node)
 {
     ProjectTree::instance()->emitNodeSortKeyAboutToChange(node);
     ProjectTree::instance()->emitNodeSortKeyChanged(node);
-}
-
-SessionNode *SessionNode::asSessionNode()
-{
-    return this;
 }
 
 QList<ProjectNode*> SessionNode::projectNodes() const

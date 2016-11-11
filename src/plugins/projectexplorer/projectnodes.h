@@ -126,10 +126,14 @@ public:
 
     virtual Node *trim(const QSet<Node *> &keepers);
 
-    virtual FileNode *asFileNode();
-    virtual FolderNode *asFolderNode();
-    virtual ProjectNode *asProjectNode();
-    virtual SessionNode *asSessionNode();
+    virtual FileNode *asFileNode() { return nullptr; }
+    virtual const FileNode *asFileNode() const { return nullptr; }
+    virtual FolderNode *asFolderNode() { return nullptr; }
+    virtual const FolderNode *asFolderNode() const { return nullptr; }
+    virtual ProjectNode *asProjectNode() { return nullptr; }
+    virtual const ProjectNode *asProjectNode() const { return nullptr; }
+    virtual SessionNode *asSessionNode() { return nullptr; }
+    virtual const SessionNode *asSessionNode() const { return nullptr; }
 
     static bool sortByPath(Node *a, Node *b);
 
@@ -159,7 +163,8 @@ public:
     FileType fileType() const;
     bool isGenerated() const;
 
-    FileNode *asFileNode() override;
+    FileNode *asFileNode() final { return this; }
+    const FileNode *asFileNode() const final { return this; }
 
     static QList<FileNode *> scanForFiles(const Utils::FileName &directory,
                                           const std::function<FileNode *(const Utils::FileName &fileName)> factory,
@@ -232,7 +237,8 @@ public:
     void addFolderNodes(const QList<FolderNode*> &subFolders);
     void removeFolderNodes(const QList<FolderNode*> &subFolders);
 
-    FolderNode *asFolderNode() override;
+    FolderNode *asFolderNode() final { return this; }
+    const FolderNode *asFolderNode() const final { return this; }
 
 protected:
     QList<FolderNode*> m_folderNodes;
@@ -285,7 +291,8 @@ public:
     void addProjectNodes(const QList<ProjectNode*> &subProjects);
     void removeProjectNodes(const QList<ProjectNode*> &subProjects);
 
-    ProjectNode *asProjectNode() override;
+    ProjectNode *asProjectNode() final { return this; }
+    const ProjectNode *asProjectNode() const final { return this; }
 
     Node *trim(const QSet<Node *> &keepers) override;
 
@@ -319,7 +326,9 @@ public:
     bool showInSimpleTree() const override;
     void projectDisplayNameChanged(Node *node);
 
-    SessionNode *asSessionNode() override;
+    SessionNode *asSessionNode() final { return this; }
+    const SessionNode *asSessionNode() const final { return this; }
+
 protected:
     void addProjectNodes(const QList<ProjectNode*> &projectNodes);
     void removeProjectNodes(const QList<ProjectNode*> &projectNodes);
