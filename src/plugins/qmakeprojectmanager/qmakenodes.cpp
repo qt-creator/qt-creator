@@ -426,7 +426,7 @@ struct InternalNode
             newNode = new FolderNode(FileName::fromString(node->fullPath));
         } else {
             auto n = new ProVirtualFolderNode(FileName::fromString(node->fullPath),
-                                                 node->priority, node->typeName);
+                                              node->priority, node->typeName);
             n->setAddFileFilter(node->addFileFilter);
             newNode = n;
         }
