@@ -237,6 +237,7 @@ static QList<FileNode *> scanForFilesRecursively(const Utils::FileName &director
                                                  double progressStart, double progressRange)
 {
     QList<FileNode *> result;
+
     const QDir baseDir = QDir(directory.toString());
 
     // Do not follow directory loops:
@@ -252,6 +253,9 @@ static QList<FileNode *> scanForFilesRecursively(const Utils::FileName &director
     const double progressIncrement = progressRange / static_cast<double>(entries.count());
     int lastIntProgress = 0;
     for (const QFileInfo &entry : entries) {
+        if (future && future->isCanceled())
+            return result;
+
         const Utils::FileName entryName = Utils::FileName::fromString(entry.absoluteFilePath());
         if (!vcsControl || !vcsControl->isVcsFileOrDirectory(entryName)) {
             if (entry.isDir())
