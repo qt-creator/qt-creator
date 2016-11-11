@@ -1286,7 +1286,7 @@ class Dumper(DumperBase):
 
                         self.put(('frame={function="%s",file="%s",'
                                  'line="%s",language="%s",context="%s"}')
-                            % (function, fileName, lineNumber, language, context))
+                            % (function, self.hexencode(fileName), lineNumber, language, context))
 
                     if False and self.isInternalInterpreterFrame(functionName):
                         frame = frame.older()
