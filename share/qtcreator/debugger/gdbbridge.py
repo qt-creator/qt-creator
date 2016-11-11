@@ -733,7 +733,7 @@ class Dumper(DumperBase):
         print(',time="%d"' % int(1000 * (tt - time.time())))
 
     def parseAndEvaluate(self, exp):
-        #warn('EVALUATE '%s'' % exp)
+        #warn('EVALUATE "%s"' % exp)
         try:
             val = gdb.parse_and_eval(exp)
         except RuntimeError as error:
@@ -765,7 +765,7 @@ class Dumper(DumperBase):
            addr = self.pokeValue(value)
         #warn('PTR: %s -> %s(%s)' % (value, function, addr))
         exp = '((%s*)0x%x)->%s(%s)' % (typeName, addr, function, arg)
-        #warn("CALL: %s" % exp)
+        #warn('CALL: %s' % exp)
         result = gdb.parse_and_eval(exp)
         #warn('  -> %s' % result)
         res = self.fromNativeValue(result)
@@ -795,8 +795,8 @@ class Dumper(DumperBase):
         size = value.type.size()
         data = value.data()
         h = self.hexencode(data)
-        #warn("DATA: %s" % h
-        string = ''.join("\\x" + h[2*i:2*i+2] for i in range(size))
+        #warn('DATA: %s' % h)
+        string = ''.join('\\x' + h[2*i:2*i+2] for i in range(size))
         exp = '(%s*)memcpy(calloc(%d, 1), "%s", %d)' \
             % (value.type.name, size, string, size)
         #warn('EXP: %s' % exp)
@@ -982,7 +982,7 @@ class Dumper(DumperBase):
         #oldthread = gdb.selected_thread()
         #if oldthread:
         #    try:
-        #        objectPrivateType = gdb.lookup_type(ns + "QObjectPrivate").pointer()
+        #        objectPrivateType = gdb.lookup_type(ns + 'QObjectPrivate').pointer()
         #        inferior = self.selectedInferior()
         #        for thread in inferior.threads():
         #            thread.switch()

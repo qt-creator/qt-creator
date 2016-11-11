@@ -168,7 +168,7 @@ def effective(file, line, frame):
 
 
 
-#__all__ = ["Dumper"]
+#__all__ = ['Dumper']
 
 def find_function(funcname, filename):
     cre = re.compile(r'def\s+%s\s*[(]' % re.escape(funcname))
@@ -797,7 +797,7 @@ class Dumper:
         Returns True if the normal interaction function must be called,
         False otherwise."""
         # self.currentbp is set in break_here if a breakpoint was hit
-        if getattr(self, "currentbp", False) and self.currentbp in self.commands:
+        if getattr(self, 'currentbp', False) and self.currentbp in self.commands:
             currentbp = self.currentbp
             self.currentbp = 0
             lastcmd_back = self.lastcmd
@@ -914,7 +914,7 @@ class Dumper:
         """
         if not arg:
             if self.breaks:  # There's at least one
-                self.message("Num Type         Disp Enb   Where")
+                self.message('Num Type         Disp Enb   Where')
                 for bp in Breakpoint.bpbynumber:
                     if bp:
                         self.message(bp.bpformat())
@@ -1670,7 +1670,7 @@ class Dumper:
         value = args['value']
         cmd = '%s=%s' % (exp, exp, value)
         eval(cmd, {})
-        self.put('CMD: '%s'' % cmd)
+        self.put('CMD: "%s"' % cmd)
         self.flushOutput()
 
     def stackListFrames(self, args):
