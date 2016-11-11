@@ -1755,8 +1755,9 @@ QMenu *WatchModel::createFormatMenu(WatchItem *item)
 
     const DisplayFormats alternativeFormats = typeFormatList(item);
 
+    const QString iname = item->iname;
     const int typeFormat = theTypeFormats.value(stripForFormat(item->type), AutomaticFormat);
-    const int individualFormat = theIndividualFormats.value(item->iname, AutomaticFormat);
+    const int individualFormat = theIndividualFormats.value(iname, AutomaticFormat);
 
     auto addBaseChangeAction = [this, menu](const QString &text, int base) {
         addCheckableAction(menu, text, true, theUnprintableBase == base, [this, base] {
@@ -1775,26 +1776,26 @@ QMenu *WatchModel::createFormatMenu(WatchItem *item)
     const QString spacer = "     ";
     menu->addSeparator();
 
-    addAction(menu, tr("Change Display for Object Named \"%1\":").arg(item->name), false);
+    addAction(menu, tr("Change Display for Object Named \"%1\":").arg(iname), false);
 
     QString msg = (individualFormat == AutomaticFormat && typeFormat != AutomaticFormat)
         ? tr("Use Format for Type (Currently %1)").arg(nameForFormat(typeFormat))
         : QString(tr("Use Display Format Based on Type") + ' ');
 
     addCheckableAction(menu, spacer + msg, true, individualFormat == AutomaticFormat,
-                       [this, item] {
+                       [this, iname] {
                                 // FIXME: Extend to multi-selection.
                                 //const QModelIndexList active = activeRows();
                                 //foreach (const QModelIndex &idx, active)
                                 //    setModelData(LocalsIndividualFormatRole, AutomaticFormat, idx);
-                                setIndividualFormat(item->iname, AutomaticFormat);
+                                setIndividualFormat(iname, AutomaticFormat);
                                 m_engine->updateLocals();
                        });
 
     for (int format : alternativeFormats) {
         addCheckableAction(menu, spacer + nameForFormat(format), true, format == individualFormat,
-                           [this, act, format, item] {
-                                setIndividualFormat(item->iname, format);
+                           [this, act, format, iname] {
+                                setIndividualFormat(iname, format);
                                 m_engine->updateLocals();
                            });
     }
@@ -1803,18 +1804,18 @@ QMenu *WatchModel::createFormatMenu(WatchItem *item)
     addAction(menu, tr("Change Display for Type \"%1\":").arg(item->type), false);
 
     addCheckableAction(menu, spacer + tr("Automatic"), true, typeFormat == AutomaticFormat,
-                       [this, item] {
+                       [this, iname] {
                             //const QModelIndexList active = activeRows();
                            //foreach (const QModelIndex &idx, active)
                            //    setModelData(LocalsTypeFormatRole, AutomaticFormat, idx);
-                           setTypeFormat(item->iname, AutomaticFormat);
+                           setTypeFormat(iname, AutomaticFormat);
                            m_engine->updateLocals();
                        });
 
     for (int format : alternativeFormats) {
         addCheckableAction(menu, spacer + nameForFormat(format), true, format == typeFormat,
-                           [this, act, format, item] {
-                                setTypeFormat(item->iname, format);
+                           [this, act, format, iname] {
+                                setTypeFormat(iname, format);
                                 m_engine->updateLocals();
                            });
     }
