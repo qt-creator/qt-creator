@@ -29,9 +29,11 @@
 #include "gitclient.h"
 
 #include <coreplugin/icore.h>
-#include <vcsbase/vcsbaseconstants.h>
-#include <utils/hostosinfo.h>
 #include <coreplugin/messagebox.h>
+#include <vcsbase/vcsbaseconstants.h>
+
+#include <utils/environment.h>
+#include <utils/hostosinfo.h>
 
 #include <QDir>
 #include <QDebug>
@@ -58,9 +60,13 @@ SettingsPageWidget::SettingsPageWidget(QWidget *parent) : VcsClientOptionsPageWi
     } else {
         m_ui.winHomeCheckBox->setVisible(false);
     }
+    updateNoteField();
+
     m_ui.repBrowserCommandPathChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
     m_ui.repBrowserCommandPathChooser->setHistoryCompleter("Git.RepoCommand.History");
     m_ui.repBrowserCommandPathChooser->setPromptDialogTitle(tr("Git Repository Browser Command"));
+
+    connect(m_ui.pathLineEdit, &QLineEdit::textChanged, this, &SettingsPageWidget::updateNoteField);
 }
 
 VcsBaseClientSettings SettingsPageWidget::settings() const
@@ -88,6 +94,17 @@ void SettingsPageWidget::setSettings(const VcsBaseClientSettings &s)
     m_ui.winHomeCheckBox->setChecked(s.boolValue(GitSettings::winSetHomeEnvironmentKey));
     m_ui.gitkOptionsLineEdit->setText(s.stringValue(GitSettings::gitkOptionsKey));
     m_ui.repBrowserCommandPathChooser->setPath(s.stringValue(GitSettings::repositoryBrowserCmd));
+}
+
+void SettingsPageWidget::updateNoteField()
+{
+    Utils::Environment env = Utils::Environment::systemEnvironment();
+    env.prependOrSetPath(m_ui.pathLineEdit->text());
+
+    bool showNote = env.searchInPath("perl").isEmpty();
+
+    m_ui.noteFieldlabel->setVisible(showNote);
+    m_ui.noteLabel->setVisible(showNote);
 }
 
 // -------- SettingsPage

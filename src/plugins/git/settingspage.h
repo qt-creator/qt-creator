@@ -53,6 +53,8 @@ public:
     void setSettings(const VcsBase::VcsBaseClientSettings &s) override;
 
 private:
+    void updateNoteField();
+
     Ui::SettingsPage m_ui;
 };
 
