@@ -26,8 +26,7 @@
 #pragma once
 
 #include <QObject>
-#include <QFutureSynchronizer>
-#include <QFutureWatcher>
+#include <QFutureInterface>
 #include <QProcess>
 #include <QTimer>
 
@@ -42,13 +41,14 @@ class ProcessReaper : public QObject
 
 public:
     ProcessReaper(QProcess *p, int timeoutMs);
+    ~ProcessReaper();
 
-    QFuture<void> future() { return m_futureInterface.future(); }
-
-private:
+    int timeoutMs() const;
+    bool isFinished() const;
     void nextIteration();
 
-    QTimer m_iterationTimer;
+private:
+    mutable QTimer m_iterationTimer;
     QFutureInterface<void> m_futureInterface;
     QProcess *m_process;
     int m_emergencyCounter = 0;
@@ -59,7 +59,7 @@ class ReaperPrivate {
 public:
     ~ReaperPrivate();
 
-    QFutureSynchronizer<void> m_synchronizer;
+    QList<ProcessReaper *> m_reapers;
 
 private:
     ReaperPrivate();

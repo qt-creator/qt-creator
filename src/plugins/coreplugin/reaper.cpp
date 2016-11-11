@@ -29,6 +29,8 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
+#include <QThread>
+
 namespace Core {
 namespace Internal {
 
@@ -36,6 +38,8 @@ static ReaperPrivate *d = nullptr;
 
 ProcessReaper::ProcessReaper(QProcess *p, int timeoutMs) : m_process(p)
 {
+    d->m_reapers.append(this);
+
     m_iterationTimer.setInterval(timeoutMs);
     m_iterationTimer.setSingleShot(true);
     connect(&m_iterationTimer, &QTimer::timeout, this, &ProcessReaper::nextIteration);
@@ -44,11 +48,31 @@ ProcessReaper::ProcessReaper(QProcess *p, int timeoutMs) : m_process(p)
     m_futureInterface.reportStarted();
 }
 
+ProcessReaper::~ProcessReaper()
+{
+    d->m_reapers.removeOne(this);
+}
+
+int ProcessReaper::timeoutMs() const
+{
+    const int remaining = m_iterationTimer.remainingTime();
+    if (remaining < 0)
+        return m_iterationTimer.interval();
+    m_iterationTimer.stop();
+    return remaining;
+}
+
+bool ProcessReaper::isFinished() const
+{
+    return !m_process;
+}
+
 void ProcessReaper::nextIteration()
 {
     QProcess::ProcessState state = m_process->state();
     if (state == QProcess::NotRunning || m_emergencyCounter > 5) {
         delete m_process;
+        m_process = nullptr;
         m_futureInterface.reportFinished();
         return;
     }
@@ -76,6 +100,30 @@ ReaperPrivate::ReaperPrivate()
 
 ReaperPrivate::~ReaperPrivate()
 {
+    while (!m_reapers.isEmpty()) {
+        int alreadyWaited = 0;
+        QList<ProcessReaper *> toDelete;
+
+        // push reapers along:
+        foreach (ProcessReaper *pr, m_reapers) {
+            const int timeoutMs = pr->timeoutMs();
+            if (alreadyWaited < timeoutMs) {
+                const unsigned long toSleep = static_cast<unsigned long>(timeoutMs - alreadyWaited);
+                QThread::msleep(toSleep);
+                alreadyWaited += toSleep;
+            }
+
+            pr->nextIteration();
+
+            if (pr->isFinished())
+                toDelete.append(pr);
+        }
+
+        // Clean out reapers that finished in the meantime
+        qDeleteAll(toDelete);
+        toDelete.clear();
+    }
+
     d = nullptr;
 }
 
@@ -90,23 +138,7 @@ void reap(QProcess *process, int timeoutMs)
 
     QTC_ASSERT(Internal::d, return);
 
-    auto reaper = new Internal::ProcessReaper(process, timeoutMs);
-    QFuture<void> f = reaper->future();
-
-    Internal::d->m_synchronizer.addFuture(f);
-    auto watcher = new QFutureWatcher<void>();
-
-    QObject::connect(watcher, &QFutureWatcher<void>::finished, [watcher, reaper]() {
-        watcher->deleteLater();
-
-        const QList<QFuture<void>> futures = Utils::filtered(Internal::d->m_synchronizer.futures(),
-                                                             [reaper](const QFuture<void> &f) { return reaper->future() != f; });
-        for (const QFuture<void> &f : futures)
-            Internal::d->m_synchronizer.addFuture(f);
-
-        delete reaper;
-    });
-    watcher->setFuture(f);
+    new Internal::ProcessReaper(process, timeoutMs);
 }
 
 } // namespace Reaper
