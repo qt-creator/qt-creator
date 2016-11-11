@@ -115,6 +115,7 @@ static struct {
     QString strfor;
     QString strdefineTest;
     QString strdefineReplace;
+    QString strbypassNesting;
     QString stroption;
     QString strreturn;
     QString strnext;
@@ -138,6 +139,7 @@ void QMakeParser::initialize()
     statics.strfor = QLatin1String("for");
     statics.strdefineTest = QLatin1String("defineTest");
     statics.strdefineReplace = QLatin1String("defineReplace");
+    statics.strbypassNesting = QLatin1String("bypassNesting");
     statics.stroption = QLatin1String("option");
     statics.strreturn = QLatin1String("return");
     statics.strnext = QLatin1String("next");
@@ -1171,6 +1173,25 @@ void QMakeParser::finalizeCall(ushort *&tokPtr, ushort *uc, ushort *ptr, int arg
                 }
                 parseError(fL1S("%1(function) requires one literal argument.").arg(*defName));
                 return;
+            } else if (m_tmp == statics.strbypassNesting) {
+                if (*uce != TokFuncTerminator) {
+                    bogusTest(tokPtr, fL1S("%1() requires zero arguments.").arg(m_tmp));
+                    return;
+                }
+                if (!(m_blockstack.top().nest & NestFunction)) {
+                    bogusTest(tokPtr, fL1S("Unexpected %1().").arg(m_tmp));
+                    return;
+                }
+                if (m_invert) {
+                    bogusTest(tokPtr, fL1S("Unexpected NOT operator in front of %1().").arg(m_tmp));
+                    return;
+                }
+                flushScopes(tokPtr);
+                putLineMarker(tokPtr);
+                putOperator(tokPtr);
+                putTok(tokPtr, TokBypassNesting);
+                enterScope(tokPtr, true, StCtrl);
+                return;
             } else if (m_tmp == statics.strreturn) {
                 if (m_blockstack.top().nest & NestFunction) {
                     if (argc > 1) {
@@ -1439,7 +1460,7 @@ static bool getBlock(const ushort *tokens, int limit, int &offset, QString *outS
         "TokReturn", "TokBreak", "TokNext",
         "TokNot", "TokAnd", "TokOr",
         "TokBranch", "TokForLoop",
-        "TokTestDef", "TokReplaceDef"
+        "TokTestDef", "TokReplaceDef", "TokBypassNesting"
     };
 
     while (offset != limit) {
@@ -1522,6 +1543,9 @@ static bool getBlock(const ushort *tokens, int limit, int &offset, QString *outS
                 ok = getHashStr(tokens, limit, offset, outStr);
                 if (ok)
                     ok = getSubBlock(tokens, limit, offset, outStr, indent, "body");
+                break;
+            case TokBypassNesting:
+                ok = getSubBlock(tokens, limit, offset, outStr, indent, "block");
                 break;
             default:
                 Q_ASSERT(!"unhandled token");

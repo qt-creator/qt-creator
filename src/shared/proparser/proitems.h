@@ -320,6 +320,9 @@ enum ProToken {
                         // - function name: hash (2), length (1), chars (length)
                         // - body length (2)
                         // - body + TokTerminator (body length)
+    TokBypassNesting,   // escape from function local variable scopes:
+                        // - block length (2)
+                        // - block + TokTerminator (block length)
     TokMask = 0xff,
     TokQuoted = 0x100,  // The expression is quoted => join expanded stringlist
     TokNewStr = 0x200   // Next stringlist element
