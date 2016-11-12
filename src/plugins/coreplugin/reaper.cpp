@@ -69,7 +69,7 @@ bool ProcessReaper::isFinished() const
 
 void ProcessReaper::nextIteration()
 {
-    QProcess::ProcessState state = m_process->state();
+    QProcess::ProcessState state = m_process ? m_process->state() : QProcess::NotRunning;
     if (state == QProcess::NotRunning || m_emergencyCounter > 5) {
         delete m_process;
         m_process = nullptr;
