@@ -49,6 +49,8 @@ public:
 
     virtual QList<Core::Id> availableCreationIds() const = 0;
 
+    virtual QIcon iconForId(Core::Id type) const = 0;
+
     virtual bool canCreate() const;
     virtual IDevice::Ptr create(Core::Id id) const = 0;
 

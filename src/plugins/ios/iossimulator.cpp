@@ -28,7 +28,6 @@
 #include "iostoolhandler.h"
 
 #include <projectexplorer/kitinformation.h>
-#include <utils/icon.h>
 #include <utils/port.h>
 
 #include <QCoreApplication>
@@ -54,10 +53,6 @@ IosSimulator::IosSimulator(Core::Id id)
 {
     setDisplayName(QCoreApplication::translate("Ios::Internal::IosSimulator", "iOS Simulator"));
     setDeviceState(DeviceReadyToUse);
-    setDeviceIcon({Utils::Icon({{":/ios/images/iosdevicesmall.png",
-                                 Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint),
-                   Utils::Icon({{":/ios/images/iosdevice.png",
-                                 Utils::Theme::IconsBaseColor}})});
 }
 
 IosSimulator::IosSimulator()

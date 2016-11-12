@@ -33,6 +33,8 @@
 
 #include <utils/qtcassert.h>
 
+#include <QIcon>
+
 using namespace ProjectExplorer;
 
 namespace RemoteLinux {
@@ -51,6 +53,12 @@ QString GenericLinuxDeviceConfigurationFactory::displayNameForId(Core::Id type) 
 QList<Core::Id> GenericLinuxDeviceConfigurationFactory::availableCreationIds() const
 {
     return QList<Core::Id>() << Core::Id(Constants::GenericLinuxOsType);
+}
+
+QIcon GenericLinuxDeviceConfigurationFactory::iconForId(Core::Id type) const
+{
+    Q_UNUSED(type)
+    return QIcon();
 }
 
 IDevice::Ptr GenericLinuxDeviceConfigurationFactory::create(Core::Id id) const

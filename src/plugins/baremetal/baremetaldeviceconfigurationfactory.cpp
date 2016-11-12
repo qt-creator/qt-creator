@@ -29,7 +29,10 @@
 #include "baremetalconstants.h"
 #include "baremetaldevice.h"
 
+#include <utils/icon.h>
 #include <utils/qtcassert.h>
+
+#include <QIcon>
 
 using namespace ProjectExplorer;
 
@@ -49,6 +52,18 @@ QString BareMetalDeviceConfigurationFactory::displayNameForId(Core::Id type) con
 QList<Core::Id> BareMetalDeviceConfigurationFactory::availableCreationIds() const
 {
     return QList<Core::Id>() << Core::Id(Constants::BareMetalOsType);
+}
+
+QIcon BareMetalDeviceConfigurationFactory::iconForId(Core::Id type) const
+{
+    Q_UNUSED(type)
+    using namespace Utils;
+    static const QIcon icon =
+            Icon::combinedIcon({Icon({{":/baremetal/images/baremetaldevicesmall.png",
+                                       Theme::PanelTextColorDark}}, Icon::Tint),
+                                Icon({{":/baremetal/images/baremetaldevice.png",
+                                       Theme::IconsBaseColor}})});
+    return icon;
 }
 
 IDevice::Ptr BareMetalDeviceConfigurationFactory::create(Core::Id id) const

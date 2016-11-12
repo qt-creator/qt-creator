@@ -28,6 +28,10 @@
 
 #include "iosconstants.h"
 
+#include <utils/icon.h>
+
+#include <QIcon>
+
 namespace Ios {
 namespace Internal {
 
@@ -44,6 +48,18 @@ QString IosDeviceFactory::displayNameForId(Core::Id type) const
 QList<Core::Id> IosDeviceFactory::availableCreationIds() const
 {
     return QList<Core::Id>() << Core::Id(Constants::IOS_DEVICE_TYPE);
+}
+
+QIcon IosDeviceFactory::iconForId(Core::Id type) const
+{
+    Q_UNUSED(type)
+    using namespace Utils;
+    static const QIcon icon =
+            Icon::combinedIcon({Icon({{":/ios/images/iosdevicesmall.png",
+                                       Theme::PanelTextColorDark}}, Icon::Tint),
+                                Icon({{":/ios/images/iosdevice.png",
+                                       Theme::IconsBaseColor}})});
+    return icon;
 }
 
 bool IosDeviceFactory::canCreate() const

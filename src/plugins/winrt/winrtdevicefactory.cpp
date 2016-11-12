@@ -34,6 +34,7 @@
 #include <qtsupport/qtversionmanager.h>
 #include <utils/qtcassert.h>
 
+#include <QIcon>
 #include <QFileInfo>
 
 using Core::MessageManager;
@@ -70,6 +71,12 @@ QList<Core::Id> WinRtDeviceFactory::availableCreationIds() const
     return QList<Core::Id>() << Constants::WINRT_DEVICE_TYPE_LOCAL
                              << Constants::WINRT_DEVICE_TYPE_PHONE
                              << Constants::WINRT_DEVICE_TYPE_EMULATOR;
+}
+
+QIcon WinRtDeviceFactory::iconForId(Core::Id type) const
+{
+    Q_UNUSED(type)
+    return QIcon();
 }
 
 IDevice::Ptr WinRtDeviceFactory::create(Core::Id id) const

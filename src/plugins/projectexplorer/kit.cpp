@@ -25,12 +25,14 @@
 
 #include "kit.h"
 
+#include "devicesupport/idevicefactory.h"
 #include "kitinformation.h"
 #include "kitmanager.h"
 #include "ioutputparser.h"
 #include "osparser.h"
 #include "projectexplorerconstants.h"
-#include "projectexplorericons.h"
+
+#include <extensionsystem/pluginmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
@@ -356,6 +358,15 @@ Id Kit::id() const
     return d->m_id;
 }
 
+static QIcon iconForDeviceType(Core::Id deviceType)
+{
+    const IDeviceFactory *factory = ExtensionSystem::PluginManager::getObject<IDeviceFactory>(
+        [&deviceType](const IDeviceFactory *factory) {
+            return factory->availableCreationIds().contains(deviceType);
+        });
+    return factory ? factory->iconForId(deviceType) : QIcon();
+}
+
 QIcon Kit::icon() const
 {
     if (!d->m_cachedIcon.isNull())
@@ -375,10 +386,14 @@ QIcon Kit::icon() const
         }
     }
 
-    d->m_cachedIcon = creatorTheme()->flag(Theme::FlatSideBarIcons)
-            ? Icon::combinedIcon({Icons::DESKTOP_DEVICE.icon(),
-                                  Icons::DESKTOP_DEVICE_SMALL.icon()})
-            : QApplication::style()->standardIcon(QStyle::SP_ComputerIcon);
+    const Core::Id deviceType = DeviceTypeKitInformation::deviceTypeId(this);
+    const QIcon deviceTypeIcon = iconForDeviceType(deviceType);
+    if (!deviceTypeIcon.isNull()) {
+        d->m_cachedIcon = deviceTypeIcon;
+        return d->m_cachedIcon;
+    }
+
+    d->m_cachedIcon = iconForDeviceType(Constants::DESKTOP_DEVICE_TYPE);
     return d->m_cachedIcon;
 }
 

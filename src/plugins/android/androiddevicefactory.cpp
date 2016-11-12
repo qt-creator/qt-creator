@@ -28,6 +28,10 @@
 
 #include "androidconstants.h"
 
+#include <utils/icon.h>
+
+#include <QIcon>
+
 namespace Android {
 namespace Internal {
 
@@ -46,6 +50,18 @@ QString AndroidDeviceFactory::displayNameForId(Core::Id type) const
 QList<Core::Id> AndroidDeviceFactory::availableCreationIds() const
 {
     return QList<Core::Id>() << Core::Id(Constants::ANDROID_DEVICE_TYPE);
+}
+
+QIcon AndroidDeviceFactory::iconForId(Core::Id type) const
+{
+    Q_UNUSED(type)
+    using namespace Utils;
+    static const QIcon icon =
+            Icon::combinedIcon({Icon({{":/android/images/androiddevicesmall.png",
+                                       Theme::PanelTextColorDark}}, Icon::Tint),
+                                Icon({{":/android/images/androiddevice.png",
+                                       Theme::IconsBaseColor}})});
+    return icon;
 }
 
 bool AndroidDeviceFactory::canCreate() const

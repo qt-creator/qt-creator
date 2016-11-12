@@ -26,8 +26,14 @@
 #include "desktopdevicefactory.h"
 #include "desktopdevice.h"
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorericons.h>
 
+#include <utils/icon.h>
 #include <utils/qtcassert.h>
+
+#include <QApplication>
+#include <QIcon>
+#include <QStyle>
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -45,6 +51,17 @@ QString DesktopDeviceFactory::displayNameForId(Core::Id type) const
 QList<Core::Id> DesktopDeviceFactory::availableCreationIds() const
 {
     return QList<Core::Id>() << Core::Id(Constants::DESKTOP_DEVICE_TYPE);
+}
+
+QIcon DesktopDeviceFactory::iconForId(Core::Id type) const
+{
+    Q_UNUSED(type)
+    static const QIcon icon =
+            Utils::creatorTheme()->flag(Utils::Theme::FlatSideBarIcons)
+            ? Utils::Icon::combinedIcon({Icons::DESKTOP_DEVICE.icon(),
+                                         Icons::DESKTOP_DEVICE_SMALL.icon()})
+            : QApplication::style()->standardIcon(QStyle::SP_ComputerIcon);
+    return icon;
 }
 
 bool DesktopDeviceFactory::canCreate() const

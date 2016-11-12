@@ -38,6 +38,7 @@ public:
 
     QString displayNameForId(Core::Id type) const;
     QList<Core::Id> availableCreationIds() const;
+    QIcon iconForId(Core::Id type) const;
 
     bool canCreate() const;
     ProjectExplorer::IDevice::Ptr create(Core::Id id) const;

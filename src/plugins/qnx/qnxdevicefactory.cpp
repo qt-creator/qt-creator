@@ -31,6 +31,8 @@
 
 #include <utils/qtcassert.h>
 
+#include <QIcon>
+
 namespace Qnx {
 namespace Internal {
 
@@ -48,6 +50,12 @@ QString QnxDeviceFactory::displayNameForId(Core::Id type) const
 QList<Core::Id> QnxDeviceFactory::availableCreationIds() const
 {
     return { Constants::QNX_QNX_OS_TYPE };
+}
+
+QIcon QnxDeviceFactory::iconForId(Core::Id type) const
+{
+    Q_UNUSED(type)
+    return QIcon();
 }
 
 bool QnxDeviceFactory::canCreate() const

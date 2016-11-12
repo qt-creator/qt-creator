@@ -27,7 +27,10 @@
 #include <QLatin1String>
 #include "iosconstants.h"
 #include "iossimulator.h"
+#include "utils/icon.h"
 #include "utils/qtcassert.h"
+
+#include <QIcon>
 
 namespace Ios {
 namespace Internal {
@@ -47,6 +50,18 @@ QString IosSimulatorFactory::displayNameForId(Core::Id type) const
 QList<Core::Id> IosSimulatorFactory::availableCreationIds() const
 {
     return QList<Core::Id>() << Core::Id(Constants::IOS_SIMULATOR_TYPE);
+}
+
+QIcon IosSimulatorFactory::iconForId(Core::Id type) const
+{
+    Q_UNUSED(type)
+    using namespace Utils;
+    static const QIcon icon =
+            Icon::combinedIcon({Icon({{":/ios/images/iosdevicesmall.png",
+                                       Theme::PanelTextColorDark}}, Icon::Tint),
+                                Icon({{":/ios/images/iosdevice.png",
+                                       Theme::IconsBaseColor}})});
+    return icon;
 }
 
 bool IosSimulatorFactory::canCreate() const

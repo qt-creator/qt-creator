@@ -31,7 +31,6 @@
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/kitinformation.h>
 #include <coreplugin/helpmanager.h>
-#include <utils/icon.h>
 #include <utils/portlist.h>
 
 #include <QCoreApplication>
@@ -92,10 +91,6 @@ IosDevice::IosDevice()
     ports.addRange(Utils::Port(Constants::IOS_DEVICE_PORT_START),
                    Utils::Port(Constants::IOS_DEVICE_PORT_END));
     setFreePorts(ports);
-    setDeviceIcon({Utils::Icon({{":/ios/images/iosdevicesmall.png",
-                                 Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint),
-                   Utils::Icon({{":/ios/images/iosdevice.png",
-                                 Utils::Theme::IconsBaseColor}})});
 }
 
 IosDevice::IosDevice(const IosDevice &other)

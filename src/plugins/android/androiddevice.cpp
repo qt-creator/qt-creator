@@ -45,10 +45,6 @@ AndroidDevice::AndroidDevice()
 {
     setDisplayName(QCoreApplication::translate("Android::Internal::AndroidDevice", "Run on Android"));
     setDeviceState(DeviceReadyToUse);
-    setDeviceIcon({Utils::Icon({{":/android/images/androiddevicesmall.png",
-                                 Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint),
-                   Utils::Icon({{":/android/images/androiddevice.png",
-                                 Utils::Theme::IconsBaseColor}})});
 }
 
 AndroidDevice::AndroidDevice(const AndroidDevice &other)
