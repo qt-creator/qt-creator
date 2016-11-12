@@ -23,6 +23,7 @@
 **
 ****************************************************************************/
 
+#include "algorithm.h"
 #include "icon.h"
 #include "qtcassert.h"
 #include "theme/theme.h"
@@ -250,6 +251,12 @@ QIcon Icon::combinedIcon(const QList<QIcon> &icons)
             for (const QSize &size: icon.availableSizes(mode))
                 result.addPixmap(icon.pixmap(window, size, mode), mode);
     return result;
+}
+
+QIcon Icon::combinedIcon(const QList<Icon> &icons)
+{
+    const QList<QIcon> qIcons = transform(icons, &Icon::icon);
+    return combinedIcon(qIcons);
 }
 
 } // namespace Utils

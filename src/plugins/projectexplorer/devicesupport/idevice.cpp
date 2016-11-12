@@ -34,7 +34,6 @@
 #include "../runnables.h"
 
 #include <ssh/sshconnection.h>
-#include <utils/algorithm.h>
 #include <utils/icon.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
@@ -409,9 +408,7 @@ void IDevice::setDeviceIcon(const QList<Utils::Icon> &deviceIcon)
 
 QIcon IDevice::deviceIcon() const
 {
-    const QList<QIcon> icons =
-            Utils::transform(d->deviceIcons, [](const Utils::Icon &icon){return icon.icon();});
-    return Utils::Icon::combinedIcon(icons);
+    return Utils::Icon::combinedIcon(d->deviceIcons);
 }
 
 QSsh::SshConnectionParameters IDevice::sshParameters() const

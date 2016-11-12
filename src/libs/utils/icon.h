@@ -76,8 +76,9 @@ public:
     // Like sideBarIcon plus added action mode for the flat icon
     static QIcon modeIcon(const Icon &classic, const Icon &flat, const Icon &flatActive);
 
-    // Combined icon pixmaps in Normal and Disabled states from several QIcons
+    // Combined icon pixmaps in Normal and Disabled states from several Icons
     static QIcon combinedIcon(const QList<QIcon> &icons);
+    static QIcon combinedIcon(const QList<Icon> &icons);
 
 private:
     IconStyleOptions m_style = None;
