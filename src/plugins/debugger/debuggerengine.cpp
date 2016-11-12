@@ -1240,6 +1240,7 @@ void DebuggerEngine::notifyDebuggerProcessFinished(int exitCode,
         // Nothing to do.
         break;
     case EngineShutdownRequested:
+    case InferiorShutdownRequested:
         notifyEngineShutdownOk();
         break;
     case InferiorRunOk:
