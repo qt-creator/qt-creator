@@ -39,7 +39,7 @@ class Project;
 class Target;
 
 // Documentation inside.
-class PROJECTEXPLORER_EXPORT ProjectImporter
+class PROJECTEXPLORER_EXPORT ProjectImporter : public QObject
 {
 public:
     ProjectImporter(const QString &path);

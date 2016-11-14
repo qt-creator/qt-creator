@@ -32,6 +32,7 @@
 
 #include <utils/wizardpage.h>
 
+#include <QPointer>
 #include <QString>
 #include <QMap>
 
@@ -109,7 +110,7 @@ private:
 
     KitMatcher m_requiredMatcher;
     KitMatcher m_preferredMatcher;
-    ProjectImporter *m_importer = nullptr;
+    QPointer<ProjectImporter> m_importer = nullptr;
     QLayout *m_baseLayout = nullptr;
     QString m_projectPath;
     QString m_defaultShadowBuildLocation;
