@@ -111,7 +111,8 @@ int internalMain(QGuiApplication *application)
 
 
 #ifdef ENABLE_QT_BREAKPAD
-    QtSystemExceptionHandler systemExceptionHandler;
+    const QString libexecPath = QCoreApplication::applicationDirPath() + '/' + RELATIVE_LIBEXEC_PATH;
+    QtSystemExceptionHandler systemExceptionHandler(libexecPath);
 #endif
 
     new QmlDesigner::Qt5NodeInstanceClientProxy(application);

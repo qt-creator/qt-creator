@@ -51,6 +51,7 @@ wrapper.sh
 /src/app/Info.plist
 /src/plugins/**/*.json
 /src/plugins/coreplugin/ide_version.h
+/src/libs/qt-breakpad/bin
 app_version.h
 phony.c
 

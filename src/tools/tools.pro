@@ -41,8 +41,7 @@ isEmpty(BUILD_CPLUSPLUS_TOOLS):BUILD_CPLUSPLUS_TOOLS=$$(BUILD_CPLUSPLUS_TOOLS)
         cplusplus-update-frontend
 }
 
-QT_BREAKPAD_ROOT_PATH = $$(QT_BREAKPAD_ROOT_PATH)
-!isEmpty(QT_BREAKPAD_ROOT_PATH) {
+!isEmpty(BREAKPAD_SOURCE_DIR) {
     SUBDIRS += qtcrashhandler
 } else {
     linux-* {

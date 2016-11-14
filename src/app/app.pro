@@ -12,13 +12,10 @@ HEADERS += ../tools/qtcreatorcrashhandler/crashhandlersetup.h
 SOURCES += main.cpp ../tools/qtcreatorcrashhandler/crashhandlersetup.cpp
 
 include(../rpath.pri)
+include(../libs/qt-breakpad/qtbreakpad.pri)
 
 LIBS *= -l$$qtLibraryName(ExtensionSystem) -l$$qtLibraryName(Aggregation) -l$$qtLibraryName(Utils)
 
-QT_BREAKPAD_ROOT_PATH = $$(QT_BREAKPAD_ROOT_PATH)
-!isEmpty(QT_BREAKPAD_ROOT_PATH) {
-    include($$QT_BREAKPAD_ROOT_PATH/qtbreakpad.pri)
-}
 win32 {
     # We need the version in two separate formats for the .rc file
     #  RC_VERSION=4,3,82,0 (quadruple)
