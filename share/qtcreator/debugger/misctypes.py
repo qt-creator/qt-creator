@@ -62,7 +62,7 @@ def qdump____m512d(d, value):
         d.putArrayData(value.address(), 8, d.lookupType('double'))
 
 def qdump____m128i(d, value):
-    data = d.hexencode(value.data())
+    data = d.hexencode(value.data(16))
     d.putValue(':'.join('%04x' % int(data[i:i+4], 16) for i in xrange(0, 32, 4)))
     if d.isExpanded():
         with Children(d):
@@ -73,7 +73,7 @@ def qdump____m128i(d, value):
             d.putArrayItem('uint64x2', addr, 2, 'unsigned long long')
 
 def qdump____m256i(d, value):
-    data = d.hexencode(value.data())
+    data = d.hexencode(value.data(32))
     d.putValue(':'.join('%04x' % int(data[i:i+4], 16) for i in xrange(0, 64, 4)))
     if d.isExpanded():
         with Children(d):
@@ -84,7 +84,7 @@ def qdump____m256i(d, value):
             d.putArrayItem('uint64x4', addr, 4, 'unsigned long long')
 
 def qdump____m512i(d, value):
-    data = d.hexencode(value.data())
+    data = d.hexencode(value.data(64))
     d.putValue(':'.join('%04x' % int(data[i:i+4], 16) for i in xrange(0, 64, 4))
                + ', ' + ':'.join('%04x' % int(data[i:i+4], 16) for i in xrange(64, 128, 4)))
     if d.isExpanded():
