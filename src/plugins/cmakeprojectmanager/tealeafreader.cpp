@@ -360,18 +360,12 @@ void TeaLeafReader::generateProjectTree(CMakeListsNode *root, const QList<FileNo
     }
     const QList<FileName> allIncludePaths = allIncludePathSet.toList();
 
-    QList<FileNode *> includedHeaderFiles;
-    QList<FileNode *> unusedFileNodes;
-    std::tie(includedHeaderFiles, unusedFileNodes)
-            = Utils::partition(allFiles, [&allIncludePaths](const FileNode *fn) -> bool {
+    const QList<FileNode *> includedHeaderFiles
+            = Utils::filtered(allFiles, [&allIncludePaths](const FileNode *fn) -> bool {
         if (fn->fileType() != FileType::Header)
             return false;
 
-        for (const FileName &inc : allIncludePaths) {
-            if (fn->filePath().isChildOf(inc))
-                return true;
-        }
-        return false;
+        return Utils::contains(allIncludePaths, [fn](const FileName &inc) { return fn->filePath().isChildOf(inc); });
     });
 
     const auto knownFiles = QSet<FileName>::fromList(Utils::transform(m_files, [](const FileNode *fn) { return fn->filePath(); }));
