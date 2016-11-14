@@ -519,7 +519,7 @@ QSet<Node *> ServerModeReader::updateCMakeLists(CMakeListsNode *root,
 {
     QSet<Node *> usedNodes;
 
-    const QDir baseDir = QDir(root->filePath().parentDir().toString());
+    const QDir baseDir = QDir(m_parameters.sourceDirectory.toString());
 
     QHash<QString, FileNode *> nodeHash;
     for (FileNode *cm : cmakeLists) {
