@@ -31,11 +31,11 @@ namespace Debugger {
 namespace Icons {
 
 const Icon BREAKPOINT({
-        {":/debugger/images/breakpoint.png", Theme::IconsErrorColor}}, Icon::Tint);
+        {":/utils/images/filledcircle.png", Theme::IconsErrorColor}}, Icon::Tint);
 const Icon BREAKPOINT_DISABLED({
         {":/debugger/images/breakpoint_disabled.png", Theme::IconsErrorColor}}, Icon::Tint);
 const Icon BREAKPOINT_PENDING({
-        {":/debugger/images/breakpoint.png", Theme::IconsErrorColor},
+        {":/utils/images/filledcircle.png", Theme::IconsErrorColor},
         {":/debugger/images/breakpoint_pending_overlay.png", Theme::PanelTextColorDark}}, Icon::IconStyleOptions(Icon::Tint | Icon::PunchEdges));
 const Icon BREAKPOINTS(
         ":/debugger/images/debugger_breakpoints.png");

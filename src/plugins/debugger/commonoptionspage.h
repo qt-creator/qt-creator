@@ -33,15 +33,11 @@
 #include <QPointer>
 #include <QSharedPointer>
 
-QT_BEGIN_NAMESPACE
-class QSpinBox;
-QT_END_NAMESPACE
-
 namespace Debugger {
 namespace Internal {
 
 class GlobalDebuggerOptions;
-class CommonOptionsPageWidget;
+class DebuggerSourcePathMappingWidget;
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -55,21 +51,21 @@ class CommonOptionsPage : public Core::IOptionsPage
 
 public:
     explicit CommonOptionsPage(const QSharedPointer<GlobalDebuggerOptions> &go);
-    ~CommonOptionsPage();
 
     // IOptionsPage
-    QWidget *widget();
-    void apply();
-    void finish();
+    QWidget *widget() final;
+    void apply() final;
+    void finish() final;
 
     static QString msgSetBreakpointAtFunction(const char *function);
     static QString msgSetBreakpointAtFunctionToolTip(const char *function,
                                                      const QString &hint = QString());
 
 private:
+    QPointer<QWidget> m_widget;
+    Utils::SavedActionSet m_group;
     const QSharedPointer<GlobalDebuggerOptions> m_options;
-    QSharedPointer<Utils::SavedActionSet> m_group;
-    QPointer<CommonOptionsPageWidget> m_widget;
+    DebuggerSourcePathMappingWidget *m_sourceMappingWidget = nullptr;
 };
 
 
@@ -87,9 +83,9 @@ public:
     LocalsAndExpressionsOptionsPage();
 
     // IOptionsPage
-    QWidget *widget();
-    void apply();
-    void finish();
+    QWidget *widget() final;
+    void apply() final;
+    void finish() final;
 
 private:
     QPointer<QWidget> m_widget;

@@ -364,7 +364,6 @@ public:
     void setParseInProgressRecursive(bool b);
     void setValidParse(bool b);
     void setValidParseRecursive(bool b);
-    void emitProFileUpdatedRecursive();
 
     void asyncUpdate();
 
@@ -401,7 +400,7 @@ private:
     static InstallsList installsList(const QtSupport::ProFileReader *reader, const QString &projectFilePath, const QString &projectDir, const QString &buildDir);
 
     bool m_validParse = false;
-    bool m_parseInProgress = true;
+    bool m_parseInProgress = false;
 
     QmakeProjectType m_projectType = InvalidProject;
     QmakeVariablesHash m_varValues;

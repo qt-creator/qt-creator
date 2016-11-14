@@ -23,7 +23,7 @@ QtcPlugin {
     }
 
     Depends {
-        name: "Qt.test"
+        name: "Qt.testlib"
         condition: qtc.testsEnabled
     }
 

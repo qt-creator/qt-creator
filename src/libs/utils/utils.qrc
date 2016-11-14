@@ -168,5 +168,7 @@
         <file>images/fittoview@2x.png</file>
         <file>images/namespace.png</file>
         <file>images/namespace@2x.png</file>
+        <file>images/filledcircle.png</file>
+        <file>images/filledcircle@2x.png</file>
     </qresource>
 </RCC>

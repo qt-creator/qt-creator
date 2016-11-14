@@ -157,6 +157,7 @@ bool LogChangeWidget::populateLog(const QString &repository, const QString &comm
     arguments << (commit.isEmpty() ? "HEAD" : commit);
     if (!(flags & IncludeRemotes))
         arguments << "--not" << "--remotes";
+    arguments << "--";
     QString output;
     if (!GitPlugin::client()->synchronousLog(repository, arguments, &output, 0, VcsCommand::NoOutput))
         return false;

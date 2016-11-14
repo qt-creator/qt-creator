@@ -347,7 +347,7 @@ public:
 
     QVariant data(int column, int role) const final
     {
-        return m_projectItem->data(column, role);
+        return m_projectItem ? m_projectItem->data(column, role) : QVariant();
     }
 
     ProjectItem *m_projectItem;
@@ -413,6 +413,7 @@ public:
         if (item->m_projectItem->parent())
             m_projectsModel.takeItem(item->m_projectItem);
         delete item->m_projectItem;
+        item->m_projectItem = nullptr;
         m_comboBoxModel.destroyItem(item);
     }
 
@@ -466,9 +467,9 @@ public:
         if (!menu.actions().isEmpty())
             menu.addSeparator();
 
-        QAction *importBuild = menu.addAction(tr("Import Existing Build..."));
+        QAction *importBuild = menu.addAction(ProjectWindow::tr("Import Existing Build..."));
         importBuild->setEnabled(projectImporter != 0);
-        QAction *manageKits = menu.addAction(tr("Manage Kits..."));
+        QAction *manageKits = menu.addAction(ProjectWindow::tr("Manage Kits..."));
 
         QAction *act = menu.exec(m_selectorTree->mapToGlobal(pos));
 

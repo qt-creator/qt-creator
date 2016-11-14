@@ -12,4 +12,10 @@
         <comment>Nim source file </comment>
         <glob pattern="*.nim"/>
     </mime-type>
+
+    <mime-type type="text/x-nim-script">
+        <sub-class-of type="text/plain"/>
+        <comment>Nim script file </comment>
+        <glob pattern="*.nims"/>
+    </mime-type>
 </mime-info>

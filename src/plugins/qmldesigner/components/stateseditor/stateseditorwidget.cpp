@@ -99,8 +99,7 @@ StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView, State
 
     rootContext()->setContextProperty(QLatin1String("canAddNewStates"), true);
 
-    Theming::insertTheme(&m_themeProperties);
-    rootContext()->setContextProperty(QLatin1String("creatorTheme"), &m_themeProperties);
+    rootContext()->setContextProperty(QLatin1String("creatorTheme"), Theming::theme());
 
     Theming::registerIconProvider(engine());
 

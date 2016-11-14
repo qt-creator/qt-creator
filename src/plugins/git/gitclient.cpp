@@ -2477,7 +2477,7 @@ bool GitClient::addAndCommit(const QString &repositoryDirectory,
             filesToAdd.append(file);
 
         if ((state & StagedFile) && !checked) {
-            if (state & (ModifiedFile | AddedFile | DeletedFile)) {
+            if (state & (ModifiedFile | AddedFile | DeletedFile | TypeChangedFile)) {
                 filesToReset.append(file);
             } else if (state & (RenamedFile | CopiedFile)) {
                 const QString newFile = file.mid(file.indexOf(renameSeparator) + renameSeparator.count());
@@ -2487,7 +2487,7 @@ bool GitClient::addAndCommit(const QString &repositoryDirectory,
             QTC_ASSERT(false, continue); // There should not be unmerged files when committing!
         }
 
-        if (state == ModifiedFile && checked) {
+        if ((state == ModifiedFile || state == TypeChangedFile) && checked) {
             filesToReset.removeAll(file);
             filesToAdd.append(file);
         } else if (state == AddedFile && checked) {
@@ -2703,7 +2703,8 @@ void GitClient::synchronousAbortCommand(const QString &workingDir, const QString
     }
 
     const SynchronousProcessResponse resp = vcsFullySynchronousExec(
-                workingDir, { abortCommand, "--abort" }, VcsCommand::ExpectRepoChanges);
+                workingDir, { abortCommand, "--abort" },
+                VcsCommand::ExpectRepoChanges | VcsCommand::ShowSuccessMessage);
     VcsOutputWindow::append(resp.stdOut());
 }
 

@@ -474,9 +474,13 @@ static DebuggerRunControl *doCreate(DebuggerRunParameters rp, RunConfiguration *
     if (rp.languages & CppLanguage) {
         const QList<Task> tasks = DebuggerKitInformation::validateDebugger(kit);
         if (!tasks.isEmpty()) {
-            foreach (const Task &t, tasks)
+            foreach (const Task &t, tasks) {
+                if (t.type == Task::Warning)
+                    continue;
                 errors->append(t.description);
-            return 0;
+            }
+            if (!errors->isEmpty())
+                return 0;
         }
     }
 

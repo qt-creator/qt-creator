@@ -6,7 +6,6 @@
     "trDescription": "Creates a JavaScript file.",
     "trDisplayName": "JS File",
     "trDisplayCategory": "Qt",
-    "icon": "../../global/genericfilewizard.png",
     "enabled": "%{JS: [ %{Plugins} ].indexOf('QmlJSEditor') >= 0}",
 
     "pages" :

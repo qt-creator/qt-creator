@@ -83,10 +83,10 @@ static QString socketStateToString(QAbstractSocket::SocketState state)
         return QmlDebugConnection::tr("Network connection closing");
     case QAbstractSocket::BoundState:
         return QmlDebugConnection::tr("Socket state changed to BoundState. "
-                                      "This should not happen!");
+                                      "This should not happen.");
     case QAbstractSocket::ListeningState:
         return QmlDebugConnection::tr("Socket state changed to ListeningState. "
-                                      "This should not happen!");
+                                      "This should not happen.");
     default:
         return QmlDebugConnection::tr("Unknown state %1").arg(state);
     }

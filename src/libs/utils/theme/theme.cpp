@@ -141,26 +141,27 @@ void Theme::setDisplayName(const QString &name)
     d->displayName = name;
 }
 
-QVariantHash Theme::values() const
+const QVariantMap &Theme::values() const
 {
-    QVariantHash result;
-    const QMetaObject &m = *metaObject();
-    {
-        const QMetaEnum e = m.enumerator(m.indexOfEnumerator("Color"));
-        for (int i = 0, total = e.keyCount(); i < total; ++i) {
-            const QString key = QLatin1String(e.key(i));
-            const QPair<QColor, QString> &var = d->colors.at(i);
-            result.insert(key, var.first);
+    if (d->values.isEmpty()) {
+        const QMetaObject &m = *metaObject();
+        {
+            const QMetaEnum e = m.enumerator(m.indexOfEnumerator("Color"));
+            for (int i = 0, total = e.keyCount(); i < total; ++i) {
+                const QString key = QLatin1String(e.key(i));
+                const QPair<QColor, QString> &var = d->colors.at(i);
+                d->values.insert(key, var.first);
+            }
+        }
+        {
+            const QMetaEnum e = m.enumerator(m.indexOfEnumerator("Flag"));
+            for (int i = 0, total = e.keyCount(); i < total; ++i) {
+                const QString key = QLatin1String(e.key(i));
+                d->values.insert(key, flag(static_cast<Theme::Flag>(i)));
+            }
         }
     }
-    {
-        const QMetaEnum e = m.enumerator(m.indexOfEnumerator("Flag"));
-        for (int i = 0, total = e.keyCount(); i < total; ++i) {
-            const QString key = QLatin1String(e.key(i));
-            result.insert(key, flag(static_cast<Theme::Flag>(i)));
-        }
-    }
-    return result;
+    return d->values;
 }
 
 static QColor readColor(const QString &color)

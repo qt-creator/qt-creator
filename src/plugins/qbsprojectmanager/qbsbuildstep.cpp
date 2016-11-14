@@ -211,8 +211,11 @@ QVariantMap QbsBuildStep::qbsConfiguration(VariableHandling variableHandling) co
     config.insert(QLatin1String(Constants::QBS_FORCE_PROBES_KEY), m_forceProbes);
     if (variableHandling == ExpandVariables) {
         const Utils::MacroExpander *expander = Utils::globalMacroExpander();
-        for (auto it = config.begin(), end = config.end(); it != end; ++it)
-            it.value() = expander->expand(it.value().toString());
+        for (auto it = config.begin(), end = config.end(); it != end; ++it) {
+            const QString rawString = it.value().toString();
+            const QString expandedString = expander->expand(rawString);
+            it.value() = qbs::representationToSettingsValue(expandedString);
+        }
     }
     return config;
 }

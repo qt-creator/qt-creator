@@ -33,6 +33,7 @@ namespace PluginInterface {
 
 class SCAttributeItemModel : public AttributeItemModel
 {
+    Q_OBJECT
 public:
     SCAttributeItemModel(QObject *parent = nullptr);
 

@@ -4,7 +4,10 @@ import qbs.FileInfo
 QtcPlugin {
     name: "Designer"
 
-    Depends { name: "Qt"; submodules: ["widgets", "xml", "printsupport", "designer", "designercomponents"] }
+    Depends {
+        name: "Qt"
+        submodules: ["widgets", "xml", "printsupport", "designer", "designercomponents-private"]
+    }
     Depends { name: "CPlusPlus" }
     Depends { name: "Utils" }
 

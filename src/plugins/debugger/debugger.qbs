@@ -21,12 +21,6 @@ Project {
         Depends { name: "QtSupport" }
         Depends { name: "TextEditor" }
 
-
-        Depends {
-            name: "Qt.test"
-            condition: qtc.testsEnabled
-        }
-
         pluginTestDepends: [
             "QmakeProjectManager"
         ]

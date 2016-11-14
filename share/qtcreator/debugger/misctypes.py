@@ -102,10 +102,10 @@ def qdump____m512i(d, value):
 #    return 'Transposed'
 
 def qdump__Eigen__Matrix(d, value):
-    innerType = value.type.templateArgument(0, False)
-    argRow = value.type.templateArgument(1, True)
-    argCol = value.type.templateArgument(2, True)
-    options = value.type.templateArgument(3, True)
+    innerType = value.type[0]
+    argRow = value.type[1]
+    argCol = value.type[2]
+    options = value.type[3]
     rowMajor = (int(options) & 0x1)
     # The magic dimension value is -1 in Eigen3, but 10000 in Eigen2.
     # 10000 x 10000 matrices are rare, vectors of dim 10000 less so.
@@ -330,3 +330,14 @@ def qdump__WTF__String(d, value):
         charSize = 2
 
     d.putCharArrayHelper(bufferPtr, stringLength, charSize)
+
+
+#######################################################################
+#
+# Internal test
+#
+#######################################################################
+
+def qdump__QtcDumperTest_FieldAccessByIndex(d, value):
+    d.putValue(value["d"][2].integer())
+

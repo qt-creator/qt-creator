@@ -53,5 +53,6 @@ while (my $line = <STDIN> ) {
     # match a warning/error report
     } elsif ($line =~ /^\[[W|E|I]\] /) {
         $lastMessage = substr($line, 4);
+        $lastMessage =~ s/\\/\\\\/g;
     }
 }

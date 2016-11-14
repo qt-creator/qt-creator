@@ -27,6 +27,7 @@
 
 #include "extensioncontext.h"
 #include "symbolgroup.h"
+#include "symbolgroupvalue.h"
 
 #include "pyfield.h"
 #include "pystdoutredirect.h"
@@ -41,7 +42,7 @@ static PyObject *cdbext_parseAndEvaluate(PyObject *, PyObject *args) // -> Value
 {
     char *expr;
     if (!PyArg_ParseTuple(args, "s", &expr))
-        return NULL;
+        Py_RETURN_NONE;
     CIDebugControl *control = ExtensionCommandContext::instance()->control();
     control->SetExpressionSyntax(DEBUG_EXPR_CPLUSPLUS);
     DEBUG_VALUE value;
@@ -54,7 +55,7 @@ static PyObject *cdbext_lookupType(PyObject *, PyObject *args) // -> Type
 {
     char *type;
     if (!PyArg_ParseTuple(args, "s", &type))
-        return NULL;
+        Py_RETURN_NONE;
     return lookupType(type);
 }
 
@@ -63,25 +64,19 @@ static PyObject *cdbext_listOfLocals(PyObject *, PyObject *) // -> [ Value ]
     ExtensionCommandContext *extCmdCtx = ExtensionCommandContext::instance();
     ULONG frame;
     if (FAILED(extCmdCtx->symbols()->GetCurrentScopeFrameIndex(&frame)))
-        return NULL;
+        Py_RETURN_NONE;
 
     std::string errorMessage;
     LocalsSymbolGroup *sg = ExtensionContext::instance().symbolGroup(
                 extCmdCtx->symbols(), extCmdCtx->threadId(), int(frame), &errorMessage);
     if (!sg)
-        return NULL;
+        Py_RETURN_NONE;
 
     const auto children = sg->root()->children();
     auto locals = PyList_New(0);
     for (AbstractSymbolGroupNode *abstractChild : children) {
-        Value *childValue = PyObject_New(Value, value_pytype());
-        if (childValue != NULL) {
-            if (SymbolGroupNode* child = abstractChild->asSymbolGroupNode()) {
-                childValue->m_index = child->index();
-                childValue->m_symbolGroup = sg->debugSymbolGroup();
-            }
-        }
-        PyList_Append(locals, reinterpret_cast<PyObject*>(childValue));
+        if (SymbolGroupNode* child = abstractChild->asSymbolGroupNode())
+            PyList_Append(locals, createValue(child->index(), sg->debugSymbolGroup()));
     }
 
     return locals;
@@ -98,7 +93,7 @@ static PyObject *cdbext_readRawMemory(PyObject *, PyObject *args)
     ULONG64 address = 0;
     ULONG size = 0;
     if (!PyArg_ParseTuple(args, "Kk", &address, &size))
-        return NULL;
+        Py_RETURN_NONE;
 
     char *buffer = new char[size];
 
@@ -112,6 +107,57 @@ static PyObject *cdbext_readRawMemory(PyObject *, PyObject *args)
     return ret;
 }
 
+static PyObject *cdbext_createValue(PyObject *, PyObject *args)
+{
+    ULONG64 address = 0;
+    Type *type = 0;
+    if (!PyArg_ParseTuple(args, "KO", &address, &type))
+        Py_RETURN_NONE;
+
+    if (debugPyCdbextModule) {
+        DebugPrint() << "Create Value address: 0x" << std::hex << address
+                     << " type name: " << getTypeName(type->m_module, type->m_typeId);
+    }
+
+    ExtensionCommandContext *extCmdCtx = ExtensionCommandContext::instance();
+    CIDebugSymbols *symbols = extCmdCtx->symbols();
+
+    ULONG frame;
+    if (FAILED(symbols->GetCurrentScopeFrameIndex(&frame)))
+        Py_RETURN_NONE;
+
+    std::string errorMessage;
+    LocalsSymbolGroup *lsg = ExtensionContext::instance().symbolGroup(
+                symbols, extCmdCtx->threadId(), int(frame), &errorMessage);
+    if (!lsg)
+        Py_RETURN_NONE;
+
+    CIDebugSymbolGroup *dsg = lsg->debugSymbolGroup();
+    ULONG numberOfSymbols = 0;
+    dsg->GetNumberSymbols(&numberOfSymbols);
+    ULONG index = 0;
+    for (;index < numberOfSymbols; ++index) {
+        ULONG64 offset;
+        dsg->GetSymbolOffset(index, &offset);
+        if (offset == address) {
+            DEBUG_SYMBOL_PARAMETERS params;
+            if (SUCCEEDED(dsg->GetSymbolParameters(index, 1, &params))) {
+                if (params.TypeId == type->m_typeId && params.Module == type->m_module)
+                    break;
+            }
+        }
+    }
+
+    if (index >= numberOfSymbols) {
+        index = DEBUG_ANY_ID;
+        const std::string name = SymbolGroupValue::pointedToSymbolName(
+                    address, getTypeName(type->m_module, type->m_typeId));
+        if (FAILED(dsg->AddSymbol(name.c_str(), &index)))
+            Py_RETURN_NONE;
+    }
+    return createValue(index, dsg);
+}
+
 static PyMethodDef cdbextMethods[] = {
     {"parseAndEvaluate",    cdbext_parseAndEvaluate,    METH_VARARGS,
      "Returns value of expression or None if the expression can not be resolved"},
@@ -123,6 +169,8 @@ static PyMethodDef cdbextMethods[] = {
      "Returns the size of a pointer"},
     {"readRawMemory",       cdbext_readRawMemory,       METH_VARARGS,
      "Read a block of data from the virtual address space"},
+    {"createValue",         cdbext_createValue,         METH_VARARGS,
+     "Creates a value with the given type at the given address"},
     {NULL,                  NULL,               0,
      NULL}        /* Sentinel */
 };
@@ -140,21 +188,21 @@ PyMODINIT_FUNC
 PyInit_cdbext(void)
 {
     if (PyType_Ready(field_pytype()) < 0)
-        return NULL;
+        Py_RETURN_NONE;
 
     if (PyType_Ready(type_pytype()) < 0)
-        return NULL;
+        Py_RETURN_NONE;
 
     if (PyType_Ready(value_pytype()) < 0)
-        return NULL;
+        Py_RETURN_NONE;
 
     stdoutRedirect_pytype()->tp_new = PyType_GenericNew;
     if (PyType_Ready(stdoutRedirect_pytype()) < 0)
-        return NULL;
+        Py_RETURN_NONE;
 
     PyObject *module = PyModule_Create(&cdbextModule);
     if (module == NULL)
-        return NULL;
+        Py_RETURN_NONE;
 
     Py_INCREF(field_pytype());
     Py_INCREF(stdoutRedirect_pytype());

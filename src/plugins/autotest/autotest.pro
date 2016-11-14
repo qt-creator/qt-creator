@@ -32,6 +32,7 @@ SOURCES += \
     gtest/gtestframework.cpp \
     gtest/gtestsettings.cpp \
     gtest/gtestsettingspage.cpp \
+    gtest/gtest_utils.cpp \
     qtest/qttesttreeitem.cpp \
     qtest/qttestvisitors.cpp \
     qtest/qttestconfiguration.cpp \
@@ -41,11 +42,13 @@ SOURCES += \
     qtest/qttestframework.cpp \
     qtest/qttestsettings.cpp \
     qtest/qttestsettingspage.cpp \
+    qtest/qttest_utils.cpp \
     quick/quicktestconfiguration.cpp \
     quick/quicktestparser.cpp \
     quick/quicktesttreeitem.cpp \
     quick/quicktestvisitors.cpp \
     quick/quicktestframework.cpp \
+    quick/quicktest_utils.cpp \
     testframeworkmanager.cpp
 
 

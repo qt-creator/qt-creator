@@ -129,6 +129,8 @@ private:
     bool hasCapability(unsigned) const override;
     void quitDebugger() override;
 
+    void doUpdateLocals(const UpdateParameters &params) override;
+
     void closeConnection();
     void startApplicationLauncher();
     void stopApplicationLauncher();

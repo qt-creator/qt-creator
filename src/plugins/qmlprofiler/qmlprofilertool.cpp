@@ -401,7 +401,7 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunControl *runControl)
                             "qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html");
             case QMessageBox::Cancel:
                 // The actual error message has already been logged.
-                logState(tr("Failed to connect!"));
+                logState(tr("Failed to connect."));
                 runControl->cancelProcess();
                 break;
             }

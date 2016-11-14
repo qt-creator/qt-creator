@@ -198,7 +198,7 @@ def invokeMenuItem(menu, item, *subItems):
     itemObject = waitForObjectItem(objectMap.realName(menuObject), item)
     waitFor("itemObject.enabled", 2000)
     activateItem(itemObject)
-    numberedPrefix = "&?\\d+: "
+    numberedPrefix = "(&\\d \| )?"
     for subItem in subItems:
         sub = itemObject.menu()
         waitFor("sub.visible", 1000)
@@ -209,7 +209,7 @@ def invokeMenuItem(menu, item, *subItems):
             for i in range(actions.count()):
                 current = actions.at(i)
                 nonPrefix = subItem[len(numberedPrefix):]
-                matcher = re.match("(%s)(.*)" % numberedPrefix, str(current.text))
+                matcher = re.match("%s(.*)" % numberedPrefix, str(current.text))
                 if matcher and matcher.group(2) == nonPrefix:
                     itemObject = current
                     activateItem(itemObject)

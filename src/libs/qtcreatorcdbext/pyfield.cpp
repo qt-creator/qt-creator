@@ -35,7 +35,7 @@ PyObject *field_Name(Field *self)
 
 PyObject *field_isBaseClass(Field *)
 {
-    return NULL;
+    Py_RETURN_NONE;
 }
 
 bool initTypeAndOffset(Field *field)
@@ -51,7 +51,7 @@ PyObject *field_Type(Field *self)
 {
     if (!self->m_initialized)
         if (!initTypeAndOffset(self))
-            return NULL;
+            Py_RETURN_NONE;
     return createType(self->m_module, self->m_typeId);
 }
 
@@ -64,11 +64,11 @@ PyObject *field_Bitsize(Field *self)
 {
     if (!self->m_initialized)
         if (!initTypeAndOffset(self))
-            return NULL;
+            Py_RETURN_NONE;
     ULONG byteSize;
     auto extcmd = ExtensionCommandContext::instance();
     if (FAILED(extcmd->symbols()->GetTypeSize(self->m_module, self->m_typeId, &byteSize)))
-        return NULL;
+        Py_RETURN_NONE;
     return Py_BuildValue("k", byteSize * 8);
 }
 
@@ -76,7 +76,7 @@ PyObject *field_Bitpos(Field *self)
 {
     if (!self->m_initialized)
         if (!initTypeAndOffset(self))
-            return NULL;
+            Py_RETURN_NONE;
     return Py_BuildValue("k", self->m_offset * 8);
 }
 

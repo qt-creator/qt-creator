@@ -92,8 +92,7 @@ public:
                             const QString &filter = QString(), QString *selectedFilter = 0);
     static QString getSaveFileNameWithExtension(const QString &title, const QString &pathIn,
                                          const QString &filter);
-    static QString getSaveAsFileName(const IDocument *document, const QString &filter = QString(),
-                              QString *selectedFilter = 0);
+    static QString getSaveAsFileName(const IDocument *document);
 
     static bool saveAllModifiedDocumentsSilently(bool *canceled = 0,
                                                  QList<IDocument *> *failedToClose = 0);

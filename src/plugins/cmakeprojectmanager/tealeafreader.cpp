@@ -153,7 +153,7 @@ TeaLeafReader::TeaLeafReader()
 {
     connect(EditorManager::instance(), &EditorManager::aboutToSave,
             this, [this](const IDocument *document) {
-        if (m_cmakeFiles.contains(document->filePath()))
+        if (m_cmakeFiles.contains(document->filePath()) || !m_parameters.isAutorun)
             emit dirty();
     });
 }
@@ -583,7 +583,7 @@ void TeaLeafReader::cmakeFinished(int code, QProcess::ExitStatus status)
 
     QString msg;
     if (status != QProcess::NormalExit)
-        msg = tr("*** cmake process crashed!");
+        msg = tr("*** cmake process crashed.");
     else if (code != 0)
         msg = tr("*** cmake process exited with exit code %1.").arg(code);
 

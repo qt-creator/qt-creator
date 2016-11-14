@@ -6,7 +6,6 @@
     "trDescription": "Creates a Java file with boilerplate code.",
     "trDisplayName": "Java File",
     "trDisplayCategory": "Java",
-    "icon": "../../global/genericfilewizard.png",
     "enabled": "%{JS: [ %{Plugins} ].indexOf('Android') >= 0}",
 
     "options": [ { "key": "ClassName", "value": "%{JS: '%{FileName}'.charAt(0).toUpperCase() + '%{FileName}'.substr(1)}" } ],

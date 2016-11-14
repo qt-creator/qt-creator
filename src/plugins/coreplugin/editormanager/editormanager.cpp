@@ -2100,25 +2100,8 @@ bool EditorManagerPrivate::saveDocumentAs(IDocument *document)
     if (!document)
         return false;
 
-    emit m_instance->aboutToSave(document);
-    Utils::MimeDatabase mdb;
-    const QString filter = Utils::MimeDatabase::allFiltersString();
-    QString selectedFilter;
-    const QString filePath = document->filePath().toString();
-    if (!filePath.isEmpty()) {
-        selectedFilter = mdb.mimeTypeForFile(filePath).filterString();
-    } else {
-        const QString suggestedName = document->fallbackSaveAsFileName();
-        if (!suggestedName.isEmpty()) {
-            const QList<MimeType> types = mdb.mimeTypesForFileName(suggestedName);
-            if (!types.isEmpty())
-                selectedFilter = types.first().filterString();
-        }
-    }
-    if (selectedFilter.isEmpty())
-        selectedFilter = mdb.mimeTypeForName(document->mimeType()).filterString();
     const QString &absoluteFilePath =
-        DocumentManager::getSaveAsFileName(document, filter, &selectedFilter);
+        DocumentManager::getSaveAsFileName(document);
 
     if (absoluteFilePath.isEmpty())
         return false;
@@ -2130,6 +2113,7 @@ bool EditorManagerPrivate::saveDocumentAs(IDocument *document)
             EditorManager::closeDocuments(QList<IDocument *>() << otherDocument, false);
     }
 
+    emit m_instance->aboutToSave(document);
     const bool success = DocumentManager::saveDocument(document, absoluteFilePath);
     document->checkPermissions();
 

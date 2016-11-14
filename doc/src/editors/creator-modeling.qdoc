@@ -83,6 +83,19 @@
     a custom icon is defined. You can assign several comma-separated stereotypes
     to one element.
 
+    By default, when you select an element in a diagram, it is highlighted also
+    in the \uicontrol Structure view. To change this behavior so that selecting
+    an element in the \uicontrol Structure makes it highlighted also in the
+    diagram, click and hold the \inlineimage linkicon.png
+    button, and then select \uicontrol {Synchronize Diagram with Structure}.
+    To keep the selections in the diagram and the \uicontrol Structure view
+    synchronized, select \uicontrol {Keep Synchronized}.
+
+    To zoom into diagrams, press \key Ctrl++ or press \key Ctrl and roll the
+    mouse wheel up. To zoom out of diagrams, press \key Ctrl+- or press
+    \key Ctrl and roll the mouse wheel down. To reset the diagram size to 100%,
+    select \key Ctrl+0.
+
     To print diagrams, press \key Ctrl+C when no elements are selected in
     the editor to copy all elements to the clipboard by using 300 dpi. Then
     paste the diagram to an application that can print images.

@@ -83,6 +83,7 @@ public:
         QString platform;
         QString toolset;
         QStringList generatorArguments;
+        bool isAutorun = false;
     };
 
     static BuildDirReader *createReader(const BuildDirReader::Parameters &p);

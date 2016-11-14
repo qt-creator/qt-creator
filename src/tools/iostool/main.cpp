@@ -742,9 +742,9 @@ void IosTool::didStartApp(const QString &bundlePath, const QString &deviceId,
         QMutexLocker l(&m_xmlMutex);
         out.writeStartElement(QLatin1String("server_ports"));
         out.writeAttribute(QLatin1String("gdb_server"),
-                           QString::number(gdbServer ? gdbServer->serverPort() : 0));
+                           QString::number(gdbServer ? gdbServer->serverPort() : -1));
         out.writeAttribute(QLatin1String("qml_server"),
-                           QString::number(qmlServer ? qmlServer->serverPort() : 0));
+                           QString::number(qmlServer ? qmlServer->serverPort() : -1));
         out.writeEndElement();
         outFile.flush();
     }

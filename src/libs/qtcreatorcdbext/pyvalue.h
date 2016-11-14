@@ -40,3 +40,4 @@ struct Value
 
 PyTypeObject *value_pytype();
 void initValue(Value *value);
+PyObject *createValue(ULONG index, CIDebugSymbolGroup *symbolGroup);

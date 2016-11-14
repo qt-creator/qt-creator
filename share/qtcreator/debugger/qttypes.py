@@ -191,7 +191,7 @@ def qdump_X_QModelIndex(d, value):
                             % (mm_, row, column, mi_))
                         d.putItem(mi2)
                         i = i + 1
-            d.putCallItem('parent', ns + 'QModelIndex', value, 'parent')
+            d.putCallItem('parent', '@QModelIndex', value, 'parent')
     #gdb.execute('call free($mi)')
 
 
@@ -203,13 +203,13 @@ def qdump__QDate(d, value):
         if d.isExpanded():
             with Children(d):
                 if d.canCallLocale():
-                    d.putCallItem('toString', d.qtNamespace() + 'QString', value, 'toString',
+                    d.putCallItem('toString', '@QString', value, 'toString',
                         d.enumExpression('DateFormat', 'TextDate'))
-                    d.putCallItem('(ISO)', d.qtNamespace() + 'QString', value, 'toString',
+                    d.putCallItem('(ISO)', '@QString', value, 'toString',
                         d.enumExpression('DateFormat', 'ISODate'))
-                    d.putCallItem('(SystemLocale)', d.qtNamespace() + 'QString', value, 'toString',
+                    d.putCallItem('(SystemLocale)', '@QString', value, 'toString',
                         d.enumExpression('DateFormat', 'SystemLocaleDate'))
-                    d.putCallItem('(Locale)', d.qtNamespace() + 'QString', value, 'toString',
+                    d.putCallItem('(Locale)', '@QString', value, 'toString',
                         d.enumExpression('DateFormat', 'LocaleDate'))
                 d.putFields(value)
     else:
@@ -226,14 +226,14 @@ def qdump__QTime(d, value):
     d.putValue(mds, 'millisecondssincemidnight')
     if d.isExpanded():
         with Children(d):
-            d.putCallItem('toString', d.qtNamespace() + 'QString', value, 'toString',
+            d.putCallItem('toString', '@QString', value, 'toString',
                 d.enumExpression('DateFormat', 'TextDate'))
-            d.putCallItem('(ISO)', d.qtNamespace() + 'QString', value, 'toString',
+            d.putCallItem('(ISO)', '@QString', value, 'toString',
                 d.enumExpression('DateFormat', 'ISODate'))
             if d.canCallLocale():
-                d.putCallItem('(SystemLocale)', d.qtNamespace() + 'QString', value, 'toString',
+                d.putCallItem('(SystemLocale)', '@QString', value, 'toString',
                     d.enumExpression('DateFormat', 'SystemLocaleDate'))
-                d.putCallItem('(Locale)', d.qtNamespace() + 'QString', value, 'toString',
+                d.putCallItem('(Locale)', '@QString', value, 'toString',
                     d.enumExpression('DateFormat', 'LocaleDate'))
             d.putFields(value)
 
@@ -335,20 +335,19 @@ def qdump__QDateTime(d, value):
     d.putNumChild(1)
     if d.isExpanded():
         with Children(d):
-            ns = d.qtNamespace()
             d.putCallItem('toTime_t', 'unsigned int', value, 'toTime_t')
             if d.canCallLocale():
-                d.putCallItem('toString', 'QString', value, 'toString',
+                d.putCallItem('toString', '@QString', value, 'toString',
                     d.enumExpression('DateFormat', 'TextDate'))
-                d.putCallItem('(ISO)', 'QString', value, 'toString',
+                d.putCallItem('(ISO)', '@QString', value, 'toString',
                     d.enumExpression('DateFormat', 'ISODate'))
-                d.putCallItem('toUTC', 'QDateTime', value, 'toTimeSpec',
+                d.putCallItem('toUTC', '@QDateTime', value, 'toTimeSpec',
                     d.enumExpression('TimeSpec', 'UTC'))
-                d.putCallItem('(SystemLocale)', 'QString', value, 'toString',
+                d.putCallItem('(SystemLocale)', '@QString', value, 'toString',
                     d.enumExpression('DateFormat', 'SystemLocaleDate'))
-                d.putCallItem('(Locale)', 'QString', value, 'toString',
+                d.putCallItem('(Locale)', '@QString', value, 'toString',
                     d.enumExpression('DateFormat', 'LocaleDate'))
-                d.putCallItem('toLocalTime', 'QDateTime', value, 'toTimeSpec',
+                d.putCallItem('toLocalTime', '@QDateTime', value, 'toTimeSpec',
                     d.enumExpression('TimeSpec', 'LocalTime'))
             d.putFields(value)
 
@@ -430,8 +429,8 @@ def qdump__QDir(d, value):
         with Children(d):
             ns = d.qtNamespace()
             d.call('int', value, 'count')  # Fill cache.
-            #d.putCallItem('absolutePath', value, 'absolutePath')
-            #d.putCallItem('canonicalPath', value, 'canonicalPath')
+            #d.putCallItem('absolutePath', '@QString', value, 'absolutePath')
+            #d.putCallItem('canonicalPath', '@QString', value, 'canonicalPath')
             with SubItem(d, 'absolutePath'):
                 typ = d.lookupType(ns + 'QString')
                 d.putItem(d.createValue(privAddress + absoluteDirEntryOffset, typ))
@@ -500,7 +499,7 @@ def qdump__QFileInfo(d, value):
     if d.isExpanded():
         ns = d.qtNamespace()
         with Children(d):
-            stype = ns + 'QString'
+            stype = '@QString'
             d.putCallItem('absolutePath', stype, value, 'absolutePath')
             d.putCallItem('absoluteFilePath', stype, value, 'absoluteFilePath')
             d.putCallItem('canonicalPath', stype, value, 'canonicalPath')
@@ -518,8 +517,8 @@ def qdump__QFileInfo(d, value):
             #d.putCallItem('owner', value, 'owner')
             d.putCallItem('path', stype, value, 'path')
 
-            d.putCallItem('groupid', value, 'groupId')
-            d.putCallItem('ownerid', value, 'ownerId')
+            d.putCallItem('groupid', 'unsigned int', value, 'groupId')
+            d.putCallItem('ownerid', 'unsigned int', value, 'ownerId')
 
             #QFile::Permissions permissions () const
             try:
@@ -911,11 +910,11 @@ def qdump__QLocale(d, value):
             d.putSubItem('groupSeparator', group)
             d.putSubItem('negativeSign', minus)
             d.putSubItem('positiveSign', plus)
-            d.putCallItem('measurementSystem', ns + 'QLocale::MeasurementSystem',
+            d.putCallItem('measurementSystem', '@QLocale::MeasurementSystem',
                 value, 'measurementSystem')
-            d.putCallItem('timeFormat_(short)', ns + 'QString',
+            d.putCallItem('timeFormat_(short)', '@QString',
                 value, 'timeFormat', ns + 'QLocale::ShortFormat')
-            d.putCallItem('timeFormat_(long)', ns + 'QString',
+            d.putCallItem('timeFormat_(long)', '@QString',
                 value, 'timeFormat', ns + 'QLocale::LongFormat')
             d.putFields(value)
 
@@ -1260,7 +1259,7 @@ def qdump__QString(d, value):
         d.putArrayData(data, size, d.createType('QChar'))
 
 def qdump__QStaticStringData(d, value):
-    size = value.type.templateArgument(0, numeric=True)
+    size = value.type[0]
     (ref, size, alloc, pad, offset, data) = value.split('iii@p%ss' % (2 * size))
     d.putValue(d.hexencode(data), 'utf16')
     d.putPlainChildren(value)
@@ -1313,8 +1312,8 @@ def qdump__QTextCodec(d, value):
     d.putNumChild(2)
     if d.isExpanded():
         with Children(d):
-            d.putCallItem('name', value, 'name')
-            d.putCallItem('mibEnum', value, 'mibEnum')
+            d.putCallItem('name', '@QByteArray', value, 'name')
+            d.putCallItem('mibEnum', 'int', value, 'mibEnum')
             d.putFields(value)
 
 
@@ -1332,7 +1331,7 @@ def qdump__QTextCursor(d, value):
             positionAddress = privAddress + 2 * d.ptrSize() + 8
             d.putIntItem('position', d.extractInt(positionAddress))
             d.putIntItem('anchor', d.extractInt(positionAddress + 4))
-            d.putCallItem('selected', value, 'selectedText')
+            d.putCallItem('selected', '@QString', value, 'selectedText')
             d.putFields(value)
 
 
@@ -1341,11 +1340,11 @@ def qdump__QTextDocument(d, value):
     d.putNumChild(1)
     if d.isExpanded():
         with Children(d):
-            d.putCallItem('blockCount', value, 'blockCount')
-            d.putCallItem('characterCount', value, 'characterCount')
-            d.putCallItem('lineCount', value, 'lineCount')
-            d.putCallItem('revision', value, 'revision')
-            d.putCallItem('toPlainText', value, 'toPlainText')
+            d.putCallItem('blockCount', 'int', value, 'blockCount')
+            d.putCallItem('characterCount', 'int', value, 'characterCount')
+            d.putCallItem('lineCount', 'int', value, 'lineCount')
+            d.putCallItem('revision', 'int', value, 'revision')
+            d.putCallItem('toPlainText', '@QString', value, 'toPlainText')
             d.putFields(value)
 
 
@@ -1632,6 +1631,7 @@ def qdump__QVariant(d, value):
         else:
             #warn('DIRECT ITEM 1: %s' % innerType)
             val = d.createValue(data, innerType)
+            val.laddress = value.laddress
 
         d.putEmptyValue(-99)
         d.putItem(val)
@@ -1849,7 +1849,7 @@ def qdump__QV4__FunctionObject(d, value):
         with Children(d):
             d.putFields(value)
             d.putSubItem('heap', extractQmlData(d, value))
-            d.putCallItem('sourceLocation', d.qtNamespace() + 'QQmlSourceLocation',
+            d.putCallItem('sourceLocation', '@QQmlSourceLocation',
                           value, 'sourceLocation')
 
 def qdump__QV4__CompilationUnit(d, value):
@@ -2255,7 +2255,7 @@ def qdump__QQmlBinding(d, value):
     d.putEmptyValue()
     if d.isExpanded():
         with Children(d):
-            d.putCallItem('expressionIdentifier', d.qtNamespace() + 'QString',
+            d.putCallItem('expressionIdentifier', '@QString',
                           value, 'expressionIdentifier')
             d.putFields(value)
 

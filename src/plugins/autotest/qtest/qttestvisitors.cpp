@@ -39,8 +39,9 @@ static QStringList specialFunctions({ "initTestCase", "cleanupTestCase", "init",
 
 /************************** Cpp Test Symbol Visitor ***************************/
 
-TestVisitor::TestVisitor(const QString &fullQualifiedClassName)
-    : m_className(fullQualifiedClassName)
+TestVisitor::TestVisitor(const QString &fullQualifiedClassName, const CPlusPlus::Snapshot &snapshot)
+    : m_className(fullQualifiedClassName),
+      m_snapshot(snapshot)
 {
 }
 
@@ -48,7 +49,6 @@ bool TestVisitor::visit(CPlusPlus::Class *symbol)
 {
     const CPlusPlus::Overview o;
     CPlusPlus::LookupContext lc;
-    const CPlusPlus::Snapshot snapshot = CppTools::CppModelManager::instance()->snapshot();
 
     unsigned count = symbol->memberCount();
     for (unsigned i = 0; i < count; ++i) {
@@ -67,7 +67,7 @@ bool TestVisitor::visit(CPlusPlus::Class *symbol)
                 TestCodeLocationAndType locationAndType;
 
                 CPlusPlus::Function *functionDefinition = m_symbolFinder.findMatchingDefinition(
-                            func, snapshot, true);
+                            func, m_snapshot, true);
                 if (functionDefinition && functionDefinition->fileId()) {
                     locationAndType.m_name = QString::fromUtf8(functionDefinition->fileName());
                     locationAndType.m_line = functionDefinition->line();
@@ -92,9 +92,10 @@ bool TestVisitor::visit(CPlusPlus::Class *symbol)
 
 /**************************** Cpp Test AST Visitor ****************************/
 
-TestAstVisitor::TestAstVisitor(CPlusPlus::Document::Ptr doc)
+TestAstVisitor::TestAstVisitor(CPlusPlus::Document::Ptr doc, const CPlusPlus::Snapshot &snapshot)
     : ASTVisitor(doc->translationUnit()),
-      m_currentDoc(doc)
+      m_currentDoc(doc),
+      m_snapshot(snapshot)
 {
 }
 
@@ -113,8 +114,7 @@ bool TestAstVisitor::visit(CPlusPlus::CallAST *ast)
                         // first argument is the one we need
                         if (const auto argumentExpressionAST = expressionListAST->value) {
                             CPlusPlus::TypeOfExpression toe;
-                            CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
-                            toe.init(m_currentDoc, cppMM->snapshot());
+                            toe.init(m_currentDoc, m_snapshot);
                             QList<CPlusPlus::LookupItem> toeItems
                                     = toe(argumentExpressionAST, m_currentDoc, m_currentScope);
 

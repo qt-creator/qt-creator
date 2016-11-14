@@ -81,8 +81,10 @@ bool NimPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     // Add MIME overlay icons (these icons displayed at Project dock panel)
     const QIcon icon((QLatin1String(Constants::C_NIM_ICON_PATH)));
-    if (!icon.isNull())
+    if (!icon.isNull()) {
         Core::FileIconProvider::registerIconOverlayForMimeType(icon, Constants::C_NIM_MIMETYPE);
+        Core::FileIconProvider::registerIconOverlayForMimeType(icon, Constants::C_NIM_SCRIPT_MIMETYPE);
+    }
 
     return true;
 }

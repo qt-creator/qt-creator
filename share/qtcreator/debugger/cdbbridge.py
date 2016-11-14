@@ -42,7 +42,7 @@ class FakeVoidType(cdbext.Type):
         return self.typeName
 
     def bitsize(self):
-        return 0 if self.typeName == 'void' else self.dumper.ptrSize() * 8
+        return self.dumper.ptrSize() * 8
 
     def code(self):
         if self.typeName.endswith('*'):
@@ -85,6 +85,7 @@ class Dumper(DumperBase):
 
     def fromNativeValue(self, nativeValue):
         val = self.Value(self)
+        val.name = nativeValue.name()
         val.nativeValue = nativeValue
         val.type = self.fromNativeType(nativeValue.type())
         val.lIsInScope = True
@@ -109,6 +110,9 @@ class Dumper(DumperBase):
         self.check(isinstance(nativeType, cdbext.Type))
         code = nativeType.code()
 
+        if nativeType.name().startswith('void'):
+            nativeType = FakeVoidType(nativeType.name(), self)
+
         if code == TypeCodePointer:
             targetType = self.fromNativeType(nativeType.target().unqualified())
             return self.createPointerType(targetType)
@@ -127,36 +131,35 @@ class Dumper(DumperBase):
             tdata.lbitsize = nativeType.bitsize()
             tdata.code = code
             self.registerType(typeId, tdata) # Prevent recursion in fields.
-            tdata.lfields = self.listFields(nativeType, self.Type(self, typeId))
+            if  code == TypeCodeStruct:
+                tdata.lfields = lambda value : \
+                    self.listFields(nativeType, value)
+                tdata.lalignment = lambda : \
+                    self.nativeStructAlignment(nativeType)
             tdata.templateArguments = self.listTemplateParameters(nativeType)
             self.registerType(typeId, tdata) # Fix up fields and template args
         return self.Type(self, typeId)
 
-    def listFields(self, nativeType, parentType):
-        fields = []
+    def listFields(self, nativeType, value):
+        if value.address() is None or value.address() == 0:
+            raise Exception("")
+        nativeValue = cdbext.createValue(value.address(), nativeType)
+        index = 0
+        nativeMember = nativeValue.childFromIndex(index)
+        while nativeMember is not None:
+            yield self.fromNativeValue(nativeMember)
+            index += 1
+            nativeMember = nativeValue.childFromIndex(index)
 
-        if not nativeType.code() == TypeCodeStruct:
-            return fields
-
-        nativeIndex = 0
-        nativeFields = nativeType.fields()
-        for nativeField in nativeFields:
-            field = self.Field(self)
-            fieldType = nativeField.type().unqualified()
-            if fieldType is None:
-                fieldType = FakeVoidType('void', self)
-            field.ltype = self.fromNativeType(fieldType)
-            field.parentType = parentType
-            field.name = nativeField.name()
-            field.isBaseClass = False
-            field.lbitpos = nativeField.bitpos()
-            field.lbitsize = nativeField.bitsize()
-            field.nativeIndex = nativeIndex
-            #warn("FIELD RESULT: %s" % field)
-            fields.append(field)
-            nativeIndex += 1
-
-        return fields
+    def nativeStructAlignment(self, nativeType):
+        #warn("NATIVE ALIGN FOR %s" % nativeType.name)
+        def handleItem(nativeFieldType, align):
+            a = self.fromNativeType(nativeFieldType).alignment()
+            return a if a > align else align
+        align = 1
+        for f in nativeType.fields():
+            align = handleItem(f.type(), align)
+        return align
 
     def listTemplateParameters(self, nativeType):
         targs = []

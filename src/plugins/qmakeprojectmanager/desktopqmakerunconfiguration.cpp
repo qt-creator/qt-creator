@@ -125,8 +125,8 @@ void DesktopQmakeRunConfiguration::proFileUpdated(QmakeProFileNode *pro, bool su
 {
     if (m_proFilePath != pro->filePath())
         return;
-    bool enabled = isEnabled();
-    QString reason = disabledReason();
+    const bool enabled = isEnabled();
+    const QString reason = disabledReason();
     m_parseSuccess = success;
     m_parseInProgress = parseInProgress;
     if (enabled != isEnabled() || reason != disabledReason())

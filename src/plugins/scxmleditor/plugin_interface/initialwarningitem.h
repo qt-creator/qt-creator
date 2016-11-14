@@ -35,6 +35,7 @@ class InitialStateItem;
 
 class InitialWarningItem : public WarningItem
 {
+    Q_OBJECT
 public:
     InitialWarningItem(InitialStateItem *parent = nullptr);
 

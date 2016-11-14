@@ -158,7 +158,6 @@ private:
     void sceneGraphError(QQuickWindow::SceneGraphError, const QString &message);
     void facilitateQml(QQmlEngine *engine);
     void addPages(const QList<IWelcomePage *> &pages);
-    void applyTheme();
     void addKeyboardShortcuts();
 
     QWidget *m_modeWidget;
@@ -166,7 +165,6 @@ private:
     QMap<Id, IWelcomePage *> m_idPageMap;
     QList<IWelcomePage *> m_pluginList;
     int m_activePlugin;
-    QQmlPropertyMap m_themeProperties;
     QStringList m_recentProjectsShortcuts;
     QStringList m_sessionsShortcuts;
 };
@@ -197,7 +195,6 @@ WelcomeMode::WelcomeMode()
     layout->setSpacing(0);
 
     m_welcomePage = new QQuickWidget;
-    applyTheme(); // initialize background color and theme properties
     m_welcomePage->setResizeMode(QQuickWidget::SizeRootObjectToView);
 
     m_welcomePage->setObjectName(QLatin1String("WelcomePage"));
@@ -215,13 +212,6 @@ WelcomeMode::WelcomeMode()
     addKeyboardShortcuts();
 
     setWidget(m_modeWidget);
-}
-
-void WelcomeMode::applyTheme()
-{
-    const QVariantHash creatorTheme = Utils::creatorTheme()->values();
-    for (auto it = creatorTheme.constBegin(); it != creatorTheme.constEnd(); ++it)
-        m_themeProperties.insert(it.key(), it.value());
 }
 
 void WelcomeMode::addKeyboardShortcuts()
@@ -294,7 +284,7 @@ void WelcomeMode::facilitateQml(QQmlEngine *engine)
 
     QQmlContext *ctx = engine->rootContext();
     ctx->setContextProperty(QLatin1String("welcomeMode"), this);
-    ctx->setContextProperty(QLatin1String("creatorTheme"), &m_themeProperties);
+    ctx->setContextProperty(QLatin1String("creatorTheme"), Utils::creatorTheme()->values());
     ctx->setContextProperty(QLatin1String("useNativeText"), true);
 }
 

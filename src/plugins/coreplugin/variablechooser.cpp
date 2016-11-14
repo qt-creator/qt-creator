@@ -118,6 +118,7 @@ public:
 
     VariableTreeView *m_variableTree;
     QLabel *m_variableDescription;
+    QSortFilterProxyModel *m_sortModel;
     QString m_defaultDescription;
     QByteArray m_currentVariableName; // Prevent recursive insertion of currently expanded item
 };
@@ -258,10 +259,10 @@ VariableChooserPrivate::VariableChooserPrivate(VariableChooser *parent)
     m_variableTree = new VariableTreeView(q, this);
     m_variableDescription = new QLabel(q);
 
-    auto sorter = new QSortFilterProxyModel(this);
-    sorter->setSourceModel(&m_model);
-    sorter->sort(0);
-    m_variableTree->setModel(sorter);
+    m_sortModel = new QSortFilterProxyModel(this);
+    m_sortModel->setSourceModel(&m_model);
+    m_sortModel->sort(0);
+    m_variableTree->setModel(m_sortModel);
     m_variableDescription->setText(m_defaultDescription);
     m_variableDescription->setMinimumSize(QSize(0, 60));
     m_variableDescription->setAlignment(Qt::AlignLeft|Qt::AlignTop);
@@ -416,7 +417,8 @@ void VariableChooser::addSupportForChildWidgets(QWidget *parent, MacroExpander *
 void VariableChooserPrivate::updateDescription(const QModelIndex &index)
 {
     if (m_variableDescription)
-        m_variableDescription->setText(m_model.data(index, Qt::ToolTipRole).toString());
+        m_variableDescription->setText(m_model.data(m_sortModel->mapToSource(index),
+                                                    Qt::ToolTipRole).toString());
 }
 
 /*!
@@ -534,7 +536,7 @@ QWidget *VariableChooserPrivate::currentWidget()
  */
 void VariableChooserPrivate::handleItemActivated(const QModelIndex &index)
 {
-    QString text = m_model.data(index, UnexpandedTextRole).toString();
+    QString text = m_model.data(m_sortModel->mapToSource(index), UnexpandedTextRole).toString();
     if (!text.isEmpty())
         insertText(text);
 }

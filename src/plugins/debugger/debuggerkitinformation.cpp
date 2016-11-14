@@ -294,7 +294,7 @@ QList<Task> DebuggerKitInformation::validateDebugger(const Kit *k)
     if (errors & DebuggerDoesNotMatch) {
         const QString message = tr("The ABI of the selected debugger does not "
                                    "match the toolchain ABI.");
-        result << Task(Task::Error, message, FileName(), -1, id);
+        result << Task(Task::Warning, message, FileName(), -1, id);
     }
     return result;
 }

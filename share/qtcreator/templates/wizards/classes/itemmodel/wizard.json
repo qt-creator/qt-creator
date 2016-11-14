@@ -6,7 +6,6 @@
     "trDescription": "Creates a Qt item model.",
     "trDisplayName": "Qt Item Model",
     "trDisplayCategory": "Qt",
-    "icon": "../../global/genericfilewizard.png",
     "enabled": "%{JS: [ %{Plugins} ].indexOf('CppEditor') >= 0}",
 
     "options":

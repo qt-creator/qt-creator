@@ -1087,6 +1087,12 @@ void QmlEngine::quitDebugger()
     shutdownInferior();
 }
 
+void QmlEngine::doUpdateLocals(const UpdateParameters &params)
+{
+    Q_UNUSED(params);
+    d->updateLocals();
+}
+
 void QmlEngine::disconnected()
 {
     showMessage(tr("QML Debugger disconnected."), StatusBar);
@@ -2150,7 +2156,7 @@ void QmlEnginePrivate::handleFrame(const QVariantMap &response)
 
     StackHandler *stackHandler = engine->stackHandler();
     WatchHandler * watchHandler = engine->watchHandler();
-    watchHandler->notifyUpdateStarted({"local"});
+    watchHandler->notifyUpdateStarted();
 
     const int frameIndex = stackHandler->currentIndex();
     if (frameIndex < 0)

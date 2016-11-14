@@ -33,7 +33,7 @@ namespace QmlDesigner {
 class Theming
 {
 public:
-    static void insertTheme(QQmlPropertyMap *map);
+    static const QVariantMap &theme();
     static QString replaceCssColors(const QString &input);
     static void registerIconProvider(QQmlEngine *engine);
 };

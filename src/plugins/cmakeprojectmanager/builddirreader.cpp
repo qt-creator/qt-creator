@@ -61,6 +61,7 @@ BuildDirReader::Parameters::Parameters(const CMakeBuildConfiguration *bc)
     cmakeExecutable = cmake->cmakeExecutable();
 
     pathMapper = cmake->pathMapper();
+    isAutorun = cmake->isAutoRun();
 
     auto tc = ProjectExplorer::ToolChainKitInformation::toolChain(k, ProjectExplorer::ToolChain::Language::Cxx);
     if (tc)

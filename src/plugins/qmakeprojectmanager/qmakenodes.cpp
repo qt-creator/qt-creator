@@ -1322,8 +1322,6 @@ void QmakePriFileNode::save(const QStringList &lines)
         FileSaver saver(m_projectFilePath.toString(), QIODevice::Text);
         saver.write(lines.join(QLatin1Char('\n')).toLocal8Bit());
         saver.finalize(Core::ICore::mainWindow());
-
-        m_project->projectManager()->notifyChanged(m_projectFilePath);
     }
 
     // This is a hack.
@@ -1671,16 +1669,6 @@ QString QmakeProFileNode::singleVariableValue(const QmakeVariable var) const
 {
     const QStringList &values = variableValue(var);
     return values.isEmpty() ? QString() : values.first();
-}
-
-void QmakeProFileNode::emitProFileUpdatedRecursive()
-{
-    emit m_project->proFileUpdated(this, m_validParse, m_parseInProgress);
-
-    foreach (ProjectNode *subNode, projectNodes()) {
-        if (QmakeProFileNode *node = dynamic_cast<QmakeProFileNode *>(subNode))
-            node->emitProFileUpdatedRecursive();
-    }
 }
 
 void QmakeProFileNode::setParseInProgressRecursive(bool b)
@@ -2169,6 +2157,7 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
                         qmakeProFileNode->setIncludedInExactParse(
                                     result->exactSubdirs.contains(qmakeProFileNode->filePath())
                                     && pn->includedInExactParse());
+                        qmakeProFileNode->setParseInProgress(true);
                         qmakeProFileNode->asyncUpdate();
                         toAdd << qmakeProFileNode;
                     }

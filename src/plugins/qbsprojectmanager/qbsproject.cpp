@@ -252,7 +252,7 @@ bool QbsProject::ensureWriteableQbsFile(const QString &file)
             bool makeWritable = QFile::setPermissions(file, fi.permissions() | QFile::WriteUser);
             if (!makeWritable) {
                 QMessageBox::warning(ICore::mainWindow(),
-                                     tr("Failed!"),
+                                     tr("Failed"),
                                      tr("Could not write project file %1.").arg(file));
                 return false;
             }
@@ -774,6 +774,89 @@ static QString groupLocationToProjectFile(const qbs::CodeLocation &location)
                         .arg(location.column());
 }
 
+// TODO: Receive the values from qbs when QBS-1030 is resolved.
+static void getExpandedCompilerFlags(QStringList &cFlags, QStringList &cxxFlags,
+                                     const qbs::PropertyMap &properties)
+{
+    const auto getCppProp = [properties](const char *propertyName) {
+        return properties.getModuleProperty("cpp", QLatin1String(propertyName));
+    };
+    const QVariant &enableExceptions = getCppProp("enableExceptions");
+    const QVariant &enableRtti = getCppProp("enableRtti");
+    QStringList commonFlags = getCppProp("platformCommonCompilerFlags").toStringList();
+    commonFlags << getCppProp("commonCompilerFlags").toStringList()
+                << getCppProp("platformDriverFlags").toStringList()
+                << getCppProp("driverFlags").toStringList();
+    const QStringList toolchain = properties.getModulePropertiesAsStringList("qbs", "toolchain");
+    if (toolchain.contains("gcc")) {
+        bool hasTargetOption = false;
+        if (toolchain.contains("clang")) {
+            const int majorVersion = getCppProp("compilerVersionMajor").toInt();
+            const int minorVersion = getCppProp("compilerVersionMinor").toInt();
+            if (majorVersion > 3 || (majorVersion == 3 && minorVersion >= 1))
+                hasTargetOption = true;
+        }
+        if (hasTargetOption) {
+            commonFlags << "-target" << getCppProp("target").toString();
+        } else {
+            const QString targetArch = getCppProp("targetArch").toString();
+            if (targetArch == "x86_64")
+                commonFlags << "-m64";
+            else if (targetArch == "i386")
+                commonFlags << "-m32";
+            const QString machineType = getCppProp("machineType").toString();
+            if (!machineType.isEmpty())
+                commonFlags << ("-march=" + machineType);
+        }
+        const QStringList targetOS = properties.getModulePropertiesAsStringList(
+                    "qbs", "targetOS");
+        if (targetOS.contains("unix")) {
+            const QVariant positionIndependentCode = getCppProp("positionIndependentCode");
+            if (!positionIndependentCode.isValid() || positionIndependentCode.toBool())
+                commonFlags << "-fPIC";
+        }
+        cFlags = cxxFlags = commonFlags;
+
+        const QString cxxLanguageVersion = getCppProp("cxxLanguageVersion").toString();
+        if (cxxLanguageVersion == "c++11")
+            cxxFlags << "-std=c++0x";
+        else if (cxxLanguageVersion == "c++14")
+            cxxFlags << "-std=c++1y";
+        else if (!cxxLanguageVersion.isEmpty())
+            cxxFlags << ("-std=" + cxxLanguageVersion);
+        const QString cxxStandardLibrary = getCppProp("cxxStandardLibrary").toString();
+        if (!cxxStandardLibrary.isEmpty() && toolchain.contains("clang"))
+            cxxFlags << ("-stdlib=" + cxxStandardLibrary);
+        if (enableExceptions.isValid()) {
+            cxxFlags << QLatin1String(enableExceptions.toBool()
+                                      ? "-fexceptions" : "-fno-exceptions");
+        }
+        if (enableRtti.isValid())
+            cxxFlags << QLatin1String(enableRtti.toBool() ? "-frtti" : "-fno-rtti");
+
+        const QString cLanguageVersion = getCppProp("cLanguageVersion").toString();
+        if (cLanguageVersion == "c11")
+            cFlags << "-std=c1x";
+        else if (!cLanguageVersion.isEmpty())
+            cFlags << ("-std=" + cLanguageVersion);
+    } else if (toolchain.contains("msvc")) {
+        if (enableExceptions.toBool()) {
+            const QString exceptionModel = getCppProp("exceptionHandlingModel").toString();
+            if (exceptionModel == "default")
+                commonFlags << "/EHsc";
+            else if (exceptionModel == "seh")
+                commonFlags << "/EHa";
+            else if (exceptionModel == "externc")
+                commonFlags << "/EHs";
+        }
+        cFlags = cxxFlags = commonFlags;
+        cFlags << "/TC";
+        cxxFlags << "/TP";
+        if (enableRtti.isValid())
+            cxxFlags << QLatin1String(enableRtti.toBool() ? "/GR" : "/GR-");
+    }
+}
+
 void QbsProject::updateCppCodeModel()
 {
     if (!m_projectData.isValid())
@@ -806,12 +889,11 @@ void QbsProject::updateCppCodeModel()
         foreach (const qbs::GroupData &grp, prd.groups()) {
             const qbs::PropertyMap &props = grp.properties();
 
-            ppBuilder.setCxxFlags(props.getModulePropertiesAsStringList(
-                                      QLatin1String(CONFIG_CPP_MODULE),
-                                      QLatin1String(CONFIG_CXXFLAGS)));
-            ppBuilder.setCFlags(props.getModulePropertiesAsStringList(
-                                    QLatin1String(CONFIG_CPP_MODULE),
-                                    QLatin1String(CONFIG_CFLAGS)));
+            QStringList cFlags;
+            QStringList cxxFlags;
+            getExpandedCompilerFlags(cFlags, cxxFlags, props);
+            ppBuilder.setCxxFlags(cxxFlags);
+            ppBuilder.setCFlags(cFlags);
 
             QStringList list = props.getModulePropertiesAsStringList(
                         QLatin1String(CONFIG_CPP_MODULE),

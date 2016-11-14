@@ -72,9 +72,8 @@ void QmlStateNodeInstance::deactivateState()
 
 void QmlStateNodeInstance::setPropertyVariant(const PropertyName &name, const QVariant &value)
 {
-    bool hasParent = parent();
     bool isStateOfTheRootModelNode = parentInstance() && parentInstance()->isRootNodeInstance();
-    if (name == "when" && (!hasParent || isStateOfTheRootModelNode))
+    if (name == "when" && (isStateOfTheRootModelNode))
         return;
 
     ObjectNodeInstance::setPropertyVariant(name, value);
@@ -82,9 +81,9 @@ void QmlStateNodeInstance::setPropertyVariant(const PropertyName &name, const QV
 
 void QmlStateNodeInstance::setPropertyBinding(const PropertyName &name, const QString &expression)
 {
-    bool hasParent = parent();
     bool isStateOfTheRootModelNode = parentInstance() && parentInstance()->isRootNodeInstance();
-    if (name == "when" && (!hasParent || isStateOfTheRootModelNode))
+
+    if (name == "when" && (isStateOfTheRootModelNode))
         return;
 
     ObjectNodeInstance::setPropertyBinding(name, expression);

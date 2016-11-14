@@ -22,7 +22,7 @@ QtcProduct {
     Depends { name: "pluginjson" }
     Depends {
         condition: qtc.testsEnabled
-        name: "Qt.test"
+        name: "Qt.testlib"
     }
 
     Properties {

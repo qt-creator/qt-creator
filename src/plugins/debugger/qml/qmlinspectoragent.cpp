@@ -84,6 +84,8 @@ QmlInspectorAgent::QmlInspectorAgent(QmlEngine *engine, QmlDebugConnection *conn
     m_debugIdToIname.insert(WatchItem::InvalidId, "inspect");
     connect(action(ShowQmlObjectTree),
             &Utils::SavedAction::valueChanged, this, &QmlInspectorAgent::updateState);
+    connect(action(SortStructMembers), &Utils::SavedAction::valueChanged,
+            this, &QmlInspectorAgent::updateState);
     m_delayQueryTimer.setSingleShot(true);
     m_delayQueryTimer.setInterval(100);
     connect(&m_delayQueryTimer, &QTimer::timeout,

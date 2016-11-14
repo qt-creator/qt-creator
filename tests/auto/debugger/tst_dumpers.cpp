@@ -1374,7 +1374,7 @@ void tst_Dumpers::dumper()
                 "python theDumper.fetchVariables({"
                     "'token':2,'fancy':1,'forcens':1,"
                     "'autoderef':1,'dyntype':1,'passexceptions':1,"
-                    "'qobjectnames':1,"
+                    "'testing':1,'qobjectnames':1,"
                     "'expanded':[" + expandedq + "]})\n";
 
         cmds += "quit\n";
@@ -1398,7 +1398,7 @@ void tst_Dumpers::dumper()
                 "!qtcreatorcdbext.script -t 42 theDumper.fetchVariables({"
                 "'token':2,'fancy':1,'forcens':1,"
                 "'autoderef':1,'dyntype':1,'passexceptions':0,"
-                "'qobjectnames':1,"
+                "'testing':1,'qobjectnames':1,"
                 "'expanded':[" + expandedq + "]})\n"
                 "q\n";
     } else if (m_debuggerEngine == LldbEngine) {
@@ -1413,7 +1413,7 @@ void tst_Dumpers::dumper()
               // "sc print(dir())\n"
                "sc Tester('" + t->buildPath.toLatin1() + "/doit', {'fancy':1,'forcens':1,"
                     "'autoderef':1,'dyntype':1,'passexceptions':1,"
-                    "'qobjectnames':1,"
+                    "'testing':1,'qobjectnames':1,"
                     "'expanded':[" + expandedq + "]})\n"
                "quit\n";
 
@@ -5943,7 +5943,12 @@ void tst_Dumpers::dumper_data()
         "    { T1() : i1(1) {} int i1; };\n"
         "struct T2 : virtual VEmpty, virtual VData\n"
         "    { T2() : i2(1) {} int i2; };\n"
-        "struct TT : T1, T2 { TT() : c(1) {} int c; };\n";
+        "struct TT : T1, T2 { TT() : c(1) {} int c; };\n"
+
+        "struct A { int a = 1; char aa = 'a'; };\n"
+        "struct B : virtual A { int b = 2; float bb = 2; };\n"
+        "struct C : virtual A { int c = 3; double cc = 3; };\n"
+        "struct D : virtual B, virtual C { int d = 4; };\n";
 
     QTest::newRow("Inheritance")
             << Data(inheritanceData,
@@ -5956,15 +5961,44 @@ void tst_Dumpers::dumper_data()
                     "TT tt;\n"
                     "tt.T1::v = 44;\n"
                     "tt.T2::v = 45;\n"
-                    "unused(&tt.T2::v);\n")
+                    "unused(&tt.T2::v);\n"
+                    "D dd; unused(&dd);\n"
+                    "D *dp = new D; unused(&dp);\n"
+                    "D &dr = dd; unused(&dr);\n")
+                + Cxx11Profile()
                 + Check("c.c", "1", "int")
-                + Check("c.@1.@2.a", "42", "int")
-                + Check("c.@1.@4.v", "45", "int")
-                + Check("c.@2.@2.a", "43", "int")
-                + Check("c.@2.@4.v", "45", "int")
+                + Check("c.@1.@2.a", "42", "int") % NoLldbEngine
+                + Check("c.@1.@4.v", "45", "int") % NoLldbEngine
+                + Check("c.@2.@2.a", "43", "int") % NoLldbEngine
+                + Check("c.@2.@4.v", "45", "int") % NoLldbEngine
+                + Check("c.@1.@1.a", "42", "int") % LldbEngine
+                + Check("c.@1.@2.v", "45", "int") % LldbEngine
+                + Check("c.@2.@1.a", "43", "int") % LldbEngine
+                + Check("c.@2.@2.v", "45", "int") % LldbEngine
                 + Check("tt.c", "1", "int")
-                + Check("tt.@1.@2.v", "45", "int")
-                + Check("tt.@2.@2.v", "45", "int");
+                + Check("tt.@1.@2.v", "45", "int") % NoLldbEngine
+                + Check("tt.@2.@2.v", "45", "int") % NoLldbEngine
+                + Check("tt.@1.@1.v", "45", "int") % LldbEngine
+                + Check("tt.@2.@1.v", "45", "int") % LldbEngine
+
+                + Check("dd.@1.@1.a", "1", "int") // B::a
+                + Check("dd.@2.@1.a", "1", "int") // C::a
+                + Check("dd.@1.b", "2", "int")
+                + Check("dd.@2.c", "3", "int")
+                + Check("dd.d", "4", "int")
+
+                + Check("dp.@1.@1.a", "1", "int") // B::a
+                + Check("dp.@2.@1.a", "1", "int") // C::a
+                + Check("dp.@1.b", "2", "int")
+                + Check("dp.@2.c", "3", "int")
+                + Check("dp.d", "4", "int")
+
+                + Check("dr.@1.@1.a", "1", "int") // B::a
+                + Check("dr.@2.@1.a", "1", "int") // C::a
+                + Check("dr.@1.b", "2", "int")
+                + Check("dr.@2.c", "3", "int")
+                + Check("dr.d", "4", "int");
+
 
     QTest::newRow("Gdb13393")
             << Data(
@@ -6232,6 +6266,11 @@ void tst_Dumpers::dumper_data()
             + Check("v14.2", "[2]", "116", "@QChar")
             + Check("v15", "\"utf16\"", "@QJSValue (QString)")
             + Check("v15.1", "[1]", "116", "@QChar");
+
+    QTest::newRow("Internal1")
+            << Data("struct QtcDumperTest_FieldAccessByIndex { int d[3] = { 10, 11, 12 }; };\n",
+                    "QtcDumperTest_FieldAccessByIndex d; unused(&d);\n")
+            + Check("d", "12", "QtcDumperTest_FieldAccessByIndex");
 
 #if 0
 #ifdef Q_OS_LINUX

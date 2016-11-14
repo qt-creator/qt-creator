@@ -94,6 +94,8 @@ static FileStates stateFor(const QChar &c)
         return CopiedFile;
     case 'U':
         return UnmergedFile;
+    case 'T':
+        return TypeChangedFile;
     case '?':
         return UntrackedFile;
     default:
@@ -195,27 +197,29 @@ QString CommitData::stateDisplayName(const FileStates &state)
 {
     QString resultState;
     if (state == UntrackedFile)
-        return QCoreApplication::translate("Git::Internal::CommitData", "untracked");
+        return tr("untracked");
 
     if (state & StagedFile)
-        resultState = QCoreApplication::translate("Git::Internal::CommitData", "staged + ");
+        resultState = tr("staged + ");
     if (state & ModifiedFile)
-        resultState.append(QCoreApplication::translate("Git::Internal::CommitData", "modified"));
+        resultState.append(tr("modified"));
     else if (state & AddedFile)
-        resultState.append(QCoreApplication::translate("Git::Internal::CommitData", "added"));
+        resultState.append(tr("added"));
     else if (state & DeletedFile)
-        resultState.append(QCoreApplication::translate("Git::Internal::CommitData", "deleted"));
+        resultState.append(tr("deleted"));
     else if (state & RenamedFile)
-        resultState.append(QCoreApplication::translate("Git::Internal::CommitData", "renamed"));
+        resultState.append(tr("renamed"));
     else if (state & CopiedFile)
-        resultState.append(QCoreApplication::translate("Git::Internal::CommitData", "copied"));
+        resultState.append(tr("copied"));
+    else if (state & TypeChangedFile)
+        resultState.append(tr("typechange"));
     if (state & UnmergedUs) {
         if (state & UnmergedThem)
-            resultState.append(QCoreApplication::translate("Git::Internal::CommitData", " by both"));
+            resultState.append(tr(" by both"));
         else
-            resultState.append(QCoreApplication::translate("Git::Internal::CommitData", " by us"));
+            resultState.append(tr(" by us"));
     } else if (state & UnmergedThem) {
-        resultState.append(QCoreApplication::translate("Git::Internal::CommitData", " by them"));
+        resultState.append(tr(" by them"));
     }
     return resultState;
 }

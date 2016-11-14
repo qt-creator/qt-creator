@@ -200,26 +200,39 @@ void MergeTool::prompt(const QString &title, const QString &question)
 
 void MergeTool::readData()
 {
+    bool waitForFurtherInput = false;
     while (m_process->bytesAvailable()) {
-        QByteArray line = m_process->canReadLine() ? m_process->readLine() : m_process->readAllStandardOutput();
+        const bool hasLine = m_process->canReadLine();
+        const QByteArray line = hasLine ? m_process->readLine() : m_process->readAllStandardOutput();
         VcsOutputWindow::append(QString::fromLocal8Bit(line));
+        m_line += line;
         // {Normal|Deleted|Submodule|Symbolic link} merge conflict for 'foo.cpp'
-        int index = line.indexOf(" merge conflict for ");
+        const int index = m_line.indexOf(" merge conflict for ");
         if (index != -1) {
-            m_mergeType = mergeType(line.left(index));
-            int quote = line.indexOf('\'');
-            m_fileName = QString::fromLocal8Bit(line.mid(quote + 1, line.lastIndexOf('\'') - quote - 1));
-        } else if (line.startsWith("  {local}")) {
-            m_localState = parseStatus(line, m_localInfo);
-        } else if (line.startsWith("  {remote}")) {
-            m_remoteState = parseStatus(line, m_remoteInfo);
+            m_mergeType = mergeType(m_line.left(index));
+            int quote = m_line.indexOf('\'');
+            m_fileName = QString::fromLocal8Bit(m_line.mid(quote + 1, m_line.lastIndexOf('\'') - quote - 1));
+        } else if (m_line.startsWith("  {local}")) {
+            waitForFurtherInput = !hasLine;
+            if (waitForFurtherInput)
+                continue;
+            m_localState = parseStatus(m_line, m_localInfo);
+            m_line.clear();
+        } else if (m_line.startsWith("  {remote}")) {
+            waitForFurtherInput = !hasLine;
+            if (waitForFurtherInput)
+                continue;
+            m_remoteState = parseStatus(m_line, m_remoteInfo);
+            m_line.clear();
             chooseAction();
-        } else if (line.startsWith("Was the merge successful")) {
+        } else if (m_line.startsWith("Was the merge successful")) {
             prompt(tr("Unchanged File"), tr("Was the merge successful?"));
-        } else if (line.startsWith("Continue merging")) {
+        } else if (m_line.startsWith("Continue merging")) {
             prompt(tr("Continue Merging"), tr("Continue merging other unresolved paths?"));
         }
     }
+    if (!waitForFurtherInput)
+        m_line.clear();
 }
 
 void MergeTool::done()

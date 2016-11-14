@@ -340,7 +340,7 @@ public:
     QString displayName() const;
     void setDisplayName(const QString &displayName);
 
-    QVariantHash values() const;
+    const QVariantMap &values() const;
 
     void readSettings(QSettings &settings);
 

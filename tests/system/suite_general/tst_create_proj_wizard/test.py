@@ -83,6 +83,11 @@ def main():
                 if counter < len(qtVersionsForQuick) - 1:
                     displayedPlatforms = __createProject__(category, template)
             continue
+        elif template == "Qt Quick Controls 2 Application": # needs a Qt5.7
+            clickButton(waitForObject(":Next_QPushButton")) # ignore this details page for now
+            verifyKitCheckboxes(kits, displayedPlatforms)
+            safeClickButton("Cancel")
+            continue
         elif template.startswith("Plain C"):
             for counter, buildSystem in enumerate(availableBuildSystems):
                 combo = "{name='BuildSystem' type='Utils::TextFieldComboBox' visible='1'}"

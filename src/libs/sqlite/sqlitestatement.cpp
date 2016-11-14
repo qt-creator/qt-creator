@@ -342,7 +342,7 @@ bool SqliteStatement::checkForStepError(int resultCode) const
         case SQLITE_CONSTRAINT:  throwException("SqliteStatement::stepStatement: contraint prevent insert or update!");
     }
 
-    throwException("SqliteStatement::stepStatement: unknown error has happen!");
+    throwException("SqliteStatement::stepStatement: unknown error has happened");
 
     Q_UNREACHABLE();
 }
@@ -356,7 +356,7 @@ void SqliteStatement::checkForPrepareError(int resultCode) const
         case SQLITE_MISUSE:  throwException("SqliteStatement::prepareStatement: was called inappropriately!");
     }
 
-    throwException("SqliteStatement::prepareStatement: unknown error has happen!");
+    throwException("SqliteStatement::prepareStatement: unknown error has happened");
 }
 
 void SqliteStatement::setIfIsReadyToFetchValues(int resultCode) const

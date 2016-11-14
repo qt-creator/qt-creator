@@ -146,7 +146,7 @@ void GitSubmitEditor::setCommitData(const CommitData &d)
             return SubmitFileModel::FileUnmerged;
         if (state.testFlag(AddedFile) || state.testFlag(UntrackedFile))
             return SubmitFileModel::FileAdded;
-        if (state.testFlag(ModifiedFile))
+        if (state.testFlag(ModifiedFile) || state.testFlag(TypeChangedFile))
             return SubmitFileModel::FileModified;
         if (state.testFlag(DeletedFile))
             return SubmitFileModel::FileDeleted;

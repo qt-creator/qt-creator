@@ -67,7 +67,6 @@ private:
     QPointer<StatesEditorView> m_statesEditorView;
     Internal::StatesEditorImageProvider *m_imageProvider;
     QShortcut *m_qmlSourceUpdateShortcut;
-    QQmlPropertyMap m_themeProperties;
 };
 
 }

@@ -38,6 +38,7 @@
 #include <qmljstools/qmljsmodelmanager.h>
 
 #include <utils/algorithm.h>
+#include <utils/mapreduce.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 
@@ -168,38 +169,6 @@ void TestCodeParser::updateTestTree()
 // is not (yet) part of the CppModelManager's snapshot
 static bool parsingHasFailed;
 
-static bool checkDocumentForTestCode(QFutureInterface<TestParseResultPtr> &futureInterface,
-                                     const QString &fileName,
-                                     const QVector<ITestParser *> &parsers)
-{
-    foreach (ITestParser *currentParser, parsers) {
-        if (futureInterface.isCanceled())
-            return false;
-        if (currentParser->processDocument(futureInterface, fileName))
-            return true;
-    }
-    return false;
-}
-
-static void performParse(QFutureInterface<TestParseResultPtr> &futureInterface,
-                         const QStringList &list, const QVector<ITestParser *> &parsers)
-{
-    int progressValue = 0;
-    futureInterface.setProgressRange(0, list.size());
-    futureInterface.setProgressValue(progressValue);
-
-    foreach (const QString &file, list) {
-        if (futureInterface.isCanceled())
-            return;
-        futureInterface.setProgressValue(++progressValue);
-        if (!checkDocumentForTestCode(futureInterface, file, parsers)) {
-            parsingHasFailed |= !CppTools::CppModelManager::instance()->snapshot().contains(file)
-                && (CppTools::ProjectFile::classify(file) != CppTools::ProjectFile::Unclassified);
-        }
-    }
-    futureInterface.setProgressValue(list.size());
-}
-
 /****** threaded parsing stuff *******/
 
 void TestCodeParser::onDocumentUpdated(const QString &fileName)
@@ -314,6 +283,18 @@ bool TestCodeParser::postponed(const QStringList &fileList)
     QTC_ASSERT(false, return false); // should not happen at all
 }
 
+static void parseFileForTests(const QVector<ITestParser *> &parsers,
+                              QFutureInterface<TestParseResultPtr> &futureInterface,
+                              const QString &fileName)
+{
+    foreach (ITestParser *parser, parsers) {
+        if (futureInterface.isCanceled())
+            return;
+        if (parser->processDocument(futureInterface, fileName))
+            break;
+    }
+}
+
 void TestCodeParser::scanForTests(const QStringList &fileList)
 {
     if (m_parserState == Disabled || m_parserState == Shutdown) {
@@ -372,7 +353,11 @@ void TestCodeParser::scanForTests(const QStringList &fileList)
     foreach (ITestParser *parser, m_testCodeParsers)
         parser->init(list);
 
-    QFuture<TestParseResultPtr> future = Utils::runAsync(&performParse, list, m_testCodeParsers);
+    QFuture<TestParseResultPtr> future = Utils::map(list,
+        [this](QFutureInterface<TestParseResultPtr> &fi, const QString &file) {
+            parseFileForTests(m_testCodeParsers, fi, file);
+        },
+        Utils::MapReduceOption::Unordered);
     m_futureWatcher.setFuture(future);
     if (list.size() > 5) {
         Core::ProgressManager::addTask(future, tr("Scanning for Tests"),
@@ -411,6 +396,8 @@ void TestCodeParser::onAllTasksFinished(Core::Id type)
 
 void TestCodeParser::onFinished()
 {
+    if (m_futureWatcher.isCanceled())
+        parsingHasFailed = true;
     switch (m_parserState) {
     case PartialParse:
         qCDebug(LOG) << "setting state to Idle (onFinished, PartialParse)";

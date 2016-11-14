@@ -905,13 +905,16 @@ bool PythonEditorPlugin::initialize(const QStringList &arguments, QString *error
     addAutoReleasedObject(new PythonRunConfigurationFactory);
     addAutoReleasedObject(new PythonRunControlFactory);
 
+    return true;
+}
+
+void PythonEditorPlugin::extensionsInitialized()
+{
     // Initialize editor actions handler
     // Add MIME overlay icons (these icons displayed at Project dock panel)
     const QIcon icon = QIcon::fromTheme(C_PY_MIME_ICON);
     if (!icon.isNull())
         Core::FileIconProvider::registerIconOverlayForMimeType(icon, C_PY_MIMETYPE);
-
-    return true;
 }
 
 } // namespace Internal

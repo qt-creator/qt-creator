@@ -33,11 +33,13 @@
 
 namespace QmlDesigner {
 
-void Theming::insertTheme(QQmlPropertyMap *map)
+const QVariantMap &Theming::theme()
 {
-    const QVariantHash creatorTheme = Utils::creatorTheme()->values();
-    for (auto it = creatorTheme.constBegin(); it != creatorTheme.constEnd(); ++it)
-        map->insert(it.key(), it.value());
+    static QVariantMap map;
+    if (!map.isEmpty())
+        return map;
+
+    map = Utils::creatorTheme()->values();
 
     /* Define QmlDesigner colors and remove alpha channels */
     const QColor backgroundColor = Utils::creatorTheme()->color(Utils::Theme::QmlDesigner_BackgroundColor);
@@ -58,18 +60,18 @@ void Theming::insertTheme(QQmlPropertyMap *map)
         tabDark =  tabDark.darker(260);
     }
 
-    map->insert("QmlDesignerBackgroundColorDarker", darkerBackground);
-    map->insert("QmlDesignerBackgroundColorDarkAlternate", backgroundColor);
-    map->insert("QmlDesignerTabLight", tabLight);
-    map->insert("QmlDesignerTabDark", tabDark);
-    map->insert("QmlDesignerButtonColor", buttonColor);
-    map->insert("QmlDesignerBorderColor", Utils::creatorTheme()->color(Utils::Theme::SplitterColor));
+    map.insert("QmlDesignerBackgroundColorDarker", darkerBackground);
+    map.insert("QmlDesignerBackgroundColorDarkAlternate", backgroundColor);
+    map.insert("QmlDesignerTabLight", tabLight);
+    map.insert("QmlDesignerTabDark", tabDark);
+    map.insert("QmlDesignerButtonColor", buttonColor);
+    map.insert("QmlDesignerBorderColor", Utils::creatorTheme()->color(Utils::Theme::SplitterColor));
+    return map;
 }
 
 QString Theming::replaceCssColors(const QString &input)
 {
-    QQmlPropertyMap map;
-    insertTheme(&map);
+    const QVariantMap &map = theme();
     QRegExp rx("creatorTheme\\.(\\w+);");
 
     int pos = 0;

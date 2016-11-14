@@ -27,6 +27,7 @@
 
 #include "gitsettings.h" // CommitType
 
+#include <QCoreApplication>
 #include <QStringList>
 #include <QPair>
 
@@ -71,6 +72,7 @@ enum FileState {
     RenamedFile  = 0x10,
     CopiedFile   = 0x20,
     UnmergedFile = 0x40,
+    TypeChangedFile = 0x80,
 
     UnmergedUs   = 0x100,
     UnmergedThem = 0x200,
@@ -82,6 +84,8 @@ Q_DECLARE_FLAGS(FileStates, FileState)
 
 class CommitData
 {
+    Q_DECLARE_TR_FUNCTIONS(Git::Internal::CommitData)
+
 public:
     CommitData(CommitType type = SimpleCommit);
     // A pair of state string/file name ('modified', 'file.cpp').

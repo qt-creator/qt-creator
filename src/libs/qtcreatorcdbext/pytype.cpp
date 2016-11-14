@@ -290,7 +290,7 @@ PyObject *type_TemplateArgument(Type *self, PyObject *args)
     unsigned int index;
     bool numeric;
     if (!PyArg_ParseTuple(args, "Ib", &index, &numeric))
-        return NULL;
+        Py_RETURN_NONE;
 
     std::vector<std::string> innerTypes = innerTypesOf(getTypeName(self));
     if (innerTypes.size() <= index)
@@ -302,7 +302,7 @@ PyObject *type_TemplateArgument(Type *self, PyObject *args)
             return Py_BuildValue("i", std::stoi(innerType));
         }
         catch (std::invalid_argument) {
-            return NULL;
+            Py_RETURN_NONE;
         }
     }
 

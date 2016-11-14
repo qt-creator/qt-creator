@@ -168,7 +168,7 @@ def effective(file, line, frame):
 
 
 
-#__all__ = ["Dumper"]
+#__all__ = ['Dumper']
 
 def find_function(funcname, filename):
     cre = re.compile(r'def\s+%s\s*[(]' % re.escape(funcname))
@@ -231,18 +231,18 @@ class Dumper:
     # Hex decoding operating on str, return str.
     def hexdecode(self, s):
         if sys.version_info[0] == 2:
-            return s.decode("hex")
-        return bytes.fromhex(s).decode("utf8")
+            return s.decode('hex')
+        return bytes.fromhex(s).decode('utf8')
 
     # Hex encoding operating on str or bytes, return str.
     def hexencode(self, s):
         if sys.version_info[0] == 2:
-            return s.encode("hex")
+            return s.encode('hex')
         if isinstance(s, str):
-            s = s.encode("utf8")
-        return base64.b16encode(s).decode("utf8")
+            s = s.encode('utf8')
+        return base64.b16encode(s).decode('utf8')
     def canonic(self, filename):
-        if filename == "<" + filename[1:-1] + ">":
+        if filename == '<' + filename[1:-1] + '>':
             return filename
         canonic = self.fncache.get(filename)
         if not canonic:
@@ -572,7 +572,7 @@ class Dumper:
             locals = globals
         self.reset()
         if isinstance(cmd, str):
-            cmd = compile(cmd, "<string>", "exec")
+            cmd = compile(cmd, '<string>', 'exec')
         sys.settrace(self.trace_dispatch)
         try:
             exec(cmd, globals, locals)
@@ -641,7 +641,7 @@ class Dumper:
                             line = 'EOF'
                         else:
                             line = line.rstrip('\r\n')
-                print("LINE: %s" % line)
+                print('LINE: %s' % line)
                 stop = self.onecmd(line)
         finally:
             pass
@@ -674,9 +674,9 @@ class Dumper:
         commands by the interpreter should stop.
         """
         line = str(line)
-        print("LINE 0: %s" % line)
+        print('LINE 0: %s' % line)
         cmd, arg, line = self.parseline(line)
-        print("LINE 1: %s" % line)
+        print('LINE 1: %s' % line)
         if cmd is None:
             return self.default(line)
         self.lastcmd = line
@@ -693,15 +693,15 @@ class Dumper:
 
     def runit(self):
 
-        print("DIR: %s" % dir())
+        print('DIR: %s' % dir())
         if sys.argv[0] == '-c':
             sys.argv = sys.argv[2:]
         else:
             sys.argv = sys.argv[1:]
-        print("ARGV: %s" % sys.argv)
+        print('ARGV: %s' % sys.argv)
         mainpyfile = sys.argv[0]     # Get script filename
         sys.path.append(os.path.dirname(mainpyfile))
-        print("MAIN: %s" % mainpyfile)
+        print('MAIN: %s' % mainpyfile)
 
         while True:
             try:
@@ -713,9 +713,9 @@ class Dumper:
 
                 #import __main__
                 #__main__.__dict__.clear()
-                #__main__.__dict__.update({"__name__"    : "__main__",
-                #                          "__file__"    : mainpyfile,
-                #                          "__builtins__": __builtins__,
+                #__main__.__dict__.update({'__name__'    : '__main__',
+                #                          '__file__'    : mainpyfile,
+                #                          '__builtins__': __builtins__,
                 #                         })
 
                 # When bdb sets tracing, a number of call and line events happens
@@ -726,26 +726,26 @@ class Dumper:
                 self._wait_for_mainpyfile = True
                 self.mainpyfile = self.canonic(mainpyfile)
                 self._user_requested_quit = False
-                with open(mainpyfile, "rb") as fp:
+                with open(mainpyfile, 'rb') as fp:
                     statement = "exec(compile(%r, %r, 'exec'))" % \
                                 (fp.read(), self.mainpyfile)
                 self.run(statement)
 
                 if self._user_requested_quit:
                     break
-                print("The program finished")
+                print('The program finished')
             except SystemExit:
                 # In most cases SystemExit does not warrant a post-mortem session.
-                print("The program exited via sys.exit(). Exit status:")
+                print('The program exited via sys.exit(). Exit status:')
                 print(sys.exc_info()[1])
             except:
                 traceback.print_exc()
-                print("Uncaught exception. Entering post mortem debugging")
-                print("Running 'cont' or 'step' will restart the program")
+                print('Uncaught exception. Entering post mortem debugging')
+                print('Running "cont" or "step" will restart the program')
                 t = sys.exc_info()[2]
                 self.interaction(None, t)
-                print("Post mortem debugger finished. The " + mainpyfile +
-                      " will be restarted")
+                print('Post mortem debugger finished. The ' + mainpyfile +
+                      ' will be restarted')
 
     def sigint_handler(self, signum, frame):
         if self.allow_kbdint:
@@ -797,7 +797,7 @@ class Dumper:
         Returns True if the normal interaction function must be called,
         False otherwise."""
         # self.currentbp is set in break_here if a breakpoint was hit
-        if getattr(self, "currentbp", False) and self.currentbp in self.commands:
+        if getattr(self, 'currentbp', False) and self.currentbp in self.commands:
             currentbp = self.currentbp
             self.currentbp = 0
             lastcmd_back = self.lastcmd
@@ -839,7 +839,7 @@ class Dumper:
     def interaction(self, frame, traceback):
         if self.setup(frame, traceback):
             # no interaction desired at this time (happens if .pdbrc contains
-            # a command like "continue")
+            # a command like 'continue')
             self.forget()
             return
 
@@ -914,7 +914,7 @@ class Dumper:
         """
         if not arg:
             if self.breaks:  # There's at least one
-                self.message("Num Type         Disp Enb   Where")
+                self.message('Num Type         Disp Enb   Where')
                 for bp in Breakpoint.bpbynumber:
                     if bp:
                         self.message(bp.bpformat())
@@ -926,7 +926,7 @@ class Dumper:
         cond = None
         comma = arg.find(',')
         if comma > 0:
-            # parse stuff after comma: "condition"
+            # parse stuff after comma: 'condition'
             cond = arg[comma+1:].lstrip()
             arg = arg[:comma].rstrip()
         # parse stuff before comma: [filename:]lineno | function
@@ -986,7 +986,7 @@ class Dumper:
                 self.error(err)
             else:
                 bp = self.get_breaks(filename, line)[-1]
-                self.message("Breakpoint %d at %s:%d" %
+                self.message('Breakpoint %d at %s:%d' %
                              (bp.number, bp.file, bp.line))
 
     # To be overridden in derived debuggers
@@ -1169,14 +1169,14 @@ class Dumper:
                     self.message('Deleted %s' % bp)
             return
         if ':' in arg:
-            # Make sure it works for "clear C:\foo\bar.py:12"
+            # Make sure it works for 'clear C:\foo\bar.py:12'
             i = arg.rfind(':')
             filename = arg[:i]
             arg = arg[i+1:]
             try:
                 lineno = int(arg)
             except ValueError:
-                err = "Invalid line number (%s)" % arg
+                err = 'Invalid line number (%s)' % arg
             else:
                 bplist = self.get_breaks(filename, lineno)
                 err = self.clear_break(filename, lineno)
@@ -1290,9 +1290,9 @@ class Dumper:
         globals = self.curframe.f_globals
         locals = self.curframe_locals
         p = Dumper(self.stdin, self.stdout)
-        self.message("ENTERING RECURSIVE DEBUGGER")
+        self.message('ENTERING RECURSIVE DEBUGGER')
         sys.call_tracing(p.run, (arg, globals, locals))
-        self.message("LEAVING RECURSIVE DEBUGGER")
+        self.message('LEAVING RECURSIVE DEBUGGER')
         sys.settrace(self.trace_dispatch)
         self.lastcmd = p.lastcmd
 
@@ -1398,7 +1398,7 @@ class Dumper:
         """
         ns = self.curframe.f_globals.copy()
         ns.update(self.curframe_locals)
-        code.interact("*interactive*", local=ns)
+        code.interact('*interactive*', local=ns)
 
     def lookupmodule(self, filename):
         """Helper function for break/clear parsing -- may be overridden.
@@ -1428,12 +1428,12 @@ class Dumper:
         self.updateData(args)
 
     def updateData(self, args):
-        self.expandedINames = set(args.get("expanded", []))
-        self.typeformats = args.get("typeformats", {})
-        self.formats = args.get("formats", {})
-        self.output = ""
+        self.expandedINames = set(args.get('expanded', []))
+        self.typeformats = args.get('typeformats', {})
+        self.formats = args.get('formats', {})
+        self.output = ''
 
-        frameNr = args.get("frame", 0)
+        frameNr = args.get('frame', 0)
         if frameNr == -1:
             frameNr = 0
 
@@ -1441,33 +1441,33 @@ class Dumper:
         frame, lineno = frame_lineno
         filename = self.canonic(frame.f_code.co_filename)
 
-        self.output += "data={"
+        self.output += 'data={'
         for var in frame.f_locals.keys():
-            if var in ("__file__", "__name__", "__package__", "__spec__",
-                       "__doc__", "__loader__", "__cached__", "__the_dumper__"):
+            if var in ('__file__', '__name__', '__package__', '__spec__',
+                       '__doc__', '__loader__', '__cached__', '__the_dumper__'):
                 continue
             value = frame.f_locals[var]
             # this applies only for anonymous arguments
             # e.g. def dummy(var, (width, height), var2) would create an anonymous local var
             # named '.1' for (width, height) as this is the second argument
             if var.startswith('.'):
-                var = "@arg" + var[1:]
-            self.dumpValue(value, var, "local.%s" % var)
+                var = '@arg' + var[1:]
+            self.dumpValue(value, var, 'local.%s' % var)
 
-        for watcher in args.get("watchers", []):
+        for watcher in args.get('watchers', []):
             iname = watcher['iname']
             exp = self.hexdecode(watcher['exp'])
             exp = str(exp).strip()
             escapedExp = self.hexencode(exp)
-            self.put("{")
-            self.putField("iname", iname)
-            self.putField("wname", escapedExp)
+            self.put('{')
+            self.putField('iname', iname)
+            self.putField('wname', escapedExp)
             try:
                 res = eval(exp, {}, frame.f_locals)
                 self.putValue(res)
             except:
-                self.putValue("<unavailable>")
-            self.put("}")
+                self.putValue('<unavailable>')
+            self.put('}')
             #self.dumpValue(eval(value), escapedExp, iname)
 
         self.output += '}'
@@ -1475,9 +1475,9 @@ class Dumper:
         self.flushOutput()
 
     def flushOutput(self):
-        sys.stdout.write("@\n" + self.output + "@\n")
+        sys.stdout.write('@\n' + self.output + '@\n')
         sys.stdout.flush()
-        self.output = ""
+        self.output = ''
 
     def put(self, value):
         #sys.stdout.write(value)
@@ -1498,22 +1498,22 @@ class Dumper:
         return t
 
     def putType(self, type, priority = 0):
-        self.putField("type", self.cleanType(type))
+        self.putField('type', self.cleanType(type))
 
     def putNumChild(self, numchild):
         self.put('numchild="%s",' % numchild)
 
     def putValue(self, value, encoding = None, priority = 0):
-        self.putField("value", value)
+        self.putField('value', value)
 
     def putName(self, name):
         self.put('name="%s",' % name)
 
     def isExpanded(self, iname):
-        #self.warn("IS EXPANDED: %s in %s" % (iname, self.expandedINames))
-        if iname.startswith("None"):
+        #self.warn('IS EXPANDED: %s in %s' % (iname, self.expandedINames))
+        if iname.startswith('None'):
             raise "Illegal iname '%s'" % iname
-        #self.warn("   --> %s" % (iname in self.expandedINames))
+        #self.warn('   --> %s' % (iname in self.expandedINames))
         return iname in self.expandedINames
 
     def isExpandedIName(self, iname):
@@ -1528,138 +1528,134 @@ class Dumper:
     # Hex encoding operating on str or bytes, return str.
     def hexencode(self, s):
         if sys.version_info[0] == 2:
-            return s.encode("hex")
+            return s.encode('hex')
         if isinstance(s, str):
-            s = s.encode("utf8")
-        return base64.b16encode(s).decode("utf8")
+            s = s.encode('utf8')
+        return base64.b16encode(s).decode('utf8')
 
     def dumpValue(self, value, name, iname):
         t = type(value)
         tt = self.cleanType(t)
-        if tt == "module" or tt == "function":
+        if tt == 'module' or tt == 'function':
             return
         if str(value).startswith("<class '"):
             return
         # FIXME: Should we?
-        if str(value).startswith("<enum-item "):
+        if str(value).startswith('<enum-item '):
             return
-        self.put("{")
-        self.putField("iname", iname)
+        self.put('{')
+        self.putField('iname', iname)
         self.putName(name)
-        if tt == "NoneType":
+        if tt == 'NoneType':
             self.putType(tt)
-            self.putValue("None")
+            self.putValue('None')
             self.putNumChild(0)
-        elif tt == "list" or tt == "tuple":
+        elif tt == 'list' or tt == 'tuple':
             self.putType(tt)
             self.putItemCount(len(value))
             #self.putValue(value)
-            self.put("children=[")
+            self.put('children=[')
             for i in range(len(value)):
-                self.dumpValue(value[i], str(i), "%s.%d" % (iname, i))
-            self.put("]")
-        elif tt == "str":
+                self.dumpValue(value[i], str(i), '%s.%d' % (iname, i))
+            self.put(']')
+        elif tt == 'str':
             v = value
             self.putType(tt)
             self.putValue(self.hexencode(v))
-            self.putField("valueencoded", "utf8")
+            self.putField('valueencoded', 'utf8')
             self.putNumChild(0)
-        elif tt == "unicode":
+        elif tt == 'unicode':
             v = value
             self.putType(tt)
             self.putValue(self.hexencode(v))
-            self.putField("valueencoded", "utf8")
+            self.putField('valueencoded', 'utf8')
             self.putNumChild(0)
-        elif tt == "buffer":
+        elif tt == 'buffer':
             v = str(value)
             self.putType(tt)
             self.putValue(self.hexencode(v))
-            self.putField("valueencoded", "latin1")
+            self.putField('valueencoded', 'latin1')
             self.putNumChild(0)
-        elif tt == "xrange":
+        elif tt == 'xrange':
             b = iter(value).next()
             e = b + len(value)
             self.putType(tt)
-            self.putValue("(%d, %d)" % (b, e))
+            self.putValue('(%d, %d)' % (b, e))
             self.putNumChild(0)
-        elif tt == "dict":
+        elif tt == 'dict':
             self.putType(tt)
             self.putItemCount(len(value))
-            self.putField("childnumchild", 2)
-            self.put("children=[")
+            self.putField('childnumchild', 2)
+            self.put('children=[')
             i = 0
             if sys.version_info[0] >= 3:
                 vals = value.items()
             else:
                 vals = value.iteritems()
             for (k, v) in vals:
-                self.put("{")
-                self.putType(" ")
-                self.putValue("%s: %s" % (k, v))
+                self.put('{')
+                self.putType(' ')
+                self.putValue('%s: %s' % (k, v))
                 if self.isExpanded(iname):
-                    self.put("children=[")
-                    self.dumpValue(k, "key", "%s.%d.k" % (iname, i))
-                    self.dumpValue(v, "value", "%s.%d.v" % (iname, i))
-                    self.put("]")
-                self.put("},")
+                    self.put('children=[')
+                    self.dumpValue(k, 'key', '%s.%d.k' % (iname, i))
+                    self.dumpValue(v, 'value', '%s.%d.v' % (iname, i))
+                    self.put(']')
+                self.put('},')
                 i += 1
-            self.put("]")
-        elif tt == "class":
+            self.put(']')
+        elif tt == 'class':
             pass
-        elif tt == "module":
+        elif tt == 'module':
             pass
-        elif tt == "function":
+        elif tt == 'function':
             pass
-        elif str(value).startswith("<enum-item "):
+        elif str(value).startswith('<enum-item '):
             # FIXME: Having enums always shown like this is not nice.
             self.putType(tt)
             self.putValue(str(value)[11:-1])
             self.putNumChild(0)
         else:
             v = str(value)
-            p = v.find(" object at ")
+            p = v.find(' object at ')
             if p > 1:
-                self.putValue("@" + v[p + 11:-1])
+                self.putValue('@' + v[p + 11:-1])
                 self.putType(v[1:p])
             else:
-                p = v.find(" instance at ")
+                p = v.find(' instance at ')
                 if p > 1:
-                    self.putValue("@" + v[p + 13:-1])
+                    self.putValue('@' + v[p + 13:-1])
                     self.putType(v[1:p])
                 else:
                     self.putType(tt)
                     self.putValue(v)
             if self.isExpanded(iname):
-                self.put("children=[")
+                self.put('children=[')
                 for child in dir(value):
-                    if child == "__dict__":
-                        continue
-                    if child == "__doc__":
-                        continue
-                    if child == "__module__":
+                    if child in ('__dict__', '__doc__', '__module__'):
                         continue
                     attr = getattr(value, child)
                     if callable(attr):
                         continue
                     try:
-                        self.dumpValue(attr, child, "%s.%s" % (iname, child))
+                        self.dumpValue(attr, child, '%s.%s' % (iname, child))
                     except:
                         pass
-                self.put("],")
-        self.put("},")
+                self.put('],')
+        self.put('},')
 
 
     def warn(self, msg):
-        self.putField("warning", msg)
+        self.putField('warning', msg)
 
     def listModules(self, args):
-        self.put("modules=[");
+        self.put('modules=[');
         for name in sys.modules:
-            self.put("{")
+            self.put('{')
             self.putName(name)
             self.putValue(sys.modules[name])
-            self.put("},")
-        self.put("]")
+            self.put('},')
+        self.put(']')
         self.flushOutput()
 
     def listSymbols(self, args):
@@ -1672,9 +1668,9 @@ class Dumper:
     def assignValue(self, args):
         exp = args['expression']
         value = args['value']
-        cmd = "%s=%s" % (exp, exp, value)
+        cmd = '%s=%s' % (exp, exp, value)
         eval(cmd, {})
-        self.put("CMD: '%s'" % cmd)
+        self.put('CMD: "%s"' % cmd)
         self.flushOutput()
 
     def stackListFrames(self, args):
@@ -1705,7 +1701,7 @@ class Dumper:
         self.report(result)
 
     def report(self, stuff):
-        sys.stdout.write("@\n" + stuff + "@\n")
+        sys.stdout.write('@\n' + stuff + '@\n')
         sys.stdout.flush()
 
 
