@@ -216,6 +216,15 @@ void CMakeProject::runCMake()
         bc->runCMake();
 }
 
+void CMakeProject::buildCMakeTarget(const QString &buildTarget)
+{
+    QTC_ASSERT(!buildTarget.isEmpty(), return);
+    Target *t = activeTarget();
+    auto bc = qobject_cast<CMakeBuildConfiguration *>(t ? t->activeBuildConfiguration() : nullptr);
+    if (bc)
+        bc->buildTarget(buildTarget);
+}
+
 QList<CMakeBuildTarget> CMakeProject::buildTargets() const
 {
     CMakeBuildConfiguration *bc = nullptr;

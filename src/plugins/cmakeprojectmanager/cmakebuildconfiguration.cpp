@@ -37,8 +37,10 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kit.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmacroexpander.h>
 #include <projectexplorer/target.h>
@@ -228,6 +230,28 @@ FileName CMakeBuildConfiguration::shadowBuildDirectory(const FileName &projectFi
     QDir projectDir = QDir(Project::projectDirectory(projectFilePath).toString());
     QString buildPath = expander.expand(Core::DocumentManager::buildDirectory());
     return FileName::fromUserInput(projectDir.absoluteFilePath(buildPath));
+}
+
+void CMakeBuildConfiguration::buildTarget(const QString &buildTarget)
+{
+    const Core::Id buildStep = ProjectExplorer::Constants::BUILDSTEPS_BUILD;
+    const QString name = ProjectExplorer::ProjectExplorerPlugin::displayNameForStepId(buildStep);
+    CMakeBuildStep *cmBs
+            = qobject_cast<CMakeBuildStep *>(Utils::findOrDefault(stepList(buildStep)->steps(),
+                                                                  [](const ProjectExplorer::BuildStep *bs) {
+        return bs->id() == Constants::CMAKE_BUILD_STEP_ID;
+    }));
+
+    QString originalBuildTarget;
+    if (cmBs) {
+        originalBuildTarget = cmBs->buildTarget();
+        cmBs->setBuildTarget(buildTarget);
+    }
+
+    BuildManager::buildList(stepList(buildStep), name);
+
+    if (cmBs)
+        cmBs->setBuildTarget(originalBuildTarget);
 }
 
 QList<ConfigModel::DataItem> CMakeBuildConfiguration::completeCMakeConfiguration() const

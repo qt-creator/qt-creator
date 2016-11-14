@@ -27,7 +27,10 @@
 
 #include "cmakeeditor.h"
 #include "cmakebuildstep.h"
+#include "cmakeproject.h"
+#include "cmakeprojectconstants.h"
 #include "cmakeprojectmanager.h"
+#include "cmakeprojectnodes.h"
 #include "cmakebuildconfiguration.h"
 #include "cmakerunconfiguration.h"
 #include "cmakesnippetprovider.h"
@@ -37,16 +40,25 @@
 #include "cmaketoolmanager.h"
 #include "cmakekitinformation.h"
 
+#include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/fileiconprovider.h>
+
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/projecttree.h>
 
 #include <utils/mimetypes/mimedatabase.h>
+#include <utils/parameteraction.h>
 
 using namespace CMakeProjectManager::Internal;
+using namespace Core;
+using namespace ProjectExplorer;
 
 bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
+    const Context projectContext(Constants::PROJECTCONTEXT);
+
     Utils::MimeDatabase::addMimeTypes(QLatin1String(":cmakeproject/CMakeProjectManager.mimetypes.xml"));
 
     Core::FileIconProvider::registerIconOverlayForSuffix(Constants::FILEOVERLAY_CMAKE, "cmake");
@@ -63,9 +75,29 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
 
     new CMakeToolManager(this);
 
-    ProjectExplorer::KitManager::registerKitInformation(new CMakeKitInformation);
-    ProjectExplorer::KitManager::registerKitInformation(new CMakeGeneratorKitInformation);
-    ProjectExplorer::KitManager::registerKitInformation(new CMakeConfigurationKitInformation);
+    KitManager::registerKitInformation(new CMakeKitInformation);
+    KitManager::registerKitInformation(new CMakeGeneratorKitInformation);
+    KitManager::registerKitInformation(new CMakeConfigurationKitInformation);
+
+    //menus
+    ActionContainer *msubproject =
+            ActionManager::actionContainer(ProjectExplorer::Constants::M_SUBPROJECTCONTEXT);
+
+    //register actions
+    Command *command = nullptr;
+
+    m_buildTargetContextAction = new Utils::ParameterAction(tr("Build"), tr("Build \"%1\""),
+                                                            Utils::ParameterAction::AlwaysEnabled/*handled manually*/,
+                                                            this);
+    command = ActionManager::registerAction(m_buildTargetContextAction, Constants::BUILD_TARGET_CONTEXTMENU, projectContext);
+    command->setAttribute(Command::CA_Hide);
+    command->setAttribute(Command::CA_UpdateText);
+    command->setDescription(m_buildTargetContextAction->text());
+    msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
+
+    // Wire up context menu updates:
+    connect(ProjectTree::instance(), &ProjectTree::currentNodeChanged,
+            this, &CMakeProjectPlugin::updateContextActions);
 
     return true;
 }
@@ -74,4 +106,21 @@ void CMakeProjectPlugin::extensionsInitialized()
 {
     //restore the cmake tools before loading the kits
     CMakeToolManager::restoreCMakeTools();
+}
+
+void CMakeProjectPlugin::updateContextActions(ProjectExplorer::Node *node,
+                                              ProjectExplorer::Project *project)
+{
+    CMakeTargetNode *targetNode = dynamic_cast<CMakeTargetNode *>(node);
+    CMakeProject *cmProject = dynamic_cast<CMakeProject *>(project);
+
+    // Build Target:
+    disconnect(m_buildTargetContextAction);
+    m_buildTargetContextAction->setParameter(targetNode ? targetNode->displayName() : QString());
+    m_buildTargetContextAction->setEnabled(targetNode);
+    m_buildTargetContextAction->setVisible(targetNode);
+    if (cmProject && targetNode) {
+        connect(m_buildTargetContextAction, &Utils::ParameterAction::triggered,
+                cmProject, [cmProject, targetNode]() { cmProject->buildCMakeTarget(targetNode->displayName()); });
+    }
 }

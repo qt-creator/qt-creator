@@ -92,6 +92,9 @@ public:
     shadowBuildDirectory(const Utils::FileName &projectFilePath, const ProjectExplorer::Kit *k,
                          const QString &bcName, BuildConfiguration::BuildType buildType);
 
+    // Context menu action:
+    void buildTarget(const QString &buildTarget);
+
 signals:
     void errorOccured(const QString &message);
     void warningOccured(const QString &message);

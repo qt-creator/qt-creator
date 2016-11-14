@@ -57,5 +57,11 @@ const char CMAKE_SNIPPETS_GROUP_ID[] = "CMake";
 // Icons
 const char FILEOVERLAY_CMAKE[] = ":/cmakeproject/images/fileoverlay_cmake.png";
 
+// Actions
+const char BUILD_TARGET_CONTEXTMENU[] = "CMake.BuildTargetContextMenu";
+
+// Build Step
+const char CMAKE_BUILD_STEP_ID[] = "CMakeProjectManager.MakeStep";
+
 } // namespace Constants
 } // namespace CMakeProjectManager

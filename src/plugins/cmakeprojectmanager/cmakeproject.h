@@ -96,6 +96,9 @@ public:
 
     void runCMake();
 
+    // Context menu actions:
+    void buildCMakeTarget(const QString &buildTarget);
+
 signals:
     /// emitted when cmake is running:
     void parsingStarted();

@@ -62,7 +62,6 @@ using namespace CMakeProjectManager::Internal;
 using namespace ProjectExplorer;
 
 namespace {
-const char MS_ID[] = "CMakeProjectManager.MakeStep";
 const char CLEAN_KEY[] = "CMakeProjectManager.MakeStep.Clean"; // Obsolete since QtC 3.7
 const char BUILD_TARGETS_KEY[] = "CMakeProjectManager.MakeStep.BuildTargets";
 const char TOOL_ARGUMENTS_KEY[] = "CMakeProjectManager.MakeStep.AdditionalArguments";
@@ -75,7 +74,8 @@ static bool isCurrentExecutableTarget(const QString &target)
     return target == QLatin1String(ADD_RUNCONFIGURATION_TEXT);
 }
 
-CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl) : AbstractProcessStep(bsl, Core::Id(MS_ID))
+CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl) :
+    AbstractProcessStep(bsl, Core::Id(Constants::CMAKE_BUILD_STEP_ID))
 {
     ctor(bsl);
 }
@@ -99,7 +99,7 @@ void CMakeBuildStep::ctor(BuildStepList *bsl)
     m_ninjaProgress = QRegExp(QLatin1String("^\\[\\s*(\\d*)/\\s*(\\d*)"));
     m_ninjaProgressString = QLatin1String("[%f/%t "); // ninja: [33/100
     //: Default display name for the cmake make step.
-    setDefaultDisplayName(tr("Make"));
+    setDefaultDisplayName(tr("CMake Build"));
 
     auto bc = qobject_cast<CMakeBuildConfiguration *>(bsl->parent());
     if (!bc) {
@@ -526,7 +526,8 @@ QList<BuildStepInfo> CMakeBuildStepFactory::availableSteps(BuildStepList *parent
     if (parent->target()->project()->id() != Constants::CMAKEPROJECT_ID)
         return {};
 
-    return {{ MS_ID, tr("Build", "Display name for CMakeProjectManager::CMakeBuildStep id.") }};
+    return {{ Constants::CMAKE_BUILD_STEP_ID,
+                    tr("Build", "Display name for CMakeProjectManager::CMakeBuildStep id.") }};
 }
 
 BuildStep *CMakeBuildStepFactory::create(BuildStepList *parent, Core::Id id)
