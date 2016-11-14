@@ -587,6 +587,7 @@ struct Profile
 {
     Profile(const QByteArray &contents) : contents(contents) {}
 
+    QByteArray includes;
     QByteArray contents;
 };
 
@@ -609,6 +610,7 @@ struct BoostProfile : public Profile
             contents = QByteArray("INCLUDEPATH += ") + boostIncPath.constData();
         else
             contents = "macx:INCLUDEPATH += /usr/local/include";
+        includes = "#include <boost/version.hpp>\n";
     }
 };
 
@@ -668,6 +670,7 @@ public:
     const Data &operator+(const Profile &profile) const
     {
         profileExtra += profile.contents;
+        includes += profile.includes;
         return *this;
     }
 
