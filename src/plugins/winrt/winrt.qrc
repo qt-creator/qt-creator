@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/winrt">
+        <file>images/winrtdevice.png</file>
+        <file>images/winrtdevice@2x.png</file>
+        <file>images/winrtdevicesmall.png</file>
+        <file>images/winrtdevicesmall@2x.png</file>
+    </qresource>
+</RCC>

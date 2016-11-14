@@ -7252,5 +7252,37 @@
          width="100%"
          height="100%" />
     </g>
+    <g
+       id="src/plugins/winrt/images/winrtdevice">
+      <rect
+         style="display:inline;fill:#ffffff;fill-opacity:1"
+         x="602"
+         y="379"
+         width="32"
+         height="32"
+         id="rect5759-5-9-0-5-9-1" />
+      <path
+         sodipodi:nodetypes="cccccccccccccccccccc"
+         style="fill:#000000;fill-opacity:1"
+         inkscape:connector-curvature="0"
+         d="m 606,394 10,0 0,-10.16502 -10,1.1313 z m 12,-10.3911 0,10.3911 12,0 0,-11.74108 z m 0,22.75938 12,1.34794 0,-11.71622 -12,0 z m -12,-1.35943 10,1.12952 0,-10.13837 -10,0 z"
+         id="path5333-0" />
+    </g>
+    <g
+       id="src/plugins/winrt/images/winrtdevicesmall">
+      <rect
+         id="rect5759-5-9-0-8-6-4-8-8-5"
+         height="16"
+         width="16"
+         y="395"
+         x="634"
+         style="fill:#ffffff;fill-opacity:1" />
+      <path
+         sodipodi:nodetypes="cccccccccccccccccccc"
+         style="fill:#000000;fill-opacity:1"
+         inkscape:connector-curvature="0"
+         d="m 636.00003,403 4.99997,0 0,-4.67861 -4.99997,0.67433 z M 642,398.18129 642,403 l 6.00003,0 0,-5.6287 z m 0,10.72061 6.00003,0.81345 0,-5.71535 L 642,404 Z M 636.00003,408.09093 641,408.7667 641,404 l -4.99997,0 z"
+         id="path5333" />
+    </g>
   </g>
 </svg>

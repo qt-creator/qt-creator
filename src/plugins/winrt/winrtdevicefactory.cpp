@@ -32,6 +32,7 @@
 #include <coreplugin/messagemanager.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <qtsupport/qtversionmanager.h>
+#include <utils/icon.h>
 #include <utils/qtcassert.h>
 
 #include <QIcon>
@@ -76,7 +77,11 @@ QList<Core::Id> WinRtDeviceFactory::availableCreationIds() const
 QIcon WinRtDeviceFactory::iconForId(Core::Id type) const
 {
     Q_UNUSED(type)
-    return QIcon();
+    using namespace Utils;
+    return Icon::combinedIcon({Icon({{":/winrt/images/winrtdevicesmall.png",
+                                      Theme::PanelTextColorDark}}, Icon::Tint),
+                               Icon({{":/winrt/images/winrtdevice.png",
+                                      Theme::IconsBaseColor}})});
 }
 
 IDevice::Ptr WinRtDeviceFactory::create(Core::Id id) const

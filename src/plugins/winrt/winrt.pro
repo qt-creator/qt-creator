@@ -39,3 +39,6 @@ DEFINES += WINRT_LIBRARY
 
 FORMS += \
     winrtpackagedeploymentstepwidget.ui
+
+RESOURCES += \
+    winrt.qrc
