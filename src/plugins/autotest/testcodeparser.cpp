@@ -354,7 +354,8 @@ void TestCodeParser::scanForTests(const QStringList &fileList)
         [this](QFutureInterface<TestParseResultPtr> &fi, const QString &file) {
             parseFileForTests(m_testCodeParsers, fi, file);
         },
-        Utils::MapReduceOption::Unordered);
+        Utils::MapReduceOption::Unordered,
+        QThread::LowestPriority);
     m_futureWatcher.setFuture(future);
     if (list.size() > 5) {
         Core::ProgressManager::addTask(future, tr("Scanning for Tests"),

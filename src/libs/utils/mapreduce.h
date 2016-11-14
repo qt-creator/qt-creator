@@ -369,9 +369,12 @@ template <typename ForwardIterator, typename InitFunction, typename MapFunction,
 QFuture<ReduceResult>
 mapReduce(ForwardIterator begin, ForwardIterator end, InitFunction &&init, MapFunction &&map,
           ReduceFunction &&reduce, CleanUpFunction &&cleanup,
-          MapReduceOption option = MapReduceOption::Unordered, int size = -1)
+          MapReduceOption option = MapReduceOption::Unordered,
+          QThread::Priority priority = QThread::InheritPriority,
+          int size = -1)
 {
-    return runAsync(Internal::blockingIteratorMapReduce<
+    return runAsync(priority,
+                    Internal::blockingIteratorMapReduce<
                         ForwardIterator,
                         typename std::decay<InitFunction>::type,
                         typename std::decay<MapFunction>::type,
@@ -438,9 +441,11 @@ template <typename Container, typename InitFunction, typename MapFunction,
 QFuture<ReduceResult>
 mapReduce(Container &&container, InitFunction &&init, MapFunction &&map,
           ReduceFunction &&reduce, CleanUpFunction &&cleanup,
-          MapReduceOption option = MapReduceOption::Unordered)
+          MapReduceOption option = MapReduceOption::Unordered,
+          QThread::Priority priority = QThread::InheritPriority)
 {
-    return runAsync(Internal::blockingContainerMapReduce<
+    return runAsync(priority,
+                    Internal::blockingContainerMapReduce<
                         typename std::decay<Container>::type,
                         typename std::decay<InitFunction>::type,
                         typename std::decay<MapFunction>::type,
@@ -458,9 +463,11 @@ template <typename Container, typename InitFunction, typename MapFunction,
 QFuture<ReduceResult>
 mapReduce(std::reference_wrapper<Container> containerWrapper, InitFunction &&init, MapFunction &&map,
           ReduceFunction &&reduce, CleanUpFunction &&cleanup,
-          MapReduceOption option = MapReduceOption::Unordered)
+          MapReduceOption option = MapReduceOption::Unordered,
+          QThread::Priority priority = QThread::InheritPriority)
 {
-    return runAsync(Internal::blockingContainerRefMapReduce<
+    return runAsync(priority,
+                    Internal::blockingContainerRefMapReduce<
                         Container,
                         typename std::decay<InitFunction>::type,
                         typename std::decay<MapFunction>::type,
@@ -478,14 +485,15 @@ template <typename ForwardIterator, typename MapFunction, typename State, typena
           typename MapResult = typename Internal::resultType<MapFunction>::type>
 QFuture<StateResult>
 mapReduce(ForwardIterator begin, ForwardIterator end, MapFunction &&map, State &&initialState,
-          ReduceFunction &&reduce, MapReduceOption option = MapReduceOption::Unordered, int size = -1)
+          ReduceFunction &&reduce, MapReduceOption option = MapReduceOption::Unordered,
+          QThread::Priority priority = QThread::InheritPriority, int size = -1)
 {
     return mapReduce(begin, end,
                      Internal::StateWrapper<State>(std::forward<State>(initialState)),
                      std::forward<MapFunction>(map),
                      Internal::ReduceWrapper<StateResult, MapResult, ReduceFunction>(std::forward<ReduceFunction>(reduce)),
                      &Internal::cleanupReportingState<StateResult>,
-                     option, size);
+                     option, priority, size);
 }
 
 template <typename Container, typename MapFunction, typename State, typename ReduceFunction,
@@ -493,14 +501,15 @@ template <typename Container, typename MapFunction, typename State, typename Red
           typename MapResult = typename Internal::resultType<MapFunction>::type>
 QFuture<StateResult>
 mapReduce(Container &&container, MapFunction &&map, State &&initialState, ReduceFunction &&reduce,
-          MapReduceOption option = MapReduceOption::Unordered)
+          MapReduceOption option = MapReduceOption::Unordered,
+          QThread::Priority priority = QThread::InheritPriority)
 {
     return mapReduce(std::forward<Container>(container),
                      Internal::StateWrapper<State>(std::forward<State>(initialState)),
                      std::forward<MapFunction>(map),
                      Internal::ReduceWrapper<StateResult, MapResult, ReduceFunction>(std::forward<ReduceFunction>(reduce)),
                      &Internal::cleanupReportingState<StateResult>,
-                     option);
+                     option, priority);
 }
 
 template <typename ForwardIterator, typename MapFunction, typename State, typename ReduceFunction,
@@ -509,12 +518,13 @@ template <typename ForwardIterator, typename MapFunction, typename State, typena
 Q_REQUIRED_RESULT
 StateResult
 mappedReduced(ForwardIterator begin, ForwardIterator end, MapFunction &&map, State &&initialState,
-              ReduceFunction &&reduce, MapReduceOption option = MapReduceOption::Unordered, int size = -1)
+              ReduceFunction &&reduce, MapReduceOption option = MapReduceOption::Unordered,
+              QThread::Priority priority = QThread::InheritPriority, int size = -1)
 {
     return mapReduce(begin, end,
                      std::forward<MapFunction>(map), std::forward<State>(initialState),
                      std::forward<ReduceFunction>(reduce),
-                     option, size).result();
+                     option, priority, size).result();
 }
 
 template <typename Container, typename MapFunction, typename State, typename ReduceFunction,
@@ -523,38 +533,41 @@ template <typename Container, typename MapFunction, typename State, typename Red
 Q_REQUIRED_RESULT
 StateResult
 mappedReduced(Container &&container, MapFunction &&map, State &&initialState, ReduceFunction &&reduce,
-              MapReduceOption option = MapReduceOption::Unordered)
+              MapReduceOption option = MapReduceOption::Unordered,
+              QThread::Priority priority = QThread::InheritPriority)
 {
     return mapReduce(std::forward<Container>(container), std::forward<MapFunction>(map),
                      std::forward<State>(initialState), std::forward<ReduceFunction>(reduce),
-                     option).result();
+                     option, priority).result();
 }
 
 template <typename ForwardIterator, typename MapFunction,
           typename MapResult = typename Internal::resultType<MapFunction>::type>
 QFuture<MapResult>
 map(ForwardIterator begin, ForwardIterator end, MapFunction &&map,
-    MapReduceOption option = MapReduceOption::Ordered, int size = -1)
+    MapReduceOption option = MapReduceOption::Ordered,
+    QThread::Priority priority = QThread::InheritPriority, int size = -1)
 {
     return mapReduce(begin, end,
                      &Internal::dummyInit<MapResult>,
                      std::forward<MapFunction>(map),
                      Internal::DummyReduce<MapResult>(),
                      &Internal::dummyCleanup<MapResult>,
-                     option, size);
+                     option, priority, size);
 }
 
 template <typename Container, typename MapFunction,
           typename MapResult = typename Internal::resultType<MapFunction>::type>
 QFuture<MapResult>
-map(Container &&container, MapFunction &&map, MapReduceOption option = MapReduceOption::Ordered)
+map(Container &&container, MapFunction &&map, MapReduceOption option = MapReduceOption::Ordered,
+    QThread::Priority priority = QThread::InheritPriority)
 {
     return mapReduce(std::forward<Container>(container),
                      Internal::dummyInit<MapResult>,
                      std::forward<MapFunction>(map),
                      Internal::DummyReduce<MapResult>(),
                      Internal::dummyCleanup<MapResult>,
-                     option);
+                     option, priority);
 }
 
 template <template<typename> class ResultContainer, typename ForwardIterator, typename MapFunction,
@@ -562,11 +575,12 @@ template <template<typename> class ResultContainer, typename ForwardIterator, ty
 Q_REQUIRED_RESULT
 ResultContainer<MapResult>
 mapped(ForwardIterator begin, ForwardIterator end, MapFunction &&mapFun,
-    MapReduceOption option = MapReduceOption::Ordered, int size = -1)
+    MapReduceOption option = MapReduceOption::Ordered,
+       QThread::Priority priority = QThread::InheritPriority, int size = -1)
 {
     return Utils::transform<ResultContainer>(map(begin, end,
                                                  std::forward<MapFunction>(mapFun),
-                                                 option, size).results(),
+                                                 option, priority, size).results(),
                                              [](const MapResult &r) { return r; });
 }
 
@@ -574,11 +588,13 @@ template <template<typename> class ResultContainer, typename Container, typename
           typename MapResult = typename Internal::resultType<MapFunction>::type>
 Q_REQUIRED_RESULT
 ResultContainer<MapResult>
-mapped(Container &&container, MapFunction &&mapFun, MapReduceOption option = MapReduceOption::Ordered)
+mapped(Container &&container, MapFunction &&mapFun,
+       MapReduceOption option = MapReduceOption::Ordered,
+       QThread::Priority priority = QThread::InheritPriority)
 {
     return Utils::transform<ResultContainer>(map(container,
                                                  std::forward<MapFunction>(mapFun),
-                                                 option).results(),
+                                                 option, priority).results(),
                                              [](const MapResult &r) { return r; });
 }
 
