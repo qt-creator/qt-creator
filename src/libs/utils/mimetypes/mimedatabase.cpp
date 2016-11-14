@@ -59,7 +59,11 @@
 #include <algorithm>
 #include <functional>
 
-static const char ALL_FILES_FILTER[]      = QT_TRANSLATE_NOOP("Core", "All Files (*)");
+#ifdef Q_OS_WIN
+static struct {const char *source; const char *comment; } ALL_FILES_FILTER = QT_TRANSLATE_NOOP3("Core", "All Files (*.*)", "On Windows");
+#else
+static struct {const char *source; const char *comment; } ALL_FILES_FILTER = QT_TRANSLATE_NOOP3("Core", "All Files (*)", "On Linux/macOS");
+#endif
 
 using namespace Utils;
 using namespace Utils::Internal;
@@ -348,8 +352,7 @@ QString MimeDatabase::allFiltersString(QString *allFilesFilter)
     foreach (const QString &filter, uniqueFilters)
         filters.append(filter);
     filters.sort();
-    static const QString allFiles =
-        QCoreApplication::translate("Core", ALL_FILES_FILTER);
+    const QString allFiles = allFilesFilterString();
     if (allFilesFilter)
         *allFilesFilter = allFiles;
 
@@ -357,6 +360,11 @@ QString MimeDatabase::allFiltersString(QString *allFilesFilter)
     filters.prepend(allFiles);
 
     return filters.join(QLatin1String(";;"));
+}
+
+QString MimeDatabase::allFilesFilterString()
+{
+    return QCoreApplication::translate("Core", ALL_FILES_FILTER.source, ALL_FILES_FILTER.comment);
 }
 
 QStringList MimeDatabase::allGlobPatterns()

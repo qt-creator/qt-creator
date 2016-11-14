@@ -91,6 +91,7 @@ public:
     // Qt Creator additions
     static void addMimeTypes(const QString &fileName);
     static QString allFiltersString(QString *allFilesFilter = 0);
+    static QString allFilesFilterString();
     static QStringList allGlobPatterns();
     static QMap<int, QList<Internal::MimeMagicRule> > magicRulesForMimeType(const MimeType &mimeType); // priority -> rules
     static void setGlobPatternsForMimeType(const MimeType &mimeType, const QStringList &patterns);

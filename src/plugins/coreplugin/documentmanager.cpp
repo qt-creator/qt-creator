@@ -696,8 +696,7 @@ QString DocumentManager::getSaveFileName(const QString &title, const QString &pa
             // specified. Otherwise the suffix must be one available in the selected filter. If
             // the name already ends with such suffix nothing needs to be done. But if not, the
             // first one from the filter is appended.
-            if (selectedFilter && *selectedFilter != QCoreApplication::translate(
-                    "Core", Constants::ALL_FILES_FILTER)) {
+            if (selectedFilter && *selectedFilter != MimeDatabase::allFilesFilterString()) {
                 // Mime database creates filter strings like this: Anything here (*.foo *.bar)
                 QRegExp regExp(QLatin1String(".*\\s+\\((.*)\\)$"));
                 const int index = regExp.lastIndexIn(*selectedFilter);
