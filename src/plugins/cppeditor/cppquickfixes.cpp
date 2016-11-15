@@ -4817,7 +4817,7 @@ void MoveFuncDefOutside::match(const CppQuickFixInterface &interface, QuickFixOp
         }
     }
 
-    if (!funcAST)
+    if (!funcAST || !funcAST->symbol)
         return;
 
     bool isHeaderFile = false;
