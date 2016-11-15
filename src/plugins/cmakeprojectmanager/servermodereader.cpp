@@ -464,7 +464,7 @@ ServerModeReader::FileGroup *ServerModeReader::extractFileGroupData(const QVaria
     fileGroup->isGenerated = data.value("isGenerated", false).toBool();
     fileGroup->sources = transform(data.value(SOURCES_KEY).toStringList(),
                                    [&srcDir](const QString &s) {
-        return FileName::fromString(srcDir.absoluteFilePath(s));
+        return FileName::fromString(QDir::cleanPath(srcDir.absoluteFilePath(s)));
     });
 
     m_fileGroups.append(fileGroup);
