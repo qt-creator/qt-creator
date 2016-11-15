@@ -1687,9 +1687,6 @@ void GdbEngine::handleShowVersion(const DebuggerResponse &response)
         else
             runCommand({"set target-async off", ConsoleCommand});
 
-        if (runParameters().multiProcess)
-            runCommand({"set detach-on-fork off", ConsoleCommand});
-
         //runCommand("set build-id-verbose 2", ConsoleCommand);
     }
 }
@@ -4047,7 +4044,7 @@ void GdbEngine::startGdb(const QStringList &args)
         runCommand({"set auto-solib-add on", ConsoleCommand});
     }
 
-    if (boolSetting(MultiInferior)) {
+    if (boolSetting(MultiInferior) || runParameters().multiProcess) {
         //runCommand("set follow-exec-mode new");
         runCommand({"set detach-on-fork off"});
     }
