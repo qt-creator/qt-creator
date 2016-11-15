@@ -209,7 +209,7 @@ void ErrorWidget::exportWarnings()
 
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        QMessageBox::warning(this, tr("Export Failed"), tr("Cannot open file %.").arg(fileName));
+        QMessageBox::warning(this, tr("Export Failed"), tr("Cannot open file %1.").arg(fileName));
         file.close();
         return;
     }
