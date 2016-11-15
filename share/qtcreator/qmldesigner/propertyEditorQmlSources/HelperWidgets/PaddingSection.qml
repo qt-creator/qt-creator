@@ -107,7 +107,7 @@ Section {
 
         Label {
             text: qsTr("Padding")
-            tooltip: qsTr("Padding between the content and the  edges of the items.")
+            tooltip: qsTr("Padding between the content and the edges of the items.")
         }
         SecondColumnLayout {
             SpinBox {
