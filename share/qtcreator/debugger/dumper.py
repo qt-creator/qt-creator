@@ -3499,20 +3499,6 @@ class DumperBase:
         val.type = self.createReferenceType(targetType)
         return val
 
-    def createBitfieldValue(self, targetType, bitsize):
-        if not isinstance(targetType, self.Type):
-            error('Expected type in createBitfieldValue(), got %s'
-                % type(targetType))
-        targetTypeId = targetType.typeId
-        typeId = '%s:%d' % (targetTypeId, bitsize)
-        tdata = self.TypeData(self)
-        tdata.name = '%s : %d' % (targetType.name, bitsize)
-        tdata.typeId = typeId
-        tdata.code = TypeCodeArray
-        tdata.ltarget = targetType
-        self.registerType(typeId, tdata)
-        return self.Type(self, typeId)
-
     def createPointerType(self, targetType):
         if not isinstance(targetType, self.Type):
             error('Expected type in createPointerType(), got %s'
