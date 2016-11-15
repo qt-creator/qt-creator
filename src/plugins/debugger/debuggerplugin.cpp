@@ -583,7 +583,7 @@ static std::function<bool(const Kit *)> cdbMatcher(char wordWidth = 0)
 {
     return [wordWidth](const Kit *k) -> bool {
         if (DebuggerKitInformation::engineType(k) != CdbEngineType
-            || !DebuggerKitInformation::isValidDebugger(k)) {
+            || DebuggerKitInformation::configurationErrors(k)) {
             return false;
         }
         if (wordWidth)
@@ -1125,13 +1125,13 @@ static Kit *guessKitFromParameters(const DebuggerRunParameters &rp)
         // Try exact abis.
         kit = KitManager::find(KitMatcher([abis](const Kit *k) -> bool {
             const Abi tcAbi = ToolChainKitInformation::targetAbi(k);
-            return abis.contains(tcAbi) && DebuggerKitInformation::isValidDebugger(k);
+            return abis.contains(tcAbi) && !DebuggerKitInformation::configurationErrors(k);
         }));
         if (!kit) {
             // Or something compatible.
             kit = KitManager::find(KitMatcher([abis](const Kit *k) -> bool {
                 const Abi tcAbi = ToolChainKitInformation::targetAbi(k);
-                return DebuggerKitInformation::isValidDebugger(k)
+                return !DebuggerKitInformation::configurationErrors(k)
                         && Utils::contains(abis, [tcAbi](const Abi &a) { return a.isCompatibleWith(tcAbi); });
             }));
         }
