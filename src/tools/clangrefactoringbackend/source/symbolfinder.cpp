@@ -25,7 +25,6 @@
 
 #include "symbolfinder.h"
 
-#include "refactoringcompilationdatabase.h"
 #include "sourcefilecallbacks.h"
 #include "symbollocationfinderaction.h"
 
@@ -37,49 +36,9 @@ SymbolFinder::SymbolFinder(uint line, uint column)
 {
 }
 
-namespace {
-
-// use std::filesystem::path if it is supported by all compilers
-
-std::string toNativePath(std::string &&path)
-{
-#ifdef WIN32
-    std::replace(path.begin(), path.end(), '/', '\\');
-#endif
-
-    return std::move(path);
-}
-}
-
-void SymbolFinder::addFile(std::string &&directory,
-                           std::string &&fileName,
-                           std::string &&content,
-                           std::vector<std::string> &&commandLine)
-{
-    fileContents.emplace_back(toNativePath(std::move(directory)),
-                              std::move(fileName),
-                              std::move(content),
-                              std::move(commandLine));
-}
-
 void SymbolFinder::findSymbol()
 {
-    RefactoringCompilationDatabase compilationDatabase;
-
-    for (auto &&fileContent : fileContents)
-        compilationDatabase.addFile(fileContent.directory, fileContent.fileName, fileContent.commandLine);
-
-    std::vector<std::string> files;
-
-    for (auto &&fileContent : fileContents)
-        files.push_back(fileContent.filePath);
-
-    clang::tooling::ClangTool tool(compilationDatabase, files);
-
-    for (auto &&fileContent : fileContents) {
-        if (!fileContent.content.empty())
-            tool.mapVirtualFile(fileContent.filePath, fileContent.content);
-    }
+    clang::tooling::ClangTool tool = createTool();
 
     tool.run(clang::tooling::newFrontendActionFactory(&usrFindingAction, &sourceFileCallbacks).get());
 

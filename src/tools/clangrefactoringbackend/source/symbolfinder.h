@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "clangtool.h"
 #include "findusrforcursoraction.h"
 #include "symbollocationfinderaction.h"
 #include "sourcefilecallbacks.h"
@@ -42,41 +43,12 @@
 #pragma GCC diagnostic pop
 #endif
 
-#include <string>
-#include <vector>
-
 namespace ClangBackEnd {
 
-struct FileContent
-{
-    FileContent(const std::string &directory,
-                const std::string &fileName,
-                const std::string &content,
-                const std::vector<std::string> &commandLine)
-        : directory(directory),
-          fileName(fileName),
-          filePath(directory + nativeSeperator + fileName),
-          content(content),
-          commandLine(commandLine)
-    {}
-
-    std::string directory;
-    std::string fileName;
-    std::string filePath;
-    std::string content;
-    std::vector<std::string> commandLine;
-};
-
-class SymbolFinder
+class SymbolFinder : public ClangTool
 {
 public:
     SymbolFinder(uint line, uint column);
-
-    void addFile(std::string &&directory,
-                 std::string &&fileName,
-                 std::string &&content,
-                 std::vector<std::string> &&commandLine);
-
 
     void findSymbol();
 
@@ -90,7 +62,7 @@ private:
     USRFindingAction usrFindingAction;
     SymbolLocationFinderAction symbolLocationFinderAction;
     SourceFileCallbacks sourceFileCallbacks;
-    std::vector<FileContent> fileContents;
+
     ClangBackEnd::SourceLocationsContainer sourceLocations_;
 };
 

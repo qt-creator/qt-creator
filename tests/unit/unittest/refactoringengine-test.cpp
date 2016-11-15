@@ -32,7 +32,9 @@
 #include <refactoringengine.h>
 
 #include <requestsourcelocationforrenamingmessage.h>
+#include <requestsourcerangesanddiagnosticsforquerymessage.h>
 #include <sourcelocationsforrenamingmessage.h>
+#include <sourcerangesanddiagnosticsforquerymessage.h>
 
 #include <cpptools/projectpart.h>
 
@@ -66,7 +68,7 @@ protected:
     QTextCursor cursor{&textDocument};
     QString qStringFilePath{QStringLiteral("/home/user/file.cpp")};
     Utils::FileName filePath{Utils::FileName::fromString(qStringFilePath)};
-    ClangBackEnd::FilePath clangBackEndFilePath{"/home/user", "file.cpp"};
+    ClangBackEnd::FilePath clangBackEndFilePath{qStringFilePath};
     SmallStringVector commandLine;
     CppTools::ProjectPart::Ptr projectPart;
     CppTools::ProjectFile projectFile{qStringFilePath, CppTools::ProjectFile::CXXSource};
@@ -95,6 +97,25 @@ TEST_F(RefactoringEngine, AfterSendRequestSourceLocationsForRenamingMessageIsUnu
     engine.startLocalRenaming(cursor, filePath, textDocument.revision(), projectPart.data(), {});
 
     ASSERT_FALSE(engine.isUsable());
+}
+
+TEST_F(RefactoringEngine, EngineIsNotUsableForUnusableServer)
+{
+    ASSERT_FALSE(engine.isUsable());
+}
+
+TEST_F(RefactoringEngine, EngineIsUsableForUsableServer)
+{
+    mockRefactoringServer.setUsable(true);
+
+    ASSERT_TRUE(engine.isUsable());
+}
+
+TEST_F(RefactoringEngine, ServerIsUsableForUsableEngine)
+{
+    engine.setUsable(true);
+
+    ASSERT_TRUE(mockRefactoringServer.isUsable());
 }
 
 RefactoringEngine::RefactoringEngine()

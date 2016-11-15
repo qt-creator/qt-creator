@@ -32,17 +32,24 @@
 #include <gtest/gtest.h>
 #include "gtest-qt-printing.h"
 
-class MockRefactoringClient : public ClangBackEnd::RefactoringClientInterface
+class MockRefactoringClient final : public ClangBackEnd::RefactoringClientInterface
 {
 public:
     MOCK_METHOD0(alive,
                  void());
     MOCK_METHOD1(sourceLocationsForRenamingMessage,
                  void (const ClangBackEnd::SourceLocationsForRenamingMessage&));
+    MOCK_METHOD1(sourceRangesAndDiagnosticsForQueryMessage,
+                 void (const ClangBackEnd::SourceRangesAndDiagnosticsForQueryMessage&));
 
     void sourceLocationsForRenamingMessage(ClangBackEnd::SourceLocationsForRenamingMessage &&message) override
     {
         sourceLocationsForRenamingMessage(message);
+    }
+
+    void sourceRangesAndDiagnosticsForQueryMessage(ClangBackEnd::SourceRangesAndDiagnosticsForQueryMessage &&message) override
+    {
+        sourceRangesAndDiagnosticsForQueryMessage(message);
     }
 
     void setLocalRenamingCallback(RenameCallback &&)

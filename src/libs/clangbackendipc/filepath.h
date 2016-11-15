@@ -27,15 +27,31 @@
 
 #include "clangbackendipc_global.h"
 
-#include <utils/smallstring.h>
 #include <utils/smallstringio.h>
+
+#include <QDataStream>
 
 namespace ClangBackEnd {
 
-struct FilePath
+class FilePath
 {
 public:
     FilePath() = default;
+    explicit FilePath(const QString &filePath)
+    {
+        Utils::SmallString utf8FilePath = filePath;
+
+        auto foundReverse = std::find(utf8FilePath.rbegin(), utf8FilePath.rend(), '/');
+        auto found = foundReverse.base();
+
+        Utils::SmallString fileName(found, utf8FilePath.end());
+        if (foundReverse != utf8FilePath.rend())
+            utf8FilePath.resize(std::size_t(std::distance(utf8FilePath.begin(), --found)));
+
+        directory_ = std::move(utf8FilePath);
+        name_ = std::move(fileName);
+    }
+
     FilePath(Utils::SmallString &&directory, Utils::SmallString &&name)
         : directory_(std::move(directory)),
           name_(std::move(name))
@@ -46,9 +62,19 @@ public:
         return directory_;
     }
 
+    Utils::SmallString takeDirectory()
+    {
+        return std::move(directory_);
+    }
+
     const Utils::SmallString &name() const
     {
         return name_;
+    }
+
+    Utils::SmallString takeName()
+    {
+        return std::move(name_);
     }
 
     friend QDataStream &operator<<(QDataStream &out, const FilePath &filePath)
@@ -65,6 +91,13 @@ public:
         in >> filePath.name_;
 
         return in;
+    }
+
+    friend std::ostream &operator<<(std::ostream &out, const FilePath &filePath)
+    {
+        out << filePath.directory() << "/" << filePath.name();
+
+        return out;
     }
 
     friend bool operator==(const FilePath &first, const FilePath &second)

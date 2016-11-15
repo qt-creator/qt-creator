@@ -25,22 +25,20 @@
 
 #pragma once
 
-#include "filepath.h"
+#include "sourcefilepathcontainerbase.h"
 #include "sourcelocationcontainerv2.h"
 
 #include <utils/smallstringvector.h>
 
-#include <unordered_map>
-
 namespace ClangBackEnd {
 
-class SourceLocationsContainer
+class SourceLocationsContainer : public SourceFilePathContainerBase
 {
 public:
     SourceLocationsContainer() = default;
     SourceLocationsContainer(std::unordered_map<uint, FilePath> &&filePathHash,
                              std::vector<V2::SourceLocationContainer> &&sourceLocationContainers)
-        : filePathHash(std::move(filePathHash)),
+        : SourceFilePathContainerBase(std::move(filePathHash)),
           sourceLocationContainers_(std::move(sourceLocationContainers))
     {}
 
@@ -61,21 +59,14 @@ public:
         return !sourceLocationContainers_.empty();
     }
 
-    void insertFilePath(uint fileId, Utils::SmallString &&fileDirectory, Utils::SmallString &&fileName)
+    void insertSourceLocation(uint fileId, uint line, uint column, uint offset)
     {
-        filePathHash.emplace(std::piecewise_construct,
-                             std::forward_as_tuple(fileId),
-                             std::forward_as_tuple(std::move(fileDirectory), std::move(fileName)));
-    }
-
-    void insertSourceLocation(uint fileId, uint line, uint column)
-    {
-        sourceLocationContainers_.emplace_back(fileId, line, column);
+        sourceLocationContainers_.emplace_back(fileId, line, column, offset);
     }
 
     void reserve(std::size_t size)
     {
-        filePathHash.reserve(size / 3);
+        SourceFilePathContainerBase::reserve(size);
         sourceLocationContainers_.reserve(size);
     }
 
@@ -105,14 +96,6 @@ public:
         return SourceLocationsContainer(Utils::clone(filePathHash), Utils::clone(sourceLocationContainers_));
     }
 
-
-    const std::unordered_map<uint, FilePath> &filePathsForTestOnly() const
-    {
-        return filePathHash;
-    }
-
-private:
-    std::unordered_map<uint, FilePath> filePathHash;
     std::vector<V2::SourceLocationContainer> sourceLocationContainers_;
 };
 

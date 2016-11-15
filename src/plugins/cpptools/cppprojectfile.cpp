@@ -34,11 +34,6 @@
 
 namespace CppTools {
 
-ProjectFile::ProjectFile()
-    : kind(CHeader)
-{
-}
-
 ProjectFile::ProjectFile(const QString &file, Kind kind)
     : path(file)
     , kind(kind)

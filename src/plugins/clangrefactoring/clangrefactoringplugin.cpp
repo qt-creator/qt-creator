@@ -28,6 +28,8 @@
 #include <cpptools/cppmodelmanager.h>
 
 #include <coreplugin/icore.h>
+#include <coreplugin/find/searchresultwindow.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <utils/hostosinfo.h>
 
@@ -44,17 +46,24 @@ QString backendProcessPath()
 
 } // anonymous namespace
 
-std::unique_ptr<RefactoringClient> ClangRefactoringPlugin::client;
+std::unique_ptr<RefactoringClient> ClangRefactoringPlugin::refactoringClient;
 std::unique_ptr<ClangBackEnd::RefactoringConnectionClient> ClangRefactoringPlugin::connectionClient;
 std::unique_ptr<RefactoringEngine> ClangRefactoringPlugin::engine;
+std::unique_ptr<QtCreatorSearch> ClangRefactoringPlugin::qtCreatorSearch;
+std::unique_ptr<QtCreatorClangQueryFindFilter> ClangRefactoringPlugin::qtCreatorfindFilter;
 
 bool ClangRefactoringPlugin::initialize(const QStringList & /*arguments*/, QString * /*errorMessage*/)
 {
-    client.reset(new RefactoringClient);
-    connectionClient.reset(new ClangBackEnd::RefactoringConnectionClient(client.get()));
-    engine.reset(new RefactoringEngine(connectionClient->serverProxy(), *client));
+    refactoringClient.reset(new RefactoringClient);
+    connectionClient.reset(new ClangBackEnd::RefactoringConnectionClient(refactoringClient.get()));
+    engine.reset(new RefactoringEngine(connectionClient->serverProxy(), *refactoringClient));
+    qtCreatorSearch.reset(new ClangRefactoring::QtCreatorSearch(*Core::SearchResultWindow::instance()));
+    qtCreatorfindFilter.reset(new QtCreatorClangQueryFindFilter(connectionClient->serverProxy(),
+                                                                *qtCreatorSearch.get(),
+                                                                *refactoringClient));
 
-    client->setRefactoringEngine(engine.get());
+    refactoringClient->setRefactoringEngine(engine.get());
+    ExtensionSystem::PluginManager::addObject(qtCreatorfindFilter.get());
 
     connectBackend();
     startBackend();
@@ -69,13 +78,15 @@ void ClangRefactoringPlugin::extensionsInitialized()
 
 ExtensionSystem::IPlugin::ShutdownFlag ClangRefactoringPlugin::aboutToShutdown()
 {
-    client->setRefactoringEngine(nullptr);
+    ExtensionSystem::PluginManager::removeObject(qtCreatorfindFilter.get());
+    refactoringClient->setRefactoringEngine(nullptr);
 
     connectionClient->finishProcess();
 
+    qtCreatorfindFilter.reset();
     engine.reset();
     connectionClient.reset();
-    client.reset();
+    refactoringClient.reset();
 
     return SynchronousShutdown;
 }

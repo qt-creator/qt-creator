@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "googletest.h"
+
 #include <clangbackendipc/clangcodemodelclientinterface.h>
 #include <clangbackendipc/cmbcodecompletedmessage.h>
 #include <clangbackendipc/cmbechomessage.h>
@@ -33,11 +35,6 @@
 #include <clangbackendipc/translationunitdoesnotexistmessage.h>
 #include <clangbackendipc/updatetranslationunitsforeditormessage.h>
 #include <clangbackendipc/updatevisibletranslationunitsmessage.h>
-
-#include <gmock/gmock.h>
-#include <gmock/gmock-matchers.h>
-#include <gtest/gtest.h>
-#include "gtest-qt-printing.h"
 
 class MockClangCodeModelClient : public ClangBackEnd::ClangCodeModelClientInterface
 {

@@ -5,7 +5,13 @@ include(../../shared/clang/clang_installation.pri)
 include(../../shared/clang/clang_defines.pri)
 
 HEADERS += \
-    $$PWD/clangrefactoringplugin.h
+    $$PWD/clangrefactoringplugin.h \
+    qtcreatorsearch.h \
+    qtcreatorsearchhandle.h \
+    qtcreatorclangqueryfindfilter.h
 
 SOURCES += \
-    $$PWD/clangrefactoringplugin.cpp
+    $$PWD/clangrefactoringplugin.cpp \
+    qtcreatorsearch.cpp \
+    qtcreatorsearchhandle.cpp \
+    qtcreatorclangqueryfindfilter.cpp

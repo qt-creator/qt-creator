@@ -93,6 +93,9 @@ SOURCES += \
 
 !isEmpty(LIBTOOLING_LIBS) {
 SOURCES += \
+    clangquery-test.cpp \
+    clangquerycurrentfilefindfilter-test.cpp \
+    clangqueryprojectfindfilter-test.cpp \
     refactoringclientserverinprocess-test.cpp \
     refactoringclient-test.cpp \
     refactoringcompilationdatabase-test.cpp \
@@ -111,7 +114,12 @@ HEADERS += \
     googletest.h \
     gtest-qt-printing.h \
     processevents-utilities.h \
-    spydummy.h
+    spydummy.h \
+    sourcerangecontainer-matcher.h \
+    dynamicastmatcherdiagnosticcontainer-matcher.h \
+    mocksearchresult.h \
+    mocksearch.h \
+    mocksearchhandle.h
 
 !isEmpty(LIBCLANG_LIBS) {
 HEADERS += \

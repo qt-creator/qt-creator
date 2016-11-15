@@ -29,6 +29,7 @@
 #include "messageenvelop.h"
 #include "refactoringserverinterface.h"
 #include "sourcelocationsforrenamingmessage.h"
+#include "sourcerangesanddiagnosticsforquerymessage.h"
 
 #include <QDebug>
 #include <QIODevice>
@@ -75,6 +76,11 @@ void RefactoringClientProxy::alive()
 }
 
 void RefactoringClientProxy::sourceLocationsForRenamingMessage(SourceLocationsForRenamingMessage &&message)
+{
+    writeMessageBlock.write(message);
+}
+
+void RefactoringClientProxy::sourceRangesAndDiagnosticsForQueryMessage(SourceRangesAndDiagnosticsForQueryMessage &&message)
 {
     writeMessageBlock.write(message);
 }

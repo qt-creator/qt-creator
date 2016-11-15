@@ -51,7 +51,7 @@ public:
         OpenCLSource = 10
     };
 
-    ProjectFile();
+    ProjectFile() = default;
     ProjectFile(const QString &file, Kind kind);
 
     static Kind classify(const QString &file);
@@ -59,7 +59,7 @@ public:
     static bool isSource(Kind kind);
 
     QString path;
-    Kind kind;
+    Kind kind = CHeader;
 };
 
 QDebug operator<<(QDebug stream, const CppTools::ProjectFile &cxxFile);

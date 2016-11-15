@@ -93,7 +93,7 @@ public:
 private:
     Utils::SmallString symbolName_;
     SourceLocationsContainer sourceLocationContainer;
-    int revision;
+    int revision = 0;
 };
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const SourceLocationsForRenamingMessage &message);

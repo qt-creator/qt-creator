@@ -32,7 +32,9 @@
 #include <refactoringclientproxy.h>
 #include <refactoringserverproxy.h>
 #include <sourcelocationsforrenamingmessage.h>
+#include <sourcerangesanddiagnosticsforquerymessage.h>
 #include <requestsourcelocationforrenamingmessage.h>
+#include <requestsourcerangesanddiagnosticsforquerymessage.h>
 
 #include <QBuffer>
 #include <QString>
@@ -101,7 +103,7 @@ TEST_F(RefactoringClientServerInProcess, SendSourceLocationsForRenamingMessage)
 
 TEST_F(RefactoringClientServerInProcess, SendRequestSourceLocationsForRenamingMessage)
 {
-    RequestSourceLocationsForRenamingMessage message{{"/home/marco/dev/qt-creator/tests/unit/unittest/data", "renamevariable.cpp"},
+    RequestSourceLocationsForRenamingMessage message{{TESTDATA_DIR, "renamevariable.cpp"},
                                                      1,
                                                      5,
                                                      "int v;\n\nint x = v + 3;\n",
@@ -112,6 +114,35 @@ TEST_F(RefactoringClientServerInProcess, SendRequestSourceLocationsForRenamingMe
         .Times(1);
 
     serverProxy.requestSourceLocationsForRenamingMessage(message.clone());
+    scheduleServerMessages();
+}
+
+TEST_F(RefactoringClientServerInProcess, SourceRangesAndDiagnosticsForQueryMessage)
+{
+    ClangBackEnd::SourceRangesContainer sourceRangesContainer;
+    std::vector<ClangBackEnd::DynamicASTMatcherDiagnosticContainer> diagnosticContainers;
+    ClangBackEnd::SourceRangesAndDiagnosticsForQueryMessage message(std::move(sourceRangesContainer),
+                                                                    std::move(diagnosticContainers));
+
+    EXPECT_CALL(mockRefactoringClient, sourceRangesAndDiagnosticsForQueryMessage(message))
+        .Times(1);
+
+    clientProxy.sourceRangesAndDiagnosticsForQueryMessage(message.clone());
+    scheduleClientMessages();
+}
+
+TEST_F(RefactoringClientServerInProcess, RequestSourceRangesAndDiagnosticsForQueryMessage)
+{
+    RequestSourceRangesAndDiagnosticsForQueryMessage message{"functionDecl()",
+                                                             {{{TESTDATA_DIR, "query_simplefunction.cpp"},
+                                                               "void f();",
+                                                               {"cc", "query_simplefunction.cpp"},
+                                                               1}}};
+
+    EXPECT_CALL(mockRefactoringServer, requestSourceRangesAndDiagnosticsForQueryMessage(message))
+        .Times(1);
+
+    serverProxy.requestSourceRangesAndDiagnosticsForQueryMessage(message.clone());
     scheduleServerMessages();
 }
 

@@ -51,6 +51,7 @@ public:
 
     void end() override;
     void requestSourceLocationsForRenamingMessage(ClangBackEnd::RequestSourceLocationsForRenamingMessage &&message) override;
+    void requestSourceRangesAndDiagnosticsForQueryMessage(RequestSourceRangesAndDiagnosticsForQueryMessage &&message);
 
     void readMessages();
 

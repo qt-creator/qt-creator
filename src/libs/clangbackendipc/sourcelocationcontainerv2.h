@@ -39,10 +39,12 @@ public:
     SourceLocationContainer() = default;
     SourceLocationContainer(uint fileHash,
                             uint line,
-                            uint column)
+                            uint column,
+                            uint offset)
         : fileHash_(fileHash),
           line_(line),
-          column_(column)
+          column_(column),
+          offset_(offset)
     {
     }
 
@@ -61,11 +63,17 @@ public:
         return column_;
     }
 
+    uint offset() const
+    {
+        return offset_;
+    }
+
     friend QDataStream &operator<<(QDataStream &out, const SourceLocationContainer &container)
     {
         out << container.fileHash_;
         out << container.line_;
         out << container.column_;
+        out << container.offset_;
 
         return out;
     }
@@ -75,6 +83,7 @@ public:
         in >> container.fileHash_;
         in >> container.line_;
         in >> container.column_;
+        in >> container.offset_;
 
         return in;
     }
@@ -88,18 +97,20 @@ public:
     {
         return first.line_ != second.line_
             || first.column_ != second.column_
-            || first.fileHash_ != second.fileHash_;
+            || first.fileHash_ != second.fileHash_
+            || first.offset_ != second.offset_;
     }
 
     SourceLocationContainer clone() const
     {
-        return SourceLocationContainer(fileHash_, line_, column_);
+        return SourceLocationContainer(fileHash_, line_, column_, offset_);
     }
 
 private:
     uint fileHash_ = 0;
     uint line_ = 1;
     uint column_ = 1;
+    uint offset_ = 0;
 };
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const SourceLocationContainer &container);

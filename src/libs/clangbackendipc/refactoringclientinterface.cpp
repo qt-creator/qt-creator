@@ -27,6 +27,7 @@
 
 #include "messageenvelop.h"
 #include "sourcelocationsforrenamingmessage.h"
+#include "sourcerangesanddiagnosticsforquerymessage.h"
 
 #include <QDebug>
 
@@ -40,6 +41,9 @@ void RefactoringClientInterface::dispatch(const MessageEnvelop &messageEnvelop)
             break;
         case MessageType::SourceLocationsForRenamingMessage:
             sourceLocationsForRenamingMessage(messageEnvelop.message<SourceLocationsForRenamingMessage>());
+            break;
+        case MessageType::SourceRangesAndDiagnosticsForQueryMessage:
+            sourceRangesAndDiagnosticsForQueryMessage(messageEnvelop.message<SourceRangesAndDiagnosticsForQueryMessage>());
             break;
         default:
             qWarning() << "Unknown IpcClientMessage";

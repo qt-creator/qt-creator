@@ -42,7 +42,7 @@ namespace {
 
 MATCHER_P2(IsSourceLocation, line, column,
            std::string(negation ? "isn't" : "is")
-           + ", line " + PrintToString(line)
+           + "line " + PrintToString(line)
            + ", column " + PrintToString(column)
            )
 {

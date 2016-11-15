@@ -25,6 +25,8 @@
 
 #include "refactoringengine.h"
 
+#include "projectpartutilities.h"
+
 #include <refactoringcompileroptionsbuilder.h>
 
 #include <refactoringserverinterface.h>
@@ -46,55 +48,22 @@ RefactoringEngine::RefactoringEngine(ClangBackEnd::RefactoringServerInterface &s
 {
 }
 
-namespace {
-
-ClangBackEnd::FilePath convertToClangBackEndFilePath(const Utils::FileName &filePath)
-{
-    Utils::SmallString utf8FilePath = filePath.toString();
-
-    auto found = std::find(utf8FilePath.rbegin(), utf8FilePath.rend(), '/').base();
-
-    Utils::SmallString fileName(found, utf8FilePath.end());
-    utf8FilePath.resize(std::size_t(std::distance(utf8FilePath.begin(), --found)));
-
-    return ClangBackEnd::FilePath(std::move(utf8FilePath), std::move(fileName));
-}
-
-CppTools::ProjectFile::Kind fileKind(CppTools::ProjectPart *projectPart, const QString &filePath)
-{
-    const auto &projectFiles = projectPart->files;
-
-    auto comparePaths = [&] (const CppTools::ProjectFile &projectFile) {
-        return projectFile.path == filePath;
-    };
-
-    auto found = std::find_if(projectFiles.begin(), projectFiles.end(), comparePaths);
-
-    if (found != projectFiles.end())
-        return found->kind;
-
-    return CppTools::ProjectFile::Unclassified;
-}
-
-}
-
 void RefactoringEngine::startLocalRenaming(const QTextCursor &textCursor,
                                            const Utils::FileName &filePath,
                                            int revision,
                                            CppTools::ProjectPart *projectPart,
                                            RenameCallback &&renameSymbolsCallback)
 {
-    isUsable_ = false;
+    setUsable(false);
 
     client.setLocalRenamingCallback(std::move(renameSymbolsCallback));
 
     auto commandLine = RefactoringCompilerOptionsBuilder::build(projectPart,
-                                                                fileKind(projectPart, filePath.toString()));
+                                                                fileKindInProjectPart(projectPart, filePath.toString()));
 
     commandLine.push_back(filePath.toString());
-    qDebug() << commandLine.join(" ");
 
-    RequestSourceLocationsForRenamingMessage message(convertToClangBackEndFilePath(filePath),
+    RequestSourceLocationsForRenamingMessage message(ClangBackEnd::FilePath(filePath.toString()),
                                                      uint(textCursor.blockNumber() + 1),
                                                      uint(textCursor.positionInBlock() + 1),
                                                      textCursor.document()->toPlainText(),
@@ -107,12 +76,12 @@ void RefactoringEngine::startLocalRenaming(const QTextCursor &textCursor,
 
 bool RefactoringEngine::isUsable() const
 {
-    return isUsable_;
+    return server.isUsable();
 }
 
 void RefactoringEngine::setUsable(bool isUsable)
 {
-    isUsable_ = isUsable;
+    server.setUsable(isUsable);
 }
 
 } // namespace ClangRefactoring

@@ -27,25 +27,48 @@
 
 #include "refactoringengine.h"
 
+#include <searchhandleinterface.h>
+
 #include <refactoringclientinterface.h>
 
 #include <functional>
 
+namespace ClangBackEnd {
+class FilePath;
+class SourceRangesContainer;
+class SourceRangeWithTextContainer;
+}
+
 namespace ClangRefactoring {
 
-class RefactoringClient : public ClangBackEnd::RefactoringClientInterface
+class RefactoringClient final : public ClangBackEnd::RefactoringClientInterface
 {
 public:
     void alive() final;
-    void sourceLocationsForRenamingMessage(ClangBackEnd::SourceLocationsForRenamingMessage &&message) final;
+    void sourceLocationsForRenamingMessage(
+            ClangBackEnd::SourceLocationsForRenamingMessage &&message) final;
+    void sourceRangesAndDiagnosticsForQueryMessage(
+            ClangBackEnd::SourceRangesAndDiagnosticsForQueryMessage &&message) final;
 
-    void setLocalRenamingCallback(CppTools::RefactoringEngineInterface::RenameCallback &&localRenamingCallback) final;
+    void setLocalRenamingCallback(
+            CppTools::RefactoringEngineInterface::RenameCallback &&localRenamingCallback) final;
     void setRefactoringEngine(ClangRefactoring::RefactoringEngine *refactoringEngine);
+    void setSearchHandle(ClangRefactoring::SearchHandleInterface *searchHandleInterface);
+    ClangRefactoring::SearchHandleInterface *searchHandle() const;
 
     bool hasValidLocalRenamingCallback() const;
 
+    static std::unordered_map<uint, QString> convertFilePaths(
+            const std::unordered_map<uint, ClangBackEnd::FilePath> &filePaths);
+
+private:
+    void addSearchResults(const ClangBackEnd::SourceRangesContainer &sourceRanges);
+    void addSearchResult(const ClangBackEnd::SourceRangeWithTextContainer &sourceRange,
+                         std::unordered_map<uint, QString> &filePaths);
+    void sendSearchIsFinished();
 private:
     CppTools::RefactoringEngineInterface::RenameCallback localRenamingCallback;
+    ClangRefactoring::SearchHandleInterface *searchHandleInterface = nullptr;
     ClangRefactoring::RefactoringEngine *refactoringEngine = nullptr;
 };
 

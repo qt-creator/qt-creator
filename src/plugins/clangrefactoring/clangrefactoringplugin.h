@@ -27,6 +27,8 @@
 
 #include "refactoringengine.h"
 #include "refactoringclient.h"
+#include "qtcreatorclangqueryfindfilter.h"
+#include "qtcreatorsearch.h"
 
 #include <refactoringconnectionclient.h>
 #include <refactoringserverproxy.h>
@@ -56,8 +58,11 @@ private:
 
 private:
     static std::unique_ptr<ClangBackEnd::RefactoringConnectionClient> connectionClient;
-    static std::unique_ptr<RefactoringClient> client;
+    static std::unique_ptr<RefactoringClient> refactoringClient;
     static std::unique_ptr<RefactoringEngine> engine;
+    static std::unique_ptr<QtCreatorClangQueryFindFilter> qtCreatorfindFilter;
+    static std::unique_ptr<QtCreatorSearch> qtCreatorSearch;
+
 };
 
 } // namespace ClangRefactoring

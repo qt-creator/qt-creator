@@ -25,6 +25,7 @@
 
 #include "googletest.h"
 #include "mockrefactoringclientcallback.h"
+#include "mocksearchhandle.h"
 
 #include <refactoringclient.h>
 #include <refactoringcompileroptionsbuilder.h>
@@ -32,6 +33,7 @@
 #include <refactoringconnectionclient.h>
 
 #include <sourcelocationsforrenamingmessage.h>
+#include <sourcerangesanddiagnosticsforquerymessage.h>
 
 #include <cpptools/projectpart.h>
 
@@ -45,7 +47,13 @@ namespace {
 using ClangRefactoring::RefactoringCompilerOptionsBuilder;
 using ClangRefactoring::RefactoringEngine;
 
+using ClangBackEnd::SourceLocationsForRenamingMessage;
+using ClangBackEnd::SourceRangesAndDiagnosticsForQueryMessage;
+
 using testing::_;
+using testing::Pair;
+using testing::Contains;
+using testing::NiceMock;
 
 using Utils::SmallString;
 using Utils::SmallStringVector;
@@ -55,6 +63,7 @@ class RefactoringClient : public ::testing::Test
     void SetUp();
 
 protected:
+    NiceMock<MockSearchHandle> mockSearchHandle;
     MockRefactoringClientCallBack callbackMock;
     ClangRefactoring::RefactoringClient client;
     ClangBackEnd::RefactoringConnectionClient connectionClient{&client};
@@ -64,14 +73,20 @@ protected:
     QTextCursor cursor{&textDocument};
     QString qStringFilePath{QStringLiteral("/home/user/file.cpp")};
     Utils::FileName filePath{Utils::FileName::fromString(qStringFilePath)};
-    ClangBackEnd::FilePath clangBackEndFilePath{"/home/user", "file.cpp"};
+    ClangBackEnd::FilePath clangBackEndFilePath{qStringFilePath};
     SmallStringVector commandLine;
     CppTools::ProjectPart::Ptr projectPart;
     CppTools::ProjectFile projectFile{qStringFilePath, CppTools::ProjectFile::CXXSource};
-    ClangBackEnd::SourceLocationsForRenamingMessage message{"symbol",
-                                                            {{{42u, clangBackEndFilePath.clone()}},
-                                                             {{42u, 1, 1}, {42u, 2, 5}}},
-                                                            1};
+    SourceLocationsForRenamingMessage renameMessage{"symbol",
+                                                    {{{42u, clangBackEndFilePath.clone()}},
+                                                     {{42u, 1, 1, 0}, {42u, 2, 5, 10}}},
+                                                    1};
+    SourceRangesAndDiagnosticsForQueryMessage queryResultMessage{{{{42u, clangBackEndFilePath.clone()}},
+                                                                  {{42u, 1, 1, 0, 1, 5, 4, ""},
+                                                                   {42u, 2, 1, 5, 2, 5, 10, ""}}},
+                                                                 {}};
+    SourceRangesAndDiagnosticsForQueryMessage emptyQueryResultMessage{{{},{}},
+                                                                      {}};
 };
 
 TEST_F(RefactoringClient, SourceLocationsForRenaming)
@@ -84,12 +99,12 @@ TEST_F(RefactoringClient, SourceLocationsForRenaming)
                                    textDocumentRevision);
     });
 
-    EXPECT_CALL(callbackMock, localRenaming(message.symbolName().toQString(),
-                                            message.sourceLocations(),
-                                            message.textDocumentRevision()))
+    EXPECT_CALL(callbackMock, localRenaming(renameMessage.symbolName().toQString(),
+                                            renameMessage.sourceLocations(),
+                                            renameMessage.textDocumentRevision()))
         .Times(1);
 
-    client.sourceLocationsForRenamingMessage(std::move(message));
+    client.sourceLocationsForRenamingMessage(std::move(renameMessage));
 }
 
 TEST_F(RefactoringClient, AfterSourceLocationsForRenamingEngineIsUsableAgain)
@@ -103,16 +118,63 @@ TEST_F(RefactoringClient, AfterSourceLocationsForRenamingEngineIsUsableAgain)
     });
     EXPECT_CALL(callbackMock, localRenaming(_,_,_));
 
-    client.sourceLocationsForRenamingMessage(std::move(message));
+    client.sourceLocationsForRenamingMessage(std::move(renameMessage));
 
     ASSERT_TRUE(engine.isUsable());
 }
 
 TEST_F(RefactoringClient, AfterStartLocalRenameHasValidCallback)
 {
-    engine.startLocalRenaming(cursor, filePath, textDocument.revision(), projectPart.data(), {});
+    engine.startLocalRenaming(cursor,
+                              filePath,
+                              textDocument.revision(),
+                              projectPart.data(),
+                              [&] (const QString &,
+                                   const ClangBackEnd::SourceLocationsContainer &,
+                                   int) {});
 
     ASSERT_TRUE(client.hasValidLocalRenamingCallback());
+}
+
+TEST_F(RefactoringClient, CallAddResultsForEmptyQueryMessage)
+{
+    EXPECT_CALL(mockSearchHandle, addResult(_ ,_ ,_ , _, _))
+        .Times(0);
+
+    client.sourceRangesAndDiagnosticsForQueryMessage(std::move(emptyQueryResultMessage));
+}
+
+TEST_F(RefactoringClient, CallAddResultsForQueryMessage)
+{
+    EXPECT_CALL(mockSearchHandle, addResult(_ ,_ ,_ , _, _))
+        .Times(2);
+
+    client.sourceRangesAndDiagnosticsForQueryMessage(std::move(queryResultMessage));
+}
+
+TEST_F(RefactoringClient, CallFinishSearchForEmptyQueryMessage)
+{
+    EXPECT_CALL(mockSearchHandle, finishSearch())
+        .Times(1);
+
+    client.sourceRangesAndDiagnosticsForQueryMessage(std::move(emptyQueryResultMessage));
+}
+
+TEST_F(RefactoringClient, CallFinishSearchQueryMessage)
+{
+    EXPECT_CALL(mockSearchHandle, finishSearch())
+        .Times(1);
+
+    client.sourceRangesAndDiagnosticsForQueryMessage(std::move(queryResultMessage));
+}
+
+TEST_F(RefactoringClient, ConvertFilePaths)
+{
+    std::unordered_map<uint, ClangBackEnd::FilePath> filePaths{{42u, clangBackEndFilePath.clone()}};
+
+    auto qstringFilePaths = ClangRefactoring::RefactoringClient::convertFilePaths(filePaths);
+
+    ASSERT_THAT(qstringFilePaths, Contains(Pair(42u, qStringFilePath)));
 }
 
 void RefactoringClient::SetUp()
@@ -124,6 +186,8 @@ void RefactoringClient::SetUp()
 
     commandLine = RefactoringCompilerOptionsBuilder::build(projectPart.data(),
                                                            projectFile.kind);
+
+    client.setSearchHandle(&mockSearchHandle);
 }
 
 }

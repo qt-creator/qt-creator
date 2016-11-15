@@ -7,7 +7,9 @@ SOURCES += \
     $$PWD/refactoringserver.cpp \
     $$PWD/sourcefilecallbacks.cpp \
     $$PWD/macropreprocessorcallbacks.cpp \
-    $$PWD/findusrforcursoraction.cpp
+    $$PWD/findusrforcursoraction.cpp \
+    $$PWD/clangquery.cpp \
+    $$PWD/clangtool.cpp
 
 HEADERS += \
     $$PWD/refactoringcompilationdatabase.h \
@@ -20,4 +22,6 @@ HEADERS += \
     $$PWD/sourcelocationsutils.h \
     $$PWD/findcursorusr.h \
     $$PWD/findusrforcursoraction.h \
-    $$PWD/findlocationsofusrs.h
+    $$PWD/findlocationsofusrs.h \
+    $$PWD/clangquery.h \
+    $$PWD/clangtool.h

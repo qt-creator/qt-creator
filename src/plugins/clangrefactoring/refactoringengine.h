@@ -51,7 +51,6 @@ public:
 private:
     ClangBackEnd::RefactoringServerInterface &server;
     ClangBackEnd::RefactoringClientInterface &client;
-    bool isUsable_ = false;
 };
 
 } // namespace ClangRefactoring

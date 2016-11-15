@@ -29,6 +29,10 @@
 
 #include <QtCore/qglobal.h>
 
+#ifdef UNIT_TESTS
+#include <gtest/gtest.h>
+#endif
+
 #if defined(CLANGBACKENDIPC_BUILD_LIB)
 #  define CMBIPC_EXPORT Q_DECL_EXPORT
 #elif defined(CLANGBACKENDIPC_BUILD_STATIC_LIB)
@@ -40,6 +44,12 @@
 #ifndef CLANGBACKENDPROCESSPATH
 # define CLANGBACKENDPROCESSPATH ""
 #endif
+
+namespace Utils {
+template<uint Size>
+class BasicSmallString;
+using SmallString = BasicSmallString<31>;
+}
 
 namespace ClangBackEnd {
 
@@ -109,7 +119,10 @@ enum class MessageType : quint8 {
     ProjectPartsDoNotExistMessage,
 
     SourceLocationsForRenamingMessage,
-    RequestSourceLocationsForRenamingMessage
+    RequestSourceLocationsForRenamingMessage,
+
+    RequestSourceRangesAndDiagnosticsForQueryMessage,
+    SourceRangesAndDiagnosticsForQueryMessage
 };
 
 template<MessageType messageEnumeration>

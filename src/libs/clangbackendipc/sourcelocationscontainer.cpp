@@ -46,12 +46,12 @@ QDebug operator<<(QDebug debug, const SourceLocationsContainer &container)
 
 void PrintTo(const SourceLocationsContainer &container, ::std::ostream* os)
 {
-    *os << "SourceLocationsContainer(";
+    *os << "(";
     for (const auto &sourceLocation: container.sourceLocationContainers()) {
-        *os << "["
+        *os << "("
             << container.filePathForSourceLocation(sourceLocation).name() << ","
             << sourceLocation.line() << ","
-            << sourceLocation.column() << "], ";
+            << sourceLocation.column() << "), ";
     }
     *os << ")";
 }

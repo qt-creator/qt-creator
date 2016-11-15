@@ -40,15 +40,17 @@ QDebug operator<<(QDebug debug, const RequestSourceLocationsForRenamingMessage &
 
 void PrintTo(const RequestSourceLocationsForRenamingMessage &message, ::std::ostream* os)
 {
-    *os << "RequestSourceLocationsForRenamingMessage(";
-    PrintTo(message.filePath(), os);
-    *os << ", "
+    Q_UNUSED(message)
+    Q_UNUSED(os)
+#ifdef UNIT_TESTS
+    *os << "RequestSourceLocationsForRenamingMessage("
+        << ::testing::PrintToString(message.filePath()) << ", ("
         << message.line() << ", "
-        << message.column() << ", ";
-    PrintTo(message.unsavedContent(), os);
-    *os << ", ";
-    PrintTo(message.commandLine(), os);
-    *os << ")";
+        << message.column() << "), "
+        << message.unsavedContent() << ", "
+        << message.commandLine()
+        << ")";
+#endif
 }
 
 } // namespace ClangBackEnd

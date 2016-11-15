@@ -26,10 +26,13 @@
 #include "googletest.h"
 
 #include "mockrefactoringclient.h"
+#include "sourcerangecontainer-matcher.h"
 
 #include <refactoringserver.h>
 #include <requestsourcelocationforrenamingmessage.h>
+#include <requestsourcerangesanddiagnosticsforquerymessage.h>
 #include <sourcelocationsforrenamingmessage.h>
+#include <sourcerangesanddiagnosticsforquerymessage.h>
 #include <sourcelocationscontainer.h>
 
 namespace {
@@ -41,22 +44,24 @@ using testing::PrintToString;
 using testing::Property;
 using testing::_;
 
+using ClangBackEnd::FilePath;
 using ClangBackEnd::RequestSourceLocationsForRenamingMessage;
+using ClangBackEnd::RequestSourceRangesAndDiagnosticsForQueryMessage;
 using ClangBackEnd::SourceLocationsContainer;
 using ClangBackEnd::SourceLocationsForRenamingMessage;
-using ClangBackEnd::FilePath;
+using ClangBackEnd::SourceRangesAndDiagnosticsForQueryMessage;
+using ClangBackEnd::SourceRangesContainer;
+using ClangBackEnd::V2::FileContainer;
 
 MATCHER_P2(IsSourceLocation, line, column,
-           std::string(negation ? "isn't" : "is")
-           + ", line " + PrintToString(line)
-           + ", column " + PrintToString(column)
+           std::string(negation ? "isn't " : "is ")
+           + "(" + PrintToString(line)
+           + ", " + PrintToString(column)
+           + ")"
            )
 {
-    if (arg.line() != uint(line)
-            || arg.column() != uint(column))
-        return false;
-
-    return true;
+    return arg.line() == uint(line)
+        && arg.column() == uint(column);
 }
 
 class RefactoringServer : public ::testing::Test
@@ -77,20 +82,78 @@ TEST_F(RefactoringServer, RequestSourceLocationsForRenamingMessage)
                                                                                       "int v;\n\nint x = v + 3;\n",
                                                                                       {"cc", "renamevariable.cpp"},
                                                                                       1};
-    SourceLocationsForRenamingMessage sourceLocationsForRenamingMessage;
 
     EXPECT_CALL(mockRefactoringClient,
                 sourceLocationsForRenamingMessage(
-                    AllOf(Property(&SourceLocationsForRenamingMessage::symbolName, "v"),
+                    AllOf(Property(&SourceLocationsForRenamingMessage::textDocumentRevision, 1),
+                          Property(&SourceLocationsForRenamingMessage::symbolName, "v"),
                           Property(&SourceLocationsForRenamingMessage::sourceLocations,
                                    AllOf(Property(&SourceLocationsContainer::sourceLocationContainers,
                                             AllOf(Contains(IsSourceLocation(1, 5)),
                                                   Contains(IsSourceLocation(3, 9)))),
-                                         Property(&SourceLocationsContainer::filePathsForTestOnly,
+                                         Property(&SourceLocationsContainer::filePaths,
                                                   Contains(Pair(_, FilePath(TESTDATA_DIR, "renamevariable.cpp")))))))))
         .Times(1);
 
     refactoringServer.requestSourceLocationsForRenamingMessage(std::move(requestSourceLocationsForRenamingMessage));
+}
+
+TEST_F(RefactoringServer, RequestSingleSourceRangesAndDiagnosticsForQueryMessage)
+{
+    RequestSourceRangesAndDiagnosticsForQueryMessage requestSourceRangesAndDiagnosticsForQueryMessage{"functionDecl()",
+                                                                                                      {{{TESTDATA_DIR, "query_simplefunction.cpp"},
+                                                                                                        "void f()\n \t{}",
+                                                                                                        {"cc", "query_simplefunction.cpp"}}}};
+
+    EXPECT_CALL(mockRefactoringClient,
+                sourceRangesAndDiagnosticsForQueryMessage(
+                    Property(&SourceRangesAndDiagnosticsForQueryMessage::sourceRanges,
+                             Property(&SourceRangesContainer::sourceRangeWithTextContainers,
+                                      Contains(IsSourceRangeWithText(1, 1, 2, 4, "void f() {}"))))))
+            .Times(1);
+
+    refactoringServer.requestSourceRangesAndDiagnosticsForQueryMessage(std::move(requestSourceRangesAndDiagnosticsForQueryMessage));
+}
+
+TEST_F(RefactoringServer, RequestTwoSourceRangesAndDiagnosticsForQueryMessage)
+{
+    RequestSourceRangesAndDiagnosticsForQueryMessage requestSourceRangesAndDiagnosticsForQueryMessage{"functionDecl()",
+                                                                                                      {{{TESTDATA_DIR, "query_simplefunction.cpp"},
+                                                                                                       "void f()\n \t{}",
+                                                                                                       {"cc", "query_simplefunction.cpp"}},
+                                                                                                      {{TESTDATA_DIR, "query_simplefunction.cpp"},
+                                                                                                       "void f()\n \t{}",
+                                                                                                       {"cc", "query_simplefunction.cpp"}}}};
+
+    EXPECT_CALL(mockRefactoringClient,
+                sourceRangesAndDiagnosticsForQueryMessage(
+                    Property(&SourceRangesAndDiagnosticsForQueryMessage::sourceRanges,
+                             Property(&SourceRangesContainer::sourceRangeWithTextContainers,
+                                      Contains(IsSourceRangeWithText(1, 1, 2, 4, "void f() {}"))))))
+            .Times(2);
+
+    refactoringServer.requestSourceRangesAndDiagnosticsForQueryMessage(std::move(requestSourceRangesAndDiagnosticsForQueryMessage));
+}
+
+TEST_F(RefactoringServer, RequestManySourceRangesAndDiagnosticsForQueryMessage)
+{
+    std::vector<FileContainer> fileContainers;
+    std::fill_n(std::back_inserter(fileContainers),
+                std::thread::hardware_concurrency() + 3,
+                FileContainer{{TESTDATA_DIR, "query_simplefunction.cpp"},
+                              "void f()\n \t{}",
+                              {"cc", "query_simplefunction.cpp"}});
+    RequestSourceRangesAndDiagnosticsForQueryMessage requestSourceRangesAndDiagnosticsForQueryMessage{"functionDecl()",
+                                                                                                      std::move(fileContainers)};
+
+    EXPECT_CALL(mockRefactoringClient,
+                sourceRangesAndDiagnosticsForQueryMessage(
+                    Property(&SourceRangesAndDiagnosticsForQueryMessage::sourceRanges,
+                             Property(&SourceRangesContainer::sourceRangeWithTextContainers,
+                                      Contains(IsSourceRangeWithText(1, 1, 2, 4, "void f() {}"))))))
+            .Times(std::thread::hardware_concurrency() + 3);
+
+    refactoringServer.requestSourceRangesAndDiagnosticsForQueryMessage(std::move(requestSourceRangesAndDiagnosticsForQueryMessage));
 }
 
 void RefactoringServer::SetUp()

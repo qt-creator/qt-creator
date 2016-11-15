@@ -64,8 +64,9 @@ defineReplace(findClangOnWindows) {
 }
 
 CLANGTOOLING_LIBS=-lclangTooling -lclangIndex -lclangFrontend -lclangParse -lclangSerialization \
-                  -lclangSema -lclangEdit -lclangAnalysis -lclangDriver -lclangASTMatchers \
-                  -lclangToolingCore -lclangAST -lclangLex -lclangBasic
+                  -lclangSema -lclangEdit -lclangAnalysis -lclangDriver -lclangDynamicASTMatchers \
+                  -lclangASTMatchers -lclangToolingCore -lclangAST -lclangLex -lclangBasic
+win32:CLANGTOOLING_LIBS += -lversion
 
 BIN_EXTENSION =
 win32: BIN_EXTENSION = .exe

@@ -50,6 +50,7 @@ public:
 
     void alive() override;
     void sourceLocationsForRenamingMessage(SourceLocationsForRenamingMessage &&message) override;
+    void sourceRangesAndDiagnosticsForQueryMessage(SourceRangesAndDiagnosticsForQueryMessage &&message);
 
     void setLocalRenamingCallback(RenameCallback &&) final {}
 

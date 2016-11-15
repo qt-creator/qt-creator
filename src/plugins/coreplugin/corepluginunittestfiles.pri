@@ -1,7 +1,11 @@
 DEFINES += CORE_STATIC_LIBRARY
 
 HEADERS += \
-    $$PWD/id.h
+    $$PWD/coreicons.h \
+    $$PWD/id.h \
+    $$PWD/find/ifindfilter.h
 
 SOURCES += \
-    $$PWD/id.cpp
+    $$PWD/coreicons.cpp \
+    $$PWD/id.cpp \
+    $$PWD/find/ifindfilter.cpp

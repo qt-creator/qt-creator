@@ -26,18 +26,24 @@
 #include "refactoringserver.h"
 
 #include "symbolfinder.h"
+#include "clangquery.h"
 
 #include <refactoringclientinterface.h>
 #include <requestsourcelocationforrenamingmessage.h>
+#include <requestsourcerangesanddiagnosticsforquerymessage.h>
 #include <sourcelocationsforrenamingmessage.h>
+#include <sourcerangesanddiagnosticsforquerymessage.h>
 
 #include <QCoreApplication>
+
+#include <algorithm>
+#include <chrono>
+#include <future>
 
 namespace ClangBackEnd {
 
 RefactoringServer::RefactoringServer()
 {
-
 }
 
 void RefactoringServer::end()
@@ -56,10 +62,86 @@ void RefactoringServer::requestSourceLocationsForRenamingMessage(RequestSourceLo
 
     symbolFinder.findSymbol();
 
-    client()->sourceLocationsForRenamingMessage(SourceLocationsForRenamingMessage(
-                                                    symbolFinder.takeSymbolName(),
-                                                    symbolFinder.takeSourceLocations(),
-                                                    message.textDocumentRevision()));
+    client()->sourceLocationsForRenamingMessage({symbolFinder.takeSymbolName(),
+                                                 symbolFinder.takeSourceLocations(),
+                                                 message.textDocumentRevision()});
+}
+
+namespace {
+
+SourceRangesAndDiagnosticsForQueryMessage createSourceRangesAndDiagnosticsForQueryMessage(
+        V2::FileContainer &&fileContainer,
+        Utils::SmallString &&query) {
+    ClangQuery clangQuery(std::move(query));
+
+    clangQuery.addFile(fileContainer.filePath().directory(),
+                       fileContainer.filePath().name(),
+                       fileContainer.takeUnsavedFileContent(),
+                       fileContainer.takeCommandLineArguments());
+
+    clangQuery.findLocations();
+
+    return {clangQuery.takeSourceRanges(), clangQuery.takeDiagnosticContainers()};
+}
+
+
+}
+
+void RefactoringServer::requestSourceRangesAndDiagnosticsForQueryMessage(
+        RequestSourceRangesAndDiagnosticsForQueryMessage &&message)
+{
+    gatherSourceRangesAndDiagnosticsForQueryMessage(message.takeFileContainers(), message.takeQuery());
+}
+
+void RefactoringServer::gatherSourceRangesAndDiagnosticsForQueryMessage(
+        std::vector<V2::FileContainer> &&fileContainers,
+        Utils::SmallString &&query)
+{
+    std::vector<Future> futures;
+
+    std::size_t freeProcessors = std::thread::hardware_concurrency();
+
+    while (!fileContainers.empty() || !futures.empty()) {
+        --freeProcessors;
+
+        if (!fileContainers.empty()) {
+            Future &&future = std::async(std::launch::async,
+                                         createSourceRangesAndDiagnosticsForQueryMessage,
+                                         std::move(fileContainers.back()),
+                                         query.clone());
+            fileContainers.pop_back();
+
+            futures.emplace_back(std::move(future));
+        }
+
+        if (freeProcessors == 0 || fileContainers.empty())
+            freeProcessors += waitForNewSourceRangesAndDiagnosticsForQueryMessage(futures);
+    }
+}
+
+std::size_t RefactoringServer::waitForNewSourceRangesAndDiagnosticsForQueryMessage(std::vector<Future> &futures)
+{
+    while (true) {
+        std::vector<Future> readyFutures;
+        readyFutures.reserve(futures.size());
+
+        auto beginReady = std::partition(futures.begin(),
+                                         futures.end(),
+                                         [] (const Future &future) {
+            return future.wait_for(std::chrono::duration<int>::zero()) != std::future_status::ready;
+        });
+
+        std::move(beginReady, futures.end(), std::back_inserter(readyFutures));
+        futures.erase(beginReady, futures.end());
+
+        for (Future &readyFuture : readyFutures)
+            client()->sourceRangesAndDiagnosticsForQueryMessage(std::move(readyFuture.get()));
+
+        if (readyFutures.empty())
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        else
+            return readyFutures.size();
+    }
 }
 
 } // namespace ClangBackEnd
