@@ -574,7 +574,7 @@ class DumperBase:
         res = []
         for item in targs[::-1]:
             c = ord(item[0])
-            if c == '-' or (c >= 48 and c < 58):
+            if c in (45, 46) or (c >= 48 and c < 58): # '-', '.' or digit.
                 if item.find('.') > -1:
                     res.append(float(item))
                 else:
