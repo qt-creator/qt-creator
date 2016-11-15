@@ -247,7 +247,7 @@ class Dumper(DumperBase):
             if bitsize > 0:
                 #bitpos = bitpos % bitsize
                 bitpos = bitpos % 8 # Reported type is always wrapping type!
-            fieldBits[f.name] = (bitsize, bitpos)
+            fieldBits[f.name] = (bitsize, bitpos, f.IsBitfield())
 
         # Normal members and non-empty base classes.
         for i in range(fakeValue.GetNumChildren()):
@@ -259,11 +259,12 @@ class Dumper(DumperBase):
             nativeFieldType = nativeField.GetType()
 
             if field.name in fieldBits:
-                (field.lbitsize, field.lbitpos) = fieldBits[field.name]
+                (field.lbitsize, field.lbitpos, isBitfield) = fieldBits[field.name]
             else:
                 field.lbitsize = nativeFieldType.GetByteSize() * 8
+                isBitfield = False
 
-            if field.lbitsize != nativeFieldType.GetByteSize() * 8:
+            if isBitfield:
                 field.ltype = self.createBitfieldType(self.typeName(nativeFieldType), field.lbitsize)
             else:
                 fakeMember = fakeValue.GetChildAtIndex(i)
