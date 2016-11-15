@@ -262,16 +262,16 @@ void ScxmlDocument::initErrorMessage(const QXmlStreamReader &xml, QIODevice *io)
     QString errorString;
     switch (xml.error()) {
     case QXmlStreamReader::Error::UnexpectedElementError:
-        errorString = tr("UnexpectedElementError");
+        errorString = tr("Unexpected element");
         break;
     case QXmlStreamReader::Error::NotWellFormedError:
-        errorString = tr("NotWellFormedError");
+        errorString = tr("Not well formed");
         break;
     case QXmlStreamReader::Error::PrematureEndOfDocumentError:
-        errorString = tr("PrematureEndOfDocumentError");
+        errorString = tr("Premature end of document");
         break;
     case QXmlStreamReader::Error::CustomError:
-        errorString = tr("CustomError");
+        errorString = tr("Custom error");
         break;
     default:
         break;
