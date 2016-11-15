@@ -306,8 +306,6 @@ static QString msgActionWarning(QAction *newAction, Id id, QAction *oldAction)
 
 void Action::addOverrideAction(QAction *action, const Context &context, bool scriptable)
 {
-    if (Utils::HostOsInfo::isMacHost())
-        action->setIconVisibleInMenu(false);
     // disallow TextHeuristic menu role, because it doesn't work with translations,
     // e.g. QTCREATORBUG-13101
     if (action->menuRole() == QAction::TextHeuristicRole)
