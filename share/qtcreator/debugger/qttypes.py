@@ -1064,6 +1064,7 @@ def qdump__QRegExp(d, value):
     privAddress = d.extractPointer(value)
     (eng, pattern) = d.split('p{QString}', privAddress)
     d.putStringValue(pattern)
+    d.putNumChild(1)
     if d.isExpanded():
         with Children(d):
             d.call('void', value, 'capturedTexts') # Warm up internal cache.

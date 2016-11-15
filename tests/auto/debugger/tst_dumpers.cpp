@@ -2755,6 +2755,7 @@ void tst_Dumpers::dumper_data()
                     "int pos1 = re.indexIn(str1); unused(&pos1);\n"
                     "int pos2 = re.indexIn(str2); unused(&pos2);\n")
                + CoreProfile()
+               + UseDebugImage()
                + Check("re", "\"a(.*)b(.*)c\"", "@QRegExp")
                + Check("re.captures.0", "[0]", "\"a1121b344c\"", "@QString")
                + Check("re.captures.1", "[1]", "\"1121\"", "@QString")
