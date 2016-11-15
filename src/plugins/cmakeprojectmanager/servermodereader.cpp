@@ -672,12 +672,11 @@ QSet<Node *> ServerModeReader::updateTargets(CMakeListsNode *root,
 {
     QSet<Node *> usedNodes;
     for (const Target *t : targets) {
-
         CMakeTargetNode *tNode = findOrCreateTargetNode(root, t->sourceDirectory, t->name);
         tNode->setTargetInformation(t->artifacts, t->type);
+        usedNodes.insert(tNode); // always keep the target node: FileGroups use buildTree!
 
-        usedNodes.unite(updateFileGroups(tNode, t->sourceDirectory, t->buildDirectory,
-                                         t->fileGroups, headers));
+        updateFileGroups(tNode, t->sourceDirectory, t->buildDirectory, t->fileGroups, headers);
     }
     return usedNodes;
 }
@@ -695,13 +694,12 @@ static Utils::FileName mapFileName(const Utils::FileName &fn, const Utils::FileN
     return fn;
 }
 
-QSet<Node *> ServerModeReader::updateFileGroups(ProjectNode *targetRoot,
-                                                const Utils::FileName &sourceDirectory,
-                                                const Utils::FileName &buildDirectory,
-                                                const QList<ServerModeReader::FileGroup *> &fileGroups,
-                                                const QHash<FileName, QList<FileNode *> > &headers)
+void ServerModeReader::updateFileGroups(ProjectNode *targetRoot,
+                                        const Utils::FileName &sourceDirectory,
+                                        const Utils::FileName &buildDirectory,
+                                        const QList<ServerModeReader::FileGroup *> &fileGroups,
+                                        const QHash<FileName, QList<FileNode *> > &headers)
 {
-    QSet<Node *> usedNodes;
     QList<FileNode *> toList;
     QSet<Utils::FileName> alreadyListed;
     for (const FileGroup *f : fileGroups) {
@@ -733,11 +731,6 @@ QSet<Node *> ServerModeReader::updateFileGroups(ProjectNode *targetRoot,
     }
 
     targetRoot->buildTree(toList, sourceDirectory);
-
-    foreach (FileNode *fn, toList)
-        usedNodes.insert(static_cast<Node *>(fn)); // Mark all leaves as keeper!
-
-    return usedNodes;
 }
 
 } // namespace Internal

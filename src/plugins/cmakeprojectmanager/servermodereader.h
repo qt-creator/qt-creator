@@ -127,11 +127,11 @@ private:
     QSet<ProjectExplorer::Node *> updateTargets(CMakeListsNode *root,
                                                 const QList<Target *> &targets,
                                                 const QHash<Utils::FileName, QList<ProjectExplorer::FileNode *>> &headers);
-    QSet<ProjectExplorer::Node *> updateFileGroups(ProjectExplorer::ProjectNode *targetRoot,
-                                                   const Utils::FileName &sourceDirectory,
-                                                   const Utils::FileName &buildDirectory,
-                                                   const QList<FileGroup *> &fileGroups,
-                                                   const QHash<Utils::FileName, QList<ProjectExplorer::FileNode *>> &headers);
+    void updateFileGroups(ProjectExplorer::ProjectNode *targetRoot,
+                          const Utils::FileName &sourceDirectory,
+                          const Utils::FileName &buildDirectory,
+                          const QList<FileGroup *> &fileGroups,
+                          const QHash<Utils::FileName, QList<ProjectExplorer::FileNode *>> &headers);
 
     bool m_hasData = false;
 
