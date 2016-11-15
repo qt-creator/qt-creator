@@ -366,9 +366,10 @@ QList<Task> CMakeGeneratorKitInformation::validate(const Kit *k) const
                                    Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
                 }
             }
-            if (info.extraGenerator != "CodeBlocks") {
-                result << Task(Task::Warning, tr("CMake generator does not generate a CodeBlocks file. "
-                                                 "Qt Creator will not be able to parse the CMake project."),
+            if (!tool->hasServerMode() && info.extraGenerator != "CodeBlocks") {
+                result << Task(Task::Warning, tr("The selected CMake binary has no server-mode and the CMake "
+                                                 "generator does not generate a CodeBlocks file. "
+                                                 "Qt Creator will not be able to parse CMake projects."),
                                Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
             }
         }
