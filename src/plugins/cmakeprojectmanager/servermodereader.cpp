@@ -247,13 +247,13 @@ static ProjectNode *updateCMakeInputs(CMakeListsNode *root,
 
     QList<FolderNode *> foldersToDelete;
     foldersToDelete.append(setupCMakeVFolder(cmakeVFolder, sourceDir, 1000,
-                                             QCoreApplication::translate("CMakeProjectManager::Internal", "Source Directory"),
+                                             QCoreApplication::translate("CMakeProjectManager::Internal", "<Source Directory>"),
                                              sourceInputs));
     foldersToDelete.append(setupCMakeVFolder(cmakeVFolder, buildDir, 100,
-                                             QCoreApplication::translate("CMakeProjectManager::Internal", "Build Directory"),
+                                             QCoreApplication::translate("CMakeProjectManager::Internal", "<Build Directory>"),
                                              buildInputs));
     foldersToDelete.append(setupCMakeVFolder(cmakeVFolder, Utils::FileName(), 10,
-                                             QCoreApplication::translate("CMakeProjectManager::Internal", "Other Locations"),
+                                             QCoreApplication::translate("CMakeProjectManager::Internal", "<Other Locations>"),
                                              rootInputs));
 
     // Clean out unused nodes in "CMake Files":
