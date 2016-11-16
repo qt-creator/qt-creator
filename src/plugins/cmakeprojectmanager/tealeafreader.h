@@ -70,8 +70,6 @@ private:
     bool extractCXXFlagsFromMake(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache);
     bool extractCXXFlagsFromNinja(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache);
 
-    CMakeConfig parseConfiguration(const Utils::FileName &cacheFile, QString *errorMessage) const;
-
     Utils::QtcProcess *m_cmakeProcess = nullptr;
 
     // For error reporting:

@@ -27,6 +27,8 @@
 
 #include <projectexplorer/kit.h>
 
+#include <utils/algorithm.h>
+#include <utils/fileutils.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
@@ -217,6 +219,91 @@ CMakeConfigItem CMakeConfigItem::fromString(const QString &s)
         item.value = value.toUtf8();
     }
     return item;
+}
+
+static QByteArray trimCMakeCacheLine(const QByteArray &in) {
+    int start = 0;
+    while (start < in.count() && (in.at(start) == ' ' || in.at(start) == '\t'))
+        ++start;
+
+    return in.mid(start, in.count() - start - 1);
+}
+
+static QByteArrayList splitCMakeCacheLine(const QByteArray &line) {
+    const int colonPos = line.indexOf(':');
+    if (colonPos < 0)
+        return QByteArrayList();
+
+    const int equalPos = line.indexOf('=', colonPos + 1);
+    if (equalPos < colonPos)
+        return QByteArrayList();
+
+    return QByteArrayList() << line.mid(0, colonPos)
+                            << line.mid(colonPos + 1, equalPos - colonPos - 1)
+                            << line.mid(equalPos + 1);
+}
+
+QList<CMakeConfigItem> CMakeConfigItem::itemsFromFile(const Utils::FileName &cacheFile, QString *errorMessage)
+{
+    CMakeConfig result;
+    QFile cache(cacheFile.toString());
+    if (!cache.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        if (errorMessage)
+            *errorMessage = QCoreApplication::translate("CMakeProjectManager::CMakeConfigItem", "Failed to open %1 for reading.")
+                .arg(cacheFile.toUserOutput());
+        return CMakeConfig();
+    }
+
+    QSet<QByteArray> advancedSet;
+    QMap<QByteArray, QByteArray> valuesMap;
+    QByteArray documentation;
+    while (!cache.atEnd()) {
+        const QByteArray line = trimCMakeCacheLine(cache.readLine());
+
+        if (line.isEmpty() || line.startsWith('#'))
+            continue;
+
+        if (line.startsWith("//")) {
+            documentation = line.mid(2);
+            continue;
+        }
+
+        const QByteArrayList pieces = splitCMakeCacheLine(line);
+        if (pieces.isEmpty())
+            continue;
+
+        QTC_ASSERT(pieces.count() == 3, continue);
+        const QByteArray key = pieces.at(0);
+        const QByteArray type = pieces.at(1);
+        const QByteArray value = pieces.at(2);
+
+        if (key.endsWith("-ADVANCED") && value == "1") {
+            advancedSet.insert(key.left(key.count() - 9 /* "-ADVANCED" */));
+        } else if (key.endsWith("-STRINGS") && CMakeConfigItem::typeStringToType(type) == CMakeConfigItem::INTERNAL) {
+            valuesMap[key.left(key.count() - 8) /* "-STRINGS" */] = value;
+        } else {
+            CMakeConfigItem::Type t = CMakeConfigItem::typeStringToType(type);
+            result << CMakeConfigItem(key, t, documentation, value);
+        }
+    }
+
+    // Set advanced flags:
+    for (int i = 0; i < result.count(); ++i) {
+        CMakeConfigItem &item = result[i];
+        item.isAdvanced = advancedSet.contains(item.key);
+
+        if (valuesMap.contains(item.key)) {
+            item.values = CMakeConfigItem::cmakeSplitValue(QString::fromUtf8(valuesMap[item.key]));
+        } else if (item.key  == "CMAKE_BUILD_TYPE") {
+            // WA for known options
+            item.values << "" << "Debug" << "Release" << "MinSizeRel" << "RelWithDebInfo";
+        }
+    }
+
+    Utils::sort(result, CMakeConfigItem::sortOperator());
+
+    return result;
+
 }
 
 QString CMakeConfigItem::toString(const Utils::MacroExpander *expander) const

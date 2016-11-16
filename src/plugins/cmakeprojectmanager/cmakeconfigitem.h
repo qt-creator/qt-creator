@@ -31,7 +31,10 @@
 #include <functional>
 
 namespace ProjectExplorer { class Kit; }
-namespace Utils { class MacroExpander; }
+namespace Utils {
+class FileName;
+class MacroExpander;
+} // namespace Utils
 
 namespace CMakeProjectManager {
 
@@ -55,6 +58,7 @@ public:
 
     static std::function<bool(const CMakeConfigItem &a, const CMakeConfigItem &b)> sortOperator();
     static CMakeConfigItem fromString(const QString &s);
+    static QList<CMakeConfigItem> itemsFromFile(const Utils::FileName &input, QString *errorMessage);
     QString toString(const Utils::MacroExpander *expander = nullptr) const;
     QString toArgument(const Utils::MacroExpander *expander = nullptr) const;
 
