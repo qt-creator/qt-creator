@@ -23,18 +23,44 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include <QString>
+#include <QDebug>
 
-#include <QtGlobal>
+#include <gtest/gtest-printers.h>
 
-#include <iosfwd>
+#include <iostream>
 
 QT_BEGIN_NAMESPACE
 
-class QVariant;
-class QString;
+void PrintTo(const QByteArray &byteArray, ::std::ostream *os)
+{
+    if (byteArray.contains('\n')) {
+        QByteArray formattedArray = byteArray;
+        formattedArray.replace("\n", "\n\t");
+        *os << "\n\t";
+        os->write(formattedArray.data(), formattedArray.size());
+    } else {
+        *os << "\"";
+        os->write(byteArray.data(), byteArray.size());
+        *os << "\"";
+    }
+}
 
-void PrintTo(const QVariant &variant, ::std::ostream *os);
-void PrintTo(const QString &text, ::std::ostream *os);
-void PrintTo(const QByteArray &byteArray, ::std::ostream *os);
+void PrintTo(const QVariant &variant, ::std::ostream *os)
+{
+    QString output;
+    QDebug debug(&output);
+
+    debug << variant;
+
+    PrintTo(output.toUtf8(), os);
+}
+
+void PrintTo(const QString &text, ::std::ostream *os)
+{
+    const QByteArray utf8 = text.toUtf8();
+
+    PrintTo(text.toUtf8(), os);
+}
+
 QT_END_NAMESPACE
