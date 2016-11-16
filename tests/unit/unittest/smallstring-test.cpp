@@ -317,6 +317,29 @@ TEST(SmallString, RBeginPlusOneIsEqualREndForSmallStringWidthSizeOne)
     ASSERT_THAT(beginPlusOne, Eq(text.rend()));
 }
 
+TEST(SmallString, ConstRBeginIsEqualREndForEmptySmallString)
+{
+    const SmallString text;
+
+    ASSERT_THAT(text.rbegin(), Eq(text.rend()));
+}
+
+TEST(SmallString, ConstRBeginIsNotEqualREndForNonEmptySmallString)
+{
+    const SmallString text("x");
+
+    ASSERT_THAT(text.rbegin(), Ne(text.rend()));
+}
+
+TEST(SmallString, ConstRBeginPlusOneIsEqualREndForSmallStringWidthSizeOne)
+{
+    const SmallString text("x");
+
+    auto beginPlusOne = text.rbegin() + 1l;
+
+    ASSERT_THAT(beginPlusOne, Eq(text.rend()));
+}
+
 TEST(SmallString, ConstructorStandardString)
 {
     std::string stdStringText = "short string";
