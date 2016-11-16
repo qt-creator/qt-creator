@@ -666,20 +666,24 @@ static bool isInLayoutable(NodeAbstractProperty &parentProperty)
 
 static void reparentModelNodeToNodeProperty(NodeAbstractProperty &parentProperty, const ModelNode &modelNode)
 {
-    if (!modelNode.hasParentProperty() || parentProperty != modelNode.parentProperty()) {
-        if (isInLayoutable(parentProperty)) {
-            removePosition(modelNode);
-            parentProperty.reparentHere(modelNode);
-        } else {
-            if (QmlItemNode::isValidQmlItemNode(modelNode)) {
-                QPointF scenePosition = QmlItemNode(modelNode).instanceScenePosition();
+    try {
+        if (!modelNode.hasParentProperty() || parentProperty != modelNode.parentProperty()) {
+            if (isInLayoutable(parentProperty)) {
+                removePosition(modelNode);
                 parentProperty.reparentHere(modelNode);
-                if (!scenePosition.isNull())
-                    setScenePosition(modelNode, scenePosition);
             } else {
-                parentProperty.reparentHere(modelNode);
+                if (QmlItemNode::isValidQmlItemNode(modelNode)) {
+                    QPointF scenePosition = QmlItemNode(modelNode).instanceScenePosition();
+                    parentProperty.reparentHere(modelNode);
+                    if (!scenePosition.isNull())
+                        setScenePosition(modelNode, scenePosition);
+                } else {
+                    parentProperty.reparentHere(modelNode);
+                }
             }
         }
+    }  catch (const RewritingException &exception) { //better safe than sorry! There always might be cases where we fail
+        exception.showException();
     }
 }
 

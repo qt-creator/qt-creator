@@ -52,8 +52,19 @@ public:
     static const DebuggerItem *debugger(const ProjectExplorer::Kit *kit);
     static ProjectExplorer::StandardRunnable runnable(const ProjectExplorer::Kit *kit);
 
+    enum ConfigurationError
+    {
+        NoConfigurationError      = 0x0,
+        NoDebugger                = 0x1,
+        DebuggerNotFound          = 0x2,
+        DebuggerNotExecutable     = 0x4,
+        DebuggerNeedsAbsolutePath = 0x8,
+        DebuggerDoesNotMatch      = 0x10
+    };
+    Q_DECLARE_FLAGS(ConfigurationErrors, ConfigurationError)
+
     static QList<ProjectExplorer::Task> validateDebugger(const ProjectExplorer::Kit *k);
-    static bool isValidDebugger(const ProjectExplorer::Kit *k);
+    static ConfigurationErrors configurationErrors(const ProjectExplorer::Kit *k);
 
     ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const override;
     void addToMacroExpander(ProjectExplorer::Kit *kit, Utils::MacroExpander *expander) const override;

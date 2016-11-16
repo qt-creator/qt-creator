@@ -33,6 +33,16 @@ Item  {
 
     property int screenDependHeightDistance: Math.min(50, Math.max(16, height / 30))
 
+    DropArea {
+        anchors.fill: parent
+        keys: ["text/uri-list"]
+        onDropped: {
+            if ((drop.supportedActions & Qt.CopyAction != 0)
+                    && welcomeMode.openDroppedFiles(drop.urls))
+                drop.accept(Qt.CopyAction);
+        }
+    }
+
     SideBar {
         id: sideBar
         model: pagesModel

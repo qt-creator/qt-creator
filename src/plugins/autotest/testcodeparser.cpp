@@ -81,7 +81,7 @@ TestCodeParser::~TestCodeParser()
 
 void TestCodeParser::setState(State state)
 {
-    if (m_parserState == Shutdown)
+    if (m_parserState == Shutdown || !m_enabled)
         return;
     qCDebug(LOG) << "setState(" << state << "), currentState:" << m_parserState;
     // avoid triggering parse before code model parsing has finished, but mark as dirty
@@ -91,17 +91,13 @@ void TestCodeParser::setState(State state)
         return;
     }
 
-    if ((state == Disabled || state == Idle)
-            && (m_parserState == PartialParse || m_parserState == FullParse)) {
+    if ((state == Idle) && (m_parserState == PartialParse || m_parserState == FullParse)) {
         qCDebug(LOG) << "Not setting state, parse is running";
         return;
     }
     m_parserState = state;
 
-    if (m_parserState == Disabled) {
-        m_fullUpdatePostponed = m_partialUpdatePostponed = false;
-        m_postponedFiles.clear();
-    } else if (m_parserState == Idle && ProjectExplorer::SessionManager::startupProject()) {
+    if (m_parserState == Idle && ProjectExplorer::SessionManager::startupProject()) {
         if (m_fullUpdatePostponed || m_dirty) {
             emitUpdateTestTree();
         } else if (m_partialUpdatePostponed) {
@@ -115,7 +111,7 @@ void TestCodeParser::setState(State state)
 
 void TestCodeParser::syncTestFrameworks(const QVector<Core::Id> &frameworkIds)
 {
-    if (m_parserState != Disabled && m_parserState != Idle) {
+    if (m_enabled && m_parserState != Idle) {
         // there's a running parse
         m_fullUpdatePostponed = m_partialUpdatePostponed = false;
         m_postponedFiles.clear();
@@ -129,7 +125,7 @@ void TestCodeParser::syncTestFrameworks(const QVector<Core::Id> &frameworkIds)
         QTC_ASSERT(testParser, continue);
         m_testCodeParsers.append(testParser);
     }
-    if (m_parserState != Disabled)
+    if (m_enabled)
         updateTestTree();
 }
 
@@ -211,7 +207,7 @@ void TestCodeParser::onProjectPartsUpdated(ProjectExplorer::Project *project)
 {
     if (project != ProjectExplorer::SessionManager::startupProject())
         return;
-    if (m_codeModelParsing || m_parserState == Disabled)
+    if (m_codeModelParsing || !m_enabled)
         m_fullUpdatePostponed = true;
     else
         emitUpdateTestTree();
@@ -276,7 +272,6 @@ bool TestCodeParser::postponed(const QStringList &fileList)
             m_partialUpdatePostponed = true;
         }
         return true;
-    case Disabled:
     case Shutdown:
         break;
     }
@@ -297,7 +292,9 @@ static void parseFileForTests(const QVector<ITestParser *> &parsers,
 
 void TestCodeParser::scanForTests(const QStringList &fileList)
 {
-    if (m_parserState == Disabled || m_parserState == Shutdown) {
+    if (m_parserState == Shutdown)
+        return;
+    if (!m_enabled) {
         m_dirty = true;
         if (fileList.isEmpty()) {
             m_fullUpdatePostponed = true;
@@ -357,7 +354,8 @@ void TestCodeParser::scanForTests(const QStringList &fileList)
         [this](QFutureInterface<TestParseResultPtr> &fi, const QString &file) {
             parseFileForTests(m_testCodeParsers, fi, file);
         },
-        Utils::MapReduceOption::Unordered);
+        Utils::MapReduceOption::Unordered,
+        QThread::LowestPriority);
     m_futureWatcher.setFuture(future);
     if (list.size() > 5) {
         Core::ProgressManager::addTask(future, tr("Scanning for Tests"),
@@ -418,11 +416,6 @@ void TestCodeParser::onFinished()
             qCDebug(LOG) << QDateTime::currentDateTime().toString("hh:mm:ss.zzz") << "ParsingFin";
         }
         m_dirty = false;
-        break;
-    case Disabled: // can happen if all Test related widgets become hidden while parsing
-        qCDebug(LOG) << "emitting parsingFinished (onFinished, Disabled)";
-        emit parsingFinished();
-        qCDebug(LOG) << QDateTime::currentDateTime().toString("hh:mm:ss.zzz") << "ParsingFin";
         break;
     case Shutdown:
         qCDebug(LOG) << "Shutdown complete - not emitting parsingFinished (onFinished)";

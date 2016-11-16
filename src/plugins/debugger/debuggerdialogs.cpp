@@ -107,7 +107,7 @@ DebuggerKitChooser::DebuggerKitChooser(Mode mode, QWidget *parent)
 {
     setKitMatcher([this](const Kit *k) {
         // Match valid debuggers and restrict local debugging to compatible toolchains.
-        if (!DebuggerKitInformation::isValidDebugger(k))
+        if (DebuggerKitInformation::configurationErrors(k))
             return false;
         if (m_mode == LocalDebugging)
             return ToolChainKitInformation::targetAbi(k).os() == m_hostAbi.os();
@@ -223,7 +223,7 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
 
     d->kitChooser = new KitChooser(this);
     d->kitChooser->setKitMatcher([this](const Kit *k) {
-        return DebuggerKitInformation::isValidDebugger(k);
+        return !DebuggerKitInformation::configurationErrors(k);
     });
     d->kitChooser->populate();
 

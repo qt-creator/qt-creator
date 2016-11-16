@@ -41,7 +41,8 @@ class RefactoringCompilerOptionsBuilder : public CppTools::CompilerOptionsBuilde
 {
 public:
     static Utils::SmallStringVector build(CppTools::ProjectPart *projectPart,
-                                          CppTools::ProjectFile::Kind fileKind);
+                                          CppTools::ProjectFile::Kind fileKind,
+                                          PchUsage pchUsage);
 
 private:
     RefactoringCompilerOptionsBuilder(CppTools::ProjectPart *projectPart);

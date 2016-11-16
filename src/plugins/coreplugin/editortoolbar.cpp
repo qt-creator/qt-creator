@@ -159,12 +159,6 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
 
     d->m_forwardButton->setDefaultAction(d->m_goForwardAction);
 
-    if (Utils::HostOsInfo::isMacHost()) {
-        d->m_horizontalSplitAction->setIconVisibleInMenu(false);
-        d->m_verticalSplitAction->setIconVisibleInMenu(false);
-        d->m_splitNewWindowAction->setIconVisibleInMenu(false);
-    }
-
     d->m_splitButton->setIcon(Utils::Icons::SPLIT_HORIZONTAL_TOOLBAR.icon());
     d->m_splitButton->setToolTip(tr("Split"));
     d->m_splitButton->setPopupMode(QToolButton::InstantPopup);

@@ -511,10 +511,17 @@ def qdump__std____1__map__const_iterator(d, value):
 
 def qdump__std____1__set__iterator(d, value):
     d.putEmptyValue()
+    d.putNumChild(1)
+    if value.type.name.endswith("::iterator"):
+        treeTypeName = value.type.name[:-len("::iterator")]
+    elif value.type.name.endswith("::const_iterator"):
+        treeTypeName = value.type.name[:-len("::const_iterator")]
+    treeType = d.lookupType(treeTypeName)
+    keyType = treeType[0]
     if d.isExpanded():
         with Children(d):
             node = value['__ptr_'].dereference()['__value_']
-            node = node.cast(value.type[0])
+            node = node.cast(keyType)
             d.putSubItem('value', node)
 
 def qdump__std____1__set_const_iterator(d, value):

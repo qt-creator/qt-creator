@@ -56,7 +56,6 @@ public:
     ProjectWindow();
 
 private:
-    void contextMenuEvent(QContextMenuEvent *event) override;
     void setPanel(QWidget *panel);
 };
 

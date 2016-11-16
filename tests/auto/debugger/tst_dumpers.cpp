@@ -587,6 +587,7 @@ struct Profile
 {
     Profile(const QByteArray &contents) : contents(contents) {}
 
+    QByteArray includes;
     QByteArray contents;
 };
 
@@ -609,6 +610,7 @@ struct BoostProfile : public Profile
             contents = QByteArray("INCLUDEPATH += ") + boostIncPath.constData();
         else
             contents = "macx:INCLUDEPATH += /usr/local/include";
+        includes = "#include <boost/version.hpp>\n";
     }
 };
 
@@ -668,6 +670,7 @@ public:
     const Data &operator+(const Profile &profile) const
     {
         profileExtra += profile.contents;
+        includes += profile.includes;
         return *this;
     }
 
@@ -2752,6 +2755,7 @@ void tst_Dumpers::dumper_data()
                     "int pos1 = re.indexIn(str1); unused(&pos1);\n"
                     "int pos2 = re.indexIn(str2); unused(&pos2);\n")
                + CoreProfile()
+               + UseDebugImage()
                + Check("re", "\"a(.*)b(.*)c\"", "@QRegExp")
                + Check("re.captures.0", "[0]", "\"a1121b344c\"", "@QString")
                + Check("re.captures.1", "[1]", "\"1121\"", "@QString")
@@ -2930,6 +2934,31 @@ void tst_Dumpers::dumper_data()
             "       private:\n"
             "         QSharedDataPointer<EmployeeData> d;\n"
             "    };\n";
+
+    QTest::newRow("QAtomicPointer")
+            << Data("#include <QAtomicPointer>\n"
+                    "#include <QStringList>\n\n"
+                    "template <class T> struct Pointer : QAtomicPointer<T> {\n"
+                    "    Pointer(T *value = 0) : QAtomicPointer<T>(value) {}\n"
+                    "};\n\n"
+                    "struct SomeStruct {\n"
+                    "    int a = 1;\n"
+                    "    long b = 2;\n"
+                    "    double c = 3.0;\n"
+                    "    QString d = \"4\";\n"
+                    "    QList<QString> e = {\"5\", \"6\" };\n"
+                    "};\n\n"
+                    "typedef Pointer<SomeStruct> SomeStructPointer;\n\n",
+
+                    "SomeStruct *s = new SomeStruct; unused(s);\n"
+                    "SomeStructPointer p(s); unused(p);\n"
+                    "Pointer<SomeStruct> pp(s); unused(pp);\n"
+                    "QAtomicPointer<SomeStruct> ppp(s); unused(ppp);\n")
+                + Cxx11Profile()
+                + Check("p.@1.a", "1", "int")
+                + Check("p.@1.e", "<2 items>", "@QList<@QString>")
+                + Check("pp.@1.a", "1", "int")
+                + Check("ppp.a", "1", "int");
 
 
     QTest::newRow("QScopedPointer")
@@ -5982,19 +6011,20 @@ void tst_Dumpers::dumper_data()
                 + Check("tt.@2.@1.v", "45", "int") % LldbEngine
 
                 + Check("dd.@1.@1.a", "1", "int") // B::a
-                + Check("dd.@2.@1.a", "1", "int") // C::a
+                // C::a - fails with command line LLDB 3.8/360.x
+                + Check("dd.@2.@1.a", "1", "int") % NoLldbEngine // C::a
                 + Check("dd.@1.b", "2", "int")
                 + Check("dd.@2.c", "3", "int")
                 + Check("dd.d", "4", "int")
 
                 + Check("dp.@1.@1.a", "1", "int") // B::a
-                + Check("dp.@2.@1.a", "1", "int") // C::a
+                + Check("dp.@2.@1.a", "1", "int") % NoLldbEngine // C::a
                 + Check("dp.@1.b", "2", "int")
                 + Check("dp.@2.c", "3", "int")
                 + Check("dp.d", "4", "int")
 
                 + Check("dr.@1.@1.a", "1", "int") // B::a
-                + Check("dr.@2.@1.a", "1", "int") // C::a
+                + Check("dr.@2.@1.a", "1", "int") % NoLldbEngine // C::a
                 + Check("dr.@1.b", "2", "int")
                 + Check("dr.@2.c", "3", "int")
                 + Check("dr.d", "4", "int");

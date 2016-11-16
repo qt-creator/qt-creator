@@ -191,15 +191,7 @@ void DebuggerKitInformation::fix(Kit *k)
 // Check the configuration errors and return a flag mask. Provide a quick check and
 // a verbose one with a list of errors.
 
-enum DebuggerConfigurationErrors {
-    NoDebugger = 0x1,
-    DebuggerNotFound = 0x2,
-    DebuggerNotExecutable = 0x4,
-    DebuggerNeedsAbsolutePath = 0x8,
-    DebuggerDoesNotMatch = 0x10
-};
-
-static unsigned debuggerConfigurationErrors(const Kit *k)
+DebuggerKitInformation::ConfigurationErrors DebuggerKitInformation::configurationErrors(const Kit *k)
 {
     QTC_ASSERT(k, return NoDebugger);
 
@@ -210,7 +202,7 @@ static unsigned debuggerConfigurationErrors(const Kit *k)
     if (item->command().isEmpty())
         return NoDebugger;
 
-    unsigned result = 0;
+    ConfigurationErrors result = NoConfigurationError;
     const QFileInfo fi = item->command().toFileInfo();
     if (!fi.exists() || fi.isDir())
         result |= DebuggerNotFound;
@@ -257,17 +249,12 @@ StandardRunnable DebuggerKitInformation::runnable(const Kit *kit)
     return runnable;
 }
 
-bool DebuggerKitInformation::isValidDebugger(const Kit *k)
-{
-    return debuggerConfigurationErrors(k) == 0;
-}
-
 QList<Task> DebuggerKitInformation::validateDebugger(const Kit *k)
 {
     QList<Task> result;
 
-    const unsigned errors = debuggerConfigurationErrors(k);
-    if (!errors)
+    const ConfigurationErrors errors = configurationErrors(k);
+    if (errors == NoConfigurationError)
         return result;
 
     QString path;

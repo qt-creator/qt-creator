@@ -52,6 +52,7 @@
 #include <QDir>
 #include <QQmlPropertyMap>
 #include <QQuickImageProvider>
+#include <QTimer>
 
 #include <QtQuickWidgets/QQuickWidget>
 #include <QtQml/QQmlContext>
@@ -134,6 +135,8 @@ public:
 
     QStringList recentProjectsShortcuts() const { return m_recentProjectsShortcuts; }
     QStringList sessionsShortcuts() const { return m_sessionsShortcuts; }
+
+    Q_INVOKABLE bool openDroppedFiles(const QList<QUrl> &urls);
 
 public slots:
     void setActivePlugin(int pos)
@@ -305,6 +308,18 @@ void WelcomeMode::initPlugins()
 
     // finally, load the root page
     m_welcomePage->setSource(QUrl::fromLocalFile(path));
+}
+
+bool WelcomeMode::openDroppedFiles(const QList<QUrl> &urls)
+{
+    const QList<QUrl> localUrls = Utils::filtered(urls, &QUrl::isLocalFile);
+    if (!localUrls.isEmpty()) {
+        QTimer::singleShot(0, [localUrls]() {
+            ICore::openFiles(Utils::transform(localUrls, &QUrl::toLocalFile), ICore::SwitchMode);
+        });
+        return true;
+    }
+    return false;
 }
 
 void WelcomeMode::welcomePluginAdded(QObject *obj)

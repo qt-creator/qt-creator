@@ -1014,30 +1014,34 @@ class Dumper(DumperBase):
         if not self.currentQtNamespaceGuess is None:
             return self.currentQtNamespaceGuess
 
-        # This only works when called from a valid frame.
-        try:
-            cand = 'QArrayData::shared_null'
-            symbol = gdb.lookup_symbol(cand)[0]
-            if symbol:
-                ns = symbol.name[:-len(cand)]
-                self.qtNamespaceToReport = ns
-                self.qtNamespace = lambda: ns
-                return ns
-        except:
-            pass
+        for objfile in gdb.objfiles():
+            name = objfile.filename
+            if name.find('/libQt5Core') >= 0:
+                ns = ''
 
-        try:
-            # This is Qt, but not 5.x.
-            cand = 'QByteArray::shared_null'
-            symbol = gdb.lookup_symbol(cand)[0]
-            if symbol:
-                ns = symbol.name[:-len(cand)]
+                # This only works when called from a valid frame.
+                try:
+                    cand = 'QArrayData::shared_null'
+                    symbol = gdb.lookup_symbol(cand)[0]
+                    if symbol:
+                        ns = symbol.name[:-len(cand)]
+                except:
+                    try:
+                        # Some GDB 7.11.1 on Arch Linux.
+                        cand = 'QArrayData::shared_null[0]'
+                        val = gdb.parse_and_eval(cand)
+                        if val.type is not None:
+                            typeobj = val.type.unqualified()
+                            ns = typeobj.name[:-len('QArrayData')]
+                    except:
+                        pass
+
+                # This might be wrong, but we can't do better: We found
+                # a libQt5Core and could not extract a namespace.
+                # The best guess is that there isn't any.
                 self.qtNamespaceToReport = ns
                 self.qtNamespace = lambda: ns
-                self.fallbackQtVersion = 0x40800
                 return ns
-        except:
-            pass
 
         self.currentQtNamespaceGuess = ''
         return ''

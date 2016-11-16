@@ -192,27 +192,6 @@ QStringList createClangOptions(const ProjectPart::Ptr &pPart, ProjectFile::Kind 
     return LibClangOptionsBuilder::build(pPart, fileKind);
 }
 
-/// @return Option to speed up parsing with precompiled header
-QStringList createPCHInclusionOptions(const QStringList &pchFiles)
-{
-    QStringList opts;
-
-    foreach (const QString &pchFile, pchFiles) {
-        if (QFile(pchFile).exists()) {
-            opts += QLatin1String("-include-pch");
-            opts += pchFile;
-        }
-    }
-
-    return opts;
-}
-
-/// @return Option to speed up parsing with precompiled header
-QStringList createPCHInclusionOptions(const QString &pchFile)
-{
-    return createPCHInclusionOptions(QStringList() << pchFile);
-}
-
 ProjectPart::Ptr projectPartForFile(const QString &filePath)
 {
     if (const auto parser = CppTools::BaseEditorDocumentParser::get(filePath))

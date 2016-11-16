@@ -163,6 +163,8 @@ ActionManager::ActionManager(QObject *parent)
 {
     m_instance = this;
     d = new ActionManagerPrivate;
+    if (Utils::HostOsInfo::isMacHost())
+        QCoreApplication::setAttribute(Qt::AA_DontShowIconsInMenus);
 }
 
 /*!

@@ -2,7 +2,6 @@
     \"Name\" : \"WinRt\",
     \"Version\" : \"$$QTCREATOR_VERSION\",
     \"CompatVersion\" : \"$$QTCREATOR_COMPAT_VERSION\",
-    \"Experimental\" : true,
     \"Platform\" : \"Windows (8.1|10)\",
     \"Vendor\" : \"The Qt Company Ltd\",
     \"Copyright\" : \"(C) 2016 The Qt Company Ltd\",

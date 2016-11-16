@@ -28,7 +28,7 @@
 #include <string>
 
 // use std::filesystem::path if it is supported by all compilers
-#ifdef WIN32
+#ifdef _WIN32
 const char nativeSeperator = '\\';
 #else
 const char nativeSeperator = '/';
@@ -37,7 +37,7 @@ const char nativeSeperator = '/';
 inline
 std::string toNativePath(std::string &&path)
 {
-#ifdef WIN32
+#ifdef _WIN32
     std::replace(path.begin(), path.end(), '/', '\\');
 #endif
 

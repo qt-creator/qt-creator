@@ -112,7 +112,7 @@ void CompilerOptionsBuilder::enableExceptions()
 void CompilerOptionsBuilder::addHeaderPathOptions()
 {
     typedef ProjectPartHeaderPath HeaderPath;
-    const QString defaultPrefix = includeOption();
+    const QString defaultPrefix = includeDirOption();
 
     QStringList result;
 
@@ -136,6 +136,24 @@ void CompilerOptionsBuilder::addHeaderPathOptions()
         }
 
         result.append(prefix + QDir::toNativeSeparators(headerPath.path));
+    }
+
+    m_options.append(result);
+}
+
+void CompilerOptionsBuilder::addPrecompiledHeaderOptions(PchUsage pchUsage)
+{
+    if (pchUsage == PchUsage::None)
+        return;
+
+    QStringList result;
+
+    const QString includeOptionString = includeOption();
+    foreach (const QString &pchFile, m_projectPart.precompiledHeaders) {
+        if (QFile::exists(pchFile)) {
+            result += includeOptionString;
+            result += QDir::toNativeSeparators(pchFile);
+        }
     }
 
     m_options.append(result);
@@ -376,7 +394,7 @@ void CompilerOptionsBuilder::addDefineFloat128ForMingw()
         addDefine("#define __float128 void");
 }
 
-QString CompilerOptionsBuilder::includeOption() const
+QString CompilerOptionsBuilder::includeDirOption() const
 {
     return QLatin1String("-I");
 }
@@ -397,6 +415,11 @@ QString CompilerOptionsBuilder::defineOption() const
 QString CompilerOptionsBuilder::undefineOption() const
 {
     return QLatin1String("-U");
+}
+
+QString CompilerOptionsBuilder::includeOption() const
+{
+    return QLatin1String("-include");
 }
 
 static bool isGccOrMinGwToolchain(const Core::Id &toolchainType)

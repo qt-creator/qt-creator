@@ -33,7 +33,7 @@ namespace {
 
 std::string toNativePath(std::string &&path)
 {
-#ifdef WIN32
+#ifdef _WIN32
     std::replace(path.begin(), path.end(), '/', '\\');
 #endif
 

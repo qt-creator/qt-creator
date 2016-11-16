@@ -214,7 +214,7 @@ void tst_MapReduce::map()
         QCOMPARE(container, QList<int>({4, 10, 2}));
 
         Utils::map(container.begin(), container.end(), [](int &x) { x *= 2; },
-            Utils::MapReduceOption::Unordered, 3).waitForFinished();
+            Utils::MapReduceOption::Unordered, QThread::InheritPriority, 3).waitForFinished();
         QCOMPARE(container, QList<int>({8, 20, 4}));
     }
 

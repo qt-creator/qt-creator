@@ -346,9 +346,9 @@ void CheckSymbols::run()
             _usages << QVector<Result>::fromList(_macroUses);
             flush();
         }
-    }
 
-    emit codeWarningsUpdated(_doc, _diagMsgs);
+        emit codeWarningsUpdated(_doc, _diagMsgs);
+    }
 
     reportFinished();
 }

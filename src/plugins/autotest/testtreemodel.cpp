@@ -90,6 +90,7 @@ void TestTreeModel::setupParsingConnections()
     if (!m_connectionsInitialized)
         m_parser->setDirty();
 
+    m_parser->setEnabled(true);
     m_parser->setState(TestCodeParser::Idle);
     if (m_connectionsInitialized)
         return;
@@ -117,13 +118,13 @@ void TestTreeModel::setupParsingConnections()
 void TestTreeModel::disableParsing()
 {
     if (!m_refCounter.deref() && !AutotestPlugin::instance()->settings()->alwaysParse)
-        m_parser->setState(TestCodeParser::Disabled);
+        m_parser->setEnabled(false);
 }
 
 void TestTreeModel::disableParsingFromSettings()
 {
     if (!m_refCounter.load())
-        m_parser->setState(TestCodeParser::Disabled);
+        m_parser->setEnabled(false);
 }
 
 bool TestTreeModel::setData(const QModelIndex &index, const QVariant &value, int role)

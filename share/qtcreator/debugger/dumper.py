@@ -574,7 +574,7 @@ class DumperBase:
         res = []
         for item in targs[::-1]:
             c = ord(item[0])
-            if c == '-' or (c >= 48 and c < 58):
+            if c in (45, 46) or (c >= 48 and c < 58): # '-', '.' or digit.
                 if item.find('.') > -1:
                     res.append(float(item))
                 else:
@@ -2759,6 +2759,20 @@ class DumperBase:
             self.targetValue = None # For references.
             self.isBaseClass = None
 
+        def copy(self):
+            val = self.dumper.Value(self.dumper)
+            val.dumper = self.dumper
+            val.name = self.name
+            val.type = self.type
+            val.ldata = self.ldata
+            val.laddress = self.laddress
+            val.lIsInScope = self.lIsInScope
+            val.ldisplay = self.ldisplay
+            val.lbitpos = self.lbitpos
+            val.lbitsize = self.lbitsize
+            val.targetValue = self.targetValue
+            return val
+
         def check(self):
             if self.laddress is not None and not self.dumper.isInt(self.laddress):
                 error('INCONSISTENT ADDRESS: %s' % type(self.laddress))
@@ -2848,12 +2862,18 @@ class DumperBase:
                 members = self.members(True)
                 for member in members:
                     #warn('CHECKING FIELD %s' % member.name)
+                    if member.type.code == TypeCodeTypedef:
+                        member = member.detypedef()
                     if member.name == name:
                         return member
                 for member in members:
                     #warn('CHECKING BASE %s' % member.name)
                     #if member.name == name:
                     #    return member
+                    if member.type.code == TypeCodeTypedef:
+                        member = member.detypedef()
+                    if member.name == name:
+                        return member
                     if member.type.code == TypeCodeStruct:
                         res = member.findMemberByName(name)
                         if res is not None:
@@ -2979,6 +2999,9 @@ class DumperBase:
             res = []
             anonNumber = 0
             for field in fields:
+                if isinstance(field, self.dumper.Value):
+                    res.append(field)
+                    continue
                 if field.isBaseClass and not includeBases:
                     continue
                 if field.name is None or len(field.name) == 0:
@@ -3029,10 +3052,8 @@ class DumperBase:
             self.check()
             if self.type.code != TypeCodeTypedef:
                 error("WRONG")
-            val = self.dumper.Value(self.dumper)
+            val = self.copy()
             val.type = self.type.ltarget
-            val.ldata = self.ldata
-            val.laddress = self.laddress
             #warn("DETYPEDEF FROM: %s" % self)
             #warn("DETYPEDEF TO: %s" % val)
             return val
