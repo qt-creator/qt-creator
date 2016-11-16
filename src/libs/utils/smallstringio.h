@@ -78,18 +78,27 @@ QDebug &operator<<(QDebug &debug, const SmallString &string)
     return debug;
 }
 
-inline
-std::ostream &operator<<(std::ostream &stream, const SmallString &string)
+template <uint Size>
+std::ostream &operator<<(std::ostream &stream, const BasicSmallString<Size> &string)
 {
     using std::operator<<;
 
     return stream << std::string(string.data(), string.size());
 }
 
-inline
-void PrintTo(const SmallString &string, ::std::ostream *os)
+template <uint Size>
+void PrintTo(const BasicSmallString<Size> &string, ::std::ostream *os)
 {
-    *os << "'" << string.data() << "'";
+    Utils::SmallString formatedString = string.clone();
+
+    formatedString.replace("\n", "\\n");
+    formatedString.replace("\t", "\\t");
+
+    *os << "'";
+
+    os->write(formatedString.data(), formatedString.size());
+
+    *os<< "'";
 }
 
 inline QDataStream &operator<<(QDataStream &out, const SmallStringVector &stringVector)
