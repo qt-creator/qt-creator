@@ -40,13 +40,20 @@ public:
         Cxx11Support = 1 << 1
     };
 
+    enum CompilerType {
+        CLang,
+        GCC
+    };
+
     quint32 platformKind;
+    CompilerType type;
     QString name;
     Utils::FileName developerPath;
     Utils::FileName platformPath;
     Utils::FileName sdkPath;
     Utils::FileName defaultToolchainPath;
-    Utils::FileName compilerPath;
+    Utils::FileName cxxCompilerPath;
+    Utils::FileName cCompilerPath;
     QString architecture;
     QStringList backendFlags;
 
