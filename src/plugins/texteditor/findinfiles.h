@@ -47,14 +47,14 @@ class TEXTEDITOR_EXPORT FindInFiles : public BaseFileFind
 
 public:
     FindInFiles();
-    ~FindInFiles();
+    ~FindInFiles() override;
 
-    QString id() const;
-    QString displayName() const;
-    QWidget *createConfigWidget();
-    void writeSettings(QSettings *settings);
-    void readSettings(QSettings *settings);
-    bool isValid() const;
+    QString id() const override;
+    QString displayName() const override;
+    QWidget *createConfigWidget() override;
+    void writeSettings(QSettings *settings) override;
+    void readSettings(QSettings *settings) override;
+    bool isValid() const override;
 
     void setDirectory(const Utils::FileName &directory);
     Utils::FileName directory() const;
@@ -66,10 +66,10 @@ signals:
 
 protected:
     Utils::FileIterator *files(const QStringList &nameFilters,
-                               const QVariant &additionalParameters) const;
-    QVariant additionalParameters() const;
-    QString label() const;
-    QString toolTip() const;
+                               const QVariant &additionalParameters) const override;
+    QVariant additionalParameters() const override;
+    QString label() const override;
+    QString toolTip() const override;
     void syncSearchEngineCombo(int selectedSearchEngineIndex) override;
 
 private:
