@@ -86,8 +86,6 @@ namespace Internal {
 // --------------------------------------------------------------------
 
 static const char CONFIG_CPP_MODULE[] = "cpp";
-static const char CONFIG_CXXFLAGS[] = "cxxFlags";
-static const char CONFIG_CFLAGS[] = "cFlags";
 static const char CONFIG_DEFINES[] = "defines";
 static const char CONFIG_INCLUDEPATHS[] = "includePaths";
 static const char CONFIG_SYSTEM_INCLUDEPATHS[] = "systemIncludePaths";
