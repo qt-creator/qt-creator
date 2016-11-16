@@ -28,6 +28,8 @@
 #include <QFuture>
 #include "utils/fileutils.h"
 
+#include <memory>
+
 QT_BEGIN_NAMESPACE
 class QProcess;
 QT_END_NAMESPACE
