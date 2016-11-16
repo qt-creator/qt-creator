@@ -486,7 +486,7 @@ void ServerModeReader::extractCMakeInputsData(const QVariantMap &data)
         const bool isCMake = section.value("isCMake").toBool();
 
         for (const QString &s : sources) {
-            const FileName sfn = FileName::fromString(srcDir.absoluteFilePath(s));
+            const FileName sfn = FileName::fromString(QDir::cleanPath(srcDir.absoluteFilePath(s)));
             const int oldCount = m_cmakeFiles.count();
             m_cmakeFiles.insert(sfn);
             if (!isCMake && oldCount < m_cmakeFiles.count())
