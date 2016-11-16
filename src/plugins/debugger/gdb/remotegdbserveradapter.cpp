@@ -262,7 +262,7 @@ void GdbRemoteServerEngine::callTargetRemote()
 
     if (m_isQnxGdb)
         runCommand({"target qnx " + channel, NoFlags, CB(handleTargetQnx)});
-    else if (runParameters().multiProcess)
+    else if (runParameters().useExtendedRemote)
         runCommand({"target extended-remote " + channel, NoFlags, CB(handleTargetExtendedRemote)});
     else
         runCommand({"target remote " + channel, NoFlags, CB(handleTargetRemote)});
@@ -467,7 +467,7 @@ void GdbRemoteServerEngine::notifyEngineRemoteServerRunning
     // Currently only used by Android support.
     runParameters().attachPID = inferiorPid;
     runParameters().remoteChannel = serverChannel;
-    runParameters().multiProcess = true;
+    runParameters().useExtendedRemote = true;
     showMessage("NOTE: REMOTE SERVER RUNNING IN MULTIMODE");
     m_startAttempted = true;
     startGdb();
