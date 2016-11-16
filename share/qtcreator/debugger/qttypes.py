@@ -470,7 +470,7 @@ def qdump__QFile(d, value):
             offset = 144 if is32bit else 232
         else:
             offset = 140 if is32bit else 232
-    privAddress = d.extractPointer(value.address() + d.ptrSize())
+    vtable, privAddress = value.split('pp')
     fileNameAddress = privAddress + offset
     d.putStringValue(fileNameAddress)
     d.putNumChild(1)
