@@ -44,7 +44,7 @@ using namespace ProjectExplorer;
 
 namespace QtSupport {
 
-QtProjectImporter::QtProjectImporter(const QString &path) : ProjectImporter(path)
+QtProjectImporter::QtProjectImporter(const Utils::FileName &path) : ProjectImporter(path)
 {
     useTemporaryKitInformation(QtKitInformation::id(),
                                [this](Kit *k, const QVariantList &vl) { cleanupTemporaryQt(k, vl); },
@@ -172,7 +172,7 @@ struct DirectoryData {
 class TestQtProjectImporter : public QtProjectImporter
 {
 public:
-    TestQtProjectImporter(const QString &pp, const QList<void *> &testData) :
+    TestQtProjectImporter(const Utils::FileName &pp, const QList<void *> &testData) :
         QtProjectImporter(pp),
         m_testData(testData)
     { }
@@ -418,7 +418,7 @@ void QtSupportPlugin::testQtProjectImporter_oneProject()
 
     // Finally set up importer:
     // Copy the directoryData so that importer is free to delete it later.
-    TestQtProjectImporter importer(tempDir1.path(),
+    TestQtProjectImporter importer(Utils::FileName::fromString(tempDir1.path()),
                                    Utils::transform(testData, [](DirectoryData *i) {
                                        return static_cast<void *>(new DirectoryData(*i));
                                    }));
@@ -431,7 +431,7 @@ void QtSupportPlugin::testQtProjectImporter_oneProject()
     const QList<BuildInfo *> buildInfo = importer.import(Utils::FileName::fromString(appDir), true);
 
     // VALIDATE: Basic TestImporter state:
-    QCOMPARE(importer.projectFilePath(), tempDir1.path());
+    QCOMPARE(importer.projectFilePath().toString(), tempDir1.path());
     QCOMPARE(importer.allDeleted(), true);
 
     // VALIDATE: Result looks reasonable:
@@ -535,7 +535,7 @@ void QtSupportPlugin::testQtProjectImporter_oneProject()
         QCOMPARE(newKitId, newKitIdAfterImport);
 
         // VALIDATE: Importer state
-        QCOMPARE(importer.projectFilePath(), tempDir1.path());
+        QCOMPARE(importer.projectFilePath().toString(), tempDir1.path());
         QCOMPARE(importer.allDeleted(), true);
 
         if (kitIsPersistent) {

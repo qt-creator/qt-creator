@@ -80,7 +80,7 @@ namespace Internal {
 const Core::Id QT_IS_TEMPORARY("Qmake.TempQt");
 const char IOSQT[] = "Qt4ProjectManager.QtVersion.Ios"; // ugly
 
-QmakeProjectImporter::QmakeProjectImporter(const QString &path) :
+QmakeProjectImporter::QmakeProjectImporter(const FileName &path) :
     QtProjectImporter(path)
 { }
 
@@ -88,12 +88,12 @@ QStringList QmakeProjectImporter::importCandidates()
 {
     QStringList candidates;
 
-    QFileInfo pfi = QFileInfo(projectFilePath());
+    QFileInfo pfi = projectFilePath().toFileInfo();
     const QString prefix = pfi.baseName();
     candidates << pfi.absolutePath();
 
     foreach (Kit *k, KitManager::kits()) {
-        QFileInfo fi(QmakeBuildConfiguration::shadowBuildDirectory(projectFilePath(), k,
+        QFileInfo fi(QmakeBuildConfiguration::shadowBuildDirectory(projectFilePath().toString(), k,
                                                                    QString(), BuildConfiguration::Unknown));
         const QString baseDir = fi.absolutePath();
 
@@ -127,7 +127,7 @@ QList<void *> QmakeProjectImporter::examineDirectory(const FileName &importPath)
             qCDebug(logs) << "  Parsing the makefile failed" << makefile;
             continue;
         }
-        if (parse.srcProFile() != projectFilePath()) {
+        if (parse.srcProFile() != projectFilePath().toString()) {
             qCDebug(logs) << "  pro files doesn't match" << parse.srcProFile() << projectFilePath();
             continue;
         }
@@ -233,7 +233,7 @@ QList<BuildInfo *> QmakeProjectImporter::buildInfoListForKit(const Kit *k, void 
     QList<BuildInfo *> result;
     DirectoryData *data = static_cast<DirectoryData *>(directoryData);
     auto factory = qobject_cast<QmakeBuildConfigurationFactory *>(
-                IBuildConfigurationFactory::find(k, projectFilePath()));
+                IBuildConfigurationFactory::find(k, projectFilePath().toString()));
     if (!factory)
         return result;
 

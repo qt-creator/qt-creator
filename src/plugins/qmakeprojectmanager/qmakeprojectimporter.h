@@ -41,7 +41,7 @@ namespace Internal {
 class QmakeProjectImporter : public QtSupport::QtProjectImporter
 {
 public:
-    QmakeProjectImporter(const QString &path);
+    QmakeProjectImporter(const Utils::FileName &path);
 
     QStringList importCandidates() final;
 

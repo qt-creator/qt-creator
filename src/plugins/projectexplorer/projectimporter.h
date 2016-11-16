@@ -42,10 +42,10 @@ class Target;
 class PROJECTEXPLORER_EXPORT ProjectImporter
 {
 public:
-    ProjectImporter(const QString &path);
+    ProjectImporter(const Utils::FileName &path);
     virtual ~ProjectImporter();
 
-    const QString projectFilePath() const { return m_projectPath; }
+    const Utils::FileName projectFilePath() const { return m_projectPath; }
 
     virtual QList<BuildInfo *> import(const Utils::FileName &importPath, bool silent = false);
     virtual QStringList importCandidates() = 0;
@@ -104,7 +104,7 @@ private:
     void markKitAsTemporary(Kit *k) const;
     bool findTemporaryHandler(Core::Id id) const;
 
-    const QString m_projectPath;
+    const Utils::FileName m_projectPath;
     mutable bool m_isUpdating = false;
 
     class TemporaryInformationHandler {

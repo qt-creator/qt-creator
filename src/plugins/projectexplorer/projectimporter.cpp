@@ -69,7 +69,7 @@ static bool hasOtherUsers(Core::Id id, const QVariant &v, Kit *k)
     });
 }
 
-ProjectImporter::ProjectImporter(const QString &path) : m_projectPath(path)
+ProjectImporter::ProjectImporter(const Utils::FileName &path) : m_projectPath(path)
 { }
 
 ProjectImporter::~ProjectImporter()
@@ -139,7 +139,7 @@ QList<BuildInfo *> ProjectImporter::import(const Utils::FileName &importPath, bo
         QMessageBox::critical(Core::ICore::mainWindow(),
                               QCoreApplication::translate("ProjectExplorer::ProjectImporter", "No Build Found"),
                               QCoreApplication::translate("ProjectExplorer::ProjectImporter", "No build found in %1 matching project %2.")
-                .arg(importPath.toUserOutput()).arg(QDir::toNativeSeparators(projectFilePath())));
+                .arg(importPath.toUserOutput()).arg(projectFilePath().toUserOutput()));
 
     return result;
 }
@@ -247,7 +247,7 @@ void ProjectImporter::addProject(Kit *k) const
 
     UpdateGuard guard(*this);
     QStringList projects = k->value(TEMPORARY_OF_PROJECTS, QStringList()).toStringList();
-    projects.append(m_projectPath); // note: There can be more than one instance of the project added!
+    projects.append(m_projectPath.toString()); // note: There can be more than one instance of the project added!
     k->setValueSilently(TEMPORARY_OF_PROJECTS, projects);
 }
 
@@ -258,7 +258,7 @@ void ProjectImporter::removeProject(Kit *k) const
 
     UpdateGuard guard(*this);
     QStringList projects = k->value(TEMPORARY_OF_PROJECTS, QStringList()).toStringList();
-    projects.removeOne(m_projectPath);
+    projects.removeOne(m_projectPath.toString());
 
     if (projects.isEmpty()) {
         cleanupKit(k);

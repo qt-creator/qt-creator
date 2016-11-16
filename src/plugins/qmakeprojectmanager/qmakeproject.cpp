@@ -1611,7 +1611,7 @@ void QmakeProject::emitBuildDirectoryInitialized()
 ProjectImporter *QmakeProject::projectImporter() const
 {
     if (!m_projectImporter)
-        m_projectImporter = new QmakeProjectImporter(projectFilePath().toString());
+        m_projectImporter = new QmakeProjectImporter(projectFilePath());
     return m_projectImporter;
 }
 
