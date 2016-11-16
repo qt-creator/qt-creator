@@ -5986,19 +5986,20 @@ void tst_Dumpers::dumper_data()
                 + Check("tt.@2.@1.v", "45", "int") % LldbEngine
 
                 + Check("dd.@1.@1.a", "1", "int") // B::a
-                + Check("dd.@2.@1.a", "1", "int") // C::a
+                // C::a - fails with command line LLDB 3.8/360.x
+                + Check("dd.@2.@1.a", "1", "int") % NoLldbEngine // C::a
                 + Check("dd.@1.b", "2", "int")
                 + Check("dd.@2.c", "3", "int")
                 + Check("dd.d", "4", "int")
 
                 + Check("dp.@1.@1.a", "1", "int") // B::a
-                + Check("dp.@2.@1.a", "1", "int") // C::a
+                + Check("dp.@2.@1.a", "1", "int") % NoLldbEngine // C::a
                 + Check("dp.@1.b", "2", "int")
                 + Check("dp.@2.c", "3", "int")
                 + Check("dp.d", "4", "int")
 
                 + Check("dr.@1.@1.a", "1", "int") // B::a
-                + Check("dr.@2.@1.a", "1", "int") // C::a
+                + Check("dr.@2.@1.a", "1", "int") % NoLldbEngine // C::a
                 + Check("dr.@1.b", "2", "int")
                 + Check("dr.@2.c", "3", "int")
                 + Check("dr.d", "4", "int");
