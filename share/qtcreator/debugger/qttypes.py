@@ -38,13 +38,9 @@ def qdump__QBasicAtomicInt(d, value):
 
 
 def qdump__QAtomicPointer(d, value):
-    d.putType(value.type)
-    p = value.extractPointer()
-    d.putValue('@0x%x' % p)
-    d.putNumChild(1 if p else 0)
-    if d.isExpanded():
-        with Children(d):
-           d.putSubItem('[pointee]', value.dereference())
+    d.putItem(value.cast(value.type[0].pointer()))
+    d.putBetterType(value.type)
+
 
 def qform__QByteArray():
     return [Latin1StringFormat, SeparateLatin1StringFormat,

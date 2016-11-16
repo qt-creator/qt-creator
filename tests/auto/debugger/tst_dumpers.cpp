@@ -2935,6 +2935,31 @@ void tst_Dumpers::dumper_data()
             "         QSharedDataPointer<EmployeeData> d;\n"
             "    };\n";
 
+    QTest::newRow("QAtomicPointer")
+            << Data("#include <QAtomicPointer>\n"
+                    "#include <QStringList>\n\n"
+                    "template <class T> struct Pointer : QAtomicPointer<T> {\n"
+                    "    Pointer(T *value = 0) : QAtomicPointer<T>(value) {}\n"
+                    "};\n\n"
+                    "struct SomeStruct {\n"
+                    "    int a = 1;\n"
+                    "    long b = 2;\n"
+                    "    double c = 3.0;\n"
+                    "    QString d = \"4\";\n"
+                    "    QList<QString> e = {\"5\", \"6\" };\n"
+                    "};\n\n"
+                    "typedef Pointer<SomeStruct> SomeStructPointer;\n\n",
+
+                    "SomeStruct *s = new SomeStruct; unused(s);\n"
+                    "SomeStructPointer p(s); unused(p);\n"
+                    "Pointer<SomeStruct> pp(s); unused(pp);\n"
+                    "QAtomicPointer<SomeStruct> ppp(s); unused(ppp);\n")
+                + Cxx11Profile()
+                + Check("p.@1.a", "1", "int")
+                + Check("p.@1.e", "<2 items>", "@QList<@QString>")
+                + Check("pp.@1.a", "1", "int")
+                + Check("ppp.a", "1", "int");
+
 
     QTest::newRow("QScopedPointer")
             << Data("#include <QScopedPointer>\n"
