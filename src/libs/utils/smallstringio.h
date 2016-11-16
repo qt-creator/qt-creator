@@ -144,7 +144,7 @@ QDebug operator<<(QDebug debug, const SmallStringVector &stringVector)
 inline
 void PrintTo(const SmallStringVector &textVector, ::std::ostream* os)
 {
-    *os << "StringVector(" << textVector.join(Utils::SmallString(", ")).constData() << ")";
+    *os << "[" << textVector.join(Utils::SmallString(", ")).constData() << "]";
 }
 
 } // namespace Utils
