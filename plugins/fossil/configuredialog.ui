@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Fossil::Internal::ConfigureDialog</class>
+ <widget class="QDialog" name="Fossil::Internal::ConfigureDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>385</width>
+    <height>202</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Configure Repository</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QGroupBox" name="repoUserGroupBox">
+     <property name="title">
+      <string>Repository User</string>
+     </property>
+     <layout class="QFormLayout" name="formLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="userLabel">
+        <property name="text">
+         <string>User:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="userLineEdit">
+        <property name="toolTip">
+         <string>Existing user to become an author of changes made to the repository.</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="repoSettingsGroupBox">
+     <property name="title">
+      <string>Repository Settings</string>
+     </property>
+     <layout class="QFormLayout" name="formLayout_2">
+      <item row="0" column="0">
+       <widget class="QLabel" name="sslIdentityFileLabel">
+        <property name="text">
+         <string>SSL/TLS identity:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="Utils::PathChooser" name="sslIdentityFilePathChooser" native="true">
+        <property name="toolTip">
+         <string>SSL/TLS client identity key to use if requested by the server.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="2">
+       <widget class="QCheckBox" name="disableAutosyncCheckBox">
+        <property name="toolTip">
+         <string>Disable automatic pull prior to commit or update and automatic push after commit or tag or branch creation.</string>
+        </property>
+        <property name="text">
+         <string>Disable auto-sync</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Utils::PathChooser</class>
+   <extends>QWidget</extends>
+   <header location="global">utils/pathchooser.h</header>
+   <container>1</container>
+   <slots>
+    <signal>editingFinished()</signal>
+    <signal>browsingFinished()</signal>
+   </slots>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>Fossil::Internal::ConfigureDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>Fossil::Internal::ConfigureDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
