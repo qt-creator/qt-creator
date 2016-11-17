@@ -168,24 +168,26 @@ PyObject *value_Dereference(Value *self)
 {
     if (!self->m_symbolGroup)
         Py_RETURN_NONE;
-    DEBUG_SYMBOL_PARAMETERS params;
-    const HRESULT hr = self->m_symbolGroup->GetSymbolParameters(self->m_index, 1, &params);
-    if (FAILED(hr))
-        Py_RETURN_NONE;
 
-    char *name = getTypeName(params.Module, params.TypeId);
+    char *typeName = getTypeName(self);
+    std::string typeNameStr(typeName);
+    const bool isPointer = isPointerType(typeNameStr);
+    const bool isArray = !isPointer && endsWith(typeNameStr, "]");
+    delete[] typeName;
 
-    PyObject *ret = reinterpret_cast<PyObject*>(self);
-    if (endsWith(std::string(name), "*")) {
-        if (numberOfChildren(self) > 0 && expandValue(self)) {
-            ULONG symbolCount = 0;
-            self->m_symbolGroup->GetNumberSymbols(&symbolCount);
-            if (symbolCount > self->m_index + 1)
-                ret = createValue(self->m_index + 1, self->m_symbolGroup);
-        }
+    if (isPointer || isArray) {
+        std::string valueName = getSymbolName(self);
+        if (isPointer)
+            valueName.insert(0, 1, '*');
+        else
+            valueName.append("[0]");
+        ULONG index = DEBUG_ANY_ID;
+        if (SUCCEEDED(self->m_symbolGroup->AddSymbol(valueName.c_str(), &index)))
+            return createValue(index, self->m_symbolGroup);
     }
 
-    delete[] name;
+    PyObject *ret = reinterpret_cast<PyObject*>(self);
+    Py_XINCREF(ret);
     return ret;
 }
 
