@@ -20,6 +20,7 @@ SOURCES += \
     findvalueoperation.cpp \
     getoperation.cpp \
     operation.cpp \
+    rmcmakeoperation.cpp \
     rmdebuggeroperation.cpp \
     rmdeviceoperation.cpp \
     rmkeysoperation.cpp \
@@ -40,6 +41,7 @@ HEADERS += \
     findvalueoperation.h \
     getoperation.h \
     operation.h \
+    rmcmakeoperation.h \
     rmdebuggeroperation.h \
     rmdeviceoperation.h \
     rmkeysoperation.h \

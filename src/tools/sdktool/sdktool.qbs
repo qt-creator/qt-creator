@@ -33,6 +33,7 @@ QtcTool {
         "main.cpp",
         "operation.cpp",
         "operation.h",
+        "rmcmakeoperation.cpp", "rmcmakeoperation.h",
         "rmdebuggeroperation.cpp", "rmdebuggeroperation.h",
         "rmdeviceoperation.cpp", "rmdeviceoperation.h",
         "rmkeysoperation.cpp",
