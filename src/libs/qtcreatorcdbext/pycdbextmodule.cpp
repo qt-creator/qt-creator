@@ -26,7 +26,6 @@
 #include "pycdbextmodule.h"
 
 #include "extensioncontext.h"
-#include "symbolgroup.h"
 #include "symbolgroupvalue.h"
 
 #include "pyfield.h"
@@ -61,24 +60,16 @@ static PyObject *cdbext_lookupType(PyObject *, PyObject *args) // -> Type
 
 static PyObject *cdbext_listOfLocals(PyObject *, PyObject *) // -> [ Value ]
 {
-    ExtensionCommandContext *extCmdCtx = ExtensionCommandContext::instance();
-    ULONG frame;
-    if (FAILED(extCmdCtx->symbols()->GetCurrentScopeFrameIndex(&frame)))
-        Py_RETURN_NONE;
-
-    std::string errorMessage;
-    LocalsSymbolGroup *sg = ExtensionContext::instance().symbolGroup(
-                extCmdCtx->symbols(), extCmdCtx->threadId(), int(frame), &errorMessage);
-    if (!sg)
-        Py_RETURN_NONE;
-
-    const auto children = sg->root()->children();
     auto locals = PyList_New(0);
-    for (AbstractSymbolGroupNode *abstractChild : children) {
-        if (SymbolGroupNode* child = abstractChild->asSymbolGroupNode())
-            PyList_Append(locals, createValue(child->index(), sg->debugSymbolGroup()));
-    }
-
+    IDebugSymbolGroup2 *sg;
+    CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
+    if (FAILED(symbols->GetScopeSymbolGroup2(DEBUG_SCOPE_GROUP_ALL, NULL, &sg)))
+        return locals;
+    ULONG symbolCount;
+    if (FAILED(sg->GetNumberSymbols(&symbolCount)))
+        return locals;
+    for (ULONG index = 0; index < symbolCount; ++index)
+        PyList_Append(locals, createValue(index, sg));
     return locals;
 }
 
@@ -119,26 +110,16 @@ static PyObject *cdbext_createValue(PyObject *, PyObject *args)
                      << " type name: " << getTypeName(type->m_module, type->m_typeId);
     }
 
-    ExtensionCommandContext *extCmdCtx = ExtensionCommandContext::instance();
-    CIDebugSymbols *symbols = extCmdCtx->symbols();
-
-    ULONG frame;
-    if (FAILED(symbols->GetCurrentScopeFrameIndex(&frame)))
+    IDebugSymbolGroup2 *symbol;
+    CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
+    if (FAILED(symbols->GetScopeSymbolGroup2(DEBUG_SCOPE_GROUP_ALL, NULL, &symbol)))
         Py_RETURN_NONE;
-
-    std::string errorMessage;
-    LocalsSymbolGroup *lsg = ExtensionContext::instance().symbolGroup(
-                symbols, extCmdCtx->threadId(), int(frame), &errorMessage);
-    if (!lsg)
-        Py_RETURN_NONE;
-
-    CIDebugSymbolGroup *dsg = lsg->debugSymbolGroup();
     ULONG index = DEBUG_ANY_ID;
     const std::string name = SymbolGroupValue::pointedToSymbolName(
                 address, getTypeName(type->m_module, type->m_typeId));
-    if (FAILED(dsg->AddSymbol(name.c_str(), &index)))
+    if (FAILED(symbol->AddSymbol(name.c_str(), &index)))
         Py_RETURN_NONE;
-    return createValue(index, dsg);
+    return createValue(index, symbol);
 }
 
 static PyMethodDef cdbextMethods[] = {
