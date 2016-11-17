@@ -30,6 +30,7 @@
 void initCdbextPythonModule();
 
 PyObject *pyBool(bool);
+int pointerSize();
 
 constexpr bool debugPyCdbextModule = false;
 

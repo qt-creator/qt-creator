@@ -75,8 +75,7 @@ static PyObject *cdbext_listOfLocals(PyObject *, PyObject *) // -> [ Value ]
 
 static PyObject *cdbext_pointerSize(PyObject *, PyObject *)
 {
-    HRESULT isPointer64Bit = ExtensionCommandContext::instance()->control()->IsPointer64Bit();
-    return Py_BuildValue("i", isPointer64Bit == S_OK ? 8 : 4);
+    return Py_BuildValue("i", pointerSize());
 }
 
 static PyObject *cdbext_readRawMemory(PyObject *, PyObject *args)
@@ -199,4 +198,9 @@ PyObject *pyBool(bool b)
         Py_RETURN_TRUE;
     else
         Py_RETURN_FALSE;
+}
+
+int pointerSize()
+{
+    return ExtensionCommandContext::instance()->control()->IsPointer64Bit() == S_OK ? 8 : 4;
 }
