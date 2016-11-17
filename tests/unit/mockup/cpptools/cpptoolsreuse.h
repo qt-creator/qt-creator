@@ -25,8 +25,10 @@
 
 #pragma once
 
+#include <cpptools/compileroptionsbuilder.h>
+
 namespace CppTools {
 
-CompilerOptionsBuilder::PchUsage getPchUsage() { return CompilerOptionsBuilder::PchUsage::None; }
+inline CompilerOptionsBuilder::PchUsage getPchUsage() { return CompilerOptionsBuilder::PchUsage::None; }
 
 } // CppTools
