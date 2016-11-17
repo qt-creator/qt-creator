@@ -968,6 +968,13 @@ static ProString msvcBinDirToQMakeArch(QString subdir)
     subdir = subdir.toLower();
     if (subdir == QLatin1String("amd64"))
         return ProString("x86_64");
+    // Since 2017 the folder structure from here is HostX64|X86/x64|x86
+    idx = subdir.indexOf(QLatin1Char('\\'));
+    if (idx == -1)
+        return ProString("x86");
+    subdir.remove(0, idx + 1);
+    if (subdir == QLatin1String("x64"))
+        return ProString("x86_64");
     return ProString(subdir);
 }
 
@@ -1062,8 +1069,12 @@ void QMakeEvaluator::loadDefaults()
     vars[ProKey("QMAKE_HOST.arch")] << archStr;
 
 # if defined(Q_CC_MSVC) // ### bogus condition, but nobody x-builds for msvc with a different qmake
+    // Since VS 2017 we need VCToolsInstallDir instead of VCINSTALLDIR
+    QString vcInstallDir = m_option->getEnv(QLatin1String("VCToolsInstallDir"));
+    if (vcInstallDir.isEmpty())
+        vcInstallDir = m_option->getEnv(QLatin1String("VCINSTALLDIR"));
     vars[ProKey("QMAKE_TARGET.arch")] = msvcArchitecture(
-                m_option->getEnv(QLatin1String("VCINSTALLDIR")),
+                vcInstallDir,
                 m_option->getEnv(QLatin1String("PATH")));
 # endif
 #elif defined(Q_OS_UNIX)
