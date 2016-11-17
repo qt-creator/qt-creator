@@ -52,20 +52,24 @@ public:
                               const quint32 &debuggerType, const QString &debugger,
                               const QString &deviceType, const QString &device,
                               const QString &sysRoot, const QHash<QString, QString> &tcs,
-                              const QString &qt, const QString &mkspec, const QStringList &env,
+                              const QString &qt, const QString &mkspec,
+                              const QString &cmakeId, const QString &cmakeGenerator,
+                              const QString &cmakeExtraGenerator, const QString &cmakeGeneratorToolset,
+                              const QString &cmakeGeneratorPlatform,
+                              const QStringList &cmakeConfiguration, const QStringList &env,
                               const KeyValuePairList &extra);
 
     static QVariantMap initializeKits();
 
     // internal:
     static QVariantMap addKit(const QVariantMap &map, const QVariantMap &tcMap,
-                              const QVariantMap &qtMap, const QVariantMap &devMap,
+                              const QVariantMap &qtMap, const QVariantMap &devMap, const QVariantMap &cmakeMap,
                               const QString &id, const QString &displayName,
                               const QString &icon, const QString &debuggerId,
                               const quint32 &debuggerType, const QString &debugger,
                               const QString &deviceType, const QString &device,
                               const QString &sysRoot, const QHash<QString, QString> &tcs,
-                              const QString &qt, const QString &mkspec, const QStringList &env,
+                              const QString &qt, const QString &mkspec, const QString &cmakeId, const QString &cmakeGenerator, const QString &cmakeExtraGenerator, const QString &cmakeGeneratorToolset, const QString &cmakeGeneratorPlatform, const QStringList &cmakeConfiguration, const QStringList &env,
                               const KeyValuePairList &extra);
 
 private:
@@ -81,6 +85,12 @@ private:
     QHash<QString, QString> m_tcs;
     QString m_qt;
     QString m_mkspec;
+    QString m_cmakeId;
+    QString m_cmakeGenerator;
+    QString m_cmakeExtraGenerator;
+    QString m_cmakeGeneratorToolset;
+    QString m_cmakeGeneratorPlatform;
+    QStringList m_cmakeConfiguration;
     QStringList m_env;
     KeyValuePairList m_extra;
 };

@@ -119,15 +119,18 @@ bool RmKitOperation::test() const
 
     QVariantMap map =
             AddKitOperation::addKit(AddKitOperation::initializeKits(), tcMap, qtMap, devMap,
+                                    QVariantMap(),
                                     "testId", "Test Qt Version", "/tmp/icon.png", QString(), 1,
                                     "/usr/bin/gdb-test", "Desktop", QString(), QString(), tcs,
-                                    "{qt-id}", "unsupported/mkspec", QStringList(),
+                                    "{qt-id}", "unsupported/mkspec",
+                                    QString(), QString(), QString(), QString(), QString(), QStringList(), QStringList(),
                                     KeyValuePairList() << KeyValuePair("PE.Profile.Data/extraData", QVariant("extraValue")));
     map =
-            AddKitOperation::addKit(map, tcMap, qtMap, devMap, "testId2", "Test Qt Version",
+            AddKitOperation::addKit(map, tcMap, qtMap, devMap, QVariantMap(), "testId2", "Test Qt Version",
                                     "/tmp/icon2.png", QString(), 1, "/usr/bin/gdb-test2",
                                     "Desktop", QString(), QString(), tcs, "{qt-id}",
-                                    "unsupported/mkspec2", QStringList(),
+                                    "unsupported/mkspec2",
+                                    QString(), QString(), QString(), QString(), QString(), QStringList(), QStringList(),
                                     KeyValuePairList() << KeyValuePair("PE.Profile.Data/extraData", QVariant("extraValue2")));
 
     QVariantMap result = rmKit(map, "testId");
