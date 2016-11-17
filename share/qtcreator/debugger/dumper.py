@@ -3768,11 +3768,14 @@ class DumperBase:
                     readingTypeName = False
                     fieldType = self.createType(typeName)
                     fieldAlign = fieldType.alignment()
-                    builder.addField(n, fieldIsStruct = True, fieldType = fieldType, fieldAlign = fieldAlign)
+                    builder.addField(n, fieldIsStruct = True,
+                        fieldType = fieldType, fieldAlign = fieldAlign)
                     typeName = None
                     n = None
                 else:
                     typeName += c
+            elif c == 't': # size_t
+                builder.addField(ptrSize, self.ptrCode(), fieldAlign = ptrSize)
             elif c == 'p': # Pointer as int
                 builder.addField(ptrSize, self.ptrCode(), fieldAlign = ptrSize)
             elif c == 'P': # Pointer as Value
