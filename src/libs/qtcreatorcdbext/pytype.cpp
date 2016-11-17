@@ -249,6 +249,13 @@ std::vector<std::string> innerTypesOf(const std::string &t)
     if (pos == std::string::npos)
         return rc;
 
+    // exclude special values like "<Value unavailable error>"
+    if (pos == 0)
+        return rc;
+    // exclude untyped member in the form of class::<untyped>
+    if (pos >= 2 && t.at(pos - 1) == ':' && t.at(pos - 2) == ':')
+        return rc;
+
     rc.reserve(5);
     const std::string::size_type size = t.size();
     // Record all elements of level 1 to work correctly for
