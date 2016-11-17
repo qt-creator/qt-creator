@@ -866,26 +866,27 @@ class DumperBase:
         baseIndex = 0
         for item in value.members(True):
             #warn('FIELD: %s' % item)
-            if item.name is not None and item.name.startswith('_vptr.'):
-                with SubItem(self, '[vptr]'):
-                    # int (**)(void)
-                    self.putType(' ')
-                    self.putField('sortgroup', 20)
-                    self.putValue(item.name)
-                    n = 10
-                    if self.isExpanded():
-                        with Children(self):
-                            p = item.pointer()
-                            for i in xrange(n):
-                                deref = self.extractPointer(p)
-                                if deref == 0:
-                                    n = i
-                                    break
-                                with SubItem(self, i):
-                                    self.putItem(self.createPointerValue(deref, 'void'))
-                                    p += self.ptrSize()
-                    self.putNumChild(n)
-                continue
+            if item.name is not None:
+                if item.name.startswith('_vptr.') or item.name.startswith('__vfptr'):
+                    with SubItem(self, '[vptr]'):
+                        # int (**)(void)
+                        self.putType(' ')
+                        self.putField('sortgroup', 20)
+                        self.putValue(item.name)
+                        n = 10
+                        if self.isExpanded():
+                            with Children(self):
+                                p = item.pointer()
+                                for i in xrange(n):
+                                    deref = self.extractPointer(p)
+                                    if deref == 0:
+                                        n = i
+                                        break
+                                    with SubItem(self, i):
+                                        self.putItem(self.createPointerValue(deref, 'void'))
+                                        p += self.ptrSize()
+                        self.putNumChild(n)
+                    continue
 
             if item.isBaseClass and dumpBase:
                 baseIndex += 1
