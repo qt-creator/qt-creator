@@ -42,11 +42,16 @@ std::string getSymbolName(CIDebugSymbolGroup *sg, ULONG index)
     return name;
 }
 
+std::string getSymbolName(Value *value)
+{
+    return getSymbolName(value->m_symbolGroup, value->m_index);
+}
+
 PyObject *value_Name(Value *self)
 {
     if (!self->m_symbolGroup)
         Py_RETURN_NONE;
-    const std::string &symbolName = getSymbolName(self->m_symbolGroup, self->m_index);
+    const std::string &symbolName = getSymbolName(self);
     if (symbolName.empty())
         Py_RETURN_NONE;
     return Py_BuildValue("s", symbolName.c_str());
