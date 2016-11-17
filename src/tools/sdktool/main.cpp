@@ -27,6 +27,7 @@
 
 #include "operation.h"
 
+#include "addcmakeoperation.h"
 #include "adddebuggeroperation.h"
 #include "adddeviceoperation.h"
 #include "addkeysoperation.h"
@@ -175,6 +176,7 @@ int main(int argc, char *argv[])
     QList<Operation *> operations;
     operations << new AddKeysOperation
 
+               << new AddCMakeOperation
                << new AddDebuggerOperation
                << new AddDeviceOperation
                << new AddQtOperation
