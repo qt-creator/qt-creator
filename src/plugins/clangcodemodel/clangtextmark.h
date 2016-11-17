@@ -30,18 +30,28 @@
 
 #include <texteditor/textmark.h>
 
+#include <functional>
+
 namespace ClangCodeModel {
 
 class ClangTextMark : public TextEditor::TextMark
 {
 public:
-    ClangTextMark(const QString &fileName, const ClangBackEnd::DiagnosticContainer &diagnostic);
+    using RemovedFromEditorHandler = std::function<void(ClangTextMark *)>;
+
+    ClangTextMark(const QString &fileName,
+                  const ClangBackEnd::DiagnosticContainer &diagnostic,
+                  const RemovedFromEditorHandler &removedHandler);
 
 private:
-    bool addToolTipContent(QLayout *target);
     void setIcon(ClangBackEnd::DiagnosticSeverity severity);
 
+    bool addToolTipContent(QLayout *target) override;
+    void removedFromEditor() override;
+
+private:
     ClangBackEnd::DiagnosticContainer m_diagnostic;
+    RemovedFromEditorHandler m_removedFromEditorHandler;
 };
 
 } // namespace ClangCodeModel

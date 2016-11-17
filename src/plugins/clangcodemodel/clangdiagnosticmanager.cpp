@@ -346,7 +346,12 @@ void ClangDiagnosticManager::addClangTextMarks(
         const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics)
 {
     for (const ClangBackEnd::DiagnosticContainer &diagnostic : diagnostics) {
-        auto textMark = new ClangTextMark(filePath(), diagnostic);
+        const auto onMarkRemoved = [this](const ClangTextMark *mark) {
+            const auto it = std::remove(m_clangTextMarks.begin(), m_clangTextMarks.end(), mark);
+            m_clangTextMarks.erase(it, m_clangTextMarks.end());
+            delete mark;
+         };
+        auto textMark = new ClangTextMark(filePath(), diagnostic, onMarkRemoved);
         m_clangTextMarks.push_back(textMark);
         m_textDocument->addMark(textMark);
     }
