@@ -136,7 +136,9 @@ ULONG64 valueAddress(Value *value)
 PyObject *value_Address(Value *self)
 {
     const ULONG64 address = valueAddress(self);
-    return address == 0 ? NULL : Py_BuildValue("K", address);
+    if (address == 0)
+        Py_RETURN_NONE;
+    return Py_BuildValue("K", address);
 }
 
 bool expandValue(Value *v)
