@@ -86,6 +86,9 @@ static PyObject *cdbext_readRawMemory(PyObject *, PyObject *args)
     if (!PyArg_ParseTuple(args, "Kk", &address, &size))
         Py_RETURN_NONE;
 
+    if (debugPyCdbextModule)
+        DebugPrint() << "Read raw memory: " << size << "bytes from " << std::hex << std::showbase << address;
+
     char *buffer = new char[size];
 
     CIDebugDataSpaces *data = ExtensionCommandContext::instance()->dataSpaces();

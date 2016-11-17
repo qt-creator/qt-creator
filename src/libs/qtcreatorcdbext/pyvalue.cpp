@@ -30,6 +30,10 @@
 #include "pytype.h"
 #include "pyfield.h"
 #include "stringutils.h"
+#include "symbolgroupvalue.h"
+
+constexpr bool debugPyValue = false;
+constexpr bool debuggingValueEnabled() { return debugPyValue || debugPyCdbextModule; }
 
 std::string getSymbolName(CIDebugSymbolGroup *sg, ULONG index)
 {
@@ -136,6 +140,8 @@ ULONG64 valueAddress(Value *value)
 PyObject *value_Address(Value *self)
 {
     const ULONG64 address = valueAddress(self);
+    if (debuggingValueEnabled())
+        DebugPrint() << "Address of " << getSymbolName(self) << ": 0x" << std::hex << address;
     if (address == 0)
         Py_RETURN_NONE;
     return Py_BuildValue("K", address);
@@ -292,6 +298,11 @@ PyObject *value_ChildFromIndex(Value *self, PyObject *args)
     if (childCount <= index || !expandValue(self))
         Py_RETURN_NONE;
 
+    if (debuggingValueEnabled()) {
+        DebugPrint() << "child " << index + 1
+                     << " from " << getSymbolName(self)
+                     << " is " << getSymbolName(self->m_symbolGroup, self->m_index + index + 1);
+    }
     return createValue(self->m_index + index + 1, self->m_symbolGroup);
 }
 
