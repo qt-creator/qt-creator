@@ -59,7 +59,6 @@ public:
 
 private:
     void onContentsChanged(const Utils::FileName &file);
-    void init() const;
     Utils::FileName m_generatedFileName;
     ProjectExplorer::ExtraCompiler *m_generator;
 };

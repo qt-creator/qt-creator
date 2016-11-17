@@ -76,7 +76,10 @@ GeneratedCodeModelSupport::GeneratedCodeModelSupport(CppModelManager *modelmanag
     QLoggingCategory log("qtc.cpptools.generatedcodemodelsupport");
     qCDebug(log) << "ctor GeneratedCodeModelSupport for" << m_generator->source()
                  << generatedFile;
-    init();
+
+    connect(m_generator, &ProjectExplorer::ExtraCompiler::contentsChanged,
+            this, &GeneratedCodeModelSupport::onContentsChanged, Qt::QueuedConnection);
+    onContentsChanged(generatedFile);
 }
 
 GeneratedCodeModelSupport::~GeneratedCodeModelSupport()
@@ -93,12 +96,6 @@ void GeneratedCodeModelSupport::onContentsChanged(const Utils::FileName &file)
         notifyAboutUpdatedContents();
         updateDocument();
     }
-}
-
-void GeneratedCodeModelSupport::init() const
-{
-    connect(m_generator, &ProjectExplorer::ExtraCompiler::contentsChanged,
-            this, &GeneratedCodeModelSupport::onContentsChanged, Qt::QueuedConnection);
 }
 
 QByteArray GeneratedCodeModelSupport::contents() const
