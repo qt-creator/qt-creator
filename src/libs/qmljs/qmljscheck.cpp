@@ -1428,6 +1428,17 @@ static QString functionName(ExpressionNode *ast, SourceLocation *location)
     return QString();
 }
 
+static QString functionNamespace(ExpressionNode *ast)
+{
+   if (FieldMemberExpression *fme = cast<FieldMemberExpression *>(ast)) {
+        if (!fme->name.isEmpty()) {
+            SourceLocation location;
+            return functionName(fme->base, &location);
+        }
+    }
+    return QString();
+}
+
 void Check::checkNewExpression(ExpressionNode *ast)
 {
     SourceLocation location;
@@ -1612,12 +1623,18 @@ bool Check::visit(CallExpression *ast)
     SourceLocation location;
     const QString name = functionName(ast->base, &location);
 
+    const QString namespaceName = functionNamespace(ast->base);
+
     // We have to allow the qsTr function for translation.
-    bool isTranslationFunction = (name == QLatin1String("qsTr") || name == QLatin1String("qsTrId"));
+
+    const bool isTranslationFunction = (name == QLatin1String("qsTr") || name == QLatin1String("qsTrId"));
+    // We allow the Math. functions
+
+    const bool isMathFunction = namespaceName == "Math";
     // allow adding connections with the help of the qt quick designer ui
     bool isDirectInConnectionsScope =
             (!m_typeStack.isEmpty() && m_typeStack.last() == QLatin1String("Connections"));
-    if (!isTranslationFunction && !isDirectInConnectionsScope)
+    if (!isTranslationFunction && !isMathFunction && !isDirectInConnectionsScope)
         addMessage(ErrFunctionsNotSupportedInQmlUi, location);
 
     if (!name.isEmpty() && name.at(0).isUpper()
