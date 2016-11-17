@@ -350,11 +350,12 @@ void type_Dealloc(Type *self)
 
 PyObject *createType(ULONG64 module, ULONG typeId, const std::string &name)
 {
+    std::string typeName = SymbolGroupValue::stripClassPrefixes(name);
     Type *type = PyObject_New(Type, type_pytype());
     type->m_module = module;
     type->m_typeId = typeId;
     type->m_resolved = true;
-    type->m_name = name.empty() ? nullptr : strdup(name.c_str());
+    type->m_name = typeName.empty() ? nullptr : strdup(typeName.c_str());
     return reinterpret_cast<PyObject *>(type);
 }
 

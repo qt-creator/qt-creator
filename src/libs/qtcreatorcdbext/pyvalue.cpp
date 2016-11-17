@@ -52,15 +52,31 @@ PyObject *value_Name(Value *self)
     return Py_BuildValue("s", symbolName.c_str());
 }
 
+char *getTypeName(Value *value)
+{
+    char *typeName = nullptr;
+    ULONG size = 0;
+    value->m_symbolGroup->GetSymbolTypeName(value->m_index, NULL, 0, &size);
+    if (size > 0) {
+        typeName = new char[size+3];
+        if (SUCCEEDED(value->m_symbolGroup->GetSymbolTypeName(value->m_index, typeName, size, NULL)))
+            return typeName;
+        delete[] typeName;
+    }
+    return nullptr;
+}
+
 PyObject *value_Type(Value *self)
 {
     if (!self->m_symbolGroup)
         Py_RETURN_NONE;
     DEBUG_SYMBOL_PARAMETERS params;
-    const HRESULT hr = self->m_symbolGroup->GetSymbolParameters(self->m_index, 1, &params);
-    if (FAILED(hr))
+    if (FAILED(self->m_symbolGroup->GetSymbolParameters(self->m_index, 1, &params)))
         Py_RETURN_NONE;
-    return createType(params.Module, params.TypeId);
+    char *typeName = getTypeName(self);
+    auto ret = createType(params.Module, params.TypeId, typeName ? typeName : std::string());
+    delete[] typeName;
+    return ret;
 }
 
 PyObject *value_Bitsize(Value *self)
