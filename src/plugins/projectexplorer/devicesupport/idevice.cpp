@@ -401,16 +401,6 @@ QString IDevice::deviceStateToString() const
     }
 }
 
-void IDevice::setDeviceIcon(const QList<Utils::Icon> &deviceIcon)
-{
-    d->deviceIcons = deviceIcon;
-}
-
-QIcon IDevice::deviceIcon() const
-{
-    return Utils::Icon::combinedIcon(d->deviceIcons);
-}
-
 QSsh::SshConnectionParameters IDevice::sshParameters() const
 {
     return d->sshParameters;

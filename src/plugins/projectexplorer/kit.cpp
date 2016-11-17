@@ -377,15 +377,6 @@ QIcon Kit::icon() const
         return d->m_cachedIcon;
     }
 
-    const IDevice::ConstPtr kitDevice = DeviceKitInformation::device(this);
-    if (!kitDevice.isNull()) {
-        const QIcon deviceIcon = kitDevice->deviceIcon();
-        if (!deviceIcon.isNull()) {
-            d->m_cachedIcon = deviceIcon;
-            return d->m_cachedIcon;
-        }
-    }
-
     const Core::Id deviceType = DeviceTypeKitInformation::deviceTypeId(this);
     const QIcon deviceTypeIcon = iconForDeviceType(deviceType);
     if (!deviceTypeIcon.isNull()) {

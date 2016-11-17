@@ -167,9 +167,6 @@ public:
     void setDeviceState(const DeviceState state);
     QString deviceStateToString() const;
 
-    void setDeviceIcon(const QList<Utils::Icon> &deviceIcon);
-    QIcon deviceIcon() const;
-
     virtual void fromMap(const QVariantMap &map);
     virtual QVariantMap toMap() const;
     virtual Ptr clone() const = 0;
