@@ -106,7 +106,7 @@ public:
     DiffCurrentFileController(IDocument *document, const QString &fileName);
 
 protected:
-    void reload();
+    void reload() override;
 
 private:
     QString m_fileName;
@@ -164,7 +164,7 @@ public:
     DiffOpenFilesController(IDocument *document);
 
 protected:
-    void reload();
+    void reload() override;
 };
 
 DiffOpenFilesController::DiffOpenFilesController(IDocument *document) :
@@ -224,7 +224,7 @@ public:
     DiffModifiedFilesController(IDocument *document, const QStringList &fileNames);
 
 protected:
-    void reload();
+    void reload() override;
 
 private:
     QStringList m_fileNames;
@@ -286,7 +286,7 @@ public:
                        const QString &rightFileName);
 
 protected:
-    void reload();
+    void reload() override;
 
 private:
     QString m_leftFileName;

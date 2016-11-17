@@ -175,7 +175,7 @@ public:
     void setChangeNumber(int changeNumber);
 
 protected:
-    void reload();
+    void reload() override;
 
 private slots:
     void slotTextualDiffOutputReceived(const QString &contents);
