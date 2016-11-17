@@ -95,13 +95,13 @@ char *getTypeName(ULONG64 module, ULONG typeId)
     ULONG size = 0;
     symbols->GetTypeName(module, typeId, NULL, 0, &size);
     if (size > 0) {
-        typeName = new char[size];
+        typeName = (char *)malloc(size);
         if (SUCCEEDED(symbols->GetTypeName(module, typeId, typeName, size, &size)))
             return typeName;
         else
-            delete[] typeName;
+            free(typeName);
     }
-    typeName = new char[1];
+    typeName = (char *)malloc(1);
     typeName[0] = 0;
 
     return typeName;
@@ -345,16 +345,16 @@ PyObject *type_New(PyTypeObject *type, PyObject *, PyObject *)
 
 void type_Dealloc(Type *self)
 {
-    delete[] self->m_name;
+    free(self->m_name);
 }
 
-PyObject *createType(ULONG64 module, ULONG typeId, char* name)
+PyObject *createType(ULONG64 module, ULONG typeId, const std::string &name)
 {
     Type *type = PyObject_New(Type, type_pytype());
     type->m_module = module;
     type->m_typeId = typeId;
-    type->m_name = name;
     type->m_resolved = true;
+    type->m_name = name.empty() ? nullptr : strdup(name.c_str());
     return reinterpret_cast<PyObject *>(type);
 }
 
