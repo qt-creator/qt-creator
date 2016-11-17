@@ -133,28 +133,11 @@ static PyObject *cdbext_createValue(PyObject *, PyObject *args)
         Py_RETURN_NONE;
 
     CIDebugSymbolGroup *dsg = lsg->debugSymbolGroup();
-    ULONG numberOfSymbols = 0;
-    dsg->GetNumberSymbols(&numberOfSymbols);
-    ULONG index = 0;
-    for (;index < numberOfSymbols; ++index) {
-        ULONG64 offset;
-        dsg->GetSymbolOffset(index, &offset);
-        if (offset == address) {
-            DEBUG_SYMBOL_PARAMETERS params;
-            if (SUCCEEDED(dsg->GetSymbolParameters(index, 1, &params))) {
-                if (params.TypeId == type->m_typeId && params.Module == type->m_module)
-                    break;
-            }
-        }
-    }
-
-    if (index >= numberOfSymbols) {
-        index = DEBUG_ANY_ID;
-        const std::string name = SymbolGroupValue::pointedToSymbolName(
-                    address, getTypeName(type->m_module, type->m_typeId));
-        if (FAILED(dsg->AddSymbol(name.c_str(), &index)))
-            Py_RETURN_NONE;
-    }
+    ULONG index = DEBUG_ANY_ID;
+    const std::string name = SymbolGroupValue::pointedToSymbolName(
+                address, getTypeName(type->m_module, type->m_typeId));
+    if (FAILED(dsg->AddSymbol(name.c_str(), &index)))
+        Py_RETURN_NONE;
     return createValue(index, dsg);
 }
 
