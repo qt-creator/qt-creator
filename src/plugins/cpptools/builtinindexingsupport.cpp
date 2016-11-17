@@ -308,10 +308,7 @@ public:
                         Core::SearchResultItem item;
                         item.path = scope.split(QLatin1String("::"), QString::SkipEmptyParts);
                         item.text = text;
-                        item.textMarkPos = -1;
-                        item.textMarkLength = 0;
                         item.icon = info->icon();
-                        item.lineNumber = -1;
                         item.userData = qVariantFromValue(info);
                         resultItems << item;
                     }

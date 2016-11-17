@@ -301,7 +301,7 @@ IEditor *GitGrep::openEditor(const SearchResultItem &item,
     QString title = tr("Git Show %1:%2").arg(params.ref).arg(relativePath);
     IEditor *editor = EditorManager::openEditorWithContents(Id(), &title, content, title,
                                                             EditorManager::DoNotSwitchToDesignMode);
-    editor->gotoLine(item.lineNumber, item.textMarkPos);
+    editor->gotoLine(item.mainRange.begin.line, item.mainRange.begin.column);
     editor->document()->setTemporary(true);
     return editor;
 }

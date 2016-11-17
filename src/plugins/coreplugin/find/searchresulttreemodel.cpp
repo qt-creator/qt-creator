@@ -261,8 +261,8 @@ QVariant SearchResultTreeModel::data(const SearchResultTreeItem *row, int role) 
     case ItemDataRoles::ResultItemRole:
         result = qVariantFromValue(row->item);
         break;
-    case ItemDataRoles::ResultLineNumberRole:
-        result = row->item.lineNumber;
+    case ItemDataRoles::ResultBeginLineNumberRole:
+        result = row->item.mainRange.begin.line;
         break;
     case ItemDataRoles::ResultIconRole:
         result = row->item.icon;
@@ -273,11 +273,11 @@ QVariant SearchResultTreeModel::data(const SearchResultTreeItem *row, int role) 
     case ItemDataRoles::ResultHighlightForegroundColor:
         result = m_color.highlightForeground;
         break;
-    case ItemDataRoles::SearchTermStartRole:
-        result = row->item.textMarkPos;
+    case ItemDataRoles::ResultBeginColumnNumberRole:
+        result = row->item.mainRange.begin.column;
         break;
     case ItemDataRoles::SearchTermLengthRole:
-        result = row->item.textMarkLength;
+        result = row->item.mainRange.length();
         break;
     case ItemDataRoles::IsGeneratedRole:
         result = row->isGenerated();

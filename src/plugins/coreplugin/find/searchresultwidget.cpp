@@ -227,15 +227,15 @@ void SearchResultWidget::setInfo(const QString &label, const QString &toolTip, c
     m_searchTerm->setVisible(!term.isEmpty());
 }
 
-void SearchResultWidget::addResult(const QString &fileName, int lineNumber, const QString &rowText,
-    int searchTermStart, int searchTermLength, const QVariant &userData)
+void SearchResultWidget::addResult(const QString &fileName,
+                                   const QString &rowText,
+                                   Search::TextRange mainRange,
+                                   const QVariant &userData)
 {
     SearchResultItem item;
-    item.path = QStringList() << QDir::toNativeSeparators(fileName);
-    item.lineNumber = lineNumber;
+    item.path = QStringList({QDir::toNativeSeparators(fileName)});
+    item.mainRange = mainRange;
     item.text = rowText;
-    item.textMarkPos = searchTermStart;
-    item.textMarkLength = searchTermLength;
     item.useTextEditorFont = true;
     item.userData = userData;
     addResults(QList<SearchResultItem>() << item, SearchResult::AddOrdered);

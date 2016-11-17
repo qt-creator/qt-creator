@@ -39,6 +39,7 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/findplugin.h>
+#include <coreplugin/find/searchresultwindow.h>
 #include <coreplugin/locator/locator.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/fileutils.h>
@@ -70,6 +71,7 @@ CorePlugin::CorePlugin()
   , m_locator(0)
 {
     qRegisterMetaType<Id>();
+    qRegisterMetaType<Core::Search::TextPosition>();
 }
 
 CorePlugin::~CorePlugin()

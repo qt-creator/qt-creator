@@ -107,7 +107,7 @@ int SearchResultTreeItemDelegate::drawLineNumber(QPainter *painter, const QStyle
                                                  const QModelIndex &index) const
 {
     static const int lineNumberAreaHorizontalPadding = 4;
-    int lineNumber = index.model()->data(index, ItemDataRoles::ResultLineNumberRole).toInt();
+    int lineNumber = index.model()->data(index, ItemDataRoles::ResultBeginLineNumberRole).toInt();
     if (lineNumber < 1)
         return 0;
     const bool isSelected = option.state & QStyle::State_Selected;
@@ -154,7 +154,7 @@ void SearchResultTreeItemDelegate::drawText(QPainter *painter,
                 + QLatin1Char(')');
     }
 
-    const int searchTermStart = index.model()->data(index, ItemDataRoles::SearchTermStartRole).toInt();
+    const int searchTermStart = index.model()->data(index, ItemDataRoles::ResultBeginColumnNumberRole).toInt();
     int searchTermLength = index.model()->data(index, ItemDataRoles::SearchTermLengthRole).toInt();
     if (searchTermStart < 0 || searchTermStart >= text.length() || searchTermLength < 1) {
         QItemDelegate::drawDisplay(painter, option, rect, text.replace(QLatin1Char('\t'), m_tabString));

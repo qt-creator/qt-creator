@@ -16,7 +16,8 @@ HEADERS += \
     $$PWD/searchresultwidget.h \
     $$PWD/searchresultwindow.h \
     $$PWD/textfindconstants.h \
-    $$PWD/highlightscrollbar.h
+    $$PWD/highlightscrollbar.h \
+    $$PWD/searchresultitem.h
 
 SOURCES += \
     $$PWD/basetextfind.cpp \

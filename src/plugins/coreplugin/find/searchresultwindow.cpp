@@ -658,8 +658,21 @@ void SearchResult::setSearchAgainSupported(bool supported)
 void SearchResult::addResult(const QString &fileName, int lineNumber, const QString &lineText,
                              int searchTermStart, int searchTermLength, const QVariant &userData)
 {
-    m_widget->addResult(fileName, lineNumber, lineText,
-                        searchTermStart, searchTermLength, userData);
+    Search::TextRange mainRange;
+    mainRange.begin.line = lineNumber;
+    mainRange.begin.column = searchTermStart;
+    mainRange.end.line = mainRange.begin.line;
+    mainRange.end.column = mainRange.begin.column + searchTermLength;
+
+    m_widget->addResult(fileName, lineText, mainRange, userData);
+}
+
+void SearchResult::addResult(const QString &fileName,
+                             const QString &lineText,
+                             Search::TextRange mainRange,
+                             const QVariant &userData)
+{
+    m_widget->addResult(fileName, lineText, mainRange, userData);
     emit countChanged(m_widget->count());
 }
 

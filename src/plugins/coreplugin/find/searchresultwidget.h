@@ -54,8 +54,10 @@ public:
 
     void setInfo(const QString &label, const QString &toolTip, const QString &term);
 
-    void addResult(const QString &fileName, int lineNumber, const QString &lineText,
-                   int searchTermStart, int searchTermLength, const QVariant &userData = QVariant());
+    void addResult(const QString &fileName,
+                   const QString &lineText,
+                   Search::TextRange mainRange,
+                   const QVariant &userData = QVariant());
     void addResults(const QList<SearchResultItem> &items, SearchResult::AddMode mode);
 
     int count() const;

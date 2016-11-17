@@ -35,11 +35,11 @@ enum Roles
 {
     ResultItemRole = Qt::UserRole,
     ResultLineRole,
-    ResultLineNumberRole,
+    ResultBeginLineNumberRole,
     ResultIconRole,
     ResultHighlightBackgroundColor,
     ResultHighlightForegroundColor,
-    SearchTermStartRole,
+    ResultBeginColumnNumberRole,
     SearchTermLengthRole,
     IsGeneratedRole
 };

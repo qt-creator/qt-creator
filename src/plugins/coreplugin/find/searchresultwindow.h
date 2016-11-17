@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "searchresultitem.h"
+
 #include <coreplugin/ioutputpane.h>
 
 #include <QVariant>
@@ -44,39 +46,6 @@ namespace Internal {
 class Find;
 class SearchResultWindow;
 
-class CORE_EXPORT SearchResultItem
-{
-public:
-    SearchResultItem()
-        : textMarkPos(-1),
-        textMarkLength(0),
-        lineNumber(-1),
-        useTextEditorFont(false)
-    {
-    }
-
-    SearchResultItem(const SearchResultItem &other)
-        : path(other.path),
-        text(other.text),
-        textMarkPos(other.textMarkPos),
-        textMarkLength(other.textMarkLength),
-        icon(other.icon),
-        lineNumber(other.lineNumber),
-        useTextEditorFont(other.useTextEditorFont),
-        userData(other.userData)
-    {
-    }
-
-    QStringList path; // hierarchy to the parent item of this item
-    QString text; // text to show for the item itself
-    int textMarkPos; // 0-based starting position for a mark (-1 for no mark)
-    int textMarkLength; // length of the mark (0 for no mark)
-    QIcon icon; // icon to show in front of the item (by be null icon to hide)
-    int lineNumber; // (0 or -1 for no line number)
-    bool useTextEditorFont;
-    QVariant userData; // user data for identification of the item
-};
-
 class CORE_EXPORT SearchResult : public QObject
 {
     Q_OBJECT
@@ -94,8 +63,16 @@ public:
     void setSearchAgainSupported(bool supported);
 
 public slots:
-    void addResult(const QString &fileName, int lineNumber, const QString &lineText,
-                   int searchTermStart, int searchTermLength, const QVariant &userData = QVariant());
+    void addResult(const QString &fileName,
+                   int lineNumber,
+                   const QString &lineText,
+                   int searchTermStart,
+                   int searchTermLength,
+                   const QVariant &userData = QVariant());
+    void addResult(const QString &fileName,
+                   const QString &lineText,
+                   Search::TextRange mainRange,
+                   const QVariant &userData = QVariant());
     void addResults(const QList<SearchResultItem> &items, AddMode mode);
     void finishSearch(bool canceled);
     void setTextToReplace(const QString &textToReplace);
@@ -191,5 +168,3 @@ private:
 };
 
 } // namespace Core
-
-Q_DECLARE_METATYPE(Core::SearchResultItem)

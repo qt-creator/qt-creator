@@ -481,7 +481,8 @@ void CppFindReferences::openEditor(const SearchResultItem &item)
 {
     if (item.path.size() > 0) {
         EditorManager::openEditorAt(QDir::fromNativeSeparators(item.path.first()),
-                                              item.lineNumber, item.textMarkPos);
+                                    item.mainRange.begin.line,
+                                    item.mainRange.begin.column);
     } else {
         EditorManager::openEditor(QDir::fromNativeSeparators(item.text));
     }
