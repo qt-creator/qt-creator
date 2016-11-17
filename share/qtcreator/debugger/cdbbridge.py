@@ -115,14 +115,11 @@ class Dumper(DumperBase):
             nativeType = FakeVoidType(nativeType.name(), self)
 
         if code == TypeCodePointer:
-            targetType = self.fromNativeType(nativeType.target().unqualified())
-            return self.createPointerType(targetType)
+            return self.createPointerType(self.fromNativeType(nativeType.target()))
 
         if code == TypeCodeArray:
-            nativeTargetType = nativeType.target().unqualified()
-            targetType = self.fromNativeType(nativeTargetType)
-            count = nativeType.bitsize() // nativeTargetType.bitsize()
-            return self.createArrayType(targetType, count)
+            targetType = self.fromNativeType(nativeType.target())
+            return self.createArrayType(targetType, nativeType.arrayElements())
 
         typeId = self.nativeTypeId(nativeType)
         if self.typeData.get(typeId, None) is None:
