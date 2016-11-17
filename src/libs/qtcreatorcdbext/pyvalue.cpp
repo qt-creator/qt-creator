@@ -63,6 +63,16 @@ PyObject *value_Type(Value *self)
     return createType(params.Module, params.TypeId);
 }
 
+PyObject *value_Bitsize(Value *self)
+{
+    if (!self->m_symbolGroup)
+        Py_RETURN_NONE;
+    ULONG size;
+    if (FAILED(self->m_symbolGroup->GetSymbolSize(self->m_index, &size)))
+        Py_RETURN_NONE;
+    return Py_BuildValue("k", size * 8);
+}
+
 char *valueData(Value *self, PULONG received)
 {
     if (!self->m_symbolGroup)
@@ -294,6 +304,8 @@ static PyMethodDef valueMethods[] = {
      "Name of this thing or None"},
     {"type",                PyCFunction(value_Type),                METH_NOARGS,
      "Type of this value"},
+    {"bitsize",             PyCFunction(value_Bitsize),             METH_NOARGS,
+     "Return the size of the value in bits"},
     {"asBytes",             PyCFunction(value_AsBytes),             METH_NOARGS,
      "Memory contents of this object, or None"},
     {"address",             PyCFunction(value_Address),             METH_NOARGS,
