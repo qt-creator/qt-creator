@@ -323,7 +323,7 @@ void QmakeProjectManagerPlugin::updateContextActions(ProjectExplorer::Node *node
     auto qmakeProject = qobject_cast<QmakeProject *>(project);
     QmakeProFileNode *subProjectNode = nullptr;
     if (node) {
-        if (auto subPriFileNode = dynamic_cast<QmakePriFileNode *>(node->parentProjectNode()))
+        if (auto subPriFileNode = dynamic_cast<QmakePriFileNode *>(node))
             subProjectNode = subPriFileNode->proFileNode();
     }
     ProjectExplorer::FileNode *fileNode = node ? node->asFileNode() : nullptr;
