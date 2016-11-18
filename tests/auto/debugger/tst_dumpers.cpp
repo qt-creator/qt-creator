@@ -3041,6 +3041,68 @@ void tst_Dumpers::dumper_data()
                + Check("ptr53", "", "@QWeakPointer<Foo>");
 
 
+    QTest::newRow("QFiniteStack")
+            << Data("#include <private/qfinitestack_p.h>\n" + fooData,
+
+                    "QFiniteStack<int> s1;\n"
+                    "s1.allocate(2);\n"
+                    "s1.push(1);\n"
+                    "s1.push(2);\n\n"
+
+                    "QFiniteStack<int> s2;\n"
+                    "s2.allocate(100000);\n"
+                    "for (int i = 0; i != 10000; ++i)\n"
+                    "    s2.push(i);\n\n"
+
+                    "QFiniteStack<Foo *> s3;\n"
+                    "s3.allocate(10);\n"
+                    "s3.push(new Foo(1));\n"
+                    "s3.push(0);\n"
+                    "s3.push(new Foo(2));\n"
+                    "unused(&s3);\n\n"
+
+                    "QFiniteStack<Foo> s4;\n"
+                    "s4.allocate(10);\n"
+                    "s4.push(1);\n"
+                    "s4.push(2);\n"
+                    "s4.push(3);\n"
+                    "s4.push(4);\n\n"
+
+                    "QFiniteStack<bool> s5;\n"
+                    "s5.allocate(10);\n"
+                    "s5.push(true);\n"
+                    "s5.push(false);\n\n")
+
+               + QmlPrivateProfile()
+
+               + BigArrayProfile()
+
+               + Check("s1", "<2 items>", "@QFiniteStack<int>")
+               + Check("s1.0", "[0]", "1", "int")
+               + Check("s1.1", "[1]", "2", "int")
+
+               + Check("s2", "<10000 items>", "@QFiniteStack<int>")
+               + Check("s2.0", "[0]", "0", "int")
+               + Check("s2.8999", "[8999]", "8999", "int")
+
+               + Check("s3", "<3 items>", "@QFiniteStack<Foo*>")
+               + Check("s3.0", "[0]", "", "Foo")
+               + Check("s3.0.a", "1", "int")
+               + Check("s3.1", "[1]", "0x0", "Foo *")
+               + Check("s3.2", "[2]", "", "Foo")
+               + Check("s3.2.a", "2", "int")
+
+               + Check("s4", "<4 items>", "@QFiniteStack<Foo>")
+               + Check("s4.0", "[0]", "", "Foo")
+               + Check("s4.0.a", "1", "int")
+               + Check("s4.3", "[3]", "", "Foo")
+               + Check("s4.3.a", "4", "int")
+
+               + Check("s5", "<2 items>", "@QFiniteStack<bool>")
+               + Check("s5.0", "[0]", "1", "bool") // 1 -> true is done on display
+               + Check("s5.1", "[1]", "0", "bool");
+
+
 /*
     QTest::newRow("QStandardItemModel")
             << Data("#include <QStandardItemModel>\n",

@@ -578,11 +578,10 @@ def qform__QFiniteStack():
     return arrayForms()
 
 def qdump__QFiniteStack(d, value):
-    alloc = int(value['_alloc'])
-    size = int(value['_size'])
+    array, alloc, size = value.split('pii')
     d.check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 1000)
     d.putItemCount(size)
-    d.putPlotData(value['_array'], size, value.type[0])
+    d.putPlotData(array, size, value.type[0])
 
 
 def qdump__QFlags(d, value):
