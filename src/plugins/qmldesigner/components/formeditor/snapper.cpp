@@ -649,8 +649,8 @@ static void adjustAnchorLine(const QmlItemNode &sourceQmlItemNode,
 
 void Snapper::adjustAnchoringOfItem(FormEditorItem *formEditorItem)
 {
-    QmlItemNode qmlItemNode = formEditorItem->qmlItemNode();
-    QmlAnchors qmlAnchors = qmlItemNode.anchors();
+    const QmlItemNode qmlItemNode = formEditorItem->qmlItemNode();
+    const QmlAnchors qmlAnchors = qmlItemNode.anchors();
 
     if (!qmlAnchors.instanceHasAnchor(AnchorLineHorizontalCenter)) {
         adjustAnchorLine(qmlItemNode,

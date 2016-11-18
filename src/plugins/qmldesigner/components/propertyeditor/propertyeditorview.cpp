@@ -566,7 +566,7 @@ void PropertyEditorView::propertiesRemoved(const QList<AbstractProperty>& proper
                 m_qmlBackEndForCurrentType->setValueforLayoutAttachedProperties(m_selectedNode, property.name());
 
             if ("width" == property.name() || "height" == property.name()) {
-                QmlItemNode qmlItemNode = m_selectedNode;
+                const QmlItemNode qmlItemNode = m_selectedNode;
                 if (qmlItemNode.isValid() && qmlItemNode.isInLayout())
                     resetPuppet();
             }

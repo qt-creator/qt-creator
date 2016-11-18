@@ -117,7 +117,7 @@ void BindingIndicator::setItems(const QList<FormEditorItem *> &itemList)
 
     if (itemList.count() == 1) {
         m_formEditorItem = itemList.first();
-        QmlItemNode qmlItemNode = m_formEditorItem->qmlItemNode();
+        const QmlItemNode qmlItemNode = m_formEditorItem->qmlItemNode();
 
         if (qmlItemNode.hasBindingProperty("x")) {
             m_indicatorTopShape = new BindingIndicatorGraphicsItem(m_layerItem.data());
@@ -145,7 +145,7 @@ void BindingIndicator::updateItems(const QList<FormEditorItem *> &itemList)
 {
     foreach (FormEditorItem *formEditorItem, itemList) {
         if (formEditorItem == m_formEditorItem) {
-            QmlItemNode qmlItemNode = m_formEditorItem->qmlItemNode();
+            const QmlItemNode qmlItemNode = m_formEditorItem->qmlItemNode();
 
             if (qmlItemNode.hasBindingProperty("x")) {
                 if (m_indicatorTopShape.isNull())

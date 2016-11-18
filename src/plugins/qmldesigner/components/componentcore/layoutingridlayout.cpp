@@ -180,7 +180,7 @@ void LayoutInGridLayout::doIt()
     markUsedCells();
 
     if (QmlItemNode::isValidQmlItemNode(m_selectionContext.firstSelectedModelNode())) {
-        QmlItemNode qmlItemNode = QmlItemNode(m_selectionContext.firstSelectedModelNode());
+        const QmlItemNode qmlItemNode = QmlItemNode(m_selectionContext.firstSelectedModelNode());
 
         if (qmlItemNode.hasInstanceParentItem()) {
 

@@ -468,7 +468,7 @@ static void layoutHelperFunction(const SelectionContext &selectionContext,
         return;
 
     if (QmlItemNode::isValidQmlItemNode(selectionContext.firstSelectedModelNode())) {
-        QmlItemNode qmlItemNode = QmlItemNode(selectionContext.firstSelectedModelNode());
+        const QmlItemNode qmlItemNode = QmlItemNode(selectionContext.firstSelectedModelNode());
 
         if (qmlItemNode.hasInstanceParentItem()) {
 
