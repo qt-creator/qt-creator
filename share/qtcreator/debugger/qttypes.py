@@ -1961,40 +1961,6 @@ if False:
     QV4_ValueTypeInternal_Boolean_Type_Internal = QV4_ValueType_Boolean_Type | QV4_ConvertibleToInt
     QV4_ValueTypeInternal_Integer_Type_Internal = QV4_ValueType_Integer_Type | QV4_ConvertibleToInt
 
-else:
-    # 64 bit.
-    QV4_NaNEncodeMask                = 0xffff800000000000
-    QV4_IsInt32Mask                  = 0x0002000000000000
-    QV4_IsDoubleMask                 = 0xfffc000000000000
-    QV4_IsNumberMask                 = QV4_IsInt32Mask | QV4_IsDoubleMask
-    QV4_IsNullOrUndefinedMask        = 0x0000800000000000
-    QV4_IsNullOrBooleanMask          = 0x0001000000000000
-    QV4_PointerMask                  = 0xfffffffffffffffd
-
-    QV4_Masks_NaN_Mask               = 0x7ff80000
-    QV4_Masks_Type_Mask              = 0xffff8000
-    QV4_Masks_IsDouble_Mask          = 0xfffc0000
-    QV4_Masks_Immediate_Mask         = 0x00018000
-    QV4_Masks_IsNullOrUndefined_Mask = 0x00008000
-    QV4_Masks_IsNullOrBoolean_Mask   = 0x00010000
-    QV4_Masks_Tag_Shift              = 32
-
-    QV4_ValueType_Undefined_Type     = QV4_Masks_IsNullOrUndefined_Mask
-    QV4_ValueType_Null_Type          = QV4_Masks_IsNullOrUndefined_Mask | QV4_Masks_IsNullOrBoolean_Mask
-    QV4_ValueType_Boolean_Type       = QV4_Masks_IsNullOrBoolean_Mask
-    QV4_ValueType_Integer_Type       = 0x20000 | QV4_Masks_IsNullOrBoolean_Mask
-    QV4_ValueType_Managed_Type       = 0
-    QV4_ValueType_Empty_Type         = QV4_ValueType_Undefined_Type | 0x4000
-
-    QV4_ValueTypeInternal_Null_Type_Internal    = QV4_ValueType_Null_Type
-    QV4_ValueTypeInternal_Boolean_Type_Internal = QV4_ValueType_Boolean_Type
-    QV4_ValueTypeInternal_Integer_Type_Internal = QV4_ValueType_Integer_Type
-
-    QV4_IsDouble_Shift               = 64-14
-    QV4_IsNumber_Shift               = 64-15
-    QV4_IsConvertibleToInt_Shift     = 64-16
-    QV4_IsManaged_Shift              = 64-17
-
 
 def QV4_getValue(d, jsval):  # (Dumper, QJSValue *jsval) -> QV4::Value *
     dd = d.split('Q', jsval)[0]
@@ -2104,6 +2070,56 @@ def qdump_32__QV4__Value(d, value):
             d.putFields(value)
 
 def qdump_64__QV4__Value(d, value):
+    dti = d.qtDeclarativeTypeInfoVersion()
+    new = dti is not None and dti >= 2
+    if new:
+        QV4_NaNEncodeMask                = 0xfffc000000000000
+        QV4_Masks_Immediate_Mask         = 0x00020000 # bit 49
+
+        QV4_ValueTypeInternal_Empty_Type_Internal   = QV4_Masks_Immediate_Mask   | 0
+        QV4_ConvertibleToInt      = QV4_Masks_Immediate_Mask   | 0x10000 # bit 48
+        QV4_ValueTypeInternal_Null_Type_Internal    = QV4_ConvertibleToInt | 0x08000
+        QV4_ValueTypeInternal_Boolean_Type_Internal = QV4_ConvertibleToInt | 0x04000
+        QV4_ValueTypeInternal_Integer_Type_Internal = QV4_ConvertibleToInt | 0x02000
+
+        QV4_ValueType_Undefined_Type     = 0 # Dummy to make generic code below pass.
+
+    else:
+        QV4_NaNEncodeMask                = 0xffff800000000000
+        QV4_Masks_Immediate_Mask         = 0x00018000
+
+        QV4_IsInt32Mask                  = 0x0002000000000000
+        QV4_IsDoubleMask                 = 0xfffc000000000000
+        QV4_IsNumberMask                 = QV4_IsInt32Mask | QV4_IsDoubleMask
+        QV4_IsNullOrUndefinedMask        = 0x0000800000000000
+        QV4_IsNullOrBooleanMask          = 0x0001000000000000
+
+        QV4_Masks_NaN_Mask               = 0x7ff80000
+        QV4_Masks_Type_Mask              = 0xffff8000
+        QV4_Masks_IsDouble_Mask          = 0xfffc0000
+        QV4_Masks_IsNullOrUndefined_Mask = 0x00008000
+        QV4_Masks_IsNullOrBoolean_Mask   = 0x00010000
+
+        QV4_ValueType_Undefined_Type     = QV4_Masks_IsNullOrUndefined_Mask
+        QV4_ValueType_Null_Type          = QV4_Masks_IsNullOrUndefined_Mask \
+                                         | QV4_Masks_IsNullOrBoolean_Mask
+        QV4_ValueType_Boolean_Type       = QV4_Masks_IsNullOrBoolean_Mask
+        QV4_ValueType_Integer_Type       = 0x20000 | QV4_Masks_IsNullOrBoolean_Mask
+        QV4_ValueType_Managed_Type       = 0
+        QV4_ValueType_Empty_Type         = QV4_ValueType_Undefined_Type | 0x4000
+
+        QV4_ValueTypeInternal_Null_Type_Internal    = QV4_ValueType_Null_Type
+        QV4_ValueTypeInternal_Boolean_Type_Internal = QV4_ValueType_Boolean_Type
+        QV4_ValueTypeInternal_Integer_Type_Internal = QV4_ValueType_Integer_Type
+
+    QV4_PointerMask                  = 0xfffffffffffffffd
+
+    QV4_Masks_Tag_Shift              = 32
+    QV4_IsDouble_Shift               = 64-14
+    QV4_IsNumber_Shift               = 64-15
+    QV4_IsConvertibleToInt_Shift     = 64-16
+    QV4_IsManaged_Shift              = 64-17
+
     v = value.split('Q')[0]
     tag = v >> QV4_Masks_Tag_Shift
     vtable = v & QV4_PointerMask
@@ -2117,15 +2133,19 @@ def qdump_64__QV4__Value(d, value):
     elif (v >> QV4_IsDouble_Shift):
         d.putBetterType('%sQV4::Value (double)' % ns)
         d.putValue('%x' % (v ^ QV4_NaNEncodeMask), 'float:8')
-    elif tag == QV4_ValueType_Undefined_Type:
+    elif tag == QV4_ValueType_Undefined_Type and not new:
         d.putBetterType('%sQV4::Value (undefined)' % ns)
         d.putValue('(undefined)')
     elif tag == QV4_ValueTypeInternal_Null_Type_Internal:
         d.putBetterType('%sQV4::Value (null?)' % ns)
         d.putValue('(null?)')
     elif v == 0:
-        d.putBetterType('%sQV4::Value (null)' % ns)
-        d.putValue('(null)')
+        if new:
+            d.putBetterType('%sQV4::Value (undefined)' % ns)
+            d.putValue('(undefined)')
+        else:
+            d.putBetterType('%sQV4::Value (null)' % ns)
+            d.putValue('(null)')
     #elif ((v >> QV4_IsManaged_Shift) & ~1) == 1:
     #    d.putBetterType('%sQV4::Value (null/undef)' % ns)
     #    d.putValue('(null/undef)')

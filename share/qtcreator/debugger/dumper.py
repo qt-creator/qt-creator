@@ -2746,6 +2746,19 @@ class DumperBase:
                 return tiVersion
         return None
 
+    def qtDeclarativeHookDataSymbolName(self):
+        return 'qtDeclarativeHookData'
+
+    def qtDeclarativeTypeInfoVersion(self):
+        addr = self.symbolAddress(self.qtDeclarativeHookDataSymbolName())
+        if addr:
+            # Only available with Qt 5.6+
+            (hookVersion, x, tiVersion) = self.split('ppp', addr)
+            if hookVersion >= 1:
+                self.qtTypeInfoVersion = lambda: tiVersion
+                return tiVersion
+        return None
+
     def addToCache(self, typeobj):
         typename = typeobj.name
         if typename in self.typesReported:
