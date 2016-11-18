@@ -34,6 +34,10 @@
 #include <QWidget>
 #include <QScopedPointer>
 
+QT_BEGIN_NAMESPACE
+class QTabWidget;
+QT_END_NAMESPACE
+
 namespace Core {
     class SideBar;
     class SideBarItem;
@@ -80,6 +84,7 @@ public:
     bool gotoCodeWasClicked();
 
     CrumbleBar* crumbleBar() const;
+    QTabWidget* centralTabWidget() const;
 
 public slots:
     void updateErrorStatus(const QList<RewriterError> &errors);
@@ -107,6 +112,7 @@ private: // functions
 private: // variables
     QSplitter *m_mainSplitter = nullptr;
     QPointer<DocumentWarningWidget> m_warningWidget;
+    QTabWidget* m_centralTabWidget = nullptr;
 
     QScopedPointer<Core::SideBar> m_leftSideBar;
     QScopedPointer<Core::SideBar> m_rightSideBar;

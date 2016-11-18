@@ -516,7 +516,10 @@ QWidget *DesignModeWidget::createCenterWidget()
     m_topSideBar = createTopSideBarWidget(viewManager().widgetInfos());
     horizontalLayout->addWidget(m_topSideBar.data());
 
-    horizontalLayout->addWidget(createCentralSplitter(viewManager().widgetInfos()));
+    Core::MiniSplitter *centralSplitter = createCentralSplitter(viewManager().widgetInfos());
+    m_centralTabWidget = centralSplitter->findChild<QTabWidget*>("centralTabWidget");
+    Q_ASSERT(m_centralTabWidget);
+    horizontalLayout->addWidget(centralSplitter);
 
     return centerWidget;
 }
@@ -583,6 +586,11 @@ bool DesignModeWidget::gotoCodeWasClicked()
 CrumbleBar *DesignModeWidget::crumbleBar() const
 {
     return m_crumbleBar;
+}
+
+QTabWidget *DesignModeWidget::centralTabWidget() const
+{
+    return m_centralTabWidget;
 }
 
 QString DesignModeWidget::contextHelpId() const
