@@ -30,6 +30,7 @@
 #include "cpptools_global.h"
 
 #include <texteditor/codeassist/assistinterface.h>
+#include <texteditor/quickfix.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
 
@@ -41,7 +42,6 @@
 
 namespace TextEditor {
 class TextDocument;
-class QuickFixOperations;
 }
 
 namespace CppTools {
