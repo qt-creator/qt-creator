@@ -217,7 +217,7 @@ void DesignModeWidget::enableWidgets()
 {
     if (debug)
         qDebug() << Q_FUNC_INFO;
-    m_warningWidget->setVisible(false);
+    hideWarningWidget();
     viewManager().enableWidgets();
     m_leftSideBar->setEnabled(true);
     m_rightSideBar->setEnabled(true);
@@ -299,18 +299,6 @@ void DesignModeWidget::setup()
     m_mainSplitter = new MiniSplitter(this);
     m_mainSplitter->setObjectName("mainSplitter");
 
-    // warning frame should be not in layout, but still child of the widget
-    m_warningWidget = new DocumentWarningWidget(this);
-    m_warningWidget->setVisible(false);
-    connect(m_warningWidget.data(), &DocumentWarningWidget::gotoCodeClicked, [=]
-        (const QString &filePath, int codeLine, int codeColumn) {
-        Q_UNUSED(filePath);
-
-        if (currentDesignDocument() && currentDesignDocument()->textEditor())
-            currentDesignDocument()->textEditor()->gotoLine(codeLine, codeColumn);
-        Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
-    });
-
     QList<Core::SideBarItem*> sideBarItems;
     QList<Core::SideBarItem*> leftSideBarItems;
     QList<Core::SideBarItem*> rightSideBarItems;
@@ -387,7 +375,6 @@ void DesignModeWidget::setup()
     mainLayout->setSpacing(0);
     mainLayout->addWidget(m_mainSplitter);
 
-    m_warningWidget->setVisible(false);
     viewManager().enableWidgets();
     m_leftSideBar->setEnabled(true);
     m_rightSideBar->setEnabled(true);
@@ -549,24 +536,46 @@ QWidget *DesignModeWidget::createCrumbleBarFrame()
     return frame;
 }
 
+DocumentWarningWidget *DesignModeWidget::warningWidget()
+{
+    if (m_warningWidget.isNull()) {
+        m_warningWidget = new DocumentWarningWidget(this);
+        connect(m_warningWidget.data(), &DocumentWarningWidget::gotoCodeClicked, [=]
+            (const QString &filePath, int codeLine, int codeColumn) {
+            Q_UNUSED(filePath);
+
+            if (currentDesignDocument() && currentDesignDocument()->textEditor())
+                currentDesignDocument()->textEditor()->gotoLine(codeLine, codeColumn);
+            Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
+        });
+    }
+    return m_warningWidget;
+}
+
+void DesignModeWidget::hideWarningWidget()
+{
+    if (m_warningWidget)
+        m_warningWidget->setVisible(false);
+}
+
 void DesignModeWidget::showErrorMessageBox(const QList<RewriterError> &errors)
 {
     Q_ASSERT(!errors.isEmpty());
-    m_warningWidget->setErrors(errors);
-    m_warningWidget->setVisible(true);
+    warningWidget()->setErrors(errors);
+    warningWidget()->setVisible(true);
 }
 
 void DesignModeWidget::showWarningMessageBox(const QList<RewriterError> &warnings)
 {
     Q_ASSERT(!warnings.isEmpty());
-    m_warningWidget->setWarnings(warnings);
-    m_warningWidget->setVisible(true);
+    warningWidget()->setWarnings(warnings);
+    warningWidget()->setVisible(true);
 }
 
 bool DesignModeWidget::gotoCodeWasClicked()
 {
     if (m_warningWidget)
-        return m_warningWidget->gotoCodeWasClicked();
+        return warningWidget()->gotoCodeWasClicked();
     return false;
 }
 

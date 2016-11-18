@@ -101,6 +101,8 @@ private: // functions
     void addNavigatorHistoryEntry(const Utils::FileName &fileName);
     QWidget *createCenterWidget();
     QWidget *createCrumbleBarFrame();
+    DocumentWarningWidget *warningWidget();
+    void hideWarningWidget();
 
 private: // variables
     QSplitter *m_mainSplitter = nullptr;
