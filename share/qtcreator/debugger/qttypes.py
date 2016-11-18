@@ -1572,6 +1572,7 @@ qdumpHelper_QVariants_F = [
 def qdump__QVariant(d, value):
     (data, typeStuff) = d.split('8sI', value)
     variantType = typeStuff & 0x3fffffff
+    isShared = bool(typeStuff & 0x40000000)
 
     # Well-known simple type.
     if variantType <= 6:
@@ -1616,14 +1617,12 @@ def qdump__QVariant(d, value):
         #data = value['d']['data']
         innerType = d.qtNamespace() + innert
 
-        isShared = bool(typeStuff & 0x40000000)
         #warn('SHARED: %s' % isShared)
         if isShared:
             base1 = d.extractPointer(value)
             #warn('BASE 1: %s %s' % (base1, innert))
             base = d.extractPointer(base1)
             #warn('SIZE 1: %s' % size)
-            innerType = d.createType(d.qtNamespace() + innert)
             val = d.createValue(base, innerType)
         else:
             #warn('DIRECT ITEM 1: %s' % innerType)
@@ -1643,19 +1642,9 @@ def qdump__QVariant(d, value):
     d.putType('%sQVariant (%s)' % (ns, variantType))
     d.putNumChild(1)
     if d.isExpanded():
-        typeName = None
+        innerType = None
         with Children(d):
             ev = d.parseAndEvaluate
-            data = d.call('const void *', value, 'constData')
-
-            addr = value.address()
-            data = ev('((%sQVariant*)0x%x)->constData()' % (ns, addr))
-            if data is None:
-                data = ev('((QVariant*)0x%x)->constData()' % addr)
-            if data is None:
-                d.putSpecialValue('notcallable')
-                return None
-
             p = None
             if p is None:
                 # Without debug info.
@@ -1671,15 +1660,24 @@ def qdump__QVariant(d, value):
                 return None
             ptr = p.pointer()
             (elided, blob) = d.encodeCArray(ptr, 1, 100)
-            typeName = d.hexdecode(blob)
+            innerType = d.hexdecode(blob)
+
             # Prefer namespaced version.
             if len(ns) > 0:
-                if not d.lookupNativeType(ns + typeName) is None:
-                    typeName = ns + typeName
-            data.type = d.createType(typeName + ' *')
-            d.putSubItem('data', data)
-        if not typeName is None:
-            d.putBetterType('%sQVariant (%s)' % (ns, typeName))
+                if not d.lookupNativeType(ns + innerType) is None:
+                    innerType = ns + innerType
+
+            if isShared:
+                base1 = d.extractPointer(value)
+                base = d.extractPointer(base1)
+                val = d.createValue(base, innerType)
+            else:
+                val = d.createValue(data, innerType)
+                val.laddress = value.laddress
+            d.putSubItem('data', val)
+
+        if not innerType is None:
+            d.putBetterType('%sQVariant (%s)' % (ns, innerType))
     return None
 
 
