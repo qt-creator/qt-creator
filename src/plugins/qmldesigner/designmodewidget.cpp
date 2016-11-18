@@ -498,6 +498,7 @@ static Core::MiniSplitter *createCentralSplitter(const QList<WidgetInfo> &widget
     tabWidget->setObjectName("centralTabWidget");
     tabWidget->setTabPosition(QTabWidget::East);
     tabWidget->tabBar()->setObjectName("centralTabBar");
+    tabWidget->setTabBarAutoHide(true);
 
     QWidget *backgroundWidget = new QWidget();
     backgroundWidget->setObjectName("backgroundWidget");
