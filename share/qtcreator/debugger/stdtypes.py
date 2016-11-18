@@ -90,6 +90,21 @@ def qdump__std__deque(d, value):
                     pcur = pfirst
                     pnode = newnode
 
+def qdump__std____1__deque(d, value):
+    mptr, mfirst, mbegin, mend, start, size = value.split("pppptt")
+    d.check(0 <= size and size <= 1000 * 1000 * 1000)
+    d.putItemCount(size)
+    if d.isExpanded():
+        innerType = value.type[0]
+        innerSize = innerType.size()
+        ptrSize = d.ptrSize()
+        bufsize = (4096 // innerSize) if innerSize < 256 else 16
+        with Children(d, size, maxNumChild=2000, childType=innerType):
+            for i in d.childRange():
+                k, j = divmod(start + i, bufsize)
+                base = d.extractPointer(mfirst + k * ptrSize)
+                d.putSubItem(i, d.createValue(base + j * innerSize, innerType))
+
 def qdump__std__deque__QNX(d, value):
     innerType = value.type[0]
     innerSize = innerType.size()
@@ -520,6 +535,10 @@ def qdump__std__stack(d, value):
 
 def qdump__std____debug__stack(d, value):
     qdump__std__stack(d, value)
+
+def qdump__std____1__stack(d, value):
+    d.putItem(value["c"])
+    d.putBetterType(value.type)
 
 def qform__std__string():
     return [Latin1StringFormat, SeparateLatin1StringFormat,
