@@ -3042,7 +3042,8 @@ void tst_Dumpers::dumper_data()
 
 
     QTest::newRow("QFiniteStack")
-            << Data("#include <private/qfinitestack_p.h>\n" + fooData,
+            << Data("#include <stdlib.h>\n" // Needed on macOS.
+                    "#include <private/qfinitestack_p.h>\n" + fooData,
 
                     "QFiniteStack<int> s1;\n"
                     "s1.allocate(2);\n"
