@@ -38,6 +38,7 @@ publication by Neil Fraser: http://neil.fraser.name/writing/diff/
 #include <QMap>
 #include <QPair>
 #include <QCoreApplication>
+#include <QFutureInterfaceBase>
 
 namespace DiffEditor {
 
@@ -985,9 +986,10 @@ QString Diff::toString() const
 
 ///////////////
 
-Differ::Differ()
+Differ::Differ(QFutureInterfaceBase *jobController)
     : m_diffMode(Differ::LineMode),
-      m_currentDiffMode(Differ::LineMode)
+      m_currentDiffMode(Differ::LineMode),
+      m_jobController(jobController)
 {
 
 }
@@ -1124,6 +1126,11 @@ QList<Diff> Differ::diffMyers(const QString &text1, const QString &text2)
     int kMinReverse = -D;
     int kMaxReverse = D;
     for (int d = 0; d <= D; d++) {
+        if (m_jobController && m_jobController->isCanceled()) {
+            delete [] forwardV;
+            delete [] reverseV;
+            return QList<Diff>();
+        }
         // going forward
         for (int k = qMax(-d, kMinForward + qAbs(d + kMinForward) % 2);
              k <= qMin(d, kMaxForward - qAbs(d + kMaxForward) % 2);
@@ -1237,7 +1244,18 @@ QList<Diff> Differ::diffNonCharMode(const QString &text1, const QString &text2)
     QString lastDelete;
     QString lastInsert;
     QList<Diff> newDiffList;
+    if (m_jobController) {
+        m_jobController->setProgressRange(0, diffList.count());
+        m_jobController->setProgressValue(0);
+    }
     for (int i = 0; i <= diffList.count(); i++) {
+        if (m_jobController) {
+            if (m_jobController->isCanceled()) {
+                m_currentDiffMode = diffMode;
+                return QList<Diff>();
+            }
+            m_jobController->setProgressValue(i + 1);
+        }
         const Diff diffItem = i < diffList.count()
                   ? diffList.at(i)
                   : Diff(Diff::Equal); // dummy, ensure we process to the end

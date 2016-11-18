@@ -33,6 +33,7 @@
 
 #include <QAction>
 #include <QFileDialog>
+#include <QFutureWatcher>
 #include <QMenu>
 #include <QTextCodec>
 #include <QtPlugin>
@@ -43,11 +44,13 @@
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
 #include <utils/algorithm.h>
+#include <utils/mapreduce.h>
 #include <utils/qtcassert.h>
 
 using namespace Core;
@@ -55,48 +58,116 @@ using namespace Core;
 namespace DiffEditor {
 namespace Internal {
 
+class ReloadInput {
+public:
+    QString leftText;
+    QString rightText;
+    DiffFileInfo leftFileInfo;
+    DiffFileInfo rightFileInfo;
+    FileData::FileOperation fileOperation = FileData::ChangeFile;
+};
+
+class DiffFile
+{
+public:
+    DiffFile(bool ignoreWhitespace, int contextLineCount)
+        : m_ignoreWhitespace(ignoreWhitespace),
+          m_contextLineCount(contextLineCount)
+    {}
+
+    void operator()(QFutureInterface<FileData> &futureInterface,
+                    const ReloadInput &reloadInfo) const
+    {
+        Differ differ(&futureInterface);
+        const QList<Diff> diffList = differ.cleanupSemantics(
+                    differ.diff(reloadInfo.leftText, reloadInfo.rightText));
+
+        QList<Diff> leftDiffList;
+        QList<Diff> rightDiffList;
+        Differ::splitDiffList(diffList, &leftDiffList, &rightDiffList);
+        QList<Diff> outputLeftDiffList;
+        QList<Diff> outputRightDiffList;
+
+        if (m_ignoreWhitespace) {
+            const QList<Diff> leftIntermediate
+                    = Differ::moveWhitespaceIntoEqualities(leftDiffList);
+            const QList<Diff> rightIntermediate
+                    = Differ::moveWhitespaceIntoEqualities(rightDiffList);
+            Differ::ignoreWhitespaceBetweenEqualities(leftIntermediate, rightIntermediate,
+                                                      &outputLeftDiffList, &outputRightDiffList);
+        } else {
+            outputLeftDiffList = leftDiffList;
+            outputRightDiffList = rightDiffList;
+        }
+
+        const ChunkData chunkData = DiffUtils::calculateOriginalData(
+                    outputLeftDiffList, outputRightDiffList);
+        FileData fileData = DiffUtils::calculateContextData(chunkData, m_contextLineCount, 0);
+        fileData.leftFileInfo = reloadInfo.leftFileInfo;
+        fileData.rightFileInfo = reloadInfo.rightFileInfo;
+        fileData.fileOperation = reloadInfo.fileOperation;
+        futureInterface.reportResult(fileData);
+    }
+
+private:
+    const bool m_ignoreWhitespace;
+    const int m_contextLineCount;
+};
+
 class DiffFilesController : public DiffEditorController
 {
     Q_OBJECT
 public:
     DiffFilesController(IDocument *document);
+    ~DiffFilesController();
 
 protected:
-    FileData diffFiles(const QString &leftContents, const QString &rightContents);
+    void reload() final;
+    virtual QList<ReloadInput> reloadInputList() const = 0;
+private:
+    void reloaded();
+    void cancelReload();
+
+    QFutureWatcher<FileData> m_futureWatcher;
 };
 
 DiffFilesController::DiffFilesController(IDocument *document)
     : DiffEditorController(document)
-{}
-
-FileData DiffFilesController::diffFiles(const QString &leftContents, const QString &rightContents)
 {
-    Differ differ;
-    const QList<Diff> diffList = differ.cleanupSemantics(differ.diff(leftContents, rightContents));
+    connect(&m_futureWatcher, &QFutureWatcher<FileData>::finished,
+            this, &DiffFilesController::reloaded);
+}
 
-    QList<Diff> leftDiffList;
-    QList<Diff> rightDiffList;
-    Differ::splitDiffList(diffList, &leftDiffList, &rightDiffList);
-    QList<Diff> outputLeftDiffList;
-    QList<Diff> outputRightDiffList;
+DiffFilesController::~DiffFilesController()
+{
+    cancelReload();
+}
 
-    if (ignoreWhitespace()) {
-        const QList<Diff> leftIntermediate
-                = Differ::moveWhitespaceIntoEqualities(leftDiffList);
-        const QList<Diff> rightIntermediate
-                = Differ::moveWhitespaceIntoEqualities(rightDiffList);
-        Differ::ignoreWhitespaceBetweenEqualities(leftIntermediate, rightIntermediate,
-                                                  &outputLeftDiffList, &outputRightDiffList);
-    } else {
-        outputLeftDiffList = leftDiffList;
-        outputRightDiffList = rightDiffList;
+void DiffFilesController::reload()
+{
+    cancelReload();
+    m_futureWatcher.setFuture(Utils::map(reloadInputList(),
+                                         DiffFile(ignoreWhitespace(),
+                                                  contextLineCount())));
+
+    Core::ProgressManager::addTask(m_futureWatcher.future(),
+                                   tr("Calculating diff"), "DiffEditor");
+}
+
+void DiffFilesController::reloaded()
+{
+    const QList<FileData> fileDataList = m_futureWatcher.future().results();
+
+    setDiffFiles(fileDataList);
+    reloadFinished(true);
+}
+
+void DiffFilesController::cancelReload()
+{
+    if (m_futureWatcher.future().isRunning()) {
+        m_futureWatcher.future().cancel();
+        m_futureWatcher.setFuture(QFuture<FileData>());
     }
-
-    const ChunkData chunkData = DiffUtils::calculateOriginalData(
-                outputLeftDiffList, outputRightDiffList);
-    const FileData fileData = DiffUtils::calculateContextData(chunkData, contextLineCount(), 0);
-
-    return fileData;
 }
 
 class DiffCurrentFileController : public DiffFilesController
@@ -106,7 +177,7 @@ public:
     DiffCurrentFileController(IDocument *document, const QString &fileName);
 
 protected:
-    void reload() override;
+    QList<ReloadInput> reloadInputList() const final;
 
 private:
     const QString m_fileName;
@@ -116,9 +187,9 @@ DiffCurrentFileController::DiffCurrentFileController(IDocument *document, const 
     DiffFilesController(document), m_fileName(fileName)
 { }
 
-void DiffCurrentFileController::reload()
+QList<ReloadInput> DiffCurrentFileController::reloadInputList() const
 {
-    QList<FileData> fileDataList;
+    QList<ReloadInput> result;
 
     TextEditor::TextDocument *textDocument = qobject_cast<TextEditor::TextDocument *>(
                 DocumentModel::documentForFilePath(m_fileName));
@@ -138,21 +209,22 @@ void DiffCurrentFileController::reload()
 
         const QString rightText = textDocument->plainText();
 
-        FileData fileData = diffFiles(leftText, rightText);
-        fileData.leftFileInfo.fileName = m_fileName;
-        fileData.rightFileInfo.fileName = m_fileName;
-        fileData.leftFileInfo.typeInfo = tr("Saved");
-        fileData.rightFileInfo.typeInfo = tr("Modified");
-        fileData.rightFileInfo.patchBehaviour = DiffFileInfo::PatchEditor;
+        ReloadInput reloadInput;
+        reloadInput.leftText = leftText;
+        reloadInput.rightText = rightText;
+        reloadInput.leftFileInfo.fileName = m_fileName;
+        reloadInput.rightFileInfo.fileName = m_fileName;
+        reloadInput.leftFileInfo.typeInfo = tr("Saved");
+        reloadInput.rightFileInfo.typeInfo = tr("Modified");
+        reloadInput.rightFileInfo.patchBehaviour = DiffFileInfo::PatchEditor;
 
         if (!leftFileExists)
-            fileData.fileOperation = FileData::NewFile;
+            reloadInput.fileOperation = FileData::NewFile;
 
-        fileDataList << fileData;
+        result << reloadInput;
     }
 
-    setDiffFiles(fileDataList);
-    reloadFinished(true);
+    return result;
 }
 
 /////////////////
@@ -164,19 +236,18 @@ public:
     DiffOpenFilesController(IDocument *document);
 
 protected:
-    void reload() override;
+    QList<ReloadInput> reloadInputList() const final;
 };
 
 DiffOpenFilesController::DiffOpenFilesController(IDocument *document) :
     DiffFilesController(document)
 { }
 
-void DiffOpenFilesController::reload()
+QList<ReloadInput> DiffOpenFilesController::reloadInputList() const
 {
-    const QList<IDocument *> openedDocuments =
-            DocumentModel::openedDocuments();
+    QList<ReloadInput> result;
 
-    QList<FileData> fileDataList;
+    const QList<IDocument *> openedDocuments = DocumentModel::openedDocuments();
 
     foreach (IDocument *doc, openedDocuments) {
         TextEditor::TextDocument *textDocument = qobject_cast<TextEditor::TextDocument *>(doc);
@@ -197,22 +268,23 @@ void DiffOpenFilesController::reload()
 
             const QString rightText = textDocument->plainText();
 
-            FileData fileData = diffFiles(leftText, rightText);
-            fileData.leftFileInfo.fileName = fileName;
-            fileData.rightFileInfo.fileName = fileName;
-            fileData.leftFileInfo.typeInfo = tr("Saved");
-            fileData.rightFileInfo.typeInfo = tr("Modified");
-            fileData.rightFileInfo.patchBehaviour = DiffFileInfo::PatchEditor;
+            ReloadInput reloadInput;
+            reloadInput.leftText = leftText;
+            reloadInput.rightText = rightText;
+            reloadInput.leftFileInfo.fileName = fileName;
+            reloadInput.rightFileInfo.fileName = fileName;
+            reloadInput.leftFileInfo.typeInfo = tr("Saved");
+            reloadInput.rightFileInfo.typeInfo = tr("Modified");
+            reloadInput.rightFileInfo.patchBehaviour = DiffFileInfo::PatchEditor;
 
             if (!leftFileExists)
-                fileData.fileOperation = FileData::NewFile;
+                reloadInput.fileOperation = FileData::NewFile;
 
-            fileDataList << fileData;
+            result << reloadInput;
         }
     }
 
-    setDiffFiles(fileDataList);
-    reloadFinished(true);
+    return result;
 }
 
 /////////////////
@@ -224,7 +296,7 @@ public:
     DiffModifiedFilesController(IDocument *document, const QStringList &fileNames);
 
 protected:
-    void reload() override;
+    QList<ReloadInput> reloadInputList() const final;
 
 private:
     const QStringList m_fileNames;
@@ -234,9 +306,9 @@ DiffModifiedFilesController::DiffModifiedFilesController(IDocument *document, co
     DiffFilesController(document), m_fileNames(fileNames)
 { }
 
-void DiffModifiedFilesController::reload()
+QList<ReloadInput> DiffModifiedFilesController::reloadInputList() const
 {
-    QList<FileData> fileDataList;
+    QList<ReloadInput> result;
 
     foreach (const QString fileName, m_fileNames) {
         TextEditor::TextDocument *textDocument = qobject_cast<TextEditor::TextDocument *>(
@@ -258,22 +330,23 @@ void DiffModifiedFilesController::reload()
 
             const QString rightText = textDocument->plainText();
 
-            FileData fileData = diffFiles(leftText, rightText);
-            fileData.leftFileInfo.fileName = fileName;
-            fileData.rightFileInfo.fileName = fileName;
-            fileData.leftFileInfo.typeInfo = tr("Saved");
-            fileData.rightFileInfo.typeInfo = tr("Modified");
-            fileData.rightFileInfo.patchBehaviour = DiffFileInfo::PatchEditor;
+            ReloadInput reloadInput;
+            reloadInput.leftText = leftText;
+            reloadInput.rightText = rightText;
+            reloadInput.leftFileInfo.fileName = fileName;
+            reloadInput.rightFileInfo.fileName = fileName;
+            reloadInput.leftFileInfo.typeInfo = tr("Saved");
+            reloadInput.rightFileInfo.typeInfo = tr("Modified");
+            reloadInput.rightFileInfo.patchBehaviour = DiffFileInfo::PatchEditor;
 
             if (!leftFileExists)
-                fileData.fileOperation = FileData::NewFile;
+                reloadInput.fileOperation = FileData::NewFile;
 
-            fileDataList << fileData;
+            result << reloadInput;
         }
     }
 
-    setDiffFiles(fileDataList);
-    reloadFinished(true);
+    return result;
 }
 
 /////////////////
@@ -286,7 +359,7 @@ public:
                        const QString &rightFileName);
 
 protected:
-    void reload() override;
+    QList<ReloadInput> reloadInputList() const final;
 
 private:
     const QString m_leftFileName;
@@ -298,7 +371,7 @@ DiffExternalFilesController::DiffExternalFilesController(IDocument *document, co
     DiffFilesController(document), m_leftFileName(leftFileName), m_rightFileName(rightFileName)
 { }
 
-void DiffExternalFilesController::reload()
+QList<ReloadInput> DiffExternalFilesController::reloadInputList() const
 {
     QString errorString;
     Utils::TextFileFormat format;
@@ -322,20 +395,21 @@ void DiffExternalFilesController::reload()
         rightFileExists = false;
     }
 
-    FileData fileData = diffFiles(leftText, rightText);
-    fileData.leftFileInfo.fileName = m_leftFileName;
-    fileData.rightFileInfo.fileName = m_rightFileName;
+    ReloadInput reloadInput;
+    reloadInput.leftText = leftText;
+    reloadInput.rightText = rightText;
+    reloadInput.leftFileInfo.fileName = m_leftFileName;
+    reloadInput.rightFileInfo.fileName = m_rightFileName;
     if (!leftFileExists && rightFileExists)
-        fileData.fileOperation = FileData::NewFile;
+        reloadInput.fileOperation = FileData::NewFile;
     else if (leftFileExists && !rightFileExists)
-        fileData.fileOperation = FileData::DeleteFile;
+        reloadInput.fileOperation = FileData::DeleteFile;
 
-    QList<FileData> fileDataList;
+    QList<ReloadInput> result;
     if (leftFileExists || rightFileExists)
-        fileDataList << fileData;
+        result << reloadInput;
 
-    setDiffFiles(fileDataList);
-    reloadFinished(true);
+    return result;
 }
 
 /////////////////

@@ -31,6 +31,7 @@
 QT_BEGIN_NAMESPACE
 template <class K, class T>
 class QMap;
+class QFutureInterfaceBase;
 QT_END_NAMESPACE
 
 namespace DiffEditor {
@@ -62,7 +63,7 @@ public:
         WordMode,
         LineMode
     };
-    Differ();
+    Differ(QFutureInterfaceBase *jobController = nullptr);
     QList<Diff> diff(const QString &text1, const QString &text2);
     QList<Diff> unifiedDiff(const QString &text1, const QString &text2);
     void setDiffMode(DiffMode mode);
@@ -110,6 +111,7 @@ private:
                        int subTextStart);
     DiffMode m_diffMode;
     DiffMode m_currentDiffMode;
+    QFutureInterfaceBase *m_jobController = nullptr;
 };
 
 } // namespace DiffEditor
