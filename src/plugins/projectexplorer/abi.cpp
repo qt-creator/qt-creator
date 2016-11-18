@@ -695,6 +695,8 @@ QString Abi::toString(const OSFlavor &of)
         return QLatin1String("msvc2013");
     case Abi::WindowsMsvc2015Flavor:
         return QLatin1String("msvc2015");
+    case Abi::WindowsMsvc2017Flavor:
+        return QLatin1String("msvc2017");
     case Abi::WindowsMSysFlavor:
         return QLatin1String("msys");
     case Abi::WindowsCEFlavor:
