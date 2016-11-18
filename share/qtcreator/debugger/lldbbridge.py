@@ -298,8 +298,23 @@ class Dumper(DumperBase):
                     member.type = self.fromNativeType(fieldType)
                     member.name = fieldName
                     member.fields = []
-                    member.ldata = bytes()
-                    member.lbitsize = fieldType.GetByteSize() * 8
+                    if False:
+                        # This would be correct if we came here only for
+                        # truly empty base classes. Alas, we don't, see below.
+                        member.ldata = bytes()
+                        member.lbitsize = fieldType.GetByteSize() * 8
+                    else:
+                        # This is a hack. LLDB 3.8 reports declared but not defined
+                        # types as having no fields and(!) size == 1. At least
+                        # for the common case of a single base class we can
+                        # fake the contents by using the whole derived object's
+                        # data as base class data.
+                        data = fakeValue.GetData()
+                        size = nativeType.GetByteSize()
+                        member.lbitsize = size * 8
+                        error = lldb.SBError()
+                        member.laddress = value.laddress
+                        member.ldata = data.ReadRawData(error, 0, size)
                     member.isBaseClass = True
                     member.ltype = self.fromNativeType(fieldType)
                     member.name = fieldName
