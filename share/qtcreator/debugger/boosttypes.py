@@ -109,29 +109,35 @@ def qdump__boost__posix_time__time_duration(d, value):
 
 def qdump__boost__unordered__unordered_set(d, value):
     innerType = value.type[0]
-    newer = value.type.size() == 6 * d.ptrSize()  # 48 for boost 1.58, 40 for boost 1.48
-    if newer:
-        # boost 1.58
+    if value.type.size() == 6 * d.ptrSize(): # 48 for boost 1.55+, 40 for 1.48
+        # boost 1.58 or 1.55
         # bases are 3? bytes, and mlf is actually a float, but since
         # its followed by size_t maxload, it's # effectively padded to a size_t
         bases, bucketCount, size, mlf, maxload, buckets = value.split('tttttp')
-        code = 'pp{%s}' % innerType.name
+        # Distinguish 1.58 and 1.55. 1.58 used one template argument, 1.55 two.
+        ittype = d.lookupType(value.type.name + '::iterator').target()
+        forward = len(ittype.templateArguments()) == 1
     else:
         # boost 1.48
         # Values are stored before the next pointers. Determine the offset.
         buckets, bucketCount, size, mlf, maxload = value.split('ptttt')
+        forward = False
+
+    if forward:
+        # boost 1.58
+        code = 'pp{%s}' % innerType.name
+        def children(p):
+            while True:
+                p, dummy, val = d.split(code, p)
+                yield val
+    else:
+        # boost 1.48 or 1.55
         code = '{%s}@p' % innerType.name
         (pp, ssize, fields) = d.describeStruct(code)
         offset = fields[2].offset()
-
-    d.putItemCount(size)
-
-    if d.isExpanded():
-        p = d.extractPointer(buckets + bucketCount * d.ptrSize())
-        with Children(d, size, maxNumChild=10000):
-            for j in d.childRange():
-                if newer:
-                    p, dummy, val = d.split(code, p)
-                else:
-                    val, pad, p = d.split(code, p - offset)
-                d.putSubItem(j, val)
+        def children(p):
+            while True:
+                val, pad, p = d.split(code, p - offset)
+                yield val
+    p = d.extractPointer(buckets + bucketCount * d.ptrSize())
+    d.putItems(size, children(p), maxNumChild = 10000)

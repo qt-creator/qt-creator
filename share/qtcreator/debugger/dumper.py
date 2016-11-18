@@ -2586,6 +2586,13 @@ class DumperBase:
                 return True
         return False
 
+    def putItems(self, count, generator, maxNumChild=10000):
+        self.putItemCount(count)
+        if self.isExpanded():
+            with Children(self, count, maxNumChild=maxNumChild):
+                for i, val in zip(self.childRange(), generator):
+                    self.putSubItem(i, val)
+
     def putItem(self, value):
         self.preping('putItem')
         self.putItemX(value)
@@ -3316,6 +3323,12 @@ class DumperBase:
 
         def unqualified(self):
             return self
+
+        def templateArguments(self):
+            tdata = self.typeData()
+            if tdata is None:
+                return self.dumper.listTemplateParameters(self.typeId)
+            return tdata.templateArguments
 
         def templateArgument(self, position):
             tdata = self.typeData()
