@@ -47,12 +47,12 @@ public:
     static FindToolWindow *instance();
 
     void setFindFilters(const QList<IFindFilter *> &filters);
+    QList<IFindFilter *> findFilters() const;
 
     void setFindText(const QString &text);
     void setCurrentFilter(IFindFilter *filter);
     void readSettings();
     void writeSettings();
-    void updateFindFilterNames();
 
 protected:
     bool event(QEvent *event);
@@ -64,6 +64,7 @@ private:
     void setCurrentFilter(int index);
     void updateButtonStates();
     void updateFindFlags();
+    void updateFindFilterName(IFindFilter *filter);
 
     void acceptAndGetParameters(QString *term, IFindFilter **filter);
 

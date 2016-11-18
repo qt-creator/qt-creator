@@ -75,17 +75,13 @@ class FindPrivate : public QObject
     Q_DECLARE_TR_FUNCTIONS(Core::Find)
 
 public:
-    void filterChanged(IFindFilter *changedFilter);
-    void displayNameChanged(IFindFilter *changedFilter);
-    void openFindFilter(QAction *action);
+    bool isAnyFilterEnabled() const;
     void writeSettings();
     void setFindFlag(Core::FindFlag flag, bool enabled);
     void updateCompletion(const QString &text, QStringList &completions, QStringListModel *model);
     void setupMenu();
     void setupFilterMenuItems();
     void readSettings();
-
-    QHash<IFindFilter *, QAction *> m_filterActions;
 
     Internal::CurrentDocumentFind *m_currentDocumentFind = 0;
     Internal::FindToolBar *m_findToolBar = 0;
@@ -154,36 +150,9 @@ void Find::aboutToShutdown()
     d->m_currentDocumentFind->removeConnections();
 }
 
-void FindPrivate::filterChanged(IFindFilter *changedFilter)
+bool FindPrivate::isAnyFilterEnabled() const
 {
-    QAction *action = d->m_filterActions.value(changedFilter);
-    QTC_ASSERT(changedFilter, return);
-    QTC_ASSERT(action, return);
-    action->setEnabled(changedFilter->isEnabled());
-    bool haveEnabledFilters = false;
-    foreach (const IFindFilter *filter, d->m_filterActions.keys()) {
-        if (filter->isEnabled()) {
-            haveEnabledFilters = true;
-            break;
-        }
-    }
-    d->m_openFindDialog->setEnabled(haveEnabledFilters);
-}
-
-void FindPrivate::displayNameChanged(IFindFilter *changedFilter)
-{
-    QAction *action = d->m_filterActions.value(changedFilter);
-    QTC_ASSERT(changedFilter, return);
-    QTC_ASSERT(action, return);
-    action->setText(QLatin1String("    ") + changedFilter->displayName());
-    d->m_findDialog->updateFindFilterNames();
-}
-
-void FindPrivate::openFindFilter(QAction *action)
-{
-    QTC_ASSERT(action, return);
-    IFindFilter *filter = action->data().value<IFindFilter *>();
-    Find::openFindDialog(filter);
+    return Utils::anyOf(m_findDialog->findFilters(), &IFindFilter::isEnabled);
 }
 
 void Find::openFindDialog(IFindFilter *filter)
@@ -221,7 +190,12 @@ void FindPrivate::setupMenu()
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+F")));
     mfindadvanced->addAction(cmd);
     connect(m_openFindDialog, &QAction::triggered,
-            this, [this] { openFindFilter(m_openFindDialog); });
+            this, [this] { Find::openFindDialog(nullptr); });
+}
+
+static QString filterActionName(const IFindFilter *filter)
+{
+    return QLatin1String("    ") + filter->displayName();
 }
 
 void FindPrivate::setupFilterMenuItems()
@@ -230,26 +204,28 @@ void FindPrivate::setupFilterMenuItems()
     Command *cmd;
 
     ActionContainer *mfindadvanced = ActionManager::actionContainer(Constants::M_FIND_ADVANCED);
-    d->m_filterActions.clear();
     bool haveEnabledFilters = false;
     const Id base("FindFilter.");
     QList<IFindFilter *> sortedFilters = findInterfaces;
     Utils::sort(sortedFilters, &IFindFilter::displayName);
     foreach (IFindFilter *filter, sortedFilters) {
-        QAction *action = new QAction(QLatin1String("    ") + filter->displayName(), this);
+        QAction *action = new QAction(filterActionName(filter), this);
         bool isEnabled = filter->isEnabled();
         if (isEnabled)
             haveEnabledFilters = true;
         action->setEnabled(isEnabled);
-        action->setData(qVariantFromValue(filter));
         cmd = ActionManager::registerAction(action, base.withSuffix(filter->id()));
         cmd->setDefaultKeySequence(filter->defaultShortcut());
         cmd->setAttribute(Command::CA_UpdateText);
         mfindadvanced->addAction(cmd);
-        d->m_filterActions.insert(filter, action);
-        connect(action, &QAction::triggered, this, [action] { d->openFindFilter(action); });
-        connect(filter, &IFindFilter::enabledChanged, this, [filter] { d->filterChanged(filter); });
-        connect(filter, &IFindFilter::displayNameChanged, this, [filter] { d->displayNameChanged(filter); });
+        connect(action, &QAction::triggered,
+                this, [filter, action] { Find::openFindDialog(filter); });
+        connect(filter, &IFindFilter::enabledChanged, this, [filter, action] {
+            action->setEnabled(filter->isEnabled());
+            d->m_openFindDialog->setEnabled(d->isAnyFilterEnabled());
+        });
+        connect(filter, &IFindFilter::displayNameChanged,
+                this, [filter, action] { action->setText(filterActionName(filter)); });
     }
     d->m_findDialog->setFindFilters(sortedFilters);
     d->m_openFindDialog->setEnabled(haveEnabledFilters);

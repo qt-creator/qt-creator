@@ -144,25 +144,32 @@ void FindToolWindow::setFindFilters(const QList<IFindFilter *> &filters)
 {
     qDeleteAll(m_configWidgets);
     m_configWidgets.clear();
+    foreach (IFindFilter *filter, m_filters)
+        filter->disconnect(this);
     m_filters = filters;
     m_ui.filterList->clear();
     QStringList names;
     foreach (IFindFilter *filter, filters) {
         names << filter->displayName();
         m_configWidgets.append(filter->createConfigWidget());
+        connect(filter, &IFindFilter::displayNameChanged,
+                this, [this, filter]() { updateFindFilterName(filter); });
     }
     m_ui.filterList->addItems(names);
     if (m_filters.size() > 0)
         setCurrentFilter(0);
 }
 
-void FindToolWindow::updateFindFilterNames()
+QList<IFindFilter *> FindToolWindow::findFilters() const
 {
-    int currentIndex = m_ui.filterList->currentIndex();
-    m_ui.filterList->clear();
-    QStringList names = Utils::transform(m_filters, &IFindFilter::displayName);
-    m_ui.filterList->addItems(names);
-    m_ui.filterList->setCurrentIndex(currentIndex);
+    return m_filters;
+}
+
+void FindToolWindow::updateFindFilterName(IFindFilter *filter)
+{
+    int index = m_filters.indexOf(filter);
+    if (QTC_GUARD(index >= 0))
+        m_ui.filterList->setItemText(index, filter->displayName());
 }
 
 void FindToolWindow::setFindText(const QString &text)
