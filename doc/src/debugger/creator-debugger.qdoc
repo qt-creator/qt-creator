@@ -578,6 +578,45 @@
 
     \endlist
 
+    \section2 Enabling and Disabling Breakpoints
+
+    To temporarily disable a breakpoint without deleting it and losing associated
+    data like conditions and commands:
+
+    \list
+
+        \li Right-click the breakpoint marker in the text editor and select
+            \uicontrol{Disable Breakpoint}.
+
+        \li Select the breakpoint in the \uicontrol Breakpoints view and press
+            \key Space.
+
+        \li Select \uicontrol {Disabled Breakpoint} in the context menu in the
+            \uicontrol Breakpoints view.
+
+    \endlist
+
+    A disabled breakpoint is marked with a hollow read circle in the
+    text editor and the \uicontrol Breakpoint view.
+
+    To re-enable a temporarily disabled breakpoint:
+
+    \list
+
+        \li Right-click the marker of a disabled breakpoint in the text editor and
+            select \uicontrol{Enable Breakpoint}.
+
+        \li Select a disabled breakpoint in the \uicontrol Breakpoints view and press
+            \key Space.
+
+        \li Select \uicontrol {Disabled Breakpoint} in the context menu in the
+            \uicontrol Breakpoints view.
+
+    \endlist
+
+    With the notable exception of data breakpoints, breakpoints retain their
+    enabled or disabled state when the debugged program is restarted.
+
     \section2 Setting Data Breakpoints
 
     A \e {data breakpoint} stops the program when data is read or written at the
@@ -603,6 +642,11 @@
     If the address is displayed in the \uicontrol {Locals and Expressions} view,
     you can select \uicontrol {Add Data Breakpoint at Object's Address} in the
     context menu to set the data breakpoint.
+
+    Data breakpoints will be disabled when the debugged program exits, as it
+    is unlikely that the used addresses will stay the same at the next program
+    launch. If you really want a data breakpoint to be active again, re-enable
+    it manually.
 
     \section1 Viewing Call Stack Trace
 
