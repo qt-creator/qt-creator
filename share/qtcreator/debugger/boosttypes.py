@@ -108,45 +108,36 @@ def qdump__boost__posix_time__time_duration(d, value):
 
 
 def qdump__boost__unordered__unordered_set(d, value):
-    base = value.address()
-    ptrSize = d.ptrSize()
-    size = d.extractInt(base + 2 * ptrSize)
-    d.putItemCount(size)
+    innerType = value.type[0]
+    if value.type.size() == 6 * d.ptrSize(): # 48 for boost 1.55+, 40 for 1.48
+        # boost 1.58 or 1.55
+        # bases are 3? bytes, and mlf is actually a float, but since
+        # its followed by size_t maxload, it's # effectively padded to a size_t
+        bases, bucketCount, size, mlf, maxload, buckets = value.split('tttttp')
+        # Distinguish 1.58 and 1.55. 1.58 used one template argument, 1.55 two.
+        ittype = d.lookupType(value.type.name + '::iterator').target()
+        forward = len(ittype.templateArguments()) == 1
+    else:
+        # boost 1.48
+        # Values are stored before the next pointers. Determine the offset.
+        buckets, bucketCount, size, mlf, maxload = value.split('ptttt')
+        forward = False
 
-    if d.isExpanded():
-        innerType = value.type[0]
-        bucketCount = d.extractInt(base + ptrSize)
-        #warn("A BUCKET COUNT: %s" % bucketCount)
-        #warn("X BUCKET COUNT: %s" % d.parseAndEvaluate("s1.table_.bucket_count_").value())
-        try:
-            # boost 1.58
-            table = value["table_"]
-            bucketsAddr = table["buckets_"].integer()
-            #warn("A BUCKETS: 0x%x" % bucketsAddr)
-            #warn("X BUCKETS: 0x%x" % d.parseAndEvaluate("s1.table_.buckets_").pointer())
-            lastBucketAddr = bucketsAddr + bucketCount * ptrSize
-            #warn("A LAST BUCKET: 0x%x" % lastBucketAddr)
-            #warn("X LAST BUCKET: 0x%x" % d.parseAndEvaluate("s1.table_.get_bucket(s1.table_.bucket_count_)").pointer())
-            previousStartAddr = lastBucketAddr
-            #warn("A PREVIOUS START: 0x%x" % previousStartAddr)
-            #warn("X PREVIOUS START: 0x%x" % d.parseAndEvaluate("s1.table_.get_previous_start()").pointer())
-            item = d.extractPointer(previousStartAddr)
-            #warn("A KEY ADDR: 0x%x" % item)
-            #warn("X KEY ADDR: 0x%x" % d.parseAndEvaluate("s1.table_.get_previous_start()->next_").pointer())
-            item = d.extractPointer(previousStartAddr)
-            #warn("A  VALUE: %x" % d.extractInt(item + ptrSize))
-            #warn("X  VALUE: %x" % d.parseAndEvaluate("*(int*)(s1.table_.get_previous_start()->next_ + 1)").integer())
-            with Children(d, size, maxNumChild=10000):
-                for j in d.childRange():
-                    d.putSubItem(j, d.createValue(item + 2 * ptrSize, innerType))
-                    item = d.extractPointer(item)
-        except:
-            # boost 1.48
-            offset = int((innerType.size() + ptrSize - 1) / ptrSize) * ptrSize
-            with Children(d, size, maxNumChild=10000):
-                afterBuckets = d.extractPointer(base + 5 * ptrSize)
-                afterBuckets += bucketCount * ptrSize
-                item = d.extractPointer(afterBuckets)
-                for j in d.childRange():
-                    d.putSubItem(j, d.createValue(item - offset, innerType))
-                    item = d.extractPointer(item)
+    if forward:
+        # boost 1.58
+        code = 'pp{%s}' % innerType.name
+        def children(p):
+            while True:
+                p, dummy, val = d.split(code, p)
+                yield val
+    else:
+        # boost 1.48 or 1.55
+        code = '{%s}@p' % innerType.name
+        (pp, ssize, fields) = d.describeStruct(code)
+        offset = fields[2].offset()
+        def children(p):
+            while True:
+                val, pad, p = d.split(code, p - offset)
+                yield val
+    p = d.extractPointer(buckets + bucketCount * d.ptrSize())
+    d.putItems(size, children(p), maxNumChild = 10000)

@@ -186,13 +186,13 @@ void WrapInLoader::match(const QmlJSQuickFixInterface &interface, QuickFixOperat
                 return;
              // check that the node is not the root node
             if (i > 0 && !cast<UiProgram*>(path.at(i - 1))) {
-                result.append(new Operation<UiObjectDefinition>(interface, objDef));
+                result << new Operation<UiObjectDefinition>(interface, objDef);
                 return;
             }
         } else if (UiObjectBinding *objBinding = cast<UiObjectBinding *>(node)) {
             if (!interface->currentFile()->isCursorOn(objBinding->qualifiedTypeNameId))
                 return;
-            result.append(new Operation<UiObjectBinding>(interface, objBinding));
+            result << new Operation<UiObjectBinding>(interface, objBinding);
             return;
         }
     }

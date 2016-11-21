@@ -138,8 +138,10 @@ void ClangQueryCurrentFileFindFilter::SetUp()
     projectPart = CppTools::ProjectPart::Ptr(new CppTools::ProjectPart);
     projectPart->files.push_back(projectFile);
 
-    commandLine = RefactoringCompilerOptionsBuilder::build(projectPart.data(),
-                                                           projectFile.kind);
+    commandLine = RefactoringCompilerOptionsBuilder::build(
+                projectPart.data(),
+                projectFile.kind,
+                RefactoringCompilerOptionsBuilder::PchUsage::None);
     commandLine.push_back(curentDocumentFilePath);
 
     findFilter.setCurrentDocumentFilePath(curentDocumentFilePath);

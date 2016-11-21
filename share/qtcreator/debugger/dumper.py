@@ -866,26 +866,27 @@ class DumperBase:
         baseIndex = 0
         for item in value.members(True):
             #warn('FIELD: %s' % item)
-            if item.name is not None and item.name.startswith('_vptr.'):
-                with SubItem(self, '[vptr]'):
-                    # int (**)(void)
-                    self.putType(' ')
-                    self.putField('sortgroup', 20)
-                    self.putValue(item.name)
-                    n = 10
-                    if self.isExpanded():
-                        with Children(self):
-                            p = item.pointer()
-                            for i in xrange(n):
-                                deref = self.extractPointer(p)
-                                if deref == 0:
-                                    n = i
-                                    break
-                                with SubItem(self, i):
-                                    self.putItem(self.createPointerValue(deref, 'void'))
-                                    p += self.ptrSize()
-                    self.putNumChild(n)
-                continue
+            if item.name is not None:
+                if item.name.startswith('_vptr.') or item.name.startswith('__vfptr'):
+                    with SubItem(self, '[vptr]'):
+                        # int (**)(void)
+                        self.putType(' ')
+                        self.putField('sortgroup', 20)
+                        self.putValue(item.name)
+                        n = 10
+                        if self.isExpanded():
+                            with Children(self):
+                                p = item.pointer()
+                                for i in xrange(n):
+                                    deref = self.extractPointer(p)
+                                    if deref == 0:
+                                        n = i
+                                        break
+                                    with SubItem(self, i):
+                                        self.putItem(self.createPointerValue(deref, 'void'))
+                                        p += self.ptrSize()
+                        self.putNumChild(n)
+                    continue
 
             if item.isBaseClass and dumpBase:
                 baseIndex += 1
@@ -2585,6 +2586,13 @@ class DumperBase:
                 return True
         return False
 
+    def putItems(self, count, generator, maxNumChild=10000):
+        self.putItemCount(count)
+        if self.isExpanded():
+            with Children(self, count, maxNumChild=maxNumChild):
+                for i, val in zip(self.childRange(), generator):
+                    self.putSubItem(i, val)
+
     def putItem(self, value):
         self.preping('putItem')
         self.putItemX(value)
@@ -2734,6 +2742,19 @@ class DumperBase:
             (hookVersion, x, x, x, x, x, tiVersion) = self.split('ppppppp', addr)
             #warn('HOOK: %s TI: %s' % (hookVersion, tiVersion))
             if hookVersion >= 3:
+                self.qtTypeInfoVersion = lambda: tiVersion
+                return tiVersion
+        return None
+
+    def qtDeclarativeHookDataSymbolName(self):
+        return 'qtDeclarativeHookData'
+
+    def qtDeclarativeTypeInfoVersion(self):
+        addr = self.symbolAddress(self.qtDeclarativeHookDataSymbolName())
+        if addr:
+            # Only available with Qt 5.6+
+            (hookVersion, x, tiVersion) = self.split('ppp', addr)
+            if hookVersion >= 1:
                 self.qtTypeInfoVersion = lambda: tiVersion
                 return tiVersion
         return None
@@ -3316,6 +3337,12 @@ class DumperBase:
         def unqualified(self):
             return self
 
+        def templateArguments(self):
+            tdata = self.typeData()
+            if tdata is None:
+                return self.dumper.listTemplateParameters(self.typeId)
+            return tdata.templateArguments
+
         def templateArgument(self, position):
             tdata = self.typeData()
             #warn('TDATA: %s' % tdata)
@@ -3768,11 +3795,14 @@ class DumperBase:
                     readingTypeName = False
                     fieldType = self.createType(typeName)
                     fieldAlign = fieldType.alignment()
-                    builder.addField(n, fieldIsStruct = True, fieldType = fieldType, fieldAlign = fieldAlign)
+                    builder.addField(n, fieldIsStruct = True,
+                        fieldType = fieldType, fieldAlign = fieldAlign)
                     typeName = None
                     n = None
                 else:
                     typeName += c
+            elif c == 't': # size_t
+                builder.addField(ptrSize, self.ptrCode(), fieldAlign = ptrSize)
             elif c == 'p': # Pointer as int
                 builder.addField(ptrSize, self.ptrCode(), fieldAlign = ptrSize)
             elif c == 'P': # Pointer as Value

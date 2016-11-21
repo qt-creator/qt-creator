@@ -129,7 +129,8 @@ void RefactoringEngine::SetUp()
     projectPart->files.push_back(projectFile);
 
     commandLine = RefactoringCompilerOptionsBuilder::build(projectPart.data(),
-                                                           projectFile.kind);
+                                                           projectFile.kind,
+                                                           RefactoringCompilerOptionsBuilder::PchUsage::None);
     commandLine.push_back(qStringFilePath);
 }
 

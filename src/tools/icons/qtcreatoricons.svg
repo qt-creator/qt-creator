@@ -2485,15 +2485,17 @@
          height="16"
          id="rect7336" />
       <path
-         style="opacity:0.8;fill:#000000;fill-opacity:1"
-         d="m 353,302 0,3 1,0 0,-2 10,0 0,11 -10,0 0,-2 -1,0 0,3 12,0 0,-13 z"
+         style="fill:#000000"
+         d="m 354,303 10,0 0,11 -10,0 z m -1,12 12,0 0,-13 -12,0 z"
          id="path7346"
-         inkscape:connector-curvature="0" />
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cccccccccc" />
       <path
          id="path7338"
          style="opacity:0.5;fill:#000000;fill-opacity:1"
-         d="m 353,310 0,1 3,0 0,-1 z m 0,-2 0,1 3,0 0,-1 z m 0,-2 0,1 3,0 0,-1 z"
-         inkscape:connector-curvature="0" />
+         d="m 354,310 0,1 5,0 0,-1 z m 0,-2 0,1 5,0 0,-1 z m 0,-2 0,1 5,0 0,-1 z"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccccccccccccccc" />
     </g>
     <g
        transform="translate(710,268)"

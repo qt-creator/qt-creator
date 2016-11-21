@@ -64,44 +64,46 @@ def qdump__std__deque(d, value):
     innerSize = innerType.size()
     bufsize = 1
     if innerSize < 512:
-        bufsize = int(512 / innerSize)
+        bufsize = 512 // innerSize
 
-    #(mapptr, mapsize, startCur, startFirst, startLast, startNode,
-    #          finishCur, finishFirst, finishLast, finishNode) = d.split("pppppppppp", value)
-#
-#    numInBuf = bufsize * (int((finishNode - startNode) / innerSize) - 1)
-#    numFirstItems  = int((startLast - startCur) / innerSize)
-#    numLastItems = int((finishCur - finishFirst) / innerSize)
+    (mapptr, mapsize, startCur, startFirst, startLast, startNode,
+              finishCur, finishFirst, finishLast, finishNode) = value.split("pppppppppp")
 
-    impl = value["_M_impl"]
-    start = impl["_M_start"]
-    finish = impl["_M_finish"]
-    size = bufsize * ((finish["_M_node"].pointer() - start["_M_node"].pointer()) // d.ptrSize() - 1)
-    size += ((finish["_M_cur"].pointer() - finish["_M_first"].pointer()) // innerSize)
-    size += ((start["_M_last"].pointer() - start["_M_cur"].pointer()) // innerSize)
+    size = bufsize * ((finishNode - startNode) // d.ptrSize() - 1)
+    size += (finishCur - finishFirst) // innerSize
+    size += (startLast - startCur) // innerSize
 
     d.check(0 <= size and size <= 1000 * 1000 * 1000)
     d.putItemCount(size)
     if d.isExpanded():
         with Children(d, size, maxNumChild=2000, childType=innerType):
-            pcur = start["_M_cur"].pointer()
-            pfirst = start["_M_first"]
-            plast = start["_M_last"].pointer()
-            pnode = start["_M_node"]
+            pcur = startCur
+            plast = startLast
+            pnode = startNode
             for i in d.childRange():
                 d.putSubItem(i, d.createValue(pcur, innerType))
                 pcur += innerSize
                 if pcur == plast:
-                    # FIXME: Remove pointer operation.
-                    newnode = pnode + 1 # Type is std::_Deque_iterator<Foo, Foo&, Foo*>::_Map_pointer\"} a.k.a 'Foo **'
-                    #warn("TYPE: %s" % pnode.type)
-                    #warn("PNODE: 0x%x %s" % (pnode.pointer(), pnode))
-                    #warn("NEWNODE: 0x%x %s" % (newnode.pointer(), newnode))
-                    pnode = newnode
-                    #warn("PNODE 2: 0x%x %s" % (pnode.pointer(), pnode))
-                    pfirst = newnode.dereference().pointer()
+                    newnode = pnode + d.ptrSize()
+                    pfirst = d.extractPointer(newnode)
                     plast = pfirst + bufsize * d.ptrSize()
                     pcur = pfirst
+                    pnode = newnode
+
+def qdump__std____1__deque(d, value):
+    mptr, mfirst, mbegin, mend, start, size = value.split("pppptt")
+    d.check(0 <= size and size <= 1000 * 1000 * 1000)
+    d.putItemCount(size)
+    if d.isExpanded():
+        innerType = value.type[0]
+        innerSize = innerType.size()
+        ptrSize = d.ptrSize()
+        bufsize = (4096 // innerSize) if innerSize < 256 else 16
+        with Children(d, size, maxNumChild=2000, childType=innerType):
+            for i in d.childRange():
+                k, j = divmod(start + i, bufsize)
+                base = d.extractPointer(mfirst + k * ptrSize)
+                d.putSubItem(i, d.createValue(base + j * innerSize, innerType))
 
 def qdump__std__deque__QNX(d, value):
     innerType = value.type[0]
@@ -533,6 +535,10 @@ def qdump__std__stack(d, value):
 
 def qdump__std____debug__stack(d, value):
     qdump__std__stack(d, value)
+
+def qdump__std____1__stack(d, value):
+    d.putItem(value["c"])
+    d.putBetterType(value.type)
 
 def qform__std__string():
     return [Latin1StringFormat, SeparateLatin1StringFormat,

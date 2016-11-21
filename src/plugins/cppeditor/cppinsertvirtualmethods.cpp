@@ -1222,11 +1222,9 @@ InsertVirtualMethods::~InsertVirtualMethods()
 void InsertVirtualMethods::match(const CppQuickFixInterface &interface,
                                  QuickFixOperations &result)
 {
-    InsertVirtualMethodsOp *op = new InsertVirtualMethodsOp(interface, m_dialog);
+    QSharedPointer<InsertVirtualMethodsOp> op(new InsertVirtualMethodsOp(interface, m_dialog));
     if (op->isValid())
         result.append(op);
-    else
-        delete op;
 }
 
 #ifdef WITH_TESTS

@@ -72,6 +72,7 @@ SOURCES += \
     diagnosticset-test.cpp \
     diagnostic-test.cpp \
     fixit-test.cpp \
+    gtest-qt-printing.cpp \
     highlightingmarksreporter-test.cpp \
     highlightingmarks-test.cpp \
     projectpart-test.cpp \

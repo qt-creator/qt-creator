@@ -116,9 +116,10 @@ Utils::SmallStringVector ClangQueryCurrentFileFindFilter::createCommandLine() co
 {
     using ClangRefactoring::RefactoringCompilerOptionsBuilder;
 
-    auto commandLine = RefactoringCompilerOptionsBuilder::build(projectPart.data(),
-                                                                fileKindInProjectPart(projectPart.data(),
-                                                                                      currentDocumentFilePath));
+    auto commandLine = RefactoringCompilerOptionsBuilder::build(
+                projectPart.data(),
+                fileKindInProjectPart(projectPart.data(), currentDocumentFilePath),
+                RefactoringCompilerOptionsBuilder::PchUsage::None);
 
     commandLine.push_back(currentDocumentFilePath);
 

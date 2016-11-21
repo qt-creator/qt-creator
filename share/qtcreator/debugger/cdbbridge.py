@@ -170,10 +170,7 @@ class Dumper(DumperBase):
                 else:
                     targs.append(self.Type(self, targ))
             elif isinstance(targ, int):
-                value = self.Value(self)
-                value.type = self.lookupType('int')
-                value.ldata = targ.to_bytes(4, sys.byteorder)
-                targs.append(value)
+                targs.append(targ)
             else:
                 error('CDBCRAP %s' % type(targ))
         return targs

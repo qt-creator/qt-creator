@@ -966,6 +966,8 @@ void GdbEngine::runCommand(const DebuggerCommand &command)
             Q_ARG(QString, buffer));
     } else {
         write(cmd.function.toUtf8() + "\r\n");
+        if (command.flags & NeedsFlush)
+            write("p 0\r\n");
 
         // Start Watchdog.
         if (m_commandTimer.interval() <= 20000)
@@ -1103,6 +1105,8 @@ void GdbEngine::handleResultRecord(DebuggerResponse *response)
                 // the exception now in a box.
                 if (msg.startsWith("During startup program exited with"))
                     notifyInferiorExited();
+                else if (msg.contains("Command aborted."))
+                    notifyInferiorSpontaneousStop();
                 QString logMsg;
                 if (!m_lastWinException.isEmpty())
                     logMsg = m_lastWinException + '\n';
@@ -2009,7 +2013,7 @@ void GdbEngine::continueInferiorInternal()
         cmd.callback = CB(handleExecuteContinue);
         runCommand(cmd);
     } else {
-        DebuggerCommand cmd("-exec-continue", RunRequest);
+        DebuggerCommand cmd("-exec-continue", RunRequest|NeedsFlush);
         cmd.callback = CB(handleExecuteContinue);
         runCommand(cmd);
     }
@@ -2034,7 +2038,7 @@ void GdbEngine::executeStep()
         runCommand(cmd);
     } else {
         DebuggerCommand cmd;
-        cmd.flags = RunRequest;
+        cmd.flags = RunRequest|NeedsFlush;
         cmd.function = QLatin1String(isReverseDebugging() ? "reverse-step" : "-exec-step");
         cmd.callback = CB(handleExecuteStep);
         runCommand(cmd);
@@ -2084,7 +2088,7 @@ void GdbEngine::executeStepI()
     notifyInferiorRunRequested();
     showStatusMessage(tr("Step by instruction requested..."), 5000);
     DebuggerCommand cmd;
-    cmd.flags = RunRequest;
+    cmd.flags = RunRequest|NeedsFlush;
     cmd.function = QLatin1String(isReverseDebugging() ? "reverse-stepi" : "-exec-step-instruction");
     cmd.callback = CB(handleExecuteContinue);
     runCommand(cmd);
@@ -2100,12 +2104,11 @@ void GdbEngine::executeStepOut()
     if (isNativeMixedActiveFrame()) {
         runCommand({"executeStepOut", RunRequest|PythonCommand});
     } else {
-        runCommand({"-exec-finish", RunRequest, CB(handleExecuteContinue)});
         // -exec-finish in 'main' results (correctly) in
         //  40^error,msg="\"finish\" not meaningful in the outermost frame."
         // However, this message does not seem to get flushed before
         // anything else happen - i.e. "never". Force some extra output.
-        runCommand({"print 32"});
+        runCommand({"-exec-finish", RunRequest|NeedsFlush, CB(handleExecuteContinue)});
     }
 }
 

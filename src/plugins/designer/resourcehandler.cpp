@@ -30,7 +30,6 @@
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/nodesvisitor.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/projecttree.h>
 #include <projectexplorer/session.h>
 #include <resourceeditor/resourcenode.h>
 
@@ -88,12 +87,16 @@ void ResourceHandler::ensureInitialized()
         return;
 
     m_initialized = true;
-    ProjectTree *tree = ProjectTree::instance();
 
-    connect(tree, &ProjectTree::filesAdded, this, &ResourceHandler::updateResources);
-    connect(tree, &ProjectTree::filesRemoved, this, &ResourceHandler::updateResources);
-    connect(tree, &ProjectTree::foldersAdded, this, &ResourceHandler::updateResources);
-    connect(tree, &ProjectTree::foldersRemoved, this, &ResourceHandler::updateResources);
+    auto connector = [this](Project *p) {
+        connect(p, &Project::fileListChanged, this, &ResourceHandler::updateResources);
+    };
+
+    foreach (Project *p, SessionManager::projects())
+        connector(p);
+
+    connect(SessionManager::instance(), &SessionManager::projectAdded, this, connector);
+
     m_originalUiQrcPaths = m_form->activeResourceFilePaths();
     if (Designer::Constants::Internal::debug)
         qDebug() << "ResourceHandler::ensureInitialized() origPaths=" << m_originalUiQrcPaths;

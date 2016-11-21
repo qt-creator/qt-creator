@@ -107,7 +107,11 @@ DebuggerKitChooser::DebuggerKitChooser(Mode mode, QWidget *parent)
 {
     setKitMatcher([this](const Kit *k) {
         // Match valid debuggers and restrict local debugging to compatible toolchains.
-        if (DebuggerKitInformation::configurationErrors(k))
+        auto errors = DebuggerKitInformation::configurationErrors(k);
+        // we do not care for mismatched ABI if we want *any* debugging
+        if (m_mode == AnyDebugging && errors == DebuggerKitInformation::DebuggerDoesNotMatch)
+            errors = DebuggerKitInformation::NoConfigurationError;
+        if (errors)
             return false;
         if (m_mode == LocalDebugging)
             return ToolChainKitInformation::targetAbi(k).os() == m_hostAbi.os();

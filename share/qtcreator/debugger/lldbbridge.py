@@ -1384,7 +1384,7 @@ class Dumper(DumperBase):
                 'd = lldb.theDumper',
                 'output = d.hexencode(sys.stdout.getvalue())',
                 'sys.stdout = origout',
-                'd.report("output={channel=\"stderr\",data=\"' + output + '\"}")',
+                'd.report("output={channel=\"stderr\",data=\" + output + \"}")',
                 'if result is False:',
                 '  d.reportState("continueafternextstop")',
                 'return True'

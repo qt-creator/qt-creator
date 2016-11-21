@@ -470,7 +470,7 @@ def qdump__QFile(d, value):
             offset = 144 if is32bit else 232
         else:
             offset = 140 if is32bit else 232
-    privAddress = d.extractPointer(value.address() + d.ptrSize())
+    vtable, privAddress = value.split('pp')
     fileNameAddress = privAddress + offset
     d.putStringValue(fileNameAddress)
     d.putNumChild(1)
@@ -578,11 +578,10 @@ def qform__QFiniteStack():
     return arrayForms()
 
 def qdump__QFiniteStack(d, value):
-    alloc = int(value['_alloc'])
-    size = int(value['_size'])
+    array, alloc, size = value.split('pii')
     d.check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 1000)
     d.putItemCount(size)
-    d.putPlotData(value['_array'], size, value.type[0])
+    d.putPlotData(array, size, value.type[0])
 
 
 def qdump__QFlags(d, value):
@@ -1572,6 +1571,7 @@ qdumpHelper_QVariants_F = [
 def qdump__QVariant(d, value):
     (data, typeStuff) = d.split('8sI', value)
     variantType = typeStuff & 0x3fffffff
+    isShared = bool(typeStuff & 0x40000000)
 
     # Well-known simple type.
     if variantType <= 6:
@@ -1616,14 +1616,12 @@ def qdump__QVariant(d, value):
         #data = value['d']['data']
         innerType = d.qtNamespace() + innert
 
-        isShared = bool(typeStuff & 0x40000000)
         #warn('SHARED: %s' % isShared)
         if isShared:
             base1 = d.extractPointer(value)
             #warn('BASE 1: %s %s' % (base1, innert))
             base = d.extractPointer(base1)
             #warn('SIZE 1: %s' % size)
-            innerType = d.createType(d.qtNamespace() + innert)
             val = d.createValue(base, innerType)
         else:
             #warn('DIRECT ITEM 1: %s' % innerType)
@@ -1643,19 +1641,9 @@ def qdump__QVariant(d, value):
     d.putType('%sQVariant (%s)' % (ns, variantType))
     d.putNumChild(1)
     if d.isExpanded():
-        typeName = None
+        innerType = None
         with Children(d):
             ev = d.parseAndEvaluate
-            data = d.call('const void *', value, 'constData')
-
-            addr = value.address()
-            data = ev('((%sQVariant*)0x%x)->constData()' % (ns, addr))
-            if data is None:
-                data = ev('((QVariant*)0x%x)->constData()' % addr)
-            if data is None:
-                d.putSpecialValue('notcallable')
-                return None
-
             p = None
             if p is None:
                 # Without debug info.
@@ -1671,15 +1659,24 @@ def qdump__QVariant(d, value):
                 return None
             ptr = p.pointer()
             (elided, blob) = d.encodeCArray(ptr, 1, 100)
-            typeName = d.hexdecode(blob)
+            innerType = d.hexdecode(blob)
+
             # Prefer namespaced version.
             if len(ns) > 0:
-                if not d.lookupNativeType(ns + typeName) is None:
-                    typeName = ns + typeName
-            data.type = d.createType(typeName + ' *')
-            d.putSubItem('data', data)
-        if not typeName is None:
-            d.putBetterType('%sQVariant (%s)' % (ns, typeName))
+                if not d.lookupNativeType(ns + innerType) is None:
+                    innerType = ns + innerType
+
+            if isShared:
+                base1 = d.extractPointer(value)
+                base = d.extractPointer(base1)
+                val = d.createValue(base, innerType)
+            else:
+                val = d.createValue(data, innerType)
+                val.laddress = value.laddress
+            d.putSubItem('data', val)
+
+        if not innerType is None:
+            d.putBetterType('%sQVariant (%s)' % (ns, innerType))
     return None
 
 
@@ -1963,40 +1960,6 @@ if False:
     QV4_ValueTypeInternal_Boolean_Type_Internal = QV4_ValueType_Boolean_Type | QV4_ConvertibleToInt
     QV4_ValueTypeInternal_Integer_Type_Internal = QV4_ValueType_Integer_Type | QV4_ConvertibleToInt
 
-else:
-    # 64 bit.
-    QV4_NaNEncodeMask                = 0xffff800000000000
-    QV4_IsInt32Mask                  = 0x0002000000000000
-    QV4_IsDoubleMask                 = 0xfffc000000000000
-    QV4_IsNumberMask                 = QV4_IsInt32Mask | QV4_IsDoubleMask
-    QV4_IsNullOrUndefinedMask        = 0x0000800000000000
-    QV4_IsNullOrBooleanMask          = 0x0001000000000000
-    QV4_PointerMask                  = 0xfffffffffffffffd
-
-    QV4_Masks_NaN_Mask               = 0x7ff80000
-    QV4_Masks_Type_Mask              = 0xffff8000
-    QV4_Masks_IsDouble_Mask          = 0xfffc0000
-    QV4_Masks_Immediate_Mask         = 0x00018000
-    QV4_Masks_IsNullOrUndefined_Mask = 0x00008000
-    QV4_Masks_IsNullOrBoolean_Mask   = 0x00010000
-    QV4_Masks_Tag_Shift              = 32
-
-    QV4_ValueType_Undefined_Type     = QV4_Masks_IsNullOrUndefined_Mask
-    QV4_ValueType_Null_Type          = QV4_Masks_IsNullOrUndefined_Mask | QV4_Masks_IsNullOrBoolean_Mask
-    QV4_ValueType_Boolean_Type       = QV4_Masks_IsNullOrBoolean_Mask
-    QV4_ValueType_Integer_Type       = 0x20000 | QV4_Masks_IsNullOrBoolean_Mask
-    QV4_ValueType_Managed_Type       = 0
-    QV4_ValueType_Empty_Type         = QV4_ValueType_Undefined_Type | 0x4000
-
-    QV4_ValueTypeInternal_Null_Type_Internal    = QV4_ValueType_Null_Type
-    QV4_ValueTypeInternal_Boolean_Type_Internal = QV4_ValueType_Boolean_Type
-    QV4_ValueTypeInternal_Integer_Type_Internal = QV4_ValueType_Integer_Type
-
-    QV4_IsDouble_Shift               = 64-14
-    QV4_IsNumber_Shift               = 64-15
-    QV4_IsConvertibleToInt_Shift     = 64-16
-    QV4_IsManaged_Shift              = 64-17
-
 
 def QV4_getValue(d, jsval):  # (Dumper, QJSValue *jsval) -> QV4::Value *
     dd = d.split('Q', jsval)[0]
@@ -2106,6 +2069,56 @@ def qdump_32__QV4__Value(d, value):
             d.putFields(value)
 
 def qdump_64__QV4__Value(d, value):
+    dti = d.qtDeclarativeTypeInfoVersion()
+    new = dti is not None and dti >= 2
+    if new:
+        QV4_NaNEncodeMask                = 0xfffc000000000000
+        QV4_Masks_Immediate_Mask         = 0x00020000 # bit 49
+
+        QV4_ValueTypeInternal_Empty_Type_Internal   = QV4_Masks_Immediate_Mask   | 0
+        QV4_ConvertibleToInt      = QV4_Masks_Immediate_Mask   | 0x10000 # bit 48
+        QV4_ValueTypeInternal_Null_Type_Internal    = QV4_ConvertibleToInt | 0x08000
+        QV4_ValueTypeInternal_Boolean_Type_Internal = QV4_ConvertibleToInt | 0x04000
+        QV4_ValueTypeInternal_Integer_Type_Internal = QV4_ConvertibleToInt | 0x02000
+
+        QV4_ValueType_Undefined_Type     = 0 # Dummy to make generic code below pass.
+
+    else:
+        QV4_NaNEncodeMask                = 0xffff800000000000
+        QV4_Masks_Immediate_Mask         = 0x00018000
+
+        QV4_IsInt32Mask                  = 0x0002000000000000
+        QV4_IsDoubleMask                 = 0xfffc000000000000
+        QV4_IsNumberMask                 = QV4_IsInt32Mask | QV4_IsDoubleMask
+        QV4_IsNullOrUndefinedMask        = 0x0000800000000000
+        QV4_IsNullOrBooleanMask          = 0x0001000000000000
+
+        QV4_Masks_NaN_Mask               = 0x7ff80000
+        QV4_Masks_Type_Mask              = 0xffff8000
+        QV4_Masks_IsDouble_Mask          = 0xfffc0000
+        QV4_Masks_IsNullOrUndefined_Mask = 0x00008000
+        QV4_Masks_IsNullOrBoolean_Mask   = 0x00010000
+
+        QV4_ValueType_Undefined_Type     = QV4_Masks_IsNullOrUndefined_Mask
+        QV4_ValueType_Null_Type          = QV4_Masks_IsNullOrUndefined_Mask \
+                                         | QV4_Masks_IsNullOrBoolean_Mask
+        QV4_ValueType_Boolean_Type       = QV4_Masks_IsNullOrBoolean_Mask
+        QV4_ValueType_Integer_Type       = 0x20000 | QV4_Masks_IsNullOrBoolean_Mask
+        QV4_ValueType_Managed_Type       = 0
+        QV4_ValueType_Empty_Type         = QV4_ValueType_Undefined_Type | 0x4000
+
+        QV4_ValueTypeInternal_Null_Type_Internal    = QV4_ValueType_Null_Type
+        QV4_ValueTypeInternal_Boolean_Type_Internal = QV4_ValueType_Boolean_Type
+        QV4_ValueTypeInternal_Integer_Type_Internal = QV4_ValueType_Integer_Type
+
+    QV4_PointerMask                  = 0xfffffffffffffffd
+
+    QV4_Masks_Tag_Shift              = 32
+    QV4_IsDouble_Shift               = 64-14
+    QV4_IsNumber_Shift               = 64-15
+    QV4_IsConvertibleToInt_Shift     = 64-16
+    QV4_IsManaged_Shift              = 64-17
+
     v = value.split('Q')[0]
     tag = v >> QV4_Masks_Tag_Shift
     vtable = v & QV4_PointerMask
@@ -2119,15 +2132,19 @@ def qdump_64__QV4__Value(d, value):
     elif (v >> QV4_IsDouble_Shift):
         d.putBetterType('%sQV4::Value (double)' % ns)
         d.putValue('%x' % (v ^ QV4_NaNEncodeMask), 'float:8')
-    elif tag == QV4_ValueType_Undefined_Type:
+    elif tag == QV4_ValueType_Undefined_Type and not new:
         d.putBetterType('%sQV4::Value (undefined)' % ns)
         d.putValue('(undefined)')
     elif tag == QV4_ValueTypeInternal_Null_Type_Internal:
         d.putBetterType('%sQV4::Value (null?)' % ns)
         d.putValue('(null?)')
     elif v == 0:
-        d.putBetterType('%sQV4::Value (null)' % ns)
-        d.putValue('(null)')
+        if new:
+            d.putBetterType('%sQV4::Value (undefined)' % ns)
+            d.putValue('(undefined)')
+        else:
+            d.putBetterType('%sQV4::Value (null)' % ns)
+            d.putValue('(null)')
     #elif ((v >> QV4_IsManaged_Shift) & ~1) == 1:
     #    d.putBetterType('%sQV4::Value (null/undef)' % ns)
     #    d.putValue('(null/undef)')

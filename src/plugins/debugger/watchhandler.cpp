@@ -2004,7 +2004,7 @@ void WatchHandler::notifyUpdateStarted(const UpdateParameters &updateParameters)
 {
     QStringList inames = updateParameters.partialVariables();
     if (inames.isEmpty())
-        inames.append("local");
+        inames = QStringList({ "local", "return" });
 
     auto marker = [](WatchItem *item) { item->outdated = true; };
 
