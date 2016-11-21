@@ -460,6 +460,9 @@ void type_Dealloc(Type *self)
 PyObject *createType(ULONG64 module, ULONG typeId, const std::string &name)
 {
     std::string typeName = SymbolGroupValue::stripClassPrefixes(name);
+    if (typeName.compare(0, 6, "union ") == 0)
+        typeName.erase(0, 6);
+
     if (!typeName.empty()) {
         if (isPointerType(typeName))
             return createPointerType((Type*)lookupType(stripPointerType(typeName)));
