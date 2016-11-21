@@ -89,6 +89,8 @@
 
 namespace {
 bool testImportStatements(const QStringList &importStatementList, const QUrl &url, QString *errorMessage = 0) {
+    if (importStatementList.isEmpty())
+        return false;
     // ToDo: move engine outside of this function, this makes it expensive
     QQmlEngine engine;
     QQmlComponent testImportComponent(&engine);
@@ -111,12 +113,12 @@ bool testImportStatements(const QStringList &importStatementList, const QUrl &ur
 void sortFilterImports(const QStringList &imports, QStringList *workingImports, QStringList *failedImports, const QUrl &url, QString *errorMessage)
 {
     static QSet<QString> visited;
-    QString visitedId("imports: %1, workingImports: %2, failedImports: %3");
-    visitedId = visitedId.arg(imports.join(""), workingImports->join(""), failedImports->join(""));
-    if (visited.contains(visited))
+    QString visitCheckId("imports: %1, workingImports: %2, failedImports: %3");
+    visitCheckId = visitCheckId.arg(imports.join(""), workingImports->join(""), failedImports->join(""));
+    if (visited.contains(visitCheckId))
         return;
     else
-        visited.insert(visitedId);
+        visited.insert(visitCheckId);
 
     for (const QString &import : imports) {
         const QStringList alreadyTestedImports = *workingImports + *failedImports;
@@ -437,6 +439,8 @@ void NodeInstanceServer::setupImports(const QVector<AddImportContainer> &contain
 {
     Q_ASSERT(quickView());
     QSet<QString> importStatementSet;
+    QString qtQuickImport;
+
     foreach (const AddImportContainer &container, containerVector) {
         QString importStatement = QString("import ");
 
@@ -451,27 +455,36 @@ void NodeInstanceServer::setupImports(const QVector<AddImportContainer> &contain
         if (!container.alias().isEmpty())
             importStatement += " as " + container.alias();
 
-        importStatementSet.insert(importStatement);
+        if (importStatement.startsWith("import QtQuick" + QChar::Space))
+            qtQuickImport = importStatement;
+        else
+            importStatementSet.insert(importStatement);
     }
 
     delete m_importComponent.data();
     delete m_importComponentObject.data();
-    QStringList importStatementList(importStatementSet.toList());
-    QStringList workingImportStatementList;
+    const QStringList importStatementList(importStatementSet.toList());
+    const QStringList fullImportStatementList(QStringList(qtQuickImport) + importStatementList);
 
     // check possible import statements combinations
     // but first try the current order -> maybe it just works
-    if (testImportStatements(importStatementList, fileUrl())) {
-        workingImportStatementList = importStatementList;
+    if (testImportStatements(fullImportStatementList, fileUrl())) {
+        setupOnlyWorkingImports(fullImportStatementList);
     } else {
         QString errorMessage;
-        QStringList failedImportList;
-        sortFilterImports(importStatementList, &workingImportStatementList, &failedImportList, fileUrl(), &errorMessage);
+
+        if (!testImportStatements(QStringList(qtQuickImport), fileUrl(), &errorMessage))
+            qtQuickImport = "import QtQuick 2.0";
+        if (testImportStatements(QStringList(qtQuickImport), fileUrl(), &errorMessage)) {
+            QStringList workingImportStatementList;
+            QStringList failedImportList;
+            sortFilterImports(QStringList(qtQuickImport) + importStatementList, &workingImportStatementList,
+                &failedImportList, fileUrl(), &errorMessage);
+            setupOnlyWorkingImports(workingImportStatementList);
+        }
         if (!errorMessage.isEmpty())
             sendDebugOutput(DebugOutputCommand::WarningType, errorMessage);
     }
-
-    setupOnlyWorkingImports(workingImportStatementList);
 }
 
 void NodeInstanceServer::setupOnlyWorkingImports(const QStringList &workingImportStatementList)
@@ -484,14 +497,6 @@ void NodeInstanceServer::setupOnlyWorkingImports(const QStringList &workingImpor
 
     m_importComponent->setData(componentCode.append("\nItem {}\n"), fileUrl());
     m_importComponentObject = m_importComponent->create();
-
-    if (!m_importComponentObject) {
-        delete m_importComponent;
-        m_importComponent = new QQmlComponent(engine(), quickView());
-        m_importComponent->setData("import QtQuick 2.0\n\nItem {}\n", fileUrl());
-        m_importComponentObject = m_importComponent->create();
-        sendDebugOutput(DebugOutputCommand::WarningType, m_importComponent->errorString());
-    }
 
     Q_ASSERT(m_importComponent && m_importComponentObject);
     Q_ASSERT_X(m_importComponent->errors().isEmpty(), __FUNCTION__, m_importComponent->errorString().toLatin1());
