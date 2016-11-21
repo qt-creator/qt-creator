@@ -45,6 +45,8 @@ Debugging
 * CDB
     * Fixed display order of vectors in vectors (QTCREATORBUG-16813)
     * Fixed display of QList contents (QTCREATORBUG-16750)
+* QML
+    * Fixed that expansion state was reset when stepping
 
 QML Profiler
 
@@ -69,4 +71,12 @@ Android
 
 iOS
 
+* Fixed simulator support with Xcode 8 (QTCREATORBUG-16942)
+  Known issue: Qt Creator is blocked until simulator finishes starting
+* Fixed that standard paths reported by QStandardPaths were wrong when
+  running on simulator (QTCREATORBUG-13655)
 * Fixed QML debugging on device (QTCREATORBUG-15812)
+
+QNX
+
+* Fixed QML debugging (QTCREATORBUG-17208)
