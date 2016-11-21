@@ -301,6 +301,7 @@ void DebuggerMainWindow::loadPerspectiveHelper(const QByteArray &perspectiveId, 
 
     QTC_ASSERT(m_perspectiveForPerspectiveId.contains(m_currentPerspectiveId), return);
     const Perspective *perspective = m_perspectiveForPerspectiveId.value(m_currentPerspectiveId);
+    perspective->aboutToActivate();
     for (const Perspective::Operation &operation : perspective->operations()) {
         QDockWidget *dock = m_dockForDockId.value(operation.dockId);
         if (!dock) {
@@ -403,6 +404,17 @@ QString Perspective::name() const
 void Perspective::setName(const QString &name)
 {
     m_name = name;
+}
+
+void Perspective::setAboutToActivateCallback(const Perspective::Callback &cb)
+{
+    m_aboutToActivateCallback = cb;
+}
+
+void Perspective::aboutToActivate()
+{
+    if (m_aboutToActivateCallback)
+        m_aboutToActivateCallback();
 }
 
 QList<QWidget *> ToolbarDescription::widgets() const
