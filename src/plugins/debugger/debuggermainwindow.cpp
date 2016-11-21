@@ -411,7 +411,7 @@ void Perspective::setAboutToActivateCallback(const Perspective::Callback &cb)
     m_aboutToActivateCallback = cb;
 }
 
-void Perspective::aboutToActivate()
+void Perspective::aboutToActivate() const
 {
     if (m_aboutToActivateCallback)
         m_aboutToActivateCallback();

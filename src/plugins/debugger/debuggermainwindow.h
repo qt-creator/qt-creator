@@ -84,7 +84,7 @@ public:
 
     using Callback = std::function<void()>;
     void setAboutToActivateCallback(const Callback &cb);
-    void aboutToActivate();
+    void aboutToActivate() const;
 
 private:
     Perspective(const Perspective &) = delete;
