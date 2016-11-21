@@ -358,7 +358,13 @@
 
         \li Nim (experimental)
 
-            Nim source files with UTF-8 encoding.
+        \list
+
+            \li Nim script files.
+
+            \li Nim source files with UTF-8 encoding.
+
+        \endlist
 
     \endlist
 
