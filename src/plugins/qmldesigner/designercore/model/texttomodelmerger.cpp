@@ -1954,13 +1954,22 @@ void TextToModelMerger::collectImportErrors(QList<RewriterError> *errors)
         errors->append(RewriterError(diagnosticMessage, QUrl::fromLocalFile(m_document->fileName())));
     }
 
+    bool hasQtQuick = false;
     foreach (const QmlDesigner::Import &import, m_rewriterView->model()->imports()) {
-        if (import.isLibraryImport() && import.url() == QStringLiteral("QtQuick") && !supportedQtQuickVersion(import.version())) {
-            const QmlJS::DiagnosticMessage diagnosticMessage(QmlJS::Severity::Error, AST::SourceLocation(0, 0, 0, 0),
-                                                             QCoreApplication::translate("QmlDesigner::TextToModelMerger", "Unsupported QtQuick version"));
-            errors->append(RewriterError(diagnosticMessage, QUrl::fromLocalFile(m_document->fileName())));
+        if (import.isLibraryImport() && import.url() == QStringLiteral("QtQuick")) {
+
+            if (supportedQtQuickVersion(import.version())) {
+                hasQtQuick = true;
+            } else {
+                const QmlJS::DiagnosticMessage diagnosticMessage(QmlJS::Severity::Error, AST::SourceLocation(0, 0, 0, 0),
+                                                                 QCoreApplication::translate("QmlDesigner::TextToModelMerger", "Unsupported QtQuick version"));
+                errors->append(RewriterError(diagnosticMessage, QUrl::fromLocalFile(m_document->fileName())));
+            }
         }
     }
+
+    if (!hasQtQuick)
+        errors->append(RewriterError(QCoreApplication::translate("QmlDesigner::TextToModelMerger", "No import for Qt Quick found.")));
 }
 
 void TextToModelMerger::collectSemanticErrorsAndWarnings(QList<RewriterError> *errors, QList<RewriterError> *warnings)
