@@ -56,8 +56,11 @@ def qdump__std____1__complex(d, value):
 
 
 def qdump__std__deque(d, value):
-    if d.isQnxTarget() or d.isMsvcTarget():
+    if d.isQnxTarget():
         qdump__std__deque__QNX(d, value)
+        return
+    if d.isMsvcTarget():
+        qdump__std__deque__MSVC(d, value)
         return
 
     innerType = value.type[0]
@@ -140,6 +143,34 @@ def qdump__std__deque__QNX(d, value):
                     block -= mapsize
                 d.putSubItem(i, map[block][offset])
                 myoff += 1;
+
+def qdump__std__deque__MSVC(d, value):
+    innerType = value.type[0]
+    innerSize = innerType.size()
+    if innerSize <= 1:
+        bufsize = 16
+    elif innerSize <= 2:
+        bufsize = 8
+    elif innerSize <= 4:
+        bufsize = 4
+    elif innerSize <= 8:
+        bufsize = 2
+    else:
+        bufsize = 1
+
+    (proxy, map, mapsize, myoff, mysize) = value.split("ppppp")
+
+    d.check(0 <= mapsize and mapsize <= 1000 * 1000 * 1000)
+    d.putItemCount(mysize)
+    if d.isExpanded():
+        with Children(d, mysize, maxNumChild=2000, childType=innerType):
+            for i in d.childRange():
+                if myoff >= bufsize * mapsize:
+                    myoff = 0
+                buf = map + ((myoff // bufsize) * d.ptrSize())
+                address = d.extractPointer(buf) + ((myoff % bufsize) * innerSize)
+                d.putSubItem(i, d.createValue(address, innerType))
+                myoff += 1
 
 def qdump__std____debug__deque(d, value):
     qdump__std__deque(d, value)
