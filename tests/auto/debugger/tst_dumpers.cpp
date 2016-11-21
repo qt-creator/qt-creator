@@ -5663,34 +5663,6 @@ void tst_Dumpers::dumper_data()
                + Check("s2.1", "[1]", "\"abc\"", "std::string") % BoostVersion(1 * 100000 + 54 * 100);
 
 
-//    // This tests qdump__KRBase in share/qtcreator/debugger/qttypes.py which uses
-//    // a static typeflag to dispatch to subclasses");
-
-//    QTest::newRow("KR")
-//          << Data(
-//            "namespace kr {\n"
-//\n"
-//            "   // FIXME: put in namespace kr, adjust qdump__KRBase in dumpers/qttypes.py\n"
-//            "   struct KRBase\n"
-//            "   {\n"
-//            "       enum Type { TYPE_A, TYPE_B } type;\n"
-//            "       KRBase(Type _type) : type(_type) {}\n"
-//            "   };\n"
-//\n"
-//            "   struct KRA : KRBase { int x; int y; KRA():KRBase(TYPE_A), x(1), y(32) {} };\n"
-//            "   struct KRB : KRBase { KRB():KRBase(TYPE_B) {} };\n"
-
-//            "/} // namespace kr\n"
-
-//        "KRBase *ptr1 = new KRA;\n"
-//        "KRBase *ptr2 = new KRB;\n"
-//        "ptr2 = new KRB;\n"
-//         + Check("ptr1", "KRBase");
-//         + Check("ptr1.type KRBase::TYPE_A (0) KRBase::Type");
-//         + Check("ptr2", "KRBase");
-//         + Check("ptr2.type KRBase::TYPE_B (1) KRBase::Type");
-
-
 #ifndef Q_OS_WIN
     QTest::newRow("Eigen")
          << Data("#include <Eigen/Core>",
