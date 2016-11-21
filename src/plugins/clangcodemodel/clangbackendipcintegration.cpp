@@ -505,8 +505,11 @@ void IpcCommunicator::registerCurrentCodeModelUiHeaders()
     using namespace CppTools;
 
     const auto editorSupports = CppModelManager::instance()->abstractEditorSupports();
-    foreach (const AbstractEditorSupport *es, editorSupports)
-        updateUnsavedFile(es->fileName(), es->contents(), es->revision());
+    foreach (const AbstractEditorSupport *es, editorSupports) {
+        const QString mappedPath
+                = ModelManagerSupportClang::instance()->dummyUiHeaderOnDiskPath(es->fileName());
+        updateUnsavedFile(mappedPath, es->contents(), es->revision());
+    }
 }
 
 void IpcCommunicator::registerProjectsParts(const QList<CppTools::ProjectPart::Ptr> projectParts)

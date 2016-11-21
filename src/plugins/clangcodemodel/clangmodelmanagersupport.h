@@ -26,6 +26,7 @@
 #pragma once
 
 #include "clangcompletionassistprovider.h"
+#include "clanguiheaderondiskmanager.h"
 
 #include <cpptools/cppmodelmanagersupport.h>
 
@@ -58,10 +59,10 @@ public:
                 TextEditor::TextDocument *baseTextDocument) override;
 
     IpcCommunicator &ipcCommunicator();
+    QString dummyUiHeaderOnDiskDirPath() const;
+    QString dummyUiHeaderOnDiskPath(const QString &filePath) const;
 
-#ifdef QT_TESTLIB_LIB
-    static ModelManagerSupportClang *instance_forTestsOnly();
-#endif
+    static ModelManagerSupportClang *instance();
 
 private:
     void onEditorOpened(Core::IEditor *editor);
@@ -96,6 +97,7 @@ private:
     void connectToWidgetsMarkContextMenuRequested(QWidget *editorWidget);
 
 private:
+    UiHeaderOnDiskManager m_uiHeaderOnDiskManager;
     IpcCommunicator m_ipcCommunicator;
     ClangCompletionAssistProvider m_completionAssistProvider;
 };

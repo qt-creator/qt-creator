@@ -26,6 +26,7 @@
 #include "clangutils.h"
 
 #include "clangeditordocumentprocessor.h"
+#include "clangmodelmanagersupport.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
@@ -103,6 +104,7 @@ public:
         optionsBuilder.addPredefinedMacrosAndHeaderPathsOptions();
         optionsBuilder.addWrappedQtHeadersIncludePath();
         optionsBuilder.addHeaderPathOptions();
+        optionsBuilder.addDummyUiHeaderOnDiskIncludePath();
         optionsBuilder.addProjectConfigFileInclude();
 
         optionsBuilder.addMsvcCompatibilityVersion();
@@ -170,6 +172,13 @@ private:
             add(QLatin1String("-include"));
             add(QDir::toNativeSeparators(m_projectPart.projectConfigFile));
         }
+    }
+
+    void addDummyUiHeaderOnDiskIncludePath()
+    {
+        const QString path = ModelManagerSupportClang::instance()->dummyUiHeaderOnDiskDirPath();
+        if (!path.isEmpty())
+            add(includeDirOption() + QDir::toNativeSeparators(path));
     }
 
     void addExtraOptions()

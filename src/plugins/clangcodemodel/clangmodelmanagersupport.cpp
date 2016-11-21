@@ -50,7 +50,7 @@
 using namespace ClangCodeModel;
 using namespace ClangCodeModel::Internal;
 
-static ModelManagerSupportClang *m_instance_forTestsOnly = 0;
+static ModelManagerSupportClang *m_instance = 0;
 
 static CppTools::CppModelManager *cppModelManager()
 {
@@ -60,8 +60,8 @@ static CppTools::CppModelManager *cppModelManager()
 ModelManagerSupportClang::ModelManagerSupportClang()
     : m_completionAssistProvider(m_ipcCommunicator)
 {
-    QTC_CHECK(!m_instance_forTestsOnly);
-    m_instance_forTestsOnly = this;
+    QTC_CHECK(!m_instance);
+    m_instance = this;
 
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     connect(editorManager, &Core::EditorManager::editorOpened,
@@ -88,7 +88,7 @@ ModelManagerSupportClang::ModelManagerSupportClang()
 
 ModelManagerSupportClang::~ModelManagerSupportClang()
 {
-    m_instance_forTestsOnly = 0;
+    m_instance = 0;
 }
 
 CppTools::CppCompletionAssistProvider *ModelManagerSupportClang::completionAssistProvider()
@@ -244,15 +244,19 @@ void ModelManagerSupportClang::onAbstractEditorSupportContentsUpdated(const QStr
                                                                       const QByteArray &content)
 {
     QTC_ASSERT(!filePath.isEmpty(), return);
-    m_ipcCommunicator.updateUnsavedFile(filePath, content, 0);
+
+    const QString mappedPath = m_uiHeaderOnDiskManager.createIfNeeded(filePath);
+    m_ipcCommunicator.updateUnsavedFile(mappedPath, content, 0);
 }
 
 void ModelManagerSupportClang::onAbstractEditorSupportRemoved(const QString &filePath)
 {
     QTC_ASSERT(!filePath.isEmpty(), return);
+
     if (!cppModelManager()->cppEditorDocument(filePath)) {
+        const QString mappedPath = m_uiHeaderOnDiskManager.remove(filePath);
         const QString projectPartId = Utils::projectPartIdForFile(filePath);
-        m_ipcCommunicator.unregisterUnsavedFilesForEditor({{filePath, projectPartId}});
+        m_ipcCommunicator.unregisterUnsavedFilesForEditor({{mappedPath, projectPartId}});
     }
 }
 
@@ -347,16 +351,24 @@ void ModelManagerSupportClang::unregisterTranslationUnitsWithProjectParts(
     }
 }
 
-#ifdef QT_TESTLIB_LIB
-ModelManagerSupportClang *ModelManagerSupportClang::instance_forTestsOnly()
+ModelManagerSupportClang *ModelManagerSupportClang::instance()
 {
-    return m_instance_forTestsOnly;
+    return m_instance;
 }
-#endif
 
 IpcCommunicator &ModelManagerSupportClang::ipcCommunicator()
 {
     return m_ipcCommunicator;
+}
+
+QString ModelManagerSupportClang::dummyUiHeaderOnDiskPath(const QString &filePath) const
+{
+    return m_uiHeaderOnDiskManager.mapPath(filePath);
+}
+
+QString ModelManagerSupportClang::dummyUiHeaderOnDiskDirPath() const
+{
+    return m_uiHeaderOnDiskManager.directoryPath();
 }
 
 QString ModelManagerSupportProviderClang::id() const

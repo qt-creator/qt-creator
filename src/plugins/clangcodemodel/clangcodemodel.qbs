@@ -87,6 +87,8 @@ QtcPlugin {
         "clangprojectsettingswidget.ui",
         "clangtextmark.cpp",
         "clangtextmark.h",
+        "clanguiheaderondiskmanager.cpp",
+        "clanguiheaderondiskmanager.h",
         "clangutils.cpp",
         "clangutils.h",
     ]
