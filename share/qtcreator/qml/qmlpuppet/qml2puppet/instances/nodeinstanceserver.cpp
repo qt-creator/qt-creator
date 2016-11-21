@@ -82,7 +82,7 @@
 #include <QAbstractAnimation>
 #include <QMutableVectorIterator>
 #include <QQuickView>
-
+#include <QSet>
 #include <designersupportdelegate.h>
 
 #include <algorithm>
@@ -110,6 +110,14 @@ bool testImportStatements(const QStringList &importStatementList, const QUrl &ur
 
 void sortFilterImports(const QStringList &imports, QStringList *workingImports, QStringList *failedImports, const QUrl &url, QString *errorMessage)
 {
+    static QSet<QString> visited;
+    QString visitedId("imports: %1, workingImports: %2, failedImports: %3");
+    visitedId = visitedId.arg(imports.join(""), workingImports->join(""), failedImports->join(""));
+    if (visited.contains(visited))
+        return;
+    else
+        visited.insert(visitedId);
+
     for (const QString &import : imports) {
         const QStringList alreadyTestedImports = *workingImports + *failedImports;
         if (!alreadyTestedImports.contains(import)) {
@@ -481,8 +489,8 @@ void NodeInstanceServer::setupOnlyWorkingImports(const QStringList &workingImpor
         delete m_importComponent;
         m_importComponent = new QQmlComponent(engine(), quickView());
         m_importComponent->setData("import QtQuick 2.0\n\nItem {}\n", fileUrl());
-        sendDebugOutput(DebugOutputCommand::WarningType, tr("No working QtQuick import"));
         m_importComponentObject = m_importComponent->create();
+        sendDebugOutput(DebugOutputCommand::WarningType, m_importComponent->errorString());
     }
 
     Q_ASSERT(m_importComponent && m_importComponentObject);
