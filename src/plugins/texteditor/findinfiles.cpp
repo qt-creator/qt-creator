@@ -66,7 +66,7 @@ FindInFiles::~FindInFiles()
 
 bool FindInFiles::isValid() const
 {
-    return m_directory->isValid() && currentSearchEngine()->isEnabled();
+    return m_isValid;
 }
 
 QString FindInFiles::id() const
@@ -124,7 +124,14 @@ void FindInFiles::syncSearchEngineCombo(int selectedSearchEngineIndex)
                && selectedSearchEngineIndex < searchEngines().size(), return);
 
     m_searchEngineCombo->setCurrentIndex(selectedSearchEngineIndex);
-    searchEnginesSelectionChanged(selectedSearchEngineIndex);
+}
+
+void FindInFiles::setValid(bool valid)
+{
+    if (valid == m_isValid)
+        return;
+    m_isValid = valid;
+    emit validChanged(m_isValid);
 }
 
 void FindInFiles::searchEnginesSelectionChanged(int index)
@@ -144,11 +151,9 @@ QWidget *FindInFiles::createConfigWidget()
         int row = 0;
         auto searchEngineLabel = new QLabel(tr("Search engine:"));
         gridLayout->addWidget(searchEngineLabel, row, 0, Qt::AlignRight);
-
         m_searchEngineCombo = new QComboBox;
         auto cc = static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged);
         connect(m_searchEngineCombo, cc, this, &FindInFiles::searchEnginesSelectionChanged);
-        connect(m_searchEngineCombo, cc, this, &FindInFiles::enabledChanged);
         searchEngineLabel->setBuddy(m_searchEngineCombo);
         gridLayout->addWidget(m_searchEngineCombo, row, 1);
 
@@ -165,10 +170,7 @@ QWidget *FindInFiles::createConfigWidget()
         m_directory->setExpectedKind(PathChooser::ExistingDirectory);
         m_directory->setPromptDialogTitle(tr("Directory to Search"));
         connect(m_directory.data(), &PathChooser::pathChanged,
-                this, [this](const QString &path) {
-            emit FindInFiles::pathChanged(path);
-            emit FindInFiles::enabledChanged(isEnabled());
-        });
+                this, &FindInFiles::pathChanged);
         m_directory->setHistoryCompleter(QLatin1String(HistoryKey),
                                          /*restoreLastItemFromHistory=*/ true);
         if (!HistoryCompleter::historyExistsFor(QLatin1String(HistoryKey))) {
@@ -190,6 +192,16 @@ QWidget *FindInFiles::createConfigWidget()
         gridLayout->addWidget(filePatternLabel, row, 0);
         gridLayout->addWidget(patternWidget, row++, 1, 1, 2);
         m_configWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+
+        // validity
+        auto updateValidity = [this]() {
+            setValid(currentSearchEngine()->isEnabled() && m_directory->isValid());
+        };
+        connect(this, &BaseFileFind::currentSearchEngineChanged, this, updateValidity);
+        foreach (SearchEngine *searchEngine, searchEngines())
+            connect(searchEngine, &SearchEngine::enabledChanged, this, updateValidity);
+        connect(m_directory.data(), &PathChooser::validChanged, this, updateValidity);
+        updateValidity();
     }
     return m_configWidget;
 }

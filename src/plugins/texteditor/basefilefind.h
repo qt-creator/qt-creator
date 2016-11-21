@@ -48,7 +48,10 @@ class SearchResultItem;
 
 namespace TextEditor {
 
-namespace Internal { class BaseFileFindPrivate; }
+namespace Internal {
+class BaseFileFindPrivate;
+class SearchEnginePrivate;
+} // Internal
 
 class TEXTEDITOR_EXPORT FileFindParameters
 {
@@ -65,12 +68,13 @@ class BaseFileFind;
 
 class TEXTEDITOR_EXPORT SearchEngine : public QObject
 {
+    Q_OBJECT
 public:
-    virtual ~SearchEngine() {}
+    SearchEngine();
+    ~SearchEngine();
     virtual QString title() const = 0;
     virtual QString toolTip() const = 0; // add %1 placeholder where the find flags should be put
     virtual QWidget *widget() const = 0;
-    virtual bool isEnabled() const = 0;
     virtual QVariant parameters() const = 0;
     virtual void readSettings(QSettings *settings) = 0;
     virtual void writeSettings(QSettings *settings) const = 0;
@@ -78,7 +82,14 @@ public:
             const FileFindParameters &parameters, BaseFileFind *baseFileFind) = 0;
     virtual Core::IEditor *openEditor(const Core::SearchResultItem &item,
                                       const FileFindParameters &parameters) = 0;
+    bool isEnabled() const;
+    void setEnabled(bool enabled);
 
+signals:
+    void enabledChanged(bool enabled);
+
+private:
+    Internal::SearchEnginePrivate *d;
 };
 
 class TEXTEDITOR_EXPORT BaseFileFind : public Core::IFindFilter
@@ -121,6 +132,9 @@ protected:
     QVector<SearchEngine *> searchEngines() const;
     void setCurrentSearchEngine(int index);
     virtual void syncSearchEngineCombo(int /*selectedSearchEngineIndex*/) {}
+
+signals:
+    void currentSearchEngineChanged();
 
 private:
     void displayResult(int index);

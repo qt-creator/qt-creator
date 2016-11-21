@@ -44,7 +44,6 @@ public:
     QString title() const override;
     QString toolTip() const override;
     QWidget *widget() const override;
-    bool isEnabled() const override;
     QVariant parameters() const override;
     void readSettings(QSettings *settings) override;
     void writeSettings(QSettings *settings) const override;

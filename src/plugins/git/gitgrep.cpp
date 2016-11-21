@@ -198,7 +198,7 @@ private:
 
 } // namespace
 
-static bool validateDirectory(const QString &path)
+static bool isGitDirectory(const QString &path)
 {
     static IVersionControl *gitVc = VcsManager::versionControl(VcsBase::Constants::VCS_ID_GIT);
     QTC_ASSERT(gitVc, return false);
@@ -221,8 +221,9 @@ GitGrep::GitGrep()
     QTC_ASSERT(findInFiles, return);
     connect(findInFiles, &TextEditor::FindInFiles::pathChanged,
             m_widget, [this](const QString &path) {
-        m_widget->setEnabled(validateDirectory(path));
+        setEnabled(isGitDirectory(path));
     });
+    connect(this, &SearchEngine::enabledChanged, m_widget, &QWidget::setEnabled);
     findInFiles->addSearchEngine(this);
 }
 
@@ -247,11 +248,6 @@ QString GitGrep::toolTip() const
 QWidget *GitGrep::widget() const
 {
     return m_widget;
-}
-
-bool GitGrep::isEnabled() const
-{
-    return m_widget->isEnabled();
 }
 
 QVariant GitGrep::parameters() const

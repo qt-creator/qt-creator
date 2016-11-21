@@ -66,7 +66,6 @@ public:
     QString title() const override { return tr("Internal"); }
     QString toolTip() const override { return QString(); }
     QWidget *widget() const override { return m_widget; }
-    bool isEnabled() const override { return true; }
     QVariant parameters() const override { return QVariant(); }
     void readSettings(QSettings * /*settings*/) override {}
     void writeSettings(QSettings * /*settings*/) const override {}
@@ -93,8 +92,13 @@ public:
 private:
     QWidget *m_widget;
 };
-}
+} // namespace
 
+class SearchEnginePrivate
+{
+public:
+    bool isEnabled = true;
+};
 
 class CountingLabel : public QLabel
 {
@@ -116,12 +120,35 @@ public:
     QPointer<QComboBox> m_filterCombo;
     QVector<SearchEngine *> m_searchEngines;
     SearchEngine *m_internalSearchEngine;
-    int m_currentSearchEngineIndex = 0;
+    int m_currentSearchEngineIndex = -1;
 };
 
 } // namespace Internal
 
 using namespace Internal;
+
+SearchEngine::SearchEngine()
+    : d(new SearchEnginePrivate)
+{
+}
+
+SearchEngine::~SearchEngine()
+{
+    delete d;
+}
+
+bool SearchEngine::isEnabled() const
+{
+    return d->isEnabled;
+}
+
+void SearchEngine::setEnabled(bool enabled)
+{
+    if (enabled == d->isEnabled)
+        return;
+    d->isEnabled = enabled;
+    emit enabledChanged(d->isEnabled);
+}
 
 BaseFileFind::BaseFileFind() : d(new BaseFileFindPrivate)
 {
@@ -186,7 +213,10 @@ QVector<SearchEngine *> BaseFileFind::searchEngines() const
 
 void BaseFileFind::setCurrentSearchEngine(int index)
 {
+    if (d->m_currentSearchEngineIndex == index)
+        return;
     d->m_currentSearchEngineIndex = index;
+    emit currentSearchEngineChanged();
 }
 
 void BaseFileFind::runNewSearch(const QString &txt, FindFlags findFlags,

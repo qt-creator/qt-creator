@@ -196,11 +196,16 @@ void FindToolWindow::setCurrentFilter(int index)
         QWidget *configWidget = m_configWidgets.at(i);
         if (i == index) {
             m_configWidget = configWidget;
-            if (m_currentFilter)
+            if (m_currentFilter) {
                 disconnect(m_currentFilter, &IFindFilter::enabledChanged,
                            this, &FindToolWindow::updateButtonStates);
+                disconnect(m_currentFilter, &IFindFilter::validChanged,
+                           this, &FindToolWindow::updateButtonStates);
+            }
             m_currentFilter = m_filters.at(i);
             connect(m_currentFilter, &IFindFilter::enabledChanged,
+                    this, &FindToolWindow::updateButtonStates);
+            connect(m_currentFilter, &IFindFilter::validChanged,
                     this, &FindToolWindow::updateButtonStates);
             updateButtonStates();
             if (m_configWidget)

@@ -73,6 +73,7 @@ protected:
     void syncSearchEngineCombo(int selectedSearchEngineIndex) override;
 
 private:
+    void setValid(bool valid);
     void searchEnginesSelectionChanged(int index);
     Utils::FileName path() const;
 
@@ -80,6 +81,7 @@ private:
     QPointer<Utils::PathChooser> m_directory;
     QStackedWidget *m_searchEngineWidget = nullptr;
     QComboBox *m_searchEngineCombo = nullptr;
+    bool m_isValid = false;
 };
 
 } // namespace TextEditor
