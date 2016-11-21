@@ -141,7 +141,6 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     layout->addWidget(lineEditFrame, 2, 0, 1, 1);
     layout->addWidget(m_stackedWidget.data(), 3, 0, 1, 1);
 
-    setResourcePath(QDir::currentPath());
     setSearchFilter(QString());
 
     /* style sheets */
