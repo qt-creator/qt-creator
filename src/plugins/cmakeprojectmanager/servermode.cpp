@@ -112,7 +112,7 @@ ServerMode::ServerMode(const Environment &env,
     m_cmakeProcess->setCommand(cmakeExecutable.toString(), argumentString);
 
     // Delay start:
-    QTimer::singleShot(0, [argumentString, this] {
+    QTimer::singleShot(0, this, [argumentString, this] {
         emit message(tr("Running \"%1 %2\" in %3.")
                      .arg(m_cmakeExecutable.toUserOutput())
                      .arg(argumentString)
