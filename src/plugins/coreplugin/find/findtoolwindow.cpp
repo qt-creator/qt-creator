@@ -35,12 +35,30 @@
 #include <QStringListModel>
 #include <QCompleter>
 #include <QKeyEvent>
+#include <QRegularExpression>
 #include <QScrollArea>
 
 using namespace Core;
 using namespace Core::Internal;
 
 static FindToolWindow *m_instance = 0;
+
+static bool validateRegExp(Utils::FancyLineEdit *edit, QString *errorMessage)
+{
+    if (edit->text().isEmpty()) {
+        if (errorMessage)
+            *errorMessage = FindToolWindow::tr("Empty search term");
+        return false;
+    }
+    if (Find::hasFindFlag(FindRegularExpression)) {
+        QRegularExpression regexp(edit->text());
+        bool regexpValid = regexp.isValid();
+        if (!regexpValid && errorMessage)
+            *errorMessage = regexp.errorString();
+        return regexpValid;
+    }
+    return true;
+}
 
 FindToolWindow::FindToolWindow(QWidget *parent)
     : QWidget(parent),
@@ -61,11 +79,17 @@ FindToolWindow::FindToolWindow(QWidget *parent)
     connect(m_ui.regExp, &QAbstractButton::toggled, Find::instance(), &Find::setRegularExpression);
     connect(m_ui.filterList, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
             this, static_cast<void (FindToolWindow::*)(int)>(&FindToolWindow::setCurrentFilter));
-    connect(m_ui.searchTerm, &QLineEdit::textChanged, this, &FindToolWindow::updateButtonStates);
 
     m_findCompleter->setModel(Find::findCompletionModel());
     m_ui.searchTerm->setSpecialCompleter(m_findCompleter);
     m_ui.searchTerm->installEventFilter(this);
+
+    m_ui.searchTerm->setValidationFunction(validateRegExp);
+    connect(Find::instance(), &Find::findFlagsChanged,
+            m_ui.searchTerm, &Utils::FancyLineEdit::validate);
+    connect(m_ui.searchTerm, &Utils::FancyLineEdit::validChanged,
+            this, &FindToolWindow::updateButtonStates);
+
     QVBoxLayout *layout = new QVBoxLayout;
     layout->setMargin(0);
     layout->setSpacing(0);
@@ -116,7 +140,7 @@ bool FindToolWindow::eventFilter(QObject *obj, QEvent *event)
 void FindToolWindow::updateButtonStates()
 {
     bool filterEnabled = m_currentFilter && m_currentFilter->isEnabled();
-    bool enabled = !m_ui.searchTerm->text().isEmpty() && filterEnabled && m_currentFilter->isValid();
+    bool enabled = m_ui.searchTerm->isValid() && filterEnabled && m_currentFilter->isValid();
     m_ui.searchButton->setEnabled(enabled);
     m_ui.replaceButton->setEnabled(m_currentFilter
                                    && m_currentFilter->isReplaceSupported() && enabled);
