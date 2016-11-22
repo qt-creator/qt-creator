@@ -44,6 +44,7 @@
 #include <cpptools/cpptoolsbridge.h>
 #include <cpptools/cpptoolsreuse.h>
 #include <cpptools/cppworkingcopy.h>
+#include <cpptools/editordocumenthandle.h>
 
 #include <texteditor/convenience.h>
 #include <texteditor/fontsettings.h>
@@ -325,6 +326,10 @@ void ClangEditorDocumentProcessor::registerTranslationUnitForEditor(CppTools::Pr
             m_ipcCommunicator.unregisterTranslationUnitsForEditor({fileContainerWithArguments()});
             m_ipcCommunicator.registerTranslationUnitsForEditor({fileContainerWithArguments(projectPart)});
         }
+    } else if (revision() != 1) {
+        // E.g. a refactoring action opened the document and modified it immediately.
+        m_ipcCommunicator.registerTranslationUnitsForEditor({{fileContainerWithArgumentsAndDocumentContent(projectPart)}});
+        ClangCodeModel::Utils::setLastSentDocumentRevision(filePath(), revision());
     } else {
         m_ipcCommunicator.registerTranslationUnitsForEditor({{fileContainerWithArguments(projectPart)}});
     }
@@ -436,6 +441,20 @@ ClangEditorDocumentProcessor::fileContainerWithArguments(CppTools::ProjectPart *
     const QStringList theFileArguments = fileArguments(filePath(), projectPart);
 
     return {filePath(), projectPartId, Utf8StringVector(theFileArguments), revision()};
+}
+
+ClangBackEnd::FileContainer
+ClangEditorDocumentProcessor::fileContainerWithArgumentsAndDocumentContent(
+        CppTools::ProjectPart *projectPart) const
+{
+    const QStringList theFileArguments = fileArguments(filePath(), projectPart);
+
+    return ClangBackEnd::FileContainer(filePath(),
+                                       projectPart->id(),
+                                       Utf8StringVector(theFileArguments),
+                                       textDocument()->toPlainText(),
+                                       true,
+                                       revision());
 }
 
 ClangBackEnd::FileContainer

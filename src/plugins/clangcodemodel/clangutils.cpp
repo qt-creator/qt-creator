@@ -33,6 +33,7 @@
 #include <cpptools/baseeditordocumentparser.h>
 #include <cpptools/compileroptionsbuilder.h>
 #include <cpptools/cppmodelmanager.h>
+#include <cpptools/editordocumenthandle.h>
 #include <cpptools/projectpart.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/qtcassert.h>
@@ -229,6 +230,17 @@ QString projectPartIdForFile(const QString &filePath)
     if (isProjectPartLoaded(projectPart))
         return projectPart->id(); // OK, Project Part is still loaded
     return QString();
+}
+
+CppEditorDocumentHandle *cppDocument(const QString &filePath)
+{
+    return CppTools::CppModelManager::instance()->cppEditorDocument(filePath);
+}
+
+void setLastSentDocumentRevision(const QString &filePath, uint revision)
+{
+    if (CppEditorDocumentHandle *document = cppDocument(filePath))
+        document->sendTracker().setLastSentRevision(int(revision));
 }
 
 } // namespace Utils

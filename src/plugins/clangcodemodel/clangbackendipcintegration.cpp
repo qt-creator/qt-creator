@@ -90,11 +90,6 @@ static QString backendProcessPath()
             + QStringLiteral(QTC_HOST_EXE_SUFFIX);
 }
 
-static CppTools::CppEditorDocumentHandle *cppDocument(const QString &filePath)
-{
-    return CppTools::CppModelManager::instance()->cppEditorDocument(filePath);
-}
-
 static bool printAliveMessageHelper()
 {
     const bool print = qEnvironmentVariableIntValue("QTC_CLANG_FORCE_VERBOSE_ALIVE");
@@ -540,14 +535,14 @@ void IpcCommunicator::registerProjectsParts(const QList<CppTools::ProjectPart::P
 
 void IpcCommunicator::updateTranslationUnitFromCppEditorDocument(const QString &filePath)
 {
-    const CppTools::CppEditorDocumentHandle *document = cppDocument(filePath);
+    const CppTools::CppEditorDocumentHandle *document = ClangCodeModel::Utils::cppDocument(filePath);
 
     updateTranslationUnit(filePath, document->contents(), document->revision());
 }
 
 void IpcCommunicator::updateUnsavedFileFromCppEditorDocument(const QString &filePath)
 {
-    const CppTools::CppEditorDocumentHandle *document = cppDocument(filePath);
+    const CppTools::CppEditorDocumentHandle *document = ClangCodeModel::Utils::cppDocument(filePath);
 
     updateUnsavedFile(filePath, document->contents(), document->revision());
 }
@@ -584,7 +579,7 @@ void IpcCommunicator::updateUnsavedFile(const QString &filePath, const QByteArra
 
 static bool documentHasChanged(const QString &filePath, uint revision)
 {
-    if (CppTools::CppEditorDocumentHandle *document = cppDocument(filePath))
+    if (CppTools::CppEditorDocumentHandle *document = ClangCodeModel::Utils::cppDocument(filePath))
         return document->sendTracker().shouldSendRevision(revision);
 
     return true;
@@ -592,7 +587,7 @@ static bool documentHasChanged(const QString &filePath, uint revision)
 
 static void setLastSentDocumentRevision(const QString &filePath, uint revision)
 {
-    if (CppTools::CppEditorDocumentHandle *document = cppDocument(filePath))
+    if (CppTools::CppEditorDocumentHandle *document = ClangCodeModel::Utils::cppDocument(filePath))
         document->sendTracker().setLastSentRevision(int(revision));
 }
 
@@ -625,7 +620,7 @@ void IpcCommunicator::updateTranslationUnitWithRevisionCheck(Core::IDocument *do
 
 void IpcCommunicator::updateChangeContentStartPosition(const QString &filePath, int position)
 {
-    if (CppTools::CppEditorDocumentHandle *document = cppDocument(filePath))
+    if (CppTools::CppEditorDocumentHandle *document = ClangCodeModel::Utils::cppDocument(filePath))
         document->sendTracker().applyContentChange(position);
 }
 

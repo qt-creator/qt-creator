@@ -27,8 +27,15 @@
 
 #include <cpptools/projectpart.h>
 
+namespace CppTools {
+class CppEditorDocumentHandle;
+}
+
 namespace ClangCodeModel {
 namespace Utils {
+
+CppTools::CppEditorDocumentHandle *cppDocument(const QString &filePath);
+void setLastSentDocumentRevision(const QString &filePath, uint revision);
 
 QStringList createClangOptions(const CppTools::ProjectPart::Ptr &pPart,
                                CppTools::ProjectFile::Kind fileKind);

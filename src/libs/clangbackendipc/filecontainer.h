@@ -54,6 +54,21 @@ public:
     FileContainer(const Utf8String &filePath,
                   const Utf8String &projectPartId,
                   const Utf8StringVector &fileArguments,
+                  const Utf8String &unsavedFileContent = Utf8String(),
+                  bool hasUnsavedFileContent = false,
+                  quint32 documentRevision = 0)
+        : filePath_(filePath),
+          projectPartId_(projectPartId),
+          fileArguments_(fileArguments),
+          unsavedFileContent_(unsavedFileContent),
+          documentRevision_(documentRevision),
+          hasUnsavedFileContent_(hasUnsavedFileContent)
+    {
+    }
+
+    FileContainer(const Utf8String &filePath,
+                  const Utf8String &projectPartId,
+                  const Utf8StringVector &fileArguments,
                   quint32 documentRevision)
         : filePath_(filePath),
           projectPartId_(projectPartId),

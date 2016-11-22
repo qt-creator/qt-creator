@@ -519,15 +519,10 @@ void ClangCompletionAssistProcessor::sendFileContent(const QByteArray &customFil
                                                       uint(m_interface->textDocument()->revision())}});
 }
 namespace {
-CppTools::CppEditorDocumentHandle *cppDocument(const QString &filePath)
-{
-    return CppTools::CppModelManager::instance()->cppEditorDocument(filePath);
-}
-
 bool shouldSendDocumentForCompletion(const QString &filePath,
                                      int completionPosition)
 {
-    auto *document = cppDocument(filePath);
+    CppTools::CppEditorDocumentHandle *document = ClangCodeModel::Utils::cppDocument(filePath);
 
     if (document) {
         auto &sendTracker = document->sendTracker();
@@ -541,7 +536,7 @@ bool shouldSendDocumentForCompletion(const QString &filePath,
 bool shouldSendCodeCompletion(const QString &filePath,
                               int completionPosition)
 {
-    auto *document = cppDocument(filePath);
+    CppTools::CppEditorDocumentHandle *document = ClangCodeModel::Utils::cppDocument(filePath);
 
     if (document) {
         auto &sendTracker = document->sendTracker();
@@ -553,7 +548,7 @@ bool shouldSendCodeCompletion(const QString &filePath,
 
 void setLastDocumentRevision(const QString &filePath)
 {
-    auto *document = cppDocument(filePath);
+    CppTools::CppEditorDocumentHandle *document = ClangCodeModel::Utils::cppDocument(filePath);
 
     if (document)
         document->sendTracker().setLastSentRevision(int(document->revision()));
@@ -562,7 +557,7 @@ void setLastDocumentRevision(const QString &filePath)
 void setLastCompletionPosition(const QString &filePath,
                                int completionPosition)
 {
-    auto *document = cppDocument(filePath);
+    CppTools::CppEditorDocumentHandle *document = ClangCodeModel::Utils::cppDocument(filePath);
 
     if (document)
         document->sendTracker().setLastCompletionPosition(completionPosition);
