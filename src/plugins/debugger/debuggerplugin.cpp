@@ -3610,6 +3610,11 @@ void selectPerspective(const QByteArray &perspectiveId)
     dd->m_mainWindow->restorePerspective(perspectiveId);
 }
 
+QByteArray currentPerspective()
+{
+    return dd->m_mainWindow->currentPerspective();
+}
+
 QWidget *mainWindow()
 {
     return dd->m_mainWindow;
