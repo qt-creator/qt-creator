@@ -54,6 +54,8 @@ const char HANDSHAKE_TYPE[] = "handshake";
 const char START_MAGIC[] = "\n[== \"CMake Server\" ==[\n";
 const char END_MAGIC[] = "\n]== \"CMake Server\" ==]\n";
 
+Q_LOGGING_CATEGORY(cmakeServerMode, "qtc.cmake.serverMode");
+
 // ----------------------------------------------------------------------
 // Helpers:
 // ----------------------------------------------------------------------
@@ -109,6 +111,9 @@ ServerMode::ServerMode(const Environment &env,
     if (m_useExperimental)
         QtcProcess::addArg(&argumentString, "--experimental");
 
+    qCInfo(cmakeServerMode)
+            << "Preparing cmake:" << cmakeExecutable.toString() << argumentString
+            << "in" << m_buildDirectory.toString();
     m_cmakeProcess->setCommand(cmakeExecutable.toString(), argumentString);
 
     // Delay start:
@@ -140,6 +145,8 @@ void ServerMode::sendRequest(const QString &type, const QVariantMap &extra, cons
     QTC_ASSERT(m_cmakeSocket, return);
     ++m_requestCounter;
 
+    qCInfo(cmakeServerMode) << "Sending Request" << type << "(" << cookie << ")";
+
     QVariantMap data = extra;
     data.insert(TYPE_KEY, type);
     const QVariant realCookie = cookie.isNull() ? QVariant(m_requestCounter) : cookie;
@@ -151,6 +158,7 @@ void ServerMode::sendRequest(const QString &type, const QVariantMap &extra, cons
     document.setObject(object);
 
     const QByteArray rawData = START_MAGIC + document.toJson() + END_MAGIC;
+    qCDebug(cmakeServerMode) << ">>>" << rawData;
     m_cmakeSocket->write(rawData);
     m_cmakeSocket->flush();
 }
@@ -172,6 +180,7 @@ void ServerMode::connectToServer()
     if (counter > 50) {
         counter = 0;
         m_cmakeProcess->disconnect();
+        qCInfo(cmakeServerMode) << "Timeout waiting for pipe" << m_socketName;
         reportError(tr("Running \"%1\" failed: Timeout waiting for pipe \"%2\".")
                     .arg(m_cmakeExecutable.toUserOutput())
                     .arg(m_socketName));
@@ -207,6 +216,7 @@ void ServerMode::connectToServer()
 
 void ServerMode::handleCMakeFinished(int code, QProcess::ExitStatus status)
 {
+    qCInfo(cmakeServerMode) << "CMake has finished" << code << status;
     QString msg;
     if (status != QProcess::NormalExit)
         msg = tr("CMake process \"%1\" crashed.").arg(m_cmakeExecutable.toUserOutput());
@@ -268,6 +278,7 @@ void ServerMode::handleRawCMakeServerData()
 
 void ServerMode::parseBuffer(const QByteArray &buffer)
 {
+    qCDebug(cmakeServerMode) << "<<<" << buffer;
     QJsonDocument document = QJsonDocument::fromJson(buffer);
     if (document.isNull()) {
         reportError(tr("Failed to parse JSON from CMake server."));
@@ -286,6 +297,7 @@ void ServerMode::parseJson(const QVariantMap &data)
 {
     QString type = data.value(TYPE_KEY).toString();
     if (type == "hello") {
+        qCInfo(cmakeServerMode) << "Got \"hello\" message.";
         if (m_gotHello) {
             reportError(tr("Unexpected hello received from CMake server."));
             return;
@@ -307,6 +319,7 @@ void ServerMode::parseJson(const QVariantMap &data)
         }
         const QString replyTo = data.value(IN_REPLY_TO_KEY).toString();
         const QVariant cookie = data.value(COOKIE_KEY);
+        qCInfo(cmakeServerMode) << "Got \"reply\" message." << replyTo << "(" << cookie << ")";
 
         const auto expected = m_expectedReplies.begin();
         if (expected->type != replyTo) {
@@ -336,6 +349,7 @@ void ServerMode::parseJson(const QVariantMap &data)
         }
         const QString replyTo = data.value(IN_REPLY_TO_KEY).toString();
         const QVariant cookie = data.value(COOKIE_KEY);
+        qCInfo(cmakeServerMode) << "Got \"error\" message." << replyTo << "(" << cookie << ")";
 
         const auto expected = m_expectedReplies.begin();
         if (expected->type != replyTo) {
@@ -364,6 +378,7 @@ void ServerMode::parseJson(const QVariantMap &data)
     if (type == "message") {
         const QString replyTo = data.value(IN_REPLY_TO_KEY).toString();
         const QVariant cookie = data.value(COOKIE_KEY);
+        qCInfo(cmakeServerMode) << "Got \"message\" message." << replyTo << "(" << cookie << ")";
 
         const auto expected = m_expectedReplies.begin();
         if (expected->type != replyTo) {
@@ -383,6 +398,7 @@ void ServerMode::parseJson(const QVariantMap &data)
     if (type == "progress") {
         const QString replyTo = data.value(IN_REPLY_TO_KEY).toString();
         const QVariant cookie = data.value(COOKIE_KEY);
+        qCInfo(cmakeServerMode) << "Got \"progress\" message." << replyTo << "(" << cookie << ")";
 
         const auto expected = m_expectedReplies.begin();
         if (expected->type != replyTo) {
@@ -405,6 +421,7 @@ void ServerMode::parseJson(const QVariantMap &data)
         const QString replyTo = data.value(IN_REPLY_TO_KEY).toString();
         const QVariant cookie = data.value(COOKIE_KEY);
         const QString name = data.value(NAME_KEY).toString();
+        qCInfo(cmakeServerMode) << "Got \"signal\" message." << name << replyTo << "(" << cookie << ")";
 
         if (name.isEmpty()) {
             reportError(tr("Received a signal without a name."));
@@ -418,6 +435,7 @@ void ServerMode::parseJson(const QVariantMap &data)
         emit cmakeSignal(name, data);
         return;
     }
+    reportError("Got a message of an unknown type.");
 }
 
 void ServerMode::handleHello(const QVariantMap &data)
@@ -448,6 +466,7 @@ void ServerMode::handleHello(const QVariantMap &data)
 
 void ServerMode::reportError(const QString &msg)
 {
+    qCWarning(cmakeServerMode) << "Report Error:" << msg;
     emit message(msg);
     emit errorOccured(msg);
 }

@@ -27,6 +27,7 @@
 
 #include <utils/qtcprocess.h>
 
+#include <QLoggingCategory>
 #include <QTemporaryDir>
 #include <QTimer>
 #include <QVariantMap>
@@ -116,3 +117,5 @@ private:
 
 } // namespace Internal
 } // namespace CMakeProjectManager
+
+Q_DECLARE_LOGGING_CATEGORY(cmakeServerMode);
