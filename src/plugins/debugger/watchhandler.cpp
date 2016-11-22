@@ -71,6 +71,7 @@
 #include <QTableWidget>
 #include <QTimer>
 #include <QVBoxLayout>
+#include <QToolTip>
 
 #include <algorithm>
 #include <cstring>
@@ -349,6 +350,27 @@ public:
         show();
         raise();
         return t;
+    }
+};
+
+class TextEdit : public QTextEdit
+{
+    Q_OBJECT
+public:
+    bool event(QEvent *ev) override
+    {
+        if (ev->type() == QEvent::ToolTip) {
+            auto hev = static_cast<QHelpEvent *>(ev);
+            QTextCursor cursor = cursorForPosition(hev->pos());
+            int nextPos = cursor.position();
+            if (document() && nextPos + 1 < document()->characterCount())
+                ++nextPos;
+            cursor.setPosition(nextPos, QTextCursor::KeepAnchor);
+            QString msg = QString("Position: %1  Character: %2")
+                    .arg(cursor.anchor()).arg(cursor.selectedText());
+            QToolTip::showText(hev->globalPos(), msg, this);
+        }
+        return QTextEdit::event(ev);
     }
 };
 
@@ -2211,7 +2233,7 @@ void WatchModel::showEditValue(const WatchItem *item)
             str = QString::fromUtf16((ushort *)ba.constData(), ba.size() / 2);
         else if (format == DisplayUtf16String)
             str = QString::fromUcs4((uint *)ba.constData(), ba.size() / 4);
-        m_separatedView->prepareObject<QTextEdit>(item)->setPlainText(str);
+        m_separatedView->prepareObject<TextEdit>(item)->setPlainText(str);
     } else if (format == DisplayPlotData) {
         // Plots
         std::vector<double> data;
@@ -2637,3 +2659,5 @@ static QVariant createItemDelegate()
 
 } // namespace Internal
 } // namespace Debugger
+
+#include "watchhandler.moc"
