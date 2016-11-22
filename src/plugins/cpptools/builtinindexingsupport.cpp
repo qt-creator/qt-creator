@@ -46,6 +46,7 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QElapsedTimer>
+#include <QRegularExpression>
 
 using namespace CppTools;
 using namespace CppTools::Internal;
@@ -281,11 +282,13 @@ public:
         CPlusPlus::Snapshot::const_iterator it = m_snapshot.begin();
 
         QString findString = (m_parameters.flags & Core::FindRegularExpression
-                              ? m_parameters.text : QRegExp::escape(m_parameters.text));
+                              ? m_parameters.text : QRegularExpression::escape(m_parameters.text));
         if (m_parameters.flags & Core::FindWholeWords)
             findString = QString::fromLatin1("\\b%1\\b").arg(findString);
-        QRegExp matcher(findString, (m_parameters.flags & Core::FindCaseSensitively
-                                     ? Qt::CaseSensitive : Qt::CaseInsensitive));
+        QRegularExpression matcher(findString, (m_parameters.flags & Core::FindCaseSensitively
+                                                ? QRegularExpression::NoPatternOption
+                                                : QRegularExpression::CaseInsensitiveOption));
+        matcher.optimize();
         while (it != m_snapshot.end()) {
             if (future.isPaused())
                 future.waitForResume();
@@ -294,7 +297,7 @@ public:
             if (m_fileNames.isEmpty() || m_fileNames.contains(it.value()->fileName())) {
                 QVector<Core::SearchResultItem> resultItems;
                 auto filter = [&](const IndexItem::Ptr &info) -> IndexItem::VisitorResult {
-                    if (matcher.indexIn(info->symbolName()) != -1) {
+                    if (matcher.match(info->symbolName()).hasMatch()) {
                         QString text = info->symbolName();
                         QString scope = info->symbolScope();
                         if (info->type() == IndexItem::Function) {
