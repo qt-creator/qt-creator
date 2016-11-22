@@ -455,7 +455,7 @@ void NodeInstanceServer::setupImports(const QVector<AddImportContainer> &contain
         if (!container.alias().isEmpty())
             importStatement += " as " + container.alias();
 
-        if (importStatement.startsWith("import QtQuick" + QChar::Space))
+        if (importStatement.startsWith("import QtQuick" + QChar(QChar::Space)))
             qtQuickImport = importStatement;
         else
             importStatementSet.insert(importStatement);
