@@ -38,6 +38,7 @@
 
 #include <cpaster/codepasterservice.h>
 
+#include <utils/progressindicator.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>
@@ -56,11 +57,64 @@ DiffEditorWidgetController::DiffEditorWidgetController(QWidget *diffEditorWidget
     : QObject(diffEditorWidget)
     , m_diffEditorWidget(diffEditorWidget)
 {
+    m_timer.setSingleShot(true);
+    m_timer.setInterval(100);
+    connect(&m_timer, &QTimer::timeout, this, &DiffEditorWidgetController::showProgress);
 }
 
 void DiffEditorWidgetController::setDocument(DiffEditorDocument *document)
 {
+    if (!m_progressIndicator) {
+        m_progressIndicator = new Utils::ProgressIndicator(Utils::ProgressIndicator::Large);
+        m_progressIndicator->attachToWidget(m_diffEditorWidget);
+        m_progressIndicator->hide();
+    }
+
+    if (m_document == document)
+        return;
+
+    if (m_document) {
+        disconnect(m_document, &IDocument::aboutToReload, this, &DiffEditorWidgetController::scheduleShowProgress);
+        disconnect(m_document, &IDocument::reloadFinished, this, &DiffEditorWidgetController::hideProgress);
+    }
+
+    const bool wasRunning = m_document && m_document->isReloading();
+
     m_document = document;
+
+    if (m_document) {
+        connect(m_document, &IDocument::aboutToReload, this, &DiffEditorWidgetController::scheduleShowProgress);
+        connect(m_document, &IDocument::reloadFinished, this, &DiffEditorWidgetController::hideProgress);
+    }
+
+    const bool isRunning = m_document && m_document->isReloading();
+
+    if (wasRunning == isRunning)
+        return;
+
+    if (isRunning)
+        scheduleShowProgress();
+    else
+        hideProgress();
+}
+
+void DiffEditorWidgetController::scheduleShowProgress()
+{
+    m_timer.start();
+}
+
+void DiffEditorWidgetController::showProgress()
+{
+    m_timer.stop();
+    if (m_progressIndicator)
+        m_progressIndicator->show();
+}
+
+void DiffEditorWidgetController::hideProgress()
+{
+    m_timer.stop();
+    if (m_progressIndicator)
+        m_progressIndicator->hide();
 }
 
 void DiffEditorWidgetController::patch(bool revert)

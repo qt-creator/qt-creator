@@ -76,6 +76,7 @@ public:
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
     OpenResult open(QString *errorString, const QString &fileName,
                     const QString &realFileName) override;
+    bool isReloading() const { return m_isReloading; }
 
     QString plainText() const;
 
@@ -101,6 +102,7 @@ private:
     int m_contextLineCount;
     bool m_isContextLineCountForced;
     bool m_ignoreWhitespace;
+    bool m_isReloading = false;
 
     friend class ::DiffEditor::DiffEditorController;
 };
