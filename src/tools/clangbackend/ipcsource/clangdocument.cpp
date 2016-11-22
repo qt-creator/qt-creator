@@ -364,6 +364,11 @@ const QSet<Utf8String> Document::dependedFilePaths() const
     return d->dependedFilePaths;
 }
 
+void Document::setDependedFilePaths(const QSet<Utf8String> &filePaths)
+{
+    d->dependedFilePaths = filePaths;
+}
+
 void Document::setDirty()
 {
     d->needsToBeReparsedChangeTimePoint = Clock::now();
