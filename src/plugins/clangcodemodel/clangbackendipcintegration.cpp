@@ -92,9 +92,27 @@ QString backendProcessPath()
             + QStringLiteral(QTC_HOST_EXE_SUFFIX);
 }
 
+bool printAliveMessageHelper()
+{
+    const bool print = qEnvironmentVariableIntValue("QTC_CLANG_FORCE_VERBOSE_ALIVE");
+    if (!print) {
+        qCDebug(log) << "Hint: AliveMessage will not be printed. "
+                        "Force it by setting QTC_CLANG_FORCE_VERBOSE_ALIVE=1.";
+    }
+
+    return print;
+}
+
+bool printAliveMessage()
+{
+    static bool print = log().isDebugEnabled() ? printAliveMessageHelper() : false;
+    return print;
+}
+
 } // anonymous namespace
 
 IpcReceiver::IpcReceiver()
+    : m_printAliveMessage(printAliveMessage())
 {
 }
 
@@ -143,7 +161,8 @@ bool IpcReceiver::isExpectingCodeCompletedMessage() const
 
 void IpcReceiver::alive()
 {
-    qCDebug(log) << "<<< AliveMessage";
+    if (m_printAliveMessage)
+        qCDebug(log) << "<<< AliveMessage";
     QTC_ASSERT(m_aliveHandler, return);
     m_aliveHandler();
 }
