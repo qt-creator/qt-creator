@@ -43,9 +43,13 @@
     \uicontrol {About Plugins} > \uicontrol Utilities > \uicontrol {Auto Test}.
     Restart \QC to be able to use the plugin.
 
-    \section1 Creating Qt Tests
+    \section1 Creating Tests
 
-    You can use a wizard to create projects that contain Qt tests:
+    You can use a wizard to create projects that contain Qt or Google tests.
+
+    \section2 Creating Qt Tests
+
+    To create a Qt test:
 
     \list 1
         \li Select \uicontrol File > \uicontrol {New File or Project} >
@@ -57,6 +61,9 @@
             settings for the project and test:
 
             \list 1
+
+                \li In the \uicontrol {Test framework} field, select
+                    \uicontrol {Qt Test}.
 
                 \li Select the \uicontrol {GUI Application} check box to create
                     a Qt application.
@@ -86,6 +93,52 @@
     directory. Edit the .cpp file to add private slots for each test
     function in your test. For more information about creating Qt tests, see
     \l{Creating a Test}.
+
+    \section2 Creating Google Tests
+
+    To create a Google test:
+
+    \list 1
+        \li Select \uicontrol File > \uicontrol {New File or Project} >
+            \uicontrol {Other Project} > \uicontrol {Auto Test} >
+            \uicontrol Choose to create a project with boilerplate code for a
+            Google test.
+
+        \li In the \uicontrol {Project and Test Information} dialog, specify
+            settings for the project and test:
+
+            \list 1
+
+                \li In the \uicontrol {Test framework} field, select
+                    \uicontrol {Google Test}.
+
+                \li In the \uicontrol {Test case name} field, enter a name for
+                    the test case.
+
+                \li In the \uicontrol {Test set name} field, enter a name for
+                    the test set.
+
+                \li Select the \uicontrol {Enable C++ 11} check box to
+                    support C++ 11 features in the test.
+
+                \li In the \uicontrol {Build auto tests} field, select
+                    \uicontrol Always to always build the test when building
+                    the project or \uicontrol {Debug Only} to only build it
+                    during debug builds.
+
+                \li In the \uicontrol {Google test repository} field, select
+                    a directory that contains a clone of the googletest
+                    repository.
+
+                    To use an installed Google C++ Testing framework instead,
+                    see \l{Setting Up the Google C++ Testing Framework}.
+
+            \endlist
+
+    \endlist
+
+    \QC creates the test in the \c{tests\auto} directory in the project
+    directory.
 
     \section1 Setting Up the Google C++ Testing Framework
 
