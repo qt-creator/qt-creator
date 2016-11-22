@@ -1062,7 +1062,11 @@ def qdump__QRegExp(d, value):
     d.putNumChild(1)
     if d.isExpanded():
         with Children(d):
-            d.call('void', value, 'capturedTexts') # Warm up internal cache.
+            try:
+                d.call('void', value, 'capturedTexts') # Warm up internal cache.
+            except:
+                # Might fail (LLDB, Core files, ...), still cache might be warm.
+                pass
             (patternSyntax, caseSensitive, minimal, pad, t, captures) \
                 = d.split('{int}{int}B@{QString}{QStringList}', privAddress + 2 * d.ptrSize())
             d.putSubItem('syntax', patternSyntax.cast(d.qtNamespace() + 'QRegExp::PatternSyntax'))

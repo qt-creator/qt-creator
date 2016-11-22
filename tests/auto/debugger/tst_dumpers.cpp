@@ -2748,12 +2748,14 @@ void tst_Dumpers::dumper_data()
 
 
     QTest::newRow("QRegExp")
-            << Data("#include <QRegExp>\n",
+            << Data("#include <QRegExp>\n"
+                    "#include <QStringList>\n",
                     "QRegExp re(QString(\"a(.*)b(.*)c\"));\n"
                     "QString str1 = \"a1121b344c\";\n"
                     "QString str2 = \"Xa1121b344c\";\n"
                     "int pos1 = re.indexIn(str1); unused(&pos1);\n"
-                    "int pos2 = re.indexIn(str2); unused(&pos2);\n")
+                    "int pos2 = re.indexIn(str2); unused(&pos2);\n"
+                    "QStringList caps = re.capturedTexts(); unused(&caps);\n")
                + CoreProfile()
                + UseDebugImage()
                + Check("re", "\"a(.*)b(.*)c\"", "@QRegExp")
@@ -2762,7 +2764,8 @@ void tst_Dumpers::dumper_data()
                + Check("re.captures.2", "[2]", "\"344\"", "@QString")
                + Check("str2", "\"Xa1121b344c\"", "@QString")
                + Check("pos1", "0", "int")
-               + Check("pos2", "1", "int");
+               + Check("pos2", "1", "int")
+               + Check("caps", "<3 items>", "@QStringList");
 
 
     QTest::newRow("QRect")
