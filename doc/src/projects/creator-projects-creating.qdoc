@@ -189,9 +189,9 @@
 
                 Custom \QD widget or widget collection
 
-            \li Empty Qt Project
+            \li Empty qmake Project
 
-                Empty Qt project that is based on qmake but does not use any
+                Empty qmake project that is based on qmake but does not use any
                 default classes
 
             \li Subdirs Project
