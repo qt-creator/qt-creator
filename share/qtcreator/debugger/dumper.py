@@ -3755,7 +3755,7 @@ class DumperBase:
             if self.autoPadNext:
                 self.currentBitsize = 8 * ((self.currentBitsize + 7) >> 3)  # Fill up byte.
                 padding = (fieldAlign - (self.currentBitsize >> 3)) % fieldAlign
-                warn('AUTO PADDING AT %s BITS BY %s BYTES' % (self.currentBitsize, padding))
+                #warn('AUTO PADDING AT %s BITS BY %s BYTES' % (self.currentBitsize, padding))
                 field = self.dumper.Field(self.dumper)
                 field.code = None
                 #field.lbitpos = self.currentBitsize
