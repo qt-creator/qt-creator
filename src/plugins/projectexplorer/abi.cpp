@@ -165,6 +165,8 @@ static QList<Abi> parseCoffHeader(const QByteArray &data)
             break;
         case 14:
             flavor = Abi::WindowsMsvc2015Flavor;
+        case 15:
+            flavor = Abi::WindowsMsvc2017Flavor;
             break;
         default: // Keep unknown flavor
             if (minorLinker != 0)
@@ -422,6 +424,8 @@ Abi::Abi(const QString &abiString) :
             m_osFlavor = WindowsMsvc2013Flavor;
         else if (abiParts.at(2) == QLatin1String("msvc2015") && m_os == WindowsOS)
             m_osFlavor = WindowsMsvc2015Flavor;
+        else if (abiParts.at(2) == QLatin1String("msvc2017") && m_os == WindowsOS)
+            m_osFlavor = WindowsMsvc2017Flavor;
         else if (abiParts.at(2) == QLatin1String("msys") && m_os == WindowsOS)
             m_osFlavor = WindowsMSysFlavor;
         else if (abiParts.at(2) == QLatin1String("ce") && m_os == WindowsOS)
@@ -748,6 +752,7 @@ QList<Abi::OSFlavor> Abi::flavorsForOs(const Abi::OS &o)
     case WindowsOS:
         return result << WindowsMsvc2005Flavor << WindowsMsvc2008Flavor << WindowsMsvc2010Flavor
                       << WindowsMsvc2012Flavor << WindowsMsvc2013Flavor << WindowsMsvc2015Flavor
+                      << WindowsMsvc2017Flavor
                       << WindowsMSysFlavor << WindowsCEFlavor << UnknownFlavor;
     case VxWorks:
         return result << VxWorksFlavor << UnknownFlavor;
@@ -768,7 +773,9 @@ Abi Abi::hostAbi()
 
 #if defined (Q_OS_WIN)
     os = WindowsOS;
-#if _MSC_VER == 1900
+#if _MSC_VER >= 1910
+    subos = WindowsMsvc2017Flavor;
+#elif _MSC_VER == 1900
     subos = WindowsMsvc2015Flavor;
 #elif _MSC_VER == 1800
     subos = WindowsMsvc2013Flavor;
