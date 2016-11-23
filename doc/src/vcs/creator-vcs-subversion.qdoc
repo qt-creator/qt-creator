@@ -39,7 +39,16 @@
 
     Subversion is an open source version control system.
 
-    In addition to the standard version control system functions, you can
-    select \uicontrol Tools > \uicontrol Subversion > \uicontrol Describe
-    to display commit log messages for a revision.
+    In addition to the standard version control system functions described in
+    \l {Using Common Functions}, you can select \uicontrol Tools >
+    \uicontrol Subversion > \uicontrol Describe to display commit log messages
+    for a revision.
+
+    By default, you are prompted to confirm that you want to submit changes.
+    To suppress the prompt, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol {Version Control} > \uicontrol Subversion, and then deselect the
+    \uicontrol {Prompt on submit} check box.
+
+    To show whitespace changes in annotation views, deselect the
+    \uicontrol {Ignore whitespace changes in annotation} check box.
 */
