@@ -69,6 +69,15 @@ QString socketName(const Utils::FileName &buildDirectory)
     return buildDirectory.toString() + "/socket";
 }
 
+bool isValid(const QVariant &v)
+{
+    if (v.isNull())
+        return false;
+    if (v.type() == QVariant::String) // Workaround signals sending an empty string cookie
+        return !v.toString().isEmpty();
+    return true;
+}
+
 // --------------------------------------------------------------------
 // ServerMode:
 // --------------------------------------------------------------------
@@ -419,7 +428,7 @@ void ServerMode::parseJson(const QVariantMap &data)
     }
     if (type == "signal") {
         const QString replyTo = data.value(IN_REPLY_TO_KEY).toString();
-        const QVariant cookie = data.value(COOKIE_KEY);
+        const QString cookie = data.value(COOKIE_KEY).toString();
         const QString name = data.value(NAME_KEY).toString();
         qCInfo(cmakeServerMode) << "Got \"signal\" message." << name << replyTo << "(" << cookie << ")";
 
@@ -427,7 +436,7 @@ void ServerMode::parseJson(const QVariantMap &data)
             reportError(tr("Received a signal without a name."));
             return;
         }
-        if (!replyTo.isEmpty() || cookie.isValid()) {
+        if (!replyTo.isEmpty() || isValid(cookie)) {
             reportError(tr("Received a signal in reply to a request."));
             return;
         }
