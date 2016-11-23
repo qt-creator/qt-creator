@@ -54,6 +54,7 @@ public:
     UnifiedDiffEditorWidget(QWidget *parent = 0);
 
     void setDocument(DiffEditorDocument *document);
+    DiffEditorDocument *diffDocument() const;
 
     void setDiff(const QList<FileData> &diffFileList,
                  const QString &workingDirectory);

@@ -25,6 +25,7 @@
 
 #include "diffview.h"
 
+#include "diffeditordocument.h"
 #include "diffeditoricons.h"
 #include "unifieddiffeditorwidget.h"
 #include "sidebysidediffeditorwidget.h"
@@ -110,12 +111,16 @@ void UnifiedView::setDocument(DiffEditorDocument *document)
 {
     QTC_ASSERT(m_widget, return);
     m_widget->setDocument(document);
+    if (document && document->isReloading())
+        m_widget->clear(tr("Waiting for data..."));
 }
 
 void UnifiedView::beginOperation()
 {
     QTC_ASSERT(m_widget, return);
-    m_widget->saveState();
+    DiffEditorDocument *document = m_widget->diffDocument();
+    if (document && !document->isReloading())
+        m_widget->saveState();
     m_widget->clear(tr("Waiting for data..."));
 }
 
@@ -169,12 +174,16 @@ void SideBySideView::setDocument(DiffEditorDocument *document)
 {
     QTC_ASSERT(m_widget, return);
     m_widget->setDocument(document);
+    if (document && document->isReloading())
+        m_widget->clear(tr("Waiting for data..."));
 }
 
 void SideBySideView::beginOperation()
 {
     QTC_ASSERT(m_widget, return);
-    m_widget->saveState();
+    DiffEditorDocument *document = m_widget->diffDocument();
+    if (document && !document->isReloading())
+        m_widget->saveState();
     m_widget->clear(tr("Waiting for data..."));
 }
 

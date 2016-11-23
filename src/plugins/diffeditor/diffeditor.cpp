@@ -663,10 +663,6 @@ void DiffEditor::setupView(IDiffView *view)
 
     view->setDocument(m_document.data());
     view->setSync(m_sync);
-
-    view->beginOperation();
-    view->setDiff(m_document->diffFiles(), m_document->baseDirectory());
-    view->endOperation(true);
     view->setCurrentDiffFileIndex(m_currentDiffFileIndex);
 
     m_stackedWidget->setCurrentWidget(view->widget());

@@ -98,6 +98,11 @@ void DiffEditorWidgetController::setDocument(DiffEditorDocument *document)
         hideProgress();
 }
 
+DiffEditorDocument *DiffEditorWidgetController::document() const
+{
+    return m_document;
+}
+
 void DiffEditorWidgetController::scheduleShowProgress()
 {
     m_timer.start();

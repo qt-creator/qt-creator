@@ -50,6 +50,7 @@ public:
     explicit DiffEditorWidgetController(QWidget *diffEditorWidget);
 
     void setDocument(DiffEditorDocument *document);
+    DiffEditorDocument *document() const;
 
     void patch(bool revert);
     void jumpToOriginalFile(const QString &fileName, int lineNumber,

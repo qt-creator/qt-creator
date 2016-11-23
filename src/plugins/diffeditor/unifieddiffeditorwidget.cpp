@@ -78,6 +78,19 @@ UnifiedDiffEditorWidget::UnifiedDiffEditorWidget(QWidget *parent)
 void UnifiedDiffEditorWidget::setDocument(DiffEditorDocument *document)
 {
     m_controller.setDocument(document);
+    clear();
+    QList<FileData> diffFileList;
+    QString workingDirectory;
+    if (document) {
+        diffFileList = document->diffFiles();
+        workingDirectory = document->baseDirectory();
+    }
+    setDiff(diffFileList, workingDirectory);
+}
+
+DiffEditorDocument *UnifiedDiffEditorWidget::diffDocument() const
+{
+    return m_controller.document();
 }
 
 void UnifiedDiffEditorWidget::saveState()
@@ -173,7 +186,7 @@ void UnifiedDiffEditorWidget::clear(const QString &message)
     const bool oldIgnore = m_controller.m_ignoreCurrentIndexChange;
     m_controller.m_ignoreCurrentIndexChange = true;
     SelectableTextEditorWidget::clear();
-    setDiff(QList<FileData>(), QString());
+    m_controller.m_contextFileData.clear();
     setPlainText(message);
     m_controller.m_ignoreCurrentIndexChange = oldIgnore;
 }
@@ -243,8 +256,8 @@ void UnifiedDiffEditorWidget::setDiff(const QList<FileData> &diffFileList,
 {
     Q_UNUSED(workingDirectory)
 
+    clear();
     m_controller.m_contextFileData = diffFileList;
-
     showDiff();
 }
 

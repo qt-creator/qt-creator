@@ -562,6 +562,19 @@ SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
 void SideBySideDiffEditorWidget::setDocument(DiffEditorDocument *document)
 {
     m_controller.setDocument(document);
+    clear();
+    QList<FileData> diffFileList;
+    QString workingDirectory;
+    if (document) {
+        diffFileList = document->diffFiles();
+        workingDirectory = document->baseDirectory();
+    }
+    setDiff(diffFileList, workingDirectory);
+}
+
+DiffEditorDocument *SideBySideDiffEditorWidget::diffDocument() const
+{
+    return m_controller.document();
 }
 
 void SideBySideDiffEditorWidget::clear(const QString &message)
