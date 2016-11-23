@@ -481,13 +481,16 @@ void DiffEditorPlugin::diffExternalFiles()
                                                      QString());
     if (fileName1.isNull())
         return;
+    if (EditorManager::skipOpeningBigTextFile(fileName1))
+        return;
 
     const QString fileName2 = QFileDialog::getOpenFileName(ICore::dialogParent(),
                                                      tr("Select Second File for Diff"),
                                                      QString());
     if (fileName2.isNull())
         return;
-
+    if (EditorManager::skipOpeningBigTextFile(fileName2))
+        return;
 
     const QString documentId = QLatin1String("Diff ") + fileName1 + QLatin1String(", ") + fileName2;
     const QString title = tr("Diff \"%1\", \"%2\"").arg(fileName1, fileName2);

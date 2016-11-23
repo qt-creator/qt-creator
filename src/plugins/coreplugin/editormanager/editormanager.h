@@ -118,6 +118,7 @@ public:
                                            const QByteArray &contents = QByteArray(),
                                            const QString &uniqueId = QString(),
                                            OpenEditorFlags flags = NoFlags);
+    static bool skipOpeningBigTextFile(const QString &filePath);
 
     static bool openExternalEditor(const QString &fileName, Id editorId);
     static void addCloseEditorListener(const std::function<bool(IEditor *)> &listener);
