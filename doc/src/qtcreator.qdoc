@@ -164,6 +164,15 @@
                 \endlist
             \endlist
             \li \l{Using Version Control Systems}
+            \list
+                \li \l{Using Bazaar}
+                \li \l{Using ClearCase}
+                \li \l{Using CVS}
+                \li \l{Using Git}
+                \li \l{Using Mercurial}
+                \li \l{Using Perforce}
+                \li \l{Using Subversion}
+            \endlist
             \li \l{Configuring Projects}
             \list
                 \li \l{Adding Kits}

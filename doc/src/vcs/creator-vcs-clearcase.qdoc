@@ -1,0 +1,96 @@
+/****************************************************************************
+**
+** Copyright (C) 2016 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage {Qt Creator Manual}
+    \previouspage creator-vcs-bazaar.html
+    \page creator-vcs-clearcase.html
+    \nextpage creator-vcs-cvs.html
+
+    \title Using ClearCase
+
+    IBM Rational ClearCase is a version control, workspace management, parallel
+    development support, and build automation solution developed by IBM. The
+    ClearCase client plugin is available on Linux and Windows for accessing a
+    ClearCase server.
+
+    \section1 Using GNU Diffutils with ClearCase
+
+    You can use the GNU Diffutils tool With ClearCase to compare files and
+    activities:
+
+    \list 1
+
+        \li Download \l{http://gnuwin32.sourceforge.net/packages/diffutils.htm}
+            {Diffutils} and extract it to a directory in your PATH.
+
+        \li Select \uicontrol Tools > \uicontrol Options >
+            \uicontrol {Version Control} > \uicontrol ClearCase.
+
+        \li Select the \uicontrol External radio button. The radio button is
+            disabled if \c diff is not found in the PATH.
+
+        \li In the \uicontrol Arguments field, specify arguments for running
+            \c diff.
+
+    \endlist
+
+    \section1 Using Additional ClearCase Functions
+
+    The \uicontrol ClearCase submenu contains the following additional items:
+
+    \table
+        \header
+            \li Menu Item
+            \li Description
+        \row
+            \li \uicontrol{Check In}
+            \li Create a permanent new version of the current file or all files
+                in the versioned object base (VOB).
+        \row
+            \li \uicontrol{Check In Activity}
+            \li Check in checked-out versions in the change set of the current
+                Unified Change Management (UCM) activity.
+        \row
+            \li \uicontrol{Check Out}
+            \li Create a writable copy of a branch. If you check out files in a
+                UCM view, they are added to the change set of the UCM activity.
+        \row
+            \li \uicontrol{Undo Check Out}
+            \li Cancel the checkout for a file and delete the checked-out
+                version.
+        \row
+            \li \uicontrol{Undo Hijack}
+            \li Resolve hijacked files. If you change the read-only attribute of
+                a file that is loaded into a snapshot view and modify the file
+                without checking it out, you \e hijack the file.
+    \endtable
+*/
