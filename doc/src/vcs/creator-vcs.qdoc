@@ -79,9 +79,19 @@
 
     \QC uses the version control system's command line clients to access your
     repositories. To allow access, make sure that the command line clients can
-    be located using the \c{PATH} environment variable or specify the path to
-    the command line client executables in \uicontrol{Tools} > \uicontrol{Options} >
-    \uicontrol {Version Control}.
+    be located using the \c{PATH} environment variable. Alternatively, specify
+    the path to the command line client executable in the \uicontrol Command
+    field in the version control system specific tab in \uicontrol Tools >
+    \uicontrol Options > \uicontrol {Version Control}.
+
+    If authentication is required to access the repository, enter the user
+    credentials in the \uicontrol Username and \uicontrol Password fields.
+
+    Enter a timeout for version control operations in the \uicontrol Timeout
+    field.
+
+    For some version control systems, you can specify the maximum number of
+    lines the log can contain in the \uicontrol {Log count} field.
 
     After you set up the version control system, use the command line to check
     that everything works (for example, use the status command). If no issues
