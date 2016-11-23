@@ -214,40 +214,6 @@ class Children:
         self.d.put(self.d.childrenSuffix)
         return True
 
-class PairedChildrenData:
-    def __init__(self, d, keyType, valueType):
-        self.keyType = keyType
-        self.valueType = valueType
-
-class PairedChildren(Children):
-    def __init__(self, d, numChild, useKeyAndValue = False,
-            pairType = None, keyType = None, valueType = None, maxNumChild = None):
-        self.d = d
-        if pairType is not None:
-            try:
-                pairType = pairType.stripTypedefs()
-            except:
-                pass
-        if keyType is None:
-            keyType = pairType[0].unqualified()
-        if valueType is None:
-            valueType = pairType[1]
-        d.pairData = PairedChildrenData(d, keyType, valueType)
-        d.pairData.kname = 'key' if useKeyAndValue else 'first'
-        d.pairData.vname = 'value' if useKeyAndValue else 'second'
-
-        Children.__init__(self, d, numChild,
-            maxNumChild = maxNumChild,
-            addrBase = None, addrStep = None)
-
-    def __enter__(self):
-        self.savedPairData = self.d.pairData if hasattr(self.d, 'pairData') else None
-        Children.__enter__(self)
-
-    def __exit__(self, exType, exValue, exTraceBack):
-        Children.__exit__(self, exType, exValue, exTraceBack)
-        self.d.pairData = self.savedPairData if self.savedPairData else None
-
 
 class SubItem:
     def __init__(self, d, component):
@@ -808,10 +774,9 @@ class DumperBase:
             self.putType('bool')
             self.putNumChild(0)
 
-    def putPairItem(self, index, pair):
+    def putPairItem(self, index, pair, keyName='first', valueName='second'):
         with SubItem(self, index):
-            self.putPairContents(index, pair,
-                self.pairData.kname, self.pairData.vname)
+            self.putPairContents(index, pair, keyName, valueName)
 
     def putPairContents(self, index, pair, kname, vname):
         with Children(self):

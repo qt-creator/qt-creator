@@ -653,7 +653,7 @@ def qdumpHelper_QHash(d, value, keyType, valueType):
     d.putItemCount(size)
     if d.isExpanded():
         isShort = d.qtVersion() < 0x050000 and keyType.name == 'int'
-        with PairedChildren(d, size, keyType=keyType, valueType=valueType, useKeyAndValue=True):
+        with Children(d, size):
             node = hashDataFirstNode()
             for i in d.childRange():
                 if isShort:
@@ -662,7 +662,7 @@ def qdumpHelper_QHash(d, value, keyType, valueType):
                 else:
                     typeCode = 'Pi@{%s}@{%s}' % (keyType.name, valueType.name)
                     (pnext, hashval, padding1, key, padding2, val) = d.split(typeCode, node)
-                d.putPairItem(i, (key, val))
+                d.putPairItem(i, (key, val), 'key', 'value')
                 node = hashDataNextNode(node)
 
 
@@ -952,10 +952,10 @@ def qdumpHelper_Qt4_QMap(d, value, keyType, valueType):
         typeCode = '{%s}@{%s}' % (keyType.name, valueType.name)
         pp, payloadSize, fields = d.describeStruct(typeCode)
 
-        with PairedChildren(d, n, useKeyAndValue=True, keyType=keyType, valueType=valueType):
+        with Children(d, n):
             for i in d.childRange():
                 key, pad, value = d.split(typeCode, it - payloadSize)
-                d.putPairItem(i, (key, value))
+                d.putPairItem(i, (key, value), 'key', 'value')
                 dummy, it = d.split('Pp', it)
 
 
@@ -982,9 +982,9 @@ def qdumpHelper_Qt5_QMap(d, value, keyType, valueType):
                 for res in helper(right):
                     yield res
 
-        with PairedChildren(d, n, keyType=keyType, valueType=valueType, useKeyAndValue=True):
+        with Children(d, n):
             for (pair, i) in zip(helper(dptr + 8), range(n)):
-                d.putPairItem(i, pair)
+                d.putPairItem(i, pair, 'key', 'value')
 
 
 def qform__QMap():
