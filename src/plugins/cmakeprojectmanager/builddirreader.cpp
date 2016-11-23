@@ -79,7 +79,7 @@ BuildDirReader::Parameters::Parameters(const CMakeBuildConfiguration *bc)
     generatorArguments = CMakeGeneratorKitInformation::generatorArguments(k);
 }
 
-BuildDirReader::Parameters::Parameters(const BuildDirReader::Parameters &other) = default;
+BuildDirReader::Parameters::Parameters(const BuildDirReader::Parameters &) = default;
 
 
 BuildDirReader *BuildDirReader::createReader(const BuildDirReader::Parameters &p)
