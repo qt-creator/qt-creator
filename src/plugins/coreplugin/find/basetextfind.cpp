@@ -32,9 +32,19 @@
 
 #include <QTextBlock>
 #include <QPlainTextEdit>
+#include <QRegularExpression>
 #include <QTextCursor>
 
 namespace Core {
+
+static QRegularExpression regularExpression(const QString &txt, FindFlags flags)
+{
+    return QRegularExpression(
+                (flags & FindRegularExpression) ? txt
+                                                : QRegularExpression::escape(txt),
+                (flags & FindCaseSensitively) ? QRegularExpression::NoPatternOption
+                                              : QRegularExpression::CaseInsensitiveOption);
+}
 
 struct BaseTextFindPrivate
 {
@@ -232,14 +242,12 @@ QTextCursor BaseTextFind::replaceInternal(const QString &before, const QString &
     QTextCursor cursor = textCursor();
     bool usesRegExp = (findFlags & FindRegularExpression);
     bool preserveCase = (findFlags & FindPreserveCase);
-    QRegExp regexp(before,
-                   (findFlags & FindCaseSensitively) ? Qt::CaseSensitive : Qt::CaseInsensitive,
-                   usesRegExp ? QRegExp::RegExp : QRegExp::FixedString);
-
-    if (regexp.exactMatch(cursor.selectedText())) {
+    QRegularExpression regexp = regularExpression(before, findFlags);
+    QRegularExpressionMatch match = regexp.match(cursor.selectedText());
+    if (match.hasMatch()) {
         QString realAfter;
         if (usesRegExp)
-            realAfter = Utils::expandRegExpReplacement(after, regexp.capturedTexts());
+            realAfter = Utils::expandRegExpReplacement(after, match.capturedTexts());
         else if (preserveCase)
             realAfter = Utils::matchCaseReplacement(cursor.selectedText(), after);
         else
@@ -273,9 +281,7 @@ int BaseTextFind::replaceAll(const QString &before, const QString &after, FindFl
     int count = 0;
     bool usesRegExp = (findFlags & FindRegularExpression);
     bool preserveCase = (findFlags & FindPreserveCase);
-    QRegExp regexp(before);
-    regexp.setPatternSyntax(usesRegExp ? QRegExp::RegExp : QRegExp::FixedString);
-    regexp.setCaseSensitivity((findFlags & FindCaseSensitively) ? Qt::CaseSensitive : Qt::CaseInsensitive);
+    QRegularExpression regexp = regularExpression(before, findFlags);
     QTextCursor found = findOne(regexp, editCursor, textDocumentFlagsForFindFlags(findFlags));
     bool first = true;
     while (!found.isNull() && inScope(found.selectionStart(), found.selectionEnd())) {
@@ -297,11 +303,11 @@ int BaseTextFind::replaceAll(const QString &before, const QString &after, FindFl
         ++count;
         editCursor.setPosition(found.selectionStart());
         editCursor.setPosition(found.selectionEnd(), QTextCursor::KeepAnchor);
-        regexp.exactMatch(found.selectedText());
+        QRegularExpressionMatch match = regexp.match(found.selectedText());
 
         QString realAfter;
         if (usesRegExp)
-            realAfter = Utils::expandRegExpReplacement(after, regexp.capturedTexts());
+            realAfter = Utils::expandRegExpReplacement(after, match.capturedTexts());
         else if (preserveCase)
             realAfter = Utils::matchCaseReplacement(found.selectedText(), after);
         else
@@ -320,9 +326,7 @@ bool BaseTextFind::find(const QString &txt, FindFlags findFlags,
         setTextCursor(start);
         return true;
     }
-    QRegExp regexp(txt);
-    regexp.setPatternSyntax((findFlags & FindRegularExpression) ? QRegExp::RegExp : QRegExp::FixedString);
-    regexp.setCaseSensitivity((findFlags & FindCaseSensitively) ? Qt::CaseSensitive : Qt::CaseInsensitive);
+    QRegularExpression regexp = regularExpression(txt, findFlags);
     QTextCursor found = findOne(regexp, start, textDocumentFlagsForFindFlags(findFlags));
     if (wrapped)
         *wrapped = false;
@@ -363,7 +367,8 @@ bool BaseTextFind::find(const QString &txt, FindFlags findFlags,
 
 
 // helper function. Works just like QTextDocument::find() but supports vertical block selection
-QTextCursor BaseTextFind::findOne(const QRegExp &expr, const QTextCursor &from, QTextDocument::FindFlags options) const
+QTextCursor BaseTextFind::findOne(const QRegularExpression &expr,
+                                  const QTextCursor &from, QTextDocument::FindFlags options) const
 {
     QTextCursor candidate = document()->find(expr, from, options);
     if (candidate.isNull())

@@ -78,7 +78,7 @@ private:
     QTextDocument *document() const;
     bool isReadOnly() const;
     bool inScope(int startPosition, int endPosition) const;
-    QTextCursor findOne(const QRegExp &expr, const QTextCursor &from, QTextDocument::FindFlags options) const;
+    QTextCursor findOne(const QRegularExpression &expr, const QTextCursor &from, QTextDocument::FindFlags options) const;
 
     BaseTextFindPrivate *d;
 };
