@@ -190,6 +190,21 @@ def qdump_X_QModelIndex(d, value):
             d.putCallItem('parent', '@QModelIndex', value, 'parent')
     #gdb.execute('call free($mi)')
 
+def qdump__QStandardItemData(d, value):
+    role, pad, val = value.split('{@Qt::ItemDataRole}@{QVariant}')
+    d.putPairContents(role.value(), (role, val), 'role', 'value')
+
+def qdump__QStandardItem(d, value):
+    vtable, dptr = value.split('pp')
+    vtable1, model, parent, values, children, rows, cols, item = d.split('pppPPIIp', dptr)
+    d.putValue(' ')
+    d.putNumChild(1)
+    if d.isExpanded():
+        with Children(d):
+            d.putSubItem('[model]', d.createValue(model, '@QStandardItemModel'))
+            d.putSubItem('[values]', d.createVectorItem(values, 'QStandardItemData'))
+            d.putSubItem('[children]', d.createVectorItem(children, '@QStandardItem*'))
+
 
 def qdump__QDate(d, value):
     jd = value.pointer()
@@ -1231,14 +1246,6 @@ def qdump__QGraphicsPolygonItem(d, value):
     data, size, alloc = d.vectorDataHelper(d.extractPointer(dptr + offset))
     d.putItemCount(size)
     d.putPlotData(data, size, d.createType('QPointF'))
-
-def qdump__QStandardItem(d, value):
-    d.putBetterType(d.currentType)
-    try:
-        d.putItem(value['d_ptr'])
-    except:
-        d.putPlainChildren(value)
-
 
 def qedit__QString(d, value, data):
     d.call('void', value, 'resize', str(len(data)))

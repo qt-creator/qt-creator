@@ -6335,6 +6335,20 @@ void tst_Dumpers::dumper_data()
             + Check("v15", "\"utf16\"", "@QJSValue (QString)")
             + Check("v15.1", "[1]", "116", "@QChar");
 
+
+    QTest::newRow("QStandardItem")
+            << Data("#include <QStandardItemModel>",
+                    "QStandardItemModel m;\n"
+                    "QStandardItem *root = m.invisibleRootItem();\n"
+                    "for (int i = 0; i < 4; ++i) {\n"
+                    "    QStandardItem *item = new QStandardItem(QString(\"item %1\").arg(i));\n"
+                    "    item->setData(123);\n"
+                    "    root->appendRow(item);\n"
+                    "}\n")
+            + GuiProfile()
+            + Check("root.[children].0.[values].0.value", "\"item 0\"", "@QVariant (@QString)");
+
+
     QTest::newRow("Internal1")
             << Data("struct QtcDumperTest_FieldAccessByIndex { int d[3] = { 10, 11, 12 }; };\n",
                     "QtcDumperTest_FieldAccessByIndex d; unused(&d);\n")

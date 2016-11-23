@@ -215,8 +215,7 @@ class Children:
         return True
 
 class PairedChildrenData:
-    def __init__(self, d, pairType, keyType, valueType):
-        self.pairType = pairType
+    def __init__(self, d, keyType, valueType):
         self.keyType = keyType
         self.valueType = valueType
 
@@ -233,7 +232,7 @@ class PairedChildren(Children):
             keyType = pairType[0].unqualified()
         if valueType is None:
             valueType = pairType[1]
-        d.pairData = PairedChildrenData(d, pairType, keyType, valueType)
+        d.pairData = PairedChildrenData(d, keyType, valueType)
         d.pairData.kname = 'key' if useKeyAndValue else 'first'
         d.pairData.vname = 'value' if useKeyAndValue else 'second'
 
@@ -810,17 +809,21 @@ class DumperBase:
             self.putNumChild(0)
 
     def putPairItem(self, index, pair):
-        (first, second) = pair if isinstance(pair, tuple) else pair.members(False)
         with SubItem(self, index):
-            with Children(self):
-                key = self.putSubItem(self.pairData.kname, first)
-                value = self.putSubItem(self.pairData.vname, second)
-            if index is not None:
-                self.putField('keyprefix', '[%s] ' % index)
-            self.putField('key', key.value)
-            if key.encoding is not None:
-                self.putField('keyencoded', key.encoding)
-            self.putValue(value.value, value.encoding)
+            self.putPairContents(index, pair,
+                self.pairData.kname, self.pairData.vname)
+
+    def putPairContents(self, index, pair, kname, vname):
+        with Children(self):
+            first, second = pair if isinstance(pair, tuple) else pair.members(False)
+            key = self.putSubItem(kname, first)
+            value = self.putSubItem(vname, second)
+        if index is not None:
+            self.putField('keyprefix', '[%s] ' % index)
+        self.putField('key', key.value)
+        if key.encoding is not None:
+            self.putField('keyencoded', key.encoding)
+        self.putValue(value.value, value.encoding)
 
     def putCallItem(self, name, rettype, value, func, *args):
         with SubItem(self, name):
