@@ -209,16 +209,16 @@ static int cleanupSemanticsScore(const QString &text1, const QString &text2)
     if (!text1.count() || !text2.count()) // Edges
         return 6;
 
-    QChar char1 = text1[text1.count() - 1];
-    QChar char2 = text2[0];
-    bool nonAlphaNumeric1 = !char1.isLetterOrNumber();
-    bool nonAlphaNumeric2 = !char2.isLetterOrNumber();
-    bool whitespace1 = nonAlphaNumeric1 && char1.isSpace();
-    bool whitespace2 = nonAlphaNumeric2 && char2.isSpace();
-    bool lineBreak1 = whitespace1 && char1.category() == QChar::Other_Control;
-    bool lineBreak2 = whitespace2 && char2.category() == QChar::Other_Control;
-    bool blankLine1 = lineBreak1 && blankLineEnd.indexIn(text1) != -1;
-    bool blankLine2 = lineBreak2 && blankLineStart.indexIn(text2) != -1;
+    const QChar char1 = text1[text1.count() - 1];
+    const QChar char2 = text2[0];
+    const bool nonAlphaNumeric1 = !char1.isLetterOrNumber();
+    const bool nonAlphaNumeric2 = !char2.isLetterOrNumber();
+    const bool whitespace1 = nonAlphaNumeric1 && char1.isSpace();
+    const bool whitespace2 = nonAlphaNumeric2 && char2.isSpace();
+    const bool lineBreak1 = whitespace1 && char1.category() == QChar::Other_Control;
+    const bool lineBreak2 = whitespace2 && char2.category() == QChar::Other_Control;
+    const bool blankLine1 = lineBreak1 && blankLineEnd.indexIn(text1) != -1;
+    const bool blankLine2 = lineBreak2 && blankLineStart.indexIn(text2) != -1;
 
     if (blankLine1 || blankLine2) // Blank lines
       return 5;
