@@ -202,9 +202,9 @@ static QList<Diff> cleanupOverlaps(const QList<Diff> &diffList)
 
 static int cleanupSemanticsScore(const QString &text1, const QString &text2)
 {
-    static QRegExp blankLineEnd = QRegExp(QLatin1String("\\n\\r?\\n$"));
-    static QRegExp blankLineStart = QRegExp(QLatin1String("^\\r?\\n\\r?\\n"));
-    static QRegExp sentenceEnd = QRegExp(QLatin1String("\\. $"));
+    const QRegExp blankLineEnd = QRegExp(QLatin1String("\\n\\r?\\n$"));
+    const QRegExp blankLineStart = QRegExp(QLatin1String("^\\r?\\n\\r?\\n"));
+    const QRegExp sentenceEnd = QRegExp(QLatin1String("\\. $"));
 
     if (!text1.count() || !text2.count()) // Edges
         return 6;
