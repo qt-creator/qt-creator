@@ -703,14 +703,14 @@ QString DocumentManager::getSaveFileName(const QString &title, const QString &pa
                 const int index = regExp.lastIndexIn(*selectedFilter);
                 if (index != -1) {
                     bool suffixOk = false;
-                    const QStringList &suffixes = regExp.cap(1).remove(QLatin1Char('*')).split(QLatin1Char(' '));
-                    foreach (const QString &suffix, suffixes)
+                    const QVector<QStringRef> suffixes = regExp.cap(1).remove(QLatin1Char('*')).splitRef(QLatin1Char(' '));
+                    foreach (const QStringRef &suffix, suffixes)
                         if (fileName.endsWith(suffix)) {
                             suffixOk = true;
                             break;
                         }
                     if (!suffixOk && !suffixes.isEmpty())
-                        fileName.append(suffixes.at(0));
+                        fileName.append(suffixes.at(0).toString());
                 }
             }
             if (QFile::exists(fileName)) {

@@ -352,7 +352,7 @@ Abi::Abi(const QString &abiString) :
     m_architecture(UnknownArchitecture), m_os(UnknownOS),
     m_osFlavor(UnknownFlavor), m_binaryFormat(UnknownFormat), m_wordWidth(0)
 {
-    QStringList abiParts = abiString.split(QLatin1Char('-'));
+    const QVector<QStringRef> abiParts = abiString.splitRef(QLatin1Char('-'));
     if (abiParts.count() >= 1) {
         if (abiParts.at(0) == QLatin1String("unknown"))
             m_architecture = UnknownArchitecture;
@@ -453,12 +453,14 @@ Abi::Abi(const QString &abiString) :
     }
 
     if (abiParts.count() >= 5) {
-        const QString &bits = abiParts.at(4);
+        const QStringRef &bits = abiParts.at(4);
         if (!bits.endsWith(QLatin1String("bit")))
             return;
 
         bool ok = false;
-        int bitCount = bits.leftRef(bits.count() - 3).toInt(&ok);
+        const QStringRef number =
+            bits.string()->midRef(bits.position(), bits.count() - 3);
+        const int bitCount = number.toInt(&ok);
         if (!ok)
             return;
         if (bitCount != 8 && bitCount != 16 && bitCount != 32 && bitCount != 64)
@@ -473,7 +475,7 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
     if (machine.isEmpty())
         return Abi();
 
-    QStringList parts = machine.split(QRegExp(QLatin1String("[ /-]")));
+    const QVector<QStringRef> parts = machine.splitRef(QRegExp(QLatin1String("[ /-]")));
 
     Abi::Architecture arch = Abi::UnknownArchitecture;
     Abi::OS os = Abi::UnknownOS;
@@ -482,7 +484,7 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
     unsigned char width = 0;
     int unknownCount = 0;
 
-    foreach (const QString &p, parts) {
+    for (const QStringRef &p : parts) {
         if (p == QLatin1String("unknown") || p == QLatin1String("pc") || p == QLatin1String("none")
                 || p == QLatin1String("gnu") || p == QLatin1String("uclibc")
                 || p == QLatin1String("86_64") || p == QLatin1String("redhat")

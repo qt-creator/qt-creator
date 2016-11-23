@@ -415,8 +415,8 @@ void Highlighter::changeContext(const QString &contextName,
                                 const bool assignCurrent)
 {
     if (contextName.startsWith(kPop)) {
-        QStringList list = contextName.split(kHash, QString::SkipEmptyParts);
-        for (int i = 0; i < list.size(); ++i) {
+        const int count = contextName.splitRef(kHash, QString::SkipEmptyParts).size();
+        for (int i = 0; i < count; ++i) {
             if (m_contexts.isEmpty()) {
                 throw HighlighterException(
                         QCoreApplication::translate("GenericHighlighter", "Reached empty context."));

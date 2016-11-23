@@ -411,7 +411,7 @@ void CMakeTool::fetchVersionFromVersionOutput() const
         return;
 
     QRegularExpression versionLine("^cmake version ((\\d+).(\\d+).(\\d+).*)$");
-    for (const QString &line : response.stdOut().split('\n')) {
+    for (const QStringRef &line : response.stdOut().splitRef(QLatin1Char('\n'))) {
         QRegularExpressionMatch match = versionLine.match(line);
         if (!match.hasMatch())
             continue;

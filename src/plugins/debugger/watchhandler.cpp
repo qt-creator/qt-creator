@@ -2531,7 +2531,7 @@ void WatchHandler::addDumpers(const GdbMi &dumpers)
         DisplayFormats formats;
         formats.append(RawFormat);
         QString reportedFormats = dumper["formats"].data();
-        foreach (const QString &format, reportedFormats.split(',')) {
+        foreach (const QStringRef &format, reportedFormats.splitRef(',')) {
             if (int f = format.toInt())
                 formats.append(DisplayFormat(f));
         }
