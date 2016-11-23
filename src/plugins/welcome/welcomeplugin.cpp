@@ -272,8 +272,7 @@ void WelcomeMode::sceneGraphError(QQuickWindow::SceneGraphError, const QString &
 void WelcomeMode::facilitateQml(QQmlEngine *engine)
 {
     QStringList importPathList = engine->importPathList();
-    importPathList << resourcePath() + QLatin1String("/welcomescreen");
-    engine->setImportPathList(importPathList);
+    importPathList.append(resourcePath() + QLatin1String("/welcomescreen"));
     engine->addImageProvider(QLatin1String("icons"), new WelcomeImageIconProvider);
     if (!debug)
         engine->setOutputWarningsToStandardError(false);
@@ -283,7 +282,8 @@ void WelcomeMode::facilitateQml(QQmlEngine *engine)
         pluginPath += QLatin1String("/../PlugIns");
     else
         pluginPath += QLatin1String("/../" IDE_LIBRARY_BASENAME "/qtcreator");
-    engine->addImportPath(QDir::cleanPath(pluginPath));
+    importPathList.append(QDir::cleanPath(pluginPath));
+    engine->setImportPathList(importPathList);
 
     QQmlContext *ctx = engine->rootContext();
     ctx->setContextProperty(QLatin1String("welcomeMode"), this);
