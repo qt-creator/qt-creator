@@ -39,22 +39,10 @@
 
     Bazaar is a free version control system sponsored by Canonical.
 
-    The \uicontrol Bazaar submenu contains the following additional items:
-
-    \table
-        \header
-            \li Menu Item
-            \li Description
-        \row
-            \li \uicontrol Pull
-            \li Turn the branch into a mirror of another branch.
-        \row
-            \li \uicontrol Push
-            \li Update a mirror of the branch.
-        \row
-            \li \uicontrol Uncommit
-            \li Remove the last committed revision.
-    \endtable
+    In addition to the standard version control system functions described in
+    \l {Using Common Functions}, you can select \uicontrol Tools >
+    \uicontrol Bazaar > \uicontrol Pull to turn a branch into a mirror of
+    another branch. To update the mirror of the branch, select \uicontrol Push.
 
     \section1 Uncommitting Revisions
 
