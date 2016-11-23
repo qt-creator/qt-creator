@@ -34,7 +34,7 @@ class TIMELINE_EXPORT TimelineModelAggregator : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(int height READ height NOTIFY heightChanged)
-    Q_PROPERTY(QVariantList models READ models NOTIFY modelsChanged)
+    Q_PROPERTY(QVariantList models READ models WRITE setModels NOTIFY modelsChanged)
     Q_PROPERTY(Timeline::TimelineNotesModel *notes READ notes CONSTANT)
 public:
     TimelineModelAggregator(TimelineNotesModel *notes, QObject *parent = 0);
@@ -43,9 +43,10 @@ public:
     int height() const;
 
     void addModel(TimelineModel *m);
-    void setModels(const QList<TimelineModel *> &models);
     const TimelineModel *model(int modelIndex) const;
+
     QVariantList models() const;
+    void setModels(const QVariantList &models);
 
     TimelineNotesModel *notes() const;
     void clear();

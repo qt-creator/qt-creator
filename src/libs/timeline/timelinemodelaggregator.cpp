@@ -28,6 +28,8 @@
 #include "timelinemodel.h"
 #include "timelinenotesmodel.h"
 
+#include <utils/algorithm.h>
+
 #include <QStringList>
 #include <QVariant>
 
@@ -70,10 +72,15 @@ void TimelineModelAggregator::addModel(TimelineModel *m)
         emit heightChanged();
 }
 
-void TimelineModelAggregator::setModels(const QList<TimelineModel *> &models)
+void TimelineModelAggregator::setModels(const QVariantList &models)
 {
     Q_D(TimelineModelAggregator);
-    if (d->modelList == models)
+
+    QList<TimelineModel *> timelineModels = Utils::transform(models, [](const QVariant &model) {
+        return qvariant_cast<TimelineModel *>(model);
+    });
+
+    if (d->modelList == timelineModels)
         return;
 
     int prevHeight = height();
@@ -83,8 +90,8 @@ void TimelineModelAggregator::setModels(const QList<TimelineModel *> &models)
             d->notesModel->removeTimelineModel(m);
     }
 
-    d->modelList = models;
-    foreach (TimelineModel *m, models) {
+    d->modelList = timelineModels;
+    foreach (TimelineModel *m, timelineModels) {
         connect(m, &TimelineModel::heightChanged, this, &TimelineModelAggregator::heightChanged);
         if (d->notesModel)
             d->notesModel->addTimelineModel(m);
