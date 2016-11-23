@@ -363,6 +363,7 @@ HighlightingType HighlightingMark::punctuationKind(const Cursor &cursor)
 {
     switch (cursor.kind()) {
         case CXCursor_DeclRefExpr: return operatorKind(cursor);
+        case CXCursor_Constructor:
         case CXCursor_CallExpr:    collectOutputArguments(cursor);
         default:                   return HighlightingType::Invalid;
     }

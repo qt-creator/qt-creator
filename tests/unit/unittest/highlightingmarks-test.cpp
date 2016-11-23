@@ -1080,6 +1080,16 @@ TEST_F(HighlightingMarks, DISABLED_NonConstReferenceArgumentConstructor)
                 HasTwoTypes(HighlightingType::LocalVariable, HighlightingType::OutputArgument));
 }
 
+TEST_F(HighlightingMarks, DISABLED_NonConstReferenceMemberInitialization)
+{
+    const auto infos = translationUnit.highlightingMarksInRange(sourceRange(546, 19));
+
+    infos[2];
+
+    ASSERT_THAT(infos[3],
+                HasTwoTypes(HighlightingType::LocalVariable, HighlightingType::OutputArgument));
+}
+
 TEST_F(HighlightingMarks, DISABLED_EnumerationTypeDef)
 {
     const auto infos = translationUnit.highlightingMarksInRange(sourceRange(424, 41));

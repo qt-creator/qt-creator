@@ -539,3 +539,12 @@ void f31()
 
     NonConstReferenceArgumentConstructor copy(instance);
 }
+
+struct NonConstReferenceMemberInitialization
+{
+    NonConstReferenceMemberInitialization(int &foo)
+        : foo(foo)
+    {}
+
+    int &foo;
+};
