@@ -1625,9 +1625,10 @@ bool WatchModel::contextMenuEvent(const ItemViewEvent &ev)
               canRemoveWatches && !m_handler->watchedExpressions().isEmpty(),
               [this] { clearWatches(); });
 
-    addAction(menu, tr("Select Widget to Add into Expression Evaluator"),
-              canHandleWatches && canInsertWatches && m_engine->hasCapability(WatchWidgetsCapability),
-              [this, ev] { ev.view()->grabMouse(Qt::CrossCursor); m_grabbing = true; });
+// FIXME:
+//    addAction(menu, tr("Select Widget to Add into Expression Evaluator"),
+//              canHandleWatches && canInsertWatches && m_engine->hasCapability(WatchWidgetsCapability),
+//              [this, ev] { ev.view()->grabMouse(Qt::CrossCursor); m_grabbing = true; });
 
     menu->addSeparator();
     menu->addMenu(createFormatMenu(item));
