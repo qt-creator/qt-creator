@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "searchhandleinterface.h"
+#include "searchhandle.h"
 
 #include <QString>
 
@@ -36,9 +36,8 @@ namespace ClangRefactoring {
 class SearchInterface
 {
 public:
-    virtual ~SearchInterface() {}
-
-    virtual std::unique_ptr<SearchHandleInterface> startNewSearch(const QString &searchLabel,
+    virtual ~SearchInterface();
+    virtual std::unique_ptr<SearchHandle> startNewSearch(const QString &searchLabel,
                                                                   const QString &searchTerm) = 0;
 };
 

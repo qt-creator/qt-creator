@@ -28,4 +28,8 @@
 #include <gmock/gmock.h>
 #include <gmock/gmock-matchers.h>
 #include <gtest/gtest.h>
+
 #include "gtest-qt-printing.h"
+#ifdef CLANG_UNIT_TESTS
+#  include "gtest-clang-printing.h"
+#endif

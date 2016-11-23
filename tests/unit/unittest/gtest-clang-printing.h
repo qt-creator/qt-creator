@@ -25,32 +25,26 @@
 
 #pragma once
 
-#include <coreplugin/find/searchresultitem.h>
+#include <iosfwd>
 
-#include <refactoringserverinterface.h>
+namespace llvm {
 
-namespace ClangRefactoring {
+class StringRef;
 
-class SearchHandle
-{
-public:
-    virtual ~SearchHandle();
+std::ostream &operator<<(std::ostream &out, const StringRef stringReference);
+}
 
-    virtual void addResult(const QString &fileName,
-                           const QString &lineText,
-                           Core::Search::TextRange textRange) = 0;
+namespace clang {
+class FullSourceLoc;
+class SourceRange;
+class SourceManager;
 
-    virtual void setExpectedResultCount(uint count) = 0;
-    virtual void setResultCounter(uint counter) = 0;
+void PrintTo(const FullSourceLoc &sourceLocation, ::std::ostream *os);
+void PrintTo(const SourceRange &sourceLocation, ::std::ostream *os);
 
-    virtual void finishSearch() = 0;
+}
 
-    void cancel();
+namespace TestGlobal {
+void setSourceManager(const clang::SourceManager *sourceManager);
+}
 
-    void setRefactoringServer(ClangBackEnd::RefactoringServerInterface *server);
-
-private:
-    ClangBackEnd::RefactoringServerInterface *server = nullptr;
-};
-
-} // namespace ClangRefactoring

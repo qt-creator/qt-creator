@@ -27,5 +27,9 @@
 
 namespace ClangRefactoring {
 
+SearchInterface::~SearchInterface()
+{
+
+}
 
 } // namespace ClangRefactoring

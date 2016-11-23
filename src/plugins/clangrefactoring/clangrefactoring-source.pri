@@ -8,7 +8,6 @@ HEADERS += \
     $$PWD/searchinterface.h \
     $$PWD/searchhandleinterface.h \
     $$PWD/projectpartutilities.h \
-    $$PWD/clangquerycurrentfilefindfilter.h \
     $$PWD/clangqueryprojectsfindfilter.h
 
 SOURCES += \
@@ -19,5 +18,4 @@ SOURCES += \
     $$PWD/searchinterface.cpp \
     $$PWD/searchhandleinterface.cpp \
     $$PWD/projectpartutilities.cpp \
-    $$PWD/clangquerycurrentfilefindfilter.cpp \
     $$PWD/clangqueryprojectsfindfilter.cpp

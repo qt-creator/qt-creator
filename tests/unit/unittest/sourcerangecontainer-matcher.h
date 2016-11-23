@@ -52,8 +52,8 @@ MATCHER_P5(IsSourceRangeWithText, startLine, startColumn, endLine, endColumn, te
            + ", " + PrintToString(startColumn)
            + "), (" + PrintToString(endLine)
            + ", " + PrintToString(endColumn)
-           + "), \"" + PrintToString(text)
-           + "\")"
+           + "), " + PrintToString(text)
+           + ")"
            )
 {
     return arg.start().line() == uint(startLine)

@@ -59,6 +59,7 @@ SOURCES += $$PWD/clangcodemodelserverinterface.cpp \
     $$PWD/requestsourcelocationforrenamingmessage.cpp \
     $$PWD/filepath.cpp \
     $$PWD/sourcerangescontainer.cpp \
+    $$PWD/sourcefilepathcontainerbase.cpp \
     $$PWD/sourcerangecontainerv2.cpp \
     $$PWD/dynamicastmatcherdiagnosticcontainer.cpp \
     $$PWD/dynamicastmatcherdiagnosticcontextcontainer.cpp \
@@ -66,7 +67,8 @@ SOURCES += $$PWD/clangcodemodelserverinterface.cpp \
     $$PWD/requestsourcerangesanddiagnosticsforquerymessage.cpp \
     $$PWD/sourcerangesanddiagnosticsforquerymessage.cpp \
     $$PWD/sourcerangewithtextcontainer.cpp \
-    $$PWD/filecontainerv2.cpp
+    $$PWD/filecontainerv2.cpp \
+    $$PWD/cancelmessage.cpp
 
 HEADERS += \
     $$PWD/clangcodemodelserverinterface.h \
@@ -130,6 +132,7 @@ HEADERS += \
     $$PWD/requestsourcerangesanddiagnosticsforquerymessage.h \
     $$PWD/sourcerangesanddiagnosticsforquerymessage.h \
     $$PWD/sourcerangewithtextcontainer.h \
-    $$PWD/filecontainerv2.h
+    $$PWD/filecontainerv2.h \
+    $$PWD/cancelmessage.h
 
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols

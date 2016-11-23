@@ -25,27 +25,31 @@
 
 #pragma once
 
-#include "searchhandleinterface.h"
+#include "searchhandle.h"
 
 #include <coreplugin/find/searchresultwindow.h>
 
+#include <QFutureInterface>
+
 namespace ClangRefactoring {
 
-class QtCreatorSearchHandle final : public SearchHandleInterface
+class QtCreatorSearchHandle final : public SearchHandle
 {
 public:
     QtCreatorSearchHandle(Core::SearchResult *searchResult);
 
     void addResult(const QString &fileName,
-                               int lineNumber,
                                const QString &lineText,
-                               int searchTermStart,
-                               int searchTermLength);
+                               Core::TextRange textRange) override;
 
-    void finishSearch();
+    void setExpectedResultCount(uint count) override;
+    void setResultCounter(uint counter) override;
+
+    void finishSearch() override;
 
 private:
     Core::SearchResult *searchResult;
+    QFutureInterface<void> promise;
 };
 
 } // namespace ClangRefactoring

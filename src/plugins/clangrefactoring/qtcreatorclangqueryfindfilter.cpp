@@ -25,66 +25,48 @@
 
 #include "qtcreatorclangqueryfindfilter.h"
 
-#include <texteditor/textdocument.h>
-
 #include <cpptools/cppmodelmanager.h>
-#include <cpptools/baseeditordocumentparser.h>
+#include <cpptools/projectinfo.h>
 
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
+#include <projectexplorer/session.h>
 
 namespace ClangRefactoring {
 
 QtCreatorClangQueryFindFilter::QtCreatorClangQueryFindFilter(ClangBackEnd::RefactoringServerInterface &server,
                                                              SearchInterface &searchInterface,
                                                              RefactoringClient &refactoringClient)
-    : ClangQueryCurrentFileFindFilter(server, searchInterface, refactoringClient)
+    : ClangQueryProjectsFindFilter(server, searchInterface, refactoringClient)
 {
-}
-
-namespace  {
-CppTools::CppModelManager *cppToolManager()
-{
-    return CppTools::CppModelManager::instance();
-}
-
-bool isCppEditor(Core::IEditor *currentEditor)
-{
-    return cppToolManager()->isCppEditor(currentEditor);
-}
-
-CppTools::ProjectPart::Ptr projectPartForFile(const QString &filePath)
-{
-    if (const auto parser = CppTools::BaseEditorDocumentParser::get(filePath))
-        return parser->projectPart();
-    return CppTools::ProjectPart::Ptr();
-}
-
 }
 
 void QtCreatorClangQueryFindFilter::findAll(const QString &queryText, Core::FindFlags findFlags)
 {
     prepareFind();
 
-    ClangQueryCurrentFileFindFilter::findAll(queryText, findFlags);
+    ClangQueryProjectsFindFilter::findAll(queryText, findFlags);
+}
+
+namespace {
+std::vector<CppTools::ProjectPart::Ptr>
+convertProjectParts(const QList<CppTools::ProjectPart::Ptr> &projectPartList)
+{
+    std::vector<CppTools::ProjectPart::Ptr> projectPartVector;
+    projectPartVector.reserve(projectPartList.size());
+
+    std::copy(projectPartList.begin(), projectPartList.end(), std::back_inserter(projectPartVector));
+
+    return projectPartVector;
+}
+
 }
 
 void QtCreatorClangQueryFindFilter::prepareFind()
 {
-    Core::IEditor *currentEditor = Core::EditorManager::currentEditor();
+   ProjectExplorer::Project *currentProject = ProjectExplorer::SessionManager::startupProject();
 
-    if (isCppEditor(currentEditor)) {
-        Core::IDocument *currentDocument = currentEditor->document();
-        auto currentTextDocument = static_cast<TextEditor::TextDocument*>(currentDocument);
-        const QString filePath = currentDocument->filePath().toString();
+    const CppTools::ProjectInfo projectInfo = CppTools::CppModelManager::instance()->projectInfo(currentProject);
 
-        setCurrentDocumentFilePath(filePath);
-        setCurrentDocumentRevision(currentTextDocument->document()->revision());
-        setProjectPart(projectPartForFile(filePath));
-
-        if (currentTextDocument->isModified())
-            setUnsavedDocumentContent(currentTextDocument->document()->toPlainText());
-    }
+    setProjectParts(convertProjectParts(projectInfo.projectParts()));
 }
 
 } // namespace ClangRefactoring

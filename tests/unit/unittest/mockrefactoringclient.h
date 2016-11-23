@@ -32,7 +32,7 @@
 #include <gtest/gtest.h>
 #include "gtest-qt-printing.h"
 
-class MockRefactoringClient final : public ClangBackEnd::RefactoringClientInterface
+class MockRefactoringClient : public ClangBackEnd::RefactoringClientInterface
 {
 public:
     MOCK_METHOD0(alive,

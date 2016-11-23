@@ -25,32 +25,31 @@
 
 #pragma once
 
-#include <coreplugin/find/searchresultitem.h>
+#include "clangbackendipc_global.h"
 
-#include <refactoringserverinterface.h>
+namespace ClangBackEnd {
 
-namespace ClangRefactoring {
-
-class SearchHandle
+class CancelMessage
 {
 public:
-    virtual ~SearchHandle();
+    friend QDataStream &operator<<(QDataStream &out, const CancelMessage &/*message*/)
+    {
+        return out;
+    }
 
-    virtual void addResult(const QString &fileName,
-                           const QString &lineText,
-                           Core::Search::TextRange textRange) = 0;
+    friend QDataStream &operator>>(QDataStream &in, CancelMessage &/*message*/)
+    {
+        return in;
+    }
 
-    virtual void setExpectedResultCount(uint count) = 0;
-    virtual void setResultCounter(uint counter) = 0;
-
-    virtual void finishSearch() = 0;
-
-    void cancel();
-
-    void setRefactoringServer(ClangBackEnd::RefactoringServerInterface *server);
-
-private:
-    ClangBackEnd::RefactoringServerInterface *server = nullptr;
+    friend bool operator==(const CancelMessage &/*first*/, const CancelMessage &/*second*/)
+    {
+        return true;
+    }
 };
 
-} // namespace ClangRefactoring
+CMBIPC_EXPORT QDebug operator<<(QDebug debug, const CancelMessage &message);
+void PrintTo(const CancelMessage &message, ::std::ostream* os);
+
+DECLARE_MESSAGE(CancelMessage)
+} // namespace ClangBackEnd

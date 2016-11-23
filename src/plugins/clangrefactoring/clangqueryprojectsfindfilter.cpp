@@ -25,10 +25,13 @@
 
 #include "clangqueryprojectsfindfilter.h"
 
+#include "projectpartutilities.h"
 #include "refactoringclient.h"
+#include "refactoringcompileroptionsbuilder.h"
 #include "searchinterface.h"
 
 #include <refactoringserverinterface.h>
+#include <requestsourcerangesanddiagnosticsforquerymessage.h>
 
 namespace ClangRefactoring {
 
@@ -61,14 +64,25 @@ void ClangQueryProjectsFindFilter::findAll(const QString &queryText, Core::FindF
 {
     searchHandle = searchInterface.startNewSearch(tr("Clang Query"), queryText);
 
+    searchHandle->setRefactoringServer(&server);
+
     refactoringClient.setSearchHandle(searchHandle.get());
 
-    //server.requestSourceRangesAndDiagnosticsForQueryMessage(createMessage(queryText));
+    auto message = createMessage(queryText);
+
+    refactoringClient.setExpectedResultCount(message.fileContainers().size());
+
+    server.requestSourceRangesAndDiagnosticsForQueryMessage(std::move(message));
 }
 
 Core::FindFlags ClangQueryProjectsFindFilter::supportedFindFlags() const
 {
     return 0;
+}
+
+void ClangQueryProjectsFindFilter::setProjectParts(const std::vector<CppTools::ProjectPart::Ptr> &projectParts)
+{
+    this->projectParts = projectParts;
 }
 
 bool ClangQueryProjectsFindFilter::isUsable() const
@@ -80,5 +94,54 @@ void ClangQueryProjectsFindFilter::setUsable(bool isUsable)
 {
     server.setUsable(isUsable);
 }
+
+SearchHandle *ClangQueryProjectsFindFilter::searchHandleForTestOnly() const
+{
+    return searchHandle.get();
+}
+
+namespace {
+
+Utils::SmallStringVector createCommandLine(CppTools::ProjectPart *projectPart,
+                                           const QString &documentFilePath,
+                                           CppTools::ProjectFile::Kind fileKind)
+{
+    using ClangRefactoring::RefactoringCompilerOptionsBuilder;
+
+    auto commandLine = RefactoringCompilerOptionsBuilder::build(projectPart,
+                                                                fileKind,
+                                                                CppTools::CompilerOptionsBuilder::PchUsage::None);
+
+    commandLine.push_back(documentFilePath);
+
+    return commandLine;
+}
+
+std::vector<ClangBackEnd::V2::FileContainer>
+createFileContainers(const std::vector<CppTools::ProjectPart::Ptr> &projectParts)
+{
+    std::vector<ClangBackEnd::V2::FileContainer> fileContainers;
+
+    for (const CppTools::ProjectPart::Ptr &projectPart : projectParts) {
+        for (const CppTools::ProjectFile &projectFile : projectPart->files) {
+            fileContainers.emplace_back(ClangBackEnd::FilePath(projectFile.path),
+                                        "",
+                                        createCommandLine(projectPart.data(),
+                                                          projectFile.path,
+                                                          projectFile.kind));
+        }
+    }
+
+    return fileContainers;
+}
+}
+
+ClangBackEnd::RequestSourceRangesAndDiagnosticsForQueryMessage ClangQueryProjectsFindFilter::createMessage(const QString &queryText) const
+{
+    return ClangBackEnd::RequestSourceRangesAndDiagnosticsForQueryMessage(
+                Utils::SmallString(queryText),
+                createFileContainers(projectParts));
+}
+
 
 } // namespace ClangRefactoring

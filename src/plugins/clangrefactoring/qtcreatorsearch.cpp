@@ -27,6 +27,10 @@
 
 #include "qtcreatorsearchhandle.h"
 
+#include <coreplugin/editormanager/editormanager.h>
+
+#include <QDir>
+
 namespace ClangRefactoring {
 
 QtCreatorSearch::QtCreatorSearch(Core::SearchResultWindow &searchResultWindow)
@@ -34,7 +38,7 @@ QtCreatorSearch::QtCreatorSearch(Core::SearchResultWindow &searchResultWindow)
 {
 }
 
-std::unique_ptr<SearchHandleInterface> QtCreatorSearch::startNewSearch(const QString &searchLabel,
+std::unique_ptr<SearchHandle> QtCreatorSearch::startNewSearch(const QString &searchLabel,
                                                                        const QString &searchTerm)
 {
     Core::SearchResult *searchResult = searchResultWindow.startNewSearch(
@@ -44,7 +48,24 @@ std::unique_ptr<SearchHandleInterface> QtCreatorSearch::startNewSearch(const QSt
                 Core::SearchResultWindow::SearchOnly,
                 Core::SearchResultWindow::PreserveCaseEnabled);
 
-    return std::unique_ptr<SearchHandleInterface>(new QtCreatorSearchHandle(searchResult));
+    QObject::connect(searchResult,
+                     &Core::SearchResult::activated,
+                     &QtCreatorSearch::openEditor);
+
+    auto searchHandle = std::unique_ptr<SearchHandle>(new QtCreatorSearchHandle(searchResult));
+
+    QObject::connect(searchResult,
+                     &Core::SearchResult::cancelled,
+                     [handle=searchHandle.get()] () { handle->cancel(); });
+
+    return searchHandle;
+}
+
+void QtCreatorSearch::openEditor(const Core::SearchResultItem &item)
+{
+    Core::EditorManager::openEditorAt(QDir::fromNativeSeparators(item.path.first()),
+                                      item.mainRange.begin.line,
+                                      item.mainRange.begin.column);
 }
 
 } // namespace ClangRefactoring

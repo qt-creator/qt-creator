@@ -25,6 +25,10 @@
 
 #include "sourcerangewithtextcontainer.h"
 
+#ifdef UNIT_TESTS
+#include <gtest/gtest.h>
+#endif
+
 namespace ClangBackEnd {
 
 QDebug operator<<(QDebug debug, const SourceRangeWithTextContainer &container)
@@ -40,12 +44,18 @@ QDebug operator<<(QDebug debug, const SourceRangeWithTextContainer &container)
 
 void PrintTo(const SourceRangeWithTextContainer &container, ::std::ostream* os)
 {
+    Q_UNUSED(container)
+    Q_UNUSED(os)
+#ifdef UNIT_TESTS
     *os << "(("
         << container.start().line() << ", "
-        << container.start().column() << "), ("
+        << container.start().column() << ", "
+        << container.start().offset() << "), ("
         << container.end().line() << ", "
         << container.end().column() << ", "
-        << "\"" << container.text() << "\""
-        << "))";
+        << container.end().offset() << "), "
+        << testing::PrintToString(container.text())
+        << ")";
+#endif
 }
 } // namespace ClangBackEnd

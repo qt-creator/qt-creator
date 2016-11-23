@@ -27,7 +27,7 @@
 
 #include "refactoringengine.h"
 
-#include <searchhandleinterface.h>
+#include <searchhandle.h>
 
 #include <refactoringclientinterface.h>
 
@@ -53,23 +53,35 @@ public:
     void setLocalRenamingCallback(
             CppTools::RefactoringEngineInterface::RenameCallback &&localRenamingCallback) final;
     void setRefactoringEngine(ClangRefactoring::RefactoringEngine *refactoringEngine);
-    void setSearchHandle(ClangRefactoring::SearchHandleInterface *searchHandleInterface);
-    ClangRefactoring::SearchHandleInterface *searchHandle() const;
+    void setSearchHandle(ClangRefactoring::SearchHandle *searchHandleInterface);
+    ClangRefactoring::SearchHandle *searchHandle() const;
 
     bool hasValidLocalRenamingCallback() const;
 
     static std::unordered_map<uint, QString> convertFilePaths(
             const std::unordered_map<uint, ClangBackEnd::FilePath> &filePaths);
 
-private:
-    void addSearchResults(const ClangBackEnd::SourceRangesContainer &sourceRanges);
+    void setExpectedResultCount(uint count);
+    uint expectedResultCount() const;
+    uint resultCounter() const;
+
+
+UNIT_TEST_PUBLIC:
     void addSearchResult(const ClangBackEnd::SourceRangeWithTextContainer &sourceRange,
                          std::unordered_map<uint, QString> &filePaths);
+
+private:
+    void addSearchResults(const ClangBackEnd::SourceRangesContainer &sourceRanges);
+
+    void setResultCounterAndSendSearchIsFinishedIfFinished();
     void sendSearchIsFinished();
+
 private:
     CppTools::RefactoringEngineInterface::RenameCallback localRenamingCallback;
-    ClangRefactoring::SearchHandleInterface *searchHandleInterface = nullptr;
+    ClangRefactoring::SearchHandle *searchHandle_ = nullptr;
     ClangRefactoring::RefactoringEngine *refactoringEngine = nullptr;
+    uint expectedResultCount_ = 0;
+    uint resultCounter_ = 0;
 };
 
 } // namespace ClangRefactoring

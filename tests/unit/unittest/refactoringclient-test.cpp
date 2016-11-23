@@ -138,7 +138,7 @@ TEST_F(RefactoringClient, AfterStartLocalRenameHasValidCallback)
 
 TEST_F(RefactoringClient, CallAddResultsForEmptyQueryMessage)
 {
-    EXPECT_CALL(mockSearchHandle, addResult(_ ,_ ,_ , _, _))
+    EXPECT_CALL(mockSearchHandle, addResult(_ ,_ ,_))
         .Times(0);
 
     client.sourceRangesAndDiagnosticsForQueryMessage(std::move(emptyQueryResultMessage));
@@ -146,7 +146,7 @@ TEST_F(RefactoringClient, CallAddResultsForEmptyQueryMessage)
 
 TEST_F(RefactoringClient, CallAddResultsForQueryMessage)
 {
-    EXPECT_CALL(mockSearchHandle, addResult(_ ,_ ,_ , _, _))
+    EXPECT_CALL(mockSearchHandle, addResult(_ ,_ ,_))
         .Times(2);
 
     client.sourceRangesAndDiagnosticsForQueryMessage(std::move(queryResultMessage));
@@ -167,6 +167,61 @@ TEST_F(RefactoringClient, CallFinishSearchQueryMessage)
 
     client.sourceRangesAndDiagnosticsForQueryMessage(std::move(queryResultMessage));
 }
+
+TEST_F(RefactoringClient, CallFinishSearchForTwoQueryMessages)
+{
+    client.setExpectedResultCount(2);
+
+    EXPECT_CALL(mockSearchHandle, finishSearch())
+        .Times(1);
+
+    client.sourceRangesAndDiagnosticsForQueryMessage(std::move(queryResultMessage));
+    client.sourceRangesAndDiagnosticsForQueryMessage(std::move(queryResultMessage));
+}
+
+TEST_F(RefactoringClient, CallSetExpectedResultCountInSearchHandle)
+{
+    EXPECT_CALL(mockSearchHandle, setExpectedResultCount(3))
+        .Times(1);
+
+    client.setExpectedResultCount(3);
+}
+
+TEST_F(RefactoringClient, ResultCounterIsOneAfterQueryMessage)
+{
+    client.sourceRangesAndDiagnosticsForQueryMessage(std::move(queryResultMessage));
+
+    ASSERT_THAT(client.resultCounter(), 1);
+}
+
+TEST_F(RefactoringClient, ResultCounterIsSetInSearchHandleToOne)
+{
+    EXPECT_CALL(mockSearchHandle, setResultCounter(1))
+        .Times(1);
+
+    client.sourceRangesAndDiagnosticsForQueryMessage(std::move(queryResultMessage));
+}
+
+TEST_F(RefactoringClient, ResultCounterIsSetInSearchHandleToTwo)
+{
+    client.sourceRangesAndDiagnosticsForQueryMessage(std::move(queryResultMessage));
+
+    EXPECT_CALL(mockSearchHandle, setResultCounter(2))
+        .Times(1);
+
+    client.sourceRangesAndDiagnosticsForQueryMessage(std::move(queryResultMessage));
+}
+
+
+TEST_F(RefactoringClient, ResultCounterIsZeroAfterSettingExpectedResultCount)
+{
+    client.sourceRangesAndDiagnosticsForQueryMessage(std::move(queryResultMessage));
+
+    client.setExpectedResultCount(3);
+
+    ASSERT_THAT(client.resultCounter(), 0);
+}
+
 
 TEST_F(RefactoringClient, ConvertFilePaths)
 {
@@ -189,6 +244,7 @@ void RefactoringClient::SetUp()
                                                            RefactoringCompilerOptionsBuilder::PchUsage::None);
 
     client.setSearchHandle(&mockSearchHandle);
+    client.setExpectedResultCount(1);
 }
 
 }

@@ -25,9 +25,13 @@
 
 #pragma once
 
-#include "searchhandleinterface.h"
+#include "searchhandle.h"
+
+#include <cpptools/projectpart.h>
 
 #include <coreplugin/find/ifindfilter.h>
+
+#include <utils/smallstringvector.h>
 
 #include <memory>
 
@@ -54,11 +58,20 @@ public:
     void findAll(const QString &queryText, Core::FindFlags findFlags = 0);
     Core::FindFlags supportedFindFlags() const;
 
+    void setProjectParts(const std::vector<CppTools::ProjectPart::Ptr> &projectParts);
+
     bool isUsable() const;
     void setUsable(bool isUsable);
 
+    SearchHandle* searchHandleForTestOnly() const;
+
 private:
-    std::unique_ptr<SearchHandleInterface> searchHandle;
+    ClangBackEnd::RequestSourceRangesAndDiagnosticsForQueryMessage createMessage(
+            const QString &queryText) const;
+
+private:
+    std::unique_ptr<SearchHandle> searchHandle;
+    std::vector<CppTools::ProjectPart::Ptr> projectParts;
     ClangBackEnd::RefactoringServerInterface &server;
     SearchInterface &searchInterface;
     RefactoringClient &refactoringClient;

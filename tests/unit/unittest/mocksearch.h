@@ -33,6 +33,6 @@ class MockSearch : public ClangRefactoring::SearchInterface
 {
 public:
     MOCK_METHOD2(startNewSearch,
-                 std::unique_ptr<ClangRefactoring::SearchHandleInterface>(const QString &searchLabel,
-                                                                          const QString &searchTerm));
+                 std::unique_ptr<ClangRefactoring::SearchHandle>(const QString &searchLabel,
+                                                                 const QString &searchTerm));
 };

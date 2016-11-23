@@ -39,11 +39,13 @@
 #include <algorithm>
 #include <chrono>
 #include <future>
+#include <atomic>
 
 namespace ClangBackEnd {
 
 RefactoringServer::RefactoringServer()
 {
+    pollEventLoop = [] () { QCoreApplication::processEvents(); };
 }
 
 void RefactoringServer::end()
@@ -67,30 +69,48 @@ void RefactoringServer::requestSourceLocationsForRenamingMessage(RequestSourceLo
                                                  message.textDocumentRevision()});
 }
 
+void RefactoringServer::requestSourceRangesAndDiagnosticsForQueryMessage(
+        RequestSourceRangesAndDiagnosticsForQueryMessage &&message)
+{
+    gatherSourceRangesAndDiagnosticsForQueryMessage(message.takeFileContainers(), message.takeQuery());
+}
+
+void RefactoringServer::cancel()
+{
+    cancelWork = true;
+}
+
+bool RefactoringServer::isCancelingJobs() const
+{
+    return cancelWork;
+}
+
+void RefactoringServer::supersedePollEventLoop(std::function<void ()> &&pollEventLoop)
+{
+    this->pollEventLoop = std::move(pollEventLoop);
+}
+
 namespace {
 
 SourceRangesAndDiagnosticsForQueryMessage createSourceRangesAndDiagnosticsForQueryMessage(
         V2::FileContainer &&fileContainer,
-        Utils::SmallString &&query) {
+        Utils::SmallString &&query,
+        const std::atomic_bool &cancelWork) {
     ClangQuery clangQuery(std::move(query));
 
-    clangQuery.addFile(fileContainer.filePath().directory(),
-                       fileContainer.filePath().name(),
-                       fileContainer.takeUnsavedFileContent(),
-                       fileContainer.takeCommandLineArguments());
+    if (!cancelWork) {
+        clangQuery.addFile(fileContainer.filePath().directory(),
+                           fileContainer.filePath().name(),
+                           fileContainer.takeUnsavedFileContent(),
+                           fileContainer.takeCommandLineArguments());
 
-    clangQuery.findLocations();
+        clangQuery.findLocations();
+    }
 
     return {clangQuery.takeSourceRanges(), clangQuery.takeDiagnosticContainers()};
 }
 
 
-}
-
-void RefactoringServer::requestSourceRangesAndDiagnosticsForQueryMessage(
-        RequestSourceRangesAndDiagnosticsForQueryMessage &&message)
-{
-    gatherSourceRangesAndDiagnosticsForQueryMessage(message.takeFileContainers(), message.takeQuery());
 }
 
 void RefactoringServer::gatherSourceRangesAndDiagnosticsForQueryMessage(
@@ -108,7 +128,7 @@ void RefactoringServer::gatherSourceRangesAndDiagnosticsForQueryMessage(
             Future &&future = std::async(std::launch::async,
                                          createSourceRangesAndDiagnosticsForQueryMessage,
                                          std::move(fileContainers.back()),
-                                         query.clone());
+                                         query.clone(), std::ref(cancelWork));
             fileContainers.pop_back();
 
             futures.emplace_back(std::move(future));
@@ -122,6 +142,8 @@ void RefactoringServer::gatherSourceRangesAndDiagnosticsForQueryMessage(
 std::size_t RefactoringServer::waitForNewSourceRangesAndDiagnosticsForQueryMessage(std::vector<Future> &futures)
 {
     while (true) {
+        pollEventLoop();
+
         std::vector<Future> readyFutures;
         readyFutures.reserve(futures.size());
 

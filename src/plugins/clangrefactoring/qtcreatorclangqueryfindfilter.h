@@ -25,18 +25,18 @@
 
 #pragma once
 
-#include "clangquerycurrentfilefindfilter.h"
+#include "clangqueryprojectsfindfilter.h"
 
 namespace ClangRefactoring {
 
-class QtCreatorClangQueryFindFilter final : public ClangQueryCurrentFileFindFilter
+class QtCreatorClangQueryFindFilter final : public ClangQueryProjectsFindFilter
 {
 public:
     QtCreatorClangQueryFindFilter(ClangBackEnd::RefactoringServerInterface &server,
                                   SearchInterface &searchInterface,
                                   RefactoringClient &refactoringClient);
 
-    void findAll(const QString &queryText, Core::FindFlags findFlags = 0);
+    void findAll(const QString &queryText, Core::FindFlags findFlags = 0) override;
 
 private:
     void prepareFind();

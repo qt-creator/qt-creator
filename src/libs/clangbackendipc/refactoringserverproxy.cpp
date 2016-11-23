@@ -25,6 +25,7 @@
 
 #include "refactoringserverproxy.h"
 
+#include "cancelmessage.h"
 #include "cmbendmessage.h"
 #include "messageenvelop.h"
 #include "refactoringclientinterface.h"
@@ -57,6 +58,11 @@ void RefactoringServerProxy::requestSourceLocationsForRenamingMessage(RequestSou
 void RefactoringServerProxy::requestSourceRangesAndDiagnosticsForQueryMessage(RequestSourceRangesAndDiagnosticsForQueryMessage &&message)
 {
     writeMessageBlock.write(message);
+}
+
+void RefactoringServerProxy::cancel()
+{
+    writeMessageBlock.write(CancelMessage());
 }
 
 void RefactoringServerProxy::readMessages()

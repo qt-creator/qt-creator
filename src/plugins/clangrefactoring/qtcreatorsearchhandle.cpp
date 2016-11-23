@@ -25,21 +25,40 @@
 
 #include "qtcreatorsearchhandle.h"
 
+#include <coreplugin/progressmanager/progressmanager.h>
+
+#include <QCoreApplication>
+
 namespace ClangRefactoring {
 
 QtCreatorSearchHandle::QtCreatorSearchHandle(Core::SearchResult *searchResult)
     : searchResult(searchResult)
 {
+    auto title = QCoreApplication::translate("QtCreatorSearchHandle", "Clang Query");
+    Core::ProgressManager::addTask(promise.future(), title, "clang query", 0);
 }
 
-void QtCreatorSearchHandle::addResult(const QString &fileName, int lineNumber, const QString &lineText, int searchTermStart, int searchTermLength)
+void QtCreatorSearchHandle::addResult(const QString &fileName,
+                                      const QString &lineText,
+                                      Core::TextRange textRange)
 {
-    searchResult->addResult(fileName, lineNumber, lineText, searchTermStart, searchTermLength);
+    searchResult->addResult(fileName, lineText, textRange);
+}
+
+void QtCreatorSearchHandle::setExpectedResultCount(uint count)
+{
+    promise.setExpectedResultCount(count);
+}
+
+void QtCreatorSearchHandle::setResultCounter(uint counter)
+{
+    promise.setProgressValue(counter);
 }
 
 void QtCreatorSearchHandle::finishSearch()
 {
     searchResult->finishSearch(false);
+    promise.reportFinished();
 }
 
 } // namespace ClangRefactoring

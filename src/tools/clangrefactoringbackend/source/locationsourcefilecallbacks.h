@@ -23,61 +23,53 @@
 **
 ****************************************************************************/
 
-#include "sourcefilecallbacks.h"
+#pragma once
 
-#include "macropreprocessorcallbacks.h"
+#include <sourcelocationscontainer.h>
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
 
-#include <clang/Frontend/CompilerInstance.h>
-#include <clang/Lex/Preprocessor.h>
+#include <clang/Tooling/Tooling.h>
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic pop
 #endif
 
-#include <memory>
+namespace llvm {
+class StringRef;
+}
+
+namespace clang {
+class CompilerInstance;
+}
 
 namespace ClangBackEnd {
 
-SourceFileCallbacks::SourceFileCallbacks(uint line, uint column)
-    : line(line),
-      column(column)
+class MacroPreprocessorCallbacks;
+class SourceLocationsContainer;
+
+class LocationSourceFileCallbacks : public clang::tooling::SourceFileCallbacks
 {
-}
+public:
+    LocationSourceFileCallbacks(uint line, uint column);
 
-bool SourceFileCallbacks::handleBeginSource(clang::CompilerInstance &compilerInstance, llvm::StringRef /*fileName*/)
-{
-    auto &preprocessor = compilerInstance.getPreprocessor();
+    bool handleBeginSource(clang::CompilerInstance &compilerInstance,
+                           llvm::StringRef fileName) override;
 
-    macroPreprocessorCallbacks = new MacroPreprocessorCallbacks(sourceLocationsContainer,
-                                                                symbolName,
-                                                                preprocessor,
-                                                                line,
-                                                                column);
+    SourceLocationsContainer takeSourceLocations();
+    Utils::SmallString takeSymbolName();
 
-    preprocessor.addPPCallbacks(std::unique_ptr<clang::PPCallbacks>(macroPreprocessorCallbacks));
+    bool hasSourceLocations() const;
 
-    return true;
-}
-
-SourceLocationsContainer SourceFileCallbacks::takeSourceLocations()
-{
-    return std::move(sourceLocationsContainer);
-}
-
-Utils::SmallString SourceFileCallbacks::takeSymbolName()
-{
-    return std::move(symbolName);
-}
-
-bool SourceFileCallbacks::hasSourceLocations() const
-{
-    return sourceLocationsContainer.hasContent();
-}
-
+private:
+    SourceLocationsContainer sourceLocationsContainer;
+    Utils::SmallString symbolName;
+    MacroPreprocessorCallbacks *macroPreprocessorCallbacks;
+    uint line;
+    uint column;
+};
 
 } // namespace ClangBackEnd

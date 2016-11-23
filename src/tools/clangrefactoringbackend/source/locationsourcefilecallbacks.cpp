@@ -23,47 +23,61 @@
 **
 ****************************************************************************/
 
-#pragma once
-
-#include "clangtool.h"
-#include "findusrforcursoraction.h"
-#include "symbollocationfinderaction.h"
 #include "locationsourcefilecallbacks.h"
 
-#include <sourcelocationscontainer.h>
+#include "macropreprocessorcallbacks.h"
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
 
-#include "clang/Tooling/Refactoring.h"
+#include <clang/Frontend/CompilerInstance.h>
+#include <clang/Lex/Preprocessor.h>
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic pop
 #endif
 
+#include <memory>
+
 namespace ClangBackEnd {
 
-class SymbolFinder : public ClangTool
+LocationSourceFileCallbacks::LocationSourceFileCallbacks(uint line, uint column)
+    : line(line),
+      column(column)
 {
-public:
-    SymbolFinder(uint line, uint column);
+}
 
-    void findSymbol();
+bool LocationSourceFileCallbacks::handleBeginSource(clang::CompilerInstance &compilerInstance, llvm::StringRef /*fileName*/)
+{
+    auto &preprocessor = compilerInstance.getPreprocessor();
 
-    Utils::SmallString takeSymbolName();
-    const std::vector<USRName> &unifiedSymbolResolutions();
-    const SourceLocationsContainer &sourceLocations() const;
-    SourceLocationsContainer takeSourceLocations();
+    macroPreprocessorCallbacks = new MacroPreprocessorCallbacks(sourceLocationsContainer,
+                                                                symbolName,
+                                                                preprocessor,
+                                                                line,
+                                                                column);
 
-private:
-    Utils::SmallString symbolName;
-    USRFindingAction usrFindingAction;
-    SymbolLocationFinderAction symbolLocationFinderAction;
-    LocationSourceFileCallbacks sourceFileCallbacks;
+    preprocessor.addPPCallbacks(std::unique_ptr<clang::PPCallbacks>(macroPreprocessorCallbacks));
 
-    ClangBackEnd::SourceLocationsContainer sourceLocations_;
-};
+    return true;
+}
+
+SourceLocationsContainer LocationSourceFileCallbacks::takeSourceLocations()
+{
+    return std::move(sourceLocationsContainer);
+}
+
+Utils::SmallString LocationSourceFileCallbacks::takeSymbolName()
+{
+    return std::move(symbolName);
+}
+
+bool LocationSourceFileCallbacks::hasSourceLocations() const
+{
+    return sourceLocationsContainer.hasContent();
+}
+
 
 } // namespace ClangBackEnd

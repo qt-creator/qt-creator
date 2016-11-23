@@ -43,8 +43,10 @@ namespace {
 using ::testing::_;
 using ::testing::NiceMock;
 using ::testing::NotNull;
+using ::testing::Return;
 using ::testing::ReturnNew;
 using ::testing::DefaultValue;
+using ::testing::ByMove;
 
 using ClangRefactoring::RefactoringCompilerOptionsBuilder;
 
@@ -52,6 +54,7 @@ class ClangQueryProjectFindFilter : public ::testing::Test
 {
 protected:
     void SetUp();
+    std::unique_ptr<ClangRefactoring::SearchHandle> createSearchHandle();
 
 protected:
     NiceMock<MockRefactoringServer> mockRefactoringServer;
@@ -61,10 +64,8 @@ protected:
     QString findDeclQueryText{"functionDecl()"};
     QString curentDocumentFilePath{"/path/to/file.cpp"};
     QString unsavedDocumentContent{"void f();"};
-    Utils::SmallStringVector commandLine;
-    CppTools::ProjectPart::Ptr projectPart1;
-    CppTools::ProjectPart::Ptr projectPart2;
-    CppTools::ProjectFile projectFile{curentDocumentFilePath, CppTools::ProjectFile::CXXSource};
+    std::vector<Utils::SmallStringVector> commandLines;
+    std::vector<CppTools::ProjectPart::Ptr> projectsParts;
 };
 
 TEST_F(ClangQueryProjectFindFilter, SupportedFindFlags)
@@ -117,13 +118,25 @@ TEST_F(ClangQueryProjectFindFilter, FindAllIsCallingStartNewSearch)
     findFilter.findAll(findDeclQueryText);
 }
 
+TEST_F(ClangQueryProjectFindFilter, FindAllIsSettingExprectedResultCountInTheRefactoringClient)
+{
+    findFilter.findAll(findDeclQueryText);
+
+    ASSERT_THAT(refactoringClient.expectedResultCount(), 3);
+}
+
 TEST_F(ClangQueryProjectFindFilter, FindAllIsCallingRequestSourceRangesAndDiagnosticsForQueryMessage)
 {
     ClangBackEnd::RequestSourceRangesAndDiagnosticsForQueryMessage message(findDeclQueryText,
-                                                                           {{{"/path/to", "file.cpp"},
-                                                                             unsavedDocumentContent,
-                                                                             commandLine.clone(),
-                                                                             1}});
+                                                                           {{{"/path/to", "file1.h"},
+                                                                             "",
+                                                                             commandLines[0].clone()},
+                                                                            {{"/path/to", "file1.cpp"},
+                                                                             "",
+                                                                             commandLines[1].clone()},
+                                                                            {{"/path/to", "file2.cpp"},
+                                                                             "",
+                                                                             commandLines[2].clone()}});
 
     EXPECT_CALL(mockRefactoringServer, requestSourceRangesAndDiagnosticsForQueryMessage(message))
             .Times(1);
@@ -131,23 +144,64 @@ TEST_F(ClangQueryProjectFindFilter, FindAllIsCallingRequestSourceRangesAndDiagno
     findFilter.findAll(findDeclQueryText);
 }
 
+TEST_F(ClangQueryProjectFindFilter, CancelSearch)
+{
+    EXPECT_CALL(mockRefactoringServer, cancel())
+            .Times(1);
+
+    findFilter.findAll(findDeclQueryText);
+
+    findFilter.searchHandleForTestOnly()->cancel();
+}
+
+std::vector<CppTools::ProjectPart::Ptr> createProjectParts()
+{
+    auto projectPart1 = CppTools::ProjectPart::Ptr(new CppTools::ProjectPart);
+    projectPart1->files.append({"/path/to/file1.h", CppTools::ProjectFile::CXXSource});
+    projectPart1->files.append({"/path/to/file1.cpp", CppTools::ProjectFile::CXXHeader});
+
+    auto projectPart2 = CppTools::ProjectPart::Ptr(new CppTools::ProjectPart);
+    projectPart1->files.append({"/path/to/file2.cpp", CppTools::ProjectFile::CXXHeader});
+
+    return {projectPart1, projectPart2};
+}
+
+std::vector<Utils::SmallStringVector>
+createCommandLines(const std::vector<CppTools::ProjectPart::Ptr> &projectParts)
+{
+    std::vector<Utils::SmallStringVector> commandLines;
+
+    for (const CppTools::ProjectPart::Ptr &projectPart : projectParts) {
+        for (const CppTools::ProjectFile &projectFile : projectPart->files) {
+            auto commandLine = RefactoringCompilerOptionsBuilder::build(projectPart.data(),
+                                                                        projectFile.kind,
+                                                                        CppTools::CompilerOptionsBuilder::PchUsage::None);
+            commandLine.emplace_back(projectFile.path);
+            commandLines.push_back(commandLine);
+        }
+    }
+
+    return commandLines;
+}
+
 void ClangQueryProjectFindFilter::SetUp()
 {
-//    projectPart = CppTools::ProjectPart::Ptr(new CppTools::ProjectPart);
-//    projectPart->files.push_back(projectFile);
+    projectsParts = createProjectParts();
+    commandLines = createCommandLines(projectsParts);
 
-//    commandLine = RefactoringCompilerOptionsBuilder::build(projectPart.data(),
-//                                                           projectFile.kind);
-    commandLine.push_back(curentDocumentFilePath);
+    findFilter.setProjectParts(projectsParts);
 
-//    findFilter.setCurrentDocumentFilePath(curentDocumentFilePath);
-//    findFilter.setCurrentDocumentRevision(documentRevision);
-//    findFilter.setUnsavedDocumentContent(unsavedDocumentContent);
-//    findFilter.setProjectPart(projectPart);
+    ON_CALL(mockSearch, startNewSearch(QStringLiteral("Clang Query"), findDeclQueryText))
+            .WillByDefault(Return(ByMove(createSearchHandle())));
 
-    DefaultValue<std::unique_ptr<ClangRefactoring::SearchHandleInterface>>::SetFactory([] () {
-        return std::unique_ptr<ClangRefactoring::SearchHandleInterface>(new MockSearchHandle); });
+}
 
+std::unique_ptr<ClangRefactoring::SearchHandle> ClangQueryProjectFindFilter::createSearchHandle()
+{
+    std::unique_ptr<ClangRefactoring::SearchHandle> handle(new NiceMock<MockSearchHandle>);
+    handle->setRefactoringServer(&mockRefactoringServer);
+
+    return handle;
 }
 
 }

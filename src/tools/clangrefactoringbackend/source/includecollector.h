@@ -25,32 +25,25 @@
 
 #pragma once
 
-#include <coreplugin/find/searchresultitem.h>
+#include "clangtool.h"
 
-#include <refactoringserverinterface.h>
+namespace ClangBackEnd {
 
-namespace ClangRefactoring {
-
-class SearchHandle
+class IncludeCollector : public ClangTool
 {
 public:
-    virtual ~SearchHandle();
+    void collectIncludes();
 
-    virtual void addResult(const QString &fileName,
-                           const QString &lineText,
-                           Core::Search::TextRange textRange) = 0;
+    void setExcludedIncludes(Utils::SmallStringVector &&excludedIncludes);
 
-    virtual void setExpectedResultCount(uint count) = 0;
-    virtual void setResultCounter(uint counter) = 0;
-
-    virtual void finishSearch() = 0;
-
-    void cancel();
-
-    void setRefactoringServer(ClangBackEnd::RefactoringServerInterface *server);
+    Utils::SmallStringVector takeIncludes();
 
 private:
-    ClangBackEnd::RefactoringServerInterface *server = nullptr;
+    std::vector<uint> generateExcludedIncludeFileUIDs(clang::FileManager &fileManager) const;
+
+private:
+    Utils::SmallStringVector excludedIncludes;
+    Utils::SmallStringVector includes;
 };
 
-} // namespace ClangRefactoring
+} // namespace ClangBackEnd

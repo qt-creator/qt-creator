@@ -74,6 +74,8 @@ public:
                  std::string &&fileName,
                  std::string &&content,
                  std::vector<std::string> &&commandLine);
+    void addFiles(const Utils::SmallStringVector &filePaths,
+                 const Utils::SmallStringVector &arguments);
 
     clang::tooling::ClangTool createTool() const;
 

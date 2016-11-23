@@ -71,7 +71,7 @@ TEST_F(ClangQuery, RootSourceRangeForSimpleFunctionDeclarationRange)
     simpleFunctionQuery.findLocations();
 
     ASSERT_THAT(simpleFunctionQuery.takeSourceRanges().sourceRangeWithTextContainers().at(0),
-                IsSourceRangeWithText(1, 1, 8, 1, "int function(int* pointer, int value) { if (pointer == nullptr) { return value + 1; } else { return value - 1; } }"));
+                IsSourceRangeWithText(1, 1, 8, 2, "int function(int* pointer, int value)\n{\n  if (pointer == nullptr) {\n    return value + 1;\n  } else {\n    return value - 1;\n  }\n}"));
 }
 
 TEST_F(ClangQuery, RootSourceRangeForSimpleFieldDeclarationRange)
@@ -81,7 +81,7 @@ TEST_F(ClangQuery, RootSourceRangeForSimpleFieldDeclarationRange)
     simpleClassQuery.findLocations();
 
     ASSERT_THAT(simpleClassQuery.takeSourceRanges().sourceRangeWithTextContainers().at(0),
-                IsSourceRangeWithText(4, 5, 4, 9, "int x"));
+                IsSourceRangeWithText(4, 5, 4, 10, "    int x;"));
 }
 
 TEST_F(ClangQuery, NoSourceRangesForEmptyQuery)

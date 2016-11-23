@@ -47,11 +47,21 @@ public:
     void end() override;
     void requestSourceLocationsForRenamingMessage(RequestSourceLocationsForRenamingMessage &&message) override;
     void requestSourceRangesAndDiagnosticsForQueryMessage(RequestSourceRangesAndDiagnosticsForQueryMessage &&message) override;
+    void cancel() override;
+
+    bool isCancelingJobs() const;
+
+    void supersedePollEventLoop(std::function<void()> &&pollEventLoop);
 
 private:
     void gatherSourceRangesAndDiagnosticsForQueryMessage(std::vector<V2::FileContainer> &&fileContainers,
                                                          Utils::SmallString &&query);
     std::size_t waitForNewSourceRangesAndDiagnosticsForQueryMessage(std::vector<Future> &futures);
+
+private:
+    std::function<void()> pollEventLoop;
+    std::atomic_bool cancelWork{false};
+
 };
 
 } // namespace ClangBackEnd

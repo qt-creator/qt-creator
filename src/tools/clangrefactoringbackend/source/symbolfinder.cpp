@@ -25,7 +25,7 @@
 
 #include "symbolfinder.h"
 
-#include "sourcefilecallbacks.h"
+#include "locationsourcefilecallbacks.h"
 #include "symbollocationfinderaction.h"
 
 namespace ClangBackEnd {

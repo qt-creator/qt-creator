@@ -26,6 +26,7 @@
 #include "clangquery.h"
 
 #include "sourcelocationsutils.h"
+#include "sourcerangeextractor.h"
 
 #include <sourcerangescontainer.h>
 
@@ -76,16 +77,7 @@ void ClangQuery::findLocations()
 
     std::vector<std::unique_ptr<clang::ASTUnit>> asts;
 
-    {
-        QTime timer;
-        timer.start();
-        tool.buildASTs(asts);
-
-        qWarning() << "ASTs are built: " << timer.elapsed();
-    }
-
-    std::vector<clang::SourceRange> sourceRanges;
-    sourceRanges.reserve(100);
+    tool.buildASTs(asts);
 
     std::for_each (std::make_move_iterator(asts.begin()),
                    std::make_move_iterator(asts.end()),
@@ -95,7 +87,7 @@ void ClangQuery::findLocations()
                                                               nullptr,
                                                               &diagnostics);
         parseDiagnostics(diagnostics);
-        matchLocation(optionalMatcher, std::move(ast), sourceRanges);
+        matchLocation(optionalMatcher, std::move(ast));
     });
 }
 
@@ -189,10 +181,28 @@ void ClangQuery::parseDiagnostics(const clang::ast_matchers::dynamic::Diagnostic
     }
 }
 
+namespace {
+std::vector<clang::SourceRange> generateSourceRangesFromMatches(const std::vector<BoundNodes> &matches)
+{
+    std::vector<clang::SourceRange> sourceRanges;
+    sourceRanges.reserve(matches.size());
+
+    for (const auto boundNodes : matches) {
+        for (const auto &mapEntry : boundNodes.getMap()) {
+            const auto sourceRange = mapEntry.second.getSourceRange();
+            if (sourceRange.isValid())
+                sourceRanges.push_back(sourceRange);
+        }
+
+    }
+
+    return sourceRanges;
+}
+}
+
 void ClangQuery::matchLocation(
         const llvm::Optional< clang::ast_matchers::internal::DynTypedMatcher> &optionalStartMatcher,
-        std::unique_ptr<clang::ASTUnit> ast,
-        std::vector<clang::SourceRange> &sourceRanges)
+        std::unique_ptr<clang::ASTUnit> ast)
 {
     if (optionalStartMatcher) {
         auto matcher = *optionalStartMatcher;
@@ -207,18 +217,13 @@ void ClangQuery::matchLocation(
 
         finder.matchAST(ast->getASTContext());
 
-        for (const auto &boundNodes : matches) {
-            for (const auto &mapEntry : boundNodes.getMap()) {
-                const auto sourceRange = mapEntry.second.getSourceRange();
-                if (sourceRange.isValid())
-                    sourceRanges.push_back(sourceRange);
-            }
+        auto sourceRanges = generateSourceRangesFromMatches(matches);
 
-        }
+        SourceRangeExtractor extractor(ast->getSourceManager(),
+                                       ast->getLangOpts(),
+                                       sourceRangesContainer);
+        extractor.addSourceRanges(sourceRanges);
 
-        appendSourceRangesToSourceRangesContainer(sourceRangesContainer,
-                                                  sourceRanges,
-                                                  ast->getSourceManager());
     }
 }
 

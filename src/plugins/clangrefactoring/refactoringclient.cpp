@@ -48,8 +48,9 @@ void RefactoringClient::sourceLocationsForRenamingMessage(
 void RefactoringClient::sourceRangesAndDiagnosticsForQueryMessage(
         ClangBackEnd::SourceRangesAndDiagnosticsForQueryMessage &&message)
 {
+    ++resultCounter_;
     addSearchResults(message.sourceRanges());
-    sendSearchIsFinished();
+    setResultCounterAndSendSearchIsFinishedIfFinished();
 }
 
 void RefactoringClient::setLocalRenamingCallback(
@@ -63,19 +64,36 @@ void RefactoringClient::setRefactoringEngine(RefactoringEngine *refactoringEngin
     this->refactoringEngine = refactoringEngine;
 }
 
-void RefactoringClient::setSearchHandle(SearchHandleInterface *searchHandleInterface)
+void RefactoringClient::setSearchHandle(SearchHandle *searchHandle)
 {
-    this->searchHandleInterface = searchHandleInterface;
+    this->searchHandle_ = searchHandle;
 }
 
-SearchHandleInterface *RefactoringClient::searchHandle() const
+SearchHandle *RefactoringClient::searchHandle() const
 {
-    return searchHandleInterface;
+    return searchHandle_;
 }
 
 bool RefactoringClient::hasValidLocalRenamingCallback() const
 {
     return bool(localRenamingCallback);
+}
+
+void RefactoringClient::setExpectedResultCount(uint count)
+{
+    expectedResultCount_ = count;
+    resultCounter_ = 0;
+    searchHandle_->setExpectedResultCount(count);
+}
+
+uint RefactoringClient::expectedResultCount() const
+{
+    return expectedResultCount_;
+}
+
+uint RefactoringClient::resultCounter() const
+{
+    return resultCounter_;
 }
 
 namespace {
@@ -122,16 +140,19 @@ void RefactoringClient::addSearchResults(const ClangBackEnd::SourceRangesContain
 void RefactoringClient::addSearchResult(const ClangBackEnd::SourceRangeWithTextContainer &sourceRangeWithText,
                                         std::unordered_map<uint, QString> &filePaths)
 {
-    searchHandleInterface->addResult(filePaths[sourceRangeWithText.fileHash()],
-                                     int(sourceRangeWithText.start().line()),
-                                     sourceRangeWithText.text(),
-                                     int(sourceRangeWithText.start().column()),
-                                     int(sourceRangeWithText.end().column()));
+    searchHandle_->addResult(filePaths[sourceRangeWithText.fileHash()],
+                             sourceRangeWithText.text(),
+                             {{int(sourceRangeWithText.start().line()),
+                               int(sourceRangeWithText.start().column())},
+                              {int(sourceRangeWithText.end().line()),
+                               int(sourceRangeWithText.end().column())}});
 }
 
-void RefactoringClient::sendSearchIsFinished()
+void RefactoringClient::setResultCounterAndSendSearchIsFinishedIfFinished()
 {
-    searchHandleInterface->finishSearch();
+    searchHandle_->setResultCounter(resultCounter_);
+    if (resultCounter_ == expectedResultCount_)
+        searchHandle_->finishSearch();
 }
 
 } // namespace ClangRefactoring

@@ -25,32 +25,21 @@
 
 #pragma once
 
-#include <coreplugin/find/searchresultitem.h>
+#include <clangtool.h>
 
-#include <refactoringserverinterface.h>
-
-namespace ClangRefactoring {
-
-class SearchHandle
+class TestClangTool : public ClangBackEnd::ClangTool
 {
 public:
-    virtual ~SearchHandle();
+    TestClangTool(std::string &&directory,
+                  std::string &&fileName,
+                  std::string &&content,
+                  std::vector<std::string> &&commandLine);
 
-    virtual void addResult(const QString &fileName,
-                           const QString &lineText,
-                           Core::Search::TextRange textRange) = 0;
-
-    virtual void setExpectedResultCount(uint count) = 0;
-    virtual void setResultCounter(uint counter) = 0;
-
-    virtual void finishSearch() = 0;
-
-    void cancel();
-
-    void setRefactoringServer(ClangBackEnd::RefactoringServerInterface *server);
+    const clang::ASTUnit *ast() const;
+    const clang::SourceManager &sourceManager() const;
+    const clang::LangOptions &languageOptions() const;
 
 private:
-    ClangBackEnd::RefactoringServerInterface *server = nullptr;
+    std::vector<std::unique_ptr<clang::ASTUnit>> asts;
 };
 
-} // namespace ClangRefactoring

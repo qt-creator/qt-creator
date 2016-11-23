@@ -146,6 +146,16 @@ TEST_F(RefactoringClientServerInProcess, RequestSourceRangesAndDiagnosticsForQue
     scheduleServerMessages();
 }
 
+TEST_F(RefactoringClientServerInProcess, CancelMessage)
+{
+    EXPECT_CALL(mockRefactoringServer, cancel())
+        .Times(1);
+
+    serverProxy.cancel();
+    scheduleServerMessages();
+}
+
+
 RefactoringClientServerInProcess::RefactoringClientServerInProcess()
     : serverProxy(&mockRefactoringClient, &buffer),
       clientProxy(&mockRefactoringServer, &buffer)

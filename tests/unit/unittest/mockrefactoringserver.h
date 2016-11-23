@@ -41,6 +41,9 @@ public:
     MOCK_METHOD1(requestSourceRangesAndDiagnosticsForQueryMessage,
                  void (const ClangBackEnd::RequestSourceRangesAndDiagnosticsForQueryMessage&));
 
+    MOCK_METHOD0(cancel,
+                 void ());
+
     void requestSourceLocationsForRenamingMessage(ClangBackEnd::RequestSourceLocationsForRenamingMessage &&message) override
     {
         requestSourceLocationsForRenamingMessage(message);

@@ -34,7 +34,8 @@ SOURCES += \
     smallstring-test.cpp \
     spydummy.cpp \
     unittests-main.cpp \
-    utf8-test.cpp
+    utf8-test.cpp \
+    gtest-qt-printing.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \
@@ -72,7 +73,6 @@ SOURCES += \
     diagnosticset-test.cpp \
     diagnostic-test.cpp \
     fixit-test.cpp \
-    gtest-qt-printing.cpp \
     highlightingmarksreporter-test.cpp \
     highlightingmarks-test.cpp \
     projectpart-test.cpp \
@@ -95,14 +95,16 @@ SOURCES += \
 !isEmpty(LIBTOOLING_LIBS) {
 SOURCES += \
     clangquery-test.cpp \
-    clangquerycurrentfilefindfilter-test.cpp \
     clangqueryprojectfindfilter-test.cpp \
     refactoringclientserverinprocess-test.cpp \
     refactoringclient-test.cpp \
     refactoringcompilationdatabase-test.cpp \
     refactoringengine-test.cpp \
     refactoringserver-test.cpp \
-    symbolfinder-test.cpp
+    symbolfinder-test.cpp \
+    sourcerangeextractor-test.cpp \
+    gtest-clang-printing.cpp \
+    testclangtool.cpp
 }
 
 exists($$GOOGLEBENCHMARK_DIR) {
@@ -120,7 +122,7 @@ HEADERS += \
     dynamicastmatcherdiagnosticcontainer-matcher.h \
     mocksearchresult.h \
     mocksearch.h \
-    mocksearchhandle.h
+    mocksearchhandle.h \
 
 !isEmpty(LIBCLANG_LIBS) {
 HEADERS += \
@@ -137,7 +139,9 @@ HEADERS += \
 HEADERS += \
     mockrefactoringclientcallback.h \
     mockrefactoringclient.h \
-    mockrefactoringserver.h
+    mockrefactoringserver.h \
+    gtest-clang-printing.h \
+    testclangtool.h
 }
 
 OTHER_FILES += $$files(data/*)

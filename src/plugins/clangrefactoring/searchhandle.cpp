@@ -23,34 +23,22 @@
 **
 ****************************************************************************/
 
-#pragma once
-
-#include <coreplugin/find/searchresultitem.h>
-
-#include <refactoringserverinterface.h>
+#include "searchhandle.h"
 
 namespace ClangRefactoring {
 
-class SearchHandle
+SearchHandle::~SearchHandle()
 {
-public:
-    virtual ~SearchHandle();
+}
 
-    virtual void addResult(const QString &fileName,
-                           const QString &lineText,
-                           Core::Search::TextRange textRange) = 0;
+void SearchHandle::cancel()
+{
+    server->cancel();
+}
 
-    virtual void setExpectedResultCount(uint count) = 0;
-    virtual void setResultCounter(uint counter) = 0;
-
-    virtual void finishSearch() = 0;
-
-    void cancel();
-
-    void setRefactoringServer(ClangBackEnd::RefactoringServerInterface *server);
-
-private:
-    ClangBackEnd::RefactoringServerInterface *server = nullptr;
-};
+void SearchHandle::setRefactoringServer(ClangBackEnd::RefactoringServerInterface *server)
+{
+    this->server = server;
+}
 
 } // namespace ClangRefactoring

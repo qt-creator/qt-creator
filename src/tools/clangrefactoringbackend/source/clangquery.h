@@ -61,8 +61,7 @@ public:
 private:
     void parseDiagnostics(const clang::ast_matchers::dynamic::Diagnostics &diagnostics);
     void matchLocation(const llvm::Optional< clang::ast_matchers::internal::DynTypedMatcher> &optionalStartMatcher,
-                       std::unique_ptr<clang::ASTUnit> ast,
-                       std::vector<clang::SourceRange> &sourceRanges);
+                       std::unique_ptr<clang::ASTUnit> ast);
 
 private:
     SourceRangesContainer sourceRangesContainer;

@@ -27,13 +27,18 @@
 
 namespace ClangRefactoring {
 
-SearchHandleInterface::SearchHandleInterface()
+SearchHandle::~SearchHandle()
 {
-
 }
 
-SearchHandleInterface::~SearchHandleInterface()
+void SearchHandle::cancel()
 {
+    server->cancel();
+}
+
+void SearchHandle::setRefactoringServer(ClangBackEnd::RefactoringServerInterface *server)
+{
+    this->server = server;
 }
 
 } // namespace ClangRefactoring

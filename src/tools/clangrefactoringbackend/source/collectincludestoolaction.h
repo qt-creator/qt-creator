@@ -25,51 +25,30 @@
 
 #pragma once
 
-#include <sourcelocationscontainer.h>
-
-#if defined(__GNUC__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#endif
+#include "collectincludesaction.h"
 
 #include <clang/Tooling/Tooling.h>
 
-#if defined(__GNUC__)
-#pragma GCC diagnostic pop
-#endif
-
-namespace llvm {
-class StringRef;
-}
-
-namespace clang {
-class CompilerInstance;
-}
-
 namespace ClangBackEnd {
 
-class MacroPreprocessorCallbacks;
-class SourceLocationsContainer;
-
-class SourceFileCallbacks : public clang::tooling::SourceFileCallbacks
+class CollectIncludesToolAction final : public clang::tooling::FrontendActionFactory
 {
 public:
-    SourceFileCallbacks(uint line, uint column);
+    CollectIncludesToolAction(Utils::SmallStringVector &includes,
+                              const std::vector<uint> &excludedIncludeUIDs)
+        : includes(includes),
+          excludedIncludeUIDs(excludedIncludeUIDs)
+    {}
 
-    bool handleBeginSource(clang::CompilerInstance &compilerInstance,
-                           llvm::StringRef fileName) override;
-
-    SourceLocationsContainer takeSourceLocations();
-    Utils::SmallString takeSymbolName();
-
-    bool hasSourceLocations() const;
+    clang::FrontendAction *create()
+    {
+        return new CollectIncludesAction(includes, excludedIncludeUIDs, alreadyIncludedFileUIDs);
+    }
 
 private:
-    SourceLocationsContainer sourceLocationsContainer;
-    Utils::SmallString symbolName;
-    MacroPreprocessorCallbacks *macroPreprocessorCallbacks;
-    uint line;
-    uint column;
+    Utils::SmallStringVector &includes;
+    const std::vector<uint> &excludedIncludeUIDs;
+    std::vector<uint> alreadyIncludedFileUIDs;
 };
 
 } // namespace ClangBackEnd

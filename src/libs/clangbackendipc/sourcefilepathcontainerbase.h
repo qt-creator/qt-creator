@@ -44,9 +44,11 @@ public:
 
     void insertFilePath(uint fileId, Utils::SmallString &&fileDirectory, Utils::SmallString &&fileName)
     {
-        filePathHash.emplace(std::piecewise_construct,
-                             std::forward_as_tuple(fileId),
-                             std::forward_as_tuple(std::move(fileDirectory), std::move(fileName)));
+        if (filePathHash.find(fileId) == filePathHash.end()) {
+            filePathHash.emplace(std::piecewise_construct,
+                                 std::forward_as_tuple(fileId),
+                                 std::forward_as_tuple(std::move(fileDirectory), std::move(fileName)));
+        }
     }
 
     void reserve(std::size_t size)

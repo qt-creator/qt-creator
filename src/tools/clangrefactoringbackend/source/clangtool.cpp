@@ -57,6 +57,24 @@ void ClangTool::addFile(std::string &&directory,
     sourceFilePaths.push_back(fileContent.filePath);
 }
 
+void ClangTool::addFiles(const Utils::SmallStringVector &filePaths,
+                         const Utils::SmallStringVector &arguments)
+{
+    for (const Utils::SmallString &filePath : filePaths) {
+        auto found = std::find(filePath.rbegin(), filePath.rend(), '/');
+
+        auto fileNameBegin = found.base();
+
+        std::vector<std::string> commandLine(arguments.begin(), arguments.end());
+        commandLine.push_back(filePath);
+
+        addFile({filePath.begin(), std::prev(fileNameBegin)},
+                {fileNameBegin, filePath.end()},
+                {},
+                std::move(commandLine));
+    }
+}
+
 clang::tooling::ClangTool ClangTool::createTool() const
 {
     clang::tooling::ClangTool tool(compilationDatabase, sourceFilePaths);

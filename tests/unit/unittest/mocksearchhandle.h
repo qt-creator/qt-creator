@@ -27,16 +27,19 @@
 
 #include "googletest.h"
 
-#include <searchhandleinterface.h>
+#include <searchhandle.h>
 
-class MockSearchHandle : public ClangRefactoring::SearchHandleInterface
+class MockSearchHandle : public ClangRefactoring::SearchHandle
 {
 public:
-    MOCK_METHOD5(addResult,
+    MockSearchHandle() = default;
+    using ClangRefactoring::SearchHandle::SearchHandle;
+
+    MOCK_METHOD3(addResult,
                  void(const QString &fileName,
-                      int lineNumber,
                       const QString &lineText,
-                      int searchTermStart,
-                      int searchTermLength));
+                      Core::Search::TextRange textRange));
+    MOCK_METHOD1(setExpectedResultCount, void(uint count));
+    MOCK_METHOD1(setResultCounter, void(uint counter));
     MOCK_METHOD0(finishSearch, void());
 };

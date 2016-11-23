@@ -46,7 +46,7 @@
 #endif
 
 namespace Utils {
-template<uint Size>
+template <uint Size>
 class BasicSmallString;
 using SmallString = BasicSmallString<31>;
 }
@@ -122,7 +122,9 @@ enum class MessageType : quint8 {
     RequestSourceLocationsForRenamingMessage,
 
     RequestSourceRangesAndDiagnosticsForQueryMessage,
-    SourceRangesAndDiagnosticsForQueryMessage
+    SourceRangesAndDiagnosticsForQueryMessage,
+
+    CancelMessage
 };
 
 template<MessageType messageEnumeration>

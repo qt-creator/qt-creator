@@ -25,13 +25,11 @@
 
 #pragma once
 
-#include "clangbackendipc_global.h"
-
 #include "filecontainerv2.h"
 
 namespace ClangBackEnd {
 
-class CMBIPC_EXPORT RequestSourceRangesAndDiagnosticsForQueryMessage
+class RequestSourceRangesAndDiagnosticsForQueryMessage
 {
 public:
     RequestSourceRangesAndDiagnosticsForQueryMessage() = default;
