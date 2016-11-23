@@ -681,19 +681,6 @@ QSet<Node *> ServerModeReader::updateTargets(CMakeListsNode *root,
     return usedNodes;
 }
 
-static Utils::FileName mapFileName(const Utils::FileName &fn, const Utils::FileName &sourceDirectory,
-                                   const Utils::FileName &buildDirectory)
-{
-    if (fn.isChildOf(buildDirectory)) {
-        Utils::FileName mapped = sourceDirectory;
-        mapped.appendPath(QCoreApplication::translate("CMakeProjectManager::Internal", "<Build Directory>"));
-        QDir bd = QDir(buildDirectory.toString());
-        mapped.appendPath(bd.relativeFilePath(fn.toString()));
-        return mapped;
-    }
-    return fn;
-}
-
 void ServerModeReader::updateFileGroups(ProjectNode *targetRoot,
                                         const Utils::FileName &sourceDirectory,
                                         const Utils::FileName &buildDirectory,
@@ -708,8 +695,8 @@ void ServerModeReader::updateFileGroups(ProjectNode *targetRoot,
             alreadyListed.insert(fn);
             return count != alreadyListed.count();
         });
-        const QList<FileNode *> newFileNodes = Utils::transform(newSources, [f, &sourceDirectory, &buildDirectory](const Utils::FileName &fn) {
-            return new FileNode(mapFileName(fn, sourceDirectory, buildDirectory), FileType::Source, f->isGenerated);
+        const QList<FileNode *> newFileNodes = Utils::transform(newSources, [f](const Utils::FileName &fn) {
+            return new FileNode(fn, FileType::Source, f->isGenerated);
         });
         toList.append(newFileNodes);
 
@@ -721,16 +708,35 @@ void ServerModeReader::updateFileGroups(ProjectNode *targetRoot,
                 alreadyListed.insert(fn->filePath());
                 return count != alreadyListed.count();
             });
-            toList.append(Utils::transform(unseenHeaders, [&sourceDirectory, &buildDirectory](FileNode *fn) -> FileNode * {
-                              const Utils::FileName mappedPath = mapFileName(fn->filePath(), sourceDirectory, buildDirectory);
-                              auto copy = new FileNode(mappedPath, fn->fileType(), fn->isGenerated());
+            toList.append(Utils::transform(unseenHeaders, [](FileNode *fn) -> FileNode * {
+                              auto copy = new FileNode(fn->filePath(), fn->fileType(), fn->isGenerated());
                               copy->setEnabled(false);
                               return copy;
                           }));
         }
     }
 
-    targetRoot->buildTree(toList, sourceDirectory);
+    // Split up files in groups (based on location):
+    QList<FileNode *> sourceFileNodes;
+    QList<FileNode *> buildFileNodes;
+    QList<FileNode *> otherFileNodes;
+    foreach (FileNode *fn, toList) {
+        if (fn->filePath().isChildOf(m_parameters.sourceDirectory))
+            sourceFileNodes.append(fn);
+        else if (fn->filePath().isChildOf(m_parameters.buildDirectory))
+            buildFileNodes.append(fn);
+        else
+            otherFileNodes.append(fn);
+    }
+
+    QList<FolderNode *> toDelete;
+    toDelete.append(setupCMakeVFolder(targetRoot, sourceDirectory, 1000, tr("<Source Directory>"), sourceFileNodes));
+    toDelete.append(setupCMakeVFolder(targetRoot, buildDirectory, 100, tr("<Build Directory>"), buildFileNodes));
+    toDelete.append(setupCMakeVFolder(targetRoot, Utils::FileName(), 10, tr("<Other Locations>"), otherFileNodes));
+
+    toDelete = filtered(toDelete, [](FolderNode *fn) { return fn; });
+    if (!toDelete.isEmpty())
+        targetRoot->removeFolderNodes(toDelete);
 }
 
 } // namespace Internal
