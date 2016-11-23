@@ -232,6 +232,18 @@ TEST_F(RefactoringClient, ConvertFilePaths)
     ASSERT_THAT(qstringFilePaths, Contains(Pair(42u, qStringFilePath)));
 }
 
+TEST_F(RefactoringClient, XXX)
+{
+    const Core::Search::TextRange textRange{{1,0,1},{1,0,1}};
+    const ClangBackEnd::SourceRangeWithTextContainer sourceRange{1, 1, 1, 1, 1, 1, 1, "function"};
+    std::unordered_map<uint, QString> filePaths = {{1, "/path/to/file"}};
+
+    EXPECT_CALL(mockSearchHandle, addResult(QString("/path/to/file"), QString("function"), textRange))
+        .Times(1);
+
+    client.addSearchResult(sourceRange, filePaths);
+}
+
 void RefactoringClient::SetUp()
 {
     client.setRefactoringEngine(&engine);

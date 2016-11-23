@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <utils/hostosinfo.h>
+
 #include <QIcon>
 #include <QStringList>
 #include <QVariant>
@@ -38,9 +40,11 @@ class TextPosition
 public:
     TextPosition() = default;
     TextPosition(int line, int column) : line(line), column(column) {}
+    TextPosition(int line, int column, int offset) : line(line), column(column), offset(offset) {}
 
     int line = -1; // (0 or -1 for no line number)
     int column = -1; // 0-based starting position for a mark (-1 for no mark)
+    int offset = -1;
 };
 
 class TextRange
@@ -57,12 +61,20 @@ public:
         return QString();
     }
 
+    int endLineOffsetDifference() const
+    {
+        if (Utils::HostOsInfo::isWindowsHost())
+            return begin.line - end.line;
+
+        return 0;
+    }
+
     int length() const
     {
         if (begin.line == end.line)
             return end.column - begin.column;
 
-        return 0;
+        return end.offset - begin.offset - endLineOffsetDifference();
     }
 
     TextPosition begin;

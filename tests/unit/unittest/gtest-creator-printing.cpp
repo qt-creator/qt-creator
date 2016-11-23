@@ -23,42 +23,34 @@
 **
 ****************************************************************************/
 
-#include "qtcreatorsearchhandle.h"
+#include "gtest-creator-printing.h"
 
-#include <coreplugin/progressmanager/progressmanager.h>
+#include <gtest/gtest-printers.h>
 
-#include <QCoreApplication>
+#include <coreplugin/find/searchresultitem.h>
 
-namespace ClangRefactoring {
+namespace Core {
+namespace Search {
 
-QtCreatorSearchHandle::QtCreatorSearchHandle(Core::SearchResult *searchResult)
-    : searchResult(searchResult)
+using testing::PrintToString;
+
+class TextPosition;
+class TextRange;
+
+void PrintTo(const TextPosition &position, ::std::ostream *os)
 {
-    auto title = QCoreApplication::translate("QtCreatorSearchHandle", "Clang Query");
-    Core::ProgressManager::addTask(promise.future(), title, "clang query", 0);
+    *os << "("
+        << position.line << ", "
+        << position.column << ", "
+        << position.offset << ")";
 }
 
-void QtCreatorSearchHandle::addResult(const QString &fileName,
-                                      const QString &lineText,
-                                      Core::Search::TextRange textRange)
+void PrintTo(const TextRange &range, ::std::ostream *os)
 {
-    searchResult->addResult(fileName, lineText, textRange);
+    *os << "("
+        << PrintToString(range.begin) << ", "
+        << PrintToString(range.end) << ")";
 }
 
-void QtCreatorSearchHandle::setExpectedResultCount(uint count)
-{
-    promise.setExpectedResultCount(count);
 }
-
-void QtCreatorSearchHandle::setResultCounter(uint counter)
-{
-    promise.setProgressValue(counter);
 }
-
-void QtCreatorSearchHandle::finishSearch()
-{
-    searchResult->finishSearch(false);
-    promise.reportFinished();
-}
-
-} // namespace ClangRefactoring

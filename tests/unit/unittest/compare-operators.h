@@ -23,42 +23,26 @@
 **
 ****************************************************************************/
 
-#include "qtcreatorsearchhandle.h"
+#pragma once
 
-#include <coreplugin/progressmanager/progressmanager.h>
+#include <coreplugin/find/searchresultitem.h>
 
-#include <QCoreApplication>
+namespace Core {
+namespace Search {
 
-namespace ClangRefactoring {
-
-QtCreatorSearchHandle::QtCreatorSearchHandle(Core::SearchResult *searchResult)
-    : searchResult(searchResult)
+inline
+bool operator==(const TextPosition first, class TextPosition second)
 {
-    auto title = QCoreApplication::translate("QtCreatorSearchHandle", "Clang Query");
-    Core::ProgressManager::addTask(promise.future(), title, "clang query", 0);
+    return first.line == second.line
+        && first.column == second.column
+        && first.offset == second.offset;
 }
 
-void QtCreatorSearchHandle::addResult(const QString &fileName,
-                                      const QString &lineText,
-                                      Core::Search::TextRange textRange)
+inline
+bool operator==(const TextRange first, class TextRange second)
 {
-    searchResult->addResult(fileName, lineText, textRange);
+    return first.begin == second.begin
+        && first.end == second.end;
 }
-
-void QtCreatorSearchHandle::setExpectedResultCount(uint count)
-{
-    promise.setExpectedResultCount(count);
 }
-
-void QtCreatorSearchHandle::setResultCounter(uint counter)
-{
-    promise.setProgressValue(counter);
 }
-
-void QtCreatorSearchHandle::finishSearch()
-{
-    searchResult->finishSearch(false);
-    promise.reportFinished();
-}
-
-} // namespace ClangRefactoring

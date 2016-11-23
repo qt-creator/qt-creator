@@ -40,7 +40,7 @@ public:
 
     void addResult(const QString &fileName,
                                const QString &lineText,
-                               Core::TextRange textRange) override;
+                               Core::Search::TextRange textRange) override;
 
     void setExpectedResultCount(uint count) override;
     void setResultCounter(uint counter) override;

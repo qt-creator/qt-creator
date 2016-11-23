@@ -143,9 +143,11 @@ void RefactoringClient::addSearchResult(const ClangBackEnd::SourceRangeWithTextC
     searchHandle_->addResult(filePaths[sourceRangeWithText.fileHash()],
                              sourceRangeWithText.text(),
                              {{int(sourceRangeWithText.start().line()),
-                               int(sourceRangeWithText.start().column())},
+                               int(sourceRangeWithText.start().column() - 1),
+                               int(sourceRangeWithText.start().offset())},
                               {int(sourceRangeWithText.end().line()),
-                               int(sourceRangeWithText.end().column())}});
+                               int(sourceRangeWithText.end().column() - 1),
+                               int(sourceRangeWithText.end().offset())}});
 }
 
 void RefactoringClient::setResultCounterAndSendSearchIsFinishedIfFinished()

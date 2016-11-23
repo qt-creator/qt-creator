@@ -35,7 +35,8 @@ SOURCES += \
     spydummy.cpp \
     unittests-main.cpp \
     utf8-test.cpp \
-    gtest-qt-printing.cpp
+    gtest-qt-printing.cpp \
+    gtest-creator-printing.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \
@@ -123,6 +124,8 @@ HEADERS += \
     mocksearchresult.h \
     mocksearch.h \
     mocksearchhandle.h \
+    compare-operators.h \
+    gtest-creator-printing.h
 
 !isEmpty(LIBCLANG_LIBS) {
 HEADERS += \
