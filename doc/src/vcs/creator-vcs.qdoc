@@ -98,6 +98,9 @@
 
     \list
 
+        \li \uicontrol{Wrap submit messages at} limits the line length of a
+            submit message to the specified number of characters.
+
         \li \uicontrol{Submit message check script} is a script or program that
             can be used to perform checks on the submit message before
             submitting. The submit message is passed in as the script's first
@@ -140,10 +143,9 @@
             For example, \c ssh-askpass or \c x11-ssh-askpass, depending on the
             ssh-askpass implementation that you use.
 
-        \li \uicontrol {Patch command} specifies the path to the patch utility that is
-            used to apply changes in the format used to represent the diff
-            output. The \uicontrol Revert command uses the patch utility to revert
-            partial changes.
+        \li \uicontrol {Reset VCS Cache} resets the version control system
+            configuration to a state known to \QC after it has been changed
+            from the command line, for example.
 
     \endlist
 
