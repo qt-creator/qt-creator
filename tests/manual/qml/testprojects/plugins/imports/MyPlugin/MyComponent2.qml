@@ -26,7 +26,7 @@
 import QtQuick 2.0
 
 Item {
-    property alias text: text.text
+    property alias text: textItem.text
     property alias color: rect.color
     property alias radius: rect.radius
 
@@ -36,7 +36,7 @@ Item {
         color: "green"
 
         Text {
-            id: text
+            id: textItem
             anchors.centerIn: parent
         }
     }
