@@ -68,8 +68,8 @@ public:
     QWidget *widget() const override { return m_widget; }
     bool isEnabled() const override { return true; }
     QVariant parameters() const override { return QVariant(); }
-    void readSettings(QSettings */*settings*/) override {}
-    void writeSettings(QSettings */*settings*/) const override {}
+    void readSettings(QSettings * /*settings*/) override {}
+    void writeSettings(QSettings * /*settings*/) const override {}
     QFuture<Utils::FileSearchResultList> executeSearch(
             const TextEditor::FileFindParameters &parameters,
             BaseFileFind *baseFileFind) override
