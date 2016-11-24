@@ -20,12 +20,11 @@ Prerequisites:
     * ActiveState Active Perl
     * MinGW with g++ 4.8 or Visual Studio 2015 or later
     * jom
-
-  The optional Clang code model requires LLVM. A manual build of it requires in addition:
-    * cmake
 * On Mac OS X: latest Xcode
 * On Linux: g++ 4.8 or later
-* LLVM 3.9.0 or later (optional, needed for the Clang Code Model)
+* LLVM/Clang 3.9.0 or later (optional, needed for the Clang Code Model, see the
+  section "Get LLVM/Clang for the Clang Code Model")
+    * CMake (only for manual builds of LLVM/Clang)
 * Qbs 1.7.x (optional, sources also contain Qbs itself)
 
 The installed toolchains have to match the one Qt was compiled with.
@@ -125,34 +124,16 @@ For detailed information on the supported compilers, see
        command...` error. If a `sh.exe` is found, the compile process will fail.
        You have to remove it from the path.
 
-   10. As of Qt Creator 4.2, a complete build of LLVM and Clang is required
-       to enable the Clang-based code model (recommmended: 3.9). For 32bit,
-       a pre-built package can be downloaded from:
-       https://download.qt.io/development_releases/prebuilt/libclang/.
-       The environment variable LLVM_INSTALL_DIR needs to be set to point to the
-       installation location.
-       It is also possible to build Clang manually, roughly following the
-       instructions at http://llvm.org/docs/GettingStarted.html#git-mirror .
-       * Clone LLVM
-             git clone http://llvm.org/git/llvm.git
-       * Switch to a suitable branch, for example, release_39
-             cd llvm
-             git checkout -b release_39
-       * Clone Clang under llvm\tools
-             cd tools
-             git clone http://llvm.org/git/clang.git
-       * Switch Clang to a suitable branch
-             cd clang
-             git checkout -b release_39
-       * Create a shadow build directory and build
-             cd ..\..\..
-             mkdir build
-             cd build
-             cmake -G "NMake Makefiles JOM" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=<installation location> -DLLVM_ENABLE_RTTI=ON ..\llvm
-             jom install
+   10. To make use of the Clang Code Model:
 
+       * Install LLVM/Clang - see the section "Get LLVM/Clang for the Clang
+         Code Model".
+       * Set the environment variable LLVM_INSTALL_DIR to the LLVM/Clang
+         installation directory.
+       * When you launch Qt Creator, activate the Clang Code Model plugin as
+         described in doc/src/editors/creator-clang-codemodel.qdoc.
 
-  11.  You are now ready to configure and build Qt and Qt Creator.
+   11. You are now ready to configure and build Qt and Qt Creator.
        Please see <https://wiki.qt.io/Building_Qt_5_from_Git> for
        recommended configure-options for Qt 5.
        To use MinGW, open the the shell prompt and enter:
@@ -218,6 +199,58 @@ Thus, if you want to work on Qt Creator using Qt Creator, you need a
 separate build of it. We recommend using a separate, release-built version
 of Qt and Qt Creator to work on a debug-built version of Qt and Qt Creator
 or using shadow builds.
+
+## Get LLVM/Clang for the Clang Code Model
+
+The Clang Code Model depends on the LLVM/Clang libraries. The currently
+supported LLVM/Clang version is 3.9.
+
+### Prebuilt LLVM/Clang packages
+
+Prebuilt packages of LLVM/Clang can be downloaded from
+
+    https://download.qt.io/development_releases/prebuilt/libclang/
+
+This should be your preferred option because you will use the version that is
+shipped together with Qt Creator. In addition, the packages for Windows are
+faster due to profile-guided optimization. If the prebuilt packages do not
+match your configuration, you need to build LLVM/Clang manually.
+
+### Building LLVM/Clang manually
+
+You need to install CMake in order to build LLVM/Clang.
+
+Build LLVM/Clang by roughly following the instructions at
+http://llvm.org/docs/GettingStarted.html#git-mirror:
+
+   1. Clone LLVM and switch to a suitable branch
+
+          git clone http://llvm.org/git/llvm.git
+          cd llvm
+          git checkout release_39
+
+   2. Clone Clang into llvm/tools/clang and switch to a suitable branch
+
+          cd tools
+          git clone http://llvm.org/git/clang.git
+          cd clang
+          git checkout release_39
+
+   3. Build and install LLVM/Clang
+
+          cd ../../..
+          mkdir build
+          cd build
+
+      For Linux/macOS:
+
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=<installation location> -DLLVM_ENABLE_RTTI=ON ..\llvm
+          make install
+
+      For Windows:
+
+          cmake -G "NMake Makefiles JOM" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=<installation location> -DLLVM_ENABLE_RTTI=ON ..\llvm
+          jom install
 
 ## Third-party Components
 
