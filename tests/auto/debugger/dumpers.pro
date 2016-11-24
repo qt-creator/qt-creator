@@ -42,4 +42,4 @@ INCLUDEPATH += $$DEBUGGERDIR
 
 # clang 3.5 does not like to optimize long functions.
 # likewise gcc 5.4
-QMAKE_CXXFLAGS_RELEASE =
+clang|gcc: QMAKE_CXXFLAGS_RELEASE =
