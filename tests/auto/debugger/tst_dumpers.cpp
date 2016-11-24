@@ -1230,7 +1230,7 @@ void tst_Dumpers::dumper()
             "\n\nint main(int argc, char *argv[])"
             "\n{"
             "\n    unused(&argc, &argv);\n"
-            "\n    int skipall = false; unused(&skipall);\n"
+            "\n    int skipall = 0; unused(&skipall);\n"
             "\n    int qtversion = " + (data.useQt ? "QT_VERSION" : "0") + "; unused(&qtversion);"
             "\n#ifdef __GNUC__"
             "\n    int gccversion = 10000 * __GNUC__ + 100 * __GNUC_MINOR__; unused(&gccversion);"
