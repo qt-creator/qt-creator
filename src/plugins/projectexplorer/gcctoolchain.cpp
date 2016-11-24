@@ -365,7 +365,9 @@ QByteArray GccToolChain::predefinedMacros(const QStringList &cxxflags) const
     QStringList arguments = gccPredefinedMacrosOptions();
     for (int iArg = 0; iArg < allCxxflags.length(); ++iArg) {
         const QString &a = allCxxflags.at(iArg);
-        if (a == QLatin1String("-arch")) {
+        if (a.startsWith("--gcc-toolchain=")) {
+            arguments << a;
+        } else if (a == QLatin1String("-arch")) {
             if (++iArg < allCxxflags.length() && !arguments.contains(a))
                 arguments << a << allCxxflags.at(iArg);
         } else if (a == QLatin1String("--sysroot") || a == QLatin1String("-isysroot")
@@ -539,7 +541,7 @@ QList<HeaderPath> GccToolChain::systemHeaderPaths(const QStringList &cxxflags, c
         QStringList flags;
         flags << m_platformCodeGenFlags << cxxflags;
         foreach (const QString &a, flags) {
-            if (a.startsWith(QLatin1String("-stdlib=")))
+            if (a.startsWith(QLatin1String("-stdlib=")) || a.startsWith("--gcctoolchain="))
                 arguments << a;
         }
 
