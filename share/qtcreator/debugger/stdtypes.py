@@ -915,39 +915,26 @@ def qdumpHelper__std__vector__QNX(d, value):
     innerType = value.type[0]
     isBool = innerType.name == 'bool'
     if isBool:
-        try:
-            impl = value['_Myvec']['_Mypair']['_Myval2']
-        except:
-            impl = value['_Myvec']
-        start = impl['_Myfirst'].pointer()
-        last = impl['_Mylast'].pointer()
-        end = impl['_Myend'].pointer()
-        size = value['_Mysize'].integer()
-        storagesize = start.dereference().type.size() * 8
+        (proxy1, proxy2, start, last, end, size) = value.split("pppppi")
     else:
-        try:
-            impl = value['_Mypair']['_Myval2']
-        except:
-            impl = value
-        start = impl['_Myfirst'].pointer()
-        last = impl['_Mylast'].pointer()
-        end = impl['_Myend'].pointer()
+        (proxy, start, last, end) = value.split("pppp")
         size = (last - start) // innerType.size()
 
     d.check(0 <= size and size <= 1000 * 1000 * 1000)
     d.check(last <= end)
-    d.checkPointer(start)
-    d.checkPointer(last)
-    d.checkPointer(end)
+    if size > 0:
+        d.checkPointer(start)
+        d.checkPointer(last)
+        d.checkPointer(end)
 
     d.putItemCount(size)
     if d.isExpanded():
         if isBool:
             with Children(d, size, maxNumChild=10000, childType=innerType):
                 for i in d.childRange():
-                    q = start + int(i / storagesize)
+                    q = start + int(i / 8)
                     with SubItem(d, i):
-                        d.putValue((q.dereference().pointer() >> (i % storagesize)) & 1)
+                        d.putValue((d.extractPointer(q) >> (i % 8)) & 1)
                         d.putType("bool")
                         d.putNumChild(0)
         else:
