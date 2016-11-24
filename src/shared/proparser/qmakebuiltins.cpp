@@ -98,7 +98,7 @@ enum TestFunc {
     T_EXISTS, T_EXPORT, T_CLEAR, T_UNSET, T_EVAL, T_CONFIG, T_SYSTEM,
     T_DEFINED, T_DISCARD_FROM, T_CONTAINS, T_INFILE,
     T_COUNT, T_ISEMPTY, T_PARSE_JSON, T_INCLUDE, T_LOAD, T_DEBUG, T_LOG, T_MESSAGE, T_WARNING, T_ERROR, T_IF,
-    T_MKPATH, T_WRITE_FILE, T_TOUCH, T_CACHE
+    T_MKPATH, T_WRITE_FILE, T_TOUCH, T_CACHE, T_RELOAD_PROPERTIES
 };
 
 void QMakeEvaluator::initFunctionStatics()
@@ -197,6 +197,7 @@ void QMakeEvaluator::initFunctionStatics()
         { "write_file", T_WRITE_FILE },
         { "touch", T_TOUCH },
         { "cache", T_CACHE },
+        { "reload_properties", T_RELOAD_PROPERTIES },
     };
     statics.functions.reserve((int)(sizeof(testInits)/sizeof(testInits[0])));
     for (unsigned i = 0; i < sizeof(testInits)/sizeof(testInits[0]); ++i)
@@ -2026,6 +2027,11 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
         }
         return writeFile(fL1S("cache "), fn, QIODevice::Append, flags, varstr);
     }
+    case T_RELOAD_PROPERTIES:
+#ifdef QT_BUILD_QMAKE
+        m_option->reloadProperties();
+#endif
+        return ReturnTrue;
     default:
         evalError(fL1S("Function '%1' is not implemented.").arg(function.toQString(m_tmp1)));
         return ReturnFalse;
