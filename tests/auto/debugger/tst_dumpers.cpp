@@ -726,20 +726,20 @@ public:
     {
         profileExtra +=
             "exists(/usr/include/eigen3/Eigen/Core) {\n"
-            "    DEFINES += HAS_EIGEN3\n"
+            "    DEFINES += HAS_EIGEN\n"
             "    INCLUDEPATH += /usr/include/eigen3\n"
             "}\n"
             "exists(/usr/local/include/eigen3/Eigen/Core) {\n"
-            "    DEFINES += HAS_EIGEN3\n"
+            "    DEFINES += HAS_EIGEN\n"
             "    INCLUDEPATH += /usr/local/include/eigen3\n"
             "}\n"
             "\n"
             "exists(/usr/include/eigen2/Eigen/Core) {\n"
-            "    DEFINES += HAS_EIGEN2\n"
+            "    DEFINES += HAS_EIGEN\n"
             "    INCLUDEPATH += /usr/include/eigen2\n"
             "}\n"
             "exists(/usr/local/include/eigen2/Eigen/Core) {\n"
-            "    DEFINES += HAS_EIGEN2\n"
+            "    DEFINES += HAS_EIGEN\n"
             "    INCLUDEPATH += /usr/local/include/eigen2\n"
             "}\n";
 
@@ -1230,6 +1230,7 @@ void tst_Dumpers::dumper()
             "\n\nint main(int argc, char *argv[])"
             "\n{"
             "\n    unused(&argc, &argv);\n"
+            "\n    int skipall = false; unused(&skipall);\n"
             "\n    int qtversion = " + (data.useQt ? "QT_VERSION" : "0") + "; unused(&qtversion);"
             "\n#ifdef __GNUC__"
             "\n    int gccversion = 10000 * __GNUC__ + 100 * __GNUC_MINOR__; unused(&gccversion);"
@@ -1527,12 +1528,19 @@ void tst_Dumpers::dumper()
             context.clangVersion = child["value"].toInt();
         else if (iname == "local.boostversion")
             context.boostVersion = child["value"].toInt();
-        else {
+        else if (iname == "local.skipall") {
+            bool skipAll = child["value"].toInt();
+            if (skipAll) {
+                MSKIP_SINGLE("This test is excluded in this test machine configuration.");
+                return;
+            }
+        } else {
             WatchItem *item = new WatchItem;
             item->parse(child, true);
             local.appendChild(item);
         }
     }
+
 
     //qDebug() << "QT VERSION " << QByteArray::number(context.qtVersion, 16);
     QSet<QString> seenINames;
@@ -5666,9 +5674,11 @@ void tst_Dumpers::dumper_data()
                + Check("s2.1", "[1]", "\"abc\"", "std::string") % BoostVersion(1 * 100000 + 54 * 100);
 
 
-#ifndef Q_OS_WIN
     QTest::newRow("Eigen")
-         << Data("#include <Eigen/Core>",
+         << Data("#ifdef HAS_EIGEN\n"
+                "#include <Eigen/Core>\n"
+                "#endif\n",
+                "#ifdef HAS_EIGEN\n"
                 "using namespace Eigen;\n"
                 "Vector3d zero = Vector3d::Zero();\n"
                 "Matrix3d constant = Matrix3d::Constant(5);\n"
@@ -5683,7 +5693,10 @@ void tst_Dumpers::dumper_data()
                 "rowMajorMatrix << 1, 2, 3, 4, 5, 6, 7, 8, 9, 10;\n"
 
                 "VectorXd vector(3);\n"
-                "vector << 1, 2, 3;\n")
+                "vector << 1, 2, 3;\n"
+                "#else\n"
+                "skipall = true;\n"
+                "#endif\n")
 
             + EigenProfile()
 
@@ -5709,7 +5722,7 @@ void tst_Dumpers::dumper_data()
 
             + Check("vector", "(3 x 1), ColumnMajor", "Eigen::VectorXd")
             + Check("vector.1", "[1]", FloatValue("2"), "double");
-#endif
+
 
     // https://bugreports.qt.io/browse/QTCREATORBUG-3611
     QTest::newRow("Bug3611")
