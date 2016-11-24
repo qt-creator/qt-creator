@@ -280,7 +280,7 @@ bool MimeDatabasePrivate::inherits(const QString &mime, const QString &parent)
     \code
     <?xml version="1.0" encoding="UTF-8"?>
     <mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
-      <mime-type type="application/vnd.nokia.qt.qmakeprofile">
+      <mime-type type="application/vnd.qt.qmakeprofile">
         <comment xml:lang="en">Qt qmake Profile</comment>
         <glob pattern="*.pro" weight="50"/>
       </mime-type>

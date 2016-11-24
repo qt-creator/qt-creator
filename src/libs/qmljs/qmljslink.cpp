@@ -367,7 +367,6 @@ static ModuleApiInfo findBestModuleApi(const QList<ModuleApiInfo> &apis, const C
 /*
   import Qt 4.6
   import Qt 4.6 as Xxx
-  (import com.nokia.qt is the same as the ones above)
 */
 Import LinkPrivate::importNonFile(Document::Ptr doc, const ImportInfo &importInfo)
 {
