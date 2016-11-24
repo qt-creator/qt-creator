@@ -38,7 +38,7 @@
     \title Using Git
 
     Git is a fast decentralized version control system. Git is available
-    for Windows, Linux and Mac.
+    for Windows, Linux, and \macos.
 
     You can use the \l{http://code.google.com/p/gerrit/}{Gerrit} code review
     tool for projects that use Git.
