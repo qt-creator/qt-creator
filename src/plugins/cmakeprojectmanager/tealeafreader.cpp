@@ -134,6 +134,15 @@ TeaLeafReader::TeaLeafReader()
         if (m_cmakeFiles.contains(document->filePath()) || !m_parameters.isAutorun)
             emit dirty();
     });
+
+    // Remove \' (quote) for function-style macrosses:
+    //  -D'MACRO()'=xxx
+    //  -D'MACRO()=xxx'
+    //  -D'MACRO()'
+    // otherwise, compiler will fails
+    m_macroFixupRe1.setPattern("^-D(\\s*)'([0-9a-ZA-Z_\\(\\)]+)'=");
+    m_macroFixupRe2.setPattern("^-D(\\s*)'([0-9a-ZA-Z_\\(\\)]+)=(.+)'$");
+    m_macroFixupRe3.setPattern("^-D(\\s*)'([0-9a-ZA-Z_\\(\\)]+)'$");
 }
 
 TeaLeafReader::~TeaLeafReader()
@@ -312,13 +321,30 @@ void TeaLeafReader::generateProjectTree(CMakeListsNode *root, const QList<FileNo
     m_files.clear(); // Some of the FileNodes in files() were deleted!
 }
 
+static void processCMakeIncludes(const CMakeBuildTarget &cbt, const ToolChain *tc,
+                                 const QStringList& flags, const FileName &sysroot,
+                                 QSet<FileName> &tcIncludes, QStringList &includePaths)
+{
+    if (!tc)
+        return;
+
+    foreach (const HeaderPath &hp, tc->systemHeaderPaths(flags, sysroot))
+        tcIncludes.insert(FileName::fromString(hp.path()));
+    foreach (const FileName &i, cbt.includeFiles) {
+        if (!tcIncludes.contains(i))
+            includePaths.append(i.toString());
+    }
+}
+
 QSet<Id> TeaLeafReader::updateCodeModel(CppTools::ProjectPartBuilder &ppBuilder)
 {
     QSet<Id> languages;
-    const ToolChain *tc = ToolChainManager::findToolChain(m_parameters.toolChainId);
+    const ToolChain *tcCxx = ToolChainManager::findToolChain(m_parameters.cxxToolChainId);
+    const ToolChain *tcC = ToolChainManager::findToolChain(m_parameters.cToolChainId);
     const FileName sysroot = m_parameters.sysRoot;
 
-    QHash<QString, QStringList> targetDataCache;
+    QHash<QString, QStringList> targetDataCacheCxx;
+    QHash<QString, QStringList> targetDataCacheC;
     foreach (const CMakeBuildTarget &cbt, m_buildTargets) {
         if (cbt.targetType == UtilityType)
             continue;
@@ -326,22 +352,19 @@ QSet<Id> TeaLeafReader::updateCodeModel(CppTools::ProjectPartBuilder &ppBuilder)
         // CMake shuffles the include paths that it reports via the CodeBlocks generator
         // So remove the toolchain include paths, so that at least those end up in the correct
         // place.
-        const QStringList cxxflags = getCXXFlagsFor(cbt, targetDataCache);
+        auto cxxflags = getFlagsFor(cbt, targetDataCacheCxx, ToolChain::Language::Cxx);
+        auto cflags = getFlagsFor(cbt, targetDataCacheC, ToolChain::Language::C);
         QSet<FileName> tcIncludes;
         QStringList includePaths;
-        if (tc) {
-            foreach (const HeaderPath &hp, tc->systemHeaderPaths(cxxflags, sysroot))
-                tcIncludes.insert(FileName::fromString(hp.path()));
-            foreach (const FileName &i, cbt.includeFiles) {
-                if (!tcIncludes.contains(i))
-                    includePaths.append(i.toString());
-            }
+        if (tcCxx || tcC) {
+            processCMakeIncludes(cbt, tcCxx, cxxflags, sysroot, tcIncludes, includePaths);
+            processCMakeIncludes(cbt, tcC, cflags, sysroot, tcIncludes, includePaths);
         } else {
             includePaths = transform(cbt.includeFiles, &FileName::toString);
         }
         includePaths += m_parameters.buildDirectory.toString();
         ppBuilder.setIncludePaths(includePaths);
-        ppBuilder.setCFlags(cxxflags);
+        ppBuilder.setCFlags(cflags);
         ppBuilder.setCxxFlags(cxxflags);
         ppBuilder.setDefines(cbt.defines);
         ppBuilder.setDisplayName(cbt.title);
@@ -530,25 +553,42 @@ void TeaLeafReader::processCMakeError()
     });
 }
 
-QStringList TeaLeafReader::getCXXFlagsFor(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache)
+QStringList TeaLeafReader::getFlagsFor(const CMakeBuildTarget &buildTarget,
+                                       QHash<QString, QStringList> &cache,
+                                       ToolChain::Language lang)
 {
     // check cache:
     auto it = cache.constFind(buildTarget.title);
     if (it != cache.constEnd())
         return *it;
 
-    if (extractCXXFlagsFromMake(buildTarget, cache))
+    if (extractFlagsFromMake(buildTarget, cache, lang))
         return cache.value(buildTarget.title);
 
-    if (extractCXXFlagsFromNinja(buildTarget, cache))
+    if (extractFlagsFromNinja(buildTarget, cache, lang))
         return cache.value(buildTarget.title);
 
     cache.insert(buildTarget.title, QStringList());
     return QStringList();
 }
 
-bool TeaLeafReader::extractCXXFlagsFromMake(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache)
+bool TeaLeafReader::extractFlagsFromMake(const CMakeBuildTarget &buildTarget,
+                                         QHash<QString, QStringList> &cache,
+                                         ToolChain::Language lang)
 {
+    QString flagsPrefix;
+    switch (lang)
+    {
+    case ToolChain::Language::Cxx:
+        flagsPrefix = QLatin1String("CXX_FLAGS =");
+        break;
+    case ToolChain::Language::C:
+        flagsPrefix = QLatin1String("C_FLAGS =");
+        break;
+    default:
+        return false;
+    }
+
     QString makeCommand = buildTarget.makeCommand.toString();
     int startIndex = makeCommand.indexOf('\"');
     int endIndex = makeCommand.indexOf('\"', startIndex + 1);
@@ -558,16 +598,30 @@ bool TeaLeafReader::extractCXXFlagsFromMake(const CMakeBuildTarget &buildTarget,
         int slashIndex = makefile.lastIndexOf('/');
         makefile.truncate(slashIndex);
         makefile.append("/CMakeFiles/" + buildTarget.title + ".dir/flags.make");
+        // Remove un-needed shell escaping:
+        makefile = makefile.remove("\\");
         QFile file(makefile);
         if (file.exists()) {
             file.open(QIODevice::ReadOnly | QIODevice::Text);
             QTextStream stream(&file);
             while (!stream.atEnd()) {
                 QString line = stream.readLine().trimmed();
-                if (line.startsWith("CXX_FLAGS =")) {
+                if (line.startsWith(flagsPrefix)) {
                     // Skip past =
-                    cache.insert(buildTarget.title,
-                                 line.mid(11).trimmed().split(' ', QString::SkipEmptyParts));
+                    auto flags =
+                        Utils::transform(line.mid(flagsPrefix.length()).trimmed().split(' ', QString::SkipEmptyParts), [this](QString flag) -> QString {
+                            // TODO: maybe Gcc-specific
+                            // Remove \' (quote) for function-style macrosses:
+                            //  -D'MACRO()'=xxx
+                            //  -D'MACRO()=xxx'
+                            //  -D'MACRO()'
+                            // otherwise, compiler will fails
+                            return flag
+                                    .replace(m_macroFixupRe1, "-D\\1\\2=")
+                                    .replace(m_macroFixupRe2, "-D\\1\\2=\\3")
+                                    .replace(m_macroFixupRe3, "-D\\1\\2");
+                        });
+                    cache.insert(buildTarget.title, flags);
                     return true;
                 }
             }
@@ -576,13 +630,28 @@ bool TeaLeafReader::extractCXXFlagsFromMake(const CMakeBuildTarget &buildTarget,
     return false;
 }
 
-bool TeaLeafReader::extractCXXFlagsFromNinja(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache)
+bool TeaLeafReader::extractFlagsFromNinja(const CMakeBuildTarget &buildTarget,
+                                          QHash<QString, QStringList> &cache,
+                                          ProjectExplorer::ToolChain::Language lang)
 {
     Q_UNUSED(buildTarget)
     if (!cache.isEmpty()) // We fill the cache in one go!
         return false;
 
-    // Attempt to find build.ninja file and obtain FLAGS (CXX_FLAGS) from there if no suitable flags.make were
+    QString compilerPrefix;
+    switch (lang)
+    {
+    case ToolChain::Language::Cxx:
+        compilerPrefix = QLatin1String("CXX_COMPILER");
+        break;
+    case ToolChain::Language::C:
+        compilerPrefix = QLatin1String("C_COMPILER");
+        break;
+    default:
+        return false;
+    }
+
+    // Attempt to find build.ninja file and obtain FLAGS (CXX_FLAGS/C_FLAGS) from there if no suitable flags.make were
     // found
     // Get "all" target's working directory
     QByteArray ninjaFile;
@@ -599,7 +668,7 @@ bool TeaLeafReader::extractCXXFlagsFromNinja(const CMakeBuildTarget &buildTarget
         return false;
 
     QTextStream stream(ninjaFile);
-    bool cxxFound = false;
+    bool compilerFound = false;
     const QString targetSignature = "# Object build statements for ";
     QString currentTarget;
 
@@ -614,8 +683,8 @@ bool TeaLeafReader::extractCXXFlagsFromNinja(const CMakeBuildTarget &buildTarget
                 currentTarget = line.mid(pos + 1);
             }
         } else if (!currentTarget.isEmpty() && line.startsWith("build")) {
-            cxxFound = line.indexOf("CXX_COMPILER") != -1;
-        } else if (cxxFound && line.startsWith("FLAGS =")) {
+            compilerFound = line.indexOf(compilerPrefix) != -1;
+        } else if (compilerFound && line.startsWith("FLAGS =")) {
             // Skip past =
             cache.insert(currentTarget, line.mid(7).trimmed().split(' ', QString::SkipEmptyParts));
         }

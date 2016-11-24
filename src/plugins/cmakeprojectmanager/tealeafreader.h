@@ -25,7 +25,11 @@
 
 #pragma once
 
+#include <projectexplorer/toolchain.h>
+
 #include "builddirreader.h"
+
+#include <QRegularExpression>
 
 namespace Utils { class QtcProcess; }
 
@@ -66,9 +70,9 @@ private:
     void processCMakeOutput();
     void processCMakeError();
 
-    QStringList getCXXFlagsFor(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache);
-    bool extractCXXFlagsFromMake(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache);
-    bool extractCXXFlagsFromNinja(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache);
+    QStringList getFlagsFor(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache, ProjectExplorer::ToolChain::Language lang);
+    bool extractFlagsFromMake(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache, ProjectExplorer::ToolChain::Language lang);
+    bool extractFlagsFromNinja(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache, ProjectExplorer::ToolChain::Language lang);
 
     Utils::QtcProcess *m_cmakeProcess = nullptr;
 
@@ -84,6 +88,11 @@ private:
     QList<CMakeBuildTarget> m_buildTargets;
     QList<ProjectExplorer::FileNode *> m_files;
     QSet<Internal::CMakeFile *> m_watchedFiles;
+
+    // RegExps for function-like macrosses names fixups
+    QRegularExpression m_macroFixupRe1;
+    QRegularExpression m_macroFixupRe2;
+    QRegularExpression m_macroFixupRe3;
 
     friend class CMakeFile;
 };

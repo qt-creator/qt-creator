@@ -65,7 +65,10 @@ BuildDirReader::Parameters::Parameters(const CMakeBuildConfiguration *bc)
 
     auto tc = ProjectExplorer::ToolChainKitInformation::toolChain(k, ProjectExplorer::ToolChain::Language::Cxx);
     if (tc)
-        toolChainId = tc->id();
+        cxxToolChainId = tc->id();
+    tc = ProjectExplorer::ToolChainKitInformation::toolChain(k, ProjectExplorer::ToolChain::Language::C);
+    if (tc)
+        cToolChainId = tc->id();
     sysRoot = ProjectExplorer::SysRootKitInformation::sysRoot(k);
 
     expander = k->macroExpander();

@@ -71,7 +71,8 @@ public:
         bool cmakeHasServerMode;
         CMakeTool::PathMapper pathMapper;
 
-        QByteArray toolChainId;
+        QByteArray cxxToolChainId;
+        QByteArray cToolChainId;
 
         Utils::FileName sysRoot;
 
