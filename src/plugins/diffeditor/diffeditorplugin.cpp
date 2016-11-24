@@ -428,7 +428,8 @@ DiffEditorServiceImpl::DiffEditorServiceImpl(QObject *parent) :
 
 void DiffEditorServiceImpl::diffModifiedFiles(const QStringList &fileNames)
 {
-    const QString documentId = QLatin1String("Diff Modified Files");
+    const QString documentId = Constants::DIFF_EDITOR_PLUGIN
+            + QLatin1String(".DiffModifiedFiles");
     const QString title = tr("Diff Modified Files");
     auto const document = qobject_cast<DiffEditorDocument *>(
                 DiffEditorController::findOrCreateDocument(documentId, title));
@@ -520,7 +521,8 @@ void DiffEditorPlugin::diffCurrentFile()
     if (fileName.isEmpty())
         return;
 
-    const QString documentId = QLatin1String("Diff ") + fileName;
+    const QString documentId = Constants::DIFF_EDITOR_PLUGIN
+            + QLatin1String(".Diff.") + fileName;
     const QString title = tr("Diff \"%1\"").arg(fileName);
     auto const document = qobject_cast<DiffEditorDocument *>(
                 DiffEditorController::findOrCreateDocument(documentId, title));
@@ -535,7 +537,8 @@ void DiffEditorPlugin::diffCurrentFile()
 
 void DiffEditorPlugin::diffOpenFiles()
 {
-    const QString documentId = QLatin1String("Diff Open Files");
+    const QString documentId = Constants::DIFF_EDITOR_PLUGIN
+            + QLatin1String(".DiffOpenFiles");
     const QString title = tr("Diff Open Files");
     auto const document = qobject_cast<DiffEditorDocument *>(
                 DiffEditorController::findOrCreateDocument(documentId, title));
@@ -566,7 +569,8 @@ void DiffEditorPlugin::diffExternalFiles()
     if (EditorManager::skipOpeningBigTextFile(fileName2))
         return;
 
-    const QString documentId = QLatin1String("Diff ") + fileName1 + QLatin1String(", ") + fileName2;
+    const QString documentId = Constants::DIFF_EDITOR_PLUGIN
+            + QLatin1String(".DiffExternalFiles.") + fileName1 + QLatin1Char('.') + fileName2;
     const QString title = tr("Diff \"%1\", \"%2\"").arg(fileName1, fileName2);
     auto const document = qobject_cast<DiffEditorDocument *>(
                 DiffEditorController::findOrCreateDocument(documentId, title));

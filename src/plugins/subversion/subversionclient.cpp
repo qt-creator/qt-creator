@@ -300,7 +300,8 @@ void SubversionClient::diff(const QString &workingDirectory, const QStringList &
     Q_UNUSED(extraOptions);
 
     const QString vcsCmdString = vcsCommandString(DiffCommand);
-    const QString documentId = VcsBaseEditor::getTitleId(workingDirectory, files);
+    const QString documentId = QLatin1String(Constants::SUBVERSION_PLUGIN)
+            + QLatin1String(".Diff.") + VcsBaseEditor::getTitleId(workingDirectory, files);
     const QString title = vcsEditorTitle(vcsCmdString, documentId);
 
     DiffController *controller = findOrCreateDiffEditor(documentId, workingDirectory, title,
@@ -328,7 +329,8 @@ void SubversionClient::log(const QString &workingDir,
 
 void SubversionClient::describe(const QString &workingDirectory, int changeNumber, const QString &title)
 {
-    const QString documentId = VcsBaseEditor::editorTag(DiffOutput,
+    const QString documentId = QLatin1String(Constants::SUBVERSION_PLUGIN)
+            + QLatin1String(".Describe.") + VcsBaseEditor::editorTag(DiffOutput,
                                                         workingDirectory,
                                                         QStringList(),
                                                         QString::number(changeNumber));

@@ -747,7 +747,9 @@ void GitClient::diffFiles(const QString &workingDirectory,
                           const QStringList &unstagedFileNames,
                           const QStringList &stagedFileNames) const
 {
-    requestReload("Files:" + workingDirectory,
+    const QString documentId = QLatin1String(Constants::GIT_PLUGIN)
+            + QLatin1String(".DiffFiles.") + workingDirectory;
+    requestReload(documentId,
                   workingDirectory, tr("Git Diff Files"),
                   [this, workingDirectory, stagedFileNames, unstagedFileNames]
                   (IDocument *doc) -> DiffEditorController* {
@@ -758,7 +760,9 @@ void GitClient::diffFiles(const QString &workingDirectory,
 
 void GitClient::diffProject(const QString &workingDirectory, const QString &projectDirectory) const
 {
-    requestReload("Project:" + workingDirectory,
+    const QString documentId = QLatin1String(Constants::GIT_PLUGIN)
+            + QLatin1String(".DiffProject.") + workingDirectory;
+    requestReload(documentId,
                   workingDirectory, tr("Git Diff Project"),
                   [this, workingDirectory, projectDirectory]
                   (IDocument *doc) -> DiffEditorController* {
@@ -768,7 +772,9 @@ void GitClient::diffProject(const QString &workingDirectory, const QString &proj
 
 void GitClient::diffRepository(const QString &workingDirectory)
 {
-    requestReload("Repository:" + workingDirectory,
+    const QString documentId = QLatin1String(Constants::GIT_PLUGIN)
+            + QLatin1String(".DiffRepository.") + workingDirectory;
+    requestReload(documentId,
                   workingDirectory, tr("Git Diff Repository"),
                   [this, workingDirectory](IDocument *doc) -> DiffEditorController* {
                       return new RepositoryDiffController(doc, workingDirectory);
@@ -779,7 +785,8 @@ void GitClient::diffFile(const QString &workingDirectory, const QString &fileNam
 {
     const QString title = tr("Git Diff \"%1\"").arg(fileName);
     const QString sourceFile = VcsBaseEditor::getSource(workingDirectory, fileName);
-    const QString documentId = "File:" + sourceFile;
+    const QString documentId = QLatin1String(Constants::GIT_PLUGIN)
+            + QLatin1String(".DifFile.") + sourceFile;
     requestReload(documentId, sourceFile, title,
                   [this, workingDirectory, fileName]
                   (IDocument *doc) -> DiffEditorController* {
@@ -791,7 +798,8 @@ void GitClient::diffBranch(const QString &workingDirectory,
                            const QString &branchName) const
 {
     const QString title = tr("Git Diff Branch \"%1\"").arg(branchName);
-    const QString documentId = "Branch:" + branchName;
+    const QString documentId = QLatin1String(Constants::GIT_PLUGIN)
+            + QLatin1String(".DiffBranch.") + branchName;
     requestReload(documentId, workingDirectory, title,
                                [this, workingDirectory, branchName]
                                (IDocument *doc) -> DiffEditorController* {
@@ -898,7 +906,8 @@ void GitClient::show(const QString &source, const QString &id, const QString &na
     const QString repoDirectory = VcsManager::findTopLevelForDirectory(workingDirectory);
     if (!repoDirectory.isEmpty())
         workingDirectory = repoDirectory;
-    const QString documentId = "Show:" + id;
+    const QString documentId = QLatin1String(Constants::GIT_PLUGIN)
+            + QLatin1String(".Show.") + id;
     requestReload(documentId, source, title,
                                [this, workingDirectory, id]
                                (IDocument *doc) -> DiffEditorController* {

@@ -688,17 +688,19 @@ void QmlJSEditorWidget::inspectElementUnderCursor() const
     const CppComponentValue *cppValue = findCppComponentToInspect(semanticInfo, cursorPosition);
     if (!cppValue) {
         QString title = tr("Code Model Not Available");
-        const QString nothingToShow = QStringLiteral("nothingToShow");
+        const QString documentId = Constants::QML_JS_EDITOR_PLUGIN + QStringLiteral(".NothingToShow");
         EditorManager::openEditorWithContents(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title,
-                                              tr("Code model not available.").toUtf8(), nothingToShow,
+                                              tr("Code model not available.").toUtf8(), documentId,
                                               EditorManager::IgnoreNavigationHistory);
         return;
     }
 
     QString title = tr("Code Model of %1").arg(cppValue->metaObject()->className());
+    const QString documentId = Constants::QML_JS_EDITOR_PLUGIN + QStringLiteral(".Class.")
+            + cppValue->metaObject()->className();
     IEditor *outputEditor = EditorManager::openEditorWithContents(
                 Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title, QByteArray(),
-                cppValue->metaObject()->className(), EditorManager::IgnoreNavigationHistory);
+                documentId, EditorManager::IgnoreNavigationHistory);
 
     if (!outputEditor)
         return;

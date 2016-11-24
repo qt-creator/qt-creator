@@ -30,6 +30,8 @@
 namespace Git {
 namespace Constants {
 
+const char GIT_PLUGIN[] = "GitPlugin";
+
 const char GIT_COMMAND_LOG_EDITOR_ID[] = "Git Command Log Editor";
 const char GIT_COMMAND_LOG_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Git Command Log Editor");
 const char GIT_LOG_EDITOR_ID[] = "Git File Log Editor";

@@ -55,7 +55,8 @@ public:
 
     QString makePatch(bool revert, bool addPrefix = false) const;
 
-    static Core::IDocument *findOrCreateDocument(const QString &vcsId, const QString &displayName);
+    static Core::IDocument *findOrCreateDocument(const QString &vcsId,
+                                                 const QString &displayName);
     static DiffEditorController *controller(Core::IDocument *document);
 
 public slots:

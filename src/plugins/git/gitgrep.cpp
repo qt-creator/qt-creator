@@ -25,6 +25,7 @@
 
 #include "gitgrep.h"
 #include "gitclient.h"
+#include "gitconstants.h"
 #include "gitplugin.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -294,8 +295,12 @@ IEditor *GitGrep::openEditor(const SearchResultItem &item,
         if (fileContent == content)
             return nullptr; // open the file for read/write
     }
+
+    const QString documentId = QLatin1String(Git::Constants::GIT_PLUGIN)
+            + QLatin1String(".GitShow.") + params.ref
+            + QLatin1String(".") + relativePath;
     QString title = tr("Git Show %1:%2").arg(params.ref).arg(relativePath);
-    IEditor *editor = EditorManager::openEditorWithContents(Id(), &title, content, title,
+    IEditor *editor = EditorManager::openEditorWithContents(Id(), &title, content, documentId,
                                                             EditorManager::DoNotSwitchToDesignMode);
     editor->gotoLine(item.mainRange.begin.line, item.mainRange.begin.column);
     editor->document()->setTemporary(true);

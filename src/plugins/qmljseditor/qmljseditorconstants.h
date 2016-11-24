@@ -30,6 +30,8 @@
 namespace QmlJSEditor {
 namespace Constants {
 
+const char QML_JS_EDITOR_PLUGIN[] = "QmlJSEditorPlugin";
+
 const char M_CONTEXT[] = "QML JS Editor.ContextMenu";
 
 const char M_REFACTORING_MENU_INSERTION_POINT[] = "QmlJSEditor.RefactorGroup";
