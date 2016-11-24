@@ -295,6 +295,7 @@ QnxToolChain *QnxConfiguration::createToolChain(QnxArchitecture arch, const QStr
 {
     QnxToolChain *toolChain = new QnxToolChain(ToolChain::AutoDetection);
     toolChain->resetToolChain(m_qccCompiler);
+    toolChain->setLanguage(ToolChain::Language::Cxx);
     toolChain->setTargetAbi(Abi((arch == Qnx::ArmLeV7) ? Abi::ArmArchitecture : Abi::X86Architecture,
                                 Abi::LinuxOS, Abi::GenericLinuxFlavor, Abi::ElfFormat, 32));
     toolChain->setDisplayName(displayName);
@@ -317,6 +318,7 @@ Kit *QnxConfiguration::createKit(QnxArchitecture arch,
 
     QtKitInformation::setQtVersion(kit, qnxQt);
     ToolChainKitInformation::setToolChain(kit, toolChain);
+    ToolChainKitInformation::setToolChain(kit, ToolChain::Language::C, nullptr);
 
     if (debuggerItemId.isValid())
         DebuggerKitInformation::setDebugger(kit, debuggerItemId);
