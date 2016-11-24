@@ -46,30 +46,23 @@ void ResourceItemDelegate::paint(QPainter *painter,
 
     QIcon icon(m_model->fileIcon(index));
     QPixmap pixmap(icon.pixmap(icon.availableSizes().front()));
-    painter->drawPixmap(option.rect.x(),option.rect.y()+2,pixmap);
+    painter->drawPixmap(option.rect.x(),option.rect.y() + 2, pixmap);
     QString myString(m_model->fileName(index));
 
     // Check text length does not exceed available space
-    int extraSpace=12+pixmap.width();
+    int extraSpace = 12 + pixmap.width();
     QFontMetrics fm(option.font);
-    myString = fm.elidedText(myString,Qt::ElideMiddle,option.rect.width()-extraSpace);
+    myString = fm.elidedText(myString, Qt::ElideMiddle, option.rect.width() - extraSpace);
 
-    painter->drawText(option.rect.bottomLeft()+QPoint(3+pixmap.width(),-8),myString);
+    painter->drawText(QPoint(option.rect.bottomLeft().x() + 16 + pixmap.width(), option.rect.center().y() + fm.height()  / 2), myString);
 
     painter->restore();
 }
 
 QSize ResourceItemDelegate::sizeHint(const QStyleOptionViewItem &/*option*/,
-                                     const QModelIndex &index) const
+                                     const QModelIndex &) const
 {
-    QSize result = QSize(25, 4);
-    const QIcon icon(m_model->fileIcon(index));
-    if (!icon.isNull()) {
-        const QList<QSize> sizes = icon.availableSizes();
-        if (!sizes.isEmpty())
-            result += sizes.front();
-    }
-    return result;
+    return QSize(90, 64);
 }
 
 void ResourceItemDelegate::setModel(QFileSystemModel *model)
