@@ -33,7 +33,6 @@
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
-class QLabel;
 class QSpinBox;
 class QToolBar;
 class QToolButton;
@@ -95,11 +94,12 @@ private:
     QToolBar *m_toolBar;
     QComboBox *m_entriesComboBox;
     QSpinBox *m_contextSpinBox;
+    QAction *m_contextSpinBoxAction = nullptr;
     QAction *m_toggleSyncAction;
     QAction *m_whitespaceButtonAction;
     QAction *m_toggleDescriptionAction;
     QAction *m_reloadAction;
-    QLabel *m_contextLabel;
+    QAction *m_contextLabelAction = nullptr;
     QAction *m_viewSwitcherAction;
     QPair<QString, QString> m_currentFileChunk;
     int m_currentViewIndex;
