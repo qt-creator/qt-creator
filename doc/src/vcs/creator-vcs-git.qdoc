@@ -55,8 +55,8 @@
 
     You can set the \c HOME environment variable from \QC. Select
     \uicontrol Tools > \uicontrol Options > \uicontrol {Version Control} >
-    \uicontrol Git. Select the \uicontrol {Environment Variables}
-    and the \uicontrol {Set "HOME" environment variable} check boxes. \c HOME is
+    \uicontrol Git, and then select the
+    \uicontrol {Set "HOME" environment variable} check box. \c HOME is
     set to \c %HOMEDRIVE%%HOMEPATH% when the Git executable is run and
     authorization works as it would with \c {git bash}.
 
