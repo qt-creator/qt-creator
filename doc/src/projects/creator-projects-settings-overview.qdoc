@@ -69,6 +69,9 @@
     To disable a kit for the project, select \uicontrol {Disable Kit for Project}
     in the context menu.
 
+    To import an existing build for the project, select
+    \uicontrol {Import Existing Build} in the context menu.
+
     \section1 Specifying Settings
 
     The \uicontrol Projects mode displays one of the following views:
