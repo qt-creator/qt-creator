@@ -1026,6 +1026,9 @@ class Dumper(DumperBase):
                     if symbol:
                         ns = symbol.name[:-len(cand)]
                 except:
+                    symbol = None
+
+                if symbol is None:
                     try:
                         # Some GDB 7.11.1 on Arch Linux.
                         cand = 'QArrayData::shared_null[0]'
