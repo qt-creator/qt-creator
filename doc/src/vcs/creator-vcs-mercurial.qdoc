@@ -39,7 +39,9 @@
 
     Mercurial is a free, distributed source control management tool.
 
-    The \uicontrol Mercurial submenu contains the following additional items:
+    In addition to the standard version control system functions described in
+    \l {Using Common Functions}, you can select the following functions in the
+    \uicontrol Tools > \uicontrol Mercurial submenu:
 
     \table
         \header
