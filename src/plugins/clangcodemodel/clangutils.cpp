@@ -148,7 +148,7 @@ private:
     void addPredefinedMacrosAndHeaderPathsOptionsForNonMsvc()
     {
         static const QString resourceDir = getResourceDir();
-        if (!resourceDir.isEmpty()) {
+        if (QTC_GUARD(!resourceDir.isEmpty())) {
             add(QLatin1String("-nostdlibinc"));
             add(QLatin1String("-I") + QDir::toNativeSeparators(resourceDir));
             add(QLatin1String("-undef"));
