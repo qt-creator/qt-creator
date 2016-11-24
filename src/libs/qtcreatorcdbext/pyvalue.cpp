@@ -160,6 +160,8 @@ bool expandValue(Value *v)
 ULONG numberOfChildren(Value *v)
 {
     DEBUG_SYMBOL_PARAMETERS params;
+    if (!expandValue(v))
+        return 0;
     HRESULT hr = v->m_symbolGroup->GetSymbolParameters(v->m_index, 1, &params);
     return SUCCEEDED(hr) ? params.SubElements : 0;
 }
