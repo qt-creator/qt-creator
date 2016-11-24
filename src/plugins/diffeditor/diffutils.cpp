@@ -353,6 +353,9 @@ QString DiffUtils::makePatchLine(const QChar &startLineCharacter,
 QString DiffUtils::makePatch(const ChunkData &chunkData,
                              bool lastChunk)
 {
+    if (chunkData.contextChunk)
+        return QString();
+
     QString diffText;
     int leftLineCount = 0;
     int rightLineCount = 0;
