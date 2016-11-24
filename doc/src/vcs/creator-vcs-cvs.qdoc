@@ -39,9 +39,24 @@
 
     CVS is an open source version control system.
 
-    In addition to the standard version control system functions, you can
-    select \uicontrol Tools > \uicontrol CVS > \uicontrol Edit to open a file
-    for editing.
+    In addition to the standard version control system functions described in
+    \l {Using Common Functions}, you can select \uicontrol Tools >
+    \uicontrol CVS > \uicontrol Edit to open a file for editing.
 
     To discard the changes that you made in a file, select \uicontrol Unedit.
+
+    To specify the CVS root directory, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol {Version Control} > \uicontrol CVS, and then
+    specify the path to the directory in the \uicontrol {CVS root} field.
+
+    You can specify settings for viewing diff output in the
+    \uicontrol {Diff options} field.
+
+    By default, you are prompted to confirm that you want to submit changes.
+    To suppress the prompt, deselect the \uicontrol {Prompt on submit} check
+    box.
+
+    By default, all files that belong to the commit are annotated. To disable
+    this feature, deselect the \uicontrol {Describe all files matching commit
+    id} check box.
 */
