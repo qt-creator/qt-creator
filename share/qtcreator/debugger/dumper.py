@@ -3615,6 +3615,8 @@ class DumperBase:
                     if tn in ('QByteArray', 'QString', 'QList', 'QStringList',
                               'QStringDataPtr'):
                         return self.ptrSize()
+                    if tn == 'QStandardItemData':
+                        return 8 + 2 * self.ptrSize()
                     if tn in ('QImage', 'QObject'):
                         return 2 * self.ptrSize()
                     if tn == 'QVariant':
@@ -3623,6 +3625,8 @@ class DumperBase:
                         return 16
                     if typish == 'QPoint':
                         return 8
+                    if typish == 'Qt::ItemDataRole':
+                        return 4
                     if typish == 'QChar':
                         return 2
                 if typish in ('quint32', 'qint32'):
