@@ -204,17 +204,16 @@ def qdump__std__list(d, value):
                 p = d.extractPointer(p)
 
 def qdump__std__list__QNX(d, value):
-    node = value["_Myhead"]
-    size = value["_Mysize"].integer()
-
+    (proxy, head, size) = value.split("ppp")
     d.putItemCount(size, 1000)
 
     if d.isExpanded():
-        p = node["_Next"]
-        with Children(d, size, maxNumChild=1000, childType=value.type[0]):
+        p = d.extractPointer(head)
+        innerType = value.type[0]
+        with Children(d, size, maxNumChild=1000, childType=innerType):
             for i in d.childRange():
-                d.putSubItem(i, p['_Myval'])
-                p = p["_Next"]
+                d.putSubItem(i, d.createValue(p + 2 * d.ptrSize(), innerType))
+                p = d.extractPointer(p)
 
 def qdump__std____debug__list(d, value):
     qdump__std__list(d, value)
