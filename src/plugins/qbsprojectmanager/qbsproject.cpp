@@ -901,11 +901,11 @@ void QbsProject::updateCppCodeModel()
             else if (a.fileTags().contains("objcpp_pch_src"))
                 objcxxPch = a.filePath();
         };
-        std::for_each(prd.generatedArtifacts().cbegin(), prd.generatedArtifacts().cend(),
-                pchFinder);
+        const QList<qbs::ArtifactData> &generatedArtifacts = prd.generatedArtifacts();
+        std::for_each(generatedArtifacts.cbegin(), generatedArtifacts.cend(), pchFinder);
         foreach (const qbs::GroupData &grp, prd.groups()) {
-            std::for_each(grp.allSourceArtifacts().cbegin(), grp.allSourceArtifacts().cend(),
-                          pchFinder);
+            const QList<qbs::ArtifactData> &sourceArtifacts = grp.allSourceArtifacts();
+            std::for_each(sourceArtifacts.cbegin(), sourceArtifacts.cend(), pchFinder);
         }
 
         foreach (const qbs::GroupData &grp, prd.groups()) {
