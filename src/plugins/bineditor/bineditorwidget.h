@@ -78,8 +78,7 @@ public:
     void updateContents();
     bool save(QString *errorString, const QString &oldFileName, const QString &newFileName);
 
-    void zoomIn(int range = 1);
-    void zoomOut(int range = 1);
+    void zoomF(float delta);
 
     enum MoveMode {
         MoveAnchor,
