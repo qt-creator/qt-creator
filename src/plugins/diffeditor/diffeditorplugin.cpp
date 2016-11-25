@@ -426,6 +426,22 @@ DiffEditorServiceImpl::DiffEditorServiceImpl(QObject *parent) :
 {
 }
 
+void DiffEditorServiceImpl::diffFiles(const QString &leftFileName, const QString &rightFileName)
+{
+    const QString documentId = Constants::DIFF_EDITOR_PLUGIN
+            + QLatin1String(".DiffFiles.") + leftFileName + QLatin1Char('.') + rightFileName;
+    const QString title = tr("Diff Files");
+    auto const document = qobject_cast<DiffEditorDocument *>(
+                DiffEditorController::findOrCreateDocument(documentId, title));
+    if (!document)
+        return;
+
+    if (!DiffEditorController::controller(document))
+        new DiffExternalFilesController(document, leftFileName, rightFileName);
+    EditorManager::activateEditorForDocument(document);
+    document->reload();
+}
+
 void DiffEditorServiceImpl::diffModifiedFiles(const QStringList &fileNames)
 {
     const QString documentId = Constants::DIFF_EDITOR_PLUGIN
