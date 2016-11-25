@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/formeditor">
-        <file>images/qt_ui.png</file>
-    </qresource>
-</RCC>
