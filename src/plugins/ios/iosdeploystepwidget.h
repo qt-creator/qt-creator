@@ -27,12 +27,11 @@
 
 #include <projectexplorer/buildstep.h>
 
-QT_BEGIN_NAMESPACE
-namespace Ui { class IosDeployStepWidget; }
-QT_END_NAMESPACE
-
 namespace Ios {
 namespace Internal {
+
+namespace Ui { class IosDeployStepWidget; }
+
 class IosDeployStep;
 
 class IosDeployStepWidget : public ProjectExplorer::BuildStepConfigWidget

@@ -50,7 +50,7 @@ namespace Internal {
 
 IosSettingsWidget::IosSettingsWidget(QWidget *parent)
     : QWidget(parent),
-      m_ui(new Ui_IosSettingsWidget),
+      m_ui(new Ui::IosSettingsWidget),
       m_saveSettingsRequested(false)
 {
     initGui();

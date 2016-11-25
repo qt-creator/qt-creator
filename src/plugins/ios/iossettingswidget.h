@@ -32,12 +32,10 @@
 #include <QWidget>
 #include <QAbstractTableModel>
 
-QT_BEGIN_NAMESPACE
-class Ui_IosSettingsWidget;
-QT_END_NAMESPACE
-
 namespace Ios {
 namespace Internal {
+
+namespace Ui { class IosSettingsWidget; }
 
 class IosSettingsWidget : public QWidget
 {
@@ -52,7 +50,7 @@ public:
 private:
     void initGui();
 
-    Ui_IosSettingsWidget *m_ui;
+    Ui::IosSettingsWidget *m_ui;
     bool m_saveSettingsRequested;
 };
 
