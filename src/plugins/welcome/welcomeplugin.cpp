@@ -160,7 +160,7 @@ private:
     void welcomePluginAdded(QObject*);
     void sceneGraphError(QQuickWindow::SceneGraphError, const QString &message);
     void facilitateQml(QQmlEngine *engine);
-    void addPages(const QList<IWelcomePage *> &pages);
+    void addPages(QQmlEngine *engine, const QList<IWelcomePage *> &pages);
     void addKeyboardShortcuts();
 
     QWidget *m_modeWidget;
@@ -296,13 +296,16 @@ void WelcomeMode::initPlugins()
     QSettings *settings = ICore::settings();
     setActivePlugin(settings->value(QLatin1String(currentPageSettingsKeyC)).toInt());
 
-    facilitateQml(m_welcomePage->engine());
+    QQmlEngine *engine = m_welcomePage->engine();
+    facilitateQml(engine);
 
     QList<IWelcomePage *> availablePages = PluginManager::getObjects<IWelcomePage>();
-    addPages(availablePages);
+    addPages(engine, availablePages);
     // make sure later added pages are made available too:
-    connect(PluginManager::instance(), &PluginManager::objectAdded,
-            this, &WelcomeMode::welcomePluginAdded);
+    connect(PluginManager::instance(), &PluginManager::objectAdded, engine, [this, engine](QObject *obj) {
+        if (IWelcomePage *page = qobject_cast<IWelcomePage*>(obj))
+            addPages(engine, QList<IWelcomePage *>() << page);
+    });
 
     QString path = resourcePath() + QLatin1String("/welcomescreen/welcomescreen.qml");
 
@@ -322,23 +325,14 @@ bool WelcomeMode::openDroppedFiles(const QList<QUrl> &urls)
     return false;
 }
 
-void WelcomeMode::welcomePluginAdded(QObject *obj)
-{
-    IWelcomePage *page = qobject_cast<IWelcomePage*>(obj);
-    if (!page)
-        return;
-    addPages(QList<IWelcomePage *>() << page);
-}
-
-void WelcomeMode::addPages(const QList<IWelcomePage *> &pages)
+void WelcomeMode::addPages(QQmlEngine *engine, const QList<IWelcomePage *> &pages)
 {
     QList<IWelcomePage *> addedPages = pages;
     Utils::sort(addedPages, &IWelcomePage::priority);
     // insert into m_pluginList, keeping m_pluginList sorted by priority
-    QQmlEngine *engine = m_welcomePage->engine();
-    auto addIt = addedPages.begin();
+    auto addIt = addedPages.cbegin();
     auto currentIt = m_pluginList.begin();
-    while (addIt != addedPages.end()) {
+    while (addIt != addedPages.cend()) {
         IWelcomePage *page = *addIt;
         QTC_ASSERT(!m_idPageMap.contains(page->id()), ++addIt; continue);
         while (currentIt != m_pluginList.end() && (*currentIt)->priority() <= page->priority())
