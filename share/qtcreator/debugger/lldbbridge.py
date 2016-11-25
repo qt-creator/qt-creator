@@ -264,28 +264,27 @@ class Dumper(DumperBase):
                 field.lbitsize = nativeFieldType.GetByteSize() * 8
                 isBitfield = False
 
-            if isBitfield:
+            if isBitfield: # Bit fields
                 field.ltype = self.createBitfieldType(self.typeName(nativeFieldType), field.lbitsize)
-            else:
+                yield field
+
+            elif field.name is None: # Anon members
                 fakeMember = fakeValue.GetChildAtIndex(i)
-                #try:
                 fakeMemberAddress = fakeMember.GetLoadAddress()
-                #except:
-                #    # Happens in the BoostList dumper for a 'const bool'
-                #    # item named 'constant_time_size'. There isn't anything we can do
-                #    # in this case.
-                #    continue
-
                 offset = fakeMemberAddress - fakeAddress
-
                 field.lbitpos = 8 * offset
                 field.ltype = self.fromNativeType(nativeFieldType)
+                yield field
 
-                if field.name in baseNames:
-                    field.isBaseClass = True
-                    field.baseIndex = baseNames[field.name]
+            elif field.name in baseNames:  # Simple bases
+                member = self.fromNativeValue(fakeValue.GetChildAtIndex(i))
+                member.isBaseClass = True
+                yield member
 
-            yield field
+            else: # Normal named members
+                member = self.fromNativeValue(fakeValue.GetChildAtIndex(i))
+                member.name = nativeField.GetName()
+                yield member
 
         # Empty bases are not covered above.
         for i in range(nativeType.GetNumberOfDirectBaseClasses()):

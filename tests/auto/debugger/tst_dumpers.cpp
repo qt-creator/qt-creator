@@ -4403,6 +4403,26 @@ void tst_Dumpers::dumper_data()
                + Check("ps", "\"ABC\"", "std::shared_ptr<std::string>")
                + Check("ps.data", "\"ABC\"", "std::string");
 
+    QTest::newRow("StdSharedPtr2")
+            << Data("#include <memory>\n"
+                    "struct A {\n"
+                    "    virtual ~A() {}\n"
+                    "    int *m_0 = (int *)0;\n"
+                    "    int *m_1 = (int *)1;\n"
+                    "    int *m_2 = (int *)2;\n"
+                    "    int x = 3;\n"
+                    "};\n",
+                    "std::shared_ptr<A> a(new A);\n"
+                    "A *inner = a.get(); unused(inner);\n")
+               + Cxx11Profile()
+               + Check("inner.m_0", "0x0", "int *")
+               + Check("inner.m_1", "0x1", "int *")
+               + Check("inner.m_2", "0x2", "int *")
+               + Check("inner.x", "3", "int")
+               + Check("a.data.m_0", "0x0", "int *")
+               + Check("a.data.m_1", "0x1", "int *")
+               + Check("a.data.m_2", "0x2", "int *")
+               + Check("a.data.x", "3", "int");
 
     QTest::newRow("StdSet")
             << Data("#include <set>\n",
