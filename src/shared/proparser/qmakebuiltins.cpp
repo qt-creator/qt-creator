@@ -555,11 +555,9 @@ void QMakeEvaluator::populateDeps(
         }
 }
 
-ProStringList QMakeEvaluator::evaluateBuiltinExpand(
-        int func_t, const ProKey &func, const ProStringList &args)
+QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinExpand(
+        int func_t, const ProKey &func, const ProStringList &args, ProStringList &ret)
 {
-    ProStringList ret;
-
     traceMsg("calling built-in $$%s(%s)", dbgKey(func), dbgSepStrList(args));
 
     switch (func_t) {
@@ -1108,6 +1106,11 @@ ProStringList QMakeEvaluator::evaluateBuiltinExpand(
             if (qfile.open(stdin, QIODevice::ReadOnly)) {
                 QTextStream t(&qfile);
                 const QString &line = t.readLine();
+                if (t.atEnd()) {
+                    fputs("\n", stderr);
+                    evalError(fL1S("Unexpected EOF."));
+                    return ReturnError;
+                }
                 ret = split_value_list(QStringRef(&line));
             }
         }
@@ -1277,7 +1280,7 @@ ProStringList QMakeEvaluator::evaluateBuiltinExpand(
         break;
     }
 
-    return ret;
+    return ReturnTrue;
 }
 
 QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
