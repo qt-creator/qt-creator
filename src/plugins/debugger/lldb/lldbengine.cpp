@@ -983,6 +983,9 @@ void LldbEngine::reloadRegisters()
     if (!Internal::isRegistersWindowVisible())
         return;
 
+    if (state() != InferiorStopOk && state() != InferiorUnrunnable)
+        return;
+
     DebuggerCommand cmd("fetchRegisters");
     cmd.callback = [this](const DebuggerResponse &response) {
         RegisterHandler *handler = registerHandler();
