@@ -241,7 +241,10 @@ class Dumper(DumperBase):
         self.report('result={%s}' % (result))
 
     def readRawMemory(self, address, size):
-        return cdbext.readRawMemory(address, size)
+        mem = cdbext.readRawMemory(address, size)
+        if len(mem) != size:
+            raise Exception("Invalid memory request")
+        return mem
 
     def findStaticMetaObject(self, typeName):
         ptr = self.findValueByExpression('&' + typeName + '::staticMetaObject')
