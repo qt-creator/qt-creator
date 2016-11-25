@@ -342,7 +342,7 @@ void DebugView::instanceInformationsChange(const QMultiHash<ModelNode, Informati
             message << informationChangeHash.value(modelNode);
         }
 
-        logInstance(tr("Instance completed"), string);
+        logInstance(tr("Instance information change"), string);
     }
 
 }
