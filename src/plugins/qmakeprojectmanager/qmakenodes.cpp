@@ -1203,7 +1203,8 @@ QPair<ProFile *, QStringList> QmakePriFileNode::readProFile(const QString &file)
                 QmakeProject::proFileParseError(reader.errorString());
                 return qMakePair(includeFile, lines);
             }
-            contents = QString::fromLocal8Bit(reader.data());
+            const QTextCodec *codec = Core::EditorManager::defaultTextCodec();
+            contents = codec->toUnicode(reader.data());
             lines = contents.split(QLatin1Char('\n'));
         }
 
@@ -1320,7 +1321,8 @@ void QmakePriFileNode::save(const QStringList &lines)
     {
         FileChangeBlocker changeGuard(m_projectFilePath.toString());
         FileSaver saver(m_projectFilePath.toString(), QIODevice::Text);
-        saver.write(lines.join(QLatin1Char('\n')).toLocal8Bit());
+        const QTextCodec *codec = Core::EditorManager::defaultTextCodec();
+        saver.write(codec->fromUnicode(lines.join(QLatin1Char('\n'))));
         saver.finalize(Core::ICore::mainWindow());
     }
 
