@@ -327,6 +327,12 @@ void initValue(Value *value)
 
 PyObject *createValue(ULONG index, CIDebugSymbolGroup *symbolGroup)
 {
+    ULONG count;
+    if (FAILED(symbolGroup->GetNumberSymbols(&count)))
+        Py_RETURN_NONE;
+    if (index >= count) // don't add values for indices out of bounds
+        Py_RETURN_NONE;
+
     Value *value = PyObject_New(Value, value_pytype());
     if (value != NULL) {
         value->m_index = index;
