@@ -52,6 +52,12 @@ QString UtilsJsExtension::baseName(const QString &in) const
     return fi.baseName();
 }
 
+QString UtilsJsExtension::fileName(const QString &in) const
+{
+    QFileInfo fi(in);
+    return fi.fileName();
+}
+
 QString UtilsJsExtension::completeBaseName(const QString &in) const
 {
     QFileInfo fi(in);

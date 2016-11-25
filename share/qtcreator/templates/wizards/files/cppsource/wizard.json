@@ -32,7 +32,7 @@
                 "source": "file.cpp",
                 "target": "%{FileName}",
                 "openInEditor": true,
-                "options": { "key": "Cpp:License:FileName", "value": "%{JS: Util.completeBaseName('%{FileName}')}" }
+                "options": { "key": "Cpp:License:FileName", "value": "%{JS: Util.fileName('%{FileName}')}" }
             }
         }
     ]
