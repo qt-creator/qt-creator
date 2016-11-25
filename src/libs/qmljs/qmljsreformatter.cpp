@@ -282,6 +282,15 @@ protected:
     {
         BestSplit result;
 
+        while (possibleSplits.count() > 12) {
+             QList<Split> newPossibleSplits;
+             for (int i = 0; i < possibleSplits.count(); i++) {
+                 if (!(i % 2))
+                     newPossibleSplits.push_back(possibleSplits.at(i));
+             }
+             possibleSplits = newPossibleSplits;
+        }
+
         result.badnessFromSplits = 0;
         result.lines = QStringList(line);
 
