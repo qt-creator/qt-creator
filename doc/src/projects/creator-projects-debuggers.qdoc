@@ -76,9 +76,14 @@
 
             \QC attempts to identify the type and version of the debugger and
             shows them in the \uicontrol Type and \uicontrol Version fields.
+            In addition, \QC shows the ABI version that will be used on embedded
+            devices in the \uicontrol ABIs field.
 
-        \li In the \uicontrol ABIs field, specify the ABI versions to use on embedded
-            devices.
+        \li In the \uicontrol {Working directory} field, specify the working
+            directory of the application process. If the application is run
+            locally, the working directory defaults to the build directory. If
+            the application is run remotely on a device, the value depends on
+            the shell or the device. Usually, you can leave this field empty.
 
     \endlist
 */
