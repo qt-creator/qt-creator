@@ -90,9 +90,6 @@ public slots:
     void vcsAnnotate(const QString &workingDirectory, const QString &file,
                      const QString &revision, int lineNumber);
 
-private slots:
-    void slotDescribe(const QString &source, const QString &changeNr);
-
 #ifdef WITH_TESTS
     void testDiffFileResolving_data();
     void testDiffFileResolving();

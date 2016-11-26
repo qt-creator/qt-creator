@@ -168,6 +168,7 @@ public:
                      const QString &revision = QString(), int lineNumber = -1) const;
     bool newActivity();
     void updateStreamAndView();
+    void describe(const QString &source, const QString &changeNr);
 
 protected:
     void updateActions(VcsBase::VcsBasePlugin::ActionState) override;
@@ -193,9 +194,6 @@ private slots:
     void testVcsStatusDynamicReadonlyNotManaged();
     void testVcsStatusDynamicNotManaged();
 #endif
-
-public slots:
-    void describe(const QString &source, const QString &changeNr);
 
 private:
     void annotateVersion(const QString &workingDirectory, const QString &file, const QString &revision, int lineNumber);

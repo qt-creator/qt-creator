@@ -432,11 +432,13 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
         []() { return new ClearCaseSubmitEditor(&submitParameters); }));
 
     // any editor responds to describe (when clicking a version)
-    static const char *describeSlot = SLOT(describe(QString,QString));
+    const auto describeFunc = [this](const QString &source, const QString &changeNr) {
+        describe(source, changeNr);
+    };
     const int editorCount = sizeof(editorParameters)/sizeof(VcsBaseEditorParameters);
     const auto widgetCreator = []() { return new ClearCaseEditorWidget; };
     for (int i = 0; i < editorCount; i++)
-        addAutoReleasedObject(new VcsEditorFactory(editorParameters + i, widgetCreator, this, describeSlot));
+        addAutoReleasedObject(new VcsEditorFactory(editorParameters + i, widgetCreator, describeFunc));
 
     const QString description = QLatin1String("ClearCase");
     const QString prefix = QLatin1String("cc");

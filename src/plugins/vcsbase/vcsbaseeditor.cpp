@@ -159,8 +159,6 @@ void VcsBaseEditor::finalizeInitialization()
     auto widget = qobject_cast<VcsBaseEditorWidget *>(editorWidget());
     QTC_ASSERT(widget, return);
     // Pass on signals.
-    connect(widget, &VcsBaseEditorWidget::describeRequested,
-            this, &VcsBaseEditor::describeRequested);
     connect(widget, &VcsBaseEditorWidget::annotateRevisionRequested,
             this, &VcsBaseEditor::annotateRevisionRequested);
 }
@@ -568,8 +566,7 @@ public:
     bool m_configurationAdded = false;
     QList<AbstractTextCursorHandler *> m_textCursorHandlers;
     QPointer<VcsCommand> m_command;
-    QObject *m_describeReceiver = nullptr;
-    const char *m_describeSlot = nullptr;
+    VcsBaseEditorWidget::DescribeFunc m_describeFunc = nullptr;
     Utils::ProgressIndicator *m_progressIndicator = nullptr;
     bool m_fileLogAnnotateEnabled = false;
     bool m_mouseDragging = false;
@@ -713,17 +710,14 @@ int VcsBaseEditorWidget::lineNumberDigits() const
     return digits;
 }
 
-void VcsBaseEditorWidget::setDescribeSlot(QObject *describeReceiver, const char *describeSlot)
+void VcsBaseEditorWidget::setDescribeFunc(DescribeFunc describeFunc)
 {
-    d->m_describeReceiver = describeReceiver;
-    d->m_describeSlot = describeSlot;
+    d->m_describeFunc = describeFunc;
 }
 
 void VcsBaseEditorWidget::finalizeInitialization()
 {
-    if (d->m_describeReceiver)
-        connect(this, SIGNAL(describeRequested(QString,QString)), d->m_describeReceiver, d->m_describeSlot);
-
+    connect(this, &VcsBaseEditorWidget::describeRequested, this, d->m_describeFunc);
     init();
 }
 

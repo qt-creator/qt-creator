@@ -128,7 +128,6 @@ public:
                              const QString &revision = QString());
     void finalizeInitialization() override;
 signals:
-    void describeRequested(const QString &source, const QString &change);
     void annotateRevisionRequested(const QString &workingDirectory, const QString &file,
                                    const QString &change, int line);
 };
@@ -158,9 +157,11 @@ protected:
     int lineNumberDigits() const override;
 
 public:
+    typedef std::function<void(const QString &, const QString &)> DescribeFunc;
+
     void finalizeInitialization() override;
     // FIXME: Consolidate these into finalizeInitialization
-    void setDescribeSlot(QObject *describeReceiver, const char *describeSlot);
+    void setDescribeFunc(DescribeFunc describeFunc);
     // void
     virtual void init();
     //

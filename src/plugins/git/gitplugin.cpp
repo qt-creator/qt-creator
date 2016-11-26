@@ -285,11 +285,13 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     addAutoReleasedObject(new SettingsPage(versionControl()));
     addAutoReleasedObject(new GitGrep);
 
-    static const char *describeSlot = SLOT(show(QString,QString));
+    const auto describeFunc = [this](const QString &source, const QString &id) {
+        m_gitClient->show(source, id);
+    };
     const int editorCount = sizeof(editorParameters) / sizeof(editorParameters[0]);
     const auto widgetCreator = []() { return new GitEditorWidget; };
     for (int i = 0; i < editorCount; i++)
-        addAutoReleasedObject(new VcsEditorFactory(editorParameters + i, widgetCreator, m_gitClient, describeSlot));
+        addAutoReleasedObject(new VcsEditorFactory(editorParameters + i, widgetCreator, describeFunc));
 
     addAutoReleasedObject(new VcsSubmitEditorFactory(&submitParameters,
         []() { return new GitSubmitEditor(&submitParameters); }));

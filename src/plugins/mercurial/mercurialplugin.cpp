@@ -129,11 +129,13 @@ bool MercurialPlugin::initialize(const QStringList & /* arguments */, QString * 
     connect(m_client, SIGNAL(changed(QVariant)), versionControl(), SLOT(changed(QVariant)));
     connect(m_client, &MercurialClient::needUpdate, this, &MercurialPlugin::update);
 
-    static const char *describeSlot = SLOT(view(QString,QString));
+    const auto describeFunc = [this](const QString &source, const QString &id) {
+        m_client->view(source, id);
+    };
     const int editorCount = sizeof(editorParameters)/sizeof(editorParameters[0]);
     const auto widgetCreator = []() { return new MercurialEditorWidget; };
     for (int i = 0; i < editorCount; i++)
-        addAutoReleasedObject(new VcsEditorFactory(editorParameters + i, widgetCreator, m_client, describeSlot));
+        addAutoReleasedObject(new VcsEditorFactory(editorParameters + i, widgetCreator, describeFunc));
 
     addAutoReleasedObject(new VcsSubmitEditorFactory(&submitEditorParameters,
         []() { return new CommitEditor(&submitEditorParameters); }));

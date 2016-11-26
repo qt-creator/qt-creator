@@ -224,11 +224,13 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
     addAutoReleasedObject(new VcsSubmitEditorFactory(&submitParameters,
         []() { return new SubversionSubmitEditor(&submitParameters); }));
 
-    static const char *describeSlot = SLOT(describe(QString,QString));
+    const auto describeFunc = [this](const QString &source, const QString &id) {
+        describe(source, id);
+    };
     const int editorCount = sizeof(editorParameters) / sizeof(editorParameters[0]);
     const auto widgetCreator = []() { return new SubversionEditorWidget; };
     for (int i = 0; i < editorCount; i++)
-        addAutoReleasedObject(new VcsEditorFactory(editorParameters + i, widgetCreator, this, describeSlot));
+        addAutoReleasedObject(new VcsEditorFactory(editorParameters + i, widgetCreator, describeFunc));
 
     const QString prefix = QLatin1String("svn");
     m_commandLocator = new CommandLocator("Subversion", prefix, prefix);

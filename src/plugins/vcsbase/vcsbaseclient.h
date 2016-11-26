@@ -194,14 +194,13 @@ public:
 
     virtual QString findTopLevelForFile(const QFileInfo &file) const = 0;
 
+    virtual void view(const QString &source, const QString &id,
+                      const QStringList &extraOptions = QStringList());
+
 signals:
     void parsedStatus(const QList<VcsBase::VcsBaseClient::StatusItem> &statusList);
     // Passes on changed signals from VcsJob to Control
     void changed(const QVariant &v);
-
-public slots:
-    virtual void view(const QString &source, const QString &id,
-                      const QStringList &extraOptions = QStringList());
 
 protected:
     enum VcsCommandTag

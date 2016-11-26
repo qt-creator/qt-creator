@@ -321,8 +321,6 @@ public:
 
     static QString msgNoChangedFiles();
     static QString msgNoCommits(bool includeRemote);
-
-public slots:
     void show(const QString &source, const QString &id, const QString &name = QString());
 
 private:

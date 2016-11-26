@@ -160,11 +160,13 @@ bool BazaarPlugin::initialize(const QStringList &arguments, QString *errorMessag
 
     addAutoReleasedObject(new OptionsPage(vcsCtrl));
 
-    static const char *describeSlot = SLOT(view(QString,QString));
+    const auto describeFunc = [this](const QString &source, const QString &id) {
+        m_client->view(source, id);
+    };
     const int editorCount = sizeof(editorParameters) / sizeof(VcsBaseEditorParameters);
     const auto widgetCreator = []() { return new BazaarEditorWidget; };
     for (int i = 0; i < editorCount; i++)
-        addAutoReleasedObject(new VcsEditorFactory(editorParameters + i, widgetCreator, m_client, describeSlot));
+        addAutoReleasedObject(new VcsEditorFactory(editorParameters + i, widgetCreator, describeFunc));
 
     addAutoReleasedObject(new VcsSubmitEditorFactory(&submitEditorParameters,
         []() { return new CommitEditor(&submitEditorParameters); }));

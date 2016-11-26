@@ -212,11 +212,15 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     addAutoReleasedObject(new VcsSubmitEditorFactory(&submitParameters,
         []() { return new CvsSubmitEditor(&submitParameters); }));
 
-    static const char *describeSlotC = SLOT(slotDescribe(QString,QString));
+    const auto describeFunc = [this](const QString &source, const QString &changeNr) {
+        QString errorMessage;
+        if (!describe(source, changeNr, &errorMessage))
+            VcsOutputWindow::appendError(errorMessage);
+    };
     const int editorCount = sizeof(editorParameters) / sizeof(editorParameters[0]);
     const auto widgetCreator = []() { return new CvsEditorWidget; };
     for (int i = 0; i < editorCount; i++)
-        addAutoReleasedObject(new VcsEditorFactory(editorParameters + i, widgetCreator, this, describeSlotC));
+        addAutoReleasedObject(new VcsEditorFactory(editorParameters + i, widgetCreator, describeFunc));
 
     const QString prefix = QLatin1String("cvs");
     m_commandLocator = new CommandLocator("CVS", prefix, prefix);
@@ -962,13 +966,6 @@ void CvsPlugin::updateRepository()
     QTC_ASSERT(state.hasTopLevel(), return);
     update(state.topLevel(), QString());
 
-}
-
-void CvsPlugin::slotDescribe(const QString &source, const QString &changeNr)
-{
-    QString errorMessage;
-    if (!describe(source, changeNr, &errorMessage))
-        VcsOutputWindow::appendError(errorMessage);
 }
 
 bool CvsPlugin::describe(const QString &file, const QString &changeNr, QString *errorMessage)

@@ -55,8 +55,6 @@ public:
     bool isVcsDirectory(const Utils::FileName &fileName) const;
     QString findTopLevelForFile(const QFileInfo &file) const;
     bool managesFile(const QString &workingDirectory, const QString &fileName) const;
-
-public slots:
     void view(const QString &source, const QString &id,
               const QStringList &extraOptions = QStringList());
 

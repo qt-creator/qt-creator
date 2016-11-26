@@ -197,11 +197,13 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
     addAutoReleasedObject(new VcsSubmitEditorFactory(&submitParameters,
         []() { return new PerforceSubmitEditor(&submitParameters); }));
 
-    static const char *describeSlot = SLOT(describe(QString,QString));
+    const auto describeFunc = [this](const QString &source, const QString &n) {
+        describe(source, n);
+    };
     const int editorCount = sizeof(editorParameters) / sizeof(editorParameters[0]);
     const auto widgetCreator = []() { return new PerforceEditorWidget; };
     for (int i = 0; i < editorCount; i++)
-        addAutoReleasedObject(new VcsEditorFactory(editorParameters + i, widgetCreator, this, describeSlot));
+        addAutoReleasedObject(new VcsEditorFactory(editorParameters + i, widgetCreator, describeFunc));
 
     const QString prefix = QLatin1String("p4");
     m_commandLocator = new CommandLocator("Perforce", prefix, prefix);

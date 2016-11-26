@@ -29,6 +29,8 @@
 
 #include <texteditor/texteditor.h>
 
+#include <functional>
+
 namespace VcsBase {
 class VcsBaseEditor;
 class VcsBaseEditorParameters;
@@ -40,8 +42,7 @@ class VCSBASE_EXPORT VcsEditorFactory : public TextEditor::TextEditorFactory
 public:
     VcsEditorFactory(const VcsBaseEditorParameters *parameters,
                      const EditorWidgetCreator editorWidgetCreator,
-                     QObject *describeReceiver,
-                     const char *describeSlot);
+                     std::function<void(const QString &, const QString &)> describeFunc);
 
     static VcsBaseEditor *createEditorById(const char *id);
 };

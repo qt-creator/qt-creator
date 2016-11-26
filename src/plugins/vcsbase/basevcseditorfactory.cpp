@@ -52,7 +52,7 @@ namespace VcsBase {
 VcsEditorFactory::VcsEditorFactory(const VcsBaseEditorParameters *parameters,
                                    // Force copy, see QTCREATORBUG-13218
                                    const EditorWidgetCreator editorWidgetCreator,
-                                   QObject *describeReceiver, const char *describeSlot)
+                                   std::function<void(const QString &, const QString &)> describeFunc)
 {
     setProperty("VcsEditorFactoryName", QByteArray(parameters->id));
     setId(parameters->id);
@@ -71,9 +71,9 @@ VcsEditorFactory::VcsEditorFactory(const VcsBaseEditorParameters *parameters,
         return document;
     });
 
-    setEditorWidgetCreator([this, parameters, editorWidgetCreator, describeReceiver, describeSlot]() -> TextEditorWidget* {
+    setEditorWidgetCreator([this, parameters, editorWidgetCreator, describeFunc]() -> TextEditorWidget * {
         auto widget = qobject_cast<VcsBaseEditorWidget *>(editorWidgetCreator());
-        widget->setDescribeSlot(describeReceiver, describeSlot);
+        widget->setDescribeFunc(describeFunc);
         widget->setParameters(parameters);
         return widget;
     });
