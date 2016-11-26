@@ -1170,11 +1170,10 @@ IEditor *PerforcePlugin::showOutputInEditor(const QString &title,
     }
     IEditor *editor = EditorManager::openEditorWithContents(id, &s, content.toUtf8());
     QTC_ASSERT(editor, return 0);
-    connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)),
-            this, SLOT(vcsAnnotate(QString,QString,QString,int)));
     auto e = qobject_cast<PerforceEditorWidget*>(editor->widget());
     if (!e)
         return 0;
+    connect(e, &VcsBaseEditorWidget::annotateRevisionRequested, this, &PerforcePlugin::annotate);
     e->setForceReadOnly(true);
     e->setSource(source);
     s.replace(QLatin1Char(' '), QLatin1Char('_'));

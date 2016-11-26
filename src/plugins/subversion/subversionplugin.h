@@ -98,10 +98,6 @@ public:
     void vcsAnnotate(const QString &workingDir, const QString &file,
                      const QString &revision = QString(), int lineNumber = -1);
 
-public slots:
-    void annotateVersion(const QString &workingDirectory, const QString &file,
-                         const QString &revision, int lineNumber);
-
 #ifdef WITH_TESTS
 private slots:
     void testLogResolving();

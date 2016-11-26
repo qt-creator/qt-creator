@@ -156,11 +156,7 @@ VcsBaseEditor::VcsBaseEditor()
 
 void VcsBaseEditor::finalizeInitialization()
 {
-    auto widget = qobject_cast<VcsBaseEditorWidget *>(editorWidget());
-    QTC_ASSERT(widget, return);
-    // Pass on signals.
-    connect(widget, &VcsBaseEditorWidget::annotateRevisionRequested,
-            this, &VcsBaseEditor::annotateRevisionRequested);
+    QTC_CHECK(qobject_cast<VcsBaseEditorWidget *>(editorWidget()));
 }
 
 // ----------- VcsBaseEditorPrivate

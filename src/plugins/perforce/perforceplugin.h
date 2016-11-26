@@ -100,8 +100,6 @@ public:
                                             QString *errorMessage);
 
     void describe(const QString &source, const QString &n);
-
-public slots:
     void vcsAnnotate(const QString &workingDirectory, const QString &file,
                      const QString &revision, int lineNumber);
 

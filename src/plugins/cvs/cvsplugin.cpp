@@ -1166,11 +1166,10 @@ IEditor *CvsPlugin::showOutputInEditor(const QString& title, const QString &outp
     const Id id = params->id;
     QString s = title;
     IEditor *editor = EditorManager::openEditorWithContents(id, &s, output.toUtf8());
-    connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)),
-            this, SLOT(vcsAnnotate(QString,QString,QString,int)));
     CvsEditorWidget *e = qobject_cast<CvsEditorWidget*>(editor->widget());
     if (!e)
         return 0;
+    connect(e, &VcsBaseEditorWidget::annotateRevisionRequested, this, &CvsPlugin::annotate);
     s.replace(QLatin1Char(' '), QLatin1Char('_'));
     e->textDocument()->setFallbackSaveAsFileName(s);
     e->setForceReadOnly(true);

@@ -1348,14 +1348,6 @@ void ClearCasePlugin::annotateCurrentFile()
     vcsAnnotate(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
-void ClearCasePlugin::annotateVersion(const QString &workingDirectory,
-                                      const QString &file,
-                                      const QString &revision,
-                                      int lineNr)
-{
-    vcsAnnotate(workingDirectory, file, revision, lineNr);
-}
-
 void ClearCasePlugin::vcsAnnotate(const QString &workingDir, const QString &file,
                                 const QString &revision /* = QString() */,
                                 int lineNumber /* = -1 */) const
@@ -1498,11 +1490,10 @@ IEditor *ClearCasePlugin::showOutputInEditor(const QString& title, const QString
                  <<  "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
     QString s = title;
     IEditor *editor = EditorManager::openEditorWithContents(id, &s, output.toUtf8());
-    connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)),
-            this, SLOT(annotateVersion(QString,QString,QString,int)));
     ClearCaseEditorWidget *e = qobject_cast<ClearCaseEditorWidget*>(editor->widget());
     if (!e)
         return 0;
+    connect(e, &VcsBaseEditorWidget::annotateRevisionRequested, this, &ClearCasePlugin::vcsAnnotate);
     e->setForceReadOnly(true);
     s.replace(QLatin1Char(' '), QLatin1Char('_'));
     e->textDocument()->setFallbackSaveAsFileName(s);

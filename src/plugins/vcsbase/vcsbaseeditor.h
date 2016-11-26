@@ -127,9 +127,6 @@ public:
     static QString editorTag(EditorContentType t, const QString &workingDirectory, const QStringList &files,
                              const QString &revision = QString());
     void finalizeInitialization() override;
-signals:
-    void annotateRevisionRequested(const QString &workingDirectory, const QString &file,
-                                   const QString &change, int line);
 };
 
 class VCSBASE_EXPORT VcsBaseEditorWidget : public TextEditor::TextEditorWidget
