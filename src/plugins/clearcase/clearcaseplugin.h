@@ -196,9 +196,9 @@ private slots:
 
 public slots:
     void describe(const QString &source, const QString &changeNr);
+    void annotateVersion(const QString &workingDirectory, const QString &file, const QString &revision, int lineNumber);
 
 private:
-    void annotateVersion(const QString &workingDirectory, const QString &file, const QString &revision, int lineNumber);
     void syncSlot();
     Q_INVOKABLE void updateStatusActions();
 
