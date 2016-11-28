@@ -27,12 +27,14 @@
 
 #include <refactoringcompilationdatabase.h>
 
+#include <utils/smallstring.h>
+
+#include <QDir>
+
 using testing::Contains;
 using testing::IsEmpty;
 using testing::Not;
 using testing::PrintToString;
-
-using ClangBackEnd::RefactoringCompilationDatabase;
 
 namespace {
 
@@ -51,48 +53,53 @@ MATCHER_P3(IsCompileCommand, directory, fileName, commandLine,
     return true;
 }
 
-TEST(RefactoringCompilationDatabase, GetAllFilesContainsTranslationUnit)
+class RefactoringCompilationDatabase : public ::testing::Test
 {
-    RefactoringCompilationDatabase database;
-    database.addFile("/tmp", "data.cpp", {"cc", "data.cpp", "-DNO_DEBUG"});
+protected:
+    void SetUp();
 
+protected:
+    ClangBackEnd::RefactoringCompilationDatabase database;
+    Utils::SmallString temporaryDirectoryPath = QDir::toNativeSeparators(QDir::tempPath());
+    Utils::SmallString temporarySourceFilePath = QDir::toNativeSeparators(QDir::tempPath() + "/data.cpp");
+
+};
+
+TEST_F(RefactoringCompilationDatabase, GetAllFilesContainsTranslationUnit)
+{
     auto filePaths = database.getAllFiles();
 
-    ASSERT_THAT(filePaths, Contains("/tmp/data.cpp"));
+    ASSERT_THAT(filePaths, Contains(temporarySourceFilePath));
 }
 
-TEST(RefactoringCompilationDatabase, CompileCommandForFilePath)
+TEST_F(RefactoringCompilationDatabase, CompileCommandForFilePath)
 {
-    RefactoringCompilationDatabase database;
-    database.addFile("/tmp", "data.cpp",  {"cc", "data.cpp", "-DNO_DEBUG"});
-
     auto compileCommands = database.getAllCompileCommands();
 
-    ASSERT_THAT(compileCommands, Contains(IsCompileCommand("/tmp",
+    ASSERT_THAT(compileCommands, Contains(IsCompileCommand(temporaryDirectoryPath,
                                                            "data.cpp",
-                                                          std::vector<std::string>{"cc", "data.cpp", "-DNO_DEBUG"})));
+                                                           std::vector<std::string>{"cc", "data.cpp", "-DNO_DEBUG"})));
 }
 
-TEST(RefactoringCompilationDatabase, NoCompileCommandForFilePath)
+TEST_F(RefactoringCompilationDatabase, NoCompileCommandForFilePath)
 {
-    RefactoringCompilationDatabase database;
-    database.addFile("/tmp", "data.cpp",  {"cc", "data.cpp", "-DNO_DEBUG"});
-
     auto compileCommands = database.getAllCompileCommands();
 
-    ASSERT_THAT(compileCommands, Not(Contains(IsCompileCommand("/tmp",
+    ASSERT_THAT(compileCommands, Not(Contains(IsCompileCommand(temporaryDirectoryPath,
                                                                "data.cpp2",
                                                                std::vector<std::string>{"cc", "data.cpp", "-DNO_DEBUG"}))));
 }
 
-TEST(RefactoringCompilationDatabase, FilePaths)
+TEST_F(RefactoringCompilationDatabase, FilePaths)
 {
-    RefactoringCompilationDatabase database;
-    database.addFile("/tmp", "data.cpp", {"cc", "data.cpp", "-DNO_DEBUG"});
-
     auto filePaths = database.getAllFiles();
 
-    ASSERT_THAT(filePaths, Contains("/tmp/data.cpp"));
+    ASSERT_THAT(filePaths, Contains(temporarySourceFilePath));
+}
+
+void RefactoringCompilationDatabase::SetUp()
+{
+    database.addFile(temporaryDirectoryPath, "data.cpp", {"cc", "data.cpp", "-DNO_DEBUG"});
 }
 
 }
