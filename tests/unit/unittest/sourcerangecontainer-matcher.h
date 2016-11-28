@@ -60,7 +60,7 @@ MATCHER_P5(IsSourceRangeWithText, startLine, startColumn, endLine, endColumn, te
         && arg.start().column() == uint(startColumn)
         && arg.end().line() == uint(endLine)
         && arg.end().column() == uint(endColumn)
-        && arg.text() == text;
+        && arg.text().toCarriageReturnsStripped() == text;
 
 }
 
