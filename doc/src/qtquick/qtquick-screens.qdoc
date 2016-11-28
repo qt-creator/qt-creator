@@ -114,7 +114,7 @@
 
         \li \l{Using Layouts}
 
-        \li \l{Using Split Views}
+        \li \l{Organizing Items}
 
     \endlist
 
@@ -269,12 +269,29 @@
     \uicontrol Layout > \uicontrol {Fill Width} in the context menu. To make the item as
     high as possible, select \uicontrol {Fill Height}.
 
-    \section2 Using Split Views
+    \section2 Organizing Items
 
-    From Qt 5.1, you can use the SplitView Qt Quick Control to arrange items
-    horizontally or vertically
-    with a draggable splitter between each item.
+    From Qt 5.7, you can use the following \l{Qt Quick Controls 2} types to
+    organize items on screens:
 
+    \list
+
+        \li \l [QtQuickControls2]{Frame} places a logical group of controls
+            within a visual frame.
+
+        \li \l [QtQuickControls2]{GroupBox}{Group Box} is used to lay out a
+            logical group of controls together, within a titled visual frame.
+
+        \li \l [QtQuickControls2]{Label} is a text label with inherited styling
+            and font.
+
+        \li \l [QtQuickControls2]{PageIndicator}{Page Indicator} indicates the
+            currently active page.
+
+        \li \l [QtQuickControls2]{Pane} provides a background matching with the
+            application style and theme.
+
+    \endlist
 
     \section1 Using States
 
@@ -382,62 +399,68 @@
 
     \endlist
 
-    From Qt 5.1, you can also use the following
-    \l{Qt Quick Controls} to present or receive input from the user:
+    Since Qt 5.7, you can also use the following \l{Qt Quick Controls 2} types
+    to inform users about the progress of the application or to gather input
+    from the user:
 
     \list
 
-        \li \l{Button} provides a push button that you can associate with an
-            action.
+        \li \l [QtQuickControls2]{BusyIndicator}{Busy Indicator} indicates
+            activity while content is being loaded.
 
-        \li CheckBox provides an option button that can be toggled on
-            (checked) or off (unchecked).
+        \li \l [QtQuickControls2]{Button} provides a push button that you can
+            associate with an action.
 
-        \li ComboBox provides a drop-down list. Add items to the combo box by
-            assigning it a ListModel, or a list of strings to the model
-            property.
+        \li \l [QtQuickControls2]{CheckBox}{Check Box} provides an option button
+            that can be toggled on (checked) or off (unchecked).
 
-        \li GroupBox provides a frame, a title on top, and place for various
-            other controls inside the frame.
+        \li \l [QtQuickControls2]{CheckDelegate}{Check Delegate} presents an
+            item delegate that can be toggled on (checked) or off (unchecked).
 
-        \li \l{Label} provides a text label that follows the font and color scheme
-            of the system.
+        \li \l [QtQuickControls2]{ComboBox}{Combo Box} is a combined button and
+            popup list that is populated by using a data model.
 
-        \li ProgressBar indicates the progress of an operation.
+        \li \l [QtQuickControls2]{Dial} is a circular dial that is rotated to
+            set a value.
 
-        \li RadioButton provides an option button that can be switched on
-            (checked) or off (unchecked).
+        \li \l [QtQuickControls2]{ItemDelegate}{Item Delegate} is a standard
+            view item that can be used in various views and controls.
 
-        \li \l{Slider}
-            {Slider (Horizontal) and Slider (Vertical)} enable the user to move
-            a slider handle along a horizontal or vertical groove and translate
-            the handle's position into a value within the specified range.
+        \li \l [QtQuickControls2]{ProgressBar}{Progress Bar} indicates the
+            progress of an operation.
 
-        \li SpinBox enables the user to specify a value by clicking the up or
-            down buttons, by pressing up or down on the keyboard, or by entering
-            a value in the box.
+        \li \l [QtQuickControls2]{RadioButton}{Radio Button} provides an option
+            button that can be switched on (checked) or off (unchecked).
 
-        \omit
-        Not visible in the item library in 3.2.
-        \li StatusBar contains status information in your application. It
-            does not provide a layout of its own, but requires you to position
-            its contents, for instance by creating a \uicontrol {Row Layout}.
-        \endomit
+        \li \l [QtQuickControls2]{RadioDelegate}{Radio Delegate} presents an
+            item delegate that can be toggled on (checked) or off (unchecked).
 
-        \li TextArea displays multiple lines of editable formatted text.
+        \li \l [QtQuickControls2]{Slider} selects a value by sliding a handle
+            along a track.
 
-        \li TextField displays a single line of editable plain text.
+        \li \l [QtQuickControls2]{SpinBox}{Spin Box} enables the user to specify
+            a value by clicking the up or down buttons, by pressing up or down
+            on the keyboard, or by entering a value in the box.
 
-        \omit
-        Not visible in the item library in 3.2.
-        \li ToolBar provides styling for ToolButton as well as other controls
-            that it can contain. However, it does not provide a layout of its
-            own, but requires you to position its contents, for instance by
-            creating a \uicontrol {Row Layout}.
-        \endomit
+        \li \l [QtQuickControls2]{Switch} is an option button that can be
+            toggled on or off.
 
-        \li ToolButton provides a button that is functionally similar to
-            \uicontrol Button, but that looks more suitable on a \uicontrol {Tool Bar}.
+        \li \l [QtQuickControls2]{TextArea}{Text Area} displays multiple lines
+            of editable formatted text.
+
+        \li \l [QtQuickControls2]{TextField}{Text Field} displays a single line
+            of editable plain text.
+
+        \li \l [QtQuickControls2]{ToolBar}{Tool Bar} is a container of
+            application-wide and context sensitive actions and controls, such as
+            navigation buttons and search fields.
+
+        \li \l [QtQuickControls2]{ToolButton}{Tool Button} is a button
+            that is functionally similar to \uicontrol Button, but provides a
+            look that is more suitable for a \uicontrol {Tool Bar}.
+
+        \li \l [QtQuickControls2]{Tumbler} is a spinnable wheel of items that
+            can be selected.
 
     \endlist
 
