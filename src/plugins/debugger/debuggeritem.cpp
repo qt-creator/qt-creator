@@ -24,9 +24,9 @@
 ****************************************************************************/
 
 #include "debuggeritem.h"
+#include "debuggeritemmanager.h"
 #include "debuggerkitinformation.h"
 #include "debuggerkitconfigwidget.h"
-#include "debuggeroptionspage.h"
 #include "debuggerprotocol.h"
 
 #include <projectexplorer/abi.h>
@@ -191,7 +191,7 @@ QString DebuggerItem::engineTypeName() const
 {
     switch (m_engineType) {
     case NoEngineType:
-        return DebuggerOptionsPage::tr("Not recognized");
+        return DebuggerItemManager::tr("Not recognized");
     case GdbEngineType:
         return QLatin1String("GDB");
     case CdbEngineType:
@@ -230,7 +230,7 @@ QIcon DebuggerItem::decoration() const
 QString DebuggerItem::validityMessage() const
 {
     if (m_engineType == NoEngineType)
-        return DebuggerOptionsPage::tr("Could not determine debugger type");
+        return DebuggerItemManager::tr("Could not determine debugger type");
     return QString();
 }
 

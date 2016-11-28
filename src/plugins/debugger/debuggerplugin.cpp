@@ -39,7 +39,6 @@
 #include "debuggermainwindow.h"
 #include "debuggerrunconfigurationaspect.h"
 #include "debuggerruncontrol.h"
-#include "debuggeroptionspage.h"
 #include "debuggerkitinformation.h"
 #include "memoryagent.h"
 #include "breakhandler.h"
@@ -1769,7 +1768,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     foreach (IOptionsPage *op, engineOptionPages)
         m_plugin->addAutoReleasedObject(op);
     m_plugin->addAutoReleasedObject(new LocalsAndExpressionsOptionsPage);
-    m_plugin->addAutoReleasedObject(new DebuggerOptionsPage);
 
     connect(ModeManager::instance(), &ModeManager::currentModeChanged,
         this, &DebuggerPluginPrivate::onModeChanged);
@@ -3266,7 +3264,6 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     mstart->addSeparator(Constants::G_SPECIAL);
 
     addAutoReleasedObject(new DebuggerItemManager);
-    DebuggerItemManager::restoreDebuggers();
 
     KitManager::registerKitInformation(new DebuggerKitInformation);
 

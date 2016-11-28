@@ -53,7 +53,6 @@ Project {
                 "debuggerkitconfigwidget.cpp", "debuggerkitconfigwidget.h",
                 "debuggerkitinformation.cpp", "debuggerkitinformation.h",
                 "debuggermainwindow.cpp", "debuggermainwindow.h",
-                "debuggeroptionspage.cpp", "debuggeroptionspage.h",
                 "debuggerplugin.cpp", "debuggerplugin.h",
                 "debuggerprotocol.cpp", "debuggerprotocol.h",
                 "debuggerrunconfigurationaspect.cpp", "debuggerrunconfigurationaspect.h",

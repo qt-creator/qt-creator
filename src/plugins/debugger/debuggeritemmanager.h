@@ -36,15 +36,13 @@
 namespace Utils { class FileName; }
 
 namespace Debugger {
-class DebuggerItem;
 
-// -----------------------------------------------------------------------
-// DebuggerItemManager
-// -----------------------------------------------------------------------
+class DebuggerItem;
 
 class DEBUGGER_EXPORT DebuggerItemManager : public QObject
 {
     Q_DECLARE_TR_FUNCTIONS(Debugger::DebuggerItemManager)
+
 public:
     DebuggerItemManager();
     ~DebuggerItemManager();
@@ -54,20 +52,9 @@ public:
     static QVariant registerDebugger(const DebuggerItem &item);
     static void deregisterDebugger(const QVariant &id);
 
-    static DebuggerItem *findByCommand(const Utils::FileName &command);
+    static const DebuggerItem *findByCommand(const Utils::FileName &command);
     static const DebuggerItem *findById(const QVariant &id);
     static const DebuggerItem *findByEngineType(DebuggerEngineType engineType);
-
-    static void restoreDebuggers();
-    static QString uniqueDisplayName(const QString &base);
-
-    static void updateOrAddDebugger(const DebuggerItem &item);
-    static void saveDebuggers();
-
-private:
-    static void autoDetectGdbOrLldbDebuggers();
-    static void autoDetectCdbDebuggers();
-    static void readLegacyDebuggers(const Utils::FileName &file);
 };
 
 } // namespace Debugger
