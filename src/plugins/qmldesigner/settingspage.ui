@@ -222,7 +222,7 @@
       <item>
        <widget class="QRadioButton" name="useQtRelatedPuppetRadioButton">
         <property name="text">
-         <string>Use QML emulation layer that is built by the selected Qt</string>
+         <string>Use QML emulation layer that is built with the selected Qt</string>
         </property>
        </widget>
       </item>

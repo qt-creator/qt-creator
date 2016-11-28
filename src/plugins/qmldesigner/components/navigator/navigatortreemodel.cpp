@@ -365,7 +365,12 @@ void NavigatorTreeModel::updateItemRow(const ModelNode &modelNode, ItemRow items
 
     if (currentQmlObjectNode.hasError()) {
         items.idItem->setData(true, ErrorRole);
-        items.idItem->setToolTip(currentQmlObjectNode.error());
+        QString errorString = currentQmlObjectNode.error();
+        if (currentQmlObjectNode.isRootNode()) {
+            errorString.append(QString("\n%1").arg(tr("Changing the setting \"%1\" might solve the issue.").arg(
+                tr("Use QML emulation layer that is built with the selected Qt"))));
+        }
+        items.idItem->setToolTip(errorString);
         items.idItem->setIcon(Utils::Icons::WARNING.icon());
     } else {
         items.idItem->setData(false, ErrorRole);
