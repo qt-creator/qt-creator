@@ -115,7 +115,7 @@ void SshKeyGenerator::generatePkcs8KeyString(const KeyPtr &key, bool privateKey,
         keyData = &m_publicKey;
     }
     pipe.end_msg();
-    keyData->resize(static_cast<int>(pipe.remaining(pipe.message_count()) - 1));
+    keyData->resize(static_cast<int>(pipe.remaining(pipe.message_count() - 1)));
     pipe.read(convertByteArray(*keyData), keyData->size(),
         pipe.message_count() - 1);
 }
