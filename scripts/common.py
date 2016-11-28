@@ -24,9 +24,12 @@
 ############################################################################
 
 import os
+import locale
 import shutil
 import subprocess
 import sys
+
+encoding = locale.getdefaultlocale()[1]
 
 def is_windows_platform():
     return sys.platform.startswith('win')
@@ -88,7 +91,7 @@ def copytree(src, dst, symlinks=False, ignore=None):
 
 def get_qt_install_info(qmake_bin):
     output = subprocess.check_output([qmake_bin, '-query'])
-    lines = output.strip().split('\n')
+    lines = output.decode(encoding).strip().split('\n')
     info = {}
     for line in lines:
         (var, sep, value) = line.partition(':')
@@ -103,7 +106,7 @@ def get_rpath(libfilepath, chrpath=None):
     except subprocess.CalledProcessError: # no RPATH or RUNPATH
         return []
     marker = 'RPATH='
-    index = output.find(marker)
+    index = output.decode(encoding).find(marker)
     if index < 0:
         marker = 'RUNPATH='
         index = output.find(marker)
@@ -127,7 +130,7 @@ def fix_rpaths(path, qt_deploy_path, qt_install_info, chrpath=None):
 
         # check for Qt linking
         lddOutput = subprocess.check_output(['ldd', filepath])
-        if lddOutput.find('libQt5') >= 0 or lddOutput.find('libicu') >= 0:
+        if lddOutput.decode(encoding).find('libQt5') >= 0 or lddOutput.find('libicu') >= 0:
             # add Qt RPATH if necessary
             relative_path = os.path.relpath(qt_deploy_path, os.path.dirname(filepath))
             if relative_path == '.':
