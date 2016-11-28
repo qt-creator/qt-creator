@@ -218,15 +218,15 @@
 
     \list
 
-        \li \l{Column} arranges its child items vertically.
+        \li \l[QML] {Column} arranges its child items vertically.
 
-        \li \l{Row} arranges its child items horizontally.
+        \li \l[QML] {Row} arranges its child items horizontally.
 
-        \li \l{Grid}
+        \li \l[QML] {Grid}
             arranges its child items so that they are aligned in a grid and
             are not overlapping.
 
-        \li \l{Flow}
+        \li \l[QML] {Flow}
             arranges its child items side by side, wrapping as necessary.
 
     \endlist
@@ -376,7 +376,7 @@
             assists in keyboard focus handling when building reusable QML
             components.
 
-        \li MouseArea enables simple mouse handling.
+        \li \l [QML]{MouseArea}{Mouse Area} enables simple mouse handling.
 
     \endlist
 

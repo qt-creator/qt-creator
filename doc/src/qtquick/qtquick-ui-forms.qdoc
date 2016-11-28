@@ -53,7 +53,7 @@
         \li Other bindings than pure expressions
         \li Signal handlers
         \li States in other items than the root item
-        \li Root items that are not derived from \l QQuickItem or \l Item
+        \li Root items that are not derived from \l QQuickItem or \l [QML]{Item}
     \endlist
 
     The following types are not supported:

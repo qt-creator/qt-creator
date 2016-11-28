@@ -40,8 +40,9 @@
 
     You can export designs from graphics software, such as Adobe Photoshop and
     GIMP, to QML files. Each scene is converted into a single QML file with an
-    Image or a Text item for each layer and saved on the development PC.
-    Top-level layer groups are converted into merged QML Image types.
+    \l [QML]{Image} or a \l [QML]{Text} item for each layer and saved on the
+    development PC. Top-level layer groups are converted into merged QML
+    \l [QML]{Image} types.
 
     \note GIMP does not support grouping, and therefore, each layer is exported
     as an item in GIMP.
@@ -74,8 +75,8 @@
 
         \li Offset, size, ordering and opacity are preserved.
 
-        \li Text layers are converted to Text items, unless you specify that
-            they be converted to Image items.
+        \li Text layers are converted to \l [QML]{Text} items, unless you
+            specify that they be converted to \l [QML]{Image} items.
 
         \li Hidden layers can be exported, and their visibility is set to
             hidden.
@@ -93,7 +94,7 @@
 
         \li To minimize the number of items, minimize the number of layers or
             use top-level layer groups, because each layer or layer group is
-            exported as a Text or Image item.
+            exported as a \l [QML]{Text} or \l [QML]{Image} item.
 
         \li To make sure that all related items are exported to the same
             item, use top-level layer groups.
@@ -153,10 +154,10 @@
             location for the QML file.
 
         \li Select the \uicontrol {Rasterize text} check box to export text layers as
-            images, not as Text items.
+            images, not as \l [QML]{Text} items.
 
         \li Select the \uicontrol {Group layers} check box to export each top-level
-            group as a merged QML Image item.
+            group as a merged QML \l [QML]{Image} item.
 
         \li Select the \uicontrol {Export hidden} check box to export hidden layers
             and to set their visibility property to hidden.
