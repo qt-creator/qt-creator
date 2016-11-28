@@ -504,12 +504,12 @@ template <typename R, typename T>
 const QFuture<T> &onResultReady(const QFuture<T> &future, R *receiver, void(R::*member)(const T &))
 {
     auto watcher = new QFutureWatcher<T>();
-    watcher->setFuture(future);
     QObject::connect(watcher, &QFutureWatcherBase::finished, watcher, &QObject::deleteLater);
     QObject::connect(watcher, &QFutureWatcherBase::resultReadyAt, receiver,
                      [receiver, member, watcher](int index) {
                          (receiver->*member)(watcher->future().resultAt(index));
                      });
+    watcher->setFuture(future);
     return future;
 }
 
@@ -523,11 +523,11 @@ template <typename T, typename Function>
 const QFuture<T> &onResultReady(const QFuture<T> &future, QObject *guard, Function f)
 {
     auto watcher = new QFutureWatcher<T>();
-    watcher->setFuture(future);
     QObject::connect(watcher, &QFutureWatcherBase::finished, watcher, &QObject::deleteLater);
     QObject::connect(watcher, &QFutureWatcherBase::resultReadyAt, guard, [f, watcher](int index) {
         f(watcher->future().resultAt(index));
     });
+    watcher->setFuture(future);
     return future;
 }
 
@@ -540,11 +540,11 @@ template <typename T, typename Function>
 const QFuture<T> &onResultReady(const QFuture<T> &future, Function f)
 {
     auto watcher = new QFutureWatcher<T>();
-    watcher->setFuture(future);
     QObject::connect(watcher, &QFutureWatcherBase::finished, watcher, &QObject::deleteLater);
     QObject::connect(watcher, &QFutureWatcherBase::resultReadyAt, [f, watcher](int index) {
         f(watcher->future().resultAt(index));
     });
+    watcher->setFuture(future);
     return future;
 }
 
