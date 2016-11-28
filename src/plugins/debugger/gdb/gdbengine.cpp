@@ -3515,7 +3515,7 @@ void GdbEngine::handleRegisterListing(const DebuggerResponse &response)
     m_registers.clear();
     QStringList lines = response.consoleStreamOutput.split('\n');
     for (int i = 1; i < lines.size(); ++i) {
-        const QVector<QStringRef> parts = QString(lines.at(i)).splitRef(' ', QString::SkipEmptyParts);
+        const QVector<QStringRef> parts = lines.at(i).splitRef(' ', QString::SkipEmptyParts);
         if (parts.size() < 7)
             continue;
         int gdbRegisterNumber = parts.at(1).toInt();

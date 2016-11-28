@@ -2909,8 +2909,8 @@ void CdbEngine::setupScripting(const DebuggerResponse &response)
         return;
     }
     const QString &verOutput = data.data();
-    const QVector<QStringRef> pythonVersion =
-         verOutput.split(QLatin1Char(' ')).constFirst().splitRef(QLatin1Char('.'));
+    const QString firstToken = verOutput.split(QLatin1Char(' ')).constFirst();
+    const QVector<QStringRef> pythonVersion =firstToken.splitRef(QLatin1Char('.'));
 
     bool ok = false;
     if (pythonVersion.size() == 3) {
