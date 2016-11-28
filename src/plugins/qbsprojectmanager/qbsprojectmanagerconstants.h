@@ -76,9 +76,8 @@ const char CPP_COMPILERNAME[] = "cpp.compilerName";
 const char CPP_CXXCOMPILERNAME[] = "cpp.cxxCompilerName";
 const char CPP_PLATFORMCOMMONCOMPILERFLAGS[] = "cpp.platformCommonCompilerFlags";
 const char CPP_PLATFORMLINKERFLAGS[] = "cpp.platformLinkerFlags";
-const char CPP_PLATFORMPATH[] = "cpp.platformPath";
-const char CPP_XCODESDKNAME[] = "cpp.xcodeSdkName";
-const char CPP_XCODESDKVERSION[] = "cpp.xcodeSdkVersion";
+const char XCODE_DEVELOPERPATH[] = "xcode.developerPath";
+const char XCODE_SDK[] = "xcode.sdk";
 
 // Settings page
 const char QBS_SETTINGS_CATEGORY[]  = "YM.qbs";

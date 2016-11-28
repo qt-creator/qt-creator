@@ -148,7 +148,7 @@ void UnifiedView::setSync(bool sync)
 SideBySideView::SideBySideView() : m_widget(0)
 {
     setId(SIDE_BY_SIDE_VIEW_ID);
-    setIcon(Icons::UNIFIED_DIFF.icon());
+    setIcon(Icons::SIDEBYSIDE_DIFF.icon());
     setToolTip(QCoreApplication::translate("DiffEditor::SideBySideView",
                                            "Switch to Side By Side Diff Editor"));
     setSupportsSync(true);

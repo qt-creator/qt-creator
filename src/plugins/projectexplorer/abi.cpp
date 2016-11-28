@@ -166,6 +166,9 @@ static QList<Abi> parseCoffHeader(const QByteArray &data)
         case 14:
             flavor = Abi::WindowsMsvc2015Flavor;
             break;
+        case 15:
+            flavor = Abi::WindowsMsvc2017Flavor;
+            break;
         default: // Keep unknown flavor
             if (minorLinker != 0)
                 flavor = Abi::WindowsMSysFlavor; // MSVC seems to avoid using minor numbers
@@ -349,7 +352,7 @@ Abi::Abi(const QString &abiString) :
     m_architecture(UnknownArchitecture), m_os(UnknownOS),
     m_osFlavor(UnknownFlavor), m_binaryFormat(UnknownFormat), m_wordWidth(0)
 {
-    QStringList abiParts = abiString.split(QLatin1Char('-'));
+    const QVector<QStringRef> abiParts = abiString.splitRef(QLatin1Char('-'));
     if (abiParts.count() >= 1) {
         if (abiParts.at(0) == QLatin1String("unknown"))
             m_architecture = UnknownArchitecture;
@@ -422,6 +425,8 @@ Abi::Abi(const QString &abiString) :
             m_osFlavor = WindowsMsvc2013Flavor;
         else if (abiParts.at(2) == QLatin1String("msvc2015") && m_os == WindowsOS)
             m_osFlavor = WindowsMsvc2015Flavor;
+        else if (abiParts.at(2) == QLatin1String("msvc2017") && m_os == WindowsOS)
+            m_osFlavor = WindowsMsvc2017Flavor;
         else if (abiParts.at(2) == QLatin1String("msys") && m_os == WindowsOS)
             m_osFlavor = WindowsMSysFlavor;
         else if (abiParts.at(2) == QLatin1String("ce") && m_os == WindowsOS)
@@ -448,12 +453,14 @@ Abi::Abi(const QString &abiString) :
     }
 
     if (abiParts.count() >= 5) {
-        const QString &bits = abiParts.at(4);
+        const QStringRef &bits = abiParts.at(4);
         if (!bits.endsWith(QLatin1String("bit")))
             return;
 
         bool ok = false;
-        int bitCount = bits.leftRef(bits.count() - 3).toInt(&ok);
+        const QStringRef number =
+            bits.string()->midRef(bits.position(), bits.count() - 3);
+        const int bitCount = number.toInt(&ok);
         if (!ok)
             return;
         if (bitCount != 8 && bitCount != 16 && bitCount != 32 && bitCount != 64)
@@ -468,7 +475,7 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
     if (machine.isEmpty())
         return Abi();
 
-    QStringList parts = machine.split(QRegExp(QLatin1String("[ /-]")));
+    const QVector<QStringRef> parts = machine.splitRef(QRegExp(QLatin1String("[ /-]")));
 
     Abi::Architecture arch = Abi::UnknownArchitecture;
     Abi::OS os = Abi::UnknownOS;
@@ -477,7 +484,7 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
     unsigned char width = 0;
     int unknownCount = 0;
 
-    foreach (const QString &p, parts) {
+    for (const QStringRef &p : parts) {
         if (p == QLatin1String("unknown") || p == QLatin1String("pc") || p == QLatin1String("none")
                 || p == QLatin1String("gnu") || p == QLatin1String("uclibc")
                 || p == QLatin1String("86_64") || p == QLatin1String("redhat")
@@ -695,6 +702,8 @@ QString Abi::toString(const OSFlavor &of)
         return QLatin1String("msvc2013");
     case Abi::WindowsMsvc2015Flavor:
         return QLatin1String("msvc2015");
+    case Abi::WindowsMsvc2017Flavor:
+        return QLatin1String("msvc2017");
     case Abi::WindowsMSysFlavor:
         return QLatin1String("msys");
     case Abi::WindowsCEFlavor:
@@ -746,6 +755,7 @@ QList<Abi::OSFlavor> Abi::flavorsForOs(const Abi::OS &o)
     case WindowsOS:
         return result << WindowsMsvc2005Flavor << WindowsMsvc2008Flavor << WindowsMsvc2010Flavor
                       << WindowsMsvc2012Flavor << WindowsMsvc2013Flavor << WindowsMsvc2015Flavor
+                      << WindowsMsvc2017Flavor
                       << WindowsMSysFlavor << WindowsCEFlavor << UnknownFlavor;
     case VxWorks:
         return result << VxWorksFlavor << UnknownFlavor;
@@ -766,7 +776,9 @@ Abi Abi::hostAbi()
 
 #if defined (Q_OS_WIN)
     os = WindowsOS;
-#if _MSC_VER == 1900
+#if _MSC_VER >= 1910
+    subos = WindowsMsvc2017Flavor;
+#elif _MSC_VER == 1900
     subos = WindowsMsvc2015Flavor;
 #elif _MSC_VER == 1800
     subos = WindowsMsvc2013Flavor;

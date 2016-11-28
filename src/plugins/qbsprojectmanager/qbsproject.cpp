@@ -72,6 +72,8 @@
 #include <QMessageBox>
 #include <QVariantMap>
 
+#include <algorithm>
+
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -91,7 +93,6 @@ static const char CONFIG_INCLUDEPATHS[] = "includePaths";
 static const char CONFIG_SYSTEM_INCLUDEPATHS[] = "systemIncludePaths";
 static const char CONFIG_FRAMEWORKPATHS[] = "frameworkPaths";
 static const char CONFIG_SYSTEM_FRAMEWORKPATHS[] = "systemFrameworkPaths";
-static const char CONFIG_PRECOMPILEDHEADER[] = "precompiledHeader";
 
 // --------------------------------------------------------------------
 // QbsProject:
@@ -886,6 +887,27 @@ void QbsProject::updateCppCodeModel()
     qDeleteAll(m_extraCompilers);
     m_extraCompilers.clear();
     foreach (const qbs::ProductData &prd, m_projectData.allProducts()) {
+        QString cPch;
+        QString cxxPch;
+        QString objcPch;
+        QString objcxxPch;
+        const auto &pchFinder = [&cPch, &cxxPch, &objcPch, &objcxxPch](const qbs::ArtifactData &a) {
+            if (a.fileTags().contains("c_pch_src"))
+                cPch = a.filePath();
+            else if (a.fileTags().contains("cpp_pch_src"))
+                cxxPch = a.filePath();
+            else if (a.fileTags().contains("objc_pch_src"))
+                objcPch = a.filePath();
+            else if (a.fileTags().contains("objcpp_pch_src"))
+                objcxxPch = a.filePath();
+        };
+        const QList<qbs::ArtifactData> &generatedArtifacts = prd.generatedArtifacts();
+        std::for_each(generatedArtifacts.cbegin(), generatedArtifacts.cend(), pchFinder);
+        foreach (const qbs::GroupData &grp, prd.groups()) {
+            const QList<qbs::ArtifactData> &sourceArtifacts = grp.allSourceArtifacts();
+            std::for_each(sourceArtifacts.cbegin(), sourceArtifacts.cend(), pchFinder);
+        }
+
         foreach (const qbs::GroupData &grp, prd.groups()) {
             const qbs::PropertyMap &props = grp.properties();
 
@@ -931,18 +953,26 @@ void QbsProject::updateCppCodeModel()
 
             ppBuilder.setHeaderPaths(grpHeaderPaths);
 
-            const QString pch = props.getModuleProperty(QLatin1String(CONFIG_CPP_MODULE),
-                    QLatin1String(CONFIG_PRECOMPILEDHEADER)).toString();
-            ppBuilder.setPreCompiledHeaders(QStringList() << pch);
-
             ppBuilder.setDisplayName(grp.name());
             ppBuilder.setProjectFile(groupLocationToProjectFile(grp.location()));
 
             QHash<QString, qbs::ArtifactData> filePathToSourceArtifact;
+            bool hasCFiles = false;
+            bool hasCxxFiles = false;
+            bool hasObjcFiles = false;
+            bool hasObjcxxFiles = false;
             foreach (const qbs::ArtifactData &source, grp.allSourceArtifacts()) {
                 filePathToSourceArtifact.insert(source.filePath(), source);
 
                 foreach (const QString &tag, source.fileTags()) {
+                    if (tag == "c")
+                        hasCFiles = true;
+                    else if (tag == "cpp")
+                        hasCxxFiles = true;
+                    else if (tag == "objc")
+                        hasObjcFiles = true;
+                    else if (tag == "objcpp")
+                        hasObjcxxFiles = true;
                     for (auto i = factoriesBegin; i != factoriesEnd; ++i) {
                         if ((*i)->sourceTag() != tag)
                             continue;
@@ -963,6 +993,31 @@ void QbsProject::updateCppCodeModel()
                     }
                 }
             }
+
+            QStringList pchFiles;
+            if (hasCFiles && props.getModuleProperty("cpp", "useCPrecompiledHeader").toBool()
+                    && !cPch.isEmpty()) {
+                pchFiles << cPch;
+            }
+            if (hasCxxFiles && props.getModuleProperty("cpp", "useCxxPrecompiledHeader").toBool()
+                    && !cxxPch.isEmpty()) {
+                pchFiles << cxxPch;
+            }
+            if (hasObjcFiles && props.getModuleProperty("cpp", "useObjcPrecompiledHeader").toBool()
+                    && !objcPch.isEmpty()) {
+                pchFiles << objcPch;
+            }
+            if (hasObjcxxFiles
+                    && props.getModuleProperty("cpp", "useObjcxxPrecompiledHeader").toBool()
+                    && !objcxxPch.isEmpty()) {
+                pchFiles << objcxxPch;
+            }
+            if (pchFiles.count() > 1) {
+                qCWarning(qbsPmLog) << "More than one pch file enabled for source files in group"
+                                    << grp.name() << "in product" << prd.name();
+                qCWarning(qbsPmLog) << "Expect problems with code model";
+            }
+            ppBuilder.setPreCompiledHeaders(pchFiles);
 
             const QList<Id> languages = ppBuilder.createProjectPartsForFiles(
                 grp.allFilePaths(),

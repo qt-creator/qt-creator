@@ -26,12 +26,14 @@
 #include "clangutils.h"
 
 #include "clangeditordocumentprocessor.h"
+#include "clangmodelmanagersupport.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <cpptools/baseeditordocumentparser.h>
 #include <cpptools/compileroptionsbuilder.h>
 #include <cpptools/cppmodelmanager.h>
+#include <cpptools/editordocumenthandle.h>
 #include <cpptools/projectpart.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/qtcassert.h>
@@ -103,6 +105,7 @@ public:
         optionsBuilder.addPredefinedMacrosAndHeaderPathsOptions();
         optionsBuilder.addWrappedQtHeadersIncludePath();
         optionsBuilder.addHeaderPathOptions();
+        optionsBuilder.addDummyUiHeaderOnDiskIncludePath();
         optionsBuilder.addProjectConfigFileInclude();
 
         optionsBuilder.addMsvcCompatibilityVersion();
@@ -145,7 +148,7 @@ private:
     void addPredefinedMacrosAndHeaderPathsOptionsForNonMsvc()
     {
         static const QString resourceDir = getResourceDir();
-        if (!resourceDir.isEmpty()) {
+        if (QTC_GUARD(!resourceDir.isEmpty())) {
             add(QLatin1String("-nostdlibinc"));
             add(QLatin1String("-I") + QDir::toNativeSeparators(resourceDir));
             add(QLatin1String("-undef"));
@@ -170,6 +173,13 @@ private:
             add(QLatin1String("-include"));
             add(QDir::toNativeSeparators(m_projectPart.projectConfigFile));
         }
+    }
+
+    void addDummyUiHeaderOnDiskIncludePath()
+    {
+        const QString path = ModelManagerSupportClang::instance()->dummyUiHeaderOnDiskDirPath();
+        if (!path.isEmpty())
+            add(includeDirOption() + QDir::toNativeSeparators(path));
     }
 
     void addExtraOptions()
@@ -220,6 +230,17 @@ QString projectPartIdForFile(const QString &filePath)
     if (isProjectPartLoaded(projectPart))
         return projectPart->id(); // OK, Project Part is still loaded
     return QString();
+}
+
+CppEditorDocumentHandle *cppDocument(const QString &filePath)
+{
+    return CppTools::CppModelManager::instance()->cppEditorDocument(filePath);
+}
+
+void setLastSentDocumentRevision(const QString &filePath, uint revision)
+{
+    if (CppEditorDocumentHandle *document = cppDocument(filePath))
+        document->sendTracker().setLastSentRevision(int(revision));
 }
 
 } // namespace Utils

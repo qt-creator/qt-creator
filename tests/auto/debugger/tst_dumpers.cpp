@@ -726,20 +726,20 @@ public:
     {
         profileExtra +=
             "exists(/usr/include/eigen3/Eigen/Core) {\n"
-            "    DEFINES += HAS_EIGEN3\n"
+            "    DEFINES += HAS_EIGEN\n"
             "    INCLUDEPATH += /usr/include/eigen3\n"
             "}\n"
             "exists(/usr/local/include/eigen3/Eigen/Core) {\n"
-            "    DEFINES += HAS_EIGEN3\n"
+            "    DEFINES += HAS_EIGEN\n"
             "    INCLUDEPATH += /usr/local/include/eigen3\n"
             "}\n"
             "\n"
             "exists(/usr/include/eigen2/Eigen/Core) {\n"
-            "    DEFINES += HAS_EIGEN2\n"
+            "    DEFINES += HAS_EIGEN\n"
             "    INCLUDEPATH += /usr/include/eigen2\n"
             "}\n"
             "exists(/usr/local/include/eigen2/Eigen/Core) {\n"
-            "    DEFINES += HAS_EIGEN2\n"
+            "    DEFINES += HAS_EIGEN\n"
             "    INCLUDEPATH += /usr/local/include/eigen2\n"
             "}\n";
 
@@ -1230,6 +1230,7 @@ void tst_Dumpers::dumper()
             "\n\nint main(int argc, char *argv[])"
             "\n{"
             "\n    unused(&argc, &argv);\n"
+            "\n    int skipall = 0; unused(&skipall);\n"
             "\n    int qtversion = " + (data.useQt ? "QT_VERSION" : "0") + "; unused(&qtversion);"
             "\n#ifdef __GNUC__"
             "\n    int gccversion = 10000 * __GNUC__ + 100 * __GNUC_MINOR__; unused(&gccversion);"
@@ -1527,12 +1528,19 @@ void tst_Dumpers::dumper()
             context.clangVersion = child["value"].toInt();
         else if (iname == "local.boostversion")
             context.boostVersion = child["value"].toInt();
-        else {
+        else if (iname == "local.skipall") {
+            bool skipAll = child["value"].toInt();
+            if (skipAll) {
+                MSKIP_SINGLE("This test is excluded in this test machine configuration.");
+                return;
+            }
+        } else {
             WatchItem *item = new WatchItem;
             item->parse(child, true);
             local.appendChild(item);
         }
     }
+
 
     //qDebug() << "QT VERSION " << QByteArray::number(context.qtVersion, 16);
     QSet<QString> seenINames;
@@ -2748,12 +2756,14 @@ void tst_Dumpers::dumper_data()
 
 
     QTest::newRow("QRegExp")
-            << Data("#include <QRegExp>\n",
+            << Data("#include <QRegExp>\n"
+                    "#include <QStringList>\n",
                     "QRegExp re(QString(\"a(.*)b(.*)c\"));\n"
                     "QString str1 = \"a1121b344c\";\n"
                     "QString str2 = \"Xa1121b344c\";\n"
                     "int pos1 = re.indexIn(str1); unused(&pos1);\n"
-                    "int pos2 = re.indexIn(str2); unused(&pos2);\n")
+                    "int pos2 = re.indexIn(str2); unused(&pos2);\n"
+                    "QStringList caps = re.capturedTexts(); unused(&caps);\n")
                + CoreProfile()
                + UseDebugImage()
                + Check("re", "\"a(.*)b(.*)c\"", "@QRegExp")
@@ -2762,7 +2772,8 @@ void tst_Dumpers::dumper_data()
                + Check("re.captures.2", "[2]", "\"344\"", "@QString")
                + Check("str2", "\"Xa1121b344c\"", "@QString")
                + Check("pos1", "0", "int")
-               + Check("pos2", "1", "int");
+               + Check("pos2", "1", "int")
+               + Check("caps", "<3 items>", "@QStringList");
 
 
     QTest::newRow("QRect")
@@ -4392,6 +4403,26 @@ void tst_Dumpers::dumper_data()
                + Check("ps", "\"ABC\"", "std::shared_ptr<std::string>")
                + Check("ps.data", "\"ABC\"", "std::string");
 
+    QTest::newRow("StdSharedPtr2")
+            << Data("#include <memory>\n"
+                    "struct A {\n"
+                    "    virtual ~A() {}\n"
+                    "    int *m_0 = (int *)0;\n"
+                    "    int *m_1 = (int *)1;\n"
+                    "    int *m_2 = (int *)2;\n"
+                    "    int x = 3;\n"
+                    "};\n",
+                    "std::shared_ptr<A> a(new A);\n"
+                    "A *inner = a.get(); unused(inner);\n")
+               + Cxx11Profile()
+               + Check("inner.m_0", "0x0", "int *")
+               + Check("inner.m_1", "0x1", "int *")
+               + Check("inner.m_2", "0x2", "int *")
+               + Check("inner.x", "3", "int")
+               + Check("a.data.m_0", "0x0", "int *")
+               + Check("a.data.m_1", "0x1", "int *")
+               + Check("a.data.m_2", "0x2", "int *")
+               + Check("a.data.x", "3", "int");
 
     QTest::newRow("StdSet")
             << Data("#include <set>\n",
@@ -5663,37 +5694,11 @@ void tst_Dumpers::dumper_data()
                + Check("s2.1", "[1]", "\"abc\"", "std::string") % BoostVersion(1 * 100000 + 54 * 100);
 
 
-//    // This tests qdump__KRBase in share/qtcreator/debugger/qttypes.py which uses
-//    // a static typeflag to dispatch to subclasses");
-
-//    QTest::newRow("KR")
-//          << Data(
-//            "namespace kr {\n"
-//\n"
-//            "   // FIXME: put in namespace kr, adjust qdump__KRBase in dumpers/qttypes.py\n"
-//            "   struct KRBase\n"
-//            "   {\n"
-//            "       enum Type { TYPE_A, TYPE_B } type;\n"
-//            "       KRBase(Type _type) : type(_type) {}\n"
-//            "   };\n"
-//\n"
-//            "   struct KRA : KRBase { int x; int y; KRA():KRBase(TYPE_A), x(1), y(32) {} };\n"
-//            "   struct KRB : KRBase { KRB():KRBase(TYPE_B) {} };\n"
-
-//            "/} // namespace kr\n"
-
-//        "KRBase *ptr1 = new KRA;\n"
-//        "KRBase *ptr2 = new KRB;\n"
-//        "ptr2 = new KRB;\n"
-//         + Check("ptr1", "KRBase");
-//         + Check("ptr1.type KRBase::TYPE_A (0) KRBase::Type");
-//         + Check("ptr2", "KRBase");
-//         + Check("ptr2.type KRBase::TYPE_B (1) KRBase::Type");
-
-
-#ifndef Q_OS_WIN
     QTest::newRow("Eigen")
-         << Data("#include <Eigen/Core>",
+         << Data("#ifdef HAS_EIGEN\n"
+                "#include <Eigen/Core>\n"
+                "#endif\n",
+                "#ifdef HAS_EIGEN\n"
                 "using namespace Eigen;\n"
                 "Vector3d zero = Vector3d::Zero();\n"
                 "Matrix3d constant = Matrix3d::Constant(5);\n"
@@ -5708,7 +5713,10 @@ void tst_Dumpers::dumper_data()
                 "rowMajorMatrix << 1, 2, 3, 4, 5, 6, 7, 8, 9, 10;\n"
 
                 "VectorXd vector(3);\n"
-                "vector << 1, 2, 3;\n")
+                "vector << 1, 2, 3;\n"
+                "#else\n"
+                "skipall = true;\n"
+                "#endif\n")
 
             + EigenProfile()
 
@@ -5734,7 +5742,7 @@ void tst_Dumpers::dumper_data()
 
             + Check("vector", "(3 x 1), ColumnMajor", "Eigen::VectorXd")
             + Check("vector.1", "[1]", FloatValue("2"), "double");
-#endif
+
 
     // https://bugreports.qt.io/browse/QTCREATORBUG-3611
     QTest::newRow("Bug3611")
@@ -6359,6 +6367,20 @@ void tst_Dumpers::dumper_data()
             + Check("v14.2", "[2]", "116", "@QChar")
             + Check("v15", "\"utf16\"", "@QJSValue (QString)")
             + Check("v15.1", "[1]", "116", "@QChar");
+
+
+    QTest::newRow("QStandardItem")
+            << Data("#include <QStandardItemModel>",
+                    "QStandardItemModel m;\n"
+                    "QStandardItem *root = m.invisibleRootItem();\n"
+                    "for (int i = 0; i < 4; ++i) {\n"
+                    "    QStandardItem *item = new QStandardItem(QString(\"item %1\").arg(i));\n"
+                    "    item->setData(123);\n"
+                    "    root->appendRow(item);\n"
+                    "}\n")
+            + GuiProfile()
+            + Check("root.[children].0.[values].0.value", "\"item 0\"", "@QVariant (@QString)");
+
 
     QTest::newRow("Internal1")
             << Data("struct QtcDumperTest_FieldAccessByIndex { int d[3] = { 10, 11, 12 }; };\n",

@@ -2793,6 +2793,16 @@ IEditor *EditorManager::openEditorWithContents(Id editorId,
     return edt;
 }
 
+bool EditorManager::skipOpeningBigTextFile(const QString &filePath)
+{
+    return EditorManagerPrivate::skipOpeningBigTextFile(filePath);
+}
+
+void EditorManager::clearUniqueId(IDocument *document)
+{
+    document->setProperty(scratchBufferKey, QVariant());
+}
+
 bool EditorManager::saveDocument(IDocument *document)
 {
     return EditorManagerPrivate::saveDocument(document);

@@ -22,6 +22,8 @@ Welcome
 
 * Added keyboard shortcuts for opening recent sessions and projects
 * Improved performance when many sessions are shown
+* Fixed dropping files on Qt Creator when Welcome screen was visible
+  (QTCREATORBUG-14194)
 
 Editing
 
@@ -42,6 +44,8 @@ All Projects
 QMake Projects
 
 * Removed Qt Labs Controls wizard which is superseded by Qt Quick Controls 2
+* Fixed that run button could spuriously stay disabled
+  (QTCREATORBUG-16172, QTCREATORBUG-15583)
 * Fixed `Open with Designer` and `Open with Linguist` for mobile and embedded Qt
   (QTCREATORBUG-16558)
 * Fixed Add Library wizard when selecting library from absolute path or
@@ -65,6 +69,7 @@ C++ Support
 
 * Added preview of images to tool tip on Qt resource URLs
 * Added option to skip big files when indexing (QTCREATORBUG-16712)
+* Fixed random crash in LookupContext (QTCREATORBUG-14911)
 * Fixed `Move Definition to Class` for functions in template class and
   template member functions (QTCREATORBUG-14354)
 * Fixed issues with `Add Declaration`, `Add Definition`, and
@@ -75,13 +80,15 @@ C++ Support
 
 Debugging
 
-* Added pretty printing of `QRegExp` captures
-* Added pretty printing of `QStaticStringData`
+* Added pretty printing of `QRegExp` captures, `QStaticStringData`, and
+  `std::pair`
 * Improved pretty printing of QV4 types
 * Made display of maps more compact
 * Fixed pretty printing of `QFixed`
 * LLDB
     * Added support for Qt Creator variables `%{...}` in startup commands
+* QML
+    * Fixed `Load QML Stack` with Qt 5.7 and later (QTCREATORBUG-17097)
 
 QML Profiler
 
@@ -103,6 +110,11 @@ Qt Quick Designer
 * Fixed that switching from Qt Quick Designer failed to commit pending changes
   (QTCREATORBUG-14830)
 * Fixed issues with pressing escape
+
+Qt Designer
+
+* Fixed that resources could not be selected in new form
+  (QTCREATORBUG-15560)
 
 Diff Viewer
 
@@ -132,6 +144,12 @@ Model Editor
 
 Platform Specific
 
+Windows
+
+* Added support for MSVC 2017
+* Fixed that environment variables containing special characters were not
+  passed correctly to user applications (QTCREATORBUG-17219)
+
 Android
 
 * Improved stability of determination if application is running
@@ -140,6 +158,10 @@ Android
 * Fixed that permission model downgrade was not detected as error
   (QTCREATORBUG-16630)
 * Fixed handling of minimum required API level (QTCREATORBUG-16740)
+
+iOS
+
+* Fixed that Qt Creator was blocked until simulator finished starting
 
 Credits for these changes go to:  
 Aaron Barany  

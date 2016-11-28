@@ -26,6 +26,7 @@
 import QtQuick 2.0
 
 ListModel {
+    // Unsupported by Qt Quick Designer, it should display a warning
     id: myModel
     ListElement {
         content: "foo"

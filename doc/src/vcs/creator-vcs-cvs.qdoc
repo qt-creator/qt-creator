@@ -1,0 +1,62 @@
+/****************************************************************************
+**
+** Copyright (C) 2016 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage {Qt Creator Manual}
+    \previouspage creator-vcs-clearcase.html
+    \page creator-vcs-cvs.html
+    \nextpage creator-vcs-git.html
+
+    \title Using CVS
+
+    CVS is an open source version control system.
+
+    In addition to the standard version control system functions described in
+    \l {Using Common Functions}, you can select \uicontrol Tools >
+    \uicontrol CVS > \uicontrol Edit to open a file for editing.
+
+    To discard the changes that you made in a file, select \uicontrol Unedit.
+
+    To specify the CVS root directory, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol {Version Control} > \uicontrol CVS, and then
+    specify the path to the directory in the \uicontrol {CVS root} field.
+
+    You can specify settings for viewing diff output in the
+    \uicontrol {Diff options} field.
+
+    By default, you are prompted to confirm that you want to submit changes.
+    To suppress the prompt, deselect the \uicontrol {Prompt on submit} check
+    box.
+
+    By default, all files that belong to the commit are annotated. To disable
+    this feature, deselect the \uicontrol {Describe all files matching commit
+    id} check box.
+*/

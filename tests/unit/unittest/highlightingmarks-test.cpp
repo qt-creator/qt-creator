@@ -1049,14 +1049,45 @@ TEST_F(HighlightingMarks, NonConstPointerArgumentAsExpression)
                 HasTwoTypes(HighlightingType::LocalVariable, HighlightingType::OutputArgument));
 }
 
-TEST_F(HighlightingMarks, NonConstPointerArgumentAsMemberOfClass)
+TEST_F(HighlightingMarks, NonConstPointerArgumentAsInstanceWithMember)
 {
     const auto infos = translationUnit.highlightingMarksInRange(sourceRange(525, 46));
 
     infos[1];
 
+    ASSERT_THAT(infos[2],
+                HasTwoTypes(HighlightingType::LocalVariable, HighlightingType::OutputArgument));
+}
+
+TEST_F(HighlightingMarks, NonConstPointerArgumentAsMemberOfInstance)
+{
+    const auto infos = translationUnit.highlightingMarksInRange(sourceRange(525, 46));
+
+    infos[1];
+    infos[2];
+
     ASSERT_THAT(infos[4],
                 HasTwoTypes(HighlightingType::Field, HighlightingType::OutputArgument));
+}
+
+TEST_F(HighlightingMarks, DISABLED_NonConstReferenceArgumentConstructor)
+{
+    const auto infos = translationUnit.highlightingMarksInRange(sourceRange(540, 57));
+
+    infos[2];
+
+    ASSERT_THAT(infos[3],
+                HasTwoTypes(HighlightingType::LocalVariable, HighlightingType::OutputArgument));
+}
+
+TEST_F(HighlightingMarks, DISABLED_NonConstReferenceMemberInitialization)
+{
+    const auto infos = translationUnit.highlightingMarksInRange(sourceRange(546, 19));
+
+    infos[2];
+
+    ASSERT_THAT(infos[3],
+                HasTwoTypes(HighlightingType::LocalVariable, HighlightingType::OutputArgument));
 }
 
 TEST_F(HighlightingMarks, DISABLED_EnumerationTypeDef)

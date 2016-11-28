@@ -29,10 +29,10 @@ Rectangle {
     width: 60
     height: 60
     color: "green"
-    property alias text: text.text
+    property alias text: textItem.text
 
     Text {
-        id: text
+        id: textItem
         anchors.centerIn: parent
     }
 }

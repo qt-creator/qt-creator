@@ -205,18 +205,15 @@ bool HighlightingMark::isArgumentInCurrentOutputArgumentLocations() const
     auto originalSourceLocation = originalCursor.cxSourceLocation();
 
     const auto isNotSameOutputArgument = [&] (const CXSourceRange &currentSourceRange) {
-        return !(originalSourceLocation.int_data >= currentSourceRange.begin_int_data
-                 && originalSourceLocation.int_data <= currentSourceRange.end_int_data);
+        return originalSourceLocation.int_data >= currentSourceRange.begin_int_data
+            && originalSourceLocation.int_data <= currentSourceRange.end_int_data;
     };
 
-    auto partitionPoint = std::partition(currentOutputArgumentRanges->begin(),
-                                         currentOutputArgumentRanges->end(),
-                                         isNotSameOutputArgument);
+    auto found = std::find_if(currentOutputArgumentRanges->begin(),
+                                       currentOutputArgumentRanges->end(),
+                                       isNotSameOutputArgument);
 
-    bool isOutputArgument = partitionPoint != currentOutputArgumentRanges->end();
-
-    if (isOutputArgument)
-        currentOutputArgumentRanges->erase(partitionPoint, currentOutputArgumentRanges->end());
+    bool isOutputArgument = found != currentOutputArgumentRanges->end();
 
     return isOutputArgument;
 }
@@ -366,6 +363,7 @@ HighlightingType HighlightingMark::punctuationKind(const Cursor &cursor)
 {
     switch (cursor.kind()) {
         case CXCursor_DeclRefExpr: return operatorKind(cursor);
+        case CXCursor_Constructor:
         case CXCursor_CallExpr:    collectOutputArguments(cursor);
         default:                   return HighlightingType::Invalid;
     }

@@ -376,8 +376,8 @@
     You can double-click objects on the canvas to edit their text, color, or
     source properties inline.
     Because you can specify several of these properties for some QML types, such
-    as TextEdit, you can also right-click objects to open the inline editors
-    from a context-menu.
+    as \l [QML]{TextEdit}{Text Edit}, you can also right-click objects to open
+    the inline editors from a context-menu.
 
     \image qmldesigner-inline-editing.png
 

@@ -3515,14 +3515,14 @@ void GdbEngine::handleRegisterListing(const DebuggerResponse &response)
     m_registers.clear();
     QStringList lines = response.consoleStreamOutput.split('\n');
     for (int i = 1; i < lines.size(); ++i) {
-        QStringList parts = QString(lines.at(i)).split(' ', QString::SkipEmptyParts);
+        const QVector<QStringRef> parts = lines.at(i).splitRef(' ', QString::SkipEmptyParts);
         if (parts.size() < 7)
             continue;
         int gdbRegisterNumber = parts.at(1).toInt();
         Register reg;
-        reg.name = parts.at(0);
+        reg.name = parts.at(0).toString();
         reg.size = parts.at(4).toInt();
-        reg.reportedType = parts.at(5);
+        reg.reportedType = parts.at(5).toString();
         m_registers[gdbRegisterNumber] = reg;
     }
 }
@@ -3895,7 +3895,7 @@ static SourcePathMap mergeStartParametersSourcePathMap(const DebuggerRunParamete
 void GdbEngine::startGdb(const QStringList &args)
 {
     const QString tests = QString::fromLocal8Bit(qgetenv("QTC_DEBUGGER_TESTS"));
-    foreach (const QString &test, tests.split(','))
+    foreach (const QStringRef &test, tests.splitRef(QLatin1Char(',')))
         m_testCases.insert(test.toInt());
     foreach (int test, m_testCases)
         showMessage("ENABLING TEST CASE: " + QString::number(test));

@@ -56,8 +56,11 @@ def qdump__std____1__complex(d, value):
 
 
 def qdump__std__deque(d, value):
-    if d.isQnxTarget() or d.isMsvcTarget():
+    if d.isQnxTarget():
         qdump__std__deque__QNX(d, value)
+        return
+    if d.isMsvcTarget():
+        qdump__std__deque__MSVC(d, value)
         return
 
     innerType = value.type[0]
@@ -140,6 +143,34 @@ def qdump__std__deque__QNX(d, value):
                     block -= mapsize
                 d.putSubItem(i, map[block][offset])
                 myoff += 1;
+
+def qdump__std__deque__MSVC(d, value):
+    innerType = value.type[0]
+    innerSize = innerType.size()
+    if innerSize <= 1:
+        bufsize = 16
+    elif innerSize <= 2:
+        bufsize = 8
+    elif innerSize <= 4:
+        bufsize = 4
+    elif innerSize <= 8:
+        bufsize = 2
+    else:
+        bufsize = 1
+
+    (proxy, map, mapsize, myoff, mysize) = value.split("ppppp")
+
+    d.check(0 <= mapsize and mapsize <= 1000 * 1000 * 1000)
+    d.putItemCount(mysize)
+    if d.isExpanded():
+        with Children(d, mysize, maxNumChild=2000, childType=innerType):
+            for i in d.childRange():
+                if myoff >= bufsize * mapsize:
+                    myoff = 0
+                buf = map + ((myoff // bufsize) * d.ptrSize())
+                address = d.extractPointer(buf) + ((myoff % bufsize) * innerSize)
+                d.putSubItem(i, d.createValue(address, innerType))
+                myoff += 1
 
 def qdump__std____debug__deque(d, value):
     qdump__std__deque(d, value)
@@ -238,11 +269,12 @@ def qdump__std__map(d, value):
     d.putItemCount(size)
 
     if d.isExpanded():
-        pairType = value.type[3][0]
-        with PairedChildren(d, size, pairType=pairType, maxNumChild=1000):
+        keyType = value.type[0]
+        valueType = value.type[1]
+        with Children(d, size, maxNumChild=1000):
             node = value["_M_t"]["_M_impl"]["_M_header"]["_M_left"]
             nodeSize = node.dereference().type.size()
-            typeCode = "@{%s}@{%s}" % (pairType[0].name, pairType[1].name)
+            typeCode = "@{%s}@{%s}" % (keyType.name, valueType.name)
             for i in d.childRange():
                 (pad1, key, pad2, value) = d.split(typeCode, node.pointer() + nodeSize)
                 d.putPairItem(i, (key, value))
@@ -267,8 +299,7 @@ def qdump_std__map__helper(d, size, value):
         head = value['_Myhead']
         node = head['_Left']
         nodeType = head.type
-        pairType = head.type[0]
-        with PairedChildren(d, size, pairType=pairType, maxNumChild=1000):
+        with Children(d, size, maxNumChild=1000):
             for i in d.childRange():
                 pair = node.cast(nodeType).dereference()['_Myval']
                 d.putPairItem(i, pair)
@@ -483,10 +514,8 @@ def qdump__std____1__map(d, value):
         valueType = value.type[0]
         node = tree["__begin_node_"]
         nodeType = node.type
-        pairType = value.type[3][0]
-        with PairedChildren(d, size, pairType=pairType, maxNumChild=1000):
+        with Children(d, size, maxNumChild=1000):
             node = tree["__begin_node_"]
-            nodeType = node.type
             for i in d.childRange():
                 # There's possibly also:
                 #pair = node['__value_']['__nc']
@@ -690,11 +719,6 @@ def qform__std____debug__unordered_map():
     return mapForms()
 
 def qdump__std__unordered_map(d, value):
-    keyType = value.type[0]
-    valueType = value.type[1]
-    allocatorType = value.type[4]
-    pairType = allocatorType[0]
-    ptrSize = d.ptrSize()
     try:
         # gcc ~= 4.7
         size = value["_M_element_count"].integer()
@@ -721,11 +745,14 @@ def qdump__std__unordered_map(d, value):
 
     d.putItemCount(size)
     if d.isExpanded():
+        keyType = value.type[0]
+        valueType = value.type[1]
+        typeCode = 'p@{%s}@{%s}' % (value.type[0].name, value.type[1].name)
         p = start.pointer()
-        with PairedChildren(d, size, keyType=keyType, valueType=valueType):
+        with Children(d, size):
             for i in d.childRange():
-                d.putPairItem(i, d.createValue(p + ptrSize, pairType))
-                p = d.extractPointer(p)
+                p, pad, key, pad, val = d.split(typeCode, p)
+                d.putPairItem(i, (key, val))
 
 def qdump__std____debug__unordered_map(d, value):
     qdump__std__unordered_map(d, value)
@@ -779,7 +806,7 @@ def qdump__std____1__unordered_map(d, value):
                 return val
 
         node = value["__table_"]["__p1_"]["__first_"]["__next_"]
-        with PairedChildren(d, size, pairType=valueCCorNot(node["__value_"]).type):
+        with Children(d, size):
             for i in d.childRange():
                 d.putPairItem(i, valueCCorNot(node["__value_"]))
                 node = node["__next_"]

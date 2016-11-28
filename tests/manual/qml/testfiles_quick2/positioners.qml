@@ -115,7 +115,7 @@ Rectangle {
     }
 
     Flow {
-        id: flow
+        id: flowPositioner
         x: 78
         y: 53
         width: 84

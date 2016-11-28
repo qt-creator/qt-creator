@@ -48,28 +48,28 @@
 
     \list
 
-        \li \l{BorderImage} uses an image as a border or background.
+        \li \l [QML]{BorderImage}{Border Image} uses an image as a border or background.
 
-        \li \l{Image}
+        \li \l [QML]{Image}
             adds a bitmap to the scene. You can stretch and tile images.
 
-        \li \l{Item}
+        \li \l [QML]{Item}
             is the most basic of all visual types in QML. Even though it has no
             visual appearance, it defines all the properties that are common
             across visual types, such as the x and y position, width and height,
             anchoring, and key handling.
 
-        \li \l{Rectangle}
+        \li \l [QML]{Rectangle}
             adds a rectangle that is painted with a solid fill color and an
             optional border. You can also use the radius property to create
             rounded rectangles.
 
-        \li \l{Text} adds formatted read-only text.
+        \li \l [QML]{Text} adds formatted read-only text.
 
-        \li \l{TextEdit}
+        \li \l [QML]{TextEdit}{Text Edit}
             adds a single line of editable formatted text that can be validated.
 
-        \li \l{TextInput}
+        \li \l [QML]{TextInput}{Text Input}
             adds a single line of editable plain text that can be validated.
 
         \omit

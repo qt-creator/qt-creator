@@ -327,7 +327,7 @@ void Parser::Private::parseHeader(QIODevice *device)
         } else if (line.startsWith("summary: ")) {
             QString values = getValue(line, 9);
             uint i = 0;
-            foreach (const QString &value, values.split(QLatin1Char(' '), QString::SkipEmptyParts))
+            foreach (const QStringRef &value, values.splitRef(QLatin1Char(' '), QString::SkipEmptyParts))
                 data->setTotalCost(i++, value.toULongLong());
         } else if (!line.trimmed().isEmpty()) {
             // handle line and exit parseHeader

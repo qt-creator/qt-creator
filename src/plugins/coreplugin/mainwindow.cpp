@@ -1098,8 +1098,11 @@ void MainWindow::aboutQtCreator()
         m_versionDialog = new VersionDialog(this);
         connect(m_versionDialog, &QDialog::finished,
                 this, &MainWindow::destroyVersionDialog);
+        ICore::registerWindow(m_versionDialog, Context("Core.VersionDialog"));
+        m_versionDialog->show();
+    } else {
+        ICore::raiseWindow(m_versionDialog);
     }
-    m_versionDialog->show();
 }
 
 void MainWindow::destroyVersionDialog()

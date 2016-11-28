@@ -30,6 +30,10 @@
 #include "pytype.h"
 #include "pyfield.h"
 #include "stringutils.h"
+#include "symbolgroupvalue.h"
+
+constexpr bool debugPyValue = false;
+constexpr bool debuggingValueEnabled() { return debugPyValue || debugPyCdbextModule; }
 
 std::string getSymbolName(CIDebugSymbolGroup *sg, ULONG index)
 {
@@ -42,14 +46,33 @@ std::string getSymbolName(CIDebugSymbolGroup *sg, ULONG index)
     return name;
 }
 
+std::string getSymbolName(Value *value)
+{
+    return getSymbolName(value->m_symbolGroup, value->m_index);
+}
+
 PyObject *value_Name(Value *self)
 {
     if (!self->m_symbolGroup)
         Py_RETURN_NONE;
-    const std::string &symbolName = getSymbolName(self->m_symbolGroup, self->m_index);
+    const std::string &symbolName = getSymbolName(self);
     if (symbolName.empty())
         Py_RETURN_NONE;
     return Py_BuildValue("s", symbolName.c_str());
+}
+
+char *getTypeName(Value *value)
+{
+    char *typeName = nullptr;
+    ULONG size = 0;
+    value->m_symbolGroup->GetSymbolTypeName(value->m_index, NULL, 0, &size);
+    if (size > 0) {
+        typeName = new char[size+3];
+        if (SUCCEEDED(value->m_symbolGroup->GetSymbolTypeName(value->m_index, typeName, size, NULL)))
+            return typeName;
+        delete[] typeName;
+    }
+    return nullptr;
 }
 
 PyObject *value_Type(Value *self)
@@ -57,10 +80,22 @@ PyObject *value_Type(Value *self)
     if (!self->m_symbolGroup)
         Py_RETURN_NONE;
     DEBUG_SYMBOL_PARAMETERS params;
-    const HRESULT hr = self->m_symbolGroup->GetSymbolParameters(self->m_index, 1, &params);
-    if (FAILED(hr))
+    if (FAILED(self->m_symbolGroup->GetSymbolParameters(self->m_index, 1, &params)))
         Py_RETURN_NONE;
-    return createType(params.Module, params.TypeId);
+    char *typeName = getTypeName(self);
+    auto ret = createType(params.Module, params.TypeId, typeName ? typeName : std::string());
+    delete[] typeName;
+    return ret;
+}
+
+PyObject *value_Bitsize(Value *self)
+{
+    if (!self->m_symbolGroup)
+        Py_RETURN_NONE;
+    ULONG size;
+    if (FAILED(self->m_symbolGroup->GetSymbolSize(self->m_index, &size)))
+        Py_RETURN_NONE;
+    return Py_BuildValue("k", size * 8);
 }
 
 char *valueData(Value *self, PULONG received)
@@ -105,7 +140,11 @@ ULONG64 valueAddress(Value *value)
 PyObject *value_Address(Value *self)
 {
     const ULONG64 address = valueAddress(self);
-    return address == 0 ? NULL : Py_BuildValue("K", address);
+    if (debuggingValueEnabled())
+        DebugPrint() << "Address of " << getSymbolName(self) << ": 0x" << std::hex << address;
+    if (address == 0)
+        Py_RETURN_NONE;
+    return Py_BuildValue("K", address);
 }
 
 bool expandValue(Value *v)
@@ -121,6 +160,8 @@ bool expandValue(Value *v)
 ULONG numberOfChildren(Value *v)
 {
     DEBUG_SYMBOL_PARAMETERS params;
+    if (!expandValue(v))
+        return 0;
     HRESULT hr = v->m_symbolGroup->GetSymbolParameters(v->m_index, 1, &params);
     return SUCCEEDED(hr) ? params.SubElements : 0;
 }
@@ -129,24 +170,26 @@ PyObject *value_Dereference(Value *self)
 {
     if (!self->m_symbolGroup)
         Py_RETURN_NONE;
-    DEBUG_SYMBOL_PARAMETERS params;
-    const HRESULT hr = self->m_symbolGroup->GetSymbolParameters(self->m_index, 1, &params);
-    if (FAILED(hr))
-        Py_RETURN_NONE;
 
-    char *name = getTypeName(params.Module, params.TypeId);
+    char *typeName = getTypeName(self);
+    std::string typeNameStr(typeName);
+    const bool isPointer = isPointerType(typeNameStr);
+    const bool isArray = !isPointer && endsWith(typeNameStr, "]");
+    delete[] typeName;
 
-    PyObject *ret = reinterpret_cast<PyObject*>(self);
-    if (endsWith(std::string(name), "*")) {
-        if (numberOfChildren(self) > 0 && expandValue(self)) {
-            ULONG symbolCount = 0;
-            self->m_symbolGroup->GetNumberSymbols(&symbolCount);
-            if (symbolCount > self->m_index + 1)
-                ret = createValue(self->m_index + 1, self->m_symbolGroup);
-        }
+    if (isPointer || isArray) {
+        std::string valueName = getSymbolName(self);
+        if (isPointer)
+            valueName.insert(0, 1, '*');
+        else
+            valueName.append("[0]");
+        ULONG index = DEBUG_ANY_ID;
+        if (SUCCEEDED(self->m_symbolGroup->AddSymbol(valueName.c_str(), &index)))
+            return createValue(index, self->m_symbolGroup);
     }
 
-    delete[] name;
+    PyObject *ret = reinterpret_cast<PyObject*>(self);
+    Py_XINCREF(ret);
     return ret;
 }
 
@@ -259,6 +302,11 @@ PyObject *value_ChildFromIndex(Value *self, PyObject *args)
     if (childCount <= index || !expandValue(self))
         Py_RETURN_NONE;
 
+    if (debuggingValueEnabled()) {
+        DebugPrint() << "child " << index + 1
+                     << " from " << getSymbolName(self)
+                     << " is " << getSymbolName(self->m_symbolGroup, self->m_index + index + 1);
+    }
     return createValue(self->m_index + index + 1, self->m_symbolGroup);
 }
 
@@ -281,6 +329,12 @@ void initValue(Value *value)
 
 PyObject *createValue(ULONG index, CIDebugSymbolGroup *symbolGroup)
 {
+    ULONG count;
+    if (FAILED(symbolGroup->GetNumberSymbols(&count)))
+        Py_RETURN_NONE;
+    if (index >= count) // don't add values for indices out of bounds
+        Py_RETURN_NONE;
+
     Value *value = PyObject_New(Value, value_pytype());
     if (value != NULL) {
         value->m_index = index;
@@ -294,6 +348,8 @@ static PyMethodDef valueMethods[] = {
      "Name of this thing or None"},
     {"type",                PyCFunction(value_Type),                METH_NOARGS,
      "Type of this value"},
+    {"bitsize",             PyCFunction(value_Bitsize),             METH_NOARGS,
+     "Return the size of the value in bits"},
     {"asBytes",             PyCFunction(value_AsBytes),             METH_NOARGS,
      "Memory contents of this object, or None"},
     {"address",             PyCFunction(value_Address),             METH_NOARGS,

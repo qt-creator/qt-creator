@@ -88,6 +88,7 @@ class Dumper(DumperBase):
         val.name = nativeValue.name()
         val.nativeValue = nativeValue
         val.type = self.fromNativeType(nativeValue.type())
+        val.isBaseClass = val.name == val.type.name
         val.lIsInScope = True
         val.laddress = nativeValue.address()
         return val
@@ -114,14 +115,11 @@ class Dumper(DumperBase):
             nativeType = FakeVoidType(nativeType.name(), self)
 
         if code == TypeCodePointer:
-            targetType = self.fromNativeType(nativeType.target().unqualified())
-            return self.createPointerType(targetType)
+            return self.createPointerType(self.fromNativeType(nativeType.target()))
 
         if code == TypeCodeArray:
-            nativeTargetType = nativeType.target().unqualified()
-            targetType = self.fromNativeType(nativeTargetType)
-            count = nativeType.bitsize() // nativeTargetType.bitsize()
-            return self.createArrayType(targetType, count)
+            targetType = self.fromNativeType(nativeType.target())
+            return self.createArrayType(targetType, nativeType.arrayElements())
 
         typeId = self.nativeTypeId(nativeType)
         if self.typeData.get(typeId, None) is None:
@@ -243,7 +241,10 @@ class Dumper(DumperBase):
         self.report('result={%s}' % (result))
 
     def readRawMemory(self, address, size):
-        return cdbext.readRawMemory(address, size)
+        mem = cdbext.readRawMemory(address, size)
+        if len(mem) != size:
+            raise Exception("Invalid memory request")
+        return mem
 
     def findStaticMetaObject(self, typeName):
         ptr = self.findValueByExpression('&' + typeName + '::staticMetaObject')

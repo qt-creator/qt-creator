@@ -30,6 +30,7 @@
 #include "toolchainconfigwidget.h"
 
 QT_FORWARD_DECLARE_CLASS(QLabel)
+QT_FORWARD_DECLARE_CLASS(QVersionNumber)
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -133,9 +134,8 @@ public:
     ToolChain *restore(const QVariantMap &data) override;
 
     ToolChainConfigWidget *configurationWidget(ToolChain *);
-    static QString vcVarsBatFor(const QString &basePath, MsvcToolChain::Platform platform);
-private:
-    static bool checkForVisualStudioInstallation(const QString &vsName);
+    static QString vcVarsBatFor(const QString &basePath, MsvcToolChain::Platform platform,
+                                const QVersionNumber &v);
 };
 
 // --------------------------------------------------------------------------

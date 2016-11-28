@@ -250,17 +250,16 @@ DiffEditor::DiffEditor()
             this, &DiffEditor::setCurrentDiffFileIndex);
     m_toolBar->addWidget(m_entriesComboBox);
 
-    m_contextLabel = new QLabel(m_toolBar);
-
-    m_contextLabel->setText(tr("Context lines:"));
-    m_contextLabel->setContentsMargins(6, 0, 6, 0);
-    m_toolBar->addWidget(m_contextLabel);
+    QLabel *contextLabel = new QLabel(m_toolBar);
+    contextLabel->setText(tr("Context lines:"));
+    contextLabel->setContentsMargins(6, 0, 6, 0);
+    m_contextLabelAction = m_toolBar->addWidget(contextLabel);
 
     m_contextSpinBox = new QSpinBox(m_toolBar);
     m_contextSpinBox->setRange(1, 100);
     m_contextSpinBox->setFrame(false);
     m_contextSpinBox->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding); // Mac Qt5
-    m_toolBar->addWidget(m_contextSpinBox);
+    m_contextSpinBoxAction = m_toolBar->addWidget(m_contextSpinBox);
 
     m_whitespaceButtonAction = m_toolBar->addAction(tr("Ignore Whitespace"));
     m_whitespaceButtonAction->setCheckable(true);
@@ -544,8 +543,8 @@ void DiffEditor::documentStateChanged()
     const bool contextVisible = !m_document->isContextLineCountForced();
 
     m_whitespaceButtonAction->setVisible(canReload);
-    m_contextLabel->setVisible(canReload && contextVisible);
-    m_contextSpinBox->setVisible(canReload && contextVisible);
+    m_contextLabelAction->setVisible(canReload && contextVisible);
+    m_contextSpinBoxAction->setVisible(canReload && contextVisible);
     m_reloadAction->setVisible(canReload);
 }
 

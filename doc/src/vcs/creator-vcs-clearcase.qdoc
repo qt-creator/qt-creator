@@ -1,0 +1,115 @@
+/****************************************************************************
+**
+** Copyright (C) 2016 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage {Qt Creator Manual}
+    \previouspage creator-vcs-bazaar.html
+    \page creator-vcs-clearcase.html
+    \nextpage creator-vcs-cvs.html
+
+    \title Using ClearCase
+
+    IBM Rational ClearCase is a version control, workspace management, parallel
+    development support, and build automation solution developed by IBM. The
+    ClearCase client plugin is available on Linux and Windows for accessing a
+    ClearCase server.
+
+    \section1 Using GNU Diffutils with ClearCase
+
+    You can use the GNU Diffutils tool With ClearCase to compare files and
+    activities:
+
+    \list 1
+
+        \li Download \l{http://gnuwin32.sourceforge.net/packages/diffutils.htm}
+            {Diffutils} and extract it to a directory in your PATH.
+
+        \li Select \uicontrol Tools > \uicontrol Options >
+            \uicontrol {Version Control} > \uicontrol ClearCase.
+
+        \li Select the \uicontrol External radio button. The radio button is
+            disabled if \c diff is not found in the PATH.
+
+        \li In the \uicontrol Arguments field, specify arguments for running
+            \c diff.
+
+    \endlist
+
+    \section1 Checking out and Checking in
+
+    In addition to the standard version control system functions described in
+    \l {Using Common Functions}, you can check out and check in files.
+
+    To create a writable copy of a file, select \uicontrol Tools >
+    \uicontrol ClearCase > \uicontrol {Check Out}. If you check out files in a
+    Unified Change Management (UCM) view, they are added to the change set of
+    a UCM activity. By default, the activities are automatically assigned names.
+    To disable this functionality, select \uicontrol Tools > \uicontrol Options
+    > \uicontrol {Version Control} > \uicontrol ClearCase, and then deselect the
+    \uicontrol {Automatically assign activity names} check box.
+
+    To automatically check out files when you edit them, select \uicontrol Tools
+    > \uicontrol Options > \uicontrol {Version Control} > \uicontrol ClearCase,
+    and then select the \uicontrol {Automatically check out files on edit}
+    check box.
+
+    To cancel the checkout for a file and delete the checked-out version,
+    select \uicontrol Tools > \uicontrol ClearCase >
+    \uicontrol {Undo Check Out}.
+
+    To check in checked-out versions of files in the change set of the current
+    UCM activity, select \uicontrol Tools > \uicontrol ClearCase >
+    \uicontrol {Check In Activity}.
+
+    To create a permanent new version of the current file or all files in the
+    versioned object base (VOB), select \uicontrol Tools >
+    \uicontrol {ClearCase} > \uicontrol {Check In}. To be asked to confirm
+    that you want to check in the files, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol {Version Control} > \uicontrol ClearCase,
+    and then select the \uicontrol {Prompt on check-in} check box.
+
+    By default, you are asked to enter a comment when checking files out or in.
+    To suppress this prompt, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol {Version Control} > \uicontrol ClearCase, and then select the
+    \uicontrol {Do not prompt for comment during checkout or check-in} check
+    box.
+
+    If you change the read-only attribute of a file that is loaded into a
+    snapshot view and modify the file without checking it out, you \e hijack the
+    file. To revert a hijacked file to its checked in version, select
+    \uicontrol Tools > \uicontrol ClearCase > \uicontrol {Undo Hijack}.
+
+    By default, the files in the VOBs are indexed for quick access to their
+    statuses. To disable indexing, select \uicontrol Tools > \uicontrol Options
+    > \uicontrol {Version Control} > \uicontrol ClearCase, and then select the
+    \uicontrol {Disable indexer} check box. To only have some VOBs indexed,
+    specify them in the \uicontrol {Index only VOBs} field.
+*/

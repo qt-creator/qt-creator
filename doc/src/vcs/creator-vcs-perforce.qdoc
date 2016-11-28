@@ -1,0 +1,89 @@
+/****************************************************************************
+**
+** Copyright (C) 2016 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage {Qt Creator Manual}
+    \previouspage creator-vcs-mercurial.html
+    \page creator-vcs-perforce.html
+    \nextpage creator-vcs-subversion.html
+
+    \title Using Perforce
+
+    Perforce is a fast software configuration management system developed by
+    Perforce Software.
+
+    \section1 Configuring Perforce
+
+    When you start \QC, it looks for the executable specified
+    in the \uicontrol{P4 command} field in \uicontrol{Tools > Options > Version
+    Control > Perforce}. If the file is not found, the following error
+    message is displayed in the \uicontrol {Version Control} output pane:
+    \uicontrol {Perforce: Unable to determine the repository: "p4.exe"
+    terminated with exit code 1}. If you use Perforce, check that the
+    path to the executable is specified correctly in the \uicontrol{P4 command}
+    field.
+
+    If you do not use Perforce, you can disable the Perforce plugin to
+    get rid of the error message. Choose \uicontrol {Help > About Plugins} and
+    deselect the \uicontrol Load check box for the \uicontrol Perforce plugin in
+    the \uicontrol {Version Control} group.
+
+    In the Perforce options, you can specify workspace details:
+    \uicontrol {P4 user}, \uicontrol {P4 client}, and \uicontrol {P4 port}. To
+    specify the details individually for several projects, use configuration
+    files instead. Create a \c {p4config.txt} configuration file for each
+    project in the top level project directory.
+
+    \section1 Editing Files
+
+    In addition to the standard version control system functions described in
+    \l {Using Common Functions}, you can select \uicontrol Tools >
+    \uicontrol Perforce > \uicontrol {Edit File} to open a file for editing
+    within the client workspace. By default, files are automatically opened for
+    editing. To disable this feature, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol {Version Control} > \uicontrol Perforce,
+    and then deselect the \uicontrol {Automatically open files when editing}
+    check box.
+
+    To list files that are open for editing, select \uicontrol Tools >
+    \uicontrol Perforce > \uicontrol Opened.
+
+    To group files for commit, select \uicontrol Tools > \uicontrol Perforce >
+    \uicontrol {Pending Changes}.
+
+    To view information about changelists and the files in them, select
+    \uicontrol Tools > \uicontrol Perforce > \uicontrol Describe.
+
+    By default, you are prompted to confirm that you want to submit changes.
+    To suppress the prompt, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol {Version Control} > \uicontrol Perforce, and then deselect the
+    \uicontrol {Prompt on submit} check box.
+*/

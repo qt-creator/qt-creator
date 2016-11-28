@@ -215,6 +215,7 @@ bool DiffEditorDocument::save(QString *errorString, const QString &fileName, boo
 
     setController(0);
     setDescription(QString());
+    Core::EditorManager::clearUniqueId(this);
 
     const QFileInfo fi(fileName);
     setTemporary(false);

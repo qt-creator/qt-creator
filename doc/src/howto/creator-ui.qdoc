@@ -265,6 +265,8 @@
 
         \li Search from the selected directory.
 
+        \li Display the contents of a particular directory in the view.
+
     \endlist
 
     \section2 Viewing the Class Hierarchy

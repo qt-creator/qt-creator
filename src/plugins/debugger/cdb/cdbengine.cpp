@@ -2071,7 +2071,7 @@ void CdbEngine::ensureUsing32BitStackInWow64(const DebuggerResponse &response, c
 {
     // Parsing the header of the stack output to check which bitness
     // the cdb is currently using.
-    foreach (const QString &line, response.data.data().split('\n')) {
+    foreach (const QStringRef &line, response.data.data().splitRef(QLatin1Char('\n'))) {
         if (!line.startsWith("Child"))
             continue;
         if (line.startsWith("ChildEBP")) {
@@ -2909,7 +2909,8 @@ void CdbEngine::setupScripting(const DebuggerResponse &response)
         return;
     }
     const QString &verOutput = data.data();
-    const QStringList pythonVersion = verOutput.split(' ').first().split('.');
+    const QString firstToken = verOutput.split(QLatin1Char(' ')).constFirst();
+    const QVector<QStringRef> pythonVersion =firstToken.splitRef(QLatin1Char('.'));
 
     bool ok = false;
     if (pythonVersion.size() == 3) {

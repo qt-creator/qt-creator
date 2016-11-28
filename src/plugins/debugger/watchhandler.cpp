@@ -71,6 +71,7 @@
 #include <QTableWidget>
 #include <QTimer>
 #include <QVBoxLayout>
+#include <QToolTip>
 
 #include <algorithm>
 #include <cstring>
@@ -349,6 +350,27 @@ public:
         show();
         raise();
         return t;
+    }
+};
+
+class TextEdit : public QTextEdit
+{
+    Q_OBJECT
+public:
+    bool event(QEvent *ev) override
+    {
+        if (ev->type() == QEvent::ToolTip) {
+            auto hev = static_cast<QHelpEvent *>(ev);
+            QTextCursor cursor = cursorForPosition(hev->pos());
+            int nextPos = cursor.position();
+            if (document() && nextPos + 1 < document()->characterCount())
+                ++nextPos;
+            cursor.setPosition(nextPos, QTextCursor::KeepAnchor);
+            QString msg = QString("Position: %1  Character: %2")
+                    .arg(cursor.anchor()).arg(cursor.selectedText());
+            QToolTip::showText(hev->globalPos(), msg, this);
+        }
+        return QTextEdit::event(ev);
     }
 };
 
@@ -1603,9 +1625,10 @@ bool WatchModel::contextMenuEvent(const ItemViewEvent &ev)
               canRemoveWatches && !m_handler->watchedExpressions().isEmpty(),
               [this] { clearWatches(); });
 
-    addAction(menu, tr("Select Widget to Add into Expression Evaluator"),
-              canHandleWatches && canInsertWatches && m_engine->hasCapability(WatchWidgetsCapability),
-              [this, ev] { ev.view()->grabMouse(Qt::CrossCursor); m_grabbing = true; });
+// FIXME:
+//    addAction(menu, tr("Select Widget to Add into Expression Evaluator"),
+//              canHandleWatches && canInsertWatches && m_engine->hasCapability(WatchWidgetsCapability),
+//              [this, ev] { ev.view()->grabMouse(Qt::CrossCursor); m_grabbing = true; });
 
     menu->addSeparator();
     menu->addMenu(createFormatMenu(item));
@@ -2211,7 +2234,7 @@ void WatchModel::showEditValue(const WatchItem *item)
             str = QString::fromUtf16((ushort *)ba.constData(), ba.size() / 2);
         else if (format == DisplayUtf16String)
             str = QString::fromUcs4((uint *)ba.constData(), ba.size() / 4);
-        m_separatedView->prepareObject<QTextEdit>(item)->setPlainText(str);
+        m_separatedView->prepareObject<TextEdit>(item)->setPlainText(str);
     } else if (format == DisplayPlotData) {
         // Plots
         std::vector<double> data;
@@ -2508,7 +2531,7 @@ void WatchHandler::addDumpers(const GdbMi &dumpers)
         DisplayFormats formats;
         formats.append(RawFormat);
         QString reportedFormats = dumper["formats"].data();
-        foreach (const QString &format, reportedFormats.split(',')) {
+        foreach (const QStringRef &format, reportedFormats.splitRef(',')) {
             if (int f = format.toInt())
                 formats.append(DisplayFormat(f));
         }
@@ -2637,3 +2660,5 @@ static QVariant createItemDelegate()
 
 } // namespace Internal
 } // namespace Debugger
+
+#include "watchhandler.moc"

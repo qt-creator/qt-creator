@@ -150,28 +150,6 @@ MetaInfo {
     }
 
     Type {
-        name: "QtQuick.Controls.ScrollBar"
-        icon: ":/componentsplugin/images/scrollbar16.png"
-
-        ItemLibraryEntry {
-            name: "Scroll Bar (Horizontal)"
-            category: "Qt Quick - Controls"
-            libraryIcon: ":/componentsplugin/images/scrollbarh.png"
-            version: "1.0"
-            requiredImport: "QtQuick.Controls"
-        }
-
-        ItemLibraryEntry {
-           name: "Scroll Bar (Vertical)"
-            category: "Qt Quick - Controls"
-            libraryIcon: ":/componentsplugin/images/scrollbarv.png"
-            version: "1.0"
-            requiredImport: "QtQuick.Controls"
-            Property { name: "orientation"; type: "int"; value: "0"; }
-        }
-    }
-
-    Type {
         name: "QtQuick.Controls.ScrollArea"
         icon: ":/componentsplugin/images/window16.png"
 

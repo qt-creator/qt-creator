@@ -1,0 +1,54 @@
+/****************************************************************************
+**
+** Copyright (C) 2016 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage {Qt Creator Manual}
+    \previouspage creator-vcs-perforce.html
+    \page creator-vcs-subversion.html
+    \nextpage creator-configuring-projects.html
+
+    \title Using Subversion
+
+    Subversion is an open source version control system.
+
+    In addition to the standard version control system functions described in
+    \l {Using Common Functions}, you can select \uicontrol Tools >
+    \uicontrol Subversion > \uicontrol Describe to display commit log messages
+    for a revision.
+
+    By default, you are prompted to confirm that you want to submit changes.
+    To suppress the prompt, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol {Version Control} > \uicontrol Subversion, and then deselect the
+    \uicontrol {Prompt on submit} check box.
+
+    To show whitespace changes in annotation views, deselect the
+    \uicontrol {Ignore whitespace changes in annotation} check box.
+*/

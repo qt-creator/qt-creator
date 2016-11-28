@@ -109,7 +109,7 @@
             You can use a diff editor to compare two versions of a file and
             view the differences side-by-side in the \uicontrol Edit mode.
 
-        \li \l{Parsing C++ Files}
+        \li \l{Parsing C++ Files with the Clang Code Model}
 
             An experimental Clang code model plugin enables you to replace the
             built-in \QC code model with the Clang code model. Clang is a C

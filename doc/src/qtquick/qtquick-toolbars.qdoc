@@ -54,7 +54,7 @@
     \section1 Previewing Images
 
     The Qt Quick Toolbar for images allows you to edit the properties of
-    BorderImage and \l{Image} items.
+    \l [QML]{BorderImage}{Border Image} and \l [QML]{Image} items.
     You can scale and tile the images, replace them with other images,
     preview them, and change the image margins.
 
@@ -95,7 +95,7 @@
     \section1 Editing Rectangles
 
     The Qt Quick Toolbar for rectangles allows you to edit the properties of
-    \l{Rectangle} items. You can change the fill and border colors and add
+    \l [QML]{Rectangle} items. You can change the fill and border colors and add
     gradients.
 
     \image qml-toolbar-rectangle.png "Qt Quick Toolbar for rectangles"

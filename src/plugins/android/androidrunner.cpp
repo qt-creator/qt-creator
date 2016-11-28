@@ -42,6 +42,8 @@
 #include <utils/runextensions.h>
 #include <utils/synchronousprocess.h>
 
+#include <chrono>
+#include <memory>
 #include <QApplication>
 #include <QDir>
 #include <QTime>
@@ -49,6 +51,8 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 
+using namespace std;
+using namespace std::placeholders;
 using namespace ProjectExplorer;
 
 /*
@@ -120,6 +124,65 @@ namespace Internal {
 
 const int MIN_SOCKET_HANDSHAKE_PORT = 20001;
 const int MAX_SOCKET_HANDSHAKE_PORT = 20999;
+static const QString pidScript = QStringLiteral("for p in /proc/[0-9]*; "
+                                                "do cat <$p/cmdline && echo :${p##*/}; done");
+static const QString pidPollingScript = QStringLiteral("while true; do sleep 1; kill -0 %1; done");
+static int APP_START_TIMEOUT = 45000;
+
+static bool isTimedOut(const chrono::high_resolution_clock::time_point &start,
+                            int msecs = APP_START_TIMEOUT)
+{
+    bool timedOut = false;
+    auto end = chrono::high_resolution_clock::now();
+    if (chrono::duration_cast<chrono::milliseconds>(end-start).count() > msecs)
+        timedOut = true;
+    return timedOut;
+}
+
+static qint64 extractPID(const QByteArray &output, const QString &packageName)
+{
+    qint64 pid = -1;
+    foreach (auto tuple, output.split('\n')) {
+        tuple = tuple.simplified();
+        if (!tuple.isEmpty()) {
+            auto parts = tuple.split(':');
+            QString commandName = QString::fromLocal8Bit(parts.first());
+            if (parts.length() == 2 && commandName == packageName) {
+                pid = parts.last().toLongLong();
+                break;
+            }
+        }
+    }
+    return pid;
+}
+
+void findProcessPID(QFutureInterface<qint64> &fi, const QString &adbPath,
+                    QStringList selector, const QString &packageName)
+{
+    if (packageName.isEmpty())
+        return;
+
+    qint64 processPID = -1;
+    chrono::high_resolution_clock::time_point start = chrono::high_resolution_clock::now();
+    do {
+        QThread::msleep(200);
+        const QByteArray out = Utils::SynchronousProcess()
+                .runBlocking(adbPath, selector << QStringLiteral("shell") << pidScript)
+                .allRawOutput();
+        processPID = extractPID(out, packageName);
+    } while (processPID == -1 && !isTimedOut(start) && !fi.isCanceled());
+
+    if (!fi.isCanceled())
+        fi.reportResult(processPID);
+}
+
+static void deleter(QProcess *p)
+{
+    p->kill();
+    p->waitForFinished();
+    // Might get deleted from its own signal handler.
+    p->deleteLater();
+}
 
 class AndroidRunnerWorker : public QObject
 {
@@ -133,6 +196,7 @@ class AndroidRunnerWorker : public QObject
 public:
     AndroidRunnerWorker(AndroidRunConfiguration *runConfig, Core::Id runMode,
                         const QString &packageName, const QStringList &selector);
+    ~AndroidRunnerWorker();
 
     void init();
 
@@ -151,8 +215,7 @@ signals:
     void remoteErrorOutput(const QString &output);
 
 private:
-    void extractPID();
-    void checkPID();
+    void onProcessIdChanged(qint64 pid);
     void logcatReadStandardError();
     void logcatReadStandardOutput();
     void adbKill(qint64 pid);
@@ -164,16 +227,14 @@ private:
     bool runAdb(const QStringList &args, QString *exitMessage = nullptr, int timeoutS = 10);
 
     // Create the processes and timer in the worker thread, for correct thread affinity
-    QScopedPointer<QProcess> m_adbLogcatProcess;
-    QScopedPointer<QProcess> m_psProc;
+    std::unique_ptr<QProcess, decltype(&deleter)> m_adbLogcatProcess;
+    std::unique_ptr<QProcess, decltype(&deleter)> m_psIsAlive;
     QScopedPointer<QTcpSocket> m_socket;
 
-    bool m_wasStarted = false;
-    int m_tries = 0;
     QByteArray m_stdoutBuffer;
     QByteArray m_stderrBuffer;
-    QByteArray m_psProcBuffer;
 
+    QFuture<qint64> m_pidFinder;
     qint64 m_processPID = -1;
     bool m_useCppDebugger = false;
     QmlDebug::QmlDebugServicesPreset m_qmlDebugServices;
@@ -196,7 +257,10 @@ private:
 
 AndroidRunnerWorker::AndroidRunnerWorker(AndroidRunConfiguration *runConfig, Core::Id runMode,
                                            const QString &packageName, const QStringList &selector)
-    : m_selector(selector), m_packageName(packageName)
+    : m_adbLogcatProcess(nullptr, deleter)
+    , m_psIsAlive(nullptr, deleter)
+    , m_selector(selector)
+    , m_packageName(packageName)
 {
     Debugger::DebuggerRunConfigurationAspect *aspect
             = runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
@@ -257,14 +321,17 @@ AndroidRunnerWorker::AndroidRunnerWorker(AndroidRunConfiguration *runConfig, Cor
     }
 }
 
+AndroidRunnerWorker::~AndroidRunnerWorker()
+{
+    if (!m_pidFinder.isFinished())
+        m_pidFinder.cancel();
+}
+
 // This is run from the worker thread.
 void AndroidRunnerWorker::init()
 {
-    QTC_ASSERT(m_adbLogcatProcess.isNull(), /**/);
-    QTC_ASSERT(m_psProc.isNull(), /**/);
-
+    QTC_ASSERT(!m_adbLogcatProcess, /**/);
     m_adbLogcatProcess.reset(new QProcess);
-    m_psProc.reset(new QProcess);
 
     // Detect busybox, as we need to pass -w to ps to get wide output.
     Utils::SynchronousProcess psProc;
@@ -274,11 +341,10 @@ void AndroidRunnerWorker::init()
     const QString which = response.allOutput();
     m_isBusyBox = which.startsWith("busybox");
 
-    connect(m_adbLogcatProcess.data(), &QProcess::readyReadStandardOutput,
+    connect(m_adbLogcatProcess.get(), &QProcess::readyReadStandardOutput,
             this, &AndroidRunnerWorker::logcatReadStandardOutput);
-    connect(m_adbLogcatProcess.data(), &QProcess::readyReadStandardError,
+    connect(m_adbLogcatProcess.get(), &QProcess::readyReadStandardError,
             this, &AndroidRunnerWorker::logcatReadStandardError);
-    connect(m_psProc.data(), &QIODevice::readyRead, this, &AndroidRunnerWorker::checkPID);
 
     m_logCatRegExp = QRegExp(QLatin1String("[0-9\\-]*"  // date
                                            "\\s+"
@@ -296,108 +362,29 @@ void AndroidRunnerWorker::init()
                                           ));
 }
 
-static int extractPidFromChunk(const QByteArray &chunk, int from)
-{
-    int pos1 = chunk.indexOf(' ', from);
-    if (pos1 == -1)
-        return -1;
-    while (chunk[pos1] == ' ')
-        ++pos1;
-    int pos3 = chunk.indexOf(' ', pos1);
-    int pid = chunk.mid(pos1, pos3 - pos1).toInt();
-    return pid;
-}
-
-void AndroidRunnerWorker::extractPID()
-{
-    const int to = m_psProcBuffer.lastIndexOf('\n');
-    if (to <= 0) {
-        m_processPID = -1;
-    } else {
-        const int from = m_psProcBuffer.lastIndexOf('\n', to - 1);
-        m_processPID = extractPidFromChunk(m_psProcBuffer, from == -1 ? 0 : from);
-        m_psProcBuffer = m_psProcBuffer.mid(to);
-    }
-}
-
-void AndroidRunnerWorker::checkPID()
-{
-    // Don't write to m_psProc from a different thread
-    QTC_ASSERT(QThread::currentThread() == thread(), return);
-
-    m_psProcBuffer.append(m_psProc->readAllStandardOutput());
-    extractPID();
-
-    if (m_processPID == -1) {
-        if (m_wasStarted) {
-            m_wasStarted = false;
-            emit remoteProcessFinished(QLatin1String("\n\n") + tr("\"%1\" died.")
-                                       .arg(m_packageName));
-            return; // Don't restart the timer
-        } else {
-            if (++m_tries > 3)
-                emit remoteProcessFinished(QLatin1String("\n\n") + tr("Unable to start \"%1\".")
-                                           .arg(m_packageName));
-        }
-    } else if (!m_wasStarted){
-        if (m_useCppDebugger) {
-            // This will be funneled to the engine to actually start and attach
-            // gdb. Afterwards this ends up in handleRemoteDebuggerRunning() below.
-            QByteArray serverChannel = ':' + QByteArray::number(m_localGdbServerPort.number());
-            emit remoteServerRunning(serverChannel, m_processPID);
-        } else if (m_qmlDebugServices == QmlDebug::QmlDebuggerServices) {
-            // This will be funneled to the engine to actually start and attach
-            // gdb. Afterwards this ends up in handleRemoteDebuggerRunning() below.
-            QByteArray serverChannel = QByteArray::number(m_qmlPort.number());
-            emit remoteServerRunning(serverChannel, m_processPID);
-        } else if (m_qmlDebugServices == QmlDebug::QmlProfilerServices) {
-            emit remoteProcessStarted(Utils::Port(), m_qmlPort);
-        } else {
-            // Start without debugging.
-            emit remoteProcessStarted(Utils::Port(), Utils::Port());
-        }
-        m_wasStarted = true;
-        logcatReadStandardOutput();
-    }
-}
-
 void AndroidRunnerWorker::forceStop()
 {
     runAdb(selector() << "shell" << "am" << "force-stop" << m_packageName, nullptr, 30);
 
     // try killing it via kill -9
     const QByteArray out = Utils::SynchronousProcess()
-            .runBlocking(m_adb,
-                         selector() << "shell" << QLatin1String(m_isBusyBox ? "ps -w" : "ps"))
+            .runBlocking(m_adb, selector() << QStringLiteral("shell") << pidScript)
             .allRawOutput();
 
-    int from = 0;
-    while (1) {
-        const int to = out.indexOf('\n', from);
-        if (to == -1)
-            break;
-        QString line = QString::fromUtf8(out.data() + from, to - from - 1);
-        if (line.endsWith(m_packageName) || line.endsWith(m_gdbserverPath)) {
-            int pid = extractPidFromChunk(out, from);
-            adbKill(pid);
-        }
-        from = to + 1;
+    qint64 pid = extractPID(out.simplified(), m_packageName);
+    if (pid != -1) {
+        adbKill(pid);
     }
 }
 
 void AndroidRunnerWorker::asyncStart(const QString &intentName,
                                      const QVector<QStringList> &adbCommands)
 {
-    m_tries = 0;
-    m_wasStarted = false;
+    forceStop();
 
     // Its assumed that the device or avd serial returned by selector() is online.
     m_adbLogcatProcess->start(m_adb, selector() << "logcat");
-    m_psProc->start(m_adb, selector() << "shell"
-                    << QString("while true; do sleep 1; %1 | (grep '%2' || echo -1); done")
-                       .arg(QLatin1String(m_isBusyBox ? "ps -w" : "ps"), m_packageName));
 
-    forceStop();
     QString errorMessage;
 
     if (m_useCppDebugger)
@@ -529,6 +516,9 @@ void AndroidRunnerWorker::asyncStart(const QString &intentName,
         }
 
     }
+    m_pidFinder = Utils::onResultReady(Utils::runAsync(&findProcessPID, m_adb, selector(),
+                                                       m_packageName),
+                                       bind(&AndroidRunnerWorker::onProcessIdChanged, this, _1));
 }
 
 bool AndroidRunnerWorker::adbShellAmNeedsQuotes()
@@ -584,21 +574,19 @@ void AndroidRunnerWorker::handleRemoteDebuggerRunning()
 
 void AndroidRunnerWorker::asyncStop(const QVector<QStringList> &adbCommands)
 {
-    m_adbLogcatProcess->kill();
-    m_psProc->kill();
+    if (!m_pidFinder.isFinished())
+        m_pidFinder.cancel();
 
-    m_tries = 0;
+    m_adbLogcatProcess.reset();
+    m_psIsAlive.reset();
+
     if (m_processPID != -1) {
         forceStop();
-        emit remoteProcessFinished(QLatin1String("\n\n") + tr("\"%1\" terminated.")
-                                   .arg(m_packageName));
     }
     foreach (const QStringList &entry, adbCommands)
         runAdb(selector() << entry);
 
-    m_adbLogcatProcess->waitForFinished();
-    m_psProc->waitForFinished();
-    m_psProcBuffer.clear();
+    emit remoteProcessFinished(QLatin1String("\n\n") + tr("\"%1\" terminated.").arg(m_packageName));
 }
 
 void AndroidRunnerWorker::setAdbParameters(const QString &packageName, const QStringList &selector)
@@ -647,6 +635,44 @@ void AndroidRunnerWorker::logcatProcess(const QByteArray &text, QByteArray &buff
             else
                 emit remoteOutput(line);
         }
+    }
+}
+
+void AndroidRunnerWorker::onProcessIdChanged(qint64 pid)
+{
+    // Don't write to m_psProc from a different thread
+    QTC_ASSERT(QThread::currentThread() == thread(), return);
+    m_processPID = pid;
+    if (m_processPID == -1) {
+            emit remoteProcessFinished(QLatin1String("\n\n") + tr("\"%1\" died.")
+                                       .arg(m_packageName));
+            m_psIsAlive.reset();
+    } else {
+        if (m_useCppDebugger) {
+            // This will be funneled to the engine to actually start and attach
+            // gdb. Afterwards this ends up in handleRemoteDebuggerRunning() below.
+            QByteArray serverChannel = ':' + QByteArray::number(m_localGdbServerPort.number());
+            emit remoteServerRunning(serverChannel, m_processPID);
+        } else if (m_qmlDebugServices == QmlDebug::QmlDebuggerServices) {
+            // This will be funneled to the engine to actually start and attach
+            // gdb. Afterwards this ends up in handleRemoteDebuggerRunning() below.
+            QByteArray serverChannel = QByteArray::number(m_qmlPort.number());
+            emit remoteServerRunning(serverChannel, m_processPID);
+        } else if (m_qmlDebugServices == QmlDebug::QmlProfilerServices) {
+            emit remoteProcessStarted(Utils::Port(), m_qmlPort);
+        } else {
+            // Start without debugging.
+            emit remoteProcessStarted(Utils::Port(), Utils::Port());
+        }
+        logcatReadStandardOutput();
+        QTC_ASSERT(!m_psIsAlive, /**/);
+        m_psIsAlive.reset(new QProcess);
+        connect(m_psIsAlive.get(), &QIODevice::readyRead, [this](){
+            if (!m_psIsAlive->readAllStandardOutput().simplified().isEmpty())
+                onProcessIdChanged(-1);
+        });
+        m_psIsAlive->start(m_adb, selector() << QStringLiteral("shell")
+                           << pidPollingScript.arg(m_processPID));
     }
 }
 

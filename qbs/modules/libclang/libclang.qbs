@@ -8,12 +8,14 @@ Module {
         id: clangProbe
 
         property string llvmConfig
+        property string llvmVersion
         property string llvmIncludeDir
         property string llvmLibDir
         property stringList llvmLibs
 
         configure: {
             llvmConfig = ClangFunctions.llvmConfig(qbs, QtcFunctions);
+            llvmVersion = ClangFunctions.version(llvmConfig);
             llvmIncludeDir = ClangFunctions.includeDir(llvmConfig);
             llvmLibDir = ClangFunctions.libDir(llvmConfig);
             llvmLibs = ClangFunctions.libraries(qbs.targetOS);
@@ -22,6 +24,7 @@ Module {
     }
 
     property string llvmConfig: clangProbe.llvmConfig
+    property string llvmVersion: clangProbe.llvmVersion
     property string llvmIncludeDir: clangProbe.llvmIncludeDir
     property string llvmLibDir: clangProbe.llvmLibDir
     property stringList llvmLibs: clangProbe.llvmLibs

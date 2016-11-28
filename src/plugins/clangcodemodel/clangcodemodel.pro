@@ -30,6 +30,7 @@ SOURCES += \
     clangprojectsettings.cpp \
     clangprojectsettingswidget.cpp \
     clangtextmark.cpp \
+    clanguiheaderondiskmanager.cpp \
     clangutils.cpp
 
 HEADERS += \
@@ -61,6 +62,7 @@ HEADERS += \
     clangprojectsettings.h \
     clangprojectsettingswidget.h \
     clangtextmark.h \
+    clanguiheaderondiskmanager.h \
     clangutils.h
 
 FORMS += clangprojectsettingswidget.ui

@@ -214,41 +214,6 @@ class Children:
         self.d.put(self.d.childrenSuffix)
         return True
 
-class PairedChildrenData:
-    def __init__(self, d, pairType, keyType, valueType):
-        self.pairType = pairType
-        self.keyType = keyType
-        self.valueType = valueType
-
-class PairedChildren(Children):
-    def __init__(self, d, numChild, useKeyAndValue = False,
-            pairType = None, keyType = None, valueType = None, maxNumChild = None):
-        self.d = d
-        if pairType is not None:
-            try:
-                pairType = pairType.stripTypedefs()
-            except:
-                pass
-        if keyType is None:
-            keyType = pairType[0].unqualified()
-        if valueType is None:
-            valueType = pairType[1]
-        d.pairData = PairedChildrenData(d, pairType, keyType, valueType)
-        d.pairData.kname = 'key' if useKeyAndValue else 'first'
-        d.pairData.vname = 'value' if useKeyAndValue else 'second'
-
-        Children.__init__(self, d, numChild,
-            maxNumChild = maxNumChild,
-            addrBase = None, addrStep = None)
-
-    def __enter__(self):
-        self.savedPairData = self.d.pairData if hasattr(self.d, 'pairData') else None
-        Children.__enter__(self)
-
-    def __exit__(self, exType, exValue, exTraceBack):
-        Children.__exit__(self, exType, exValue, exTraceBack)
-        self.d.pairData = self.savedPairData if self.savedPairData else None
-
 
 class SubItem:
     def __init__(self, d, component):
@@ -809,18 +774,21 @@ class DumperBase:
             self.putType('bool')
             self.putNumChild(0)
 
-    def putPairItem(self, index, pair):
-        (first, second) = pair if isinstance(pair, tuple) else pair.members(False)
+    def putPairItem(self, index, pair, keyName='first', valueName='second'):
         with SubItem(self, index):
-            with Children(self):
-                key = self.putSubItem(self.pairData.kname, first)
-                value = self.putSubItem(self.pairData.vname, second)
-            if index is not None:
-                self.putField('keyprefix', '[%s] ' % index)
-            self.putField('key', key.value)
-            if key.encoding is not None:
-                self.putField('keyencoded', key.encoding)
-            self.putValue(value.value, value.encoding)
+            self.putPairContents(index, pair, keyName, valueName)
+
+    def putPairContents(self, index, pair, kname, vname):
+        with Children(self):
+            first, second = pair if isinstance(pair, tuple) else pair.members(False)
+            key = self.putSubItem(kname, first)
+            value = self.putSubItem(vname, second)
+        if index is not None:
+            self.putField('keyprefix', '[%s] ' % index)
+        self.putField('key', key.value)
+        if key.encoding is not None:
+            self.putField('keyencoded', key.encoding)
+        self.putValue(value.value, value.encoding)
 
     def putCallItem(self, name, rettype, value, func, *args):
         with SubItem(self, name):
@@ -3647,6 +3615,8 @@ class DumperBase:
                     if tn in ('QByteArray', 'QString', 'QList', 'QStringList',
                               'QStringDataPtr'):
                         return self.ptrSize()
+                    if tn == 'QStandardItemData':
+                        return 8 + 2 * self.ptrSize()
                     if tn in ('QImage', 'QObject'):
                         return 2 * self.ptrSize()
                     if tn == 'QVariant':
@@ -3655,6 +3625,8 @@ class DumperBase:
                         return 16
                     if typish == 'QPoint':
                         return 8
+                    if typish == 'Qt::ItemDataRole':
+                        return 4
                     if typish == 'QChar':
                         return 2
                 if typish in ('quint32', 'qint32'):
@@ -3755,7 +3727,7 @@ class DumperBase:
             if self.autoPadNext:
                 self.currentBitsize = 8 * ((self.currentBitsize + 7) >> 3)  # Fill up byte.
                 padding = (fieldAlign - (self.currentBitsize >> 3)) % fieldAlign
-                warn('AUTO PADDING AT %s BITS BY %s BYTES' % (self.currentBitsize, padding))
+                #warn('AUTO PADDING AT %s BITS BY %s BYTES' % (self.currentBitsize, padding))
                 field = self.dumper.Field(self.dumper)
                 field.code = None
                 #field.lbitpos = self.currentBitsize

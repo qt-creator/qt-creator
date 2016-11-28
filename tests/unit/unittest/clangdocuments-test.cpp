@@ -73,6 +73,7 @@ protected:
     ClangBackEnd::UnsavedFiles unsavedFiles;
     ClangBackEnd::Documents documents{projects, unsavedFiles};
     const Utf8String filePath = Utf8StringLiteral(TESTDATA_DIR"/translationunits.cpp");
+    const Utf8String otherFilePath = Utf8StringLiteral(TESTDATA_DIR"/translationunits.h");
     const Utf8String headerPath = Utf8StringLiteral(TESTDATA_DIR"/translationunits.h");
     const Utf8String nonExistingFilePath = Utf8StringLiteral("foo.cpp");
     const Utf8String projectPartId = Utf8StringLiteral("projectPartId");
@@ -119,6 +120,18 @@ TEST_F(Documents, Add)
 
     ASSERT_THAT(documents.document(filePath, projectPartId),
                 IsDocument(filePath, projectPartId, 74u));
+}
+
+TEST_F(Documents, CreateWithUnsavedContentSetsDependenciesDirty)
+{
+    ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, Utf8StringVector(), 74u);
+    ClangBackEnd::FileContainer fileContainerWithUnsavedContent(otherFilePath, projectPartId, Utf8StringVector(), Utf8String(), true, 2u);
+    auto dependentDocument = documents.create({fileContainer}).at(0);
+    dependentDocument.setDependedFilePaths(QSet<Utf8String>() << filePath << otherFilePath);
+
+    documents.create({fileContainerWithUnsavedContent});
+
+    ASSERT_TRUE(dependentDocument.isNeedingReparse());
 }
 
 TEST_F(Documents, AddAndTestCreatedTranslationUnit)

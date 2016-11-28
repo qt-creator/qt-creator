@@ -1,4 +1,5 @@
 import qbs
+import qbs.FileInfo
 
 Product {
     builtByDefault: false
@@ -11,6 +12,7 @@ Product {
 
     Group {
         name: "main qdocconf file"
+        prefix: product.sourceDirectory + '/'
         files: [mainDocConfFile]
         fileTags: ["qdocconf-main"]
     }

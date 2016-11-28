@@ -37,6 +37,8 @@ struct Type
     PyObject_HEAD
     ULONG m_typeId;
     ULONG64 m_module;
+    ULONG m_arraySize;
+    Type *m_targetType;
     bool m_resolved;
     char *m_name;       // owned
 };
@@ -45,5 +47,11 @@ PyTypeObject *type_pytype();
 char *getTypeName(ULONG64 module, ULONG typeId);
 
 PyObject *lookupType(const std::string &typeName);
-PyObject *createType(ULONG64 module, ULONG typeId, char *name = nullptr);
+
+PyObject *createType(ULONG64 module, ULONG typeId, const std::string &name = std::string());
 PyObject *createUnresolvedType(const std::string &name);
+PyObject *createArrayType(ULONG arraySize, Type *targetType);
+PyObject *createPointerType(Type *targetType);
+
+bool isPointerType(const std::string &typeName);
+std::string &stripPointerType(std::string &typeName);

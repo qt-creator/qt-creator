@@ -26,7 +26,6 @@
 #include "pycdbextmodule.h"
 
 #include "extensioncontext.h"
-#include "symbolgroup.h"
 #include "symbolgroupvalue.h"
 
 #include "pyfield.h"
@@ -61,31 +60,22 @@ static PyObject *cdbext_lookupType(PyObject *, PyObject *args) // -> Type
 
 static PyObject *cdbext_listOfLocals(PyObject *, PyObject *) // -> [ Value ]
 {
-    ExtensionCommandContext *extCmdCtx = ExtensionCommandContext::instance();
-    ULONG frame;
-    if (FAILED(extCmdCtx->symbols()->GetCurrentScopeFrameIndex(&frame)))
-        Py_RETURN_NONE;
-
-    std::string errorMessage;
-    LocalsSymbolGroup *sg = ExtensionContext::instance().symbolGroup(
-                extCmdCtx->symbols(), extCmdCtx->threadId(), int(frame), &errorMessage);
-    if (!sg)
-        Py_RETURN_NONE;
-
-    const auto children = sg->root()->children();
     auto locals = PyList_New(0);
-    for (AbstractSymbolGroupNode *abstractChild : children) {
-        if (SymbolGroupNode* child = abstractChild->asSymbolGroupNode())
-            PyList_Append(locals, createValue(child->index(), sg->debugSymbolGroup()));
-    }
-
+    IDebugSymbolGroup2 *sg;
+    CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
+    if (FAILED(symbols->GetScopeSymbolGroup2(DEBUG_SCOPE_GROUP_ALL, NULL, &sg)))
+        return locals;
+    ULONG symbolCount;
+    if (FAILED(sg->GetNumberSymbols(&symbolCount)))
+        return locals;
+    for (ULONG index = 0; index < symbolCount; ++index)
+        PyList_Append(locals, createValue(index, sg));
     return locals;
 }
 
 static PyObject *cdbext_pointerSize(PyObject *, PyObject *)
 {
-    HRESULT isPointer64Bit = ExtensionCommandContext::instance()->control()->IsPointer64Bit();
-    return Py_BuildValue("i", isPointer64Bit == S_OK ? 8 : 4);
+    return Py_BuildValue("i", pointerSize());
 }
 
 static PyObject *cdbext_readRawMemory(PyObject *, PyObject *args)
@@ -94,6 +84,9 @@ static PyObject *cdbext_readRawMemory(PyObject *, PyObject *args)
     ULONG size = 0;
     if (!PyArg_ParseTuple(args, "Kk", &address, &size))
         Py_RETURN_NONE;
+
+    if (debugPyCdbextModule)
+        DebugPrint() << "Read raw memory: " << size << "bytes from " << std::hex << std::showbase << address;
 
     char *buffer = new char[size];
 
@@ -119,43 +112,16 @@ static PyObject *cdbext_createValue(PyObject *, PyObject *args)
                      << " type name: " << getTypeName(type->m_module, type->m_typeId);
     }
 
-    ExtensionCommandContext *extCmdCtx = ExtensionCommandContext::instance();
-    CIDebugSymbols *symbols = extCmdCtx->symbols();
-
-    ULONG frame;
-    if (FAILED(symbols->GetCurrentScopeFrameIndex(&frame)))
+    IDebugSymbolGroup2 *symbol;
+    CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
+    if (FAILED(symbols->GetScopeSymbolGroup2(DEBUG_SCOPE_GROUP_ALL, NULL, &symbol)))
         Py_RETURN_NONE;
-
-    std::string errorMessage;
-    LocalsSymbolGroup *lsg = ExtensionContext::instance().symbolGroup(
-                symbols, extCmdCtx->threadId(), int(frame), &errorMessage);
-    if (!lsg)
+    ULONG index = DEBUG_ANY_ID;
+    const std::string name = SymbolGroupValue::pointedToSymbolName(
+                address, getTypeName(type->m_module, type->m_typeId));
+    if (FAILED(symbol->AddSymbol(name.c_str(), &index)))
         Py_RETURN_NONE;
-
-    CIDebugSymbolGroup *dsg = lsg->debugSymbolGroup();
-    ULONG numberOfSymbols = 0;
-    dsg->GetNumberSymbols(&numberOfSymbols);
-    ULONG index = 0;
-    for (;index < numberOfSymbols; ++index) {
-        ULONG64 offset;
-        dsg->GetSymbolOffset(index, &offset);
-        if (offset == address) {
-            DEBUG_SYMBOL_PARAMETERS params;
-            if (SUCCEEDED(dsg->GetSymbolParameters(index, 1, &params))) {
-                if (params.TypeId == type->m_typeId && params.Module == type->m_module)
-                    break;
-            }
-        }
-    }
-
-    if (index >= numberOfSymbols) {
-        index = DEBUG_ANY_ID;
-        const std::string name = SymbolGroupValue::pointedToSymbolName(
-                    address, getTypeName(type->m_module, type->m_typeId));
-        if (FAILED(dsg->AddSymbol(name.c_str(), &index)))
-            Py_RETURN_NONE;
-    }
-    return createValue(index, dsg);
+    return createValue(index, symbol);
 }
 
 static PyMethodDef cdbextMethods[] = {
@@ -232,4 +198,9 @@ PyObject *pyBool(bool b)
         Py_RETURN_TRUE;
     else
         Py_RETURN_FALSE;
+}
+
+int pointerSize()
+{
+    return ExtensionCommandContext::instance()->control()->IsPointer64Bit() == S_OK ? 8 : 4;
 }

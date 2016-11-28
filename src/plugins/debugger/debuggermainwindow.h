@@ -82,6 +82,10 @@ public:
     QString name() const;
     void setName(const QString &name);
 
+    using Callback = std::function<void()>;
+    void setAboutToActivateCallback(const Callback &cb);
+    void aboutToActivate() const;
+
 private:
     Perspective(const Perspective &) = delete;
     void operator=(const Perspective &) = delete;
@@ -90,6 +94,7 @@ private:
     QVector<QByteArray> m_docks;
     QVector<Operation> m_operations;
     QPointer<QWidget> m_centralWidget;
+    Callback m_aboutToActivateCallback;
 };
 
 class DEBUGGER_EXPORT ToolbarDescription

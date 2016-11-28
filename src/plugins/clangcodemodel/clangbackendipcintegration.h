@@ -85,6 +85,7 @@ private:
 private:
     AliveHandler m_aliveHandler;
     QHash<quint64, ClangCompletionAssistProcessor *> m_assistProcessorsTable;
+    const bool m_printAliveMessage = false;
 };
 
 class IpcSenderInterface

@@ -822,9 +822,9 @@ QString DebuggerCommand::argsToString() const
 
 DebuggerEncoding::DebuggerEncoding(const QString &data)
 {
-    const QStringList l = data.split(':');
+    const QVector<QStringRef> l = data.splitRef(QLatin1Char(':'));
 
-    const QString &t = l.at(0);
+    const QStringRef &t = l.at(0);
     if (t == "latin1") {
         type = HexEncodedLatin1;
         size = 1;

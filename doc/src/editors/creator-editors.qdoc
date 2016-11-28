@@ -1781,7 +1781,7 @@
     You can also press \key {Alt+Enter} to open a context menu that contains
     refactoring actions available in the current cursor position.
 
-    If you use the \l{Parsing C++ Files}{Clang code model} to parse the C++
+    If you use the \l{Parsing C++ Files with the Clang Code Model}{Clang code model} to parse the C++
     files, the \l{http://clang.llvm.org/diagnostics.html}{Clang fix-it hints}
     that have been integrated into \QC are also available to you. In addition to
     the standard ways of activating refactoring actions, you can select the

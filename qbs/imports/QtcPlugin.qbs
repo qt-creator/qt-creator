@@ -50,12 +50,14 @@ QtcProduct {
 
     Group {
         name: "PluginMetaData"
+        prefix: product.sourceDirectory + '/'
         files: [ product.name + ".json.in" ]
         fileTags: ["pluginJsonIn"]
     }
 
     Group {
         name: "MimeTypes"
+        prefix: product.sourceDirectory + '/'
         files: [ "*.mimetypes.xml" ]
     }
 

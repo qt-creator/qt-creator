@@ -525,3 +525,26 @@ void f30()
     NonConstReferenceArgument(instance.member);
 }
 
+struct NonConstReferenceArgumentConstructor
+{
+    NonConstReferenceArgumentConstructor() = default;
+    NonConstReferenceArgumentConstructor(NonConstReferenceArgumentConstructor &other);
+
+    void NonConstReferenceArgumentMember(NonConstReferenceArgumentConstructor &other);
+};
+
+void f31()
+{
+    NonConstReferenceArgumentConstructor instance;
+
+    NonConstReferenceArgumentConstructor copy(instance);
+}
+
+struct NonConstReferenceMemberInitialization
+{
+    NonConstReferenceMemberInitialization(int &foo)
+        : foo(foo)
+    {}
+
+    int &foo;
+};

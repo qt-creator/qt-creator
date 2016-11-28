@@ -64,8 +64,12 @@ std::vector<Document> Documents::create(const QVector<FileContainer> &fileContai
 
     std::vector<Document> createdDocuments;
 
-    for (const FileContainer &fileContainer : fileContainers)
+    for (const FileContainer &fileContainer : fileContainers) {
+        if (fileContainer.hasUnsavedFileContent())
+            updateDocumentsWithChangedDependency(fileContainer.filePath());
+
         createdDocuments.push_back(createDocument(fileContainer));
+    }
 
     return createdDocuments;
 }

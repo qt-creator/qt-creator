@@ -35,7 +35,7 @@
     \page creator-clang-codemodel.html
     \nextpage creator-finding-overview.html
 
-    \title Parsing C++ Files
+    \title Parsing C++ Files with the Clang Code Model
 
     The \e {code model} is the part of an IDE that understands the language you
     are using to write your application. It is the framework that allows \QC
@@ -62,12 +62,13 @@
 
     \endlist
 
-    An IDE needs a parser for the language and the semantic analyzes.
+    \QC comes with an experimental plugin that provides some of these services
+    for C++ on top of \l{http://clang.llvm.org/}{Clang}.
 
-    \section1 Using Clang Code Model
+    \section1 About the Clang Code Model
 
-    The \l{http://clang.llvm.org/}{Clang} project provides libraries for parsing
-    C and C++ source files. The feedback you get through warning and
+    The Clang project provides libraries for parsing
+    C language family source files. The feedback you get through warning and
     error markers is the same as a compiler will give you, not an incomplete
     set or a close approximation, as when using the built-in \QC code model.
     Clang focuses on detailed information for diagnostics, which is really
@@ -84,38 +85,6 @@
     include several files, processing a single file and all the included files
     can take a while.
 
-    To make parsing faster, pre-compiled headers are ignored by default. To
-    specify that Clang processes them, select \uicontrol Tools >
-    \uicontrol Options > \uicontrol C++ > \uicontrol {Code Model}, and
-    deselect the \uicontrol {Ignore pre-compiled headers} check box.
-
-    When Clang encounters risky or possibly erroneous constructions, it issues
-    warnings. To request or suppress warnings, select \uicontrol Tools >
-    \uicontrol Options > \uicontrol C++ > \uicontrol {Code Model}. You can
-    either select one of the predefined configurations, or create a copy of a
-    configuration and edit it to fit your needs:
-
-    \list
-
-        \li \uicontrol {Pedantic Warnings} uses the \c -Wpendantic option that
-            requests all the warnings demanded by strict ISO C and ISO C++.
-
-        \li \uicontrol {Warnings for Questionable Constructs} combines the
-            \c -Wall and \c -Wextra options to request all warnings about easily
-            avoidable questionable constructions and some additional warnings.
-
-        \li \uicontrol {Warnings for Almost Everything} uses the \c -Weverything
-            option with negative options to suppress some warnings.
-
-    \endlist
-
-    You can edit the predefined configurations to request specific warnings
-    beginning with \c -W. Each of these warnings also has a negative version
-    that begins with \c -Wno. Keep in mind that some options turn on other
-    options. For more information, see
-    \l{https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html}
-    {Options to Request or Suppress Warnings} or the GCC or Clang manual pages.
-
     The following services are currently implemented in the experimental Clang
     code model plugin:
 
@@ -123,51 +92,19 @@
 
         \li Code completion
         \li Syntactic and semantic highlighting
+        \li Diagnostics
 
     \endlist
 
     To use the plugin, you must build it and configure it in \QC.
 
-    \section2 Building Clang Code Model Plugin
+    \section1 Activating Clang Code Model
 
-    \list 1
+    If you build \QC yourself, ensure that the plugin is also built, as
+    described in the \QC
+    \l{https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/README.md}{README file}.
 
-        \li Acquire Clang 3.9.0 or higher in one of the following ways:
-
-            \list
-
-                \li Use the package manager of your system.
-
-                \li Download and install the Clang package from the
-                    \l{https://download.qt.io/development_releases/prebuilt/libclang/}
-                    {Qt Download Page}.
-
-                \li Build Clang by following
-                    \l{http://clang.llvm.org/get_started.html}
-                    {Getting Started: Building and Running Clang}.
-
-                    Add the following options to the \c cmake call in order to
-                    build an optimized version and to specify the installation
-                    directory:
-
-                        \c -DCMAKE_BUILD_TYPE=Release
-                        \c -DCMAKE_INSTALL_PREFIX=/your/install/dir
-
-                    After building, install with
-
-                        \c {make install}
-
-            \endlist
-
-        \li Set LLVM_INSTALL_DIR to point to the installation directory
-            of LLVM either as part of the build environment or pass it directly
-            to qmake when you build \QC.
-
-    \li Rerun \c qmake and build \QC.
-
-    \endlist
-
-    \section2 Configuring Clang Code Model Plugin
+    To activate the plugin:
 
     \list 1
 
@@ -176,14 +113,52 @@
 
         \li Restart \QC to be able to use the plugin.
 
-        \li To specify settings for the Clang code model, select
-            \uicontrol Tools > \uicontrol Options > \uicontrol C++ >
+            If you build \QC yourself, add \c ${LLVM_INSTALL_DIR}\bin to the
+            \c PATH variable so the LLVM libraries will be found on startup.
+
+    \endlist
+
+    \section1 Configuring Clang Code Model
+
+    To specify settings for the Clang code model:
+
+    \list 1
+
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol C++ >
             \uicontrol {Code Model}.
 
             \image qtcreator-clang-code-model-options.png
 
-        \li In the \uicontrol {Configuration to use} list, select the
-            warnings to request.
+        \li In the \uicontrol {Configuration to use} list, configure the
+            diagnostics that Clang should issue.
+
+            You can either select one of the predefined configurations, or
+            create a copy of a configuration and edit it to fit your needs:
+
+            \list
+
+                \li \uicontrol {Pedantic Warnings} uses the \c -Wpendantic
+                    option that requests all the warnings demanded by strict
+                    ISO C and ISO C++.
+
+                \li \uicontrol {Warnings for Questionable Constructs} combines
+                    the \c -Wall and \c -Wextra options to request all warnings
+                    about easily avoidable questionable constructions and some
+                    additional warnings.
+
+                \li \uicontrol {Warnings for Almost Everything} uses the \c
+                    -Weverything option with negative options to suppress some
+                    warnings.
+
+            \endlist
+
+            You can edit the predefined configurations to request specific
+            warnings beginning with \c -W. Each of these warnings also has a
+            negative version that begins with \c -Wno. Keep in mind that some
+            options turn on other options. For more information, see
+            \l{https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html}
+            {Options to Request or Suppress Warnings} or the GCC or Clang
+            manual pages.
 
         \li To have Clang process pre-compiled headers, deselect the
             \uicontrol {Ignore pre-compiled headers} check box.

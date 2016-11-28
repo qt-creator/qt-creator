@@ -1,0 +1,66 @@
+/****************************************************************************
+**
+** Copyright (C) 2016 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage {Qt Creator Manual}
+    \previouspage creator-version-control.html
+    \page creator-vcs-bazaar.html
+    \nextpage creator-vcs-clearcase.html
+
+    \title Using Bazaar
+
+    Bazaar is a free version control system sponsored by Canonical.
+
+    In addition to the standard version control system functions described in
+    \l {Using Common Functions}, you can select \uicontrol Tools >
+    \uicontrol Bazaar > \uicontrol Pull to turn a branch into a mirror of
+    another branch. To update the mirror of the branch, select \uicontrol Push.
+
+    \section1 Uncommitting Revisions
+
+    In Bazaar, committing changes to a branch creates a new revision that holds
+    a snapshot of the state of the working tree. To remove the last committed
+    revision, select \uicontrol Tools > \uicontrol Bazaar > \uicontrol Uncommit.
+
+    In the \uicontrol Uncommit dialog, select options to keep tags that point to
+    removed revisions and to only remove the commits from the local branch when
+    in a checkout.
+
+    To remove all commits up to an entry in the revision log, specify the
+    revision in the \uicontrol Revision field.
+
+    To test the outcome of the \uicontrol Uncommit command without actually
+    removing anything, select \uicontrol {Dry Run}.
+
+    \uicontrol Uncommit leaves the working tree ready for a new commit. The only
+    change it might make is restoring pending merges that were present before
+    the commit.
+*/

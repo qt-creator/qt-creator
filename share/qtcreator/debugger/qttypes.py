@@ -190,6 +190,21 @@ def qdump_X_QModelIndex(d, value):
             d.putCallItem('parent', '@QModelIndex', value, 'parent')
     #gdb.execute('call free($mi)')
 
+def qdump__QStandardItemData(d, value):
+    role, pad, val = value.split('{@Qt::ItemDataRole}@{QVariant}')
+    d.putPairContents(role.value(), (role, val), 'role', 'value')
+
+def qdump__QStandardItem(d, value):
+    vtable, dptr = value.split('pp')
+    vtable1, model, parent, values, children, rows, cols, item = d.split('pppPPIIp', dptr)
+    d.putValue(' ')
+    d.putNumChild(1)
+    if d.isExpanded():
+        with Children(d):
+            d.putSubItem('[model]', d.createValue(model, '@QStandardItemModel'))
+            d.putSubItem('[values]', d.createVectorItem(values, 'QStandardItemData'))
+            d.putSubItem('[children]', d.createVectorItem(children, '@QStandardItem*'))
+
 
 def qdump__QDate(d, value):
     jd = value.pointer()
@@ -638,7 +653,7 @@ def qdumpHelper_QHash(d, value, keyType, valueType):
     d.putItemCount(size)
     if d.isExpanded():
         isShort = d.qtVersion() < 0x050000 and keyType.name == 'int'
-        with PairedChildren(d, size, keyType=keyType, valueType=valueType, useKeyAndValue=True):
+        with Children(d, size):
             node = hashDataFirstNode()
             for i in d.childRange():
                 if isShort:
@@ -647,7 +662,7 @@ def qdumpHelper_QHash(d, value, keyType, valueType):
                 else:
                     typeCode = 'Pi@{%s}@{%s}' % (keyType.name, valueType.name)
                     (pnext, hashval, padding1, key, padding2, val) = d.split(typeCode, node)
-                d.putPairItem(i, (key, val))
+                d.putPairItem(i, (key, val), 'key', 'value')
                 node = hashDataNextNode(node)
 
 
@@ -937,10 +952,10 @@ def qdumpHelper_Qt4_QMap(d, value, keyType, valueType):
         typeCode = '{%s}@{%s}' % (keyType.name, valueType.name)
         pp, payloadSize, fields = d.describeStruct(typeCode)
 
-        with PairedChildren(d, n, useKeyAndValue=True, keyType=keyType, valueType=valueType):
+        with Children(d, n):
             for i in d.childRange():
                 key, pad, value = d.split(typeCode, it - payloadSize)
-                d.putPairItem(i, (key, value))
+                d.putPairItem(i, (key, value), 'key', 'value')
                 dummy, it = d.split('Pp', it)
 
 
@@ -967,9 +982,9 @@ def qdumpHelper_Qt5_QMap(d, value, keyType, valueType):
                 for res in helper(right):
                     yield res
 
-        with PairedChildren(d, n, keyType=keyType, valueType=valueType, useKeyAndValue=True):
+        with Children(d, n):
             for (pair, i) in zip(helper(dptr + 8), range(n)):
-                d.putPairItem(i, pair)
+                d.putPairItem(i, pair, 'key', 'value')
 
 
 def qform__QMap():
@@ -1062,7 +1077,11 @@ def qdump__QRegExp(d, value):
     d.putNumChild(1)
     if d.isExpanded():
         with Children(d):
-            d.call('void', value, 'capturedTexts') # Warm up internal cache.
+            try:
+                d.call('void', value, 'capturedTexts') # Warm up internal cache.
+            except:
+                # Might fail (LLDB, Core files, ...), still cache might be warm.
+                pass
             (patternSyntax, caseSensitive, minimal, pad, t, captures) \
                 = d.split('{int}{int}B@{QString}{QStringList}', privAddress + 2 * d.ptrSize())
             d.putSubItem('syntax', patternSyntax.cast(d.qtNamespace() + 'QRegExp::PatternSyntax'))
@@ -1227,14 +1246,6 @@ def qdump__QGraphicsPolygonItem(d, value):
     data, size, alloc = d.vectorDataHelper(d.extractPointer(dptr + offset))
     d.putItemCount(size)
     d.putPlotData(data, size, d.createType('QPointF'))
-
-def qdump__QStandardItem(d, value):
-    d.putBetterType(d.currentType)
-    try:
-        d.putItem(value['d_ptr'])
-    except:
-        d.putPlainChildren(value)
-
 
 def qedit__QString(d, value, data):
     d.call('void', value, 'resize', str(len(data)))

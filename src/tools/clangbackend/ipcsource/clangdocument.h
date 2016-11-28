@@ -111,6 +111,7 @@ public: // for tests
     void parse() const;
     void reparse() const;
     const QSet<Utf8String> dependedFilePaths() const;
+    void setDependedFilePaths(const QSet<Utf8String> &filePaths);
     TranslationUnitUpdater createUpdater() const;
     void setHasParseOrReparseFailed(bool hasFailed);
     TimePoint isNeededReparseChangeTimePoint() const;
