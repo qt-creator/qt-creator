@@ -521,7 +521,7 @@ sourceLocationsToExtraSelections(const std::vector<SourceLocationContainer> &sou
     const auto textCharFormat = occurrencesTextCharFormat();
 
     QList<QTextEdit::ExtraSelection> selections;
-    selections.reserve(sourceLocations.size());
+    selections.reserve(int(sourceLocations.size()));
 
     auto sourceLocationToExtraSelection = [&] (const SourceLocationContainer &sourceLocation) {
         QTextEdit::ExtraSelection selection;
