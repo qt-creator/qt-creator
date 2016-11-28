@@ -289,6 +289,8 @@ void BaseFileFind::replaceAll(const QString &txt, FindFlags findFlags)
 void BaseFileFind::addSearchEngine(SearchEngine *searchEngine)
 {
     d->m_searchEngines.push_back(searchEngine);
+    if (d->m_searchEngines.size() == 1) // empty before, make sure we have a current engine
+        setCurrentSearchEngine(0);
 }
 
 void BaseFileFind::doReplace(const QString &text,
