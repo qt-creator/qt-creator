@@ -6,9 +6,9 @@ Qt Creator is a cross-platform IDE for development with the Qt framework.
 
 The standalone binary packages support the following platforms:
 
-Windows 7 or later
-(K)Ubuntu Linux 14.04 (64-bit) or later
-macOS 10.8 or later
+* Windows 7 or later
+* (K)Ubuntu Linux 14.04 (64-bit) or later
+* macOS 10.8 or later
 
 ## Compiling Qt Creator
 
