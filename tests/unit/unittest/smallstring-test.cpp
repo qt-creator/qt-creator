@@ -1050,3 +1050,12 @@ TEST(SmallString, ReplaceByPositionEqualSizedTexts)
     ASSERT_THAT(text, SmallString("this is very very very very very much text"));
 }
 
+TEST(SmallString, CompareTextWithDifferentLineEndings)
+{
+    SmallString unixText("some \ntext");
+    SmallString windowsText("some \n\rtext");
+
+    auto convertedText = windowsText.toCarriageReturnsStripped();
+
+    ASSERT_THAT(unixText, convertedText);
+}

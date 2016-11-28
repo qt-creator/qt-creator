@@ -472,6 +472,15 @@ public:
         setSize(newSize);
     }
 
+    BasicSmallString toCarriageReturnsStripped() const
+    {
+        BasicSmallString text = *this;
+
+        text.replace("\r", "");
+
+        return text;
+    }
+
     constexpr static
     size_type shortStringCapacity() noexcept
     {
