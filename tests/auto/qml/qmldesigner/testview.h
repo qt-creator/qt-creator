@@ -76,9 +76,9 @@ public:
     void nodeOrderChanged(const QmlDesigner::NodeListProperty &listProperty, const QmlDesigner::ModelNode &movedNode, int oldIndex);
 
 
-    virtual void instancePropertyChange(const QList<QPair<QmlDesigner::ModelNode, QmlDesigner::PropertyName> > &propertyList);
+    virtual void instancePropertyChanged(const QList<QPair<QmlDesigner::ModelNode, QmlDesigner::PropertyName> > &propertyList);
     virtual void instancesCompleted(const QVector<QmlDesigner::ModelNode> &completedNodeList);
-    virtual void instanceInformationsChange(const QMultiHash<QmlDesigner::ModelNode, QmlDesigner::InformationName> &informationChangeHash);
+    virtual void instanceInformationsChanged(const QMultiHash<QmlDesigner::ModelNode, QmlDesigner::InformationName> &informationChangeHash);
     virtual void instancesRenderImageChanged(const QVector<QmlDesigner::ModelNode> &nodeList);
     virtual void instancesPreviewImageChanged(const QVector<QmlDesigner::ModelNode> &nodeList);
     virtual void instancesChildrenChanged(const QVector<QmlDesigner::ModelNode> &nodeList);

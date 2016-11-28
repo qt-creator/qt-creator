@@ -167,7 +167,7 @@ void TestView::nodeOrderChanged(const QmlDesigner::NodeListProperty &listPropert
     m_methodCalls += MethodCall("nodeOrderChanged", QStringList() << QString::fromUtf8(listProperty.name()) << movedNode.id() << QString::number(oldIndex));
 }
 
-void TestView::instancePropertyChange(const QList<QPair<QmlDesigner::ModelNode, QmlDesigner::PropertyName> > &)
+void TestView::instancePropertyChanged(const QList<QPair<QmlDesigner::ModelNode, QmlDesigner::PropertyName> > &)
 {
 
 }
@@ -177,7 +177,7 @@ void TestView::instancesCompleted(const QVector<QmlDesigner::ModelNode> &)
 
 }
 
-void TestView::instanceInformationsChange(const QMultiHash<QmlDesigner::ModelNode, QmlDesigner::InformationName> &)
+void TestView::instanceInformationsChanged(const QMultiHash<QmlDesigner::ModelNode, QmlDesigner::InformationName> &)
 {
 
 }
