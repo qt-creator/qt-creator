@@ -627,13 +627,13 @@ void PropertyEditorView::bindingPropertiesChanged(const QList<BindingProperty>& 
     }
 }
 
-void PropertyEditorView::instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &informationChangeHash)
+void PropertyEditorView::instanceInformationsChanged(const QMultiHash<ModelNode, InformationName> &informationChangedHash)
 {
     if (!m_selectedNode.isValid())
         return;
 
     m_locked = true;
-    QList<InformationName> informationNameList = informationChangeHash.values(m_selectedNode);
+    QList<InformationName> informationNameList = informationChangedHash.values(m_selectedNode);
     if (informationNameList.contains(Anchor)
             || informationNameList.contains(HasAnchor))
         m_qmlBackEndForCurrentType->backendAnchorBinding().setup(QmlItemNode(m_selectedNode));
@@ -687,7 +687,7 @@ void PropertyEditorView::currentStateChanged(const ModelNode &node)
     delayedResetView();
 }
 
-void PropertyEditorView::instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList)
+void PropertyEditorView::instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &propertyList)
 {
     if (!m_selectedNode.isValid())
         return;

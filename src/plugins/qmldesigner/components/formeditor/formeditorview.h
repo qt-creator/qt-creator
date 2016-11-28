@@ -98,10 +98,10 @@ public:
     void auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data) override;
 
     void instancesCompleted(const QVector<ModelNode> &completedNodeList) override;
-    void instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &informationChangeHash) override;
+    void instanceInformationsChanged(const QMultiHash<ModelNode, InformationName> &informationChangedHash) override;
     void instancesRenderImageChanged(const QVector<ModelNode> &nodeList) override;
     void instancesChildrenChanged(const QVector<ModelNode> &nodeList) override;
-    void instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList) override;
+    void instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &propertyList) override;
 
     void rewriterBeginTransaction() override;
     void rewriterEndTransaction() override;

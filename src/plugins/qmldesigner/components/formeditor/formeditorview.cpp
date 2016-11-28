@@ -413,15 +413,15 @@ void FormEditorView::instancesCompleted(const QVector<ModelNode> &completedNodeL
     currentTool()->instancesCompleted(itemNodeList);
 }
 
-void FormEditorView::instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &informationChangeHash)
+void FormEditorView::instanceInformationsChanged(const QMultiHash<ModelNode, InformationName> &informationChangedHash)
 {
     QList<FormEditorItem*> itemNodeList;
 
-    foreach (const ModelNode &node, informationChangeHash.keys().toSet()) {
+    foreach (const ModelNode &node, informationChangedHash.keys().toSet()) {
         QmlItemNode qmlItemNode(node);
         if (qmlItemNode.isValid() && scene()->hasItemForQmlItemNode(qmlItemNode)) {
             scene()->synchronizeTransformation(qmlItemNode);
-            if (qmlItemNode.isRootModelNode() && informationChangeHash.values(node).contains(Size)) {
+            if (qmlItemNode.isRootModelNode() && informationChangedHash.values(node).contains(Size)) {
                 if (qmlItemNode.instanceBoundingRect().isEmpty() &&
                         !(qmlItemNode.propertyAffectedByCurrentState("width")
                           && qmlItemNode.propertyAffectedByCurrentState("height"))) {
@@ -523,7 +523,7 @@ QmlItemNode findRecursiveQmlItemNode(const QmlObjectNode &firstQmlObjectNode)
     return QmlItemNode();
 }
 
-void FormEditorView::instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList)
+void FormEditorView::instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &propertyList)
 {
     typedef QPair<ModelNode, PropertyName> NodePropertyPair;
     foreach (const NodePropertyPair &nodePropertyPair, propertyList) {

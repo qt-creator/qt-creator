@@ -188,11 +188,11 @@ void AbstractView::modelAboutToBeDetached(Model *)
             Empty properties were removed.
 */
 
-void AbstractView::instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &/*propertyList*/)
+void AbstractView::instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &/*propertyList*/)
 {
 }
 
-void AbstractView::instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &/*informationChangeHash*/)
+void AbstractView::instanceInformationsChanged(const QMultiHash<ModelNode, InformationName> &/*informationChangeHash*/)
 {
 }
 
@@ -224,7 +224,7 @@ void AbstractView::rewriterEndTransaction()
 {
 }
 
-void AbstractView::instanceErrorChange(const QVector<ModelNode> &/*errorNodeList*/)
+void AbstractView::instanceErrorChanged(const QVector<ModelNode> &/*errorNodeList*/)
 {
 }
 

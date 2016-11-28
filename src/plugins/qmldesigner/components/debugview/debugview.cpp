@@ -289,7 +289,7 @@ bool DebugView::hasWidget() const
     return false;
 }
 
-void DebugView::instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList)
+void DebugView::instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &propertyList)
 {
     if (isDebugViewEnabled()) {
         QTextStream message;
@@ -308,7 +308,7 @@ void DebugView::instancePropertyChange(const QList<QPair<ModelNode, PropertyName
     }
 }
 
-void DebugView::instanceErrorChange(const QVector<ModelNode> &/*errorNodeList*/)
+void DebugView::instanceErrorChanged(const QVector<ModelNode> &/*errorNodeList*/)
 {
 }
 
@@ -330,16 +330,16 @@ void DebugView::instancesCompleted(const QVector<ModelNode> &completedNodeList)
     }
 }
 
-void DebugView::instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &informationChangeHash)
+void DebugView::instanceInformationsChanged(const QMultiHash<ModelNode, InformationName> &informationChangedHash)
 {
     if (isDebugViewEnabled()) {
         QTextStream message;
         QString string;
         message.setString(&string);
 
-        foreach (const ModelNode &modelNode, informationChangeHash.keys()) {
+        foreach (const ModelNode &modelNode, informationChangedHash.keys()) {
             message << modelNode;
-            message << informationChangeHash.value(modelNode);
+            message << informationChangedHash.value(modelNode);
         }
 
         logInstance(tr("Instance completed"), string);

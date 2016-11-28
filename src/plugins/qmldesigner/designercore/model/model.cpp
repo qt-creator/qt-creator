@@ -426,7 +426,7 @@ void ModelPrivate::notifyInstancePropertyChange(const QList<QPair<ModelNode, Pro
             adaptedPropertyList.append(newPair);
         }
 
-        view->instancePropertyChange(adaptedPropertyList);
+        view->instancePropertyChanged(adaptedPropertyList);
     }
 }
 
@@ -439,7 +439,7 @@ void ModelPrivate::notifyInstanceErrorChange(const QVector<qint32> &instanceIds)
         Q_ASSERT(view != 0);
         foreach (qint32 instanceId, instanceIds)
             errorNodeList.append(ModelNode(model()->d->nodeForInternalId(instanceId), model(), view));
-        view->instanceErrorChange(errorNodeList);
+        view->instanceErrorChanged(errorNodeList);
     }
 }
 
@@ -490,7 +490,7 @@ void ModelPrivate::notifyInstancesInformationsChange(const QMultiHash<ModelNode,
 
     try {
         if (rewriterView())
-            rewriterView()->instanceInformationsChange(convertModelNodeInformationHash(informationChangeHash, rewriterView()));
+            rewriterView()->instanceInformationsChanged(convertModelNodeInformationHash(informationChangeHash, rewriterView()));
     } catch (const RewritingException &e) {
         description = e.description();
         resetModel = true;
@@ -498,11 +498,11 @@ void ModelPrivate::notifyInstancesInformationsChange(const QMultiHash<ModelNode,
 
     foreach (const QPointer<AbstractView> &view, m_viewList) {
         Q_ASSERT(view != 0);
-        view->instanceInformationsChange(convertModelNodeInformationHash(informationChangeHash, view.data()));
+        view->instanceInformationsChanged(convertModelNodeInformationHash(informationChangeHash, view.data()));
     }
 
     if (nodeInstanceView())
-        nodeInstanceView()->instanceInformationsChange(convertModelNodeInformationHash(informationChangeHash, nodeInstanceView()));
+        nodeInstanceView()->instanceInformationsChanged(convertModelNodeInformationHash(informationChangeHash, nodeInstanceView()));
 
     if (resetModel)
         resetModelByRewriter(description);

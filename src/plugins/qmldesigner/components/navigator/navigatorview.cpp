@@ -254,7 +254,7 @@ void NavigatorView::auxiliaryDataChanged(const ModelNode &modelNode, const Prope
     }
 }
 
-void NavigatorView::instanceErrorChange(const QVector<ModelNode> &errorNodeList)
+void NavigatorView::instanceErrorChanged(const QVector<ModelNode> &errorNodeList)
 {
     foreach (const ModelNode &currentModelNode, errorNodeList)
         m_treeModel->updateItemRow(currentModelNode);

@@ -195,10 +195,10 @@ public:
     virtual void signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty>& propertyList, PropertyChangeFlags propertyChange);
     virtual void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion);
 
-    virtual void instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList);
-    virtual void instanceErrorChange(const QVector<ModelNode> &errorNodeList);
+    virtual void instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &propertyList);
+    virtual void instanceErrorChanged(const QVector<ModelNode> &errorNodeList);
     virtual void instancesCompleted(const QVector<ModelNode> &completedNodeList);
-    virtual void instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &informationChangeHash);
+    virtual void instanceInformationsChanged(const QMultiHash<ModelNode, InformationName> &informationChangeHash);
     virtual void instancesRenderImageChanged(const QVector<ModelNode> &nodeList);
     virtual void instancesPreviewImageChanged(const QVector<ModelNode> &nodeList);
     virtual void instancesChildrenChanged(const QVector<ModelNode> &nodeList);
