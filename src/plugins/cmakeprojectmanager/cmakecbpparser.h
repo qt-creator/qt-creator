@@ -78,7 +78,7 @@ private:
     QList<ProjectExplorer::FileNode *> m_fileList;
     QList<ProjectExplorer::FileNode *> m_cmakeFileList;
     QSet<Utils::FileName> m_processedUnits;
-    bool m_parsingCMakeUnit;
+    bool m_parsingCMakeUnit = false;
 
     CMakeBuildTarget m_buildTarget;
     QList<CMakeBuildTarget> m_buildTargets;
