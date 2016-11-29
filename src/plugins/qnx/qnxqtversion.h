@@ -81,7 +81,7 @@ private:
     QnxArchitecture m_arch;
     QString m_sdkPath;
 
-    mutable bool m_environmentUpToDate;
+    mutable bool m_environmentUpToDate = false;
     mutable QList<Utils::EnvironmentItem> m_qnxEnv;
 };
 
