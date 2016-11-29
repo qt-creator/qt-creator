@@ -432,10 +432,8 @@ double QmlAnchors::instanceAnchorLine(AnchorLineType anchorLine) const
     case AnchorLineRight: return instanceRightAnchorLine();
     case AnchorLineHorizontalCenter: return instanceHorizontalCenterAnchorLine();
     case AnchorLineVerticalCenter: return instanceVerticalCenterAnchorLine();
-    default: return 0;
+    default: return 0.0;
     }
-
-    return 0.0;
 }
 
 void QmlAnchors::setMargin(AnchorLineType sourceAnchorLineType, double margin) const
