@@ -2259,7 +2259,7 @@ void WatchModel::showEditValue(const WatchItem *item)
         else if (innerType == "float") {
             if (innerSize == 4)
                 reader = &readOne<float>;
-            else if (innerSize == 4)
+            else if (innerSize == 8)
                 reader = &readOne<double>;
         }
         QTC_ASSERT(reader, return);
