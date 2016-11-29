@@ -55,12 +55,20 @@ SourceRangeExtractor::SourceRangeExtractor(const clang::SourceManager &sourceMan
 {
 }
 
+namespace {
+template<typename Iterator>
+std::reverse_iterator<Iterator> make_reverse_iterator(Iterator iterator)
+{
+    return std::reverse_iterator<Iterator>(iterator);
+}
+}
+
 const char *SourceRangeExtractor::findStartOfLineInBuffer(llvm::StringRef buffer, uint startOffset)
 {
     auto beginText = buffer.begin() + startOffset;
-    auto reverseEnd = std::make_reverse_iterator(buffer.begin());
+    auto reverseEnd = make_reverse_iterator(buffer.begin());
 
-    auto found = std::find_if(std::make_reverse_iterator(beginText),
+    auto found = std::find_if(make_reverse_iterator(beginText),
                               reverseEnd,
                               [] (const char character) {
         return character == '\n' || character == '\r';
