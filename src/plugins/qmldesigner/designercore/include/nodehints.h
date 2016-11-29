@@ -89,7 +89,7 @@ class JSObject : public QObject {
 
 public:
     JSObject() = default;
-    JSObject(QObject *parent = 0);
+    JSObject(QObject *parent);
     void setModelNode(const ModelNode &node);
     bool hasParent() const;
     bool hasChildren() const;

@@ -188,7 +188,7 @@ bool NodeHints::evaluateBooleanExpression(const QString &hintName, bool defaultV
 
 namespace Internal {
 
-QmlDesigner::Internal::JSObject::JSObject::JSObject(QObject *parent) : QObject(parent)
+JSObject::JSObject(QObject *parent) : QObject (parent)
 {
 
 }
