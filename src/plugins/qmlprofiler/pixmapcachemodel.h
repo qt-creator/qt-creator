@@ -87,12 +87,12 @@ public:
     };
 
     struct PixmapCacheItem {
-        int typeId;
-        PixmapEventType pixmapEventType;
-        int urlIndex;
-        int sizeIndex;
-        int rowNumberCollapsed;
-        qint64 cacheSize;
+        int typeId = -1;
+        PixmapEventType pixmapEventType = MaximumPixmapEventType;
+        int urlIndex = -1;
+        int sizeIndex = -1;
+        int rowNumberCollapsed = -1;
+        qint64 cacheSize = -1;
     };
 
     PixmapCacheModel(QmlProfilerModelManager *manager, QObject *parent = 0);
