@@ -27,21 +27,19 @@
 
 namespace CppTools {
 
-ProjectFileCategorizer::ProjectFileCategorizer(const QString &partName,
-                                               const QStringList &files,
+ProjectFileCategorizer::ProjectFileCategorizer(const QString &projectPartName,
+                                               const QStringList &filePaths,
                                                ProjectPartBuilder::FileClassifier fileClassifier)
-    : m_partName(partName)
+    : m_partName(projectPartName)
 {
-    using CppTools::ProjectFile;
+    ProjectFiles cHeaders;
+    ProjectFiles cxxHeaders;
 
-    QVector<ProjectFile> cHeaders;
-    QVector<ProjectFile> cxxHeaders;
-
-    foreach (const QString &file, files) {
+    foreach (const QString &filePath, filePaths) {
         const ProjectFile::Kind kind = fileClassifier
-                ? fileClassifier(file)
-                : ProjectFile::classify(file);
-        const ProjectFile projectFile(file, kind);
+                ? fileClassifier(filePath)
+                : ProjectFile::classify(filePath);
+        const ProjectFile projectFile(filePath, kind);
 
         switch (kind) {
         case ProjectFile::CSource: m_cSources += projectFile; break;
@@ -71,11 +69,10 @@ ProjectFileCategorizer::ProjectFileCategorizer(const QString &partName,
     if (hasC || (!hasObjc && !hasObjcxx && !hasCxx))
         m_cSources += cHeaders;
 
-    m_partCount =
-            (m_cSources.isEmpty() ? 0 : 1) +
-            (m_cxxSources.isEmpty() ? 0 : 1) +
-            (m_objcSources.isEmpty() ? 0 : 1) +
-            (m_objcxxSources.isEmpty() ? 0 : 1);
+    m_partCount = (m_cSources.isEmpty() ? 0 : 1)
+                + (m_cxxSources.isEmpty() ? 0 : 1)
+                + (m_objcSources.isEmpty() ? 0 : 1)
+                + (m_objcxxSources.isEmpty() ? 0 : 1);
 }
 
 QString ProjectFileCategorizer::partName(const QString &languageName) const

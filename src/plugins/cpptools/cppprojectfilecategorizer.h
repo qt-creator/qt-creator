@@ -25,19 +25,19 @@
 
 #pragma once
 
-#include <QString>
-#include <QVector>
-
 #include "cppprojectfile.h"
 #include "projectpartbuilder.h"
+
+#include <QString>
+#include <QVector>
 
 namespace CppTools {
 
 class ProjectFileCategorizer
 {
 public:
-    ProjectFileCategorizer(const QString &partName,
-                           const QStringList &files,
+    ProjectFileCategorizer(const QString &projectPartName,
+                           const QStringList &filePaths,
                            ProjectPartBuilder::FileClassifier fileClassifier
                                 = ProjectPartBuilder::FileClassifier());
 
@@ -46,10 +46,10 @@ public:
     bool hasObjcSources() const { return !m_objcSources.isEmpty(); }
     bool hasObjcxxSources() const { return !m_objcxxSources.isEmpty(); }
 
-    QVector<ProjectFile> cSources() const { return m_cSources; }
-    QVector<ProjectFile> cxxSources() const { return m_cxxSources; }
-    QVector<ProjectFile> objcSources() const { return m_objcSources; }
-    QVector<ProjectFile> objcxxSources() const { return m_objcxxSources; }
+    ProjectFiles cSources() const { return m_cSources; }
+    ProjectFiles cxxSources() const { return m_cxxSources; }
+    ProjectFiles objcSources() const { return m_objcSources; }
+    ProjectFiles objcxxSources() const { return m_objcxxSources; }
 
     bool hasMultipleParts() const { return m_partCount > 1; }
     bool hasNoParts() const { return m_partCount == 0; }
@@ -58,10 +58,10 @@ public:
 
 private:
     QString m_partName;
-    QVector<ProjectFile> m_cSources;
-    QVector<ProjectFile> m_cxxSources;
-    QVector<ProjectFile> m_objcSources;
-    QVector<ProjectFile> m_objcxxSources;
+    ProjectFiles m_cSources;
+    ProjectFiles m_cxxSources;
+    ProjectFiles m_objcSources;
+    ProjectFiles m_objcxxSources;
     int m_partCount;
 };
 
