@@ -2446,8 +2446,6 @@ void InsertDeclFromDef::match(const CppQuickFixInterface &interface, QuickFixOpe
             if (DeclaratorIdAST *declId = node->asDeclaratorId()) {
                 if (file->isCursorOn(declId)) {
                     if (FunctionDefinitionAST *candidate = path.at(idx - 2)->asFunctionDefinition()) {
-                        if (funDef)
-                            return;
                         funDef = candidate;
                         break;
                     }
