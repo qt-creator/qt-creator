@@ -181,7 +181,7 @@ private slots:
 private:
     QSharedPointer<CppFileSettings> m_fileSettings;
     QSharedPointer<CppCodeModelSettings> m_codeModelSettings;
-    CppToolsSettings *m_settings;
+    CppToolsSettings *m_settings = nullptr;
     StringTable m_stringTable;
 };
 
