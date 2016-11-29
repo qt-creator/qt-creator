@@ -63,7 +63,7 @@ class QMLJS_EXPORT ValueOwner
 public:
     static SharedValueOwner *sharedValueOwner(QString kind = QString());
     ValueOwner(const SharedValueOwner *shared = 0);
-    ~ValueOwner();
+    virtual ~ValueOwner();
 
     const NullValue *nullValue() const;
     const UndefinedValue *undefinedValue() const;
