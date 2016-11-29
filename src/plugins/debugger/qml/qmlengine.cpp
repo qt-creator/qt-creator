@@ -72,6 +72,8 @@
 #include <QPlainTextEdit>
 #include <QTimer>
 
+#include <memory.h>
+
 #define DEBUG_QML 0
 #if DEBUG_QML
 #   define SDEBUG(s) qDebug() << s
@@ -2250,7 +2252,7 @@ void QmlEnginePrivate::handleScope(const QVariantMap &response)
     LookupItems itemsToLookup;
     foreach (const QVariant &property, objectData.properties) {
         QmlV8ObjectData localData = extractData(property);
-        auto item = new WatchItem;
+        std::unique_ptr<WatchItem> item(new WatchItem);
         item->exp = localData.name;
         //Check for v8 specific local data
         if (item->exp.startsWith('.') || item->exp.isEmpty())
@@ -2264,7 +2266,7 @@ void QmlEnginePrivate::handleScope(const QVariantMap &response)
             item->type = localData.type;
             item->value = localData.value.toString();
             item->setHasChildren(localData.properties.count());
-            engine->watchHandler()->insertItem(item);
+            engine->watchHandler()->insertItem(item.release());
         } else {
             itemsToLookup.insert(int(item->id), {item->iname, item->name, item->exp});
         }
@@ -2383,7 +2385,7 @@ void QmlEnginePrivate::insertSubItems(WatchItem *parent, const QVariantList &pro
     const QSet<QString> expandedINames = engine->watchHandler()->expandedINames();
     foreach (const QVariant &property, properties) {
         QmlV8ObjectData propertyData = extractData(property);
-        auto item = new WatchItem;
+        std::unique_ptr<WatchItem> item(new WatchItem);
         item->name = propertyData.name;
 
         // Check for v8 specific local data
@@ -2405,7 +2407,7 @@ void QmlEnginePrivate::insertSubItems(WatchItem *parent, const QVariantList &pro
         if (item->type.isEmpty() || expandedINames.contains(item->iname))
             itemsToLookup.insert(propertyData.handle, {item->iname, item->name, item->exp});
         item->setHasChildren(propertyData.properties.count() > 0);
-        parent->appendChild(item);
+        parent->appendChild(item.release());
     }
 
     if (boolSetting(SortStructMembers)) {
