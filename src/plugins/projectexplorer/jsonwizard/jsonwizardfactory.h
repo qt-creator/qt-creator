@@ -72,7 +72,7 @@ public:
         QString title;
         QString subTitle;
         QString shortTitle;
-        int index; // page index in the wizard
+        int index = -1; // page index in the wizard
         Core::Id typeId;
         QVariant enabled;
         QVariant data;
