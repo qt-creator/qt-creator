@@ -62,9 +62,9 @@ public:
         QByteArray dockId;
         QPointer<QWidget> widget;
         QByteArray anchorDockId;
-        OperationType operationType;
-        bool visibleByDefault;
-        Qt::DockWidgetArea area;
+        OperationType operationType = Raise;
+        bool visibleByDefault = true;
+        Qt::DockWidgetArea area = Qt::BottomDockWidgetArea;
     };
 
     Perspective() = default;
