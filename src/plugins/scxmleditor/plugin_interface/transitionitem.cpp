@@ -621,10 +621,8 @@ void TransitionItem::connectToTopItem(const QPointF &pos, TransitionPoint tp, It
         }
     }
 
-    if (!parentTag) {
-        if (document)
-            parentTag = document->rootTag();
-    }
+    if (!parentTag && document)
+        parentTag = document->rootTag();
 
     // Connect existing item
     if (targetType == UnknownType) {
@@ -675,7 +673,8 @@ void TransitionItem::connectToTopItem(const QPointF &pos, TransitionPoint tp, It
             if (parentItem)
                 parentItem->updateUIProperties();
 
-            document->addTag(parentTag, newTag);
+            if (document)
+                document->addTag(parentTag, newTag);
 
             setEndItem(newItem);
             setSelected(false);
