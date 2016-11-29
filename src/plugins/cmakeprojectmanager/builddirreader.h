@@ -68,7 +68,7 @@ public:
         Utils::Environment environment;
         Utils::FileName cmakeExecutable;
         CMakeTool::Version cmakeVersion;
-        bool cmakeHasServerMode;
+        bool cmakeHasServerMode = false;
         CMakeTool::PathMapper pathMapper;
 
         QByteArray cxxToolChainId;
