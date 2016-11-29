@@ -141,7 +141,7 @@ public:
         QString target;
         QString name;
         QString abi;
-        int sdcardSize;
+        int sdcardSize = 0;
         QString error; // only used in the return value of createAVD
     };
 
