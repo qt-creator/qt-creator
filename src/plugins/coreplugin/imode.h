@@ -63,9 +63,9 @@ private:
     QString m_displayName;
     QIcon m_icon;
     QMenu *m_menu = nullptr;
-    int m_priority;
+    int m_priority = -1;
     Id m_id;
-    bool m_isEnabled;
+    bool m_isEnabled = true;
 };
 
 } // namespace Core

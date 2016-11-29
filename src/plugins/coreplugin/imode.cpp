@@ -26,16 +26,13 @@
 #include "imode.h"
 
 using namespace Core;
-IMode::IMode(QObject *parent)
-    : IContext(parent),
-    m_isEnabled(true)
+IMode::IMode(QObject *parent) : IContext(parent)
 {
 }
 
 IMode::~IMode()
 {
-    if (m_menu)
-        delete m_menu;
+    delete m_menu;
 }
 
 void IMode::setEnabled(bool enabled)
