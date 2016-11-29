@@ -125,6 +125,29 @@ public:
 
 } // namespace Internal
 
+static void syncComboWithSettings(QComboBox *combo, const QString &setting)
+{
+    if (!combo)
+        return;
+    int index = combo->findText(setting);
+    if (index < 0)
+        combo->setEditText(setting);
+    else
+        combo->setCurrentIndex(index);
+}
+
+static void updateComboEntries(QComboBox *combo, bool onTop)
+{
+    int index = combo->findText(combo->currentText());
+    if (index < 0) {
+        if (onTop)
+            combo->insertItem(0, combo->currentText());
+        else
+            combo->addItem(combo->currentText());
+        combo->setCurrentIndex(combo->findText(combo->currentText()));
+    }
+}
+
 using namespace Internal;
 
 SearchEngine::SearchEngine()
@@ -390,29 +413,6 @@ void BaseFileFind::readCommonSettings(QSettings *settings, const QString &defaul
     syncSearchEngineCombo(currentSearchEngineIndex);
 }
 
-void BaseFileFind::syncComboWithSettings(QComboBox *combo, const QString &setting)
-{
-    if (!combo)
-        return;
-    int index = combo->findText(setting);
-    if (index < 0)
-        combo->setEditText(setting);
-    else
-        combo->setCurrentIndex(index);
-}
-
-void BaseFileFind::updateComboEntries(QComboBox *combo, bool onTop)
-{
-    int index = combo->findText(combo->currentText());
-    if (index < 0) {
-        if (onTop)
-            combo->insertItem(0, combo->currentText());
-        else
-            combo->addItem(combo->currentText());
-        combo->setCurrentIndex(combo->findText(combo->currentText()));
-    }
-}
-
 void BaseFileFind::openEditor(const SearchResultItem &item)
 {
     SearchResult *result = qobject_cast<SearchResult *>(sender());
@@ -540,7 +540,7 @@ QVariant BaseFileFind::getAdditionalParameters(SearchResult *search)
 
 QFuture<FileSearchResultList> BaseFileFind::executeSearch(const FileFindParameters &parameters)
 {
-    return d->m_searchEngines[parameters.searchEngineIndex]->executeSearch(parameters,this);
+    return d->m_searchEngines[parameters.searchEngineIndex]->executeSearch(parameters, this);
 }
 
 namespace Internal {

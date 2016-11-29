@@ -115,7 +115,7 @@ public:
 
 protected:
     virtual QVariant additionalParameters() const = 0;
-    QVariant getAdditionalParameters(Core::SearchResult *search);
+    static QVariant getAdditionalParameters(Core::SearchResult *search);
     virtual QString label() const = 0; // see Core::SearchResultWindow::startNewSearch
     virtual QString toolTip() const = 0; // see Core::SearchResultWindow::startNewSearch,
                                          // add %1 placeholder where the find flags should be put
@@ -124,8 +124,6 @@ protected:
     void writeCommonSettings(QSettings *settings);
     void readCommonSettings(QSettings *settings, const QString &defaultFilter);
     QWidget *createPatternWidget();
-    void syncComboWithSettings(QComboBox *combo, const QString &setting);
-    void updateComboEntries(QComboBox *combo, bool onTop);
     QStringList fileNameFilters() const;
 
     SearchEngine *currentSearchEngine() const;
