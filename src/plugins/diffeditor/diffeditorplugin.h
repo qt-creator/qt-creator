@@ -70,8 +70,8 @@ private slots:
     void testReadPatch();
 #endif // WITH_TESTS
 private:
-    QAction *m_diffCurrentFileAction;
-    QAction *m_diffOpenFilesAction;
+    QAction *m_diffCurrentFileAction = nullptr;
+    QAction *m_diffOpenFilesAction = nullptr;
 };
 
 } // namespace Internal
