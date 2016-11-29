@@ -124,10 +124,13 @@ SharedMemory::~SharedMemory()
 {
     if (m_memory) {
         munmap(m_memory, m_size);
+        m_memory = nullptr;
+        m_size = 0;
     }
 
     if (m_fileHandle != -1) {
         close(m_fileHandle);
+        cleanHandleInternal();
         if (m_createdByMe)
             shm_unlink(m_nativeKey);
     }
@@ -142,7 +145,7 @@ void SharedMemory::setKey(const QString &key)
 
     if (isAttached())
         detach();
-    cleanHandleInternal();
+
     m_key = key;
     m_nativeKey = makePlatformSafeKey(key);
 }
@@ -299,8 +302,7 @@ void SharedMemory::setErrorString(const QString &function)
 
 bool SharedMemory::initKeyInternal()
 {
-    if (!cleanHandleInternal())
-        return false;
+    cleanHandleInternal();
 
     m_systemSemaphore.setKey(QString(), 1);
     m_systemSemaphore.setKey(m_key, 1);
@@ -341,10 +343,9 @@ int SharedMemory::handle()
     return m_fileHandle;
 }
 
-bool SharedMemory::cleanHandleInternal()
+void SharedMemory::cleanHandleInternal()
 {
     m_fileHandle = -1;
-    return true;
 }
 
 bool SharedMemory::createInternal(QSharedMemory::AccessMode mode, int size)

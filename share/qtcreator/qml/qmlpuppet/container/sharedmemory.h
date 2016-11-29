@@ -61,7 +61,7 @@ public:
 protected:
 #ifdef Q_OS_UNIX
     bool initKeyInternal();
-    bool cleanHandleInternal();
+    void cleanHandleInternal();
     bool createInternal(QSharedMemory::AccessMode mode, int size);
     bool attachInternal(QSharedMemory::AccessMode mode);
     bool detachInternal();
