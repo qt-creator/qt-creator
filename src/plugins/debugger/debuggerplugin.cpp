@@ -587,7 +587,7 @@ static std::function<bool(const Kit *)> cdbMatcher(char wordWidth = 0)
             return false;
         }
         if (wordWidth)
-            ToolChainKitInformation::targetAbi(k).wordWidth();
+            return ToolChainKitInformation::targetAbi(k).wordWidth() == wordWidth;
         return true;
     };
 }
