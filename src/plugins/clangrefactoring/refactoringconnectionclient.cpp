@@ -46,6 +46,11 @@ RefactoringConnectionClient::RefactoringConnectionClient(RefactoringClientInterf
     stdOutPrefixer().setPrefix("RefactoringConnectionClient.stdout: ");
 }
 
+RefactoringConnectionClient::~RefactoringConnectionClient()
+{
+    finishProcess();
+}
+
 RefactoringServerProxy &RefactoringConnectionClient::serverProxy()
 {
     return serverProxy_;

@@ -36,6 +36,7 @@ class RefactoringConnectionClient : public ConnectionClient
 {
 public:
     RefactoringConnectionClient(RefactoringClientInterface *client);
+    ~RefactoringConnectionClient();
 
     RefactoringServerProxy &serverProxy();
 
