@@ -111,12 +111,6 @@ using namespace Utils;
 static HelpPlugin *m_instance = nullptr;
 
 HelpPlugin::HelpPlugin()
-    : m_mode(0),
-    m_centralWidget(0),
-    m_rightPaneSideBarWidget(0),
-    m_setupNeeded(true),
-    m_helpManager(0),
-    m_openPagesManager(0)
 {
     m_instance = this;
 }

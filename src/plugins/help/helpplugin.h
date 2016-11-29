@@ -112,17 +112,17 @@ private:
 
     void doSetupIfNeeded();
 
-    HelpMode *m_mode;
-    CentralWidget *m_centralWidget;
-    HelpWidget *m_rightPaneSideBarWidget;
+    HelpMode *m_mode = nullptr;
+    CentralWidget *m_centralWidget = nullptr;
+    HelpWidget *m_rightPaneSideBarWidget = nullptr;
 
-    DocSettingsPage *m_docSettingsPage;
-    FilterSettingsPage *m_filterSettingsPage;
-    SearchTaskHandler *m_searchTaskHandler;
+    DocSettingsPage *m_docSettingsPage = nullptr;
+    FilterSettingsPage *m_filterSettingsPage = nullptr;
+    SearchTaskHandler *m_searchTaskHandler = nullptr;
 
-    bool m_setupNeeded;
-    LocalHelpManager *m_helpManager;
-    OpenPagesManager *m_openPagesManager;
+    bool m_setupNeeded = true;
+    LocalHelpManager *m_helpManager = nullptr;
+    OpenPagesManager *m_openPagesManager = nullptr;
 
     QString m_contextHelpHighlightId;
 
