@@ -76,7 +76,13 @@ exists(../shared/qbs/qbs.pro)|!isEmpty(QBS_INSTALL_DIR): \
 isEmpty(LLVM_INSTALL_DIR):LLVM_INSTALL_DIR=$$(LLVM_INSTALL_DIR)
 exists($$LLVM_INSTALL_DIR) {
     SUBDIRS += clangcodemodel
-#    SUBDIRS += clangrefactoring
+
+    QTC_NO_CLANG_LIBTOOLING=$$(QTC_NO_CLANG_LIBTOOLING)
+    isEmpty($$QTC_NO_CLANG_LIBTOOLING) {
+        SUBDIRS += clangrefactoring
+    } else {
+        warning("Building the Clang refactoring plugin is disabled.")
+    }
 } else {
     warning("Set LLVM_INSTALL_DIR to build the Clang Code Model. " \
             "For details, see doc/src/editors/creator-clang-codemodel.qdoc.")

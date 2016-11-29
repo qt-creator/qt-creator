@@ -21,7 +21,13 @@ mac {
 isEmpty(LLVM_INSTALL_DIR):LLVM_INSTALL_DIR=$$(LLVM_INSTALL_DIR)
 exists($$LLVM_INSTALL_DIR) {
     SUBDIRS += clangbackend
-#    SUBDIRS += clangrefactoringbackend
+
+    QTC_NO_CLANG_LIBTOOLING=$$(QTC_NO_CLANG_LIBTOOLING)
+    isEmpty($$QTC_NO_CLANG_LIBTOOLING) {
+        SUBDIRS += clangrefactoringbackend
+    } else {
+        warning("Building the Clang refactoring back end is disabled.")
+    }
 }
 
 isEmpty(BUILD_CPLUSPLUS_TOOLS):BUILD_CPLUSPLUS_TOOLS=$$(BUILD_CPLUSPLUS_TOOLS)
