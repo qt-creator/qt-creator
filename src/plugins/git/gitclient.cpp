@@ -2229,7 +2229,7 @@ FileName GitClient::gitBinDirectory()
 
     // Is 'git\cmd' in the path (folder containing .bats)?
     QString path = QFileInfo(git).absolutePath();
-    // Git for Windows (msysGit) has git and gitk redirect executables in {setup dir}/cmd
+    // Git for Windows has git and gitk redirect executables in {setup dir}/cmd
     // and the real binaries are in {setup dir}/bin. If cmd is configured in PATH
     // or in Git settings, return bin instead.
     if (HostOsInfo::isWindowsHost()
@@ -2992,7 +2992,7 @@ QString GitClient::readGitVar(const QString &workingDirectory, const QString &co
 
 QString GitClient::readOneLine(const QString &workingDirectory, const QStringList &arguments) const
 {
-    // msysGit always uses UTF-8 for configuration:
+    // Git for Windows always uses UTF-8 for configuration:
     // https://github.com/msysgit/msysgit/wiki/Git-for-Windows-Unicode-Support#convert-config-files
     static QTextCodec *codec = HostOsInfo::isWindowsHost()
             ? QTextCodec::codecForName("UTF-8")
