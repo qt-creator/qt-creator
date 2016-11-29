@@ -67,12 +67,9 @@ public:
     double canvasWidth() const;
     double canvasHeight() const;
 
-    bool hasItemForQmlItemNode(const QmlItemNode &qmlItemNode) const;
-
-    void synchronizeTransformation(const QmlItemNode &qmlItemNode);
+    void synchronizeTransformation(FormEditorItem *item);
     void synchronizeParent(const QmlItemNode &qmlItemNode);
-    void synchronizeOtherProperty(const QmlItemNode &qmlItemNode, const QByteArray &propertyName);
-    void synchronizeState(const QmlItemNode &qmlItemNode);
+    void synchronizeOtherProperty(FormEditorItem *item, const QByteArray &propertyName);
 
     FormEditorItem* calulateNewParent(FormEditorItem *widget);
     LayerItem* manipulatorLayerItem() const;
