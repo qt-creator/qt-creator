@@ -756,10 +756,7 @@ BuildConfiguration::BuildType QmakeBuildConfiguration::buildType() const
         return Release;
 }
 
-QmakeBuildConfiguration::LastKitState::LastKitState()
-{
-
-}
+QmakeBuildConfiguration::LastKitState::LastKitState() { }
 
 QmakeBuildConfiguration::LastKitState::LastKitState(Kit *k)
     : m_qtVersion(QtKitInformation::qtVersionId(k)),
