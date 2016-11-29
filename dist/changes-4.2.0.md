@@ -80,8 +80,8 @@ C++ Support
 
 Debugging
 
-* Added pretty printing of `QRegExp` captures, `QStaticStringData`, and
-  `std::pair`
+* Added pretty printing of `QRegExp` captures, `QStaticStringData`,
+  `QStandardItem`, and `std::pair`
 * Improved pretty printing of QV4 types
 * Made display of maps more compact
 * Fixed pretty printing of `QFixed`
@@ -162,6 +162,10 @@ Android
 iOS
 
 * Fixed that Qt Creator was blocked until simulator finished starting
+
+Remote Linux
+
+* Fixed crash when creating SSH key pair (QTCREATORBUG-17349)
 
 Credits for these changes go to:  
 Aaron Barany  
