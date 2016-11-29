@@ -61,7 +61,6 @@ protected:
     Utils::FileName androidPackageSourceDir() const override;
 
 protected:
-    void ctor();
     bool init(QList<const BuildStep *> &earlierSteps) override;
     void run(QFutureInterface<bool> &fi) override;
     void processStarted() override;
@@ -75,7 +74,7 @@ private:
                                 const QStringList &arguments, const QString &command);
     QString m_command;
     QString m_argumentsPasswordConcealed;
-    bool m_skipBuilding;
+    bool m_skipBuilding = false;
 };
 
 } // namespace Internal

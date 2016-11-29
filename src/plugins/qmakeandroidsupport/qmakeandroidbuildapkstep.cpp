@@ -90,9 +90,7 @@ ProjectExplorer::BuildStep *QmakeAndroidBuildApkStepFactory::clone(ProjectExplor
 
 QmakeAndroidBuildApkStep::QmakeAndroidBuildApkStep(ProjectExplorer::BuildStepList *bc)
     :AndroidBuildApkStep(bc, ANDROID_BUILD_APK_ID)
-{
-    ctor();
-}
+{ }
 
 Utils::FileName QmakeAndroidBuildApkStep::proFilePathForInputFile() const
 {
@@ -104,9 +102,7 @@ Utils::FileName QmakeAndroidBuildApkStep::proFilePathForInputFile() const
 
 QmakeAndroidBuildApkStep::QmakeAndroidBuildApkStep(ProjectExplorer::BuildStepList *bc, QmakeAndroidBuildApkStep *other)
     : AndroidBuildApkStep(bc, other)
-{
-    ctor();
-}
+{ }
 
 Utils::FileName QmakeAndroidBuildApkStep::androidPackageSourceDir() const
 {
@@ -118,10 +114,6 @@ Utils::FileName QmakeAndroidBuildApkStep::androidPackageSourceDir() const
 
     QFileInfo sourceDirInfo(node->singleVariableValue(QmakeProjectManager::AndroidPackageSourceDir));
     return Utils::FileName::fromString(sourceDirInfo.canonicalFilePath());
-}
-
-void QmakeAndroidBuildApkStep::ctor()
-{
 }
 
 bool QmakeAndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
