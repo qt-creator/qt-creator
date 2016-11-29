@@ -40,7 +40,7 @@ class Function::Private
 {
 public:
     Private(const ParseData *data);
-    ~Private();
+    virtual ~Private();
 
     static void accumulateCost(QVector<quint64> &base, const QVector<quint64> &add);
     enum CallType {
@@ -51,9 +51,9 @@ public:
     FunctionCall *accumulateCall(const FunctionCall *call, CallType type);
 
     const ParseData *m_data;
-    qint64 m_fileId;
-    qint64 m_objectId;
-    qint64 m_nameId;
+    qint64 m_fileId = -1;
+    qint64 m_objectId = -1;
+    qint64 m_nameId = -1;
 
     QVector<quint64> m_selfCost;
     QVector<quint64> m_inclusiveCost;
@@ -65,7 +65,7 @@ public:
     // used in public api, hence const
     QVector<const FunctionCall *> m_outgoingCalls;
     QVector<const FunctionCall *> m_incomingCalls;
-    quint64 m_called;
+    quint64 m_called = 0;
 };
 
 } // namespace Callgrind

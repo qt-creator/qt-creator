@@ -45,12 +45,8 @@ namespace Callgrind {
 
 Function::Private::Private(const ParseData *data)
     : m_data(data)
-    , m_fileId(-1)
-    , m_objectId(-1)
-    , m_nameId(-1)
     , m_selfCost(data->events().size(), 0)
     , m_inclusiveCost(data->events().size(), 0)
-    , m_called(0)
 {
 }
 
