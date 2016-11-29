@@ -76,7 +76,7 @@ private:
 
     QVector<Warning*> m_warnings;
     QMap<int, bool> m_warningVisibilities;
-    int m_oldCount;
+    int m_oldCount = 0;
     QPointer<QTimer> m_countChecker;
 };
 
