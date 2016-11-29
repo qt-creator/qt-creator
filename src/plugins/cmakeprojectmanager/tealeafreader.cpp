@@ -602,7 +602,8 @@ bool TeaLeafReader::extractFlagsFromMake(const CMakeBuildTarget &buildTarget,
         makefile = makefile.remove("\\");
         QFile file(makefile);
         if (file.exists()) {
-            file.open(QIODevice::ReadOnly | QIODevice::Text);
+            if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+                return false;
             QTextStream stream(&file);
             while (!stream.atEnd()) {
                 QString line = stream.readLine().trimmed();
@@ -659,7 +660,8 @@ bool TeaLeafReader::extractFlagsFromNinja(const CMakeBuildTarget &buildTarget,
     buildNinjaFile += "/build.ninja";
     QFile buildNinja(buildNinjaFile);
     if (buildNinja.exists()) {
-        buildNinja.open(QIODevice::ReadOnly | QIODevice::Text);
+        if (!buildNinja.open(QIODevice::ReadOnly | QIODevice::Text))
+            return false;
         ninjaFile = buildNinja.readAll();
         buildNinja.close();
     }
