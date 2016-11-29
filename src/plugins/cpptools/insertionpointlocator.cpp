@@ -419,8 +419,9 @@ protected:
 
 class FindFunctionDefinition : protected ASTVisitor
 {
-    FunctionDefinitionAST *_result;
-    unsigned _line, _column;
+    FunctionDefinitionAST *_result = nullptr;
+    unsigned _line = 0;
+    unsigned _column = 0;
 public:
     FindFunctionDefinition(TranslationUnit *translationUnit)
         : ASTVisitor(translationUnit)
@@ -429,7 +430,7 @@ public:
 
     FunctionDefinitionAST *operator()(unsigned line, unsigned column)
     {
-        _result = 0;
+        _result = nullptr;
         _line = line;
         _column = column;
         accept(translationUnit()->ast());
