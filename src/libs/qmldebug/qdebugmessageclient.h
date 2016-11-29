@@ -30,7 +30,6 @@
 
 namespace QmlDebug {
 
-class QDebugMessageClientPrivate;
 struct QDebugContextInfo
 {
     int line;
@@ -46,7 +45,6 @@ class QMLDEBUG_EXPORT QDebugMessageClient : public QmlDebugClient
 
 public:
     explicit QDebugMessageClient(QmlDebugConnection *client);
-    ~QDebugMessageClient();
 
 protected:
     virtual void stateChanged(State state);
@@ -58,7 +56,6 @@ signals:
                  const QmlDebug::QDebugContextInfo &);
 
 private:
-    class QDebugMessageClientPrivate *d;
     Q_DISABLE_COPY(QDebugMessageClient)
 };
 

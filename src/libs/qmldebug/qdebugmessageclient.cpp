@@ -34,10 +34,6 @@ QDebugMessageClient::QDebugMessageClient(QmlDebugConnection *client)
 {
 }
 
-QDebugMessageClient::~QDebugMessageClient()
-{
-}
-
 void QDebugMessageClient::stateChanged(State state)
 {
     emit newState(state);
