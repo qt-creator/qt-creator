@@ -89,7 +89,7 @@ static bool same(const char *a, const char *b, int size)
 
 static bool isQtReservedWord(const char *name, int size)
 {
-    if (size < 4)
+    if (size < 3)
         return false;
 
     const char c = name[0];
