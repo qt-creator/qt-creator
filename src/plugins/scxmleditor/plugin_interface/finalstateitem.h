@@ -53,7 +53,7 @@ protected:
     bool canStartTransition(ItemType type) const override;
 
 private:
-    qreal m_size;
+    qreal m_size = 1.0;
     QPen m_pen;
 };
 
