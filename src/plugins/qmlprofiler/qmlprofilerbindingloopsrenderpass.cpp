@@ -302,9 +302,9 @@ public:
 private:
     virtual void initialize();
 
-    int m_matrix_id;
-    int m_z_range_id;
-    int m_color_id;
+    int m_matrix_id = 0;
+    int m_z_range_id = 0;
+    int m_color_id = 0;
 };
 
 BindingLoopMaterialShader::BindingLoopMaterialShader()
