@@ -290,7 +290,7 @@ private:
     void parse();
     QByteArray description() const;
 
-    Type m_type;
+    Type m_type = VendorType;
 };
 
 class ExprPrimaryNode : public ParseTreeNode
