@@ -42,7 +42,7 @@ public:
     Keyword();
 
     QString name;
-    IconType iconType;
+    IconType iconType = IconType::Info;
     QColor color;
     bool equals(const Keyword &other) const;
 };
