@@ -65,7 +65,7 @@ private slots:
 private:
     void updateContextActions(ProjectExplorer::Node *node, ProjectExplorer::Project *project);
 
-    Utils::ParameterAction *m_buildTargetContextAction;
+    Utils::ParameterAction *m_buildTargetContextAction = nullptr;
 };
 
 } // namespace Internal
