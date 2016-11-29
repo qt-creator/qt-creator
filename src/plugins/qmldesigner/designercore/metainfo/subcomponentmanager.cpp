@@ -54,66 +54,7 @@ static bool operator<(const QFileInfo &file1, const QFileInfo &file2)
     return file1.filePath() < file2.filePath();
 }
 
-
 QT_END_NAMESPACE
-
-
-static inline bool checkIfDerivedFromItem(const QString &fileName)
-{
-    return true;
-
-    QmlJS::Snapshot snapshot;
-
-
-    QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
-    if (modelManager)
-        snapshot =  modelManager->snapshot();
-
-    QFile file(fileName);
-    if (!file.open(QIODevice::ReadOnly))
-        return false;
-
-    QByteArray source = file.readAll();
-    file.close();
-
-    QmlJS::Document::MutablePtr document =
-            QmlJS::Document::create(fileName.isEmpty() ?
-                                        QStringLiteral("<internal>") : fileName, QmlJS::Dialect::Qml);
-    document->setSource(QString::fromUtf8(source));
-    document->parseQml();
-
-
-    if (!document->isParsedCorrectly())
-        return false;
-
-    snapshot.insert(document);
-
-    QmlJS::Link link(snapshot, modelManager->defaultVContext(document->language(), document), QmlJS::ModelManagerInterface::instance()->builtins(document));
-
-    QList<QmlJS::DiagnosticMessage> diagnosticLinkMessages;
-    QmlJS::ContextPtr context = link(document, &diagnosticLinkMessages);
-
-    QmlJS::AST::UiObjectMember *astRootNode = 0;
-    if (QmlJS::AST::UiProgram *program = document->qmlProgram())
-        if (program->members)
-            astRootNode = program->members->member;
-
-    QmlJS::AST::UiObjectDefinition *definition = QmlJS::AST::cast<QmlJS::AST::UiObjectDefinition *>(astRootNode);
-
-    if (!definition)
-        return false;
-
-    const QmlJS::ObjectValue *objectValue = context->lookupType(document.data(), definition->qualifiedTypeNameId);
-
-    QList<const QmlJS::ObjectValue *> prototypes = QmlJS::PrototypeIterator(objectValue, context).all();
-
-    foreach (const QmlJS::ObjectValue *prototype, prototypes) {
-        if (prototype->className() == QLatin1String("Item"))
-            return true;
-    }
-
-    return false;
-}
 
 namespace QmlDesigner {
 static const QString s_qmlFilePattern = QStringLiteral("*.qml");
@@ -362,9 +303,6 @@ void SubComponentManager::registerQmlFile(const QFileInfo &fileInfo, const QStri
                                                  bool addToLibrary)
 {
     if (!model())
-        return;
-
-    if (!checkIfDerivedFromItem(fileInfo.absoluteFilePath()))
         return;
 
     QString componentName = fileInfo.baseName();
