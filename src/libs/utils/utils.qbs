@@ -38,6 +38,7 @@ Project {
 
         files: [
             "QtConcurrentTools",
+            "asconst.h",
             "algorithm.h",
             "annotateditemdelegate.cpp",
             "annotateditemdelegate.h",

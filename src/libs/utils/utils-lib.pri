@@ -230,7 +230,8 @@ HEADERS += \
     $$PWD/smallstringlayout.h \
     $$PWD/sizedarray.h \
     $$PWD/smallstringio.h \
-    $$PWD/guard.h
+    $$PWD/guard.h \
+    $$PWD/asconst.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \
