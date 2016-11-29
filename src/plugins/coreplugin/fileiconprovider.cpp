@@ -71,7 +71,7 @@ public:
         : m_unknownFileIcon(qApp->style()->standardIcon(QStyle::SP_FileIcon))
     {}
 
-    QIcon icon(const QFileInfo &info);
+    QIcon icon(const QFileInfo &info) const override;
     using QFileIconProvider::icon;
 
     void registerIconOverlayForFilename(const QIcon &icon, const QString &filename)
@@ -101,7 +101,7 @@ public:
     }
 
     // Mapping of file suffix to icon.
-    QHash<QString, QIcon> m_suffixCache;
+    mutable QHash<QString, QIcon> m_suffixCache;
     QHash<QString, QIcon> m_filenameCache;
 
     QIcon m_unknownFileIcon;
@@ -118,7 +118,7 @@ QFileIconProvider *iconProvider()
     return instance();
 }
 
-QIcon FileIconProviderImplementation::icon(const QFileInfo &fileInfo)
+QIcon FileIconProviderImplementation::icon(const QFileInfo &fileInfo) const
 {
     if (debug)
         qDebug() << "FileIconProvider::icon" << fileInfo.absoluteFilePath();
