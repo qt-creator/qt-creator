@@ -1563,10 +1563,7 @@ void QmakeProject::testToolChain(ToolChain *tc, const Utils::FileName &path) con
 
 void QmakeProject::warnOnToolChainMismatch(const QmakeProFileNode *pro) const
 {
-    Target *t = activeTarget();
-    if (!t)
-        return;
-
+    const Target *t = activeTarget();
     const BuildConfiguration *bc = t ? t->activeBuildConfiguration() : nullptr;
     if (!bc)
         return;
