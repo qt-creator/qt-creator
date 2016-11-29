@@ -84,8 +84,6 @@ QVariant TodoItemsModel::data(const QModelIndex &index, int role) const
         return item.color;
     if (role == Qt::TextColorRole)
         return creatorTheme()->color(Theme::TodoItemTextColor);
-    if (role == Qt::ForegroundRole)
-        return creatorTheme()->color(Theme::TodoItemTextColor);
 
     switch (index.column()) {
 
