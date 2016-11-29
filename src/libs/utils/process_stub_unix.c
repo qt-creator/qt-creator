@@ -228,11 +228,12 @@ int main(int argc, char *argv[])
             doExit(1);
         }
         rewind(envFd);
-        envdata = malloc(size);
+        envdata = malloc(size + 1);
         if (fread(envdata, 1, size, envFd) != (size_t)size) {
             perror("Failed to read env file");
             doExit(1);
         }
+        envdata[size] = '\0';
         fclose(envFd);
         assert(!size || !envdata[size - 1]);
         for (count = 0, edp = envdata; edp < envdata + size; ++count)
