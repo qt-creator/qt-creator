@@ -88,7 +88,7 @@ class JSObject : public QObject {
     Q_PROPERTY(bool currentParentIsRoot READ currentParentIsRoot NOTIFY modelNodeChanged)
 
 public:
-    JSObject();
+    JSObject() = default;
     JSObject(QObject *parent = 0);
     void setModelNode(const ModelNode &node);
     bool hasParent() const;

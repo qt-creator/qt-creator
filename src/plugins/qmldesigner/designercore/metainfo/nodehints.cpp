@@ -222,7 +222,7 @@ bool JSObject::isSubclassOf(const QString &typeName)
     NodeMetaInfo metaInfo = m_modelNode.metaInfo();
 
     if (metaInfo.isValid())
-        metaInfo.isSubclassOf(typeName.toUtf8());
+        return metaInfo.isSubclassOf(typeName.toUtf8());
 
     return false;
 }
@@ -232,7 +232,7 @@ bool JSObject::rootItemIsSubclassOf(const QString &typeName)
     NodeMetaInfo metaInfo = m_modelNode.view()->rootModelNode().metaInfo();
 
     if (metaInfo.isValid())
-        metaInfo.isSubclassOf(typeName.toUtf8());
+        return metaInfo.isSubclassOf(typeName.toUtf8());
 
     return false;
 }
@@ -243,14 +243,9 @@ bool JSObject::currentParentIsSubclassOf(const QString &typeName)
          && m_modelNode.parentProperty().isValid()) {
         NodeMetaInfo metaInfo =  m_modelNode.parentProperty().parentModelNode().metaInfo();
         if (metaInfo.isValid())
-            metaInfo.isSubclassOf(typeName.toUtf8());
+            return metaInfo.isSubclassOf(typeName.toUtf8());
     }
     return false;
-}
-
-JSObject::JSObject()
-{
-
 }
 
 } //Internal
