@@ -66,14 +66,14 @@ static QString linguistBinary(const QtSupport::BaseQtVersion *qtVersion)
 {
     if (qtVersion)
         return qtVersion->linguistCommand();
-    return Utils::HostOsInfo::isMacHost() ? "Linguist" : "linguist";
+    return QLatin1String(Utils::HostOsInfo::isMacHost() ? "Linguist" : "linguist");
 }
 
 static QString designerBinary(const QtSupport::BaseQtVersion *qtVersion)
 {
     if (qtVersion)
         return qtVersion->designerCommand();
-    return Utils::HostOsInfo::isMacHost() ? "Designer" : "designer";
+    return QLatin1String(Utils::HostOsInfo::isMacHost() ? "Designer" : "designer");
 }
 
 // Mac: Change the call 'Foo.app/Contents/MacOS/Foo <filelist>' to
