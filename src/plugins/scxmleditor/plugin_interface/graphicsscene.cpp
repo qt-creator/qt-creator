@@ -492,7 +492,7 @@ void GraphicsScene::endTagChange(ScxmlDocument::TagChange change, ScxmlTag *tag,
 
         if (childItem) {
             BaseItem *newParentItem = findItem(tag->parentTag());
-            BaseItem *oldParentItem = childItem ? childItem->parentBaseItem() : nullptr;
+            BaseItem *oldParentItem = childItem->parentBaseItem();
 
             QPointF sPos = childItem->scenePos();
             if (oldParentItem) {
