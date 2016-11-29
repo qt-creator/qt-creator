@@ -196,8 +196,6 @@ QString DesignDocument::simplfiedDisplayName() const
         return rootModelNode().id();
     else
         return rootModelNode().simplifiedTypeName();
-
-    return fileName().fileName();
 }
 
 void DesignDocument::updateFileName(const Utils::FileName & /*oldFileName*/, const Utils::FileName &newFileName)
