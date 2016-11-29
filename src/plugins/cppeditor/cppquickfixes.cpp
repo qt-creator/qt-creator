@@ -3850,7 +3850,7 @@ public:
                 result.file = refactoring.file(declFileName);
                 ASTPath astPath(result.file->cppDocument());
                 const QList<AST *> path = astPath(s->line(), s->column());
-                SimpleDeclarationAST *simpleDecl;
+                SimpleDeclarationAST *simpleDecl = nullptr;
                 for (int idx = 0; idx < path.size(); ++idx) {
                     AST *node = path.at(idx);
                     simpleDecl = node->asSimpleDeclaration();
