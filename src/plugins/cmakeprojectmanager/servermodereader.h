@@ -138,8 +138,8 @@ private:
     std::unique_ptr<ServerMode> m_cmakeServer;
     std::unique_ptr<QFutureInterface<void>> m_future;
 
-    int m_progressStepMinimum;
-    int m_progressStepMaximum;
+    int m_progressStepMinimum = 0;
+    int m_progressStepMaximum = 1000;
 
     CMakeConfig m_cmakeCache;
 
