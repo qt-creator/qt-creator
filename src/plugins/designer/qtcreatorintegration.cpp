@@ -155,13 +155,10 @@ QString fullyQualifiedName(const LookupContext &context, const Name *name, Scope
         return QString();
 
     const QList<LookupItem> items = context.lookup(name, scope);
-    if (items.isEmpty()) { // "ui_xxx.h" might not be generated and nothing is forward declared.
+    if (items.isEmpty()) // "ui_xxx.h" might not be generated and nothing is forward declared.
         return Overview().prettyName(name);
-    } else {
-        Symbol *symbol = items.first().declaration();
-        return Overview().prettyName(LookupContext::fullyQualifiedName(symbol));
-    }
-    return QString();
+    Symbol *symbol = items.first().declaration();
+    return Overview().prettyName(LookupContext::fullyQualifiedName(symbol));
 }
 
 // Find class definition in namespace (that is, the outer class
