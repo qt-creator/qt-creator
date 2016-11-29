@@ -135,10 +135,6 @@ signals:
     void currentSearchEngineChanged();
 
 private:
-    void displayResult(int index);
-    void searchFinished();
-    void cancel();
-    void setPaused(bool paused);
     void openEditor(const Core::SearchResultItem &item);
     void doReplace(const QString &txt,
                    const QList<Core::SearchResultItem> &items,

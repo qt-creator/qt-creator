@@ -111,7 +111,6 @@ class BaseFileFindPrivate
 {
 public:
     ~BaseFileFindPrivate() { delete m_internalSearchEngine; }
-    QMap<QFutureWatcher<FileSearchResultList> *, QPointer<SearchResult> > m_watchers;
     QPointer<IFindSupport> m_currentFindSupport;
 
     QLabel *m_resultLabel = 0;
@@ -189,25 +188,6 @@ bool BaseFileFind::isEnabled() const
     return true;
 }
 
-void BaseFileFind::cancel()
-{
-    SearchResult *search = qobject_cast<SearchResult *>(sender());
-    QTC_ASSERT(search, return);
-    QFutureWatcher<FileSearchResultList> *watcher = d->m_watchers.key(search);
-    QTC_ASSERT(watcher, return);
-    watcher->cancel();
-}
-
-void BaseFileFind::setPaused(bool paused)
-{
-    SearchResult *search = qobject_cast<SearchResult *>(sender());
-    QTC_ASSERT(search, return);
-    QFutureWatcher<FileSearchResultList> *watcher = d->m_watchers.key(search);
-    QTC_ASSERT(watcher, return);
-    if (!paused || watcher->isRunning()) // guard against pausing when the search is finished
-        watcher->setPaused(paused);
-}
-
 QStringList BaseFileFind::fileNameFilters() const
 {
     QStringList filters;
@@ -242,6 +222,26 @@ void BaseFileFind::setCurrentSearchEngine(int index)
     emit currentSearchEngineChanged();
 }
 
+static void displayResult(QFutureWatcher<FileSearchResultList> *watcher,
+                          SearchResult *search, int index)
+{
+    FileSearchResultList results = watcher->resultAt(index);
+    QList<SearchResultItem> items;
+    foreach (const FileSearchResult &result, results) {
+        SearchResultItem item;
+        item.path = QStringList() << QDir::toNativeSeparators(result.fileName);
+        item.mainRange.begin.line = result.lineNumber;
+        item.mainRange.begin.column = result.matchStart;
+        item.mainRange.end = item.mainRange.begin;
+        item.mainRange.end.column += result.matchLength;
+        item.text = result.matchingLine;
+        item.useTextEditorFont = true;
+        item.userData = result.regexpCapturedTexts;
+        items << item;
+    }
+    search->addResults(items, SearchResult::AddOrdered);
+}
+
 void BaseFileFind::runNewSearch(const QString &txt, FindFlags findFlags,
                                     SearchResultWindow::SearchMode searchMode)
 {
@@ -269,8 +269,6 @@ void BaseFileFind::runNewSearch(const QString &txt, FindFlags findFlags,
     if (searchMode == SearchResultWindow::SearchAndReplace)
         connect(search, &SearchResult::replaceButtonClicked, this, &BaseFileFind::doReplace);
     connect(search, &SearchResult::visibilityChanged, this, &BaseFileFind::hideHighlightAll);
-    connect(search, &SearchResult::cancelled, this, &BaseFileFind::cancel);
-    connect(search, &SearchResult::paused, this, &BaseFileFind::setPaused);
     connect(search, &SearchResult::searchAgainRequested, this, &BaseFileFind::searchAgain);
     connect(this, &BaseFileFind::enabledChanged, search, &SearchResult::requestEnabledCheck);
     connect(search, &SearchResult::requestEnabledCheck, this, &BaseFileFind::recheckEnabled);
@@ -287,10 +285,22 @@ void BaseFileFind::runSearch(SearchResult *search)
     connect(search, &SearchResult::countChanged, statusLabel, &CountingLabel::updateCount);
     SearchResultWindow::instance()->popup(IOutputPane::Flags(IOutputPane::ModeSwitch|IOutputPane::WithFocus));
     QFutureWatcher<FileSearchResultList> *watcher = new QFutureWatcher<FileSearchResultList>();
-    d->m_watchers.insert(watcher, search);
     watcher->setPendingResultsLimit(1);
-    connect(watcher, &QFutureWatcherBase::resultReadyAt, this, &BaseFileFind::displayResult);
-    connect(watcher, &QFutureWatcherBase::finished, this, &BaseFileFind::searchFinished);
+    // search is deleted if it is removed from search panel
+    connect(search, &QObject::destroyed, watcher, &QFutureWatcherBase::cancel);
+    connect(search, &SearchResult::cancelled, watcher, &QFutureWatcherBase::cancel);
+    connect(search, &SearchResult::paused, watcher, [watcher](bool paused) {
+        if (!paused || watcher->isRunning()) // guard against pausing when the search is finished
+            watcher->setPaused(paused);
+    });
+    connect(watcher, &QFutureWatcherBase::resultReadyAt, search, [watcher, search](int index) {
+        displayResult(watcher, search, index);
+    });
+    // auto-delete:
+    connect(watcher, &QFutureWatcherBase::finished, watcher, &QObject::deleteLater);
+    connect(watcher, &QFutureWatcherBase::finished, search, [watcher, search]() {
+        search->finishSearch(watcher->isCanceled());
+    });
     watcher->setFuture(executeSearch(parameters));
     FutureProgress *progress =
         ProgressManager::addTask(watcher->future(), tr("Searching"), Constants::TASK_SEARCH);
@@ -328,43 +338,6 @@ void BaseFileFind::doReplace(const QString &text,
         DocumentManager::notifyFilesChangedInternally(files);
         SearchResultWindow::instance()->hide();
     }
-}
-
-void BaseFileFind::displayResult(int index) {
-    QFutureWatcher<FileSearchResultList> *watcher =
-            static_cast<QFutureWatcher<FileSearchResultList> *>(sender());
-    SearchResult *search = d->m_watchers.value(watcher);
-    if (!search) {
-        // search was removed from search history while the search is running
-        watcher->cancel();
-        return;
-    }
-    FileSearchResultList results = watcher->resultAt(index);
-    QList<SearchResultItem> items;
-    foreach (const FileSearchResult &result, results) {
-        SearchResultItem item;
-        item.path = QStringList() << QDir::toNativeSeparators(result.fileName);
-        item.mainRange.begin.line = result.lineNumber;
-        item.mainRange.begin.column = result.matchStart;
-        item.mainRange.end = item.mainRange.begin;
-        item.mainRange.end.column += result.matchLength;
-        item.text = result.matchingLine;
-        item.useTextEditorFont = true;
-        item.userData = result.regexpCapturedTexts;
-        items << item;
-    }
-    search->addResults(items, SearchResult::AddOrdered);
-}
-
-void BaseFileFind::searchFinished()
-{
-    QFutureWatcher<FileSearchResultList> *watcher =
-            static_cast<QFutureWatcher<FileSearchResultList> *>(sender());
-    SearchResult *search = d->m_watchers.value(watcher);
-    if (search)
-        search->finishSearch(watcher->isCanceled());
-    d->m_watchers.remove(watcher);
-    watcher->deleteLater();
 }
 
 QWidget *BaseFileFind::createPatternWidget()
