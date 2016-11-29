@@ -184,7 +184,7 @@ public:
     QFile file;
     QByteArray raw;
     union { const char *start; const uchar *ustart; };
-    quint64 fdlen;
+    quint64 fdlen = 0;
 };
 
 } // namespace Utils
