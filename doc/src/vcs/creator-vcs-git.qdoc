@@ -43,7 +43,7 @@
     You can use the \l{http://code.google.com/p/gerrit/}{Gerrit} code review
     tool for projects that use Git.
 
-    \section1 Using msysGit on Windows
+    \section1 Using Git for Windows
 
     If you configure Git for use with \c {git bash}, only, and use SSH
     authorization, Git looks for the SSH keys in the directory where the
