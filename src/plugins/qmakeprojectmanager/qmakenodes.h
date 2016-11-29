@@ -302,7 +302,7 @@ struct QMAKEPROJECTMANAGER_EXPORT InstallsItem {
         : path(p), files(f), active(a) {}
     QString path;
     QVector<ProFileEvaluator::SourceFile> files;
-    bool active;
+    bool active = false;
 };
 
 struct QMAKEPROJECTMANAGER_EXPORT InstallsList {
