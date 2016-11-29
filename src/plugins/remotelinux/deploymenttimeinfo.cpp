@@ -81,6 +81,11 @@ DeploymentTimeInfo::DeploymentTimeInfo() : d(new DeploymentTimeInfoPrivate())
 
 }
 
+DeploymentTimeInfo::~DeploymentTimeInfo()
+{
+    delete d;
+}
+
 void DeploymentTimeInfo::saveDeploymentTimeStamp(const DeployableFile &deployableFile,
                                                  const Kit *kit)
 {

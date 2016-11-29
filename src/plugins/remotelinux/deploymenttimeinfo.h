@@ -41,6 +41,7 @@ class DeploymentTimeInfo
 {
 public:
     DeploymentTimeInfo();
+    ~DeploymentTimeInfo();
 
     void importDeployTimes(const QVariantMap &map);
     QVariantMap exportDeployTimes() const;
