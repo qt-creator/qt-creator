@@ -39,12 +39,16 @@
 
 namespace ClangRefactoring {
 
+class ClangRefactoringPluginData;
+
 class ClangRefactoringPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ClangRefactoring.json")
 
 public:
+    ClangRefactoringPlugin();
+    ~ClangRefactoringPlugin();
     bool initialize(const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized();
     ShutdownFlag aboutToShutdown();
@@ -57,12 +61,7 @@ private:
     void backendIsConnected();
 
 private:
-    static std::unique_ptr<ClangBackEnd::RefactoringConnectionClient> connectionClient;
-    static std::unique_ptr<RefactoringClient> refactoringClient;
-    static std::unique_ptr<RefactoringEngine> engine;
-    static std::unique_ptr<QtCreatorClangQueryFindFilter> qtCreatorfindFilter;
-    static std::unique_ptr<QtCreatorSearch> qtCreatorSearch;
-
+    static std::unique_ptr<ClangRefactoringPluginData> d;
 };
 
 } // namespace ClangRefactoring

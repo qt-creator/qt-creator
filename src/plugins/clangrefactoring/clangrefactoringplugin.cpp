@@ -46,24 +46,34 @@ QString backendProcessPath()
 
 } // anonymous namespace
 
-std::unique_ptr<RefactoringClient> ClangRefactoringPlugin::refactoringClient;
-std::unique_ptr<ClangBackEnd::RefactoringConnectionClient> ClangRefactoringPlugin::connectionClient;
-std::unique_ptr<RefactoringEngine> ClangRefactoringPlugin::engine;
-std::unique_ptr<QtCreatorSearch> ClangRefactoringPlugin::qtCreatorSearch;
-std::unique_ptr<QtCreatorClangQueryFindFilter> ClangRefactoringPlugin::qtCreatorfindFilter;
+std::unique_ptr<ClangRefactoringPluginData> ClangRefactoringPlugin::d;
+
+class ClangRefactoringPluginData
+{
+public:
+    RefactoringClient refactoringClient;
+    ClangBackEnd::RefactoringConnectionClient connectionClient{&refactoringClient};
+    RefactoringEngine engine{connectionClient.serverProxy(), refactoringClient};
+    QtCreatorSearch qtCreatorSearch{*Core::SearchResultWindow::instance()};
+    QtCreatorClangQueryFindFilter qtCreatorfindFilter{connectionClient.serverProxy(),
+                                                      qtCreatorSearch,
+                                                      refactoringClient};
+};
+
+ClangRefactoringPlugin::ClangRefactoringPlugin()
+{
+}
+
+ClangRefactoringPlugin::~ClangRefactoringPlugin()
+{
+}
 
 bool ClangRefactoringPlugin::initialize(const QStringList & /*arguments*/, QString * /*errorMessage*/)
 {
-    refactoringClient.reset(new RefactoringClient);
-    connectionClient.reset(new ClangBackEnd::RefactoringConnectionClient(refactoringClient.get()));
-    engine.reset(new RefactoringEngine(connectionClient->serverProxy(), *refactoringClient));
-    qtCreatorSearch.reset(new ClangRefactoring::QtCreatorSearch(*Core::SearchResultWindow::instance()));
-    qtCreatorfindFilter.reset(new QtCreatorClangQueryFindFilter(connectionClient->serverProxy(),
-                                                                *qtCreatorSearch.get(),
-                                                                *refactoringClient));
+    d.reset(new ClangRefactoringPluginData);
 
-    refactoringClient->setRefactoringEngine(engine.get());
-    ExtensionSystem::PluginManager::addObject(qtCreatorfindFilter.get());
+    d->refactoringClient.setRefactoringEngine(&d->engine);
+    ExtensionSystem::PluginManager::addObject(&d->qtCreatorfindFilter);
 
     connectBackend();
     startBackend();
@@ -78,34 +88,29 @@ void ClangRefactoringPlugin::extensionsInitialized()
 
 ExtensionSystem::IPlugin::ShutdownFlag ClangRefactoringPlugin::aboutToShutdown()
 {
-    ExtensionSystem::PluginManager::removeObject(qtCreatorfindFilter.get());
-    refactoringClient->setRefactoringEngine(nullptr);
+    ExtensionSystem::PluginManager::removeObject(&d->qtCreatorfindFilter);
+    d->refactoringClient.setRefactoringEngine(nullptr);
 
-    connectionClient->finishProcess();
-
-    qtCreatorfindFilter.reset();
-    engine.reset();
-    connectionClient.reset();
-    refactoringClient.reset();
+    d.reset();
 
     return SynchronousShutdown;
 }
 
 RefactoringEngine &ClangRefactoringPlugin::refactoringEngine()
 {
-    return *engine;
+    return d->engine;
 }
 
 void ClangRefactoringPlugin::startBackend()
 {
-    connectionClient->setProcessPath(backendProcessPath());
+    d->connectionClient.setProcessPath(backendProcessPath());
 
-    connectionClient->startProcessAndConnectToServerAsynchronously();
+    d->connectionClient.startProcessAndConnectToServerAsynchronously();
 }
 
 void ClangRefactoringPlugin::connectBackend()
 {
-    connect(connectionClient.get(),
+    connect(&d->connectionClient,
             &ClangBackEnd::RefactoringConnectionClient::connectedToLocalSocket,
             this,
             &ClangRefactoringPlugin::backendIsConnected);
@@ -113,7 +118,7 @@ void ClangRefactoringPlugin::connectBackend()
 
 void ClangRefactoringPlugin::backendIsConnected()
 {
-    engine->setUsable(true);
+    d->engine.setUsable(true);
 }
 
 } // namespace ClangRefactoring
