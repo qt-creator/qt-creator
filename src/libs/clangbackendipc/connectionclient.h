@@ -125,7 +125,7 @@ private:
 
     mutable std::unique_ptr<QProcess> process_;
     QLocalSocket localSocket;
-    QScopedPointer<QTemporaryDir> temporaryDirectory_;
+    std::unique_ptr<QTemporaryDir> temporaryDirectory_;
     QTimer processAliveTimer;
     QString processPath_;
     bool isAliveTimerResetted = false;

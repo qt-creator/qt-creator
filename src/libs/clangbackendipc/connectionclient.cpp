@@ -112,7 +112,7 @@ QProcessEnvironment ConnectionClient::processEnvironment() const
 
 const QTemporaryDir &ConnectionClient::temporaryDirectory() const
 {
-    return *temporaryDirectory_.data();
+    return *temporaryDirectory_;
 }
 
 LinePrefixer &ConnectionClient::stdErrPrefixer()
