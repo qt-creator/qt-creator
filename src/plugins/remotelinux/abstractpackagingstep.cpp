@@ -42,12 +42,10 @@ namespace Internal {
 class AbstractPackagingStepPrivate
 {
 public:
-    AbstractPackagingStepPrivate() : currentBuildConfiguration(0) { }
-
-    BuildConfiguration *currentBuildConfiguration;
+    BuildConfiguration *currentBuildConfiguration = nullptr;
     QString cachedPackageFilePath;
     QString cachedPackageDirectory;
-    bool deploymentDataModified;
+    bool deploymentDataModified = false;
 };
 
 } // namespace Internal
