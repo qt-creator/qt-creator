@@ -36,10 +36,12 @@ namespace CppTools {
 class ProjectFileCategorizer
 {
 public:
+    using FileClassifier = ProjectPartBuilder::FileClassifier;
+
+public:
     ProjectFileCategorizer(const QString &projectPartName,
                            const QStringList &filePaths,
-                           ProjectPartBuilder::FileClassifier fileClassifier
-                                = ProjectPartBuilder::FileClassifier());
+                           FileClassifier fileClassifier = FileClassifier());
 
     bool hasCSources() const { return !m_cSources.isEmpty(); }
     bool hasCxxSources() const { return !m_cxxSources.isEmpty(); }
@@ -55,6 +57,10 @@ public:
     bool hasNoParts() const { return m_partCount == 0; }
 
     QString partName(const QString &languageName) const;
+
+private:
+    QStringList classifyFiles(const QStringList &filePaths, FileClassifier fileClassifier);
+    void expandSourcesWithAmbiguousHeaders(const QStringList &ambiguousHeaders);
 
 private:
     QString m_partName;

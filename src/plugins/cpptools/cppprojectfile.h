@@ -36,6 +36,7 @@ class CPPTOOLS_EXPORT ProjectFile
 public:
     enum Kind {
         Unclassified,
+        AmbiguousHeader,
         CHeader,
         CSource,
         CXXHeader,
@@ -49,8 +50,10 @@ public:
     };
 
     static Kind classify(const QString &filePath);
-    static bool isHeader(Kind kind);
+
     static bool isSource(Kind kind);
+    static bool isHeader(Kind kind);
+    static bool isAmbiguousHeader(const QString &filePath);
 
 public:
     ProjectFile() = default;

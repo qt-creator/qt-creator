@@ -166,6 +166,7 @@ QString Utils::toString(ProjectFile::Kind kind)
     CASE_PROFECTFILEKIND(ObjCXXSource);
     CASE_PROFECTFILEKIND(CudaSource);
     CASE_PROFECTFILEKIND(OpenCLSource);
+    CASE_PROFECTFILEKIND(AmbiguousHeader);
     // no default to get a compiler warning if anything is added
     }
 #undef CASE_PROFECTFILEKIND

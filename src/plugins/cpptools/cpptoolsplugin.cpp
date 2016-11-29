@@ -279,7 +279,7 @@ static QStringList matchingCandidateSuffixes(ProjectFile::Kind kind)
 {
     Utils::MimeDatabase mdb;
     switch (kind) {
-     // Note that C/C++ headers are undistinguishable
+    case ProjectFile::AmbiguousHeader:
     case ProjectFile::CHeader:
     case ProjectFile::CXXHeader:
     case ProjectFile::ObjCHeader:

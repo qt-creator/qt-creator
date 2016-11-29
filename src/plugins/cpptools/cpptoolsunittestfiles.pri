@@ -8,10 +8,12 @@ HEADERS += \
     $$PWD/cppprojectfile.h \
     $$PWD/senddocumenttracker.h \
     $$PWD/projectpart.h \
-    $$PWD/compileroptionsbuilder.h
+    $$PWD/compileroptionsbuilder.h \
+    $$PWD/cppprojectfilecategorizer.h
 
 SOURCES += \
     $$PWD/cppprojectfile.cpp \
     $$PWD/senddocumenttracker.cpp \
     $$PWD/projectpart.cpp \
-    $$PWD/compileroptionsbuilder.cpp
+    $$PWD/compileroptionsbuilder.cpp \
+    $$PWD/cppprojectfilecategorizer.cpp

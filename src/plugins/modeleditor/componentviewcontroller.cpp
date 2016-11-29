@@ -385,6 +385,7 @@ void ComponentViewController::createComponentModel(const ProjectExplorer::Folder
         bool isSource = false;
         CppTools::ProjectFile::Kind kind = CppTools::ProjectFile::classify(fileNode->filePath().toString());
         switch (kind) {
+        case CppTools::ProjectFile::AmbiguousHeader:
         case CppTools::ProjectFile::CHeader:
         case CppTools::ProjectFile::CSource:
         case CppTools::ProjectFile::CXXHeader:

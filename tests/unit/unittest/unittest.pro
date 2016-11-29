@@ -28,6 +28,7 @@ SOURCES += \
     clientserverinprocess-test.cpp \
     clientserveroutsideprocess.cpp \
     lineprefixer-test.cpp \
+    cppprojectfilecategorizer-test.cpp \
     processevents-utilities.cpp \
     readandwritemessageblock-test.cpp \
     sizedarray-test.cpp \

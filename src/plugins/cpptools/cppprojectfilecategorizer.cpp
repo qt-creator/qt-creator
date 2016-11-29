@@ -32,42 +32,8 @@ ProjectFileCategorizer::ProjectFileCategorizer(const QString &projectPartName,
                                                ProjectPartBuilder::FileClassifier fileClassifier)
     : m_partName(projectPartName)
 {
-    ProjectFiles cHeaders;
-    ProjectFiles cxxHeaders;
-
-    foreach (const QString &filePath, filePaths) {
-        const ProjectFile::Kind kind = fileClassifier
-                ? fileClassifier(filePath)
-                : ProjectFile::classify(filePath);
-        const ProjectFile projectFile(filePath, kind);
-
-        switch (kind) {
-        case ProjectFile::CSource: m_cSources += projectFile; break;
-        case ProjectFile::CHeader: cHeaders += projectFile; break;
-        case ProjectFile::CXXSource: m_cxxSources += projectFile; break;
-        case ProjectFile::CXXHeader: cxxHeaders += projectFile; break;
-        case ProjectFile::ObjCSource: m_objcSources += projectFile; break;
-        case ProjectFile::ObjCXXSource: m_objcxxSources += projectFile; break;
-        default:
-            continue;
-        }
-    }
-
-    const bool hasC = !m_cSources.isEmpty();
-    const bool hasCxx = !m_cxxSources.isEmpty();
-    const bool hasObjc = !m_objcSources.isEmpty();
-    const bool hasObjcxx = !m_objcxxSources.isEmpty();
-
-    if (hasObjcxx)
-        m_objcxxSources += cxxHeaders + cHeaders;
-    if (hasCxx)
-        m_cxxSources += cxxHeaders + cHeaders;
-    else if (!hasObjcxx)
-        m_cxxSources += cxxHeaders;
-    if (hasObjc)
-        m_objcSources += cHeaders;
-    if (hasC || (!hasObjc && !hasObjcxx && !hasCxx))
-        m_cSources += cHeaders;
+    const QStringList ambiguousHeaders = classifyFiles(filePaths, fileClassifier);
+    expandSourcesWithAmbiguousHeaders(ambiguousHeaders);
 
     m_partCount = (m_cSources.isEmpty() ? 0 : 1)
                 + (m_cxxSources.isEmpty() ? 0 : 1)
@@ -81,6 +47,83 @@ QString ProjectFileCategorizer::partName(const QString &languageName) const
         return QString::fromLatin1("%1 (%2)").arg(m_partName).arg(languageName);
 
     return m_partName;
+}
+
+QStringList ProjectFileCategorizer::classifyFiles(
+        const QStringList &filePaths,
+        ProjectPartBuilder::FileClassifier fileClassifier)
+{
+    QStringList ambiguousHeaders;
+
+    foreach (const QString &filePath, filePaths) {
+        const ProjectFile::Kind kind = fileClassifier
+                ? fileClassifier(filePath)
+                : ProjectFile::classify(filePath);
+
+        switch (kind) {
+        case ProjectFile::AmbiguousHeader:
+            ambiguousHeaders += filePath;
+            break;
+        case ProjectFile::CXXSource:
+        case ProjectFile::CXXHeader:
+            m_cxxSources += ProjectFile(filePath, kind);
+            break;
+        case ProjectFile::ObjCXXSource:
+        case ProjectFile::ObjCXXHeader:
+            m_objcxxSources += ProjectFile(filePath, kind);
+            break;
+        case ProjectFile::CSource:
+        case ProjectFile::CHeader:
+            m_cSources += ProjectFile(filePath, kind);
+            break;
+        case ProjectFile::ObjCSource:
+        case ProjectFile::ObjCHeader:
+            m_objcSources += ProjectFile(filePath, kind);
+            break;
+        default:
+            continue;
+        }
+    }
+
+    return ambiguousHeaders;
+}
+
+static ProjectFiles toProjectFilesWithKind(const QStringList &filePaths,
+                                           const ProjectFile::Kind kind)
+{
+    ProjectFiles projectFiles;
+    projectFiles.reserve(filePaths.size());
+
+    foreach (const QString &filePath, filePaths)
+        projectFiles += ProjectFile(filePath, kind);
+
+    return projectFiles;
+}
+
+void ProjectFileCategorizer::expandSourcesWithAmbiguousHeaders(const QStringList &ambiguousHeaders)
+{
+    const bool hasC = !m_cSources.isEmpty();
+    const bool hasCxx = !m_cxxSources.isEmpty();
+    const bool hasObjc = !m_objcSources.isEmpty();
+    const bool hasObjcxx = !m_objcxxSources.isEmpty();
+    const bool hasOnlyAmbiguousHeaders
+             = !hasC
+            && !hasCxx
+            && !hasObjc
+            && !hasObjcxx
+            && !ambiguousHeaders.isEmpty();
+
+    if (hasC || hasOnlyAmbiguousHeaders)
+        m_cSources += toProjectFilesWithKind(ambiguousHeaders, ProjectFile::CHeader);
+
+    if (hasCxx || hasOnlyAmbiguousHeaders)
+        m_cxxSources += toProjectFilesWithKind(ambiguousHeaders, ProjectFile::CXXHeader);
+
+    if (hasObjc || hasOnlyAmbiguousHeaders)
+        m_objcSources += toProjectFilesWithKind(ambiguousHeaders, ProjectFile::ObjCHeader);
+
+    if (hasObjcxx || hasOnlyAmbiguousHeaders)
+        m_objcxxSources += toProjectFilesWithKind(ambiguousHeaders, ProjectFile::ObjCXXHeader);
 }
 
 } // namespace CppTools

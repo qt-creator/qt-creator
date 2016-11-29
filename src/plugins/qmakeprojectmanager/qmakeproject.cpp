@@ -442,6 +442,7 @@ void QmakeProject::updateCppCodeModel()
                 const QString name = generatedFile.toString();
                 const ProjectFile::Kind kind = ProjectFile::classify(name);
                 switch (kind) {
+                case ProjectFile::AmbiguousHeader:
                 case ProjectFile::CHeader:
                 case ProjectFile::CSource:
                 case ProjectFile::CXXHeader:

@@ -41,6 +41,9 @@ ProjectFile::ProjectFile(const QString &filePath, Kind kind)
 
 ProjectFile::Kind ProjectFile::classify(const QString &filePath)
 {
+    if (isAmbiguousHeader(filePath))
+        return AmbiguousHeader;
+
     Utils::MimeDatabase mdb;
     const Utils::MimeType mimeType = mdb.mimeTypeForFile(filePath);
     if (!mimeType.isValid())
@@ -65,6 +68,11 @@ ProjectFile::Kind ProjectFile::classify(const QString &filePath)
     return Unclassified;
 }
 
+bool ProjectFile::isAmbiguousHeader(const QString &filePath)
+{
+    return filePath.endsWith(".h");
+}
+
 bool ProjectFile::isHeader(ProjectFile::Kind kind)
 {
     switch (kind) {
@@ -73,6 +81,7 @@ bool ProjectFile::isHeader(ProjectFile::Kind kind)
     case ProjectFile::ObjCHeader:
     case ProjectFile::ObjCXXHeader:
     case ProjectFile::Unclassified: // no file extension, e.g. stl headers
+    case ProjectFile::AmbiguousHeader:
         return true;
     default:
         return false;
@@ -99,6 +108,7 @@ static const char *projectFileKindToText(ProjectFile::Kind kind)
 {
     switch (kind) {
         RETURN_TEXT_FOR_CASE(Unclassified);
+        RETURN_TEXT_FOR_CASE(AmbiguousHeader);
         RETURN_TEXT_FOR_CASE(CHeader);
         RETURN_TEXT_FOR_CASE(CSource);
         RETURN_TEXT_FOR_CASE(CXXHeader);
