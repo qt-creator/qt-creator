@@ -149,14 +149,8 @@ QWidget *BindingDelegate::createEditor(QWidget *parent, const QStyleOptionViewIt
         BindingProperty bindingProperty = model->bindingPropertyForRow(index.row());
 
         switch (index.column()) {
-        case BindingModel::TargetModelNodeRow: {
-            return 0; //no editor
-            foreach (const ModelNode &modelNode, model->connectionView()->allModelNodes()) {
-                if (!modelNode.id().isEmpty()) {
-                    bindingComboBox->addItem(modelNode.id());
-                }
-            }
-        } break;
+        case BindingModel::TargetModelNodeRow:
+            return nullptr; //no editor
         case BindingModel::TargetPropertyNameRow: {
             bindingComboBox->addItems(model->possibleTargetProperties(bindingProperty));
         } break;
