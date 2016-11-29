@@ -26,6 +26,7 @@
 #include "projectpartbuilder.h"
 
 #include "cppprojectfile.h"
+#include "cppprojectfilecategorizer.h"
 #include "cpptoolsconstants.h"
 
 #include <projectexplorer/abi.h>
@@ -41,93 +42,6 @@
 #include <utils/qtcassert.h>
 
 namespace CppTools {
-
-namespace {
-class ProjectFileCategorizer
-{
-public:
-    ProjectFileCategorizer(const QString &partName,
-                           const QStringList &files,
-                           ProjectPartBuilder::FileClassifier fileClassifier
-                                = ProjectPartBuilder::FileClassifier())
-        : m_partName(partName)
-    {
-        using CppTools::ProjectFile;
-
-        QVector<ProjectFile> cHeaders;
-        QVector<ProjectFile> cxxHeaders;
-
-        foreach (const QString &file, files) {
-            const ProjectFile::Kind kind = fileClassifier
-                    ? fileClassifier(file)
-                    : ProjectFile::classify(file);
-            const ProjectFile projectFile(file, kind);
-
-            switch (kind) {
-            case ProjectFile::CSource: m_cSources += projectFile; break;
-            case ProjectFile::CHeader: cHeaders += projectFile; break;
-            case ProjectFile::CXXSource: m_cxxSources += projectFile; break;
-            case ProjectFile::CXXHeader: cxxHeaders += projectFile; break;
-            case ProjectFile::ObjCSource: m_objcSources += projectFile; break;
-            case ProjectFile::ObjCXXSource: m_objcxxSources += projectFile; break;
-            default:
-                continue;
-            }
-        }
-
-        const bool hasC = !m_cSources.isEmpty();
-        const bool hasCxx = !m_cxxSources.isEmpty();
-        const bool hasObjc = !m_objcSources.isEmpty();
-        const bool hasObjcxx = !m_objcxxSources.isEmpty();
-
-        if (hasObjcxx)
-            m_objcxxSources += cxxHeaders + cHeaders;
-        if (hasCxx)
-            m_cxxSources += cxxHeaders + cHeaders;
-        else if (!hasObjcxx)
-            m_cxxSources += cxxHeaders;
-        if (hasObjc)
-            m_objcSources += cHeaders;
-        if (hasC || (!hasObjc && !hasObjcxx && !hasCxx))
-            m_cSources += cHeaders;
-
-        m_partCount =
-                (m_cSources.isEmpty() ? 0 : 1) +
-                (m_cxxSources.isEmpty() ? 0 : 1) +
-                (m_objcSources.isEmpty() ? 0 : 1) +
-                (m_objcxxSources.isEmpty() ? 0 : 1);
-    }
-
-    bool hasCSources() const { return !m_cSources.isEmpty(); }
-    bool hasCxxSources() const { return !m_cxxSources.isEmpty(); }
-    bool hasObjcSources() const { return !m_objcSources.isEmpty(); }
-    bool hasObjcxxSources() const { return !m_objcxxSources.isEmpty(); }
-
-    QVector<ProjectFile> cSources() const { return m_cSources; }
-    QVector<ProjectFile> cxxSources() const { return m_cxxSources; }
-    QVector<ProjectFile> objcSources() const { return m_objcSources; }
-    QVector<ProjectFile> objcxxSources() const { return m_objcxxSources; }
-
-    bool hasMultipleParts() const { return m_partCount > 1; }
-    bool hasNoParts() const { return m_partCount == 0; }
-
-    QString partName(const QString &languageName) const
-    {
-        if (hasMultipleParts())
-            return QString::fromLatin1("%1 (%2)").arg(m_partName).arg(languageName);
-
-        return m_partName;
-    }
-
-private:
-    QString m_partName;
-    QVector<ProjectFile> m_cSources;
-    QVector<ProjectFile> m_cxxSources;
-    QVector<ProjectFile> m_objcSources;
-    QVector<ProjectFile> m_objcxxSources;
-    int m_partCount;
-};
-} // anonymous namespace
 
 ProjectPartBuilder::ProjectPartBuilder(ProjectInfo &pInfo)
     : m_templatePart(new ProjectPart)
