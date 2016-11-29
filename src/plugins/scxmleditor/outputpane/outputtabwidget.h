@@ -64,9 +64,9 @@ private:
     void fadeOut();
 
     QPropertyAnimation animator;
-    int m_colorOpacity;
+    int m_colorOpacity = 255;
     QColor m_color;
-    int m_animCounter;
+    int m_animCounter = 0;
 };
 
 class OutputTabWidget : public QFrame
