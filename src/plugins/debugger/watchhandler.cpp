@@ -88,7 +88,7 @@ enum { debugModel = 0 };
 
 #define MODEL_DEBUG(s) do { if (debugModel) qDebug() << s; } while (0)
 
-static QHash<QString, int> theWatcherNames;
+static QMap<QString, int> theWatcherNames; // Keep order, QTCREATORBUG-12308.
 static int theWatcherCount = 0;
 static QHash<QString, int> theTypeFormats;
 static QHash<QString, int> theIndividualFormats;
@@ -2313,7 +2313,7 @@ QStringList WatchHandler::watchedExpressions()
 {
     // Filter out invalid watchers.
     QStringList watcherNames;
-    QHashIterator<QString, int> it(theWatcherNames);
+    QMapIterator<QString, int> it(theWatcherNames);
     while (it.hasNext()) {
         it.next();
         const QString &watcherName = it.key();
@@ -2517,7 +2517,7 @@ void WatchHandler::appendWatchersAndTooltipRequests(DebuggerCommand *cmd)
     foreach (const DebuggerToolTipContext &p, toolTips)
         watchers.append(watcher(p.iname, p.expression));
 
-    QHashIterator<QString, int> it(WatchHandler::watcherNames());
+    QMapIterator<QString, int> it(WatchHandler::watcherNames());
     while (it.hasNext()) {
         it.next();
         watchers.append(watcher("watch." + QString::number(it.value()), it.key()));
@@ -2576,7 +2576,7 @@ void WatchHandler::setCurrentItem(const QString &iname)
     }
 }
 
-QHash<QString, int> WatchHandler::watcherNames()
+QMap<QString, int> WatchHandler::watcherNames()
 {
     return theWatcherNames;
 }

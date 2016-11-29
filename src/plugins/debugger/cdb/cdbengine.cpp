@@ -1254,8 +1254,6 @@ void CdbEngine::doUpdateLocals(const UpdateParameters &updateParameters)
         runCommand(cmd);
     } else {
 
-        typedef QHash<QString, int> WatcherHash;
-
         const bool partialUpdate = !updateParameters.partialVariable.isEmpty();
         const bool isWatch = isWatchIName(updateParameters.partialVariable);
 
@@ -1325,10 +1323,9 @@ void CdbEngine::doUpdateLocals(const UpdateParameters &updateParameters)
         if (!partialUpdate)
             str << blankSeparator << "-W";
         if (!partialUpdate || isWatch) {
-            const WatcherHash watcherHash = WatchHandler::watcherNames();
-            if (!watcherHash.isEmpty()) {
-                const WatcherHash::const_iterator cend = watcherHash.constEnd();
-                for (WatcherHash::const_iterator it = watcherHash.constBegin(); it != cend; ++it) {
+            const QMap<QString, int> watchers = WatchHandler::watcherNames();
+            if (!watchers.isEmpty()) {
+                for (auto it = watchers.constBegin(), cend = watchers.constEnd(); it != cend; ++it) {
                     str << blankSeparator << "-w " << "watch." + QString::number(it.value())
                         << " \"" << it.key() << '"';
                 }
