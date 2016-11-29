@@ -54,8 +54,10 @@ LibraryDetailsController::LibraryDetailsController(
     switch (Utils::HostOsInfo::hostOs()) {
     case Utils::OsTypeMac:
         m_creatorPlatform = CreatorMac;
+        break;
     case Utils::OsTypeWindows:
         m_creatorPlatform = CreatorWindows;
+        break;
     default:
         break;
     }
