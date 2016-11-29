@@ -161,7 +161,7 @@ QModelIndex StructureModel::parent(const QModelIndex &index) const
         return QModelIndex();
 
     const ScxmlTag *child = getItem(index);
-    if (child != m_document->rootTag()) {
+    if (child && child != m_document->rootTag()) {
         ScxmlTag *parentTag = child->parentTag();
         if (parentTag)
             return createIndex(parentTag->index(), 0, parentTag);
