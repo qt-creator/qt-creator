@@ -35,10 +35,7 @@ namespace QmlEditorWidgets {
 
 ContextPaneWidgetRectangle::ContextPaneWidgetRectangle(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::ContextPaneWidgetRectangle),
-    m_gradientLineDoubleClicked(false),
-    m_gradientTimer(-1),
-    m_enableGradientEditing(true)
+    ui(new Ui::ContextPaneWidgetRectangle)
 {
     ui->setupUi(this);
 

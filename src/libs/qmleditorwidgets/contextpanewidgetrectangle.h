@@ -71,12 +71,12 @@ private:
     bool isGradientEditingEnabled() const
     { return m_enableGradientEditing; }
     Ui::ContextPaneWidgetRectangle *ui;
-    bool m_hasBorder;
-    bool m_hasGradient;
-    bool m_none;
-    bool m_gradientLineDoubleClicked;
-    int m_gradientTimer;
-    bool m_enableGradientEditing;
+    bool m_hasBorder = false;
+    bool m_hasGradient = false;
+    bool m_none = false;
+    bool m_gradientLineDoubleClicked = false;
+    int m_gradientTimer = -1;
+    bool m_enableGradientEditing = true;
 };
 
 } //QmlDesigner
