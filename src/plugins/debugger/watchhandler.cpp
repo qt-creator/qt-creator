@@ -2137,7 +2137,7 @@ void WatchHandler::updateWatchExpression(WatchItem *item, const QString &newExp)
         item->setValue(QString(QLatin1Char(' ')));
         item->update();
     } else {
-        m_model->m_engine->updateItem(item->iname);
+        m_model->m_engine->updateWatchData(item->iname);
     }
     updateWatchersWindow();
 }
