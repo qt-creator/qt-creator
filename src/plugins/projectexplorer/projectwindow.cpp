@@ -456,8 +456,8 @@ public:
         QMenu menu;
 
         ProjectItem *projectItem = m_projectsModel.rootItem()->childAt(0);
-        Project *project = projectItem ? projectItem->project() : 0;
-        ProjectImporter *projectImporter = project ? project->projectImporter() : 0;
+        Project *project = projectItem ? projectItem->project() : nullptr;
+        ProjectImporter *projectImporter = project ? project->projectImporter() : nullptr;
 
         QModelIndex index = m_selectorTree->indexAt(pos);
         TreeItem *item = m_projectsModel.itemForIndex(index);
@@ -468,12 +468,12 @@ public:
             menu.addSeparator();
 
         QAction *importBuild = menu.addAction(ProjectWindow::tr("Import Existing Build..."));
-        importBuild->setEnabled(projectImporter != 0);
+        importBuild->setEnabled(projectImporter);
         QAction *manageKits = menu.addAction(ProjectWindow::tr("Manage Kits..."));
 
         QAction *act = menu.exec(m_selectorTree->mapToGlobal(pos));
 
-        if (act == importBuild) {
+        if (project && projectImporter && act == importBuild) {
             QString dir = project->projectDirectory().toString();
             QString importDir = QFileDialog::getExistingDirectory(ICore::mainWindow(),
                                                                   ProjectWindow::tr("Import directory"),
@@ -497,8 +497,10 @@ public:
             }
             qDeleteAll(toImport);
         } else if (act == manageKits) {
-            if (KitOptionsPage *page = ExtensionSystem::PluginManager::getObject<KitOptionsPage>())
-               page->showKit(KitManager::find(Id::fromSetting(item->data(0, KitIdRole))));
+            if (KitOptionsPage *page = ExtensionSystem::PluginManager::getObject<KitOptionsPage>()) {
+                if (item)
+                    page->showKit(KitManager::find(Id::fromSetting(item->data(0, KitIdRole))));
+            }
             ICore::showOptionsDialog(Constants::KITS_SETTINGS_PAGE_ID, ICore::mainWindow());
         };
     }
