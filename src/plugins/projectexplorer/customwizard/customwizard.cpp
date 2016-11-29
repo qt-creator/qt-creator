@@ -543,8 +543,9 @@ bool CustomProjectWizard::postGenerateOpen(const Core::GeneratedFiles &l, QStrin
             ProjectExplorerPlugin::OpenProjectResult result
                     = ProjectExplorerPlugin::openProject(file.path());
             if (!result) {
+                if (errorMessage)
+                    *errorMessage = result.errorMessage();
                 return false;
-                *errorMessage = result.errorMessage();
             }
         }
     }
