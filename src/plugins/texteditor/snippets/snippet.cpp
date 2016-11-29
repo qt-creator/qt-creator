@@ -207,7 +207,7 @@ Snippet::ParsedSnippet Snippet::parse(const QString &snippet)
     const int count = preprocessedSnippet.count();
     bool success = true;
     int start = -1;
-    NameMangler *mangler = 0;
+    NameMangler *mangler = nullptr;
 
     result.text.reserve(count);
 
@@ -234,10 +234,6 @@ Snippet::ParsedSnippet Snippet::parse(const QString &snippet)
         }
 
         if (current == QLatin1Char(':') && start >= 0) {
-            if (mangler != 0) {
-                success = false;
-                break;
-            }
             if (next == QLatin1Char('l')) {
                 mangler = &lcMangler;
             } else if (next == QLatin1Char('u')) {
