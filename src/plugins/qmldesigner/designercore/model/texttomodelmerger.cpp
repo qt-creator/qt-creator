@@ -886,6 +886,29 @@ void TextToModelMerger::setupUsedImports()
         m_rewriterView->model()->setUsedImports(usedImports);
 }
 
+Document::MutablePtr TextToModelMerger::createParsedDocument(const QUrl &url, const QString &data, QList<RewriterError> *errors)
+{
+    const QString fileName = url.toLocalFile();
+
+    Dialect dialect = ModelManagerInterface::guessLanguageOfFile(fileName);
+    if (dialect == Dialect::AnyLanguage
+            || dialect == Dialect::NoLanguage)
+        dialect = Dialect::Qml;
+
+    Document::MutablePtr doc = Document::create(fileName.isEmpty() ? QStringLiteral("<internal>") : fileName, dialect);
+    doc->setSource(data);
+    doc->parseQml();
+
+    if (!doc->isParsedCorrectly()) {
+        if (errors) {
+            foreach (const QmlJS::DiagnosticMessage &message, doc->diagnosticMessages())
+                errors->append(RewriterError(message, QUrl::fromLocalFile(doc->fileName())));
+        }
+        return Document::MutablePtr();
+    }
+    return doc;
+}
+
 bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceHandler)
 {
     qCInfo(rewriterBenchmark) << Q_FUNC_INFO;
@@ -906,49 +929,33 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
 
     try {
         Snapshot snapshot = m_rewriterView->textModifier()->qmljsSnapshot();
-        const QString fileName = url.toLocalFile();
 
-        Dialect dialect = ModelManagerInterface::guessLanguageOfFile(fileName);
-        if (dialect == Dialect::AnyLanguage
-                || dialect == Dialect::NoLanguage)
-            dialect = Dialect::Qml;
-
-        Document::MutablePtr doc = Document::create(fileName.isEmpty() ? QStringLiteral("<internal>") : fileName, dialect);
-        doc->setSource(data);
-        doc->parseQml();
-
-        qCInfo(rewriterBenchmark) << "parsed correctly: " << doc->isParsedCorrectly() << time.elapsed();
-
-        if (!doc->isParsedCorrectly()) {
-            QList<RewriterError> errors;
-            foreach (const QmlJS::DiagnosticMessage &message, doc->diagnosticMessages())
-                errors.append(RewriterError(message, QUrl::fromLocalFile(doc->fileName())));
+        QList<RewriterError> errors;
+        QList<RewriterError> warnings;
+        if (Document::MutablePtr doc = createParsedDocument(url, data, &errors)) {
+            snapshot.insert(doc);
+            m_document = doc;
+            qCInfo(rewriterBenchmark) << "parsed correctly: " << time.elapsed();
+        } else {
+            qCInfo(rewriterBenchmark) << "did not parse correctly: " << time.elapsed();
             m_rewriterView->setErrors(errors);
             setActive(false);
             return false;
         }
-        snapshot.insert(doc);
-        m_vContext = ModelManagerInterface::instance()->defaultVContext(Dialect::Qml, doc, true);
-        ReadingContext ctxt(snapshot, doc, m_vContext);
+        m_vContext = ModelManagerInterface::instance()->defaultVContext(Dialect::Qml, m_document, true);
+        ReadingContext ctxt(snapshot, m_document, m_vContext);
         m_scopeChain = QSharedPointer<const ScopeChain>(
                     new ScopeChain(ctxt.scopeChain()));
-        m_document = doc;
 
         qCInfo(rewriterBenchmark) << "linked:" << time.elapsed();
-
-        QList<RewriterError> errors;
-        QList<RewriterError> warnings;
-
         collectLinkErrors(&errors, ctxt);
 
-        setupImports(doc, differenceHandler);
+        setupImports(m_document, differenceHandler);
         setupPossibleImports(snapshot, m_vContext);
 
         collectImportErrors(&errors);
 
         if (view()->checkSemanticErrors()) {
-
-
             collectSemanticErrorsAndWarnings(&errors, &warnings);
 
             if (!errors.isEmpty()) {
@@ -962,7 +969,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         setupUsedImports();
 
         AST::UiObjectMember *astRootNode = 0;
-        if (AST::UiProgram *program = doc->qmlProgram())
+        if (AST::UiProgram *program = m_document->qmlProgram())
             if (program->members)
                 astRootNode = program->members->member;
         ModelNode modelRootNode = m_rewriterView->rootModelNode();

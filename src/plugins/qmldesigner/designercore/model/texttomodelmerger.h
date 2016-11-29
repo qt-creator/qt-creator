@@ -31,6 +31,7 @@
 #include "modelnode.h"
 
 #include <qmljs/qmljsscopechain.h>
+#include <qmljs/qmljsscopechain.h>
 
 #include <QStringList>
 #include <QTimer>
@@ -51,6 +52,8 @@ class TextToModelMerger
     TextToModelMerger &operator=(const TextToModelMerger&);
 
 public:
+    static QmlJS::Document::MutablePtr createParsedDocument(const QUrl &url, const QString &data, QList<RewriterError> *errors);
+
     TextToModelMerger(RewriterView *reWriterView);
     bool isActive() const;
 
