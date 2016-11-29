@@ -336,6 +336,8 @@ void PxNodeController::onMenuActionTriggered(PxNodeController::MenuAction *actio
             d->componentViewController->createComponentModel(folderNode, diagram, d->anchorFolder);
             d->componentViewController->updateIncludeDependencies(package);
             d->diagramSceneController->modelController()->undoController()->endMergeSequence();
+        } else {
+            delete package;
         }
         break;
     }
