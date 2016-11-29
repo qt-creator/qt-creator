@@ -50,26 +50,12 @@ LibraryDetailsController::LibraryDetailsController(
     m_proFile(proFile),
     m_libraryDetailsWidget(libraryDetails)
 {
-    m_creatorPlatform = CreatorLinux;
-    switch (Utils::HostOsInfo::hostOs()) {
-    case Utils::OsTypeMac:
-        m_creatorPlatform = CreatorMac;
-    case Utils::OsTypeWindows:
-        m_creatorPlatform = CreatorWindows;
-    default:
-        break;
-    }
-
     setPlatformsVisible(true);
     setLinkageGroupVisible(true);
     setMacLibraryGroupVisible(true);
     setPackageLineEditVisible(false);
-
-    if (creatorPlatform() == CreatorMac)
-        setMacLibraryRadiosVisible(false);
-
-    if (creatorPlatform() != CreatorWindows)
-        setLinkageRadiosVisible(false);
+    setMacLibraryRadiosVisible(!Utils::HostOsInfo::isMacHost());
+    setLinkageRadiosVisible(Utils::HostOsInfo::isWindowsHost());
 
     connect(m_libraryDetailsWidget->includePathChooser, &Utils::PathChooser::rawPathChanged,
             this, &LibraryDetailsController::slotIncludePathChanged);
@@ -87,11 +73,6 @@ LibraryDetailsController::LibraryDetailsController(
             this, &LibraryDetailsController::slotPlatformChanged);
     connect(m_libraryDetailsWidget->winCheckBox, &QAbstractButton::clicked,
             this, &LibraryDetailsController::slotPlatformChanged);
-}
-
-LibraryDetailsController::CreatorPlatform LibraryDetailsController::creatorPlatform() const
-{
-    return m_creatorPlatform;
 }
 
 Ui::LibraryDetailsWidget *LibraryDetailsController::libraryDetailsWidget() const
@@ -597,7 +578,7 @@ NonInternalLibraryDetailsController::NonInternalLibraryDetailsController(
     setLibraryComboBoxVisible(false);
     setLibraryPathChooserVisible(true);
 
-    if (creatorPlatform() == CreatorWindows) {
+    if (Utils::HostOsInfo::isWindowsHost()) {
         libraryDetailsWidget()->libraryPathChooser->setPromptDialogFilter(
                 QLatin1String("Library file (*.lib lib*.a)"));
         setLinkageRadiosVisible(true);
@@ -607,11 +588,11 @@ NonInternalLibraryDetailsController::NonInternalLibraryDetailsController(
         setRemoveSuffixVisible(false);
     }
 
-    if (creatorPlatform() == CreatorLinux)
+    if (Utils::HostOsInfo::isLinuxHost())
         libraryDetailsWidget()->libraryPathChooser->setPromptDialogFilter(
                 QLatin1String("Library file (lib*.so lib*.a)"));
 
-    if (creatorPlatform() == CreatorMac) {
+    if (Utils::HostOsInfo::isMacHost()) {
         libraryDetailsWidget()->libraryPathChooser->setPromptDialogFilter(
                 QLatin1String("Library file (*.dylib *.a *.framework)"));
            // QLatin1String("Library file (lib*.dylib lib*.a *.framework)"));
@@ -635,7 +616,7 @@ NonInternalLibraryDetailsController::NonInternalLibraryDetailsController(
 AddLibraryWizard::LinkageType NonInternalLibraryDetailsController::suggestedLinkageType() const
 {
     AddLibraryWizard::LinkageType type = AddLibraryWizard::NoLinkage;
-    if (creatorPlatform() != CreatorWindows) {
+    if (!Utils::HostOsInfo::isWindowsHost()) {
         if (libraryDetailsWidget()->libraryPathChooser->isValid()) {
             QFileInfo fi(libraryDetailsWidget()->libraryPathChooser->path());
             if (fi.suffix() == QLatin1String("a"))
@@ -650,7 +631,7 @@ AddLibraryWizard::LinkageType NonInternalLibraryDetailsController::suggestedLink
 AddLibraryWizard::MacLibraryType NonInternalLibraryDetailsController::suggestedMacLibraryType() const
 {
     AddLibraryWizard::MacLibraryType type = AddLibraryWizard::NoLibraryType;
-    if (creatorPlatform() == CreatorMac) {
+    if (Utils::HostOsInfo::isMacHost()) {
         if (libraryDetailsWidget()->libraryPathChooser->isValid()) {
             QFileInfo fi(libraryDetailsWidget()->libraryPathChooser->path());
             if (fi.suffix() == QLatin1String("framework"))
@@ -684,7 +665,7 @@ QString NonInternalLibraryDetailsController::suggestedIncludePath() const
 void NonInternalLibraryDetailsController::updateWindowsOptionsEnablement()
 {
     bool ena = platforms() & (AddLibraryWizard::WindowsMinGWPlatform | AddLibraryWizard::WindowsMSVCPlatform);
-    if (creatorPlatform() == CreatorWindows) {
+    if (Utils::HostOsInfo::isWindowsHost()) {
         libraryDetailsWidget()->addSuffixCheckBox->setEnabled(ena);
         ena = true;
     }
@@ -716,7 +697,7 @@ void NonInternalLibraryDetailsController::slotRemoveSuffixChanged(bool ena)
 
 void NonInternalLibraryDetailsController::slotLibraryPathChanged()
 {
-    if (creatorPlatform() == CreatorWindows) {
+    if (Utils::HostOsInfo::isWindowsHost()) {
         bool subfoldersEnabled = true;
         bool removeSuffixEnabled = true;
         if (libraryDetailsWidget()->libraryPathChooser->isValid()) {
@@ -758,13 +739,13 @@ QString NonInternalLibraryDetailsController::snippet() const
     QString libName;
     const bool removeSuffix = isWindowsGroupVisible()
             && libraryDetailsWidget()->removeSuffixCheckBox->isChecked();
-    if (creatorPlatform() == CreatorWindows) {
+    if (Utils::HostOsInfo::isWindowsHost()) {
         libName = fi.completeBaseName();
         if (removeSuffix && !libName.isEmpty()) // remove last letter which needs to be "d"
             libName = libName.left(libName.size() - 1);
         if (fi.completeSuffix() == QLatin1String("a")) // the mingw lib case
             libName = libName.mid(3); // cut the "lib" prefix
-    } else if (creatorPlatform() == CreatorMac) {
+    } else if (Utils::HostOsInfo::isMacHost()) {
         if (macLibraryType() == AddLibraryWizard::FrameworkType)
             libName = fi.completeBaseName();
         else
@@ -778,7 +759,7 @@ QString NonInternalLibraryDetailsController::snippet() const
     if (isWindowsGroupVisible()) {
         // when we are on Win but we don't generate the code for Win
         // we still need to remove "debug" or "release" subfolder
-        const bool useSubfoldersCondition = (creatorPlatform() == CreatorWindows)
+        const bool useSubfoldersCondition = (Utils::HostOsInfo::isWindowsHost())
                                             ? true : platforms() & (AddLibraryWizard::WindowsMinGWPlatform
                                                                     | AddLibraryWizard::WindowsMSVCPlatform);
         if (useSubfoldersCondition)
@@ -793,7 +774,7 @@ QString NonInternalLibraryDetailsController::snippet() const
         QFileInfo pfi(proFile());
         QDir pdir = pfi.absoluteDir();
         QString absoluteLibraryPath = fi.absolutePath();
-        if (creatorPlatform() == CreatorWindows && useSubfolders) { // drop last subfolder which needs to be "debug" or "release"
+        if (Utils::HostOsInfo::isWindowsHost() && useSubfolders) { // drop last subfolder which needs to be "debug" or "release"
             QFileInfo libfi(absoluteLibraryPath);
             absoluteLibraryPath = libfi.absolutePath();
         }
@@ -908,7 +889,7 @@ void ExternalLibraryDetailsController::updateWindowsOptionsEnablement()
 {
     NonInternalLibraryDetailsController::updateWindowsOptionsEnablement();
 
-    if (creatorPlatform() != CreatorWindows)
+    if (!Utils::HostOsInfo::isWindowsHost())
         return;
 
     bool subfoldersEnabled = true;
@@ -944,7 +925,7 @@ InternalLibraryDetailsController::InternalLibraryDetailsController(
     setWindowsGroupVisible(true);
     setRemoveSuffixVisible(false);
 
-    if (creatorPlatform() == CreatorWindows)
+    if (Utils::HostOsInfo::isWindowsHost())
         libraryDetailsWidget()->useSubfoldersCheckBox->setEnabled(true);
 
     connect(libraryDetailsWidget()->libraryComboBox,
@@ -998,7 +979,7 @@ QString InternalLibraryDetailsController::suggestedIncludePath() const
 
 void InternalLibraryDetailsController::updateWindowsOptionsEnablement()
 {
-    if (creatorPlatform() == CreatorWindows)
+    if (Utils::HostOsInfo::isWindowsHost())
         libraryDetailsWidget()->addSuffixCheckBox->setEnabled(true);
     libraryDetailsWidget()->winGroupBox->setEnabled(platforms()
                                 & (AddLibraryWizard::WindowsMinGWPlatform | AddLibraryWizard::WindowsMSVCPlatform));
@@ -1051,7 +1032,7 @@ void InternalLibraryDetailsController::slotCurrentLibraryChanged()
                         currentIndex, Qt::ToolTipRole).toString());
         QmakeProFileNode *proFileNode = m_proFileNodes.at(currentIndex);
         const QStringList configVar = proFileNode->variableValue(ConfigVar);
-        if (creatorPlatform() == CreatorWindows) {
+        if (Utils::HostOsInfo::isWindowsHost()) {
             bool useSubfolders = false;
             if (configVar.contains(QLatin1String("debug_and_release"))
                 && configVar.contains(QLatin1String("debug_and_release_target")))

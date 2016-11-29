@@ -47,14 +47,6 @@ signals:
     void completeChanged();
 
 protected:
-    enum CreatorPlatform {
-        CreatorLinux,
-        CreatorMac,
-        CreatorWindows
-    };
-
-    CreatorPlatform creatorPlatform() const;
-
     Ui::LibraryDetailsWidget *libraryDetailsWidget() const;
 
     AddLibraryWizard::Platforms platforms() const;
@@ -106,8 +98,6 @@ private:
     AddLibraryWizard::MacLibraryType m_macLibraryType = AddLibraryWizard::NoLibraryType;
 
     QString m_proFile;
-
-    CreatorPlatform m_creatorPlatform;
 
     bool m_ignoreGuiSignals = false;
     bool m_includePathChanged = false;
