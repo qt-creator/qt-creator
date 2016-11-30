@@ -790,6 +790,13 @@ class DumperBase:
             self.putField('keyencoded', key.encoding)
         self.putValue(value.value, value.encoding)
 
+    def putEnumValue(self, value, vals):
+        ival = value.integer()
+        nice = vals.get(ival, None)
+        display = ('%d' % ival) if nice is None else ('%s (%d)' % (nice, ival))
+        self.putValue(display)
+        self.putNumChild(0)
+
     def putCallItem(self, name, rettype, value, func, *args):
         with SubItem(self, name):
             try:

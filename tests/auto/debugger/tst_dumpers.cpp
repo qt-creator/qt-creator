@@ -6381,6 +6381,7 @@ void tst_Dumpers::dumper_data()
                     "    root->appendRow(item);\n"
                     "}\n")
             + GuiProfile()
+            + Check("root.[children].0.[values].0.role", "Qt::DisplayRole (0)", "@Qt::ItemDataRole")
             + Check("root.[children].0.[values].0.value", "\"item 0\"", "@QVariant (@QString)");
 
 
