@@ -128,6 +128,9 @@
                         \li Select \uicontrol {Show command lines} to print actual command lines
                             to the compile output pane instead of high-level descriptions.
 
+                        \li Select \uicontrol {Force probes} to force re-execution of the
+                            configure scripts of \l{https://doc.qt.io/qbs/probe-item.html}{Probes}.
+
                         \li Select \uicontrol {Install} to copy artifacts to their install location
                             after building them. This option is enabled by default.
 
