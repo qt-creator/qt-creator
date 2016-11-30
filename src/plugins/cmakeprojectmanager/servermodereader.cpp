@@ -186,7 +186,7 @@ bool ServerModeReader::hasData() const
 
 QList<CMakeBuildTarget> ServerModeReader::buildTargets() const
 {
-    return transform(m_targets, [](const Target *t) -> CMakeBuildTarget {
+    const QList<CMakeBuildTarget> result = transform(m_targets, [](const Target *t) -> CMakeBuildTarget {
         CMakeBuildTarget ct;
         ct.title = t->name;
         ct.executable = t->artifacts.isEmpty() ? FileName() : t->artifacts.at(0);
@@ -207,6 +207,8 @@ QList<CMakeBuildTarget> ServerModeReader::buildTargets() const
         ct.sourceDirectory = t->sourceDirectory;
         return ct;
     });
+    m_targets.clear();
+    return result;
 }
 
 CMakeConfig ServerModeReader::parsedConfiguration() const

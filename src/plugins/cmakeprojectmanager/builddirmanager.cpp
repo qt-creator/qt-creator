@@ -142,6 +142,8 @@ void BuildDirManager::updateReaderData()
 
 void BuildDirManager::parseOnceReaderReady(bool force)
 {
+    m_buildTargets.clear();
+
     auto fi = new QFutureInterface<QList<ProjectExplorer::FileNode *>>();
     m_scanFuture = fi->future();
     m_futureWatcher.setFuture(m_scanFuture);
@@ -302,6 +304,8 @@ void BuildDirManager::resetData()
     m_cmakeCache.clear();
     m_futureWatcher.setFuture(QFuture<QList<FileNode *>>());
     m_reader.reset();
+
+    m_buildTargets.clear();
 }
 
 bool BuildDirManager::updateCMakeStateBeforeBuild()
@@ -395,7 +399,9 @@ QList<CMakeBuildTarget> BuildDirManager::buildTargets() const
 {
     if (!m_reader)
         return QList<CMakeBuildTarget>();
-    return m_reader->buildTargets();
+    if (m_buildTargets.isEmpty())
+        m_buildTargets = m_reader->buildTargets();
+    return m_buildTargets;
 }
 
 CMakeConfig BuildDirManager::parsedConfiguration() const

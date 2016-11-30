@@ -114,6 +114,8 @@ private:
     std::unique_ptr<BuildDirReader> m_reader;
     QFutureWatcher<QList<ProjectExplorer::FileNode*>> m_futureWatcher;
     QFuture<QList<ProjectExplorer::FileNode*>> m_scanFuture;
+
+    mutable QList<CMakeBuildTarget> m_buildTargets;
 };
 
 } // namespace Internal

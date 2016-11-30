@@ -147,7 +147,7 @@ private:
     QList<ProjectExplorer::FileNode *> m_cmakeInputsFileNodes;
 
     QList<Project *> m_projects;
-    QList<Target *> m_targets;
+    mutable QList<Target *> m_targets;
     QList<FileGroup *> m_fileGroups;
 };
 
