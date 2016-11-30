@@ -126,7 +126,8 @@ const int MIN_SOCKET_HANDSHAKE_PORT = 20001;
 const int MAX_SOCKET_HANDSHAKE_PORT = 20999;
 static const QString pidScript = QStringLiteral("for p in /proc/[0-9]*; "
                                                 "do cat <$p/cmdline && echo :${p##*/}; done");
-static const QString pidPollingScript = QStringLiteral("while true; do sleep 1; kill -0 %1; done");
+static const QString pidPollingScript = QStringLiteral("while true; do sleep 1; "
+                                                       "cat /proc/%1/cmdline > /dev/null; done");
 static int APP_START_TIMEOUT = 45000;
 
 static bool isTimedOut(const chrono::high_resolution_clock::time_point &start,

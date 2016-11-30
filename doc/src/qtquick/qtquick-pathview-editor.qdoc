@@ -31,14 +31,15 @@
 
     \title Editing PathView Properties
 
-    A \l{PathView} lays out data provided by data models on a \l{Path}.
+    A \l{PathView}{Path View} lays out data provided by data models on a
+    \l{Path}.
 
-    A graphical spline editor enables you to specify PathView paths, which
+    A graphical spline editor enables you to specify path view paths, which
     is a non-trivial task to do in the code editor.
 
     \image qmldesigner-pathview-editor.png "PathView editor"
 
-    To start editing the Path, double-click the PathView on the canvas. The
+    To start editing the path, double-click the path view on the canvas. The
     editor composes the path of PathCubic path objects. They are cubic Bezier
     curves to a given position with two control points. Drag and drop the
     control points to construct the curve.
@@ -47,7 +48,7 @@
     To make a curve segment linear, select \uicontrol {Make Curve Segment Straight} in
     the context menu.
 
-    By default, the Path is closed, which means that its start and end points
+    By default, the path is closed, which means that its start and end points
     are identical. To create separate start and end points for it, right-click
     an edit point to open a context menu, and deselect \uicontrol {Closed Path}.
 
@@ -55,7 +56,7 @@
     in the context menu.
 
     In the \uicontrol Properties pane, you can specify other properties for
-    the PathView. For example, what is the maximum distance from the path that
+    the path view. For example, what is the maximum distance from the path that
     initiates mouse dragging and what is the rate at which a flick will
     decelerate.
 

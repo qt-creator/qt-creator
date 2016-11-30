@@ -37,7 +37,7 @@
 
     \title Comparing Files
 
-    You can use a diff editor to display unsaved changed in the current file or
+    You can use a diff editor to display unsaved changes in the current file or
     all open files or to compare any two text files that can be either versions
     of the same file or arbitrary files.
 

@@ -122,7 +122,7 @@ RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Co
             params.qmlServer.port = Utils::Port(); // port is selected later on
         }
         if (aspect->useCppDebugger()) {
-            aspect->setUseMultiProcess(true);
+            params.useExtendedRemote = true;
             params.inferior.executable = stdRunnable.executable;
             params.inferior.commandLineArguments = stdRunnable.commandLineArguments;
             if (aspect->useQmlDebugger()) {

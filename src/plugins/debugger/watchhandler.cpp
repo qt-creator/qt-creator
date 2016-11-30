@@ -88,7 +88,7 @@ enum { debugModel = 0 };
 
 #define MODEL_DEBUG(s) do { if (debugModel) qDebug() << s; } while (0)
 
-static QHash<QString, int> theWatcherNames;
+static QMap<QString, int> theWatcherNames; // Keep order, QTCREATORBUG-12308.
 static int theWatcherCount = 0;
 static QHash<QString, int> theTypeFormats;
 static QHash<QString, int> theIndividualFormats;
@@ -428,8 +428,6 @@ public:
     QString editorContents(const QModelIndexList &list = QModelIndexList());
     void clearWatches();
     void removeWatchItem(WatchItem *item);
-    void watchExpression(const QString &exp);
-    void watchExpression(const QString &exp, const QString &name);
     void inputNewExpression();
 
 public:
@@ -1095,7 +1093,7 @@ bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role
             if (item && kev->key() == Qt::Key_Return
                     && kev->modifiers() == Qt::ControlModifier
                     && item->isLocal()) {
-                watchExpression(item->expression());
+                m_handler->watchExpression(item->expression(), QString());
                 return true;
             }
         }
@@ -1531,16 +1529,6 @@ static QString removeWatchActionText(QString exp)
             .arg(exp.replace('&', "&&"));
 }
 
-void WatchModel::watchExpression(const QString &exp)
-{
-    watchExpression(exp, QString());
-}
-
-void WatchModel::watchExpression(const QString &exp, const QString &name)
-{
-    currentEngine()->watchHandler()->watchExpression(exp, name);
-}
-
 static void copyToClipboard(const QString &clipboardText)
 {
     QClipboard *clipboard = QApplication::clipboard();
@@ -1582,11 +1570,8 @@ void WatchModel::inputNewExpression()
     connect(hint, &QLabel::linkActivated, [](const QString &link) {
             HelpManager::handleHelpRequest(link); });
 
-    if (dlg.exec() == QDialog::Accepted) {
-        const QString exp = lineEdit->text().trimmed();
-        if (!exp.isEmpty())
-            m_handler->watchExpression(exp, exp);
-    }
+    if (dlg.exec() == QDialog::Accepted)
+        m_handler->watchExpression(lineEdit->text().trimmed());
 }
 
 bool WatchModel::contextMenuEvent(const ItemViewEvent &ev)
@@ -2096,6 +2081,7 @@ QString WatchHandler::watcherName(const QString &exp)
     return "watch." + QString::number(theWatcherNames[exp]);
 }
 
+// If \a name is empty, \a exp will be used as name.
 void WatchHandler::watchExpression(const QString &exp, const QString &name)
 {
     // Do not insert the same entry more then once.
@@ -2137,7 +2123,7 @@ void WatchHandler::updateWatchExpression(WatchItem *item, const QString &newExp)
         item->setValue(QString(QLatin1Char(' ')));
         item->update();
     } else {
-        m_model->m_engine->updateItem(item->iname);
+        m_model->m_engine->updateWatchData(item->iname);
     }
     updateWatchersWindow();
 }
@@ -2259,7 +2245,7 @@ void WatchModel::showEditValue(const WatchItem *item)
         else if (innerType == "float") {
             if (innerSize == 4)
                 reader = &readOne<float>;
-            else if (innerSize == 4)
+            else if (innerSize == 8)
                 reader = &readOne<double>;
         }
         QTC_ASSERT(reader, return);
@@ -2313,7 +2299,7 @@ QStringList WatchHandler::watchedExpressions()
 {
     // Filter out invalid watchers.
     QStringList watcherNames;
-    QHashIterator<QString, int> it(theWatcherNames);
+    QMapIterator<QString, int> it(theWatcherNames);
     while (it.hasNext()) {
         it.next();
         const QString &watcherName = it.key();
@@ -2517,7 +2503,7 @@ void WatchHandler::appendWatchersAndTooltipRequests(DebuggerCommand *cmd)
     foreach (const DebuggerToolTipContext &p, toolTips)
         watchers.append(watcher(p.iname, p.expression));
 
-    QHashIterator<QString, int> it(WatchHandler::watcherNames());
+    QMapIterator<QString, int> it(WatchHandler::watcherNames());
     while (it.hasNext()) {
         it.next();
         watchers.append(watcher("watch." + QString::number(it.value()), it.key()));
@@ -2576,7 +2562,7 @@ void WatchHandler::setCurrentItem(const QString &iname)
     }
 }
 
-QHash<QString, int> WatchHandler::watcherNames()
+QMap<QString, int> WatchHandler::watcherNames()
 {
     return theWatcherNames;
 }

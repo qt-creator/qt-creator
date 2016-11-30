@@ -4136,7 +4136,9 @@ void GdbEngine::handleGdbError(QProcess::ProcessError error)
         // This should be handled by the code trying to start the process.
         break;
     case QProcess::Crashed:
-        // This will get a processExited() as well.
+        // This does not seem to get processFinished() in all cases.
+        m_gdbProc.disconnect();
+        handleGdbFinished(m_gdbProc.exitCode(), QProcess::CrashExit);
         break;
     case QProcess::ReadError:
     case QProcess::WriteError:

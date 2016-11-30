@@ -1304,6 +1304,7 @@ class DumperBase:
             #warn('RAW')
             self.putType(typeName)
             self.putValue('0x%x' % pointer)
+            self.putNumChild(1)
             if self.currentIName in self.expandedINames:
                 with Children(self):
                     with SubItem(self, '*'):

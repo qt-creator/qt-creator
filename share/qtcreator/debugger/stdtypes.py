@@ -204,17 +204,16 @@ def qdump__std__list(d, value):
                 p = d.extractPointer(p)
 
 def qdump__std__list__QNX(d, value):
-    node = value["_Myhead"]
-    size = value["_Mysize"].integer()
-
+    (proxy, head, size) = value.split("ppp")
     d.putItemCount(size, 1000)
 
     if d.isExpanded():
-        p = node["_Next"]
-        with Children(d, size, maxNumChild=1000, childType=value.type[0]):
+        p = d.extractPointer(head)
+        innerType = value.type[0]
+        with Children(d, size, maxNumChild=1000, childType=innerType):
             for i in d.childRange():
-                d.putSubItem(i, p['_Myval'])
-                p = p["_Next"]
+                d.putSubItem(i, d.createValue(p + 2 * d.ptrSize(), innerType))
+                p = d.extractPointer(p)
 
 def qdump__std____debug__list(d, value):
     qdump__std__list(d, value)
@@ -652,6 +651,13 @@ def qdump__std____1__wstring(d, value):
     d.putType("std::wstring")
 
 
+def qdump__std____weak_ptr(d, value):
+    return qdump__std__shared_ptr(d, value)
+
+def qdump__std__weak_ptr(d, value):
+    return qdump__std__shared_ptr(d, value)
+
+
 def qdump__std__shared_ptr(d, value):
     if d.isMsvcTarget():
         i = value["_Ptr"]
@@ -909,39 +915,26 @@ def qdumpHelper__std__vector__QNX(d, value):
     innerType = value.type[0]
     isBool = innerType.name == 'bool'
     if isBool:
-        try:
-            impl = value['_Myvec']['_Mypair']['_Myval2']
-        except:
-            impl = value['_Myvec']
-        start = impl['_Myfirst'].pointer()
-        last = impl['_Mylast'].pointer()
-        end = impl['_Myend'].pointer()
-        size = value['_Mysize'].integer()
-        storagesize = start.dereference().type.size() * 8
+        (proxy1, proxy2, start, last, end, size) = value.split("pppppi")
     else:
-        try:
-            impl = value['_Mypair']['_Myval2']
-        except:
-            impl = value
-        start = impl['_Myfirst'].pointer()
-        last = impl['_Mylast'].pointer()
-        end = impl['_Myend'].pointer()
+        (proxy, start, last, end) = value.split("pppp")
         size = (last - start) // innerType.size()
 
     d.check(0 <= size and size <= 1000 * 1000 * 1000)
     d.check(last <= end)
-    d.checkPointer(start)
-    d.checkPointer(last)
-    d.checkPointer(end)
+    if size > 0:
+        d.checkPointer(start)
+        d.checkPointer(last)
+        d.checkPointer(end)
 
     d.putItemCount(size)
     if d.isExpanded():
         if isBool:
             with Children(d, size, maxNumChild=10000, childType=innerType):
                 for i in d.childRange():
-                    q = start + int(i / storagesize)
+                    q = start + int(i / 8)
                     with SubItem(d, i):
-                        d.putValue((q.dereference().pointer() >> (i % storagesize)) & 1)
+                        d.putValue((d.extractPointer(q) >> (i % 8)) & 1)
                         d.putType("bool")
                         d.putNumChild(0)
         else:

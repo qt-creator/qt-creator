@@ -97,8 +97,8 @@
     that everything works (for example, use the status command). If no issues
     arise, you should be ready to use the system also from \QC.
 
-    For more information on using msysGit on Windows, see
-    \l {Using msysGit on Windows}.
+    For more information on using Git for Windows, see
+    \l {Using Git for Windows}.
 
     \section1 Setting Up General Options
 

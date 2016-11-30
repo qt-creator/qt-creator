@@ -4391,7 +4391,11 @@ void tst_Dumpers::dumper_data()
                     "#include <string>\n" + fooData,
                     "std::shared_ptr<int> pi(new int(32)); unused(&pi);\n"
                     "std::shared_ptr<Foo> pf(new Foo); unused(&pf);\n"
-                    "std::shared_ptr<std::string> ps(new std::string(\"ABC\")); unused(&ps);\n")
+                    "std::shared_ptr<std::string> ps(new std::string(\"ABC\")); "
+                    "unused(&ps);\n"
+                    "std::weak_ptr<int> wi = pi; unused(&wi);\n"
+                    "std::weak_ptr<Foo> wf = pf; unused(&wf);\n"
+                    "std::weak_ptr<std::string> ws = ps; unused(&ws);\n")
 
                + Cxx11Profile()
                + MacLibCppProfile()
@@ -4401,7 +4405,13 @@ void tst_Dumpers::dumper_data()
                + Check("pf", Pointer(), "std::shared_ptr<Foo>")
                + CheckType("pf.data", "Foo")
                + Check("ps", "\"ABC\"", "std::shared_ptr<std::string>")
-               + Check("ps.data", "\"ABC\"", "std::string");
+               + Check("ps.data", "\"ABC\"", "std::string")
+               + Check("wi", "32", "std::weak_ptr<int>")
+               + Check("wi.data", "32", "int")
+               + Check("wf", Pointer(), "std::weak_ptr<Foo>")
+               + CheckType("wf.data", "Foo")
+               + Check("ws", "\"ABC\"", "std::weak_ptr<std::string>")
+               + Check("ws.data", "\"ABC\"", "std::string");
 
     QTest::newRow("StdSharedPtr2")
             << Data("#include <memory>\n"

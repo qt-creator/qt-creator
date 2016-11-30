@@ -79,18 +79,19 @@
 
     \list
 
-        \li GridView provides a grid vizualization of a model.
+        \li \l{GridView}{Grid View} provides a grid vizualization of a model.
 
-        \li ListView provides a list vizualization of a model.
+        \li \l{ListView}{List View} provides a list vizualization of a model.
 
-        \li PathView visualizes the contents of a model along a path.
+        \li \l{PathView}{Path View} visualizes the contents of a model along a
+            path.
 
     \endlist
 
-    When you add a GridView, ListView, or PathView, the ListModel and the
-    delegate component that creates an instance for each item in the model are
-    added automatically. You can edit item properties
-    in the \uicontrol Properties pane or
+    When you add a \l{GridView}{Grid View}, \l{ListView}{List View}, or
+    \l{PathView}{Path View}, the ListModel and the delegate component that
+    creates an instance for each item in the model are added automatically.
+    You can edit item properties in the \uicontrol Properties pane or
     in the code editor. You can also replace the default model and
     delegate with other, more complex models and delegates in the code editor.
 
@@ -231,9 +232,9 @@
 
     \endlist
 
-    To lay out several items in a Column, Row, Grid, or Flow, select
-    the items on the canvas, and then select \uicontrol Layout in the context
-    menu.
+    To lay out several items in a \uicontrol Column, \uicontrol Row,
+    \uicontrol Grid, or \uicontrol Flow, select the items on the canvas, and
+    then select \uicontrol Layout in the context menu.
 
     \section2 Using Layouts
 
@@ -249,12 +250,13 @@
         \li \l{Layout} provides attached properties for items pushed onto a
             \uicontrol {Column Layout}, \uicontrol {Row Layout}, or \uicontrol {Grid Layout}.
 
-        \li ColumnLayout provides a grid layout with only one column.
+        \li \l{ColumnLayout}{Column Layout} provides a grid layout with only one
+            column.
 
-        \li RowLayout provides a grid layout with only one row.
+        \li \l{RowLayout}{Row Layout} provides a grid layout with only one row.
 
-        \li GridLayout provides a way of dynamically arranging items in a
-            grid.
+        \li \l{GridLayout}{Grid Layout} provides a way of dynamically arranging
+            items in a grid.
 
     \endlist
 
@@ -372,7 +374,7 @@
         \li \l{Flickable}
             items can be flicked horizontally or vertically.
 
-        \li FocusScope
+        \li \l{FocusScope}{Focus Scope}
             assists in keyboard focus handling when building reusable QML
             components.
 
