@@ -54,7 +54,8 @@ public:
     void supersedePollEventLoop(std::function<void()> &&pollEventLoop);
 
 private:
-    void gatherSourceRangesAndDiagnosticsForQueryMessage(std::vector<V2::FileContainer> &&fileContainers,
+    void gatherSourceRangesAndDiagnosticsForQueryMessage(std::vector<V2::FileContainer> &&sources,
+                                                         std::vector<V2::FileContainer> &&unsaved,
                                                          Utils::SmallString &&query);
     std::size_t waitForNewSourceRangesAndDiagnosticsForQueryMessage(std::vector<Future> &futures);
 

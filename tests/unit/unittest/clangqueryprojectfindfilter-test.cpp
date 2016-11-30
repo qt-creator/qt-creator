@@ -66,6 +66,9 @@ protected:
     QString unsavedDocumentContent{"void f();"};
     std::vector<Utils::SmallStringVector> commandLines;
     std::vector<CppTools::ProjectPart::Ptr> projectsParts;
+    ClangBackEnd::V2::FileContainer unsavedContent{{"/path/to", "unsaved.cpp"},
+                                                  "void f();",
+                                                  {}};
 };
 
 TEST_F(ClangQueryProjectFindFilter, SupportedFindFlags)
@@ -136,7 +139,8 @@ TEST_F(ClangQueryProjectFindFilter, FindAllIsCallingRequestSourceRangesAndDiagno
                                                                              commandLines[1].clone()},
                                                                             {{"/path/to", "file2.cpp"},
                                                                              "",
-                                                                             commandLines[2].clone()}});
+                                                                             commandLines[2].clone()}},
+                                                                           {unsavedContent.clone()});
 
     EXPECT_CALL(mockRefactoringServer, requestSourceRangesAndDiagnosticsForQueryMessage(message))
             .Times(1);
@@ -190,6 +194,8 @@ void ClangQueryProjectFindFilter::SetUp()
     commandLines = createCommandLines(projectsParts);
 
     findFilter.setProjectParts(projectsParts);
+    findFilter.setUnsavedContent({unsavedContent.clone()});
+
 
     ON_CALL(mockSearch, startNewSearch(QStringLiteral("Clang Query"), findDeclQueryText))
             .WillByDefault(Return(ByMove(createSearchHandle())));

@@ -31,6 +31,8 @@
 
 #include <coreplugin/find/ifindfilter.h>
 
+#include <filecontainerv2.h>
+
 #include <utils/smallstringvector.h>
 
 #include <memory>
@@ -65,11 +67,14 @@ public:
 
     SearchHandle* searchHandleForTestOnly() const;
 
+    void setUnsavedContent(std::vector<ClangBackEnd::V2::FileContainer> &&unsavedContent);
+
 private:
     ClangBackEnd::RequestSourceRangesAndDiagnosticsForQueryMessage createMessage(
             const QString &queryText) const;
 
 private:
+    std::vector<ClangBackEnd::V2::FileContainer> unsavedContent;
     std::unique_ptr<SearchHandle> searchHandle;
     std::vector<CppTools::ProjectPart::Ptr> projectParts;
     ClangBackEnd::RefactoringServerInterface &server;

@@ -70,7 +70,7 @@ void ClangQueryProjectsFindFilter::findAll(const QString &queryText, Core::FindF
 
     auto message = createMessage(queryText);
 
-    refactoringClient.setExpectedResultCount(message.fileContainers().size());
+    refactoringClient.setExpectedResultCount(message.sources().size());
 
     server.requestSourceRangesAndDiagnosticsForQueryMessage(std::move(message));
 }
@@ -100,6 +100,12 @@ SearchHandle *ClangQueryProjectsFindFilter::searchHandleForTestOnly() const
     return searchHandle.get();
 }
 
+void ClangQueryProjectsFindFilter::setUnsavedContent(
+        std::vector<ClangBackEnd::V2::FileContainer> &&unsavedContent)
+{
+    this->unsavedContent = std::move(unsavedContent);
+}
+
 namespace {
 
 Utils::SmallStringVector createCommandLine(CppTools::ProjectPart *projectPart,
@@ -118,13 +124,13 @@ Utils::SmallStringVector createCommandLine(CppTools::ProjectPart *projectPart,
 }
 
 std::vector<ClangBackEnd::V2::FileContainer>
-createFileContainers(const std::vector<CppTools::ProjectPart::Ptr> &projectParts)
+createSources(const std::vector<CppTools::ProjectPart::Ptr> &projectParts)
 {
-    std::vector<ClangBackEnd::V2::FileContainer> fileContainers;
+    std::vector<ClangBackEnd::V2::FileContainer> sources;
 
     for (const CppTools::ProjectPart::Ptr &projectPart : projectParts) {
         for (const CppTools::ProjectFile &projectFile : projectPart->files) {
-            fileContainers.emplace_back(ClangBackEnd::FilePath(projectFile.path),
+            sources.emplace_back(ClangBackEnd::FilePath(projectFile.path),
                                         "",
                                         createCommandLine(projectPart.data(),
                                                           projectFile.path,
@@ -132,15 +138,17 @@ createFileContainers(const std::vector<CppTools::ProjectPart::Ptr> &projectParts
         }
     }
 
-    return fileContainers;
+    return sources;
 }
+
 }
 
 ClangBackEnd::RequestSourceRangesAndDiagnosticsForQueryMessage ClangQueryProjectsFindFilter::createMessage(const QString &queryText) const
 {
     return ClangBackEnd::RequestSourceRangesAndDiagnosticsForQueryMessage(
                 Utils::SmallString(queryText),
-                createFileContainers(projectParts));
+                createSources(projectParts),
+                Utils::clone(unsavedContent));
 }
 
 

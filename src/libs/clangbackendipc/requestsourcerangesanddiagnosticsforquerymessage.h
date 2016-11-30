@@ -34,19 +34,32 @@ class RequestSourceRangesAndDiagnosticsForQueryMessage
 public:
     RequestSourceRangesAndDiagnosticsForQueryMessage() = default;
     RequestSourceRangesAndDiagnosticsForQueryMessage(Utils::SmallString &&query,
-                                                     std::vector<V2::FileContainer> &&fileContainers)
+                                                     std::vector<V2::FileContainer> &&sources,
+                                                     std::vector<V2::FileContainer> &&unsavedContent)
         : query_(std::move(query)),
-          fileContainers_(std::move(fileContainers))
+          sources_(std::move(sources)),
+          unsavedContent_(std::move(unsavedContent))
+
     {}
 
-    const std::vector<V2::FileContainer> &fileContainers() const
+    const std::vector<V2::FileContainer> &sources() const
     {
-        return fileContainers_;
+        return sources_;
     }
 
-    std::vector<V2::FileContainer> takeFileContainers()
+    std::vector<V2::FileContainer> takeSources()
     {
-        return std::move(fileContainers_);
+        return std::move(sources_);
+    }
+
+    const std::vector<V2::FileContainer> &unsavedContent() const
+    {
+        return unsavedContent_;
+    }
+
+    std::vector<V2::FileContainer> takeUnsavedContent()
+    {
+        return std::move(unsavedContent_);
     }
 
     const Utils::SmallString &query() const
@@ -62,7 +75,8 @@ public:
     friend QDataStream &operator<<(QDataStream &out, const RequestSourceRangesAndDiagnosticsForQueryMessage &message)
     {
         out << message.query_;
-        out << message.fileContainers_;
+        out << message.sources_;
+        out << message.unsavedContent_;
 
         return out;
     }
@@ -70,7 +84,8 @@ public:
     friend QDataStream &operator>>(QDataStream &in, RequestSourceRangesAndDiagnosticsForQueryMessage &message)
     {
         in >> message.query_;
-        in >> message.fileContainers_;
+        in >> message.sources_;
+        in >> message.unsavedContent_;
 
         return in;
     }
@@ -79,19 +94,21 @@ public:
                            const RequestSourceRangesAndDiagnosticsForQueryMessage &second)
     {
         return first.query_ == second.query_
-               && first.fileContainers_ == second.fileContainers_;
-
+            && first.sources_ == second.sources_
+            && first.unsavedContent_ == second.unsavedContent_;
     }
 
     RequestSourceRangesAndDiagnosticsForQueryMessage clone() const
     {
         return RequestSourceRangesAndDiagnosticsForQueryMessage(query_.clone(),
-                                                                Utils::clone(fileContainers_));
+                                                                Utils::clone(sources_),
+                                                                Utils::clone(unsavedContent_));
     }
 
 private:
     Utils::SmallString query_;
-    std::vector<V2::FileContainer> fileContainers_;
+    std::vector<V2::FileContainer> sources_;
+    std::vector<V2::FileContainer> unsavedContent_;
 };
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const RequestSourceRangesAndDiagnosticsForQueryMessage &message);

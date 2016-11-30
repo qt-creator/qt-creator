@@ -31,7 +31,8 @@ namespace {
 
 // use std::filesystem::path if it is supported by all compilers
 
-std::string toNativePath(std::string &&path)
+template <typename String>
+String toNativePath(String &&path)
 {
 #ifdef _WIN32
     std::replace(path.begin(), path.end(), '/', '\\');
@@ -75,14 +76,51 @@ void ClangTool::addFiles(const Utils::SmallStringVector &filePaths,
     }
 }
 
+namespace {
+Utils::SmallString toNativeFilePath(const FilePath &filePath)
+{
+    Utils::SmallString filePathString = filePath.directory().clone();
+    filePathString.append("/");
+    filePathString.append(filePath.name());
+
+    return toNativePath(std::move(filePathString));
+}
+}
+
+void ClangTool::addUnsavedFiles(std::vector<V2::FileContainer> &&unsavedFiles)
+{
+    unsavedFileContents.reserve(unsavedFileContents.size() + unsavedFiles.size());
+
+    auto convertToUnsavedFileContent = [] (V2::FileContainer &unsavedFile) {
+        return UnsavedFileContent{toNativeFilePath(unsavedFile.filePath()),
+                                  unsavedFile.takeUnsavedFileContent()};
+    };
+
+    std::transform(unsavedFiles.begin(),
+                   unsavedFiles.end(),
+                   std::back_inserter(unsavedFileContents),
+                   convertToUnsavedFileContent);
+}
+
+namespace {
+llvm::StringRef toStringRef(const Utils::SmallString &string)
+{
+    return llvm::StringRef(string.data(), string.size());
+}
+}
+
 clang::tooling::ClangTool ClangTool::createTool() const
 {
     clang::tooling::ClangTool tool(compilationDatabase, sourceFilePaths);
 
-    for (auto &&fileContent : fileContents) {
+    for (const auto &fileContent : fileContents) {
         if (!fileContent.content.empty())
             tool.mapVirtualFile(fileContent.filePath, fileContent.content);
     }
+
+    for (const auto &unsavedFileContent : unsavedFileContents)
+            tool.mapVirtualFile(toStringRef(unsavedFileContent.filePath),
+                                toStringRef(unsavedFileContent.content));
 
     return tool;
 }

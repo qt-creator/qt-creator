@@ -25,10 +25,13 @@
 
 #include "qtcreatorclangqueryfindfilter.h"
 
+#include <cpptools/abstracteditorsupport.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/projectinfo.h>
 
 #include <projectexplorer/session.h>
+
+#include <utils/smallstring.h>
 
 namespace ClangRefactoring {
 
@@ -58,6 +61,26 @@ convertProjectParts(const QList<CppTools::ProjectPart::Ptr> &projectPartList)
     return projectPartVector;
 }
 
+std::vector<ClangBackEnd::V2::FileContainer> createUnsavedContents()
+{
+    auto abstractEditors = CppTools::CppModelManager::instance()->abstractEditorSupports();
+    std::vector<ClangBackEnd::V2::FileContainer> unsavedContents;
+    unsavedContents.reserve(abstractEditors.size());
+
+    auto toFileContainer = [] (const CppTools::AbstractEditorSupport *abstractEditor) {
+        return  ClangBackEnd::V2::FileContainer(ClangBackEnd::FilePath(abstractEditor->fileName()),
+                                                Utils::SmallString::fromQByteArray(abstractEditor->contents()),
+                                                {});
+    };
+
+    std::transform(abstractEditors.begin(),
+                   abstractEditors.end(),
+                   std::back_inserter(unsavedContents),
+                   toFileContainer);
+
+    return unsavedContents;
+}
+
 }
 
 void QtCreatorClangQueryFindFilter::prepareFind()
@@ -67,6 +90,8 @@ void QtCreatorClangQueryFindFilter::prepareFind()
     const CppTools::ProjectInfo projectInfo = CppTools::CppModelManager::instance()->projectInfo(currentProject);
 
     setProjectParts(convertProjectParts(projectInfo.projectParts()));
+
+    setUnsavedContent(createUnsavedContents());
 }
 
 } // namespace ClangRefactoring

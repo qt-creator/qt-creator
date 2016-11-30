@@ -72,7 +72,9 @@ void RefactoringServer::requestSourceLocationsForRenamingMessage(RequestSourceLo
 void RefactoringServer::requestSourceRangesAndDiagnosticsForQueryMessage(
         RequestSourceRangesAndDiagnosticsForQueryMessage &&message)
 {
-    gatherSourceRangesAndDiagnosticsForQueryMessage(message.takeFileContainers(), message.takeQuery());
+    gatherSourceRangesAndDiagnosticsForQueryMessage(message.takeSources(),
+                                                    message.takeUnsavedContent(),
+                                                    message.takeQuery());
 }
 
 void RefactoringServer::cancel()
@@ -93,16 +95,19 @@ void RefactoringServer::supersedePollEventLoop(std::function<void ()> &&pollEven
 namespace {
 
 SourceRangesAndDiagnosticsForQueryMessage createSourceRangesAndDiagnosticsForQueryMessage(
-        V2::FileContainer &&fileContainer,
+        V2::FileContainer &&source,
+        std::vector<V2::FileContainer> &&unsaved,
         Utils::SmallString &&query,
         const std::atomic_bool &cancelWork) {
     ClangQuery clangQuery(std::move(query));
 
     if (!cancelWork) {
-        clangQuery.addFile(fileContainer.filePath().directory(),
-                           fileContainer.filePath().name(),
-                           fileContainer.takeUnsavedFileContent(),
-                           fileContainer.takeCommandLineArguments());
+        clangQuery.addFile(source.filePath().directory(),
+                           source.filePath().name(),
+                           source.takeUnsavedFileContent(),
+                           source.takeCommandLineArguments());
+
+        clangQuery.addUnsavedFiles(std::move(unsaved));
 
         clangQuery.findLocations();
     }
@@ -114,27 +119,30 @@ SourceRangesAndDiagnosticsForQueryMessage createSourceRangesAndDiagnosticsForQue
 }
 
 void RefactoringServer::gatherSourceRangesAndDiagnosticsForQueryMessage(
-        std::vector<V2::FileContainer> &&fileContainers,
+        std::vector<V2::FileContainer> &&sources,
+        std::vector<V2::FileContainer> &&unsaved,
         Utils::SmallString &&query)
 {
     std::vector<Future> futures;
 
     std::size_t freeProcessors = std::thread::hardware_concurrency();
 
-    while (!fileContainers.empty() || !futures.empty()) {
+    while (!sources.empty() || !futures.empty()) {
         --freeProcessors;
 
-        if (!fileContainers.empty()) {
+        if (!sources.empty()) {
             Future &&future = std::async(std::launch::async,
                                          createSourceRangesAndDiagnosticsForQueryMessage,
-                                         std::move(fileContainers.back()),
-                                         query.clone(), std::ref(cancelWork));
-            fileContainers.pop_back();
+                                         std::move(sources.back()),
+                                         Utils::clone(unsaved),
+                                         query.clone(),
+                                         std::ref(cancelWork));
+            sources.pop_back();
 
             futures.emplace_back(std::move(future));
         }
 
-        if (freeProcessors == 0 || fileContainers.empty())
+        if (freeProcessors == 0 || sources.empty())
             freeProcessors += waitForNewSourceRangesAndDiagnosticsForQueryMessage(futures);
     }
 }

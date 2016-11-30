@@ -74,6 +74,20 @@ TEST_F(ClangQuery, RootSourceRangeForSimpleFunctionDeclarationRange)
                 IsSourceRangeWithText(1, 1, 8, 2, "int function(int* pointer, int value)\n{\n  if (pointer == nullptr) {\n    return value + 1;\n  } else {\n    return value - 1;\n  }\n}"));
 }
 
+TEST_F(ClangQuery, SourceRangeInUnsavedFileDeclarationRange)
+{
+    ::ClangQuery query;
+    query.addFile(TESTDATA_DIR, "query_simplefunction.cpp", "#include \"unsaved.h\"", {"cc", "query_simplefunction.cpp", "-std=c++14"});
+    query.setQuery("functionDecl()");
+    ClangBackEnd::V2::FileContainer unsavedFile{{TESTDATA_DIR, "unsaved.h"}, "void unsaved();", {}};
+    query.addUnsavedFiles({unsavedFile});
+
+    query.findLocations();
+
+    ASSERT_THAT(query.takeSourceRanges().sourceRangeWithTextContainers().at(0),
+                IsSourceRangeWithText(1, 1, 1, 15, "void unsaved();"));
+}
+
 TEST_F(ClangQuery, RootSourceRangeForSimpleFieldDeclarationRange)
 {
     simpleClassQuery.setQuery("fieldDecl(hasType(isInteger()))");

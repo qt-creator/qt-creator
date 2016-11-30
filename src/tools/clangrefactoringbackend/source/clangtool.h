@@ -29,6 +29,7 @@
 
 #include <clangrefactoringbackend_global.h>
 
+#include <filecontainerv2.h>
 #include <sourcelocationscontainer.h>
 
 #if defined(__GNUC__)
@@ -41,6 +42,8 @@
 #if defined(__GNUC__)
 #pragma GCC diagnostic pop
 #endif
+
+#include <utils/smallstring.h>
 
 #include <string>
 #include <vector>
@@ -67,6 +70,18 @@ struct FileContent
     std::vector<std::string> commandLine;
 };
 
+struct UnsavedFileContent
+{
+    UnsavedFileContent(Utils::SmallString &&filePath,
+                       Utils::SmallString &&content)
+        : filePath(std::move(filePath)),
+          content(std::move(content))
+    {}
+
+    Utils::SmallString filePath;
+    Utils::SmallString content;
+};
+
 class ClangTool
 {
 public:
@@ -77,12 +92,15 @@ public:
     void addFiles(const Utils::SmallStringVector &filePaths,
                  const Utils::SmallStringVector &arguments);
 
+    void addUnsavedFiles(std::vector<V2::FileContainer> &&unsavedFiles);
+
     clang::tooling::ClangTool createTool() const;
 
 private:
     RefactoringCompilationDatabase compilationDatabase;
     std::vector<FileContent> fileContents;
     std::vector<std::string> sourceFilePaths;
+    std::vector<UnsavedFileContent> unsavedFileContents;
 };
 
 } // namespace ClangBackEnd

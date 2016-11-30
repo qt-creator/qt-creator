@@ -31,7 +31,7 @@ QDebug operator<<(QDebug debug, const RequestSourceRangesAndDiagnosticsForQueryM
 {
     debug.nospace() << "RequestSourceRangesAndDiagnosticsForQuery("
                     << message.query() << ", "
-                    << message.fileContainers() << ")";
+                    << message.sources() << ")";
 
     return debug;
 }
@@ -43,7 +43,7 @@ void PrintTo(const RequestSourceRangesAndDiagnosticsForQueryMessage &message, ::
 #ifdef UNIT_TESTS
     *os << "RequestSourceRangesAndDiagnosticsForQuery("
         << message.query() << ", "
-        << message.fileContainers()
+        << message.sources()
         << ")";
 #endif
 }

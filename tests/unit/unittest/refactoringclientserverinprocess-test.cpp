@@ -135,8 +135,12 @@ TEST_F(RefactoringClientServerInProcess, RequestSourceRangesAndDiagnosticsForQue
 {
     RequestSourceRangesAndDiagnosticsForQueryMessage message{"functionDecl()",
                                                              {{{TESTDATA_DIR, "query_simplefunction.cpp"},
-                                                               "void f();",
+                                                                "void f();",
                                                                {"cc", "query_simplefunction.cpp"},
+                                                               1}},
+                                                             {{{TESTDATA_DIR, "query_simplefunction.h"},
+                                                                "void f();",
+                                                               {},
                                                                1}}};
 
     EXPECT_CALL(mockRefactoringServer, requestSourceRangesAndDiagnosticsForQueryMessage(message))
