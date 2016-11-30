@@ -35,6 +35,7 @@
 #include "findqmakeprofiles.h"
 
 #include <utils/algorithm.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -262,6 +263,9 @@ QmakeProject::QmakeProject(QmakeManager *manager, const QString &fileName) :
     setProjectContext(Core::Context(QmakeProjectManager::Constants::PROJECT_ID));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
     setRequiredKitMatcher(QtSupport::QtKitInformation::qtVersionMatcher());
+
+    const QTextCodec *codec = Core::EditorManager::defaultTextCodec();
+    m_qmakeVfs->setTextCodec(codec);
 
     m_asyncUpdateTimer.setSingleShot(true);
     m_asyncUpdateTimer.setInterval(3000);

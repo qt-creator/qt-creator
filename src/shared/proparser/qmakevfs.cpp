@@ -32,6 +32,10 @@ using namespace QMakeInternal;
 #include <qfile.h>
 #include <qfileinfo.h>
 
+#ifndef QT_NO_TEXTCODEC
+#include <qtextcodec.h>
+#endif
+
 #define fL1S(s) QString::fromLatin1(s)
 
 QT_BEGIN_NAMESPACE
@@ -42,6 +46,9 @@ QMakeVfs::QMakeVfs()
     , m_magicExisting(fL1S("existing"))
 #endif
 {
+#ifndef QT_NO_TEXTCODEC
+    m_textCodec = 0;
+#endif
 }
 
 bool QMakeVfs::writeFile(const QString &fn, QIODevice::OpenMode mode, VfsFlags flags,
@@ -184,7 +191,11 @@ QMakeVfs::ReadResult QMakeVfs::readFile(
         *errStr = fL1S("Unexpected UTF-8 BOM");
         return ReadOtherError;
     }
-    *contents = QString::fromLocal8Bit(bcont);
+    *contents =
+#ifndef QT_NO_TEXTCODEC
+        m_textCodec ? m_textCodec->toUnicode(bcont) :
+#endif
+        QString::fromLocal8Bit(bcont);
     return ReadOk;
 }
 
@@ -239,6 +250,13 @@ void QMakeVfs::invalidateContents()
     QMutexLocker locker(&m_mutex);
 # endif
     m_files.clear();
+}
+#endif
+
+#ifndef QT_NO_TEXTCODEC
+void QMakeVfs::setTextCodec(const QTextCodec *textCodec)
+{
+    m_textCodec = textCodec;
 }
 #endif
 
