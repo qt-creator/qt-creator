@@ -352,9 +352,9 @@ void AndroidSettingsWidget::check(AndroidSettingsWidget::Mode mode)
                                              "To add the Qt version, select Options > Build & Run > Qt Versions.")
                             .arg((*missingQtArchs.constBegin()).toString());
                 } else {
-                    m_ndkMissingQtArchs = tr("Qt versions for %1 architectures are missing.\n"
-                                             "To add the Qt versions, select Options > Build & Run > Qt Versions.")
-                            .arg(missingQtArchs.size());
+                    m_ndkMissingQtArchs = tr("Qt versions for %n architectures are missing.\n"
+                                             "To add the Qt versions, select Options > Build & Run > Qt Versions.",
+                                             nullptr, missingQtArchs.size());
                 }
             }
         }
