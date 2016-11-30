@@ -166,7 +166,7 @@ void ServerMode::sendRequest(const QString &type, const QVariantMap &extra, cons
     QJsonDocument document;
     document.setObject(object);
 
-    const QByteArray rawData = START_MAGIC + document.toJson() + END_MAGIC;
+    const QByteArray rawData = START_MAGIC + document.toJson(QJsonDocument::Compact) + END_MAGIC;
     qCDebug(cmakeServerMode) << ">>>" << rawData;
     m_cmakeSocket->write(rawData);
     m_cmakeSocket->flush();

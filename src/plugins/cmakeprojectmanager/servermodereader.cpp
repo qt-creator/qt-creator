@@ -142,11 +142,12 @@ void ServerModeReader::parse(bool force)
 {
     QTC_ASSERT(m_cmakeServer, return);
     QVariantMap extra;
-    if (force)
+    if (force) {
         extra.insert("cacheArguments", QVariant(transform(m_parameters.configuration,
                                                  [this](const CMakeConfigItem &i) {
             return i.toArgument(m_parameters.expander);
         })));
+    }
 
     m_future.reset(new QFutureInterface<void>());
     m_future->setProgressRange(0, MAX_PROGRESS);
