@@ -4386,6 +4386,13 @@ void tst_Dumpers::dumper_data()
                + Check("p3.data", "\"ABC\"", "std::string");
 
 
+    QTest::newRow("StdOnce")
+            << Data("#include <mutex>\n",
+                    "std::once_flag x; unused(&x);\n")
+               + Cxx11Profile()
+               + Check("x", "0", "std::once_flag");
+
+
     QTest::newRow("StdSharedPtr")
             << Data("#include <memory>\n"
                     "#include <string>\n" + fooData,

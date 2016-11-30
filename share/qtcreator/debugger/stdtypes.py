@@ -1003,6 +1003,12 @@ def qdump__wstring(d, value):
     qdump__std__wstring(d, value)
 
 
+def qdump__std__once_flag(d, value):
+    d.putItem(value[0])
+    d.putBetterType(value.type)
+    d.putPlainChildren(value)
+
+
 def qdump____gnu_cxx__hash_set(d, value):
     ht = value["_M_ht"]
     size = ht["_M_num_elements"].integer()
