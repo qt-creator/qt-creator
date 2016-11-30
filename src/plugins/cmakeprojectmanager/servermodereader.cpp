@@ -191,7 +191,9 @@ QList<CMakeBuildTarget> ServerModeReader::buildTargets() const
         ct.title = t->name;
         ct.executable = t->artifacts.isEmpty() ? FileName() : t->artifacts.at(0);
         TargetType type = UtilityType;
-        if (t->type == "STATIC_LIBRARY")
+        if (t->type == "EXECUTABLE")
+            type = ExecutableType;
+        else if (t->type == "STATIC_LIBRARY")
             type = StaticLibraryType;
         else if (t->type == "MODULE_LIBRARY"
                  || t->type == "SHARED_LIBRARY"
