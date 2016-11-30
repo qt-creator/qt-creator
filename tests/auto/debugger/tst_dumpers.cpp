@@ -4375,15 +4375,9 @@ void tst_Dumpers::dumper_data()
                + MacLibCppProfile()
 
                + Check("p0", "(null)", "std::unique_ptr<int, std::default_delete<int> >")
-
                + Check("p1", "32", "std::unique_ptr<int, std::default_delete<int> >")
-               + Check("p1.data", "32", "int")
-
                + Check("p2", Pointer(), "std::unique_ptr<Foo, std::default_delete<Foo> >")
-               + CheckType("p2.data", "Foo")
-
-               + Check("p3", "\"ABC\"", "std::unique_ptr<std::string, std::default_delete<std::string> >")
-               + Check("p3.data", "\"ABC\"", "std::string");
+               + Check("p3", "\"ABC\"", "std::unique_ptr<std::string, std::default_delete<std::string> >");
 
 
     QTest::newRow("StdOnce")
@@ -4408,17 +4402,12 @@ void tst_Dumpers::dumper_data()
                + MacLibCppProfile()
 
                + Check("pi", "32", "std::shared_ptr<int>")
-               + Check("pi.data", "32", "int")
                + Check("pf", Pointer(), "std::shared_ptr<Foo>")
-               + CheckType("pf.data", "Foo")
                + Check("ps", "\"ABC\"", "std::shared_ptr<std::string>")
-               + Check("ps.data", "\"ABC\"", "std::string")
                + Check("wi", "32", "std::weak_ptr<int>")
-               + Check("wi.data", "32", "int")
                + Check("wf", Pointer(), "std::weak_ptr<Foo>")
-               + CheckType("wf.data", "Foo")
                + Check("ws", "\"ABC\"", "std::weak_ptr<std::string>")
-               + Check("ws.data", "\"ABC\"", "std::string");
+               + Check("ps", "\"ABC\"", "std::shared_ptr<std::string>");
 
     QTest::newRow("StdSharedPtr2")
             << Data("#include <memory>\n"
@@ -4436,10 +4425,10 @@ void tst_Dumpers::dumper_data()
                + Check("inner.m_1", "0x1", "int *")
                + Check("inner.m_2", "0x2", "int *")
                + Check("inner.x", "3", "int")
-               + Check("a.data.m_0", "0x0", "int *")
-               + Check("a.data.m_1", "0x1", "int *")
-               + Check("a.data.m_2", "0x2", "int *")
-               + Check("a.data.x", "3", "int");
+               + Check("a.m_0", "0x0", "int *")
+               + Check("a.m_1", "0x1", "int *")
+               + Check("a.m_2", "0x2", "int *")
+               + Check("a.x", "3", "int");
 
     QTest::newRow("StdSet")
             << Data("#include <set>\n",
@@ -5594,13 +5583,9 @@ void tst_Dumpers::dumper_data()
 
              + Check("s", "(null)", "boost::shared_ptr<int>")
              + Check("i", "43", "boost::shared_ptr<int>")
-             + Check("i.weakcount", "1", "int")
-             + Check("i.usecount", "2", "int")
-             + Check("i.data", "43", "int")
              + Check("j", "43", "boost::shared_ptr<int>")
              + Check("sl", "<1 items>", " boost::shared_ptr<@QStringList>")
-             + Check("sl.data", "<1 items>", "@QStringList")
-             + Check("sl.data.0", "[0]", "\"HUH!\"", "@QString");
+             + Check("sl.0", "[0]", "\"HUH!\"", "@QString");
 
 
     QTest::newRow("BoostGregorianDate")
