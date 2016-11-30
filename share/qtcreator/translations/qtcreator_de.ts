@@ -20546,7 +20546,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <message>
         <source>Qt versions for %1 architectures are missing.
 To add the Qt versions, select Options &gt; Build &amp; Run &gt; Qt Versions.</source>
-        <translation>Für die Architekturen %1 fehlen die Qt-Versionen.
+        <translation>Für %1 Architekturen fehlen die Qt-Versionen.
 Wählen Sie Einstellungen &gt; Erstellung und Ausführung &gt; Qt Versionen, um Qt-Versionen hinzuzufügen.</translation>
     </message>
     <message numerus="yes">
