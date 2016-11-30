@@ -27,8 +27,6 @@
 
 #include "cpptools_global.h"
 
-#include <QHash>
-#include <QList>
 #include <QString>
 
 namespace CppTools {
@@ -36,32 +34,34 @@ namespace CppTools {
 class CPPTOOLS_EXPORT ProjectFile
 {
 public:
-    // enums and types
     enum Kind {
-        Unclassified = 0,
-        CHeader = 1,
-        CSource = 2,
-        CXXHeader = 3,
-        CXXSource = 4,
-        ObjCHeader = 5,
-        ObjCSource = 6,
-        ObjCXXHeader = 7,
-        ObjCXXSource = 8,
-        CudaSource = 9,
-        OpenCLSource = 10
+        Unclassified,
+        CHeader,
+        CSource,
+        CXXHeader,
+        CXXSource,
+        ObjCHeader,
+        ObjCSource,
+        ObjCXXHeader,
+        ObjCXXSource,
+        CudaSource,
+        OpenCLSource,
     };
 
-    ProjectFile() = default;
-    ProjectFile(const QString &file, Kind kind);
-
-    static Kind classify(const QString &file);
+    static Kind classify(const QString &filePath);
     static bool isHeader(Kind kind);
     static bool isSource(Kind kind);
 
+public:
+    ProjectFile() = default;
+    ProjectFile(const QString &filePath, Kind kind);
+
     QString path;
-    Kind kind = CHeader;
+    Kind kind = Unclassified;
 };
 
-QDebug operator<<(QDebug stream, const CppTools::ProjectFile &cxxFile);
+using ProjectFiles = QVector<ProjectFile>;
+
+QDebug operator<<(QDebug stream, const CppTools::ProjectFile &projectFile);
 
 } // namespace CppTools

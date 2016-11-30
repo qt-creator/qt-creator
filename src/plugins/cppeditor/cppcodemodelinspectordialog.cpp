@@ -208,7 +208,7 @@ class ProjectFilesModel : public QAbstractListModel
     Q_OBJECT
 public:
     ProjectFilesModel(QObject *parent);
-    void configure(const QVector<ProjectFile> &files);
+    void configure(const ProjectFiles &files);
     void clear();
 
     enum Columns { FileKindColumn, FilePathColumn, ColumnCount };
@@ -219,14 +219,14 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
 private:
-    QVector<ProjectFile> m_files;
+    ProjectFiles m_files;
 };
 
 ProjectFilesModel::ProjectFilesModel(QObject *parent) : QAbstractListModel(parent)
 {
 }
 
-void ProjectFilesModel::configure(const QVector<ProjectFile> &files)
+void ProjectFilesModel::configure(const ProjectFiles &files)
 {
     emit layoutAboutToBeChanged();
     m_files = files;

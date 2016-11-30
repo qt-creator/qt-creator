@@ -103,7 +103,7 @@ public: // fields
     QString displayName;
     QString projectFile;
     ProjectExplorer::Project *project;
-    QVector<ProjectFile> files;
+    ProjectFiles files;
     QString projectConfigFile; // currently only used by the Generic Project Manager
     QByteArray projectDefines;
     QByteArray toolchainDefines;
