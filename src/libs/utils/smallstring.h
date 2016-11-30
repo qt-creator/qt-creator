@@ -102,12 +102,7 @@ public:
         } else {
             m_data.allocated.data.pointer = Memory::allocate(capacity + 1);
             std::memcpy(m_data.allocated.data.pointer, string, size);
-            m_data.allocated.data.pointer[size] = 0;
-            m_data.allocated.data.size = size;
-            m_data.allocated.data.capacity = capacity;
-            m_data.allocated.shortStringSize = 0;
-            m_data.allocated.isReference = true;
-            m_data.allocated.isReadOnlyReference = false;
+            initializeLongString(size, capacity);
         }
     }
 
@@ -245,8 +240,12 @@ public:
                 m_data.allocated.data.capacity = newCapacity;
             } else {
                 const size_type oldSize = size();
+                const char *oldData = data();
 
-                new (this) BasicSmallString(data(), oldSize, newCapacity);
+                char *newData = Memory::allocate(newCapacity + 1);
+                std::memcpy(newData, oldData, oldSize);
+                m_data.allocated.data.pointer = newData;
+                initializeLongString(oldSize, newCapacity);
             }
         }
     }
@@ -658,6 +657,16 @@ private:
     BasicSmallString(Internal::StringDataLayout<Size> data) noexcept
         : m_data(data)
     {
+    }
+
+    void initializeLongString(size_type size, size_type capacity)
+    {
+        m_data.allocated.data.pointer[size] = 0;
+        m_data.allocated.data.size = size;
+        m_data.allocated.data.capacity = capacity;
+        m_data.allocated.shortStringSize = 0;
+        m_data.allocated.isReference = true;
+        m_data.allocated.isReadOnlyReference = false;
     }
 
     char &at(size_type index)

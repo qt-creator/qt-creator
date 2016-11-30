@@ -546,6 +546,15 @@ TEST(SmallString, AppendShortSmallString)
     ASSERT_THAT(text, SmallString("some text"));
 }
 
+TEST(SmallString, AppendLongSmallStringToShortSmallString)
+{
+    SmallString text("some ");
+
+    text.append(SmallString("very very very very very long string"));
+
+    ASSERT_THAT(text, SmallString("some very very very very very long string"));
+}
+
 TEST(SmallString, AppendLongSmallString)
 {
     SmallString longText("some very very very very very very very very very very very long string");
@@ -831,6 +840,24 @@ TEST(SmallString, ReserveMuchBiggerThanReference)
     text.reserve(100);
 
     ASSERT_THAT(text.capacity(), 100);
+}
+
+TEST(SmallString, TextIsCopiedAfterReserveFromShortToLongString)
+{
+    SmallString text("text");
+
+    text.reserve(100);
+
+    ASSERT_THAT(text, "text");
+}
+
+TEST(SmallString, TextIsCopiedAfterReserveReferenceToLongString)
+{
+    SmallString text("some very very very very very very very very very very very long string");
+
+    text.reserve(100);
+
+    ASSERT_THAT(text, "some very very very very very very very very very very very long string");
 }
 
 TEST(SmallString, ReserveSmallerThanShortSmallString)
