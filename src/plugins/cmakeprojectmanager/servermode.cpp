@@ -147,6 +147,8 @@ ServerMode::~ServerMode()
     }
     m_cmakeSocket = nullptr;
     Core::Reaper::reap(m_cmakeProcess.release());
+
+    qCDebug(cmakeServerMode) << "Server-Mode closed.";
 }
 
 void ServerMode::sendRequest(const QString &type, const QVariantMap &extra, const QVariant &cookie)
