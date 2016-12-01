@@ -236,7 +236,7 @@
 
     To enable the debugger to step into the code and display the source code
     when using a copy of the source tree at a location different from the one
-    at which the libraries where built, map the source paths to target paths:
+    at which the libraries were built, map the source paths to target paths:
 
     \list 1
 
