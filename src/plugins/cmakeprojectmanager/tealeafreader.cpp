@@ -163,7 +163,6 @@ void TeaLeafReader::resetData()
     qDeleteAll(m_watchedFiles);
     m_watchedFiles.clear();
 
-    m_cmakeCache.clear();
     m_projectName.clear();
     m_buildTargets.clear();
     qDeleteAll(m_files);
@@ -221,7 +220,7 @@ QList<CMakeBuildTarget> TeaLeafReader::buildTargets() const
     return m_buildTargets;
 }
 
-CMakeConfig TeaLeafReader::parsedConfiguration() const
+CMakeConfig TeaLeafReader::takeParsedConfiguration()
 {
     CMakeConfig result;
     FileName cacheFile = m_parameters.buildDirectory;
@@ -229,11 +228,11 @@ CMakeConfig TeaLeafReader::parsedConfiguration() const
     if (!cacheFile.exists())
         return result;
     QString errorMessage;
-    m_cmakeCache = CMakeConfigItem::itemsFromFile(cacheFile, &errorMessage);
+    result = CMakeConfigItem::itemsFromFile(cacheFile, &errorMessage);
     if (!errorMessage.isEmpty())
         emit errorOccured(errorMessage);
     const FileName sourceOfBuildDir
-            = FileName::fromUtf8(CMakeConfigItem::valueOf("CMAKE_HOME_DIRECTORY", m_cmakeCache));
+            = FileName::fromUtf8(CMakeConfigItem::valueOf("CMAKE_HOME_DIRECTORY", result));
     const FileName canonicalSourceOfBuildDir = FileUtils::canonicalPath(sourceOfBuildDir);
     const FileName canonicalSourceDirectory = FileUtils::canonicalPath(m_parameters.sourceDirectory);
     if (canonicalSourceOfBuildDir != canonicalSourceDirectory) { // Uses case-insensitive compare where appropriate

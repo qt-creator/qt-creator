@@ -148,6 +148,8 @@ void BuildDirManager::parseOnceReaderReady(bool force)
     m_scanFuture = fi->future();
     m_futureWatcher.setFuture(m_scanFuture);
 
+    m_cmakeCache.clear();
+
     Core::ProgressManager::addTask(fi->future(), "Scan CMake project tree", "CMake.Scan.Tree");
     Utils::runAsync([this, fi]() { BuildDirManager::asyncScanForFiles(fi); });
 
@@ -411,7 +413,7 @@ CMakeConfig BuildDirManager::parsedConfiguration() const
     if (!m_reader)
         return m_cmakeCache;
     if (m_cmakeCache.isEmpty())
-        m_cmakeCache = m_reader->parsedConfiguration();
+        m_cmakeCache = m_reader->takeParsedConfiguration();
     return m_cmakeCache;
 }
 
@@ -421,7 +423,7 @@ void BuildDirManager::checkConfiguration()
         return;
 
     Kit *k = m_buildConfiguration->target()->kit();
-    const CMakeConfig cache = m_reader->parsedConfiguration();
+    const CMakeConfig cache = parsedConfiguration();
     if (cache.isEmpty())
         return; // No cache file yet.
 

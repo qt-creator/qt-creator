@@ -146,7 +146,7 @@ void CMakeBuildConfiguration::ctor()
     connect(m_buildDirManager.get(), &BuildDirManager::errorOccured,
             this, &CMakeBuildConfiguration::setError);
     connect(m_buildDirManager.get(), &BuildDirManager::configurationStarted,
-            this, [this]() { m_completeConfigurationCache.clear(); emit parsingStarted(); });
+            this, &CMakeBuildConfiguration::parsingStarted);
 
     connect(this, &CMakeBuildConfiguration::environmentChanged,
             m_buildDirManager.get(), &BuildDirManager::forceReparse);
@@ -259,10 +259,7 @@ QList<ConfigModel::DataItem> CMakeBuildConfiguration::completeCMakeConfiguration
     if (!m_buildDirManager || m_buildDirManager->isParsing())
         return QList<ConfigModel::DataItem>();
 
-    if (m_completeConfigurationCache.isEmpty())
-        m_completeConfigurationCache = m_buildDirManager->parsedConfiguration();
-
-    return Utils::transform(m_completeConfigurationCache,
+    return Utils::transform(m_buildDirManager->parsedConfiguration(),
                             [this](const CMakeConfigItem &i) {
         ConfigModel::DataItem j;
         j.key = QString::fromUtf8(i.key);

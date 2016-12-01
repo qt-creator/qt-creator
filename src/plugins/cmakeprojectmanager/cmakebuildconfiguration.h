@@ -118,8 +118,6 @@ private:
     QString m_error;
     QString m_warning;
 
-    mutable QList<CMakeConfigItem> m_completeConfigurationCache;
-
     std::unique_ptr<BuildDirManager> m_buildDirManager;
 
     friend class CMakeBuildSettingsWidget;

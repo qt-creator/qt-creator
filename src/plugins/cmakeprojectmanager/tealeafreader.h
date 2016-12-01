@@ -55,7 +55,7 @@ public:
     bool hasData() const final;
 
     QList<CMakeBuildTarget> buildTargets() const final;
-    CMakeConfig parsedConfiguration() const final;
+    CMakeConfig takeParsedConfiguration() final;
     void generateProjectTree(CMakeListsNode *root,
                              const QList<ProjectExplorer::FileNode *> &allFiles) final;
     QSet<Core::Id> updateCodeModel(CppTools::ProjectPartBuilder &ppBuilder) final;
@@ -82,7 +82,6 @@ private:
 
     bool m_hasData = false;
 
-    mutable CMakeConfig m_cmakeCache;
     QSet<Utils::FileName> m_cmakeFiles;
     QString m_projectName;
     QList<CMakeBuildTarget> m_buildTargets;

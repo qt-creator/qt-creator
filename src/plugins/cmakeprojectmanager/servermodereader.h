@@ -63,7 +63,7 @@ public:
     bool hasData() const final;
 
     QList<CMakeBuildTarget> buildTargets() const final;
-    CMakeConfig parsedConfiguration() const final;
+    CMakeConfig takeParsedConfiguration() final;
     void generateProjectTree(CMakeListsNode *root, const QList<ProjectExplorer::FileNode *> &allFiles) final;
     QSet<Core::Id> updateCodeModel(CppTools::ProjectPartBuilder &ppBuilder) final;
 

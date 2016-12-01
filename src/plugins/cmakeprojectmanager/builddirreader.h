@@ -100,7 +100,7 @@ public:
     virtual bool isParsing() const = 0;
     virtual bool hasData() const = 0;
 
-    virtual CMakeConfig parsedConfiguration() const = 0;
+    virtual CMakeConfig takeParsedConfiguration() = 0;
     virtual QList<CMakeBuildTarget> buildTargets() const = 0;
     virtual void generateProjectTree(CMakeListsNode *root,
                                      const QList<ProjectExplorer::FileNode *> &allFiles) = 0;

@@ -213,9 +213,11 @@ QList<CMakeBuildTarget> ServerModeReader::buildTargets() const
     return result;
 }
 
-CMakeConfig ServerModeReader::parsedConfiguration() const
+CMakeConfig ServerModeReader::takeParsedConfiguration()
 {
-    return m_cmakeCache;
+    CMakeConfig config = m_cmakeCache;
+    m_cmakeCache.clear();
+    return config;
 }
 
 FolderNode *setupCMakeVFolder(FolderNode *base, const Utils::FileName &basePath, int priority,
