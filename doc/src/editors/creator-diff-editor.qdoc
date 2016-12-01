@@ -83,8 +83,7 @@
     To only show text changes, select \uicontrol {Ignore Whitespace}.
 
     To expand the context for the changes, set the number of unchanged lines to
-    show in \uicontrol {Context lines}. Set the value to -1 to show the whole
-    file.
+    show in \uicontrol {Context lines}.
 
     By default, the horizontal scroll bars in the left and right pane are
     synchronized. To use them independently of each other, select the
