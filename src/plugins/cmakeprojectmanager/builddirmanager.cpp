@@ -163,9 +163,11 @@ void BuildDirManager::maybeForceReparseOnceReaderReady()
     const QByteArray GENERATOR_KEY = "CMAKE_GENERATOR";
     const QByteArray EXTRA_GENERATOR_KEY = "CMAKE_EXTRA_GENERATOR";
     const QByteArray CMAKE_COMMAND_KEY = "CMAKE_COMMAND";
+    const QByteArray CMAKE_C_COMPILER_KEY = "CMAKE_C_COMPILER";
+    const QByteArray CMAKE_CXX_COMPILER_KEY = "CMAKE_CXX_COMPILER";
 
     const QByteArrayList criticalKeys
-            = QByteArrayList() << GENERATOR_KEY << CMAKE_COMMAND_KEY;
+            = { GENERATOR_KEY, CMAKE_COMMAND_KEY, CMAKE_C_COMPILER_KEY, CMAKE_CXX_COMPILER_KEY };
 
     const CMakeConfig currentConfig = parsedConfiguration();
 
