@@ -1039,6 +1039,17 @@ class Dumper(DumperBase):
                     except:
                         pass
 
+                try:
+                    lenns = len(ns)
+                    if lenns:
+                        sym = '_ZN%d%s7QObject11customEventEPNS_6QEventE' % \
+                            (lenns - 2, ns[:lenns - 2])
+                    else:
+                        sym = '_ZN7QObject11customEventEP6QEvent'
+                    self.qtCustomEventFunc = toInteger(gdb.parse_and_eval('(size_t)&%s' % sym))
+                except:
+                    pass
+
                 # This might be wrong, but we can't do better: We found
                 # a libQt5Core and could not extract a namespace.
                 # The best guess is that there isn't any.

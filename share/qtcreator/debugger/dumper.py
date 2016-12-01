@@ -253,6 +253,7 @@ class DumperBase:
         self.typesReported = {}
         self.typesToReport = {}
         self.qtNamespaceToReport = None
+        self.qtCustomEventFunc = 0
         self.passExceptions = False
         self.isTesting = False
 
@@ -303,7 +304,7 @@ class DumperBase:
         self.forceQtNamespace = int(args.get('forcens', '0'))
         self.passExceptions = int(args.get('passexceptions', '0'))
         self.isTesting = int(args.get('testing', '0'))
-        self.showQObjectNames = int(args.get('qobjectnames', '0'))
+        self.showQObjectNames = int(args.get('qobjectnames', '1'))
         self.nativeMixed = int(args.get('nativemixed', '0'))
         self.autoDerefPointers = int(args.get('autoderef', '0'))
         self.partialVariable = args.get('partialvar', '')
@@ -1373,11 +1374,13 @@ class DumperBase:
 
     def putQObjectNameValue(self, value):
         try:
-            intSize = 4
-            ptrSize = self.ptrSize()
             # dd = value['d_ptr']['d'] is just behind the vtable.
             (vtable, dd) = self.split('pp', value)
+            if not self.couldBeQObjectVTable(vtable):
+                return False
 
+            intSize = 4
+            ptrSize = self.ptrSize()
             if self.qtVersion() < 0x050000:
                 # Size of QObjectData: 5 pointer + 2 int
                 #  - vtable
@@ -1428,97 +1431,47 @@ class DumperBase:
 
         except:
         #    warn('NO QOBJECT: %s' % value.type)
-            pass
+            return False
 
-    def canBePointer(self, p):
+    def couldBePointer(self, p):
         if self.ptrSize() == 4:
             return p > 100000 and (p & 0x3 == 0)
         else:
             return p > 100000 and (p & 0x7 == 0) and (p < 0x7fffffffffff)
 
-    def canBeVTableEntry(self, p):
+    def couldBeVTableEntry(self, p):
         if self.ptrSize() == 4:
             return p > 100000 and (p & 0x1 == 0)
         else:
             return p > 100000 and (p & 0x1 == 0) and (p < 0x7fffffffffff)
 
-    def couldBeQObject(self, objectPtr):
+    def couldBeQObjectPointer(self, objectPtr):
         try:
-            (vtablePtr, dd) = self.split('pp', objectPtr)
+            vtablePtr, dd = self.split('pp', objectPtr)
         except:
             self.bump('nostruct-1')
             return False
 
-        if not self.canBePointer(vtablePtr):
-            self.bump('vtable')
-            return False
-        if not self.canBePointer(dd):
-            self.bump('d_d_ptr')
-            return False
-
         try:
-            metaObjectFunc, metaCastFunc, metaCallFunc = self.split('ppp', vtablePtr)
-        except:
-            return False
-
-        # The first three entries are in a fairly rigid relationship defined
-        # by the Q_OBJECT macro.
-        if not self.canBeVTableEntry(metaObjectFunc):
-            return False
-        if not self.canBeVTableEntry(metaCastFunc):
-            return False
-        if not self.canBeVTableEntry(metaCallFunc):
-            return False
-        if metaCastFunc < metaObjectFunc or metaCastFunc > metaObjectFunc + 200:
-            # The metaObject implementation is just that:
-            # QObject::d_ptr->metaObject ? QObject::d_ptr->dynamicMetaObject()
-            #                            : &staticMetaObject;
-            # That should not exceed 200 bytes. Observed on x86_64 debug 72.
-            return False
-        if metaCallFunc < metaCastFunc or metaCallFunc > metaCastFunc + 200:
-            # if (!_clname) return nullptr;
-            # if (!strcmp(_clname, qt_meta_stringdata_Bar__TestObject.stringdata0))
-            #     return static_cast<void*>(const_cast< TestObject*>(this));
-            # return QWidget::qt_metacast(_clname);
-            # That should not exceed 200 bytes. Observed on x86_64 debug 80.
-            return False
-
-        try:
-            (dvtablePtr, qptr, parentPtr, childrenDPtr, flags) \
-                = self.split('ppppI', dd)
+            dvtablePtr, qptr, parentPtr = self.split('ppp', dd)
         except:
             self.bump('nostruct-2')
             return False
-        #warn('STRUCT DD: %s 0x%x' % (self.currentIName, qptr))
-        if not self.canBePointer(dvtablePtr):
-            self.bump('dvtable')
-            #warn('DVT: 0x%x' % dvtablePtr)
-            return False
         # Check d_ptr.d.q_ptr == objectPtr
         if qptr != objectPtr:
-            #warn('QPTR: 0x%x 0x%x' % (qptr, objectPtr))
             self.bump('q_ptr')
             return False
-        if parentPtr and not self.canBePointer(parentPtr):
-            #warn('PAREN')
-            self.bump('parent')
-            return False
-        if not self.canBePointer(childrenDPtr):
-            #warn('CHILD')
-            self.bump('children')
-            return False
-        #if flags >= 0x80: # Only 7 flags are defined
-        #    warn('FLAGS: 0x%x %s' % (flags, self.currentIName))
-        #    self.bump('flags')
-        #    return False
-        #warn('OK')
-        #if dynMetaObjectPtr and not self.canBePointer(dynMetaObjectPtr):
-        #    self.bump('dynmo')
-        #    return False
 
-        self.bump('couldBeQObject')
-        return True
+        return self.couldBeQObjectVTable(vtablePtr)
 
+    def couldBeQObjectVTable(self, vtablePtr):
+        try:
+            customEventFunc = self.extractPointer(vtablePtr + 9 * self.ptrSize())
+        except:
+            self.bump('nostruct-3')
+            return False
+
+        return self.qtCustomEventFunc == customEventFunc
 
     def extractMetaObjectPtr(self, objectPtr, typeobj):
         """ objectPtr - address of *potential* instance of QObject derived class
@@ -1528,7 +1481,7 @@ class DumperBase:
             self.checkIntType(objectPtr)
 
         def extractMetaObjectPtrFromAddress():
-            return 0
+            #return 0
             # FIXME: Calling 'works' but seems to impact memory contents(!)
             # in relevant places. One symptom is that object name
             # contents 'vanishes' as the reported size of the string
@@ -1542,7 +1495,7 @@ class DumperBase:
                 res = self.parseAndEvaluate(cmd)
                 #warn('MO RES: %s' % res)
                 self.bump('successfulMetaObjectCall')
-                return toInteger(res)
+                return res.pointer()
             except:
                 self.bump('failedMetaObjectCall')
                 #warn('COULD NOT EXECUTE: %s' % cmd)
@@ -1594,7 +1547,8 @@ class DumperBase:
             #    if base is not None and base != someTypeObj: # sanity check
             #        result = extractStaticMetaObjectPtrFromType(base)
 
-            self.knownStaticMetaObjects[someTypeName] = result
+            if result:
+                self.knownStaticMetaObjects[someTypeName] = result
             return result
 
 
@@ -1610,7 +1564,7 @@ class DumperBase:
             #warn('CACHED RESULT: %s %s 0x%x' % (self.currentIName, typeName, result))
             return result
 
-        if not self.couldBeQObject(objectPtr):
+        if not self.couldBeQObjectPointer(objectPtr):
             self.bump('cannotBeQObject')
             #warn('DOES NOT LOOK LIKE A QOBJECT: %s' % self.currentIName)
             return 0
@@ -1690,8 +1644,11 @@ class DumperBase:
                 self.putNumChild(0)
 
     # This is called is when a QObject derived class is expanded
-    def putQObjectGuts(self, qobject, metaObjectPtr):
-        self.putQObjectGutsHelper(qobject, qobject.address(), -1, metaObjectPtr, 'QObject')
+    def tryPutQObjectGuts(self, value):
+        metaObjectPtr = self.extractMetaObjectPtr(value.address(), value.type)
+        if metaObjectPtr:
+            self.putQObjectGutsHelper(value, value.address(),
+                                      -1, metaObjectPtr, 'QObject')
 
     def metaString(self, metaObjectPtr, index, revision):
         ptrSize = self.ptrSize()
@@ -2686,23 +2643,16 @@ class DumperBase:
         self.putNumChild(1)
         self.putEmptyValue()
         #warn('STRUCT GUTS: %s  ADDRESS: 0x%x ' % (value.name, value.address()))
-        metaObjectPtr = self.extractMetaObjectPtr(value.address(), value.type)
         if self.showQObjectNames:
             self.preping(self.currentIName)
-            metaObjectPtr = self.extractMetaObjectPtr(value.address(), value.type)
-            self.ping(self.currentIName)
-            if metaObjectPtr:
-                self.context = value
             self.putQObjectNameValue(value)
-        #warn('STRUCT GUTS: %s  MO: 0x%x ' % (self.currentIName, metaObjectPtr))
+            self.ping(self.currentIName)
         if self.isExpanded():
             self.putField('sortable', 1)
             with Children(self, 1, childType=None):
                 self.putFields(value)
-                if not self.showQObjectNames:
-                    metaObjectPtr = self.extractMetaObjectPtr(value.address(), value.type)
-                if metaObjectPtr:
-                    self.putQObjectGuts(value, metaObjectPtr)
+                if self.showQObjectNames:
+                    self.tryPutQObjectGuts(value)
 
     def symbolAddress(self, symbolName):
         res = self.parseAndEvaluate('(size_t)&' + symbolName)
@@ -3282,7 +3232,7 @@ class DumperBase:
             except:
                 return None
             #warn('VTBL: 0x%x' % vtbl)
-            if not self.dumper.canBePointer(vtbl):
+            if not self.dumper.couldBePointer(vtbl):
                 return None
             return self.dumper.nativeDynamicTypeName(address, self)
 
