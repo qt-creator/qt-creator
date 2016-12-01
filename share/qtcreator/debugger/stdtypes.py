@@ -988,6 +988,8 @@ def qdump__std____1__basic_string(d, value):
 def qdump__wstring(d, value):
     qdump__std__wstring(d, value)
 
+def qdump__std____1__once_flag(d, value):
+    qdump__std__once_flag(d, value)
 
 def qdump__std__once_flag(d, value):
     d.putItem(value[0])
