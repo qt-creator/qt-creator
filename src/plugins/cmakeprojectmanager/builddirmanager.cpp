@@ -466,10 +466,8 @@ void BuildDirManager::checkConfiguration()
         box->setDefaultButton(defaultButton);
 
         int ret = box->exec();
-        if (ret == QMessageBox::Apply) {
+        if (ret == QMessageBox::Apply)
             m_buildConfiguration->setCMakeConfiguration(newConfig);
-            updateReaderData(); // Apply changes to reader
-        }
     }
 }
 
