@@ -145,10 +145,13 @@ void ServerModeReader::parse(bool force)
     QTC_ASSERT(m_cmakeServer, return);
     QVariantMap extra;
     if (force) {
-        extra.insert("cacheArguments", QVariant(transform(m_parameters.configuration,
-                                                 [this](const CMakeConfigItem &i) {
+        QStringList cacheArguments = transform(m_parameters.configuration,
+                                               [this](const CMakeConfigItem &i) {
             return i.toArgument(m_parameters.expander);
-        })));
+        });
+        cacheArguments.prepend(QString()); // Work around a bug in CMake 3.7.0 and 3.7.1 where
+                                           // the first argument gets lost!
+        extra.insert("cacheArguments", QVariant(cacheArguments));
     }
 
     m_future.reset(new QFutureInterface<void>());
