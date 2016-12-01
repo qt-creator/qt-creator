@@ -376,8 +376,7 @@ void CMakeBuildConfiguration::setCMakeConfiguration(const CMakeConfig &config)
 
 CMakeConfig CMakeBuildConfiguration::cmakeConfiguration() const
 {
-    return removeDuplicates(CMakeConfigurationKitInformation::configuration(target()->kit())
-                            + m_configuration);
+    return removeDuplicates(m_configuration + CMakeConfigurationKitInformation::configuration(target()->kit()));
 }
 
 void CMakeBuildConfiguration::setError(const QString &message)
