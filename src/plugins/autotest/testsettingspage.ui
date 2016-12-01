@@ -50,7 +50,7 @@
           <item>
            <widget class="QCheckBox" name="limitResultOutputCB">
             <property name="toolTip">
-             <string>Limit result output to 100000 characters.</string>
+             <string>Limits result output to 100000 characters.</string>
             </property>
             <property name="text">
              <string>Limit result output</string>
@@ -63,7 +63,7 @@
           <item>
            <widget class="QCheckBox" name="autoScrollCB">
             <property name="toolTip">
-             <string>Automatically scroll down when new items are added and scrollbar is at bottom.</string>
+             <string>Automatically scrolls down when new items are added and scrollbar is at bottom.</string>
             </property>
             <property name="text">
              <string>Automatically scroll results</string>
@@ -76,7 +76,7 @@
           <item>
            <widget class="QCheckBox" name="alwaysParseCB">
             <property name="toolTip">
-             <string>Parse for tests even when no Tests related widget is displayed.</string>
+             <string>Parses for tests even when no Tests related widget is displayed.</string>
             </property>
             <property name="text">
              <string>Always parse current project for tests</string>
@@ -176,7 +176,7 @@
           <item>
            <widget class="QListWidget" name="frameworkListWidget">
             <property name="toolTip">
-             <string>Select the test frameworks to be handled by the AutoTest plugin.</string>
+             <string>Selects the test frameworks to be handled by the AutoTest plugin.</string>
             </property>
            </widget>
           </item>

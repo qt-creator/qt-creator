@@ -21,7 +21,7 @@
        <item row="1" column="0">
         <widget class="QCheckBox" name="breakOnFailureCB">
          <property name="toolTip">
-          <string>Turn failures into debugger breakpoints.</string>
+          <string>Turns failures into debugger breakpoints.</string>
          </property>
          <property name="text">
           <string>Break on failure while debugging</string>
@@ -44,7 +44,7 @@
        <item row="4" column="0">
         <widget class="QCheckBox" name="throwOnFailureCB">
          <property name="toolTip">
-          <string>Turn assertion failures into C++ exceptions.</string>
+          <string>Turns assertion failures into C++ exceptions.</string>
          </property>
          <property name="text">
           <string>Throw on failure</string>
@@ -67,7 +67,7 @@
        <item row="3" column="0">
         <widget class="QCheckBox" name="shuffleGTestsCB">
          <property name="toolTip">
-          <string>Shuffle tests automatically on every iteration by the given seed.</string>
+          <string>Shuffles tests automatically on every iteration by the given seed.</string>
          </property>
          <property name="text">
           <string>Shuffle tests</string>
