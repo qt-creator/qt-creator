@@ -67,16 +67,22 @@ void DebugViewWidget::addErrorMessage(const QString &topic, const QString &messa
 void DebugViewWidget::addLogInstanceMessage(const QString &topic, const QString &message, bool highlight)
 {
     if (highlight) {
-        m_ui.instanceLog->appendHtml(QStringLiteral("<b><font color=\"blue\">")
-                                  + topic
-                                  + QStringLiteral("</b><br>")
-                                  + message);
+        m_ui.instanceLog->appendHtml("<b><font color=\"blue\">"
+                                     + topic
+                                     + "</b><br>"
+                                     + "<p>"
+                                     + message
+                                     + "</p>"
+                                     + "<br>");
 
     } else {
-        m_ui.instanceLog->appendHtml(QStringLiteral("<b>")
-                                  + topic
-                                  + QStringLiteral("</b><br>")
-                                  + message);
+        m_ui.instanceLog->appendHtml("<b>"
+                                     + topic
+                                     + "</b><br>"
+                                     + "<p>"
+                                     + message
+                                     + "</p>"
+                                     + "<br>");
     }
 }
 
