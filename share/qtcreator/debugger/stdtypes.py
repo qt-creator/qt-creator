@@ -657,6 +657,9 @@ def qdump__std____weak_ptr(d, value):
 def qdump__std__weak_ptr(d, value):
     return qdump__std__shared_ptr(d, value)
 
+def qdump__std____1__weak_ptr(d, value):
+    return qdump__std____1__shared_ptr(d, value)
+
 
 def qdump__std__shared_ptr(d, value):
     if d.isMsvcTarget():
