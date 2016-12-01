@@ -28,6 +28,7 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
+#include <QCoreApplication>
 #include <QFont>
 
 namespace CMakeProjectManager {
@@ -100,7 +101,7 @@ QVariant ConfigModel::data(const QModelIndex &index, int role) const
         case Qt::EditRole:
             return item.key;
         case Qt::ToolTipRole:
-            return item.description;
+            return item.toolTip();
         case Qt::FontRole: {
             QFont font;
             font.setItalic(item.isCMakeChanged);
@@ -127,7 +128,7 @@ QVariant ConfigModel::data(const QModelIndex &index, int role) const
             return font;
         }
         case Qt::ToolTipRole:
-            return item.description;
+            return item.toolTip();
         default:
             return QVariant();
         }
@@ -135,7 +136,7 @@ QVariant ConfigModel::data(const QModelIndex &index, int role) const
     case 2:
         switch (role) {
         case Qt::EditRole:
-            return QString::fromLatin1("0");
+            return "0";
         case Qt::DisplayRole:
             return QString::fromLatin1(item.isAdvanced ? "1" : "0");
         case Qt::CheckStateRole:
@@ -246,12 +247,16 @@ void ConfigModel::setConfiguration(const QList<ConfigModel::DataItem> &config)
             result << InternalDataItem(*newIt);
             ++newIt;
         } else if (newIt->key > oldIt->key) {
-            // skip old entry:
+            // Keep old user settings, but skip other entries:
+            if (oldIt->isUserChanged || oldIt->isUserNew)
+                result << InternalDataItem(*oldIt);
             ++oldIt;
         } else {
             // merge old/new entry:
             InternalDataItem item(*newIt);
+            item.newValue = (newIt->value != oldIt->newValue) ? oldIt->newValue : QString();
             item.isCMakeChanged = (oldIt->value != newIt->value);
+            item.isUserChanged = !item.newValue.isEmpty() && (item.newValue != item.value);
             result << item;
             ++newIt;
             ++oldIt;
@@ -326,9 +331,16 @@ const ConfigModel::InternalDataItem &ConfigModel::itemAtRow(int row) const
     return m_configuration[row];
 }
 
-ConfigModel::InternalDataItem::InternalDataItem(const ConfigModel::DataItem &item) : DataItem(item),
-    isUserChanged(false), isUserNew(false), isCMakeChanged(false)
+ConfigModel::InternalDataItem::InternalDataItem(const ConfigModel::DataItem &item) : DataItem(item)
 { }
+
+QString ConfigModel::InternalDataItem::toolTip() const
+{
+    QStringList tooltip(description);
+    if (!value.isEmpty() && !newValue.isEmpty() && value != newValue)
+        tooltip << QCoreApplication::translate("CMakeProjectManager", "Current CMake: %1").arg(value);
+    return tooltip.join("<br>");
+}
 
 } // namespace CMakeProjectManager
 

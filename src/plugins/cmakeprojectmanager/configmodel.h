@@ -82,9 +82,11 @@ private:
         InternalDataItem(const DataItem &item);
         InternalDataItem(const InternalDataItem &item) = default;
 
-        bool isUserChanged;
-        bool isUserNew;
-        bool isCMakeChanged;
+        QString toolTip() const;
+
+        bool isUserChanged = false;
+        bool isUserNew = false;
+        bool isCMakeChanged = false;
         QString newValue;
     };
 
