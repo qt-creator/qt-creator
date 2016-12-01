@@ -1794,7 +1794,7 @@ class DumperBase:
             qobjectPtrType = self.createType('QObject') # FIXME.
             with SubItem(self, '[parent]'):
                 self.putField('sortgroup', 9)
-                self.putItem(self.createValue(dd + 2 * ptrSize, qobjectPtrType))
+                self.putItem(self.createValue(parentPtr, qobjectPtrType))
             with SubItem(self, '[children]'):
                 self.putField('sortgroup', 8)
                 base = self.extractPointer(dd + 3 * ptrSize) # It's a QList<QObject *>
