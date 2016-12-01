@@ -140,6 +140,8 @@ void ServerModeReader::resetData()
 
 void ServerModeReader::parse(bool force)
 {
+    emit configurationStarted();
+
     QTC_ASSERT(m_cmakeServer, return);
     QVariantMap extra;
     if (force) {
