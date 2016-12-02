@@ -497,8 +497,8 @@ void TeaLeafReader::startCMake(const QStringList &configurationArguments)
                              "CMake.Configure");
 
     m_cmakeProcess->setCommand(m_parameters.cmakeExecutable.toString(), args);
-    m_cmakeProcess->start();
     emit configurationStarted();
+    m_cmakeProcess->start();
 }
 
 void TeaLeafReader::cmakeFinished(int code, QProcess::ExitStatus status)
