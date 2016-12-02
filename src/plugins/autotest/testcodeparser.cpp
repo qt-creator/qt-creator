@@ -155,8 +155,6 @@ void TestCodeParser::updateTestTree()
         return;
 
     m_fullUpdatePostponed = false;
-
-    emit aboutToPerformFullParse();
     qCDebug(LOG) << "calling scanForTests (updateTestTree)";
     scanForTests();
 }
@@ -199,6 +197,7 @@ void TestCodeParser::onStartupProjectChanged(ProjectExplorer::Project *project)
         qCDebug(LOG) << "Canceling scanForTest (startup project changed)";
         Core::ProgressManager::instance()->cancelTasks(Constants::TASK_PARSE);
     }
+    emit aboutToPerformFullParse();
     if (project)
         emitUpdateTestTree();
 }
