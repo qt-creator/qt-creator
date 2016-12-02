@@ -142,19 +142,25 @@ void CMakeBuildConfiguration::ctor()
                                            displayName(), BuildConfiguration::Unknown));
 
     connect(m_buildDirManager.get(), &BuildDirManager::dataAvailable,
-            this, &CMakeBuildConfiguration::dataAvailable);
+            this, [this, project]() {
+        project->updateProjectData(this);
+        emit dataAvailable();
+    });
     connect(m_buildDirManager.get(), &BuildDirManager::errorOccured,
-            this, &CMakeBuildConfiguration::setError);
+            this, [this, project](const QString &msg) {
+        project->updateProjectData(this);
+        setError(msg);
+    });
     connect(m_buildDirManager.get(), &BuildDirManager::configurationStarted,
-            this, &CMakeBuildConfiguration::parsingStarted);
+            this, [this, project]() {
+        project->handleParsingStarted();
+        emit parsingStarted();
+    });
 
     connect(this, &CMakeBuildConfiguration::environmentChanged,
             m_buildDirManager.get(), &BuildDirManager::forceReparse);
     connect(this, &CMakeBuildConfiguration::buildDirectoryChanged,
             m_buildDirManager.get(), &BuildDirManager::forceReparse);
-
-    connect(this, &CMakeBuildConfiguration::parsingStarted, project, &CMakeProject::handleParsingStarted);
-    connect(this, &CMakeBuildConfiguration::dataAvailable, project, &CMakeProject::updateProjectData);
 }
 
 void CMakeBuildConfiguration::maybeForceReparse()
@@ -378,10 +384,10 @@ CMakeConfig CMakeBuildConfiguration::cmakeConfiguration() const
 
 void CMakeBuildConfiguration::setError(const QString &message)
 {
-    if (m_error == message)
-        return;
-    m_error = message;
-    emit enabledChanged();
+    if (m_error != message) {
+        emit enabledChanged();
+        m_error = message;
+    }
     emit errorOccured(m_error);
 }
 

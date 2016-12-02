@@ -94,17 +94,16 @@ CMakeProject::~CMakeProject()
     qDeleteAll(m_extraCompilers);
 }
 
-void CMakeProject::updateProjectData()
+void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
 {
-    auto cmakeBc = qobject_cast<CMakeBuildConfiguration *>(sender());
-    QTC_ASSERT(cmakeBc, return);
+    QTC_ASSERT(bc, return);
 
     Target *t = activeTarget();
-    if (!t || t->activeBuildConfiguration() != cmakeBc)
+    if (!t || t->activeBuildConfiguration() != bc)
         return;
     Kit *k = t->kit();
 
-    cmakeBc->generateProjectTree(static_cast<CMakeListsNode *>(rootProjectNode()));
+    bc->generateProjectTree(static_cast<CMakeListsNode *>(rootProjectNode()));
 
     updateApplicationAndDeploymentTargets();
     updateTargetRunConfigurations(t);
@@ -131,7 +130,7 @@ void CMakeProject::updateProjectData()
 
     ppBuilder.setQtVersion(activeQtVersion);
 
-    const QSet<Core::Id> languages = cmakeBc->updateCodeModel(ppBuilder);
+    const QSet<Core::Id> languages = bc->updateCodeModel(ppBuilder);
     for (const auto &lid : languages)
         setProjectLanguage(lid, true);
 
@@ -144,7 +143,7 @@ void CMakeProject::updateProjectData()
     emit displayNameChanged();
     emit fileListChanged();
 
-    emit cmakeBc->emitBuildTypeChanged();
+    emit bc->emitBuildTypeChanged();
 
     emit parsingFinished();
 }

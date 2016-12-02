@@ -113,7 +113,7 @@ private:
     void handleActiveTargetChanged();
     void handleActiveBuildConfigurationChanged();
     void handleParsingStarted();
-    void updateProjectData();
+    void updateProjectData(Internal::CMakeBuildConfiguration *cmakeBc);
     void updateQmlJSCodeModel();
 
     void createGeneratedCodeModelSupport();

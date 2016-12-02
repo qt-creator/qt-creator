@@ -250,12 +250,20 @@ static ProjectNode *updateCMakeInputs(CMakeListsNode *root,
                                       QList<FileNode *> &buildInputs,
                                       QList<FileNode *> &rootInputs)
 {
+    const bool hasInputs = !sourceInputs.isEmpty() || !buildInputs.isEmpty() || !rootInputs.isEmpty();
     ProjectNode *cmakeVFolder
             = root->projectNode(CMakeInputsNode::inputsPathFromCMakeListsPath(root->filePath()));
     if (!cmakeVFolder) {
-        cmakeVFolder = new CMakeInputsNode(root->filePath());
-        root->addProjectNodes({ cmakeVFolder });
+        if (hasInputs) {
+            cmakeVFolder = new CMakeInputsNode(root->filePath());
+            root->addProjectNodes({ cmakeVFolder });
+        }
+    } else {
+        if (!hasInputs)
+            root->removeProjectNodes({ cmakeVFolder });
     }
+    if (!hasInputs)
+        return nullptr;
 
     QList<FolderNode *> foldersToDelete;
     foldersToDelete.append(setupCMakeVFolder(cmakeVFolder, sourceDir, 1000,
