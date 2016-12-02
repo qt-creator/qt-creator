@@ -210,6 +210,11 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
         m_showProgressTimer.stop();
         m_progressIndicator->hide();
     });
+    connect(m_buildConfiguration, &CMakeBuildConfiguration::errorOccured,
+            this, [this]() {
+        m_showProgressTimer.stop();
+        m_progressIndicator->hide();
+    });
 
     connect(m_configModel, &QAbstractItemModel::dataChanged,
             this, &CMakeBuildSettingsWidget::updateButtonState);
