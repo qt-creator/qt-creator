@@ -106,12 +106,14 @@ void Find::destroy()
 {
     delete m_instance;
     m_instance = 0;
-    delete d->m_currentDocumentFind;
-    delete d->m_findToolBar;
-    delete d->m_findDialog;
-    ExtensionSystem::PluginManager::removeObject(d->m_searchResultWindow);
-    delete d->m_searchResultWindow;
-    delete d;
+    if (d) {
+        delete d->m_currentDocumentFind;
+        delete d->m_findToolBar;
+        delete d->m_findDialog;
+        ExtensionSystem::PluginManager::removeObject(d->m_searchResultWindow);
+        delete d->m_searchResultWindow;
+        delete d;
+    }
 }
 
 Find *Find::instance()
