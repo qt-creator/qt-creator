@@ -410,8 +410,8 @@ void CMakeGeneratorKitInformation::fix(Kit *k)
 void CMakeGeneratorKitInformation::upgrade(Kit *k)
 {
     const QVariant value = k->value(GENERATOR_ID);
-    GeneratorInfo info;
     if (value.type() != QVariant::Map) {
+        GeneratorInfo info;
         const QString fullName = value.toString();
         const int pos = fullName.indexOf(" - ");
         if (pos >= 0) {
@@ -420,8 +420,8 @@ void CMakeGeneratorKitInformation::upgrade(Kit *k)
         } else {
             info.generator = fullName;
         }
+        setGeneratorInfo(k, info);
     }
-    setGeneratorInfo(k, info);
 }
 
 KitInformation::ItemList CMakeGeneratorKitInformation::toUserOutput(const Kit *k) const
