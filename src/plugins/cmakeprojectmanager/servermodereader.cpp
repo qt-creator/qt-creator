@@ -385,6 +385,7 @@ void ServerModeReader::handleError(const QString &message)
     TaskHub::addTask(Task::Error, message, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM,
                      Utils::FileName(), -1);
     stop();
+    emit errorOccured(message);
 }
 
 void ServerModeReader::handleProgress(int min, int cur, int max, const QString &inReplyTo)
