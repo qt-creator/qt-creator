@@ -684,6 +684,10 @@ class Dumper(DumperBase):
                 symbol = funcs[0].GetSymbol()
                 self.qtCustomEventFunc = symbol.GetStartAddress().GetLoadAddress(self.target)
 
+            funcs = self.target.FindFunctions('QObject::property')
+            if len(funcs):
+                symbol = funcs[0].GetSymbol()
+                self.qtPropertyFunc = symbol.GetStartAddress().GetLoadAddress(self.target)
             return (qtNamespace, qtVersion)
 
         return ('', 0x50200)

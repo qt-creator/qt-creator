@@ -254,6 +254,7 @@ class DumperBase:
         self.typesToReport = {}
         self.qtNamespaceToReport = None
         self.qtCustomEventFunc = 0
+        self.qtPropertyFunc = 0
         self.passExceptions = False
         self.isTesting = False
 
@@ -1473,6 +1474,21 @@ class DumperBase:
 
         return self.qtCustomEventFunc == customEventFunc
 
+    def extractQObjectProperty(objectPtr):
+        vtablePtr = self.extractPointer(objectPtr)
+        metaObjectFunc = self.extractPointer(vtablePtr)
+        cmd = '((void*(*)(void*))0x%x)((void*)0x%x)' % (metaObjectFunc, objectPtr)
+        try:
+            #warn('MO CMD: %s' % cmd)
+            res = self.parseAndEvaluate(cmd)
+            #warn('MO RES: %s' % res)
+            self.bump('successfulMetaObjectCall')
+            return res.pointer()
+        except:
+            self.bump('failedMetaObjectCall')
+            #warn('COULD NOT EXECUTE: %s' % cmd)
+        return 0
+
     def extractMetaObjectPtr(self, objectPtr, typeobj):
         """ objectPtr - address of *potential* instance of QObject derived class
             typeobj - type of *objectPtr if known, None otherwise. """
@@ -1845,8 +1861,21 @@ class DumperBase:
                             if qobject:
                                 # LLDB doesn't like calling it on a derived class, possibly
                                 # due to type information living in a different shared object.
-                                base = self.createValue(qobjectPtr, '@QObject')
-                                self.putCallItem(name, '@QVariant', base, 'property', '"' + name + '"')
+                                #base = self.createValue(qobjectPtr, '@QObject')
+                                #warn("CALL FUNC: 0x%x" % self.qtPropertyFunc)
+                                cmd = '((QVariant(*)(void*,char*))0x%x)((void*)0x%x,"%s")' \
+                                        % (self.qtPropertyFunc, qobjectPtr, name)
+                                try:
+                                    #warn('PROP CMD: %s' % cmd)
+                                    res = self.parseAndEvaluate(cmd)
+                                    #warn('PROP RES: %s' % res)
+                                except:
+                                    self.bump('failedMetaObjectCall')
+                                    putt(name, ' ')
+                                    continue
+                                    #warn('COULD NOT EXECUTE: %s' % cmd)
+                                #self.putCallItem(name, '@QVariant', base, 'property', '"' + name + '"')
+                                self.putSubItem(name, res)
                             else:
                                 putt(name, ' ')
 

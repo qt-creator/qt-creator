@@ -1010,6 +1010,12 @@ class Dumper(DumperBase):
         self.ping('qtNamespace')
         return res
 
+    def findSymbol(self, symbolName):
+        try:
+            return toInteger(gdb.parse_and_eval('(size_t)&%s' % symbolName))
+        except:
+            return 0
+
     def qtNamespaceX(self):
         if not self.currentQtNamespaceGuess is None:
             return self.currentQtNamespaceGuess
@@ -1039,16 +1045,17 @@ class Dumper(DumperBase):
                     except:
                         pass
 
-                try:
-                    lenns = len(ns)
-                    if lenns:
-                        sym = '_ZN%d%s7QObject11customEventEPNS_6QEventE' % \
-                            (lenns - 2, ns[:lenns - 2])
-                    else:
-                        sym = '_ZN7QObject11customEventEP6QEvent'
-                    self.qtCustomEventFunc = toInteger(gdb.parse_and_eval('(size_t)&%s' % sym))
-                except:
-                    pass
+                lenns = len(ns)
+                strns = ('%d%s' % (lenns - 2, ns[:lenns - 2])) if lenns else ''
+
+                if lenns:
+                    sym = '_ZN%s7QObject11customEventEPNS_6QEventE' % strns
+                else:
+                    sym = '_ZN7QObject11customEventEP6QEvent'
+                self.qtCustomEventFunc = self.findSymbol(sym)
+
+                sym = '_ZNK7%sQObject8propertyEPKc' % strns
+                self.qtPropertyFunc = self.findSymbol(sym)
 
                 # This might be wrong, but we can't do better: We found
                 # a libQt5Core and could not extract a namespace.
