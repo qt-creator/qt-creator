@@ -142,6 +142,8 @@ void BuildDirManager::updateReaderData()
 
 void BuildDirManager::parseOnceReaderReady(bool force)
 {
+    TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
+
     m_buildTargets.clear();
 
     auto fi = new QFutureInterface<QList<ProjectExplorer::FileNode *>>();
@@ -379,8 +381,6 @@ QSet<Core::Id> BuildDirManager::updateCodeModel(CppTools::ProjectPartBuilder &pp
 
 void BuildDirManager::parse()
 {
-    TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
-
     updateReaderType([this]() { parseOnceReaderReady(false); });
 }
 
