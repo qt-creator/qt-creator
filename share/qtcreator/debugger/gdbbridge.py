@@ -1012,7 +1012,7 @@ class Dumper(DumperBase):
 
     def findSymbol(self, symbolName):
         try:
-            return toInteger(gdb.parse_and_eval('(size_t)&%s' % symbolName))
+            return toInteger(gdb.parse_and_eval("(size_t)&'%s'" % symbolName))
         except:
             return 0
 
@@ -1053,6 +1053,12 @@ class Dumper(DumperBase):
                 else:
                     sym = '_ZN7QObject11customEventEP6QEvent'
                 self.qtCustomEventFunc = self.findSymbol(sym)
+
+                if lenns:
+                    sym = '_ZN%s7QObject11customEventEPNS_6QEventE@plt' % strns
+                else:
+                    sym = '_ZN7QObject11customEventEP6QEvent@plt'
+                self.qtCustomEventPltFunc = self.findSymbol(sym)
 
                 sym = '_ZNK7%sQObject8propertyEPKc' % strns
                 self.qtPropertyFunc = self.findSymbol(sym)

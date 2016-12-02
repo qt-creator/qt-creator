@@ -254,6 +254,7 @@ class DumperBase:
         self.typesToReport = {}
         self.qtNamespaceToReport = None
         self.qtCustomEventFunc = 0
+        self.qtCustomEventPltFunc = 0
         self.qtPropertyFunc = 0
         self.passExceptions = False
         self.isTesting = False
@@ -1472,7 +1473,7 @@ class DumperBase:
             self.bump('nostruct-3')
             return False
 
-        return self.qtCustomEventFunc == customEventFunc
+        return customEventFunc in (self.qtCustomEventFunc, self.qtCustomEventPltFunc)
 
     def extractQObjectProperty(objectPtr):
         vtablePtr = self.extractPointer(objectPtr)
