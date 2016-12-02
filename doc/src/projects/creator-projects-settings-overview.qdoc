@@ -41,23 +41,29 @@
     build and run settings for the development targets might be set up
     automatically in \QC.
 
-    To view and modify the settings for currently open projects, switch to the
-    \uicontrol Projects mode by pressing \key Ctrl+5.
+    When you open a project for the first time, the
+    \uicontrol {Configure Projects} view is displayed to let you select a set of
+    \l{glossary-buildandrun-kit}{kits} that you want to use to build and run
+    your project. At least one kit must be active for you to be able to build
+    and run the project. For more information about selecting the initial kit,
+    see \l{Opening Projects}.
 
-    You can select build and run \l{glossary-buildandrun-kit}{kits} for the
-    open projects and use the \uicontrol Build menu commands to build, deploy, and
-    run projects.
+    To maintain the list of active kits for a currently open project, switch to
+    the \uicontrol Projects mode by pressing \key Ctrl+5.
 
-    \section1 Selecting Kits
+    \section1 Activating Kits for a Project
+
+    All kits compatible with your project are listed in the
+    \uicontrol {Build & Run} section of the sidebar. To activate one or more
+    disabled kits, click them.
 
     \image qtcreator-project-kits.png
 
-    To enable kits for the project, click them in \uicontrol {Build & Run}. The
-    list displays kits that are configured in \uicontrol Tools >
+    The list displays kits that are configured in \uicontrol Tools >
     \uicontrol Options > \uicontrol {Build & Run} > \uicontrol Kits. To modify
-    kit configuration or to add kits to the list, select
-    \uicontrol {Manage Kits} in the context menu. For more information about
-    managing kits, see \l{Adding Kits}.
+    kit configuration or to add kits to the list, right-click the sidebar to
+    open a context-menu, and then select \uicontrol {Manage Kits}. For more
+    information about managing kits, see \l{Adding Kits}.
 
     Each kit consists of a set of values that define one environment, such as a
     device, compiler, and Qt version. For more information, see
@@ -66,33 +72,22 @@
     To copy the build and run settings for a kit to another kit, select
     \uicontrol {Copy Steps from Other Kit} in the context menu.
 
-    To disable a kit for the project, select \uicontrol {Disable Kit for Project}
-    in the context menu.
+    To deactivate a kit, select \uicontrol {Disable Kit for Project} in the
+    context menu.
+
+    \note Deactivating a kit removes all custom build and run settings for the
+    kit.
 
     To import an existing build for the project, select
     \uicontrol {Import Existing Build} in the context menu.
 
     \section1 Specifying Settings
 
-    The \uicontrol Projects mode displays one of the following views:
+    To specify build or run settings for a kit, select \uicontrol Build or
+    \uicontrol Run below the kit. For more information, see
+    \l{Specifying Build Settings} and \l{Specifying Run Settings}.
 
-    \list
-
-        \li \uicontrol {Build & Run} settings for each configured kit:
-
-            \list
-
-                \li \l{Specifying Build Settings}{Build}
-
-                \li \l{Specifying Run Settings}{Run}
-
-            \endlist
-
-                \note If you have not configured the project for building, the
-                    \uicontrol {Build & Run} view is replaced by the
-                    \l{Opening Projects}{Configure Projects} view.
-
-        \li \uicontrol {Project Settings} for each project:
+    In addition, you can modify the following global settings for each project:
 
             \list
 
@@ -102,14 +97,14 @@
 
                 \li \l{Specifying Dependencies}{Dependencies}
 
-                \li \l{Parsing C++ Files with the Clang Code Model} (experimental)
+                \li \l{Parsing C++ Files with the Clang Code Model}
+                    {Clang Code Model} (experimental)
 
                 \li \l{Using Clang Static Analyzer}{Clang Static Analyzer}
 
                 \li \l{To-Do Entries}{To-Do} (experimental)
 
             \endlist
-    \endlist
 
     If you have multiple projects open in \QC, select the project to configure
     in the list of projects.
