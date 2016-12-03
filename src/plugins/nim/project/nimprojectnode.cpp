@@ -31,8 +31,10 @@ using namespace Utils;
 
 namespace Nim {
 
-NimProjectNode::NimProjectNode(const FileName &projectFilePath)
+NimProjectNode::NimProjectNode(NimProject &project,
+                               const FileName &projectFilePath)
     : ProjectNode(projectFilePath)
+    , m_project(project)
 {}
 
 QList<ProjectAction> NimProjectNode::supportedActions(Node *node) const
@@ -71,21 +73,25 @@ bool NimProjectNode::removeSubProjects(const QStringList &)
 
 bool NimProjectNode::addFiles(const QStringList &, QStringList *)
 {
+    m_project.scheduleProjectScan();
     return true;
 }
 
 bool NimProjectNode::removeFiles(const QStringList &, QStringList *)
 {
+    m_project.scheduleProjectScan();
     return true;
 }
 
 bool NimProjectNode::deleteFiles(const QStringList &)
 {
+    m_project.scheduleProjectScan();
     return true;
 }
 
 bool NimProjectNode::renameFile(const QString &, const QString &)
 {
+    m_project.scheduleProjectScan();
     return true;
 }
 

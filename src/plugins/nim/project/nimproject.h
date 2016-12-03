@@ -52,9 +52,9 @@ public:
     bool needsConfiguration() const override;
     bool supportsKit(ProjectExplorer::Kit *k, QString *errorMessage) const override;
     Utils::FileNameList nimFiles() const;
+    void scheduleProjectScan();
 
 private:
-    void scheduleProjectScan();
     void collectProjectFiles();
     void updateProject();
 
