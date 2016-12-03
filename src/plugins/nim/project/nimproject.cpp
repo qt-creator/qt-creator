@@ -65,7 +65,6 @@ NimProject::NimProject(NimProjectManager *projectManager, const QString &fileNam
     m_projectScanTimer.setSingleShot(true);
     connect(&m_projectScanTimer, &QTimer::timeout, this, &NimProject::collectProjectFiles);
 
-    m_futureWatcher.setFuture(m_futureInterface.future());
     connect(&m_futureWatcher, &QFutureWatcher<QList<FileNode *>>::finished, this, &NimProject::updateProject);
 
     collectProjectFiles();
@@ -102,19 +101,13 @@ void NimProject::scheduleProjectScan()
 void NimProject::collectProjectFiles()
 {
     m_lastProjectScan.start();
-    QTC_ASSERT(!m_futureInterface.isRunning(), return);
-
-    runAsync([this]() {
-        m_futureInterface.reportStarted();
-        QList<FileNode *> nodes
-                = FileNode::scanForFiles(projectDirectory(),
-                                         [](const FileName &fn) { return new FileNode(fn, FileType::Source, false); },
-                                         &m_futureInterface);
-        m_futureInterface.setProgressValue(m_futureInterface.progressMaximum());
-        m_futureInterface.reportResult(nodes);
-        m_futureInterface.reportFinished();
+    QTC_ASSERT(!m_futureWatcher.future().isRunning(), return);
+    FileName prjDir = projectDirectory();
+    QFuture<QList<ProjectExplorer::FileNode *>> future = Utils::runAsync([prjDir] {
+        return FileNode::scanForFiles(prjDir, [](const FileName &fn) { return new FileNode(fn, FileType::Source, false); });
     });
-    Core::ProgressManager::addTask(m_futureInterface.future(), tr("Scanning for Nim files"), "Nim.Project.Scan");
+    m_futureWatcher.setFuture(future);
+    Core::ProgressManager::addTask(future, tr("Scanning for Nim files"), "Nim.Project.Scan");
 }
 
 void NimProject::updateProject()
@@ -122,7 +115,7 @@ void NimProject::updateProject()
     QStringList oldFiles = m_files;
     m_files.clear();
 
-    QList<FileNode *> fileNodes = Utils::filtered(m_futureInterface.future().result(),
+    QList<FileNode *> fileNodes = Utils::filtered(m_futureWatcher.future().result(),
                                                   [](const FileNode *fn) {
         const QString fileName = fn->filePath().fileName();
         return !fileName.endsWith(".nimproject", HostOsInfo::fileNameCaseSensitivity())

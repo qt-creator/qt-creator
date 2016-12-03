@@ -59,7 +59,6 @@ private:
     void updateProject();
 
     QStringList m_files;
-    QFutureInterface<QList<ProjectExplorer::FileNode *>> m_futureInterface;
     QFutureWatcher<QList<ProjectExplorer::FileNode *>> m_futureWatcher;
 
     QElapsedTimer m_lastProjectScan;
