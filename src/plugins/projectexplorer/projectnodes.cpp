@@ -290,7 +290,8 @@ QList<FileNode *> FileNode::scanForFiles(const Utils::FileName &directory,
                                          QFutureInterface<QList<FileNode*>> *future)
 {
     QSet<QString> visited;
-    future->setProgressRange(0, 1000000);
+    if (future)
+        future->setProgressRange(0, 1000000);
     return scanForFilesRecursively(directory, factory, visited, future, 0.0, 1000000.0);
 }
 
