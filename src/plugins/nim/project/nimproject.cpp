@@ -69,8 +69,6 @@ NimProject::NimProject(NimProjectManager *projectManager, const QString &fileNam
     connect(&m_futureWatcher, &QFutureWatcher<QList<FileNode *>>::finished, this, &NimProject::updateProject);
 
     collectProjectFiles();
-
-    connect(&m_fsWatcher, &QFileSystemWatcher::directoryChanged, this, &NimProject::scheduleProjectScan);
 }
 
 QString NimProject::displayName() const
