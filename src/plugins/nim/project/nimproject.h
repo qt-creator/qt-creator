@@ -52,15 +52,23 @@ public:
     bool needsConfiguration() const override;
     bool supportsKit(ProjectExplorer::Kit *k, QString *errorMessage) const override;
     Utils::FileNameList nimFiles() const;
-    void scheduleProjectScan();
+    QVariantMap toMap() const override;
+
+    bool addFiles(const QStringList &filePaths);
+    bool removeFiles(const QStringList &filePaths);
+    bool renameFile(const QString &filePath, const QString &newFilePath);
+
+protected:
+    RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
 
 private:
+    void scheduleProjectScan();
     void collectProjectFiles();
     void updateProject();
 
     QStringList m_files;
+    QStringList m_excludedFiles;
     QFutureWatcher<QList<ProjectExplorer::FileNode *>> m_futureWatcher;
-
     QElapsedTimer m_lastProjectScan;
     QTimer m_projectScanTimer;
 };

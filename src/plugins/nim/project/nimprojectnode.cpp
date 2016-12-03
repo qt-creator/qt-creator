@@ -43,7 +43,8 @@ QList<ProjectAction> NimProjectNode::supportedActions(Node *node) const
                                                       ProjectAction::RemoveFile
                                                     };
     static const QList<ProjectAction> folderActions = { ProjectAction::AddNewFile,
-                                                        ProjectAction::RemoveFile
+                                                        ProjectAction::RemoveFile,
+                                                        ProjectAction::AddExistingFile
                                                       };
     switch (node->nodeType()) {
     case NodeType::File:
@@ -71,28 +72,24 @@ bool NimProjectNode::removeSubProjects(const QStringList &)
     return false;
 }
 
-bool NimProjectNode::addFiles(const QStringList &, QStringList *)
+bool NimProjectNode::addFiles(const QStringList &filePaths, QStringList *)
 {
-    m_project.scheduleProjectScan();
-    return true;
+    return m_project.addFiles(filePaths);
 }
 
-bool NimProjectNode::removeFiles(const QStringList &, QStringList *)
+bool NimProjectNode::removeFiles(const QStringList &filePaths, QStringList *)
 {
-    m_project.scheduleProjectScan();
-    return true;
+    return m_project.removeFiles(filePaths);
 }
 
 bool NimProjectNode::deleteFiles(const QStringList &)
 {
-    m_project.scheduleProjectScan();
     return true;
 }
 
-bool NimProjectNode::renameFile(const QString &, const QString &)
+bool NimProjectNode::renameFile(const QString &filePath, const QString &newFilePath)
 {
-    m_project.scheduleProjectScan();
-    return true;
+    return m_project.renameFile(filePath, newFilePath);
 }
 
 }

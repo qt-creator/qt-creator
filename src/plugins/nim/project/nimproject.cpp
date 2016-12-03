@@ -98,6 +98,29 @@ void NimProject::scheduleProjectScan()
     }
 }
 
+bool NimProject::addFiles(const QStringList &filePaths)
+{
+    m_excludedFiles = Utils::filtered(m_excludedFiles, [&](const QString &f) { return !filePaths.contains(f); });
+    scheduleProjectScan();
+    return true;
+}
+
+bool NimProject::removeFiles(const QStringList &filePaths)
+{
+    m_excludedFiles.append(filePaths);
+    m_excludedFiles = Utils::filteredUnique(m_excludedFiles);
+    scheduleProjectScan();
+    return true;
+}
+
+bool NimProject::renameFile(const QString &filePath, const QString &newFilePath)
+{
+    Q_UNUSED(filePath)
+    m_excludedFiles.removeOne(newFilePath);
+    scheduleProjectScan();
+    return true;
+}
+
 void NimProject::collectProjectFiles()
 {
     m_lastProjectScan.start();
@@ -116,9 +139,11 @@ void NimProject::updateProject()
     m_files.clear();
 
     QList<FileNode *> fileNodes = Utils::filtered(m_futureWatcher.future().result(),
-                                                  [](const FileNode *fn) {
-        const QString fileName = fn->filePath().fileName();
-        const bool keep = !fileName.endsWith(".nimproject", HostOsInfo::fileNameCaseSensitivity())
+                                                  [&](const FileNode *fn) {
+        const FileName path = fn->filePath();
+        const QString fileName = path.fileName();
+        const bool keep = !m_excludedFiles.contains(path.toString())
+                && !fileName.endsWith(".nimproject", HostOsInfo::fileNameCaseSensitivity())
                 && !fileName.contains(".nimproject.user", HostOsInfo::fileNameCaseSensitivity());
         if (!keep)
             delete fn;
@@ -160,6 +185,19 @@ FileNameList NimProject::nimFiles() const
     }
 
     return result;
+}
+
+QVariantMap NimProject::toMap() const
+{
+    QVariantMap result = Project::toMap();
+    result[Constants::C_NIMPROJECT_EXCLUDEDFILES] = m_excludedFiles;
+    return result;
+}
+
+Project::RestoreResult NimProject::fromMap(const QVariantMap &map, QString *errorMessage)
+{
+    m_excludedFiles = map.value(Constants::C_NIMPROJECT_EXCLUDEDFILES).toStringList();
+    return Project::fromMap(map, errorMessage);
 }
 
 }

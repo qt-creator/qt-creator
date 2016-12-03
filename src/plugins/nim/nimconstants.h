@@ -48,6 +48,8 @@ const QString C_NIMRUNCONFIGURATION_WORKINGDIRECTORYASPECT_ID = QStringLiteral("
 const QString C_NIMRUNCONFIGURATION_ARGUMENTASPECT_ID = QStringLiteral("Nim.NimRunConfiguration.ArgumentAspect");
 const QString C_NIMRUNCONFIGURATION_TERMINALASPECT_ID = QStringLiteral("Nim.NimRunConfiguration.TerminalAspect");
 
+// NimProject
+const char C_NIMPROJECT_EXCLUDEDFILES[] = "Nim.NimProjectExcludedFiles";
 
 // NimBuildConfiguration
 const char C_NIMBUILDCONFIGURATION_ID[] = "Nim.NimBuildConfiguration";

@@ -42,10 +42,10 @@ public:
     bool canAddSubProject(const QString &) const override;
     bool addSubProjects(const QStringList &) override;
     bool removeSubProjects(const QStringList &) override;
-    bool addFiles(const QStringList &, QStringList *) override;
-    bool removeFiles(const QStringList &, QStringList *) override;
+    bool addFiles(const QStringList &filePaths, QStringList *) override;
+    bool removeFiles(const QStringList &filePaths, QStringList *) override;
     bool deleteFiles(const QStringList &) override;
-    bool renameFile(const QString &, const QString &) override;
+    bool renameFile(const QString &filePath, const QString &newFilePath) override;
 
 private:
     NimProject &m_project;
