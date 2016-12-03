@@ -32,9 +32,11 @@
 #include "cmakerunconfiguration.h"
 #include "cmakeprojectmanager.h"
 
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/generatedcodemodelsupport.h>
 #include <cpptools/projectinfo.h>
+#include <cpptools/cpptoolsconstants.h>
 #include <cpptools/projectpartbuilder.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deploymentdata.h>
@@ -85,6 +87,43 @@ CMakeProject::CMakeProject(CMakeManager *manager, const FileName &fileName)
     rootProjectNode()->setDisplayName(fileName.parentDir().fileName());
 
     connect(this, &CMakeProject::activeTargetChanged, this, &CMakeProject::handleActiveTargetChanged);
+
+    connect(&m_treeScanner, &TreeScanner::finished, this, &CMakeProject::handleTreeScanningFinished);
+
+    m_treeScanner.setFilter([this](const Utils::MimeType &mimeType, const Utils::FileName &fn) {
+        // Mime checks requires more resources, so keep it last in check list
+        auto isIgnored =
+                fn.toString().startsWith(projectFilePath().toString() + ".user") ||
+                TreeScanner::isWellKnownBinary(mimeType, fn);
+
+        // Cache mime check result for speed up
+        if (!isIgnored) {
+            auto it = m_mimeBinaryCache.find(mimeType.name());
+            if (it != m_mimeBinaryCache.end()) {
+                isIgnored = *it;
+            } else {
+                isIgnored = TreeScanner::isMimeBinary(mimeType, fn);
+                m_mimeBinaryCache[mimeType.name()] = isIgnored;
+            }
+        }
+
+        return isIgnored;
+    });
+
+    m_treeScanner.setTypeFactory([](const Utils::MimeType &mimeType, const Utils::FileName &fn) {
+        auto type = TreeScanner::genericFileType(mimeType, fn);
+        if (type == FileType::Unknown) {
+            if (mimeType.isValid()) {
+                const QString mt = mimeType.name();
+                if (mt == CMakeProjectManager::Constants::CMAKEPROJECTMIMETYPE
+                    || mt == CMakeProjectManager::Constants::CMAKEMIMETYPE)
+                    type = FileType::Project;
+            }
+        }
+        return type;
+    });
+
+    scanProjectTree();
 }
 
 CMakeProject::~CMakeProject()
@@ -92,6 +131,7 @@ CMakeProject::~CMakeProject()
     setRootProjectNode(nullptr);
     m_codeModelFuture.cancel();
     qDeleteAll(m_extraCompilers);
+    qDeleteAll(m_allFiles);
 }
 
 void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
@@ -101,9 +141,13 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
     Target *t = activeTarget();
     if (!t || t->activeBuildConfiguration() != bc)
         return;
+
+    if (!m_treeScanner.isFinished() || bc->isParsing())
+        return;
+
     Kit *k = t->kit();
 
-    bc->generateProjectTree(static_cast<CMakeListsNode *>(rootProjectNode()));
+    bc->generateProjectTree(static_cast<CMakeListsNode *>(rootProjectNode()), m_allFiles);
 
     updateApplicationAndDeploymentTargets();
     updateTargetRunConfigurations(t);
@@ -290,6 +334,16 @@ bool CMakeProject::setupTarget(Target *t)
     return true;
 }
 
+void CMakeProject::scanProjectTree()
+{
+    if (!m_treeScanner.isFinished())
+        return;
+    m_treeScanner.asyncScanForFiles(projectDirectory());
+    Core::ProgressManager::addTask(m_treeScanner.future(),
+                                   tr("Scan \"%1\" project tree").arg(displayName()),
+                                   "CMake.Scan.Tree");
+}
+
 void CMakeProject::handleActiveTargetChanged()
 {
     if (m_connectedTarget) {
@@ -333,6 +387,22 @@ void CMakeProject::handleParsingStarted()
 {
     if (activeTarget() && activeTarget()->activeBuildConfiguration() == sender())
         emit parsingStarted();
+}
+
+void CMakeProject::handleTreeScanningFinished()
+{
+    qDeleteAll(m_allFiles);
+    m_allFiles = m_treeScanner.release();
+
+    auto t = activeTarget();
+    if (!t)
+        return;
+
+    auto bc = qobject_cast<CMakeBuildConfiguration*>(t->activeBuildConfiguration());
+    if (!bc)
+        return;
+
+    updateProjectData(bc);
 }
 
 CMakeBuildTarget CMakeProject::buildTargetForTitle(const QString &title)

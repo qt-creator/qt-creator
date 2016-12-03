@@ -26,6 +26,7 @@
 #pragma once
 
 #include "cmake_global.h"
+#include "treescanner.h"
 
 #include <projectexplorer/extracompiler.h>
 #include <projectexplorer/project.h>
@@ -33,6 +34,7 @@
 #include <utils/fileutils.h>
 
 #include <QFuture>
+#include <QHash>
 
 QT_BEGIN_NAMESPACE
 class QFileSystemWatcher;
@@ -95,6 +97,7 @@ public:
     bool supportsKit(ProjectExplorer::Kit *k, QString *errorMessage = 0) const final;
 
     void runCMake();
+    void scanProjectTree();
 
     // Context menu actions:
     void buildCMakeTarget(const QString &buildTarget);
@@ -113,6 +116,7 @@ private:
     void handleActiveTargetChanged();
     void handleActiveBuildConfigurationChanged();
     void handleParsingStarted();
+    void handleTreeScanningFinished();
     void updateProjectData(Internal::CMakeBuildConfiguration *cmakeBc);
     void updateQmlJSCodeModel();
 
@@ -127,6 +131,10 @@ private:
     QList<CMakeBuildTarget> m_buildTargets;
     QFuture<void> m_codeModelFuture;
     QList<ProjectExplorer::ExtraCompiler *> m_extraCompilers;
+
+    Internal::TreeScanner m_treeScanner;
+    QHash<QString, bool> m_mimeBinaryCache;
+    QList<ProjectExplorer::FileNode *> m_allFiles;
 
     friend class Internal::CMakeBuildConfiguration;
     friend class Internal::CMakeBuildSettingsWidget;

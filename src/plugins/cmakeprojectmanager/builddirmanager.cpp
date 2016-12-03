@@ -54,7 +54,6 @@
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-#include <utils/runextensions.h>
 #include <utils/synchronousprocess.h>
 
 #include <QDateTime>
@@ -82,9 +81,6 @@ BuildDirManager::BuildDirManager(CMakeBuildConfiguration *bc) :
     m_reparseTimer.setSingleShot(true);
 
     connect(&m_reparseTimer, &QTimer::timeout, this, &BuildDirManager::parse);
-
-    connect(&m_futureWatcher, &QFutureWatcher<QList<FileNode *>>::finished,
-            this, &BuildDirManager::emitDataAvailable);
 }
 
 BuildDirManager::~BuildDirManager() = default;
@@ -105,7 +101,7 @@ const Utils::FileName BuildDirManager::workDirectory() const
 
 void BuildDirManager::emitDataAvailable()
 {
-    if (!isParsing() && m_futureWatcher.isFinished())
+    if (!isParsing())
         emit dataAvailable();
 }
 
@@ -145,16 +141,7 @@ void BuildDirManager::parseOnceReaderReady(bool force)
     TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
 
     m_buildTargets.clear();
-
-    auto fi = new QFutureInterface<QList<ProjectExplorer::FileNode *>>();
-    m_scanFuture = fi->future();
-    m_futureWatcher.setFuture(m_scanFuture);
-
     m_cmakeCache.clear();
-
-    Core::ProgressManager::addTask(fi->future(), "Scan CMake project tree", "CMake.Scan.Tree");
-    Utils::runAsync([this, fi]() { BuildDirManager::asyncScanForFiles(fi); });
-
     checkConfiguration();
     m_reader->stop();
     m_reader->parse(force);
@@ -246,50 +233,6 @@ void BuildDirManager::becameDirty()
     m_reparseTimer.start(1000);
 }
 
-void BuildDirManager::asyncScanForFiles(QFutureInterface<QList<FileNode *>> *fi)
-{
-    std::unique_ptr<QFutureInterface<QList<FileNode *>>> fip(fi);
-    fip->reportStarted();
-    Utils::MimeDatabase mdb;
-
-    QList<FileNode *> nodes
-            = FileNode::scanForFiles(m_buildConfiguration->target()->project()->projectDirectory(),
-                                     [&mdb](const Utils::FileName &fn) -> FileNode * {
-                                         QTC_ASSERT(!fn.isEmpty(), return nullptr);
-                                         const Utils::MimeType mimeType = mdb.mimeTypeForFile(fn.toString());
-                                         FileType type = FileType::Unknown;
-                                         if (mimeType.isValid()) {
-                                             const QString mt = mimeType.name();
-                                             if (mt == CppTools::Constants::C_SOURCE_MIMETYPE
-                                                     || mt == CppTools::Constants::CPP_SOURCE_MIMETYPE
-                                                     || mt == CppTools::Constants::OBJECTIVE_C_SOURCE_MIMETYPE
-                                                     || mt == CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE
-                                                     || mt == CppTools::Constants::QDOC_MIMETYPE
-                                                     || mt == CppTools::Constants::MOC_MIMETYPE)
-                                                 type = FileType::Source;
-                                             else if (mt == CppTools::Constants::C_HEADER_MIMETYPE
-                                                      || mt == CppTools::Constants::CPP_HEADER_MIMETYPE)
-                                                 type = FileType::Header;
-                                             else if (mt == ProjectExplorer::Constants::FORM_MIMETYPE)
-                                                 type = FileType::Form;
-                                             else if (mt == ProjectExplorer::Constants::RESOURCE_MIMETYPE)
-                                                 type = FileType::Resource;
-                                             else if (mt == ProjectExplorer::Constants::SCXML_MIMETYPE)
-                                                 type = FileType::StateChart;
-                                             else if (mt == CMakeProjectManager::Constants::CMAKEPROJECTMIMETYPE
-                                                      || mt == CMakeProjectManager::Constants::CMAKEMIMETYPE)
-                                                 type = FileType::Project;
-                                             else if (mt == ProjectExplorer::Constants::QML_MIMETYPE)
-                                                 type = FileType::QML;
-                                         }
-                                         return new FileNode(fn, type, false);
-                                     },
-                                     fip.get());
-    fip->setProgressValue(fip->progressMaximum());
-    fip->reportResult(nodes);
-    fip->reportFinished();
-}
-
 void BuildDirManager::forceReparse()
 {
     if (m_buildConfiguration->target()->activeBuildConfiguration() != m_buildConfiguration)
@@ -308,7 +251,6 @@ void BuildDirManager::resetData()
         m_reader->resetData();
 
     m_cmakeCache.clear();
-    m_futureWatcher.setFuture(QFuture<QList<FileNode *>>());
     m_reader.reset();
 
     m_buildTargets.clear();
@@ -334,22 +276,19 @@ bool BuildDirManager::persistCMakeState()
     return true;
 }
 
-void BuildDirManager::generateProjectTree(CMakeListsNode *root)
+void BuildDirManager::generateProjectTree(CMakeListsNode *root, const QList<FileNode *> &allFiles)
 {
     QTC_ASSERT(m_reader, return);
-    QTC_ASSERT(m_scanFuture.isFinished(), return);
 
     const Utils::FileName projectFile = m_buildConfiguration->target()->project()->projectFilePath();
-    QList<FileNode *> tmp = Utils::filtered(m_scanFuture.result(),
-                                            [projectFile](const FileNode *fn) -> bool {
-        return !fn->filePath().toString().startsWith(projectFile.toString() + ".user");
+
+    // input files only a reference, it persistent between calls
+    // make copy of them for concrete configuration
+    auto tmp = Utils::transform(allFiles, [](const FileNode* fn) {
+        return new FileNode(*fn);
     });
-    Utils::sort(tmp, ProjectExplorer::Node::sortByPath);
 
-    m_scanFuture = QFuture<QList<FileNode *>>(); // flush stale results
-
-    const QList<FileNode *> allFiles = tmp;
-    m_reader->generateProjectTree(root, allFiles);
+    m_reader->generateProjectTree(root, tmp);
     QSet<FileNode *> usedNodes;
     foreach (FileNode *fn, root->recursiveFileNodes())
         usedNodes.insert(fn);
@@ -358,7 +297,7 @@ void BuildDirManager::generateProjectTree(CMakeListsNode *root)
     if (root->fileNodes().isEmpty()
             && root->folderNodes().isEmpty()
             && root->projectNodes().isEmpty()) {
-        FileNode *cm = Utils::findOrDefault(allFiles, [&projectFile](const FileNode *fn) {
+        FileNode *cm = Utils::findOrDefault(tmp, [&projectFile](const FileNode *fn) {
             return fn->filePath() == projectFile;
         });
         if (cm) {
@@ -367,7 +306,7 @@ void BuildDirManager::generateProjectTree(CMakeListsNode *root)
         }
     }
 
-    QList<FileNode *> leftOvers = Utils::filtered(allFiles, [&usedNodes](FileNode *fn) {
+    QList<FileNode *> leftOvers = Utils::filtered(tmp, [&usedNodes](FileNode *fn) {
             return !usedNodes.contains(fn);
     });
     qDeleteAll(leftOvers);

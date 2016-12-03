@@ -210,12 +210,12 @@ QList<CMakeBuildTarget> CMakeBuildConfiguration::buildTargets() const
     return m_buildDirManager->buildTargets();
 }
 
-void CMakeBuildConfiguration::generateProjectTree(CMakeListsNode *root) const
+void CMakeBuildConfiguration::generateProjectTree(CMakeListsNode *root, const QList<FileNode*> &allFiles) const
 {
     if (!m_buildDirManager || m_buildDirManager->isParsing())
         return;
 
-    return m_buildDirManager->generateProjectTree(root);
+    m_buildDirManager->generateProjectTree(root, allFiles);
 }
 
 QSet<Core::Id> CMakeBuildConfiguration::updateCodeModel(CppTools::ProjectPartBuilder &ppBuilder)

@@ -30,7 +30,6 @@
 
 #include <utils/fileutils.h>
 
-#include <QFutureWatcher>
 #include <QObject>
 #include <QTemporaryDir>
 #include <QTimer>
@@ -72,7 +71,7 @@ public:
     bool updateCMakeStateBeforeBuild();
     bool persistCMakeState();
 
-    void generateProjectTree(CMakeListsNode *root);
+    void generateProjectTree(CMakeListsNode *root, const QList<ProjectExplorer::FileNode *> &allFiles);
     QSet<Core::Id> updateCodeModel(CppTools::ProjectPartBuilder &ppBuilder);
 
     QList<CMakeBuildTarget> buildTargets() const;
@@ -103,8 +102,6 @@ private:
 
     void becameDirty();
 
-    void asyncScanForFiles(QFutureInterface<QList<ProjectExplorer::FileNode *>> *fi);
-
     CMakeBuildConfiguration *m_buildConfiguration = nullptr;
     mutable std::unique_ptr<QTemporaryDir> m_tempDir = nullptr;
     mutable CMakeConfig m_cmakeCache;
@@ -112,8 +109,6 @@ private:
     QTimer m_reparseTimer;
 
     std::unique_ptr<BuildDirReader> m_reader;
-    QFutureWatcher<QList<ProjectExplorer::FileNode*>> m_futureWatcher;
-    QFuture<QList<ProjectExplorer::FileNode*>> m_scanFuture;
 
     mutable QList<CMakeBuildTarget> m_buildTargets;
 };
