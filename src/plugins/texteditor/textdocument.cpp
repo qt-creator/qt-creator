@@ -368,6 +368,11 @@ CompletionAssistProvider *TextDocument::completionAssistProvider() const
     return d->m_completionAssistProvider;
 }
 
+CompletionAssistProvider*TextDocument::classCompletionAssistProvider() const
+{
+    return 0;
+}
+
 QuickFixAssistProvider *TextDocument::quickFixAssistProvider() const
 {
     return 0;

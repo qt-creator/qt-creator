@@ -47,8 +47,9 @@ public:
         Class       = 1 << 1,
         Function    = 1 << 2,
         Declaration = 1 << 3,
+        TypedefDeclaration = 1 << 4,
 
-        All = Enum | Class | Function | Declaration
+        All = Enum | Class | Function | Declaration | TypedefDeclaration
     };
 
 public:

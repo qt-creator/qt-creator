@@ -43,6 +43,7 @@ public:
 
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
                                                const QString &entry);
+    QList<Core::LocatorFilterEntry> matchesRegexp(QFutureInterface<Core::LocatorFilterEntry> &future, const QRegExp &entry);
     void accept(Core::LocatorFilterEntry selection) const;
     void refresh(QFutureInterface<void> &future);
 

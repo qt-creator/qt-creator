@@ -35,6 +35,7 @@ class QString;
 class QVariant;
 QT_END_NAMESPACE
 
+#include <QSharedPointer>
 #include <QString>
 
 namespace TextEditor {
@@ -62,8 +63,13 @@ public:
     int order() const { return m_order; }
     void setOrder(int order) { m_order = order; }
 
+    const QSharedPointer<QRegExp>& customizeRegexp() const { return m_customizeRegexp; }
+    void setCustomizeRegexp(const QSharedPointer<QRegExp>& customizeRegexp) { m_customizeRegexp = customizeRegexp; }
+
 private:
     int m_order = 0;
+    int m_order2 = 0;
+    QSharedPointer<QRegExp> m_customizeRegexp;
 };
 
 } // namespace TextEditor

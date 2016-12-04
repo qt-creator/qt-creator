@@ -47,7 +47,8 @@ public:
         Classes      = 0x1,
         Functions    = 0x2,
         Enums        = 0x4,
-        Declarations = 0x8
+        Declarations = 0x8,
+        TypedefDeclarations = 0x10
     };
 
     Q_DECLARE_FLAGS(SymbolTypes, SymbolType)

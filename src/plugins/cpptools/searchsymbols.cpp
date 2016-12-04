@@ -120,31 +120,46 @@ bool SearchSymbols::visit(Namespace *symbol)
 
 bool SearchSymbols::visit(Declaration *symbol)
 {
-    if (!(symbolsToSearchFor & SymbolSearcher::Declarations)) {
-        // if we're searching for functions, still allow signal declarations to show up.
-        if (symbolsToSearchFor & SymbolSearcher::Functions) {
+
+   // not really beautiful, case too complex
+   if(symbol->isTypedef() && (symbolsToSearchFor & SymbolSearcher::TypedefDeclarations) && !(symbolsToSearchFor & SymbolSearcher::Declarations))
+   {
+      if (symbol->name())
+      {
+         QString name = overview.prettyName(symbol->name());
+         QString type = overview.prettyType(symbol->type());
+         addChildItem(name, type, _scope, IndexItem::TypedefDeclaration, symbol);
+      }
+
+   }
+   else
+   {
+      if (!(symbolsToSearchFor & SymbolSearcher::Declarations)) {
+         // if we're searching for functions, still allow signal declarations to show up.
+         if (symbolsToSearchFor & SymbolSearcher::Functions) {
             Function *funTy = symbol->type()->asFunctionType();
             if (!funTy) {
-                if (!symbol->type()->asObjCMethodType())
-                    return false;
+               if (!symbol->type()->asObjCMethodType())
+                  return false;
             } else if (!funTy->isSignal()) {
-                return false;
+               return false;
             }
-        } else {
+         } else {
             return false;
-        }
-    }
+         }
+      }
 
-    if (symbol->name()) {
-        QString name = overview.prettyName(symbol->name());
-        QString type = overview.prettyType(symbol->type());
-        addChildItem(name, type, _scope,
-                     symbol->type()->asFunctionType() ? IndexItem::Function
-                                                      : IndexItem::Declaration,
-                     symbol);
-    }
+      if (symbol->name()) {
+         QString name = overview.prettyName(symbol->name());
+         QString type = overview.prettyType(symbol->type());
+         addChildItem(name, type, _scope,
+                      symbol->type()->asFunctionType() ? IndexItem::Function
+                                                       : IndexItem::Declaration,
+                      symbol);
+      }
+   }
 
-    return false;
+   return false;
 }
 
 bool SearchSymbols::visit(Class *symbol)

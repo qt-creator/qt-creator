@@ -109,6 +109,15 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
             editor->editorWidget()->invokeAssist(Completion);
     });
 
+    // Add shortcut for invoking class completion
+    QAction *classCompletionAction = new QAction(tr("Trigger class Completion"), this);
+    Command *classCompletionCommand = ActionManager::registerAction(classCompletionAction, Constants::CLASS_COMPLETE_THIS, context);
+    classCompletionCommand->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+Space")));
+    connect(classCompletionAction, &QAction::triggered, []() {
+        if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor())
+            editor->editorWidget()->invokeAssist(ClassCompletion);
+    });
+
     // Add shortcut for invoking quick fix options
     QAction *quickFixAction = new QAction(tr("Trigger Refactoring Action"), this);
     Command *quickFixCommand = ActionManager::registerAction(quickFixAction, Constants::QUICKFIX_THIS, context);
