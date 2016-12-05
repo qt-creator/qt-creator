@@ -58,6 +58,7 @@
 #include <QHeaderView>
 #include <QLabel>
 #include <QMenu>
+#include <QPushButton>
 #include <QStyledItemDelegate>
 #include <QTimer>
 #include <QTreeView>
@@ -386,6 +387,14 @@ public:
                 this, &SelectorModel::deregisterProject);
         connect(sessionManager, &SessionManager::startupProjectChanged,
                 this, &SelectorModel::startupProjectChanged);
+
+        m_importBuild = new QPushButton(ProjectWindow::tr("Import Existing Build..."));
+        connect(m_importBuild, &QPushButton::clicked,
+                this, &SelectorModel::handleImportBuild);
+
+        m_manageKits = new QPushButton(ProjectWindow::tr("Manage Kits..."));
+        connect(m_manageKits, &QPushButton::clicked,
+                this, &SelectorModel::handleManageKits);
     }
 
     void updatePanel()
@@ -457,7 +466,6 @@ public:
 
         ProjectItem *projectItem = m_projectsModel.rootItem()->childAt(0);
         Project *project = projectItem ? projectItem->project() : 0;
-        ProjectImporter *projectImporter = project ? project->projectImporter() : 0;
 
         QModelIndex index = m_selectorTree->indexAt(pos);
         TreeItem *item = m_projectsModel.itemForIndex(index);
@@ -468,47 +476,65 @@ public:
             menu.addSeparator();
 
         QAction *importBuild = menu.addAction(ProjectWindow::tr("Import Existing Build..."));
-        importBuild->setEnabled(projectImporter != 0);
+        importBuild->setEnabled(project && project->projectImporter());
         QAction *manageKits = menu.addAction(ProjectWindow::tr("Manage Kits..."));
 
         QAction *act = menu.exec(m_selectorTree->mapToGlobal(pos));
 
-        if (act == importBuild) {
-            QString dir = project->projectDirectory().toString();
-            QString importDir = QFileDialog::getExistingDirectory(ICore::mainWindow(),
-                                                                  ProjectWindow::tr("Import directory"),
-                                                                  dir);
-            FileName path = FileName::fromString(importDir);
-
-            const QList<BuildInfo *> toImport = projectImporter->import(path, false);
-            for (BuildInfo *info : toImport) {
-                Target *target = project->target(info->kitId);
-                if (!target) {
-                    target = project->createTarget(KitManager::find(info->kitId));
-                    if (target)
-                        project->addTarget(target);
-                }
-                if (target) {
-                    projectImporter->makePersistent(target->kit());
-                    BuildConfiguration *bc = info->factory()->create(target, info);
-                    QTC_ASSERT(bc, continue);
-                    target->addBuildConfiguration(bc);
-                }
-            }
-            qDeleteAll(toImport);
-        } else if (act == manageKits) {
-            if (KitOptionsPage *page = ExtensionSystem::PluginManager::getObject<KitOptionsPage>())
-               page->showKit(KitManager::find(Id::fromSetting(item->data(0, KitIdRole))));
-            ICore::showOptionsDialog(Constants::KITS_SETTINGS_PAGE_ID, ICore::mainWindow());
-        };
+        if (act == importBuild)
+            handleImportBuild();
+        else if (act == manageKits)
+            handleManageKits();
     }
 
-public:
+    void handleManageKits()
+    {
+        if (ProjectItem *projectItem = m_projectsModel.rootItem()->childAt(0)) {
+            if (KitOptionsPage *page = ExtensionSystem::PluginManager::getObject<KitOptionsPage>())
+                page->showKit(KitManager::find(Id::fromSetting(projectItem->data(0, KitIdRole))));
+        }
+        ICore::showOptionsDialog(Constants::KITS_SETTINGS_PAGE_ID, ICore::mainWindow());
+    }
+
+    void handleImportBuild()
+    {
+        ProjectItem *projectItem = m_projectsModel.rootItem()->childAt(0);
+        Project *project = projectItem ? projectItem->project() : 0;
+        ProjectImporter *projectImporter = project ? project->projectImporter() : 0;
+        QTC_ASSERT(projectImporter, return);
+
+        QString dir = project->projectDirectory().toString();
+        QString importDir = QFileDialog::getExistingDirectory(ICore::mainWindow(),
+                                                              ProjectWindow::tr("Import directory"),
+                                                              dir);
+        FileName path = FileName::fromString(importDir);
+
+        const QList<BuildInfo *> toImport = projectImporter->import(path, false);
+        for (BuildInfo *info : toImport) {
+            Target *target = project->target(info->kitId);
+            if (!target) {
+                target = project->createTarget(KitManager::find(info->kitId));
+                if (target)
+                    project->addTarget(target);
+            }
+            if (target) {
+                projectImporter->makePersistent(target->kit());
+                BuildConfiguration *bc = info->factory()->create(target, info);
+                QTC_ASSERT(bc, continue);
+                target->addBuildConfiguration(bc);
+            }
+        }
+        qDeleteAll(toImport);
+    }
+
+
     std::function<void (QWidget *)> m_changeListener;
     ProjectsModel m_projectsModel;
     ComboBoxModel m_comboBoxModel;
     QComboBox *m_projectSelection;
     SelectorTree *m_selectorTree;
+    QPushButton *m_importBuild;
+    QPushButton *m_manageKits;
 };
 
 //
@@ -545,6 +571,9 @@ ProjectWindow::ProjectWindow()
     auto innerLayout = new QVBoxLayout;
     innerLayout->setSpacing(10);
     innerLayout->setContentsMargins(14, innerLayout->spacing(), 14, 0);
+    innerLayout->addWidget(selectorModel->m_manageKits);
+    innerLayout->addWidget(selectorModel->m_importBuild);
+    innerLayout->addSpacerItem(new QSpacerItem(10, 30, QSizePolicy::Maximum, QSizePolicy::Maximum));
     innerLayout->addWidget(activeLabel);
     innerLayout->addWidget(selectorModel->m_projectSelection);
     innerLayout->addWidget(selectorModel->m_selectorTree);
