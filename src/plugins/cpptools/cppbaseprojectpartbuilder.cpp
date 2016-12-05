@@ -184,7 +184,7 @@ public:
         m_projectPart.toolchainType = m_toolChain.type();
         m_projectPart.isMsvc2015Toolchain = m_toolChain.isMsvc2015Toolchain();
         m_projectPart.toolChainWordWidth = mapWordWith(m_toolChain.wordWidth());
-        m_projectPart.targetTriple = m_toolChain.targetTriple();
+        m_projectPart.toolChainTargetTriple = m_toolChain.targetTriple();
     }
 
 private:

@@ -36,6 +36,8 @@
 #include <QSharedPointer>
 #include <QVector>
 
+#include <functional>
+
 namespace Core {
 class IEditor;
 class IDocument;

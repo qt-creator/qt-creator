@@ -31,6 +31,7 @@
 
 #include <clangbackendipc/codecompletion.h>
 
+#include <QCoreApplication>
 #include <QTextCursor>
 
 namespace ClangCodeModel {

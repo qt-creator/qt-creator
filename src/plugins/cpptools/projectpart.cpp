@@ -25,22 +25,11 @@
 
 #include "projectpart.h"
 
+#include <QFile>
 #include <QDir>
 #include <QTextStream>
 
 namespace CppTools {
-
-ProjectPart::ProjectPart()
-    : project(0)
-    , toolChainWordWidth(WordWidth32Bit)
-    , isMsvc2015Toolchain(false)
-    , languageVersion(LatestCxxVersion)
-    , languageExtensions(NoExtensions)
-    , qtVersion(UnknownQt)
-    , warningFlags(ProjectExplorer::WarningFlags::Default)
-    , selectedForBuilding(true)
-{
-}
 
 void ProjectPart::updateLanguageFeatures()
 {
@@ -80,11 +69,11 @@ QString ProjectPart::id() const
     return projectPartId;
 }
 
-QByteArray ProjectPart::readProjectConfigFile(const ProjectPart::Ptr &part)
+QByteArray ProjectPart::readProjectConfigFile(const Ptr &projectPart)
 {
     QByteArray result;
 
-    QFile f(part->projectConfigFile);
+    QFile f(projectPart->projectConfigFile);
     if (f.open(QIODevice::ReadOnly)) {
         QTextStream is(&f);
         result = is.readAll().toUtf8();

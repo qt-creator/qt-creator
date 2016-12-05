@@ -97,9 +97,9 @@ void CompilerOptionsBuilder::addWordWidth()
 
 void CompilerOptionsBuilder::addTargetTriple()
 {
-    if (!m_projectPart.targetTriple.isEmpty()) {
+    if (!m_projectPart.toolChainTargetTriple.isEmpty()) {
         m_options.append(QLatin1String("-target"));
-        m_options.append(m_projectPart.targetTriple);
+        m_options.append(m_projectPart.toolChainTargetTriple);
     }
 }
 
