@@ -1155,7 +1155,7 @@ void MainWindow::restoreWindowState()
     QSettings *settings = PluginManager::settings();
     settings->beginGroup(QLatin1String(settingsGroup));
     if (!restoreGeometry(settings->value(QLatin1String(windowGeometryKey)).toByteArray()))
-        resize(1008, 700); // size without window decoration
+        resize(1260, 700); // size without window decoration
     restoreState(settings->value(QLatin1String(windowStateKey)).toByteArray());
     settings->endGroup();
     show();
