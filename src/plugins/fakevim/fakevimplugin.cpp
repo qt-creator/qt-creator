@@ -908,7 +908,7 @@ public:
     }
 
 private:
-    FakeVimHandler *m_handler;
+    FakeVimHandler *m_handler = nullptr;
     QString m_needle;
 };
 
