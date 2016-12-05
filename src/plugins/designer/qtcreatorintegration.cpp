@@ -142,8 +142,8 @@ static QList<Document::Ptr> findDocumentsIncluding(const Snapshot &docTable,
 // Does klass inherit baseClass?
 static bool inherits(const Overview &o, const Class *klass, const QString &baseClass)
 {
-    const int baseClassCount = klass->baseClassCount();
-    for (int b = 0; b < baseClassCount; b++)
+    const unsigned int baseClassCount = klass->baseClassCount();
+    for (unsigned int b = 0; b < baseClassCount; ++b)
         if (o.prettyName(klass->baseClassAt(b)->name()) == baseClass)
             return true;
     return false;
