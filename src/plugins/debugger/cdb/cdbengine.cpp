@@ -1238,9 +1238,6 @@ void CdbEngine::doUpdateLocals(const UpdateParameters &updateParameters)
         cmd.arg("stringcutoff", action(MaximalStringLength)->value().toString());
         cmd.arg("displaystringlimit", action(DisplayStringLimit)->value().toString());
 
-        //cmd.arg("resultvarname", m_resultVarName);
-        cmd.arg("partialvar", updateParameters.partialVariable);
-
         cmd.callback = [this](const DebuggerResponse &response) {
             if (response.resultClass == ResultDone) {
                 showMessage(response.data.toString(), LogMisc);
