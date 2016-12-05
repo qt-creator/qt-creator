@@ -94,6 +94,14 @@ QmlProfilerBindingLoopsRenderPass::QmlProfilerBindingLoopsRenderPass()
 {
 }
 
+static inline bool eventOutsideRange(const QmlProfilerRangeModel *model,
+                                  const Timeline::TimelineRenderState *parentState, int i)
+{
+    const qint64 start = qMax(parentState->start(), model->startTime(i));
+    const qint64 end = qMin(parentState->end(), model->endTime(i));
+    return start > end;
+}
+
 void updateNodes(const QmlProfilerRangeModel *model, int from, int to,
                  const Timeline::TimelineRenderState *parentState,
                  BindingLoopsRenderPassState *state)
@@ -103,13 +111,7 @@ void updateNodes(const QmlProfilerRangeModel *model, int from, int to,
 
     for (int i = from; i < to; ++i) {
         int bindingLoopDest = model->bindingLoopDest(i);
-        if (bindingLoopDest == -1)
-            continue;
-
-        qint64 start = qMax(parentState->start(), model->startTime(i));
-        qint64 end = qMin(parentState->end(), model->startTime(i) + model->duration(i));
-
-        if (start > end)
+        if (bindingLoopDest == -1 || eventOutsideRange(model, parentState, i))
             continue;
 
         expandedPerRow[model->expandedRow(i)].usedVertices += 4;
@@ -132,10 +134,7 @@ void updateNodes(const QmlProfilerRangeModel *model, int from, int to,
     int rowHeight = Timeline::TimelineModel::defaultRowHeight();
     for (int i = from; i < to; ++i) {
         int bindingLoopDest = model->bindingLoopDest(i);
-        if (bindingLoopDest == -1)
-            continue;
-
-        if (model->startTime(i) > parentState->end() || model->endTime(i) < parentState->start())
+        if (bindingLoopDest == -1 || eventOutsideRange(model, parentState, i))
             continue;
 
         qint64 center = qMax(parentState->start(), qMin(parentState->end(),
