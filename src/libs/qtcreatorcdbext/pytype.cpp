@@ -33,7 +33,7 @@
 #include "stringutils.h"
 #include "symbolgroupvalue.h"
 
-constexpr bool debugPyType = true;
+constexpr bool debugPyType = false;
 constexpr bool debuggingTypeEnabled() { return debugPyType || debugPyCdbextModule; }
 
 enum TypeCodes {
