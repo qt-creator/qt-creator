@@ -240,6 +240,7 @@ public:
                 m_data.allocated.data.capacity = newCapacity;
             } else {
                 const size_type oldSize = size();
+                newCapacity = std::max(newCapacity, oldSize);
                 const char *oldData = data();
 
                 char *newData = Memory::allocate(newCapacity + 1);

@@ -815,25 +815,43 @@ TEST(SmallString, EndsWithSmallString)
     ASSERT_TRUE(text.endsWith('h'));
 }
 
-TEST(SmallString, ReserveSmallerThanReference)
+TEST(SmallString, ReserveSmallerThanShortStringCapacity)
 {
     SmallString text("text");
 
     text.reserve(2);
 
-    ASSERT_THAT(text.capacity(), 30);
+    ASSERT_THAT(text.capacity(), AnyOf(30, 4));
 }
 
-TEST(SmallString, ReserveBiggerThanReference)
+TEST(SmallString, ReserveSmallerThanReference)
+{
+    SmallString text("some very very very very very very very very very very very long string");
+
+    text.reserve(35);
+
+    ASSERT_THAT(text.capacity(), 71);
+}
+
+TEST(SmallString, ReserveBiggerThanShortStringCapacity)
 {
     SmallString text("text");
 
     text.reserve(10);
 
-    ASSERT_THAT(text.capacity(), 30);
+    ASSERT_THAT(text.capacity(), AnyOf(30, 10));
 }
 
-TEST(SmallString, ReserveMuchBiggerThanReference)
+TEST(SmallString, ReserveBiggerThanReference)
+{
+    SmallString text("some very very very very very very very very very very very long string");
+
+    text.reserve(35);
+
+    ASSERT_THAT(text.capacity(), 71);
+}
+
+TEST(SmallString, ReserveMuchBiggerThanShortStringCapacity)
 {
     SmallString text("text");
 
