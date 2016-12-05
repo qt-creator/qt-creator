@@ -123,19 +123,43 @@ Utils::SmallStringVector createCommandLine(CppTools::ProjectPart *projectPart,
     return commandLine;
 }
 
+bool unsavedContentContains(const ClangBackEnd::FilePath &sourceFilePath,
+                            const std::vector<ClangBackEnd::V2::FileContainer> &unsavedContent)
+{
+    auto compare = [&] (const ClangBackEnd::V2::FileContainer &unsavedEntry) {
+        return unsavedEntry.filePath() == sourceFilePath;
+    };
+
+    auto found = std::find_if(unsavedContent.begin(), unsavedContent.end(), compare);
+
+    return found != unsavedContent.end();
+}
+
+void appendSource(std::vector<ClangBackEnd::V2::FileContainer> &sources,
+                  const CppTools::ProjectPart::Ptr &projectPart,
+                  const CppTools::ProjectFile &projectFile,
+                  const std::vector<ClangBackEnd::V2::FileContainer> &unsavedContent)
+{
+    ClangBackEnd::FilePath sourceFilePath(projectFile.path);
+
+    if (!unsavedContentContains(sourceFilePath, unsavedContent)) {
+        sources.emplace_back(ClangBackEnd::FilePath(projectFile.path),
+                             "",
+                             createCommandLine(projectPart.data(),
+                                               projectFile.path,
+                                               projectFile.kind));
+    }
+}
+
 std::vector<ClangBackEnd::V2::FileContainer>
-createSources(const std::vector<CppTools::ProjectPart::Ptr> &projectParts)
+createSources(const std::vector<CppTools::ProjectPart::Ptr> &projectParts,
+              const std::vector<ClangBackEnd::V2::FileContainer> &unsavedContent)
 {
     std::vector<ClangBackEnd::V2::FileContainer> sources;
 
     for (const CppTools::ProjectPart::Ptr &projectPart : projectParts) {
-        for (const CppTools::ProjectFile &projectFile : projectPart->files) {
-            sources.emplace_back(ClangBackEnd::FilePath(projectFile.path),
-                                        "",
-                                        createCommandLine(projectPart.data(),
-                                                          projectFile.path,
-                                                          projectFile.kind));
-        }
+        for (const CppTools::ProjectFile &projectFile : projectPart->files)
+            appendSource(sources, projectPart, projectFile, unsavedContent);
     }
 
     return sources;
@@ -147,7 +171,7 @@ ClangBackEnd::RequestSourceRangesAndDiagnosticsForQueryMessage ClangQueryProject
 {
     return ClangBackEnd::RequestSourceRangesAndDiagnosticsForQueryMessage(
                 Utils::SmallString(queryText),
-                createSources(projectParts),
+                createSources(projectParts, unsavedContent),
                 Utils::clone(unsavedContent));
 }
 

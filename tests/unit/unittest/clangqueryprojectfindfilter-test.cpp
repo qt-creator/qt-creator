@@ -166,6 +166,7 @@ std::vector<CppTools::ProjectPart::Ptr> createProjectParts()
 
     auto projectPart2 = CppTools::ProjectPart::Ptr(new CppTools::ProjectPart);
     projectPart1->files.append({"/path/to/file2.cpp", CppTools::ProjectFile::CXXHeader});
+    projectPart1->files.append({"/path/to/unsaved.cpp", CppTools::ProjectFile::CXXSource});
 
     return {projectPart1, projectPart2};
 }

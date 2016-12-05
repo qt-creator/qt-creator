@@ -102,8 +102,8 @@ public:
 
     friend bool operator==(const FilePath &first, const FilePath &second)
     {
-        return first.directory_ == second.directory_
-                && first.name_ == second.name_;
+        return first.name_ == second.name_
+            && first.directory_ == second.directory_;
     }
 
     FilePath clone() const
