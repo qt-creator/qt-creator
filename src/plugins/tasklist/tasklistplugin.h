@@ -57,7 +57,7 @@ public slots:
     void loadDataFromSession();
 
 private:
-    Core::IDocumentFactory *m_fileFactory;
+    Core::IDocumentFactory *m_fileFactory = nullptr;
     QList<TaskFile *> m_openFiles;
 };
 
