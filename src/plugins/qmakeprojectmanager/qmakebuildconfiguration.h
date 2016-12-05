@@ -116,7 +116,6 @@ protected:
     QmakeBuildConfiguration(ProjectExplorer::Target *target, QmakeBuildConfiguration *source);
     QmakeBuildConfiguration(ProjectExplorer::Target *target, Core::Id id);
     bool fromMap(const QVariantMap &map) override;
-    void setBuildDirectory(const Utils::FileName &directory) override;
 
 private:
     void ctor();
