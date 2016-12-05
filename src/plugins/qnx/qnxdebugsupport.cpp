@@ -132,7 +132,7 @@ void QnxDebugSupport::handleRemoteProcessStarted()
 
 void QnxDebugSupport::handleRemoteProcessFinished(bool success)
 {
-    if (m_runControl || state() == Inactive)
+    if (!m_runControl || state() == Inactive)
         return;
 
     if (state() == Running) {
