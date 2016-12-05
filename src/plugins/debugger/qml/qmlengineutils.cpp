@@ -88,7 +88,7 @@ public:
 
         } else if (ast->statement->kind == Node::Kind_Block) {
             Block *block = static_cast<Block *>(ast->statement);
-            if (!block || !block->statements)
+            if (!block->statements)
                 return true;
             statementStartLine = block->statements->firstSourceLocation().startLine;
             statementColumn = block->statements->firstSourceLocation().startColumn;
