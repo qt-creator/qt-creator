@@ -164,8 +164,10 @@ QVector<JsonKitsPage::ConditionalFeature> JsonKitsPage::parseFeatures(const QVar
             const QVariantMap obj = element.toMap();
             const QString feature = obj.value(QLatin1String(KEY_FEATURE)).toString();
             if (feature.isEmpty()) {
-                *errorMessage = tr("No \"%1\" key found in feature list object.")
-                        .arg(QLatin1String(KEY_FEATURE));
+                if (errorMessage) {
+                    *errorMessage = tr("No \"%1\" key found in feature list object.")
+                            .arg(QLatin1String(KEY_FEATURE));
+                }
                 return QVector<ConditionalFeature>();
             }
 
