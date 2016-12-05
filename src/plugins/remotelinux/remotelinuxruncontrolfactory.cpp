@@ -70,6 +70,7 @@ bool RemoteLinuxRunControlFactory::canRun(RunConfiguration *runConfiguration, Co
     }
 
     const Core::Id id = runConfiguration->id();
+    QTC_ASSERT(runConfiguration->extraAspect<DebuggerRunConfigurationAspect>(), return false);
     return runConfiguration->isEnabled()
             && (id == RemoteLinuxCustomRunConfiguration::runConfigId()
                 || id.name().startsWith(RemoteLinuxRunConfiguration::IdPrefix));
@@ -96,7 +97,9 @@ RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Co
         }
 
         auto aspect = runConfig->extraAspect<DebuggerRunConfigurationAspect>();
-        int portsUsed = aspect ? aspect->portsUsedByDebugger() : 0;
+        QTC_ASSERT(aspect, return 0);
+
+        int portsUsed = aspect->portsUsedByDebugger();
         if (portsUsed > dev->freePorts().count()) {
             *errorMessage = tr("Cannot debug: Not enough free ports available.");
             return 0;
