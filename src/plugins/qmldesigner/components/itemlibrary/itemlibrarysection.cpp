@@ -85,7 +85,7 @@ bool ItemLibrarySection::updateSectionVisibility(const QString &searchText, bool
             haveVisibleItems = true;
     }
 
-    if (changed)
+    if (*changed)
         m_sectionEntries.resetModel();
 
     return haveVisibleItems;
