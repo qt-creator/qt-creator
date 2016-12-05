@@ -112,12 +112,8 @@ void AbstractProcessStep::setOutputParser(IOutputParser *parser)
     m_outputParserChain = new AnsiFilterParser;
     m_outputParserChain->appendOutputParser(parser);
 
-    if (m_outputParserChain) {
-        connect(m_outputParserChain, &IOutputParser::addOutput,
-                this, &AbstractProcessStep::outputAdded);
-        connect(m_outputParserChain, &IOutputParser::addTask,
-                this, &AbstractProcessStep::taskAdded);
-    }
+    connect(m_outputParserChain, &IOutputParser::addOutput, this, &AbstractProcessStep::outputAdded);
+    connect(m_outputParserChain, &IOutputParser::addTask, this, &AbstractProcessStep::taskAdded);
 }
 
 /*!
