@@ -357,53 +357,91 @@ public:
 using ProjectsModel = TreeModel<TypedTreeItem<ProjectItem>, ProjectItem>;
 using ComboBoxModel = TreeModel<TypedTreeItem<ComboBoxItem>, ComboBoxItem>;
 
-class SelectorModel : public QObject
+//
+// ProjectWindowPrivate
+//
+
+class ProjectWindowPrivate : public QObject
 {
 public:
-    SelectorModel(QObject *parent, const std::function<void (QWidget *)> &changeListener)
-        : QObject(parent)
+    ProjectWindowPrivate(ProjectWindow *parent)
+        : q(parent)
     {
         m_projectsModel.setHeader({ ProjectWindow::tr("Projects") });
-        m_changeListener = changeListener;
 
         m_selectorTree = new SelectorTree;
         m_selectorTree->setModel(&m_projectsModel);
         m_selectorTree->setItemDelegate(new SelectorDelegate);
         m_selectorTree->setContextMenuPolicy(Qt::CustomContextMenu);
         connect(m_selectorTree, &QAbstractItemView::activated,
-                this, &SelectorModel::itemActivated);
+                this, &ProjectWindowPrivate::itemActivated);
         connect(m_selectorTree, &QWidget::customContextMenuRequested,
-                this, &SelectorModel::openContextMenu);
+                this, &ProjectWindowPrivate::openContextMenu);
 
         m_projectSelection = new QComboBox;
         m_projectSelection->setModel(&m_comboBoxModel);
         connect(m_projectSelection, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated),
-                this, &SelectorModel::projectSelected, Qt::QueuedConnection);
+                this, &ProjectWindowPrivate::projectSelected, Qt::QueuedConnection);
 
         SessionManager *sessionManager = SessionManager::instance();
         connect(sessionManager, &SessionManager::projectAdded,
-                this, &SelectorModel::registerProject);
+                this, &ProjectWindowPrivate::registerProject);
         connect(sessionManager, &SessionManager::aboutToRemoveProject,
-                this, &SelectorModel::deregisterProject);
+                this, &ProjectWindowPrivate::deregisterProject);
         connect(sessionManager, &SessionManager::startupProjectChanged,
-                this, &SelectorModel::startupProjectChanged);
+                this, &ProjectWindowPrivate::startupProjectChanged);
 
         m_importBuild = new QPushButton(ProjectWindow::tr("Import Existing Build..."));
         connect(m_importBuild, &QPushButton::clicked,
-                this, &SelectorModel::handleImportBuild);
+                this, &ProjectWindowPrivate::handleImportBuild);
         connect(sessionManager, &SessionManager::startupProjectChanged, this, [this](Project *project) {
             m_importBuild->setEnabled(project && project->projectImporter());
         });
 
         m_manageKits = new QPushButton(ProjectWindow::tr("Manage Kits..."));
         connect(m_manageKits, &QPushButton::clicked,
-                this, &SelectorModel::handleManageKits);
+                this, &ProjectWindowPrivate::handleManageKits);
+
+        auto styledBar = new StyledBar; // The black blob on top of the side bar
+        styledBar->setObjectName("ProjectModeStyledBar");
+
+        auto selectorView = new QWidget; // Black blob + Combobox + Project tree below.
+        selectorView->setObjectName("ProjectSelector"); // Needed for dock widget state saving
+        selectorView->setWindowTitle(ProjectWindow::tr("Project Selector"));
+        selectorView->setAutoFillBackground(true);
+        selectorView->setContextMenuPolicy(Qt::CustomContextMenu);
+        connect(selectorView, &QWidget::customContextMenuRequested,
+                this, &ProjectWindowPrivate::openContextMenu);
+
+        auto activeLabel = new QLabel(ProjectWindow::tr("Active Project"));
+        QFont font = activeLabel->font();
+        font.setBold(true);
+        font.setPointSizeF(font.pointSizeF() * 1.2);
+        activeLabel->setFont(font);
+
+        auto innerLayout = new QVBoxLayout;
+        innerLayout->setSpacing(10);
+        innerLayout->setContentsMargins(14, innerLayout->spacing(), 14, 0);
+        innerLayout->addWidget(m_manageKits);
+        innerLayout->addWidget(m_importBuild);
+        innerLayout->addSpacerItem(new QSpacerItem(10, 30, QSizePolicy::Maximum, QSizePolicy::Maximum));
+        innerLayout->addWidget(activeLabel);
+        innerLayout->addWidget(m_projectSelection);
+        innerLayout->addWidget(m_selectorTree);
+
+        auto selectorLayout = new QVBoxLayout(selectorView);
+        selectorLayout->setContentsMargins(0, 0, 0, 0);
+        selectorLayout->addWidget(styledBar);
+        selectorLayout->addLayout(innerLayout);
+
+        auto selectorDock = q->addDockForWidget(selectorView, true);
+        q->addDockWidget(Qt::LeftDockWidgetArea, selectorDock);
     }
 
     void updatePanel()
     {
         ProjectItem *projectItem = m_projectsModel.rootItem()->childAt(0);
-        m_changeListener(projectItem->data(0, PanelWidgetRole).value<QWidget *>());
+        setPanel(projectItem->data(0, PanelWidgetRole).value<QWidget *>());
 
         QModelIndex activeIndex = projectItem->activeIndex();
         m_selectorTree->expandAll();
@@ -530,8 +568,21 @@ public:
         qDeleteAll(toImport);
     }
 
+    void setPanel(QWidget *panel)
+    {
+        if (QWidget *widget = q->centralWidget()) {
+            q->takeCentralWidget();
+            widget->hide(); // Don't delete.
+        }
+        if (panel) {
+            q->setCentralWidget(panel);
+            panel->show();
+            if (q->hasFocus()) // we get assigned focus from setFocusToCurrentMode, pass that on
+                panel->setFocus();
+        }
+    }
 
-    std::function<void (QWidget *)> m_changeListener;
+    ProjectWindow *q;
     ProjectsModel m_projectsModel;
     ComboBoxModel m_comboBoxModel;
     QComboBox *m_projectSelection;
@@ -545,63 +596,18 @@ public:
 //
 
 ProjectWindow::ProjectWindow()
+    : d(new ProjectWindowPrivate(this))
 {
     setBackgroundRole(QPalette::Base);
 
     // Request custom context menu but do not provide any to avoid
     // the creation of the dock window selection menu.
     setContextMenuPolicy(Qt::CustomContextMenu);
-
-    auto selectorModel = new SelectorModel(this, [this](QWidget *panel) { setPanel(panel); });
-
-    auto styledBar = new StyledBar; // The black blob on top of the side bar
-    styledBar->setObjectName("ProjectModeStyledBar");
-
-    auto selectorView = new QWidget; // Black blob + Combobox + Project tree below.
-    selectorView->setObjectName("ProjectSelector"); // Needed for dock widget state saving
-    selectorView->setWindowTitle(tr("Project Selector"));
-    selectorView->setAutoFillBackground(true);
-    selectorView->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(selectorView, &QWidget::customContextMenuRequested,
-            selectorModel, &SelectorModel::openContextMenu);
-
-    auto activeLabel = new QLabel(tr("Active Project"));
-    QFont font = activeLabel->font();
-    font.setBold(true);
-    font.setPointSizeF(font.pointSizeF() * 1.2);
-    activeLabel->setFont(font);
-
-    auto innerLayout = new QVBoxLayout;
-    innerLayout->setSpacing(10);
-    innerLayout->setContentsMargins(14, innerLayout->spacing(), 14, 0);
-    innerLayout->addWidget(selectorModel->m_manageKits);
-    innerLayout->addWidget(selectorModel->m_importBuild);
-    innerLayout->addSpacerItem(new QSpacerItem(10, 30, QSizePolicy::Maximum, QSizePolicy::Maximum));
-    innerLayout->addWidget(activeLabel);
-    innerLayout->addWidget(selectorModel->m_projectSelection);
-    innerLayout->addWidget(selectorModel->m_selectorTree);
-
-    auto selectorLayout = new QVBoxLayout(selectorView);
-    selectorLayout->setContentsMargins(0, 0, 0, 0);
-    selectorLayout->addWidget(styledBar);
-    selectorLayout->addLayout(innerLayout);
-
-    auto selectorDock = addDockForWidget(selectorView, true);
-    addDockWidget(Qt::LeftDockWidgetArea, selectorDock);
 }
 
-void ProjectWindow::setPanel(QWidget *panel)
+ProjectWindow::~ProjectWindow()
 {
-    if (QWidget *widget = centralWidget()) {
-        takeCentralWidget();
-        widget->hide(); // Don't delete.
-    }
-    if (panel) {
-        setCentralWidget(panel);
-        panel->show();
-        if (hasFocus()) // we get assigned focus from setFocusToCurrentMode, pass that on
-            panel->setFocus();
-    }
+    delete d;
 }
 
 QSize SelectorDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const

@@ -48,15 +48,18 @@ enum {
     PanelWidgetRole               // This item's widget to be shown as central widget.
 };
 
+class ProjectWindowPrivate;
+
 class ProjectWindow : public Utils::FancyMainWindow
 {
     Q_OBJECT
 
 public:
     ProjectWindow();
+    ~ProjectWindow();
 
 private:
-    void setPanel(QWidget *panel);
+    ProjectWindowPrivate *d;
 };
 
 } // namespace Internal
