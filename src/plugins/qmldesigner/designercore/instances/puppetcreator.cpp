@@ -494,9 +494,7 @@ bool PuppetCreator::startBuildProcess(const QString &buildDirectoryPath,
 
         QByteArray newOutput = process.readAllStandardOutput();
         if (!newOutput.isEmpty()) {
-            if (progressDialog)
-                progressDialog->newBuildOutput(newOutput);
-
+            progressDialog->newBuildOutput(newOutput);
             m_compileLog.append(QString::fromLatin1(newOutput));
         }
     }
