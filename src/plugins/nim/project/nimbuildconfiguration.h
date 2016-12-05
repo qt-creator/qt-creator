@@ -46,8 +46,6 @@ public:
 
     ProjectExplorer::BuildConfiguration::BuildType buildType() const override;
 
-    void setBuildDirectory(const Utils::FileName &dir) override;
-
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
 

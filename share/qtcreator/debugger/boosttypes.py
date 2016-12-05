@@ -65,12 +65,8 @@ def qdump__boost__shared_ptr(d, value):
     d.check(weakcount >= 0)
     d.check(weakcount <= usecount)
     d.check(usecount <= 10*1000*1000)
-
-    with Children(d):
-        short = d.putSubItem("data", d.createValue(px, value.type[0]))
-        d.putIntItem("weakcount", weakcount)
-        d.putIntItem("usecount", usecount)
-    d.putValue(short.value, short.encoding)
+    d.putItem(d.createValue(px, value.type[0]))
+    d.putBetterType(value.type)
 
 
 def qdump__boost__container__list(d, value):

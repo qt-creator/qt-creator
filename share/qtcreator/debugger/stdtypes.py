@@ -657,6 +657,9 @@ def qdump__std____weak_ptr(d, value):
 def qdump__std__weak_ptr(d, value):
     return qdump__std__shared_ptr(d, value)
 
+def qdump__std____1__weak_ptr(d, value):
+    return qdump__std____1__shared_ptr(d, value)
+
 
 def qdump__std__shared_ptr(d, value):
     if d.isMsvcTarget():
@@ -667,41 +670,27 @@ def qdump__std__shared_ptr(d, value):
     if i.pointer() == 0:
         d.putValue("(null)")
         d.putNumChild(0)
-        return
-    with Children(d):
-        short = d.putSubItem("data", i.dereference())
-        if d.isMsvcTarget():
-            refcount = value["_Rep"]
-            d.putIntItem("usecount", refcount["_Uses"])
-            d.putIntItem("weakcount", refcount["_Weaks"])
-        else:
-            refcount = value["_M_refcount"]["_M_pi"]
-            d.putIntItem("usecount", refcount["_M_use_count"])
-            d.putIntItem("weakcount", refcount["_M_weak_count"])
-    d.putValue(short.value, short.encoding)
+    else:
+        d.putItem(i.dereference())
+        d.putBetterType(value.type)
 
 def qdump__std____1__shared_ptr(d, value):
     i = value["__ptr_"]
     if i.pointer() == 0:
         d.putValue("(null)")
         d.putNumChild(0)
-        return
-    with Children(d):
-        short = d.putSubItem("data", i.dereference())
-        d.putFields(value["__cntrl_"].dereference())
-        #d.putIntItem("usecount", refcount["_M_use_count"])
-        #d.putIntItem("weakcount", refcount["_M_weak_count"])
-    d.putValue(short.value, short.encoding)
+    else:
+        d.putItem(i.dereference())
+        d.putBetterType(value.type)
 
 def qdump__std__unique_ptr(d, value):
     p = d.extractPointer(value)
     if p == 0:
         d.putValue("(null)")
         d.putNumChild(0)
-        return
-    with Children(d):
-        short = d.putSubItem("data", d.createValue(p, value.type[0]))
-    d.putValue(short.value, short.encoding)
+    else:
+        d.putItem(d.createValue(p, value.type[0]))
+        d.putBetterType(value.type)
 
 def qdump__std____1__unique_ptr(d, value):
     qdump__std__unique_ptr(d, value)
@@ -1001,6 +990,14 @@ def qdump__std____1__basic_string(d, value):
 
 def qdump__wstring(d, value):
     qdump__std__wstring(d, value)
+
+def qdump__std____1__once_flag(d, value):
+    qdump__std__once_flag(d, value)
+
+def qdump__std__once_flag(d, value):
+    d.putItem(value[0])
+    d.putBetterType(value.type)
+    d.putPlainChildren(value)
 
 
 def qdump____gnu_cxx__hash_set(d, value):

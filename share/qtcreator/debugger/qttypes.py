@@ -190,6 +190,34 @@ def qdump_X_QModelIndex(d, value):
             d.putCallItem('parent', '@QModelIndex', value, 'parent')
     #gdb.execute('call free($mi)')
 
+def qdump__Qt__ItemDataRole(d, value):
+    d.putEnumValue(value, {
+        0  : "Qt::DisplayRole",
+        1  : "Qt::DecorationRole",
+        2  : "Qt::EditRole",
+        3  : "Qt::ToolTipRole",
+        4  : "Qt::StatusTipRole",
+        5  : "Qt::WhatsThisRole",
+        6  : "Qt::FontRole",
+        7  : "Qt::TextAlignmentRole",
+        # obsolete: 8  : "Qt::BackgroundColorRole",
+        8  : "Qt::BackgroundRole",
+        # obsolete: 9  : "Qt::TextColorRole",
+        9  : "Qt::ForegroundRole",
+        10 : "Qt::CheckStateRole",
+        11 : "Qt::AccessibleTextRole",
+        12 : "Qt::AccessibleDescriptionRole",
+        13 : "Qt::SizeHintRole",
+        14 : "Qt::InitialSortOrderRole",
+        # 27-31 Qt4 ItemDataRoles
+        27 : "Qt::DisplayPropertyRole",
+        28 : "Qt::DecorationPropertyRole",
+        29 : "Qt::ToolTipPropertyRole",
+        30 : "Qt::StatusTipPropertyRole",
+        31 : "Qt::WhatsThisPropertyRole",
+        0x100 : "Qt::UserRole"
+    })
+
 def qdump__QStandardItemData(d, value):
     role, pad, val = value.split('{@Qt::ItemDataRole}@{QVariant}')
     d.putPairContents(role.value(), (role, val), 'role', 'value')
@@ -202,8 +230,9 @@ def qdump__QStandardItem(d, value):
     if d.isExpanded():
         with Children(d):
             d.putSubItem('[model]', d.createValue(model, '@QStandardItemModel'))
-            d.putSubItem('[values]', d.createVectorItem(values, 'QStandardItemData'))
-            d.putSubItem('[children]', d.createVectorItem(children, '@QStandardItem*'))
+            d.putSubItem('[values]', d.createVectorItem(values, '@QStandardItemData'))
+            d.putSubItem('[children]', d.createVectorItem(children,
+                    d.createPointerType(value.type)))
 
 
 def qdump__QDate(d, value):

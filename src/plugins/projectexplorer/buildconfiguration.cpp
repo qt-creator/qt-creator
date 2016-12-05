@@ -122,6 +122,8 @@ Utils::FileName BuildConfiguration::rawBuildDirectory() const
 
 void BuildConfiguration::setBuildDirectory(const Utils::FileName &dir)
 {
+    if (dir == m_buildDirectory)
+        return;
     m_buildDirectory = dir;
     emitBuildDirectoryChanged();
 }

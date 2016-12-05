@@ -679,6 +679,15 @@ class Dumper(DumperBase):
             qtVersion = 0x10000 * int(major) + 0x100 * int(minor) + int(patch)
             self.qtVersion = lambda: qtVersion
 
+            funcs = self.target.FindFunctions('QObject::customEvent')
+            if len(funcs):
+                symbol = funcs[0].GetSymbol()
+                self.qtCustomEventFunc = symbol.GetStartAddress().GetLoadAddress(self.target)
+
+            funcs = self.target.FindFunctions('QObject::property')
+            if len(funcs):
+                symbol = funcs[0].GetSymbol()
+                self.qtPropertyFunc = symbol.GetStartAddress().GetLoadAddress(self.target)
             return (qtNamespace, qtVersion)
 
         return ('', 0x50200)

@@ -36,7 +36,6 @@ namespace Internal {
 
 class AutotoolsTarget;
 class AutotoolsBuildConfigurationFactory;
-class AutotoolsBuildSettingsWidget;
 
 class AutotoolsBuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
@@ -53,11 +52,6 @@ public:
 protected:
     AutotoolsBuildConfiguration(ProjectExplorer::Target *parent, Core::Id id);
     AutotoolsBuildConfiguration(ProjectExplorer::Target *parent, AutotoolsBuildConfiguration *source);
-
-    friend class AutotoolsBuildSettingsWidget;
-
-private:
-    void setBuildDirectory(const Utils::FileName &directory) override;
 };
 
 class AutotoolsBuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory

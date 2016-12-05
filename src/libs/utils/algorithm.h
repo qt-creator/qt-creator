@@ -214,78 +214,112 @@ using decay_t = typename std::decay<T>::type;
 template<typename T>
 using result_of_t = typename std::result_of<T>::type;
 
-// Result type of transform operation
+// abstraction to treat Container<T> and QStringList similarly
+template<typename T>
+struct ContainerType
+{
 
-template<template<typename> class Container, template<typename> class InputContainer, typename IT, typename Function>
-using ResultContainer = Container<decay_t<result_of_t<Function(IT)>>>;
+};
 
-} // anonymous
+// specialization for qt container T_Container<T_Type>
+template<template<typename> class T_Container, typename T_Type>
+struct ContainerType<T_Container<T_Type>>
+{
+    template<class F, template<typename> class C = T_Container>
+    using ResultOfTransform = C<decay_t<result_of_t<F (T_Type)>>>;
+
+    template<class R>
+    using ResultOfTransformPMF = T_Container<decay_t<R>>;
+};
+
+// specialization for QStringList
+template<>
+struct ContainerType<QStringList> : ContainerType<QList<QString>>
+{
+};
+
+}
+
+// actual implementation of transform
+template<typename C, // result container type
+         typename SC> // input container type
+struct TransformImpl {
+    template <typename F>
+    Q_REQUIRED_RESULT
+    static C call(const SC &container, F function)
+    {
+        C result;
+        std::transform(container.begin(), container.end(),
+                       inserter(result),
+                       function);
+        return result;
+    }
+
+    template <typename R, typename S>
+    Q_REQUIRED_RESULT
+    static C call(const SC &container, R (S::*p)() const)
+    {
+        return call(container, std::mem_fn(p));
+    }
+
+};
+
+// same container type for input and output, e.g. transforming a QList<QString> into QList<int>
+// or QStringList -> QList<>
+template<typename C, // container
+         typename F>
+Q_REQUIRED_RESULT
+auto transform(const C &container, F function)
+-> typename ContainerType<C>::template ResultOfTransform<F>
+{
+    return TransformImpl<
+                typename ContainerType<C>::template ResultOfTransform<F>,
+                C
+            >::call(container, function);
+}
+
+// same container type for member function pointer
+template<typename C,
+        typename R,
+        typename S>
+Q_REQUIRED_RESULT
+auto transform(const C &container, R (S::*p)() const)
+    ->typename ContainerType<C>::template ResultOfTransformPMF<R>
+{
+    return TransformImpl<
+                typename ContainerType<C>::template ResultOfTransformPMF<R>,
+                C
+            >::call(container, p);
+}
 
 // different container types for input and output, e.g. transforming a QList into a QSet
 template<template<typename> class C, // result container type
-         template<typename> class SC, // input container type
-         typename T, // input value type
+         typename SC, // input container type
          typename F> // function type
 Q_REQUIRED_RESULT
-auto transform(const SC<T> &container, F function) -> ResultContainer<C, SC, T, F>
+auto transform(const SC &container, F function)
+     -> typename ContainerType<SC>::template ResultOfTransform<F, C>
 {
-    ResultContainer<C, SC, T, F> result;
-    std::transform(container.begin(), container.end(),
-                   inserter(result),
-                   function);
-    return result;
+    return TransformImpl<
+                typename ContainerType<SC>::template ResultOfTransform<F, C>,
+                SC
+            >::call(container, function);
 }
 
 // different container types for input and output, e.g. transforming a QList into a QSet
 // for member function pointers
 template<template<typename> class C, // result container type
-         template<typename> class SC, // input container type
-         typename T, // input value type
+         typename SC, // input container type
          typename R,
          typename S>
 Q_REQUIRED_RESULT
-auto transform(const SC<T> &container, R (S::*p)() const) -> ResultContainer<C, SC, T, R(S::*)() const>
+auto transform(const SC &container, R (S::*p)() const)
+     -> C<decay_t<R>>
 {
-    return Utils::transform<C, SC, T>(container, std::mem_fn(p));
-}
-
-// same container type for input and output, e.g. transforming a QList<QString> into QList<int>
-// or QStringList -> QList<>
-template<template<typename> class C, // container
-         typename T, // container value type
-         typename F>
-Q_REQUIRED_RESULT
-auto transform(const C<T> &container, F function) -> ResultContainer<C, C, T, F>
-{
-    return Utils::transform<C, C, T>(container, function);
-}
-
-// same container type for member function pointer
-template<template<typename> class C, // container
-         typename T, // container value type
-         typename R,
-         typename S>
-Q_REQUIRED_RESULT
-auto transform(const C<T> &container, R (S::*p)() const) -> ResultContainer<C, C, T, R(S::*)() const>
-{
-    return Utils::transform<C, C, T>(container, std::mem_fn(p));
-}
-
-// QStringList different containers
-template<template<typename> class C, // result container type
-         typename F>
-Q_REQUIRED_RESULT
-auto transform(const QStringList &container, F function) -> ResultContainer<C, QList, QString, F>
-{
-    return Utils::transform<C, QList, QString>(container, function);
-}
-
-// QStringList -> QList
-template<typename F>
-Q_REQUIRED_RESULT
-auto transform(const QStringList &container, F function) -> ResultContainer<QList, QList, QString, F>
-{
-    return Utils::transform<QList, QList, QString>(container, function);
+    return TransformImpl<
+                C<decay_t<R>>,
+                SC
+            >::call(container, p);
 }
 
 //////////////////

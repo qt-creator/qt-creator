@@ -50,6 +50,7 @@ public:
 
     Utils::FileName buildDirectory() const;
     Utils::FileName rawBuildDirectory() const;
+    void setBuildDirectory(const Utils::FileName &dir);
 
     virtual NamedWidget *createConfigWidget() = 0;
     virtual QList<NamedWidget *> createSubConfigWidgets();
@@ -96,7 +97,6 @@ protected:
     BuildConfiguration(Target *target, Core::Id id);
     BuildConfiguration(Target *target, BuildConfiguration *source);
 
-    virtual void setBuildDirectory(const Utils::FileName &dir);
     void cloneSteps(BuildConfiguration *source);
     void emitEnvironmentChanged();
 

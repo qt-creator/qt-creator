@@ -8,5 +8,5 @@ QtcAutotest {
     targetName: testName // Test runner hardcodes the names of the executables
     destinationDirectory: project.buildDirectory + '/'
                           + qtc.ide_bin_path + '/testapps/' + testName
-    files: "main.cpp"
+    files: sourceDirectory + "/main.cpp"
 }

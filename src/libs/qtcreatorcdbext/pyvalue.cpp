@@ -32,8 +32,13 @@
 #include "stringutils.h"
 #include "symbolgroupvalue.h"
 
+#include <map>
+#include <algorithm>
+
 constexpr bool debugPyValue = false;
 constexpr bool debuggingValueEnabled() { return debugPyValue || debugPyCdbextModule; }
+
+static std::map<CIDebugSymbolGroup *, std::list<Value *>> valuesForSymbolGroup;
 
 std::string getSymbolName(CIDebugSymbolGroup *sg, ULONG index)
 {
@@ -147,6 +152,21 @@ PyObject *value_Address(Value *self)
     return Py_BuildValue("K", address);
 }
 
+void indicesMoved(CIDebugSymbolGroup *symbolGroup, ULONG start, ULONG delta)
+{
+    if (delta == 0)
+        return;
+    ULONG count;
+    if (FAILED(symbolGroup->GetNumberSymbols(&count)))
+        return;
+    if (count <= start)
+        return;
+    for (Value *val : valuesForSymbolGroup[symbolGroup]) {
+        if (val->m_index >= start && val->m_index + delta < count)
+            val->m_index += delta;
+    }
+}
+
 bool expandValue(Value *v)
 {
     DEBUG_SYMBOL_PARAMETERS params;
@@ -154,7 +174,15 @@ bool expandValue(Value *v)
         return false;
     if (params.Flags & DEBUG_SYMBOL_EXPANDED)
         return true;
-    return SUCCEEDED(v->m_symbolGroup->ExpandSymbol(v->m_index, TRUE));
+    if (FAILED(v->m_symbolGroup->ExpandSymbol(v->m_index, TRUE)))
+        return false;
+    if (FAILED(v->m_symbolGroup->GetSymbolParameters(v->m_index, 1, &params)))
+        return false;
+    if (params.Flags & DEBUG_SYMBOL_EXPANDED) {
+        indicesMoved(v->m_symbolGroup, v->m_index + 1, params.SubElements);
+        return true;
+    }
+    return false;
 }
 
 ULONG numberOfChildren(Value *v)
@@ -310,8 +338,11 @@ PyObject *value_ChildFromIndex(Value *self, PyObject *args)
     return createValue(self->m_index + index + 1, self->m_symbolGroup);
 }
 
-void value_Dealloc(Value *)
-{ }
+void value_Dealloc(Value *v)
+{
+    auto values = valuesForSymbolGroup[v->m_symbolGroup];
+    std::remove(values.begin(), values.end(), v);
+}
 
 PyObject *value_New(PyTypeObject *type, PyObject *, PyObject *)
 {
@@ -339,6 +370,7 @@ PyObject *createValue(ULONG index, CIDebugSymbolGroup *symbolGroup)
     if (value != NULL) {
         value->m_index = index;
         value->m_symbolGroup = symbolGroup;
+        valuesForSymbolGroup[symbolGroup].push_back(value);
     }
     return reinterpret_cast<PyObject*>(value);
 }

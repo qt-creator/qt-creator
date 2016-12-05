@@ -333,11 +333,11 @@ public:
     QAction *m_projectSelectorActionQuick;
     QAction *m_runSubProject;
 
-    ProjectWindow *m_proWindow;
+    ProjectWindow *m_proWindow = nullptr;
     QString m_sessionToRestoreAtStartup;
 
     QStringList m_profileMimeTypes;
-    AppOutputPane *m_outputPane;
+    AppOutputPane *m_outputPane = nullptr;
 
     QList<QPair<QString, QString> > m_recentProjects; // pair of filename, displayname
     static const int m_maxRecentProjects = 25;

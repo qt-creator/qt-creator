@@ -91,10 +91,13 @@
     To keep the selections in the diagram and the \uicontrol Structure view
     synchronized, select \uicontrol {Keep Synchronized}.
 
-    To zoom into diagrams, press \key Ctrl++ or press \key Ctrl and roll the
-    mouse wheel up. To zoom out of diagrams, press \key Ctrl+- or press
-    \key Ctrl and roll the mouse wheel down. To reset the diagram size to 100%,
-    select \key Ctrl+0.
+    To zoom into diagrams, select \uicontrol Tools > \uicontrol {Model Editor} >
+    \uicontrol {Zoom In}, press \key Ctrl++, or press \key Ctrl and roll the
+    mouse wheel up. To zoom out of diagrams, select \uicontrol Tools >
+    \uicontrol {Model Editor} > \uicontrol {Zoom Out}, press \key Ctrl+-, or
+    press \key Ctrl and roll the mouse wheel down. To reset the diagram size to
+    100%, select \uicontrol Tools > \uicontrol {Model Editor} > \uicontrol
+    {Reset Zoom} or press \key Ctrl+0.
 
     To print diagrams, press \key Ctrl+C when no elements are selected in
     the editor to copy all elements to the clipboard by using 300 dpi. Then

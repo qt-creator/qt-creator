@@ -54,13 +54,6 @@ BuildConfiguration::BuildType NimBuildConfiguration::buildType() const
     return BuildConfiguration::Unknown;
 }
 
-void NimBuildConfiguration::setBuildDirectory(const FileName &dir)
-{
-    if (dir == buildDirectory())
-        return;
-    BuildConfiguration::setBuildDirectory(dir);
-}
-
 bool NimBuildConfiguration::fromMap(const QVariantMap &map)
 {
     if (!BuildConfiguration::fromMap(map))
