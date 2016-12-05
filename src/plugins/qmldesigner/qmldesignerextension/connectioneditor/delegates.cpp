@@ -126,21 +126,18 @@ QWidget *BindingDelegate::createEditor(QWidget *parent, const QStyleOptionViewIt
         QWidget *widget = QStyledItemDelegate::createEditor(parent, option, index);
 
         const BindingModel *model = qobject_cast<const BindingModel*>(index.model());
-
-        model->connectionView()->allModelNodes();
-
-        PropertiesComboBox *bindingComboBox = qobject_cast<PropertiesComboBox*>(widget);
-
         if (!model) {
             qWarning() << "BindingDelegate::createEditor no model";
             return widget;
         }
-
         if (!model->connectionView()) {
             qWarning() << "BindingDelegate::createEditor no connection view";
             return widget;
         }
 
+        model->connectionView()->allModelNodes();
+
+        PropertiesComboBox *bindingComboBox = qobject_cast<PropertiesComboBox*>(widget);
         if (!bindingComboBox) {
             qWarning() << "BindingDelegate::createEditor no bindingComboBox";
             return widget;
