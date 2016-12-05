@@ -105,7 +105,7 @@ void Slog2InfoRunner::launchSlog2Info()
     QTC_CHECK(!m_applicationId.isEmpty());
     QTC_CHECK(m_found);
 
-    if (m_logProcess && m_logProcess->state() == QProcess::Running)
+    if (m_logProcess->state() == QProcess::Running)
         return;
 
     m_launchDateTime = QDateTime::fromString(QString::fromLatin1(m_launchDateTimeProcess->readAllStandardOutput()).trimmed(),
