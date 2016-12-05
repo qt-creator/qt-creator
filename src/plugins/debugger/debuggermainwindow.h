@@ -146,7 +146,7 @@ private:
     QStackedWidget *m_centralWidgetStack;
     QWidget *m_editorPlaceHolder;
     Utils::StatusLabel *m_statusLabel;
-    QDockWidget *m_toolbarDock;
+    QDockWidget *m_toolbarDock = nullptr;
 
     QHash<QByteArray, QDockWidget *> m_dockForDockId;
     QHash<QByteArray, QWidget *> m_toolbarForPerspectiveId;
