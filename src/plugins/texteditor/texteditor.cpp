@@ -2617,17 +2617,21 @@ void TextEditorWidget::convertPosition(int pos, int *line, int *column) const
 
 bool TextEditorWidget::event(QEvent *e)
 {
+    if (!d)
+        return QPlainTextEdit::event(e);
+
     // FIXME: That's far too heavy, and triggers e.g for ChildEvent
-    if (d && e->type() != QEvent::InputMethodQuery)
-        d->m_contentsChanged = false;
     switch (e->type()) {
+    case QEvent::InputMethodQuery:
+        d->m_contentsChanged = false;
+        break;
     case QEvent::ShortcutOverride:
         if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape && d->m_snippetOverlay->isVisible()) {
             e->accept();
-            return true;
+        } else {
+            e->ignore(); // we are a really nice citizen
+            d->m_maybeFakeTooltipEvent = false;
         }
-        e->ignore(); // we are a really nice citizen
-        d->m_maybeFakeTooltipEvent = false;
         return true;
     case QEvent::ApplicationPaletteChange: {
         // slight hack: ignore palette changes
