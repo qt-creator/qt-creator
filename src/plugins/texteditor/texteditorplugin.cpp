@@ -71,8 +71,6 @@ static const char kCurrentDocumentFontSize[] = "CurrentDocument:FontSize";
 static TextEditorPlugin *m_instance = 0;
 
 TextEditorPlugin::TextEditorPlugin()
-  : m_settings(0),
-    m_lineNumberFilter(0)
 {
     QTC_ASSERT(!m_instance, return);
     m_instance = this;

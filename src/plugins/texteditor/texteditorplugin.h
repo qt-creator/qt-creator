@@ -60,10 +60,10 @@ private:
     void updateSearchResultsTabWidth(const TextEditor::TabSettings &tabSettings);
     void updateCurrentSelection(const QString &text);
 
-    TextEditorSettings *m_settings;
-    LineNumberFilter *m_lineNumberFilter;
-    OutlineFactory *m_outlineFactory;
-    TextMarkRegistry *m_baseTextMarkRegistry;
+    TextEditorSettings *m_settings = nullptr;
+    LineNumberFilter *m_lineNumberFilter = nullptr;
+    OutlineFactory *m_outlineFactory = nullptr;
+    TextMarkRegistry *m_baseTextMarkRegistry = nullptr;
 
 #ifdef WITH_TESTS
 private slots:
