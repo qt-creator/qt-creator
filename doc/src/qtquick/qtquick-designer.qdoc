@@ -59,7 +59,7 @@
 
             \li \uicontrol {Library} (2) displays the building blocks that you can use
                 to design applications: predefined QML types, your own QML
-                components, Qt Quick components or Qt Quick Controls that you
+                components, Qt Quick components or Qt Quick Controls 2 that you
                 import to the project, and other resources.
 
             \li \uicontrol Connections (3) enables you to create connections between

@@ -117,13 +117,11 @@
                 You can build the application and deploy it to desktop,
                 embedded, and mobile target platforms.
 
-            \li Qt Quick Controls Application
+            \li Qt Quick Controls 2 Application
 
                 Create a Qt Quick application using
                 \l{http://doc.qt.io/qt-5/qtquickcontrols2-index.html}
-                {Qt Quick Controls 2} (requires Qt 5.7 or later) or
-                \l{http://doc.qt.io/qt-5/qtquickcontrols-index.html}
-                {Qt Quick Controls}.
+                {Qt Quick Controls 2} (requires Qt 5.7 or later)
 
             \li Qt Canvas 3D Application
 
@@ -180,10 +178,6 @@
                 Use a single QML file that contains the main view. You can
                 review Qt Quick UI projects in a \l{Previewing QML Files}
                 {preview tool} and you need not build them.
-
-            \li Qt Quick Controls UI
-
-                Like a Qt Quick UI project, but using Qt Quick Controls
 
             \li Qt Custom Designer Widgets
 

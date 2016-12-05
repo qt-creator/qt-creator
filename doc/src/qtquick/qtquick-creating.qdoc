@@ -68,9 +68,6 @@
             \l{Previewing QML Files}{preview tool} and you need not build them.
             They do not contain any C++ code.
 
-        \li \uicontrol {Qt Quick Controls UI} is like \uicontrol {Qt Quick UI},
-            but using Qt Quick Controls.
-
         \li \uicontrol {Qt Quick Extension Plugins} (in the \uicontrol Library category)
             create C++ plugins that make it possible to offer extensions that
             can be loaded dynamically into Qt Quick applications. Select
@@ -86,7 +83,7 @@
 
         \li Select \uicontrol File > \uicontrol {New File or Project} >
             \uicontrol Application > \uicontrol {Qt Quick Application} or
-            \uicontrol {Qt Quick Controls Application} > \uicontrol Choose.
+            \uicontrol {Qt Quick Controls 2 Application} > \uicontrol Choose.
 
         \li For some Qt Quick applications, you must select the Qt version to
             develop with in the \uicontrol {Minimal required Qt version} field.

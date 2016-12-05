@@ -765,14 +765,14 @@
 
     \code
     {
-        "name": "LabelQQC_1_0",
+        "name": "LabelQQC_2_0",
         "type": "Label",
         "span": true,
-        "visible": "%{( '%{CS}' === 'QQC_1_0' ) ? 'yes' : ''}",
+        "visible": "%{( '%{CS}' === 'QQC_2_0' )}",
         "data":
         {
             "wordWrap": true,
-            "trText": "Creates a deployable Qt Quick 2 application using Qt Quick Controls. Requires Qt 5.1 or newer."
+            "trText": "Creates a deployable Qt Quick 2 application using Qt Quick Controls 2.",
         }
     },
     \endcode
