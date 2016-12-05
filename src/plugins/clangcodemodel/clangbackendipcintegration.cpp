@@ -387,7 +387,7 @@ static ClangBackEnd::ProjectPartContainer toProjectPartContainer(
 }
 
 static QVector<ClangBackEnd::ProjectPartContainer> toProjectPartContainers(
-        const QList<CppTools::ProjectPart::Ptr> projectParts)
+        const QVector<CppTools::ProjectPart::Ptr> projectParts)
 {
     QVector<ClangBackEnd::ProjectPartContainer> projectPartContainers;
     projectPartContainers.reserve(projectParts.size());
@@ -527,7 +527,7 @@ void IpcCommunicator::registerCurrentCodeModelUiHeaders()
     }
 }
 
-void IpcCommunicator::registerProjectsParts(const QList<CppTools::ProjectPart::Ptr> projectParts)
+void IpcCommunicator::registerProjectsParts(const QVector<CppTools::ProjectPart::Ptr> projectParts)
 {
     const auto projectPartContainers = toProjectPartContainers(projectParts);
     registerProjectPartsForEditor(projectPartContainers);

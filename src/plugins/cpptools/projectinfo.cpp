@@ -29,28 +29,56 @@
 
 namespace CppTools {
 
-ProjectInfo::ProjectInfo()
-{}
-
 ProjectInfo::ProjectInfo(QPointer<ProjectExplorer::Project> project)
     : m_project(project)
-{}
+{
+}
+
+bool ProjectInfo::isValid() const
+{
+    return !m_project.isNull();
+}
+
+QPointer<ProjectExplorer::Project> ProjectInfo::project() const
+{
+    return m_project;
+}
+
+const QVector<ProjectPart::Ptr> ProjectInfo::projectParts() const
+{
+    return m_projectParts;
+}
+
+const QSet<QString> ProjectInfo::sourceFiles() const
+{
+    return m_sourceFiles;
+}
+
+void ProjectInfo::setCompilerCallData(const CompilerCallData &data)
+{
+    m_compilerCallData = data;
+}
+
+ProjectInfo::CompilerCallData ProjectInfo::compilerCallData() const
+{
+    return m_compilerCallData;
+}
 
 static bool operator==(const ProjectInfo::CompilerCallGroup &first,
                        const ProjectInfo::CompilerCallGroup &second)
 {
     return first.groupId == second.groupId
-            && first.callsPerSourceFile == second.callsPerSourceFile;
+        && first.callsPerSourceFile == second.callsPerSourceFile;
 }
 
 bool ProjectInfo::operator ==(const ProjectInfo &other) const
 {
     return m_project == other.m_project
-            && m_projectParts == other.m_projectParts
-            && m_compilerCallData == other.m_compilerCallData
-            && m_headerPaths == other.m_headerPaths
-            && m_sourceFiles == other.m_sourceFiles
-            && m_defines == other.m_defines;
+        && m_projectParts == other.m_projectParts
+        && m_compilerCallData == other.m_compilerCallData
+        && m_headerPaths == other.m_headerPaths
+        && m_sourceFiles == other.m_sourceFiles
+        && m_defines == other.m_defines;
 }
 
 bool ProjectInfo::operator !=(const ProjectInfo &other) const
@@ -73,40 +101,25 @@ bool ProjectInfo::configurationOrFilesChanged(const ProjectInfo &other) const
     return configurationChanged(other) || m_sourceFiles != other.m_sourceFiles;
 }
 
-bool ProjectInfo::isValid() const
+void ProjectInfo::appendProjectPart(const ProjectPart::Ptr &projectPart)
 {
-    return !m_project.isNull();
-}
-
-QPointer<ProjectExplorer::Project> ProjectInfo::project() const
-{
-    return m_project;
-}
-
-const QList<ProjectPart::Ptr> ProjectInfo::projectParts() const
-{
-    return m_projectParts;
-}
-
-void ProjectInfo::appendProjectPart(const ProjectPart::Ptr &part)
-{
-    if (part)
-        m_projectParts.append(part);
+    if (projectPart)
+        m_projectParts.append(projectPart);
 }
 
 void ProjectInfo::finish()
 {
-    typedef ProjectPartHeaderPath HeaderPath;
+    QSet<ProjectPartHeaderPath> uniqueHeaderPaths;
 
-    QSet<HeaderPath> incs;
     foreach (const ProjectPart::Ptr &part, m_projectParts) {
         part->updateLanguageFeatures();
+
         // Update header paths
-        foreach (const HeaderPath &hp, part->headerPaths) {
-            if (!incs.contains(hp)) {
-                incs.insert(hp);
-                m_headerPaths += hp;
-            }
+        foreach (const ProjectPartHeaderPath &headerPath, part->headerPaths) {
+            const int count = uniqueHeaderPaths.count();
+            uniqueHeaderPaths.insert(headerPath);
+            if (count < uniqueHeaderPaths.count())
+                m_headerPaths += headerPath;
         }
 
         // Update source files
@@ -122,31 +135,6 @@ void ProjectInfo::finish()
             m_defines.append('\n');
         }
     }
-}
-
-const ProjectPartHeaderPaths ProjectInfo::headerPaths() const
-{
-    return m_headerPaths;
-}
-
-const QSet<QString> ProjectInfo::sourceFiles() const
-{
-    return m_sourceFiles;
-}
-
-const QByteArray ProjectInfo::defines() const
-{
-    return m_defines;
-}
-
-void ProjectInfo::setCompilerCallData(const CompilerCallData &data)
-{
-    m_compilerCallData = data;
-}
-
-ProjectInfo::CompilerCallData ProjectInfo::compilerCallData() const
-{
-    return m_compilerCallData;
 }
 
 } // namespace CppTools

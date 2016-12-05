@@ -481,7 +481,7 @@ void Dumper::dumpProjectInfos( const QList<ProjectInfo> &projectInfos)
         m_out << i1 << "Project " << project->displayName()
               << " (" << project->projectFilePath().toUserOutput() << "){{{2\n";
 
-        const QList<ProjectPart::Ptr> projectParts = info.projectParts();
+        const QVector<ProjectPart::Ptr> projectParts = info.projectParts();
         foreach (const ProjectPart::Ptr &part, projectParts) {
             QString projectName = QLatin1String("<None>");
             QString projectFilePath = QLatin1String("<None>");

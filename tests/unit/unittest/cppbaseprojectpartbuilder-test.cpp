@@ -195,7 +195,7 @@ TEST_F(BaseProjectPartBuilder, ProjectFileKindsMatchProjectPartVersion)
 
     builder.createProjectPartsForFiles(QStringList() << "foo.h");
 
-    const QList<ProjectPart::Ptr> projectParts = projectInfo.projectParts();
+    const QVector<ProjectPart::Ptr> projectParts = projectInfo.projectParts();
     ASSERT_THAT(projectParts.size(), Eq(4));
     ASSERT_THAT(projectParts.at(0)->languageVersion, Eq(ProjectPart::LatestCVersion));
     ASSERT_THAT(projectParts.at(0)->files.at(0).kind, Eq(ProjectFile::CHeader));

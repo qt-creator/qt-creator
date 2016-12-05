@@ -58,7 +58,7 @@ void completeBasicProjectInformation(Project *project, const QString &proFile, Q
                              Project **targetProject)
 {
     CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
-    QList<CppTools::ProjectPart::Ptr> projParts = cppMM->projectInfo(project).projectParts();
+    QVector<CppTools::ProjectPart::Ptr> projParts = cppMM->projectInfo(project).projectParts();
 
     if (displayName->isEmpty()) {
         foreach (const CppTools::ProjectPart::Ptr &part, projParts) {

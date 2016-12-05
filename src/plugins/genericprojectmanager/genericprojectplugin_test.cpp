@@ -101,7 +101,7 @@ void GenericProjectPlugin::test_mixed1()
     QVERIFY(pInfo.isValid());
     QCOMPARE(pInfo.projectParts().size(), 3);
 
-    QList<ProjectPart::Ptr> parts = pInfo.projectParts();
+    QVector<ProjectPart::Ptr> parts = pInfo.projectParts();
     std::sort(parts.begin(), parts.end(), [](const ProjectPart::Ptr &p1,
                                              const ProjectPart::Ptr &p2) {
         return p1->displayName < p2->displayName;
@@ -150,7 +150,7 @@ void GenericProjectPlugin::test_mixed2()
     QVERIFY(pInfo.isValid());
     QCOMPARE(pInfo.projectParts().size(), 2);
 
-    QList<ProjectPart::Ptr> parts = pInfo.projectParts();
+    QVector<ProjectPart::Ptr> parts = pInfo.projectParts();
     std::sort(parts.begin(), parts.end(), [](const ProjectPart::Ptr &p1,
                                              const ProjectPart::Ptr &p2) {
         return p1->displayName < p2->displayName;

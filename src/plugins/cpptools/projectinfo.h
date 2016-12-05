@@ -32,32 +32,21 @@
 #include <QHash>
 #include <QPointer>
 #include <QSet>
+#include <QVector>
 
 namespace CppTools {
 
 class CPPTOOLS_EXPORT ProjectInfo
 {
 public:
-    ProjectInfo();
+    ProjectInfo() = default;
     ProjectInfo(QPointer<ProjectExplorer::Project> project);
 
     bool isValid() const;
 
-    bool operator ==(const ProjectInfo &other) const;
-    bool operator !=(const ProjectInfo &other) const;
-    bool definesChanged(const ProjectInfo &other) const;
-    bool configurationChanged(const ProjectInfo &other) const;
-    bool configurationOrFilesChanged(const ProjectInfo &other) const;
-
     QPointer<ProjectExplorer::Project> project() const;
-    const QList<ProjectPart::Ptr> projectParts() const;
-
-    void appendProjectPart(const ProjectPart::Ptr &part);
-    void finish();
-
-    const ProjectPartHeaderPaths headerPaths() const;
+    const QVector<ProjectPart::Ptr> projectParts() const;
     const QSet<QString> sourceFiles() const;
-    const QByteArray defines() const;
 
     struct CompilerCallGroup {
         using CallsPerSourceFile = QHash<QString, QList<QStringList>>;
@@ -69,10 +58,22 @@ public:
     void setCompilerCallData(const CompilerCallData &data);
     CompilerCallData compilerCallData() const;
 
+    // Comparisons
+    bool operator ==(const ProjectInfo &other) const;
+    bool operator !=(const ProjectInfo &other) const;
+    bool definesChanged(const ProjectInfo &other) const;
+    bool configurationChanged(const ProjectInfo &other) const;
+    bool configurationOrFilesChanged(const ProjectInfo &other) const;
+
+    // Construction
+    void appendProjectPart(const ProjectPart::Ptr &projectPart);
+    void finish();
+
 private:
     QPointer<ProjectExplorer::Project> m_project;
-    QList<ProjectPart::Ptr> m_projectParts;
+    QVector<ProjectPart::Ptr> m_projectParts;
     CompilerCallData m_compilerCallData;
+
     // The members below are (re)calculated from the project parts with finish()
     ProjectPartHeaderPaths m_headerPaths;
     QSet<QString> m_sourceFiles;

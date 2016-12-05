@@ -371,7 +371,7 @@ static AnalyzeUnits unitsToAnalyzeFromCompilerCallData(
     return unitsToAnalyze;
 }
 
-static AnalyzeUnits unitsToAnalyzeFromProjectParts(const QList<ProjectPart::Ptr> projectParts)
+static AnalyzeUnits unitsToAnalyzeFromProjectParts(const QVector<ProjectPart::Ptr> projectParts)
 {
     qCDebug(LOG) << "Taking arguments for analyzing from ProjectParts.";
 
@@ -396,7 +396,7 @@ static AnalyzeUnits unitsToAnalyzeFromProjectParts(const QList<ProjectPart::Ptr>
 }
 
 static QHash<QString, ProjectPart::Ptr> generateProjectFileToProjectPartMapping(
-            const QList<ProjectPart::Ptr> &projectParts)
+            const QVector<ProjectPart::Ptr> &projectParts)
 {
     QHash<QString, ProjectPart::Ptr> mapping;
 

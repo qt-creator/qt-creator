@@ -49,7 +49,6 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <extensionsystem/pluginmanager.h>
-#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
@@ -683,13 +682,6 @@ void CppModelManager::removeFilesFromSnapshot(const QSet<QString> &filesToRemove
         d->m_snapshot.remove(i.next());
 }
 
-static QSet<QString> projectPartIds(const QSet<ProjectPart::Ptr> &projectParts)
-{
-    return Utils::transform(projectParts, [](const ProjectPart::Ptr &projectPart) {
-        return projectPart->id();
-    });
-}
-
 class ProjectInfoComparer
 {
 public:
@@ -721,8 +713,8 @@ public:
 
     QStringList removedProjectParts()
     {
-        QSet<QString> removed = projectPartIds(m_old.projectParts().toSet());
-        removed.subtract(projectPartIds(m_new.projectParts().toSet()));
+        QSet<QString> removed = projectPartIds(m_old.projectParts());
+        removed.subtract(projectPartIds(m_new.projectParts()));
         return removed.toList();
     }
 
@@ -741,6 +733,17 @@ public:
         }
 
         return CppModelManager::timeStampModifiedFiles(documentsToCheck);
+    }
+
+private:
+    static QSet<QString> projectPartIds(const QVector<ProjectPart::Ptr> &projectParts)
+    {
+        QSet<QString> ids;
+
+        foreach (const ProjectPart::Ptr &projectPart, projectParts)
+            ids.insert(projectPart->id());
+
+        return ids;
     }
 
 private:
