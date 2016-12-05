@@ -45,8 +45,6 @@ static QSettings *theSettings = 0;
 class HistoryCompleterPrivate : public QAbstractListModel
 {
 public:
-    HistoryCompleterPrivate() : maxLines(30) {}
-
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
@@ -56,9 +54,9 @@ public:
 
     QStringList list;
     QString historyKey;
-    bool isLastItemEmpty;
     QString historyKeyIsLastItemEmpty;
-    int maxLines;
+    int maxLines = 30;
+    bool isLastItemEmpty = false;
 };
 
 class HistoryLineDelegate : public QItemDelegate
