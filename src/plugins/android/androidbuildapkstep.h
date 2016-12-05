@@ -73,8 +73,6 @@ public:
     bool useGradle() const;
     void setUseGradle(bool b);
 
-    bool runInGuiThread() const override;
-
     QString buildTargetSdk() const;
     void setBuildTargetSdk(const QString &sdk);
 

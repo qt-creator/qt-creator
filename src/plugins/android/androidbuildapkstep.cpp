@@ -273,11 +273,6 @@ void AndroidBuildApkStep::setUseGradle(bool b)
     }
 }
 
-bool AndroidBuildApkStep::runInGuiThread() const
-{
-    return true;
-}
-
 bool AndroidBuildApkStep::verboseOutput() const
 {
     return m_verbose;

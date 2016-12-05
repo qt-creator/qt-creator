@@ -26,12 +26,12 @@
 #include "abstractprocessstep.h"
 #include "ansifilterparser.h"
 #include "buildstep.h"
-#include "ioutputparser.h"
 #include "project.h"
 #include "task.h"
 
+#include <coreplugin/reaper.h>
+
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #include <QTimer>
 #include <QDir>
@@ -84,20 +84,15 @@ using namespace ProjectExplorer;
 
 AbstractProcessStep::AbstractProcessStep(BuildStepList *bsl, Core::Id id) :
     BuildStep(bsl, id)
-{ }
+{
+    m_timer.setInterval(500);
+    connect(&m_timer, &QTimer::timeout, this, &AbstractProcessStep::checkForCancel);
+}
 
 AbstractProcessStep::AbstractProcessStep(BuildStepList *bsl,
                                          AbstractProcessStep *bs) :
     BuildStep(bsl, bs), m_ignoreReturnValue(bs->m_ignoreReturnValue)
 { }
-
-AbstractProcessStep::~AbstractProcessStep()
-{
-    delete m_process;
-    delete m_timer;
-    // do not delete m_futureInterface, we do not own it.
-    delete m_outputParserChain;
-}
 
 /*!
      Deletes all existing output parsers and starts a new chain with the
@@ -108,18 +103,16 @@ AbstractProcessStep::~AbstractProcessStep()
 
 void AbstractProcessStep::setOutputParser(IOutputParser *parser)
 {
-    delete m_outputParserChain;
-    m_outputParserChain = new AnsiFilterParser;
+    m_outputParserChain.reset(new AnsiFilterParser);
     m_outputParserChain->appendOutputParser(parser);
 
-    connect(m_outputParserChain, &IOutputParser::addOutput, this, &AbstractProcessStep::outputAdded);
-    connect(m_outputParserChain, &IOutputParser::addTask, this, &AbstractProcessStep::taskAdded);
+    connect(m_outputParserChain.get(), &IOutputParser::addOutput, this, &AbstractProcessStep::outputAdded);
+    connect(m_outputParserChain.get(), &IOutputParser::addTask, this, &AbstractProcessStep::taskAdded);
 }
 
 /*!
     Appends the given output parser to the existing chain of parsers.
 */
-
 void AbstractProcessStep::appendOutputParser(IOutputParser *parser)
 {
     if (!parser)
@@ -127,12 +120,11 @@ void AbstractProcessStep::appendOutputParser(IOutputParser *parser)
 
     QTC_ASSERT(m_outputParserChain, return);
     m_outputParserChain->appendOutputParser(parser);
-    return;
 }
 
 IOutputParser *AbstractProcessStep::outputParser() const
 {
-    return m_outputParserChain;
+    return m_outputParserChain.get();
 }
 
 void AbstractProcessStep::emitFaultyConfigurationMessage()
@@ -176,7 +168,6 @@ bool AbstractProcessStep::init(QList<const BuildStep *> &earlierSteps)
 
 void AbstractProcessStep::run(QFutureInterface<bool> &fi)
 {
-    m_futureInterface = &fi;
     QDir wd(m_param.effectiveWorkingDirectory());
     if (!wd.exists()) {
         if (!wd.mkpath(wd.absolutePath())) {
@@ -195,35 +186,30 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
         return;
     }
 
-    m_process = new Utils::QtcProcess();
-    if (Utils::HostOsInfo::isWindowsHost())
-        m_process->setUseCtrlCStub(true);
+    m_futureInterface.reset(&fi);
+
+    m_process.reset(new Utils::QtcProcess());
+    m_process->setUseCtrlCStub(Utils::HostOsInfo::isWindowsHost());
     m_process->setWorkingDirectory(wd.absolutePath());
     m_process->setEnvironment(m_param.environment());
+    m_process->setCommand(effectiveCommand, m_param.effectiveArguments());
 
-    connect(m_process, &QProcess::readyReadStandardOutput,
+    connect(m_process.get(), &QProcess::readyReadStandardOutput,
             this, &AbstractProcessStep::processReadyReadStdOutput);
-    connect(m_process, &QProcess::readyReadStandardError,
+    connect(m_process.get(), &QProcess::readyReadStandardError,
             this, &AbstractProcessStep::processReadyReadStdError);
-
-    connect(m_process, static_cast<void (QProcess::*)(int,QProcess::ExitStatus)>(&QProcess::finished),
+    connect(m_process.get(), static_cast<void (QProcess::*)(int,QProcess::ExitStatus)>(&QProcess::finished),
             this, &AbstractProcessStep::slotProcessFinished);
 
-    m_process->setCommand(effectiveCommand, m_param.effectiveArguments());
     m_process->start();
     if (!m_process->waitForStarted()) {
         processStartupFailed();
-        delete m_process;
-        m_process = nullptr;
+        m_process.reset();
         reportRunResult(fi, false);
         return;
     }
     processStarted();
-
-    m_timer = new QTimer();
-    connect(m_timer, &QTimer::timeout, this, &AbstractProcessStep::checkForCancel);
-    m_timer->start(500);
-    m_killProcess = false;
+    m_timer.start();
 }
 
 void AbstractProcessStep::cleanUp()
@@ -232,19 +218,12 @@ void AbstractProcessStep::cleanUp()
     processFinished(m_process->exitCode(), m_process->exitStatus());
     const bool returnValue = processSucceeded(m_process->exitCode(), m_process->exitStatus()) || m_ignoreReturnValue;
 
-    // Clean up output parsers
-    if (m_outputParserChain) {
-        delete m_outputParserChain;
-        m_outputParserChain = nullptr;
-    }
-
-    // Clean up process
-    delete m_process;
-    m_process = nullptr;
+    m_outputParserChain.reset();
+    m_process.reset();
 
     // Report result
-    reportRunResult(*m_futureInterface, returnValue);
-    m_futureInterface = nullptr;
+    reportRunResult(*(m_futureInterface.get()), returnValue);
+    m_futureInterface.reset();
 }
 
 /*!
@@ -298,6 +277,7 @@ void AbstractProcessStep::processStartupFailed()
                    .arg(QDir::toNativeSeparators(m_param.effectiveCommand()),
                         m_param.prettyArguments()),
                    BuildStep::ErrorMessageOutput);
+    m_timer.stop();
 }
 
 /*!
@@ -358,20 +338,14 @@ void AbstractProcessStep::stdError(const QString &line)
 
 QFutureInterface<bool> *AbstractProcessStep::futureInterface() const
 {
-    return m_futureInterface;
+    return m_futureInterface.get();
 }
 
 void AbstractProcessStep::checkForCancel()
 {
-    if (m_futureInterface->isCanceled() && m_timer->isActive()) {
-        if (!m_killProcess) {
-            m_process->terminate();
-            m_timer->start(5000);
-            m_killProcess = true;
-        } else {
-            m_process->kill();
-            m_timer->stop();
-        }
+    if (m_futureInterface->isCanceled() && m_timer.isActive()) {
+        m_timer.stop();
+        Core::Reaper::reap(m_process.release());
     }
 }
 
@@ -437,17 +411,15 @@ void AbstractProcessStep::outputAdded(const QString &string, BuildStep::OutputFo
 
 void AbstractProcessStep::slotProcessFinished(int, QProcess::ExitStatus)
 {
-    m_timer->stop();
-    delete m_timer;
-    m_timer = nullptr;
+    m_timer.stop();
 
-    QString line = QString::fromLocal8Bit(m_process->readAllStandardError());
-    if (!line.isEmpty())
-        stdError(line);
+    const QString stdErrLine = QString::fromLocal8Bit(m_process->readAllStandardError());
+    if (!stdErrLine.isEmpty())
+        stdError(stdErrLine);
 
-    line = QString::fromLocal8Bit(m_process->readAllStandardOutput());
-    if (!line.isEmpty())
-        stdOutput(line);
+    const QString stdoutLine = QString::fromLocal8Bit(m_process->readAllStandardOutput());
+    if (!stdoutLine.isEmpty())
+        stdOutput(stdoutLine);
 
     cleanUp();
 }
