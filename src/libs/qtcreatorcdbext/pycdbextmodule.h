@@ -33,11 +33,3 @@ PyObject *pyBool(bool);
 int pointerSize();
 
 constexpr bool debugPyCdbextModule = false;
-
-/* TODO's
-class Field:
-    isBaseClass() -> bool                 # Whether this is a base class or normal member
-
-parseAndEvaluate(string: expr) -> Value   # or None if not possible.
-
-*/
