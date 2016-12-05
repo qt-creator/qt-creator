@@ -45,7 +45,7 @@ class QTCREATOR_UTILS_EXPORT ShellCommandPage : public WizardPage
 public:
     enum State { Idle, Running, Failed, Succeeded };
 
-    explicit ShellCommandPage(QWidget *parent = 0);
+    explicit ShellCommandPage(QWidget *parent = nullptr);
     ~ShellCommandPage();
 
     void setStartedStatus(const QString &startedStatus);
