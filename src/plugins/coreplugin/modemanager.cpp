@@ -276,21 +276,24 @@ void ModeManager::currentTabAboutToChange(int index)
 void ModeManager::currentTabChanged(int index)
 {
     // Tab index changes to -1 when there is no tab left.
-    if (index >= 0) {
-        IMode *mode = d->m_modes.at(index);
+    if (index < 0)
+        return;
 
-        // FIXME: This hardcoded context update is required for the Debug and Edit modes, since
-        // they use the editor widget, which is already a context widget so the main window won't
-        // go further up the parent tree to find the mode context.
-        ICore::updateAdditionalContexts(d->m_addedContexts, mode->context());
-        d->m_addedContexts = mode->context();
+    IMode *mode = d->m_modes.at(index);
+    if (!mode)
+        return;
 
-        IMode *oldMode = 0;
-        if (d->m_oldCurrent >= 0)
-            oldMode = d->m_modes.at(d->m_oldCurrent);
-        d->m_oldCurrent = index;
-        emit currentModeChanged(mode ? mode->id() : Id(), oldMode ? oldMode->id() : Id());
-    }
+    // FIXME: This hardcoded context update is required for the Debug and Edit modes, since
+    // they use the editor widget, which is already a context widget so the main window won't
+    // go further up the parent tree to find the mode context.
+    ICore::updateAdditionalContexts(d->m_addedContexts, mode->context());
+    d->m_addedContexts = mode->context();
+
+    IMode *oldMode = nullptr;
+    if (d->m_oldCurrent >= 0)
+        oldMode = d->m_modes.at(d->m_oldCurrent);
+    d->m_oldCurrent = index;
+    emit currentModeChanged(mode->id(), oldMode ? oldMode->id() : Id());
 }
 
 void ModeManager::setFocusToCurrentMode()
