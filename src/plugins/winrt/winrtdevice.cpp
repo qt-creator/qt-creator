@@ -40,7 +40,7 @@ using namespace ProjectExplorer;
 namespace WinRt {
 namespace Internal {
 
-WinRtDevice::WinRtDevice()
+WinRtDevice::WinRtDevice() : m_deviceId(-1)
 {
 }
 
