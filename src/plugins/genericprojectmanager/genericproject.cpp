@@ -365,7 +365,6 @@ void GenericProject::refreshCppCodeModel()
     ppBuilder.setQtVersion(activeQtVersion);
     ppBuilder.setIncludePaths(projectIncludePaths());
     ppBuilder.setConfigFileName(configFileName());
-    ppBuilder.setCxxFlags(QStringList() << QLatin1String("-std=c++11"));
 
     const QList<Id> languages = ppBuilder.createProjectPartsForFiles(files());
     foreach (Id language, languages)

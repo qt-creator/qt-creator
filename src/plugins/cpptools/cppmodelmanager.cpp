@@ -949,7 +949,6 @@ ProjectPart::Ptr CppModelManager::fallbackProjectPart()
 
     part->projectDefines = definedMacros();
     part->headerPaths = headerPaths();
-    part->languageVersion = ProjectPart::CXX14;
 
     // Do not activate ObjectiveCExtensions since this will lead to the
     // "objective-c++" language option for a project-less *.cpp file.

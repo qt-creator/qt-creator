@@ -606,7 +606,6 @@ CppTools::ProjectPart::Ptr createProjectPart(const QStringList &files,
     projectPart->projectFile = QLatin1String("myproject.project");
     foreach (const QString &file, files)
         projectPart->files.append(ProjectFile(file, ProjectFile::classify(file)));
-    projectPart->languageVersion = ProjectPart::CXX11;
     projectPart->qtVersion = ProjectPart::NoQt;
     projectPart->projectDefines = defines.toUtf8();
 

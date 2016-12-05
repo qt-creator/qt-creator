@@ -130,28 +130,28 @@ QList<Core::Id> BaseProjectPartBuilder::createProjectPartsForFiles(const QString
         if (cat.hasCSources()) {
             createProjectPart(cat.cSources(),
                               cat.partName("C"),
-                              ProjectPart::C11,
+                              ProjectPart::LatestCVersion,
                               ProjectPart::NoExtensions);
         }
 
         if (cat.hasObjcSources()) {
             createProjectPart(cat.objcSources(),
                               cat.partName("Obj-C"),
-                              ProjectPart::C11,
+                              ProjectPart::LatestCVersion,
                               ProjectPart::ObjectiveCExtensions);
         }
 
         if (cat.hasCxxSources()) {
             createProjectPart(cat.cxxSources(),
                               cat.partName("C++"),
-                              ProjectPart::CXX11,
+                              ProjectPart::LatestCxxVersion,
                               ProjectPart::NoExtensions);
         }
 
         if (cat.hasObjcxxSources()) {
             createProjectPart(cat.objcxxSources(),
                               cat.partName("Obj-C++"),
-                              ProjectPart::CXX11,
+                              ProjectPart::LatestCxxVersion,
                               ProjectPart::ObjectiveCExtensions);
         }
     }
@@ -295,7 +295,7 @@ ToolChainInterfacePtr BaseProjectPartBuilder::selectToolChain(
 {
     ToolChainInterfacePtr toolChain = nullptr;
 
-    if (languageVersion < ProjectPart::CXX98)
+    if (languageVersion <= ProjectPart::LatestCVersion)
         toolChain = m_project->toolChain(ProjectExplorer::ToolChain::Language::C, m_cFlags);
 
     if (!toolChain) // Use Cxx toolchain for C projects without C compiler in kit and for C++ code

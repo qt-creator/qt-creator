@@ -54,11 +54,13 @@ public: // Types
         C89,
         C99,
         C11,
+        LatestCVersion = C11,
         CXX98,
         CXX03,
         CXX11,
         CXX14,
         CXX17,
+        LatestCxxVersion = CXX17,
     };
 
     enum LanguageExtension {

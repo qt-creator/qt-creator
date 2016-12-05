@@ -156,7 +156,7 @@ TEST_F(BaseProjectPartBuilder, ProjectPartHasLatestLanguageVersionByDefault)
 
     ASSERT_THAT(projectInfo.projectParts().size(), Eq(1));
     const ProjectPart &projectPart = *projectInfo.projectParts().at(0);
-    ASSERT_THAT(projectPart.languageVersion, Eq(ProjectPart::CXX11));
+    ASSERT_THAT(projectPart.languageVersion, Eq(ProjectPart::LatestCxxVersion));
 }
 
 TEST_F(BaseProjectPartBuilder, ToolChainSetsLanguageVersion)
@@ -197,13 +197,13 @@ TEST_F(BaseProjectPartBuilder, ProjectFileKindsMatchProjectPartVersion)
 
     const QList<ProjectPart::Ptr> projectParts = projectInfo.projectParts();
     ASSERT_THAT(projectParts.size(), Eq(4));
-    ASSERT_THAT(projectParts.at(0)->languageVersion, Eq(ProjectPart::C11));
+    ASSERT_THAT(projectParts.at(0)->languageVersion, Eq(ProjectPart::LatestCVersion));
     ASSERT_THAT(projectParts.at(0)->files.at(0).kind, Eq(ProjectFile::CHeader));
-    ASSERT_THAT(projectParts.at(1)->languageVersion, Eq(ProjectPart::C11));
+    ASSERT_THAT(projectParts.at(1)->languageVersion, Eq(ProjectPart::LatestCVersion));
     ASSERT_THAT(projectParts.at(1)->files.at(0).kind, Eq(ProjectFile::ObjCHeader));
-    ASSERT_THAT(projectParts.at(2)->languageVersion, Eq(ProjectPart::CXX11));
+    ASSERT_THAT(projectParts.at(2)->languageVersion, Eq(ProjectPart::LatestCxxVersion));
     ASSERT_THAT(projectParts.at(2)->files.at(0).kind, Eq(ProjectFile::CXXHeader));
-    ASSERT_THAT(projectParts.at(3)->languageVersion, Eq(ProjectPart::CXX11));
+    ASSERT_THAT(projectParts.at(3)->languageVersion, Eq(ProjectPart::LatestCxxVersion));
     ASSERT_THAT(projectParts.at(3)->files.at(0).kind, Eq(ProjectFile::ObjCXXHeader));
 }
 
