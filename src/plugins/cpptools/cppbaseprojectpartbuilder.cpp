@@ -101,6 +101,11 @@ void BaseProjectPartBuilder::setPreCompiledHeaders(const QStringList &preCompile
     m_templatePart->precompiledHeaders = preCompiledHeaders;
 }
 
+void BaseProjectPartBuilder::setSelectedForBuilding(bool yesno)
+{
+    m_templatePart->selectedForBuilding = yesno;
+}
+
 void BaseProjectPartBuilder::setProjectFile(const QString &projectFile)
 {
     m_templatePart->projectFile = projectFile;
@@ -262,13 +267,6 @@ private:
 
 } // anynomous
 
-void BaseProjectPartBuilder::evaluateToolChain(ProjectPart &projectPart,
-                                               const ToolChainInterface &toolChain)
-{
-    ToolChainEvaluator evaluator(projectPart, toolChain);
-    evaluator.evaluate();
-}
-
 void BaseProjectPartBuilder::createProjectPart(const ProjectFiles &projectFiles,
                                                const QString &partName,
                                                ProjectPart::LanguageVersion languageVersion,
@@ -281,8 +279,10 @@ void BaseProjectPartBuilder::createProjectPart(const ProjectFiles &projectFiles,
     QTC_ASSERT(part->project, return);
 
     // TODO: If not toolchain is set, show a warning
-    if (const ToolChainInterfacePtr toolChain = selectToolChain(languageVersion))
-        evaluateToolChain(*part.data(), *toolChain.get());
+    if (const ToolChainInterfacePtr toolChain = selectToolChain(languageVersion)) {
+        ToolChainEvaluator evaluator(*part.data(), *toolChain.get());
+        evaluator.evaluate();
+    }
 
     part->languageExtensions |= languageExtensions;
     part->updateLanguageFeatures();

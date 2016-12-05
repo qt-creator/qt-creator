@@ -29,11 +29,6 @@
 
 #include "cppbaseprojectpartbuilder.h"
 
-namespace ProjectExplorer {
-class Kit;
-class ToolChain;
-}
-
 namespace CppTools {
 
 class ProjectInfo;
@@ -42,11 +37,6 @@ class CPPTOOLS_EXPORT ProjectPartBuilder : public BaseProjectPartBuilder
 {
 public:
     ProjectPartBuilder(ProjectInfo &projectInfo);
-
-    static void evaluateToolChain(ProjectPart &projectPart,
-                                  ProjectExplorer::ToolChain &toolChain,
-                                  const ProjectExplorer::Kit *kit,
-                                  const QStringList commandLineFlags);
 };
 
 } // namespace CppTools

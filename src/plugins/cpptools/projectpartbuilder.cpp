@@ -140,13 +140,4 @@ ProjectPartBuilder::ProjectPartBuilder(ProjectInfo &projectInfo)
 {
 }
 
-void ProjectPartBuilder::evaluateToolChain(ProjectPart &projectPart,
-                                           ProjectExplorer::ToolChain &toolChain,
-                                           const ProjectExplorer::Kit *kit,
-                                           const QStringList commandLineFlags)
-{
-    const ToolChainImpl toolChainImpl(toolChain, kit, commandLineFlags);
-    BaseProjectPartBuilder::evaluateToolChain(projectPart, toolChainImpl);
-}
-
 } // namespace CppTools

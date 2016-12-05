@@ -357,7 +357,6 @@ void QmakeProject::updateCodeModels()
 void QmakeProject::updateCppCodeModel()
 {
     using ProjectPart = CppTools::ProjectPart;
-    using ProjectFile = CppTools::ProjectFile;
 
     m_toolChainWarnings.clear();
 
@@ -380,95 +379,54 @@ void QmakeProject::updateCppCodeModel()
     FindQmakeProFiles findQmakeProFiles;
     const QList<QmakeProFileNode *> proFiles = findQmakeProFiles(rootProjectNode());
     CppTools::ProjectInfo projectInfo(this);
+    CppTools::ProjectPartBuilder ppBuilder(projectInfo);
+
     QList<ProjectExplorer::ExtraCompiler *> generators;
 
     foreach (QmakeProFileNode *pro, proFiles) {
         warnOnToolChainMismatch(pro);
 
-        ProjectPart::Ptr templatePart(new ProjectPart);
-        templatePart->project = this;
-        templatePart->displayName = pro->displayName();
-        templatePart->projectFile = pro->filePath().toString();
-        templatePart->selectedForBuilding = pro->includedInExactParse();
-        templatePart->projectDefines += pro->cxxDefines();
-        templatePart->precompiledHeaders.append(pro->variableValue(PrecompiledHeaderVar));
+        ppBuilder.setDisplayName(pro->displayName());
+        ppBuilder.setProjectFile(pro->filePath().toString());
+        ppBuilder.setCxxFlags(pro->variableValue(CppFlagsVar)); // TODO: Handle QMAKE_CFLAGS
+        ppBuilder.setDefines(pro->cxxDefines());
+        ppBuilder.setPreCompiledHeaders(pro->variableValue(PrecompiledHeaderVar));
+        ppBuilder.setSelectedForBuilding(pro->includedInExactParse());
 
+        // Qt Version
         if (pro->variableValue(ConfigVar).contains(QLatin1String("qt")))
-            templatePart->qtVersion = qtVersionForPart;
+            ppBuilder.setQtVersion(qtVersionForPart);
         else
-            templatePart->qtVersion = ProjectPart::NoQt;
+            ppBuilder.setQtVersion(ProjectPart::NoQt);
 
+        // Header paths
+        CppTools::ProjectPartHeaderPaths headerPaths;
+        using CppToolsHeaderPath = CppTools::ProjectPartHeaderPath;
         foreach (const QString &inc, pro->variableValue(IncludePathVar)) {
-            const auto headerPath
-                = CppTools::ProjectPartHeaderPath(inc, CppTools::ProjectPartHeaderPath::IncludePath);
-            if (!templatePart->headerPaths.contains(headerPath))
-                templatePart->headerPaths += headerPath;
+            const auto headerPath = CppToolsHeaderPath(inc, CppToolsHeaderPath::IncludePath);
+            if (!headerPaths.contains(headerPath))
+                headerPaths += headerPath;
         }
 
         if (qtVersion && !qtVersion->frameworkInstallPath().isEmpty()) {
-            templatePart->headerPaths += CppTools::ProjectPartHeaderPath(
-                        qtVersion->frameworkInstallPath(),
-                        CppTools::ProjectPartHeaderPath::FrameworkPath);
+            headerPaths += CppToolsHeaderPath(qtVersion->frameworkInstallPath(),
+                                              CppToolsHeaderPath::FrameworkPath);
         }
+        ppBuilder.setHeaderPaths(headerPaths);
 
-        // TODO: there is no LANG_OBJCXX, so:
-        const QStringList cxxflags = pro->variableValue(CppFlagsVar);
-        if (ToolChain *t = ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx))
-            CppTools::ProjectPartBuilder::evaluateToolChain(*templatePart.data(), *t, k, cxxflags);
-        setProjectLanguage(ProjectExplorer::Constants::LANG_CXX, true);
-
-        ProjectPart::Ptr cppPart = templatePart->copy();
-        ProjectPart::Ptr objcppPart = templatePart->copy();
-        foreach (const QString &file, pro->variableValue(SourceVar)) {
-            const ProjectFile::Kind kind = ProjectFile::classify(file);
-            switch (kind) {
-            case ProjectFile::ObjCHeader:
-            case ProjectFile::ObjCSource:
-            case ProjectFile::ObjCXXHeader:
-            case ProjectFile::ObjCXXSource:
-                objcppPart->files << ProjectFile(file, kind);
-                break;
-            default:
-                cppPart->files << ProjectFile(file, kind);
-                break;
-            }
-        }
-
-        // generated files:
+        // Files and generators
+        QStringList fileList = pro->variableValue(SourceVar);
         QList<ProjectExplorer::ExtraCompiler *> proGenerators = pro->extraCompilers();
         foreach (ProjectExplorer::ExtraCompiler *ec, proGenerators) {
             ec->forEachTarget([&](const Utils::FileName &generatedFile) {
-                const QString name = generatedFile.toString();
-                const ProjectFile::Kind kind = ProjectFile::classify(name);
-                switch (kind) {
-                case ProjectFile::AmbiguousHeader:
-                case ProjectFile::CHeader:
-                case ProjectFile::CSource:
-                case ProjectFile::CXXHeader:
-                case ProjectFile::CXXSource:
-                    cppPart->files << ProjectFile(name, kind);
-                    break;
-                case ProjectFile::ObjCHeader:
-                case ProjectFile::ObjCSource:
-                case ProjectFile::ObjCXXHeader:
-                case ProjectFile::ObjCXXSource:
-                    objcppPart->files << ProjectFile(name, kind);
-                    break;
-                default:
-                    break;
-                }
+                fileList += generatedFile.toString();
             });
         }
         generators.append(proGenerators);
 
-        projectInfo.appendProjectPart(cppPart);
-
-        if (!objcppPart->files.isEmpty()) {
-            objcppPart->displayName += QLatin1String(" (ObjC++)");
-            objcppPart->languageExtensions |= ProjectPart::ObjectiveCExtensions;
-            projectInfo.appendProjectPart(objcppPart);
-            cppPart->displayName += QLatin1String(" (C++)");
-        }
+        const QList<Core::Id> languages = ppBuilder.createProjectPartsForFiles(fileList);
+        foreach (const Core::Id &language, languages)
+            setProjectLanguage(language, true);
     }
 
     CppTools::GeneratedCodeModelSupport::update(generators);

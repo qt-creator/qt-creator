@@ -60,12 +60,11 @@ public:
 
     void setPreCompiledHeaders(const QStringList &preCompiledHeaders);
 
+    void setSelectedForBuilding(bool yesno);
+
     using FileClassifier = std::function<ProjectFile::Kind (const QString &filePath)>;
     QList<Core::Id> createProjectPartsForFiles(const QStringList &filePaths,
                                                FileClassifier fileClassifier = FileClassifier());
-
-    static void evaluateToolChain(ProjectPart &projectPart,
-                                  const ToolChainInterface &selectToolChain);
 
 private:
     void createProjectPart(const ProjectFiles &projectFiles,
