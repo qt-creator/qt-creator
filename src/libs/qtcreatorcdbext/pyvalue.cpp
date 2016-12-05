@@ -315,6 +315,27 @@ PyObject *value_ChildFromField(Value *self, PyObject *args)
     return createValue(index, self->m_symbolGroup);
 }
 
+ULONG currentNumberOfChildren(ULONG index, IDebugSymbolGroup2 *sg)
+{
+    DEBUG_SYMBOL_PARAMETERS params;
+    if (SUCCEEDED(sg->GetSymbolParameters(index, 1, &params))) {
+        if (params.Flags & DEBUG_SYMBOL_EXPANDED)
+            return params.SubElements;
+    }
+    return 0;
+}
+
+ULONG currentNumberOfDescendants(ULONG index, IDebugSymbolGroup2 *sg)
+{
+    ULONG descendantCount = currentNumberOfChildren(index, sg);
+    for (ULONG childIndex = index + 1; childIndex <= descendantCount + index; ) {
+        const ULONG childDescendantCount = currentNumberOfDescendants(childIndex, sg);
+        childIndex += childDescendantCount + 1;
+        descendantCount += childDescendantCount;
+    }
+    return descendantCount;
+}
+
 PyObject *value_ChildFromIndex(Value *self, PyObject *args)
 {
     if (!self->m_symbolGroup)
@@ -327,15 +348,22 @@ PyObject *value_ChildFromIndex(Value *self, PyObject *args)
         Py_RETURN_NONE;
 
     const ULONG childCount = numberOfChildren(self);
-    if (childCount <= index || !expandValue(self))
+    if (childCount <= index)
         Py_RETURN_NONE;
+
+    int offset = index + 1;
+    for (ULONG childIndex = self->m_index + 1; childIndex < self->m_index + offset; ) {
+        const ULONG childDescendantCount = currentNumberOfDescendants(childIndex, self->m_symbolGroup);
+        childIndex += childDescendantCount + 1;
+        offset += childDescendantCount;
+    }
 
     if (debuggingValueEnabled()) {
         DebugPrint() << "child " << index + 1
                      << " from " << getSymbolName(self)
-                     << " is " << getSymbolName(self->m_symbolGroup, self->m_index + index + 1);
+                     << " is " << getSymbolName(self->m_symbolGroup, self->m_index + offset);
     }
-    return createValue(self->m_index + index + 1, self->m_symbolGroup);
+    return createValue(self->m_index + offset, self->m_symbolGroup);
 }
 
 void value_Dealloc(Value *v)
