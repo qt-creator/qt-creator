@@ -204,21 +204,13 @@ QWidget *DynamicPropertiesDelegate::createEditor(QWidget *parent, const QStyleOp
         }
         model->connectionView()->allModelNodes();
 
-//        PropertiesComboBox *dynamicPropertiesComboBox = qobject_cast<DynamicPropertiesComboBox*>(widget);
-
-//        if (!dynamicPropertiesComboBox) {
-//            return widget;
-//        }
-
-        BindingProperty bindingProperty = model->bindingPropertyForRow(index.row());
-
         switch (index.column()) {
         case DynamicPropertiesModel::TargetModelNodeRow: {
             return 0; //no editor
-        } break;
+        };
         case DynamicPropertiesModel::PropertyNameRow: {
             return QStyledItemDelegate::createEditor(parent, option, index);
-        } break;
+        };
         case DynamicPropertiesModel::PropertyTypeRow: {
 
             PropertiesComboBox *dynamicPropertiesComboBox = new PropertiesComboBox(parent);
@@ -237,10 +229,10 @@ QWidget *DynamicPropertiesDelegate::createEditor(QWidget *parent, const QStyleOp
             dynamicPropertiesComboBox->addItem(QLatin1String("color"));
             dynamicPropertiesComboBox->addItem(QLatin1String("variant"));
             return dynamicPropertiesComboBox;
-        } break;
+        };
         case DynamicPropertiesModel::PropertyValueRow: {
             return QStyledItemDelegate::createEditor(parent, option, index);
-        } break;
+        };
         default: qWarning() << "BindingDelegate::createEditor column" << index.column();
         }
 
@@ -348,16 +340,16 @@ QWidget *BackendDelegate::createEditor(QWidget *parent, const QStyleOptionViewIt
                 emit delegate->commitData(backendComboBox);
             });
             return backendComboBox;
-        } break;
+        };
         case BackendModel::PropertyNameColumn: {
             return widget;
-        } break;
+        };
         case BackendModel::IsSingletonColumn: {
             return 0;  //no editor
-        } break;
+        };
         case BackendModel::IsLocalColumn: {
             return 0;  //no editor
-        } break;
+        };
         default: qWarning() << "BackendDelegate::createEditor column" << index.column();
         }
 
