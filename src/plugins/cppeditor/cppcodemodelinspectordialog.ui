@@ -212,11 +212,7 @@
            </attribute>
            <layout class="QVBoxLayout" name="verticalLayout_14">
             <item>
-             <widget class="QPlainTextEdit" name="partProjectFilesEdit">
-              <property name="readOnly">
-               <bool>true</bool>
-              </property>
-             </widget>
+             <widget class="QTreeView" name="projectFilesView"/>
             </item>
            </layout>
           </widget>

@@ -138,15 +138,6 @@ QString Utils::toString(ProjectPart::QtVersion qtVersion)
     return QString();
 }
 
-QString Utils::toString(const QVector<ProjectFile> &projectFiles)
-{
-    QStringList filesList;
-    foreach (const ProjectFile &projectFile, projectFiles)
-        filesList << QDir::toNativeSeparators(projectFile.path);
-    ::Utils::sort(filesList);
-    return filesList.join(QLatin1Char('\n'));
-}
-
 QString Utils::toString(ProjectFile::Kind kind)
 {
 #define CASE_PROFECTFILEKIND(x) case ProjectFile::x: return QLatin1String(#x)

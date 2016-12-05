@@ -201,6 +201,84 @@ void FilterableView::clearFilter()
     lineEdit->clear();
 }
 
+// --- ProjectFilesModel --------------------------------------------------------------------------
+
+class ProjectFilesModel : public QAbstractListModel
+{
+    Q_OBJECT
+public:
+    ProjectFilesModel(QObject *parent);
+    void configure(const QVector<ProjectFile> &files);
+    void clear();
+
+    enum Columns { FileKindColumn, FilePathColumn, ColumnCount };
+
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+
+private:
+    QVector<ProjectFile> m_files;
+};
+
+ProjectFilesModel::ProjectFilesModel(QObject *parent) : QAbstractListModel(parent)
+{
+}
+
+void ProjectFilesModel::configure(const QVector<ProjectFile> &files)
+{
+    emit layoutAboutToBeChanged();
+    m_files = files;
+    emit layoutChanged();
+}
+
+void ProjectFilesModel::clear()
+{
+    emit layoutAboutToBeChanged();
+    m_files.clear();
+    emit layoutChanged();
+}
+
+int ProjectFilesModel::rowCount(const QModelIndex &/*parent*/) const
+{
+    return m_files.size();
+}
+
+int ProjectFilesModel::columnCount(const QModelIndex &/*parent*/) const
+{
+    return ProjectFilesModel::ColumnCount;
+}
+
+QVariant ProjectFilesModel::data(const QModelIndex &index, int role) const
+{
+    if (role == Qt::DisplayRole) {
+        const int row = index.row();
+        const int column = index.column();
+        if (column == FileKindColumn) {
+            return CMI::Utils::toString(m_files.at(row).kind);
+        } else if (column == FilePathColumn) {
+            return m_files.at(row).path;
+        }
+    }
+    return QVariant();
+}
+
+QVariant ProjectFilesModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
+        switch (section) {
+        case FileKindColumn:
+            return QLatin1String("File Kind");
+        case FilePathColumn:
+            return QLatin1String("File Path");
+        default:
+            return QVariant();
+        }
+    }
+    return QVariant();
+}
+
 // --- KeyValueModel ------------------------------------------------------------------------------
 
 class KeyValueModel : public QAbstractListModel
@@ -1175,6 +1253,7 @@ CppCodeModelInspectorDialog::CppCodeModelInspectorDialog(QWidget *parent)
     , m_projectPartsModel(new ProjectPartsModel(this))
     , m_proxyProjectPartsModel(new QSortFilterProxyModel(this))
     , m_partGenericInfoModel(new KeyValueModel(this))
+    , m_projectFilesModel(new ProjectFilesModel(this))
     , m_workingCopyView(new FilterableView(this))
     , m_workingCopyModel(new WorkingCopyModel(this))
     , m_proxyWorkingCopyModel(new QSortFilterProxyModel(this))
@@ -1201,6 +1280,7 @@ CppCodeModelInspectorDialog::CppCodeModelInspectorDialog(QWidget *parent)
     m_proxyProjectPartsModel->setFilterKeyColumn(ProjectPartsModel::PartFilePathColumn);
     m_projectPartsView->setModel(m_proxyProjectPartsModel);
     m_ui->partGeneralView->setModel(m_partGenericInfoModel);
+    m_ui->projectFilesView->setModel(m_projectFilesModel);
 
     m_proxyWorkingCopyModel->setSourceModel(m_workingCopyModel);
     m_proxyWorkingCopyModel->setFilterKeyColumn(WorkingCopyModel::FilePathColumn);
@@ -1584,8 +1664,8 @@ static QString partTabName(int tabIndex, int numberOfEntries = -1)
 void CppCodeModelInspectorDialog::clearProjectPartData()
 {
     m_partGenericInfoModel->clear();
+    m_projectFilesModel->clear();
 
-    m_ui->partProjectFilesEdit->clear();
     m_ui->projectPartTab->setTabText(ProjectPartFilesTab, partTabName(ProjectPartFilesTab));
 
     m_ui->partToolchainDefinesEdit->clear();
@@ -1632,7 +1712,7 @@ void CppCodeModelInspectorDialog::updateProjectPartData(const ProjectPart::Ptr &
     resizeColumns<KeyValueModel>(m_ui->partGeneralView);
 
     // Project Files
-    m_ui->partProjectFilesEdit->setPlainText(CMI::Utils::toString(part->files));
+    m_projectFilesModel->configure(part->files);
     m_ui->projectPartTab->setTabText(ProjectPartFilesTab,
         partTabName(ProjectPartFilesTab, part->files.size()));
 
