@@ -90,6 +90,7 @@ public:
                      const QString &revision, int lineNumber);
 
 #ifdef WITH_TESTS
+private slots:
     void testDiffFileResolving_data();
     void testDiffFileResolving();
     void testLogResolving();
