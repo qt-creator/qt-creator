@@ -23,30 +23,31 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "mimedatabase-utilities.h"
 
-#include "cpptools_global.h"
+#include <QString>
+#include <QFileInfo>
 
-#include "cppbaseprojectpartbuilder.h"
+#include <utils/mimetypes/mimedatabase.h>
 
-namespace ProjectExplorer {
-class Kit;
-class ToolChain;
+namespace MimeDataBaseUtilities
+{
+
+bool addCppToolsMimeTypes()
+{
+    static bool alreadyAdded = false;
+    if (alreadyAdded)
+        return true;
+
+    const QString filePath
+            = TESTDATA_DIR "/../../../../src/plugins/cpptools/CppTools.mimetypes.xml";
+    if (QFileInfo::exists(filePath)) {
+        Utils::MimeDatabase::addMimeTypes(filePath);
+        alreadyAdded = true;
+        return true;
+    }
+
+    return false;
 }
 
-namespace CppTools {
-
-class ProjectInfo;
-
-class CPPTOOLS_EXPORT ProjectPartBuilder : public BaseProjectPartBuilder
-{
-public:
-    ProjectPartBuilder(ProjectInfo &projectInfo);
-
-    static void evaluateToolChain(ProjectPart &projectPart,
-                                  ProjectExplorer::ToolChain &toolChain,
-                                  const ProjectExplorer::Kit *kit,
-                                  const QStringList commandLineFlags);
-};
-
-} // namespace CppTools
+}

@@ -39,6 +39,12 @@ ProjectFile::ProjectFile(const QString &filePath, Kind kind)
 {
 }
 
+bool ProjectFile::operator==(const ProjectFile &other) const
+{
+    return path == other.path
+        && kind == other.kind;
+}
+
 ProjectFile::Kind ProjectFile::classify(const QString &filePath)
 {
     if (isAmbiguousHeader(filePath))

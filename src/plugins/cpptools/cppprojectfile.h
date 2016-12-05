@@ -59,6 +59,8 @@ public:
     ProjectFile() = default;
     ProjectFile(const QString &filePath, Kind kind);
 
+    bool operator==(const ProjectFile &other) const;
+
     QString path;
     Kind kind = Unclassified;
 };

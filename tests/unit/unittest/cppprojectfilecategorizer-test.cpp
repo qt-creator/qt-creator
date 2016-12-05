@@ -25,6 +25,7 @@
 
 #include "googletest.h"
 #include "gtest-qt-printing.h"
+#include "mimedatabase-utilities.h"
 
 #include <cpptools/cppprojectfilecategorizer.h>
 #include <utils/mimetypes/mimedatabase.h>
@@ -46,12 +47,6 @@ using testing::AllOf;
 
 namespace CppTools {
 
-bool operator==(const ProjectFile &lhs, const ProjectFile &rhs)
-{
-    return lhs.path == rhs.path
-        && lhs.kind == rhs.kind;
-}
-
 void PrintTo(const ProjectFile &projectFile, std::ostream *os)
 {
     *os << "ProjectFile(";
@@ -71,7 +66,6 @@ protected:
     void SetUp() override;
 
     static ProjectFiles singleFile(const QString &filePath, ProjectFile::Kind kind);
-    static void initMimeDataBaseIfNotYetDone();
 
 protected:
     const QString dummyProjectPartName;
@@ -192,25 +186,13 @@ TEST_F(ProjectFileCategorizer, AmbiguousHeaderOnly)
 
 void ProjectFileCategorizer::SetUp()
 {
-    initMimeDataBaseIfNotYetDone();
+    ASSERT_TRUE(MimeDataBaseUtilities::addCppToolsMimeTypes());
 }
 
 QVector<CppTools::ProjectFile>ProjectFileCategorizer::singleFile(const QString &filePath,
                                                                  ProjectFile::Kind kind)
 {
     return { ProjectFile(filePath, kind) };
-}
-
-void ProjectFileCategorizer::initMimeDataBaseIfNotYetDone()
-{
-    static bool isInitialized = false;
-    if (isInitialized)
-        return;
-
-    const QString filePath = TESTDATA_DIR "/../../../../src/plugins/cpptools/CppTools.mimetypes.xml";
-    ASSERT_TRUE(QFileInfo::exists(filePath));
-    Utils::MimeDatabase::addMimeTypes(filePath);
-    isInitialized = true;
 }
 
 } // anonymous namespace

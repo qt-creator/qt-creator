@@ -25,28 +25,55 @@
 
 #pragma once
 
-#include "cpptools_global.h"
+#include <projectexplorer/toolchain.h>
 
-#include "cppbaseprojectpartbuilder.h"
+#include <memory>
+
+QT_BEGIN_NAMESPACE
+class QString;
+QT_END_NAMESPACE
+
+namespace Core {
+class Id;
+}
 
 namespace ProjectExplorer {
-class Kit;
+class Project;
 class ToolChain;
 }
 
 namespace CppTools {
 
-class ProjectInfo;
-
-class CPPTOOLS_EXPORT ProjectPartBuilder : public BaseProjectPartBuilder
+class ToolChainInterface
 {
 public:
-    ProjectPartBuilder(ProjectInfo &projectInfo);
+    virtual ~ToolChainInterface() {}
 
-    static void evaluateToolChain(ProjectPart &projectPart,
-                                  ProjectExplorer::ToolChain &toolChain,
-                                  const ProjectExplorer::Kit *kit,
-                                  const QStringList commandLineFlags);
+    virtual Core::Id type() const = 0;
+    virtual bool isMsvc2015Toolchain() const = 0;
+
+    virtual unsigned wordWidth() const = 0;
+    virtual QString targetTriple() const = 0;
+
+    virtual QByteArray predefinedMacros() const = 0;
+    virtual QList<ProjectExplorer::HeaderPath> systemHeaderPaths() const = 0;
+
+    virtual ProjectExplorer::WarningFlags warningFlags() const = 0;
+    virtual ProjectExplorer::ToolChain::CompilerFlags compilerFlags() const = 0;
+};
+
+using ToolChainInterfacePtr = std::unique_ptr<ToolChainInterface>;
+
+class ProjectInterface
+{
+public:
+    virtual ~ProjectInterface() {}
+
+    virtual QString displayName() const = 0;
+    virtual QString projectFilePath() const = 0;
+
+    virtual ToolChainInterfacePtr toolChain(ProjectExplorer::ToolChain::Language language,
+                                            const QStringList &commandLineFlags) const = 0;
 };
 
 } // namespace CppTools

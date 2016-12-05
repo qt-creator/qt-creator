@@ -105,6 +105,8 @@ Project {
             "symbolsfindfilter.cpp", "symbolsfindfilter.h",
             "typehierarchybuilder.cpp", "typehierarchybuilder.h",
             "cppprojectfilecategorizer.cpp", "cppprojectfilecategorizer.h",
+            "cppprojectinterface.h",
+            "cppbaseprojectpartbuilder.cpp", "cppbaseprojectpartbuilder.h",
         ]
 
         Group {

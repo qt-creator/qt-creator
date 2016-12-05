@@ -25,279 +25,128 @@
 
 #include "projectpartbuilder.h"
 
-#include "cppprojectfile.h"
-#include "cppprojectfilecategorizer.h"
-#include "cpptoolsconstants.h"
+#include "projectinfo.h"
 
 #include <projectexplorer/abi.h>
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/kitinformation.h>
-#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/toolchain.h>
-
-#include <utils/mimetypes/mimedatabase.h>
-#include <utils/qtcassert.h>
 
 namespace CppTools {
 
-ProjectPartBuilder::ProjectPartBuilder(ProjectInfo &pInfo)
-    : m_templatePart(new ProjectPart)
-    , m_pInfo(pInfo)
+class ToolChainImpl : public ToolChainInterface
 {
-    m_templatePart->project = pInfo.project();
-    m_templatePart->displayName = pInfo.project()->displayName();
-    m_templatePart->projectFile = pInfo.project()->projectFilePath().toString();
-}
-
-void ProjectPartBuilder::setQtVersion(ProjectPart::QtVersion qtVersion)
-{
-    m_templatePart->qtVersion = qtVersion;
-}
-
-void ProjectPartBuilder::setCFlags(const QStringList &flags)
-{
-    m_cFlags = flags;
-}
-
-void ProjectPartBuilder::setCxxFlags(const QStringList &flags)
-{
-    m_cxxFlags = flags;
-}
-
-void ProjectPartBuilder::setDefines(const QByteArray &defines)
-{
-    m_templatePart->projectDefines = defines;
-}
-
-void ProjectPartBuilder::setHeaderPaths(const ProjectPartHeaderPaths &headerPaths)
-{
-    m_templatePart->headerPaths = headerPaths;
-}
-
-void ProjectPartBuilder::setIncludePaths(const QStringList &includePaths)
-{
-    m_templatePart->headerPaths.clear();
-
-    foreach (const QString &includeFile, includePaths) {
-        ProjectPartHeaderPath hp(includeFile, ProjectPartHeaderPath::IncludePath);
-
-        // The simple project managers are utterly ignorant of frameworks on OSX, and won't report
-        // framework paths. The work-around is to check if the include path ends in ".framework",
-        // and if so, add the parent directory as framework path.
-        if (includeFile.endsWith(QLatin1String(".framework"))) {
-            const int slashIdx = includeFile.lastIndexOf(QLatin1Char('/'));
-            if (slashIdx != -1) {
-                hp = ProjectPartHeaderPath(includeFile.left(slashIdx),
-                                             ProjectPartHeaderPath::FrameworkPath);
-            }
-        }
-
-        m_templatePart->headerPaths += hp;
-    }
-}
-
-void ProjectPartBuilder::setPreCompiledHeaders(const QStringList &pchs)
-{
-    m_templatePart->precompiledHeaders = pchs;
-}
-
-void ProjectPartBuilder::setProjectFile(const QString &projectFile)
-{
-    m_templatePart->projectFile = projectFile;
-}
-
-void ProjectPartBuilder::setDisplayName(const QString &displayName)
-{
-    m_templatePart->displayName = displayName;
-}
-
-void ProjectPartBuilder::setConfigFileName(const QString &configFileName)
-{
-    m_templatePart->projectConfigFile = configFileName;
-}
-
-QList<Core::Id> ProjectPartBuilder::createProjectPartsForFiles(const QStringList &files,
-                                                               FileClassifier fileClassifier)
-{
-    QSet<Core::Id> languages;
-
-    ProjectFileCategorizer cat(m_templatePart->displayName, files, fileClassifier);
-    if (cat.hasNoParts())
-        return languages.toList();
-
-    using CppTools::ProjectFile;
-    using CppTools::ProjectPart;
-
-    if (cat.hasCSources()) {
-        createProjectPart(cat.cSources(),
-                          cat.partName(QCoreApplication::translate("CppTools", "C11")),
-                          ProjectPart::C11,
-                          ProjectPart::NoExtensions);
-        // TODO: there is no C...
-        languages += ProjectExplorer::Constants::LANG_CXX;
-    }
-    if (cat.hasObjcSources()) {
-        createProjectPart(cat.objcSources(),
-                          cat.partName(QCoreApplication::translate("CppTools", "Obj-C11")),
-                          ProjectPart::C11,
-                          ProjectPart::ObjectiveCExtensions);
-        // TODO: there is no Ojective-C...
-        languages += ProjectExplorer::Constants::LANG_CXX;
-    }
-    if (cat.hasCxxSources()) {
-        createProjectPart(cat.cxxSources(),
-                          cat.partName(QCoreApplication::translate("CppTools", "C++11")),
-                          ProjectPart::CXX11,
-                          ProjectPart::NoExtensions);
-        languages += ProjectExplorer::Constants::LANG_CXX;
-    }
-    if (cat.hasObjcxxSources()) {
-        createProjectPart(cat.objcxxSources(),
-                          cat.partName(QCoreApplication::translate("CppTools", "Obj-C++11")),
-                          ProjectPart::CXX11,
-                          ProjectPart::ObjectiveCExtensions);
-        // TODO: there is no Objective-C++...
-        languages += ProjectExplorer::Constants::LANG_CXX;
+public:
+    ToolChainImpl(ProjectExplorer::ToolChain &toolChain,
+                  const ProjectExplorer::Kit *kit,
+                  const QStringList &commandLineFlags)
+        : m_toolChain(toolChain)
+        , m_kit(kit)
+        , m_commandLineFlags(commandLineFlags)
+    {
     }
 
-    return languages.toList();
-}
-
-namespace {
-
-ProjectPartHeaderPath toProjectPartHeaderPath(const ProjectExplorer::HeaderPath &headerPath)
-{
-    const ProjectPartHeaderPath::Type headerPathType =
-        headerPath.kind() == ProjectExplorer::HeaderPath::FrameworkHeaderPath
-            ? ProjectPartHeaderPath::FrameworkPath
-            : ProjectPartHeaderPath::IncludePath;
-
-    return ProjectPartHeaderPath(headerPath.path(), headerPathType);
-}
-
-QString targetTriple(ProjectExplorer::Project *project, const Core::Id &toolchainId)
-{
-    using namespace ProjectExplorer;
-
-    if (toolchainId == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
-        return QLatin1String("i686-pc-windows-msvc");
-
-    if (project) {
-        if (Target *target = project->activeTarget()) {
-            if (ToolChain *toolChain = ToolChainKitInformation::toolChain(target->kit(), ToolChain::Language::Cxx))
-                return toolChain->originalTargetTriple();
-        }
+    Core::Id type() const override
+    {
+        return m_toolChain.typeId();
     }
 
-    return QString();
-}
-
-}
-
-/*!
-    \brief Retrieves info from concrete compiler using it's flags.
-
-    \param projectPart Project part which can never be an null pointer.
-    \param toolChain Either nullptr or toolchain for project's active target.
-    \param cxxflags C++ or Objective-C++ flags.
-    \param cflags C or ObjectiveC flags if possible, \a cxxflags otherwise.
-*/
-void ProjectPartBuilder::evaluateProjectPartToolchain(
-        ProjectPart *projectPart,
-        const ProjectExplorer::ToolChain *toolChain,
-        const QStringList &commandLineFlags,
-        const Utils::FileName &sysRoot)
-{
-    if (toolChain == nullptr)
-        return;
-
-    using namespace ProjectExplorer;
-    ToolChain::CompilerFlags flags = toolChain->compilerFlags(commandLineFlags);
-    auto &languageVersion = projectPart->languageVersion;
-
-    if (flags & ToolChain::StandardC11)
-        languageVersion = ProjectPart::C11;
-    else if (flags & ToolChain::StandardC99)
-        languageVersion = ProjectPart::C99;
-    else if (flags & ToolChain::StandardCxx17)
-        languageVersion = ProjectPart::CXX17;
-    else if (flags & ToolChain::StandardCxx14)
-        languageVersion = ProjectPart::CXX14;
-    else if (flags & ToolChain::StandardCxx11)
-        languageVersion = ProjectPart::CXX11;
-    else if (flags & ToolChain::StandardCxx98)
-        languageVersion = ProjectPart::CXX98;
-
-    auto &languageExtensions = projectPart->languageExtensions;
-
-    if (flags & ToolChain::BorlandExtensions)
-        languageExtensions |= ProjectPart::BorlandExtensions;
-    if (flags & ToolChain::GnuExtensions)
-        languageExtensions |= ProjectPart::GnuExtensions;
-    if (flags & ToolChain::MicrosoftExtensions)
-        languageExtensions |= ProjectPart::MicrosoftExtensions;
-    if (flags & ToolChain::OpenMP)
-        languageExtensions |= ProjectPart::OpenMPExtensions;
-    if (flags & ToolChain::ObjectiveC)
-        languageExtensions |= ProjectPart::ObjectiveCExtensions;
-
-    projectPart->warningFlags = toolChain->warningFlags(commandLineFlags);
-
-    const QList<ProjectExplorer::HeaderPath> headers = toolChain->systemHeaderPaths(commandLineFlags, sysRoot);
-    foreach (const ProjectExplorer::HeaderPath &header, headers) {
-        const ProjectPartHeaderPath headerPath = toProjectPartHeaderPath(header);
-        if (!projectPart->headerPaths.contains(headerPath))
-            projectPart->headerPaths.push_back(headerPath);
+    bool isMsvc2015Toolchain() const override
+    {
+        return m_toolChain.targetAbi().osFlavor() == ProjectExplorer::Abi::WindowsMsvc2015Flavor;
     }
 
-    projectPart->toolchainDefines = toolChain->predefinedMacros(commandLineFlags);
-    projectPart->toolchainType = toolChain->typeId();
-    projectPart->isMsvc2015Toolchain
-            = toolChain->targetAbi().osFlavor() == ProjectExplorer::Abi::WindowsMsvc2015Flavor;
-    projectPart->toolChainWordWidth = toolChain->targetAbi().wordWidth() == 64
-            ? ProjectPart::WordWidth64Bit
-            : ProjectPart::WordWidth32Bit;
-    projectPart->targetTriple = targetTriple(projectPart->project, toolChain->typeId());
-    projectPart->updateLanguageFeatures();
-}
-
-void ProjectPartBuilder::createProjectPart(const QVector<ProjectFile> &theSources,
-                                           const QString &partName,
-                                           ProjectPart::LanguageVersion languageVersion,
-                                           ProjectPart::LanguageExtensions languageExtensions)
-{
-    ProjectPart::Ptr part(m_templatePart->copy());
-    part->displayName = partName;
-    part->files = theSources;
-    part->languageVersion = languageVersion;
-
-    QTC_ASSERT(part->project, return);
-    if (ProjectExplorer::Target *activeTarget = part->project->activeTarget()) {
-        if (ProjectExplorer::Kit *kit = activeTarget->kit()) {
-            ProjectExplorer::ToolChain *toolChain = nullptr;
-            if (languageVersion < ProjectPart::CXX98)
-                toolChain = ProjectExplorer::ToolChainKitInformation::toolChain(kit, ProjectExplorer::ToolChain::Language::C);
-            if (!toolChain) // Use Cxx toolchain for C projects without C compiler in kit and for C++ code
-                toolChain = ProjectExplorer::ToolChainKitInformation::toolChain(kit, ProjectExplorer::ToolChain::Language::Cxx);
-
-            if (toolChain) {
-                const QStringList flags
-                        = (toolChain->language() == ProjectExplorer::ToolChain::Language::Cxx)
-                          ? m_cxxFlags : m_cFlags;
-                evaluateProjectPartToolchain(part.data(),
-                                             toolChain,
-                                             flags,
-                                             ProjectExplorer::SysRootKitInformation::sysRoot(kit));
-            }
-        }
+    unsigned wordWidth() const override
+    {
+        return m_toolChain.targetAbi().wordWidth();
     }
 
-    part->languageExtensions |= languageExtensions;
+    QString targetTriple() const override
+    {
+        if (type() == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
+            return QLatin1String("i686-pc-windows-msvc");
 
-    m_pInfo.appendProjectPart(part);
+        return m_toolChain.originalTargetTriple();
+    }
+
+    QByteArray predefinedMacros() const override
+    {
+        return m_toolChain.predefinedMacros(m_commandLineFlags);
+    }
+
+    QList<ProjectExplorer::HeaderPath> systemHeaderPaths() const override
+    {
+        return m_toolChain.systemHeaderPaths(
+                    m_commandLineFlags,
+                    ProjectExplorer::SysRootKitInformation::sysRoot(m_kit));
+    }
+
+    ProjectExplorer::WarningFlags warningFlags() const override
+    {
+        return m_toolChain.warningFlags(m_commandLineFlags);
+    }
+
+    ProjectExplorer::ToolChain::CompilerFlags compilerFlags() const override
+    {
+        return m_toolChain.compilerFlags(m_commandLineFlags);
+    }
+
+private:
+    ProjectExplorer::ToolChain &m_toolChain;
+    const ProjectExplorer::Kit *m_kit = nullptr;
+    const QStringList m_commandLineFlags;
+};
+
+class ProjectImpl : public ProjectInterface
+{
+public:
+    ProjectImpl(ProjectExplorer::Project &project)
+        : m_project(project)
+    {
+        if (ProjectExplorer::Target *activeTarget = m_project.activeTarget())
+            m_kit = activeTarget->kit();
+    }
+
+    QString displayName() const override
+    {
+        return m_project.displayName();
+    }
+
+    QString projectFilePath() const override
+    {
+        return m_project.projectFilePath().toString();
+    }
+
+    ToolChainInterfacePtr toolChain(ProjectExplorer::ToolChain::Language language,
+                                    const QStringList &commandLineFlags) const override
+    {
+        using namespace ProjectExplorer;
+
+        if (ProjectExplorer::ToolChain *t = ToolChainKitInformation::toolChain(m_kit, language))
+            return ToolChainInterfacePtr(new ToolChainImpl(*t, m_kit, commandLineFlags));
+
+        return ToolChainInterfacePtr();
+    }
+
+private:
+    ProjectExplorer::Project &m_project;
+    ProjectExplorer::Kit *m_kit = nullptr;
+};
+
+ProjectPartBuilder::ProjectPartBuilder(ProjectInfo &projectInfo)
+    : BaseProjectPartBuilder(new ProjectImpl(*projectInfo.project().data()), projectInfo)
+{
+}
+
+void ProjectPartBuilder::evaluateToolChain(ProjectPart &projectPart,
+                                           ProjectExplorer::ToolChain &toolChain,
+                                           const ProjectExplorer::Kit *kit,
+                                           const QStringList commandLineFlags)
+{
+    const ToolChainImpl toolChainImpl(toolChain, kit, commandLineFlags);
+    BaseProjectPartBuilder::evaluateToolChain(projectPart, toolChainImpl);
 }
 
 } // namespace CppTools

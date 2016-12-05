@@ -413,9 +413,8 @@ void QmakeProject::updateCppCodeModel()
 
         // TODO: there is no LANG_OBJCXX, so:
         const QStringList cxxflags = pro->variableValue(CppFlagsVar);
-        CppTools::ProjectPartBuilder::evaluateProjectPartToolchain(
-                    templatePart.data(), ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx),
-                    cxxflags, SysRootKitInformation::sysRoot(k));
+        if (ToolChain *t = ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx))
+            CppTools::ProjectPartBuilder::evaluateToolChain(*templatePart.data(), *t, k, cxxflags);
         setProjectLanguage(ProjectExplorer::Constants::LANG_CXX, true);
 
         ProjectPart::Ptr cppPart = templatePart->copy();

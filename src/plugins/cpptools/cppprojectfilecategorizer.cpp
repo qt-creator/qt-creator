@@ -41,6 +41,7 @@ ProjectFileCategorizer::ProjectFileCategorizer(const QString &projectPartName,
                 + (m_objcxxSources.isEmpty() ? 0 : 1);
 }
 
+// TODO: Always tell the language version?
 QString ProjectFileCategorizer::partName(const QString &languageName) const
 {
     if (hasMultipleParts())

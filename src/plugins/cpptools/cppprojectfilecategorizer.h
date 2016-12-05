@@ -54,7 +54,7 @@ public:
     ProjectFiles objcxxSources() const { return m_objcxxSources; }
 
     bool hasMultipleParts() const { return m_partCount > 1; }
-    bool hasNoParts() const { return m_partCount == 0; }
+    bool hasParts() const { return m_partCount > 0; }
 
     QString partName(const QString &languageName) const;
 

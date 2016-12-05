@@ -29,7 +29,9 @@ SOURCES += \
     clientserveroutsideprocess.cpp \
     lineprefixer-test.cpp \
     cppprojectfilecategorizer-test.cpp \
+    cppbaseprojectpartbuilder-test.cpp \
     processevents-utilities.cpp \
+    mimedatabase-utilities.cpp \
     readandwritemessageblock-test.cpp \
     sizedarray-test.cpp \
     smallstring-test.cpp \
@@ -119,6 +121,7 @@ HEADERS += \
     googletest.h \
     gtest-qt-printing.h \
     processevents-utilities.h \
+    mimedatabase-utilities.h \
     spydummy.h \
     sourcerangecontainer-matcher.h \
     dynamicastmatcherdiagnosticcontainer-matcher.h \

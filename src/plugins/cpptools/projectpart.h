@@ -58,7 +58,7 @@ public: // Types
         CXX03,
         CXX11,
         CXX14,
-        CXX17
+        CXX17,
     };
 
     enum LanguageExtension {
