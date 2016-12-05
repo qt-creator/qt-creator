@@ -1304,12 +1304,13 @@ bool QmakePriFileNode::setProVariable(const QString &var, const QStringList &val
     ProFile *includeFile = pair.first;
     QStringList lines = pair.second;
 
+    if (!includeFile)
+        return false;
+
     ProWriter::putVarValues(includeFile, &lines, values, var,
                             ProWriter::PutFlags(flags),
                             scope);
 
-    if (!includeFile)
-        return false;
     save(lines);
     includeFile->deref();
     return true;
