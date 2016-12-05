@@ -68,11 +68,11 @@ private:
     OutputFormatter *m_formatter;
     QLabel *m_statusLabel;
 
-    ShellCommand *m_command;
+    ShellCommand *m_command = nullptr;
     QString m_startedStatus;
-    bool m_overwriteOutput;
+    bool m_overwriteOutput = false;
 
-    State m_state;
+    State m_state = Idle;
 };
 
 } // namespace Utils

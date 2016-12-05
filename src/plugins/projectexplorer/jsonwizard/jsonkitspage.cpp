@@ -117,7 +117,7 @@ void JsonKitsPage::setupProjectFiles(const JsonWizard::GeneratorFiles &files)
                 continue;
 
             auto manager = Utils::findOrDefault(managerList, Utils::equal(&IProjectManager::mimeType, mt.name()));
-            project = manager ? manager->openProject(path, &errorMessage) : 0;
+            project = manager ? manager->openProject(path, &errorMessage) : nullptr;
             if (project) {
                 if (setupProject(project))
                     project->saveSettings();
@@ -166,7 +166,7 @@ QVector<JsonKitsPage::ConditionalFeature> JsonKitsPage::parseFeatures(const QVar
             if (feature.isEmpty()) {
                 if (errorMessage) {
                     *errorMessage = tr("No \"%1\" key found in feature list object.")
-                            .arg(QLatin1String(KEY_FEATURE));
+                        .arg(QLatin1String(KEY_FEATURE));
                 }
                 return QVector<ConditionalFeature>();
             }

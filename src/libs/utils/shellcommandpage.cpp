@@ -48,9 +48,7 @@ namespace Utils {
 
 ShellCommandPage::ShellCommandPage(QWidget *parent) :
     WizardPage(parent),
-    m_startedStatus(tr("Command started...")),
-    m_overwriteOutput(false),
-    m_state(Idle)
+    m_startedStatus(tr("Command started..."))
 {
     resize(264, 200);
     auto verticalLayout = new QVBoxLayout(this);
