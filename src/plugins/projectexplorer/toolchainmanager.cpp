@@ -391,10 +391,11 @@ void ToolChainManager::notifyAboutUpdate(ToolChain *tc)
 
 bool ToolChainManager::registerToolChain(ToolChain *tc)
 {
+    QTC_ASSERT(tc, return false);
     QTC_ASSERT(tc->language() != ToolChain::Language::None, return false);
     QTC_ASSERT(d->m_writer, return false);
 
-    if (!tc || d->m_toolChains.contains(tc))
+    if (d->m_toolChains.contains(tc))
         return true;
     foreach (ToolChain *current, d->m_toolChains) {
         if (*tc == *current && !tc->isAutoDetected())
