@@ -66,9 +66,10 @@ std::reverse_iterator<Iterator> make_reverse_iterator(Iterator iterator)
 const char *SourceRangeExtractor::findStartOfLineInBuffer(llvm::StringRef buffer, uint startOffset)
 {
     auto beginText = buffer.begin() + startOffset;
+    auto reverseBegin = make_reverse_iterator(beginText);
     auto reverseEnd = make_reverse_iterator(buffer.begin());
 
-    auto found = std::find_if(make_reverse_iterator(beginText),
+    auto found = std::find_if(reverseBegin,
                               reverseEnd,
                               [] (const char character) {
         return character == '\n' || character == '\r';
