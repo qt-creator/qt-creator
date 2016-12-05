@@ -1859,7 +1859,6 @@ void tst_Dumpers::dumper_data()
                     "unused(&dir, &s, &fi);\n")
 
                + CoreProfile()
-               + UseDebugImage()
                + QtVersion(0x50300)
 
                + Check("dir", tempDir, "@QDir")
@@ -2516,7 +2515,6 @@ void tst_Dumpers::dumper_data()
                    "child.setObjectName(\"A renamed Child\");\n")
 
               + CoreProfile()
-              + UseDebugImage() // FIXME: Avoid the need. Needed for LLDB object name.
 
               + Check("child", "\"A renamed Child\"", "@QObject")
               + Check("parent", "\"A Parent\"", "@QObject");
@@ -2634,7 +2632,6 @@ void tst_Dumpers::dumper_data()
                     "unused(&ob, &ob1, &ob2);\n")
 
                + GuiProfile()
-               + UseDebugImage() // FIXME: Needed for QObject name
 
                + Check("ob", "\"An Object\"", "@QWidget")
                + Check("ob1", "\"Another Object\"", "@QObject")
@@ -2765,7 +2762,6 @@ void tst_Dumpers::dumper_data()
                     "int pos2 = re.indexIn(str2); unused(&pos2);\n"
                     "QStringList caps = re.capturedTexts(); unused(&caps);\n")
                + CoreProfile()
-               + UseDebugImage()
                + Check("re", "\"a(.*)b(.*)c\"", "@QRegExp")
                + Check("re.captures.0", "[0]", "\"a1121b344c\"", "@QString")
                + Check("re.captures.1", "[1]", "\"1121\"", "@QString")
@@ -2837,7 +2833,6 @@ void tst_Dumpers::dumper_data()
                     "unused(&region0, &region1, &region2, &rects);\n")
 
                + GuiProfile()
-               + UseDebugImage()
 
                + Check("region0", "<0 items>", "@QRegion")
                + Check("region1", "<1 items>", "@QRegion")
@@ -3425,7 +3420,6 @@ void tst_Dumpers::dumper_data()
                     "}\n")
 
                + CoreProfile()
-               + UseDebugImage()
 
                + CheckType("this", "Thread")
                + Check("this.@1", "[@QThread]", "\"This is thread #3\"", "@QThread");
@@ -3689,7 +3683,6 @@ void tst_Dumpers::dumper_data()
                     "unused(&ha1);\n")
 
                + NetworkProfile()
-               + UseDebugImage()
 
                + Check("ha", "\"127.0.0.1\"", "@QHostAddress")
                + Check("ha.a", "2130706433", "@quint32") % NoCdbEngine
@@ -5895,7 +5888,6 @@ void tst_Dumpers::dumper_data()
 
          + CoreProfile()
          + QtVersion(0x50000)
-         + UseDebugImage()
 
          + Check("file", "\"A file\"", "MyFile")
          + Check("file.@1", "[@QFile]", "\"/tmp/tt\"", "@QFile");
