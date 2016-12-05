@@ -307,13 +307,7 @@ void TreeModel::ItemUpdater::updateRelationLabel(const MRelation *relation)
         m_item->setText(label);
 }
 
-TreeModel::TreeModel(QObject *parent)
-    : QStandardItemModel(parent),
-      m_modelController(0),
-      m_stereotypeController(0),
-      m_styleController(0),
-      m_rootItem(0),
-      m_busyState(NotBusy)
+TreeModel::TreeModel(QObject *parent) : QStandardItemModel(parent)
 {
     connect(this, &QAbstractItemModel::dataChanged,
             this, &TreeModel::onModelDataChanged);
@@ -481,8 +475,8 @@ void TreeModel::onEndResetModel()
 {
     QMT_CHECK(m_busyState == ResetModel);
     clear();
-    MPackage *rootPackage = m_modelController->rootPackage();
-    if (m_modelController && rootPackage) {
+    MPackage *rootPackage = m_modelController ? m_modelController->rootPackage() : nullptr;
+    if (rootPackage) {
         m_rootItem = createItem(rootPackage);
         appendRow(m_rootItem);
         createChildren(rootPackage, m_rootItem);

@@ -134,13 +134,13 @@ private:
         MoveRelation
     };
 
-    ModelController *m_modelController;
-    StereotypeController *m_stereotypeController;
-    StyleController *m_styleController;
-    ModelItem *m_rootItem;
+    ModelController *m_modelController = nullptr;
+    StereotypeController *m_stereotypeController = nullptr;
+    StyleController *m_styleController = nullptr;
+    ModelItem *m_rootItem = nullptr;
     QHash<const MObject *, ModelItem *> m_objectToItemMap;
     QHash<ModelItem *, const MObject *> m_itemToObjectMap;
-    Busy m_busyState;
+    Busy m_busyState = NotBusy;
 };
 
 } // namespace qmt
