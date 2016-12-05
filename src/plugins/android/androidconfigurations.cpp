@@ -300,14 +300,6 @@ void AndroidConfig::load(const QSettings &settings)
     m_NdkInformationUpToDate = false;
 }
 
-AndroidConfig::AndroidConfig()
-    : m_useGradle(false),
-      m_availableSdkPlatformsUpToDate(false),
-      m_NdkInformationUpToDate(false)
-{
-
-}
-
 void AndroidConfig::save(QSettings &settings) const
 {
     QFileInfo fileInfo(sdkSettingsFileName());

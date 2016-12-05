@@ -85,8 +85,6 @@ public:
 class ANDROID_EXPORT AndroidConfig
 {
 public:
-    AndroidConfig();
-
     void load(const QSettings &settings);
     void save(QSettings &settings) const;
 
@@ -197,16 +195,16 @@ private:
     Utils::FileName m_openJDKLocation;
     Utils::FileName m_keystoreLocation;
     QStringList m_makeExtraSearchDirectories;
-    unsigned m_partitionSize;
-    bool m_automaticKitCreation;
-    bool m_useGradle;
+    unsigned m_partitionSize = 1024;
+    bool m_automaticKitCreation = true;
+    bool m_useGradle = false;
 
     //caches
-    mutable bool m_availableSdkPlatformsUpToDate;
+    mutable bool m_availableSdkPlatformsUpToDate = false;
     mutable QVector<SdkPlatform> m_availableSdkPlatforms;
     static bool sortSdkPlatformByApiLevel(const SdkPlatform &a, const SdkPlatform &b);
 
-    mutable bool m_NdkInformationUpToDate;
+    mutable bool m_NdkInformationUpToDate = false;
     mutable QString m_toolchainHost;
     mutable QVector<int> m_availableNdkPlatforms;
 
