@@ -356,22 +356,17 @@ void QmakeProject::updateCodeModels()
 
 void QmakeProject::updateCppCodeModel()
 {
+    using ProjectPart = CppTools::ProjectPart;
+    using ProjectFile = CppTools::ProjectFile;
+
     m_toolChainWarnings.clear();
 
-    typedef CppTools::ProjectPart ProjectPart;
-    typedef CppTools::ProjectFile ProjectFile;
-
-    Kit *k = nullptr;
+    const Kit *k = nullptr;
     if (Target *target = activeTarget())
         k = target->kit();
     else
         k = KitManager::defaultKit();
-
-    CppTools::CppModelManager *modelmanager = CppTools::CppModelManager::instance();
-    FindQmakeProFiles findQmakeProFiles;
-    QList<QmakeProFileNode *> proFiles = findQmakeProFiles(rootProjectNode());
-
-    CppTools::ProjectInfo pinfo(this);
+    QTC_ASSERT(k, return);
 
     QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(k);
     ProjectPart::QtVersion qtVersionForPart = ProjectPart::NoQt;
@@ -382,7 +377,11 @@ void QmakeProject::updateCppCodeModel()
             qtVersionForPart = ProjectPart::Qt5;
     }
 
+    FindQmakeProFiles findQmakeProFiles;
+    const QList<QmakeProFileNode *> proFiles = findQmakeProFiles(rootProjectNode());
+    CppTools::ProjectInfo projectInfo(this);
     QList<ProjectExplorer::ExtraCompiler *> generators;
+
     foreach (QmakeProFileNode *pro, proFiles) {
         warnOnToolChainMismatch(pro);
 
@@ -391,14 +390,13 @@ void QmakeProject::updateCppCodeModel()
         templatePart->displayName = pro->displayName();
         templatePart->projectFile = pro->filePath().toString();
         templatePart->selectedForBuilding = pro->includedInExactParse();
+        templatePart->projectDefines += pro->cxxDefines();
+        templatePart->precompiledHeaders.append(pro->variableValue(PrecompiledHeaderVar));
 
         if (pro->variableValue(ConfigVar).contains(QLatin1String("qt")))
             templatePart->qtVersion = qtVersionForPart;
         else
             templatePart->qtVersion = ProjectPart::NoQt;
-
-        // part->defines
-        templatePart->projectDefines += pro->cxxDefines();
 
         foreach (const QString &inc, pro->variableValue(IncludePathVar)) {
             const auto headerPath
@@ -407,16 +405,11 @@ void QmakeProject::updateCppCodeModel()
                 templatePart->headerPaths += headerPath;
         }
 
-        if (qtVersion) {
-            if (!qtVersion->frameworkInstallPath().isEmpty()) {
-                templatePart->headerPaths += CppTools::ProjectPartHeaderPath(
-                            qtVersion->frameworkInstallPath(),
-                            CppTools::ProjectPartHeaderPath::FrameworkPath);
-            }
+        if (qtVersion && !qtVersion->frameworkInstallPath().isEmpty()) {
+            templatePart->headerPaths += CppTools::ProjectPartHeaderPath(
+                        qtVersion->frameworkInstallPath(),
+                        CppTools::ProjectPartHeaderPath::FrameworkPath);
         }
-
-        // part->precompiledHeaders
-        templatePart->precompiledHeaders.append(pro->variableValue(PrecompiledHeaderVar));
 
         // TODO: there is no LANG_OBJCXX, so:
         const QStringList cxxflags = pro->variableValue(CppFlagsVar);
@@ -428,7 +421,7 @@ void QmakeProject::updateCppCodeModel()
         ProjectPart::Ptr cppPart = templatePart->copy();
         ProjectPart::Ptr objcppPart = templatePart->copy();
         foreach (const QString &file, pro->variableValue(SourceVar)) {
-            ProjectFile::Kind kind = ProjectFile::classify(file);
+            const ProjectFile::Kind kind = ProjectFile::classify(file);
             switch (kind) {
             case ProjectFile::ObjCHeader:
             case ProjectFile::ObjCSource:
@@ -446,8 +439,8 @@ void QmakeProject::updateCppCodeModel()
         QList<ProjectExplorer::ExtraCompiler *> proGenerators = pro->extraCompilers();
         foreach (ProjectExplorer::ExtraCompiler *ec, proGenerators) {
             ec->forEachTarget([&](const Utils::FileName &generatedFile) {
-                QString name = generatedFile.toString();
-                ProjectFile::Kind kind = ProjectFile::classify(name);
+                const QString name = generatedFile.toString();
+                const ProjectFile::Kind kind = ProjectFile::classify(name);
                 switch (kind) {
                 case ProjectFile::CHeader:
                 case ProjectFile::CSource:
@@ -470,20 +463,20 @@ void QmakeProject::updateCppCodeModel()
 
         cppPart->files.prepend(ProjectFile(CppTools::CppModelManager::configurationFileName(),
                                            ProjectFile::CXXSource));
-        pinfo.appendProjectPart(cppPart);
-        objcppPart->displayName += QLatin1String(" (ObjC++)");
-        objcppPart->languageExtensions |= ProjectPart::ObjectiveCExtensions;
+        projectInfo.appendProjectPart(cppPart);
+
         if (!objcppPart->files.isEmpty()) {
-            pinfo.appendProjectPart(objcppPart);
+            objcppPart->displayName += QLatin1String(" (ObjC++)");
+            objcppPart->languageExtensions |= ProjectPart::ObjectiveCExtensions;
+            projectInfo.appendProjectPart(objcppPart);
             cppPart->displayName += QLatin1String(" (C++)");
         }
     }
-    pinfo.finish();
 
-    // Also update Code Model Support for generated files:
+    projectInfo.finish();
+
     CppTools::GeneratedCodeModelSupport::update(generators);
-
-    m_codeModelFuture = modelmanager->updateProjectInfo(pinfo);
+    m_codeModelFuture = CppTools::CppModelManager::instance()->updateProjectInfo(projectInfo);
 }
 
 void QmakeProject::updateQmlJSCodeModel()
