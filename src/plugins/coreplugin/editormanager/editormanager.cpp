@@ -1690,11 +1690,8 @@ void EditorManagerPrivate::setupSaveActions(IDocument *document, QAction *saveAc
     saveAsAction->setEnabled(document != 0 && document->isSaveAsAllowed());
     revertToSavedAction->setEnabled(hasFile);
 
-    const QString documentName = document ? document->displayName() : QString();
-    QString quotedName;
-
-    if (!documentName.isEmpty()) {
-        quotedName = QLatin1Char('"') + documentName + QLatin1Char('"');
+    if (document && !document->displayName().isEmpty()) {
+        const QString quotedName = QLatin1Char('"') + document->displayName() + QLatin1Char('"');
         saveAction->setText(tr("&Save %1").arg(quotedName));
         saveAsAction->setText(tr("Save %1 &As...").arg(quotedName));
         revertToSavedAction->setText(document->isModified()
