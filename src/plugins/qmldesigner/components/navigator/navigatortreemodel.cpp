@@ -39,6 +39,7 @@
 
 #include <coreplugin/icore.h>
 
+#include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
 #include <QMimeData>
@@ -419,6 +420,7 @@ void NavigatorTreeModel::handleChangedExportItem(QStandardItem *exportItem, Mode
 {
     bool exported = (exportItem->checkState() == Qt::Checked);
 
+    QTC_ASSERT(m_view, return);
     ModelNode rootModelNode = m_view->rootModelNode();
     Q_ASSERT(rootModelNode.isValid());
     PropertyName modelNodeId = modelNode.id().toUtf8();
@@ -496,13 +498,13 @@ QModelIndex NavigatorTreeModel::indexForNode(const ModelNode &node) const
 ModelNode NavigatorTreeModel::nodeForIndex(const QModelIndex &index) const
 {
     qint32 internalId = index.data(InternalIdRole).toInt();
-    return m_view->modelNodeForInternalId(internalId);
+    return m_view ? m_view->modelNodeForInternalId(internalId) : ModelNode();
 }
 
 bool NavigatorTreeModel::hasNodeForIndex(const QModelIndex &index) const
 {
     QVariant internalIdVariant = index.data(InternalIdRole);
-    if (internalIdVariant.isValid()) {
+    if (m_view && internalIdVariant.isValid()) {
         qint32 internalId = internalIdVariant.toInt();
         return m_view->hasModelNodeForInternalId(internalId);
     }
@@ -694,6 +696,7 @@ static void reparentModelNodeToNodeProperty(NodeAbstractProperty &parentProperty
 
 void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty &parentProperty, const QList<ModelNode> &modelNodes, int targetIndex)
 {
+    QTC_ASSERT(m_view, return);
     try {
         TypeName propertyQmlType = parentProperty.parentModelNode().metaInfo().propertyTypeName(parentProperty.name());
 
@@ -723,6 +726,7 @@ void NavigatorTreeModel::handleInternalDrop(const QMimeData *mimeData,
                                             int rowNumber,
                                             const QModelIndex &dropModelIndex)
 {
+    QTC_ASSERT(m_view, return);
     QModelIndex rowModelIndex = dropModelIndex.sibling(dropModelIndex.row(), 0);
     int targetRowNumber = rowNumber;
     NodeAbstractProperty targetProperty;
@@ -749,6 +753,7 @@ static ItemLibraryEntry itemLibraryEntryFromData(const QByteArray &data)
 
 void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, int rowNumber, const QModelIndex &dropModelIndex)
 {
+    QTC_ASSERT(m_view, return);
     QModelIndex rowModelIndex = dropModelIndex.sibling(dropModelIndex.row(), 0);
     int targetRowNumber = rowNumber;
     NodeAbstractProperty targetProperty;
@@ -770,6 +775,7 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
 
 void NavigatorTreeModel::handleItemLibraryImageDrop(const QMimeData *mimeData, int rowNumber, const QModelIndex &dropModelIndex)
 {
+    QTC_ASSERT(m_view, return);
     QModelIndex rowModelIndex = dropModelIndex.sibling(dropModelIndex.row(), 0);
     int targetRowNumber = rowNumber;
     NodeAbstractProperty targetProperty;
@@ -821,6 +827,7 @@ void NavigatorTreeModel::setExported(const QModelIndex &index, bool exported)
 
 void NavigatorTreeModel::openContextMenu(const QPoint &position)
 {
+    QTC_ASSERT(m_view, return);
     ModelNodeContextMenu::showContextMenu(m_view.data(), position, QPoint(), false);
 }
 
