@@ -193,15 +193,6 @@ QWidget *DynamicPropertiesDelegate::createEditor(QWidget *parent, const QStyleOp
         QWidget *widget = QStyledItemDelegate::createEditor(parent, option, index);
 
         const DynamicPropertiesModel *model = qobject_cast<const DynamicPropertiesModel*>(index.model());
-
-        model->connectionView()->allModelNodes();
-
-//        PropertiesComboBox *dynamicPropertiesComboBox = qobject_cast<DynamicPropertiesComboBox*>(widget);
-
-//        if (!dynamicPropertiesComboBox) {
-//            return widget;
-//        }
-
         if (!model) {
             qWarning() << "BindingDelegate::createEditor no model";
             return widget;
@@ -211,6 +202,13 @@ QWidget *DynamicPropertiesDelegate::createEditor(QWidget *parent, const QStyleOp
             qWarning() << "BindingDelegate::createEditor no connection view";
             return widget;
         }
+        model->connectionView()->allModelNodes();
+
+//        PropertiesComboBox *dynamicPropertiesComboBox = qobject_cast<DynamicPropertiesComboBox*>(widget);
+
+//        if (!dynamicPropertiesComboBox) {
+//            return widget;
+//        }
 
         BindingProperty bindingProperty = model->bindingPropertyForRow(index.row());
 
