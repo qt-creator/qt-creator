@@ -237,9 +237,6 @@ public:
     QPushButton *m_cloneButton;
     QPushButton *m_delButton;
 
-    TreeItem *m_autoRoot;
-    TreeItem *m_manualRoot;
-
     QHash<ToolChain::Language, QPair<StaticTreeItem *, StaticTreeItem *>> m_languageMap;
 
     QList<ToolChainTreeItem *> m_toAddList;
