@@ -247,33 +247,26 @@ class GenericProposalWidgetPrivate : public QObject
 public:
     GenericProposalWidgetPrivate(QWidget *completionWidget);
 
-    const QWidget *m_underlyingWidget;
+    const QWidget *m_underlyingWidget = nullptr;
     GenericProposalListView *m_completionListView;
-    GenericProposalModel *m_model;
+    GenericProposalModel *m_model = nullptr;
     QRect m_displayRect;
-    bool m_isSynchronized;
-    bool m_explicitlySelected;
-    AssistReason m_reason;
-    AssistKind m_kind;
-    bool m_justInvoked;
+    bool m_isSynchronized = true;
+    bool m_explicitlySelected = false;
+    AssistReason m_reason = IdleEditor;
+    AssistKind m_kind = Completion;
+    bool m_justInvoked = false;
     QPointer<GenericProposalInfoFrame> m_infoFrame;
     QTimer m_infoTimer;
-    CodeAssistant *m_assistant;
-    bool m_autoWidth;
+    CodeAssistant *m_assistant = nullptr;
+    bool m_autoWidth = true;
 
     void handleActivation(const QModelIndex &modelIndex);
     void maybeShowInfoTip();
 };
 
 GenericProposalWidgetPrivate::GenericProposalWidgetPrivate(QWidget *completionWidget)
-    : m_underlyingWidget(0)
-    , m_completionListView(new GenericProposalListView(completionWidget))
-    , m_model(0)
-    , m_isSynchronized(true)
-    , m_explicitlySelected(false)
-    , m_justInvoked(false)
-    , m_assistant(0)
-    , m_autoWidth(true)
+    : m_completionListView(new GenericProposalListView(completionWidget))
 {
     m_completionListView->setIconSize(QSize(16, 16));
     connect(m_completionListView, &QAbstractItemView::activated,
