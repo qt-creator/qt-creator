@@ -25,6 +25,7 @@
 
 #include "refactoringclient.h"
 
+#include <refactoringconnectionclient.h>
 #include <sourcelocationsforrenamingmessage.h>
 #include <sourcerangesanddiagnosticsforquerymessage.h>
 
@@ -32,7 +33,8 @@ namespace ClangRefactoring {
 
 void RefactoringClient::alive()
 {
-
+    if (connectionClient)
+        connectionClient->resetProcessAliveTimer();
 }
 
 void RefactoringClient::sourceLocationsForRenamingMessage(
@@ -94,6 +96,12 @@ uint RefactoringClient::expectedResultCount() const
 uint RefactoringClient::resultCounter() const
 {
     return resultCounter_;
+}
+
+void RefactoringClient::setRefactoringConnectionClient(
+        ClangBackEnd::RefactoringConnectionClient *connectionClient)
+{
+    this->connectionClient = connectionClient;
 }
 
 namespace {

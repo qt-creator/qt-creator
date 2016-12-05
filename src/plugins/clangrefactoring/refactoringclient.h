@@ -35,6 +35,7 @@
 
 namespace ClangBackEnd {
 class FilePath;
+class RefactoringConnectionClient;
 class SourceRangesContainer;
 class SourceRangeWithTextContainer;
 }
@@ -65,6 +66,7 @@ public:
     uint expectedResultCount() const;
     uint resultCounter() const;
 
+    void setRefactoringConnectionClient(ClangBackEnd::RefactoringConnectionClient *connectionClient);
 
 UNIT_TEST_PUBLIC:
     void addSearchResult(const ClangBackEnd::SourceRangeWithTextContainer &sourceRange,
@@ -78,6 +80,7 @@ private:
 
 private:
     CppTools::RefactoringEngineInterface::RenameCallback localRenamingCallback;
+    ClangBackEnd::RefactoringConnectionClient *connectionClient = nullptr;
     ClangRefactoring::SearchHandle *searchHandle_ = nullptr;
     ClangRefactoring::RefactoringEngine *refactoringEngine = nullptr;
     uint expectedResultCount_ = 0;

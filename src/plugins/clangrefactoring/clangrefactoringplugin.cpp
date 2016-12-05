@@ -73,6 +73,7 @@ bool ClangRefactoringPlugin::initialize(const QStringList & /*arguments*/, QStri
     d.reset(new ClangRefactoringPluginData);
 
     d->refactoringClient.setRefactoringEngine(&d->engine);
+    d->refactoringClient.setRefactoringConnectionClient(&d->connectionClient);
     ExtensionSystem::PluginManager::addObject(&d->qtCreatorfindFilter);
 
     connectBackend();
@@ -89,6 +90,7 @@ void ClangRefactoringPlugin::extensionsInitialized()
 ExtensionSystem::IPlugin::ShutdownFlag ClangRefactoringPlugin::aboutToShutdown()
 {
     ExtensionSystem::PluginManager::removeObject(&d->qtCreatorfindFilter);
+    d->refactoringClient.setRefactoringConnectionClient(nullptr);
     d->refactoringClient.setRefactoringEngine(nullptr);
 
     d.reset();
