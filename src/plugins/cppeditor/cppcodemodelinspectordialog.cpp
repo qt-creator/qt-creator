@@ -279,6 +279,84 @@ QVariant ProjectFilesModel::headerData(int section, Qt::Orientation orientation,
     return QVariant();
 }
 
+// --- ProjectHeaderPathModel --------------------------------------------------------------------
+
+class ProjectHeaderPathsModel : public QAbstractListModel
+{
+    Q_OBJECT
+public:
+    ProjectHeaderPathsModel(QObject *parent);
+    void configure(const ProjectPartHeaderPaths &paths);
+    void clear();
+
+    enum Columns { TypeColumn, PathColumn, ColumnCount };
+
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+
+private:
+    ProjectPartHeaderPaths m_paths;
+};
+
+ProjectHeaderPathsModel::ProjectHeaderPathsModel(QObject *parent) : QAbstractListModel(parent)
+{
+}
+
+void ProjectHeaderPathsModel::configure(const ProjectPartHeaderPaths &paths)
+{
+    emit layoutAboutToBeChanged();
+    m_paths = paths;
+    emit layoutChanged();
+}
+
+void ProjectHeaderPathsModel::clear()
+{
+    emit layoutAboutToBeChanged();
+    m_paths.clear();
+    emit layoutChanged();
+}
+
+int ProjectHeaderPathsModel::rowCount(const QModelIndex &/*parent*/) const
+{
+    return m_paths.size();
+}
+
+int ProjectHeaderPathsModel::columnCount(const QModelIndex &/*parent*/) const
+{
+    return ProjectFilesModel::ColumnCount;
+}
+
+QVariant ProjectHeaderPathsModel::data(const QModelIndex &index, int role) const
+{
+    if (role == Qt::DisplayRole) {
+        const int row = index.row();
+        const int column = index.column();
+        if (column == TypeColumn) {
+            return CMI::Utils::toString(m_paths.at(row).type);
+        } else if (column == PathColumn) {
+            return m_paths.at(row).path;
+        }
+    }
+    return QVariant();
+}
+
+QVariant ProjectHeaderPathsModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
+        switch (section) {
+        case TypeColumn:
+            return QLatin1String("Type");
+        case PathColumn:
+            return QLatin1String("Path");
+        default:
+            return QVariant();
+        }
+    }
+    return QVariant();
+}
+
 // --- KeyValueModel ------------------------------------------------------------------------------
 
 class KeyValueModel : public QAbstractListModel
@@ -1254,6 +1332,7 @@ CppCodeModelInspectorDialog::CppCodeModelInspectorDialog(QWidget *parent)
     , m_proxyProjectPartsModel(new QSortFilterProxyModel(this))
     , m_partGenericInfoModel(new KeyValueModel(this))
     , m_projectFilesModel(new ProjectFilesModel(this))
+    , m_projectHeaderPathsModel(new ProjectHeaderPathsModel(this))
     , m_workingCopyView(new FilterableView(this))
     , m_workingCopyModel(new WorkingCopyModel(this))
     , m_proxyWorkingCopyModel(new QSortFilterProxyModel(this))
@@ -1281,6 +1360,7 @@ CppCodeModelInspectorDialog::CppCodeModelInspectorDialog(QWidget *parent)
     m_projectPartsView->setModel(m_proxyProjectPartsModel);
     m_ui->partGeneralView->setModel(m_partGenericInfoModel);
     m_ui->projectFilesView->setModel(m_projectFilesModel);
+    m_ui->projectHeaderPathsView->setModel(m_projectHeaderPathsModel);
 
     m_proxyWorkingCopyModel->setSourceModel(m_workingCopyModel);
     m_proxyWorkingCopyModel->setFilterKeyColumn(WorkingCopyModel::FilePathColumn);
@@ -1665,6 +1745,7 @@ void CppCodeModelInspectorDialog::clearProjectPartData()
 {
     m_partGenericInfoModel->clear();
     m_projectFilesModel->clear();
+    m_projectHeaderPathsModel->clear();
 
     m_ui->projectPartTab->setTabText(ProjectPartFilesTab, partTabName(ProjectPartFilesTab));
 
@@ -1672,7 +1753,6 @@ void CppCodeModelInspectorDialog::clearProjectPartData()
     m_ui->partProjectDefinesEdit->clear();
     m_ui->projectPartTab->setTabText(ProjectPartDefinesTab, partTabName(ProjectPartDefinesTab));
 
-    m_ui->partHeaderPathsEdit->clear();
     m_ui->projectPartTab->setTabText(ProjectPartHeaderPathsTab,
                                      partTabName(ProjectPartHeaderPathsTab));
 
@@ -1730,7 +1810,7 @@ void CppCodeModelInspectorDialog::updateProjectPartData(const ProjectPart::Ptr &
         partTabName(ProjectPartDefinesTab, numberOfDefines));
 
     // Header Paths
-    m_ui->partHeaderPathsEdit->setPlainText(CMI::Utils::pathListToString(part->headerPaths));
+    m_projectHeaderPathsModel->configure(part->headerPaths);
     m_ui->projectPartTab->setTabText(ProjectPartHeaderPathsTab,
         partTabName(ProjectPartHeaderPathsTab, part->headerPaths.size()));
 

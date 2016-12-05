@@ -261,11 +261,7 @@
            </attribute>
            <layout class="QVBoxLayout" name="verticalLayout_16">
             <item>
-             <widget class="QPlainTextEdit" name="partHeaderPathsEdit">
-              <property name="readOnly">
-               <bool>true</bool>
-              </property>
-             </widget>
+             <widget class="QTreeView" name="projectHeaderPathsView"/>
             </item>
            </layout>
           </widget>

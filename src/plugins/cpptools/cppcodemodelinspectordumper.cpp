@@ -87,6 +87,19 @@ QString Utils::toString(CPlusPlus::Document::DiagnosticMessage::Level level)
     return QString();
 }
 
+QString Utils::toString(ProjectPartHeaderPath::Type type)
+{
+#define CASE_LANGUAGEVERSION(x) case ProjectPartHeaderPath::x: return QLatin1String(#x)
+    switch (type) {
+    CASE_LANGUAGEVERSION(InvalidPath);
+    CASE_LANGUAGEVERSION(IncludePath);
+    CASE_LANGUAGEVERSION(FrameworkPath);
+    // no default to get a compiler warning if anything is added
+    }
+#undef CASE_LANGUAGEVERSION
+    return QString();
+}
+
 QString Utils::toString(ProjectPart::LanguageVersion languageVersion)
 {
 #define CASE_LANGUAGEVERSION(x) case ProjectPart::x: return QLatin1String(#x)
