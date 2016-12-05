@@ -63,9 +63,9 @@ private:
     bool startWinRtRunner();
 
     WinRtRunConfiguration *m_runConfiguration;
-    State m_state;
-    Utils::QtcProcess *m_process;
-    WinRtRunnerHelper *m_runner;
+    State m_state = StoppedState;
+    Utils::QtcProcess *m_process = nullptr;
+    WinRtRunnerHelper *m_runner = nullptr;
 };
 
 } // namespace Internal

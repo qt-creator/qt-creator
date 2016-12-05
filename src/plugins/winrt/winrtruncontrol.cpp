@@ -53,8 +53,6 @@ namespace Internal {
 WinRtRunControl::WinRtRunControl(WinRtRunConfiguration *runConfiguration, Core::Id mode)
     : RunControl(runConfiguration, mode)
     , m_runConfiguration(runConfiguration)
-    , m_state(StoppedState)
-    , m_runner(0)
 {
     setIcon(Utils::Icons::RUN_SMALL_TOOLBAR);
 }
