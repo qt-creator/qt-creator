@@ -177,6 +177,8 @@ QModelIndex CMakeToolItemModel::addCMakeTool(const QString &name, const FileName
 
 void CMakeToolItemModel::addCMakeTool(const CMakeTool *item, bool changed)
 {
+    QTC_ASSERT(item, return);
+
     if (cmakeToolItem(item->id()))
         return;
 
