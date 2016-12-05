@@ -430,9 +430,10 @@ void DocumentManager::findPathToIsoProFile(bool *iconResourceFileAlreadyExists, 
 bool DocumentManager::isoProFileSupportsAddingExistingFiles(const QString &resourceFileProPath)
 {
     ProjectExplorer::Node *node = ProjectExplorer::SessionManager::nodeForFile(Utils::FileName::fromString(resourceFileProPath));
-    ProjectExplorer::ProjectNode *projectNode = dynamic_cast<ProjectExplorer::ProjectNode*>(node->parentFolderNode());
-
-    if (!projectNode->supportedActions(projectNode).contains(ProjectExplorer::AddExistingFile)) {
+    if (!node || !node->parentFolderNode())
+        return false;
+    ProjectExplorer::ProjectNode *projectNode = node->parentFolderNode()->asProjectNode();
+    if (!projectNode || !projectNode->supportedActions(projectNode).contains(ProjectExplorer::AddExistingFile)) {
         qCWarning(documentManagerLog) << "Project" << projectNode->displayName() << "does not support adding existing files";
         return false;
     }
@@ -443,7 +444,11 @@ bool DocumentManager::isoProFileSupportsAddingExistingFiles(const QString &resou
 bool DocumentManager::addResourceFileToIsoProject(const QString &resourceFileProPath, const QString &resourceFilePath)
 {
     ProjectExplorer::Node *node = ProjectExplorer::SessionManager::nodeForFile(Utils::FileName::fromString(resourceFileProPath));
-    ProjectExplorer::ProjectNode *projectNode = dynamic_cast<ProjectExplorer::ProjectNode*>(node->parentFolderNode());
+    if (!node || !node->parentFolderNode())
+        return false;
+    ProjectExplorer::ProjectNode *projectNode = node->parentFolderNode()->asProjectNode();
+    if (!projectNode)
+        return false;
 
     if (!projectNode->addFiles(QStringList() << resourceFilePath)) {
         qCWarning(documentManagerLog) << "Failed to add resource file to" << projectNode->displayName();
