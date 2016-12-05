@@ -24,6 +24,8 @@
 ****************************************************************************/
 
 #include "qnxtoolchain.h"
+#include "qnxconfiguration.h"
+#include "qnxconfigurationmanager.h"
 #include "qnxconstants.h"
 #include "qnxutils.h"
 
@@ -158,6 +160,17 @@ QStringList QnxToolChain::reinterpretOptions(const QStringList &args) const
 QnxToolChainFactory::QnxToolChainFactory()
 {
     setDisplayName(tr("QCC"));
+}
+
+QList<ProjectExplorer::ToolChain *> QnxToolChainFactory::autoDetect(
+       const QList<ProjectExplorer::ToolChain *> &alreadyKnown)
+{
+    QList<ToolChain *> tcs;
+    QList<QnxConfiguration *> configurations =
+            QnxConfigurationManager::instance()->configurations();
+    foreach (QnxConfiguration *configuration, configurations)
+        tcs += configuration->autoDetect(alreadyKnown);
+    return tcs;
 }
 
 QSet<ToolChain::Language> QnxToolChainFactory::supportedLanguages() const

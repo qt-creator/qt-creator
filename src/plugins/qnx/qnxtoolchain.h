@@ -69,6 +69,10 @@ class QnxToolChainFactory : public ProjectExplorer::ToolChainFactory
 
 public:
     QnxToolChainFactory();
+
+    QList<ProjectExplorer::ToolChain *> autoDetect(
+            const QList<ProjectExplorer::ToolChain *> &alreadyKnown) override;
+
     QSet<ProjectExplorer::ToolChain::Language> supportedLanguages() const override;
 
     bool canRestore(const QVariantMap &data) override;

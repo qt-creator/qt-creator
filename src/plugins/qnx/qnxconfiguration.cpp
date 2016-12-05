@@ -48,6 +48,7 @@
 #include <debugger/debuggerkitinformation.h>
 
 #include <coreplugin/icore.h>
+#include <utils/algorithm.h>
 
 #include <QMessageBox>
 #include <QFileInfo>
@@ -277,6 +278,16 @@ QnxQtVersion* QnxConfiguration::qnxQtVersion(QnxArchitecture arch) const
     return 0;
 }
 
+QList<ToolChain *> QnxConfiguration::autoDetect(const QList<ToolChain *> &alreadyKnown)
+{
+    QList<ToolChain *> result;
+
+    result += findToolChain(alreadyKnown, ArmLeV7);
+    result += findToolChain(alreadyKnown, X86);
+
+    return result;
+}
+
 QVariant QnxConfiguration::createDebuggerItem(QnxArchitecture arch, const QString &displayName)
 {
     FileName command = (arch == X86) ? x86DebuggerPath() : armDebuggerPath();
@@ -302,6 +313,18 @@ QnxToolChain *QnxConfiguration::createToolChain(QnxArchitecture arch, const QStr
     toolChain->setNdkPath(ndkPath);
     ToolChainManager::registerToolChain(toolChain);
     return toolChain;
+}
+
+QList<ToolChain *> QnxConfiguration::findToolChain(const QList<ToolChain *> &alreadyKnown,
+                                                   QnxArchitecture arch)
+{
+    Abi abi((arch == Qnx::ArmLeV7) ? Abi::ArmArchitecture : Abi::X86Architecture,
+            Abi::LinuxOS, Abi::GenericLinuxFlavor, Abi::ElfFormat, 32);
+    return Utils::filtered(alreadyKnown, [this, abi](ToolChain *tc) {
+                                             return tc->typeId() == Constants::QNX_TOOLCHAIN_ID
+                                                 && tc->targetAbi() == abi
+                                                 && tc->compilerCommand() == m_qccCompiler;
+                                         });
 }
 
 Kit *QnxConfiguration::createKit(QnxArchitecture arch,

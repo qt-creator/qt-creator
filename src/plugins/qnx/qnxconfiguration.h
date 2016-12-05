@@ -38,7 +38,11 @@
 
 #include <QVariant>
 
-namespace ProjectExplorer { class Kit; }
+namespace ProjectExplorer
+{
+    class Kit;
+    class ToolChain;
+}
 
 namespace Qnx {
 namespace Internal {
@@ -73,12 +77,18 @@ public:
     Utils::FileName sdpPath() const;
     QnxQtVersion* qnxQtVersion(QnxArchitecture arch) const;
 
+    QList<ProjectExplorer::ToolChain *> autoDetect(
+            const QList<ProjectExplorer::ToolChain *> &alreadyKnown);
+
 private:
     QVariant createDebuggerItem(Qnx::QnxArchitecture arch,
                                              const QString &displayName);
     QnxToolChain* createToolChain(Qnx::QnxArchitecture arch,
                                  const QString &displayName,
                                  const QString &ndkPath);
+    QList<ProjectExplorer::ToolChain *> findToolChain(
+            const QList<ProjectExplorer::ToolChain *> &alreadyKnown,
+            Qnx::QnxArchitecture arch);
 
     ProjectExplorer::Kit *createKit(QnxArchitecture arch,
                                     QnxToolChain *toolChain,
