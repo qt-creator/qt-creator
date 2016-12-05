@@ -60,11 +60,6 @@ const QLatin1String UseGradleKey("UseGradle");
 
 AndroidBuildApkStep::AndroidBuildApkStep(ProjectExplorer::BuildStepList *parent, const Core::Id id)
     : ProjectExplorer::AbstractProcessStep(parent, id),
-      m_deployAction(BundleLibrariesDeployment),
-      m_signPackage(false),
-      m_verbose(false),
-      m_useGradle(false),
-      m_openPackageLocation(false),
       m_buildTargetSdk(AndroidConfig::apiLevelNameFor(AndroidConfigurations::currentConfig().highestAndroidSdk()))
 {
     const QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
@@ -82,6 +77,7 @@ AndroidBuildApkStep::AndroidBuildApkStep(ProjectExplorer::BuildStepList *parent,
       m_verbose(other->m_verbose),
       m_useGradle(other->m_useGradle),
       m_openPackageLocation(other->m_openPackageLocation),
+      // leave m_openPackageLocationForRun at false
       m_buildTargetSdk(other->m_buildTargetSdk)
 {
     const QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());

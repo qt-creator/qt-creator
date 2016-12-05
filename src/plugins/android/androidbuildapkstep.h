@@ -98,12 +98,12 @@ protected:
     void processFinished(int exitCode, QProcess::ExitStatus status) override;
 
 protected:
-    AndroidDeployAction m_deployAction;
-    bool m_signPackage;
-    bool m_verbose;
-    bool m_useGradle;
-    bool m_openPackageLocation;
-    bool m_openPackageLocationForRun;
+    AndroidDeployAction m_deployAction = BundleLibrariesDeployment;
+    bool m_signPackage = false;
+    bool m_verbose = false;
+    bool m_useGradle = false;
+    bool m_openPackageLocation = false;
+    bool m_openPackageLocationForRun = false;
     QString m_buildTargetSdk;
 
     Utils::FileName m_keystorePath;
