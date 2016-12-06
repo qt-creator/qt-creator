@@ -382,8 +382,6 @@ static AnalyzeUnits unitsToAnalyzeFromProjectParts(const QList<ProjectPart::Ptr>
             continue;
 
         foreach (const ProjectFile &file, projectPart->files) {
-            if (file.path == CppModelManager::configurationFileName())
-                continue;
             QTC_CHECK(file.kind != ProjectFile::Unclassified);
             if (ProjectFile::isSource(file.kind)) {
                 const CompilerOptionsBuilder::PchUsage pchUsage = CppTools::getPchUsage();

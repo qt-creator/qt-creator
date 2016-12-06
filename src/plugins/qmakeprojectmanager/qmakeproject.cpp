@@ -461,8 +461,6 @@ void QmakeProject::updateCppCodeModel()
         }
         generators.append(proGenerators);
 
-        cppPart->files.prepend(ProjectFile(CppTools::CppModelManager::configurationFileName(),
-                                           ProjectFile::CXXSource));
         projectInfo.appendProjectPart(cppPart);
 
         if (!objcppPart->files.isEmpty()) {
