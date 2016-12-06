@@ -19,7 +19,7 @@ Product {
     Depends { name: "qtc" }
     Depends { name: product.name + " dev headers"; required: false }
 
-    cpp.cxxLanguageVersion: "c++11"
+    cpp.cxxLanguageVersion: "c++14"
     cpp.defines: qtc.generalDefines
     cpp.minimumOsxVersion: "10.7"
     cpp.minimumWindowsVersion: qbs.architecture === "x86" ? "5.1" : "5.2"
