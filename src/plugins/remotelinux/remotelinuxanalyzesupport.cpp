@@ -67,7 +67,8 @@ public:
                 runConfiguration->extraAspect("Analyzer.Perf.Settings");
         QTC_ASSERT(perfAspect, return);
         perfRecordArguments =
-                perfAspect->currentSettings()->property("perfRecordArguments").toString();
+                perfAspect->currentSettings()->property("perfRecordArguments").toStringList()
+                .join(' ');
     }
 
     const QPointer<AnalyzerRunControl> runControl;
