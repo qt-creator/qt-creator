@@ -1,4 +1,5 @@
 import qbs
+import qbs.File
 
 Project {
     name: "documentation"
@@ -51,5 +52,16 @@ Project {
             ]
             excludeFiles: [mainDocConfFile]
         }
+    }
+
+    property string qbsBaseDir: project.sharedSourcesDir + "/qbs"
+    property bool qbsSubModuleExists: File.exists(qbsBaseDir + "/qbs.qbs")
+    Properties {
+        condition: qbsSubModuleExists
+
+        references: [qbsBaseDir + "/doc/doc.qbs"]
+
+        // The first entry is for overriding qbs' own qbsbuildconfig module.
+        qbsSearchPaths: [project.ide_source_tree + "/qbs", qbsBaseDir + "/qbs-resources"]
     }
 }
