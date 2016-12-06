@@ -823,21 +823,24 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectIn
     if (!newProjectInfo.isValid())
         return QFuture<void>();
 
+    ProjectInfo theNewProjectInfo = newProjectInfo;
+    theNewProjectInfo.finish();
+
     QSet<QString> filesToReindex;
     QStringList removedProjectParts;
     bool filesRemoved = false;
-    ProjectExplorer::Project *project = newProjectInfo.project().data();
+    ProjectExplorer::Project *project = theNewProjectInfo.project().data();
 
     { // Only hold the mutex for a limited scope, so the dumping afterwards does not deadlock.
         QMutexLocker projectLocker(&d->m_projectMutex);
 
-        const QSet<QString> newSourceFiles = newProjectInfo.sourceFiles();
+        const QSet<QString> newSourceFiles = theNewProjectInfo.sourceFiles();
 
         // Check if we can avoid a full reindexing
         ProjectInfo oldProjectInfo = d->m_projectToProjectsInfo.value(project);
         const bool previousIndexerCanceled = d->m_projectToIndexerCanceled.value(project, false);
         if (!previousIndexerCanceled && oldProjectInfo.isValid()) {
-            ProjectInfoComparer comparer(oldProjectInfo, newProjectInfo);
+            ProjectInfoComparer comparer(oldProjectInfo, theNewProjectInfo);
 
             if (comparer.configurationOrFilesChanged()) {
                 d->m_dirty = true;
@@ -880,7 +883,7 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectIn
         }
 
         // Update Project/ProjectInfo and File/ProjectPart table
-        d->m_projectToProjectsInfo.insert(project, newProjectInfo);
+        d->m_projectToProjectsInfo.insert(project, theNewProjectInfo);
         recalculateProjectPartMappings();
 
     } // Mutex scope
@@ -898,7 +901,7 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectIn
         emit projectPartsRemoved(removedProjectParts);
 
     // Announce added project parts
-    emit projectPartsUpdated(newProjectInfo.project().data());
+    emit projectPartsUpdated(theNewProjectInfo.project().data());
 
     // Ideally, we would update all the editor documents that depend on the 'filesToReindex'.
     // However, on e.g. a session restore first the editor documents are created and then the

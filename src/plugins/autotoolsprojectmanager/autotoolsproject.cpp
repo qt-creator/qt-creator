@@ -305,6 +305,5 @@ void AutotoolsProject::updateCppCodeModel()
     foreach (Core::Id language, languages)
         setProjectLanguage(language, true);
 
-    pInfo.finish();
     m_codeModelFuture = modelManager->updateProjectInfo(pInfo);
 }

@@ -623,7 +623,6 @@ CppTools::ProjectInfo createProjectInfo(ProjectExplorer::Project *project,
     const CppTools::ProjectPart::Ptr projectPart = createProjectPart(files, defines);
     ProjectInfo projectInfo = ProjectInfo(project);
     projectInfo.appendProjectPart(projectPart);
-    projectInfo.finish();
     return projectInfo;
 }
 

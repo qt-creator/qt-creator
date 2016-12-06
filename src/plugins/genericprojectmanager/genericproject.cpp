@@ -371,7 +371,6 @@ void GenericProject::refreshCppCodeModel()
     foreach (Id language, languages)
         setProjectLanguage(language, true);
 
-    pInfo.finish();
     m_codeModelFuture = modelManager->updateProjectInfo(pInfo);
 }
 

@@ -473,8 +473,6 @@ void QmakeProject::updateCppCodeModel()
         }
     }
 
-    projectInfo.finish();
-
     CppTools::GeneratedCodeModelSupport::update(generators);
     m_codeModelFuture = CppTools::CppModelManager::instance()->updateProjectInfo(projectInfo);
 }

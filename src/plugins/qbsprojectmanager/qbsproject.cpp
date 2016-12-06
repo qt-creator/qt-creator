@@ -1030,8 +1030,6 @@ void QbsProject::updateCppCodeModel()
         }
     }
 
-    pinfo.finish();
-
     CppTools::GeneratedCodeModelSupport::update(m_extraCompilers);
 
     // Update the code model

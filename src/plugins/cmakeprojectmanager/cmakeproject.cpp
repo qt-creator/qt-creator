@@ -135,7 +135,6 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
         setProjectLanguage(lid, true);
 
     m_codeModelFuture.cancel();
-    pinfo.finish();
     m_codeModelFuture = modelmanager->updateProjectInfo(pinfo);
 
     updateQmlJSCodeModel();
