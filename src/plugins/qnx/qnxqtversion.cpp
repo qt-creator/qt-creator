@@ -30,25 +30,26 @@
 #include "qnxutils.h"
 
 #include <coreplugin/featureprovider.h>
+#include <proparser/profileevaluator.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 
 #include <QDir>
 
+using namespace ProjectExplorer;
+
 namespace Qnx {
 namespace Internal {
 
 static char SDK_PATH_KEY[] = "SDKPath";
-static char ARCH_KEY[] = "Arch";
 
-QnxQtVersion::QnxQtVersion() : m_arch(UnknownArch)
+QnxQtVersion::QnxQtVersion()
 { }
 
-QnxQtVersion::QnxQtVersion(QnxArchitecture arch, const Utils::FileName &path, bool isAutoDetected,
+QnxQtVersion::QnxQtVersion(const Utils::FileName &path, bool isAutoDetected,
                            const QString &autoDetectionSource) :
-    QtSupport::BaseQtVersion(path, isAutoDetected, autoDetectionSource),
-    m_arch(arch)
+    QtSupport::BaseQtVersion(path, isAutoDetected, autoDetectionSource)
 {
     setUnexpandedDisplayName(defaultUnexpandedDisplayName(path, false));
 }
@@ -66,7 +67,8 @@ QString QnxQtVersion::type() const
 QString QnxQtVersion::description() const
 {
     //: Qt Version is meant for QNX
-    return QCoreApplication::translate("Qnx::Internal::QnxQtVersion", "QNX %1").arg(archString());
+    return QCoreApplication::translate("Qnx::Internal::QnxQtVersion", "QNX %1")
+            .arg(QnxUtils::cpuDirShortDescription(cpuDir()));
 }
 
 QSet<Core::Id> QnxQtVersion::availableFeatures() const
@@ -109,29 +111,22 @@ QString QnxQtVersion::qnxTarget() const
     return QString();
 }
 
-QnxArchitecture QnxQtVersion::architecture() const
+QString QnxQtVersion::cpuDir() const
 {
-    return m_arch;
+    ensureMkSpecParsed();
+    return m_cpuDir;
 }
 
-QString QnxQtVersion::archString() const
+void QnxQtVersion::parseMkSpec(ProFileEvaluator *evaluator) const
 {
-    switch (m_arch) {
-    case X86:
-        return QLatin1String("x86");
-    case ArmLeV7:
-        return QLatin1String("ARMle-v7");
-    case UnknownArch:
-        return QString();
-    }
-    return QString();
+    m_cpuDir = evaluator->value(QLatin1String("QNX_CPUDIR"));
+    BaseQtVersion::parseMkSpec(evaluator);
 }
 
 QVariantMap QnxQtVersion::toMap() const
 {
     QVariantMap result = BaseQtVersion::toMap();
     result.insert(QLatin1String(SDK_PATH_KEY), sdkPath());
-    result.insert(QLatin1String(ARCH_KEY), m_arch);
     return result;
 }
 
@@ -139,7 +134,6 @@ void QnxQtVersion::fromMap(const QVariantMap &map)
 {
     BaseQtVersion::fromMap(map);
     setSdkPath(QDir::fromNativeSeparators(map.value(QLatin1String(SDK_PATH_KEY)).toString()));
-    m_arch = static_cast<QnxArchitecture>(map.value(QLatin1String(ARCH_KEY), UnknownArch).toInt());
 }
 
 QList<ProjectExplorer::Abi> QnxQtVersion::detectQtAbis() const

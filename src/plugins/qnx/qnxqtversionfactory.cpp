@@ -74,9 +74,7 @@ QtSupport::BaseQtVersion *QnxQtVersionFactory::create(const Utils::FileName &qma
         return 0;
 
     if (evaluator->contains(QLatin1String("QNX_CPUDIR"))) {
-        QString cpuDir = evaluator->value(QLatin1String("QNX_CPUDIR"));
-        return new QnxQtVersion(QnxUtils::cpudirToArch(cpuDir), qmakePath,
-                                isAutoDetected, autoDetectionSource);
+        return new QnxQtVersion(qmakePath, isAutoDetected, autoDetectionSource);
     }
 
     return 0;

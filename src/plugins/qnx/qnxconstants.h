@@ -29,12 +29,6 @@
 
 namespace Qnx {
 
-enum QnxArchitecture {
-    X86,
-    ArmLeV7,
-    UnknownArch
-};
-
 namespace Constants {
 
 const char QNX_TARGET_KEY[] = "QNX_TARGET";

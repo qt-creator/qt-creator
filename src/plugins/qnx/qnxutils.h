@@ -57,7 +57,7 @@ class QnxUtils
 {
 public:
     static QString addQuotes(const QString &string);
-    static Qnx::QnxArchitecture cpudirToArch(const QString &cpuDir);
+    static QString cpuDirShortDescription(const QString &cpuDir);
     static QStringList searchPaths(Qnx::Internal::QnxQtVersion *qtVersion);
     static QList<Utils::EnvironmentItem> qnxEnvironmentFromEnvFile(const QString &fileName);
     static QString envFilePath(const QString & ndkPath, const QString& targetVersion = QString());

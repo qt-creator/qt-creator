@@ -36,6 +36,7 @@
 #include <QTemporaryFile>
 #include <QApplication>
 
+using namespace ProjectExplorer;
 using namespace Qnx;
 using namespace Qnx::Internal;
 
@@ -51,14 +52,21 @@ QString QnxUtils::addQuotes(const QString &string)
     return QLatin1Char('"') + string + QLatin1Char('"');
 }
 
-QnxArchitecture QnxUtils::cpudirToArch(const QString &cpuDir)
+QString QnxUtils::cpuDirShortDescription(const QString &cpuDir)
 {
-    if (cpuDir == QLatin1String("x86"))
-        return X86;
-    else if (cpuDir == QLatin1String("armle-v7"))
-        return ArmLeV7;
-    else
-        return UnknownArch;
+    if (cpuDir == "armle-v7")
+        return QLatin1String("32-bit ARM");
+
+    if (cpuDir == "aarch64le")
+        return QLatin1String("64-bit ARM");
+
+    if (cpuDir == "x86")
+        return QLatin1String("32-bit x86");
+
+    if (cpuDir == "x86_64")
+        return QLatin1String("64-bit x86");
+
+    return cpuDir;
 }
 
 QStringList QnxUtils::searchPaths(QnxQtVersion *qtVersion)
@@ -74,9 +82,9 @@ QStringList QnxUtils::searchPaths(QnxQtVersion *qtVersion)
     }
 
     searchPaths << qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_LIBS"));
-    searchPaths << qtVersion->qnxTarget() + QLatin1Char('/') + qtVersion->archString().toLower()
+    searchPaths << qtVersion->qnxTarget() + QLatin1Char('/') + qtVersion->cpuDir()
                    + QLatin1String("/lib");
-    searchPaths << qtVersion->qnxTarget() + QLatin1Char('/') + qtVersion->archString().toLower()
+    searchPaths << qtVersion->qnxTarget() + QLatin1Char('/') + qtVersion->cpuDir()
                    + QLatin1String("/usr/lib");
 
     return searchPaths;
