@@ -301,17 +301,6 @@ void LldbEngine::startLldbStage2()
 
 void LldbEngine::setupInferior()
 {
-    Environment sysEnv = Environment::systemEnvironment();
-    Environment runEnv = runParameters().inferior.environment;
-    foreach (const EnvironmentItem &item, sysEnv.diff(runEnv)) {
-        DebuggerCommand cmd("executeDebuggerCommand");
-        if (item.unset)
-            cmd.arg("command", "settings remove target.env-vars " + item.name);
-        else
-            cmd.arg("command", "settings set target.env-vars '" + item.name + '=' + item.value + '\'');
-        runCommand(cmd);
-    }
-
     const QString path = stringSetting(ExtraDumperFile);
     if (!path.isEmpty() && QFileInfo(path).isReadable()) {
         DebuggerCommand cmd("addDumperModule");
@@ -345,11 +334,12 @@ void LldbEngine::setupInferior()
     cmd2.arg("useterminal", rp.useTerminal);
     cmd2.arg("startmode", rp.startMode);
     cmd2.arg("nativemixed", isNativeMixedActive());
-
-    cmd2.arg("dyldimagesuffix", rp.inferior.environment.value("DYLD_IMAGE_SUFFIX"));
-    cmd2.arg("dyldframeworkpath", rp.inferior.environment.value("DYLD_LIBRARY_PATH"));
-    cmd2.arg("dyldlibrarypath", rp.inferior.environment.value("DYLD_FRAMEWORK_PATH"));
     cmd2.arg("workingdirectory", rp.inferior.workingDirectory);
+
+    QJsonArray env;
+    foreach (const QString &item, rp.inferior.environment.toStringList())
+        env.append(toHex(item));
+    cmd2.arg("environment", env);
 
     QJsonArray processArgs;
     foreach (const QString &arg, args.toUnixArgs())
