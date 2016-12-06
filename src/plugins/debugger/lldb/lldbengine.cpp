@@ -61,6 +61,7 @@
 #include <QToolTip>
 #include <QVariant>
 #include <QJsonArray>
+#include <QRegularExpression>
 
 using namespace Core;
 using namespace Utils;
@@ -125,7 +126,10 @@ void LldbEngine::runCommand(const DebuggerCommand &cmd)
     command.arg("token", tok);
     QString token = QString::number(tok);
     QString function = command.function + "(" + command.argsToPython() + ")";
-    showMessage(token + function + '\n', LogInput);
+    QString msg = token + function + '\n';
+    if (cmd.flags == LldbEngine::Silent)
+        msg.replace(QRegularExpression("\"environment\":.[^]]*."), "<environment suppressed>");
+    showMessage(msg, LogInput);
     m_commandForToken[currentToken()] = command;
     m_lldbProc.write("script theDumper." + function.toUtf8() + "\n");
 }
@@ -392,6 +396,8 @@ void LldbEngine::setupInferior()
             notifyInferiorSetupFailed();
         }
     };
+
+    cmd2.flags = LldbEngine::Silent;
     runCommand(cmd2);
 }
 

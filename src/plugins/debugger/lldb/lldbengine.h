@@ -61,6 +61,12 @@ public:
     explicit LldbEngine(const DebuggerRunParameters &runParameters);
     ~LldbEngine() override;
 
+    enum LldbCommandFlag {
+        NoFlags = 0,
+        // Do not echo to log.
+        Silent = 1
+    };
+
 signals:
     void outputReady(const QString &data);
 
