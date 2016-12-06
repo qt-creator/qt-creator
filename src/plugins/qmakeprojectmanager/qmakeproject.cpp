@@ -342,31 +342,6 @@ Project::RestoreResult QmakeProject::fromMap(const QVariantMap &map, QString *er
     return RestoreResult::Ok;
 }
 
-/// equalFileList compares two file lists ignoring
-/// <configuration> without generating temporary lists
-
-bool QmakeProject::equalFileList(const QStringList &a, const QStringList &b)
-{
-    if (abs(a.length() - b.length()) > 1)
-        return false;
-    QStringList::const_iterator ait = a.constBegin();
-    QStringList::const_iterator bit = b.constBegin();
-    QStringList::const_iterator aend = a.constEnd();
-    QStringList::const_iterator bend = b.constEnd();
-
-    while (ait != aend && bit != bend) {
-        if (*ait == CppTools::CppModelManager::configurationFileName())
-            ++ait;
-        else if (*bit == CppTools::CppModelManager::configurationFileName())
-            ++bit;
-        else if (*ait == *bit)
-            ++ait, ++bit;
-        else
-           return false;
-    }
-    return (ait == aend && bit == bend);
-}
-
 void QmakeProject::updateCodeModels()
 {
     if (debug)
