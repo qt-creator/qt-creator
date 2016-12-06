@@ -29,7 +29,7 @@
 #include <QObject>
 #include <QStringList>
 
-#include <valgrind/xmlprotocol/error.h>
+#include "xmlprotocol/error.h"
 
 namespace Valgrind {
 
@@ -41,15 +41,16 @@ namespace Memcheck {
 class MemcheckRunner;
 }
 
-class TestRunner : public QObject
+namespace Test {
+
+class ValgrindTestRunnerTest : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit TestRunner(QObject *parent = 0);
+    explicit ValgrindTestRunnerTest(QObject *parent = 0);
 
-private Q_SLOTS:
-    void initTestCase();
+private slots:
     void init();
     void cleanup();
 
@@ -58,18 +59,17 @@ private Q_SLOTS:
     void testLeak3();
     void testLeak4();
 
-    void uninit1();
-    void uninit2();
-    void uninit3();
+    void testUninit1();
+    void testUninit2();
+    void testUninit3();
 
-    void free1();
-    void free2();
+    void testFree1();
+    void testFree2();
 
-    void invalidjump();
-    void syscall();
-    void overlap();
+    void testInvalidjump();
+    void testSyscall();
+    void testOverlap();
 
-private Q_SLOTS:
     void logMessageReceived(const QByteArray &message);
     void internalError(const QString &error);
     void error(const Valgrind::XmlProtocol::Error &error);
@@ -77,11 +77,12 @@ private Q_SLOTS:
 private:
     QString runTestBinary(const QString &binary, const QStringList &vArgs = QStringList());
 
-    XmlProtocol::ThreadedParser *m_parser;
-    Memcheck::MemcheckRunner *m_runner;
+    XmlProtocol::ThreadedParser *m_parser = 0;
+    Memcheck::MemcheckRunner *m_runner = 0;
     QList<QByteArray> m_logMessages;
     QList<XmlProtocol::Error> m_errors;
-    bool m_expectCrash;
+    bool m_expectCrash = false;
 };
 
+} // namespace Test
 } // namespace Valgrind

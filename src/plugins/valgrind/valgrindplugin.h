@@ -48,6 +48,8 @@ public:
     ShutdownFlag aboutToShutdown() override;
 
     static ValgrindGlobalSettings *globalSettings();
+private:
+    QList<QObject *> createTestObjects() const override;
 };
 
 } // namespace Internal

@@ -24,76 +24,78 @@
 **
 ****************************************************************************/
 
-#include "testrunner.h"
+#include "valgrindtestrunnertest.h"
 
-#include <valgrind/xmlprotocol/frame.h>
-#include <valgrind/xmlprotocol/stack.h>
-#include <valgrind/xmlprotocol/suppression.h>
-#include <valgrind/xmlprotocol/threadedparser.h>
-#include <valgrind/xmlprotocol/parser.h>
-#include <valgrind/memcheck/memcheckrunner.h>
+#include "xmlprotocol/frame.h"
+#include "xmlprotocol/stack.h"
+#include "xmlprotocol/suppression.h"
+#include "xmlprotocol/threadedparser.h"
+#include "xmlprotocol/parser.h"
+#include "memcheck/memcheckrunner.h"
 
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/runnables.h>
-#include <extensionsystem/pluginmanager.h>
 
 #include <QDebug>
 #include <QTest>
 #include <QDir>
 #include <QSignalSpy>
 
-const QString appSrcDir(TESTRUNNER_SRC_DIR);
-const QString appBinDir(TESTRUNNER_APP_DIR);
+#define HEADER_LENGTH 25
 
-#define HEADER_LENGTH 30
+using namespace Valgrind::XmlProtocol;
+using namespace Valgrind::Memcheck;
 
-bool on64bit()
+namespace Valgrind {
+namespace Test {
+
+//BEGIN Test Helpers and boilerplate code
+
+static const QString appSrcDir(TESTRUNNER_SRC_DIR);
+static const QString appBinDir(TESTRUNNER_APP_DIR);
+
+static bool on64bit()
 {
     return sizeof(char*) == 8;
 }
 
-QString srcDirForApp(const QString &app)
+static QString srcDirForApp(const QString &app)
 {
-    return appSrcDir + QLatin1Char('/') + app;
+    return QDir::cleanPath(appSrcDir + QLatin1Char('/') + app);
 }
 
-QTEST_MAIN(Valgrind::TestRunner)
-
-using namespace Valgrind;
-using namespace Valgrind::XmlProtocol;
-using namespace Valgrind::Memcheck;
-
-//BEGIN Test Helpers and boilerplate code
-
-TestRunner::TestRunner(QObject *parent)
-    : QObject(parent),
-      m_parser(0),
-      m_runner(0)
+ValgrindTestRunnerTest::ValgrindTestRunnerTest(QObject *parent)
+    : QObject(parent)
 {
     qRegisterMetaType<Error>();
 }
 
-QString TestRunner::runTestBinary(const QString &binary, const QStringList &vArgs)
+QString ValgrindTestRunnerTest::runTestBinary(const QString &binary, const QStringList &vArgs)
 {
-    const QString binPath = appBinDir + QLatin1Char('/') + binary;
-    if (!QFileInfo(binPath).isExecutable())
-        qFatal("No such test app: %s", qPrintable(binPath));
+    const QFileInfo binPathFileInfo(appBinDir, binary);
+    if (!binPathFileInfo.isExecutable())
+        return QString();
     ProjectExplorer::StandardRunnable debuggee;
+    const QString &binPath = binPathFileInfo.canonicalFilePath();
     debuggee.executable = binPath;
+    debuggee.environment = Utils::Environment::systemEnvironment();
     m_runner->setValgrindArguments(QStringList() << "--num-callers=50" << "--track-origins=yes" << vArgs);
     m_runner->setDebuggee(debuggee);
+    m_runner->setDevice(ProjectExplorer::DeviceManager::instance()->defaultDevice(
+                            Core::Id(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)));
     m_runner->start();
     m_runner->waitForFinished();
     return binPath;
 }
 
-void TestRunner::logMessageReceived(const QByteArray &message)
+void ValgrindTestRunnerTest::logMessageReceived(const QByteArray &message)
 {
     qDebug() << "log message received:" << message;
     m_logMessages << message;
 }
 
-void TestRunner::internalError(const QString &error)
+void ValgrindTestRunnerTest::internalError(const QString &error)
 {
     if (!m_expectCrash)
         QFAIL(qPrintable(error));
@@ -101,12 +103,12 @@ void TestRunner::internalError(const QString &error)
         qDebug() << "expected crash:" << error;
 }
 
-void TestRunner::error(const Error &error)
+void ValgrindTestRunnerTest::error(const Error &error)
 {
     m_errors << error;
 }
 
-void TestRunner::cleanup()
+void ValgrindTestRunnerTest::cleanup()
 {
     Q_ASSERT(m_runner);
     delete m_runner;
@@ -120,14 +122,12 @@ void TestRunner::cleanup()
     m_expectCrash = false;
 }
 
-void TestRunner::initTestCase()
+void ValgrindTestRunnerTest::init()
 {
-    new ExtensionSystem::PluginManager;
-    new ProjectExplorer::ProjectExplorerPlugin;
-}
-
-void TestRunner::init()
-{
+    const Utils::Environment &sysEnv = Utils::Environment::systemEnvironment();
+    auto fileName = sysEnv.searchInPath("valgrind");
+    if (fileName.isEmpty())
+        QSKIP("This test needs valgrind in PATH");
     Q_ASSERT(m_logMessages.isEmpty());
 
     Q_ASSERT(!m_runner);
@@ -135,24 +135,27 @@ void TestRunner::init()
     m_runner->setValgrindExecutable(QLatin1String("valgrind"));
     m_runner->setProcessChannelMode(QProcess::ForwardedChannels);
     connect(m_runner, &MemcheckRunner::logMessageReceived,
-            this, &TestRunner::logMessageReceived);
+            this, &ValgrindTestRunnerTest::logMessageReceived);
     connect(m_runner, &ValgrindRunner::processErrorReceived,
-            this, &TestRunner::internalError);
+            this, &ValgrindTestRunnerTest::internalError);
     Q_ASSERT(!m_parser);
     m_parser = new ThreadedParser;
     connect(m_parser, &ThreadedParser::internalError,
-            this, &TestRunner::internalError);
+            this, &ValgrindTestRunnerTest::internalError);
     connect(m_parser, &ThreadedParser::error,
-            this, &TestRunner::error);
+            this, &ValgrindTestRunnerTest::error);
 
     m_runner->setParser(m_parser);
 }
 
 //BEGIN: Actual test cases
 
-void TestRunner::testLeak1()
+void ValgrindTestRunnerTest::testLeak1()
 {
     const QString binary = runTestBinary(QLatin1String("leak1/leak1"));
+    if (binary.isEmpty())
+        QSKIP("You need to pass BUILD_TESTS when building Qt Creator or build valgrind testapps "
+              "manually before executing this test.");
 
     QVERIFY(m_logMessages.isEmpty());
 
@@ -183,9 +186,12 @@ void TestRunner::testLeak1()
     }
 }
 
-void TestRunner::testLeak2()
+void ValgrindTestRunnerTest::testLeak2()
 {
     const QString binary = runTestBinary(QLatin1String("leak2/leak2"));
+    if (binary.isEmpty())
+        QSKIP("You need to pass BUILD_TESTS when building Qt Creator or build valgrind testapps "
+              "manually before executing this test.");
 
     QVERIFY(m_logMessages.isEmpty());
     QCOMPARE(m_errors.count(), 1);
@@ -220,10 +226,12 @@ void TestRunner::testLeak2()
     }
 }
 
-void TestRunner::testLeak3()
+void ValgrindTestRunnerTest::testLeak3()
 {
     const QString binary = runTestBinary(QLatin1String("leak3/leak3"), QStringList() << "--show-reachable=yes");
-
+    if (binary.isEmpty())
+        QSKIP("You need to pass BUILD_TESTS when building Qt Creator or build valgrind testapps "
+              "manually before executing this test.");
     QVERIFY(m_logMessages.isEmpty());
 
     QCOMPARE(m_errors.count(), 1);
@@ -258,16 +266,19 @@ void TestRunner::testLeak3()
     }
 }
 
-void TestRunner::testLeak4()
+void ValgrindTestRunnerTest::testLeak4()
 {
     const QString app("leak4");
     const QString binary = runTestBinary(app + QLatin1Char('/') + app,
                                          QStringList() << "--show-reachable=yes");
+    if (binary.isEmpty())
+        QSKIP("You need to pass BUILD_TESTS when building Qt Creator or build valgrind testapps "
+              "manually before executing this test.");
     const QString srcDir = srcDirForApp("leak4");
 
     QVERIFY(m_logMessages.isEmpty());
 
-    QCOMPARE(m_errors.count(), 2);
+    QCOMPARE(m_errors.count(), 3);
     //BEGIN first error
     {
     const Error error = m_errors.first();
@@ -306,7 +317,7 @@ void TestRunner::testLeak4()
     }
     //BEGIN second error
     {
-    const Error error = m_errors.last();
+    const Error error = m_errors.at(1);
     QCOMPARE(error.kind(), int(Leak_DefinitelyLost));
     QCOMPARE(error.leakedBlocks(), qint64(1));
     if (on64bit())
@@ -334,12 +345,16 @@ void TestRunner::testLeak4()
         QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
     }
+    // TODO add third error check
 }
 
-void TestRunner::uninit1()
+void ValgrindTestRunnerTest::testUninit1()
 {
     const QString app("uninit1");
     const QString binary = runTestBinary(app + QLatin1Char('/') + app);
+    if (binary.isEmpty())
+        QSKIP("You need to pass BUILD_TESTS when building Qt Creator or build valgrind testapps "
+              "manually before executing this test.");
     const QString srcDir = srcDirForApp(app);
 
     QVERIFY(m_logMessages.isEmpty());
@@ -378,11 +393,14 @@ void TestRunner::uninit1()
     }
 }
 
-void TestRunner::uninit2()
+void ValgrindTestRunnerTest::testUninit2()
 {
     const QString app("uninit2");
     m_expectCrash = true;
     const QString binary = runTestBinary(app + QLatin1Char('/') + app);
+    if (binary.isEmpty())
+        QSKIP("You need to pass BUILD_TESTS when building Qt Creator or build valgrind testapps "
+              "manually before executing this test.");
     const QString srcDir = srcDirForApp(app);
 
     QVERIFY(m_logMessages.isEmpty());
@@ -442,11 +460,14 @@ void TestRunner::uninit2()
     }
 }
 
-void TestRunner::uninit3()
+void ValgrindTestRunnerTest::testUninit3()
 {
     const QString app("uninit3");
     m_expectCrash = true;
     const QString binary = runTestBinary(app + QLatin1Char('/') + app);
+    if (binary.isEmpty())
+        QSKIP("You need to pass BUILD_TESTS when building Qt Creator or build valgrind testapps "
+              "manually before executing this test.");
     const QString srcDir = srcDirForApp(app);
 
     QVERIFY(m_logMessages.isEmpty());
@@ -506,10 +527,13 @@ void TestRunner::uninit3()
     }
 }
 
-void TestRunner::syscall()
+void ValgrindTestRunnerTest::testSyscall()
 {
     const QString app("syscall");
     const QString binary = runTestBinary(app + QLatin1Char('/') + app);
+    if (binary.isEmpty())
+        QSKIP("You need to pass BUILD_TESTS when building Qt Creator or build valgrind testapps "
+              "manually before executing this test.");
     const QString srcDir = srcDirForApp(app);
 
     QVERIFY(m_logMessages.isEmpty());
@@ -565,10 +589,13 @@ void TestRunner::syscall()
     }
 }
 
-void TestRunner::free1()
+void ValgrindTestRunnerTest::testFree1()
 {
     const QString app("free1");
     const QString binary = runTestBinary(app + QLatin1Char('/') + app);
+    if (binary.isEmpty())
+        QSKIP("You need to pass BUILD_TESTS when building Qt Creator or build valgrind testapps "
+              "manually before executing this test.");
     const QString srcDir = srcDirForApp(app);
 
     QVERIFY(m_logMessages.isEmpty());
@@ -619,10 +646,13 @@ void TestRunner::free1()
     }
 }
 
-void TestRunner::free2()
+void ValgrindTestRunnerTest::testFree2()
 {
     const QString app("free2");
     const QString binary = runTestBinary(app + QLatin1Char('/') + app);
+    if (binary.isEmpty())
+        QSKIP("You need to pass BUILD_TESTS when building Qt Creator or build valgrind testapps "
+              "manually before executing this test.");
     const QString srcDir = srcDirForApp(app);
 
     QVERIFY(m_logMessages.isEmpty());
@@ -677,12 +707,14 @@ void TestRunner::free2()
     }
 }
 
-void TestRunner::invalidjump()
+void ValgrindTestRunnerTest::testInvalidjump()
 {
     const QString app("invalidjump");
     m_expectCrash = true;
     const QString binary = runTestBinary(app + QLatin1Char('/') + app);
-    const QString srcDir = srcDirForApp(app);
+    if (binary.isEmpty())
+        QSKIP("You need to pass BUILD_TESTS when building Qt Creator or build valgrind testapps "
+              "manually before executing this test.");
 
     QVERIFY(m_logMessages.isEmpty());
 
@@ -705,11 +737,14 @@ void TestRunner::invalidjump()
 }
 
 
-void TestRunner::overlap()
+void ValgrindTestRunnerTest::testOverlap()
 {
     const QString app("overlap");
     m_expectCrash = true;
     const QString binary = runTestBinary(app + QLatin1Char('/') + app);
+    if (binary.isEmpty())
+        QSKIP("You need to pass BUILD_TESTS when building Qt Creator or build valgrind testapps "
+              "manually before executing this test.");
     const QString srcDir = srcDirForApp(app);
 
     QVERIFY(m_logMessages.isEmpty());
@@ -735,3 +770,6 @@ void TestRunner::overlap()
         QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
 }
+
+} // namespace Test
+} // namespace Valgrind

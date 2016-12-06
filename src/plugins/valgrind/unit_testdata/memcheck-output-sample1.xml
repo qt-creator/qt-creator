@@ -1,0 +1,370 @@
+<?xml version="1.0"?>
+
+<valgrindoutput>
+
+<protocolversion>4</protocolversion>
+<protocoltool>memcheck</protocoltool>
+
+<preamble>
+  <line>Memcheck, a memory error detector</line>
+  <line>Copyright (C) 2002-2009, and GNU GPL'd, by Julian Seward et al.</line>
+  <line>Using Valgrind-3.6.0.SVN-Debian and LibVEX; rerun with -h for copyright info</line>
+  <line>Command: kate</line>
+</preamble>
+
+<pid>22733</pid>
+<ppid>17584</ppid>
+<tool>memcheck</tool>
+
+<args>
+  <vargv>
+    <exe>/usr/bin/valgrind.bin</exe>
+    <arg>--suppressions=/usr/lib/valgrind/debian-libc6-dbg.supp</arg>
+    <arg>--xml=yes</arg>
+    <arg>--xml-file=test.xml</arg>
+    <arg>--track-origins=yes</arg>
+  </vargv>
+  <argv>
+    <exe>kate</exe>
+  </argv>
+</args>
+
+<status>
+  <state>RUNNING</state>
+  <time>00:00:00:00.241 </time>
+</status>
+
+<error>
+  <unique>0x9</unique>
+  <tid>1</tid>
+  <kind>InvalidRead</kind>
+  <what>Invalid read of size 4</what>
+  <stack>
+    <frame>
+      <ip>0x6E47964</ip>
+      <obj>/usr/lib/libQtGui.so.4.7.0</obj>
+      <fn>QFrame::frameStyle() const</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/gui/widgets</dir>
+      <file>qframe.cpp</file>
+      <line>252</line>
+    </frame>
+    <frame>
+      <ip>0x118F2AF7</ip>
+      <obj>/usr/lib/kde4/plugins/styles/oxygen.so</obj>
+    </frame>
+    <frame>
+      <ip>0x6A81671</ip>
+      <obj>/usr/lib/libQtGui.so.4.7.0</obj>
+      <fn>QWidget::event(QEvent*)</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/gui/kernel</dir>
+      <file>qwidget.cpp</file>
+      <line>8273</line>
+    </frame>
+    <frame>
+      <ip>0x6A2B6EB</ip>
+      <obj>/usr/lib/libQtGui.so.4.7.0</obj>
+      <fn>QApplicationPrivate::notify_helper(QObject*, QEvent*)</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/gui/kernel</dir>
+      <file>qapplication.cpp</file>
+      <line>4396</line>
+    </frame>
+    <!--
+    <frame>
+      <ip>0x6A311DC</ip>
+      <obj>/usr/lib/libQtGui.so.4.7.0</obj>
+      <fn>QApplication::notify(QObject*, QEvent*)</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/gui/kernel</dir>
+      <file>qapplication.cpp</file>
+      <line>4277</line>
+    </frame>
+    <frame>
+      <ip>0x6443535</ip>
+      <obj>/usr/lib/libkdeui.so.5.5.0</obj>
+      <fn>KApplication::notify(QObject*, QEvent*)</fn>
+    </frame>
+    <frame>
+      <ip>0x83690AB</ip>
+      <obj>/usr/lib/libQtCore.so.4.7.0</obj>
+      <fn>QCoreApplication::notifyInternal(QObject*, QEvent*)</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/corelib/kernel</dir>
+      <file>qcoreapplication.cpp</file>
+      <line>732</line>
+    </frame>
+    <frame>
+      <ip>0x6A77600</ip>
+      <obj>/usr/lib/libQtGui.so.4.7.0</obj>
+      <fn>QWidget::ensurePolished() const</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/gui/../../include/QtCore/../../src/corelib/kernel</dir>
+      <file>qcoreapplication.h</file>
+      <line>215</line>
+    </frame>
+    <frame>
+      <ip>0x6A869B2</ip>
+      <obj>/usr/lib/libQtGui.so.4.7.0</obj>
+      <fn>QWidget::setVisible(bool)</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/gui/kernel</dir>
+      <file>qwidget.cpp</file>
+      <line>7539</line>
+    </frame>
+    <frame>
+      <ip>0x18B1ED35</ip>
+      <obj>/home/milian/projects/compiled/kde4/lib/libkatepartinterfaces.so.4.5.0</obj>
+      <fn>QWidget::show()</fn>
+      <dir>/usr/include/qt4/QtGui</dir>
+      <file>qwidget.h</file>
+      <line>487</line>
+    </frame>
+    <frame>
+      <ip>0x18C23615</ip>
+      <obj>/home/milian/projects/compiled/kde4/lib/libkatepartinterfaces.so.4.5.0</obj>
+      <fn>KateViewInternal::KateViewInternal(KateView*)</fn>
+      <dir>/home/milian/projects/kde4/kate/part/view</dir>
+      <file>kateviewinternal.cpp</file>
+      <line>144</line>
+    </frame>
+    <frame>
+      <ip>0x18C0DA68</ip>
+      <obj>/home/milian/projects/compiled/kde4/lib/libkatepartinterfaces.so.4.5.0</obj>
+      <fn>KateView::KateView(KateDocument*, QWidget*)</fn>
+      <dir>/home/milian/projects/kde4/kate/part/view</dir>
+      <file>kateview.cpp</file>
+      <line>136</line>
+    </frame>
+    -->
+  </stack>
+  <auxwhat>Address 0x11527cb8 is not stack'd, malloc'd or (recently) free'd</auxwhat>
+</error>
+
+
+<status>
+  <state>FINISHED</state>
+  <time>00:00:01:49.732 </time>
+</status>
+
+<error>
+  <unique>0x13</unique>
+  <tid>1</tid>
+  <kind>Leak_PossiblyLost</kind>
+  <xwhat>
+    <text>2 bytes in 1 blocks are possibly lost in loss record 2 of 2,003</text>
+    <leakedbytes>2</leakedbytes>
+    <leakedblocks>1</leakedblocks>
+  </xwhat>
+  <stack>
+    <frame>
+      <ip>0x4C284A8</ip>
+      <obj>/usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so</obj>
+      <fn>malloc</fn>
+      <dir>/build/buildd/valgrind-3.6.0~svn20100212/coregrind/m_replacemalloc</dir>
+      <file>vg_replace_malloc.c</file>
+      <line>236</line>
+    </frame>
+    <frame>
+      <ip>0xD4D7754</ip>
+      <obj>/lib/libglib-2.0.so.0.2400.1</obj>
+      <fn>g_malloc</fn>
+    </frame>
+    <frame>
+      <ip>0xD4EF11D</ip>
+      <obj>/lib/libglib-2.0.so.0.2400.1</obj>
+      <fn>g_strdup</fn>
+    </frame>
+    <frame>
+      <ip>0xD503DC4</ip>
+      <obj>/lib/libglib-2.0.so.0.2400.1</obj>
+      <fn>g_get_language_names</fn>
+    </frame>
+    <frame>
+      <ip>0xD4F89A9</ip>
+      <obj>/lib/libglib-2.0.so.0.2400.1</obj>
+      <fn>g_thread_init_glib</fn>
+    </frame>
+    <frame>
+      <ip>0x8396569</ip>
+      <obj>/usr/lib/libQtCore.so.4.7.0</obj>
+      <fn>QEventDispatcherGlibPrivate::QEventDispatcherGlibPrivate(_GMainContext*)</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/corelib/kernel</dir>
+      <file>qeventdispatcher_glib.cpp</file>
+      <line>299</line>
+    </frame>
+    <frame>
+      <ip>0x6ADDBEE</ip>
+      <obj>/usr/lib/libQtGui.so.4.7.0</obj>
+      <fn>QGuiEventDispatcherGlibPrivate::QGuiEventDispatcherGlibPrivate()</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/gui/kernel</dir>
+      <file>qguieventdispatcher_glib.cpp</file>
+      <line>171</line>
+    </frame>
+    <frame>
+      <ip>0x6ADDCDD</ip>
+      <obj>/usr/lib/libQtGui.so.4.7.0</obj>
+      <fn>QGuiEventDispatcherGlib::QGuiEventDispatcherGlib(QObject*)</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/gui/kernel</dir>
+      <file>qguieventdispatcher_glib.cpp</file>
+      <line>186</line>
+    </frame>
+    <frame>
+      <ip>0x6AA5152</ip>
+      <obj>/usr/lib/libQtGui.so.4.7.0</obj>
+      <fn>QApplicationPrivate::createEventDispatcher()</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/gui/kernel</dir>
+      <file>qapplication_x11.cpp</file>
+      <line>605</line>
+    </frame>
+    <frame>
+      <ip>0x836D069</ip>
+      <obj>/usr/lib/libQtCore.so.4.7.0</obj>
+      <fn>QCoreApplication::init()</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/corelib/kernel</dir>
+      <file>qcoreapplication.cpp</file>
+      <line>552</line>
+    </frame>
+    <frame>
+      <ip>0x836D134</ip>
+      <obj>/usr/lib/libQtCore.so.4.7.0</obj>
+      <fn>QCoreApplication::QCoreApplication(QCoreApplicationPrivate&amp;)</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/corelib/kernel</dir>
+      <file>qcoreapplication.cpp</file>
+      <line>477</line>
+    </frame>
+    <frame>
+      <ip>0x6A3815A</ip>
+      <obj>/usr/lib/libQtGui.so.4.7.0</obj>
+      <fn>QApplication::QApplication(int&amp;, char**, bool, int)</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/gui/kernel</dir>
+      <file>qapplication.cpp</file>
+      <line>745</line>
+    </frame>
+  </stack>
+</error>
+
+<error>
+  <unique>0x7e4</unique>
+  <tid>1</tid>
+  <kind>Leak_DefinitelyLost</kind>
+  <xwhat>
+    <text>544,542 (56 direct, 544,486 indirect) bytes in 1 blocks are definitely lost in loss record 2,003 of 2,003</text>
+    <leakedbytes>544542</leakedbytes>
+    <leakedblocks>1</leakedblocks>
+  </xwhat>
+  <stack>
+    <frame>
+      <ip>0x4C284A8</ip>
+      <obj>/usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so</obj>
+      <fn>malloc</fn>
+      <dir>/build/buildd/valgrind-3.6.0~svn20100212/coregrind/m_replacemalloc</dir>
+      <file>vg_replace_malloc.c</file>
+      <line>236</line>
+    </frame>
+    <frame>
+      <ip>0x82A1A6C</ip>
+      <obj>/usr/lib/libQtCore.so.4.7.0</obj>
+      <fn>QMapData::node_create(QMapData::Node**, int, int)</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/corelib/tools</dir>
+      <file>qmap.cpp</file>
+      <line>140</line>
+    </frame>
+    <frame>
+      <ip>0x8336F68</ip>
+      <obj>/usr/lib/libQtCore.so.4.7.0</obj>
+      <fn>QMap&lt;QSettingsKey, QVariant&gt;::detach_helper()</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/corelib/../../include/QtCore/../../src/corelib/tools</dir>
+      <file>qmap.h</file>
+      <line>449</line>
+    </frame>
+    <frame>
+      <ip>0x832C564</ip>
+      <obj>/usr/lib/libQtCore.so.4.7.0</obj>
+      <fn>QConfFile::mergedKeyMap() const</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/corelib/../../include/QtCore/../../src/corelib/tools</dir>
+      <file>qmap.h</file>
+      <line>202</line>
+    </frame>
+    <frame>
+      <ip>0x833305A</ip>
+      <obj>/usr/lib/libQtCore.so.4.7.0</obj>
+      <fn>QConfFileSettingsPrivate::syncConfFile(int)</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/corelib/io</dir>
+      <file>qsettings.cpp</file>
+      <line>1569</line>
+    </frame>
+    <frame>
+      <ip>0x8333D5B</ip>
+      <obj>/usr/lib/libQtCore.so.4.7.0</obj>
+      <fn>QConfFileSettingsPrivate::sync()</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/corelib/io</dir>
+      <file>qsettings.cpp</file>
+      <line>1386</line>
+    </frame>
+    <frame>
+      <ip>0x83260D9</ip>
+      <obj>/usr/lib/libQtCore.so.4.7.0</obj>
+      <fn>QSettingsPrivate::update()</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/corelib/io</dir>
+      <file>qsettings.cpp</file>
+      <line>415</line>
+    </frame>
+    <frame>
+      <ip>0x83267C7</ip>
+      <obj>/usr/lib/libQtCore.so.4.7.0</obj>
+      <fn>QSettings::event(QEvent*)</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/corelib/io</dir>
+      <file>qsettings.cpp</file>
+      <line>3326</line>
+    </frame>
+    <frame>
+      <ip>0x6A2B6EB</ip>
+      <obj>/usr/lib/libQtGui.so.4.7.0</obj>
+      <fn>QApplicationPrivate::notify_helper(QObject*, QEvent*)</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/gui/kernel</dir>
+      <file>qapplication.cpp</file>
+      <line>4396</line>
+    </frame>
+    <frame>
+      <ip>0x6A311DC</ip>
+      <obj>/usr/lib/libQtGui.so.4.7.0</obj>
+      <fn>QApplication::notify(QObject*, QEvent*)</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/gui/kernel</dir>
+      <file>qapplication.cpp</file>
+      <line>4277</line>
+    </frame>
+    <frame>
+      <ip>0x6443535</ip>
+      <obj>/usr/lib/libkdeui.so.5.5.0</obj>
+      <fn>KApplication::notify(QObject*, QEvent*)</fn>
+    </frame>
+    <frame>
+      <ip>0x83690AB</ip>
+      <obj>/usr/lib/libQtCore.so.4.7.0</obj>
+      <fn>QCoreApplication::notifyInternal(QObject*, QEvent*)</fn>
+      <dir>/build/buildd/qt4-x11-4.7.0/src/corelib/kernel</dir>
+      <file>qcoreapplication.cpp</file>
+      <line>732</line>
+    </frame>
+  </stack>
+</error>
+
+<errorcounts>
+  <pair>
+    <count>2</count>
+    <unique>0x9</unique>
+  </pair>
+</errorcounts>
+
+<suppcounts>
+  <pair>
+    <count>12</count>
+    <name>X on SUSE11 writev uninit padding</name>
+  </pair>
+  <pair>
+    <count>2</count>
+    <name>dl-hack3-cond-1</name>
+  </pair>
+  <pair>
+    <count>2</count>
+    <name>glibc-2.5.x-on-SUSE-10.2-(PPC)-2a</name>
+  </pair>
+</suppcounts>
+
+</valgrindoutput>
+

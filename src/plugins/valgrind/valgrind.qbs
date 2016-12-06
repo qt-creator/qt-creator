@@ -88,4 +88,15 @@ QtcPlugin {
             "threadedparser.cpp", "threadedparser.h",
         ]
     }
+
+    Group {
+        name: "Test sources"
+        condition: qtc.testsEnabled
+        files: [
+            "valgrindmemcheckparsertest.cpp",
+            "valgrindmemcheckparsertest.h",
+            "valgrindtestrunnertest.cpp",
+            "valgrindtestrunnertest.h",
+        ]
+    }
 }
