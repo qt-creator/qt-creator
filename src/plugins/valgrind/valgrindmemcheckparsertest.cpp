@@ -111,6 +111,18 @@ static QString dataFile(const QString &file)
     return QString(PARSERTESTS_DATA_DIR) + '/' + file;
 }
 
+static QString extraDataFile(const QString &file)
+{
+    static QString prefix = QString::fromLocal8Bit(qgetenv("QTC_TEST_EXTRADATALOCATION"));
+    if (prefix.isEmpty())
+        return QString();
+
+    QFileInfo fi(QString(prefix + "/valgrind"), file);
+    if (fi.exists())
+        return fi.canonicalFilePath();
+    return QString();
+}
+
 void ValgrindMemcheckParserTest::initTestCase()
 {
     m_server = new QTcpServer(this);
@@ -131,7 +143,7 @@ void ValgrindMemcheckParserTest::initTest(const QString &testfile, const QString
     m_process->start(
         fakeValgrind,
         QStringList({QString("--xml-socket=127.0.0.1:%1").arg(m_server->serverPort()), "-i",
-                     dataFile(testfile)}) << otherArgs);
+                     testfile}) << otherArgs);
 
     QVERIFY(m_process->waitForStarted(5000));
     QCOMPARE(m_process->state(), QProcess::Running);
@@ -155,9 +167,11 @@ void ValgrindMemcheckParserTest::cleanup()
 
 void ValgrindMemcheckParserTest::testHelgrindSample1()
 {
-    QSKIP("testfile does not exist");
+    const QString file = extraDataFile("helgrind-output-sample1.xml");
+    if (file.isEmpty())
+        QSKIP("test file does not exist");
 
-    initTest("helgrind-output-sample1.xml");
+    initTest(file);
 
     QList<Error> expectedErrors;
     {
@@ -251,7 +265,7 @@ void ValgrindMemcheckParserTest::testHelgrindSample1()
 
 void ValgrindMemcheckParserTest::testMemcheckSample1()
 {
-    initTest("memcheck-output-sample1.xml");
+    initTest(dataFile("memcheck-output-sample1.xml"));
 
     QList<Error> expectedErrors;
     {
@@ -327,9 +341,11 @@ void ValgrindMemcheckParserTest::testMemcheckSample1()
 
 void ValgrindMemcheckParserTest::testMemcheckSample2()
 {
-    QSKIP("testfile does not exist");
+    const QString file = extraDataFile("memcheck-output-sample2.xml");
+    if (file.isEmpty())
+        QSKIP("test file does not exist");
 
-    initTest("memcheck-output-sample2.xml");
+    initTest(file);
 
     Parser parser;
     Recorder rec(&parser);
@@ -353,9 +369,11 @@ void ValgrindMemcheckParserTest::testMemcheckSample2()
 
 void ValgrindMemcheckParserTest::testMemcheckSample3()
 {
-    QSKIP("testfile does not exist");
+    const QString file = extraDataFile("memcheck-output-sample3.xml");
+    if (file.isEmpty())
+        QSKIP("test file does not exist");
 
-    initTest("memcheck-output-sample3.xml");
+    initTest(file);
 
     Parser parser;
     Recorder rec(&parser);
@@ -405,10 +423,12 @@ void ValgrindMemcheckParserTest::testMemcheckSample3()
 
 void ValgrindMemcheckParserTest::testMemcheckCharm()
 {
-    QSKIP("testfile does not exist");
-
     // a somewhat larger file, to make sure buffering and partial I/O works ok
-    initTest("memcheck-output-untitled.xml");
+    const QString file = extraDataFile("memcheck-output-charm.xml");
+    if (file.isEmpty())
+        QSKIP("test file does not exist");
+
+    initTest(file);
 
     Parser parser;
     Recorder rec(&parser);
@@ -426,7 +446,7 @@ void ValgrindMemcheckParserTest::testMemcheckCharm()
 
 void ValgrindMemcheckParserTest::testValgrindCrash()
 {
-    initTest("memcheck-output-sample1.xml", QStringList("--crash"));
+    initTest(dataFile("memcheck-output-sample1.xml"), QStringList("--crash"));
 
     Parser parser;
     parser.parse(m_socket);
@@ -441,7 +461,7 @@ void ValgrindMemcheckParserTest::testValgrindCrash()
 
 void ValgrindMemcheckParserTest::testValgrindGarbage()
 {
-    initTest("memcheck-output-sample1.xml", QStringList("--garbage"));
+    initTest(dataFile("memcheck-output-sample1.xml"), QStringList("--garbage"));
 
     Parser parser;
     parser.parse(m_socket);
