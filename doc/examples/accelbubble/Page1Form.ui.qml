@@ -48,16 +48,20 @@
 **
 ****************************************************************************/
 
-#include <QGuiApplication>
-#include <QQmlApplicationEngine>
+import QtQuick 2.7
+import QtQuick.Controls 2.0
+import QtQuick.Layouts 1.0
 
-int main(int argc, char *argv[])
-{
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    QGuiApplication app(argc, argv);
+Item {
+    property alias mainWindow: mainWindow
+    property alias bubble: bubble
+    Rectangle {
+        id: mainWindow
+        color: "#ffffff"
+        anchors.fill: parent
 
-    QQmlApplicationEngine engine;
-    engine.load(QUrl(QLatin1String("qrc:/main.qml")));
-
-    return app.exec();
+        Bubble {
+            id: bubble
+        }
+    }
 }

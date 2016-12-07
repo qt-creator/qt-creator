@@ -55,7 +55,7 @@
 
        \li \l{Creating a Mobile Application}
 
-            Learn how to create a Qt Quick application using Qt Quick Controls
+            Learn how to create a Qt Quick application using Qt Quick Controls 2
             for Android and iOS devices.
 
        \li \l{Using Qt Quick UI Forms}

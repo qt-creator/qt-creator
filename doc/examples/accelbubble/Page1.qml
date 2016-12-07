@@ -3,7 +3,7 @@
 ** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the examples of the Qt Toolkit.
+** This file is part of Qt Creator
 **
 ** $QT_BEGIN_LICENSE:BSD$
 ** Commercial License Usage
@@ -48,31 +48,8 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.5
-import QtQuick.Controls 1.4
-import QtQuick.Layouts 1.2
+import QtQuick 2.7
 
-Item {
-    id: id
-    width: 640
-    height: 480
-    property alias bubble: bubble
-    property alias mainWindow: mainWindow
-
-    Rectangle {
-        id: mainWindow
-        color: "#ffffff"
-        anchors.rightMargin: 0
-        anchors.bottomMargin: 0
-        anchors.leftMargin: 0
-        anchors.topMargin: 0
-        anchors.fill: parent
-    }
-
-    Bubble {
-        id: bubble
-        x: 10
-        y: 18
-    }
+Page1Form {
 
 }

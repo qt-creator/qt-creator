@@ -38,7 +38,7 @@
     \title Creating a Mobile Application
 
     This tutorial describes developing Qt Quick applications for Android and iOS
-    devices using Qt Quick Controls.
+    devices using Qt Quick Controls 2.
     We use \QC to implement a Qt Quick application
     that accelerates an SVG (Scalable Vector Graphics) image based on the
     changing accelerometer values.
@@ -80,7 +80,7 @@
 
     \list 1
 
-        \li In the \uicontrol Projects view, double-click the MainForm.ui.qml
+        \li In the \uicontrol Projects view, double-click the Page1Form.ui.qml
             file to open it in \QMLD.
 
         \li In the \uicontrol Navigator, select \uicontrol RowLayout and press
@@ -121,23 +121,27 @@
 
     \list 1
 
-        \li Select \uicontrol Edit to open MainForm.ui.qml in the code editor.
+        \li Select \uicontrol Edit to open Page1Form.ui.qml in the code editor.
 
         \li Right-click \uicontrol Image and select \uicontrol Refactoring >
             \uicontrol {Move Component into Separate File}.
 
-        \li In the \uicontrol {Component name} field, enter \e Bubble and
-            select \uicontrol OK to create \e Bubble.qml.
+        \li In the \uicontrol {Component name} field, enter \e Bubble.
+
+        \li Deselect the \uicontrol x, \uicontrol y, and
+            \uicontrol {ui.qml file} check boxes.
+
+        \li Select \uicontrol OK to create \e Bubble.qml.
 
     \endlist
 
-    \QC creates a reference to Bubble.qml in MainForm.ui.qml.
+    \QC creates a reference to the Bubble type in Page1Form.ui.qml.
 
-    To check your code, you can compare MainForm.ui.qml with the
-    \l{accelbubble/MainForm.ui.qml}{MainForm.ui.qml} example file and Bubble.qml
-    with the \l{accelbubble/Bubble.qml}{Bubble.qml} example file.
+    To check your code, you can compare Page1Form.ui.qml with the
+    \l{accelbubble/Page1Form.ui.qml}{Page1Form.ui.qml} example file and
+    Bubble.qml with the \l{accelbubble/Bubble.qml}{Bubble.qml} example file.
 
-    The UI is now ready and you can switch to editing the main.qml and
+    The UI is now ready and you can switch to editing the Page1.qml and
     Bubble.qml files in the \uicontrol Edit mode, as described in the
     following section.
 
@@ -146,8 +150,8 @@
     The new project wizard adds boilerplate code to the main.qml file to create
     menu items and push buttons. Modify the boilerplate code by removing
     obsolete code and by adding new code. You removed the push buttons from the
-    UI Form, so you also need to remove the corresponding code from main.qml (or
-    the application cannot be built).
+    UI Form, so you also need to remove the corresponding code from Page1.qml
+    (or the application cannot be built).
 
     In the code editor, edit Bubble.qml to add properties that we will use to
     position the image:
@@ -156,14 +160,15 @@
     \skipto Image
     \printuntil }
 
-    In the code editor, edit the main.qml to specify the application title, as
+    In the code editor, edit main.qml to specify the application title, as
     illustrated by the following code snippet:
 
     \quotefromfile accelbubble/main.qml
     \skipto ApplicationWindow
     \printuntil title
 
-    Use the bubble properties to position the image:
+    Remove the rest of the boilerplate code in main.qml, except the Page1 type.
+    Specify bubble properties to position the image:
 
     \printuntil bubbleCenter
 
@@ -179,7 +184,7 @@
         \li Add the following import statement to main.qml:
 
             \code
-            import QtSensors 5.5
+            import QtSensors 5.7
             \endcode
 
         \li Add the \l{Accelerometer} type with the necessary properties:

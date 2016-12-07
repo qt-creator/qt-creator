@@ -3,7 +3,7 @@
 ** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the examples of the Qt Toolkit.
+** This file is part of Qt Creator
 **
 ** $QT_BEGIN_LICENSE:BSD$
 ** Commercial License Usage
@@ -48,19 +48,18 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.5
-import QtQuick.Controls 1.4
-import QtQuick.Dialogs 1.2
-import QtSensors 5.5
+import QtQuick 2.7
+import QtQuick.Controls 2.0
+import QtQuick.Layouts 1.0
+import QtSensors 5.7
 
 ApplicationWindow {
-    id: mainWindow
     visible: true
     width: 640
     height: 480
     title: qsTr("Accelerate Bubble")
 
-    MainForm {
+    Page1 {
         anchors.fill: parent
         bubble {
             id: bubble
@@ -83,41 +82,41 @@ ApplicationWindow {
                 }
             }
         }
-}
+    }
 
-Accelerometer {
-       id: accel
-       dataRate: 100
-       active: true
+    Accelerometer {
+           id: accel
+           dataRate: 100
+           active: true
 
-       onReadingChanged: {
-           var newX = (bubble.x + calcRoll(accel.reading.x, accel.reading.y, accel.reading.z) * 0.1)
-           var newY = (bubble.y - calcPitch(accel.reading.x, accel.reading.y, accel.reading.z) * 0.1)
+           onReadingChanged: {
+               var newX = (bubble.x + calcRoll(accel.reading.x, accel.reading.y, accel.reading.z) * 0.1)
+               var newY = (bubble.y - calcPitch(accel.reading.x, accel.reading.y, accel.reading.z) * 0.1)
 
-           if (isNaN(newX) || isNaN(newY))
-               return;
+               if (isNaN(newX) || isNaN(newY))
+                   return;
 
-           if (newX < 0)
-               newX = 0
+               if (newX < 0)
+                   newX = 0
 
-           if (newX > mainWindow.width - bubble.width)
-               newX = mainWindow.width - bubble.width
+               if (newX > mainWindow.width - bubble.width)
+                   newX = mainWindow.width - bubble.width
 
-           if (newY < 18)
-               newY = 18
+               if (newY < 18)
+                   newY = 18
 
-           if (newY > mainWindow.height - bubble.height)
-               newY = mainWindow.height - bubble.height
+               if (newY > mainWindow.height - bubble.height)
+                   newY = mainWindow.height - bubble.height
 
-               bubble.x = newX
-               bubble.y = newY
+                   bubble.x = newX
+                   bubble.y = newY
+           }
        }
-   }
 
-   function calcPitch(x, y, z) {
-       return -(Math.atan(y / Math.sqrt(x * x + z * z)) * 57.2957795);
-   }
-   function calcRoll(x, y, z) {
-       return -(Math.atan(x / Math.sqrt(y * y + z * z)) * 57.2957795);
-   }
+       function calcPitch(x, y, z) {
+           return -(Math.atan(y / Math.sqrt(x * x + z * z)) * 57.2957795);
+       }
+       function calcRoll(x, y, z) {
+           return -(Math.atan(x / Math.sqrt(y * y + z * z)) * 57.2957795);
+       }
 }
