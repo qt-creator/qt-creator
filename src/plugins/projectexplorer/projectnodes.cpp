@@ -286,8 +286,8 @@ static QList<FileNode *> scanForFilesRecursively(const Utils::FileName &director
 }
 
 QList<FileNode *> FileNode::scanForFiles(const Utils::FileName &directory,
-                                         const std::function<FileNode *(const Utils::FileName &)> factory,
-                                         QFutureInterface<QList<FileNode*>> *future)
+                                               const std::function<FileNode *(const Utils::FileName &)> factory,
+                                               QFutureInterface<QList<FileNode *>> *future)
 {
     QSet<QString> visited;
     if (future)
@@ -460,8 +460,8 @@ void FolderNode::buildTree(QList<FileNode *> &files, const Utils::FileName &over
 
     qDeleteAll(ProjectExplorer::subtractSortedList(files, added, Node::sortByPath));
 
-    QHash<ProjectExplorer::FolderNode *, QList<ProjectExplorer::FileNode *> > addedFolderMapping;
-    QHash<ProjectExplorer::FolderNode *, QList<ProjectExplorer::FileNode *> > deletedFolderMapping;
+    QHash<ProjectExplorer::FolderNode *, QList<ProjectExplorer::FileNode *>> addedFolderMapping;
+    QHash<ProjectExplorer::FolderNode *, QList<ProjectExplorer::FileNode *>> deletedFolderMapping;
 
     // add added nodes
     foreach (ProjectExplorer::FileNode *fn, added) {
