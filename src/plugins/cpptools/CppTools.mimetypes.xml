@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
     <mime-type type="text/x-csrc">
-      <comment>C source code</comment>
-      <sub-class-of type="text/plain"/>
-      <alias type="text/x-c"/>
-      <glob pattern="*.c" case-sensitive="true" weight="70"/>
+        <comment>C source code</comment>
+        <sub-class-of type="text/plain"/>
+        <alias type="text/x-c"/>
+        <glob pattern="*.c" case-sensitive="true" weight="70"/>
     </mime-type>
 
     <mime-type type="text/vnd.nvidia.cuda.csrc">
@@ -77,19 +77,19 @@
     </mime-type>
 
     <mime-type type="text/x-objc++src">
-         <comment>Objective-C++ source code</comment>
-         <sub-class-of type="text/x-c++src"/>
-         <sub-class-of type="text/x-objcsrc"/>
-         <glob pattern="*.mm" weight="70"/>
+        <comment>Objective-C++ source code</comment>
+        <sub-class-of type="text/x-c++src"/>
+        <sub-class-of type="text/x-objcsrc"/>
+        <glob pattern="*.mm" weight="70"/>
     </mime-type>
 
     <mime-type type="text/x-objcsrc">
-         <comment>Objective-C source code</comment>
-         <sub-class-of type="text/x-csrc"/>
-         <glob pattern="*.m" weight="70"/>
-         <magic priority="30">
-             <match value="#import" type="string" offset="0"/>
-         </magic>
+        <comment>Objective-C source code</comment>
+        <sub-class-of type="text/x-csrc"/>
+        <glob pattern="*.m" weight="70"/>
+        <magic priority="30">
+            <match value="#import" type="string" offset="0"/>
+        </magic>
     </mime-type>
 
 </mime-info>
