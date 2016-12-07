@@ -144,7 +144,7 @@ public:
 
     void continueDebugging(StepAction stepAction);
 
-    void evaluate(const QString expr, const QmlCallback &cb);
+    void evaluate(const QString expr, qint64 context, const QmlCallback &cb);
     void lookup(const LookupItems &items);
     void backtrace();
     void updateLocals();
@@ -939,7 +939,7 @@ void QmlEngine::assignValueInDebugger(WatchItem *item,
             StackHandler *handler = stackHandler();
             QString exp = QString("%1 = %2;").arg(expression).arg(value.toString());
             if (handler->isContentsValid() && handler->currentFrame().isUsable()) {
-                d->evaluate(exp, [this](const QVariantMap &) { d->updateLocals(); });
+                d->evaluate(exp, -1, [this](const QVariantMap &) { d->updateLocals(); });
             } else {
                 showMessage(QString("Cannot evaluate %1 in current stack frame")
                             .arg(expression), ConsoleOutput);
@@ -971,7 +971,7 @@ void QmlEngine::updateItem(const QString &iname)
         // The Qt side Q_ASSERTs otherwise. So postpone the evaluation,
         // it will be triggered from from upateLocals() later.
         QString exp = item->exp;
-        d->evaluate(exp, [this, iname, exp](const QVariantMap &response) {
+        d->evaluate(exp, -1, [this, iname, exp](const QVariantMap &response) {
             d->handleEvaluateExpression(response, iname, exp);
         });
     }
@@ -1130,23 +1130,26 @@ void QmlEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages
     if (state() == InferiorStopOk) {
         StackHandler *handler = stackHandler();
         if (handler->isContentsValid() && handler->currentFrame().isUsable()) {
-            d->evaluate(command, CB(d->handleExecuteDebuggerCommand));
+            d->evaluate(command, -1, CB(d->handleExecuteDebuggerCommand));
         } else {
             // Paused but no stack? Something is wrong
             d->engine->showMessage(QString("Cannot evaluate %1. The stack trace is broken.").arg(command),
                                    ConsoleOutput);
         }
-    } else if (d->unpausedEvaluate) {
-        d->evaluate(command, CB(d->handleExecuteDebuggerCommand));
     } else {
         QModelIndex currentIndex = inspectorView()->currentIndex();
-        quint32 queryId = d->inspectorAgent.queryExpressionResult(
-                    watchHandler()->watchItem(currentIndex)->id, command);
-        if (queryId) {
-            d->queryIds.append(queryId);
+        qint64 contextId = watchHandler()->watchItem(currentIndex)->id;
+
+        if (d->unpausedEvaluate) {
+            d->evaluate(command, contextId, CB(d->handleExecuteDebuggerCommand));
         } else {
-            d->engine->showMessage("The application has to be stopped in a breakpoint in order to"
-                                   " evaluate expressions", ConsoleOutput);
+            quint32 queryId = d->inspectorAgent.queryExpressionResult(contextId, command);
+            if (queryId) {
+                d->queryIds.append(queryId);
+            } else {
+                d->engine->showMessage("The application has to be stopped in a breakpoint in order to"
+                                       " evaluate expressions", ConsoleOutput);
+            }
         }
     }
 }
@@ -1295,7 +1298,7 @@ void QmlEnginePrivate::continueDebugging(StepAction action)
     previousStepAction = action;
 }
 
-void QmlEnginePrivate::evaluate(const QString expr, const QmlCallback &cb)
+void QmlEnginePrivate::evaluate(const QString expr, qint64 context, const QmlCallback &cb)
 {
     //    { "seq"       : <number>,
     //      "type"      : "request",
@@ -1304,11 +1307,7 @@ void QmlEnginePrivate::evaluate(const QString expr, const QmlCallback &cb)
     //                      "frame"         : <number>,
     //                      "global"        : <boolean>,
     //                      "disable_break" : <boolean>,
-    //                      "additional_context" : [
-    //                           { "name" : <name1>, "handle" : <handle1> },
-    //                           { "name" : <name2>, "handle" : <handle2> },
-    //                           ...
-    //                      ]
+    //                      "context"       : <object id>
     //                    }
     //    }
 
@@ -1322,6 +1321,9 @@ void QmlEnginePrivate::evaluate(const QString expr, const QmlCallback &cb)
     StackHandler *handler = engine->stackHandler();
     if (handler->currentFrame().isUsable())
         cmd.arg(FRAME, handler->currentIndex());
+
+    if (context >= 0)
+        cmd.arg(CONTEXT, context);
 
     runCommand(cmd, cb);
 }
@@ -2187,7 +2189,7 @@ void QmlEnginePrivate::handleFrame(const QVariantMap &response)
             item->id = 0;
         }
         watchHandler->insertItem(item);
-        evaluate(exp, [this, iname, exp](const QVariantMap &response) {
+        evaluate(exp, -1, [this, iname, exp](const QVariantMap &response) {
             handleEvaluateExpression(response, iname, exp);
         });
     }
@@ -2210,7 +2212,7 @@ void QmlEnginePrivate::handleFrame(const QVariantMap &response)
         QStringList watchers = watchHandler->watchedExpressions();
         foreach (const QString &exp, watchers) {
             const QString iname = watchHandler->watcherName(exp);
-            evaluate(exp, [this, iname, exp](const QVariantMap &response) {
+            evaluate(exp, -1, [this, iname, exp](const QVariantMap &response) {
                 handleEvaluateExpression(response, iname, exp);
             });
         }
