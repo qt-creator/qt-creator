@@ -125,7 +125,11 @@ void RefactoringServer::gatherSourceRangesAndDiagnosticsForQueryMessage(
 {
     std::vector<Future> futures;
 
+#ifdef _WIN32
+    std::size_t freeProcessors = 1;
+#else
     std::size_t freeProcessors = std::thread::hardware_concurrency();
+#endif
 
     while (!sources.empty() || !futures.empty()) {
         --freeProcessors;
