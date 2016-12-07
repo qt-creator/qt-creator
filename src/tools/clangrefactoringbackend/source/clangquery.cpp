@@ -33,8 +33,11 @@
 #include <QTime>
 
 #if defined(__GNUC__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-parameter"
+#elif defined(_MSC_VER)
+#    pragma warning(push)
+#    pragma warning( disable : 4100 )
 #endif
 
 #include <clang/ASTMatchers/ASTMatchers.h>
@@ -43,7 +46,9 @@
 #include <clang/ASTMatchers/Dynamic/Parser.h>
 
 #if defined(__GNUC__)
-#pragma GCC diagnostic pop
+#    pragma GCC diagnostic pop
+#elif defined(_MSC_VER)
+#    pragma warning(pop)
 #endif
 
 using clang::ast_matchers::dynamic::Diagnostics;
