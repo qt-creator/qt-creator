@@ -157,7 +157,6 @@ private:
     std::vector<const clang::NamedDecl*> namedDeclarations;
     const clang::SourceManager &sourceManager;
     const clang::SourceLocation cursorSourceLocation;
-    bool isTemplate = false;
 };
 
 inline
