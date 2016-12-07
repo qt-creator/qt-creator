@@ -108,5 +108,11 @@ isEmpty(LLVM_VERSION): error("Cannot determine clang version at $$LLVM_INSTALL_D
 }
 
 LLVM_CXXFLAGS = $$system($$llvm_config --cxxflags, lines)
+LLVM_CXXFLAGS ~= s,-fno-exceptions,
+LLVM_CXXFLAGS ~= s,-std=c++11,
+LLVM_CXXFLAGS ~= s,-std=c++0x,
+LLVM_CXXFLAGS ~= s,-O2,
+LLVM_CXXFLAGS ~= s,/W4,
+LLVM_CXXFLAGS ~= s,/EHc-,
 
 LLVM_IS_COMPILED_WITH_RTTI = $$system($$llvm_config --has-rtti, lines)
