@@ -1036,7 +1036,7 @@ void QbsProject::updateCppCodeModel()
     m_codeModelFuture.cancel();
     m_codeModelFuture = modelmanager->updateProjectInfo(pinfo);
     m_codeModelProjectInfo = modelmanager->projectInfo(this);
-    QTC_CHECK(m_codeModelProjectInfo == pinfo);
+    QTC_CHECK(m_codeModelProjectInfo.isValid());
 }
 
 void QbsProject::updateCppCompilerCallData()
