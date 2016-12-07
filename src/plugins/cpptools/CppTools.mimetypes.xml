@@ -37,9 +37,9 @@
              example, STL ones like <string>. Those can have a big initial
              comment exceeding 1000 chars, though. -->
         <magic priority="50">
-           <match value="#ifndef " type="string" offset="0:2000"/>
-           <match value="#if " type="string" offset="0:2000"/>
-           <match value="#include " type="string" offset="0:2000"/>
+            <match value="#ifndef " type="string" offset="0:2000"/>
+            <match value="#if " type="string" offset="0:2000"/>
+            <match value="#include " type="string" offset="0:2000"/>
         </magic>
     </mime-type>
 
@@ -59,7 +59,7 @@
         <glob pattern="*.t++" weight="70"/>
         <glob pattern="*.txx" weight="70"/>
         <magic priority="30">
-        <match value="-*- C++ -*-" type="string" offset="0:30"/>
+            <match value="-*- C++ -*-" type="string" offset="0:30"/>
         </magic>
     </mime-type>
 
@@ -81,6 +81,15 @@
          <sub-class-of type="text/x-c++src"/>
          <sub-class-of type="text/x-objcsrc"/>
          <glob pattern="*.mm" weight="70"/>
+    </mime-type>
+
+    <mime-type type="text/x-objcsrc">
+         <comment>Objective-C source code</comment>
+         <sub-class-of type="text/x-csrc"/>
+         <glob pattern="*.m" weight="70"/>
+         <magic priority="30">
+             <match value="#import" type="string" offset="0"/>
+         </magic>
     </mime-type>
 
 </mime-info>
