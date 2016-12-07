@@ -51,6 +51,9 @@
 #endif
 
 #pragma push_macro("noexcept")
+#ifdef __clang__
+#define  __cpp_noexcept 201003
+#endif
 #ifndef __cpp_noexcept
 #define noexcept
 #endif
