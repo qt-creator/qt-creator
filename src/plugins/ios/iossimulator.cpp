@@ -45,6 +45,16 @@ static const QLatin1String iosDeviceTypeDisplayNameKey = QLatin1String("displayN
 static const QLatin1String iosDeviceTypeTypeKey = QLatin1String("type");
 static const QLatin1String iosDeviceTypeIdentifierKey = QLatin1String("identifier");
 
+static const QList<Utils::Icon>& iosSimulatorIcon()
+{
+    static const QList<Utils::Icon> icon =
+        {Utils::Icon({{":/ios/images/iosdevicesmall.png",
+                       Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint),
+         Utils::Icon({{":/ios/images/iosdevice.png",
+                       Utils::Theme::IconsBaseColor}})};
+    return icon;
+}
+
 IosSimulator::IosSimulator(Core::Id id)
     : IDevice(Core::Id(Constants::IOS_SIMULATOR_TYPE),
               IDevice::AutoDetected,
@@ -54,10 +64,7 @@ IosSimulator::IosSimulator(Core::Id id)
 {
     setDisplayName(QCoreApplication::translate("Ios::Internal::IosSimulator", "iOS Simulator"));
     setDeviceState(DeviceReadyToUse);
-    setDeviceIcon({Utils::Icon({{":/ios/images/iosdevicesmall.png",
-                                 Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint),
-                   Utils::Icon({{":/ios/images/iosdevice.png",
-                                 Utils::Theme::IconsBaseColor}})});
+    setDeviceIcon(iosSimulatorIcon());
 }
 
 IosSimulator::IosSimulator()
@@ -69,6 +76,7 @@ IosSimulator::IosSimulator()
 {
     setDisplayName(QCoreApplication::translate("Ios::Internal::IosSimulator", "iOS Simulator"));
     setDeviceState(DeviceReadyToUse);
+    setDeviceIcon(iosSimulatorIcon());
 }
 
 IosSimulator::IosSimulator(const IosSimulator &other)
@@ -76,6 +84,7 @@ IosSimulator::IosSimulator(const IosSimulator &other)
 {
     setDisplayName(QCoreApplication::translate("Ios::Internal::IosSimulator", "iOS Simulator"));
     setDeviceState(DeviceReadyToUse);
+    setDeviceIcon(iosSimulatorIcon());
 }
 
 
