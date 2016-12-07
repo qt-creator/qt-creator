@@ -339,16 +339,8 @@ void LldbEngine::setupInferior()
     cmd2.arg("startmode", rp.startMode);
     cmd2.arg("nativemixed", isNativeMixedActive());
     cmd2.arg("workingdirectory", rp.inferior.workingDirectory);
-
-    QJsonArray env;
-    foreach (const QString &item, rp.inferior.environment.toStringList())
-        env.append(toHex(item));
-    cmd2.arg("environment", env);
-
-    QJsonArray processArgs;
-    foreach (const QString &arg, args.toUnixArgs())
-        processArgs.append(QLatin1String(arg.toUtf8().toHex()));
-    cmd2.arg("processargs", processArgs);
+    cmd2.arg("environment", rp.inferior.environment.toStringList());
+    cmd2.arg("processargs", args.toUnixArgs());
 
     if (rp.useTerminal) {
         QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());

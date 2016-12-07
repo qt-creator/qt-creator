@@ -753,9 +753,17 @@ void DebuggerCommand::arg(const char *name, const char *value)
 void DebuggerCommand::arg(const char *name, const QList<int> &list)
 {
     QJsonArray numbers;
-    foreach (int item, list)
+    for (int item : list)
         numbers.append(item);
     args = addToJsonObject(args, name, numbers);
+}
+
+void DebuggerCommand::arg(const char *name, const QStringList &list)
+{
+    QJsonArray arr;
+    for (const QString &item : list)
+        arr.append(toHex(item));
+    args = addToJsonObject(args, name, arr);
 }
 
 void DebuggerCommand::arg(const char *value)
