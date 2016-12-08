@@ -186,7 +186,7 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
         return;
     }
 
-    m_futureInterface.reset(&fi);
+    m_futureInterface = &fi;
 
     m_process.reset(new Utils::QtcProcess());
     m_process->setUseCtrlCStub(Utils::HostOsInfo::isWindowsHost());
@@ -222,8 +222,7 @@ void AbstractProcessStep::cleanUp()
     m_process.reset();
 
     // Report result
-    reportRunResult(*(m_futureInterface.get()), returnValue);
-    m_futureInterface.reset();
+    reportRunResult(*m_futureInterface, returnValue);
 }
 
 /*!
@@ -338,7 +337,7 @@ void AbstractProcessStep::stdError(const QString &line)
 
 QFutureInterface<bool> *AbstractProcessStep::futureInterface() const
 {
-    return m_futureInterface.get();
+    return m_futureInterface;
 }
 
 void AbstractProcessStep::checkForCancel()
