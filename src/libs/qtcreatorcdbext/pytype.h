@@ -45,6 +45,7 @@ struct Type
 
 PyTypeObject *type_pytype();
 char *getTypeName(ULONG64 module, ULONG typeId);
+const char *getTypeName(Type *type, const bool withModule = false);
 
 PyObject *lookupType(const std::string &typeName);
 

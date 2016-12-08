@@ -172,7 +172,22 @@ char *getTypeName(ULONG64 module, ULONG typeId)
     return typeName;
 }
 
-const char *getTypeName(Type *type)
+std::string getModuleName(Type *type)
+{
+    if (type->m_targetType)
+        return getModuleName(type->m_targetType);
+    CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
+    ULONG size;
+    symbols->GetModuleNameString(DEBUG_MODNAME_MODULE, DEBUG_ANY_ID, type->m_module, NULL, 0, &size);
+    std::string name(size - 1, '\0');
+    if (SUCCEEDED(symbols->GetModuleNameString(DEBUG_MODNAME_MODULE, DEBUG_ANY_ID,
+                                               type->m_module, &name[0], size, NULL))) {
+        return name;
+    }
+    return std::string();
+}
+
+const char *getTypeName(Type *type, const bool withModule)
 {
     if (type->m_name == nullptr) {
         if (type->m_targetType) {
@@ -187,7 +202,11 @@ const char *getTypeName(Type *type)
             type->m_name = getTypeName(type->m_module, type->m_typeId);
         }
     }
-    return type->m_name;
+    if (!withModule)
+        return type->m_name;
+    std::stringstream str;
+    str << getModuleName(type) << '!' << type->m_name;
+    return strdup(str.str().c_str());
 }
 
 PyObject *type_Name(Type *self)
