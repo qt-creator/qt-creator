@@ -114,5 +114,6 @@ LLVM_CXXFLAGS ~= s,-std=c++0x,
 LLVM_CXXFLAGS ~= s,-O2,
 LLVM_CXXFLAGS ~= s,/W4,
 LLVM_CXXFLAGS ~= s,/EHc-,
+LLVM_CXXFLAGS ~= s,-Werror=date-time,
 
 LLVM_IS_COMPILED_WITH_RTTI = $$system($$llvm_config --has-rtti, lines)
