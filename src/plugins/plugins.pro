@@ -77,11 +77,14 @@ isEmpty(LLVM_INSTALL_DIR):LLVM_INSTALL_DIR=$$(LLVM_INSTALL_DIR)
 exists($$LLVM_INSTALL_DIR) {
     SUBDIRS += clangcodemodel
 
+    win32-msvc*:equals(QT_CL_MAJOR_VERSION, 19):equals(QT_CL_MINOR_VERSION, 00): \
+                greaterThan(QT_CL_PATCH_VERSION, 24209) {
     QTC_NO_CLANG_LIBTOOLING=$$(QTC_NO_CLANG_LIBTOOLING)
     isEmpty($$QTC_NO_CLANG_LIBTOOLING) {
         SUBDIRS += clangrefactoring
     } else {
         warning("Building the Clang refactoring plugin is disabled.")
+    }
     }
 } else {
     warning("Set LLVM_INSTALL_DIR to build the Clang Code Model. " \
