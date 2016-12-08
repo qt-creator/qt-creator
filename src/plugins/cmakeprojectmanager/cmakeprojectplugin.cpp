@@ -112,15 +112,17 @@ void CMakeProjectPlugin::updateContextActions(ProjectExplorer::Node *node,
                                               ProjectExplorer::Project *project)
 {
     CMakeTargetNode *targetNode = dynamic_cast<CMakeTargetNode *>(node);
+    // as targetNode can be deleted while the menu is open, we keep only the
+    const QString targetDisplayName = targetNode ? targetNode->displayName() : QString();
     CMakeProject *cmProject = dynamic_cast<CMakeProject *>(project);
 
     // Build Target:
     disconnect(m_buildTargetContextAction);
-    m_buildTargetContextAction->setParameter(targetNode ? targetNode->displayName() : QString());
+    m_buildTargetContextAction->setParameter(targetDisplayName);
     m_buildTargetContextAction->setEnabled(targetNode);
     m_buildTargetContextAction->setVisible(targetNode);
     if (cmProject && targetNode) {
         connect(m_buildTargetContextAction, &Utils::ParameterAction::triggered,
-                cmProject, [cmProject, targetNode]() { cmProject->buildCMakeTarget(targetNode->displayName()); });
+                cmProject, [cmProject, targetDisplayName]() { cmProject->buildCMakeTarget(targetDisplayName); });
     }
 }
