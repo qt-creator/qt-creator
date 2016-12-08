@@ -268,7 +268,7 @@ bool QtTestTreeItem::modify(const TestParseResult *result)
     case TestSpecialFunction:
         return modifyTestFunctionContent(result);
     case TestDataTag:
-        return modifyDataTagContent(result->name, result->fileName, result->line, result->line);
+        return modifyDataTagContent(result->name, result->fileName, result->line, result->column);
     default:
         return false;
     }
