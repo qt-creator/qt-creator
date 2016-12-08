@@ -391,6 +391,9 @@ public:
         m_importBuild = new QPushButton(ProjectWindow::tr("Import Existing Build..."));
         connect(m_importBuild, &QPushButton::clicked,
                 this, &SelectorModel::handleImportBuild);
+        connect(sessionManager, &SessionManager::startupProjectChanged, this, [this](Project *project) {
+            m_importBuild->setEnabled(project && project->projectImporter());
+        });
 
         m_manageKits = new QPushButton(ProjectWindow::tr("Manage Kits..."));
         connect(m_manageKits, &QPushButton::clicked,
