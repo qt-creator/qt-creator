@@ -169,7 +169,7 @@ std::size_t RefactoringServer::waitForNewSourceRangesAndDiagnosticsForQueryMessa
         futures.erase(beginReady, futures.end());
 
         for (Future &readyFuture : readyFutures)
-            client()->sourceRangesAndDiagnosticsForQueryMessage(std::move(readyFuture.get()));
+            client()->sourceRangesAndDiagnosticsForQueryMessage(readyFuture.get());
 
         if (readyFutures.empty())
             std::this_thread::sleep_for(std::chrono::milliseconds(20));
