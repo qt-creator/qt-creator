@@ -142,6 +142,8 @@ PyObject *lookupType(const std::string &typeNameIn)
         typeName.erase(0, 5);
     if (typeName == "__int64" || typeName == "unsigned __int64")
         typeName.erase(typeName.find("__"), 2);
+    if (endsWith(typeName, " const"))
+        typeName.erase(typeName.length() - 6);
 
     CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
     ULONG64 module;
