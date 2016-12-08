@@ -41,3 +41,4 @@ struct Value
 PyTypeObject *value_pytype();
 void initValue(Value *value);
 PyObject *createValue(ULONG index, CIDebugSymbolGroup *symbolGroup);
+std::string getSymbolName(CIDebugSymbolGroup *sg, ULONG index);

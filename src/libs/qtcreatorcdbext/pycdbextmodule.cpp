@@ -105,18 +105,47 @@ static PyObject *cdbext_lookupType(PyObject *, PyObject *args) // -> Type
     return lookupType(type);
 }
 
-static PyObject *cdbext_listOfLocals(PyObject *, PyObject *) // -> [ Value ]
+static PyObject *cdbext_listOfLocals(PyObject *, PyObject *args) // -> [ Value ]
 {
+    char *partialVariablesC;
+    if (!PyArg_ParseTuple(args, "s", &partialVariablesC))
+        Py_RETURN_NONE;
+
+    const std::string partialVariable(partialVariablesC);
+    IDebugSymbolGroup2 *symbolGroup = nullptr;
     auto locals = PyList_New(0);
-    IDebugSymbolGroup2 *sg;
-    CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
-    if (FAILED(symbols->GetScopeSymbolGroup2(DEBUG_SCOPE_GROUP_ALL, NULL, &sg)))
-        return locals;
+    if (partialVariable.empty()) {
+        symbolGroup = currentSymbolGroup.create();
+        if (symbolGroup == nullptr)
+            return locals;
+    } else {
+        symbolGroup = currentSymbolGroup.get();
+        if (symbolGroup == nullptr)
+            return locals;
+
+        ULONG scopeEnd;
+        if (FAILED(symbolGroup->GetNumberSymbols(&scopeEnd)))
+            return locals;
+
+        std::vector<std::string> inameTokens;
+        split(partialVariable, '.', std::back_inserter(inameTokens));
+        auto currentPartialIname = inameTokens.begin();
+        ++currentPartialIname; // skip "local" part
+
+        ULONG symbolGroupIndex = 0;
+        for (;symbolGroupIndex < scopeEnd; ++symbolGroupIndex) {
+            if (getSymbolName(symbolGroup, symbolGroupIndex) == *currentPartialIname) {
+                PyList_Append(locals, createValue(symbolGroupIndex, symbolGroup));
+                return locals;
+            }
+        }
+    }
+
     ULONG symbolCount;
-    if (FAILED(sg->GetNumberSymbols(&symbolCount)))
+    if (FAILED(symbolGroup->GetNumberSymbols(&symbolCount)))
         return locals;
     for (ULONG index = 0; index < symbolCount; ++index)
-        PyList_Append(locals, createValue(index, sg));
+        PyList_Append(locals, createValue(index, symbolGroup));
     return locals;
 }
 
@@ -196,7 +225,7 @@ static PyMethodDef cdbextMethods[] = {
      "Returns value of expression or None if the expression can not be resolved"},
     {"lookupType",          cdbext_lookupType,          METH_VARARGS,
      "Returns type object or None if the type can not be resolved"},
-    {"listOfLocals",        cdbext_listOfLocals,        METH_NOARGS,
+    {"listOfLocals",        cdbext_listOfLocals,        METH_VARARGS,
      "Returns list of values that are currently in scope"},
     {"pointerSize",         cdbext_pointerSize,         METH_NOARGS,
      "Returns the size of a pointer"},

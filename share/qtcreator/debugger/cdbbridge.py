@@ -267,11 +267,9 @@ class Dumper(DumperBase):
         self.anonNumber = 0
 
         variables = []
-        for val in cdbext.listOfLocals():
-            self.currentContextValue = val
-            name = val.name()
+        for val in cdbext.listOfLocals(self.partialVariable):
             value = self.fromNativeValue(val)
-            value.name = name
+            value.name = val.name()
             variables.append(value)
 
         self.handleLocals(variables)
