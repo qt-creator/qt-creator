@@ -46,7 +46,7 @@ std::string getSymbolName(CIDebugSymbolGroup *sg, ULONG index)
     sg->GetSymbolName(index, NULL, 0, &size);
     if (size == 0)
         return std::string();
-    std::string name(size, '\0');
+    std::string name(size - 1, '\0');
     sg->GetSymbolName(index, &name[0], size, &size);
     return name;
 }
