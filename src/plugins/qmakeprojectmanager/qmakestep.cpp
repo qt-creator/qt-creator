@@ -336,8 +336,7 @@ void QMakeStep::startOneCommand(const QString &command, const QString &args)
     pp->resolveAll();
 
     QTC_ASSERT(!m_commandFuture || m_commandFuture->future().isFinished(), return);
-    delete m_commandFuture;
-    m_commandFuture = new QFutureInterface<bool>;
+    m_commandFuture.reset(new QFutureInterface<bool>);
 
     m_commandWatcher.setFuture(m_commandFuture->future());
     AbstractProcessStep::run(*m_commandFuture);
@@ -355,8 +354,7 @@ void QMakeStep::runNextCommand()
             wasSuccess = false; // should not happen
     }
 
-    delete m_commandFuture;
-    m_commandFuture = nullptr;
+    m_commandFuture.reset();
 
     if (!wasSuccess)
         m_nextState = State::POST_PROCESS;

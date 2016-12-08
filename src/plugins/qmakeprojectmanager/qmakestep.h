@@ -177,7 +177,7 @@ private:
 
     QFutureInterface<bool> m_inputFuture;
     QFutureWatcher<bool> m_inputWatcher;
-    QFutureInterface<bool> *m_commandFuture = nullptr;
+    std::unique_ptr<QFutureInterface<bool>> m_commandFuture;
     QFutureWatcher<bool> m_commandWatcher;
 
     // last values
