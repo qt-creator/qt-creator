@@ -156,19 +156,39 @@ static PyObject *cdbext_createValue(PyObject *, PyObject *args)
 
     if (debugPyCdbextModule) {
         DebugPrint() << "Create Value address: 0x" << std::hex << address
-                     << " type name: " << getTypeName(type->m_module, type->m_typeId);
+                     << " type name: " << getTypeName(type);
     }
 
-    IDebugSymbolGroup2 *symbol;
-    CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
-    if (FAILED(symbols->GetScopeSymbolGroup2(DEBUG_SCOPE_GROUP_ALL, NULL, &symbol)))
+    IDebugSymbolGroup2 *symbolGroup = currentSymbolGroup.get();
+    if (symbolGroup == nullptr)
         Py_RETURN_NONE;
-    ULONG index = DEBUG_ANY_ID;
-    const std::string name = SymbolGroupValue::pointedToSymbolName(
-                address, getTypeName(type->m_module, type->m_typeId));
-    if (FAILED(symbol->AddSymbol(name.c_str(), &index)))
-        Py_RETURN_NONE;
-    return createValue(index, symbol);
+
+    ULONG numberOfSymbols = 0;
+    symbolGroup->GetNumberSymbols(&numberOfSymbols);
+    ULONG index = 0;
+    for (;index < numberOfSymbols; ++index) {
+        ULONG64 offset;
+        symbolGroup->GetSymbolOffset(index, &offset);
+        if (offset == address) {
+            DEBUG_SYMBOL_PARAMETERS params;
+            if (SUCCEEDED(symbolGroup->GetSymbolParameters(index, 1, &params))) {
+                if (params.TypeId == type->m_typeId && params.Module == type->m_module)
+                    break;
+            }
+        }
+    }
+
+    if (index >= numberOfSymbols) {
+        ULONG index = DEBUG_ANY_ID;
+        const std::string name = SymbolGroupValue::pointedToSymbolName(address, getTypeName(type, true));
+        if (debugPyCdbextModule)
+            DebugPrint() << "Create Value expression: " << name;
+
+        if (FAILED(symbolGroup->AddSymbol(name.c_str(), &index)))
+            Py_RETURN_NONE;
+    }
+
+    return createValue(index, symbolGroup);
 }
 
 static PyMethodDef cdbextMethods[] = {
