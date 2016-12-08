@@ -27,6 +27,7 @@
 
 #include "extensioncontext.h"
 #include "symbolgroupvalue.h"
+#include "stringutils.h"
 
 #include "pyfield.h"
 #include "pystdoutredirect.h"
@@ -35,6 +36,52 @@
 
 #include <Python.h>
 #include <structmember.h>
+
+#include <iterator>
+
+class CurrentSymbolGroup
+{
+public:
+    IDebugSymbolGroup2 *get()
+    {
+        ULONG threadId = ExtensionCommandContext::instance()->threadId();
+        CIDebugControl *control = ExtensionCommandContext::instance()->control();
+        DEBUG_STACK_FRAME frame;
+        if (FAILED(control->GetStackTrace(0, 0, 0, &frame, 1, NULL)))
+            return nullptr;
+        if (m_symbolGroup && m_threadId == threadId && m_frameNumber == frame.FrameNumber)
+            return m_symbolGroup;
+        return create(threadId, frame.FrameNumber);
+    }
+
+    IDebugSymbolGroup2 *create()
+    {
+        ULONG threadId = ExtensionCommandContext::instance()->threadId();
+        CIDebugControl *control = ExtensionCommandContext::instance()->control();
+        DEBUG_STACK_FRAME frame;
+        if (FAILED(control->GetStackTrace(0, 0, 0, &frame, 1, NULL)))
+            return nullptr;
+        return create(threadId, frame.FrameNumber);
+    }
+
+private:
+    IDebugSymbolGroup2 *create(ULONG threadId, ULONG64 frameNumber)
+    {
+        CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
+        if (FAILED(symbols->GetScopeSymbolGroup2(DEBUG_SCOPE_GROUP_ALL, NULL, &m_symbolGroup)))
+            return nullptr;
+        m_frameNumber = frameNumber;
+        m_threadId = threadId;
+        return m_symbolGroup;
+    }
+
+private:
+    IDebugSymbolGroup2 *m_symbolGroup = nullptr;
+    ULONG m_threadId = 0;
+    ULONG64 m_frameNumber = 0;
+};
+
+static CurrentSymbolGroup currentSymbolGroup;
 
 // cdbext python module
 static PyObject *cdbext_parseAndEvaluate(PyObject *, PyObject *args) // -> Value
