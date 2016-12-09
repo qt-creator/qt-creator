@@ -154,17 +154,6 @@ ScrollView {
                         }
                     }
 
-                    Connections {
-                        target: scroller
-                        onSelectionLockedChanged: {
-                            renderer.selectionLocked = scroller.selectionLocked;
-                        }
-                    }
-
-                    onSelectionLockedChanged: {
-                        scroller.selectionLocked = renderer.selectionLocked;
-                    }
-
                     function recenter() {
                         if (modelData.endTime(selectedItem) < zoomer.rangeStart ||
                                 modelData.startTime(selectedItem) > zoomer.rangeEnd) {
