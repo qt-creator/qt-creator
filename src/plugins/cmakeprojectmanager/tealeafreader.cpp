@@ -140,9 +140,9 @@ TeaLeafReader::TeaLeafReader()
     //  -D'MACRO()=xxx'
     //  -D'MACRO()'
     // otherwise, compiler will fails
-    m_macroFixupRe1.setPattern("^-D(\\s*)'([0-9a-ZA-Z_\\(\\)]+)'=");
-    m_macroFixupRe2.setPattern("^-D(\\s*)'([0-9a-ZA-Z_\\(\\)]+)=(.+)'$");
-    m_macroFixupRe3.setPattern("^-D(\\s*)'([0-9a-ZA-Z_\\(\\)]+)'$");
+    m_macroFixupRe1.setPattern("^-D(\\s*)'([0-9a-zA-Z_\\(\\)]+)'=");
+    m_macroFixupRe2.setPattern("^-D(\\s*)'([0-9a-zA-Z_\\(\\)]+)=(.+)'$");
+    m_macroFixupRe3.setPattern("^-D(\\s*)'([0-9a-zA-Z_\\(\\)]+)'$");
 }
 
 TeaLeafReader::~TeaLeafReader()
