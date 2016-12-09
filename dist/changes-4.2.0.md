@@ -81,10 +81,16 @@ C++ Support
 Debugging
 
 * Added pretty printing of `QRegExp` captures, `QStaticStringData`,
-  `QStandardItem`, and `std::pair`
+  `QStandardItem`, `std::weak_ptr`, `std::__1::multiset`,
+  and `std::pair`
+* Added display of QObject hierarchy and properties in release builds
+* Enhanced display of function pointers
 * Improved pretty printing of QV4 types
-* Made display of maps more compact
+* Made display of associative containers, pairs, and various smart
+  pointers more compact
 * Fixed pretty printing of `QFixed`
+* Made creation of custom pretty printers easier
+* Added support to pretty-print custom types without debug info
 * LLDB
     * Added support for Qt Creator variables `%{...}` in startup commands
 * QML
