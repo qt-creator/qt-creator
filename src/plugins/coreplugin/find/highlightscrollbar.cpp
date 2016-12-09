@@ -254,10 +254,11 @@ void HighlightScrollBarOverlay::paintEvent(QPaintEvent *paintEvent)
         int top = rect.top() + offset + verticalMargin + float(it.key()) / range * rect.height();
         const int bottom = top + resultHeight;
 
-        if (QTC_GUARD(previousRect) && previousCategory == currentCategory && previousBottom + 1 >= top) {
+        if (previousCategory == currentCategory && previousBottom + 1 >= top) {
             // If the previous highlight has the same category and is directly prior to this highlight
             // we just extend the previous highlight.
-            previousRect->setBottom(bottom - 1);
+            if (QTC_GUARD(previousRect))
+                previousRect->setBottom(bottom - 1);
 
         } else { // create a new highlight
             if (previousRect && previousBottom >= top) {
