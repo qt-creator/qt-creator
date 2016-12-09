@@ -184,8 +184,11 @@ void NodeInstanceView::modelAboutToBeDetached(Model * model)
 void NodeInstanceView::handleChrash()
 {
     int elaspsedTimeSinceLastCrash = m_lastCrashTime.restart();
-
-    if (elaspsedTimeSinceLastCrash > 2000)
+    int forceRestartTime = 2000;
+#ifdef QT_DEBUG
+    forceRestartTime = 4000;
+#endif
+    if (elaspsedTimeSinceLastCrash > forceRestartTime)
         restartProcess();
     else
         emit qmlPuppetCrashed();
