@@ -668,8 +668,9 @@ void AndroidRunnerWorker::onProcessIdChanged(qint64 pid)
         logcatReadStandardOutput();
         QTC_ASSERT(!m_psIsAlive, /**/);
         m_psIsAlive.reset(new QProcess);
-        connect(m_psIsAlive.get(), &QIODevice::readyRead, [this](){
-            if (!m_psIsAlive->readAllStandardOutput().simplified().isEmpty())
+        m_psIsAlive->setProcessChannelMode(QProcess::MergedChannels);
+        connect(m_psIsAlive.get(), &QProcess::readyRead, [this](){
+            if (!m_psIsAlive->readAll().simplified().isEmpty())
                 onProcessIdChanged(-1);
         });
         m_psIsAlive->start(m_adb, selector() << QStringLiteral("shell")

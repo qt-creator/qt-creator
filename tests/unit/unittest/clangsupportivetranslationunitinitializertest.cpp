@@ -122,14 +122,14 @@ protected:
 protected:
     Data d;
 
-    Utf8String &filePath{d.filePath};
-    Utf8String &projectPartId{d.projectPartId};
+    Utf8String &filePath = d.filePath;
+    Utf8String &projectPartId = d.projectPartId;
 
-    ProjectParts projects{d.projects};
-    Document &document{d.document};
-    Documents &documents{d.documents};
-    Jobs &jobs{d.jobs};
-    ClangBackEnd::SupportiveTranslationUnitInitializer &initializer{*d.initializer};
+    ProjectParts projects = d.projects;
+    Document &document = d.document;
+    Documents &documents = d.documents;
+    Jobs &jobs = d.jobs;
+    ClangBackEnd::SupportiveTranslationUnitInitializer &initializer = *d.initializer;
 };
 
 TEST_F(SupportiveTranslationUnitInitializer, HasInitiallyNotInitializedState)

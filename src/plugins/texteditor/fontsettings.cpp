@@ -233,10 +233,6 @@ void FontSettings::addMixinStyle(QTextCharFormat &textCharFormat,
             textCharFormat.setBackground(mixBrush(textCharFormat.background(),
                                                   format.relativeBackgroundSaturation(),
                                                   format.relativeBackgroundLightness()));
-        } else {
-            textCharFormat.setBackground(mixBrush(m_scheme.formatFor(C_TEXT).background(),
-                                                  format.relativeBackgroundSaturation(),
-                                                  format.relativeBackgroundLightness()));
         }
 
         if (!textCharFormat.fontItalic())
