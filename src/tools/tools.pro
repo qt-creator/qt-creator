@@ -22,14 +22,12 @@ isEmpty(LLVM_INSTALL_DIR):LLVM_INSTALL_DIR=$$(LLVM_INSTALL_DIR)
 exists($$LLVM_INSTALL_DIR) {
     SUBDIRS += clangbackend
 
-    win32-msvc*:equals(QT_CL_MAJOR_VERSION, 19):equals(QT_CL_MINOR_VERSION, 00): \
-                greaterThan(QT_CL_PATCH_VERSION, 24209) {
     QTC_NO_CLANG_LIBTOOLING=$$(QTC_NO_CLANG_LIBTOOLING)
-    !isEmpty($$QTC_NO_CLANG_LIBTOOLING) {
+    win32-msvc2015:lessThan(QT_CL_PATCH_VERSION, 24210): QTC_NO_CLANG_LIBTOOLING = 1
+    isEmpty(QTC_NO_CLANG_LIBTOOLING) {
         SUBDIRS += clangrefactoringbackend
     } else {
         warning("Building the Clang refactoring back end is disabled.")
-    }
     }
 }
 
