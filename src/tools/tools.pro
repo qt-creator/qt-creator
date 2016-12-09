@@ -23,7 +23,7 @@ exists($$LLVM_INSTALL_DIR) {
     SUBDIRS += clangbackend
 
     QTC_NO_CLANG_LIBTOOLING=$$(QTC_NO_CLANG_LIBTOOLING)
-    isEmpty($$QTC_NO_CLANG_LIBTOOLING) {
+    !isEmpty($$QTC_NO_CLANG_LIBTOOLING) {
         SUBDIRS += clangrefactoringbackend
     } else {
         warning("Building the Clang refactoring back end is disabled.")
