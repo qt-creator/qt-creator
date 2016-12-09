@@ -144,6 +144,8 @@ Console::Console()
     m_spacer = new QWidget(m_consoleWidget);
     m_spacer->setMinimumWidth(30);
 
+    m_statusLabel = new QLabel(m_consoleWidget);
+
     readSettings();
     connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
             this, &Console::writeSettings);
@@ -162,7 +164,8 @@ QWidget *Console::outputWidget(QWidget *)
 
 QList<QWidget *> Console::toolBarWidgets() const
 {
-     return { m_showDebugButton, m_showWarningButton, m_showErrorButton, m_spacer };
+     return { m_showDebugButton, m_showWarningButton, m_showErrorButton,
+              m_spacer, m_statusLabel };
 }
 
 int Console::priorityInStatusBar() const
@@ -230,6 +233,11 @@ void Console::readSettings()
     m_showErrorButtonAction->readSettings(settings);
 }
 
+void Console::setContext(const QString &context)
+{
+    m_statusLabel->setText(context);
+}
+
 void Console::writeSettings() const
 {
     QSettings *settings = Core::ICore::settings();
@@ -241,6 +249,8 @@ void Console::writeSettings() const
 void Console::setScriptEvaluator(const ScriptEvaluator &evaluator)
 {
     m_scriptEvaluator = evaluator;
+    if (!m_scriptEvaluator)
+        setContext(QString());
 }
 
 void Console::printItem(ConsoleItem::ItemType itemType, const QString &text)
