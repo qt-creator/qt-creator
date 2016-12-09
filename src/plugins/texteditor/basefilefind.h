@@ -57,11 +57,12 @@ class TEXTEDITOR_EXPORT FileFindParameters
 {
 public:
     QString text;
-    Core::FindFlags flags;
     QStringList nameFilters;
+    QStringList exclusionFilters;
     QVariant additionalParameters;
-    int searchEngineIndex;
     QVariant searchEngineParameters;
+    int searchEngineIndex;
+    Core::FindFlags flags;
 };
 
 class BaseFileFind;
@@ -111,6 +112,7 @@ public:
                                   const QList<Core::SearchResultItem> &items,
                                   bool preserveCase = false);
     virtual Utils::FileIterator *files(const QStringList &nameFilters,
+                                       const QStringList &exclusionFilters,
                                        const QVariant &additionalParameters) const = 0;
 
 protected:
@@ -122,9 +124,10 @@ protected:
     QFuture<Utils::FileSearchResultList> executeSearch(const FileFindParameters &parameters);
 
     void writeCommonSettings(QSettings *settings);
-    void readCommonSettings(QSettings *settings, const QString &defaultFilter);
-    QWidget *createPatternWidget();
+    void readCommonSettings(QSettings *settings, const QString &defaultFilter, const QString &defaultExclusionFilter);
+    QList<QPair<QWidget *, QWidget *>> createPatternWidgets();
     QStringList fileNameFilters() const;
+    QStringList fileExclusionFilters() const;
 
     SearchEngine *currentSearchEngine() const;
     QVector<SearchEngine *> searchEngines() const;

@@ -68,41 +68,28 @@ bool AllProjectsFind::isEnabled() const
 }
 
 Utils::FileIterator *AllProjectsFind::files(const QStringList &nameFilters,
+                                            const QStringList &exclusionFilters,
                                             const QVariant &additionalParameters) const
 {
     Q_UNUSED(additionalParameters)
-    return filesForProjects(nameFilters, SessionManager::projects());
+    return filesForProjects(nameFilters, exclusionFilters, SessionManager::projects());
 }
 
 Utils::FileIterator *AllProjectsFind::filesForProjects(const QStringList &nameFilters,
-                                            const QList<Project *> &projects) const
+                                                       const QStringList &exclusionFilters,
+                                                       const QList<Project *> &projects) const
 {
-    QList<QRegExp> filterRegs;
-    foreach (const QString &filter, nameFilters) {
-        filterRegs << QRegExp(filter, Qt::CaseInsensitive, QRegExp::Wildcard);
-    }
-    QMap<QString, QTextCodec *> openEditorEncodings = TextDocument::openedTextDocumentEncodings();
+    std::function<QStringList(const QStringList &)> filterFiles =
+            Utils::filterFilesFunction(nameFilters, exclusionFilters);
+    const QMap<QString, QTextCodec *> openEditorEncodings = TextDocument::openedTextDocumentEncodings();
     QMap<QString, QTextCodec *> encodings;
     foreach (const Project *project, projects) {
-        QStringList projectFiles = project->files(Project::AllFiles);
-        QStringList filteredFiles;
-        if (!filterRegs.isEmpty()) {
-            foreach (const QString &file, projectFiles) {
-                if (Utils::anyOf(filterRegs,
-                        [&file](QRegExp reg) {
-                            return (reg.exactMatch(file) || reg.exactMatch(Utils::FileName::fromString(file).fileName()));
-                        })) {
-                    filteredFiles.append(file);
-                }
-            }
-        } else {
-            filteredFiles = projectFiles;
-        }
         const EditorConfiguration *config = project->editorConfiguration();
         QTextCodec *projectCodec = config->useGlobalSettings()
             ? Core::EditorManager::defaultTextCodec()
             : config->textCodec();
-        foreach (const QString &fileName, filteredFiles) {
+        const QStringList filteredFiles = filterFiles(project->files(Project::AllFiles));
+        for (const QString &fileName : filteredFiles) {
             QTextCodec *codec = openEditorEncodings.value(fileName);
             if (!codec)
                 codec = projectCodec;
@@ -124,8 +111,10 @@ QString AllProjectsFind::label() const
 
 QString AllProjectsFind::toolTip() const
 {
-    // %2 is filled by BaseFileFind::runNewSearch
-    return tr("Filter: %1\n%2").arg(fileNameFilters().join(QLatin1Char(',')));
+    // last arg is filled by BaseFileFind::runNewSearch
+    return tr("Filter: %1\nExcluding: %2\n%3")
+            .arg(fileNameFilters().join(','))
+            .arg(fileExclusionFilters().join(','));
 }
 
 void AllProjectsFind::handleFileListChanged()
@@ -140,14 +129,13 @@ QWidget *AllProjectsFind::createConfigWidget()
         auto gridLayout = new QGridLayout(m_configWidget);
         gridLayout->setMargin(0);
         m_configWidget->setLayout(gridLayout);
-        auto filePatternLabel = new QLabel(tr("Fi&le pattern:"));
-        filePatternLabel->setMinimumWidth(80);
-        filePatternLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-        filePatternLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-        QWidget *patternWidget = createPatternWidget();
-        filePatternLabel->setBuddy(patternWidget);
-        gridLayout->addWidget(filePatternLabel, 0, 0, Qt::AlignRight);
-        gridLayout->addWidget(patternWidget, 0, 1);
+        const QList<QPair<QWidget *, QWidget *>> patternWidgets = createPatternWidgets();
+        int row = 0;
+        for (const QPair<QWidget *, QWidget *> &p : patternWidgets) {
+            gridLayout->addWidget(p.first, row, 0, Qt::AlignRight);
+            gridLayout->addWidget(p.second, row, 1);
+            ++row;
+        }
         m_configWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     }
     return m_configWidget;
@@ -163,6 +151,6 @@ void AllProjectsFind::writeSettings(QSettings *settings)
 void AllProjectsFind::readSettings(QSettings *settings)
 {
     settings->beginGroup(QLatin1String("AllProjectsFind"));
-    readCommonSettings(settings, QString(QLatin1Char('*')));
+    readCommonSettings(settings, "*", "");
     settings->endGroup();
 }

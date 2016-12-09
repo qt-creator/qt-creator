@@ -97,7 +97,7 @@ using namespace VcsBase;
 namespace Git {
 namespace Internal {
 
-const unsigned minimumRequiredVersion = 0x010800;
+const unsigned minimumRequiredVersion = 0x010900;
 
 const VcsBaseEditorParameters editorParameters[] = {
 {

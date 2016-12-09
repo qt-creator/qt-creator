@@ -190,7 +190,7 @@ void DirectoryFilter::refresh(QFutureInterface<void> &future)
         }
         directories = m_directories;
     }
-    Utils::SubDirFileIterator subDirIterator(directories, m_filters);
+    Utils::SubDirFileIterator subDirIterator(directories, m_filters, {});
     future.setProgressRange(0, subDirIterator.maxProgress());
     QStringList filesFound;
     auto end = subDirIterator.end();

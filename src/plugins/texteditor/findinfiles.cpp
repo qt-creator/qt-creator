@@ -80,10 +80,12 @@ QString FindInFiles::displayName() const
 }
 
 FileIterator *FindInFiles::files(const QStringList &nameFilters,
+                                 const QStringList &exclusionFilters,
                                  const QVariant &additionalParameters) const
 {
     return new SubDirFileIterator(QStringList() << additionalParameters.toString(),
                                   nameFilters,
+                                  exclusionFilters,
                                   EditorManager::defaultTextCodec());
 }
 
@@ -107,9 +109,10 @@ QString FindInFiles::label() const
 QString FindInFiles::toolTip() const
 {
     //: the last arg is filled by BaseFileFind::runNewSearch
-    QString tooltip = tr("Path: %1\nFilter: %2\n%3")
+    QString tooltip = tr("Path: %1\nFilter: %2\nExcluding: %3\n%4")
             .arg(path().toUserOutput())
-            .arg(fileNameFilters().join(QLatin1Char(',')));
+            .arg(fileNameFilters().join(','))
+            .arg(fileExclusionFilters().join(','));
 
     const QString searchEngineToolTip = currentSearchEngine()->toolTip();
     if (!searchEngineToolTip.isEmpty())
@@ -183,14 +186,12 @@ QWidget *FindInFiles::createConfigWidget()
         dirLabel->setBuddy(m_directory);
         gridLayout->addWidget(m_directory, row++, 1, 1, 2);
 
-        QLabel * const filePatternLabel = new QLabel(tr("Fi&le pattern:"));
-        filePatternLabel->setMinimumWidth(80);
-        filePatternLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-        filePatternLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-        QWidget *patternWidget = createPatternWidget();
-        filePatternLabel->setBuddy(patternWidget);
-        gridLayout->addWidget(filePatternLabel, row, 0);
-        gridLayout->addWidget(patternWidget, row++, 1, 1, 2);
+        const QList<QPair<QWidget *, QWidget *>> patternWidgets = createPatternWidgets();
+        for (const QPair<QWidget *, QWidget *> &p : patternWidgets) {
+            gridLayout->addWidget(p.first, row, 0, Qt::AlignRight);
+            gridLayout->addWidget(p.second, row, 1, 1, 2);
+            ++row;
+        }
         m_configWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
         // validity
@@ -221,7 +222,7 @@ void FindInFiles::writeSettings(QSettings *settings)
 void FindInFiles::readSettings(QSettings *settings)
 {
     settings->beginGroup(QLatin1String("FindInFiles"));
-    readCommonSettings(settings, QLatin1String("*.cpp,*.h"));
+    readCommonSettings(settings, "*.cpp,*.h", "*/.git/*,*/.cvs/*,*/.svn/*");
     settings->endGroup();
 }
 

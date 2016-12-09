@@ -35,6 +35,7 @@
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsbaseconstants.h>
 
+#include <utils/algorithm.h>
 #include <utils/asconst.h>
 #include <utils/fancylineedit.h>
 #include <utils/filesearch.h>
@@ -159,7 +160,14 @@ public:
             arguments << params.ref;
             m_ref = params.ref + ':';
         }
-        arguments << "--" << m_parameters.nameFilters;
+        const QStringList filterArgs =
+                m_parameters.nameFilters.isEmpty() ? QStringList("*") // needed for exclusion filters
+                                                   : m_parameters.nameFilters;
+        const QStringList exclusionArgs =
+                Utils::transform(m_parameters.exclusionFilters, [](const QString &filter) {
+                    return QString(":!" + filter);
+                });
+        arguments << "--" << filterArgs << exclusionArgs;
         QScopedPointer<VcsCommand> command(GitPlugin::client()->createCommand(m_directory));
         command->addFlags(VcsCommand::SilentOutput | VcsCommand::SuppressFailMessage);
         command->setProgressiveOutput(true);

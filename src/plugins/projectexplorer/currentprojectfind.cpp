@@ -73,14 +73,15 @@ QVariant CurrentProjectFind::additionalParameters() const
 }
 
 Utils::FileIterator *CurrentProjectFind::files(const QStringList &nameFilters,
-                           const QVariant &additionalParameters) const
+                                               const QStringList &exclusionFilters,
+                                               const QVariant &additionalParameters) const
 {
     QTC_ASSERT(additionalParameters.isValid(),
                return new Utils::FileListIterator(QStringList(), QList<QTextCodec *>()));
     QString projectFile = additionalParameters.toString();
     foreach (Project *project, SessionManager::projects()) {
         if (project->document() && projectFile == project->projectFilePath().toString())
-            return filesForProjects(nameFilters, QList<Project *>() << project);
+            return filesForProjects(nameFilters, exclusionFilters, QList<Project *>() << project);
     }
     return new Utils::FileListIterator(QStringList(), QList<QTextCodec *>());
 }
@@ -123,6 +124,6 @@ void CurrentProjectFind::writeSettings(QSettings *settings)
 void CurrentProjectFind::readSettings(QSettings *settings)
 {
     settings->beginGroup(QLatin1String("CurrentProjectFind"));
-    readCommonSettings(settings, QString(QLatin1Char('*')));
+    readCommonSettings(settings, "*", "");
     settings->endGroup();
 }

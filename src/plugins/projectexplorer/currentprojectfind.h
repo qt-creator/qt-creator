@@ -50,6 +50,7 @@ public:
 
 protected:
     Utils::FileIterator *files(const QStringList &nameFilters,
+                               const QStringList &exclusionFilters,
                                const QVariant &additionalParameters) const override;
     QVariant additionalParameters() const override;
     QString label() const override;

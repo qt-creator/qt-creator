@@ -33,9 +33,19 @@
 #include <QStack>
 #include <QTextDocument>
 
+#include <functional>
+
 QT_FORWARD_DECLARE_CLASS(QTextCodec)
 
 namespace Utils {
+
+QTCREATOR_UTILS_EXPORT
+std::function<bool(const QString &)>
+filterFileFunction(const QStringList &filterRegs, const QStringList &exclusionRegs);
+
+QTCREATOR_UTILS_EXPORT
+std::function<QStringList(const QStringList &)>
+filterFilesFunction(const QStringList &filters, const QStringList &exclusionFilters);
 
 class QTCREATOR_UTILS_EXPORT FileIterator
 {
@@ -119,7 +129,9 @@ private:
 class QTCREATOR_UTILS_EXPORT SubDirFileIterator : public FileIterator
 {
 public:
-    SubDirFileIterator(const QStringList &directories, const QStringList &filters,
+    SubDirFileIterator(const QStringList &directories,
+                       const QStringList &filters,
+                       const QStringList &exclusionFilters,
                        QTextCodec *encoding = 0);
     ~SubDirFileIterator();
 
@@ -132,7 +144,7 @@ protected:
     const Item &itemAt(int index) const override;
 
 private:
-    QStringList m_filters;
+    std::function<QStringList(const QStringList &)> m_filterFiles;
     QTextCodec *m_encoding;
     QStack<QDir> m_dirs;
     QStack<qreal> m_progressValues;

@@ -45,6 +45,7 @@ public:
 
 protected:
     Utils::FileIterator *files(const QStringList &nameFilters,
+                               const QStringList &exclusionFilters,
                                const QVariant &additionalParameters) const;
     QVariant additionalParameters() const;
     QString label() const;
