@@ -224,8 +224,9 @@ void ToolChainKitInformation::fix(Kit *k)
     QTC_ASSERT(ToolChainManager::isLoaded(), return);
     foreach (ToolChain::Language l, ToolChain::allLanguages()) {
         if (!toolChain(k, l)) {
-            qWarning("No tool chain set from kit \"%s\".",
-                     qPrintable(k->displayName()));
+            qWarning("No tool chain set up in kit \"%s\" for \"%s\".",
+                     qPrintable(k->displayName()),
+                     qPrintable(ToolChain::languageDisplayName(l)));
             setToolChain(k, l, nullptr); // make sure to clear out no longer known tool chains
         }
     }
