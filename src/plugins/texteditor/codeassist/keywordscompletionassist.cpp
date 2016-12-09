@@ -44,7 +44,8 @@ namespace TextEditor {
 Keywords::Keywords(const QStringList &variables, const QStringList &functions, const QMap<QString, QStringList> &functionArgs)
     : m_variables(variables), m_functions(functions), m_functionArgs(functionArgs)
 {
-
+    Utils::sort(m_variables);
+    Utils::sort(m_functions);
 }
 
 bool Keywords::isVariable(const QString &word) const
