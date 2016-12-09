@@ -212,6 +212,7 @@ public:
     bool retryOnConnectFail = false;
     bool automaticConnect = false;
     bool unpausedEvaluate = false;
+    bool contextEvaluate = false;
 
     QTimer connectionTimer;
     QmlDebug::QmlDebugConnection *connection;
@@ -246,6 +247,8 @@ QmlEngine::QmlEngine(const DebuggerRunParameters &startParameters, DebuggerEngin
     if (masterEngine)
         setMasterEngine(masterEngine);
 
+    connect(this, &DebuggerEngine::stateChanged,
+            this, &QmlEngine::updateCurrentContext);
     connect(stackHandler(), &StackHandler::stackChanged,
             this, &QmlEngine::updateCurrentContext);
     connect(stackHandler(), &StackHandler::currentIndexChanged,
@@ -1104,24 +1107,36 @@ void QmlEngine::disconnected()
 void QmlEngine::updateCurrentContext()
 {
     QString context;
-    if (state() == InferiorStopOk) {
+    switch (state()) {
+    case InferiorStopOk:
         context = stackHandler()->currentFrame().function;
-    } else {
-        QModelIndex currentIndex = inspectorView()->currentIndex();
-        const WatchItem *currentData = watchHandler()->watchItem(currentIndex);
-        if (!currentData)
-            return;
-        const WatchItem *parentData = watchHandler()->watchItem(currentIndex.parent());
-        const WatchItem *grandParentData = watchHandler()->watchItem(currentIndex.parent().parent());
-        if (currentData->id != parentData->id)
-            context = currentData->name;
-        else if (parentData->id != grandParentData->id)
-            context = parentData->name;
-        else
-            context = grandParentData->name;
+        break;
+    case InferiorRunOk:
+        if (d->contextEvaluate || !d->unpausedEvaluate) {
+            // !unpausedEvaluate means we are using the old QQmlEngineDebugService which understands
+            // context. contextEvaluate means the V4 debug service can handle context.
+            QModelIndex currentIndex = inspectorView()->currentIndex();
+            const WatchItem *currentData = watchHandler()->watchItem(currentIndex);
+            if (!currentData)
+                return;
+            const WatchItem *parentData = watchHandler()->watchItem(currentIndex.parent());
+            const WatchItem *grandParentData = watchHandler()->watchItem(currentIndex.parent().parent());
+            if (currentData->id != parentData->id)
+                context = currentData->name;
+            else if (parentData->id != grandParentData->id)
+                context = parentData->name;
+            else
+                context = grandParentData->name;
+        }
+        break;
+    default:
+        // No context. Clear the label
+        debuggerConsole()->setContext(QString());
+        return;
     }
 
-    debuggerConsole()->setContext(tr("Context:") + QLatin1Char(' ') + context);
+    debuggerConsole()->setContext(tr("Context:") + QLatin1Char(' ')
+                                  + (context.isEmpty() ? tr("Global QML Context") : context));
 }
 
 void QmlEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages languages)
@@ -2490,6 +2505,7 @@ void QmlEnginePrivate::stateChanged(State state)
 void QmlEnginePrivate::handleVersion(const QVariantMap &response)
 {
     unpausedEvaluate = response.value(BODY).toMap().value("UnpausedEvaluate", false).toBool();
+    contextEvaluate = response.value(BODY).toMap().value("ContextEvaluate", false).toBool();
 }
 
 void QmlEnginePrivate::flushSendBuffer()
