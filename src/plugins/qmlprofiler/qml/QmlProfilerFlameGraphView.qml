@@ -199,6 +199,9 @@ ScrollView {
                     }
 
                     function printMemory(a) {
+                        if (a === 0)
+                            return "0b";
+
                         var units = ["b", "kb", "Mb", "Gb"];
                         var div = 1;
                         for (var i = 0; i < units.length; ++i, div *= 1024) {
