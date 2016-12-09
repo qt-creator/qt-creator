@@ -217,7 +217,6 @@ ScrollView {
                         model.push(qsTr("Various Events"));
                     } else {
                         addDetail(QmlProfilerFlameGraphModel.DetailsRole, noop);
-                        addDetail(QmlProfilerFlameGraphModel.TypeRole, noop);
                         addDetail(QmlProfilerFlameGraphModel.CallCountRole, noop);
                         addDetail(QmlProfilerFlameGraphModel.DurationRole, printTime);
                         addDetail(QmlProfilerFlameGraphModel.TimePerCallRole, printTime);
