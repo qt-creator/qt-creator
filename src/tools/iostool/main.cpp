@@ -103,7 +103,7 @@ class RelayServer: public QObject
 public:
     RelayServer(IosTool *parent);
     ~RelayServer();
-    bool startServer(int port);
+    bool startServer();
     void stopServer();
     quint16 serverPort();
     IosTool *iosTool();
@@ -115,6 +115,7 @@ protected:
 
     QTcpServer m_ipv4Server;
     QTcpServer m_ipv6Server;
+    quint16 m_port = 0;
     QList<Relayer *> m_connections;
 };
 
@@ -404,20 +405,23 @@ RelayServer::~RelayServer()
     stopServer();
 }
 
-bool RelayServer::startServer(int port)
+bool RelayServer::startServer()
 {
     QTC_CHECK(!m_ipv4Server.isListening());
     QTC_CHECK(!m_ipv6Server.isListening());
+
     connect(&m_ipv4Server, &QTcpServer::newConnection,
             this, &RelayServer::handleNewRelayConnection);
     connect(&m_ipv6Server, &QTcpServer::newConnection,
             this, &RelayServer::handleNewRelayConnection);
-    quint16 portValue = static_cast<quint16>(port);
-    if (port < 0 || port > 0xFFFF)
-        return false;
-    m_ipv4Server.listen(QHostAddress(QHostAddress::LocalHostIPv6), portValue);
-    m_ipv6Server.listen(QHostAddress(QHostAddress::LocalHost), portValue);
-    return m_ipv4Server.isListening() || m_ipv6Server.isListening();
+
+    m_port = 0;
+    if (m_ipv4Server.listen(QHostAddress(QHostAddress::LocalHost), 0))
+        m_port = m_ipv4Server.serverPort();
+    if (m_ipv6Server.listen(QHostAddress(QHostAddress::LocalHostIPv6), m_port))
+        m_port = m_ipv6Server.serverPort();
+
+    return m_port > 0;
 }
 
 void RelayServer::stopServer()
@@ -432,11 +436,7 @@ void RelayServer::stopServer()
 
 quint16 RelayServer::serverPort()
 {
-    if (m_ipv4Server.isListening())
-        return m_ipv4Server.serverPort();
-    if (m_ipv6Server.isListening())
-        return m_ipv6Server.serverPort();
-    return 0;
+    return m_port;
 }
 
 IosTool *RelayServer::iosTool()
@@ -728,12 +728,12 @@ void IosTool::didStartApp(const QString &bundlePath, const QString &deviceId,
         int qmlPort = deviceSession->qmljsDebugPort();
         if (qmlPort) {
             qmlServer = new GenericRelayServer(this, qmlPort, deviceSession);
-            qmlServer->startServer(0);
+            qmlServer->startServer();
         }
     }
     if (debug) {
         gdbServer = new SingleRelayServer(this, gdbFd);
-        if (!gdbServer->startServer(0)) {
+        if (!gdbServer->startServer()) {
             doExit(-4);
             return;
         }

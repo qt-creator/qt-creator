@@ -29,6 +29,7 @@
 #include "qmljseditordocument.h"
 #include "qmlexpressionundercursor.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/helpmanager.h>
@@ -49,6 +50,8 @@
 #include <QDir>
 #include <QList>
 #include <QStringRef>
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
 
 using namespace Core;
 using namespace QmlJS;
@@ -143,30 +146,57 @@ bool QmlJSHoverHandler::setQmlTypeHelp(const ScopeChain &scopeChain, const Docum
                                        const ObjectValue *value, const QStringList &qName)
 {
     QString moduleName = getModuleName(scopeChain, qmlDocument, value);
+
+    QMap<QString, QUrl> urlMap;
+
     QString helpId;
     do {
         QStringList helpIdPieces(qName);
         helpIdPieces.prepend(moduleName);
         helpIdPieces.prepend(QLatin1String("QML"));
         helpId = helpIdPieces.join(QLatin1Char('.'));
-        if (!HelpManager::linksForIdentifier(helpId).isEmpty())
+        urlMap = HelpManager::linksForIdentifier(helpId);
+        if (!urlMap.isEmpty())
             break;
         if (helpIdPieces.size() > 3) {
             QString lm = helpIdPieces.value(2);
             helpIdPieces.removeAt(2);
             helpId = helpIdPieces.join(QLatin1Char('.'));
-            if (!HelpManager::linksForIdentifier(helpId).isEmpty())
+            urlMap = HelpManager::linksForIdentifier(helpId);
+            if (!urlMap.isEmpty())
                 break;
             helpIdPieces.replace(1, lm);
-            if (!HelpManager::linksForIdentifier(helpId).isEmpty())
+            urlMap = HelpManager::linksForIdentifier(helpId);
+            if (!urlMap.isEmpty())
                 break;
         }
         helpIdPieces.removeAt(1);
         helpId = helpIdPieces.join(QLatin1Char('.'));
-        if (!HelpManager::linksForIdentifier(helpId).isEmpty())
+        urlMap = HelpManager::linksForIdentifier(helpId);
+        if (!urlMap.isEmpty())
             break;
         return false;
     } while (0);
+
+    // Check if the module name contains a major version.
+    QRegularExpression version("^([^\\d]*)(\\d+)\\.*\\d*$");
+    QRegularExpressionMatch m = version.match(moduleName);
+    if (m.hasMatch()) {
+        QMap<QString, QUrl> filteredUrlMap;
+        QStringRef maj = m.capturedRef(2);
+        for (auto x = urlMap.begin(); x != urlMap.end(); ++x) {
+            QString urlModuleName = x.value().path().split('/')[1];
+            if (urlModuleName.contains(maj))
+                filteredUrlMap.insert(x.key(), x.value());
+        }
+        if (!filteredUrlMap.isEmpty()) {
+            // Use the url as helpId, to disambiguate different versions
+            helpId = filteredUrlMap.first().toString();
+            const HelpItem helpItem(helpId, qName.join(QLatin1Char('.')), HelpItem::QmlComponent, filteredUrlMap);
+            setLastHelpItemIdentified(helpItem);
+            return true;
+        }
+    }
     setLastHelpItemIdentified(HelpItem(helpId, qName.join(QLatin1Char('.')), HelpItem::QmlComponent));
     return true;
 }

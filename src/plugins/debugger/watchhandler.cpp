@@ -734,10 +734,8 @@ static QString formattedValue(const WatchItem *item)
     if (!isPointerType(item->type) && !item->isVTablePointer()) {
         bool ok = false;
         qulonglong integer = item->value.toULongLong(&ok, 0);
-        if (ok) {
-            const int format = itemFormat(item);
+        if (ok)
             return reformatInteger(integer, format, item->size, false);
-        }
     }
 
     if (item->elided) {

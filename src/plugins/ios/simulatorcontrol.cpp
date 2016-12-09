@@ -362,6 +362,7 @@ void SimulatorControlPrivate::startSimulator(QFutureInterface<SimulatorControl::
     }
 
     if (!fi.isCanceled()) {
+        QThread::msleep(500); // give it some time. TODO: find an actual fix.
         fi.reportResult(response);
     }
 }
@@ -376,6 +377,7 @@ void SimulatorControlPrivate::installApp(QFutureInterface<SimulatorControl::Resp
     response.commandOutput = output;
 
     if (!fi.isCanceled()) {
+        QThread::msleep(500); // give it some time. TODO: find an actual fix.
         fi.reportResult(response);
     }
 }
@@ -455,6 +457,7 @@ void SimulatorControlPrivate::spawnAppProcess(QFutureInterface<SimulatorControl:
     }
 
     if (!fi.isCanceled()) {
+        QThread::msleep(500); // give it some time. TODO: find an actual fix.
         fi.reportResult(response);
     }
 }
@@ -474,6 +477,7 @@ void SimulatorControlPrivate::launchApp(QFutureInterface<SimulatorControl::Respo
             return;
 
         if (processSpawned) {
+            QThread::msleep(500); // give it some time. TODO: find an actual fix.
             const QStringList args({QStringLiteral("launch"), simUdid , bundleIdentifier});
             response.commandOutput = runSimCtlCommand(args);
             const QByteArray pIdStr = response.commandOutput.trimmed().split(' ').last().trimmed();

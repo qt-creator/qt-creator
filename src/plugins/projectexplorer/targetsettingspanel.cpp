@@ -701,7 +701,7 @@ TargetGroupItem::TargetGroupItem(const QString &displayName, Project *project)
     QObject::connect(project, &Project::removedTarget,
             d, &TargetGroupItemPrivate::handleTargetRemoved);
     QObject::connect(project, &Project::activeTargetChanged,
-            d, &TargetGroupItemPrivate::handleTargetChanged);
+            d, &TargetGroupItemPrivate::handleTargetChanged, Qt::QueuedConnection);
 }
 
 TargetGroupItem::~TargetGroupItem()

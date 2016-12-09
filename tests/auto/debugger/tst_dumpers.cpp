@@ -5278,6 +5278,20 @@ void tst_Dumpers::dumper_data()
                + Check("p.a", "0", "int")
                + Check("p.b", "2", "int");
 
+    QTest::newRow("This")
+            << Data("struct Foo {\n"
+                    "    Foo() : x(143) {}\n"
+                    "    int foo() {\n"
+                    "        BREAK;\n"
+                    "        return x;\n"
+                    "    }\n\n"
+                    "    int x;\n"
+                    "};\n",
+                    "Foo f;\n"
+                    "f.foo();\n")
+
+               + Check("this", "", "Foo")
+               + Check("this.x", "143", "int");
 
     QTest::newRow("Union")
             << Data("union U { int a; int b; };", "U u;\n"
