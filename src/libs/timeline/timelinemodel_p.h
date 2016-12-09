@@ -77,9 +77,9 @@ public:
 
     void incrementStartIndices(int index)
     {
-        for (int i = 0; i < endTimes.size(); ++i) {
-            if (endTimes[i].startIndex >= index)
-                endTimes[i].startIndex++;
+        for (RangeEnd &endTime : endTimes) {
+            if (endTime.startIndex >= index)
+                ++(endTime.startIndex);
         }
     }
 
