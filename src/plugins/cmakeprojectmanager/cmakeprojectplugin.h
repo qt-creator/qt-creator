@@ -66,6 +66,7 @@ private:
     void updateContextActions(ProjectExplorer::Node *node, ProjectExplorer::Project *project);
 
     Utils::ParameterAction *m_buildTargetContextAction = nullptr;
+    QMetaObject::Connection m_actionConnect;
 };
 
 } // namespace Internal

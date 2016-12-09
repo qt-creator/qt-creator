@@ -117,12 +117,12 @@ void CMakeProjectPlugin::updateContextActions(ProjectExplorer::Node *node,
     CMakeProject *cmProject = dynamic_cast<CMakeProject *>(project);
 
     // Build Target:
-    disconnect(m_buildTargetContextAction);
+    disconnect(m_actionConnect);
     m_buildTargetContextAction->setParameter(targetDisplayName);
     m_buildTargetContextAction->setEnabled(targetNode);
     m_buildTargetContextAction->setVisible(targetNode);
     if (cmProject && targetNode) {
-        connect(m_buildTargetContextAction, &Utils::ParameterAction::triggered,
-                cmProject, [cmProject, targetDisplayName]() { cmProject->buildCMakeTarget(targetDisplayName); });
+        m_actionConnect = connect(m_buildTargetContextAction, &Utils::ParameterAction::triggered,
+            cmProject, [cmProject, targetDisplayName]() { cmProject->buildCMakeTarget(targetDisplayName); });
     }
 }
