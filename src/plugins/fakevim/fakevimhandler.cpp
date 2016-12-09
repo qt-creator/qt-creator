@@ -8680,6 +8680,11 @@ void FakeVimHandler::handleInput(const QString &keys)
     d->leaveFakeVim();
 }
 
+void FakeVimHandler::enterCommandMode()
+{
+    d->enterCommandMode();
+}
+
 void FakeVimHandler::setCurrentFileName(const QString &fileName)
 {
     d->m_currentFileName = fileName;

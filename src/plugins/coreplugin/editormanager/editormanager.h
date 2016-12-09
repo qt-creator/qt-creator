@@ -189,6 +189,7 @@ signals:
     void findOnFileSystemRequest(const QString &path);
     void aboutToSave(IDocument *document);
     void autoSaved();
+    void currentEditorAboutToChange(Core::IEditor *editor);
 
 public slots:
     static void saveDocument();

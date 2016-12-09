@@ -1488,6 +1488,9 @@ void EditorManagerPrivate::setCurrentEditor(IEditor *editor, bool ignoreNavigati
 
     if (d->m_currentEditor == editor)
         return;
+
+    emit m_instance->currentEditorAboutToChange(d->m_currentEditor);
+
     if (d->m_currentEditor && !ignoreNavigationHistory)
         EditorManager::addCurrentPositionToNavigationHistory();
 
