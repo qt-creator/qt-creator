@@ -472,6 +472,9 @@ class DumperBase:
         self.cachedFormats[typeName] = stripped
         return stripped
 
+    def templateArgument(self, typeobj, position):
+        return typeobj.templateArgument(position)
+
     def intType(self):
         result = self.lookupType('int')
         self.intType = lambda: result
