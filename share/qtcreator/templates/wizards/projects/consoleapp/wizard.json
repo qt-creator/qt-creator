@@ -1,12 +1,13 @@
 {
     "version": 1,
     "supportedProjectTypes": [ "CMakeProjectManager.CMakeProject", "Qbs.QbsProject", "Qt4ProjectManager.Qt4Project" ],
-    "id": "R.Plain Cpp Application",
-    "category": "I.Projects",
-    "trDescription": "Creates a simple C++ application with no dependencies.",
-    "trDisplayName": "Plain C++ Application",
-    "trDisplayCategory": "Non-Qt Project",
+    "id": "E.QtCore",
+    "category": "F.Application",
+    "trDescription": "Creates a project containing a single main.cpp file with a stub implementation.\n\nPreselects a desktop Qt for building the application if available.",
+    "trDisplayName": "Qt Console Application",
+    "trDisplayCategory": "Application",
     "icon": "../../global/consoleapplication.png",
+    "featuresRequired": [ "QtSupport.Wizards.FeatureQt" ],
     "enabled": "%{JS: [ %{Plugins} ].indexOf('QmakeProjectManager') >= 0 || [ %{Plugins} ].indexOf('QbsProjectManager') >= 0 || [ %{Plugins} ].indexOf('CMakeProjectManager') >= 0}",
 
     "options":
@@ -23,7 +24,8 @@
         {
             "trDisplayName": "Project Location",
             "trShortTitle": "Location",
-            "typeId": "Project"
+            "typeId": "Project",
+            "data": { "trDescription": "This wizard creates a simple Qt-based console application." }
         },
         {
             "trDisplayName": "Define Build System",
