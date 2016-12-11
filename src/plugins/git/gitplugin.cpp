@@ -437,6 +437,11 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
                                      tr("Continue Rebase"), "Git.RebaseContinue",
                                      context, true, [this] { continueOrAbortCommand(); });
 
+    m_skipRebaseAction
+            = createRepositoryAction(localRepositoryMenu,
+                                     tr("Skip Rebase"), "Git.RebaseSkip",
+                                     context, true, [this] { continueOrAbortCommand(); });
+
     m_continueCherryPickAction
             = createRepositoryAction(localRepositoryMenu,
                                      tr("Continue Cherry Pick"), "Git.CherryPickContinue",
@@ -1120,6 +1125,8 @@ void GitPlugin::continueOrAbortCommand()
         m_gitClient->synchronousCherryPick(state.topLevel(), "--abort");
     else if (action == m_abortRevertAction)
         m_gitClient->synchronousRevert(state.topLevel(), "--abort");
+    else if (action == m_skipRebaseAction)
+        m_gitClient->rebase(state.topLevel(), "--skip");
     else if (action == m_continueRebaseAction)
         m_gitClient->rebase(state.topLevel(), "--continue");
     else if (action == m_continueCherryPickAction)
@@ -1347,6 +1354,8 @@ void GitPlugin::updateContinueAndAbortCommands()
         m_abortRevertAction->setVisible(gitCommandInProgress == GitClient::Revert);
         m_abortRebaseAction->setVisible(gitCommandInProgress == GitClient::Rebase
                                         || gitCommandInProgress == GitClient::RebaseMerge);
+        m_skipRebaseAction->setVisible(gitCommandInProgress == GitClient::Rebase
+                                        || gitCommandInProgress == GitClient::RebaseMerge);
         m_continueCherryPickAction->setVisible(gitCommandInProgress == GitClient::CherryPick);
         m_continueRevertAction->setVisible(gitCommandInProgress == GitClient::Revert);
         m_continueRebaseAction->setVisible(gitCommandInProgress == GitClient::Rebase
@@ -1359,6 +1368,7 @@ void GitPlugin::updateContinueAndAbortCommands()
         m_abortCherryPickAction->setVisible(false);
         m_abortRevertAction->setVisible(false);
         m_abortRebaseAction->setVisible(false);
+        m_skipRebaseAction->setVisible(false);
         m_continueCherryPickAction->setVisible(false);
         m_continueRevertAction->setVisible(false);
         m_continueRebaseAction->setVisible(false);

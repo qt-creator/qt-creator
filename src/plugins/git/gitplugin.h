@@ -205,6 +205,7 @@ private:
     QAction *m_abortRebaseAction = nullptr;
     QAction *m_abortCherryPickAction = nullptr;
     QAction *m_abortRevertAction = nullptr;
+    QAction *m_skipRebaseAction = nullptr;
     QAction *m_continueRebaseAction = nullptr;
     QAction *m_continueCherryPickAction = nullptr;
     QAction *m_continueRevertAction = nullptr;
