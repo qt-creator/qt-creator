@@ -42,8 +42,6 @@ QT_END_NAMESPACE
 namespace ImageViewer {
 namespace Internal {
 
-class ImageViewer;
-
 class ImageViewerFile : public Core::IDocument
 {
     Q_OBJECT
