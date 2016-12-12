@@ -140,8 +140,10 @@ bool AddToolChainOperation::setArguments(const QStringList &args)
 
     if (m_id.isEmpty())
         std::cerr << "No id given for tool chain." << std::endl;
-    if (m_languageId.isEmpty())
+    if (m_languageId.isEmpty()) {
         std::cerr << "No language id given for tool chain." << std::endl;
+        m_languageId = "2";
+    }
     if (m_displayName.isEmpty())
         std::cerr << "No name given for tool chain." << std::endl;
     if (m_path.isEmpty())
