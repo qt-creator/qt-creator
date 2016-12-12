@@ -89,7 +89,7 @@ private:
     void outputAdded(const QString &string, BuildStep::OutputFormat format);
 
     QTimer m_timer;
-    QFutureInterface<bool> *m_futureInterface;
+    QFutureInterface<bool> *m_futureInterface = nullptr;
     std::unique_ptr<Utils::QtcProcess> m_process;
     std::unique_ptr<IOutputParser> m_outputParserChain;
     ProcessParameters m_param;
