@@ -46,10 +46,6 @@ class TestTreeModel : public Utils::TreeModel<>
 public:
     static TestTreeModel* instance();
     ~TestTreeModel();
-    void enableParsing();
-    void enableParsingFromSettings();
-    void disableParsing();
-    void disableParsingFromSettings();
 
     bool setData(const QModelIndex &index, const QVariant &value, int role) override;
     Qt::ItemFlags flags(const QModelIndex &index) const override;
@@ -95,7 +91,6 @@ private:
 
     TestCodeParser *m_parser;
     bool m_connectionsInitialized = false;
-    QAtomicInt m_refCounter;
 };
 
 class TestTreeSortFilterModel : public QSortFilterProxyModel

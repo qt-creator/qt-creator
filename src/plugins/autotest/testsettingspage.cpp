@@ -58,7 +58,6 @@ void TestSettingsWidget::setSettings(const TestSettings &settings)
     m_ui.omitRunConfigWarnCB->setChecked(settings.omitRunConfigWarn);
     m_ui.limitResultOutputCB->setChecked(settings.limitResultOutput);
     m_ui.autoScrollCB->setChecked(settings.autoScroll);
-    m_ui.alwaysParseCB->setChecked(settings.alwaysParse);
     populateFrameworksListWidget(settings.frameworks);
 }
 
@@ -70,7 +69,6 @@ TestSettings TestSettingsWidget::settings() const
     result.omitRunConfigWarn = m_ui.omitRunConfigWarnCB->isChecked();
     result.limitResultOutput = m_ui.limitResultOutputCB->isChecked();
     result.autoScroll = m_ui.autoScrollCB->isChecked();
-    result.alwaysParse = m_ui.alwaysParseCB->isChecked();
     result.frameworks = frameworks();
     return result;
 }
@@ -146,10 +144,6 @@ void TestSettingsPage::apply()
     bool frameworkSyncNecessary = newSettings.frameworks != m_settings->frameworks;
     *m_settings = newSettings;
     m_settings->toSettings(Core::ICore::settings());
-    if (m_settings->alwaysParse)
-        TestTreeModel::instance()->enableParsingFromSettings();
-    else
-        TestTreeModel::instance()->disableParsingFromSettings();
     TestFrameworkManager::instance()->activateFrameworksFromSettings(m_settings);
     if (frameworkSyncNecessary)
         TestTreeModel::instance()->syncTestFrameworks();

@@ -259,11 +259,9 @@ void TestResultsPane::visibilityChanged(bool visible)
                 this, &TestResultsPane::updateRunActions);
         // make sure run/run all are in correct state
         updateRunActions();
-        TestTreeModel::instance()->enableParsing();
     } else {
         disconnect(TestTreeModel::instance(), &TestTreeModel::testTreeModelChanged,
                    this, &TestResultsPane::updateRunActions);
-        TestTreeModel::instance()->disableParsing();
     }
     m_wasVisibleBefore = visible;
 }

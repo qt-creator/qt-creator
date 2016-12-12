@@ -141,8 +141,6 @@ bool AutotestPlugin::initialize(const QStringList &arguments, QString *errorStri
     addAutoReleasedObject(new TestNavigationWidgetFactory);
     addAutoReleasedObject(TestResultsPane::instance());
 
-    if (m_settings->alwaysParse)
-        TestTreeModel::instance()->enableParsingFromSettings();
     m_frameworkManager->activateFrameworksFromSettings(m_settings);
     TestTreeModel::instance()->syncTestFrameworks();
 
@@ -178,7 +176,6 @@ void AutotestPlugin::onRunSelectedTriggered()
 void AutotestPlugin::updateMenuItemsEnabledState()
 {
     const bool enabled = !TestRunner::instance()->isTestRunning()
-            && TestTreeModel::instance()->parser()->enabled()
             && TestTreeModel::instance()->parser()->state() == TestCodeParser::Idle;
     const bool hasTests = TestTreeModel::instance()->hasTests();
 

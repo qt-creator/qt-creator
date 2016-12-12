@@ -74,16 +74,6 @@
            </widget>
           </item>
           <item>
-           <widget class="QCheckBox" name="alwaysParseCB">
-            <property name="toolTip">
-             <string>Parses for tests even when no Tests related widget is displayed.</string>
-            </property>
-            <property name="text">
-             <string>Always parse current project for tests</string>
-            </property>
-           </widget>
-          </item>
-          <item>
            <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0">
             <property name="spacing">
              <number>6</number>

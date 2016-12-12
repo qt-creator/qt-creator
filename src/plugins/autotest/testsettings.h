@@ -47,7 +47,6 @@ struct TestSettings
     bool omitRunConfigWarn = false;
     bool limitResultOutput = true;
     bool autoScroll = true;
-    bool alwaysParse = true;
     QHash<Core::Id, bool> frameworks;
 };
 

@@ -74,17 +74,10 @@ void AutoTestUnitTests::initTestCase()
         QSKIP("This test requires that there is a kit with a toolchain.");
 
     m_tmpDir = new CppTools::Tests::TemporaryCopiedDir(QLatin1String(":/unit_test"));
-
-    m_originalAlwaysParse = AutotestPlugin::instance()->settings()->alwaysParse;
-    if (!m_originalAlwaysParse) {
-        AutotestPlugin::instance()->settings()->alwaysParse = true;
-        TestTreeModel::instance()->enableParsingFromSettings();
-    }
 }
 
 void AutoTestUnitTests::cleanupTestCase()
 {
-    AutotestPlugin::instance()->settings()->alwaysParse = m_originalAlwaysParse;
     delete m_tmpDir;
 }
 

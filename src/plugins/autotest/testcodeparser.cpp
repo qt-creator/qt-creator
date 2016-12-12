@@ -81,7 +81,7 @@ TestCodeParser::~TestCodeParser()
 
 void TestCodeParser::setState(State state)
 {
-    if (m_parserState == Shutdown || !m_enabled)
+    if (m_parserState == Shutdown)
         return;
     qCDebug(LOG) << "setState(" << state << "), currentState:" << m_parserState;
     // avoid triggering parse before code model parsing has finished, but mark as dirty
@@ -111,7 +111,7 @@ void TestCodeParser::setState(State state)
 
 void TestCodeParser::syncTestFrameworks(const QVector<Core::Id> &frameworkIds)
 {
-    if (m_enabled && m_parserState != Idle) {
+    if (m_parserState != Idle) {
         // there's a running parse
         m_fullUpdatePostponed = m_partialUpdatePostponed = false;
         m_postponedFiles.clear();
@@ -125,8 +125,7 @@ void TestCodeParser::syncTestFrameworks(const QVector<Core::Id> &frameworkIds)
         QTC_ASSERT(testParser, continue);
         m_testCodeParsers.append(testParser);
     }
-    if (m_enabled)
-        updateTestTree();
+    updateTestTree();
 }
 
 void TestCodeParser::emitUpdateTestTree()
@@ -206,7 +205,7 @@ void TestCodeParser::onProjectPartsUpdated(ProjectExplorer::Project *project)
 {
     if (project != ProjectExplorer::SessionManager::startupProject())
         return;
-    if (m_codeModelParsing || !m_enabled)
+    if (m_codeModelParsing)
         m_fullUpdatePostponed = true;
     else
         emitUpdateTestTree();
@@ -291,21 +290,8 @@ static void parseFileForTests(const QVector<ITestParser *> &parsers,
 
 void TestCodeParser::scanForTests(const QStringList &fileList)
 {
-    if (m_parserState == Shutdown)
+    if (m_parserState == Shutdown || m_testCodeParsers.isEmpty())
         return;
-    if (!m_enabled) {
-        m_dirty = true;
-        if (fileList.isEmpty()) {
-            m_fullUpdatePostponed = true;
-            m_partialUpdatePostponed = false;
-            m_postponedFiles.clear();
-        } else if (!m_fullUpdatePostponed) {
-            m_partialUpdatePostponed = true;
-            foreach (const QString &file, fileList)
-                m_postponedFiles.insert(file);
-        }
-        return;
-    }
 
     if (postponed(fileList))
         return;

@@ -53,6 +53,7 @@ TestTreeModel::TestTreeModel(QObject *parent) :
             this, &TestTreeModel::sweep, Qt::QueuedConnection);
     connect(m_parser, &TestCodeParser::parsingFailed,
             this, &TestTreeModel::sweep, Qt::QueuedConnection);
+    setupParsingConnections();
 }
 
 static TestTreeModel *m_instance = 0;
@@ -74,23 +75,11 @@ TestTreeModel::~TestTreeModel()
     m_instance = 0;
 }
 
-void TestTreeModel::enableParsing()
-{
-    m_refCounter.ref();
-    setupParsingConnections();
-}
-
-void TestTreeModel::enableParsingFromSettings()
-{
-    setupParsingConnections();
-}
-
 void TestTreeModel::setupParsingConnections()
 {
     if (!m_connectionsInitialized)
         m_parser->setDirty();
 
-    m_parser->setEnabled(true);
     m_parser->setState(TestCodeParser::Idle);
     if (m_connectionsInitialized)
         return;
@@ -113,18 +102,6 @@ void TestTreeModel::setupParsingConnections()
     connect(qmlJsMM, &QmlJS::ModelManagerInterface::aboutToRemoveFiles,
             this, &TestTreeModel::removeFiles, Qt::QueuedConnection);
     m_connectionsInitialized = true;
-}
-
-void TestTreeModel::disableParsing()
-{
-    if (!m_refCounter.deref() && !AutotestPlugin::instance()->settings()->alwaysParse)
-        m_parser->setEnabled(false);
-}
-
-void TestTreeModel::disableParsingFromSettings()
-{
-    if (!m_refCounter.load())
-        m_parser->setEnabled(false);
 }
 
 bool TestTreeModel::setData(const QModelIndex &index, const QVariant &value, int role)

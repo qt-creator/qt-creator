@@ -109,13 +109,12 @@ TestNavigationWidget::TestNavigationWidget(QWidget *parent) :
 
 TestNavigationWidget::~TestNavigationWidget()
 {
-    m_model->disableParsing();
 }
 
 void TestNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
 {
     const bool enabled = !TestRunner::instance()->isTestRunning()
-            && m_model->parser()->enabled() && m_model->parser()->state() == TestCodeParser::Idle;
+            && m_model->parser()->state() == TestCodeParser::Idle;
     const bool hasTests = m_model->hasTests();
 
     QMenu menu;
@@ -336,7 +335,6 @@ Core::NavigationView TestNavigationWidgetFactory::createWidget()
     Core::NavigationView view;
     view.widget = treeViewWidget;
     view.dockToolBarWidgets = treeViewWidget->createToolButtons();
-    TestTreeModel::instance()->enableParsing();
     return view;
 }
 
