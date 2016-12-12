@@ -196,6 +196,7 @@ QSGGeometry *NotesGeometry::createGeometry(QVector<int> &ids, const TimelineMode
     float rowHeight = TimelineModel::defaultRowHeight();
     QSGGeometry *geometry = new QSGGeometry(point2DWithDistanceFromTop(),
                                             ids.count() * 2);
+    Q_ASSERT(geometry->vertexData());
     geometry->setDrawingMode(GL_LINES);
     geometry->setLineWidth(3);
     Point2DWithDistanceFromTop *v =

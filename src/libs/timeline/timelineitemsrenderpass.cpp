@@ -296,6 +296,7 @@ void TimelineItemsGeometry::allocate(QSGMaterial *material)
 {
     QSGGeometry *geometry = new QSGGeometry(OpaqueColoredPoint2DWithSize::attributes(),
                                             usedVertices);
+    Q_ASSERT(geometry->vertexData());
     geometry->setIndexDataPattern(QSGGeometry::StaticPattern);
     geometry->setVertexDataPattern(QSGGeometry::StaticPattern);
     node = new QSGGeometryNode;

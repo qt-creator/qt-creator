@@ -232,6 +232,7 @@ void BindlingLoopsGeometry::allocate(QSGMaterial *material)
 {
     QSGGeometry *geometry = new QSGGeometry(BindlingLoopsGeometry::point2DWithOffset(),
                                             usedVertices);
+    Q_ASSERT(geometry->vertexData());
     geometry->setIndexDataPattern(QSGGeometry::StaticPattern);
     geometry->setVertexDataPattern(QSGGeometry::StaticPattern);
     node = new QSGGeometryNode;
