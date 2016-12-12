@@ -186,8 +186,15 @@ static void setupKit(Kit *kit, Core::Id pDeviceType, const ToolChainPair& toolCh
                      const QVariant &debuggerId, const Utils::FileName &sdkPath, BaseQtVersion *qtVersion)
 {
     DeviceTypeKitInformation::setDeviceTypeId(kit, pDeviceType);
-    ToolChainKitInformation::setToolChain(kit, ToolChain::Language::C, toolChains.first);
-    ToolChainKitInformation::setToolChain(kit, ToolChain::Language::Cxx, toolChains.second);
+    if (toolChains.first)
+        ToolChainKitInformation::setToolChain(kit, toolChains.first);
+    else
+        ToolChainKitInformation::clearToolChain(kit, ToolChain::Language::C);
+    if (toolChains.second)
+        ToolChainKitInformation::setToolChain(kit, toolChains.second);
+    else
+        ToolChainKitInformation::clearToolChain(kit, ToolChain::Language::Cxx);
+
     QtKitInformation::setQtVersion(kit, qtVersion);
     // only replace debugger with the default one if we find an unusable one here
     // (since the user could have changed it)

@@ -97,7 +97,7 @@ public:
     static ToolChain *toolChain(const Kit *k, ToolChain::Language l);
     static QList<ToolChain *> toolChains(const Kit *k);
     static void setToolChain(Kit *k, ToolChain *tc);
-    static void setToolChain(Kit *k, ToolChain::Language l, ToolChain *tc);
+    static void clearToolChain(Kit *k, ToolChain::Language l);
     static Abi targetAbi(const Kit *k);
 
     static QString msgNoToolChainInTarget();

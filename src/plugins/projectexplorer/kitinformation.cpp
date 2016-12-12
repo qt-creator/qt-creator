@@ -226,7 +226,7 @@ void ToolChainKitInformation::fix(Kit *k)
         if (!toolChain(k, l)) {
             qWarning("No tool chain set from kit \"%s\".",
                      qPrintable(k->displayName()));
-            setToolChain(k, l, nullptr); // make sure to clear out no longer known tool chains
+            clearToolChain(k, l); // make sure to clear out no longer known tool chains
         }
     }
 }
@@ -256,7 +256,10 @@ void ToolChainKitInformation::setup(Kit *k)
         tc = Utils::findOrDefault(knownTcs, [abi, l](ToolChain *t) {
                  return t->targetAbi().toString() == abi && t->language() == l;
              });
-        setToolChain(k, l, tc);
+        if (tc)
+            setToolChain(k, tc);
+        else
+            clearToolChain(k, l);
     }
 }
 
@@ -355,16 +358,17 @@ QList<ToolChain *> ToolChainKitInformation::toolChains(const Kit *k)
 void ToolChainKitInformation::setToolChain(Kit *k, ToolChain *tc)
 {
     QTC_ASSERT(tc, return);
-    setToolChain(k, tc->language(), tc);
+    QVariantMap result = k->value(ToolChainKitInformation::id()).toMap();
+    result.insert(ToolChain::languageId(tc->language()), tc->id());
+    k->setValue(id(), result);
 }
 
-void ToolChainKitInformation::setToolChain(Kit *k, ToolChain::Language l, ToolChain *tc)
+void ToolChainKitInformation::clearToolChain(Kit *k, ToolChain::Language l)
 {
-    if (l == ToolChain::Language::None)
-        return;
+    QTC_ASSERT(l != ToolChain::Language::None, return);
 
     QVariantMap result = k->value(ToolChainKitInformation::id()).toMap();
-    result.insert(ToolChain::languageId(l), tc ? tc->id() : QByteArray());
+    result.insert(ToolChain::languageId(l), QByteArray());
     k->setValue(id(), result);
 }
 

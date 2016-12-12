@@ -318,7 +318,7 @@ Kit *QnxConfiguration::createKit(QnxArchitecture arch,
 
     QtKitInformation::setQtVersion(kit, qnxQt);
     ToolChainKitInformation::setToolChain(kit, toolChain);
-    ToolChainKitInformation::setToolChain(kit, ToolChain::Language::C, nullptr);
+    ToolChainKitInformation::clearToolChain(kit, ToolChain::Language::C);
 
     if (debuggerItemId.isValid())
         DebuggerKitInformation::setDebugger(kit, debuggerItemId);

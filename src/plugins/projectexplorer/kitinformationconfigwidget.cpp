@@ -236,7 +236,12 @@ void ToolChainInformationConfigWidget::currentToolChainChanged(ToolChain::Langua
         return;
 
     const QByteArray id = m_languageComboboxMap.value(l)->itemData(idx).toByteArray();
-    ToolChainKitInformation::setToolChain(m_kit, l, ToolChainManager::findToolChain(id));
+    ToolChain *tc = ToolChainManager::findToolChain(id);
+    QTC_ASSERT(!tc || tc->language() == l, return);
+    if (tc)
+        ToolChainKitInformation::setToolChain(m_kit, tc);
+    else
+        ToolChainKitInformation::clearToolChain(m_kit, l);
 }
 
 int ToolChainInformationConfigWidget::indexOf(QComboBox *cb, const ToolChain *tc)
