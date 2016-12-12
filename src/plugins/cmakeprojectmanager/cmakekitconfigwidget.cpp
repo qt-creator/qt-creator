@@ -319,7 +319,8 @@ void CMakeGeneratorKitConfigWidget::changeGenerator()
 
     cmakeLabel->setText(m_currentTool->cmakeExecutable().toUserOutput());
 
-    const QList<CMakeTool::Generator> generatorList = m_currentTool->supportedGenerators();
+    QList<CMakeTool::Generator> generatorList = m_currentTool->supportedGenerators();
+    Utils::sort(generatorList, &CMakeTool::Generator::name);
 
     for (auto it = generatorList.constBegin(); it != generatorList.constEnd(); ++it)
         generatorCombo->addItem(it->name);
