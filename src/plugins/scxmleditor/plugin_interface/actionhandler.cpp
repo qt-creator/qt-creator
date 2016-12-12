@@ -50,9 +50,9 @@ ActionHandler::ActionHandler(QObject *parent)
         { Utils::Icons::ZOOM_TOOLBAR, tr("Magnifier"), tr("Magnifier Tool (Alt)"), "Alt", true },
         { Utils::Icon(":/scxmleditor/images/navigator.png"), tr("Navigator"), tr("Navigator (Ctrl+E)"), "Ctrl+E", true },
 
-        { Utils::Icon({{":/utils/images/editcopy.png",  Utils::Theme::IconsBaseColor}}), tr("Copy"), tr("Copy (Ctrl + C)"), "Ctrl+C", false },
-        { Utils::Icon({{":/utils/images/editcut.png",  Utils::Theme::IconsBaseColor}}), tr("Cut"), tr("Cut (Ctrl + X)"), "Ctrl+X", false },
-        { Utils::Icon({{":/utils/images/editpaste.png",  Utils::Theme::IconsBaseColor}}), tr("Paste"), tr("Paste (Ctrl + V)"), "Ctrl+V", false },
+        { Utils::Icons::COPY_TOOLBAR, tr("Copy"), tr("Copy (Ctrl + C)"), "Ctrl+C", false },
+        { Utils::Icons::CUT_TOOLBAR, tr("Cut"), tr("Cut (Ctrl + X)"), "Ctrl+X", false },
+        { Utils::Icons::PASTE_TOOLBAR, tr("Paste"), tr("Paste (Ctrl + V)"), "Ctrl+V", false },
         { Utils::Icons::SNAPSHOT_TOOLBAR, tr("Screenshot"), tr("Screenshot (Ctrl + Shift + C)"), "Ctrl+Shift+C", false },
         { Utils::Icon({{":/scxmleditor/images/icon-export-canvas.png",  Utils::Theme::IconsBaseColor}}), tr("Export to Image"), tr("Export to Image"), "Ctrl+Shift+E", false },
         { Utils::Icon({{":/utils/images/namespace.png", Utils::Theme::IconsBaseColor}}), tr("Toggle Full Namespace"), tr("Toggle Full Namespace"), "Ctrl+Shift+N", true },
