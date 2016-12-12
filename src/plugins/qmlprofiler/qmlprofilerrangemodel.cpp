@@ -72,13 +72,26 @@ void QmlProfilerRangeModel::loadEvent(const QmlEvent &event, const QmlEventType 
         m_stack.append(index);
         m_data.insert(index, QmlRangeEventStartInstance());
     } else if (event.rangeStage() == RangeEnd) {
-        int index = m_stack.pop();
-        insertEnd(index, event.timestamp() - startTime(index));
+        if (!m_stack.isEmpty()) {
+            int index = m_stack.pop();
+            insertEnd(index, event.timestamp() - startTime(index));
+        } else {
+            qWarning() << "Received inconsistent trace data from application.";
+        }
     }
 }
 
 void QmlProfilerRangeModel::finalize()
 {
+    if (!m_stack.isEmpty()) {
+        qWarning() << "End times for some events are missing.";
+        const qint64 endTime = modelManager()->traceTime()->endTime();
+        do {
+            int index = m_stack.pop();
+            insertEnd(index, endTime - startTime(index));
+        } while (!m_stack.isEmpty());
+    }
+
     // compute range nesting
     computeNesting();
 
