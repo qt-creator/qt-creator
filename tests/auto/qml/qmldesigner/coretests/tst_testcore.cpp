@@ -3928,7 +3928,7 @@ char qmlString[] = "import QtQuick 2.1\n"
                                 "text: \"Hello World\"\n"
                                 "anchors.centerIn: parent\n"
                                 "Item {\n"
-                                    "id: item\n"
+                                    "id: item01\n"
                                  "}\n"
                             "}\n"
                             "Rectangle {\n"
@@ -3995,7 +3995,7 @@ char qmlString[] = "import QtQuick 2.1\n"
     QVERIFY(!textNode1.nodeListProperty("data").toModelNodeList().isEmpty());
     ModelNode itemNode = textNode1.nodeListProperty("data").toModelNodeList().first();
     QVERIFY(itemNode.isValid());
-    QCOMPARE(itemNode.id(), QString("item"));
+    QCOMPARE(itemNode.id(), QString("item01"));
     QVERIFY(!itemNode.hasProperty("data"));
 
     ModelNode rectNode = rootModelNode.nodeListProperty("data").toModelNodeList().at(1);
@@ -4184,7 +4184,7 @@ void tst_TestCore::testMetaInfoQtQuick1Vs2()
                                 "text: \"Hello World\"\n"
                                 "anchors.centerIn: parent\n"
                                 "Item {\n"
-                                    "id: item\n"
+                                    "id: item01\n"
                                  "}\n"
                             "}\n"
                             "Rectangle {\n"
@@ -7878,7 +7878,7 @@ void tst_TestCore::loadTestFiles()
 
         ModelNode textNode(rootModelNode.nodeListProperty("data").toModelNodeList().first());
         QVERIFY(textNode.isValid());
-        QCOMPARE(textNode.id(), QLatin1String("text"));
+        QCOMPARE(textNode.id(), QLatin1String("textElement"));
         QCOMPARE(textNode.type(), QmlDesigner::TypeName("QtQuick.Text"));
         QCOMPARE(textNode.variantProperty("x").value().toInt(), 66);
         QCOMPARE(textNode.variantProperty("y").value().toInt(), 93);

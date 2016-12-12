@@ -30,7 +30,7 @@ Rectangle {
     width: 200
     height: 200
     Text {
-        id: text
+        id: textElement
         x: 66
         y: 93
         text: "Base State"
