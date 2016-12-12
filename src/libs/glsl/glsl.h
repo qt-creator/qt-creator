@@ -29,7 +29,7 @@
 #include <cstdlib>
 #include <cstddef>
 
-#if defined(GLSL_BUILD_LIB)
+#if defined(GLSL_LIBRARY)
 #  define GLSL_EXPORT Q_DECL_EXPORT
 #elif defined(GLSL_BUILD_STATIC_LIB)
 #  define GLSL_EXPORT

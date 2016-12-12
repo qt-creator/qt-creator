@@ -27,7 +27,7 @@
 
 #include <qglobal.h>
 
-#if defined(QMLJS_BUILD_DIR)
+#if defined(QMLJS_LIBRARY)
 #  define QMLJS_EXPORT Q_DECL_EXPORT
 #elif defined(QML_BUILD_STATIC_LIB)
 #  define QMLJS_EXPORT

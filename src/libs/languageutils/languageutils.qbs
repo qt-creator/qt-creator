@@ -6,7 +6,7 @@ Project {
     QtcDevHeaders { }
 
     QtcLibrary {
-        cpp.defines: base.concat(["LANGUAGEUTILS_BUILD_DIR"])
+        cpp.defines: base.concat(["LANGUAGEUTILS_LIBRARY"])
         cpp.optimization: "fast"
 
         Depends { name: "Qt.core" }

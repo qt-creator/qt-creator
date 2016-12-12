@@ -12,7 +12,7 @@ SOURCES += \
     tst_testtrie.cpp
 
 TEMPLATE = app
-DEFINES += QMLJS_BUILD_DIR
+DEFINES += QMLJS_LIBRARY
 
 DISTFILES += \
     listAll.data \

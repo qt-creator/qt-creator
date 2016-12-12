@@ -1,5 +1,5 @@
 DEFINES += \
-    GLSL_BUILD_LIB
+    GLSL_LIBRARY
 
 include(../../qtcreatorlibrary.pri)
 include(glsl-lib.pri)

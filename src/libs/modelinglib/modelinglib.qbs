@@ -3,7 +3,7 @@ import qbs 1.0
 QtcLibrary {
     name: "Modeling"
 
-    cpp.defines: base.concat("QMT_LIBRARY")
+    cpp.defines: base.concat("MODELING_LIBRARY")
     cpp.includePaths: base.concat([
         ".",
         "./qtserialization/inc",

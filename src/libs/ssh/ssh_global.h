@@ -27,7 +27,7 @@
 
 #include <QtGlobal>
 
-#if defined(QSSH_LIBRARY)
+#if defined(QTCSSH_LIBRARY)
 #  define QSSH_EXPORT Q_DECL_EXPORT
 #else
 #  define QSSH_EXPORT Q_DECL_IMPORT

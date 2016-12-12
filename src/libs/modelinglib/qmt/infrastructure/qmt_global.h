@@ -27,7 +27,7 @@
 
 #include <QtCore/QtGlobal>
 
-#if defined(QMT_LIBRARY)
+#if defined(MODELING_LIBRARY)
 #  define QMT_EXPORT Q_DECL_EXPORT
 #else
 #  define QMT_EXPORT Q_DECL_IMPORT

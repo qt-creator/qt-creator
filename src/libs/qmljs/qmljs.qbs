@@ -6,7 +6,7 @@ Project {
     QtcDevHeaders { }
 
     QtcLibrary {
-        cpp.defines: base.concat(["QMLJS_BUILD_DIR"])
+        cpp.defines: base.concat(["QMLJS_LIBRARY"])
         cpp.optimization: "fast"
 
         Depends { name: "ExtensionSystem" }

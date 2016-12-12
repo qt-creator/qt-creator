@@ -1,4 +1,4 @@
-DEFINES += QMLJS_BUILD_DIR
+DEFINES += QMLJS_LIBRARY
 
 include(../../qtcreatorlibrary.pri)
 include(qmljs-lib.pri)

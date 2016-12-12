@@ -4,7 +4,7 @@ include(../../qtcreatorlibrary.pri)
 !isEmpty(QT.svg.name): QT += svg
 else: DEFINES += QT_NO_SVG
 
-DEFINES += QMT_LIBRARY
+DEFINES += MODELING_LIBRARY
 
 INCLUDEPATH += $$PWD $$PWD/qtserialization/inc
 

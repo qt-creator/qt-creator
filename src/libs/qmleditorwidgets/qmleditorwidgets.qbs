@@ -4,7 +4,7 @@ QtcLibrary {
     name: "QmlEditorWidgets"
 
     cpp.defines: base.concat([
-        "BUILD_QMLEDITORWIDGETS_LIB"
+        "QMLEDITORWIDGETS_LIBRARY"
     ])
     cpp.optimization: "fast"
 

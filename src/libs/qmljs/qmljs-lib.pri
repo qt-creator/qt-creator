@@ -1,5 +1,5 @@
 contains(CONFIG, dll) {
-    DEFINES += QMLJS_BUILD_DIR
+    DEFINES += QMLJS_LIBRARY
 } else {
     DEFINES += QML_BUILD_STATIC_LIB
 }

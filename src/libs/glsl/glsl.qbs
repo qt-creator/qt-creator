@@ -4,7 +4,7 @@ QtcLibrary {
     name: "GLSL"
 
     cpp.defines: base.concat([
-        "GLSL_BUILD_LIB"
+        "GLSL_LIBRARY"
     ])
 
     Depends { name: "Qt.gui" }

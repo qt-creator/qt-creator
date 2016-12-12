@@ -1,5 +1,5 @@
 contains(CONFIG, dll) {
-    DEFINES += QMLDEBUG_LIB
+    DEFINES += QMLDEBUG_LIBRARY
 } else {
     DEFINES += QMLDEBUG_STATIC_LIB
 }

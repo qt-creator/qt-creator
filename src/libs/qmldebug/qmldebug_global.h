@@ -25,7 +25,7 @@
 
 #pragma once
 
-#if defined(QMLDEBUG_LIB)
+#if defined(QMLDEBUG_LIBRARY)
 #  define QMLDEBUG_EXPORT Q_DECL_EXPORT
 #elif defined(QMLDEBUG_STATIC_LIB)
 #  define QMLDEBUG_EXPORT

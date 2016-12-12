@@ -1,5 +1,5 @@
 QT += gui network
-DEFINES += QSSH_LIBRARY
+DEFINES += QTCSSH_LIBRARY
 
 include(../../qtcreatorlibrary.pri)
 

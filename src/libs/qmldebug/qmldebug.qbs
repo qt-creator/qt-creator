@@ -6,7 +6,7 @@ Project {
     QtcDevHeaders { }
 
     QtcLibrary {
-        cpp.defines: base.concat("QMLDEBUG_LIB")
+        cpp.defines: base.concat("QMLDEBUG_LIBRARY")
 
         Depends { name: "Qt"; submodules: ["gui", "network"] }
         Depends { name: "Utils" }

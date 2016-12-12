@@ -7,7 +7,7 @@ Project {
     QtcDevHeaders { }
 
     QtcLibrary {
-        cpp.defines: base.concat(["QSSH_LIBRARY"]).concat(botanDefines)
+        cpp.defines: base.concat(["QTCSSH_LIBRARY"]).concat(botanDefines)
         cpp.includePaths: botanIncludes
         cpp.dynamicLibraries: botanLibs
         cpp.enableExceptions: true
