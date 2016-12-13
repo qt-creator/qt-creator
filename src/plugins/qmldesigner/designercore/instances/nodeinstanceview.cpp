@@ -1234,10 +1234,9 @@ void NodeInstanceView::childrenChanged(const ChildrenChangedCommand &command)
     foreach (qint32 instanceId, command.childrenInstances()) {
         if (hasInstanceForId(instanceId)) {
             NodeInstance instance = instanceForId(instanceId);
-            if (instance.parentId() == -1 || !instance.directUpdates()) {
+            if (instance.parentId() == -1 || !instance.directUpdates())
                 instance.setParentId(command.parentInstanceId());
-                childNodeVector.append(instance.modelNode());
-            }
+            childNodeVector.append(instance.modelNode());
         }
     }
 
