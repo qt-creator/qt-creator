@@ -116,7 +116,10 @@ public:
     {
         switch (column) {
         case NameColumn:
-            if (role == Qt::DisplayRole || role == SortRole)
+            if (role == Qt::DisplayRole)
+                return m_spec->isExperimental() ? PluginView::tr("%1 (experimental)").arg(m_spec->name())
+                                                : m_spec->name();
+            if (role == SortRole)
                 return m_spec->name();
             if (role == Qt::ToolTipRole) {
                 QString toolTip;
