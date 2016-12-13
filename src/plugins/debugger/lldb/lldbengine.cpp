@@ -414,7 +414,7 @@ void LldbEngine::setupInferior()
         }
     };
 
-    cmd2.flags = LldbEngine::Silent;
+    cmd2.flags = Silent;
     runCommand(cmd2);
 }
 

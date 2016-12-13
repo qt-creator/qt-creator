@@ -208,7 +208,7 @@ void GdbCoreEngine::setupInferior()
     // Do that first, otherwise no symbols are loaded.
     QFileInfo fi(m_executable);
     QString path = fi.absoluteFilePath();
-    runCommand({"-file-exec-and-symbols \"" + path + '"', NoFlags,
+    runCommand({"-file-exec-and-symbols \"" + path + '"',
                 CB(handleFileExecAndSymbols)});
 }
 
@@ -232,8 +232,7 @@ void GdbCoreEngine::handleFileExecAndSymbols(const DebuggerResponse &response)
 void GdbCoreEngine::runEngine()
 {
     CHECK_STATE(EngineRunRequested);
-    runCommand({"target core " + coreFileName(), NoFlags,
-                CB(handleTargetCore)});
+    runCommand({"target core " + coreFileName(), CB(handleTargetCore)});
 }
 
 void GdbCoreEngine::handleTargetCore(const DebuggerResponse &response)
@@ -253,7 +252,7 @@ void GdbCoreEngine::handleTargetCore(const DebuggerResponse &response)
     // symbols yet. Load them in order of importance.
     reloadStack();
     reloadModulesInternal();
-    runCommand({"p 5", NoFlags, CB(handleRoundTrip)});
+    runCommand({"p 5", CB(handleRoundTrip)});
 }
 
 void GdbCoreEngine::handleRoundTrip(const DebuggerResponse &response)

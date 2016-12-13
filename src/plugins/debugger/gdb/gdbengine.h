@@ -147,35 +147,7 @@ private:
     // known function return value.
     QString m_resultVarName;
 
-private: ////////// Gdb Command Management //////////
-
-    public: // Otherwise the Qt flag macros are unhappy.
-    enum GdbCommandFlag {
-        NoFlags = 0,
-        // The command needs a stopped inferior.
-        NeedsTemporaryStop = 1,
-        // No need to wait for the reply before continuing inferior.
-        Discardable = 2,
-        // Needs a dummy extra command to force GDB output flushing.
-        NeedsFlush = 4,
-        // The command needs a stopped inferior and will stay stopped afterward.
-        NeedsFullStop = 8,
-        // Callback expects ResultRunning instead of ResultDone.
-        RunRequest = 16,
-        // Callback expects ResultExit instead of ResultDone.
-        ExitRequest = 32,
-        // Auto-set inferior shutdown related states.
-        LosesChild = 64,
-        // Trigger breakpoint model rebuild when no such commands are pending anymore.
-        RebuildBreakpointModel = 128,
-        // This is a command that needs to be wrapped into -interpreter-exec console
-        ConsoleCommand = 512,
-        // This is the UpdateLocals commannd during which we ignore notifications
-        InUpdateLocals = 1024,
-        // This is a command using the python interface
-        PythonCommand = 2048
-    };
-    Q_DECLARE_FLAGS(GdbCommandFlags, GdbCommandFlag)
+protected: ////////// Gdb Command Management //////////
 
     void runCommand(const DebuggerCommand &command) override;
 
@@ -469,5 +441,3 @@ protected:
 
 } // namespace Internal
 } // namespace Debugger
-
-Q_DECLARE_OPERATORS_FOR_FLAGS(Debugger::Internal::GdbEngine::GdbCommandFlags)

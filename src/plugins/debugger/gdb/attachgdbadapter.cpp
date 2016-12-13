@@ -61,7 +61,7 @@ void GdbAttachEngine::runEngine()
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
     const qint64 pid = runParameters().attachPID;
     showStatusMessage(tr("Attaching to process %1.").arg(pid));
-    runCommand({"attach " + QString::number(pid), NoFlags,
+    runCommand({"attach " + QString::number(pid),
                 [this](const DebuggerResponse &r) { handleAttach(r); }});
     // In some cases we get only output like
     //   "Could not attach to process.  If your uid matches the uid of the target\n"
@@ -69,7 +69,7 @@ void GdbAttachEngine::runEngine()
     //   " again as the root user.  For more details, see /etc/sysctl.d/10-ptrace.conf\n"
     //   " ptrace: Operation not permitted.\n"
     // but no(!) ^ response. Use a second command to force *some* output
-    runCommand({"print 24", NoFlags});
+    runCommand({"print 24"});
 }
 
 void GdbAttachEngine::handleAttach(const DebuggerResponse &response)

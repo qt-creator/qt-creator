@@ -50,6 +50,7 @@ public:
     DebuggerCommand(const QString &f, const QJsonValue &a) : function(f), args(a) {}
     DebuggerCommand(const QString &f, int fl) : function(f), flags(fl) {}
     DebuggerCommand(const QString &f, int fl, const Callback &cb) : function(f), callback(cb), flags(fl) {}
+    DebuggerCommand(const QString &f, const Callback &cb) : function(f), callback(cb) {}
 
     void arg(const char *value);
     void arg(const char *name, bool value);
@@ -64,6 +65,34 @@ public:
 
     QString argsToPython() const;
     QString argsToString() const;
+
+    enum CommandFlag {
+        NoFlags = 0,
+        // The command needs a stopped inferior.
+        NeedsTemporaryStop = 1,
+        // No need to wait for the reply before continuing inferior.
+        Discardable = 2,
+        // Needs a dummy extra command to force GDB output flushing.
+        NeedsFlush = 4,
+        // The command needs a stopped inferior and will stay stopped afterward.
+        NeedsFullStop = 8,
+        // Callback expects ResultRunning instead of ResultDone.
+        RunRequest = 16,
+        // Callback expects ResultExit instead of ResultDone.
+        ExitRequest = 32,
+        // Auto-set inferior shutdown related states.
+        LosesChild = 64,
+        // Trigger breakpoint model rebuild when no such commands are pending anymore.
+        RebuildBreakpointModel = 128,
+        // This is a command that needs to be wrapped into -interpreter-exec console
+        ConsoleCommand = 512,
+        // This is the UpdateLocals commannd during which we ignore notifications
+        InUpdateLocals = 1024,
+        // Do not echo to log.
+        Silent = 4096
+    };
+
+    Q_DECLARE_FLAGS(CommandFlags, CommandFlag)
 
     QString function;
     QJsonValue args;
@@ -270,3 +299,5 @@ const char DisplayArrayData[]    = "arraydata:separate";
 
 } // namespace Internal
 } // namespace Debugger
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(Debugger::Internal::DebuggerCommand::CommandFlags)

@@ -840,7 +840,7 @@ void GdbEngine::interruptInferior()
         return;
 
     if (usesExecInterrupt()) {
-        runCommand({"-exec-interrupt", NoFlags});
+        runCommand({"-exec-interrupt"});
     } else {
         showStatusMessage(tr("Stop requested..."), 5000);
         showMessage("TRYING TO INTERRUPT INFERIOR");
@@ -935,7 +935,10 @@ void GdbEngine::runCommand(const DebuggerCommand &command)
     if (!(cmd.flags & Discardable))
         ++m_nonDiscardableCount;
 
-    if (cmd.flags & PythonCommand) {
+    bool isPythonCommand = true;
+    if (cmd.function.contains('-') || cmd.function.contains(' '))
+        isPythonCommand = false;
+    if (isPythonCommand) {
         cmd.arg("token", token);
         cmd.function = "python theDumper." + cmd.function + "(" + cmd.argsToPython() + ")";
     }
@@ -1209,7 +1212,7 @@ void GdbEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages
     if (!(languages & CppLanguage))
         return;
     QTC_CHECK(acceptsDebuggerCommands());
-    runCommand({command, NoFlags});
+    runCommand({command});
 }
 
 // This is triggered when switching snapshots.
@@ -1222,7 +1225,7 @@ void GdbEngine::updateAll()
     cmd.callback = [this](const DebuggerResponse &r) { handleStackListFrames(r, false); };
     runCommand(cmd);
     stackHandler()->setCurrentIndex(0);
-    runCommand({"-thread-info", NoFlags, CB(handleThreadInfo)});
+    runCommand({"-thread-info", CB(handleThreadInfo)});
     reloadRegisters();
     updateLocals();
 }
@@ -1373,7 +1376,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     bool gotoHandleStop1 = true;
     if (!m_fullStartDone) {
         m_fullStartDone = true;
-        runCommand({"sharedlibrary .*", NoFlags,
+        runCommand({"sharedlibrary .*",
                    [this, data](const DebuggerResponse &) { handleStop1(data); }});
         gotoHandleStop1 = false;
     }
@@ -1529,9 +1532,9 @@ void GdbEngine::handleStop1(const GdbMi &data)
     if (!m_systemDumpersLoaded) {
         m_systemDumpersLoaded = true;
         if (m_gdbVersion >= 70400 && boolSetting(LoadGdbDumpers))
-            runCommand({"importPlainDumpers on", NoFlags});
+            runCommand({"importPlainDumpers on"});
         else
-            runCommand({"importPlainDumpers off", NoFlags});
+            runCommand({"importPlainDumpers off"});
     }
 
     handleStop2(data);
@@ -1840,7 +1843,7 @@ void GdbEngine::shutdownInferior()
 {
     CHECK_STATE(InferiorShutdownRequested);
     DebuggerCommand cmd;
-    cmd.function = QLatin1String(runParameters().closeMode == DetachAtClose ? "detach" : "kill");
+    cmd.function = QLatin1String(runParameters().closeMode == DetachAtClose ? "detach " : "kill ");
     cmd.callback = CB(handleInferiorShutdown);
     cmd.flags = NeedsTemporaryStop|LosesChild;
     runCommand(cmd);
@@ -1885,8 +1888,8 @@ void GdbEngine::notifyAdapterShutdownOk()
     switch (m_gdbProc.state()) {
     case QProcess::Running: {
         if (runParameters().closeMode == KillAndExitMonitorAtClose)
-            runCommand({"monitor exit", NoFlags});
-        runCommand({"exitGdb", ExitRequest|PythonCommand, CB(handleGdbExit)});
+            runCommand({"monitor exit"});
+        runCommand({"exitGdb", ExitRequest, CB(handleGdbExit)});
         break;
     }
     case QProcess::NotRunning:
@@ -2009,11 +2012,12 @@ void GdbEngine::continueInferiorInternal()
     showStatusMessage(tr("Running requested..."), 5000);
     CHECK_STATE(InferiorRunRequested);
     if (isNativeMixedActiveFrame()) {
-        DebuggerCommand cmd("executeContinue", RunRequest|PythonCommand);
+        DebuggerCommand cmd("executeContinue", RunRequest);
         cmd.callback = CB(handleExecuteContinue);
         runCommand(cmd);
     } else {
-        DebuggerCommand cmd("-exec-continue", RunRequest|NeedsFlush);
+        DebuggerCommand cmd("-exec-continue");
+        cmd.flags = RunRequest | NeedsFlush;
         cmd.callback = CB(handleExecuteContinue);
         runCommand(cmd);
     }
@@ -2033,7 +2037,7 @@ void GdbEngine::executeStep()
     notifyInferiorRunRequested();
     showStatusMessage(tr("Step requested..."), 5000);
     if (isNativeMixedActiveFrame()) {
-        DebuggerCommand cmd("executeStep", RunRequest|PythonCommand);
+        DebuggerCommand cmd("executeStep", RunRequest);
         cmd.callback = CB(handleExecuteStep);
         runCommand(cmd);
     } else {
@@ -2102,7 +2106,7 @@ void GdbEngine::executeStepOut()
     notifyInferiorRunRequested();
     showStatusMessage(tr("Finish function requested..."), 5000);
     if (isNativeMixedActiveFrame()) {
-        runCommand({"executeStepOut", RunRequest|PythonCommand});
+        runCommand({"executeStepOut", RunRequest});
     } else {
         // -exec-finish in 'main' results (correctly) in
         //  40^error,msg="\"finish\" not meaningful in the outermost frame."
@@ -2119,8 +2123,7 @@ void GdbEngine::executeNext()
     notifyInferiorRunRequested();
     showStatusMessage(tr("Step next requested..."), 5000);
     if (isNativeMixedActiveFrame()) {
-        DebuggerCommand cmd("executeNext", RunRequest|PythonCommand);
-        runCommand(cmd);
+        runCommand({"executeNext", RunRequest});
     } else {
         DebuggerCommand cmd;
         cmd.flags = RunRequest;
@@ -2191,7 +2194,7 @@ void GdbEngine::executeRunToLine(const ContextData &data)
         loc = addressSpec(data.address);
     else
         loc = '"' + breakLocation(data.fileName) + '"' + ':' + QString::number(data.lineNumber);
-    runCommand({"tbreak " + loc, NoFlags});
+    runCommand({"tbreak " + loc});
 
     runCommand({"continue", RunRequest, CB(handleExecuteRunToLine)});
 #else
@@ -2206,7 +2209,7 @@ void GdbEngine::executeRunToFunction(const QString &functionName)
 {
     CHECK_STATE(InferiorStopOk);
     setTokenBarrier();
-    runCommand({"-break-insert -t " + functionName, NoFlags});
+    runCommand({"-break-insert -t " + functionName});
     showStatusMessage(tr("Run to function %1 requested...").arg(functionName), 5000);
     continueInferiorInternal();
 }
@@ -2219,10 +2222,10 @@ void GdbEngine::executeJumpToLine(const ContextData &data)
         loc = addressSpec(data.address);
     else
         loc = '"' + breakLocation(data.fileName) + '"' + ':' + QString::number(data.lineNumber);
-    runCommand({"tbreak " + loc, NoFlags});
+    runCommand({"tbreak " + loc});
     notifyInferiorRunRequested();
 
-    runCommand({"jump" + loc, RunRequest, CB(handleExecuteJumpToLine)});
+    runCommand({"jump " + loc, RunRequest, CB(handleExecuteJumpToLine)});
     // will produce something like
     //  &"jump \"/home/apoenitz/dev/work/test1/test1.cpp\":242"
     //  ~"Continuing at 0x4058f3."
@@ -2558,8 +2561,8 @@ void GdbEngine::handleBreakInsert1(const DebuggerResponse &response, Breakpoint 
             // This delete was deferred. Act now.
             const GdbMi mainbkpt = response.data["bkpt"];
             bp.notifyBreakpointRemoveProceeding();
-            DebuggerCommand cmd("-break-delete " + mainbkpt["number"].data(),
-                    NeedsTemporaryStop | RebuildBreakpointModel);
+            DebuggerCommand cmd("-break-delete " + mainbkpt["number"].data());
+            cmd.flags = NeedsTemporaryStop | RebuildBreakpointModel;
             runCommand(cmd);
             bp.notifyBreakpointRemoveOk();
             return;
@@ -2730,7 +2733,7 @@ void GdbEngine::insertBreakpoint(Breakpoint bp)
     const BreakpointParameters &data = bp.parameters();
 
     if (!data.isCppBreakpoint()) {
-        DebuggerCommand cmd("insertInterpreterBreakpoint", PythonCommand | NeedsTemporaryStop);
+        DebuggerCommand cmd("insertInterpreterBreakpoint", NeedsTemporaryStop);
         bp.addToCommand(&cmd);
         cmd.callback = [this, bp](const DebuggerResponse &r) { handleInsertInterpreterBreakpoint(r, bp); };
         runCommand(cmd);
@@ -2849,7 +2852,7 @@ void GdbEngine::removeBreakpoint(Breakpoint bp)
 
     const BreakpointParameters &data = bp.parameters();
     if (!data.isCppBreakpoint()) {
-        DebuggerCommand cmd("removeInterpreterBreakpoint", PythonCommand);
+        DebuggerCommand cmd("removeInterpreterBreakpoint");
         bp.addToCommand(&cmd);
         runCommand(cmd);
         bp.notifyBreakpointRemoveOk();
@@ -2893,7 +2896,7 @@ static QString dotEscape(QString str)
 void GdbEngine::loadSymbols(const QString &modulePath)
 {
     // FIXME: gdb does not understand quoted names here (tested with 6.8)
-    runCommand({"sharedlibrary " + dotEscape(modulePath), NoFlags});
+    runCommand({"sharedlibrary " + dotEscape(modulePath)});
     reloadModulesInternal();
     reloadStack();
     updateLocals();
@@ -2901,7 +2904,7 @@ void GdbEngine::loadSymbols(const QString &modulePath)
 
 void GdbEngine::loadAllSymbols()
 {
-    runCommand({"sharedlibrary .*", NoFlags});
+    runCommand({"sharedlibrary .*"});
     reloadModulesInternal();
     reloadStack();
     updateLocals();
@@ -2917,7 +2920,7 @@ void GdbEngine::loadSymbolsForStack()
             foreach (const Module &module, modules) {
                 if (module.startAddress <= frame.address
                         && frame.address < module.endAddress) {
-                    runCommand({"sharedlibrary " + dotEscape(module.modulePath), NoFlags});
+                    runCommand({"sharedlibrary " + dotEscape(module.modulePath)});
                     needUpdate = true;
                 }
             }
@@ -3199,7 +3202,7 @@ void GdbEngine::reloadFullStack()
     resetLocation();
     DebuggerCommand cmd = stackCommand(-1);
     cmd.callback = [this](const DebuggerResponse &r) { handleStackListFrames(r, true); };
-    cmd.flags = Discardable | PythonCommand;
+    cmd.flags = Discardable;
     runCommand(cmd);
 }
 
@@ -3208,7 +3211,7 @@ void GdbEngine::loadAdditionalQmlStack()
     DebuggerCommand cmd = stackCommand(-1);
     cmd.arg("extraqml", "1");
     cmd.callback = [this](const DebuggerResponse &r) { handleStackListFrames(r, true); };
-    cmd.flags = Discardable | PythonCommand;
+    cmd.flags = Discardable;
     runCommand(cmd);
 }
 
@@ -3225,7 +3228,7 @@ void GdbEngine::reloadStack()
     PENDING_DEBUG("RELOAD STACK");
     DebuggerCommand cmd = stackCommand(action(MaximalStackDepth)->value().toInt());
     cmd.callback = [this](const DebuggerResponse &r) { handleStackListFrames(r, false); };
-    cmd.flags = Discardable | PythonCommand;
+    cmd.flags = Discardable;
     runCommand(cmd);
 }
 
@@ -3400,7 +3403,7 @@ void GdbEngine::reloadRegisters()
         if (!m_registerNamesListed) {
             // The MI version does not give register size.
             // runCommand("-data-list-register-names", CB(handleRegisterListNames));
-            runCommand({"maintenance print raw-registers", NoFlags,
+            runCommand({"maintenance print raw-registers",
                         CB(handleRegisterListing)});
             m_registerNamesListed = true;
         }
@@ -3409,7 +3412,7 @@ void GdbEngine::reloadRegisters()
         runCommand({"-data-list-register-values r", Discardable,
                     CB(handleRegisterListValues)});
     } else {
-        runCommand({"maintenance print cooked-registers", NoFlags,
+        runCommand({"maintenance print cooked-registers",
                     CB(handleMaintPrintRegisters)});
     }
 }
@@ -3475,7 +3478,7 @@ void GdbEngine::setRegisterValue(const QString &name, const QString &value)
     QString fullName = name;
     if (name.startsWith("xmm"))
         fullName += ".uint128";
-    runCommand({"set $" + fullName  + "=" + value, NoFlags});
+    runCommand({"set $" + fullName  + "=" + value});
     reloadRegisters();
 }
 
@@ -3602,7 +3605,7 @@ void GdbEngine::handleVarAssign(const DebuggerResponse &)
 void GdbEngine::assignValueInDebugger(WatchItem *item,
     const QString &expression, const QVariant &value)
 {
-    DebuggerCommand cmd("assignValue", PythonCommand);
+    DebuggerCommand cmd("assignValue");
     cmd.arg("type", toHex(item->type));
     cmd.arg("expr", toHex(expression));
     cmd.arg("value", toHex(value.toString()));
@@ -3613,7 +3616,7 @@ void GdbEngine::assignValueInDebugger(WatchItem *item,
 
 void GdbEngine::watchPoint(const QPoint &pnt)
 {
-    DebuggerCommand cmd("watchPoint", PythonCommand|NeedsFullStop);
+    DebuggerCommand cmd("watchPoint", NeedsFullStop);
     cmd.arg("x", pnt.x());
     cmd.arg("y", pnt.y());
     cmd.callback = CB(handleWatchPoint);
@@ -3938,9 +3941,9 @@ void GdbEngine::startGdb(const QStringList &args)
     }
 
     showMessage("GDB STARTED, INITIALIZING IT");
-    runCommand({"show version", NoFlags, CB(handleShowVersion)});
+    runCommand({"show version", CB(handleShowVersion)});
     //runCommand("-list-features", CB(handleListFeatures));
-    runCommand({"show debug-file-directory", NoFlags, CB(handleDebugInfoLocation)});
+    runCommand({"show debug-file-directory", CB(handleDebugInfoLocation)});
 
     //runCommand("-enable-timings");
     //rurun print static-members off"); // Seemingly doesn't work.
@@ -4013,22 +4016,22 @@ void GdbEngine::startGdb(const QStringList &args)
     for (auto it = completeSourcePathMap.constBegin(), cend = completeSourcePathMap.constEnd();
          it != cend;
          ++it) {
-        runCommand({"set substitute-path " + it.key() + " " + it.value(), NoFlags});
+        runCommand({"set substitute-path " + it.key() + " " + it.value()});
     }
 
     // Spaces just will not work.
     foreach (const QString &src, rp.debugSourceLocation) {
         if (QDir(src).exists())
-            runCommand({"directory " + src, NoFlags});
+            runCommand({"directory " + src});
         else
             showMessage("# directory does not exist: " + src, LogInput);
     }
 
     if (!rp.sysRoot.isEmpty()) {
-        runCommand({"set sysroot " + rp.sysRoot, NoFlags});
+        runCommand({"set sysroot " + rp.sysRoot});
         // sysroot is not enough to correctly locate the sources, so explicitly
         // relocate the most likely place for the debug source
-        runCommand({"set substitute-path /usr/src " + rp.sysRoot + "/usr/src", NoFlags});
+        runCommand({"set substitute-path /usr/src " + rp.sysRoot + "/usr/src"});
     }
 
     //QByteArray ba = QFileInfo(sp.dumperLibrary).path().toLocal8Bit();
@@ -4053,27 +4056,27 @@ void GdbEngine::startGdb(const QStringList &args)
     const QString dumperSourcePath = ICore::resourcePath() + "/debugger/";
 
     if (terminal()->isUsable())
-        runCommand({"set inferior-tty " + QString::fromUtf8(terminal()->slaveDevice()), NoFlags});
+        runCommand({"set inferior-tty " + QString::fromUtf8(terminal()->slaveDevice())});
 
     const QFileInfo gdbBinaryFile(rp.debugger.executable);
     const QString uninstalledData = gdbBinaryFile.absolutePath() + "/data-directory/python";
 
-    runCommand({"python sys.path.insert(1, '" + dumperSourcePath + "')", NoFlags});
-    runCommand({"python sys.path.append('" + uninstalledData + "')", NoFlags});
-    runCommand({"python from gdbbridge import *", NoFlags});
+    runCommand({"python sys.path.insert(1, '" + dumperSourcePath + "')"});
+    runCommand({"python sys.path.append('" + uninstalledData + "')"});
+    runCommand({"python from gdbbridge import *"});
 
     const QString path = stringSetting(ExtraDumperFile);
     if (!path.isEmpty() && QFileInfo(path).isReadable()) {
-        DebuggerCommand cmd("addDumperModule", PythonCommand);
+        DebuggerCommand cmd("addDumperModule");
         cmd.arg("path", path);
         runCommand(cmd);
     }
 
     const QString commands = stringSetting(ExtraDumperCommands);
     if (!commands.isEmpty())
-        runCommand({commands, NoFlags});
+        runCommand({commands});
 
-    runCommand({"loadDumpers", PythonCommand, CB(handlePythonSetup)});
+    runCommand({"loadDumpers", CB(handlePythonSetup)});
 }
 
 void GdbEngine::handleGdbStartFailed()
@@ -4085,7 +4088,7 @@ void GdbEngine::loadInitScript()
     const QString script = runParameters().overrideStartScript;
     if (!script.isEmpty()) {
         if (QFileInfo(script).isReadable()) {
-            runCommand({"source " + script, NoFlags});
+            runCommand({"source " + script});
         } else {
             AsynchronousMessageBox::warning(
             tr("Cannot find debugger initialization script"),
@@ -4097,7 +4100,7 @@ void GdbEngine::loadInitScript()
     } else {
         const QString commands = expand(stringSetting(GdbStartupCommands));
         if (!commands.isEmpty())
-            runCommand({commands, NoFlags});
+            runCommand({commands});
     }
 }
 
@@ -4107,16 +4110,16 @@ void GdbEngine::setEnvironmentVariables()
     Environment runEnv = runParameters().inferior.environment;
     foreach (const EnvironmentItem &item, sysEnv.diff(runEnv)) {
         if (item.unset)
-            runCommand({"unset environment " + item.name, NoFlags});
+            runCommand({"unset environment " + item.name});
         else
             runCommand({"-gdb-set environment " + item.name + '='
-                        + item.value, NoFlags});
+                        + item.value});
     }
 }
 
 void GdbEngine::reloadDebuggingHelpers()
 {
-    runCommand({"reloadDumpers", PythonCommand});
+    runCommand({"reloadDumpers"});
     reloadLocals();
 }
 
@@ -4220,15 +4223,15 @@ void GdbEngine::handleInferiorPrepared()
 
     if (!rp.commandsAfterConnect.isEmpty()) {
         const QString commands = expand(rp.commandsAfterConnect);
-        foreach (const QString &command, commands.split('\n'))
-            runCommand({command, NoFlags});
+        for (const QString &command : commands.split('\n'))
+            runCommand({command});
     }
 
     //runCommand("set follow-exec-mode new");
     if (rp.breakOnMain) {
         QString cmd = "tbreak ";
         cmd += QLatin1String(rp.toolChainAbi.os() == Abi::WindowsOS ? "qMain" : "main");
-        runCommand({cmd, NoFlags});
+        runCommand({cmd});
     }
 
     // Initial attempt to set breakpoints.
@@ -4255,7 +4258,7 @@ void GdbEngine::finishInferiorSetup()
         const bool onWarning = boolSetting(BreakOnWarning);
         const bool onFatal = boolSetting(BreakOnFatal);
         if (onAbort || onWarning || onFatal) {
-            DebuggerCommand cmd("createSpecialBreakpoints", PythonCommand);
+            DebuggerCommand cmd("createSpecialBreakpoints");
             cmd.arg("breakonabort", onAbort);
             cmd.arg("breakonwarning", onWarning);
             cmd.arg("breakonfatal", onFatal);
@@ -4279,7 +4282,7 @@ void GdbEngine::handleDebugInfoLocation(const DebuggerResponse &response)
             QString cmd = "set debug-file-directory " + debugInfoLocation;
             if (!curDebugInfoLocations.isEmpty())
                 cmd += HostOsInfo::pathListSeparator() + curDebugInfoLocations;
-            runCommand({cmd, NoFlags});
+            runCommand({cmd});
         }
     }
 }
@@ -4491,7 +4494,7 @@ void GdbEngine::doUpdateLocals(const UpdateParameters &params)
 
     watchHandler()->notifyUpdateStarted(params);
 
-    DebuggerCommand cmd("fetchVariables", Discardable|InUpdateLocals|PythonCommand);
+    DebuggerCommand cmd("fetchVariables", Discardable|InUpdateLocals);
     watchHandler()->appendFormatRequests(&cmd);
     watchHandler()->appendWatchersAndTooltipRequests(&cmd);
 

@@ -128,7 +128,7 @@ void GdbTermEngine::runEngine()
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
     const qint64 attachedPID = m_stubProc.applicationPID();
-    runCommand({"attach " + QString::number(attachedPID), NoFlags,
+    runCommand({"attach " + QString::number(attachedPID),
                 [this](const DebuggerResponse &r) { handleStubAttached(r); }});
 }
 

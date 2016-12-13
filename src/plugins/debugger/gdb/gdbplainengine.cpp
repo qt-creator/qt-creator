@@ -54,15 +54,15 @@ void GdbPlainEngine::setupInferior()
     setEnvironmentVariables();
     const DebuggerRunParameters &rp = runParameters();
     if (!rp.inferior.workingDirectory.isEmpty())
-        runCommand({"cd " + rp.inferior.workingDirectory, NoFlags});
+        runCommand({"cd " + rp.inferior.workingDirectory});
     if (!rp.inferior.commandLineArguments.isEmpty()) {
         QString args = rp.inferior.commandLineArguments;
-        runCommand({"-exec-arguments " + args, NoFlags});
+        runCommand({"-exec-arguments " + args});
     }
 
     QString executable = QFileInfo(runParameters().inferior.executable).absoluteFilePath();
-    runCommand({"-file-exec-and-symbols \"" + executable + '"', NoFlags,
-        CB(handleFileExecAndSymbols)});
+    runCommand({"-file-exec-and-symbols \"" + executable + '"',
+                CB(handleFileExecAndSymbols)});
 }
 
 void GdbPlainEngine::handleFileExecAndSymbols(const DebuggerResponse &response)
@@ -82,9 +82,9 @@ void GdbPlainEngine::handleFileExecAndSymbols(const DebuggerResponse &response)
 void GdbPlainEngine::runEngine()
 {
     if (runParameters().useContinueInsteadOfRun)
-        runCommand({"-exec-continue", RunRequest, CB(handleExecuteContinue)});
+        runCommand({"-exec-continue", DebuggerCommand::RunRequest, CB(handleExecuteContinue)});
     else
-        runCommand({"-exec-run", RunRequest, CB(handleExecRun)});
+        runCommand({"-exec-run", DebuggerCommand::RunRequest, CB(handleExecRun)});
 }
 
 void GdbPlainEngine::handleExecRun(const DebuggerResponse &response)
@@ -97,7 +97,7 @@ void GdbPlainEngine::handleExecRun(const DebuggerResponse &response)
         showMessage(msgInferiorSetupOk(), StatusBar);
         // FIXME: That's the wrong place for it.
         if (boolSetting(EnableReverseDebugging))
-            runCommand({"target record", NoFlags});
+            runCommand({"target record"});
     } else {
         QString msg = response.data["msg"].data();
         //QTC_CHECK(status() == InferiorRunOk);
