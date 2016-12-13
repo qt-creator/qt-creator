@@ -112,29 +112,26 @@ void GenericProjectPlugin::test_mixed1()
     const QStringList part1files = simplify(parts[1]->files, dirPathWithSlash);
     const QStringList part2files = simplify(parts[2]->files, dirPathWithSlash);
 
-    QCOMPARE(parts[0]->displayName, _("mixedproject1 (C++11)"));
+    QCOMPARE(parts[0]->displayName, _("mixedproject1 (C++)"));
     QCOMPARE(parts[0]->files.size(), 4);
     QVERIFY(part0files.contains(_("main.cpp")));
     QVERIFY(part0files.contains(_("header.h")));
     QVERIFY(part0files.contains(_("MyViewController.h")));
     QVERIFY(part0files.contains(_("Glue.h")));
 
-    QCOMPARE(parts[1]->displayName, _("mixedproject1 (Obj-C++11)"));
+    QCOMPARE(parts[1]->displayName, _("mixedproject1 (Obj-C)"));
     QCOMPARE(parts[1]->files.size(), 4);
-    QVERIFY(part1files.contains(_("Glue.mm")));
+    QVERIFY(part1files.contains(_("MyViewController.m")));
     QVERIFY(part1files.contains(_("header.h")));
     QVERIFY(part1files.contains(_("MyViewController.h")));
     QVERIFY(part1files.contains(_("Glue.h")));
 
-    QCOMPARE(parts[2]->displayName, _("mixedproject1 (Obj-C11)"));
-    QCOMPARE(parts[2]->files.size(), 1);
-    QVERIFY(part2files.contains(_("MyViewController.m")));
-    // No .h files here, because the mime-type for .h files is.....
-    //
-    // wait for it...
-    //
-    // C++!
-    // (See 1c7da3d83c9bb35064ae6b9052cbf1c6bff1395e.)
+    QCOMPARE(parts[2]->displayName, _("mixedproject1 (Obj-C++)"));
+    QCOMPARE(parts[2]->files.size(), 4);
+    QVERIFY(part2files.contains(_("Glue.mm")));
+    QVERIFY(part2files.contains(_("header.h")));
+    QVERIFY(part2files.contains(_("MyViewController.h")));
+    QVERIFY(part2files.contains(_("Glue.h")));
 }
 
 void GenericProjectPlugin::test_mixed2()
@@ -160,12 +157,12 @@ void GenericProjectPlugin::test_mixed2()
     const QStringList part0files = simplify(parts[0]->files, dirPathWithSlash);
     const QStringList part1files = simplify(parts[1]->files, dirPathWithSlash);
 
-    QCOMPARE(parts[0]->displayName, _("mixedproject2 (C++11)"));
-    QCOMPARE(parts[0]->files.size(), 2);
-    QVERIFY(part0files.contains(_("main.cpp")));
-    QVERIFY(part0files.contains(_("header.hpp")));
+    QCOMPARE(parts[0]->displayName, _("mixedproject2 (C)"));
+    QCOMPARE(parts[0]->files.size(), 1);
+    QVERIFY(part0files.contains(_("impl.c")));
 
-    QCOMPARE(parts[1]->displayName, _("mixedproject2 (C11)"));
-    QCOMPARE(parts[1]->files.size(), 1);
-    QVERIFY(part1files.contains(_("impl.c")));
+    QCOMPARE(parts[1]->displayName, _("mixedproject2 (C++)"));
+    QCOMPARE(parts[1]->files.size(), 2);
+    QVERIFY(part1files.contains(_("main.cpp")));
+    QVERIFY(part1files.contains(_("header.hpp")));
 }
