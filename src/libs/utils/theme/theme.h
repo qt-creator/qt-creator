@@ -351,8 +351,8 @@ protected:
     ThemePrivate *d;
 
 private:
-    friend Theme *creatorTheme();
-    friend Theme *proxyTheme();
+    friend QTCREATOR_UTILS_EXPORT Theme *creatorTheme();
+    friend QTCREATOR_UTILS_EXPORT Theme *proxyTheme();
     QPair<QColor, QString> readNamedColor(const QString &color) const;
 };
 
