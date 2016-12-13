@@ -210,12 +210,12 @@ MetaInfo {
 
     Type {
         name: "QtQuick.Column"
-        icon: ":/qtquickplugin/images/item-icon16.png"
+        icon: ":/qtquickplugin/images/column-positioner-icon-16px.png"
 
         ItemLibraryEntry {
             name: "Column"
             category: "Qt Quick - Positioner"
-            libraryIcon: ":/qtquickplugin/images/item-icon.png"
+            libraryIcon: ":/qtquickplugin/images/column-positioner-icon.png"
             version: "2.0"
 
             Property { name: "width"; type: "int"; value: 200; }
@@ -225,12 +225,12 @@ MetaInfo {
 
     Type {
         name: "QtQuick.Row"
-        icon: ":/qtquickplugin/images/item-icon16.png"
+        icon: ":/qtquickplugin/images/row-positioner-icon-16px.png"
 
         ItemLibraryEntry {
             name: "Row"
             category: "Qt Quick - Positioner"
-            libraryIcon: ":/qtquickplugin/images/item-icon.png"
+            libraryIcon: ":/qtquickplugin/images/row-positioner-icon.png"
             version: "2.0"
 
             Property { name: "width"; type: "int"; value: 200; }
@@ -240,12 +240,12 @@ MetaInfo {
 
     Type {
         name: "QtQuick.Grid"
-        icon: ":/qtquickplugin/images/item-icon16.png"
+        icon: ":/qtquickplugin/images/grid-positioner-icon-16px.png"
 
         ItemLibraryEntry {
             name: "Grid"
             category: "Qt Quick - Positioner"
-            libraryIcon: ":/qtquickplugin/images/item-icon.png"
+            libraryIcon: ":/qtquickplugin/images/grid-positioner-icon.png"
             version: "2.0"
 
             Property { name: "width"; type: "int"; value: 400; }
@@ -255,12 +255,12 @@ MetaInfo {
 
     Type {
         name: "QtQuick.Flow"
-        icon: ":/qtquickplugin/images/item-icon16.png"
+        icon: ":/qtquickplugin/images/flow-positioner-icon-16px.png"
 
         ItemLibraryEntry {
             name: "Flow"
             category: "Qt Quick - Positioner"
-            libraryIcon: ":/qtquickplugin/images/item-icon.png"
+            libraryIcon: ":/qtquickplugin/images/flow-positioner-icon.png"
             version: "2.0"
 
             Property { name: "width"; type: "int"; value: 400; }
