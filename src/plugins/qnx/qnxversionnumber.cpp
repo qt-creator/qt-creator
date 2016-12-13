@@ -88,11 +88,6 @@ QString QnxVersionNumber::segment(int index) const
     return QString();
 }
 
-QnxVersionNumber QnxVersionNumber::fromNdkEnvFileName(const QString &ndkEnvFileName)
-{
-    return fromFileName(ndkEnvFileName, QRegExp(QLatin1String("^bbndk-env_(.*)$")));
-}
-
 QnxVersionNumber QnxVersionNumber::fromTargetName(const QString &targetName)
 {
     return fromFileName(targetName, QRegExp(QLatin1String("^target_(.*)$")));

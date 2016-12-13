@@ -99,8 +99,8 @@ QList<Utils::EnvironmentItem> QnxUtils::qnxEnvironmentFromEnvFile(const QString 
 
     const bool isWindows = Utils::HostOsInfo::isWindowsHost();
 
-    // locking creating bbndk-env file wrapper script
-    Utils::TemporaryFile tmpFile(QString::fromLatin1("bbndk-env-eval-XXXXXX")
+    // locking creating sdp-env file wrapper script
+    Utils::TemporaryFile tmpFile(QString::fromLatin1("sdp-env-eval-XXXXXX")
                                  + QString::fromLatin1(isWindows ? ".bat" : ".sh"));
     if (!tmpFile.open())
         return items;
@@ -155,71 +155,26 @@ QList<Utils::EnvironmentItem> QnxUtils::qnxEnvironmentFromEnvFile(const QString 
     return items;
 }
 
-QString QnxUtils::envFilePath(const QString &ndkPath, const QString &targetVersion)
+QString QnxUtils::envFilePath(const QString &sdpPath)
 {
-    QDir ndk(ndkPath);
+    QDir sdp(sdpPath);
     QStringList entries;
     if (Utils::HostOsInfo::isWindowsHost())
-        entries = ndk.entryList(QStringList(QLatin1String("*-env.bat")));
+        entries = sdp.entryList(QStringList(QLatin1String("*-env.bat")));
     else
-        entries = ndk.entryList(QStringList(QLatin1String("*-env.sh")));
+        entries = sdp.entryList(QStringList(QLatin1String("*-env.sh")));
 
     if (!entries.isEmpty())
-        return ndk.absoluteFilePath(entries.first());
-
-    QString envFile;
-    if (Utils::HostOsInfo::isWindowsHost())
-        envFile = ndkPath + QLatin1String("/bbndk-env.bat");
-    else if (Utils::HostOsInfo::isAnyUnixHost())
-        envFile = ndkPath + QLatin1String("/bbndk-env.sh");
-
-    if (!QFileInfo::exists(envFile)) {
-        QString version = targetVersion.isEmpty() ? defaultTargetVersion(ndkPath) : targetVersion;
-        version = version.replace(QLatin1Char('.'), QLatin1Char('_'));
-        if (Utils::HostOsInfo::isWindowsHost())
-            envFile = ndkPath + QLatin1String("/bbndk-env_") + version + QLatin1String(".bat");
-        else if (Utils::HostOsInfo::isAnyUnixHost())
-            envFile = ndkPath + QLatin1String("/bbndk-env_") + version + QLatin1String(".sh");
-    }
-    return envFile;
-}
-
-QString QnxUtils::bbDataDirPath()
-{
-    const QString homeDir = QDir::homePath();
-
-    if (Utils::HostOsInfo::isMacHost())
-        return homeDir + QLatin1String("/Library/Research in Motion");
-
-    if (Utils::HostOsInfo::isAnyUnixHost())
-        return homeDir + QLatin1String("/.rim");
-
-    if (Utils::HostOsInfo::isWindowsHost()) {
-        // Get the proper storage location on Windows using QDesktopServices,
-        // to not hardcode "AppData/Local", as it might refer to "AppData/Roaming".
-        QString dataDir = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)
-                + QLatin1String("/data");
-        dataDir = dataDir.left(dataDir.indexOf(QCoreApplication::organizationName()));
-        dataDir.append(QLatin1String("/Research in Motion"));
-        return dataDir;
-    }
+        return sdp.absoluteFilePath(entries.first());
 
     return QString();
 }
 
-QString QnxUtils::bbqConfigPath()
+QString QnxUtils::defaultTargetVersion(const QString &sdpPath)
 {
-    if (Utils::HostOsInfo::isMacHost() || Utils::HostOsInfo::isWindowsHost())
-        return bbDataDirPath() + QLatin1String("/BlackBerry Native SDK/qconfig");
-    else
-        return bbDataDirPath() + QLatin1String("/bbndk/qconfig");
-}
-
-QString QnxUtils::defaultTargetVersion(const QString &ndkPath)
-{
-    foreach (const ConfigInstallInformation &ndkInfo, installedConfigs()) {
-        if (!ndkInfo.path.compare(ndkPath, Utils::HostOsInfo::fileNameCaseSensitivity()))
-            return ndkInfo.version;
+    foreach (const ConfigInstallInformation &sdpInfo, installedConfigs()) {
+        if (!sdpInfo.path.compare(sdpPath, Utils::HostOsInfo::fileNameCaseSensitivity()))
+            return sdpInfo.version;
     }
 
     return QString();
@@ -227,18 +182,17 @@ QString QnxUtils::defaultTargetVersion(const QString &ndkPath)
 
 QList<ConfigInstallInformation> QnxUtils::installedConfigs(const QString &configPath)
 {
-    QList<ConfigInstallInformation> ndkList;
-    QString ndkConfigPath = configPath;
-    if (ndkConfigPath.isEmpty())
-        ndkConfigPath = bbqConfigPath();
+    QList<ConfigInstallInformation> sdpList;
+    QString sdpConfigPath = configPath;
 
-    if (!QDir(ndkConfigPath).exists())
-        return ndkList;
+    if (!QDir(sdpConfigPath).exists())
+        return sdpList;
 
-    QFileInfoList ndkfileList = QDir(ndkConfigPath).entryInfoList(QStringList() << QLatin1String("*.xml"),
-                                                                  QDir::Files, QDir::Time);
-    foreach (const QFileInfo &ndkFile, ndkfileList) {
-        QFile xmlFile(ndkFile.absoluteFilePath());
+    QFileInfoList sdpfileList =
+            QDir(sdpConfigPath).entryInfoList(QStringList() << QLatin1String("*.xml"),
+                                              QDir::Files, QDir::Time);
+    foreach (const QFileInfo &sdpFile, sdpfileList) {
+        QFile xmlFile(sdpFile.absoluteFilePath());
         if (!xmlFile.open(QIODevice::ReadOnly))
             continue;
 
@@ -254,48 +208,22 @@ QList<ConfigInstallInformation> QnxUtils::installedConfigs(const QString &config
         // The file contains only one installation node
         if (!childElt.isNull()) {
             // The file contains only one base node
-            ConfigInstallInformation ndkInfo;
-            ndkInfo.path = childElt.firstChildElement(QLatin1String("base")).text();
-            ndkInfo.name = childElt.firstChildElement(QLatin1String("name")).text();
-            ndkInfo.host = childElt.firstChildElement(QLatin1String("host")).text();
-            ndkInfo.target = childElt.firstChildElement(QLatin1String("target")).text();
-            ndkInfo.version = childElt.firstChildElement(QLatin1String("version")).text();
-            ndkInfo.installationXmlFilePath = ndkFile.absoluteFilePath();
+            ConfigInstallInformation sdpInfo;
+            sdpInfo.path = childElt.firstChildElement(QLatin1String("base")).text();
+            sdpInfo.name = childElt.firstChildElement(QLatin1String("name")).text();
+            sdpInfo.host = childElt.firstChildElement(QLatin1String("host")).text();
+            sdpInfo.target = childElt.firstChildElement(QLatin1String("target")).text();
+            sdpInfo.version = childElt.firstChildElement(QLatin1String("version")).text();
+            sdpInfo.installationXmlFilePath = sdpFile.absoluteFilePath();
 
-            ndkList.append(ndkInfo);
+            sdpList.append(sdpInfo);
         }
     }
 
-    return ndkList;
+    return sdpList;
 }
 
-QString QnxUtils::sdkInstallerPath(const QString &ndkPath)
+QList<Utils::EnvironmentItem> QnxUtils::qnxEnvironment(const QString &sdpPath)
 {
-    QString sdkinstallPath = Utils::HostOsInfo::withExecutableSuffix(ndkPath + QLatin1String("/qde"));
-
-    if (QFileInfo::exists(sdkinstallPath))
-        return sdkinstallPath;
-
-    return QString();
-}
-
-// The resulting process when launching sdkinstall
-QString QnxUtils::qdeInstallProcess(const QString &ndkPath, const QString &target,
-                                    const QString &option, const QString &version)
-{
-    QString installerPath = sdkInstallerPath(ndkPath);
-    if (installerPath.isEmpty())
-        return QString();
-
-    const QDir pluginDir(ndkPath + QLatin1String("/plugins"));
-    const QStringList installerPlugins = pluginDir.entryList(QStringList() << QLatin1String("com.qnx.tools.ide.sdk.installer.app_*.jar"));
-    const QString installerApplication = installerPlugins.size() >= 1 ? QLatin1String("com.qnx.tools.ide.sdk.installer.app.SDKInstallerApplication")
-                                                                      : QLatin1String("com.qnx.tools.ide.sdk.manager.core.SDKInstallerApplication");
-    return QString::fromLatin1("%1 -nosplash -application %2 "
-                               "%3 %4 %5 -vmargs -Dosgi.console=:none").arg(installerPath, installerApplication, target, option, version);
-}
-
-QList<Utils::EnvironmentItem> QnxUtils::qnxEnvironment(const QString &sdkPath)
-{
-    return qnxEnvironmentFromEnvFile(envFilePath(sdkPath));
+    return qnxEnvironmentFromEnvFile(envFilePath(sdpPath));
 }

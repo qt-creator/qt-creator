@@ -38,24 +38,24 @@ namespace Internal {
 
 QnxBaseQtConfigWidget::QnxBaseQtConfigWidget(QnxQtVersion *version) :
     m_version(version),
-    m_sdkPathChooser(new Utils::PathChooser)
+    m_sdpPathChooser(new Utils::PathChooser)
 {
     QTC_ASSERT(version, return);
 
     QHBoxLayout *layout = new QHBoxLayout(this);
-    layout->addWidget(m_sdkPathChooser);
+    layout->addWidget(m_sdpPathChooser);
 
-    m_sdkPathChooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
-    m_sdkPathChooser->setHistoryCompleter(QLatin1String("Qnx.Sdk.History"));
-    m_sdkPathChooser->setPath(version->sdkPath());
+    m_sdpPathChooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
+    m_sdpPathChooser->setHistoryCompleter(QLatin1String("Qnx.Sdp.History"));
+    m_sdpPathChooser->setPath(version->sdpPath());
 
-    connect(m_sdkPathChooser, &Utils::PathChooser::rawPathChanged,
-            this, &QnxBaseQtConfigWidget::updateSdkPath);
+    connect(m_sdpPathChooser, &Utils::PathChooser::rawPathChanged,
+            this, &QnxBaseQtConfigWidget::updateSdpPath);
 }
 
-void QnxBaseQtConfigWidget::updateSdkPath(const QString &path)
+void QnxBaseQtConfigWidget::updateSdpPath(const QString &path)
 {
-    m_version->setSdkPath(path);
+    m_version->setSdpPath(path);
     emit changed();
 }
 

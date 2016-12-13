@@ -58,7 +58,7 @@ GdbRemoteServerEngine::GdbRemoteServerEngine(const DebuggerRunParameters &runPar
     : GdbEngine(runParameters), m_startAttempted(false)
 {
     if (HostOsInfo::isWindowsHost())
-        m_gdbProc.setUseCtrlCStub(runParameters.useCtrlCStub); // This is only set for QNX/BlackBerry
+        m_gdbProc.setUseCtrlCStub(runParameters.useCtrlCStub); // This is only set for QNX
 
     connect(&m_uploadProc, &QProcess::errorOccurred, this, &GdbRemoteServerEngine::uploadProcError);
     connect(&m_uploadProc, &QProcess::readyReadStandardOutput,

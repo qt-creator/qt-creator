@@ -47,8 +47,8 @@ public:
     QVariantMap toMap() const override;
     bool fromMap(const QVariantMap &data) override;
 
-    QString ndkPath() const;
-    void setNdkPath(const QString &ndkPath);
+    QString sdpPath() const;
+    void setSdpPath(const QString &sdpPath);
 
 protected:
     virtual DetectedAbisResult detectSupportedAbis() const override;
@@ -56,7 +56,7 @@ protected:
     QStringList reinterpretOptions(const QStringList &args) const override;
 
 private:
-    QString m_ndkPath;
+    QString m_sdpPath;
 };
 
 // --------------------------------------------------------------------------
@@ -100,7 +100,7 @@ private:
     void makeReadOnlyImpl() override { }
 
     Utils::PathChooser *m_compilerCommand;
-    Utils::PathChooser *m_ndkPath;
+    Utils::PathChooser *m_sdpPath;
     ProjectExplorer::AbiWidget *m_abiWidget;
 
 };

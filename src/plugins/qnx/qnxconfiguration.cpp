@@ -65,7 +65,7 @@ namespace Internal {
 const QLatin1String QNXEnvFileKey("EnvFile");
 const QLatin1String QNXVersionKey("QNXVersion");
 // For backward compatibility
-const QLatin1String NDKEnvFileKey("NDKEnvFile");
+const QLatin1String SdpEnvFileKey("NDKEnvFile");
 
 QnxConfiguration::QnxConfiguration()
 { }
@@ -80,7 +80,7 @@ QnxConfiguration::QnxConfiguration(const QVariantMap &data)
 {
     QString envFilePath = data.value(QNXEnvFileKey).toString();
     if (envFilePath.isEmpty())
-        envFilePath = data.value(NDKEnvFileKey).toString();
+        envFilePath = data.value(SdpEnvFileKey).toString();
 
     m_version = QnxVersionNumber(data.value(QNXVersionKey).toString());
 
@@ -221,7 +221,7 @@ QnxQtVersion *QnxConfiguration::qnxQtVersion(const Target &target) const
              QtVersionManager::instance()->versions(Utils::equal(&BaseQtVersion::type,
                                                                          QString::fromLatin1(Constants::QNX_QNX_QT)))) {
         QnxQtVersion *qnxQt = dynamic_cast<QnxQtVersion *>(version);
-        if (qnxQt && FileName::fromString(qnxQt->sdkPath()) == sdpPath()) {
+        if (qnxQt && FileName::fromString(qnxQt->sdpPath()) == sdpPath()) {
             foreach (const Abi &qtAbi, version->qtAbis()) {
                 if ((qtAbi == target.m_abi) && (qnxQt->cpuDir() == target.cpuDir()))
                     return qnxQt;
@@ -276,7 +276,7 @@ QnxToolChain *QnxConfiguration::createToolChain(const Target &target)
                     "QCC for %1 (%2)")
                 .arg(displayName())
                 .arg(target.shortDescription()));
-    toolChain->setNdkPath(sdpPath().toString());
+    toolChain->setSdpPath(sdpPath().toString());
     ToolChainManager::registerToolChain(toolChain);
     return toolChain;
 }

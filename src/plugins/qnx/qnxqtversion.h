@@ -69,8 +69,8 @@ public:
     bool isValid() const override;
     QString invalidReason() const override;
 
-    QString sdkPath() const;
-    void setSdkPath(const QString &sdkPath);
+    QString sdpPath() const;
+    void setSdpPath(const QString &sdpPath);
 
 protected:
    void parseMkSpec(ProFileEvaluator *) const override;
@@ -80,7 +80,7 @@ private:
 
     QList<Utils::EnvironmentItem> environment() const;
 
-    QString m_sdkPath;
+    QString m_sdpPath;
 
     mutable QString m_cpuDir;
     mutable bool m_environmentUpToDate = false;

@@ -42,7 +42,7 @@ using namespace ProjectExplorer;
 namespace Qnx {
 namespace Internal {
 
-static char SDK_PATH_KEY[] = "SDKPath";
+static char SDP_PATH_KEY[] = "SDKPath";
 
 QnxQtVersion::QnxQtVersion()
 { }
@@ -126,14 +126,14 @@ void QnxQtVersion::parseMkSpec(ProFileEvaluator *evaluator) const
 QVariantMap QnxQtVersion::toMap() const
 {
     QVariantMap result = BaseQtVersion::toMap();
-    result.insert(QLatin1String(SDK_PATH_KEY), sdkPath());
+    result.insert(QLatin1String(SDP_PATH_KEY), sdpPath());
     return result;
 }
 
 void QnxQtVersion::fromMap(const QVariantMap &map)
 {
     BaseQtVersion::fromMap(map);
-    setSdkPath(QDir::fromNativeSeparators(map.value(QLatin1String(SDK_PATH_KEY)).toString()));
+    setSdpPath(QDir::fromNativeSeparators(map.value(QLatin1String(SDP_PATH_KEY)).toString()));
 }
 
 QList<ProjectExplorer::Abi> QnxQtVersion::detectQtAbis() const
@@ -153,7 +153,7 @@ void QnxQtVersion::addToEnvironment(const ProjectExplorer::Kit *k, Utils::Enviro
 
 Utils::Environment QnxQtVersion::qmakeRunEnvironment() const
 {
-    if (!sdkPath().isEmpty())
+    if (!sdpPath().isEmpty())
         updateEnvironment();
 
     Utils::Environment env = Utils::Environment::systemEnvironment();
@@ -169,27 +169,28 @@ QtSupport::QtConfigWidget *QnxQtVersion::createConfigurationWidget() const
 
 bool QnxQtVersion::isValid() const
 {
-    return QtSupport::BaseQtVersion::isValid() && !sdkPath().isEmpty();
+    return QtSupport::BaseQtVersion::isValid() && !sdpPath().isEmpty();
 }
 
 QString QnxQtVersion::invalidReason() const
 {
-    if (sdkPath().isEmpty())
-        return QCoreApplication::translate("Qnx::Internal::QnxQtVersion", "No SDK path was set up.");
+    if (sdpPath().isEmpty())
+        return QCoreApplication::translate("Qnx::Internal::QnxQtVersion",
+                                           "No SDP path was set up.");
     return QtSupport::BaseQtVersion::invalidReason();
 }
 
-QString QnxQtVersion::sdkPath() const
+QString QnxQtVersion::sdpPath() const
 {
-    return m_sdkPath;
+    return m_sdpPath;
 }
 
-void QnxQtVersion::setSdkPath(const QString &sdkPath)
+void QnxQtVersion::setSdpPath(const QString &sdpPath)
 {
-    if (m_sdkPath == sdkPath)
+    if (m_sdpPath == sdpPath)
         return;
 
-    m_sdkPath = sdkPath;
+    m_sdpPath = sdpPath;
     m_environmentUpToDate = false;
 }
 
@@ -203,7 +204,7 @@ void QnxQtVersion::updateEnvironment() const
 
 QList<Utils::EnvironmentItem> QnxQtVersion::environment() const
 {
-    return QnxUtils::qnxEnvironment(sdkPath());
+    return QnxUtils::qnxEnvironment(sdpPath());
 }
 
 } // namespace Internal
