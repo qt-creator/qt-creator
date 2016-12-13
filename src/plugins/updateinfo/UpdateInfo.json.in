@@ -2,7 +2,7 @@
     \"Name\" : \"UpdateInfo\",
     \"Version\" : \"$$QTCREATOR_VERSION\",
     \"CompatVersion\" : \"$$QTCREATOR_COMPAT_VERSION\",
-    \"Experimental\" : $$UPDATEINFO_EXPERIMENTAL_STR,
+    \"DisabledByDefault\" : $$UPDATEINFO_EXPERIMENTAL_STR,
     \"Vendor\" : \"The Qt Company Ltd\",
     \"Copyright\" : \"(C) 2016 The Qt Company Ltd\",
     \"License\" : [ \"Commercial Usage\",
