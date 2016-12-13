@@ -130,6 +130,8 @@ void TestCodeParser::syncTestFrameworks(const QVector<Core::Id> &frameworkIds)
 
 void TestCodeParser::emitUpdateTestTree()
 {
+    if (m_testCodeParsers.isEmpty())
+        return;
     if (m_singleShotScheduled) {
         qCDebug(LOG) << "not scheduling another updateTestTree";
         return;
