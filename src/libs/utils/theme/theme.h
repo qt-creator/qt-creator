@@ -327,8 +327,8 @@ public:
         WindowColorAsBase
     };
 
-    bool flag(Flag f) const;
-    QColor color(Color role) const;
+    Q_INVOKABLE bool flag(Flag f) const;
+    Q_INVOKABLE QColor color(Color role) const;
     QString imageFile(ImageFile imageFile, const QString &fallBack) const;
     QGradientStops gradient(Gradient role) const;
     QPalette palette() const;
