@@ -6412,6 +6412,17 @@ void tst_Dumpers::dumper_data()
                     "QtcDumperTest_FieldAccessByIndex d; unused(&d);\n")
             + Check("d", "12", "QtcDumperTest_FieldAccessByIndex");
 
+
+    QTest::newRow("Internal2")
+            << Data("struct Foo { int bar = 15; }; \n"
+                    "struct QtcDumperTest_PointerArray {\n"
+                    "   Foo *foos = new Foo[10];\n"
+                    "};\n\n",
+                    "QtcDumperTest_PointerArray tc; unused(&tc);\n")
+            + Check("tc.0.bar", "15", "int")
+            + Check("tc.1.bar", "15", "int")
+            + Check("tc.2.bar", "15", "int")
+            + Check("tc.3.bar", "15", "int");
 #if 0
 #ifdef Q_OS_LINUX
     // Hint: To open a failing test in Creator, do:

@@ -326,3 +326,11 @@ def qdump__WTF__String(d, value):
 def qdump__QtcDumperTest_FieldAccessByIndex(d, value):
     d.putValue(value["d"][2].integer())
 
+def qdump__QtcDumperTest_PointerArray(d, value):
+    foos = value["foos"]
+    d.putItemCount(10)
+    if d.isExpanded():
+        with Children(d, 10):
+            for i in d.childRange():
+                d.putSubItem(i, foos[i])
+

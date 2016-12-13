@@ -2880,9 +2880,12 @@ class DumperBase:
             elif isinstance(index, self.dumper.Field):
                 field = index
             elif self.dumper.isInt(index):
-                if self.type.code in (TypeCodeArray, TypeCodePointer):
-                    itemAddress = self.laddress + int(index) * self.type.ltarget.size()
-                    return self.dumper.createValue(itemAddress, self.type.ltarget)
+                if self.type.code == TypeCodeArray:
+                    addr = self.laddress + int(index) * self.type.ltarget.size()
+                    return self.dumper.createValue(addr, self.type.ltarget)
+                if self.type.code == TypeCodePointer:
+                    addr = self.pointer() + int(index) * self.type.ltarget.size()
+                    return self.dumper.createValue(addr, self.type.ltarget)
                 return self.members(False)[index]
             else:
                 error('BAD INDEX TYPE %s' % type(index))
