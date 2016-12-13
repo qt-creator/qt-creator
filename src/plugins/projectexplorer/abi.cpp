@@ -164,7 +164,9 @@ static QList<Abi> parseCoffHeader(const QByteArray &data)
             flavor = Abi::WindowsMsvc2013Flavor;
             break;
         case 14:
-            flavor = Abi::WindowsMsvc2015Flavor;
+            flavor = minorLinker >= quint8(10)
+                ? Abi::WindowsMsvc2017Flavor // MSVC2017 RC
+                : Abi::WindowsMsvc2015Flavor;
             break;
         case 15:
             flavor = Abi::WindowsMsvc2017Flavor;
