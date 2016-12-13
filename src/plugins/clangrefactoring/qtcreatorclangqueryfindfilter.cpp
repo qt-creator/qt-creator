@@ -50,16 +50,6 @@ void QtCreatorClangQueryFindFilter::findAll(const QString &queryText, Core::Find
 }
 
 namespace {
-std::vector<CppTools::ProjectPart::Ptr>
-convertProjectParts(const QList<CppTools::ProjectPart::Ptr> &projectPartList)
-{
-    std::vector<CppTools::ProjectPart::Ptr> projectPartVector;
-    projectPartVector.reserve(projectPartList.size());
-
-    std::copy(projectPartList.begin(), projectPartList.end(), std::back_inserter(projectPartVector));
-
-    return projectPartVector;
-}
 
 std::vector<ClangBackEnd::V2::FileContainer> createUnsavedContents()
 {
@@ -89,7 +79,7 @@ void QtCreatorClangQueryFindFilter::prepareFind()
 
     const CppTools::ProjectInfo projectInfo = CppTools::CppModelManager::instance()->projectInfo(currentProject);
 
-    setProjectParts(convertProjectParts(projectInfo.projectParts()));
+    setProjectParts(projectInfo.projectParts().toStdVector());
 
     setUnsavedContent(createUnsavedContents());
 }
