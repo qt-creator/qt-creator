@@ -231,9 +231,7 @@
     \image qtcreator-autotests-options.png
 
     \QC scans the project for tests when you open the project and updates the
-    test list when you edit tests. To only update the test list when the
-    \uicontrol Tests view or the \uicontrol {Test Results} output pane is open,
-    deselect the \uicontrol {Always parse current project for tests} check box.
+    test list for the currently active test frameworks when you edit tests.
 
     The code inside a benchmark test is measured, and possibly also repeated
     several times in order to get an accurate measurement. This depends on the
