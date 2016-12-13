@@ -44,6 +44,8 @@
 #include <QTime>
 #include <QTimer>
 
+#include <functional>
+
 namespace Debugger {
 namespace Internal {
 
@@ -151,11 +153,13 @@ private: ////////// Gdb Command Management //////////
     enum GdbCommandFlag {
         NoFlags = 0,
         // The command needs a stopped inferior.
-        NeedsStop = 1,
+        NeedsTemporaryStop = 1,
         // No need to wait for the reply before continuing inferior.
         Discardable = 2,
         // Needs a dummy extra command to force GDB output flushing.
         NeedsFlush = 4,
+        // The command needs a stopped inferior and will stay stopped afterward.
+        NeedsFullStop = 8,
         // Callback expects ResultRunning instead of ResultDone.
         RunRequest = 16,
         // Callback expects ResultExit instead of ResultDone.
@@ -267,6 +271,7 @@ private: ////////// View & Data Stuff //////////
 
     void selectThread(ThreadId threadId) override;
     void activateFrame(int index) override;
+    void handleAutoContinueInferior();
 
     //
     // Breakpoint specific stuff
@@ -378,7 +383,7 @@ protected:
     void changeMemory(MemoryAgent *agent, quint64 addr, const QByteArray &data) override;
     void handleFetchMemory(const DebuggerResponse &response, MemoryAgentCookie ac);
 
-    virtual void watchPoint(const QPoint &) override;
+    void watchPoint(const QPoint &) override;
     void handleWatchPoint(const DebuggerResponse &response);
 
     void showToolTip();
@@ -420,9 +425,10 @@ protected:
     QString m_lastWinException;
     QString m_lastMissingDebugInfo;
     bool m_terminalTrap;
-    bool m_temporaryStopPending;
     bool usesExecInterrupt() const;
     bool usesTargetAsync() const;
+
+    DebuggerCommandSequence m_onStop;
 
     QHash<int, QString> m_scheduledTestResponses;
     QSet<int> m_testCases;

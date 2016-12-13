@@ -66,6 +66,7 @@
 #include <QMimeData>
 #include <QPainter>
 #include <QProcess>
+#include <QSet>
 #include <QTabWidget>
 #include <QTextEdit>
 #include <QTableWidget>
@@ -89,6 +90,7 @@ enum { debugModel = 0 };
 #define MODEL_DEBUG(s) do { if (debugModel) qDebug() << s; } while (0)
 
 static QMap<QString, int> theWatcherNames; // Keep order, QTCREATORBUG-12308.
+static QSet<QString> theTemporaryWatchers; // Used for 'watched widgets'.
 static int theWatcherCount = 0;
 static QHash<QString, int> theTypeFormats;
 static QHash<QString, int> theIndividualFormats;
@@ -430,6 +432,11 @@ public:
     void removeWatchItem(WatchItem *item);
     void inputNewExpression();
 
+    void grabWidget();
+    void ungrabWidget();
+    void timerEvent(QTimerEvent *event) override;
+    int m_grabWidgetTimerId = -1;
+
 public:
     WatchHandler *m_handler; // Not owned.
     DebuggerEngine *m_engine; // Not owned.
@@ -446,7 +453,6 @@ public:
 
     QSet<QString> m_expandedINames;
     QTimer m_requestUpdateTimer;
-    bool m_grabbing = false;
 
     QHash<QString, TypeInfo> m_reportedTypeInfo;
     QHash<QString, DisplayFormats> m_reportedTypeFormats; // Type name -> Dumper Formats
@@ -1067,13 +1073,6 @@ bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role
             return true;
         }
 
-        if (ev.as<QMouseEvent>(QEvent::MouseButtonPress)) {
-            m_grabbing = false;
-            ev.view()->releaseMouse();
-            m_engine->watchPoint(ev.globalPos());
-            return true;
-        }
-
         if (ev.as<QMouseEvent>(QEvent::MouseButtonDblClick)) {
             if (item && !item->parent()) { // if item is the invisible root item
                 inputNewExpression();
@@ -1266,6 +1265,46 @@ static QString variableToolTip(const QString &name, const QString &type, quint64
           WatchModel::tr("<i>%1</i> %2 at #%3").arg(type, name).arg(offset)
         : //: HTML tooltip of a variable in the memory editor
           WatchModel::tr("<i>%1</i> %2").arg(type, name);
+}
+
+void WatchModel::grabWidget()
+{
+   qApp->setOverrideCursor(Qt::CrossCursor);
+   m_grabWidgetTimerId = startTimer(30);
+   ICore::mainWindow()->grabMouse();
+}
+
+void WatchModel::timerEvent(QTimerEvent *event)
+{
+    if (event->timerId() == m_grabWidgetTimerId) {
+        QPoint pnt = QCursor::pos();
+        Qt::KeyboardModifiers mods = QApplication::queryKeyboardModifiers();
+        QString msg;
+        if (mods == Qt::NoModifier) {
+            msg = tr("Press Ctrl to select widget at (%1, %2). "
+                     "Press any other keyboard modifier to stop selection.")
+                        .arg(pnt.x()).arg(pnt.y());
+        } else {
+            if (mods == Qt::CTRL) {
+                msg = tr("Selecting widget at (%1, %2).").arg(pnt.x()).arg(pnt.y());
+                m_engine->watchPoint(pnt);
+            } else {
+                msg = tr("Selection aborted.");
+            }
+            ungrabWidget();
+        }
+        showMessage(msg, StatusBar);
+    } else {
+        WatchModelBase::timerEvent(event);
+    }
+}
+
+void WatchModel::ungrabWidget()
+{
+    ICore::mainWindow()->releaseMouse();
+    qApp->restoreOverrideCursor();
+    killTimer(m_grabWidgetTimerId);
+    m_grabWidgetTimerId = -1;
 }
 
 int WatchModel::memberVariableRecursion(WatchItem *item,
@@ -1608,10 +1647,9 @@ bool WatchModel::contextMenuEvent(const ItemViewEvent &ev)
               canRemoveWatches && !m_handler->watchedExpressions().isEmpty(),
               [this] { clearWatches(); });
 
-// FIXME:
-//    addAction(menu, tr("Select Widget to Add into Expression Evaluator"),
-//              canHandleWatches && canInsertWatches && m_engine->hasCapability(WatchWidgetsCapability),
-//              [this, ev] { ev.view()->grabMouse(Qt::CrossCursor); m_grabbing = true; });
+    addAction(menu, tr("Select Widget to Add into Expression Evaluator"),
+              state == InferiorRunOk && m_engine->hasCapability(WatchWidgetsCapability),
+              [this] { grabWidget(); });
 
     menu->addSeparator();
     menu->addMenu(createFormatMenu(item));
@@ -1901,6 +1939,9 @@ void WatchHandler::cleanup()
 {
     m_model->m_expandedINames.clear();
     theWatcherNames.remove(QString());
+    for (const QString &exp : theTemporaryWatchers)
+        theWatcherNames.remove(exp);
+    theTemporaryWatchers.clear();
     saveWatchers();
     m_model->reinitialize();
     emit m_model->updateFinished();
@@ -2080,13 +2121,15 @@ QString WatchHandler::watcherName(const QString &exp)
 }
 
 // If \a name is empty, \a exp will be used as name.
-void WatchHandler::watchExpression(const QString &exp, const QString &name)
+void WatchHandler::watchExpression(const QString &exp, const QString &name, bool temporary)
 {
     // Do not insert the same entry more then once.
     if (exp.isEmpty() || theWatcherNames.contains(exp))
         return;
 
     theWatcherNames[exp] = theWatcherCount++;
+    if (temporary)
+        theTemporaryWatchers.insert(exp);
 
     auto item = new WatchItem;
     item->exp = exp;

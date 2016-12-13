@@ -66,7 +66,9 @@ public:
     WatchModelBase *model() const;
 
     void cleanup();
-    void watchExpression(const QString &exp, const QString &name = QString());
+    void grabWidget(QWidget *viewParent);
+    void watchExpression(const QString &exp, const QString &name = QString(),
+                         bool temporary = false);
     void updateWatchExpression(WatchItem *item, const QString &newExp);
     void watchVariable(const QString &exp);
 

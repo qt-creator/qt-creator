@@ -64,7 +64,9 @@ public:
     enum LldbCommandFlag {
         NoFlags = 0,
         // Do not echo to log.
-        Silent = 1
+        Silent = 1,
+        // The command needs a stopped inferior and will stay stopped afterward.
+        NeedsFullStop = 8,
     };
 
 signals:
@@ -150,6 +152,9 @@ private:
     void runCommand(const DebuggerCommand &cmd) override;
     void debugLastCommand() override;
 
+    void watchPoint(const QPoint &) override;
+    void handleWatchPoint(const DebuggerResponse &response);
+
 private:
     DebuggerCommand m_lastDebuggableCommand;
 
@@ -163,6 +168,7 @@ private:
     QMap<QPointer<DisassemblerAgent>, int> m_disassemblerAgents;
 
     QHash<int, DebuggerCommand> m_commandForToken;
+    DebuggerCommandSequence m_onStop;
 
     // Console handling.
     void stubError(const QString &msg);

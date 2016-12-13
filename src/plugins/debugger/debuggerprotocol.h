@@ -75,6 +75,23 @@ private:
     void argHelper(const char *name, const QByteArray &value);
 };
 
+class DebuggerCommandSequence
+{
+public:
+    DebuggerCommandSequence() {}
+    bool isEmpty() const { return m_commands.isEmpty(); }
+    bool wantContinue() const { return m_continue; }
+    const QList<DebuggerCommand> &commands() const { return m_commands; }
+    void append(const DebuggerCommand &cmd, bool wantContinue) {
+        m_commands.append(cmd);
+        m_continue = wantContinue;
+    }
+
+public:
+    QList<DebuggerCommand> m_commands;
+    bool m_continue = false;
+};
+
 // FIXME: rename into GdbMiValue
 class GdbMi
 {

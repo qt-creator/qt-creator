@@ -33,6 +33,7 @@ import os
 import os.path
 import sys
 import struct
+import tempfile
 import types
 
 from dumper import *
@@ -1023,27 +1024,21 @@ class Dumper(DumperBase):
         for objfile in gdb.objfiles():
             name = objfile.filename
             if name.find('/libQt5Core') >= 0:
+                fd, tmppath = tempfile.mkstemp()
+                os.close(fd)
+                cmd = 'maint print msymbols %s "%s"' % (tmppath, name)
+                symbols = gdb.execute(cmd, to_string = True)
                 ns = ''
-
-                # This only works when called from a valid frame.
-                try:
-                    cand = 'QArrayData::shared_null'
-                    symbol = gdb.lookup_symbol(cand)[0]
-                    if symbol:
-                        ns = symbol.name[:-len(cand)]
-                except:
-                    symbol = None
-
-                if symbol is None:
-                    try:
-                        # Some GDB 7.11.1 on Arch Linux.
-                        cand = 'QArrayData::shared_null[0]'
-                        val = gdb.parse_and_eval(cand)
-                        if val.type is not None:
-                            typeobj = val.type.unqualified()
-                            ns = typeobj.name[:-len('QArrayData')]
-                    except:
-                        pass
+                with open(tmppath) as f:
+                    for line in f:
+                        if line.find('msgHandlerGrabbed ') >= 0:
+                            # [11] b 0x7ffff683c000 _ZN4MynsL17msgHandlerGrabbedE
+                            # section .tbss Myns::msgHandlerGrabbed  qlogging.cpp
+                            ns = re.split('_ZN(\d*)(\w*)L17msgHandlerGrabbedE ', line)[2]
+                            if len(ns):
+                                ns += '::'
+                            break
+                os.remove(tmppath)
 
                 lenns = len(ns)
                 strns = ('%d%s' % (lenns - 2, ns[:lenns - 2])) if lenns else ''
@@ -1054,10 +1049,7 @@ class Dumper(DumperBase):
                     sym = '_ZN7QObject11customEventEP6QEvent'
                 self.qtCustomEventFunc = self.findSymbol(sym)
 
-                if lenns:
-                    sym = '_ZN%s7QObject11customEventEPNS_6QEventE@plt' % strns
-                else:
-                    sym = '_ZN7QObject11customEventEP6QEvent@plt'
+                sym += '@plt'
                 self.qtCustomEventPltFunc = self.findSymbol(sym)
 
                 sym = '_ZNK7%sQObject8propertyEPKc' % strns
@@ -1092,6 +1084,17 @@ class Dumper(DumperBase):
         else:
             cmd = 'set variable (%s)=%s' % (expr, value)
             gdb.execute(cmd)
+
+    def watchPoint(self, args):
+        ns = self.qtNamespace()
+        lenns = len(ns)
+        strns = ('%d%s' % (lenns - 2, ns[:lenns - 2])) if lenns else ''
+        sym = '_ZN%s12QApplication8widgetAtEii' % strns
+        expr = '%s(%s,%s)' % (sym, args['x'], args['y'])
+        res = self.parseAndEvaluate(expr)
+        p = 0 if res is None else res.pointer()
+        n = ("'%sQWidget'" % ns) if lenns else 'QWidget'
+        safePrint('{selected="0x%x",expr="(%s*)0x%x"}' % (p, n, p))
 
     def nativeDynamicTypeName(self, address, baseType):
         # Needed for Gdb13393 test.
@@ -1361,7 +1364,6 @@ class Dumper(DumperBase):
 
     def profile1(self, args):
         '''Internal profiling'''
-        import tempfile
         import cProfile
         tempDir = tempfile.gettempdir() + '/bbprof'
         cProfile.run('theDumper.fetchVariables(%s)' % args, tempDir)

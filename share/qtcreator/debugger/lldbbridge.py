@@ -1646,7 +1646,7 @@ class Dumper(DumperBase):
             result += ',data="%s %s"' % (insn.GetMnemonic(self.target),
                 insn.GetOperands(self.target))
             result += ',function="%s"' % functionName
-            rawData = insn.GetData(lldb.target).uint8s
+            rawData = insn.GetData(self.target).uint8s
             result += ',rawdata="%s"' % ' '.join(["%02x" % x for x in rawData])
             if comment:
                 result += ',comment="%s"' % self.hexencode(comment)
@@ -1677,6 +1677,20 @@ class Dumper(DumperBase):
         lhs = self.findValueByExpression(exp)
         lhs.SetValueFromCString(value, error)
         self.reportResult(self.describeError(error), args)
+
+    def watchPoint(self, args):
+        self.reportToken(args)
+        ns = self.qtNamespace()
+        lenns = len(ns)
+        funcs = self.target.FindGlobalFunctions('.*QApplication::widgetAt', 2, 1)
+        func = funcs[1]
+        addr = func.GetFunction().GetStartAddress().GetLoadAddress(self.target)
+        expr = '((void*(*)(int,int))0x%x)' % addr
+        #expr = '%sQApplication::widgetAt(%s,%s)' % (ns, args['x'], args['y'])
+        res = self.parseAndEvaluate(expr)
+        p = 0 if res is None else res.pointer()
+        n = ns + 'QWidget'
+        self.reportResult('selected="0x%x",expr="(%s*)0x%x"' % (p, n, p), args)
 
     def createResolvePendingBreakpointsHookBreakpoint(self, args):
         bp = self.target.BreakpointCreateByName('qt_qmlDebugConnectorOpen')
