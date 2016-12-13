@@ -270,12 +270,12 @@
  <tabstops>
   <tabstop>findEdit</tabstop>
   <tabstop>replaceEdit</tabstop>
+  <tabstop>findPreviousButton</tabstop>
+  <tabstop>findNextButton</tabstop>
   <tabstop>replaceButton</tabstop>
   <tabstop>replaceNextButton</tabstop>
   <tabstop>replaceAllButton</tabstop>
   <tabstop>advancedButton</tabstop>
-  <tabstop>findPreviousButton</tabstop>
-  <tabstop>findNextButton</tabstop>
   <tabstop>close</tabstop>
  </tabstops>
  <resources/>
