@@ -346,12 +346,17 @@ public:
 
     static QPalette initialPalette();
 
+protected:
+    Theme(ThemePrivate &dd, QObject *parent = nullptr);
     ThemePrivate *d;
 
 private:
+    friend Theme *creatorTheme();
+    friend Theme *proxyTheme();
     QPair<QColor, QString> readNamedColor(const QString &color) const;
 };
 
 QTCREATOR_UTILS_EXPORT Theme *creatorTheme();
+QTCREATOR_UTILS_EXPORT Theme *proxyTheme();
 
 } // namespace Utils

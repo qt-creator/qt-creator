@@ -52,6 +52,11 @@ Theme *creatorTheme()
     return m_creatorTheme;
 }
 
+Theme *proxyTheme()
+{
+    return new Theme(*(new ThemePrivate(*(m_creatorTheme->d))));
+}
+
 void setCreatorTheme(Theme *theme)
 {
     if (m_creatorTheme == theme)
@@ -67,6 +72,10 @@ Theme::Theme(const QString &id, QObject *parent)
   , d(new ThemePrivate)
 {
     d->id = id;
+}
+
+Theme::Theme(ThemePrivate &dd, QObject *parent) : QObject(parent), d(&dd)
+{
 }
 
 Theme::~Theme()
