@@ -26,6 +26,7 @@
 import QtQuick 2.0
 import QtQuick.Controls 1.2
 import QtQuick.Controls.Styles 1.2
+import TimelineTheme 1.0
 
 Button {
     id: button
@@ -45,15 +46,15 @@ Button {
     style: ButtonStyle {
         background: Rectangle {
             border.width: 1
-            border.color: creatorTheme.Timeline_DividerColor
-            color: creatorTheme.PanelStatusBarBackgroundColor
+            border.color: Theme.color(Theme.Timeline_DividerColor)
+            color: Theme.color(Theme.PanelStatusBarBackgroundColor)
         }
         label: TimelineText {
             text: button.labelText
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignLeft
             elide: Text.ElideRight
-            color: creatorTheme.PanelTextColorLight
+            color: Theme.color(Theme.PanelTextColorLight)
         }
     }
     MouseArea {

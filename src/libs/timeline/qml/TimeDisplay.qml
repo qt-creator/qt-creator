@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 import QtQuick 2.1
+import TimelineTheme 1.0
 
 Item {
     id: timeDisplay
@@ -78,7 +79,7 @@ Item {
         anchors.right: parent.right
         anchors.top: parent.top
         height: timeDisplay.labelsHeight
-        color: creatorTheme.PanelStatusBarBackgroundColor
+        color: Theme.color(Theme.PanelStatusBarBackgroundColor)
     }
 
     Item {
@@ -122,7 +123,7 @@ Item {
                     verticalAlignment: Text.AlignVCenter
                     text: prettyPrintTime(column.blockStartTime, timeDisplay.rangeDuration)
                     visible: width > 0
-                    color: creatorTheme.PanelTextColorLight
+                    color: Theme.color(Theme.PanelTextColorLight)
                 }
 
                 Row {
@@ -140,7 +141,7 @@ Item {
 
                             Rectangle {
                                 visible: column.stableIndex !== 0 || (-row.x < parent.x + x)
-                                color: creatorTheme.Timeline_DividerColor
+                                color: Theme.color(Theme.Timeline_DividerColor)
                                 width: 1
                                 anchors.top: parent.top
                                 anchors.bottom: parent.bottom
@@ -151,7 +152,7 @@ Item {
                 }
 
                 Rectangle {
-                    color: creatorTheme.Timeline_DividerColor
+                    color: Theme.color(Theme.Timeline_DividerColor)
                     width: 1
                     anchors.top: parent.top
                     anchors.bottom: parent.bottom

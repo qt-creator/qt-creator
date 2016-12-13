@@ -27,6 +27,8 @@ import QtQuick 2.1
 import QtQuick.Controls 1.0
 import QtQuick.Controls.Styles 1.0
 
+import TimelineTheme 1.0
+
 Rectangle {
     id: root
 
@@ -49,7 +51,7 @@ Rectangle {
         content.scroll();
     }
 
-    color: creatorTheme.Timeline_BackgroundColor1
+    color: Theme.color(Theme.Timeline_BackgroundColor1)
 
     // ***** connections with external objects
     Connections {
@@ -161,7 +163,7 @@ Rectangle {
         contentY: content.contentY
         selectedModel: root.selectedModel
         selectedItem: root.selectedItem
-        color: creatorTheme.PanelStatusBarBackgroundColor
+        color: Theme.color(Theme.PanelStatusBarBackgroundColor)
         modelProxy: timelineModelAggregator
         zoomer: zoomControl
         reverseSelect: shiftPressed
@@ -382,7 +384,7 @@ Rectangle {
     Rectangle {
         id: zoomSliderToolBar
         objectName: "zoomSliderToolBar"
-        color: creatorTheme.Timeline_PanelBackgroundColor
+        color: Theme.color(Theme.Timeline_PanelBackgroundColor)
         enabled: buttonsBar.enabled
         visible: false
         width: buttonsBar.width

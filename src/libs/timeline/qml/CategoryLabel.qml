@@ -27,6 +27,8 @@ import QtQuick 2.1
 import QtQuick.Controls 1.2
 import QtQuick.Controls.Styles 1.2
 
+import TimelineTheme 1.0
+
 Item {
     id: labelContainer
 
@@ -86,7 +88,7 @@ Item {
         anchors.right: notesButton.visible ? notesButton.left : notesButton.right
 
         text: labelContainer.text
-        color: creatorTheme.PanelTextColorLight
+        color: Theme.color(Theme.PanelTextColorLight)
         height: model ? model.defaultRowHeight : 0
         verticalAlignment: Text.AlignVCenter
         elide: Text.ElideRight
@@ -180,7 +182,7 @@ Item {
         property int visualIndex: labelContainer.visualIndex
         width: labelContainer.width
         height: 0
-        color: creatorTheme.PanelStatusBarBackgroundColor
+        color: Theme.color(Theme.PanelStatusBarBackgroundColor)
         opacity: 0.5
         anchors.left: parent.left
 
@@ -219,7 +221,7 @@ Item {
             id: draggerText
             visible: parent.Drag.active
             x: txt.x
-            color: creatorTheme.PanelTextColorLight
+            color: Theme.color(Theme.PanelTextColorLight)
             width: txt.width
             height: txt.height
             verticalAlignment: txt.verticalAlignment

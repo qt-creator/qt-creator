@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 import QtQuick 2.1
+import TimelineTheme 1.0
 
 Item {
     id: rangeDetails
@@ -131,7 +132,7 @@ Item {
         id: titleBar
         width: parent.width
         height: 20
-        color: creatorTheme.Timeline_PanelHeaderColor
+        color: Theme.color(Theme.Timeline_PanelHeaderColor)
     }
     Item {
         width: parent.width+1
@@ -142,7 +143,7 @@ Item {
             width: parent.width-1
             height: 15
             y: -5
-            color: creatorTheme.Timeline_PanelHeaderColor
+            color: Theme.color(Theme.Timeline_PanelHeaderColor)
         }
     }
 
@@ -156,13 +157,13 @@ Item {
         anchors.left: parent.left
         anchors.right: editIcon.left
         elide: Text.ElideRight
-        color: creatorTheme.PanelTextColorLight
+        color: Theme.color(Theme.PanelTextColorLight)
     }
 
     // Details area
     Rectangle {
         id: contentArea
-        color: creatorTheme.Timeline_PanelBackgroundColor
+        color: Theme.color(Theme.Timeline_PanelBackgroundColor)
         width: parent.width
         height: 10 + col.height + (noteEdit.visible ? (noteEdit.height + 5) : 0)
         y: 20
@@ -207,7 +208,7 @@ Item {
             visible: notes && (text.length > 0 || focus)
             width: col.width
             wrapMode: Text.Wrap
-            color: creatorTheme.Timeline_HighlightColor
+            color: Theme.color(Theme.Timeline_HighlightColor)
             font.italic: true
             font.pixelSize: typeTitle.font.pixelSize
             font.family: typeTitle.font.family
@@ -286,7 +287,7 @@ Item {
             cursorShape: Qt.SizeHorCursor
         }
         Rectangle {
-            color: creatorTheme.Timeline_PanelHeaderColor
+            color: Theme.color(Theme.Timeline_PanelHeaderColor)
             rotation: 45
             width: parent.width * Math.SQRT2
             height: parent.height * Math.SQRT2

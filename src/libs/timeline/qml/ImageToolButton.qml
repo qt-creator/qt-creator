@@ -27,6 +27,8 @@ import QtQuick 2.1
 import QtQuick.Controls 1.0
 import QtQuick.Controls.Styles 1.2
 
+import TimelineTheme 1.0
+
 ToolButton {
     implicitWidth: 30
 
@@ -43,9 +45,9 @@ ToolButton {
     style: ButtonStyle {
         background: Rectangle {
             color: (control.checked || control.pressed)
-                   ? creatorTheme.FancyToolButtonSelectedColor
+                   ? Theme.color(Theme.FancyToolButtonSelectedColor)
                    : control.hovered
-                     ? creatorTheme.FancyToolButtonHoverColor
+                     ? Theme.color(Theme.FancyToolButtonHoverColor)
                      : "#00000000"
         }
     }

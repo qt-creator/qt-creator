@@ -25,11 +25,12 @@
 
 import QtQuick 2.1
 import TimelineOverviewRenderer 1.0
+import TimelineTheme 1.0
 
 Rectangle {
     id: overview
     objectName: "Overview"
-    color: creatorTheme.Timeline_BackgroundColor2
+    color: Theme.color(Theme.Timeline_BackgroundColor2)
 
     property QtObject modelProxy
     property QtObject zoomer
@@ -116,7 +117,7 @@ Rectangle {
         }, {});
 
         property int vertSpace: column.height / 7
-        property color noteColor: creatorTheme.Timeline_HighlightColor
+        property color noteColor: Theme.color(Theme.Timeline_HighlightColor)
         readonly property double spacing: parent.width / zoomer.traceDuration
 
         model: modelProxy.notes ? modelProxy.notes.count : 0

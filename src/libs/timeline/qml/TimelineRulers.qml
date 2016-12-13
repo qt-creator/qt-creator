@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 import QtQuick 2.0
+import TimelineTheme 1.0
 
 Item {
     id: rulersParent
@@ -78,7 +79,7 @@ Item {
                 rotation: 45
                 anchors.verticalCenter: parent.top
                 anchors.horizontalCenter: parent.horizontalCenter
-                color: creatorTheme.Timeline_HandleColor
+                color: Theme.color(Theme.Timeline_HandleColor)
                 MouseArea {
                     cursorShape: pressed ? Qt.DragMoveCursor : Qt.OpenHandCursor
                     anchors.fill: parent
@@ -101,7 +102,7 @@ Item {
                 anchors.top: arrow.bottom
                 anchors.bottom: parent.bottom
                 width: 2
-                color: creatorTheme.Timeline_HandleColor
+                color: Theme.color(Theme.Timeline_HandleColor)
             }
 
             Rectangle {
@@ -109,13 +110,13 @@ Item {
                 anchors.horizontalCenter: ruler.horizontalCenter
                 width: scaleHeight / 4
                 height: width
-                color: creatorTheme.Timeline_PanelBackgroundColor
+                color: Theme.color(Theme.Timeline_PanelBackgroundColor)
 
                 Rectangle {
                     anchors.centerIn: parent
                     width: parent.width - 2
                     height: 1
-                    color: creatorTheme.Timeline_TextColor
+                    color: Theme.color(Theme.Timeline_TextColor)
                 }
 
                 MouseArea {

@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 import QtQuick 2.1
+import TimelineTheme 1.0
 
 Item {
     id: selectionRangeDetails
@@ -76,7 +77,7 @@ Item {
     Rectangle {
         width: parent.width
         height: 20
-        color: creatorTheme.Timeline_PanelHeaderColor
+        color: Theme.color(Theme.Timeline_PanelHeaderColor)
     }
 
     //title
@@ -87,12 +88,12 @@ Item {
         height: 20
         verticalAlignment: Text.AlignVCenter
         width: parent.width
-        color: creatorTheme.PanelTextColorLight
+        color: Theme.color(Theme.PanelTextColorLight)
     }
 
     // Details area
     Rectangle {
-        color: creatorTheme.Timeline_PanelBackgroundColor
+        color: Theme.color(Theme.Timeline_PanelBackgroundColor)
         width: parent.width
         height: col.height + 10
         y: 20

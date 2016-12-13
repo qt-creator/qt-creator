@@ -28,6 +28,8 @@ import QtQuick.Controls 1.0
 import QtQuick.Layouts 1.0
 import QtQuick.Controls.Styles 1.2
 
+import TimelineTheme 1.0
+
 ToolBar {
     id: buttons
 
@@ -62,7 +64,7 @@ ToolBar {
         }
         background: Rectangle {
             anchors.fill: parent
-            color: creatorTheme.PanelStatusBarBackgroundColor
+            color: Theme.color(Theme.PanelStatusBarBackgroundColor)
         }
     }
 

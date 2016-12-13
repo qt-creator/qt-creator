@@ -25,6 +25,7 @@
 
 import QtQuick 2.0
 import QtQml.Models 2.1
+import TimelineTheme 1.0
 
 Flickable {
     id: categories
@@ -144,7 +145,7 @@ Flickable {
 
                     Rectangle {
                         opacity: loader.y === 0 ? 0 : 1
-                        color: creatorTheme.Timeline_DividerColor
+                        color: Theme.color(Theme.Timeline_DividerColor)
                         height: 1
                         anchors.left: parent.left
                         anchors.right: parent.right

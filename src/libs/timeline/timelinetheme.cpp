@@ -102,11 +102,18 @@ public:
     }
 };
 
+static QObject *singletonProvider(QQmlEngine *engine, QJSEngine *scriptEngine)
+{
+    Q_UNUSED(engine);
+    Q_UNUSED(scriptEngine);
+    return Utils::proxyTheme();
+}
+
 void TimelineTheme::setupTheme(QQmlEngine *engine)
 {
-    engine->rootContext()->setContextProperty(QLatin1String("creatorTheme"),
-                                              Utils::creatorTheme()->values());
-
+    static const int typeIndex = qmlRegisterSingletonType<Utils::Theme>("TimelineTheme", 1, 0,
+                                                                        "Theme", singletonProvider);
+    Q_UNUSED(typeIndex);
     engine->addImageProvider(QLatin1String("icons"), new TimelineImageIconProvider);
 }
 

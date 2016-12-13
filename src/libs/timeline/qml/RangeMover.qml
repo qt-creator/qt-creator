@@ -24,17 +24,18 @@
 ****************************************************************************/
 
 import QtQuick 2.1
+import TimelineTheme 1.0
 
 Item {
     id: rangeMover
     anchors.fill: parent
     signal rangeDoubleClicked()
 
-    property color handleColor: creatorTheme.Timeline_HandleColor
-    property color rangeColor: creatorTheme.Timeline_RangeColor
-    property color dragColor: creatorTheme.Timeline_RangeColor
-    property color borderColor: creatorTheme.Timeline_RangeColor
-    property color singleLineColor: creatorTheme.Timeline_RangeColor
+    property color handleColor: Theme.color(Theme.Timeline_HandleColor)
+    property color rangeColor: Theme.color(Theme.Timeline_RangeColor)
+    property color dragColor: Theme.color(Theme.Timeline_RangeColor)
+    property color borderColor: Theme.color(Theme.Timeline_RangeColor)
+    property color singleLineColor: Theme.color(Theme.Timeline_RangeColor)
 
     property alias rangeLeft: leftRange.x
     property alias rangeRight: rightRange.x

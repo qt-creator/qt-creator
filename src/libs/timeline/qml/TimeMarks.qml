@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 import QtQuick 2.1
+import TimelineTheme 1.0
 
 Item {
     id: timeMarks
@@ -73,8 +74,9 @@ Item {
             model: timeMarks.rowCount
             Rectangle {
                 id: row
-                color: ((index + (startOdd ? 1 : 0)) % 2) ? creatorTheme.Timeline_BackgroundColor1
-                                                          : creatorTheme.Timeline_BackgroundColor2
+                color: ((index + (startOdd ? 1 : 0)) % 2)
+                       ? Theme.color(Theme.Timeline_BackgroundColor1)
+                       : Theme.color(Theme.Timeline_BackgroundColor2)
                 anchors.left: rows.left
                 anchors.right: rows.right
                 height: timeMarks.model ? timeMarks.model.rowHeight(index) : 0
@@ -129,7 +131,7 @@ Item {
                             anchors.left: parent.left
                             anchors.right: parent.right
                             anchors.bottom: parent.bottom
-                            color: creatorTheme.Timeline_DividerColor
+                            color: Theme.color(Theme.Timeline_DividerColor)
                         }
                     }
                 }

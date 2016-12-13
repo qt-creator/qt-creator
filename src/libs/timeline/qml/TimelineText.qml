@@ -24,12 +24,13 @@
 ****************************************************************************/
 
 import QtQuick 2.0
+import TimelineTheme 1.0
 
 Text {
     font.pixelSize: 12
     font.family: "sans-serif"
     textFormat: Text.PlainText
     renderType: Text.NativeRendering
-    color: creatorTheme.Timeline_TextColor
+    color: Theme.color(Theme.Timeline_TextColor)
 }
 
