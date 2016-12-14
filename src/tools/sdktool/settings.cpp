@@ -70,7 +70,7 @@ Utils::FileName Settings::getPath(const QString &file)
     else if (identical.contains(lowerFile))
         result.appendPath(lowerFile);
     else
-        return Utils::FileName();
+        result.appendPath(file); // handle arbitrary file names not known yet
     result.appendString(".xml");
     return result;
 }

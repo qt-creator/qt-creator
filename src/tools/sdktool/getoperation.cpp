@@ -39,7 +39,8 @@ QString GetOperation::helpText() const
 
 QString GetOperation::argumentsHelpText() const
 {
-    return QLatin1String("A file (profiles, qtversions or toolchains) followed by one or more keys to list.\n");
+    return QLatin1String("A file (relative to top-level settings directory and without .xml extension)\n"
+                         "followed by one or more keys to list.\n");
 }
 
 bool GetOperation::setArguments(const QStringList &args)

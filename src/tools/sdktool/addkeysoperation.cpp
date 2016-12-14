@@ -39,9 +39,8 @@ QString AddKeysOperation::helpText() const
 
 QString AddKeysOperation::argumentsHelpText() const
 {
-    return QLatin1String("A file (profiles, qtversions or toolchains) followed by one or more Tuples\n"
-                         "<KEY> <TYPE>:<VALUE> are required. KEY needs to start with\n"
-                         "the name of the file to insert data into (minus the .xml extension).");
+    return QLatin1String("A file (relative to top-level settings directory and without .xml extension)\n"
+                         "followed by one or more Tuples <KEY> <TYPE>:<VALUE> are required.\n");
 }
 
 bool AddKeysOperation::setArguments(const QStringList &args)

@@ -39,7 +39,8 @@ QString RmKeysOperation::helpText() const
 
 QString RmKeysOperation::argumentsHelpText() const
 {
-    return QLatin1String("A file (profiles, qtversions or toolchains) followed by one or more keys to remove.\n");
+    return QLatin1String("A file (relative to top-level settings directory and without .xml extension)\n"
+                         "followed by one or more keys to remove.\n");
 }
 
 bool RmKeysOperation::setArguments(const QStringList &args)
