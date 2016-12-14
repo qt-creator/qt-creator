@@ -34,7 +34,7 @@ namespace AsynchronousMessageBox {
 
 namespace {
 
-void message(QMessageBox::Icon icon, const QString &title, const QString &desciption)
+QWidget *message(QMessageBox::Icon icon, const QString &title, const QString &desciption)
 {
     QMessageBox *messageBox = new QMessageBox(icon,
                                               title,
@@ -45,23 +45,24 @@ void message(QMessageBox::Icon icon, const QString &title, const QString &descip
     messageBox->setAttribute(Qt::WA_DeleteOnClose);
     messageBox->setModal(true);
     messageBox->show();
+    return messageBox;
 }
 }
 
-void warning(const QString &title, const QString &desciption)
+QWidget *warning(const QString &title, const QString &desciption)
 {
-    message(QMessageBox::Warning, title, desciption);
+    return message(QMessageBox::Warning, title, desciption);
 }
 
-void information(const QString &title, const QString &desciption)
+QWidget *information(const QString &title, const QString &desciption)
 {
-    message(QMessageBox::Information, title, desciption);
+    return message(QMessageBox::Information, title, desciption);
 }
 
-void critical(const QString &title, const QString &desciption)
+QWidget *critical(const QString &title, const QString &desciption)
 {
-    message(QMessageBox::Critical, title, desciption);
-}
+    return message(QMessageBox::Critical, title, desciption);
 }
 
+}
 }
