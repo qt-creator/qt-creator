@@ -111,10 +111,17 @@ void QmlProfilerViewManager::createViews()
     d->flameGraphView = new FlameGraphView(d->profilerModelManager);
     prepareEventsView(d->flameGraphView);
 
-    const QByteArray anchorDockId = d->traceView->objectName().toLatin1();
-    perspective->addOperation({anchorDockId, d->traceView, {}, Perspective::SplitVertical});
-    perspective->addOperation({d->flameGraphView->objectName().toLatin1(), d->flameGraphView,
-                               anchorDockId, Perspective::AddToTab});
+    QByteArray anchorDockId;
+    if (d->traceView->isUsable()) {
+        anchorDockId = d->traceView->objectName().toLatin1();
+        perspective->addOperation({anchorDockId, d->traceView, {}, Perspective::SplitVertical});
+        perspective->addOperation({d->flameGraphView->objectName().toLatin1(), d->flameGraphView,
+                                   anchorDockId, Perspective::AddToTab});
+    } else {
+        anchorDockId = d->flameGraphView->objectName().toLatin1();
+        perspective->addOperation({anchorDockId, d->flameGraphView, {},
+                                   Perspective::SplitVertical});
+    }
     perspective->addOperation({d->statisticsView->objectName().toLatin1(), d->statisticsView,
                                anchorDockId, Perspective::AddToTab});
     perspective->addOperation({anchorDockId, 0, {}, Perspective::Raise});
