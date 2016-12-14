@@ -132,20 +132,6 @@ QList<Core::Id> BaseProjectPartBuilder::createProjectPartsForFiles(const QString
         // The ProjextExplorer does not distinguish between other versions than C++ and QML.
         languages += ProjectExplorer::Constants::LANG_CXX;
 
-        if (cat.hasCSources()) {
-            createProjectPart(cat.cSources(),
-                              cat.partName("C"),
-                              ProjectPart::LatestCVersion,
-                              ProjectPart::NoExtensions);
-        }
-
-        if (cat.hasObjcSources()) {
-            createProjectPart(cat.objcSources(),
-                              cat.partName("Obj-C"),
-                              ProjectPart::LatestCVersion,
-                              ProjectPart::ObjectiveCExtensions);
-        }
-
         if (cat.hasCxxSources()) {
             createProjectPart(cat.cxxSources(),
                               cat.partName("C++"),
@@ -157,6 +143,20 @@ QList<Core::Id> BaseProjectPartBuilder::createProjectPartsForFiles(const QString
             createProjectPart(cat.objcxxSources(),
                               cat.partName("Obj-C++"),
                               ProjectPart::LatestCxxVersion,
+                              ProjectPart::ObjectiveCExtensions);
+        }
+
+        if (cat.hasCSources()) {
+            createProjectPart(cat.cSources(),
+                              cat.partName("C"),
+                              ProjectPart::LatestCVersion,
+                              ProjectPart::NoExtensions);
+        }
+
+        if (cat.hasObjcSources()) {
+            createProjectPart(cat.objcSources(),
+                              cat.partName("Obj-C"),
+                              ProjectPart::LatestCVersion,
                               ProjectPart::ObjectiveCExtensions);
         }
     }
