@@ -289,6 +289,15 @@ void Kit::setup()
         info.at(i)->setup(this);
 }
 
+void Kit::upgrade()
+{
+    KitGuard g(this);
+    // Process the KitInfos in reverse order: They may only be based on other information lower in
+    // the stack.
+    for (KitInformation *ki : KitManager::kitInformation())
+        ki->upgrade(this);
+}
+
 QString Kit::unexpandedDisplayName() const
 {
     return d->m_unexpandedDisplayName;
