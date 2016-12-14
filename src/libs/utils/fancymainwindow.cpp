@@ -290,7 +290,7 @@ bool DockWidget::eventFilter(QObject *, QEvent *event)
         QMouseEvent *me = static_cast<QMouseEvent *>(event);
         int y = me->pos().y();
         int x = me->pos().x();
-        int h = m_titleBar->m_floatButton->height();
+        int h = qMin(8, m_titleBar->m_floatButton->height());
         if (!isFloating() && widget() && 0 <= x && x < widget()->width() && 0 <= y && y <= h) {
             m_timer.start();
             m_startPos = mapToGlobal(me->pos());
