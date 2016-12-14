@@ -53,6 +53,7 @@ public:
     bool isEventsRestrictedToRange() const;
     void restrictEventsToRange(qint64 rangeStart, qint64 rangeEnd);
 
+    bool isTimelineUsable() const;
     void raiseTimeline();
 
 public slots:

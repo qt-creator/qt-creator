@@ -147,6 +147,11 @@ void QmlProfilerViewManager::restrictEventsToRange(qint64 rangeStart, qint64 ran
     d->profilerModelManager->restrictToRange(rangeStart, rangeEnd);
 }
 
+bool QmlProfilerViewManager::isTimelineUsable() const
+{
+    return d->traceView->isUsable();
+}
+
 void QmlProfilerViewManager::raiseTimeline()
 {
     QTC_ASSERT(qobject_cast<QDockWidget *>(d->traceView->parentWidget()), return);
