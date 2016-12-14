@@ -58,7 +58,6 @@ enum Type {
     MessageTestCaseWarn,
     MessageTestCaseFail,
     MessageTestCaseEnd,
-    MessageTestCaseRepetition,
     MessageIntermediate,
     MessageCurrentTest, INTERNAL_MESSAGES_END = MessageCurrentTest,
 

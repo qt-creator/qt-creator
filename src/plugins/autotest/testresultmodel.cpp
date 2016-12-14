@@ -342,7 +342,7 @@ void TestResultFilterModel::enableAllResultTypes()
               << Result::MessageCurrentTest << Result::MessageTestCaseStart
               << Result::MessageTestCaseSuccess << Result::MessageTestCaseWarn
               << Result::MessageTestCaseFail << Result::MessageTestCaseEnd
-              << Result::MessageTestCaseRepetition << Result::MessageInfo << Result::MessageSystem;
+              << Result::MessageInfo << Result::MessageSystem;
     invalidateFilter();
 }
 

@@ -32,6 +32,8 @@
 namespace Autotest {
 namespace Internal {
 
+class GTestResult;
+
 class GTestOutputReader : public TestOutputReader
 {
     Q_DECLARE_TR_FUNCTIONS(Autotest::Internal::GTestOutputReader)
@@ -44,11 +46,12 @@ protected:
     void processOutput(const QByteArray &outputLine) override;
 
 private:
+    GTestResult *createDefaultResult() const;
     QString m_currentTestName;
     QString m_currentTestSet;
     QString m_description;
     QByteArray m_unprocessed;
-    int m_iteration = 0;
+    int m_iteration = 1;
 };
 
 } // namespace Internal

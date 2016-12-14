@@ -45,15 +45,15 @@ GTestOutputReader::GTestOutputReader(const QFutureInterface<TestResultPtr> &futu
 
 void GTestOutputReader::processOutput(const QByteArray &outputLine)
 {
-    static QRegExp newTestStarts(QStringLiteral("^\\[-{10}\\] \\d+ tests? from (.*)$"));
-    static QRegExp testEnds(QStringLiteral("^\\[-{10}\\] \\d+ tests? from (.*) \\((.*)\\)$"));
-    static QRegExp newTestSetStarts(QStringLiteral("^\\[ RUN      \\] (.*)$"));
-    static QRegExp testSetSuccess(QStringLiteral("^\\[       OK \\] (.*) \\((.*)\\)$"));
-    static QRegExp testSetFail(QStringLiteral("^\\[  FAILED  \\] (.*) \\((.*)\\)$"));
-    static QRegExp disabledTests(QStringLiteral("^  YOU HAVE (\\d+) DISABLED TESTS?$"));
-    static QRegExp failureLocation(QStringLiteral("^(.*):(\\d+): Failure$"));
-    static QRegExp errorLocation(QStringLiteral("^(.*)\\((\\d+)\\): error:.*$"));
-    static QRegExp iterations(QStringLiteral("^Repeating all tests \\(iteration (\\d+)\\) . . .$"));
+    static QRegExp newTestStarts("^\\[-{10}\\] \\d+ tests? from (.*)$");
+    static QRegExp testEnds("^\\[-{10}\\] \\d+ tests? from (.*) \\((.*)\\)$");
+    static QRegExp newTestSetStarts("^\\[ RUN      \\] (.*)$");
+    static QRegExp testSetSuccess("^\\[       OK \\] (.*) \\((.*)\\)$");
+    static QRegExp testSetFail("^\\[  FAILED  \\] (.*) \\((.*)\\)$");
+    static QRegExp disabledTests("^  YOU HAVE (\\d+) DISABLED TESTS?$");
+    static QRegExp failureLocation("^(.*):(\\d+): Failure$");
+    static QRegExp errorLocation("^(.*)\\((\\d+)\\): error:.*$");
+    static QRegExp iterations("^Repeating all tests \\(iteration (\\d+)\\) \\. \\. \\.$");
 
     QByteArray read = outputLine;
     if (!m_unprocessed.isEmpty()) {
@@ -78,9 +78,12 @@ void GTestOutputReader::processOutput(const QByteArray &outputLine)
             m_iteration = iterations.cap(1).toInt();
             m_description.clear();
         } else if (line.startsWith(QStringLiteral("Note:"))) {
-            TestResultPtr testResult = TestResultPtr(new GTestResult());
+            m_description = line;
+            if (m_iteration > 1)
+                m_description.append(' ' + tr("(iteration %1)").arg(m_iteration));
+            TestResultPtr testResult = TestResultPtr(new GTestResult);
             testResult->setResult(Result::MessageInternal);
-            testResult->setDescription(line);
+            testResult->setDescription(m_description);
             m_futureInterface.reportResult(testResult);
             m_description.clear();
         } else if (disabledTests.exactMatch(line)) {
@@ -92,12 +95,11 @@ void GTestOutputReader::processOutput(const QByteArray &outputLine)
             m_futureInterface.reportResult(testResult);
             m_description.clear();
         }
-        return; //continue;
+        return;
     }
 
     if (testEnds.exactMatch(line)) {
-        GTestResult *testResult = new GTestResult(m_currentTestName);
-        testResult->setTestSetName(m_currentTestSet);
+        GTestResult *testResult = createDefaultResult();
         testResult->setResult(Result::MessageTestCaseEnd);
         testResult->setDescription(tr("Test execution took %1").arg(testEnds.cap(2)));
         m_futureInterface.reportResult(TestResultPtr(testResult));
@@ -105,13 +107,12 @@ void GTestOutputReader::processOutput(const QByteArray &outputLine)
         m_currentTestSet.clear();
     } else if (newTestStarts.exactMatch(line)) {
         m_currentTestName = newTestStarts.cap(1);
-        TestResultPtr testResult = TestResultPtr(new GTestResult(m_currentTestName));
+        TestResultPtr testResult = TestResultPtr(createDefaultResult());
+        testResult->setResult(Result::MessageTestCaseStart);
         if (m_iteration > 1) {
-            testResult->setResult(Result::MessageTestCaseRepetition);
             testResult->setDescription(tr("Repeating test case %1 (iteration %2)")
                                        .arg(m_currentTestName).arg(m_iteration));
         } else {
-            testResult->setResult(Result::MessageTestCaseStart);
             testResult->setDescription(tr("Executing test case %1").arg(m_currentTestName));
         }
         m_futureInterface.reportResult(testResult);
@@ -123,21 +124,18 @@ void GTestOutputReader::processOutput(const QByteArray &outputLine)
         m_futureInterface.reportResult(testResult);
         m_description.clear();
     } else if (testSetSuccess.exactMatch(line)) {
-        GTestResult *testResult = new GTestResult(m_currentTestName);
-        testResult->setTestSetName(m_currentTestSet);
+        GTestResult *testResult = createDefaultResult();
         testResult->setResult(Result::Pass);
         testResult->setDescription(m_description);
         m_futureInterface.reportResult(TestResultPtr(testResult));
         m_description.clear();
-        testResult = new GTestResult(m_currentTestName);
-        testResult->setTestSetName(m_currentTestSet);
+        testResult = createDefaultResult();
         testResult->setResult(Result::MessageInternal);
         testResult->setDescription(tr("Execution took %1.").arg(testSetSuccess.cap(2)));
         m_futureInterface.reportResult(TestResultPtr(testResult));
         m_futureInterface.setProgressValue(m_futureInterface.progressValue() + 1);
     } else if (testSetFail.exactMatch(line)) {
-        GTestResult *testResult = new GTestResult(m_currentTestName);
-        testResult->setTestSetName(m_currentTestSet);
+        GTestResult *testResult = createDefaultResult();
         testResult->setResult(Result::Fail);
         m_description.chop(1);
         testResult->setDescription(m_description);
@@ -160,13 +158,20 @@ void GTestOutputReader::processOutput(const QByteArray &outputLine)
         }
         m_futureInterface.reportResult(TestResultPtr(testResult));
         m_description.clear();
-        testResult = new GTestResult(m_currentTestName);
-        testResult->setTestSetName(m_currentTestSet);
+        testResult = createDefaultResult();
         testResult->setResult(Result::MessageInternal);
         testResult->setDescription(tr("Execution took %1.").arg(testSetFail.cap(2)));
         m_futureInterface.reportResult(TestResultPtr(testResult));
         m_futureInterface.setProgressValue(m_futureInterface.progressValue() + 1);
     }
+}
+
+GTestResult *GTestOutputReader::createDefaultResult() const
+{
+    GTestResult *result = new GTestResult(m_currentTestName);
+    result->setTestSetName(m_currentTestSet);
+    result->setIteration(m_iteration);
+    return result;
 }
 
 } // namespace Internal

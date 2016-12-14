@@ -37,11 +37,13 @@ public:
     const QString outputString(bool selected) const override;
 
     void setTestSetName(const QString &testSetName) { m_testSetName = testSetName; }
+    void setIteration(int iteration) { m_iteration = iteration; }
     bool isDirectParentOf(const TestResult *other, bool *needsIntermediate) const override;
 private:
     bool isTest() const { return m_testSetName.isEmpty(); }
     bool isTestSet() const { return !m_testSetName.isEmpty(); }
     QString m_testSetName;
+    int m_iteration = 1;
 };
 
 } // namespace Internal

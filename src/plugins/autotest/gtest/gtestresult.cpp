@@ -58,6 +58,8 @@ bool GTestResult::isDirectParentOf(const TestResult *other, bool *needsIntermedi
         return false;
 
     const GTestResult *gtOther = static_cast<const GTestResult *>(other);
+    if (m_iteration != gtOther->m_iteration)
+        return false;
     return isTest() && gtOther->isTestSet();
 }
 
