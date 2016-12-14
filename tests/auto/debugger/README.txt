@@ -21,6 +21,8 @@ conditions by using environment variables as follows:
       paths installed or if a non-standard path has been used
 
   (QTC_MSVC_ENV_BAT - to set up MSVC)
+  (QTC_CDBEXT_PATH (optional) - path to the cdbextension
+      defaults to IDE_BUILD_TREE/IDE_LIBRARY_BASENAME/qtcreatorcdbext64)
 
 The tests should be used for automated testing, but can also
 be used for dumper development and fixing.
