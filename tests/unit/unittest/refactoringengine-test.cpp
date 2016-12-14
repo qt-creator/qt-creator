@@ -28,7 +28,6 @@
 #include "mockrefactoringserver.h"
 #include "mockrefactoringclient.h"
 
-#include <refactoringcompileroptionsbuilder.h>
 #include <refactoringengine.h>
 
 #include <requestsourcelocationforrenamingmessage.h>
@@ -36,7 +35,10 @@
 #include <sourcelocationsforrenamingmessage.h>
 #include <sourcerangesanddiagnosticsforquerymessage.h>
 
+#include <cpptools/clangcompileroptionsbuilder.h>
 #include <cpptools/projectpart.h>
+
+#include <utils/smallstringvector.h>
 
 #include <QTextCursor>
 #include <QTextDocument>
@@ -45,7 +47,7 @@ namespace {
 
 using testing::_;
 
-using ClangRefactoring::RefactoringCompilerOptionsBuilder;
+using CppTools::ClangCompilerOptionsBuilder;
 
 using ClangBackEnd::RequestSourceLocationsForRenamingMessage;
 
@@ -128,9 +130,12 @@ void RefactoringEngine::SetUp()
     projectPart = CppTools::ProjectPart::Ptr(new CppTools::ProjectPart);
     projectPart->files.push_back(projectFile);
 
-    commandLine = RefactoringCompilerOptionsBuilder::build(projectPart.data(),
-                                                           projectFile.kind,
-                                                           RefactoringCompilerOptionsBuilder::PchUsage::None);
+    commandLine = Utils::SmallStringVector(ClangCompilerOptionsBuilder::build(
+                                               projectPart.data(),
+                                               projectFile.kind,
+                                               CppTools::CompilerOptionsBuilder::PchUsage::None,
+                                               CLANG_VERSION,
+                                               CLANG_RESOURCE_DIR));
     commandLine.push_back(qStringFilePath);
 }
 

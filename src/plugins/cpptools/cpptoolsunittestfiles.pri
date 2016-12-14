@@ -14,6 +14,7 @@ HEADERS += \
     $$PWD/projectpart.h \
     $$PWD/compileroptionsbuilder.h \
     $$PWD/cppprojectfilecategorizer.h \
+    $$PWD/clangcompileroptionsbuilder.h \
     $$PWD/cppbaseprojectpartbuilder.h \
     $$PWD/projectinfo.h \
     $$PWD/cppprojectinterface.h \
@@ -25,5 +26,6 @@ SOURCES += \
     $$PWD/projectpart.cpp \
     $$PWD/compileroptionsbuilder.cpp \
     $$PWD/cppprojectfilecategorizer.cpp \
+    $$PWD/clangcompileroptionsbuilder.cpp \
     $$PWD/cppbaseprojectpartbuilder.cpp \
     $$PWD/projectinfo.cpp \

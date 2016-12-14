@@ -31,11 +31,11 @@
 
 #include <clangqueryprojectsfindfilter.h>
 #include <refactoringclient.h>
-#include <refactoringcompileroptionsbuilder.h>
 
 #include <requestsourcelocationforrenamingmessage.h>
 #include <requestsourcerangesanddiagnosticsforquerymessage.h>
 
+#include <cpptools/clangcompileroptionsbuilder.h>
 #include <cpptools/projectpart.h>
 
 namespace {
@@ -48,7 +48,7 @@ using ::testing::ReturnNew;
 using ::testing::DefaultValue;
 using ::testing::ByMove;
 
-using ClangRefactoring::RefactoringCompilerOptionsBuilder;
+using CppTools::ClangCompilerOptionsBuilder;
 
 class ClangQueryProjectFindFilter : public ::testing::Test
 {
@@ -178,9 +178,12 @@ createCommandLines(const std::vector<CppTools::ProjectPart::Ptr> &projectParts)
 
     for (const CppTools::ProjectPart::Ptr &projectPart : projectParts) {
         for (const CppTools::ProjectFile &projectFile : projectPart->files) {
-            auto commandLine = RefactoringCompilerOptionsBuilder::build(projectPart.data(),
-                                                                        projectFile.kind,
-                                                                        CppTools::CompilerOptionsBuilder::PchUsage::None);
+            Utils::SmallStringVector commandLine{ClangCompilerOptionsBuilder::build(
+                            projectPart.data(),
+                            projectFile.kind,
+                            ClangCompilerOptionsBuilder::PchUsage::None,
+                            CLANG_VERSION,
+                            CLANG_RESOURCE_DIR)};
             commandLine.emplace_back(projectFile.path);
             commandLines.push_back(commandLine);
         }

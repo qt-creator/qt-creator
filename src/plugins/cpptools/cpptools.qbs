@@ -107,6 +107,7 @@ Project {
             "cppprojectfilecategorizer.cpp", "cppprojectfilecategorizer.h",
             "cppprojectinterface.h",
             "cppbaseprojectpartbuilder.cpp", "cppbaseprojectpartbuilder.h",
+            "clangcompileroptionsbuilder.cpp", "clangcompileroptionsbuilder.h",
         ]
 
         Group {

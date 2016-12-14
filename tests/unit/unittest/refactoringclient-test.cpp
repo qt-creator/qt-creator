@@ -28,13 +28,13 @@
 #include "mocksearchhandle.h"
 
 #include <refactoringclient.h>
-#include <refactoringcompileroptionsbuilder.h>
 #include <refactoringengine.h>
 #include <refactoringconnectionclient.h>
 
 #include <sourcelocationsforrenamingmessage.h>
 #include <sourcerangesanddiagnosticsforquerymessage.h>
 
+#include <cpptools/clangcompileroptionsbuilder.h>
 #include <cpptools/projectpart.h>
 
 #include <utils/smallstringvector.h>
@@ -44,7 +44,8 @@
 
 namespace {
 
-using ClangRefactoring::RefactoringCompilerOptionsBuilder;
+using CppTools::ClangCompilerOptionsBuilder;
+
 using ClangRefactoring::RefactoringEngine;
 
 using ClangBackEnd::SourceLocationsForRenamingMessage;
@@ -251,9 +252,12 @@ void RefactoringClient::SetUp()
     projectPart = CppTools::ProjectPart::Ptr(new CppTools::ProjectPart);
     projectPart->files.push_back(projectFile);
 
-    commandLine = RefactoringCompilerOptionsBuilder::build(projectPart.data(),
-                                                           projectFile.kind,
-                                                           RefactoringCompilerOptionsBuilder::PchUsage::None);
+    commandLine = Utils::SmallStringVector{ClangCompilerOptionsBuilder::build(
+                projectPart.data(),
+                projectFile.kind,
+                ClangCompilerOptionsBuilder::PchUsage::None,
+                CLANG_VERSION,
+                CLANG_RESOURCE_DIR)};
 
     client.setSearchHandle(&mockSearchHandle);
     client.setExpectedResultCount(1);

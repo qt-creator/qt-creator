@@ -31,7 +31,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <cpptools/baseeditordocumentparser.h>
-#include <cpptools/compileroptionsbuilder.h>
+#include <cpptools/clangcompileroptionsbuilder.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/editordocumenthandle.h>
 #include <cpptools/projectpart.h>
@@ -70,18 +70,7 @@ QStringList createClangOptions(const ProjectPart::Ptr &pPart, const QString &fil
     return createClangOptions(pPart, fileKind);
 }
 
-static QString getResourceDir()
-{
-    QDir dir(ICore::libexecPath()
-                + QLatin1String("/clang/lib/clang/")
-                + QLatin1String(CLANG_VERSION)
-                + QLatin1String("/include"));
-    if (!dir.exists() || !QFileInfo(dir, QLatin1String("stdint.h")).exists())
-        dir = QDir(QLatin1String(CLANG_RESOURCE_DIR));
-    return dir.canonicalPath();
-}
-
-class LibClangOptionsBuilder : public CompilerOptionsBuilder
+class LibClangOptionsBuilder : public ClangCompilerOptionsBuilder
 {
 public:
     static QStringList build(const ProjectPart::Ptr &projectPart, ProjectFile::Kind fileKind)
@@ -117,62 +106,8 @@ public:
 
 private:
     LibClangOptionsBuilder(const CppTools::ProjectPart &projectPart)
-        : CompilerOptionsBuilder(projectPart)
+        : ClangCompilerOptionsBuilder(projectPart, CLANG_VERSION, CLANG_RESOURCE_DIR)
     {
-    }
-
-    bool excludeHeaderPath(const QString &path) const override
-    {
-        if (m_projectPart.toolchainType == ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID) {
-            if (path.contains(QLatin1String("lib/gcc/i686-apple-darwin")))
-                return true;
-        }
-
-        return CompilerOptionsBuilder::excludeHeaderPath(path);
-    }
-
-    void addPredefinedMacrosAndHeaderPathsOptions()
-    {
-        if (m_projectPart.toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
-            addPredefinedMacrosAndHeaderPathsOptionsForMsvc();
-        else
-            addPredefinedMacrosAndHeaderPathsOptionsForNonMsvc();
-    }
-
-    void addPredefinedMacrosAndHeaderPathsOptionsForMsvc()
-    {
-        add(QLatin1String("-nostdinc"));
-        add(QLatin1String("-undef"));
-    }
-
-    void addPredefinedMacrosAndHeaderPathsOptionsForNonMsvc()
-    {
-        static const QString resourceDir = getResourceDir();
-        if (QTC_GUARD(!resourceDir.isEmpty())) {
-            add(QLatin1String("-nostdlibinc"));
-            add(QLatin1String("-I") + QDir::toNativeSeparators(resourceDir));
-            add(QLatin1String("-undef"));
-        }
-    }
-
-    void addWrappedQtHeadersIncludePath()
-    {
-        static const QString wrappedQtHeadersPath = ICore::instance()->resourcePath()
-                + QLatin1String("/cplusplus/wrappedQtHeaders");
-
-        if (m_projectPart.qtVersion != ProjectPart::NoQt) {
-            const QString wrappedQtCoreHeaderPath = wrappedQtHeadersPath + QLatin1String("/QtCore");
-            add(QLatin1String("-I") + QDir::toNativeSeparators(wrappedQtHeadersPath));
-            add(QLatin1String("-I") + QDir::toNativeSeparators(wrappedQtCoreHeaderPath));
-        }
-    }
-
-    void addProjectConfigFileInclude()
-    {
-        if (!m_projectPart.projectConfigFile.isEmpty()) {
-            add(QLatin1String("-include"));
-            add(QDir::toNativeSeparators(m_projectPart.projectConfigFile));
-        }
     }
 
     void addDummyUiHeaderOnDiskIncludePath()
@@ -180,15 +115,6 @@ private:
         const QString path = ModelManagerSupportClang::instance()->dummyUiHeaderOnDiskDirPath();
         if (!path.isEmpty())
             add(includeDirOption() + QDir::toNativeSeparators(path));
-    }
-
-    void addExtraOptions()
-    {
-        add(QLatin1String("-fmessage-length=0"));
-        add(QLatin1String("-fdiagnostics-show-note-include-stack"));
-        add(QLatin1String("-fmacro-backtrace-limit=0"));
-        add(QLatin1String("-fretain-comments-from-system-headers"));
-        add(QLatin1String("-ferror-limit=1000"));
     }
 };
 

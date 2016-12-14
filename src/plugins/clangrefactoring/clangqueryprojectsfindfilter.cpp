@@ -27,11 +27,12 @@
 
 #include "projectpartutilities.h"
 #include "refactoringclient.h"
-#include "refactoringcompileroptionsbuilder.h"
 #include "searchinterface.h"
 
 #include <refactoringserverinterface.h>
 #include <requestsourcerangesanddiagnosticsforquerymessage.h>
+
+#include <cpptools/clangcompileroptionsbuilder.h>
 
 namespace ClangRefactoring {
 
@@ -112,11 +113,14 @@ Utils::SmallStringVector createCommandLine(CppTools::ProjectPart *projectPart,
                                            const QString &documentFilePath,
                                            CppTools::ProjectFile::Kind fileKind)
 {
-    using ClangRefactoring::RefactoringCompilerOptionsBuilder;
+    using CppTools::ClangCompilerOptionsBuilder;
 
-    auto commandLine = RefactoringCompilerOptionsBuilder::build(projectPart,
-                                                                fileKind,
-                                                                CppTools::CompilerOptionsBuilder::PchUsage::None);
+    Utils::SmallStringVector commandLine{ClangCompilerOptionsBuilder::build(
+                    projectPart,
+                    fileKind,
+                    CppTools::CompilerOptionsBuilder::PchUsage::None,
+                    CLANG_VERSION,
+                    CLANG_RESOURCE_DIR)};
 
     commandLine.push_back(documentFilePath);
 

@@ -27,11 +27,11 @@
 
 #include "projectpartutilities.h"
 
-#include <refactoringcompileroptionsbuilder.h>
 
 #include <refactoringserverinterface.h>
 #include <requestsourcelocationforrenamingmessage.h>
 
+#include <cpptools/clangcompileroptionsbuilder.h>
 #include <cpptools/cpptoolsreuse.h>
 
 #include <QTextCursor>
@@ -56,13 +56,18 @@ void RefactoringEngine::startLocalRenaming(const QTextCursor &textCursor,
                                            CppTools::ProjectPart *projectPart,
                                            RenameCallback &&renameSymbolsCallback)
 {
+    using CppTools::ClangCompilerOptionsBuilder;
+
     setUsable(false);
 
     client.setLocalRenamingCallback(std::move(renameSymbolsCallback));
 
-    auto commandLine = RefactoringCompilerOptionsBuilder::build(projectPart,
-                                                                fileKindInProjectPart(projectPart, filePath.toString()),
-                                                                CppTools::getPchUsage());
+    Utils::SmallStringVector commandLine{ClangCompilerOptionsBuilder::build(
+                    projectPart,
+                    fileKindInProjectPart(projectPart, filePath.toString()),
+                    CppTools::getPchUsage(),
+                    CLANG_VERSION,
+                    CLANG_RESOURCE_DIR)};
 
     commandLine.push_back(filePath.toString());
 

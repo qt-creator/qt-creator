@@ -79,6 +79,7 @@ HEADERS += \
     compileroptionsbuilder.h \
     refactoringengineinterface.h \
     cppprojectfilecategorizer.h \
+    clangcompileroptionsbuilder.h \
     cppprojectinterface.h \
     cppbaseprojectpartbuilder.h \
 
@@ -155,6 +156,7 @@ SOURCES += \
     compileroptionsbuilder.cpp \
     cppprojectfilecategorizer.cpp \
     cppbaseprojectpartbuilder.cpp \
+    clangcompileroptionsbuilder.cpp
 
 FORMS += \
     clangdiagnosticconfigswidget.ui \

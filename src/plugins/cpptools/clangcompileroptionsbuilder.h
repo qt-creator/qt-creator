@@ -25,35 +25,46 @@
 
 #pragma once
 
+#include "cpptools_global.h"
+
 #include <cpptools/compileroptionsbuilder.h>
 
-#include <utils/smallstringvector.h>
+namespace CppTools {
 
-#include <projectexplorer/projectexplorerconstants.h>
-
-#include <coreplugin/icore.h>
-
-#include <QDir>
-
-namespace ClangRefactoring {
-
-class RefactoringCompilerOptionsBuilder : public CppTools::CompilerOptionsBuilder
+class CPPTOOLS_EXPORT ClangCompilerOptionsBuilder : public CompilerOptionsBuilder
 {
 public:
-    static Utils::SmallStringVector build(CppTools::ProjectPart *projectPart,
-                                          CppTools::ProjectFile::Kind fileKind,
-                                          PchUsage pchUsage);
+    static QStringList build(const ProjectPart *projectPart,
+                             ProjectFile::Kind fileKind,
+                             PchUsage pchUsage,
+                             const QString &clangVersion,
+                             const QString &clangResourceDirectory);
 
-private:
-    RefactoringCompilerOptionsBuilder(CppTools::ProjectPart *projectPart);
+protected:
+    ClangCompilerOptionsBuilder(const ProjectPart &projectPart,
+                                const QString &clangVersion,
+                                const QString &clangResourceDirectory);
 
     bool excludeHeaderPath(const QString &path) const override;
+
     void addPredefinedMacrosAndHeaderPathsOptions();
+
     void addPredefinedMacrosAndHeaderPathsOptionsForMsvc();
+
     void addPredefinedMacrosAndHeaderPathsOptionsForNonMsvc();
+
     void addWrappedQtHeadersIncludePath();
+
     void addProjectConfigFileInclude();
+
     void addExtraOptions();
+
+private:
+    QString clangIncludeDirectory() const;
+
+private:
+    QString m_clangVersion;
+    QString m_clangResourceDirectory;
 };
 
-} // namespace ClangRefactoring
+} // namespace CppTools
