@@ -197,7 +197,9 @@ QList<Task> ToolChainKitInformation::validate(const Kit *k) const
 void ToolChainKitInformation::upgrade(Kit *k)
 {
     // upgrade <=4.1 to 4.2 (keep old settings around for now)
-    const QVariant oldValue = k->value("PE.Profile.ToolChain");
+    const Core::Id oldId = "PE.Profile.ToolChain";
+    const QVariant oldValue = k->value(oldId);
+
     const QVariant value = k->value(ToolChainKitInformation::id());
     if (value.isNull() && !oldValue.isNull()) {
         QVariantMap newValue;
@@ -216,6 +218,7 @@ void ToolChainKitInformation::upgrade(Kit *k)
             }
         }
         k->setValue(ToolChainKitInformation::id(), newValue);
+        k->setSticky(ToolChainKitInformation::id(), k->isSticky(oldId));
     }
 }
 
