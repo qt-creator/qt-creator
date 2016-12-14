@@ -217,6 +217,7 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     d->m_searchButton->setToolTip(tr("Search timeline event notes."));
 
     connect(d->m_searchButton, &QToolButton::clicked, this, &QmlProfilerTool::showTimeLineSearch);
+    d->m_searchButton->setEnabled(d->m_viewContainer->isTimelineUsable());
 
     d->m_displayFeaturesButton = new QToolButton;
     d->m_displayFeaturesButton->setIcon(Utils::Icons::FILTER.icon());
@@ -550,7 +551,7 @@ void QmlProfilerTool::setButtonsEnabled(bool enable)
 {
     d->m_clearButton->setEnabled(enable);
     d->m_displayFeaturesButton->setEnabled(enable);
-    d->m_searchButton->setEnabled(enable);
+    d->m_searchButton->setEnabled(d->m_viewContainer->isTimelineUsable() && enable);
     d->m_recordFeaturesMenu->setEnabled(enable);
 }
 
