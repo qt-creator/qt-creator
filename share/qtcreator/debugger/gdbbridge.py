@@ -1060,7 +1060,7 @@ class Dumper(DumperBase):
                     sym = '_ZN7QObject11customEventEP6QEvent@plt'
                 self.qtCustomEventPltFunc = self.findSymbol(sym)
 
-                sym = '_ZNK7%sQObject8propertyEPKc' % strns
+                sym = '_ZNK%s7QObject8propertyEPKc' % strns
                 self.qtPropertyFunc = self.findSymbol(sym)
 
                 # This might be wrong, but we can't do better: We found

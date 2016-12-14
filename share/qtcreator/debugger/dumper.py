@@ -1862,7 +1862,7 @@ class DumperBase:
                         for i in range(propertyCount):
                             t = self.split('III', dataPtr + properties * 4 + 12 * i)
                             name = self.metaString(metaObjectPtr, t[0], revision)
-                            if qobject:
+                            if qobject and self.qtPropertyFunc:
                                 # LLDB doesn't like calling it on a derived class, possibly
                                 # due to type information living in a different shared object.
                                 #base = self.createValue(qobjectPtr, '@QObject')
@@ -1879,6 +1879,10 @@ class DumperBase:
                                     continue
                                     #warn('COULD NOT EXECUTE: %s' % cmd)
                                 #self.putCallItem(name, '@QVariant', base, 'property', '"' + name + '"')
+                                if res is None:
+                                    self.bump('failedMetaObjectCall2')
+                                    putt(name, ' ')
+                                    continue
                                 self.putSubItem(name, res)
                             else:
                                 putt(name, ' ')
