@@ -48,8 +48,6 @@ namespace Internal {
 
 class QmlProfilerViewManager::QmlProfilerViewManagerPrivate {
 public:
-    QmlProfilerViewManagerPrivate(QmlProfilerViewManager *qq) { Q_UNUSED(qq); }
-
     QmlProfilerTraceView *traceView;
     QList<QmlProfilerEventsView *> eventsViews;
     QmlProfilerStateManager *profilerState;
@@ -59,7 +57,7 @@ public:
 QmlProfilerViewManager::QmlProfilerViewManager(QObject *parent,
                                                QmlProfilerModelManager *modelManager,
                                                QmlProfilerStateManager *profilerState)
-    : QObject(parent), d(new QmlProfilerViewManagerPrivate(this))
+    : QObject(parent), d(new QmlProfilerViewManagerPrivate)
 {
     setObjectName(QLatin1String("QML Profiler View Manager"));
     d->traceView = 0;
