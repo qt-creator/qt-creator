@@ -43,7 +43,7 @@ public:
     ~BuiltinEditorDocumentProcessor();
 
     // BaseEditorDocumentProcessor interface
-    void run() override;
+    void runImpl(const BaseEditorDocumentParser::UpdateParams &updateParams) override;
     void recalculateSemanticInfoDetached(bool force) override;
     void semanticRehighlight() override;
     CppTools::SemanticInfo recalculateSemanticInfo() override;

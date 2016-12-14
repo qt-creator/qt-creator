@@ -55,7 +55,7 @@ public:
     ~ClangEditorDocumentProcessor();
 
     // BaseEditorDocumentProcessor interface
-    void run() override;
+    void runImpl(const CppTools::BaseEditorDocumentParser::UpdateParams &updateParams) override;
     void semanticRehighlight() override;
     void recalculateSemanticInfoDetached(bool force) override;
     CppTools::SemanticInfo recalculateSemanticInfo() override;

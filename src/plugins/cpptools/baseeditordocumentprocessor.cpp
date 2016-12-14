@@ -29,6 +29,7 @@
 #include "cpptoolsbridge.h"
 #include "editordocumenthandle.h"
 
+#include <projectexplorer/session.h>
 #include <texteditor/quickfix.h>
 
 namespace CppTools {
@@ -52,6 +53,12 @@ BaseEditorDocumentProcessor::~BaseEditorDocumentProcessor()
 {
 }
 
+void BaseEditorDocumentProcessor::run()
+{
+    runImpl({CppModelManager::instance()->workingCopy(),
+             ProjectExplorer::SessionManager::startupProject()});
+}
+
 TextEditor::QuickFixOperations
 BaseEditorDocumentProcessor::extraRefactoringOperations(const TextEditor::AssistInterface &)
 {
@@ -73,8 +80,7 @@ void BaseEditorDocumentProcessor::editorDocumentTimerRestarted()
 
 void BaseEditorDocumentProcessor::runParser(QFutureInterface<void> &future,
                                             BaseEditorDocumentParser::Ptr parser,
-                                            const WorkingCopy workingCopy,
-                                            const ProjectExplorer::Project *activeProject)
+                                            BaseEditorDocumentParser::UpdateParams updateParams)
 {
     future.setProgressRange(0, 1);
     if (future.isCanceled()) {
@@ -82,7 +88,7 @@ void BaseEditorDocumentProcessor::runParser(QFutureInterface<void> &future,
         return;
     }
 
-    parser->update(future, workingCopy, activeProject);
+    parser->update(future, updateParams);
     CppToolsBridge::finishedRefreshingSourceFiles({parser->filePath()});
 
     future.setProgressValue(1);

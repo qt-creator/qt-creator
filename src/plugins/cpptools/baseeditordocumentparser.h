@@ -52,6 +52,18 @@ public:
         ProjectPart::Ptr manuallySetProjectPart;
     };
 
+    struct UpdateParams {
+        UpdateParams(const WorkingCopy &workingCopy,
+                     const ProjectExplorer::Project *activeProject)
+            : workingCopy(workingCopy)
+            , activeProject(activeProject)
+        {
+        }
+
+        WorkingCopy workingCopy;
+        const ProjectExplorer::Project *activeProject = nullptr;
+    };
+
 public:
     BaseEditorDocumentParser(const QString &filePath);
     virtual ~BaseEditorDocumentParser();
@@ -60,11 +72,8 @@ public:
     Configuration configuration() const;
     void setConfiguration(const Configuration &configuration);
 
-    void update(const WorkingCopy &workingCopy,
-                const ProjectExplorer::Project *activeProject);
-    void update(const QFutureInterface<void> &future,
-                const WorkingCopy &workingCopy,
-                const ProjectExplorer::Project *activeProject);
+    void update(const UpdateParams &updateParams);
+    void update(const QFutureInterface<void> &future, const UpdateParams &updateParams);
 
     ProjectPart::Ptr projectPart() const;
 
@@ -85,8 +94,7 @@ protected:
 
 private:
     virtual void updateImpl(const QFutureInterface<void> &future,
-                            const WorkingCopy &workingCopy,
-                            const ProjectExplorer::Project *activeProject) = 0;
+                            const UpdateParams &updateParams) = 0;
 
     const QString m_filePath;
     Configuration m_configuration;

@@ -56,8 +56,7 @@ BuiltinEditorDocumentParser::BuiltinEditorDocumentParser(const QString &filePath
 }
 
 void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &future,
-                                             const WorkingCopy &theWorkingCopy,
-                                             const ProjectExplorer::Project *activeProject)
+                                             const UpdateParams &updateParams)
 {
     if (filePath().isEmpty())
         return;
@@ -67,7 +66,7 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
 
     State baseState = state();
     ExtraState state = extraState();
-    WorkingCopy workingCopy = theWorkingCopy;
+    WorkingCopy workingCopy = updateParams.workingCopy;
 
     bool invalidateSnapshot = false, invalidateConfig = false, editorDefinesChanged_ = false;
 
@@ -78,7 +77,10 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
     QString projectConfigFile;
     LanguageFeatures features = LanguageFeatures::defaultFeatures();
 
-    baseState.projectPart = determineProjectPart(filePath(), baseConfig, baseState, activeProject);
+    baseState.projectPart = determineProjectPart(filePath(),
+                                                 baseConfig,
+                                                 baseState,
+                                                 updateParams.activeProject);
 
     if (state.forceSnapshotInvalidation) {
         invalidateSnapshot = true;

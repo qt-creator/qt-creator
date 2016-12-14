@@ -32,8 +32,6 @@
 #include "cpptoolsreuse.h"
 #include "cppworkingcopy.h"
 
-#include <projectexplorer/session.h>
-
 #include <texteditor/convenience.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/refactoroverlay.h>
@@ -204,16 +202,13 @@ BuiltinEditorDocumentProcessor::~BuiltinEditorDocumentProcessor()
     m_parserFuture.waitForFinished();
 }
 
-void BuiltinEditorDocumentProcessor::run()
+void BuiltinEditorDocumentProcessor::runImpl(
+        const BaseEditorDocumentParser::UpdateParams &updateParams)
 {
-    CppModelManager *mgr = CppModelManager::instance();
-    const ProjectExplorer::Project *activeProject
-            = ProjectExplorer::SessionManager::startupProject();
-    m_parserFuture = Utils::runAsync(mgr->sharedThreadPool(),
+    m_parserFuture = Utils::runAsync(CppModelManager::instance()->sharedThreadPool(),
                                      runParser,
                                      parser(),
-                                     mgr->workingCopy(),
-                                     activeProject);
+                                     updateParams);
 }
 
 BaseEditorDocumentParser::Ptr BuiltinEditorDocumentProcessor::parser()
