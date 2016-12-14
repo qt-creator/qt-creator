@@ -107,7 +107,7 @@ TEST_F(SourceLocation, Column)
     ASSERT_THAT(sourceLocation.column(), 1);
 }
 
-TEST_F(SourceLocation, Offset)
+TEST_F(SourceLocation, DISABLED_ON_WINDOWS(Offset))
 {
     ASSERT_THAT(sourceLocation.offset(), 18);
 }

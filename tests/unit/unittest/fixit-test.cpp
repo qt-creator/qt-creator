@@ -124,7 +124,7 @@ TEST_F(FixIt, Text)
 }
 
 
-TEST_F(FixIt, Start)
+TEST_F(FixIt, DISABLED_ON_WINDOWS(Start))
 {
     ASSERT_THAT(fixIt.range().start(), IsSourceLocation(Utf8StringLiteral("diagnostic_semicolon_fixit.cpp"),
                                                         3u,
@@ -132,7 +132,7 @@ TEST_F(FixIt, Start)
                                                         29u));
 }
 
-TEST_F(FixIt, End)
+TEST_F(FixIt, DISABLED_ON_WINDOWS(End))
 {
     ASSERT_THAT(fixIt.range().end(), IsSourceLocation(Utf8StringLiteral("diagnostic_semicolon_fixit.cpp"),
                                                       3u,

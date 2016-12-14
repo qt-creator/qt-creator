@@ -193,7 +193,7 @@ TEST_F(Cursor, BriefComment)
     ASSERT_THAT(cursor.briefComment(), Utf8StringLiteral("A brief comment"));
 }
 
-TEST_F(Cursor, RawComment)
+TEST_F(Cursor, DISABLED_ON_WINDOWS(RawComment))
 {
     auto cursor = translationUnit.cursorAt(Utf8StringLiteral(TESTDATA_DIR"/cursor.h"), 10, 7);
 
@@ -395,7 +395,7 @@ TEST_F(Cursor, IsLocalVariableInStaticFunction)
     ASSERT_TRUE(cursor.isLocalVariable());
 }
 
-TEST_F(Cursor, IsLocalVariableInTemplateFunction)
+TEST_F(Cursor, DISABLED_ON_WINDOWS(IsLocalVariableInTemplateFunction))
 {
     auto cursor = translationUnit.cursorAt(52, 7);
 

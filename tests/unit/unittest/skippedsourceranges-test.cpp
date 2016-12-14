@@ -126,7 +126,7 @@ TEST_F(SkippedSourceRanges, RangeWithZero)
     ASSERT_THAT(ranges, SizeIs(2));
 }
 
-TEST_F(SkippedSourceRanges, RangeOne)
+TEST_F(SkippedSourceRanges, DISABLED_ON_WINDOWS(RangeOne))
 {
     auto ranges = skippedSourceRanges.sourceRanges();
 
@@ -134,7 +134,7 @@ TEST_F(SkippedSourceRanges, RangeOne)
     ASSERT_THAT(ranges[0].end(), IsSourceLocation(filePath, 5, 7, 24));
 }
 
-TEST_F(SkippedSourceRanges, RangeTwo)
+TEST_F(SkippedSourceRanges, DISABLED_ON_WINDOWS(RangeTwo))
 {
     auto ranges = skippedSourceRanges.sourceRanges();
 

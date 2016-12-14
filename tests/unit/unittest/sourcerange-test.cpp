@@ -143,7 +143,7 @@ TEST_F(SourceRange, Size)
     ASSERT_THAT(diagnostic.ranges().size(), 2);
 }
 
-TEST_F(SourceRange, Start)
+TEST_F(SourceRange, DISABLED_ON_WINDOWS(Start))
 {
     ASSERT_THAT(sourceRange.start(), IsSourceLocation(Utf8StringLiteral("diagnostic_source_range.cpp"),
                                                       8u,
@@ -151,7 +151,7 @@ TEST_F(SourceRange, Start)
                                                       43u));
 }
 
-TEST_F(SourceRange, End)
+TEST_F(SourceRange, DISABLED_ON_WINDOWS(End))
 {
     ASSERT_THAT(sourceRange.end(), IsSourceLocation(Utf8StringLiteral("diagnostic_source_range.cpp"),
                                                       8u,

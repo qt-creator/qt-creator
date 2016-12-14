@@ -23,17 +23,10 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include <QtGlobal>
 
-#include <gmock/gmock.h>
-#include <gmock/gmock-matchers.h>
-#include <gtest/gtest.h>
-
-#include "compare-operators.h"
-
-#include "conditionally-disabled-tests.h"
-#include "gtest-qt-printing.h"
-#include "gtest-creator-printing.h"
-#ifdef CLANG_UNIT_TESTS
-#  include "gtest-clang-printing.h"
+#ifdef Q_OS_WIN
+#  define DISABLED_ON_WINDOWS(x) DISABLED_##x
+#else
+#  define DISABLED_ON_WINDOWS(x) x
 #endif
