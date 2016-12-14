@@ -43,7 +43,6 @@ const char QtdFileExtension[] = ".qtd";
 const char QztFileExtension[] = ".qzt";
 
 const char QmlProfilerPerspectiveId[]  = "QmlProfiler.Perspective";
-const char QmlProfilerTimelineDockId[] = "QmlProfiler.Timeline.Dock";
 const char QmlProfilerLocalActionId[]  = "QmlProfiler.Local";
 const char QmlProfilerRemoteActionId[] = "QmlProfiler.Remote";
 

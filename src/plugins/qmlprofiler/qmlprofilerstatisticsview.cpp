@@ -165,7 +165,7 @@ QmlProfilerStatisticsView::QmlProfilerStatisticsView(QmlProfilerModelManager *pr
                                                      QWidget *parent)
     : QmlProfilerEventsView(parent), d(new QmlProfilerStatisticsViewPrivate(this))
 {
-    setObjectName(QLatin1String("QmlProfilerStatisticsView"));
+    setObjectName(QLatin1String("QmlProfiler.Statistics.Dock"));
     setWindowTitle(tr("Statistics"));
 
     d->model = new QmlProfilerStatisticsModel(profilerModelManager, this);

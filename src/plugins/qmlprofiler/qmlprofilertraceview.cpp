@@ -90,7 +90,8 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerViewManag
                                            QmlProfilerModelManager *modelManager)
     : QWidget(parent), d(new QmlProfilerTraceViewPrivate(this))
 {
-    setObjectName(QLatin1String("QML Profiler"));
+    setWindowTitle(tr("Timeline"));
+    setObjectName("QmlProfiler.Timeline.Dock");
 
     d->m_zoomControl = new Timeline::TimelineZoomControl(this);
     connect(modelManager, &QmlProfilerModelManager::stateChanged, this, [modelManager, this]() {
