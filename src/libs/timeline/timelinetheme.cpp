@@ -35,6 +35,7 @@
 #include <QQmlEngine>
 #include <QQmlPropertyMap>
 #include <QQuickImageProvider>
+#include <QtQml>
 
 namespace Timeline {
 
