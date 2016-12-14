@@ -72,9 +72,13 @@ void QmakeKitInformation::setup(Kit *k)
     if (!version)
         return;
 
+    if (version->type() == "Boot2Qt.QtVersionType") // HACK: Ignore boot2Qt kits!
+        return;
+
     FileName spec = QmakeKitInformation::mkspec(k);
     if (spec.isEmpty())
         spec = version->mkspec();
+
 
     ToolChain *tc = ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx);
 
