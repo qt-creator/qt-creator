@@ -415,7 +415,7 @@ protected:
     static QString msgStoppedByException(const QString &description,
         const QString &threadId);
     static QString msgInterrupted();
-    void showStoppedBySignalMessageBox(const QString meaning, QString name);
+    bool showStoppedBySignalMessageBox(const QString meaning, QString name);
     void showStoppedByExceptionMessageBox(const QString &description);
 
     bool isStateDebugging() const;

@@ -1629,7 +1629,10 @@ void GdbEngine::handleStop2(const GdbMi &data)
             } else {
                 showMessage("HANDLING SIGNAL " + name);
                 if (boolSetting(UseMessageBoxForSignals) && !isStopperThread)
-                    showStoppedBySignalMessageBox(meaning, name);
+                    if (!showStoppedBySignalMessageBox(meaning, name)) {
+                        showMessage("SIGNAL RECEIVED WHILE SHOWING SIGNAL MESSAGE");
+                        return;
+                    }
                 if (!name.isEmpty() && !meaning.isEmpty())
                     reasontr = msgStoppedBySignal(meaning, name);
             }

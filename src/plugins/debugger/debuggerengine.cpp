@@ -383,6 +383,7 @@ public:
 
     // Safety net to avoid infinite lookups.
     QSet<QString> m_lookupRequests; // FIXME: Integrate properly.
+    QPointer<QWidget> m_alertBox;
 };
 
 
@@ -1813,8 +1814,11 @@ QString DebuggerEngine::msgInterrupted()
     return tr("Interrupted.");
 }
 
-void DebuggerEngine::showStoppedBySignalMessageBox(QString meaning, QString name)
+bool DebuggerEngine::showStoppedBySignalMessageBox(QString meaning, QString name)
 {
+    if (d->m_alertBox)
+        return false;
+
     if (name.isEmpty())
         name = ' ' + tr("<Unknown>", "name") + ' ';
     if (meaning.isEmpty())
@@ -1824,7 +1828,9 @@ void DebuggerEngine::showStoppedBySignalMessageBox(QString meaning, QString name
                            "<table><tr><td>Signal name : </td><td>%1</td></tr>"
                            "<tr><td>Signal meaning : </td><td>%2</td></tr></table>")
             .arg(name, meaning);
-    AsynchronousMessageBox::information(tr("Signal Received"), msg);
+
+    d->m_alertBox = AsynchronousMessageBox::information(tr("Signal Received"), msg);
+    return true;
 }
 
 void DebuggerEngine::showStoppedByExceptionMessageBox(const QString &description)
