@@ -546,6 +546,8 @@ void TestResultsPane::onCustomContextMenuRequested(const QPoint &pos)
 
 void TestResultsPane::onCopyItemTriggered(const QModelIndex &idx)
 {
+    if (!idx.isValid())
+        return;
     const TestResult *result = m_filterModel->testResult(idx);
     QTC_ASSERT(result, return);
     QApplication::clipboard()->setText(result->outputString(true));
