@@ -129,7 +129,8 @@ QmlJSRefactoringFile::QmlJSRefactoringFile(TextEditor::TextEditorWidget *editor,
     : RefactoringFile(editor)
     , m_qmljsDocument(document)
 {
-    m_fileName = document->fileName();
+    if (document)
+        m_fileName = document->fileName();
 }
 
 Document::Ptr QmlJSRefactoringFile::qmljsDocument() const
