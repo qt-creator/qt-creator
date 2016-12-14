@@ -92,13 +92,12 @@ Result::Type TestResult::toResultType(int rt)
 
 QString TestResult::resultToString(const Result::Type type)
 {
-    if (type >= Result::INTERNAL_MESSAGES_BEGIN && type <= Result::INTERNAL_MESSAGES_END)
-        return QString();
-
     switch (type) {
     case Result::Pass:
+    case Result::MessageTestCaseSuccess:
         return QLatin1String("PASS");
     case Result::Fail:
+    case Result::MessageTestCaseFail:
         return QLatin1String("FAIL");
     case Result::ExpectedFail:
         return QLatin1String("XFAIL");
@@ -113,6 +112,7 @@ QString TestResult::resultToString(const Result::Type type)
     case Result::MessageInfo:
         return QLatin1String("INFO");
     case Result::MessageWarn:
+    case Result::MessageTestCaseWarn:
         return QLatin1String("WARN");
     case Result::MessageFatal:
         return QLatin1String("FATAL");
@@ -123,6 +123,8 @@ QString TestResult::resultToString(const Result::Type type)
     case Result::BlacklistedFail:
         return QLatin1String("BFAIL");
     default:
+        if (type >= Result::INTERNAL_MESSAGES_BEGIN && type <= Result::INTERNAL_MESSAGES_END)
+            return QString();
         return QLatin1String("UNKNOWN");
     }
 }

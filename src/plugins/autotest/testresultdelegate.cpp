@@ -39,6 +39,12 @@ namespace Internal {
 
 const static int outputLimit = 100000;
 
+static bool isSummaryItem(Result::Type type)
+{
+    return type == Result::MessageTestCaseSuccess || type == Result::MessageTestCaseFail
+            || type == Result::MessageTestCaseWarn;
+}
+
 TestResultDelegate::TestResultDelegate(QObject *parent)
     : QStyledItemDelegate(parent)
 {
@@ -82,7 +88,10 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
         painter->drawText(positions.typeAreaLeft(), positions.top() + fm.ascent(), typeStr);
     } else {
         QPen tmp = painter->pen();
-        painter->setPen(TestResult::colorForType(testResult->result()));
+        if (isSummaryItem(testResult->result()))
+            painter->setPen(opt.palette.mid().color());
+        else
+            painter->setPen(TestResult::colorForType(testResult->result()));
         painter->drawText(positions.typeAreaLeft(), positions.top() + fm.ascent(), typeStr);
         painter->setPen(tmp);
     }
