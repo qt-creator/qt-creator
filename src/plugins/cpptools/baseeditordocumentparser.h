@@ -84,9 +84,9 @@ protected:
     mutable QMutex m_stateAndConfigurationMutex;
 
 private:
-    virtual void updateHelper(const QFutureInterface<void> &future,
-                              const WorkingCopy &workingCopy,
-                              const ProjectExplorer::Project *activeProject) = 0;
+    virtual void updateImpl(const QFutureInterface<void> &future,
+                            const WorkingCopy &workingCopy,
+                            const ProjectExplorer::Project *activeProject) = 0;
 
     const QString m_filePath;
     Configuration m_configuration;

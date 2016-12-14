@@ -41,13 +41,13 @@ namespace CppTools {
     It's meant to be used in the C++ editor to get precise results by using
     the "best" project part for a file.
 
-    Derived classes are expected to implement updateHelper() this way:
+    Derived classes are expected to implement updateImpl() this way:
 
     \list
         \li Get a copy of the configuration and the last state.
         \li Work on the data and do whatever is necessary. At least, update
             the project part with the help of determineProjectPart().
-        \li Ensure the new state is set before updateHelper() returns.
+        \li Ensure the new state is set before updateImpl() returns.
     \endlist
 */
 
@@ -89,7 +89,7 @@ void BaseEditorDocumentParser::update(const QFutureInterface<void> &future,
                                       const ProjectExplorer::Project *activeProject)
 {
     QMutexLocker locker(&m_updateIsRunning);
-    updateHelper(future, workingCopy, activeProject);
+    updateImpl(future, workingCopy, activeProject);
 }
 
 BaseEditorDocumentParser::State BaseEditorDocumentParser::state() const

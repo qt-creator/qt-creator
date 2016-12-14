@@ -55,9 +55,9 @@ BuiltinEditorDocumentParser::BuiltinEditorDocumentParser(const QString &filePath
     qRegisterMetaType<CPlusPlus::Snapshot>("CPlusPlus::Snapshot");
 }
 
-void BuiltinEditorDocumentParser::updateHelper(const QFutureInterface<void> &future,
-                                               const WorkingCopy &theWorkingCopy,
-                                               const ProjectExplorer::Project *activeProject)
+void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &future,
+                                             const WorkingCopy &theWorkingCopy,
+                                             const ProjectExplorer::Project *activeProject)
 {
     if (filePath().isEmpty())
         return;
