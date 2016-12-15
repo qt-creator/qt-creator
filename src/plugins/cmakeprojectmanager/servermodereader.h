@@ -127,7 +127,7 @@ private:
                                                  const QList<const ProjectExplorer::FileNode *> &allFiles);
     QSet<ProjectExplorer::Node *> updateTargets(CMakeListsNode *root,
                                                 const QList<Target *> &targets,
-                                                const QHash<Utils::FileName, QList<const ProjectExplorer::FileNode *> > &headers);
+                                                const QHash<Utils::FileName, QList<const ProjectExplorer::FileNode *>> &headers);
     void updateFileGroups(ProjectExplorer::ProjectNode *targetRoot,
                           const Utils::FileName &sourceDirectory,
                           const Utils::FileName &buildDirectory,

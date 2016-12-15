@@ -696,7 +696,7 @@ static CMakeTargetNode *findOrCreateTargetNode(CMakeListsNode *root, const Utils
 
 QSet<Node *> ServerModeReader::updateTargets(CMakeListsNode *root,
                                              const QList<ServerModeReader::Target *> &targets,
-                                             const QHash<FileName, QList<const FileNode *> > &headers)
+                                             const QHash<FileName, QList<const FileNode *>> &headers)
 {
     QSet<Node *> usedNodes;
     for (const Target *t : targets) {
@@ -713,7 +713,7 @@ void ServerModeReader::updateFileGroups(ProjectNode *targetRoot,
                                         const Utils::FileName &sourceDirectory,
                                         const Utils::FileName &buildDirectory,
                                         const QList<ServerModeReader::FileGroup *> &fileGroups,
-                                        const QHash<FileName, QList<const FileNode *> > &headers)
+                                        const QHash<FileName, QList<const FileNode *>> &headers)
 {
     QList<FileNode *> toList;
     QSet<Utils::FileName> alreadyListed;
