@@ -697,6 +697,10 @@ def qform__std____debug__unordered_map():
     return mapForms()
 
 def qdump__std__unordered_map(d, value):
+    if d.isQnxTarget() or d.isMsvcTarget():
+        qdump__std__list__QNX(d, value["_List"])
+        return
+
     try:
         # gcc ~= 4.7
         size = value["_M_element_count"].integer()
@@ -736,6 +740,10 @@ def qdump__std____debug__unordered_map(d, value):
     qdump__std__unordered_map(d, value)
 
 def qdump__std__unordered_set(d, value):
+    if d.isQnxTarget() or d.isMsvcTarget():
+        qdump__std__list__QNX(d, value["_List"])
+        return
+
     try:
         # gcc ~= 4.7
         size = value["_M_element_count"].integer()
