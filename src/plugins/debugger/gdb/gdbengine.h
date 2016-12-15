@@ -355,9 +355,6 @@ protected:
     void changeMemory(MemoryAgent *agent, quint64 addr, const QByteArray &data) override;
     void handleFetchMemory(const DebuggerResponse &response, MemoryAgentCookie ac);
 
-    void watchPoint(const QPoint &) override;
-    void handleWatchPoint(const DebuggerResponse &response);
-
     void showToolTip();
 
     void handleVarAssign(const DebuggerResponse &response);

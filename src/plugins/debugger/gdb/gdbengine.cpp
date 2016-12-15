@@ -3615,29 +3615,6 @@ void GdbEngine::assignValueInDebugger(WatchItem *item,
     runCommand(cmd);
 }
 
-void GdbEngine::watchPoint(const QPoint &pnt)
-{
-    DebuggerCommand cmd("watchPoint", NeedsFullStop);
-    cmd.arg("x", pnt.x());
-    cmd.arg("y", pnt.y());
-    cmd.callback = CB(handleWatchPoint);
-    runCommand(cmd);
-}
-
-void GdbEngine::handleWatchPoint(const DebuggerResponse &response)
-{
-    if (response.resultClass == ResultDone) {
-        GdbMi res;
-        res.fromString(response.consoleStreamOutput);
-        qulonglong addr = res["selected"].toAddress();
-        if (addr == 0)
-            showStatusMessage(tr("Could not find a widget."));
-        // Add the watcher entry nevertheless, as that's the place where
-        // the user expects visual feedback.
-        watchHandler()->watchExpression(res["expr"].data(), QString(), true);
-    }
-}
-
 class MemoryAgentCookie
 {
 public:

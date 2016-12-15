@@ -220,7 +220,7 @@ public:
     virtual void startDebugger(DebuggerRunControl *runControl);
     virtual void prepareForRestart() {}
 
-    virtual void watchPoint(const QPoint &);
+    virtual void watchPoint(const QPoint &pnt);
     virtual void runCommand(const DebuggerCommand &cmd);
     virtual void openMemoryView(const MemoryViewSetupData &data);
     virtual void fetchMemory(MemoryAgent *, quint64 addr, quint64 length);

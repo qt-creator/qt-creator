@@ -144,9 +144,6 @@ private:
     void runCommand(const DebuggerCommand &cmd) override;
     void debugLastCommand() override;
 
-    void watchPoint(const QPoint &) override;
-    void handleWatchPoint(const DebuggerResponse &response);
-
 private:
     DebuggerCommand m_lastDebuggableCommand;
 

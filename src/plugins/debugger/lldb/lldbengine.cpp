@@ -148,22 +148,6 @@ void LldbEngine::debugLastCommand()
     runCommand(m_lastDebuggableCommand);
 }
 
-void LldbEngine::watchPoint(const QPoint &pnt)
-{
-    DebuggerCommand cmd("watchPoint", NeedsFullStop);
-    cmd.arg("x", pnt.x());
-    cmd.arg("y", pnt.y());
-    cmd.callback = [this](const DebuggerResponse &response) {
-        qulonglong addr = response.data["selected"].toAddress();
-        if (addr == 0)
-            showStatusMessage(tr("Could not find a widget."));
-        // Add the watcher entry nevertheless, as that's the place where
-        // the user expects visual feedback.
-        watchHandler()->watchExpression(response.data["expr"].data(), QString(), true);
-    };
-    runCommand(cmd);
-}
-
 void LldbEngine::shutdownInferior()
 {
     QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << state());
