@@ -145,13 +145,15 @@ void PropertyEditorContextObject::toogleExportAlias()
 
         try {
             RewriterTransaction transaction =
-                    rewriterView->beginRewriterTransaction(QByteArrayLiteral("NavigatorTreeModel:exportItem"));
+                    rewriterView->beginRewriterTransaction(QByteArrayLiteral("PropertyEditorContextObject:toogleExportAlias"));
 
             if (!objectNode.isAliasExported())
                 objectNode.ensureAliasExport();
             else
                 if (rootModelNode.hasProperty(modelNodeId))
                     rootModelNode.removeProperty(modelNodeId);
+
+            transaction.commit();
         }  catch (RewritingException &exception) { //better safe than sorry! There always might be cases where we fail
             exception.showException();
         }
