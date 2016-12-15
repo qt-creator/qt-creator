@@ -26,9 +26,9 @@
 #include "abstractmsvctoolchain.h"
 
 #include "msvcparser.h"
-
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectexplorersettings.h>
+#include "projectexplorer.h"
+#include "projectexplorersettings.h"
+#include "taskhub.h"
 
 #include <utils/qtcprocess.h>
 #include <utils/synchronousprocess.h>
@@ -301,7 +301,16 @@ bool AbstractMsvcToolChain::generateEnvironmentSettings(Utils::Environment &env,
     run.setCodec(QTextCodec::codecForName("UTF-8"));
     Utils::SynchronousProcessResponse response = run.runBlocking(cmdPath.toString(), cmdArguments);
     if (response.result != Utils::SynchronousProcessResponse::Finished) {
-        qWarning() << response.exitMessage(cmdPath.toString(), 10);
+        const QString message = response.exitMessage(cmdPath.toString(), 10);
+        qWarning().noquote() << message;
+        QString command = QDir::toNativeSeparators(batchFile);
+        if (!batchArgs.isEmpty())
+            command += ' ' + batchArgs;
+        TaskHub::addTask(Task::Error,
+                         QCoreApplication::translate("ProjectExplorer::Internal::AbstractMsvcToolChain",
+                                                     "Failed to retrieve MSVC Environment from \"%1\":\n"
+                                                     "%2")
+                         .arg(command, message), Constants::TASK_CATEGORY_COMPILE);
         return false;
     }
 
