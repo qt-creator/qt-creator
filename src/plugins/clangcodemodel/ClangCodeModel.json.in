@@ -2,7 +2,7 @@
     \"Name\" : \"ClangCodeModel\",
     \"Version\" : \"$$QTCREATOR_VERSION\",
     \"CompatVersion\" : \"$$QTCREATOR_COMPAT_VERSION\",
-    \"Experimental\" : true,
+    \"DisabledByDefault\" : true,
     \"Vendor\" : \"The Qt Company Ltd\",
     \"Copyright\" : \"(C) 2016 The Qt Company Ltd\",
     \"License\" : [ \"Commercial Usage\",

@@ -111,7 +111,7 @@
 
         \li \l{Parsing C++ Files with the Clang Code Model}
 
-            An experimental Clang code model plugin enables you to replace the
+            A Clang code model plugin enables you to replace the
             built-in \QC code model with the Clang code model. Clang is a C
             language family front end for LLVM. Clang provides you with more
             accurate information than the built-in code model but can be slower

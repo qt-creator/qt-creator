@@ -62,7 +62,7 @@
 
     \endlist
 
-    \QC comes with an experimental plugin that provides some of these services
+    \QC comes with a plugin that provides some of these services
     for C++ on top of \l{http://clang.llvm.org/}{Clang}.
 
     \section1 About the Clang Code Model
@@ -85,7 +85,7 @@
     include several files, processing a single file and all the included files
     can take a while.
 
-    The following services are currently implemented in the experimental Clang
+    The following services are currently implemented in the Clang
     code model plugin:
 
     \list
@@ -96,7 +96,7 @@
 
     \endlist
 
-    To use the plugin, you must build it and configure it in \QC.
+    To use the plugin, you must activate it and configure it in \QC.
 
     \section1 Activating Clang Code Model
 
