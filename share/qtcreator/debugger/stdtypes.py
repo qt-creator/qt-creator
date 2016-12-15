@@ -249,18 +249,9 @@ def qform__std__map():
     return mapForms()
 
 def qdump__std__map(d, value):
-    if d.isQnxTarget():
-        proxy, head, size = value.split('ppI')
-        d.putItemCount(size)
-        qdump_std__map__helper(d, size, value)
+    if d.isQnxTarget() or d.isMsvcTarget():
+        qdump_std__map__helper(d, value)
         return
-    elif d.isMsvcTarget():
-        proxy, head, size = value.split('ppQ')
-        d.putItemCount(size)
-        try:
-            qdump_std__map__helper(d, size, value['_Mypair']['_Myval2']['_Myval2'])
-        finally:
-            return
 
     # stuff is actually (color, pad) with 'I@', but we can save cycles/
     (compare, stuff, parent, left, right, size) = value.split('pppppp')
@@ -293,26 +284,28 @@ def qdump__std__map(d, value):
                             break
                         node = node["_M_left"]
 
-def qdump_std__map__helper(d, size, value):
+def qdump_std__map__helper(d, value):
+    (proxy, head, size) = value.split("ppp")
+    d.check(0 <= size and size <= 100*1000*1000)
+    d.putItemCount(size)
     if d.isExpanded():
-        head = value['_Myhead']
-        node = head['_Left']
-        nodeType = head.type
+        keyType = value.type[0]
+        valueType = value.type[1]
+        pairType = value.type[3][0]
+        def helper(node):
+            (left, parent, right, color, isnil, pad, pair) = d.split("pppcc@{%s}" % (pairType.name), node)
+            if left != head:
+                for res in helper(left):
+                    yield res
+            yield pair.split("{%s}@{%s}" % (keyType.name, valueType.name))[::2]
+            if right != head:
+                for res in helper(right):
+                    yield res
+
+        (smallest, root) = d.split("pp", head)
         with Children(d, size, maxNumChild=1000):
-            for i in d.childRange():
-                pair = node.cast(nodeType).dereference()['_Myval']
+            for (pair, i) in zip(helper(root), d.childRange()):
                 d.putPairItem(i, pair)
-                if node['_Right']['_Isnil'].pointer() == 0:
-                    node = node['_Right']
-                    while node['_Left']['_Isnil'].pointer() == 0:
-                        node = node['_Left']
-                else:
-                    parent = node['_Parent']
-                    while node and parent['_Right']['_Isnil'].pointer() == 0:
-                        node = parent
-                        parent = parent['_Parent']
-                    if node['_Right'] != parent:
-                        node = parent
 
 def qdump__std____debug__map(d, value):
     qdump__std__map(d, value)
@@ -391,7 +384,7 @@ def qdump__std____cxx1998__set(d, value):
     qdump__std__set(d, value)
 
 def qdump__std__set(d, value):
-    if d.isQnxTarget():
+    if d.isQnxTarget() or d.isMsvcTarget():
         qdump__std__set__QNX(d, value)
         return
 
@@ -421,27 +414,25 @@ def qdump__std__set(d, value):
                         node = node["_M_left"]
 
 def qdump__std__set__QNX(d, value):
-    size = value['_Mysize']
+    (proxy, head, size) = value.split("ppp")
     d.check(0 <= size and size <= 100*1000*1000)
     d.putItemCount(size)
     if d.isExpanded():
-        head = value['_Myhead']
-        node = head['_Left']
-        nodeType = head.type
-        with Children(d, size, maxNumChild=1000, childType=value.type[0]):
-            for i in d.childRange():
-                d.putSubItem(i, node.cast(nodeType).dereference()['_Myval'])
-                if not node['_Right']['_Isnil']:
-                    node = node['_Right']
-                    while not node['_Left']['_Isnil']:
-                        node = node['_Left']
-                else:
-                    parent = node['_Parent']
-                    while node == parent['_Right']['_Isnil']:
-                        node = parent
-                        parent = parent['_Parent']
-                    if node['_Right'] != parent:
-                        node = parent
+        childType=value.type[0]
+        def helper(node):
+            (left, parent, right, color, isnil, pad, value) = d.split("pppcc@{%s}" % childType.name, node)
+            if left != head:
+                for res in helper(left):
+                    yield res
+            yield value
+            if right != head:
+                for res in helper(right):
+                    yield res
+
+        (smallest, root) = d.split("pp", head)
+        with Children(d, size, maxNumChild=1000):
+            for (item, i) in zip(helper(root), d.childRange()):
+                d.putSubItem(i, item)
 
 def std1TreeMin(d, node):
     #_NodePtr __tree_min(_NodePtr __x):
