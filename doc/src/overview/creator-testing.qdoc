@@ -60,8 +60,9 @@
 
         \li \l{Running Autotests}
 
-            You can use an experimental Auto Test plugin to build and run
-            Qt tests, Qt Quick tests, and Google tests using \QC.
+            You can build and run Qt tests, Qt Quick tests, and Google tests
+            using \QC. In addition, you can use a wizard to create projects that
+            contain Qt or Google tests.
 
     \endlist
 

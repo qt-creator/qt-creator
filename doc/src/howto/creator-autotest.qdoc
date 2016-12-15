@@ -39,10 +39,6 @@
 
     \image qtcreator-autotests.png
 
-    To enable the experimental Auto Test plugin, select \uicontrol Help >
-    \uicontrol {About Plugins} > \uicontrol Utilities > \uicontrol {Auto Test}.
-    Restart \QC to be able to use the plugin.
-
     \section1 Creating Tests
 
     You can use a wizard to create projects that contain Qt or Google tests.
