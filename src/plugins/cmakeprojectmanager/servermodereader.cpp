@@ -226,21 +226,21 @@ CMakeConfig ServerModeReader::takeParsedConfiguration()
 FolderNode *setupCMakeVFolder(FolderNode *base, const Utils::FileName &basePath, int priority,
                               const QString &displayName, QList<FileNode *> &files)
 {
+    if (files.isEmpty())
+        return nullptr;
+
     FolderNode *folder
             = findOrDefault(base->folderNodes(), [basePath](const FolderNode *fn) {
         return fn->filePath() == basePath;
     });
-    if (files.isEmpty()) {
-        return folder;
-    } else {
-        if (!folder) {
-            folder = new VirtualFolderNode(basePath, priority);
-            folder->setDisplayName(displayName);
-            base->addFolderNodes({ folder });
-        }
-        folder->buildTree(files);
+
+    if (!folder) {
+        folder = new VirtualFolderNode(basePath, priority);
+        folder->setDisplayName(displayName);
+        base->addFolderNodes({ folder });
     }
-    return nullptr;
+    folder->buildTree(files);
+    return folder;
 }
 
 static ProjectNode *updateCMakeInputs(CMakeListsNode *root,
@@ -265,19 +265,21 @@ static ProjectNode *updateCMakeInputs(CMakeListsNode *root,
     if (!hasInputs)
         return nullptr;
 
-    QList<FolderNode *> foldersToDelete;
-    foldersToDelete.append(setupCMakeVFolder(cmakeVFolder, sourceDir, 1000,
-                                             QCoreApplication::translate("CMakeProjectManager::Internal", "<Source Directory>"),
-                                             sourceInputs));
-    foldersToDelete.append(setupCMakeVFolder(cmakeVFolder, buildDir, 100,
-                                             QCoreApplication::translate("CMakeProjectManager::Internal", "<Build Directory>"),
-                                             buildInputs));
-    foldersToDelete.append(setupCMakeVFolder(cmakeVFolder, Utils::FileName(), 10,
-                                             QCoreApplication::translate("CMakeProjectManager::Internal", "<Other Locations>"),
-                                             rootInputs));
+    QList<FolderNode *> toKeep;
+    toKeep.append(setupCMakeVFolder(cmakeVFolder, sourceDir, 1000,
+                                    QCoreApplication::translate("CMakeProjectManager::Internal", "<Source Directory>"),
+                                    sourceInputs));
+    toKeep.append(setupCMakeVFolder(cmakeVFolder, buildDir, 100,
+                                    QCoreApplication::translate("CMakeProjectManager::Internal", "<Build Directory>"),
+                                    buildInputs));
+    toKeep.append(setupCMakeVFolder(cmakeVFolder, Utils::FileName(), 10,
+                                    QCoreApplication::translate("CMakeProjectManager::Internal", "<Other Locations>"),
+                                    rootInputs));
 
     // Clean out unused nodes in "CMake Files":
-    const QList<FolderNode *> tmp = filtered(foldersToDelete, [](const FolderNode *fn) { return fn; });
+    const QList<FolderNode *> tmp = filtered(cmakeVFolder->folderNodes(), [&toKeep](FolderNode *fn) {
+        return !toKeep.contains(fn);
+    });
     cmakeVFolder->removeFolderNodes(tmp);
 
     return cmakeVFolder;
@@ -755,12 +757,13 @@ void ServerModeReader::updateFileGroups(ProjectNode *targetRoot,
             otherFileNodes.append(fn);
     }
 
-    QList<FolderNode *> toDelete;
-    toDelete.append(setupCMakeVFolder(targetRoot, sourceDirectory, 1000, tr("<Source Directory>"), sourceFileNodes));
-    toDelete.append(setupCMakeVFolder(targetRoot, buildDirectory, 100, tr("<Build Directory>"), buildFileNodes));
-    toDelete.append(setupCMakeVFolder(targetRoot, Utils::FileName(), 10, tr("<Other Locations>"), otherFileNodes));
+    QList<FolderNode *> toKeep;
+    toKeep.append(setupCMakeVFolder(targetRoot, sourceDirectory, 1000, tr("<Source Directory>"), sourceFileNodes));
+    toKeep.append(setupCMakeVFolder(targetRoot, buildDirectory, 100, tr("<Build Directory>"), buildFileNodes));
+    toKeep.append(setupCMakeVFolder(targetRoot, Utils::FileName(), 10, tr("<Other Locations>"), otherFileNodes));
 
-    toDelete = filtered(toDelete, [](FolderNode *fn) { return fn; });
+    const QList<FolderNode *> toDelete
+            = filtered(targetRoot->folderNodes(), [&toKeep](FolderNode *fn) { return !toKeep.contains(fn); });
     if (!toDelete.isEmpty())
         targetRoot->removeFolderNodes(toDelete);
 }
