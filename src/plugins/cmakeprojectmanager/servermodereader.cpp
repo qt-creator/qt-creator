@@ -291,6 +291,7 @@ void ServerModeReader::generateProjectTree(CMakeListsNode *root,
     QList<FileNode *> cmakeFilesBuild;
     QList<FileNode *> cmakeFilesOther;
     QList<FileNode *> cmakeLists;
+
     foreach (FileNode *fn, m_cmakeInputsFileNodes) {
         const FileName path = fn->filePath();
         if (path.fileName().compare("CMakeLists.txt", HostOsInfo::fileNameCaseSensitivity()) == 0)
@@ -511,8 +512,11 @@ void ServerModeReader::extractCMakeInputsData(const QVariantMap &data)
             const FileName sfn = FileName::fromString(QDir::cleanPath(srcDir.absoluteFilePath(s)));
             const int oldCount = m_cmakeFiles.count();
             m_cmakeFiles.insert(sfn);
-            if (!isCMake && oldCount < m_cmakeFiles.count())
+            if (oldCount < m_cmakeFiles.count() && (!isCMake || sfn.toString().endsWith("/CMakeLists.txt"))) {
+                // Always include CMakeLists.txt files, even when cmake things these are part of its
+                // stuff. This unbreaks cmake binaries running from their own build directory.
                 m_cmakeInputsFileNodes.append(new FileNode(sfn, FileType::Project, isTemporary));
+            }
         }
     }
 }
