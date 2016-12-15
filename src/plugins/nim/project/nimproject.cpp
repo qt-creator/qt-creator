@@ -118,8 +118,11 @@ void NimProject::updateProject()
     QList<FileNode *> fileNodes = Utils::filtered(m_futureWatcher.future().result(),
                                                   [](const FileNode *fn) {
         const QString fileName = fn->filePath().fileName();
-        return !fileName.endsWith(".nimproject", HostOsInfo::fileNameCaseSensitivity())
+        const bool keep = !fileName.endsWith(".nimproject", HostOsInfo::fileNameCaseSensitivity())
                 && !fileName.contains(".nimproject.user", HostOsInfo::fileNameCaseSensitivity());
+        if (!keep)
+            delete fn;
+        return keep;
     });
 
     m_files = Utils::transform(fileNodes, [](const FileNode *fn) { return fn->filePath().toString(); });
