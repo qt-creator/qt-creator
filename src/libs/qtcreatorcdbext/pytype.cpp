@@ -140,10 +140,10 @@ PyObject *lookupType(const std::string &typeNameIn)
 
     if (typeName.find("enum ") == 0)
         typeName.erase(0, 5);
-    if (typeName == "__int64" || typeName == "unsigned __int64")
-        typeName.erase(typeName.find("__"), 2);
     if (endsWith(typeName, " const"))
         typeName.erase(typeName.length() - 6);
+    if (typeName == "__int64" || typeName == "unsigned __int64")
+        typeName.erase(typeName.find("__"), 2);
 
     CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
     ULONG64 module;
