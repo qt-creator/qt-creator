@@ -36,11 +36,15 @@ class BaseEditorDocumentProcessor;
 class CPPTOOLS_EXPORT CppEditorDocumentHandle
 {
 public:
-    CppEditorDocumentHandle();
     virtual ~CppEditorDocumentHandle();
 
-    bool needsRefresh() const;
-    void setNeedsRefresh(bool needsRefresh);
+    enum RefreshReason {
+        None,
+        Usual, // e.g. project configuration change or change of editor contents
+        ActiveProjectChange
+    };
+    RefreshReason refreshReason() const;
+    void setRefreshReason(const RefreshReason &refreshReason);
 
     // For the Working Copy
     virtual QString filePath() const = 0;
@@ -56,7 +60,7 @@ public:
 
 private:
     SendDocumentTracker m_sendTracker;
-    bool m_needsRefresh;
+    RefreshReason m_refreshReason = None;
 };
 
 } // namespace CppTools

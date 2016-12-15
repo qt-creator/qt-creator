@@ -338,6 +338,8 @@ CppModelManager::CppModelManager(QObject *parent)
             this, &CppModelManager::onAboutToRemoveProject);
     connect(sessionManager, &ProjectExplorer::SessionManager::aboutToLoadSession,
             this, &CppModelManager::onAboutToLoadSession);
+    connect(sessionManager, &ProjectExplorer::SessionManager::startupProjectChanged,
+            this, &CppModelManager::onActiveProjectChanged);
 
     connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
             this, &CppModelManager::onCurrentEditorChanged);
@@ -791,7 +793,7 @@ void CppModelManager::watchForCanceledProjectIndexer(QFuture<void> future,
     watcher->setFuture(future);
 }
 
-void CppModelManager::updateCppEditorDocuments() const
+void CppModelManager::updateCppEditorDocuments(bool hasActiveProjectChanged) const
 {
     // Refresh visible documents
     QSet<Core::IDocument *> visibleCppEditorDocuments;
@@ -800,7 +802,7 @@ void CppModelManager::updateCppEditorDocuments() const
             const QString filePath = document->filePath().toString();
             if (CppEditorDocumentHandle *theCppEditorDocument = cppEditorDocument(filePath)) {
                 visibleCppEditorDocuments.insert(document);
-                theCppEditorDocument->processor()->run();
+                theCppEditorDocument->processor()->run(hasActiveProjectChanged);
             }
         }
     }
@@ -811,8 +813,12 @@ void CppModelManager::updateCppEditorDocuments() const
     invisibleCppEditorDocuments.subtract(visibleCppEditorDocuments);
     foreach (Core::IDocument *document, invisibleCppEditorDocuments) {
         const QString filePath = document->filePath().toString();
-        if (CppEditorDocumentHandle *theCppEditorDocument = cppEditorDocument(filePath))
-            theCppEditorDocument->setNeedsRefresh(true);
+        if (CppEditorDocumentHandle *theCppEditorDocument = cppEditorDocument(filePath)) {
+            const CppEditorDocumentHandle::RefreshReason refreshReason = hasActiveProjectChanged
+                        ? CppEditorDocumentHandle::ActiveProjectChange
+                        : CppEditorDocumentHandle::Usual;
+            theCppEditorDocument->setRefreshReason(refreshReason);
+        }
     }
 }
 
@@ -1038,6 +1044,11 @@ void CppModelManager::onAboutToRemoveProject(ProjectExplorer::Project *project)
     delayedGC();
 }
 
+void CppModelManager::onActiveProjectChanged(ProjectExplorer::Project *)
+{
+    updateCppEditorDocuments(true);
+}
+
 void CppModelManager::onSourceFilesRefreshed() const
 {
     if (BuiltinIndexingSupport::isFindErrorsIndexingActive()) {
@@ -1053,9 +1064,13 @@ void CppModelManager::onCurrentEditorChanged(Core::IEditor *editor)
 
     const QString filePath = editor->document()->filePath().toString();
     if (CppEditorDocumentHandle *theCppEditorDocument = cppEditorDocument(filePath)) {
-        if (theCppEditorDocument->needsRefresh()) {
-            theCppEditorDocument->setNeedsRefresh(false);
-            theCppEditorDocument->processor()->run();
+        const CppEditorDocumentHandle::RefreshReason refreshReason
+                = theCppEditorDocument->refreshReason();
+        if (refreshReason != CppEditorDocumentHandle::None) {
+            theCppEditorDocument->setRefreshReason(CppEditorDocumentHandle::None);
+            const bool hasActiveProjectChanged
+                    = refreshReason == CppEditorDocumentHandle::ActiveProjectChange;
+            theCppEditorDocument->processor()->run(hasActiveProjectChanged);
         }
     }
 }

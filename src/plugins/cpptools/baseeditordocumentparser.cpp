@@ -121,7 +121,8 @@ ProjectPart::Ptr BaseEditorDocumentParser::determineProjectPart(
         const QString &filePath,
         const Configuration &config,
         const State &state,
-        const ProjectExplorer::Project *activeProject)
+        const ProjectExplorer::Project *activeProject,
+        bool hasActiveProjectChanged)
 {
     Internal::ProjectPartChooser chooser;
     chooser.setFallbackProjectPart([](){
@@ -139,7 +140,8 @@ ProjectPart::Ptr BaseEditorDocumentParser::determineProjectPart(
                           state.projectPart,
                           config.manuallySetProjectPart,
                           config.stickToPreviousProjectPart,
-                          activeProject);
+                          activeProject,
+                          hasActiveProjectChanged);
 }
 
 } // namespace CppTools

@@ -88,7 +88,7 @@ public:
 
     QFuture<void> updateSourceFiles(const QSet<QString> &sourceFiles,
         ProgressNotificationMode mode = ReservedProgressNotification);
-    void updateCppEditorDocuments() const;
+    void updateCppEditorDocuments(bool hasActiveProjectChanged = false) const;
     WorkingCopy workingCopy() const;
     QByteArray codeModelConfiguration() const;
 
@@ -203,6 +203,7 @@ private:
     void renameIncludes(const QString &oldFileName, const QString &newFileName);
     void onProjectAdded(ProjectExplorer::Project *project);
     void onAboutToRemoveProject(ProjectExplorer::Project *project);
+    void onActiveProjectChanged(ProjectExplorer::Project *project);
     void onSourceFilesRefreshed() const;
     void onCurrentEditorChanged(Core::IEditor *editor);
     void onCoreAboutToClose();

@@ -34,28 +34,23 @@ namespace CppTools {
            C++ editor document.
 */
 
-CppEditorDocumentHandle::CppEditorDocumentHandle()
-    : m_needsRefresh(false)
-{
-}
-
 CppEditorDocumentHandle::~CppEditorDocumentHandle()
 {
-}
-
-bool CppEditorDocumentHandle::needsRefresh() const
-{
-    return m_needsRefresh;
-}
-
-void CppEditorDocumentHandle::setNeedsRefresh(bool needsRefresh)
-{
-    m_needsRefresh = needsRefresh;
 }
 
 SendDocumentTracker &CppEditorDocumentHandle::sendTracker()
 {
     return m_sendTracker;
+}
+
+CppEditorDocumentHandle::RefreshReason CppEditorDocumentHandle::refreshReason() const
+{
+    return m_refreshReason;
+}
+
+void CppEditorDocumentHandle::setRefreshReason(const RefreshReason &refreshReason)
+{
+    m_refreshReason = refreshReason;
 }
 
 } // namespace CppTools

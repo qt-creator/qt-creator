@@ -49,6 +49,7 @@ protected:
     ProjectPart::Ptr manuallySetProjectPart;
     bool stickToPreviousProjectPart = false;
     const ProjectExplorer::Project *activeProject = nullptr;
+    bool projectHasChanged = false;
     ::ProjectPartChooser chooser;
 
     QList<ProjectPart::Ptr> projectPartsForFile;
@@ -94,6 +95,21 @@ TEST_F(ProjectPartChooser, ForMultipleFromDependenciesChooseFromActiveProject)
     const ProjectPart::Ptr secondProjectPart = projectParts.at(1);
     projectPartsFromDependenciesForFile += projectParts;
     activeProject = secondProjectPart->project;
+
+    const ProjectPart::Ptr chosen = choose();
+
+    ASSERT_THAT(chosen, Eq(secondProjectPart));
+}
+
+TEST_F(ProjectPartChooser, ForMultipleCheckIfActiveProjectChanged)
+{
+    const QList<ProjectPart::Ptr> projectParts = createProjectPartsWithDifferentProjects();
+    const ProjectPart::Ptr firstProjectPart = projectParts.at(0);
+    const ProjectPart::Ptr secondProjectPart = projectParts.at(1);
+    projectPartsForFile += projectParts;
+    currentProjectPart = firstProjectPart;
+    activeProject = secondProjectPart->project;
+    projectHasChanged = true;
 
     const ProjectPart::Ptr chosen = choose();
 
@@ -167,7 +183,8 @@ const ProjectPart::Ptr ProjectPartChooser::choose() const
                           currentProjectPart,
                           manuallySetProjectPart,
                           stickToPreviousProjectPart,
-                          activeProject);
+                          activeProject,
+                          projectHasChanged);
 }
 
 QList<ProjectPart::Ptr> ProjectPartChooser::createProjectPartsWithDifferentProjects()

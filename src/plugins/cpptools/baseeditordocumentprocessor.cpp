@@ -53,10 +53,11 @@ BaseEditorDocumentProcessor::~BaseEditorDocumentProcessor()
 {
 }
 
-void BaseEditorDocumentProcessor::run()
+void BaseEditorDocumentProcessor::run(bool hasActiveProjectChanged)
 {
     runImpl({CppModelManager::instance()->workingCopy(),
-             ProjectExplorer::SessionManager::startupProject()});
+             ProjectExplorer::SessionManager::startupProject(),
+             hasActiveProjectChanged});
 }
 
 TextEditor::QuickFixOperations

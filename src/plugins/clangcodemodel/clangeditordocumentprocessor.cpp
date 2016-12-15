@@ -119,7 +119,7 @@ void ClangEditorDocumentProcessor::runImpl(
     m_parserWatcher.setFuture(future);
 
     // Run builtin processor
-    m_builtinProcessor.run();
+    m_builtinProcessor.runImpl(updateParams);
 }
 
 void ClangEditorDocumentProcessor::recalculateSemanticInfoDetached(bool force)

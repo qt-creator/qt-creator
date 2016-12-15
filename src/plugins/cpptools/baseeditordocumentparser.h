@@ -54,14 +54,17 @@ public:
 
     struct UpdateParams {
         UpdateParams(const WorkingCopy &workingCopy,
-                     const ProjectExplorer::Project *activeProject)
+                     const ProjectExplorer::Project *activeProject,
+                     bool hasActiveProjectChanged)
             : workingCopy(workingCopy)
             , activeProject(activeProject)
+            , hasActiveProjectChanged(hasActiveProjectChanged)
         {
         }
 
         WorkingCopy workingCopy;
         const ProjectExplorer::Project *activeProject = nullptr;
+        bool hasActiveProjectChanged = false;
     };
 
 public:
@@ -88,7 +91,8 @@ protected:
     static ProjectPart::Ptr determineProjectPart(const QString &filePath,
                                                  const Configuration &config,
                                                  const State &state,
-                                                 const ProjectExplorer::Project *activeProject);
+                                                 const ProjectExplorer::Project *activeProject,
+                                                 bool hasActiveProjectChanged);
 
     mutable QMutex m_stateAndConfigurationMutex;
 

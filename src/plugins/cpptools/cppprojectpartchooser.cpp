@@ -43,7 +43,8 @@ ProjectPart::Ptr ProjectPartChooser::choose(const QString &filePath,
                                             const ProjectPart::Ptr &currentProjectPart,
                                             const ProjectPart::Ptr &manuallySetProjectPart,
                                             bool stickToPreviousProjectPart,
-                                            const ProjectExplorer::Project *activeProject) const
+                                            const ProjectExplorer::Project *activeProject,
+                                            bool projectHasChanged) const
 {
     QTC_CHECK(m_projectPartsForFile);
     QTC_CHECK(m_projectPartsFromDependenciesForFile);
@@ -69,8 +70,7 @@ ProjectPart::Ptr ProjectPartChooser::choose(const QString &filePath,
         else
             projectPart = selectFromActiveProject(projectParts, activeProject);
     } else {
-        if (!projectParts.contains(projectPart))
-            // Apparently the project file changed, so update our project part.
+        if (projectHasChanged || !projectParts.contains(projectPart))
             projectPart = selectFromActiveProject(projectParts, activeProject);
     }
 

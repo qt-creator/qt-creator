@@ -51,7 +51,8 @@ public:
                             const ProjectPart::Ptr &currentProjectPart,
                             const ProjectPart::Ptr &manuallySetProjectPart,
                             bool stickToPreviousProjectPart,
-                            const ProjectExplorer::Project *activeProject) const;
+                            const ProjectExplorer::Project *activeProject,
+                            bool projectHasChanged) const;
 
 private:
     FallBackProjectPart m_fallbackProjectPart;

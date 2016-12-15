@@ -80,7 +80,8 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
     baseState.projectPart = determineProjectPart(filePath(),
                                                  baseConfig,
                                                  baseState,
-                                                 updateParams.activeProject);
+                                                 updateParams.activeProject,
+                                                 updateParams.hasActiveProjectChanged);
 
     if (state.forceSnapshotInvalidation) {
         invalidateSnapshot = true;
