@@ -283,7 +283,8 @@ static ProjectNode *updateCMakeInputs(CMakeListsNode *root,
     return cmakeVFolder;
 }
 
-void ServerModeReader::generateProjectTree(CMakeListsNode *root, const QList<FileNode *> &allFiles)
+void ServerModeReader::generateProjectTree(CMakeListsNode *root,
+                                           const QList<const FileNode *> &allFiles)
 {
     // Split up cmake inputs into useful chunks:
     QList<FileNode *> cmakeFilesSource;
@@ -648,12 +649,12 @@ static CMakeProjectNode *findOrCreateProjectNode(CMakeListsNode *root, const Uti
 
 QSet<Node *> ServerModeReader::updateProjects(CMakeListsNode *root,
                                               const QList<Project *> &projects,
-                                              const QList<FileNode *> &allFiles)
+                                              const QList<const FileNode *> &allFiles)
 {
     QSet<Node *> usedNodes;
 
-    QHash<Utils::FileName, QList<FileNode *>> includeFiles;
-    for (FileNode *f : allFiles) {
+    QHash<Utils::FileName, QList<const FileNode *>> includeFiles;
+    for (const FileNode *f : allFiles) {
         if (f->fileType() != FileType::Header)
             continue;
         includeFiles[f->filePath().parentDir()].append(f);
@@ -689,7 +690,7 @@ static CMakeTargetNode *findOrCreateTargetNode(CMakeListsNode *root, const Utils
 
 QSet<Node *> ServerModeReader::updateTargets(CMakeListsNode *root,
                                              const QList<ServerModeReader::Target *> &targets,
-                                             const QHash<FileName, QList<FileNode *> > &headers)
+                                             const QHash<FileName, QList<const FileNode *> > &headers)
 {
     QSet<Node *> usedNodes;
     for (const Target *t : targets) {
@@ -706,7 +707,7 @@ void ServerModeReader::updateFileGroups(ProjectNode *targetRoot,
                                         const Utils::FileName &sourceDirectory,
                                         const Utils::FileName &buildDirectory,
                                         const QList<ServerModeReader::FileGroup *> &fileGroups,
-                                        const QHash<FileName, QList<FileNode *> > &headers)
+                                        const QHash<FileName, QList<const FileNode *> > &headers)
 {
     QList<FileNode *> toList;
     QSet<Utils::FileName> alreadyListed;
@@ -723,13 +724,13 @@ void ServerModeReader::updateFileGroups(ProjectNode *targetRoot,
 
         // Add scanned header files:
         for (const IncludePath *i : f->includePaths) {
-            const QList<FileNode *> &headerFiles = headers.value(i->path);
-            const QList<FileNode *> unseenHeaders = Utils::filtered(headerFiles, [&alreadyListed](const FileNode *fn) {
+            const QList<const FileNode *> &headerFiles = headers.value(i->path);
+            const QList<const FileNode *> unseenHeaders = Utils::filtered(headerFiles, [&alreadyListed](const FileNode *fn) {
                 const int count = alreadyListed.count();
                 alreadyListed.insert(fn->filePath());
                 return count != alreadyListed.count();
             });
-            toList.append(Utils::transform(unseenHeaders, [](FileNode *fn) -> FileNode * {
+            toList.append(Utils::transform(unseenHeaders, [](const FileNode *fn) -> FileNode * {
                               auto copy = new FileNode(fn->filePath(), fn->fileType(), fn->isGenerated());
                               copy->setEnabled(false);
                               return copy;

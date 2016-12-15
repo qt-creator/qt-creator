@@ -194,7 +194,7 @@ Node *Node::trim(const QSet<Node *> &keepers)
     return keepers.contains(this) ? nullptr : this;
 }
 
-bool Node::sortByPath(Node *a, Node *b)
+bool Node::sortByPath(const Node *a, const Node *b)
 {
     return a->filePath() < b->filePath();
 }
@@ -266,10 +266,13 @@ static QList<FileNode *> scanForFilesRecursively(const Utils::FileName &director
 
         const Utils::FileName entryName = Utils::FileName::fromString(entry.absoluteFilePath());
         if (!vcsControl || !vcsControl->isVcsFileOrDirectory(entryName)) {
-            if (entry.isDir())
+            if (entry.isDir()) {
                 result.append(scanForFilesRecursively(entryName, factory, visited, future, progress, progressIncrement));
-            else
-                result.append(factory(entryName));
+            } else {
+                FileNode *node = factory(entryName);
+                if (node)
+                    result.append(node);
+            }
         }
         if (future) {
             progress += progressIncrement;

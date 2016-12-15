@@ -276,40 +276,25 @@ bool BuildDirManager::persistCMakeState()
     return true;
 }
 
-void BuildDirManager::generateProjectTree(CMakeListsNode *root, const QList<FileNode *> &allFiles)
+void BuildDirManager::generateProjectTree(CMakeListsNode *root, const QList<const FileNode *> &allFiles)
 {
     QTC_ASSERT(m_reader, return);
 
     const Utils::FileName projectFile = m_buildConfiguration->target()->project()->projectFilePath();
 
-    // input files only a reference, it persistent between calls
-    // make copy of them for concrete configuration
-    auto tmp = Utils::transform(allFiles, [](const FileNode* fn) {
-        return new FileNode(*fn);
-    });
-
-    m_reader->generateProjectTree(root, tmp);
-    QSet<FileNode *> usedNodes;
-    foreach (FileNode *fn, root->recursiveFileNodes())
-        usedNodes.insert(fn);
+    m_reader->generateProjectTree(root, allFiles);
 
     // Make sure the top level CMakeLists.txt is always visible:
     if (root->fileNodes().isEmpty()
             && root->folderNodes().isEmpty()
             && root->projectNodes().isEmpty()) {
-        FileNode *cm = Utils::findOrDefault(tmp, [&projectFile](const FileNode *fn) {
+        const FileNode *cm = Utils::findOrDefault(allFiles, [&projectFile](const FileNode *fn) {
             return fn->filePath() == projectFile;
         });
         if (cm) {
-            root->addFileNodes({ cm });
-            usedNodes.insert(cm);
+            root->addFileNodes({ new FileNode(*cm) });
         }
     }
-
-    QList<FileNode *> leftOvers = Utils::filtered(tmp, [&usedNodes](FileNode *fn) {
-            return !usedNodes.contains(fn);
-    });
-    qDeleteAll(leftOvers);
 }
 
 QSet<Core::Id> BuildDirManager::updateCodeModel(CppTools::ProjectPartBuilder &ppBuilder)

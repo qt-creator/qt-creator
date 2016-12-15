@@ -392,7 +392,7 @@ void CMakeProject::handleParsingStarted()
 void CMakeProject::handleTreeScanningFinished()
 {
     qDeleteAll(m_allFiles);
-    m_allFiles = m_treeScanner.release();
+    m_allFiles = Utils::transform(m_treeScanner.release(), [](const FileNode *fn) { return fn; });
 
     auto t = activeTarget();
     if (!t)

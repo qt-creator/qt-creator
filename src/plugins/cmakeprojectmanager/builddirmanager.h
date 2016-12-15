@@ -71,7 +71,8 @@ public:
     bool updateCMakeStateBeforeBuild();
     bool persistCMakeState();
 
-    void generateProjectTree(CMakeListsNode *root, const QList<ProjectExplorer::FileNode *> &allFiles);
+    void generateProjectTree(CMakeListsNode *root,
+                             const QList<const ProjectExplorer::FileNode *> &allFiles);
     QSet<Core::Id> updateCodeModel(CppTools::ProjectPartBuilder &ppBuilder);
 
     QList<CMakeBuildTarget> buildTargets() const;

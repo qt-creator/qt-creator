@@ -153,7 +153,7 @@ public:
     virtual SessionNode *asSessionNode() { return nullptr; }
     virtual const SessionNode *asSessionNode() const { return nullptr; }
 
-    static bool sortByPath(Node *a, Node *b);
+    static bool sortByPath(const Node *a, const Node *b);
 
 protected:
     Node(NodeType nodeType, const Utils::FileName &filePath, int line = -1);

@@ -64,7 +64,8 @@ public:
 
     QList<CMakeBuildTarget> buildTargets() const final;
     CMakeConfig takeParsedConfiguration() final;
-    void generateProjectTree(CMakeListsNode *root, const QList<ProjectExplorer::FileNode *> &allFiles) final;
+    void generateProjectTree(CMakeListsNode *root,
+                             const QList<const ProjectExplorer::FileNode *> &allFiles) final;
     QSet<Core::Id> updateCodeModel(CppTools::ProjectPartBuilder &ppBuilder) final;
 
 private:
@@ -123,15 +124,15 @@ private:
                                                    const QList<ProjectExplorer::FileNode *> &cmakeLists);
     QSet<ProjectExplorer::Node *> updateProjects(CMakeListsNode *root,
                                                  const QList<Project *> &projects,
-                                                 const QList<ProjectExplorer::FileNode *> &allFiles);
+                                                 const QList<const ProjectExplorer::FileNode *> &allFiles);
     QSet<ProjectExplorer::Node *> updateTargets(CMakeListsNode *root,
                                                 const QList<Target *> &targets,
-                                                const QHash<Utils::FileName, QList<ProjectExplorer::FileNode *>> &headers);
+                                                const QHash<Utils::FileName, QList<const ProjectExplorer::FileNode *> > &headers);
     void updateFileGroups(ProjectExplorer::ProjectNode *targetRoot,
                           const Utils::FileName &sourceDirectory,
                           const Utils::FileName &buildDirectory,
                           const QList<FileGroup *> &fileGroups,
-                          const QHash<Utils::FileName, QList<ProjectExplorer::FileNode *>> &headers);
+                          const QHash<Utils::FileName, QList<const ProjectExplorer::FileNode *>> &headers);
 
     bool m_hasData = false;
 

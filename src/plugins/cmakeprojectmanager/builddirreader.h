@@ -103,7 +103,7 @@ public:
     virtual CMakeConfig takeParsedConfiguration() = 0;
     virtual QList<CMakeBuildTarget> buildTargets() const = 0;
     virtual void generateProjectTree(CMakeListsNode *root,
-                                     const QList<ProjectExplorer::FileNode *> &allFiles) = 0;
+                                     const QList<const ProjectExplorer::FileNode *> &allFiles) = 0;
     virtual QSet<Core::Id> updateCodeModel(CppTools::ProjectPartBuilder &ppBuilder) = 0;
 
 signals:

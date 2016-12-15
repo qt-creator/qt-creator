@@ -84,7 +84,8 @@ signals:
     void finished();
 
 private:
-    static void scanForFiles(FutureInterface *fi, const Utils::FileName &directory, const FileFilter &filter, const FileTypeFactory &factory);
+    static void scanForFiles(FutureInterface *fi, const Utils::FileName &directory,
+                             const FileFilter &filter, const FileTypeFactory &factory);
 
 private:
     FileFilter m_filter;

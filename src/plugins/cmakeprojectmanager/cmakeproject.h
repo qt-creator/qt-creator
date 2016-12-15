@@ -134,7 +134,7 @@ private:
 
     Internal::TreeScanner m_treeScanner;
     QHash<QString, bool> m_mimeBinaryCache;
-    QList<ProjectExplorer::FileNode *> m_allFiles;
+    QList<const ProjectExplorer::FileNode *> m_allFiles;
 
     friend class Internal::CMakeBuildConfiguration;
     friend class Internal::CMakeBuildSettingsWidget;
