@@ -80,6 +80,8 @@ public:
 
     Q_INVOKABLE void toogleExportAlias();
 
+    Q_INVOKABLE void changeTypeName(const QString &typeName);
+
     int majorVersion() const;
     int majorQtQuickVersion() const;
     int minorQtQuickVersion() const;

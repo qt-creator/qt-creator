@@ -26,11 +26,14 @@
 #include "propertyeditorcontextobject.h"
 
 #include <abstractview.h>
-
-#include <QQmlContext>
+#include <nodemetainfo.h>
 #include <qmldesignerplugin.h>
 #include <qmlobjectnode.h>
 #include <rewritingexception.h>
+
+#include <coreplugin/messagebox.h>
+
+#include <QQmlContext>
 
 static uchar fromHex(const uchar c, const uchar c2)
 {
@@ -153,6 +156,40 @@ void PropertyEditorContextObject::toogleExportAlias()
             exception.showException();
         }
     }
+
+}
+
+void PropertyEditorContextObject::changeTypeName(const QString &typeName)
+{
+
+    if (!m_model || !m_model->rewriterView())
+        return;
+
+    /* Ideally we should not missuse the rewriterView
+     * If we add more code here we have to forward the property editor view */
+    RewriterView *rewriterView = m_model->rewriterView();
+
+    if (rewriterView->selectedModelNodes().isEmpty())
+        return;
+
+    ModelNode selectedNode = rewriterView->selectedModelNodes().first();
+
+    try {
+        RewriterTransaction transaction =
+                rewriterView->beginRewriterTransaction(QByteArrayLiteral("PropertyEditorContextObject:changeTypeName"));
+
+        NodeMetaInfo metaInfo = m_model->metaInfo(typeName.toLatin1());
+        if (!metaInfo.isValid()) {
+            Core::AsynchronousMessageBox::warning(tr("Invalid Type"),  tr("%1 is an invalid type.").arg(typeName));
+            return;
+        }
+        selectedNode.changeType(metaInfo.typeName(), metaInfo.majorVersion(), metaInfo.minorVersion());
+
+        transaction.commit();
+    }  catch (RewritingException &exception) { //better safe than sorry! There always might be cases where we fail
+        exception.showException();
+    }
+
 
 }
 

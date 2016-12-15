@@ -53,9 +53,50 @@ Rectangle {
 
                     SecondColumnLayout {
 
-                        Label {
-                            text: backendValues.className.value
-                            width: lineEdit.width
+                        RoundedPanel {
+                            Layout.fillWidth: true
+                            height: 24
+
+                            Label {
+                                x: 6
+                                anchors.fill: parent
+                                anchors.leftMargin: 16
+
+                                text: backendValues.className.value
+                                verticalAlignment: Text.AlignVCenter
+                            }
+                            ToolTipArea {
+                                anchors.fill: parent
+                                onDoubleClicked: {
+                                    typeLineEdit.visible = ! typeLineEdit.visible
+                                    typeLineEdit.forceActiveFocus()
+                                }
+                                tooltip: qsTr("Change the type of this item.")
+                            }
+
+                            LineEdit {
+                                id: typeLineEdit
+
+                                anchors.fill: parent
+
+                                visible: false
+
+                                backendValue: className.id
+
+                                text: backendValues.className.value
+
+                                showTranslateCheckBox: false
+                                showExtendedFunctionButton: false
+                                onEditingFinished: {
+                                    visible = false
+                                    changeTypeName(typeLineEdit.text)
+                                }
+                            }
+
+                        }
+                        Item {
+                            Layout.preferredWidth: 16
+                            Layout.preferredHeight: 16
                         }
                     }
 
