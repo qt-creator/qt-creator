@@ -574,6 +574,9 @@ void GdbEngine::handleResponse(const QString &buff)
             m_pendingLogStreamOutput.clear();
             m_pendingConsoleStreamOutput.clear();
 
+            if (response.data.data().isEmpty())
+                response.data.fromString(response.consoleStreamOutput);
+
             handleResultRecord(&response);
             break;
         }
@@ -1706,8 +1709,7 @@ void GdbEngine::handlePythonSetup(const DebuggerResponse &response)
 {
     CHECK_STATE(EngineSetupRequested);
     if (response.resultClass == ResultDone) {
-        GdbMi data;
-        data.fromStringMultiple(response.consoleStreamOutput);
+        GdbMi data = response.data;
         watchHandler()->addDumpers(data["dumpers"]);
         m_pythonVersion = data["python"].toInt();
         if (m_pythonVersion < 20700) {
@@ -3243,12 +3245,11 @@ void GdbEngine::handleStackListFrames(const DebuggerResponse &response, bool isF
         return;
     }
 
-    GdbMi frames = response.data["stack"]; // C++
-    if (!frames.isValid() || frames.childCount() == 0) { // Mixed.
-        GdbMi mixed;
-        mixed.fromStringMultiple(response.consoleStreamOutput);
-        frames = mixed["frames"];
-    }
+    GdbMi stack = response.data["stack"]; // C++
+    //if (!frames.isValid() || frames.childCount() == 0) // Mixed.
+    GdbMi frames = stack["frames"];
+    if (!frames.isValid())
+        isFull = true;
 
     stackHandler()->setFramesAndCurrentIndex(frames, isFull);
     activateFrame(stackHandler()->currentIndex());

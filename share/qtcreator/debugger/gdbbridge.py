@@ -665,6 +665,9 @@ class Dumper(DumperBase):
 
         return items
 
+    def reportToken(self, args):
+        pass
+
     # Hack to avoid QDate* dumper timeouts with GDB 7.4 on 32 bit
     # due to misaligned %ebx in SSE calls (qstring.cpp:findChar)
     # This seems to be fixed in 7.9 (or earlier)
@@ -1086,6 +1089,7 @@ class Dumper(DumperBase):
             gdb.execute(cmd)
 
     def watchPoint(self, args):
+        self.reportToken(args)
         ns = self.qtNamespace()
         lenns = len(ns)
         strns = ('%d%s' % (lenns - 2, ns[:lenns - 2])) if lenns else ''
@@ -1094,7 +1098,7 @@ class Dumper(DumperBase):
         res = self.parseAndEvaluate(expr)
         p = 0 if res is None else res.pointer()
         n = ("'%sQWidget'" % ns) if lenns else 'QWidget'
-        safePrint('{selected="0x%x",expr="(%s*)0x%x"}' % (p, n, p))
+        self.reportResult('selected="0x%x",expr="(%s*)0x%x"' % (p, n, p), args)
 
     def nativeDynamicTypeName(self, address, baseType):
         # Needed for Gdb13393 test.
@@ -1338,7 +1342,7 @@ class Dumper(DumperBase):
 
             frame = frame.older()
             i += 1
-        safePrint('frames=[' + ','.join(self.output) + ']')
+        self.reportResult('stack={frames=[' + ','.join(self.output) + '].report}')
 
     def createResolvePendingBreakpointsHookBreakpoint(self, args):
         class Resolver(gdb.Breakpoint):
@@ -1359,8 +1363,8 @@ class Dumper(DumperBase):
     def exitGdb(self, _):
         gdb.execute('quit')
 
-    def reportResult(self, msg, args):
-        print(msg)
+    def reportResult(self, result, args = {}):
+        print('result={token="%s",%s}' % (args.get("token", 0), result))
 
     def profile1(self, args):
         '''Internal profiling'''
