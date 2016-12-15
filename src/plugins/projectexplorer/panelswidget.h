@@ -42,6 +42,8 @@ class PROJECTEXPLORER_EXPORT PanelsWidget : public QWidget
 
 public:
     explicit PanelsWidget(QWidget *parent = nullptr);
+    PanelsWidget(const QString &displayName, const QIcon &icon,
+                 QWidget *widget);
     ~PanelsWidget() override;
 
     void addPropertiesPanel(const QString &displayName, const QIcon &icon,

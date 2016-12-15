@@ -147,6 +147,12 @@ PanelsWidget::PanelsWidget(QWidget *parent) :
     //layout->addWidget(new FindToolBarPlaceHolder(this));
 }
 
+PanelsWidget::PanelsWidget(const QString &displayName, const QIcon &icon, QWidget *widget)
+    : PanelsWidget()
+{
+    addPropertiesPanel(displayName, icon, widget);
+}
+
 PanelsWidget::~PanelsWidget()
 {
 }

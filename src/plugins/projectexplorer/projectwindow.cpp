@@ -103,13 +103,11 @@ QVariant MiscSettingsPanelItem::data(int column, int role) const
 
     if (role == PanelWidgetRole) {
         if (!m_widget) {
-            auto panelsWidget = new PanelsWidget;
             QWidget *widget = m_factory->createWidget(m_project);
-            panelsWidget->addPropertiesPanel(m_factory->displayName(),
-                                             QIcon(m_factory->icon()),
-                                             widget);
-            panelsWidget->setFocusProxy(widget);
-            m_widget = panelsWidget;
+            m_widget = new PanelsWidget(m_factory->displayName(),
+                                        QIcon(m_factory->icon()),
+                                        widget);
+            m_widget->setFocusProxy(widget);
         }
 
         return QVariant::fromValue<QWidget *>(m_widget.data());

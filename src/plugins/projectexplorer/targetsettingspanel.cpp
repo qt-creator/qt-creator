@@ -248,27 +248,23 @@ void TargetGroupItemPrivate::ensureWidget()
     }
 
     if (!m_configurePage) {
-        auto panelsWidget = new PanelsWidget;
         auto widget = new TargetSetupPageWrapper(m_project);
-        panelsWidget->addPropertiesPanel(tr("Configure Project"),
-                                         QIcon(":/projectexplorer/images/unconfigured.png"),
-                                         widget);
-        panelsWidget->setFocusProxy(widget);
-        m_configurePage = panelsWidget;
+        m_configurePage = new PanelsWidget(tr("Configure Project"),
+                                           QIcon(":/projectexplorer/images/unconfigured.png"),
+                                           widget);
+        m_configurePage->setFocusProxy(widget);
     }
 
     if (!m_configuredPage) {
-        auto panelsWidget = new PanelsWidget;
         auto widget = new QWidget;
         auto label = new QLabel("This project is already configured.");
         auto layout = new QVBoxLayout(widget);
         layout->setMargin(0);
         layout->addWidget(label);
         layout->addStretch(10);
-        panelsWidget->addPropertiesPanel(tr("Configure Project"),
-                                         QIcon(":/projectexplorer/images/unconfigured.png"),
-                                         widget);
-        m_configuredPage = panelsWidget;
+        m_configuredPage = new PanelsWidget(tr("Configure Project"),
+                                            QIcon(":/projectexplorer/images/unconfigured.png"),
+                                            widget);
     }
 }
 
@@ -608,10 +604,7 @@ public:
         l->addWidget(widget);
         l->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
         l->setContentsMargins(QMargins());
-
-        auto result = new PanelsWidget;
-        result->addPropertiesPanel(displayName, QIcon(icon), w);
-        return result;
+        return new PanelsWidget(displayName, QIcon(icon), w);
     }
 
     QWidget *panel() const
