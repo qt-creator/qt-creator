@@ -289,7 +289,7 @@ QString GccToolChain::defaultDisplayName() const
         return typeDisplayName();
     return QCoreApplication::translate("ProjectExplorer::GccToolChain",
                                        "%1 (%2, %3 %4 in %5)").arg(typeDisplayName(),
-                                                                  ToolChain::languageDisplayName(language()),
+                                                                  ToolChainManager::displayNameOfLanguageId(language()),
                                                                   Abi::toString(m_targetAbi.architecture()),
                                                                   Abi::toString(m_targetAbi.wordWidth()),
                                                                   compilerCommand().parentDir().toUserOutput());
@@ -759,9 +759,9 @@ GccToolChainFactory::GccToolChainFactory()
     setDisplayName(tr("GCC"));
 }
 
-QSet<ToolChain::Language> GccToolChainFactory::supportedLanguages() const
+QSet<Core::Id> GccToolChainFactory::supportedLanguages() const
 {
-    return { ToolChain::Language::Cxx, ToolChain::Language::C };
+    return { Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID };
 }
 
 bool GccToolChainFactory::canCreate()
@@ -769,10 +769,10 @@ bool GccToolChainFactory::canCreate()
     return true;
 }
 
-ToolChain *GccToolChainFactory::create(ToolChain::Language l)
+ToolChain *GccToolChainFactory::create(Core::Id language)
 {
     ToolChain *tc = createToolChain(false);
-    tc->setLanguage(l);
+    tc->setLanguage(language);
     return tc;
 }
 
@@ -781,18 +781,18 @@ QList<ToolChain *> GccToolChainFactory::autoDetect(const QList<ToolChain *> &alr
     QList<ToolChain *> tcs;
     if (HostOsInfo::isMacHost()) {
         // Old mac compilers needed to support macx-gccXY mkspecs:
-        tcs.append(autoDetectToolchains("g++-4.0", Abi::hostAbi(), ToolChain::Language::Cxx,
+        tcs.append(autoDetectToolchains("g++-4.0", Abi::hostAbi(), Constants::CXX_LANGUAGE_ID,
                                         Constants::GCC_TOOLCHAIN_TYPEID, alreadyKnown));
-        tcs.append(autoDetectToolchains("g++-4.2", Abi::hostAbi(), ToolChain::Language::Cxx,
+        tcs.append(autoDetectToolchains("g++-4.2", Abi::hostAbi(), Constants::CXX_LANGUAGE_ID,
                                         Constants::GCC_TOOLCHAIN_TYPEID, alreadyKnown));
-        tcs.append(autoDetectToolchains("gcc-4.0", Abi::hostAbi(), ToolChain::Language::C,
+        tcs.append(autoDetectToolchains("gcc-4.0", Abi::hostAbi(), Constants::C_LANGUAGE_ID,
                                         Constants::GCC_TOOLCHAIN_TYPEID, alreadyKnown));
-        tcs.append(autoDetectToolchains("gcc-4.2", Abi::hostAbi(), ToolChain::Language::C,
+        tcs.append(autoDetectToolchains("gcc-4.2", Abi::hostAbi(), Constants::C_LANGUAGE_ID,
                                         Constants::GCC_TOOLCHAIN_TYPEID, alreadyKnown));
     }
-    tcs.append(autoDetectToolchains("g++", Abi::hostAbi(), ToolChain::Language::Cxx,
+    tcs.append(autoDetectToolchains("g++", Abi::hostAbi(), Constants::CXX_LANGUAGE_ID,
                                     Constants::GCC_TOOLCHAIN_TYPEID, alreadyKnown));
-    tcs.append(autoDetectToolchains("gcc", Abi::hostAbi(), ToolChain::Language::C,
+    tcs.append(autoDetectToolchains("gcc", Abi::hostAbi(), Constants::C_LANGUAGE_ID,
                                     Constants::GCC_TOOLCHAIN_TYPEID, alreadyKnown));
 
     return tcs;
@@ -821,7 +821,7 @@ GccToolChain *GccToolChainFactory::createToolChain(bool autoDetect)
 
 QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(const QString &compiler,
                                                              const Abi &requiredAbi,
-                                                             ToolChain::Language l,
+                                                             Core::Id language,
                                                              const Core::Id requiredTypeId,
                                                              const QList<ToolChain *> &alreadyKnown)
 {
@@ -864,7 +864,7 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(const QString &comp
         tc->setTargetAbi(abi);
         tc->setOriginalTargetTriple(detectedAbis.originalTargetTriple);
         tc->setDisplayName(tc->defaultDisplayName()); // reset displayname
-        tc->setLanguage(l);
+        tc->setLanguage(language);
 
         result.append(tc.take());
     }
@@ -1131,17 +1131,18 @@ ClangToolChainFactory::ClangToolChainFactory()
     setDisplayName(tr("Clang"));
 }
 
-QSet<ToolChain::Language> ClangToolChainFactory::supportedLanguages() const
+QSet<Core::Id> ClangToolChainFactory::supportedLanguages() const
 {
-    return { ProjectExplorer::ToolChain::Language::Cxx, ProjectExplorer::ToolChain::Language::C };
+    return { Constants::CXX_LANGUAGE_ID,
+             Constants::C_LANGUAGE_ID };
 }
 
 QList<ToolChain *> ClangToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
 {
     QList<ToolChain *> result
-            = autoDetectToolchains("clang++", Abi::hostAbi(), ToolChain::Language::Cxx,
+            = autoDetectToolchains("clang++", Abi::hostAbi(), Constants::CXX_LANGUAGE_ID,
                                    Constants::CLANG_TOOLCHAIN_TYPEID, alreadyKnown);
-    result += autoDetectToolchains("clang", Abi::hostAbi(), ToolChain::Language::C,
+    result += autoDetectToolchains("clang", Abi::hostAbi(), Constants::C_LANGUAGE_ID,
                                    Constants::CLANG_TOOLCHAIN_TYPEID, alreadyKnown);
     return result;
 }
@@ -1214,18 +1215,19 @@ MingwToolChainFactory::MingwToolChainFactory()
     setDisplayName(tr("MinGW"));
 }
 
-QSet<ToolChain::Language> MingwToolChainFactory::supportedLanguages() const
+QSet<Core::Id> MingwToolChainFactory::supportedLanguages() const
 {
-    return { ProjectExplorer::ToolChain::Language::Cxx, ProjectExplorer::ToolChain::Language::C };
+    return { Constants::CXX_LANGUAGE_ID,
+             Constants::C_LANGUAGE_ID };
 }
 
 QList<ToolChain *> MingwToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
 {
     Abi ha = Abi::hostAbi();
     ha = Abi(ha.architecture(), Abi::WindowsOS, Abi::WindowsMSysFlavor, Abi::PEFormat, ha.wordWidth());
-    QList<ToolChain *> result = autoDetectToolchains("g++", ha, ToolChain::Language::Cxx,
+    QList<ToolChain *> result = autoDetectToolchains("g++", ha, Constants::CXX_LANGUAGE_ID,
                                                      Constants::MINGW_TOOLCHAIN_TYPEID, alreadyKnown);
-    result += autoDetectToolchains("gcc", ha, ToolChain::Language::C,
+    result += autoDetectToolchains("gcc", ha, Constants::C_LANGUAGE_ID,
                                    Constants::MINGW_TOOLCHAIN_TYPEID, alreadyKnown);
     return result;
 }
@@ -1300,14 +1302,14 @@ LinuxIccToolChainFactory::LinuxIccToolChainFactory()
     setDisplayName(tr("Linux ICC"));
 }
 
-QSet<ToolChain::Language> LinuxIccToolChainFactory::supportedLanguages() const
+QSet<Core::Id> LinuxIccToolChainFactory::supportedLanguages() const
 {
-    return { ProjectExplorer::ToolChain::Language::Cxx };
+    return { Constants::CXX_LANGUAGE_ID };
 }
 
 QList<ToolChain *> LinuxIccToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
 {
-    return autoDetectToolchains("icpc", Abi::hostAbi(), ToolChain::Language::Cxx,
+    return autoDetectToolchains("icpc", Abi::hostAbi(), Constants::CXX_LANGUAGE_ID,
                                 Constants::LINUXICC_TOOLCHAIN_TYPEID, alreadyKnown);
 }
 

@@ -96,13 +96,13 @@ public:
 
 private:
     void manageToolChains();
-    void currentToolChainChanged(ToolChain::Language l, int idx);
+    void currentToolChainChanged(Core::Id language, int idx);
 
     int indexOf(QComboBox *cb, const ToolChain *tc);
 
     QWidget *m_mainWidget;
     QPushButton *m_manageButton;
-    QHash<ToolChain::Language, QComboBox *> m_languageComboboxMap;
+    QHash<Core::Id, QComboBox *> m_languageComboboxMap;
     bool m_ignoreChanges = false;
     bool m_isReadOnly = false;
 };

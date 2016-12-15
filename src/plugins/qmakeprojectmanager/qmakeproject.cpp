@@ -1360,7 +1360,7 @@ void QmakeProject::collectLibraryData(const QmakeProFileNode *node, DeploymentDa
     if (targetPath.isEmpty())
         return;
     const Kit * const kit = activeTarget()->kit();
-    const ToolChain * const toolchain = ToolChainKitInformation::toolChain(kit, ToolChain::Language::Cxx);
+    const ToolChain * const toolchain = ToolChainKitInformation::toolChain(kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     if (!toolchain)
         return;
 
@@ -1497,16 +1497,16 @@ void QmakeProject::warnOnToolChainMismatch(const QmakeProFileNode *pro) const
     if (!bc)
         return;
 
-    testToolChain(ToolChainKitInformation::toolChain(t->kit(), ToolChain::Language::C),
+    testToolChain(ToolChainKitInformation::toolChain(t->kit(), ProjectExplorer::Constants::C_LANGUAGE_ID),
                   getFullPathOf(pro, QmakeCc, bc));
-    testToolChain(ToolChainKitInformation::toolChain(t->kit(), ToolChain::Language::Cxx),
+    testToolChain(ToolChainKitInformation::toolChain(t->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID),
                   getFullPathOf(pro, QmakeCxx, bc));
 }
 
 QString QmakeProject::executableFor(const QmakeProFileNode *node)
 {
     const Kit * const kit = activeTarget()->kit();
-    const ToolChain * const toolchain = ToolChainKitInformation::toolChain(kit, ToolChain::Language::Cxx);
+    const ToolChain * const toolchain = ToolChainKitInformation::toolChain(kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     if (!toolchain)
         return QString();
 

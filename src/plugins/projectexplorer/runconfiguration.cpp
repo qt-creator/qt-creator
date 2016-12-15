@@ -276,7 +276,7 @@ Abi RunConfiguration::abi() const
     BuildConfiguration *bc = target()->activeBuildConfiguration();
     if (!bc)
         return Abi::hostAbi();
-    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(), ToolChain::Language::Cxx);
+    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(), Constants::CXX_LANGUAGE_ID);
     if (!tc)
         return Abi::hostAbi();
     return tc->targetAbi();

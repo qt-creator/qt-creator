@@ -85,7 +85,7 @@ ClangStaticAnalyzerRunControl::ClangStaticAnalyzerRunControl(
     QTC_ASSERT(buildConfiguration, return);
     m_environment = buildConfiguration->environment();
 
-    ToolChain *toolChain = ToolChainKitInformation::toolChain(target->kit(), ToolChain::Language::Cxx);
+    ToolChain *toolChain = ToolChainKitInformation::toolChain(target->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     QTC_ASSERT(toolChain, return);
     m_targetTriple = toolChain->originalTargetTriple();
 }
@@ -445,7 +445,7 @@ static QDebug operator<<(QDebug debug, const AnalyzeUnits &analyzeUnits)
 static Core::Id toolchainType(ProjectExplorer::RunConfiguration *runConfiguration)
 {
     QTC_ASSERT(runConfiguration, return Core::Id());
-    return ToolChainKitInformation::toolChain(runConfiguration->target()->kit(), ToolChain::Language::Cxx)->typeId();
+    return ToolChainKitInformation::toolChain(runConfiguration->target()->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID)->typeId();
 }
 
 static QString executableForVersionCheck(Core::Id toolchainType, const QString &executable)

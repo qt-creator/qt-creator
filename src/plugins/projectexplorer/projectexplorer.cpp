@@ -446,6 +446,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     dd->m_kitManager = new KitManager; // register before ToolChainManager
     dd->m_toolChainManager = new ToolChainManager;
 
+    // Register languages
+    ToolChainManager::registerLanguage(Constants::C_LANGUAGE_ID, tr("C"));
+    ToolChainManager::registerLanguage(Constants::CXX_LANGUAGE_ID, tr("C++"));
+
     IWizardFactory::registerFeatureProvider(new KitFeatureProvider);
 
     // Register KitInformation:

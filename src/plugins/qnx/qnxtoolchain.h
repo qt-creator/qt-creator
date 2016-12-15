@@ -35,7 +35,7 @@ class QnxToolChain : public ProjectExplorer::GccToolChain
 {
 public:
     explicit QnxToolChain(Detection d);
-    explicit QnxToolChain(Language l, Detection d);
+    explicit QnxToolChain(Core::Id l, Detection d);
 
     QString typeDisplayName() const override;
 
@@ -73,13 +73,13 @@ public:
     QList<ProjectExplorer::ToolChain *> autoDetect(
             const QList<ProjectExplorer::ToolChain *> &alreadyKnown) override;
 
-    QSet<ProjectExplorer::ToolChain::Language> supportedLanguages() const override;
+    QSet<Core::Id> supportedLanguages() const override;
 
     bool canRestore(const QVariantMap &data) override;
     ProjectExplorer::ToolChain *restore(const QVariantMap &data) override;
 
     bool canCreate() override;
-    ProjectExplorer::ToolChain *create(ProjectExplorer::ToolChain::Language l) override;
+    ProjectExplorer::ToolChain *create(Core::Id l) override;
 };
 
 //----------------------------------------------------------------------------

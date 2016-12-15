@@ -31,6 +31,7 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/gnumakeparser.h>
@@ -65,7 +66,7 @@ bool AndroidPackageInstallationStep::init(QList<const BuildStep *> &earlierSteps
 
     ProjectExplorer::ToolChain *tc
             = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit(),
-                                                                  ProjectExplorer::ToolChain::Language::Cxx);
+                                                                  ProjectExplorer::Constants::CXX_LANGUAGE_ID);
 
     ProjectExplorer::ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());

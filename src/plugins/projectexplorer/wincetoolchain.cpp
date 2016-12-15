@@ -227,9 +227,9 @@ WinCEToolChain::WinCEToolChain(const QString &name,
                                const QString &binPath,
                                const QString &includePath,
                                const QString &libPath,
-                               const Language &l,
+                               Core::Id language,
                                Detection d) :
-    AbstractMsvcToolChain(Constants::WINCE_TOOLCHAIN_TYPEID, l, d, abi, vcvarsBat),
+    AbstractMsvcToolChain(Constants::WINCE_TOOLCHAIN_TYPEID, language, d, abi, vcvarsBat),
     m_msvcVer(msvcVer),
     m_ceVer(ceVer),
     m_binPath(binPath),
@@ -339,9 +339,9 @@ WinCEToolChainFactory::WinCEToolChainFactory()
     setDisplayName(tr("WinCE"));
 }
 
-QSet<ToolChain::Language> WinCEToolChainFactory::supportedLanguages() const
+QSet<Core::Id> WinCEToolChainFactory::supportedLanguages() const
 {
-    return { ProjectExplorer::ToolChain::Language::Cxx };
+    return { Constants::CXX_LANGUAGE_ID };
 }
 
 static ToolChain *findOrCreateToolChain(const QList<ToolChain *> &alreadyKnown,
@@ -366,7 +366,7 @@ static ToolChain *findOrCreateToolChain(const QList<ToolChain *> &alreadyKnown,
                                          });
     if (!tc)
         tc = new WinCEToolChain(name, abi, vcvarsBat, msvcVer, ceVer, binPath, includePath, libPath,
-                                ProjectExplorer::ToolChain::Language::Cxx, d);
+                                Constants::CXX_LANGUAGE_ID, d);
     return tc;
 }
 

@@ -172,7 +172,7 @@ void QmakeBuildConfiguration::kitChanged()
 
 void QmakeBuildConfiguration::toolChainUpdated(ToolChain *tc)
 {
-    if (ToolChainKitInformation::toolChain(target()->kit(), ToolChain::Language::Cxx) == tc)
+    if (ToolChainKitInformation::toolChain(target()->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID) == tc)
         emitProFileEvaluateNeeded();
 }
 
@@ -757,7 +757,7 @@ QmakeBuildConfiguration::LastKitState::LastKitState(Kit *k)
       m_sysroot(SysRootKitInformation::sysRoot(k).toString()),
       m_mkspec(QmakeKitInformation::mkspec(k).toString())
 {
-    ToolChain *tc = ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx);
+    ToolChain *tc = ToolChainKitInformation::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     m_toolchain = tc ? tc->id() : QByteArray();
 }
 

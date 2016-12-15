@@ -43,6 +43,17 @@ namespace ProjectExplorer {
 
 namespace Internal { class ToolChainPrivate; }
 
+namespace Deprecated {
+namespace Toolchain {
+enum Language {
+    None = 0,
+    C,
+    Cxx
+};
+QString languageId(Language l);
+} // namespace Toolchain
+} // namespace Deprecated
+
 class Abi;
 class HeaderPath;
 class IOutputParser;
@@ -114,16 +125,7 @@ public:
     virtual void addToEnvironment(Utils::Environment &env) const = 0;
     virtual QString makeCommand(const Utils::Environment &env) const = 0;
 
-    enum class Language {
-        None = 0,
-        C,
-        Cxx
-    };
-    static const QSet<Language>& allLanguages();
-    static QString languageDisplayName(Language language);
-    static QString languageId(Language l);
-
-    Language language() const;
+    Core::Id language() const;
 
     virtual Utils::FileName compilerCommand() const = 0;
     virtual IOutputParser *outputParser() const = 0;
@@ -139,7 +141,7 @@ public:
     virtual QVariantMap toMap() const;
     virtual QList<Task> validateKit(const Kit *k) const;
 
-    void setLanguage(const Language &l);
+    void setLanguage(Core::Id language);
 
 protected:
     explicit ToolChain(Core::Id typeId, Detection d);
@@ -170,7 +172,7 @@ public:
     virtual QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown);
 
     virtual bool canCreate();
-    virtual ToolChain *create(ToolChain::Language l);
+    virtual ToolChain *create(Core::Id l);
 
     virtual bool canRestore(const QVariantMap &data);
     virtual ToolChain *restore(const QVariantMap &data);
@@ -179,7 +181,7 @@ public:
     static Core::Id typeIdFromMap(const QVariantMap &data);
     static void autoDetectionToMap(QVariantMap &data, bool detected);
 
-    virtual QSet<ToolChain::Language> supportedLanguages() const = 0;
+    virtual QSet<Core::Id> supportedLanguages() const = 0;
 
 protected:
     void setDisplayName(const QString &name) { m_displayName = name; }
@@ -187,10 +189,5 @@ protected:
 private:
     QString m_displayName;
 };
-
-inline uint qHash(const ProjectExplorer::ToolChain::Language &l, uint seed = 0)
-{
-    return QT_PREPEND_NAMESPACE(qHash)(static_cast<int>(l), seed);
-}
 
 } // namespace ProjectExplorer

@@ -63,7 +63,7 @@ protected:
 
 private:
     explicit AndroidToolChain(const ProjectExplorer::Abi &abi, const QString &ndkToolChainVersion,
-                              Language l, Detection d);
+                              Core::Id l, Detection d);
     AndroidToolChain();
     AndroidToolChain(const AndroidToolChain &);
 
@@ -95,7 +95,7 @@ class AndroidToolChainFactory : public ProjectExplorer::ToolChainFactory
 
 public:
     AndroidToolChainFactory();
-    QSet<ProjectExplorer::ToolChain::Language> supportedLanguages() const override;
+    QSet<Core::Id> supportedLanguages() const override;
 
     QList<ProjectExplorer::ToolChain *> autoDetect(const QList<ProjectExplorer::ToolChain *> &alreadyKnown) override;
     bool canRestore(const QVariantMap &data) override;
@@ -104,7 +104,7 @@ public:
     class AndroidToolChainInformation
     {
     public:
-        ProjectExplorer::ToolChain::Language language;
+        Core::Id language;
         Utils::FileName compilerCommand;
         ProjectExplorer::Abi abi;
         QString version;

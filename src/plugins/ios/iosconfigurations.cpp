@@ -194,11 +194,11 @@ static void setupKit(Kit *kit, Core::Id pDeviceType, const ToolChainPair& toolCh
     if (toolChains.first)
         ToolChainKitInformation::setToolChain(kit, toolChains.first);
     else
-        ToolChainKitInformation::clearToolChain(kit, ToolChain::Language::C);
+        ToolChainKitInformation::clearToolChain(kit, ProjectExplorer::Constants::C_LANGUAGE_ID);
     if (toolChains.second)
         ToolChainKitInformation::setToolChain(kit, toolChains.second);
     else
-        ToolChainKitInformation::clearToolChain(kit, ToolChain::Language::Cxx);
+        ToolChainKitInformation::clearToolChain(kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
 
     QtKitInformation::setQtVersion(kit, qtVersion);
     // only replace debugger with the default one if we find an unusable one here
@@ -288,8 +288,8 @@ void IosConfigurations::updateAutomaticKitList()
                 // we do not compare the sdk (thus automatically upgrading it in place if a
                 // new Xcode is used). Change?
                 return DeviceTypeKitInformation::deviceTypeId(kit) == pDeviceType
-                        && ToolChainKitInformation::toolChain(kit, ToolChain::Language::Cxx) == platformToolchains.second
-                        && ToolChainKitInformation::toolChain(kit, ToolChain::Language::C) == platformToolchains.first
+                        && ToolChainKitInformation::toolChain(kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID) == platformToolchains.second
+                        && ToolChainKitInformation::toolChain(kit, ProjectExplorer::Constants::C_LANGUAGE_ID) == platformToolchains.first
                         && QtKitInformation::qtVersion(kit) == qtVersion;
             });
             QTC_ASSERT(!resultingKits.contains(kit), continue);
@@ -409,24 +409,28 @@ void IosConfigurations::setDeveloperPath(const FileName &devPath)
     }
 }
 
-static ClangToolChain *createToolChain(const Platform &platform, ToolChain::Language l)
+static ClangToolChain *createToolChain(const Platform &platform, Core::Id l)
 {
-    if (l == ToolChain::Language::None)
+    if (!l.isValid())
+        return nullptr;
+
+    if (l != Core::Id(ProjectExplorer::Constants::C_LANGUAGE_ID)
+            && l != Core::Id(ProjectExplorer::Constants::CXX_LANGUAGE_ID))
         return nullptr;
 
     ClangToolChain *toolChain = new ClangToolChain(ToolChain::AutoDetection);
     toolChain->setLanguage(l);
-    toolChain->setDisplayName(l == ToolChain::Language::Cxx ? platform.name + "++" : platform.name);
+    toolChain->setDisplayName(l == Core::Id(ProjectExplorer::Constants::CXX_LANGUAGE_ID) ? platform.name + "++" : platform.name);
     toolChain->setPlatformCodeGenFlags(platform.backendFlags);
     toolChain->setPlatformLinkerFlags(platform.backendFlags);
-    toolChain->resetToolChain(l == ToolChain::Language::Cxx ?
+    toolChain->resetToolChain(l == Core::Id(ProjectExplorer::Constants::CXX_LANGUAGE_ID) ?
                                   platform.cxxCompilerPath : platform.cCompilerPath);
     return toolChain;
 }
 
-QSet<ToolChain::Language> IosToolChainFactory::supportedLanguages() const
+QSet<Core::Id> IosToolChainFactory::supportedLanguages() const
 {
-    return { ProjectExplorer::ToolChain::Language::Cxx };
+    return { ProjectExplorer::Constants::CXX_LANGUAGE_ID };
 }
 
 QList<ToolChain *> IosToolChainFactory::autoDetect(const QList<ToolChain *> &existingToolChains)
@@ -437,7 +441,7 @@ QList<ToolChain *> IosToolChainFactory::autoDetect(const QList<ToolChain *> &exi
     toolChains.reserve(platforms.size());
     foreach (const Platform &platform, platforms) {
         ToolChainPair platformToolchains = findToolChainForPlatform(platform, existingClangToolChains);
-        auto createOrAdd = [&](ClangToolChain* toolChain, ToolChain::Language l) {
+        auto createOrAdd = [&](ClangToolChain* toolChain, Core::Id l) {
             if (!toolChain) {
                 toolChain = createToolChain(platform, l);
                 existingClangToolChains.append(toolChain);
@@ -445,8 +449,8 @@ QList<ToolChain *> IosToolChainFactory::autoDetect(const QList<ToolChain *> &exi
             toolChains.append(toolChain);
         };
 
-        createOrAdd(platformToolchains.first, ToolChain::Language::C);
-        createOrAdd(platformToolchains.second, ToolChain::Language::Cxx);
+        createOrAdd(platformToolchains.first, ProjectExplorer::Constants::C_LANGUAGE_ID);
+        createOrAdd(platformToolchains.second, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     }
     return Utils::transform(toolChains, [](ClangToolChain *tc) -> ToolChain * { return tc; });
 }

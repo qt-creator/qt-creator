@@ -126,8 +126,7 @@ public:
     Utils::FileName emulatorToolPath() const;
 
 
-    Utils::FileName gccPath(const ProjectExplorer::Abi &abi,
-                            ProjectExplorer::ToolChain::Language lang,
+    Utils::FileName gccPath(const ProjectExplorer::Abi &abi, Core::Id lang,
                             const QString &ndkToolChainVersion) const;
     Utils::FileName gdbPath(const ProjectExplorer::Abi &abi, const QString &ndkToolChainVersion) const;
 

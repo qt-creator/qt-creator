@@ -499,11 +499,11 @@ FileName AndroidConfig::toolPath(const Abi &abi, const QString &ndkToolChainVers
             .arg(toolsPrefix(abi)));
 }
 
-FileName AndroidConfig::gccPath(const Abi &abi, ToolChain::Language lang,
+FileName AndroidConfig::gccPath(const Abi &abi, Core::Id lang,
                                 const QString &ndkToolChainVersion) const
 {
     const QString tool
-            = HostOsInfo::withExecutableSuffix(QString::fromLatin1(lang == ToolChain::Language::C ? "-gcc" : "-g++"));
+            = HostOsInfo::withExecutableSuffix(QString::fromLatin1(lang == Core::Id(ProjectExplorer::Constants::C_LANGUAGE_ID) ? "-gcc" : "-g++"));
     return toolPath(abi, ndkToolChainVersion).appendString(tool);
 }
 
@@ -1215,10 +1215,10 @@ static bool matchKits(const Kit *a, const Kit *b)
     if (QtSupport::QtKitInformation::qtVersion(a) != QtSupport::QtKitInformation::qtVersion(b))
         return false;
 
-    return matchToolChain(ToolChainKitInformation::toolChain(a, ToolChain::Language::Cxx),
-                          ToolChainKitInformation::toolChain(b, ToolChain::Language::Cxx))
-            && matchToolChain(ToolChainKitInformation::toolChain(a, ToolChain::Language::C),
-                              ToolChainKitInformation::toolChain(b, ToolChain::Language::C));
+    return matchToolChain(ToolChainKitInformation::toolChain(a, ProjectExplorer::Constants::CXX_LANGUAGE_ID),
+                          ToolChainKitInformation::toolChain(b, ProjectExplorer::Constants::CXX_LANGUAGE_ID))
+            && matchToolChain(ToolChainKitInformation::toolChain(a, ProjectExplorer::Constants::C_LANGUAGE_ID),
+                              ToolChainKitInformation::toolChain(b, ProjectExplorer::Constants::C_LANGUAGE_ID));
 }
 
 void AndroidConfigurations::registerNewToolChains()
@@ -1250,7 +1250,7 @@ void AndroidConfigurations::updateAutomaticKitList()
 
     // Update code for 3.0 beta, which shipped with a bug for the debugger settings
     for (Kit *k : existingKits) {
-        ToolChain *tc = ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx);
+        ToolChain *tc = ToolChainKitInformation::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
         if (tc && Debugger::DebuggerKitInformation::runnable(k).executable != tc->suggestedDebugger().toString()) {
             Debugger::DebuggerItem debugger;
             debugger.setCommand(tc->suggestedDebugger());
@@ -1297,7 +1297,7 @@ void AndroidConfigurations::updateAutomaticKitList()
             return static_cast<AndroidToolChain *>(tc);
     });
     for (AndroidToolChain *tc : toolchains) {
-        if (tc->isSecondaryToolChain() || tc->language() != ToolChain::Language::Cxx)
+        if (tc->isSecondaryToolChain() || tc->language() != Core::Id(ProjectExplorer::Constants::CXX_LANGUAGE_ID))
             continue;
         const QList<AndroidToolChain *> allLanguages = Utils::filtered(toolchains,
                                                                        [tc](AndroidToolChain *otherTc) {

@@ -38,6 +38,8 @@
 #include <QVBoxLayout>
 #include <QFormLayout>
 
+#include <projectexplorer/projectexplorerconstants.h>
+
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 
@@ -82,7 +84,7 @@ Core::Id AndroidGdbServerKitInformation::id()
 bool AndroidGdbServerKitInformation::isAndroidKit(const Kit *kit)
 {
     QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(kit);
-    ToolChain *tc = ToolChainKitInformation::toolChain(kit, ToolChain::Language::Cxx);
+    ToolChain *tc = ToolChainKitInformation::toolChain(kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     if (qt && tc)
         return qt->type() == QLatin1String(Constants::ANDROIDQT)
                 && tc->typeId() == Constants::ANDROID_TOOLCHAIN_ID;
@@ -102,7 +104,7 @@ void AndroidGdbServerKitInformation::setGdbSever(Kit *kit, const FileName &gdbSe
 
 FileName AndroidGdbServerKitInformation::autoDetect(const Kit *kit)
 {
-    ToolChain *tc = ToolChainKitInformation::toolChain(kit, ToolChain::Language::Cxx);
+    ToolChain *tc = ToolChainKitInformation::toolChain(kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     if (!tc || tc->typeId() != Constants::ANDROID_TOOLCHAIN_ID)
         return FileName();
     auto atc = static_cast<AndroidToolChain *>(tc);

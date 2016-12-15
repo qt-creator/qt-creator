@@ -311,7 +311,7 @@ QVariant CMakeGeneratorKitInformation::defaultValue(const Kit *k) const
 
     if (Utils::HostOsInfo::isWindowsHost()) {
         // *sigh* Windows with its zoo of incompatible stuff again...
-        ToolChain *tc = ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx);
+        ToolChain *tc = ToolChainKitInformation::toolChain(k, Constants::CXX_LANGUAGE_ID);
         if (tc && tc->typeId() == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID) {
             it = std::find_if(known.constBegin(), known.constEnd(),
                               [extraGenerator](const CMakeTool::Generator &g) {
@@ -531,8 +531,8 @@ QVariant CMakeConfigurationKitInformation::defaultValue(const Kit *k) const
 QList<Task> CMakeConfigurationKitInformation::validate(const Kit *k) const
 {
     const QtSupport::BaseQtVersion *const version = QtSupport::QtKitInformation::qtVersion(k);
-    const ToolChain *const tcC = ToolChainKitInformation::toolChain(k, ToolChain::Language::C);
-    const ToolChain *const tcCxx = ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx);
+    const ToolChain *const tcC = ToolChainKitInformation::toolChain(k, Constants::C_LANGUAGE_ID);
+    const ToolChain *const tcCxx = ToolChainKitInformation::toolChain(k, Constants::CXX_LANGUAGE_ID);
     const CMakeConfig config = configuration(k);
 
     const bool isQt4 = version && version->qtVersion() < QtSupport::QtVersionNumber(5, 0, 0);

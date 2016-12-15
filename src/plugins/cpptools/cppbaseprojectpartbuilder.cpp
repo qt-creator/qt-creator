@@ -296,10 +296,10 @@ ToolChainInterfacePtr BaseProjectPartBuilder::selectToolChain(
     ToolChainInterfacePtr toolChain = nullptr;
 
     if (languageVersion <= ProjectPart::LatestCVersion)
-        toolChain = m_project->toolChain(ProjectExplorer::ToolChain::Language::C, m_cFlags);
+        toolChain = m_project->toolChain(ProjectExplorer::Constants::C_LANGUAGE_ID, m_cFlags);
 
     if (!toolChain) // Use Cxx toolchain for C projects without C compiler in kit and for C++ code
-        toolChain = m_project->toolChain(ProjectExplorer::ToolChain::Language::Cxx, m_cxxFlags);
+        toolChain = m_project->toolChain(ProjectExplorer::Constants::CXX_LANGUAGE_ID, m_cxxFlags);
 
     return toolChain;
 }

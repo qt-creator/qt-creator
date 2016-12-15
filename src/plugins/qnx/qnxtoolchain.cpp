@@ -29,6 +29,8 @@
 #include "qnxconstants.h"
 #include "qnxutils.h"
 
+#include <projectexplorer/projectexplorerconstants.h>
+
 #include <utils/pathchooser.h>
 
 #include <QFormLayout>
@@ -66,7 +68,7 @@ QnxToolChain::QnxToolChain(ToolChain::Detection d)
     : GccToolChain(Constants::QNX_TOOLCHAIN_ID, d)
 { }
 
-QnxToolChain::QnxToolChain(Language l, ToolChain::Detection d)
+QnxToolChain::QnxToolChain(Core::Id l, ToolChain::Detection d)
     : QnxToolChain(d)
 {
     setLanguage(l);
@@ -175,9 +177,9 @@ QList<ProjectExplorer::ToolChain *> QnxToolChainFactory::autoDetect(
     return tcs;
 }
 
-QSet<ToolChain::Language> QnxToolChainFactory::supportedLanguages() const
+QSet<Core::Id> QnxToolChainFactory::supportedLanguages() const
 {
-    return { ProjectExplorer::ToolChain::Language::Cxx };
+    return { ProjectExplorer::Constants::CXX_LANGUAGE_ID };
 }
 
 bool QnxToolChainFactory::canRestore(const QVariantMap &data)
@@ -200,7 +202,7 @@ bool QnxToolChainFactory::canCreate()
     return true;
 }
 
-ToolChain *QnxToolChainFactory::create(ToolChain::Language l)
+ToolChain *QnxToolChainFactory::create(Core::Id l)
 {
     return new QnxToolChain(l, ToolChain::ManualDetection);
 }

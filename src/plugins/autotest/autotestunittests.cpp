@@ -69,7 +69,7 @@ void AutoTestUnitTests::initTestCase()
     else
         QSKIP("Could not figure out which Qt version is used for default kit.");
     const ToolChain * const toolchain = ToolChainKitInformation::toolChain(allKits.first(),
-                                                                           ToolChain::Language::Cxx);
+                                                                           ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     if (!toolchain)
         QSKIP("This test requires that there is a kit with a toolchain.");
 

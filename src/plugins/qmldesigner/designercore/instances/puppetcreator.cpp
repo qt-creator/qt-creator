@@ -35,6 +35,7 @@
 
 #include <projectexplorer/kit.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
 #include <qmakeprojectmanager/qmakeproject.h>
 #include <qmakeprojectmanager/qmakenodes.h>
@@ -463,7 +464,7 @@ QString PuppetCreator::buildCommand() const
 
     ProjectExplorer::ToolChain *toolChain
             = ProjectExplorer::ToolChainKitInformation::toolChain(m_kit,
-                                                                  ProjectExplorer::ToolChain::Language::Cxx);
+                                                                  ProjectExplorer::Constants::CXX_LANGUAGE_ID);
 
     if (toolChain)
         return toolChain->makeCommand(environment);

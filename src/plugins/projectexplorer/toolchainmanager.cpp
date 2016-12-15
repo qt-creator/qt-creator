@@ -63,16 +63,22 @@ namespace Internal {
 // ToolChainManagerPrivate
 // --------------------------------------------------------------------------
 
+struct LanguageDisplayPair
+{
+    Core::Id id;
+    QString displayName;
+};
+
 class ToolChainManagerPrivate
 {
 public:
-    ToolChainManagerPrivate() : m_writer(nullptr) {}
     ~ToolChainManagerPrivate();
 
     QMap<QString, FileName> m_abiToDebugger;
-    PersistentSettingsWriter *m_writer;
+    PersistentSettingsWriter *m_writer = nullptr;
 
     QList<ToolChain *> m_toolChains; // prioritized List
+    QVector<LanguageDisplayPair> m_languages;
 };
 
 ToolChainManagerPrivate::~ToolChainManagerPrivate()
@@ -399,7 +405,7 @@ void ToolChainManager::notifyAboutUpdate(ToolChain *tc)
 bool ToolChainManager::registerToolChain(ToolChain *tc)
 {
     QTC_ASSERT(tc, return false);
-    QTC_ASSERT(tc->language() != ToolChain::Language::None, return false);
+    QTC_ASSERT(isLanguageSupported(tc->language()), return false);
     QTC_ASSERT(d->m_writer, return false);
 
     if (d->m_toolChains.contains(tc))
@@ -422,6 +428,35 @@ void ToolChainManager::deregisterToolChain(ToolChain *tc)
     d->m_toolChains.removeOne(tc);
     emit m_instance->toolChainRemoved(tc);
     delete tc;
+}
+
+QSet<Core::Id> ToolChainManager::allLanguages()
+{
+    return Utils::transform<QSet>(d->m_languages, [](const LanguageDisplayPair &pair) {
+        return pair.id;
+    });
+}
+
+bool ToolChainManager::registerLanguage(const Core::Id &language, const QString &displayName)
+{
+    QTC_ASSERT(language.isValid(), return false);
+    QTC_ASSERT(!isLanguageSupported(language), return false);
+    QTC_ASSERT(!displayName.isEmpty(), return false);
+    d->m_languages.push_back({language, displayName});
+    return true;
+}
+
+QString ToolChainManager::displayNameOfLanguageId(const Core::Id &id)
+{
+    QTC_ASSERT(id.isValid(), return tr("None"));
+    auto entry = Utils::findOrDefault(d->m_languages, Utils::equal(&LanguageDisplayPair::id, id));
+    QTC_ASSERT(entry.id.isValid(), return tr("None"));
+    return entry.displayName;
+}
+
+bool ToolChainManager::isLanguageSupported(const Core::Id &id)
+{
+    return Utils::contains(d->m_languages, Utils::equal(&LanguageDisplayPair::id, id));
 }
 
 } // namespace ProjectExplorer
@@ -447,7 +482,7 @@ public:
         m_valid(v)
     {
         m_toolChains.append(this);
-        setLanguage(ToolChain::Language::Cxx);
+        setLanguage(Constants::CXX_LANGUAGE_ID);
     }
 
     static QList<TTC *> toolChains();

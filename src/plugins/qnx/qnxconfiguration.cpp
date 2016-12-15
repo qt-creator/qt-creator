@@ -179,7 +179,7 @@ void QnxConfiguration::deactivate()
     foreach (Kit *kit, KitManager::kits()) {
         if (kit->isAutoDetected()
                 && DeviceTypeKitInformation::deviceTypeId(kit) == Constants::QNX_QNX_OS_TYPE
-                && toolChainsToRemove.contains(ToolChainKitInformation::toolChain(kit, ToolChain::Language::Cxx)))
+                && toolChainsToRemove.contains(ToolChainKitInformation::toolChain(kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID)))
             KitManager::deregisterKit(kit);
     }
 
@@ -268,7 +268,7 @@ QnxToolChain *QnxConfiguration::createToolChain(const Target &target)
 {
     QnxToolChain *toolChain = new QnxToolChain(ToolChain::AutoDetection);
     toolChain->resetToolChain(qccCompilerPath());
-    toolChain->setLanguage(ToolChain::Language::Cxx);
+    toolChain->setLanguage(ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     toolChain->setTargetAbi(target.m_abi);
     toolChain->setDisplayName(
                 QCoreApplication::translate(
@@ -305,7 +305,7 @@ ProjectExplorer::Kit *QnxConfiguration::createKit(
 
     QtKitInformation::setQtVersion(kit, qnxQt);
     ToolChainKitInformation::setToolChain(kit, toolChain);
-    ToolChainKitInformation::clearToolChain(kit, ToolChain::Language::C);
+    ToolChainKitInformation::clearToolChain(kit, ProjectExplorer::Constants::C_LANGUAGE_ID);
 
     if (debugger.isValid())
         DebuggerKitInformation::setDebugger(kit, debugger);

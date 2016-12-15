@@ -39,6 +39,7 @@
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/kitinformation.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
 
@@ -314,7 +315,7 @@ void AndroidSettingsWidget::check(AndroidSettingsWidget::Mode mode)
             // Check for a gdb with a broken python
             QStringList gdbPaths;
             foreach (const AndroidToolChainFactory::AndroidToolChainInformation &ati, compilerPaths) {
-                if (ati.language == ProjectExplorer::ToolChain::Language::C)
+                if (ati.language == Core::Id(ProjectExplorer::Constants::C_LANGUAGE_ID))
                     continue;
                 // we only check the arm gdbs, that's indicative enough
                 if (ati.abi.architecture() != ProjectExplorer::Abi::ArmArchitecture)
@@ -332,7 +333,7 @@ void AndroidSettingsWidget::check(AndroidSettingsWidget::Mode mode)
             // See if we have qt versions for those toolchains
             QSet<ProjectExplorer::Abi> toolchainsForAbi;
             foreach (const AndroidToolChainFactory::AndroidToolChainInformation &ati, compilerPaths) {
-                if (ati.language == ProjectExplorer::ToolChain::Language::Cxx)
+                if (ati.language == Core::Id(ProjectExplorer::Constants::CXX_LANGUAGE_ID))
                     toolchainsForAbi.insert(ati.abi);
             }
 

@@ -85,9 +85,9 @@ CustomToolChain::CustomToolChain(Detection d) :
     m_outputParser(Gcc)
 { }
 
-CustomToolChain::CustomToolChain(Language l, Detection d) : CustomToolChain(d)
+CustomToolChain::CustomToolChain(Core::Id language, Detection d) : CustomToolChain(d)
 {
-    setLanguage(l);
+    setLanguage(language);
 }
 
 
@@ -423,9 +423,9 @@ CustomToolChainFactory::CustomToolChainFactory()
     setDisplayName(tr("Custom"));
 }
 
-QSet<ToolChain::Language> CustomToolChainFactory::supportedLanguages() const
+QSet<Core::Id> CustomToolChainFactory::supportedLanguages() const
 {
-    return ToolChain::allLanguages();
+    return ToolChainManager::allLanguages();
 }
 
 bool CustomToolChainFactory::canCreate()
@@ -433,9 +433,9 @@ bool CustomToolChainFactory::canCreate()
     return true;
 }
 
-ToolChain *CustomToolChainFactory::create(ToolChain::Language l)
+ToolChain *CustomToolChainFactory::create(Core::Id language)
 {
-    return new CustomToolChain(l, ToolChain::ManualDetection);
+    return new CustomToolChain(language, ToolChain::ManualDetection);
 }
 
 // Used by the ToolChainManager to restore user-generated tool chains

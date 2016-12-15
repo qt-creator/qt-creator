@@ -115,7 +115,7 @@ QString MakeStep::effectiveMakeCommand() const
         QmakeBuildConfiguration *bc = qmakeBuildConfiguration();
         if (!bc)
             bc = qobject_cast<QmakeBuildConfiguration *>(target()->activeBuildConfiguration());
-        ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(), ToolChain::Language::Cxx);
+        ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);
 
         if (bc && tc)
             makeCmd = tc->makeCommand(bc->environment());
@@ -135,7 +135,7 @@ QVariantMap MakeStep::toMap() const
 
 QStringList MakeStep::automaticallyAddedArguments() const
 {
-    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(), ToolChain::Language::Cxx);
+    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     if (!tc || tc->targetAbi().binaryFormat() == Abi::PEFormat)
         return QStringList();
     return QStringList() << QLatin1String("-w") << QLatin1String("-r");
@@ -165,7 +165,7 @@ bool MakeStep::init(QList<const BuildStep *> &earlierSteps)
     if (!bc)
         emit addTask(Task::buildConfigurationMissingTask());
 
-    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(), ToolChain::Language::Cxx);
+    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     if (!tc)
         emit addTask(Task::compilerMissingTask());
 
@@ -394,7 +394,7 @@ MakeStepConfigWidget::~MakeStepConfigWidget()
 void MakeStepConfigWidget::updateDetails()
 {
     ToolChain *tc
-            = ToolChainKitInformation::toolChain(m_makeStep->target()->kit(), ToolChain::Language::Cxx);
+            = ToolChainKitInformation::toolChain(m_makeStep->target()->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     QmakeBuildConfiguration *bc = m_makeStep->qmakeBuildConfiguration();
     if (!bc)
         bc = qobject_cast<QmakeBuildConfiguration *>(m_makeStep->target()->activeBuildConfiguration());

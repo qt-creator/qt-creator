@@ -44,9 +44,7 @@ enum { debug = 0 };
 namespace ProjectExplorer {
 namespace Internal {
 
-AbstractMsvcToolChain::AbstractMsvcToolChain(Core::Id typeId,
-                                             const Language &l,
-                                             Detection d,
+AbstractMsvcToolChain::AbstractMsvcToolChain(Core::Id typeId, Core::Id l, Detection d,
                                              const Abi &abi,
                                              const QString& vcvarsBat) : ToolChain(typeId, d),
     m_lastEnvironment(Utils::Environment::systemEnvironment()),

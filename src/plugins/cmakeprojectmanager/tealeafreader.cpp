@@ -344,8 +344,8 @@ QSet<Id> TeaLeafReader::updateCodeModel(CppTools::ProjectPartBuilder &ppBuilder)
         // CMake shuffles the include paths that it reports via the CodeBlocks generator
         // So remove the toolchain include paths, so that at least those end up in the correct
         // place.
-        auto cxxflags = getFlagsFor(cbt, targetDataCacheCxx, ToolChain::Language::Cxx);
-        auto cflags = getFlagsFor(cbt, targetDataCacheC, ToolChain::Language::C);
+        auto cxxflags = getFlagsFor(cbt, targetDataCacheCxx, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+        auto cflags = getFlagsFor(cbt, targetDataCacheC, ProjectExplorer::Constants::C_LANGUAGE_ID);
         QSet<FileName> tcIncludes;
         QStringList includePaths;
         if (tcCxx || tcC) {
@@ -547,7 +547,7 @@ void TeaLeafReader::processCMakeError()
 
 QStringList TeaLeafReader::getFlagsFor(const CMakeBuildTarget &buildTarget,
                                        QHash<QString, QStringList> &cache,
-                                       ToolChain::Language lang)
+                                       Id lang)
 {
     // check cache:
     auto it = cache.constFind(buildTarget.title);
@@ -566,20 +566,16 @@ QStringList TeaLeafReader::getFlagsFor(const CMakeBuildTarget &buildTarget,
 
 bool TeaLeafReader::extractFlagsFromMake(const CMakeBuildTarget &buildTarget,
                                          QHash<QString, QStringList> &cache,
-                                         ToolChain::Language lang)
+                                         Id lang)
 {
     QString flagsPrefix;
-    switch (lang)
-    {
-    case ToolChain::Language::Cxx:
+
+    if (lang == ProjectExplorer::Constants::CXX_LANGUAGE_ID)
         flagsPrefix = QLatin1String("CXX_FLAGS =");
-        break;
-    case ToolChain::Language::C:
+    else if (lang == ProjectExplorer::Constants::C_LANGUAGE_ID)
         flagsPrefix = QLatin1String("C_FLAGS =");
-        break;
-    default:
+    else
         return false;
-    }
 
     QString makeCommand = buildTarget.makeCommand.toString();
     int startIndex = makeCommand.indexOf('\"');
@@ -625,24 +621,19 @@ bool TeaLeafReader::extractFlagsFromMake(const CMakeBuildTarget &buildTarget,
 
 bool TeaLeafReader::extractFlagsFromNinja(const CMakeBuildTarget &buildTarget,
                                           QHash<QString, QStringList> &cache,
-                                          ProjectExplorer::ToolChain::Language lang)
+                                          Id lang)
 {
     Q_UNUSED(buildTarget)
     if (!cache.isEmpty()) // We fill the cache in one go!
         return false;
 
     QString compilerPrefix;
-    switch (lang)
-    {
-    case ToolChain::Language::Cxx:
+    if (lang == ProjectExplorer::Constants::CXX_LANGUAGE_ID)
         compilerPrefix = QLatin1String("CXX_COMPILER");
-        break;
-    case ToolChain::Language::C:
+    else if (lang == ProjectExplorer::Constants::C_LANGUAGE_ID)
         compilerPrefix = QLatin1String("C_COMPILER");
-        break;
-    default:
+    else
         return false;
-    }
 
     // Attempt to find build.ninja file and obtain FLAGS (CXX_FLAGS/C_FLAGS) from there if no suitable flags.make were
     // found

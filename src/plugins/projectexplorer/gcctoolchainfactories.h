@@ -49,12 +49,12 @@ class GccToolChainFactory : public ToolChainFactory
 
 public:
     GccToolChainFactory();
-    QSet<ToolChain::Language> supportedLanguages() const override;
+    QSet<Core::Id> supportedLanguages() const override;
 
     QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown) override;
 
     bool canCreate() override;
-    ToolChain *create(ToolChain::Language l) override;
+    ToolChain *create(Core::Id language) override;
 
     bool canRestore(const QVariantMap &data) override;
     ToolChain *restore(const QVariantMap &data) override;
@@ -62,7 +62,7 @@ public:
 protected:
     virtual GccToolChain *createToolChain(bool autoDetect);
     QList<ToolChain *> autoDetectToolchains(const QString &compiler, const Abi &requiredAbi,
-                                            ToolChain::Language l, const Core::Id requiredTypeId,
+                                            Core::Id language, const Core::Id requiredTypeId,
                                             const QList<ToolChain *> &alreadyKnown);
 };
 
@@ -109,7 +109,7 @@ class ClangToolChainFactory : public GccToolChainFactory
 
 public:
     ClangToolChainFactory();
-    QSet<ToolChain::Language> supportedLanguages() const override;
+    QSet<Core::Id> supportedLanguages() const override;
 
     QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown) override;
 
@@ -129,7 +129,7 @@ class MingwToolChainFactory : public GccToolChainFactory
 
 public:
     MingwToolChainFactory();
-    QSet<ToolChain::Language> supportedLanguages() const override;
+    QSet<Core::Id> supportedLanguages() const override;
 
     QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown) override;
 
@@ -149,7 +149,7 @@ class LinuxIccToolChainFactory : public GccToolChainFactory
 
 public:
     LinuxIccToolChainFactory();
-    QSet<ToolChain::Language> supportedLanguages() const override;
+    QSet<Core::Id> supportedLanguages() const override;
 
     QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown) override;
 

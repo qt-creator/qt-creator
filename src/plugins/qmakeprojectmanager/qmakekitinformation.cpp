@@ -81,13 +81,12 @@ void QmakeKitInformation::setup(Kit *k)
     if (spec.isEmpty())
         spec = version->mkspec();
 
-
-    ToolChain *tc = ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx);
+    ToolChain *tc = ToolChainKitInformation::toolChain(k, Constants::CXX_LANGUAGE_ID);
 
     if (!tc || (!tc->suggestedMkspecList().empty() && !tc->suggestedMkspecList().contains(spec))) {
         const QList<ToolChain *> possibleTcs = ToolChainManager::toolChains([version, &spec](const ToolChain *t) {
             return t->isValid()
-                && t->language() == ToolChain::Language::Cxx
+                && t->language() == Core::Id(Constants::CXX_LANGUAGE_ID)
                 && version->qtAbis().contains(t->targetAbi());
         });
         ToolChain *possibleTc
@@ -149,7 +148,7 @@ FileName QmakeKitInformation::defaultMkspec(const Kit *k)
     if (!version) // No version, so no qmake
         return FileName();
 
-    return version->mkspecFor(ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx));
+    return version->mkspecFor(ToolChainKitInformation::toolChain(k, Constants::CXX_LANGUAGE_ID));
 }
 
 } // namespace QmakeProjectManager

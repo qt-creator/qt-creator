@@ -95,7 +95,7 @@ bool GenericMakeStep::init(QList<const BuildStep *> &earlierSteps)
     if (!bc)
         emit addTask(Task::buildConfigurationMissingTask());
 
-    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(), ToolChain::Language::Cxx);
+    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     if (!tc)
         emit addTask(Task::compilerMissingTask());
 
@@ -170,7 +170,7 @@ QString GenericMakeStep::makeCommand(const Utils::Environment &environment) cons
 {
     QString command = m_makeCommand;
     if (command.isEmpty()) {
-        ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(), ToolChain::Language::Cxx);
+        ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);
         if (tc)
             command = tc->makeCommand(environment);
         else

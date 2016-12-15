@@ -31,6 +31,7 @@
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 
@@ -114,7 +115,7 @@ QList<Core::Id> AndroidDeployConfigurationFactory::availableCreationIds(Target *
     if (!parent->project()->supportsKit(parent->kit()))
         return ids;
 
-    ToolChain *tc = ToolChainKitInformation::toolChain(parent->kit(), ToolChain::Language::Cxx);
+    ToolChain *tc = ToolChainKitInformation::toolChain(parent->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);
 
     if (!tc || tc->targetAbi().osFlavor() != Abi::AndroidLinuxFlavor)
         return ids;

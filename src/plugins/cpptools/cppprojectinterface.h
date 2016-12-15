@@ -72,7 +72,7 @@ public:
     virtual QString displayName() const = 0;
     virtual QString projectFilePath() const = 0;
 
-    virtual ToolChainInterfacePtr toolChain(ProjectExplorer::ToolChain::Language language,
+    virtual ToolChainInterfacePtr toolChain(Core::Id language,
                                             const QStringList &commandLineFlags) const = 0;
 };
 

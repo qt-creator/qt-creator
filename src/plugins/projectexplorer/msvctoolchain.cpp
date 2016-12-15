@@ -412,13 +412,13 @@ Utils::Environment MsvcToolChain::readEnvironmentSetting(const Utils::Environmen
 // --------------------------------------------------------------------------
 
 MsvcToolChain::MsvcToolChain(const QString &name, const Abi &abi,
-                             const QString &varsBat, const QString &varsBatArg, const Language &l,
+                             const QString &varsBat, const QString &varsBatArg, Core::Id l,
                              Detection d) :
     MsvcToolChain(Constants::MSVC_TOOLCHAIN_TYPEID, name, abi, varsBat, varsBatArg, l, d)
 { }
 
 MsvcToolChain::MsvcToolChain(Core::Id typeId, const QString &name, const Abi &abi,
-                             const QString &varsBat, const QString &varsBatArg, const Language &l,
+                             const QString &varsBat, const QString &varsBatArg, Core::Id l,
                              Detection d) : AbstractMsvcToolChain(typeId, l, d, abi, varsBat),
     m_varsBatArg(varsBatArg)
 {
@@ -589,9 +589,9 @@ static const char clangClBinary[] = "clang-cl.exe";
 
 ClangClToolChain::ClangClToolChain(const QString &name, const QString &llvmDir,
                                    const Abi &abi,
-                                   const QString &varsBat, const QString &varsBatArg, const Language &l,
+                                   const QString &varsBat, const QString &varsBatArg, Core::Id language,
                                    Detection d)
-    : MsvcToolChain(Constants::CLANG_CL_TOOLCHAIN_TYPEID, name, abi, varsBat, varsBatArg, l, d)
+    : MsvcToolChain(Constants::CLANG_CL_TOOLCHAIN_TYPEID, name, abi, varsBat, varsBatArg, language, d)
     , m_llvmDir(llvmDir)
     , m_compiler(Utils::FileName::fromString(m_llvmDir + QStringLiteral("/bin/") + QLatin1String(clangClBinary)))
 { }
@@ -665,9 +665,9 @@ MsvcToolChainFactory::MsvcToolChainFactory()
     setDisplayName(tr("MSVC"));
 }
 
-QSet<ToolChain::Language> MsvcToolChainFactory::supportedLanguages() const
+QSet<Core::Id> MsvcToolChainFactory::supportedLanguages() const
 {
-    return { ToolChain::Language::C, ToolChain::Language::Cxx };
+    return { Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID };
 }
 
 QString MsvcToolChainFactory::vcVarsBatFor(const QString &basePath, MsvcToolChain::Platform platform,
@@ -692,7 +692,7 @@ static QList<ToolChain *> findOrCreateToolChain(
         ToolChain::Detection d = ToolChain::ManualDetection)
 {
     QList<ToolChain *> res;
-    for (auto language: {ToolChain::Language::C, ToolChain::Language::Cxx}) {
+    for (auto language: { Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID }) {
         ToolChain *tc = Utils::findOrDefault(
                     alreadyKnown,
                     [&varsBat, &varsBatArg, &abi, &language](ToolChain *tc) -> bool {
@@ -746,7 +746,7 @@ static void detectCppBuildTools(QList<ToolChain *> *list)
         const Entry &e = entries[i];
         const Abi abi(e.architecture, Abi::WindowsOS, Abi::WindowsMsvc2015Flavor,
                       e.format, e.wordSize);
-        for (auto language: {ToolChain::Language::C, ToolChain::Language::Cxx}) {
+        for (auto language: { Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID }) {
             list->append(new MsvcToolChain(name + QLatin1String(e.postFix), abi,
                                            vcVarsBat, QLatin1String(e.varsBatArg),
                                            language, ToolChain::AutoDetection));
@@ -794,7 +794,7 @@ static void detectClangClToolChain(QList<ToolChain *> *list)
         + Abi::toString(targetAbi.osFlavor()).toUpper();
     list->append(new ClangClToolChain(name, path, targetAbi,
                                       msvcToolChain->varsBat(), msvcToolChain->varsBatArg(),
-                                      ToolChain::Language::Cxx, ToolChain::AutoDetection));
+                                      Constants::CXX_LANGUAGE_ID, ToolChain::AutoDetection));
 }
 
 QList<ToolChain *> MsvcToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)

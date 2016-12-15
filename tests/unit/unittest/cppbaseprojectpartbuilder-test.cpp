@@ -92,7 +92,7 @@ private:
     QString displayName() const override { return QString(); }
     QString projectFilePath() const override { return QString(); }
 
-    ToolChainInterfacePtr toolChain(ProjectExplorer::ToolChain::Language,
+    ToolChainInterfacePtr toolChain(Core::Id,
                                     const QStringList &) const override
     { return ToolChainInterfacePtr(m_toolChain); }
 

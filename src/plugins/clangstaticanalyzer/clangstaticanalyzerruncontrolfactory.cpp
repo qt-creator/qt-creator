@@ -73,7 +73,7 @@ bool ClangStaticAnalyzerRunControlFactory::canRun(RunConfiguration *runConfigura
     QTC_ASSERT(target, return false);
     Kit *kit = target->kit();
     QTC_ASSERT(kit, return false);
-    ToolChain *toolChain = ToolChainKitInformation::toolChain(kit, ToolChain::Language::Cxx);
+    ToolChain *toolChain = ToolChainKitInformation::toolChain(kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     return toolChain;
 }
 

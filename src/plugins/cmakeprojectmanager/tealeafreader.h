@@ -70,9 +70,9 @@ private:
     void processCMakeOutput();
     void processCMakeError();
 
-    QStringList getFlagsFor(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache, ProjectExplorer::ToolChain::Language lang);
-    bool extractFlagsFromMake(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache, ProjectExplorer::ToolChain::Language lang);
-    bool extractFlagsFromNinja(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache, ProjectExplorer::ToolChain::Language lang);
+    QStringList getFlagsFor(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache, Core::Id lang);
+    bool extractFlagsFromMake(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache, Core::Id lang);
+    bool extractFlagsFromNinja(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache, Core::Id lang);
 
     Utils::QtcProcess *m_cmakeProcess = nullptr;
 

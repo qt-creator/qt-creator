@@ -154,7 +154,7 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
 
     createGeneratedCodeModelSupport();
 
-    ToolChain *tc = ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx);
+    ToolChain *tc = ToolChainKitInformation::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     if (!tc) {
         emit fileListChanged();
         return;

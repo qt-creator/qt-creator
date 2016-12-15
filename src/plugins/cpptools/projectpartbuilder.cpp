@@ -119,7 +119,7 @@ public:
         return m_project.projectFilePath().toString();
     }
 
-    ToolChainInterfacePtr toolChain(ProjectExplorer::ToolChain::Language language,
+    ToolChainInterfacePtr toolChain(Core::Id language,
                                     const QStringList &commandLineFlags) const override
     {
         using namespace ProjectExplorer;

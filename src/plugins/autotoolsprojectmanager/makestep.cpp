@@ -269,7 +269,7 @@ void MakeStepConfigWidget::updateDetails()
         param.setArguments(arguments);
         m_summaryText = param.summary(displayName());
     } else {
-        m_summaryText = QLatin1String("<b>") + ProjectExplorer::ToolChainKitInformation::msgNoToolChainInTarget()  + QLatin1String("</b>");
+        m_summaryText = QLatin1String("<b>") + ToolChainKitInformation::msgNoToolChainInTarget()  + QLatin1String("</b>");
     }
 
     emit updateSummary();

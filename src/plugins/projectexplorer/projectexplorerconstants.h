@@ -209,6 +209,10 @@ const char BUILDSTEPS_DEPLOY[] = "ProjectExplorer.BuildSteps.Deploy";
 // Deploy Configuration id:
 const char DEFAULT_DEPLOYCONFIGURATION_ID[] = "ProjectExplorer.DefaultDeployConfiguration";
 
+// Language
+const char C_LANGUAGE_ID[] = "ProjectExplorer.Language.C";
+const char CXX_LANGUAGE_ID[] = "ProjectExplorer.Language.Cxx";
+
 // ToolChain TypeIds
 const char CLANG_TOOLCHAIN_TYPEID[] = "ProjectExplorer.ToolChain.Clang";
 const char GCC_TOOLCHAIN_TYPEID[] = "ProjectExplorer.ToolChain.Gcc";
@@ -276,6 +280,11 @@ const char FILEOVERLAY_CPP[]=":/projectexplorer/images/fileoverlay_cpp.png";
 const char FILEOVERLAY_H[]=":/projectexplorer/images/fileoverlay_h.png";
 const char FILEOVERLAY_SCXML[]=":/projectexplorer/images/fileoverlay_scxml.png";
 const char FILEOVERLAY_UNKNOWN[]=":/projectexplorer/images/fileoverlay_unknown.png";
+
+// Kit Information
+const char KITINFORMATION_ID_V1[] = "PE.Profile.ToolChain";
+const char KITINFORMATION_ID_V2[] = "PE.Profile.ToolChains";
+const char KITINFORMATION_ID_V3[] = "PE.Profile.ToolChainsV3";
 
 } // namespace Constants
 } // namespace ProjectExplorer

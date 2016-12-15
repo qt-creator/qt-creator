@@ -32,6 +32,7 @@
 #include "makefileparse.h"
 #include "qmakestep.h"
 
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
@@ -160,7 +161,7 @@ QList<void *> QmakeProjectImporter::examineDirectory(const FileName &importPath)
             qCDebug(logs) << "  IOS found without osType, adjusting osType" << data->osType;
         }
 
-        if (version->type() == Constants::DESKTOPQT) {
+        if (version->type() == QtSupport::Constants::DESKTOPQT) {
             const QList<ProjectExplorer::Abi> abis = version->qtAbis();
             if (!abis.isEmpty()) {
                 ProjectExplorer::Abi abi = abis.first();
@@ -202,7 +203,7 @@ bool QmakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
 
     BaseQtVersion *kitVersion = QtKitInformation::qtVersion(k);
     FileName kitSpec = QmakeKitInformation::mkspec(k);
-    ToolChain *tc = ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx);
+    ToolChain *tc = ToolChainKitInformation::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     if (kitSpec.isEmpty() && kitVersion)
         kitSpec = kitVersion->mkspecFor(tc);
     QMakeStepConfig::TargetArchConfig kitTargetArch = QMakeStepConfig::NoArch;
