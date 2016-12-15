@@ -1328,6 +1328,19 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             return QString();
         });
 
+    expander->registerFileVariables(Constants::VAR_CURRENTRUN_EXECUTABLE_PREFIX,
+        tr("The currently active run configuration's executable (if applicable)"),
+        [this]() -> QString {
+            if (Target *target = activeTarget()) {
+                if (RunConfiguration *rc = target->activeRunConfiguration()) {
+                    if (rc->runnable().is<StandardRunnable>())
+                        return rc->runnable().as<StandardRunnable>().executable;
+                }
+            }
+            return QString();
+        },
+        true);
+
     expander->registerVariable(Constants::VAR_CURRENTBUILD_TYPE,
         tr("The currently active build configuration's type."),
         [&]() -> QString {
