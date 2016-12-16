@@ -943,6 +943,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProVariable(
             QString spec = values(varName).first().toQString();
             if (IoUtils::isAbsolutePath(spec)) {
                 m_qmakespec = spec;
+                m_qmakespecName = IoUtils::fileName(m_qmakespec).toString();
                 m_featureRoots = 0;
             }
         }
