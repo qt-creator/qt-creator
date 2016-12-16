@@ -1,6 +1,12 @@
 QTC_LIB_DEPENDS += \
     utils \
     qmljs \
+    qmleditorwidgets
+include(../qttest.pri)
+
+QTC_LIB_DEPENDS += \
+    utils \
+    qmljs \
     qmleditorwidgets \
     cplusplus
 
