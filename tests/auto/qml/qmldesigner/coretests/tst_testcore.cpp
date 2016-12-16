@@ -1099,11 +1099,12 @@ void tst_TestCore::loadSubItems()
 
 void tst_TestCore::createInvalidCoreModel()
 {
+    QSKIP("no direct type checking in model atm", SkipAll);
     QScopedPointer<Model> invalidModel(createModel("ItemSUX"));
-    //QVERIFY(!invalidModel.data()); //#no direct ype checking in model atm
+    QVERIFY(!invalidModel.data());
 
     QScopedPointer<Model> invalidModel2(createModel("InvalidNode"));
-    //QVERIFY(!invalidModel2.data());
+    QVERIFY(!invalidModel2.data());
 }
 
 void tst_TestCore::testModelCreateSubNode()
