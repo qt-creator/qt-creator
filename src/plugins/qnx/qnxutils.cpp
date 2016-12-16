@@ -298,46 +298,5 @@ QString QnxUtils::qdeInstallProcess(const QString &ndkPath, const QString &targe
 
 QList<Utils::EnvironmentItem> QnxUtils::qnxEnvironment(const QString &sdkPath)
 {
-    QList<Utils::EnvironmentItem> env = qnxEnvironmentFromEnvFile(envFilePath(sdkPath));
-    if (!env.isEmpty())
-        return env;
-
-    // Mimic what the SDP installer puts into the system environment
-
-    QList<Utils::EnvironmentItem> environmentItems;
-
-    if (Utils::HostOsInfo::isWindowsHost()) {
-        // TODO:
-        //environment.insert(QLatin1String("QNX_CONFIGURATION"), QLatin1String("/etc/qnx"));
-        environmentItems.append(Utils::EnvironmentItem(QLatin1String(Constants::QNX_TARGET_KEY), sdkPath + QLatin1String("/target/qnx6")));
-        environmentItems.append(Utils::EnvironmentItem(QLatin1String(Constants::QNX_HOST_KEY), sdkPath + QLatin1String("/host/win32/x86")));
-
-        environmentItems.append(Utils::EnvironmentItem(QLatin1String("PATH"), sdkPath + QLatin1String("/host/win32/x86/usr/bin;%PATH%")));
-
-        // TODO:
-        //environment.insert(QLatin1String("PATH"), QLatin1String("/etc/qnx/bin"));
-    } else if (Utils::HostOsInfo::isMacHost()) {
-        environmentItems.append(Utils::EnvironmentItem(QLatin1String("QNX_CONFIGURATION"), QLatin1String("/etc/qnx")));
-        environmentItems.append(Utils::EnvironmentItem(QLatin1String(Constants::QNX_TARGET_KEY), sdkPath + QLatin1String("/target/qnx6")));
-        environmentItems.append(Utils::EnvironmentItem(QLatin1String(Constants::QNX_HOST_KEY), sdkPath + QLatin1String("/host/darwin/x86")));
-
-
-        environmentItems.append(Utils::EnvironmentItem(QLatin1String("PATH"), sdkPath + QLatin1String("/host/darwin/x86/usr/bin:/etc/qnx/bin:${PATH}")));
-
-        environmentItems.append(Utils::EnvironmentItem(QLatin1String("LD_LIBRARY_PATH"), sdkPath + QLatin1String("/host/darwin/x86/usr/lib:${LD_LIBRARY_PATH}")));
-    } else if (Utils::HostOsInfo::isAnyUnixHost()) {
-        environmentItems.append(Utils::EnvironmentItem(QLatin1String("QNX_CONFIGURATION"), QLatin1String("/etc/qnx")));
-        environmentItems.append(Utils::EnvironmentItem(QLatin1String(Constants::QNX_TARGET_KEY), sdkPath + QLatin1String("/target/qnx6")));
-        environmentItems.append(Utils::EnvironmentItem(QLatin1String(Constants::QNX_HOST_KEY), sdkPath + QLatin1String("/host/linux/x86")));
-
-
-        environmentItems.append(Utils::EnvironmentItem(QLatin1String("PATH"), sdkPath + QLatin1String("/host/linux/x86/usr/bin:/etc/qnx/bin:${PATH}")));
-
-        environmentItems.append(Utils::EnvironmentItem(QLatin1String("LD_LIBRARY_PATH"), sdkPath + QLatin1String("/host/linux/x86/usr/lib:${LD_LIBRARY_PATH}")));
-    }
-
-    environmentItems.append(Utils::EnvironmentItem(QLatin1String("QNX_JAVAHOME"), sdkPath + QLatin1String("/_jvm")));
-    environmentItems.append(Utils::EnvironmentItem(QLatin1String("MAKEFLAGS"), QLatin1String("-I") + sdkPath + QLatin1String("/target/qnx6/usr/include")));
-
-    return environmentItems;
+    return qnxEnvironmentFromEnvFile(envFilePath(sdkPath));
 }
