@@ -942,7 +942,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
             setActive(false);
             return false;
         }
-        m_vContext = ModelManagerInterface::instance()->defaultVContext(Dialect::Qml, m_document, true);
+        m_vContext = ModelManagerInterface::instance()->defaultVContext(Dialect::Qml, m_document);
         ReadingContext ctxt(snapshot, m_document, m_vContext);
         m_scopeChain = QSharedPointer<const ScopeChain>(
                     new ScopeChain(ctxt.scopeChain()));
