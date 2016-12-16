@@ -1031,7 +1031,7 @@ class Dumper(DumperBase):
                         if line.find('msgHandlerGrabbed ') >= 0:
                             # [11] b 0x7ffff683c000 _ZN4MynsL17msgHandlerGrabbedE
                             # section .tbss Myns::msgHandlerGrabbed  qlogging.cpp
-                            ns = re.split('_ZN(\d*)(\w*)L17msgHandlerGrabbedE ', line)[2]
+                            ns = re.split('_ZN?(\d*)(\w*)L17msgHandlerGrabbedE? ', line)[2]
                             if len(ns):
                                 ns += '::'
                             break
