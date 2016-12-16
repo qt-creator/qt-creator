@@ -89,6 +89,20 @@ TEST_F(ProjectPartChooser, ForMultipleChooseFromActiveProject)
     ASSERT_THAT(chosen, Eq(secondProjectPart));
 }
 
+TEST_F(ProjectPartChooser, ForMultiplePreferSelectedForBuilding)
+{
+    const ProjectPart::Ptr firstProjectPart{new ProjectPart};
+    const ProjectPart::Ptr secondProjectPart{new ProjectPart};
+    firstProjectPart->selectedForBuilding = false;
+    secondProjectPart->selectedForBuilding = true;
+    projectPartsForFile += firstProjectPart;
+    projectPartsForFile += secondProjectPart;
+
+    const ProjectPart::Ptr chosen = choose();
+
+    ASSERT_THAT(chosen, Eq(secondProjectPart));
+}
+
 TEST_F(ProjectPartChooser, ForMultipleFromDependenciesChooseFromActiveProject)
 {
     const QList<ProjectPart::Ptr> projectParts = createProjectPartsWithDifferentProjects();

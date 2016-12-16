@@ -31,12 +31,29 @@
 namespace CppTools {
 namespace Internal {
 
-static ProjectPart::Ptr selectFromActiveProject(const QList<ProjectPart::Ptr> &projectParts,
-                                                const ProjectExplorer::Project *activeProject)
+static int priority(const ProjectPart &projectPart, const ProjectExplorer::Project *activeProject)
 {
-    return Utils::findOr(projectParts, projectParts.first(), [&](const ProjectPart::Ptr &projectPart){
-        return projectPart->project == activeProject;
-    });
+    int thePriority = 0;
+
+    if (projectPart.project == activeProject)
+        thePriority += 10;
+
+    if (projectPart.selectedForBuilding)
+        thePriority += 1;
+
+    return thePriority;
+}
+
+static ProjectPart::Ptr chooseFromMultiple(const QList<ProjectPart::Ptr> &projectParts,
+                                           const ProjectExplorer::Project *activeProject)
+{
+    QList<ProjectPart::Ptr> projectPartsPrioritized = projectParts;
+    const auto lessThan = [activeProject] (const ProjectPart::Ptr &p1, const ProjectPart::Ptr &p2) {
+        return priority(*p1, activeProject) > priority(*p2, activeProject);
+    };
+    std::stable_sort(projectPartsPrioritized.begin(), projectPartsPrioritized.end(), lessThan);
+
+    return projectPartsPrioritized.first();
 }
 
 ProjectPart::Ptr ProjectPartChooser::choose(const QString &filePath,
@@ -68,10 +85,10 @@ ProjectPart::Ptr ProjectPartChooser::choose(const QString &filePath,
             // Fall-back step 2: Use fall-back part from the model manager:
             projectPart = m_fallbackProjectPart();
         else
-            projectPart = selectFromActiveProject(projectParts, activeProject);
+            projectPart = chooseFromMultiple(projectParts, activeProject);
     } else {
         if (projectHasChanged || !projectParts.contains(projectPart))
-            projectPart = selectFromActiveProject(projectParts, activeProject);
+            projectPart = chooseFromMultiple(projectParts, activeProject);
     }
 
     return projectPart;
