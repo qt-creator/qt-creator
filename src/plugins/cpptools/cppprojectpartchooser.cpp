@@ -25,15 +25,25 @@
 
 #include "cppprojectpartchooser.h"
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 namespace CppTools {
 namespace Internal {
 
+static ProjectPart::Ptr selectFromActiveProject(const QList<ProjectPart::Ptr> &projectParts,
+                                                const ProjectExplorer::Project *activeProject)
+{
+    return Utils::findOr(projectParts, projectParts.first(), [&](const ProjectPart::Ptr &projectPart){
+        return projectPart->project == activeProject;
+    });
+}
+
 ProjectPart::Ptr ProjectPartChooser::choose(const QString &filePath,
                                             const ProjectPart::Ptr &currentProjectPart,
                                             const ProjectPart::Ptr &manuallySetProjectPart,
-                                            bool stickToPreviousProjectPart) const
+                                            bool stickToPreviousProjectPart,
+                                            const ProjectExplorer::Project *activeProject) const
 {
     QTC_CHECK(m_projectPartsForFile);
     QTC_CHECK(m_projectPartsFromDependenciesForFile);
@@ -57,11 +67,11 @@ ProjectPart::Ptr ProjectPartChooser::choose(const QString &filePath,
             // Fall-back step 2: Use fall-back part from the model manager:
             projectPart = m_fallbackProjectPart();
         else
-            projectPart = projectParts.first();
+            projectPart = selectFromActiveProject(projectParts, activeProject);
     } else {
         if (!projectParts.contains(projectPart))
             // Apparently the project file changed, so update our project part.
-            projectPart = projectParts.first();
+            projectPart = selectFromActiveProject(projectParts, activeProject);
     }
 
     return projectPart;

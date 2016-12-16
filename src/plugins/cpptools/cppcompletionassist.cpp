@@ -430,8 +430,7 @@ IAssistProcessor *InternalCompletionAssistProvider::createProcessor() const
     return new InternalCppCompletionAssistProcessor;
 }
 
-AssistInterface *InternalCompletionAssistProvider::createAssistInterface(
-        const QString &filePath,
+AssistInterface *InternalCompletionAssistProvider::createAssistInterface(const QString &filePath,
         const TextEditorWidget *textEditorWidget,
         const LanguageFeatures &languageFeatures,
         int position,
@@ -2123,7 +2122,7 @@ void CppCompletionAssistInterface::getCppSpecifics() const
     m_gotCppSpecifics = true;
 
     if (m_parser) {
-        m_parser->update(CppTools::CppModelManager::instance()->workingCopy());
+        m_parser->update(CppTools::CppModelManager::instance()->workingCopy(), nullptr);
         m_snapshot = m_parser->snapshot();
         m_headerPaths = m_parser->headerPaths();
     }

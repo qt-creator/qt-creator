@@ -46,6 +46,8 @@
 #include <cpptools/cppworkingcopy.h>
 #include <cpptools/editordocumenthandle.h>
 
+#include <projectexplorer/session.h>
+
 #include <texteditor/convenience.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditor.h>
@@ -115,7 +117,12 @@ void ClangEditorDocumentProcessor::run()
     connect(&m_parserWatcher, &QFutureWatcher<void>::finished,
             this, &ClangEditorDocumentProcessor::onParserFinished);
     const CppTools::WorkingCopy workingCopy = CppTools::CppModelManager::instance()->workingCopy();
-    const QFuture<void> future = ::Utils::runAsync(&runParser, parser(), workingCopy);
+    const ProjectExplorer::Project *activeProject
+            = ProjectExplorer::SessionManager::startupProject();
+    const QFuture<void> future = ::Utils::runAsync(&runParser,
+                                                   parser(),
+                                                   workingCopy,
+                                                   activeProject);
     m_parserWatcher.setFuture(future);
 
     // Run builtin processor

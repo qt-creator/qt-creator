@@ -33,6 +33,8 @@
 #include <QObject>
 #include <QMutex>
 
+namespace ProjectExplorer { class Project; }
+
 namespace CppTools {
 
 class CPPTOOLS_EXPORT BaseEditorDocumentParser : public QObject
@@ -58,8 +60,11 @@ public:
     Configuration configuration() const;
     void setConfiguration(const Configuration &configuration);
 
-    void update(const WorkingCopy &workingCopy);
-    void update(const QFutureInterface<void> &future, const WorkingCopy &workingCopy);
+    void update(const WorkingCopy &workingCopy,
+                const ProjectExplorer::Project *activeProject);
+    void update(const QFutureInterface<void> &future,
+                const WorkingCopy &workingCopy,
+                const ProjectExplorer::Project *activeProject);
 
     ProjectPart::Ptr projectPart() const;
 
@@ -73,13 +78,15 @@ protected:
 
     static ProjectPart::Ptr determineProjectPart(const QString &filePath,
                                                  const Configuration &config,
-                                                 const State &state);
+                                                 const State &state,
+                                                 const ProjectExplorer::Project *activeProject);
 
     mutable QMutex m_stateAndConfigurationMutex;
 
 private:
     virtual void updateHelper(const QFutureInterface<void> &future,
-                              const WorkingCopy &workingCopy) = 0;
+                              const WorkingCopy &workingCopy,
+                              const ProjectExplorer::Project *activeProject) = 0;
 
     const QString m_filePath;
     Configuration m_configuration;

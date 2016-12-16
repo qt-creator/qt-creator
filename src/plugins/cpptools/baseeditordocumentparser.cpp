@@ -77,17 +77,19 @@ void BaseEditorDocumentParser::setConfiguration(const Configuration &configurati
     m_configuration = configuration;
 }
 
-void BaseEditorDocumentParser::update(const WorkingCopy &workingCopy)
+void BaseEditorDocumentParser::update(const WorkingCopy &workingCopy,
+                                      const ProjectExplorer::Project *activeProject)
 {
     QFutureInterface<void> dummy;
-    update(dummy, workingCopy);
+    update(dummy, workingCopy, activeProject);
 }
 
 void BaseEditorDocumentParser::update(const QFutureInterface<void> &future,
-                                      const WorkingCopy &workingCopy)
+                                      const WorkingCopy &workingCopy,
+                                      const ProjectExplorer::Project *activeProject)
 {
     QMutexLocker locker(&m_updateIsRunning);
-    updateHelper(future, workingCopy);
+    updateHelper(future, workingCopy, activeProject);
 }
 
 BaseEditorDocumentParser::State BaseEditorDocumentParser::state() const
@@ -117,9 +119,11 @@ BaseEditorDocumentParser::Ptr BaseEditorDocumentParser::get(const QString &fileP
     return BaseEditorDocumentParser::Ptr();
 }
 
-ProjectPart::Ptr BaseEditorDocumentParser::determineProjectPart(const QString &filePath,
-                                                                const Configuration &config,
-                                                                const State &state)
+ProjectPart::Ptr BaseEditorDocumentParser::determineProjectPart(
+        const QString &filePath,
+        const Configuration &config,
+        const State &state,
+        const ProjectExplorer::Project *activeProject)
 {
     Internal::ProjectPartChooser chooser;
     chooser.setFallbackProjectPart([](){
@@ -136,7 +140,8 @@ ProjectPart::Ptr BaseEditorDocumentParser::determineProjectPart(const QString &f
     return chooser.choose(filePath,
                           state.projectPart,
                           config.manuallySetProjectPart,
-                          config.stickToPreviousProjectPart);
+                          config.stickToPreviousProjectPart,
+                          activeProject);
 }
 
 } // namespace CppTools

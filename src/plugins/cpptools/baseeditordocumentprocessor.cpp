@@ -73,7 +73,8 @@ void BaseEditorDocumentProcessor::editorDocumentTimerRestarted()
 
 void BaseEditorDocumentProcessor::runParser(QFutureInterface<void> &future,
                                             BaseEditorDocumentParser::Ptr parser,
-                                            const WorkingCopy workingCopy)
+                                            const WorkingCopy workingCopy,
+                                            const ProjectExplorer::Project *activeProject)
 {
     future.setProgressRange(0, 1);
     if (future.isCanceled()) {
@@ -81,7 +82,7 @@ void BaseEditorDocumentProcessor::runParser(QFutureInterface<void> &future,
         return;
     }
 
-    parser->update(future, workingCopy);
+    parser->update(future, workingCopy, activeProject);
     CppToolsBridge::finishedRefreshingSourceFiles({parser->filePath()});
 
     future.setProgressValue(1);

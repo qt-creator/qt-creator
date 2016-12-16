@@ -29,6 +29,8 @@
 
 #include <functional>
 
+namespace ProjectExplorer { class Project; }
+
 namespace CppTools {
 namespace Internal {
 
@@ -48,7 +50,8 @@ public:
     ProjectPart::Ptr choose(const QString &filePath,
                             const ProjectPart::Ptr &currentProjectPart,
                             const ProjectPart::Ptr &manuallySetProjectPart,
-                            bool stickToPreviousProjectPart) const;
+                            bool stickToPreviousProjectPart,
+                            const ProjectExplorer::Project *activeProject) const;
 
 private:
     FallBackProjectPart m_fallbackProjectPart;

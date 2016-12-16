@@ -38,7 +38,8 @@ public:
 
 private:
     void updateHelper(const QFutureInterface<void> &future,
-                      const CppTools::WorkingCopy &) override;
+                      const CppTools::WorkingCopy &,
+                      const ProjectExplorer::Project *activeProject) override;
 };
 
 } // namespace ClangCodeModel

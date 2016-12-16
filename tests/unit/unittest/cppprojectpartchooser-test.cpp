@@ -41,11 +41,14 @@ protected:
     void SetUp() override;
     const ProjectPart::Ptr choose() const;
 
+    static QList<ProjectPart::Ptr> createProjectPartsWithDifferentProjects();
+
 protected:
     QString filePath;
     ProjectPart::Ptr currentProjectPart{new ProjectPart};
     ProjectPart::Ptr manuallySetProjectPart;
     bool stickToPreviousProjectPart = false;
+    const ProjectExplorer::Project *activeProject = nullptr;
     ::ProjectPartChooser chooser;
 
     QList<ProjectPart::Ptr> projectPartsForFile;
@@ -73,6 +76,30 @@ TEST_F(ProjectPartChooser, ForMultipleChoosePrevious)
     ASSERT_THAT(chosen, Eq(currentProjectPart));
 }
 
+TEST_F(ProjectPartChooser, ForMultipleChooseFromActiveProject)
+{
+    const QList<ProjectPart::Ptr> projectParts = createProjectPartsWithDifferentProjects();
+    const ProjectPart::Ptr secondProjectPart = projectParts.at(1);
+    projectPartsForFile += projectParts;
+    activeProject = secondProjectPart->project;
+
+    const ProjectPart::Ptr chosen = choose();
+
+    ASSERT_THAT(chosen, Eq(secondProjectPart));
+}
+
+TEST_F(ProjectPartChooser, ForMultipleFromDependenciesChooseFromActiveProject)
+{
+    const QList<ProjectPart::Ptr> projectParts = createProjectPartsWithDifferentProjects();
+    const ProjectPart::Ptr secondProjectPart = projectParts.at(1);
+    projectPartsFromDependenciesForFile += projectParts;
+    activeProject = secondProjectPart->project;
+
+    const ProjectPart::Ptr chosen = choose();
+
+    ASSERT_THAT(chosen, Eq(secondProjectPart));
+}
+
 TEST_F(ProjectPartChooser, IfProjectIsGoneStickToPrevious) // Built-in Code Model
 {
     stickToPreviousProjectPart = true;
@@ -94,7 +121,7 @@ TEST_F(ProjectPartChooser, IfProjectIsGoneDoNotStickToPrevious) // Clang Code Mo
 
 TEST_F(ProjectPartChooser, ForMultipleChooseNewIfPreviousIsGone)
 {
-    const ProjectPart::Ptr newProjectPart;
+    const ProjectPart::Ptr newProjectPart{new ProjectPart};
     projectPartsForFile += newProjectPart;
 
     const ProjectPart::Ptr chosen = choose();
@@ -139,7 +166,22 @@ const ProjectPart::Ptr ProjectPartChooser::choose() const
     return chooser.choose(filePath,
                           currentProjectPart,
                           manuallySetProjectPart,
-                          stickToPreviousProjectPart);
+                          stickToPreviousProjectPart,
+                          activeProject);
+}
+
+QList<ProjectPart::Ptr> ProjectPartChooser::createProjectPartsWithDifferentProjects()
+{
+    QList<ProjectPart::Ptr> projectParts;
+
+    const ProjectPart::Ptr p1{new ProjectPart};
+    p1->project = reinterpret_cast<ProjectExplorer::Project *>(1 << 0);
+    projectParts.append(p1);
+    const ProjectPart::Ptr p2{new ProjectPart};
+    p2->project = reinterpret_cast<ProjectExplorer::Project *>(1 << 1);
+    projectParts.append(p2);
+
+    return projectParts;
 }
 
 } // anonymous namespace

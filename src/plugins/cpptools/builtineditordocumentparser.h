@@ -59,7 +59,8 @@ public:
 
 private:
     void updateHelper(const QFutureInterface<void> &future,
-                      const WorkingCopy &workingCopy) override;
+                      const WorkingCopy &workingCopy,
+                      const ProjectExplorer::Project *activeProject) override;
     void addFileAndDependencies(CPlusPlus::Snapshot *snapshot,
                                 QSet<Utils::FileName> *toRemove,
                                 const Utils::FileName &fileName) const;
