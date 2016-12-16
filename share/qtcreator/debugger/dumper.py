@@ -887,6 +887,9 @@ class DumperBase:
             self.putField('sortgroup', sortorder)
             self.putPlainChildren(value)
 
+    def put(self, stuff):
+        self.output += stuff
+
     def check(self, exp):
         if not exp:
             error('Check failed: %s' % exp)

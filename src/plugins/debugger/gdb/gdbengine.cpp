@@ -4504,24 +4504,7 @@ void GdbEngine::doUpdateLocals(const UpdateParameters &params)
 void GdbEngine::handleFetchVariables(const DebuggerResponse &response)
 {
     m_inUpdateLocals = false;
-
-    if (response.resultClass == ResultDone) {
-        QString out = response.consoleStreamOutput;
-        while (out.endsWith(' ') || out.endsWith('\n'))
-            out.chop(1);
-        int pos = out.indexOf("data=");
-        if (pos != 0) {
-            showMessage("DISCARDING JUNK AT BEGIN OF RESPONSE: " + out.left(pos));
-            out = out.mid(pos);
-        }
-        GdbMi all;
-        all.fromStringMultiple(out);
-
-        updateLocalsView(all);
-
-    } else {
-        showMessage("DUMPER FAILED: " + response.toString());
-    }
+    updateLocalsView(response.data);
     watchHandler()->notifyUpdateFinished();
 }
 

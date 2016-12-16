@@ -708,9 +708,6 @@ class Dumper(DumperBase):
         else:
             self.report('error="%s"' % result.GetError())
 
-    def put(self, stuff):
-        self.output += stuff
-
     def canonicalTypeName(self, name):
         return re.sub('\\bconst\\b', '', name).replace(' ', '')
 

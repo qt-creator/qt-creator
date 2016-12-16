@@ -172,14 +172,14 @@ class OutputSafer:
 
     def __enter__(self):
         self.savedOutput = self.d.output
-        self.d.output = []
+        self.d.output = ''
 
     def __exit__(self, exType, exValue, exTraceBack):
         if self.d.passExceptions and not exType is None:
             showException('OUTPUTSAFER', exType, exValue, exTraceBack)
             self.d.output = self.savedOutput
         else:
-            self.savedOutput.extend(self.d.output)
+            self.savedOutput += self.d.output
             self.d.output = self.savedOutput
         return False
 
@@ -203,7 +203,7 @@ class Dumper(DumperBase):
         self.interpreterBreakpointResolvers = []
 
     def prepare(self, args):
-        self.output = []
+        self.output = ''
         self.setVariableFetchingOptions(args)
 
     def fromFrameValue(self, nativeValue):
@@ -688,7 +688,7 @@ class Dumper(DumperBase):
             safePrint(res)
             return
 
-        self.output.append('data=[')
+        self.output += 'data=['
 
         partialVar = args.get('partialvar', '')
         isPartial = len(partialVar) > 0
@@ -711,30 +711,27 @@ class Dumper(DumperBase):
         self.handleLocals(variables)
         self.handleWatches(args)
 
-        self.output.append('],typeinfo=[')
+        self.output += '],typeinfo=['
         for name in self.typesToReport.keys():
             typeobj = self.typesToReport[name]
             # Happens e.g. for '(anonymous namespace)::InsertDefOperation'
             #if not typeobj is None:
             #    self.output.append('{name="%s",size="%s"}'
             #        % (self.hexencode(name), typeobj.sizeof))
-        self.output.append(']')
+        self.output += ']'
         self.typesToReport = {}
 
         if self.forceQtNamespace:
             self.qtNamepaceToReport = self.qtNamespace()
 
         if self.qtNamespaceToReport:
-            self.output.append(',qtnamespace="%s"' % self.qtNamespaceToReport)
+            self.output += ',qtnamespace="%s"' % self.qtNamespaceToReport
             self.qtNamespaceToReport = None
 
-        self.output.append(',partial="%d"' % isPartial)
-        self.output.append(',counts=%s' % self.counts)
-        self.output.append(',timimgs=%s' % self.timings)
-
-        tt = time.time()
-        safePrint(''.join(self.output))
-        print(',time="%d"' % int(1000 * (tt - time.time())))
+        self.output += ',partial="%d"' % isPartial
+        self.output += ',counts=%s' % self.counts
+        self.output += ',timimgs=%s' % self.timings
+        self.reportResult(self.output)
 
     def parseAndEvaluate(self, exp):
         #warn('EVALUATE "%s"' % exp)
@@ -854,9 +851,6 @@ class Dumper(DumperBase):
 
         address = gdb.parse_and_eval("&'%s'" % symbolName)
         return toInteger(address)
-
-    def put(self, value):
-        self.output.append(value)
 
     def isArmArchitecture(self):
         return 'arm' in gdb.TARGET_CONFIG.lower()
@@ -1252,7 +1246,7 @@ class Dumper(DumperBase):
            limit = 10000
 
         self.prepare(args)
-        self.output = []
+        self.output = ''
 
         i = 0
         if extraQml:
@@ -1342,7 +1336,7 @@ class Dumper(DumperBase):
 
             frame = frame.older()
             i += 1
-        self.reportResult('stack={frames=[' + ','.join(self.output) + '].report}')
+        self.reportResult('stack={frames=[' + self.output + '].report}')
 
     def createResolvePendingBreakpointsHookBreakpoint(self, args):
         class Resolver(gdb.Breakpoint):
