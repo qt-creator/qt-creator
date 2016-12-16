@@ -2091,6 +2091,7 @@ void ProjectExplorerPluginPrivate::updateActions()
 
     // Context menu actions
     m_setStartupProjectAction->setParameter(projectNameContextMenu);
+    m_setStartupProjectAction->setVisible(currentProject != project);
 
     bool hasDependencies = SessionManager::projectOrder(currentProject).size() > 1;
     if (hasDependencies) {
