@@ -82,6 +82,7 @@ HEADERS += \
     clangcompileroptionsbuilder.h \
     cppprojectinterface.h \
     cppbaseprojectpartbuilder.h \
+    cppprojectpartchooser.h \
 
 SOURCES += \
     abstracteditorsupport.cpp \
@@ -156,7 +157,8 @@ SOURCES += \
     compileroptionsbuilder.cpp \
     cppprojectfilecategorizer.cpp \
     cppbaseprojectpartbuilder.cpp \
-    clangcompileroptionsbuilder.cpp
+    clangcompileroptionsbuilder.cpp \
+    cppprojectpartchooser.cpp \
 
 FORMS += \
     clangdiagnosticconfigswidget.ui \

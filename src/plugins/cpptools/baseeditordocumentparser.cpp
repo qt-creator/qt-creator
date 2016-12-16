@@ -27,6 +27,7 @@
 #include "baseeditordocumentprocessor.h"
 
 #include "cppmodelmanager.h"
+#include "cppprojectpartchooser.h"
 #include "editordocumenthandle.h"
 
 namespace CppTools {
@@ -120,33 +121,22 @@ ProjectPart::Ptr BaseEditorDocumentParser::determineProjectPart(const QString &f
                                                                 const Configuration &config,
                                                                 const State &state)
 {
-    if (config.manuallySetProjectPart)
-        return config.manuallySetProjectPart;
+    Internal::ProjectPartChooser chooser;
+    chooser.setFallbackProjectPart([](){
+        return CppModelManager::instance()->fallbackProjectPart();
+    });
+    chooser.setProjectPartsForFile([](const QString &filePath) {
+        return CppModelManager::instance()->projectPart(filePath);
+    });
+    chooser.setProjectPartsFromDependenciesForFile([&](const QString &filePath) {
+        const auto fileName = Utils::FileName::fromString(filePath);
+        return CppModelManager::instance()->projectPartFromDependencies(fileName);
+    });
 
-    ProjectPart::Ptr projectPart = state.projectPart;
-
-    CppModelManager *cmm = CppModelManager::instance();
-    QList<ProjectPart::Ptr> projectParts = cmm->projectPart(filePath);
-    if (projectParts.isEmpty()) {
-        if (projectPart && config.stickToPreviousProjectPart)
-            // File is not directly part of any project, but we got one before. We will re-use it,
-            // because re-calculating this can be expensive when the dependency table is big.
-            return projectPart;
-
-        // Fall-back step 1: Get some parts through the dependency table:
-        projectParts = cmm->projectPartFromDependencies(Utils::FileName::fromString(filePath));
-        if (projectParts.isEmpty())
-            // Fall-back step 2: Use fall-back part from the model manager:
-            projectPart = cmm->fallbackProjectPart();
-        else
-            projectPart = projectParts.first();
-    } else {
-        if (!projectParts.contains(projectPart))
-            // Apparently the project file changed, so update our project part.
-            projectPart = projectParts.first();
-    }
-
-    return projectPart;
+    return chooser.choose(filePath,
+                          state.projectPart,
+                          config.manuallySetProjectPart,
+                          config.stickToPreviousProjectPart);
 }
 
 } // namespace CppTools

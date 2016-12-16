@@ -30,6 +30,7 @@ SOURCES += \
     lineprefixer-test.cpp \
     cppprojectfilecategorizer-test.cpp \
     cppbaseprojectpartbuilder-test.cpp \
+    cppprojectpartchooser-test.cpp \
     processevents-utilities.cpp \
     mimedatabase-utilities.cpp \
     readandwritemessageblock-test.cpp \

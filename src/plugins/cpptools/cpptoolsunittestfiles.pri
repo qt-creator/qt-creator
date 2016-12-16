@@ -18,7 +18,7 @@ HEADERS += \
     $$PWD/cppbaseprojectpartbuilder.h \
     $$PWD/projectinfo.h \
     $$PWD/cppprojectinterface.h \
-
+    $$PWD/cppprojectpartchooser.h \
 
 SOURCES += \
     $$PWD/cppprojectfile.cpp \
@@ -29,3 +29,4 @@ SOURCES += \
     $$PWD/clangcompileroptionsbuilder.cpp \
     $$PWD/cppbaseprojectpartbuilder.cpp \
     $$PWD/projectinfo.cpp \
+    $$PWD/cppprojectpartchooser.cpp \

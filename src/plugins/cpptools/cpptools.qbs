@@ -108,6 +108,7 @@ Project {
             "cppprojectinterface.h",
             "cppbaseprojectpartbuilder.cpp", "cppbaseprojectpartbuilder.h",
             "clangcompileroptionsbuilder.cpp", "clangcompileroptionsbuilder.h",
+            "cppprojectpartchooser.cpp", "cppprojectpartchooser.h",
         ]
 
         Group {
