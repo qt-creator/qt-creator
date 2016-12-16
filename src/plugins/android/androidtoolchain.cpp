@@ -69,9 +69,10 @@ AndroidToolChain::AndroidToolChain(const Abi &abi, const QString &ndkToolChainVe
 {
     setLanguage(l);
     setTargetAbi(abi);
-    setDisplayName(QString::fromLatin1("Android GCC (%1-%2)")
-                   .arg(AndroidConfig::displayName(targetAbi()))
-                   .arg(ndkToolChainVersion));
+    setDisplayName(QString::fromLatin1("Android GCC (%1, %2-%3)")
+                   .arg(ToolChain::languageDisplayName(l),
+                        AndroidConfig::displayName(targetAbi()),
+                        ndkToolChainVersion));
 }
 
 // for fromMap
