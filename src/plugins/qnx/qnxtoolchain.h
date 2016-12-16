@@ -99,6 +99,8 @@ private:
     bool isDirtyImpl() const override;
     void makeReadOnlyImpl() override { }
 
+    void handleSdpPathChange();
+
     Utils::PathChooser *m_compilerCommand;
     Utils::PathChooser *m_sdpPath;
     ProjectExplorer::AbiWidget *m_abiWidget;

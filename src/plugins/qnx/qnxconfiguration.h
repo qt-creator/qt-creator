@@ -103,7 +103,7 @@ private:
     class Target
     {
     public:
-        Target(const ProjectExplorer::Abi &abi, Utils::FileName &path)
+        Target(const ProjectExplorer::Abi &abi, const Utils::FileName &path)
             : m_abi(abi), m_path(path)
         {
         }

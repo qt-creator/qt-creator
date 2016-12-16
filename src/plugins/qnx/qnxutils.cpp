@@ -26,11 +26,14 @@
 #include "qnxutils.h"
 #include "qnxqtversion.h"
 
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/synchronousprocess.h>
 #include <utils/temporaryfile.h>
 
+#include <QDebug>
 #include <QDir>
+#include <QDirIterator>
 #include <QDomDocument>
 #include <QProcess>
 #include <QStandardPaths>
@@ -226,4 +229,32 @@ QList<ConfigInstallInformation> QnxUtils::installedConfigs(const QString &config
 QList<Utils::EnvironmentItem> QnxUtils::qnxEnvironment(const QString &sdpPath)
 {
     return qnxEnvironmentFromEnvFile(envFilePath(sdpPath));
+}
+
+QList<QnxTarget> QnxUtils::findTargets(const Utils::FileName &basePath)
+{
+    using namespace Utils;
+    QList<QnxTarget> result;
+
+    QDirIterator iterator(basePath.toString());
+    while (iterator.hasNext()) {
+        iterator.next();
+        FileName libc = FileName::fromString(iterator.filePath()).appendPath("lib/libc.so");
+        if (libc.exists()) {
+            auto abis = Abi::abisOfBinary(libc);
+            if (abis.isEmpty()) {
+                qWarning() << libc << "has no ABIs ... discarded";
+                continue;
+            }
+
+            if (abis.count() > 1)
+                qWarning() << libc << "has more than one ABI ... processing all";
+
+            FileName path = FileName::fromString(iterator.filePath());
+            for (auto abi : abis)
+                result.append(QnxTarget(path, abi));
+        }
+    }
+
+    return result;
 }

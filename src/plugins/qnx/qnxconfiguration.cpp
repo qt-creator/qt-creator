@@ -267,7 +267,6 @@ QVariant QnxConfiguration::createDebugger(const Target &target)
 QnxToolChain *QnxConfiguration::createToolChain(const Target &target)
 {
     QnxToolChain *toolChain = new QnxToolChain(ToolChain::AutoDetection);
-    toolChain->resetToolChain(qccCompilerPath());
     toolChain->setLanguage(ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     toolChain->setTargetAbi(target.m_abi);
     toolChain->setDisplayName(
@@ -277,6 +276,7 @@ QnxToolChain *QnxConfiguration::createToolChain(const Target &target)
                 .arg(displayName())
                 .arg(target.shortDescription()));
     toolChain->setSdpPath(sdpPath().toString());
+    toolChain->resetToolChain(qccCompilerPath());
     ToolChainManager::registerToolChain(toolChain);
     return toolChain;
 }
@@ -414,26 +414,9 @@ const QnxConfiguration::Target *QnxConfiguration::findTargetByDebuggerPath(
 void QnxConfiguration::updateTargets()
 {
     m_targets.clear();
-
-    QDir targetsDir(m_qnxTarget.toString());
-    QStringList targetNames = targetsDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
-    foreach (const QString &targetName, targetNames) {
-        FileName targetPath = FileName(m_qnxTarget).appendPath(targetName);
-        FileName libc = FileName(targetPath).appendPath("lib/libc.so");
-        if (libc.exists()) {
-            QList<Abi> abis = Abi::abisOfBinary(libc);
-            if (abis.count() > 0) {
-                if (abis.count() > 1)
-                    qWarning() << libc << "has more than one ABI ... processing all";
-
-                foreach (const Abi &abi, abis)
-                    m_targets.append(Target(abi, targetPath));
-            } else {
-                qWarning() << libc << "has no ABIs ... discarded";
-            }
-        }
-    }
-
+    QList<QnxTarget> targets = QnxUtils::findTargets(m_qnxTarget);
+    for (const auto &target : targets)
+        m_targets.append(Target(target.m_abi, target.m_path));
 }
 
 void QnxConfiguration::assignDebuggersToTargets()
