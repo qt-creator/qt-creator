@@ -26,6 +26,7 @@
 #include "qnxutils.h"
 #include "qnxqtversion.h"
 
+#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/synchronousprocess.h>
@@ -251,10 +252,28 @@ QList<QnxTarget> QnxUtils::findTargets(const Utils::FileName &basePath)
                 qWarning() << libc << "has more than one ABI ... processing all";
 
             FileName path = FileName::fromString(iterator.filePath());
-            for (auto abi : abis)
-                result.append(QnxTarget(path, abi));
+            for (Abi abi : abis)
+                result.append(QnxTarget(path, QnxUtils::convertAbi(abi)));
         }
     }
 
     return result;
+}
+
+Abi QnxUtils::convertAbi(const Abi &abi)
+{
+    if (abi.os() == Abi::LinuxOS && abi.osFlavor() == Abi::GenericLinuxFlavor) {
+        return Abi(abi.architecture(),
+                   Abi::QnxOS,
+                   Abi::GenericQnxFlavor,
+                   abi.binaryFormat(),
+                   abi.wordWidth());
+    } else {
+        return abi;
+    }
+}
+
+QList<Abi> QnxUtils::convertAbis(const QList<Abi> &abis)
+{
+    return Utils::transform(abis, &QnxUtils::convertAbi);
 }

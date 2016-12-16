@@ -347,6 +347,9 @@ Abi::Abi(const Architecture &a, const OS &o,
     case Abi::VxWorks:
         if (m_osFlavor != VxWorksFlavor)
             m_osFlavor = VxWorksFlavor;
+    case Abi::QnxOS:
+        if (m_osFlavor != GenericQnxFlavor)
+            m_osFlavor = UnknownFlavor;
     }
 }
 
@@ -392,6 +395,8 @@ Abi::Abi(const QString &abiString) :
             m_os = WindowsOS;
         else if (abiParts.at(1) == QLatin1String("vxworks"))
             m_os = VxWorks;
+        else if (abiParts.at(1) == QLatin1String("qnx"))
+            m_os = QnxOS;
         else
             return;
     }
@@ -403,6 +408,8 @@ Abi::Abi(const QString &abiString) :
             m_osFlavor = GenericLinuxFlavor;
         else if (abiParts.at(2) == QLatin1String("android") && m_os == LinuxOS)
             m_osFlavor = AndroidLinuxFlavor;
+        else if (abiParts.at(2) == QLatin1String("generic") && m_os == QnxOS)
+            m_osFlavor = GenericQnxFlavor;
         else if (abiParts.at(2) == QLatin1String("freebsd") && m_os == BsdOS)
             m_osFlavor = FreeBsdFlavor;
         else if (abiParts.at(2) == QLatin1String("netbsd") && m_os == BsdOS)
@@ -556,6 +563,10 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
             os = Abi::VxWorks;
             flavor = Abi::VxWorksFlavor;
             format = Abi::ElfFormat;
+        } else if (p.startsWith(QLatin1String("qnx"))) {
+            os = Abi::QnxOS;
+            flavor = Abi::GenericQnxFlavor;
+            format = Abi::ElfFormat;
         } else {
             ++unknownCount;
         }
@@ -667,6 +678,8 @@ QString Abi::toString(const OS &o)
         return QLatin1String("windows");
     case VxWorks:
         return QLatin1String("vxworks");
+    case QnxOS:
+        return QLatin1String("qnx");
     case UnknownOS: // fall through!
     default:
         return QLatin1String("unknown");
@@ -712,6 +725,8 @@ QString Abi::toString(const OSFlavor &of)
         return QLatin1String("ce");
     case Abi::VxWorksFlavor:
         return QLatin1String("vxworks");
+    case Abi::GenericQnxFlavor:
+        return QLatin1String("generic");
     case Abi::UnknownFlavor: // fall through!
     default:
         return QLatin1String("unknown");
@@ -761,6 +776,8 @@ QList<Abi::OSFlavor> Abi::flavorsForOs(const Abi::OS &o)
                       << WindowsMSysFlavor << WindowsCEFlavor << UnknownFlavor;
     case VxWorks:
         return result << VxWorksFlavor << UnknownFlavor;
+    case QnxOS:
+        return result << GenericQnxFlavor << UnknownFlavor;
     case UnknownOS:
         return result << UnknownFlavor;
     default:

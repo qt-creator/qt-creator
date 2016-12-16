@@ -77,6 +77,8 @@ public:
     static QList<ConfigInstallInformation> installedConfigs(const QString &configPath = QString());
     static QList<Utils::EnvironmentItem> qnxEnvironment(const QString &sdpPath);
     static QList<QnxTarget> findTargets(const Utils::FileName &basePath);
+    static ProjectExplorer::Abi convertAbi(const ProjectExplorer::Abi &abi);
+    static QList<ProjectExplorer::Abi> convertAbis(const QList<ProjectExplorer::Abi> &abis);
 };
 
 } // namespace Internal

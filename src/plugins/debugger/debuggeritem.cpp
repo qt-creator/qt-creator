@@ -100,7 +100,13 @@ DebuggerItem::DebuggerItem(const QVariantMap &data)
             m_abis.append(abi);
     }
 
-    if (m_version.isEmpty())
+    bool mightBeAPreQnxSeparateOSQnxDebugger = m_command.fileName().startsWith("nto")
+            && m_abis.count() == 1
+            && m_abis[0].os() == Abi::UnknownOS
+            && m_abis[0].osFlavor() == Abi::UnknownFlavor
+            && m_abis[0].binaryFormat() == Abi::UnknownFormat;
+
+    if (m_version.isEmpty() || mightBeAPreQnxSeparateOSQnxDebugger)
         reinitializeFromFile();
 }
 
