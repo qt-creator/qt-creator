@@ -747,10 +747,6 @@ class DumperBase:
             inner = inner[p+3:]
         return inner
 
-    def putStringValueByAddress(self, addr):
-        elided, data = self.encodeStringHelper(addr, self.displayStringLimit)
-        self.putValue(data, 'utf16', elided=elided)
-
     def putStringValue(self, value):
         addr = self.extractPointer(value)
         elided, data = self.encodeStringHelper(addr, self.displayStringLimit)

@@ -2650,7 +2650,8 @@ def qdump__QJsonValue(d, value):
         return
     if t == 3:
         d.putType('QJsonValue (String)')
-        d.putStringValueByAddress(data)
+        elided, base = d.encodeStringHelper(data, d.displayStringLimit)
+        d.putValue(base, 'utf16', elided=elided)
         d.putNumChild(0)
         return
     if t == 4:
