@@ -383,6 +383,27 @@ def qdump__std__set__const_iterator(d, value):
 def qdump__std____cxx1998__set(d, value):
     qdump__std__set(d, value)
 
+def qdumpHelper__std__tree__iterator_MSVC(d, value):
+    d.putNumChild(1)
+    d.putEmptyValue()
+    if d.isExpanded():
+        with Children(d):
+            childType = value.type[0][0][0]
+            (proxy, nextIter, node) = value.split("ppp")
+            (left, parent, right, color, isnil, pad, child) = \
+                d.split("pppcc@{%s}" % (childType.name), node)
+            if (childType.name.startswith("std::pair")):
+                d.putPairItem(None, child)
+            else:
+                d.putSubItem("value", child)
+
+def qdump__std___Tree_const_iterator(d, value):
+    qdumpHelper__std__tree__iterator_MSVC(d, value)
+
+def qdump__std___Tree_iterator(d, value):
+    qdumpHelper__std__tree__iterator_MSVC(d, value)
+
+
 def qdump__std__set(d, value):
     if d.isQnxTarget() or d.isMsvcTarget():
         qdump__std__set__QNX(d, value)
