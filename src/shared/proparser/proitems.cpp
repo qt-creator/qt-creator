@@ -393,9 +393,12 @@ void ProStringList::removeAll(const char *str)
 
 void ProStringList::removeEach(const ProStringList &value)
 {
-    for (const ProString &str : value)
+    for (const ProString &str : value) {
+        if (isEmpty())
+            break;
         if (!str.isEmpty())
             removeAll(str);
+    }
 }
 
 void ProStringList::removeEmpty()
