@@ -492,13 +492,14 @@ void Dumper::dumpProjectInfos( const QList<ProjectInfo> &projectInfos)
             if (!part->projectConfigFile.isEmpty())
                 m_out << i3 << "Project Config File: " << part->projectConfigFile << "\n";
             m_out << i2 << "Project Part \"" << part->id() << "\"{{{3\n";
-            m_out << i3 << "Project Part Name   : " << part->displayName << "\n";
-            m_out << i3 << "Project Name        : " << projectName << "\n";
-            m_out << i3 << "Project File        : " << projectFilePath << "\n";
-            m_out << i3 << "Lanugage Version    : " << Utils::toString(part->languageVersion)<<"\n";
-            m_out << i3 << "Lanugage Extensions : " << Utils::toString(part->languageExtensions)
+            m_out << i3 << "Project Part Name    : " << part->displayName << "\n";
+            m_out << i3 << "Project Name         : " << projectName << "\n";
+            m_out << i3 << "Project File         : " << projectFilePath << "\n";
+            m_out << i3 << "Selected For Building: " << part->selectedForBuilding << "\n";
+            m_out << i3 << "Lanugage Version     : " << Utils::toString(part->languageVersion)<<"\n";
+            m_out << i3 << "Lanugage Extensions  : " << Utils::toString(part->languageExtensions)
                   << "\n";
-            m_out << i3 << "Qt Version          : " << Utils::toString(part->qtVersion) << "\n";
+            m_out << i3 << "Qt Version           : " << Utils::toString(part->qtVersion) << "\n";
 
             if (!part->files.isEmpty()) {
                 m_out << i3 << "Files:{{{4\n";

@@ -1179,6 +1179,11 @@ QVariant ProjectPartsModel::data(const QModelIndex &index, int role) const
             return m_projectPartsList.at(row)->displayName;
         else if (column == PartFilePathColumn)
             return QDir::toNativeSeparators(m_projectPartsList.at(row)->projectFile);
+    } else if (role == Qt::ForegroundRole) {
+        if (!m_projectPartsList.at(row)->selectedForBuilding) {
+            return QApplication::palette().color(QPalette::ColorGroup::Disabled,
+                                                 QPalette::ColorRole::Text);
+        }
     } else if (role == Qt::UserRole) {
         return m_projectPartsList.at(row)->id();
     }
@@ -1778,6 +1783,8 @@ void CppCodeModelInspectorDialog::updateProjectPartData(const ProjectPart::Ptr &
                      QDir::toNativeSeparators(part->projectFile))
         << qMakePair(QString::fromLatin1("Project Name"), projectName)
         << qMakePair(QString::fromLatin1("Project File"), projectFilePath)
+        << qMakePair(QString::fromLatin1("Selected For Building"),
+                     CMI::Utils::toString(part->selectedForBuilding))
         << qMakePair(QString::fromLatin1("Language Version"),
                      CMI::Utils::toString(part->languageVersion))
         << qMakePair(QString::fromLatin1("Language Extensions"),
