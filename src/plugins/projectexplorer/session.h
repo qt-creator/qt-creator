@@ -110,7 +110,7 @@ public:
     static QVariant value(const QString &name);
 
     // NBS rewrite projectOrder (dependency management)
-    static QList<Project *> projectOrder(Project *project = 0);
+    static QList<Project *> projectOrder(const Project *project = 0);
 
     static SessionNode *sessionNode();
 

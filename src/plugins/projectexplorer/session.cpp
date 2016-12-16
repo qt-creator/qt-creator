@@ -574,7 +574,7 @@ QStringList SessionManagerPrivate::dependenciesOrder() const
     return ordered;
 }
 
-QList<Project *> SessionManager::projectOrder(Project *project)
+QList<Project *> SessionManager::projectOrder(const Project *project)
 {
     QList<Project *> result;
 

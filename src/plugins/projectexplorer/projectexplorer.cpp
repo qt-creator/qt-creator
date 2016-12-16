@@ -192,7 +192,7 @@ public:
     void updateContextMenuActions();
     void executeRunConfiguration(RunConfiguration *, Core::Id mode);
     QPair<bool, QString> buildSettingsEnabledForSession();
-    QPair<bool, QString> buildSettingsEnabled(Project *pro);
+    QPair<bool, QString> buildSettingsEnabled(const Project *pro);
 
     void addToRecentProjects(const QString &fileName, const QString &displayName);
     void startRunControl(RunControl *runControl, Core::Id runMode);
@@ -2063,15 +2063,15 @@ QString ProjectExplorerPlugin::directoryFor(Node *node)
 
 void ProjectExplorerPluginPrivate::updateActions()
 {
-    Project *project = SessionManager::startupProject();
-    Project *currentProject = ProjectTree::currentProject(); // for context menu actions
+    const Project *const project = SessionManager::startupProject();
+    const Project *const currentProject = ProjectTree::currentProject(); // for context menu actions
 
-    QPair<bool, QString> buildActionState = buildSettingsEnabled(project);
-    QPair<bool, QString> buildActionContextState = buildSettingsEnabled(currentProject);
-    QPair<bool, QString> buildSessionState = buildSettingsEnabledForSession();
+    const QPair<bool, QString> buildActionState = buildSettingsEnabled(project);
+    const QPair<bool, QString> buildActionContextState = buildSettingsEnabled(currentProject);
+    const QPair<bool, QString> buildSessionState = buildSettingsEnabledForSession();
 
-    QString projectName = project ? project->displayName() : QString();
-    QString projectNameContextMenu = currentProject ? currentProject->displayName() : QString();
+    const QString projectName = project ? project->displayName() : QString();
+    const QString projectNameContextMenu = currentProject ? currentProject->displayName() : QString();
 
     m_unloadAction->setParameter(projectName);
     m_unloadActionContextMenu->setParameter(projectNameContextMenu);
@@ -2093,16 +2093,10 @@ void ProjectExplorerPluginPrivate::updateActions()
     m_setStartupProjectAction->setParameter(projectNameContextMenu);
     m_setStartupProjectAction->setVisible(currentProject != project);
 
-    bool hasDependencies = SessionManager::projectOrder(currentProject).size() > 1;
-    if (hasDependencies) {
-        m_buildActionContextMenu->setVisible(true);
-        m_rebuildActionContextMenu->setVisible(true);
-        m_cleanActionContextMenu->setVisible(true);
-    } else {
-        m_buildActionContextMenu->setVisible(false);
-        m_rebuildActionContextMenu->setVisible(false);
-        m_cleanActionContextMenu->setVisible(false);
-    }
+    const bool hasDependencies = SessionManager::projectOrder(currentProject).size() > 1;
+    m_buildActionContextMenu->setVisible(hasDependencies);
+    m_rebuildActionContextMenu->setVisible(hasDependencies);
+    m_cleanActionContextMenu->setVisible(hasDependencies);
 
     m_buildActionContextMenu->setEnabled(buildActionContextState.first);
     m_rebuildActionContextMenu->setEnabled(buildActionContextState.first);
@@ -2438,16 +2432,16 @@ void ProjectExplorerPluginPrivate::runProjectContextMenu()
     }
 }
 
-static bool hasBuildSettings(Project *pro)
+static bool hasBuildSettings(const Project *pro)
 {
-    return Utils::anyOf(SessionManager::projectOrder(pro), [](Project *project) {
+    return Utils::anyOf(SessionManager::projectOrder(pro), [](const Project *project) {
         return project
                 && project->activeTarget()
                 && project->activeTarget()->activeBuildConfiguration();
     });
 }
 
-QPair<bool, QString> ProjectExplorerPluginPrivate::buildSettingsEnabled(Project *pro)
+QPair<bool, QString> ProjectExplorerPluginPrivate::buildSettingsEnabled(const Project *pro)
 {
     QPair<bool, QString> result;
     result.first = true;

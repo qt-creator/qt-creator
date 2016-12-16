@@ -561,26 +561,26 @@ void BuildManager::appendStep(BuildStep *step, const QString &name)
 }
 
 template <class T>
-int count(const QHash<T *, int> &hash, T *key)
+int count(const QHash<T *, int> &hash, const T *key)
 {
-    typename QHash<T *, int>::const_iterator it = hash.find(key);
+    typename QHash<T *, int>::const_iterator it = hash.find(const_cast<T *>(key));
     typename QHash<T *, int>::const_iterator end = hash.end();
     if (it != end)
         return *it;
     return 0;
 }
 
-bool BuildManager::isBuilding(Project *pro)
+bool BuildManager::isBuilding(const Project *pro)
 {
     return count(d->m_activeBuildSteps, pro) > 0;
 }
 
-bool BuildManager::isBuilding(Target *t)
+bool BuildManager::isBuilding(const Target *t)
 {
     return count(d->m_activeBuildStepsPerTarget, t) > 0;
 }
 
-bool BuildManager::isBuilding(ProjectConfiguration *p)
+bool BuildManager::isBuilding(const ProjectConfiguration *p)
 {
     return count(d->m_activeBuildStepsPerProjectConfiguration, p) > 0;
 }
