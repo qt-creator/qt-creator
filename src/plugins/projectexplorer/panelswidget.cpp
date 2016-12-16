@@ -148,7 +148,7 @@ PanelsWidget::PanelsWidget(QWidget *parent) :
 }
 
 PanelsWidget::PanelsWidget(const QString &displayName, const QIcon &icon, QWidget *widget)
-    : PanelsWidget()
+    : PanelsWidget(nullptr)
 {
     addPropertiesPanel(displayName, icon, widget);
 }
