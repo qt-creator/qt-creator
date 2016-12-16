@@ -149,6 +149,7 @@ void QMakeEvaluator::initStatics()
     statics.strhost_build = QLatin1String("host_build");
     statics.strTEMPLATE = ProKey("TEMPLATE");
     statics.strQMAKE_PLATFORM = ProKey("QMAKE_PLATFORM");
+    statics.strQMAKE_DIR_SEP = ProKey("QMAKE_DIR_SEP");
     statics.strQMAKESPEC = ProKey("QMAKESPEC");
 #ifdef PROEVALUATOR_FULL
     statics.strREQUIRES = ProKey("REQUIRES");
@@ -935,6 +936,8 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProVariable(
         setTemplate();
     else if (varName == statics.strQMAKE_PLATFORM)
         m_featureRoots = 0;
+    else if (varName == statics.strQMAKE_DIR_SEP)
+        m_dirSep = first(varName);
     else if (varName == statics.strQMAKESPEC) {
         if (!values(varName).isEmpty()) {
             QString spec = values(varName).first().toQString();
@@ -1216,8 +1219,6 @@ bool QMakeEvaluator::loadSpecInternal()
     // This also ensures that m_featureRoots is valid.
     if (evaluateFeatureFile(QLatin1String("spec_post.prf")) != ReturnTrue)
         return false;
-    // The MinGW and x-build specs may change the separator; $$shell_{path,quote}() need it
-    m_dirSep = first(ProKey("QMAKE_DIR_SEP"));
     return true;
 }
 
