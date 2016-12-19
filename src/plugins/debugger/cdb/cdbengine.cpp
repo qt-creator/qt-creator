@@ -1210,7 +1210,7 @@ void CdbEngine::activateFrame(int index)
     stackHandler()->setCurrentIndex(index);
     gotoLocation(frame);
     if (m_pythonVersion > 0x030000)
-        runCommand({".frame " + QString::number(index), NoFlags});
+        runCommand({".frame 0n" + QString::number(index), NoFlags});
     updateLocals();
 }
 
