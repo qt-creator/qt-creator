@@ -22,35 +22,51 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
 #pragma once
 
+#include "qmleventlocation.h"
+#include "qmlprofilertool.h"
+#include <texteditor/textmark.h>
+
 namespace QmlProfiler {
-namespace Constants {
+namespace Internal {
 
-const char TASK_LOAD[] = "QmlProfiler.TaskLoad";
-const char TASK_SAVE[] = "QmlProfiler.TaskSave";
-const char FLUSH_ENABLED[] = "Analyzer.QmlProfiler.FlushEnabled";
-const char FLUSH_INTERVAL[] = "Analyzer.QmlProfiler.FlushInterval";
-const char LAST_TRACE_FILE[] = "Analyzer.QmlProfiler.LastTraceFile";
-const char AGGREGATE_TRACES[] = "Analyzer.QmlProfiler.AggregateTraces";
-const char SETTINGS[] = "Analyzer.QmlProfiler.Settings";
-const char ANALYZER[] = "Analyzer";
-const char TEXT_MARK_CATEGORY[] = "Analyzer.QmlProfiler.TextMark";
+class QmlProfilerTextMark : public TextEditor::TextMark
+{
+public:
+    QmlProfilerTextMark(QmlProfilerTool *tool, int typeId, const QString &fileName, int lineNumber);
+    void addTypeId(int typeId);
 
-const int QML_MIN_LEVEL = 1; // Set to 0 to remove the empty line between models in the timeline
+    void paint(QPainter *painter, const QRect &rect) const override;
+    void clicked() override;
+    bool isClickable() const override { return true; }
+    bool addToolTipContent(QLayout *target) override;
 
-const char QtdFileExtension[] = ".qtd";
-const char QztFileExtension[] = ".qzt";
+private:
+    QmlProfilerTool *m_tool;
+    QVector<int> m_typeIds;
+};
 
-const char QmlProfilerPerspectiveId[]  = "QmlProfiler.Perspective";
-const char QmlProfilerLocalActionId[]  = "QmlProfiler.Local";
-const char QmlProfilerRemoteActionId[] = "QmlProfiler.Remote";
+class QmlProfilerTextMarkModel : public QObject
+{
+public:
+    QmlProfilerTextMarkModel(QObject *parent = nullptr);
+    ~QmlProfilerTextMarkModel();
 
-const char QmlProfilerLoadActionId[] =
-        "Analyzer.Menu.StartAnalyzer.QMLProfilerOptions.LoadQMLTrace";
-const char QmlProfilerSaveActionId[] =
-        "Analyzer.Menu.StartAnalyzer.QMLProfilerOptions.SaveQMLTrace";
+    void clear();
+    void addTextMarkId(int typeId, const QmlEventLocation &location);
+    void createMarks(QmlProfilerTool *tool, const QString &fileName);
 
-} // namespace Constants
+private:
+    struct TextMarkId {
+        int typeId;
+        int lineNumber;
+        int columnNumber;
+    };
+
+    QMultiHash<QString, TextMarkId> m_ids;
+    QVector<QmlProfilerTextMark *> m_marks;
+};
+
+} // namespace Internal
 } // namespace QmlProfiler

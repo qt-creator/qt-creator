@@ -55,6 +55,7 @@ QtcPlugin {
             "qmlprofilerstatewidget.cpp", "qmlprofilerstatewidget.h",
             "qmlprofilerstatisticsmodel.cpp", "qmlprofilerstatisticsmodel.h",
             "qmlprofilerstatisticsview.cpp", "qmlprofilerstatisticsview.h",
+            "qmlprofilertextmark.cpp", "qmlprofilertextmark.h",
             "qmlprofilertimelinemodel.cpp", "qmlprofilertimelinemodel.h",
             "qmlprofilertool.cpp", "qmlprofilertool.h",
             "qmlprofilertraceclient.cpp", "qmlprofilertraceclient.h",

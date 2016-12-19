@@ -56,6 +56,9 @@ public:
     bool prepareTool();
     void startRemoteTool(ProjectExplorer::RunConfiguration *rc);
 
+    QString summary(const QVector<int> &typeIds) const;
+    QStringList details(int typeId) const;
+
     static QList <QAction *> profilerContextMenuActions();
 
     // display dialogs / log output
@@ -75,6 +78,7 @@ public slots:
     void setRecording(bool recording);
 
     void gotoSourceLocation(const QString &fileUrl, int lineNumber, int columnNumber);
+    void selectType(int typeId);
 
 private slots:
     void clearData();
@@ -100,6 +104,8 @@ private:
     bool checkForUnsavedNotes();
     void restoreFeatureVisibility();
     void setButtonsEnabled(bool enable);
+    void createTextMarks();
+    void clearTextMarks();
 
     class QmlProfilerToolPrivate;
     QmlProfilerToolPrivate *d;

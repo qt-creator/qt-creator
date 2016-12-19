@@ -188,15 +188,14 @@ void QmlProfilerDataModel::QmlProfilerDataModelPrivate::rewriteType(int typeInde
     type.setDisplayName(getDisplayName(type));
     type.setData(getInitialDetails(type));
 
-    // Only bindings and signal handlers need rewriting
-    if (type.rangeType() != Binding && type.rangeType() != HandlingSignal)
-        return;
-
+    const QmlEventLocation &location = type.location();
     // There is no point in looking for invalid locations
-    if (!type.location().isValid())
+    if (!location.isValid())
         return;
 
-    detailsRewriter->requestDetailsForLocation(typeIndex, type.location());
+    // Only bindings and signal handlers need rewriting
+    if (type.rangeType() == Binding || type.rangeType() == HandlingSignal)
+        detailsRewriter->requestDetailsForLocation(typeIndex, location);
 }
 
 static bool isStateful(const QmlEventType &type)

@@ -225,6 +225,53 @@ void QmlProfilerStatisticsView::clear()
     d->m_statsParents->clear();
 }
 
+QString QmlProfilerStatisticsView::summary(const QVector<int> &typeIds) const
+{
+    const double cutoff = 0.1;
+    const double round = 0.05;
+    double maximum = 0;
+    double sum = 0;
+
+    for (int typeId : typeIds) {
+        const double percentage = d->model->getData()[typeId].percentOfTime;
+        if (percentage > maximum)
+            maximum = percentage;
+        sum += percentage;
+    }
+
+    const QLatin1Char percent('%');
+
+    if (sum < cutoff)
+        return QLatin1Char('<') + QString::number(cutoff, 'f', 1) + percent;
+
+    if (typeIds.length() == 1)
+        return QLatin1Char('~') + QString::number(maximum, 'f', 1) + percent;
+
+    // add/subtract 0.05 to avoid problematic rounding
+    if (maximum < cutoff)
+        return QChar(0x2264) + QString::number(sum + round, 'f', 1) + percent;
+
+    return QChar(0x2265) + QString::number(qMax(maximum - round, cutoff), 'f', 1) + percent;
+}
+
+QStringList QmlProfilerStatisticsView::details(int typeId) const
+{
+    const QmlEventType &type = d->model->getTypes()[typeId];
+
+    const QChar ellipsisChar(0x2026);
+    const int maxColumnWidth = 32;
+
+    QString data = type.data();
+    if (data.length() > maxColumnWidth)
+        data = data.left(maxColumnWidth - 1) + ellipsisChar;
+
+    return QStringList({
+        QmlProfilerStatisticsMainView::nameForType(type.rangeType()),
+        data,
+        QString::number(d->model->getData()[typeId].percentOfTime, 'f', 2) + QLatin1Char('%')
+    });
+}
+
 QModelIndex QmlProfilerStatisticsView::selectedModelIndex() const
 {
     return d->m_statsTree->selectedModelIndex();

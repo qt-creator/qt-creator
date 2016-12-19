@@ -79,6 +79,9 @@ public:
     ~QmlProfilerStatisticsView();
     void clear() override;
 
+    QString summary(const QVector<int> &typeIds) const;
+    QStringList details(int typeId) const;
+
 public slots:
     void selectByTypeId(int typeIndex) override;
     void onVisibleFeaturesChanged(quint64 features) override;

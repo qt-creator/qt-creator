@@ -30,6 +30,7 @@
 #include "qmleventlocation.h"
 #include "qmlevent.h"
 #include "qmleventtype.h"
+#include "qmlprofilertextmark.h"
 
 #include <utils/fileinprojectfinder.h>
 
@@ -97,6 +98,7 @@ public:
     QmlProfilerTraceTime *traceTime() const;
     QmlProfilerDataModel *qmlModel() const;
     QmlProfilerNotesModel *notesModel() const;
+    QmlProfilerTextMarkModel *textMarkModel() const;
 
     bool isEmpty() const;
     uint numLoadedEvents() const;

@@ -43,7 +43,8 @@ SOURCES += \
     qmlprofilertraceview.cpp \
     qmlprofilerviewmanager.cpp \
     qmltypedevent.cpp \
-    scenegraphtimelinemodel.cpp
+    scenegraphtimelinemodel.cpp \
+    qmlprofilertextmark.cpp
 
 HEADERS += \
     debugmessagesmodel.h \
@@ -88,7 +89,8 @@ HEADERS += \
     qmlprofilertraceview.h \
     qmlprofilerviewmanager.h \
     qmltypedevent.h \
-    scenegraphtimelinemodel.h
+    scenegraphtimelinemodel.h \
+    qmlprofilertextmark.h
 
 RESOURCES += \
     qml/qmlprofiler.qrc

@@ -138,6 +138,7 @@ class QmlProfilerModelManager::QmlProfilerModelManagerPrivate
 public:
     QmlProfilerDataModel *model;
     QmlProfilerNotesModel *notesModel;
+    QmlProfilerTextMarkModel *textMarkModel;
 
     QmlProfilerModelManager::State state;
     QmlProfilerTraceTime *traceTime;
@@ -172,6 +173,7 @@ QmlProfilerModelManager::QmlProfilerModelManager(QObject *parent) :
     d->state = Empty;
     d->traceTime = new QmlProfilerTraceTime(this);
     d->notesModel = new QmlProfilerNotesModel(this);
+    d->textMarkModel = new QmlProfilerTextMarkModel(this);
     connect(d->model, &QmlProfilerDataModel::allTypesLoaded,
             this, &QmlProfilerModelManager::processingDone);
 }
@@ -194,6 +196,11 @@ QmlProfilerDataModel *QmlProfilerModelManager::qmlModel() const
 QmlProfilerNotesModel *QmlProfilerModelManager::notesModel() const
 {
     return d->notesModel;
+}
+
+QmlProfilerTextMarkModel *QmlProfilerModelManager::textMarkModel() const
+{
+    return d->textMarkModel;
 }
 
 bool QmlProfilerModelManager::isEmpty() const
@@ -242,12 +249,29 @@ void QmlProfilerModelManager::addEvent(const QmlEvent &event)
 
 void QmlProfilerModelManager::addEventTypes(const QVector<QmlEventType> &types)
 {
+    const int firstTypeId = d->model->eventTypes().count();
     d->model->addEventTypes(types);
+    for (int i = 0, end = types.length(); i < end; ++i) {
+        const QmlEventLocation &location = types[i].location();
+        if (location.isValid()) {
+            d->textMarkModel->addTextMarkId(
+                        firstTypeId + i, QmlEventLocation(
+                            d->model->findLocalFile(location.filename()), location.line(),
+                            location.column()));
+        }
+    }
 }
 
 void QmlProfilerModelManager::addEventType(const QmlEventType &type)
 {
+    const int typeId = d->model->eventTypes().count();
     d->model->addEventType(type);
+    const QmlEventLocation &location = type.location();
+    if (location.isValid()) {
+        d->textMarkModel->addTextMarkId(
+                    typeId, QmlEventLocation(d->model->findLocalFile(location.filename()),
+                                             location.line(), location.column()));
+    }
 }
 
 void QmlProfilerModelManager::QmlProfilerModelManagerPrivate::dispatch(const QmlEvent &event,
