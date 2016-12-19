@@ -87,6 +87,27 @@ class Dumper(DumperBase):
         val = self.Value(self)
         val.name = nativeValue.name()
         val.type = self.fromNativeType(nativeValue.type())
+        # There is no cdb api for the size of bitfields.
+        # Workaround this issue by parsing the native debugger text for integral types.
+        if val.type.code == TypeCodeIntegral:
+            integerString = nativeValue.nativeDebuggerValue()
+            if integerString == 'true':
+                val.ldata = int(1).to_bytes(1, byteorder='little')
+            elif integerString == 'false':
+                val.ldata = int(0).to_bytes(1, byteorder='little')
+            else:
+                integerString = integerString.replace('`','')
+                integerString = integerString.split(' ')[0]
+                if integerString.startswith('0n'):
+                    integerString = integerString[2:]
+                    base = 10
+                elif integerString.startswith('0x'):
+                    base = 16
+                else:
+                    base = 10
+                signed = not val.type.name.startswith('unsigned')
+                val.ldata = int(integerString, base).to_bytes(val.type.size(), \
+                        byteorder='little', signed=signed)
         val.isBaseClass = val.name == val.type.name
         val.lIsInScope = True
         val.laddress = nativeValue.address()
