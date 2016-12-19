@@ -65,9 +65,6 @@ public:
     void start();
     void stop();
 
-public slots:
-    void debuggerStateChanged(Debugger::DebuggerState state);
-
 signals:
     void didStartApp(Ios::IosToolHandler::OpStatus status);
     void gotServerPorts(Utils::Port gdbPort, Utils::Port qmlPort);

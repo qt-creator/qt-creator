@@ -34,6 +34,7 @@
 #include <utils/qtcassert.h>
 #include <utils/fileutils.h>
 #include "utils/runextensions.h"
+#include "utils/synchronousprocess.h"
 
 #include <QCoreApplication>
 #include <QFileInfo>
@@ -141,7 +142,6 @@ public:
     bool isRunning();
     void start(const QString &exe, const QStringList &args);
     virtual void stop(int errorCode) = 0;
-    virtual void debuggerStateChanged(Debugger::DebuggerState state) { Q_UNUSED(state); }
 
     // signals
     void isTransferringApp(const QString &bundlePath, const QString &deviceId, int progress,
@@ -230,20 +230,10 @@ private:
  *                YES                                       |
  *                 |                                        |
  *                 v                                        |
- * +---------+-------------------------+                    |
- * | SimulatorControl::spawnAppProcess | <------------------+
- * +-----------------------------------+
- *                 |
- *                 v
- *       +--------+-----------+              +-----------------------------+
- *       |    Debug Run ?     +---YES------> + Wait for debugger to attach |
- *       +---------+----------+              +-----------+-----------------+
- *                NO                                     |
- *                 |                                     |
- *                 v                                     |
- *   +-----------------------------+                     |
- *   | SimulatorControl::launchApp | <-------------------+
- *   +-----------------------------+
+ * +---------+------------------------------+               |
+ * | SimulatorControl::launchAppOnSimulator | <-------------+
+ * +----------------------------------------+
+ *
  ***************************************************************************/
 class IosSimulatorToolHandlerPrivate : public IosToolHandlerPrivate
 {
@@ -260,15 +250,11 @@ public:
                        const QString &deviceIdentifier, int timeout = 1000) override;
     void requestDeviceInfo(const QString &deviceId, int timeout = 1000) override;
     void stop(int errorCode) override;
-    void debuggerStateChanged(Debugger::DebuggerState state) override;
 
 private:
     void installAppOnSimulator();
-    void spawnAppOnSimulator(const QStringList &extraArgs);
-    void launchAppOnSimulator();
-
+    void launchAppOnSimulator(const QStringList &extraArgs);
     bool isResponseValid(const SimulatorControl::ResponseData &responseData);
-    void onResponseAppSpawn(const SimulatorControl::ResponseData &response);
 
     void simAppProcessError(QProcess::ProcessError error);
     void simAppProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
@@ -277,7 +263,6 @@ private:
 
 private:
     qint64 appPId = -1;
-    bool appLaunched = false;
     SimulatorControl *simCtl;
     QList<QFuture<void>> futureList;
 };
@@ -802,7 +787,7 @@ void IosSimulatorToolHandlerPrivate::requestRunApp(const QString &appBundlePath,
         if (isResponseValid(response))
             return;
         if (response.success) {
-            spawnAppOnSimulator(extraArgs);
+            launchAppOnSimulator(extraArgs);
         } else {
             errorMsg(IosToolHandler::tr("Application launch on Simulator failed. Simulator not running.")
                      .arg(bundlePath));
@@ -811,7 +796,7 @@ void IosSimulatorToolHandlerPrivate::requestRunApp(const QString &appBundlePath,
     };
 
     if (SimulatorControl::isSimulatorRunning(deviceId))
-        spawnAppOnSimulator(extraArgs);
+        launchAppOnSimulator(extraArgs);
     else
         futureList << Utils::onResultReady(simCtl->startSimulator(deviceId), onSimulatorStart);
 }
@@ -824,14 +809,7 @@ void IosSimulatorToolHandlerPrivate::requestDeviceInfo(const QString &deviceId, 
 
 void IosSimulatorToolHandlerPrivate::stop(int errorCode)
 {
-
-    if (process) {
-        QTC_ASSERT(process.unique(), process->kill(); qCDebug(toolHandlerLog)<<"App process is not unique.");
-        process.reset();
-        appPId = -1;
-        appLaunched = false;
-    }
-
+    appPId = -1;
     foreach (auto f, futureList) {
         if (!f.isFinished())
             f.cancel();
@@ -839,14 +817,6 @@ void IosSimulatorToolHandlerPrivate::stop(int errorCode)
 
     toolExited(errorCode);
     q->finished(q);
-}
-
-void IosSimulatorToolHandlerPrivate::debuggerStateChanged(Debugger::DebuggerState state)
-{
-    if (!appLaunched && state == Debugger::DebuggerState::InferiorRunOk) {
-        // Debugger attached. Launch it on the simulator.
-        launchAppOnSimulator();
-    }
 }
 
 void IosSimulatorToolHandlerPrivate::installAppOnSimulator()
@@ -871,23 +841,32 @@ void IosSimulatorToolHandlerPrivate::installAppOnSimulator()
                          onResponseAppInstall);
 }
 
-void IosSimulatorToolHandlerPrivate::spawnAppOnSimulator(const QStringList &extraArgs)
+void IosSimulatorToolHandlerPrivate::launchAppOnSimulator(const QStringList &extraArgs)
 {
-    Utils::FileName appBundle = Utils::FileName::fromString(bundlePath);
-    bool debugRun = runKind == IosToolHandler::DebugRun;
-    futureList << Utils::onResultReady(simCtl->spawnAppProcess(deviceId, appBundle, debugRun, extraArgs),
-                         std::bind(&IosSimulatorToolHandlerPrivate::onResponseAppSpawn, this, _1));
-}
+    auto monitorPid = [this](QFutureInterface<int> &fi, qint64 pid) {
+        int exitCode = 0;
+        const QStringList args({QStringLiteral("-0"), QString::number(pid)});
+        Utils::SynchronousProcess pKill;
+        while (!fi.isCanceled() && exitCode == 0) {
+            // Poll every 1 sec to check whether the app is running.
+            QThread::msleep(1000);
+            Utils::SynchronousProcessResponse resp = pKill.runBlocking(QStringLiteral("kill"), args);
+            exitCode = resp.exitCode;
+        }
+        // Future is cancelled if the app is stopped from the qt creator.
+        if (!fi.isCanceled())
+            stop(0);
+    };
 
-void IosSimulatorToolHandlerPrivate::launchAppOnSimulator()
-{
-    auto onResponseAppLaunch = [this](const SimulatorControl::ResponseData &response) {
+    auto onResponseAppLaunch = [this, monitorPid](const SimulatorControl::ResponseData &response) {
         if (!isResponseValid(response))
             return;
-
-        if (response.pID != -1) {
-            appLaunched = true;
+        if (response.success) {
+            appPId = response.pID;
+            gotInferiorPid(bundlePath, deviceId, appPId);
             didStartApp(bundlePath, deviceId, Ios::IosToolHandler::Success);
+            // Start monitoring app's life signs.
+            futureList << Utils::runAsync(monitorPid, appPId);
         } else {
             errorMsg(IosToolHandler::tr("Application launch on Simulator failed. %1")
                      .arg(QString::fromLocal8Bit(response.commandOutput)));
@@ -896,16 +875,11 @@ void IosSimulatorToolHandlerPrivate::launchAppOnSimulator()
             q->finished(q);
         }
     };
-
-    if (appPId != -1) {
-        Utils::FileName appBundle = Utils::FileName::fromString(bundlePath);
-        futureList << Utils::onResultReady(simCtl->launchApp(deviceId,
-                                               SimulatorControl::bundleIdentifier(appBundle), appPId),
-                             onResponseAppLaunch);
-    } else {
-        errorMsg(IosToolHandler::tr("Spawning the Application process on Simulator failed. Spawning timed out."));
-        didStartApp(bundlePath, deviceId, Ios::IosToolHandler::Failure);
-    }
+    Utils::FileName appBundle = Utils::FileName::fromString(bundlePath);
+    futureList << Utils::onResultReady(simCtl->launchApp(deviceId,
+                                                         SimulatorControl::bundleIdentifier(appBundle),
+                                                         runKind == IosToolHandler::DebugRun,
+                                                         extraArgs), onResponseAppLaunch);
 }
 
 bool IosSimulatorToolHandlerPrivate::isResponseValid(const SimulatorControl::ResponseData &responseData)
@@ -919,40 +893,6 @@ bool IosSimulatorToolHandlerPrivate::isResponseValid(const SimulatorControl::Res
         return false;
     }
     return true;
-}
-
-void IosSimulatorToolHandlerPrivate::onResponseAppSpawn(const SimulatorControl::ResponseData &response)
-{
-    if (!isResponseValid(response))
-        return;
-
-    if (response.processInstance) {
-        QTC_ASSERT(!process || !isRunning(),
-                   qCDebug(toolHandlerLog) << "Spwaning app while an app instance exits.");
-        process = response.processInstance;
-        QObject::connect(process.get(), &QProcess::readyReadStandardOutput,
-                         std::bind(&IosSimulatorToolHandlerPrivate::simAppProcessHasData, this));
-        QObject::connect(process.get(), &QProcess::readyReadStandardError,
-                         std::bind(&IosSimulatorToolHandlerPrivate::simAppProcessHasErrorOutput, this));
-        QObject::connect(process.get(), static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
-                         std::bind(&IosSimulatorToolHandlerPrivate::simAppProcessFinished, this, _1, _2));
-        QObject::connect(process.get(), &QProcess::errorOccurred,
-                         std::bind(&IosSimulatorToolHandlerPrivate::simAppProcessError, this, _1));
-
-        appPId = response.pID;
-        gotInferiorPid(bundlePath, deviceId, appPId);
-
-        // For normal run. Launch app on Simulator.
-        // For debug run, wait for the debugger to attach and then launch the app.
-        if (runKind == IosToolHandler::NormalRun)
-            launchAppOnSimulator();
-    } else {
-        errorMsg(IosToolHandler::tr("Spawning the Application process on Simulator failed. %1")
-                 .arg(QString::fromLocal8Bit(response.commandOutput)));
-        didStartApp(bundlePath, deviceId, Ios::IosToolHandler::Failure);
-        stop(-1);
-        q->finished(q);
-    }
 }
 
 void IosSimulatorToolHandlerPrivate::simAppProcessError(QProcess::ProcessError error)
@@ -1008,11 +948,6 @@ IosToolHandler::~IosToolHandler()
 void IosToolHandler::stop()
 {
     d->stop(-1);
-}
-
-void IosToolHandler::debuggerStateChanged(int state)
-{
-    d->debuggerStateChanged((Debugger::DebuggerState)state);
 }
 
 void IosToolHandler::requestTransferApp(const QString &bundlePath, const QString &deviceId,
