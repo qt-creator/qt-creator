@@ -238,13 +238,30 @@ struct BoostVersion : VersionBase
 
 static QString noValue = "\001";
 
+enum DebuggerEngine
+{
+    NoEngine = 0x00,
+
+    GdbEngine = 0x01,
+    CdbEngine = 0x02,
+    LldbEngine = 0x04,
+
+    AllEngines = GdbEngine | CdbEngine | LldbEngine,
+
+    NoCdbEngine = AllEngines & (~CdbEngine),
+    NoLldbEngine = AllEngines & (~LldbEngine),
+    NoGdbEngine = AllEngines & (~GdbEngine)
+};
+
 struct Context
 {
+    Context(DebuggerEngine engine) : engine(engine) {}
     QString nameSpace;
     int qtVersion = 0;
     int gccVersion = 0;
     int clangVersion = 0;
     int boostVersion = 0;
+    DebuggerEngine engine;
 };
 
 struct Name
@@ -448,18 +465,6 @@ struct TypePattern : Type
     TypePattern(const QString &ba) : Type(ba) { isPattern = true; }
 };
 
-enum DebuggerEngine
-{
-    GdbEngine = 0x01,
-    CdbEngine = 0x02,
-    LldbEngine = 0x04,
-
-    AllEngines = GdbEngine | CdbEngine | LldbEngine,
-
-    NoCdbEngine = AllEngines & (~CdbEngine),
-    NoLldbEngine = AllEngines & (~LldbEngine),
-    NoGdbEngine = AllEngines & (~GdbEngine)
-};
 
 struct Check
 {
@@ -1461,7 +1466,7 @@ void tst_Dumpers::dumper()
         logger.write(error);
     }
 
-    Context context;
+    Context context(m_debuggerEngine);
     QByteArray contents;
     if (m_debuggerEngine == GdbEngine) {
         int posDataStart = output.indexOf("data=");
