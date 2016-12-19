@@ -92,7 +92,7 @@ public:
 public:
     static QString windowTitleAddition(const QString &filePath);
 
-    SessionNode *m_sessionNode = nullptr;
+    std::unique_ptr<SessionNode> m_sessionNode;
     QString m_sessionName = QLatin1String("default");
     bool m_virginSession = true;
     bool m_loadingSession = false;
@@ -120,7 +120,7 @@ SessionManager::SessionManager(QObject *parent) : QObject(parent)
     m_instance = this;
     d = new SessionManagerPrivate;
 
-    d->m_sessionNode = new SessionNode;
+    d->m_sessionNode.reset(new SessionNode);
 
     connect(ModeManager::instance(), &ModeManager::currentModeChanged,
             this, &SessionManager::saveActiveMode);
@@ -145,7 +145,6 @@ SessionManager::~SessionManager()
 {
     emit m_instance->aboutToUnloadSession(d->m_sessionName);
     delete d->m_writer;
-    delete d->m_sessionNode;
     delete d;
 }
 
@@ -625,7 +624,7 @@ Project *SessionManager::projectForNode(Node *node)
     if (!rootProjectNode)
         rootProjectNode = node->parentFolderNode();
 
-    while (rootProjectNode && rootProjectNode->parentFolderNode() != d->m_sessionNode)
+    while (rootProjectNode && rootProjectNode->parentFolderNode() != d->m_sessionNode.get())
         rootProjectNode = rootProjectNode->parentFolderNode();
 
     Q_ASSERT(rootProjectNode);
@@ -1070,7 +1069,7 @@ QString SessionManager::lastSession()
 
 SessionNode *SessionManager::sessionNode()
 {
-    return d->m_sessionNode;
+    return d->m_sessionNode.get();
 }
 
 void SessionManager::reportProjectLoadingProgress()
