@@ -419,7 +419,11 @@ struct Type
         QString actualType = simplifyType(actualType0);
         actualType.replace(' ', "");
         actualType.replace("const", "");
-        QString expectedType = type;
+        QString expectedType;
+        if (aliasName.isEmpty() || context.engine == CdbEngine)
+            expectedType = type;
+        else
+            expectedType = aliasName;
         expectedType.replace(' ', "");
         expectedType.replace("const", "");
         expectedType.replace('@', context.nameSpace);
@@ -446,6 +450,7 @@ struct Type
     }
 
     QString type;
+    QString aliasName;
     int qtVersion = 0;
     bool isPattern = false;
 };
@@ -465,6 +470,13 @@ struct TypePattern : Type
     TypePattern(const QString &ba) : Type(ba) { isPattern = true; }
 };
 
+struct TypeDef : Type
+{
+    TypeDef(const QString &typeName, const QString &aliasName) : Type(typeName)
+    {
+        this->aliasName = aliasName;
+    }
+};
 
 struct Check
 {
@@ -2000,8 +2012,7 @@ void tst_Dumpers::dumper_data()
                + Check("h7.2.key", "\".\"", "@QString")
                + CheckType("h7.2.value", "@QPointer<@QObject>")
 
-               + Check("h8", "<3 items>", "Hash") % NoCdbEngine
-               + Check("h8", "<3 items>", "QHash<int,float>") % CdbEngine
+               + Check("h8", "<3 items>", TypeDef("QHash<int,float>", "Hash"))
                + Check("h8.0", "[0] 22", FloatValue("22"), "")
                + Check("it1.key", "22", "int")
                + Check("it1.value", FloatValue("22"), "float")
@@ -2122,12 +2133,10 @@ void tst_Dumpers::dumper_data()
                + CheckType("l3.2", "[2]", "Foo")
                + Check("l3.2.a", "3", "int")
 
-               + Check("l4", "<2 items>", "@QLinkedList<unsigned long long>") % NoCdbEngine
-               + Check("l4.0", "[0]", "42", "unsigned long long") % NoCdbEngine
-               + Check("l4.1", "[1]", "43", "unsigned long long") % NoCdbEngine
-               + Check("l4", "<2 items>", "@QLinkedList<unsigned __int64>") % CdbEngine
-               + Check("l4.0", "[0]", "42", "unsigned int64") % CdbEngine
-               + Check("l4.1", "[1]", "43", "unsigned int64") % CdbEngine
+               + Check("l4", "<2 items>", TypeDef("@QLinkedList<unsigned __int64>",
+                                                  "@QLinkedList<unsigned long long>"))
+               + Check("l4.0", "[0]", "42", TypeDef("unsigned int64", "unsigned long long"))
+               + Check("l4.1", "[1]", "43", TypeDef("unsigned int64", "unsigned long long"))
 
 
                + Check("l5", "<2 items>", "@QLinkedList<Foo>")
@@ -2266,12 +2275,10 @@ void tst_Dumpers::dumper_data()
                + Check("l10.0", "[0]", "97", "@QChar")
                + Check("l10.2", "[2]", "99", "@QChar")
 
-               + Check("l11", "<3 items>", "@QList<unsigned long long>") % NoCdbEngine
-               + Check("l11.0", "[0]", "100", "unsigned long long") % NoCdbEngine
-               + Check("l11.2", "[2]", "102", "unsigned long long") % NoCdbEngine
-               + Check("l11", "<3 items>", "@QList<unsigned __int64>") % CdbEngine
-               + Check("l11.0", "[0]", "100", "unsigned int64") % CdbEngine
-               + Check("l11.2", "[2]", "102", "unsigned int64") % CdbEngine
+               + Check("l11", "<3 items>", TypeDef("@QList<unsigned __int64>",
+                                                   "@QList<unsigned long long>"))
+               + Check("l11.0", "[0]", "100", TypeDef("unsigned int64", "unsigned long long"))
+               + Check("l11.2", "[2]", "102", TypeDef("unsigned int64", "unsigned long long"))
 
                + Check("l12", "<0 items>", "@QList<std::string>")
                + Check("l13", "<4 items>", "@QList<std::string>")
@@ -2309,10 +2316,8 @@ void tst_Dumpers::dumper_data()
                + Check("r.0", "[0]", "3", "int")
                + Check("r.1", "[1]", "2", "int")
                + Check("r.2", "[2]", "1", "int")
-               + Check("rend", "", "Reverse") % NoCdbEngine
-               + Check("rend", "", "std::reverse_iterator<QList<int>::iterator>") % CdbEngine
-               + Check("rit", "", "Reverse") % NoCdbEngine
-               + Check("rit", "", "std::reverse_iterator<QList<int>::iterator>") % CdbEngine;
+               + Check("rend", "", TypeDef("std::reverse_iterator<QList<int>::iterator>", "Reverse"))
+               + Check("rit", "", TypeDef("std::reverse_iterator<QList<int>::iterator>", "Reverse"));
 
 
    QTest::newRow("QLocale")
@@ -2406,8 +2411,7 @@ void tst_Dumpers::dumper_data()
               + Check("m2.0", "[0] 11", FloatValue("31.0"), "")
               + Check("m2.1", "[1] 22", FloatValue("32.0"), "")
 
-              + Check("m3", "<2 items>", "T") % NoCdbEngine
-              + Check("m3", "<2 items>", "QMap<unsigned int,QStringList>") % CdbEngine
+              + Check("m3", "<2 items>", TypeDef("QMap<unsigned int,QStringList>", "T"))
 
               + Check("m4", "<1 items>", "@QMap<@QString, float>")
               + Check("m4.0.key", "\"22.0\"", "@QString")
@@ -2612,8 +2616,7 @@ void tst_Dumpers::dumper_data()
                     "\"Cruft\"", "@QVariant (QString)")
                + Check5("mm", "destroyed", "@QMetaMethod")
                + Check4("mm", "destroyed(QObject*)", "@QMetaMethod")
-               + Check("mm.handle", "14", "uint") % NoCdbEngine
-               + Check("mm.handle", "14", "unsigned int") % CdbEngine
+               + Check("mm.handle", "14", TypeDef("unsigned int", "uint"))
                + Check("mp", "objectName", "@QMetaProperty");
 
     QTest::newRow("QObject3")
@@ -3365,8 +3368,8 @@ void tst_Dumpers::dumper_data()
                + Check("str4", "\"Hello\tQt\"", "@QString")
 
                + Check("holder", "", "@QStringDataPtr") % Qt5
-               + Check("holder.ptr", "\"ABC\"", "@QStringData") % NoCdbEngine % Qt5
-               + Check("holder.ptr", "\"ABC\"", "@QTypedArrayData<unsigned short>") % CdbEngine % Qt5
+               + Check("holder.ptr", "\"ABC\"", TypeDef("@QTypedArrayData<unsigned short>",
+                                                        "@QStringData")) % Qt5
                + Check("sd", "\"Q\"", "@QStaticStringData<1>") % Qt5;
 
 
@@ -3483,8 +3486,7 @@ void tst_Dumpers::dumper_data()
                //+ Check("v1", "\"Some string\"", "@QVariant (QString)")
                + CheckType("v1", "@QVariant (QString)")
 
-               + Check("my", "<2 items>", "MyType") % NoCdbEngine
-               + Check("my", "<2 items>", "QMap<unsigned int,QStringList>") % CdbEngine
+               + Check("my", "<2 items>", TypeDef("QMap<unsigned int,QStringList>", "MyType"))
                + Check("my.0.key", "1", "unsigned int")
                + Check("my.0.value", "<1 items>", "@QStringList")
                + Check("my.0.value.0", "[0]", "\"Hello\"", "@QString")
@@ -3492,8 +3494,7 @@ void tst_Dumpers::dumper_data()
                + Check("my.1.value", "<1 items>", "@QStringList")
                + Check("my.1.value.0", "[0]", "\"World\"", "@QString")
                //+ CheckType("v2", "@QVariant (MyType)")
-               + Check("v2.data", "<2 items>", "MyType") % NoCdbEngine
-               + Check("v2.data", "<2 items>", "QMap<unsigned int,QStringList>") % CdbEngine
+               + Check("my", "<2 items>", TypeDef("QMap<unsigned int,QStringList>", "MyType"))
                + Check("v2.data.0.key", "1", "unsigned int")
                + Check("v2.data.0.value", "<1 items>", "@QStringList")
                + Check("v2.data.0.value.0", "[0]", "\"Hello\"", "@QString")
@@ -3702,8 +3703,7 @@ void tst_Dumpers::dumper_data()
                + UseDebugImage()
 
                + Check("ha", "\"127.0.0.1\"", "@QHostAddress")
-               + Check("ha.a", "2130706433", "@quint32") % NoCdbEngine
-               + Check("ha.a", "2130706433", "unsigned int") % CdbEngine
+               + Check("ha.a", "2130706433", TypeDef("unsigned int", "@quint32"))
                + Check("ha.ipString", "\"127.0.0.1\"", "@QString")
                + Check("ha.isParsed", "1", "bool")
                //+ Check("ha.protocol", "@QAbstractSocket::IPv4Protocol (0)",
@@ -3712,8 +3712,7 @@ void tst_Dumpers::dumper_data()
                //        "@QAbstractSocket::NetworkLayerProtocol") % LldbEngine
                + Check("ha.scopeId", "\"\"", "@QString")
                + Check("ha1", "\"127.0.0.1\"", "@QHostAddress")
-               + Check("ha1.a", "2130706433", "@quint32") % NoCdbEngine
-               + Check("ha1.a", "2130706433", "unsigned int") % CdbEngine
+               + Check("ha1.a", "2130706433", TypeDef("unsigned int", "@quint32"))
                + Check("ha1.ipString", "\"127.0.0.1\"", "@QString")
                + Check("ha1.isParsed", "1", "bool")
                //+ Check("ha1.protocol", "@QAbstractSocket::IPv4Protocol (0)",
@@ -3864,8 +3863,7 @@ void tst_Dumpers::dumper_data()
                + Check("v2.1", "[1]", "", "Foo")
                + Check("v2.1.a", "2", "int")
 
-               + Check("v3", "<2 items>", "FooVector") % NoCdbEngine
-               + Check("v3", "<2 items>", "QVector<Foo>") % CdbEngine
+               + Check("v3", "<2 items>", TypeDef("QVector<Foo>", "FooVector"))
                + Check("v3.0", "[0]", "", "Foo")
                + Check("v3.0.a", "1", "int")
                + Check("v3.1", "[1]", "", "Foo")
@@ -3945,8 +3943,7 @@ void tst_Dumpers::dumper_data()
                + Check("v2.1", "[1]", "", "Foo")
                + Check("v2.1.a", "2", "int")
 
-               + Check("v3", "<2 items>", "FooVector") % NoCdbEngine
-               + Check("v3", "<2 items>", "@QVarLengthArray<Foo,256>") % CdbEngine
+               + Check("v3", "<2 items>", TypeDef("@QVarLengthArray<Foo,256>", "FooVector"))
                + Check("v3.0", "[0]", "", "Foo")
                + Check("v3.0.a", "1", "int")
                + Check("v3.1", "[1]", "", "Foo")
@@ -4272,8 +4269,7 @@ void tst_Dumpers::dumper_data()
                + Check("map2.0", "[0] 11", FloatValue("11"), "")
                + Check("map2.1", "[1] 22", FloatValue("22"), "")
 
-               + Check("map3", "<6 items>", "Map") % NoCdbEngine
-               + Check("map3", "<6 items>", "std::map<int, float>") % CdbEngine
+               + Check("map3", "<6 items>", TypeDef("std::map<int, float>", "Map"))
                + Check("map3.0", "[0] 11", FloatValue("11"), "")
                + Check("it1.first", "11", "int")
                + Check("it1.second", FloatValue("11"), "float")
@@ -4284,8 +4280,8 @@ void tst_Dumpers::dumper_data()
                + Check("map4.0", "[0] 11", FloatValue("11"), "")
                + Check("map4.4", "[4] 22", FloatValue("25"), "")
 
-               + Check("map5", "<1 items>", "std::map<short, long long>") % NoCdbEngine
-               + Check("map5", "<1 items>", "std::map<short, __int64>") % CdbEngine
+               + Check("map5", "<1 items>", TypeDef("std::map<short, __int64>",
+                                                    "std::map<short, long long>"))
                + Check("map5.0", "[0] 12", "42", "")
 
                + Check("map6", "<1 items>", "std::map<short, std::string>")
@@ -4499,8 +4495,7 @@ void tst_Dumpers::dumper_data()
 
                + Check("s1", "<3 items>", "std::set<int>")
 
-               + Check("s2", "<3 items>", "Set") % NoCdbEngine
-               + Check("s2", "<3 items>", "std::set<int>") % CdbEngine
+               + Check("s2", "<3 items>", TypeDef("std::set<int>", "Set"))
                + Check("it1.value", "11", "int")
                + Check("it3.value", "33", "int")
 
@@ -5052,13 +5047,10 @@ void tst_Dumpers::dumper_data()
                     "unused(&c, &sc, &uc, &qs, &qu);\n")
 
                + Check("c", "-12", "char")  // on all our platforms char is signed.
-               + Check("sc", "-12", "signed char") % NoCdbEngine
-               + Check("sc", "-12", "char") % CdbEngine
+               + Check("sc", "-12", TypeDef("char", "signed char"))
                + Check("uc", "244", "unsigned char")
-               + Check("qs", "-12", "@qint8") % NoCdbEngine
-               + Check("qu", "244", "@quint8") % NoCdbEngine
-               + Check("qs", "-12", "char") % CdbEngine
-               + Check("qu", "244", "unsigned char") % CdbEngine;
+               + Check("qs", "-12", TypeDef("char", "@qint8"))
+               + Check("qu", "244", TypeDef("unsigned char", "@quint8"));
 
 
     QTest::newRow("CharArrays")
@@ -5128,23 +5120,14 @@ void tst_Dumpers::dumper_data()
                     "QString dummy; // needed to get namespace\n"
                     "unused(&u64, &s64, &u32, &s32, &u64s, &s64s, &u32s, &s32s, &dummy);\n")
                + CoreProfile()
-               + Check("u64", "18446744073709551615", "@quint64") % NoCdbEngine
-               + Check("s64", "9223372036854775807", "@qint64") % NoCdbEngine
-               + Check("u32", "4294967295", "@quint32") % NoCdbEngine
-               + Check("s32", "2147483647", "@qint32") % NoCdbEngine
-               + Check("u64s", "0", "@quint64") % NoCdbEngine
-               + Check("s64s", "-9223372036854775808", "@qint64") % NoCdbEngine
-               + Check("u32s", "0", "@quint32") % NoCdbEngine
-               + Check("s32s", "-2147483648", "@qint32") % NoCdbEngine
-
-               + Check("u64", "18446744073709551615", "unsigned int64") % CdbEngine
-               + Check("s64", "9223372036854775807", "@int64") % CdbEngine
-               + Check("u32", "4294967295", "unsigned int") % CdbEngine
-               + Check("s32", "2147483647", "int") % CdbEngine
-               + Check("u64s", "0", "unsigned int64") % CdbEngine
-               + Check("s64s", "-9223372036854775808", "int64") % CdbEngine
-               + Check("u32s", "0", "unsigned int") % CdbEngine
-               + Check("s32s", "-2147483648", "int") % CdbEngine;
+               + Check("u64", "18446744073709551615", TypeDef("unsigned int64", "@quint64"))
+               + Check("s64", "9223372036854775807", TypeDef("int64", "@qint64"))
+               + Check("u32", "4294967295", TypeDef("unsigned int", "@quint32"))
+               + Check("s32", "2147483647", TypeDef("int", "@qint32"))
+               + Check("u64s", "0", TypeDef("unsigned int64", "@quint64"))
+               + Check("s64s", "-9223372036854775808", TypeDef("int64", "@qint64"))
+               + Check("u32s", "0", TypeDef("unsigned int", "@quint32"))
+               + Check("s32s", "-2147483648", TypeDef("int", "@qint32"));
 
 
 
@@ -5392,10 +5375,8 @@ void tst_Dumpers::dumper_data()
                     "CVoidPtr cp = &a;\n"
                     "unused(&a, &p, &cp);\n")
                + Check("a", "", "A")
-               + Check("cp", Pointer(), "CVoidPtr") % NoCdbEngine
-               + Check("p", Pointer(), "VoidPtr")   % NoCdbEngine
-               + Check("cp", Pointer(), "void*")    % CdbEngine
-               + Check("p", Pointer(), "void*")     % CdbEngine;
+               + Check("cp", Pointer(), TypeDef("void*", "CVoidPtr"))
+               + Check("p", Pointer(), TypeDef("void*", "VoidPtr"));
 
 
     QTest::newRow("Reference")
@@ -5528,10 +5509,8 @@ void tst_Dumpers::dumper_data()
                     "int a2 = x.*m;\n"
                     "unused(&a2);\n")
 
-             + CheckType("f", "func_t") % NoCdbEngine
-             + CheckType("m", "member_t") % NoCdbEngine
-             + CheckType("f", "<function>") % CdbEngine
-             + CheckType("m", "int*") % CdbEngine;
+             + CheckType("f", TypeDef("<function>", "func_t"))
+             + CheckType("m", TypeDef("int*", "member_t"));
 
 
   QTest::newRow("PassByReference")
@@ -5558,14 +5537,10 @@ void tst_Dumpers::dumper_data()
                     "QString dummy;\n"
                     "unused(&a, &b, &c, &d, &dummy);\n")
                + CoreProfile()
-               + Check("a", "-1143861252567568256", "@qint64") % NoCdbEngine
-               + Check("b", "17302882821141983360", "@quint64") % NoCdbEngine
-               + Check("c", "18446744073709551614", "@quint64") % NoCdbEngine
-               + Check("d", "-2",                   "@qint64") % NoCdbEngine
-               + Check("a", "-1143861252567568256", "int64") % CdbEngine
-               + Check("b", "17302882821141983360", "unsigned int64") % CdbEngine
-               + Check("c", "18446744073709551614", "unsigned int64") % CdbEngine
-               + Check("d", "-2",                   "int64") % CdbEngine;
+               + Check("a", "-1143861252567568256", TypeDef("int64", "@qint64"))
+               + Check("b", "17302882821141983360", TypeDef("unsigned int64", "@quint64"))
+               + Check("c", "18446744073709551614", TypeDef("unsigned int64", "@quint64"))
+               + Check("d", "-2",                   TypeDef("int64", "@qint64"));
 
 
     QTest::newRow("Hidden")
@@ -5737,9 +5712,8 @@ void tst_Dumpers::dumper_data()
                     "int r = it->second;\n"
                     "unused(&l, &r);\n")
              + BoostProfile()
-             + Check("b", "<1 items>", "B") % NoCdbEngine
-             + Check("b", "<1 items>", "boost::bimaps::bimap<int,int,boost::mpl::na,"
-                                       "boost::mpl::na,boost::mpl::na>") % CdbEngine;
+             + Check("b", "<1 items>", TypeDef("boost::bimaps::bimap<int,int,boost::mpl::na,"
+                                               "boost::mpl::na,boost::mpl::na>", "B"));
 
 
     QTest::newRow("BoostPosixTimePtime")
@@ -5851,8 +5825,7 @@ void tst_Dumpers::dumper_data()
         << Data("typedef unsigned char byte;\n"
                 "byte f = '2';\n"
                 "int *x = (int*)&f;\n")
-         + Check("f", "50", "byte") % NoCdbEngine
-         + Check("f", "50", "unsigned char") % CdbEngine;
+         + Check("f", "50", TypeDef("unsigned char", "byte"));
 
 
     // https://bugreports.qt.io/browse/QTCREATORBUG-4904
@@ -5941,8 +5914,7 @@ void tst_Dumpers::dumper_data()
                 "Array a2;\n"
                 "unused(&s2, &s4, &a1, &a2);\n")
              + CheckType("a1", "S1 [10]")
-             + CheckType("a2", "Array") % NoCdbEngine
-             + CheckType("a2", "S1 [10]") % CdbEngine
+             + CheckType("a2", TypeDef("S1 [10]", "Array"))
              + CheckType("s2", "S2")
              + CheckType("s2.@1", "[S1]", "S1")
              + Check("s2.@1.m1", "5", "int")
@@ -6324,18 +6296,12 @@ void tst_Dumpers::dumper_data()
                     "uint32_t u32 = 68;\n"
                     "int32_t s32 = 69;\n"
                     "unused(&u8, &s8, &u16, &s16, &u32, &s32);\n")
-               + Check("u8", "64", "uint8_t") % NoCdbEngine
-               + Check("s8", "65", "int8_t") % NoCdbEngine
-               + Check("u16", "66", "uint16_t") % NoCdbEngine
-               + Check("s16", "67", "int16_t") % NoCdbEngine
-               + Check("u32", "68", "uint32_t") % NoCdbEngine
-               + Check("s32", "69", "int32_t") % NoCdbEngine
-               + Check("u8", "64", "unsigned char") % CdbEngine
-               + Check("s8", "65", "char") % CdbEngine
-               + Check("u16", "66", "unsigned short") % CdbEngine
-               + Check("s16", "67", "short") % CdbEngine
-               + Check("u32", "68", "unsigned int") % CdbEngine
-               + Check("s32", "69", "int") % CdbEngine;
+               + Check("u8", "64", TypeDef("unsigned char", "uint8_t"))
+               + Check("s8", "65", TypeDef("char", "int8_t"))
+               + Check("u16", "66", TypeDef("unsigned short", "uint16_t"))
+               + Check("s16", "67", TypeDef("short", "int16_t"))
+               + Check("u32", "68", TypeDef("unsigned int", "uint32_t"))
+               + Check("s32", "69", TypeDef("int", "int32_t"));
 
     QTest::newRow("QPolygon")
             << Data("#include <QGraphicsScene>\n"
