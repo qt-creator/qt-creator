@@ -57,8 +57,9 @@ def parse_arguments():
 
 source_include_patterns = [
     # directories
-    r"^scripts/.*$", # everything under scripts/
-    r"^src/(.*/)?$", # all directories under src/
+    r"^scripts/.*$",     # everything under scripts/
+    r"^src/(.*/)?$",     # all directories under src/
+    r"^plugins/(.*/)?$", # all directories under plugins/ (if this is run on extra plugin repositories)
     # files
     r"^HACKING$",
     r"^LICENSE.*$",
@@ -107,12 +108,6 @@ def copy_regexp(regexp, source_directory, target_directory, verbose):
     common.copytree(source_directory, target_directory, symlinks=True, ignore=ignore)
 
 def sanity_check_arguments(arguments):
-    if not os.path.isfile(os.path.join(arguments.source, 'qtcreator.pri')):
-        print('error: did not find qtcreator.pri at "{0}"'.format(arguments.source))
-        return False
-    if not os.path.isfile(os.path.join(arguments.build, 'src', 'app', 'app_version.h')):
-        print('error: did not find src/app/app_version.h at "{0}"'.format(arguments.build))
-        return False
     if os.path.exists(arguments.target_directory) and (os.path.isfile(arguments.target_directory)
                                                        or len(os.listdir(arguments.target_directory)) > 0):
         print('error: target directory "{0}" exists and is not empty'.format(arguments.target_directory))
