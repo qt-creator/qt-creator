@@ -110,25 +110,20 @@ void QmlProfilerDetailsRewriter::requestDetailsForLocation(int requestId,
 
     localFile = fileInfo.canonicalFilePath();
 
-    m_pendingEvents.append({location, localFile, requestId});
-    if (!m_pendingDocs.contains(localFile)) {
-        if (m_pendingDocs.isEmpty() && QmlJS::ModelManagerInterface::instance())
-            connect(QmlJS::ModelManagerInterface::instance(),
-                    &QmlJS::ModelManagerInterface::documentUpdated,
-                    this,
-                    &QmlProfilerDetailsRewriter::documentReady);
+    if (m_pendingEvents.isEmpty())
+        connectQmlModel();
 
-        m_pendingDocs.append(localFile);
-    }
+    m_pendingEvents.insert(localFile, {location, requestId});
 }
 
 void QmlProfilerDetailsRewriter::reloadDocuments()
 {
-    if (!m_pendingDocs.isEmpty()) {
+    if (!m_pendingEvents.isEmpty()) {
         if (QmlJS::ModelManagerInterface *manager = QmlJS::ModelManagerInterface::instance()) {
-            manager->updateSourceFiles(m_pendingDocs, false);
+            manager->updateSourceFiles(m_pendingEvents.uniqueKeys(), false);
         } else {
-            m_pendingDocs.clear();
+            m_pendingEvents.clear();
+            disconnectQmlModel();
             emit eventDetailsChanged();
         }
     } else {
@@ -137,7 +132,7 @@ void QmlProfilerDetailsRewriter::reloadDocuments()
 }
 
 void QmlProfilerDetailsRewriter::rewriteDetailsForLocation(
-        QTextStream &textDoc, QmlJS::Document::Ptr doc, int requestId,
+        const QString &source, QmlJS::Document::Ptr doc, int requestId,
         const QmlEventLocation &location)
 {
     PropertyVisitor propertyVisitor;
@@ -146,48 +141,55 @@ void QmlProfilerDetailsRewriter::rewriteDetailsForLocation(
     if (!node)
         return;
 
-    qint64 startPos = node->firstSourceLocation().begin();
-    qint64 len = node->lastSourceLocation().end() - startPos;
+    const quint32 startPos = node->firstSourceLocation().begin();
+    const quint32 len = node->lastSourceLocation().end() - startPos;
 
-    textDoc.seek(startPos);
-    QString details = textDoc.read(len).replace(QLatin1Char('\n'), QLatin1Char(' ')).simplified();
+    emit rewriteDetailsString(requestId, source.mid(startPos, len).simplified());
+}
 
-    emit rewriteDetailsString(requestId, details);
+void QmlProfilerDetailsRewriter::connectQmlModel()
+{
+    if (auto manager = QmlJS::ModelManagerInterface::instance()) {
+        connect(manager, &QmlJS::ModelManagerInterface::documentUpdated,
+                this, &QmlProfilerDetailsRewriter::documentReady);
+    }
+}
+
+void QmlProfilerDetailsRewriter::disconnectQmlModel()
+{
+    if (auto manager = QmlJS::ModelManagerInterface::instance()) {
+        disconnect(manager, &QmlJS::ModelManagerInterface::documentUpdated,
+                   this, &QmlProfilerDetailsRewriter::documentReady);
+    }
 }
 
 void QmlProfilerDetailsRewriter::clearRequests()
 {
     m_filesCache.clear();
-    m_pendingDocs.clear();
+    m_pendingEvents.clear();
+    disconnectQmlModel();
 }
 
 void QmlProfilerDetailsRewriter::documentReady(QmlJS::Document::Ptr doc)
 {
+    auto range = m_pendingEvents.equal_range(doc->fileName());
+
     // this could be triggered by an unrelated reload in Creator
-    if (!m_pendingDocs.contains(doc->fileName()))
+    if (range.first == range.second)
         return;
 
-    // if the file could not be opened this slot is still triggered but source will be an empty string
+    // if the file could not be opened this slot is still triggered
+    // but source will be an empty string
     QString source = doc->source();
-    if (!source.isEmpty()) {
-        QTextStream st(&source, QIODevice::ReadOnly);
-
-        for (int i = m_pendingEvents.count() - 1; i >= 0; --i) {
-            PendingEvent ev = m_pendingEvents[i];
-            if (ev.localFile == doc->fileName()) {
-                m_pendingEvents.removeAt(i);
-                rewriteDetailsForLocation(st, doc, ev.requestId, ev.location);
-            }
-        }
+    const bool sourceHasContents = !source.isEmpty();
+    for (auto it = range.first; it != range.second;) {
+        if (sourceHasContents)
+            rewriteDetailsForLocation(source, doc, it->requestId, it->location);
+        it = m_pendingEvents.erase(it);
     }
 
-    m_pendingDocs.removeOne(doc->fileName());
-
-    if (m_pendingDocs.isEmpty()) {
-        disconnect(QmlJS::ModelManagerInterface::instance(),
-                   &QmlJS::ModelManagerInterface::documentUpdated,
-                   this,
-                   &QmlProfilerDetailsRewriter::documentReady);
+    if (m_pendingEvents.isEmpty()) {
+        disconnectQmlModel();
         emit eventDetailsChanged();
         m_filesCache.clear();
     }

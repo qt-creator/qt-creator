@@ -49,7 +49,6 @@ public:
 
     struct PendingEvent {
         QmlEventLocation location;
-        QString localFile;
         int requestId;
     };
 
@@ -58,13 +57,14 @@ signals:
     void eventDetailsChanged();
 
 private:
-    QList<PendingEvent> m_pendingEvents;
-    QStringList m_pendingDocs;
+    QMultiHash<QString, PendingEvent> m_pendingEvents;
     Utils::FileInProjectFinder *m_projectFinder;
     QHash<QString, QString> m_filesCache;
 
-    void rewriteDetailsForLocation(QTextStream &textDoc, QmlJS::Document::Ptr doc, int requestId,
+    void rewriteDetailsForLocation(const QString &source, QmlJS::Document::Ptr doc, int requestId,
                                    const QmlEventLocation &location);
+    void connectQmlModel();
+    void disconnectQmlModel();
 };
 
 } // namespace Internal
