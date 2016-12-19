@@ -26,9 +26,22 @@
 
 #include "timeline_global.h"
 #include <QString>
+#include <QObject>
 #include <limits>
 
 namespace Timeline {
 QString TIMELINE_EXPORT formatTime(qint64 timestamp,
                                    qint64 reference = std::numeric_limits<qint64>::max());
+
+class TIMELINE_EXPORT TimeFormatter : public QObject {
+    Q_OBJECT
+public:
+    Q_INVOKABLE QString format(qint64 timestamp, qint64 reference)
+    {
+        return formatTime(timestamp, reference);
+    }
+
+    static void setupTimeFormatter();
+};
+
 }

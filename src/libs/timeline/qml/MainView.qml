@@ -341,6 +341,7 @@ Rectangle {
         startTime: zoomControl.selectionStart
         duration: zoomControl.selectionDuration
         endTime: zoomControl.selectionEnd
+        referenceDuration: zoomControl.rangeDuration
         showDuration: selectionRange.rangeWidth > 1
         hasContents: selectionRangeMode &&
                      selectionRange.creationState !== selectionRange.creationInactive

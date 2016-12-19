@@ -25,6 +25,7 @@
 
 import QtQuick 2.1
 import TimelineTheme 1.0
+import TimelineTimeFormatter 1.0
 
 Item {
     id: timeDisplay
@@ -47,32 +48,6 @@ Item {
 
     property int contentX
     property int offsetX: contentX + Math.round((windowStart % timePerBlock) * spacing)
-
-    readonly property var timeUnits: ["μs", "ms", "s"]
-    function prettyPrintTime(t, rangeDuration) {
-        if (rangeDuration < 1)
-            return ""
-
-        var round = 1;
-        var barrier = 1;
-
-        for (var i = 0; i < timeUnits.length; ++i) {
-            barrier *= 1000;
-            if (rangeDuration < barrier)
-                round *= 1000;
-            else if (rangeDuration < barrier * 10)
-                round *= 100;
-            else if (rangeDuration < barrier * 100)
-                round *= 10;
-            if (t < barrier * 1000)
-                return Math.floor(t / (barrier / round)) / round + timeUnits[i];
-        }
-
-        t /= barrier;
-        var m = Math.floor(t / 60);
-        var s = Math.floor((t - m * 60) * round) / round;
-        return m + "m" + s + "s";
-    }
 
     Rectangle {
         anchors.left: parent.left
@@ -121,7 +96,7 @@ Item {
                     font.pixelSize: timeDisplay.fontSize
                     anchors.leftMargin: timeDisplay.textMargin
                     verticalAlignment: Text.AlignVCenter
-                    text: prettyPrintTime(column.blockStartTime, timeDisplay.rangeDuration)
+                    text: TimeFormatter.format(column.blockStartTime, timeDisplay.rangeDuration)
                     visible: width > 0
                     color: Theme.color(Theme.PanelTextColorLight)
                 }

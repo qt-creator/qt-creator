@@ -25,6 +25,7 @@
 
 import QtQuick 2.1
 import TimelineTheme 1.0
+import TimelineTimeFormatter 1.0
 
 Item {
     id: selectionRangeDetails
@@ -32,9 +33,10 @@ Item {
     signal recenter
     signal close
 
-    property string startTime
-    property string endTime
-    property string duration
+    property double startTime
+    property double endTime
+    property double duration
+    property double referenceDuration
     property bool showDuration
     property bool hasContents
 
@@ -46,16 +48,6 @@ Item {
         target: selectionRangeDetails.parent
         onWidthChanged: fitInView();
         onHeightChanged: fitInView();
-    }
-
-    function detailedPrintTime( t )
-    {
-        if (t <= 0) return "0";
-        if (t<1000) return t+" ns";
-        t = Math.floor(t/1000);
-        if (t<1000) return t+" μs";
-        if (t<1e6) return (t/1000) + " ms";
-        return (t/1e6) + " s";
     }
 
     function fitInView() {
@@ -108,11 +100,11 @@ Item {
                 id: details
                 property var contents: [
                     qsTr("Start") + ":",
-                    detailedPrintTime(startTime),
+                    TimeFormatter.format(startTime, referenceDuration),
                     (qsTr("End") + ":"),
-                    detailedPrintTime(endTime),
+                    TimeFormatter.format(endTime, referenceDuration),
                     (qsTr("Duration") + ":"),
-                    detailedPrintTime(duration)
+                    TimeFormatter.format(duration, referenceDuration)
                 ]
 
                 model: showDuration ? 6 : 2
