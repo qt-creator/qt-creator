@@ -66,8 +66,8 @@ protected:
 
     bool containsLocation(QmlJS::AST::SourceLocation start, QmlJS::AST::SourceLocation end)
     {
-        return (_line > start.startLine || (_line == start.startLine && _col >= start.startColumn)) &&
-                (_line < end.startLine || (_line == end.startLine && _col <= end.startColumn));
+        return (_line > start.startLine || (_line == start.startLine && _col >= start.startColumn))
+                && (_line < end.startLine || (_line == end.startLine && _col <= end.startColumn));
     }
 
 
@@ -118,7 +118,7 @@ QmlProfilerDetailsRewriter::~QmlProfilerDetailsRewriter()
 }
 
 void QmlProfilerDetailsRewriter::requestDetailsForLocation(int requestId,
-        const QmlEventLocation &location)
+                                                           const QmlEventLocation &location)
 {
     QString localFile;
     const QString locationFile = location.filename();
