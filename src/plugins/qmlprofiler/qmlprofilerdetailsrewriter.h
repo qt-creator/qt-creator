@@ -39,25 +39,32 @@ class QmlProfilerDetailsRewriter : public QObject
 {
     Q_OBJECT
 public:
-    explicit QmlProfilerDetailsRewriter(QObject *parent, Utils::FileInProjectFinder *fileFinder);
-    ~QmlProfilerDetailsRewriter();
+    explicit QmlProfilerDetailsRewriter(Utils::FileInProjectFinder *fileFinder,
+                                        QObject *parent = nullptr);
 
     void clearRequests();
-
-private:
-    void rewriteDetailsForLocation(QTextStream &textDoc, QmlJS::Document::Ptr doc, int requestId,
-                                   const QmlEventLocation &location);
-
-public slots:
     void requestDetailsForLocation(int requestId, const QmlEventLocation &location);
     void reloadDocuments();
     void documentReady(QmlJS::Document::Ptr doc);
+
+    struct PendingEvent {
+        QmlEventLocation location;
+        QString localFile;
+        int requestId;
+    };
+
 signals:
     void rewriteDetailsString(int requestId, const QString &details);
     void eventDetailsChanged();
+
 private:
-    class QmlProfilerDetailsRewriterPrivate;
-    QmlProfilerDetailsRewriterPrivate *d;
+    QList<PendingEvent> m_pendingEvents;
+    QStringList m_pendingDocs;
+    Utils::FileInProjectFinder *m_projectFinder;
+    QHash<QString, QString> m_filesCache;
+
+    void rewriteDetailsForLocation(QTextStream &textDoc, QmlJS::Document::Ptr doc, int requestId,
+                                   const QmlEventLocation &location);
 };
 
 } // namespace Internal

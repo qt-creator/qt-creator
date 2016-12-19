@@ -99,7 +99,7 @@ QmlProfilerDataModel::QmlProfilerDataModel(Utils::FileInProjectFinder *fileFinde
     Q_D(QmlProfilerDataModel);
     Q_ASSERT(parent);
     d->modelManager = parent;
-    d->detailsRewriter = new QmlProfilerDetailsRewriter(this, fileFinder);
+    d->detailsRewriter = new QmlProfilerDetailsRewriter(fileFinder, this);
     d->modelId = d->modelManager->registerModelProxy();
     connect(d->detailsRewriter, &QmlProfilerDetailsRewriter::rewriteDetailsString,
             this, &QmlProfilerDataModel::detailsChanged);
