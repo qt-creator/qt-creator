@@ -55,7 +55,6 @@ public:
     static void registerWidget(Internal::ProjectTreeWidget *widget);
     static void unregisterWidget(Internal::ProjectTreeWidget *widget);
     static void nodeChanged(Internal::ProjectTreeWidget *widget);
-    static Project *projectForNode(Node *node);
 
     static void aboutToShutDown();
 

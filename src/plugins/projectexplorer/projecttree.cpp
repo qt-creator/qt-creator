@@ -149,7 +149,7 @@ void ProjectTree::updateFromFocus(bool invalidCurrentNode)
 void ProjectTree::updateFromProjectTreeWidget(ProjectTreeWidget *widget)
 {
     Node *currentNode = widget->currentNode();
-    Project *project = projectForNode(currentNode);
+    Project *project = SessionManager::projectForNode(currentNode);
 
     update(currentNode, project);
 }
@@ -157,23 +157,6 @@ void ProjectTree::updateFromProjectTreeWidget(ProjectTreeWidget *widget)
 void ProjectTree::documentManagerCurrentFileChanged()
 {
     updateFromFocus();
-}
-
-Project *ProjectTree::projectForNode(Node *node)
-{
-    if (!node)
-        return nullptr;
-
-    FolderNode *rootProjectNode = node->asFolderNode();
-    if (!rootProjectNode)
-        rootProjectNode = node->parentFolderNode();
-
-    while (rootProjectNode && rootProjectNode->parentFolderNode() != SessionManager::sessionNode())
-        rootProjectNode = rootProjectNode->parentFolderNode();
-
-    Q_ASSERT(rootProjectNode);
-
-    return Utils::findOrDefault(SessionManager::projects(), Utils::equal(&Project::rootProjectNode, rootProjectNode));
 }
 
 void ProjectTree::updateFromDocumentManager(bool invalidCurrentNode)
@@ -194,7 +177,7 @@ void ProjectTree::updateFromNode(Node *node)
 {
     Project *project;
     if (node)
-        project = projectForNode(node);
+        project = SessionManager::projectForNode(node);
     else
         project = SessionManager::startupProject();
 
