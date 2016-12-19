@@ -91,6 +91,10 @@ static QString fakeValgrindExecutable()
         fi = QFileInfo(QString(valgrindFakePath + "/release"), "valgrind-fake.exe");
         if (fi.exists())
             return fi.canonicalFilePath();
+        // Qbs uses the install-root/bin
+        fi = QFileInfo(valgrindFakePath, "valgrind-fake.exe");
+        if (fi.exists())
+            return fi.canonicalFilePath();
         qFatal("Neither debug nor release build valgrind-fake found.");
     }
     return valgrindFakePath + "/valgrind-fake";
