@@ -597,26 +597,16 @@ public:
         return parent()->setData(column, data, role);
     }
 
-    static QWidget *createPanelWidget(QWidget *widget, const QString &displayName, const QString &icon)
-    {
-        auto w = new QWidget();
-        auto l = new QVBoxLayout(w);
-        l->addWidget(widget);
-        l->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
-        l->setContentsMargins(QMargins());
-        return new PanelsWidget(displayName, QIcon(icon), w);
-    }
-
     QWidget *panel() const
     {
         if (!m_panel) {
             m_panel = (m_subIndex == RunPage)
-                    ? createPanelWidget(new RunSettingsWidget(target()),
-                                            RunSettingsWidget::tr("Run Settings"),
-                                            ":/projectexplorer/images/RunSettings.png")
-                    : createPanelWidget(new BuildSettingsWidget(target()),
-                                            QCoreApplication::translate("BuildSettingsPanel", "Build Settings"),
-                                            ":/projectexplorer/images/BuildSettings.png");
+                    ? new PanelsWidget(RunSettingsWidget::tr("Run Settings"),
+                                       QIcon(":/projectexplorer/images/RunSettings.png"),
+                                       new RunSettingsWidget(target()))
+                    : new PanelsWidget(QCoreApplication::translate("BuildSettingsPanel", "Build Settings"),
+                                       QIcon(":/projectexplorer/images/BuildSettings.png"),
+                                       new BuildSettingsWidget(target()));
         }
         return m_panel;
     }
