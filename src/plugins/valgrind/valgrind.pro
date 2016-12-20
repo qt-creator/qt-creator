@@ -55,3 +55,16 @@ FORMS += \
 
 RESOURCES += \
     valgrind.qrc
+
+equals(TEST, 1) {
+    DEFINES += "PARSERTESTS_DATA_DIR=\\\"$$_PRO_FILE_PWD_/unit_testdata\\\""
+    DEFINES += "VALGRIND_FAKE_PATH=\\\"$$IDE_BUILD_TREE/src/tools/valgrindfake\\\""
+    DEFINES += "TESTRUNNER_SRC_DIR=\\\"$$_PRO_FILE_PWD_/../../../tests/auto/valgrind/memcheck/testapps\\\""
+    DEFINES += "TESTRUNNER_APP_DIR=\\\"$(PWD)/../../../tests/auto/valgrind/memcheck/testapps\\\""
+
+    HEADERS += valgrindmemcheckparsertest.h \
+        valgrindtestrunnertest.h
+
+    SOURCES += valgrindmemcheckparsertest.cpp \
+        valgrindtestrunnertest.cpp
+}

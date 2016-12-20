@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright (C) 2016 The Qt Company Ltd. Contact: https://www.qt.io/licensing/ -->
-<application>
- <id type="desktop">qtcreator.desktop</id>
- <licence>CC-BY-SA</licence>
+<component type="desktop">
+ <id>org.qt-project.qtcreator.desktop</id>
+ <metadata_license>CC0-1.0</metadata_license>
+ <project_license>GPL-3.0</project_license>
  <description>
   <p>
    Qt Creator provides a cross-platform, complete integrated development
@@ -20,9 +21,7 @@
    newcomers to Qt.
   </p>
  </description>
- <screenshots>
-  <screenshot type="default" width="800" height="600">http://qt-project.org/uploads/image_upload/qtcreator-edit-mode.png</screenshot>
- </screenshots>
- <url type="homepage">https://wiki.qt.io/Category:Tools::QtCreator</url>
+
+ <url type="homepage">https://qt.io/ide/</url>
  <project_group>Qt</project_group>
-</application>
+</component>

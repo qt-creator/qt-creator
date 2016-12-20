@@ -168,12 +168,6 @@ void IosRunner::stop()
     }
 }
 
-void IosRunner::debuggerStateChanged(Debugger::DebuggerState state)
-{
-    if (m_toolHandler)
-        m_toolHandler->debuggerStateChanged(state);
-}
-
 void IosRunner::handleDidStartApp(IosToolHandler *handler, const QString &bundlePath,
                                   const QString &deviceId, IosToolHandler::OpStatus status)
 {

@@ -32,6 +32,11 @@
 #include "valgrindsettings.h"
 #include "valgrindconfigwidget.h"
 
+#ifdef WITH_TESTS
+#   include "valgrindmemcheckparsertest.h"
+#   include "valgrindtestrunnertest.h"
+#endif
+
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
@@ -115,6 +120,15 @@ ExtensionSystem::IPlugin::ShutdownFlag ValgrindPlugin::aboutToShutdown()
 ValgrindGlobalSettings *ValgrindPlugin::globalSettings()
 {
     return theGlobalSettings;
+}
+
+QList<QObject *> ValgrindPlugin::createTestObjects() const
+{
+    QList<QObject *> tests;
+#ifdef WITH_TESTS
+    tests << new Test::ValgrindMemcheckParserTest << new Test::ValgrindTestRunnerTest;
+#endif
+    return tests;
 }
 
 } // namespace Internal

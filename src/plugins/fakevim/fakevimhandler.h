@@ -106,6 +106,7 @@ public:
     void handleCommand(const QString &cmd);
     void handleReplay(const QString &keys);
     void handleInput(const QString &keys);
+    void enterCommandMode();
 
     void installEventFilter();
 

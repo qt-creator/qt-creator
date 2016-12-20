@@ -69,6 +69,7 @@ public:
     void fix(); // Fix the individual kit information: Make sure it contains a valid value.
                 // Fix will not look at other information in the kit!
     void setup(); // Apply advanced magic(TM). Used only once on each kit during initial setup.
+    void upgrade(); // Upgrade settings to new syntax (if appropriate).
 
     QString unexpandedDisplayName() const;
     QString displayName() const;

@@ -52,9 +52,6 @@ public:
         bool success = false;
         qint64 pID = -1;
         QByteArray commandOutput = "";
-        // For response type APP_SPAWN, the processInstance represents the control process of the spwaned app
-        // For other response types its null.
-        std::shared_ptr<QProcess> processInstance;
     };
 
 public:
@@ -69,12 +66,10 @@ public:
     static QString bundleExecutable(const Utils::FileName &bundlePath);
 
 public:
-    QFuture<ResponseData> startSimulator(const QString &simUdid);
+    QFuture<ResponseData> startSimulator(const QString &simUdid) const;
     QFuture<ResponseData> installApp(const QString &simUdid, const Utils::FileName &bundlePath) const;
-    QFuture<ResponseData> spawnAppProcess(const QString &simUdid, const Utils::FileName &bundlePath,
-                                          bool waitForDebugger, const QStringList &extraArgs) const;
     QFuture<ResponseData> launchApp(const QString &simUdid, const QString &bundleIdentifier,
-                                    qint64 spawnedPID = -1) const;
+                                    bool waitForDebugger, const QStringList &extraArgs) const;
 
 private:
     SimulatorControlPrivate *d;

@@ -93,6 +93,16 @@ isEmpty(BASENAME): BASENAME = qt-creator-$${PLATFORM}$(INSTALL_EDITION)-$${QTCRE
 macx:INSTALLER_NAME = "qt-creator-$${QTCREATOR_VERSION}"
 else:INSTALLER_NAME = "$${BASENAME}"
 
+linux {
+    appstream.files = dist/org.qt-project.qtcreator.appdata.xml
+    appstream.path = $$QTC_PREFIX/share/metainfo/
+
+    desktop.files = dist/org.qt-project.qtcreator.desktop
+    desktop.path = $$QTC_PREFIX/share/applications/
+
+    INSTALLS += appstream desktop
+}
+
 macx {
     APPBUNDLE = "$$OUT_PWD/bin/Qt Creator.app"
     BINDIST_SOURCE = "$$OUT_PWD/bin/Qt Creator.app"
@@ -109,7 +119,10 @@ macx {
     deployqt.depends = install
     win32 {
         deployartifacts.depends = install
-        deployartifacts.commands = git clone "git://code.qt.io/qt-creator/binary-artifacts.git" -b $$BINARY_ARTIFACTS_BRANCH&& xcopy /s /q /y /i "binary-artifacts\\win32" \"$(INSTALL_ROOT)$$QTC_PREFIX\"&& rmdir /s /q binary-artifacts
+        deployartifacts.commands = git clone --depth 1 -b $$BINARY_ARTIFACTS_BRANCH \
+                "http://code.qt.io/qt-creator/binary-artifacts.git" \
+            && xcopy /s /q /y /i "binary-artifacts\\win32" \"$(INSTALL_ROOT)$$QTC_PREFIX\" \
+            && rmdir /s /q binary-artifacts
         QMAKE_EXTRA_TARGETS += deployartifacts
     }
 }

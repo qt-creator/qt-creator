@@ -64,7 +64,6 @@ public:
     void requestDeviceInfo(const QString &deviceId, int timeout = 1000);
     bool isRunning();
     void stop();
-    void debuggerStateChanged(int state);
 
 signals:
     void isTransferringApp(Ios::IosToolHandler *handler, const QString &bundlePath,

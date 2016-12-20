@@ -1,4 +1,5 @@
-import qbs 1.0
+import qbs
+import qbs.FileInfo
 
 QtcPlugin {
     name: "Valgrind"
@@ -87,5 +88,22 @@ QtcPlugin {
             "suppression.cpp", "suppression.h",
             "threadedparser.cpp", "threadedparser.h",
         ]
+    }
+
+    Group {
+        name: "Test sources"
+        condition: qtc.testsEnabled
+        files: [
+            "valgrindmemcheckparsertest.cpp",
+            "valgrindmemcheckparsertest.h",
+            "valgrindtestrunnertest.cpp",
+            "valgrindtestrunnertest.h",
+        ]
+        cpp.defines: outer.concat([
+            'PARSERTESTS_DATA_DIR="' + FileInfo.joinPaths(path, "unit_testdata") + '"',
+            'VALGRIND_FAKE_PATH="' + FileInfo.joinPaths(project.buildDirectory, qtc.ide_bin_path) + '"',
+            'TESTRUNNER_SRC_DIR="' + FileInfo.joinPaths(path, "../../../tests/auto/valgrind/memcheck/testapps") + '"',
+            'TESTRUNNER_APP_DIR="' + FileInfo.joinPaths(project.buildDirectory, qtc.ide_bin_path, "testapps") + '"'
+        ])
     }
 }

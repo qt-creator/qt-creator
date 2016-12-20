@@ -165,6 +165,7 @@ void KitManager::restoreKits()
     Kit *toStore = 0;
     foreach (Kit *current, kitsToValidate) {
         toStore = current;
+        toStore->upgrade();
         toStore->setup(); // Make sure all kitinformation are properly set up before merging them
                           // with the information from the user settings file
 

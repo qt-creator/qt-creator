@@ -32,17 +32,21 @@
 #include <QVector>
 #include <QDebug>
 
-#include <valgrind/xmlprotocol/error.h>
-#include <valgrind/xmlprotocol/status.h>
-#include <valgrind/xmlprotocol/threadedparser.h>
-#include <valgrind/xmlprotocol/parser.h>
-#include <valgrind/memcheck/memcheckrunner.h>
+#include "xmlprotocol/error.h"
+#include "xmlprotocol/status.h"
+#include "xmlprotocol/threadedparser.h"
+#include "xmlprotocol/parser.h"
+#include "memcheck/memcheckrunner.h"
 
 QT_BEGIN_NAMESPACE
 class QTcpServer;
 class QTcpSocket;
 class QProcess;
 QT_END_NAMESPACE
+
+
+namespace Valgrind {
+namespace Test {
 
 void dumpError(const Valgrind::XmlProtocol::Error &e);
 
@@ -134,7 +138,7 @@ public:
 
 };
 
-class ParserTests : public QObject
+class ValgrindMemcheckParserTest : public QObject
 {
     Q_OBJECT
 
@@ -159,7 +163,10 @@ private Q_SLOTS:
 private:
     void initTest(const QLatin1String &testfile, const QStringList &otherArgs = QStringList());
 
-    QTcpServer *m_server;
-    QProcess *m_process;
-    QTcpSocket *m_socket;
+    QTcpServer *m_server = 0;
+    QProcess *m_process = 0;
+    QTcpSocket *m_socket = 0;
 };
+
+} // namespace Test
+} // namespace Valgrind
