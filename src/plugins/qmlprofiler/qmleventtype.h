@@ -90,3 +90,7 @@ inline bool operator!=(const QmlEventType &type1, const QmlEventType &type2)
 } // namespace QmlProfiler
 
 Q_DECLARE_METATYPE(QmlProfiler::QmlEventType)
+
+QT_BEGIN_NAMESPACE
+Q_DECLARE_TYPEINFO(QmlProfiler::QmlEventType, Q_MOVABLE_TYPE);
+QT_END_NAMESPACE

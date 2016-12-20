@@ -43,3 +43,8 @@ QDataStream &operator>>(QDataStream &stream, QmlTypedEvent &event);
 } // namespace QmlProfiler
 
 Q_DECLARE_METATYPE(QmlProfiler::QmlTypedEvent)
+
+QT_BEGIN_NAMESPACE
+Q_DECLARE_TYPEINFO(QmlProfiler::QmlTypedEvent, Q_MOVABLE_TYPE);
+QT_END_NAMESPACE
+

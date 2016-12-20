@@ -88,3 +88,7 @@ QDataStream &operator>>(QDataStream &stream, QmlEventLocation &location);
 QDataStream &operator<<(QDataStream &stream, const QmlEventLocation &location);
 
 } // namespace QmlProfiler
+
+QT_BEGIN_NAMESPACE
+Q_DECLARE_TYPEINFO(QmlProfiler::QmlEventLocation, Q_MOVABLE_TYPE);
+QT_END_NAMESPACE

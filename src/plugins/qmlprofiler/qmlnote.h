@@ -69,3 +69,7 @@ QDataStream &operator<<(QDataStream &stream, const QmlNote &note);
 } // namespace QmlProfiler
 
 Q_DECLARE_METATYPE(QmlProfiler::QmlNote)
+
+QT_BEGIN_NAMESPACE
+Q_DECLARE_TYPEINFO(QmlProfiler::QmlNote, Q_MOVABLE_TYPE);
+QT_END_NAMESPACE

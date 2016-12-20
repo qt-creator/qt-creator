@@ -69,3 +69,7 @@ private:
 
 } // namespace Internal
 } // namespace QmlProfiler
+
+QT_BEGIN_NAMESPACE
+Q_DECLARE_TYPEINFO(QmlProfiler::Internal::QmlProfilerDetailsRewriter::PendingEvent, Q_MOVABLE_TYPE);
+QT_END_NAMESPACE
