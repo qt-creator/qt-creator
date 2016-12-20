@@ -89,11 +89,6 @@ public:
 class QmlProfilerStatisticsView::QmlProfilerStatisticsViewPrivate
 {
 public:
-    QmlProfilerStatisticsViewPrivate(QmlProfilerStatisticsView *qq) : q(qq) {}
-    ~QmlProfilerStatisticsViewPrivate() {}
-
-    QmlProfilerStatisticsView *q;
-
     QmlProfilerStatisticsMainView *m_statsTree;
     QmlProfilerStatisticsRelativesView *m_statsChildren;
     QmlProfilerStatisticsRelativesView *m_statsParents;
@@ -164,7 +159,7 @@ static void getSourceLocation(QStandardItem *infoItem,
 
 QmlProfilerStatisticsView::QmlProfilerStatisticsView(QmlProfilerModelManager *profilerModelManager,
                                                      QWidget *parent)
-    : QmlProfilerEventsView(parent), d(new QmlProfilerStatisticsViewPrivate(this))
+    : QmlProfilerEventsView(parent), d(new QmlProfilerStatisticsViewPrivate)
 {
     setObjectName(QLatin1String("QmlProfiler.Statistics.Dock"));
     setWindowTitle(tr("Statistics"));
