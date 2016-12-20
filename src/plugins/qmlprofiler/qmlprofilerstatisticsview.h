@@ -27,7 +27,6 @@
 
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerstatisticsmodel.h"
-#include "qmlprofilerviewmanager.h"
 #include "qmlprofilereventsview.h"
 #include "qmlprofilereventtypes.h"
 

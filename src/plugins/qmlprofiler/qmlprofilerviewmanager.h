@@ -25,6 +25,9 @@
 
 #pragma once
 
+#include "qmlprofilerstatisticsview.h"
+#include "qmlprofilertraceview.h"
+#include "flamegraphview.h"
 #include <QObject>
 
 namespace QmlProfiler {
@@ -46,15 +49,9 @@ public:
 
     void createViews();
 
-    // used by the options "limit events to range"
-    bool hasValidSelection() const;
-    qint64 selectionStart() const;
-    qint64 selectionEnd() const;
-    bool isEventsRestrictedToRange() const;
-    void restrictEventsToRange(qint64 rangeStart, qint64 rangeEnd);
-
-    bool isTimelineUsable() const;
-    void raiseTimeline();
+    QmlProfilerTraceView *traceView() const;
+    QmlProfilerStatisticsView *statisticsView() const;
+    FlameGraphView *flameGraphView() const;
 
 public slots:
     void clear();

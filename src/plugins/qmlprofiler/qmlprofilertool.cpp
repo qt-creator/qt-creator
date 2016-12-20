@@ -70,6 +70,7 @@
 #include <qtsupport/qtkitinformation.h>
 
 #include <QApplication>
+#include <QDockWidget>
 #include <QFileDialog>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -217,7 +218,7 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     d->m_searchButton->setToolTip(tr("Search timeline event notes."));
 
     connect(d->m_searchButton, &QToolButton::clicked, this, &QmlProfilerTool::showTimeLineSearch);
-    d->m_searchButton->setEnabled(d->m_viewContainer->isTimelineUsable());
+    d->m_searchButton->setEnabled(d->m_viewContainer->traceView()->isUsable());
 
     d->m_displayFeaturesButton = new QToolButton;
     d->m_displayFeaturesButton->setIcon(Utils::Icons::FILTER.icon());
@@ -529,7 +530,10 @@ void QmlProfilerTool::updateTimeDisplay()
 
 void QmlProfilerTool::showTimeLineSearch()
 {
-    d->m_viewContainer->raiseTimeline();
+    QmlProfilerTraceView *traceView = d->m_viewContainer->traceView();
+    QTC_ASSERT(qobject_cast<QDockWidget *>(traceView->parentWidget()), return);
+    traceView->parentWidget()->raise();
+    traceView->setFocus();
     Core::Find::openFindToolBar(Core::Find::FindForwardDirection);
 }
 
@@ -551,7 +555,7 @@ void QmlProfilerTool::setButtonsEnabled(bool enable)
 {
     d->m_clearButton->setEnabled(enable);
     d->m_displayFeaturesButton->setEnabled(enable);
-    d->m_searchButton->setEnabled(d->m_viewContainer->isTimelineUsable() && enable);
+    d->m_searchButton->setEnabled(d->m_viewContainer->traceView()->isUsable() && enable);
     d->m_recordFeaturesMenu->setEnabled(enable);
 }
 

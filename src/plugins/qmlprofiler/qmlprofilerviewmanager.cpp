@@ -25,13 +25,10 @@
 
 #include "qmlprofilerviewmanager.h"
 
-#include "qmlprofilertraceview.h"
-#include "qmlprofilerstatisticsview.h"
 #include "qmlprofilertool.h"
 #include "qmlprofilerstatemanager.h"
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerstatewidget.h"
-#include "flamegraphview.h"
 
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
@@ -102,7 +99,7 @@ void QmlProfilerViewManager::createViews()
         connect(view, &QmlProfilerEventsView::gotoSourceLocation,
                 this, &QmlProfilerViewManager::gotoSourceLocation);
         connect(view, &QmlProfilerEventsView::showFullRange,
-                this, [this](){restrictEventsToRange(-1, -1);});
+                this, [this](){ d->profilerModelManager->restrictToRange(-1, -1);});
         new QmlProfilerStateWidget(d->profilerState, d->profilerModelManager, view);
     };
 
@@ -129,41 +126,19 @@ void QmlProfilerViewManager::createViews()
     Debugger::registerPerspective(Constants::QmlProfilerPerspectiveId, perspective);
 }
 
-bool QmlProfilerViewManager::hasValidSelection() const
+QmlProfilerTraceView *QmlProfilerViewManager::traceView() const
 {
-    return d->traceView->hasValidSelection();
+    return d->traceView;
 }
 
-qint64 QmlProfilerViewManager::selectionStart() const
+QmlProfilerStatisticsView *QmlProfilerViewManager::statisticsView() const
 {
-    return d->traceView->selectionStart();
+    return d->statisticsView;
 }
 
-qint64 QmlProfilerViewManager::selectionEnd() const
+FlameGraphView *QmlProfilerViewManager::flameGraphView() const
 {
-    return d->traceView->selectionEnd();
-}
-
-bool QmlProfilerViewManager::isEventsRestrictedToRange() const
-{
-    return d->profilerModelManager->isRestrictedToRange();
-}
-
-void QmlProfilerViewManager::restrictEventsToRange(qint64 rangeStart, qint64 rangeEnd)
-{
-    d->profilerModelManager->restrictToRange(rangeStart, rangeEnd);
-}
-
-bool QmlProfilerViewManager::isTimelineUsable() const
-{
-    return d->traceView->isUsable();
-}
-
-void QmlProfilerViewManager::raiseTimeline()
-{
-    QTC_ASSERT(qobject_cast<QDockWidget *>(d->traceView->parentWidget()), return);
-    d->traceView->parentWidget()->raise();
-    d->traceView->setFocus();
+    return d->flameGraphView;
 }
 
 void QmlProfilerViewManager::clear()

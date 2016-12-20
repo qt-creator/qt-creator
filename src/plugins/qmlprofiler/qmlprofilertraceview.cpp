@@ -267,11 +267,11 @@ void QmlProfilerTraceView::showContextMenu(QPoint position)
     menu.addSeparator();
 
     QAction *getLocalStatsAction = menu.addAction(tr("Analyze Current Range"));
-    if (!d->m_viewContainer->hasValidSelection())
+    if (!hasValidSelection())
         getLocalStatsAction->setEnabled(false);
 
     QAction *getGlobalStatsAction = menu.addAction(tr("Analyze Full Range"));
-    if (!d->m_viewContainer->isEventsRestrictedToRange())
+    if (!d->m_modelManager->isRestrictedToRange())
         getGlobalStatsAction->setEnabled(false);
 
     if (d->m_zoomControl->traceDuration() > 0) {
@@ -287,11 +287,10 @@ void QmlProfilerTraceView::showContextMenu(QPoint position)
                                        d->m_zoomControl->traceEnd());
         }
         if (selectedAction == getLocalStatsAction) {
-            d->m_viewContainer->restrictEventsToRange(d->m_viewContainer->selectionStart(),
-                                                      d->m_viewContainer->selectionEnd());
+            d->m_modelManager->restrictToRange(selectionStart(), selectionEnd());
         }
         if (selectedAction == getGlobalStatsAction)
-            d->m_viewContainer->restrictEventsToRange(-1, -1);
+            d->m_modelManager->restrictToRange(-1, -1);
     }
 }
 
