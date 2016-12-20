@@ -116,6 +116,7 @@ enum DebuggerActionCode
     CdbBreakOnCrtDbgReport,
     UseCdbConsole,
     CdbBreakPointCorrection,
+    CdbUsePythonDumper,
     IgnoreFirstChanceAccessViolation,
 
     // Gdb

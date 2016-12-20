@@ -89,6 +89,13 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QCheckBox" name="usePythonDumper">
+            <property name="text">
+             <string>Use Python dumper when available</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>

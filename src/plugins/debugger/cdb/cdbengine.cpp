@@ -657,7 +657,8 @@ void CdbEngine::setupInferior()
                 + " maxStackDepth="
                 + action(MaximalStackDepth)->value().toString(), NoFlags});
 
-    runCommand({"print(sys.version)", ScriptCommand, CB(setupScripting)});
+    if (boolSetting(CdbUsePythonDumper))
+        runCommand({"print(sys.version)", ScriptCommand, CB(setupScripting)});
 
     runCommand({"pid", ExtensionCommand, [this](const DebuggerResponse &response) {
         // Fails for core dumps.

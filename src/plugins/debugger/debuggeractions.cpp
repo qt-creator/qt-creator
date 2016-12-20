@@ -228,6 +228,12 @@ DebuggerSettings::DebuggerSettings()
 
     item = new SavedAction(this);
     item->setCheckable(true);
+    item->setDefaultValue(true);
+    item->setSettingsKey(cdbSettingsGroup, QLatin1String("UsePythonDumper"));
+    insertItem(CdbUsePythonDumper, item);
+
+    item = new SavedAction(this);
+    item->setCheckable(true);
     item->setDefaultValue(false);
     item->setSettingsKey(cdbSettingsGroup, QLatin1String("IgnoreFirstChanceAccessViolation"));
     insertItem(IgnoreFirstChanceAccessViolation, item);
