@@ -112,7 +112,6 @@ QmlProfilerDataModel::QmlProfilerDataModel(Utils::FileInProjectFinder *fileFinde
 QmlProfilerDataModel::~QmlProfilerDataModel()
 {
     Q_D(QmlProfilerDataModel);
-    delete d->detailsRewriter;
     delete d;
 }
 
