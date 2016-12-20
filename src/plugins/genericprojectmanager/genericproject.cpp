@@ -301,8 +301,16 @@ QStringList GenericProject::processEntries(const QStringList &paths,
 {
     const BuildConfiguration *const buildConfig = activeTarget() ? activeTarget()->activeBuildConfiguration()
                                                                  : nullptr;
+
     const Utils::Environment buildEnv = buildConfig ? buildConfig->environment()
                                                     : Utils::Environment::systemEnvironment();
+
+    const Utils::MacroExpander *expander = macroExpander();
+    if (buildConfig)
+        expander = buildConfig->macroExpander();
+    else if (activeTarget())
+        expander = activeTarget()->macroExpander();
+
     const QDir projectDir(projectDirectory().toString());
 
     QFileInfo fileInfo;
@@ -313,6 +321,7 @@ QStringList GenericProject::processEntries(const QStringList &paths,
             continue;
 
         trimmedPath = buildEnv.expandVariables(trimmedPath);
+        trimmedPath = expander->expand(trimmedPath);
 
         trimmedPath = Utils::FileName::fromUserInput(trimmedPath).toString();
 
