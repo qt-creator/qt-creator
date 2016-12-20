@@ -149,6 +149,27 @@ static PyObject *cdbext_listOfLocals(PyObject *, PyObject *args) // -> [ Value ]
     return locals;
 }
 
+static PyObject *cdbext_listOfModules(PyObject *, PyObject *)
+{
+    auto modules = PyList_New(0);
+    CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
+    ULONG moduleCount;
+    ULONG unloadedModuleCount;
+    if (FAILED(symbols->GetNumberModules(&moduleCount, &unloadedModuleCount)))
+        return modules;
+    moduleCount += unloadedModuleCount;
+    for (ULONG i = 0; i < moduleCount; ++i) {
+        ULONG size;
+        symbols->GetModuleNameString(DEBUG_MODNAME_MODULE, i, 0, NULL, 0, &size);
+        char *name = new char[size];
+        const HRESULT hr = symbols->GetModuleNameString(DEBUG_MODNAME_MODULE, i, 0, name, size, 0);
+        if (SUCCEEDED(hr))
+            PyList_Append(modules, PyUnicode_FromString(name));
+        delete[] name;
+    }
+    return modules;
+}
+
 static PyObject *cdbext_pointerSize(PyObject *, PyObject *)
 {
     return Py_BuildValue("i", pointerSize());
@@ -227,6 +248,8 @@ static PyMethodDef cdbextMethods[] = {
      "Returns type object or None if the type can not be resolved"},
     {"listOfLocals",        cdbext_listOfLocals,        METH_VARARGS,
      "Returns list of values that are currently in scope"},
+    {"listOfModules",       cdbext_listOfModules,       METH_NOARGS,
+     "Returns list of all modules used by the inferior"},
     {"pointerSize",         cdbext_pointerSize,         METH_NOARGS,
      "Returns the size of a pointer"},
     {"readRawMemory",       cdbext_readRawMemory,       METH_VARARGS,
