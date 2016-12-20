@@ -43,17 +43,17 @@ public:
                                         QObject *parent = nullptr);
 
     void clearRequests();
-    void requestDetailsForLocation(int requestId, const QmlEventLocation &location);
+    void requestDetailsForLocation(int typeId, const QmlEventLocation &location);
     void reloadDocuments();
     void documentReady(QmlJS::Document::Ptr doc);
 
     struct PendingEvent {
         QmlEventLocation location;
-        int requestId;
+        int typeId;
     };
 
 signals:
-    void rewriteDetailsString(int requestId, const QString &details);
+    void rewriteDetailsString(int typeId, const QString &details);
     void eventDetailsChanged();
 
 private:
@@ -61,7 +61,7 @@ private:
     Utils::FileInProjectFinder *m_projectFinder;
     QHash<QString, QString> m_filesCache;
 
-    void rewriteDetailsForLocation(const QString &source, QmlJS::Document::Ptr doc, int requestId,
+    void rewriteDetailsForLocation(const QString &source, QmlJS::Document::Ptr doc, int typeId,
                                    const QmlEventLocation &location);
     void connectQmlModel();
     void disconnectQmlModel();

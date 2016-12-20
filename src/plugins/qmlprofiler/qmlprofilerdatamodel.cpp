@@ -267,11 +267,11 @@ void QmlProfilerDataModel::finalize()
     d->detailsRewriter->reloadDocuments();
 }
 
-void QmlProfilerDataModel::detailsChanged(int requestId, const QString &newString)
+void QmlProfilerDataModel::detailsChanged(int typeId, const QString &newString)
 {
     Q_D(QmlProfilerDataModel);
-    QTC_ASSERT(requestId < d->eventTypes.count(), return);
-    d->eventTypes[requestId].setData(newString);
+    QTC_ASSERT(typeId < d->eventTypes.count(), return);
+    d->eventTypes[typeId].setData(newString);
 }
 
 } // namespace QmlProfiler

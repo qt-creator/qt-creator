@@ -59,7 +59,7 @@ signals:
     void allTypesLoaded();
 
 protected slots:
-    void detailsChanged(int requestId, const QString &newString);
+    void detailsChanged(int typeId, const QString &newString);
 
 private:
     class QmlProfilerDataModelPrivate;

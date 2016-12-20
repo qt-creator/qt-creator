@@ -91,7 +91,7 @@ QmlProfilerDetailsRewriter::QmlProfilerDetailsRewriter(Utils::FileInProjectFinde
 {
 }
 
-void QmlProfilerDetailsRewriter::requestDetailsForLocation(int requestId,
+void QmlProfilerDetailsRewriter::requestDetailsForLocation(int typeId,
                                                            const QmlEventLocation &location)
 {
     QString localFile;
@@ -113,7 +113,7 @@ void QmlProfilerDetailsRewriter::requestDetailsForLocation(int requestId,
     if (m_pendingEvents.isEmpty())
         connectQmlModel();
 
-    m_pendingEvents.insert(localFile, {location, requestId});
+    m_pendingEvents.insert(localFile, {location, typeId});
 }
 
 void QmlProfilerDetailsRewriter::reloadDocuments()
@@ -132,7 +132,7 @@ void QmlProfilerDetailsRewriter::reloadDocuments()
 }
 
 void QmlProfilerDetailsRewriter::rewriteDetailsForLocation(
-        const QString &source, QmlJS::Document::Ptr doc, int requestId,
+        const QString &source, QmlJS::Document::Ptr doc, int typeId,
         const QmlEventLocation &location)
 {
     PropertyVisitor propertyVisitor;
@@ -144,7 +144,7 @@ void QmlProfilerDetailsRewriter::rewriteDetailsForLocation(
     const quint32 startPos = node->firstSourceLocation().begin();
     const quint32 len = node->lastSourceLocation().end() - startPos;
 
-    emit rewriteDetailsString(requestId, source.mid(startPos, len).simplified());
+    emit rewriteDetailsString(typeId, source.mid(startPos, len).simplified());
 }
 
 void QmlProfilerDetailsRewriter::connectQmlModel()
@@ -185,7 +185,7 @@ void QmlProfilerDetailsRewriter::documentReady(QmlJS::Document::Ptr doc)
     const bool sourceHasContents = !source.isEmpty();
     for (auto it = first; it != m_pendingEvents.end() && it.key() == fileName;) {
         if (sourceHasContents)
-            rewriteDetailsForLocation(source, doc, it->requestId, it->location);
+            rewriteDetailsForLocation(source, doc, it->typeId, it->location);
         it = m_pendingEvents.erase(it);
     }
 
