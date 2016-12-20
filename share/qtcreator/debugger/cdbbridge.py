@@ -226,20 +226,31 @@ class Dumper(DumperBase):
     def isMsvcTarget(self):
         return True
 
-    def qtHookDataSymbolName(self):
-        if 'Qt5Core' in cdbext.listOfModules():
-            return 'Qt5Core!qtHookData'
-        else:
-            return 'Qt5Cored!qtHookData'
+    def qtCoreModuleName(self):
+        modules = cdbext.listOfModules()
+        for coreName in ['Qt5Cored', 'Qt5Core', 'QtCored4', 'QtCore4']:
+            if coreName in modules:
+                self.qtCoreModuleName = lambda: coreName
+                return coreName
+        return None
 
-    def qtVersionAndNamespace(self):
-        return ('', 0x50700) #FIXME: use a general approach in dumper or qttypes
+    def qtHookDataSymbolName(self):
+        hookSymbolName = 'qtHookData'
+        coreModuleName = self.qtCoreModuleName()
+        if coreModuleName is not None:
+            hookSymbolName = '%s!%s' % (coreModuleName, hookSymbolName)
+        self.qtHookDataSymbolName = lambda: hookSymbolName
+        return hookSymbolName
 
     def qtNamespace(self):
-        return self.qtVersionAndNamespace()[0]
+        return ''
 
     def qtVersion(self):
-        return self.qtVersionAndNamespace()[1]
+        qtVersion = self.findValueByExpression('((void**)&%s)[2]' % self.qtHookDataSymbolName())
+        if qtVersion is None:
+            qtVersion = self.fallbackQtVersion
+        self.qtVersion = lambda: qtVersion
+        return qtVersion
 
     def ptrSize(self):
         return cdbext.pointerSize()
