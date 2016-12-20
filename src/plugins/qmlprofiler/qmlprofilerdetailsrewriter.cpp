@@ -172,17 +172,18 @@ void QmlProfilerDetailsRewriter::clearRequests()
 
 void QmlProfilerDetailsRewriter::documentReady(QmlJS::Document::Ptr doc)
 {
-    auto range = m_pendingEvents.equal_range(doc->fileName());
+    const QString &fileName = doc->fileName();
+    auto first = m_pendingEvents.find(fileName);
 
     // this could be triggered by an unrelated reload in Creator
-    if (range.first == range.second)
+    if (first == m_pendingEvents.end())
         return;
 
     // if the file could not be opened this slot is still triggered
     // but source will be an empty string
     QString source = doc->source();
     const bool sourceHasContents = !source.isEmpty();
-    for (auto it = range.first; it != range.second;) {
+    for (auto it = first; it != m_pendingEvents.end() && it.key() == fileName;) {
         if (sourceHasContents)
             rewriteDetailsForLocation(source, doc, it->requestId, it->location);
         it = m_pendingEvents.erase(it);
