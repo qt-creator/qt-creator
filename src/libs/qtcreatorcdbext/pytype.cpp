@@ -153,6 +153,19 @@ PyObject *lookupType(const std::string &typeNameIn)
     return createType(module, typeId, typeName);
 }
 
+std::string getModuleName(ULONG64 module)
+{
+    CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
+    ULONG size;
+    symbols->GetModuleNameString(DEBUG_MODNAME_MODULE, DEBUG_ANY_ID, module, NULL, 0, &size);
+    std::string name(size - 1, '\0');
+    if (SUCCEEDED(symbols->GetModuleNameString(DEBUG_MODNAME_MODULE, DEBUG_ANY_ID,
+                                               module, &name[0], size, NULL))) {
+        return name;
+    }
+    return std::string();
+}
+
 bool isType(const std::string &typeName, const std::vector<std::string> &types)
 {
     return std::find(types.begin(), types.end(), typeName) != types.end();
@@ -173,41 +186,34 @@ bool isFloatType(const std::string &typeName)
     return isType(typeName, floatTypes);
 }
 
-char *getTypeName(ULONG64 module, ULONG typeId)
+std::string getTypeName(ULONG64 module, ULONG typeId, const bool withModule)
 {
-    char *typeName = 0;
     auto symbols = ExtensionCommandContext::instance()->symbols();
     ULONG size = 0;
     symbols->GetTypeName(module, typeId, NULL, 0, &size);
-    if (size > 0) {
-        typeName = (char *)malloc(size);
-        if (SUCCEEDED(symbols->GetTypeName(module, typeId, typeName, size, &size)))
-            return typeName;
-        else
-            free(typeName);
-    }
-    typeName = (char *)malloc(1);
-    typeName[0] = 0;
+    if (size == 0)
+        return std::string();
 
+    std::string typeName(size - 1, '\0');
+    if (FAILED(symbols->GetTypeName(module, typeId, &typeName[0], size, &size)))
+        return std::string();
+
+    if (withModule && !isIntegralType(typeName) && !isFloatType(typeName)) {
+        const std::string &moduleName = getModuleName(module);
+        if (!moduleName.empty())
+            typeName.insert(0, "!").insert(0, moduleName);
+    }
     return typeName;
 }
 
 std::string getModuleName(Type *type)
 {
-    if (type->m_targetType)
-        return getModuleName(type->m_targetType);
-    CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
-    ULONG size;
-    symbols->GetModuleNameString(DEBUG_MODNAME_MODULE, DEBUG_ANY_ID, type->m_module, NULL, 0, &size);
-    std::string name(size - 1, '\0');
-    if (SUCCEEDED(symbols->GetModuleNameString(DEBUG_MODNAME_MODULE, DEBUG_ANY_ID,
-                                               type->m_module, &name[0], size, NULL))) {
-        return name;
-    }
-    return std::string();
+    return type->m_targetType
+            ? getModuleName(type->m_targetType)
+            : getModuleName(type->m_module);
 }
 
-const char *getTypeName(Type *type, const bool withModule)
+std::string getTypeName(Type *type, const bool withModule)
 {
     if (type->m_name == nullptr) {
         if (type->m_targetType) {
@@ -217,21 +223,25 @@ const char *getTypeName(Type *type, const bool withModule)
                 str << '[' << type->m_arraySize << ']';
             else
                 str << '*';
-            type->m_name = strdup(str.str().c_str());
+            type->m_name = new std::string(str.str());
         } else {
-            type->m_name = getTypeName(type->m_module, type->m_typeId);
+            type->m_name = new std::string(getTypeName(type->m_module, type->m_typeId));
         }
     }
-    if (!withModule)
-        return type->m_name;
-    std::stringstream str;
-    str << getModuleName(type) << '!' << type->m_name;
-    return strdup(str.str().c_str());
+    if (withModule) {
+        const std::string &moduleName = getModuleName(type);
+        if (!moduleName.empty()) {
+            std::stringstream str;
+            str << moduleName << '!' << *(type->m_name);
+            return str.str();
+        }
+    }
+    return *(type->m_name);
 }
 
 PyObject *type_Name(Type *self)
 {
-    return Py_BuildValue("s", getTypeName(self));
+    return Py_BuildValue("s", getTypeName(self).c_str());
 }
 
 ULONG typeBitSize(Type *type)
@@ -264,10 +274,9 @@ PyObject *type_Code(Type *self)
     } else if (self->m_targetType) {
         code = self->m_arraySize == 0 ? TypeCodePointer : TypeCodeArray;
     } else {
-        const char *typeNameCstr = getTypeName(self);
-        if (typeNameCstr == 0)
+        const std::string typeName(getTypeName(self));
+        if (typeName.empty())
             Py_RETURN_NONE;
-        const std::string typeName(typeNameCstr);
         if (isArrayType(typeName))
             code = TypeCodeArray;
         else if (typeName.find("<function>") != std::string::npos)
@@ -350,20 +359,7 @@ PyObject *type_Fields(Type *self)
 
 PyObject *type_Module(Type *self)
 {
-    if (self->m_targetType)
-        return type_Module(self->m_targetType);
-    CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
-    ULONG size;
-    symbols->GetModuleNameString(DEBUG_MODNAME_MODULE, DEBUG_ANY_ID, self->m_module, NULL, 0, &size);
-    char *modName = new char[size];
-    if (FAILED(symbols->GetModuleNameString(DEBUG_MODNAME_MODULE, DEBUG_ANY_ID,
-                                            self->m_module, modName, size, NULL))) {
-        delete[] modName;
-        Py_RETURN_NONE;
-    }
-    PyObject *ret = Py_BuildValue("s", modName);
-    delete[] modName;
-    return ret;
+    return Py_BuildValue("s", getModuleName(self).c_str());
 }
 
 PyObject *type_ArrayElements(Type *self)
@@ -506,7 +502,7 @@ PyObject *createType(ULONG64 module, ULONG typeId, const std::string &name)
     type->m_arraySize = 0;
     type->m_targetType = nullptr;
     type->m_resolved = true;
-    type->m_name = typeName.empty() ? nullptr : strdup(typeName.c_str());
+    type->m_name = typeName.empty() ? nullptr : new std::string(typeName);
     return reinterpret_cast<PyObject *>(type);
 }
 
@@ -517,7 +513,7 @@ PyObject *createUnresolvedType(const std::string &name)
     type->m_typeId = 0;
     type->m_arraySize = 0;
     type->m_targetType = nullptr;
-    type->m_name = strdup(name.c_str());
+    type->m_name = new std::string(name);
     type->m_resolved = false;
     return reinterpret_cast<PyObject *>(type);
 }
