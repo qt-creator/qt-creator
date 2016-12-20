@@ -290,25 +290,6 @@ void GenericProject::refresh(RefreshOptions options)
 }
 
 /**
- * Expands environment variables in the given \a string when they are written
- * like $$(VARIABLE).
- */
-static void expandEnvironmentVariables(const QProcessEnvironment &env, QString &string)
-{
-    static QRegExp candidate(QLatin1String("\\$\\$\\((.+)\\)"));
-
-    int index = candidate.indexIn(string);
-    while (index != -1) {
-        const QString value = env.value(candidate.cap(1));
-
-        string.replace(index, candidate.matchedLength(), value);
-        index += value.length();
-
-        index = candidate.indexIn(string, index);
-    }
-}
-
-/**
  * Expands environment variables and converts the path from relative to the
  * project to an absolute path.
  *
@@ -318,7 +299,10 @@ static void expandEnvironmentVariables(const QProcessEnvironment &env, QString &
 QStringList GenericProject::processEntries(const QStringList &paths,
                                            QHash<QString, QString> *map) const
 {
-    const QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    const BuildConfiguration *const buildConfig = activeTarget() ? activeTarget()->activeBuildConfiguration()
+                                                                 : nullptr;
+    const Utils::Environment buildEnv = buildConfig ? buildConfig->environment()
+                                                    : Utils::Environment::systemEnvironment();
     const QDir projectDir(projectDirectory().toString());
 
     QFileInfo fileInfo;
@@ -328,7 +312,7 @@ QStringList GenericProject::processEntries(const QStringList &paths,
         if (trimmedPath.isEmpty())
             continue;
 
-        expandEnvironmentVariables(env, trimmedPath);
+        trimmedPath = buildEnv.expandVariables(trimmedPath);
 
         trimmedPath = Utils::FileName::fromUserInput(trimmedPath).toString();
 
