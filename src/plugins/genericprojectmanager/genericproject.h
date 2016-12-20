@@ -88,6 +88,8 @@ private:
                                QHash<QString, QString> *map = nullptr) const;
 
     void refreshCppCodeModel();
+    void activeTargetWasChanged();
+    void activeBuildConfigurationWasChanged();
 
     QString m_filesFileName;
     QString m_includesFileName;
@@ -103,6 +105,8 @@ private:
     QStringList m_projectIncludePaths;
 
     QFuture<void> m_codeModelFuture;
+
+    ProjectExplorer::Target *m_activeTarget = nullptr;
 };
 
 class GenericProjectFile : public Core::IDocument

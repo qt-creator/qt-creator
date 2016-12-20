@@ -366,6 +366,28 @@ void GenericProject::refreshCppCodeModel()
     m_codeModelFuture = modelManager->updateProjectInfo(pInfo);
 }
 
+void GenericProject::activeTargetWasChanged()
+{
+    if (m_activeTarget) {
+        disconnect(m_activeTarget, &Target::activeBuildConfigurationChanged,
+                   this, &GenericProject::activeBuildConfigurationWasChanged);
+    }
+
+    m_activeTarget = activeTarget();
+
+    if (!m_activeTarget)
+        return;
+
+    connect(m_activeTarget, &Target::activeBuildConfigurationChanged,
+            this, &GenericProject::activeBuildConfigurationWasChanged);
+    refresh(Everything);
+}
+
+void GenericProject::activeBuildConfigurationWasChanged()
+{
+    refresh(Everything);
+}
+
 QStringList GenericProject::projectIncludePaths() const
 {
     return m_projectIncludePaths;
@@ -422,6 +444,14 @@ Project::RestoreResult GenericProject::fromMap(const QVariantMap &map, QString *
             t->addRunConfiguration(new CustomExecutableRunConfiguration(t));
     }
 
+    m_activeTarget = activeTarget();
+    if (m_activeTarget) {
+        connect(m_activeTarget, &Target::activeBuildConfigurationChanged,
+                this, &GenericProject::activeBuildConfigurationWasChanged);
+    }
+
+    connect(this, &Project::activeTargetChanged,
+            this, &GenericProject::activeTargetWasChanged);
     refresh(Everything);
     return RestoreResult::Ok;
 }
