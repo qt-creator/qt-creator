@@ -645,11 +645,11 @@ QStandardItem *QmlProfilerStatisticsMainView::itemFromIndex(const QModelIndex &i
 QString QmlProfilerStatisticsMainView::nameForType(RangeType typeNumber)
 {
     switch (typeNumber) {
-    case Painting: return QmlProfilerStatisticsMainView::tr("Paint");
-    case Compiling: return QmlProfilerStatisticsMainView::tr("Compile");
-    case Creating: return QmlProfilerStatisticsMainView::tr("Create");
+    case Painting: return QmlProfilerStatisticsMainView::tr("Painting");
+    case Compiling: return QmlProfilerStatisticsMainView::tr("Compiling");
+    case Creating: return QmlProfilerStatisticsMainView::tr("Creating");
     case Binding: return QmlProfilerStatisticsMainView::tr("Binding");
-    case HandlingSignal: return QmlProfilerStatisticsMainView::tr("Signal");
+    case HandlingSignal: return QmlProfilerStatisticsMainView::tr("Handling Signal");
     case Javascript: return QmlProfilerStatisticsMainView::tr("JavaScript");
     default: return QString();
     }
