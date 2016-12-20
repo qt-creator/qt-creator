@@ -29,6 +29,7 @@
 #include "id.h"
 
 #include <QObject>
+#include <QRect>
 #include <QSettings>
 
 #include <functional>
@@ -130,6 +131,7 @@ public:
     static void addPreCloseListener(const std::function<bool()> &listener);
 
     static QString systemInformation();
+    static void setupScreenShooter(const QString &name, QWidget *w, const QRect &rc = QRect());
 
 public slots:
     static void saveSettings();

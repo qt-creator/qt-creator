@@ -290,6 +290,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QStatusBar>
+#include <QTimer>
 
 using namespace Core::Internal;
 using namespace ExtensionSystem;
@@ -576,6 +577,56 @@ QString ICore::systemInformation()
      result += QString("Built on %1 %2\n").arg(QLatin1String(__DATE__), QLatin1String(__TIME__));
 #endif
      return result;
+}
+
+static const QByteArray &screenShotsPath()
+{
+    static const QByteArray path = qgetenv("QTC_SCREENSHOTS_PATH");
+    return path;
+}
+
+class ScreenShooter : public QObject
+{
+public:
+    ScreenShooter(QWidget *widget, const QString &name, const QRect &rc)
+        : m_widget(widget), m_name(name), m_rc(rc)
+    {
+        m_widget->installEventFilter(this);
+    }
+
+    bool eventFilter(QObject *watched, QEvent *event) override
+    {
+        QTC_ASSERT(watched == m_widget, return false);
+        if (event->type() == QEvent::Show)
+            QTimer::singleShot(0, this, &ScreenShooter::helper);
+        return false;
+    }
+
+    void helper()
+    {
+        if (m_widget) {
+            QRect rc = m_rc.isValid() ? m_rc : m_widget->rect();
+            QPixmap pm = m_widget->grab(rc);
+            for (int i = 0; ; ++i) {
+                QString fileName = screenShotsPath() + '/' + m_name + QString("-%1.png").arg(i);
+                if (!QFileInfo::exists(fileName)) {
+                    pm.save(fileName);
+                    break;
+                }
+            }
+        }
+        deleteLater();
+    }
+
+    QPointer<QWidget> m_widget;
+    QString m_name;
+    QRect m_rc;
+};
+
+void ICore::setupScreenShooter(const QString &name, QWidget *w, const QRect &rc)
+{
+    if (!screenShotsPath().isEmpty())
+        new ScreenShooter(w, name, rc);
 }
 
 void ICore::saveSettings()

@@ -568,6 +568,7 @@ void SettingsDialog::ensureCategoryWidget(Category *category)
     for (int j = 0; j < category->pages.size(); ++j) {
         IOptionsPage *page = category->pages.at(j);
         QWidget *widget = page->widget();
+        ICore::setupScreenShooter(page->displayName(), widget);
         SmartScrollArea *ssa = new SmartScrollArea(this);
         ssa->setWidget(widget);
         widget->setAutoFillBackground(false);
