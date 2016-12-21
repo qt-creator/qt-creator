@@ -180,7 +180,7 @@ const scxmltag_attribute_t scxml_send_attributes[] = {
     { "type", nullptr, false, true, QVariant::String },
     { "typeexpr", nullptr, false, true, QVariant::String },
     { "id", nullptr, false, true, QVariant::String },
-    { "idiocation", nullptr, false, true, QVariant::String },
+    { "idlocation", nullptr, false, true, QVariant::String },
     { "delay", nullptr, false, true, QVariant::String },
     { "delayexpr", nullptr, false, true, QVariant::String },
     { "namelist", nullptr, false, true, QVariant::String }
@@ -197,7 +197,7 @@ const scxmltag_attribute_t scxml_invoke_attributes[] = {
     { "src", nullptr, false, true, QVariant::String },
     { "srcexpr", nullptr, false, true, QVariant::String },
     { "id", nullptr, false, true, QVariant::String },
-    { "idiocation", nullptr, false, true, QVariant::String },
+    { "idlocation", nullptr, false, true, QVariant::String },
     { "namelist", nullptr, false, true, QVariant::String },
     { "autoforward", ";true;false", false, true, QVariant::StringList }
 };
