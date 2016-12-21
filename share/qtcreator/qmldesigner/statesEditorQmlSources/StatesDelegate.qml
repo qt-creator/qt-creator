@@ -43,9 +43,8 @@ Rectangle {
     color: baseColor
     border.color: creatorTheme.QmlDesignerBorderColor
 
-    function autoComplete(text, pos, explicitComplete) {
+    function autoComplete(text, pos, explicitComplete, filter) {
         var stringList = statesEditorModel.autoComplete(text, pos, explicitComplete)
-        print(stringList)
         return stringList
     }
 

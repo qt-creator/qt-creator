@@ -32,6 +32,7 @@
 #include <rewritingexception.h>
 
 #include <coreplugin/messagebox.h>
+#include <utils/algorithm.h>
 
 #include <QQmlContext>
 
@@ -115,10 +116,11 @@ QString PropertyEditorContextObject::translateFunction()
     return QStringLiteral("qsTrId");
 }
 
-QStringList PropertyEditorContextObject::autoComplete(const QString &text, int pos, bool explicitComplete)
+QStringList PropertyEditorContextObject::autoComplete(const QString &text, int pos, bool explicitComplete, bool filter)
 {
     if (m_model && m_model->rewriterView())
-        return m_model->rewriterView()->autoComplete(text, pos, explicitComplete);
+        return  Utils::filtered(m_model->rewriterView()->autoComplete(text, pos, explicitComplete), [filter](const QString &string) {
+            return !filter || (!string.isEmpty() && string.at(0).isUpper()); });
 
     return QStringList();
 }

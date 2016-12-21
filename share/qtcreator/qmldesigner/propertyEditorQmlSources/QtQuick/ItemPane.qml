@@ -40,6 +40,7 @@ Rectangle {
             y: -1
             width: itemPane.width
             Section {
+                z: 2
                 caption: qsTr("Type")
 
                 anchors.left: parent.left
@@ -52,6 +53,7 @@ Rectangle {
                     }
 
                     SecondColumnLayout {
+                        z: 2
 
                         RoundedPanel {
                             Layout.fillWidth: true
@@ -68,28 +70,28 @@ Rectangle {
                             ToolTipArea {
                                 anchors.fill: parent
                                 onDoubleClicked: {
+                                    typeLineEdit.text = backendValues.className.value
                                     typeLineEdit.visible = ! typeLineEdit.visible
                                     typeLineEdit.forceActiveFocus()
                                 }
                                 tooltip: qsTr("Change the type of this item.")
                             }
 
-                            LineEdit {
+                            ExpressionTextField {
+                                z: 2
                                 id: typeLineEdit
+                                completeOnlyTypes: true
 
                                 anchors.fill: parent
 
                                 visible: false
 
-                                backendValue: className.id
+                                showButtons: false
+                                fixedSize: true
 
-                                text: backendValues.className.value
-
-                                showTranslateCheckBox: false
-                                showExtendedFunctionButton: false
                                 onEditingFinished: {
                                     visible = false
-                                    changeTypeName(typeLineEdit.text)
+                                    changeTypeName(typeLineEdit.text.trim())
                                 }
                             }
 
