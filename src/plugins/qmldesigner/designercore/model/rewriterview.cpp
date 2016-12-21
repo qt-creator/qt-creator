@@ -669,7 +669,10 @@ QStringList RewriterView::autoComplete(const QString &text, int pos, bool explic
     QTextDocument textDocument;
     textDocument.setPlainText(text);
 
-    return textModifier()->autoComplete(&textDocument, pos, explicitComplete);
+    QStringList list = textModifier()->autoComplete(&textDocument, pos, explicitComplete);
+    list.removeDuplicates();
+
+    return list;
 }
 
 QList<CppTypeData> RewriterView::getCppTypes()
