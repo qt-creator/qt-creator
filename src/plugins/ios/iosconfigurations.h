@@ -32,6 +32,7 @@
 #include <QObject>
 #include <QString>
 #include <QStringList>
+#include <QVersionNumber>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
@@ -60,6 +61,7 @@ public:
     static bool ignoreAllDevices();
     static void setIgnoreAllDevices(bool ignoreDevices);
     static Utils::FileName developerPath();
+    static QVersionNumber xcodeVersion();
     static Utils::FileName lldbPath();
     static void updateAutomaticKitList();
 
@@ -71,6 +73,7 @@ private:
     static void setDeveloperPath(const Utils::FileName &devPath);
 
     Utils::FileName m_developerPath;
+    QVersionNumber m_xcodeVersion;
     bool m_ignoreAllDevices;
 };
 

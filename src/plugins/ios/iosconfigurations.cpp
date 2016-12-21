@@ -33,6 +33,7 @@
 #include <coreplugin/icore.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+#include <utils/synchronousprocess.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
@@ -48,6 +49,7 @@
 #include <qtsupport/qtversionmanager.h>
 #include <qtsupport/qtversionfactory.h>
 
+#include <QDomDocument>
 #include <QFileInfo>
 #include <QHash>
 #include <QList>
@@ -62,6 +64,7 @@ using namespace Debugger;
 
 namespace {
 Q_LOGGING_CATEGORY(kitSetupLog, "qtc.ios.kitSetup")
+Q_LOGGING_CATEGORY(iosCommonLog, "qtc.ios.common")
 }
 
 using ToolChainPair = std::pair<ClangToolChain *, ClangToolChain *>;
@@ -207,6 +210,33 @@ static void setupKit(Kit *kit, Core::Id pDeviceType, const ToolChainPair& toolCh
     SysRootKitInformation::setSysRoot(kit, sdkPath);
 }
 
+static QVersionNumber findXcodeVersion()
+{
+    Utils::SynchronousProcess pkgUtilProcess;
+    Utils::SynchronousProcessResponse resp =
+            pkgUtilProcess.runBlocking("pkgutil", QStringList("--pkg-info-plist=com.apple.pkg.Xcode"));
+    if (resp.result == Utils::SynchronousProcessResponse::Finished) {
+        QDomDocument xcodeVersionDoc;
+        if (xcodeVersionDoc.setContent(resp.allRawOutput())) {
+            QDomNodeList nodes = xcodeVersionDoc.elementsByTagName(QStringLiteral("key"));
+            for (int i = 0; i < nodes.count(); ++i) {
+                QDomElement elem = nodes.at(i).toElement();
+                if (elem.text().compare(QStringLiteral("pkg-version")) == 0) {
+                    QString versionStr = elem.nextSiblingElement().text();
+                    return  QVersionNumber::fromString(versionStr);
+                }
+            }
+        } else {
+            qCDebug(iosCommonLog) << "Error finding Xcode version. Cannot parse xml output from pkgutil.";
+        }
+    } else {
+        qCDebug(iosCommonLog) << "Error finding Xcode version. pkgutil command failed.";
+    }
+
+    qCDebug(iosCommonLog) << "Error finding Xcode version. Unknow error.";
+    return QVersionNumber();
+}
+
 void IosConfigurations::updateAutomaticKitList()
 {
     const QList<Platform> platforms = handledPlatforms();
@@ -312,6 +342,11 @@ FileName IosConfigurations::developerPath()
     return m_instance->m_developerPath;
 }
 
+QVersionNumber IosConfigurations::xcodeVersion()
+{
+    return m_instance->m_xcodeVersion;
+}
+
 void IosConfigurations::save()
 {
     QSettings *settings = Core::ICore::settings();
@@ -358,6 +393,9 @@ void IosConfigurations::setDeveloperPath(const FileName &devPath)
             QTimer::singleShot(1000, IosDeviceManager::instance(),
                                &IosDeviceManager::monitorAvailableDevices);
             m_instance->updateSimulators();
+
+            // Find xcode version.
+            m_instance->m_xcodeVersion = findXcodeVersion();
         }
     }
 }
