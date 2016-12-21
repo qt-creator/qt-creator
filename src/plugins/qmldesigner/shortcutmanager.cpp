@@ -230,7 +230,7 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
 
     Core::ActionContainer *viewsMenu = Core::ActionManager::actionContainer(Core::Constants::M_WINDOW_VIEWS);
 
-    command = Core::ActionManager::registerAction(&m_toggleLeftSidebarAction,  Constants::TOGGLE_LEFT_SIDEBAR, qmlDesignerMainContext);
+    command = Core::ActionManager::registerAction(&m_toggleLeftSidebarAction, Constants::TOGGLE_LEFT_SIDEBAR, qmlDesignerMainContext);
     command->setAttribute(Core::Command::CA_Hide);
     command->setDefaultKeySequence(QKeySequence("Ctrl+Alt+0"));
     viewsMenu->addAction(command);

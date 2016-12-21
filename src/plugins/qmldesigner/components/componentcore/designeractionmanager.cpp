@@ -272,11 +272,11 @@ public:
     }
 };
 
-char xProperty[] = "x";
-char yProperty[] = "y";
-char zProperty[] = "z";
-char widthProperty[] = "width";
-char heightProperty[] = "height";
+static char xProperty[] = "x";
+static char yProperty[] = "y";
+static char zProperty[] = "z";
+static char widthProperty[] = "width";
+static char heightProperty[] = "height";
 
 using namespace SelectionContextFunctors;
 
