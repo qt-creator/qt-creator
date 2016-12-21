@@ -144,8 +144,13 @@ static PyObject *cdbext_listOfLocals(PyObject *, PyObject *args) // -> [ Value ]
     ULONG symbolCount;
     if (FAILED(symbolGroup->GetNumberSymbols(&symbolCount)))
         return locals;
-    for (ULONG index = 0; index < symbolCount; ++index)
-        PyList_Append(locals, createValue(index, symbolGroup));
+    for (ULONG index = 0; index < symbolCount; ++index) {
+        DEBUG_SYMBOL_PARAMETERS params;
+        if (SUCCEEDED(symbolGroup->GetSymbolParameters(index, 1, &params))) {
+            if ((params.Flags & DEBUG_SYMBOL_IS_ARGUMENT) || (params.Flags & DEBUG_SYMBOL_IS_LOCAL))
+                PyList_Append(locals, createValue(index, symbolGroup));
+        }
+    }
     return locals;
 }
 
