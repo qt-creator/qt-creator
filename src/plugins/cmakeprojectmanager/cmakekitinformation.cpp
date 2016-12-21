@@ -624,7 +624,7 @@ QList<Task> CMakeConfigurationKitInformation::validate(const Kit *k) const
 
 void CMakeConfigurationKitInformation::setup(Kit *k)
 {
-    if (k)
+    if (k && !k->hasValue(CONFIGURATION_ID))
         k->setValue(CONFIGURATION_ID, defaultValue(k));
 }
 
