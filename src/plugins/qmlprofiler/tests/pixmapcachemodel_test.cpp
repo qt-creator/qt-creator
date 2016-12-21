@@ -281,8 +281,7 @@ void PixmapCacheModelTest::testColor()
             else
                 QCOMPARE(model.color(i), row1Color);
         } else {
-            const QmlEventType &type = manager.qmlModel()->eventTypes()[model.typeId(i)];
-            QRgb &pixmapColor = (type.location().filename() == QString("blah.png")) ?
+            QRgb &pixmapColor = (model.fileName(i) == QString("blah.png")) ?
                         blahColor : dingsColor;
             if (pixmapColor == 0)
                 pixmapColor = model.color(i);

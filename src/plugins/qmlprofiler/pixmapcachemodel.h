@@ -116,6 +116,7 @@ public:
 #ifdef WITH_TESTS
     LoadState loadState(int index) const;
     CacheState cacheState(int index) const;
+    QString fileName(int index) const;
 #endif
 
 private:

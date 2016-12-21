@@ -419,6 +419,12 @@ PixmapCacheModel::CacheState PixmapCacheModel::cacheState(int index) const
 
     return m_pixmaps[item.urlIndex].sizes[item.sizeIndex].cacheState;
 }
+
+QString PixmapCacheModel::fileName(int index) const
+{
+    const PixmapCacheItem &item = m_data[index];
+    return (item.urlIndex == -1) ? QString() : m_pixmaps[item.urlIndex].url;
+}
 #endif // WITH_TESTS
 
 void PixmapCacheModel::computeMaxCacheSize()
