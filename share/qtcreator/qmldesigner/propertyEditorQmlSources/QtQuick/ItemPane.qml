@@ -90,8 +90,9 @@ Rectangle {
                                 fixedSize: true
 
                                 onEditingFinished: {
+                                    if (visible)
+                                        changeTypeName(typeLineEdit.text.trim())
                                     visible = false
-                                    changeTypeName(typeLineEdit.text.trim())
                                 }
                             }
 
