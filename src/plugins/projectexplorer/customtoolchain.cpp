@@ -76,11 +76,6 @@ static const char warningMessageCapKeyC[] = "ProjectExplorer.CustomToolChain.War
 static const char warningChannelKeyC[] = "ProjectExplorer.CustomToolChain.WarningChannel";
 static const char warningExampleKeyC[] = "ProjectExplorer.CustomToolChain.WarningExample";
 
-// TODO Creator 4.1: remove (added in 3.7 for compatibility)
-static const char lineNumberCapKeyC[] = "ProjectExplorer.CustomToolChain.LineNumberCap";
-static const char fileNameCapKeyC[] = "ProjectExplorer.CustomToolChain.FileNameCap";
-static const char messageCapKeyC[] = "ProjectExplorer.CustomToolChain.MessageCap";
-
 // --------------------------------------------------------------------------
 // CustomToolChain
 // --------------------------------------------------------------------------
@@ -353,14 +348,6 @@ bool CustomToolChain::fromMap(const QVariantMap &data)
     m_customParserSettings.warning.setChannel(
                 static_cast<CustomParserExpression::CustomParserChannel>(data.value(QLatin1String(warningChannelKeyC)).toInt()));
     m_customParserSettings.warning.setExample(data.value(QLatin1String(warningExampleKeyC)).toString());
-
-    // TODO Creator 4.1: remove (added in 3.7 for compatibility)
-    if (m_customParserSettings.error.fileNameCap() == 0)
-        m_customParserSettings.error.setFileNameCap(data.value(QLatin1String(fileNameCapKeyC)).toInt());
-    if (m_customParserSettings.error.lineNumberCap() == 0)
-        m_customParserSettings.error.setLineNumberCap(data.value(QLatin1String(lineNumberCapKeyC)).toInt());
-    if (m_customParserSettings.error.messageCap() == 0)
-        m_customParserSettings.error.setMessageCap(data.value(QLatin1String(messageCapKeyC)).toInt());
 
     QTC_ASSERT(m_outputParser >= Gcc && m_outputParser < OutputParserCount, return false);
 
