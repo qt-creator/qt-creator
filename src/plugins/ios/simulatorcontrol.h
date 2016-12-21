@@ -69,7 +69,9 @@ public:
     QFuture<ResponseData> startSimulator(const QString &simUdid) const;
     QFuture<ResponseData> installApp(const QString &simUdid, const Utils::FileName &bundlePath) const;
     QFuture<ResponseData> launchApp(const QString &simUdid, const QString &bundleIdentifier,
-                                    bool waitForDebugger, const QStringList &extraArgs) const;
+                                    bool waitForDebugger, const QStringList &extraArgs,
+                                    const QString& stdoutPath = QString(),
+                                    const QString& stderrPath = QString()) const;
 
 private:
     SimulatorControlPrivate *d;
