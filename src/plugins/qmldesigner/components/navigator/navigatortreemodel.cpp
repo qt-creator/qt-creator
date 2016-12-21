@@ -717,6 +717,7 @@ void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty &parentProper
                 }
             }
         }
+        transaction.commit();
     }  catch (const RewritingException &exception) { //better safe than sorry! There always might be cases where we fail
         exception.showException();
     }

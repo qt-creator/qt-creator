@@ -188,6 +188,8 @@ void ModelMerger::replaceModel(const ModelNode &modelNode)
         syncNodeProperties(rootNode, modelNode, idRenamingHash, view());
         syncNodeListProperties(rootNode, modelNode, idRenamingHash, view());
         m_view->changeRootNodeType(modelNode.type(), modelNode.majorVersion(), modelNode.minorVersion());
+
+        transaction.commit();
     } catch (const RewritingException &e) {
         qWarning() << e.description(); //silent error
     }

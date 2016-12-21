@@ -373,6 +373,7 @@ void DesignDocument::deleteSelected()
                 QmlObjectNode(node).destroy();
         }
 
+        transaction.commit();
     } catch (const RewritingException &e) {
         e.showException();
     }
@@ -536,6 +537,7 @@ void DesignDocument::paste()
             }
 
             view.setSelectedModelNodes(pastedNodeList);
+            transaction.commit();
         } catch (const RewritingException &e) {
             qWarning() << e.description(); //silent error
         }
@@ -574,6 +576,7 @@ void DesignDocument::paste()
             NodeMetaInfo::clearCache();
 
             view.setSelectedModelNodes(QList<ModelNode>() << pastedNode);
+            transaction.commit();
         } catch (const RewritingException &e) {
             qWarning() << e.description(); //silent error
         }

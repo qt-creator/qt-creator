@@ -230,6 +230,7 @@ void raise(const SelectionContext &selectionState)
                 node.setVariantProperty("z", z);
             }
         }
+        transaction.commit();
     } catch (const RewritingException &e) { //better save then sorry
          e.showException();
     }
@@ -251,6 +252,7 @@ void lower(const SelectionContext &selectionState)
                 node.setVariantProperty("z", z);
             }
         }
+        transaction.commit();
     } catch (const RewritingException &e) { //better save then sorry
         e.showException();
     }
@@ -333,6 +335,7 @@ void resetPosition(const SelectionContext &selectionState)
             node.removeProperty("x");
             node.removeProperty("y");
         }
+        transaction.commit();
     } catch (const RewritingException &e) { //better save then sorry
         e.showException();
     }
@@ -663,6 +666,7 @@ void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState
 
             QmlObjectNode qmlObjectNode(modelNode);
             qmlObjectNode.ensureAliasExport();
+            transaction.commit();
         }  catch (RewritingException &exception) { //better safe than sorry! There always might be cases where we fail
             exception.showException();
         }
