@@ -238,6 +238,12 @@ void NavigatorView::rootNodeTypeChanged(const QString & /*type*/, int /*majorVer
         m_treeModel->updateItemRow(rootModelNode());
 }
 
+void NavigatorView::nodeTypeChanged(const ModelNode &node, const TypeName &, int , int)
+{
+    if (m_treeModel->isInTree(node))
+        m_treeModel->updateItemRow(node);
+}
+
 void NavigatorView::auxiliaryDataChanged(const ModelNode &modelNode, const PropertyName & name, const QVariant & /*data*/)
 {
     if (name == "invisible" && m_treeModel->isInTree(modelNode))

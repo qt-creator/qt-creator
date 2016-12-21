@@ -186,6 +186,22 @@ void ModelPrivate::setFileUrl(const QUrl &fileUrl)
     }
 }
 
+void ModelPrivate::changeNodeType(const InternalNodePointer &internalNodePointer, const TypeName &typeName, int majorVersion, int minorVersion)
+{
+    internalNodePointer->setType(typeName);
+    internalNodePointer->setMajorVersion(majorVersion);
+    internalNodePointer->setMinorVersion(minorVersion);
+
+    try {
+        notifyNodeTypeChanged(internalNodePointer, typeName, majorVersion, minorVersion);
+
+    } catch (const RewritingException &e) {
+        throw InvalidArgumentException(__LINE__, __FUNCTION__, __FILE__, e.description().toUtf8());
+
+    }
+
+}
+
 InternalNode::Pointer ModelPrivate::createNode(const TypeName &typeName,
                                                int majorVersion,
                                                int minorVersion,
@@ -951,6 +967,37 @@ void ModelPrivate::notifyNodeRemoved(const InternalNodePointer &internalNodePoin
 
     if (resetModel)
         resetModelByRewriter(description);
+}
+
+void ModelPrivate::notifyNodeTypeChanged(const InternalNodePointer &internalNodePointer, const TypeName &type, int majorVersion, int minorVersion)
+{
+    bool resetModel = false;
+    QString description;
+
+    try {
+        if (rewriterView()) {
+            ModelNode modelNode(internalNodePointer, model(), rewriterView());
+            rewriterView()->nodeTypeChanged(modelNode, type, majorVersion, minorVersion);
+        }
+    } catch (const RewritingException &e) {
+        description = e.description();
+        resetModel = true;
+    }
+
+    foreach (const QPointer<AbstractView> &view, m_viewList) {
+        Q_ASSERT(view != 0);
+        ModelNode modelNode(internalNodePointer, model(), view.data());
+        view->nodeTypeChanged(modelNode, type, majorVersion, minorVersion);
+    }
+
+    if (nodeInstanceView()) {
+        ModelNode modelNode(internalNodePointer, model(), nodeInstanceView());
+        nodeInstanceView()->nodeTypeChanged(modelNode, type, majorVersion, minorVersion);
+    }
+
+    if (resetModel)
+        resetModelByRewriter(description);
+
 }
 
 void ModelPrivate::notifyNodeIdChanged(const InternalNode::Pointer& internalNodePointer, const QString& newId, const QString& oldId)

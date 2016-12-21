@@ -720,6 +720,12 @@ void PropertyEditorView::rootNodeTypeChanged(const QString &/*type*/, int /*majo
     // TODO: we should react to this case
 }
 
+void PropertyEditorView::nodeTypeChanged(const ModelNode &node, const TypeName &, int, int)
+{
+     if (node == m_selectedNode)
+         delayedResetView();
+}
+
 void PropertyEditorView::nodeReparented(const ModelNode &node,
                                         const NodeAbstractProperty & /*newPropertyParent*/,
                                         const NodeAbstractProperty & /*oldPropertyParent*/,

@@ -6149,6 +6149,95 @@ void tst_TestCore::testModelNodeIsAncestorOf()
     QVERIFY(item3.isAncestorOf(item4));
 }
 
+void tst_TestCore::testModelChangeType()
+{
+    const QLatin1String qmlString("\n"
+                                  "import QtQuick 2.1\n"
+                                  "\n"
+                                  "Rectangle {\n"
+                                  "  id: rootItem\n"
+                                  "  Item {\n"
+                                  "    id: firstItem\n"
+                                  "    x: 10\n"
+                                  "  }\n"
+                                  "  Item {\n"
+                                  "    id: secondItem\n"
+                                  "    x: 20\n"
+                                  "  }\n"
+                                  "}");
+    QPlainTextEdit textEdit;
+    textEdit.setPlainText(qmlString);
+    NotIndentingTextEditModifier textModifier(&textEdit);
+
+    QScopedPointer<Model> model(Model::create("QtQuick.Item", 2, 1));
+    QVERIFY(model.data());
+
+    QScopedPointer<TestView> view(new TestView(model.data()));
+    model->attachView(view.data());
+
+    // read in
+    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    testRewriterView->setTextModifier(&textModifier);
+    model->attachView(testRewriterView.data());
+
+    ModelNode rootNode = view->rootModelNode();
+    QVERIFY(rootNode.isValid());
+    QCOMPARE(rootNode.type(), QmlDesigner::TypeName("QtQuick.Rectangle"));
+    QCOMPARE(rootNode.id(), QLatin1String("rootItem"));
+
+    ModelNode childNode = rootNode.nodeListProperty(("data")).toModelNodeList().at(0);
+    QVERIFY(childNode.isValid());
+    QCOMPARE(childNode.type(), QmlDesigner::TypeName("QtQuick.Item"));
+    QCOMPARE(childNode.id(), QLatin1String("firstItem"));
+
+    childNode.changeType("QtQuick.Rectangle", 2, 0);
+
+    QCOMPARE(childNode.type(), QmlDesigner::TypeName("QtQuick.Rectangle"));
+
+    const QLatin1String expectedQmlCode1("\n"
+                                  "import QtQuick 2.1\n"
+                                  "\n"
+                                  "Rectangle {\n"
+                                  "  id: rootItem\n"
+                                  "  Rectangle {\n"
+                                  "    id: firstItem\n"
+                                  "    x: 10\n"
+                                  "  }\n"
+                                  "  Item {\n"
+                                  "    id: secondItem\n"
+                                  "    x: 20\n"
+                                  "  }\n"
+                                  "}");
+
+    QCOMPARE(textEdit.toPlainText(), expectedQmlCode1);
+
+    childNode = rootNode.nodeListProperty(("data")).toModelNodeList().at(1);
+    QVERIFY(childNode.isValid());
+    QCOMPARE(childNode.type(), QmlDesigner::TypeName("QtQuick.Item"));
+    QCOMPARE(childNode.id(), QLatin1String("secondItem"));
+
+    childNode.changeType("QtQuick.Rectangle", 2, 0);
+
+    QCOMPARE(childNode.type(), QmlDesigner::TypeName("QtQuick.Rectangle"));
+
+    const QLatin1String expectedQmlCode2("\n"
+                                  "import QtQuick 2.1\n"
+                                  "\n"
+                                  "Rectangle {\n"
+                                  "  id: rootItem\n"
+                                  "  Rectangle {\n"
+                                  "    id: firstItem\n"
+                                  "    x: 10\n"
+                                  "  }\n"
+                                  "  Rectangle {\n"
+                                  "    id: secondItem\n"
+                                  "    x: 20\n"
+                                  "  }\n"
+                                  "}");
+
+    QCOMPARE(textEdit.toPlainText(), expectedQmlCode2);
+}
+
 void tst_TestCore::testModelDefaultProperties()
 {
     QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 2, 0));

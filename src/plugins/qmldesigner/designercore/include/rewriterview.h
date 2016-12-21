@@ -89,6 +89,7 @@ public:
     void nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId) override;
     void nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex) override;
     void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion) override;
+    void nodeTypeChanged(const ModelNode& node, const TypeName &type, int majorVersion, int minorVersion) override;
     void customNotification(const AbstractView *view, const QString &identifier,
                             const QList<ModelNode> &nodeList,
                             const QList<QVariant> &data) override;

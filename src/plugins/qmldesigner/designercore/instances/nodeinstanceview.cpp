@@ -365,6 +365,11 @@ void NodeInstanceView::rootNodeTypeChanged(const QString &/*type*/, int /*majorV
     restartProcess();
 }
 
+void NodeInstanceView::nodeTypeChanged(const ModelNode &, const TypeName &, int, int)
+{
+    restartProcess();
+}
+
 void NodeInstanceView::bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags /*propertyChange*/)
 {
     nodeInstanceServer()->changePropertyBindings(createChangeBindingCommand(propertyList));

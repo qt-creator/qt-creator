@@ -109,6 +109,7 @@ public:
 
     void removeNode(const InternalNodePointer &node);
     void changeNodeId(const InternalNodePointer& internalNodePointer, const QString& id);
+    void changeNodeType(const InternalNodePointer& internalNodePointer, const TypeName &typeName, int majorVersion, int minorVersion);
 
     InternalNodePointer rootNode() const;
     InternalNodePointer findNode(const QString &id) const;
@@ -130,6 +131,7 @@ public:
     void notifyNodeAboutToBeRemoved(const InternalNodePointer &internalNodePointer);
     void notifyNodeRemoved(const InternalNodePointer &internalNodePointer, const InternalNodePointer &parentNodePointer, const PropertyName &parentPropertyName, AbstractView::PropertyChangeFlags propertyChange);
     void notifyNodeIdChanged(const InternalNodePointer& internalNodePointer, const QString& newId, const QString& oldId);
+    void notifyNodeTypeChanged(const InternalNodePointer& internalNodePointer, const TypeName &type, int majorVersion, int minorVersion);
 
     void notifyPropertiesRemoved(const QList<PropertyPair> &propertyList);
     void notifyPropertiesAboutToBeRemoved(const QList<InternalPropertyPointer> &internalPropertyList);

@@ -80,6 +80,7 @@ public:
     void instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &propertyList) override;
 
     void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion) override;
+    void nodeTypeChanged(const ModelNode& node, const TypeName &type, int majorVersion, int minorVersion) override;
 
     void nodeReparented(const ModelNode &node,
                         const NodeAbstractProperty &newPropertyParent,

@@ -102,6 +102,7 @@ public:
 
     NodeAbstractProperty parentProperty() const;
     void setParentProperty(NodeAbstractProperty parent);
+    void changeType(const TypeName &typeName, int majorVersion, int minorVersion);
     void setParentProperty(const ModelNode &newParentNode, const PropertyName &propertyName);
     bool hasParentProperty() const;
 

@@ -194,6 +194,7 @@ public:
     virtual void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange);
     virtual void signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty>& propertyList, PropertyChangeFlags propertyChange);
     virtual void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion);
+    virtual void nodeTypeChanged(const ModelNode& node, const TypeName &type, int majorVersion, int minorVersion);
 
     virtual void instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &propertyList);
     virtual void instanceErrorChanged(const QVector<ModelNode> &errorNodeList);

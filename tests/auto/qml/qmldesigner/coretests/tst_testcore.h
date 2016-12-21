@@ -87,6 +87,7 @@ private slots:
     void testModelPropertyValueTypes();
     void testModelNodeInHierarchy();
     void testModelNodeIsAncestorOf();
+    void testModelChangeType();
 
     //
     // unit tests Rewriter

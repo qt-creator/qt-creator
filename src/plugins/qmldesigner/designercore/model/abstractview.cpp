@@ -325,6 +325,11 @@ void AbstractView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVersi
 {
 }
 
+void AbstractView::nodeTypeChanged(const ModelNode & /*node*/, const TypeName & /*type*/, int /*majorVersion*/, int /*minorVersion*/)
+{
+
+}
+
 void AbstractView::importsChanged(const QList<Import> &/*addedImports*/, const QList<Import> &/*removedImports*/)
 {
 }
