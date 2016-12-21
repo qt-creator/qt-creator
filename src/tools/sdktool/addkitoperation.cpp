@@ -665,7 +665,7 @@ QVariantMap AddKitOperation::addKit(const QVariantMap &map, const QVariantMap &t
     if (!mkspec.isNull())
         data << KeyValuePair({ kit, DATA, MKSPEC }, QVariant(mkspec));
     if (!cmakeId.isNull())
-        data << KeyValuePair({kit, CMAKE_ID}, QVariant(cmakeId));
+        data << KeyValuePair({kit, DATA, CMAKE_ID}, QVariant(cmakeId));
     if (!cmakeGenerator.isNull()) {
         QVariantMap generatorMap;
         generatorMap.insert("Generator", cmakeGenerator);
@@ -675,11 +675,10 @@ QVariantMap AddKitOperation::addKit(const QVariantMap &map, const QVariantMap &t
             generatorMap.insert("Toolset", cmakeGeneratorToolset);
         if (!cmakeGeneratorPlatform.isNull())
             generatorMap.insert("Platform", cmakeGeneratorPlatform);
-        data << KeyValuePair({ kit, CMAKE_GENERATOR }, generatorMap);
+        data << KeyValuePair({ kit, DATA, CMAKE_GENERATOR }, generatorMap);
     }
-    if (!cmakeConfiguration.isEmpty()) {
-        data << KeyValuePair({kit, CMAKE_CONFIGURATION}, QVariant(cmakeConfiguration));
-    }
+    if (!cmakeConfiguration.isEmpty())
+        data << KeyValuePair({kit, DATA, CMAKE_CONFIGURATION}, QVariant(cmakeConfiguration));
     if (!env.isEmpty())
         data << KeyValuePair({ kit, DATA, ENV }, QVariant(env));
 
