@@ -54,6 +54,7 @@
 #include <QTimer>
 #include <QXmlStreamReader>
 
+#include <signal.h>
 #include <string.h>
 #include <errno.h>
 
@@ -930,16 +931,13 @@ void IosSimulatorToolHandlerPrivate::launchAppOnSimulator(const QStringList &ext
                     "Install Xcode 8 or later.").arg(bundleId));
     }
 
-    auto monitorPid = [this](QFutureInterface<int> &fi, qint64 pid) {
-        int exitCode = 0;
-        const QStringList args({QStringLiteral("-0"), QString::number(pid)});
-        Utils::SynchronousProcess pKill;
-        while (!fi.isCanceled() && exitCode == 0) {
+    auto monitorPid = [this](QFutureInterface<void> &fi, qint64 pid) {
+#ifdef Q_OS_UNIX
+        do {
             // Poll every 1 sec to check whether the app is running.
             QThread::msleep(1000);
-            Utils::SynchronousProcessResponse resp = pKill.runBlocking(QStringLiteral("kill"), args);
-            exitCode = resp.exitCode;
-        }
+        } while (!fi.isCanceled() && kill(pid, 0) == 0);
+#endif
         // Future is cancelled if the app is stopped from the qt creator.
         if (!fi.isCanceled())
             stop(0);
