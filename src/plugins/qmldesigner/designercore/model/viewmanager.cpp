@@ -27,23 +27,24 @@
 
 #ifndef QMLDESIGNER_TEST
 
+#include <componentaction.h>
+#include <designmodewidget.h>
+#include <crumblebar.h>
+#include <abstractview.h>
 #include <rewriterview.h>
 #include <nodeinstanceview.h>
 #include <itemlibraryview.h>
 #include <navigatorview.h>
 #include <stateseditorview.h>
 #include <formeditorview.h>
+#include <texteditorview.h>
 #include <propertyeditorview.h>
 #include <componentview.h>
 #include <debugview.h>
 #include <importmanagerview.h>
 #include <designeractionmanagerview.h>
+#include <qmldesignerplugin.h>
 
-#include "componentaction.h"
-#include "designmodewidget.h"
-#include "crumblebar.h"
-
-#include <qmldesigner/qmldesignerplugin.h>
 #include <utils/algorithm.h>
 
 namespace QmlDesigner {
@@ -55,6 +56,7 @@ public:
     Internal::DebugView debugView;
     ComponentView componentView;
     FormEditorView formEditorView;
+    TextEditorView textEditorView;
     ItemLibraryView itemLibraryView;
     NavigatorView navigatorView;
     PropertyEditorView propertyEditorView;
@@ -236,6 +238,7 @@ QList<WidgetInfo> ViewManager::widgetInfos()
     QList<WidgetInfo> widgetInfoList;
 
     widgetInfoList.append(d->formEditorView.widgetInfo());
+    widgetInfoList.append(d->textEditorView.widgetInfo());
     widgetInfoList.append(d->itemLibraryView.widgetInfo());
     widgetInfoList.append(d->navigatorView.widgetInfo());
     widgetInfoList.append(d->propertyEditorView.widgetInfo());

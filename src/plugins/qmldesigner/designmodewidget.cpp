@@ -235,6 +235,11 @@ void DesignModeWidget::disableWidgets()
     m_isDisabled = true;
 }
 
+void DesignModeWidget::showTextEdit()
+{
+    m_centralTabWidget->setCurrentIndex(m_centralTabWidget->currentIndex() == 0 ? 1 : 0);
+}
+
 void DesignModeWidget::updateErrorStatus(const QList<RewriterError> &errors)
 {
     if (debug)

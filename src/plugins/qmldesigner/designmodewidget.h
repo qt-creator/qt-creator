@@ -79,6 +79,7 @@ public:
 
     void enableWidgets();
     void disableWidgets();
+    void showTextEdit();
     void showErrorMessageBox(const QList<RewriterError> &errors);
     void showWarningMessageBox(const QList<RewriterError> &warnings);
     bool gotoCodeWasClicked();

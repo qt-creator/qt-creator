@@ -54,5 +54,12 @@ public:
     QString contextHelpId() const;
 };
 
+class TextEditorContext : public Core::IContext
+{
+public:
+    TextEditorContext(QWidget *widget);
+    QString contextHelpId() const;
+};
+
 }
 }

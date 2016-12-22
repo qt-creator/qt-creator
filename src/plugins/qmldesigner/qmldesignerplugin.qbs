@@ -397,6 +397,8 @@ Project {
                 "componentcore/selectioncontext.h",
                 "componentcore/qmldesignericonprovider.cpp",
                 "componentcore/qmldesignericonprovider.h",
+                "texteditor/texteditorview.cpp",
+                "texteditor/texteditorview.h",
                 "debugview/debugview.cpp",
                 "debugview/debugview.h",
                 "debugview/debugviewwidget.cpp",

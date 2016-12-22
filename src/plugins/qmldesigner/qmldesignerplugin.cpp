@@ -135,7 +135,7 @@ static bool shouldAssertInException()
 static bool useTextEditInDesignMode()
 {
     DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
-    return settings.value(DesignerSettingsKey::TEXTEDIT_IN_DESIGNMODE, false).toBool();
+    return settings.value(DesignerSettingsKey::TEXTEDIT_IN_DESIGNMODE, true).toBool();
 }
 
 static bool warningsForQmlFilesInsteadOfUiQmlEnabled()
@@ -215,12 +215,13 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
     MetaInfo::setPluginPaths(QStringList(pluginPath));
 
     createDesignModeWidget();
-    connect(switchTextDesignAction, &QAction::triggered, this, [](){
+    connect(switchTextDesignAction, &QAction::triggered, this, [this](){
         if (Core::ModeManager::currentMode() == Core::Constants::MODE_DESIGN) {
-            if (useTextEditInDesignMode())
-                qDebug() << "not implemented";
-            else
+            if (useTextEditInDesignMode()) {
+                d->mainWidget->showTextEdit();
+            } else {
                 Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
+            }
         }
     });
 

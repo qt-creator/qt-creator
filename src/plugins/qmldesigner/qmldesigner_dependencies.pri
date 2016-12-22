@@ -18,12 +18,13 @@ INCLUDEPATH *= \
     $$PWD/../../../share/qtcreator/qml/qmlpuppet/types \
     $$PWD/designercore \
     $$PWD/designercore/include \
+    $$PWD/components/integration \
     $$PWD/components/componentcore \
     $$PWD/components/importmanager \
-    $$PWD/components/formeditor \
     $$PWD/components/itemlibrary \
+    $$PWD/components/formeditor \
     $$PWD/components/navigator \
-    $$PWD/components/propertyeditor \
     $$PWD/components/stateseditor \
-    $$PWD/components/debugview \
-    $$PWD/components/integration
+    $$PWD/components/texteditor \
+    $$PWD/components/propertyeditor \
+    $$PWD/components/debugview

@@ -35,6 +35,7 @@ const char C_DELETE[]               = "QmlDesigner.Delete";
 const char C_QMLDESIGNER[]         = "QmlDesigner::QmlDesignerMain";
 const char C_QMLFORMEDITOR[]       = "QmlDesigner::FormEditor";
 const char C_QMLNAVIGATOR[]        = "QmlDesigner::Navigator";
+const char C_QMLTEXTEDITOR[]       = "QmlDesigner::TextEditor";
 
 // Special context for preview menu, shared b/w designer and text editor
 const char C_QT_QUICK_TOOLS_MENU[] = "QmlDesigner::ToolsMenu";

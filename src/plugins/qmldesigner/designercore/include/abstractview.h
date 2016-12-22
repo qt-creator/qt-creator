@@ -246,7 +246,7 @@ public:
     virtual bool hasWidget() const;
     virtual WidgetInfo widgetInfo();
 
-    QString contextHelpId() const;
+    virtual QString contextHelpId() const;
 
 protected:
     void setModel(Model * model);
