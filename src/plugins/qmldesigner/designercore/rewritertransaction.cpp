@@ -25,6 +25,7 @@
 
 #include "rewritertransaction.h"
 #include <abstractview.h>
+#include <rewritingexception.h>
 #include <rewriterview.h>
 
 #include <utils/qtcassert.h>
@@ -67,7 +68,12 @@ RewriterTransaction::RewriterTransaction(AbstractView *_view, const QByteArray &
 
 RewriterTransaction::~RewriterTransaction()
 {
-    commit();
+    try {
+        commit();
+    } catch (const RewritingException &e) {
+        QTC_ASSERT(false, ;);
+        e.showException();
+    }
 }
 
 bool RewriterTransaction::isValid() const
