@@ -1532,8 +1532,17 @@ bool QmakeProject::matchesKit(const Kit *kit)
     return false;
 }
 
-static Utils::FileName getFullPathOf(const QString &exe, const BuildConfiguration *bc)
+static Utils::FileName getFullPathOf(const QmakeProFileNode *pro, QmakeVariable variable,
+                                     const BuildConfiguration *bc)
 {
+    // Take last non-flag value, to cover e.g. '@echo $< && $$QMAKE_CC' or 'ccache gcc'
+    const QStringList values = Utils::filtered(pro->variableValue(variable),
+                                               [](const QString &value) {
+        return !value.startsWith('-');
+    });
+    if (values.isEmpty())
+        return Utils::FileName();
+    const QString exe = values.last();
     QTC_ASSERT(bc, return Utils::FileName::fromString(exe));
     QFileInfo fi(exe);
     if (fi.isAbsolute())
@@ -1572,9 +1581,9 @@ void QmakeProject::warnOnToolChainMismatch(const QmakeProFileNode *pro) const
         return;
 
     testToolChain(ToolChainKitInformation::toolChain(t->kit(), ToolChain::Language::C),
-                  getFullPathOf(pro->singleVariableValue(QmakeCc), bc));
+                  getFullPathOf(pro, QmakeCc, bc));
     testToolChain(ToolChainKitInformation::toolChain(t->kit(), ToolChain::Language::Cxx),
-                  getFullPathOf(pro->singleVariableValue(QmakeCxx), bc));
+                  getFullPathOf(pro, QmakeCxx, bc));
 }
 
 QString QmakeProject::executableFor(const QmakeProFileNode *node)
