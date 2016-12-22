@@ -208,8 +208,10 @@ void AndroidBuildApkWidget::createKeyStore()
 void AndroidBuildApkWidget::setCertificates()
 {
     QAbstractItemModel *certificates = m_step->keystoreCertificates();
-    m_ui->signPackageCheckBox->setChecked(certificates);
-    m_ui->certificatesAliasComboBox->setModel(certificates);
+    if (certificates) {
+        m_ui->signPackageCheckBox->setChecked(certificates);
+        m_ui->certificatesAliasComboBox->setModel(certificates);
+    }
 }
 
 void AndroidBuildApkWidget::updateKeyStorePath(const QString &path)

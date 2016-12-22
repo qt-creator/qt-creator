@@ -44,10 +44,18 @@
 #include <qtsupport/qtkitinformation.h>
 
 #include <utils/synchronousprocess.h>
+#include <utils/utilsicons.h>
 
-#include <QInputDialog>
+#include <QDialogButtonBox>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QLineEdit>
 #include <QMessageBox>
 #include <QProcess>
+#include <QPushButton>
+#include <QVBoxLayout>
+
+#include <memory>
 
 namespace Android {
 using namespace Internal;
@@ -57,6 +65,31 @@ const QLatin1String KeystoreLocationKey("KeystoreLocation");
 const QLatin1String BuildTargetSdkKey("BuildTargetSdk");
 const QLatin1String VerboseOutputKey("VerboseOutput");
 const QLatin1String UseGradleKey("UseGradle");
+
+
+class PasswordInputDialog : public QDialog {
+public:
+    enum Context{
+      KeystorePassword = 1,
+      CertificatePassword
+    };
+
+    PasswordInputDialog(Context context, std::function<bool (const QString &)> callback,
+                        const QString &extraContextStr, QWidget *parent = nullptr);
+
+    static QString getPassword(Context context, std::function<bool (const QString &)> callback,
+                               const QString &extraContextStr, bool *ok = nullptr,
+                               QWidget *parent = nullptr);
+
+private:
+    std::function<bool (const QString &)> verifyCallback = [](const QString &) { return true; };
+    QLabel *inputContextlabel = new QLabel(this);
+    QLineEdit *inputEdit = new QLineEdit(this);
+    QLabel *warningIcon = new QLabel(this);
+    QLabel *warningLabel = new QLabel(this);
+    QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
+                                                       this);
+};
 
 AndroidBuildApkStep::AndroidBuildApkStep(ProjectExplorer::BuildStepList *parent, const Core::Id id)
     : ProjectExplorer::AbstractProcessStep(parent, id),
@@ -95,16 +128,8 @@ bool AndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
 
     if (m_signPackage) {
         // check keystore and certificate passwords
-        while (!AndroidManager::checkKeystorePassword(m_keystorePath.toString(), m_keystorePasswd)) {
-            if (!keystorePassword())
-                return false; // user canceled
-        }
-
-        while (!AndroidManager::checkCertificatePassword(m_keystorePath.toString(), m_keystorePasswd, m_certificateAlias, m_certificatePasswd)) {
-            if (!certificatePassword())
-                return false; // user canceled
-        }
-
+        if (!verifyKeystorePassword() || !verifyCertificatePassword())
+            return false;
 
         if (bc->buildType() != ProjectExplorer::BuildConfiguration::Release)
             emit addOutput(tr("Warning: Signing a debug or profile package."),
@@ -153,6 +178,37 @@ void AndroidBuildApkStep::processFinished(int exitCode, QProcess::ExitStatus sta
     AbstractProcessStep::processFinished(exitCode, status);
     if (m_openPackageLocationForRun && status == QProcess::NormalExit && exitCode == 0)
         QMetaObject::invokeMethod(this, "showInGraphicalShell", Qt::QueuedConnection);
+}
+
+bool AndroidBuildApkStep::verifyKeystorePassword()
+{
+    if (AndroidManager::checkKeystorePassword(m_keystorePath.toString(), m_keystorePasswd))
+        return true;
+
+    bool success = false;
+    auto verifyCallback = std::bind(&AndroidManager::checkKeystorePassword,
+                                    m_keystorePath.toString(), std::placeholders::_1);
+    m_keystorePasswd = PasswordInputDialog::getPassword(PasswordInputDialog::KeystorePassword,
+                                                        verifyCallback, "", &success);
+    return success;
+}
+
+bool AndroidBuildApkStep::verifyCertificatePassword()
+{
+    if (AndroidManager::checkCertificatePassword(m_keystorePath.toString(), m_keystorePasswd,
+                                                 m_certificateAlias, m_certificatePasswd)) {
+        return true;
+    }
+
+    bool success = false;
+    auto verifyCallback = std::bind(&AndroidManager::checkCertificatePassword,
+                                    m_keystorePath.toString(), m_keystorePasswd,
+                                    m_certificateAlias, std::placeholders::_1);
+
+    m_certificatePasswd = PasswordInputDialog::getPassword(PasswordInputDialog::CertificatePassword,
+                                                           verifyCallback, m_certificateAlias,
+                                                           &success);
+    return success;
 }
 
 bool AndroidBuildApkStep::fromMap(const QVariantMap &map)
@@ -280,63 +336,96 @@ bool AndroidBuildApkStep::verboseOutput() const
 
 QAbstractItemModel *AndroidBuildApkStep::keystoreCertificates()
 {
-    QString rawCerts;
-    while (!rawCerts.length() || !m_keystorePasswd.length()) {
-        QStringList params
-                = { QLatin1String("-list"), QLatin1String("-v"), QLatin1String("-keystore"),
-                    m_keystorePath.toUserOutput(), QLatin1String("-storepass") };
-        if (!m_keystorePasswd.length())
-            keystorePassword();
-        if (!m_keystorePasswd.length())
-            return nullptr;
-        params << m_keystorePasswd;
-        params << QLatin1String("-J-Duser.language=en");
+    // check keystore passwords
+    if (!verifyKeystorePassword())
+        return nullptr;
 
-        Utils::SynchronousProcess keytoolProc;
-        keytoolProc.setTimeoutS(30);
-        const Utils::SynchronousProcessResponse response
-                = keytoolProc.run(AndroidConfigurations::currentConfig().keytoolPath().toString(), params);
-        if (response.result != Utils::SynchronousProcessResponse::Finished) {
-            QMessageBox::critical(0, tr("Error"),
-                                  tr("Failed to run keytool."));
-            return nullptr;
-        }
+    CertificatesModel *model = nullptr;
+    QStringList params
+            = { QLatin1String("-list"), QLatin1String("-v"), QLatin1String("-keystore"),
+                m_keystorePath.toUserOutput(), QLatin1String("-storepass") };
 
-        if (response.exitCode != 0) {
-            QMessageBox::critical(0, tr("Error"), tr("Invalid password."));
-            m_keystorePasswd.clear();
-        }
-        rawCerts = response.stdOut();
-    }
-    return new CertificatesModel(rawCerts, this);
+    params << m_keystorePasswd;
+    params << QLatin1String("-J-Duser.language=en");
+
+    Utils::SynchronousProcess keytoolProc;
+    keytoolProc.setTimeoutS(30);
+    const Utils::SynchronousProcessResponse response
+            = keytoolProc.run(AndroidConfigurations::currentConfig().keytoolPath().toString(), params);
+    if (response.result != Utils::SynchronousProcessResponse::Finished)
+        QMessageBox::critical(0, tr("Error"), tr("Failed to run keytool."));
+    else
+        model = new CertificatesModel(response.stdOut(), this);
+
+    return model;
 }
 
-bool AndroidBuildApkStep::keystorePassword()
+PasswordInputDialog::PasswordInputDialog(PasswordInputDialog::Context context,
+                                         std::function<bool (const QString &)> callback,
+                                         const QString &extraContextStr,
+                                         QWidget *parent) :
+    QDialog(parent, Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint),
+    verifyCallback(callback)
+
 {
-    m_keystorePasswd.clear();
-    bool ok;
-    QString text = QInputDialog::getText(0, tr("Keystore"),
-                                         tr("Keystore password:"), QLineEdit::Password,
-                                         QString(), &ok);
-    if (ok && !text.isEmpty()) {
-        m_keystorePasswd = text;
-        return true;
-    }
-    return false;
+    inputEdit->setEchoMode(QLineEdit::Password);
+
+    warningIcon->setPixmap(Utils::Icons::WARNING.pixmap());
+    warningIcon->setSizePolicy(QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum));
+    warningIcon->hide();
+
+    warningLabel->hide();
+
+    auto warningLayout = new QHBoxLayout;
+    warningLayout->addWidget(warningIcon);
+    warningLayout->addWidget(warningLabel);
+
+    auto mainLayout = new QVBoxLayout(this);
+    mainLayout->addWidget(inputContextlabel);
+    mainLayout->addWidget(inputEdit);
+    mainLayout->addLayout(warningLayout);
+    mainLayout->addWidget(buttonBox);
+
+    connect(inputEdit, &QLineEdit::textChanged,[this](const QString &text) {
+        buttonBox->button(QDialogButtonBox::Ok)->setEnabled(!text.isEmpty());
+    });
+
+    connect(buttonBox, &QDialogButtonBox::accepted, [this]() {
+        if (verifyCallback(inputEdit->text())) {
+            accept(); // Dialog accepted.
+        } else {
+            warningIcon->show();
+            warningLabel->show();
+            warningLabel->setText(tr("Incorrect password."));
+            inputEdit->clear();
+            adjustSize();
+        }
+    });
+
+    connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+
+    setWindowTitle(context == KeystorePassword ? tr("Keystore") : tr("Certificate"));
+
+    QString contextStr;
+    if (context == KeystorePassword)
+        contextStr = tr("Enter keystore password");
+    else
+        contextStr = tr("Enter certificate password");
+
+    contextStr += extraContextStr.isEmpty() ? QStringLiteral(":") :
+                                              QStringLiteral(" (%1):").arg(extraContextStr);
+    inputContextlabel->setText(contextStr);
 }
 
-bool AndroidBuildApkStep::certificatePassword()
+QString PasswordInputDialog::getPassword(Context context, std::function<bool (const QString &)> callback,
+                                         const QString &extraContextStr, bool *ok, QWidget *parent)
 {
-    m_certificatePasswd.clear();
-    bool ok;
-    QString text = QInputDialog::getText(0, tr("Certificate"),
-                                         tr("Certificate password (%1):").arg(m_certificateAlias), QLineEdit::Password,
-                                         QString(), &ok);
-    if (ok && !text.isEmpty()) {
-        m_certificatePasswd = text;
-        return true;
-    }
-    return false;
+    std::unique_ptr<PasswordInputDialog> dlg(new PasswordInputDialog(context, callback,
+                                                                     extraContextStr, parent));
+    bool isAccepted = dlg->exec() == QDialog::Accepted;
+    if (ok)
+        *ok = isAccepted;
+    return isAccepted ? dlg->inputEdit->text() : "";
 }
 
 } // namespace Android

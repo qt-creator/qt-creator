@@ -87,13 +87,13 @@ protected:
 
     AndroidBuildApkStep(ProjectExplorer::BuildStepList *bc,
         AndroidBuildApkStep *other);
-    bool keystorePassword();
-    bool certificatePassword();
 
     bool init(QList<const BuildStep *> &earlierSteps) override;
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
     bool immutable() const override { return true; }
     void processFinished(int exitCode, QProcess::ExitStatus status) override;
+    bool verifyKeystorePassword();
+    bool verifyCertificatePassword();
 
 protected:
     AndroidDeployAction m_deployAction = BundleLibrariesDeployment;
