@@ -194,24 +194,24 @@ void FormEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
     removeNodeFromScene(qmlItemNode);
 }
 
- void FormEditorView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/)
- {
-     foreach (FormEditorItem *item, m_scene->allFormEditorItems()) {
-         item->setParentItem(0);
-         item->setParent(0);
-     }
+void FormEditorView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/)
+{
+    foreach (FormEditorItem *item, m_scene->allFormEditorItems()) {
+        item->setParentItem(0);
+        item->setParent(0);
+    }
 
-     foreach (FormEditorItem *item, m_scene->allFormEditorItems()) {
-         m_scene->removeItemFromHash(item);
-         delete item;
-     }
+    foreach (FormEditorItem *item, m_scene->allFormEditorItems()) {
+        m_scene->removeItemFromHash(item);
+        delete item;
+    }
 
-     QmlItemNode newItemNode(rootModelNode());
-     if (newItemNode.isValid()) //only setup QmlItems
-         setupFormEditorItemTree(newItemNode);
+    QmlItemNode newItemNode(rootModelNode());
+    if (newItemNode.isValid()) //only setup QmlItems
+        setupFormEditorItemTree(newItemNode);
 
-     m_currentTool->setItems(scene()->itemsForQmlItemNodes(toQmlItemNodeList(selectedModelNodes())));
- }
+    m_currentTool->setItems(scene()->itemsForQmlItemNodes(toQmlItemNodeList(selectedModelNodes())));
+}
 
 void FormEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& propertyList)
 {
