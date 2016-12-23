@@ -253,7 +253,9 @@ class Dumper(DumperBase):
         return qtVersion
 
     def ptrSize(self):
-        return cdbext.pointerSize()
+        size = cdbext.pointerSize()
+        self.ptrSize = lambda: size
+        return size
 
     def put(self, stuff):
         self.output += stuff
