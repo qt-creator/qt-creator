@@ -117,15 +117,15 @@ ULONG extractArrrayCount(const std::string &typeName, size_t openArrayPos = 0)
     return 0;
 }
 
-PyObject *lookupArrayType(const std::string &typeName)
+PyObject *lookupArrayType(const std::string &typeName, ULONG64 module = 0)
 {
     size_t openArrayPos = typeName.find_last_of('[');
     if (ULONG arrayCount = extractArrrayCount(typeName, openArrayPos))
-        return createArrayType(arrayCount, (Type*)lookupType(typeName.substr(0, openArrayPos)));
+        return createArrayType(arrayCount, (Type*)lookupType(typeName.substr(0, openArrayPos), module));
     return createUnresolvedType(typeName);
 }
 
-PyObject *lookupType(const std::string &typeNameIn)
+PyObject *lookupType(const std::string &typeNameIn, ULONG64 module)
 {
     if (debuggingTypeEnabled())
         DebugPrint() << "lookup type '" << typeNameIn << "'";
@@ -134,9 +134,9 @@ PyObject *lookupType(const std::string &typeNameIn)
     trimFront(typeName);
 
     if (isPointerType(typeName))
-        return createPointerType((Type*)lookupType(stripPointerType(typeName)));
+        return createPointerType((Type*)lookupType(stripPointerType(typeName), module));
     if (SymbolGroupValue::isArrayType(typeName))
-        return lookupArrayType(typeName);
+        return lookupArrayType(typeName, module);
 
     if (typeName.find("enum ") == 0)
         typeName.erase(0, 5);
@@ -146,9 +146,13 @@ PyObject *lookupType(const std::string &typeNameIn)
         typeName.erase(typeName.find("__"), 2);
 
     CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
-    ULONG64 module;
     ULONG typeId;
-    if (FAILED(symbols->GetSymbolTypeId(typeName.c_str(), &typeId, &module)))
+    HRESULT result;
+    if (module != 0)
+        result = symbols->GetTypeId(module, typeName.c_str(), &typeId);
+    else
+        result = symbols->GetSymbolTypeId(typeName.c_str(), &typeId, &module);
+    if (FAILED(result))
         return createUnresolvedType(typeName);
     return createType(module, typeId, typeName);
 }
@@ -491,9 +495,9 @@ PyObject *createType(ULONG64 module, ULONG typeId, const std::string &name)
 
     if (!typeName.empty()) {
         if (isPointerType(typeName))
-            return createPointerType((Type*)lookupType(stripPointerType(typeName)));
+            return createPointerType((Type*)lookupType(stripPointerType(typeName), module));
         if (isArrayType(typeName))
-            return lookupArrayType(typeName);
+            return lookupArrayType(typeName, module);
     }
 
     Type *type = PyObject_New(Type, type_pytype());

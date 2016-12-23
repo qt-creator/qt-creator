@@ -47,7 +47,7 @@ PyTypeObject *type_pytype();
 std::string getTypeName(ULONG64 module, ULONG typeId, const bool withModule = false);
 std::string getTypeName(Type *type, const bool withModule = false);
 
-PyObject *lookupType(const std::string &typeName);
+PyObject *lookupType(const std::string &typeName, ULONG64 module = 0);
 
 PyObject *createType(ULONG64 module, ULONG typeId, const std::string &name = std::string());
 PyObject *createUnresolvedType(const std::string &name);
