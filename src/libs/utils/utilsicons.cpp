@@ -30,6 +30,8 @@ namespace Icons {
 
 const Icon EDIT_CLEAR({
         {QLatin1String(":/utils/images/editclear.png"), Theme::PanelTextColorMid}}, Icon::Tint);
+const Icon EDIT_CLEAR_TOOLBAR({
+        {QLatin1String(":/utils/images/editclear.png"), Theme::IconsBaseColor}});
 const Icon LOCKED_TOOLBAR({
         {QLatin1String(":/utils/images/locked.png"), Theme::IconsBaseColor}});
 const Icon LOCKED({
