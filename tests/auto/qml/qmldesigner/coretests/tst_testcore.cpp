@@ -380,11 +380,6 @@ void tst_TestCore::saveEmptyCoreModel()
     testRewriterView1->setTextModifier(&modifier1);
     model1->attachView(testRewriterView1.data());
 
-
-    QBuffer buffer;
-    buffer.open(QIODevice::ReadWrite | QIODevice::Text);
-    modifier1.save(&buffer);
-
     QPlainTextEdit textEdit2;
     textEdit2.setPlainText("import QtQuick 1.1; Item{}");
     NotIndentingTextEditModifier modifier2(&textEdit2);
@@ -396,7 +391,6 @@ void tst_TestCore::saveEmptyCoreModel()
     model2->attachView(testRewriterView2.data());
 
     QVERIFY(compareTree(testRewriterView1->rootModelNode(), testRewriterView2->rootModelNode()));
-
 }
 
 void tst_TestCore::loadAttributesInCoreModel()
@@ -453,7 +447,7 @@ void tst_TestCore::saveAttributesInCoreModel()
 
     QBuffer buffer;
     buffer.open(QIODevice::ReadWrite | QIODevice::Text);
-    modifier1.save(&buffer);
+    buffer.write(modifier1.textDocument()->toPlainText().toUtf8());
 
     QPlainTextEdit textEdit2;
     textEdit2.setPlainText(QString::fromUtf8(buffer.data()));

@@ -52,11 +52,6 @@ PlainTextEditModifier::~PlainTextEditModifier()
 {
 }
 
-void PlainTextEditModifier::save(QIODevice *device)
-{
-    device->write(m_textEdit->toPlainText().toUtf8());
-}
-
 void PlainTextEditModifier::replace(int offset, int length, const QString &replacement)
 {
 #if 0

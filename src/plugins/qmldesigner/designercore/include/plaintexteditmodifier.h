@@ -49,8 +49,6 @@ public:
     PlainTextEditModifier(QPlainTextEdit *textEdit);
     ~PlainTextEditModifier();
 
-    virtual void save(QIODevice *device);
-
     QTextDocument *textDocument() const override;
     QString text() const override;
     QTextCursor textCursor() const override;
