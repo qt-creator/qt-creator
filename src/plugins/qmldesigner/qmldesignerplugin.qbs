@@ -48,6 +48,7 @@ Project {
              "components/navigator",
              "components/pluginmanager",
              "components/stateseditor",
+             "components/texteditor",
              "qmldesignerextension",
              "qmldesignerextension/connectioneditor",
         ])
