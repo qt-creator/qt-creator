@@ -80,7 +80,7 @@ QString TextEditorContext::contextHelpId() const
     // as TextEditorView::contextHelpId() uses the texteditor directly,
     // this should not happen
     Q_ASSERT(false);
-    return "not_implemented";
+    return QLatin1String("not_implemented");
 }
 
 }
