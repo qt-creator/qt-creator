@@ -64,7 +64,7 @@ class GenericBuildConfigurationFactory : public ProjectExplorer::IBuildConfigura
     Q_OBJECT
 
 public:
-    explicit GenericBuildConfigurationFactory(QObject *parent = 0);
+    explicit GenericBuildConfigurationFactory(QObject *parent = nullptr);
     ~GenericBuildConfigurationFactory();
 
     int priority(const ProjectExplorer::Target *parent) const override;

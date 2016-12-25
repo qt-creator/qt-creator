@@ -85,7 +85,7 @@ private:
     bool saveRawList(const QStringList &rawList, const QString &fileName);
     void parseProject(RefreshOptions options);
     QStringList processEntries(const QStringList &paths,
-                               QHash<QString, QString> *map = 0) const;
+                               QHash<QString, QString> *map = nullptr) const;
 
     void refreshCppCodeModel();
 

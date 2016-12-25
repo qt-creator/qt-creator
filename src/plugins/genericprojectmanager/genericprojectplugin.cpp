@@ -58,7 +58,7 @@ namespace Internal {
 bool GenericProjectPlugin::initialize(const QStringList &, QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
-    Utils::MimeDatabase::addMimeTypes(QLatin1String(":genericproject/GenericProjectManager.mimetypes.xml"));
+    Utils::MimeDatabase::addMimeTypes(":genericproject/GenericProjectManager.mimetypes.xml");
 
     addAutoReleasedObject(new Manager);
     addAutoReleasedObject(new ProjectFilesFactory);

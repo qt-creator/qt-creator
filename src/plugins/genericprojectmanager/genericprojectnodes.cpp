@@ -61,11 +61,11 @@ QHash<QString, QStringList> sortFilesIntoPaths(const QString &base, const QSet<Q
         } else {
             // `file' is not part of the project.
             relativeFilePath = baseDir.relativeFilePath(absoluteFilePath.toString());
-            if (relativeFilePath.endsWith(QLatin1Char('/')))
+            if (relativeFilePath.endsWith('/'))
                 relativeFilePath.chop(1);
         }
 
-        if (relativeFilePath == QLatin1String("."))
+        if (relativeFilePath == ".")
             relativeFilePath.clear();
 
         filesInPath[relativeFilePath].append(absoluteFileName);
@@ -81,12 +81,13 @@ bool GenericProjectNode::showInSimpleTree() const
 QList<ProjectAction> GenericProjectNode::supportedActions(Node *node) const
 {
     Q_UNUSED(node);
-    return QList<ProjectAction>()
-        << AddNewFile
-        << AddExistingFile
-        << AddExistingDirectory
-        << RemoveFile
-        << Rename;
+    return {
+        AddNewFile,
+        AddExistingFile,
+        AddExistingDirectory,
+        RemoveFile,
+        Rename
+    };
 }
 
 bool GenericProjectNode::addFiles(const QStringList &filePaths, QStringList *notAdded)

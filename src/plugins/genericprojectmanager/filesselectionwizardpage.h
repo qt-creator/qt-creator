@@ -41,7 +41,7 @@ class FilesSelectionWizardPage : public QWizardPage
     Q_OBJECT
 
 public:
-    FilesSelectionWizardPage(GenericProjectWizardDialog *genericProjectWizard, QWidget *parent = 0);
+    FilesSelectionWizardPage(GenericProjectWizardDialog *genericProjectWizard, QWidget *parent = nullptr);
     bool isComplete() const override;
     void initializePage() override;
     void cleanupPage() override;

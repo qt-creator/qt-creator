@@ -74,13 +74,13 @@ GenericProject::GenericProject(Manager *manager, const QString &fileName)
     setProjectContext(Context(GenericProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguages(Context(ProjectExplorer::Constants::LANG_CXX));
 
-    QFileInfo fileInfo = projectFilePath().toFileInfo();
-    QDir dir = fileInfo.dir();
+    const QFileInfo fileInfo = projectFilePath().toFileInfo();
+    const QDir dir = fileInfo.dir();
 
     m_projectName      = fileInfo.completeBaseName();
-    m_filesFileName    = QFileInfo(dir, m_projectName + QLatin1String(".files")).absoluteFilePath();
-    m_includesFileName = QFileInfo(dir, m_projectName + QLatin1String(".includes")).absoluteFilePath();
-    m_configFileName   = QFileInfo(dir, m_projectName + QLatin1String(".config")).absoluteFilePath();
+    m_filesFileName    = QFileInfo(dir, m_projectName + ".files").absoluteFilePath();
+    m_includesFileName = QFileInfo(dir, m_projectName + ".includes").absoluteFilePath();
+    m_configFileName   = QFileInfo(dir, m_projectName + ".config").absoluteFilePath();
 
     m_filesIDocument    = new GenericProjectFile(this, m_filesFileName, GenericProject::Files);
     m_includesIDocument = new GenericProjectFile(this, m_includesFileName, GenericProject::Configuration);
@@ -91,20 +91,19 @@ GenericProject::GenericProject(Manager *manager, const QString &fileName)
     DocumentManager::addDocument(m_includesIDocument);
     DocumentManager::addDocument(m_configIDocument);
 
-    FileNode *projectFilesNode = new FileNode(Utils::FileName::fromString(m_filesFileName),
-                                              FileType::Project,
-                                              /* generated = */ false);
+    auto projectFilesNode = new FileNode(Utils::FileName::fromString(m_filesFileName),
+                                         FileType::Project,
+                                         /* generated = */ false);
 
-    FileNode *projectIncludesNode = new FileNode(Utils::FileName::fromString(m_includesFileName),
-                                                 FileType::Project,
-                                                 /* generated = */ false);
+    auto projectIncludesNode = new FileNode(Utils::FileName::fromString(m_includesFileName),
+                                            FileType::Project,
+                                            /* generated = */ false);
 
-    FileNode *projectConfigNode = new FileNode(Utils::FileName::fromString(m_configFileName),
-                                               FileType::Project,
-                                               /* generated = */ false);
+    auto projectConfigNode = new FileNode(Utils::FileName::fromString(m_configFileName),
+                                          FileType::Project,
+                                          /* generated = */ false);
 
-    rootProjectNode()->addFileNodes(QList<FileNode *>() << projectFilesNode
-                                    << projectIncludesNode << projectConfigNode);
+    rootProjectNode()->addFileNodes({ projectFilesNode, projectIncludesNode, projectConfigNode });
 
     projectManager()->registerProject(this);
 }
@@ -138,7 +137,7 @@ static QStringList readLines(const QString &absoluteFileName)
     if (file.open(QFile::ReadOnly)) {
         QTextStream stream(&file);
 
-        forever {
+        for (;;) {
             const QString line = stream.readLine();
             if (line.isNull())
                 break;
@@ -164,8 +163,8 @@ bool GenericProject::saveRawList(const QStringList &rawList, const QString &file
     Utils::FileSaver saver(fileName, QIODevice::Text);
     if (!saver.hasError()) {
         QTextStream stream(saver.file());
-        foreach (const QString &filePath, rawList)
-            stream << filePath << QLatin1Char('\n');
+        for (const QString &filePath : rawList)
+            stream << filePath << '\n';
         saver.setResult(&stream);
     }
     bool result = saver.finalize(ICore::mainWindow());
@@ -182,24 +181,25 @@ bool GenericProject::addFiles(const QStringList &filePaths)
 {
     QStringList newList = m_rawFileList;
 
-    QDir baseDir(projectDirectory().toString());
-    foreach (const QString &filePath, filePaths)
+    const QDir baseDir(projectDirectory().toString());
+    for (const QString &filePath : filePaths)
         insertSorted(&newList, baseDir.relativeFilePath(filePath));
 
-    QSet<QString> includes = projectIncludePaths().toSet();
+    const QSet<QString> includes = projectIncludePaths().toSet();
     QSet<QString> toAdd;
 
-    foreach (const QString &filePath, filePaths) {
+    for (const QString &filePath : filePaths) {
         const QString directory = QFileInfo(filePath).absolutePath();
         if (!includes.contains(directory) && !toAdd.contains(directory))
             toAdd << directory;
     }
 
     const QDir dir(projectDirectory().toString());
-    foreach (const QString &path, toAdd) {
+    const auto candidates = toAdd;
+    for (const QString &path : candidates) {
         QString relative = dir.relativeFilePath(path);
         if (relative.isEmpty())
-            relative = QLatin1Char('.');
+            relative = '.';
         m_rawProjectIncludePaths.append(relative);
     }
 
@@ -214,7 +214,7 @@ bool GenericProject::removeFiles(const QStringList &filePaths)
 {
     QStringList newList = m_rawFileList;
 
-    foreach (const QString &filePath, filePaths) {
+    for (const QString &filePath : filePaths) {
         QHash<QString, QString>::iterator i = m_rawListEntries.find(filePath);
         if (i != m_rawListEntries.end())
             newList.removeOne(i.value());
@@ -227,7 +227,7 @@ bool GenericProject::setFiles(const QStringList &filePaths)
 {
     QStringList newList;
     QDir baseDir(projectDirectory().toString());
-    foreach (const QString &filePath, filePaths)
+    for (const QString &filePath : filePaths)
         newList.append(baseDir.relativeFilePath(filePath));
     Utils::sort(newList);
 
@@ -278,7 +278,7 @@ void GenericProject::refresh(RefreshOptions options)
     if (options & Files) {
         QList<FileNode *> fileNodes = Utils::transform(files(), [](const QString &f) {
             FileType fileType = FileType::Source; // ### FIXME
-            if (f.endsWith(QLatin1String(".qrc")))
+            if (f.endsWith(".qrc"))
                 fileType = FileType::Resource;
             return new FileNode(Utils::FileName::fromString(f), fileType, false);
         });
@@ -307,7 +307,7 @@ QStringList GenericProject::processEntries(const QStringList &paths,
 
     QFileInfo fileInfo;
     QStringList absolutePaths;
-    foreach (const QString &path, paths) {
+    for (const QString &path : paths) {
         QString trimmedPath = path.trimmed();
         if (trimmedPath.isEmpty())
             continue;
@@ -351,7 +351,7 @@ void GenericProject::refreshCppCodeModel()
     ppBuilder.setConfigFileName(configFileName());
 
     const QList<Id> languages = ppBuilder.createProjectPartsForFiles(files());
-    foreach (Id language, languages)
+    for (Id language : languages)
         setProjectLanguage(language, true);
 
     m_codeModelFuture = modelManager->updateProjectInfo(pInfo);
@@ -385,15 +385,13 @@ QStringList GenericProject::files(FilesMode fileMode) const
 
 QStringList GenericProject::buildTargets() const
 {
-    QStringList targets;
-    targets.append(QLatin1String("all"));
-    targets.append(QLatin1String("clean"));
+    const QStringList targets = { "all", "clean" };
     return targets;
 }
 
 Project::RestoreResult GenericProject::fromMap(const QVariantMap &map, QString *errorMessage)
 {
-    RestoreResult result = Project::fromMap(map, errorMessage);
+    const RestoreResult result = Project::fromMap(map, errorMessage);
     if (result != RestoreResult::Ok)
         return result;
 
@@ -402,11 +400,11 @@ Project::RestoreResult GenericProject::fromMap(const QVariantMap &map, QString *
         addTarget(createTarget(defaultKit));
 
     // Sanity check: We need both a buildconfiguration and a runconfiguration!
-    QList<Target *> targetList = targets();
+    const QList<Target *> targetList = targets();
     if (targetList.isEmpty())
         return RestoreResult::Error;
 
-    foreach (Target *t, targetList) {
+    for (Target *t : targetList) {
         if (!t->activeBuildConfiguration()) {
             removeTarget(t);
             continue;
@@ -431,7 +429,7 @@ GenericProjectFile::GenericProjectFile(GenericProject *parent, QString fileName,
       m_options(options)
 {
     setId("Generic.ProjectFile");
-    setMimeType(QLatin1String(Constants::GENERICMIMETYPE));
+    setMimeType(Constants::GENERICMIMETYPE);
     setFilePath(Utils::FileName::fromString(fileName));
 }
 

@@ -118,7 +118,7 @@ BuildConfiguration *GenericBuildConfigurationFactory::create(Target *parent, con
     QTC_ASSERT(info->kitId == parent->kit()->id(), return 0);
     QTC_ASSERT(!info->displayName.isEmpty(), return 0);
 
-    GenericBuildConfiguration *bc = new GenericBuildConfiguration(parent);
+    auto bc = new GenericBuildConfiguration(parent);
     bc->setDisplayName(info->displayName);
     bc->setDefaultDisplayName(info->displayName);
     bc->setBuildDirectory(info->buildDirectory);
@@ -127,14 +127,14 @@ BuildConfiguration *GenericBuildConfigurationFactory::create(Target *parent, con
     BuildStepList *cleanSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
 
     Q_ASSERT(buildSteps);
-    GenericMakeStep *makeStep = new GenericMakeStep(buildSteps);
+    auto makeStep = new GenericMakeStep(buildSteps);
     buildSteps->insertStep(0, makeStep);
-    makeStep->setBuildTarget(QLatin1String("all"), /* on = */ true);
+    makeStep->setBuildTarget("all", /* on = */ true);
 
     Q_ASSERT(cleanSteps);
-    GenericMakeStep *cleanMakeStep = new GenericMakeStep(cleanSteps);
+    auto cleanMakeStep = new GenericMakeStep(cleanSteps);
     cleanSteps->insertStep(0, cleanMakeStep);
-    cleanMakeStep->setBuildTarget(QLatin1String("clean"), /* on = */ true);
+    cleanMakeStep->setBuildTarget("clean", /* on = */ true);
     cleanMakeStep->setClean(true);
 
     return bc;
@@ -165,7 +165,7 @@ BuildConfiguration *GenericBuildConfigurationFactory::restore(Target *parent, co
 {
     if (!canRestore(parent, map))
         return 0;
-    GenericBuildConfiguration *bc(new GenericBuildConfiguration(parent));
+    auto bc = new GenericBuildConfiguration(parent);
     if (bc->fromMap(map))
         return bc;
     delete bc;
@@ -182,7 +182,7 @@ bool GenericBuildConfigurationFactory::canHandle(const Target *t) const
 BuildInfo *GenericBuildConfigurationFactory::createBuildInfo(const Kit *k,
                                                              const Utils::FileName &buildDir) const
 {
-    BuildInfo *info = new BuildInfo(this);
+    auto info = new BuildInfo(this);
     info->typeName = tr("Build");
     info->buildDirectory = buildDir;
     info->kitId = k->id();
@@ -201,13 +201,13 @@ BuildConfiguration::BuildType GenericBuildConfiguration::buildType() const
 GenericBuildSettingsWidget::GenericBuildSettingsWidget(GenericBuildConfiguration *bc)
     : m_buildConfiguration(0)
 {
-    QFormLayout *fl = new QFormLayout(this);
+    auto fl = new QFormLayout(this);
     fl->setContentsMargins(0, -1, 0, -1);
     fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
     // build directory
     m_pathChooser = new Utils::PathChooser(this);
-    m_pathChooser->setHistoryCompleter(QLatin1String("Generic.BuildDir.History"));
+    m_pathChooser->setHistoryCompleter("Generic.BuildDir.History");
     m_pathChooser->setEnabled(true);
     fl->addRow(tr("Build directory:"), m_pathChooser);
     connect(m_pathChooser, &Utils::PathChooser::rawPathChanged,

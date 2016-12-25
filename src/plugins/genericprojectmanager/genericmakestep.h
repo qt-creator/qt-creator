@@ -104,7 +104,7 @@ class GenericMakeStepFactory : public ProjectExplorer::IBuildStepFactory
     Q_OBJECT
 
 public:
-    explicit GenericMakeStepFactory(QObject *parent = 0);
+    explicit GenericMakeStepFactory(QObject *parent = nullptr);
 
     QList<ProjectExplorer::BuildStepInfo>
         availableSteps(ProjectExplorer::BuildStepList *parent) const override;
