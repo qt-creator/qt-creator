@@ -26,6 +26,7 @@
 #pragma once
 
 #include "abstractpackagingstep.h"
+#include "deploymenttimeinfo.h"
 #include "remotelinux_export.h"
 
 #include <projectexplorer/deployablefile.h>
@@ -53,7 +54,15 @@ public:
     void setIgnoreMissingFiles(bool ignoreMissingFiles);
     bool ignoreMissingFiles() const;
 
+    void setIncrementalDeployment(bool incrementalDeployment);
+    bool isIncrementalDeployment() const;
+
 private:
+    void deployFinished(bool success);
+
+    void addNeededDeploymentFiles(const ProjectExplorer::DeployableFile &deployable,
+                                  const ProjectExplorer::Kit *kit);
+
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
@@ -67,6 +76,9 @@ private:
     bool writeHeader(QFile &tarFile, const QFileInfo &fileInfo,
         const QString &remoteFilePath);
 
+    DeploymentTimeInfo m_deployTimes;
+
+    bool m_incrementalDeployment;
     bool m_ignoreMissingFiles;
     bool m_packagingNeeded;
     QList<ProjectExplorer::DeployableFile> m_files;
