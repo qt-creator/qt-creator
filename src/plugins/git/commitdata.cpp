@@ -44,6 +44,7 @@ void GitSubmitEditorPanelData::clear()
     email.clear();
     bypassHooks = false;
     pushAction = NoPush;
+    signOff = false;
 }
 
 QString GitSubmitEditorPanelData::authorString() const

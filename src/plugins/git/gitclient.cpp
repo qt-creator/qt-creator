@@ -2529,6 +2529,8 @@ bool GitClient::addAndCommit(const QString &repositoryDirectory,
              arguments << "--author" << authorString;
         if (data.bypassHooks)
             arguments << "--no-verify";
+        if (data.signOff)
+            arguments << "--signoff";
     }
 
     const SynchronousProcessResponse resp = vcsFullySynchronousExec(repositoryDirectory, arguments);

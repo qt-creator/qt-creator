@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>364</width>
-    <height>198</height>
+    <height>269</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -80,7 +80,7 @@
        <widget class="QLineEdit" name="authorLineEdit">
         <property name="minimumSize">
          <size>
-          <width>150</width>
+          <width>200</width>
           <height>0</height>
          </size>
         </property>
@@ -101,12 +101,9 @@
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
-        <property name="sizeType">
-         <enum>QSizePolicy::MinimumExpanding</enum>
-        </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>5</width>
+          <width>40</width>
           <height>20</height>
          </size>
         </property>
@@ -123,13 +120,13 @@
        <widget class="QLineEdit" name="emailLineEdit">
         <property name="minimumSize">
          <size>
-          <width>150</width>
+          <width>200</width>
           <height>0</height>
          </size>
         </property>
        </widget>
       </item>
-      <item row="1" column="2">
+      <item row="1" column="2" colspan="2">
        <widget class="QLabel" name="invalidEmailLabel">
         <property name="minimumSize">
          <size>
@@ -140,21 +137,35 @@
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QCheckBox" name="bypassHooksCheckBox">
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>By&amp;pass hooks:</string>
-        </property>
-        <property name="buddy">
-         <cstring>bypassHooksCheckBox</cstring>
-        </property>
-       </widget>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QCheckBox" name="bypassHooksCheckBox">
+          <property name="text">
+           <string>By&amp;pass hooks</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="signOffCheckBox">
+          <property name="text">
+           <string>&amp;Sign off</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>

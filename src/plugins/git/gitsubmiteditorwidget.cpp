@@ -137,6 +137,7 @@ GitSubmitEditorPanelData GitSubmitEditorWidget::panelData() const
     }
     rc.bypassHooks = m_gitSubmitPanelUi.bypassHooksCheckBox->isChecked();
     rc.pushAction = m_pushAction;
+    rc.signOff = m_gitSubmitPanelUi.signOffCheckBox->isChecked();
     return rc;
 }
 
@@ -147,6 +148,7 @@ void GitSubmitEditorWidget::setPanelData(const GitSubmitEditorPanelData &data)
     m_gitSubmitPanelUi.authorLineEdit->setText(data.author);
     m_gitSubmitPanelUi.emailLineEdit->setText(data.email);
     m_gitSubmitPanelUi.bypassHooksCheckBox->setChecked(data.bypassHooks);
+    m_gitSubmitPanelUi.signOffCheckBox->setChecked(data.signOff);
     authorInformationChanged();
 }
 

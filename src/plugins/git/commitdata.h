@@ -60,6 +60,7 @@ public:
     QString email;
     bool bypassHooks;
     PushAction pushAction;
+    bool signOff;
 };
 
 enum FileState {
