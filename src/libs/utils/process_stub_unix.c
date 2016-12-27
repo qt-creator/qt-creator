@@ -308,7 +308,9 @@ int main(int argc, char *argv[])
             execvp(argv[ArgExe], argv + ArgExe);
             /* Only expected error: no such file or direcotry, i.e. executable not found */
             errNo = errno;
-            write(chldPipe[1], &errNo, sizeof(errNo)); /* Only realistic error case is SIGPIPE */
+            /* Only realistic error case is SIGPIPE */
+            if (write(chldPipe[1], &errNo, sizeof(errNo)) != sizeof(errNo))
+                perror("Error passing errno to child");
             _exit(0);
         default:
             for (;;) {
