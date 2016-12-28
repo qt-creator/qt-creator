@@ -43,8 +43,6 @@ class QmlProfilerStatisticsModel::QmlProfilerStatisticsModelPrivate
 {
 public:
     QHash<int, QmlProfilerStatisticsModel::QmlEventStats> data;
-    QHash<int, QmlProfilerStatisticsModel::QmlEventStats> workingSet;
-
 
     QPointer<QmlProfilerStatisticsRelativesModel> childrenModel;
     QPointer<QmlProfilerStatisticsRelativesModel> parentsModel;
