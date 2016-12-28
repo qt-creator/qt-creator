@@ -233,7 +233,7 @@ QString QmlProfilerStatisticsView::summary(const QVector<int> &typeIds) const
     double sum = 0;
 
     for (int typeId : typeIds) {
-        const double percentage = d->model->getData()[typeId].percentOfTime;
+        const double percentage = d->model->durationPercent(typeId);
         if (percentage > maximum)
             maximum = percentage;
         sum += percentage;
@@ -268,7 +268,7 @@ QStringList QmlProfilerStatisticsView::details(int typeId) const
     return QStringList({
         QmlProfilerStatisticsMainView::nameForType(type.rangeType()),
         data,
-        QString::number(d->model->getData()[typeId].percentOfTime, 'f', 2) + QLatin1Char('%')
+        QString::number(d->model->durationPercent(typeId), 'f', 2) + QLatin1Char('%')
     });
 }
 
@@ -576,9 +576,11 @@ void QmlProfilerStatisticsMainView::updateNotes(int typeIndex)
             if (it != noteList.end()) {
                 item->setBackground(colors()->noteBackground);
                 item->setToolTip(it.value());
-            } else if (stats.isBindingLoop) {
+            } else if (stats.durationRecursive > 0) {
                 item->setBackground(colors()->noteBackground);
-                item->setToolTip(tr("Binding loop detected."));
+                item->setToolTip(tr("%1 / %2% of total in recursive calls")
+                                 .arg(Timeline::formatTime(stats.durationRecursive))
+                                 .arg(stats.durationRecursive * 100l / stats.duration));
             } else if (!item->toolTip().isEmpty()){
                 item->setBackground(colors()->defaultBackground);
                 item->setToolTip(QString());
@@ -611,8 +613,9 @@ void QmlProfilerStatisticsMainView::parseModel()
         }
 
         if (d->m_fieldShown[TimeInPercent]) {
-            newRow << new StatisticsViewItem(QString::number(stats.percentOfTime, 'f', 2)
-                                             + QLatin1String(" %"), stats.percentOfTime);
+            const double percent = d->model->durationPercent(typeIndex);
+            newRow << new StatisticsViewItem(QString::number(percent, 'f', 2)
+                                             + QLatin1String(" %"), percent);
         }
 
         if (d->m_fieldShown[TotalTime]) {
@@ -621,8 +624,9 @@ void QmlProfilerStatisticsMainView::parseModel()
         }
 
         if (d->m_fieldShown[SelfTimeInPercent]) {
-            newRow << new StatisticsViewItem(QString::number(stats.percentSelf, 'f', 2)
-                                             + QLatin1String(" %"), stats.percentSelf);
+            const double percentSelf = d->model->durationSelfPercent(typeIndex);
+            newRow << new StatisticsViewItem(QString::number(percentSelf, 'f', 2)
+                                             + QLatin1String(" %"), percentSelf);
         }
 
         if (d->m_fieldShown[SelfTime]) {
@@ -634,8 +638,9 @@ void QmlProfilerStatisticsMainView::parseModel()
             newRow << new StatisticsViewItem(QString::number(stats.calls), stats.calls);
 
         if (d->m_fieldShown[TimePerCall]) {
-            newRow << new StatisticsViewItem(Timeline::formatTime(stats.timePerCall),
-                                             stats.timePerCall);
+            const qint64 timePerCall = stats.duration / stats.calls;
+            newRow << new StatisticsViewItem(Timeline::formatTime(timePerCall),
+                                             timePerCall);
         }
 
         if (d->m_fieldShown[MedianTime]) {
@@ -909,10 +914,10 @@ void QmlProfilerStatisticsRelativesView::rebuildTree(
         newRow.at(3)->setData(stats.calls);
         newRow.at(4)->setData(type.data());
 
-        if (stats.isBindingLoop) {
+        if (stats.isRecursive) {
             foreach (QStandardItem *item, newRow) {
                 item->setBackground(colors()->noteBackground);
-                item->setToolTip(tr("Part of binding loop."));
+                item->setToolTip(tr("called recursively"));
             }
         }
 

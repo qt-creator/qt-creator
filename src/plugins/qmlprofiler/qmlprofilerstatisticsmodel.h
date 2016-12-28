@@ -50,21 +50,19 @@ class QmlProfilerStatisticsModel : public QObject
     Q_OBJECT
 public:
     struct QmlEventStats {
-        QmlEventStats() : duration(0), durationSelf(0), calls(0),
-            minTime(std::numeric_limits<qint64>::max()), maxTime(0), timePerCall(0),
-            percentOfTime(0), percentSelf(0), medianTime(0), isBindingLoop(false) {}
+        QmlEventStats() : duration(0), durationSelf(0), durationRecursive(0), calls(0),
+            minTime(std::numeric_limits<qint64>::max()), maxTime(0), medianTime(0) {}
         qint64 duration;
         qint64 durationSelf;
+        qint64 durationRecursive;
         qint64 calls;
         qint64 minTime;
         qint64 maxTime;
-        qint64 timePerCall;
-        double percentOfTime;
-        double percentSelf;
         qint64 medianTime;
-
-        bool isBindingLoop;
     };
+
+    double durationPercent(int typeId) const;
+    double durationSelfPercent(int typeId) const;
 
     QmlProfilerStatisticsModel(QmlProfilerModelManager *modelManager, QObject *parent = 0);
     ~QmlProfilerStatisticsModel();
@@ -107,7 +105,7 @@ public:
     struct QmlStatisticsRelativesData {
         qint64 duration;
         qint64 calls;
-        bool isBindingLoop;
+        bool isRecursive;
     };
     typedef QHash <int, QmlStatisticsRelativesData> QmlStatisticsRelativesMap;
 
@@ -122,8 +120,7 @@ public:
     const QmlStatisticsRelativesMap &getData(int typeId) const;
     const QVector<QmlEventType> &getTypes() const;
 
-    void loadEvent(RangeType type, const QmlEvent &event);
-    void finalize(const QSet<int> &eventsInBindingLoop);
+    void loadEvent(RangeType type, const QmlEvent &event, bool isRecursive);
 
     QmlProfilerStatisticsRelation relation() const;
 

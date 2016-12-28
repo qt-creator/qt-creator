@@ -52,15 +52,26 @@ public:
     int modelId;
 
     QList<RangeType> acceptedTypes;
-    QSet<int> eventsInBindingLoop;
     QHash<int, QString> notes;
 
     QStack<QmlEvent> callStack;
     QStack<QmlEvent> compileStack;
-    qint64 qmlTime = 0;
-    qint64 lastEndTime = 0;
     QHash <int, QVector<qint64> > durations;
 };
+
+double QmlProfilerStatisticsModel::durationPercent(int typeId) const
+{
+    const QmlEventStats &global = d->data[-1];
+    const QmlEventStats &stats = d->data[typeId];
+    return double(stats.duration - stats.durationRecursive) / double(global.duration) * 100l;
+}
+
+double QmlProfilerStatisticsModel::durationSelfPercent(int typeId) const
+{
+    const QmlEventStats &global = d->data[-1];
+    const QmlEventStats &stats = d->data[typeId];
+    return double(stats.durationSelf) / double(global.duration) * 100l;
+}
 
 QmlProfilerStatisticsModel::QmlProfilerStatisticsModel(QmlProfilerModelManager *modelManager,
                                                QObject *parent) :
@@ -136,12 +147,9 @@ const QHash<int, QString> &QmlProfilerStatisticsModel::getNotes() const
 void QmlProfilerStatisticsModel::clear()
 {
     d->data.clear();
-    d->eventsInBindingLoop.clear();
     d->notes.clear();
     d->callStack.clear();
     d->compileStack.clear();
-    d->qmlTime = 0;
-    d->lastEndTime = 0;
     d->durations.clear();
     if (!d->childrenModel.isNull())
         d->childrenModel->clear();
@@ -206,18 +214,10 @@ void QmlProfilerStatisticsModel::loadEvent(const QmlEvent &event, const QmlEvent
     if (!d->acceptedTypes.contains(type.rangeType()))
         return;
 
+    bool isRecursive = false;
     QStack<QmlEvent> &stack = type.rangeType() == Compiling ? d->compileStack : d->callStack;
     switch (event.rangeStage()) {
     case RangeStart:
-        // binding loop detection: check whether event is already in stack
-        if (type.rangeType() == Binding || type.rangeType() == HandlingSignal) {
-            for (int ii = 0; ii < stack.size(); ++ii) {
-                if (stack.at(ii).typeIndex() == event.typeIndex()) {
-                    d->eventsInBindingLoop.insert(event.typeIndex());
-                    break;
-                }
-            }
-        }
         stack.push(event);
         break;
     case RangeEnd: {
@@ -234,16 +234,21 @@ void QmlProfilerStatisticsModel::loadEvent(const QmlEvent &event, const QmlEvent
         stats->calls++;
         // for median computing
         d->durations[event.typeIndex()].append(duration);
-        // qml time computation
-        if (event.timestamp() > d->lastEndTime) { // assume parent event if starts before last end
-            d->qmlTime += duration;
-            d->lastEndTime = event.timestamp();
-        }
-
         stack.pop();
+
+        // recursion detection: check whether event was already in stack
+        for (int ii = 0; ii < stack.size(); ++ii) {
+            if (stack.at(ii).typeIndex() == event.typeIndex()) {
+                isRecursive = true;
+                stats->durationRecursive += duration;
+                break;
+            }
+        }
 
         if (!stack.isEmpty())
             d->data[stack.top().typeIndex()].durationSelf -= duration;
+        else
+            d->data[-1].duration += duration;
         break;
     }
     default:
@@ -251,9 +256,9 @@ void QmlProfilerStatisticsModel::loadEvent(const QmlEvent &event, const QmlEvent
     }
 
     if (!d->childrenModel.isNull())
-        d->childrenModel->loadEvent(type.rangeType(), event);
+        d->childrenModel->loadEvent(type.rangeType(), event, isRecursive);
     if (!d->parentsModel.isNull())
-        d->parentsModel->loadEvent(type.rangeType(), event);
+        d->parentsModel->loadEvent(type.rangeType(), event, isRecursive);
 }
 
 
@@ -261,39 +266,18 @@ void QmlProfilerStatisticsModel::finalize()
 {
     // post-process: calc mean time, median time, percentoftime
     for (QHash<int, QmlEventStats>::iterator it = d->data.begin(); it != d->data.end(); ++it) {
-        QmlEventStats* stats = &it.value();
-        if (stats->calls > 0)
-            stats->timePerCall = stats->duration / (double)stats->calls;
-
         QVector<qint64> eventDurations = d->durations[it.key()];
         if (!eventDurations.isEmpty()) {
             Utils::sort(eventDurations);
-            stats->medianTime = eventDurations.at(eventDurations.count()/2);
+            it->medianTime = eventDurations.at(eventDurations.count()/2);
         }
-
-        stats->percentOfTime = stats->duration * 100.0 / d->qmlTime;
-        stats->percentSelf = stats->durationSelf * 100.0 / d->qmlTime;
     }
 
-    // set binding loop flag
-    foreach (int typeIndex, d->eventsInBindingLoop)
-        d->data[typeIndex].isBindingLoop = true;
-
     // insert root event
-    QmlEventStats rootEvent;
-    rootEvent.duration = rootEvent.minTime = rootEvent.maxTime = rootEvent.timePerCall
-                       = rootEvent.medianTime = d->qmlTime + 1;
-    rootEvent.durationSelf = 1;
+    QmlEventStats &rootEvent = d->data[-1];
+    rootEvent.minTime = rootEvent.maxTime = rootEvent.medianTime = rootEvent.duration;
+    rootEvent.durationSelf = 0;
     rootEvent.calls = 1;
-    rootEvent.percentOfTime = 100.0;
-    rootEvent.percentSelf = 1.0 / rootEvent.duration;
-
-    d->data.insert(-1, rootEvent);
-
-    if (!d->childrenModel.isNull())
-        d->childrenModel->finalize(d->eventsInBindingLoop);
-    if (!d->parentsModel.isNull())
-        d->parentsModel->finalize(d->eventsInBindingLoop);
 
     emit dataAvailable();
 }
@@ -337,7 +321,8 @@ const QVector<QmlEventType> &QmlProfilerStatisticsRelativesModel::getTypes() con
     return m_modelManager->qmlModel()->eventTypes();
 }
 
-void QmlProfilerStatisticsRelativesModel::loadEvent(RangeType type, const QmlEvent &event)
+void QmlProfilerStatisticsRelativesModel::loadEvent(RangeType type, const QmlEvent &event,
+                                                    bool isRecursive)
 {
     QStack<Frame> &stack = (type == Compiling) ? m_compileStack : m_callStack;
 
@@ -355,13 +340,14 @@ void QmlProfilerStatisticsRelativesModel::loadEvent(RangeType type, const QmlEve
         QmlStatisticsRelativesMap &relativesMap = m_data[selfTypeIndex];
         QmlStatisticsRelativesMap::Iterator it = relativesMap.find(relativeTypeIndex);
         if (it != relativesMap.end()) {
-            it.value().calls++;
-            it.value().duration += event.timestamp() - stack.top().startTime;
+            it->calls++;
+            it->duration += event.timestamp() - stack.top().startTime;
+            it->isRecursive = isRecursive || it->isRecursive;
         } else {
             QmlStatisticsRelativesData relative = {
                 event.timestamp() - stack.top().startTime,
                 1,
-                false
+                isRecursive
             };
             relativesMap.insert(relativeTypeIndex, relative);
         }
@@ -370,18 +356,6 @@ void QmlProfilerStatisticsRelativesModel::loadEvent(RangeType type, const QmlEve
     }
     default:
         break;
-    }
-}
-
-void QmlProfilerStatisticsRelativesModel::finalize(const QSet<int> &eventsInBindingLoop)
-{
-    for (auto map = m_data.begin(), mapEnd = m_data.end(); map != mapEnd; ++map) {
-        auto itemEnd = map->end();
-        foreach (int typeIndex, eventsInBindingLoop) {
-            auto item = map->find(typeIndex);
-            if (item != itemEnd)
-                item->isBindingLoop = true;
-        }
     }
 }
 
