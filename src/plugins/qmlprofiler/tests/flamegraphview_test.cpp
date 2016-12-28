@@ -34,8 +34,7 @@
 namespace QmlProfiler {
 namespace Internal {
 
-FlameGraphViewTest::FlameGraphViewTest(QObject *parent) : QObject(parent), manager(&finder),
-    view(&manager)
+FlameGraphViewTest::FlameGraphViewTest(QObject *parent) : QObject(parent), view(&manager)
 {
 }
 

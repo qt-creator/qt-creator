@@ -32,6 +32,7 @@
 #include "qmlevent.h"
 
 #include <utils/fileinprojectfinder.h>
+#include <projectexplorer/runconfiguration.h>
 
 namespace QmlProfiler {
 
@@ -39,14 +40,16 @@ class QMLPROFILER_EXPORT QmlProfilerDataModel : public QObject
 {
     Q_OBJECT
 public:
-    explicit QmlProfilerDataModel(Utils::FileInProjectFinder *fileFinder,
-                                  QmlProfilerModelManager *parent);
+    explicit QmlProfilerDataModel(QmlProfilerModelManager *parent);
     ~QmlProfilerDataModel();
 
     const QmlEventType &eventType(int typeId) const;
     const QVector<QmlEventType> &eventTypes() const;
     void addEventTypes(const QVector<QmlEventType> &types);
     void addEventType(const QmlEventType &type);
+
+    void populateFileFinder(const ProjectExplorer::RunConfiguration *runConfiguration = nullptr);
+    QString findLocalFile(const QString &remoteFile);
 
     void clear();
     bool isEmpty() const;

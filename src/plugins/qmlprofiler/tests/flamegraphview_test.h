@@ -45,7 +45,6 @@ private slots:
     void cleanupTestCase();
 
 private:
-    Utils::FileInProjectFinder finder;
     QmlProfilerModelManager manager;
     FlameGraphView view;
 };

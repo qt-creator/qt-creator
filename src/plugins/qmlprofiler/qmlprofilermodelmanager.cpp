@@ -158,7 +158,7 @@ public:
 };
 
 
-QmlProfilerModelManager::QmlProfilerModelManager(Utils::FileInProjectFinder *finder, QObject *parent) :
+QmlProfilerModelManager::QmlProfilerModelManager(QObject *parent) :
     QObject(parent), d(new QmlProfilerModelManagerPrivate)
 {
     d->numRegisteredModels = 0;
@@ -168,7 +168,7 @@ QmlProfilerModelManager::QmlProfilerModelManager(Utils::FileInProjectFinder *fin
     d->visibleFeatures = 0;
     d->recordedFeatures = 0;
     d->aggregateTraces = false;
-    d->model = new QmlProfilerDataModel(finder, this);
+    d->model = new QmlProfilerDataModel(this);
     d->state = Empty;
     d->traceTime = new QmlProfilerTraceTime(this);
     d->notesModel = new QmlProfilerNotesModel(this);

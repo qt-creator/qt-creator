@@ -27,6 +27,7 @@
 
 #include "qmleventlocation.h"
 
+#include <projectexplorer/runconfiguration.h>
 #include <qmljs/qmljsdocument.h>
 #include <utils/fileinprojectfinder.h>
 
@@ -39,13 +40,14 @@ class QmlProfilerDetailsRewriter : public QObject
 {
     Q_OBJECT
 public:
-    explicit QmlProfilerDetailsRewriter(Utils::FileInProjectFinder *fileFinder,
-                                        QObject *parent = nullptr);
+    explicit QmlProfilerDetailsRewriter(QObject *parent = nullptr);
 
     void clearRequests();
     void requestDetailsForLocation(int typeId, const QmlEventLocation &location);
+    QString getLocalFile(const QString &remoteFile);
     void reloadDocuments();
     void documentReady(QmlJS::Document::Ptr doc);
+    void populateFileFinder(const ProjectExplorer::RunConfiguration *runConfiguration);
 
     struct PendingEvent {
         QmlEventLocation location;
@@ -58,7 +60,7 @@ signals:
 
 private:
     QMultiHash<QString, PendingEvent> m_pendingEvents;
-    Utils::FileInProjectFinder *m_projectFinder;
+    Utils::FileInProjectFinder m_projectFinder;
     QHash<QString, QString> m_filesCache;
 
     void rewriteDetailsForLocation(const QString &source, QmlJS::Document::Ptr doc, int typeId,

@@ -94,14 +94,13 @@ QString getInitialDetails(const QmlEventType &event)
     return details;
 }
 
-QmlProfilerDataModel::QmlProfilerDataModel(Utils::FileInProjectFinder *fileFinder,
-                                           QmlProfilerModelManager *parent) :
+QmlProfilerDataModel::QmlProfilerDataModel(QmlProfilerModelManager *parent) :
     QObject(parent), d_ptr(new QmlProfilerDataModelPrivate)
 {
     Q_D(QmlProfilerDataModel);
     Q_ASSERT(parent);
+    d->detailsRewriter = new QmlProfilerDetailsRewriter(this);
     d->modelManager = parent;
-    d->detailsRewriter = new QmlProfilerDetailsRewriter(fileFinder, this);
     d->modelId = d->modelManager->registerModelProxy();
     connect(d->detailsRewriter, &QmlProfilerDetailsRewriter::rewriteDetailsString,
             this, &QmlProfilerDataModel::detailsChanged);
@@ -144,6 +143,19 @@ void QmlProfilerDataModel::addEventType(const QmlEventType &type)
     int typeIndex = d->eventTypes.length();
     d->eventTypes.append(type);
     d->rewriteType(typeIndex);
+}
+
+void QmlProfilerDataModel::populateFileFinder(
+        const ProjectExplorer::RunConfiguration *runConfiguration)
+{
+    Q_D(QmlProfilerDataModel);
+    d->detailsRewriter->populateFileFinder(runConfiguration);
+}
+
+QString QmlProfilerDataModel::findLocalFile(const QString &remoteFile)
+{
+    Q_D(QmlProfilerDataModel);
+    return d->detailsRewriter->getLocalFile(remoteFile);
 }
 
 void QmlProfilerDataModel::addEvent(const QmlEvent &event)

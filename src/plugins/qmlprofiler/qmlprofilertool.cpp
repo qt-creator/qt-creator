@@ -100,7 +100,6 @@ public:
     QmlProfilerModelManager *m_profilerModelManager = 0;
 
     QmlProfilerViewManager *m_viewContainer = 0;
-    Utils::FileInProjectFinder m_projectFinder;
     QToolButton *m_recordButton = 0;
     QMenu *m_recordFeaturesMenu = 0;
 
@@ -147,7 +146,7 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     connect(d->m_profilerConnections, &QmlProfilerClientManager::connectionClosed,
             this, &QmlProfilerTool::clientsDisconnected);
 
-    d->m_profilerModelManager = new QmlProfilerModelManager(&d->m_projectFinder, this);
+    d->m_profilerModelManager = new QmlProfilerModelManager(this);
     connect(d->m_profilerModelManager, &QmlProfilerModelManager::stateChanged,
             this, &QmlProfilerTool::profilerDataModelStateChanged);
     connect(d->m_profilerModelManager, &QmlProfilerModelManager::error,
@@ -242,7 +241,7 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
 
     // When the widgets are requested we assume that the session data
     // is available, then we can populate the file finder
-    populateFileFinder();
+    d->m_profilerModelManager->qmlModel()->populateFileFinder();
 
     auto runControlCreator = [this](RunConfiguration *runConfiguration, Core::Id) {
         return createRunControl(runConfiguration);
@@ -309,15 +308,6 @@ void QmlProfilerTool::updateRunActions()
     }
 }
 
-static QString sysroot(RunConfiguration *runConfig)
-{
-    QTC_ASSERT(runConfig, return QString());
-    Kit *k = runConfig->target()->kit();
-    if (k && SysRootKitInformation::hasSysRoot(k))
-        return SysRootKitInformation::sysRoot(runConfig->target()->kit()).toString();
-    return QString();
-}
-
 AnalyzerRunControl *QmlProfilerTool::createRunControl(RunConfiguration *runConfiguration)
 {
     d->m_toolBusy = true;
@@ -368,10 +358,7 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunControl *runControl)
 
     RunConfiguration *runConfiguration = runControl->runConfiguration();
     if (runConfiguration) {
-        QString projectDirectory;
-        Project *project = runConfiguration->target()->project();
-        projectDirectory = project->projectDirectory().toString();
-        populateFileFinder(projectDirectory, sysroot(runConfiguration));
+        d->m_profilerModelManager->qmlModel()->populateFileFinder(runConfiguration);
     }
 
     if (connection.analyzerSocket.isEmpty()) {
@@ -411,35 +398,6 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunControl *runControl)
 
         infoBox->show();
     });
-}
-
-void QmlProfilerTool::populateFileFinder(QString projectDirectory, QString activeSysroot)
-{
-    // Initialize filefinder with some sensible default
-    QStringList sourceFiles;
-    QList<Project *> projects = SessionManager::projects();
-    if (Project *startupProject = SessionManager::startupProject()) {
-        // startup project first
-        projects.removeOne(startupProject);
-        projects.insert(0, startupProject);
-    }
-    foreach (Project *project, projects)
-        sourceFiles << project->files(Project::SourceFiles);
-
-    if (!projects.isEmpty()) {
-        if (projectDirectory.isEmpty())
-            projectDirectory = projects.first()->projectDirectory().toString();
-
-        if (activeSysroot.isEmpty()) {
-            if (Target *target = projects.first()->activeTarget())
-                if (RunConfiguration *rc = target->activeRunConfiguration())
-                    activeSysroot = sysroot(rc);
-        }
-    }
-
-    d->m_projectFinder.setProjectDirectory(projectDirectory);
-    d->m_projectFinder.setProjectFiles(sourceFiles);
-    d->m_projectFinder.setSysroot(activeSysroot);
 }
 
 void QmlProfilerTool::recordingButtonChanged(bool recording)
@@ -492,7 +450,7 @@ void QmlProfilerTool::gotoSourceLocation(const QString &fileUrl, int lineNumber,
     if (lineNumber < 0 || fileUrl.isEmpty())
         return;
 
-    const QString projectFileName = d->m_projectFinder.findFile(fileUrl);
+    const QString projectFileName = d->m_profilerModelManager->qmlModel()->findLocalFile(fileUrl);
 
     QFileInfo fileInfo(projectFileName);
     if (!fileInfo.exists() || !fileInfo.isReadable())
@@ -693,7 +651,7 @@ void QmlProfilerTool::showLoadDialog()
         Debugger::enableMainWindow(false);
         connect(d->m_profilerModelManager, &QmlProfilerModelManager::recordedFeaturesChanged,
                 this, &QmlProfilerTool::setRecordedFeatures);
-        populateFileFinder();
+        d->m_profilerModelManager->qmlModel()->populateFileFinder();
         d->m_profilerModelManager->load(filename);
     }
 }

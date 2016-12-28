@@ -25,6 +25,12 @@
 
 #include "qmlprofilerdetailsrewriter.h"
 
+#include <projectexplorer/kit.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/session.h>
+#include <projectexplorer/target.h>
+#include <projectexplorer/runconfiguration.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljstools/qmljsmodelmanager.h>
@@ -85,35 +91,40 @@ protected:
     }
 };
 
-QmlProfilerDetailsRewriter::QmlProfilerDetailsRewriter(Utils::FileInProjectFinder *fileFinder,
-                                                       QObject *parent)
-    : QObject(parent), m_projectFinder(fileFinder)
+QmlProfilerDetailsRewriter::QmlProfilerDetailsRewriter(QObject *parent)
+    : QObject(parent)
 {
 }
 
 void QmlProfilerDetailsRewriter::requestDetailsForLocation(int typeId,
                                                            const QmlEventLocation &location)
 {
-    QString localFile;
-    const QString locationFile = location.filename();
-    if (!m_filesCache.contains(locationFile)) {
-        localFile = m_projectFinder->findFile(locationFile);
-        m_filesCache[locationFile] = localFile;
-    } else {
-        localFile = m_filesCache[locationFile];
-    }
-    QFileInfo fileInfo(localFile);
-    if (!fileInfo.exists() || !fileInfo.isReadable())
+    const QString localFile = getLocalFile(location.filename());
+    if (localFile.isEmpty())
         return;
-    if (!QmlJS::ModelManagerInterface::guessLanguageOfFile(localFile).isQmlLikeLanguage())
-        return;
-
-    localFile = fileInfo.canonicalFilePath();
 
     if (m_pendingEvents.isEmpty())
         connectQmlModel();
 
     m_pendingEvents.insert(localFile, {location, typeId});
+}
+
+QString QmlProfilerDetailsRewriter::getLocalFile(const QString &remoteFile)
+{
+    QString localFile;
+    if (!m_filesCache.contains(remoteFile)) {
+        localFile = m_projectFinder.findFile(remoteFile);
+        m_filesCache[remoteFile] = localFile;
+    } else {
+        localFile = m_filesCache[remoteFile];
+    }
+    QFileInfo fileInfo(localFile);
+    if (!fileInfo.exists() || !fileInfo.isReadable())
+        return QString();
+    if (!QmlJS::ModelManagerInterface::guessLanguageOfFile(localFile).isQmlLikeOrJsLanguage())
+        return QString();
+
+    return fileInfo.canonicalFilePath();
 }
 
 void QmlProfilerDetailsRewriter::reloadDocuments()
@@ -194,6 +205,58 @@ void QmlProfilerDetailsRewriter::documentReady(QmlJS::Document::Ptr doc)
         emit eventDetailsChanged();
         m_filesCache.clear();
     }
+}
+
+void QmlProfilerDetailsRewriter::populateFileFinder(
+        const ProjectExplorer::RunConfiguration *runConfiguration)
+{
+    // Prefer the given runConfiguration's target if available
+    const ProjectExplorer::Target *target = runConfiguration ? runConfiguration->target() : nullptr;
+
+    // If runConfiguration given, then use the project associated with that ...
+    const ProjectExplorer::Project *startupProject = target ? target->project() : nullptr;
+
+    // ... else try the session manager's global startup project ...
+    if (!startupProject)
+        startupProject = ProjectExplorer::SessionManager::startupProject();
+
+    // ... and if that is null, use the first project available.
+    const QList<ProjectExplorer::Project *> projects = ProjectExplorer::SessionManager::projects();
+    if (!startupProject && !projects.isEmpty())
+        startupProject = projects.first();
+
+    QString projectDirectory;
+    QStringList sourceFiles;
+
+    // Sort files from startupProject to the front of the list ...
+    if (startupProject) {
+        projectDirectory = startupProject->projectDirectory().toString();
+        sourceFiles.append(startupProject->files(ProjectExplorer::Project::SourceFiles));
+    }
+
+    // ... then add all the other projects' files.
+    for (const ProjectExplorer::Project *project : projects) {
+        if (project != startupProject)
+            sourceFiles.append(project->files(ProjectExplorer::Project::SourceFiles));
+    }
+
+    // If no runConfiguration was given, but we've found a startupProject, then try to deduct a
+    // target from that.
+    if (!target && startupProject)
+        target = startupProject->activeTarget();
+
+    // ... and find the sysroot if we have any target at all.
+    QString activeSysroot;
+    if (target) {
+        const ProjectExplorer::Kit *kit = target->kit();
+        if (kit && ProjectExplorer::SysRootKitInformation::hasSysRoot(kit))
+            activeSysroot = ProjectExplorer::SysRootKitInformation::sysRoot(kit).toString();
+    }
+
+    // Finally, do populate m_projectFinder
+    m_projectFinder.setProjectDirectory(projectDirectory);
+    m_projectFinder.setProjectFiles(sourceFiles);
+    m_projectFinder.setSysroot(activeSysroot);
 }
 
 } // namespace Internal

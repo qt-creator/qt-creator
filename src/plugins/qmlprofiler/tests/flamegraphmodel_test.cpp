@@ -33,7 +33,7 @@ namespace QmlProfiler {
 namespace Internal {
 
 FlameGraphModelTest::FlameGraphModelTest(QObject *parent) :
-    QObject(parent), manager(&finder), model(&manager)
+    QObject(parent), model(&manager)
 {
 }
 

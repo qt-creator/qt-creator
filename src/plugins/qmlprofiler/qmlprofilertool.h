@@ -95,7 +95,6 @@ private slots:
 private:
     void updateRunActions();
     void clearDisplay();
-    void populateFileFinder(QString projectDirectory = QString(), QString activeSysroot = QString());
     template<ProfileFeature feature>
     void updateFeatures(quint64 features);
     bool checkForUnsavedNotes();

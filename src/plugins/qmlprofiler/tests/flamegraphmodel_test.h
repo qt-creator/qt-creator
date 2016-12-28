@@ -49,7 +49,6 @@ private slots:
     void cleanupTestCase();
 
 private:
-    Utils::FileInProjectFinder finder;
     QmlProfilerModelManager manager;
     FlameGraphModel model;
     int rangeModelId = -1;

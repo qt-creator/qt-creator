@@ -90,7 +90,7 @@ public:
     typedef std::function<void(const QmlEvent &, const QmlEventType &)> EventLoader;
     typedef std::function<void()> Finalizer;
 
-    explicit QmlProfilerModelManager(Utils::FileInProjectFinder *finder, QObject *parent = 0);
+    explicit QmlProfilerModelManager(QObject *parent = 0);
     ~QmlProfilerModelManager();
 
     State state() const;
