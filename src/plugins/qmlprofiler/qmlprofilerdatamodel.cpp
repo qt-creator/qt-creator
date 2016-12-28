@@ -48,9 +48,6 @@ public:
     int resolveStackTop();
 
     QVector<QmlEventType> eventTypes;
-
-    QmlProfilerModelManager *modelManager;
-    int modelId;
     Internal::QmlProfilerDetailsRewriter *detailsRewriter;
 
     Utils::TemporaryFile file;
@@ -94,14 +91,12 @@ QString getInitialDetails(const QmlEventType &event)
     return details;
 }
 
-QmlProfilerDataModel::QmlProfilerDataModel(QmlProfilerModelManager *parent) :
+QmlProfilerDataModel::QmlProfilerDataModel(QObject *parent) :
     QObject(parent), d_ptr(new QmlProfilerDataModelPrivate)
 {
     Q_D(QmlProfilerDataModel);
     Q_ASSERT(parent);
     d->detailsRewriter = new QmlProfilerDetailsRewriter(this);
-    d->modelManager = parent;
-    d->modelId = d->modelManager->registerModelProxy();
     connect(d->detailsRewriter, &QmlProfilerDetailsRewriter::rewriteDetailsString,
             this, &QmlProfilerDataModel::detailsChanged);
     connect(d->detailsRewriter, &QmlProfilerDetailsRewriter::eventDetailsChanged,

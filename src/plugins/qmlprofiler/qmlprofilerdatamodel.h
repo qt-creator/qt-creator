@@ -40,7 +40,7 @@ class QMLPROFILER_EXPORT QmlProfilerDataModel : public QObject
 {
     Q_OBJECT
 public:
-    explicit QmlProfilerDataModel(QmlProfilerModelManager *parent);
+    explicit QmlProfilerDataModel(QObject *parent = nullptr);
     ~QmlProfilerDataModel();
 
     const QmlEventType &eventType(int typeId) const;
