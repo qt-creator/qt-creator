@@ -37,14 +37,15 @@
 
 namespace QmlProfiler {
 
-class QmlProfilerDataModel;
+class QmlProfilerModelManager;
 class QmlProfilerTraceClient : public QmlDebug::QmlDebugClient
 {
     Q_OBJECT
     Q_PROPERTY(bool recording READ isRecording WRITE setRecording NOTIFY recordingChanged)
 
 public:
-    QmlProfilerTraceClient(QmlDebug::QmlDebugConnection *client, QmlProfilerDataModel *model,
+    QmlProfilerTraceClient(QmlDebug::QmlDebugConnection *client,
+                           QmlProfilerModelManager *modelManager,
                            quint64 features);
     ~QmlProfilerTraceClient();
 

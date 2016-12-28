@@ -202,9 +202,8 @@ void QmlProfilerClientManager::createConnection()
     // false by default (will be set to true when connected)
     m_profilerState->setServerRecording(false);
     m_profilerState->setRecordedFeatures(0);
-    m_qmlclientplugin.reset(new QmlProfilerTraceClient(m_connection.data(),
-                                                     m_modelManager->qmlModel(),
-                                                     m_profilerState->requestedFeatures()));
+    m_qmlclientplugin.reset(new QmlProfilerTraceClient(m_connection.data(), m_modelManager,
+                                                       m_profilerState->requestedFeatures()));
     m_qmlclientplugin->setFlushInterval(m_flushInterval);
     connectClientSignals();
 }

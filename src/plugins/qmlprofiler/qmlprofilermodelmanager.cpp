@@ -153,6 +153,8 @@ public:
 
     QHash<ProfileFeature, QVector<EventLoader> > eventLoaders;
     QVector<Finalizer> finalizers;
+
+    void dispatch(const QmlEvent &event, const QmlEventType &type);
 };
 
 
@@ -204,6 +206,11 @@ uint QmlProfilerModelManager::numLoadedEvents() const
     return d->numLoadedEvents;
 }
 
+uint QmlProfilerModelManager::numLoadedEventTypes() const
+{
+    return d->model->eventTypes().count();
+}
+
 int QmlProfilerModelManager::registerModelProxy()
 {
     return d->numRegisteredModels++;
@@ -219,11 +226,36 @@ int QmlProfilerModelManager::numRegisteredFinalizers() const
     return d->finalizers.count();
 }
 
-void QmlProfilerModelManager::dispatch(const QmlEvent &event, const QmlEventType &type)
+void QmlProfilerModelManager::addEvents(const QVector<QmlEvent> &events)
 {
-    foreach (const EventLoader &loader, d->eventLoaders[type.feature()])
+    d->model->addEvents(events);
+    const QVector<QmlEventType> &types = d->model->eventTypes();
+    for (const QmlEvent &event : events)
+        d->dispatch(event, types[event.typeIndex()]);
+}
+
+void QmlProfilerModelManager::addEvent(const QmlEvent &event)
+{
+    d->model->addEvent(event);
+    d->dispatch(event, d->model->eventType(event.typeIndex()));
+}
+
+void QmlProfilerModelManager::addEventTypes(const QVector<QmlEventType> &types)
+{
+    d->model->addEventTypes(types);
+}
+
+void QmlProfilerModelManager::addEventType(const QmlEventType &type)
+{
+    d->model->addEventType(type);
+}
+
+void QmlProfilerModelManager::QmlProfilerModelManagerPrivate::dispatch(const QmlEvent &event,
+                                                                       const QmlEventType &type)
+{
+    foreach (const EventLoader &loader, eventLoaders[type.feature()])
         loader(event, type);
-    ++d->numLoadedEvents;
+    ++numLoadedEvents;
 }
 
 void QmlProfilerModelManager::announceFeatures(quint64 features, EventLoader eventLoader,
@@ -373,13 +405,13 @@ void QmlProfilerModelManager::load(const QString &filename)
     }, Qt::QueuedConnection);
 
     connect(reader, &QmlProfilerFileReader::typesLoaded,
-            d->model, &QmlProfilerDataModel::setEventTypes);
+            this, &QmlProfilerModelManager::addEventTypes);
 
     connect(reader, &QmlProfilerFileReader::notesLoaded,
             d->notesModel, &QmlProfilerNotesModel::setNotes);
 
     connect(reader, &QmlProfilerFileReader::qmlEventsLoaded,
-            d->model, &QmlProfilerDataModel::addEvents);
+            this, &QmlProfilerModelManager::addEvents);
 
     connect(reader, &QmlProfilerFileReader::success, this, [this, reader]() {
         d->traceTime->setTime(reader->traceStart(), reader->traceEnd());
@@ -464,7 +496,7 @@ void QmlProfilerModelManager::restrictToRange(qint64 startTime, qint64 endTime)
 
     startAcquiring();
     d->model->replayEvents(startTime, endTime,
-                           std::bind(&QmlProfilerModelManager::dispatch, this,
+                           std::bind(&QmlProfilerModelManagerPrivate::dispatch, d,
                                      std::placeholders::_1, std::placeholders::_2));
     d->notesModel->setNotes(notes);
     d->traceTime->restrictToRange(startTime, endTime);

@@ -35,8 +35,10 @@ namespace Internal {
 InputEventsModelTest::InputEventsModelTest(QObject *parent) :
     QObject(parent), manager(nullptr), model(&manager)
 {
-    keyTypeId = manager.qmlModel()->addEventType(QmlEventType(Event, MaximumRangeType, Key));
-    mouseTypeId = manager.qmlModel()->addEventType(QmlEventType(Event, MaximumRangeType, Mouse));
+    keyTypeId = manager.numLoadedEventTypes();
+    manager.addEventType(QmlEventType(Event, MaximumRangeType, Key));
+    mouseTypeId = manager.numLoadedEventTypes();
+    manager.addEventType(QmlEventType(Event, MaximumRangeType, Mouse));
 }
 
 void InputEventsModelTest::initTestCase()
@@ -51,7 +53,7 @@ void InputEventsModelTest::initTestCase()
         event.setNumbers({static_cast<qint32>(type),
                           (i * 32) % 256,
                           static_cast<qint32>((i * 0x02000000) & Qt::KeyboardModifierMask)});
-        manager.qmlModel()->addEvent(event);
+        manager.addEvent(event);
     }
     manager.acquiringDone();
     QCOMPARE(manager.state(), QmlProfilerModelManager::Done);

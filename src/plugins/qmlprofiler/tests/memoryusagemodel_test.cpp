@@ -40,60 +40,61 @@ void MemoryUsageModelTest::initTestCase()
     qint64 timestamp = 0;
 
 
-    heapPageTypeId = manager.qmlModel()->addEventType(
-                QmlEventType(MemoryAllocation, MaximumRangeType, HeapPage));
-    smallItemTypeId = manager.qmlModel()->addEventType(
-                QmlEventType(MemoryAllocation, MaximumRangeType, SmallItem));
-    largeItemTypeId = manager.qmlModel()->addEventType(
-                QmlEventType(MemoryAllocation, MaximumRangeType, LargeItem));
+    heapPageTypeId = manager.numLoadedEventTypes();
+    manager.addEventType(QmlEventType(MemoryAllocation, MaximumRangeType, HeapPage));
+    smallItemTypeId = manager.numLoadedEventTypes();
+    manager.addEventType(QmlEventType(MemoryAllocation, MaximumRangeType, SmallItem));
+    largeItemTypeId = manager.numLoadedEventTypes();
+    manager.addEventType(QmlEventType(MemoryAllocation, MaximumRangeType, LargeItem));
 
     auto addMemoryEvents = [&]() {
         QmlEvent event;
         event.setTimestamp(++timestamp);
         event.setTypeIndex(heapPageTypeId);
         event.setNumbers({2048});
-        manager.qmlModel()->addEvent(event);
-        manager.qmlModel()->addEvent(event); // allocate two of them and make the model summarize
+        manager.addEvent(event);
+        manager.addEvent(event); // allocate two of them and make the model summarize
 
         event.setTimestamp(++timestamp);
         event.setTypeIndex(smallItemTypeId);
         event.setNumbers({32});
-        manager.qmlModel()->addEvent(event);
+        manager.addEvent(event);
 
         event.setTimestamp(++timestamp);
         event.setTypeIndex(largeItemTypeId);
         event.setNumbers({1024});
-        manager.qmlModel()->addEvent(event);
+        manager.addEvent(event);
 
         event.setTimestamp(++timestamp);
         event.setTypeIndex(smallItemTypeId);
         event.setNumbers({-32});
-        manager.qmlModel()->addEvent(event);
+        manager.addEvent(event);
     };
 
     addMemoryEvents();
-    rangeTypeId = manager.qmlModel()->addEventType(
-                QmlEventType(MaximumMessage, Javascript, -1,
-                             QmlEventLocation(QString("somefile.js"), 10, 20),
-                             QString("funcfunc")));
+
+    rangeTypeId = manager.numLoadedEventTypes();
+    manager.addEventType(QmlEventType(MaximumMessage, Javascript, -1,
+                                      QmlEventLocation(QString("somefile.js"), 10, 20),
+                                      QString("funcfunc")));
 
     QmlEvent event;
     event.setRangeStage(RangeStart);
     event.setTimestamp(++timestamp);
     event.setTypeIndex(rangeTypeId);
-    manager.qmlModel()->addEvent(event);
+    manager.addEvent(event);
 
     addMemoryEvents();
     addMemoryEvents(); // twice to also trigger summary in first row
 
     event.setRangeStage(RangeEnd);
     event.setTimestamp(++timestamp);
-    manager.qmlModel()->addEvent(event);
+    manager.addEvent(event);
 
     event.setTimestamp(++timestamp);
     event.setTypeIndex(largeItemTypeId);
     event.setNumbers({-1024});
-    manager.qmlModel()->addEvent(event);
+    manager.addEvent(event);
 
     manager.acquiringDone();
     QCOMPARE(manager.state(), QmlProfilerModelManager::Done);

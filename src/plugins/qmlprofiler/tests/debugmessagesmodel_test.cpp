@@ -48,8 +48,9 @@ void DebugMessagesModelTest::initTestCase()
         event.setString(QString::fromLatin1("message %1").arg(i));
         QmlEventType type(DebugMessage, MaximumRangeType, i % (QtMsgType::QtInfoMsg + 1),
                           QmlEventLocation("somefile.js", i, 10 - i));
-        event.setTypeIndex(manager.qmlModel()->addEventType(type));
-        manager.qmlModel()->addEvent(event);
+        event.setTypeIndex(manager.numLoadedEventTypes());
+        manager.addEventType(type);
+        manager.addEvent(event);
     }
     manager.acquiringDone();
     QCOMPARE(manager.state(), QmlProfilerModelManager::Done);

@@ -100,6 +100,7 @@ public:
 
     bool isEmpty() const;
     uint numLoadedEvents() const;
+    uint numLoadedEventTypes() const;
 
     int registerModelProxy();
     void announceFeatures(quint64 features, EventLoader eventLoader, Finalizer finalizer);
@@ -107,7 +108,11 @@ public:
     int numFinishedFinalizers() const;
     int numRegisteredFinalizers() const;
 
-    void dispatch(const QmlEvent &event, const QmlEventType &type);
+    void addEvents(const QVector<QmlEvent> &events);
+    void addEvent(const QmlEvent &event);
+
+    void addEventTypes(const QVector<QmlEventType> &types);
+    void addEventType(const QmlEventType &type);
 
     quint64 availableFeatures() const;
     quint64 visibleFeatures() const;

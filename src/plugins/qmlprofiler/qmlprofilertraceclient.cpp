@@ -38,11 +38,12 @@ namespace QmlProfiler {
 
 class QmlProfilerTraceClientPrivate {
 public:
-    QmlProfilerTraceClientPrivate(QmlProfilerTraceClient *_q, QmlDebug::QmlDebugConnection *client,
-                                  QmlProfilerDataModel *model)
-        : q(_q)
-        , model(model)
-        , engineControl(client)
+    QmlProfilerTraceClientPrivate(QmlProfilerTraceClient *q,
+                                  QmlDebug::QmlDebugConnection *connection,
+                                  QmlProfilerModelManager *modelManager)
+        : q(q)
+        , modelManager(modelManager)
+        , engineControl(connection)
         , maximumTime(0)
         , recording(false)
         , requestedFeatures(0)
@@ -58,7 +59,7 @@ public:
     void processCurrentEvent();
 
     QmlProfilerTraceClient *q;
-    QmlProfilerDataModel *model;
+    QmlProfilerModelManager *modelManager;
     QmlDebug::QmlEngineControlClient engineControl;
     QScopedPointer<QmlDebug::QDebugMessageClient> messageClient;
     qint64 maximumTime;
@@ -84,7 +85,8 @@ int QmlProfilerTraceClientPrivate::resolveType(const QmlTypedEvent &event)
         if (it != serverTypeIds.constEnd()) {
             typeIndex = it.value();
         } else {
-            typeIndex = model->addEventType(event.type);
+            typeIndex = modelManager->numLoadedEventTypes();
+            modelManager->addEventType(event.type);
             serverTypeIds[event.serverTypeId] = typeIndex;
         }
     } else {
@@ -93,7 +95,8 @@ int QmlProfilerTraceClientPrivate::resolveType(const QmlTypedEvent &event)
         if (it != eventTypeIds.constEnd()) {
             typeIndex = it.value();
         } else {
-            typeIndex = model->addEventType(event.type);
+            typeIndex = modelManager->numLoadedEventTypes();
+            modelManager->addEventType(event.type);
             eventTypeIds[event.type] = typeIndex;
         }
     }
@@ -114,9 +117,9 @@ int QmlProfilerTraceClientPrivate::resolveStackTop()
     typedEvent.event.setTypeIndex(typeIndex);
     while (!pendingMessages.isEmpty()
            && pendingMessages.head().timestamp() < typedEvent.event.timestamp()) {
-        model->addEvent(pendingMessages.dequeue());
+        modelManager->addEvent(pendingMessages.dequeue());
     }
-    model->addEvent(typedEvent.event);
+    modelManager->addEvent(typedEvent.event);
     return typeIndex;
 }
 
@@ -138,8 +141,8 @@ void QmlProfilerTraceClientPrivate::processCurrentEvent()
         QTC_ASSERT(typeIndex != -1, break);
         currentEvent.event.setTypeIndex(typeIndex);
         while (!pendingMessages.isEmpty())
-            model->addEvent(pendingMessages.dequeue());
-        model->addEvent(currentEvent.event);
+            modelManager->addEvent(pendingMessages.dequeue());
+        modelManager->addEvent(currentEvent.event);
         rangesInProgress.pop();
         break;
     }
@@ -153,7 +156,7 @@ void QmlProfilerTraceClientPrivate::processCurrentEvent()
         int typeIndex = resolveType(currentEvent);
         currentEvent.event.setTypeIndex(typeIndex);
         if (rangesInProgress.isEmpty())
-            model->addEvent(currentEvent.event);
+            modelManager->addEvent(currentEvent.event);
         else
             pendingMessages.enqueue(currentEvent.event);
         break;
@@ -173,10 +176,10 @@ void QmlProfilerTraceClientPrivate::sendRecordingStatus(int engineId)
 }
 
 QmlProfilerTraceClient::QmlProfilerTraceClient(QmlDebug::QmlDebugConnection *client,
-                                               QmlProfilerDataModel *model,
+                                               QmlProfilerModelManager *modelManager,
                                                quint64 features)
     : QmlDebugClient(QLatin1String("CanvasFrameRate"), client)
-    , d(new QmlProfilerTraceClientPrivate(this, client, model))
+    , d(new QmlProfilerTraceClientPrivate(this, client, modelManager))
 {
     setRequestedFeatures(features);
     connect(&d->engineControl, &QmlDebug::QmlEngineControlClient::engineAboutToBeAdded,

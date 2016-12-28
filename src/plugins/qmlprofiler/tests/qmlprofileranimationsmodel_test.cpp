@@ -46,12 +46,13 @@ void QmlProfilerAnimationsModelTest::initTestCase()
 
     QmlEventType type(Event, MaximumRangeType, AnimationFrame);
     QmlEvent event;
-    event.setTypeIndex(manager.qmlModel()->addEventType(type));
+    event.setTypeIndex(manager.numLoadedEventTypes());
+    manager.addEventType(type);
 
     for (int i = 0; i < 10; ++i) {
         event.setTimestamp(i);
         event.setNumbers<int>({frameRate(i), 20 - i, (i % 2) ? RenderThread : GuiThread});
-        manager.qmlModel()->addEvent(event);
+        manager.addEvent(event);
     }
     manager.acquiringDone();
     QCOMPARE(manager.state(), QmlProfilerModelManager::Done);

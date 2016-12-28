@@ -117,41 +117,46 @@ QmlProfilerDataModel::~QmlProfilerDataModel()
     delete d;
 }
 
+const QmlEventType &QmlProfilerDataModel::eventType(int typeId) const
+{
+    Q_D(const QmlProfilerDataModel);
+    return d->eventTypes.at(typeId);
+}
+
 const QVector<QmlEventType> &QmlProfilerDataModel::eventTypes() const
 {
     Q_D(const QmlProfilerDataModel);
     return d->eventTypes;
 }
 
-void QmlProfilerDataModel::setEventTypes(const QVector<QmlEventType> &types)
+void QmlProfilerDataModel::addEventTypes(const QVector<QmlEventType> &types)
 {
     Q_D(QmlProfilerDataModel);
-    d->eventTypes = types;
+    int typeIndex = d->eventTypes.length();
+    d->eventTypes.append(types);
+    for (const int end = d->eventTypes.length(); typeIndex < end; ++typeIndex)
+        d->rewriteType(typeIndex);
 }
 
-int QmlProfilerDataModel::addEventType(const QmlEventType &type)
+void QmlProfilerDataModel::addEventType(const QmlEventType &type)
 {
     Q_D(QmlProfilerDataModel);
     int typeIndex = d->eventTypes.length();
     d->eventTypes.append(type);
     d->rewriteType(typeIndex);
-    return typeIndex;
 }
 
 void QmlProfilerDataModel::addEvent(const QmlEvent &event)
 {
     Q_D(QmlProfilerDataModel);
-    d->modelManager->dispatch(event, d->eventTypes[event.typeIndex()]);
     d->eventStream << event;
 }
 
 void QmlProfilerDataModel::addEvents(const QVector<QmlEvent> &events)
 {
     Q_D(QmlProfilerDataModel);
-    for (const QmlEvent &event : events) {
-        d->modelManager->dispatch(event, d->eventTypes[event.typeIndex()]);
+    for (const QmlEvent &event : events)
         d->eventStream << event;
-    }
 }
 
 void QmlProfilerDataModel::clear()

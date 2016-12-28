@@ -48,10 +48,8 @@ DummyModel::DummyModel(QmlProfilerModelManager *manager) :
 
 void DummyModel::loadData()
 {
-    QmlProfilerDataModel *dataModel = modelManager()->qmlModel();
     QmlEventType type(MaximumMessage, Binding);
-
-    dataModel->addEventType(type);
+    modelManager()->addEventType(type);
 
     for (int i = 0; i < 10; ++i) {
         QmlEvent event(i, 0, {});

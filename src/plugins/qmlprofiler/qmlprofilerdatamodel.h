@@ -43,9 +43,10 @@ public:
                                   QmlProfilerModelManager *parent);
     ~QmlProfilerDataModel();
 
+    const QmlEventType &eventType(int typeId) const;
     const QVector<QmlEventType> &eventTypes() const;
-    void setEventTypes(const QVector<QmlEventType> &types);
-    int addEventType(const QmlEventType &type);
+    void addEventTypes(const QVector<QmlEventType> &types);
+    void addEventType(const QmlEventType &type);
 
     void clear();
     bool isEmpty() const;
