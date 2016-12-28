@@ -37,7 +37,7 @@ class FlameGraphModelTest : public QObject
     Q_OBJECT
 public:
     FlameGraphModelTest(QObject *parent = nullptr);
-    static void generateData(QmlProfilerModelManager *manager);
+    static int generateData(QmlProfilerModelManager *manager);
 
 private slots:
     void initTestCase();
@@ -52,6 +52,7 @@ private:
     Utils::FileInProjectFinder finder;
     QmlProfilerModelManager manager;
     FlameGraphModel model;
+    int rangeModelId = -1;
 };
 
 } // namespace Internal

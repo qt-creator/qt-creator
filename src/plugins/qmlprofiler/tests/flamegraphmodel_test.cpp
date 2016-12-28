@@ -37,10 +37,11 @@ FlameGraphModelTest::FlameGraphModelTest(QObject *parent) :
 {
 }
 
-void FlameGraphModelTest::generateData(QmlProfilerModelManager *manager)
+int FlameGraphModelTest::generateData(QmlProfilerModelManager *manager)
 {
     // Notes only work with timeline models
     QmlProfilerRangeModel *rangeModel = new QmlProfilerRangeModel(manager, Javascript, manager);
+    int rangeModelId = rangeModel->modelId();
     manager->notesModel()->addTimelineModel(rangeModel);
 
     manager->startAcquiring();
@@ -87,13 +88,14 @@ void FlameGraphModelTest::generateData(QmlProfilerModelManager *manager)
     manager->notesModel()->setNotes(QVector<QmlNote>({QmlNote(0, 2, 1, 20, "dings")}));
     manager->notesModel()->loadData();
 
-    QCOMPARE(manager->state(), QmlProfilerModelManager::Done);
+    return rangeModelId;
 }
 
 void FlameGraphModelTest::initTestCase()
 {
     QCOMPARE(model.modelManager(), &manager);
-    generateData(&manager);
+    rangeModelId = generateData(&manager);
+    QCOMPARE(manager.state(), QmlProfilerModelManager::Done);
 }
 
 void FlameGraphModelTest::testIndex()
@@ -203,7 +205,7 @@ void FlameGraphModelTest::testRoleNames()
 
 void FlameGraphModelTest::testNotes()
 {
-    manager.notesModel()->add(2, 1, QString("blubb"));
+    manager.notesModel()->add(rangeModelId, 1, QString("blubb"));
     QCOMPARE(model.data(model.index(0, 0), FlameGraphModel::NoteRole).toString(),
              QString("dings\nblubb"));
     manager.notesModel()->remove(0);

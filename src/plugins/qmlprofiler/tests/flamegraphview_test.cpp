@@ -42,6 +42,7 @@ FlameGraphViewTest::FlameGraphViewTest(QObject *parent) : QObject(parent), manag
 void FlameGraphViewTest::initTestCase()
 {
     FlameGraphModelTest::generateData(&manager);
+    QCOMPARE(manager.state(), QmlProfilerModelManager::Done);
     view.resize(500, 500);
     view.show();
     QTest::qWaitForWindowExposed(&view);
