@@ -27,7 +27,6 @@
 
 #include "qmlprofilertimelinemodel.h"
 #include "qmlprofilermodelmanager.h"
-#include "qmlprofilerdatamodel.h"
 
 #include <QStringList>
 #include <QColor>

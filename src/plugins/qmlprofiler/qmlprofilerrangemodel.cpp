@@ -25,7 +25,6 @@
 
 #include "qmlprofilerrangemodel.h"
 #include "qmlprofilermodelmanager.h"
-#include "qmlprofilerdatamodel.h"
 #include "qmlprofilerbindingloopsrenderpass.h"
 
 #include "timeline/timelinenotesrenderpass.h"
@@ -203,7 +202,7 @@ QVariantList QmlProfilerRangeModel::labels() const
 {
     QVariantList result;
 
-    const QVector<QmlEventType> &types = modelManager()->qmlModel()->eventTypes();
+    const QVector<QmlEventType> &types = modelManager()->eventTypes();
     for (int i = 1; i < expandedRowCount(); i++) { // Ignore the -1 for the first row
         QVariantMap element;
         int typeId = m_expandedRowTypes[i];
@@ -220,7 +219,7 @@ QVariantMap QmlProfilerRangeModel::details(int index) const
 {
     QVariantMap result;
     int id = selectionId(index);
-    const QVector<QmlEventType> &types = modelManager()->qmlModel()->eventTypes();
+    const QVector<QmlEventType> &types = modelManager()->eventTypes();
 
     result.insert(QStringLiteral("displayName"),
                   tr(QmlProfilerModelManager::featureName(mainFeature())));

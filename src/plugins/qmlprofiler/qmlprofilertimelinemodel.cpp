@@ -67,7 +67,7 @@ bool QmlProfilerTimelineModel::handlesTypeId(int typeIndex) const
     if (typeIndex < 0)
         return false;
 
-    return accepted(modelManager()->qmlModel()->eventTypes().at(typeIndex));
+    return accepted(modelManager()->eventTypes().at(typeIndex));
 }
 
 QmlProfilerModelManager *QmlProfilerTimelineModel::modelManager() const
@@ -112,7 +112,7 @@ QVariantMap QmlProfilerTimelineModel::locationFromTypeId(int index) const
     if (id < 0)
         return result;
 
-    auto types = modelManager()->qmlModel()->eventTypes();
+    auto types = modelManager()->eventTypes();
     if (id >= types.length())
         return result;
 

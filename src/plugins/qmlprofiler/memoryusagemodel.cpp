@@ -121,8 +121,7 @@ QVariantMap MemoryUsageModel::details(int index) const
     }
     result.insert(tr("Type"), memoryTypeName);
 
-    result.insert(tr("Location"),
-                  modelManager()->qmlModel()->eventTypes().at(ev->typeId).displayName());
+    result.insert(tr("Location"), modelManager()->eventTypes().at(ev->typeId).displayName());
     return result;
 }
 

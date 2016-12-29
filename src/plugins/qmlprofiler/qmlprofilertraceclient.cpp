@@ -25,7 +25,7 @@
 
 #include "qmlprofilertraceclient.h"
 #include "qmltypedevent.h"
-#include "qmlprofilerdatamodel.h"
+#include "qmlprofilermodelmanager.h"
 
 #include <qmldebug/qmlenginecontrolclient.h>
 #include <qmldebug/qdebugmessageclient.h>

@@ -25,7 +25,6 @@
 
 #include "qmlprofileranimationsmodel.h"
 #include "qmlprofilermodelmanager.h"
-#include "qmlprofilerdatamodel.h"
 
 #include <utils/qtcassert.h>
 #include <timeline/timelineformattime.h>

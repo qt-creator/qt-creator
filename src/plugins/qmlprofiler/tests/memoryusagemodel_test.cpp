@@ -154,7 +154,7 @@ void MemoryUsageModelTest::testDetails()
     QCOMPARE(allocated[model.tr("Allocated")].toString(), model.tr("%1 bytes").arg(4096));
     QCOMPARE(allocated[model.tr("Allocations")].toString(), QString::number(2));
     QCOMPARE(allocated[model.tr("Type")].toString(), model.tr("Heap Allocation"));
-    QCOMPARE(allocated[model.tr("Location")].toString(), QmlProfilerDataModel::tr("<bytecode>"));
+    QCOMPARE(allocated[model.tr("Location")].toString(), QmlProfilerModelManager::tr("<bytecode>"));
 
     QVERIFY(!allocated.contains(model.tr("Deallocated")));
     QVERIFY(!allocated.contains(model.tr("Deallocations")));
@@ -165,7 +165,7 @@ void MemoryUsageModelTest::testDetails()
     QCOMPARE(large[model.tr("Allocated")].toString(), model.tr("%1 bytes").arg(1024));
     QCOMPARE(large[model.tr("Allocations")].toString(), QString::number(1));
     QCOMPARE(large[model.tr("Type")].toString(), model.tr("Large Item Allocation"));
-    QCOMPARE(large[model.tr("Location")].toString(), QmlProfilerDataModel::tr("<bytecode>"));
+    QCOMPARE(large[model.tr("Location")].toString(), QmlProfilerModelManager::tr("<bytecode>"));
 
     QVERIFY(!large.contains(model.tr("Deallocated")));
     QVERIFY(!large.contains(model.tr("Deallocations")));
@@ -176,7 +176,7 @@ void MemoryUsageModelTest::testDetails()
     QCOMPARE(freed[model.tr("Deallocated")].toString(), model.tr("%1 bytes").arg(1024));
     QCOMPARE(freed[model.tr("Deallocations")].toString(), QString::number(1));
     QCOMPARE(freed[model.tr("Type")].toString(), model.tr("Heap Usage"));
-    QCOMPARE(freed[model.tr("Location")].toString(), QmlProfilerDataModel::tr("<bytecode>"));
+    QCOMPARE(freed[model.tr("Location")].toString(), QmlProfilerModelManager::tr("<bytecode>"));
 
     QVERIFY(!freed.contains(model.tr("Allocated")));
     QVERIFY(!freed.contains(model.tr("Allocations")));

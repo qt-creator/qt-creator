@@ -39,7 +39,6 @@
 
 namespace QmlProfiler {
 class QmlProfilerModelManager;
-class QmlProfilerDataModel;
 class QmlProfilerNotesModel;
 
 namespace Internal {
@@ -96,7 +95,6 @@ public:
 
     State state() const;
     QmlProfilerTraceTime *traceTime() const;
-    QmlProfilerDataModel *qmlModel() const;
     QmlProfilerNotesModel *notesModel() const;
     QmlProfilerTextMarkModel *textMarkModel() const;
 
@@ -115,6 +113,9 @@ public:
 
     void addEventTypes(const QVector<QmlEventType> &types);
     void addEventType(const QmlEventType &type);
+    const QVector<QmlEventType> &eventTypes() const;
+
+    bool replayEvents(qint64 startTime, qint64 endTime, EventLoader loader) const;
 
     quint64 availableFeatures() const;
     quint64 visibleFeatures() const;
@@ -126,6 +127,9 @@ public:
 
     void acquiringDone();
     void processingDone();
+
+    void populateFileFinder(const ProjectExplorer::RunConfiguration *runConfiguration = nullptr);
+    QString findLocalFile(const QString &remoteFile);
 
     static const char *featureName(ProfileFeature feature);
 

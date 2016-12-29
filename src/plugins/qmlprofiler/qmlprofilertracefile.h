@@ -27,8 +27,10 @@
 
 #include "qmleventlocation.h"
 #include "qmlprofilereventtypes.h"
-#include "qmlprofilerdatamodel.h"
 #include "qmlnote.h"
+#include "qmleventtype.h"
+#include "qmlevent.h"
+#include "qmlprofilermodelmanager.h"
 
 #include <QFutureInterface>
 #include <QObject>
@@ -90,7 +92,7 @@ public:
     explicit QmlProfilerFileWriter(QObject *parent = 0);
 
     void setTraceTime(qint64 startTime, qint64 endTime, qint64 measturedTime);
-    void setData(const QmlProfilerDataModel *model);
+    void setData(const QmlProfilerModelManager *model);
     void setNotes(const QVector<QmlNote> &notes);
     void setFuture(QFutureInterface<void> *future);
 
@@ -115,7 +117,7 @@ private:
 
     qint64 m_startTime, m_endTime, m_measuredTime;
     QFutureInterface<void> *m_future;
-    const QmlProfilerDataModel *m_model;
+    const QmlProfilerModelManager *m_modelManager;
     QVector<QmlNote> m_notes;
 };
 

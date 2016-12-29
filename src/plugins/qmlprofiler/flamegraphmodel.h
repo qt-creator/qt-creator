@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include "qmlprofilerdatamodel.h"
 #include "qmlprofilernotesmodel.h"
 #include "qmlprofilereventtypes.h"
 #include "qmleventlocation.h"

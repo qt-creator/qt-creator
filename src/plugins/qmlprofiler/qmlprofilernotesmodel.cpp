@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "qmlprofilernotesmodel.h"
-#include "qmlprofilerdatamodel.h"
 
 #include <utils/algorithm.h>
 

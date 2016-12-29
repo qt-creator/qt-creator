@@ -28,7 +28,6 @@
 #include "qmlprofilertimelinemodel.h"
 #include "qmlprofilereventtypes.h"
 #include "qmleventlocation.h"
-#include "qmlprofilerdatamodel.h"
 
 #include <QVariantList>
 #include <QColor>

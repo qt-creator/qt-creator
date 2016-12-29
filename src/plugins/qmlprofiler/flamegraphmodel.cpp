@@ -26,7 +26,6 @@
 #include "flamegraphmodel.h"
 
 #include "qmlprofilermodelmanager.h"
-#include "qmlprofilerdatamodel.h"
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -186,7 +185,7 @@ QVariant FlameGraphModel::lookup(const FlameGraphData &stats, int role) const
     }
 
     if (stats.typeIndex != -1) {
-        const QVector<QmlEventType> &typeList = m_modelManager->qmlModel()->eventTypes();
+        const QVector<QmlEventType> &typeList = m_modelManager->eventTypes();
         const QmlEventType &type = typeList[stats.typeIndex];
 
         switch (role) {

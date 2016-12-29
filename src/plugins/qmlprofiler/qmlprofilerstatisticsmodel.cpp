@@ -25,7 +25,6 @@
 
 #include "qmlprofilerstatisticsmodel.h"
 #include "qmlprofilermodelmanager.h"
-#include "qmlprofilerdatamodel.h"
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -120,11 +119,11 @@ void QmlProfilerStatisticsModel::restrictToFeatures(qint64 features)
         return;
 
     clear();
-    if (!d->modelManager->qmlModel()->replayEvents(d->modelManager->traceTime()->startTime(),
-                                                   d->modelManager->traceTime()->endTime(),
-                                                   std::bind(&QmlProfilerStatisticsModel::loadEvent,
-                                                             this, std::placeholders::_1,
-                                                             std::placeholders::_2))) {
+    if (!d->modelManager->replayEvents(d->modelManager->traceTime()->startTime(),
+                                       d->modelManager->traceTime()->endTime(),
+                                       std::bind(&QmlProfilerStatisticsModel::loadEvent,
+                                                 this, std::placeholders::_1,
+                                                 std::placeholders::_2))) {
         emit d->modelManager->error(tr("Could not re-read events from temporary trace file."));
         clear();
     } else {
@@ -140,7 +139,7 @@ const QHash<int, QmlProfilerStatisticsModel::QmlEventStats> &QmlProfilerStatisti
 
 const QVector<QmlEventType> &QmlProfilerStatisticsModel::getTypes() const
 {
-    return d->modelManager->qmlModel()->eventTypes();
+    return d->modelManager->eventTypes();
 }
 
 const QHash<int, QString> &QmlProfilerStatisticsModel::getNotes() const
@@ -322,7 +321,7 @@ QmlProfilerStatisticsRelativesModel::getData(int typeId) const
 
 const QVector<QmlEventType> &QmlProfilerStatisticsRelativesModel::getTypes() const
 {
-    return m_modelManager->qmlModel()->eventTypes();
+    return m_modelManager->eventTypes();
 }
 
 void QmlProfilerStatisticsRelativesModel::loadEvent(RangeType type, const QmlEvent &event,

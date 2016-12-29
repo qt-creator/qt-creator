@@ -26,7 +26,6 @@
 #pragma once
 
 #include "qmlprofilertimelinemodel.h"
-#include "qmlprofilerdatamodel.h"
 
 #include <QStringList>
 #include <QColor>

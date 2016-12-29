@@ -576,9 +576,9 @@ void QmlProfilerFileWriter::setTraceTime(qint64 startTime, qint64 endTime, qint6
     m_measuredTime = measuredTime;
 }
 
-void QmlProfilerFileWriter::setData(const QmlProfilerDataModel *model)
+void QmlProfilerFileWriter::setData(const QmlProfilerModelManager *model)
 {
-    m_model = model;
+    m_modelManager = model;
 }
 
 void QmlProfilerFileWriter::setNotes(const QVector<QmlNote> &notes)
@@ -610,7 +610,7 @@ void QmlProfilerFileWriter::saveQtd(QIODevice *device)
 
     stream.writeStartElement(_("eventData"));
     stream.writeAttribute(_("totalTime"), QString::number(m_measuredTime));
-    const QVector<QmlEventType> &eventTypes = m_model->eventTypes();
+    const QVector<QmlEventType> &eventTypes = m_modelManager->eventTypes();
     for (int typeIndex = 0, end = eventTypes.length(); typeIndex < end && !isCanceled();
          ++typeIndex) {
 
@@ -664,7 +664,7 @@ void QmlProfilerFileWriter::saveQtd(QIODevice *device)
         stream.writeStartElement(_("profilerDataModel"));
 
         QStack<QmlEvent> stack;
-        const bool success = m_model->replayEvents(
+        const bool success = m_modelManager->replayEvents(
                     -1, -1, [this, &stack, &stream](const QmlEvent &event,
                     const QmlEventType &type) {
             if (isCanceled())
@@ -790,7 +790,7 @@ void QmlProfilerFileWriter::saveQzt(QFile *file)
     buffer.open(QIODevice::WriteOnly);
 
     if (!isCanceled()) {
-        bufferStream << m_model->eventTypes();
+        bufferStream << m_modelManager->eventTypes();
         stream << qCompress(buffer.data());
         buffer.close();
         buffer.buffer().clear();
@@ -808,7 +808,7 @@ void QmlProfilerFileWriter::saveQzt(QFile *file)
 
     if (!isCanceled()) {
         buffer.open(QIODevice::WriteOnly);
-        const bool success = m_model->replayEvents(
+        const bool success = m_modelManager->replayEvents(
                     -1, -1, [this, &stream, &buffer, &bufferStream](const QmlEvent &event,
                                                                     const QmlEventType &type) {
             Q_UNUSED(type);

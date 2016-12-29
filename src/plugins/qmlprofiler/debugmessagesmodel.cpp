@@ -76,7 +76,7 @@ QVariantList DebugMessagesModel::labels() const
 QVariantMap DebugMessagesModel::details(int index) const
 {
     const QmlProfilerModelManager *manager = modelManager();
-    const QmlEventType &type = manager->qmlModel()->eventTypes()[m_data[index].typeId];
+    const QmlEventType &type = manager->eventTypes()[m_data[index].typeId];
 
     QVariantMap result;
     result.insert(QLatin1String("displayName"), messageType(type.detailType()));

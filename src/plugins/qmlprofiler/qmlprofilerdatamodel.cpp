@@ -57,7 +57,7 @@ public:
 QString getDisplayName(const QmlEventType &event)
 {
     if (event.location().filename().isEmpty()) {
-        return QmlProfilerDataModel::tr("<bytecode>");
+        return QmlProfilerModelManager::tr("<bytecode>");
     } else {
         const QString filePath = QUrl(event.location().filename()).path();
         return filePath.mid(filePath.lastIndexOf(QLatin1Char('/')) + 1) + QLatin1Char(':') +

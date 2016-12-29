@@ -192,11 +192,6 @@ QmlProfilerTraceTime *QmlProfilerModelManager::traceTime() const
     return d->traceTime;
 }
 
-QmlProfilerDataModel *QmlProfilerModelManager::qmlModel() const
-{
-    return d->model;
-}
-
 QmlProfilerNotesModel *QmlProfilerModelManager::notesModel() const
 {
     return d->notesModel;
@@ -276,6 +271,17 @@ void QmlProfilerModelManager::addEventType(const QmlEventType &type)
                     typeId, QmlEventLocation(d->model->findLocalFile(location.filename()),
                                              location.line(), location.column()));
     }
+}
+
+const QVector<QmlEventType> &QmlProfilerModelManager::eventTypes() const
+{
+    return d->model->eventTypes();
+}
+
+bool QmlProfilerModelManager::replayEvents(qint64 startTime, qint64 endTime,
+                                           EventLoader loader) const
+{
+    return d->model->replayEvents(startTime, endTime, loader);
 }
 
 void QmlProfilerModelManager::QmlProfilerModelManagerPrivate::dispatch(const QmlEvent &event,
@@ -375,6 +381,16 @@ void QmlProfilerModelManager::processingDone()
     setState(Done);
 }
 
+void QmlProfilerModelManager::populateFileFinder(const ProjectExplorer::RunConfiguration *runConfiguration)
+{
+    d->model->populateFileFinder(runConfiguration);
+}
+
+QString QmlProfilerModelManager::findLocalFile(const QString &remoteFile)
+{
+    return d->model->findLocalFile(remoteFile);
+}
+
 void QmlProfilerModelManager::save(const QString &filename)
 {
     QFile *file = new QFile(filename);
@@ -390,7 +406,7 @@ void QmlProfilerModelManager::save(const QString &filename)
     QmlProfilerFileWriter *writer = new QmlProfilerFileWriter(this);
     writer->setTraceTime(traceTime()->startTime(), traceTime()->endTime(),
                         traceTime()->duration());
-    writer->setData(d->model);
+    writer->setData(this);
     writer->setNotes(d->notesModel->notes());
 
     connect(writer, &QObject::destroyed, this, &QmlProfilerModelManager::saveFinished,
