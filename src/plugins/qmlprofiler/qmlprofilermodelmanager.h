@@ -115,7 +115,7 @@ public:
     void addEventType(const QmlEventType &type);
     const QVector<QmlEventType> &eventTypes() const;
 
-    bool replayEvents(qint64 startTime, qint64 endTime, EventLoader loader) const;
+    bool replayEvents(qint64 rangeStart, qint64 rangeEnd, EventLoader loader) const;
 
     quint64 availableFeatures() const;
     quint64 visibleFeatures() const;
@@ -155,6 +155,7 @@ public slots:
 
 private:
     void setState(State state);
+    void detailsChanged(int typeId, const QString &newString);
 
 private:
     class QmlProfilerModelManagerPrivate;

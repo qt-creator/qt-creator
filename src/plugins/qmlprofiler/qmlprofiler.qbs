@@ -38,7 +38,6 @@ QtcPlugin {
             "qmlprofilerclientmanager.cpp", "qmlprofilerclientmanager.h",
             "qmlprofilerconfigwidget.cpp", "qmlprofilerconfigwidget.h",
             "qmlprofilerconfigwidget.ui", "qmlprofilerconstants.h",
-            "qmlprofilerdatamodel.cpp", "qmlprofilerdatamodel.h",
             "qmlprofilerdetailsrewriter.cpp", "qmlprofilerdetailsrewriter.h",
             "qmlprofilereventsview.h",
             "qmlprofilereventtypes.h",

@@ -25,17 +25,19 @@
 
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerconstants.h"
-#include "qmlprofilerdatamodel.h"
 #include "qmlprofilertracefile.h"
 #include "qmlprofilernotesmodel.h"
+#include "qmlprofilerdetailsrewriter.h"
 
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <utils/runextensions.h>
 #include <utils/qtcassert.h>
+#include <utils/temporaryfile.h>
 
 #include <QDebug>
 #include <QFile>
 #include <QMessageBox>
+#include <QStack>
 
 #include <functional>
 
@@ -136,7 +138,8 @@ void QmlProfilerTraceTime::restrictToRange(qint64 startTime, qint64 endTime)
 class QmlProfilerModelManager::QmlProfilerModelManagerPrivate
 {
 public:
-    QmlProfilerDataModel *model;
+    QmlProfilerModelManagerPrivate() : file("qmlprofiler-data") {}
+
     QmlProfilerNotesModel *notesModel;
     QmlProfilerTextMarkModel *textMarkModel;
 
@@ -155,7 +158,15 @@ public:
     QHash<ProfileFeature, QVector<EventLoader> > eventLoaders;
     QVector<Finalizer> finalizers;
 
+    QVector<QmlEventType> eventTypes;
+    QmlProfilerDetailsRewriter *detailsRewriter;
+
+    Utils::TemporaryFile file;
+    QDataStream eventStream;
+
     void dispatch(const QmlEvent &event, const QmlEventType &type);
+    void rewriteType(int typeIndex);
+    int resolveStackTop();
 };
 
 
@@ -169,17 +180,21 @@ QmlProfilerModelManager::QmlProfilerModelManager(QObject *parent) :
     d->visibleFeatures = 0;
     d->recordedFeatures = 0;
     d->aggregateTraces = false;
-    d->model = new QmlProfilerDataModel(this);
     d->state = Empty;
     d->traceTime = new QmlProfilerTraceTime(this);
     d->notesModel = new QmlProfilerNotesModel(this);
     d->textMarkModel = new QmlProfilerTextMarkModel(this);
-    connect(d->model, &QmlProfilerDataModel::allTypesLoaded,
+
+    d->detailsRewriter = new QmlProfilerDetailsRewriter(this);
+    connect(d->detailsRewriter, &QmlProfilerDetailsRewriter::rewriteDetailsString,
+            this, &QmlProfilerModelManager::detailsChanged);
+    connect(d->detailsRewriter, &QmlProfilerDetailsRewriter::eventDetailsChanged,
             this, &QmlProfilerModelManager::processingDone);
-    connect(d->model, &QmlProfilerDataModel::traceFileError,
-            this, [this]() {
-        emit error(tr("Could not open a temporary file for storing QML traces."));
-    });
+
+    if (d->file.open())
+        d->eventStream.setDevice(&d->file);
+    else
+        emit error(tr("Cannot open temporary trace file to store events."));
 }
 
 QmlProfilerModelManager::~QmlProfilerModelManager()
@@ -204,7 +219,7 @@ QmlProfilerTextMarkModel *QmlProfilerModelManager::textMarkModel() const
 
 bool QmlProfilerModelManager::isEmpty() const
 {
-    return d->model->isEmpty();
+    return d->file.pos() == 0;
 }
 
 uint QmlProfilerModelManager::numLoadedEvents() const
@@ -214,7 +229,7 @@ uint QmlProfilerModelManager::numLoadedEvents() const
 
 uint QmlProfilerModelManager::numLoadedEventTypes() const
 {
-    return d->model->eventTypes().count();
+    return d->eventTypes.count();
 }
 
 int QmlProfilerModelManager::registerModelProxy()
@@ -234,28 +249,28 @@ int QmlProfilerModelManager::numRegisteredFinalizers() const
 
 void QmlProfilerModelManager::addEvents(const QVector<QmlEvent> &events)
 {
-    d->model->addEvents(events);
-    const QVector<QmlEventType> &types = d->model->eventTypes();
-    for (const QmlEvent &event : events)
-        d->dispatch(event, types[event.typeIndex()]);
+    for (const QmlEvent &event : events) {
+        d->eventStream << event;
+        d->dispatch(event, d->eventTypes[event.typeIndex()]);
+    }
 }
 
 void QmlProfilerModelManager::addEvent(const QmlEvent &event)
 {
-    d->model->addEvent(event);
-    d->dispatch(event, d->model->eventType(event.typeIndex()));
+    d->eventStream << event;
+    d->dispatch(event, d->eventTypes.at(event.typeIndex()));
 }
 
 void QmlProfilerModelManager::addEventTypes(const QVector<QmlEventType> &types)
 {
-    const int firstTypeId = d->model->eventTypes().count();
-    d->model->addEventTypes(types);
-    for (int i = 0, end = types.length(); i < end; ++i) {
-        const QmlEventLocation &location = types[i].location();
+    const int firstTypeId = d->eventTypes.length();;
+    d->eventTypes.append(types);
+    for (int typeId = firstTypeId, end = d->eventTypes.length(); typeId < end; ++typeId) {
+        d->rewriteType(typeId);
+        const QmlEventLocation &location = d->eventTypes[typeId].location();
         if (location.isValid()) {
-            d->textMarkModel->addTextMarkId(
-                        firstTypeId + i, QmlEventLocation(
-                            d->model->findLocalFile(location.filename()), location.line(),
+            d->textMarkModel->addTextMarkId(typeId, QmlEventLocation(
+                            findLocalFile(location.filename()), location.line(),
                             location.column()));
         }
     }
@@ -263,25 +278,97 @@ void QmlProfilerModelManager::addEventTypes(const QVector<QmlEventType> &types)
 
 void QmlProfilerModelManager::addEventType(const QmlEventType &type)
 {
-    const int typeId = d->model->eventTypes().count();
-    d->model->addEventType(type);
+    const int typeId = d->eventTypes.count();
+    d->eventTypes.append(type);
+    d->rewriteType(typeId);
     const QmlEventLocation &location = type.location();
     if (location.isValid()) {
         d->textMarkModel->addTextMarkId(
-                    typeId, QmlEventLocation(d->model->findLocalFile(location.filename()),
+                    typeId, QmlEventLocation(findLocalFile(location.filename()),
                                              location.line(), location.column()));
     }
 }
 
 const QVector<QmlEventType> &QmlProfilerModelManager::eventTypes() const
 {
-    return d->model->eventTypes();
+    return d->eventTypes;
 }
 
-bool QmlProfilerModelManager::replayEvents(qint64 startTime, qint64 endTime,
+static bool isStateful(const QmlEventType &type)
+{
+    // Events of these types carry state that has to be taken into account when adding later events:
+    // PixmapCacheEvent: Total size of the cache and size of pixmap currently being loaded
+    // MemoryAllocation: Total size of the JS heap and the amount of it currently in use
+    const Message message = type.message();
+    return message == PixmapCacheEvent || message == MemoryAllocation;
+}
+
+bool QmlProfilerModelManager::replayEvents(qint64 rangeStart, qint64 rangeEnd,
                                            EventLoader loader) const
 {
-    return d->model->replayEvents(startTime, endTime, loader);
+    QStack<QmlEvent> stack;
+    QmlEvent event;
+    QFile file(d->file.fileName());
+    if (!file.open(QIODevice::ReadOnly))
+        return false;
+
+    QDataStream stream(&file);
+    bool crossedRangeStart = false;
+    while (!stream.atEnd()) {
+        stream >> event;
+        if (stream.status() == QDataStream::ReadPastEnd)
+            break;
+
+        const QmlEventType &type = d->eventTypes[event.typeIndex()];
+        if (rangeStart != -1 && rangeEnd != -1) {
+            // Double-check if rangeStart has been crossed. Some versions of Qt send dirty data.
+            if (event.timestamp() < rangeStart && !crossedRangeStart) {
+                if (type.rangeType() != MaximumRangeType) {
+                    if (event.rangeStage() == RangeStart)
+                        stack.push(event);
+                    else if (event.rangeStage() == RangeEnd)
+                        stack.pop();
+                    continue;
+                } else if (isStateful(type)) {
+                    event.setTimestamp(rangeStart);
+                } else {
+                    continue;
+                }
+            } else {
+                if (!crossedRangeStart) {
+                    foreach (QmlEvent stashed, stack) {
+                        stashed.setTimestamp(rangeStart);
+                        loader(stashed, d->eventTypes[stashed.typeIndex()]);
+                    }
+                    stack.clear();
+                    crossedRangeStart = true;
+                }
+                if (event.timestamp() > rangeEnd) {
+                    if (type.rangeType() != MaximumRangeType) {
+                        if (event.rangeStage() == RangeEnd) {
+                            if (stack.isEmpty()) {
+                                QmlEvent endEvent(event);
+                                endEvent.setTimestamp(rangeEnd);
+                                loader(endEvent, d->eventTypes[event.typeIndex()]);
+                            } else {
+                                stack.pop();
+                            }
+                        } else if (event.rangeStage() == RangeStart) {
+                            stack.push(event);
+                        }
+                        continue;
+                    } else if (isStateful(type)) {
+                        event.setTimestamp(rangeEnd);
+                    } else {
+                        continue;
+                    }
+                }
+            }
+        }
+
+        loader(event, type);
+    }
+    return true;
 }
 
 void QmlProfilerModelManager::QmlProfilerModelManagerPrivate::dispatch(const QmlEvent &event,
@@ -290,6 +377,59 @@ void QmlProfilerModelManager::QmlProfilerModelManagerPrivate::dispatch(const Qml
     foreach (const EventLoader &loader, eventLoaders[type.feature()])
         loader(event, type);
     ++numLoadedEvents;
+}
+
+static QString getDisplayName(const QmlEventType &event)
+{
+    if (event.location().filename().isEmpty()) {
+        return QmlProfilerModelManager::tr("<bytecode>");
+    } else {
+        const QString filePath = QUrl(event.location().filename()).path();
+        return filePath.mid(filePath.lastIndexOf(QLatin1Char('/')) + 1) + QLatin1Char(':') +
+                QString::number(event.location().line());
+    }
+}
+
+static QString getInitialDetails(const QmlEventType &event)
+{
+    QString details = event.data();
+    // generate details string
+    if (!details.isEmpty()) {
+        details = details.replace(QLatin1Char('\n'),QLatin1Char(' ')).simplified();
+        if (details.isEmpty()) {
+            if (event.rangeType() == Javascript)
+                details = QmlProfilerModelManager::tr("anonymous function");
+        } else {
+            QRegExp rewrite(QLatin1String("\\(function \\$(\\w+)\\(\\) \\{ (return |)(.+) \\}\\)"));
+            bool match = rewrite.exactMatch(details);
+            if (match)
+                details = rewrite.cap(1) + QLatin1String(": ") + rewrite.cap(3);
+            if (details.startsWith(QLatin1String("file://")) ||
+                    details.startsWith(QLatin1String("qrc:/")))
+                details = details.mid(details.lastIndexOf(QLatin1Char('/')) + 1);
+        }
+    } else if (event.rangeType() == Painting) {
+        // QtQuick1 animations always run in GUI thread.
+        details = QmlProfilerModelManager::tr("GUI Thread");
+    }
+
+    return details;
+}
+
+void QmlProfilerModelManager::QmlProfilerModelManagerPrivate::rewriteType(int typeIndex)
+{
+    QmlEventType &type = eventTypes[typeIndex];
+    type.setDisplayName(getDisplayName(type));
+    type.setData(getInitialDetails(type));
+
+    const QmlEventLocation &location = type.location();
+    // There is no point in looking for invalid locations
+    if (!location.isValid())
+        return;
+
+    // Only bindings and signal handlers need rewriting
+    if (type.rangeType() == Binding || type.rangeType() == HandlingSignal)
+        detailsRewriter->requestDetailsForLocation(typeIndex, location);
 }
 
 void QmlProfilerModelManager::announceFeatures(quint64 features, EventLoader eventLoader,
@@ -363,7 +503,8 @@ void QmlProfilerModelManager::acquiringDone()
 {
     QTC_ASSERT(state() == AcquiringData, /**/);
     setState(ProcessingData);
-    d->model->finalize();
+    d->file.flush();
+    d->detailsRewriter->reloadDocuments();
 }
 
 void QmlProfilerModelManager::processingDone()
@@ -383,12 +524,12 @@ void QmlProfilerModelManager::processingDone()
 
 void QmlProfilerModelManager::populateFileFinder(const ProjectExplorer::RunConfiguration *runConfiguration)
 {
-    d->model->populateFileFinder(runConfiguration);
+    d->detailsRewriter->populateFileFinder(runConfiguration);
 }
 
 QString QmlProfilerModelManager::findLocalFile(const QString &remoteFile)
 {
-    return d->model->findLocalFile(remoteFile);
+    return d->detailsRewriter->getLocalFile(remoteFile);
 }
 
 void QmlProfilerModelManager::save(const QString &filename)
@@ -534,6 +675,12 @@ void QmlProfilerModelManager::setState(QmlProfilerModelManager::State state)
     emit stateChanged();
 }
 
+void QmlProfilerModelManager::detailsChanged(int typeId, const QString &newString)
+{
+    QTC_ASSERT(typeId < d->eventTypes.count(), return);
+    d->eventTypes[typeId].setData(newString);
+}
+
 QmlProfilerModelManager::State QmlProfilerModelManager::state() const
 {
     return d->state;
@@ -544,7 +691,14 @@ void QmlProfilerModelManager::clear()
     setState(ClearingData);
     d->numLoadedEvents = 0;
     d->numFinishedFinalizers = 0;
-    d->model->clear();
+    d->file.remove();
+    d->eventStream.unsetDevice();
+    if (d->file.open())
+        d->eventStream.setDevice(&d->file);
+    else
+        emit error(tr("Cannot open temporary trace file to store events."));
+    d->eventTypes.clear();
+    d->detailsRewriter->clearRequests();
     d->traceTime->clear();
     d->notesModel->clear();
     setVisibleFeatures(0);
@@ -563,9 +717,9 @@ void QmlProfilerModelManager::restrictToRange(qint64 startTime, qint64 endTime)
     setVisibleFeatures(0);
 
     startAcquiring();
-    if (!d->model->replayEvents(startTime, endTime,
-                                std::bind(&QmlProfilerModelManagerPrivate::dispatch, d,
-                                          std::placeholders::_1, std::placeholders::_2))) {
+    if (!replayEvents(startTime, endTime,
+                      std::bind(&QmlProfilerModelManagerPrivate::dispatch, d, std::placeholders::_1,
+                                std::placeholders::_2))) {
         emit error(tr("Could not re-read events from temporary trace file. "
                       "The trace data is lost."));
         clear();

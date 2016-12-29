@@ -21,7 +21,6 @@ SOURCES += \
     qmlprofilerbindingloopsrenderpass.cpp \
     qmlprofilerclientmanager.cpp \
     qmlprofilerconfigwidget.cpp \
-    qmlprofilerdatamodel.cpp \
     qmlprofilerdetailsrewriter.cpp \
     qmlprofilermodelmanager.cpp \
     qmlprofilernotesmodel.cpp \
@@ -65,7 +64,6 @@ HEADERS += \
     qmlprofilerclientmanager.h \
     qmlprofilerconfigwidget.h \
     qmlprofilerconstants.h \
-    qmlprofilerdatamodel.h \
     qmlprofilerdetailsrewriter.h \
     qmlprofilereventsview.h \
     qmlprofilereventtypes.h \
