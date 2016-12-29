@@ -621,7 +621,7 @@ void QmlProfilerFileWriter::saveQtd(QIODevice *device)
     stream.writeAttribute(_("totalTime"), QString::number(m_measuredTime));
 
     const QVector<QmlEventType> &eventTypes = m_model->eventTypes();
-    for (int typeIndex = 0; typeIndex < eventTypes.size(); ++typeIndex) {
+    for (int typeIndex = 0, end = eventTypes.length(); typeIndex < end; ++typeIndex) {
         if (isCanceled())
             return;
 
