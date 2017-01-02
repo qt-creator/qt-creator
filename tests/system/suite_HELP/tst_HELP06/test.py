@@ -56,6 +56,8 @@ def main():
     doubleClick(manualQModelIndex, 5, 5, 0, Qt.LeftButton)
     mouseClick(waitForObject(getQModelIndexStr("text='Building and Running an Example'",
                                                manualQModelIndex)), 5, 5, 0, Qt.LeftButton)
+    helpSelector = waitForObject(":Qt Creator_HelpSelector_QComboBox")
+    waitFor("str(helpSelector.currentText).startswith('Building and Running an Example')", 10000)
     # open bookmarks window
     clickButton(waitForObject(":Qt Creator.Add Bookmark_QToolButton"))
     clickButton(waitForObject(":Add Bookmark.ExpandBookmarksList_QToolButton"))
