@@ -75,11 +75,13 @@ QVariantList DebugMessagesModel::labels() const
 
 QVariantMap DebugMessagesModel::details(int index) const
 {
-    const QmlEventType &type = modelManager()->qmlModel()->eventTypes()[m_data[index].typeId];
+    const QmlProfilerModelManager *manager = modelManager();
+    const QmlEventType &type = manager->qmlModel()->eventTypes()[m_data[index].typeId];
 
     QVariantMap result;
     result.insert(QLatin1String("displayName"), messageType(type.detailType()));
-    result.insert(tr("Timestamp"), Timeline::formatTime(startTime(index)));
+    result.insert(tr("Timestamp"), Timeline::formatTime(startTime(index),
+                                                        manager->traceTime()->duration()));
     result.insert(tr("Message"), m_data[index].text);
     result.insert(tr("Location"), type.displayName());
     return result;

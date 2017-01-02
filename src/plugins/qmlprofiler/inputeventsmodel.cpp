@@ -77,7 +77,8 @@ QMetaEnum InputEventsModel::metaEnum(const char *name)
 QVariantMap InputEventsModel::details(int index) const
 {
     QVariantMap result;
-    result.insert(tr("Timestamp"), Timeline::formatTime(startTime(index)));
+    result.insert(tr("Timestamp"), Timeline::formatTime(startTime(index),
+                                                        modelManager()->traceTime()->duration()));
     QString type;
     const InputEvent &event = m_data[index];
     switch (event.type) {
