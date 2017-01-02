@@ -26,10 +26,7 @@
 #pragma once
 
 #include "qmlprofilermodelmanager.h"
-
 #include <coreplugin/find/ifindsupport.h>
-
-#include <QTimer>
 #include <QWidget>
 
 namespace QmlProfiler {
