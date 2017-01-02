@@ -190,7 +190,7 @@ bool GenericProject::addFiles(const QStringList &filePaths)
 
     for (const QString &filePath : filePaths) {
         const QString directory = QFileInfo(filePath).absolutePath();
-        if (!includes.contains(directory) && !toAdd.contains(directory))
+        if (!includes.contains(directory))
             toAdd << directory;
     }
 
