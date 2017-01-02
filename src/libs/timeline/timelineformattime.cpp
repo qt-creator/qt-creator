@@ -36,7 +36,7 @@ QString formatTime(qint64 timestamp, qint64 reference)
     static const double hour = 60;
 
     int round = 0;
-    int barrier = 1;
+    qint64 barrier = 1;
 
     auto roundTo3 = [](double time, int round) {
         // always show at least 3 significant digits
@@ -87,7 +87,7 @@ QString formatTime(qint64 timestamp, qint64 reference)
                                                       QString::number(seconds, 'f', round));
         } else {
             int hours = minutes / hour;
-            hours -= hours * hour;
+            minutes -= hours * hour;
             if (reference < barrier * minute) {
                 return QString::fromLatin1("%1h %2m %3s").arg(QString::number(hours),
                                                               QString::number(minutes),
