@@ -79,7 +79,7 @@ public:
             }
             if (role == Qt::DecorationRole) {
                 if (!widget->isValid()) {
-                    static const QIcon errorIcon(Utils::Icons::ERROR.icon());
+                    static const QIcon errorIcon(Utils::Icons::CRITICAL.icon());
                     return errorIcon;
                 }
                 if (widget->hasWarning()) {

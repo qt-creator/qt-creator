@@ -126,7 +126,7 @@ ChooseDirectoryPage::ChooseDirectoryPage(CreateAndroidManifestWizard *wizard)
     m_sourceDirectoryWarning->setWordWrap(true);
     m_warningIcon = new QLabel(this);
     m_warningIcon->setVisible(false);
-    m_warningIcon->setPixmap(Utils::Icons::ERROR.pixmap());
+    m_warningIcon->setPixmap(Utils::Icons::CRITICAL.pixmap());
     m_warningIcon->setWordWrap(true);
     m_warningIcon->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 

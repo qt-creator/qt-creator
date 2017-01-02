@@ -201,7 +201,7 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent)
     , m_ui(new Internal::Ui::QtVersionManager())
     , m_versionUi(new Internal::Ui::QtVersionInfo())
     , m_infoBrowser(new QTextBrowser)
-    , m_invalidVersionIcon(Utils::Icons::ERROR.icon())
+    , m_invalidVersionIcon(Utils::Icons::CRITICAL.icon())
     , m_warningVersionIcon(Utils::Icons::WARNING.icon())
     , m_configurationWidget(0)
 {

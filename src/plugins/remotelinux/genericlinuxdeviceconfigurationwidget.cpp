@@ -202,7 +202,7 @@ void GenericLinuxDeviceConfigurationWidget::initGui()
         m_ui->machineTypeValueLabel->setText(tr("Physical Device"));
     else
         m_ui->machineTypeValueLabel->setText(tr("Emulator"));
-    m_ui->portsWarningLabel->setPixmap(Utils::Icons::ERROR.pixmap());
+    m_ui->portsWarningLabel->setPixmap(Utils::Icons::CRITICAL.pixmap());
     m_ui->portsWarningLabel->setToolTip(QLatin1String("<font color=\"red\">")
         + tr("You will need at least one port.") + QLatin1String("</font>"));
     m_ui->keyFileLineEdit->setExpectedKind(PathChooser::File);

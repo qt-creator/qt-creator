@@ -69,7 +69,7 @@ ConsoleItemDelegate::ConsoleItemDelegate(ConsoleItemModel *model, QObject *paren
     m_model(model),
     m_logIcon(Utils::Icons::INFO.icon()),
     m_warningIcon(Utils::Icons::WARNING.icon()),
-    m_errorIcon(Utils::Icons::ERROR.icon()),
+    m_errorIcon(Utils::Icons::CRITICAL.icon()),
     m_expandIcon(Utils::Icons::EXPAND.icon()),
     m_collapseIcon(Utils::Icons::COLLAPSE.icon()),
     m_prompt(QLatin1String(":/qmljstools/images/prompt.png")),

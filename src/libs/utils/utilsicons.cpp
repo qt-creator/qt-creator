@@ -64,7 +64,7 @@ const Icon NOTLOADED({
         {QLatin1String(":/utils/images/notloaded.png"), Theme::IconsErrorColor}}, Icon::Tint);
 const Icon BROKEN({
         {QLatin1String(":/utils/images/broken.png"), Theme::IconsErrorColor}}, Icon::Tint);
-const Icon ERROR({
+const Icon CRITICAL({
         {QLatin1String(":/utils/images/warningfill.png"), Theme::BackgroundColorNormal},
         {QLatin1String(":/utils/images/error.png"), Theme::IconsErrorColor}}, Icon::Tint);
 const Icon BOOKMARK({
@@ -166,7 +166,7 @@ const Icon WARNING({
         {QLatin1String(":/utils/images/warning.png"), Theme::IconsWarningColor}}, Icon::Tint);
 const Icon WARNING_TOOLBAR({
         {QLatin1String(":/utils/images/warning.png"), Theme::IconsWarningToolBarColor}});
-const Icon ERROR_TOOLBAR({
+const Icon CRITICAL_TOOLBAR({
         {QLatin1String(":/utils/images/error.png"), Theme::IconsErrorToolBarColor}});
 const Icon ERROR_TASKBAR({
         {QLatin1String(":/utils/images/compile_error_taskbar.png"), Theme::IconsErrorColor}}, Icon::Tint);

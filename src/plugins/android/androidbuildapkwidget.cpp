@@ -88,7 +88,7 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
     m_ui->signingDebugWarningIcon->setPixmap(Utils::Icons::WARNING.pixmap());
     m_ui->signingDebugWarningIcon->hide();
     m_ui->signingDebugWarningLabel->hide();
-    m_ui->signingDebugDeployErrorIcon->setPixmap(Utils::Icons::ERROR.pixmap());
+    m_ui->signingDebugDeployErrorIcon->setPixmap(Utils::Icons::CRITICAL.pixmap());
     signPackageCheckBoxToggled(m_step->signPackage());
 
     m_ui->useGradleCheckBox->setChecked(m_step->useGradle());

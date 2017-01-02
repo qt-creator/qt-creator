@@ -219,7 +219,7 @@ QDateTime DebuggerItem::lastModified() const
 QIcon DebuggerItem::decoration() const
 {
     if (m_engineType == NoEngineType)
-        return Utils::Icons::ERROR.icon();
+        return Utils::Icons::CRITICAL.icon();
     if (!m_command.toFileInfo().isExecutable())
         return Utils::Icons::WARNING.icon();
     if (!m_workingDirectory.isEmpty() && !m_workingDirectory.toFileInfo().isDir())

@@ -64,7 +64,7 @@ QIcon icon(IconType type)
 
     default:
     case IconType::Error: {
-        const static QIcon icon = Utils::Icons::ERROR.icon();
+        const static QIcon icon = Utils::Icons::CRITICAL.icon();
         return icon;
     }
     }
@@ -83,7 +83,7 @@ QIcon toolBarIcon(IconType type)
         return Icon({{":/todoplugin/images/tasklist.png", Theme::IconsRunToolBarColor}}).icon();
     default:
     case IconType::Error:
-        return Icons::ERROR_TOOLBAR.icon();
+        return Icons::CRITICAL_TOOLBAR.icon();
     }
 }
 

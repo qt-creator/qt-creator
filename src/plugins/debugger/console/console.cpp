@@ -136,7 +136,7 @@ Console::Console()
     m_showErrorButtonAction->setToolTip(tr("Show error messages."));
     m_showErrorButtonAction->setCheckable(true);
     m_showErrorButtonAction->setChecked(true);
-    m_showErrorButtonAction->setIcon(Utils::Icons::ERROR_TOOLBAR.icon());
+    m_showErrorButtonAction->setIcon(Utils::Icons::CRITICAL_TOOLBAR.icon());
     connect(m_showErrorButtonAction, &Utils::SavedAction::toggled,
             proxyModel, &ConsoleProxyModel::setShowErrors);
     m_showErrorButton->setDefaultAction(m_showErrorButtonAction);

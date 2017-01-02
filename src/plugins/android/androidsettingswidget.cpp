@@ -174,7 +174,7 @@ AndroidSettingsWidget::AndroidSettingsWidget(QWidget *parent)
     m_ui->jdkWarningIconLabel->setPixmap(warningPixmap);
     m_ui->kitWarningIconLabel->setPixmap(warningPixmap);
 
-    const QPixmap errorPixmap = Utils::Icons::ERROR.pixmap();
+    const QPixmap errorPixmap = Utils::Icons::CRITICAL.pixmap();
     m_ui->sdkWarningIconLabel->setPixmap(errorPixmap);
     m_ui->gdbWarningIconLabel->setPixmap(errorPixmap);
     m_ui->ndkWarningIconLabel->setPixmap(errorPixmap);
