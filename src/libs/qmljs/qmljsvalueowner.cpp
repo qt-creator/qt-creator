@@ -481,6 +481,7 @@ SharedValueOwner::SharedValueOwner(SharedValueOwnerKind kind)
     _qmlFontObject = newObject(/*prototype =*/ 0);
     _qmlFontObject->setClassName(QLatin1String("font"));
     _qmlFontObject->setMember(QLatin1String("family"), stringValue());
+    _qmlFontObject->setMember(QLatin1String("styleName"), stringValue());
     _qmlFontObject->setMember(QLatin1String("weight"), unknownValue()); // ### make me an object
     _qmlFontObject->setMember(QLatin1String("capitalization"), unknownValue()); // ### make me an object
     _qmlFontObject->setMember(QLatin1String("bold"), booleanValue());
@@ -492,6 +493,7 @@ SharedValueOwner::SharedValueOwner(SharedValueOwnerKind kind)
     _qmlFontObject->setMember(QLatin1String("pixelSize"), intValue());
     _qmlFontObject->setMember(QLatin1String("letterSpacing"), realValue());
     _qmlFontObject->setMember(QLatin1String("wordSpacing"), realValue());
+    _qmlFontObject->setMember(QLatin1String("hintingPreference"), unknownValue());
 
     _qmlPointObject = newObject(/*prototype =*/ 0);
     _qmlPointObject->setClassName(QLatin1String("Point"));
