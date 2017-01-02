@@ -94,11 +94,12 @@ Item {
                     height: timeDisplay.labelsHeight
 
                     font.pixelSize: timeDisplay.fontSize
-                    anchors.leftMargin: timeDisplay.textMargin
+                    anchors.rightMargin: timeDisplay.textMargin
                     verticalAlignment: Text.AlignVCenter
                     text: TimeFormatter.format(column.blockStartTime, timeDisplay.rangeDuration)
                     visible: width > 0
                     color: Theme.color(Theme.PanelTextColorLight)
+                    elide: Text.ElideLeft
                 }
 
                 Row {
