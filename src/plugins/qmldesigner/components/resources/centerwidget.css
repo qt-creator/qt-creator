@@ -31,3 +31,7 @@ QTabBar#centralTabBar::tab {
     font-size: 11px;
 }
 
+QTabBar#centralTabBar::tab:selected {
+    background-color: creatorTheme.QmlDesignerTabLight;
+    color: creatorTheme.QmlDesignerTabDark;
+}
