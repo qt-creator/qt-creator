@@ -101,7 +101,7 @@ public:
     QProcessEnvironment environment;
 #endif
     QString qmake_abslocation;
-    QStringList qmake_args;
+    QStringList qmake_args, qmake_extra_args;
 
     QString qtconf;
     QString qmakespec, xqmakespec;
