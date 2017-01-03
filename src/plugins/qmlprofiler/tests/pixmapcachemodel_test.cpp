@@ -242,6 +242,7 @@ void PixmapCacheModelTest::testConsistency()
         case 1:
             QCOMPARE(collapsedRow, 1);
             QVERIFY(details[QLatin1String("displayName")].toString() == model.tr("Image Cached"));
+            QVERIFY(details.contains(model.tr("Cache Size")));
             break;
         default:
             QVERIFY(collapsedRow > 1);
@@ -255,7 +256,6 @@ void PixmapCacheModelTest::testConsistency()
             break;
         }
 
-        QVERIFY(details.contains(model.tr("Cache Size")));
         QString filename = details[model.tr("File")].toString();
         QVERIFY(filename == QString("dings.png") || filename == QString("blah.png"));
         QVERIFY(details.contains(model.tr("Width")));
