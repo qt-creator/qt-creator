@@ -53,6 +53,8 @@ RewriterView::RewriterView(DifferenceHandling differenceHandling, QObject *paren
         m_modelToTextMerger(new Internal::ModelToTextMerger(this)),
         m_textToModelMerger(new Internal::TextToModelMerger(this))
 {
+    m_amendTimer.setSingleShot(true);
+    connect(&m_amendTimer, &QTimer::timeout, this, &RewriterView::amendQmlText);
 }
 
 RewriterView::~RewriterView()
@@ -79,7 +81,7 @@ void RewriterView::modelAttached(Model *model)
     ModelAmender differenceHandler(m_textToModelMerger.data());
     const QString qmlSource = m_textModifier->text();
     if (m_textToModelMerger->load(qmlSource, differenceHandler))
-        lastCorrectQmlSource = qmlSource;
+        m_lastCorrectQmlSource = qmlSource;
 }
 
 void RewriterView::modelAboutToBeDetached(Model * /*model*/)
@@ -411,6 +413,18 @@ void RewriterView::applyChanges()
     }
 }
 
+void RewriterView::amendQmlText()
+{
+    emitCustomNotification(StartRewriterAmend);
+
+    const QString newQmlText = m_textModifier->text();
+
+    ModelAmender differenceHandler(m_textToModelMerger.data());
+    if (m_textToModelMerger->load(newQmlText, differenceHandler))
+        m_lastCorrectQmlSource = newQmlText;
+    emitCustomNotification(EndRewriterAmend);
+}
+
 Internal::ModelNodePositionStorage *RewriterView::positionStorage() const
 {
     return m_positionStorage.data();
@@ -714,22 +728,17 @@ void RewriterView::qmlTextChanged()
 #endif
 
         switch (m_differenceHandling) {
-            case Validate: {
-                ModelValidator differenceHandler(m_textToModelMerger.data());
-                if (m_textToModelMerger->load(newQmlText, differenceHandler))
-                    lastCorrectQmlSource = newQmlText;
-                break;
-            }
+        case Validate: {
+            ModelValidator differenceHandler(m_textToModelMerger.data());
+            if (m_textToModelMerger->load(newQmlText, differenceHandler))
+                m_lastCorrectQmlSource = newQmlText;
+            break;
+        }
 
-            case Amend:
-            default: {
-                emitCustomNotification(StartRewriterAmend);
-                ModelAmender differenceHandler(m_textToModelMerger.data());
-                if (m_textToModelMerger->load(newQmlText, differenceHandler))
-                    lastCorrectQmlSource = newQmlText;
-                emitCustomNotification(EndRewriterAmend);
-                break;
-            }
+        case Amend: {
+            m_amendTimer.start(400);
+            break;
+        }
         }
     }
 }

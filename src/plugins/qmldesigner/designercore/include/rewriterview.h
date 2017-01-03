@@ -31,6 +31,7 @@
 #include "rewritererror.h"
 
 #include <QScopedPointer>
+#include <QTimer>
 #include <QUrl>
 
 namespace QmlJS {
@@ -170,6 +171,7 @@ protected: // functions
     void setModificationGroupActive(bool active);
     void applyModificationGroupChanges();
     void applyChanges();
+    void amendQmlText();
 
 private: //variables
     TextModifier *m_textModifier = nullptr;
@@ -185,7 +187,8 @@ private: //variables
     QList<RewriterError> m_warnings;
     RewriterTransaction m_removeDefaultPropertyTransaction;
     QString m_rewritingErrorMessage;
-    QString lastCorrectQmlSource;
+    QString m_lastCorrectQmlSource;
+    QTimer m_amendTimer;
 };
 
 } //QmlDesigner
