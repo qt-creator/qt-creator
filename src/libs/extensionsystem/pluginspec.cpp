@@ -507,17 +507,7 @@ namespace {
     \internal
 */
 PluginSpecPrivate::PluginSpecPrivate(PluginSpec *spec)
-    : required(false),
-      experimental(false),
-      enabledByDefault(true),
-      enabledBySettings(true),
-      enabledIndirectly(false),
-      forceEnabled(false),
-      forceDisabled(false),
-      plugin(0),
-      state(PluginSpec::Invalid),
-      hasError(false),
-      q(spec)
+    : q(spec)
 {
 }
 

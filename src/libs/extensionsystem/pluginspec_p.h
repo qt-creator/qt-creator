@@ -70,9 +70,9 @@ public:
     QString name;
     QString version;
     QString compatVersion;
-    bool required;
-    bool experimental;
-    bool enabledByDefault;
+    bool required = false;
+    bool experimental = false;
+    bool enabledByDefault = true;
     QString vendor;
     QString copyright;
     QString license;
@@ -81,10 +81,10 @@ public:
     QString category;
     QRegExp platformSpecification;
     QVector<PluginDependency> dependencies;
-    bool enabledBySettings;
-    bool enabledIndirectly;
-    bool forceEnabled;
-    bool forceDisabled;
+    bool enabledBySettings = true;
+    bool enabledIndirectly = false;
+    bool forceEnabled = false;
+    bool forceDisabled = false;
 
     QString location;
     QString filePath;
@@ -92,10 +92,10 @@ public:
 
     QHash<PluginDependency, PluginSpec *> dependencySpecs;
     PluginSpec::PluginArgumentDescriptions argumentDescriptions;
-    IPlugin *plugin;
+    IPlugin *plugin = nullptr;
 
-    PluginSpec::State state;
-    bool hasError;
+    PluginSpec::State state = PluginSpec::Invalid;
+    bool hasError = false;
     QString errorString;
 
     static bool isValidVersion(const QString &version);
