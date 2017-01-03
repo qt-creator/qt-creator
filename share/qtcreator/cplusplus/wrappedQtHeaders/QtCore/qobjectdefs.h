@@ -43,7 +43,7 @@
 #endif
 
 #ifdef Q_SLOTS
-#  define Q_SLOTS slots __attribute__((annotate("qt_slot")))
+#  define Q_SLOTS __attribute__((annotate("qt_slot")))
 #endif
 
 #ifdef Q_SIGNAL
