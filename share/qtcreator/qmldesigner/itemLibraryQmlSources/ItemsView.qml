@@ -103,6 +103,8 @@ ScrollView {
                     topPadding: 2
                     leftPadding: 2
                     rightPadding: 1
+                    expanded: sectionExpanded
+                    onExpandedChanged: itemLibraryModel.setExpanded(expanded, sectionName);
                     Grid {
                         id: itemGrid
 

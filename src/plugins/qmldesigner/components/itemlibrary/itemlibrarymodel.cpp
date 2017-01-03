@@ -140,6 +140,14 @@ Import entryToImport(const ItemLibraryEntry &entry)
 
 }
 
+bool sectionExapanded(const QString &sectionName)
+{
+    if (collapsedStateHash.contains(sectionName))
+        return collapsedStateHash.value(sectionName);
+
+    return true;
+}
+
 void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
 {
     if (!model)
@@ -187,6 +195,7 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
             if (sectionModel == 0) {
                 sectionModel = new ItemLibrarySection(itemSectionName, this);
                 m_sections.append(sectionModel);
+                sectionModel->setSectionExpanded(sectionExapanded(itemSectionName));
             }
 
             ItemLibraryItem *item = new ItemLibraryItem(sectionModel);

@@ -55,6 +55,8 @@ public:
 
     void sortItems();
 
+    void setSectionExpanded(bool expanded);
+
 signals:
     void sectionEntriesChanged();
     void visibilityChanged();

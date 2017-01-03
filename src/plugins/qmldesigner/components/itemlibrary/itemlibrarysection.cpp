@@ -112,4 +112,9 @@ void ItemLibrarySection::sortItems()
     m_sectionEntries.sortItems();
 }
 
+void ItemLibrarySection::setSectionExpanded(bool expanded)
+{
+    m_sectionExpanded = expanded;
+}
+
 } // namespace QmlDesigner
