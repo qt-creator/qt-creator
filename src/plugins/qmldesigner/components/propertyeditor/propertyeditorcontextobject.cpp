@@ -187,7 +187,10 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
             Core::AsynchronousMessageBox::warning(tr("Invalid Type"),  tr("%1 is an invalid type.").arg(typeName));
             return;
         }
-        selectedNode.changeType(metaInfo.typeName(), metaInfo.majorVersion(), metaInfo.minorVersion());
+        if (selectedNode.isRootNode())
+             rewriterView->changeRootNodeType(metaInfo.typeName(), metaInfo.majorVersion(), metaInfo.minorVersion());
+        else
+            selectedNode.changeType(metaInfo.typeName(), metaInfo.majorVersion(), metaInfo.minorVersion());
 
         transaction.commit();
     }  catch (RewritingException &exception) { //better safe than sorry! There always might be cases where we fail
