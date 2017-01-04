@@ -44,18 +44,20 @@ Item {
 
     signal reseted
 
-
     function setIcon() {
         if (backendValue == null) {
             extendedFunctionButton.icon = "image://icons/placeholder"
-        } else if (backendValue.isBound ) {
-            if (backendValue.isTranslated) { //translations are a special case
+        } else if (backendValue.isBound) {
+            if (backendValue.isTranslated) {
+                //translations are a special case
                 extendedFunctionButton.icon = "image://icons/placeholder"
             } else {
                 extendedFunctionButton.icon = "image://icons/expression"
             }
         } else {
-            if (backendValue.complexNode != null && backendValue.complexNode.exists) {
+            if (backendValue.complexNode != null
+                    && backendValue.complexNode.exists) {
+
             } else {
                 extendedFunctionButton.icon = "image://icons/placeholder"
             }
@@ -63,27 +65,27 @@ Item {
     }
 
     onBackendValueChanged: {
-        setIcon();
+        setIcon()
     }
 
-    property bool isBoundBackend: backendValue.isBound;
-    property string backendExpression: backendValue.expression;
+    property bool isBoundBackend: backendValue.isBound
+    property string backendExpression: backendValue.expression
 
     onActiveChanged: {
         if (active) {
-            setIcon();
-            opacity = 1;
+            setIcon()
+            opacity = 1
         } else {
-            opacity = 0;
+            opacity = 0
         }
     }
 
     onIsBoundBackendChanged: {
-        setIcon();
+        setIcon()
     }
 
     onBackendExpressionChanged: {
-        setIcon();
+        setIcon()
     }
 
     Image {
