@@ -400,6 +400,8 @@ Project {
                 "componentcore/qmldesignericonprovider.h",
                 "texteditor/texteditorview.cpp",
                 "texteditor/texteditorview.h",
+                "texteditor/texteditorwidget.cpp",
+                "texteditor/texteditorwidget.h",
                 "debugview/debugview.cpp",
                 "debugview/debugview.h",
                 "debugview/debugviewwidget.cpp",

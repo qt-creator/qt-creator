@@ -26,11 +26,15 @@
 
 #include <abstractview.h>
 
+#include <memory>
+
 namespace TextEditor { class BaseTextEditor; }
 
 namespace Utils { class CrumblePath; }
 
 namespace QmlDesigner {
+
+class TextEditorWidget;
 
 class QMLDESIGNERCORE_EXPORT TextEditorView : public AbstractView
 {
@@ -84,8 +88,7 @@ public:
     void deActivateItemCreator();
 
 private:
-    QPointer<TextEditor::BaseTextEditor> m_textEditor;
-    QWidget *m_dummyWidget = 0;
+    std::unique_ptr<TextEditorWidget> m_widget;
 };
 
 } // namespace QmlDesigner

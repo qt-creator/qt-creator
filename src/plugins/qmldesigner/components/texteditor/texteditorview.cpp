@@ -25,6 +25,8 @@
 
 #include "texteditorview.h"
 
+#include "texteditorwidget.h"
+
 #include <designmodecontext.h>
 #include <designdocument.h>
 #include <modelnode.h>
@@ -41,48 +43,22 @@
 #include <QPair>
 #include <QString>
 #include <QTimer>
-#include <QVBoxLayout>
 #include <QPointer>
 
 namespace QmlDesigner {
 
-class DummyWidget : public QWidget {
-public:
-    DummyWidget(QWidget *parent = nullptr) : QWidget(parent) {
-        QBoxLayout *layout = new QVBoxLayout(this);
-        layout->setMargin(0);
-    }
-    void showEvent(QShowEvent *event) {
-        if (m_widget.isNull())
-            setWidget(QmlDesignerPlugin::instance()->currentDesignDocument()->textEditor()->duplicate()->widget());
-        QWidget::showEvent(event);
-    }
-
-private:
-    void setWidget(QWidget *widget) {
-        if (m_widget)
-            m_widget->deleteLater();
-        m_widget = widget;
-
-        layout()->addWidget(widget);
-    }
-    QPointer<QWidget> m_widget;
-};
-
-
 TextEditorView::TextEditorView(QObject *parent)
     : AbstractView(parent)
-    , m_dummyWidget(new DummyWidget)
+    , m_widget(new TextEditorWidget(this))
 {
     // not completely sure that we need this to just call the right help method ->
-    Internal::TextEditorContext *textEditorContext = new Internal::TextEditorContext(m_dummyWidget);
+    Internal::TextEditorContext *textEditorContext = new Internal::TextEditorContext(m_widget.get());
     Core::ICore::addContextObject(textEditorContext);
 }
 
 TextEditorView::~TextEditorView()
 {
-    m_textEditor->deleteLater();
-    m_dummyWidget->deleteLater();
+    m_widget->deleteLater();
 }
 
 void TextEditorView::modelAttached(Model *model)
@@ -90,6 +66,7 @@ void TextEditorView::modelAttached(Model *model)
     Q_ASSERT(model);
 
     AbstractView::modelAttached(model);
+    m_widget->setTextEditor(qobject_cast<TextEditor::BaseTextEditor*>(QmlDesignerPlugin::instance()->currentDesignDocument()->textEditor()->duplicate()));
 }
 
 void TextEditorView::modelAboutToBeDetached(Model *model)
@@ -119,15 +96,15 @@ void TextEditorView::nodeReparented(const ModelNode &/*node*/, const NodeAbstrac
 
 WidgetInfo TextEditorView::widgetInfo()
 {
-    return createWidgetInfo(m_dummyWidget, 0, "TextEditor", WidgetInfo::CentralPane, 0, tr("Text Editor"));
+    return createWidgetInfo(m_widget.get(), 0, "TextEditor", WidgetInfo::CentralPane, 0, tr("Text Editor"));
 }
 
 QString TextEditorView::contextHelpId() const
 {
-    if (m_textEditor) {
-        QString contextHelpId = m_textEditor->contextHelpId();
+    if (m_widget->textEditor()) {
+        QString contextHelpId = m_widget->textEditor()->contextHelpId();
         if (!contextHelpId.isEmpty())
-            return m_textEditor->contextHelpId();
+            return m_widget->textEditor()->contextHelpId();
     }
     return AbstractView::contextHelpId();
 }
@@ -206,5 +183,6 @@ void TextEditorView::rewriterEndTransaction()
 void TextEditorView::instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &/*propertyList*/)
 {
 }
-}
+
+} // namespace QmlDesigner
 
