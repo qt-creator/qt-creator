@@ -251,8 +251,10 @@ TestTreeItem *QtTestTreeItem::find(const TestParseResult *result)
     switch (type()) {
     case Root:
         return findChildByFile(result->fileName);
-    case TestCase:
-        return findChildByName(result->displayName);
+    case TestCase: {
+        const QtTestParseResult *qtResult = static_cast<const QtTestParseResult *>(result);
+        return findChildByNameAndInheritance(qtResult->displayName, qtResult->inherited());
+    }
     case TestFunctionOrSet:
     case TestDataFunction:
     case TestSpecialFunction:
@@ -278,6 +280,14 @@ bool QtTestTreeItem::modify(const TestParseResult *result)
     default:
         return false;
     }
+}
+
+TestTreeItem *QtTestTreeItem::findChildByNameAndInheritance(const QString &name, bool inherited) const
+{
+    return findChildBy([name, inherited](const TestTreeItem *other) -> bool {
+        const QtTestTreeItem *qtOther = static_cast<const QtTestTreeItem *>(other);
+        return qtOther->inherited() == inherited && qtOther->name() == name;
+    });
 }
 
 QString QtTestTreeItem::nameSuffix() const

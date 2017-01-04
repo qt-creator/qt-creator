@@ -83,8 +83,15 @@ bool TestVisitor::visit(CPlusPlus::Class *symbol)
                     locationAndType.m_type = TestTreeItem::TestDataFunction;
                 else
                     locationAndType.m_type = TestTreeItem::TestFunctionOrSet;
-                locationAndType.m_inherited = false; // for now
+                locationAndType.m_inherited = m_inherited;
                 m_privSlots.insert(name, locationAndType);
+            }
+        }
+        for (unsigned counter = 0, end = symbol->baseClassCount(); counter < end; ++counter) {
+            if (CPlusPlus::BaseClass *base = symbol->baseClassAt(counter)) {
+                const QString &baseClassName = o.prettyName(lc.fullyQualifiedName(base));
+                if (baseClassName != "QObject")
+                    m_baseClasses.insert(baseClassName);
             }
         }
     }

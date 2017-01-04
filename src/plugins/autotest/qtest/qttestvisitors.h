@@ -35,6 +35,7 @@
 #include <cpptools/symbolfinder.h>
 
 #include <QMap>
+#include <QSet>
 
 namespace Autotest {
 namespace Internal {
@@ -44,7 +45,9 @@ class TestVisitor : public CPlusPlus::SymbolVisitor
 public:
     explicit TestVisitor(const QString &fullQualifiedClassName, const CPlusPlus::Snapshot &snapshot);
 
+    void setInheritedMode(bool inherited) { m_inherited = inherited; }
     QMap<QString, QtTestCodeLocationAndType> privateSlots() const { return m_privSlots; }
+    QSet<QString> baseClasses() const { return m_baseClasses; }
     bool resultValid() const { return m_valid; }
 
     bool visit(CPlusPlus::Class *symbol);
@@ -55,6 +58,8 @@ private:
     CPlusPlus::Snapshot m_snapshot;
     QMap<QString, QtTestCodeLocationAndType> m_privSlots;
     bool m_valid = false;
+    bool m_inherited = false;
+    QSet<QString> m_baseClasses;
 };
 
 class TestAstVisitor : public CPlusPlus::ASTVisitor

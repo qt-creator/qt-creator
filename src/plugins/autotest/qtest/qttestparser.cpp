@@ -109,7 +109,7 @@ static QString testClass(const CppTools::CppModelManager *modelManager,
 static CPlusPlus::Document::Ptr declaringDocument(CPlusPlus::Document::Ptr doc,
                                                   const CPlusPlus::Snapshot &snapshot,
                                                   const QString &testCaseName,
-                                                  unsigned *line, unsigned *column)
+                                                  unsigned *line = 0, unsigned *column = 0)
 {
     CPlusPlus::Document::Ptr declaringDoc = doc;
     CPlusPlus::TypeOfExpression typeOfExpr;
@@ -123,8 +123,10 @@ static CPlusPlus::Document::Ptr declaringDocument(CPlusPlus::Document::Ptr doc,
                 const QString declFileName = QLatin1String(toeClass->fileId()->chars(),
                                                            toeClass->fileId()->size());
                 declaringDoc = snapshot.document(declFileName);
-                *line = toeClass->line();
-                *column = toeClass->column() - 1;
+                if (line)
+                    *line = toeClass->line();
+                if (column)
+                    *column = toeClass->column() - 1;
             }
         }
     }
@@ -158,6 +160,26 @@ static QMap<QString, QtTestCodeLocationList> checkForDataTags(const QString &fil
     return visitor.dataTags();
 }
 
+static QMap<QString, QtTestCodeLocationAndType> baseClassTestFunctions(const QSet<QString> &bases,
+        const CPlusPlus::Document::Ptr &doc, const CPlusPlus::Snapshot &snapshot)
+{
+    QMap<QString, QtTestCodeLocationAndType> testFunctions;
+    for (const QString &baseClassName : bases) {
+        TestVisitor baseVisitor(baseClassName, snapshot);
+        baseVisitor.setInheritedMode(true);
+        CPlusPlus::Document::Ptr declaringDoc = declaringDocument(doc, snapshot, baseClassName);
+        if (declaringDoc.isNull())
+            continue;
+        baseVisitor.accept(declaringDoc->globalNamespace());
+        if (baseVisitor.resultValid())
+            testFunctions.unite(baseVisitor.privateSlots());
+        const QSet<QString> currentBaseBases = baseVisitor.baseClasses();
+        // recursively check base classes
+        testFunctions.unite(baseClassTestFunctions(currentBaseBases, doc, snapshot));
+    }
+    return testFunctions;
+}
+
 static bool handleQtTest(QFutureInterface<TestParseResultPtr> futureInterface,
                          CPlusPlus::Document::Ptr document,
                          const CPlusPlus::Snapshot &snapshot,
@@ -183,7 +205,9 @@ static bool handleQtTest(QFutureInterface<TestParseResultPtr> futureInterface,
         if (!visitor.resultValid())
             return false;
 
-        const QMap<QString, QtTestCodeLocationAndType> &testFunctions = visitor.privateSlots();
+        QMap<QString, QtTestCodeLocationAndType> testFunctions = visitor.privateSlots();
+        // gather appropriate information of base classes as well
+        testFunctions.unite(baseClassTestFunctions(visitor.baseClasses(), declaringDoc, snapshot));
         const QSet<QString> &files = filesWithDataFunctionDefinitions(testFunctions);
 
         // TODO: change to QHash<>
