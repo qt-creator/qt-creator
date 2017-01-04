@@ -80,4 +80,28 @@ void TextEditorWidget::updateSelectionByCursorPosition()
     }
 }
 
+void TextEditorWidget::jumpTextCursorToSelectedModelNode()
+{
+    ModelNode selectedNode;
+
+    if (!m_textEditorView->selectedModelNodes().isEmpty())
+        selectedNode = m_textEditorView->selectedModelNodes().first();
+
+    if (selectedNode.isValid()) {
+        RewriterView *rewriterView = m_textEditorView->model()->rewriterView();
+
+        const int nodeOffset = rewriterView->nodeOffset(selectedNode);
+        if (nodeOffset > 0) {
+            const ModelNode currentSelectedNode = rewriterView->
+                nodeAtTextCursorPosition(m_textEditor->editorWidget()->textCursor().position());
+
+            if (currentSelectedNode != selectedNode) {
+                int line, column;
+                m_textEditor->editorWidget()->convertPosition(nodeOffset, &line, &column);
+                m_textEditor->editorWidget()->gotoLine(line, column);
+            }
+        }
+    }
+}
+
 } // namespace QmlDesigner

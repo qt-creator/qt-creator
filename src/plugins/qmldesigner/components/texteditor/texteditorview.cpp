@@ -116,6 +116,7 @@ void TextEditorView::nodeIdChanged(const ModelNode& /*node*/, const QString &/*n
 void TextEditorView::selectedNodesChanged(const QList<ModelNode> &/*selectedNodeList*/,
                                           const QList<ModelNode> &/*lastSelectedNodeList*/)
 {
+    m_widget->jumpTextCursorToSelectedModelNode();
 }
 
 void TextEditorView::customNotification(const AbstractView * /*view*/, const QString &/*identifier*/, const QList<ModelNode> &/*nodeList*/, const QList<QVariant> &/*data*/)

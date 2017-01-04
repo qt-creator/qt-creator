@@ -50,6 +50,7 @@ public:
     }
 
     QString contextHelpId() const;
+    void jumpTextCursorToSelectedModelNode();
 
 private:
     void updateSelectionByCursorPosition();
