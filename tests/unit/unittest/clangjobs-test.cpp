@@ -74,6 +74,8 @@ protected:
     ClangBackEnd::Jobs jobs{documents, unsavedFiles, projects, dummyClientInterface};
 };
 
+using JobsSlowTest = Jobs;
+
 TEST_F(Jobs, ProcessEmptyQueue)
 {
     const JobRequests jobsStarted = jobs.process();
@@ -82,7 +84,7 @@ TEST_F(Jobs, ProcessEmptyQueue)
     ASSERT_TRUE(jobs.runningJobs().isEmpty());
 }
 
-TEST_F(Jobs, ProcessQueueWithSingleJob)
+TEST_F(JobsSlowTest, ProcessQueueWithSingleJob)
 {
     jobs.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
 
@@ -92,7 +94,7 @@ TEST_F(Jobs, ProcessQueueWithSingleJob)
     ASSERT_THAT(jobs.runningJobs().size(), Eq(1));
 }
 
-TEST_F(Jobs, ProcessQueueUntilEmpty)
+TEST_F(JobsSlowTest, ProcessQueueUntilEmpty)
 {
     jobs.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
     jobs.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
@@ -103,7 +105,7 @@ TEST_F(Jobs, ProcessQueueUntilEmpty)
     waitUntilJobChainFinished();
 }
 
-TEST_F(Jobs, IsJobRunning)
+TEST_F(JobsSlowTest, IsJobRunning)
 {
     jobs.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
     jobs.process();

@@ -120,7 +120,9 @@ protected:
     DiagnosticContainer expectedDiagnostic(ChildMode childMode) const;
 };
 
-TEST_F(Diagnostic, MoveContructor)
+using DiagnosticSlowTest = Diagnostic;
+
+TEST_F(DiagnosticSlowTest, MoveContructor)
 {
     const auto diagnostic2 = std::move(d->d->diagnostic);
 
@@ -128,7 +130,7 @@ TEST_F(Diagnostic, MoveContructor)
     ASSERT_FALSE(diagnostic2.isNull());
 }
 
-TEST_F(Diagnostic, MoveAssigment)
+TEST_F(DiagnosticSlowTest, MoveAssigment)
 {
     auto diagnostic2 = std::move(d->d->diagnostic);
     d->d->diagnostic = std::move(diagnostic2);
@@ -137,53 +139,53 @@ TEST_F(Diagnostic, MoveAssigment)
     ASSERT_FALSE(d->d->diagnostic.isNull());
 }
 
-TEST_F(Diagnostic, MoveSelfAssigment)
+TEST_F(DiagnosticSlowTest, MoveSelfAssigment)
 {
     d->d->diagnostic = std::move(d->d->diagnostic);
 
     ASSERT_FALSE(d->d->diagnostic.isNull());
 }
 
-TEST_F(Diagnostic, Text)
+TEST_F(DiagnosticSlowTest, Text)
 {
     ASSERT_THAT(d->d->diagnostic.text(), Utf8StringLiteral("warning: control reaches end of non-void function"));
 }
 
-TEST_F(Diagnostic, Category)
+TEST_F(DiagnosticSlowTest, Category)
 {
     ASSERT_THAT(d->d->diagnostic.category(), Utf8StringLiteral("Semantic Issue"));
 }
 
-TEST_F(Diagnostic, EnableOption)
+TEST_F(DiagnosticSlowTest, EnableOption)
 {
     ASSERT_THAT(d->d->diagnostic.options().first, Utf8StringLiteral("-Wreturn-type"));
 }
 
-TEST_F(Diagnostic, DisableOption)
+TEST_F(DiagnosticSlowTest, DisableOption)
 {
     ASSERT_THAT(d->d->diagnostic.options().second, Utf8StringLiteral("-Wno-return-type"));
 }
 
-TEST_F(Diagnostic, Severity)
+TEST_F(DiagnosticSlowTest, Severity)
 {
     ASSERT_THAT(d->d->diagnostic.severity(), DiagnosticSeverity::Warning);
 }
 
-TEST_F(Diagnostic, ChildDiagnosticsSize)
+TEST_F(DiagnosticSlowTest, ChildDiagnosticsSize)
 {
     auto diagnostic = d->d->diagnosticSet.back();
 
     ASSERT_THAT(diagnostic.childDiagnostics().size(), 1);
 }
 
-TEST_F(Diagnostic, ChildDiagnosticsText)
+TEST_F(DiagnosticSlowTest, ChildDiagnosticsText)
 {
     auto childDiagnostic = d->d->diagnosticSet.back().childDiagnostics().front();
 
     ASSERT_THAT(childDiagnostic.text(), Utf8StringLiteral("note: candidate function not viable: requires 1 argument, but 0 were provided"));
 }
 
-TEST_F(Diagnostic, toDiagnosticContainerLetChildrenThroughByDefault)
+TEST_F(DiagnosticSlowTest, toDiagnosticContainerLetChildrenThroughByDefault)
 {
     const auto diagnosticWithChild = expectedDiagnostic(WithChild);
 

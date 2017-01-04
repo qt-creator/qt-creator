@@ -83,6 +83,8 @@ protected:
     const ClangBackEnd::FileContainer headerContainer{headerPath, projectPartId};
 };
 
+using DocumentsSlowTest = Documents;
+
 TEST_F(Documents, ThrowForGettingWithWrongFilePath)
 {
     ASSERT_THROW(documents.document(nonExistingFilePath, projectPartId),
@@ -199,7 +201,7 @@ TEST_F(Documents, UpdateMultiple)
                 IsDocument(filePath, otherProjectPartId, 75u));
 }
 
-TEST_F(Documents, UpdateUnsavedFileAndCheckForReparse)
+TEST_F(DocumentsSlowTest, UpdateUnsavedFileAndCheckForReparse)
 {
     ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, Utf8StringVector(), 74u);
     ClangBackEnd::FileContainer headerContainer(headerPath, projectPartId, Utf8StringVector(), 74u);
@@ -213,7 +215,7 @@ TEST_F(Documents, UpdateUnsavedFileAndCheckForReparse)
     ASSERT_TRUE(documents.document(filePath, projectPartId).isNeedingReparse());
 }
 
-TEST_F(Documents, RemoveFileAndCheckForReparse)
+TEST_F(DocumentsSlowTest, RemoveFileAndCheckForReparse)
 {
     ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, Utf8StringVector(), 74u);
     ClangBackEnd::FileContainer headerContainer(headerPath, projectPartId, Utf8StringVector(), 74u);

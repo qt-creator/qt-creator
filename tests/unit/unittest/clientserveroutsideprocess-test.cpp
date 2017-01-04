@@ -74,7 +74,10 @@ protected:
 MockClangCodeModelClient ClientServerOutsideProcess::mockClangCodeModelClient;
 ClangBackEnd::ClangCodeModelConnectionClient ClientServerOutsideProcess::client(&ClientServerOutsideProcess::mockClangCodeModelClient);
 
-TEST_F(ClientServerOutsideProcess, RestartProcessAsynchronously)
+using ClientServerOutsideProcessSlowTest = ClientServerOutsideProcess;
+
+
+TEST_F(ClientServerOutsideProcessSlowTest, RestartProcessAsynchronously)
 {
     QSignalSpy clientSpy(&client, &ConnectionClient::connectedToLocalSocket);
 
@@ -85,7 +88,7 @@ TEST_F(ClientServerOutsideProcess, RestartProcessAsynchronously)
     ASSERT_TRUE(client.isConnected());
 }
 
-TEST_F(ClientServerOutsideProcess, RestartProcessAfterAliveTimeout)
+TEST_F(ClientServerOutsideProcessSlowTest, RestartProcessAfterAliveTimeout)
 {
     QSignalSpy clientSpy(&client, &ConnectionClient::connectedToLocalSocket);
 
@@ -95,7 +98,7 @@ TEST_F(ClientServerOutsideProcess, RestartProcessAfterAliveTimeout)
     ASSERT_THAT(clientSpy, SizeIs(1));
 }
 
-TEST_F(ClientServerOutsideProcess, RestartProcessAfterTermination)
+TEST_F(ClientServerOutsideProcessSlowTest, RestartProcessAfterTermination)
 {
     QSignalSpy clientSpy(&client, &ConnectionClient::connectedToLocalSocket);
 

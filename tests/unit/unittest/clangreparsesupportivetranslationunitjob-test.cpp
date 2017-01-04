@@ -48,6 +48,8 @@ protected:
     ClangBackEnd::ReparseSupportiveTranslationUnitJob job;
 };
 
+using ReparseSupportiveTranslationUnitJobSlowTest = ReparseSupportiveTranslationUnitJob;
+
 TEST_F(ReparseSupportiveTranslationUnitJob, PrepareAsyncRun)
 {
     job.setContext(jobContext);
@@ -55,7 +57,7 @@ TEST_F(ReparseSupportiveTranslationUnitJob, PrepareAsyncRun)
     ASSERT_TRUE(job.prepareAsyncRun());
 }
 
-TEST_F(ReparseSupportiveTranslationUnitJob, RunAsync)
+TEST_F(ReparseSupportiveTranslationUnitJobSlowTest, RunAsync)
 {
     parse();
     job.setContext(jobContext);
@@ -66,7 +68,7 @@ TEST_F(ReparseSupportiveTranslationUnitJob, RunAsync)
     ASSERT_TRUE(waitUntilJobFinished(job));
 }
 
-TEST_F(ReparseSupportiveTranslationUnitJob, IncorporateUpdaterResult)
+TEST_F(ReparseSupportiveTranslationUnitJobSlowTest, IncorporateUpdaterResult)
 {
     parse();
     const TimePoint parseTimePointBefore = parseTimePointOfDocument();
@@ -79,7 +81,7 @@ TEST_F(ReparseSupportiveTranslationUnitJob, IncorporateUpdaterResult)
     ASSERT_THAT(parseTimePointOfDocument(), Not(Eq(parseTimePointBefore)));
 }
 
-TEST_F(ReparseSupportiveTranslationUnitJob, DoNotIncorporateUpdaterResultIfDocumentWasClosed)
+TEST_F(ReparseSupportiveTranslationUnitJobSlowTest, DoNotIncorporateUpdaterResultIfDocumentWasClosed)
 {
     parse();
     const TimePoint parseTimePointBefore = parseTimePointOfDocument();

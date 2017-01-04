@@ -90,6 +90,8 @@ protected:
     ::Document document;
 };
 
+using DocumentSlowTest = Document;
+
 TEST_F(Document, DefaultDocumentIsInvalid)
 {
     ::Document document;
@@ -135,7 +137,7 @@ TEST_F(Document, ThrowExceptionForGettingCxTranslationUnitForInvalidUnit)
     ASSERT_THROW(document.translationUnit().cxIndex(), ClangBackEnd::DocumentIsNullException);
 }
 
-TEST_F(Document, CxTranslationUnitGetterIsNonNullForParsedUnit)
+TEST_F(DocumentSlowTest, CxTranslationUnitGetterIsNonNullForParsedUnit)
 {
     document.parse();
 
@@ -164,7 +166,7 @@ TEST_F(Document, LastCommandLineArgumentIsFilePath)
     ASSERT_THAT(arguments.at(arguments.count() - 1), Eq(nativeFilePath));
 }
 
-TEST_F(Document, TimeStampForProjectPartChangeIsUpdatedAsNewCxTranslationUnitIsGenerated)
+TEST_F(DocumentSlowTest, TimeStampForProjectPartChangeIsUpdatedAsNewCxTranslationUnitIsGenerated)
 {
     auto lastChangeTimePoint = document.lastProjectPartChangeTimePoint();
     std::this_thread::sleep_for(Duration(1));
@@ -174,7 +176,7 @@ TEST_F(Document, TimeStampForProjectPartChangeIsUpdatedAsNewCxTranslationUnitIsG
     ASSERT_THAT(document.lastProjectPartChangeTimePoint(), Gt(lastChangeTimePoint));
 }
 
-TEST_F(Document, TimeStampForProjectPartChangeIsUpdatedAsProjectPartIsCleared)
+TEST_F(DocumentSlowTest, TimeStampForProjectPartChangeIsUpdatedAsProjectPartIsCleared)
 {
     ProjectPart projectPart = document.projectPart();
     document.parse();
@@ -194,7 +196,7 @@ TEST_F(Document, DocumentRevisionInFileContainerGetter)
     ASSERT_THAT(document.fileContainer().documentRevision(), 74);
 }
 
-TEST_F(Document, DependedFilePaths)
+TEST_F(DocumentSlowTest, DependedFilePaths)
 {
     document.parse();
 
@@ -217,7 +219,7 @@ TEST_F(Document, NeedsNoReparseAfterCreation)
     ASSERT_FALSE(document.isNeedingReparse());
 }
 
-TEST_F(Document, NeedsReparseAfterChangeOfMainFile)
+TEST_F(DocumentSlowTest, NeedsReparseAfterChangeOfMainFile)
 {
     document.parse();
 
@@ -226,7 +228,7 @@ TEST_F(Document, NeedsReparseAfterChangeOfMainFile)
     ASSERT_TRUE(document.isNeedingReparse());
 }
 
-TEST_F(Document, NoNeedForReparsingForIndependendFile)
+TEST_F(DocumentSlowTest, NoNeedForReparsingForIndependendFile)
 {
     document.parse();
 
@@ -235,7 +237,7 @@ TEST_F(Document, NoNeedForReparsingForIndependendFile)
     ASSERT_FALSE(document.isNeedingReparse());
 }
 
-TEST_F(Document, NeedsReparsingForDependendFile)
+TEST_F(DocumentSlowTest, NeedsReparsingForDependendFile)
 {
     document.parse();
 
@@ -244,7 +246,7 @@ TEST_F(Document, NeedsReparsingForDependendFile)
     ASSERT_TRUE(document.isNeedingReparse());
 }
 
-TEST_F(Document, NeedsNoReparsingAfterReparsing)
+TEST_F(DocumentSlowTest, NeedsNoReparsingAfterReparsing)
 {
     document.parse();
     document.setDirtyIfDependencyIsMet(Utf8StringLiteral(TESTDATA_DIR"/translationunits.h"));
@@ -254,7 +256,7 @@ TEST_F(Document, NeedsNoReparsingAfterReparsing)
     ASSERT_FALSE(document.isNeedingReparse());
 }
 
-TEST_F(Document, IsIntactAfterParsing)
+TEST_F(DocumentSlowTest, IsIntactAfterParsing)
 {
     document.parse();
 
@@ -268,14 +270,14 @@ TEST_F(Document, IsNotIntactForDeletedFile)
     ASSERT_FALSE(document.isIntact());
 }
 
-TEST_F(Document, DoesNotNeedReparseAfterParse)
+TEST_F(DocumentSlowTest, DoesNotNeedReparseAfterParse)
 {
     document.parse();
 
     ASSERT_FALSE(document.isNeedingReparse());
 }
 
-TEST_F(Document, NeedsReparseAfterMainFileChanged)
+TEST_F(DocumentSlowTest, NeedsReparseAfterMainFileChanged)
 {
     document.parse();
 
@@ -284,7 +286,7 @@ TEST_F(Document, NeedsReparseAfterMainFileChanged)
     ASSERT_TRUE(document.isNeedingReparse());
 }
 
-TEST_F(Document, NeedsReparseAfterIncludedFileChanged)
+TEST_F(DocumentSlowTest, NeedsReparseAfterIncludedFileChanged)
 {
     document.parse();
 
@@ -293,7 +295,7 @@ TEST_F(Document, NeedsReparseAfterIncludedFileChanged)
     ASSERT_TRUE(document.isNeedingReparse());
 }
 
-TEST_F(Document, DoesNotNeedReparseAfterNotIncludedFileChanged)
+TEST_F(DocumentSlowTest, DoesNotNeedReparseAfterNotIncludedFileChanged)
 {
     document.parse();
 
@@ -302,7 +304,7 @@ TEST_F(Document, DoesNotNeedReparseAfterNotIncludedFileChanged)
     ASSERT_FALSE(document.isNeedingReparse());
 }
 
-TEST_F(Document, DoesNotNeedReparseAfterReparse)
+TEST_F(DocumentSlowTest, DoesNotNeedReparseAfterReparse)
 {
     document.parse();
     document.setDirtyIfDependencyIsMet(documentFilePath);
@@ -323,7 +325,7 @@ TEST_F(Document, SetDirtyIfProjectPartIsOutdated)
     ASSERT_TRUE(document.isNeedingReparse());
 }
 
-TEST_F(Document, SetNotDirtyIfProjectPartIsNotOutdated)
+TEST_F(DocumentSlowTest, SetNotDirtyIfProjectPartIsNotOutdated)
 {
     document.parse();
 

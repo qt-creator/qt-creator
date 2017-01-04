@@ -40,7 +40,7 @@ using ContextProcessor  = ClangCodeModel::Internal::ActivationSequenceContextPro
 using TextEditor::AssistInterface;
 using ClangCodeModel::Internal::ClangCompletionAssistInterface;
 
-TEST(ActivationSequeneContextProcessor, TextCursorPosition)
+TEST(ActivationSequenceContextProcessorSlowTest, TextCursorPosition)
 {
     ClangCompletionAssistInterface interface("foobar", 4);
     ContextProcessor processor{&interface};
@@ -48,7 +48,7 @@ TEST(ActivationSequeneContextProcessor, TextCursorPosition)
     ASSERT_THAT(processor.textCursor_forTestOnly().position(), 0);
 }
 
-TEST(ActivationSequeneContextProcessor, StringLiteral)
+TEST(ActivationSequenceContextProcessor, StringLiteral)
 {
     ClangCompletionAssistInterface interface("auto foo = \"bar\"", 12);
     ContextProcessor processor{&interface};
@@ -56,7 +56,7 @@ TEST(ActivationSequeneContextProcessor, StringLiteral)
     ASSERT_THAT(processor.completionKind(), CPlusPlus::T_EOF_SYMBOL);
 }
 
-TEST(ActivationSequeneContextProcessor, EndOfStringLiteral)
+TEST(ActivationSequenceContextProcessor, EndOfStringLiteral)
 {
     ClangCompletionAssistInterface interface("auto foo = \"bar\"", 16);
     ContextProcessor processor{&interface};
@@ -64,7 +64,7 @@ TEST(ActivationSequeneContextProcessor, EndOfStringLiteral)
     ASSERT_THAT(processor.completionKind(), CPlusPlus::T_EOF_SYMBOL);
 }
 
-TEST(ActivationSequeneContextProcessor, FunctionCallComma)
+TEST(ActivationSequenceContextProcessor, FunctionCallComma)
 {
     ClangCompletionAssistInterface interface("f(x, ", 4);
     ContextProcessor processor{&interface};
@@ -72,7 +72,7 @@ TEST(ActivationSequeneContextProcessor, FunctionCallComma)
     ASSERT_THAT(processor.completionKind(), CPlusPlus::T_COMMA);
 }
 
-TEST(ActivationSequeneContextProcessor, NonFunctionCallComma)
+TEST(ActivationSequenceContextProcessor, NonFunctionCallComma)
 {
     ClangCompletionAssistInterface interface("int x, ", 6);
     ContextProcessor processor{&interface};
@@ -80,7 +80,7 @@ TEST(ActivationSequeneContextProcessor, NonFunctionCallComma)
     ASSERT_THAT(processor.completionKind(), CPlusPlus::T_EOF_SYMBOL);
 }
 
-TEST(ActivationSequeneContextProcessor, DoxygenComment)
+TEST(ActivationSequenceContextProcessor, DoxygenComment)
 {
     ClangCompletionAssistInterface interface("//! @", 5);
     ContextProcessor processor{&interface};
@@ -88,7 +88,7 @@ TEST(ActivationSequeneContextProcessor, DoxygenComment)
     ASSERT_THAT(processor.completionKind(), CPlusPlus::T_DOXY_COMMENT);
 }
 
-TEST(ActivationSequeneContextProcessor, NonDoxygenComment)
+TEST(ActivationSequenceContextProcessor, NonDoxygenComment)
 {
     ClangCompletionAssistInterface interface("// @", 4);
     ContextProcessor processor{&interface};
@@ -96,7 +96,7 @@ TEST(ActivationSequeneContextProcessor, NonDoxygenComment)
     ASSERT_THAT(processor.completionKind(), CPlusPlus::T_EOF_SYMBOL);
 }
 
-TEST(ActivationSequeneContextProcessor, Comment)
+TEST(ActivationSequenceContextProcessor, Comment)
 {
     ClangCompletionAssistInterface interface("//", 2);
     ContextProcessor processor{&interface};
@@ -104,7 +104,7 @@ TEST(ActivationSequeneContextProcessor, Comment)
     ASSERT_THAT(processor.completionKind(), CPlusPlus::T_EOF_SYMBOL);
 }
 
-TEST(ActivationSequeneContextProcessor, InsideALiteral)
+TEST(ActivationSequenceContextProcessor, InsideALiteral)
 {
     ClangCompletionAssistInterface interface("\"foo\"", 2);
     ContextProcessor processor{&interface};
@@ -112,7 +112,7 @@ TEST(ActivationSequeneContextProcessor, InsideALiteral)
     ASSERT_THAT(processor.completionKind(), CPlusPlus::T_EOF_SYMBOL);
 }
 
-TEST(ActivationSequeneContextProcessor, ShlashInsideAString)
+TEST(ActivationSequenceContextProcessor, ShlashInsideAString)
 {
     ClangCompletionAssistInterface interface("\"foo/bar\"", 5);
     ContextProcessor processor{&interface};
@@ -120,7 +120,7 @@ TEST(ActivationSequeneContextProcessor, ShlashInsideAString)
     ASSERT_THAT(processor.completionKind(), CPlusPlus::T_EOF_SYMBOL);
 }
 
-TEST(ActivationSequeneContextProcessor, ShlashOutsideAString)
+TEST(ActivationSequenceContextProcessor, ShlashOutsideAString)
 {
     ClangCompletionAssistInterface interface("foo/bar", 4);
     ContextProcessor processor{&interface};
@@ -128,7 +128,7 @@ TEST(ActivationSequeneContextProcessor, ShlashOutsideAString)
     ASSERT_THAT(processor.completionKind(), CPlusPlus::T_EOF_SYMBOL);
 }
 
-TEST(ActivationSequeneContextProcessor, FunctionLeftParen)
+TEST(ActivationSequenceContextProcessor, FunctionLeftParen)
 {
     ClangCompletionAssistInterface interface("foo(", 4);
     ContextProcessor processor{&interface};
@@ -136,7 +136,7 @@ TEST(ActivationSequeneContextProcessor, FunctionLeftParen)
     ASSERT_THAT(processor.completionKind(), CPlusPlus::T_LPAREN);
 }
 
-TEST(ActivationSequeneContextProcessor, TemplateFunctionLeftParen)
+TEST(ActivationSequenceContextProcessor, TemplateFunctionLeftParen)
 {
     ClangCompletionAssistInterface interface("foo<X>(", 7);
     ContextProcessor processor{&interface};
@@ -144,7 +144,7 @@ TEST(ActivationSequeneContextProcessor, TemplateFunctionLeftParen)
     ASSERT_THAT(processor.completionKind(), CPlusPlus::T_LPAREN);
 }
 
-TEST(ActivationSequeneContextProcessor, ExpressionLeftParen)
+TEST(ActivationSequenceContextProcessor, ExpressionLeftParen)
 {
     ClangCompletionAssistInterface interface("x * (", 5);
     ContextProcessor processor{&interface};
@@ -152,7 +152,7 @@ TEST(ActivationSequeneContextProcessor, ExpressionLeftParen)
     ASSERT_THAT(processor.completionKind(), CPlusPlus::T_EOF_SYMBOL);
 }
 
-TEST(ActivationSequeneContextProcessor, AngleInclude)
+TEST(ActivationSequenceContextProcessor, AngleInclude)
 {
     ClangCompletionAssistInterface interface("#include <foo/bar>", 10);
     ContextProcessor processor{&interface};
@@ -160,7 +160,7 @@ TEST(ActivationSequeneContextProcessor, AngleInclude)
     ASSERT_THAT(processor.completionKind(), CPlusPlus::T_ANGLE_STRING_LITERAL);
 }
 
-TEST(ActivationSequeneContextProcessor, SlashInclude)
+TEST(ActivationSequenceContextProcessor, SlashInclude)
 {
     ClangCompletionAssistInterface interface("#include <foo/bar>", 14);
     ContextProcessor processor{&interface};
@@ -168,7 +168,7 @@ TEST(ActivationSequeneContextProcessor, SlashInclude)
     ASSERT_THAT(processor.completionKind(), CPlusPlus::T_SLASH);
 }
 
-TEST(ActivationSequeneContextProcessor, QuoteInclude)
+TEST(ActivationSequenceContextProcessor, QuoteInclude)
 {
     ClangCompletionAssistInterface interface("#include \"foo/bar\"", 10);
     ContextProcessor processor{&interface};
@@ -176,7 +176,7 @@ TEST(ActivationSequeneContextProcessor, QuoteInclude)
     ASSERT_THAT(processor.completionKind(), CPlusPlus::T_STRING_LITERAL);
 }
 
-TEST(ActivationSequeneContextProcessor, SlashInExlude)
+TEST(ActivationSequenceContextProcessor, SlashInExlude)
 {
     ClangCompletionAssistInterface interface("#exclude <foo/bar>", 14);
     ContextProcessor processor{&interface};
@@ -184,7 +184,7 @@ TEST(ActivationSequeneContextProcessor, SlashInExlude)
     ASSERT_THAT(processor.completionKind(), CPlusPlus::T_EOF_SYMBOL);
 }
 
-TEST(ActivationSequeneContextProcessor, QuoteExclude)
+TEST(ActivationSequenceContextProcessor, QuoteExclude)
 {
     ClangCompletionAssistInterface interface("#exclude \"foo/bar\"", 10);
     ContextProcessor processor{&interface};
@@ -192,7 +192,7 @@ TEST(ActivationSequeneContextProcessor, QuoteExclude)
     ASSERT_THAT(processor.completionKind(), CPlusPlus::T_EOF_SYMBOL);
 }
 
-TEST(ActivationSequeneContextProcessor, SkipeWhiteSpacesBeforeCursor)
+TEST(ActivationSequenceContextProcessor, SkipeWhiteSpacesBeforeCursor)
 {
     ClangCompletionAssistInterface interface("x->    ", 7);
     ContextProcessor processor{&interface};
@@ -200,7 +200,7 @@ TEST(ActivationSequeneContextProcessor, SkipeWhiteSpacesBeforeCursor)
     ASSERT_THAT(processor.completionKind(), CPlusPlus::T_ARROW);
 }
 
-TEST(ActivationSequeneContextProcessor, SkipIdentifier)
+TEST(ActivationSequenceContextProcessor, SkipIdentifier)
 {
     ClangCompletionAssistInterface interface("x->foo_", 7);
     ContextProcessor processor{&interface};

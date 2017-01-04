@@ -132,6 +132,8 @@ protected:
     ClangBackEnd::SupportiveTranslationUnitInitializer &initializer = *d.initializer;
 };
 
+using SupportiveTranslationUnitInitializerSlowTest = SupportiveTranslationUnitInitializer;
+
 TEST_F(SupportiveTranslationUnitInitializer, HasInitiallyNotInitializedState)
 {
     ASSERT_THAT(initializer.state(), Eq(ClangBackEnd::SupportiveTranslationUnitInitializer::State::NotInitialized));
@@ -147,7 +149,7 @@ TEST_F(SupportiveTranslationUnitInitializer, StartInitializingAbortsIfDocumentIs
     ASSERT_THAT(initializer.state(), Eq(ClangBackEnd::SupportiveTranslationUnitInitializer::State::Aborted));
 }
 
-TEST_F(SupportiveTranslationUnitInitializer, StartInitializingAddsTranslationUnit)
+TEST_F(SupportiveTranslationUnitInitializerSlowTest, StartInitializingAddsTranslationUnit)
 {
     initializer.startInitializing();
 
@@ -155,7 +157,7 @@ TEST_F(SupportiveTranslationUnitInitializer, StartInitializingAddsTranslationUni
     ASSERT_FALSE(document.translationUnits().areAllTranslationUnitsParsed());
 }
 
-TEST_F(SupportiveTranslationUnitInitializer, StartInitializingStartsJob)
+TEST_F(SupportiveTranslationUnitInitializerSlowTest, StartInitializingStartsJob)
 {
     initializer.startInitializing();
 
@@ -176,7 +178,7 @@ TEST_F(SupportiveTranslationUnitInitializer, CheckIfParseJobFinishedAbortsIfDocu
     ASSERT_THAT(initializer.state(), Eq(ClangBackEnd::SupportiveTranslationUnitInitializer::State::Aborted));
 }
 
-TEST_F(SupportiveTranslationUnitInitializer, CheckIfParseJobFinishedStartsJob)
+TEST_F(SupportiveTranslationUnitInitializerSlowTest, CheckIfParseJobFinishedStartsJob)
 {
     parse();
     initializer.setState(ClangBackEnd::SupportiveTranslationUnitInitializer::State::WaitingForParseJob);
@@ -202,7 +204,7 @@ TEST_F(SupportiveTranslationUnitInitializer, CheckIfReparseJobFinishedAbortsIfDo
     ASSERT_THAT(initializer.state(), Eq(ClangBackEnd::SupportiveTranslationUnitInitializer::State::Aborted));
 }
 
-TEST_F(SupportiveTranslationUnitInitializer, CheckIfReparseJobFinishedStartsJob)
+TEST_F(SupportiveTranslationUnitInitializerSlowTest, CheckIfReparseJobFinishedStartsJob)
 {
     parse();
     initializer.setState(ClangBackEnd::SupportiveTranslationUnitInitializer::State::WaitingForReparseJob);
@@ -215,7 +217,7 @@ TEST_F(SupportiveTranslationUnitInitializer, CheckIfReparseJobFinishedStartsJob)
     ASSERT_THAT(initializer.state(), Eq(ClangBackEnd::SupportiveTranslationUnitInitializer::State::Initialized));
 }
 
-TEST_F(SupportiveTranslationUnitInitializer, FullRun)
+TEST_F(SupportiveTranslationUnitInitializerSlowTest, FullRun)
 {
     parse();
     initializer.startInitializing();

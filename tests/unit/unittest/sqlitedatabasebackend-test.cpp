@@ -43,6 +43,8 @@ protected:
     ::SqliteDatabaseBackend databaseBackend;
 };
 
+using SqliteDatabaseBackendSlowTest = SqliteDatabaseBackend;
+
 TEST_F(SqliteDatabaseBackend, OpenAlreadyOpenDatabase)
 {
     ASSERT_THROW(databaseBackend.open(databaseFilePath), SqliteException);
@@ -64,7 +66,7 @@ TEST_F(SqliteDatabaseBackend, DefaultJournalMode)
     ASSERT_THAT(databaseBackend.journalMode(), JournalMode::Delete);
 }
 
-TEST_F(SqliteDatabaseBackend, WalJournalMode)
+TEST_F(SqliteDatabaseBackendSlowTest, WalJournalMode)
 {
     databaseBackend.setJournalMode(JournalMode::Wal);
 

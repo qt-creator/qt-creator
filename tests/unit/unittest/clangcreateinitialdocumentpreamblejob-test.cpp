@@ -40,6 +40,8 @@ protected:
     ClangBackEnd::CreateInitialDocumentPreambleJob job;
 };
 
+using CreateInitialDocumentPreambleJobSlowTest = CreateInitialDocumentPreambleJob;
+
 TEST_F(CreateInitialDocumentPreambleJob, PrepareAsyncRun)
 {
     job.setContext(jobContext);
@@ -47,7 +49,7 @@ TEST_F(CreateInitialDocumentPreambleJob, PrepareAsyncRun)
     ASSERT_TRUE(job.prepareAsyncRun());
 }
 
-TEST_F(CreateInitialDocumentPreambleJob, RunAsync)
+TEST_F(CreateInitialDocumentPreambleJobSlowTest, RunAsync)
 {
     document.parse();
     document.setDirtyIfDependencyIsMet(document.filePath());

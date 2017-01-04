@@ -47,6 +47,7 @@ protected:
     ::ClangQuery simpleClassQuery;
 };
 
+using ClangQuerySlowTest = ClangQuery;
 
 TEST_F(ClangQuery, NoSourceRangesForDefaultConstruction)
 {
@@ -55,7 +56,7 @@ TEST_F(ClangQuery, NoSourceRangesForDefaultConstruction)
     ASSERT_THAT(sourceRanges.sourceRangeWithTextContainers(), IsEmpty());
 }
 
-TEST_F(ClangQuery, SourceRangesForSimpleFunctionDeclarationAreNotEmpty)
+TEST_F(ClangQuerySlowTest, SourceRangesForSimpleFunctionDeclarationAreNotEmpty)
 {
     simpleFunctionQuery.setQuery("functionDecl()");
 
@@ -64,7 +65,7 @@ TEST_F(ClangQuery, SourceRangesForSimpleFunctionDeclarationAreNotEmpty)
     ASSERT_THAT(simpleFunctionQuery.takeSourceRanges().sourceRangeWithTextContainers(), Not(IsEmpty()));
 }
 
-TEST_F(ClangQuery, RootSourceRangeForSimpleFunctionDeclarationRange)
+TEST_F(ClangQuerySlowTest, RootSourceRangeForSimpleFunctionDeclarationRange)
 {
     simpleFunctionQuery.setQuery("functionDecl()");
 
@@ -74,7 +75,7 @@ TEST_F(ClangQuery, RootSourceRangeForSimpleFunctionDeclarationRange)
                 IsSourceRangeWithText(1, 1, 8, 2, "int function(int* pointer, int value)\n{\n  if (pointer == nullptr) {\n    return value + 1;\n  } else {\n    return value - 1;\n  }\n}"));
 }
 
-TEST_F(ClangQuery, SourceRangeInUnsavedFileDeclarationRange)
+TEST_F(ClangQuerySlowTest, SourceRangeInUnsavedFileDeclarationRange)
 {
     ::ClangQuery query;
     query.addFile(TESTDATA_DIR, "query_simplefunction.cpp", "#include \"unsaved.h\"", {"cc", "query_simplefunction.cpp", "-std=c++14"});
@@ -88,7 +89,7 @@ TEST_F(ClangQuery, SourceRangeInUnsavedFileDeclarationRange)
                 IsSourceRangeWithText(1, 1, 1, 15, "void unsaved();"));
 }
 
-TEST_F(ClangQuery, RootSourceRangeForSimpleFieldDeclarationRange)
+TEST_F(ClangQuerySlowTest, RootSourceRangeForSimpleFieldDeclarationRange)
 {
     simpleClassQuery.setQuery("fieldDecl(hasType(isInteger()))");
 
@@ -98,14 +99,14 @@ TEST_F(ClangQuery, RootSourceRangeForSimpleFieldDeclarationRange)
                 IsSourceRangeWithText(4, 5, 4, 10, "    int x;"));
 }
 
-TEST_F(ClangQuery, NoSourceRangesForEmptyQuery)
+TEST_F(ClangQuerySlowTest, NoSourceRangesForEmptyQuery)
 {
     simpleClassQuery.findLocations();
 
     ASSERT_THAT(simpleClassQuery.takeSourceRanges().sourceRangeWithTextContainers(), IsEmpty());
 }
 
-TEST_F(ClangQuery, NoSourceRangesForWrongQuery)
+TEST_F(ClangQuerySlowTest, NoSourceRangesForWrongQuery)
 {
     simpleClassQuery.setQuery("wrongQuery()");
 
@@ -114,14 +115,14 @@ TEST_F(ClangQuery, NoSourceRangesForWrongQuery)
     ASSERT_THAT(simpleClassQuery.takeSourceRanges().sourceRangeWithTextContainers(), IsEmpty());
 }
 
-TEST_F(ClangQuery, NoDiagnosticsForDefaultConstruction)
+TEST_F(ClangQuerySlowTest, NoDiagnosticsForDefaultConstruction)
 {
     auto diagnostics = simpleFunctionQuery.takeDiagnosticContainers();
 
     ASSERT_THAT(diagnostics, IsEmpty());
 }
 
-TEST_F(ClangQuery, DiagnosticsForEmptyQuery)
+TEST_F(ClangQuerySlowTest, DiagnosticsForEmptyQuery)
 {
     simpleFunctionQuery.findLocations();
 
@@ -129,7 +130,7 @@ TEST_F(ClangQuery, DiagnosticsForEmptyQuery)
                 Not(IsEmpty()));
 }
 
-TEST_F(ClangQuery, DiagnosticsForWrongQuery)
+TEST_F(ClangQuerySlowTest, DiagnosticsForWrongQuery)
 {
     simpleClassQuery.setQuery("wrongQuery()");
 
@@ -139,7 +140,7 @@ TEST_F(ClangQuery, DiagnosticsForWrongQuery)
                 Not(IsEmpty()));
 }
 
-TEST_F(ClangQuery, NoDiagnosticsForAccurateQuery)
+TEST_F(ClangQuerySlowTest, NoDiagnosticsForAccurateQuery)
 {
     simpleFunctionQuery.setQuery("functionDecl()");
 
@@ -149,7 +150,7 @@ TEST_F(ClangQuery, NoDiagnosticsForAccurateQuery)
                 IsEmpty());
 }
 
-TEST_F(ClangQuery, DiagnosticForWrongQuery)
+TEST_F(ClangQuerySlowTest, DiagnosticForWrongQuery)
 {
     simpleClassQuery.setQuery("wrongQuery()");
 
@@ -159,7 +160,7 @@ TEST_F(ClangQuery, DiagnosticForWrongQuery)
                 HasDiagnosticMessage("RegistryMatcherNotFound", 1, 1, 1, 11));
 }
 
-TEST_F(ClangQuery, DiagnosticForWrongArgumenType)
+TEST_F(ClangQuerySlowTest, DiagnosticForWrongArgumenType)
 {
     simpleFunctionQuery.setQuery("functionDecl(1)");
 

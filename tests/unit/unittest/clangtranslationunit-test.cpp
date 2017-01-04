@@ -73,7 +73,9 @@ protected:
     QVector<DiagnosticContainer> extractedMainFileDiagnostics;
 };
 
-TEST_F(TranslationUnit, HasExpectedMainFileDiagnostics)
+using TranslationUnitSlowTest = TranslationUnit;
+
+TEST_F(TranslationUnitSlowTest, HasExpectedMainFileDiagnostics)
 {
     translationUnit.extractDiagnostics(extractedFirstHeaderErrorDiagnostic,
                                        extractedMainFileDiagnostics);
@@ -81,7 +83,7 @@ TEST_F(TranslationUnit, HasExpectedMainFileDiagnostics)
     ASSERT_THAT(extractedMainFileDiagnostics, ContainerEq(diagnosticsFromMainFile()));
 }
 
-TEST_F(TranslationUnit, HasExpectedMainFileDiagnosticsAfterReparse)
+TEST_F(TranslationUnitSlowTest, HasExpectedMainFileDiagnosticsAfterReparse)
 {
     reparse();
 
@@ -91,7 +93,7 @@ TEST_F(TranslationUnit, HasExpectedMainFileDiagnosticsAfterReparse)
     ASSERT_THAT(extractedMainFileDiagnostics, ContainerEq(diagnosticsFromMainFile()));
 }
 
-TEST_F(TranslationUnit, HasErrorDiagnosticsInHeaders)
+TEST_F(TranslationUnitSlowTest, HasErrorDiagnosticsInHeaders)
 {
     translationUnit.extractDiagnostics(extractedFirstHeaderErrorDiagnostic,
                                        extractedMainFileDiagnostics);
@@ -100,7 +102,7 @@ TEST_F(TranslationUnit, HasErrorDiagnosticsInHeaders)
                 Eq(errorDiagnosticsFromHeaders().first()));
 }
 
-TEST_F(TranslationUnit, HasErrorDiagnosticsInHeadersAfterReparse)
+TEST_F(TranslationUnitSlowTest, HasErrorDiagnosticsInHeadersAfterReparse)
 {
     reparse();
 

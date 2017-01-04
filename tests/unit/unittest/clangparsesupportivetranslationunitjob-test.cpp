@@ -47,6 +47,8 @@ protected:
     ClangBackEnd::ParseSupportiveTranslationUnitJob job;
 };
 
+using ParseSupportiveTranslationUnitJobSlowTest = ParseSupportiveTranslationUnitJob;
+
 TEST_F(ParseSupportiveTranslationUnitJob, PrepareAsyncRun)
 {
     job.setContext(jobContext);
@@ -54,7 +56,7 @@ TEST_F(ParseSupportiveTranslationUnitJob, PrepareAsyncRun)
     ASSERT_TRUE(job.prepareAsyncRun());
 }
 
-TEST_F(ParseSupportiveTranslationUnitJob, RunAsync)
+TEST_F(ParseSupportiveTranslationUnitJobSlowTest, RunAsync)
 {
     job.setContext(jobContext);
     job.prepareAsyncRun();
@@ -64,7 +66,7 @@ TEST_F(ParseSupportiveTranslationUnitJob, RunAsync)
     ASSERT_TRUE(waitUntilJobFinished(job));
 }
 
-TEST_F(ParseSupportiveTranslationUnitJob, DoNotIncorporateUpdaterResult)
+TEST_F(ParseSupportiveTranslationUnitJobSlowTest, DoNotIncorporateUpdaterResult)
 {
     const TimePoint parseTimePointBefore = parseTimePointOfDocument();
     job.setContext(jobContext);

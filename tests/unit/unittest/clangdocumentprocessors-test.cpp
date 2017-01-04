@@ -78,6 +78,8 @@ protected:
                                                         dummyIpcClient};
 };
 
+using DocumentProcessorsSlowTest = DocumentProcessors;
+
 TEST_F(DocumentProcessors, HasNoItemsInitially)
 {
     ASSERT_TRUE(documentProcessors.processors().empty());
@@ -144,7 +146,7 @@ TEST_F(DocumentProcessors, ProcessEmpty)
     ASSERT_TRUE(jobsStarted.isEmpty());
 }
 
-TEST_F(DocumentProcessors, ProcessSingle)
+TEST_F(DocumentProcessorsSlowTest, ProcessSingle)
 {
     DocumentProcessor documentProcessor = documentProcessors.create(document);
     const JobRequest jobRequest = createJobRequest(JobRequest::Type::UpdateDocumentAnnotations);

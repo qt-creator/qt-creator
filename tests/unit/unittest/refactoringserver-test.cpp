@@ -78,7 +78,10 @@ protected:
                          {"cc", "query_simplefunction.cpp"}};
 };
 
-TEST_F(RefactoringServer, RequestSourceLocationsForRenamingMessage)
+using RefactoringServerSlowTest = RefactoringServer;
+using RefactoringServerVerySlowTest = RefactoringServer;
+
+TEST_F(RefactoringServerSlowTest, RequestSourceLocationsForRenamingMessage)
 {
     RequestSourceLocationsForRenamingMessage requestSourceLocationsForRenamingMessage{{TESTDATA_DIR, "renamevariable.cpp"},
                                                                                       1,
@@ -102,7 +105,7 @@ TEST_F(RefactoringServer, RequestSourceLocationsForRenamingMessage)
     refactoringServer.requestSourceLocationsForRenamingMessage(std::move(requestSourceLocationsForRenamingMessage));
 }
 
-TEST_F(RefactoringServer, RequestSingleSourceRangesAndDiagnosticsForQueryMessage)
+TEST_F(RefactoringServerSlowTest, RequestSingleSourceRangesAndDiagnosticsForQueryMessage)
 {
     RequestSourceRangesAndDiagnosticsForQueryMessage requestSourceRangesAndDiagnosticsForQueryMessage{"functionDecl()",
                                                                                                       {source.clone()},
@@ -118,7 +121,7 @@ TEST_F(RefactoringServer, RequestSingleSourceRangesAndDiagnosticsForQueryMessage
     refactoringServer.requestSourceRangesAndDiagnosticsForQueryMessage(std::move(requestSourceRangesAndDiagnosticsForQueryMessage));
 }
 
-TEST_F(RefactoringServer, RequestSingleSourceRangesAndDiagnosticsWithUnsavedContentForQueryMessage)
+TEST_F(RefactoringServerSlowTest, RequestSingleSourceRangesAndDiagnosticsWithUnsavedContentForQueryMessage)
 {
     Utils::SmallString unsavedContent{"void f();"};
     FileContainer source{{TESTDATA_DIR, "query_simplefunction.cpp"},
@@ -141,7 +144,7 @@ TEST_F(RefactoringServer, RequestSingleSourceRangesAndDiagnosticsWithUnsavedCont
     refactoringServer.requestSourceRangesAndDiagnosticsForQueryMessage(std::move(requestSourceRangesAndDiagnosticsForQueryMessage));
 }
 
-TEST_F(RefactoringServer, RequestTwoSourceRangesAndDiagnosticsForQueryMessage)
+TEST_F(RefactoringServerSlowTest, RequestTwoSourceRangesAndDiagnosticsForQueryMessage)
 {
     RequestSourceRangesAndDiagnosticsForQueryMessage requestSourceRangesAndDiagnosticsForQueryMessage{"functionDecl()",
                                                                                                       {source.clone(), source.clone()},
@@ -157,7 +160,7 @@ TEST_F(RefactoringServer, RequestTwoSourceRangesAndDiagnosticsForQueryMessage)
     refactoringServer.requestSourceRangesAndDiagnosticsForQueryMessage(std::move(requestSourceRangesAndDiagnosticsForQueryMessage));
 }
 
-TEST_F(RefactoringServer, RequestManySourceRangesAndDiagnosticsForQueryMessage)
+TEST_F(RefactoringServerVerySlowTest, RequestManySourceRangesAndDiagnosticsForQueryMessage)
 {
     std::vector<FileContainer> sources;
     std::fill_n(std::back_inserter(sources),
@@ -184,7 +187,7 @@ TEST_F(RefactoringServer, CancelJobs)
     ASSERT_TRUE(refactoringServer.isCancelingJobs());
 }
 
-TEST_F(RefactoringServer, PollEventLoopAsQueryIsRunning)
+TEST_F(RefactoringServerVerySlowTest, PollEventLoopAsQueryIsRunning)
 {
     std::vector<FileContainer> sources;
     std::fill_n(std::back_inserter(sources),

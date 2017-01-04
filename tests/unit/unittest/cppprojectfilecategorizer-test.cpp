@@ -71,7 +71,9 @@ protected:
     const QString dummyProjectPartName;
 };
 
-TEST_F(ProjectFileCategorizer, C)
+using ProjectFileCategorizerVerySlowTest = ProjectFileCategorizer;
+
+TEST_F(ProjectFileCategorizerVerySlowTest, C)
 {
     const QStringList inputFilePaths = QStringList() << "foo.c" << "foo.h";
     const ProjectFiles expected {
@@ -87,7 +89,7 @@ TEST_F(ProjectFileCategorizer, C)
     ASSERT_TRUE(categorizer.objcxxSources().isEmpty());
 }
 
-TEST_F(ProjectFileCategorizer, CxxWithUnambiguousHeaderSuffix)
+TEST_F(ProjectFileCategorizerVerySlowTest, CxxWithUnambiguousHeaderSuffix)
 {
     const QStringList inputFilePaths = QStringList() << "foo.cpp" << "foo.hpp";
     const ProjectFiles expected {
@@ -103,7 +105,7 @@ TEST_F(ProjectFileCategorizer, CxxWithUnambiguousHeaderSuffix)
     ASSERT_TRUE(categorizer.objcxxSources().isEmpty());
 }
 
-TEST_F(ProjectFileCategorizer, CxxWithAmbiguousHeaderSuffix)
+TEST_F(ProjectFileCategorizerVerySlowTest, CxxWithAmbiguousHeaderSuffix)
 {
     const QStringList inputFilePaths = QStringList() << "foo.cpp" << "foo.h";
     const ProjectFiles expected {
@@ -119,7 +121,7 @@ TEST_F(ProjectFileCategorizer, CxxWithAmbiguousHeaderSuffix)
     ASSERT_TRUE(categorizer.objcxxSources().isEmpty());
 }
 
-TEST_F(ProjectFileCategorizer, ObjectiveC)
+TEST_F(ProjectFileCategorizerVerySlowTest, ObjectiveC)
 {
     const QStringList inputFilePaths = QStringList() << "foo.m" << "foo.h";
     const ProjectFiles expected {
@@ -135,7 +137,7 @@ TEST_F(ProjectFileCategorizer, ObjectiveC)
     ASSERT_TRUE(categorizer.objcxxSources().isEmpty());
 }
 
-TEST_F(ProjectFileCategorizer, ObjectiveCxx)
+TEST_F(ProjectFileCategorizerVerySlowTest, ObjectiveCxx)
 {
     const QStringList inputFilePaths = QStringList() << "foo.mm" << "foo.h";
     const ProjectFiles expected {
@@ -151,7 +153,7 @@ TEST_F(ProjectFileCategorizer, ObjectiveCxx)
     ASSERT_TRUE(categorizer.cxxSources().isEmpty());
 }
 
-TEST_F(ProjectFileCategorizer, MixedCAndCxx)
+TEST_F(ProjectFileCategorizerVerySlowTest, MixedCAndCxx)
 {
     const QStringList inputFilePaths = QStringList() << "foo.cpp" << "foo.h"
                                                      << "bar.c" << "bar.h";
@@ -174,7 +176,7 @@ TEST_F(ProjectFileCategorizer, MixedCAndCxx)
     ASSERT_TRUE(categorizer.objcxxSources().isEmpty());
 }
 
-TEST_F(ProjectFileCategorizer, AmbiguousHeaderOnly)
+TEST_F(ProjectFileCategorizerVerySlowTest, AmbiguousHeaderOnly)
 {
     ::ProjectFileCategorizer categorizer{dummyProjectPartName, QStringList() << "foo.h"};
 

@@ -72,6 +72,8 @@ protected:
                                                       dummyIpcClient};
 };
 
+using DocumentProcessorSlowTest = DocumentProcessor;
+
 TEST_F(DocumentProcessor, ProcessEmpty)
 {
     const JobRequests jobsStarted = documentProcessor.process();
@@ -79,7 +81,7 @@ TEST_F(DocumentProcessor, ProcessEmpty)
     ASSERT_THAT(jobsStarted.size(), 0);
 }
 
-TEST_F(DocumentProcessor, ProcessSingleJob)
+TEST_F(DocumentProcessorSlowTest, ProcessSingleJob)
 {
     const JobRequest jobRequest = createJobRequest(JobRequest::Type::UpdateDocumentAnnotations);
     documentProcessor.addJob(jobRequest);

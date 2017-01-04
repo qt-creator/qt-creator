@@ -178,6 +178,8 @@ protected:
     };
 };
 
+using CodeCompleterSlowTest = CodeCompleter;
+
 Utf8String CodeCompleter::readFileContent(const QString &fileName)
 {
     QFile readFileContentFile(QStringLiteral(TESTDATA_DIR) + fileName);
@@ -217,7 +219,7 @@ void CodeCompleter::SetUp()
     document.parse();
 }
 
-TEST_F(CodeCompleter, FunctionInUnsavedFile)
+TEST_F(CodeCompleterSlowTest, FunctionInUnsavedFile)
 {
     unsavedFiles.createOrUpdate({unsavedMainFileContainer});
     documents.update({unsavedMainFileContainer});
@@ -236,7 +238,7 @@ TEST_F(CodeCompleter, FunctionInUnsavedFile)
                                                     CodeCompletion::FunctionCompletionKind)))));
 }
 
-TEST_F(CodeCompleter, VariableInUnsavedFile)
+TEST_F(CodeCompleterSlowTest, VariableInUnsavedFile)
 {
     unsavedFiles.createOrUpdate({unsavedMainFileContainer});
     documents.update({unsavedMainFileContainer});
@@ -247,7 +249,7 @@ TEST_F(CodeCompleter, VariableInUnsavedFile)
                                           CodeCompletion::VariableCompletionKind)));
 }
 
-TEST_F(CodeCompleter, GlobalVariableInUnsavedFile)
+TEST_F(CodeCompleterSlowTest, GlobalVariableInUnsavedFile)
 {
     unsavedFiles.createOrUpdate({unsavedMainFileContainer});
     documents.update({unsavedMainFileContainer});
@@ -258,7 +260,7 @@ TEST_F(CodeCompleter, GlobalVariableInUnsavedFile)
                                           CodeCompletion::VariableCompletionKind)));
 }
 
-TEST_F(CodeCompleter, Macro)
+TEST_F(CodeCompleterSlowTest, Macro)
 {
     unsavedFiles.createOrUpdate({unsavedMainFileContainer});
     documents.update({unsavedMainFileContainer});
@@ -269,21 +271,21 @@ TEST_F(CodeCompleter, Macro)
                                           CodeCompletion::PreProcessorCompletionKind)));
 }
 
-TEST_F(CodeCompleter, Keyword)
+TEST_F(CodeCompleterSlowTest, Keyword)
 {
     ASSERT_THAT(completer->complete(27, 1),
                 Contains(IsCodeCompletion(Utf8StringLiteral("switch"),
                                           CodeCompletion::KeywordCompletionKind)));
 }
 
-TEST_F(CodeCompleter, FunctionInIncludedHeader)
+TEST_F(CodeCompleterSlowTest, FunctionInIncludedHeader)
 {
     ASSERT_THAT(completer->complete(27, 1),
                 Contains(IsCodeCompletion(Utf8StringLiteral("FunctionInIncludedHeader"),
                                           CodeCompletion::FunctionCompletionKind)));
 }
 
-TEST_F(CodeCompleter, FunctionInUnsavedIncludedHeader)
+TEST_F(CodeCompleterSlowTest, FunctionInUnsavedIncludedHeader)
 {
     unsavedFiles.createOrUpdate({unsavedTargetHeaderFileContainer});
     documents.create({unsavedTargetHeaderFileContainer});
@@ -294,7 +296,7 @@ TEST_F(CodeCompleter, FunctionInUnsavedIncludedHeader)
                                           CodeCompletion::FunctionCompletionKind)));
 }
 
-TEST_F(CodeCompleter, DISABLED_FunctionInChangedIncludedHeader)
+TEST_F(CodeCompleterSlowTest, DISABLED_FunctionInChangedIncludedHeader)
 {
     copyChangedTargetHeaderToTemporaryIncludeDirecory();
 
@@ -303,7 +305,7 @@ TEST_F(CodeCompleter, DISABLED_FunctionInChangedIncludedHeader)
                                           CodeCompletion::FunctionCompletionKind)));
 }
 
-TEST_F(CodeCompleter, DISABLED_FunctionInChangedIncludedHeaderWithUnsavedContentInMainFile) // it's not that bad because we reparse anyway
+TEST_F(CodeCompleterSlowTest, DISABLED_FunctionInChangedIncludedHeaderWithUnsavedContentInMainFile) // it's not that bad because we reparse anyway
 {
     unsavedFiles.createOrUpdate({unsavedMainFileContainer});
     documents.update({unsavedMainFileContainer});
@@ -316,7 +318,7 @@ TEST_F(CodeCompleter, DISABLED_FunctionInChangedIncludedHeaderWithUnsavedContent
                                           CodeCompletion::FunctionCompletionKind)));
 }
 
-TEST_F(CodeCompleter, ArrowCompletion)
+TEST_F(CodeCompleterSlowTest, ArrowCompletion)
 {
     auto myCompleter = setupCompleter(arrowFileContainer);
 
@@ -329,7 +331,7 @@ TEST_F(CodeCompleter, ArrowCompletion)
                 ClangBackEnd::CompletionCorrection::NoCorrection);
 }
 
-TEST_F(CodeCompleter, DotToArrowCompletionForPointer)
+TEST_F(CodeCompleterSlowTest, DotToArrowCompletionForPointer)
 {
     auto myCompleter = setupCompleter(dotArrowCorrectionForPointerFileContainer);
 
@@ -342,7 +344,7 @@ TEST_F(CodeCompleter, DotToArrowCompletionForPointer)
                 ClangBackEnd::CompletionCorrection::DotToArrowCorrection);
 }
 
-TEST_F(CodeCompleter, DotToArrowCompletionForPointerInOutdatedDocument)
+TEST_F(CodeCompleterSlowTest, DotToArrowCompletionForPointerInOutdatedDocument)
 {
     auto fileContainerBeforeTyping = dotArrowCorrectionForPointerFileContainerBeforeTyping;
     documents.create({fileContainerBeforeTyping});
@@ -363,7 +365,7 @@ TEST_F(CodeCompleter, DotToArrowCompletionForPointerInOutdatedDocument)
                 ClangBackEnd::CompletionCorrection::DotToArrowCorrection);
 }
 
-TEST_F(CodeCompleter, NoDotToArrowCompletionForObject)
+TEST_F(CodeCompleterSlowTest, NoDotToArrowCompletionForObject)
 {
     auto myCompleter = setupCompleter(noDotArrowCorrectionForObjectFileContainer);
 
@@ -375,7 +377,7 @@ TEST_F(CodeCompleter, NoDotToArrowCompletionForObject)
     ASSERT_THAT(myCompleter.neededCorrection(), ClangBackEnd::CompletionCorrection::NoCorrection);
 }
 
-TEST_F(CodeCompleter, NoDotToArrowCompletionForFloat)
+TEST_F(CodeCompleterSlowTest, NoDotToArrowCompletionForFloat)
 {
     auto myCompleter = setupCompleter(noDotArrowCorrectionForFloatFileContainer);
 
@@ -385,7 +387,7 @@ TEST_F(CodeCompleter, NoDotToArrowCompletionForFloat)
     ASSERT_THAT(myCompleter.neededCorrection(), ClangBackEnd::CompletionCorrection::NoCorrection);
 }
 
-TEST_F(CodeCompleter, NoDotArrowCorrectionForObjectWithArrowOperator)
+TEST_F(CodeCompleterSlowTest, NoDotArrowCorrectionForObjectWithArrowOperator)
 {
     auto myCompleter = setupCompleter(noDotArrowCorrectionForObjectWithArrowOperatortFileContainer);
 
@@ -397,7 +399,7 @@ TEST_F(CodeCompleter, NoDotArrowCorrectionForObjectWithArrowOperator)
     ASSERT_THAT(myCompleter.neededCorrection(), ClangBackEnd::CompletionCorrection::NoCorrection);
 }
 
-TEST_F(CodeCompleter, NoDotArrowCorrectionForDotDot)
+TEST_F(CodeCompleterSlowTest, NoDotArrowCorrectionForDotDot)
 {
     auto myCompleter = setupCompleter(noDotArrowCorrectionForDotDotFileContainer);
 
@@ -407,7 +409,7 @@ TEST_F(CodeCompleter, NoDotArrowCorrectionForDotDot)
     ASSERT_THAT(myCompleter.neededCorrection(), ClangBackEnd::CompletionCorrection::NoCorrection);
 }
 
-TEST_F(CodeCompleter, NoDotArrowCorrectionForArrowDot)
+TEST_F(CodeCompleterSlowTest, NoDotArrowCorrectionForArrowDot)
 {
     auto myCompleter = setupCompleter(noDotArrowCorrectionForArrowDotFileContainer);
 
@@ -417,7 +419,7 @@ TEST_F(CodeCompleter, NoDotArrowCorrectionForArrowDot)
     ASSERT_THAT(myCompleter.neededCorrection(), ClangBackEnd::CompletionCorrection::NoCorrection);
 }
 
-TEST_F(CodeCompleter, NoDotArrowCorrectionForOnlyDot)
+TEST_F(CodeCompleterSlowTest, NoDotArrowCorrectionForOnlyDot)
 {
     auto myCompleter = setupCompleter(noDotArrowCorrectionForOnlyDotFileContainer);
 
@@ -429,7 +431,7 @@ TEST_F(CodeCompleter, NoDotArrowCorrectionForOnlyDot)
     ASSERT_THAT(myCompleter.neededCorrection(), ClangBackEnd::CompletionCorrection::NoCorrection);
 }
 
-TEST_F(CodeCompleter, NoDotArrowCorrectionForColonColon)
+TEST_F(CodeCompleterSlowTest, NoDotArrowCorrectionForColonColon)
 {
     auto myCompleter = setupCompleter(noDotArrowCorrectionForColonColonFileContainer);
     const ClangBackEnd::CodeCompletions completions = myCompleter.complete(1, 7);

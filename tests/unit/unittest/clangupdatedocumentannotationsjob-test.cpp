@@ -43,6 +43,8 @@ protected:
     ClangBackEnd::UpdateDocumentAnnotationsJob job;
 };
 
+using UpdateDocumentAnnotationsJobSlowTest = UpdateDocumentAnnotationsJob;
+
 TEST_F(UpdateDocumentAnnotationsJob, PrepareAsyncRun)
 {
     job.setContext(jobContext);
@@ -50,7 +52,7 @@ TEST_F(UpdateDocumentAnnotationsJob, PrepareAsyncRun)
     ASSERT_TRUE(job.prepareAsyncRun());
 }
 
-TEST_F(UpdateDocumentAnnotationsJob, RunAsync)
+TEST_F(UpdateDocumentAnnotationsJobSlowTest, RunAsync)
 {
     job.setContext(jobContext);
     job.prepareAsyncRun();
@@ -60,7 +62,7 @@ TEST_F(UpdateDocumentAnnotationsJob, RunAsync)
     ASSERT_TRUE(waitUntilJobFinished(job));
 }
 
-TEST_F(UpdateDocumentAnnotationsJob, SendAnnotations)
+TEST_F(UpdateDocumentAnnotationsJobSlowTest, SendAnnotations)
 {
     job.setContext(jobContextWithMockClient);
     job.prepareAsyncRun();
@@ -71,7 +73,7 @@ TEST_F(UpdateDocumentAnnotationsJob, SendAnnotations)
     ASSERT_TRUE(waitUntilJobFinished(job));
 }
 
-TEST_F(UpdateDocumentAnnotationsJob, DontSendAnnotationsIfDocumentWasClosed)
+TEST_F(UpdateDocumentAnnotationsJobSlowTest, DontSendAnnotationsIfDocumentWasClosed)
 {
     job.setContext(jobContextWithMockClient);
     job.prepareAsyncRun();
@@ -83,7 +85,7 @@ TEST_F(UpdateDocumentAnnotationsJob, DontSendAnnotationsIfDocumentWasClosed)
     ASSERT_TRUE(waitUntilJobFinished(job));
 }
 
-TEST_F(UpdateDocumentAnnotationsJob, DontSendAnnotationsIfDocumentRevisionChanged)
+TEST_F(UpdateDocumentAnnotationsJobSlowTest, DontSendAnnotationsIfDocumentRevisionChanged)
 {
     job.setContext(jobContextWithMockClient);
     job.prepareAsyncRun();
@@ -95,7 +97,7 @@ TEST_F(UpdateDocumentAnnotationsJob, DontSendAnnotationsIfDocumentRevisionChange
     ASSERT_TRUE(waitUntilJobFinished(job));
 }
 
-TEST_F(UpdateDocumentAnnotationsJob, UpdatesTranslationUnit)
+TEST_F(UpdateDocumentAnnotationsJobSlowTest, UpdatesTranslationUnit)
 {
     const TimePoint timePointBefore = document.lastProjectPartChangeTimePoint();
     const QSet<Utf8String> dependendOnFilesBefore = document.dependedFilePaths();

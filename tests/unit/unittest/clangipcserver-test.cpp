@@ -95,7 +95,7 @@ MATCHER_P5(HasDirtyDocument,
     }
 }
 
-class ClangClangCodeModelServer : public ::testing::Test
+class ClangCodeModelServer : public ::testing::Test
 {
 protected:
     void SetUp() override;
@@ -171,7 +171,9 @@ protected:
     const Utf8String aProjectPartId = Utf8StringLiteral("aproject.pro");
 };
 
-TEST_F(ClangClangCodeModelServer, GetCodeCompletion)
+using ClangCodeModelServerSlowTest = ClangCodeModelServer;
+
+TEST_F(ClangCodeModelServerSlowTest, GetCodeCompletion)
 {
     registerProjectAndFile(filePathA);
 
@@ -179,7 +181,7 @@ TEST_F(ClangClangCodeModelServer, GetCodeCompletion)
     completeCodeInFileA();
 }
 
-TEST_F(ClangClangCodeModelServer, RequestDocumentAnnotations)
+TEST_F(ClangCodeModelServerSlowTest, RequestDocumentAnnotations)
 {
     registerProjectAndFileAndWaitForFinished(filePathB);
 
@@ -187,7 +189,7 @@ TEST_F(ClangClangCodeModelServer, RequestDocumentAnnotations)
     requestDocumentAnnotations(filePathB);
 }
 
-TEST_F(ClangClangCodeModelServer, NoInitialDocumentAnnotationsForClosedDocument)
+TEST_F(ClangCodeModelServerSlowTest, NoInitialDocumentAnnotationsForClosedDocument)
 {
     const int expectedDocumentAnnotationsChangedCount = 0;
     registerProjectAndFile(filePathA, expectedDocumentAnnotationsChangedCount);
@@ -195,7 +197,7 @@ TEST_F(ClangClangCodeModelServer, NoInitialDocumentAnnotationsForClosedDocument)
     unregisterFile(filePathA);
 }
 
-TEST_F(ClangClangCodeModelServer, NoDocumentAnnotationsForClosedDocument)
+TEST_F(ClangCodeModelServerSlowTest, NoDocumentAnnotationsForClosedDocument)
 {
     const int expectedDocumentAnnotationsChangedCount = 1; // Only for registration.
     registerProjectAndFileAndWaitForFinished(filePathA, expectedDocumentAnnotationsChangedCount);
@@ -204,7 +206,7 @@ TEST_F(ClangClangCodeModelServer, NoDocumentAnnotationsForClosedDocument)
     unregisterFile(filePathA);
 }
 
-TEST_F(ClangClangCodeModelServer, NoInitialDocumentAnnotationsForOutdatedDocumentRevision)
+TEST_F(ClangCodeModelServerSlowTest, NoInitialDocumentAnnotationsForOutdatedDocumentRevision)
 {
     const int expectedDocumentAnnotationsChangedCount = 1; // Only for registration.
     registerProjectAndFile(filePathA, expectedDocumentAnnotationsChangedCount);
@@ -212,7 +214,7 @@ TEST_F(ClangClangCodeModelServer, NoInitialDocumentAnnotationsForOutdatedDocumen
     updateUnsavedContent(filePathA, Utf8String(), 1);
 }
 
-TEST_F(ClangClangCodeModelServer, NoCompletionsForClosedDocument)
+TEST_F(ClangCodeModelServerSlowTest, NoCompletionsForClosedDocument)
 {
     const int expectedDocumentAnnotationsChangedCount = 1; // Only for registration.
     registerProjectAndFileAndWaitForFinished(filePathA, expectedDocumentAnnotationsChangedCount);
@@ -221,7 +223,7 @@ TEST_F(ClangClangCodeModelServer, NoCompletionsForClosedDocument)
     unregisterFile(filePathA);
 }
 
-TEST_F(ClangClangCodeModelServer, CodeCompletionDependingOnProject)
+TEST_F(ClangCodeModelServerSlowTest, CodeCompletionDependingOnProject)
 {
     const int expectedDocumentAnnotationsChangedCount = 2; // For registration and due to project change.
     registerProjectAndFileAndWaitForFinished(filePathB, expectedDocumentAnnotationsChangedCount);
@@ -231,7 +233,7 @@ TEST_F(ClangClangCodeModelServer, CodeCompletionDependingOnProject)
     completeCodeInFileB();
 }
 
-TEST_F(ClangClangCodeModelServer, GetCodeCompletionForUnsavedFile)
+TEST_F(ClangCodeModelServerSlowTest, GetCodeCompletionForUnsavedFile)
 {
     registerProjectPart();
     expectDocumentAnnotationsChanged(1);
@@ -241,7 +243,7 @@ TEST_F(ClangClangCodeModelServer, GetCodeCompletionForUnsavedFile)
     completeCodeInFileA();
 }
 
-TEST_F(ClangClangCodeModelServer, GetNoCodeCompletionAfterRemovingUnsavedFile)
+TEST_F(ClangCodeModelServerSlowTest, GetNoCodeCompletionAfterRemovingUnsavedFile)
 {
     const int expectedDocumentAnnotationsChangedCount = 2; // For registration and update/removal.
     registerProjectAndFileAndWaitForFinished(filePathA, expectedDocumentAnnotationsChangedCount);
@@ -251,7 +253,7 @@ TEST_F(ClangClangCodeModelServer, GetNoCodeCompletionAfterRemovingUnsavedFile)
     completeCodeInFileA();
 }
 
-TEST_F(ClangClangCodeModelServer, GetNewCodeCompletionAfterUpdatingUnsavedFile)
+TEST_F(ClangCodeModelServerSlowTest, GetNewCodeCompletionAfterUpdatingUnsavedFile)
 {
     const int expectedDocumentAnnotationsChangedCount = 2; // For registration and update/removal.
     registerProjectAndFileAndWaitForFinished(filePathA, expectedDocumentAnnotationsChangedCount);
@@ -261,7 +263,7 @@ TEST_F(ClangClangCodeModelServer, GetNewCodeCompletionAfterUpdatingUnsavedFile)
     completeCodeInFileA();
 }
 
-TEST_F(ClangClangCodeModelServer, TicketNumberIsForwarded)
+TEST_F(ClangCodeModelServerSlowTest, TicketNumberIsForwarded)
 {
     registerProjectAndFile(filePathA, 1);
     const CompleteCodeMessage message(filePathA, 20, 1, projectPartId);
@@ -270,14 +272,14 @@ TEST_F(ClangClangCodeModelServer, TicketNumberIsForwarded)
     clangServer.completeCode(message);
 }
 
-TEST_F(ClangClangCodeModelServer, TranslationUnitAfterCreationIsNotDirty)
+TEST_F(ClangCodeModelServerSlowTest, TranslationUnitAfterCreationIsNotDirty)
 {
     registerProjectAndFile(filePathA, 1);
 
     ASSERT_THAT(clangServer, HasDirtyDocument(filePathA, projectPartId, 0U, false, false));
 }
 
-TEST_F(ClangClangCodeModelServer, SetCurrentAndVisibleEditor)
+TEST_F(ClangCodeModelServerSlowTest, SetCurrentAndVisibleEditor)
 {
     registerProjectAndFilesAndWaitForFinished();
     auto functionDocument = documents.document(filePathA, projectPartId);
@@ -290,7 +292,7 @@ TEST_F(ClangClangCodeModelServer, SetCurrentAndVisibleEditor)
     ASSERT_TRUE(functionDocument.isVisibleInEditor());
 }
 
-TEST_F(ClangClangCodeModelServer, StartCompletionJobFirstOnEditThatTriggersCompletion)
+TEST_F(ClangCodeModelServerSlowTest, StartCompletionJobFirstOnEditThatTriggersCompletion)
 {
     registerProjectAndFile(filePathA, 2);
     ASSERT_TRUE(waitUntilAllJobsFinished());
@@ -304,7 +306,7 @@ TEST_F(ClangClangCodeModelServer, StartCompletionJobFirstOnEditThatTriggersCompl
     ASSERT_THAT(jobs.first().jobRequest.type, Eq(JobRequest::Type::CompleteCode));
 }
 
-TEST_F(ClangClangCodeModelServer, SupportiveTranslationUnitNotInitializedAfterRegister)
+TEST_F(ClangCodeModelServerSlowTest, SupportiveTranslationUnitNotInitializedAfterRegister)
 {
     registerProjectAndFile(filePathA, 1);
 
@@ -312,7 +314,7 @@ TEST_F(ClangClangCodeModelServer, SupportiveTranslationUnitNotInitializedAfterRe
     ASSERT_FALSE(isSupportiveTranslationUnitInitialized(filePathA));
 }
 
-TEST_F(ClangClangCodeModelServer, SupportiveTranslationUnitIsSetupAfterFirstEdit)
+TEST_F(ClangCodeModelServerSlowTest, SupportiveTranslationUnitIsSetupAfterFirstEdit)
 {
     registerProjectAndFile(filePathA, 2);
     ASSERT_TRUE(waitUntilAllJobsFinished());
@@ -323,7 +325,7 @@ TEST_F(ClangClangCodeModelServer, SupportiveTranslationUnitIsSetupAfterFirstEdit
     ASSERT_TRUE(isSupportiveTranslationUnitInitialized(filePathA));
 }
 
-TEST_F(ClangClangCodeModelServer, DoNotRunDuplicateJobs)
+TEST_F(ClangCodeModelServerSlowTest, DoNotRunDuplicateJobs)
 {
     registerProjectAndFile(filePathA, 3);
     ASSERT_TRUE(waitUntilAllJobsFinished());
@@ -337,7 +339,7 @@ TEST_F(ClangClangCodeModelServer, DoNotRunDuplicateJobs)
     updateVisibilty(filePathA, filePathA); // triggers adding + runnings job on next processevents()
 }
 
-TEST_F(ClangClangCodeModelServer, OpenDocumentAndEdit)
+TEST_F(ClangCodeModelServerSlowTest, OpenDocumentAndEdit)
 {
     registerProjectAndFile(filePathA, 4);
     ASSERT_TRUE(waitUntilAllJobsFinished());
@@ -348,7 +350,7 @@ TEST_F(ClangClangCodeModelServer, OpenDocumentAndEdit)
     }
 }
 
-TEST_F(ClangClangCodeModelServer, IsNotCurrentCurrentAndVisibleEditorAnymore)
+TEST_F(ClangCodeModelServerSlowTest, IsNotCurrentCurrentAndVisibleEditorAnymore)
 {
     registerProjectAndFilesAndWaitForFinished();
     auto functionDocument = documents.document(filePathA, projectPartId);
@@ -363,7 +365,7 @@ TEST_F(ClangClangCodeModelServer, IsNotCurrentCurrentAndVisibleEditorAnymore)
     ASSERT_TRUE(variableDocument.isVisibleInEditor());
 }
 
-TEST_F(ClangClangCodeModelServer, TranslationUnitAfterUpdateNeedsReparse)
+TEST_F(ClangCodeModelServerSlowTest, TranslationUnitAfterUpdateNeedsReparse)
 {
     registerProjectAndFileAndWaitForFinished(filePathA, 2);
 
@@ -371,19 +373,19 @@ TEST_F(ClangClangCodeModelServer, TranslationUnitAfterUpdateNeedsReparse)
     ASSERT_THAT(clangServer, HasDirtyDocument(filePathA, projectPartId, 1U, true, true));
 }
 
-void ClangClangCodeModelServer::SetUp()
+void ClangCodeModelServer::SetUp()
 {
     clangServer.setClient(&mockClangCodeModelClient);
     clangServer.setUpdateDocumentAnnotationsTimeOutInMsForTestsOnly(0);
     clangServer.setUpdateVisibleButNotCurrentDocumentsTimeOutInMsForTestsOnly(0);
 }
 
-void ClangClangCodeModelServer::TearDown()
+void ClangCodeModelServer::TearDown()
 {
     ASSERT_TRUE(waitUntilAllJobsFinished());
 }
 
-bool ClangClangCodeModelServer::waitUntilAllJobsFinished(int timeOutInMs)
+bool ClangCodeModelServer::waitUntilAllJobsFinished(int timeOutInMs)
 {
     const auto noJobsRunningAnymore = [this]() {
         return clangServer.runningJobsForTestsOnly().isEmpty()
@@ -394,7 +396,7 @@ bool ClangClangCodeModelServer::waitUntilAllJobsFinished(int timeOutInMs)
     return ProcessEventUtilities::processEventsUntilTrue(noJobsRunningAnymore, timeOutInMs);
 }
 
-void ClangClangCodeModelServer::registerProjectAndFilesAndWaitForFinished(
+void ClangCodeModelServer::registerProjectAndFilesAndWaitForFinished(
         int expectedDocumentAnnotationsChangedMessages)
 {
     registerProjectPart();
@@ -403,7 +405,7 @@ void ClangClangCodeModelServer::registerProjectAndFilesAndWaitForFinished(
     ASSERT_TRUE(waitUntilAllJobsFinished());
 }
 
-void ClangClangCodeModelServer::registerFile(const Utf8String &filePath,
+void ClangCodeModelServer::registerFile(const Utf8String &filePath,
                                   int expectedDocumentAnnotationsChangedMessages)
 {
     const FileContainer fileContainer(filePath, projectPartId);
@@ -414,7 +416,7 @@ void ClangClangCodeModelServer::registerFile(const Utf8String &filePath,
     clangServer.registerTranslationUnitsForEditor(message);
 }
 
-void ClangClangCodeModelServer::registerFiles(int expectedDocumentAnnotationsChangedMessages)
+void ClangCodeModelServer::registerFiles(int expectedDocumentAnnotationsChangedMessages)
 {
     const FileContainer fileContainerA(filePathA, projectPartId);
     const FileContainer fileContainerB(filePathB, projectPartId);
@@ -428,12 +430,12 @@ void ClangClangCodeModelServer::registerFiles(int expectedDocumentAnnotationsCha
     clangServer.registerTranslationUnitsForEditor(message);
 }
 
-void ClangClangCodeModelServer::expectDocumentAnnotationsChanged(int count)
+void ClangCodeModelServer::expectDocumentAnnotationsChanged(int count)
 {
     EXPECT_CALL(mockClangCodeModelClient, documentAnnotationsChanged(_)).Times(count);
 }
 
-void ClangClangCodeModelServer::registerFile(const Utf8String &filePath, const Utf8String &projectFilePath)
+void ClangCodeModelServer::registerFile(const Utf8String &filePath, const Utf8String &projectFilePath)
 {
     const FileContainer fileContainer(filePath, projectFilePath);
     const RegisterTranslationUnitForEditorMessage message({fileContainer}, filePath, {filePath});
@@ -441,7 +443,7 @@ void ClangClangCodeModelServer::registerFile(const Utf8String &filePath, const U
     clangServer.registerTranslationUnitsForEditor(message);
 }
 
-void ClangClangCodeModelServer::registerFileWithUnsavedContent(const Utf8String &filePath,
+void ClangCodeModelServer::registerFileWithUnsavedContent(const Utf8String &filePath,
                                                     const Utf8String &unsavedContent)
 {
     const FileContainer fileContainer(filePath, projectPartId, unsavedContent, true);
@@ -450,7 +452,7 @@ void ClangClangCodeModelServer::registerFileWithUnsavedContent(const Utf8String 
     clangServer.registerTranslationUnitsForEditor(message);
 }
 
-void ClangClangCodeModelServer::completeCode(const Utf8String &filePath,
+void ClangCodeModelServer::completeCode(const Utf8String &filePath,
                                   uint line,
                                   uint column,
                                   const Utf8String &projectPartId)
@@ -464,17 +466,17 @@ void ClangClangCodeModelServer::completeCode(const Utf8String &filePath,
     clangServer.completeCode(message);
 }
 
-void ClangClangCodeModelServer::completeCodeInFileA()
+void ClangCodeModelServer::completeCodeInFileA()
 {
     completeCode(filePathA, 20, 1);
 }
 
-void ClangClangCodeModelServer::completeCodeInFileB()
+void ClangCodeModelServer::completeCodeInFileB()
 {
     completeCode(filePathB, 35, 1);
 }
 
-bool ClangClangCodeModelServer::isSupportiveTranslationUnitInitialized(const Utf8String &filePath)
+bool ClangCodeModelServer::isSupportiveTranslationUnitInitialized(const Utf8String &filePath)
 {
     Document document = clangServer.documentsForTestOnly().document(filePath, projectPartId);
     DocumentProcessor documentProcessor = clangServer.documentProcessors().processor(document);
@@ -484,7 +486,7 @@ bool ClangClangCodeModelServer::isSupportiveTranslationUnitInitialized(const Utf
         && documentProcessor.isSupportiveTranslationUnitInitialized();
 }
 
-void ClangClangCodeModelServer::expectCompletion(const CodeCompletion &completion)
+void ClangCodeModelServer::expectCompletion(const CodeCompletion &completion)
 {
     EXPECT_CALL(mockClangCodeModelClient,
                 codeCompleted(Property(&CodeCompletedMessage::codeCompletions,
@@ -492,7 +494,7 @@ void ClangClangCodeModelServer::expectCompletion(const CodeCompletion &completio
             .Times(1);
 }
 
-void ClangClangCodeModelServer::expectCompletionFromFileBEnabledByMacro()
+void ClangCodeModelServer::expectCompletionFromFileBEnabledByMacro()
 {
     const CodeCompletion completion(Utf8StringLiteral("ArgumentDefinitionVariable"),
                                     34,
@@ -501,7 +503,7 @@ void ClangClangCodeModelServer::expectCompletionFromFileBEnabledByMacro()
     expectCompletion(completion);
 }
 
-void ClangClangCodeModelServer::expectCompletionFromFileAUnsavedMethodVersion1()
+void ClangCodeModelServer::expectCompletionFromFileAUnsavedMethodVersion1()
 {
     const CodeCompletion completion(Utf8StringLiteral("Method2"),
                                     34,
@@ -510,7 +512,7 @@ void ClangClangCodeModelServer::expectCompletionFromFileAUnsavedMethodVersion1()
     expectCompletion(completion);
 }
 
-void ClangClangCodeModelServer::expectCompletionFromFileAUnsavedMethodVersion2()
+void ClangCodeModelServer::expectCompletionFromFileAUnsavedMethodVersion2()
 {
     const CodeCompletion completion(Utf8StringLiteral("Method3"),
                                     34,
@@ -519,7 +521,7 @@ void ClangClangCodeModelServer::expectCompletionFromFileAUnsavedMethodVersion2()
     expectCompletion(completion);
 }
 
-void ClangClangCodeModelServer::expectCompletionWithTicketNumber(quint64 ticketNumber)
+void ClangCodeModelServer::expectCompletionWithTicketNumber(quint64 ticketNumber)
 {
     EXPECT_CALL(mockClangCodeModelClient,
                 codeCompleted(Property(&CodeCompletedMessage::ticketNumber,
@@ -527,7 +529,7 @@ void ClangClangCodeModelServer::expectCompletionWithTicketNumber(quint64 ticketN
         .Times(1);
 }
 
-void ClangClangCodeModelServer::expectNoCompletionWithUnsavedMethod()
+void ClangCodeModelServer::expectNoCompletionWithUnsavedMethod()
 {
     const CodeCompletion completion(Utf8StringLiteral("Method2"),
                                     34,
@@ -539,7 +541,7 @@ void ClangClangCodeModelServer::expectNoCompletionWithUnsavedMethod()
             .Times(1);
 }
 
-void ClangClangCodeModelServer::expectCompletionFromFileA()
+void ClangCodeModelServer::expectCompletionFromFileA()
 {
     const CodeCompletion completion(Utf8StringLiteral("Function"),
                                     34,
@@ -548,14 +550,14 @@ void ClangClangCodeModelServer::expectCompletionFromFileA()
     expectCompletion(completion);
 }
 
-void ClangClangCodeModelServer::requestDocumentAnnotations(const Utf8String &filePath)
+void ClangCodeModelServer::requestDocumentAnnotations(const Utf8String &filePath)
 {
     const RequestDocumentAnnotationsMessage message({filePath, projectPartId});
 
     clangServer.requestDocumentAnnotations(message);
 }
 
-void ClangClangCodeModelServer::expectDocumentAnnotationsChangedForFileBWithSpecificHighlightingMark()
+void ClangCodeModelServer::expectDocumentAnnotationsChangedForFileBWithSpecificHighlightingMark()
 {
     HighlightingTypes types;
     types.mainHighlightingType = ClangBackEnd::HighlightingType::Function;
@@ -569,7 +571,7 @@ void ClangClangCodeModelServer::expectDocumentAnnotationsChangedForFileBWithSpec
         .Times(1);
 }
 
-void ClangClangCodeModelServer::updateUnsavedContent(const Utf8String &filePath,
+void ClangCodeModelServer::updateUnsavedContent(const Utf8String &filePath,
                                               const Utf8String &fileContent,
                                               quint32 revisionNumber)
 {
@@ -579,7 +581,7 @@ void ClangClangCodeModelServer::updateUnsavedContent(const Utf8String &filePath,
     clangServer.updateTranslationUnitsForEditor(message);
 }
 
-void ClangClangCodeModelServer::removeUnsavedFile(const Utf8String &filePath)
+void ClangCodeModelServer::removeUnsavedFile(const Utf8String &filePath)
 {
     const FileContainer fileContainer(filePath, projectPartId, Utf8StringVector(), 74);
     const UpdateTranslationUnitsForEditorMessage message({fileContainer});
@@ -587,7 +589,7 @@ void ClangClangCodeModelServer::removeUnsavedFile(const Utf8String &filePath)
     clangServer.updateTranslationUnitsForEditor(message);
 }
 
-void ClangClangCodeModelServer::unregisterFile(const Utf8String &filePath)
+void ClangCodeModelServer::unregisterFile(const Utf8String &filePath)
 {
     const QVector<FileContainer> fileContainers = {FileContainer(filePath, projectPartId)};
     const UnregisterTranslationUnitsForEditorMessage message(fileContainers);
@@ -595,7 +597,7 @@ void ClangClangCodeModelServer::unregisterFile(const Utf8String &filePath)
     clangServer.unregisterTranslationUnitsForEditor(message);
 }
 
-void ClangClangCodeModelServer::unregisterFile(const Utf8String &filePath, const Utf8String &projectPartId)
+void ClangCodeModelServer::unregisterFile(const Utf8String &filePath, const Utf8String &projectPartId)
 {
     const QVector<FileContainer> fileContainers = {FileContainer(filePath, projectPartId)};
     const UnregisterTranslationUnitsForEditorMessage message(fileContainers);
@@ -603,28 +605,28 @@ void ClangClangCodeModelServer::unregisterFile(const Utf8String &filePath, const
     clangServer.unregisterTranslationUnitsForEditor(message);
 }
 
-void ClangClangCodeModelServer::unregisterProject(const Utf8String &projectPartId)
+void ClangCodeModelServer::unregisterProject(const Utf8String &projectPartId)
 {
     const UnregisterProjectPartsForEditorMessage message({projectPartId});
 
     clangServer.unregisterProjectPartsForEditor(message);
 }
 
-void ClangClangCodeModelServer::registerProjectPart()
+void ClangCodeModelServer::registerProjectPart()
 {
     RegisterProjectPartsForEditorMessage message({ProjectPartContainer(projectPartId)});
 
     clangServer.registerProjectPartsForEditor(message);
 }
 
-void ClangClangCodeModelServer::registerProjectAndFile(const Utf8String &filePath,
+void ClangCodeModelServer::registerProjectAndFile(const Utf8String &filePath,
                                                        int expectedDocumentAnnotationsChangedMessages)
 {
     registerProjectPart();
     registerFile(filePath, expectedDocumentAnnotationsChangedMessages);
 }
 
-void ClangClangCodeModelServer::registerProjectAndFileAndWaitForFinished(
+void ClangCodeModelServer::registerProjectAndFileAndWaitForFinished(
         const Utf8String &filePath,
         int expectedDocumentAnnotationsChangedMessages)
 {
@@ -632,7 +634,7 @@ void ClangClangCodeModelServer::registerProjectAndFileAndWaitForFinished(
     ASSERT_TRUE(waitUntilAllJobsFinished());
 }
 
-void ClangClangCodeModelServer::changeProjectPartArguments()
+void ClangCodeModelServer::changeProjectPartArguments()
 {
     const ProjectPartContainer projectPartContainer(projectPartId,
                                                     {Utf8StringLiteral("-DArgumentDefinition")});
@@ -641,7 +643,7 @@ void ClangClangCodeModelServer::changeProjectPartArguments()
     clangServer.registerProjectPartsForEditor(message);
 }
 
-void ClangClangCodeModelServer::updateVisibilty(const Utf8String &currentEditor,
+void ClangCodeModelServer::updateVisibilty(const Utf8String &currentEditor,
                                      const Utf8String &additionalVisibleEditor)
 {
     const UpdateVisibleTranslationUnitsMessage message(currentEditor,
@@ -650,7 +652,7 @@ void ClangClangCodeModelServer::updateVisibilty(const Utf8String &currentEditor,
     clangServer.updateVisibleTranslationUnits(message);
 }
 
-const Utf8String ClangClangCodeModelServer::unsavedContent(const QString &unsavedFilePath)
+const Utf8String ClangCodeModelServer::unsavedContent(const QString &unsavedFilePath)
 {
     QFile unsavedFileContentFile(unsavedFilePath);
     const bool isOpen = unsavedFileContentFile.open(QIODevice::ReadOnly | QIODevice::Text);

@@ -26,7 +26,6 @@ unix: DEFINES += ECHOSERVER=\"R\\\"xxx($$OUT_PWD/../echoserver/echo)xxx\\\"\"
 
 SOURCES += \
     clientserverinprocess-test.cpp \
-    clientserveroutsideprocess.cpp \
     lineprefixer-test.cpp \
     cppprojectfilecategorizer-test.cpp \
     cppbaseprojectpartbuilder-test.cpp \
@@ -40,7 +39,12 @@ SOURCES += \
     unittests-main.cpp \
     utf8-test.cpp \
     gtest-qt-printing.cpp \
-    gtest-creator-printing.cpp
+    gtest-creator-printing.cpp \
+    clangparsesupportivetranslationunitjob-test.cpp \
+    clangreparsesupportivetranslationunitjob-test.cpp \
+    clangsupportivetranslationunitinitializer-test.cpp \
+    codecompleter-test.cpp \
+    clientserveroutsideprocess-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \
@@ -62,16 +66,12 @@ SOURCES += \
     clangisdiagnosticrelatedtolocation-test.cpp \
     clangjobqueue-test.cpp \
     clangjobs-test.cpp \
-    clangparsesupportivetranslationunitjobtest.cpp \
-    clangreparsesupportivetranslationunitjobtest.cpp \
     clangrequestdocumentannotationsjob-test.cpp \
-    clangsupportivetranslationunitinitializertest.cpp \
     clangstring-test.cpp \
     clangtranslationunit-test.cpp \
     clangtranslationunits-test.cpp \
     clangupdatedocumentannotationsjob-test.cpp \
     codecompletionsextractor-test.cpp \
-    codecompletion-test.cpp \
     completionchunkstotextconverter-test.cpp \
     createtablesqlstatementbuilder-test.cpp \
     cursor-test.cpp \
