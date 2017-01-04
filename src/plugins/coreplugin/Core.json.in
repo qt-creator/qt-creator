@@ -3,6 +3,7 @@
     \"Version\" : \"$$QTCREATOR_VERSION\",
     \"CompatVersion\" : \"$$QTCREATOR_COMPAT_VERSION\",
     \"Required\" : true,
+    \"HiddenByDefault\" : true,
     \"Vendor\" : \"The Qt Company Ltd\",
     \"Copyright\" : \"(C) 2016 The Qt Company Ltd\",
     \"License\" : [ \"Commercial Usage\",
