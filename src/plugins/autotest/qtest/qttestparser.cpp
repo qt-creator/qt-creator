@@ -132,11 +132,11 @@ static CPlusPlus::Document::Ptr declaringDocument(CPlusPlus::Document::Ptr doc,
 }
 
 static QSet<QString> filesWithDataFunctionDefinitions(
-            const QMap<QString, TestCodeLocationAndType> &testFunctions)
+            const QMap<QString, QtTestCodeLocationAndType> &testFunctions)
 {
     QSet<QString> result;
-    QMap<QString, TestCodeLocationAndType>::ConstIterator it = testFunctions.begin();
-    const QMap<QString, TestCodeLocationAndType>::ConstIterator end = testFunctions.end();
+    QMap<QString, QtTestCodeLocationAndType>::ConstIterator it = testFunctions.begin();
+    const QMap<QString, QtTestCodeLocationAndType>::ConstIterator end = testFunctions.end();
 
     for ( ; it != end; ++it) {
         const QString &key = it.key();
@@ -146,7 +146,7 @@ static QSet<QString> filesWithDataFunctionDefinitions(
     return result;
 }
 
-static QMap<QString, TestCodeLocationList> checkForDataTags(const QString &fileName,
+static QMap<QString, QtTestCodeLocationList> checkForDataTags(const QString &fileName,
             const CPlusPlus::Snapshot &snapshot)
 {
     const QByteArray fileContent = CppParser::getFileContent(fileName);
@@ -183,11 +183,11 @@ static bool handleQtTest(QFutureInterface<TestParseResultPtr> futureInterface,
         if (!visitor.resultValid())
             return false;
 
-        const QMap<QString, TestCodeLocationAndType> &testFunctions = visitor.privateSlots();
+        const QMap<QString, QtTestCodeLocationAndType> &testFunctions = visitor.privateSlots();
         const QSet<QString> &files = filesWithDataFunctionDefinitions(testFunctions);
 
         // TODO: change to QHash<>
-        QMap<QString, TestCodeLocationList> dataTags;
+        QMap<QString, QtTestCodeLocationList> dataTags;
         foreach (const QString &file, files)
             dataTags.unite(checkForDataTags(file, snapshot));
 
@@ -202,10 +202,10 @@ static bool handleQtTest(QFutureInterface<TestParseResultPtr> futureInterface,
         if (projectParts.isEmpty()) // happens if shutting down while parsing
             return false;
         parseResult->proFile = projectParts.first()->projectFile;
-        QMap<QString, TestCodeLocationAndType>::ConstIterator it = testFunctions.begin();
-        const QMap<QString, TestCodeLocationAndType>::ConstIterator end = testFunctions.end();
+        QMap<QString, QtTestCodeLocationAndType>::ConstIterator it = testFunctions.begin();
+        const QMap<QString, QtTestCodeLocationAndType>::ConstIterator end = testFunctions.end();
         for ( ; it != end; ++it) {
-            const TestCodeLocationAndType &location = it.value();
+            const QtTestCodeLocationAndType &location = it.value();
             QtTestParseResult *func = new QtTestParseResult(id);
             func->itemType = location.m_type;
             func->name = testCaseName + "::" + it.key();
@@ -213,8 +213,9 @@ static bool handleQtTest(QFutureInterface<TestParseResultPtr> futureInterface,
             func->fileName = location.m_name;
             func->line = location.m_line;
             func->column = location.m_column;
+            func->setInherited(location.m_inherited);
 
-            foreach (const TestCodeLocationAndType &tag, dataTags.value(func->name)) {
+            foreach (const QtTestCodeLocationAndType &tag, dataTags.value(func->name)) {
                 QtTestParseResult *dataTag = new QtTestParseResult(id);
                 dataTag->itemType = tag.m_type;
                 dataTag->name = tag.m_name;
@@ -222,6 +223,7 @@ static bool handleQtTest(QFutureInterface<TestParseResultPtr> futureInterface,
                 dataTag->fileName = testFunctions.value(it.key() + "_data").m_name;
                 dataTag->line = tag.m_line;
                 dataTag->column = tag.m_column;
+                dataTag->setInherited(tag.m_inherited);
 
                 func->children.append(dataTag);
             }

@@ -48,7 +48,20 @@ public:
     QList<TestConfiguration *> getSelectedTestConfigurations() const override;
     TestTreeItem *find(const TestParseResult *result) override;
     bool modify(const TestParseResult *result) override;
+    void setInherited(bool inherited) { m_inherited = inherited; }
+    bool inherited() const { return m_inherited; }
+private:
+    QString nameSuffix() const;
+    bool m_inherited = false;
 };
+
+class QtTestCodeLocationAndType : public TestCodeLocationAndType
+{
+public:
+    bool m_inherited = false;
+};
+
+typedef QVector<QtTestCodeLocationAndType> QtTestCodeLocationList;
 
 } // namespace Internal
 } // namespace Autotest

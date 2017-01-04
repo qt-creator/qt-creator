@@ -64,7 +64,7 @@ bool TestVisitor::visit(CPlusPlus::Class *symbol)
         if (const auto func = type->asFunctionType()) {
             if (func->isSlot() && member->isPrivate()) {
                 const QString name = o.prettyName(func->name());
-                TestCodeLocationAndType locationAndType;
+                QtTestCodeLocationAndType locationAndType;
 
                 CPlusPlus::Function *functionDefinition = m_symbolFinder.findMatchingDefinition(
                             func, m_snapshot, true);
@@ -83,6 +83,7 @@ bool TestVisitor::visit(CPlusPlus::Class *symbol)
                     locationAndType.m_type = TestTreeItem::TestDataFunction;
                 else
                     locationAndType.m_type = TestTreeItem::TestFunctionOrSet;
+                locationAndType.m_inherited = false; // for now
                 m_privSlots.insert(name, locationAndType);
             }
         }
@@ -220,7 +221,7 @@ bool TestDataFunctionVisitor::visit(CPlusPlus::CallAST *ast)
                         unsigned column = 0;
                         m_currentDoc->translationUnit()->getTokenStartPosition(
                                     firstToken, &line, &column);
-                        TestCodeLocationAndType locationAndType;
+                        QtTestCodeLocationAndType locationAndType;
                         locationAndType.m_name = name;
                         locationAndType.m_column = column - 1;
                         locationAndType.m_line = line;

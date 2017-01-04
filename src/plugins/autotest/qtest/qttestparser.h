@@ -34,7 +34,11 @@ class QtTestParseResult : public TestParseResult
 {
 public:
     explicit QtTestParseResult(const Core::Id &id) : TestParseResult(id) {}
+    void setInherited(bool inherited) { m_inherited = inherited; }
+    bool inherited() const { return m_inherited; }
     TestTreeItem *createTestTreeItem() const override;
+private:
+    bool m_inherited = false;
 };
 
 class QtTestParser : public CppParser
