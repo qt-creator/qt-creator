@@ -147,6 +147,7 @@ void ViewManager::detachViewsExceptRewriterAndComponetView()
     detachAdditionalViews();
     currentModel()->detachView(&d->designerActionManagerView);
     currentModel()->detachView(&d->formEditorView);
+    currentModel()->detachView(&d->textEditorView);
     currentModel()->detachView(&d->navigatorView);
     currentModel()->detachView(&d->itemLibraryView);
     currentModel()->detachView(&d->statesEditorView);
@@ -199,6 +200,7 @@ void ViewManager::attachViewsExceptRewriterAndComponetView()
 
     attachNodeInstanceView();
     currentModel()->attachView(&d->formEditorView);
+    currentModel()->attachView(&d->textEditorView);
     currentModel()->attachView(&d->navigatorView);
     attachItemLibraryView();
     currentModel()->attachView(&d->statesEditorView);
