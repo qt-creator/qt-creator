@@ -385,7 +385,7 @@ void PropertyEditorView::setupPanes()
 void PropertyEditorView::delayedResetView()
 {
     if (m_timerId == 0)
-        m_timerId = startTimer(100);
+        m_timerId = startTimer(50);
 }
 
 void PropertyEditorView::timerEvent(QTimerEvent *timerEvent)
@@ -717,7 +717,7 @@ void PropertyEditorView::instancePropertyChanged(const QList<QPair<ModelNode, Pr
 
 void PropertyEditorView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/)
 {
-    // TODO: we should react to this case
+    delayedResetView();
 }
 
 void PropertyEditorView::nodeTypeChanged(const ModelNode &node, const TypeName &, int, int)
