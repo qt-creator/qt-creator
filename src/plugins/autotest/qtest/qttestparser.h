@@ -51,6 +51,7 @@ public:
 
 private:
     QHash<QString, QString> m_testCaseNames;
+    QMultiHash<QString, QString> m_alternativeFiles;
 };
 
 } // namespace Internal

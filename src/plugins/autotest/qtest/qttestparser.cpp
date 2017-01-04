@@ -109,14 +109,29 @@ static QString testClass(const CppTools::CppModelManager *modelManager,
 static CPlusPlus::Document::Ptr declaringDocument(CPlusPlus::Document::Ptr doc,
                                                   const CPlusPlus::Snapshot &snapshot,
                                                   const QString &testCaseName,
+                                                  const QStringList &alternativeFiles = {},
                                                   unsigned *line = 0, unsigned *column = 0)
 {
-    CPlusPlus::Document::Ptr declaringDoc = doc;
+    CPlusPlus::Document::Ptr declaringDoc;
     CPlusPlus::TypeOfExpression typeOfExpr;
     typeOfExpr.init(doc, snapshot);
 
     QList<CPlusPlus::LookupItem> lookupItems = typeOfExpr(testCaseName.toUtf8(),
                                                           doc->globalNamespace());
+    // fallback for inherited functions
+    if (lookupItems.size() == 0 && !alternativeFiles.isEmpty()) {
+        for (const QString &alternativeFile : alternativeFiles) {
+            if (snapshot.contains(alternativeFile)) {
+                CPlusPlus::Document::Ptr document = snapshot.document(alternativeFile);
+                CPlusPlus::TypeOfExpression typeOfExpr; // we need a new one with no bindings
+                typeOfExpr.init(document, snapshot);
+                lookupItems = typeOfExpr(testCaseName.toUtf8(), document->globalNamespace());
+                if (lookupItems.size() != 0)
+                    break;
+            }
+        }
+    }
+
     if (lookupItems.size()) {
         if (CPlusPlus::Symbol *symbol = lookupItems.first().declaration()) {
             if (CPlusPlus::Class *toeClass = symbol->asClass()) {
@@ -184,6 +199,7 @@ static bool handleQtTest(QFutureInterface<TestParseResultPtr> futureInterface,
                          CPlusPlus::Document::Ptr document,
                          const CPlusPlus::Snapshot &snapshot,
                          const QString &oldTestCaseName,
+                         const QStringList &alternativeFiles,
                          const Core::Id &id)
 {
     const CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
@@ -196,7 +212,7 @@ static bool handleQtTest(QFutureInterface<TestParseResultPtr> futureInterface,
         unsigned line = 0;
         unsigned column = 0;
         CPlusPlus::Document::Ptr declaringDoc = declaringDocument(document, snapshot, testCaseName,
-                                                                  &line, &column);
+                                                                  alternativeFiles, &line, &column);
         if (declaringDoc.isNull())
             return false;
 
@@ -263,12 +279,14 @@ static bool handleQtTest(QFutureInterface<TestParseResultPtr> futureInterface,
 void QtTestParser::init(const QStringList &filesToParse)
 {
     m_testCaseNames = QTestUtils::testCaseNamesForFiles(id(), filesToParse);
+    m_alternativeFiles = QTestUtils::alternativeFiles(id(), filesToParse);
     CppParser::init(filesToParse);
 }
 
 void QtTestParser::release()
 {
     m_testCaseNames.clear();
+    m_alternativeFiles.clear();
     CppParser::release();
 }
 
@@ -279,10 +297,11 @@ bool QtTestParser::processDocument(QFutureInterface<TestParseResultPtr> futureIn
         return false;
     CPlusPlus::Document::Ptr doc = m_cppSnapshot.find(fileName).value();
     const QString &oldName = m_testCaseNames.value(fileName);
+    const QStringList &alternativeFiles = m_alternativeFiles.values(fileName);
     if ((!includesQtTest(doc, m_cppSnapshot) || !qtTestLibDefined(fileName)) && oldName.isEmpty())
         return false;
 
-    return handleQtTest(futureInterface, doc, m_cppSnapshot, oldName, id());
+    return handleQtTest(futureInterface, doc, m_cppSnapshot, oldName, alternativeFiles, id());
 }
 
 } // namespace Internal

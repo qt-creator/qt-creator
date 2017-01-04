@@ -35,6 +35,7 @@ namespace QTestUtils {
 
 bool isQTestMacro(const QByteArray &macro);
 QHash<QString, QString> testCaseNamesForFiles(const Core::Id &id, const QStringList &files);
+QMultiHash<QString, QString> alternativeFiles(const Core::Id &id, const QStringList &files);
 
 } // namespace QTestUtils
 } // namespace Internal
