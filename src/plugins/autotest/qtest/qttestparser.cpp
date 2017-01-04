@@ -195,6 +195,23 @@ static QMap<QString, QtTestCodeLocationAndType> baseClassTestFunctions(const QSe
     return testFunctions;
 }
 
+static QtTestCodeLocationList tagLocationsFor(const QtTestParseResult *func,
+                                              const QMap<QString, QtTestCodeLocationList> &dataTags)
+{
+    if (!func->inherited())
+        return dataTags.value(func->name);
+
+    QMap<QString, QtTestCodeLocationList>::ConstIterator it = dataTags.begin();
+    QMap<QString, QtTestCodeLocationList>::ConstIterator end = dataTags.end();
+    const int lastColon = func->name.lastIndexOf(':');
+    QString funcName = lastColon == -1 ? func->name : func->name.mid(lastColon - 1);
+    for ( ; it != end; ++it) {
+        if (it.key().endsWith(funcName))
+            return it.value();
+    }
+    return QtTestCodeLocationList();
+}
+
 static bool handleQtTest(QFutureInterface<TestParseResultPtr> futureInterface,
                          CPlusPlus::Document::Ptr document,
                          const CPlusPlus::Snapshot &snapshot,
@@ -255,7 +272,8 @@ static bool handleQtTest(QFutureInterface<TestParseResultPtr> futureInterface,
             func->column = location.m_column;
             func->setInherited(location.m_inherited);
 
-            foreach (const QtTestCodeLocationAndType &tag, dataTags.value(func->name)) {
+            const QtTestCodeLocationList &tagLocations = tagLocationsFor(func, dataTags);
+            foreach (const QtTestCodeLocationAndType &tag, tagLocations) {
                 QtTestParseResult *dataTag = new QtTestParseResult(id);
                 dataTag->itemType = tag.m_type;
                 dataTag->name = tag.m_name;
