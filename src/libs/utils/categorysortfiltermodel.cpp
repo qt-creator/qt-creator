@@ -42,14 +42,9 @@ bool CategorySortFilterModel::filterAcceptsRow(int source_row,
         if (regexp.indexIn(sourceModel()->data(categoryIndex, filterRole()).toString()) != -1)
             return true;
         const int rowCount = sourceModel()->rowCount(categoryIndex);
-        const int columnCount = sourceModel()->columnCount(categoryIndex);
         for (int row = 0; row < rowCount; ++row) {
-            for (int column = 0; column < columnCount; ++column) {
-                if (regexp.indexIn(sourceModel()->data(
-                                       sourceModel()->index(row, column, categoryIndex),
-                                       filterRole()).toString()) != -1)
-                    return true;
-            }
+            if (filterAcceptsRow(row, categoryIndex))
+                return true;
         }
         return false;
     }

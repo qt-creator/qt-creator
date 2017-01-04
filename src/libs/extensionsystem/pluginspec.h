@@ -95,6 +95,7 @@ public:
     QRegExp platformSpecification() const;
     bool isAvailableForHostPlatform() const;
     bool isRequired() const;
+    bool isHiddenByDefault() const;
     bool isExperimental() const;
     bool isEnabledByDefault() const;
     bool isEnabledBySettings() const;

@@ -82,6 +82,13 @@
                 enabled by the user. This should be done for plugins which are not expected
                 to be used by so many people as to justify the additional resource consumption.
         \row
+            \li HiddenByDefault
+            \li Boolean
+            \li Optional. Defaults to \c false.
+                If set, the plugin is not shown in the default view in the
+                \uicontrol {About Plugins...} dialog, but only if the user requests seeing all
+                plugins. It is still shown with the \c{-version} command line option.
+        \row
             \li Required
             \li Boolean
             \li Optional. Defaults to \c false.
