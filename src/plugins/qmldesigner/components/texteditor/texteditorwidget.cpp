@@ -26,6 +26,7 @@
 #include "texteditorwidget.h"
 
 #include <texteditorview.h>
+#include <rewriterview.h>
 
 #include <theming.h>
 
@@ -42,17 +43,41 @@ TextEditorWidget::TextEditorWidget(TextEditorView *textEditorView) : QWidget()
     QBoxLayout *layout = new QVBoxLayout(this);
     layout->setMargin(0);
 
+    m_updateSelectionTimer.setSingleShot(true);
+    m_updateSelectionTimer.setInterval(200);
+
+    connect(&m_updateSelectionTimer, &QTimer::timeout, this, &TextEditorWidget::updateSelectionByCursorPosition);
     setStyleSheet(Theming::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css")))));
 }
 
 void TextEditorWidget::setTextEditor(TextEditor::BaseTextEditor *textEditor) {
     m_textEditor.reset(textEditor);
     layout()->addWidget(textEditor->editorWidget());
+
+
+    connect(textEditor->editorWidget(), &QPlainTextEdit::cursorPositionChanged,
+            &m_updateSelectionTimer, static_cast<void (QTimer::*)()>(&QTimer::start));
 }
 
 QString TextEditorWidget::contextHelpId() const
 {
     return m_textEditorView->contextHelpId();
+}
+
+void TextEditorWidget::updateSelectionByCursorPosition()
+{
+    /* Because of the timer we have to be careful. */
+    if (!m_textEditorView->model())
+        return;
+
+    const int cursorPosition = m_textEditor->editorWidget()->textCursor().position();
+    RewriterView *rewriterView = m_textEditorView->model()->rewriterView();
+
+    if (rewriterView) {
+        ModelNode modelNode = rewriterView->nodeAtTextCursorPosition(cursorPosition);
+        if (modelNode.isValid())
+            m_textEditorView->setSelectedModelNode(modelNode);
+    }
 }
 
 } // namespace QmlDesigner

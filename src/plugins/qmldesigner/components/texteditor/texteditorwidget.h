@@ -27,6 +27,7 @@
 #include <texteditor/texteditor.h>
 
 #include <QWidget>
+#include <QTimer>
 
 #include <memory>
 
@@ -51,8 +52,11 @@ public:
     QString contextHelpId() const;
 
 private:
+    void updateSelectionByCursorPosition();
+
     std::unique_ptr<TextEditor::BaseTextEditor> m_textEditor;
     QPointer<TextEditorView> m_textEditorView;
+    QTimer m_updateSelectionTimer;
 };
 
 } // namespace QmlDesigner
