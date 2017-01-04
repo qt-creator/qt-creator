@@ -28,6 +28,7 @@
 #include "designmodewidget.h"
 #include "formeditorwidget.h"
 #include "navigatorwidget.h"
+#include "texteditorwidget.h"
 
 namespace QmlDesigner {
 namespace Internal {
@@ -77,10 +78,7 @@ TextEditorContext::TextEditorContext(QWidget *widget)
 
 QString TextEditorContext::contextHelpId() const
 {
-    // as TextEditorView::contextHelpId() uses the texteditor directly,
-    // this should not happen
-    Q_ASSERT(false);
-    return QLatin1String("not_implemented");
+    return qobject_cast<TextEditorWidget *>(m_widget)->contextHelpId();
 }
 
 }
