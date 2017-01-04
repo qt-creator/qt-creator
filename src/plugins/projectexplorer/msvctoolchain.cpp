@@ -442,20 +442,24 @@ QString MsvcToolChain::typeDisplayName() const
 
 Utils::FileNameList MsvcToolChain::suggestedMkspecList() const
 {
+    Utils::FileNameList result;
+    result << Utils::FileName::fromLatin1("win32-msvc"); // Common MSVC mkspec introduced in 5.8.1
     switch (m_abi.osFlavor()) {
     case Abi::WindowsMsvc2005Flavor:
-        return Utils::FileNameList() << Utils::FileName::fromLatin1("win32-msvc2005");
+        result << Utils::FileName::fromLatin1("win32-msvc2005");
+        break;
     case Abi::WindowsMsvc2008Flavor:
-        return Utils::FileNameList() << Utils::FileName::fromLatin1("win32-msvc2008");
+        result << Utils::FileName::fromLatin1("win32-msvc2008");
+        break;
     case Abi::WindowsMsvc2010Flavor:
-        return Utils::FileNameList() << Utils::FileName::fromLatin1("win32-msvc2010");
+        result << Utils::FileName::fromLatin1("win32-msvc2010");
+        break;
     case Abi::WindowsMsvc2012Flavor:
-        return Utils::FileNameList()
-            << Utils::FileName::fromLatin1("win32-msvc2012")
+        result << Utils::FileName::fromLatin1("win32-msvc2012")
             << Utils::FileName::fromLatin1("win32-msvc2010");
+        break;
     case Abi::WindowsMsvc2013Flavor:
-        return Utils::FileNameList()
-            << Utils::FileName::fromLatin1("win32-msvc2013")
+        result << Utils::FileName::fromLatin1("win32-msvc2013")
             << Utils::FileName::fromLatin1("winphone-arm-msvc2013")
             << Utils::FileName::fromLatin1("winphone-x86-msvc2013")
             << Utils::FileName::fromLatin1("winrt-arm-msvc2013")
@@ -463,21 +467,23 @@ Utils::FileNameList MsvcToolChain::suggestedMkspecList() const
             << Utils::FileName::fromLatin1("winrt-x64-msvc2013")
             << Utils::FileName::fromLatin1("win32-msvc2012")
             << Utils::FileName::fromLatin1("win32-msvc2010");
+        break;
     case Abi::WindowsMsvc2015Flavor:
-        return Utils::FileNameList()
-            << Utils::FileName::fromLatin1("win32-msvc2015")
+        result << Utils::FileName::fromLatin1("win32-msvc2015")
             << Utils::FileName::fromLatin1("winphone-arm-msvc2015")
             << Utils::FileName::fromLatin1("winphone-x86-msvc2015")
             << Utils::FileName::fromLatin1("winrt-arm-msvc2015")
             << Utils::FileName::fromLatin1("winrt-x86-msvc2015")
             << Utils::FileName::fromLatin1("winrt-x64-msvc2015");
+        break;
     case Abi::WindowsMsvc2017Flavor:
-        return Utils::FileNameList()
-            << Utils::FileName::fromLatin1("win32-msvc2017");
+        result << Utils::FileName::fromLatin1("win32-msvc2017");
+        break;
     default:
+        result.clear();
         break;
     }
-    return Utils::FileNameList();
+    return result;
 }
 
 QVariantMap MsvcToolChain::toMap() const
