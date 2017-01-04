@@ -418,7 +418,7 @@ void QmlDebugConnection::newConnection()
 
     connect(socket, static_cast<void (QLocalSocket::*)(QLocalSocket::LocalSocketError)>
             (&QLocalSocket::error), this, [this, d](QLocalSocket::LocalSocketError error) {
-        logError(socketErrorToString(static_cast<QAbstractSocket::SocketError>(error)));
+        emit logError(socketErrorToString(static_cast<QAbstractSocket::SocketError>(error)));
         socketDisconnected();
     });
 
