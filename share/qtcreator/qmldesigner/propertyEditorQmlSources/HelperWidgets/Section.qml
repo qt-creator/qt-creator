@@ -34,7 +34,9 @@ Item {
     property int topPadding: 4
     property int rightPadding: 0
 
-    readonly property int animationDuration: 120
+    property int animationDuration: 0
+
+    property bool expanded: true
 
     clip: true
 
@@ -67,6 +69,7 @@ Item {
                     duration: animationDuration
                 }
             }
+
         }
 
         color: creatorTheme.BackgroundColorDark
@@ -89,10 +92,8 @@ Item {
         MouseArea {
             anchors.fill: parent
             onClicked: {
-                if (section.state === "")
-                    section.state = "Collapsed";
-                else
-                    section.state = "";
+                section.animationDuration = 120
+                section.expanded = !section.expanded
             }
         }
     }
@@ -123,6 +124,7 @@ Item {
     states: [
         State {
             name: "Collapsed"
+            when: !section.expanded
             PropertyChanges {
                 target: section
                 implicitHeight: header.height
