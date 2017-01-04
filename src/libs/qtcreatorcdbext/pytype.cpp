@@ -153,6 +153,26 @@ PyObject *lookupType(const std::string &typeNameIn)
     return createType(module, typeId, typeName);
 }
 
+bool isType(const std::string &typeName, const std::vector<std::string> &types)
+{
+    return std::find(types.begin(), types.end(), typeName) != types.end();
+}
+
+bool isIntegralType(const std::string &typeName)
+{
+    static const std::vector<std::string> integralTypes({"bool",
+            "char", "unsigned char", "char16_t", "char32_t", "wchar_t",
+            "short", "unsigned short", "int", "unsigned int",
+            "long", "unsigned long", "int64", "unsigned int64", "__int64", "unsigned __int64"});
+    return isType(typeName, integralTypes);
+}
+
+bool isFloatType(const std::string &typeName)
+{
+    static const std::vector<std::string> floatTypes({"float", "double"});
+    return isType(typeName, floatTypes);
+}
+
 char *getTypeName(ULONG64 module, ULONG typeId)
 {
     char *typeName = 0;
@@ -236,19 +256,8 @@ PyObject *type_bitSize(Type *self)
     return Py_BuildValue("k", typeBitSize(self));
 }
 
-bool isType(const std::string &typeName, const std::vector<std::string> &types)
-{
-    return std::find(types.begin(), types.end(), typeName) != types.end();
-}
-
 PyObject *type_Code(Type *self)
 {
-    static const std::vector<std::string> integralTypes({"bool",
-            "char", "unsigned char", "char16_t", "char32_t", "wchar_t",
-            "short", "unsigned short", "int", "unsigned int",
-            "long", "unsigned long", "int64", "unsigned int64", "__int64", "unsigned __int64"});
-    static const std::vector<std::string> floatTypes({"float", "double"});
-
     TypeCodes code = TypeCodeStruct;
     if (!self->m_resolved) {
         code = TypeCodeUnresolvable;
@@ -265,9 +274,9 @@ PyObject *type_Code(Type *self)
             code = TypeCodeFunction;
         else if (isPointerType(typeName))
             code = TypeCodePointer;
-        else if (isType(typeName, integralTypes))
+        else if (isIntegralType(typeName))
             code = TypeCodeIntegral;
-        else if (isType(typeName, floatTypes))
+        else if (isFloatType(typeName))
             code = TypeCodeFloat;
     }
 
