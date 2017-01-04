@@ -103,108 +103,130 @@ Item {
                 setIcon()
         }
         onClicked: {
-            menu.popup();
+            menuLoader.show()
         }
     }
 
-    Controls.Menu {
+    Loader {
+        id: menuLoader
 
-        id: menu
+        active: false
 
-
-        onAboutToShow: {
-            exportMenuItem.checked = backendValue.hasPropertyAlias()
-            exportMenuItem.enabled = !backendValue.isAttachedProperty()
+        function show() {
+            active = true
+            item.popup()
         }
 
-        Controls.MenuItem {
-            text: qsTr("Reset")
-            onTriggered: {
-                transaction.start();
-                backendValue.resetValue();
-                backendValue.resetValue();
-                transaction.end();
-                extendedFunctionButton.reseted()
+        sourceComponent: Component {
+            Controls.Menu {
+
+                id: menu
+
+                onAboutToShow: {
+                    exportMenuItem.checked = backendValue.hasPropertyAlias()
+                    exportMenuItem.enabled = !backendValue.isAttachedProperty()
+                }
+
+                onAboutToHide: menuLoader.active = false
+
+                Controls.MenuItem {
+                    text: qsTr("Reset")
+                    onTriggered: {
+                        transaction.start()
+                        backendValue.resetValue()
+                        backendValue.resetValue()
+                        transaction.end()
+                        extendedFunctionButton.reseted()
+                    }
+                }
+                Controls.MenuItem {
+                    text: qsTr("Set Binding")
+                    onTriggered: expressionDialogLoader.show()
+                }
+                Controls.MenuItem {
+                    id: exportMenuItem
+                    text: qsTr("Export Property as Alias")
+                    onTriggered: {
+                        if (checked)
+                            backendValue.exportPopertyAsAlias()
+                        else
+                            backendValue.removeAliasExport()
+                    }
+                    checkable: true
+                }
             }
-        }
-        Controls.MenuItem {
-            text: qsTr("Set Binding")
-            onTriggered: {
-                textField.text = backendValue.expression
-                expressionDialog.visible = true
-                textField.forceActiveFocus()
-            }
-        }
-        Controls.MenuItem {
-            id: exportMenuItem
-            text: qsTr("Export Property as Alias")
-            onTriggered: {
-                if (checked)
-                    backendValue.exportPopertyAsAlias();
-                else
-                    backendValue.removeAliasExport();
-            }
-            checkable: true
         }
     }
 
-    Item {
-
-        Rectangle {
-            anchors.fill: parent
-            color: creatorTheme.QmlDesignerBackgroundColorDarker
-            opacity: 0.6
-        }
-
-        MouseArea {
-            anchors.fill: parent
-            onDoubleClicked: expressionDialog.visible = false
-        }
-
-
-        id: expressionDialog
-        visible: false
+    Loader {
+        id: expressionDialogLoader
         parent: itemPane
-
         anchors.fill: parent
 
+        visible: false
+        active: visible
 
+        function show() {
+            expressionDialogLoader.visible = true
+        }
 
-        Rectangle {
-            x: 4
-            onVisibleChanged: {
-                var pos  = itemPane.mapFromItem(extendedFunctionButton.parent, 0, 0);
-                y = pos.y + 2;
-            }
-
-            width: parent.width - 8
-            height: 260
-
-            radius: 2
-            color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate
-            border.color: creatorTheme.QmlDesignerBorderColor
-
-            Label {
-                x: 8
-                y: 6
-                font.bold: true
-                text: qsTr("Binding Editor")
-            }
-
-            ExpressionTextField {
-                id: textField
-                onRejected: expressionDialog.visible = false
-                onAccepted: {
-                    backendValue.expression = textField.text.trim()
-                    expressionDialog.visible = false
-                }
+        sourceComponent: Component {
+            Item {
+                id: expressionDialog
                 anchors.fill: parent
-                anchors.leftMargin: 8
-                anchors.rightMargin: 8
-                anchors.topMargin: 24
-                anchors.bottomMargin: 32
+
+                Component.onCompleted: {
+                    textField.text = backendValue.expression
+                    textField.forceActiveFocus()
+                }
+
+                Rectangle {
+                    anchors.fill: parent
+                    color: creatorTheme.QmlDesignerBackgroundColorDarker
+                    opacity: 0.6
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    onDoubleClicked: expressionDialog.visible = false
+                }
+
+                Rectangle {
+                    x: 4
+                    Component.onCompleted: {
+                        var pos = itemPane.mapFromItem(
+                                    extendedFunctionButton.parent, 0, 0)
+                        y = pos.y + 2
+                    }
+
+                    width: parent.width - 8
+                    height: 260
+
+                    radius: 2
+                    color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate
+                    border.color: creatorTheme.QmlDesignerBorderColor
+
+                    Label {
+                        x: 8
+                        y: 6
+                        font.bold: true
+                        text: qsTr("Binding Editor")
+                    }
+                    ExpressionTextField {
+                        id: textField
+                        onRejected: expressionDialogLoader.visible = false
+                        onAccepted: {
+                            backendValue.expression = textField.text.trim()
+                            expressionDialogLoader.visible = false
+                        }
+                        anchors.fill: parent
+                        anchors.leftMargin: 8
+                        anchors.rightMargin: 8
+                        anchors.topMargin: 24
+                        anchors.bottomMargin: 32
+                    }
+                }
             }
         }
     }
-
 }
