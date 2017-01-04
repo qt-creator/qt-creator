@@ -27,6 +27,10 @@
 
 #include <texteditorview.h>
 
+#include <theming.h>
+
+#include <utils/fileutils.h>
+
 #include <QVBoxLayout>
 
 namespace QmlDesigner {
@@ -37,6 +41,8 @@ TextEditorWidget::TextEditorWidget(TextEditorView *textEditorView) : QWidget()
 {
     QBoxLayout *layout = new QVBoxLayout(this);
     layout->setMargin(0);
+
+    setStyleSheet(Theming::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css")))));
 }
 
 void TextEditorWidget::setTextEditor(TextEditor::BaseTextEditor *textEditor) {
