@@ -68,11 +68,6 @@
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
 
-#include <utils/fancymainwindow.h>
-#include <utils/qtcassert.h>
-#include <utils/styledbar.h>
-#include <utils/utilsicons.h>
-
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorericons.h>
