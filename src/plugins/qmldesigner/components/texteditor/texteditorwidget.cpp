@@ -47,7 +47,7 @@ TextEditorWidget::TextEditorWidget(TextEditorView *textEditorView) : QWidget()
 
 void TextEditorWidget::setTextEditor(TextEditor::BaseTextEditor *textEditor) {
     m_textEditor.reset(textEditor);
-    layout()->addWidget(textEditor->widget());
+    layout()->addWidget(textEditor->editorWidget());
 }
 
 QString TextEditorWidget::contextHelpId() const
