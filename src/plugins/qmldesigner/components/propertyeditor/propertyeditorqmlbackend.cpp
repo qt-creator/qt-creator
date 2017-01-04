@@ -46,6 +46,9 @@
 #include <QDir>
 #include <QFileInfo>
 
+#include <QLoggingCategory>
+
+static Q_LOGGING_CATEGORY(propertyEditorBenchmark, "qtc.propertyeditor.load")
 
 static QmlJS::SimpleReaderNode::Ptr s_templateConfiguration = QmlJS::SimpleReaderNode::Ptr();
 
@@ -269,6 +272,13 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
         return;
 
     if (qmlObjectNode.isValid()) {
+
+        qCInfo(propertyEditorBenchmark) << Q_FUNC_INFO;
+
+        QTime time;
+        if (propertyEditorBenchmark().isInfoEnabled())
+            time.start();
+
         foreach (const PropertyName &propertyName, qmlObjectNode.modelNode().metaInfo().propertyNames())
             createPropertyEditorValue(qmlObjectNode, propertyName, qmlObjectNode.instanceValue(propertyName), propertyEditor);
 
@@ -301,11 +311,17 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
 
         context()->setContextProperty(QLatin1String("transaction"), m_propertyEditorTransaction.data());
 
+        qCInfo(propertyEditorBenchmark) << "anchors:" << time.elapsed();
+
         // model node
         m_backendModelNode.setup(qmlObjectNode.modelNode());
         context()->setContextProperty(QLatin1String("modelNodeBackend"), &m_backendModelNode);
 
+        qCInfo(propertyEditorBenchmark) << "context:" << time.elapsed();
+
         contextObject()->setSpecificsUrl(qmlSpecificsFile);
+
+        qCInfo(propertyEditorBenchmark) << "specifics:" << time.elapsed();
 
         contextObject()->setStateName(stateName);
         if (!qmlObjectNode.isValid())
@@ -333,6 +349,8 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
 
         contextObject()->setMajorQtQuickVersion(qmlObjectNode.view()->majorQtQuickVersion());
         contextObject()->setMinorQtQuickVersion(qmlObjectNode.view()->minorQtQuickVersion());
+
+        qCInfo(propertyEditorBenchmark) << "final:" << time.elapsed();
     } else {
         qWarning() << "PropertyEditor: invalid node for setup";
     }
