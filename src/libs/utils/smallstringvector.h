@@ -135,6 +135,16 @@ public:
         return std::vector<std::string>(Base::begin(), Base::end());
     }
 
+    operator QStringList() const
+    {
+        QStringList qStringList;
+        qStringList.reserve(int(Base::size()));
+
+        std::copy(Base::begin(), Base::end(), std::back_inserter(qStringList));
+
+        return qStringList;
+    }
+
 private:
     std::size_t totalByteSize() const
     {
