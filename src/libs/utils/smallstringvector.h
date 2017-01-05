@@ -48,6 +48,11 @@ class BasicSmallStringVector : public std::vector<BasicSmallString<SmallStringSi
 public:
     BasicSmallStringVector() = default;
 
+    explicit BasicSmallStringVector(const Base &stringVector)
+        : Base(stringVector.begin(), stringVector.end())
+    {
+    }
+
     BasicSmallStringVector(std::initializer_list<SmallString> list)
     {
         Base::reserve(list.size());
