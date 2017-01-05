@@ -84,7 +84,7 @@ bool TestVisitor::visit(CPlusPlus::Class *symbol)
                 else
                     locationAndType.m_type = TestTreeItem::TestFunctionOrSet;
                 locationAndType.m_inherited = m_inherited;
-                m_privSlots.insert(name, locationAndType);
+                m_privSlots.insert(className + "::" + name, locationAndType);
             }
         }
         for (unsigned counter = 0, end = symbol->baseClassCount(); counter < end; ++counter) {

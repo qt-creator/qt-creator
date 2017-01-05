@@ -30,6 +30,7 @@
 #include "../autotest_utils.h"
 
 #include <cplusplus/TypeOfExpression.h>
+#include <utils/algorithm.h>
 
 namespace Autotest {
 namespace Internal {
@@ -175,24 +176,67 @@ static QMap<QString, QtTestCodeLocationList> checkForDataTags(const QString &fil
     return visitor.dataTags();
 }
 
-static QMap<QString, QtTestCodeLocationAndType> baseClassTestFunctions(const QSet<QString> &bases,
-        const CPlusPlus::Document::Ptr &doc, const CPlusPlus::Snapshot &snapshot)
+/*!
+ * \brief Checks whether \a testFunctions (keys are full qualified names) contains already the
+ * given \a function (unqualified name).
+ *
+ * \return true if this function is already contained, false otherwise
+ */
+static bool containsFunction(const QMap<QString, QtTestCodeLocationAndType> &testFunctions,
+                             const QString &function)
 {
-    QMap<QString, QtTestCodeLocationAndType> testFunctions;
-    for (const QString &baseClassName : bases) {
-        TestVisitor baseVisitor(baseClassName, snapshot);
+    const QString search = "::" + function;
+    return Utils::anyOf(testFunctions.keys(), [&search] (const QString &key) {
+        return key.endsWith(search);
+    });
+}
+
+static void mergeTestFunctions(QMap<QString, QtTestCodeLocationAndType> &testFunctions,
+                               const QMap<QString, QtTestCodeLocationAndType> &inheritedFunctions)
+{
+    static const QString dataSuffix("_data");
+    // take over only inherited test functions that have not been re-implemented
+    QMap<QString, QtTestCodeLocationAndType>::ConstIterator it = inheritedFunctions.begin();
+    QMap<QString, QtTestCodeLocationAndType>::ConstIterator end = inheritedFunctions.end();
+    for ( ; it != end; ++it) {
+        const QString functionName = it.key();
+        const QString &shortName = functionName.mid(functionName.lastIndexOf(':') + 1);
+        if (shortName.endsWith(dataSuffix)) {
+            const QString &correspondingFunc = functionName.left(functionName.size()
+                                                                 - dataSuffix.size());
+            // inherited test data functions only if we're inheriting the corresponding test
+            // function as well (and the inherited test function is not omitted)
+            if (inheritedFunctions.contains(correspondingFunc)) {
+                if (!testFunctions.contains(correspondingFunc))
+                    continue;
+                testFunctions.insert(functionName, it.value());
+            }
+        } else if (!containsFunction(testFunctions, shortName)) {
+            // normal test functions only if not re-implemented
+            testFunctions.insert(functionName, it.value());
+        }
+    }
+}
+
+static void fetchAndMergeBaseTestFunctions(const QSet<QString> &baseClasses,
+                                           QMap<QString, QtTestCodeLocationAndType> &testFunctions,
+                                           const CPlusPlus::Document::Ptr &doc,
+                                           const CPlusPlus::Snapshot &snapshot)
+{
+    QList<QString> bases = baseClasses.toList();
+    while (!bases.empty()) {
+        const QString base = bases.takeFirst();
+        TestVisitor baseVisitor(base, snapshot);
         baseVisitor.setInheritedMode(true);
-        CPlusPlus::Document::Ptr declaringDoc = declaringDocument(doc, snapshot, baseClassName);
+        CPlusPlus::Document::Ptr declaringDoc = declaringDocument(doc, snapshot, base);
         if (declaringDoc.isNull())
             continue;
         baseVisitor.accept(declaringDoc->globalNamespace());
-        if (baseVisitor.resultValid())
-            testFunctions.unite(baseVisitor.privateSlots());
-        const QSet<QString> currentBaseBases = baseVisitor.baseClasses();
-        // recursively check base classes
-        testFunctions.unite(baseClassTestFunctions(currentBaseBases, doc, snapshot));
+        if (!baseVisitor.resultValid())
+            continue;
+        bases.append(baseVisitor.baseClasses().toList());
+        mergeTestFunctions(testFunctions, baseVisitor.privateSlots());
     }
-    return testFunctions;
 }
 
 static QtTestCodeLocationList tagLocationsFor(const QtTestParseResult *func,
@@ -239,8 +283,11 @@ static bool handleQtTest(QFutureInterface<TestParseResultPtr> futureInterface,
             return false;
 
         QMap<QString, QtTestCodeLocationAndType> testFunctions = visitor.privateSlots();
-        // gather appropriate information of base classes as well
-        testFunctions.unite(baseClassTestFunctions(visitor.baseClasses(), declaringDoc, snapshot));
+        // gather appropriate information of base classes as well and merge into already found
+        // functions - but only as far as QtTest can handle this appropriate
+        fetchAndMergeBaseTestFunctions(
+                    visitor.baseClasses(), testFunctions, declaringDoc, snapshot);
+
         const QSet<QString> &files = filesWithDataFunctionDefinitions(testFunctions);
 
         // TODO: change to QHash<>
@@ -263,10 +310,12 @@ static bool handleQtTest(QFutureInterface<TestParseResultPtr> futureInterface,
         const QMap<QString, QtTestCodeLocationAndType>::ConstIterator end = testFunctions.end();
         for ( ; it != end; ++it) {
             const QtTestCodeLocationAndType &location = it.value();
+            QString functionName = it.key();
+            functionName = functionName.mid(functionName.lastIndexOf(':') + 1);
             QtTestParseResult *func = new QtTestParseResult(id);
             func->itemType = location.m_type;
-            func->name = testCaseName + "::" + it.key();
-            func->displayName = it.key();
+            func->name = testCaseName + "::" + functionName;
+            func->displayName = functionName;
             func->fileName = location.m_name;
             func->line = location.m_line;
             func->column = location.m_column;
