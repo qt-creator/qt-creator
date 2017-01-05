@@ -35,18 +35,8 @@ QString formatTime(qint64 timestamp, qint64 reference)
     static const double minute = 60;
     static const double hour = 60;
 
-    int round = 0;
+    int round = 1;
     qint64 barrier = 1;
-
-    auto roundTo3 = [](double time, int round) {
-        // always show at least 3 significant digits
-        if (time < 10 && round < 2)
-            return 2;
-        else if (time < 100 && round < 1)
-            return 1;
-        else
-            return round;
-    };
 
     for (uint i = 0, end = sizeof(decimalUnits) / sizeof(char *); i < end; ++i) {
         const double dividend = barrier;
@@ -66,32 +56,27 @@ QString formatTime(qint64 timestamp, qint64 reference)
             }
         }
         if (timestamp < barrier) {
-            double time = timestamp;
-            if (dividend > 1) {
-                time /= dividend;
-                round = roundTo3(time, round);
-            }
-            return QString::number(time, 'f', round)
+            return QString::number(timestamp / dividend, 'g', qMax(round, 3))
                     + QString::fromLatin1(decimalUnits[i]);
         }
     }
 
     double seconds = timestamp / second;
     if (seconds < minute) {
-        return QString::number(seconds, 'f', roundTo3(seconds, round)) + "s";
+        return QString::number(seconds, 'g', qMax(round, 3)) + "s";
     } else {
         int minutes = seconds / minute;
         seconds -= minutes * minute;
         if (minutes < hour) {
             return QString::fromLatin1("%1m %2s").arg(QString::number(minutes),
-                                                      QString::number(seconds, 'f', round));
+                                                      QString::number(seconds, 'g', round));
         } else {
             int hours = minutes / hour;
             minutes -= hours * hour;
             if (reference < barrier * minute) {
                 return QString::fromLatin1("%1h %2m %3s").arg(QString::number(hours),
                                                               QString::number(minutes),
-                                                              QString::number(seconds, 'f', round));
+                                                              QString::number(seconds, 'g', round));
             } else {
                 return QString::fromLatin1("%1h %2m").arg(QString::number(hours),
                                                           QString::number(minutes));
