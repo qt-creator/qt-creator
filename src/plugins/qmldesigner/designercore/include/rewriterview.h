@@ -189,6 +189,7 @@ private: //variables
     QString m_rewritingErrorMessage;
     QString m_lastCorrectQmlSource;
     QTimer m_amendTimer;
+    bool m_instantQmlTextUpdate = false;
 };
 
 } //QmlDesigner

@@ -573,7 +573,12 @@ bool RewriterView::renameId(const QString& oldId, const QString& newId)
                 && rootModelNode().hasBindingProperty(propertyName)
                 && rootModelNode().bindingProperty(propertyName).isAliasExport();
 
+        bool instant = m_instantQmlTextUpdate;
+        m_instantQmlTextUpdate = true;
+
         bool refactoring =  textModifier()->renameId(oldId, newId);
+
+        m_instantQmlTextUpdate = instant;
 
         if (refactoring && hasAliasExport) { //Keep export alias properties
             rootModelNode().removeProperty(propertyName);
@@ -675,7 +680,12 @@ void RewriterView::moveToComponent(const ModelNode &modelNode)
 {
     int offset = nodeOffset(modelNode);
 
+    bool instant = m_instantQmlTextUpdate;
+    m_instantQmlTextUpdate = true;
+
     textModifier()->moveToComponent(offset);
+
+    m_instantQmlTextUpdate = instant;
 }
 
 QStringList RewriterView::autoComplete(const QString &text, int pos, bool explicitComplete)
@@ -736,7 +746,10 @@ void RewriterView::qmlTextChanged()
         }
 
         case Amend: {
-            m_amendTimer.start(400);
+            if (m_instantQmlTextUpdate)
+                amendQmlText();
+            else
+                m_amendTimer.start(400);
             break;
         }
         }
