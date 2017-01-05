@@ -290,6 +290,7 @@ class Dumper(DumperBase):
         self.put('{name="%s",value="",type="",numchild="0"},' % msg)
 
     def fetchVariables(self, args):
+        self.resetStats()
         (ok, res) = self.tryFetchInterpreterVariables(args)
         if ok:
             self.reportResult(res, args)
@@ -311,6 +312,7 @@ class Dumper(DumperBase):
         self.handleWatches(args)
 
         self.put('],partial="%d"' % (len(self.partialVariable) > 0))
+        self.put(',timings=%s' % self.timings)
         self.reportResult(self.output, args)
 
     def report(self, stuff):
