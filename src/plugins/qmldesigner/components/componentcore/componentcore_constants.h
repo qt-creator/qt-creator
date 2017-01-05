@@ -40,6 +40,32 @@ const char anchorsCategory[] = "Anchors";
 const char positionCategory[] = "Position";
 const char layoutCategory[] = "Layout";
 
+const char toFrontCommandId[] = "ToFront";
+const char toBackCommandId[] = "ToBack";
+const char raiseCommandId[] = "Raise";
+const char lowerCommandId[] = "Lower";
+const char resetZCommandId[] = "ResetZ";
+const char resetSizeCommandId[] = "ResetSize";
+const char resetPositionCommandId[] = "ResetPosition";
+const char visiblityCommandId[] = "ToggleVisiblity";
+const char anchorsFillCommandId[] = "AnchorsFill";
+const char anchorsResetCommandId[] = "AnchorsReset";
+const char removePositionerCommandId[] = "RemovePositioner";
+const char layoutRowPositionerCommandId[] = "LayoutRowPositioner";
+const char layoutColumnPositionerCommandId[] = "LayoutColumnPositioner";
+const char layoutGridPositionerCommandId[] = "LayoutGridPositioner";
+const char layoutFlowPositionerCommandId[] = "LayoutFlowPositioner";
+const char removeLayoutCommandId[] = "RemoveLayout";
+const char layoutRowLayoutCommandId[] = "LayoutRowLayout";
+const char layoutColumnLayoutCommandId[] = "LayoutColumnLayout";
+const char layoutGridLayoutCommandId[] = "LayoutGridLayout";
+const char layoutFillWidthCommandId[] = "LayoutFillWidth";
+const char layoutFillHeightCommandId[] = "LayoutFillHeight";
+const char goIntoComponentCommandId[] = "GoIntoComponent";
+const char goToImplementationCommandId[] = "GoToImplementation";
+const char addSignalHandlerCommandId[] = "AddSignalHandler";
+const char moveToComponentCommandId[] = "MoveToComponent";
+
 const char selectionCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Selection");
 const char stackCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Stack (z)");
 const char editCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Edit");
@@ -73,7 +99,7 @@ const char resetPositionDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMen
 const char goIntoComponentDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Go into Component");
 const char goToImplementationDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Go to Implementation");
 const char addSignalHandlerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Add New Signal Handler");
-const char moveToComponentDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Move to Component");
+const char moveToComponentDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Move to Component into separate file");
 
 const char setIdDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Set Id");
 
@@ -95,6 +121,19 @@ const char layoutGridLayoutDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContext
 
 const char layoutFillWidthDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Fill Width");
 const char layoutFillHeightDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Fill Height");
+
+const char raiseToolTip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Raise selected item.");
+const char lowerToolTip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Lower selected item.");
+
+const char resetSizeToolTip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Reset size and use implcit size.");
+const char resetPositionTooltip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Reset position and use implicit position.");
+
+const char anchorsFillToolTip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Fill selected item to parent. ");
+const char anchorsResetToolTip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Reset achors for selected item.");
+
+const char layoutColumnLayoutToolTip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Layout selected items in ColumnLayout.");
+const char layoutRowLayoutToolTip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Layout  selected items in RowLayout.");
+const char layoutGridLayoutToolTip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Layout  selected items in GridLayout.");
 
 
 const int priorityFirst = 220;

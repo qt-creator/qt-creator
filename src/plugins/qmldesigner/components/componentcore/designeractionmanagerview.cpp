@@ -99,9 +99,15 @@ void DesignerActionManagerView::currentStateChanged(const ModelNode &)
     setupContext();
 }
 
-void DesignerActionManagerView::selectedNodesChanged(const QList<ModelNode> &, const QList<ModelNode> &)
+void DesignerActionManagerView::selectedNodesChanged(const QList<ModelNode> &selectedNodes, const QList<ModelNode> &)
 {
     setupContext();
+
+    /* This breaks encapsulation, but the selection state is a very minor information.
+     * Without this signal the ShortcutManager would have to be refactored completely.
+     * This signal is only used to update the state of the cut/copy/delete actions.
+    */
+    emit selectionChanged(!selectedNodes.isEmpty());
 }
 
 void DesignerActionManagerView::nodeOrderChanged(const NodeListProperty &, const ModelNode &, int)
@@ -122,6 +128,18 @@ void DesignerActionManagerView::setDesignerActionList(const QList<ActionInterfac
 void DesignerActionManagerView::signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> &, AbstractView::PropertyChangeFlags)
 {
     setupContext();
+}
+
+void DesignerActionManagerView::variantPropertiesChanged(const QList<VariantProperty> &, AbstractView::PropertyChangeFlags propertyChangeFlag)
+{
+    if (propertyChangeFlag == AbstractView::PropertiesAdded)
+        setupContext();
+}
+
+void DesignerActionManagerView::bindingPropertiesChanged(const QList<BindingProperty> &, AbstractView::PropertyChangeFlags propertyChangeFlag)
+{
+    if (propertyChangeFlag == AbstractView::PropertiesAdded)
+        setupContext();
 }
 
 DesignerActionManager &DesignerActionManagerView::designerActionManager()

@@ -27,6 +27,7 @@
 
 #include <QToolBar>
 #include <QHBoxLayout>
+#include <QVBoxLayout>
 #include <QDebug>
 #include <QFrame>
 

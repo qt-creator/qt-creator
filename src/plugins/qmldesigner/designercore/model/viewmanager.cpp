@@ -54,6 +54,8 @@ class ViewManagerData
 public:
     QmlModelState savedState;
     Internal::DebugView debugView;
+    DesignerActionManagerView designerActionManagerView;
+    NodeInstanceView nodeInstanceView;
     ComponentView componentView;
     FormEditorView formEditorView;
     TextEditorView textEditorView;
@@ -61,8 +63,6 @@ public:
     NavigatorView navigatorView;
     PropertyEditorView propertyEditorView;
     StatesEditorView statesEditorView;
-    NodeInstanceView nodeInstanceView;
-    DesignerActionManagerView designerActionManagerView;
 
     QList<QPointer<AbstractView> > additionalViews;
 };

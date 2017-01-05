@@ -32,8 +32,6 @@ namespace ModelNodeOperations {
 
 void goIntoComponent(const ModelNode &modelNode);
 
-typedef void (*SelectionAction)(const SelectionContext &);
-
 void select(const SelectionContext &selectionState);
 void deSelect(const SelectionContext &selectionState);
 void cut(const SelectionContext &selectionState);
@@ -51,7 +49,7 @@ void setFillWidth(const SelectionContext &selectionState);
 void setFillHeight(const SelectionContext &selectionState);
 void resetSize(const SelectionContext &selectionState);
 void resetPosition(const SelectionContext &selectionState);
-void goIntoComponent(const SelectionContext &selectionState);
+void goIntoComponentOperation(const SelectionContext &selectionState);
 void setId(const SelectionContext &selectionState);
 void resetZ(const SelectionContext &selectionState);
 void anchorsFill(const SelectionContext &selectionState);

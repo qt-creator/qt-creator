@@ -69,7 +69,7 @@ void populateMenu(QSet<ActionInterface* > &actionInterfaces,
     });
 
     foreach (ActionInterface* actionInterface, matchingFactoriesList) {
-       if (actionInterface->type() == ActionInterface::Menu) {
+       if (actionInterface->type() == ActionInterface::ContextMenu) {
            actionInterface->currentContextChanged(selectionContext);
            QMenu *newMenu = actionInterface->action()->menu();
            menu->addMenu(newMenu);
@@ -77,9 +77,11 @@ void populateMenu(QSet<ActionInterface* > &actionInterfaces,
            //recurse
 
            populateMenu(actionInterfaces, actionInterface->menuId(), newMenu, selectionContext);
-       } else if (actionInterface->type() == ActionInterface::Action) {
+       } else if (actionInterface->type() == ActionInterface::ContextMenuAction
+                  || actionInterface->type() == ActionInterface::Action) {
            QAction* action = actionInterface->action();
            actionInterface->currentContextChanged(selectionContext);
+           action->setIconVisibleInMenu(false);
            menu->addAction(action);
        }
     }

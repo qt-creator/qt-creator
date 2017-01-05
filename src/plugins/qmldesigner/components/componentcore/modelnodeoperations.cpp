@@ -341,7 +341,7 @@ void resetPosition(const SelectionContext &selectionState)
     }
 }
 
-void goIntoComponent(const SelectionContext &selectionState)
+void goIntoComponentOperation(const SelectionContext &selectionState)
 {
     goIntoComponent(selectionState.currentSingleSelectedNode());
 }

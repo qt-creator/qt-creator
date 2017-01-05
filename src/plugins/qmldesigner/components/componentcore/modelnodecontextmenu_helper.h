@@ -30,12 +30,19 @@
 #include "abstractactiongroup.h"
 #include "qmlitemnode.h"
 
+#include <coreplugin/actionmanager/command.h>
+
+#include <utils/proxyaction.h>
+
 #include <QAction>
 #include <QMenu>
 
+#include <functional>
+
 namespace QmlDesigner {
 
-typedef bool (*SelectionContextFunction)(const SelectionContext &);
+typedef std::function<bool (const SelectionContext &context)> SelectionContextPredicate;
+typedef std::function<void (const SelectionContext &context)> SelectionContextOperation;
 
 namespace SelectionContextFunctors {
 
@@ -96,7 +103,7 @@ class ActionTemplate : public DefaultAction
 {
 
 public:
-    ActionTemplate(const QString &description, ModelNodeOperations::SelectionAction action)
+    ActionTemplate(const QString &description, SelectionContextOperation action)
         : DefaultAction(description), m_action(action)
     { }
 
@@ -104,17 +111,18 @@ public /*slots*/:
     virtual void actionTriggered(bool b)
     {
         m_selectionContext.setToggled(b);
-        return m_action(m_selectionContext);
+        m_action(m_selectionContext);
     }
-    ModelNodeOperations::SelectionAction m_action;
+
+    SelectionContextOperation m_action;
 };
 
 class ActionGroup : public AbstractActionGroup
 {
 public:
     ActionGroup(const QString &displayName, const QByteArray &menuId, int priority,
-            SelectionContextFunction enabled = &SelectionContextFunctors::always,
-            SelectionContextFunction visibility = &SelectionContextFunctors::always) :
+            SelectionContextPredicate enabled = &SelectionContextFunctors::always,
+            SelectionContextPredicate visibility = &SelectionContextFunctors::always) :
         AbstractActionGroup(displayName),
         m_menuId(menuId),
         m_priority(priority),
@@ -128,13 +136,13 @@ public:
     QByteArray category() const { return QByteArray(); }
     QByteArray menuId() const { return m_menuId; }
     int priority() const { return m_priority; }
-    Type type() const { return Menu; }
+    Type type() const { return ContextMenu; }
 
 private:
     const QByteArray m_menuId;
     const int m_priority;
-    SelectionContextFunction m_enabled;
-    SelectionContextFunction m_visibility;
+    SelectionContextPredicate m_enabled;
+    SelectionContextPredicate m_visibility;
 };
 
 class SeperatorDesignerAction : public AbstractAction
@@ -151,41 +159,82 @@ public:
     QByteArray category() const { return m_category; }
     QByteArray menuId() const { return QByteArray(); }
     int priority() const { return m_priority; }
-    Type type() const { return Action; }
+    Type type() const { return ContextMenuAction; }
     void currentContextChanged(const SelectionContext &) {}
 
 private:
     const QByteArray m_category;
     const int m_priority;
-    SelectionContextFunction m_visibility;
+    SelectionContextPredicate m_visibility;
 };
 
-class ModelNodeAction : public AbstractAction
+class CommandAction : public ActionInterface
 {
 public:
-    ModelNodeAction(const QString &description,  const QByteArray &category, int priority,
-            ModelNodeOperations::SelectionAction selectionAction,
-            SelectionContextFunction enabled = &SelectionContextFunctors::always,
-            SelectionContextFunction visibility = &SelectionContextFunctors::always) :
+    CommandAction(Core::Command *command,  const QByteArray &category, int priority, const QIcon &overrideIcon) :
+        m_action(overrideIcon.isNull() ? command->action() : Utils::ProxyAction::proxyActionWithIcon(command->action(), overrideIcon)),
+        m_category(category),
+        m_priority(priority)
+    {}
+
+    QAction *action() const override { return m_action; }
+    QByteArray category() const override  { return m_category; }
+    QByteArray menuId() const override  { return QByteArray(); }
+    int priority() const override { return m_priority; }
+    Type type() const override { return Action; }
+    void currentContextChanged(const SelectionContext &) override {}
+
+private:
+    QAction *m_action;
+    const QByteArray m_category;
+    const int m_priority;
+};
+
+class ModelNodeContextMenuAction : public AbstractAction
+{
+public:
+    ModelNodeContextMenuAction(const QByteArray &id, const QString &description,  const QByteArray &category, const QKeySequence &key, int priority,
+            SelectionContextOperation selectionAction,
+            SelectionContextPredicate enabled = &SelectionContextFunctors::always,
+            SelectionContextPredicate visibility = &SelectionContextFunctors::always) :
         AbstractAction(new ActionTemplate(description, selectionAction)),
+        m_id(id),
         m_category(category),
         m_priority(priority),
         m_enabled(enabled),
         m_visibility(visibility)
-    {}
+    {
+        action()->setShortcut(key);
+    }
 
-    bool isVisible(const SelectionContext &selectionState) const { return m_visibility(selectionState); }
-    bool isEnabled(const SelectionContext &selectionState) const { return m_enabled(selectionState); }
-    QByteArray category() const { return m_category; }
-    QByteArray menuId() const { return QByteArray(); }
-    int priority() const { return m_priority; }
-    Type type() const { return Action; }
+    bool isVisible(const SelectionContext &selectionState) const override { return m_visibility(selectionState); }
+    bool isEnabled(const SelectionContext &selectionState) const override { return m_enabled(selectionState); }
+    QByteArray category() const override { return m_category; }
+    QByteArray menuId() const override { return m_id; }
+    int priority() const override { return m_priority; }
+    Type type() const override { return ContextMenuAction; }
 
 private:
+    const QByteArray m_id;
     const QByteArray m_category;
     const int m_priority;
-    const SelectionContextFunction m_enabled;
-    const SelectionContextFunction m_visibility;
+    const SelectionContextPredicate m_enabled;
+    const SelectionContextPredicate m_visibility;
+};
+
+class ModelNodeAction : public ModelNodeContextMenuAction
+{
+public:
+    ModelNodeAction(const QByteArray &id, const QString &description, const QIcon &icon, const QString &tooltip, const QByteArray &category, const QKeySequence &key, int priority,
+                                SelectionContextOperation selectionAction,
+                                SelectionContextPredicate enabled = &SelectionContextFunctors::always) :
+        ModelNodeContextMenuAction(id, description, category, key, priority, selectionAction, enabled, &SelectionContextFunctors::always)
+    {
+        action()->setIcon(icon);
+        action()->setToolTip(tooltip);
+    }
+
+    Type type() const override { return Action; }
 };
 
 

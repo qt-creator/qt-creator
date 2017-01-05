@@ -77,7 +77,7 @@ int AddTabDesignerAction::priority() const
 
 ActionInterface::Type AddTabDesignerAction::type() const
 {
-    return Action;
+    return ContextMenuAction;
 }
 
 bool AddTabDesignerAction::isVisible(const SelectionContext &selectionContext) const

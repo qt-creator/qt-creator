@@ -38,7 +38,8 @@ class QMLDESIGNERCORE_EXPORT ActionInterface
 {
 public:
     enum Type {
-        Menu,
+        ContextMenu,
+        ContextMenuAction,
         Action
     };
 

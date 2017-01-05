@@ -27,11 +27,26 @@
 
 #include <qmldesignercorelib_global.h>
 #include "actioninterface.h"
-#include "abstractview.h"
+
+#include <coreplugin/actionmanager/command.h>
+#include <utils/styledbar.h>
+
+#include <QToolBar>
 
 namespace QmlDesigner {
 
 class DesignerActionManagerView;
+
+class DesignerActionToolBar : public Utils::StyledBar
+{
+public:
+    DesignerActionToolBar(QWidget *parentWidget);
+    void registerAction(ActionInterface *action);
+    void addSeparator();
+
+private:
+    QToolBar *m_toolBar;
+};
 
 class QMLDESIGNERCORE_EXPORT DesignerActionManager {
 public:
@@ -39,10 +54,15 @@ public:
     ~DesignerActionManager();
 
     void addDesignerAction(ActionInterface *newAction);
+    void addCreatorCommand(Core::Command *command, const QByteArray &category, int priority,
+                           const QIcon &overrideIcon = QIcon());
     QList<ActionInterface* > designerActions() const;
 
     void createDefaultDesignerActions();
-    AbstractView *view();
+    DesignerActionManagerView *view();
+
+    DesignerActionToolBar *createToolBar(QWidget *parent = 0) const;
+    void polishActions() const;
 
 private:
     QList<QSharedPointer<ActionInterface> > m_designerActions;

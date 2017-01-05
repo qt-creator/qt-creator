@@ -35,3 +35,6 @@ HEADERS += qmldesignericonprovider.h
 FORMS += \
     $$PWD/addsignalhandlerdialog.ui
 
+RESOURCES += \
+    $$PWD/componentcore.qrc
+

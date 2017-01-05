@@ -28,9 +28,16 @@
 #include <nodeproperty.h>
 #include <nodemetainfo.h>
 #include "designeractionmanagerview.h"
+#include "qmldesignerconstants.h"
 
 #include <documentmanager.h>
 #include <qmldesignerplugin.h>
+
+#include <QHBoxLayout>
+
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <utils/algorithm.h>
+#include <utils/utilsicons.h>
 
 namespace QmlDesigner {
 
@@ -47,20 +54,89 @@ static inline bool contains(const QmlItemNode &node, const QPointF &position)
     return node.isValid() && node.instanceSceneTransform().mapRect(node.instanceBoundingRect()).contains(position);
 }
 
-AbstractView *DesignerActionManager::view()
+DesignerActionManagerView *DesignerActionManager::view()
 {
     return m_designerActionManagerView;
 }
 
-class VisiblityModelNodeAction : public ModelNodeAction
+DesignerActionToolBar *DesignerActionManager::createToolBar(QWidget *parent) const
+{
+    DesignerActionToolBar *toolBar = new DesignerActionToolBar(parent);
+
+    QList<ActionInterface* > categories = Utils::filtered(designerActions(),
+                                                          [](ActionInterface *action) { return action->type() ==  ActionInterface::ContextMenu; });
+
+    Utils::sort(categories, [](ActionInterface *l, ActionInterface *r) {
+        return l->priority() > r->priority();
+    });
+
+    for (auto *categoryAction : categories) {
+        QList<ActionInterface* > actions = Utils::filtered(designerActions(), [categoryAction](ActionInterface *action) {
+                return action->category() == categoryAction->menuId();
+        });
+
+        Utils::sort(actions, [](ActionInterface *l, ActionInterface *r) {
+            return l->priority() > r->priority();
+        });
+
+        bool addSeparator = false;
+        bool lastWasSeparator = false;
+
+        for (auto *action : actions) {
+            if (action->type() == ActionInterface::Action
+                    && action->action()
+                    && !action->action()->icon().isNull()) {
+                toolBar->registerAction(action);
+                addSeparator = true;
+                lastWasSeparator = false;
+            } else if (addSeparator && action->action()->isSeparator()) {
+                toolBar->registerAction(action);
+                lastWasSeparator = true;
+            }
+        }
+
+        if (addSeparator && !lastWasSeparator) {
+            toolBar->addSeparator();
+        }
+    }
+
+    return toolBar;
+}
+
+void DesignerActionManager::polishActions() const
+{
+    QList<ActionInterface* > actions =  Utils::filtered(designerActions(),
+                                                        [](ActionInterface *action) { return action->type() != ActionInterface::ContextMenu; });
+
+    Core::Context qmlDesignerFormEditorContext(Constants::C_QMLFORMEDITOR);
+
+    for (auto *action : actions) {
+        if (!action->menuId().isEmpty()) {
+            const QString id =
+                    QString("QmlDesigner.FormEditor.%1.%2").arg(QString::fromLatin1(action->category())).arg(QString::fromLatin1(action->menuId()));
+
+            Core::Command *cmd = Core::ActionManager::registerAction(action->action(), id.toLatin1().constData(), qmlDesignerFormEditorContext);
+
+            cmd->setDefaultKeySequence(action->action()->shortcut());
+            cmd->setDescription(action->action()->toolTip());
+
+            action->action()->setToolTip(cmd->action()->toolTip());
+            action->action()->setShortcut(cmd->action()->shortcut());
+            action->action()->setShortcutContext(Qt::WidgetShortcut); //Hack to avoid conflicting shortcuts. We use the Core::Command for the shortcut.
+        }
+    }
+}
+
+class VisiblityModelNodeAction : public ModelNodeContextMenuAction
 {
 public:
-    VisiblityModelNodeAction(const QString &description, const QByteArray &category, int priority,
-            ModelNodeOperations::SelectionAction action,
-            SelectionContextFunction enabled = &SelectionContextFunctors::always,
-            SelectionContextFunction visibility = &SelectionContextFunctors::always) :
-        ModelNodeAction(description, category, priority, action, enabled, visibility)
+    VisiblityModelNodeAction(const QByteArray &id, const QString &description, const QByteArray &category, const QKeySequence &key, int priority,
+                             SelectionContextOperation action,
+                             SelectionContextPredicate enabled = &SelectionContextFunctors::always,
+                             SelectionContextPredicate visibility = &SelectionContextFunctors::always) :
+        ModelNodeContextMenuAction(id, description, category, key, priority, action, enabled, visibility)
     {}
+
     virtual void updateContext()
     {
         defaultAction()->setSelectionContext(selectionContext());
@@ -78,14 +154,14 @@ public:
     }
 };
 
-class FillLayoutModelNodeAction : public ModelNodeAction
+class FillLayoutModelNodeAction : public ModelNodeContextMenuAction
 {
 public:
-    FillLayoutModelNodeAction(const QString &description, const QByteArray &category, int priority,
-            ModelNodeOperations::SelectionAction action,
-            SelectionContextFunction enabled = &SelectionContextFunctors::always,
-            SelectionContextFunction visibility = &SelectionContextFunctors::always) :
-        ModelNodeAction(description, category, priority, action, enabled, visibility)
+    FillLayoutModelNodeAction(const QByteArray &id, const QString &description, const QByteArray &category, const QKeySequence &key, int priority,
+                              SelectionContextOperation action,
+                              SelectionContextPredicate enabled = &SelectionContextFunctors::always,
+                              SelectionContextPredicate visibility = &SelectionContextFunctors::always) :
+        ModelNodeContextMenuAction(id, description, category, key, priority, action, enabled, visibility)
     {}
     virtual void updateContext()
     {
@@ -115,11 +191,11 @@ protected:
 class FillWidthModelNodeAction : public FillLayoutModelNodeAction
 {
 public:
-    FillWidthModelNodeAction(const QString &description, const QByteArray &category, int priority,
-            ModelNodeOperations::SelectionAction action,
-            SelectionContextFunction enabled = &SelectionContextFunctors::always,
-            SelectionContextFunction visibility = &SelectionContextFunctors::always) :
-        FillLayoutModelNodeAction(description, category, priority, action, enabled, visibility)
+    FillWidthModelNodeAction(const QByteArray &id, const QString &description, const QByteArray &category, const QKeySequence &key, int priority,
+                             SelectionContextOperation action,
+                             SelectionContextPredicate enabled = &SelectionContextFunctors::always,
+                             SelectionContextPredicate visibility = &SelectionContextFunctors::always) :
+        FillLayoutModelNodeAction(id, description, category, key, priority, action, enabled, visibility)
     {
         m_propertyName = "Layout.fillWidth";
     }
@@ -128,11 +204,11 @@ public:
 class FillHeightModelNodeAction : public FillLayoutModelNodeAction
 {
 public:
-    FillHeightModelNodeAction(const QString &description, const QByteArray &category, int priority,
-            ModelNodeOperations::SelectionAction action,
-            SelectionContextFunction enabled = &SelectionContextFunctors::always,
-            SelectionContextFunction visibility = &SelectionContextFunctors::always) :
-        FillLayoutModelNodeAction(description, category, priority, action, enabled, visibility)
+    FillHeightModelNodeAction(const QByteArray &id, const QString &description, const QByteArray &category, const QKeySequence &key, int priority,
+                              SelectionContextOperation action,
+                              SelectionContextPredicate enabled = &SelectionContextFunctors::always,
+                              SelectionContextPredicate visibility = &SelectionContextFunctors::always) :
+        FillLayoutModelNodeAction(id, description, category, key, priority, action, enabled, visibility)
     {
         m_propertyName = "Layout.fillHeight";
     }
@@ -380,146 +456,305 @@ void DesignerActionManager::createDefaultDesignerActions()
     using namespace ComponentCoreConstants;
     using namespace ModelNodeOperations;
 
-    addDesignerAction(new SelectionModelNodeAction(selectionCategoryDisplayName, selectionCategory, prioritySelectionCategory));
+    addDesignerAction(new SelectionModelNodeAction(
+                          selectionCategoryDisplayName,
+                          selectionCategory,
+                          prioritySelectionCategory));
 
-    addDesignerAction(new ActionGroup(stackCategoryDisplayName, stackCategory, priorityStackCategory, &selectionNotEmpty));
-        addDesignerAction(new ModelNodeAction
-                   (toFrontDisplayName, stackCategory, 200, &toFront, &singleSelection));
-        addDesignerAction(new ModelNodeAction
-                   (toBackDisplayName, stackCategory, 180, &toBack, &singleSelection));
-        addDesignerAction(new ModelNodeAction
-                   (raiseDisplayName, stackCategory, 160, &raise, &selectionNotEmpty));
-        addDesignerAction(new ModelNodeAction
-                   (lowerDisplayName, stackCategory, 140, &lower, &selectionNotEmpty));
-        addDesignerAction(new SeperatorDesignerAction(stackCategory, 120));
-        addDesignerAction(new ModelNodeAction
-                   (resetZDisplayName, stackCategory, 100, &resetZ, &selectionNotEmptyAndHasZProperty));
+    addDesignerAction(new ActionGroup(
+                          stackCategoryDisplayName,
+                          stackCategory,
+                          priorityStackCategory,
+                          &selectionNotEmpty));
+
+    addDesignerAction(new ModelNodeContextMenuAction(
+                          toFrontCommandId,
+                          toFrontDisplayName,
+                          stackCategory,
+                          QKeySequence(),
+                          200,
+                          &toFront,
+                          &singleSelection));
+
+    addDesignerAction(new ModelNodeContextMenuAction(
+                          toBackCommandId,
+                          toBackDisplayName,
+                          stackCategory,
+                          QKeySequence(),
+                          180,
+                          &toBack,
+                          &singleSelection));
+
+    addDesignerAction(new ModelNodeAction(
+                          raiseCommandId, raiseDisplayName,
+                          Utils::Icon(":/qmldesigner/icon/designeractions/images/lower.png").icon(),
+                          raiseToolTip,
+                          stackCategory,
+                          QKeySequence("Ctrl+Up"),
+                          160,
+                          &raise,
+                          &selectionNotEmpty));
+
+    addDesignerAction(new ModelNodeAction(
+                          lowerCommandId,
+                          lowerDisplayName,
+                          Utils::Icon(":/qmldesigner/icon/designeractions/images/raise.png").icon(),
+                          lowerToolTip,
+                          stackCategory,
+                          QKeySequence("Ctrl+Down"),
+                          140,
+                          &lower,
+                          &selectionNotEmpty));
+
+    addDesignerAction(new SeperatorDesignerAction(stackCategory, 120));
+
+    addDesignerAction(new ModelNodeContextMenuAction(
+                          resetZCommandId,
+                          resetZDisplayName,
+                          stackCategory,
+                          QKeySequence(),
+                          100,
+                          &resetZ,
+                          &selectionNotEmptyAndHasZProperty));
 
     addDesignerAction(new ActionGroup(editCategoryDisplayName, editCategory, priorityEditCategory, &selectionNotEmpty));
-        addDesignerAction(new ModelNodeAction
-                   (resetPositionDisplayName, editCategory, 200, &resetPosition, &selectionNotEmptyAndHasXorYProperty));
-        addDesignerAction(new ModelNodeAction
-                   (resetSizeDisplayName, editCategory, 180, &resetSize, &selectionNotEmptyAndHasWidthOrHeightProperty));
-        addDesignerAction(new VisiblityModelNodeAction
-                   (visibilityDisplayName, editCategory, 160, &setVisible, &singleSelectedItem));
 
-    addDesignerAction(new ActionGroup(anchorsCategoryDisplayName, anchorsCategory,
-                    priorityAnchorsCategory, &singleSelectionAndInBaseState));
-        addDesignerAction(new ModelNodeAction
-                   (anchorsFillDisplayName, anchorsCategory, 200, &anchorsFill, &singleSelectionItemIsNotAnchoredAndSingleSelectionNotRoot));
-        addDesignerAction(new ModelNodeAction
-                   (anchorsResetDisplayName, anchorsCategory, 180, &anchorsReset, &singleSelectionItemIsAnchored));
+    addDesignerAction(new SeperatorDesignerAction(editCategory, 220));
 
-        addDesignerAction(new ActionGroup(positionCategoryDisplayName, positionCategory,
-                                          priorityPositionCategory, &positionOptionVisible));
-        addDesignerAction(new ActionGroup(layoutCategoryDisplayName, layoutCategory,
-                    priorityLayoutCategory, &layoutOptionVisible));
+    addDesignerAction(new ModelNodeAction(
+                          resetPositionCommandId,
+                          resetPositionDisplayName,
+                          Utils::Icon(":/qmldesigner/icon/designeractions/images/move.png").icon(),
+                          resetPositionTooltip, editCategory, QKeySequence("Ctrl+d"),
+                          200,
+                          &resetPosition,
+                          &selectionNotEmptyAndHasXorYProperty));
 
-        addDesignerAction(new ModelNodeAction
-                          (removePositionerDisplayName,
-                           positionCategory,
-                           210,
-                           &removePositioner,
-                           &isPositioner,
-                           &isPositioner));
+    addDesignerAction(new ModelNodeAction(
+                          resetSizeCommandId,
+                          resetSizeDisplayName,
+                          Utils::Icon(":/qmldesigner/icon/designeractions/images/size.png").icon(),
+                          resetSizeToolTip,
+                          editCategory,
+                          QKeySequence("Ctrl+f"),
+                          180,
+                          &resetSize,
+                          &selectionNotEmptyAndHasWidthOrHeightProperty));
 
-        addDesignerAction(new ModelNodeAction
-                   (layoutRowPositionerDisplayName,
-                    positionCategory,
-                    200,
-                    &layoutRowPositioner,
-                    &selectionCanBeLayouted,
-                    &selectionCanBeLayouted));
+    addDesignerAction(new VisiblityModelNodeAction(
+                          visiblityCommandId,
+                          visibilityDisplayName,
+                          editCategory,
+                          QKeySequence("Ctrl+g"),
+                          160,
+                          &setVisible,
+                          &singleSelectedItem));
 
-        addDesignerAction(new ModelNodeAction
-                   (layoutColumnPositionerDisplayName,
-                    positionCategory,
-                    180,
-                    &layoutColumnPositioner,
-                    &selectionCanBeLayouted,
-                    &selectionCanBeLayouted));
+    addDesignerAction(new ActionGroup(
+                          anchorsCategoryDisplayName,
+                          anchorsCategory,
+                          priorityAnchorsCategory,
+                          &singleSelectionAndInBaseState));
 
-        addDesignerAction(new ModelNodeAction
-                   (layoutGridPositionerDisplayName,
-                    positionCategory,
-                    160,
-                    &layoutGridPositioner,
-                    &selectionCanBeLayouted,
-                    &selectionCanBeLayouted));
+    addDesignerAction(new ModelNodeAction(
+                          anchorsFillCommandId,
+                          anchorsFillDisplayName,
+                          Utils::Icon(":/qmldesigner/icon/designeractions/images/fill.png").icon(),
+                          anchorsFillToolTip,
+                          anchorsCategory,
+                          QKeySequence(QKeySequence("Ctrl+f")),
+                          200,
+                          &anchorsFill,
+                          &singleSelectionItemIsNotAnchoredAndSingleSelectionNotRoot));
 
-        addDesignerAction(new ModelNodeAction
-                   (layoutFlowPositionerDisplayName,
-                    positionCategory,
-                    140,
-                    &layoutFlowPositioner,
-                    &selectionCanBeLayouted,
-                    &selectionCanBeLayouted));
+    addDesignerAction(new ModelNodeAction(
+                          anchorsResetCommandId,
+                          anchorsResetDisplayName,
+                          Utils::Icon(":/qmldesigner/icon/designeractions/images/fill.png").icon(),
+                          anchorsResetToolTip,
+                          anchorsCategory,
+                          QKeySequence(QKeySequence("Ctrl+Shift+f")),
+                          180,
+                          &anchorsReset,
+                          &singleSelectionItemIsAnchored));
 
-        addDesignerAction(new SeperatorDesignerAction(layoutCategory, 120));
+    addDesignerAction(new ActionGroup(
+                          positionCategoryDisplayName,
+                          positionCategory,
+                          priorityPositionCategory,
+                          &positionOptionVisible));
 
-        addDesignerAction(new ModelNodeAction
-                          (removeLayoutDisplayName,
-                           layoutCategory,
-                           110,
-                           &removeLayout,
-                           &isLayout,
-                           &isLayout));
+    addDesignerAction(new ActionGroup(
+                          layoutCategoryDisplayName,
+                          layoutCategory,
+                          priorityLayoutCategory,
+                          &layoutOptionVisible));
 
-        addDesignerAction(new ModelNodeAction
-                   (layoutRowLayoutDisplayName,
-                    layoutCategory,
-                    100,
-                    &layoutRowLayout,
-                    &selectionCanBeLayoutedAndQtQuickLayoutPossible,
-                    &selectionCanBeLayoutedAndQtQuickLayoutPossible));
+    addDesignerAction(new ModelNodeContextMenuAction(
+                          removePositionerCommandId,
+                          removePositionerDisplayName,
+                          positionCategory,
+                          QKeySequence("Ctrl+Shift+p"),
+                          210,
+                          &removePositioner,
+                          &isPositioner,
+                          &isPositioner));
 
-        addDesignerAction(new ModelNodeAction
-                   (layoutColumnLayoutDisplayName,
-                    layoutCategory,
-                    80,
-                    &layoutColumnLayout,
-                    &selectionCanBeLayoutedAndQtQuickLayoutPossible,
-                    &selectionCanBeLayoutedAndQtQuickLayoutPossible));
+    addDesignerAction(new ModelNodeContextMenuAction(
+                          layoutRowPositionerCommandId,
+                          layoutRowPositionerDisplayName,
+                          positionCategory,
+                          QKeySequence(),
+                          200,
+                          &layoutRowPositioner,
+                          &selectionCanBeLayouted,
+                          &selectionCanBeLayouted));
 
-        addDesignerAction(new ModelNodeAction
-                   (layoutGridLayoutDisplayName,
-                    layoutCategory,
-                    60,
-                    &layoutGridLayout,
-                    &selectionCanBeLayoutedAndQtQuickLayoutPossible,
-                    &selectionCanBeLayoutedAndQtQuickLayoutPossible));
+    addDesignerAction(new ModelNodeContextMenuAction(
+                          layoutColumnPositionerCommandId,
+                          layoutColumnPositionerDisplayName,
+                          positionCategory,
+                          QKeySequence(),
+                          180,
+                          &layoutColumnPositioner,
+                          &selectionCanBeLayouted,
+                          &selectionCanBeLayouted));
 
-        addDesignerAction(new FillWidthModelNodeAction
-                          (layoutFillWidthDisplayName,
-                           layoutCategory,
-                           40,
-                           &setFillWidth,
-                           &singleSelectionAndInQtQuickLayout,
-                           &singleSelectionAndInQtQuickLayout));
+    addDesignerAction(new ModelNodeContextMenuAction(
+                          layoutGridPositionerCommandId,
+                          layoutGridPositionerDisplayName,
+                          positionCategory,
+                          QKeySequence(),
+                          160,
+                          &layoutGridPositioner,
+                          &selectionCanBeLayouted,
+                          &selectionCanBeLayouted));
 
-        addDesignerAction(new FillHeightModelNodeAction
-                          (layoutFillHeightDisplayName,
-                           layoutCategory,
-                           20,
-                           &setFillHeight,
-                           &singleSelectionAndInQtQuickLayout,
-                           &singleSelectionAndInQtQuickLayout));
+    addDesignerAction(new ModelNodeContextMenuAction(
+                          layoutFlowPositionerCommandId,
+                          layoutFlowPositionerDisplayName,
+                          positionCategory,
+                          QKeySequence("Ctrl+m"),
+                          140,
+                          &layoutFlowPositioner,
+                          &selectionCanBeLayouted,
+                          &selectionCanBeLayouted));
+
+    addDesignerAction(new SeperatorDesignerAction(layoutCategory, 120));
+
+    addDesignerAction(new ModelNodeContextMenuAction(
+                          removeLayoutCommandId,
+                          removeLayoutDisplayName,
+                          layoutCategory,
+                          QKeySequence("Ctrl+Shift+u"),
+                          110,
+                          &removeLayout,
+                          &isLayout,
+                          &isLayout));
+
+    addDesignerAction(new ModelNodeAction(
+                          layoutRowLayoutCommandId,
+                          layoutRowLayoutDisplayName,
+                          Utils::Icon(":/qmldesigner/icon/designeractions/images/row.png").icon(),
+                          layoutRowLayoutToolTip,
+                          layoutCategory,
+                          QKeySequence("Ctrl+u"),
+                          100,
+                          &layoutRowLayout,
+                          &selectionCanBeLayoutedAndQtQuickLayoutPossible));
+
+    addDesignerAction(new ModelNodeAction(
+                          layoutColumnLayoutCommandId,
+                          layoutColumnLayoutDisplayName,
+                          Utils::Icon(":/qmldesigner/icon/designeractions/images/column.png").icon(),
+                          layoutColumnLayoutToolTip,
+                          layoutCategory,
+                          QKeySequence("Ctrl+i"),
+                          80,
+                          &layoutColumnLayout,
+                          &selectionCanBeLayoutedAndQtQuickLayoutPossible));
+
+    addDesignerAction(new ModelNodeAction(
+                          layoutGridLayoutCommandId,
+                          layoutGridLayoutDisplayName,
+                          Utils::Icon(":/qmldesigner/icon/designeractions/images/grid.png").icon(),
+                          layoutGridLayoutToolTip,
+                          layoutCategory,
+                          QKeySequence("Ctrl+h"),
+                          60,
+                          &layoutGridLayout,
+                          &selectionCanBeLayoutedAndQtQuickLayoutPossible));
+
+    addDesignerAction(new FillWidthModelNodeAction(
+                          layoutFillWidthCommandId,
+                          layoutFillWidthDisplayName,
+                          layoutCategory,
+                          QKeySequence(),
+                          40,
+                          &setFillWidth,
+                          &singleSelectionAndInQtQuickLayout,
+                          &singleSelectionAndInQtQuickLayout));
+
+    addDesignerAction(new FillHeightModelNodeAction(
+                          layoutFillHeightCommandId,
+                          layoutFillHeightDisplayName,
+                          layoutCategory,
+                          QKeySequence(),
+                          20,
+                          &setFillHeight,
+                          &singleSelectionAndInQtQuickLayout,
+                          &singleSelectionAndInQtQuickLayout));
 
     addDesignerAction(new SeperatorDesignerAction(rootCategory, priorityTopLevelSeperator));
-    addDesignerAction(new ModelNodeAction
-               (goIntoComponentDisplayName, rootCategory, priorityGoIntoComponent, &goIntoComponent, &selectionIsComponent));
-    addDesignerAction(new ModelNodeAction
-               (goToImplementationDisplayName, rootCategory, 42, &goImplementation, &singleSelectedAndUiFile, &singleSelectedAndUiFile));
-    addDesignerAction(new ModelNodeAction
-               (addSignalHandlerDisplayName, rootCategory, 42, &addNewSignalHandler, &singleSelectedAndUiFile, &singleSelectedAndUiFile));
-    addDesignerAction(new ModelNodeAction
-               (moveToComponentDisplayName, rootCategory, 44, &moveToComponent, &singleSelection, &singleSelection));
+
+    addDesignerAction(new ModelNodeContextMenuAction(
+                          goIntoComponentCommandId,
+                          goIntoComponentDisplayName,
+                          rootCategory,
+                          QKeySequence(),
+                          priorityGoIntoComponent,
+                          &goIntoComponentOperation,
+                          &selectionIsComponent));
+
+    addDesignerAction(new ModelNodeContextMenuAction(
+                          goToImplementationCommandId,
+                          goToImplementationDisplayName,
+                          rootCategory,
+                          QKeySequence(),
+                          42,
+                          &goImplementation,
+                          &singleSelectedAndUiFile,
+                          &singleSelectedAndUiFile));
+
+    addDesignerAction(new ModelNodeContextMenuAction(
+                          addSignalHandlerCommandId,
+                          addSignalHandlerDisplayName,
+                          rootCategory, QKeySequence(),
+                          42, &addNewSignalHandler,
+                          &singleSelectedAndUiFile,
+                          &singleSelectedAndUiFile));
+
+    addDesignerAction(new ModelNodeContextMenuAction(
+                          moveToComponentCommandId,
+                          moveToComponentDisplayName,
+                          rootCategory,
+                          QKeySequence(),
+                          44,
+                          &moveToComponent,
+                          &singleSelection,
+                          &singleSelection));
 }
 
 void DesignerActionManager::addDesignerAction(ActionInterface *newAction)
 {
     m_designerActions.append(QSharedPointer<ActionInterface>(newAction));
     m_designerActionManagerView->setDesignerActionList(designerActions());
+}
+
+void DesignerActionManager::addCreatorCommand(Core::Command *command, const QByteArray &category, int priority,
+                                              const QIcon &overrideIcon)
+{
+    addDesignerAction(new CommandAction(command, category, priority, overrideIcon));
 }
 
 QList<ActionInterface* > DesignerActionManager::designerActions() const
@@ -539,6 +774,37 @@ DesignerActionManager::DesignerActionManager(DesignerActionManagerView *designer
 
 DesignerActionManager::~DesignerActionManager()
 {
+}
+
+DesignerActionToolBar::DesignerActionToolBar(QWidget *parentWidget) : Utils::StyledBar(parentWidget),
+    m_toolBar(new QToolBar("ActionToolBar", this))
+{
+    m_toolBar->setContentsMargins(0, 0, 0, 0);
+    m_toolBar->setFloatable(true);
+    m_toolBar->setMovable(true);
+    m_toolBar->setOrientation(Qt::Horizontal);
+
+    QHBoxLayout *horizontalLayout = new QHBoxLayout(this);
+
+    horizontalLayout->setMargin(0);
+    horizontalLayout->setSpacing(0);
+
+    horizontalLayout->setMargin(0);
+    horizontalLayout->setSpacing(0);
+
+    horizontalLayout->addWidget(m_toolBar);
+}
+
+void DesignerActionToolBar::registerAction(ActionInterface *action)
+{
+    m_toolBar->addAction(action->action());
+}
+
+void DesignerActionToolBar::addSeparator()
+{
+    QAction *separatorAction = new QAction(m_toolBar);
+    separatorAction->setSeparator(true);
+    m_toolBar->addAction(separatorAction);
 }
 
 } //QmlDesigner

@@ -23,11 +23,13 @@
 **
 ****************************************************************************/
 
+#include "designeractionmanager.h"
 #include "formeditorwidget.h"
 #include "qmldesignerplugin.h"
 #include "designersettings.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignericons.h"
+#include "viewmanager.h"
 #include <theming.h>
 
 #include <QWheelEvent>
@@ -121,8 +123,17 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     addAction(m_rootHeightAction.data());
     upperActions.append(m_rootHeightAction.data());
 
+    static const QList<Utils::Icon> icon = {
+        Utils::Icon({{":/baremetal/images/baremetaldevicesmall.png",
+                      Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint),
+        Utils::Icon({{":/baremetal/images/baremetaldevice.png",
+                      Utils::Theme::IconsBaseColor}})};
+
+
     m_toolBox = new ToolBox(this);
     fillLayout->addWidget(m_toolBox.data());
+
+
     m_toolBox->setLeftSideActions(upperActions);
 
     m_backgroundAction = new BackgroundAction(m_toolActionGroup.data());

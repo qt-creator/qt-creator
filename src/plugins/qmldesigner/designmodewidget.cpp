@@ -25,6 +25,8 @@
 
 #include "designmodewidget.h"
 
+#include <designeractionmanager.h>
+
 #include <coreplugin/outputpane.h>
 #include "qmldesignerplugin.h"
 #include "crumblebar.h"
@@ -299,7 +301,14 @@ void DesignModeWidget::setup()
     QToolBar *toolBar = new QToolBar;
     toolBar->addAction(viewManager().componentViewAction());
     toolBar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-    m_toolBar->addCenterToolBar(toolBar);
+    DesignerActionToolBar *designerToolBar = QmlDesignerPlugin::instance()->viewManager().designerActionManager().createToolBar(m_toolBar);
+
+    QmlDesignerPlugin::instance()->viewManager().designerActionManager().polishActions();
+    designerToolBar->layout()->addWidget(toolBar);
+
+    m_toolBar->addCenterToolBar(designerToolBar);
+
+    m_toolBar->setMinimumWidth(320);
 
     m_mainSplitter = new MiniSplitter(this);
     m_mainSplitter->setObjectName("mainSplitter");

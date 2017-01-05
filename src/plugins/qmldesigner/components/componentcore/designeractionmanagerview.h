@@ -60,10 +60,15 @@ public:
     void nodeOrderChanged(const NodeListProperty &, const ModelNode &, int ) override;
     void importsChanged(const QList<Import> &, const QList<Import> &) override;
     void signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> &/*propertyList*/, PropertyChangeFlags /*propertyChange*/) override;
+    void variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChangeFlag) override;
+    void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChangeFlag) override;
 
     void setDesignerActionList(const QList<ActionInterface* > &designerActionList);
     DesignerActionManager &designerActionManager();
     const DesignerActionManager &designerActionManager() const;
+
+signals:
+    void selectionChanged(bool itemsSelected);
 
 protected:
     void setupContext();

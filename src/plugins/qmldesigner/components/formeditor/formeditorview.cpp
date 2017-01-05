@@ -51,20 +51,9 @@ namespace QmlDesigner {
 
 FormEditorView::FormEditorView(QObject *parent)
     : AbstractView(parent),
-      m_formEditorWidget(new FormEditorWidget(this)),
-      m_scene(new FormEditorScene(m_formEditorWidget.data(), this)),
-      m_moveTool(new MoveTool(this)),
-      m_selectionTool(new SelectionTool(this)),
-      m_resizeTool(new ResizeTool(this)),
-      m_dragTool(new DragTool(this)),
-      m_currentTool(m_selectionTool.get()),
       m_transactionCounter(0)
 {
-    Internal::FormEditorContext *formEditorContext = new Internal::FormEditorContext(m_formEditorWidget.data());
-    Core::ICore::addContextObject(formEditorContext);
 
-    connect(formEditorWidget()->zoomAction(), SIGNAL(zoomLevelChanged(double)), SLOT(updateGraphicsIndicators()));
-    connect(formEditorWidget()->showBoundingRectAction(), SIGNAL(toggled(bool)), scene(), SLOT(setShowBoundingRects(bool)));
 }
 
 FormEditorScene* FormEditorView::scene() const
@@ -146,6 +135,25 @@ void FormEditorView::hideNodeFromScene(const QmlItemNode &qmlItemNode)
         m_currentTool->itemsAboutToRemoved(removedItems);
         item->setFormEditorVisible(false);
     }
+}
+
+void FormEditorView::createFormEditorWidget()
+{
+    m_formEditorWidget = QPointer<FormEditorWidget>(new FormEditorWidget(this));
+    m_scene = QPointer<FormEditorScene>(new FormEditorScene(m_formEditorWidget.data(), this));
+
+    m_moveTool.reset(new MoveTool(this));
+    m_selectionTool.reset(new SelectionTool(this));
+    m_resizeTool.reset(new ResizeTool(this));
+    m_dragTool.reset(new DragTool(this));
+
+    m_currentTool = m_selectionTool.get();
+
+    Internal::FormEditorContext *formEditorContext = new Internal::FormEditorContext(m_formEditorWidget.data());
+    Core::ICore::addContextObject(formEditorContext);
+
+    connect(formEditorWidget()->zoomAction(), SIGNAL(zoomLevelChanged(double)), SLOT(updateGraphicsIndicators()));
+    connect(formEditorWidget()->showBoundingRectAction(), SIGNAL(toggled(bool)), scene(), SLOT(setShowBoundingRects(bool)));
 }
 
 void FormEditorView::nodeCreated(const ModelNode &node)
@@ -246,6 +254,10 @@ void FormEditorView::nodeReparented(const ModelNode &node, const NodeAbstractPro
 
 WidgetInfo FormEditorView::widgetInfo()
 {
+
+    if (!m_formEditorWidget)
+        createFormEditorWidget();
+
     return createWidgetInfo(m_formEditorWidget.data(), 0, "FormEditor", WidgetInfo::CentralPane, 0, tr("Form Editor"));
 }
 
