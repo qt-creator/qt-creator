@@ -120,7 +120,6 @@ TextColorHighlight=ffff0000
 TextColorLink=ff007af4
 TextColorLinkVisited=ffa57aff
 TextColorNormal=text
-TodoItemTextColor=ff000000
 ToggleButtonBackgroundColor=shadowBackground
 ToolBarBackgroundColor=shadowBackground
 TreeViewArrowColorNormal=hoverBackground

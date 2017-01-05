@@ -119,7 +119,6 @@ public:
         TextColorLink,
         TextColorLinkVisited,
         TextColorNormal,
-        TodoItemTextColor,
         ToggleButtonBackgroundColor,
         ToolBarBackgroundColor,
         TreeViewArrowColorNormal,

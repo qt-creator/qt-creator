@@ -31,13 +31,6 @@
 namespace Todo {
 namespace Constants {
 
-// Default todo item background colors
-const char COLOR_TODO_BG[] = "#ccffcc";
-const char COLOR_WARNING_BG[] = "#ffffcc";
-const char COLOR_FIXME_BG[] = "#ffcccc";
-const char COLOR_BUG_BG[] = "#ffcccc";
-const char COLOR_NOTE_BG[] = "#e0ebff";
-
 // Dummy, needs to be changed
 const char ICON_TODO[] = ":/todoplugin/images/todo.png";
 
