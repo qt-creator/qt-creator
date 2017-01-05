@@ -449,6 +449,7 @@ void QmlCppEngine::shutdownInferior()
 void QmlCppEngine::shutdownEngine()
 {
     EDEBUG("\nMASTER SHUTDOWN ENGINE");
+    m_qmlEngine->shutdownSlaveEngine();
     m_cppEngine->shutdownSlaveEngine();
 }
 
