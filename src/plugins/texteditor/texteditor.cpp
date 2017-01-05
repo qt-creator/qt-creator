@@ -2621,10 +2621,9 @@ bool TextEditorWidget::event(QEvent *e)
         return QPlainTextEdit::event(e);
 
     // FIXME: That's far too heavy, and triggers e.g for ChildEvent
-    switch (e->type()) {
-    case QEvent::InputMethodQuery:
+    if (e->type() != QEvent::InputMethodQuery)
         d->m_contentsChanged = false;
-        break;
+    switch (e->type()) {
     case QEvent::ShortcutOverride:
         if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape && d->m_snippetOverlay->isVisible()) {
             e->accept();
