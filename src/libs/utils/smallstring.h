@@ -655,9 +655,30 @@ unitttest_public:
 
     friend bool operator<(const BasicSmallString& first, const BasicSmallString& second) noexcept
     {
-        size_type minimalSize = std::min(first.size(), second.size());
+        if (first.size() != second.size())
+            return first.size() < second.size();
 
-        const int comparison = std::memcmp(first.data(), second.data(), minimalSize + 1);
+        const int comparison = std::memcmp(first.data(), second.data(), first.size() + 1);
+
+        return comparison < 0;
+    }
+
+    friend bool operator<(const BasicSmallString& first, SmallStringView second) noexcept
+    {
+        if (first.size() != second.size())
+            return first.size() < second.size();
+
+        const int comparison = std::memcmp(first.data(), second.data(), first.size());
+
+        return comparison < 0;
+    }
+
+    friend bool operator<(SmallStringView first, const BasicSmallString& second) noexcept
+    {
+        if (first.size() != second.size())
+            return first.size() < second.size();
+
+        const int comparison = std::memcmp(first.data(), second.data(), first.size());
 
         return comparison < 0;
     }
