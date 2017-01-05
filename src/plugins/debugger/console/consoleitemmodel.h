@@ -53,11 +53,15 @@ public:
 
     void clear();
 
+    void setCanFetchMore(bool canFetchMore);
+    bool canFetchMore(const QModelIndex &parent) const override;
+
 signals:
     void selectEditableRow(const QModelIndex &index, QItemSelectionModel::SelectionFlags flags);
 
 private:
     int m_maxSizeOfFileName;
+    bool m_canFetchMore;
 };
 
 } // Internal

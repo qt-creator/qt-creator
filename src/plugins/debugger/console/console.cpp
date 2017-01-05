@@ -249,6 +249,7 @@ void Console::writeSettings() const
 void Console::setScriptEvaluator(const ScriptEvaluator &evaluator)
 {
     m_scriptEvaluator = evaluator;
+    m_consoleItemModel->setCanFetchMore(bool(m_scriptEvaluator));
     if (!m_scriptEvaluator)
         setContext(QString());
 }
