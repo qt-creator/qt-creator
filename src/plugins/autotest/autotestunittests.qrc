@@ -39,6 +39,11 @@
         <file>unit_test/mixed_atp/tests/auto/gui/gui.qbs</file>
         <file>unit_test/mixed_atp/tests/auto/quickauto/quickauto.qbs</file>
         <file>unit_test/mixed_atp/tests/auto/quickauto2/quickauto2.qbs</file>
+        <file>unit_test/mixed_atp/tests/auto/derived/derived.pro</file>
+        <file>unit_test/mixed_atp/tests/auto/derived/derived.qbs</file>
+        <file>unit_test/mixed_atp/tests/auto/derived/origin.h</file>
+        <file>unit_test/mixed_atp/tests/auto/derived/origin.cpp</file>
+        <file>unit_test/mixed_atp/tests/auto/derived/tst_derivedtest.cpp</file>
         <file>unit_test/simple_gt/src/main.cpp</file>
         <file>unit_test/simple_gt/src/src.pro</file>
         <file>unit_test/simple_gt/src/src.qbs</file>

@@ -2,6 +2,7 @@ TEMPLATE = subdirs
 
 SUBDIRS = \
     bench \
+    derived \
     dummy \
     gui
 
