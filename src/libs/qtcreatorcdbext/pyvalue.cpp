@@ -259,7 +259,7 @@ PyObject *value_ChildFromName(Value *self, PyObject *args)
         Py_RETURN_NONE;
 
     const ULONG childCount = numberOfChildren(self);
-    if (childCount == 0 || !expandValue(self))
+    if (childCount == 0)
         Py_RETURN_NONE;
 
     for (ULONG childIndex = self->m_index + 1 ; childIndex <= self->m_index + childCount; ++childIndex) {
