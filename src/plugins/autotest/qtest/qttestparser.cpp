@@ -37,7 +37,18 @@ namespace Internal {
 
 TestTreeItem *QtTestParseResult::createTestTreeItem() const
 {
-    return itemType == TestTreeItem::Root ? 0 : QtTestTreeItem::createTestItem(this);
+    if (itemType == TestTreeItem::Root)
+        return nullptr;
+
+    QtTestTreeItem *item = new QtTestTreeItem(displayName, fileName, itemType);
+    item->setProFile(proFile);
+    item->setLine(line);
+    item->setColumn(column);
+    item->setInherited(m_inherited);
+
+    foreach (const TestParseResult *funcParseResult, children)
+        item->appendChild(funcParseResult->createTestTreeItem());
+    return item;
 }
 
 static bool includesQtTest(const CPlusPlus::Document::Ptr &doc, const CPlusPlus::Snapshot &snapshot)

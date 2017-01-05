@@ -41,21 +41,6 @@ QtTestTreeItem::QtTestTreeItem(const QString &name, const QString &filePath, Tes
         setChecked(Qt::Checked);
 }
 
-QtTestTreeItem *QtTestTreeItem::createTestItem(const TestParseResult *result)
-{
-    const QtTestParseResult *qtResult = static_cast<const QtTestParseResult *>(result);
-    QtTestTreeItem *item = new QtTestTreeItem(result->displayName, result->fileName,
-                                              result->itemType);
-    item->setProFile(result->proFile);
-    item->setLine(result->line);
-    item->setColumn(result->column);
-    item->setInherited(qtResult->inherited());
-
-    foreach (const TestParseResult *funcParseResult, result->children)
-        item->appendChild(createTestItem(funcParseResult));
-    return item;
-}
-
 QVariant QtTestTreeItem::data(int column, int role) const
 {
     switch (role) {

@@ -45,26 +45,6 @@ static QString gtestFilter(GTestTreeItem::TestStates states)
     return QLatin1String("%1.%2");
 }
 
-GTestTreeItem *GTestTreeItem::createTestItem(const TestParseResult *result)
-{
-    const GTestParseResult *parseResult = static_cast<const GTestParseResult *>(result);
-    GTestTreeItem *item = new GTestTreeItem(parseResult->name, parseResult->fileName,
-                                            parseResult->itemType);
-    item->setProFile(parseResult->proFile);
-    item->setLine(parseResult->line);
-    item->setColumn(parseResult->column);
-
-    if (parseResult->parameterized)
-        item->setState(Parameterized);
-    if (parseResult->typed)
-        item->setState(Typed);
-    if (parseResult->disabled)
-        item->setState(Disabled);
-    foreach (const TestParseResult *testSet, parseResult->children)
-        item->appendChild(createTestItem(testSet));
-    return item;
-}
-
 QVariant GTestTreeItem::data(int column, int role) const
 {
     switch (role) {

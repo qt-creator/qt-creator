@@ -41,8 +41,15 @@ namespace Internal {
 TestTreeItem *QuickTestParseResult::createTestTreeItem() const
 {
     if (itemType == TestTreeItem::Root || itemType == TestTreeItem::TestDataTag)
-        return 0;
-    return QuickTestTreeItem::createTestItem(this);
+        return nullptr;
+
+    QuickTestTreeItem *item = new QuickTestTreeItem(name, fileName, itemType);
+    item->setProFile(proFile);
+    item->setLine(line);
+    item->setColumn(column);
+    foreach (const TestParseResult *funcResult, children)
+        item->appendChild(funcResult->createTestTreeItem());
+    return item;
 }
 
 static bool includesQtQuickTest(const CPlusPlus::Document::Ptr &doc,

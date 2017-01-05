@@ -33,18 +33,6 @@
 namespace Autotest {
 namespace Internal {
 
-QuickTestTreeItem *QuickTestTreeItem::createTestItem(const TestParseResult *result)
-{
-    QuickTestTreeItem *item = new QuickTestTreeItem(result->name, result->fileName,
-                                                    result->itemType);
-    item->setProFile(result->proFile);
-    item->setLine(result->line);
-    item->setColumn(result->column);
-    foreach (const TestParseResult *funcResult, result->children)
-        item->appendChild(createTestItem(funcResult));
-    return item;
-}
-
 QVariant QuickTestTreeItem::data(int column, int role) const
 {
     switch (role) {

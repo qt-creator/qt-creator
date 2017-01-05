@@ -34,9 +34,22 @@ namespace Internal {
 
 TestTreeItem *GTestParseResult::createTestTreeItem() const
 {
-    if (itemType == TestTreeItem::TestCase || itemType == TestTreeItem::TestFunctionOrSet)
-        return GTestTreeItem::createTestItem(this);
-    return 0;
+    if (itemType != TestTreeItem::TestCase && itemType != TestTreeItem::TestFunctionOrSet)
+        return nullptr;
+    GTestTreeItem *item = new GTestTreeItem(name, fileName, itemType);
+    item->setProFile(proFile);
+    item->setLine(line);
+    item->setColumn(column);
+
+    if (parameterized)
+        item->setState(GTestTreeItem::Parameterized);
+    if (typed)
+        item->setState(GTestTreeItem::Typed);
+    if (disabled)
+        item->setState(GTestTreeItem::Disabled);
+    foreach (const TestParseResult *testSet, children)
+        item->appendChild(testSet->createTestTreeItem());
+    return item;
 }
 
 static bool includesGTest(const CPlusPlus::Document::Ptr &doc,
