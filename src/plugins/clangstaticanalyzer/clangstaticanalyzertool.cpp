@@ -69,7 +69,6 @@ public:
         : RunConfiguration(parent, "ClangStaticAnalyzer.DummyRunConfig")
     {
         setDefaultDisplayName(tr("Clang Static Analyzer"));
-        addExtraAspects();
     }
 
 private:

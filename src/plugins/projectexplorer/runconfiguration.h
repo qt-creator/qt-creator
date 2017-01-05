@@ -276,7 +276,6 @@ public:
 
     template <typename T> T *extraAspect() const
     {
-        QTC_ASSERT(m_aspectsInitialized, return nullptr);
         foreach (IRunConfigurationAspect *aspect, m_aspects)
             if (T *result = qobject_cast<T *>(aspect))
                 return result;
@@ -286,7 +285,6 @@ public:
     virtual Runnable runnable() const;
     virtual Abi abi() const;
 
-    void addExtraAspects();
     void addExtraAspect(IRunConfigurationAspect *aspect);
 
 signals:
@@ -304,8 +302,9 @@ protected:
 private:
     void ctor();
 
+    void addExtraAspects();
+
     QList<IRunConfigurationAspect *> m_aspects;
-    bool m_aspectsInitialized;
 };
 
 class PROJECTEXPLORER_EXPORT IRunConfigurationFactory : public QObject

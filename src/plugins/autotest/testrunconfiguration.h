@@ -50,7 +50,6 @@ public:
         : ProjectExplorer::RunConfiguration(parent, "AutoTest.TestRunConfig")
     {
         setDefaultDisplayName(tr("AutoTest Debug"));
-        addExtraAspects();
 
         // disable QmlDebugger that is enabled by default
         // might change if debugging QuickTest gets enabled

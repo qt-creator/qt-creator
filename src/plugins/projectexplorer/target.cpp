@@ -398,7 +398,6 @@ void Target::addRunConfiguration(RunConfiguration *rc)
 {
     QTC_ASSERT(rc && !d->m_runConfigurations.contains(rc), return);
     Q_ASSERT(rc->target() == this);
-    rc->addExtraAspects();
 
     // Check that we don't have a configuration with the same displayName
     QString configurationDisplayName = rc->displayName();

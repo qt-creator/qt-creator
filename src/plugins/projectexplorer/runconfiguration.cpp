@@ -33,6 +33,7 @@
 #include "kitinformation.h"
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/algorithm.h>
 #include <utils/outputformatter.h>
 #include <utils/checkablemessagebox.h>
 
@@ -204,16 +205,16 @@ void IRunConfigurationAspect::resetProjectToGlobalSettings()
 */
 
 RunConfiguration::RunConfiguration(Target *target, Core::Id id) :
-    ProjectConfiguration(target, id),
-    m_aspectsInitialized(false)
+    ProjectConfiguration(target, id)
 {
     Q_ASSERT(target);
     ctor();
+
+    addExtraAspects();
 }
 
 RunConfiguration::RunConfiguration(Target *target, RunConfiguration *source) :
-    ProjectConfiguration(target, source),
-    m_aspectsInitialized(true)
+    ProjectConfiguration(target, source)
 {
     Q_ASSERT(target);
     ctor();
@@ -231,12 +232,8 @@ RunConfiguration::~RunConfiguration()
 
 void RunConfiguration::addExtraAspects()
 {
-    if (m_aspectsInitialized)
-        return;
-
     foreach (IRunControlFactory *factory, ExtensionSystem::PluginManager::getObjects<IRunControlFactory>())
         addExtraAspect(factory->createRunConfigurationAspect(this));
-    m_aspectsInitialized = true;
 }
 
 void RunConfiguration::addExtraAspect(IRunConfigurationAspect *aspect)
@@ -326,8 +323,6 @@ Abi RunConfiguration::abi() const
 
 bool RunConfiguration::fromMap(const QVariantMap &map)
 {
-    addExtraAspects();
-
     foreach (IRunConfigurationAspect *aspect, m_aspects)
         aspect->fromMap(map);
 
@@ -354,16 +349,12 @@ bool RunConfiguration::fromMap(const QVariantMap &map)
 
 QList<IRunConfigurationAspect *> RunConfiguration::extraAspects() const
 {
-    QTC_ASSERT(m_aspectsInitialized, return QList<IRunConfigurationAspect *>());
     return m_aspects;
 }
+
 IRunConfigurationAspect *RunConfiguration::extraAspect(Core::Id id) const
 {
-    QTC_ASSERT(m_aspectsInitialized, return nullptr);
-    foreach (IRunConfigurationAspect *aspect, m_aspects)
-        if (aspect->id() == id)
-            return aspect;
-    return nullptr;
+    return Utils::findOrDefault(m_aspects, Utils::equal(&IRunConfigurationAspect::id, id));
 }
 
 /*!
@@ -443,7 +434,6 @@ RunConfiguration *IRunConfigurationFactory::create(Target *parent, Core::Id id)
     RunConfiguration *rc = doCreate(parent, id);
     if (!rc)
         return nullptr;
-    rc->addExtraAspects();
     return rc;
 }
 
