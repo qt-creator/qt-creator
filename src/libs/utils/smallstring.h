@@ -109,6 +109,11 @@ public:
         }
     }
 
+    explicit BasicSmallString(SmallStringView stringView)
+        : BasicSmallString(stringView.data(), stringView.size(), stringView.size())
+    {
+    }
+
     BasicSmallString(const char *string, size_type size)
         : BasicSmallString(string, size, size)
     {
