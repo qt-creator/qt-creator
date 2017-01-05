@@ -305,9 +305,7 @@ class Dumper(DumperBase):
 
         variables = []
         for val in cdbext.listOfLocals(self.partialVariable):
-            value = self.fromNativeValue(val)
-            value.name = val.name()
-            variables.append(value)
+            variables.append(self.fromNativeValue(val))
 
         self.handleLocals(variables)
         self.handleWatches(args)
