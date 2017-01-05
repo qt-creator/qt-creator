@@ -136,6 +136,12 @@ void DesktopQmakeRunConfiguration::proFileUpdated(QmakeProFileNode *pro, bool su
         emit effectiveTargetInformationChanged();
         setDefaultDisplayName(defaultDisplayName());
         extraAspect<LocalEnvironmentAspect>()->buildEnvironmentHasChanged();
+
+        extraAspect<WorkingDirectoryAspect>()
+                ->setDefaultWorkingDirectory(FileName::fromString(baseWorkingDirectory()));
+        auto terminalAspect = extraAspect<TerminalAspect>();
+        if (!terminalAspect->isUserSet())
+            terminalAspect->setUseTerminal(isConsoleApplication());
     }
 }
 
