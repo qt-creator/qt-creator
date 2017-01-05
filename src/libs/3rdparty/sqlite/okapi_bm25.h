@@ -6,7 +6,7 @@
 static void okapi_bm25(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal) {
     assert(sizeof(int) == 4);
 
-    unsigned int *matchinfo = (unsigned int *)sqlite3_value_blob(apVal[0]);
+    const unsigned int *matchinfo = (const unsigned int *)sqlite3_value_blob(apVal[0]);
     int searchTextCol = sqlite3_value_int(apVal[1]);
 
     double K1 = ((nVal >= 3) ? sqlite3_value_double(apVal[2]) : 1.2);
@@ -65,7 +65,7 @@ static void okapi_bm25(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal) {
 static void okapi_bm25f(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal) {
     assert(sizeof(int) == 4);
 
-    unsigned int *matchinfo = (unsigned int *)sqlite3_value_blob(apVal[0]);
+    const unsigned int *matchinfo = (const unsigned int *)sqlite3_value_blob(apVal[0]);
 
 
     //Setting the default values and ignoring argument based inputs so the extra
@@ -148,7 +148,7 @@ static void okapi_bm25f(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal) 
 static void okapi_bm25f_kb(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal) {
     assert(sizeof(int) == 4);
 
-    unsigned int *matchinfo = (unsigned int *)sqlite3_value_blob(apVal[0]);
+    const unsigned int *matchinfo = (const unsigned int *)sqlite3_value_blob(apVal[0]);
 
 
     //Setting the default values and ignoring argument based inputs so the extra
