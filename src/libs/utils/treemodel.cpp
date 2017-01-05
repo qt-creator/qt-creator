@@ -907,7 +907,7 @@ QModelIndex BaseTreeModel::parent(const QModelIndex &idx) const
 
     const TreeItem *item = itemForIndex(idx);
     QTC_ASSERT(item, return QModelIndex());
-    const TreeItem *parent = item->parent();
+    TreeItem *parent = item->parent();
     if (!parent || parent == m_root)
         return QModelIndex();
 
@@ -917,7 +917,7 @@ QModelIndex BaseTreeModel::parent(const QModelIndex &idx) const
 
     for (int i = 0, n = grandparent->childCount(); i < n; ++i)
         if (grandparent->childAt(i) == parent)
-            return createIndex(i, 0, (void*) parent);
+            return createIndex(i, 0, static_cast<void*>(parent));
 
     return QModelIndex();
 }
@@ -1043,11 +1043,11 @@ QModelIndex BaseTreeModel::index(int row, int column, const QModelIndex &parent)
     if (!hasIndex(row, column, parent))
         return QModelIndex();
 
-    const TreeItem *item = itemForIndex(parent);
+    TreeItem *item = itemForIndex(parent);
     QTC_ASSERT(item, return QModelIndex());
     if (row >= item->childCount())
         return QModelIndex();
-    return createIndex(row, column, (void*)(item->childAt(row)));
+    return createIndex(row, column, static_cast<void*>(item->childAt(row)));
 }
 
 TreeItem *BaseTreeModel::itemForIndex(const QModelIndex &idx) const
