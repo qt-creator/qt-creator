@@ -157,8 +157,12 @@ void indicesMoved(CIDebugSymbolGroup *symbolGroup, ULONG start, ULONG delta)
     if (count <= start)
         return;
     for (Value *val : valuesForSymbolGroup[symbolGroup]) {
-        if (val->m_index >= start && val->m_index + delta < count)
+        if (val->m_index >= start && val->m_index + delta < count) {
             val->m_index += delta;
+            if (debuggingValueEnabled())
+                DebugPrint() << " Moved Index of " << getSymbolName(symbolGroup, val->m_index)
+                             << " delta " << delta << " to " << val->m_index;
+        }
     }
 }
 
@@ -174,6 +178,8 @@ bool expandValue(Value *v)
     if (FAILED(v->m_symbolGroup->GetSymbolParameters(v->m_index, 1, &params)))
         return false;
     if (params.Flags & DEBUG_SYMBOL_EXPANDED) {
+        if (debuggingValueEnabled())
+            DebugPrint() << "Expanded " << getSymbolName(v->m_symbolGroup, v->m_index);
         indicesMoved(v->m_symbolGroup, v->m_index + 1, params.SubElements);
         return true;
     }

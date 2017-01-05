@@ -512,6 +512,8 @@ PyObject *createType(ULONG64 module, ULONG typeId, const std::string &name)
 
 PyObject *createUnresolvedType(const std::string &name)
 {
+    if (debuggingTypeEnabled())
+        DebugPrint() << "Created unresolved type '" << name << "'";
     Type *type = PyObject_New(Type, type_pytype());
     type->m_module = 0;
     type->m_typeId = 0;
