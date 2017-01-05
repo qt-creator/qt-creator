@@ -39,8 +39,8 @@
 
 namespace Utils {
 
-inline
-QDataStream &operator<<(QDataStream &out, const SmallString &string)
+template <uint Size>
+QDataStream &operator<<(QDataStream &out, const BasicSmallString<Size> &string)
 {
    if (string.isEmpty())
        out << quint32(0);
@@ -50,8 +50,8 @@ QDataStream &operator<<(QDataStream &out, const SmallString &string)
    return out;
 }
 
-inline
-QDataStream &operator>>(QDataStream &in, SmallString &string)
+template <uint Size>
+QDataStream &operator>>(QDataStream &in, BasicSmallString<Size> &string)
 {
     quint32 size;
 
@@ -83,13 +83,25 @@ std::ostream &operator<<(std::ostream &stream, const BasicSmallString<Size> &str
 {
     using std::operator<<;
 
-    return stream << std::string(string.data(), string.size());
+    stream.write(string.data(), std::streamsize(string.size()));
+
+    return stream;
+}
+
+inline
+std::ostream &operator<<(std::ostream &stream, SmallStringView string)
+{
+    using std::operator<<;
+
+    stream.write(string.data(), std::streamsize(string.size()));
+
+    return stream;
 }
 
 template <uint Size>
 void PrintTo(const BasicSmallString<Size> &string, ::std::ostream *os)
 {
-    Utils::SmallString formatedString = string.clone();
+    BasicSmallString<Size> formatedString = string.clone();
 
     formatedString.replace("\n", "\\n");
     formatedString.replace("\t", "\\t");
@@ -101,7 +113,8 @@ void PrintTo(const BasicSmallString<Size> &string, ::std::ostream *os)
     *os<< "'";
 }
 
-inline QDataStream &operator<<(QDataStream &out, const SmallStringVector &stringVector)
+template <uint Size>
+QDataStream &operator<<(QDataStream &out, const BasicSmallStringVector<Size>  &stringVector)
 {
     out << quint64(stringVector.size());
 
@@ -111,8 +124,8 @@ inline QDataStream &operator<<(QDataStream &out, const SmallStringVector &string
     return out;
 }
 
-inline
-QDataStream &operator>>(QDataStream &in, SmallStringVector &stringVector)
+template <uint Size>
+QDataStream &operator>>(QDataStream &in, BasicSmallStringVector<Size>  &stringVector)
 {
     stringVector.clear();
 
@@ -123,7 +136,7 @@ QDataStream &operator>>(QDataStream &in, SmallStringVector &stringVector)
     stringVector.reserve(size);
 
     for (quint64 i = 0; i < size; ++i) {
-        SmallString string;
+        BasicSmallString<Size> string;
 
         in >> string;
 
@@ -133,18 +146,18 @@ QDataStream &operator>>(QDataStream &in, SmallStringVector &stringVector)
     return in;
 }
 
-inline
-QDebug operator<<(QDebug debug, const SmallStringVector &stringVector)
+template <uint Size>
+QDebug operator<<(QDebug debug, const BasicSmallStringVector<Size> &stringVector)
 {
-    debug << "StringVector(" << stringVector.join(Utils::SmallString(", ")).constData() << ")";
+    debug << "StringVector(" << stringVector.join(BasicSmallString<Size>(", ")).constData() << ")";
 
     return debug;
 }
 
-inline
-void PrintTo(const SmallStringVector &textVector, ::std::ostream* os)
+template <uint Size>
+void PrintTo(const BasicSmallStringVector<Size> &textVector, ::std::ostream* os)
 {
-    *os << "[" << textVector.join(Utils::SmallString(", ")).constData() << "]";
+    *os << "[" << textVector.join(BasicSmallString<Size>(", ")).constData() << "]";
 }
 
 } // namespace Utils
