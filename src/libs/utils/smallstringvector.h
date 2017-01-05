@@ -77,30 +77,11 @@ public:
            Base::emplace_back(string);
     }
 
-#if !defined(UNIT_TESTS) && !(defined(_MSC_VER) && _MSC_VER < 1900)
-    BasicSmallStringVector(const BasicSmallStringVector &) = delete;
-    BasicSmallStringVector &operator=(const BasicSmallStringVector &) = delete;
-#else
     BasicSmallStringVector(const BasicSmallStringVector &) = default;
     BasicSmallStringVector &operator=(const BasicSmallStringVector &) = default;
-#endif
 
-#if !(defined(_MSC_VER) && _MSC_VER < 1900)
     BasicSmallStringVector(BasicSmallStringVector &&) noexcept = default;
     BasicSmallStringVector &operator=(BasicSmallStringVector &&) noexcept = default;
-#else
-    BasicSmallStringVector(BasicSmallStringVector &&other)
-        : Base(std::move(other))
-    {
-    }
-
-    BasicSmallStringVector &operator=(BasicSmallStringVector &&other)
-    {
-        Base(std::move(other));
-
-        return *this;
-    }
-#endif
 
     SmallString join(SmallString &&separator) const
     {
