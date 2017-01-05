@@ -158,7 +158,7 @@ private:
 };
 
 using SmallStringVector = BasicSmallStringVector<31>;
-
+using PathStringVector = BasicSmallStringVector<191>;
 } // namespace Utils;
 
 #pragma pop_macro("noexcept")

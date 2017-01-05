@@ -866,6 +866,7 @@ std::vector<Type> clone(const std::vector<Type> &vector)
 }
 
 using SmallString = BasicSmallString<31>;
+using PathString = BasicSmallString<191>;
 
 } // namespace Utils
 
