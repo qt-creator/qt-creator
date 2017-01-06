@@ -97,6 +97,10 @@
     <value type="QByteArray" key="PE.Profile.DeviceType">GenericLinuxOsType</value>
     <value type="QString" key="PE.Profile.SysRoot"></value>
     <value type="QString" key="PE.Profile.ToolChain">ProjectExplorer.ToolChain.Gcc:{c3f59b87-6997-4bd8-8067-ee04dc536371}</value>
+    <valuemap type="QVariantMap" key="PE.Profile.ToolChains">
+     <value type="QByteArray" key="C">{7bfd4fd4-e64a-417f-b10f-20602e1719d1}</value>
+     <value type="QString" key="Cxx">ProjectExplorer.ToolChain.Gcc:{c3f59b87-6997-4bd8-8067-ee04dc536371}</value>
+    </valuemap>
     <value type="QString" key="QtPM4.mkSpecInformation"></value>
     <value type="int" key="QtSupport.QtInformation">4</value>
    </valuemap>
