@@ -188,7 +188,7 @@ private: // functions
     void delayedRestartProcess();
 
 private slots:
-    void handleChrash();
+    void handleCrash();
 
 private: //variables
     NodeInstance m_rootNodeInstance;

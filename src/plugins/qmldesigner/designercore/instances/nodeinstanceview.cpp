@@ -153,7 +153,7 @@ void NodeInstanceView::modelAttached(Model *model)
     AbstractView::modelAttached(model);
     m_nodeInstanceServer = new NodeInstanceServerProxy(this, m_runModus, m_currentKit, m_currentProject);
     m_lastCrashTime.start();
-    connect(m_nodeInstanceServer.data(), SIGNAL(processCrashed()), this, SLOT(handleChrash()));
+    connect(m_nodeInstanceServer.data(), SIGNAL(processCrashed()), this, SLOT(handleCrash()));
 
     if (!isSkippedRootNode(rootModelNode()))
         nodeInstanceServer()->createScene(createCreateSceneCommand());
@@ -181,7 +181,7 @@ void NodeInstanceView::modelAboutToBeDetached(Model * model)
     AbstractView::modelAboutToBeDetached(model);
 }
 
-void NodeInstanceView::handleChrash()
+void NodeInstanceView::handleCrash()
 {
     int elaspsedTimeSinceLastCrash = m_lastCrashTime.restart();
     int forceRestartTime = 2000;
@@ -207,7 +207,7 @@ void NodeInstanceView::restartProcess()
         delete nodeInstanceServer();
 
         m_nodeInstanceServer = new NodeInstanceServerProxy(this, m_runModus, m_currentKit, m_currentProject);
-        connect(m_nodeInstanceServer.data(), SIGNAL(processCrashed()), this, SLOT(handleChrash()));
+        connect(m_nodeInstanceServer.data(), SIGNAL(processCrashed()), this, SLOT(handleCrash()));
 
         if (!isSkippedRootNode(rootModelNode()))
             nodeInstanceServer()->createScene(createCreateSceneCommand());
