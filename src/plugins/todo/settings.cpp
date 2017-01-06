@@ -36,6 +36,9 @@ namespace Internal {
 
 void Settings::save(QSettings *settings) const
 {
+    if (!keywordsEdited)
+        return;
+
     settings->beginGroup(QLatin1String(Constants::SETTINGS_GROUP));
     settings->setValue(QLatin1String(Constants::SCANNING_SCOPE), scanningScope);
 
@@ -97,6 +100,7 @@ void Settings::load(QSettings *settings)
             newKeywords << keyword;
         }
         keywords = newKeywords;
+        keywordsEdited = true; // Otherwise they wouldn't have been saved
     }
     settings->endArray();
 
@@ -135,12 +139,15 @@ void Settings::setDefault()
     keyword.iconType = IconType::Warning;
     keyword.color = QColor(QLatin1String(Constants::COLOR_WARNING_BG));
     keywords.append(keyword);
+
+    keywordsEdited = false;
 }
 
 bool Settings::equals(const Settings &other) const
 {
     return (keywords == other.keywords)
-            && (scanningScope == other.scanningScope);
+            && (scanningScope == other.scanningScope)
+            && (keywordsEdited == other.keywordsEdited);
 }
 
 bool operator ==(Settings &s1, Settings &s2)

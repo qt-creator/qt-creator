@@ -70,6 +70,9 @@ void OptionsPage::apply()
 {
     Settings newSettings = m_widget->settings();
 
+    // "apply" itself is interpreted as "use these keywords, also for other themes".
+    newSettings.keywordsEdited = true;
+
     if (newSettings != m_settings) {
         m_settings = newSettings;
         emit settingsChanged(m_settings);
