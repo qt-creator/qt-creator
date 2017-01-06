@@ -25,10 +25,13 @@
 
 #include "autotestconstants.h"
 #include "autotest_utils.h"
+#include "autotestplugin.h"
 #include "testcodeparser.h"
 #include "testframeworkmanager.h"
+#include "testsettings.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <cpptools/cpptoolsconstants.h>
@@ -158,6 +161,28 @@ void TestCodeParser::updateTestTree()
     m_fullUpdatePostponed = false;
     qCDebug(LOG) << "calling scanForTests (updateTestTree)";
     scanForTests();
+}
+
+static QStringList filterFiles(const QString &projectDir, const QStringList &files)
+{
+    const QSharedPointer<TestSettings> &settings = AutotestPlugin::instance()->settings();
+    const QSet<QString> &filters = settings->whiteListFilters.toSet(); // avoid duplicates
+    if (!settings->filterScan || filters.isEmpty())
+        return files;
+    QStringList finalResult;
+    for (const QString &file : files) {
+        // apply filter only below project directory if file is part of a project
+        const QString &fileToProcess = file.startsWith(projectDir)
+                ? file.mid(projectDir.size())
+                : file;
+        for (const QString &filter : filters) {
+            if (fileToProcess.contains(filter)) {
+                finalResult.push_back(file);
+                break;
+            }
+        }
+    }
+    return finalResult;
 }
 
 // used internally to indicate a parse that failed due to having triggered a parse for a file that
@@ -302,9 +327,12 @@ void TestCodeParser::scanForTests(const QStringList &fileList)
     m_reparseTimerTimedOut = false;
     m_postponedFiles.clear();
     bool isFullParse = fileList.isEmpty();
+    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    if (!project)
+        return;
     QStringList list;
     if (isFullParse) {
-        list = ProjectExplorer::SessionManager::startupProject()->files(ProjectExplorer::Project::SourceFiles);
+        list = project->files(ProjectExplorer::Project::SourceFiles);
         if (list.isEmpty()) {
             // at least project file should be there, but might happen if parsing current project
             // takes too long, especially when opening sessions holding multiple projects
@@ -333,6 +361,17 @@ void TestCodeParser::scanForTests(const QStringList &fileList)
             m_model->markForRemoval(filePath);
     }
 
+    list = filterFiles(project->projectDirectory().toString(), list);
+    if (list.isEmpty()) {
+        if (isFullParse) {
+            Core::MessageManager::instance()->write(
+                        tr("AutoTest Plugin WARNING: No files left after filtering test scan "
+                           "folders. Check test filter settings."),
+                        Core::MessageManager::Flash);
+        }
+        onFinished();
+        return;
+    }
     qCDebug(LOG) << QDateTime::currentDateTime().toString("hh:mm:ss.zzz") << "StartParsing";
     foreach (ITestParser *parser, m_testCodeParsers)
         parser->init(list);

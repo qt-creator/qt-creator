@@ -47,7 +47,9 @@ struct TestSettings
     bool omitRunConfigWarn = false;
     bool limitResultOutput = true;
     bool autoScroll = true;
+    bool filterScan = false;
     QHash<Core::Id, bool> frameworks;
+    QStringList whiteListFilters;
 };
 
 } // namespace Internal
