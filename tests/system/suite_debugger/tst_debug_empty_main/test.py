@@ -93,7 +93,7 @@ def performDebugging(projectName, checkedTargets):
     for kit, config in iterateBuildConfigs(len(checkedTargets), "Debug"):
         test.log("Selecting '%s' as build config" % config)
         verifyBuildConfig(len(checkedTargets), kit, config, True, True)
-        progressBarWait(10000)
+        waitForObject(":*Qt Creator.Build Project_Core::Internal::FancyToolButton")
         invokeMenuItem("Build", "Rebuild All")
         waitForCompile()
         isMsvc = isMsvcConfig(len(checkedTargets), kit)
