@@ -76,13 +76,8 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
     addAutoReleasedObject(new CodeGenSettingsPage);
     addAutoReleasedObject(new QtOptionsPage);
 
-    ExamplesWelcomePage *welcomePage;
-    welcomePage = new ExamplesWelcomePage;
-    addAutoReleasedObject(welcomePage);
-    welcomePage->setShowExamples(true);
-
-    welcomePage = new ExamplesWelcomePage;
-    addAutoReleasedObject(welcomePage);
+    addAutoReleasedObject(new ExamplesWelcomePage(true)); // Examples
+    addAutoReleasedObject(new ExamplesWelcomePage(false)); // Tutorials
 
     ProjectExplorer::KitManager::registerKitInformation(new QtKitInformation);
 

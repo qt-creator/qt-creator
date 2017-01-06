@@ -23,13 +23,11 @@
 **
 ****************************************************************************/
 
-#include "welcomeplugin.h"
-
+#include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginmanager.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
-
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
@@ -43,278 +41,318 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
-
+#include <utils/treemodel.h>
 #include <utils/theme/theme.h>
 
-#include <QVBoxLayout>
-#include <QMessageBox>
-
-#include <QDir>
-#include <QQmlPropertyMap>
-#include <QQuickImageProvider>
+#include <QDesktopServices>
+#include <QHeaderView>
+#include <QLabel>
+#include <QMouseEvent>
+#include <QPainter>
+#include <QStackedWidget>
 #include <QTimer>
-
-#include <QtQuickWidgets/QQuickWidget>
-#include <QtQml/QQmlContext>
-#include <QtQml/QQmlEngine>
-
-enum { debug = 0 };
+#include <QVBoxLayout>
 
 using namespace Core;
 using namespace ExtensionSystem;
 using namespace Utils;
 
-static const char currentPageSettingsKeyC[] = "WelcomeTab";
-
 namespace Welcome {
 namespace Internal {
 
-static QString applicationDirPath()
+class SideBar;
+
+const int lrPadding = 34;
+const char currentPageSettingsKeyC[] = "Welcome2Tab";
+
+static QColor themeColor(Theme::Color role)
 {
-    // normalize paths so QML doesn't freak out if it's wrongly capitalized on Windows
-    return FileUtils::normalizePathName(QCoreApplication::applicationDirPath());
+    return Utils::creatorTheme()->color(role);
 }
 
-static QString resourcePath()
+static QFont sizedFont(int size, const QWidget *widget, bool underline = false)
 {
-    // normalize paths so QML doesn't freak out if it's wrongly capitalized on Windows
-    return FileUtils::normalizePathName(ICore::resourcePath());
+    QFont f = widget->font();
+    f.setPixelSize(size);
+    f.setUnderline(underline);
+    return f;
 }
 
-class WelcomeImageIconProvider : public QQuickImageProvider
+static QPalette lightText()
 {
-public:
-    WelcomeImageIconProvider()
-        : QQuickImageProvider(Pixmap)
-    {
-    }
-
-    QPixmap requestPixmap(const QString &id, QSize *size, const QSize &requestedSize) override
-    {
-        Q_UNUSED(requestedSize)
-
-        QString maskFile;
-        Theme::Color themeColor = Theme::Welcome_ForegroundPrimaryColor;
-
-        const QStringList elements = id.split(QLatin1Char('/'));
-
-        if (!elements.empty())
-            maskFile = elements.first();
-
-        if (elements.count() >= 2) {
-            const static QMetaObject &m = Theme::staticMetaObject;
-            const static QMetaEnum e = m.enumerator(m.indexOfEnumerator("Color"));
-            bool success = false;
-            int value = e.keyToValue(elements.at(1).toLatin1(), &success);
-            if (success)
-                themeColor = Theme::Color(value);
-        }
-
-        const QString fileName = QString::fromLatin1(":/welcome/images/%1.png").arg(maskFile);
-        const Icon icon({{fileName, themeColor}}, Icon::Tint);
-        const QPixmap result = icon.pixmap();
-        if (size)
-            *size = result.size();
-        return result;
-    }
-};
+    QPalette pal;
+    pal.setColor(QPalette::Foreground, themeColor(Theme::Welcome_ForegroundPrimaryColor));
+    pal.setColor(QPalette::WindowText, themeColor(Theme::Welcome_ForegroundPrimaryColor));
+    return pal;
+}
 
 class WelcomeMode : public IMode
 {
     Q_OBJECT
-    Q_PROPERTY(int activePlugin READ activePlugin WRITE setActivePlugin NOTIFY activePluginChanged)
-    Q_PROPERTY(QStringList recentProjectsShortcuts READ recentProjectsShortcuts NOTIFY recentProjectsShortcutsChanged)
-    Q_PROPERTY(QStringList sessionsShortcuts READ sessionsShortcuts NOTIFY sessionsShortcutsChanged)
 public:
     WelcomeMode();
     ~WelcomeMode();
 
-    void activated();
     void initPlugins();
-    int activePlugin() const { return m_activePlugin; }
-
-    QStringList recentProjectsShortcuts() const { return m_recentProjectsShortcuts; }
-    QStringList sessionsShortcuts() const { return m_sessionsShortcuts; }
 
     Q_INVOKABLE bool openDroppedFiles(const QList<QUrl> &urls);
 
-public slots:
-    void setActivePlugin(int pos)
-    {
-        if (m_activePlugin != pos) {
-            m_activePlugin = pos;
-            emit activePluginChanged(pos);
-        }
-    }
-
-signals:
-    void activePluginChanged(int pos);
-
-    void openSessionTriggered(int index);
-    void openRecentProjectTriggered(int index);
-
-    void recentProjectsShortcutsChanged(QStringList recentProjectsShortcuts);
-    void sessionsShortcutsChanged(QStringList sessionsShortcuts);
-
 private:
-    void welcomePluginAdded(QObject*);
-    void sceneGraphError(QQuickWindow::SceneGraphError, const QString &message);
-    void facilitateQml(QQmlEngine *engine);
-    void addPages(QQmlEngine *engine, const QList<IWelcomePage *> &pages);
-    void addKeyboardShortcuts();
+    void addPage(IWelcomePage *page);
 
     QWidget *m_modeWidget;
-    QQuickWidget *m_welcomePage;
-    QMap<Id, IWelcomePage *> m_idPageMap;
+    QStackedWidget *m_pageStack;
+    SideBar *m_sideBar;
     QList<IWelcomePage *> m_pluginList;
-    int m_activePlugin;
-    QStringList m_recentProjectsShortcuts;
-    QStringList m_sessionsShortcuts;
+    QList<WelcomePageButton *> m_pageButtons;
+    Id m_activePage;
+};
+
+class WelcomePlugin : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Welcome.json")
+
+public:
+    WelcomePlugin() {}
+
+    bool initialize(const QStringList &, QString *) final
+    {
+        m_welcomeMode = new WelcomeMode;
+        addAutoReleasedObject(m_welcomeMode);
+        return true;
+    }
+
+    void extensionsInitialized() final
+    {
+        m_welcomeMode->initPlugins();
+        ModeManager::activateMode(m_welcomeMode->id());
+    }
+
+    WelcomeMode *m_welcomeMode = nullptr;
+};
+
+class IconAndLink : public QWidget
+{
+public:
+    IconAndLink(const QString &iconSource,
+                const QString &title,
+                const QString &openUrl,
+                QWidget *parent)
+        : QWidget(parent), m_iconSource(iconSource), m_title(title), m_openUrl(openUrl)
+    {
+        setAutoFillBackground(true);
+
+        const QString fileName = QString(":/welcome/images/%1.png").arg(iconSource);
+        const Icon icon({{ fileName, Theme::Welcome_ForegroundPrimaryColor }}, Icon::Tint);
+
+        m_icon = new QLabel;
+        m_icon->setPixmap(icon.pixmap());
+
+        m_label = new QLabel(title);
+        m_label->setFont(sizedFont(11, m_label, false));
+
+        auto layout = new QHBoxLayout;
+        layout->setContentsMargins(lrPadding, 0, lrPadding, 0);
+        layout->addWidget(m_icon);
+        layout->addSpacing(2);
+        layout->addWidget(m_label);
+        layout->addStretch(1);
+        setLayout(layout);
+    }
+
+    void enterEvent(QEvent *) override
+    {
+        QPalette pal;
+        pal.setColor(QPalette::Background, themeColor(Theme::Welcome_HoverColor));
+        setPalette(pal);
+        m_label->setFont(sizedFont(11, m_label, true));
+        update();
+    }
+
+    void leaveEvent(QEvent *) override
+    {
+        QPalette pal;
+        pal.setColor(QPalette::Background, themeColor(Theme::Welcome_BackgroundColor));
+        setPalette(pal);
+        m_label->setFont(sizedFont(11, m_label, false));
+        update();
+    }
+
+    void mousePressEvent(QMouseEvent *) override
+    {
+        QDesktopServices::openUrl(m_openUrl);
+    }
+
+    QString m_iconSource;
+    QString m_title;
+    QString m_openUrl;
+
+    QLabel *m_icon;
+    QLabel *m_label;
+};
+
+class SideBar : public QWidget
+{
+    Q_OBJECT
+public:
+    SideBar(QWidget *parent)
+        : QWidget(parent)
+    {
+        setAutoFillBackground(true);
+        setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+        setPalette(themeColor(Theme::Welcome_BackgroundColor));
+
+        auto vbox = new QVBoxLayout(this);
+        vbox->setSpacing(0);
+        vbox->setContentsMargins(0, 27, 0, 0);
+
+        int sd = IWelcomePage::screenDependHeightDistance();
+
+        {
+            auto l = m_pluginButtons = new QVBoxLayout;
+            l->setContentsMargins(lrPadding, 0, lrPadding, 0);
+            l->setSpacing(sd + 3);
+            vbox->addItem(l);
+            vbox->addSpacing(62);
+        }
+
+        {
+            auto l = new QVBoxLayout;
+            l->setContentsMargins(lrPadding, 0, lrPadding, 0);
+            l->setSpacing(sd - 8);
+
+            auto newLabel = new QLabel(tr("New to Qt?"), this);
+            newLabel->setFont(sizedFont(18, this));
+            l->addWidget(newLabel);
+
+            auto learnLabel = new QLabel(tr("Learn how to develop your own applications "
+                                            "and explore Qt Creator."), this);
+            learnLabel->setMaximumWidth(200);
+            learnLabel->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+            learnLabel->setWordWrap(true);
+            learnLabel->setFont(sizedFont(12, this));
+            learnLabel->setPalette(lightText());
+            l->addWidget(learnLabel);
+
+            l->addSpacing(12);
+
+            auto getStartedButton = new WelcomePageButton(this);
+            getStartedButton->setText(tr("Get Started Now"));
+            getStartedButton->setOnClicked([] {
+                QDesktopServices::openUrl(QString("qthelp://org.qt-project.qtcreator/doc/index.html"));
+            });
+            l->addWidget(getStartedButton);
+
+            vbox->addItem(l);
+            vbox->addSpacing(77);
+        }
+
+        {
+            auto l = new QVBoxLayout;
+            l->setContentsMargins(0, 0, 0, 0);
+            l->setSpacing(sd + 3);
+            l->addWidget(new IconAndLink("qtaccount", tr("Qt Account"), "https://account.qt.io", this));
+            l->addWidget(new IconAndLink("community", tr("Online Community"), "http://forum.qt.io", this));
+            l->addWidget(new IconAndLink("blogs", tr("Blogs"), "http://planet.qt.io", this));
+            l->addWidget(new IconAndLink("userguide", tr("User Guide"),
+                                         "qthelp://org.qt-project.qtcreator/doc/index.html", this));
+            vbox->addItem(l);
+        }
+
+        vbox->addStretch(1);
+    }
+
+    QVBoxLayout *m_pluginButtons = nullptr;
 };
 
 WelcomeMode::WelcomeMode()
-    : m_activePlugin(0)
 {
     setDisplayName(tr("Welcome"));
 
-    const Utils::Icon MODE_WELCOME_CLASSIC(
-            QLatin1String(":/welcome/images/mode_welcome.png"));
-    const Utils::Icon MODE_WELCOME_FLAT({
-            {QLatin1String(":/welcome/images/mode_welcome_mask.png"), Utils::Theme::IconsBaseColor}});
-    const Utils::Icon MODE_WELCOME_FLAT_ACTIVE({
-            {QLatin1String(":/welcome/images/mode_welcome_mask.png"), Utils::Theme::IconsModeWelcomeActiveColor}});
+    const Icon CLASSIC(":/welcome/images/mode_welcome.png");
+    const Icon FLAT({{":/welcome/images/mode_welcome_mask.png",
+                      Theme::IconsBaseColor}});
+    const Icon FLAT_ACTIVE({{":/welcome/images/mode_welcome_mask.png",
+                             Theme::IconsModeWelcomeActiveColor}});
+    setIcon(Icon::modeIcon(CLASSIC, FLAT, FLAT_ACTIVE));
 
-    setIcon(Utils::Icon::modeIcon(MODE_WELCOME_CLASSIC,
-                                  MODE_WELCOME_FLAT, MODE_WELCOME_FLAT_ACTIVE));
     setPriority(Constants::P_MODE_WELCOME);
     setId(Constants::MODE_WELCOME);
-    setContextHelpId(QLatin1String("Qt Creator Manual"));
+    setContextHelpId("Qt Creator Manual");
     setContext(Context(Constants::C_WELCOME_MODE));
 
+    QPalette palette = creatorTheme()->palette();
+    palette.setColor(QPalette::Background, themeColor(Theme::Welcome_BackgroundColor));
+
     m_modeWidget = new QWidget;
-    m_modeWidget->setObjectName(QLatin1String("WelcomePageModeWidget"));
-    QVBoxLayout *layout = new QVBoxLayout(m_modeWidget);
+    m_modeWidget->setPalette(palette);
+
+    m_sideBar = new SideBar(m_modeWidget);
+
+    auto divider = new QWidget(m_modeWidget);
+    divider->setMaximumWidth(1);
+    divider->setMinimumWidth(1);
+    divider->setAutoFillBackground(true);
+    divider->setPalette(themeColor(Theme::Welcome_DividerColor));
+
+    m_pageStack = new QStackedWidget(m_modeWidget);
+    m_pageStack->setAutoFillBackground(true);
+
+    auto hbox = new QHBoxLayout;
+    hbox->addWidget(m_sideBar);
+    hbox->addWidget(divider);
+    hbox->addWidget(m_pageStack);
+    hbox->setStretchFactor(m_pageStack, 10);
+
+    auto layout = new QVBoxLayout(m_modeWidget);
     layout->setMargin(0);
     layout->setSpacing(0);
-
-    m_welcomePage = new QQuickWidget;
-    m_welcomePage->setResizeMode(QQuickWidget::SizeRootObjectToView);
-
-    m_welcomePage->setObjectName(QLatin1String("WelcomePage"));
-
-    connect(m_welcomePage, &QQuickWidget::sceneGraphError,
-            this, &WelcomeMode::sceneGraphError);
-
-    StyledBar *styledBar = new StyledBar(m_modeWidget);
-    styledBar->setObjectName(QLatin1String("WelcomePageStyledBar"));
-    layout->addWidget(styledBar);
-
-    m_welcomePage->setParent(m_modeWidget);
-    layout->addWidget(m_welcomePage);
-
-    addKeyboardShortcuts();
+    layout->addWidget(new StyledBar(m_modeWidget));
+    layout->addItem(hbox);
 
     setWidget(m_modeWidget);
-}
-
-void WelcomeMode::addKeyboardShortcuts()
-{
-    const int actionsCount = 9;
-    Context welcomeContext(Core::Constants::C_WELCOME_MODE);
-
-    const Id sessionBase = "Welcome.OpenSession";
-    for (int i = 1; i <= actionsCount; ++i) {
-        auto act = new QAction(tr("Open Session #%1").arg(i), this);
-        Command *cmd = ActionManager::registerAction(act, sessionBase.withSuffix(i), welcomeContext);
-        cmd->setDefaultKeySequence(QKeySequence((UseMacShortcuts ? tr("Ctrl+Meta+%1") : tr("Ctrl+Alt+%1")).arg(i)));
-        m_sessionsShortcuts.append(cmd->keySequence().toString(QKeySequence::NativeText));
-
-        connect(act, &QAction::triggered, this, [this, i] { openSessionTriggered(i-1); });
-        connect(cmd, &Command::keySequenceChanged, this, [this, i, cmd] {
-            m_sessionsShortcuts[i-1] = cmd->keySequence().toString(QKeySequence::NativeText);
-            emit sessionsShortcutsChanged(m_sessionsShortcuts);
-        });
-    }
-
-    const Id projectBase = "Welcome.OpenRecentProject";
-    for (int i = 1; i <= actionsCount; ++i) {
-        auto act = new QAction(tr("Open Recent Project #%1").arg(i), this);
-        Command *cmd = ActionManager::registerAction(act, projectBase.withSuffix(i), welcomeContext);
-        cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+%1").arg(i)));
-        m_recentProjectsShortcuts.append(cmd->keySequence().toString(QKeySequence::NativeText));
-
-        connect(act, &QAction::triggered, this, [this, i] { openRecentProjectTriggered(i-1); });
-        connect(cmd, &Command::keySequenceChanged, this, [this, i, cmd] {
-            m_recentProjectsShortcuts[i-1] = cmd->keySequence().toString(QKeySequence::NativeText);
-            emit recentProjectsShortcutsChanged(m_recentProjectsShortcuts);
-        });
-    }
 }
 
 WelcomeMode::~WelcomeMode()
 {
     QSettings *settings = ICore::settings();
-    settings->setValue(QLatin1String(currentPageSettingsKeyC), activePlugin());
+    settings->setValue(currentPageSettingsKeyC, m_activePage.toSetting());
     delete m_modeWidget;
-}
-
-void WelcomeMode::sceneGraphError(QQuickWindow::SceneGraphError, const QString &message)
-{
-    QMessageBox *messageBox =
-        new QMessageBox(QMessageBox::Warning,
-                        tr("Welcome Mode Load Error"), message,
-                        QMessageBox::Close, m_modeWidget);
-    messageBox->setModal(false);
-    messageBox->setAttribute(Qt::WA_DeleteOnClose);
-    messageBox->show();
-}
-
-void WelcomeMode::facilitateQml(QQmlEngine *engine)
-{
-    QStringList importPathList = engine->importPathList();
-    importPathList.append(resourcePath() + QLatin1String("/welcomescreen"));
-    engine->addImageProvider(QLatin1String("icons"), new WelcomeImageIconProvider);
-    if (!debug)
-        engine->setOutputWarningsToStandardError(false);
-
-    QString pluginPath = applicationDirPath();
-    if (HostOsInfo::isMacHost())
-        pluginPath += QLatin1String("/../PlugIns");
-    else
-        pluginPath += QLatin1String("/../" IDE_LIBRARY_BASENAME "/qtcreator");
-    importPathList.append(QDir::cleanPath(pluginPath));
-    engine->setImportPathList(importPathList);
-
-    QQmlContext *ctx = engine->rootContext();
-    ctx->setContextProperty(QLatin1String("welcomeMode"), this);
-    ctx->setContextProperty(QLatin1String("creatorTheme"), Utils::creatorTheme()->values());
-    ctx->setContextProperty(QLatin1String("useNativeText"), true);
 }
 
 void WelcomeMode::initPlugins()
 {
     QSettings *settings = ICore::settings();
-    setActivePlugin(settings->value(QLatin1String(currentPageSettingsKeyC)).toInt());
+    m_activePage = Id::fromSetting(settings->value(currentPageSettingsKeyC));
 
-    QQmlEngine *engine = m_welcomePage->engine();
-    facilitateQml(engine);
+    const QList<IWelcomePage *> availablePages = PluginManager::getObjects<IWelcomePage>();
+    for (IWelcomePage *page : availablePages)
+        addPage(page);
 
-    QList<IWelcomePage *> availablePages = PluginManager::getObjects<IWelcomePage>();
-    addPages(engine, availablePages);
     // make sure later added pages are made available too:
-    connect(PluginManager::instance(), &PluginManager::objectAdded, engine, [this, engine](QObject *obj) {
+    connect(PluginManager::instance(), &PluginManager::objectAdded, this, [this](QObject *obj) {
         if (IWelcomePage *page = qobject_cast<IWelcomePage*>(obj))
-            addPages(engine, QList<IWelcomePage *>() << page);
+            addPage(page);
     });
 
-    QString path = resourcePath() + QLatin1String("/welcomescreen/welcomescreen.qml");
-
-    // finally, load the root page
-    m_welcomePage->setSource(QUrl::fromLocalFile(path));
+    if (!m_activePage.isValid() && !m_pageButtons.isEmpty()) {
+        m_activePage = m_pluginList.at(0)->id();
+        m_pageButtons.at(0)->click();
+    }
 }
 
 bool WelcomeMode::openDroppedFiles(const QList<QUrl> &urls)
 {
+//    DropArea {
+//        anchors.fill: parent
+//        keys: ["text/uri-list"]
+//        onDropped: {
+//            if ((drop.supportedActions & Qt.CopyAction != 0)
+//                    && welcomeMode.openDroppedFiles(drop.urls))
+//                drop.accept(Qt.CopyAction);
+//        }
+//    }
     const QList<QUrl> localUrls = Utils::filtered(urls, &QUrl::isLocalFile);
     if (!localUrls.isEmpty()) {
         QTimer::singleShot(0, [localUrls]() {
@@ -325,54 +363,38 @@ bool WelcomeMode::openDroppedFiles(const QList<QUrl> &urls)
     return false;
 }
 
-void WelcomeMode::addPages(QQmlEngine *engine, const QList<IWelcomePage *> &pages)
+void WelcomeMode::addPage(IWelcomePage *page)
 {
-    QList<IWelcomePage *> addedPages = pages;
-    Utils::sort(addedPages, &IWelcomePage::priority);
-    // insert into m_pluginList, keeping m_pluginList sorted by priority
-    auto addIt = addedPages.cbegin();
-    auto currentIt = m_pluginList.begin();
-    while (addIt != addedPages.cend()) {
-        IWelcomePage *page = *addIt;
-        QTC_ASSERT(!m_idPageMap.contains(page->id()), ++addIt; continue);
-        while (currentIt != m_pluginList.end() && (*currentIt)->priority() <= page->priority())
-            ++currentIt;
-        // currentIt is now either end() or a page with higher value
-        currentIt = m_pluginList.insert(currentIt, page);
-        m_idPageMap.insert(page->id(), page);
-        page->facilitateQml(engine);
-        ++currentIt;
-        ++addIt;
+    int idx;
+    int pagePriority = page->priority();
+    for (idx = 0; idx != m_pluginList.size(); ++idx) {
+        if (m_pluginList.at(idx)->priority() >= pagePriority)
+            break;
     }
-    // update model through reset
-    QQmlContext *ctx = engine->rootContext();
-    ctx->setContextProperty(QLatin1String("pagesModel"), QVariant::fromValue(
-                                Utils::transform(m_pluginList, // transform into QList<QObject *>
-                                                 [](IWelcomePage *page) -> QObject * {
-                                    return page;
-                                })));
-}
+    auto pageButton = new WelcomePageButton(m_sideBar);
+    auto pageId = page->id();
+    pageButton->setText(page->title());
+    pageButton->setActiveChecker([this, pageId] { return m_activePage == pageId; });
 
-WelcomePlugin::WelcomePlugin()
-  : m_welcomeMode(0)
-{
-}
+    m_pluginList.append(page);
+    m_pageButtons.append(pageButton);
 
-bool WelcomePlugin::initialize(const QStringList & /* arguments */, QString *errorMessage)
-{
-    if (!Utils::HostOsInfo::canCreateOpenGLContext(errorMessage))
-        return false;
+    m_sideBar->m_pluginButtons->insertWidget(idx, pageButton);
 
-    m_welcomeMode = new WelcomeMode;
-    addAutoReleasedObject(m_welcomeMode);
+    QWidget *stackPage = page->createWidget();
+    stackPage->setAutoFillBackground(true);
+    m_pageStack->insertWidget(idx, stackPage);
 
-    return true;
-}
+    auto onClicked = [this, page, pageId, stackPage] {
+        m_activePage = pageId;
+        m_pageStack->setCurrentWidget(stackPage);
+        for (WelcomePageButton *pageButton : m_pageButtons)
+            pageButton->recheckActive();
+    };
 
-void WelcomePlugin::extensionsInitialized()
-{
-    m_welcomeMode->initPlugins();
-    ModeManager::activateMode(m_welcomeMode->id());
+    pageButton->setOnClicked(onClicked);
+    if (pageId == m_activePage)
+        onClicked();
 }
 
 } // namespace Internal

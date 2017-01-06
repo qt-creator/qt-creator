@@ -629,10 +629,8 @@ QString prefixForItem(const ExampleItem &item)
 
 QVariant ExamplesListModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || index.row()+1 > m_exampleItems.count()) {
-        qDebug() << Q_FUNC_INFO << "invalid index requested";
+    if (!index.isValid() || index.row()+1 > m_exampleItems.count())
         return QVariant();
-    }
 
     ExampleItem item = m_exampleItems.at(index.row());
     switch (role)
@@ -674,7 +672,6 @@ QVariant ExamplesListModel::data(const QModelIndex &index, int role) const
     case IsHighlighted:
         return item.isHighlighted;
     default:
-        qDebug() << Q_FUNC_INFO << "role type not supported";
         return QVariant();
     }
 }
