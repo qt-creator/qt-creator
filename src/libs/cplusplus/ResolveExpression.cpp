@@ -688,6 +688,31 @@ public:
     bool _block;
 };
 
+class ExpressionDocumentHelper
+{
+public:
+    // Set up an expression document with an external Control
+    ExpressionDocumentHelper(const QByteArray &utf8code, Control *control)
+        : document(Document::create(QLatin1String("<completion>")))
+    {
+        Control *oldControl = document->swapControl(control);
+        delete oldControl->diagnosticClient();
+        delete oldControl;
+        document->setUtf8Source(utf8code);
+        document->parse(Document::ParseExpression);
+        document->check();
+    }
+
+    // Ensure that the external Control is not deleted
+    ~ExpressionDocumentHelper()
+    {
+        document->swapControl(nullptr);
+    }
+
+public:
+    Document::Ptr document;
+};
+
 } // namespace anonymous
 
 bool ResolveExpression::visit(SimpleNameAST *ast)
@@ -730,9 +755,9 @@ bool ResolveExpression::visit(SimpleNameAST *ast)
             exprTyper.init(doc, _context.snapshot(), _context.bindings(),
                            QSet<const Declaration* >(_autoDeclarationsBeingResolved) << decl);
 
-            Document::Ptr exprDoc =
-                    documentForExpression(exprTyper.preprocessedExpression(initializer));
-            exprDoc->check();
+            const ExpressionDocumentHelper exprHelper(exprTyper.preprocessedExpression(initializer),
+                                                      _context.bindings()->control().data());
+            const Document::Ptr exprDoc = exprHelper.document;
 
             DeduceAutoCheck deduceAuto(ast->name->identifier(), exprDoc->translationUnit());
             if (deduceAuto._block)
