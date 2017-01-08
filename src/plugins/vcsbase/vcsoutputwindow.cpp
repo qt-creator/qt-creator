@@ -452,8 +452,8 @@ QString VcsOutputWindow::msgExecutionLogEntry(const QString &workingDir,
     const QString args = formatArguments(arguments);
     const QString nativeExecutable = executable.toUserOutput();
     if (workingDir.isEmpty())
-        return tr("Executing: %1 %2").arg(nativeExecutable, args) + QLatin1Char('\n');
-    return tr("Executing in %1: %2 %3").
+        return tr("Running: %1 %2").arg(nativeExecutable, args) + QLatin1Char('\n');
+    return tr("Running in %1: %2 %3").
             arg(QDir::toNativeSeparators(workingDir), nativeExecutable, args) + QLatin1Char('\n');
 }
 
