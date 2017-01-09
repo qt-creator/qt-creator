@@ -244,7 +244,7 @@ http://llvm.org/docs/GettingStarted.html#git-mirror:
 
       For Linux/macOS:
 
-          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=<installation location> -DLLVM_ENABLE_RTTI=ON ..\llvm
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=<installation location> -DLLVM_ENABLE_RTTI=ON ../llvm
           make install
 
       For Windows:
