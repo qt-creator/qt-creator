@@ -43,6 +43,22 @@
                         "items":
                         [
                             {
+                                "trKey": "Qt 5.8",
+                                "value":
+                                "{
+                                    'qtQuickVersion': '2.8',
+                                    'qtQuickWindowVersion': '2.2'
+                                }"
+                            },
+                            {
+                                "trKey": "Qt 5.7",
+                                "value":
+                                "{
+                                    'qtQuickVersion': '2.7',
+                                    'qtQuickWindowVersion': '2.2'
+                                }"
+                            },
+                            {
                                 "trKey": "Qt 5.6",
                                 "value":
                                 "{
