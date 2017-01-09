@@ -272,11 +272,11 @@ public:
     }
 };
 
-static char xProperty[] = "x";
-static char yProperty[] = "y";
-static char zProperty[] = "z";
-static char widthProperty[] = "width";
-static char heightProperty[] = "height";
+const char xProperty[] = "x";
+const char yProperty[] = "y";
+const char zProperty[] = "z";
+const char widthProperty[] = "width";
+const char heightProperty[] = "height";
 
 using namespace SelectionContextFunctors;
 

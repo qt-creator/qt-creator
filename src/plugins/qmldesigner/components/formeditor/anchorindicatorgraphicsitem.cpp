@@ -31,7 +31,7 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 
-static const int AngleDegree = 16;
+const int AngleDegree = 16;
 
 namespace QmlDesigner {
 

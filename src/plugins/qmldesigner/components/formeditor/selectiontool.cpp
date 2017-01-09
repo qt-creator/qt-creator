@@ -36,8 +36,8 @@
 
 namespace QmlDesigner {
 
-static const int s_startDragDistance = 20;
-static const int s_startDragTime = 50;
+const int s_startDragDistance = 20;
+const int s_startDragTime = 50;
 
 SelectionTool::SelectionTool(FormEditorView *editorView)
     : AbstractFormEditorTool(editorView),
