@@ -155,10 +155,6 @@ public:
             Memory::deallocate(m_data.allocated.data.pointer);
     }
 
-#if !defined(UNIT_TESTS) && !(defined(_MSC_VER) && _MSC_VER < 1900)
-    BasicSmallString(const BasicSmallString &other) = delete;
-    BasicSmallString &operator=(const BasicSmallString &other) = delete;
-#else
     BasicSmallString(const BasicSmallString &string)
     {
         if (string.isShortString() || string.isReadOnlyReference())
@@ -175,7 +171,6 @@ public:
 
         return *this;
     }
-#endif
 
     BasicSmallString(BasicSmallString &&other) noexcept
     {
