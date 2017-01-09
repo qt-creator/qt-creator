@@ -53,11 +53,10 @@ Q_LOGGING_CATEGORY(simulatorLog, "qtc.ios.simulator")
 namespace Ios {
 namespace Internal {
 
-static int COMMAND_TIMEOUT = 10000;
 static int SIMULATOR_START_TIMEOUT = 60000;
 static QString SIM_UDID_TAG = QStringLiteral("SimUdid");
 
-static bool checkForTimeout(const chrono::high_resolution_clock::time_point &start, int msecs = COMMAND_TIMEOUT)
+static bool checkForTimeout(const chrono::high_resolution_clock::time_point &start, int msecs = 10000)
 {
     bool timedOut = false;
     auto end = chrono::high_resolution_clock::now();
