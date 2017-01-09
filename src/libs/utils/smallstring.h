@@ -59,9 +59,9 @@
 #endif
 
 #ifdef UNIT_TESTS
-#define UNIT_TEST_PUBLIC public
+#define unitttest_public public
 #else
-#define UNIT_TEST_PUBLIC private
+#define unitttest_public private
 #endif
 
 namespace Utils {
@@ -519,7 +519,7 @@ public:
         return joinedString;
     }
 
-UNIT_TEST_PUBLIC:
+unitttest_public:
     bool isShortString() const noexcept
     {
         return !m_data.shortString.isReference;
