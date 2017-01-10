@@ -997,7 +997,23 @@
     Python function, which needs to be named \c{qdump__NS__Foo}, where
     \c{NS::Foo} is the class or class template to be examined. Note that the
     \c{::} scope resolution operator is replaced by double underscores: \c{__}.
-    Nested namespaces are possible.
+    Nested namespaces are possible. Template arguments are not used for
+    the construction of the function name.
+
+    Examples:
+
+    \list
+
+        \li The name for the function implementing a debugging helper for the type
+            \c{namespace Project { template<typename T> struct Foo {... } } } is
+            \c{qdump__Project_Foo}.
+
+        \li The name for the function implementing a debugging helper
+            for the type \c{std::__1::vector<T>::iterator} is
+            \c{qdump__std____1__vector__iterator}.
+
+    \endlist
+
 
     \QC's debugger plugin calls this function whenever you want to display an
     object of this type. The function is passed the following parameters:
