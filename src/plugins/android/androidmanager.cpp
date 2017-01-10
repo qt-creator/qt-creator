@@ -429,6 +429,26 @@ bool AndroidManager::checkCertificatePassword(const QString &keystorePath, const
     return response.result == Utils::SynchronousProcessResponse::Finished && response.exitCode == 0;
 }
 
+bool AndroidManager::checkCertificateExists(const QString &keystorePath,
+                                            const QString &keystorePasswd, const QString &alias)
+{
+    // assumes that the keystore password is correct
+    QStringList arguments;
+    arguments << QLatin1String("-list")
+              << QLatin1String("-keystore")
+              << keystorePath
+              << QLatin1String("--storepass")
+              << keystorePasswd
+              << QLatin1String("-alias")
+              << alias;
+
+    Utils::SynchronousProcess proc;
+    proc.setTimeoutS(10);
+    Utils::SynchronousProcessResponse response
+            = proc.run(AndroidConfigurations::currentConfig().keytoolPath().toString(), arguments);
+    return response.result == Utils::SynchronousProcessResponse::Finished && response.exitCode == 0;
+}
+
 bool AndroidManager::checkForQt51Files(Utils::FileName fileName)
 {
     fileName.appendPath(QLatin1String("android")).appendPath(QLatin1String("version.xml"));

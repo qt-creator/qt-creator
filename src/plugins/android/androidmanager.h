@@ -83,6 +83,8 @@ public:
 
     static bool checkKeystorePassword(const QString &keystorePath, const QString &keystorePasswd);
     static bool checkCertificatePassword(const QString &keystorePath, const QString &keystorePasswd, const QString &alias, const QString &certificatePasswd);
+    static bool checkCertificateExists(const QString &keystorePath, const QString &keystorePasswd,
+                                       const QString &alias);
     static bool checkForQt51Files(Utils::FileName fileName);
     static AndroidQtSupport *androidQtSupport(ProjectExplorer::Target *target);
     static bool useGradle(ProjectExplorer::Target *target);
