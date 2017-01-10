@@ -6,8 +6,7 @@ Project {
     QtcDevHeaders { }
 
     QtcPlugin {
-        Depends { name: "Qt"; submodules: ["quick", "widgets", "xml"]; }
-        Depends { name: "QmlJS" }
+        Depends { name: "Qt"; submodules: ["widgets", "xml"]; }
         Depends { name: "Utils" }
 
         Depends { name: "Core" }

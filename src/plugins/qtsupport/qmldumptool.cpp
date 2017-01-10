@@ -33,7 +33,6 @@
 
 #include <projectexplorer/project.h>
 #include <utils/runextensions.h>
-#include <qmljs/qmljsmodelmanagerinterface.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 

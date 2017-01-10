@@ -1,5 +1,5 @@
 DEFINES += QTSUPPORT_LIBRARY
-QT += network quick
+QT += network
 
 include(../../qtcreatorplugin.pri)
 
