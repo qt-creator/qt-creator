@@ -34,6 +34,8 @@
 #include <QTimer>
 #include <QUrl>
 
+#include <functional>
+
 namespace QmlJS {
 class Document;
 class ScopeChain;
@@ -154,8 +156,7 @@ public:
 
     QList<CppTypeData> getCppTypes();
 
-signals:
-    void errorsChanged(const QList<RewriterError> &errors);
+    void setWidgetStatusCallback(std::function<void(bool)> setWidgetStatusCallback);
 
 public slots:
     void qmlTextChanged();
@@ -172,6 +173,7 @@ protected: // functions
     void applyModificationGroupChanges();
     void applyChanges();
     void amendQmlText();
+    void notifyErrorsAndWarnings(const QList<RewriterError> &errors);
 
 private: //variables
     TextModifier *m_textModifier = nullptr;
@@ -190,6 +192,7 @@ private: //variables
     QString m_lastCorrectQmlSource;
     QTimer m_amendTimer;
     bool m_instantQmlTextUpdate = false;
+    std::function<void(bool)> m_setWidgetStatusCallback;
 };
 
 } //QmlDesigner

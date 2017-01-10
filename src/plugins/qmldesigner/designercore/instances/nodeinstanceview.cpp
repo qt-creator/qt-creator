@@ -191,12 +191,10 @@ void NodeInstanceView::handleCrash()
     if (elaspsedTimeSinceLastCrash > forceRestartTime)
         restartProcess();
     else
-        emit qmlPuppetCrashed();
+        emitDocumentMessage(tr("Qt Quick emulation layer crashed."));
 
     emitCustomNotification(QStringLiteral("puppet crashed"));
 }
-
-
 
 void NodeInstanceView::restartProcess()
 {
@@ -1266,14 +1264,14 @@ void NodeInstanceView::token(const TokenCommand &command)
             nodeVector.append(modelNodeForInternalId(instanceId));
     }
 
-
     emitInstanceToken(command.tokenName(), command.tokenNumber(), nodeVector);
 }
 
 void NodeInstanceView::debugOutput(const DebugOutputCommand & command)
 {
+    RewriterError error(tr("Qt Quick emulation layer crashed."));
     if (command.instanceIds().isEmpty()) {
-        qmlPuppetError(command.text()); // TODO: connect that somewhere to show that to the user
+        emitDocumentMessage(command.text());
     } else {
         QVector<qint32> instanceIdsWithChangedErrors;
         foreach (qint32 instanceId, command.instanceIds()) {
@@ -1282,7 +1280,7 @@ void NodeInstanceView::debugOutput(const DebugOutputCommand & command)
                 if (instance.setError(command.text()))
                     instanceIdsWithChangedErrors.append(instanceId);
             } else {
-                qmlPuppetError(command.text()); // TODO: connect that somewhere to show that to the user
+                emitDocumentMessage(command.text());
             }
         }
         emitInstanceErrorChange(instanceIdsWithChangedErrors);

@@ -24,6 +24,8 @@
 ****************************************************************************/
 #pragma once
 
+#include <documentwarningwidget.h>
+
 #include <QWidget>
 #include <QPointer>
 
@@ -72,9 +74,15 @@ public:
 
     void setFocus();
 
+    void showErrorMessageBox(const QList<RewriterError> &errors);
+    void hideErrorMessageBox();
+
+    void showWarningMessageBox(const QList<RewriterError> &warnings);
+
 protected:
     void wheelEvent(QWheelEvent *event);
     QActionGroup *toolActionGroup() const;
+    DocumentWarningWidget *errorWidget();
 
 private slots:
     void changeTransformTool(bool checked);
@@ -99,6 +107,7 @@ private:
     QPointer<LineEditAction> m_rootHeightAction;
     QPointer<BackgroundAction> m_backgroundAction;
     QPointer<QAction> m_resetAction;
+    QPointer<DocumentWarningWidget> m_documentErrorWidget;
 };
 
 } // namespace QmlDesigner

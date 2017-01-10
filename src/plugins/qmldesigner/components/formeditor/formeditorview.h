@@ -26,6 +26,7 @@
 
 #include <abstractview.h>
 
+#include <functional>
 #include <memory>
 
 QT_BEGIN_NAMESPACE
@@ -74,6 +75,9 @@ public:
 
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                               const QList<ModelNode> &lastSelectedNodeList) override;
+
+    virtual void documentMessagesChanged(const QList<RewriterError> &errors, const QList<RewriterError> &warnings) override;
+
     void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
 
     // FormEditorView
@@ -109,6 +113,8 @@ public:
     double containerPadding() const;
     double spacing() const;
     void deActivateItemCreator();
+    void gotoError(int, int);
+    void setGotoErrorCallback(std::function<void(int, int)> gotoErrorCallback);
 
 protected:
     void reset();
@@ -135,6 +141,7 @@ private: //variables
     std::unique_ptr<DragTool> m_dragTool;
     AbstractFormEditorTool *m_currentTool;
     int m_transactionCounter;
+    std::function<void(int, int)> m_gotoErrorCallback;
 };
 
 } // namespace QmlDesigner

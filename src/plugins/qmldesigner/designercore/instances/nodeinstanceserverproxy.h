@@ -102,6 +102,7 @@ private slots:
     void printEditorProcessOutput();
     void printPreviewProcessOutput();
     void printRenderProcessOutput();
+    void showCannotConnectToPuppetWarningAndSwitchToEditMode();
 private:
     QFile m_captureFileForTest;
     QTimer m_firstTimer;

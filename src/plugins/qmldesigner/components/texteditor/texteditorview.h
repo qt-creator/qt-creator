@@ -59,6 +59,7 @@ public:
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                               const QList<ModelNode> &lastSelectedNodeList) override;
     void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
+    void documentMessagesChanged(const QList<RewriterError> &errors, const QList<RewriterError> &warnings) override;
 
     // TextEditorView
     WidgetInfo widgetInfo() override;
@@ -86,6 +87,8 @@ public:
     void rewriterEndTransaction() override;
 
     void deActivateItemCreator();
+
+    void gotoCursorPosition(int line, int column);
 
 private:
     std::unique_ptr<TextEditorWidget> m_widget;

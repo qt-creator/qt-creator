@@ -122,7 +122,8 @@ WidgetInfo AbstractView::createWidgetInfo(QWidget *widget,
                                           const QString &uniqueId,
                                           WidgetInfo::PlacementHint placementHint,
                                           int placementPriority,
-                                          const QString &tabName)
+                                          const QString &tabName,
+                                          DesignerWidgetFlags widgetFlags)
 {
     WidgetInfo widgetInfo;
 
@@ -132,6 +133,7 @@ WidgetInfo AbstractView::createWidgetInfo(QWidget *widget,
     widgetInfo.placementHint = placementHint;
     widgetInfo.placementPriority = placementPriority;
     widgetInfo.tabName = tabName;
+    widgetInfo.widgetFlags = widgetFlags;
 
     return widgetInfo;
 }
@@ -343,6 +345,10 @@ void AbstractView::customNotification(const AbstractView * /*view*/, const QStri
 }
 
 void AbstractView::scriptFunctionsChanged(const ModelNode &/*node*/, const QStringList &/*scriptFunctionList*/)
+{
+}
+
+void AbstractView::documentMessagesChanged(const QList<RewriterError> &/*errors*/, const QList<RewriterError> &/*warnings*/)
 {
 }
 
@@ -566,7 +572,17 @@ QString AbstractView::contextHelpId() const
 
 QList<ModelNode> AbstractView::allModelNodes() const
 {
-   return toModelNodeList(model()->d->allNodes());
+    return toModelNodeList(model()->d->allNodes());
+}
+
+void AbstractView::emitDocumentMessage(const QString &error)
+{
+    emitDocumentMessage( { RewriterError(error) } );
+}
+
+void AbstractView::emitDocumentMessage(const QList<RewriterError> &errors, const QList<RewriterError> &warnings)
+{
+    model()->d->setDocumentMessages(errors, warnings);
 }
 
 void AbstractView::emitCustomNotification(const QString &identifier)

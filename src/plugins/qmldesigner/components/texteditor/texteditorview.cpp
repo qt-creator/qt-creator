@@ -51,7 +51,6 @@ TextEditorView::TextEditorView(QObject *parent)
     : AbstractView(parent)
     , m_widget(new TextEditorWidget(this))
 {
-    // not completely sure that we need this to just call the right help method ->
     Internal::TextEditorContext *textEditorContext = new Internal::TextEditorContext(m_widget.get());
     Core::ICore::addContextObject(textEditorContext);
 }
@@ -96,7 +95,7 @@ void TextEditorView::nodeReparented(const ModelNode &/*node*/, const NodeAbstrac
 
 WidgetInfo TextEditorView::widgetInfo()
 {
-    return createWidgetInfo(m_widget.get(), 0, "TextEditor", WidgetInfo::CentralPane, 0, tr("Text Editor"));
+    return createWidgetInfo(m_widget.get(), 0, "TextEditor", WidgetInfo::CentralPane, 0, tr("Text Editor"), DesignerWidgetFlags::IgnoreErrors);
 }
 
 QString TextEditorView::contextHelpId() const
@@ -121,6 +120,16 @@ void TextEditorView::selectedNodesChanged(const QList<ModelNode> &/*selectedNode
 
 void TextEditorView::customNotification(const AbstractView * /*view*/, const QString &/*identifier*/, const QList<ModelNode> &/*nodeList*/, const QList<QVariant> &/*data*/)
 {
+}
+
+void TextEditorView::documentMessagesChanged(const QList<RewriterError> &errors, const QList<RewriterError> &)
+{
+    if (errors.isEmpty()) {
+        m_widget->clearStatusBar();
+    } else {
+        const RewriterError error = errors.first();
+        m_widget->setStatusText(QString("%1 (Line: %2)").arg(error.description()).arg(error.line()));
+    }
 }
 
 bool TextEditorView::changeToMoveTool()
@@ -179,6 +188,12 @@ void TextEditorView::rewriterBeginTransaction()
 
 void TextEditorView::rewriterEndTransaction()
 {
+}
+
+void TextEditorView::gotoCursorPosition(int line, int column)
+{
+    if (m_widget)
+        m_widget->gotoCursorPosition(line, column);
 }
 
 void TextEditorView::instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &/*propertyList*/)

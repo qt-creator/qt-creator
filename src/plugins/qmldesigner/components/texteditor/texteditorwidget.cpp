@@ -25,7 +25,9 @@
 
 #include "texteditorwidget.h"
 
+#include <texteditorstatusbar.h>
 #include <texteditorview.h>
+
 #include <rewriterview.h>
 
 #include <theming.h>
@@ -38,10 +40,13 @@ namespace QmlDesigner {
 
 TextEditorWidget::TextEditorWidget(TextEditorView *textEditorView) : QWidget()
   , m_textEditorView(textEditorView)
+  , m_statusBar(new TextEditorStatusBar(this))
 
 {
     QBoxLayout *layout = new QVBoxLayout(this);
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(0);
+    layout->addWidget(m_statusBar);
 
     m_updateSelectionTimer.setSingleShot(true);
     m_updateSelectionTimer.setInterval(200);
@@ -52,7 +57,9 @@ TextEditorWidget::TextEditorWidget(TextEditorView *textEditorView) : QWidget()
 
 void TextEditorWidget::setTextEditor(TextEditor::BaseTextEditor *textEditor) {
     m_textEditor.reset(textEditor);
+    layout()->removeWidget(m_statusBar);
     layout()->addWidget(textEditor->editorWidget());
+    layout()->addWidget(m_statusBar);
 
 
     connect(textEditor->editorWidget(), &QPlainTextEdit::cursorPositionChanged,
@@ -102,6 +109,24 @@ void TextEditorWidget::jumpTextCursorToSelectedModelNode()
             }
         }
     }
+}
+
+void TextEditorWidget::gotoCursorPosition(int line, int column)
+{
+    if (m_textEditor) {
+        m_textEditor->editorWidget()->gotoLine(line, column);
+        m_textEditor->editorWidget()->setFocus();
+    }
+}
+
+void TextEditorWidget::setStatusText(const QString &text)
+{
+    m_statusBar->setText(text);
+}
+
+void TextEditorWidget::clearStatusBar()
+{
+    m_statusBar->clearText();
 }
 
 } // namespace QmlDesigner

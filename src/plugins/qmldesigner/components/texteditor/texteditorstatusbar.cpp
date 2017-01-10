@@ -22,48 +22,35 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-#pragma once
 
-#include <texteditor/texteditor.h>
+#include "texteditorstatusbar.h"
 
-#include <QWidget>
-#include <QTimer>
+#include <utils/theme/theme.h>
 
-#include <memory>
+#include <QVBoxLayout>
 
 namespace QmlDesigner {
 
-class TextEditorView;
-class TextEditorStatusBar;
+TextEditorStatusBar::TextEditorStatusBar(QWidget *parent) : QToolBar(parent), m_label(new QLabel(this))
+{
+    QWidget *spacer = new QWidget(this);
+    spacer->setMinimumWidth(50);
+    addWidget(spacer);
+    addWidget(m_label);
 
-class TextEditorWidget : public QWidget {
+    /* We have to set another .css, since the central widget has already a style sheet */
+    m_label->setStyleSheet(QString("QLabel { color :%1 }").arg(Utils::creatorTheme()->color(Utils::Theme::TextColorError).name()));
+}
 
-    Q_OBJECT
+void TextEditorStatusBar::clearText()
+{
+    m_label->clear();
+}
 
-public:
-    TextEditorWidget(TextEditorView *textEditorView);
-
-    void setTextEditor(TextEditor::BaseTextEditor *textEditor);
-
-    TextEditor::BaseTextEditor *textEditor() const
-    {
-        return m_textEditor.get();
-    }
-
-    QString contextHelpId() const;
-    void jumpTextCursorToSelectedModelNode();
-    void gotoCursorPosition(int line, int column);
-
-    void setStatusText(const QString &text);
-    void clearStatusBar();
-
-private:
-    void updateSelectionByCursorPosition();
-
-    std::unique_ptr<TextEditor::BaseTextEditor> m_textEditor;
-    QPointer<TextEditorView> m_textEditorView;
-    QTimer m_updateSelectionTimer;
-    TextEditorStatusBar *m_statusBar;
-};
+void TextEditorStatusBar::setText(const QString &text)
+{
+    m_label->setText(text);
+}
 
 } // namespace QmlDesigner
+

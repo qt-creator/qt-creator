@@ -133,10 +133,6 @@ public:
 
     void sendToken(const QString &token, int number, const QVector<ModelNode> &nodeVector);
 
-signals:
-    void qmlPuppetCrashed();
-    void qmlPuppetError(const QString &errorMessage);
-
 protected:
     void timerEvent(QTimerEvent *event) override;
 

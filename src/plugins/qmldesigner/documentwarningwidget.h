@@ -36,7 +36,6 @@ QT_END_NAMESPACE
 
 
 namespace QmlDesigner {
-namespace Internal {
 
 class DocumentWarningWidget : public Utils::FakeToolTip
 {
@@ -79,5 +78,4 @@ private:
     bool m_gotoCodeWasClicked = false;
 };
 
-} // namespace Internal
 } // namespace Designer

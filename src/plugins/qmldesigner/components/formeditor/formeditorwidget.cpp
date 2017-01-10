@@ -252,6 +252,34 @@ void FormEditorWidget::setFocus()
     m_graphicsView->setFocus(Qt::OtherFocusReason);
 }
 
+void FormEditorWidget::showErrorMessageBox(const QList<RewriterError> &errors)
+{
+    errorWidget()->setErrors(errors);
+    errorWidget()->setVisible(true);
+    m_graphicsView->setDisabled(true);
+    m_toolBox->setDisabled(true);
+}
+
+void FormEditorWidget::hideErrorMessageBox()
+{
+    if (!m_documentErrorWidget.isNull())
+        errorWidget()->setVisible(false);
+
+    m_graphicsView->setDisabled(false);
+    m_toolBox->setDisabled(false);
+}
+
+void FormEditorWidget::showWarningMessageBox(const QList<RewriterError> &warnings)
+{
+      if (!errorWidget()->warningsEnabled())
+          return;
+
+    errorWidget()->setWarnings(warnings);
+    errorWidget()->setVisible(true);
+    m_graphicsView->setDisabled(true);
+    m_toolBox->setDisabled(true);
+}
+
 ZoomAction *FormEditorWidget::zoomAction() const
 {
     return m_zoomAction.data();
@@ -324,6 +352,19 @@ QRectF FormEditorWidget::rootItemRect() const
 {
     return m_graphicsView->rootItemRect();
 }
+
+DocumentWarningWidget *FormEditorWidget::errorWidget()
+{
+    if (m_documentErrorWidget.isNull()) {
+        m_documentErrorWidget = new DocumentWarningWidget(this);
+        connect(m_documentErrorWidget.data(), &DocumentWarningWidget::gotoCodeClicked, [=]
+            (const QString &, int codeLine, int codeColumn) {
+            m_formEditorView->gotoError(codeLine, codeColumn);
+        });
+    }
+    return m_documentErrorWidget;
+}
+
 
 }
 

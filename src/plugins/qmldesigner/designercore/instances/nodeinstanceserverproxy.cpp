@@ -84,14 +84,15 @@
 
 namespace QmlDesigner {
 
-static void showCannotConnectToPuppetWarningAndSwitchToEditMode()
+void NodeInstanceServerProxy::showCannotConnectToPuppetWarningAndSwitchToEditMode()
 {
 #ifndef QMLDESIGNER_TEST
-    Core::AsynchronousMessageBox::warning(QCoreApplication::translate("NodeInstanceServerProxy", "Cannot Connect to QML Emulation Layer (QML Puppet)"),
-                                          QCoreApplication::translate("NodeInstanceServerProxy", "The executable of the QML emulation layer (QML Puppet) may not be responding. "
-                                                                                                 "Switching to another kit might help."));
+    Core::AsynchronousMessageBox::warning(tr("Cannot Connect to QML Emulation Layer (QML Puppet)"),
+                                          tr("The executable of the QML emulation layer (QML Puppet) may not be responding. "
+                                             "Switching to another kit might help."));
 
     QmlDesignerPlugin::instance()->switchToTextModeDeferred();
+    m_nodeInstanceView->emitDocumentMessage(tr("Cannot Connect to QML Emulation Layer (QML Puppet)"));
 #endif
 
 }
@@ -192,12 +193,7 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
        }
 
    } else {
-       Core::AsynchronousMessageBox::warning(tr("Cannot Start QML Emulation Layer (QML Puppet)"),
-                                              tr("The executable of the QML emulation layer (QML Puppet) process cannot be started or does not respond."));
-
-#ifndef QMLDESIGNER_TEST
-       QmlDesignerPlugin::instance()->switchToTextModeDeferred();
-#endif
+       showCannotConnectToPuppetWarningAndSwitchToEditMode();
    }
 
    m_localServer->close();

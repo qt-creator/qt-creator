@@ -49,13 +49,13 @@ namespace QmlDesigner {
 
 class ItemLibraryWidget;
 class CrumbleBar;
+class DocumentWarningWidget;
 
 namespace Internal {
 
 class DesignMode;
 class DocumentWidget;
 class DesignModeWidget;
-class DocumentWarningWidget;
 
 class DesignModeWidget : public QWidget
 {
@@ -80,7 +80,7 @@ public:
     void enableWidgets();
     void disableWidgets();
     void showTextEdit();
-    void showErrorMessageBox(const QList<RewriterError> &errors);
+
     void showWarningMessageBox(const QList<RewriterError> &warnings);
     bool gotoCodeWasClicked();
 
@@ -88,7 +88,6 @@ public:
     QTabWidget* centralTabWidget() const;
 
 public slots:
-    void updateErrorStatus(const QList<RewriterError> &errors);
     void restoreDefaultView();
     void toggleSidebars();
     void toggleLeftSidebar();

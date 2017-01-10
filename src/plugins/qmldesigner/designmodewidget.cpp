@@ -132,12 +132,6 @@ DesignModeWidget::DesignModeWidget(QWidget *parent)
     , m_toolBar(new Core::EditorToolBar(this))
     , m_crumbleBar(new CrumbleBar(this))
 {
-    connect(viewManager().nodeInstanceView(), &NodeInstanceView::qmlPuppetCrashed,
-        [=]() {
-            RewriterError error(tr("Qt Quick emulation layer crashed"));
-            updateErrorStatus(QList<RewriterError>() << error);
-        }
-    );
 }
 
 DesignModeWidget::~DesignModeWidget()
@@ -221,8 +215,6 @@ void DesignModeWidget::enableWidgets()
         qDebug() << Q_FUNC_INFO;
     hideWarningWidget();
     viewManager().enableWidgets();
-    m_leftSideBar->setEnabled(true);
-    m_rightSideBar->setEnabled(true);
     m_isDisabled = false;
 }
 
@@ -232,8 +224,6 @@ void DesignModeWidget::disableWidgets()
         qDebug() << Q_FUNC_INFO;
 
     viewManager().disableWidgets();
-    m_leftSideBar->setEnabled(false);
-    m_rightSideBar->setEnabled(false);
     m_isDisabled = true;
 }
 
@@ -242,17 +232,18 @@ void DesignModeWidget::showTextEdit()
     m_centralTabWidget->setCurrentIndex(m_centralTabWidget->currentIndex() == 0 ? 1 : 0);
 }
 
-void DesignModeWidget::updateErrorStatus(const QList<RewriterError> &errors)
+void DesignModeWidget::showWarningMessageBox(const QList<RewriterError> &warnings)
 {
-    if (debug)
-        qDebug() << Q_FUNC_INFO << errors.count();
+    Q_ASSERT(!warnings.isEmpty());
+    warningWidget()->setWarnings(warnings);
+    warningWidget()->setVisible(true);
+}
 
-    if (m_isDisabled && errors.isEmpty()) {
-        enableWidgets();
-     } else if (!errors.isEmpty()) {
-        disableWidgets();
-        showErrorMessageBox(errors);
-    }
+bool DesignModeWidget::gotoCodeWasClicked()
+{
+    if (m_warningWidget)
+        return warningWidget()->gotoCodeWasClicked();
+    return false;
 }
 
 static void hideToolButtons(QList<QToolButton*> &buttons)
@@ -574,27 +565,6 @@ void DesignModeWidget::hideWarningWidget()
 {
     if (m_warningWidget)
         m_warningWidget->setVisible(false);
-}
-
-void DesignModeWidget::showErrorMessageBox(const QList<RewriterError> &errors)
-{
-    Q_ASSERT(!errors.isEmpty());
-    warningWidget()->setErrors(errors);
-    warningWidget()->setVisible(true);
-}
-
-void DesignModeWidget::showWarningMessageBox(const QList<RewriterError> &warnings)
-{
-    Q_ASSERT(!warnings.isEmpty());
-    warningWidget()->setWarnings(warnings);
-    warningWidget()->setVisible(true);
-}
-
-bool DesignModeWidget::gotoCodeWasClicked()
-{
-    if (m_warningWidget)
-        return warningWidget()->gotoCodeWasClicked();
-    return false;
 }
 
 CrumbleBar *DesignModeWidget::crumbleBar() const

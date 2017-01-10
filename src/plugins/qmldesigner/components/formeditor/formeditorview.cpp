@@ -258,7 +258,7 @@ WidgetInfo FormEditorView::widgetInfo()
     if (!m_formEditorWidget)
         createFormEditorWidget();
 
-    return createWidgetInfo(m_formEditorWidget.data(), 0, "FormEditor", WidgetInfo::CentralPane, 0, tr("Form Editor"));
+    return createWidgetInfo(m_formEditorWidget.data(), 0, "FormEditor", WidgetInfo::CentralPane, 0, tr("Form Editor"), DesignerWidgetFlags::IgnoreErrors);
 }
 
 FormEditorWidget *FormEditorView::formEditorWidget()
@@ -282,6 +282,17 @@ void FormEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNodeLi
     m_currentTool->setItems(scene()->itemsForQmlItemNodes(toQmlItemNodeList(selectedNodeList)));
 
     m_scene->update();
+}
+
+void FormEditorView::documentMessagesChanged(const QList<RewriterError> &errors, const QList<RewriterError> &warnings)
+{
+    if (!errors.isEmpty())
+        formEditorWidget()->showErrorMessageBox(errors);
+    else
+        formEditorWidget()->hideErrorMessageBox();
+
+    if (!warnings.isEmpty())
+        formEditorWidget()->showWarningMessageBox(warnings);
 }
 
 void FormEditorView::customNotification(const AbstractView * /*view*/, const QString &identifier, const QList<ModelNode> &/*nodeList*/, const QList<QVariant> &/*data*/)
@@ -509,6 +520,17 @@ double FormEditorView::containerPadding() const
 double FormEditorView::spacing() const
 {
     return m_formEditorWidget->spacing();
+}
+
+void FormEditorView::gotoError(int line, int column)
+{
+    if (m_gotoErrorCallback)
+        m_gotoErrorCallback(line, column);
+}
+
+void FormEditorView::setGotoErrorCallback(std::function<void (int, int)> gotoErrorCallback)
+{
+    m_gotoErrorCallback = gotoErrorCallback;
 }
 
 QList<ModelNode> FormEditorView::adjustStatesForModelNodes(const QList<ModelNode> &nodeList) const

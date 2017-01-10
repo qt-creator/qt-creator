@@ -47,6 +47,8 @@
 
 #include <utils/algorithm.h>
 
+#include <QTabWidget>
+
 namespace QmlDesigner {
 
 class ViewManagerData
@@ -75,6 +77,12 @@ static CrumbleBar *crumbleBar() {
 ViewManager::ViewManager()
     : d(new ViewManagerData)
 {
+    d->formEditorView.setGotoErrorCallback([this](int line, int column) {
+        d->textEditorView.gotoCursorPosition(line, column);
+        Internal::DesignModeWidget *designModeWidget = QmlDesignerPlugin::instance()->mainWidget();
+        if (designModeWidget && designModeWidget->centralTabWidget())
+            designModeWidget->centralTabWidget()->setCurrentIndex(1);
+    });
 }
 
 ViewManager::~ViewManager()
@@ -99,6 +107,13 @@ void ViewManager::attachNodeInstanceView()
 void ViewManager::attachRewriterView()
 {
     if (currentDesignDocument()->rewriterView()) {
+        currentDesignDocument()->rewriterView()->setWidgetStatusCallback([this](bool enable) {
+            if (enable)
+                enableWidgets();
+            else
+                disableWidgets();
+        });
+
         currentModel()->setRewriterView(currentDesignDocument()->rewriterView());
         currentDesignDocument()->rewriterView()->reactivateTextMofifierChangeSignals();
     }
@@ -263,13 +278,15 @@ QList<WidgetInfo> ViewManager::widgetInfos()
 void ViewManager::disableWidgets()
 {
     foreach (const WidgetInfo &widgetInfo, widgetInfos())
-        widgetInfo.widget->setEnabled(false);
+        if (widgetInfo.widgetFlags == DesignerWidgetFlags::DisableOnError)
+            widgetInfo.widget->setEnabled(false);
 }
 
 void ViewManager::enableWidgets()
 {
     foreach (const WidgetInfo &widgetInfo, widgetInfos())
-        widgetInfo.widget->setEnabled(true);
+        if (widgetInfo.widgetFlags == DesignerWidgetFlags::DisableOnError)
+            widgetInfo.widget->setEnabled(true);
 }
 
 void ViewManager::pushFileOnCrumbleBar(const Utils::FileName &fileName)

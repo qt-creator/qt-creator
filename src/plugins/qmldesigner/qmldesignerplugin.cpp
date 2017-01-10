@@ -78,8 +78,6 @@ public:
     DocumentManager documentManager;
     ShortCutManager shortCutManager;
 
-    QMetaObject::Connection rewriterErrorConnection;
-
     Internal::DesignModeWidget *mainWidget;
 
     DesignerSettings settings;
@@ -354,11 +352,11 @@ void QmlDesignerPlugin::hideDesigner()
 {
     if (currentDesignDocument() && currentModel()) {
         // the message box handle the cursor jump itself
-        if (mainWidget()->gotoCodeWasClicked() == false)
-            jumpTextCursorToSelectedModelNode();
     }
 
     if (d->documentManager.hasCurrentDesignDocument()) {
+        if (currentModel() && !mainWidget()->gotoCodeWasClicked())
+            jumpTextCursorToSelectedModelNode();
         deactivateAutoSynchronization();
         d->mainWidget->saveSettings();
     }
@@ -426,6 +424,7 @@ void QmlDesignerPlugin::activateAutoSynchronization()
 
     currentDesignDocument()->updateActiveQtVersion();
     currentDesignDocument()->updateCurrentProject();
+    d->mainWidget->enableWidgets();
     currentDesignDocument()->attachRewriterToModel();
 
     resetModelSelection();
@@ -433,22 +432,13 @@ void QmlDesignerPlugin::activateAutoSynchronization()
     viewManager().attachComponentView();
     viewManager().attachViewsExceptRewriterAndComponetView();
 
-    QList<RewriterError> errors = currentDesignDocument()->qmlParseErrors();
-    if (errors.isEmpty()) {
-        selectModelNodeUnderTextCursor();
-        d->mainWidget->enableWidgets();
-        d->mainWidget->setupNavigatorHistory(currentDesignDocument()->textEditor());
-        if (showWarningsForFeaturesInDesigner() && currentDesignDocument()->hasQmlParseWarnings())
-            d->mainWidget->showWarningMessageBox(currentDesignDocument()->qmlParseWarnings());
-    } else {
-        d->mainWidget->disableWidgets();
-        d->mainWidget->showErrorMessageBox(errors);
-    }
+    selectModelNodeUnderTextCursor();
+
+    d->mainWidget->setupNavigatorHistory(currentDesignDocument()->textEditor());
+    if (showWarningsForFeaturesInDesigner() && currentDesignDocument()->hasQmlParseWarnings())
+        d->mainWidget->showWarningMessageBox(currentDesignDocument()->qmlParseWarnings());
 
     currentDesignDocument()->updateSubcomponentManager();
-
-    d->rewriterErrorConnection = connect(rewriterView(), &RewriterView::errorsChanged,
-        d->mainWidget, &Internal::DesignModeWidget::updateErrorStatus);
 }
 
 void QmlDesignerPlugin::deactivateAutoSynchronization()
@@ -457,8 +447,6 @@ void QmlDesignerPlugin::deactivateAutoSynchronization()
     viewManager().detachComponentView();
     viewManager().detachRewriterView();
     documentManager().currentDesignDocument()->resetToDocumentModel();
-
-    disconnect(d->rewriterErrorConnection);
 }
 
 void QmlDesignerPlugin::resetModelSelection()

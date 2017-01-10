@@ -46,8 +46,6 @@ static QString errorToString(const RewriterError &error)
     return QString("Line: %1: %2").arg(error.line()).arg(error.description());
 }
 
-namespace Internal {
-
 DocumentWarningWidget::DocumentWarningWidget(QWidget *parent)
     : Utils::FakeToolTip(parent)
     , m_headerLabel(new QLabel(this))
@@ -69,7 +67,6 @@ DocumentWarningWidget::DocumentWarningWidget(QWidget *parent)
 
     connect(m_navigateLabel, &QLabel::linkActivated, this, [=](const QString &link) {
         if (link == QLatin1String("goToCode")) {
-            hide();
             emitGotoCodeClicked(m_messages.at(m_currentMessage));
         } else if (link == QLatin1String("previous")) {
             --m_currentMessage;
@@ -81,9 +78,10 @@ DocumentWarningWidget::DocumentWarningWidget(QWidget *parent)
     });
 
     connect(m_continueButton, &QPushButton::clicked, this, [=]() {
-        hide();
         if (m_mode == ErrorMode)
             emitGotoCodeClicked(m_messages.at(m_currentMessage));
+        else
+            hide();
     });
 
     connect(m_ignoreWarningsCheckBox, &QCheckBox::toggled, this, &DocumentWarningWidget::ignoreCheckBoxToggled);
@@ -233,5 +231,4 @@ void DocumentWarningWidget::setMessages(const QList<RewriterError> &messages)
     refreshContent();
 }
 
-} // namespace Internal
 } // namespace Designer

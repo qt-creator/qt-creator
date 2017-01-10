@@ -24,46 +24,22 @@
 ****************************************************************************/
 #pragma once
 
-#include <texteditor/texteditor.h>
-
-#include <QWidget>
-#include <QTimer>
-
-#include <memory>
+#include <QToolBar>
+#include <QLabel>
 
 namespace QmlDesigner {
 
-class TextEditorView;
-class TextEditorStatusBar;
-
-class TextEditorWidget : public QWidget {
-
+class TextEditorStatusBar : public QToolBar
+{
     Q_OBJECT
-
 public:
-    TextEditorWidget(TextEditorView *textEditorView);
-
-    void setTextEditor(TextEditor::BaseTextEditor *textEditor);
-
-    TextEditor::BaseTextEditor *textEditor() const
-    {
-        return m_textEditor.get();
-    }
-
-    QString contextHelpId() const;
-    void jumpTextCursorToSelectedModelNode();
-    void gotoCursorPosition(int line, int column);
-
-    void setStatusText(const QString &text);
-    void clearStatusBar();
-
+    explicit TextEditorStatusBar(QWidget *parent = 0);
+    void clearText();
+    void setText(const QString &text);
 private:
-    void updateSelectionByCursorPosition();
-
-    std::unique_ptr<TextEditor::BaseTextEditor> m_textEditor;
-    QPointer<TextEditorView> m_textEditorView;
-    QTimer m_updateSelectionTimer;
-    TextEditorStatusBar *m_statusBar;
+    QLabel *m_label;
 };
 
 } // namespace QmlDesigner
+
+
