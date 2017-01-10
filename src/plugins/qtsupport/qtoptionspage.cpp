@@ -132,16 +132,6 @@ public:
         m_buildLog = buildLog;
     }
 
-    QByteArray toolChainId() const
-    {
-        return m_toolChainId;
-    }
-
-    void setToolChainId(const QByteArray &id)
-    {
-        m_toolChainId = id;
-    }
-
     void setChanged(bool changed)
     {
         if (changed == m_changed)
@@ -154,7 +144,6 @@ private:
     BaseQtVersion *m_version = 0;
     QIcon m_icon;
     QString m_buildLog;
-    QByteArray m_toolChainId;
     bool m_changed = false;
 };
 
@@ -547,8 +536,6 @@ void QtOptionsPageWidget::updateQtVersions(const QList<int> &additions, const QL
         BaseQtVersion *version = QtVersionManager::version(a)->clone();
         auto *item = new QtVersionItem(version);
 
-        item->setToolChainId(defaultToolChainId(version));
-
         // Insert in the right place:
         Utils::TreeItem *parent = version->isAutodetected()? m_autoItem : m_manualItem;
         parent->appendChild(item);
@@ -611,8 +598,6 @@ void QtOptionsPageWidget::addQtDir()
         auto item = new QtVersionItem(version);
         item->setIcon(version->isValid()? m_validVersionIcon : m_invalidVersionIcon);
         m_manualItem->appendChild(item);
-        item->setToolChainId(defaultToolChainId(version));
-
         QModelIndex source = m_model->indexForItem(item);
         m_ui->qtdirList->setCurrentIndex(m_filterModel->mapFromSource(source)); // should update the rest of the ui
         m_versionUi->nameEdit->setFocus();
@@ -669,7 +654,6 @@ void QtOptionsPageWidget::editPath()
     // Update ui
     if (QtVersionItem *item = currentItem()) {
         item->setVersion(version);
-        item->setToolChainId(defaultToolChainId(version));
         item->setIcon(version->isValid()? m_validVersionIcon : m_invalidVersionIcon);
     }
     userChangedCurrentVersion();
