@@ -264,18 +264,18 @@ void DebugView::auxiliaryDataChanged(const ModelNode &node, const PropertyName &
     }
 }
 
-void DebugView::documentMessagesChanged(const QList<RewriterError> &errors, const QList<RewriterError> &warnings)
+void DebugView::documentMessagesChanged(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &warnings)
 {
      if (isDebugViewEnabled()) {
          QTextStream message;
          QString string;
          message.setString(&string);
 
-         foreach (const RewriterError &error, errors) {
+         foreach (const DocumentMessage &error, errors) {
              message << error.toString();
          }
 
-         foreach (const RewriterError &warning, warnings) {
+         foreach (const DocumentMessage &warning, warnings) {
              message << warning.toString();
          }
 

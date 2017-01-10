@@ -252,7 +252,7 @@ void FormEditorWidget::setFocus()
     m_graphicsView->setFocus(Qt::OtherFocusReason);
 }
 
-void FormEditorWidget::showErrorMessageBox(const QList<RewriterError> &errors)
+void FormEditorWidget::showErrorMessageBox(const QList<DocumentMessage> &errors)
 {
     errorWidget()->setErrors(errors);
     errorWidget()->setVisible(true);
@@ -269,7 +269,7 @@ void FormEditorWidget::hideErrorMessageBox()
     m_toolBox->setDisabled(false);
 }
 
-void FormEditorWidget::showWarningMessageBox(const QList<RewriterError> &warnings)
+void FormEditorWidget::showWarningMessageBox(const QList<DocumentMessage> &warnings)
 {
       if (!errorWidget()->warningsEnabled())
           return;

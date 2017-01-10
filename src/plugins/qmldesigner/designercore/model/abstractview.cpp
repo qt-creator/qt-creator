@@ -348,7 +348,7 @@ void AbstractView::scriptFunctionsChanged(const ModelNode &/*node*/, const QStri
 {
 }
 
-void AbstractView::documentMessagesChanged(const QList<RewriterError> &/*errors*/, const QList<RewriterError> &/*warnings*/)
+void AbstractView::documentMessagesChanged(const QList<DocumentMessage> &/*errors*/, const QList<DocumentMessage> &/*warnings*/)
 {
 }
 
@@ -577,10 +577,10 @@ QList<ModelNode> AbstractView::allModelNodes() const
 
 void AbstractView::emitDocumentMessage(const QString &error)
 {
-    emitDocumentMessage( { RewriterError(error) } );
+    emitDocumentMessage( { DocumentMessage(error) } );
 }
 
-void AbstractView::emitDocumentMessage(const QList<RewriterError> &errors, const QList<RewriterError> &warnings)
+void AbstractView::emitDocumentMessage(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &warnings)
 {
     model()->d->setDocumentMessages(errors, warnings);
 }

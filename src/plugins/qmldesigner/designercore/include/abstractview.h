@@ -30,7 +30,7 @@
 #include <model.h>
 #include <modelnode.h>
 #include <abstractproperty.h>
-#include <rewritererror.h>
+#include <documentmessage.h>
 #include <rewritertransaction.h>
 #include <commondefines.h>
 
@@ -163,7 +163,7 @@ public:
 
     QList<ModelNode> allModelNodes() const;
 
-    void emitDocumentMessage(const QList<RewriterError> &errors, const QList<RewriterError> &warnings = QList<RewriterError>());
+    void emitDocumentMessage(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &warnings = QList<DocumentMessage>());
     void emitDocumentMessage(const QString &error);
     void emitCustomNotification(const QString &identifier);
     void emitCustomNotification(const QString &identifier, const QList<ModelNode> &nodeList);
@@ -230,7 +230,7 @@ public:
 
     virtual void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList);
 
-    virtual void documentMessagesChanged(const QList<RewriterError> &errors, const QList<RewriterError> &warnings);
+    virtual void documentMessagesChanged(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &warnings);
 
     void changeRootNodeType(const TypeName &type, int majorVersion, int minorVersion);
 

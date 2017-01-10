@@ -428,7 +428,7 @@ void RewriterView::amendQmlText()
     emitCustomNotification(EndRewriterAmend);
 }
 
-void RewriterView::notifyErrorsAndWarnings(const QList<RewriterError> &errors)
+void RewriterView::notifyErrorsAndWarnings(const QList<DocumentMessage> &errors)
 {
     if (m_setWidgetStatusCallback)
         m_setWidgetStatusCallback(errors.isEmpty());
@@ -441,12 +441,12 @@ Internal::ModelNodePositionStorage *RewriterView::positionStorage() const
     return m_positionStorage.data();
 }
 
-QList<RewriterError> RewriterView::warnings() const
+QList<DocumentMessage> RewriterView::warnings() const
 {
     return m_warnings;
 }
 
-QList<RewriterError> RewriterView::errors() const
+QList<DocumentMessage> RewriterView::errors() const
 {
     return m_errors;
 }
@@ -458,19 +458,19 @@ void RewriterView::clearErrorAndWarnings()
     notifyErrorsAndWarnings(m_errors);
 }
 
-void RewriterView::setWarnings(const QList<RewriterError> &warnings)
+void RewriterView::setWarnings(const QList<DocumentMessage> &warnings)
 {
     m_warnings = warnings;
     notifyErrorsAndWarnings(m_errors);
 }
 
-void RewriterView::setErrors(const QList<RewriterError> &errors)
+void RewriterView::setErrors(const QList<DocumentMessage> &errors)
 {
     m_errors = errors;
     notifyErrorsAndWarnings(m_errors);
 }
 
-void RewriterView::addError(const RewriterError &error)
+void RewriterView::addError(const DocumentMessage &error)
 {
     m_errors.append(error);
     notifyErrorsAndWarnings(m_errors);

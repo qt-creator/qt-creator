@@ -39,7 +39,7 @@
 namespace QmlDesigner {
 
 class RewriterView;
-class RewriterError;
+class DocumentMessage;
 
 namespace Internal {
 
@@ -52,7 +52,7 @@ class TextToModelMerger
     TextToModelMerger &operator=(const TextToModelMerger&);
 
 public:
-    static QmlJS::Document::MutablePtr createParsedDocument(const QUrl &url, const QString &data, QList<RewriterError> *errors);
+    static QmlJS::Document::MutablePtr createParsedDocument(const QUrl &url, const QString &data, QList<DocumentMessage> *errors);
 
     TextToModelMerger(RewriterView *reWriterView);
     bool isActive() const;
@@ -136,10 +136,10 @@ public:
 private:
     void setupCustomParserNode(const ModelNode &node);
     void setupComponent(const ModelNode &node);
-    void collectLinkErrors(QList<RewriterError> *errors, const ReadingContext &ctxt);
-    void collectImportErrors(QList<RewriterError> *errors);
-    void collectSemanticErrorsAndWarnings(QList<RewriterError> *errors,
-                                          QList<RewriterError> *warnings);
+    void collectLinkErrors(QList<DocumentMessage> *errors, const ReadingContext &ctxt);
+    void collectImportErrors(QList<DocumentMessage> *errors);
+    void collectSemanticErrorsAndWarnings(QList<DocumentMessage> *errors,
+                                          QList<DocumentMessage> *warnings);
     void populateQrcMapping(const QString &filePath);
 
     static QString textAt(const QmlJS::Document::Ptr &doc,

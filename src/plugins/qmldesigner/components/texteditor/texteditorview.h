@@ -59,7 +59,7 @@ public:
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                               const QList<ModelNode> &lastSelectedNodeList) override;
     void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
-    void documentMessagesChanged(const QList<RewriterError> &errors, const QList<RewriterError> &warnings) override;
+    void documentMessagesChanged(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &warnings) override;
 
     // TextEditorView
     WidgetInfo widgetInfo() override;

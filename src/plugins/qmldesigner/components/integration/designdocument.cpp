@@ -165,7 +165,7 @@ Model* DesignDocument::createInFileComponentModel()
     return model;
 }
 
-QList<RewriterError> DesignDocument::qmlParseWarnings() const
+QList<DocumentMessage> DesignDocument::qmlParseWarnings() const
 {
     return m_rewriterView->warnings();
 }
@@ -175,7 +175,7 @@ bool DesignDocument::hasQmlParseWarnings() const
     return !m_rewriterView->warnings().isEmpty();
 }
 
-QList<RewriterError> DesignDocument::qmlParseErrors() const
+QList<DocumentMessage> DesignDocument::qmlParseErrors() const
 {
     return m_rewriterView->errors();
 }

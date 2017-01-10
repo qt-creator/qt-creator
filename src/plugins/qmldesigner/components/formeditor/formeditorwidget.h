@@ -74,10 +74,10 @@ public:
 
     void setFocus();
 
-    void showErrorMessageBox(const QList<RewriterError> &errors);
+    void showErrorMessageBox(const QList<DocumentMessage> &errors);
     void hideErrorMessageBox();
 
-    void showWarningMessageBox(const QList<RewriterError> &warnings);
+    void showWarningMessageBox(const QList<DocumentMessage> &warnings);
 
 protected:
     void wheelEvent(QWheelEvent *event);

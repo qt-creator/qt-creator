@@ -25,7 +25,7 @@
 
 #include "texttomodelmerger.h"
 
-#include "rewritererror.h"
+#include "documentmessage.h"
 #include "modelnodepositionstorage.h"
 #include "abstractproperty.h"
 #include "bindingproperty.h"
@@ -886,7 +886,7 @@ void TextToModelMerger::setupUsedImports()
         m_rewriterView->model()->setUsedImports(usedImports);
 }
 
-Document::MutablePtr TextToModelMerger::createParsedDocument(const QUrl &url, const QString &data, QList<RewriterError> *errors)
+Document::MutablePtr TextToModelMerger::createParsedDocument(const QUrl &url, const QString &data, QList<DocumentMessage> *errors)
 {
     const QString fileName = url.toLocalFile();
 
@@ -902,7 +902,7 @@ Document::MutablePtr TextToModelMerger::createParsedDocument(const QUrl &url, co
     if (!doc->isParsedCorrectly()) {
         if (errors) {
             foreach (const QmlJS::DiagnosticMessage &message, doc->diagnosticMessages())
-                errors->append(RewriterError(message, QUrl::fromLocalFile(doc->fileName())));
+                errors->append(DocumentMessage(message, QUrl::fromLocalFile(doc->fileName())));
         }
         return Document::MutablePtr();
     }
@@ -930,8 +930,8 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
     try {
         Snapshot snapshot = m_rewriterView->textModifier()->qmljsSnapshot();
 
-        QList<RewriterError> errors;
-        QList<RewriterError> warnings;
+        QList<DocumentMessage> errors;
+        QList<DocumentMessage> warnings;
         if (Document::MutablePtr doc = createParsedDocument(url, data, &errors)) {
             snapshot.insert(doc);
             m_document = doc;
@@ -981,7 +981,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         setActive(false);
         return true;
     } catch (Exception &e) {
-        RewriterError error(&e);
+        DocumentMessage error(&e);
         // Somehow, the error below gets eaten in upper levels, so printing the
         // exception info here for debugging purposes:
         qDebug() << "*** An exception occurred while reading the QML file:"
@@ -1947,18 +1947,18 @@ void TextToModelMerger::setupComponent(const ModelNode &node)
         ModelNode(node).setNodeSource(result);
 }
 
-void TextToModelMerger::collectLinkErrors(QList<RewriterError> *errors, const ReadingContext &ctxt)
+void TextToModelMerger::collectLinkErrors(QList<DocumentMessage> *errors, const ReadingContext &ctxt)
 {
     foreach (const QmlJS::DiagnosticMessage &diagnosticMessage, ctxt.diagnosticLinkMessages()) {
-        errors->append(RewriterError(diagnosticMessage, QUrl::fromLocalFile(m_document->fileName())));
+        errors->append(DocumentMessage(diagnosticMessage, QUrl::fromLocalFile(m_document->fileName())));
     }
 }
 
-void TextToModelMerger::collectImportErrors(QList<RewriterError> *errors)
+void TextToModelMerger::collectImportErrors(QList<DocumentMessage> *errors)
 {
     if (m_rewriterView->model()->imports().isEmpty()) {
         const QmlJS::DiagnosticMessage diagnosticMessage(QmlJS::Severity::Error, AST::SourceLocation(0, 0, 0, 0), QCoreApplication::translate("QmlDesigner::TextToModelMerger", "No import statements found"));
-        errors->append(RewriterError(diagnosticMessage, QUrl::fromLocalFile(m_document->fileName())));
+        errors->append(DocumentMessage(diagnosticMessage, QUrl::fromLocalFile(m_document->fileName())));
     }
 
     bool hasQtQuick = false;
@@ -1970,16 +1970,16 @@ void TextToModelMerger::collectImportErrors(QList<RewriterError> *errors)
             } else {
                 const QmlJS::DiagnosticMessage diagnosticMessage(QmlJS::Severity::Error, AST::SourceLocation(0, 0, 0, 0),
                                                                  QCoreApplication::translate("QmlDesigner::TextToModelMerger", "Unsupported QtQuick version"));
-                errors->append(RewriterError(diagnosticMessage, QUrl::fromLocalFile(m_document->fileName())));
+                errors->append(DocumentMessage(diagnosticMessage, QUrl::fromLocalFile(m_document->fileName())));
             }
         }
     }
 
     if (!hasQtQuick)
-        errors->append(RewriterError(QCoreApplication::translate("QmlDesigner::TextToModelMerger", "No import for Qt Quick found.")));
+        errors->append(DocumentMessage(QCoreApplication::translate("QmlDesigner::TextToModelMerger", "No import for Qt Quick found.")));
 }
 
-void TextToModelMerger::collectSemanticErrorsAndWarnings(QList<RewriterError> *errors, QList<RewriterError> *warnings)
+void TextToModelMerger::collectSemanticErrorsAndWarnings(QList<DocumentMessage> *errors, QList<DocumentMessage> *warnings)
 {
     Check check(m_document, m_scopeChain->context());
     check.disableMessage(StaticAnalysis::ErrPrototypeCycle);
@@ -2000,15 +2000,15 @@ void TextToModelMerger::collectSemanticErrorsAndWarnings(QList<RewriterError> *e
     foreach (const StaticAnalysis::Message &message, check()) {
         if (message.severity == Severity::Error) {
             if (message.type == StaticAnalysis::ErrUnknownComponent)
-                warnings->append(RewriterError(message.toDiagnosticMessage(), fileNameUrl));
+                warnings->append(DocumentMessage(message.toDiagnosticMessage(), fileNameUrl));
             else
-                errors->append(RewriterError(message.toDiagnosticMessage(), fileNameUrl));
+                errors->append(DocumentMessage(message.toDiagnosticMessage(), fileNameUrl));
         }
         if (message.severity == Severity::Warning) {
             if (message.type == StaticAnalysis::WarnAboutQtQuick1InsteadQtQuick2)
-                errors->append(RewriterError(message.toDiagnosticMessage(), fileNameUrl));
+                errors->append(DocumentMessage(message.toDiagnosticMessage(), fileNameUrl));
             else
-                warnings->append(RewriterError(message.toDiagnosticMessage(), fileNameUrl));
+                warnings->append(DocumentMessage(message.toDiagnosticMessage(), fileNameUrl));
         }
     }
 }

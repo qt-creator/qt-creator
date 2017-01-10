@@ -35,8 +35,8 @@ class DiagnosticMessage;
 
 namespace QmlDesigner {
 
-class RewriterError {
-    Q_DECLARE_TR_FUNCTIONS(QmlDesigner::RewriterError)
+class DocumentMessage {
+    Q_DECLARE_TR_FUNCTIONS(QmlDesigner::DocumentMessage)
 public:
     enum Type {
         NoError = 0,
@@ -45,10 +45,10 @@ public:
     };
 
 public:
-    RewriterError();
-    RewriterError(const QmlJS::DiagnosticMessage &qmlError, const QUrl &document);
-    RewriterError(const QString &shortDescription);
-    RewriterError(Exception *exception);
+    DocumentMessage();
+    DocumentMessage(const QmlJS::DiagnosticMessage &qmlError, const QUrl &document);
+    DocumentMessage(const QString &shortDescription);
+    DocumentMessage(Exception *exception);
 
     Type type() const
     { return m_type; }

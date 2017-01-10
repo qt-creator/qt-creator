@@ -81,7 +81,7 @@ public:
     void disableWidgets();
     void showTextEdit();
 
-    void showWarningMessageBox(const QList<RewriterError> &warnings);
+    void showWarningMessageBox(const QList<DocumentMessage> &warnings);
     bool gotoCodeWasClicked();
 
     CrumbleBar* crumbleBar() const;

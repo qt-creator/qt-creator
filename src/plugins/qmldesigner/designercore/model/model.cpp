@@ -174,7 +174,7 @@ QUrl ModelPrivate::fileUrl() const
     return m_fileUrl;
 }
 
-void ModelPrivate::setDocumentMessages(const QList<RewriterError> &errors, const QList<RewriterError> &warnings)
+void ModelPrivate::setDocumentMessages(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &warnings)
 {
     foreach (const QPointer<AbstractView> &view, m_viewList)
         view->documentMessagesChanged(errors, warnings);
@@ -1948,7 +1948,7 @@ void Model::setTextModifier(TextModifier *textModifier)
     d->m_textModifier = textModifier;
 }
 
-void Model::setDocumentMessages(const QList<RewriterError> &errors, const QList<RewriterError> &warnings)
+void Model::setDocumentMessages(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &warnings)
 {
     d->setDocumentMessages(errors, warnings);
 }

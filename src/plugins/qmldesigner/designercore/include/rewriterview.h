@@ -28,7 +28,7 @@
 #include "qmldesignercorelib_global.h"
 #include "exception.h"
 #include "abstractview.h"
-#include "rewritererror.h"
+#include "documentmessage.h"
 
 #include <QScopedPointer>
 #include <QTimer>
@@ -111,12 +111,12 @@ public:
 
     Internal::ModelNodePositionStorage *positionStorage() const;
 
-    QList<RewriterError> warnings() const;
-    QList<RewriterError> errors() const;
+    QList<DocumentMessage> warnings() const;
+    QList<DocumentMessage> errors() const;
     void clearErrorAndWarnings();
-    void setErrors(const QList<RewriterError> &errors);
-    void setWarnings(const QList<RewriterError> &warnings);
-    void addError(const RewriterError &error);
+    void setErrors(const QList<DocumentMessage> &errors);
+    void setWarnings(const QList<DocumentMessage> &warnings);
+    void addError(const DocumentMessage &error);
 
     void enterErrorState(const QString &errorMessage);
     bool inErrorState() const { return !m_rewritingErrorMessage.isEmpty(); }
@@ -173,7 +173,7 @@ protected: // functions
     void applyModificationGroupChanges();
     void applyChanges();
     void amendQmlText();
-    void notifyErrorsAndWarnings(const QList<RewriterError> &errors);
+    void notifyErrorsAndWarnings(const QList<DocumentMessage> &errors);
 
 private: //variables
     TextModifier *m_textModifier = nullptr;
@@ -185,8 +185,8 @@ private: //variables
     QScopedPointer<Internal::ModelNodePositionStorage> m_positionStorage;
     QScopedPointer<Internal::ModelToTextMerger> m_modelToTextMerger;
     QScopedPointer<Internal::TextToModelMerger> m_textToModelMerger;
-    QList<RewriterError> m_errors;
-    QList<RewriterError> m_warnings;
+    QList<DocumentMessage> m_errors;
+    QList<DocumentMessage> m_warnings;
     RewriterTransaction m_removeDefaultPropertyTransaction;
     QString m_rewritingErrorMessage;
     QString m_lastCorrectQmlSource;

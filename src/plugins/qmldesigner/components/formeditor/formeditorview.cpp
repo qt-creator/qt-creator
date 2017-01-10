@@ -284,7 +284,7 @@ void FormEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNodeLi
     m_scene->update();
 }
 
-void FormEditorView::documentMessagesChanged(const QList<RewriterError> &errors, const QList<RewriterError> &warnings)
+void FormEditorView::documentMessagesChanged(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &warnings)
 {
     if (!errors.isEmpty())
         formEditorWidget()->showErrorMessageBox(errors);

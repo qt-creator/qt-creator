@@ -122,12 +122,12 @@ void TextEditorView::customNotification(const AbstractView * /*view*/, const QSt
 {
 }
 
-void TextEditorView::documentMessagesChanged(const QList<RewriterError> &errors, const QList<RewriterError> &)
+void TextEditorView::documentMessagesChanged(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &)
 {
     if (errors.isEmpty()) {
         m_widget->clearStatusBar();
     } else {
-        const RewriterError error = errors.first();
+        const DocumentMessage error = errors.first();
         m_widget->setStatusText(QString("%1 (Line: %2)").arg(error.description()).arg(error.line()));
     }
 }

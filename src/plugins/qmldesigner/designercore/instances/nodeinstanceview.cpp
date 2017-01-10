@@ -1269,7 +1269,7 @@ void NodeInstanceView::token(const TokenCommand &command)
 
 void NodeInstanceView::debugOutput(const DebugOutputCommand & command)
 {
-    RewriterError error(tr("Qt Quick emulation layer crashed."));
+    DocumentMessage error(tr("Qt Quick emulation layer crashed."));
     if (command.instanceIds().isEmpty()) {
         emitDocumentMessage(command.text());
     } else {

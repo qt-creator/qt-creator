@@ -23,20 +23,20 @@
 **
 ****************************************************************************/
 
-#include <rewritererror.h>
+#include <documentmessage.h>
 
 #include <qmljs/parser/qmljsengine_p.h>
 
 namespace QmlDesigner {
 
-RewriterError::RewriterError():
+DocumentMessage::DocumentMessage():
         m_type(NoError),
         m_line(-1),
         m_column(-1)
 {
 }
 
-RewriterError::RewriterError(Exception *exception):
+DocumentMessage::DocumentMessage(Exception *exception):
         m_type(InternalError),
         m_line(exception->line()),
         m_column(-1),
@@ -45,7 +45,7 @@ RewriterError::RewriterError(Exception *exception):
 {
 }
 
-RewriterError::RewriterError(const QmlJS::DiagnosticMessage &qmlError, const QUrl &document):
+DocumentMessage::DocumentMessage(const QmlJS::DiagnosticMessage &qmlError, const QUrl &document):
         m_type(ParseError),
         m_line(qmlError.loc.startLine),
         m_column(qmlError.loc.startColumn),
@@ -54,7 +54,7 @@ RewriterError::RewriterError(const QmlJS::DiagnosticMessage &qmlError, const QUr
 {
 }
 
-RewriterError::RewriterError(const QString &shortDescription) :
+DocumentMessage::DocumentMessage(const QString &shortDescription) :
     m_type(ParseError),
     m_line(1),
     m_column(0),
@@ -64,7 +64,7 @@ RewriterError::RewriterError(const QString &shortDescription) :
 }
 
 
-QString RewriterError::toString() const
+QString DocumentMessage::toString() const
 {
     QString str;
 

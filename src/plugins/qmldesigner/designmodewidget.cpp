@@ -232,7 +232,7 @@ void DesignModeWidget::showTextEdit()
     m_centralTabWidget->setCurrentIndex(m_centralTabWidget->currentIndex() == 0 ? 1 : 0);
 }
 
-void DesignModeWidget::showWarningMessageBox(const QList<RewriterError> &warnings)
+void DesignModeWidget::showWarningMessageBox(const QList<DocumentMessage> &warnings)
 {
     Q_ASSERT(!warnings.isEmpty());
     warningWidget()->setWarnings(warnings);
