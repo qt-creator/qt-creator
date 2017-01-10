@@ -726,6 +726,10 @@ TargetGroupItemPrivate::TargetGroupItemPrivate(TargetGroupItem *q, Project *proj
 TargetGroupItemPrivate::~TargetGroupItemPrivate()
 {
     disconnect();
+
+    delete m_noKitLabel;
+    delete m_configurePage;
+    delete m_configuredPage;
 }
 
 QVariant TargetGroupItem::data(int column, int role) const
