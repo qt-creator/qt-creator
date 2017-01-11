@@ -151,10 +151,12 @@ static QHash<Platform, ToolChainPair> findToolChains(const QList<Platform> &plat
 
 static QHash<Abi::Architecture, QSet<BaseQtVersion *>> iosQtVersions()
 {
+    const QList<BaseQtVersion *> iosVersions
+            = QtVersionManager::unsortedVersions([](const BaseQtVersion *v) {
+        return v->isValid() && v->type() == Constants::IOSQT;
+    });
     QHash<Abi::Architecture, QSet<BaseQtVersion *>> versions;
-    foreach (BaseQtVersion *qtVersion, QtVersionManager::unsortedVersions()) {
-        if (!qtVersion->isValid() || qtVersion->type() != QLatin1String(Constants::IOSQT))
-            continue;
+    foreach (BaseQtVersion *qtVersion, iosVersions) {
         foreach (const Abi &abi, qtVersion->qtAbis())
             versions[abi.architecture()].insert(qtVersion);
     }

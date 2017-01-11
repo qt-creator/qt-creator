@@ -87,6 +87,8 @@ class QTSUPPORT_EXPORT BaseQtVersion
     friend class QtVersionManager;
     friend class QtSupport::Internal::QtOptionsPageWidget;
 public:
+    using Predicate = std::function<bool(const BaseQtVersion *)>;
+
     virtual ~BaseQtVersion();
 
     virtual void fromMap(const QVariantMap &map);
@@ -125,7 +127,7 @@ public:
 
     virtual Utils::FileName sourcePath() const;
     bool isInSourceDirectory(const Utils::FileName &filePath);
-    bool isSubProject(const Utils::FileName &filePath);
+    bool isSubProject(const Utils::FileName &filePath) const;
 
     // used by UiCodeModelSupport
     virtual QString uicCommand() const;

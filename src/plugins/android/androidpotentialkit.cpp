@@ -74,15 +74,9 @@ bool AndroidPotentialKit::isEnabled() const
         }
     }
 
-    bool found = false;
-    foreach (QtSupport::BaseQtVersion *version, QtSupport::QtVersionManager::validVersions()) {
-        if (version->type() == QLatin1String(Constants::ANDROIDQT)) {
-            found = true;
-            break;
-        }
-    }
-
-    return found;
+    return QtSupport::QtVersionManager::version([](const QtSupport::BaseQtVersion *v) {
+        return v->isValid() && v->type() == QString::fromLatin1(Constants::ANDROIDQT);
+    });
 }
 
 AndroidPotentialKitWidget::AndroidPotentialKitWidget(QWidget *parent)

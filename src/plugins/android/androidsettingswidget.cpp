@@ -336,12 +336,13 @@ void AndroidSettingsWidget::check(AndroidSettingsWidget::Mode mode)
                     toolchainsForAbi.insert(ati.abi);
             }
 
+            const QList<QtSupport::BaseQtVersion *> androidQts
+                    = QtSupport::QtVersionManager::unsortedVersions([](const QtSupport::BaseQtVersion *v) {
+                return v->type() == QLatin1String(Constants::ANDROIDQT) && !v->qtAbis().isEmpty();
+            });
             QSet<ProjectExplorer::Abi> qtVersionsForAbi;
-            foreach (QtSupport::BaseQtVersion *qtVersion, QtSupport::QtVersionManager::unsortedVersions()) {
-                if (qtVersion->type() != QLatin1String(Constants::ANDROIDQT) || qtVersion->qtAbis().isEmpty())
-                    continue;
+            foreach (QtSupport::BaseQtVersion *qtVersion, androidQts)
                 qtVersionsForAbi.insert(qtVersion->qtAbis().first());
-            }
 
             QSet<ProjectExplorer::Abi> missingQtArchs = toolchainsForAbi.subtract(qtVersionsForAbi);
             if (missingQtArchs.isEmpty()) {

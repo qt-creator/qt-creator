@@ -266,16 +266,15 @@ QnxQtVersion* QnxConfiguration::qnxQtVersion(QnxArchitecture arch) const
 {
     QnxQtVersion *qnxQt;
     foreach (BaseQtVersion *version,
-             QtVersionManager::instance()->versions()) {
-        if (version->type() == QLatin1String(Constants::QNX_QNX_QT)) {
+             QtVersionManager::instance()->unsortedVersions(Utils::equal(&BaseQtVersion::type,
+                                                                         QString::fromLatin1(Constants::QNX_QNX_QT)))) {
             qnxQt = dynamic_cast<QnxQtVersion*>(version);
             if (qnxQt && qnxQt->architecture() == arch) {
                 return qnxQt;
-            }
         }
     }
 
-    return 0;
+    return nullptr;
 }
 
 QList<ToolChain *> QnxConfiguration::autoDetect(const QList<ToolChain *> &alreadyKnown)

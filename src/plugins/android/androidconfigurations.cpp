@@ -1269,7 +1269,7 @@ void AndroidConfigurations::updateAutomaticKitList()
 
     QHash<Abi, QList<const QtSupport::BaseQtVersion *> > qtVersionsForArch;
     const QList<QtSupport::BaseQtVersion *> qtVersions
-            = Utils::filtered(QtSupport::QtVersionManager::unsortedVersions(), [](const QtSupport::BaseQtVersion *v) {
+            = QtSupport::QtVersionManager::unsortedVersions([](const QtSupport::BaseQtVersion *v) {
         return v->type() == Constants::ANDROIDQT;
     });
     for (const QtSupport::BaseQtVersion *qtVersion : qtVersions) {

@@ -1591,7 +1591,7 @@ bool BaseQtVersion::isInSourceDirectory(const Utils::FileName &filePath)
     return filePath.isChildOf(dir);
 }
 
-bool BaseQtVersion::isSubProject(const Utils::FileName &filePath)
+bool BaseQtVersion::isSubProject(const Utils::FileName &filePath) const
 {
     const Utils::FileName &source = sourcePath();
     if (!source.isEmpty()) {

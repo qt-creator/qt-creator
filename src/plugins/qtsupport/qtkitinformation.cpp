@@ -58,15 +58,14 @@ QVariant QtKitInformation::defaultValue(const Kit *k) const
     Q_UNUSED(k);
 
     // find "Qt in PATH":
-    QList<BaseQtVersion *> versionList = QtVersionManager::unsortedVersions();
-    BaseQtVersion *result = findOrDefault(versionList, equal(&BaseQtVersion::autodetectionSource,
-                                                             QString::fromLatin1("PATH")));
+    BaseQtVersion *result = QtVersionManager::version(equal(&BaseQtVersion::autodetectionSource,
+                                                            QString::fromLatin1("PATH")));
     if (result)
         return result->uniqueId();
 
     // Use *any* desktop Qt:
-    result = findOrDefault(versionList, equal(&BaseQtVersion::type,
-                                              QString::fromLatin1(QtSupport::Constants::DESKTOPQT)));
+    result = QtVersionManager::version(equal(&BaseQtVersion::type,
+                                             QString::fromLatin1(QtSupport::Constants::DESKTOPQT)));
     return result ? result->uniqueId() : -1;
 }
 
@@ -161,12 +160,9 @@ int QtKitInformation::qtVersionId(const ProjectExplorer::Kit *k)
             id = -1;
     } else {
         QString source = data.toString();
-        foreach (BaseQtVersion *v, QtVersionManager::unsortedVersions()) {
-            if (v->autodetectionSource() != source)
-                continue;
+        BaseQtVersion *v = QtVersionManager::version([source](const BaseQtVersion *v) { return v->autodetectionSource() == source; });
+        if (v)
             id = v->uniqueId();
-            break;
-        }
     }
     return id;
 }

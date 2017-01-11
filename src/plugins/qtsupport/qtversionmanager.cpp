@@ -501,33 +501,31 @@ int QtVersionManager::getUniqueId()
     return m_idcount++;
 }
 
-QList<BaseQtVersion *> QtVersionManager::unsortedVersions()
+QList<BaseQtVersion *> QtVersionManager::unsortedVersions(const BaseQtVersion::Predicate &predicate)
 {
     QList<BaseQtVersion *> versions;
     QTC_ASSERT(isLoaded(), return versions);
-    return m_versions.values();
+    if (predicate)
+        return Utils::filtered(m_versions.values(), predicate);
+    else
+        return m_versions.values();
 }
 
-QList<BaseQtVersion *> QtVersionManager::versions()
+QList<BaseQtVersion *> QtVersionManager::versions(const BaseQtVersion::Predicate &predicate)
 {
     QList<BaseQtVersion *> versions;
     QTC_ASSERT(isLoaded(), return versions);
-    foreach (BaseQtVersion *version, m_versions)
-        versions << version;
+    versions = unsortedVersions(predicate);
     Utils::sort(versions, qtVersionNumberCompare);
     return versions;
 }
 
-QList<BaseQtVersion *> QtVersionManager::validVersions()
+QList<BaseQtVersion *> QtVersionManager::validVersions(const BaseQtVersion::Predicate &predicate)
 {
-    QList<BaseQtVersion *> results;
-    QTC_ASSERT(isLoaded(), return results);
-    foreach (BaseQtVersion *v, m_versions) {
-        if (v->isValid())
-            results.append(v);
-    }
-    Utils::sort(results, qtVersionNumberCompare);
-    return results;
+    QTC_ASSERT(isLoaded(), return { });
+    auto superPredicate
+            = [predicate](const BaseQtVersion *v) { return v->isValid() && (!predicate || predicate(v)); };
+    return versions(superPredicate);
 }
 
 bool QtVersionManager::isValidId(int id)
@@ -543,6 +541,11 @@ BaseQtVersion *QtVersionManager::version(int id)
     if (it == m_versions.constEnd())
         return nullptr;
     return it.value();
+}
+
+BaseQtVersion *QtVersionManager::version(const BaseQtVersion::Predicate &predicate)
+{
+    return Utils::findOrDefault(m_versions.values(), predicate);
 }
 
 // This function is really simplistic...
@@ -615,7 +618,7 @@ void QtVersionManager::setNewQtVersions(QList<BaseQtVersion *> newVersions)
 
 BaseQtVersion *QtVersionManager::qtVersionForQMakeBinary(const FileName &qmakePath)
 {
-    return Utils::findOrDefault(unsortedVersions(), Utils::equal(&BaseQtVersion::qmakeCommand, qmakePath));
+    return version(Utils::equal(&BaseQtVersion::qmakeCommand, qmakePath));
 }
 
 } // namespace QtVersion

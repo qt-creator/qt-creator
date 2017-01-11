@@ -46,16 +46,17 @@ public:
 
     // This will *always* return at least one (Qt in Path), even if that is
     // unconfigured.
-    static QList<BaseQtVersion *> versions();
-    static QList<BaseQtVersion *> validVersions();
-
     // Sorting is slow due to needing to potentially run qmake --query for each version
-    static QList<BaseQtVersion *> unsortedVersions();
+    static QList<BaseQtVersion *> versions(const BaseQtVersion::Predicate &predicate = BaseQtVersion::Predicate());
+    static QList<BaseQtVersion *> validVersions(const BaseQtVersion::Predicate &predicate = BaseQtVersion::Predicate());
+
+    static QList<BaseQtVersion *> unsortedVersions(const BaseQtVersion::Predicate &predicate = BaseQtVersion::Predicate());
 
     // Note: DO NOT STORE THIS POINTER!
     //       The QtVersionManager will delete it at random times and you will
     //       need to get a new pointer by calling this function again!
     static BaseQtVersion *version(int id);
+    static BaseQtVersion *version(const BaseQtVersion::Predicate &predicate);
 
     static BaseQtVersion *qtVersionForQMakeBinary(const Utils::FileName &qmakePath);
 

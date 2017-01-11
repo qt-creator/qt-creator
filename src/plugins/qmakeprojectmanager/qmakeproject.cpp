@@ -1446,17 +1446,12 @@ void QmakeProject::collectLibraryData(const QmakeProFileNode *node, DeploymentDa
 
 bool QmakeProject::matchesKit(const Kit *kit)
 {
-    QList<QtSupport::BaseQtVersion *> parentQts;
     FileName filePath = projectFilePath();
-    foreach (QtSupport::BaseQtVersion *version, QtSupport::QtVersionManager::validVersions()) {
-        if (version->isSubProject(filePath))
-            parentQts.append(version);
-    }
-
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
-    if (!parentQts.isEmpty())
-        return parentQts.contains(version);
-    return false;
+
+    return QtSupport::QtVersionManager::version([&filePath, version](const QtSupport::BaseQtVersion *v) {
+        return v->isValid() && v->isSubProject(filePath) && v == version;
+    });
 }
 
 static Utils::FileName getFullPathOf(const QmakeProFileNode *pro, QmakeVariable variable,
