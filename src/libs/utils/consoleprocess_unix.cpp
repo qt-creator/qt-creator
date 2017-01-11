@@ -395,4 +395,10 @@ QStringList ConsoleProcess::availableTerminalEmulators()
     return result;
 }
 
+bool ConsoleProcess::startTerminalEmulator(QSettings *settings, const QString &workingDir)
+{
+    const QString emu = QtcProcess::splitArgs(terminalEmulator(settings)).takeFirst();
+    return QProcess::startDetached(emu, QStringList(), workingDir);
+}
+
 } // namespace Utils

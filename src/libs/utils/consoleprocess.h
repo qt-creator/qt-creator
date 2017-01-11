@@ -91,6 +91,8 @@ public:
     static QString terminalEmulator(const QSettings *settings, bool nonEmpty = true);
     static void setTerminalEmulator(QSettings *settings, const QString &term);
 
+    static bool startTerminalEmulator(QSettings *settings, const QString &workingDir);
+
 signals:
     void error(QProcess::ProcessError error);
     void processError(const QString &errorString);
