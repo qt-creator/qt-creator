@@ -425,7 +425,7 @@ void ToolChainKitInformation::kitsWereLoaded()
 
 void ToolChainKitInformation::toolChainUpdated(ToolChain *tc)
 {
-    for (Kit *k : KitManager::kits([tc, this](const Kit *k) { return toolChain(k, ToolChain::Language::Cxx) == tc; }))
+    for (Kit *k : KitManager::kits([tc, this](const Kit *k) { return toolChain(k, tc->language()) == tc; }))
         notifyAboutUpdate(k);
 }
 
