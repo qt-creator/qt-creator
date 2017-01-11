@@ -320,7 +320,8 @@ QVariant CMakeGeneratorKitInformation::defaultValue(const Kit *k) const
         } else {
             it = std::find_if(known.constBegin(), known.constEnd(),
                               [extraGenerator](const CMakeTool::Generator &g) {
-                return g.matches("NMake Makefiles", extraGenerator);
+                return g.matches("NMake Makefiles", extraGenerator)
+                        || g.matches("NMake Makefiles JOM", extraGenerator);
             });
         }
     } else {
@@ -625,7 +626,7 @@ QList<Task> CMakeConfigurationKitInformation::validate(const Kit *k) const
 
 void CMakeConfigurationKitInformation::setup(Kit *k)
 {
-    if (k)
+    if (k && !k->hasValue(CONFIGURATION_ID))
         k->setValue(CONFIGURATION_ID, defaultValue(k));
 }
 

@@ -78,6 +78,7 @@ public:
                               unsigned bytesOffset, unsigned utf16charsOffset);
 
     Control *control() const;
+    Control *swapControl(Control *newControl);
     TranslationUnit *translationUnit() const;
 
     bool skipFunctionBody() const;

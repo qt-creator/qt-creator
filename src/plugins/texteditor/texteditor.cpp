@@ -425,7 +425,13 @@ public:
     void enableBlockSelection(const QTextCursor &cursor);
     void enableBlockSelection(int positionBlock, int positionColumn,
                               int anchorBlock, int anchorColumn);
-    void disableBlockSelection(bool keepSelection = true);
+
+    enum BlockSelectionUpdateKind {
+        NoCursorUpdate,
+        CursorUpdateKeepSelection,
+        CursorUpdateClearSelection,
+    };
+    void disableBlockSelection(BlockSelectionUpdateKind kind);
     void resetCursorFlashTimer();
     QBasicTimer m_cursorFlashTimer;
     bool m_cursorVisible;
@@ -1471,7 +1477,7 @@ void TextEditorWidget::insertLineAbove()
 void TextEditorWidget::insertLineBelow()
 {
     if (d->m_inBlockSelectionMode)
-        d->disableBlockSelection(false);
+        d->disableBlockSelection(TextEditorWidgetPrivate::NoCursorUpdate);
     QTextCursor cursor = textCursor();
     cursor.beginEditBlock();
     cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::MoveAnchor);
@@ -1528,14 +1534,14 @@ void TextEditorWidget::unindent()
 void TextEditorWidget::undo()
 {
     if (d->m_inBlockSelectionMode)
-        d->disableBlockSelection(false);
+        d->disableBlockSelection(TextEditorWidgetPrivate::CursorUpdateClearSelection);
     QPlainTextEdit::undo();
 }
 
 void TextEditorWidget::redo()
 {
     if (d->m_inBlockSelectionMode)
-        d->disableBlockSelection(false);
+        d->disableBlockSelection(TextEditorWidgetPrivate::CursorUpdateClearSelection);
     QPlainTextEdit::redo();
 }
 
@@ -1574,7 +1580,7 @@ void TextEditorWidgetPrivate::moveLineUpDown(bool up)
 
     if (hasSelection) {
         if (m_inBlockSelectionMode)
-            disableBlockSelection(true);
+            disableBlockSelection(NoCursorUpdate);
         move.setPosition(cursor.selectionStart());
         move.movePosition(QTextCursor::StartOfBlock);
         move.setPosition(cursor.selectionEnd(), QTextCursor::KeepAnchor);
@@ -2116,7 +2122,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
         && (e == QKeySequence::InsertParagraphSeparator
             || (!d->m_lineSeparatorsAllowed && e == QKeySequence::InsertLineSeparator))) {
         if (d->m_inBlockSelectionMode) {
-            d->disableBlockSelection(false);
+            d->disableBlockSelection(TextEditorWidgetPrivate::CursorUpdateClearSelection);
             e->accept();
             return;
         }
@@ -2243,7 +2249,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
         return;
     } else if (!ro && (e == QKeySequence::MoveToNextPage || e == QKeySequence::MoveToPreviousPage)
                && d->m_inBlockSelectionMode) {
-        d->disableBlockSelection(false);
+        d->disableBlockSelection(TextEditorWidgetPrivate::CursorUpdateClearSelection);
         QPlainTextEdit::keyPressEvent(e);
         return;
     } else if (!ro && (e == QKeySequence::SelectNextPage || e == QKeySequence::SelectPreviousPage)
@@ -2343,7 +2349,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
             e->accept();
             return;
         } else if (d->m_inBlockSelectionMode) { // leave block selection mode
-            d->disableBlockSelection();
+            d->disableBlockSelection(TextEditorWidgetPrivate::NoCursorUpdate);
         }
         break;
     case Qt::Key_Insert:
@@ -2530,7 +2536,7 @@ void TextEditorWidget::doSetTextCursor(const QTextCursor &cursor, bool keepBlock
     // workaround for QTextControl bug
     bool selectionChange = cursor.hasSelection() || textCursor().hasSelection();
     if (!keepBlockSelection && d->m_inBlockSelectionMode)
-        d->disableBlockSelection(false);
+        d->disableBlockSelection(TextEditorWidgetPrivate::NoCursorUpdate);
     QTextCursor c = cursor;
     c.setVisualNavigation(true);
     QPlainTextEdit::doSetTextCursor(c);
@@ -3507,15 +3513,17 @@ void TextEditorWidgetPrivate::enableBlockSelection(int positionBlock, int positi
     q->viewport()->update();
 }
 
-void TextEditorWidgetPrivate::disableBlockSelection(bool keepSelection)
+void TextEditorWidgetPrivate::disableBlockSelection(BlockSelectionUpdateKind kind)
 {
     m_inBlockSelectionMode = false;
     m_cursorFlashTimer.stop();
-    QTextCursor cursor = m_blockSelection.selection(m_document.data());
+    if (kind != NoCursorUpdate) {
+        QTextCursor cursor = m_blockSelection.selection(m_document.data());
+        if (kind == CursorUpdateClearSelection)
+            cursor.clearSelection();
+        q->setTextCursor(cursor);
+    }
     m_blockSelection.clear();
-    if (!keepSelection)
-        cursor.clearSelection();
-    q->setTextCursor(cursor);
     q->viewport()->update();
 }
 
@@ -4884,7 +4892,7 @@ void TextEditorWidget::mouseMoveEvent(QMouseEvent *e)
                 viewport()->update();
             }
         } else if (d->m_inBlockSelectionMode) {
-            d->disableBlockSelection();
+            d->disableBlockSelection(TextEditorWidgetPrivate::CursorUpdateKeepSelection);
         }
     }
     if (viewport()->cursor().shape() == Qt::BlankCursor)
@@ -4928,7 +4936,7 @@ void TextEditorWidget::mousePressEvent(QMouseEvent *e)
             }
         } else {
             if (d->m_inBlockSelectionMode)
-                d->disableBlockSelection(false); // just in case, otherwise we might get strange drag and drop
+                d->disableBlockSelection(TextEditorWidgetPrivate::NoCursorUpdate);
 
             QTextBlock foldedBlock = d->foldedBlockAt(e->pos());
             if (foldedBlock.isValid()) {
@@ -6807,7 +6815,7 @@ void TextEditorWidget::cut()
 void TextEditorWidget::selectAll()
 {
     if (d->m_inBlockSelectionMode)
-        d->disableBlockSelection();
+        d->disableBlockSelection(TextEditorWidgetPrivate::NoCursorUpdate);
     QPlainTextEdit::selectAll();
 }
 
@@ -7266,7 +7274,8 @@ void BaseTextEditor::setCursorPosition(int pos)
 
 void TextEditorWidget::setCursorPosition(int pos)
 {
-    setBlockSelection(false);
+    if (d->m_inBlockSelectionMode)
+        d->disableBlockSelection(TextEditorWidgetPrivate::NoCursorUpdate);
     QTextCursor tc = textCursor();
     tc.setPosition(pos);
     setTextCursor(tc);
@@ -7448,7 +7457,7 @@ void TextEditorWidget::setBlockSelection(bool on)
     if (on)
         d->enableBlockSelection(textCursor());
     else
-        d->disableBlockSelection(false);
+        d->disableBlockSelection(TextEditorWidgetPrivate::CursorUpdateClearSelection);
 }
 
 void TextEditorWidget::setBlockSelection(int positionBlock, int positionColumn,

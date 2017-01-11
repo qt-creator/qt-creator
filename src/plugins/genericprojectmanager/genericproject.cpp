@@ -91,20 +91,6 @@ GenericProject::GenericProject(Manager *manager, const QString &fileName)
     DocumentManager::addDocument(m_includesIDocument);
     DocumentManager::addDocument(m_configIDocument);
 
-    auto projectFilesNode = new FileNode(Utils::FileName::fromString(m_filesFileName),
-                                         FileType::Project,
-                                         /* generated = */ false);
-
-    auto projectIncludesNode = new FileNode(Utils::FileName::fromString(m_includesFileName),
-                                            FileType::Project,
-                                            /* generated = */ false);
-
-    auto projectConfigNode = new FileNode(Utils::FileName::fromString(m_configFileName),
-                                          FileType::Project,
-                                          /* generated = */ false);
-
-    rootProjectNode()->addFileNodes({ projectFilesNode, projectIncludesNode, projectConfigNode });
-
     projectManager()->registerProject(this);
 }
 
@@ -282,6 +268,19 @@ void GenericProject::refresh(RefreshOptions options)
                 fileType = FileType::Resource;
             return new FileNode(Utils::FileName::fromString(f), fileType, false);
         });
+
+        auto projectFilesNode = new FileNode(Utils::FileName::fromString(m_filesFileName),
+                                             FileType::Project,
+                                             /* generated = */ false);
+
+        auto projectIncludesNode = new FileNode(Utils::FileName::fromString(m_includesFileName),
+                                                FileType::Project,
+                                                /* generated = */ false);
+
+        auto projectConfigNode = new FileNode(Utils::FileName::fromString(m_configFileName),
+                                              FileType::Project,
+                                              /* generated = */ false);
+        fileNodes << projectFilesNode << projectIncludesNode << projectConfigNode;
         rootProjectNode()->buildTree(fileNodes);
     }
 

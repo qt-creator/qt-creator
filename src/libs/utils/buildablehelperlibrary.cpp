@@ -50,7 +50,7 @@ QString BuildableHelperLibrary::qtChooserToQmakePath(const QString &path)
     int pos = output.indexOf(toolDir);
     if (pos == -1)
         return QString();
-    pos += toolDir.count() - 1;
+    pos += toolDir.count();
     int end = output.indexOf('\"', pos);
     if (end == -1)
         return QString();

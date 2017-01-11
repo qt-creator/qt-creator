@@ -287,7 +287,7 @@ bool AbstractMsvcToolChain::generateEnvironmentSettings(Utils::Environment &env,
     // if Creator is launched within a session set up by setenv.cmd.
     env.unset(QLatin1String("ORIGINALPATH"));
     run.setEnvironment(env.toStringList());
-    run.setTimeoutS(10);
+    run.setTimeoutS(30);
     Utils::FileName cmdPath = Utils::FileName::fromUserInput(QString::fromLocal8Bit(qgetenv("COMSPEC")));
     if (cmdPath.isEmpty())
         cmdPath = env.searchInPath(QLatin1String("cmd.exe"));

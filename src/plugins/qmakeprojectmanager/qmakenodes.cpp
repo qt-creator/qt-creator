@@ -1849,6 +1849,8 @@ EvalResult *QmakeProFileNode::evaluate(const EvalInput &input)
         QList<IncludedPriFile *> toBuild = { &result->includedFiles };
         while (!toBuild.isEmpty()) {
             IncludedPriFile *current = toBuild.takeFirst();
+            if (!current->proFile)
+                continue;  // Don't attempt to map subdirs here
             QVector<ProFile *> children = includeFiles.value(current->proFile);
             foreach (ProFile *child, children) {
                 const Utils::FileName childName = Utils::FileName::fromString(child->fileName());
@@ -1883,6 +1885,8 @@ EvalResult *QmakeProFileNode::evaluate(const EvalInput &input)
     QList<IncludedPriFile *> toBuild = { &result->includedFiles };
     while (!toBuild.isEmpty()) {
         IncludedPriFile *current = toBuild.takeFirst();
+        if (!current->proFile)
+            continue;  // Don't attempt to map subdirs here
         QVector<ProFile *> children = includeFiles.value(current->proFile);
         foreach (ProFile *child, children) {
             const Utils::FileName childName = Utils::FileName::fromString(child->fileName());

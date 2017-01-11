@@ -53,11 +53,10 @@ Q_LOGGING_CATEGORY(simulatorLog, "qtc.ios.simulator")
 namespace Ios {
 namespace Internal {
 
-static int COMMAND_TIMEOUT = 10000;
 static int SIMULATOR_START_TIMEOUT = 60000;
 static QString SIM_UDID_TAG = QStringLiteral("SimUdid");
 
-static bool checkForTimeout(const chrono::high_resolution_clock::time_point &start, int msecs = COMMAND_TIMEOUT)
+static bool checkForTimeout(const chrono::high_resolution_clock::time_point &start, int msecs = 10000)
 {
     bool timedOut = false;
     auto end = chrono::high_resolution_clock::now();
@@ -108,7 +107,8 @@ private:
                     const Utils::FileName &bundlePath);
     void launchApp(QFutureInterface<SimulatorControl::ResponseData> &fi, const QString &simUdid,
                    const QString &bundleIdentifier, bool waitForDebugger,
-                   const QStringList &extraArgs);
+                   const QStringList &extraArgs, const QString &stdoutPath,
+                   const QString &stderrPath);
 
     static QList<IosDeviceType> availableDevices;
     friend class SimulatorControl;
@@ -196,10 +196,11 @@ SimulatorControl::installApp(const QString &simUdid, const Utils::FileName &bund
 
 QFuture<SimulatorControl::ResponseData>
 SimulatorControl::launchApp(const QString &simUdid, const QString &bundleIdentifier,
-                            bool waitForDebugger, const QStringList &extraArgs) const
+                            bool waitForDebugger, const QStringList &extraArgs,
+                            const QString &stdoutPath, const QString &stderrPath) const
 {
     return Utils::runAsync(&SimulatorControlPrivate::launchApp, d, simUdid, bundleIdentifier,
-                           waitForDebugger, extraArgs);
+                           waitForDebugger, extraArgs, stdoutPath, stderrPath);
 }
 
 QList<IosDeviceType> SimulatorControlPrivate::availableDevices;
@@ -342,11 +343,19 @@ void SimulatorControlPrivate::installApp(QFutureInterface<SimulatorControl::Resp
 
 void SimulatorControlPrivate::launchApp(QFutureInterface<SimulatorControl::ResponseData> &fi,
                                         const QString &simUdid, const QString &bundleIdentifier,
-                                        bool waitForDebugger, const QStringList &extraArgs)
+                                        bool waitForDebugger, const QStringList &extraArgs,
+                                        const QString &stdoutPath, const QString &stderrPath)
 {
     SimulatorControl::ResponseData response(simUdid);
     if (!bundleIdentifier.isEmpty() && !fi.isCanceled()) {
         QStringList args({QStringLiteral("launch"), simUdid, bundleIdentifier});
+
+        // simctl usage documentation : Note: Log output is often directed to stderr, not stdout.
+        if (!stdoutPath.isEmpty())
+            args.insert(1, QStringLiteral("--stderr=%1").arg(stdoutPath));
+
+        if (!stderrPath.isEmpty())
+            args.insert(1, QStringLiteral("--stdout=%1").arg(stderrPath));
 
         if (waitForDebugger)
             args.insert(1, QStringLiteral("-w"));

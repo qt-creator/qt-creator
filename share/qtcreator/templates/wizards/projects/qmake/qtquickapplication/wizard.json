@@ -47,6 +47,16 @@
                         "items":
                         [
                             {
+                                "trKey": "Qt 5.8",
+                                "value":
+                                "{
+                                    'qtQuickVersion': '2.8',
+                                    'qtQuickWindowVersion': '2.2',
+                                    'qtQuickVirtualKeyboardImport': 'QtQuick.VirtualKeyboard 2.1',
+                                    'qtQuickVirtualKeyboardWhenVisible': 'inputPanel.active'
+                                }"
+                            },
+                            {
                                 "trKey": "Qt 5.7",
                                 "value":
                                 "{

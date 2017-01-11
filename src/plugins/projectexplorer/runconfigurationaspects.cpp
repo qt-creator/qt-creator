@@ -258,7 +258,7 @@ PathChooser *WorkingDirectoryAspect::pathChooser() const
 */
 
 ArgumentsAspect::ArgumentsAspect(RunConfiguration *runConfig, const QString &key, const QString &arguments)
-    : IRunConfigurationAspect(runConfig), m_arguments(arguments), m_chooser(0), m_key(key)
+    : IRunConfigurationAspect(runConfig), m_arguments(arguments), m_key(key)
 {
     setDisplayName(tr("Arguments"));
     setId("ArgumentsAspect");
@@ -280,7 +280,7 @@ void ArgumentsAspect::setArguments(const QString &arguments)
         m_arguments = arguments;
         emit argumentsChanged(arguments);
     }
-    if (m_chooser->text() != arguments)
+    if (m_chooser && m_chooser->text() != arguments)
         m_chooser->setText(arguments);
 }
 

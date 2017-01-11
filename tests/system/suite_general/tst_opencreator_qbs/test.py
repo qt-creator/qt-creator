@@ -37,13 +37,10 @@ def main():
     if not startedWithoutPluginError():
         return
     openQbsProject(pathCreator)
-    switchViewTo(ViewConstants.PROJECTS)
-    clickButton(waitForObject(":*Qt Creator.Add Kit_QPushButton"))
-    menuItem = Targets.getStringForTarget(Targets.DESKTOP_541_GCC)
-    activateItem(waitForObjectItem("{type='QMenu' unnamed='1' visible='1' "
-                                   "window=':Qt Creator_Core::Internal::MainWindow'}", menuItem))
-    switchToBuildOrRunSettingsFor(2, 1, ProjectSettings.BUILD)
-    switchViewTo(ViewConstants.EDIT)
+    if not addAndActivateKit(Targets.DESKTOP_541_GCC):
+        test.fatal("Failed to activate '%s'" % Targets.getStringForTarget(Targets.DESKTOP_541_GCC))
+        invokeMenuItem("File", "Exit")
+        return
     test.log("Start parsing project")
     rootNodeTemplate = "{column='0' container=':Qt Creator_Utils::NavigationTreeView' text~='%s( \[\S+\])?' type='QModelIndex'}"
     ntwObject = waitForObject(rootNodeTemplate % "qtcreator.qbs")
