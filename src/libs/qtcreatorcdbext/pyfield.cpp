@@ -25,143 +25,110 @@
 
 #include "pyfield.h"
 
-#include "pytype.h"
 #include "extensioncontext.h"
+#include "pytype.h"
+#include "pycdbextmodule.h"
 
-PyObject *field_Name(Field *self)
+struct PyFieldPrivate
 {
-    return Py_BuildValue("s", self->m_name);
-}
+    PyFieldPrivate(std::string name, const PyType &parentType)
+        : name(name), parentType(parentType)
+    {}
+    std::string name;
+    unsigned long offset = 0;
+    PyType parentType;
+    PyType type;
+};
 
-PyObject *field_isBaseClass(Field *)
-{
-    Py_RETURN_NONE;
-}
-
-bool initTypeAndOffset(Field *field)
+PyField::PyField(std::string name, const PyType &parentType)
+    : d(new PyFieldPrivate(name, parentType))
 {
     auto extcmd = ExtensionCommandContext::instance();
-    field->m_initialized = SUCCEEDED(extcmd->symbols()->GetFieldTypeAndOffset(
-                field->m_module, field->m_parentTypeId,
-                field->m_name, &field->m_typeId, &field->m_offset));
-    return field->m_initialized;
+    unsigned long typeID = 0;
+    if (SUCCEEDED(extcmd->symbols()->GetFieldTypeAndOffset(
+                      d->parentType.getModule(), d->parentType.getTypeId(), d->name.c_str(),
+                      &typeID, &d->offset))) {
+        d->type = PyType(d->parentType.getModule(), typeID);
+    }
 }
 
-PyObject *field_Type(Field *self)
+std::string PyField::name() const
+{ return d->name; }
+
+const PyType &PyField::type() const
+{ return d->type; }
+
+const PyType &PyField::parentType() const
+{ return d->parentType; }
+
+ULONG64 PyField::bitsize() const
+{ return d->type.bitsize(); }
+
+ULONG64 PyField::bitpos() const
+{ return d->offset; }
+
+bool PyField::isValid() const
 {
-    if (!self->m_initialized)
-        if (!initTypeAndOffset(self))
-            Py_RETURN_NONE;
-    return createType(self->m_module, self->m_typeId);
+    return d != nullptr;
 }
 
-PyObject *field_ParentType(Field *self)
-{
-    return createType(self->m_module, self->m_parentTypeId);
-}
+// Python interface implementation
 
-PyObject *field_Bitsize(Field *self)
-{
-    if (!self->m_initialized)
-        if (!initTypeAndOffset(self))
-            Py_RETURN_NONE;
-    ULONG byteSize;
-    auto extcmd = ExtensionCommandContext::instance();
-    if (FAILED(extcmd->symbols()->GetTypeSize(self->m_module, self->m_typeId, &byteSize)))
-        Py_RETURN_NONE;
-    return Py_BuildValue("k", byteSize * 8);
-}
-
-PyObject *field_Bitpos(Field *self)
-{
-    if (!self->m_initialized)
-        if (!initTypeAndOffset(self))
-            Py_RETURN_NONE;
-    return Py_BuildValue("k", self->m_offset * 8);
-}
-
-PyObject *field_New(PyTypeObject *type, PyObject *, PyObject *)
-{
-    Field *self = reinterpret_cast<Field *>(type->tp_alloc(type, 0));
-    if (self != NULL)
-        initField(self);
-    return reinterpret_cast<PyObject *>(self);
-}
-
-void field_Dealloc(Field *self)
-{
-    delete[] self->m_name;
-}
-
-void initField(Field *field)
-{
-    field->m_name = 0;
-    field->m_initialized = false;
-    field->m_typeId = 0;
-    field->m_offset = 0;
-    field->m_module = 0;
-    field->m_parentTypeId = 0;
-}
+namespace PyFieldInterface {
+#define PY_OBJ_NAME FieldPythonObject
+PY_NEW_FUNC(PY_OBJ_NAME)
+PY_DEALLOC_FUNC(PY_OBJ_NAME)
+PY_FUNC_RET_STD_STRING(name, PY_OBJ_NAME)
+PY_FUNC_RET_NONE(isBaseClass, PY_OBJ_NAME)
+PY_FUNC_RET_OBJECT(type, PY_OBJ_NAME)
+PY_FUNC_RET_OBJECT(parentType, PY_OBJ_NAME)
+PY_FUNC(bitsize, PY_OBJ_NAME, "Q")
+PY_FUNC(bitpos, PY_OBJ_NAME, "Q")
 
 static PyMethodDef fieldMethods[] = {
-    {"name",        PyCFunction(field_Name),        METH_NOARGS,
+    {"name",        PyCFunction(name),        METH_NOARGS,
      "Return the name of this field or None for anonymous fields"},
-    {"isBaseClass", PyCFunction(field_isBaseClass), METH_NOARGS,
+    {"isBaseClass", PyCFunction(isBaseClass), METH_NOARGS,
      "Whether this is a base class or normal member"},
-    {"type",        PyCFunction(field_Type),        METH_NOARGS,
+    {"type",        PyCFunction(type),        METH_NOARGS,
      "Type of this member"},
-    {"parentType",  PyCFunction(field_ParentType),  METH_NOARGS,
+    {"parentType",  PyCFunction(parentType),  METH_NOARGS,
      "Type of class this member belongs to"},
-    {"bitsize",     PyCFunction(field_Bitsize),     METH_NOARGS,
+    {"bitsize",     PyCFunction(bitsize),     METH_NOARGS,
      "Size of member in bits"},
-    {"bitpos",      PyCFunction(field_Bitpos),      METH_NOARGS,
+    {"bitpos",      PyCFunction(bitpos),      METH_NOARGS,
      "Offset of member in parent type in bits"},
 
     {NULL}  /* Sentinel */
 };
+} // PyFieldInterface
+
 
 PyTypeObject *field_pytype()
 {
     static PyTypeObject cdbext_FieldType = {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "cdbext.Field",             /* tp_name */
-        sizeof(Field),              /* tp_basicsize */
-        0,                          /* tp_itemsize */
-        (destructor)field_Dealloc,  /* tp_dealloc */
-        0,                          /* tp_print */
-        0,                          /* tp_getattr */
-        0,                          /* tp_setattr */
-        0,                          /* tp_as_async */
-        0,                          /* tp_repr */
-        0,                          /* tp_as_number */
-        0,                          /* tp_as_sequence */
-        0,                          /* tp_as_mapping */
-        0,                          /* tp_hash  */
-        0,                          /* tp_call */
-        0,                          /* tp_str */
-        0,                          /* tp_getattro */
-        0,                          /* tp_setattro */
-        0,                          /* tp_as_buffer */
-        Py_TPFLAGS_DEFAULT,         /* tp_flags */
-        "Field objects",            /* tp_doc */
-        0,                          /* tp_traverse */
-        0,                          /* tp_clear */
-        0,                          /* tp_richcompare */
-        0,                          /* tp_weaklistoffset */
-        0,                          /* tp_iter */
-        0,                          /* tp_iternext */
-        fieldMethods,               /* tp_methods */
-        0,                          /* tp_members */
-        0,                          /* tp_getset */
-        0,                          /* tp_base */
-        0,                          /* tp_dict */
-        0,                          /* tp_descr_get */
-        0,                          /* tp_descr_set */
-        0,                          /* tp_dictoffset */
-        0,                          /* tp_init */
-        0,                          /* tp_alloc */
-        field_New,                  /* tp_new */
+        "cdbext.Field",                             /* tp_name */
+        sizeof(FieldPythonObject),                  /* tp_basicsize */
+        0,
+        (destructor)PyFieldInterface::dealloc,      /* tp_dealloc */
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        Py_TPFLAGS_DEFAULT,                         /* tp_flags */
+        "Field objects",                            /* tp_doc */
+        0, 0, 0, 0, 0, 0,
+        PyFieldInterface::fieldMethods,             /* tp_methods */
+        0, 0, 0, 0, 0, 0, 0, 0, 0,
+        PyFieldInterface::newObject,                /* tp_new */
     };
 
     return &cdbext_FieldType;
+}
+
+PyObject *createPythonObject(PyField implClass)
+{
+    if (!implClass.isValid())
+        Py_RETURN_NONE;
+    FieldPythonObject *newPyField = PyObject_New(FieldPythonObject, field_pytype());
+    newPyField->impl = new PyField(implClass);
+    return reinterpret_cast<PyObject *>(newPyField);
 }

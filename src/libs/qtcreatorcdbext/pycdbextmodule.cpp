@@ -102,7 +102,7 @@ static PyObject *cdbext_lookupType(PyObject *, PyObject *args) // -> Type
     char *type;
     if (!PyArg_ParseTuple(args, "s", &type))
         Py_RETURN_NONE;
-    return lookupType(type);
+    return createPythonObject(PyType::lookupType(type));
 }
 
 static PyObject *cdbext_listOfLocals(PyObject *, PyObject *args) // -> [ Value ]
@@ -134,8 +134,9 @@ static PyObject *cdbext_listOfLocals(PyObject *, PyObject *args) // -> [ Value ]
 
         ULONG symbolGroupIndex = 0;
         for (;symbolGroupIndex < scopeEnd; ++symbolGroupIndex) {
-            if (getSymbolName(symbolGroup, symbolGroupIndex) == *currentPartialIname) {
-                PyList_Append(locals, createValue(symbolGroupIndex, symbolGroup));
+            const PyValue value(symbolGroupIndex, symbolGroup);
+            if (value.name() == *currentPartialIname) {
+                PyList_Append(locals, createPythonObject(value));
                 return locals;
             }
         }
@@ -148,7 +149,7 @@ static PyObject *cdbext_listOfLocals(PyObject *, PyObject *args) // -> [ Value ]
         DEBUG_SYMBOL_PARAMETERS params;
         if (SUCCEEDED(symbolGroup->GetSymbolParameters(index, 1, &params))) {
             if ((params.Flags & DEBUG_SYMBOL_IS_ARGUMENT) || (params.Flags & DEBUG_SYMBOL_IS_LOCAL))
-                PyList_Append(locals, createValue(index, symbolGroup));
+                PyList_Append(locals, createPythonObject(PyValue(index, symbolGroup)));
         }
     }
     return locals;
@@ -205,13 +206,15 @@ static PyObject *cdbext_readRawMemory(PyObject *, PyObject *args)
 static PyObject *cdbext_createValue(PyObject *, PyObject *args)
 {
     ULONG64 address = 0;
-    Type *type = 0;
+    TypePythonObject *type = 0;
     if (!PyArg_ParseTuple(args, "KO", &address, &type))
+        Py_RETURN_NONE;
+    if (!type->impl)
         Py_RETURN_NONE;
 
     if (debugPyCdbextModule) {
         DebugPrint() << "Create Value address: 0x" << std::hex << address
-                     << " type name: " << getTypeName(type);
+                     << " type name: " << type->impl->name();
     }
 
     IDebugSymbolGroup2 *symbolGroup = currentSymbolGroup.get();
@@ -227,7 +230,7 @@ static PyObject *cdbext_createValue(PyObject *, PyObject *args)
         if (offset == address) {
             DEBUG_SYMBOL_PARAMETERS params;
             if (SUCCEEDED(symbolGroup->GetSymbolParameters(index, 1, &params))) {
-                if (params.TypeId == type->m_typeId && params.Module == type->m_module)
+                if (params.TypeId == type->impl->getTypeId() && params.Module == type->impl->getModule())
                     break;
             }
         }
@@ -235,7 +238,7 @@ static PyObject *cdbext_createValue(PyObject *, PyObject *args)
 
     if (index >= numberOfSymbols) {
         ULONG index = DEBUG_ANY_ID;
-        const std::string name = SymbolGroupValue::pointedToSymbolName(address, getTypeName(type, true));
+        const std::string name = SymbolGroupValue::pointedToSymbolName(address, type->impl->name(true));
         if (debugPyCdbextModule)
             DebugPrint() << "Create Value expression: " << name;
 
@@ -243,7 +246,7 @@ static PyObject *cdbext_createValue(PyObject *, PyObject *args)
             Py_RETURN_NONE;
     }
 
-    return createValue(index, symbolGroup);
+    return createPythonObject(PyValue(index, symbolGroup));
 }
 
 static PyMethodDef cdbextMethods[] = {
@@ -314,14 +317,6 @@ PyInit_cdbext(void)
 void initCdbextPythonModule()
 {
     PyImport_AppendInittab("cdbext", PyInit_cdbext);
-}
-
-PyObject *pyBool(bool b)
-{
-    if (b)
-        Py_RETURN_TRUE;
-    else
-        Py_RETURN_FALSE;
 }
 
 int pointerSize()

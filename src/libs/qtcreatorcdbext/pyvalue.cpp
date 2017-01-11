@@ -26,128 +26,15 @@
 #include "pyvalue.h"
 
 #include "extensioncontext.h"
-#include "pycdbextmodule.h"
-#include "pytype.h"
-#include "pyfield.h"
-#include "stringutils.h"
-#include "symbolgroupvalue.h"
 
-#include <map>
-#include <algorithm>
+#include <list>
 
 constexpr bool debugPyValue = false;
 constexpr bool debuggingValueEnabled() { return debugPyValue || debugPyCdbextModule; }
 
-static std::map<CIDebugSymbolGroup *, std::list<Value *>> valuesForSymbolGroup;
+static std::map<CIDebugSymbolGroup *, std::list<PyValue *>> valuesForSymbolGroup;
 
-std::string getSymbolName(CIDebugSymbolGroup *sg, ULONG index)
-{
-    ULONG size = 0;
-    sg->GetSymbolName(index, NULL, 0, &size);
-    if (size == 0)
-        return std::string();
-    std::string name(size - 1, '\0');
-    sg->GetSymbolName(index, &name[0], size, &size);
-    return name;
-}
-
-std::string getSymbolName(Value *value)
-{
-    return getSymbolName(value->m_symbolGroup, value->m_index);
-}
-
-PyObject *value_Name(Value *self)
-{
-    if (!self->m_symbolGroup)
-        Py_RETURN_NONE;
-    const std::string &symbolName = getSymbolName(self);
-    if (symbolName.empty())
-        Py_RETURN_NONE;
-    return Py_BuildValue("s", symbolName.c_str());
-}
-
-std::string getTypeName(Value *value)
-{
-    ULONG size = 0;
-    value->m_symbolGroup->GetSymbolTypeName(value->m_index, NULL, 0, &size);
-    if (size == 0)
-        return std::string();
-    std::string typeName(size - 1, '\0');
-    if (SUCCEEDED(value->m_symbolGroup->GetSymbolTypeName(value->m_index, &typeName[0], size, NULL)))
-        return typeName;
-    return std::string();
-}
-
-PyObject *value_Type(Value *self)
-{
-    if (!self->m_symbolGroup)
-        Py_RETURN_NONE;
-    DEBUG_SYMBOL_PARAMETERS params;
-    if (FAILED(self->m_symbolGroup->GetSymbolParameters(self->m_index, 1, &params)))
-        Py_RETURN_NONE;
-    return createType(params.Module, params.TypeId, getTypeName(self));
-}
-
-PyObject *value_Bitsize(Value *self)
-{
-    if (!self->m_symbolGroup)
-        Py_RETURN_NONE;
-    ULONG size;
-    if (FAILED(self->m_symbolGroup->GetSymbolSize(self->m_index, &size)))
-        Py_RETURN_NONE;
-    return Py_BuildValue("k", size * 8);
-}
-
-char *valueData(Value *self, PULONG received)
-{
-    if (!self->m_symbolGroup)
-        nullptr;
-    ULONG64 address = 0;
-    if (FAILED(self->m_symbolGroup->GetSymbolOffset(self->m_index, &address)))
-        nullptr;
-    ULONG size;
-    if (FAILED(self->m_symbolGroup->GetSymbolSize(self->m_index, &size)))
-        nullptr;
-
-    char *buffer = new char[size];
-    auto data = ExtensionCommandContext::instance()->dataSpaces();
-    if (SUCCEEDED(data->ReadVirtual(address, buffer, size, received)))
-        return buffer;
-
-    delete[] buffer;
-    return nullptr;
-}
-
-PyObject *value_AsBytes(Value *self)
-{
-    ULONG received;
-    if (char *data = valueData(self, &received)) {
-        auto byteArray = PyByteArray_FromStringAndSize(data, received);
-        delete[] data;
-        return byteArray;
-    }
-    Py_RETURN_NONE;
-}
-
-ULONG64 valueAddress(Value *value)
-{
-    ULONG64 address = 0;
-    if (value->m_symbolGroup)
-        value->m_symbolGroup->GetSymbolOffset(value->m_index, &address);
-    return address;
-}
-
-PyObject *value_Address(Value *self)
-{
-    const ULONG64 address = valueAddress(self);
-    if (debuggingValueEnabled())
-        DebugPrint() << "Address of " << getSymbolName(self) << ": 0x" << std::hex << address;
-    if (address == 0)
-        Py_RETURN_NONE;
-    return Py_BuildValue("K", address);
-}
-
-void indicesMoved(CIDebugSymbolGroup *symbolGroup, ULONG start, ULONG delta)
+void PyValue::indicesMoved(CIDebugSymbolGroup *symbolGroup, ULONG start, ULONG delta)
 {
     if (delta == 0)
         return;
@@ -156,118 +43,159 @@ void indicesMoved(CIDebugSymbolGroup *symbolGroup, ULONG start, ULONG delta)
         return;
     if (count <= start)
         return;
-    for (Value *val : valuesForSymbolGroup[symbolGroup]) {
-        if (val->m_index >= start && val->m_index + delta < count) {
+    for (PyValue *val : valuesForSymbolGroup[symbolGroup]) {
+        if (val->m_index >= start && val->m_index + delta < count)
             val->m_index += delta;
-            if (debuggingValueEnabled())
-                DebugPrint() << " Moved Index of " << getSymbolName(symbolGroup, val->m_index)
-                             << " delta " << delta << " to " << val->m_index;
-        }
     }
 }
 
-bool expandValue(Value *v)
+PyValue::PyValue(unsigned long index, CIDebugSymbolGroup *symbolGroup)
+    : m_index(index)
+    , m_symbolGroup(symbolGroup)
 {
+    valuesForSymbolGroup[symbolGroup].push_back(this);
+}
+
+PyValue::~PyValue()
+{
+    valuesForSymbolGroup[m_symbolGroup].remove(this);
+}
+
+std::string PyValue::name() const
+{
+    if (!m_symbolGroup)
+        return std::string();
+    ULONG size = 0;
+    m_symbolGroup->GetSymbolName(m_index, NULL, 0, &size);
+    if (size == 0)
+        return std::string();
+    std::string name(size - 1, '\0');
+    if (FAILED(m_symbolGroup->GetSymbolName(m_index, &name[0], size, &size)))
+        name.clear();
+    return name;
+}
+
+PyType PyValue::type()
+{
+    if (!m_symbolGroup)
+        return PyType();
     DEBUG_SYMBOL_PARAMETERS params;
-    if (FAILED(v->m_symbolGroup->GetSymbolParameters(v->m_index, 1, &params)))
+    if (FAILED(m_symbolGroup->GetSymbolParameters(m_index, 1, &params)))
+        return PyType();
+    ULONG size = 0;
+    m_symbolGroup->GetSymbolTypeName(m_index, NULL, 0, &size);
+    if (size != 0) {
+        std::string typeName(size - 1, '\0');
+        if (SUCCEEDED(m_symbolGroup->GetSymbolTypeName(m_index, &typeName[0], size, NULL)))
+            return PyType(params.Module, params.TypeId, typeName);
+    }
+    return PyType(params.Module, params.TypeId);
+}
+
+ULONG64 PyValue::bitsize()
+{
+    if (!m_symbolGroup)
+        return 0;
+    ULONG size;
+    if (FAILED(m_symbolGroup->GetSymbolSize(m_index, &size)))
+        return 0;
+    return size * 8;
+}
+
+Bytes PyValue::asBytes()
+{
+    if (m_symbolGroup)
+        return Bytes();
+    ULONG64 address = 0;
+    if (FAILED(m_symbolGroup->GetSymbolOffset(m_index, &address)))
+        return Bytes();
+    ULONG size;
+    if (FAILED(m_symbolGroup->GetSymbolSize(m_index, &size)))
+        return Bytes();
+
+    Bytes bytes(size);
+    unsigned long received;
+    auto data = ExtensionCommandContext::instance()->dataSpaces();
+    if (FAILED(data->ReadVirtual(address, bytes.data(), size, &received)))
+        return Bytes();
+
+    bytes.resize(received);
+    return bytes;
+}
+
+ULONG64 PyValue::address()
+{
+    ULONG64 address = 0;
+    if (!m_symbolGroup || FAILED(m_symbolGroup->GetSymbolOffset(m_index, &address)))
+        return 0;
+    if (debuggingValueEnabled())
+        DebugPrint() << "Address of " << name() << ": " << std::hex << std::showbase << address;
+    return address;
+}
+
+int PyValue::childCount()
+{
+    if (!m_symbolGroup || !expand())
+        return 0;
+    DEBUG_SYMBOL_PARAMETERS params;
+    HRESULT hr = m_symbolGroup->GetSymbolParameters(m_index, 1, &params);
+    return SUCCEEDED(hr) ? params.SubElements : 0;
+}
+
+bool PyValue::hasChildren()
+{
+    return childCount() != 0;
+}
+
+bool PyValue::expand()
+{
+    if (!m_symbolGroup)
+        return false;
+    DEBUG_SYMBOL_PARAMETERS params;
+    if (FAILED(m_symbolGroup->GetSymbolParameters(m_index, 1, &params)))
         return false;
     if (params.Flags & DEBUG_SYMBOL_EXPANDED)
         return true;
-    if (FAILED(v->m_symbolGroup->ExpandSymbol(v->m_index, TRUE)))
+    if (FAILED(m_symbolGroup->ExpandSymbol(m_index, TRUE)))
         return false;
-    if (FAILED(v->m_symbolGroup->GetSymbolParameters(v->m_index, 1, &params)))
+    if (FAILED(m_symbolGroup->GetSymbolParameters(m_index, 1, &params)))
         return false;
     if (params.Flags & DEBUG_SYMBOL_EXPANDED) {
         if (debuggingValueEnabled())
-            DebugPrint() << "Expanded " << getSymbolName(v->m_symbolGroup, v->m_index);
-        indicesMoved(v->m_symbolGroup, v->m_index + 1, params.SubElements);
+            DebugPrint() << "Expanded " << name();
+        indicesMoved(m_symbolGroup, m_index + 1, params.SubElements);
         return true;
     }
     return false;
 }
 
-ULONG numberOfChildren(Value *v)
+std::string PyValue::nativeDebuggerValue()
 {
-    DEBUG_SYMBOL_PARAMETERS params;
-    if (!expandValue(v))
-        return 0;
-    HRESULT hr = v->m_symbolGroup->GetSymbolParameters(v->m_index, 1, &params);
-    return SUCCEEDED(hr) ? params.SubElements : 0;
-}
-
-PyObject *value_Dereference(Value *self)
-{
-    if (!self->m_symbolGroup)
-        Py_RETURN_NONE;
-
-    const std::string &typeNameStr = getTypeName(self);
-    const bool isPointer = isPointerType(typeNameStr);
-    const bool isArray = !isPointer && endsWith(typeNameStr, "]");
-
-    if (isPointer || isArray) {
-        std::string valueName = getSymbolName(self);
-        if (isPointer)
-            valueName.insert(0, 1, '*');
-        else
-            valueName.append("[0]");
-        ULONG index = DEBUG_ANY_ID;
-        if (SUCCEEDED(self->m_symbolGroup->AddSymbol(valueName.c_str(), &index)))
-            return createValue(index, self->m_symbolGroup);
-    }
-
-    PyObject *ret = reinterpret_cast<PyObject*>(self);
-    Py_XINCREF(ret);
-    return ret;
-}
-
-PyObject *value_HasChildren(Value *self)
-{
-    if (!self->m_symbolGroup)
-        Py_RETURN_NONE;
-    return pyBool(numberOfChildren(self) != 0);
-}
-
-PyObject *value_Expand(Value *self)
-{
-    if (!self->m_symbolGroup)
-        Py_RETURN_NONE;
-    return pyBool(expandValue(self));
-}
-
-PyObject *value_NativeDebuggerValue(Value *self)
-{
-    if (!self->m_symbolGroup)
-        Py_RETURN_NONE;
+    if (!m_symbolGroup)
+        std::string();
     ULONG size = 0;
-    self->m_symbolGroup->GetSymbolValueText(self->m_index, NULL, 0, &size);
-    char *name = new char[size];
-    if (FAILED(self->m_symbolGroup->GetSymbolValueText(self->m_index, name, size, &size))) {
-        delete[] name;
-        Py_RETURN_NONE;
-    }
-    PyObject *ret = Py_BuildValue("s", name);
-    delete[] name;
-    return ret;
+
+    m_symbolGroup->GetSymbolValueText(m_index, NULL, 0, &size);
+    std::string text(size - 1, '\0');
+    if (FAILED(m_symbolGroup->GetSymbolValueText(m_index, &text[0], size, &size)))
+        return std::string();
+    return text;
 }
 
-PyObject *value_ChildFromName(Value *self, PyObject *args)
+int PyValue::isValid()
 {
-    if (!self->m_symbolGroup)
-        Py_RETURN_NONE;
-    char *name;
-    if (!PyArg_ParseTuple(args, "s", &name))
-        Py_RETURN_NONE;
+    return m_symbolGroup != nullptr;
+}
 
-    const ULONG childCount = numberOfChildren(self);
-    if (childCount == 0)
-        Py_RETURN_NONE;
-
-    for (ULONG childIndex = self->m_index + 1 ; childIndex <= self->m_index + childCount; ++childIndex) {
-        if (getSymbolName(self->m_symbolGroup, childIndex) == name)
-            return createValue(childIndex, self->m_symbolGroup);
+PyValue PyValue::childFromName(const std::string &name)
+{
+    const ULONG endIndex = m_index + childCount();
+    for (ULONG childIndex = m_index + 1; childIndex <= endIndex; ++childIndex) {
+        PyValue child(childIndex, m_symbolGroup);
+        if (child.name() == name)
+            return child;
     }
-
-    Py_RETURN_NONE;
+    return PyValue();
 }
 
 std::string pointedToSymbolName(ULONG64 address, const std::string &type)
@@ -280,38 +208,24 @@ std::string pointedToSymbolName(ULONG64 address, const std::string &type)
     return str.str();
 }
 
-PyObject *value_ChildFromField(Value *self, PyObject *args)
+PyValue PyValue::childFromField(const PyField &field)
 {
-    if (!self->m_symbolGroup)
-        Py_RETURN_NONE;
-    Field *field;
-    if (!PyArg_ParseTuple(args, "O", &field))
-        Py_RETURN_NONE;
-
-    if (!field->m_initialized && !initTypeAndOffset(field))
-        Py_RETURN_NONE;
-
-    ULONG64 address = valueAddress(self);
-    if (address == 0)
-        Py_RETURN_NONE;
-    address += field->m_offset;
-
-    auto symbols = ExtensionCommandContext::instance()->symbols();
-    ULONG childTypeNameSize = 0;
-    symbols->GetTypeName(field->m_module, field->m_typeId, NULL, 0, &childTypeNameSize);
-    std::string childTypeName(childTypeNameSize, '\0');
-    symbols->GetTypeName(field->m_module, field->m_typeId, &childTypeName[0],
-            childTypeNameSize, &childTypeNameSize);
-
+    if (!m_symbolGroup)
+        return PyValue();
+    ULONG64 childAddress = address();
+    if (!childAddress)
+        return PyValue();
+    childAddress += field.bitpos();
+    const std::string childTypeName = field.type().name();
     if (childTypeName.empty())
-        Py_RETURN_NONE;
-
-    std::string name = pointedToSymbolName(address, childTypeName);
+        return PyValue();
+    const std::string name = pointedToSymbolName(childAddress, childTypeName);
     ULONG index = DEBUG_ANY_ID;
-    if (FAILED(self->m_symbolGroup->AddSymbol(name.c_str(), &index)))
-        Py_RETURN_NONE;
+    if (FAILED(m_symbolGroup->AddSymbol(name.c_str(), &index)))
+        return PyValue();
 
-    return createValue(index, self->m_symbolGroup);
+    return PyValue(index, m_symbolGroup);
+
 }
 
 ULONG currentNumberOfChildren(ULONG index, IDebugSymbolGroup2 *sg)
@@ -335,152 +249,114 @@ ULONG currentNumberOfDescendants(ULONG index, IDebugSymbolGroup2 *sg)
     return descendantCount;
 }
 
-PyObject *value_ChildFromIndex(Value *self, PyObject *args)
+PyValue PyValue::childFromIndex(int index)
 {
-    if (!self->m_symbolGroup)
-        Py_RETURN_NONE;
-    unsigned int index;
-    if (!PyArg_ParseTuple(args, "I", &index))
-        Py_RETURN_NONE;
-
-    if (index < 0)
-        Py_RETURN_NONE;
-
-    const ULONG childCount = numberOfChildren(self);
-    if (childCount <= index)
-        Py_RETURN_NONE;
+    if (childCount() <= index)
+        return PyValue();
 
     int offset = index + 1;
-    for (ULONG childIndex = self->m_index + 1; childIndex < self->m_index + offset; ) {
-        const ULONG childDescendantCount = currentNumberOfDescendants(childIndex, self->m_symbolGroup);
+    for (ULONG childIndex = m_index + 1; childIndex < m_index + offset; ) {
+        const ULONG childDescendantCount = currentNumberOfDescendants(childIndex, m_symbolGroup);
         childIndex += childDescendantCount + 1;
         offset += childDescendantCount;
     }
-
-    if (debuggingValueEnabled()) {
-        DebugPrint() << "child " << index + 1
-                     << " from " << getSymbolName(self)
-                     << " is " << getSymbolName(self->m_symbolGroup, self->m_index + offset);
-    }
-    return createValue(self->m_index + offset, self->m_symbolGroup);
+    return PyValue(m_index + offset, m_symbolGroup);
 }
 
-void value_Dealloc(Value *v)
-{
-    auto values = valuesForSymbolGroup[v->m_symbolGroup];
-    std::remove(values.begin(), values.end(), v);
-}
+// Python interface implementation
 
-PyObject *value_New(PyTypeObject *type, PyObject *, PyObject *)
+namespace PyValueInterface {
+#define PY_OBJ_NAME ValuePythonObject
+PY_NEW_FUNC(PY_OBJ_NAME)
+PY_DEALLOC_FUNC(PY_OBJ_NAME)
+PY_FUNC_RET_STD_STRING(name, PY_OBJ_NAME)
+PY_FUNC_RET_OBJECT(type, PY_OBJ_NAME)
+PY_FUNC(bitsize, PY_OBJ_NAME, "K")
+PY_FUNC_RET_BYTES(asBytes, PY_OBJ_NAME)
+PY_FUNC(address, PY_OBJ_NAME, "K")
+PY_FUNC_RET_BOOL(hasChildren, PY_OBJ_NAME)
+PY_FUNC_RET_BOOL(expand, PY_OBJ_NAME)
+PY_FUNC_RET_STD_STRING(nativeDebuggerValue, PY_OBJ_NAME)
+PY_FUNC_DECL_WITH_ARGS(childFromName, PY_OBJ_NAME)
 {
-    Value *self = reinterpret_cast<Value *>(type->tp_alloc(type, 0));
-    if (self != NULL)
-        initValue(self);
-    return reinterpret_cast<PyObject *>(self);
-}
-
-void initValue(Value *value)
-{
-    value->m_index = 0;
-    value->m_symbolGroup = nullptr;
-}
-
-PyObject *createValue(ULONG index, CIDebugSymbolGroup *symbolGroup)
-{
-    ULONG count;
-    if (FAILED(symbolGroup->GetNumberSymbols(&count)))
+    PY_IMPL_GUARD;
+    char *name;
+    if (!PyArg_ParseTuple(args, "s", &name))
         Py_RETURN_NONE;
-    if (index >= count) // don't add values for indices out of bounds
-        Py_RETURN_NONE;
-
-    Value *value = PyObject_New(Value, value_pytype());
-    if (value != NULL) {
-        value->m_index = index;
-        value->m_symbolGroup = symbolGroup;
-        valuesForSymbolGroup[symbolGroup].push_back(value);
-    }
-    return reinterpret_cast<PyObject*>(value);
+    return createPythonObject(self->impl->childFromName(name));
 }
-
+PY_FUNC_DECL_WITH_ARGS(childFromField, PY_OBJ_NAME)
+{
+    PY_IMPL_GUARD;
+    FieldPythonObject *field;
+    if (!PyArg_ParseTuple(args, "O", &field))
+        Py_RETURN_NONE;
+    return createPythonObject(self->impl->childFromField(*(field->impl)));
+}
+PY_FUNC_DECL_WITH_ARGS(childFromIndex, PY_OBJ_NAME)
+{
+    PY_IMPL_GUARD;
+    unsigned int index;
+    if (!PyArg_ParseTuple(args, "I", &index))
+        Py_RETURN_NONE;
+    return createPythonObject(self->impl->childFromIndex(index));
+}
 static PyMethodDef valueMethods[] = {
-    {"name",                PyCFunction(value_Name),                METH_NOARGS,
+    {"name",                PyCFunction(name),                  METH_NOARGS,
      "Name of this thing or None"},
-    {"type",                PyCFunction(value_Type),                METH_NOARGS,
+    {"type",                PyCFunction(type),                  METH_NOARGS,
      "Type of this value"},
-    {"bitsize",             PyCFunction(value_Bitsize),             METH_NOARGS,
+    {"bitsize",             PyCFunction(bitsize),               METH_NOARGS,
      "Return the size of the value in bits"},
-    {"asBytes",             PyCFunction(value_AsBytes),             METH_NOARGS,
+    {"asBytes",             PyCFunction(asBytes),               METH_NOARGS,
      "Memory contents of this object, or None"},
-    {"address",             PyCFunction(value_Address),             METH_NOARGS,
+    {"address",             PyCFunction(address),               METH_NOARGS,
      "Address of this object, or None"},
-    {"dereference",         PyCFunction(value_Dereference),         METH_NOARGS,
-     "Dereference if value is pointer"},
-    {"hasChildren",         PyCFunction(value_HasChildren),         METH_NOARGS,
+    {"hasChildren",         PyCFunction(hasChildren),           METH_NOARGS,
      "Whether this object has subobjects"},
-    {"expand",              PyCFunction(value_Expand),              METH_NOARGS,
+    {"expand",              PyCFunction(expand),                METH_NOARGS,
      "Make sure that children are accessible."},
-    {"nativeDebuggerValue", PyCFunction(value_NativeDebuggerValue), METH_NOARGS,
+    {"nativeDebuggerValue", PyCFunction(nativeDebuggerValue),   METH_NOARGS,
      "Value string returned by the debugger"},
 
-    {"childFromName",   PyCFunction(value_ChildFromName),           METH_VARARGS,
+    {"childFromName",   PyCFunction(childFromName),             METH_VARARGS,
      "Return the name of this value"},
-    {"childFromField",  PyCFunction(value_ChildFromField),          METH_VARARGS,
+    {"childFromField",  PyCFunction(childFromField),            METH_VARARGS,
      "Return the name of this value"},
-    {"childFromIndex",  PyCFunction(value_ChildFromIndex),          METH_VARARGS,
+    {"childFromIndex",  PyCFunction(childFromIndex),            METH_VARARGS,
      "Return the name of this value"},
 
     {NULL}  /* Sentinel */
 };
+} // namespace PyValueInterface
 
-static PyMemberDef valueMembers[] = {
-    {const_cast<char *>("index"), T_ULONG, offsetof(Value, m_index), 0,
-     const_cast<char *>("value index in symbolgroup")},
-    {NULL}  /* Sentinel */
-};
 
 PyTypeObject *value_pytype()
 {
     static PyTypeObject cdbext_ValueType =
     {
         PyVarObject_HEAD_INIT(NULL, 0)
-        "cdbext.Value",             /* tp_name */
-        sizeof(Value),              /* tp_basicsize */
-        0,                          /* tp_itemsize */
-        (destructor)value_Dealloc,  /* tp_dealloc */
-        0,                          /* tp_print */
-        0,                          /* tp_getattr */
-        0,                          /* tp_setattr */
-        0,                          /* tp_reserved */
-        0,                          /* tp_repr */
-        0,                          /* tp_as_number */
-        0,                          /* tp_as_sequence */
-        0,                          /* tp_as_mapping */
-        0,                          /* tp_hash  */
-        0,                          /* tp_call */
-        0,                          /* tp_str */
-        0,                          /* tp_getattro */
-        0,                          /* tp_setattro */
-        0,                          /* tp_as_buffer */
-        Py_TPFLAGS_DEFAULT,         /* tp_flags */
-        "Value objects",            /* tp_doc */
-        0,                          /* tp_traverse */
-        0,                          /* tp_clear */
-        0,                          /* tp_richcompare */
-        0,                          /* tp_weaklistoffset */
-        0,                          /* tp_iter */
-        0,                          /* tp_iternext */
-        valueMethods,               /* tp_methods */
-        valueMembers,               /* tp_members (just for debugging)*/
-        0,                          /* tp_getset */
-        0,                          /* tp_base */
-        0,                          /* tp_dict */
-        0,                          /* tp_descr_get */
-        0,                          /* tp_descr_set */
-        0,                          /* tp_dictoffset */
-        0,                          /* tp_init */
-        0,                          /* tp_alloc */
-        value_New,                  /* tp_new */
+        "cdbext.Value",                             /* tp_name */
+        sizeof(ValuePythonObject),                  /* tp_basicsize */
+        0,
+        (destructor)PyValueInterface::dealloc,      /* tp_dealloc */
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        Py_TPFLAGS_DEFAULT,                         /* tp_flags */
+        "Value objects",                            /* tp_doc */
+        0, 0, 0, 0, 0, 0,
+        PyValueInterface::valueMethods,             /* tp_methods */
+        0, 0, 0, 0, 0, 0, 0, 0, 0,
+        PyValueInterface::newObject,                /* tp_new */
     };
 
     return &cdbext_ValueType;
+}
+
+PyObject *createPythonObject(PyValue implClass)
+{
+    if (!implClass.isValid())
+        Py_RETURN_NONE;
+    ValuePythonObject *newPyValue = PyObject_New(ValuePythonObject, value_pytype());
+    newPyValue->impl = new PyValue(implClass);
+    return reinterpret_cast<PyObject *>(newPyValue);
 }

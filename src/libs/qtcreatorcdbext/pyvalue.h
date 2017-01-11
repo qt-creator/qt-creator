@@ -25,20 +25,47 @@
 
 #pragma once
 
-#include "symbolgroupnode.h"
-#include "symbolgroup.h"
+#include "pytype.h"
 
-#include <Python.h>
-#include "structmember.h"
+#include "common.h"
+#include "pyfield.h"
+#include "pycdbextmodule.h"
 
-struct Value
+class PyValue
+{
+public:
+    PyValue() = default;
+    PyValue(unsigned long index, CIDebugSymbolGroup *symbolGroup);
+    ~PyValue();
+
+    std::string name() const;
+    PyType type();
+    ULONG64 bitsize();
+    Bytes asBytes(); // return value transfers ownership to caller
+    ULONG64 address();
+    int childCount();
+    bool hasChildren();
+    bool expand();
+    std::string nativeDebuggerValue();
+
+    int isValid();
+
+    PyValue childFromName(const std::string &name);
+    PyValue childFromField(const PyField &field);
+    PyValue childFromIndex(int index);
+
+private:
+    static void indicesMoved(CIDebugSymbolGroup *symbolGroup, ULONG start, ULONG delta);
+
+    unsigned long m_index = 0;
+    CIDebugSymbolGroup *m_symbolGroup = nullptr;  // not owned
+};
+
+struct ValuePythonObject
 {
     PyObject_HEAD
-    ULONG m_index;
-    CIDebugSymbolGroup *m_symbolGroup;  // not owned
+    PyValue *impl;
 };
 
 PyTypeObject *value_pytype();
-void initValue(Value *value);
-PyObject *createValue(ULONG index, CIDebugSymbolGroup *symbolGroup);
-std::string getSymbolName(CIDebugSymbolGroup *sg, ULONG index);
+PyObject *createPythonObject(PyValue typeClass);

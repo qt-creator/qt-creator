@@ -25,11 +25,8 @@
 
 #include "pytype.h"
 
-#include <Python.h>
-
 #include "extensioncontext.h"
 #include "pycdbextmodule.h"
-#include "pyfield.h"
 #include "stringutils.h"
 #include "symbolgroupvalue.h"
 
@@ -53,7 +50,27 @@ enum TypeCodes {
     TypeCodeUnresolvable
 };
 
-bool isArrayPointerAtPosition(const std::string &typeName, size_t position)
+static bool isType(const std::string &typeName, const std::vector<std::string> &types)
+{
+    return std::find(types.begin(), types.end(), typeName) != types.end();
+}
+
+static bool isIntegralType(const std::string &typeName)
+{
+    static const std::vector<std::string> integralTypes({"bool",
+            "char", "unsigned char", "char16_t", "char32_t", "wchar_t",
+            "short", "unsigned short", "int", "unsigned int",
+            "long", "unsigned long", "int64", "unsigned int64", "__int64", "unsigned __int64"});
+    return isType(typeName, integralTypes);
+}
+
+static bool isFloatType(const std::string &typeName)
+{
+    static const std::vector<std::string> floatTypes({"float", "double"});
+    return isType(typeName, floatTypes);
+}
+
+static bool isArrayPointerAtPosition(const std::string &typeName, size_t position)
 {
     if (typeName.length() < position + 3)
         return false;
@@ -62,11 +79,38 @@ bool isArrayPointerAtPosition(const std::string &typeName, size_t position)
             && typeName.at(position + 2) == ')';
 }
 
-bool isPointerType(const std::string &typeName)
+static bool isArrayType(const std::string &typeName)
+{
+    if (typeName.empty() || typeName.back() != ']')
+        return false;
+    // check for types like "int (*)[3]" which is a pointer to an integer array with 3 elements
+    const auto arrayPosition = typeName.find_first_of('[');
+    return arrayPosition == std::string::npos
+            || arrayPosition < 3 || !isArrayPointerAtPosition(typeName, arrayPosition - 3);
+}
+
+static ULONG extractArraySize(const std::string &typeName, size_t openArrayPos = 0)
+{
+    if (openArrayPos == 0)
+        openArrayPos = typeName.find_last_of('[');
+    const auto closeArrayPos = typeName.find_last_of(']');
+    if (openArrayPos == std::string::npos || closeArrayPos == std::string::npos)
+        return 0;
+    const std::string arraySizeString = typeName.substr(openArrayPos + 1,
+                                                        closeArrayPos - openArrayPos - 1);
+    try {
+        return std::stoul(arraySizeString);
+    }
+    catch (const std::invalid_argument &) {} // fall through
+    catch (const std::out_of_range &) {} // fall through
+    return 0;
+}
+
+static bool isPointerType(const std::string &typeName)
 {
     if (typeName.empty())
         return false;
-    if (endsWith(typeName, '*'))
+    if (typeName.back() == '*')
         return true;
 
     // check for types like "int (*)[3]" which is a pointer to an integer array with 3 elements
@@ -75,19 +119,12 @@ bool isPointerType(const std::string &typeName)
             && arrayPosition >= 3 && isArrayPointerAtPosition(typeName, arrayPosition - 3);
 }
 
-bool isArrayType(const std::string &typeName)
+static std::string stripPointerType(const std::string &typeNameIn)
 {
-    if (!endsWith(typeName, ']'))
-        return false;
-    // check for types like "int ( *)[3]" which is a pointer to an integer array with 3 elements
-    const auto arrayPosition = typeName.find_first_of('[');
-    return arrayPosition == std::string::npos
-            || arrayPosition < 3 || !isArrayPointerAtPosition(typeName, arrayPosition - 3);
-}
-
-std::string &stripPointerType(std::string &typeName)
-{
-    if (endsWith(typeName, '*')) {
+    if (typeNameIn.empty())
+        return typeNameIn;
+    std::string typeName = typeNameIn;
+    if (typeName.back() == '*') {
         typeName.pop_back();
     } else {
         const auto arrayPosition = typeName.find_first_of('[');
@@ -100,280 +137,7 @@ std::string &stripPointerType(std::string &typeName)
     return typeName;
 }
 
-ULONG extractArrrayCount(const std::string &typeName, size_t openArrayPos = 0)
-{
-    if (openArrayPos == 0)
-        openArrayPos = typeName.find_last_of('[');
-    const auto closeArrayPos = typeName.find_last_of(']');
-    if (openArrayPos == std::string::npos || closeArrayPos == std::string::npos)
-        return 0;
-    const std::string arrayCountString = typeName.substr(openArrayPos + 1,
-                                                   closeArrayPos - openArrayPos - 1);
-    try {
-        return std::stoul(arrayCountString);
-    }
-    catch (const std::invalid_argument &) {} // fall through
-    catch (const std::out_of_range &) {} // fall through
-    return 0;
-}
-
-PyObject *lookupArrayType(const std::string &typeName, ULONG64 module = 0)
-{
-    size_t openArrayPos = typeName.find_last_of('[');
-    if (ULONG arrayCount = extractArrrayCount(typeName, openArrayPos))
-        return createArrayType(arrayCount, (Type*)lookupType(typeName.substr(0, openArrayPos), module));
-    return createUnresolvedType(typeName);
-}
-
-PyObject *lookupType(const std::string &typeNameIn, ULONG64 module)
-{
-    if (debuggingTypeEnabled())
-        DebugPrint() << "lookup type '" << typeNameIn << "'";
-    std::string typeName = typeNameIn;
-    trimBack(typeName);
-    trimFront(typeName);
-
-    if (isPointerType(typeName))
-        return createPointerType((Type*)lookupType(stripPointerType(typeName), module));
-    if (SymbolGroupValue::isArrayType(typeName))
-        return lookupArrayType(typeName, module);
-
-    if (typeName.find("enum ") == 0)
-        typeName.erase(0, 5);
-    if (endsWith(typeName, " const"))
-        typeName.erase(typeName.length() - 6);
-    if (typeName == "__int64" || typeName == "unsigned __int64")
-        typeName.erase(typeName.find("__"), 2);
-
-    CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
-    ULONG typeId;
-    HRESULT result;
-    if (module != 0)
-        result = symbols->GetTypeId(module, typeName.c_str(), &typeId);
-    else
-        result = symbols->GetSymbolTypeId(typeName.c_str(), &typeId, &module);
-    if (FAILED(result))
-        return createUnresolvedType(typeName);
-    return createType(module, typeId, typeName);
-}
-
-std::string getModuleName(ULONG64 module)
-{
-    CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
-    ULONG size;
-    symbols->GetModuleNameString(DEBUG_MODNAME_MODULE, DEBUG_ANY_ID, module, NULL, 0, &size);
-    std::string name(size - 1, '\0');
-    if (SUCCEEDED(symbols->GetModuleNameString(DEBUG_MODNAME_MODULE, DEBUG_ANY_ID,
-                                               module, &name[0], size, NULL))) {
-        return name;
-    }
-    return std::string();
-}
-
-bool isType(const std::string &typeName, const std::vector<std::string> &types)
-{
-    return std::find(types.begin(), types.end(), typeName) != types.end();
-}
-
-bool isIntegralType(const std::string &typeName)
-{
-    static const std::vector<std::string> integralTypes({"bool",
-            "char", "unsigned char", "char16_t", "char32_t", "wchar_t",
-            "short", "unsigned short", "int", "unsigned int",
-            "long", "unsigned long", "int64", "unsigned int64", "__int64", "unsigned __int64"});
-    return isType(typeName, integralTypes);
-}
-
-bool isFloatType(const std::string &typeName)
-{
-    static const std::vector<std::string> floatTypes({"float", "double"});
-    return isType(typeName, floatTypes);
-}
-
-std::string getTypeName(ULONG64 module, ULONG typeId, const bool withModule)
-{
-    auto symbols = ExtensionCommandContext::instance()->symbols();
-    ULONG size = 0;
-    symbols->GetTypeName(module, typeId, NULL, 0, &size);
-    if (size == 0)
-        return std::string();
-
-    std::string typeName(size - 1, '\0');
-    if (FAILED(symbols->GetTypeName(module, typeId, &typeName[0], size, &size)))
-        return std::string();
-
-    if (withModule && !isIntegralType(typeName) && !isFloatType(typeName)) {
-        const std::string &moduleName = getModuleName(module);
-        if (!moduleName.empty())
-            typeName.insert(0, "!").insert(0, moduleName);
-    }
-    return typeName;
-}
-
-std::string getModuleName(Type *type)
-{
-    return type->m_targetType
-            ? getModuleName(type->m_targetType)
-            : getModuleName(type->m_module);
-}
-
-std::string getTypeName(Type *type, const bool withModule)
-{
-    if (type->m_name == nullptr) {
-        if (type->m_targetType) {
-            std::ostringstream str;
-            str << getTypeName(type->m_targetType);
-            if (type->m_arraySize)
-                str << '[' << type->m_arraySize << ']';
-            else
-                str << '*';
-            type->m_name = new std::string(str.str());
-        } else {
-            type->m_name = new std::string(getTypeName(type->m_module, type->m_typeId));
-        }
-    }
-    if (withModule) {
-        const std::string &moduleName = getModuleName(type);
-        if (!moduleName.empty()) {
-            std::stringstream str;
-            str << moduleName << '!' << *(type->m_name);
-            return str.str();
-        }
-    }
-    return *(type->m_name);
-}
-
-PyObject *type_Name(Type *self)
-{
-    return Py_BuildValue("s", getTypeName(self).c_str());
-}
-
-ULONG typeBitSize(Type *type)
-{
-    if (!type->m_resolved)
-        return 0;
-    if (type->m_targetType && type->m_arraySize != 0)
-        return type->m_arraySize * typeBitSize(type->m_targetType);
-    if ((type->m_targetType && type->m_arraySize == 0) || isPointerType(getTypeName(type)))
-        return pointerSize() * 8;
-
-    ULONG size = 0;
-    ExtensionCommandContext::instance()->symbols()->GetTypeSize(
-                type->m_module, type->m_typeId, &size);
-    if (size == 0)
-        return 0;
-    return size * 8;
-}
-
-PyObject *type_bitSize(Type *self)
-{
-    return Py_BuildValue("k", typeBitSize(self));
-}
-
-PyObject *type_Code(Type *self)
-{
-    TypeCodes code = TypeCodeStruct;
-    if (!self->m_resolved) {
-        code = TypeCodeUnresolvable;
-    } else if (self->m_targetType) {
-        code = self->m_arraySize == 0 ? TypeCodePointer : TypeCodeArray;
-    } else {
-        const std::string typeName(getTypeName(self));
-        if (typeName.empty())
-            Py_RETURN_NONE;
-        if (isArrayType(typeName))
-            code = TypeCodeArray;
-        else if (typeName.find("<function>") != std::string::npos)
-            code = TypeCodeFunction;
-        else if (isPointerType(typeName))
-            code = TypeCodePointer;
-        else if (isIntegralType(typeName))
-            code = TypeCodeIntegral;
-        else if (isFloatType(typeName))
-            code = TypeCodeFloat;
-    }
-
-    return Py_BuildValue("k", code);
-}
-
-PyObject *type_Unqualified(Type *self)
-{
-    Py_XINCREF(self);
-    return (PyObject *)self;
-}
-
-PyObject *type_Target(Type *self)
-{
-    if (self->m_targetType) {
-        auto target = reinterpret_cast<PyObject *>(self->m_targetType);
-        Py_IncRef(target);
-        return target;
-    }
-    std::string typeName(getTypeName(self));
-    if (isPointerType(typeName))
-        return lookupType(stripPointerType(typeName));
-    if (SymbolGroupValue::isArrayType(typeName)) {
-        while (!endsWith(typeName, '[') && !typeName.empty())
-            typeName.pop_back();
-        if (typeName.empty())
-            Py_RETURN_NONE;
-        typeName.pop_back();
-        return lookupType(typeName);
-    }
-
-    Py_XINCREF(self);
-    return (PyObject *)self;
-}
-
-PyObject *type_StripTypedef(Type *self)
-{
-    Py_XINCREF(self);
-    return (PyObject *)self;
-}
-
-PyObject *type_Fields(Type *self)
-{
-    CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
-    auto fields = PyList_New(0);
-    if (self->m_targetType)
-        return fields;
-    for (ULONG fieldIndex = 0;; ++fieldIndex) {
-        ULONG fieldNameSize = 0;
-        symbols->GetFieldName(self->m_module, self->m_typeId, fieldIndex, NULL, 0, &fieldNameSize);
-        if (fieldNameSize == 0)
-            break;
-        char *name = new char[fieldNameSize];
-        if (FAILED(symbols->GetFieldName(self->m_module, self->m_typeId, fieldIndex, name,
-                                         fieldNameSize, NULL))) {
-            delete[] name;
-            break;
-        }
-
-        Field *field = PyObject_New(Field, field_pytype());
-        if (field == NULL)
-            return fields;
-        initField(field);
-        field->m_name = name;
-        field->m_parentTypeId = self->m_typeId;
-        field->m_module = self->m_module;
-        PyList_Append(fields, reinterpret_cast<PyObject*>(field));
-    }
-    return fields;
-}
-
-PyObject *type_Module(Type *self)
-{
-    return Py_BuildValue("s", getModuleName(self).c_str());
-}
-
-PyObject *type_ArrayElements(Type *self)
-{
-    if (self->m_arraySize)
-        return Py_BuildValue("k", self->m_arraySize);
-    return Py_BuildValue("k", extractArrrayCount(getTypeName(self)));
-}
-
-std::vector<std::string> innerTypesOf(const std::string &t)
+static std::vector<std::string> innerTypesOf(const std::string &t)
 {
     std::vector<std::string> rc;
 
@@ -424,201 +188,343 @@ std::vector<std::string> innerTypesOf(const std::string &t)
     return rc;
 }
 
-PyObject *type_TemplateArgument(Type *self, PyObject *args)
+static std::string getModuleName(ULONG64 module)
 {
-    unsigned int index;
-    bool numeric;
-    if (!PyArg_ParseTuple(args, "Ib", &index, &numeric))
-        Py_RETURN_NONE;
-
-    std::vector<std::string> innerTypes = innerTypesOf(getTypeName(self));
-    if (innerTypes.size() <= index)
-        Py_RETURN_NONE;
-
-    const std::string &innerType = SymbolGroupValue::stripConst(innerTypes.at(index));
-    if (numeric) {
-        try {
-            return Py_BuildValue("i", std::stoi(innerType));
-        }
-        catch (std::invalid_argument) {
-            Py_RETURN_NONE;
-        }
+    CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
+    ULONG size;
+    symbols->GetModuleNameString(DEBUG_MODNAME_MODULE, DEBUG_ANY_ID, module, NULL, 0, &size);
+    std::string name(size - 1, '\0');
+    if (SUCCEEDED(symbols->GetModuleNameString(DEBUG_MODNAME_MODULE, DEBUG_ANY_ID,
+                                               module, &name[0], size, NULL))) {
+        return name;
     }
-
-    return lookupType(innerType);
+    return std::string();
 }
 
-PyObject *type_TemplateArguments(Type *self)
+PyType::PyType(ULONG64 module, unsigned long typeId, const std::string &name)
+    : m_module(module)
+    , m_typeId(typeId)
+    , m_resolved(true)
 {
-    std::vector<std::string> innerTypes = innerTypesOf(getTypeName(self));
+    m_name = SymbolGroupValue::stripClassPrefixes(name);
+    if (m_name.compare(0, 6, "union ") == 0)
+           m_name.erase(0, 6);
+    if (m_name == "<function> *")
+           m_name.erase(10);
+
+    const std::string &typeName = this->name();
+    if (isPointerType(typeName)) {
+        m_targetType.reset(new PyType(lookupType(stripPointerType(typeName), m_module)));
+    } else if (isArrayType(typeName)) {
+        const size_t openArrayPos = typeName.find_last_of('[');
+        if (openArrayPos != std::string::npos) {
+            m_targetType.reset(new PyType(lookupType(typeName.substr(0, openArrayPos), module)));
+            m_arraySize = extractArraySize(typeName, openArrayPos);
+        }
+    }
+}
+
+std::string PyType::name(bool withModule) const
+{
+    if (m_targetType && m_targetType->isValid()) {
+        std::ostringstream str;
+        str << m_targetType->name(withModule);
+        if (m_arraySize)
+            str << '[' << m_arraySize << ']';
+        else
+            str << '*';
+        return str.str();
+    }
+
+    if (m_name.empty()) {
+        auto symbols = ExtensionCommandContext::instance()->symbols();
+        ULONG size = 0;
+        symbols->GetTypeName(m_module, m_typeId, NULL, 0, &size);
+        if (size == 0)
+            return std::string();
+
+        std::string typeName(size - 1, '\0');
+        if (FAILED(symbols->GetTypeName(m_module, m_typeId, &typeName[0], size, &size)))
+            return std::string();
+
+        m_name = typeName;
+    }
+
+    if (withModule && !isIntegralType(m_name) && !isFloatType(m_name)) {
+        std::string completeName = module();
+        if (!completeName.empty())
+            completeName.append("!");
+        completeName.append(m_name);
+        return completeName;
+    }
+
+    return m_name;
+}
+
+ULONG64 PyType::bitsize() const
+{
+    if (!m_resolved)
+        return 0;
+    if (m_targetType && m_targetType->isValid()) {
+        if (m_arraySize != 0)
+            return m_arraySize * m_targetType->bitsize();
+        if (m_arraySize == 0 || isPointerType(name()))
+            return pointerSize() * 8;
+    }
+
+    ULONG size = 0;
+    auto symbols = ExtensionCommandContext::instance()->symbols();
+    if (SUCCEEDED(symbols->GetTypeSize(m_module, m_typeId, &size)))
+        return size * 8;
+    return 0;
+}
+
+int PyType::code() const
+{
+    TypeCodes code = TypeCodeStruct;
+    if (!m_resolved) {
+        code = TypeCodeUnresolvable;
+    } else if (m_targetType) {
+        if (m_targetType->isValid())
+            code = m_arraySize == 0 ? TypeCodePointer : TypeCodeArray;
+        else
+            code = TypeCodeUnresolvable;
+    } else {
+        const std::string &typeName = name();
+        if (typeName.empty())
+            TypeCodeUnresolvable;
+        if (typeName.find("<function>") != std::string::npos)
+            code = TypeCodeFunction;
+        else if (isIntegralType(typeName))
+            code = TypeCodeIntegral;
+        else if (isFloatType(typeName))
+            code = TypeCodeFloat;
+    }
+    return code;
+}
+
+PyType PyType::target() const
+{
+    return (m_targetType && m_targetType->isValid()) ? *m_targetType : PyType();
+}
+
+PyFields PyType::fields() const
+{
+    CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
+    PyFields fields;
+    if (m_targetType && m_targetType->isValid())
+        return fields;
+    for (ULONG fieldIndex = 0;; ++fieldIndex) {
+        ULONG size = 0;
+        symbols->GetFieldName(m_module, m_typeId, fieldIndex, NULL, 0, &size);
+        if (size == 0)
+            break;
+        std::string name(size - 1, '\0');
+        if (FAILED(symbols->GetFieldName(m_module, m_typeId, fieldIndex, &name[0], size, NULL)))
+            break;
+
+        fields.push_back(PyField(name, *this));
+    }
+    return fields;
+}
+
+std::string PyType::module() const
+{
+    if (m_targetType && m_targetType->isValid())
+        return m_targetType->module();
+    CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
+    ULONG size;
+    symbols->GetModuleNameString(DEBUG_MODNAME_MODULE, DEBUG_ANY_ID, m_module, NULL, 0, &size);
+    std::string name(size - 1, '\0');
+    if (SUCCEEDED(symbols->GetModuleNameString(DEBUG_MODNAME_MODULE, DEBUG_ANY_ID,
+                                               m_module, &name[0], size, NULL))) {
+        return name;
+    }
+    return std::string();
+}
+
+int PyType::arrayElements() const
+{
+    return m_arraySize;
+}
+
+PyType::TemplateArguments PyType::templateArguments()
+{
+    std::vector<std::string> innerTypes = innerTypesOf(name());
     if (debuggingTypeEnabled())
-        DebugPrint() << "template arguments of: " << getTypeName(self);
-    auto templateArguments = PyList_New(0);
+        DebugPrint() << "template arguments of: " << name();
+    TemplateArguments templateArguments;
     for (const std::string &innerType : innerTypes) {
         if (debuggingTypeEnabled())
             DebugPrint() << "    template argument: " << innerType;
-        PyObject* childValue;
+        TemplateArgument arg;
         try {
-            int integer = std::stoi(innerType);
-            childValue = Py_BuildValue("i", integer);
+            int numericValue = std::stoi(innerType);
+            arg.numericValue = numericValue;
         }
         catch (std::invalid_argument) {
-            childValue = Py_BuildValue("s", innerType.c_str());
+            arg.numeric = false;
+            arg.typeName = innerType;
         }
-        PyList_Append(templateArguments, childValue);
+        templateArguments.push_back(arg);
     }
     return templateArguments;
 }
 
-PyObject *type_New(PyTypeObject *type, PyObject *, PyObject *)
-{
-    Type *self = reinterpret_cast<Type *>(type->tp_alloc(type, 0));
-    if (self != NULL) {
-        self->m_name = nullptr;
-        self->m_typeId = 0;
-        self->m_module = 0;
-        self->m_resolved = false;
-    }
-    return reinterpret_cast<PyObject *>(self);
-}
-
-void type_Dealloc(Type *self)
-{
-    free(self->m_name);
-}
-
-PyObject *createType(ULONG64 module, ULONG typeId, const std::string &name)
-{
-    std::string typeName = SymbolGroupValue::stripClassPrefixes(name);
-    if (typeName.compare(0, 6, "union ") == 0)
-        typeName.erase(0, 6);
-
-    if (!typeName.empty()) {
-        if (isPointerType(typeName))
-            return createPointerType((Type*)lookupType(stripPointerType(typeName), module));
-        if (isArrayType(typeName))
-            return lookupArrayType(typeName, module);
-    }
-
-    Type *type = PyObject_New(Type, type_pytype());
-    type->m_module = module;
-    type->m_typeId = typeId;
-    type->m_arraySize = 0;
-    type->m_targetType = nullptr;
-    type->m_resolved = true;
-    type->m_name = typeName.empty() ? nullptr : new std::string(typeName);
-    return reinterpret_cast<PyObject *>(type);
-}
-
-PyObject *createUnresolvedType(const std::string &name)
+PyType PyType::lookupType(const std::string &typeNameIn, ULONG64 module)
 {
     if (debuggingTypeEnabled())
-        DebugPrint() << "Created unresolved type '" << name << "'";
-    Type *type = PyObject_New(Type, type_pytype());
-    type->m_module = 0;
-    type->m_typeId = 0;
-    type->m_arraySize = 0;
-    type->m_targetType = nullptr;
-    type->m_name = new std::string(name);
-    type->m_resolved = false;
-    return reinterpret_cast<PyObject *>(type);
+        DebugPrint() << "lookup type '" << typeNameIn << "'";
+    std::string typeName = typeNameIn;
+    trimBack(typeName);
+    trimFront(typeName);
+
+    if (isPointerType(typeName))
+        return createPointerType(lookupType(stripPointerType(typeName), module));
+    if (isArrayType(typeName)) {
+        size_t openArrayPos = typeName.find_last_of('[');
+        if (openArrayPos == std::string::npos)
+            return createUnresolvedType(typeName);
+        return createArrayType(lookupType(typeName.substr(0, openArrayPos), module),
+                               extractArraySize(typeName, openArrayPos));
+    }
+
+    if (typeName.find("enum ") == 0)
+        typeName.erase(0, 5);
+    if (endsWith(typeName, " const"))
+        typeName.erase(typeName.length() - 6);
+    if (typeName == "__int64" || typeName == "unsigned __int64")
+        typeName.erase(typeName.find("__"), 2);
+
+    CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
+    ULONG typeId;
+    HRESULT result;
+    if (module != 0)
+        result = symbols->GetTypeId(module, typeName.c_str(), &typeId);
+    else
+        result = symbols->GetSymbolTypeId(typeName.c_str(), &typeId, &module);
+    if (FAILED(result))
+        return createUnresolvedType(typeName);
+    return PyType(module, typeId, typeName);
+
 }
 
-PyObject *createArrayType(ULONG arraySize, Type *targetType)
+PyType PyType::createUnresolvedType(const std::string &typeName)
 {
-    Type *type = PyObject_New(Type, type_pytype());
-    type->m_module = 0;
-    type->m_typeId = 0;
-    type->m_arraySize = arraySize;
-    type->m_targetType = targetType;
-    type->m_name = nullptr;
-    type->m_resolved = true;
-    return reinterpret_cast<PyObject *>(type);
+    PyType unresolvedType;
+    unresolvedType.m_name = typeName;
+    return unresolvedType;
 }
 
-PyObject *createPointerType(Type *targetType)
+PyType PyType::createPointerType(const PyType &targetType)
 {
-    return createArrayType(0, targetType);
+    PyType pointerType;
+    pointerType.m_targetType.reset(new PyType(targetType));
+    pointerType.m_resolved = true;
+    return pointerType;
+}
+
+PyType PyType::createArrayType(const PyType &elementType, unsigned long size)
+{
+    PyType arrayType;
+    arrayType.m_targetType.reset(new PyType(elementType));
+    arrayType.m_resolved = true;
+    arrayType.m_arraySize = size;
+    return arrayType;
+}
+
+ULONG64 PyType::getModule() const
+{
+    return m_module;
+}
+
+unsigned long PyType::getTypeId() const
+{
+    return m_typeId;
+}
+
+bool PyType::isValid() const
+{
+    return m_resolved;
+}
+
+// Python interface implementation
+
+namespace PyTypeInterface {
+#define PY_OBJ_NAME TypePythonObject
+PY_NEW_FUNC(PY_OBJ_NAME)
+PY_DEALLOC_FUNC(PY_OBJ_NAME)
+PY_FUNC_RET_STD_STRING(name, PY_OBJ_NAME)
+PY_FUNC(bitsize, PY_OBJ_NAME, "k")
+PY_FUNC(code, PY_OBJ_NAME, "k")
+PY_FUNC_RET_SELF(unqualified, PY_OBJ_NAME)
+PY_FUNC_RET_OBJECT(target, PY_OBJ_NAME)
+PY_FUNC_RET_SELF(stripTypedef, PY_OBJ_NAME)
+PY_FUNC_RET_OBJECT_LIST(fields, PY_OBJ_NAME)
+PY_FUNC_RET_STD_STRING(module, PY_OBJ_NAME)
+PY_FUNC(arrayElements, PY_OBJ_NAME, "k")
+PY_FUNC_DECL(templateArguments, PY_OBJ_NAME)
+{
+    PY_IMPL_GUARD;
+    auto list = PyList_New(0);
+    for (PyType::TemplateArgument arg : self->impl->templateArguments())
+        PyList_Append(list, arg.numeric ? Py_BuildValue("i", arg.numericValue)
+                                        : Py_BuildValue("s", arg.typeName.c_str()));
+    return list;
 }
 
 static PyMethodDef typeMethods[] = {
-    {"name",                PyCFunction(type_Name),                 METH_NOARGS,
+    {"name",                PyCFunction(name),                  METH_NOARGS,
      "Return the type name"},
-    {"bitsize",             PyCFunction(type_bitSize),              METH_NOARGS,
+    {"bitsize",             PyCFunction(bitsize),               METH_NOARGS,
      "Return the size of the type in bits"},
-    {"code",                PyCFunction(type_Code),                 METH_NOARGS,
+    {"code",                PyCFunction(code),                  METH_NOARGS,
      "Return type code"},
-    {"unqualified",         PyCFunction(type_Unqualified),          METH_NOARGS,
+    {"unqualified",         PyCFunction(unqualified),           METH_NOARGS,
      "Type without const/volatile"},
-    {"target",              PyCFunction(type_Target),               METH_NOARGS,
+    {"target",              PyCFunction(target),                METH_NOARGS,
      "Type dereferenced if it is a pointer type, element if array etc"},
-    {"stripTypedef",        PyCFunction(type_StripTypedef),         METH_NOARGS,
+    {"stripTypedef",        PyCFunction(stripTypedef),          METH_NOARGS,
      "Type with typedefs removed"},
-    {"fields",              PyCFunction(type_Fields),               METH_NOARGS,
+    {"fields",              PyCFunction(fields),                METH_NOARGS,
      "List of fields (member and base classes) of this type"},
-    {"module",              PyCFunction(type_Module),               METH_NOARGS,
+    {"module",              PyCFunction(module),                METH_NOARGS,
      "Returns name for the module containing this type"},
-    {"arrayElements",       PyCFunction(type_ArrayElements),        METH_NOARGS,
+    {"arrayElements",       PyCFunction(arrayElements),         METH_NOARGS,
      "Returns the number of elements in an array or 0 for non array types"},
-
-    {"templateArgument",    PyCFunction(type_TemplateArgument),     METH_VARARGS,
-     "Returns template argument at position"},
-    {"templateArguments",   PyCFunction(type_TemplateArguments),    METH_NOARGS,
+    {"templateArguments",   PyCFunction(templateArguments),     METH_NOARGS,
      "Returns all template arguments."},
 
     {NULL}  /* Sentinel */
 };
 
-static PyMemberDef typeMembers[] = {
-    {const_cast<char *>("id"), T_ULONG, offsetof(Type, m_typeId), 0,
-     const_cast<char *>("type id")},
-    {const_cast<char *>("moduleBase"), T_ULONGLONG, offsetof(Type, m_module), 0,
-     const_cast<char *>("module base address")},
-    {NULL}  /* Sentinel */
-};
+} // namespace PyTypeInterface
 
 PyTypeObject *type_pytype()
 {
-    static PyTypeObject cdbext_TypeType = {
+    static PyTypeObject cdbext_PyType = {
         PyVarObject_HEAD_INIT(NULL, 0)
         "cdbext.Type",                              /* tp_name */
-        sizeof(Type),                               /* tp_basicsize */
-        0,                                          /* tp_itemsize */
-        (destructor)type_Dealloc,                   /* tp_dealloc */
-        0,                                          /* tp_print */
-        0,                                          /* tp_getattr */
-        0,                                          /* tp_setattr */
-        0,                                          /* tp_as_async */
-        0,                                          /* tp_repr */
-        0,                                          /* tp_as_number */
-        0,                                          /* tp_as_sequence */
-        0,                                          /* tp_as_mapping */
-        0,                                          /* tp_hash  */
-        0,                                          /* tp_call */
-        0,                                          /* tp_str */
-        0,                                          /* tp_getattro */
-        0,                                          /* tp_setattro */
-        0,                                          /* tp_as_buffer */
+        sizeof(TypePythonObject),                   /* tp_basicsize */
+        0,
+        (destructor)PyTypeInterface::dealloc,       /* tp_dealloc */
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,   /* tp_flags */
         "Type objects",                             /* tp_doc */
-        0,                                          /* tp_traverse */
-        0,                                          /* tp_clear */
-        0,                                          /* tp_richcompare */
-        0,                                          /* tp_weaklistoffset */
-        0,                                          /* tp_iter */
-        0,                                          /* tp_iternext */
-        typeMethods,                                /* tp_methods */
-        typeMembers,                                /* tp_members (just for debugging)*/
-        0,                                          /* tp_getset */
-        0,                                          /* tp_base */
-        0,                                          /* tp_dict */
-        0,                                          /* tp_descr_get */
-        0,                                          /* tp_descr_set */
-        0,                                          /* tp_dictoffset */
-        0,                                          /* tp_init */
-        0,                                          /* tp_alloc */
-        type_New,                                   /* tp_new */
+        0, 0, 0, 0, 0, 0,
+        PyTypeInterface::typeMethods,               /* tp_methods */
+        0, 0, 0, 0, 0, 0, 0, 0, 0,
+        PyTypeInterface::newObject,                 /* tp_new */
     };
 
-    return &cdbext_TypeType;
+    return &cdbext_PyType;
+}
+
+PyObject *createPythonObject(PyType implClass)
+{
+    if (!implClass.isValid())
+        Py_RETURN_NONE;
+    TypePythonObject *newPyType = PyObject_New(TypePythonObject, type_pytype());
+    newPyType->impl = new PyType(implClass);
+    return reinterpret_cast<PyObject *>(newPyType);
 }
