@@ -137,18 +137,13 @@ Utils::Environment WinCEToolChain::readEnvironmentSetting(const Utils::Environme
             result.set(envPairIter.key(), varValue);
     }
 
-
     // Now loop round and do the delayed expansion
-    auto envIter = result.constBegin();
-    while (envIter != result.constEnd()) {
+    for (auto envIter = result.constBegin(); envIter != result.constEnd(); ++envIter) {
         const QString key = result.key(envIter);
         const QString unexpandedValue = result.value(envIter);
-
         const QString expandedValue = winExpandDelayedEnvReferences(unexpandedValue, result);
 
         result.set(key, expandedValue);
-
-        ++envIter;
     }
 
     if (debug) {
