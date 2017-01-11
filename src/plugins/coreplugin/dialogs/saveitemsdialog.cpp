@@ -60,7 +60,7 @@ SaveItemsDialog::SaveItemsDialog(QWidget *parent,
         connect(m_diffButton, &QAbstractButton::clicked, this, &SaveItemsDialog::collectFilesToDiff);
     }
 
-    QPushButton *discardButton = m_ui.buttonBox->addButton(tr("Do not Save"), discardButtonRole);
+    QPushButton *discardButton = m_ui.buttonBox->addButton(tr("Do &not Save"), discardButtonRole);
     m_ui.buttonBox->button(QDialogButtonBox::Save)->setDefault(true);
     m_ui.treeWidget->setFocus();
 
@@ -108,15 +108,15 @@ void SaveItemsDialog::updateButtons()
     int count = m_ui.treeWidget->selectedItems().count();
     QPushButton *saveButton = m_ui.buttonBox->button(QDialogButtonBox::Save);
     bool buttonsEnabled = true;
-    QString saveText = tr("Save");
+    QString saveText = tr("&Save");
     QString diffText = tr("&Diff && Cancel");
     if (count == m_ui.treeWidget->topLevelItemCount()) {
-        saveText = tr("Save All");
+        saveText = tr("&Save All");
         diffText = tr("&Diff All && Cancel");
     } else if (count == 0) {
         buttonsEnabled = false;
     } else {
-        saveText = tr("Save Selected");
+        saveText = tr("&Save Selected");
         diffText = tr("&Diff Selected && Cancel");
     }
     saveButton->setEnabled(buttonsEnabled);
