@@ -39,9 +39,8 @@ public:
 
     ~NimPlugin();
 
-    bool initialize(const QStringList &arguments, QString *errorMessage) override;
-
-    void extensionsInitialized() override {}
+    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void extensionsInitialized() final;
 };
 
 }
