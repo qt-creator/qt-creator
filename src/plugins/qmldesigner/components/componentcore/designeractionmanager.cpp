@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "designeractionmanager.h"
+
 #include "modelnodecontextmenu_helper.h"
 #include <nodeproperty.h>
 #include <nodemetainfo.h>
@@ -80,23 +81,15 @@ DesignerActionToolBar *DesignerActionManager::createToolBar(QWidget *parent) con
         });
 
         bool addSeparator = false;
-        bool lastWasSeparator = false;
 
         for (auto *action : actions) {
-            if (action->type() == ActionInterface::Action
-                    && action->action()
-                    && !action->action()->icon().isNull()) {
+            if ((action->type() == ActionInterface::Action || action->type() == ActionInterface::ToolBarAction)
+                    && action->action()) {
                 toolBar->registerAction(action);
                 addSeparator = true;
-                lastWasSeparator = false;
             } else if (addSeparator && action->action()->isSeparator()) {
                 toolBar->registerAction(action);
-                lastWasSeparator = true;
             }
-        }
-
-        if (addSeparator && !lastWasSeparator) {
-            toolBar->addSeparator();
         }
     }
 
@@ -541,6 +534,8 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &resetSize,
                           &selectionNotEmptyAndHasWidthOrHeightProperty));
 
+    addDesignerAction(new SeperatorDesignerAction(editCategory, 170));
+
     addDesignerAction(new VisiblityModelNodeAction(
                           visiblityCommandId,
                           visibilityDisplayName,
@@ -577,6 +572,8 @@ void DesignerActionManager::createDefaultDesignerActions()
                           180,
                           &anchorsReset,
                           &singleSelectionItemIsAnchored));
+
+    addDesignerAction(new SeperatorDesignerAction(anchorsCategory, 170));
 
     addDesignerAction(new ActionGroup(
                           positionCategoryDisplayName,
@@ -684,6 +681,8 @@ void DesignerActionManager::createDefaultDesignerActions()
                           60,
                           &layoutGridLayout,
                           &selectionCanBeLayoutedAndQtQuickLayoutPossible));
+
+    addDesignerAction(new SeperatorDesignerAction(layoutCategory, 50));
 
     addDesignerAction(new FillWidthModelNodeAction(
                           layoutFillWidthCommandId,

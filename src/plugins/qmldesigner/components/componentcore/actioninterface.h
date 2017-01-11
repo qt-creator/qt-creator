@@ -40,6 +40,7 @@ public:
     enum Type {
         ContextMenu,
         ContextMenuAction,
+        ToolBarAction,
         Action
     };
 

@@ -69,14 +69,15 @@ void populateMenu(QSet<ActionInterface* > &actionInterfaces,
     });
 
     foreach (ActionInterface* actionInterface, matchingFactoriesList) {
-       if (actionInterface->type() == ActionInterface::ContextMenu) {
-           actionInterface->currentContextChanged(selectionContext);
-           QMenu *newMenu = actionInterface->action()->menu();
-           menu->addMenu(newMenu);
+        if (actionInterface->type() == ActionInterface::ContextMenu) {
+            actionInterface->currentContextChanged(selectionContext);
+            QMenu *newMenu = actionInterface->action()->menu();
+            if (newMenu && !newMenu->title().isEmpty())
+                menu->addMenu(newMenu);
 
-           //recurse
+            //recurse
 
-           populateMenu(actionInterfaces, actionInterface->menuId(), newMenu, selectionContext);
+            populateMenu(actionInterfaces, actionInterface->menuId(), newMenu, selectionContext);
        } else if (actionInterface->type() == ActionInterface::ContextMenuAction
                   || actionInterface->type() == ActionInterface::Action) {
            QAction* action = actionInterface->action();
