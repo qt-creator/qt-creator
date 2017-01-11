@@ -65,6 +65,8 @@ public:
         AutoDetectionFromSettings
     };
 
+    using Predicate = std::function<bool(const ToolChain *)>;
+
     virtual ~ToolChain();
 
     QString displayName() const;

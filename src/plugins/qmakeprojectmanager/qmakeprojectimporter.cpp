@@ -275,15 +275,14 @@ static ToolChain *preferredToolChain(BaseQtVersion *qtVersion, const FileName &m
 {
     const FileName spec = ms.isEmpty() ? qtVersion->mkspec() : ms;
 
-    QList<ToolChain *> toolchains = ToolChainManager::toolChains();
+    const QList<ToolChain *> toolchains = ToolChainManager::toolChains();
     QList<Abi> qtAbis = qtVersion->qtAbis();
-    return findOr(toolchains,
-                         toolchains.isEmpty() ? 0 : toolchains.first(),
-                         [&spec, &archConfig, &qtAbis, &qtVersion](ToolChain *tc) -> bool{
-                                return qtAbis.contains(tc->targetAbi())
-                                        && tc->suggestedMkspecList().contains(spec)
-                                        && QMakeStepConfig::targetArchFor(tc->targetAbi(), qtVersion) == archConfig;
-                          });
+    return findOr(toolchains, toolchains.isEmpty() ? nullptr : toolchains.first(),
+                  [&](ToolChain *tc) {
+        return qtAbis.contains(tc->targetAbi())
+                && tc->suggestedMkspecList().contains(spec)
+                && QMakeStepConfig::targetArchFor(tc->targetAbi(), qtVersion) == archConfig;
+    });
 }
 
 Kit *QmakeProjectImporter::createTemporaryKit(const QtProjectImporter::QtVersionData &data,

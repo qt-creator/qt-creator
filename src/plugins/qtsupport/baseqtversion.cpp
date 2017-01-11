@@ -1420,10 +1420,9 @@ bool BaseQtVersion::queryQMakeVariables(const FileName &binary, const Environmen
         // This is required to make non-static qmakes work on windows where every tool chain
         // tries to be incompatible with any other.
         QList<Abi> abiList = Abi::abisOfBinary(binary);
-        QList<ToolChain *> tcList = ToolChainManager::toolChains();
-        foreach (ToolChain *tc, tcList) {
-            if (!abiList.contains(tc->targetAbi()))
-                continue;
+        const QList<ToolChain *> tcList
+                = ToolChainManager::toolChains([&abiList](const ToolChain *t) { return abiList.contains(t->targetAbi()); });
+        for (ToolChain *tc : tcList) {
             Environment realEnv = env;
             tc->addToEnvironment(realEnv);
             output = runQmakeQuery(binary, realEnv, error);

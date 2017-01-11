@@ -2150,13 +2150,12 @@ QVariantMap UserFileVersion11Upgrader::upgrade(const QVariantMap &map)
                 for (int j = i + 2; j < split.count(); ++j)
                     debuggerPath = debuggerPath + QLatin1Char('.') + split.at(j);
 
-                foreach (ToolChain *tc, ToolChainManager::toolChains()) {
-                    if ((tc->compilerCommand() == FileName::fromString(compilerPath))
-                            && (tc->targetAbi() == compilerAbi)) {
-                        tcId = QString::fromUtf8(tc->id());
-                        break;
-                    }
-                }
+                ToolChain *tc = ToolChainManager::toolChain([cp = FileName::fromString(compilerPath),
+                                                            compilerAbi](const ToolChain *t) {
+                    return t->compilerCommand() == cp && t->targetAbi() == compilerAbi;
+                });
+                if (tc)
+                    tcId = QString::fromUtf8(tc->id());
             }
             tmpKit->setValue("PE.Profile.ToolChain", tcId);
 

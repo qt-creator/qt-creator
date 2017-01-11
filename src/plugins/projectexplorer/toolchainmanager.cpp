@@ -333,9 +333,16 @@ void ToolChainManager::saveToolChains()
     // Do not save default debuggers! Those are set by the SDK!
 }
 
-QList<ToolChain *> ToolChainManager::toolChains()
+QList<ToolChain *> ToolChainManager::toolChains(const ToolChain::Predicate &predicate)
 {
+    if (predicate)
+        return Utils::filtered(d->m_toolChains, predicate);
     return d->m_toolChains;
+}
+
+ToolChain *ToolChainManager::toolChain(const ToolChain::Predicate &predicate)
+{
+    return Utils::findOrDefault(d->m_toolChains, predicate);
 }
 
 QList<ToolChain *> ToolChainManager::findToolChains(const Abi &abi)

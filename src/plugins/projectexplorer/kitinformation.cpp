@@ -146,8 +146,7 @@ static QMap<ToolChain::Language, QByteArray> defaultToolChainIds()
 {
     QMap<ToolChain::Language, QByteArray> toolChains;
     const Abi abi = Abi::hostAbi();
-    QList<ToolChain *> tcList = Utils::filtered(ToolChainManager::toolChains(),
-                                                Utils::equal(&ToolChain::targetAbi, abi));
+    QList<ToolChain *> tcList = ToolChainManager::toolChains(Utils::equal(&ToolChain::targetAbi, abi));
     foreach (ToolChain::Language l, ToolChain::allLanguages()) {
         ToolChain *tc = Utils::findOrDefault(tcList, Utils::equal(&ToolChain::language, l));
         toolChains.insert(l, tc ? tc->id() : QByteArray());
@@ -239,7 +238,6 @@ void ToolChainKitInformation::setup(Kit *k)
 {
     QTC_ASSERT(ToolChainManager::isLoaded(), return);
     const QVariantMap value = k->value(ToolChainKitInformation::id()).toMap();
-    const QList<ToolChain *> knownTcs = ToolChainManager::toolChains();
 
     for (auto i = value.constBegin(); i != value.constEnd(); ++i) {
         ToolChain::Language l
@@ -257,7 +255,7 @@ void ToolChainKitInformation::setup(Kit *k)
 
         // ID is not found: Might be an ABI string...
         const QString abi = QString::fromUtf8(id);
-        tc = Utils::findOrDefault(knownTcs, [abi, l](ToolChain *t) {
+        tc = ToolChainManager::toolChain([abi, l](const ToolChain *t) {
                  return t->targetAbi().toString() == abi && t->language() == l;
              });
         if (tc)

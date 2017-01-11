@@ -201,13 +201,9 @@ void QnxConfiguration::deactivate()
     if (!isActive())
         return;
 
-    QList<ToolChain *> toolChainsToRemove;
     QList<DebuggerItem> debuggersToRemove;
-    foreach (ToolChain *tc,
-             ToolChainManager::toolChains()) {
-        if (tc->compilerCommand() == qccCompilerPath())
-            toolChainsToRemove.append(tc);
-    }
+    const QList<ToolChain *> toolChainsToRemove
+            = ToolChainManager::toolChains(Utils::equal(&ToolChain::compilerCommand, qccCompilerPath()));
 
     foreach (DebuggerItem debuggerItem,
              DebuggerItemManager::debuggers()) {
@@ -232,22 +228,11 @@ void QnxConfiguration::deactivate()
 
 bool QnxConfiguration::isActive() const
 {
-    bool hasToolChain = false;
-    bool hasDebugger = false;
-    foreach (ToolChain *tc, ToolChainManager::toolChains()) {
-        if (tc->compilerCommand() == qccCompilerPath()) {
-            hasToolChain = true;
-            break;
-        }
-    }
-
-    foreach (DebuggerItem debuggerItem, DebuggerItemManager::debuggers()) {
-        if (debuggerItem.command() == armDebuggerPath() ||
-                debuggerItem.command() == x86DebuggerPath()) {
-            hasDebugger = true;
-            break;
-        }
-    }
+    const bool hasToolChain = ToolChainManager::toolChain(Utils::equal(&ToolChain::compilerCommand,
+                                                                       qccCompilerPath()));
+    const bool hasDebugger = Utils::contains(DebuggerItemManager::debuggers(), [this](const DebuggerItem &di) {
+        return di.command() == armDebuggerPath() || di.command() == x86DebuggerPath();
+    });
 
     return hasToolChain && hasDebugger;
 }

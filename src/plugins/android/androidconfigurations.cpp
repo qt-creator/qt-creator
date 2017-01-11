@@ -1224,9 +1224,8 @@ static bool matchKits(const Kit *a, const Kit *b)
 void AndroidConfigurations::registerNewToolChains()
 {
     const QList<ToolChain *> existingAndroidToolChains
-            = Utils::filtered(ToolChainManager::toolChains(),
-                              Utils::equal(&ToolChain::typeId, Core::Id(Constants::ANDROID_TOOLCHAIN_ID)));
-
+            = ToolChainManager::toolChains(Utils::equal(&ToolChain::typeId,
+                                                        Core::Id(Constants::ANDROID_TOOLCHAIN_ID)));
     const QList<ToolChain *> newToolchains
             = AndroidToolChainFactory::autodetectToolChainsForNdk(AndroidConfigurations::currentConfig().ndkLocation(),
                                                                   existingAndroidToolChains);
@@ -1236,11 +1235,9 @@ void AndroidConfigurations::registerNewToolChains()
 
 void AndroidConfigurations::removeOldToolChains()
 {
-    foreach (ToolChain *tc, ToolChainManager::toolChains()) {
-        if (tc->typeId() == Constants::ANDROID_TOOLCHAIN_ID) {
-            if (!tc->isValid())
-                ToolChainManager::deregisterToolChain(tc);
-        }
+    foreach (ToolChain *tc, ToolChainManager::toolChains(Utils::equal(&ToolChain::typeId, Core::Id(Constants::ANDROID_TOOLCHAIN_ID)))) {
+        if (!tc->isValid())
+            ToolChainManager::deregisterToolChain(tc);
     }
 }
 
@@ -1289,11 +1286,12 @@ void AndroidConfigurations::updateAutomaticKitList()
     }
 
     // register new kits
-    const QList<ToolChain *> tmp = Utils::filtered(ToolChainManager::toolChains(), [](ToolChain *tc) {
+    QList<Kit *> newKits;
+    const QList<ToolChain *> tmp = ToolChainManager::toolChains([](const ToolChain *tc) {
         return tc->isAutoDetected()
             && tc->isValid()
             && tc->typeId() == Constants::ANDROID_TOOLCHAIN_ID
-            && !static_cast<AndroidToolChain *>(tc)->isSecondaryToolChain();
+            && !static_cast<const AndroidToolChain *>(tc)->isSecondaryToolChain();
     });
     const QList<AndroidToolChain *> toolchains = Utils::transform(tmp, [](ToolChain *tc) {
             return static_cast<AndroidToolChain *>(tc);

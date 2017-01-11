@@ -188,10 +188,9 @@ void ToolChainInformationConfigWidget::refresh()
 {
     m_ignoreChanges = true;
 
-    const QList<ToolChain *> tcList = ToolChainManager::toolChains();
     foreach (ToolChain::Language l, m_languageComboboxMap.keys()) {
         const QList<ToolChain *> ltcList
-                = Utils::filtered(tcList, Utils::equal(&ToolChain::language, l));
+                = ToolChainManager::toolChains(Utils::equal(&ToolChain::language, l));
 
         QComboBox *cb = m_languageComboboxMap.value(l);
         cb->clear();

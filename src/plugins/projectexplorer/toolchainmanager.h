@@ -27,16 +27,19 @@
 
 #include "projectexplorer_export.h"
 
+#include "toolchain.h"
+
 #include <QList>
 #include <QObject>
 #include <QString>
+
+#include <functional>
 
 namespace Utils { class FileName; }
 
 namespace ProjectExplorer {
 
 class ProjectExplorerPlugin;
-class ToolChain;
 class Abi;
 
 // --------------------------------------------------------------------------
@@ -51,7 +54,8 @@ public:
     static ToolChainManager *instance();
     ~ToolChainManager() override;
 
-    static QList<ToolChain *> toolChains();
+    static QList<ToolChain *> toolChains(const ToolChain::Predicate &predicate = ToolChain::Predicate());
+    static ToolChain *toolChain(const ToolChain::Predicate &predicate);
     static QList<ToolChain *> findToolChains(const Abi &abi);
     static ToolChain *findToolChain(const QByteArray &id);
 

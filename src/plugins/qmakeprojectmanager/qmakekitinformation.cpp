@@ -33,6 +33,8 @@
 
 #include <qtsupport/qtkitinformation.h>
 
+#include <utils/algorithm.h>
+
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -83,15 +85,14 @@ void QmakeKitInformation::setup(Kit *k)
     ToolChain *tc = ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx);
 
     if (!tc || (!tc->suggestedMkspecList().empty() && !tc->suggestedMkspecList().contains(spec))) {
-        ToolChain *possibleTc = nullptr;
-        foreach (ToolChain *current, ToolChainManager::toolChains()) {
-            if (current->language() == ToolChain::Language::Cxx
-                    && version->qtAbis().contains(current->targetAbi())) {
-                possibleTc = current;
-                if (current->suggestedMkspecList().contains(spec))
-                    break;
-            }
-        }
+        const QList<ToolChain *> possibleTcs = ToolChainManager::toolChains([version, &spec](const ToolChain *t) {
+            return t->isValid()
+                && t->language() == ToolChain::Language::Cxx
+                && version->qtAbis().contains(t->targetAbi());
+        });
+        ToolChain *possibleTc
+                = Utils::findOr(possibleTcs, possibleTcs.last(),
+                                [&spec](const ToolChain *t) { return t->suggestedMkspecList().contains(spec); });
         if (possibleTc)
             ToolChainKitInformation::setToolChain(k, possibleTc);
     }
