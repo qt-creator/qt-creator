@@ -249,6 +249,44 @@ static PyObject *cdbext_createValue(PyObject *, PyObject *args)
     return createPythonObject(PyValue(index, symbolGroup));
 }
 
+static PyObject *cdbext_call(PyObject *, PyObject *args)
+{
+    char *function;
+    if (!PyArg_ParseTuple(args, "s", &function))
+        return NULL;
+
+    std::wstring woutput;
+    std::string error;
+    if (!ExtensionContext::instance().call(function, 0, &woutput, &error)) {
+        DebugPrint() << "Failed to call function '" << function << "' error: " << error;
+        Py_RETURN_NONE;
+    }
+
+    CIDebugRegisters *registers = ExtensionCommandContext::instance()->registers();
+    ULONG retRegIndex;
+    if (FAILED(registers->GetPseudoIndexByName("$callret", &retRegIndex)))
+        Py_RETURN_NONE;
+    ULONG64 module;
+    ULONG typeId;
+    if (FAILED(registers->GetPseudoDescription(retRegIndex, NULL, 0, NULL, &module, &typeId)))
+        Py_RETURN_NONE;
+
+    DEBUG_VALUE value;
+    if (FAILED(registers->GetPseudoValues(DEBUG_REGSRC_EXPLICIT, 1, NULL, retRegIndex, &value)))
+        Py_RETURN_NONE;
+
+    ULONG index = DEBUG_ANY_ID;
+    const std::string name = SymbolGroupValue::pointedToSymbolName(
+                value.I64, PyType(module, typeId).name());
+    if (debugPyCdbextModule)
+        DebugPrint() << "Call ret value expression: " << name;
+
+    IDebugSymbolGroup2 *symbolGroup = currentSymbolGroup.get();
+    if (FAILED(symbolGroup->AddSymbol(name.c_str(), &index)))
+        Py_RETURN_NONE;
+    return createPythonObject(PyValue(index, symbolGroup));
+}
+
 static PyMethodDef cdbextMethods[] = {
     {"parseAndEvaluate",    cdbext_parseAndEvaluate,    METH_VARARGS,
      "Returns value of expression or None if the expression can not be resolved"},
@@ -264,6 +302,8 @@ static PyMethodDef cdbextMethods[] = {
      "Read a block of data from the virtual address space"},
     {"createValue",         cdbext_createValue,         METH_VARARGS,
      "Creates a value with the given type at the given address"},
+    {"call",                cdbext_call,                METH_VARARGS,
+     "Call a function and return a cdbext.Value representing the return value of that function."},
     {NULL,                  NULL,               0,
      NULL}        /* Sentinel */
 };
