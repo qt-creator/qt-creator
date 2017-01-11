@@ -207,13 +207,6 @@ inserter(QSet<X> &container)
     return QSetInsertIterator<QSet<X>>(container);
 }
 
-// decay_t is C++14, so provide it here, remove once we require C++14
-template<typename T>
-using decay_t = typename std::decay<T>::type;
-
-template<typename T>
-using result_of_t = typename std::result_of<T>::type;
-
 // abstraction to treat Container<T> and QStringList similarly
 template<typename T>
 struct ContainerType
@@ -226,10 +219,10 @@ template<template<typename> class T_Container, typename T_Type>
 struct ContainerType<T_Container<T_Type>>
 {
     template<class F, template<typename> class C = T_Container>
-    using ResultOfTransform = C<decay_t<result_of_t<F (T_Type)>>>;
+    using ResultOfTransform = C<std::decay_t<std::result_of_t<F (T_Type)>>>;
 
     template<class R>
-    using ResultOfTransformPMF = T_Container<decay_t<R>>;
+    using ResultOfTransformPMF = T_Container<std::decay_t<R>>;
 };
 
 // specialization for QStringList
@@ -314,10 +307,10 @@ template<template<typename> class C, // result container type
          typename S>
 Q_REQUIRED_RESULT
 auto transform(const SC &container, R (S::*p)() const)
-     -> C<decay_t<R>>
+     -> C<std::decay_t<R>>
 {
     return TransformImpl<
-                C<decay_t<R>>,
+                C<std::decay_t<R>>,
                 SC
             >::call(container, p);
 }

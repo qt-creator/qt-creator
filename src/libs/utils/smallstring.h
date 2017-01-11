@@ -107,7 +107,7 @@ public:
     }
 
     template<typename Type,
-             typename = typename std::enable_if<std::is_pointer<Type>::value>::type
+             typename = std::enable_if_t<std::is_pointer<Type>::value>
              >
     BasicSmallString(Type characterPointer)
         : BasicSmallString(characterPointer, std::strlen(characterPointer))
@@ -120,15 +120,15 @@ public:
     {}
 
     template<typename Type,
-             typename = typename std::enable_if<
-                 std::is_same<typename std::decay<Type>::type, std::string>::value>::type>
+             typename = std::enable_if_t<std::is_same<std::decay_t<Type>, std::string>::value>
+             >
     BasicSmallString(Type &&string)
         : BasicSmallString(string.data(), string.size())
     {}
 
     template<typename BeginIterator,
              typename EndIterator,
-             typename = typename std::enable_if<std::is_same<BeginIterator, EndIterator>::value>::type
+             typename = std::enable_if_t<std::is_same<BeginIterator, EndIterator>::value>
              >
     BasicSmallString(BeginIterator begin, EndIterator end)
         : BasicSmallString(&(*begin), size_type(end - begin))
@@ -560,7 +560,7 @@ unitttest_public:
     }
 
     template<typename Type,
-             typename = typename std::enable_if<std::is_pointer<Type>::value>::type
+             typename = std::enable_if_t<std::is_pointer<Type>::value>
              >
     friend bool operator==(const BasicSmallString& first, Type second) noexcept
     {
@@ -568,7 +568,7 @@ unitttest_public:
     }
 
     template<typename Type,
-             typename = typename std::enable_if<std::is_pointer<Type>::value>::type
+             typename = std::enable_if_t<std::is_pointer<Type>::value>
              >
     friend bool operator==(Type first, const BasicSmallString& second) noexcept
     {
@@ -620,7 +620,7 @@ unitttest_public:
     }
 
     template<typename Type,
-             typename = typename std::enable_if<std::is_pointer<Type>::value>::type
+             typename = std::enable_if_t<std::is_pointer<Type>::value>
              >
     friend bool operator!=(const BasicSmallString& first, Type second) noexcept
     {
@@ -628,7 +628,7 @@ unitttest_public:
     }
 
     template<typename Type,
-             typename = typename std::enable_if<std::is_pointer<Type>::value>::type
+             typename = std::enable_if_t<std::is_pointer<Type>::value>
              >
     friend bool operator!=(Type first, const BasicSmallString& second) noexcept
     {
