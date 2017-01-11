@@ -25,8 +25,6 @@
 
 #include "consoleprocess_p.h"
 
-#include <QSettings>
-
 namespace Utils {
 
 ConsoleProcess::~ConsoleProcess()
@@ -151,21 +149,6 @@ void ConsoleProcess::emitError(QProcess::ProcessError err, const QString &errorS
     d->m_errorString = errorString;
     emit error(err);
     emit processError(errorString);
-}
-
-QString ConsoleProcess::terminalEmulator(const QSettings *settings, bool nonEmpty)
-{
-    if (settings) {
-        const QString value = settings->value(QLatin1String("General/TerminalEmulator")).toString();
-        if (!nonEmpty || !value.isEmpty())
-            return value;
-    }
-    return defaultTerminalEmulator();
-}
-
-void ConsoleProcess::setTerminalEmulator(QSettings *settings, const QString &term)
-{
-    return settings->setValue(QLatin1String("General/TerminalEmulator"), term);
 }
 
 }

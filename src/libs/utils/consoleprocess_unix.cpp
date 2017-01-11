@@ -31,6 +31,7 @@
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>
+#include <QSettings>
 #include <QTimer>
 
 #include <sys/stat.h>
@@ -393,6 +394,21 @@ QStringList ConsoleProcess::availableTerminalEmulators()
         result.append(defaultTerminalEmulator());
     result.sort();
     return result;
+}
+
+QString ConsoleProcess::terminalEmulator(const QSettings *settings, bool nonEmpty)
+{
+    if (settings) {
+        const QString value = settings->value(QLatin1String("General/TerminalEmulator")).toString();
+        if (!nonEmpty || !value.isEmpty())
+            return value;
+    }
+    return defaultTerminalEmulator();
+}
+
+void ConsoleProcess::setTerminalEmulator(QSettings *settings, const QString &term)
+{
+    return settings->setValue(QLatin1String("General/TerminalEmulator"), term);
 }
 
 bool ConsoleProcess::startTerminalEmulator(QSettings *settings, const QString &workingDir)

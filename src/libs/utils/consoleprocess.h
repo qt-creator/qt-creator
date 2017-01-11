@@ -85,11 +85,21 @@ public:
     static QString createWinCommandline(const QString &program, const QString &args);
 #endif
 
+#ifndef Q_OS_WIN
     void setSettings(QSettings *settings);
+
     static QString defaultTerminalEmulator();
     static QStringList availableTerminalEmulators();
     static QString terminalEmulator(const QSettings *settings, bool nonEmpty = true);
     static void setTerminalEmulator(QSettings *settings, const QString &term);
+#else
+    void setSettings(QSettings *) {}
+
+    static QString defaultTerminalEmulator() { return QString(); }
+    static QStringList availableTerminalEmulators() { return QStringList(); }
+    static QString terminalEmulator(const QSettings *, bool = true) { return QString(); }
+    static void setTerminalEmulator(QSettings *, const QString &) {}
+#endif
 
     static bool startTerminalEmulator(QSettings *settings, const QString &workingDir);
 

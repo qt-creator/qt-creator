@@ -373,22 +373,6 @@ QString ConsoleProcess::createWinCommandline(const QString &program, const QStri
     return programName;
 }
 
-QString ConsoleProcess::defaultTerminalEmulator()
-{
-    return QString::fromLocal8Bit(qgetenv("COMSPEC"));
-}
-
-QStringList ConsoleProcess::availableTerminalEmulators()
-{
-    return QStringList(ConsoleProcess::defaultTerminalEmulator());
-}
-
-void ConsoleProcess::setSettings(QSettings *settings)
-{
-    Q_UNUSED(settings)
-    // Not used on Windows
-}
-
 bool ConsoleProcess::startTerminalEmulator(QSettings *, const QString &workingDir)
 {
     STARTUPINFO si;
