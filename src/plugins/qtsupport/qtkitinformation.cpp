@@ -64,17 +64,6 @@ QVariant QtKitInformation::defaultValue(const Kit *k) const
     if (result)
         return result->uniqueId();
 
-    // Legacy: Check for system qmake path: Remove in 3.5 (or later):
-    // This check is expensive as it will potentially run binaries (qmake --version)!
-    const FileName qmakePath
-            = BuildableHelperLibrary::findSystemQt(Utils::Environment::systemEnvironment());
-
-    if (!qmakePath.isEmpty()) {
-        result = findOrDefault(versionList, equal(&BaseQtVersion::qmakeCommand, qmakePath));
-        if (result)
-            return result->uniqueId();
-    }
-
     // Use *any* desktop Qt:
     result = findOrDefault(versionList, equal(&BaseQtVersion::type,
                                               QString::fromLatin1(QtSupport::Constants::DESKTOPQT)));
