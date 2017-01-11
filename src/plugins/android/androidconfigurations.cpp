@@ -1231,7 +1231,7 @@ void AndroidConfigurations::registerNewToolChains()
             = AndroidToolChainFactory::autodetectToolChainsForNdk(AndroidConfigurations::currentConfig().ndkLocation(),
                                                                   existingAndroidToolChains);
     foreach (ToolChain *tc, newToolchains)
-            ToolChainManager::registerToolChain(tc);
+        ToolChainManager::registerToolChain(tc);
 }
 
 void AndroidConfigurations::removeOldToolChains()
