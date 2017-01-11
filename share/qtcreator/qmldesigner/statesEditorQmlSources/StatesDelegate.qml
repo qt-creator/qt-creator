@@ -185,6 +185,8 @@ Rectangle {
 
     ExpressionTextField {
         id: expressionTextField
+
+        parent: root
         visible: false
         onAccepted: {
             visible = false
@@ -193,11 +195,7 @@ Rectangle {
 
         onRejected: visible = false
 
-        anchors.topMargin: 4
-        anchors.left: stateNameField.left
-        anchors.top: stateNameField.bottom
-        height: delegateStateImageSize + 6
-        width: (delegateStateImageSize + 2) * 2
+        anchors.fill: parent
     }
 
 }
