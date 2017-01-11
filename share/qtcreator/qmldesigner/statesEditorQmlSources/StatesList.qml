@@ -31,7 +31,7 @@ import "../common"
 FocusScope {
     id: root
 
-    height: expanded ? 136 : 30
+    height: expanded ? 136 : 40
     signal createNewState
     signal deleteState(int internalNodeId)
     signal duplicateCurrentState
