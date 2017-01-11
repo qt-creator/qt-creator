@@ -56,6 +56,8 @@ class KitPrivate;
 class PROJECTEXPLORER_EXPORT Kit
 {
 public:
+    using Predicate = std::function<bool(const Kit *)>;
+
     explicit Kit(Core::Id id = Core::Id());
 
     // Do not trigger evaluations

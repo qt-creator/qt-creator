@@ -27,6 +27,8 @@
 
 #include "projectexplorer_export.h"
 
+#include "kit.h"
+
 #include <coreplugin/id.h>
 
 #include <utils/fileutils.h>
@@ -46,8 +48,6 @@ namespace ProjectExplorer {
 class BuildInfo;
 class EditorConfiguration;
 class IProjectManager;
-class Kit;
-class KitMatcher;
 class NamedWidget;
 class ProjectImporter;
 class ProjectNode;
@@ -132,11 +132,8 @@ public:
     virtual bool requiresTargetPanel() const;
     virtual ProjectImporter *projectImporter() const;
 
-    KitMatcher requiredKitMatcher() const;
-    void setRequiredKitMatcher(const KitMatcher &matcher);
-
-    KitMatcher preferredKitMatcher() const;
-    void setPreferredKitMatcher(const KitMatcher &matcher);
+    Kit::Predicate requiredKitPredicate() const;
+    Kit::Predicate preferredKitPredicate() const;
 
     virtual bool needsSpecialDeployment() const;
     // The build system is able to report all executables that can be built, independent
@@ -173,6 +170,9 @@ signals:
 protected:
     virtual RestoreResult fromMap(const QVariantMap &map, QString *errorMessage);
     virtual bool setupTarget(Target *t);
+
+    void setRequiredKitPredicate(const Kit::Predicate &predicate);
+    void setPreferredKitPredicate(const Kit::Predicate &predicate);
 
     void setId(Core::Id id);
     void setDocument(Core::IDocument *doc); // takes ownership!

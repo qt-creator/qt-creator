@@ -128,8 +128,8 @@ TargetSetupPageWrapper::TargetSetupPageWrapper(Project *project)
     m_targetSetupPage = new TargetSetupPage(this);
     m_targetSetupPage->setUseScrollArea(false);
     m_targetSetupPage->setProjectPath(project->projectFilePath().toString());
-    m_targetSetupPage->setRequiredKitMatcher(project->requiredKitMatcher());
-    m_targetSetupPage->setPreferredKitMatcher(project->preferredKitMatcher());
+    m_targetSetupPage->setRequiredKitPredicate(project->requiredKitPredicate());
+    m_targetSetupPage->setPreferredKitPredicate(project->preferredKitPredicate());
     m_targetSetupPage->setProjectImporter(project->projectImporter());
     m_targetSetupPage->initializePage();
     m_targetSetupPage->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
@@ -301,13 +301,13 @@ public:
     {
         switch (role) {
         case Qt::DisplayRole: {
-            if (Kit *kit = KitManager::find(m_kitId))
+            if (Kit *kit = KitManager::kit(m_kitId))
                 return kit->displayName();
             break;
         }
 
         case Qt::DecorationRole: {
-            const Kit *k = KitManager::find(m_kitId);
+            const Kit *k = KitManager::kit(m_kitId);
             QTC_ASSERT(k, return QVariant());
             if (!isEnabled())
                 return kitIconWithOverlay(*k, IconOverlay::Add);
@@ -334,7 +334,7 @@ public:
         }
 
         case Qt::ToolTipRole: {
-            Kit *k = KitManager::find(m_kitId);
+            Kit *k = KitManager::kit(m_kitId);
             QTC_ASSERT(k, return QVariant());
             QString toolTip;
             if (!isEnabled())
@@ -371,7 +371,7 @@ public:
             QTC_ASSERT(!data.isValid(), return false);
             if (!isEnabled()) {
                 m_currentChild = DefaultPage;
-                Kit *k = KitManager::find(m_kitId);
+                Kit *k = KitManager::kit(m_kitId);
                 m_project->addTarget(m_project->createTarget(k));
             } else {
                 // Go to Run page, when on Run previously etc.
@@ -406,7 +406,7 @@ public:
 
     void addToContextMenu(QMenu *menu)
     {
-        Kit *kit = KitManager::find(m_kitId);
+        Kit *kit = KitManager::kit(m_kitId);
         QTC_ASSERT(kit, return);
         const QString kitName = kit->displayName();
         const QString projectName = m_project->displayName();
@@ -801,8 +801,9 @@ void TargetGroupItemPrivate::rebuildContents()
 {
     q->removeChildren();
 
-    KitMatcher matcher([this](const Kit *kit) { return m_project->supportsKit(const_cast<Kit *>(kit)); });
-    const QList<Kit *> kits = KitManager::sortKits(KitManager::matchingKits(matcher));
+    const QList<Kit *> kits = KitManager::sortKits(KitManager::kits([this](const Kit *kit) {
+        return m_project->supportsKit(const_cast<Kit *>(kit));
+    }));
     for (Kit *kit : kits)
         q->appendChild(new TargetItem(m_project, kit->id()));
 

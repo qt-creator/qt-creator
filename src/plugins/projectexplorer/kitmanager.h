@@ -27,6 +27,8 @@
 
 #include "projectexplorer_export.h"
 
+#include "kit.h"
+
 #include <coreplugin/id.h>
 #include <coreplugin/featureprovider.h>
 
@@ -44,7 +46,6 @@ class MacroExpander;
 namespace ProjectExplorer {
 class Task;
 class IOutputParser;
-class Kit;
 class KitConfigWidget;
 class KitManager;
 
@@ -106,21 +107,6 @@ private:
     int m_priority; // The higher the closer to the top.
 };
 
-class PROJECTEXPLORER_EXPORT KitMatcher
-{
-public:
-    typedef std::function<bool(const Kit *)> Matcher;
-
-    explicit KitMatcher(const Matcher &m) : m_matcher(m) {}
-    KitMatcher() = default;
-
-    bool isValid() const { return !!m_matcher; }
-    bool matches(const Kit *kit) const { return m_matcher(kit); }
-
-private:
-    Matcher m_matcher;
-};
-
 class PROJECTEXPLORER_EXPORT KitManager : public QObject
 {
     Q_OBJECT
@@ -129,10 +115,9 @@ public:
     static KitManager *instance();
     ~KitManager() override;
 
-    static QList<Kit *> kits();
-    static QList<Kit *> matchingKits(const KitMatcher &matcher);
-    static Kit *find(Core::Id id);
-    static Kit *find(const KitMatcher &matcher);
+    static QList<Kit *> kits(const Kit::Predicate &predicate = Kit::Predicate());
+    static Kit *kit(const Kit::Predicate &predicate);
+    static Kit *kit(Core::Id id);
     static Kit *defaultKit();
 
     static QList<KitInformation *> kitInformation();

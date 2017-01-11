@@ -58,7 +58,7 @@ public:
     QList<ProjectExplorer::Task> reportIssues(const QString &projectPath,
                                               const QString &buildDir) const
     {
-        ProjectExplorer::Kit *k = ProjectExplorer::KitManager::find(kitId);
+        ProjectExplorer::Kit *k = ProjectExplorer::KitManager::kit(kitId);
         QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
         return version ? version->reportIssues(projectPath, buildDir)
                        : QList<ProjectExplorer::Task>();

@@ -77,7 +77,7 @@ QnxAttachDebugSupport::QnxAttachDebugSupport(QObject *parent)
 void QnxAttachDebugSupport::showProcessesDialog()
 {
     auto kitChooser = new KitChooser;
-    kitChooser->setKitMatcher([](const Kit *k){
+    kitChooser->setKitPredicate([](const Kit *k){
         return k->isValid() && DeviceTypeKitInformation::deviceTypeId(k) == Core::Id(Constants::QNX_QNX_OS_TYPE);
     });
 

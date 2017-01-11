@@ -100,8 +100,8 @@ public:
     QVariantMap m_pluginSettings;
     Internal::UserFileAccessor *m_accessor = nullptr;
 
-    KitMatcher m_requiredKitMatcher;
-    KitMatcher m_preferredKitMatcher;
+    Kit::Predicate m_requiredKitPredicate;
+    Kit::Predicate m_preferredKitPredicate;
 
     Utils::MacroExpander m_macroExpander;
 };
@@ -441,7 +441,7 @@ Target *Project::restoreTarget(const QVariantMap &data)
         return nullptr;
     }
 
-    Kit *k = KitManager::find(id);
+    Kit *k = KitManager::kit(id);
     if (!k) {
         qWarning("Warning: No kit '%s' found. Continuing.", qPrintable(id.toString()));
         return nullptr;
@@ -685,7 +685,7 @@ void Project::setup(QList<const BuildInfo *> infoList)
 {
     QList<Target *> toRegister;
     foreach (const BuildInfo *info, infoList) {
-        Kit *k = KitManager::find(info->kitId);
+        Kit *k = KitManager::kit(info->kitId);
         if (!k)
             continue;
         Target *t = target(k);
@@ -719,24 +719,24 @@ ProjectImporter *Project::projectImporter() const
     return nullptr;
 }
 
-KitMatcher Project::requiredKitMatcher() const
+Kit::Predicate Project::requiredKitPredicate() const
 {
-    return d->m_requiredKitMatcher;
+    return d->m_requiredKitPredicate;
 }
 
-void Project::setRequiredKitMatcher(const KitMatcher &matcher)
+void Project::setRequiredKitPredicate(const Kit::Predicate &predicate)
 {
-    d->m_requiredKitMatcher = matcher;
+    d->m_requiredKitPredicate = predicate;
 }
 
-KitMatcher Project::preferredKitMatcher() const
+Kit::Predicate Project::preferredKitPredicate() const
 {
-    return d->m_preferredKitMatcher;
+    return d->m_preferredKitPredicate;
 }
 
-void Project::setPreferredKitMatcher(const KitMatcher &matcher)
+void Project::setPreferredKitPredicate(const Kit::Predicate &predicate)
 {
-    d->m_preferredKitMatcher = matcher;
+    d->m_preferredKitPredicate = predicate;
 }
 
 void Project::onBuildDirectoryChanged()

@@ -43,9 +43,7 @@ const char lastKitKey[] = "LastSelectedKit";
 
 KitChooser::KitChooser(QWidget *parent) :
     QWidget(parent),
-    m_kitMatcher([](const Kit *k) {
-        return k->isValid();
-    })
+    m_kitPredicate([](const Kit *k) { return k->isValid(); })
 {
     m_chooser = new QComboBox(this);
     m_chooser->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
@@ -93,7 +91,7 @@ void KitChooser::populate()
 {
     m_chooser->clear();
     foreach (Kit *kit, KitManager::sortKits(KitManager::kits())) {
-        if (m_kitMatcher(kit)) {
+        if (m_kitPredicate(kit)) {
             m_chooser->addItem(kitText(kit), qVariantFromValue(kit->id()));
             m_chooser->setItemData(m_chooser->count() - 1, kitToolTip(kit), Qt::ToolTipRole);
         }
@@ -135,16 +133,16 @@ Core::Id KitChooser::currentKitId() const
     return kit ? kit->id() : Core::Id();
 }
 
-void KitChooser::setKitMatcher(const KitChooser::KitMatcher &matcher)
+void KitChooser::setKitPredicate(const Kit::Predicate &predicate)
 {
-    m_kitMatcher = matcher;
+    m_kitPredicate = predicate;
     populate();
 }
 
 Kit *KitChooser::kitAt(int index) const
 {
     auto id = qvariant_cast<Core::Id>(m_chooser->itemData(index));
-    return KitManager::find(id);
+    return KitManager::kit(id);
 }
 
 } // namespace ProjectExplorer

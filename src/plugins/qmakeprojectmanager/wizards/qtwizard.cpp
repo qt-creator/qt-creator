@@ -43,6 +43,7 @@
 #include <qtsupport/qtsupportconstants.h>
 
 #include <extensionsystem/pluginmanager.h>
+#include <utils/algorithm.h>
 
 #include <QCoreApplication>
 #include <QVariant>
@@ -201,11 +202,11 @@ int BaseQmakeProjectWizardDialog::addTargetSetupPage(int id)
     const Core::Id platform = selectedPlatform();
     QSet<Core::Id> features = { QtSupport::Constants::FEATURE_DESKTOP };
     if (!platform.isValid())
-        m_targetSetupPage->setPreferredKitMatcher(QtKitInformation::qtVersionMatcher(features));
+        m_targetSetupPage->setPreferredKitPredicate(QtKitInformation::qtVersionPredicate(features));
     else
-        m_targetSetupPage->setPreferredKitMatcher(QtKitInformation::platformMatcher(platform));
+        m_targetSetupPage->setPreferredKitPredicate(QtKitInformation::platformPredicate(platform));
 
-    m_targetSetupPage->setRequiredKitMatcher(QtKitInformation::qtVersionMatcher(requiredFeatures()));
+    m_targetSetupPage->setRequiredKitPredicate(QtKitInformation::qtVersionPredicate(requiredFeatures()));
 
     resize(900, 450);
     if (id >= 0)
@@ -270,11 +271,8 @@ bool BaseQmakeProjectWizardDialog::isQtPlatformSelected(Core::Id platform) const
 {
     QList<Core::Id> selectedKitList = selectedKits();
 
-    foreach (Kit *k, KitManager::matchingKits(QtKitInformation::platformMatcher(platform)))
-        if (selectedKitList.contains(k->id()))
-            return true;
-
-    return false;
+    return Utils::contains(KitManager::kits(QtKitInformation::platformPredicate(platform)),
+                           [selectedKitList](const Kit *k) { return selectedKitList.contains(k->id()); });
 }
 
 QList<Core::Id> BaseQmakeProjectWizardDialog::selectedKits() const

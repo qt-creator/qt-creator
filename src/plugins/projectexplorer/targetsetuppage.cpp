@@ -193,9 +193,9 @@ void TargetSetupPage::initializePage()
     selectAtLeastOneKit();
 }
 
-void TargetSetupPage::setRequiredKitMatcher(const KitMatcher &matcher)
+void TargetSetupPage::setRequiredKitPredicate(const Kit::Predicate &predicate)
 {
-    m_requiredMatcher = matcher;
+    m_requiredPredicate = predicate;
 }
 
 QList<Core::Id> TargetSetupPage::selectedKits() const
@@ -211,9 +211,9 @@ QList<Core::Id> TargetSetupPage::selectedKits() const
     return result;
 }
 
-void TargetSetupPage::setPreferredKitMatcher(const KitMatcher &matcher)
+void TargetSetupPage::setPreferredKitPredicate(const Kit::Predicate &predicate)
 {
-    m_preferredMatcher = matcher;
+    m_preferredPredicate = predicate;
 }
 
 TargetSetupPage::~TargetSetupPage()
@@ -247,11 +247,7 @@ void TargetSetupPage::setupWidgets()
 {
     // Known profiles:
     QList<Kit *> kitList;
-    if (m_requiredMatcher.isValid())
-        kitList = KitManager::matchingKits(m_requiredMatcher);
-    else
-        kitList = KitManager::kits();
-
+    kitList = KitManager::kits(m_requiredPredicate);
     kitList = KitManager::sortKits(kitList);
 
     foreach (Kit *k, kitList)
@@ -367,7 +363,7 @@ void TargetSetupPage::handleKitUpdate(Kit *k)
 
     TargetSetupWidget *widget = m_widgets.value(k->id());
 
-    bool acceptable = !m_requiredMatcher.isValid() || m_requiredMatcher.matches(k);
+    bool acceptable = !m_requiredPredicate || m_requiredPredicate(k);
 
     if (widget && !acceptable)
         removeWidget(k);
@@ -464,7 +460,7 @@ void TargetSetupPage::import(const Utils::FileName &path, bool silent)
     foreach (BuildInfo *info, toImport) {
         TargetSetupWidget *widget = m_widgets.value(info->kitId, 0);
         if (!widget) {
-            Kit *k = KitManager::find(info->kitId);
+            Kit *k = KitManager::kit(info->kitId);
             Q_ASSERT(k);
             addWidget(k);
         }
@@ -496,7 +492,7 @@ void TargetSetupPage::removeWidget(Kit *k)
 
 TargetSetupWidget *TargetSetupPage::addWidget(Kit *k)
 {
-    if (!k || (m_requiredMatcher.isValid() && !m_requiredMatcher.matches(k)))
+    if (!k || (m_requiredPredicate && !m_requiredPredicate(k)))
         return 0;
 
     IBuildConfigurationFactory *factory
@@ -514,7 +510,7 @@ TargetSetupWidget *TargetSetupPage::addWidget(Kit *k)
         m_baseLayout->removeWidget(widget);
     m_baseLayout->removeItem(m_spacer);
 
-    widget->setKitSelected(m_preferredMatcher.isValid() && m_preferredMatcher.matches(k));
+    widget->setKitSelected(m_preferredPredicate && m_preferredPredicate(k));
     m_widgets.insert(k->id(), widget);
     connect(widget, &TargetSetupWidget::selectedToggled,
             this, &TargetSetupPage::kitSelectionChanged);

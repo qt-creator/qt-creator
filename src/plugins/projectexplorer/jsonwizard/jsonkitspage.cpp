@@ -63,8 +63,10 @@ void JsonKitsPage::initializePage()
     const QSet<Id> required
             = evaluate(m_requiredFeatures, wiz->value(QLatin1String("RequiredFeatures")), wiz);
 
-    setRequiredKitMatcher(KitMatcher([required](const Kit *k) { return k->hasFeatures(required); }));
-    setPreferredKitMatcher(KitMatcher([platform, preferred](const Kit *k) { return k->supportedPlatforms().contains(platform) && k->hasFeatures(preferred); }));
+    setRequiredKitPredicate([required](const Kit *k) { return k->hasFeatures(required); });
+    setPreferredKitPredicate([platform, preferred](const Kit *k) {
+        return k->supportedPlatforms().contains(platform) && k->hasFeatures(preferred);
+    });
     setProjectPath(wiz->expander()->expand(unexpandedProjectPath()));
 
     TargetSetupPage::initializePage();

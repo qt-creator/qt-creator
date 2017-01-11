@@ -530,7 +530,7 @@ public:
     {
         if (ProjectItem *projectItem = m_projectsModel.rootItem()->childAt(0)) {
             if (KitOptionsPage *page = ExtensionSystem::PluginManager::getObject<KitOptionsPage>())
-                page->showKit(KitManager::find(Id::fromSetting(projectItem->data(0, KitIdRole))));
+                page->showKit(KitManager::kit(Id::fromSetting(projectItem->data(0, KitIdRole))));
         }
         ICore::showOptionsDialog(Constants::KITS_SETTINGS_PAGE_ID, ICore::mainWindow());
     }
@@ -552,7 +552,7 @@ public:
         for (BuildInfo *info : toImport) {
             Target *target = project->target(info->kitId);
             if (!target) {
-                target = project->createTarget(KitManager::find(info->kitId));
+                target = project->createTarget(KitManager::kit(info->kitId));
                 if (target)
                     project->addTarget(target);
             }

@@ -136,7 +136,7 @@ void QbsProfilesSettingsWidget::apply()
     m_applyingProperties = true; // The following will cause kitsChanged() to be emitted.
     for (CustomProperties::ConstIterator it = m_customProperties.constBegin();
          it != m_customProperties.constEnd(); ++it) {
-        ProjectExplorer::Kit * const kit = ProjectExplorer::KitManager::find(it.key());
+        ProjectExplorer::Kit * const kit = ProjectExplorer::KitManager::kit(it.key());
         QTC_ASSERT(kit, continue);
         kit->setValue(Core::Id(Constants::QBS_PROPERTIES_KEY_FOR_KITS), it.value());
     }
@@ -187,7 +187,7 @@ void QbsProfilesSettingsWidget::displayCurrentProfile()
     if (m_ui.kitsComboBox->currentIndex() == -1)
         return;
     const Core::Id kitId = Core::Id::fromSetting(m_ui.kitsComboBox->currentData());
-    const ProjectExplorer::Kit * const kit = ProjectExplorer::KitManager::find(kitId);
+    const ProjectExplorer::Kit * const kit = ProjectExplorer::KitManager::kit(kitId);
     QTC_ASSERT(kit, return);
     const QString profileName = QbsManager::instance()->profileForKit(kit);
     m_ui.profileValueLabel->setText(profileName);
@@ -235,7 +235,7 @@ void QbsProfilesSettingsWidget::mergeCustomPropertiesIntoModel()
     for (CustomProperties::ConstIterator it = m_customProperties.constBegin();
          it != m_customProperties.constEnd(); ++it) {
         const Core::Id kitId = it.key();
-        const ProjectExplorer::Kit * const kit = ProjectExplorer::KitManager::find(kitId);
+        const ProjectExplorer::Kit * const kit = ProjectExplorer::KitManager::kit(kitId);
         QTC_ASSERT(kit, continue);
         const QString keyPrefix = QLatin1String("profiles.")
                 + QbsManager::instance()->profileForKit(kit) + QLatin1Char('.');

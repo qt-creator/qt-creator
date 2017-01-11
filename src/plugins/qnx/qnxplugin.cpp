@@ -107,8 +107,8 @@ void QnxPlugin::updateDebuggerActions()
 {
     bool hasValidQnxKit = false;
 
-    KitMatcher matcher = DeviceTypeKitInformation::deviceTypeMatcher(Constants::QNX_QNX_OS_TYPE);
-    foreach (Kit *qnxKit, KitManager::matchingKits(matcher)) {
+    auto matcher = DeviceTypeKitInformation::deviceTypePredicate(Constants::QNX_QNX_OS_TYPE);
+    foreach (Kit *qnxKit, KitManager::kits(matcher)) {
         if (qnxKit->isValid() && !DeviceKitInformation::device(qnxKit).isNull()) {
             hasValidQnxKit = true;
             break;

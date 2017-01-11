@@ -105,7 +105,7 @@ DebuggerKitChooser::DebuggerKitChooser(Mode mode, QWidget *parent)
     , m_hostAbi(Abi::hostAbi())
     , m_mode(mode)
 {
-    setKitMatcher([this](const Kit *k) {
+    setKitPredicate([this](const Kit *k) {
         // Match valid debuggers and restrict local debugging to compatible toolchains.
         auto errors = DebuggerKitInformation::configurationErrors(k);
         // we do not care for mismatched ABI if we want *any* debugging
@@ -178,7 +178,7 @@ QString StartApplicationParameters::displayName() const
         name += QLatin1String("...");
     }
 
-    if (Kit *kit = KitManager::find(kitId))
+    if (Kit *kit = KitManager::kit(kitId))
         name += QString::fromLatin1(" (%1)").arg(kit->displayName());
 
     return name;
@@ -226,7 +226,7 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
     setWindowTitle(tr("Start Debugger"));
 
     d->kitChooser = new KitChooser(this);
-    d->kitChooser->setKitMatcher([this](const Kit *k) {
+    d->kitChooser->setKitPredicate([this](const Kit *k) {
         return !DebuggerKitInformation::configurationErrors(k);
     });
     d->kitChooser->populate();

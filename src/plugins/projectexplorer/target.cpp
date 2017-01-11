@@ -767,7 +767,7 @@ bool Target::fromMap(const QVariantMap &map)
     if (!ProjectConfiguration::fromMap(map))
         return false;
 
-    QTC_ASSERT(d->m_kit == KitManager::find(id()), return false);
+    QTC_ASSERT(d->m_kit == KitManager::kit(id()), return false);
 
     setDisplayName(d->m_kit->displayName()); // Overwrite displayname read from file
     setDefaultDisplayName(d->m_kit->displayName());

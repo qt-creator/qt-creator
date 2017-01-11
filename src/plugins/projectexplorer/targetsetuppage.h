@@ -27,8 +27,9 @@
 
 #include "projectexplorer_export.h"
 
-#include "projectimporter.h"
 #include "kitinformation.h"
+#include "kitmanager.h"
+#include "projectimporter.h"
 
 #include <utils/wizardpage.h>
 
@@ -43,7 +44,6 @@ namespace Utils { class FileName; }
 
 namespace ProjectExplorer {
 class Kit;
-class KitMatcher;
 class Project;
 
 namespace Internal {
@@ -66,8 +66,8 @@ public:
     void initializePage() override;
 
     // Call these before initializePage!
-    void setRequiredKitMatcher(const KitMatcher &matcher);
-    void setPreferredKitMatcher(const KitMatcher &matcher);
+    void setRequiredKitPredicate(const ProjectExplorer::Kit::Predicate &predicate);
+    void setPreferredKitPredicate(const ProjectExplorer::Kit::Predicate &predicate);
 
     /// Sets whether the targetsetupage uses a scrollarea
     /// to host the widgets from the factories
@@ -108,8 +108,8 @@ private:
     void setupWidgets();
     void reset();
 
-    KitMatcher m_requiredMatcher;
-    KitMatcher m_preferredMatcher;
+    ProjectExplorer::Kit::Predicate m_requiredPredicate;
+    ProjectExplorer::Kit::Predicate m_preferredPredicate;
     QPointer<ProjectImporter> m_importer = nullptr;
     QLayout *m_baseLayout = nullptr;
     QString m_projectPath;

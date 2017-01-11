@@ -221,7 +221,7 @@ Kit *TestQtProjectImporter::createKit(void *directoryData) const
     const DirectoryData *dd = static_cast<const DirectoryData *>(directoryData);
     assert(dd->importPath == m_path);
 
-    if (KitManager::instance()->find(dd->kit->id())) // known kit
+    if (KitManager::instance()->kit(dd->kit->id())) // known kit
         return dd->kit;
 
     // New temporary kit:
@@ -444,7 +444,7 @@ void QtSupportPlugin::testQtProjectImporter_oneProject()
             QCOMPARE(bi->kitId, defaultKit->id());
 
         // VALIDATE: Kit is registered with the KitManager
-        Kit *newKit = KitManager::find(bi->kitId);
+        Kit *newKit = KitManager::kit(bi->kitId);
         QVERIFY(newKit);
 
         const int newQtId = QtKitInformation::qtVersionId(newKit);
@@ -548,7 +548,7 @@ void QtSupportPlugin::testQtProjectImporter_oneProject()
             }
 
             // VALIDATE: DefaultKit is still visible in KitManager
-            QVERIFY(KitManager::find(newKit->id()));
+            QVERIFY(KitManager::kit(newKit->id()));
         } else {
             // Validate that the kit was cleaned up.
 
@@ -579,8 +579,8 @@ void QtSupportPlugin::testQtProjectImporter_oneProject()
             QVERIFY(QtKitInformation::qtVersionId(newKit) == -1);
 
             // VALIDATE: New kit is still visible in KitManager
-            QVERIFY(KitManager::find(newKitId)); // Cleanup Kit does not unregister Kits, so it does
-                                                 // not matter here whether the kit is new or not.
+            QVERIFY(KitManager::kit(newKitId)); // Cleanup Kit does not unregister Kits, so it does
+                                                // not matter here whether the kit is new or not.
 
             // VALIDATE: Qt was cleaned up (new Qt!)
             QVERIFY(!QtVersionManager::version(qtId));

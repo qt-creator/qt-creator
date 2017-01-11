@@ -63,10 +63,11 @@ public:
     static BaseQtVersion *qtVersion(const ProjectExplorer::Kit *k);
     static void setQtVersion(ProjectExplorer::Kit *k, const BaseQtVersion *v);
 
-    static ProjectExplorer::KitMatcher platformMatcher(Core::Id availablePlatforms);
-    static ProjectExplorer::KitMatcher qtVersionMatcher(const QSet<Core::Id> &required = QSet<Core::Id>(),
-                                 const QtVersionNumber &min = QtVersionNumber(0, 0, 0),
-                                 const QtVersionNumber &max = QtVersionNumber(INT_MAX, INT_MAX, INT_MAX));
+    static ProjectExplorer::Kit::Predicate platformPredicate(Core::Id availablePlatforms);
+    static ProjectExplorer::Kit::Predicate
+    qtVersionPredicate(const QSet<Core::Id> &required = QSet<Core::Id>(),
+                       const QtVersionNumber &min = QtVersionNumber(0, 0, 0),
+                       const QtVersionNumber &max = QtVersionNumber(INT_MAX, INT_MAX, INT_MAX));
 
     QSet<Core::Id> supportedPlatforms(const ProjectExplorer::Kit *k) const override;
     QSet<Core::Id> availableFeatures(const ProjectExplorer::Kit *k) const override;

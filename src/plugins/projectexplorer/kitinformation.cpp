@@ -425,8 +425,7 @@ void ToolChainKitInformation::kitsWereLoaded()
 
 void ToolChainKitInformation::toolChainUpdated(ToolChain *tc)
 {
-    auto matcher = KitMatcher([tc, this](const Kit *k) { return toolChain(k, ToolChain::Language::Cxx) == tc; });
-    foreach (Kit *k, KitManager::matchingKits(matcher))
+    for (Kit *k : KitManager::kits([tc, this](const Kit *k) { return toolChain(k, ToolChain::Language::Cxx) == tc; }))
         notifyAboutUpdate(k);
 }
 
@@ -496,11 +495,9 @@ void DeviceTypeKitInformation::setDeviceTypeId(Kit *k, Core::Id type)
     k->setValue(DeviceTypeKitInformation::id(), type.toSetting());
 }
 
-KitMatcher DeviceTypeKitInformation::deviceTypeMatcher(Core::Id type)
+Kit::Predicate DeviceTypeKitInformation::deviceTypePredicate(Core::Id type)
 {
-    return KitMatcher(std::function<bool(const Kit *)>([type](const Kit *kit) {
-        return type.isValid() && deviceTypeId(kit) == type;
-    }));
+    return [type](const Kit *kit) { return type.isValid() && deviceTypeId(kit) == type; };
 }
 
 QSet<Core::Id> DeviceTypeKitInformation::supportedPlatforms(const Kit *k) const

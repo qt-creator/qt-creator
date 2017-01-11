@@ -578,7 +578,7 @@ static QWidget *addSearch(BaseTreeView *treeView, const QString &title,
     return widget;
 }
 
-static std::function<bool(const Kit *)> cdbMatcher(char wordWidth = 0)
+static Kit::Predicate cdbPredicate(char wordWidth = 0)
 {
     return [wordWidth](const Kit *k) -> bool {
         if (DebuggerKitInformation::engineType(k) != CdbEngineType
@@ -596,10 +596,10 @@ static std::function<bool(const Kit *)> cdbMatcher(char wordWidth = 0)
 static Kit *findUniversalCdbKit()
 {
     if (Utils::is64BitWindowsSystem()) {
-        if (Kit *cdb64Kit = KitManager::find(KitMatcher(cdbMatcher(64))))
+        if (Kit *cdb64Kit = KitManager::kit(cdbPredicate(64)))
             return cdb64Kit;
     }
-    return KitManager::find(KitMatcher(cdbMatcher()));
+    return KitManager::kit(cdbPredicate());
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -1122,17 +1122,17 @@ static Kit *guessKitFromParameters(const DebuggerRunParameters &rp)
 
     if (!abis.isEmpty()) {
         // Try exact abis.
-        kit = KitManager::find(KitMatcher([abis](const Kit *k) -> bool {
+        kit = KitManager::kit([abis](const Kit *k) {
             const Abi tcAbi = ToolChainKitInformation::targetAbi(k);
             return abis.contains(tcAbi) && !DebuggerKitInformation::configurationErrors(k);
-        }));
+        });
         if (!kit) {
             // Or something compatible.
-            kit = KitManager::find(KitMatcher([abis](const Kit *k) -> bool {
+            kit = KitManager::kit([abis](const Kit *k) {
                 const Abi tcAbi = ToolChainKitInformation::targetAbi(k);
                 return !DebuggerKitInformation::configurationErrors(k)
                         && Utils::contains(abis, [tcAbi](const Abi &a) { return a.isCompatibleWith(tcAbi); });
-            }));
+            });
         }
     }
 
@@ -1193,7 +1193,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
                 } else if (key == QLatin1String("terminal")) {
                     rp.useTerminal = bool(val.toInt());
                 } else if (key == QLatin1String("kit")) {
-                    kit = KitManager::find(Id::fromString(val));
+                    kit = KitManager::kit(Id::fromString(val));
                 }
             }
         }

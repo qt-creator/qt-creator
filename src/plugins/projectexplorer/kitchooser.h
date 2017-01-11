@@ -27,6 +27,8 @@
 
 #include "projectexplorer_export.h"
 
+#include "kit.h"
+
 #include <QWidget>
 
 #include <functional>
@@ -40,8 +42,6 @@ namespace Core { class Id; }
 
 namespace ProjectExplorer {
 
-class Kit;
-
 // Let the user pick a kit.
 class PROJECTEXPLORER_EXPORT KitChooser : public QWidget
 {
@@ -53,8 +53,7 @@ public:
     void setCurrentKitId(Core::Id id);
     Core::Id currentKitId() const;
 
-    typedef std::function<bool(const Kit *k)> KitMatcher;
-    void setKitMatcher(const KitMatcher &matcher);
+    void setKitPredicate(const Kit::Predicate &predicate);
 
     Kit *currentKit() const;
 
@@ -74,7 +73,7 @@ private:
     void onManageButtonClicked();
     Kit *kitAt(int index) const;
 
-    KitMatcher m_kitMatcher;
+    Kit::Predicate m_kitPredicate;
     QComboBox *m_chooser;
     QPushButton *m_manageButton;
 };

@@ -262,7 +262,7 @@ QmakeProject::QmakeProject(QmakeManager *manager, const QString &fileName) :
     setDocument(new QmakeProjectFile(fileName));
     setProjectContext(Core::Context(QmakeProjectManager::Constants::PROJECT_ID));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
-    setRequiredKitMatcher(QtSupport::QtKitInformation::qtVersionMatcher());
+    setRequiredKitPredicate(QtSupport::QtKitInformation::qtVersionPredicate());
 
     const QTextCodec *codec = Core::EditorManager::defaultTextCodec();
     m_qmakeVfs->setTextCodec(codec);
@@ -276,9 +276,7 @@ QmakeProject::QmakeProject(QmakeManager *manager, const QString &fileName) :
     connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
             this, &QmakeProject::buildFinished);
 
-    setPreferredKitMatcher(KitMatcher([this](const Kit *kit) -> bool {
-                               return matchesKit(kit);
-                           }));
+    setPreferredKitPredicate([this](const Kit *kit) -> bool { return matchesKit(kit); });
 }
 
 QmakeProject::~QmakeProject()
