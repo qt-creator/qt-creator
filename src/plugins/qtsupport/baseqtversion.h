@@ -194,7 +194,6 @@ public:
     virtual bool hasQmlDump() const;
     virtual bool hasQmlDumpWithRelocatableFlag() const;
     virtual bool needsQmlDump() const;
-    Utils::Environment qmlToolsEnvironment() const;
 
     virtual QtConfigWidget *createConfigurationWidget() const;
 

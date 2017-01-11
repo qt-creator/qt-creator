@@ -1302,24 +1302,6 @@ bool BaseQtVersion::needsQmlDump() const
     return qtVersion() < QtVersionNumber(4, 8, 0);
 }
 
-Environment BaseQtVersion::qmlToolsEnvironment() const
-{
-    // FIXME: This seems broken!
-    Environment environment = Environment::systemEnvironment();
-#if 0 // FIXME: Fix this!
-    addToEnvironment(environment);
-#endif
-
-    // add preferred tool chain, as that is how the tools are built, compare QtVersion::buildDebuggingHelperLibrary
-    if (!qtAbis().isEmpty()) {
-        QList<ToolChain *> alltc = ToolChainManager::findToolChains(qtAbis().at(0));
-        if (!alltc.isEmpty())
-            alltc.first()->addToEnvironment(environment);
-    }
-
-    return environment;
-}
-
 QString BaseQtVersion::qmlDumpTool(bool debugVersion) const
 {
     const QString qtInstallBins = qmakeProperty("QT_INSTALL_BINS");

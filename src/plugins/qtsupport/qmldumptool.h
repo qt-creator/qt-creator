@@ -29,6 +29,7 @@
 
 #include <utils/buildablehelperlibrary.h>
 
+namespace ProjectExplorer { class Kit; }
 namespace Utils { class Environment; }
 
 namespace ProjectExplorer {
@@ -42,12 +43,12 @@ class BaseQtVersion;
 class QTSUPPORT_EXPORT QmlDumpTool : public Utils::BuildableHelperLibrary
 {
 public:
-    static QString toolForVersion(BaseQtVersion *version, bool debugDump);
+    static QString toolForVersion(const BaseQtVersion *version, bool debugDump);
     static QString toolForQtPaths(const QString &qtInstallBins,
                                  bool debugDump);
 
-    static void pathAndEnvironment(BaseQtVersion *version,
-                                   bool preferDebug, QString *path, Utils::Environment *env);
+    static void pathAndEnvironment(const ProjectExplorer::Kit *k, bool preferDebug,
+                                   QString *path, Utils::Environment *env);
 };
 
 } // namespace
