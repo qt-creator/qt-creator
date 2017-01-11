@@ -379,15 +379,15 @@ static QString winExpandDelayedEnvReferences(QString in, const Utils::Environmen
     return in;
 }
 
-Utils::Environment MsvcToolChain::readEnvironmentSetting(Utils::Environment& env) const
+Utils::Environment MsvcToolChain::readEnvironmentSetting(const Utils::Environment& env) const
 {
-    Utils::Environment result = env;
+    Utils::Environment result;
     if (!QFileInfo::exists(m_vcvarsBat))
-        return result;
+        return env;
 
     QMap<QString, QString> envPairs;
     if (!generateEnvironmentSettings(env, m_vcvarsBat, m_varsBatArg, envPairs))
-        return result;
+        return env;
 
     // Now loop through and process them
     QMap<QString,QString>::const_iterator envIter;
@@ -498,7 +498,7 @@ QVariantMap MsvcToolChain::toMap() const
 
 bool MsvcToolChain::fromMap(const QVariantMap &data)
 {
-    if (!ToolChain::fromMap(data))
+    if (!AbstractMsvcToolChain::fromMap(data))
         return false;
     m_vcvarsBat = QDir::fromNativeSeparators(data.value(QLatin1String(varsBatKeyC)).toString());
     m_varsBatArg = data.value(QLatin1String(varsBatArgKeyC)).toString();

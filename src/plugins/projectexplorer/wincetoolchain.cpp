@@ -110,17 +110,18 @@ static QString winExpandDelayedEnvReferences(QString in, const Utils::Environmen
 // This is pretty much the same as the ReadEnvironmentSetting in the msvctoolchain.cpp, but
 // this takes account of the library, binary and include paths to replace the vcvars versions
 // with the ones for this toolchain.
-Utils::Environment WinCEToolChain::readEnvironmentSetting(Utils::Environment &env) const
+Utils::Environment WinCEToolChain::readEnvironmentSetting(const Utils::Environment &env) const
 {
-    Utils::Environment result = env;
+    Utils::Environment result;
+
     if (!QFileInfo::exists(m_vcvarsBat))
-        return result;
+        return env;
 
     // Get the env pairs
     QMap<QString, QString> envPairs;
 
     if (!generateEnvironmentSettings(env, m_vcvarsBat, QString(), envPairs))
-        return result;
+        return env;
 
     for (auto envPairIter = envPairs.constBegin(); envPairIter!=envPairs.constEnd(); ++envPairIter) {
         // Replace the env values with those from the WinCE SDK

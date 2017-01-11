@@ -251,7 +251,7 @@ QByteArray AbstractMsvcToolChain::msvcPredefinedMacros(const QStringList cxxflag
     return predefinedMacros;
 }
 
-bool AbstractMsvcToolChain::generateEnvironmentSettings(Utils::Environment &env,
+bool AbstractMsvcToolChain::generateEnvironmentSettings(const Utils::Environment &env,
                                                         const QString &batchFile,
                                                         const QString &batchArgs,
                                                         QMap<QString, QString> &envPairs)
@@ -282,11 +282,13 @@ bool AbstractMsvcToolChain::generateEnvironmentSettings(Utils::Environment &env,
     }
 
     Utils::SynchronousProcess run;
+
     // As of WinSDK 7.1, there is logic preventing the path from being set
     // correctly if "ORIGINALPATH" is already set. That can cause problems
     // if Creator is launched within a session set up by setenv.cmd.
-    env.unset(QLatin1String("ORIGINALPATH"));
-    run.setEnvironment(env.toStringList());
+    Utils::Environment runEnv = env;
+    runEnv.unset(QLatin1String("ORIGINALPATH"));
+    run.setEnvironment(runEnv.toStringList());
     run.setTimeoutS(30);
     Utils::FileName cmdPath = Utils::FileName::fromUserInput(QString::fromLocal8Bit(qgetenv("COMSPEC")));
     if (cmdPath.isEmpty())
@@ -297,7 +299,7 @@ bool AbstractMsvcToolChain::generateEnvironmentSettings(Utils::Environment &env,
     cmdArguments << QDir::toNativeSeparators(saver.fileName());
     if (debug)
         qDebug() << "readEnvironmentSetting: " << call << cmdPath << cmdArguments.join(' ')
-                 << " Env: " << env.size();
+                 << " Env: " << runEnv.size();
     run.setCodec(QTextCodec::codecForName("UTF-8"));
     Utils::SynchronousProcessResponse response = run.runBlocking(cmdPath.toString(), cmdArguments);
     if (response.result != Utils::SynchronousProcessResponse::Finished) {

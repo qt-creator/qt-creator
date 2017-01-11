@@ -63,7 +63,7 @@ public:
 
     bool operator ==(const ToolChain &) const override;
 
-    static bool generateEnvironmentSettings(Utils::Environment &env,
+    static bool generateEnvironmentSettings(const Utils::Environment &env,
                                             const QString &batchFile,
                                             const QString &batchArgs,
                                             QMap<QString, QString> &envPairs);
@@ -83,7 +83,7 @@ protected:
     };
 
     static void inferWarningsForLevel(int warningLevel, WarningFlags &flags);
-    virtual Utils::Environment readEnvironmentSetting(Utils::Environment& env) const = 0;
+    virtual Utils::Environment readEnvironmentSetting(const Utils::Environment& env) const = 0;
     virtual QByteArray msvcPredefinedMacros(const QStringList cxxflags,
                                             const Utils::Environment& env) const;
 

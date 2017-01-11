@@ -80,7 +80,7 @@ protected:
                            const Language &l, Detection d);
     explicit MsvcToolChain(Core::Id typeId);
 
-    Utils::Environment readEnvironmentSetting(Utils::Environment& env) const override;
+    Utils::Environment readEnvironmentSetting(const Utils::Environment& env) const final;
     QByteArray msvcPredefinedMacros(const QStringList cxxflags,
                                     const Utils::Environment &env) const override;
 

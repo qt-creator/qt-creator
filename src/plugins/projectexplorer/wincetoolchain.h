@@ -71,7 +71,7 @@ public:
     bool operator ==(const ToolChain &other) const override;
 
 protected:
-    Utils::Environment readEnvironmentSetting(Utils::Environment& env) const override;
+    Utils::Environment readEnvironmentSetting(const Utils::Environment& env) const final;
 
 private:
     WinCEToolChain();
