@@ -84,6 +84,7 @@ class Dumper(DumperBase):
         self.isCdb = True
 
     def fromNativeValue(self, nativeValue):
+        self.check(isinstance(nativeValue, cdbext.Value))
         val = self.Value(self)
         val.name = nativeValue.name()
         val.type = self.fromNativeType(nativeValue.type())
