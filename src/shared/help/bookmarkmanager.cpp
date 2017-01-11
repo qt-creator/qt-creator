@@ -443,6 +443,10 @@ void BookmarkWidget::setup()
     treeView->setDropIndicatorShown(true);
     treeView->viewport()->installEventFilter(this);
     treeView->setContextMenuPolicy(Qt::CustomContextMenu);
+    // work around crash on Windows with drag & drop
+    // in combination with proxy model and ResizeToContents section resize mode
+    treeView->header()->setSectionResizeMode(QHeaderView::Stretch);
+
 
     connect(treeView, &TreeView::expanded, this, &BookmarkWidget::expand);
     connect(treeView, &TreeView::collapsed, this, &BookmarkWidget::expand);
