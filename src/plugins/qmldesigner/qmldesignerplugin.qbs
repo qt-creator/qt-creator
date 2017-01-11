@@ -398,6 +398,8 @@ Project {
                 "componentcore/selectioncontext.h",
                 "componentcore/qmldesignericonprovider.cpp",
                 "componentcore/qmldesignericonprovider.h",
+                "texteditor/texteditorstatusbar.cpp",
+                "texteditor/texteditorstatusbar.h",
                 "texteditor/texteditorview.cpp",
                 "texteditor/texteditorview.h",
                 "texteditor/texteditorwidget.cpp",
