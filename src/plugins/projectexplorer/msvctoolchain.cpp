@@ -382,9 +382,6 @@ static QString winExpandDelayedEnvReferences(QString in, const Utils::Environmen
 Utils::Environment MsvcToolChain::readEnvironmentSetting(const Utils::Environment& env) const
 {
     Utils::Environment result;
-    if (!QFileInfo::exists(m_vcvarsBat))
-        return env;
-
     QMap<QString, QString> envPairs;
     if (!generateEnvironmentSettings(env, m_vcvarsBat, m_varsBatArg, envPairs))
         return env;
