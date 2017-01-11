@@ -96,6 +96,8 @@ public:
     mutable MimeProviderBase *m_provider;
     const QString m_defaultMimeType;
     QMutex mutex;
+
+    int m_startupPhase = 0;
 };
 
 } // Internal

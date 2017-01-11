@@ -335,6 +335,11 @@ void MimeDatabase::addMimeTypes(const QString &fileName)
 {
     auto d = MimeDatabasePrivate::instance();
     QMutexLocker locker(&d->mutex);
+
+    if (d->m_startupPhase >= MimeDatabase::PluginsDelayedInitializing)
+        qWarning("Adding items from %s to MimeDatabase after initialization time",
+                 qPrintable(fileName));
+
     auto xmlProvider = static_cast<MimeXMLProvider *>(d->provider());
     xmlProvider->addFile(fileName);
 }
@@ -364,11 +369,19 @@ QString MimeDatabase::allFiltersString(QString *allFilesFilter)
 
 QString MimeDatabase::allFilesFilterString()
 {
+    auto d = MimeDatabasePrivate::instance();
+    if (d->m_startupPhase <= MimeDatabase::PluginsInitializing)
+        qWarning("Accessing MimeDatabase files filter strings before plugins are initialized");
+
     return QCoreApplication::translate("Core", ALL_FILES_FILTER.source, ALL_FILES_FILTER.comment);
 }
 
 QStringList MimeDatabase::allGlobPatterns()
 {
+    auto d = MimeDatabasePrivate::instance();
+    if (d->m_startupPhase <= MimeDatabase::PluginsInitializing)
+        qWarning("Accessing MimeDatabase glob patterns before plugins are initialized");
+
     MimeDatabase mdb;
     QStringList patterns;
     foreach (const MimeType &mt, mdb.allMimeTypes())
@@ -383,6 +396,9 @@ QStringList MimeDatabase::allGlobPatterns()
 MimeType MimeDatabase::mimeTypeForName(const QString &nameOrAlias) const
 {
     QMutexLocker locker(&d->mutex);
+
+    if (d->m_startupPhase <= MimeDatabase::PluginsInitializing)
+        qWarning("Accessing MimeDatabase for %s before plugins are initialized", qPrintable(nameOrAlias));
 
     return d->mimeTypeForName(nameOrAlias);
 }
@@ -685,4 +701,13 @@ void MimeDatabase::setMagicRulesForMimeType(const MimeType &mimeType, const QMap
     auto d = MimeDatabasePrivate::instance();
     QMutexLocker locker(&d->mutex);
     return d->provider()->setMagicRulesForMimeType(mimeType, rules);
+}
+
+void MimeDatabase::setStartupPhase(MimeDatabase::StartupPhase phase)
+{
+    auto d = MimeDatabasePrivate::instance();
+    QMutexLocker locker(&d->mutex);
+    if (phase != d->m_startupPhase + 1)
+        qWarning("Unexpected jump in MimedDatabase lifetime from %d to %d", d->m_startupPhase, phase);
+    d->m_startupPhase = phase;
 }

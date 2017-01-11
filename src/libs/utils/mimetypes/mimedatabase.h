@@ -98,6 +98,16 @@ public:
     static void setMagicRulesForMimeType(const MimeType &mimeType,
                                          const QMap<int, QList<Internal::MimeMagicRule> > &rules); // priority -> rules
 
+    // For debugging purposes.
+    enum StartupPhase {
+        BeforeInitialize,
+        PluginsLoading,
+        PluginsInitializing, // Register up to here.
+        PluginsDelayedInitializing, // Use from here on.
+        UpAndRunning
+    };
+    static void setStartupPhase(StartupPhase);
+
 private:
     Internal::MimeDatabasePrivate *d;
 };
