@@ -25,6 +25,7 @@
 
 #include "designeractionmanager.h"
 
+#include "changestyleaction.h"
 #include "modelnodecontextmenu_helper.h"
 #include <nodeproperty.h>
 #include <nodemetainfo.h>
@@ -742,6 +743,13 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &moveToComponent,
                           &singleSelection,
                           &singleSelection));
+
+    addDesignerAction(new ActionGroup(
+                          "",
+                          genericToolBarCategory,
+                          priorityGenericToolBar));
+
+    addDesignerAction(new ChangeStyleAction());
 }
 
 void DesignerActionManager::addDesignerAction(ActionInterface *newAction)

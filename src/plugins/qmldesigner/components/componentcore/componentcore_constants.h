@@ -39,6 +39,7 @@ const char editCategory[] = "Edit";
 const char anchorsCategory[] = "Anchors";
 const char positionCategory[] = "Position";
 const char layoutCategory[] = "Layout";
+const char genericToolBarCategory[] = "GenericToolBar";
 
 const char toFrontCommandId[] = "ToFront";
 const char toBackCommandId[] = "ToBack";
@@ -147,6 +148,7 @@ const int priorityTopLevelSeperator = 100;
 const int priorityCustomActions = 80;
 const int priorityRefactoring = 60;
 const int priorityGoIntoComponent = 40;
+const int priorityGenericToolBar = 50;
 const int priorityLast = 60;
 
 } //ComponentCoreConstants

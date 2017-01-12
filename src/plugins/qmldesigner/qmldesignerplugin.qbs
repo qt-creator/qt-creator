@@ -400,6 +400,8 @@ Project {
                 "componentcore/qmldesignericonprovider.h",
                 "texteditor/texteditorstatusbar.cpp",
                 "texteditor/texteditorstatusbar.h",
+                "componentcore/changestyleaction.cpp",
+                "componentcore/changestyleaction.h",
                 "texteditor/texteditorview.cpp",
                 "texteditor/texteditorview.h",
                 "texteditor/texteditorwidget.cpp",
