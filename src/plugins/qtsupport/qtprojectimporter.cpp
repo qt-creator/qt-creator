@@ -381,11 +381,8 @@ void QtSupportPlugin::testQtProjectImporter_oneProject()
                                             setupQmake(defaultQt, tempDir1.path()),
                                             setupQmake(defaultQt, tempDir2.path()) };
 
-    for (int i = 1; i < qmakePaths.count(); ++i) {
-        const Utils::FileName qp = qmakePaths.at(i);
-        QVERIFY(!Utils::contains(QtVersionManager::versions(),
-                                 [qp](BaseQtVersion *qt) { return qt->qmakeCommand() == qp; }));
-    }
+    for (int i = 1; i < qmakePaths.count(); ++i)
+        QVERIFY(!QtVersionManager::version(Utils::equal(&BaseQtVersion::qmakeCommand, qmakePaths.at(i))));
 
     QList<DirectoryData *> testData;
 

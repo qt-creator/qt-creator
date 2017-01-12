@@ -511,15 +511,6 @@ QList<BaseQtVersion *> QtVersionManager::unsortedVersions(const BaseQtVersion::P
         return m_versions.values();
 }
 
-QList<BaseQtVersion *> QtVersionManager::versions(const BaseQtVersion::Predicate &predicate)
-{
-    QList<BaseQtVersion *> versions;
-    QTC_ASSERT(isLoaded(), return versions);
-    versions = unsortedVersions(predicate);
-    Utils::sort(versions, qtVersionNumberCompare);
-    return versions;
-}
-
 QList<BaseQtVersion *> QtVersionManager::sortVersions(const QList<BaseQtVersion *> &input)
 {
     QList<BaseQtVersion *> result = input;
@@ -532,7 +523,7 @@ QList<BaseQtVersion *> QtVersionManager::validVersions(const BaseQtVersion::Pred
     QTC_ASSERT(isLoaded(), return { });
     auto superPredicate
             = [predicate](const BaseQtVersion *v) { return v->isValid() && (!predicate || predicate(v)); };
-    return versions(superPredicate);
+    return unsortedVersions(superPredicate);
 }
 
 bool QtVersionManager::isValidId(int id)

@@ -47,7 +47,6 @@ public:
     // This will *always* return at least one (Qt in Path), even if that is
     // unconfigured.
     // Sorting is slow due to needing to potentially run qmake --query for each version
-    static QList<BaseQtVersion *> versions(const BaseQtVersion::Predicate &predicate = BaseQtVersion::Predicate());
     static QList<BaseQtVersion *> validVersions(const BaseQtVersion::Predicate &predicate = BaseQtVersion::Predicate());
 
     static QList<BaseQtVersion *> unsortedVersions(const BaseQtVersion::Predicate &predicate = BaseQtVersion::Predicate());
