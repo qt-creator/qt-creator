@@ -518,14 +518,6 @@ QList<BaseQtVersion *> QtVersionManager::sortVersions(const QList<BaseQtVersion 
     return result;
 }
 
-QList<BaseQtVersion *> QtVersionManager::validVersions(const BaseQtVersion::Predicate &predicate)
-{
-    QTC_ASSERT(isLoaded(), return { });
-    auto superPredicate
-            = [predicate](const BaseQtVersion *v) { return v->isValid() && (!predicate || predicate(v)); };
-    return versions(superPredicate);
-}
-
 bool QtVersionManager::isValidId(int id)
 {
     QTC_ASSERT(isLoaded(), return false);

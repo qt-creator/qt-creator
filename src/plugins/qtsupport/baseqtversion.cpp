@@ -647,6 +647,13 @@ bool BaseQtVersion::isValid() const
             && m_qmakeIsExecutable;
 }
 
+BaseQtVersion::Predicate BaseQtVersion::isValidPredicate(const BaseQtVersion::Predicate &predicate)
+{
+    if (predicate)
+        return [predicate](const BaseQtVersion *v) { return v->isValid() && predicate(v); };
+    return [](const BaseQtVersion *v) { return v->isValid(); };
+}
+
 QString BaseQtVersion::invalidReason() const
 {
     if (displayName().isEmpty())

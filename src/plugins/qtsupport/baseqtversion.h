@@ -109,6 +109,7 @@ public:
 
     virtual QVariantMap toMap() const;
     virtual bool isValid() const;
+    static Predicate isValidPredicate(const Predicate &predicate = Predicate());
     virtual QString invalidReason() const;
     virtual QStringList warningReason() const;
 

@@ -58,8 +58,9 @@ QnxDeployQtLibrariesDialog::QnxDeployQtLibrariesDialog(const IDevice::ConstPtr &
     m_ui->setupUi(this);
 
     const QList<BaseQtVersion*> qtVersions
-            = QtVersionManager::validVersions(Utils::equal(&BaseQtVersion::type,
-                                                           QString::fromLatin1(Constants::QNX_QNX_QT)));
+            = QtVersionManager::sortVersions(
+                QtVersionManager::versions(BaseQtVersion::isValidPredicate(Utils::equal(&BaseQtVersion::type,
+                                                                                        QString::fromLatin1(Constants::QNX_QNX_QT)))));
     for (BaseQtVersion *v : qtVersions)
         m_ui->qtLibraryCombo->addItem(v->displayName(), v->uniqueId());
 

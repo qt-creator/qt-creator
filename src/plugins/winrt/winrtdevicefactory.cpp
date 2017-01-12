@@ -173,10 +173,10 @@ QString WinRtDeviceFactory::findRunnerFilePath() const
     const QString winRtRunnerExe = QStringLiteral("/winrtrunner.exe");
     const QList<BaseQtVersion *> winrtVersions
             = QtVersionManager::sortVersions(
-                QtVersionManager::validVersions([](const BaseQtVersion *v) {
+                QtVersionManager::versions(BaseQtVersion::isValidPredicate([](const BaseQtVersion *v) {
         return v->type() == QLatin1String(Constants::WINRT_WINRTQT)
                 || v->type() == QLatin1String(Constants::WINRT_WINPHONEQT);
-    }));
+    })));
     QString filePath;
     BaseQtVersion *qt = nullptr;
     for (BaseQtVersion *v : winrtVersions) {
