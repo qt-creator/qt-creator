@@ -68,10 +68,10 @@ const char QTVERSION_FILENAME[] = "/qtcreator/qtversion.xml";
 static QMap<int, BaseQtVersion *> m_versions;
 static int m_idcount = 0;
 // managed by QtProjectManagerPlugin
-static QtVersionManager *m_instance = 0;
-static FileSystemWatcher *m_configFileWatcher = 0;
-static QTimer *m_fileWatcherTimer = 0;
-static PersistentSettingsWriter *m_writer = 0;
+static QtVersionManager *m_instance = nullptr;
+static FileSystemWatcher *m_configFileWatcher = nullptr;
+static QTimer *m_fileWatcherTimer = nullptr;
+static PersistentSettingsWriter *m_writer = nullptr;
 
 enum { debug = 0 };
 
@@ -108,9 +108,9 @@ static void updateDocumentation();
 QtVersionManager::QtVersionManager()
 {
     m_instance = this;
-    m_configFileWatcher = 0;
+    m_configFileWatcher = nullptr;
     m_fileWatcherTimer = new QTimer(this);
-    m_writer = 0;
+    m_writer = nullptr;
     m_idcount = 1;
 
     qRegisterMetaType<FileName>();
@@ -283,7 +283,7 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
         const QString autoDetectionSource = qtversionMap.value(QLatin1String("autodetectionSource")).toString();
         sdkVersions << autoDetectionSource;
         int id = -1; // see BaseQtVersion::fromMap()
-        QtVersionFactory *factory = 0;
+        QtVersionFactory *factory = nullptr;
         foreach (QtVersionFactory *f, factories) {
             if (f->canRestore(type))
                 factory = f;
@@ -451,7 +451,7 @@ static void findSystemQt()
 void QtVersionManager::addVersion(BaseQtVersion *version)
 {
     QTC_ASSERT(m_writer, return);
-    QTC_ASSERT(version != 0, return);
+    QTC_ASSERT(version, return);
     if (m_versions.contains(version->uniqueId()))
         return;
 
@@ -464,7 +464,7 @@ void QtVersionManager::addVersion(BaseQtVersion *version)
 
 void QtVersionManager::removeVersion(BaseQtVersion *version)
 {
-    QTC_ASSERT(version != 0, return);
+    QTC_ASSERT(version, return);
     m_versions.remove(version->uniqueId());
     emit m_instance->qtVersionsChanged(QList<int>(), QList<int>() << version->uniqueId(), QList<int>());
     saveQtVersions();
@@ -538,10 +538,10 @@ bool QtVersionManager::isValidId(int id)
 
 BaseQtVersion *QtVersionManager::version(int id)
 {
-    QTC_ASSERT(isLoaded(), return 0);
+    QTC_ASSERT(isLoaded(), return nullptr);
     QMap<int, BaseQtVersion *>::const_iterator it = m_versions.constFind(id);
     if (it == m_versions.constEnd())
-        return 0;
+        return nullptr;
     return it.value();
 }
 
