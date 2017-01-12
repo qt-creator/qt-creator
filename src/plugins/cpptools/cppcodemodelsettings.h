@@ -63,6 +63,9 @@ public:
     PCHUsage pchUsage() const;
     void setPCHUsage(PCHUsage pchUsage);
 
+    bool interpretAmbigiousHeadersAsCHeaders() const;
+    void setInterpretAmbigiousHeadersAsCHeaders(bool yesno);
+
     bool skipIndexingBigFiles() const;
     void setSkipIndexingBigFiles(bool yesno);
 
@@ -78,6 +81,7 @@ signals:
 
 private:
     PCHUsage m_pchUsage = PchUse_None;
+    bool m_interpretAmbigiousHeadersAsCHeaders = false;
     bool m_skipIndexingBigFiles = true;
     int m_indexerFileSizeLimitInMB = 5;
     ClangDiagnosticConfigs m_clangCustomDiagnosticConfigs;

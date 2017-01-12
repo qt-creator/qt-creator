@@ -31,25 +31,39 @@
 namespace CppTools {
 namespace Internal {
 
-static int priority(const ProjectPart &projectPart, const ProjectExplorer::Project *activeProject)
+static bool isPreferredLanguage(const ProjectPart &projectPart, Language preference)
+{
+    const bool isCProjectPart = projectPart.languageVersion <= ProjectPart::LatestCVersion;
+    return (preference == Language::C && isCProjectPart)
+        || (preference == Language::Cxx && !isCProjectPart);
+}
+
+static int priority(const ProjectPart &projectPart,
+                    const ProjectExplorer::Project *activeProject,
+                    Language languagePreference)
 {
     int thePriority = 0;
 
     if (projectPart.project == activeProject)
-        thePriority += 10;
+        thePriority += 100;
 
     if (projectPart.selectedForBuilding)
+        thePriority += 10;
+
+    if (isPreferredLanguage(projectPart, languagePreference))
         thePriority += 1;
 
     return thePriority;
 }
 
 static ProjectPart::Ptr chooseFromMultiple(const QList<ProjectPart::Ptr> &projectParts,
-                                           const ProjectExplorer::Project *activeProject)
+                                           const ProjectExplorer::Project *activeProject,
+                                           Language languagePreference)
 {
     QList<ProjectPart::Ptr> projectPartsPrioritized = projectParts;
-    const auto lessThan = [activeProject] (const ProjectPart::Ptr &p1, const ProjectPart::Ptr &p2) {
-        return priority(*p1, activeProject) > priority(*p2, activeProject);
+    const auto lessThan = [&] (const ProjectPart::Ptr &p1, const ProjectPart::Ptr &p2) {
+        return priority(*p1, activeProject, languagePreference)
+             > priority(*p2, activeProject, languagePreference);
     };
     std::stable_sort(projectPartsPrioritized.begin(), projectPartsPrioritized.end(), lessThan);
 
@@ -61,6 +75,7 @@ ProjectPart::Ptr ProjectPartChooser::choose(const QString &filePath,
                                             const ProjectPart::Ptr &manuallySetProjectPart,
                                             bool stickToPreviousProjectPart,
                                             const ProjectExplorer::Project *activeProject,
+                                            Language languagePreference,
                                             bool projectHasChanged) const
 {
     QTC_CHECK(m_projectPartsForFile);
@@ -85,10 +100,10 @@ ProjectPart::Ptr ProjectPartChooser::choose(const QString &filePath,
             // Fall-back step 2: Use fall-back part from the model manager:
             projectPart = m_fallbackProjectPart();
         else
-            projectPart = chooseFromMultiple(projectParts, activeProject);
+            projectPart = chooseFromMultiple(projectParts, activeProject, languagePreference);
     } else {
         if (projectHasChanged || !projectParts.contains(projectPart))
-            projectPart = chooseFromMultiple(projectParts, activeProject);
+            projectPart = chooseFromMultiple(projectParts, activeProject, languagePreference);
     }
 
     return projectPart;

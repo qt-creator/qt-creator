@@ -384,8 +384,17 @@ static CppTools::ProjectPart projectPartForLanguageOption(CppTools::ProjectPart 
 static QStringList languageOptions(const QString &filePath, CppTools::ProjectPart *projectPart)
 {
     const auto theProjectPart = projectPartForLanguageOption(projectPart);
+
+    // Determine file kind with respect to ambiguous headers.
+    CppTools::ProjectFile::Kind fileKind = CppTools::ProjectFile::classify(filePath);
+    if (fileKind == CppTools::ProjectFile::AmbiguousHeader) {
+        fileKind = theProjectPart.languageVersion <= CppTools::ProjectPart::LatestCVersion
+             ? CppTools::ProjectFile::CHeader
+             : CppTools::ProjectFile::CXXHeader;
+    }
+
     CppTools::CompilerOptionsBuilder builder(theProjectPart);
-    builder.addLanguageOption(CppTools::ProjectFile::classify(filePath));
+    builder.addLanguageOption(fileKind);
 
     return builder.options();
 }

@@ -25,8 +25,11 @@
 
 #include "baseeditordocumentprocessor.h"
 
+#include "cppcodemodelsettings.h"
+#include "cpplanguage.h"
 #include "cppmodelmanager.h"
 #include "cpptoolsbridge.h"
+#include "cpptoolsreuse.h"
 #include "editordocumenthandle.h"
 
 #include <projectexplorer/session.h>
@@ -55,8 +58,13 @@ BaseEditorDocumentProcessor::~BaseEditorDocumentProcessor()
 
 void BaseEditorDocumentProcessor::run(bool hasActiveProjectChanged)
 {
+    const Language languagePreference = codeModelSettings()->interpretAmbigiousHeadersAsCHeaders()
+            ? Language::C
+            : Language::Cxx;
+
     runImpl({CppModelManager::instance()->workingCopy(),
              ProjectExplorer::SessionManager::startupProject(),
+             languagePreference,
              hasActiveProjectChanged});
 }
 

@@ -34,6 +34,7 @@ HEADERS += \
     cppfunctionsfilter.h \
     cppincludesfilter.h \
     cppindexingsupport.h \
+    cpplanguage.h \
     cpplocalsymbols.h \
     cpplocatordata.h \
     cpplocatorfilter.h \

@@ -122,6 +122,7 @@ ProjectPart::Ptr BaseEditorDocumentParser::determineProjectPart(
         const Configuration &config,
         const State &state,
         const ProjectExplorer::Project *activeProject,
+        Language languagePreference,
         bool hasActiveProjectChanged)
 {
     Internal::ProjectPartChooser chooser;
@@ -141,6 +142,7 @@ ProjectPart::Ptr BaseEditorDocumentParser::determineProjectPart(
                           config.manuallySetProjectPart,
                           config.stickToPreviousProjectPart,
                           activeProject,
+                          languagePreference,
                           hasActiveProjectChanged);
 }
 

@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "cpplanguage.h"
 #include "projectpart.h"
 
 #include <functional>
@@ -52,6 +53,7 @@ public:
                             const ProjectPart::Ptr &manuallySetProjectPart,
                             bool stickToPreviousProjectPart,
                             const ProjectExplorer::Project *activeProject,
+                            Language languagePreference,
                             bool projectHasChanged) const;
 
 private:

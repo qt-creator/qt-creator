@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "cpplanguage.h"
 #include "cpptools_global.h"
 #include "cppworkingcopy.h"
 #include "projectpart.h"
@@ -55,15 +56,18 @@ public:
     struct UpdateParams {
         UpdateParams(const WorkingCopy &workingCopy,
                      const ProjectExplorer::Project *activeProject,
+                     Language languagePreference,
                      bool hasActiveProjectChanged)
             : workingCopy(workingCopy)
             , activeProject(activeProject)
+            , languagePreference(languagePreference)
             , hasActiveProjectChanged(hasActiveProjectChanged)
         {
         }
 
         WorkingCopy workingCopy;
         const ProjectExplorer::Project *activeProject = nullptr;
+        Language languagePreference = Language::Cxx;
         bool hasActiveProjectChanged = false;
     };
 
@@ -92,6 +96,7 @@ protected:
                                                  const Configuration &config,
                                                  const State &state,
                                                  const ProjectExplorer::Project *activeProject,
+                                                 Language languagePreference,
                                                  bool hasActiveProjectChanged);
 
     mutable QMutex m_stateAndConfigurationMutex;

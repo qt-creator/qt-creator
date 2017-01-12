@@ -56,18 +56,16 @@ void CppCodeModelSettingsWidget::setSettings(const QSharedPointer<CppCodeModelSe
 {
     m_settings = s;
 
+    setupGeneralWidgets();
     setupClangCodeModelWidgets();
-    setupPchCheckBox();
-    setupSkipIndexingFilesWidgets();
 }
 
 void CppCodeModelSettingsWidget::applyToSettings() const
 {
     bool changed = false;
 
+    changed |= applyGeneralWidgetsToSettings();
     changed |= applyClangCodeModelWidgetsToSettings();
-    changed |= applyPchCheckBoxToSettings();
-    changed |= applySkipIndexingFilesWidgets();
 
     if (changed)
         m_settings->toSettings(Core::ICore::settings());
@@ -88,16 +86,16 @@ void CppCodeModelSettingsWidget::setupClangCodeModelWidgets()
     m_ui->clangSettingsGroupBox->layout()->addWidget(m_clangDiagnosticConfigsWidget);
 }
 
-void CppCodeModelSettingsWidget::setupPchCheckBox() const
+void CppCodeModelSettingsWidget::setupGeneralWidgets()
 {
-    const bool ignorePch = m_settings->pchUsage() == CppCodeModelSettings::PchUse_None;
-    m_ui->ignorePCHCheckBox->setChecked(ignorePch);
-}
+    m_ui->interpretAmbiguousHeadersAsCHeaders->setChecked(
+                m_settings->interpretAmbigiousHeadersAsCHeaders());
 
-void CppCodeModelSettingsWidget::setupSkipIndexingFilesWidgets()
-{
     m_ui->skipIndexingBigFilesCheckBox->setChecked(m_settings->skipIndexingBigFiles());
     m_ui->bigFilesLimitSpinBox->setValue(m_settings->indexerFileSizeLimitInMb());
+
+    const bool ignorePch = m_settings->pchUsage() == CppCodeModelSettings::PchUse_None;
+    m_ui->ignorePCHCheckBox->setChecked(ignorePch);
 }
 
 bool CppCodeModelSettingsWidget::applyClangCodeModelWidgetsToSettings() const
@@ -122,36 +120,36 @@ bool CppCodeModelSettingsWidget::applyClangCodeModelWidgetsToSettings() const
     return settingsChanged;
 }
 
-bool CppCodeModelSettingsWidget::applyPchCheckBoxToSettings() const
-{
-    const bool newIgnorePch = m_ui->ignorePCHCheckBox->isChecked();
-    const bool previousIgnorePch = m_settings->pchUsage() == CppCodeModelSettings::PchUse_None;
-
-    if (newIgnorePch != previousIgnorePch) {
-        const CppCodeModelSettings::PCHUsage pchUsage = m_ui->ignorePCHCheckBox->isChecked()
-                ? CppCodeModelSettings::PchUse_None
-                : CppCodeModelSettings::PchUse_BuildSystem;
-        m_settings->setPCHUsage(pchUsage);
-
-        return true;
-    }
-
-    return false;
-}
-
-bool CppCodeModelSettingsWidget::applySkipIndexingFilesWidgets() const
+bool CppCodeModelSettingsWidget::applyGeneralWidgetsToSettings() const
 {
     bool settingsChanged = false;
+
+    const bool newInterpretAmbiguousHeaderAsCHeaders
+            = m_ui->interpretAmbiguousHeadersAsCHeaders->isChecked();
+    if (m_settings->interpretAmbigiousHeadersAsCHeaders()
+            != newInterpretAmbiguousHeaderAsCHeaders) {
+        m_settings->setInterpretAmbigiousHeadersAsCHeaders(newInterpretAmbiguousHeaderAsCHeaders);
+        settingsChanged = true;
+    }
 
     const bool newSkipIndexingBigFiles = m_ui->skipIndexingBigFilesCheckBox->isChecked();
     if (m_settings->skipIndexingBigFiles() != newSkipIndexingBigFiles) {
         m_settings->setSkipIndexingBigFiles(newSkipIndexingBigFiles);
         settingsChanged = true;
     }
-
     const int newFileSizeLimit = m_ui->bigFilesLimitSpinBox->value();
     if (m_settings->indexerFileSizeLimitInMb() != newFileSizeLimit) {
         m_settings->setIndexerFileSizeLimitInMb(newFileSizeLimit);
+        settingsChanged = true;
+    }
+
+    const bool newIgnorePch = m_ui->ignorePCHCheckBox->isChecked();
+    const bool previousIgnorePch = m_settings->pchUsage() == CppCodeModelSettings::PchUse_None;
+    if (newIgnorePch != previousIgnorePch) {
+        const CppCodeModelSettings::PCHUsage pchUsage = m_ui->ignorePCHCheckBox->isChecked()
+                ? CppCodeModelSettings::PchUse_None
+                : CppCodeModelSettings::PchUse_BuildSystem;
+        m_settings->setPCHUsage(pchUsage);
         settingsChanged = true;
     }
 

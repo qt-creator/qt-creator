@@ -61,6 +61,7 @@ Project {
             "cppfunctionsfilter.cpp", "cppfunctionsfilter.h",
             "cppincludesfilter.cpp", "cppincludesfilter.h",
             "cppindexingsupport.cpp", "cppindexingsupport.h",
+            "cpplanguage.h",
             "cpplocalsymbols.cpp", "cpplocalsymbols.h",
             "cpplocatordata.cpp", "cpplocatordata.h",
             "cpplocatorfilter.cpp", "cpplocatorfilter.h",

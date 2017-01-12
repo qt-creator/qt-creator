@@ -25,11 +25,13 @@
 
 #include "googletest.h"
 
+#include <cpptools/cpplanguage.h>
 #include <cpptools/cppprojectpartchooser.h>
 #include <cpptools/projectpart.h>
 
 using CppTools::Internal::ProjectPartChooser;
 using CppTools::ProjectPart;
+using CppTools::Language;
 
 using testing::Eq;
 
@@ -42,6 +44,7 @@ protected:
     const ProjectPart::Ptr choose() const;
 
     static QList<ProjectPart::Ptr> createProjectPartsWithDifferentProjects();
+    static QList<ProjectPart::Ptr> createCAndCxxProjectParts();
 
 protected:
     QString filePath;
@@ -50,6 +53,7 @@ protected:
     bool stickToPreviousProjectPart = false;
     const ProjectExplorer::Project *activeProject = nullptr;
     bool projectHasChanged = false;
+    Language languagePreference = Language::Cxx;
     ::ProjectPartChooser chooser;
 
     QList<ProjectPart::Ptr> projectPartsForFile;
@@ -130,6 +134,28 @@ TEST_F(ProjectPartChooser, ForMultipleCheckIfActiveProjectChanged)
     ASSERT_THAT(chosen, Eq(secondProjectPart));
 }
 
+TEST_F(ProjectPartChooser, ForMultipleAndAmbigiousHeaderPreferCProjectPart)
+{
+    languagePreference = Language::C;
+    projectPartsForFile = createCAndCxxProjectParts();
+    const ProjectPart::Ptr cProjectPart = projectPartsForFile.at(0);
+
+    const ProjectPart::Ptr chosen = choose();
+
+    ASSERT_THAT(chosen, Eq(cProjectPart));
+}
+
+TEST_F(ProjectPartChooser, ForMultipleAndAmbigiousHeaderPreferCxxProjectPart)
+{
+    languagePreference = Language::Cxx;
+    projectPartsForFile = createCAndCxxProjectParts();
+    const ProjectPart::Ptr cxxProjectPart = projectPartsForFile.at(1);
+
+    const ProjectPart::Ptr chosen = choose();
+
+    ASSERT_THAT(chosen, Eq(cxxProjectPart));
+}
+
 TEST_F(ProjectPartChooser, IfProjectIsGoneStickToPrevious) // Built-in Code Model
 {
     stickToPreviousProjectPart = true;
@@ -198,6 +224,7 @@ const ProjectPart::Ptr ProjectPartChooser::choose() const
                           manuallySetProjectPart,
                           stickToPreviousProjectPart,
                           activeProject,
+                          languagePreference,
                           projectHasChanged);
 }
 
@@ -211,6 +238,23 @@ QList<ProjectPart::Ptr> ProjectPartChooser::createProjectPartsWithDifferentProje
     const ProjectPart::Ptr p2{new ProjectPart};
     p2->project = reinterpret_cast<ProjectExplorer::Project *>(1 << 1);
     projectParts.append(p2);
+
+    return projectParts;
+}
+
+QList<ProjectPart::Ptr> ProjectPartChooser::createCAndCxxProjectParts()
+{
+    QList<ProjectPart::Ptr> projectParts;
+
+    // Create project part for C
+    const ProjectPart::Ptr cprojectpart{new ProjectPart};
+    cprojectpart->languageVersion = ProjectPart::C11;
+    projectParts.append(cprojectpart);
+
+    // Create project part for CXX
+    const ProjectPart::Ptr cxxprojectpart{new ProjectPart};
+    cxxprojectpart->languageVersion = ProjectPart::CXX98;
+    projectParts.append(cxxprojectpart);
 
     return projectParts;
 }

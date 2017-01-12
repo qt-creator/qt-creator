@@ -55,13 +55,11 @@ public:
     void applyToSettings() const;
 
 private:
+    void setupGeneralWidgets();
     void setupClangCodeModelWidgets();
-    void setupPchCheckBox() const;
-    void setupSkipIndexingFilesWidgets();
 
+    bool applyGeneralWidgetsToSettings() const;
     bool applyClangCodeModelWidgetsToSettings() const;
-    bool applyPchCheckBoxToSettings() const;
-    bool applySkipIndexingFilesWidgets() const;
 
 private:
     Ui::CppCodeModelSettingsPage *m_ui;

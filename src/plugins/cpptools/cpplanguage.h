@@ -23,29 +23,10 @@
 **
 ****************************************************************************/
 
-#include "clangeditordocumentparser.h"
+#pragma once
 
-namespace ClangCodeModel {
+namespace CppTools {
 
-ClangEditorDocumentParser::ClangEditorDocumentParser(const QString &filePath)
-    : BaseEditorDocumentParser(filePath)
-{
-    BaseEditorDocumentParser::Configuration config = configuration();
-    config.stickToPreviousProjectPart = false;
-    setConfiguration(config);
-}
+enum class Language { C, Cxx };
 
-void ClangEditorDocumentParser::updateImpl(const QFutureInterface<void> &,
-                                           const UpdateParams &updateParams)
-{
-    State state_ = state();
-    state_.projectPart = determineProjectPart(filePath(),
-                                              configuration(),
-                                              state_,
-                                              updateParams.activeProject,
-                                              updateParams.languagePreference,
-                                              updateParams.hasActiveProjectChanged);
-    setState(state_);
-}
-
-} // namespace ClangCodeModel
+} // namespace CppTools

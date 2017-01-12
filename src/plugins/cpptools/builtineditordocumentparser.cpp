@@ -81,6 +81,7 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
                                                  baseConfig,
                                                  baseState,
                                                  updateParams.activeProject,
+                                                 updateParams.languagePreference,
                                                  updateParams.hasActiveProjectChanged);
 
     if (state.forceSnapshotInvalidation) {

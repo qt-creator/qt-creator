@@ -158,7 +158,8 @@ void indexFindErrors(QFutureInterface<void> &future, const ParseParams params)
         // Parse the file as precisely as possible
         BuiltinEditorDocumentParser parser(file);
         parser.setReleaseSourceAndAST(false);
-        parser.update({CppModelManager::instance()->workingCopy(), nullptr, false});
+        parser.update({CppModelManager::instance()->workingCopy(), nullptr,
+                       Language::Cxx, false});
         CPlusPlus::Document::Ptr document = parser.document();
         QTC_ASSERT(document, return);
 
