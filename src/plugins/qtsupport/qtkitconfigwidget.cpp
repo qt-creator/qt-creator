@@ -47,7 +47,7 @@ QtKitConfigWidget::QtKitConfigWidget(ProjectExplorer::Kit *k, const ProjectExplo
     m_combo = new QComboBox;
     m_combo->addItem(tr("None"), -1);
 
-    QList<int> versionIds = Utils::transform(QtVersionManager::unsortedVersions(), &BaseQtVersion::uniqueId);
+    QList<int> versionIds = Utils::transform(QtVersionManager::versions(), &BaseQtVersion::uniqueId);
     versionsChanged(versionIds, QList<int>(), QList<int>());
 
     m_manageButton = new QPushButton(KitConfigWidget::msgManage());

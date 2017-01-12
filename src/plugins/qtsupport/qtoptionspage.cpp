@@ -235,7 +235,7 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent)
     m_ui->qtdirList->setTextElideMode(Qt::ElideMiddle);
     m_ui->qtdirList->sortByColumn(0, Qt::AscendingOrder);
 
-    QList<int> additions = transform(QtVersionManager::unsortedVersions(), &BaseQtVersion::uniqueId);
+    QList<int> additions = transform(QtVersionManager::versions(), &BaseQtVersion::uniqueId);
 
     updateQtVersions(additions, QList<int>(), QList<int>());
 

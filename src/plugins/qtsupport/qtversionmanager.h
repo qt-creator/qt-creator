@@ -49,7 +49,7 @@ public:
     // Sorting is slow due to needing to potentially run qmake --query for each version
     static QList<BaseQtVersion *> validVersions(const BaseQtVersion::Predicate &predicate = BaseQtVersion::Predicate());
 
-    static QList<BaseQtVersion *> unsortedVersions(const BaseQtVersion::Predicate &predicate = BaseQtVersion::Predicate());
+    static QList<BaseQtVersion *> versions(const BaseQtVersion::Predicate &predicate = BaseQtVersion::Predicate());
 
     // Sorting is potentially expensive since it might require qmake --query to run for each version!
     static QList<BaseQtVersion *> sortVersions(const QList<BaseQtVersion *> &input);

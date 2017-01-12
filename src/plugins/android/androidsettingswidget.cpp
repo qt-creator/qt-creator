@@ -337,7 +337,7 @@ void AndroidSettingsWidget::check(AndroidSettingsWidget::Mode mode)
             }
 
             const QList<QtSupport::BaseQtVersion *> androidQts
-                    = QtSupport::QtVersionManager::unsortedVersions([](const QtSupport::BaseQtVersion *v) {
+                    = QtSupport::QtVersionManager::versions([](const QtSupport::BaseQtVersion *v) {
                 return v->type() == QLatin1String(Constants::ANDROIDQT) && !v->qtAbis().isEmpty();
             });
             QSet<ProjectExplorer::Abi> qtVersionsForAbi;

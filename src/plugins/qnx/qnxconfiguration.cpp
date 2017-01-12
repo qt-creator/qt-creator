@@ -251,7 +251,7 @@ QnxQtVersion* QnxConfiguration::qnxQtVersion(QnxArchitecture arch) const
 {
     QnxQtVersion *qnxQt;
     foreach (BaseQtVersion *version,
-             QtVersionManager::instance()->unsortedVersions(Utils::equal(&BaseQtVersion::type,
+             QtVersionManager::instance()->versions(Utils::equal(&BaseQtVersion::type,
                                                                          QString::fromLatin1(Constants::QNX_QNX_QT)))) {
             qnxQt = dynamic_cast<QnxQtVersion*>(version);
             if (qnxQt && qnxQt->architecture() == arch) {

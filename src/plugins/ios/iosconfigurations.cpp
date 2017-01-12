@@ -152,7 +152,7 @@ static QHash<Platform, ToolChainPair> findToolChains(const QList<Platform> &plat
 static QHash<Abi::Architecture, QSet<BaseQtVersion *>> iosQtVersions()
 {
     const QList<BaseQtVersion *> iosVersions
-            = QtVersionManager::unsortedVersions([](const BaseQtVersion *v) {
+            = QtVersionManager::versions([](const BaseQtVersion *v) {
         return v->isValid() && v->type() == Constants::IOSQT;
     });
     QHash<Abi::Architecture, QSet<BaseQtVersion *>> versions;

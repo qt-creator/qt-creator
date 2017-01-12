@@ -489,7 +489,7 @@ static void updateDocumentation()
 
 void QtVersionManager::updateDumpFor(const FileName &qmakeCommand)
 {
-    foreach (BaseQtVersion *v, unsortedVersions()) {
+    foreach (BaseQtVersion *v, versions()) {
         if (v->qmakeCommand() == qmakeCommand)
             v->recheckDumper();
     }
@@ -501,7 +501,7 @@ int QtVersionManager::getUniqueId()
     return m_idcount++;
 }
 
-QList<BaseQtVersion *> QtVersionManager::unsortedVersions(const BaseQtVersion::Predicate &predicate)
+QList<BaseQtVersion *> QtVersionManager::versions(const BaseQtVersion::Predicate &predicate)
 {
     QList<BaseQtVersion *> versions;
     QTC_ASSERT(isLoaded(), return versions);
@@ -523,7 +523,7 @@ QList<BaseQtVersion *> QtVersionManager::validVersions(const BaseQtVersion::Pred
     QTC_ASSERT(isLoaded(), return { });
     auto superPredicate
             = [predicate](const BaseQtVersion *v) { return v->isValid() && (!predicate || predicate(v)); };
-    return unsortedVersions(superPredicate);
+    return versions(superPredicate);
 }
 
 bool QtVersionManager::isValidId(int id)
