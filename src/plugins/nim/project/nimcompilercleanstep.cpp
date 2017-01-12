@@ -80,7 +80,7 @@ void NimCompilerCleanStep::run(QFutureInterface<bool> &fi)
         return;
     }
 
-    emit addOutput(tr("Clean step completed successfully."), BuildStep::NormalOutput);
+    emit addOutput(tr("Clean step completed successfully."), BuildStep::MessageOutput);
     reportRunResult(fi, true);
 }
 
