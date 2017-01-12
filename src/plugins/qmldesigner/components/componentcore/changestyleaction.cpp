@@ -54,10 +54,15 @@ void ChangeStyleWidgetAction::handleModelUpdate(const QString &style)
     emit modelUpdated(style);
 }
 
+const char enabledTooltip[] = QT_TRANSLATE_NOOP("ChangeStyleWidgetAction",
+                                                "Change style for Qt Quick Controls 2.");
+const char disbledTooltip[] = QT_TRANSLATE_NOOP("ChangeStyleWidgetAction",
+                                                "Change style for Qt Quick Controls 2. Configuration file qtquickcontrols2.conf not found.");
+
 QWidget *ChangeStyleWidgetAction::createWidget(QWidget *parent)
 {
     QComboBox *comboBox = new QComboBox(parent);
-    comboBox->setToolTip(tr("Change style for Qt Quick Controls 2."));
+    comboBox->setToolTip(tr(enabledTooltip));
     comboBox->addItem("Default");
     comboBox->addItem("Material");
     comboBox->addItem("Universal");
@@ -71,10 +76,15 @@ QWidget *ChangeStyleWidgetAction::createWidget(QWidget *parent)
 
         bool block = comboBox->blockSignals(true);
 
-        if (style.isEmpty())
+        if (style.isEmpty()) { /* The .conf file is misssing. */
+            comboBox->setDisabled(true);
+            comboBox->setToolTip(tr(disbledTooltip));
             comboBox->setCurrentIndex(0);
-        else
+        } else {
+            comboBox->setDisabled(false);
+            comboBox->setToolTip(tr(enabledTooltip));
             comboBox->setEditText(style);
+        }
 
         comboBox->blockSignals(block);
     });
