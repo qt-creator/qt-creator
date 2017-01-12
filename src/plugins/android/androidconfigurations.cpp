@@ -1289,7 +1289,6 @@ void AndroidConfigurations::updateAutomaticKitList()
     }
 
     // register new kits
-    QList<Kit *> newKits;
     const QList<ToolChain *> tmp = Utils::filtered(ToolChainManager::toolChains(), [](ToolChain *tc) {
         return tc->isAutoDetected()
             && tc->isValid()
@@ -1316,6 +1315,13 @@ void AndroidConfigurations::updateAutomaticKitList()
             QtSupport::QtKitInformation::setQtVersion(newKit, qt);
             DeviceKitInformation::setDevice(newKit, device);
 
+            auto findExistingKit = [newKit](const Kit *k) { return matchKits(newKit, k); };
+            Kit *existingKit = Utils::findOrDefault(existingKits, findExistingKit);
+            if (existingKit) {
+                KitManager::deleteKit(newKit);
+                newKit = existingKit;
+            }
+
             Debugger::DebuggerItem debugger;
             debugger.setCommand(tc->suggestedDebugger());
             debugger.setEngineType(Debugger::GdbEngineType);
@@ -1332,19 +1338,8 @@ void AndroidConfigurations::updateAutomaticKitList()
                                              .arg(static_cast<const AndroidQtVersion *>(qt)->targetArch())
                                              .arg(tc->ndkToolChainVersion())
                                              .arg(qt->qtVersionString()));
-            newKits << newKit;
-        }
-    }
-
-    QSet<const Kit *> rediscoveredExistingKits;
-    for (Kit *newKit : newKits) {
-        Kit *existingKit = Utils::findOrDefault(existingKits, [newKit](const Kit *k) { return matchKits(newKit, k); });
-        if (existingKit) {
-            existingKit->copyFrom(newKit);
-            KitManager::deleteKit(newKit);
-            rediscoveredExistingKits.insert(existingKit);
-        } else {
-            KitManager::registerKit(newKit);
+            if (!existingKit)
+                KitManager::registerKit(newKit);
         }
     }
 }
