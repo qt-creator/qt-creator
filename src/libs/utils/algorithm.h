@@ -140,8 +140,7 @@ typename T::value_type findOrDefault(const T &container, R (S::*function)() cons
 // find helpers
 //////////////////
 template<typename R, typename S, typename T>
-auto equal(R (S::*function)() const, T value)
-    -> decltype(std::bind<bool>(std::equal_to<T>(), value, std::bind(function, std::placeholders::_1)))
+decltype(auto) equal(R (S::*function)() const, T value)
 {
     // This should use std::equal_to<> instead of std::eqaul_to<T>,
     // but that's not supported everywhere yet, since it is C++14
@@ -149,8 +148,7 @@ auto equal(R (S::*function)() const, T value)
 }
 
 template<typename R, typename S, typename T>
-auto equal(R S::*member, T value)
-    -> decltype(std::bind<bool>(std::equal_to<T>(), value, std::bind(member, std::placeholders::_1)))
+decltype(auto) equal(R S::*member, T value)
 {
     return std::bind<bool>(std::equal_to<T>(), value, std::bind(member, std::placeholders::_1));
 }
@@ -262,8 +260,7 @@ struct TransformImpl {
 template<typename C, // container
          typename F>
 Q_REQUIRED_RESULT
-auto transform(const C &container, F function)
--> typename ContainerType<C>::template ResultOfTransform<F>
+decltype(auto) transform(const C &container, F function)
 {
     return TransformImpl<
                 typename ContainerType<C>::template ResultOfTransform<F>,
@@ -276,8 +273,7 @@ template<typename C,
         typename R,
         typename S>
 Q_REQUIRED_RESULT
-auto transform(const C &container, R (S::*p)() const)
-    ->typename ContainerType<C>::template ResultOfTransformPMF<R>
+decltype(auto) transform(const C &container, R (S::*p)() const)
 {
     return TransformImpl<
                 typename ContainerType<C>::template ResultOfTransformPMF<R>,
@@ -290,8 +286,7 @@ template<template<typename> class C, // result container type
          typename SC, // input container type
          typename F> // function type
 Q_REQUIRED_RESULT
-auto transform(const SC &container, F function)
-     -> typename ContainerType<SC>::template ResultOfTransform<F, C>
+decltype(auto) transform(const SC &container, F function)
 {
     return TransformImpl<
                 typename ContainerType<SC>::template ResultOfTransform<F, C>,
@@ -306,8 +301,7 @@ template<template<typename> class C, // result container type
          typename R,
          typename S>
 Q_REQUIRED_RESULT
-auto transform(const SC &container, R (S::*p)() const)
-     -> C<std::decay_t<R>>
+decltype(auto) transform(const SC &container, R (S::*p)() const)
 {
     return TransformImpl<
                 C<std::decay_t<R>>,
