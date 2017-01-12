@@ -94,9 +94,9 @@ public:
         NoPane,
         LeftPane,
         RightPane,
+        BottomPane,
         TopPane, // not used
-        BottomPane, // not used
-        CentralPane // not used
+        CentralPane
     };
 
     QString uniqueId;

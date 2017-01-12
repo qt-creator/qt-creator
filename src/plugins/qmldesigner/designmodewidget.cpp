@@ -179,8 +179,8 @@ void DesignModeWidget::toggleSidebars()
         m_leftSideBar->setVisible(m_showSidebars);
     if (m_rightSideBar)
         m_rightSideBar->setVisible(m_showSidebars);
-    if (m_topSideBar)
-        m_topSideBar->setVisible(m_showSidebars);
+    if (m_bottomSideBar)
+        m_bottomSideBar->setVisible(m_showSidebars);
 }
 
 void DesignModeWidget::readSettings()
@@ -455,12 +455,12 @@ static QTabWidget *createWidgetsInTabWidget(const QList<WidgetInfo> &widgetInfos
     return tabWidget;
 }
 
-static QWidget *createTopSideBarWidget(const QList<WidgetInfo> &widgetInfos)
+static QWidget *createbottomSideBarWidget(const QList<WidgetInfo> &widgetInfos)
 {
     //### we now own these here
     QList<WidgetInfo> topWidgetInfos;
     foreach (const WidgetInfo &widgetInfo, widgetInfos) {
-        if (widgetInfo.placementHint == widgetInfo.TopPane)
+        if (widgetInfo.placementHint == widgetInfo.BottomPane)
             topWidgetInfos.append(widgetInfo);
     }
 
@@ -518,13 +518,13 @@ QWidget *DesignModeWidget::createCenterWidget()
     horizontalLayout->addWidget(m_toolBar);
     horizontalLayout->addWidget(createCrumbleBarFrame());
 
-    m_topSideBar = createTopSideBarWidget(viewManager().widgetInfos());
-    horizontalLayout->addWidget(m_topSideBar.data());
-
     Core::MiniSplitter *centralSplitter = createCentralSplitter(viewManager().widgetInfos());
     m_centralTabWidget = centralSplitter->findChild<QTabWidget*>("centralTabWidget");
     Q_ASSERT(m_centralTabWidget);
     horizontalLayout->addWidget(centralSplitter);
+
+    m_bottomSideBar = createbottomSideBarWidget(viewManager().widgetInfos());
+    horizontalLayout->addWidget(m_bottomSideBar.data());
 
     return centerWidget;
 }

@@ -116,7 +116,7 @@ private: // variables
 
     QScopedPointer<Core::SideBar> m_leftSideBar;
     QScopedPointer<Core::SideBar> m_rightSideBar;
-    QPointer<QWidget> m_topSideBar;
+    QPointer<QWidget> m_bottomSideBar;
     Core::EditorToolBar *m_toolBar;
     CrumbleBar *m_crumbleBar;
     bool m_isDisabled = false;
