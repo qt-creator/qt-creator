@@ -52,6 +52,9 @@ public:
 
     static QList<BaseQtVersion *> unsortedVersions(const BaseQtVersion::Predicate &predicate = BaseQtVersion::Predicate());
 
+    // Sorting is potentially expensive since it might require qmake --query to run for each version!
+    static QList<BaseQtVersion *> sortVersions(const QList<BaseQtVersion *> &input);
+
     // Note: DO NOT STORE THIS POINTER!
     //       The QtVersionManager will delete it at random times and you will
     //       need to get a new pointer by calling this function again!

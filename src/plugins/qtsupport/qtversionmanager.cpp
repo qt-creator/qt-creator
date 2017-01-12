@@ -520,6 +520,13 @@ QList<BaseQtVersion *> QtVersionManager::versions(const BaseQtVersion::Predicate
     return versions;
 }
 
+QList<BaseQtVersion *> QtVersionManager::sortVersions(const QList<BaseQtVersion *> &input)
+{
+    QList<BaseQtVersion *> result = input;
+    Utils::sort(result, qtVersionNumberCompare);
+    return result;
+}
+
 QList<BaseQtVersion *> QtVersionManager::validVersions(const BaseQtVersion::Predicate &predicate)
 {
     QTC_ASSERT(isLoaded(), return { });
