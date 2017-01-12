@@ -68,6 +68,7 @@ private:
     void handleChmodFinished(int exitStatus);
     void handleStdOutData();
     void handleStdErrData();
+    void handleReadChannelFinished();
 
     void checkDeploymentNeeded(const ProjectExplorer::DeployableFile &file) const;
     void setFinished();
