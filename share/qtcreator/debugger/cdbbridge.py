@@ -235,12 +235,28 @@ class Dumper(DumperBase):
                 return coreName
         return None
 
+    def qtDeclarativeModuleName(self):
+        modules = cdbext.listOfModules()
+        for declarativeModuleName in ['Qt5Qmld', 'Qt5Qml']:
+            if declarativeModuleName in modules:
+                self.qtDeclarativeModuleName = lambda: declarativeModuleName
+                return declarativeModuleName
+        return None
+
     def qtHookDataSymbolName(self):
         hookSymbolName = 'qtHookData'
         coreModuleName = self.qtCoreModuleName()
         if coreModuleName is not None:
             hookSymbolName = '%s!%s' % (coreModuleName, hookSymbolName)
         self.qtHookDataSymbolName = lambda: hookSymbolName
+        return hookSymbolName
+
+    def qtDeclarativeHookDataSymbolName(self):
+        hookSymbolName = 'qtDeclarativeHookData'
+        declarativeModuleName = self.qtDeclarativeModuleName()
+        if declarativeModuleName is not None:
+            hookSymbolName = '%s!%s' % (declarativeModuleName, hookSymbolName)
+        self.qtDeclarativeHookDataSymbolName = lambda: hookSymbolName
         return hookSymbolName
 
     def qtNamespace(self):
