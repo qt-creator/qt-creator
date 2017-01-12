@@ -937,6 +937,8 @@ void IosSimulatorToolHandlerPrivate::launchAppOnSimulator(const QStringList &ext
             // Poll every 1 sec to check whether the app is running.
             QThread::msleep(1000);
         } while (!fi.isCanceled() && kill(pid, 0) == 0);
+#else
+    Q_UNUSED(pid);
 #endif
         // Future is cancelled if the app is stopped from the qt creator.
         if (!fi.isCanceled())
