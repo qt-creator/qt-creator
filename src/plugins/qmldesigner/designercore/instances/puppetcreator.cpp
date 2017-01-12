@@ -119,6 +119,8 @@ QDateTime PuppetCreator::puppetSourceLastModified() const
 bool PuppetCreator::useOnlyFallbackPuppet() const
 {
 #ifndef QMLDESIGNER_TEST
+    if (!m_kit || !m_kit->isValid())
+        qWarning() << "Invalid kit for QML puppet";
     return m_designerSettings.value(DesignerSettingsKey::USE_ONLY_FALLBACK_PUPPET
                                     ).toBool() || m_kit == 0 || !m_kit->isValid();
 #else
