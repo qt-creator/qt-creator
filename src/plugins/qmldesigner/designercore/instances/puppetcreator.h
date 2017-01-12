@@ -111,6 +111,7 @@ protected:
     QDateTime puppetSourceLastModified() const;
 
     bool useOnlyFallbackPuppet() const;
+    QString getStyleConfigFileName() const;
 
 private:
     QString m_qtCreatorVersion;
