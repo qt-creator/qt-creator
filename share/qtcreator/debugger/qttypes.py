@@ -2205,7 +2205,7 @@ def qdump_64__QV4__Value(d, value):
             d.putBetterType('%sQV4::Value (object)' % ns)
             #QV4_putObjectValue(d, d.extractPointer(value) + 2 * d.ptrSize())
             arrayVTable = d.symbolAddress(ns + 'QV4::ArrayObject::static_vtbl')
-            warn('ARRAY VTABLE: 0x%x' % arrayVTable)
+            #warn('ARRAY VTABLE: 0x%x' % arrayVTable)
             d.putNumChild(1)
             d.putItem(d.createValue(d.extractPointer(value) + 2 * d.ptrSize(), ns + 'QV4::Object'))
             return
