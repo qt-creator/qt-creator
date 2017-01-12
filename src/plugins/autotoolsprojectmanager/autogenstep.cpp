@@ -134,7 +134,7 @@ void AutogenStep::run(QFutureInterface<bool> &fi)
     }
 
     if (!m_runAutogen) {
-        emit addOutput(tr("Configuration unchanged, skipping autogen step."), BuildStep::MessageOutput);
+        emit addOutput(tr("Configuration unchanged, skipping autogen step."), BuildStep::OutputFormat::NormalMessage);
         reportRunResult(fi, true);
         return;
     }

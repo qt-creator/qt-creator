@@ -81,7 +81,7 @@ bool AbstractRemoteLinuxDeployStep::init(QList<const BuildStep *> &earlierSteps)
     deployService()->setTarget(target());
     const bool canDeploy = initInternal(&error);
     if (!canDeploy)
-        emit addOutput(tr("Cannot deploy: %1").arg(error), ErrorMessageOutput);
+        emit addOutput(tr("Cannot deploy: %1").arg(error), OutputFormat::ErrorMessage);
     return canDeploy;
 }
 
@@ -110,7 +110,8 @@ void AbstractRemoteLinuxDeployStep::cancel()
     if (d->hasError)
         return;
 
-    emit addOutput(tr("User requests deployment to stop; cleaning up."), MessageOutput);
+    emit addOutput(tr("User requests deployment to stop; cleaning up."),
+                   OutputFormat::NormalMessage);
     d->hasError = true;
     deployService()->stop();
 }
@@ -127,7 +128,7 @@ RemoteLinuxDeployConfiguration *AbstractRemoteLinuxDeployStep::deployConfigurati
 
 void AbstractRemoteLinuxDeployStep::handleProgressMessage(const QString &message)
 {
-    emit addOutput(message, MessageOutput);
+    emit addOutput(message, OutputFormat::NormalMessage);
 }
 
 void AbstractRemoteLinuxDeployStep::handleErrorMessage(const QString &message)
@@ -135,7 +136,7 @@ void AbstractRemoteLinuxDeployStep::handleErrorMessage(const QString &message)
     ProjectExplorer::Task task = Task(Task::Error, message, Utils::FileName(), -1,
                                       Constants::TASK_CATEGORY_DEPLOYMENT);
     emit addTask(task, 1); // TODO correct?
-    emit addOutput(message, ErrorMessageOutput);
+    emit addOutput(message, OutputFormat::ErrorMessage);
     d->hasError = true;
 }
 
@@ -144,27 +145,27 @@ void AbstractRemoteLinuxDeployStep::handleWarningMessage(const QString &message)
     ProjectExplorer::Task task = Task(Task::Warning, message, Utils::FileName(), -1,
                                       Constants::TASK_CATEGORY_DEPLOYMENT);
     emit addTask(task, 1); // TODO correct?
-    emit addOutput(message, ErrorMessageOutput);
+    emit addOutput(message, OutputFormat::ErrorMessage);
 }
 
 void AbstractRemoteLinuxDeployStep::handleFinished()
 {
     if (d->hasError)
-        emit addOutput(tr("Deploy step failed."), ErrorMessageOutput);
+        emit addOutput(tr("Deploy step failed."), OutputFormat::ErrorMessage);
     else
-        emit addOutput(tr("Deploy step finished."), MessageOutput);
+        emit addOutput(tr("Deploy step finished."), OutputFormat::NormalMessage);
     disconnect(deployService(), 0, this, 0);
     reportRunResult(d->future, !d->hasError);
 }
 
 void AbstractRemoteLinuxDeployStep::handleStdOutData(const QString &data)
 {
-    emit addOutput(data, NormalOutput, DontAppendNewline);
+    emit addOutput(data, OutputFormat::Stdout, DontAppendNewline);
 }
 
 void AbstractRemoteLinuxDeployStep::handleStdErrData(const QString &data)
 {
-    emit addOutput(data, ErrorOutput, DontAppendNewline);
+    emit addOutput(data, OutputFormat::Stderr, DontAppendNewline);
 }
 
 } // namespace RemoteLinux

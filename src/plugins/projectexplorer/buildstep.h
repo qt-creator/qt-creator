@@ -72,7 +72,11 @@ public:
     Target *target() const;
     Project *project() const;
 
-    enum OutputFormat { NormalOutput, ErrorOutput, MessageOutput, ErrorMessageOutput };
+    enum class OutputFormat {
+        Stdout, Stderr, // These are for forwarded output from external tools
+        NormalMessage, ErrorMessage // These are for messages from Creator itself
+    };
+
     enum OutputNewlineSetting { DoAppendNewline, DontAppendNewline };
 
     static void reportRunResult(QFutureInterface<bool> &fi, bool success);

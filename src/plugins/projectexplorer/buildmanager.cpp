@@ -225,14 +225,14 @@ void BuildManager::finish()
     QString time = format.toString(QLatin1String("h:mm:ss"));
     if (time.startsWith(QLatin1String("0:")))
         time.remove(0, 2); // Don't display zero hours
-    m_instance->addToOutputWindow(tr("Elapsed time: %1.") .arg(time), BuildStep::MessageOutput);
+    m_instance->addToOutputWindow(tr("Elapsed time: %1.") .arg(time), BuildStep::OutputFormat::NormalMessage);
 
     QApplication::alert(ICore::mainWindow(), 3000);
 }
 
 void BuildManager::emitCancelMessage()
 {
-    m_instance->addToOutputWindow(tr("Canceled build/deployment."), BuildStep::ErrorMessageOutput);
+    m_instance->addToOutputWindow(tr("Canceled build/deployment."), BuildStep::OutputFormat::ErrorMessage);
 }
 
 void BuildManager::clearBuildQueue()
@@ -338,7 +338,7 @@ void BuildManager::addToOutputWindow(const QString &string, BuildStep::OutputFor
                                      BuildStep::OutputNewlineSetting newlineSettings)
 {
     QString stringToWrite;
-    if (format == BuildStep::MessageOutput || format == BuildStep::ErrorMessageOutput) {
+    if (format == BuildStep::OutputFormat::NormalMessage || format == BuildStep::OutputFormat::ErrorMessage) {
         stringToWrite = QTime::currentTime().toString();
         stringToWrite += QLatin1String(": ");
     }
@@ -381,13 +381,13 @@ void BuildManager::nextBuildQueue()
         Target *t = d->m_currentBuildStep->target();
         const QString projectName = d->m_currentBuildStep->project()->displayName();
         const QString targetName = t->displayName();
-        addToOutputWindow(tr("Error while building/deploying project %1 (kit: %2)").arg(projectName, targetName), BuildStep::ErrorOutput);
+        addToOutputWindow(tr("Error while building/deploying project %1 (kit: %2)").arg(projectName, targetName), BuildStep::OutputFormat::Stderr);
         const QList<Task> kitTasks = t->kit()->validate();
         if (!kitTasks.isEmpty()) {
             addToOutputWindow(tr("The kit %1 has configuration issues which might be the root cause for this problem.")
-                              .arg(targetName), BuildStep::ErrorOutput);
+                              .arg(targetName), BuildStep::OutputFormat::Stderr);
         }
-        addToOutputWindow(tr("When executing step \"%1\"").arg(d->m_currentBuildStep->displayName()), BuildStep::ErrorOutput);
+        addToOutputWindow(tr("When executing step \"%1\"").arg(d->m_currentBuildStep->displayName()), BuildStep::OutputFormat::Stderr);
         // NBS TODO fix in qtconcurrent
         d->m_progressFutureInterface->setProgressValueAndText(d->m_progress*100, tr("Error while building/deploying project %1 (kit: %2)").arg(projectName, targetName));
 
@@ -432,13 +432,13 @@ void BuildManager::nextStep()
         if (d->m_currentBuildStep->project() != d->m_previousBuildStepProject) {
             const QString projectName = d->m_currentBuildStep->project()->displayName();
             addToOutputWindow(tr("Running steps for project %1...")
-                              .arg(projectName), BuildStep::MessageOutput);
+                              .arg(projectName), BuildStep::OutputFormat::NormalMessage);
             d->m_previousBuildStepProject = d->m_currentBuildStep->project();
         }
 
         if (d->m_skipDisabled) {
             addToOutputWindow(tr("Skipping disabled step %1.")
-                              .arg(d->m_currentBuildStep->displayName()), BuildStep::MessageOutput);
+                              .arg(d->m_currentBuildStep->displayName()), BuildStep::OutputFormat::NormalMessage);
             nextBuildQueue();
             return;
         }
@@ -471,7 +471,7 @@ bool BuildManager::buildQueueAppend(QList<BuildStep *> steps, QStringList names,
         TaskHub::clearTasks(Constants::TASK_CATEGORY_DEPLOYMENT);
 
         foreach (const QString &str, preambleMessage)
-            addToOutputWindow(str, BuildStep::MessageOutput, BuildStep::DontAppendNewline);
+            addToOutputWindow(str, BuildStep::OutputFormat::NormalMessage, BuildStep::DontAppendNewline);
     }
 
     QList<const BuildStep *> earlierSteps;
@@ -496,8 +496,8 @@ bool BuildManager::buildQueueAppend(QList<BuildStep *> steps, QStringList names,
         // print something for the user
         const QString projectName = bs->project()->displayName();
         const QString targetName = bs->target()->displayName();
-        addToOutputWindow(tr("Error while building/deploying project %1 (kit: %2)").arg(projectName, targetName), BuildStep::ErrorOutput);
-        addToOutputWindow(tr("When executing step \"%1\"").arg(bs->displayName()), BuildStep::ErrorOutput);
+        addToOutputWindow(tr("Error while building/deploying project %1 (kit: %2)").arg(projectName, targetName), BuildStep::OutputFormat::Stderr);
+        addToOutputWindow(tr("When executing step \"%1\"").arg(bs->displayName()), BuildStep::OutputFormat::Stderr);
 
         // disconnect the buildsteps again
         for (int j = 0; j <= i; ++j)

@@ -175,9 +175,9 @@ void TarPackageCreationStep::run(QFutureInterface<bool> &fi)
 
     setPackagingFinished(success);
     if (success)
-        emit addOutput(tr("Packaging finished successfully."), MessageOutput);
+        emit addOutput(tr("Packaging finished successfully."), OutputFormat::NormalMessage);
     else
-        emit addOutput(tr("Packaging failed."), ErrorMessageOutput);
+        emit addOutput(tr("Packaging failed."), OutputFormat::ErrorMessage);
 
     connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
             this, &TarPackageCreationStep::deployFinished);
@@ -236,9 +236,9 @@ void TarPackageCreationStep::addNeededDeploymentFiles(
 
 bool TarPackageCreationStep::doPackage(QFutureInterface<bool> &fi)
 {
-    emit addOutput(tr("Creating tarball..."), MessageOutput);
+    emit addOutput(tr("Creating tarball..."), OutputFormat::NormalMessage);
     if (!m_packagingNeeded) {
-        emit addOutput(tr("Tarball up to date, skipping packaging."), MessageOutput);
+        emit addOutput(tr("Tarball up to date, skipping packaging."), OutputFormat::NormalMessage);
         return true;
     }
 
@@ -254,7 +254,7 @@ bool TarPackageCreationStep::doPackage(QFutureInterface<bool> &fi)
     foreach (const DeployableFile &d, m_files) {
         if (d.remoteDirectory().isEmpty()) {
             emit addOutput(tr("No remote path specified for file \"%1\", skipping.")
-                .arg(d.localFilePath().toUserOutput()), ErrorMessageOutput);
+                .arg(d.localFilePath().toUserOutput()), OutputFormat::ErrorMessage);
             continue;
         }
         QFileInfo fileInfo = d.localFilePath().toFileInfo();
@@ -307,7 +307,8 @@ bool TarPackageCreationStep::appendFile(QFile &tarFile, const QFileInfo &fileInf
 
     const int chunkSize = 1024*1024;
 
-    emit addOutput(tr("Adding file \"%1\" to tarball...").arg(nativePath), MessageOutput);
+    emit addOutput(tr("Adding file \"%1\" to tarball...").arg(nativePath),
+                   OutputFormat::NormalMessage);
 
     // TODO: Wasteful. Work with fixed-size buffer.
     while (!file.atEnd() && file.error() == QFile::NoError && tarFile.error() == QFile::NoError) {

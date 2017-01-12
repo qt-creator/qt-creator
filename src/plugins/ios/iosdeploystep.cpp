@@ -108,7 +108,7 @@ bool IosDeployStep::init(QList<const BuildStep *> &earlierSteps)
         m_deviceType = runConfig->deviceType();
     } else {
         emit addOutput(tr("Error: no device available, deploy failed."),
-                       BuildStep::ErrorMessageOutput);
+                       BuildStep::OutputFormat::ErrorMessage);
         return false;
     }
     return true;
@@ -210,7 +210,7 @@ void IosDeployStep::handleErrorMsg(IosToolHandler *handler, const QString &msg)
         TaskHub::addTask(Task::Warning,
                          tr("The Info.plist might be incorrect."),
                          ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
-    emit addOutput(msg, BuildStep::ErrorMessageOutput);
+    emit addOutput(msg, BuildStep::OutputFormat::ErrorMessage);
 }
 
 BuildStepConfigWidget *IosDeployStep::createConfigWidget()

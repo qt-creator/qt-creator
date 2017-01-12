@@ -133,7 +133,7 @@ bool AndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
 
         if (bc->buildType() != ProjectExplorer::BuildConfiguration::Release)
             emit addOutput(tr("Warning: Signing a debug or profile package."),
-                           BuildStep::ErrorMessageOutput);
+                           OutputFormat::ErrorMessage);
     }
 
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
@@ -143,7 +143,7 @@ bool AndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
     int minSDKForKit = AndroidManager::minimumSDK(target()->kit());
     if (AndroidManager::minimumSDK(target()) < minSDKForKit) {
         emit addOutput(tr("The API level set for the APK is less than the minimum required by the kit."
-                          "\nThe minimum API level required by the kit is %1.").arg(minSDKForKit), ErrorOutput);
+                          "\nThe minimum API level required by the kit is %1.").arg(minSDKForKit), OutputFormat::Stderr);
         return false;
     }
 

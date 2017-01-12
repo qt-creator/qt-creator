@@ -118,7 +118,7 @@ void OutputParserTester::testOutputMangling(const QString &input,
 {
     reset();
 
-    childParser()->outputAdded(input, BuildStep::NormalOutput);
+    childParser()->outputAdded(input, BuildStep::OutputFormat::Stdout);
 
     QCOMPARE(m_receivedOutput, output);
     QVERIFY(m_receivedStdErrChildLine.isNull());

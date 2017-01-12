@@ -93,7 +93,7 @@ private:
     QString deviceId() const;
     QString appBundle() const;
     void raiseError(const QString &error);
-    void writeOutput(const QString &text, OutputFormat = MessageOutput);
+    void writeOutput(const QString &text, OutputFormat = OutputFormat::NormalMessage);
     void checkProvisioningProfile();
 
     TransferStatus m_transferStatus;

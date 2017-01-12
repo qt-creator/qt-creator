@@ -143,18 +143,18 @@ bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
     m_androiddeployqtArgs.clear();
 
     if (AndroidManager::checkForQt51Files(project()->projectDirectory()))
-        emit addOutput(tr("Found old folder \"android\" in source directory. Qt 5.2 does not use that folder by default."), ErrorOutput);
+        emit addOutput(tr("Found old folder \"android\" in source directory. Qt 5.2 does not use that folder by default."), OutputFormat::Stderr);
 
     m_targetArch = AndroidManager::targetArch(target());
     if (m_targetArch.isEmpty()) {
-        emit addOutput(tr("No Android arch set by the .pro file."), ErrorOutput);
+        emit addOutput(tr("No Android arch set by the .pro file."), OutputFormat::Stderr);
         return false;
     }
 
     AndroidBuildApkStep *androidBuildApkStep
         = AndroidGlobal::buildStep<AndroidBuildApkStep>(target()->activeBuildConfiguration());
     if (!androidBuildApkStep) {
-        emit addOutput(tr("Cannot find the android build step."), ErrorOutput);
+        emit addOutput(tr("Cannot find the android build step."), OutputFormat::Stderr);
         return false;
     }
 
@@ -206,7 +206,7 @@ bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
     if (m_useAndroiddeployqt) {
         Utils::FileName tmp = AndroidManager::androidQtSupport(target())->androiddeployqtPath(target());
         if (tmp.isEmpty()) {
-            emit addOutput(tr("Cannot find the androiddeployqt tool."), ErrorOutput);
+            emit addOutput(tr("Cannot find the androiddeployqt tool."), OutputFormat::Stderr);
             return false;
         }
 
@@ -220,7 +220,7 @@ bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
         Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--input"));
         tmp = AndroidManager::androidQtSupport(target())->androiddeployJsonPath(target());
         if (tmp.isEmpty()) {
-            emit addOutput(tr("Cannot find the androiddeploy Json file."), ErrorOutput);
+            emit addOutput(tr("Cannot find the androiddeploy Json file."), OutputFormat::Stderr);
             return false;
         }
         Utils::QtcProcess::addArg(&m_androiddeployqtArgs, tmp.toString());
@@ -284,11 +284,11 @@ AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy(QFutureInter
         if (m_uninstallPreviousPackageRun) {
             const QString packageName = AndroidManager::packageName(m_manifestName);
             if (packageName.isEmpty()) {
-                emit addOutput(tr("Cannot find the package name."), ErrorOutput);
+                emit addOutput(tr("Cannot find the package name."), OutputFormat::Stderr);
                 return Failure;
             }
 
-            emit addOutput(tr("Uninstall previous package %1.").arg(packageName), MessageOutput);
+            emit addOutput(tr("Uninstall previous package %1.").arg(packageName), OutputFormat::NormalMessage);
             runCommand(m_adbPath,
                        AndroidDeviceInfo::adbSelector(m_serialNumber)
                        << QLatin1String("uninstall") << packageName);
@@ -320,7 +320,7 @@ AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy(QFutureInter
 
     emit addOutput(tr("Starting: \"%1\" %2")
                    .arg(QDir::toNativeSeparators(m_command), args),
-                   BuildStep::MessageOutput);
+                   BuildStep::OutputFormat::NormalMessage);
 
     while (!m_process->waitForFinished(200)) {
         if (m_process->state() == QProcess::NotRunning)
@@ -351,13 +351,13 @@ AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy(QFutureInter
 
     if (exitStatus == QProcess::NormalExit && exitCode == 0) {
         emit addOutput(tr("The process \"%1\" exited normally.").arg(m_command),
-                       BuildStep::MessageOutput);
+                       BuildStep::OutputFormat::NormalMessage);
     } else if (exitStatus == QProcess::NormalExit) {
         emit addOutput(tr("The process \"%1\" exited with code %2.")
                        .arg(m_command, QString::number(exitCode)),
-                       BuildStep::ErrorMessageOutput);
+                       BuildStep::OutputFormat::ErrorMessage);
     } else {
-        emit addOutput(tr("The process \"%1\" crashed.").arg(m_command), BuildStep::ErrorMessageOutput);
+        emit addOutput(tr("The process \"%1\" crashed.").arg(m_command), BuildStep::OutputFormat::ErrorMessage);
     }
 
     if (exitCode == 0 && exitStatus == QProcess::NormalExit) {
@@ -428,7 +428,7 @@ void AndroidDeployQtStep::run(QFutureInterface<bool> &fi)
         }
     }
 
-    emit addOutput(tr("Pulling files necessary for debugging."), MessageOutput);
+    emit addOutput(tr("Pulling files necessary for debugging."), OutputFormat::NormalMessage);
 
     QString localAppProcessFile = QString::fromLatin1("%1/app_process").arg(m_buildDirectory);
     QFile::remove(localAppProcessFile);
@@ -446,7 +446,7 @@ void AndroidDeployQtStep::run(QFutureInterface<bool> &fi)
         returnValue = Failure;
         emit addOutput(tr("Package deploy: Failed to pull \"%1\" to \"%2\".")
                        .arg(m_appProcessBinaries.join(QLatin1String("\", \"")))
-                       .arg(localAppProcessFile), ErrorMessageOutput);
+                       .arg(localAppProcessFile), OutputFormat::ErrorMessage);
     }
 
     runCommand(m_adbPath,
@@ -461,10 +461,10 @@ void AndroidDeployQtStep::runCommand(const QString &program, const QStringList &
 {
     Utils::SynchronousProcess buildProc;
     buildProc.setTimeoutS(2 * 60);
-    emit addOutput(tr("Package deploy: Running command \"%1 %2\".").arg(program).arg(arguments.join(QLatin1Char(' '))), BuildStep::MessageOutput);
+    emit addOutput(tr("Package deploy: Running command \"%1 %2\".").arg(program).arg(arguments.join(QLatin1Char(' '))), BuildStep::OutputFormat::NormalMessage);
     Utils::SynchronousProcessResponse response = buildProc.run(program, arguments);
     if (response.result != Utils::SynchronousProcessResponse::Finished || response.exitCode != 0)
-        emit addOutput(response.exitMessage(program, 2 * 60), BuildStep::ErrorMessageOutput);
+        emit addOutput(response.exitMessage(program, 2 * 60), BuildStep::OutputFormat::ErrorMessage);
 }
 
 AndroidDeviceInfo AndroidDeployQtStep::deviceInfo() const
@@ -489,7 +489,7 @@ void AndroidDeployQtStep::processReadyReadStdOutput(DeployErrorCode &errorCode)
 
 void AndroidDeployQtStep::stdOutput(const QString &line)
 {
-    emit addOutput(line, BuildStep::NormalOutput, BuildStep::DontAppendNewline);
+    emit addOutput(line, BuildStep::OutputFormat::Stdout, BuildStep::DontAppendNewline);
 }
 
 void AndroidDeployQtStep::processReadyReadStdError(DeployErrorCode &errorCode)
@@ -504,7 +504,7 @@ void AndroidDeployQtStep::processReadyReadStdError(DeployErrorCode &errorCode)
 
 void AndroidDeployQtStep::stdError(const QString &line)
 {
-    emit addOutput(line, BuildStep::ErrorOutput, BuildStep::DontAppendNewline);
+    emit addOutput(line, BuildStep::OutputFormat::Stderr, BuildStep::DontAppendNewline);
 }
 
 AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::parseDeployErrors(QString &deployOutputLine) const

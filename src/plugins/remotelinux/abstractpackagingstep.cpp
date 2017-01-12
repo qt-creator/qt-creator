@@ -169,7 +169,7 @@ void AbstractPackagingStep::raiseError(const QString &errorMessage)
     Task task = Task(Task::Error, errorMessage, Utils::FileName(), -1,
                      Constants::TASK_CATEGORY_DEPLOYMENT);
     emit addTask(task);
-    emit addOutput(errorMessage, BuildStep::ErrorOutput);
+    emit addOutput(errorMessage, BuildStep::OutputFormat::Stderr);
 }
 
 void AbstractPackagingStep::raiseWarning(const QString &warningMessage)
@@ -177,7 +177,7 @@ void AbstractPackagingStep::raiseWarning(const QString &warningMessage)
     Task task = Task(Task::Warning, warningMessage, Utils::FileName(), -1,
                      Constants::TASK_CATEGORY_DEPLOYMENT);
     emit addTask(task);
-    emit addOutput(warningMessage, ErrorMessageOutput);
+    emit addOutput(warningMessage, OutputFormat::ErrorMessage);
 }
 
 } // namespace RemoteLinux

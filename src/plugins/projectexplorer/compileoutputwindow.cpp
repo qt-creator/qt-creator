@@ -254,18 +254,18 @@ void CompileOutputWindow::appendText(const QString &text, BuildStep::OutputForma
     Theme *theme = Utils::creatorTheme();
     QTextCharFormat textFormat;
     switch (format) {
-    case BuildStep::NormalOutput:
+    case BuildStep::OutputFormat::Stdout:
         textFormat.setForeground(theme->color(Theme::TextColorNormal));
         textFormat.setFontWeight(QFont::Normal);
         break;
-    case BuildStep::ErrorOutput:
+    case BuildStep::OutputFormat::Stderr:
         textFormat.setForeground(theme->color(Theme::OutputPanes_ErrorMessageTextColor));
         textFormat.setFontWeight(QFont::Normal);
         break;
-    case BuildStep::MessageOutput:
+    case BuildStep::OutputFormat::NormalMessage:
         textFormat.setForeground(theme->color(Theme::OutputPanes_MessageOutput));
         break;
-    case BuildStep::ErrorMessageOutput:
+    case BuildStep::OutputFormat::ErrorMessage:
         textFormat.setForeground(theme->color(Theme::OutputPanes_ErrorMessageTextColor));
         textFormat.setFontWeight(QFont::Bold);
         break;

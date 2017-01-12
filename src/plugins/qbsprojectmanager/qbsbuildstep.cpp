@@ -356,7 +356,7 @@ void QbsBuildStep::handleProgress(int value)
 void QbsBuildStep::handleCommandDescriptionReport(const QString &highlight, const QString &message)
 {
     Q_UNUSED(highlight);
-    emit addOutput(message, NormalOutput);
+    emit addOutput(message, OutputFormat::Stdout);
 }
 
 void QbsBuildStep::handleProcessResultReport(const qbs::ProcessResult &result)
@@ -370,15 +370,15 @@ void QbsBuildStep::handleProcessResultReport(const qbs::ProcessResult &result)
 
     QString commandline = result.executableFilePath() + QLatin1Char(' ')
             + Utils::QtcProcess::joinArgs(result.arguments());
-    addOutput(commandline, NormalOutput);
+    addOutput(commandline, OutputFormat::Stdout);
 
     foreach (const QString &line, result.stdErr()) {
         m_parser->stdError(line);
-        addOutput(line, ErrorOutput);
+        addOutput(line, OutputFormat::Stderr);
     }
     foreach (const QString &line, result.stdOut()) {
         m_parser->stdOutput(line);
-        addOutput(line, NormalOutput);
+        addOutput(line, OutputFormat::Stdout);
     }
     m_parser->flush();
 }
@@ -390,7 +390,7 @@ void QbsBuildStep::createTaskAndOutput(ProjectExplorer::Task::TaskType type, con
                                                        Utils::FileName::fromString(file), line,
                                                        ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
     emit addTask(task, 1);
-    emit addOutput(message, NormalOutput);
+    emit addOutput(message, OutputFormat::Stdout);
 }
 
 QString QbsBuildStep::buildVariant() const
@@ -480,7 +480,7 @@ void QbsBuildStep::build()
     QString error;
     m_job = qbsProject()->build(options, m_products, error);
     if (!m_job) {
-        emit addOutput(error, ErrorMessageOutput);
+        emit addOutput(error, OutputFormat::ErrorMessage);
         reportRunResult(*m_fi, false);
         return;
     }

@@ -219,7 +219,7 @@ void QbsInstallStep::createTaskAndOutput(ProjectExplorer::Task::TaskType type,
                                                        Utils::FileName::fromString(file), line,
                                                        ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
     emit addTask(task, 1);
-    emit addOutput(message, NormalOutput);
+    emit addOutput(message, OutputFormat::Stdout);
 }
 
 void QbsInstallStep::setInstallRoot(const QString &ir)

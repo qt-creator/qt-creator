@@ -63,24 +63,24 @@ bool NimCompilerCleanStep::init(QList<const BuildStep *> &)
 void NimCompilerCleanStep::run(QFutureInterface<bool> &fi)
 {
     if (!m_buildDir.exists()) {
-        emit addOutput(tr("Build directory \"%1\" does not exist.").arg(m_buildDir.toUserOutput()), BuildStep::ErrorMessageOutput);
+        emit addOutput(tr("Build directory \"%1\" does not exist.").arg(m_buildDir.toUserOutput()), BuildStep::OutputFormat::ErrorMessage);
         reportRunResult(fi, false);
         return;
     }
 
     if (!removeCacheDirectory()) {
-        emit addOutput(tr("Failed to delete the cache directory."), BuildStep::ErrorMessageOutput);
+        emit addOutput(tr("Failed to delete the cache directory."), BuildStep::OutputFormat::ErrorMessage);
         reportRunResult(fi, false);
         return;
     }
 
     if (!removeOutFilePath()) {
-        emit addOutput(tr("Failed to delete the out file."), BuildStep::ErrorMessageOutput);
+        emit addOutput(tr("Failed to delete the out file."), BuildStep::OutputFormat::ErrorMessage);
         reportRunResult(fi, false);
         return;
     }
 
-    emit addOutput(tr("Clean step completed successfully."), BuildStep::MessageOutput);
+    emit addOutput(tr("Clean step completed successfully."), BuildStep::OutputFormat::NormalMessage);
     reportRunResult(fi, true);
 }
 

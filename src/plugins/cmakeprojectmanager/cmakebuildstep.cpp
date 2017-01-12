@@ -237,10 +237,10 @@ void CMakeBuildStep::run(QFutureInterface<bool> &fi)
 
     bool mustDelay = false;
     if (bc->persistCMakeState()) {
-        emit addOutput(tr("Persisting CMake state..."), BuildStep::MessageOutput);
+        emit addOutput(tr("Persisting CMake state..."), BuildStep::OutputFormat::NormalMessage);
         mustDelay = true;
     } else if (bc->updateCMakeStateBeforeBuild()) {
-        emit addOutput(tr("Running CMake in preparation to build..."), BuildStep::MessageOutput);
+        emit addOutput(tr("Running CMake in preparation to build..."), BuildStep::OutputFormat::NormalMessage);
         mustDelay = true;
     } else {
         mustDelay = false;

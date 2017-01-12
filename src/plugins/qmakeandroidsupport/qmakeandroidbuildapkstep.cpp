@@ -119,7 +119,7 @@ Utils::FileName QmakeAndroidBuildApkStep::androidPackageSourceDir() const
 bool QmakeAndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
 {
     if (AndroidManager::checkForQt51Files(project()->projectDirectory()))
-        emit addOutput(tr("Found old folder \"android\" in source directory. Qt 5.2 does not use that folder by default."), ErrorOutput);
+        emit addOutput(tr("Found old folder \"android\" in source directory. Qt 5.2 does not use that folder by default."), OutputFormat::Stderr);
 
     if (!AndroidBuildApkStep::init(earlierSteps))
         return false;
@@ -221,7 +221,7 @@ bool QmakeAndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
 void QmakeAndroidBuildApkStep::run(QFutureInterface<bool> &fi)
 {
     if (m_skipBuilding) {
-        emit addOutput(tr("No application .pro file found, not building an APK."), BuildStep::ErrorMessageOutput);
+        emit addOutput(tr("No application .pro file found, not building an APK."), BuildStep::OutputFormat::ErrorMessage);
         reportRunResult(fi, true);
         return;
     }
@@ -247,7 +247,7 @@ void QmakeAndroidBuildApkStep::processStarted()
     emit addOutput(tr("Starting: \"%1\" %2")
                    .arg(QDir::toNativeSeparators(m_command),
                         m_argumentsPasswordConcealed),
-                   BuildStep::MessageOutput);
+                   BuildStep::OutputFormat::NormalMessage);
 }
 
 ProjectExplorer::BuildStepConfigWidget *QmakeAndroidBuildApkStep::createConfigWidget()

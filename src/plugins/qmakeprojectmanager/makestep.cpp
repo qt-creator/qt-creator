@@ -283,7 +283,7 @@ void MakeStep::run(QFutureInterface<bool> & fi)
 
     if (!QFileInfo::exists(m_makeFileToCheck)) {
         if (!ignoreReturnValue())
-            emit addOutput(tr("Cannot find Makefile. Check your build settings."), BuildStep::MessageOutput);
+            emit addOutput(tr("Cannot find Makefile. Check your build settings."), BuildStep::OutputFormat::NormalMessage);
         const bool success = ignoreReturnValue();
         reportRunResult(fi, success);
         return;

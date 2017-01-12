@@ -55,7 +55,7 @@ bool DeviceCheckBuildStep::init(QList<const BuildStep *> &earlierSteps)
         Core::Id deviceTypeId = DeviceTypeKitInformation::deviceTypeId(target()->kit());
         IDeviceFactory *factory = IDeviceFactory::find(deviceTypeId);
         if (!factory || !factory->canCreate()) {
-            emit addOutput(tr("No device configured."), BuildStep::ErrorMessageOutput);
+            emit addOutput(tr("No device configured."), BuildStep::OutputFormat::ErrorMessage);
             return false;
         }
 
@@ -64,13 +64,13 @@ bool DeviceCheckBuildStep::init(QList<const BuildStep *> &earlierSteps)
                               QMessageBox::Yes|QMessageBox::No);
         msgBox.setDefaultButton(QMessageBox::Yes);
         if (msgBox.exec() == QMessageBox::No) {
-            emit addOutput(tr("No device configured."), BuildStep::ErrorMessageOutput);
+            emit addOutput(tr("No device configured."), BuildStep::OutputFormat::ErrorMessage);
             return false;
         }
 
         IDevice::Ptr newDevice = factory->create(deviceTypeId);
         if (newDevice.isNull()) {
-            emit addOutput(tr("No device configured."), BuildStep::ErrorMessageOutput);
+            emit addOutput(tr("No device configured."), BuildStep::OutputFormat::ErrorMessage);
             return false;
         }
 
