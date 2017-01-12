@@ -711,6 +711,9 @@ class Dumper(DumperBase):
     def canonicalTypeName(self, name):
         return re.sub('\\bconst\\b', '', name).replace(' ', '')
 
+    def removeTypePrefix(self, name):
+        return re.sub('^(struct|class|union|enum|typedef) ', '', name)
+
     def lookupNativeType(self, name):
         #warn('LOOKUP TYPE NAME: %s' % name)
         typeobj = self.typeCache.get(name)
@@ -722,6 +725,23 @@ class Dumper(DumperBase):
             #warn('VALID FIRST : %s' % typeobj)
             self.typeCache[name] = typeobj
             return typeobj
+
+        # FindFirstType has a bug (in lldb) that if there are two types with the same base name
+        # but different scope name (e.g. inside different classes) and the searched for type name
+        # would be returned as the second result in a call to FindTypes, FindFirstType would return
+        # an empty result.
+        # Therefore an additional call to FindTypes is done as a fallback.
+        # Note that specifying a prefix like enum or typedef or class will make the call fail to
+        # find the type, thus the prefix is stripped.
+        nonPrefixedName = self.canonicalTypeName(self.removeTypePrefix(name))
+        typeobjlist = self.target.FindTypes(nonPrefixedName)
+        if typeobjlist.IsValid():
+            for typeobj in typeobjlist:
+                n = self.canonicalTypeName(self.removeTypePrefix(typeobj.GetDisplayTypeName()))
+                if n == nonPrefixedName:
+                    #warn('FOUND TYPE USING FindTypes : %s' % typeobj)
+                    self.typeCache[name] = typeobj
+                    return typeobj
         if name.endswith('*'):
             #warn('RECURSE PTR')
             typeobj = self.lookupNativeType(name[:-1].strip())
@@ -750,6 +770,7 @@ class Dumper(DumperBase):
 
         needle = self.canonicalTypeName(name)
         #warn('NEEDLE: %s ' % needle)
+        warn('Searching for type %s across all target modules, this could be very slow' % name)
         for i in xrange(self.target.GetNumModules()):
             module = self.target.GetModuleAtIndex(i)
             # SBModule.GetType is new somewhere after early 300.x
