@@ -2558,6 +2558,16 @@ void ProjectExplorerPlugin::runRunConfiguration(RunConfiguration *rc,
     emit m_instance->updateRunActions();
 }
 
+QList<QPair<Runnable, ProcessHandle>> ProjectExplorerPlugin::runningRunControlProcesses()
+{
+    QList<QPair<Runnable, ProcessHandle>> processes;
+    foreach (RunControl *rc, dd->m_outputPane->allRunControls()) {
+        if (rc->isRunning())
+            processes << qMakePair(rc->runnable(), rc->applicationProcessHandle());
+    }
+    return processes;
+}
+
 void ProjectExplorerPluginPrivate::projectAdded(Project *pro)
 {
     if (m_projectsMode)
