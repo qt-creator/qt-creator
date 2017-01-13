@@ -1746,7 +1746,7 @@ static QByteArray scanQtBinaryForBuildString(const FileName &library)
         const size_t oneMiB = 1024 * 1024;
         const size_t keepSpace = 4096;
         const size_t bufferSize = oneMiB + keepSpace;
-        QByteArray buffer(bufferSize, '\0');
+        QByteArray buffer(bufferSize, Qt::Uninitialized);
 
         char *const readStart = buffer.data() + keepSpace;
         auto readStartIt = buffer.begin() + keepSpace;
@@ -1794,39 +1794,72 @@ static QByteArray scanQtBinaryForBuildString(const FileName &library)
     return buildString;
 }
 
-static Abi refineAbiFromBuildString(const QByteArray &buildString, const Abi &probableAbi)
+static QStringList extractFieldsFromBuildString(const QByteArray &buildString)
 {
     if (buildString.isEmpty()
             || buildString.count() > 4096)
-        return Abi();
+        return QStringList();
 
     const QRegularExpression buildStringMatcher("^Qt "
-                                                "([\\d\\.a-zA-Z]*) "   // Qt version
+                                                "([\\d\\.a-zA-Z]*) " // Qt version
                                                 "\\("
-                                                "([a-z\\d_]*)-"        // CPU
-                                                "(big|little)_endian-"
-                                                "([a-z]+(?:32|64))"    // pointer information
-                                                "(?:-(qreal|))?"       // extra information like -qreal
-                                                "(?:-([^-]+))? "       // ABI information
+                                                "([\\w_-]+) "       // Abi information
                                                 "(shared|static) (?:\\(dynamic\\) )?"
                                                 "(debug|release)"
                                                 " build; by "
-                                                "(.*)"                 // compiler with extra info
+                                                "(.*)"               // compiler with extra info
                                                 "\\)$");
 
     QTC_ASSERT(buildStringMatcher.isValid(), qWarning() << buildStringMatcher.errorString());
-    const QRegularExpressionMatch match = buildStringMatcher.match(QString::fromUtf8(buildString));
-    QTC_ASSERT(match.hasMatch(), return Abi());
 
-    // const QString qtVersion = match.captured(1);
-    // const QString cpu = match.captured(2);
-    // const bool littleEndian = (match.captured(3) == "little");
-    // const QString pointer = match.captured(4);
-    // const QString extra = match.captured(5);
-    // const QString abiString = match.captured(6);
-    // const QString linkage = match.captured(7);
-    // const QString buildType = match.captured(8);
-    const QString compiler = match.captured(9);
+    const QRegularExpressionMatch match = buildStringMatcher.match(QString::fromUtf8(buildString));
+    if (!match.hasMatch())
+        return QStringList();
+
+    QStringList result;
+    result.append(match.captured(1)); // qtVersion
+
+    // Abi info string:
+    QStringList abiInfo = match.captured(2).split('-', QString::SkipEmptyParts);
+
+    result.append(abiInfo.takeFirst()); // cpu
+
+    const QString endian = abiInfo.takeFirst();
+    QTC_ASSERT(endian.endsWith("_endian"), return QStringList());
+    result.append(endian.left(endian.count() - 7)); // without the "_endian"
+
+    result.append(abiInfo.takeFirst()); // pointer
+
+    if (abiInfo.isEmpty()) {
+        // no extra info whatsoever:
+        result.append(""); // qreal is unset
+        result.append(""); // extra info is unset
+    } else {
+        const QString next = abiInfo.at(0);
+        if (next.startsWith("qreal_")) {
+            abiInfo.takeFirst();
+            result.append(next.mid(6)); // qreal: without the "qreal_" part;
+        } else {
+            result.append(""); // qreal is unset!
+        }
+
+        result.append(abiInfo.join('-')); // extra abi strings
+    }
+
+    result.append(match.captured(3)); // linkage
+    result.append(match.captured(4)); // buildType
+    result.append(match.captured(5)); // compiler
+
+    return result;
+}
+
+static Abi refineAbiFromBuildString(const QByteArray &buildString, const Abi &probableAbi)
+{
+    QStringList buildStringData = extractFieldsFromBuildString(buildString);
+    if (buildStringData.count() != 9)
+        return probableAbi;
+
+    const QString compiler = buildStringData.at(8);
 
     Abi::Architecture arch = probableAbi.architecture();
     Abi::OS os = probableAbi.os();
@@ -1879,3 +1912,57 @@ QList<Abi> BaseQtVersion::qtAbisFromLibrary(const FileNameList &coreLibraries)
     }
     return res;
 }
+
+#if defined(WITH_TESTS)
+
+#include <QTest>
+
+#include "qtsupportplugin.h"
+
+void QtSupportPlugin::testQtBuildStringParsing_data()
+{
+    QTest::addColumn<QByteArray>("buildString");
+    QTest::addColumn<QString>("expected");
+
+    QTest::newRow("invalid build string")
+            << QByteArray("Qt with invalid buildstring") << QString();
+    QTest::newRow("empty build string")
+            << QByteArray("") << QString();
+    QTest::newRow("huge build string")
+            << QByteArray(8192, 'x') << QString();
+
+    QTest::newRow("valid build string")
+            << QByteArray("Qt 5.7.1 (x86_64-little_endian-lp64 shared (dynamic) release build; by GCC 6.2.1 20160830)")
+            << "5.7.1;x86_64;little;lp64;;;shared;release;GCC 6.2.1 20160830";
+
+    QTest::newRow("with qreal")
+            << QByteArray("Qt 5.7.1 (x86_64-little_endian-lp64-qreal___fp16 shared (dynamic) release build; by GCC 6.2.1 20160830)")
+            << "5.7.1;x86_64;little;lp64;__fp16;;shared;release;GCC 6.2.1 20160830";
+    QTest::newRow("with qreal and abi")
+            << QByteArray("Qt 5.7.1 (x86_64-little_endian-lp64-qreal___fp16-eabi shared (dynamic) release build; by GCC 6.2.1 20160830)")
+            << "5.7.1;x86_64;little;lp64;__fp16;eabi;shared;release;GCC 6.2.1 20160830";
+    QTest::newRow("with qreal, eabi and softfloat")
+            << QByteArray("Qt 5.7.1 (x86_64-little_endian-lp64-qreal___fp16-eabi-softfloat shared (dynamic) release build; by GCC 6.2.1 20160830)")
+            << "5.7.1;x86_64;little;lp64;__fp16;eabi-softfloat;shared;release;GCC 6.2.1 20160830";
+    QTest::newRow("with eabi")
+            << QByteArray("Qt 5.7.1 (x86_64-little_endian-lp64-eabi shared (dynamic) release build; by GCC 6.2.1 20160830)")
+            << "5.7.1;x86_64;little;lp64;;eabi;shared;release;GCC 6.2.1 20160830";
+    QTest::newRow("with eabi and softfloat")
+            << QByteArray("Qt 5.7.1 (x86_64-little_endian-lp64-eabi-softfloat shared (dynamic) release build; by GCC 6.2.1 20160830)")
+            << "5.7.1;x86_64;little;lp64;;eabi-softfloat;shared;release;GCC 6.2.1 20160830";
+}
+
+void QtSupportPlugin::testQtBuildStringParsing()
+{
+    QFETCH(QByteArray, buildString);
+    QFETCH(QString, expected);
+
+    QStringList expectedList;
+    if (!expected.isEmpty())
+        expectedList = expected.split(';');
+
+    QStringList actual = extractFieldsFromBuildString(buildString);
+    QCOMPARE(expectedList, actual);
+}
+
+#endif // WITH_TESTS

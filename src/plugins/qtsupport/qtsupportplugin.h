@@ -53,6 +53,10 @@ private slots:
 
     void testQtProjectImporter_oneProject_data();
     void testQtProjectImporter_oneProject();
+
+    void testQtBuildStringParsing_data();
+    void testQtBuildStringParsing();
+
 #if 0
     void testQtProjectImporter_oneProjectExistingKit();
     void testQtProjectImporter_oneProjectNewKitExistingQt();
