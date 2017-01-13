@@ -304,14 +304,6 @@ void runAsyncImpl(QFutureInterface<ResultType> futureInterface,
    arguments that are passed to it when it is run in a thread.
 */
 
-// can be replaced with std::(make_)index_sequence with C++14
-template <std::size_t...>
-struct indexSequence { };
-template <std::size_t N, std::size_t... S>
-struct makeIndexSequence : makeIndexSequence<N-1, N-1, S...> { };
-template <std::size_t... S>
-struct makeIndexSequence<0, S...> { typedef indexSequence<S...> type; };
-
 template <class T>
 std::decay_t<T>
 decayCopy(T&& v)
@@ -353,7 +345,7 @@ public:
             futureInterface.reportFinished();
             return;
         }
-        runHelper(typename makeIndexSequence<std::tuple_size<Data>::value>::type());
+        runHelper(std::make_index_sequence<std::tuple_size<Data>::value>());
     }
 
     void setThreadPool(QThreadPool *pool)
@@ -370,7 +362,7 @@ private:
     using Data = std::tuple<std::decay_t<Function>, std::decay_t<Args>...>;
 
     template <std::size_t... index>
-    void runHelper(indexSequence<index...>)
+    void runHelper(std::index_sequence<index...>)
     {
         // invalidates data, which is moved into the call
         runAsyncImpl(futureInterface, std::move(std::get<index>(data))...);
