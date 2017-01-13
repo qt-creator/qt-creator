@@ -32,7 +32,7 @@ SUBDIRS += \
 win32:SUBDIRS += utils/process_ctrlc_stub.pro
 
 # Windows: Compile Qt Creator CDB extension if Debugging tools can be detected.
-win32 {
+win32: isEmpty(QTC_SKIP_CDBEXT) {
     include(qtcreatorcdbext/cdb_detect.pri)
     exists($$CDB_PATH):SUBDIRS += qtcreatorcdbext
 }
