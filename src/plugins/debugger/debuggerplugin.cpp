@@ -149,6 +149,8 @@
 #include <QTreeWidget>
 #include <QVBoxLayout>
 #include <QVariant>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QtPlugin>
 
 #ifdef WITH_TESTS
@@ -2150,6 +2152,29 @@ void DebuggerPlugin::attachExternalApplication(RunControl *rc)
     if (!kit)
         kit = guessKitFromParameters(rp);
     createAndScheduleRun(rp, kit);
+}
+
+void DebuggerPlugin::getEnginesState(QByteArray *json) const
+{
+    QTC_ASSERT(json, return);
+    QVariantMap result {
+        { "version", 1 }
+    };
+    QVariantMap states;
+
+    for (int i = 0; i < dd->m_snapshotHandler->size(); ++i) {
+        const DebuggerEngine *engine = dd->m_snapshotHandler->at(i);
+        states[QString::number(i)] = QVariantMap({
+                   { "current", dd->m_snapshotHandler->currentIndex() == i },
+                   { "pid", engine->inferiorPid() },
+                   { "state", engine->state() }
+        });
+    }
+
+    if (!states.isEmpty())
+        result["states"] = states;
+
+    *json = QJsonDocument(QJsonObject::fromVariantMap(result)).toJson();
 }
 
 void DebuggerPluginPrivate::attachToQmlPort()
