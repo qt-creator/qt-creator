@@ -843,8 +843,9 @@ bool MimeXMLProvider::load(const QString &fileName, QString *errorMessage)
     if (errorMessage)
         errorMessage->clear();
 
+    const QByteArray content = file.readAll();
     MimeTypeParser parser(*this);
-    return parser.parse(&file, fileName, errorMessage);
+    return parser.parse(content, fileName, errorMessage);
 }
 
 void MimeXMLProvider::addGlobPattern(const MimeGlobPattern &glob)

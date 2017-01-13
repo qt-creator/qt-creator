@@ -53,10 +53,6 @@
 #include "mimedatabase_p.h"
 #include "mimeprovider_p.h"
 
-QT_BEGIN_NAMESPACE
-class QIODevice;
-QT_END_NAMESPACE
-
 namespace Utils {
 namespace Internal {
 
@@ -68,7 +64,7 @@ public:
     MimeTypeParserBase() {}
     virtual ~MimeTypeParserBase() {}
 
-    bool parse(QIODevice *dev, const QString &fileName, QString *errorMessage);
+    bool parse(const QByteArray &content, const QString &fileName, QString *errorMessage);
 
 protected:
     virtual bool mimeTypeExists(const QString &mimeTypeName) = 0;
