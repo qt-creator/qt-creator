@@ -97,6 +97,39 @@ static PyObject *cdbext_parseAndEvaluate(PyObject *, PyObject *args) // -> Value
     return Py_BuildValue("K", value.I64);
 }
 
+static PyObject *cdbext_resolveSymbol(PyObject *, PyObject *args) // -> Value
+{
+    enum { bufSize = 2048 };
+
+    char *pattern;
+    if (!PyArg_ParseTuple(args, "s", &pattern))
+        Py_RETURN_NONE;
+
+    CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
+    auto rc = PyList_New(0);
+
+    ULONG64 handle = 0;
+    // E_NOINTERFACE means "no match". Apparently, it does not always
+    // set handle.
+    HRESULT hr = symbols->StartSymbolMatch(pattern, &handle);
+    if (hr == E_NOINTERFACE || FAILED(hr)) {
+        if (handle)
+            symbols->EndSymbolMatch(handle);
+        return rc;
+    }
+    char buf[bufSize];
+    ULONG64 offset;
+    while (true) {
+        hr = symbols->GetNextSymbolMatch(handle, buf, bufSize - 1, 0, &offset);
+        if (hr == E_NOINTERFACE)
+            break;
+        if (hr == S_OK)
+            PyList_Append(rc, Py_BuildValue("s", buf));
+    }
+    symbols->EndSymbolMatch(handle);
+    return rc;
+}
+
 static PyObject *cdbext_lookupType(PyObject *, PyObject *args) // -> Type
 {
     char *type;
@@ -290,6 +323,8 @@ static PyObject *cdbext_call(PyObject *, PyObject *args)
 static PyMethodDef cdbextMethods[] = {
     {"parseAndEvaluate",    cdbext_parseAndEvaluate,    METH_VARARGS,
      "Returns value of expression or None if the expression can not be resolved"},
+    {"resolveSymbol",       cdbext_resolveSymbol,       METH_VARARGS,
+     "Returns a list of symbol names matching the given pattern"},
     {"lookupType",          cdbext_lookupType,          METH_VARARGS,
      "Returns type object or None if the type can not be resolved"},
     {"listOfLocals",        cdbext_listOfLocals,        METH_VARARGS,
