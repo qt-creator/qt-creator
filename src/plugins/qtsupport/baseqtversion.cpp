@@ -1775,7 +1775,7 @@ static QByteArray scanQtBinaryForBuildString(const FileName &library)
                 if (buildByFoundIt == nullFoundIt)
                     continue;
 
-                buildString = QByteArray(qtFoundIt, len);
+                buildString = QByteArray(qtFoundIt, static_cast<int>(len));
                 break;
             }
 
