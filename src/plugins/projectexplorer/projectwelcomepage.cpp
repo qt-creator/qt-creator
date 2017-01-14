@@ -150,8 +150,45 @@ static QPixmap pixmap(const QString &id, const Theme::Color &color)
     return Icon({{fileName, color}}, Icon::Tint).pixmap();
 }
 
-class SessionDelegate : public QAbstractItemDelegate
+class BaseDelegate : public QAbstractItemDelegate
 {
+protected:
+    virtual QString entryType() = 0;
+
+    bool helpEvent(QHelpEvent *ev, QAbstractItemView *view,
+                   const QStyleOptionViewItem &option, const QModelIndex &idx) final
+    {
+        const int y = ev->pos().y();
+        if (y > option.rect.bottom() - 20)
+            return false;
+
+        QString shortcut;
+        if (idx.row() < m_shortcuts.size())
+            shortcut = m_shortcuts.at(idx.row());
+
+        QString name = idx.data(Qt::DisplayRole).toString();
+        QString tooltipText;
+        const QString type = entryType();
+        if (shortcut.isEmpty())
+            tooltipText = ProjectWelcomePage::tr("Open %1 \"%2\"").arg(type, name);
+        else
+            tooltipText = ProjectWelcomePage::tr("Open %1 \"%2\" (%3)").arg(type, name, shortcut);
+
+        if (tooltipText.isEmpty())
+            return false;
+
+        QToolTip::showText(ev->globalPos(), tooltipText, view);
+        return true;
+    }
+
+    QStringList m_shortcuts;
+};
+
+class SessionDelegate : public BaseDelegate
+{
+protected:
+    QString entryType() override { return tr("session", "Appears in \"Open session <name>\""); }
+
 public:
     SessionDelegate() {
         const int actionsCount = 9;
@@ -162,11 +199,11 @@ public:
             auto act = new QAction(tr("Open Session #%1").arg(i), this);
             Command *cmd = ActionManager::registerAction(act, sessionBase.withSuffix(i), welcomeContext);
             cmd->setDefaultKeySequence(QKeySequence((UseMacShortcuts ? tr("Ctrl+Meta+%1") : tr("Ctrl+Alt+%1")).arg(i)));
-            m_sessionShortcuts.append(cmd->keySequence().toString(QKeySequence::NativeText));
+            m_shortcuts.append(cmd->keySequence().toString(QKeySequence::NativeText));
 
 //            connect(act, &QAction::triggered, this, [this, i] { openSessionTriggered(i-1); });
             connect(cmd, &Command::keySequenceChanged, this, [this, i, cmd] {
-                m_sessionShortcuts[i-1] = cmd->keySequence().toString(QKeySequence::NativeText);
+                m_shortcuts[i-1] = cmd->keySequence().toString(QKeySequence::NativeText);
 //                emit sessionsShortcutsChanged(m_sessionShortcuts);
             });
         }
@@ -280,31 +317,6 @@ public:
         return QSize(380, h);
     }
 
-    bool helpEvent(QHelpEvent *ev, QAbstractItemView *view,
-        const QStyleOptionViewItem &option, const QModelIndex &idx) final
-    {
-        const int y = ev->pos().y();
-        if (y > option.rect.bottom() - 20)
-            return false;
-
-        QString sessionShortcut;
-        if (idx.row() < m_sessionShortcuts.size())
-            sessionShortcut = m_sessionShortcuts.at(idx.row());
-
-        QString sessionName = idx.data(Qt::DisplayRole).toString();
-        QString tooltipText;
-        if (sessionShortcut.isEmpty())
-            tooltipText = ProjectWelcomePage::tr("Opens session \"%1\"").arg(sessionName);
-        else
-            tooltipText = ProjectWelcomePage::tr("Opens session \"%1\" (%2)").arg(sessionName).arg(sessionShortcut);
-
-        if (tooltipText.isEmpty())
-            return false;
-
-        QToolTip::showText(ev->globalPos(), tooltipText, view);
-        return true;
-    }
-
     bool editorEvent(QEvent *ev, QAbstractItemModel *model,
         const QStyleOptionViewItem &option, const QModelIndex &idx) final
     {
@@ -350,15 +362,16 @@ private:
     const QColor foregroundColor1 = themeColor(Theme::Welcome_ForegroundPrimaryColor); // light-ish.
     const QColor foregroundColor2 = themeColor(Theme::Welcome_ForegroundSecondaryColor); // blacker.
 
-    QStringList m_sessionShortcuts;
     QStringList m_expandedSessions;
 
     mutable QRect m_activeSwitchToRect;
     mutable QRect m_activeActionRects[3];
 };
 
-class ProjectDelegate : public QAbstractItemDelegate
+class ProjectDelegate : public BaseDelegate
 {
+    QString entryType() override { return tr("project", "Appears in \"Open project <name>\""); }
+
 public:
     ProjectDelegate()
     {
@@ -370,11 +383,11 @@ public:
             auto act = new QAction(tr("Open Recent Project #%1").arg(i), this);
             Command *cmd = ActionManager::registerAction(act, projectBase.withSuffix(i), welcomeContext);
             cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+%1").arg(i)));
-            m_recentProjectsShortcuts.append(cmd->keySequence().toString(QKeySequence::NativeText));
+            m_shortcuts.append(cmd->keySequence().toString(QKeySequence::NativeText));
 
 //            connect(act, &QAction::triggered, this, [this, i] { openRecentProjectTriggered(i-1); });
             connect(cmd, &Command::keySequenceChanged, this, [this, i, cmd] {
-                m_recentProjectsShortcuts[i - 1] = cmd->keySequence().toString(QKeySequence::NativeText);
+                m_shortcuts[i - 1] = cmd->keySequence().toString(QKeySequence::NativeText);
             });
         }
     }
@@ -432,8 +445,6 @@ public:
         }
         return false;
     }
-
-    QStringList m_recentProjectsShortcuts;
 };
 
 class TreeView : public QTreeView
