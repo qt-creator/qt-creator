@@ -414,7 +414,7 @@ void GerritPlugin::fetch(const QSharedPointer<GerritChange> &change, int mode)
             foreach (QString remote, remotes) {
                 if (remote.endsWith(".git"))
                     remote.chop(4);
-                if (remote.contains(m_parameters->host) && remote.endsWith(change->project)) {
+                if (remote.contains(m_parameters->server.host) && remote.endsWith(change->project)) {
                     verifiedRepository = true;
                     break;
                 }
@@ -426,7 +426,7 @@ void GerritPlugin::fetch(const QSharedPointer<GerritChange> &change, int mode)
                     QString remote = submoduleData.url;
                     if (remote.endsWith(".git"))
                         remote.chop(4);
-                    if (remote.contains(m_parameters->host) && remote.endsWith(change->project)
+                    if (remote.contains(m_parameters->server.host) && remote.endsWith(change->project)
                             && QFile::exists(repository + '/' + submoduleData.dir)) {
                         repository = QDir::cleanPath(repository + '/' + submoduleData.dir);
                         verifiedRepository = true;
@@ -440,7 +440,7 @@ void GerritPlugin::fetch(const QSharedPointer<GerritChange> &change, int mode)
                             ICore::mainWindow(), tr("Remote Not Verified"),
                             tr("Change host %1\nand project %2\n\nwere not verified among remotes"
                                " in %3. Select different folder?")
-                            .arg(m_parameters->host,
+                            .arg(m_parameters->server.host,
                                  change->project,
                                  QDir::toNativeSeparators(repository)),
                             QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,

@@ -32,12 +32,32 @@ QT_FORWARD_DECLARE_CLASS(QSettings)
 namespace Gerrit {
 namespace Internal {
 
+class GerritServer
+{
+public:
+    enum HostType
+    {
+        Http,
+        Https,
+        Ssh
+    };
+
+    GerritServer();
+    GerritServer(const QString &host, unsigned short port, const QString &user, HostType type);
+    bool operator==(const GerritServer &other) const;
+    QString sshHostArgument() const;
+
+    QString host;
+    QString user;
+    unsigned short port = 0;
+    HostType type = Ssh;
+};
+
 class GerritParameters
 {
 public:
     GerritParameters();
 
-    QString sshHostArgument() const;
     bool isValid() const;
     bool equals(const GerritParameters &rhs) const;
     void toSettings(QSettings *) const;
@@ -45,9 +65,7 @@ public:
     void fromSettings(const QSettings *);
     void setPortFlagBySshType();
 
-    QString host;
-    unsigned short port;
-    QString user;
+    GerritServer server;
     QString ssh;
     QStringList savedQueries;
     bool https;

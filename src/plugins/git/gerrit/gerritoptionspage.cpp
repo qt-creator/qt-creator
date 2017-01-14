@@ -110,20 +110,21 @@ GerritOptionsWidget::GerritOptionsWidget(QWidget *parent)
 GerritParameters GerritOptionsWidget::parameters() const
 {
     GerritParameters result;
-    result.host = m_hostLineEdit->text().trimmed();
-    result.user = m_userLineEdit->text().trimmed();
+    result.server = GerritServer(m_hostLineEdit->text().trimmed(),
+                                 static_cast<unsigned short>(m_portSpinBox->value()),
+                                 m_userLineEdit->text().trimmed(),
+                                 GerritServer::Ssh);
     result.ssh = m_sshChooser->path();
-    result.port = m_portSpinBox->value();
     result.https = m_httpsCheckBox->isChecked();
     return result;
 }
 
 void GerritOptionsWidget::setParameters(const GerritParameters &p)
 {
-    m_hostLineEdit->setText(p.host);
-    m_userLineEdit->setText(p.user);
+    m_hostLineEdit->setText(p.server.host);
+    m_userLineEdit->setText(p.server.user);
     m_sshChooser->setPath(p.ssh);
-    m_portSpinBox->setValue(p.port);
+    m_portSpinBox->setValue(p.server.port);
     m_httpsCheckBox->setChecked(p.https);
 }
 

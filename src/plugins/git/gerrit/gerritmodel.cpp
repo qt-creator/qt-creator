@@ -87,7 +87,7 @@ QDebug operator<<(QDebug d, const GerritChange &c)
 static inline QString defaultUrl(const QSharedPointer<GerritParameters> &p, int gerritNumber)
 {
     QString result = QLatin1String(p->https ? "https://" : "http://");
-    result += p->host;
+    result += p->server.host;
     result += '/';
     result += QString::number(gerritNumber);
     return result;
@@ -197,8 +197,8 @@ QString GerritChange::filterString() const
 QStringList GerritChange::gitFetchArguments(const QSharedPointer<GerritParameters> &p) const
 {
     QStringList arguments;
-    const QString url = "ssh://" + p->sshHostArgument()
-            + ':' + QString::number(p->port) + '/'
+    const QString url = "ssh://" + p->server.sshHostArgument()
+            + ':' + QString::number(p->server.port) + '/'
             + project;
     arguments << "fetch" << url << currentPatchSet.ref;
     return arguments;
@@ -258,7 +258,8 @@ QueryContext::QueryContext(const QStringList &queries,
     : QObject(parent)
     , m_queries(queries)
     , m_currentQuery(0)
-    , m_baseArguments({ p->ssh, p->portFlag, QString::number(p->port), p->sshHostArgument(), "gerrit" })
+    , m_baseArguments({ p->ssh, p->portFlag, QString::number(p->server.port),
+                        p->server.sshHostArgument(), "gerrit" })
 {
     connect(&m_process, &QProcess::readyReadStandardError,
             this, &QueryContext::readyReadStandardError);
@@ -520,13 +521,13 @@ void GerritModel::refresh(const QString &query)
     else
     {
         const QString statusOpenQuery = "status:open";
-        if (m_parameters->user.isEmpty()) {
+        if (m_parameters->server.user.isEmpty()) {
             queries.push_back(statusOpenQuery);
         } else {
             // Owned by:
-            queries.push_back(statusOpenQuery + " owner:" + m_parameters->user);
+            queries.push_back(statusOpenQuery + " owner:" + m_parameters->server.user);
             // For Review by:
-            queries.push_back(statusOpenQuery + " reviewer:" + m_parameters->user);
+            queries.push_back(statusOpenQuery + " reviewer:" + m_parameters->server.user);
         }
     }
 
