@@ -96,8 +96,6 @@ public:
                  const QSharedPointer<GerritParameters> &p,
                  FetchMode fm, QObject *parent = 0);
     ~FetchContext();
-
-public slots:
     void start();
 
 private:
@@ -359,9 +357,12 @@ void GerritPlugin::openView()
         }
         GerritDialog *gd = new GerritDialog(m_parameters, ICore::mainWindow());
         gd->setModal(false);
-        connect(gd, &GerritDialog::fetchDisplay, this, &GerritPlugin::fetchDisplay);
-        connect(gd, &GerritDialog::fetchCherryPick, this, &GerritPlugin::fetchCherryPick);
-        connect(gd, &GerritDialog::fetchCheckout, this, &GerritPlugin::fetchCheckout);
+        connect(gd, &GerritDialog::fetchDisplay, this,
+                [this](const QSharedPointer<GerritChange> &change) { fetch(change, FetchDisplay); });
+        connect(gd, &GerritDialog::fetchCherryPick, this,
+                [this](const QSharedPointer<GerritChange> &change) { fetch(change, FetchCherryPick); });
+        connect(gd, &GerritDialog::fetchCheckout, this,
+                [this](const QSharedPointer<GerritChange> &change) { fetch(change, FetchCheckout); });
         connect(this, &GerritPlugin::fetchStarted, gd, &GerritDialog::fetchStarted);
         connect(this, &GerritPlugin::fetchFinished, gd, &GerritDialog::fetchFinished);
         m_dialog = gd;
@@ -389,21 +390,6 @@ Utils::FileName GerritPlugin::gitBinDirectory()
 QString GerritPlugin::branch(const QString &repository)
 {
     return GitPlugin::client()->synchronousCurrentLocalBranch(repository);
-}
-
-void GerritPlugin::fetchDisplay(const QSharedPointer<GerritChange> &change)
-{
-    fetch(change, FetchDisplay);
-}
-
-void GerritPlugin::fetchCherryPick(const QSharedPointer<GerritChange> &change)
-{
-    fetch(change, FetchCherryPick);
-}
-
-void GerritPlugin::fetchCheckout(const QSharedPointer<GerritChange> &change)
-{
-    fetch(change, FetchCheckout);
 }
 
 void GerritPlugin::fetch(const QSharedPointer<GerritChange> &change, int mode)
@@ -442,8 +428,7 @@ void GerritPlugin::fetch(const QSharedPointer<GerritChange> &change, int mode)
                         remote.chop(4);
                     if (remote.contains(m_parameters->host) && remote.endsWith(change->project)
                             && QFile::exists(repository + '/' + submoduleData.dir)) {
-                        repository = QDir::cleanPath(repository + '/'
-                                                     + submoduleData.dir);
+                        repository = QDir::cleanPath(repository + '/' + submoduleData.dir);
                         verifiedRepository = true;
                         break;
                     }

@@ -239,7 +239,6 @@ private:
     void errorTermination(const QString &msg);
     void terminate();
 
-    const QSharedPointer<GerritParameters> m_parameters;
     const QStringList m_queries;
     QProcess m_process;
     QTimer m_timer;
@@ -257,10 +256,9 @@ QueryContext::QueryContext(const QStringList &queries,
                            const QSharedPointer<GerritParameters> &p,
                            QObject *parent)
     : QObject(parent)
-    , m_parameters(p)
     , m_queries(queries)
     , m_currentQuery(0)
-    , m_baseArguments(p->baseCommandArguments())
+    , m_baseArguments({ p->ssh, p->portFlag, QString::number(p->port), p->sshHostArgument(), "gerrit" })
 {
     connect(&m_process, &QProcess::readyReadStandardError,
             this, &QueryContext::readyReadStandardError);

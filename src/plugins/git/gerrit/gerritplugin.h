@@ -63,9 +63,6 @@ public:
     void addToLocator(Core::CommandLocator *locator);
     void push(const QString &topLevel);
 
-    void fetchDisplay(const QSharedPointer<Gerrit::Internal::GerritChange> &change);
-    void fetchCherryPick(const QSharedPointer<Gerrit::Internal::GerritChange> &change);
-    void fetchCheckout(const QSharedPointer<Gerrit::Internal::GerritChange> &change);
     void updateActions(bool hasTopLevel);
 
 signals:

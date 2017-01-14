@@ -37,7 +37,6 @@ class GerritParameters
 public:
     GerritParameters();
 
-    QStringList baseCommandArguments() const;
     QString sshHostArgument() const;
     bool isValid() const;
     bool equals(const GerritParameters &rhs) const;

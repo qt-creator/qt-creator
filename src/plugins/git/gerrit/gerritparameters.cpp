@@ -86,11 +86,6 @@ GerritParameters::GerritParameters()
 {
 }
 
-QStringList GerritParameters::baseCommandArguments() const
-{
-    return { ssh, portFlag, QString::number(port), sshHostArgument(), "gerrit" };
-}
-
 QString GerritParameters::sshHostArgument() const
 {
     return user.isEmpty() ? host : (user + '@' + host);
