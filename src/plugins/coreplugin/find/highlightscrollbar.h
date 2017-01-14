@@ -82,36 +82,4 @@ private:
     friend class HighlightScrollBarOverlay;
 };
 
-class HighlightScrollBarOverlay : public QWidget
-{
-    Q_OBJECT
-public:
-    HighlightScrollBarOverlay(HighlightScrollBar *scrollBar)
-        : QWidget(scrollBar)
-        , m_visibleRange(0.0)
-        , m_offset(0.0)
-        , m_cacheUpdateScheduled(false)
-        , m_scrollBar(scrollBar)
-    {}
-
-    void scheduleUpdate();
-    void updateCache();
-    void adjustPosition();
-
-    float m_visibleRange;
-    float m_offset;
-    QHash<Id, QSet<int> > m_highlights;
-    QHash<Id, Utils::Theme::Color> m_colors;
-    QHash<Id, HighlightScrollBar::Priority> m_priorities;
-
-    bool m_cacheUpdateScheduled;
-    QMap<int, Id> m_cache;
-
-protected:
-    void paintEvent(QPaintEvent *paintEvent) override;
-
-private:
-    HighlightScrollBar *m_scrollBar;
-};
-
 } // namespace Core
