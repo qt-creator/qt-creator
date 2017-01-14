@@ -339,55 +339,56 @@ public:
 
 public:
     TextEditorWidget *q;
-    QToolBar *m_toolBar;
-    QWidget *m_stretchWidget;
-    LineColumnLabel *m_cursorPositionLabel;
-    LineColumnLabel *m_fileEncodingLabel;
-    QAction *m_cursorPositionLabelAction;
-    QAction *m_fileEncodingLabelAction;
+    QToolBar *m_toolBar = nullptr;
+    QWidget *m_stretchWidget = nullptr;
+    LineColumnLabel *m_cursorPositionLabel = nullptr;
+    LineColumnLabel *m_fileEncodingLabel = nullptr;
+    QAction *m_cursorPositionLabelAction = nullptr;
+    QAction *m_fileEncodingLabelAction = nullptr;
 
-    bool m_contentsChanged;
-    bool m_lastCursorChangeWasInteresting;
+    bool m_contentsChanged = false;
+    bool m_lastCursorChangeWasInteresting = false;
 
     QSharedPointer<TextDocument> m_document;
     QByteArray m_tempState;
     QByteArray m_tempNavigationState;
 
-    bool m_parenthesesMatchingEnabled;
+    bool m_parenthesesMatchingEnabled = false;
 
     // parentheses matcher
-    bool m_formatRange;
+    bool m_formatRange = false;
     QTimer m_parenthesesMatchingTimer;
     // end parentheses matcher
 
-    QWidget *m_extraArea;
+    QWidget *m_extraArea = nullptr;
 
     Id m_tabSettingsId;
-    ICodeStylePreferences *m_codeStylePreferences;
+    ICodeStylePreferences *m_codeStylePreferences = nullptr;
     DisplaySettings m_displaySettings;
     MarginSettings m_marginSettings;
-    bool m_fontSettingsNeedsApply;
+    // apply when making visible the first time, for the split case
+    bool m_fontSettingsNeedsApply = true;
     BehaviorSettings m_behaviorSettings;
 
-    int extraAreaSelectionAnchorBlockNumber;
-    int extraAreaToggleMarkBlockNumber;
-    int extraAreaHighlightFoldedBlockNumber;
-    int extraAreaPreviousMarkTooltipRequestedLine;
+    int extraAreaSelectionAnchorBlockNumber = -1;
+    int extraAreaToggleMarkBlockNumber = -1;
+    int extraAreaHighlightFoldedBlockNumber = -1;
+    int extraAreaPreviousMarkTooltipRequestedLine = -1;
 
-    TextEditorOverlay *m_overlay;
-    TextEditorOverlay *m_snippetOverlay;
-    TextEditorOverlay *m_searchResultOverlay;
+    TextEditorOverlay *m_overlay = nullptr;
+    TextEditorOverlay *m_snippetOverlay = nullptr;
+    TextEditorOverlay *m_searchResultOverlay = nullptr;
     bool snippetCheckCursor(const QTextCursor &cursor);
     void snippetTabOrBacktab(bool forward);
 
-    RefactorOverlay *m_refactorOverlay;
+    RefactorOverlay *m_refactorOverlay = nullptr;
     QString m_contextHelpId;
 
     QBasicTimer foldedBlockTimer;
-    int visibleFoldedBlockNumber;
-    int suggestedVisibleFoldedBlockNumber;
+    int visibleFoldedBlockNumber = -1;
+    int suggestedVisibleFoldedBlockNumber = -1;
     void clearVisibleFoldedBlock();
-    bool m_mouseOnFoldedMarker;
+    bool m_mouseOnFoldedMarker = false;
     void foldLicenseHeader();
 
     QBasicTimer autoScrollTimer;
@@ -400,10 +401,10 @@ public:
     uint m_requestMarkEnabled : 1;
     uint m_lineSeparatorsAllowed : 1;
     uint m_maybeFakeTooltipEvent : 1;
-    int m_visibleWrapColumn;
+    int m_visibleWrapColumn = 0;
 
     TextEditorWidget::Link m_currentLink;
-    bool m_linkPressed;
+    bool m_linkPressed = false;
     QTextCursor m_pendingLinkUpdate;
     QTextCursor m_lastLinkUpdate;
 
@@ -416,7 +417,7 @@ public:
     QHash<Core::Id, QList<QTextEdit::ExtraSelection>> m_extraSelections;
 
     // block selection mode
-    bool m_inBlockSelectionMode;
+    bool m_inBlockSelectionMode = false;
     QString copyBlockSelection();
     void insertIntoBlockSelection(const QString &text = QString());
     void setCursorToColumn(QTextCursor &cursor, int column,
@@ -435,12 +436,12 @@ public:
     void resetCursorFlashTimer();
     QBasicTimer m_cursorFlashTimer;
     bool m_cursorVisible;
-    bool m_moveLineUndoHack;
+    bool m_moveLineUndoHack = false;
 
     QTextCursor m_findScopeStart;
     QTextCursor m_findScopeEnd;
-    int m_findScopeVerticalBlockSelectionFirstColumn;
-    int m_findScopeVerticalBlockSelectionLastColumn;
+    int m_findScopeVerticalBlockSelectionFirstColumn = -1;
+    int m_findScopeVerticalBlockSelectionLastColumn = -1;
 
     QTextCursor m_selectBlockAnchor;
 
@@ -453,7 +454,7 @@ public:
     QTimer m_highlightBlocksTimer;
 
     CodeAssistant m_codeAssistant;
-    bool m_assistRelevantContentAdded;
+    bool m_assistRelevantContentAdded = false;
     QList<BaseHoverHandler *> m_hoverHandlers; // Not owned
 
     QPointer<TextEditorAnimator> m_bracketsAnimator;
@@ -467,53 +468,28 @@ public:
     bool m_keepAutoCompletionHighlight = false;
     QTextCursor m_autoCompleteHighlightPos;
 
-    int m_cursorBlockNumber;
-    int m_blockCount;
+    int m_cursorBlockNumber = -1;
+    int m_blockCount = 0;
 
     QPoint m_markDragStart;
-    bool m_markDragging;
+    bool m_markDragging = false;
 
     QScopedPointer<ClipboardAssistProvider> m_clipboardAssistProvider;
 
-    bool m_isMissingSyntaxDefinition;
+    bool m_isMissingSyntaxDefinition = false;
 
     QScopedPointer<AutoCompleter> m_autoCompleter;
     CommentDefinition m_commentDefinition;
 
-    QFutureWatcher<FileSearchResultList> *m_searchWatcher;
+    QFutureWatcher<FileSearchResultList> *m_searchWatcher = nullptr;
     QVector<SearchResult> m_searchResults;
     QTimer m_scrollBarUpdateTimer;
-    HighlightScrollBar *m_highlightScrollBar;
-    bool m_scrollBarUpdateScheduled;
+    HighlightScrollBar *m_highlightScrollBar = nullptr;
+    bool m_scrollBarUpdateScheduled = false;
 };
 
 TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
   : q(parent),
-    m_toolBar(0),
-    m_stretchWidget(0),
-    m_cursorPositionLabel(0),
-    m_fileEncodingLabel(0),
-    m_cursorPositionLabelAction(0),
-    m_fileEncodingLabelAction(0),
-    m_contentsChanged(false),
-    m_lastCursorChangeWasInteresting(false),
-    m_parenthesesMatchingEnabled(false),
-    m_formatRange(false),
-    m_parenthesesMatchingTimer(0),
-    m_extraArea(0),
-    m_codeStylePreferences(0),
-    m_fontSettingsNeedsApply(true), // apply when making visible the first time, for the split case
-    extraAreaSelectionAnchorBlockNumber(-1),
-    extraAreaToggleMarkBlockNumber(-1),
-    extraAreaHighlightFoldedBlockNumber(-1),
-    extraAreaPreviousMarkTooltipRequestedLine(-1),
-    m_overlay(0),
-    m_snippetOverlay(0),
-    m_searchResultOverlay(0),
-    m_refactorOverlay(0),
-    visibleFoldedBlockNumber(-1),
-    suggestedVisibleFoldedBlockNumber(-1),
-    m_mouseOnFoldedMarker(false),
     m_marksVisible(false),
     m_codeFoldingVisible(false),
     m_codeFoldingSupported(false),
@@ -523,25 +499,8 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     m_requestMarkEnabled(true),
     m_lineSeparatorsAllowed(false),
     m_maybeFakeTooltipEvent(false),
-    m_visibleWrapColumn(0),
-    m_linkPressed(false),
-    m_delayedUpdateTimer(0),
-    m_inBlockSelectionMode(false),
-    m_moveLineUndoHack(false),
-    m_findScopeVerticalBlockSelectionFirstColumn(-1),
-    m_findScopeVerticalBlockSelectionLastColumn(-1),
-    m_highlightBlocksTimer(0),
-    m_assistRelevantContentAdded(false),
-    m_cursorBlockNumber(-1),
-    m_blockCount(0),
-    m_markDragging(false),
     m_clipboardAssistProvider(new ClipboardAssistProvider),
-    m_isMissingSyntaxDefinition(false),
-    m_autoCompleter(new AutoCompleter),
-    m_searchWatcher(0),
-    m_scrollBarUpdateTimer(0),
-    m_highlightScrollBar(0),
-    m_scrollBarUpdateScheduled(false)
+    m_autoCompleter(new AutoCompleter)
 {
     Aggregation::Aggregate *aggregate = new Aggregation::Aggregate;
     BaseTextFind *baseTextFind = new BaseTextFind(q);
