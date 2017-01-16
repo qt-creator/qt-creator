@@ -9,7 +9,7 @@ QtcPlugin {
     Depends { name: "Core" }
 
     files: [
-        "welcome2plugin.cpp",
-        "welcome2plugin.h",
+        "welcome.qrc",
+        "welcomeplugin.cpp",
     ]
 }
