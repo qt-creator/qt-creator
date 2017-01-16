@@ -1,4 +1,4 @@
-contains(CONFIG, dll) {
+shared {
     DEFINES += UTILS_LIBRARY
 } else {
     DEFINES += QTCREATOR_UTILS_STATIC_LIB

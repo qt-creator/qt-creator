@@ -1,4 +1,4 @@
-contains(CONFIG, dll) {
+shared {
     DEFINES += BUILD_SQLITE_LIBRARY
 } else {
     DEFINES += BUILD_SQLITE_STATIC_LIBRARY

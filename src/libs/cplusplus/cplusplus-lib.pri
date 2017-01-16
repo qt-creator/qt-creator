@@ -1,4 +1,4 @@
-contains(CONFIG, dll) {
+shared {
     DEFINES += CPLUSPLUS_BUILD_LIB
 } else {
     DEFINES += CPLUSPLUS_BUILD_STATIC_LIB

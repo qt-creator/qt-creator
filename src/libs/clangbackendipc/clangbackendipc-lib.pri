@@ -1,4 +1,4 @@
-contains(CONFIG, dll) {
+shared {
     DEFINES += CLANGBACKENDIPC_BUILD_LIB
 } else {
     DEFINES += CLANGBACKENDIPC_BUILD_STATIC_LIB

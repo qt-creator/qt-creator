@@ -1,4 +1,4 @@
-contains(CONFIG, dll) {
+shared {
     DEFINES += QMLJS_LIBRARY
 } else {
     DEFINES += QML_BUILD_STATIC_LIB

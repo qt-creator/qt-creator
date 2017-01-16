@@ -1,4 +1,4 @@
-contains(CONFIG, dll) {
+shared {
     DEFINES += QMLDEBUG_LIBRARY
 } else {
     DEFINES += QMLDEBUG_STATIC_LIB
