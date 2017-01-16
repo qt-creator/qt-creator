@@ -833,6 +833,7 @@ void CppToolsPlugin::test_modelmanager_precompiled_headers()
     part1->qtVersion = ProjectPart::NoQt;
     part1->precompiledHeaders.append(pch1File);
     part1->headerPaths = { HeaderPath(testDataDirectory.includeDir(false), HeaderPath::IncludePath) };
+    part1->updateLanguageFeatures();
 
     ProjectPart::Ptr part2(new ProjectPart);
     part2->projectFile = QLatin1String("project2.projectfile");
@@ -841,6 +842,7 @@ void CppToolsPlugin::test_modelmanager_precompiled_headers()
     part2->qtVersion = ProjectPart::NoQt;
     part2->precompiledHeaders.append(pch2File);
     part2->headerPaths = { HeaderPath(testDataDirectory.includeDir(false), HeaderPath::IncludePath) };
+    part2->updateLanguageFeatures();
 
     ProjectInfo pi = ProjectInfo(project);
     pi.appendProjectPart(part1);

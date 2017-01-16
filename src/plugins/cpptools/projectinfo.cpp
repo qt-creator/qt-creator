@@ -112,8 +112,6 @@ void ProjectInfo::finish()
     QSet<ProjectPartHeaderPath> uniqueHeaderPaths;
 
     foreach (const ProjectPart::Ptr &part, m_projectParts) {
-        part->updateLanguageFeatures();
-
         // Update header paths
         foreach (const ProjectPartHeaderPath &headerPath, part->headerPaths) {
             const int count = uniqueHeaderPaths.count();
