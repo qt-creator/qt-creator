@@ -30,6 +30,7 @@
 #include "applicationlauncher.h"
 #include "devicesupport/idevice.h"
 
+#include <utils/processhandle.h>
 #include <utils/qtcassert.h>
 #include <utils/icon.h>
 
@@ -51,26 +52,6 @@ class RunControl;
 class Target;
 
 namespace Internal { class RunControlPrivate; }
-
-// FIXME: This should also contain a handle to an remote device if used.
-class PROJECTEXPLORER_EXPORT ProcessHandle
-{
-public:
-    explicit ProcessHandle(quint64 pid = 0);
-
-    bool isValid() const;
-    void setPid(quint64 pid);
-    quint64 pid() const;
-    QString toString() const;
-
-    bool equals(const ProcessHandle &) const;
-
-private:
-    quint64 m_pid;
-};
-
-inline bool operator==(const ProcessHandle &p1, const ProcessHandle &p2) { return p1.equals(p2); }
-inline bool operator!=(const ProcessHandle &p1, const ProcessHandle &p2) { return !p1.equals(p2); }
 
 /**
  * An interface for a hunk of global or per-project
@@ -385,8 +366,8 @@ public:
     void setIcon(const Utils::Icon &icon);
     Utils::Icon icon() const;
 
-    ProcessHandle applicationProcessHandle() const;
-    void setApplicationProcessHandle(const ProcessHandle &handle);
+    Utils::ProcessHandle applicationProcessHandle() const;
+    void setApplicationProcessHandle(const Utils::ProcessHandle &handle);
     Abi abi() const;
     IDevice::ConstPtr device() const;
 

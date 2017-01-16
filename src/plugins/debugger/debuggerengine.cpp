@@ -63,6 +63,7 @@
 
 #include <utils/fileinprojectfinder.h>
 #include <utils/macroexpander.h>
+#include <utils/processhandle.h>
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 
@@ -80,6 +81,7 @@ using namespace Core;
 using namespace Debugger::Internal;
 using namespace ProjectExplorer;
 using namespace TextEditor;
+using namespace Utils;
 
 //#define WITH_BENCHMARK
 #ifdef WITH_BENCHMARK

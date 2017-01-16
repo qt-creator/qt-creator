@@ -47,48 +47,9 @@
 #include <ApplicationServices/ApplicationServices.h>
 #endif
 
+using namespace Utils;
+
 namespace ProjectExplorer {
-
-/*!
-    \class ProjectExplorer::ProcessHandle
-    \brief The ProcessHandle class is a helper class to describe a process.
-
-    Encapsulates parameters of a running process, local (PID) or remote (to be
-    done, address, port, and so on).
-*/
-
-ProcessHandle::ProcessHandle(quint64 pid) :
-    m_pid(pid)
-{
-}
-
-bool ProcessHandle::isValid() const
-{
-    return m_pid != 0;
-}
-
-void ProcessHandle::setPid(quint64 pid)
-{
-    m_pid = pid;
-}
-
-quint64 ProcessHandle::pid() const
-{
-    return m_pid;
-}
-
-QString ProcessHandle::toString() const
-{
-    if (m_pid)
-        return RunControl::tr("PID %1").arg(m_pid);
-    //: Invalid process handle.
-    return RunControl::tr("Invalid");
-}
-
-bool ProcessHandle::equals(const ProcessHandle &rhs) const
-{
-    return m_pid == rhs.m_pid;
-}
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -561,7 +522,7 @@ public:
     Utils::OutputFormatter *outputFormatter = nullptr;
 
     // A handle to the actual application process.
-    ProcessHandle applicationProcessHandle;
+    Utils::ProcessHandle applicationProcessHandle;
 
 #ifdef Q_OS_OSX
     //these two are used to bring apps in the foreground on Mac

@@ -36,6 +36,8 @@
 
 #include <QDir>
 
+using namespace Utils;
+
 namespace ProjectExplorer {
 namespace Internal {
 

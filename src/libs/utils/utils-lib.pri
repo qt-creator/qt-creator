@@ -80,6 +80,7 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/completingtextedit.cpp \
     $$PWD/json.cpp \
     $$PWD/portlist.cpp \
+    $$PWD/processhandle.cpp \
     $$PWD/appmainwindow.cpp \
     $$PWD/basetreeview.cpp \
     $$PWD/qtcassert.cpp \
@@ -181,6 +182,7 @@ HEADERS += \
     $$PWD/json.h \
     $$PWD/runextensions.h \
     $$PWD/portlist.h \
+    $$PWD/processhandle.h \
     $$PWD/appmainwindow.h \
     $$PWD/basetreeview.h \
     $$PWD/elfreader.h \

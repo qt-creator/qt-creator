@@ -629,7 +629,10 @@ void AppOutputPane::enableButtons(const RunControl *rc, bool isRunning)
         m_stopAction->setEnabled(isRunning);
         if (isRunning && debuggerPlugin() && rc->applicationProcessHandle().isValid()) {
             m_attachButton->setEnabled(true);
-            m_attachButton->setToolTip(msgAttachDebuggerTooltip(rc->applicationProcessHandle().toString()));
+            Utils::ProcessHandle h = rc->applicationProcessHandle();
+            QString tip = h.isValid() ? RunControl::tr("PID %1").arg(h.pid())
+                                      : RunControl::tr("Invalid");
+            m_attachButton->setToolTip(msgAttachDebuggerTooltip(tip));
         } else {
             m_attachButton->setEnabled(false);
             m_attachButton->setToolTip(msgAttachDebuggerTooltip());

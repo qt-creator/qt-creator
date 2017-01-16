@@ -159,6 +159,8 @@ Project {
             "port.h",
             "portlist.cpp",
             "portlist.h",
+            "processhandle.cpp",
+            "processhandle.h",
             "progressindicator.cpp",
             "progressindicator.h",
             "projectintropage.cpp",
