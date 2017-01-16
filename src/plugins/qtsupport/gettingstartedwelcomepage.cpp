@@ -95,11 +95,6 @@ Id ExamplesWelcomePage::id() const
     return m_showExamples ? "Examples" : "Tutorials";
 }
 
-void ExamplesWelcomePage::openHelpInExtraWindow(const QUrl &help)
-{
-    HelpManager::handleHelpRequest(help, HelpManager::ExternalHelpAlways);
-}
-
 QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileInfo, QStringList &filesToOpen, const QStringList& dependencies)
 {
     const QString projectDir = proFileInfo.canonicalPath();
@@ -186,22 +181,18 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
     return QString();
 }
 
-void ExamplesWelcomePage::openProject(const QString &projectFile,
-                                      const QStringList &additionalFilesToOpen,
-                                      const QString &mainFile,
-                                      const QUrl &help,
-                                      const QStringList &dependencies,
-                                      const QStringList &)
+void ExamplesWelcomePage::openProject(const ExampleItem &item)
 {
-    QString proFile = projectFile;
+    using namespace ProjectExplorer;
+    QString proFile = item.projectPath;
     if (proFile.isEmpty())
         return;
 
-    QStringList filesToOpen = additionalFilesToOpen;
-    if (!mainFile.isEmpty()) {
+    QStringList filesToOpen = item.filesToOpen;
+    if (!item.mainFile.isEmpty()) {
         // ensure that the main file is opened on top (i.e. opened last)
-        filesToOpen.removeAll(mainFile);
-        filesToOpen.append(mainFile);
+        filesToOpen.removeAll(item.mainFile);
+        filesToOpen.append(item.mainFile);
     }
 
     QFileInfo proFileInfo(proFile);
@@ -213,22 +204,22 @@ void ExamplesWelcomePage::openProject(const QString &projectFile,
     if (!proFileInfo.isWritable()
             || !pathInfo.isWritable() /* path of .pro file */
             || !QFileInfo(pathInfo.path()).isWritable() /* shadow build directory */) {
-        proFile = copyToAlternativeLocation(proFileInfo, filesToOpen, dependencies);
+        proFile = copyToAlternativeLocation(proFileInfo, filesToOpen, item.dependencies);
     }
 
     // don't try to load help and files if loading the help request is being cancelled
     if (proFile.isEmpty())
         return;
-    ProjectExplorer::ProjectExplorerPlugin::OpenProjectResult result =
-            ProjectExplorer::ProjectExplorerPlugin::instance()->openProject(proFile);
+    ProjectExplorerPlugin::OpenProjectResult result = ProjectExplorerPlugin::openProject(proFile);
     if (result) {
         ICore::openFiles(filesToOpen);
         ModeManager::activateMode(Core::Constants::MODE_EDIT);
-        if (help.isValid())
-            openHelpInExtraWindow(help.toString());
+        QUrl docUrl = QUrl::fromUserInput(item.docUrl);
+        if (docUrl.isValid())
+            HelpManager::handleHelpRequest(docUrl, HelpManager::ExternalHelpAlways);
         ModeManager::activateMode(ProjectExplorer::Constants::MODE_SESSION);
     } else {
-        ProjectExplorer::ProjectExplorerPlugin::showOpenProjectError(result);
+        ProjectExplorerPlugin::showOpenProjectError(result);
     }
 }
 
@@ -376,11 +367,11 @@ class ExampleDelegate : public QStyledItemDelegate
 public:
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const final
     {
+        const ExampleItem item = index.data(Qt::UserRole).value<ExampleItem>();
         const QRect rc = option.rect;
-        const QString name = index.data(Name).toString();
 
         // Quick hack for empty items in the last row.
-        if (name.isEmpty())
+        if (item.name.isEmpty())
             return;
 
         const int d = 10;
@@ -421,54 +412,50 @@ public:
 
         // The pixmap.
         if (offset == 0) {
-            const QString imageUrl = index.data(ImageUrl).toString();
-            const bool isVideo = index.data(IsVideo).toBool();
             const QSize requestSize(188, 145);
 
             QPixmap pm;
-            if (QPixmap *foundPixmap = m_pixmapCache.find(imageUrl)) {
+            if (QPixmap *foundPixmap = m_pixmapCache.find(item.imageUrl)) {
                 pm = *foundPixmap;
             } else {
-                pm.load(imageUrl);
+                pm.load(item.imageUrl);
                 if (pm.isNull())
-                    pm.load(resourcePath() + "/welcomescreen/widgets/" + imageUrl);
+                    pm.load(resourcePath() + "/welcomescreen/widgets/" + item.imageUrl);
                 if (pm.isNull()) {
                     // FIXME: Make async
-                    QByteArray fetchedData = HelpManager::fileData(imageUrl);
+                    QByteArray fetchedData = HelpManager::fileData(item.imageUrl);
                     QBuffer imgBuffer(&fetchedData);
                     imgBuffer.open(QIODevice::ReadOnly);
                     QImageReader reader(&imgBuffer);
                     QImage img = reader.read();
-                    img = ScreenshotCropper::croppedImage(img, imageUrl, requestSize);
+                    img = ScreenshotCropper::croppedImage(img, item.imageUrl, requestSize);
                     pm = QPixmap::fromImage(img);
                 }
-                m_pixmapCache.insert(imageUrl, pm);
+                m_pixmapCache.insert(item.imageUrl, pm);
             }
 
             QRect inner(x + 11, y - offset, requestSize.width(), requestSize.height());
             QRect pixmapRect = inner;
             if (!pm.isNull()) {
                 painter->setPen(foregroundColor2);
-                if (isVideo)
+                if (item.isVideo)
                     pixmapRect = inner.adjusted(6, 10, -6, -25);
                 QPoint pixmapPos = pixmapRect.center();
                 pixmapPos.rx() -= pm.width() / 2;
                 pixmapPos.ry() -= pm.height() / 2;
                 painter->drawPixmap(pixmapPos, pm);
-                if (isVideo) {
+                if (item.isVideo) {
                     painter->setFont(sizedFont(13, option.widget));
                     QRect lenRect(x, y + 120, w, 20);
-                    QString videoLen = index.data(VideoLength).toString();
+                    QString videoLen = item.videoLength;
                     lenRect = fm.boundingRect(lenRect, Qt::AlignHCenter, videoLen);
                     painter->drawText(lenRect.adjusted(0, 0, 5, 0), videoLen);
                 }
             } else {
                 // The description text as fallback.
-                QRect descRect = pixmapRect.adjusted(6, 10, -6, -10);
-                QString desc = index.data(Description).toString();
                 painter->setPen(foregroundColor2);
                 painter->setFont(sizedFont(11, option.widget));
-                painter->drawText(descRect, desc, wrapped);
+                painter->drawText(pixmapRect.adjusted(6, 10, -6, -10), item.description, wrapped);
             }
             painter->setPen(foregroundColor1);
             painter->drawRect(pixmapRect.adjusted(-1, -1, -1, -1));
@@ -479,11 +466,11 @@ public:
         painter->setFont(sizedFont(13, option.widget));
         QRectF nameRect;
         if (offset) {
-            nameRect = painter->boundingRect(shiftedTextRect, name, wrapped);
-            painter->drawText(nameRect, name, wrapped);
+            nameRect = painter->boundingRect(shiftedTextRect, item.name, wrapped);
+            painter->drawText(nameRect, item.name, wrapped);
         } else {
             nameRect = QRect(x, y + nameY, x + w, y + nameY + 20);
-            QString elidedName = fm.elidedText(name, Qt::ElideRight, w - 20);
+            QString elidedName = fm.elidedText(item.name, Qt::ElideRight, w - 20);
             painter->drawText(nameRect, elidedName);
         }
 
@@ -498,10 +485,9 @@ public:
         if (offset) {
             int dd = nameRect.height() + 10;
             QRect descRect = shiftedTextRect.adjusted(0, dd, 0, dd);
-            QString desc = index.data(Description).toString();
             painter->setPen(foregroundColor2);
             painter->setFont(sizedFont(11, option.widget));
-            painter->drawText(descRect, desc, wrapped);
+            painter->drawText(descRect, item.description, wrapped);
         }
 
         // Separator line between text and 'Tags:' section
@@ -518,11 +504,10 @@ public:
         painter->drawText(tagsLabelRect, ExamplesWelcomePage::tr("Tags:"));
 
         painter->setPen(themeColor(Theme::Welcome_LinkColor));
-        const QStringList tags = index.data(Tags).toStringList();
         m_currentTagRects.clear();
         int xx = 0;
         int yy = y + tagsBase;
-        for (const QString tag : tags) {
+        for (const QString tag : item.tags) {
             const int ww = tagsFontMetrics.width(tag) + 5;
             if (xx + ww > w - 30) {
                 yy += 15;
@@ -551,6 +536,7 @@ public:
         const QStyleOptionViewItem &option, const QModelIndex &idx) final
     {
         if (ev->type() == QEvent::MouseButtonRelease) {
+            const ExampleItem item = idx.data(Qt::UserRole).value<ExampleItem>();
             auto mev = static_cast<QMouseEvent *>(ev);
             if (idx.isValid()) {
                 const QPoint pos = mev->pos();
@@ -561,17 +547,13 @@ public:
                             emit tagClicked(it.first);
                     }
                 } else {
-                    if (idx.data(IsVideo).toBool())
-                        QDesktopServices::openUrl(idx.data(VideoUrl).toUrl());
-                    else if (idx.data(HasSourceCode).toBool())
-                        ExamplesWelcomePage::openProject(idx.data(ProjectPath).toString(),
-                                                         idx.data(FilesToOpen).toStringList(),
-                                                         idx.data(MainFile).toString(),
-                                                         idx.data(DocUrl).toUrl(),
-                                                         idx.data(Dependencies).toStringList(),
-                                                         idx.data(Platforms).toStringList());
+                    if (item.isVideo)
+                        QDesktopServices::openUrl(QUrl::fromUserInput(item.videoUrl));
+                    else if (item.hasSourceCode)
+                        ExamplesWelcomePage::openProject(item);
                     else
-                        ExamplesWelcomePage::openHelpInExtraWindow(idx.data(DocUrl).toUrl());
+                        HelpManager::handleHelpRequest(QUrl::fromUserInput(item.docUrl),
+                                                       HelpManager::ExternalHelpAlways);
                 }
             }
         }
@@ -604,15 +586,11 @@ public:
         static ExamplesListModel *s_examplesModel = new ExamplesListModel(this);
         m_examplesModel = s_examplesModel;
 
-        m_filteredModel = new ExamplesListModelFilter(m_examplesModel, this);
-        m_filteredModel->setDynamicSortFilter(true);
-        m_filteredModel->sort(0);
-        m_filteredModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+        m_filteredModel = new ExamplesListModelFilter(m_examplesModel, !m_isExamples, this);
 
         auto vbox = new QVBoxLayout(this);
         vbox->setContentsMargins(30, 27, 20, 20);
         if (m_isExamples) {
-            m_filteredModel->setShowTutorialsOnly(false);
             m_qtVersionSelector = new QComboBox(this);
             m_qtVersionSelector->setMinimumWidth(itemWidth);
             m_qtVersionSelector->setMaximumWidth(itemWidth);
@@ -623,9 +601,10 @@ public:
             hbox->addWidget(m_searchBox);
             vbox->addItem(hbox);
             connect(m_qtVersionSelector, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated),
-                    this, &ExamplesPageWidget::updateComboBox);
+                    m_examplesModel, &ExamplesListModel::selectExampleSet);
+            connect(m_examplesModel, &ExamplesListModel::selectedExampleSetChanged,
+                    this, &ExamplesPageWidget::updateStuff);
         } else {
-            m_filteredModel->setShowTutorialsOnly(true);
             m_searchBox = new SearchBox(tr("Search in Tutorials..."), this);
             vbox->addWidget(m_searchBox);
         }
@@ -643,9 +622,6 @@ public:
                 this, &ExamplesPageWidget::updateStuff);
         connect(m_filteredModel, &ExamplesListModelFilter::searchStringChanged,
                 this, &ExamplesPageWidget::updateStuff);
-        connect(m_filteredModel, &ExamplesListModelFilter::exampleSetIndexChanged,
-                this, &ExamplesPageWidget::updateStuff);
-
         connect(m_searchBox->m_lineEdit, &QLineEdit::textChanged,
                 m_filteredModel, &ExamplesListModelFilter::setSearchString);
     }
@@ -670,22 +646,10 @@ public:
     void updateStuff()
     {
         if (m_isExamples) {
-            QTC_ASSERT(m_examplesModel, return);
-            const QList<BaseQtVersion *> qtVersions = m_examplesModel->qtVersions();
-            const QList<ExamplesListModel::ExtraExampleSet> extraExampleSets = m_examplesModel->extraExampleSets();
-            QStringList list;
-            for (BaseQtVersion *qtVersion : qtVersions)
-                list.append(qtVersion->displayName());
             m_qtVersionSelector->clear();
-            m_qtVersionSelector->addItems(list);
+            m_qtVersionSelector->addItems(m_examplesModel->exampleSets());
+            m_qtVersionSelector->setCurrentIndex(m_examplesModel->selectedExampleSet());
         }
-    }
-
-    void updateComboBox(int index)
-    {
-        QTC_ASSERT(m_isExamples, return);
-        QTC_ASSERT(m_examplesModel, return);
-        m_examplesModel->selectExampleSet(index);
     }
 
     const bool m_isExamples;

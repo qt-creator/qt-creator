@@ -63,17 +63,7 @@ public:
     int getExtraExampleSetIndex(int index) const;
 
 private:
-    QHash<int, QByteArray> roleNames() const;
-
     ExamplesListModel *examplesModel;
-};
-
-enum ExampleRoles
-{
-    Name = Qt::UserRole, ProjectPath, Description, ImageUrl,
-    DocUrl, FilesToOpen, MainFile, Tags, Difficulty, HasSourceCode,
-    Type, Dependencies, IsVideo, VideoUrl, VideoLength, Platforms,
-    IsHighlighted
 };
 
 enum InstructionalType
@@ -83,7 +73,6 @@ enum InstructionalType
 
 struct ExampleItem
 {
-    ExampleItem(): difficulty(0), isVideo(false), isHighlighted(false) {}
     QString name;
     QString projectPath;
     QString description;
@@ -94,10 +83,10 @@ struct ExampleItem
     QStringList tags;
     QStringList dependencies;
     InstructionalType type;
-    int difficulty;
-    bool hasSourceCode;
-    bool isVideo;
-    bool isHighlighted;
+    int difficulty = 0;
+    bool hasSourceCode = false;
+    bool isVideo = false;
+    bool isHighlighted = false;
     QString videoUrl;
     QString videoLength;
     QStringList platforms;
@@ -116,9 +105,8 @@ public:
 
     explicit ExamplesListModel(QObject *parent);
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    QHash<int, QByteArray> roleNames() const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const final;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const final;
 
     void beginReset() { beginResetModel(); }
     void endReset() { endResetModel(); }
@@ -130,10 +118,10 @@ public:
 
     QList<BaseQtVersion*> qtVersions() const { return m_qtVersions; }
     QList<ExtraExampleSet> extraExampleSets() const { return m_extraExampleSets; }
-    QAbstractItemModel* exampleSetModel() { return m_exampleSetModel; }
+    QStringList exampleSets() const;
 
 signals:
-    void selectedExampleSetChanged();
+    void selectedExampleSetChanged(int);
 
 private:
     void updateQtVersions();
@@ -153,7 +141,7 @@ private:
     QList<BaseQtVersion*> m_qtVersions;
     QList<ExtraExampleSet> m_extraExampleSets;
     QList<ExampleItem> m_exampleItems;
-    int m_selectedExampleSetIndex;
+    int m_selectedExampleSetIndex = -1;
 };
 
 class ExamplesListModelFilter : public QSortFilterProxyModel
@@ -161,40 +149,21 @@ class ExamplesListModelFilter : public QSortFilterProxyModel
     Q_OBJECT
 
 public:
-    Q_PROPERTY(bool showTutorialsOnly READ showTutorialsOnly WRITE setShowTutorialsOnly NOTIFY showTutorialsOnlyChanged)
-    Q_PROPERTY(QStringList filterTags READ filterTags WRITE setFilterTags NOTIFY filterTagsChanged)
-    Q_PROPERTY(QString searchString READ searchString WRITE setSearchString NOTIFY searchStringChanged)
-
-    Q_PROPERTY(int exampleSetIndex READ exampleSetIndex NOTIFY exampleSetIndexChanged)
-
-    explicit ExamplesListModelFilter(ExamplesListModel *sourceModel, QObject *parent);
+    ExamplesListModelFilter(ExamplesListModel *sourceModel, bool showTutorialsOnly, QObject *parent);
 
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const final;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const final;
 
-    Q_INVOKABLE void setSearchString(const QString &arg);
-    QString searchString() const;
-
-    bool showTutorialsOnly() { return m_showTutorialsOnly; }
-    QStringList filterTags() const { return m_filterTags; }
-
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    QAbstractItemModel* exampleSetModel();
-
-    Q_INVOKABLE void filterForExampleSet(int index);
-
-public slots:
+    void setSearchString(const QString &arg);
     void setFilterTags(const QStringList &arg);
     void updateFilter();
 
-    void setShowTutorialsOnly(bool showTutorialsOnly);
     void handleQtVersionsChanged();
 
 signals:
-    void showTutorialsOnlyChanged();
     void filterTagsChanged(const QStringList &arg);
     void searchStringChanged(const QString &arg);
-    void exampleSetIndexChanged();
 
 private:
     void setFilterStrings(const QStringList &arg);
@@ -206,20 +175,20 @@ private:
     void tryToInitialize();
     void timerEvent(QTimerEvent *event);
     void delayedUpdateFilter();
-    int exampleSetIndex() const;
 
-    bool m_showTutorialsOnly;
+    const bool m_showTutorialsOnly;
     QString m_searchString;
     QStringList m_filterTags;
     QStringList m_filterStrings;
     ExamplesListModel *m_sourceModel;
-    int m_timerId;
-    bool m_blockIndexUpdate;
-    bool m_qtVersionManagerInitialized;
-    bool m_helpManagerInitialized;
-    bool m_initalized;
-    bool m_exampleDataRequested;
+    int m_timerId = 0;
+    bool m_qtVersionManagerInitialized = false;
+    bool m_helpManagerInitialized = false;
+    bool m_initalized = false;
+    bool m_exampleDataRequested = false;
 };
 
 } // namespace Internal
 } // namespace QtSupport
+
+Q_DECLARE_METATYPE(QtSupport::Internal::ExampleItem)

@@ -186,20 +186,9 @@ int ExampleSetModel::getExtraExampleSetIndex(int i) const
     return variant.toInt();
 }
 
-QHash<int, QByteArray> ExampleSetModel::roleNames() const
-{
-    static QHash<int, QByteArray> roleNames{
-        {Qt::UserRole + 1, "text"},
-        {Qt::UserRole + 2, "QtId"},
-        {Qt::UserRole + 3, "extraSetIndex"}
-    };
-    return roleNames;
-}
-
 ExamplesListModel::ExamplesListModel(QObject *parent) :
     QAbstractListModel(parent),
-    m_exampleSetModel(new ExampleSetModel(this, this)),
-    m_selectedExampleSetIndex(-1)
+    m_exampleSetModel(new ExampleSetModel(this, this))
 {
     // read extra example sets settings
     QSettings *settings = Core::ICore::settings();
@@ -625,75 +614,19 @@ QString prefixForItem(const ExampleItem &item)
 
 QVariant ExamplesListModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || index.row()+1 > m_exampleItems.count())
+    if (!index.isValid() || index.row() >= m_exampleItems.count())
         return QVariant();
 
-    ExampleItem item = m_exampleItems.at(index.row());
+    const ExampleItem &item = m_exampleItems.at(index.row());
     switch (role)
     {
     case Qt::DisplayRole: // for search only
-        return QString(prefixForItem(item) + item.name + QLatin1Char(' ') + item.tags.join(QLatin1Char(' ')));
-    case Name:
-        return item.name;
-    case ProjectPath:
-        return item.projectPath;
-    case Description:
-        return item.description;
-    case ImageUrl:
-        return item.imageUrl;
-    case DocUrl:
-        return item.docUrl;
-    case FilesToOpen:
-        return item.filesToOpen;
-    case MainFile:
-        return item.mainFile;
-    case Tags:
-        return item.tags;
-    case Difficulty:
-        return item.difficulty;
-    case Dependencies:
-        return item.dependencies;
-    case HasSourceCode:
-        return item.hasSourceCode;
-    case Type:
-        return item.type;
-    case IsVideo:
-        return item.isVideo;
-    case VideoUrl:
-        return item.videoUrl;
-    case VideoLength:
-        return item.videoLength;
-    case Platforms:
-        return item.platforms;
-    case IsHighlighted:
-        return item.isHighlighted;
+        return QString(prefixForItem(item) + item.name + ' ' + item.tags.join(' '));
+    case Qt::UserRole:
+        return QVariant::fromValue<ExampleItem>(item);
     default:
         return QVariant();
     }
-}
-
-QHash<int, QByteArray> ExamplesListModel::roleNames() const
-{
-    static QHash<int, QByteArray> roleNames{
-        {Name, "name"},
-        {ProjectPath, "projectPath"},
-        {ImageUrl, "imageUrl"},
-        {Description, "description"},
-        {DocUrl, "docUrl"},
-        {FilesToOpen, "filesToOpen"},
-        {MainFile, "mainFile"},
-        {Tags, "tags"},
-        {Difficulty, "difficulty"},
-        {Type, "type"},
-        {HasSourceCode, "hasSourceCode"},
-        {Dependencies, "dependencies"},
-        {IsVideo, "isVideo"},
-        {VideoUrl, "videoUrl"},
-        {VideoLength, "videoLength"},
-        {Platforms, "platforms"},
-        {IsHighlighted, "isHighlighted"}
-    };
-    return roleNames;
 }
 
 void ExamplesListModel::update()
@@ -713,20 +646,19 @@ void ExamplesListModel::selectExampleSet(int index)
         m_selectedExampleSetIndex = index;
         m_exampleSetModel->writeCurrentIdToSettings(m_selectedExampleSetIndex);
         updateExamples();
-        emit selectedExampleSetChanged();
+        emit selectedExampleSetChanged(m_selectedExampleSetIndex);
     }
 }
 
-ExamplesListModelFilter::ExamplesListModelFilter(ExamplesListModel *sourceModel, QObject *parent) :
+QStringList ExamplesListModel::exampleSets() const
+{
+    return Utils::transform(m_qtVersions, &BaseQtVersion::displayName);
+}
+
+ExamplesListModelFilter::ExamplesListModelFilter(ExamplesListModel *sourceModel, bool showTutorialsOnly, QObject *parent) :
     QSortFilterProxyModel(parent),
-    m_showTutorialsOnly(true),
-    m_sourceModel(sourceModel),
-    m_timerId(0),
-    m_blockIndexUpdate(false),
-    m_qtVersionManagerInitialized(false),
-    m_helpManagerInitialized(false),
-    m_initalized(false),
-    m_exampleDataRequested(false)
+    m_showTutorialsOnly(showTutorialsOnly),
+    m_sourceModel(sourceModel)
 {
     // initialization hooks
     connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsLoaded,
@@ -734,13 +666,10 @@ ExamplesListModelFilter::ExamplesListModelFilter(ExamplesListModel *sourceModel,
     connect(Core::HelpManager::instance(), &Core::HelpManager::setupFinished,
             this, &ExamplesListModelFilter::helpManagerInitialized);
 
-    connect(this, &ExamplesListModelFilter::showTutorialsOnlyChanged,
-            this, &ExamplesListModelFilter::updateFilter);
-
-    connect(m_sourceModel, &ExamplesListModel::selectedExampleSetChanged,
-            this, &ExamplesListModelFilter::exampleSetIndexChanged);
-
     setSourceModel(m_sourceModel);
+    setDynamicSortFilter(true);
+    setFilterCaseSensitivity(Qt::CaseInsensitive);
+    sort(0);
 }
 
 void ExamplesListModelFilter::updateFilter()
@@ -761,48 +690,33 @@ void ExamplesListModelFilter::setFilterStrings(const QStringList &arg)
     }
 }
 
-bool containsSubString(const QStringList &list, const QString &substr, Qt::CaseSensitivity cs)
-{
-    return Utils::contains(list, [&substr, &cs](const QString &elem) {
-        return elem.contains(substr, cs);
-    });
-}
-
 bool ExamplesListModelFilter::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
-    if (m_showTutorialsOnly) {
-        int type = sourceModel()->index(sourceRow, 0, sourceParent).data(Type).toInt();
-        if (type != Tutorial)
-            return false;
-    }
+    const ExampleItem item = sourceModel()->index(sourceRow, 0, sourceParent).data(Qt::UserRole).value<ExampleItem>();
 
-    if (!m_showTutorialsOnly) {
-        int type = sourceModel()->index(sourceRow, 0, sourceParent).data(Type).toInt();
-        if (type != Example && type != Demo)
-            return false;
-    }
+    if (m_showTutorialsOnly && item.type != Tutorial)
+        return false;
 
-    const QStringList tags = sourceModel()->index(sourceRow, 0, sourceParent).data(Tags).toStringList();
+    if (!m_showTutorialsOnly && item.type != Example && item.type != Demo)
+        return false;
 
     if (!m_filterTags.isEmpty()) {
-        return Utils::allOf(m_filterTags, [tags](const QString &filterTag) {
-            return tags.contains(filterTag);
+        return Utils::allOf(m_filterTags, [&item](const QString &filterTag) {
+            return item.tags.contains(filterTag);
         });
     }
 
     if (!m_filterStrings.isEmpty()) {
-        const QString description = sourceModel()->index(sourceRow, 0, sourceParent).data(Description).toString();
-        const QString name = sourceModel()->index(sourceRow, 0, sourceParent).data(Name).toString();
-
-        foreach (const QString &subString, m_filterStrings) {
+        for (const QString &subString : m_filterStrings) {
             bool wordMatch = false;
-            wordMatch |= (bool)name.contains(subString, Qt::CaseInsensitive);
+            wordMatch |= bool(item.name.contains(subString, Qt::CaseInsensitive));
             if (wordMatch)
                 continue;
-            wordMatch |= containsSubString(tags, subString, Qt::CaseInsensitive);
+            const auto subMatch = [&subString](const QString &elem) { return elem.contains(subString); };
+            wordMatch |= Utils::contains(item.tags, subMatch);
             if (wordMatch)
                 continue;
-            wordMatch |= (bool)description.contains(subString, Qt::CaseInsensitive);
+            wordMatch |= bool(item.description.contains(subString, Qt::CaseInsensitive));
             if (!wordMatch)
                 return false;
         }
@@ -823,19 +737,6 @@ QVariant ExamplesListModelFilter::data(const QModelIndex &index, int role) const
     return QSortFilterProxyModel::data(index, role);
 }
 
-QAbstractItemModel* ExamplesListModelFilter::exampleSetModel()
-{
-    return m_sourceModel->exampleSetModel();
-}
-
-void ExamplesListModelFilter::filterForExampleSet(int index)
-{
-    if (m_blockIndexUpdate || !m_initalized)
-        return;
-
-    m_sourceModel->selectExampleSet(index);
-}
-
 void ExamplesListModelFilter::setFilterTags(const QStringList &arg)
 {
     if (m_filterTags != arg) {
@@ -844,17 +745,9 @@ void ExamplesListModelFilter::setFilterTags(const QStringList &arg)
     }
 }
 
-void ExamplesListModelFilter::setShowTutorialsOnly(bool showTutorialsOnly)
-{
-    m_showTutorialsOnly = showTutorialsOnly;
-    emit showTutorialsOnlyChanged();
-}
-
 void ExamplesListModelFilter::handleQtVersionsChanged()
 {
-    m_blockIndexUpdate = true;
     m_sourceModel->update();
-    m_blockIndexUpdate = false;
 }
 
 void ExamplesListModelFilter::qtVersionManagerLoaded()
@@ -895,11 +788,6 @@ void ExamplesListModelFilter::delayedUpdateFilter()
         killTimer(m_timerId);
 
     m_timerId = startTimer(320);
-}
-
-int ExamplesListModelFilter::exampleSetIndex() const
-{
-    return m_sourceModel->selectedExampleSet();
 }
 
 void ExamplesListModelFilter::timerEvent(QTimerEvent *timerEvent)
@@ -1024,11 +912,6 @@ void ExamplesListModelFilter::setSearchString(const QString &arg)
     setFilterStrings(searchTerms);
     setFilterTags(tags);
     delayedUpdateFilter();
-}
-
-QString ExamplesListModelFilter::searchString() const
-{
-    return m_searchString;
 }
 
 } // namespace Internal

@@ -37,6 +37,7 @@ namespace QtSupport {
 namespace Internal {
 
 class ExamplesListModel;
+class ExampleItem;
 
 class ExamplesWelcomePage : public Core::IWelcomePage
 {
@@ -50,10 +51,7 @@ public:
     Core::Id id() const final;
     QWidget *createWidget() const final;
 
-    static void openHelpInExtraWindow(const QUrl &help);
-    static void openProject(const QString& projectFile, const QStringList& additionalFilesToOpen,
-                            const QString &mainFile, const QUrl &help,
-                            const QStringList &dependencies, const QStringList &platforms);
+    static void openProject(const ExampleItem &item);
 
 private:
     static QString copyToAlternativeLocation(const QFileInfo &fileInfo, QStringList &filesToOpen, const QStringList &dependencies);
