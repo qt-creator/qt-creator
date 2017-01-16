@@ -70,15 +70,8 @@ void CppHighlighter::highlightBlock(const QString &text)
 
     int braceDepth = initialBraceDepth;
 
-    // FIXME: Check defaults or get from document.
-    LanguageFeatures features;
-    features.cxx11Enabled = true;
-    features.cxxEnabled = true;
-    features.c99Enabled = true;
-    features.objCEnabled = true;
-
     SimpleLexer tokenize;
-    tokenize.setLanguageFeatures(features);
+    tokenize.setLanguageFeatures(m_languageFeatures);
 
     int initialLexerState = lexerState;
     const Tokens tokens = tokenize(text, initialLexerState);
@@ -215,7 +208,8 @@ void CppHighlighter::highlightBlock(const QString &text)
             }
 
         } else if (tk.isKeyword()
-                   || CppTools::isQtKeyword(text.midRef(tk.utf16charsBegin(), tk.utf16chars()))
+                   || (m_languageFeatures.qtKeywordsEnabled
+                       && CppTools::isQtKeyword(text.midRef(tk.utf16charsBegin(), tk.utf16chars())))
                    || tk.isObjCAtKeyword()) {
             setFormat(tk.utf16charsBegin(), tk.utf16chars(), formatForCategory(CppKeywordFormat));
         } else if (tk.isPrimitiveType()) {
@@ -281,6 +275,13 @@ void CppHighlighter::highlightBlock(const QString &text)
     setCurrentBlockState((braceDepth << 8) | tokenize.state());
 }
 
+void CppHighlighter::setLanguageFeatures(const LanguageFeatures &languageFeatures)
+{
+    if (languageFeatures != m_languageFeatures) {
+        m_languageFeatures = languageFeatures;
+        rehighlight();
+    }
+}
 
 bool CppHighlighter::isPPKeyword(const QStringRef &text) const
 {

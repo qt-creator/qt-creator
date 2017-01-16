@@ -401,7 +401,15 @@ CppTools::BaseEditorDocumentProcessor *CppEditorDocument::processor()
         connect(m_processor.data(), &CppTools::BaseEditorDocumentProcessor::ifdefedOutBlocksUpdated,
                 this, &CppEditorDocument::ifdefedOutBlocksUpdated);
         connect(m_processor.data(), &CppTools::BaseEditorDocumentProcessor::cppDocumentUpdated,
-                this, &CppEditorDocument::cppDocumentUpdated);
+                [this](const CPlusPlus::Document::Ptr document) {
+                    // Update syntax highlighter
+                    auto *highlighter = qobject_cast<CppHighlighter *>(syntaxHighlighter());
+                    highlighter->setLanguageFeatures(document->languageFeatures());
+
+                    // Forward signal
+                    emit cppDocumentUpdated(document);
+
+        });
         connect(m_processor.data(), &CppTools::BaseEditorDocumentProcessor::semanticInfoUpdated,
                 this, &CppEditorDocument::semanticInfoUpdated);
     }

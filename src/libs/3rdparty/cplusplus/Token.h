@@ -407,6 +407,16 @@ struct LanguageFeatures
         return features;
     }
 
+    bool operator==(const LanguageFeatures &other) const
+    {
+        return flags == other.flags;
+    }
+
+    bool operator!=(const LanguageFeatures &other) const
+    {
+        return flags != other.flags;
+    }
+
     union {
         unsigned int flags;
         struct {
