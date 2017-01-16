@@ -6,6 +6,8 @@ QTCREATOR_COMPAT_VERSION = 4.2.82
 VERSION = $$QTCREATOR_VERSION
 BINARY_ARTIFACTS_BRANCH = master
 
+CONFIG += c++14
+
 defineReplace(qtLibraryTargetName) {
    unset(LIBRARY_NAME)
    LIBRARY_NAME = $$1
