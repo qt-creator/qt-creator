@@ -29,13 +29,13 @@
  -->
 
 <language name="Doxygen"
-          version="2"
+          version="3"
           kateversion="5.0"
           section="Markup"
           extensions="*.dox;*.doxygen"
           mimetype="text/x-doxygen"
           author="Dominik Haumann (dhdev@gmx.de)"
-          license="LGPL"
+          license="LGPLv2+"
           priority="9">
   <highlighting>
     <!-- NOTE: all tags may begin with a \ or @ char

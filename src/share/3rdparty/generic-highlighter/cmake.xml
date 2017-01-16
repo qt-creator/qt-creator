@@ -28,14 +28,14 @@
 <!-- generated for "cmake version 2.8.12.1, 3.0.2, 3.1.2 and 3.3.0" -->
 <language
     name="CMake"
-    version="2"
+    version="3"
     kateversion="5.0"
     section="Other"
     extensions="CMakeLists.txt;*.cmake;*.cmake.in"
     style="CMake"
     mimetype="text/x-cmake"
     author="Alexander Neundorf (neundorf@kde.org)"
-    license="LGPL"
+    license="LGPLv2+"
   >
   <highlighting>
 
