@@ -82,7 +82,7 @@ private:
     void slotProcessFinished(int, QProcess::ExitStatus);
     void checkForCancel();
 
-    void cleanUp();
+    void cleanUp(QProcess *process);
 
     void taskAdded(const Task &task, int linkedOutputLines = 0, int skipLines = 0);
 

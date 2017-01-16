@@ -212,11 +212,12 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
     m_timer.start();
 }
 
-void AbstractProcessStep::cleanUp()
+void AbstractProcessStep::cleanUp(QProcess *process)
 {
     // The process has finished, leftover data is read in processFinished
-    processFinished(m_process->exitCode(), m_process->exitStatus());
-    const bool returnValue = processSucceeded(m_process->exitCode(), m_process->exitStatus()) || m_ignoreReturnValue;
+    bool returnValue = false;
+    processFinished(process->exitCode(), process->exitStatus());
+    returnValue = processSucceeded(process->exitCode(), process->exitStatus()) || m_ignoreReturnValue;
 
     m_outputParserChain.reset();
     m_process.reset();
@@ -293,6 +294,8 @@ bool AbstractProcessStep::processSucceeded(int exitCode, QProcess::ExitStatus st
 
 void AbstractProcessStep::processReadyReadStdOutput()
 {
+    if (!m_process)
+        return;
     m_process->setReadChannel(QProcess::StandardOutput);
     while (m_process->canReadLine()) {
         QString line = QString::fromLocal8Bit(m_process->readLine());
@@ -315,6 +318,8 @@ void AbstractProcessStep::stdOutput(const QString &line)
 
 void AbstractProcessStep::processReadyReadStdError()
 {
+    if (!m_process)
+        return;
     m_process->setReadChannel(QProcess::StandardError);
     while (m_process->canReadLine()) {
         QString line = QString::fromLocal8Bit(m_process->readLine());
@@ -344,6 +349,7 @@ void AbstractProcessStep::checkForCancel()
 {
     if (m_futureInterface->isCanceled() && m_timer.isActive()) {
         m_timer.stop();
+
         Core::Reaper::reap(m_process.release());
     }
 }
@@ -412,13 +418,17 @@ void AbstractProcessStep::slotProcessFinished(int, QProcess::ExitStatus)
 {
     m_timer.stop();
 
-    const QString stdErrLine = QString::fromLocal8Bit(m_process->readAllStandardError());
-    if (!stdErrLine.isEmpty())
-        stdError(stdErrLine);
+    QProcess *process = m_process.get();
+    if (!process) // Happens when the process was canceled and handed over to the Reaper.
+        process = qobject_cast<QProcess *>(sender()); // The process was canceled!
 
-    const QString stdoutLine = QString::fromLocal8Bit(m_process->readAllStandardOutput());
-    if (!stdoutLine.isEmpty())
-        stdOutput(stdoutLine);
+    const QString stdErrLine = process ? QString::fromLocal8Bit(process->readAllStandardError()) : QString();
+    for (const QString &l : stdErrLine.split('\n'))
+        stdError(l);
 
-    cleanUp();
+    const QString stdOutLine = process ? QString::fromLocal8Bit(process->readAllStandardOutput()) : QString();
+    for (const QString &l : stdOutLine.split('\n'))
+        stdError(l);
+
+    cleanUp(process);
 }
