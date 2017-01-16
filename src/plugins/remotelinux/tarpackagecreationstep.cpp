@@ -430,6 +430,7 @@ bool TarPackageCreationStep::fromMap(const QVariantMap &map)
     if (!AbstractPackagingStep::fromMap(map))
         return false;
     setIgnoreMissingFiles(map.value(QLatin1String(IgnoreMissingFilesKey), false).toBool());
+    setIncrementalDeployment(map.value(QLatin1String(IncrementalDeploymentKey), false).toBool());
     m_deployTimes.importDeployTimes(map);
     return true;
 }
@@ -438,6 +439,7 @@ QVariantMap TarPackageCreationStep::toMap() const
 {
     QVariantMap map = AbstractPackagingStep::toMap();
     map.insert(QLatin1String(IgnoreMissingFilesKey), ignoreMissingFiles());
+    map.insert(QLatin1String(IncrementalDeploymentKey), m_incrementalDeployment);
     map.unite(m_deployTimes.exportDeployTimes());
     return map;
 }
