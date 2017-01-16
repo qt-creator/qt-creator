@@ -282,7 +282,11 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     initializeVcs(new GitVersionControl(m_gitClient), context);
 
     // Create the settings Page
-    addAutoReleasedObject(new SettingsPage(versionControl()));
+    auto settingsPage = new SettingsPage(versionControl());
+    addAutoReleasedObject(settingsPage);
+    connect(settingsPage, &SettingsPage::settingsChanged,
+            this, &GitPlugin::updateRepositoryBrowserAction);
+
     addAutoReleasedObject(new GitGrep);
 
     const auto describeFunc = [this](const QString &source, const QString &id) {
