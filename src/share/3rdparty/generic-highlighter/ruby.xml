@@ -31,7 +31,7 @@
 
 <!-- Hold the "language" opening tag on a single line, as mentioned in "language.dtd". -->
 <language name="Ruby" section="Scripts"
-	  version="3" kateversion="3.3"
+	  version="4" kateversion="3.3"
 	  extensions="*.rb;*.rjs;*.rxml;*.xml.erb;*.js.erb;*.rake;Rakefile;Gemfile;*.gemspec;Vagrantfile"
 	  mimetype="application/x-ruby"
 	  style="ruby" indenter="ruby"
@@ -40,74 +40,74 @@
 	<highlighting>
 
 		<list name="keywords">
-			<item> BEGIN </item>
-			<item> END </item>
-			<item> and </item>
-			<item> begin </item>
-			<item> break </item>
-			<item> case </item>
-			<item> defined? </item>
-			<item> do </item>
-			<item> else </item>
-			<item> elsif </item>
-			<item> end </item>
-			<item> ensure </item>
-			<item> for </item>
-			<item> if </item>
-			<item> in </item>
-			<item> next </item>
-			<item> not </item>
-			<item> or </item>
-			<item> redo </item>
-			<item> rescue </item>
-			<item> retry </item>
-			<item> return </item>
-			<item> then </item>
-			<item> unless </item>
-			<item> until </item>
-			<item> when </item>
-			<item> yield </item>
+			<item>BEGIN</item>
+			<item>END</item>
+			<item>and</item>
+			<item>begin</item>
+			<item>break</item>
+			<item>case</item>
+			<item>defined?</item>
+			<item>do</item>
+			<item>else</item>
+			<item>elsif</item>
+			<item>end</item>
+			<item>ensure</item>
+			<item>for</item>
+			<item>if</item>
+			<item>in</item>
+			<item>next</item>
+			<item>not</item>
+			<item>or</item>
+			<item>redo</item>
+			<item>rescue</item>
+			<item>retry</item>
+			<item>return</item>
+			<item>then</item>
+			<item>unless</item>
+			<item>until</item>
+			<item>when</item>
+			<item>yield</item>
 		</list>
 
 		<list name="access-control">
-			<item> private_class_method </item>
-			<item> private </item>
-			<item> protected </item>
-			<item> public_class_method </item>
-			<item> public </item>
+			<item>private_class_method</item>
+			<item>private</item>
+			<item>protected</item>
+			<item>public_class_method</item>
+			<item>public</item>
 		</list>
 
 		<list name="attribute-definitions">
-			<item> attr_reader </item>
-			<item> attr_writer </item>
-			<item> attr_accessor </item>
+			<item>attr_reader</item>
+			<item>attr_writer</item>
+			<item>attr_accessor</item>
 		</list>
 
 		<list name="definitions">
-			<item> alias </item>
-			<item> module </item>
-			<item> class </item>
-			<item> def </item>
-			<item> undef </item>
+			<item>alias</item>
+			<item>module</item>
+			<item>class</item>
+			<item>def</item>
+			<item>undef</item>
 		</list>
 
 		<list name="pseudo-variables">
-			<item> self </item>
-			<item> super </item>
-			<item> nil </item>
-			<item> false </item>
-			<item> true </item>
-			<item> caller </item>
-			<item> __FILE__ </item>
-			<item> __LINE__ </item>
+			<item>self</item>
+			<item>super</item>
+			<item>nil</item>
+			<item>false</item>
+			<item>true</item>
+			<item>caller</item>
+			<item>__FILE__</item>
+			<item>__LINE__</item>
 		</list>
 
 		<list name="default-globals">
-			<item> $stdout </item>
-			<item> $defout </item>
-			<item> $stderr </item>
-			<item> $deferr </item>
-			<item> $stdin </item>
+			<item>$stdout</item>
+			<item>$defout</item>
+			<item>$stderr</item>
+			<item>$deferr</item>
+			<item>$stdin</item>
 		</list>
 
 		<!-- Kernel module methods.
@@ -116,67 +116,67 @@
 		-->
 		<list name="kernel-methods">
 			<!-- backquote ` -->
-			<item> abort </item>
-			<item> at_exit </item>
-			<item> autoload </item>
-			<item> autoload? </item>
-			<item> binding </item>
-			<item> block_given? </item>
-			<item> callcc </item>
-			<item> caller </item>
-			<item> catch </item>
-			<item> chomp </item>
-			<item> chomp! </item>
-			<item> chop </item>
-			<item> chop! </item>
-			<item> eval </item>
-			<item> exec </item>
-			<item> exit </item>
-			<item> exit! </item>
-			<item> fail </item>
-			<item> fork </item>
-			<item> format </item>
-			<item> getc </item>
-			<item> gets </item>
-			<item> global_variables </item>
-			<item> gsub </item>
-			<item> gsub! </item>
-			<item> iterator? </item>
-			<item> lambda </item>
-			<item> load </item>
-			<item> local_variables </item>
-			<item> loop </item>
-			<item> method_missing </item>
-			<item> open </item>
-			<item> p </item>
-			<item> print </item>
-			<item> printf </item>
-			<item> proc </item>
-			<item> putc </item>
-			<item> puts </item>
-			<item> raise </item>
-			<item> rand </item>
-			<item> readline </item>
-			<item> readlines </item>
-			<item> require </item>
-			<item> require_relative </item>
-			<item> scan </item>
-			<item> select </item>
-			<item> set_trace_func </item>
-			<item> sleep </item>
-			<item> split </item>
-			<item> sprintf </item>
-			<item> srand </item>
-			<item> sub </item>
-			<item> sub! </item>
-			<item> syscall </item>
-			<item> system </item>
-			<item> test </item>
-			<item> throw </item>
-			<item> trace_var </item>
-			<item> trap </item>
-			<item> untrace_var </item>
-			<item> warn </item>
+			<item>abort</item>
+			<item>at_exit</item>
+			<item>autoload</item>
+			<item>autoload?</item>
+			<item>binding</item>
+			<item>block_given?</item>
+			<item>callcc</item>
+			<item>caller</item>
+			<item>catch</item>
+			<item>chomp</item>
+			<item>chomp!</item>
+			<item>chop</item>
+			<item>chop!</item>
+			<item>eval</item>
+			<item>exec</item>
+			<item>exit</item>
+			<item>exit!</item>
+			<item>fail</item>
+			<item>fork</item>
+			<item>format</item>
+			<item>getc</item>
+			<item>gets</item>
+			<item>global_variables</item>
+			<item>gsub</item>
+			<item>gsub!</item>
+			<item>iterator?</item>
+			<item>lambda</item>
+			<item>load</item>
+			<item>local_variables</item>
+			<item>loop</item>
+			<item>method_missing</item>
+			<item>open</item>
+			<item>p</item>
+			<item>print</item>
+			<item>printf</item>
+			<item>proc</item>
+			<item>putc</item>
+			<item>puts</item>
+			<item>raise</item>
+			<item>rand</item>
+			<item>readline</item>
+			<item>readlines</item>
+			<item>require</item>
+			<item>require_relative</item>
+			<item>scan</item>
+			<item>select</item>
+			<item>set_trace_func</item>
+			<item>sleep</item>
+			<item>split</item>
+			<item>sprintf</item>
+			<item>srand</item>
+			<item>sub</item>
+			<item>sub!</item>
+			<item>syscall</item>
+			<item>system</item>
+			<item>test</item>
+			<item>throw</item>
+			<item>trace_var</item>
+			<item>trap</item>
+			<item>untrace_var</item>
+			<item>warn</item>
 		</list>
 
                 <list name="mixin-methods">
@@ -204,14 +204,14 @@
 				<RegExpr attribute="Keyword" String="\;\s*(while|until)\b(?!.*\bdo\b)" context="#stay" beginRegion="def block"/>
 				<RegExpr attribute="Keyword" String="(if|unless)\b" context="#stay" beginRegion="def block" firstNonSpace="true"/>
 				<RegExpr attribute="Keyword" String="\;\s*(if|unless)\b" context="#stay" beginRegion="def block"/>
-				<RegExpr attribute="Keyword" String="\bclass\b" context="#stay" beginRegion="def block"/>
-				<RegExpr attribute="Keyword" String="\bmodule\b" context="#stay" beginRegion="def block"/>
-				<RegExpr attribute="Keyword" String="\bbegin\b" context="#stay" beginRegion="def block"/>
+				<WordDetect attribute="Keyword" String="class" context="#stay" beginRegion="def block"/>
+				<WordDetect attribute="Keyword" String="module" context="#stay" beginRegion="def block"/>
+				<WordDetect attribute="Keyword" String="begin" context="#stay" beginRegion="def block"/>
 				<RegExpr attribute="Keyword" String="\bfor\b(?!.*\bdo\b)" context="#stay" beginRegion="def block"/>
-				<RegExpr attribute="Keyword" String="\bcase\b" context="#stay" beginRegion="def block"/>
-				<RegExpr attribute="Keyword" String="\bdo\b" context="#stay" beginRegion="def block"/>
-				<RegExpr attribute="Keyword" String="\bdef\b" context="#stay" beginRegion="def block"/>
-				<RegExpr attribute="Keyword" String="\bend\b" context="#stay" endRegion="def block"/>
+				<WordDetect attribute="Keyword" String="case" context="#stay" beginRegion="def block"/>
+				<WordDetect attribute="Keyword" String="do" context="#stay" beginRegion="def block"/>
+				<WordDetect attribute="Keyword" String="def" context="#stay" beginRegion="def block"/>
+				<WordDetect attribute="Keyword" String="end" context="#stay" endRegion="def block"/>
 				<!-- elsif/else close the current block and start a new one -->
 				<RegExpr attribute="Keyword" String="\b(else|elsif|rescue|ensure)\b" context="#stay" endRegion="def block" beginRegion="def block"/>
 

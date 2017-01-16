@@ -8,7 +8,7 @@
         <!ENTITY noword   "(?![\w$+-])">                <!-- no word, $, + or - following -->
         <!ENTITY pathpart "([\w_@.&#37;*?+-]|\\ )">     <!-- valid character in a file name -->
 ]>
-<language name="Bash" version="3" kateversion="5.0" section="Scripts" extensions="*.sh;*.bash;*.ebuild;*.eclass;*.nix;.bashrc;.bash_profile;.bash_login;.profile" mimetype="application/x-shellscript" casesensitive="1" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL">
+<language name="Bash" version="4" kateversion="5.0" section="Scripts" extensions="*.sh;*.bash;*.ebuild;*.eclass;*.nix;.bashrc;.bash_profile;.bash_login;.profile" mimetype="application/x-shellscript" casesensitive="1" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL">
 
 <!-- (c) 2004 by Wilbert Berendsen (wilbert@kde.nl)
     Changes by Matthew Woehlke (mw_triad@users.sourceforge.net)
@@ -18,440 +18,440 @@
 
   <highlighting>
     <list name="keywords">
-      <item> else </item>
-      <item> for </item>
-      <item> function </item>
-      <item> in </item>
-      <item> select </item>
-      <item> until </item>
-      <item> while </item>
-      <item> elif </item>
-      <item> then </item>
-      <item> set </item>
+      <item>else</item>
+      <item>for</item>
+      <item>function</item>
+      <item>in</item>
+      <item>select</item>
+      <item>until</item>
+      <item>while</item>
+      <item>elif</item>
+      <item>then</item>
+      <item>set</item>
     </list>
 
     <list name="builtins">
-      <item> : </item>
-      <item> source </item>
-      <item> alias </item>
-      <item> bg </item>
-      <item> bind </item>
-      <item> break </item>
-      <item> builtin </item>
-      <item> cd </item>
-      <item> caller </item>
-      <item> command </item>
-      <item> compgen </item>
-      <item> complete </item>
-      <item> continue </item>
-      <item> dirs </item>
-      <item> disown </item>
-      <item> echo </item>
-      <item> enable </item>
-      <item> eval </item>
-      <item> exec </item>
-      <item> exit </item>
-      <item> fc </item>
-      <item> fg </item>
-      <item> getopts </item>
-      <item> hash </item>
-      <item> help </item>
-      <item> history </item>
-      <item> jobs </item>
-      <item> kill </item>
-      <item> let </item>
-      <item> logout </item>
-      <item> popd </item>
-      <item> printf </item>
-      <item> pushd </item>
-      <item> pwd </item>
-      <item> return </item>
-      <item> set </item>
-      <item> shift </item>
-      <item> shopt </item>
-      <item> suspend </item>
-      <item> test </item>
-      <item> time </item>
-      <item> times </item>
-      <item> trap </item>
-      <item> type </item>
-      <item> ulimit </item>
-      <item> umask </item>
-      <item> unalias </item>
-      <item> wait </item>
+      <item>:</item>
+      <item>source</item>
+      <item>alias</item>
+      <item>bg</item>
+      <item>bind</item>
+      <item>break</item>
+      <item>builtin</item>
+      <item>cd</item>
+      <item>caller</item>
+      <item>command</item>
+      <item>compgen</item>
+      <item>complete</item>
+      <item>continue</item>
+      <item>dirs</item>
+      <item>disown</item>
+      <item>echo</item>
+      <item>enable</item>
+      <item>eval</item>
+      <item>exec</item>
+      <item>exit</item>
+      <item>fc</item>
+      <item>fg</item>
+      <item>getopts</item>
+      <item>hash</item>
+      <item>help</item>
+      <item>history</item>
+      <item>jobs</item>
+      <item>kill</item>
+      <item>let</item>
+      <item>logout</item>
+      <item>popd</item>
+      <item>printf</item>
+      <item>pushd</item>
+      <item>pwd</item>
+      <item>return</item>
+      <item>set</item>
+      <item>shift</item>
+      <item>shopt</item>
+      <item>suspend</item>
+      <item>test</item>
+      <item>time</item>
+      <item>times</item>
+      <item>trap</item>
+      <item>type</item>
+      <item>ulimit</item>
+      <item>umask</item>
+      <item>unalias</item>
+      <item>wait</item>
     </list>
 
     <list name="builtins_var">
-      <item> export </item>
-      <item> unset </item>
-      <item> declare </item>
-      <item> typeset </item>
-      <item> local </item>
-      <item> read </item>
-      <item> readonly </item>
+      <item>export</item>
+      <item>unset</item>
+      <item>declare</item>
+      <item>typeset</item>
+      <item>local</item>
+      <item>read</item>
+      <item>readonly</item>
     </list>
 
     <list name="unixcommands">
       <!-- /bin -->
-      <item> arch </item>
-      <item> awk </item>
-      <item> bash </item>
-      <item> bunzip2 </item>
-      <item> bzcat </item>
-      <item> bzcmp </item>
-      <item> bzdiff </item>
-      <item> bzegrep </item>
-      <item> bzfgrep </item>
-      <item> bzgrep </item>
-      <item> bzip2 </item>
-      <item> bzip2recover </item>
-      <item> bzless </item>
-      <item> bzmore </item>
-      <item> cat </item>
-      <item> chattr </item>
-      <item> chgrp </item>
-      <item> chmod </item>
-      <item> chown </item>
-      <item> chvt </item>
-      <item> cp </item>
-      <item> date </item>
-      <item> dd </item>
-      <item> deallocvt </item>
-      <item> df </item>
-      <item> dir </item>
-      <item> dircolors </item>
-      <item> dmesg </item>
-      <item> dnsdomainname </item>
-      <item> domainname </item>
-      <item> du </item>
-      <item> dumpkeys </item>
-      <item> echo </item>
-      <item> ed </item>
-      <item> egrep </item>
-      <item> false </item>
-      <item> fgconsole </item>
-      <item> fgrep </item>
-      <item> fuser </item>
-      <item> gawk </item>
-      <item> getkeycodes </item>
-      <item> gocr </item>
-      <item> grep </item>
-      <item> groff </item>
-      <item> groups </item>
-      <item> gunzip </item>
-      <item> gzexe </item>
-      <item> gzip </item>
-      <item> hostname </item>
-      <item> igawk </item>
-      <item> install </item>
-      <item> kbd_mode </item>
-      <item> kbdrate </item>
-      <item> killall </item>
-      <item> last </item>
-      <item> lastb </item>
-      <item> link </item>
-      <item> ln </item>
-      <item> loadkeys </item>
-      <item> loadunimap </item>
-      <item> login </item>
-      <item> ls </item>
-      <item> lsattr </item>
-      <item> lsmod </item>
-      <item> lsmod.old </item>
-      <item> lzcat </item>
-      <item> lzcmp </item>
-      <item> lzdiff </item>
-      <item> lzegrep </item>
-      <item> lzfgrep </item>
-      <item> lzgrep </item>
-      <item> lzless </item>
-      <item> lzcat </item>
-      <item> lzma </item>
-      <item> lzmainfo </item>
-      <item> lzmore </item>
-      <item> mapscrn </item>
-      <item> mesg </item>
-      <item> mkdir </item>
-      <item> mkfifo </item>
-      <item> mknod </item>
-      <item> mktemp </item>
-      <item> more </item>
-      <item> mount </item>
-      <item> mv </item>
-      <item> nano </item>
-      <item> netstat </item>
-      <item> nisdomainname </item>
-      <item> nroff </item>
-      <item> openvt </item>
-      <item> pgawk </item>
-      <item> pidof </item>
-      <item> ping </item>
-      <item> ps </item>
-      <item> pstree </item>
-      <item> pwd </item>
-      <item> rbash </item>
-      <item> readlink </item>
-      <item> red </item>
-      <item> resizecons </item>
-      <item> rm </item>
-      <item> rmdir </item>
-      <item> run-parts </item>
-      <item> sash </item>
-      <item> sed </item>
-      <item> setfont </item>
-      <item> setkeycodes </item>
-      <item> setleds </item>
-      <item> setmetamode </item>
-      <item> setserial </item>
-      <item> sh </item>
-      <item> showkey </item>
-      <item> shred </item>
-      <item> sleep </item>
-      <item> ssed </item>
-      <item> stat </item>
-      <item> stty </item>
-      <item> su </item>
-      <item> sync </item>
-      <item> tar </item>
-      <item> tempfile </item>
-      <item> touch </item>
-      <item> troff </item>
-      <item> true </item>
-      <item> umount </item>
-      <item> uname </item>
-      <item> unicode_start </item>
-      <item> unicode_stop </item>
-      <item> unlink </item>
-      <item> unlzma </item>
-      <item> unxz </item>
-      <item> utmpdump </item>
-      <item> uuidgen </item>
-      <item> vdir </item>
-      <item> wall </item>
-      <item> wc </item>
-      <item> xz </item>
-      <item> xzcat </item>
-      <item> ypdomainname </item>
-      <item> zcat </item>
-      <item> zcmp </item>
-      <item> zdiff </item>
-      <item> zegrep </item>
-      <item> zfgrep </item>
-      <item> zforce </item>
-      <item> zgrep </item>
-      <item> zless </item>
-      <item> zmore </item>
-      <item> znew </item>
-      <item> zsh </item>
+      <item>arch</item>
+      <item>awk</item>
+      <item>bash</item>
+      <item>bunzip2</item>
+      <item>bzcat</item>
+      <item>bzcmp</item>
+      <item>bzdiff</item>
+      <item>bzegrep</item>
+      <item>bzfgrep</item>
+      <item>bzgrep</item>
+      <item>bzip2</item>
+      <item>bzip2recover</item>
+      <item>bzless</item>
+      <item>bzmore</item>
+      <item>cat</item>
+      <item>chattr</item>
+      <item>chgrp</item>
+      <item>chmod</item>
+      <item>chown</item>
+      <item>chvt</item>
+      <item>cp</item>
+      <item>date</item>
+      <item>dd</item>
+      <item>deallocvt</item>
+      <item>df</item>
+      <item>dir</item>
+      <item>dircolors</item>
+      <item>dmesg</item>
+      <item>dnsdomainname</item>
+      <item>domainname</item>
+      <item>du</item>
+      <item>dumpkeys</item>
+      <item>echo</item>
+      <item>ed</item>
+      <item>egrep</item>
+      <item>false</item>
+      <item>fgconsole</item>
+      <item>fgrep</item>
+      <item>fuser</item>
+      <item>gawk</item>
+      <item>getkeycodes</item>
+      <item>gocr</item>
+      <item>grep</item>
+      <item>groff</item>
+      <item>groups</item>
+      <item>gunzip</item>
+      <item>gzexe</item>
+      <item>gzip</item>
+      <item>hostname</item>
+      <item>igawk</item>
+      <item>install</item>
+      <item>kbd_mode</item>
+      <item>kbdrate</item>
+      <item>killall</item>
+      <item>last</item>
+      <item>lastb</item>
+      <item>link</item>
+      <item>ln</item>
+      <item>loadkeys</item>
+      <item>loadunimap</item>
+      <item>login</item>
+      <item>ls</item>
+      <item>lsattr</item>
+      <item>lsmod</item>
+      <item>lsmod.old</item>
+      <item>lzcat</item>
+      <item>lzcmp</item>
+      <item>lzdiff</item>
+      <item>lzegrep</item>
+      <item>lzfgrep</item>
+      <item>lzgrep</item>
+      <item>lzless</item>
+      <item>lzcat</item>
+      <item>lzma</item>
+      <item>lzmainfo</item>
+      <item>lzmore</item>
+      <item>mapscrn</item>
+      <item>mesg</item>
+      <item>mkdir</item>
+      <item>mkfifo</item>
+      <item>mknod</item>
+      <item>mktemp</item>
+      <item>more</item>
+      <item>mount</item>
+      <item>mv</item>
+      <item>nano</item>
+      <item>netstat</item>
+      <item>nisdomainname</item>
+      <item>nroff</item>
+      <item>openvt</item>
+      <item>pgawk</item>
+      <item>pidof</item>
+      <item>ping</item>
+      <item>ps</item>
+      <item>pstree</item>
+      <item>pwd</item>
+      <item>rbash</item>
+      <item>readlink</item>
+      <item>red</item>
+      <item>resizecons</item>
+      <item>rm</item>
+      <item>rmdir</item>
+      <item>run-parts</item>
+      <item>sash</item>
+      <item>sed</item>
+      <item>setfont</item>
+      <item>setkeycodes</item>
+      <item>setleds</item>
+      <item>setmetamode</item>
+      <item>setserial</item>
+      <item>sh</item>
+      <item>showkey</item>
+      <item>shred</item>
+      <item>sleep</item>
+      <item>ssed</item>
+      <item>stat</item>
+      <item>stty</item>
+      <item>su</item>
+      <item>sync</item>
+      <item>tar</item>
+      <item>tempfile</item>
+      <item>touch</item>
+      <item>troff</item>
+      <item>true</item>
+      <item>umount</item>
+      <item>uname</item>
+      <item>unicode_start</item>
+      <item>unicode_stop</item>
+      <item>unlink</item>
+      <item>unlzma</item>
+      <item>unxz</item>
+      <item>utmpdump</item>
+      <item>uuidgen</item>
+      <item>vdir</item>
+      <item>wall</item>
+      <item>wc</item>
+      <item>xz</item>
+      <item>xzcat</item>
+      <item>ypdomainname</item>
+      <item>zcat</item>
+      <item>zcmp</item>
+      <item>zdiff</item>
+      <item>zegrep</item>
+      <item>zfgrep</item>
+      <item>zforce</item>
+      <item>zgrep</item>
+      <item>zless</item>
+      <item>zmore</item>
+      <item>znew</item>
+      <item>zsh</item>
 
       <!-- some from /usr/bin -->
-      <item> aclocal </item>
-      <item> aconnect </item>
-      <item> aplay </item>
-      <item> apm </item>
-      <item> apmsleep </item>
-      <item> apropos </item>
-      <item> ar </item>
-      <item> arecord </item>
-      <item> as </item>
-      <item> as86 </item>
-      <item> autoconf </item>
-      <item> autoheader </item>
-      <item> automake </item>
-      <item> awk </item>
-      <item> basename </item>
-      <item> bc </item>
-      <item> bison </item>
-      <item> c++ </item>
-      <item> cal </item>
-      <item> cat </item>
-      <item> cc </item>
-      <item> cdda2wav </item>
-      <item> cdparanoia </item>
-      <item> cdrdao </item>
-      <item> cd-read </item>
-      <item> cdrecord </item>
-      <item> chfn </item>
-      <item> chgrp </item>
-      <item> chmod </item>
-      <item> chown </item>
-      <item> chroot </item>
-      <item> chsh </item>
-      <item> clear </item>
-      <item> cmp </item>
-      <item> co </item>
-      <item> col </item>
-      <item> comm </item>
-      <item> cp </item>
-      <item> cpio </item>
-      <item> cpp </item>
-      <item> cut </item>
-      <item> dc </item>
-      <item> dd </item>
-      <item> df </item>
-      <item> diff </item>
-      <item> diff3 </item>
-      <item> dir </item>
-      <item> dircolors </item>
-      <item> directomatic </item>
-      <item> dirname </item>
-      <item> du </item>
-      <item> env </item>
-      <item> expr </item>
-      <item> fbset </item>
-      <item> file </item>
-      <item> find </item>
-      <item> flex </item>
-      <item> flex++ </item>
-      <item> fmt </item>
-      <item> free </item>
-      <item> ftp </item>
-      <item> funzip </item>
-      <item> fuser </item>
-      <item> g++ </item>
-      <item> gawk </item>
-      <item> gc </item>
-      <item> gcc </item>
-      <item> clang </item>
-      <item> valgrind </item>
-      <item> xdg-open </item>
-      <item> cmake </item>
-      <item> qmake </item>
-      <item> svn </item>
-      <item> git </item>
-      <item> rsync </item>
-      <item> gdb </item>
-      <item> getent </item>
-      <item> getopt </item>
-      <item> gettext </item>
-      <item> gettextize </item>
-      <item> gimp </item>
-      <item> gimp-remote </item>
-      <item> gimptool </item>
-      <item> gmake </item>
-      <item> gs </item>
-      <item> head </item>
-      <item> hexdump </item>
-      <item> id </item>
-      <item> install </item>
-      <item> join </item>
-      <item> kill </item>
-      <item> killall </item>
-      <item> ld </item>
-      <item> ld86 </item>
-      <item> ldd </item>
-      <item> less </item>
-      <item> lex </item>
-      <item> ln </item>
-      <item> locate </item>
-      <item> lockfile </item>
-      <item> logname </item>
-      <item> lp </item>
-      <item> lpr </item>
-      <item> ls </item>
-      <item> lynx </item>
-      <item> m4 </item>
-      <item> make </item>
-      <item> man </item>
-      <item> mkdir </item>
-      <item> mknod </item>
-      <item> msgfmt </item>
-      <item> mv </item>
-      <item> namei </item>
-      <item> nasm </item>
-      <item> nawk </item>
-      <item> nice </item>
-      <item> nl </item>
-      <item> nm </item>
-      <item> nm86 </item>
-      <item> nmap </item>
-      <item> nohup </item>
-      <item> nop </item>
-      <item> od </item>
-      <item> passwd </item>
-      <item> patch </item>
-      <item> pcregrep </item>
-      <item> pcretest </item>
-      <item> perl </item>
-      <item> perror </item>
-      <item> pidof </item>
-      <item> pr </item>
-      <item> printf </item>
-      <item> procmail </item>
-      <item> prune </item>
-      <item> ps2ascii </item>
-      <item> ps2epsi </item>
-      <item> ps2frag </item>
-      <item> ps2pdf </item>
-      <item> ps2ps </item>
-      <item> psbook </item>
-      <item> psmerge </item>
-      <item> psnup </item>
-      <item> psresize </item>
-      <item> psselect </item>
-      <item> pstops </item>
-      <item> rcs </item>
-      <item> rev </item>
-      <item> rm </item>
-      <item> scp </item>
-      <item> sed </item>
-      <item> seq </item>
-      <item> setterm </item>
-      <item> shred </item>
-      <item> size </item>
-      <item> size86 </item>
-      <item> skill </item>
-      <item> slogin </item>
-      <item> snice </item>
-      <item> sort </item>
-      <item> sox </item>
-      <item> split </item>
-      <item> ssh </item>
-      <item> ssh-add </item>
-      <item> ssh-agent </item>
-      <item> ssh-keygen </item>
-      <item> ssh-keyscan </item>
-      <item> stat </item>
-      <item> strings </item>
-      <item> strip </item>
-      <item> sudo </item>
-      <item> suidperl </item>
-      <item> sum </item>
-      <item> tac </item>
-      <item> tail </item>
-      <item> tee </item>
-      <item> test </item>
-      <item> tr </item>
-      <item> uniq </item>
-      <item> unlink </item>
-      <item> unzip </item>
-      <item> updatedb </item>
-      <item> updmap </item>
-      <item> uptime </item>
-      <item> users </item>
-      <item> vmstat </item>
-      <item> w </item>
-      <item> wc </item>
-      <item> wget </item>
-      <item> whatis </item>
-      <item> whereis </item>
-      <item> which </item>
-      <item> who </item>
-      <item> whoami </item>
-      <item> write </item>
-      <item> xargs </item>
-      <item> yacc </item>
-      <item> yes </item>
-      <item> zip </item>
-      <item> zsoelim </item>
+      <item>aclocal</item>
+      <item>aconnect</item>
+      <item>aplay</item>
+      <item>apm</item>
+      <item>apmsleep</item>
+      <item>apropos</item>
+      <item>ar</item>
+      <item>arecord</item>
+      <item>as</item>
+      <item>as86</item>
+      <item>autoconf</item>
+      <item>autoheader</item>
+      <item>automake</item>
+      <item>awk</item>
+      <item>basename</item>
+      <item>bc</item>
+      <item>bison</item>
+      <item>c++</item>
+      <item>cal</item>
+      <item>cat</item>
+      <item>cc</item>
+      <item>cdda2wav</item>
+      <item>cdparanoia</item>
+      <item>cdrdao</item>
+      <item>cd-read</item>
+      <item>cdrecord</item>
+      <item>chfn</item>
+      <item>chgrp</item>
+      <item>chmod</item>
+      <item>chown</item>
+      <item>chroot</item>
+      <item>chsh</item>
+      <item>clear</item>
+      <item>cmp</item>
+      <item>co</item>
+      <item>col</item>
+      <item>comm</item>
+      <item>cp</item>
+      <item>cpio</item>
+      <item>cpp</item>
+      <item>cut</item>
+      <item>dc</item>
+      <item>dd</item>
+      <item>df</item>
+      <item>diff</item>
+      <item>diff3</item>
+      <item>dir</item>
+      <item>dircolors</item>
+      <item>directomatic</item>
+      <item>dirname</item>
+      <item>du</item>
+      <item>env</item>
+      <item>expr</item>
+      <item>fbset</item>
+      <item>file</item>
+      <item>find</item>
+      <item>flex</item>
+      <item>flex++</item>
+      <item>fmt</item>
+      <item>free</item>
+      <item>ftp</item>
+      <item>funzip</item>
+      <item>fuser</item>
+      <item>g++</item>
+      <item>gawk</item>
+      <item>gc</item>
+      <item>gcc</item>
+      <item>clang</item>
+      <item>valgrind</item>
+      <item>xdg-open</item>
+      <item>cmake</item>
+      <item>qmake</item>
+      <item>svn</item>
+      <item>git</item>
+      <item>rsync</item>
+      <item>gdb</item>
+      <item>getent</item>
+      <item>getopt</item>
+      <item>gettext</item>
+      <item>gettextize</item>
+      <item>gimp</item>
+      <item>gimp-remote</item>
+      <item>gimptool</item>
+      <item>gmake</item>
+      <item>gs</item>
+      <item>head</item>
+      <item>hexdump</item>
+      <item>id</item>
+      <item>install</item>
+      <item>join</item>
+      <item>kill</item>
+      <item>killall</item>
+      <item>ld</item>
+      <item>ld86</item>
+      <item>ldd</item>
+      <item>less</item>
+      <item>lex</item>
+      <item>ln</item>
+      <item>locate</item>
+      <item>lockfile</item>
+      <item>logname</item>
+      <item>lp</item>
+      <item>lpr</item>
+      <item>ls</item>
+      <item>lynx</item>
+      <item>m4</item>
+      <item>make</item>
+      <item>man</item>
+      <item>mkdir</item>
+      <item>mknod</item>
+      <item>msgfmt</item>
+      <item>mv</item>
+      <item>namei</item>
+      <item>nasm</item>
+      <item>nawk</item>
+      <item>nice</item>
+      <item>nl</item>
+      <item>nm</item>
+      <item>nm86</item>
+      <item>nmap</item>
+      <item>nohup</item>
+      <item>nop</item>
+      <item>od</item>
+      <item>passwd</item>
+      <item>patch</item>
+      <item>pcregrep</item>
+      <item>pcretest</item>
+      <item>perl</item>
+      <item>perror</item>
+      <item>pidof</item>
+      <item>pr</item>
+      <item>printf</item>
+      <item>procmail</item>
+      <item>prune</item>
+      <item>ps2ascii</item>
+      <item>ps2epsi</item>
+      <item>ps2frag</item>
+      <item>ps2pdf</item>
+      <item>ps2ps</item>
+      <item>psbook</item>
+      <item>psmerge</item>
+      <item>psnup</item>
+      <item>psresize</item>
+      <item>psselect</item>
+      <item>pstops</item>
+      <item>rcs</item>
+      <item>rev</item>
+      <item>rm</item>
+      <item>scp</item>
+      <item>sed</item>
+      <item>seq</item>
+      <item>setterm</item>
+      <item>shred</item>
+      <item>size</item>
+      <item>size86</item>
+      <item>skill</item>
+      <item>slogin</item>
+      <item>snice</item>
+      <item>sort</item>
+      <item>sox</item>
+      <item>split</item>
+      <item>ssh</item>
+      <item>ssh-add</item>
+      <item>ssh-agent</item>
+      <item>ssh-keygen</item>
+      <item>ssh-keyscan</item>
+      <item>stat</item>
+      <item>strings</item>
+      <item>strip</item>
+      <item>sudo</item>
+      <item>suidperl</item>
+      <item>sum</item>
+      <item>tac</item>
+      <item>tail</item>
+      <item>tee</item>
+      <item>test</item>
+      <item>tr</item>
+      <item>uniq</item>
+      <item>unlink</item>
+      <item>unzip</item>
+      <item>updatedb</item>
+      <item>updmap</item>
+      <item>uptime</item>
+      <item>users</item>
+      <item>vmstat</item>
+      <item>w</item>
+      <item>wc</item>
+      <item>wget</item>
+      <item>whatis</item>
+      <item>whereis</item>
+      <item>which</item>
+      <item>who</item>
+      <item>whoami</item>
+      <item>write</item>
+      <item>xargs</item>
+      <item>yacc</item>
+      <item>yes</item>
+      <item>zip</item>
+      <item>zsoelim</item>
 
       <!-- others -->
-      <item> dcop </item>
-      <item> kdialog </item>
-      <item> kfile </item>
-      <item> xhost </item>
-      <item> xmodmap </item>
-      <item> xset </item>
+      <item>dcop</item>
+      <item>kdialog</item>
+      <item>kfile</item>
+      <item>xhost</item>
+      <item>xmodmap</item>
+      <item>xset</item>
     </list>
 
 
@@ -587,7 +587,8 @@
         <RegExpr attribute="Redirection" context="#stay" String="([0-9]*(&gt;{1,2}|&lt;)(&amp;[0-9]+-?)?|&amp;&gt;|&gt;&amp;|[0-9]*&lt;&gt;)" />
         <!-- handle &, &&, | and || -->
         <RegExpr attribute="Control" context="#pop" String="([|&amp;;])\1?" />
-        <RegExpr attribute="Option" context="#stay" String="-?-[a-z][A-Za-z0-9_-]*" />
+        <RegExpr attribute="Normal Text" context="#stay" String="[a-zA-Z_]+-[A-Za-z0-9_-]*" />
+        <RegExpr attribute="Option" context="#stay" String="-?-[a-zA-Z_][A-Za-z0-9_-]*" />
         <keyword attribute="Option" context="#stay" String="keywords" />
         <AnyChar String=")}" context="#pop" lookAhead="true"/>
       </context>

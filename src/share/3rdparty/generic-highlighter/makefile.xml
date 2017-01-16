@@ -16,10 +16,10 @@
           author="Per Wigren (wigren@home.se)" license="">
   <highlighting>
     <list name = "keywords" >
-      <item> include </item>
-      <item> -include </item>
-      <item> define </item>
-      <item> endef </item>
+      <item>include</item>
+      <item>-include</item>
+      <item>define</item>
+      <item>endef</item>
     </list>
     <!-- https://www.gnu.org/software/make/manual/html_node/Conditional-Syntax.html -->
     <list name="gmake_if_keywords">
@@ -33,19 +33,19 @@
     <list name="gmake_endif_keywords"><item>endif</item></list>
     <!-- bmake statements: https://www.freebsd.org/cgi/man.cgi?make(1)#INCLUDE_STATEMENTS,_CONDITIONALS_AND_FOR_LOOPS -->
     <list name="bmake_if_keywords">
-      <item> .if </item>
-      <item> .ifdef </item>
-      <item> .ifndef </item>
-      <item> .ifmake </item>
-      <item> .ifnmake </item>
+      <item>.if</item>
+      <item>.ifdef</item>
+      <item>.ifndef</item>
+      <item>.ifmake</item>
+      <item>.ifnmake</item>
     </list>
     <list name="bmake_else_keywords">
-      <item> .elif </item>
-      <item> .elifdef </item>
-      <item> .elifndef </item>
-      <item> .elifmake </item>
-      <item> .elifnmake </item>
-      <item> .else </item> <!-- TODO: anything following .else should be highlighted as an error -->
+      <item>.elif</item>
+      <item>.elifdef</item>
+      <item>.elifndef</item>
+      <item>.elifmake</item>
+      <item>.elifnmake</item>
+      <item>.else</item> <!-- TODO: anything following .else should be highlighted as an error -->
     </list>
     <list name="bmake_endif_keywords"><item>.endif</item></list>
 
@@ -64,9 +64,9 @@
       <!-- For compat bmake also handles include but this is already highlighted. <item>include</item> -->
     </list>
     <list name="bmake_message_stmt">
-      <item> .info </item>
-      <item> .warning </item>
-      <item> .error </item>
+      <item>.info</item>
+      <item>.warning</item>
+      <item>.error</item>
     </list>
     <!-- Use single element list here so that .for/.endfor also shows up in code completion -->
     <list name="bmake_for_stmt"><item>.for</item></list>
@@ -74,92 +74,92 @@
 
     <!-- https://www.freebsd.org/cgi/man.cgi?make(1)#SPECIAL_TARGETS -->
     <list name="bmake_special_targets">
-      <item> .BEGIN </item>
-      <item> .DEFAULT </item>
-      <item> .END </item>
-      <item> .ERROR </item>
-      <item> .IGNORE </item>
-      <item> .INTERRUPT </item>
-      <item> .MAIN </item>
-      <item> .MAKEFLAGS </item>
-      <item> .NOPATH </item>
-      <item> .NOTPARALLEL </item>
-      <item> .NO_PARALLEL </item>
-      <item> .OBJDIR </item>
-      <item> .ORDER </item>
-      <item> .PATH </item>
-      <item> .PHONY </item>
-      <item> .PRECIOUS </item>
-      <item> .SHELL </item>
-      <item> .SILENT </item>
-      <item> .STALE </item>
-      <item> .SUFFIXES </item>
+      <item>.BEGIN</item>
+      <item>.DEFAULT</item>
+      <item>.END</item>
+      <item>.ERROR</item>
+      <item>.IGNORE</item>
+      <item>.INTERRUPT</item>
+      <item>.MAIN</item>
+      <item>.MAKEFLAGS</item>
+      <item>.NOPATH</item>
+      <item>.NOTPARALLEL</item>
+      <item>.NO_PARALLEL</item>
+      <item>.OBJDIR</item>
+      <item>.ORDER</item>
+      <item>.PATH</item>
+      <item>.PHONY</item>
+      <item>.PRECIOUS</item>
+      <item>.SHELL</item>
+      <item>.SILENT</item>
+      <item>.STALE</item>
+      <item>.SUFFIXES</item>
     </list>
     <!-- https://www.freebsd.org/cgi/man.cgi?make(1)#SPECIAL_SOURCES_(ATTRIBUTES) -->
     <list name="bmake_special_sources">
-      <item> .EXEC </item>
-      <item> .IGNORE </item>
-      <item> .MADE </item>
-      <item> .MAKE </item>
-      <item> .META </item>
-      <item> .NOMETA </item>
-      <item> .NOMETA_CMP </item>
-      <item> .NOPATH </item>
-      <item> .NOTMAIN </item>
-      <item> .OPTIONAL </item>
-      <item> .PHONY </item>
-      <item> .PRECIOUS </item>
-      <item> .RECURSIVE </item>
-      <item> .SILENT </item>
-      <item> .USE </item>
-      <item> .USEBEFORE </item>
-      <item> .WAIT </item>
+      <item>.EXEC</item>
+      <item>.IGNORE</item>
+      <item>.MADE</item>
+      <item>.MAKE</item>
+      <item>.META</item>
+      <item>.NOMETA</item>
+      <item>.NOMETA_CMP</item>
+      <item>.NOPATH</item>
+      <item>.NOTMAIN</item>
+      <item>.OPTIONAL</item>
+      <item>.PHONY</item>
+      <item>.PRECIOUS</item>
+      <item>.RECURSIVE</item>
+      <item>.SILENT</item>
+      <item>.USE</item>
+      <item>.USEBEFORE</item>
+      <item>.WAIT</item>
     </list>
 
     <list name="bmake_other_stmts">
-      <item> .unexport-env </item>
-      <item> .unexport </item>
-      <item> .undef </item>
-      <item> .export-env </item>
-      <item> .export </item>
+      <item>.unexport-env</item>
+      <item>.unexport</item>
+      <item>.undef</item>
+      <item>.export-env</item>
+      <item>.export</item>
     </list>
 
     <list name = "functions">
-      <item> call </item>
-      <item> subst </item>
-      <item> patsubst </item>
-      <item> strip </item>
-      <item> findstring </item>
-      <item> filter </item>
-      <item> filter-out </item>
-      <item> sort </item>
-      <item> word </item>
-      <item> wordlist </item>
-      <item> words </item>
-      <item> firstword </item>
-      <item> lastword </item>
-      <item> dir </item>
-      <item> notdir </item>
-      <item> suffix </item>
-      <item> basename </item>
-      <item> addsuffix </item>
-      <item> addprefix </item>
-      <item> join </item>
-      <item> wildcard </item>
-      <item> realpath </item>
-      <item> abspath </item>
-      <item> if </item>
-      <item> or </item>
-      <item> and </item>
-      <item> foreach </item>
-      <item> value </item>
-      <item> eval </item>
-      <item> origin </item>
-      <item> flavor </item>
-      <item> shell </item>
-      <item> error </item>
-      <item> warning </item>
-      <item> info </item>
+      <item>call</item>
+      <item>subst</item>
+      <item>patsubst</item>
+      <item>strip</item>
+      <item>findstring</item>
+      <item>filter</item>
+      <item>filter-out</item>
+      <item>sort</item>
+      <item>word</item>
+      <item>wordlist</item>
+      <item>words</item>
+      <item>firstword</item>
+      <item>lastword</item>
+      <item>dir</item>
+      <item>notdir</item>
+      <item>suffix</item>
+      <item>basename</item>
+      <item>addsuffix</item>
+      <item>addprefix</item>
+      <item>join</item>
+      <item>wildcard</item>
+      <item>realpath</item>
+      <item>abspath</item>
+      <item>if</item>
+      <item>or</item>
+      <item>and</item>
+      <item>foreach</item>
+      <item>value</item>
+      <item>eval</item>
+      <item>origin</item>
+      <item>flavor</item>
+      <item>shell</item>
+      <item>error</item>
+      <item>warning</item>
+      <item>info</item>
     </list>
     <contexts>
       <context name="normal" attribute="Normal" lineEndContext="#stay">
