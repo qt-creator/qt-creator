@@ -278,7 +278,7 @@
         <DetectIdentifier />
         <StringDetect attribute="HTML Comment" context="SL_htmlcomment" String="&lt;!--" />
         <Detect2Chars attribute="Comment" context="#stay" char="&lt;" char1="&lt;" />
-        <RegExpr attribute="HTML Tag" context="SL_htmltag" String="&lt;\/?[\w0-9._:-@]+" />
+        <RegExpr attribute="HTML Tag" context="SL_htmltag" String="&lt;\/?[-\w0-9._:@]+" />
       </context>
       <context attribute="Comment" lineEndContext="#stay" name="BlockComment">
         <DetectSpaces />
@@ -297,7 +297,7 @@
         <DetectIdentifier />
         <RegExpr attribute="Tags" context="#stay" String="\\(&lt;|&gt;)" />
         <Detect2Chars attribute="Comment" context="#stay" char="&lt;" char1="&lt;" />
-        <RegExpr attribute="HTML Tag" context="ML_htmltag" String="&lt;\/?[\w0-9._:-@]+" />
+        <RegExpr attribute="HTML Tag" context="ML_htmltag" String="&lt;\/?[-\w0-9._:@]+" />
         <StringDetect attribute="HTML Comment" context="ML_htmlcomment" String="&lt;!--" />
       </context>
 
@@ -339,7 +339,7 @@
         <Detect2Chars attribute="Comment" context="#pop" char="*" char1="/" lookAhead="true" />
         <StringDetect attribute="HTML Comment" context="ML_htmlcomment" String="&lt;!--" />
         <Detect2Chars attribute="Comment" context="#stay" char="&lt;" char1="&lt;" />
-        <RegExpr attribute="HTML Tag" context="ML_htmltag" String="&lt;\/?[\w0-9._:-@]+" />
+        <RegExpr attribute="HTML Tag" context="ML_htmltag" String="&lt;\/?[-\w0-9._:@]+" />
         <RegExpr attribute="Description" context="#stay" String="." />
       </context>
       <context attribute="Comment" lineEndContext="#pop" name="ML_TagWordString">
@@ -405,7 +405,7 @@
         <DetectSpaces />
         <StringDetect attribute="HTML Comment" context="SL_htmlcomment" String="&lt;!--" />
         <Detect2Chars attribute="Comment" context="#stay" char="&lt;" char1="&lt;" />
-        <RegExpr attribute="HTML Tag" context="SL_htmltag" String="&lt;\/?[\w0-9._:-@]+" />
+        <RegExpr attribute="HTML Tag" context="SL_htmltag" String="&lt;\/?[-\w0-9._:@]+" />
         <RegExpr attribute="Description" context="#stay" String="." />
       </context>
       <context attribute="Comment" lineEndContext="#pop" name="SL_TagWordString">

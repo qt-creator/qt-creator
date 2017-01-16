@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE language SYSTEM "language.dtd"
 [
-	<!ENTITY name    "[A-Za-z_:][\w.:_-]*">
-	<!ENTITY entref  "&amp;(#[0-9]+|#[xX][0-9A-Fa-f]+|&name;);">
+	<!ENTITY name          "[A-Za-z_:][\w.:_-]*">
+	<!ENTITY attributeName "[A-Za-z_:*#\(\[][\)\]\w.:_-]*">
+	<!ENTITY entref        "&amp;(#[0-9]+|#[xX][0-9A-Fa-f]+|&name;);">
 ]>
-<language name="HTML" version="4" kateversion="3.4" section="Markup" extensions="*.htm;*.html;*.shtml;*.shtm" mimetype="text/html"  author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL" priority="10">
+<language name="HTML" version="5" kateversion="3.4" section="Markup" extensions="*.htm;*.html;*.shtml;*.shtm" mimetype="text/html"  author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL" priority="10">
 
 <highlighting>
 <contexts>
@@ -69,8 +70,8 @@
   </context>
 
   <context name="FindAttributes" attribute="Other Text" lineEndContext="#stay">
-    <RegExpr attribute="Attribute" context="#stay" String="&name;" column="0"/>
-    <RegExpr attribute="Attribute" context="#stay" String="\s+&name;" />
+    <RegExpr attribute="Attribute" context="#stay" String="&attributeName;" column="0"/>
+    <RegExpr attribute="Attribute" context="#stay" String="\s+&attributeName;" />
     <DetectChar attribute="Attribute" context="Value" char="=" />
   </context>
 

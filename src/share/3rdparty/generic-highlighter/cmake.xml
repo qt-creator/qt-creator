@@ -28,7 +28,7 @@
 <!-- generated for "cmake version 2.8.12.1, 3.0.2, 3.1.2 and 3.3.0" -->
 <language
     name="CMake"
-    version="3"
+    version="4"
     kateversion="5.0"
     section="Other"
     extensions="CMakeLists.txt;*.cmake;*.cmake.in"
@@ -1103,24 +1103,24 @@
         <DetectSpaces/>
 
         <!-- handle folding for if else elseif endif blocks -->
-        <WordDetect String="if" attribute="Commands" context="Command Args" beginRegion="ifthenelse" insensitive="true" />
-        <WordDetect String="else" attribute="Commands" context="Command Args" endRegion="ifthenelse" beginRegion="ifthenelse" insensitive="true" />
-        <WordDetect String="elseif" attribute="Commands" context="Command Args" endRegion="ifthenelse" beginRegion="ifthenelse" insensitive="true" />
-        <WordDetect String="endif" attribute="Commands" context="Command Args" endRegion="ifthenelse" insensitive="true" />
+        <WordDetect String="if" attribute="Commands" context="Command" beginRegion="ifthenelse" insensitive="true" />
+        <WordDetect String="else" attribute="Commands" context="Command" endRegion="ifthenelse" beginRegion="ifthenelse" insensitive="true" />
+        <WordDetect String="elseif" attribute="Commands" context="Command" endRegion="ifthenelse" beginRegion="ifthenelse" insensitive="true" />
+        <WordDetect String="endif" attribute="Commands" context="Command" endRegion="ifthenelse" insensitive="true" />
 
         <!-- handle folding for macro endmacro blocks -->
-        <WordDetect String="macro" attribute="Commands" context="Command Args" beginRegion="macro" insensitive="true" />
-        <WordDetect String="endmacro" attribute="Commands" context="Command Args" endRegion="macro" insensitive="true" />
+        <WordDetect String="macro" attribute="Commands" context="Command" beginRegion="macro" insensitive="true" />
+        <WordDetect String="endmacro" attribute="Commands" context="Command" endRegion="macro" insensitive="true" />
 
         <!-- handle folding for foreach endforeach blocks -->
-        <WordDetect String="foreach" attribute="Commands" context="Command Args" beginRegion="foreach" insensitive="true" />
-        <WordDetect String="endforeach" attribute="Commands" context="Command Args" endRegion="foreach" insensitive="true" />
+        <WordDetect String="foreach" attribute="Commands" context="Command" beginRegion="foreach" insensitive="true" />
+        <WordDetect String="endforeach" attribute="Commands" context="Command" endRegion="foreach" insensitive="true" />
 
         <!-- handle folding for while endwhile blocks -->
-        <WordDetect String="while" attribute="Commands" context="Command Args" beginRegion="while" insensitive="true" />
-        <WordDetect String="endwhile" attribute="Commands" context="Command Args" endRegion="while" insensitive="true" />
+        <WordDetect String="while" attribute="Commands" context="Command" beginRegion="while" insensitive="true" />
+        <WordDetect String="endwhile" attribute="Commands" context="Command" endRegion="while" insensitive="true" />
 
-        <keyword attribute="Commands" context="Command Args" String="commands" insensitive="true" />
+        <keyword attribute="Commands" context="Command" String="commands" insensitive="true" />
         <keyword attribute="Third-Party Commands" context="#stay" String="itkvtk_commands" insensitive="true" />
         <RegExpr attribute="Region Marker" context="#stay" String="#\s*BEGIN.*$" beginRegion="block" firstNonSpace="true" />
         <RegExpr attribute="Region Marker" context="#stay" String="#\s*END.*$" endRegion="block" firstNonSpace="true" />
@@ -1128,7 +1128,7 @@
         <RegExpr attribute="Comment" context="Bracketed Comment" String="^#\[(=*)\[" column="0" />
         <DetectChar attribute="Comment" context="Comment" char="#" />
         <IncludeRules context="Detect Variables" />
-        <RegExpr attribute="Macros" context="Macro Args" String="\w+\s*(?=\()" />
+        <RegExpr attribute="Macros" context="Macro" String="\w+" />
       </context>
       <!-- ATTENTION Do not change the context name! Or change a generation script accordingly -->
       <context attribute="Normal Text" lineEndContext="#stay" name="Detect More Builtin Variables">
@@ -1226,6 +1226,14 @@
       <context attribute="Normal Text" lineEndContext="#stay" name="Detect Generator Expressions">
         <Detect2Chars attribute="Generator Expression" context="Generator Expression" char="$" char1="&lt;" />
       </context>
+      <context attribute="Normal Text" lineEndContext="#stay" name="Command" fallthroughContext="#pop" fallthrough="true">
+        <DetectSpaces/>
+        <DetectChar attribute="Normal Text" context="Command Args" char="(" />
+      </context>
+      <context attribute="Normal Text" lineEndContext="#stay" name="Macro" fallthroughContext="#pop" fallthrough="true">
+        <DetectSpaces/>
+        <DetectChar attribute="Normal Text" context="Macro Args" char="(" />
+      </context>
       <context attribute="Normal Text" lineEndContext="#stay" name="Command Args">
         <keyword attribute="Special Args" context="#stay" String="special_args" />
         <keyword attribute="Special Args" context="#stay" String="extra_special_args" />
@@ -1233,10 +1241,13 @@
         <RegExpr attribute="Special Args" context="#stay" String="\bCMP[0-9]+\b" />
         <keyword attribute="Properties" context="#stay" String="properties" />
         <keyword attribute="Properties" context="#stay" String="extra_properties" />
+        <DetectChar attribute="Normal Text" context="Command Args" char="(" />
+        <DetectChar attribute="Normal Text" context="#pop" char=")" />
         <IncludeRules context="Detect Builtin Variables" />
         <IncludeRules context="Macro Args" />
       </context>
       <context attribute="Normal Text" lineEndContext="#stay" name="Macro Args">
+        <DetectChar attribute="Normal Text" context="Macro Args" char="(" />
         <DetectChar attribute="Normal Text" context="#pop" char=")" />
         <RegExpr attribute="Escapes" context="#stay" String="\\[&quot;$n\\]" />
         <DetectChar attribute="Strings" context="String" char="&quot;" />

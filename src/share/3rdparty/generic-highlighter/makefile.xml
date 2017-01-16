@@ -10,7 +10,7 @@
 <!-- v4 by Alex Richardson <arichardson.kde@gmail.com>
      added bmake support -->
 <language name="Makefile" section="Other"
-          version="4" kateversion="3.4"
+          version="5" kateversion="3.4"
           extensions="GNUmakefile;Makefile;makefile;GNUmakefile.*;Makefile.*;makefile.*;*.mk"
           mimetype="text/x-makefile" priority="11"
           author="Per Wigren (wigren@home.se)" license="">
