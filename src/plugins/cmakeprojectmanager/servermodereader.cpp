@@ -328,7 +328,13 @@ QSet<Core::Id> ServerModeReader::updateCodeModel(CppTools::ProjectPartBuilder &p
     foreach (const FileGroup *fg, m_fileGroups) {
         ++counter;
         const QString defineArg
-                = transform(fg->defines, [](const QString &s) -> QString { return QString::fromLatin1("#define ") + s; }).join('\n');
+                = transform(fg->defines, [](const QString &s) -> QString {
+                    QString result = QString::fromLatin1("#define ") + s;
+                    int assignIndex = result.indexOf('=');
+                    if (assignIndex != -1)
+                        result[assignIndex] = ' ';
+                    return result;
+                }).join('\n');
         const QStringList flags = QtcProcess::splitArgs(fg->compileFlags);
         const QStringList includes = transform(fg->includePaths, [](const IncludePath *ip)  { return ip->path.toString(); });
 
