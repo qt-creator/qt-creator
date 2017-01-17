@@ -99,7 +99,7 @@ public:
     IOptionsPage *m_optionsPage = 0;
 };
 
-DebuggerItemManagerPrivate *d;
+static DebuggerItemManagerPrivate *d = 0;
 
 // -----------------------------------------------------------------------
 // DebuggerItemConfigWidget
@@ -624,7 +624,7 @@ void DebuggerOptionsPage::finish()
 
 DebuggerItemManager::DebuggerItemManager()
 {
-    d = new DebuggerItemManagerPrivate;
+    new DebuggerItemManagerPrivate;
     connect(ICore::instance(), &ICore::saveSettingsRequested,
             this, [] { d->saveDebuggers(); });
 }
@@ -864,6 +864,7 @@ static FileName userSettingsFileName()
 DebuggerItemManagerPrivate::DebuggerItemManagerPrivate()
     : m_writer(userSettingsFileName(), "QtCreatorDebuggers")
 {
+    d = this;
     m_model = new DebuggerItemModel;
     m_optionsPage = new DebuggerOptionsPage;
     ExtensionSystem::PluginManager::addObject(m_optionsPage);
