@@ -71,6 +71,7 @@ public:
     void fromSettings(QSettings *);
     void toSettings(QSettings *) const;
     static QVariant getValue(const QByteArray &key);
+    static void setValue(const QByteArray &key, const QVariant &value);
 private:
     void restoreValue(QSettings *settings, const QByteArray &key,
         const QVariant &defaultValue = QVariant());

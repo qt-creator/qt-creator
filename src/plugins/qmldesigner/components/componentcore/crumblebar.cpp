@@ -149,9 +149,7 @@ void CrumbleBar::showSaveDialog()
                                                     tr("Always save when leaving subcomponent"),
                                                     &alwaysSave);
 
-        DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
-        settings.insert(DesignerSettingsKey::ALWAYS_SAFE_IN_CRUMBLEBAR, alwaysSave);
-        QmlDesignerPlugin::instance()->setSettings(settings);
+        DesignerSettings::setValue(DesignerSettingsKey::ALWAYS_SAFE_IN_CRUMBLEBAR, alwaysSave);
     }
 }
 

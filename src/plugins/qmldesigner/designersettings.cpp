@@ -104,4 +104,11 @@ QVariant DesignerSettings::getValue(const QByteArray &key)
     return settings.value(key);
 }
 
+void DesignerSettings::setValue(const QByteArray &key, const QVariant &value)
+{
+    DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
+    settings.insert(key, value);
+    QmlDesignerPlugin::instance()->setSettings(settings);
+}
+
 } // namespace QmlDesigner
