@@ -98,8 +98,8 @@ public:
     void doUpdate(bool cursorInside);
 
     WelcomePageButton *q;
-    QHBoxLayout *m_layout;
-    QLabel *m_label;
+    QHBoxLayout *m_layout = nullptr;
+    QLabel *m_label = nullptr;
     QLabel *m_icon = nullptr;
 
     std::function<void()> onClicked;
