@@ -105,6 +105,7 @@ public:
     QString toString(bool multiline = false, int indent = 0) const;
     qulonglong toAddress() const;
     int toInt() const { return m_data.toInt(); }
+    qint64 toLongLong() const { return m_data.toLongLong(); }
     void fromString(const QString &str);
     void fromStringMultiple(const QString &str);
 
