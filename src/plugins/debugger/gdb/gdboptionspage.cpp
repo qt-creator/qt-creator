@@ -27,6 +27,7 @@
 #include <debugger/debuggeractions.h>
 #include <debugger/debuggercore.h>
 #include <debugger/debuggerinternalconstants.h>
+#include <debugger/debuggerconstants.h>
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
@@ -46,6 +47,7 @@
 #include <QTextEdit>
 
 using namespace Core;
+using namespace Utils;
 
 namespace Debugger {
 namespace Internal {
@@ -56,26 +58,22 @@ namespace Internal {
 //
 /////////////////////////////////////////////////////////////////////////
 
-class GdbOptionsPageWidget : public QWidget
-{
-    Q_OBJECT
-public:
-    GdbOptionsPageWidget();
-    Utils::SavedActionSet group;
-};
-
 class GdbOptionsPage : public Core::IOptionsPage
 {
     Q_OBJECT
 public:
     GdbOptionsPage();
+};
 
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
+class GdbOptionsPageWidget : public IOptionsPageWidget
+{
+public:
+    GdbOptionsPageWidget();
 
-private:
-    QPointer<GdbOptionsPageWidget> m_widget;
+    void apply() final { group.apply(ICore::settings()); }
+    void finish() final { group.finish(); }
+
+    Utils::SavedActionSet group;
 };
 
 GdbOptionsPageWidget::GdbOptionsPageWidget()
@@ -269,27 +267,7 @@ GdbOptionsPage::GdbOptionsPage()
     setId("M.Gdb");
     setDisplayName(tr("GDB"));
     setCategory(Constants::DEBUGGER_SETTINGS_CATEGORY);
-}
-
-QWidget *GdbOptionsPage::widget()
-{
-    if (!m_widget)
-        m_widget = new GdbOptionsPageWidget;
-    return m_widget;
-}
-
-void GdbOptionsPage::apply()
-{
-    if (m_widget)
-        m_widget->group.apply(ICore::settings());
-}
-
-void GdbOptionsPage::finish()
-{
-    if (m_widget) {
-        m_widget->group.finish();
-        delete m_widget;
-    }
+    setWidgetCreator([] { return new GdbOptionsPageWidget; });
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -298,11 +276,14 @@ void GdbOptionsPage::finish()
 //
 /////////////////////////////////////////////////////////////////////////
 
-class GdbOptionsPageWidget2 : public QWidget
+class GdbOptionsPageWidget2 : public IOptionsPageWidget
 {
     Q_OBJECT
 public:
     GdbOptionsPageWidget2();
+
+    void apply() final { group.apply(ICore::settings()); }
+    void finish() final { group.finish(); }
 
     Utils::SavedActionSet group;
 };
@@ -389,45 +370,15 @@ GdbOptionsPageWidget2::GdbOptionsPageWidget2()
 // The "Dangerous" options.
 class GdbOptionsPage2 : public Core::IOptionsPage
 {
-    Q_OBJECT
 public:
-    GdbOptionsPage2();
-
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
-
-private:
-    QPointer<GdbOptionsPageWidget2> m_widget;
-};
-
-GdbOptionsPage2::GdbOptionsPage2()
-{
-    setId("M.Gdb2");
-    setDisplayName(tr("GDB Extended"));
-    setCategory(Constants::DEBUGGER_SETTINGS_CATEGORY);
-}
-
-QWidget *GdbOptionsPage2::widget()
-{
-    if (!m_widget)
-        m_widget = new GdbOptionsPageWidget2;
-    return m_widget;
-}
-
-void GdbOptionsPage2::apply()
-{
-    if (m_widget)
-        m_widget->group.apply(ICore::settings());
-}
-
-void GdbOptionsPage2::finish()
-{
-    if (m_widget) {
-        m_widget->group.finish();
-        delete m_widget;
+    GdbOptionsPage2()
+    {
+        setId("M.Gdb2");
+        setDisplayName(GdbOptionsPage::tr("GDB Extended"));
+        setCategory(Constants::DEBUGGER_SETTINGS_CATEGORY);
+        setWidgetCreator([] { return new GdbOptionsPageWidget2; });
     }
-}
+};
 
 // Registration
 

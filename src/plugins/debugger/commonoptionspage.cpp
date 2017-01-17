@@ -278,31 +278,14 @@ QString CommonOptionsPage::msgSetBreakpointAtFunctionToolTip(const char *functio
 //
 ///////////////////////////////////////////////////////////////////////
 
-LocalsAndExpressionsOptionsPage::LocalsAndExpressionsOptionsPage()
+class LocalsAndExpressionsOptionsPageWidget : public IOptionsPageWidget
 {
-    setId("Z.Debugger.LocalsAndExpressions");
-    //: '&&' will appear as one (one is marking keyboard shortcut)
-    setDisplayName(QCoreApplication::translate("Debugger", "Locals && Expressions"));
-    setCategory(DEBUGGER_SETTINGS_CATEGORY);
-}
+    Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::LocalsAndExpressionsOptionsPage)
 
-void LocalsAndExpressionsOptionsPage::apply()
-{
-    m_group.apply(ICore::settings());
-}
-
-void LocalsAndExpressionsOptionsPage::finish()
-{
-    m_group.finish();
-    delete m_widget;
-}
-
-QWidget *LocalsAndExpressionsOptionsPage::widget()
-{
-    if (!m_widget) {
-        m_widget = new QWidget;
-
-        auto debuggingHelperGroupBox = new QGroupBox(m_widget);
+public:
+    LocalsAndExpressionsOptionsPageWidget()
+    {
+        auto debuggingHelperGroupBox = new QGroupBox(this);
         debuggingHelperGroupBox->setTitle(tr("Use Debugging Helper"));
         debuggingHelperGroupBox->setCheckable(true);
 
@@ -337,23 +320,23 @@ QWidget *LocalsAndExpressionsOptionsPage::widget()
 
         auto checkBoxUseCodeModel = new QCheckBox(debuggingHelperGroupBox);
         auto checkBoxShowThreadNames = new QCheckBox(debuggingHelperGroupBox);
-        auto checkBoxShowStdNamespace = new QCheckBox(m_widget);
-        auto checkBoxShowQtNamespace = new QCheckBox(m_widget);
-        auto checkBoxShowQObjectNames = new QCheckBox(m_widget);
+        auto checkBoxShowStdNamespace = new QCheckBox(this);
+        auto checkBoxShowQtNamespace = new QCheckBox(this);
+        auto checkBoxShowQObjectNames = new QCheckBox(this);
 
-        auto spinBoxMaximalStringLength = new QSpinBox(m_widget);
+        auto spinBoxMaximalStringLength = new QSpinBox(this);
         spinBoxMaximalStringLength->setSpecialValueText(tr("<unlimited>"));
         spinBoxMaximalStringLength->setMaximum(10000000);
         spinBoxMaximalStringLength->setSingleStep(1000);
         spinBoxMaximalStringLength->setValue(10000);
 
-        auto spinBoxDisplayStringLimit = new QSpinBox(m_widget);
+        auto spinBoxDisplayStringLimit = new QSpinBox(this);
         spinBoxDisplayStringLimit->setSpecialValueText(tr("<unlimited>"));
         spinBoxDisplayStringLimit->setMaximum(10000);
         spinBoxDisplayStringLimit->setSingleStep(10);
         spinBoxDisplayStringLimit->setValue(100);
 
-        auto chooser = new VariableChooser(m_widget);
+        auto chooser = new VariableChooser(this);
         chooser->addSupportedWidget(textEditCustomDumperCommands);
         chooser->addSupportedWidget(pathChooserExtraDumperFile->lineEdit());
 
@@ -377,7 +360,7 @@ QWidget *LocalsAndExpressionsOptionsPage::widget()
         lowerLayout->addLayout(layout1);
         lowerLayout->addStretch();
 
-        auto layout = new QVBoxLayout(m_widget);
+        auto layout = new QVBoxLayout(this);
         layout->addWidget(debuggingHelperGroupBox);
         layout->addLayout(lowerLayout);
         layout->addStretch();
@@ -400,7 +383,21 @@ QWidget *LocalsAndExpressionsOptionsPage::widget()
         m_group.insert(action(DisplayStringLimit), spinBoxDisplayStringLimit);
         m_group.insert(action(MaximalStringLength), spinBoxMaximalStringLength);
     }
-    return m_widget;
+
+    void apply() { m_group.apply(ICore::settings()); }
+    void finish() { m_group.finish(); }
+
+private:
+    Utils::SavedActionSet m_group;
+};
+
+LocalsAndExpressionsOptionsPage::LocalsAndExpressionsOptionsPage()
+{
+    setId("Z.Debugger.LocalsAndExpressions");
+    //: '&&' will appear as one (one is marking keyboard shortcut)
+    setDisplayName(QCoreApplication::translate("Debugger", "Locals && Expressions"));
+    setCategory(DEBUGGER_SETTINGS_CATEGORY);
+    setWidgetCreator([] { return new LocalsAndExpressionsOptionsPageWidget; });
 }
 
 } // namespace Internal

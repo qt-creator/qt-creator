@@ -81,15 +81,6 @@ class LocalsAndExpressionsOptionsPage : public Core::IOptionsPage
 
 public:
     LocalsAndExpressionsOptionsPage();
-
-    // IOptionsPage
-    QWidget *widget() final;
-    void apply() final;
-    void finish() final;
-
-private:
-    QPointer<QWidget> m_widget;
-    Utils::SavedActionSet m_group;
 };
 
 } // namespace Internal

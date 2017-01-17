@@ -29,6 +29,7 @@
 #include "ioptionspage.h"
 
 #include <utils/stringutils.h>
+#include <utils/qtcassert.h>
 
 #include <QCheckBox>
 #include <QGroupBox>
@@ -84,26 +85,64 @@ QIcon Core::IOptionsPage::categoryIcon() const
 }
 
 /*!
+    This sets a callback to create page widgets on demand. The widget will
+    be destroyed on \c finish.
+ */
+void Core::IOptionsPage::setWidgetCreator(const WidgetCreator &widgetCreator)
+{
+    m_widgetCreator = widgetCreator;
+}
+
+/*!
     \fn QWidget *IOptionsPage::widget()
 
     Returns the widget to show in the \gui Options dialog. You should create a widget lazily here,
     and delete it again in the finish() method. This method can be called multiple times, so you
     should only create a new widget if the old one was deleted.
+
+    Alternatively, use \c setWidgetCreator to set a callback function that is used to
+    lazily create a widget in time.
+
+    Either override this function in a derived class, or set a \c widgetCreator.
 */
 
-/*!
-    \fn void IOptionsPage::apply()
+QWidget *Core::IOptionsPage::widget()
+{
+    QTC_ASSERT(m_widgetCreator, return nullptr);
+    if (!m_widget)
+        m_widget = m_widgetCreator();
+    return m_widget;
+}
 
+/*!
     This is called when selecting the \gui Apply button on the options page dialog. It should detect
     whether any changes were made and store those.
+
+    Either override this function in a derived class, or set a \c widgetCreator.
 */
+
+void Core::IOptionsPage::apply()
+{
+    QTC_ASSERT(m_widgetCreator, return);
+    if (m_widget)
+        m_widget->apply();
+}
 
 /*!
-    \fn void IOptionsPage::finish()
-
-    Is called directly before the \gui Options dialog closes. Here you should delete the widget that
+    This is called directly before the \gui Options dialog closes. Here you should delete the widget that
     was created in widget() to free resources.
+
+    Either override this function in a derived class, or set a \c widgetCreator.
 */
+
+void Core::IOptionsPage::finish()
+{
+    QTC_ASSERT(m_widgetCreator, return);
+    if (m_widget) {
+        m_widget->finish();
+        delete m_widget;
+    }
+}
 
 /*!
     \fn void IOptionsPage::setId(Id id)
