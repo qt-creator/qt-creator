@@ -7,7 +7,7 @@ Qt Creator is a cross-platform IDE for development with the Qt framework.
 The standalone binary packages support the following platforms:
 
 * Windows 7 or later
-* (K)Ubuntu Linux 14.04 (64-bit) or later
+* (K)Ubuntu Linux 16.04 (64-bit) or later
 * macOS 10.8 or later
 
 ## Compiling Qt Creator
@@ -18,10 +18,10 @@ Prerequisites:
 * Qt WebEngine module for QtWebEngine based help viewer
 * On Windows:
     * ActiveState Active Perl
-    * MinGW with g++ 4.8 or Visual Studio 2015 or later
+    * MinGW with g++ 4.9 or Visual Studio 2015 or later
     * jom
 * On Mac OS X: latest Xcode
-* On Linux: g++ 4.8 or later
+* On Linux: g++ 4.9 or later
 * LLVM/Clang 3.9.0 or later (optional, needed for the Clang Code Model, see the
   section "Get LLVM/Clang for the Clang Code Model")
     * CMake (only for manual builds of LLVM/Clang)

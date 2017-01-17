@@ -57,7 +57,7 @@
         \l{http://pubs.vmware.com/workstation-10/index.jsp?topic=%2Fcom.vmware.ws.using.doc%2FGUID-EA588485-718A-4FD8-81F5-B6E1F04C5788.html}
         {Prepare the Host System to Use DirectX 9 Accelerated Graphics}.
 
-        \li (K)Ubuntu Linux 14.04 (64-bit) or later
+        \li (K)Ubuntu Linux 16.04 (64-bit) or later
 
         To build Qt applications using \QC on Linux, you usually need the
         following:
