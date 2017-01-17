@@ -355,6 +355,7 @@ void QMakeGlobals::parseProperties(const QByteArray &data, QHash<ProKey, ProStri
                 if (plain) {
                     if (name == QLatin1String("QT_INSTALL_PREFIX")
                         || name == QLatin1String("QT_INSTALL_DATA")
+                        || name == QLatin1String("QT_INSTALL_LIBS")
                         || name == QLatin1String("QT_INSTALL_BINS")) {
                         // Qt4 fallback
                         QString hname = name;
