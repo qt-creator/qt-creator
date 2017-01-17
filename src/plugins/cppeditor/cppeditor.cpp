@@ -34,6 +34,7 @@
 #include "cppfollowsymbolundercursor.h"
 #include "cpphighlighter.h"
 #include "cpplocalrenaming.h"
+#include "cppminimizableinfobars.h"
 #include "cpppreprocessordialog.h"
 #include "cppquickfixassistant.h"
 #include "cppuseselectionsupdater.h"
@@ -131,11 +132,9 @@ public:
     QScopedPointer<FollowSymbolUnderCursor> m_followSymbolUnderCursor;
 
     QToolButton *m_preprocessorButton = nullptr;
-    QAction *m_headerErrorsIndicatorAction = nullptr;
+    MinimizableInfoBars::Actions m_showInfoBarActions;
 
     CppSelectionChanger m_cppSelectionChanger;
-
-    CppEditorWidget::HeaderErrorDiagnosticWidgetCreator m_headerErrorDiagnosticWidgetCreator;
 };
 
 CppEditorWidgetPrivate::CppEditorWidgetPrivate(CppEditorWidget *q)
@@ -232,17 +231,12 @@ void CppEditorWidget::finalizeInitialization()
     connect(d->m_preprocessorButton, &QAbstractButton::clicked, this, &CppEditorWidget::showPreProcessorWidget);
     insertExtraToolBarWidget(TextEditorWidget::Left, d->m_preprocessorButton);
 
-    auto *headerErrorsIndicatorButton = new QToolButton(this);
-    headerErrorsIndicatorButton->setToolTip(tr("Show First Error in Included Files"));
-    headerErrorsIndicatorButton->setIcon(Utils::Icons::WARNING_TOOLBAR.pixmap());
-    connect(headerErrorsIndicatorButton, &QAbstractButton::clicked, []() {
-        CppToolsSettings::instance()->setShowHeaderErrorInfoBar(true);
+    // Actions to show minimized info bars
+    d->m_showInfoBarActions = MinimizableInfoBars::createShowInfoBarActions([this](QWidget *w) {
+        return this->insertExtraToolBarWidget(TextEditorWidget::Left, w);
     });
-    d->m_headerErrorsIndicatorAction = insertExtraToolBarWidget(TextEditorWidget::Left,
-                                                                headerErrorsIndicatorButton);
-    d->m_headerErrorsIndicatorAction->setVisible(false);
-    connect(CppToolsSettings::instance(), &CppToolsSettings::showHeaderErrorInfoBarChanged,
-            this, &CppEditorWidget::updateHeaderErrorWidgets);
+    connect(&cppEditorDocument()->minimizableInfoBars(), &MinimizableInfoBars::showAction,
+            this, &CppEditorWidget::onShowInfoBarAction);
 
     insertExtraToolBarWidget(TextEditorWidget::Left, d->m_cppEditorOutline->widget());
 }
@@ -258,10 +252,6 @@ void CppEditorWidget::finalizeInitializationAfterDuplication(TextEditorWidget *o
     d->m_cppEditorOutline->update();
     const Id selectionKind = CodeWarningsSelection;
     setExtraSelections(selectionKind, cppEditorWidget->extraSelections(selectionKind));
-
-    d->m_headerErrorDiagnosticWidgetCreator
-            = cppEditorWidget->d->m_headerErrorDiagnosticWidgetCreator;
-    updateHeaderErrorWidgets();
 }
 
 CppEditorWidget::~CppEditorWidget()
@@ -310,7 +300,6 @@ void CppEditorWidget::onCppDocumentUpdated()
 
 void CppEditorWidget::onCodeWarningsUpdated(unsigned revision,
                                             const QList<QTextEdit::ExtraSelection> selections,
-                                            const HeaderErrorDiagnosticWidgetCreator &creator,
                                             const TextEditor::RefactorMarkers &refactorMarkers)
 {
     if (revision != documentRevision())
@@ -318,9 +307,6 @@ void CppEditorWidget::onCodeWarningsUpdated(unsigned revision,
 
     setExtraSelections(TextEditorWidget::CodeWarningsSelection, selections);
     setRefactorMarkers(refactorMarkersWithoutClangMarkers() + refactorMarkers);
-
-    d->m_headerErrorDiagnosticWidgetCreator = creator;
-    updateHeaderErrorWidgets();
 }
 
 void CppEditorWidget::onIfdefedOutBlocksUpdated(unsigned revision,
@@ -331,23 +317,11 @@ void CppEditorWidget::onIfdefedOutBlocksUpdated(unsigned revision,
     setIfdefedOutBlocks(ifdefedOutBlocks);
 }
 
-void CppEditorWidget::updateHeaderErrorWidgets()
+void CppEditorWidget::onShowInfoBarAction(const Id &id, bool show)
 {
-    const Id id(Constants::ERRORS_IN_HEADER_FILES);
-    InfoBar *infoBar = textDocument()->infoBar();
-
-    infoBar->removeInfo(id);
-
-    if (d->m_headerErrorDiagnosticWidgetCreator) {
-        if (CppToolsSettings::instance()->showHeaderErrorInfoBar()) {
-            addHeaderErrorInfoBarEntry();
-            d->m_headerErrorsIndicatorAction->setVisible(false);
-        } else {
-            d->m_headerErrorsIndicatorAction->setVisible(true);
-        }
-    } else {
-        d->m_headerErrorsIndicatorAction->setVisible(false);
-    }
+    QAction *action = d->m_showInfoBarActions.value(id);
+    QTC_ASSERT(action, return);
+    action->setVisible(show);
 }
 
 void CppEditorWidget::findUsages()
@@ -443,22 +417,6 @@ void CppEditorWidget::renameSymbolUnderCursorBuiltin()
 
     if (!d->m_localRenaming.start()) // Rename local symbol
         renameUsages(); // Rename non-local symbol or macro
-}
-
-void CppEditorWidget::addHeaderErrorInfoBarEntry() const
-{
-    InfoBarEntry info(Constants::ERRORS_IN_HEADER_FILES,
-                      tr("<b>Warning</b>: The code model could not parse an included file, "
-                         "which might lead to slow or incorrect code completion and "
-                         "highlighting, for example."));
-    info.setDetailsWidgetCreator(d->m_headerErrorDiagnosticWidgetCreator);
-    info.setShowDefaultCancelButton(false);
-    info.setCustomButtonInfo("Minimize", [](){
-         CppToolsSettings::instance()->setShowHeaderErrorInfoBar(false);
-    });
-
-    InfoBar *infoBar = textDocument()->infoBar();
-    infoBar->addInfo(info);
 }
 
 namespace {

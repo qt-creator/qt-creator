@@ -285,3 +285,21 @@ void CppToolsSettings::setShowHeaderErrorInfoBar(bool show)
     ICore::settings()->setValue(showHeaderErrorInfoBarKey(), show);
     emit showHeaderErrorInfoBarChanged(show);
 }
+
+static QString showNoProjectInfoBarKey()
+{
+    return QLatin1String(CppTools::Constants::CPPTOOLS_SETTINGSGROUP)
+         + QLatin1Char('/')
+         + QLatin1String(CppTools::Constants::CPPTOOLS_SHOW_INFO_BAR_FOR_FOR_NO_PROJECT);
+}
+
+bool CppToolsSettings::showNoProjectInfoBar() const
+{
+    return ICore::settings()->value(showNoProjectInfoBarKey(), true).toBool();
+}
+
+void CppToolsSettings::setShowNoProjectInfoBar(bool show)
+{
+    ICore::settings()->setValue(showNoProjectInfoBarKey(), show);
+    emit showNoProjectInfoBarChanged(show);
+}

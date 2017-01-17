@@ -25,59 +25,55 @@
 
 #pragma once
 
-#include "cpptools_global.h"
-
+#include <QAction>
+#include <QHash>
 #include <QObject>
 
-namespace TextEditor {
-class CommentsSettings;
+#include <functional>
+
+namespace Core {
+class Id;
+class InfoBar;
 }
 
-namespace CppTools
-{
-class CppCodeStylePreferences;
+namespace CppEditor {
+namespace Internal {
 
-namespace Internal
-{
-class CppToolsSettingsPrivate;
-}
-
-/**
- * This class provides a central place for cpp tools settings.
- */
-class CPPTOOLS_EXPORT CppToolsSettings : public QObject
+class MinimizableInfoBars : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit CppToolsSettings(QObject *parent);
-    ~CppToolsSettings();
+    using DiagnosticWidgetCreator = std::function<QWidget *()>;
+    using ActionCreator = std::function<QAction *(QWidget *widget)>;
+    using Actions = QHash<Core::Id, QAction *>;
 
-    static CppToolsSettings *instance();
+    static Actions createShowInfoBarActions(const ActionCreator &actionCreator);
 
-    CppCodeStylePreferences *cppCodeStyle() const;
+public:
+    explicit MinimizableInfoBars(Core::InfoBar &infoBar, QObject *parent = 0);
 
-    const TextEditor::CommentsSettings &commentsSettings() const;
-    void setCommentsSettings(const TextEditor::CommentsSettings &commentsSettings);
-
-    bool sortedEditorDocumentOutline() const;
-    void setSortedEditorDocumentOutline(bool sorted);
-
-    bool showHeaderErrorInfoBar() const;
-    void setShowHeaderErrorInfoBar(bool show);
-
-    bool showNoProjectInfoBar() const;
-    void setShowNoProjectInfoBar(bool show);
+    // Expected call order: processHasProjectPart(), processHeaderDiagnostics()
+    void processHasProjectPart(bool hasProjectPart);
+    void processHeaderDiagnostics(const DiagnosticWidgetCreator &diagnosticWidgetCreator);
 
 signals:
-    void editorDocumentOutlineSortingChanged(bool isSorted);
-    void showHeaderErrorInfoBarChanged(bool isShown);
-    void showNoProjectInfoBarChanged(bool isShown);
+    void showAction(const Core::Id &id, bool show);
 
 private:
-    Internal::CppToolsSettingsPrivate *d;
+    void updateNoProjectConfiguration();
+    void updateHeaderErrors();
 
-    static CppToolsSettings *m_instance;
+    void addNoProjectConfigurationEntry(const Core::Id &id);
+    void addHeaderErrorEntry(const Core::Id &id,
+                             const DiagnosticWidgetCreator &diagnosticWidgetCreator);
+
+private:
+    Core::InfoBar &m_infoBar;
+
+    bool m_hasProjectPart = true;
+    DiagnosticWidgetCreator m_diagnosticWidgetCreator;
 };
 
-} // namespace CppTools
+} // namespace Internal
+} // namespace CppEditor

@@ -37,6 +37,7 @@ const char RENAME_SYMBOL_UNDER_CURSOR[] = "CppEditor.RenameSymbolUnderCursor";
 const char FIND_USAGES[] = "CppEditor.FindUsages";
 const char OPEN_PREPROCESSOR_DIALOG[] = "CppEditor.OpenPreprocessorDialog";
 const char ERRORS_IN_HEADER_FILES[] = "CppEditor.ErrorsInHeaderFiles";
+const char NO_PROJECT_CONFIGURATION[] = "CppEditor.NoProjectConfiguration";
 const char M_REFACTORING_MENU_INSERTION_POINT[] = "CppEditor.RefactorGroup";
 const char UPDATE_CODEMODEL[] = "CppEditor.UpdateCodeModel";
 const char INSPECT_CPP_CODEMODEL[] = "CppEditor.InspectCppCodeModel";

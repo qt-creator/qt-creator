@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "cppminimizableinfobars.h"
+
 #include <cpptools/baseeditordocumentprocessor.h>
 #include <cpptools/cppcompletionassistprovider.h>
 #include <cpptools/cppmodelmanager.h>
@@ -59,13 +61,11 @@ public:
                                  const QByteArray &defines);
     void scheduleProcessDocument();
 
-public:
-    using HeaderErrorDiagnosticWidgetCreator = std::function<QWidget*()>;
+    const MinimizableInfoBars &minimizableInfoBars() const;
 
 signals:
     void codeWarningsUpdated(unsigned contentsRevision,
                              const QList<QTextEdit::ExtraSelection> selections,
-                             const HeaderErrorDiagnosticWidgetCreator &creator,
                              const TextEditor::RefactorMarkers &refactorMarkers);
 
     void ifdefedOutBlocksUpdated(unsigned contentsRevision,
@@ -116,6 +116,8 @@ private:
 
     // (Un)Registration in CppModelManager
     QScopedPointer<CppTools::CppEditorDocumentHandle> m_editorDocumentHandle;
+
+    MinimizableInfoBars m_minimizableInfoBars;
 };
 
 } // namespace Internal

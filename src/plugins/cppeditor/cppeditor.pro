@@ -20,6 +20,7 @@ HEADERS += \
     cppincludehierarchy.h \
     cppinsertvirtualmethods.h \
     cpplocalrenaming.h \
+    cppminimizableinfobars.h \
     cppoutline.h \
     cpppreprocessordialog.h \
     cppquickfix.h \
@@ -48,6 +49,7 @@ SOURCES += \
     cppincludehierarchy.cpp \
     cppinsertvirtualmethods.cpp \
     cpplocalrenaming.cpp \
+    cppminimizableinfobars.cpp \
     cppoutline.cpp \
     cpppreprocessordialog.cpp \
     cppquickfix.cpp \

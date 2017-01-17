@@ -50,6 +50,7 @@ const char LOWERCASE_CPPFILES_KEY[] = "LowerCaseFiles";
 enum { lowerCaseFilesDefault = 1 };
 const char CPPTOOLS_SORT_EDITOR_DOCUMENT_OUTLINE[] = "SortedMethodOverview";
 const char CPPTOOLS_SHOW_INFO_BAR_FOR_HEADER_ERRORS[] = "ShowInfoBarForHeaderErrors";
+const char CPPTOOLS_SHOW_INFO_BAR_FOR_FOR_NO_PROJECT[] = "ShowInfoBarForNoProject";
 const char CPPTOOLS_MODEL_MANAGER_PCH_USAGE[] = "PCHUsage";
 const char CPPTOOLS_INTERPRET_AMBIGIUOUS_HEADERS_AS_C_HEADERS[]
     = "InterpretAmbiguousHeadersAsCHeaders";

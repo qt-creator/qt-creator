@@ -40,6 +40,7 @@ QtcPlugin {
         "cppinsertvirtualmethods.cpp",
         "cppinsertvirtualmethods.h",
         "cpplocalrenaming.cpp", "cpplocalrenaming.h",
+        "cppminimizableinfobars.cpp", "cppminimizableinfobars.h",
         "cppoutline.cpp", "cppoutline.h",
         "cpppreprocessordialog.cpp", "cpppreprocessordialog.h", "cpppreprocessordialog.ui",
         "cppquickfix.cpp", "cppquickfix.h",

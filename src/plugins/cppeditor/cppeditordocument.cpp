@@ -97,6 +97,7 @@ CppEditorDocument::CppEditorDocument()
     , m_cachedContentsRevision(-1)
     , m_processorRevision(0)
     , m_completionAssistProvider(0)
+    , m_minimizableInfoBars(*infoBar())
 {
     setId(CppEditor::Constants::CPPEDITOR_ID);
     setSyntaxHighlighter(new CppHighlighter);
@@ -309,12 +310,30 @@ void CppEditorDocument::initializeTimer()
             Qt::UniqueConnection);
 }
 
+const MinimizableInfoBars &CppEditorDocument::minimizableInfoBars() const
+{
+    return m_minimizableInfoBars;
+}
+
 CppTools::BaseEditorDocumentProcessor *CppEditorDocument::processor()
 {
     if (!m_processor) {
         m_processor.reset(mm()->editorDocumentProcessor(this));
+        connect(m_processor.data(), &CppTools::BaseEditorDocumentProcessor::projectPartInfoUpdated,
+                [this] (const CppTools::ProjectPartInfo &projectPartInfo)
+        {
+            const bool hasProjectPart
+                    = projectPartInfo.hint != CppTools::ProjectPartInfo::IsFallbackMatch;
+            m_minimizableInfoBars.processHasProjectPart(hasProjectPart);
+        });
         connect(m_processor.data(), &CppTools::BaseEditorDocumentProcessor::codeWarningsUpdated,
-                this, &CppEditorDocument::codeWarningsUpdated);
+                [this] (unsigned revision,
+                        const QList<QTextEdit::ExtraSelection> selections,
+                        const std::function<QWidget*()> &creator,
+                        const TextEditor::RefactorMarkers &refactorMarkers) {
+            emit codeWarningsUpdated(revision, selections, refactorMarkers);
+            m_minimizableInfoBars.processHeaderDiagnostics(creator);
+        });
         connect(m_processor.data(), &CppTools::BaseEditorDocumentProcessor::ifdefedOutBlocksUpdated,
                 this, &CppEditorDocument::ifdefedOutBlocksUpdated);
         connect(m_processor.data(), &CppTools::BaseEditorDocumentProcessor::cppDocumentUpdated,
