@@ -98,38 +98,38 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
     Core::ActionContainer *editMenu = Core::ActionManager::actionContainer(Core::Constants::M_EDIT);
     Core::ActionContainer *fileMenu = Core::ActionManager::actionContainer(Core::Constants::M_FILE);
 
-    connect(&m_undoAction, SIGNAL(triggered()), this, SLOT(undo()));
+    connect(&m_undoAction, &QAction::triggered, this, &ShortCutManager::undo);
 
-    connect(&m_redoAction, SIGNAL(triggered()), this, SLOT(redo()));
+    connect(&m_redoAction, &QAction::triggered, this, &ShortCutManager::redo);
 
-    connect(&m_deleteAction, SIGNAL(triggered()), this, SLOT(deleteSelected()));
+    connect(&m_deleteAction, &QAction::triggered, this, &ShortCutManager::deleteSelected);
 
-    connect(&m_cutAction, SIGNAL(triggered()), this, SLOT(cutSelected()));
+    connect(&m_cutAction, &QAction::triggered, this, &ShortCutManager::cutSelected);
 
-    connect(&m_copyAction, SIGNAL(triggered()), this, SLOT(copySelected()));
+    connect(&m_copyAction, &QAction::triggered, this, &ShortCutManager::copySelected);
 
-    connect(&m_pasteAction, SIGNAL(triggered()), this, SLOT(paste()));
+    connect(&m_pasteAction, &QAction::triggered, this, &ShortCutManager::paste);
 
-    connect(&m_selectAllAction, SIGNAL(triggered()), this, SLOT(selectAll()));
+    connect(&m_selectAllAction,&QAction::triggered, this, &ShortCutManager::selectAll);
 
-    connect(&m_hideSidebarsAction, SIGNAL(triggered()), this, SLOT(toggleSidebars()));
+    connect(&m_hideSidebarsAction, &QAction::triggered, this, &ShortCutManager::toggleSidebars);
 
     connect(&m_restoreDefaultViewAction,
-            SIGNAL(triggered()),
+            &QAction::triggered,
             QmlDesignerPlugin::instance()->mainWidget(),
-            SLOT(restoreDefaultView()));
+            &Internal::DesignModeWidget::restoreDefaultView);
 
     connect(&m_goIntoComponentAction, SIGNAL(triggered()), SLOT(goIntoComponent()));
 
     connect(&m_toggleLeftSidebarAction,
-            SIGNAL(triggered()),
+            &QAction::triggered,
             QmlDesignerPlugin::instance()->mainWidget(),
-            SLOT(toggleLeftSidebar()));
+            &Internal::DesignModeWidget::toggleLeftSidebar);
 
     connect(&m_toggleRightSidebarAction,
-            SIGNAL(triggered()),
+            &QAction::triggered,
             QmlDesignerPlugin::instance()->mainWidget(),
-            SLOT(toggleRightSidebar()));
+            &Internal::DesignModeWidget::toggleRightSidebar);
 
     connect(&m_collapseExpandStatesAction, &QAction::triggered, [] {
         QmlDesignerPlugin::instance()->viewManager().toggleStatesViewExpanded();
@@ -138,7 +138,7 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
     // Revert to saved
     Core::EditorManager *em = Core::EditorManager::instance();
     Core::ActionManager::registerAction(&m_revertToSavedAction,Core::Constants::REVERTTOSAVED, qmlDesignerMainContext);
-    connect(&m_revertToSavedAction, SIGNAL(triggered()), em, SLOT(revertToSaved()));
+    connect(&m_revertToSavedAction, &QAction::triggered, em, &Core::EditorManager::revertToSaved);
 
     //Save
     Core::ActionManager::registerAction(&m_saveAction, Core::Constants::SAVE, qmlDesignerMainContext);
@@ -147,13 +147,11 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
          em->saveDocument();
     });
 
-
-
     Core::Command *command = nullptr;
 
     //Save As
     Core::ActionManager::registerAction(&m_saveAsAction, Core::Constants::SAVEAS, qmlDesignerMainContext);
-    connect(&m_saveAsAction, SIGNAL(triggered()), em, SLOT(saveDocumentAs()));
+    connect(&m_saveAsAction, &QAction::triggered, em, &Core::EditorManager::saveDocumentAs);
 
     //Export as Image
     command = Core::ActionManager::registerAction(&m_exportAsImageAction, QmlDesigner::Constants::EXPORT_AS_IMAGE, qmlDesignerMainContext);
@@ -165,24 +163,25 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
 
     //Close Editor
     Core::ActionManager::registerAction(&m_closeCurrentEditorAction, Core::Constants::CLOSE, qmlDesignerMainContext);
-    connect(&m_closeCurrentEditorAction, SIGNAL(triggered()), em, SLOT(slotCloseCurrentEditorOrDocument()));
+    connect(&m_closeCurrentEditorAction, &QAction::triggered, em, &Core::EditorManager::slotCloseCurrentEditorOrDocument);
 
     DesignerActionManager &designerActionManager = QmlDesignerPlugin::instance()->viewManager().designerActionManager();
 
     //Close All
     Core::ActionManager::registerAction(&m_closeAllEditorsAction, Core::Constants::CLOSEALL, qmlDesignerMainContext);
-    connect(&m_closeAllEditorsAction, SIGNAL(triggered()), em, SLOT(closeAllEditors()));
+    connect(&m_closeAllEditorsAction, &QAction::triggered, em,  &Core::EditorManager::closeAllEditors);
 
     //Close All Others Action
     Core::ActionManager::registerAction(&m_closeOtherEditorsAction, Core::Constants::CLOSEOTHERS, qmlDesignerMainContext);
-    connect(&m_closeOtherEditorsAction, SIGNAL(triggered()), em, SLOT(closeOtherDocuments()));
+    connect(&m_closeOtherEditorsAction, &QAction::triggered, em, [em] {
+        Core::EditorManager::closeOtherDocuments();
+    });
 
     // Undo / Redo
     command = Core::ActionManager::registerAction(&m_undoAction, Core::Constants::UNDO, qmlDesignerMainContext);
     designerActionManager.addCreatorCommand(command, ComponentCoreConstants::editCategory, 310, Utils::Icons::UNDO_TOOLBAR.icon());
     command = Core::ActionManager::registerAction(&m_redoAction, Core::Constants::REDO, qmlDesignerMainContext);
     designerActionManager.addCreatorCommand(command, ComponentCoreConstants::editCategory, 300, Utils::Icons::REDO_TOOLBAR.icon());
-
 
     //GoIntoComponent
     command = Core::ActionManager::registerAction(&m_goIntoComponentAction,
