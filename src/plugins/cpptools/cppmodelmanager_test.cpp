@@ -167,7 +167,7 @@ ProjectPart::Ptr projectPartOfEditorDocument(const QString &filePath)
 {
     auto *editorDocument = CppModelManager::instance()->cppEditorDocument(filePath);
     QTC_ASSERT(editorDocument, return ProjectPart::Ptr());
-    return editorDocument->processor()->parser()->projectPart();
+    return editorDocument->processor()->parser()->projectPartInfo().projectPart;
 }
 
 } // anonymous namespace

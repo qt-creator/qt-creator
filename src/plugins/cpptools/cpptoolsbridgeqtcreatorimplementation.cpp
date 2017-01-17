@@ -47,7 +47,7 @@ namespace {
 CppTools::ProjectPart::Ptr projectPartForFile(const QString &filePath)
 {
     if (const auto parser = BaseEditorDocumentParser::get(filePath))
-        return parser->projectPart();
+        return parser->projectPartInfo().projectPart;
 
     return CppTools::ProjectPart::Ptr();
 }

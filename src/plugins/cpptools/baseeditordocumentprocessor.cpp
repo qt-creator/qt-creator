@@ -26,10 +26,10 @@
 #include "baseeditordocumentprocessor.h"
 
 #include "cppcodemodelsettings.h"
-#include "cpplanguage.h"
 #include "cppmodelmanager.h"
 #include "cpptoolsbridge.h"
 #include "cpptoolsreuse.h"
+#include "cpptools_utils.h"
 #include "editordocumenthandle.h"
 
 #include <projectexplorer/session.h>

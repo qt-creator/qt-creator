@@ -34,7 +34,6 @@ HEADERS += \
     cppfunctionsfilter.h \
     cppincludesfilter.h \
     cppindexingsupport.h \
-    cpplanguage.h \
     cpplocalsymbols.h \
     cpplocatordata.h \
     cpplocatorfilter.h \
@@ -50,6 +49,7 @@ HEADERS += \
     cppsemanticinfoupdater.h \
     cppsourceprocessor.h \
     cpptools_global.h \
+    cpptools_utils.h \
     cpptoolsconstants.h \
     cpptoolsjsextension.h \
     cpptoolsplugin.h \

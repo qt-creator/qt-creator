@@ -31,82 +31,144 @@
 namespace CppTools {
 namespace Internal {
 
-static bool isPreferredLanguage(const ProjectPart &projectPart, Language preference)
+class ProjectPartPrioritizer
 {
-    const bool isCProjectPart = projectPart.languageVersion <= ProjectPart::LatestCVersion;
-    return (preference == Language::C && isCProjectPart)
-        || (preference == Language::Cxx && !isCProjectPart);
-}
+public:
+    struct PrioritizedProjectPart
+    {
+        PrioritizedProjectPart(const ProjectPart::Ptr &projectPart, int priority)
+            : projectPart(projectPart) , priority(priority) {}
 
-static int priority(const ProjectPart &projectPart,
-                    const ProjectExplorer::Project *activeProject,
-                    Language languagePreference)
-{
-    int thePriority = 0;
-
-    if (projectPart.project == activeProject)
-        thePriority += 100;
-
-    if (projectPart.selectedForBuilding)
-        thePriority += 10;
-
-    if (isPreferredLanguage(projectPart, languagePreference))
-        thePriority += 1;
-
-    return thePriority;
-}
-
-static ProjectPart::Ptr chooseFromMultiple(const QList<ProjectPart::Ptr> &projectParts,
-                                           const ProjectExplorer::Project *activeProject,
-                                           Language languagePreference)
-{
-    QList<ProjectPart::Ptr> projectPartsPrioritized = projectParts;
-    const auto lessThan = [&] (const ProjectPart::Ptr &p1, const ProjectPart::Ptr &p2) {
-        return priority(*p1, activeProject, languagePreference)
-             > priority(*p2, activeProject, languagePreference);
+        ProjectPart::Ptr projectPart;
+        int priority = 0;
     };
-    std::stable_sort(projectPartsPrioritized.begin(), projectPartsPrioritized.end(), lessThan);
 
-    return projectPartsPrioritized.first();
-}
+    ProjectPartPrioritizer(const QList<ProjectPart::Ptr> &projectParts,
+                           const ProjectExplorer::Project *activeProject,
+                           Language languagePreference)
+        : m_projectParts(projectParts)
+        , m_activeProject(activeProject)
+        , m_languagePreference(languagePreference)
+    {
+        // Determine best project part
+        const QList<PrioritizedProjectPart> prioritized = prioritize();
+        m_projectPart = prioritized.first().projectPart;
 
-ProjectPart::Ptr ProjectPartChooser::choose(const QString &filePath,
-                                            const ProjectPart::Ptr &currentProjectPart,
-                                            const ProjectPart::Ptr &manuallySetProjectPart,
-                                            bool stickToPreviousProjectPart,
-                                            const ProjectExplorer::Project *activeProject,
-                                            Language languagePreference,
-                                            bool projectHasChanged) const
+        // Determine ambiguity
+        m_isAmbiguous = prioritized.size() > 1
+                ? prioritized[0].priority == prioritized[1].priority
+                : false;
+    }
+
+    ProjectPart::Ptr projectPart()
+    {
+        return m_projectPart;
+    }
+
+    bool isAmbiguous() const
+    {
+        return m_isAmbiguous;
+    }
+
+private:
+    QList<PrioritizedProjectPart> prioritize()
+    {
+        // Prioritize
+        QList<PrioritizedProjectPart> prioritized = Utils::transform(m_projectParts,
+                [&](const ProjectPart::Ptr &projectPart) {
+            return PrioritizedProjectPart{projectPart, priority(*projectPart)};
+        });
+
+        // Sort according to priority
+        const auto lessThan = [&] (const PrioritizedProjectPart &p1,
+                                   const PrioritizedProjectPart &p2) {
+            return p1.priority > p2.priority;
+        };
+        std::stable_sort(prioritized.begin(), prioritized.end(), lessThan);
+
+        return prioritized;
+    }
+
+    int priority(const ProjectPart &projectPart) const
+    {
+        int thePriority = 0;
+
+        if (projectPart.project == m_activeProject)
+            thePriority += 100;
+
+        if (projectPart.selectedForBuilding)
+            thePriority += 10;
+
+        if (isPreferredLanguage(projectPart))
+            thePriority += 1;
+
+        return thePriority;
+    }
+
+    bool isPreferredLanguage(const ProjectPart &projectPart) const
+    {
+        const bool isCProjectPart = projectPart.languageVersion <= ProjectPart::LatestCVersion;
+        return (m_languagePreference == Language::C && isCProjectPart)
+            || (m_languagePreference == Language::Cxx && !isCProjectPart);
+    }
+
+private:
+    const QList<ProjectPart::Ptr> m_projectParts;
+    const ProjectExplorer::Project *m_activeProject = nullptr;
+    Language m_languagePreference = Language::Cxx;
+
+    // Results
+    ProjectPart::Ptr m_projectPart;
+    bool m_isAmbiguous = false;
+};
+
+ProjectPartInfo ProjectPartChooser::choose(
+        const QString &filePath,
+        const ProjectPart::Ptr &currentProjectPart,
+        const ProjectPart::Ptr &manuallySetProjectPart,
+        bool stickToPreviousProjectPart,
+        const ProjectExplorer::Project *activeProject,
+        Language languagePreference,
+        bool projectHasChanged) const
 {
     QTC_CHECK(m_projectPartsForFile);
     QTC_CHECK(m_projectPartsFromDependenciesForFile);
     QTC_CHECK(m_fallbackProjectPart);
 
     if (manuallySetProjectPart)
-        return manuallySetProjectPart;
+        return {manuallySetProjectPart, ProjectPartInfo::NoHint};
 
     ProjectPart::Ptr projectPart = currentProjectPart;
+    ProjectPartInfo::Hint hint = ProjectPartInfo::NoHint;
 
     QList<ProjectPart::Ptr> projectParts = m_projectPartsForFile(filePath);
     if (projectParts.isEmpty()) {
         if (projectPart && stickToPreviousProjectPart)
             // File is not directly part of any project, but we got one before. We will re-use it,
             // because re-calculating this can be expensive when the dependency table is big.
-            return projectPart;
+            return {projectPart, ProjectPartInfo::NoHint};
 
         // Fall-back step 1: Get some parts through the dependency table:
         projectParts = m_projectPartsFromDependenciesForFile(filePath);
-        if (projectParts.isEmpty())
+        if (projectParts.isEmpty()) {
             // Fall-back step 2: Use fall-back part from the model manager:
             projectPart = m_fallbackProjectPart();
-        else
-            projectPart = chooseFromMultiple(projectParts, activeProject, languagePreference);
+            hint = ProjectPartInfo::IsFallbackMatch;
+        } else {
+            ProjectPartPrioritizer prioritizer(projectParts, activeProject, languagePreference);
+            projectPart = prioritizer.projectPart();
+        }
     } else {
-        if (projectHasChanged || !projectParts.contains(projectPart))
-            projectPart = chooseFromMultiple(projectParts, activeProject, languagePreference);
+        if (projectHasChanged || !projectParts.contains(projectPart)) {
+            ProjectPartPrioritizer prioritizer(projectParts, activeProject, languagePreference);
+            projectPart = prioritizer.projectPart();
+            hint = prioritizer.isAmbiguous()
+                    ? ProjectPartInfo::IsAmbiguousMatch
+                    : ProjectPartInfo::NoHint;
+        }
     }
 
-    return projectPart;
+    return {projectPart, hint};
 }
 
 void ProjectPartChooser::setFallbackProjectPart(const FallBackProjectPart &getter)

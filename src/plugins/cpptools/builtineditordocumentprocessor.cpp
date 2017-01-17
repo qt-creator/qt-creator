@@ -190,6 +190,8 @@ BuiltinEditorDocumentProcessor::BuiltinEditorDocumentProcessor(
             });
     }
 
+    connect(m_parser.data(), &BuiltinEditorDocumentParser::projectPartInfoUpdated,
+            this, &BaseEditorDocumentProcessor::projectPartInfoUpdated);
     connect(m_parser.data(), &BuiltinEditorDocumentParser::finished,
             this, &BuiltinEditorDocumentProcessor::onParserFinished);
     connect(&m_semanticInfoUpdater, &SemanticInfoUpdater::updated,

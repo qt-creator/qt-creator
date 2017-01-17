@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "cpplanguage.h"
+#include "cpptools_utils.h"
 #include "projectpart.h"
 
 #include <functional>
@@ -48,13 +48,14 @@ public:
     void setProjectPartsForFile(const ProjectPartsForFile &getter);
     void setProjectPartsFromDependenciesForFile(const ProjectPartsFromDependenciesForFile &getter);
 
-    ProjectPart::Ptr choose(const QString &filePath,
-                            const ProjectPart::Ptr &currentProjectPart,
-                            const ProjectPart::Ptr &manuallySetProjectPart,
-                            bool stickToPreviousProjectPart,
-                            const ProjectExplorer::Project *activeProject,
-                            Language languagePreference,
-                            bool projectHasChanged) const;
+    ProjectPartInfo choose(
+            const QString &filePath,
+            const ProjectPart::Ptr &currentProjectPart,
+            const ProjectPart::Ptr &manuallySetProjectPart,
+            bool stickToPreviousProjectPart,
+            const ProjectExplorer::Project *activeProject,
+            Language languagePreference,
+            bool projectHasChanged) const;
 
 private:
     FallBackProjectPart m_fallbackProjectPart;

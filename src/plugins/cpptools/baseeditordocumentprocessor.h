@@ -74,8 +74,9 @@ public:
     using HeaderErrorDiagnosticWidgetCreator = std::function<QWidget*()>;
 
 signals:
-
     // Signal interface to implement
+    void projectPartInfoUpdated(const CppTools::ProjectPartInfo &projectPartInfo);
+
     void codeWarningsUpdated(unsigned revision,
                              const QList<QTextEdit::ExtraSelection> selections,
                              const HeaderErrorDiagnosticWidgetCreator &creator,

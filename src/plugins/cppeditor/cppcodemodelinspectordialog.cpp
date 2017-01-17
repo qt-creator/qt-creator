@@ -1580,7 +1580,7 @@ void CppCodeModelInspectorDialog::refresh()
 
     // Project Parts
     const ProjectPart::Ptr editorsProjectPart = cppEditorDocument
-        ? cppEditorDocument->processor()->parser()->projectPart()
+        ? cppEditorDocument->processor()->parser()->projectPartInfo().projectPart
         : ProjectPart::Ptr();
 
     const QList<ProjectInfo> projectInfos = cmmi->projectInfos();

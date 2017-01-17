@@ -39,12 +39,13 @@ void ClangEditorDocumentParser::updateImpl(const QFutureInterface<void> &,
                                            const UpdateParams &updateParams)
 {
     State state_ = state();
-    state_.projectPart = determineProjectPart(filePath(),
-                                              configuration(),
-                                              state_,
-                                              updateParams.activeProject,
-                                              updateParams.languagePreference,
-                                              updateParams.hasActiveProjectChanged);
+    state_.projectPartInfo = determineProjectPart(filePath(),
+                                                  configuration(),
+                                                  state_,
+                                                  updateParams.activeProject,
+                                                  updateParams.languagePreference,
+                                                  updateParams.hasActiveProjectChanged);
+    emit projectPartInfoUpdated(state_.projectPartInfo);
     setState(state_);
 }
 

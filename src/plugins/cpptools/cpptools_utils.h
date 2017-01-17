@@ -25,8 +25,23 @@
 
 #pragma once
 
+#include "projectpart.h"
+
 namespace CppTools {
 
 enum class Language { C, Cxx };
+
+class ProjectPartInfo {
+public:
+    enum Hint {
+        NoHint,
+        IsFallbackMatch,
+        IsAmbiguousMatch
+    };
+
+public:
+    ProjectPart::Ptr projectPart;
+    Hint hint;
+};
 
 } // namespace CppTools

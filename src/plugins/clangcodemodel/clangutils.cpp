@@ -131,7 +131,7 @@ QStringList createClangOptions(const ProjectPart::Ptr &pPart, ProjectFile::Kind 
 ProjectPart::Ptr projectPartForFile(const QString &filePath)
 {
     if (const auto parser = CppTools::BaseEditorDocumentParser::get(filePath))
-        return parser->projectPart();
+        return parser->projectPartInfo().projectPart;
     return ProjectPart::Ptr();
 }
 

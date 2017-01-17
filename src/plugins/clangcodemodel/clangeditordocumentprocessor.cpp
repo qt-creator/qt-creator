@@ -80,6 +80,9 @@ ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(
     connect(&m_updateTranslationUnitTimer, &QTimer::timeout,
             this, &ClangEditorDocumentProcessor::updateTranslationUnitIfProjectPartExists);
 
+    connect(m_parser.data(), &ClangEditorDocumentParser::projectPartInfoUpdated,
+            this, &BaseEditorDocumentProcessor::projectPartInfoUpdated);
+
     // Forwarding the semantic info from the builtin processor enables us to provide all
     // editor (widget) related features that are not yet implemented by the clang plugin.
     connect(&m_builtinProcessor, &CppTools::BuiltinEditorDocumentProcessor::cppDocumentUpdated,
@@ -302,7 +305,7 @@ static bool isProjectPartLoadedOrIsFallback(CppTools::ProjectPart::Ptr projectPa
 
 void ClangEditorDocumentProcessor::updateProjectPartAndTranslationUnitForEditor()
 {
-    const CppTools::ProjectPart::Ptr projectPart = m_parser->projectPart();
+    const CppTools::ProjectPart::Ptr projectPart = m_parser->projectPartInfo().projectPart;
 
     if (isProjectPartLoadedOrIsFallback(projectPart)) {
         registerTranslationUnitForEditor(projectPart.data());

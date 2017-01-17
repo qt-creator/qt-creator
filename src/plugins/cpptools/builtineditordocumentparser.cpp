@@ -77,19 +77,20 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
     QString projectConfigFile;
     LanguageFeatures features = LanguageFeatures::defaultFeatures();
 
-    baseState.projectPart = determineProjectPart(filePath(),
-                                                 baseConfig,
-                                                 baseState,
-                                                 updateParams.activeProject,
-                                                 updateParams.languagePreference,
-                                                 updateParams.hasActiveProjectChanged);
+    baseState.projectPartInfo = determineProjectPart(filePath(),
+                                                    baseConfig,
+                                                    baseState,
+                                                    updateParams.activeProject,
+                                                    updateParams.languagePreference,
+                                                    updateParams.hasActiveProjectChanged);
+    emit projectPartInfoUpdated(baseState.projectPartInfo);
 
     if (state.forceSnapshotInvalidation) {
         invalidateSnapshot = true;
         state.forceSnapshotInvalidation = false;
     }
 
-    if (const ProjectPart::Ptr part = baseState.projectPart) {
+    if (const ProjectPart::Ptr part = baseState.projectPartInfo.projectPart) {
         configFile += part->toolchainDefines;
         configFile += overwrittenToolchainDefines(*part.data());
         configFile += part->projectDefines;
