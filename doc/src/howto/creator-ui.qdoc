@@ -124,7 +124,7 @@
     \list
 
         \li \uicontrol Projects shows a list of projects open in the current
-            session.
+            session and the project files needed by the build system.
 
         \li \uicontrol{Open Documents} shows currently open files.
 
@@ -176,8 +176,14 @@
     \section2 Viewing Project Files
 
     The sidebar displays projects in a project tree. The project tree contains
-    a list of all projects open in the current session. The files for each
-    project are grouped according to their file type.
+    a list of all projects open in the current session. For each project, the
+    tree visualizes the build system structure of the project and lists all
+    files that are part of the project.
+
+    Some build systems support adding and removing files to a project in \QC
+    (currently qmake and Qbs). The faithful display of the project structure
+    allows to specify exactly where a new file should be placed in the build
+    system.
 
     If the project is under version control, information from the version control system
     might be displayed in brackets after the project name. This is currently implemented for
