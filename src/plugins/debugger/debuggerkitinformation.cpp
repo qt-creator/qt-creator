@@ -93,7 +93,7 @@ void DebuggerKitInformation::setup(Kit *k)
     // is stored in the kit information, but also accept item based
     // on toolchain matching as fallback with a lower priority.
 
-    const DebuggerItem *bestItem = 0;
+    DebuggerItem bestItem;
     DebuggerItem::MatchLevel bestLevel = DebuggerItem::DoesNotMatch;
 
     foreach (const DebuggerItem &item, DebuggerItemManager::debuggers()) {
@@ -140,12 +140,12 @@ void DebuggerKitInformation::setup(Kit *k)
 
         if (level > bestLevel) {
             bestLevel = level;
-            bestItem = &item;
+            bestItem = item;
         }
     }
 
     // Use the best id we found, or an invalid one.
-    k->setValue(DebuggerKitInformation::id(), bestItem ? bestItem->id() : QVariant());
+    k->setValue(DebuggerKitInformation::id(), bestLevel != DebuggerItem::DoesNotMatch ? bestItem.id() : QVariant());
 }
 
 
