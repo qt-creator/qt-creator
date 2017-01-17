@@ -28,11 +28,6 @@
 #include <cstddef>
 #include <iterator>
 
-#pragma push_macro("noexcept")
-#ifndef __cpp_noexcept
-#define noexcept
-#endif
-
 namespace Utils {
 
 namespace Internal {
@@ -151,5 +146,3 @@ private:
 } // namespace Internal
 
 } // namespace Utils
-
-#pragma pop_macro("noexcept")

@@ -45,19 +45,6 @@
 #include <utility>
 #include <vector>
 
-#pragma push_macro("constexpr")
-#ifndef __cpp_constexpr
-#define constexpr
-#endif
-
-#pragma push_macro("noexcept")
-#ifdef __clang__
-#define  __cpp_noexcept 201003
-#endif
-#ifndef __cpp_noexcept
-#define noexcept
-#endif
-
 #ifdef UNIT_TESTS
 #define unitttest_public public
 #else
@@ -864,6 +851,3 @@ using SmallString = BasicSmallString<31>;
 using PathString = BasicSmallString<191>;
 
 } // namespace Utils
-
-#pragma pop_macro("noexcept")
-#pragma pop_macro("constexpr")
