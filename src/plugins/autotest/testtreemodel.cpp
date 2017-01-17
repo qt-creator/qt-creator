@@ -233,7 +233,7 @@ bool TestTreeModel::sweepChildren(TestTreeItem *item)
     for (int row = item->childCount() - 1; row >= 0; --row) {
         TestTreeItem *child = item->childItem(row);
 
-        if (child->parentItem()->type() != TestTreeItem::Root && child->markedForRemoval()) {
+        if (child->type() != TestTreeItem::Root && child->markedForRemoval()) {
             destroyItem(child);
             hasChanged = true;
         } else if (child->hasChildren()) {
