@@ -359,15 +359,6 @@ QWidget *LocalsAndExpressionsOptionsPage::widget()
         m_group.insert(action(ShowQObjectNames), checkBoxShowQObjectNames);
         m_group.insert(action(DisplayStringLimit), spinBoxDisplayStringLimit);
         m_group.insert(action(MaximalStringLength), spinBoxMaximalStringLength);
-
-#ifndef QT_DEBUG
-#if 0
-        cmd = am->registerAction(m_dumpLogAction, DUMP_LOG, globalcontext);
-        //cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+D,Ctrl+L")));
-        cmd->setDefaultKeySequence(QKeySequence(QCoreApplication::translate("Debugger", "Ctrl+Shift+F11")));
-        mdebug->addAction(cmd);
-#endif
-#endif
     }
     return m_widget;
 }
