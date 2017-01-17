@@ -138,6 +138,7 @@ static TextStyles mixinStyle(TextStyle main, TextStyle mixin)
 {
     TextStyles res;
     res.mainStyle = main;
+    res.mixinStyles.fillWithZero();
     res.mixinStyles.push_back(mixin);
     return res;
 }
