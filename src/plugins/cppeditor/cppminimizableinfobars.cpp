@@ -140,7 +140,7 @@ static InfoBarEntry createMinimizableInfo(const Id &id,
     QTC_CHECK(minimizer);
 
     InfoBarEntry info(id, text);
-    info.setShowDefaultCancelButton(false);
+    info.removeCancelButton();
     // The minimizer() might delete the "Minimize" button immediately and as
     // result invalid reads will happen in QToolButton::mouseReleaseEvent().
     // Avoid this by running the minimizer in the next event loop iteration.

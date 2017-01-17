@@ -59,18 +59,22 @@ void InfoBarEntry::setCustomButtonInfo(const QString &_buttonText, CallBack call
 
 void InfoBarEntry::setCancelButtonInfo(CallBack callBack)
 {
+    m_useCancelButton = true;
     m_cancelButtonCallBack = callBack;
 }
 
 void InfoBarEntry::setCancelButtonInfo(const QString &_cancelButtonText, CallBack callBack)
 {
+    m_useCancelButton = true;
     cancelButtonText = _cancelButtonText;
     m_cancelButtonCallBack = callBack;
 }
 
-void InfoBarEntry::setShowDefaultCancelButton(bool yesno)
+void InfoBarEntry::removeCancelButton()
 {
-    m_showDefaultCancelButton = yesno;
+    m_useCancelButton = false;
+    cancelButtonText.clear();
+    m_cancelButtonCallBack = nullptr;
 }
 
 void InfoBarEntry::setDetailsWidgetCreator(const InfoBarEntry::DetailsWidgetCreator &creator)
@@ -283,17 +287,20 @@ void InfoBarDisplay::update()
             });
         }
 
-        QToolButton *infoWidgetCloseButton = new QToolButton;
-        // need to connect to cancelObjectbefore connecting to cancelButtonClicked,
-        // because the latter removes the button and with it any connect
-        if (info.m_cancelButtonCallBack)
-            connect(infoWidgetCloseButton, &QAbstractButton::clicked, info.m_cancelButtonCallBack);
-        connect(infoWidgetCloseButton, &QAbstractButton::clicked, this, [this, id] {
-            m_infoBar->suppressInfo(id);
-        });
+        QToolButton *infoWidgetCloseButton = nullptr;
+        if (info.m_useCancelButton) {
+            infoWidgetCloseButton = new QToolButton;
+            // need to connect to cancelObjectbefore connecting to cancelButtonClicked,
+            // because the latter removes the button and with it any connect
+            if (info.m_cancelButtonCallBack)
+                connect(infoWidgetCloseButton, &QAbstractButton::clicked, info.m_cancelButtonCallBack);
+            connect(infoWidgetCloseButton, &QAbstractButton::clicked, this, [this, id] {
+                m_infoBar->suppressInfo(id);
+            });
+        }
 
         if (info.cancelButtonText.isEmpty()) {
-            if (info.m_showDefaultCancelButton) {
+            if (infoWidgetCloseButton) {
                 infoWidgetCloseButton->setAutoRaise(true);
                 infoWidgetCloseButton->setIcon(Utils::Icons::CLOSE_FOREGROUND.icon());
                 infoWidgetCloseButton->setToolTip(tr("Close"));
@@ -302,7 +309,7 @@ void InfoBarDisplay::update()
             if (infoWidgetSuppressButton)
                 hbox->addWidget(infoWidgetSuppressButton);
 
-            if (info.m_showDefaultCancelButton)
+            if (infoWidgetCloseButton)
                 hbox->addWidget(infoWidgetCloseButton);
         } else {
             infoWidgetCloseButton->setText(info.cancelButtonText);
