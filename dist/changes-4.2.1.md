@@ -7,14 +7,31 @@ you can check out from the public Git repository. For example:
     git clone git://code.qt.io/qt-creator/qt-creator.git
     git log --cherry-pick --pretty=oneline v4.2.0..v4.2.1
 
+General
+
+* Fixed `Open Command Prompt Here` on Windows (QTCREATORBUG-17439)
+
 Editing
 
 * Fixed that viewport could change unexpectedly when block selection was
   active but not visible in viewport (QTCREATORBUG-17475)
 
+Help
+
+* Fixed crash when using drag & drop with bookmarks (QTCREATORBUG-17547)
+
 All Projects
 
 * Fixed issue with upgrading tool chain settings in auto-detected kits
+* Fixed crash when setting custom executable (QTCREATORBUG-17505)
+
+QMake Projects
+
+* Fixed wrong warning about incompatible compilers
+* Fixed various issues with run configurations
+  (QTCREATORBUG-17462, QTCREATORBUG-17477)
+* Fixed that `OTHER_FILES` and `DISTFILES` in subdirs projects were no longer
+  shown in project tree (QTCREATORBUG-17473)
 
 Qbs Projects
 
@@ -24,6 +41,10 @@ Qbs Projects
 Generic Projects
 
 * Fixed that project files were no longer shown in project tree
+
+C++ Support
+
+* Fixed crash that could happen when using `auto` (QTCREATORBUG-16731)
 
 Debugging
 
@@ -43,3 +64,8 @@ iOS
 
 * Fixed that starting applications in simulator could fail, especially with
   iOS 10 devices (QTCREATORBUG-17336)
+
+Android
+
+* Fixed that password prompt was not shown again after entering invalid
+  keystore password (QTCREATORBUG-17317)

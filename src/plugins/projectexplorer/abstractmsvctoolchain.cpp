@@ -30,10 +30,12 @@
 #include "projectexplorersettings.h"
 #include "taskhub.h"
 
+#include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
 #include <utils/synchronousprocess.h>
 
 #include <QDir>
+#include <QSysInfo>
 #include <QTemporaryFile>
 #include <QTextCodec>
 
@@ -271,7 +273,8 @@ bool AbstractMsvcToolChain::generateEnvironmentSettings(const Utils::Environment
         call += ' ';
         call += batchArgs.toLocal8Bit();
     }
-    saver.write("chcp 65001\r\n");
+    if (Utils::HostOsInfo::isWindowsHost() && QSysInfo::WindowsVersion >= QSysInfo::WV_WINDOWS7)
+        saver.write("chcp 65001\r\n"); // Only works for Windows 7 or later
     saver.write(call + "\r\n");
     saver.write("@echo " + marker.toLocal8Bit() + "\r\n");
     saver.write("set\r\n");

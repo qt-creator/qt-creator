@@ -47,19 +47,7 @@
 
     \list
 
-        \li Windows
-
-        \list
-
-            \li Windows Vista
-
-            \li Windows 7
-
-            \li Windows 8
-
-            \li Windows 8.1
-
-        \endlist
+        \li Windows 7 or later
 
         \note Some \QC plugins rely on Direct3D (part of DirectX). You might
         have to manually enable support for it if you are running Windows in a
@@ -69,7 +57,7 @@
         \l{http://pubs.vmware.com/workstation-10/index.jsp?topic=%2Fcom.vmware.ws.using.doc%2FGUID-EA588485-718A-4FD8-81F5-B6E1F04C5788.html}
         {Prepare the Host System to Use DirectX 9 Accelerated Graphics}.
 
-        \li (K)Ubuntu Linux 11.10 (32-bit and 64-bit) or later
+        \li (K)Ubuntu Linux 14.04 (64-bit) or later
 
         To build Qt applications using \QC on Linux, you usually need the
         following:
@@ -109,7 +97,7 @@
 
             \endlist
 
-        \li OS X 10.7 or later with the following:
+        \li \macos 10.8 or later with the following:
 
             \list
 
@@ -122,9 +110,9 @@
 
     \section2 Developing for Embedded Devices
 
-    The development environment supported by Qt for Device Creation is
-    Ubuntu Linux 64-bit (12.04 LTS or later). For more information about
-    the requirements for the development host, see the
+    Either Windows 7 or later or Ubuntu Linux 64-bit 12.04 LTS or later is
+    required to install and use Qt for Device Creation. For more information
+    about the requirements for the development host, see the
     \l{http://doc.qt.io/QtForDeviceCreation/qtee-installation-guide.html}
     {Installation Guide} in the
     \l{http://doc.qt.io/QtForDeviceCreation/index.html}{Qt for Device Creation}
