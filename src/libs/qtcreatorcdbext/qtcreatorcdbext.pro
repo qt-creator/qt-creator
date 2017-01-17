@@ -4,6 +4,7 @@ TEMPLATE = lib
 include(../../../qtcreator.pri)
 include(cdb_detect.pri)
 
+isEmpty(QTC_KEEP_CDBEXT_DEFAULT_CONFIG): CONFIG += release
 
 VERSION =
 CONFIG -= precompile_header
