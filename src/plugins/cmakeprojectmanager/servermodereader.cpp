@@ -144,7 +144,7 @@ void ServerModeReader::parse(bool force)
 
     QTC_ASSERT(m_cmakeServer, return);
     QVariantMap extra;
-    if (force) {
+    if (force || !QDir(m_parameters.buildDirectory.toString()).exists("CMakeCache.txt")) {
         QStringList cacheArguments = transform(m_parameters.configuration,
                                                [this](const CMakeConfigItem &i) {
             return i.toArgument(m_parameters.expander);
