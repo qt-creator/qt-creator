@@ -24,34 +24,77 @@
 ############################################################################
 
 source("../../shared/qtcreator.py")
-source("../../shared/suites_qtta.py")
 
-welcomePage = ":Qt Creator.WelcomePage_QQuickWidget"
-gettingStartedText = getQmlItem("Button", welcomePage, False,
-                                "text='Get Started Now' id='gettingStartedButton'")
+getStarted = 'Get Started Now'
 
-def clickItemVerifyHelpCombo(qmlItem, expectedHelpComboRegex, testDetails):
-    global gettingStartedText
-    mouseClick(waitForObject(qmlItem), 5, 5, 0, Qt.LeftButton)
+def clickItemVerifyHelpCombo(button, expectedHelpComboRegex, testDetails):
+    global getStarted
+    mouseClick(button)
     helpCombo = waitForObject(":Qt Creator_HelpSelector_QComboBox")
     if not test.verify(waitFor('re.match(expectedHelpComboRegex, str(helpCombo.currentText))',
                                5000), testDetails):
         test.log("Found %s" % str(helpCombo.currentText))
     # select "Welcome" page from left toolbar again
     switchViewTo(ViewConstants.WELCOME)
-    test.verify(checkIfObjectExists(gettingStartedText),
-                "Verifying: Get Started Now button is being displayed.")
+    wsButtonFrame, wsButtonLabel = getWelcomeScreenSideBarButton(getStarted)
+    return test.verify(all((wsButtonFrame, wsButtonLabel)),
+                       "Verifying: '%s' button is being displayed." % getStarted)
+def buttonActive(button):
+    # colors of the default theme for active button on Welcome page
+    (activeRed, activeGreen, activeBlue) = (64, 66, 68)
+    # QPalette::Window (used background color of Welcome page buttons)
+    enumQPaletteWindow = 10
+    color = button.palette.color(enumQPaletteWindow)
+    return color.red == activeRed and color.green == activeGreen and color.blue == activeBlue
 
-def waitForButtonsState(projectsChecked, examplesChecked, tutorialsChecked, timeout=5000):
-    projButton = waitForObject(getQmlItem("Button", welcomePage, False, "text='Projects'"))
-    exmpButton = waitForObject(getQmlItem("Button", welcomePage, False, "text='Examples'"))
-    tutoButton = waitForObject(getQmlItem("Button", welcomePage, False, "text='Tutorials'"))
-    return waitFor('projButton.checked == projectsChecked '
-                   'and exmpButton.checked == examplesChecked '
-                   'and tutoButton.checked == tutorialsChecked', timeout)
+def waitForButtonsState(projectsActive, examplesActive, tutorialsActive, timeout=5000):
+    projButton = getWelcomeScreenSideBarButton('Projects')[0]
+    exmpButton = getWelcomeScreenSideBarButton('Examples')[0]
+    tutoButton = getWelcomeScreenSideBarButton('Tutorials')[0]
+    if not all((projButton, exmpButton, tutoButton)):
+        return False
+    return waitFor('buttonActive(projButton) == projectsActive '
+                   'and buttonActive(exmpButton) == examplesActive '
+                   'and buttonActive(tutoButton) == tutorialsActive', timeout)
+
+def __getWelcomeScreenButtonHelper__(buttonLabel, widgetWithQFrames):
+    frames = [child for child in object.children(widgetWithQFrames) if className(child) == 'QFrame']
+    for frame in frames:
+        label = getChildByClass(frame, 'QLabel')
+        if str(label.text) == buttonLabel:
+            return frame, label
+    return None, None
+
+def getWelcomeScreenSideBarButton(buttonLabel):
+    sideBar = waitForObject("{type='Welcome::Internal::SideBar' unnamed='1' "
+                            "window=':Qt Creator_Core::Internal::MainWindow'}")
+    return __getWelcomeScreenButtonHelper__(buttonLabel, sideBar)
+
+def getWelcomeScreenMainButton(buttonLabel):
+    stackedWidget = waitForObject("{type='QWidget' unnamed='1' visible='1' "
+                                  "leftWidget={type='QWidget' unnamed='1' visible='1' "
+                                  "leftWidget={type='Welcome::Internal::SideBar' unnamed='1' "
+                                  "window=':Qt Creator_Core::Internal::MainWindow'}}}")
+    currentStackWidget = stackedWidget.currentWidget()
+    return __getWelcomeScreenButtonHelper__(buttonLabel, currentStackWidget)
+
+def checkTableViewForContent(tableViewStr, expectedRegExTitle, section, atLeastOneText):
+    try:
+        tableView = findObject(tableViewStr) # waitForObject does not work - visible is 0?
+        model = tableView.model()
+
+        children = [ch for ch in object.children(tableView) if className(ch) == 'QModelIndex']
+        for child in children:
+            match = re.match(expectedRegExTitle, str(model.data(child).toString()))
+            if match:
+                test.passes(atLeastOneText, "Found '%s'" % match.group())
+                return
+        test.fail("No %s are displayed on Welcome page (%s)" % (section.lower(), section))
+    except:
+        test.fail("Failed to get tableview to check content of Welcome page (%s)" % section)
 
 def main():
-    global gettingStartedText
+    global getStarted
     # open Qt Creator
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
@@ -60,72 +103,84 @@ def main():
     setAlwaysStartFullHelp()
     addCurrentCreatorDocumentation()
 
-    buttonsAndState = {'Projects':True, 'Examples':False, 'Tutorials':False, 'New Project':False,
-                       'Open Project':False}
+    buttonsAndState = {'Projects':True, 'Examples':False, 'Tutorials':False}
     for button, state in buttonsAndState.items():
-        qmlItem = getQmlItem("Button", welcomePage, False, "text='%s'" % button)
-        if test.verify(checkIfObjectExists(qmlItem),
-                       "Verifying whether '%s' button is shown." % button):
-            buttonObj = findObject(qmlItem)
-            test.compare(buttonObj.checked, state, "Verifying whether '%s' button is checked."
-                         % button)
+        wsButtonFrame, wsButtonLabel = getWelcomeScreenSideBarButton(button)
+        if test.verify(all((wsButtonFrame, wsButtonLabel)),
+                       "Verified whether '%s' button is shown." % button):
+            test.compare(buttonActive(wsButtonFrame), state,
+                         "Verifying whether '%s' button is active (%s)." % (button, state))
 
-    test.verify(checkIfObjectExists(gettingStartedText),
-                   "Verifying: Qt Creator displays Welcome Page with 'Get Started Now' button.")
-    clickItemVerifyHelpCombo(gettingStartedText, "Qt Creator Manual",
-                             "Verifying: Help with Creator Documentation is being opened.")
-    textUrls = {'Online Community':'http://forum.qt.io',
-                'Blogs':'http://planet.qt.io',
-                'Qt Account':'https://account.qt.io',
-                'User Guide':'qthelp://org.qt-project.qtcreator/doc/index.html'
-                }
-    for text, url in textUrls.items():
-        qmlItem = getQmlItem("Text", welcomePage, False, "text='%s'" % text)
-        if test.verify(checkIfObjectExists(qmlItem),
-                       "Verifying: Link to %s exists." % text):
-            itemObj = findObject(qmlItem)
-            # some URLs might have varying parameters - limiting them to URL without a query
-            if url.startswith("qthelp"):
-                relevantUrlPart = str(itemObj.parent.openHelpUrl).split("?")[0]
-            else:
-                relevantUrlPart = str(itemObj.parent.openUrl).split("?")[0]
-            test.compare(relevantUrlPart, url, "Verifying link.")
+    for button in ['New Project', 'Open Project']:
+        wsButtonFrame, wsButtonLabel = getWelcomeScreenMainButton(button)
+        if test.verify(all((wsButtonFrame, wsButtonLabel)),
+                       "Verified whether '%s' button is shown." % button):
+            test.verify(not buttonActive(wsButtonFrame),
+                        "Verifying whether '%s' button is inactive." % button)
 
-    mouseClick(gettingStartedText, 5, 5, 0, Qt.LeftButton)
-    qcManualQModelIndexStr = getQModelIndexStr("text~='Qt Creator Manual [0-9.]+'",
-                                               ":Qt Creator_QHelpContentWidget")
-    if str(waitForObject(":Qt Creator_HelpSelector_QComboBox").currentText) == "(Untitled)":
-        mouseClick(qcManualQModelIndexStr, 5, 5, 0, Qt.LeftButton)
-        test.warning("Clicking 'Get Started Now' the second time showed blank page (Untitled)")
+    wsButtonFrame, wsButtonLabel = getWelcomeScreenSideBarButton(getStarted)
+    if test.verify(all((wsButtonFrame, wsButtonLabel)),
+                   "Verifying: Qt Creator displays Welcome Page with '%s' button." % getStarted):
+        if clickItemVerifyHelpCombo(wsButtonLabel, "Qt Creator Manual",
+                                    "Verifying: Help with Creator Documentation is being opened."):
+
+            textUrls = {'Online Community':'http://forum.qt.io',
+                        'Blogs':'http://planet.qt.io',
+                        'Qt Account':'https://account.qt.io',
+                        'User Guide':'qthelp://org.qt-project.qtcreator/doc/index.html'
+                        }
+            for text, url in textUrls.items():
+                test.verify(checkIfObjectExists("{type='QLabel' text='%s' unnamed='1' visible='1' "
+                                                "window=':Qt Creator_Core::Internal::MainWindow'}"
+                                                % text),
+                            "Verifying whether link button (%s) exists." % text)
+                # TODO find way to verify URLs (or tweak source code of Welcome page to become able)
+    wsButtonFrame, wsButtonLabel = getWelcomeScreenSideBarButton(getStarted)
+    if wsButtonLabel is not None:
+        mouseClick(wsButtonLabel)
+        qcManualQModelIndexStr = getQModelIndexStr("text~='Qt Creator Manual [0-9.]+'",
+                                                   ":Qt Creator_QHelpContentWidget")
+        if str(waitForObject(":Qt Creator_HelpSelector_QComboBox").currentText) == "(Untitled)":
+            mouseClick(qcManualQModelIndexStr)
+            test.warning("Clicking '%s' the second time showed blank page (Untitled)" % getStarted)
+    else:
+        test.fatal("Something's wrong - failed to find/click '%s' the second time." % getStarted)
 
     # select "Welcome" page from left toolbar again
     switchViewTo(ViewConstants.WELCOME)
-    test.verify(checkIfObjectExists(gettingStartedText),
+    wsButtonFrame, wsButtonLabel = getWelcomeScreenSideBarButton(getStarted)
+    test.verify(wsButtonFrame is not None and wsButtonLabel is not None,
                 "Verifying: Getting Started topic is being displayed.")
     # select Examples and roughly check them
-    mouseClick(waitForObject(getQmlItem("Button", welcomePage, False, "text='Examples'")),
-               5, 5, 0, Qt.LeftButton)
-    waitForButtonsState(False, True, False)
-    expect = (("Rectangle", "id='rectangle1' radius='0'", "examples rectangle"),
-              ("TextField", "id='lineEdit' placeholderText='Search in Examples...'",
-               "examples search line edit"),
-              ("ComboBox", "id='comboBox'", "Qt version combo box"),
-              ("Delegate", "id='delegate' radius='0' caption~='.*Example'", "at least one example")
-              )
+    wsButtonFrame, wsButtonLabel = getWelcomeScreenSideBarButton('Examples')
+    if all((wsButtonFrame, wsButtonLabel)):
+        mouseClick(wsButtonLabel)
+    test.verify(waitForButtonsState(False, True, False), "Buttons' states have changed.")
+
+    expect = (("QTableView", "unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'",
+               "examples list"),
+              ("QLineEdit", "placeholderText='Search in Examples...'", "examples search line edit"),
+              ("QComboBox", "text~='.*Qt.*'", "Qt version combo box"))
+    search = "{type='%s' %s}"
     for (qType, prop, info) in expect:
-        test.verify(checkIfObjectExists(getQmlItem(qType, welcomePage, None, prop)),
+        test.verify(checkIfObjectExists(search % (qType, prop)),
                     "Verifying whether %s is shown" % info)
+    checkTableViewForContent(search % (expect[0][0], expect[0][1]), ".*Example", "Examples",
+                             "Verifying that at least one example is displayed.")
+
     # select Tutorials and roughly check them
-    mouseClick(waitForObject(getQmlItem("Button", welcomePage, False, "text='Tutorials'")),
-               5, 5, 0, Qt.LeftButton)
-    waitForButtonsState(False, False, True)
-    expect = (("Rectangle", "id='rectangle1' radius='0'", "tutorials rectangle"),
-              ("TextField", "id='lineEdit' placeholderText='Search in Tutorials...'",
-               "tutorials search line edit"),
-              ("Delegate", "id='delegate' radius='0' caption~='Creating.*'", "at least one tutorial")
-              )
+    wsButtonFrame, wsButtonLabel = getWelcomeScreenSideBarButton('Tutorials')
+    if all((wsButtonFrame, wsButtonLabel)):
+        mouseClick(wsButtonLabel)
+    test.verify(waitForButtonsState(False, False, True), "Buttons' states have changed.")
+    expect = (("QTableView", "unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'",
+               "tutorials list"),
+              ("QLineEdit", "placeholderText='Search in Tutorials...'",
+               "tutorials search line edit"))
     for (qType, prop, info) in expect:
-        test.verify(checkIfObjectExists(getQmlItem(qType, welcomePage, None, prop)),
+        test.verify(checkIfObjectExists(search % (qType, prop)),
                     "Verifying whether %s is shown" % info)
+    checkTableViewForContent(search % (expect[0][0], expect[0][1]), "Creating.*", "Tutorials",
+                             "Verifying that at least one tutorial is displayed.")
     # exit Qt Creator
     invokeMenuItem("File", "Exit")
