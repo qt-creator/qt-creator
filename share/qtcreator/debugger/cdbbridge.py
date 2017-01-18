@@ -287,15 +287,17 @@ class Dumper(DumperBase):
         return hookSymbolName
 
     def qtNamespace(self):
+        namespace = ''
         qstrdupSymbolName = '*qstrdup'
         coreModuleName = self.qtCoreModuleName()
         if coreModuleName is not None:
             qstrdupSymbolName = '%s!%s' % (coreModuleName, qstrdupSymbolName)
         resolved = cdbext.resolveSymbol(qstrdupSymbolName)
-        if not resolved:
-            return ''
-        name = resolved[0].split('!')[1]
-        namespace = name[:name.find(':') + 2] if '::' in name else ''
+        if resolved:
+            name = resolved[0].split('!')[1]
+            namespaceIndex = name.find('::')
+            if namespaceIndex > 0:
+                namespace = name[:namespaceIndex + 2]
         self.qtNamespace = lambda: namespace
         return namespace
 
