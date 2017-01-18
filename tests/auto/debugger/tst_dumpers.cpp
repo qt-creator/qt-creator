@@ -1646,7 +1646,7 @@ void tst_Dumpers::dumper()
             qDebug() << "MSG: " << fullOutput.mid(pos1, pos2 - pos1 - 1);
         }
         qDebug() << "CONTENTS     : " << contents;
-        qDebug() << "FULL OUTPUT  : " << fullOutput;
+        qDebug() << "FULL OUTPUT  : " << fullOutput.data();
         qDebug() << "Qt VERSION   : " << QString::number(context.qtVersion, 16);
         if (m_debuggerEngine != CdbEngine)
             qDebug() << "GCC VERSION   : " << context.gccVersion;
