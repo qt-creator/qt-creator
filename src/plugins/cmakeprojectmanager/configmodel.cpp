@@ -106,6 +106,7 @@ QVariant ConfigModel::data(const QModelIndex &index, int role) const
             QFont font;
             font.setItalic(item.isCMakeChanged);
             font.setBold(item.isUserNew);
+            font.setStrikeOut(!item.inCMakeCache && !item.isUserNew);
             return font;
         }
         default:
@@ -307,16 +308,16 @@ bool ConfigModel::hasCMakeChanges() const
 
 QList<ConfigModel::DataItem> ConfigModel::configurationChanges() const
 {
-    QList<DataItem> result;
     const QList<InternalDataItem> tmp
-            = Utils::filtered(m_configuration, [](const InternalDataItem &i) { return i.isUserChanged || i.isUserNew; });
-    foreach (const InternalDataItem &item, tmp) {
+            = Utils::filtered(m_configuration, [](const InternalDataItem &i) {
+        return i.isUserChanged || i.isUserNew || !i.inCMakeCache;
+    });
+    return Utils::transform(tmp, [](const InternalDataItem &item) {
         DataItem newItem(item);
         if (item.isUserChanged)
             newItem.value = item.newValue;
-        result << newItem;
-    }
-    return result;
+        return newItem;
+    });
 }
 
 ConfigModel::InternalDataItem &ConfigModel::itemAtRow(int row)

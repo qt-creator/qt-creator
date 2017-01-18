@@ -332,6 +332,10 @@ CMakeConfig BuildDirManager::parsedConfiguration() const
         return m_cmakeCache;
     if (m_cmakeCache.isEmpty())
         m_cmakeCache = m_reader->takeParsedConfiguration();
+
+    for (auto &ci : m_cmakeCache)
+        ci.inCMakeCache = true;
+
     return m_cmakeCache;
 }
 

@@ -67,6 +67,7 @@ public:
     QByteArray key;
     Type type = STRING;
     bool isAdvanced = false;
+    bool inCMakeCache = false;
     QByteArray value; // converted to string as needed
     QByteArray documentation;
     QStringList values;

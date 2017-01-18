@@ -273,6 +273,7 @@ QList<ConfigModel::DataItem> CMakeBuildConfiguration::completeCMakeConfiguration
         j.value = QString::fromUtf8(i.value);
         j.description = QString::fromUtf8(i.documentation);
         j.values = i.values;
+        j.inCMakeCache = i.inCMakeCache;
 
         j.isAdvanced = i.isAdvanced || i.type == CMakeConfigItem::INTERNAL;
         switch (i.type) {
@@ -308,6 +309,7 @@ void CMakeBuildConfiguration::setCurrentCMakeConfiguration(const QList<ConfigMod
         ni.value = i.value.toUtf8();
         ni.documentation = i.description.toUtf8();
         ni.isAdvanced = i.isAdvanced;
+        ni.inCMakeCache = i.inCMakeCache;
         ni.values = i.values;
         switch (i.type) {
         case CMakeProjectManager::ConfigModel::DataItem::BOOLEAN:
