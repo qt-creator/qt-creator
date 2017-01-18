@@ -425,7 +425,7 @@ void MainWidget::exportToImage()
             .arg(suggestedFileName)
             .arg(QDateTime::currentDateTime().toString("yyyyMMddhhmmss"));
     const QString selectedFileName = QFileDialog::getSaveFileName(this,
-                                                                  tr("Export Canvas To Image"),
+                                                                  tr("Export Canvas to Image"),
                                                                   suggestedFileName,
                                                                   saveImageFileFilter());
     if (!selectedFileName.isEmpty()) {

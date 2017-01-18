@@ -559,7 +559,7 @@ void TestResultsPane::onCopyWholeTriggered()
 void TestResultsPane::onSaveWholeTriggered()
 {
     const QString fileName = QFileDialog::getSaveFileName(Core::ICore::dialogParent(),
-                                                          tr("Save Output To..."));
+                                                          tr("Save Output To"));
     if (fileName.isEmpty())
         return;
 
