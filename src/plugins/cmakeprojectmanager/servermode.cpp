@@ -25,11 +25,13 @@
 
 #include "servermode.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/reaper.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/temporarydirectory.h>
 
 #include <QByteArray>
 #include <QCryptographicHash>
@@ -61,13 +63,12 @@ Q_LOGGING_CATEGORY(cmakeServerMode, "qtc.cmake.serverMode");
 // Helpers:
 // ----------------------------------------------------------------------
 
-QString socketName(const Utils::FileName &buildDirectory)
+QString socketName()
 {
-    if (HostOsInfo::isWindowsHost()) {
-        QUuid uuid = QUuid::createUuid();
+    QUuid uuid = QUuid::createUuid();
+    if (HostOsInfo::isWindowsHost())
         return "\\\\.\\pipe\\" + uuid.toString();
-    }
-    return buildDirectory.toString() + "/socket";
+    return Utils::TemporaryDirectory::masterDirectoryPath() + "/cmake-socket-" + uuid.toString();
 }
 
 bool isValid(const QVariant &v)
@@ -108,7 +109,7 @@ ServerMode::ServerMode(const Environment &env,
 
     m_cmakeProcess->setEnvironment(env);
     m_cmakeProcess->setWorkingDirectory(buildDirectory.toString());
-    m_socketName = socketName(buildDirectory);
+    m_socketName = socketName();
     const QStringList args = QStringList({ "-E", "server", "--pipe=" + m_socketName });
 
     connect(m_cmakeProcess.get(), &QtcProcess::started, this, [this]() { m_connectionTimer.start(); });

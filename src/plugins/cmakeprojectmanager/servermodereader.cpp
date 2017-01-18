@@ -62,15 +62,6 @@ const char SOURCES_KEY[] = "sources";
 
 const int MAX_PROGRESS = 1400;
 
-// ----------------------------------------------------------------------
-// Helpers:
-// ----------------------------------------------------------------------
-
-QString socketName(const BuildDirReader::Parameters &p)
-{
-    return p.buildDirectory.toString() + "/socket";
-}
-
 // --------------------------------------------------------------------
 // ServerModeReader:
 // --------------------------------------------------------------------
