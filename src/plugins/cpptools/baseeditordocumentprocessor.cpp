@@ -87,6 +87,12 @@ void BaseEditorDocumentProcessor::editorDocumentTimerRestarted()
 {
 }
 
+void BaseEditorDocumentProcessor::setParserConfig(
+        const BaseEditorDocumentParser::Configuration config)
+{
+    parser()->setConfiguration(config);
+}
+
 void BaseEditorDocumentProcessor::runParser(QFutureInterface<void> &future,
                                             BaseEditorDocumentParser::Ptr parser,
                                             BaseEditorDocumentParser::UpdateParams updateParams)

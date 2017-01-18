@@ -82,6 +82,8 @@ public:
 
     void editorDocumentTimerRestarted() override;
 
+    void setParserConfig(const CppTools::BaseEditorDocumentParser::Configuration config) override;
+
     ClangBackEnd::FileContainer fileContainerWithArguments() const;
 
     void clearDiagnosticsWithFixIts();

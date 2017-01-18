@@ -34,14 +34,29 @@ enum class Language { C, Cxx };
 class ProjectPartInfo {
 public:
     enum Hint {
-        NoHint,
-        IsFallbackMatch,
-        IsAmbiguousMatch
+        NoHint = 0,
+        IsFallbackMatch  = 1 << 0,
+        IsAmbiguousMatch = 1 << 1,
+        IsPreferredMatch = 1 << 2,
+        IsFromProjectMatch = 1 << 3,
+        IsFromDependenciesMatch = 1 << 4,
     };
+    Q_DECLARE_FLAGS(Hints, Hint)
+
+    ProjectPartInfo() = default;
+    ProjectPartInfo(const ProjectPart::Ptr &projectPart,
+                    const QList<ProjectPart::Ptr> &projectParts,
+                    Hints hints)
+        : projectPart(projectPart)
+        , projectParts(projectParts)
+        , hints(hints)
+    {
+    }
 
 public:
     ProjectPart::Ptr projectPart;
-    Hint hint;
+    QList<ProjectPart::Ptr> projectParts; // The one above as first plus alternatives.
+    Hints hints = NoHint;
 };
 
 } // namespace CppTools

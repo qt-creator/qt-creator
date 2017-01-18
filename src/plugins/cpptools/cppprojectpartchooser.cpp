@@ -37,7 +37,7 @@ public:
     struct PrioritizedProjectPart
     {
         PrioritizedProjectPart(const ProjectPart::Ptr &projectPart, int priority)
-            : projectPart(projectPart) , priority(priority) {}
+            : projectPart(projectPart), priority(priority) {}
 
         ProjectPart::Ptr projectPart;
         int priority = 0;
@@ -46,38 +46,42 @@ public:
     ProjectPartPrioritizer(const QList<ProjectPart::Ptr> &projectParts,
                            const QString &preferredProjectPartId,
                            const ProjectExplorer::Project *activeProject,
-                           Language languagePreference)
-        : m_projectParts(projectParts)
-        , m_preferredProjectPartId(preferredProjectPartId)
+                           Language languagePreference,
+                           bool areProjectPartsFromDependencies)
+        : m_preferredProjectPartId(preferredProjectPartId)
         , m_activeProject(activeProject)
         , m_languagePreference(languagePreference)
     {
-        // Determine best project part
-        const QList<PrioritizedProjectPart> prioritized = prioritize();
-        m_projectPart = prioritized.first().projectPart;
+        // Prioritize
+        const QList<PrioritizedProjectPart> prioritized = prioritize(projectParts);
+        for (const PrioritizedProjectPart &ppp : prioritized)
+            m_info.projectParts << ppp.projectPart;
 
-        // Determine ambiguity
-        m_isAmbiguous = prioritized.size() > 1
-                ? prioritized[0].priority == prioritized[1].priority
-                : false;
+        // Best project part
+        m_info.projectPart = m_info.projectParts.first();
+
+        // Hints
+        if (m_info.projectParts.size() > 1)
+            m_info.hints |= ProjectPartInfo::IsAmbiguousMatch;
+        if (prioritized.first().priority > 1000)
+            m_info.hints |= ProjectPartInfo::IsPreferredMatch;
+        if (areProjectPartsFromDependencies)
+            m_info.hints |= ProjectPartInfo::IsFromDependenciesMatch;
+        else
+            m_info.hints |= ProjectPartInfo::IsFromProjectMatch;
     }
 
-    ProjectPart::Ptr projectPart()
+    ProjectPartInfo info() const
     {
-        return m_projectPart;
-    }
-
-    bool isAmbiguous() const
-    {
-        return m_isAmbiguous;
+        return m_info;
     }
 
 private:
-    QList<PrioritizedProjectPart> prioritize()
+    QList<PrioritizedProjectPart> prioritize(const QList<ProjectPart::Ptr> &projectParts)
     {
         // Prioritize
-        QList<PrioritizedProjectPart> prioritized = Utils::transform(m_projectParts,
-                [&](const ProjectPart::Ptr &projectPart) {
+        QList<PrioritizedProjectPart> prioritized = Utils::transform(projectParts,
+                                                        [&](const ProjectPart::Ptr &projectPart) {
             return PrioritizedProjectPart{projectPart, priority(*projectPart)};
         });
 
@@ -118,14 +122,12 @@ private:
     }
 
 private:
-    const QList<ProjectPart::Ptr> m_projectParts;
     const QString m_preferredProjectPartId;
     const ProjectExplorer::Project *m_activeProject = nullptr;
     Language m_languagePreference = Language::Cxx;
 
     // Results
-    ProjectPart::Ptr m_projectPart;
-    bool m_isAmbiguous = false;
+    ProjectPartInfo m_info;
 };
 
 ProjectPartInfo ProjectPartChooser::choose(
@@ -141,40 +143,30 @@ ProjectPartInfo ProjectPartChooser::choose(
     QTC_CHECK(m_fallbackProjectPart);
 
     ProjectPart::Ptr projectPart = currentProjectPartInfo.projectPart;
-    ProjectPartInfo::Hint hint = ProjectPartInfo::NoHint;
-
     QList<ProjectPart::Ptr> projectParts = m_projectPartsForFile(filePath);
+    bool areProjectPartsFromDependencies = false;
+
     if (projectParts.isEmpty()) {
         if (!projectsUpdated && projectPart
-                && currentProjectPartInfo.hint == ProjectPartInfo::IsFallbackMatch)
+                && currentProjectPartInfo.hints & ProjectPartInfo::IsFallbackMatch)
             // Avoid re-calculating the expensive dependency table for non-project files.
-            return {projectPart, ProjectPartInfo::IsFallbackMatch};
+            return ProjectPartInfo(projectPart, {projectPart}, ProjectPartInfo::IsFallbackMatch);
 
         // Fall-back step 1: Get some parts through the dependency table:
         projectParts = m_projectPartsFromDependenciesForFile(filePath);
         if (projectParts.isEmpty()) {
             // Fall-back step 2: Use fall-back part from the model manager:
             projectPart = m_fallbackProjectPart();
-            hint = ProjectPartInfo::IsFallbackMatch;
-        } else {
-            ProjectPartPrioritizer prioritizer(projectParts,
-                                               preferredProjectPartId,
-                                               activeProject,
-                                               languagePreference);
-            projectPart = prioritizer.projectPart();
+            return ProjectPartInfo(projectPart, {projectPart}, ProjectPartInfo::IsFallbackMatch);
         }
-    } else {
-        ProjectPartPrioritizer prioritizer(projectParts,
-                                           preferredProjectPartId,
-                                           activeProject,
-                                           languagePreference);
-        projectPart = prioritizer.projectPart();
-        hint = prioritizer.isAmbiguous()
-                ? ProjectPartInfo::IsAmbiguousMatch
-                : ProjectPartInfo::NoHint;
+        areProjectPartsFromDependencies = true;
     }
 
-    return {projectPart, hint};
+    return ProjectPartPrioritizer(projectParts,
+                                  preferredProjectPartId,
+                                  activeProject,
+                                  languagePreference,
+                                  areProjectPartsFromDependencies).info();
 }
 
 void ProjectPartChooser::setFallbackProjectPart(const FallBackProjectPart &getter)

@@ -49,7 +49,9 @@ protected:
 
 protected:
     QString filePath;
-    ProjectPartInfo currentProjectPartInfo{ProjectPart::Ptr(new ProjectPart),
+    ProjectPart::Ptr currentProjectPart{new ProjectPart};
+    ProjectPartInfo currentProjectPartInfo{currentProjectPart,
+                                           {currentProjectPart},
                                            ProjectPartInfo::NoHint};
     QString preferredProjectPartId;
     const ProjectExplorer::Project *activeProject = nullptr;
@@ -72,6 +74,37 @@ TEST_F(ProjectPartChooser, ChooseManuallySet)
     const ProjectPart::Ptr chosen = choose().projectPart;
 
     ASSERT_THAT(chosen, Eq(p2));
+}
+
+TEST_F(ProjectPartChooser, IndicateManuallySet)
+{
+    ProjectPart::Ptr p1(new ProjectPart);
+    ProjectPart::Ptr p2(new ProjectPart);
+    p2->projectFile = preferredProjectPartId = "someId";
+    projectPartsForFile += {p1, p2};
+
+    const ProjectPartInfo::Hints hints = choose().hints;
+
+    ASSERT_TRUE(hints & ProjectPartInfo::IsPreferredMatch);
+}
+
+TEST_F(ProjectPartChooser, IndicateManuallySetForFallbackToProjectPartFromDependencies)
+{
+    ProjectPart::Ptr p1(new ProjectPart);
+    ProjectPart::Ptr p2(new ProjectPart);
+    p2->projectFile = preferredProjectPartId = "someId";
+    projectPartsFromDependenciesForFile += {p1, p2};
+
+    const ProjectPartInfo::Hints hints = choose().hints;
+
+    ASSERT_TRUE(hints & ProjectPartInfo::IsPreferredMatch);
+}
+
+TEST_F(ProjectPartChooser, DoNotIndicateNotManuallySet)
+{
+    const ProjectPartInfo::Hints hints = choose().hints;
+
+    ASSERT_FALSE(hints & ProjectPartInfo::IsPreferredMatch);
 }
 
 TEST_F(ProjectPartChooser, ForMultipleChooseFromActiveProject)
@@ -154,9 +187,20 @@ TEST_F(ProjectPartChooser, IndicateMultiple)
     const ProjectPart::Ptr p2{new ProjectPart};
     projectPartsForFile += { p1, p2 };
 
-    const ProjectPartInfo::Hint hint = choose().hint;
+    const ProjectPartInfo::Hints hints = choose().hints;
 
-    ASSERT_THAT(hint, Eq(ProjectPartInfo::Hint::IsAmbiguousMatch));
+    ASSERT_TRUE(hints & ProjectPartInfo::IsAmbiguousMatch);
+}
+
+TEST_F(ProjectPartChooser, IndicateMultipleForFallbackToProjectPartFromDependencies)
+{
+    const ProjectPart::Ptr p1{new ProjectPart};
+    const ProjectPart::Ptr p2{new ProjectPart};
+    projectPartsFromDependenciesForFile += { p1, p2 };
+
+    const ProjectPartInfo::Hints hints = choose().hints;
+
+    ASSERT_TRUE(hints & ProjectPartInfo::IsAmbiguousMatch);
 }
 
 TEST_F(ProjectPartChooser, ForMultipleChooseNewIfPreviousIsGone)
@@ -193,7 +237,7 @@ TEST_F(ProjectPartChooser, ContinueUsingFallbackFromModelManagerIfProjectDoesNot
     // ...without re-calculating the dependency table.
     fallbackProjectPart.reset(new ProjectPart);
     currentProjectPartInfo.projectPart = fallbackProjectPart;
-    currentProjectPartInfo.hint = ProjectPartInfo::IsFallbackMatch;
+    currentProjectPartInfo.hints |= ProjectPartInfo::IsFallbackMatch;
     projectPartsFromDependenciesForFile += ProjectPart::Ptr(new ProjectPart);
 
     const ProjectPart::Ptr chosen = choose().projectPart;
@@ -205,7 +249,7 @@ TEST_F(ProjectPartChooser, StopUsingFallbackFromModelManagerIfProjectChanges1)
 {
     fallbackProjectPart.reset(new ProjectPart);
     currentProjectPartInfo.projectPart = fallbackProjectPart;
-    currentProjectPartInfo.hint = ProjectPartInfo::IsFallbackMatch;
+    currentProjectPartInfo.hints |= ProjectPartInfo::IsFallbackMatch;
     const ProjectPart::Ptr addedProject(new ProjectPart);
     projectPartsForFile += addedProject;
 
@@ -218,7 +262,7 @@ TEST_F(ProjectPartChooser, StopUsingFallbackFromModelManagerIfProjectChanges2)
 {
     fallbackProjectPart.reset(new ProjectPart);
     currentProjectPartInfo.projectPart = fallbackProjectPart;
-    currentProjectPartInfo.hint = ProjectPartInfo::IsFallbackMatch;
+    currentProjectPartInfo.hints |= ProjectPartInfo::IsFallbackMatch;
     const ProjectPart::Ptr addedProject(new ProjectPart);
     projectPartsFromDependenciesForFile += addedProject;
     projectsChanged = true;
@@ -232,9 +276,27 @@ TEST_F(ProjectPartChooser, IndicateFallbacktoProjectPartFromModelManager)
 {
     fallbackProjectPart.reset(new ProjectPart);
 
-    const ProjectPartInfo::Hint hint = choose().hint;
+    const ProjectPartInfo::Hints hints = choose().hints;
 
-    ASSERT_THAT(hint, Eq(ProjectPartInfo::Hint::IsFallbackMatch));
+    ASSERT_TRUE(hints & ProjectPartInfo::IsFallbackMatch);
+}
+
+TEST_F(ProjectPartChooser, IndicateFromDependencies)
+{
+    projectPartsFromDependenciesForFile += ProjectPart::Ptr(new ProjectPart);
+
+    const ProjectPartInfo::Hints hints = choose().hints;
+
+    ASSERT_TRUE(hints & ProjectPartInfo::IsFromDependenciesMatch);
+}
+
+TEST_F(ProjectPartChooser, DoNotIndicateFromDependencies)
+{
+    projectPartsForFile += ProjectPart::Ptr(new ProjectPart);
+
+    const ProjectPartInfo::Hints hints = choose().hints;
+
+    ASSERT_FALSE(hints & ProjectPartInfo::IsFromDependenciesMatch);
 }
 
 void ProjectPartChooser::SetUp()

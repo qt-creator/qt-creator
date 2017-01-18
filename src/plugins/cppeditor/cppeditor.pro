@@ -17,6 +17,7 @@ HEADERS += \
     cppfunctiondecldeflink.h \
     cpphighlighter.h \
     cpphoverhandler.h \
+    cppparsecontext.h \
     cppincludehierarchy.h \
     cppinsertvirtualmethods.h \
     cpplocalrenaming.h \
@@ -46,6 +47,7 @@ SOURCES += \
     cppfunctiondecldeflink.cpp \
     cpphighlighter.cpp \
     cpphoverhandler.cpp \
+    cppparsecontext.cpp \
     cppincludehierarchy.cpp \
     cppinsertvirtualmethods.cpp \
     cpplocalrenaming.cpp \

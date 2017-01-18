@@ -43,6 +43,7 @@ QtcPlugin {
         "cppminimizableinfobars.cpp", "cppminimizableinfobars.h",
         "cppoutline.cpp", "cppoutline.h",
         "cpppreprocessordialog.cpp", "cpppreprocessordialog.h", "cpppreprocessordialog.ui",
+        "cppparsecontext.cpp", "cppparsecontext.h",
         "cppquickfix.cpp", "cppquickfix.h",
         "cppquickfixassistant.cpp", "cppquickfixassistant.h",
         "cppquickfixes.cpp", "cppquickfixes.h",

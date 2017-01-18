@@ -280,6 +280,13 @@ void ClangEditorDocumentProcessor::editorDocumentTimerRestarted()
     m_updateTranslationUnitTimer.stop(); // Wait for the next call to run().
 }
 
+void ClangEditorDocumentProcessor::setParserConfig(
+        const CppTools::BaseEditorDocumentParser::Configuration config)
+{
+    m_parser->setConfiguration(config);
+    m_builtinProcessor.parser()->setConfiguration(config);
+}
+
 ClangBackEnd::FileContainer ClangEditorDocumentProcessor::fileContainerWithArguments() const
 {
     return fileContainerWithArguments(m_projectPart.data());

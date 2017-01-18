@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,29 +25,58 @@
 
 #pragma once
 
-#include <QDialog>
-#include <QString>
+#include <cpptools/cpptools_utils.h>
+
+#include <QAbstractListModel>
+#include <QComboBox>
 
 namespace CppEditor {
 namespace Internal {
-namespace Ui { class CppPreProcessorDialog; }
 
-class CppPreProcessorDialog : public QDialog
+class ParseContextModel : public QAbstractListModel
 {
     Q_OBJECT
 
 public:
-    explicit CppPreProcessorDialog(const QString &filePath, QWidget *parent);
-    ~CppPreProcessorDialog();
+    void update(const CppTools::ProjectPartInfo &projectPartInfo);
 
-    int exec();
+    void setPreferred(int index);
+    void clearPreferred();
 
-    QString extraPreprocessorDirectives() const;
+    int currentIndex() const;
+    bool isCurrentPreferred() const;
+
+    QString currentId() const;
+    QString currentToolTip() const;
+
+    bool areMultipleAvailable() const;
+
+signals:
+    void updated(bool areMultipleAvailable);
+    void preferredParseContextChanged(const QString &id);
 
 private:
-    Ui::CppPreProcessorDialog *m_ui;
-    const QString m_filePath;
-    const QString m_projectPartId;
+    void reset(const CppTools::ProjectPartInfo &projectPartInfo);
+    int rowCount(const QModelIndex &parent) const override;
+    QVariant data(const QModelIndex &index, int role) const override;
+
+private:
+    CppTools::ProjectPartInfo::Hints m_hints;
+    QList<CppTools::ProjectPart::Ptr> m_projectParts;
+    int m_currentIndex = -1;
+};
+
+class ParseContextWidget : public QComboBox
+{
+    Q_OBJECT
+
+public:
+    ParseContextWidget(ParseContextModel &parseContextModel, QWidget *parent);
+    void syncToModel();
+
+private:
+    ParseContextModel &m_parseContextModel;
+    QAction *m_clearPreferredAction = nullptr;
 };
 
 } // namespace Internal

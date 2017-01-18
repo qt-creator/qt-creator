@@ -70,6 +70,8 @@ public:
 
     virtual void editorDocumentTimerRestarted();
 
+    virtual void setParserConfig(const BaseEditorDocumentParser::Configuration config);
+
 public:
     using HeaderErrorDiagnosticWidgetCreator = std::function<QWidget*()>;
 

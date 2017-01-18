@@ -131,6 +131,8 @@ public:
 
     QScopedPointer<FollowSymbolUnderCursor> m_followSymbolUnderCursor;
 
+    QAction *m_parseContextAction = nullptr;
+    ParseContextWidget *m_parseContextWidget = nullptr;
     QToolButton *m_preprocessorButton = nullptr;
     MinimizableInfoBars::Actions m_showInfoBarActions;
 
@@ -222,7 +224,7 @@ void CppEditorWidget::finalizeInitialization()
         d->m_cppSelectionChanger.onCursorPositionChanged(textCursor());
     });
 
-    // Tool bar creation
+    // Toolbar: '#' Button
     d->m_preprocessorButton = new QToolButton(this);
     d->m_preprocessorButton->setText(QLatin1String("#"));
     Command *cmd = ActionManager::command(Constants::OPEN_PREPROCESSOR_DIALOG);
@@ -231,13 +233,25 @@ void CppEditorWidget::finalizeInitialization()
     connect(d->m_preprocessorButton, &QAbstractButton::clicked, this, &CppEditorWidget::showPreProcessorWidget);
     insertExtraToolBarWidget(TextEditorWidget::Left, d->m_preprocessorButton);
 
-    // Actions to show minimized info bars
+    // Toolbar: Actions to show minimized info bars
     d->m_showInfoBarActions = MinimizableInfoBars::createShowInfoBarActions([this](QWidget *w) {
         return this->insertExtraToolBarWidget(TextEditorWidget::Left, w);
     });
     connect(&cppEditorDocument()->minimizableInfoBars(), &MinimizableInfoBars::showAction,
             this, &CppEditorWidget::onShowInfoBarAction);
 
+    // Toolbar: Parse context
+    ParseContextModel &parseContextModel = cppEditorDocument()->parseContextModel();
+    d->m_parseContextWidget = new ParseContextWidget(parseContextModel, this);
+    d->m_parseContextAction = insertExtraToolBarWidget(TextEditorWidget::Left,
+                                                       d->m_parseContextWidget);
+    d->m_parseContextAction->setVisible(false);
+    connect(&parseContextModel, &ParseContextModel::updated,
+            this, [this](bool areMultipleAvailable) {
+        d->m_parseContextAction->setVisible(areMultipleAvailable);
+    });
+
+    // Toolbar: Outline/Overview combo box
     insertExtraToolBarWidget(TextEditorWidget::Left, d->m_cppEditorOutline->widget());
 }
 
@@ -252,6 +266,10 @@ void CppEditorWidget::finalizeInitializationAfterDuplication(TextEditorWidget *o
     d->m_cppEditorOutline->update();
     const Id selectionKind = CodeWarningsSelection;
     setExtraSelections(selectionKind, cppEditorWidget->extraSelections(selectionKind));
+
+    d->m_parseContextWidget->syncToModel();
+    d->m_parseContextAction->setVisible(
+                d->m_cppEditorDocument->parseContextModel().areMultipleAvailable());
 }
 
 CppEditorWidget::~CppEditorWidget()
@@ -972,20 +990,12 @@ void CppEditorWidget::abortDeclDefLink()
 
 void CppEditorWidget::showPreProcessorWidget()
 {
-    const Utils::FileName fileName = textDocument()->filePath();
+    const QString filePath = textDocument()->filePath().toString();
 
-    // Check if this editor belongs to a project
-    QList<ProjectPart::Ptr> projectParts = d->m_modelManager->projectPart(fileName);
-    if (projectParts.isEmpty())
-        projectParts = d->m_modelManager->projectPartFromDependencies(fileName);
-    if (projectParts.isEmpty())
-        projectParts << d->m_modelManager->fallbackProjectPart();
-
-    CppPreProcessorDialog preProcessorDialog(this, textDocument()->filePath().toString(), projectParts);
-    if (preProcessorDialog.exec() == QDialog::Accepted) {
-        cppEditorDocument()->setPreprocessorSettings(
-                    preProcessorDialog.projectPart(),
-                    preProcessorDialog.additionalPreProcessorDirectives().toUtf8());
+    CppPreProcessorDialog dialog(filePath, this);
+    if (dialog.exec() == QDialog::Accepted) {
+        const QByteArray extraDirectives = dialog.extraPreprocessorDirectives().toUtf8();
+        cppEditorDocument()->setExtraPreprocessorDirectives(extraDirectives);
         cppEditorDocument()->scheduleProcessDocument();
     }
 }

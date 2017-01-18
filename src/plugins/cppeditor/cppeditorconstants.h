@@ -37,6 +37,7 @@ const char RENAME_SYMBOL_UNDER_CURSOR[] = "CppEditor.RenameSymbolUnderCursor";
 const char FIND_USAGES[] = "CppEditor.FindUsages";
 const char OPEN_PREPROCESSOR_DIALOG[] = "CppEditor.OpenPreprocessorDialog";
 const char ERRORS_IN_HEADER_FILES[] = "CppEditor.ErrorsInHeaderFiles";
+const char MULTIPLE_PARSE_CONTEXTS_AVAILABLE[] = "CppEditor.MultipleParseContextsAvailable";
 const char NO_PROJECT_CONFIGURATION[] = "CppEditor.NoProjectConfiguration";
 const char M_REFACTORING_MENU_INSERTION_POINT[] = "CppEditor.RefactorGroup";
 const char UPDATE_CODEMODEL[] = "CppEditor.UpdateCodeModel";
@@ -50,7 +51,8 @@ const char OPEN_INCLUDE_HIERARCHY[] = "CppEditor.OpenIncludeHierarchy";
 
 const char CPP_SNIPPETS_GROUP_ID[] = "C++";
 
-const char CPP_PREPROCESSOR_PROJECT_PREFIX[] = "CppPreprocessorProject-";
+const char EXTRA_PREPROCESSOR_DIRECTIVES[] = "CppEditor.ExtraPreprocessorDirectives-";
+const char PREFERRED_PARSE_CONTEXT[] = "CppEditor.PreferredParseContext-";
 
 } // namespace Constants
 } // namespace CppEditor

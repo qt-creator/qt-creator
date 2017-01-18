@@ -31,18 +31,9 @@
 
 #include <projectexplorer/session.h>
 
-#include <algorithm>
-
 using namespace CppEditor::Internal;
 
-static bool projectPartLessThan(const CppTools::ProjectPart::Ptr &projectPart1,
-                                const CppTools::ProjectPart::Ptr &projectPart2)
-{
-    return projectPart1->displayName < projectPart2->displayName;
-}
-
-CppPreProcessorDialog::CppPreProcessorDialog(QWidget *parent, const QString &filePath,
-                                             const QList<CppTools::ProjectPart::Ptr> &projectParts)
+CppPreProcessorDialog::CppPreProcessorDialog(const QString &filePath, QWidget *parent)
     : QDialog(parent)
     , m_ui(new Ui::CppPreProcessorDialog())
     , m_filePath(filePath)
@@ -55,32 +46,9 @@ CppPreProcessorDialog::CppPreProcessorDialog(QWidget *parent, const QString &fil
 
     CppSnippetProvider().decorateEditor(m_ui->editWidget);
 
-    const QString &projectPartIdToUse = ProjectExplorer::SessionManager::value(
-                QLatin1String(Constants::CPP_PREPROCESSOR_PROJECT_PREFIX) + m_filePath).toString();
-    int currentIndex = 0;
-
-    QList<CppTools::ProjectPart::Ptr> sortedProjectParts(projectParts);
-    std::stable_sort(sortedProjectParts.begin(), sortedProjectParts.end(), projectPartLessThan);
-
-    foreach (CppTools::ProjectPart::Ptr projectPart, sortedProjectParts) {
-        m_ui->projectComboBox->addItem(projectPart->displayName);
-        ProjectPartAddition addition;
-        addition.projectPart = projectPart;
-        addition.additionalDirectives = ProjectExplorer::SessionManager::value(
-                    projectPart->id() + QLatin1Char(',') +  m_filePath).toString();
-        if (projectPart->id() == projectPartIdToUse)
-            currentIndex = m_ui->projectComboBox->count() - 1;
-        m_partAdditions << addition;
-    }
-    if (m_ui->projectComboBox->count() <= 1)
-        m_ui->projectComboBox->setEnabled(false);
-    m_ui->projectComboBox->setCurrentIndex(currentIndex);
-    m_ui->editWidget->setPlainText(m_partAdditions.value(currentIndex).additionalDirectives);
-
-    connect(m_ui->projectComboBox,
-            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-            this, &CppPreProcessorDialog::projectChanged);
-    connect(m_ui->editWidget, &QPlainTextEdit::textChanged, this, &CppPreProcessorDialog::textChanged);
+    const QString key = Constants::EXTRA_PREPROCESSOR_DIRECTIVES + m_filePath;
+    const QString directives = ProjectExplorer::SessionManager::value(key).toString();
+    m_ui->editWidget->setPlainText(directives);
 }
 
 CppPreProcessorDialog::~CppPreProcessorDialog()
@@ -93,41 +61,13 @@ int CppPreProcessorDialog::exec()
     if (QDialog::exec() == Rejected)
         return Rejected;
 
-    ProjectExplorer::SessionManager::setValue(
-                QLatin1String(Constants::CPP_PREPROCESSOR_PROJECT_PREFIX) + m_filePath,
-                m_partAdditions[m_ui->projectComboBox->currentIndex()].projectPart->id());
+    const QString key = Constants::EXTRA_PREPROCESSOR_DIRECTIVES + m_filePath;
+    ProjectExplorer::SessionManager::setValue(key, extraPreprocessorDirectives());
 
-    foreach (ProjectPartAddition partAddition, m_partAdditions) {
-        const QString &previousDirectives = ProjectExplorer::SessionManager::value(
-                    partAddition.projectPart->id()
-                    + QLatin1Char(',')
-                    + m_filePath).toString();
-        if (previousDirectives != partAddition.additionalDirectives) {
-            ProjectExplorer::SessionManager::setValue(
-                        partAddition.projectPart->id() + QLatin1Char(',') +  m_filePath,
-                        partAddition.additionalDirectives);
-        }
-    }
     return Accepted;
 }
 
-CppTools::ProjectPart::Ptr CppPreProcessorDialog::projectPart() const
-{
-    return m_partAdditions[m_ui->projectComboBox->currentIndex()].projectPart;
-}
-
-QString CppPreProcessorDialog::additionalPreProcessorDirectives() const
+QString CppPreProcessorDialog::extraPreprocessorDirectives() const
 {
     return m_ui->editWidget->toPlainText();
-}
-
-void CppPreProcessorDialog::projectChanged(int index)
-{
-    m_ui->editWidget->setPlainText(m_partAdditions[index].additionalDirectives);
-}
-
-void CppPreProcessorDialog::textChanged()
-{
-    m_partAdditions[m_ui->projectComboBox->currentIndex()].additionalDirectives
-            = m_ui->editWidget->toPlainText();
 }
