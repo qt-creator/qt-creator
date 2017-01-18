@@ -60,6 +60,7 @@ public:
 private:
     void updateButtonState();
     void updateAdvancedCheckBox();
+    void updateFromKit();
 
     CMakeBuildConfiguration *m_buildConfiguration;
     QTreeView *m_configView;

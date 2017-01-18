@@ -27,11 +27,13 @@
 
 #include "configmodel.h"
 #include "configmodelitemdelegate.h"
+#include "cmakekitinformation.h"
 #include "cmakeproject.h"
 #include "cmakebuildconfiguration.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/find/itemviewfind.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
 
@@ -252,6 +254,10 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
 
     connect(bc, &CMakeBuildConfiguration::errorOccured, this, &CMakeBuildSettingsWidget::setError);
     connect(bc, &CMakeBuildConfiguration::warningOccured, this, &CMakeBuildSettingsWidget::setWarning);
+
+    updateFromKit();
+    connect(m_buildConfiguration->target(), &ProjectExplorer::Target::kitChanged,
+            this, &CMakeBuildSettingsWidget::updateFromKit);
 }
 
 void CMakeBuildSettingsWidget::setError(const QString &message)
@@ -292,6 +298,18 @@ void CMakeBuildSettingsWidget::updateAdvancedCheckBox()
 {
     // Switch between Qt::DisplayRole (everything is "0") and Qt::EditRole (advanced is "1").
     m_configFilterModel->setFilterRole(m_showAdvancedCheckBox->isChecked() ? Qt::EditRole : Qt::DisplayRole);
+}
+
+void CMakeBuildSettingsWidget::updateFromKit()
+{
+    const ProjectExplorer::Kit *k = m_buildConfiguration->target()->kit();
+    const CMakeConfig config = CMakeConfigurationKitInformation::configuration(k);
+
+    QHash<QString, QString> configHash;
+    for (const CMakeConfigItem &i : config)
+        configHash.insert(QString::fromUtf8(i.key), i.expandedValue(k));
+
+    m_configModel->setKitConfiguration(configHash);
 }
 
 } // namespace Internal

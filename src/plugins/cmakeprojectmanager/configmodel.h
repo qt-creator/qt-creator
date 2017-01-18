@@ -68,6 +68,7 @@ public:
                              const QString &description = QString(),
                              const QStringList &values = QStringList());
     void setConfiguration(const QList<DataItem> &config);
+    void setKitConfiguration(const QHash<QString, QString> &kitConfig);
     void flush();
     void resetAllChanges();
 
@@ -84,6 +85,7 @@ private:
         InternalDataItem(const InternalDataItem &item) = default;
 
         QString toolTip() const;
+        QString currentValue() const;
 
         bool isUserChanged = false;
         bool isUserNew = false;
@@ -94,6 +96,7 @@ private:
     InternalDataItem &itemAtRow(int row);
     const InternalDataItem &itemAtRow(int row) const;
     QList<InternalDataItem> m_configuration;
+    QHash<QString, QString> m_kitConfiguartion;
 };
 
 } // namespace CMakeProjectManager
