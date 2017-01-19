@@ -109,8 +109,6 @@ void FormEditorItem::updateGeometry()
 
 void FormEditorItem::updateVisibilty()
 {
-//    setVisible(nodeInstance().isVisible());
-//    setOpacity(nodeInstance().opacity());
 }
 
 

@@ -102,7 +102,7 @@ void FormEditorGraphicsView::mousePressEvent(QMouseEvent *event)
 void FormEditorGraphicsView::mouseReleaseEvent(QMouseEvent *event)
 {
     // not sure why buttons() are empty here, but we have that information from the enum
-    if (/*event->buttons().testFlag(Qt::MiddleButton) && */m_isPanning == Panning::MouseWheelStarted)
+    if (m_isPanning == Panning::MouseWheelStarted)
         stopPanning(event);
     else
         QGraphicsView::mouseReleaseEvent(event);

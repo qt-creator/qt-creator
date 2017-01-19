@@ -39,7 +39,6 @@ void BindingIndicatorGraphicsItem::paint(QPainter *painter, const QStyleOptionGr
     painter->save();
     QPen linePen(QColor(255, 0, 0, 255), 2);
     linePen.setCosmetic(true);
-    //linePen.setDashPattern(QVector<double>() << 3. << 2.);
     painter->setPen(linePen);
     painter->drawLine(m_bindingLine);
     painter->restore();

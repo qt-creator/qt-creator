@@ -299,10 +299,6 @@ QLineF Snapper::createSnapLine(Qt::Orientation orientation,
 
 static bool  compareLines(double snapLine, double lineToSnap)
 {
-//    if (qAbs(snapLine - lineToSnap) < 1.0)
-//        return true;
-//
-//    return false;
     return qFuzzyCompare(snapLine, lineToSnap);
 }
 
@@ -705,14 +701,6 @@ void Snapper::adjustAnchoringOfItem(FormEditorItem *formEditorItem)
     }
 }
 
-//static void alignLine(QLineF &line)
-//{
-//    line.setP1(QPointF(std::floor(line.p1().x()) + 0.5,
-//                       std::floor(line.p1().y()) + 0.5));
-//    line.setP2(QPointF(std::floor(line.p2().x()) + 0.5,
-//                       std::floor(line.p2().y()) + 0.5));
-//}
-
 QList<QGraphicsItem*> Snapper::generateSnappingLines(const QList<QRectF> &boundingRectList,
                                                      QGraphicsItem *layerItem,
                                                      const QTransform &transform)
@@ -723,32 +711,14 @@ QList<QGraphicsItem*> Snapper::generateSnappingLines(const QList<QRectF> &boundi
         QList<QRectF> snappedBoundingRectList;
         lineList += mergedHorizontalLines(horizontalSnappedLines(boundingRect, &snappedBoundingRectList));
         lineList += mergedVerticalLines(verticalSnappedLines(boundingRect, &snappedBoundingRectList));
-
-//        snappedBoundingRectList.append(boundingRect);
-//        foreach (const QRectF &snappedBoundingRect, snappedBoundingRectList) {
-//            QPolygonF rect = transform.map(snappedBoundingRect);
-//            alignVertices(rect);
-//            QGraphicsPolygonItem * item = new QGraphicsPolygonItem(rect, layerItem);
-//            item->setZValue(20);
-
-//            QColor brushColor(QApplication::palette().highlight().color());
-//            QColor brushColor(Qt::gray);
-//            brushColor.setAlphaF(0.25);
-//            QBrush brush(brushColor);
-//            item->setBrush(brush);
-//            item->setPen(Qt::NoPen);
-//            graphicsItemList.append(item);
-//        }
     }
 
     foreach (const QLineF &line, lineList) {
         QLineF lineInTransformationSpace = transform.map(line);
-//        alignLine(lineInTransformationSpace);
         QGraphicsLineItem * lineItem = new QGraphicsLineItem(lineInTransformationSpace, layerItem);
         lineItem->setZValue(40);
         QPen linePen;
         linePen.setCosmetic(true);
-//        linePen.setStyle(Qt::DashLine);
         linePen.setColor("#5d2dd7");
         lineItem->setPen(linePen);
 

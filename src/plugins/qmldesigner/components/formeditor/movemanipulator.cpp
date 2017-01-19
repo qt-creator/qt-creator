@@ -158,8 +158,6 @@ void MoveManipulator::begin(const QPointF &beginPoint)
 
     m_beginPoint = beginPoint;
 
-//    setOpacityForAllElements(0.62);
-
     setDirectUpdateInNodeInstances(true);
 
     beginRewriterTransaction();

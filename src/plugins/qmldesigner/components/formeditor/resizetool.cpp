@@ -161,9 +161,6 @@ void ResizeTool::keyReleaseEvent(QKeyEvent * keyEvent)
             keyEvent->setAccepted(false);
             return;
     }
-
-//     if (!keyEvent->isAutoRepeat())
-//         m_resizeManipulator.clear();
 }
 
 void ResizeTool::itemsAboutToRemoved(const QList<FormEditorItem*> & /*itemList*/)
