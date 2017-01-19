@@ -37,12 +37,18 @@
 #include <nodelistproperty.h>
 #include <qmldesignerplugin.h>
 
-#include <coreplugin/icore.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/command.h>
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <texteditor/texteditor.h>
-#include <qmljseditor/qmljseditordocument.h>
-#include <qmljs/qmljsreformatter.h>
+#include <coreplugin/icore.h>
 
+#include <texteditor/texteditor.h>
+#include <texteditor/texteditorconstants.h>
+#include <qmljseditor/qmljseditordocument.h>
+
+#include <qmljs/qmljsreformatter.h>
 #include <utils/changeset.h>
 
 #include <QDebug>
@@ -53,12 +59,30 @@
 
 namespace QmlDesigner {
 
+const char TEXTEDITOR_CONTEXT_ID[] = "QmlDesigner.TextEditorContext";
+
 TextEditorView::TextEditorView(QObject *parent)
     : AbstractView(parent)
     , m_widget(new TextEditorWidget(this))
+    , m_textEditorContext(new Internal::TextEditorContext(m_widget.get()))
 {
-    Internal::TextEditorContext *textEditorContext = new Internal::TextEditorContext(m_widget.get());
-    Core::ICore::addContextObject(textEditorContext);
+    Core::ICore::addContextObject(m_textEditorContext);
+
+    Core::Context context(TEXTEDITOR_CONTEXT_ID);
+
+    /*
+     * We have to register our own active auto completion shortcut, because the original short cut will
+     * use the cursor position of the original editor in the editor manager.
+     */
+
+    QAction *completionAction = new QAction(tr("Trigger Completion"), this);
+    Core::Command *command = Core::ActionManager::registerAction(completionAction, TextEditor::Constants::COMPLETE_THIS, context);
+    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+Space") : tr("Ctrl+Space")));
+
+    connect(completionAction, &QAction::triggered, [this]() {
+        if (m_widget->textEditor())
+            m_widget->textEditor()->editorWidget()->invokeAssist(TextEditor::Completion);
+    });
 }
 
 TextEditorView::~TextEditorView()
@@ -70,7 +94,20 @@ void TextEditorView::modelAttached(Model *model)
     Q_ASSERT(model);
 
     AbstractView::modelAttached(model);
-    m_widget->setTextEditor(qobject_cast<TextEditor::BaseTextEditor*>(QmlDesignerPlugin::instance()->currentDesignDocument()->textEditor()->duplicate()));
+
+    TextEditor::BaseTextEditor* textEditor = qobject_cast<TextEditor::BaseTextEditor*>(
+                QmlDesignerPlugin::instance()->currentDesignDocument()->textEditor()->duplicate());
+
+    Core::Context context = textEditor->context();
+    context.prepend(TEXTEDITOR_CONTEXT_ID);
+
+    /*
+     *  Set the context of the text editor, but we add another special context to override shortcuts.
+     */
+
+    m_textEditorContext->setContext(context);
+
+    m_widget->setTextEditor(textEditor);
 }
 
 void TextEditorView::modelAboutToBeDetached(Model *model)
