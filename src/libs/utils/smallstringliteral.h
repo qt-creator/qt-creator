@@ -29,6 +29,16 @@
 #include "smallstringlayout.h"
 #include "smallstringview.h"
 
+#pragma push_macro("constexpr")
+#ifndef __cpp_constexpr
+#define constexpr
+#endif
+
+#pragma push_macro("noexcept")
+#ifndef __cpp_noexcept
+#define noexcept
+#endif
+
 namespace Utils {
 
 template <int Size>
@@ -119,3 +129,6 @@ private:
 using SmallStringLiteral = BasicSmallStringLiteral<31>;
 
 }  // namespace Utils
+
+#pragma pop_macro("noexcept")
+#pragma pop_macro("constexpr")

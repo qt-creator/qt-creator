@@ -33,6 +33,11 @@
 
 #include <QStringList>
 
+#pragma push_macro("noexcept")
+#ifndef __cpp_noexcept
+#define noexcept
+#endif
+
 namespace Utils {
 
 template<uint SmallStringSize>
@@ -155,3 +160,5 @@ private:
 using SmallStringVector = BasicSmallStringVector<31>;
 using PathStringVector = BasicSmallStringVector<191>;
 } // namespace Utils;
+
+#pragma pop_macro("noexcept")

@@ -31,6 +31,10 @@
 #include <utils/smallstringio.h>
 #include <utils/smallstringvector.h>
 
+#ifndef __cpp_constexpr
+#define constexpr
+#endif
+
 using namespace ::testing;
 
 using Utils::SmallString;

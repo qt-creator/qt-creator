@@ -29,6 +29,22 @@
 
 #include <cstdint>
 
+#pragma push_macro("constexpr")
+#ifndef __cpp_constexpr
+#define constexpr
+#endif
+
+#pragma push_macro("noexcept")
+#ifndef __cpp_noexcept
+#define noexcept
+#endif
+
+#ifdef __cpp_alignas
+#define ALIGNAS_16 alignas(16)
+#else
+#define ALIGNAS_16
+#endif
+
 namespace Utils {
 
 namespace Internal {
@@ -70,7 +86,7 @@ struct ShortStringLayout {
 };
 
 template <uint MaximumShortStringDataAreaSize>
-struct alignas(16) StringDataLayout {
+struct ALIGNAS_16 StringDataLayout {
     static_assert( MaximumShortStringDataAreaSize >= 15, "Size must be greater equal than 15 bytes!");
     static_assert(((MaximumShortStringDataAreaSize + 1) % 16) == 0, "Size + 1 must be dividable by 16!");
     StringDataLayout() noexcept = default;
@@ -120,3 +136,6 @@ struct alignas(16) StringDataLayout {
 
 } // namespace Internal
 }  // namespace Utils
+
+#pragma pop_macro("noexcept")
+#pragma pop_macro("constexpr")
