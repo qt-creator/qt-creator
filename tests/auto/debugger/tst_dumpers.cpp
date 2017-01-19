@@ -4264,10 +4264,12 @@ void tst_Dumpers::dumper_data()
 
                + Check("map3", "<6 items>", TypeDef("std::map<int, float>", "Map"))
                + Check("map3.0", "[0] 11", FloatValue("11"), "")
-               + Check("it1.first", "11", "int")
-               + Check("it1.second", FloatValue("11"), "float")
-               + Check("it6.first", "66", "int")
-               + Check("it6.second", FloatValue("66"), "float")
+               + Check("it1.first", "11", "int") % NoCdbEngine
+               + Check("it1.second", FloatValue("11"), "float") % NoCdbEngine
+               + Check("it6.first", "66", "int") % NoCdbEngine
+               + Check("it6.second", FloatValue("66"), "float") % NoCdbEngine
+               + Check("it1.0", "11", FloatValue("11"), "") % CdbEngine
+               + Check("it6.0", "66", FloatValue("66"), "") % CdbEngine
 
                + Check("map4", "<5 items>", "std::multimap<unsigned int, float>")
                + Check("map4.0", "[0] 11", FloatValue("11"), "")
