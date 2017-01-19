@@ -47,6 +47,7 @@ class FileNode;
 namespace Internal {
 
 class FlatModel;
+class WrapperNode;
 
 class ProjectTreeWidget : public QWidget
 {
@@ -78,32 +79,20 @@ private:
     void handleCurrentItemChange(const QModelIndex &current);
     void showContextMenu(const QPoint &pos);
     void openItem(const QModelIndex &mainIndex);
-    void handleProjectAdded(ProjectExplorer::Project *project);
-    void startupProjectChanged(ProjectExplorer::Project *project);
-    void initView();
-
-    void loadExpandData();
-    void saveExpandData();
-    void disableAutoExpand();
 
     void setCurrentItem(ProjectExplorer::Node *node);
-    void recursiveLoadExpandData(const QModelIndex &index, QSet<ExpandData> &data);
-    void recursiveSaveExpandData(const QModelIndex &index, QList<QVariant> *data);
     static int expandedCount(Node *node);
     void rowsInserted(const QModelIndex &parent, int start, int end);
     void renamed(const Utils::FileName &oldPath, const Utils::FileName &newPath);
 
-    QSet<ExpandData> m_toExpand;
     QTreeView *m_view = nullptr;
     FlatModel *m_model = nullptr;
     QAction *m_filterProjectsAction = nullptr;
     QAction *m_filterGeneratedFilesAction;
     QToolButton *m_toggleSync;
 
-    QModelIndex m_subIndex;
     QString m_modelId;
     bool m_autoSync = false;
-    bool m_autoExpand = true;
     Utils::FileName m_delayedRename;
 
     static QList<ProjectTreeWidget *> m_projectTreeWidgets;

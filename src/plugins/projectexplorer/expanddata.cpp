@@ -37,9 +37,15 @@ bool ExpandData::operator==(const ExpandData &other) const
     return path == other.path && displayName == other.displayName;
 }
 
-QStringList ExpandData::toStringList() const
+ExpandData ExpandData::fromSettings(const QVariant &v)
 {
-    return { path, displayName };
+    QStringList list = v.toStringList();
+    return list.size() == 2 ? ExpandData(list.at(0), list.at(1)) : ExpandData();
+}
+
+QVariant ExpandData::toSettings() const
+{
+    return QVariant::fromValue(QStringList({ path, displayName }));
 }
 
 int ProjectExplorer::Internal::qHash(const ExpandData &data)

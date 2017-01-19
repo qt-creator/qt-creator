@@ -2083,15 +2083,7 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
         removeProjectNodes(projectNodes());
         removeFolderNodes(folderNodes());
 
-        bool changesShowInSimpleTree = showInSimpleTree() ^ showInSimpleTree(result->projectType);
-
-        if (changesShowInSimpleTree)
-            ProjectTree::instance()->emitAboutToChangeShowInSimpleTree(this);
-
         m_projectType = result->projectType;
-
-        if (changesShowInSimpleTree)
-            ProjectTree::instance()->emitShowInSimpleTreeChanged(this);
     }
 
     //
@@ -2232,6 +2224,7 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
     updateGeneratedFiles(buildDirectory);
 
     cleanupProFileReaders();
+    ProjectNode::emitTreeChanged();
 }
 
 void QmakeProFileNode::cleanupProFileReaders()

@@ -104,8 +104,9 @@ class NodesVisitor;
 class SessionManager;
 
 // Documentation inside.
-class PROJECTEXPLORER_EXPORT Node
+class PROJECTEXPLORER_EXPORT Node : public QObject
 {
+    Q_OBJECT
 public:
     enum PriorityLevel {
         DefaultPriority = 0,
@@ -116,7 +117,7 @@ public:
         DefaultProjectFilePriority = 500000
     };
 
-    virtual ~Node() = default;
+    virtual ~Node();
     NodeType nodeType() const;
     int priority() const;
 
@@ -141,6 +142,7 @@ public:
     void setAbsoluteFilePathAndLine(const Utils::FileName &filePath, int line);
 
     void emitNodeUpdated();
+    void emitTreeChanged();
 
     virtual Node *trim(const QSet<Node *> &keepers);
 
@@ -161,9 +163,6 @@ protected:
     void setPriority(int priority);
     void setParentFolderNode(FolderNode *parentFolder);
 
-    void emitNodeSortKeyAboutToChange();
-    void emitNodeSortKeyChanged();
-
 private:
     FolderNode *m_parentFolderNode = nullptr;
     Utils::FileName m_filePath;
@@ -177,6 +176,7 @@ class PROJECTEXPLORER_EXPORT FileNode : public Node
 {
 public:
     FileNode(const Utils::FileName &filePath, const FileType fileType, bool generated, int line = -1);
+    FileNode(const FileNode &other) : FileNode(other.filePath(), other.fileType(), true) {}
 
     FileType fileType() const;
     bool isGenerated() const;
@@ -255,8 +255,8 @@ public:
     void addFolderNodes(const QList<FolderNode*> &subFolders);
     void removeFolderNodes(const QList<FolderNode*> &subFolders);
 
-    FolderNode *asFolderNode() final { return this; }
-    const FolderNode *asFolderNode() const final { return this; }
+    FolderNode *asFolderNode() override { return this; }
+    const FolderNode *asFolderNode() const override { return this; }
 
 protected:
     QList<FolderNode*> m_folderNodes;
@@ -330,11 +330,8 @@ public:
     SessionNode();
 
     QList<ProjectAction> supportedActions(Node *node) const override;
-
     QList<ProjectNode*> projectNodes() const;
-
     QString addFileFilter() const override;
-
     void accept(NodesVisitor *visitor) override;
 
     bool showInSimpleTree() const override;

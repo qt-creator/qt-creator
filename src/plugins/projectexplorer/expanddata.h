@@ -38,7 +38,9 @@ public:
     ExpandData() = default;
     ExpandData(const QString &path_, const QString &displayName_);
     bool operator==(const ExpandData &other) const;
-    QStringList toStringList() const;
+
+    static ExpandData fromSettings(const QVariant &v);
+    QVariant toSettings() const;
 
     QString path;
     QString displayName;

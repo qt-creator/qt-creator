@@ -249,13 +249,16 @@ public:
     explicit TreeModel(QObject *parent = 0) : BaseTreeModel(new RootItem, parent) {}
     explicit TreeModel(RootItem *root, QObject *parent = 0) : BaseTreeModel(root, parent) {}
 
+    using BaseTreeModel::canFetchMore;
     using BaseTreeModel::clear;
     using BaseTreeModel::columnCount;
     using BaseTreeModel::data;
     using BaseTreeModel::destroyItem;
+    using BaseTreeModel::fetchMore;
     using BaseTreeModel::hasChildren;
     using BaseTreeModel::index;
     using BaseTreeModel::indexForItem;
+    using BaseTreeModel::parent;
     using BaseTreeModel::rowCount;
     using BaseTreeModel::setData;
     using BaseTreeModel::setHeader;

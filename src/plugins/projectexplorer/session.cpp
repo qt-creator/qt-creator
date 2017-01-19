@@ -93,7 +93,7 @@ public:
     static QString windowTitleAddition(const QString &filePath);
     static QString sessionTitle(const QString &filePath);
 
-    std::unique_ptr<SessionNode> m_sessionNode;
+    SessionNode m_sessionNode;
     QString m_sessionName = QLatin1String("default");
     bool m_virginSession = true;
     bool m_loadingSession = false;
@@ -123,8 +123,6 @@ SessionManager::SessionManager(QObject *parent) : QObject(parent)
 {
     m_instance = this;
     d = new SessionManagerPrivate;
-
-    d->m_sessionNode.reset(new SessionNode);
 
     connect(ModeManager::instance(), &ModeManager::currentModeChanged,
             this, &SessionManager::saveActiveMode);
@@ -383,13 +381,13 @@ void SessionManager::addProject(Project *pro)
     QTC_ASSERT(!d->m_projects.contains(pro), return);
 
     d->m_projects.append(pro);
-    d->m_sessionNode->addProjectNodes(QList<ProjectNode *>() << pro->rootProjectNode());
+    d->m_sessionNode.addProjectNodes({ pro->rootProjectNode() });
 
     connect(pro, &Project::fileListChanged,
             m_instance, &SessionManager::clearProjectFileCache);
 
     connect(pro, &Project::displayNameChanged, m_instance, [pro] {
-        d->m_sessionNode->projectDisplayNameChanged(pro->rootProjectNode());
+        d->m_sessionNode.emitNodeUpdated();
         emit m_instance->projectDisplayNameChanged(pro);
     });
 
@@ -650,10 +648,8 @@ Project *SessionManager::projectForNode(Node *node)
     if (!rootProjectNode)
         rootProjectNode = node->parentFolderNode();
 
-    while (rootProjectNode && rootProjectNode->parentFolderNode() != d->m_sessionNode.get())
+    while (rootProjectNode && rootProjectNode->parentFolderNode() != &d->m_sessionNode)
         rootProjectNode = rootProjectNode->parentFolderNode();
-
-    Q_ASSERT(rootProjectNode);
 
     return Utils::findOrDefault(d->m_projects, Utils::equal(&Project::rootProjectNode, rootProjectNode));
 }
@@ -742,7 +738,7 @@ void SessionManager::removeProjects(QList<Project *> remove)
                    m_instance, &SessionManager::clearProjectFileCache);
         d->m_projectFileCache.remove(pro);
 
-        d->m_sessionNode->removeProjectNodes(QList<ProjectNode *>() << pro->rootProjectNode());
+        d->m_sessionNode.removeProjectNodes({ pro->rootProjectNode() });
         emit m_instance->projectRemoved(pro);
         delete pro;
     }
@@ -1095,7 +1091,7 @@ QString SessionManager::lastSession()
 
 SessionNode *SessionManager::sessionNode()
 {
-    return d->m_sessionNode.get();
+    return &d->m_sessionNode;
 }
 
 void SessionManager::reportProjectLoadingProgress()
