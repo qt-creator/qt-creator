@@ -49,7 +49,7 @@ public:
     struct Configuration {
         bool usePrecompiledHeaders = false;
         QByteArray editorDefines;
-        ProjectPart::Ptr manuallySetProjectPart;
+        QString preferredProjectPartId;
     };
 
     struct UpdateParams {
@@ -95,7 +95,7 @@ protected:
     void setState(const State &state);
 
     static ProjectPartInfo determineProjectPart(const QString &filePath,
-            const Configuration &config,
+            const QString &preferredProjectPartId,
             const ProjectPartInfo &currentProjectPartInfo,
             const ProjectExplorer::Project *activeProject,
             Language languagePreference,

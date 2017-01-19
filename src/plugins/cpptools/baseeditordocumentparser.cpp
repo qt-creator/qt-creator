@@ -121,15 +121,13 @@ BaseEditorDocumentParser::Ptr BaseEditorDocumentParser::get(const QString &fileP
 
 ProjectPartInfo BaseEditorDocumentParser::determineProjectPart(
         const QString &filePath,
-        const Configuration &config,
+        const QString &preferredProjectPartId,
         const ProjectPartInfo &currentProjectPartInfo,
         const ProjectExplorer::Project *activeProject,
         Language languagePreference,
         bool hasActiveProjectChanged)
 {
-    using Internal::ProjectPartChooser;
-
-    ProjectPartChooser chooser;
+    Internal::ProjectPartChooser chooser;
     chooser.setFallbackProjectPart([](){
         return CppModelManager::instance()->fallbackProjectPart();
     });
@@ -144,7 +142,7 @@ ProjectPartInfo BaseEditorDocumentParser::determineProjectPart(
     const ProjectPartInfo chooserResult
             = chooser.choose(filePath,
                              currentProjectPartInfo,
-                             config.manuallySetProjectPart,
+                             preferredProjectPartId,
                              activeProject,
                              languagePreference,
                              hasActiveProjectChanged);

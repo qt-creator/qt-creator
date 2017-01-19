@@ -78,7 +78,7 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
     LanguageFeatures features = LanguageFeatures::defaultFeatures();
 
     baseState.projectPartInfo = determineProjectPart(filePath(),
-                                                    baseConfig,
+                                                    baseConfig.preferredProjectPartId,
                                                     baseState.projectPartInfo,
                                                     updateParams.activeProject,
                                                     updateParams.languagePreference,

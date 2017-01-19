@@ -51,7 +51,7 @@ protected:
     QString filePath;
     ProjectPartInfo currentProjectPartInfo{ProjectPart::Ptr(new ProjectPart),
                                            ProjectPartInfo::NoHint};
-    ProjectPart::Ptr manuallySetProjectPart;
+    QString preferredProjectPartId;
     const ProjectExplorer::Project *activeProject = nullptr;
     bool projectHasChanged = false;
     Language languagePreference = Language::Cxx;
@@ -64,11 +64,14 @@ protected:
 
 TEST_F(ProjectPartChooser, ChooseManuallySet)
 {
-    manuallySetProjectPart.reset(new ProjectPart);
+    ProjectPart::Ptr p1(new ProjectPart);
+    ProjectPart::Ptr p2(new ProjectPart);
+    p2->projectFile = preferredProjectPartId = "someId";
+    projectPartsForFile += {p1, p2};
 
     const ProjectPart::Ptr chosen = choose().projectPart;
 
-    ASSERT_THAT(chosen, Eq(manuallySetProjectPart));
+    ASSERT_THAT(chosen, Eq(p2));
 }
 
 TEST_F(ProjectPartChooser, ForMultipleChoosePrevious)
@@ -249,7 +252,7 @@ const ProjectPartInfo ProjectPartChooser::choose() const
 {
     return chooser.choose(filePath,
                           currentProjectPartInfo,
-                          manuallySetProjectPart,
+                          preferredProjectPartId,
                           activeProject,
                           languagePreference,
                           projectHasChanged);

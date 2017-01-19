@@ -44,9 +44,11 @@ public:
     };
 
     ProjectPartPrioritizer(const QList<ProjectPart::Ptr> &projectParts,
+                           const QString &preferredProjectPartId,
                            const ProjectExplorer::Project *activeProject,
                            Language languagePreference)
         : m_projectParts(projectParts)
+        , m_preferredProjectPartId(preferredProjectPartId)
         , m_activeProject(activeProject)
         , m_languagePreference(languagePreference)
     {
@@ -93,6 +95,9 @@ private:
     {
         int thePriority = 0;
 
+        if (!m_preferredProjectPartId.isEmpty() && projectPart.id() == m_preferredProjectPartId)
+            thePriority += 1000;
+
         if (projectPart.project == m_activeProject)
             thePriority += 100;
 
@@ -114,6 +119,7 @@ private:
 
 private:
     const QList<ProjectPart::Ptr> m_projectParts;
+    const QString m_preferredProjectPartId;
     const ProjectExplorer::Project *m_activeProject = nullptr;
     Language m_languagePreference = Language::Cxx;
 
@@ -122,10 +128,9 @@ private:
     bool m_isAmbiguous = false;
 };
 
-ProjectPartInfo ProjectPartChooser::choose(
-        const QString &filePath,
+ProjectPartInfo ProjectPartChooser::choose(const QString &filePath,
         const ProjectPartInfo &currentProjectPartInfo,
-        const ProjectPart::Ptr &manuallySetProjectPart,
+        const QString &preferredProjectPartId,
         const ProjectExplorer::Project *activeProject,
         Language languagePreference,
         bool projectHasChanged) const
@@ -133,9 +138,6 @@ ProjectPartInfo ProjectPartChooser::choose(
     QTC_CHECK(m_projectPartsForFile);
     QTC_CHECK(m_projectPartsFromDependenciesForFile);
     QTC_CHECK(m_fallbackProjectPart);
-
-    if (manuallySetProjectPart)
-        return {manuallySetProjectPart, ProjectPartInfo::NoHint};
 
     ProjectPart::Ptr projectPart = currentProjectPartInfo.projectPart;
     ProjectPartInfo::Hint hint = ProjectPartInfo::NoHint;
@@ -153,12 +155,18 @@ ProjectPartInfo ProjectPartChooser::choose(
             projectPart = m_fallbackProjectPart();
             hint = ProjectPartInfo::IsFallbackMatch;
         } else {
-            ProjectPartPrioritizer prioritizer(projectParts, activeProject, languagePreference);
+            ProjectPartPrioritizer prioritizer(projectParts,
+                                               preferredProjectPartId,
+                                               activeProject,
+                                               languagePreference);
             projectPart = prioritizer.projectPart();
         }
     } else {
         if (projectHasChanged || !projectParts.contains(projectPart)) {
-            ProjectPartPrioritizer prioritizer(projectParts, activeProject, languagePreference);
+            ProjectPartPrioritizer prioritizer(projectParts,
+                                               preferredProjectPartId,
+                                               activeProject,
+                                               languagePreference);
             projectPart = prioritizer.projectPart();
             hint = prioritizer.isAmbiguous()
                     ? ProjectPartInfo::IsAmbiguousMatch

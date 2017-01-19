@@ -278,7 +278,7 @@ void CppEditorDocument::setPreprocessorSettings(const CppTools::ProjectPart::Ptr
     if (parser->projectPartInfo().projectPart != projectPart
             || parser->configuration().editorDefines != defines) {
         CppTools::BaseEditorDocumentParser::Configuration config = parser->configuration();
-        config.manuallySetProjectPart = projectPart;
+        config.preferredProjectPartId = projectPart->id();
         config.editorDefines = defines;
         parser->setConfiguration(config);
 
