@@ -90,6 +90,8 @@ public:
 
     void gotoCursorPosition(int line, int column);
 
+    void reformatFile();
+
 private:
     std::unique_ptr<TextEditorWidget> m_widget;
 };

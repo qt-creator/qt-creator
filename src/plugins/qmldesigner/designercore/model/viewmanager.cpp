@@ -344,6 +344,11 @@ void ViewManager::exportAsImage()
     d->formEditorView.exportAsImage();
 }
 
+void ViewManager::reformatFileUsingTextEditorView()
+{
+    d->textEditorView.reformatFile();
+}
+
 } // namespace QmlDesigner
 
 #endif //QMLDESIGNER_TEST

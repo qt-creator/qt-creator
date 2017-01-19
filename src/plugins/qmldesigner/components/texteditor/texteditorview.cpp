@@ -29,15 +29,21 @@
 
 #include <designmodecontext.h>
 #include <designdocument.h>
+#include <designersettings.h>
 #include <modelnode.h>
 #include <model.h>
 #include <zoomaction.h>
 #include <nodeabstractproperty.h>
 #include <nodelistproperty.h>
-
 #include <qmldesignerplugin.h>
+
 #include <coreplugin/icore.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/texteditor.h>
+#include <qmljseditor/qmljseditordocument.h>
+#include <qmljs/qmljsreformatter.h>
+
+#include <utils/changeset.h>
 
 #include <QDebug>
 #include <QPair>
@@ -194,6 +200,39 @@ void TextEditorView::gotoCursorPosition(int line, int column)
 {
     if (m_widget)
         m_widget->gotoCursorPosition(line, column);
+}
+
+void TextEditorView::reformatFile()
+{
+    int oldLine = -1;
+
+    if (m_widget)
+        oldLine = m_widget->currentLine();
+
+    QByteArray editorState = m_widget->textEditor()->saveState();
+
+    DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
+
+    auto document =
+            qobject_cast<QmlJSEditor::QmlJSEditorDocument *>(Core::EditorManager::instance()->currentDocument());
+
+    /* Reformat document if we have a .ui.qml file */
+    if (document
+            && document->filePath().toString().endsWith(".ui.qml")
+            && settings.value(DesignerSettingsKey::REFORMAT_UI_QML_FILES).toBool()) {
+
+        const QString &newText = QmlJS::reformat(document->semanticInfo().document);
+        QTextCursor tc(document->document());
+
+        Utils::ChangeSet changeSet;
+        changeSet.replace(0, document->plainText().length(), newText);
+        changeSet.apply(&tc);
+
+        m_widget->textEditor()->restoreState(editorState);
+
+        if (m_widget)
+            m_widget->gotoCursorPosition(oldLine, 0);
+    }
 }
 
 void TextEditorView::instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &/*propertyList*/)

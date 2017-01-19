@@ -57,6 +57,7 @@ public:
     void setStatusText(const QString &text);
     void clearStatusBar();
 
+    int currentLine() const;
 private:
     void updateSelectionByCursorPosition();
 

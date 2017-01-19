@@ -143,19 +143,8 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
     //Save
     Core::ActionManager::registerAction(&m_saveAction, Core::Constants::SAVE, qmlDesignerMainContext);
     connect(&m_saveAction, &QAction::triggered, em, [em] {
-        DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
-        /* Reformat document if we have a .ui.qml file */
-        if (settings.value(DesignerSettingsKey::REFORMAT_UI_QML_FILES).toBool()
-                && em->currentDocument()->filePath().toString().endsWith(".ui.qml"))
-            if (QmlJSEditor::QmlJSEditorDocument *document
-                    = qobject_cast<QmlJSEditor::QmlJSEditorDocument *>(em->currentDocument())) {
-                const QString &newText = QmlJS::reformat(document->semanticInfo().document);
-                QTextCursor tc(document->document());
-                tc.movePosition(QTextCursor::Start);
-                tc.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-                tc.insertText(newText);
-            }
-        em->saveDocument();
+         QmlDesignerPlugin::instance()->viewManager().reformatFileUsingTextEditorView();
+         em->saveDocument();
     });
 
 

@@ -129,4 +129,11 @@ void TextEditorWidget::clearStatusBar()
     m_statusBar->clearText();
 }
 
+int TextEditorWidget::currentLine() const
+{
+    if (m_textEditor)
+        return m_textEditor->currentLine();
+    return -1;
+}
+
 } // namespace QmlDesigner

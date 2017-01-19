@@ -85,6 +85,7 @@ public:
     NodeInstanceView *nodeInstanceView() const;
 
     void exportAsImage();
+    void reformatFileUsingTextEditorView();
 
     QWidgetAction *componentViewAction() const;
 
