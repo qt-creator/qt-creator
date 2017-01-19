@@ -29,10 +29,6 @@
 
 #include <utils/smallstringvector.h>
 
-#ifndef __cpp_constexpr
-#define constexpr
-#endif
-
 namespace {
 
 Utils::SmallStringView createText(int size)
