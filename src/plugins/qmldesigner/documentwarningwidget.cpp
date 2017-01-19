@@ -198,8 +198,7 @@ void DocumentWarningWidget::emitGotoCodeClicked(const DocumentMessage &message)
 
 bool DocumentWarningWidget::warningsEnabled() const
 {
-    DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
-    return settings.value(DesignerSettingsKey::WARNING_FOR_FEATURES_IN_DESIGNER).toBool();
+    return DesignerSettings::getValue(DesignerSettingsKey::WARNING_FOR_FEATURES_IN_DESIGNER).toBool();
 }
 
 void DocumentWarningWidget::ignoreCheckBoxToggled(bool b)

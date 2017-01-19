@@ -331,14 +331,12 @@ ToolBox *FormEditorWidget::toolBox() const
 
 double FormEditorWidget::spacing() const
 {
-    DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
-    return settings.value(DesignerSettingsKey::ITEMSPACING).toDouble();
+    return DesignerSettings::getValue(DesignerSettingsKey::ITEMSPACING).toDouble();
 }
 
 double FormEditorWidget::containerPadding() const
 {
-    DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
-    return settings.value(DesignerSettingsKey::CONTAINERPADDING).toDouble();
+    return DesignerSettings::getValue(DesignerSettingsKey::CONTAINERPADDING).toDouble();
 }
 
 

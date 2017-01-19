@@ -138,14 +138,12 @@ static bool useTextEditInDesignMode()
 
 static bool warningsForQmlFilesInsteadOfUiQmlEnabled()
 {
-    DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
-    return settings.value(DesignerSettingsKey::WARNING_FOR_QML_FILES_INSTEAD_OF_UIQML_FILES).toBool();
+    return DesignerSettings::getValue(DesignerSettingsKey::WARNING_FOR_QML_FILES_INSTEAD_OF_UIQML_FILES).toBool();
 }
 
 static bool showWarningsForFeaturesInDesigner()
 {
-    DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
-    return settings.value(DesignerSettingsKey::WARNING_FOR_FEATURES_IN_DESIGNER).toBool();
+    return DesignerSettings::getValue(DesignerSettingsKey::WARNING_FOR_FEATURES_IN_DESIGNER).toBool();
 }
 
 QmlDesignerPlugin::QmlDesignerPlugin()

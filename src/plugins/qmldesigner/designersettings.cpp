@@ -25,6 +25,8 @@
 
 #include "designersettings.h"
 
+#include <qmldesignerplugin.h>
+
 #include <QSettings>
 
 namespace QmlDesigner {
@@ -94,6 +96,12 @@ void DesignerSettings::toSettings(QSettings *settings) const
 
     settings->endGroup();
     settings->endGroup();
+}
+
+QVariant DesignerSettings::getValue(const QByteArray &key)
+{
+    DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
+    return settings.value(key);
 }
 
 } // namespace QmlDesigner

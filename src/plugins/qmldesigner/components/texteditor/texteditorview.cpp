@@ -210,15 +210,13 @@ void TextEditorView::reformatFile()
 
     QByteArray editorState = m_widget->textEditor()->saveState();
 
-    DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
-
     auto document =
             qobject_cast<QmlJSEditor::QmlJSEditorDocument *>(Core::EditorManager::instance()->currentDocument());
 
     /* Reformat document if we have a .ui.qml file */
     if (document
             && document->filePath().toString().endsWith(".ui.qml")
-            && settings.value(DesignerSettingsKey::REFORMAT_UI_QML_FILES).toBool()) {
+            &&  DesignerSettings::getValue(DesignerSettingsKey::REFORMAT_UI_QML_FILES).toBool()) {
 
         const QString &newText = QmlJS::reformat(document->semanticInfo().document);
         QTextCursor tc(document->document());
