@@ -65,11 +65,6 @@ FormEditorView::~FormEditorView()
 {
     m_currentTool = 0;
     qDeleteAll(m_customToolList);
-
-    // delete scene after tools to prevent access to the scene while
-    // calling destructors (and also double deletion of items)
-    m_scene->deleteLater();
-    m_formEditorWidget->deleteLater();
 }
 
 void FormEditorView::modelAttached(Model *model)

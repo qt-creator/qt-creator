@@ -63,7 +63,6 @@ TextEditorView::TextEditorView(QObject *parent)
 
 TextEditorView::~TextEditorView()
 {
-    m_widget->deleteLater();
 }
 
 void TextEditorView::modelAttached(Model *model)
