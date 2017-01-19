@@ -81,6 +81,7 @@ ShortCutManager::ShortCutManager()
     m_pasteAction(tr("&Paste"), tr("Paste \"%1\""), Utils::ParameterAction::EnabledWithParameter),
     m_selectAllAction(tr("Select &All"), tr("Select All \"%1\""), Utils::ParameterAction::EnabledWithParameter),
     m_hideSidebarsAction(tr("Toggle Sidebars"), 0),
+    m_collapseExpandStatesAction(tr("Toggle States Editor"), 0),
     m_restoreDefaultViewAction(tr("&Restore Default View"), 0),
     m_toggleLeftSidebarAction(tr("Toggle &Left Sidebar"), 0),
     m_toggleRightSidebarAction(tr("Toggle &Right Sidebar"), 0),
@@ -129,6 +130,10 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
             SIGNAL(triggered()),
             QmlDesignerPlugin::instance()->mainWidget(),
             SLOT(toggleRightSidebar()));
+
+    connect(&m_collapseExpandStatesAction, &QAction::triggered, [] {
+        QmlDesignerPlugin::instance()->viewManager().toggleStatesViewExpanded();
+    });
 
     // Revert to saved
     Core::EditorManager *em = Core::EditorManager::instance();
@@ -248,6 +253,11 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
     command = Core::ActionManager::registerAction(&m_toggleRightSidebarAction, Constants::TOGGLE_RIGHT_SIDEBAR, qmlDesignerMainContext);
     command->setAttribute(Core::Command::CA_Hide);
     command->setDefaultKeySequence(QKeySequence("Ctrl+Alt+Shift+0"));
+    viewsMenu->addAction(command);
+
+    command = Core::ActionManager::registerAction(&m_collapseExpandStatesAction,  Constants::TOGGLE_STATES_EDITOR, qmlDesignerMainContext);
+    command->setAttribute(Core::Command::CA_Hide);
+    command->setDefaultKeySequence(QKeySequence("Ctrl+Alt+s"));
     viewsMenu->addAction(command);
 
     command = Core::ActionManager::registerAction(&m_restoreDefaultViewAction,  Constants::RESTORE_DEFAULT_VIEW, qmlDesignerMainContext);

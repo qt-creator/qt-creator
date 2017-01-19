@@ -117,6 +117,12 @@ QString StatesEditorWidget::qmlSourcesPath() {
     return Core::ICore::resourcePath() + QStringLiteral("/qmldesigner/statesEditorQmlSources");
 }
 
+void StatesEditorWidget::toggleStatesViewExpanded()
+{
+    bool expanded = rootObject()->property("expanded").toBool();
+    rootObject()->setProperty("expanded", !expanded);
+}
+
 void StatesEditorWidget::reloadQmlSource()
 {
     QString statesListQmlFilePath = qmlSourcesPath() + QStringLiteral("/StatesList.qml");

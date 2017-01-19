@@ -88,6 +88,7 @@ private:
     Utils::ParameterAction m_pasteAction;
     Utils::ParameterAction m_selectAllAction;
     QAction m_hideSidebarsAction;
+    QAction m_collapseExpandStatesAction;
     QAction m_restoreDefaultViewAction;
     QAction m_toggleLeftSidebarAction;
     QAction m_toggleRightSidebarAction;

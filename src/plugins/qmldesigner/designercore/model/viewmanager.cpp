@@ -324,6 +324,11 @@ const DesignerActionManager &ViewManager::designerActionManager() const
     return d->designerActionManagerView.designerActionManager();
 }
 
+void ViewManager::toggleStatesViewExpanded()
+{
+    d->statesEditorView.toggleStatesViewExpanded();
+}
+
 Model *ViewManager::currentModel() const
 {
     return currentDesignDocument()->currentModel();

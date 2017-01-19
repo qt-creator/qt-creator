@@ -74,6 +74,12 @@ void StatesEditorView::rootNodeTypeChanged(const QString &/*type*/, int /*majorV
     checkForWindow();
 }
 
+void StatesEditorView::toggleStatesViewExpanded()
+{
+    if (m_statesEditorWidget)
+        m_statesEditorWidget->toggleStatesViewExpanded();
+}
+
 void StatesEditorView::removeState(int nodeId)
 {
     try {

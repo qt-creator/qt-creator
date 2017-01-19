@@ -59,6 +59,8 @@ public:
 
     static QString qmlSourcesPath();
 
+    void toggleStatesViewExpanded();
+
 private slots:
     void reloadQmlSource();
     void changeHeight();

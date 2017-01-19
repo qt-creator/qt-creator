@@ -91,6 +91,8 @@ public:
     DesignerActionManager &designerActionManager();
     const DesignerActionManager &designerActionManager() const;
 
+    void toggleStatesViewExpanded();
+
 private: // functions
     Q_DISABLE_COPY(ViewManager)
 
