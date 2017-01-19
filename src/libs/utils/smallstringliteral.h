@@ -118,7 +118,7 @@ public:
     }
 
 private:
-    BasicSmallStringLiteral(Internal::StringDataLayout<Size> data) noexcept
+    BasicSmallStringLiteral(const Internal::StringDataLayout<Size> &data) noexcept
         : m_data(data)
     {
     }
