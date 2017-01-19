@@ -201,7 +201,11 @@ void TestResultModel::addTestResult(const TestResultPtr &testResult, bool autoEx
         if (autoExpand)
             parentItem->expand();
         if (testResult->result() == Result::MessageTestCaseEnd) {
-            parentItem->updateIntermediateChildren();
+            if (parentItem->childCount()) {
+                parentItem->updateIntermediateChildren();
+                emit dataChanged(parentItem->firstChild()->index(),
+                                 parentItem->lastChild()->index());
+            }
             parentItem->updateResult();
             emit dataChanged(parentItem->index(), parentItem->index());
         }
