@@ -24,6 +24,7 @@ All Projects
 
 * Fixed issue with upgrading tool chain settings in auto-detected kits
 * Fixed crash when setting custom executable (QTCREATORBUG-17505)
+* Fixed MSVC support on Windows Vista and earlier (QTCREATORBUG-17501)
 
 QMake Projects
 
@@ -32,6 +33,7 @@ QMake Projects
   (QTCREATORBUG-17462, QTCREATORBUG-17477)
 * Fixed that `OTHER_FILES` and `DISTFILES` in subdirs projects were no longer
   shown in project tree (QTCREATORBUG-17473)
+* Fixed crash caused by unnormalized file paths (QTCREATORBUG-17364)
 
 Qbs Projects
 
