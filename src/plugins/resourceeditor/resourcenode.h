@@ -112,8 +112,6 @@ public:
     QString lang() const;
     ResourceTopLevelNode *resourceNode() const;
 private:
-    void updateFolders(QList<ProjectExplorer::FolderNode *> newList);
-    void updateFiles(QList<ProjectExplorer::FileNode *> newList);
     ResourceTopLevelNode *m_topLevelNode;
     QString m_prefix;
     QString m_lang;
@@ -140,8 +138,6 @@ public:
     ResourceFolderNode *prefixNode() const;
 
 private:
-    void updateFiles(QList<ProjectExplorer::FileNode *> newList);
-    void updateFolders(QList<ProjectExplorer::FolderNode *> newList);
     QString m_folderName;
     QString m_displayName;
     QString m_prefix;

@@ -598,6 +598,15 @@ void FolderNode::removeFileNodes(const QList<FileNode *> &files)
     ProjectTree::emitDataChanged();
 }
 
+void FolderNode::setFileNodes(const QList<FileNode *> &files)
+{
+    qDeleteAll(m_fileNodes);
+    m_fileNodes = files;
+    for (FileNode *node : m_fileNodes)
+        node->setParentFolderNode(this);
+    ProjectTree::emitDataChanged();
+}
+
 /*!
   Adds folder nodes specified by \a subFolders to the node hierarchy below
   \a parentFolder and emits the corresponding signals.
@@ -663,6 +672,15 @@ void FolderNode::removeFolderNodes(const QList<FolderNode*> &subFolders)
         folderIter = m_folderNodes.erase(folderIter);
     }
 
+    ProjectTree::emitDataChanged();
+}
+
+void FolderNode::setFolderNodes(const QList<FolderNode *> &folders)
+{
+    qDeleteAll(m_folderNodes);
+    m_folderNodes = folders;
+    for (FolderNode *node : m_folderNodes)
+        node->setParentFolderNode(this);
     ProjectTree::emitDataChanged();
 }
 

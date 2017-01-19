@@ -251,9 +251,11 @@ public:
 
     void addFileNodes(const QList<FileNode*> &files);
     void removeFileNodes(const QList<FileNode*> &files);
+    void setFileNodes(const QList<FileNode*> &files);
 
     void addFolderNodes(const QList<FolderNode*> &subFolders);
     void removeFolderNodes(const QList<FolderNode*> &subFolders);
+    void setFolderNodes(const QList<FolderNode*> &folders);
 
     FolderNode *asFolderNode() override { return this; }
     const FolderNode *asFolderNode() const override { return this; }

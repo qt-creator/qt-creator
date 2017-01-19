@@ -534,27 +534,12 @@ struct InternalNode
     // Makes the folder's files match this internal node's file list
     void updateFiles(FolderNode *folder, FileType type)
     {
-        QList<FileNode*> existingFileNodes;
-        foreach (FileNode *fileNode, folder->fileNodes()) {
-            if (fileNode->fileType() == type && !fileNode->isGenerated())
-                existingFileNodes << fileNode;
-        }
-
-        QList<FileNode*> filesToRemove;
-        FileNameList filesToAdd;
-
         SortByPath sortByPath;
         Utils::sort(files, sortByPath);
-        Utils::sort(existingFileNodes, sortByPath);
-
-        ProjectExplorer::compareSortedLists(existingFileNodes, files, filesToRemove, filesToAdd, sortByPath);
-
-        QList<FileNode *> nodesToAdd;
-        foreach (const FileName &file, filesToAdd)
-            nodesToAdd << new FileNode(file, type, false);
-
-        folder->removeFileNodes(filesToRemove);
-        folder->addFileNodes(nodesToAdd);
+        QList<FileNode *> nodes;
+        foreach (const FileName &file, files)
+            nodes << new FileNode(file, type, false);
+        folder->setFileNodes(nodes);
     }
 
     // Makes the folder's files match this internal node's file list
@@ -2057,9 +2042,9 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
                 return;
 
             // delete files && folders && projects
-            removeFileNodes(fileNodes());
+            setFileNodes({});
             removeProjectNodes(projectNodes());
-            removeFolderNodes(folderNodes());
+            setFolderNodes({});
 
             m_projectType = InvalidProject;
         }
@@ -2079,9 +2064,9 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
             }
         }
 
-        removeFileNodes(fileNodes());
+        setFileNodes({});
         removeProjectNodes(projectNodes());
-        removeFolderNodes(folderNodes());
+        setFolderNodes({});
 
         m_projectType = result->projectType;
     }
