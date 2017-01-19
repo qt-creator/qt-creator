@@ -35,6 +35,7 @@
 #include <utils/fileutils.h>
 #include "utils/runextensions.h"
 #include "utils/synchronousprocess.h"
+#include "utils/temporaryfile.h"
 
 #include <QCoreApplication>
 #include <QDir>
@@ -50,7 +51,6 @@
 #include <QProcessEnvironment>
 #include <QScopedArrayPointer>
 #include <QSocketNotifier>
-#include <QTemporaryFile>
 #include <QTimer>
 #include <QXmlStreamReader>
 
@@ -81,8 +81,8 @@ class LogTailFiles : public QObject
     Q_OBJECT
 public:
 
-    void exec(QFutureInterface<void> &fi, std::shared_ptr<QTemporaryFile> stdoutFile,
-                    std::shared_ptr<QTemporaryFile> stderrFile)
+    void exec(QFutureInterface<void> &fi, std::shared_ptr<Utils::TemporaryFile> stdoutFile,
+                    std::shared_ptr<Utils::TemporaryFile> stderrFile)
     {
         if (fi.isCanceled())
             return;
@@ -96,7 +96,7 @@ public:
         watcher.setFuture(fi.future());
 
         // Process to print the console output while app is running.
-        auto logProcess = [this, fi](QProcess *tailProcess, std::shared_ptr<QTemporaryFile> file) {
+        auto logProcess = [this, fi](QProcess *tailProcess, std::shared_ptr<Utils::TemporaryFile> file) {
             QObject::connect(tailProcess, &QProcess::readyReadStandardOutput, [=]() {
                 if (!fi.isCanceled())
                     emit logMessage(QString::fromLocal8Bit(tailProcess->readAll()));
@@ -910,16 +910,13 @@ void IosSimulatorToolHandlerPrivate::launchAppOnSimulator(const QStringList &ext
     const QString bundleId = SimulatorControl::bundleIdentifier(appBundle);
     const bool debugRun = runKind == IosToolHandler::DebugRun;
     bool captureConsole = IosConfigurations::xcodeVersion() >= QVersionNumber(8);
-    std::shared_ptr<QTemporaryFile> stdoutFile;
-    std::shared_ptr<QTemporaryFile> stderrFile;
+    std::shared_ptr<Utils::TemporaryFile> stdoutFile;
+    std::shared_ptr<Utils::TemporaryFile> stderrFile;
 
     if (captureConsole) {
         const QString fileTemplate = CONSOLE_PATH_TEMPLATE.arg(deviceId).arg(bundleId);
-        stdoutFile.reset(new QTemporaryFile);
-        stdoutFile->setFileTemplate(fileTemplate + QStringLiteral(".stdout"));
-
-        stderrFile.reset(new QTemporaryFile);
-        stderrFile->setFileTemplate(fileTemplate + QStringLiteral(".stderr"));
+        stdoutFile.reset(new Utils::TemporaryFile(fileTemplate + ".stdout"));
+        stderrFile.reset(new Utils::TemporaryFile(fileTemplate + ".stderr"));
 
         captureConsole = stdoutFile->open() && stderrFile->open();
         if (!captureConsole)

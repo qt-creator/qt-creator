@@ -29,12 +29,12 @@
 
 #include <utils/qtcprocess.h>
 #include <utils/synchronousprocess.h>
+#include <utils/temporaryfile.h>
 
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
 #include <QLoggingCategory>
-#include <QTemporaryFile>
 
 static Q_LOGGING_CATEGORY(LOG, "qtc.clangstaticanalyzer.runner")
 
@@ -165,7 +165,7 @@ QString ClangStaticAnalyzerRunner::createLogFile(const QString &filePath) const
     const QString fileTemplate = m_clangLogFileDir
             + QLatin1String("/report-") + fileName + QLatin1String("-XXXXXX.plist");
 
-    QTemporaryFile temporaryFile;
+    Utils::TemporaryFile temporaryFile("clangstaticanalyzer");
     temporaryFile.setAutoRemove(false);
     temporaryFile.setFileTemplate(fileTemplate);
     if (temporaryFile.open()) {

@@ -43,6 +43,7 @@
 #include <cplusplus/CppDocument.h>
 #include <utils/executeondestruction.h>
 #include <utils/fileutils.h>
+#include <utils/temporarydirectory.h>
 
 #include <QtTest>
 
@@ -83,7 +84,7 @@ QString TestDocument::filePath() const
         return QDir::cleanPath(m_baseDirectory + QLatin1Char('/') + m_fileName);
 
     if (!QFileInfo(m_fileName).isAbsolute())
-        return QDir::tempPath() + QLatin1Char('/') + m_fileName;
+        return Utils::TemporaryDirectory::masterDirectoryPath() + '/' + m_fileName;
 
     return m_fileName;
 }
@@ -301,8 +302,8 @@ ProjectInfo ProjectOpenerAndCloser::open(const QString &projectFile, bool config
 }
 
 TemporaryDir::TemporaryDir()
-    : m_temporaryDir(QFileInfo(QDir::tempPath()).canonicalFilePath()
-                        + QLatin1String("/qtcreator-tests-XXXXXX"))
+    : m_temporaryDir(QFileInfo(Utils::TemporaryDirectory::masterDirectoryPath()).canonicalFilePath()
+                     + "/qtcreator-tests-XXXXXX")
     , m_isValid(m_temporaryDir.isValid())
 {
 }

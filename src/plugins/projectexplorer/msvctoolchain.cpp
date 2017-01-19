@@ -33,6 +33,7 @@
 #include <utils/winutils.h>
 #include <utils/qtcassert.h>
 #include <utils/hostosinfo.h>
+#include <utils/temporarydirectory.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -318,7 +319,7 @@ QByteArray MsvcToolChain::msvcPredefinedMacros(const QStringList cxxflags,
         }
     }
 
-    Utils::TempFileSaver saver(QDir::tempPath() + QLatin1String("/envtestXXXXXX.cpp"));
+    Utils::TempFileSaver saver(Utils::TemporaryDirectory::masterDirectoryPath() + "/envtestXXXXXX.cpp");
     saver.write(msvcCompilationFile());
     if (!saver.finalize()) {
         qWarning("%s: %s", Q_FUNC_INFO, qPrintable(saver.errorString()));
@@ -326,7 +327,7 @@ QByteArray MsvcToolChain::msvcPredefinedMacros(const QStringList cxxflags,
     }
     Utils::SynchronousProcess cpp;
     cpp.setEnvironment(env.toStringList());
-    cpp.setWorkingDirectory(QDir::tempPath());
+    cpp.setWorkingDirectory(Utils::TemporaryDirectory::masterDirectoryPath());
     QStringList arguments;
     const Utils::FileName binary = env.searchInPath(QLatin1String("cl.exe"));
     if (binary.isEmpty()) {

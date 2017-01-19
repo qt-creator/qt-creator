@@ -55,9 +55,9 @@
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
+#include <utils/temporarydirectory.h>
 
 #include <QLoggingCategory>
-#include <QTemporaryDir>
 
 using namespace CppTools;
 using namespace ProjectExplorer;
@@ -513,7 +513,7 @@ void ClangStaticAnalyzerRunControl::start()
     m_clangExecutable = executable;
 
     // Create log dir
-    QTemporaryDir temporaryDir(QDir::tempPath() + QLatin1String("/qtc-clangstaticanalyzer-XXXXXX"));
+    Utils::TemporaryDirectory temporaryDir("qtc-clangstaticanalyzer-XXXXXX");
     temporaryDir.setAutoRemove(false);
     if (!temporaryDir.isValid()) {
         const QString errorMessage

@@ -28,7 +28,6 @@
 #include <utils/qtcprocess.h>
 
 #include <QLoggingCategory>
-#include <QTemporaryDir>
 #include <QTimer>
 #include <QVariantMap>
 

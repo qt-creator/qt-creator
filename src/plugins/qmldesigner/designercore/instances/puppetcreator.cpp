@@ -48,9 +48,9 @@
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
+#include <utils/temporarydirectory.h>
 
 #include <QProcess>
-#include <QTemporaryDir>
 #include <QCoreApplication>
 #include <QCryptographicHash>
 #include <QDateTime>
@@ -243,7 +243,7 @@ bool PuppetCreator::build(const QString &qmlPuppetProjectFilePath) const
 
     m_compileLog.clear();
 
-    QTemporaryDir buildDirectory;
+    Utils::TemporaryDirectory buildDirectory("qml-puppet-build");
 
     bool buildSucceeded = false;
 

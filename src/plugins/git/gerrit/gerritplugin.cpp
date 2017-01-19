@@ -60,7 +60,6 @@
 #include <QAction>
 #include <QFileDialog>
 #include <QMessageBox>
-#include <QTemporaryFile>
 #include <QDir>
 #include <QMap>
 #include <QFutureWatcher>

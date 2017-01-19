@@ -27,9 +27,9 @@
 
 #include <projectexplorer/extracompiler.h>
 #include <utils/fileutils.h>
+#include <utils/temporarydirectory.h>
 
 #include <QProcess>
-#include <QTemporaryDir>
 
 namespace QtSupport {
 
@@ -51,7 +51,7 @@ private:
     bool prepareToRun(const QByteArray &sourceContents) override;
     QList<ProjectExplorer::Task> parseIssues(const QByteArray &processStderr) override;
 
-    QTemporaryDir m_tmpdir;
+    Utils::TemporaryDirectory m_tmpdir;
     QString m_header;
     QString m_impl;
 };

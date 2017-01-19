@@ -28,9 +28,9 @@
 #include "cpptools_global.h"
 
 #include <cplusplus/CppDocument.h>
+#include <utils/temporarydirectory.h>
 
 #include <QStringList>
-#include <QTemporaryDir>
 
 namespace CPlusPlus {
 class Document;
@@ -138,7 +138,7 @@ public:
     QString createFile(const QByteArray &relativePath, const QByteArray &contents);
 
 protected:
-    QTemporaryDir m_temporaryDir;
+    Utils::TemporaryDirectory m_temporaryDir;
     bool m_isValid;
 };
 

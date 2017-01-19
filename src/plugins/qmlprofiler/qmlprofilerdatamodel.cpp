@@ -31,10 +31,11 @@
 #include "qmltypedevent.h"
 
 #include <utils/qtcassert.h>
+#include <utils/temporaryfile.h>
+
 #include <QUrl>
 #include <QDebug>
 #include <QStack>
-#include <QTemporaryFile>
 #include <algorithm>
 
 namespace QmlProfiler {
@@ -42,6 +43,7 @@ namespace QmlProfiler {
 class QmlProfilerDataModel::QmlProfilerDataModelPrivate
 {
 public:
+    QmlProfilerDataModelPrivate() : file("qmlprofiler-data") { }
     void rewriteType(int typeIndex);
     int resolveStackTop();
 
@@ -51,7 +53,7 @@ public:
     int modelId;
     Internal::QmlProfilerDetailsRewriter *detailsRewriter;
 
-    QTemporaryFile file;
+    Utils::TemporaryFile file;
     QDataStream eventStream;
 };
 

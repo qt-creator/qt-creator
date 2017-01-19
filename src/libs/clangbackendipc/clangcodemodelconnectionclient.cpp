@@ -26,7 +26,6 @@
 #include "clangcodemodelconnectionclient.h"
 
 #include <QCoreApplication>
-#include <QTemporaryDir>
 
 namespace ClangBackEnd {
 

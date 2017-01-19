@@ -37,7 +37,6 @@
 #include <utils/reloadpromptutils.h>
 #include <utils/fileutils.h>
 
-#include <QTemporaryFile>
 #include <QFileInfo>
 #include <QDir>
 #include <qdebug.h>

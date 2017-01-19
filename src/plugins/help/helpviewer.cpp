@@ -30,10 +30,10 @@
 #include <coreplugin/icore.h>
 
 #include <utils/fileutils.h>
+#include <utils/temporarydirectory.h>
 
 #include <QFileInfo>
 #include <QStringBuilder>
-#include <QDir>
 #include <QUrl>
 
 #include <QApplication>
@@ -135,7 +135,7 @@ bool HelpViewer::launchWithExternalApp(const QUrl &url)
 
         const QString& path = resolvedUrl.path();
         if (!canOpenPage(path)) {
-            Utils::TempFileSaver saver(QDir::tempPath()
+            Utils::TempFileSaver saver(Utils::TemporaryDirectory::masterDirectoryPath()
                 + "/qtchelp_XXXXXX." + QFileInfo(path).completeSuffix());
             saver.setAutoRemove(false);
             if (!saver.hasError())

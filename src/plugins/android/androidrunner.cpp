@@ -41,13 +41,13 @@
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 #include <utils/synchronousprocess.h>
+#include <utils/temporaryfile.h>
 
 #include <chrono>
 #include <memory>
 #include <QApplication>
 #include <QDir>
 #include <QTime>
-#include <QTemporaryFile>
 #include <QTcpServer>
 #include <QTcpSocket>
 
@@ -495,7 +495,7 @@ void AndroidRunnerWorker::asyncStart(const QString &intentName,
         } else {
             // Handling ping.
             for (int i = 0; ; ++i) {
-                QTemporaryFile tmp(QDir::tempPath() + "/pingpong");
+                Utils::TemporaryFile tmp("pingpong");
                 tmp.open();
                 tmp.close();
 
@@ -563,7 +563,7 @@ void AndroidRunnerWorker::handleRemoteDebuggerRunning()
             m_socket->waitForBytesWritten();
             m_socket->close();
         } else {
-            QTemporaryFile tmp(QDir::tempPath() + "/pingpong");
+            Utils::TemporaryFile tmp("pingpong");
             tmp.open();
 
             runAdb(selector() << "push" << tmp.fileName() << m_pongFile);

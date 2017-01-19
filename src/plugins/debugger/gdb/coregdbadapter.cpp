@@ -34,9 +34,10 @@
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
+#include <utils/temporarydirectory.h>
+#include <utils/temporaryfile.h>
 
 #include <QDir>
-#include <QTemporaryFile>
 
 using namespace Utils;
 using namespace ProjectExplorer;
@@ -277,8 +278,7 @@ void GdbCoreEngine::shutdownEngine()
 
 static QString tempCoreFilename()
 {
-    QString pattern = QDir::tempPath() + QLatin1String("/tmpcore-XXXXXX");
-    QTemporaryFile tmp(pattern);
+    Utils::TemporaryFile tmp("tmpcore-XXXXXX");
     tmp.open();
     return tmp.fileName();
 }
@@ -292,7 +292,7 @@ void GdbCoreEngine::unpackCoreIfNeeded()
         showMessage(msg.arg(m_tempCoreName));
         arguments << QLatin1String("-o") << m_tempCoreName << QLatin1String("-x") << m_coreName;
         m_coreUnpackProcess = new QProcess(this);
-        m_coreUnpackProcess->setWorkingDirectory(QDir::tempPath());
+        m_coreUnpackProcess->setWorkingDirectory(Utils::TemporaryDirectory::masterDirectoryPath());
         m_coreUnpackProcess->start(QLatin1String("lzop"), arguments);
         connect(m_coreUnpackProcess, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
                 this, &GdbCoreEngine::continueSetupEngine);
@@ -303,7 +303,7 @@ void GdbCoreEngine::unpackCoreIfNeeded()
         m_tempCoreFile.open(QFile::WriteOnly);
         arguments << QLatin1String("-c") << QLatin1String("-d") << m_coreName;
         m_coreUnpackProcess = new QProcess(this);
-        m_coreUnpackProcess->setWorkingDirectory(QDir::tempPath());
+        m_coreUnpackProcess->setWorkingDirectory(Utils::TemporaryDirectory::masterDirectoryPath());
         m_coreUnpackProcess->start(QLatin1String("gzip"), arguments);
         connect(m_coreUnpackProcess, &QProcess::readyRead, this, &GdbCoreEngine::writeCoreChunk);
         connect(m_coreUnpackProcess, static_cast<void (QProcess::*)(int)>(&QProcess::finished),

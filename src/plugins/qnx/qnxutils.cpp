@@ -28,12 +28,12 @@
 
 #include <utils/hostosinfo.h>
 #include <utils/synchronousprocess.h>
+#include <utils/temporaryfile.h>
 
 #include <QDir>
 #include <QDomDocument>
 #include <QProcess>
 #include <QStandardPaths>
-#include <QTemporaryFile>
 #include <QApplication>
 
 using namespace ProjectExplorer;
@@ -100,9 +100,8 @@ QList<Utils::EnvironmentItem> QnxUtils::qnxEnvironmentFromEnvFile(const QString 
     const bool isWindows = Utils::HostOsInfo::isWindowsHost();
 
     // locking creating bbndk-env file wrapper script
-    QTemporaryFile tmpFile(
-            QDir::tempPath() + QLatin1Char('/')
-            + QLatin1String("bbndk-env-eval-XXXXXX") + QLatin1String(isWindows ? ".bat" : ".sh"));
+    Utils::TemporaryFile tmpFile(QString::fromLatin1("bbndk-env-eval-XXXXXX")
+                                 + QString::fromLatin1(isWindows ? ".bat" : ".sh"));
     if (!tmpFile.open())
         return items;
     tmpFile.setTextModeEnabled(true);

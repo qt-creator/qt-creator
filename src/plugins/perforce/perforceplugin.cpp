@@ -49,6 +49,7 @@
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
+#include <utils/temporarydirectory.h>
 #include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsbaseeditor.h>
@@ -934,11 +935,7 @@ PerforcePlugin::createTemporaryArgumentFile(const QStringList &extraArgs,
     // create pattern
     QString pattern = m_instance->m_tempFilePattern;
     if (pattern.isEmpty()) {
-        pattern = QDir::tempPath();
-        const QChar slash = QLatin1Char('/');
-        if (!pattern.endsWith(slash))
-            pattern += slash;
-        pattern += QLatin1String("qtc_p4_XXXXXX.args");
+        pattern = Utils::TemporaryDirectory::masterDirectoryPath() + "/qtc_p4_XXXXXX.args";
         m_instance->m_tempFilePattern = pattern;
     }
     QSharedPointer<TempFileSaver> rc(new TempFileSaver(pattern));

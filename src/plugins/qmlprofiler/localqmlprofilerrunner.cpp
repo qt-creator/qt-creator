@@ -34,6 +34,8 @@
 #include <qmldebug/qmldebugcommandlinearguments.h>
 #include <debugger/analyzer/analyzerruncontrol.h>
 
+#include <utils/temporaryfile.h>
+
 #include <QTcpServer>
 #include <QTemporaryFile>
 
@@ -43,7 +45,7 @@ namespace QmlProfiler {
 
 QString LocalQmlProfilerRunner::findFreeSocket()
 {
-    QTemporaryFile file;
+    Utils::TemporaryFile file("qmlprofiler-freesocket");
     if (file.open()) {
         return file.fileName();
     } else {

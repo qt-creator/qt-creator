@@ -46,12 +46,12 @@
 #include <utils/fileutils.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
+#include <utils/temporarydirectory.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
 
 #include <QtPlugin>
 #include <QDebug>
-#include <QDir>
 #include <QAction>
 #include <QApplication>
 #include <QClipboard>
@@ -335,7 +335,7 @@ static inline QString filePrefixFromTitle(const QString &title)
 static inline QString tempFilePattern(const QString &prefix, const QString &extension)
 {
     // Get directory
-    QString pattern = QDir::tempPath();
+    QString pattern = Utils::TemporaryDirectory::masterDirectoryPath();
     const QChar slash = QLatin1Char('/');
     if (!pattern.endsWith(slash))
         pattern.append(slash);

@@ -56,6 +56,7 @@
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 #include <utils/synchronousprocess.h>
+#include <utils/temporarydirectory.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -84,7 +85,8 @@ FormatTask format(FormatTask task)
     case Command::FileProcessing: {
         // Save text to temporary file
         const QFileInfo fi(task.filePath);
-        Utils::TempFileSaver sourceFile(QDir::tempPath() + "/qtc_beautifier_XXXXXXXX."
+        Utils::TempFileSaver sourceFile(Utils::TemporaryDirectory::masterDirectoryPath()
+                                        + "/qtc_beautifier_XXXXXXXX."
                                         + fi.suffix());
         sourceFile.setAutoRemove(true);
         sourceFile.write(task.sourceData.toUtf8());

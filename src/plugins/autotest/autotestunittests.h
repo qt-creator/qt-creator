@@ -26,7 +26,6 @@
 #pragma once
 
 #include <QObject>
-#include <QTemporaryDir>
 
 namespace CppTools { namespace Tests { class TemporaryCopiedDir; } }
 

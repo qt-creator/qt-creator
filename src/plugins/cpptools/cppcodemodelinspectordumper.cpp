@@ -33,6 +33,7 @@
 #include <cpptools/cppprojectfile.h>
 #include <projectexplorer/project.h>
 #include <utils/algorithm.h>
+#include <utils/temporarydirectory.h>
 
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Token.h>
@@ -445,9 +446,10 @@ Dumper::Dumper(const CPlusPlus::Snapshot &globalSnapshot, const QString &logFile
     QString logFileId_ = logFileId;
     if (!logFileId_.isEmpty())
         logFileId_.prepend(QLatin1Char('_'));
-    const QString logFileName = QDir::tempPath() + QString::fromLatin1("/qtc-codemodelinspection")
+    const QString logFileName = ::Utils::TemporaryDirectory::masterDirectoryPath()
+            + "/qtc-codemodelinspection"
             + ideRevision_
-            + QDateTime::currentDateTime().toString(QLatin1String("_yyMMdd_hhmmss"))
+            + QDateTime::currentDateTime().toString("_yyMMdd_hhmmss")
             + logFileId_
             + QLatin1String(".txt");
 

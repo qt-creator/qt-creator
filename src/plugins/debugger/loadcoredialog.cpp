@@ -35,12 +35,12 @@
 #include <ssh/sftpfilesystemmodel.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
+#include <utils/temporaryfile.h>
 
 #include <QCheckBox>
 #include <QDebug>
 #include <QDir>
 #include <QRegExp>
-#include <QTemporaryFile>
 
 #include <QDialogButtonBox>
 #include <QFormLayout>
@@ -184,7 +184,7 @@ void SelectRemoteFileDialog::selectFile()
             this, &SelectRemoteFileDialog::handleSftpOperationFinished);
 
     {
-        QTemporaryFile localFile(QDir::tempPath() + QLatin1String("/remotecore-XXXXXX"));
+        Utils::TemporaryFile localFile("remotecore-XXXXXX");
         localFile.open();
         m_localFile = localFile.fileName();
     }

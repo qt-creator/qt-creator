@@ -55,6 +55,7 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/synchronousprocess.h>
+#include <utils/temporarydirectory.h>
 
 #include <QDateTime>
 #include <QFile>
@@ -62,7 +63,6 @@
 #include <QMessageBox>
 #include <QRegularExpression>
 #include <QSet>
-#include <QTemporaryDir>
 
 using namespace ProjectExplorer;
 
@@ -91,10 +91,9 @@ const Utils::FileName BuildDirManager::workDirectory() const
     if (bdir.exists())
         return bdir;
     if (!m_tempDir) {
-        const QString path = QDir::tempPath() + QLatin1String("/qtc-cmake-XXXXXX");
-        m_tempDir.reset(new QTemporaryDir(path));
+        m_tempDir.reset(new Utils::TemporaryDirectory("qtc-cmake-XXXXXXXX"));
         if (!m_tempDir->isValid())
-            emit errorOccured(tr("Failed to create temporary directory using template \"%1\".").arg(path));
+            emit errorOccured(tr("Failed to create temporary directory \"%1\".").arg(m_tempDir->path()));
     }
     return Utils::FileName::fromString(m_tempDir->path());
 }

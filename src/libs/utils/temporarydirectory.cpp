@@ -23,52 +23,35 @@
 **
 ****************************************************************************/
 
-#include "clanguiheaderondiskmanager.h"
+#include "temporarydirectory.h"
 
-#include <QFile>
-#include <QFileInfo>
+#include "qtcassert.h"
 
-#include <utils/qtcassert.h>
+#include <memory>
 
-namespace ClangCodeModel {
-namespace Internal {
+namespace Utils {
 
-UiHeaderOnDiskManager::UiHeaderOnDiskManager() : m_temporaryDir("/qtc-clang-uiheader-XXXXXX")
+static std::unique_ptr<QTemporaryDir> m_masterTemporaryDir;
+
+TemporaryDirectory::TemporaryDirectory(const QString &pattern) :
+    QTemporaryDir(m_masterTemporaryDir->path() + '/' + pattern)
 {
-    QTC_CHECK(m_temporaryDir.isValid());
+    QTC_CHECK(!QFileInfo(pattern).isAbsolute());
 }
 
-QString UiHeaderOnDiskManager::createIfNeeded(const QString &filePath)
+QTemporaryDir *TemporaryDirectory::masterTemporaryDirectory()
 {
-    const QString mappedPath = mapPath(filePath);
-    if (!QFileInfo::exists(mappedPath)) {
-        const bool fileCreated = QFile(mappedPath).open(QFile::WriteOnly); // touch file
-        QTC_CHECK(fileCreated);
-    }
-
-    return mappedPath;
+    return m_masterTemporaryDir.get();
 }
 
-QString UiHeaderOnDiskManager::remove(const QString &filePath)
+void TemporaryDirectory::setMasterTemporaryDirectory(const QString &pattern)
 {
-    const QString mappedPath = mapPath(filePath);
-    if (QFileInfo::exists(mappedPath)) {
-        const bool fileRemoved = QFile::remove(mappedPath);
-        QTC_CHECK(fileRemoved);
-    }
-
-    return mappedPath;
+    m_masterTemporaryDir = std::make_unique<QTemporaryDir>(pattern);
 }
 
-QString UiHeaderOnDiskManager::directoryPath() const
+QString TemporaryDirectory::masterDirectoryPath()
 {
-    return m_temporaryDir.path();
+    return m_masterTemporaryDir->path();
 }
 
-QString UiHeaderOnDiskManager::mapPath(const QString &filePath) const
-{
-    return directoryPath() + '/' + QFileInfo(filePath).fileName();
-}
-
-} // namespace Internal
-} // namespace ClangCodeModel
+} // namespace Utils

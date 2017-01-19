@@ -54,7 +54,6 @@
 #include <QtPlugin>
 #include <QAction>
 #include <QDir>
-#include <QTemporaryFile>
 
 using namespace Core;
 

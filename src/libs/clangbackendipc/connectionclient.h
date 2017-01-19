@@ -37,7 +37,6 @@
 
 QT_BEGIN_NAMESPACE
 class QProcess;
-class QTemporaryDir;
 QT_END_NAMESPACE
 
 class Utf8String;

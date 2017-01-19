@@ -56,6 +56,7 @@
 #include <utils/algorithm.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/synchronousprocess.h>
+#include <utils/temporarydirectory.h>
 #include <utils/parameteraction.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
@@ -85,7 +86,6 @@
 #include <QProcess>
 #include <QRegExp>
 #include <QSharedPointer>
-#include <QTemporaryFile>
 #include <QTextCodec>
 #include <QtPlugin>
 #include <QUrl>
@@ -1119,8 +1119,8 @@ void ClearCasePlugin::diffActivity()
         diffGraphical(pair.first, pair.second);
         return;
     }
-    rmdir(QDir::tempPath() + QLatin1String("/ccdiff/") + activity);
-    QDir(QDir::tempPath()).rmpath(QLatin1String("ccdiff/") + activity);
+    rmdir(Utils::TemporaryDirectory::masterDirectoryPath() + QLatin1String("/ccdiff/") + activity);
+    QDir(Utils::TemporaryDirectory::masterDirectoryPath()).rmpath(QLatin1String("ccdiff/") + activity);
     m_diffPrefix = activity;
     const FileVerIt fend = filever.end();
     for (FileVerIt it = filever.begin(); it != fend; ++it) {

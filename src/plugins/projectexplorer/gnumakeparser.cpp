@@ -29,6 +29,7 @@
 #include "task.h"
 
 #include <utils/qtcassert.h>
+#include <utils/temporarydirectory.h>
 
 #include <QDir>
 #include <QFile>
@@ -501,18 +502,14 @@ void ProjectExplorerPlugin::testGnuMakeParserTaskMangling()
     QFETCH(Task, outputTask);
 
     // setup files:
-    QString tempdir = QDir::tempPath();
-    const QChar slash = QLatin1Char('/');
-    tempdir.append(slash);
-    tempdir.append(QUuid::createUuid().toString());
-    tempdir.append(slash);
-
+    const QString tempdir
+            = Utils::TemporaryDirectory::masterDirectoryPath() + '/' + QUuid::createUuid().toString() + '/';
     QDir filedir(tempdir);
     foreach (const QString &file, files) {
-        Q_ASSERT(!file.startsWith(slash));
-        Q_ASSERT(!file.contains(QLatin1String("../")));
+        Q_ASSERT(!file.startsWith('/'));
+        Q_ASSERT(!file.contains("../"));
 
-        filedir.mkpath(file.left(file.lastIndexOf(slash)));
+        filedir.mkpath(file.left(file.lastIndexOf('/')));
 
         QFile tempfile(tempdir + file);
         if (!tempfile.open(QIODevice::WriteOnly))

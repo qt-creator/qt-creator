@@ -33,6 +33,7 @@
 
 #include <QByteArray>
 #include <QCryptographicHash>
+#include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLocalSocket>

@@ -44,6 +44,7 @@
 #include <utils/synchronousprocess.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
+#include <utils/temporarydirectory.h>
 #include <coreplugin/find/basetextfind.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>
@@ -659,12 +660,7 @@ static inline QString msgCheckScript(const QString &workingDir, const QString &c
 bool VcsBaseSubmitEditor::runSubmitMessageCheckScript(const QString &checkScript, QString *errorMessage) const
 {
     // Write out message
-    QString tempFilePattern = QDir::tempPath();
-    const QChar slash = QLatin1Char('/');
-    if (!tempFilePattern.endsWith(slash))
-        tempFilePattern += slash;
-    tempFilePattern += QLatin1String("msgXXXXXX.txt");
-    TempFileSaver saver(tempFilePattern);
+    TempFileSaver saver(Utils::TemporaryDirectory::masterDirectoryPath() + "/msgXXXXXX.txt");
     saver.write(fileContents());
     if (!saver.finalize(errorMessage))
         return false;

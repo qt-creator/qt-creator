@@ -34,9 +34,10 @@
 QT_BEGIN_NAMESPACE
 class QIODevice;
 class QDebug;
-class QTemporaryFile;
 class QJSEngine;
 QT_END_NAMESPACE
+
+namespace Utils { class TemporaryFile; }
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -136,7 +137,7 @@ public:
 class CustomWizardContext {
 public:
     typedef QMap<QString, QString> FieldReplacementMap;
-    typedef QSharedPointer<QTemporaryFile> TemporaryFilePtr;
+    typedef QSharedPointer<Utils::TemporaryFile> TemporaryFilePtr;
     typedef QList<TemporaryFilePtr> TemporaryFilePtrList;
 
     void reset();

@@ -30,6 +30,7 @@
 
 #include <utils/pathchooser.h>
 #include <utils/checkablemessagebox.h>
+#include <utils/temporarydirectory.h>
 
 #include "symbolpathsdialog.h"
 
@@ -139,7 +140,7 @@ CdbSymbolPathListEditor::CdbSymbolPathListEditor(QWidget *parent) :
 bool CdbSymbolPathListEditor::promptCacheDirectory(QWidget *parent, QString *cacheDirectory)
 {
     CacheDirectoryDialog dialog(parent);
-    dialog.setPath(QDir::tempPath() + QDir::separator() + QLatin1String("symbolcache"));
+    dialog.setPath(Utils::TemporaryDirectory::masterDirectoryPath() + "/symbolcache");
     if (dialog.exec() != QDialog::Accepted)
         return false;
     *cacheDirectory = dialog.path();
@@ -165,7 +166,7 @@ void CdbSymbolPathListEditor::setupSymbolPaths()
     if (path.isEmpty() && indexOfSymbolCache != -1)
         path = currentPaths.at(indexOfSymbolCache);
     if (path.isEmpty())
-        path = QDir::tempPath() + QDir::separator() + QLatin1String("symbolcache");
+        path = Utils::TemporaryDirectory::masterDirectoryPath() + "/symbolcache";
 
     bool useSymbolServer = true;
     bool useSymbolCache = true;

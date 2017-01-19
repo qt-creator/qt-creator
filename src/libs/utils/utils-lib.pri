@@ -31,6 +31,8 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/settingsselector.cpp \
     $$PWD/stringutils.cpp \
     $$PWD/templateengine.cpp \
+    $$PWD/temporarydirectory.cpp \
+    $$PWD/temporaryfile.cpp \
     $$PWD/textfieldcheckbox.cpp \
     $$PWD/textfieldcombobox.cpp \
     $$PWD/filesearch.cpp \
@@ -128,6 +130,8 @@ HEADERS += \
     $$PWD/shellcommandpage.h \
     $$PWD/stringutils.h \
     $$PWD/templateengine.h \
+    $$PWD/temporarydirectory.h \
+    $$PWD/temporaryfile.h \
     $$PWD/textfieldcheckbox.h \
     $$PWD/textfieldcombobox.h \
     $$PWD/filesearch.h \

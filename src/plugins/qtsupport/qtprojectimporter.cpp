@@ -36,6 +36,7 @@
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
+#include <utils/temporarydirectory.h>
 
 #include <QFileInfo>
 #include <QList>
@@ -364,8 +365,8 @@ void QtSupportPlugin::testQtProjectImporter_oneProject()
     BaseQtVersion *defaultQt = QtKitInformation::qtVersion(defaultKit);
     QVERIFY(defaultQt);
 
-    const QTemporaryDir tempDir1;
-    const QTemporaryDir tempDir2;
+    const Utils::TemporaryDirectory tempDir1("tmp1");
+    const Utils::TemporaryDirectory tempDir2("tmp2");
 
     const QString appDir = QCoreApplication::applicationDirPath();
 

@@ -40,11 +40,11 @@
 
 #include <utils/progressindicator.h>
 #include <utils/qtcassert.h>
+#include <utils/temporaryfile.h>
 
 #include <QDir>
 #include <QMenu>
 #include <QMessageBox>
-#include <QTemporaryFile>
 #include <QTextCodec>
 
 using namespace Core;
@@ -169,7 +169,7 @@ void DiffEditorWidgetController::patch(bool revert)
         if (!textDocument)
             return;
 
-        QTemporaryFile contentsCopy;
+        Utils::TemporaryFile contentsCopy("diff");
         if (!contentsCopy.open())
             return;
 

@@ -38,12 +38,13 @@
 #include <vcsbase/vcsoutputwindow.h>
 #include <texteditor/textdocument.h>
 
+#include <utils/temporaryfile.h>
+
 #include <QMenu>
 
 #include <QFileInfo>
 #include <QRegExp>
 #include <QSet>
-#include <QTemporaryFile>
 #include <QTextCodec>
 #include <QDir>
 
@@ -217,7 +218,7 @@ void GitEditorWidget::logChange()
 
 void GitEditorWidget::applyDiffChunk(const DiffChunk& chunk, bool revert)
 {
-    QTemporaryFile patchFile;
+    Utils::TemporaryFile patchFile("git-apply-chunk");
     if (!patchFile.open())
         return;
 

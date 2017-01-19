@@ -42,9 +42,9 @@
 #include <cplusplus/LookupContext.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
+#include <utils/temporarydirectory.h>
 
 #include <QCoreApplication>
-#include <QDir>
 #include <QElapsedTimer>
 #include <QRegularExpression>
 
@@ -72,10 +72,9 @@ public:
     WriteTaskFileForDiagnostics()
         : m_processedDiagnostics(0)
     {
-        const QString fileName = QDir::tempPath()
-                + QLatin1String("/qtc_findErrorsIndexing.diagnostics.")
-                + QDateTime::currentDateTime().toString(QLatin1String("yyMMdd_HHmm"))
-                + QLatin1String(".tasks");
+        const QString fileName = Utils::TemporaryDirectory::masterDirectoryPath()
+                + "/qtc_findErrorsIndexing.diagnostics."
+                + QDateTime::currentDateTime().toString("yyMMdd_HHmm") + ".tasks";
 
         m_file.setFileName(fileName);
         Q_ASSERT(m_file.open(QIODevice::WriteOnly | QIODevice::Text));

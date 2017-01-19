@@ -44,7 +44,8 @@ static const char TaskCategory[] = "Task.Category.ExtraCompiler.QScxmlc";
 QScxmlcGenerator::QScxmlcGenerator(const Project *project,
                                    const Utils::FileName &source,
                                    const Utils::FileNameList &targets, QObject *parent) :
-    ProcessExtraCompiler(project, source, targets, parent)
+    ProcessExtraCompiler(project, source, targets, parent),
+    m_tmpdir("qscxmlgenerator")
 {
     QTC_ASSERT(targets.count() == 2, return);
     m_header = m_tmpdir.path() + QLatin1Char('/') + targets[0].fileName();

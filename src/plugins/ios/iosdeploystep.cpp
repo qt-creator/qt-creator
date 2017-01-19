@@ -42,8 +42,9 @@
 
 #include <qtsupport/qtkitinformation.h>
 
+#include <utils/temporaryfile.h>
+
 #include <QDir>
-#include <QTemporaryFile>
 #include <QFile>
 #include <QSettings>
 
@@ -275,7 +276,7 @@ void IosDeployStep::checkProvisioningProfile()
         return;
     end += 8;
 
-    QTemporaryFile f;
+    Utils::TemporaryFile f("iosdeploy");
     if (!f.open())
         return;
     f.write(provisionData.mid(start, end - start));

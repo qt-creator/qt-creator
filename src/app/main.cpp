@@ -31,8 +31,10 @@
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
 #include <qtsingleapplication.h>
+
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/temporarydirectory.h>
 
 #include <QDebug>
 #include <QDir>
@@ -278,6 +280,8 @@ void loadFonts()
 
 int main(int argc, char **argv)
 {
+    Utils::TemporaryDirectory::setMasterTemporaryDirectory(QDir::tempPath() + "/QtCreator-XXXXXX");
+
     const char *highDpiEnvironmentVariable = setHighDpiEnvironmentVariable();
 
     QLoggingCategory::setFilterRules(QLatin1String("qtc.*.debug=false\nqtc.*.info=false"));
@@ -345,11 +349,9 @@ int main(int argc, char **argv)
             testOptionProvided = true;
         }
     }
-    QScopedPointer<QTemporaryDir> temporaryCleanSettingsDir;
+    QScopedPointer<Utils::TemporaryDirectory> temporaryCleanSettingsDir;
     if (settingsPath.isEmpty() && testOptionProvided) {
-        const QString settingsPathTemplate = QDir::cleanPath(QDir::tempPath()
-            + QString::fromLatin1("/qtc-test-settings-XXXXXX"));
-        temporaryCleanSettingsDir.reset(new QTemporaryDir(settingsPathTemplate));
+        temporaryCleanSettingsDir.reset(new Utils::TemporaryDirectory("qtc-test-settings"));
         if (!temporaryCleanSettingsDir->isValid())
             return 1;
         settingsPath = temporaryCleanSettingsDir->path();

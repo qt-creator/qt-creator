@@ -34,9 +34,9 @@
 #include <stdlib.h>
 
 #else
+#include <utils/temporaryfile.h>
 
 #include <QSocketNotifier>
-#include <QTemporaryFile>
 #include <QVarLengthArray>
 
 #include <sys/ioctl.h>
@@ -85,7 +85,7 @@ bool OutputCollector::listen()
     QByteArray codedServerPath;
     forever {
         {
-            QTemporaryFile tf;
+            Utils::TemporaryFile tf("outputcollector");
             if (!tf.open()) {
                 m_errorString = tr("Cannot create temporary file: %1").arg(tf.errorString());
                 m_serverPath.clear();

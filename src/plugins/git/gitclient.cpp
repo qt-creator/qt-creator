@@ -51,6 +51,7 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/synchronousprocess.h>
+#include <utils/temporaryfile.h>
 
 #include <vcsbase/submitfilemodel.h>
 #include <vcsbase/vcsbaseeditor.h>
@@ -72,7 +73,6 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QRegExp>
-#include <QTemporaryFile>
 #include <QTextCodec>
 #include <QToolButton>
 
@@ -687,7 +687,7 @@ void GitClient::slotUnstageChunk()
 
 void GitClient::stage(const QString &patch, bool revert)
 {
-    QTemporaryFile patchFile;
+    Utils::TemporaryFile patchFile("git-patchfile");
     if (!patchFile.open())
         return;
 

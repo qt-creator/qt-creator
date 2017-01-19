@@ -28,7 +28,8 @@
 
 #include <coreplugin/icore.h>
 
-#include <QDir>
+#include <utils/temporarydirectory.h>
+
 #include <QSettings>
 #include <QCoreApplication>
 
@@ -39,7 +40,7 @@ static const char displayCountKeyC[] = "DisplayCount";
 namespace CodePaster {
 
 FileShareProtocolSettings::FileShareProtocolSettings() :
-        path(QDir::tempPath()), displayCount(10)
+        path(Utils::TemporaryDirectory::masterDirectoryPath()), displayCount(10)
 {
 }
 

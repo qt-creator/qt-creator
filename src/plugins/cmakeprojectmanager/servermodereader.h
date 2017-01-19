@@ -31,7 +31,6 @@
 #include <utils/qtcprocess.h>
 
 #include <QSet>
-#include <QTemporaryDir>
 #include <QTimer>
 
 #include <memory>

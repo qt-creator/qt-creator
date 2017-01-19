@@ -29,9 +29,9 @@
 #include "cmakeconfigitem.h"
 
 #include <utils/fileutils.h>
+#include <utils/temporarydirectory.h>
 
 #include <QObject>
-#include <QTemporaryDir>
 #include <QTimer>
 
 #include <functional>
@@ -104,7 +104,7 @@ private:
     void becameDirty();
 
     CMakeBuildConfiguration *m_buildConfiguration = nullptr;
-    mutable std::unique_ptr<QTemporaryDir> m_tempDir = nullptr;
+    mutable std::unique_ptr<Utils::TemporaryDirectory> m_tempDir = nullptr;
     mutable CMakeConfig m_cmakeCache;
 
     QTimer m_reparseTimer;

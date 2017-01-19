@@ -31,9 +31,8 @@
 
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+#include <utils/temporaryfile.h>
 #include <ssh/sftpchannel.h>
-
-#include <QTemporaryFile>
 
 #define CALLGRIND_CONTROL_DEBUG 0
 
@@ -228,7 +227,7 @@ void CallgrindController::foundRemoteFile()
 void CallgrindController::sftpInitialized()
 {
     cleanupTempFile();
-    QTemporaryFile dataFile(QDir::tempPath() + QLatin1Char('/') + QLatin1String("callgrind.out."));
+    Utils::TemporaryFile dataFile("callgrind.out.");
     QTC_ASSERT(dataFile.open(), return);
     m_tempDataFile = dataFile.fileName();
     dataFile.setAutoRemove(false);

@@ -32,17 +32,17 @@
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/macroexpander.h>
 #include <utils/templateengine.h>
+#include <utils/temporarydirectory.h>
+#include <utils/temporaryfile.h>
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>
 #include <QDate>
 #include <QDebug>
-#include <QDir>
 #include <QFile>
 #include <QFileInfo>
 #include <QIcon>
 #include <QJSEngine>
-#include <QTemporaryFile>
 #include <QTime>
 #include <QXmlStreamAttribute>
 #include <QXmlStreamReader>
@@ -853,16 +853,12 @@ private:
 };
 
 TemporaryFileTransform::TemporaryFileTransform(TemporaryFilePtrList *f) :
-    m_files(f), m_pattern(QDir::tempPath())
-{
-    if (!m_pattern.endsWith(QLatin1Char('/')))
-        m_pattern += QLatin1Char('/');
-    m_pattern += QLatin1String("qtcreatorXXXXXX.txt");
-}
+    m_files(f), m_pattern(Utils::TemporaryDirectory::masterDirectoryPath() + "/qtcreatorXXXXXX.txt")
+{ }
 
 QString TemporaryFileTransform::operator()(const QString &value) const
 {
-    TemporaryFilePtr temporaryFile(new QTemporaryFile(m_pattern));
+    TemporaryFilePtr temporaryFile(new Utils::TemporaryFile(m_pattern));
     QTC_ASSERT(temporaryFile->open(), return QString());
 
     temporaryFile->write(value.toLocal8Bit());

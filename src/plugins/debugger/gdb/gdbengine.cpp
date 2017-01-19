@@ -71,13 +71,13 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/savedaction.h>
+#include <utils/temporaryfile.h>
 
 #include <QBuffer>
 #include <QDirIterator>
 #include <QMessageBox>
 #include <QProcess>
 #include <QPushButton>
-#include <QTemporaryFile>
 #include <QJsonArray>
 
 using namespace Core;
@@ -2999,7 +2999,7 @@ static void handleShowModuleSymbols(const DebuggerResponse &response,
 
 void GdbEngine::requestModuleSymbols(const QString &modulePath)
 {
-    QTemporaryFile tf(QDir::tempPath() + "/gdbsymbols");
+    Utils::TemporaryFile tf("gdbsymbols");
     if (!tf.open())
         return;
     QString fileName = tf.fileName();
@@ -3351,7 +3351,7 @@ void GdbEngine::handleThreadNames(const DebuggerResponse &response)
 void GdbEngine::createSnapshot()
 {
     QString fileName;
-    QTemporaryFile tf(QDir::tempPath() + "/gdbsnapshot");
+    Utils::TemporaryFile tf("gdbsnapshot");
     if (tf.open()) {
         fileName = tf.fileName();
         tf.close();

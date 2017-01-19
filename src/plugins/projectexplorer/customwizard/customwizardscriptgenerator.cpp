@@ -29,11 +29,10 @@
 
 #include <utils/hostosinfo.h>
 #include <utils/synchronousprocess.h>
+#include <utils/temporarydirectory.h>
 
-#include <QDir>
 #include <QFileInfo>
 #include <QDebug>
-#include <QTemporaryFile>
 #include <QSharedPointer>
 
 namespace ProjectExplorer {
@@ -147,8 +146,8 @@ Core::GeneratedFiles
 {
     // Run in temporary directory as the target path may not exist yet.
     QString stdOut;
-    if (!runGenerationScriptHelper(QDir::tempPath(), script, arguments, true,
-                             fieldMap, &stdOut, errorMessage))
+    if (!runGenerationScriptHelper(Utils::TemporaryDirectory::masterDirectoryPath(),
+                                   script, arguments, true, fieldMap, &stdOut, errorMessage))
         return Core::GeneratedFiles();
     Core::GeneratedFiles files;
     // Parse the output consisting of lines with ',' separated tokens.
