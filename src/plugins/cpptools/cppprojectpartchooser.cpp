@@ -124,9 +124,8 @@ private:
 
 ProjectPartInfo ProjectPartChooser::choose(
         const QString &filePath,
-        const ProjectPart::Ptr &currentProjectPart,
+        const ProjectPartInfo &currentProjectPartInfo,
         const ProjectPart::Ptr &manuallySetProjectPart,
-        bool stickToPreviousProjectPart,
         const ProjectExplorer::Project *activeProject,
         Language languagePreference,
         bool projectHasChanged) const
@@ -138,15 +137,14 @@ ProjectPartInfo ProjectPartChooser::choose(
     if (manuallySetProjectPart)
         return {manuallySetProjectPart, ProjectPartInfo::NoHint};
 
-    ProjectPart::Ptr projectPart = currentProjectPart;
+    ProjectPart::Ptr projectPart = currentProjectPartInfo.projectPart;
     ProjectPartInfo::Hint hint = ProjectPartInfo::NoHint;
 
     QList<ProjectPart::Ptr> projectParts = m_projectPartsForFile(filePath);
     if (projectParts.isEmpty()) {
-        if (projectPart && stickToPreviousProjectPart)
-            // File is not directly part of any project, but we got one before. We will re-use it,
-            // because re-calculating this can be expensive when the dependency table is big.
-            return {projectPart, ProjectPartInfo::NoHint};
+        if (projectPart && currentProjectPartInfo.hint == ProjectPartInfo::IsFallbackMatch)
+            // Avoid re-calculating the expensive dependency table for non-project files.
+            return {projectPart, ProjectPartInfo::IsFallbackMatch};
 
         // Fall-back step 1: Get some parts through the dependency table:
         projectParts = m_projectPartsFromDependenciesForFile(filePath);

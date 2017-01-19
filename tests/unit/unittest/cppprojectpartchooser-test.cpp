@@ -49,9 +49,9 @@ protected:
 
 protected:
     QString filePath;
-    ProjectPart::Ptr currentProjectPart{new ProjectPart};
+    ProjectPartInfo currentProjectPartInfo{ProjectPart::Ptr(new ProjectPart),
+                                           ProjectPartInfo::NoHint};
     ProjectPart::Ptr manuallySetProjectPart;
-    bool stickToPreviousProjectPart = false;
     const ProjectExplorer::Project *activeProject = nullptr;
     bool projectHasChanged = false;
     Language languagePreference = Language::Cxx;
@@ -75,11 +75,11 @@ TEST_F(ProjectPartChooser, ForMultipleChoosePrevious)
 {
     const ProjectPart::Ptr otherProjectPart;
     projectPartsForFile += otherProjectPart;
-    projectPartsForFile += currentProjectPart;
+    projectPartsForFile += currentProjectPartInfo.projectPart;
 
     const ProjectPart::Ptr chosen = choose().projectPart;
 
-    ASSERT_THAT(chosen, Eq(currentProjectPart));
+    ASSERT_THAT(chosen, Eq(currentProjectPartInfo.projectPart));
 }
 
 TEST_F(ProjectPartChooser, ForMultipleChooseFromActiveProject)
@@ -126,7 +126,7 @@ TEST_F(ProjectPartChooser, ForMultipleCheckIfActiveProjectChanged)
     const ProjectPart::Ptr firstProjectPart = projectParts.at(0);
     const ProjectPart::Ptr secondProjectPart = projectParts.at(1);
     projectPartsForFile += projectParts;
-    currentProjectPart = firstProjectPart;
+    currentProjectPartInfo.projectPart = firstProjectPart;
     activeProject = secondProjectPart->project;
     projectHasChanged = true;
 
@@ -168,25 +168,6 @@ TEST_F(ProjectPartChooser, IndicateMultiple)
     ASSERT_THAT(hint, Eq(ProjectPartInfo::Hint::IsAmbiguousMatch));
 }
 
-TEST_F(ProjectPartChooser, IfProjectIsGoneStickToPrevious) // Built-in Code Model
-{
-    stickToPreviousProjectPart = true;
-
-    const ProjectPart::Ptr chosen = choose().projectPart;
-
-    ASSERT_THAT(chosen, Eq(currentProjectPart));
-}
-
-TEST_F(ProjectPartChooser, IfProjectIsGoneDoNotStickToPrevious) // Clang Code Model
-{
-    currentProjectPart.clear();
-    stickToPreviousProjectPart = true;
-
-    const ProjectPart::Ptr chosen = choose().projectPart;
-
-    ASSERT_THAT(chosen, Eq(ProjectPart::Ptr()));
-}
-
 TEST_F(ProjectPartChooser, ForMultipleChooseNewIfPreviousIsGone)
 {
     const ProjectPart::Ptr newProjectPart{new ProjectPart};
@@ -216,6 +197,32 @@ TEST_F(ProjectPartChooser, FallbackToProjectPartFromModelManager)
     ASSERT_THAT(chosen, Eq(fallbackProjectPart));
 }
 
+TEST_F(ProjectPartChooser, ContinueUsingFallbackFromModelManagerIfProjectDoesNotChange)
+{
+    // ...without re-calculating the dependency table.
+    fallbackProjectPart.reset(new ProjectPart);
+    currentProjectPartInfo.projectPart = fallbackProjectPart;
+    currentProjectPartInfo.hint = ProjectPartInfo::IsFallbackMatch;
+    projectPartsFromDependenciesForFile += ProjectPart::Ptr(new ProjectPart);
+
+    const ProjectPart::Ptr chosen = choose().projectPart;
+
+    ASSERT_THAT(chosen, Eq(fallbackProjectPart));
+}
+
+TEST_F(ProjectPartChooser, StopUsingFallbackFromModelManagerIfProjectChanges)
+{
+    fallbackProjectPart.reset(new ProjectPart);
+    currentProjectPartInfo.projectPart = fallbackProjectPart;
+    currentProjectPartInfo.hint = ProjectPartInfo::IsFallbackMatch;
+    const ProjectPart::Ptr addedProject(new ProjectPart);
+    projectPartsForFile += addedProject;
+
+    const ProjectPart::Ptr chosen = choose().projectPart;
+
+    ASSERT_THAT(chosen, Eq(addedProject));
+}
+
 TEST_F(ProjectPartChooser, IndicateFallbacktoProjectPartFromModelManager)
 {
     fallbackProjectPart.reset(new ProjectPart);
@@ -241,9 +248,8 @@ void ProjectPartChooser::SetUp()
 const ProjectPartInfo ProjectPartChooser::choose() const
 {
     return chooser.choose(filePath,
-                          currentProjectPart,
+                          currentProjectPartInfo,
                           manuallySetProjectPart,
-                          stickToPreviousProjectPart,
                           activeProject,
                           languagePreference,
                           projectHasChanged);

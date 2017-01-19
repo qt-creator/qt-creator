@@ -30,9 +30,6 @@ namespace ClangCodeModel {
 ClangEditorDocumentParser::ClangEditorDocumentParser(const QString &filePath)
     : BaseEditorDocumentParser(filePath)
 {
-    BaseEditorDocumentParser::Configuration config = configuration();
-    config.stickToPreviousProjectPart = false;
-    setConfiguration(config);
 }
 
 void ClangEditorDocumentParser::updateImpl(const QFutureInterface<void> &,
@@ -41,7 +38,7 @@ void ClangEditorDocumentParser::updateImpl(const QFutureInterface<void> &,
     State state_ = state();
     state_.projectPartInfo = determineProjectPart(filePath(),
                                                   configuration(),
-                                                  state_,
+                                                  state_.projectPartInfo,
                                                   updateParams.activeProject,
                                                   updateParams.languagePreference,
                                                   updateParams.hasActiveProjectChanged);

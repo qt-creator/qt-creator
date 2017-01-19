@@ -122,7 +122,7 @@ BaseEditorDocumentParser::Ptr BaseEditorDocumentParser::get(const QString &fileP
 ProjectPartInfo BaseEditorDocumentParser::determineProjectPart(
         const QString &filePath,
         const Configuration &config,
-        const State &state,
+        const ProjectPartInfo &currentProjectPartInfo,
         const ProjectExplorer::Project *activeProject,
         Language languagePreference,
         bool hasActiveProjectChanged)
@@ -143,9 +143,8 @@ ProjectPartInfo BaseEditorDocumentParser::determineProjectPart(
 
     const ProjectPartInfo chooserResult
             = chooser.choose(filePath,
-                             state.projectPartInfo.projectPart,
+                             currentProjectPartInfo,
                              config.manuallySetProjectPart,
-                             config.stickToPreviousProjectPart,
                              activeProject,
                              languagePreference,
                              hasActiveProjectChanged);

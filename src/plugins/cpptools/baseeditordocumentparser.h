@@ -47,7 +47,6 @@ public:
     static Ptr get(const QString &filePath);
 
     struct Configuration {
-        bool stickToPreviousProjectPart = true;
         bool usePrecompiledHeaders = false;
         QByteArray editorDefines;
         ProjectPart::Ptr manuallySetProjectPart;
@@ -95,10 +94,9 @@ protected:
     State state() const;
     void setState(const State &state);
 
-    static ProjectPartInfo determineProjectPart(
-            const QString &filePath,
+    static ProjectPartInfo determineProjectPart(const QString &filePath,
             const Configuration &config,
-            const State &state,
+            const ProjectPartInfo &currentProjectPartInfo,
             const ProjectExplorer::Project *activeProject,
             Language languagePreference,
             bool hasActiveProjectChanged);

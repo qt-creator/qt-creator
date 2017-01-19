@@ -50,9 +50,8 @@ public:
 
     ProjectPartInfo choose(
             const QString &filePath,
-            const ProjectPart::Ptr &currentProjectPart,
+            const ProjectPartInfo &currentProjectPartInfo,
             const ProjectPart::Ptr &manuallySetProjectPart,
-            bool stickToPreviousProjectPart,
             const ProjectExplorer::Project *activeProject,
             Language languagePreference,
             bool projectHasChanged) const;

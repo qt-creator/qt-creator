@@ -79,7 +79,7 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
 
     baseState.projectPartInfo = determineProjectPart(filePath(),
                                                     baseConfig,
-                                                    baseState,
+                                                    baseState.projectPartInfo,
                                                     updateParams.activeProject,
                                                     updateParams.languagePreference,
                                                     updateParams.hasActiveProjectChanged);
