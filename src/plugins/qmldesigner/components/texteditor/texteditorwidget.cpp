@@ -34,7 +34,11 @@
 
 #include <utils/fileutils.h>
 
+#include <QEvent>
 #include <QVBoxLayout>
+
+#include <vector>
+#include <algorithm>
 
 namespace QmlDesigner {
 
@@ -64,6 +68,7 @@ void TextEditorWidget::setTextEditor(TextEditor::BaseTextEditor *textEditor) {
 
     connect(textEditor->editorWidget(), &QPlainTextEdit::cursorPositionChanged,
             &m_updateSelectionTimer, static_cast<void (QTimer::*)()>(&QTimer::start));
+    textEditor->editorWidget()->installEventFilter(this);
 }
 
 QString TextEditorWidget::contextHelpId() const
@@ -135,5 +140,19 @@ int TextEditorWidget::currentLine() const
         return m_textEditor->currentLine();
     return -1;
 }
+
+bool TextEditorWidget::eventFilter( QObject *, QEvent *event)
+{
+    static std::vector<int> overrideKeys = { Qt::Key_Delete, Qt::Key_Backspace, Qt::Key_Left, Qt::Key_Right, Qt::Key_Up, Qt::Key_Down };
+    if (event->type() == QEvent::ShortcutOverride) {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+        if (std::find(overrideKeys.begin(), overrideKeys.end(), keyEvent->key()) != overrideKeys.end()) {
+            keyEvent->accept();
+            return true;
+        }
+    }
+    return false;
+}
+
 
 } // namespace QmlDesigner

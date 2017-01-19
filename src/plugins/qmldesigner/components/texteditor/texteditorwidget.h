@@ -58,6 +58,9 @@ public:
     void clearStatusBar();
 
     int currentLine() const;
+protected:
+    bool eventFilter(QObject *object, QEvent *event) override;
+
 private:
     void updateSelectionByCursorPosition();
 
