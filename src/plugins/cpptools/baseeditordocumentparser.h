@@ -56,18 +56,18 @@ public:
         UpdateParams(const WorkingCopy &workingCopy,
                      const ProjectExplorer::Project *activeProject,
                      Language languagePreference,
-                     bool hasActiveProjectChanged)
+                     bool projectsUpdated)
             : workingCopy(workingCopy)
             , activeProject(activeProject)
             , languagePreference(languagePreference)
-            , hasActiveProjectChanged(hasActiveProjectChanged)
+            , projectsUpdated(projectsUpdated)
         {
         }
 
         WorkingCopy workingCopy;
         const ProjectExplorer::Project *activeProject = nullptr;
         Language languagePreference = Language::Cxx;
-        bool hasActiveProjectChanged = false;
+        bool projectsUpdated = false;
     };
 
 public:
@@ -99,7 +99,7 @@ protected:
             const ProjectPartInfo &currentProjectPartInfo,
             const ProjectExplorer::Project *activeProject,
             Language languagePreference,
-            bool hasActiveProjectChanged);
+            bool projectsUpdated);
 
     mutable QMutex m_stateAndConfigurationMutex;
 

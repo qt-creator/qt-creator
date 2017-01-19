@@ -879,8 +879,7 @@ void CppToolsPlugin::test_modelmanager_precompiled_headers()
         BaseEditorDocumentParser::Configuration config = parser->configuration();
         config.usePrecompiledHeaders = true;
         parser->setConfiguration(config);
-        parser->update({CppModelManager::instance()->workingCopy(), nullptr,
-                        Language::Cxx, false});
+        parser->update({CppModelManager::instance()->workingCopy(), nullptr, Language::Cxx, false});
 
         // Check if defines from pch are considered
         Document::Ptr document = mm->document(fileName);
@@ -958,8 +957,7 @@ void CppToolsPlugin::test_modelmanager_defines_per_editor()
         BaseEditorDocumentParser::Configuration config = parser->configuration();
         config.editorDefines = editorDefines.toUtf8();
         parser->setConfiguration(config);
-        parser->update({CppModelManager::instance()->workingCopy(), nullptr,
-                        Language::Cxx, false});
+        parser->update({CppModelManager::instance()->workingCopy(), nullptr, Language::Cxx, false});
 
         Document::Ptr doc = mm->document(main1File);
         QCOMPARE(nameOfFirstDeclaration(doc), firstDeclarationName);

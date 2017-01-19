@@ -125,7 +125,7 @@ ProjectPartInfo BaseEditorDocumentParser::determineProjectPart(
         const ProjectPartInfo &currentProjectPartInfo,
         const ProjectExplorer::Project *activeProject,
         Language languagePreference,
-        bool hasActiveProjectChanged)
+        bool projectsUpdated)
 {
     Internal::ProjectPartChooser chooser;
     chooser.setFallbackProjectPart([](){
@@ -145,7 +145,7 @@ ProjectPartInfo BaseEditorDocumentParser::determineProjectPart(
                              preferredProjectPartId,
                              activeProject,
                              languagePreference,
-                             hasActiveProjectChanged);
+                             projectsUpdated);
 
     return chooserResult;
 }

@@ -793,7 +793,7 @@ void CppModelManager::watchForCanceledProjectIndexer(QFuture<void> future,
     watcher->setFuture(future);
 }
 
-void CppModelManager::updateCppEditorDocuments(bool hasActiveProjectChanged) const
+void CppModelManager::updateCppEditorDocuments(bool projectsUpdated) const
 {
     // Refresh visible documents
     QSet<Core::IDocument *> visibleCppEditorDocuments;
@@ -802,7 +802,7 @@ void CppModelManager::updateCppEditorDocuments(bool hasActiveProjectChanged) con
             const QString filePath = document->filePath().toString();
             if (CppEditorDocumentHandle *theCppEditorDocument = cppEditorDocument(filePath)) {
                 visibleCppEditorDocuments.insert(document);
-                theCppEditorDocument->processor()->run(hasActiveProjectChanged);
+                theCppEditorDocument->processor()->run(projectsUpdated);
             }
         }
     }
@@ -814,9 +814,9 @@ void CppModelManager::updateCppEditorDocuments(bool hasActiveProjectChanged) con
     foreach (Core::IDocument *document, invisibleCppEditorDocuments) {
         const QString filePath = document->filePath().toString();
         if (CppEditorDocumentHandle *theCppEditorDocument = cppEditorDocument(filePath)) {
-            const CppEditorDocumentHandle::RefreshReason refreshReason = hasActiveProjectChanged
-                        ? CppEditorDocumentHandle::ActiveProjectChange
-                        : CppEditorDocumentHandle::Usual;
+            const CppEditorDocumentHandle::RefreshReason refreshReason = projectsUpdated
+                    ? CppEditorDocumentHandle::ProjectUpdate
+                    : CppEditorDocumentHandle::Other;
             theCppEditorDocument->setRefreshReason(refreshReason);
         }
     }
@@ -905,7 +905,7 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectIn
     // However, on e.g. a session restore first the editor documents are created and then the
     // project updates come in. That is, there are no reasonable dependency tables based on
     // resolved includes that we could rely on.
-    updateCppEditorDocuments();
+    updateCppEditorDocuments(/*projectsUpdated = */ true);
 
     // Trigger reindexing
     QFuture<void> indexerFuture = updateSourceFiles(filesToReindex, ForcedProgressNotification);
@@ -1044,9 +1044,18 @@ void CppModelManager::onAboutToRemoveProject(ProjectExplorer::Project *project)
     delayedGC();
 }
 
-void CppModelManager::onActiveProjectChanged(ProjectExplorer::Project *)
+void CppModelManager::onActiveProjectChanged(ProjectExplorer::Project *project)
 {
-    updateCppEditorDocuments(true);
+    if (!project)
+        return; // Last project closed.
+
+    {
+        QMutexLocker locker(&d->m_projectMutex);
+        if (!d->m_projectToProjectsInfo.contains(project))
+            return; // Not yet known to us.
+    }
+
+    updateCppEditorDocuments();
 }
 
 void CppModelManager::onSourceFilesRefreshed() const
@@ -1067,10 +1076,9 @@ void CppModelManager::onCurrentEditorChanged(Core::IEditor *editor)
         const CppEditorDocumentHandle::RefreshReason refreshReason
                 = theCppEditorDocument->refreshReason();
         if (refreshReason != CppEditorDocumentHandle::None) {
+            const bool projectsChanged = refreshReason == CppEditorDocumentHandle::ProjectUpdate;
             theCppEditorDocument->setRefreshReason(CppEditorDocumentHandle::None);
-            const bool hasActiveProjectChanged
-                    = refreshReason == CppEditorDocumentHandle::ActiveProjectChange;
-            theCppEditorDocument->processor()->run(hasActiveProjectChanged);
+            theCppEditorDocument->processor()->run(projectsChanged);
         }
     }
 }

@@ -54,7 +54,7 @@ public:
     BaseEditorDocumentProcessor(QTextDocument *textDocument, const QString &filePath);
     virtual ~BaseEditorDocumentProcessor();
 
-    void run(bool hasActiveProjectChanged = false);
+    void run(bool projectsUpdated = false);
     virtual void semanticRehighlight() = 0;
     virtual void recalculateSemanticInfoDetached(bool force) = 0;
     virtual CppTools::SemanticInfo recalculateSemanticInfo() = 0;

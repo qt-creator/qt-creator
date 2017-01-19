@@ -88,7 +88,7 @@ public:
 
     QFuture<void> updateSourceFiles(const QSet<QString> &sourceFiles,
         ProgressNotificationMode mode = ReservedProgressNotification);
-    void updateCppEditorDocuments(bool hasActiveProjectChanged = false) const;
+    void updateCppEditorDocuments(bool projectsUpdated = false) const;
     WorkingCopy workingCopy() const;
     QByteArray codeModelConfiguration() const;
 

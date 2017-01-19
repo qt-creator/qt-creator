@@ -48,13 +48,12 @@ public:
     void setProjectPartsForFile(const ProjectPartsForFile &getter);
     void setProjectPartsFromDependenciesForFile(const ProjectPartsFromDependenciesForFile &getter);
 
-    ProjectPartInfo choose(
-            const QString &filePath,
+    ProjectPartInfo choose(const QString &filePath,
             const ProjectPartInfo &currentProjectPartInfo,
             const QString &preferredProjectPartId,
             const ProjectExplorer::Project *activeProject,
             Language languagePreference,
-            bool projectHasChanged) const;
+            bool projectsUpdated) const;
 
 private:
     FallBackProjectPart m_fallbackProjectPart;

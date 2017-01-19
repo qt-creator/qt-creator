@@ -82,7 +82,7 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
                                                     baseState.projectPartInfo,
                                                     updateParams.activeProject,
                                                     updateParams.languagePreference,
-                                                    updateParams.hasActiveProjectChanged);
+                                                    updateParams.projectsUpdated);
     emit projectPartInfoUpdated(baseState.projectPartInfo);
 
     if (state.forceSnapshotInvalidation) {

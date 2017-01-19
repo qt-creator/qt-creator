@@ -128,12 +128,13 @@ private:
     bool m_isAmbiguous = false;
 };
 
-ProjectPartInfo ProjectPartChooser::choose(const QString &filePath,
+ProjectPartInfo ProjectPartChooser::choose(
+        const QString &filePath,
         const ProjectPartInfo &currentProjectPartInfo,
         const QString &preferredProjectPartId,
         const ProjectExplorer::Project *activeProject,
         Language languagePreference,
-        bool projectHasChanged) const
+        bool projectsUpdated) const
 {
     QTC_CHECK(m_projectPartsForFile);
     QTC_CHECK(m_projectPartsFromDependenciesForFile);
@@ -144,7 +145,8 @@ ProjectPartInfo ProjectPartChooser::choose(const QString &filePath,
 
     QList<ProjectPart::Ptr> projectParts = m_projectPartsForFile(filePath);
     if (projectParts.isEmpty()) {
-        if (projectPart && currentProjectPartInfo.hint == ProjectPartInfo::IsFallbackMatch)
+        if (!projectsUpdated && projectPart
+                && currentProjectPartInfo.hint == ProjectPartInfo::IsFallbackMatch)
             // Avoid re-calculating the expensive dependency table for non-project files.
             return {projectPart, ProjectPartInfo::IsFallbackMatch};
 
@@ -162,16 +164,14 @@ ProjectPartInfo ProjectPartChooser::choose(const QString &filePath,
             projectPart = prioritizer.projectPart();
         }
     } else {
-        if (projectHasChanged || !projectParts.contains(projectPart)) {
-            ProjectPartPrioritizer prioritizer(projectParts,
-                                               preferredProjectPartId,
-                                               activeProject,
-                                               languagePreference);
-            projectPart = prioritizer.projectPart();
-            hint = prioritizer.isAmbiguous()
-                    ? ProjectPartInfo::IsAmbiguousMatch
-                    : ProjectPartInfo::NoHint;
-        }
+        ProjectPartPrioritizer prioritizer(projectParts,
+                                           preferredProjectPartId,
+                                           activeProject,
+                                           languagePreference);
+        projectPart = prioritizer.projectPart();
+        hint = prioritizer.isAmbiguous()
+                ? ProjectPartInfo::IsAmbiguousMatch
+                : ProjectPartInfo::NoHint;
     }
 
     return {projectPart, hint};

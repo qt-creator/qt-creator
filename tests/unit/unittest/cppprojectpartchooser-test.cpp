@@ -53,8 +53,8 @@ protected:
                                            ProjectPartInfo::NoHint};
     QString preferredProjectPartId;
     const ProjectExplorer::Project *activeProject = nullptr;
-    bool projectHasChanged = false;
     Language languagePreference = Language::Cxx;
+    bool projectsChanged = false;
     ::ProjectPartChooser chooser;
 
     QList<ProjectPart::Ptr> projectPartsForFile;
@@ -72,17 +72,6 @@ TEST_F(ProjectPartChooser, ChooseManuallySet)
     const ProjectPart::Ptr chosen = choose().projectPart;
 
     ASSERT_THAT(chosen, Eq(p2));
-}
-
-TEST_F(ProjectPartChooser, ForMultipleChoosePrevious)
-{
-    const ProjectPart::Ptr otherProjectPart;
-    projectPartsForFile += otherProjectPart;
-    projectPartsForFile += currentProjectPartInfo.projectPart;
-
-    const ProjectPart::Ptr chosen = choose().projectPart;
-
-    ASSERT_THAT(chosen, Eq(currentProjectPartInfo.projectPart));
 }
 
 TEST_F(ProjectPartChooser, ForMultipleChooseFromActiveProject)
@@ -131,7 +120,6 @@ TEST_F(ProjectPartChooser, ForMultipleCheckIfActiveProjectChanged)
     projectPartsForFile += projectParts;
     currentProjectPartInfo.projectPart = firstProjectPart;
     activeProject = secondProjectPart->project;
-    projectHasChanged = true;
 
     const ProjectPart::Ptr chosen = choose().projectPart;
 
@@ -213,13 +201,27 @@ TEST_F(ProjectPartChooser, ContinueUsingFallbackFromModelManagerIfProjectDoesNot
     ASSERT_THAT(chosen, Eq(fallbackProjectPart));
 }
 
-TEST_F(ProjectPartChooser, StopUsingFallbackFromModelManagerIfProjectChanges)
+TEST_F(ProjectPartChooser, StopUsingFallbackFromModelManagerIfProjectChanges1)
 {
     fallbackProjectPart.reset(new ProjectPart);
     currentProjectPartInfo.projectPart = fallbackProjectPart;
     currentProjectPartInfo.hint = ProjectPartInfo::IsFallbackMatch;
     const ProjectPart::Ptr addedProject(new ProjectPart);
     projectPartsForFile += addedProject;
+
+    const ProjectPart::Ptr chosen = choose().projectPart;
+
+    ASSERT_THAT(chosen, Eq(addedProject));
+}
+
+TEST_F(ProjectPartChooser, StopUsingFallbackFromModelManagerIfProjectChanges2)
+{
+    fallbackProjectPart.reset(new ProjectPart);
+    currentProjectPartInfo.projectPart = fallbackProjectPart;
+    currentProjectPartInfo.hint = ProjectPartInfo::IsFallbackMatch;
+    const ProjectPart::Ptr addedProject(new ProjectPart);
+    projectPartsFromDependenciesForFile += addedProject;
+    projectsChanged = true;
 
     const ProjectPart::Ptr chosen = choose().projectPart;
 
@@ -237,7 +239,7 @@ TEST_F(ProjectPartChooser, IndicateFallbacktoProjectPartFromModelManager)
 
 void ProjectPartChooser::SetUp()
 {
-    chooser.setFallbackProjectPart([&](){
+    chooser.setFallbackProjectPart([&]() {
         return fallbackProjectPart;
     });
     chooser.setProjectPartsForFile([&](const QString &) {
@@ -255,7 +257,7 @@ const ProjectPartInfo ProjectPartChooser::choose() const
                           preferredProjectPartId,
                           activeProject,
                           languagePreference,
-                          projectHasChanged);
+                          projectsChanged);
 }
 
 QList<ProjectPart::Ptr> ProjectPartChooser::createProjectPartsWithDifferentProjects()
