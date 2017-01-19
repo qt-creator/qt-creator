@@ -389,8 +389,15 @@ QtOptionsPageWidget::ValidityInfo QtOptionsPageWidget::validInformation(const Ba
     // Do we have tool chain issues?
     QList<Abi> missingToolChains;
     const QList<Abi> qtAbis = version->qtAbis();
+
     for (const Abi &abi : qtAbis) {
-        if (ToolChainManager::findToolChains(abi).isEmpty())
+        const auto abiCompatePred = [&abi] (const ToolChain *tc)
+        {
+            return Utils::contains(tc->supportedAbis(),
+                                   [&abi](const Abi &sabi) { return sabi.isCompatibleWith(abi); });
+        };
+
+        if (!ToolChainManager::toolChain(abiCompatePred))
             missingToolChains.append(abi);
     }
 
