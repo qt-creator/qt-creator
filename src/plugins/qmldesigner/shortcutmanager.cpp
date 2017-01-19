@@ -69,7 +69,7 @@ ShortCutManager::ShortCutManager()
     m_revertToSavedAction(0),
     m_saveAction(0),
     m_saveAsAction(0),
-    m_exportAsImageAction(tr("Export as &Image...")),
+    m_exportAsImageAction(tr("Export as &Image..."), 0),
     m_closeCurrentEditorAction(0),
     m_closeAllEditorsAction(0),
     m_closeOtherEditorsAction(0),
