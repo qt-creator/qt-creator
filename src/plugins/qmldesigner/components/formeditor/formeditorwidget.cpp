@@ -25,11 +25,13 @@
 
 #include "designeractionmanager.h"
 #include "formeditorwidget.h"
+#include "formeditorscene.h"
 #include "qmldesignerplugin.h"
 #include "designersettings.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignericons.h"
 #include "viewmanager.h"
+#include <model.h>
 #include <theming.h>
 
 #include <QWheelEvent>
@@ -43,8 +45,13 @@
 #include <lineeditaction.h>
 #include <backgroundaction.h>
 
+#include <coreplugin/icore.h>
+
 #include <utils/fileutils.h>
 #include <utils/utilsicons.h>
+
+#include <QFileDialog>
+#include <QPainter>
 
 namespace QmlDesigner {
 
@@ -351,6 +358,29 @@ void FormEditorWidget::setRootItemRect(const QRectF &rect)
 QRectF FormEditorWidget::rootItemRect() const
 {
     return m_graphicsView->rootItemRect();
+}
+
+void FormEditorWidget::exportAsImage(const QRectF &boundingRect)
+{
+    QString proposedFileName = m_formEditorView->model()->fileUrl().toLocalFile();
+    proposedFileName.chop(4);
+    if (proposedFileName.endsWith(".ui"))
+        proposedFileName.chop(3);
+    proposedFileName.append(".png");
+    const QString fileName = QFileDialog::getSaveFileName(Core::ICore::dialogParent(),
+                                                          tr("Export Current QML File as Image"),
+                                                          proposedFileName,
+                                                          tr("PNG (*.png);;JPG (*.jpg)"));
+
+    if (!fileName.isNull()) {
+        QImage image(boundingRect.size().toSize(), QImage::Format_ARGB32);
+        QPainter painter(&image);
+        QTransform viewportTransform = m_graphicsView->viewportTransform();
+        m_graphicsView->render(&painter,
+                               QRectF(0, 0, image.width(), image.height()),
+                               viewportTransform.mapRect(boundingRect).toRect());
+        image.save(fileName);
+    }
 }
 
 DocumentWarningWidget *FormEditorWidget::errorWidget()

@@ -39,10 +39,10 @@ public:
 
     void activateCheckboardBackground();
     void activateColoredBackground(const QColor &color);
+    void drawBackground(QPainter *painter, const QRectF &rect) override;
 
 protected:
     bool eventFilter(QObject *watched, QEvent *event) override;
-    void drawBackground(QPainter *painter, const QRectF &rect) override;
     void wheelEvent(QWheelEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;

@@ -76,6 +76,7 @@ private:
     QAction m_revertToSavedAction;
     QAction m_saveAction;
     QAction m_saveAsAction;
+    QAction m_exportAsImageAction;
     QAction m_closeCurrentEditorAction;
     QAction m_closeAllEditorsAction;
     QAction m_closeOtherEditorsAction;

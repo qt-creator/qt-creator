@@ -116,6 +116,8 @@ public:
     void gotoError(int, int);
     void setGotoErrorCallback(std::function<void(int, int)> gotoErrorCallback);
 
+    void exportAsImage();
+
 protected:
     void reset();
 

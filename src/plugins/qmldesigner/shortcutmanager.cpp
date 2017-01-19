@@ -69,6 +69,7 @@ ShortCutManager::ShortCutManager()
     m_revertToSavedAction(0),
     m_saveAction(0),
     m_saveAsAction(0),
+    m_exportAsImageAction(tr("Export as &Image...")),
     m_closeCurrentEditorAction(0),
     m_closeAllEditorsAction(0),
     m_closeOtherEditorsAction(0),
@@ -94,6 +95,7 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
                                       const Core::Context &qmlDesignerNavigatorContext)
 {
     Core::ActionContainer *editMenu = Core::ActionManager::actionContainer(Core::Constants::M_EDIT);
+    Core::ActionContainer *fileMenu = Core::ActionManager::actionContainer(Core::Constants::M_FILE);
 
     connect(&m_undoAction, SIGNAL(triggered()), this, SLOT(undo()));
 
@@ -158,6 +160,14 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
     //Save As
     Core::ActionManager::registerAction(&m_saveAsAction, Core::Constants::SAVEAS, qmlDesignerMainContext);
     connect(&m_saveAsAction, SIGNAL(triggered()), em, SLOT(saveDocumentAs()));
+
+    //Export as Image
+    command = Core::ActionManager::registerAction(&m_exportAsImageAction, QmlDesigner::Constants::EXPORT_AS_IMAGE, qmlDesignerMainContext);
+    command->setAttribute(Core::Command::CA_Hide);
+    connect(&m_exportAsImageAction, &QAction::triggered, [] {
+        QmlDesignerPlugin::instance()->viewManager().exportAsImage();
+    });
+    fileMenu->addAction(command, Core::Constants::G_FILE_SAVE);
 
     //Close Editor
     Core::ActionManager::registerAction(&m_closeCurrentEditorAction, Core::Constants::CLOSE, qmlDesignerMainContext);

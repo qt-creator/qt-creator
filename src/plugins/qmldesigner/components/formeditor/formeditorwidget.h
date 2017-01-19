@@ -79,6 +79,7 @@ public:
 
     void showWarningMessageBox(const QList<DocumentMessage> &warnings);
 
+    void exportAsImage(const QRectF &boundingRect);
 protected:
     void wheelEvent(QWheelEvent *event);
     QActionGroup *toolActionGroup() const;

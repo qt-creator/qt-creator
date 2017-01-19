@@ -533,6 +533,11 @@ void FormEditorView::setGotoErrorCallback(std::function<void (int, int)> gotoErr
     m_gotoErrorCallback = gotoErrorCallback;
 }
 
+void FormEditorView::exportAsImage()
+{
+    m_formEditorWidget->exportAsImage(m_scene->rootFormEditorItem()->boundingRect());
+}
+
 QList<ModelNode> FormEditorView::adjustStatesForModelNodes(const QList<ModelNode> &nodeList) const
 {
     QList<ModelNode> adjustedNodeList;

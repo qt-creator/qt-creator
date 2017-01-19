@@ -334,6 +334,11 @@ Model *ViewManager::documentModel() const
     return currentDesignDocument()->documentModel();
 }
 
+void ViewManager::exportAsImage()
+{
+    d->formEditorView.exportAsImage();
+}
+
 } // namespace QmlDesigner
 
 #endif //QMLDESIGNER_TEST

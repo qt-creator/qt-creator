@@ -84,6 +84,8 @@ public:
 
     NodeInstanceView *nodeInstanceView() const;
 
+    void exportAsImage();
+
     QWidgetAction *componentViewAction() const;
 
     DesignerActionManager &designerActionManager();
