@@ -169,6 +169,8 @@ void QtTestOutputReader::processOutput(const QByteArray &outputLine)
             } else if (currentTag == QStringLiteral("TestFunction")) {
                 m_testCase = m_xmlReader.attributes().value(QStringLiteral("name")).toString();
                 QTC_ASSERT(!m_testCase.isEmpty(), continue);
+                if (m_testCase == m_formerTestCase)  // don't report "Executing..." more than once
+                    continue;
                 TestResultPtr testResult = TestResultPtr(createDefaultResult());
                 testResult->setResult(Result::MessageTestCaseStart);
                 testResult->setDescription(tr("Executing test function %1").arg(m_testCase));
@@ -261,6 +263,7 @@ void QtTestOutputReader::processOutput(const QByteArray &outputLine)
                 m_futureInterface.reportResult(TestResultPtr(testResult));
                 m_futureInterface.setProgressValue(m_futureInterface.progressValue() + 1);
                 m_dataTag.clear();
+                m_formerTestCase = m_testCase;
                 m_testCase.clear();
             } else if (currentTag == QStringLiteral("TestCase")) {
                 QtTestResult *testResult = createDefaultResult();

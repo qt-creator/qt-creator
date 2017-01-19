@@ -62,6 +62,7 @@ private:
     CDATAMode m_cdataMode = None;
     QString m_className;
     QString m_testCase;
+    QString m_formerTestCase;
     QString m_dataTag;
     Result::Type m_result = Result::Invalid;
     QString m_description;

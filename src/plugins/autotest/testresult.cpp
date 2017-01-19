@@ -161,6 +161,13 @@ QColor TestResult::colorForType(const Result::Type type)
     }
 }
 
+bool TestResult::isMessageCaseStart(const Result::Type type)
+{
+    return type == Result::MessageTestCaseStart || type == Result::MessageTestCaseSuccess
+            || type == Result::MessageTestCaseFail || type == Result::MessageTestCaseWarn
+            || type == Result::MessageIntermediate;
+}
+
 bool TestResult::isDirectParentOf(const TestResult *other, bool * /*needsIntermediate*/) const
 {
     QTC_ASSERT(other, return false);

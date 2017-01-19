@@ -78,7 +78,8 @@ bool QtTestResult::isDirectParentOf(const TestResult *other, bool *needsIntermed
     if (!TestResult::isDirectParentOf(other, needsIntermediate))
         return false;
     const QtTestResult *qtOther = static_cast<const QtTestResult *>(other);
-    if (result() == Result::MessageTestCaseStart || result() == Result::MessageIntermediate) {
+
+    if (TestResult::isMessageCaseStart(result())) {
         if (qtOther->isDataTag()) {
             if (qtOther->m_function == m_function) {
                 if (m_dataTag.isEmpty()) {

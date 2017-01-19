@@ -99,8 +99,7 @@ void TestResultItem::updateDescription(const QString &description)
 
 void TestResultItem::updateResult()
 {
-    if (m_testResult->result() != Result::MessageTestCaseStart
-            && m_testResult->result() != Result::MessageIntermediate)
+    if (!TestResult::isMessageCaseStart(m_testResult->result()))
         return;
 
     Result::Type newResult = Result::MessageTestCaseSuccess;
