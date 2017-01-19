@@ -71,8 +71,9 @@ enum InstructionalType
     Example = 0, Demo, Tutorial
 };
 
-struct ExampleItem
+class ExampleItem
 {
+public:
     QString name;
     QString projectPath;
     QString description;
