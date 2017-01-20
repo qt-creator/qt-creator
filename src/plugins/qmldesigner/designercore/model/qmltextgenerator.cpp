@@ -273,6 +273,9 @@ QString QmlTextGenerator::escape(const QString &value)
 {
     QString result = value;
 
+    if (value.count() == 6 && value.startsWith("\\u")) //Do not dobule escape unicode chars
+        return result;
+
     result.replace(QStringLiteral("\\"), QStringLiteral("\\\\"));
 
     result.replace(QStringLiteral("\""), QStringLiteral("\\\""));

@@ -139,6 +139,7 @@ private slots:
     void testRewriterActionCompression();
     void testRewriterImports();
     void testRewriterChangeImports();
+    void testRewriterUnicodeChars();
 
     //
     // unit tests QmlModelNodeFacade/QmlModelState

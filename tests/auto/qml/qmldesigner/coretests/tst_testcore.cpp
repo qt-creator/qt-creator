@@ -993,6 +993,37 @@ void tst_TestCore::testRewriterChangeImports()
     QCOMPARE(model->imports().first(), Import::createLibraryImport("QtQuick", "1.1"));
 }
 
+void tst_TestCore::testRewriterUnicodeChars()
+{
+    const QLatin1String qmlString("\n"
+                                  "import QtQuick 2.1\n"
+                                  "\n"
+                                  "Text {\n"
+                                  "    text: \"test\""
+                                  "}\n");
+
+    QPlainTextEdit textEdit;
+    textEdit.setPlainText(qmlString);
+    NotIndentingTextEditModifier modifier(&textEdit);
+
+    QScopedPointer<Model> model(Model::create("QtQuick.Rectangle"));
+
+    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView(0, RewriterView::Amend));
+    testRewriterView->setTextModifier(&modifier);
+    model->attachView(testRewriterView.data());
+
+    QVERIFY(testRewriterView->errors().isEmpty());
+
+    ModelNode rootModelNode = testRewriterView->rootModelNode();
+    QVERIFY(rootModelNode.isValid());
+
+    rootModelNode.variantProperty("text").setValue("\\u2795");
+
+    const QLatin1String unicodeChar("\nimport QtQuick 2.1\n\nText {\n    text: \"\\u2795\"}\n");
+
+     QCOMPARE(textEdit.toPlainText(), unicodeChar);
+}
+
 void tst_TestCore::testRewriterForGradientMagic()
 {
     const QLatin1String qmlString("\n"
