@@ -115,5 +115,7 @@ LLVM_CXXFLAGS ~= s,-O2,
 LLVM_CXXFLAGS ~= s,/W4,
 LLVM_CXXFLAGS ~= s,/EHc-,
 LLVM_CXXFLAGS ~= s,-Werror=date-time,
+# split-dwarf needs objcopy which does not work via icecc out-of-the-box
+LLVM_CXXFLAGS ~= s,-gsplit-dwarf,
 
 LLVM_IS_COMPILED_WITH_RTTI = $$system($$llvm_config --has-rtti, lines)
