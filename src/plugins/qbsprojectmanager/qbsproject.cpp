@@ -934,6 +934,7 @@ void QbsProject::updateCppCodeModel()
                                                          QLatin1String(CONFIG_INCLUDEPATHS));
             list.append(props.getModulePropertiesAsStringList(QLatin1String(CONFIG_CPP_MODULE),
                                                               QLatin1String(CONFIG_SYSTEM_INCLUDEPATHS)));
+            list.removeDuplicates();
             CppTools::ProjectPartHeaderPaths grpHeaderPaths;
             foreach (const QString &p, list)
                 grpHeaderPaths += CppTools::ProjectPartHeaderPath(
@@ -944,6 +945,7 @@ void QbsProject::updateCppCodeModel()
                                                          QLatin1String(CONFIG_FRAMEWORKPATHS));
             list.append(props.getModulePropertiesAsStringList(QLatin1String(CONFIG_CPP_MODULE),
                                                               QLatin1String(CONFIG_SYSTEM_FRAMEWORKPATHS)));
+            list.removeDuplicates();
             foreach (const QString &p, list)
                 grpHeaderPaths += CppTools::ProjectPartHeaderPath(
                             FileName::fromUserInput(p).toString(),
