@@ -122,6 +122,7 @@
 #include <utils/savedaction.h>
 #include <utils/statuslabel.h>
 #include <utils/styledbar.h>
+#include <utils/temporarydirectory.h>
 #include <utils/utilsicons.h>
 #include <utils/winutils.h>
 
