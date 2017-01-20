@@ -84,6 +84,8 @@ public:
         LosesChild = 64,
         // Trigger breakpoint model rebuild when no such commands are pending anymore.
         RebuildBreakpointModel = 128,
+        // This is a native (non-Python) command that's handled directly by the backend.
+        NativeCommand = 256,
         // This is a command that needs to be wrapped into -interpreter-exec console
         ConsoleCommand = 512,
         // This is the UpdateLocals commannd during which we ignore notifications

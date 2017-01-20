@@ -208,6 +208,7 @@ public:
         LosesChild = DebuggerCommand::LosesChild,
         RebuildBreakpointModel = DebuggerCommand::RebuildBreakpointModel,
         InUpdateLocals = DebuggerCommand::InUpdateLocals,
+        NativeCommand = DebuggerCommand::NativeCommand,
         Silent = DebuggerCommand::Silent
     };
 

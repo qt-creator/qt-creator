@@ -939,7 +939,7 @@ void GdbEngine::runCommand(const DebuggerCommand &command)
         ++m_nonDiscardableCount;
 
     bool isPythonCommand = true;
-    if (cmd.function.contains('-') || cmd.function.contains(' '))
+    if ((cmd.flags & NativeCommand) || cmd.function.contains('-') || cmd.function.contains(' '))
         isPythonCommand = false;
     if (isPythonCommand) {
         cmd.arg("token", token);
@@ -4157,7 +4157,7 @@ void GdbEngine::resetInferior()
         foreach (QString command, commands.split('\n')) {
             command = command.trimmed();
             if (!command.isEmpty())
-                runCommand({command, ConsoleCommand | NeedsTemporaryStop});
+                runCommand({command, ConsoleCommand | NeedsTemporaryStop | NativeCommand});
         }
     }
     m_rerunPending = true;
@@ -4205,7 +4205,7 @@ void GdbEngine::handleInferiorPrepared()
     if (!rp.commandsAfterConnect.isEmpty()) {
         const QString commands = expand(rp.commandsAfterConnect);
         for (const QString &command : commands.split('\n'))
-            runCommand({command});
+            runCommand({command, NativeCommand});
     }
 
     //runCommand("set follow-exec-mode new");
