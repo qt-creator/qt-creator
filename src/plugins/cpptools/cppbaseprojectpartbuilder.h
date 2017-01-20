@@ -30,8 +30,6 @@
 #include "cppprojectinterface.h"
 #include "projectpart.h"
 
-#include <projectexplorer/toolchain.h>
-
 #include <functional>
 #include <memory>
 
