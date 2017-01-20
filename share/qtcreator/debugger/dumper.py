@@ -839,6 +839,18 @@ class DumperBase:
     def putSymbolValue(self, address):
         self.putValue(self.prettySymbolByAddress(address))
 
+    def putVTableChildren(self, item, itemCount):
+        p = item.pointer()
+        for i in xrange(itemCount):
+            deref = self.extractPointer(p)
+            if deref == 0:
+                itemCount = i
+                break
+            with SubItem(self, i):
+                self.putItem(self.createPointerValue(deref, 'void'))
+                p += self.ptrSize()
+        return itemCount
+
     def putFields(self, value, dumpBase = True):
         baseIndex = 0
         for item in value.members(True):
@@ -850,18 +862,10 @@ class DumperBase:
                         self.putType(' ')
                         self.putField('sortgroup', 20)
                         self.putValue(item.name)
-                        n = 10
+                        n = 100
                         if self.isExpanded():
                             with Children(self):
-                                p = item.pointer()
-                                for i in xrange(n):
-                                    deref = self.extractPointer(p)
-                                    if deref == 0:
-                                        n = i
-                                        break
-                                    with SubItem(self, i):
-                                        self.putItem(self.createPointerValue(deref, 'void'))
-                                        p += self.ptrSize()
+                                n = self.putVTableChildren(item, n)
                         self.putNumChild(n)
                     continue
 

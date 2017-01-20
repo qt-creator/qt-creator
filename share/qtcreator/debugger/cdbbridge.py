@@ -316,6 +316,27 @@ class Dumper(DumperBase):
         self.qtVersion = lambda: qtVersion
         return qtVersion
 
+    def putVtableItem(self, address):
+        funcName = cdbext.getNameByAddress(address)
+        if funcName is None:
+            self.putItem(self.createPointerValue(address, 'void'))
+        else:
+            self.putValue(funcName)
+            self.putType('void*')
+            self.putAddress(address)
+
+    def putVTableChildren(self, item, itemCount):
+        p = item.address()
+        for i in xrange(itemCount):
+            deref = self.extractPointer(p)
+            if deref == 0:
+                n = i
+                break
+            with SubItem(self, i):
+                self.putVtableItem(deref)
+                p += self.ptrSize()
+        return itemCount
+
     def ptrSize(self):
         size = cdbext.pointerSize()
         self.ptrSize = lambda: size
