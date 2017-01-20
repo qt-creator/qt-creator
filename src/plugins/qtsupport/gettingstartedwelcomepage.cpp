@@ -247,7 +247,7 @@ static QString resourcePath()
 class SearchBox : public QFrame
 {
 public:
-    SearchBox(const QString &placeHolderText, QWidget *parent)
+    SearchBox(QWidget *parent)
         : QFrame(parent)
     {
         setFrameShape(QFrame::Box);
@@ -257,7 +257,6 @@ public:
         pal.setColor(QPalette::Base, themeColor(Theme::Welcome_BackgroundColor));
 
         m_lineEdit = new QLineEdit;
-        m_lineEdit->setPlaceholderText(placeHolderText);
         m_lineEdit->setFrame(false);
         m_lineEdit->setFont(sizedFont(14, this));
         m_lineEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
@@ -586,44 +585,48 @@ public:
         static ExamplesListModel *s_examplesModel = new ExamplesListModel(this);
         m_examplesModel = s_examplesModel;
 
-        m_filteredModel = new ExamplesListModelFilter(m_examplesModel, !m_isExamples, this);
+        auto filteredModel = new ExamplesListModelFilter(m_examplesModel, !m_isExamples, this);
+
+        auto searchBox = new SearchBox(this);
+        m_searcher = searchBox->m_lineEdit;
 
         auto vbox = new QVBoxLayout(this);
         vbox->setContentsMargins(30, 27, 20, 20);
         if (m_isExamples) {
-            m_qtVersionSelector = new QComboBox(this);
-            m_qtVersionSelector->setMinimumWidth(itemWidth);
-            m_qtVersionSelector->setMaximumWidth(itemWidth);
-            m_searchBox = new SearchBox(tr("Search in Examples..."), this);
+            m_searcher->setPlaceholderText(tr("Search in Examples..."));
+
+            auto exampleSetSelector = new QComboBox(this);
+            exampleSetSelector->setMinimumWidth(itemWidth);
+            exampleSetSelector->setMaximumWidth(itemWidth);
+            ExampleSetModel *exampleSetModel = m_examplesModel->exampleSetModel();
+            exampleSetSelector->setModel(exampleSetModel);
+            exampleSetSelector->setCurrentIndex(exampleSetModel->selectedExampleSet());
+            connect(exampleSetSelector, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated),
+                    exampleSetModel, &ExampleSetModel::selectExampleSet);
+            connect(exampleSetModel, &ExampleSetModel::selectedExampleSetChanged,
+                    exampleSetSelector, &QComboBox::setCurrentIndex);
+
             auto hbox = new QHBoxLayout;
             hbox->setSpacing(17);
-            hbox->addWidget(m_qtVersionSelector);
-            hbox->addWidget(m_searchBox);
+            hbox->addWidget(exampleSetSelector);
+            hbox->addWidget(searchBox);
             vbox->addItem(hbox);
-            connect(m_qtVersionSelector, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated),
-                    m_examplesModel, &ExamplesListModel::selectExampleSet);
-            connect(m_examplesModel, &ExamplesListModel::selectedExampleSetChanged,
-                    this, &ExamplesPageWidget::updateStuff);
         } else {
-            m_searchBox = new SearchBox(tr("Search in Tutorials..."), this);
-            vbox->addWidget(m_searchBox);
+            m_searcher->setPlaceholderText(tr("Search in Tutorials..."));
+            vbox->addWidget(searchBox);
         }
 
-        m_gridModel.setSourceModel(m_filteredModel);
+        m_gridModel.setSourceModel(filteredModel);
 
-        m_gridView = new GridView(this);
-        m_gridView->setModel(&m_gridModel);
-        m_gridView->setItemDelegate(&m_exampleDelegate);
-        vbox->addWidget(m_gridView);
+        auto gridView = new GridView(this);
+        gridView->setModel(&m_gridModel);
+        gridView->setItemDelegate(&m_exampleDelegate);
+        vbox->addWidget(gridView);
 
         connect(&m_exampleDelegate, &ExampleDelegate::tagClicked,
                 this, &ExamplesPageWidget::onTagClicked);
-        connect(m_filteredModel, &ExamplesListModelFilter::filterTagsChanged,
-                this, &ExamplesPageWidget::updateStuff);
-        connect(m_filteredModel, &ExamplesListModelFilter::searchStringChanged,
-                this, &ExamplesPageWidget::updateStuff);
-        connect(m_searchBox->m_lineEdit, &QLineEdit::textChanged,
-                m_filteredModel, &ExamplesListModelFilter::setSearchString);
+        connect(m_searcher, &QLineEdit::textChanged,
+                filteredModel, &ExamplesListModelFilter::setSearchString);
     }
 
     int bestColumnCount() const
@@ -639,26 +642,14 @@ public:
 
     void onTagClicked(const QString &tag)
     {
-        QString text = m_searchBox->m_lineEdit->text();
-        m_searchBox->m_lineEdit->setText(text + QString("tag:\"%1\" ").arg(tag));
-    }
-
-    void updateStuff()
-    {
-        if (m_isExamples) {
-            m_qtVersionSelector->clear();
-            m_qtVersionSelector->addItems(m_examplesModel->exampleSets());
-            m_qtVersionSelector->setCurrentIndex(m_examplesModel->selectedExampleSet());
-        }
+        QString text = m_searcher->text();
+        m_searcher->setText(text + QString("tag:\"%1\" ").arg(tag));
     }
 
     const bool m_isExamples;
     ExampleDelegate m_exampleDelegate;
     QPointer<ExamplesListModel> m_examplesModel;
-    ExamplesListModelFilter *m_filteredModel;
-    SearchBox *m_searchBox;
-    QComboBox *m_qtVersionSelector = nullptr;
-    GridView *m_gridView;
+    QLineEdit *m_searcher;
     GridProxyModel m_gridModel;
 };
 
