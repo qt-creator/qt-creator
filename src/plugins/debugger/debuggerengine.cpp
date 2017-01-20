@@ -1380,6 +1380,12 @@ QString DebuggerEngine::expand(const QString &string) const
     return d->m_runParameters.macroExpander->expand(string);
 }
 
+QString DebuggerEngine::nativeStartupCommands() const
+{
+    return expand(QStringList({stringSetting(GdbStartupCommands),
+                               runParameters().additionalStartupCommands}).join('\n'));
+}
+
 void DebuggerEngine::updateBreakpointMarker(const Breakpoint &bp)
 {
     d->m_disassemblerAgent.updateBreakpointMarker(bp);

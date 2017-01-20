@@ -114,6 +114,9 @@ public:
 
     // Used by general core file debugging. Public access requested in QTCREATORBUG-17158.
     QString coreFile;
+
+    // Macro-expanded and passed to debugger startup.
+    QString additionalStartupCommands;
 };
 
 } // namespace Debugger

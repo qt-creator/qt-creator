@@ -329,6 +329,7 @@ public:
     void removeBreakpointMarker(const Breakpoint &bp);
 
     QString expand(const QString &string) const;
+    QString nativeStartupCommands() const;
 
 signals:
     void stateChanged(Debugger::DebuggerState state);
