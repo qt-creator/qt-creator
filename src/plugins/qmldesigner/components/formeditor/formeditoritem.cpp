@@ -229,25 +229,19 @@ void FormEditorItem::paintBoundingRect(QPainter *painter) const
     QColor frameColor("#AAAAAA");
 
     if (scene()->showBoundingRects()) {
-        if (m_highlightBoundingRect) {
-            pen.setColor(frameColor);
-        } else {
-            pen.setColor(frameColor.darker(150));
-            pen.setStyle(Qt::DotLine);
-        }
-    } else {
-        if (m_highlightBoundingRect) {
-            pen.setColor(frameColor);
-        } else {
-            pen.setColor(Qt::transparent);
-            pen.setStyle(Qt::DotLine);
-        }
+        pen.setColor(frameColor.darker(150));
+        pen.setStyle(Qt::DotLine);
+        painter->setPen(pen);
+        painter->drawRect(m_boundingRect.adjusted(0., 0., -1., -1.));
+
     }
 
-    painter->setPen(pen);
-//    int offset =  m_borderWidth / 2;
-
-    painter->drawRect(m_boundingRect.adjusted(0., 0., -1., -1.));
+    if (m_highlightBoundingRect) {
+        pen.setColor(frameColor);
+        pen.setStyle(Qt::SolidLine);
+        painter->setPen(pen);
+        painter->drawRect(m_selectionBoundingRect.adjusted(0., 0., -1., -1.));
+    }
 }
 
 static void paintTextInPlaceHolderForInvisbleItem(QPainter *painter,
