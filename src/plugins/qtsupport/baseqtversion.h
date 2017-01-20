@@ -138,8 +138,8 @@ public:
     QString qmlviewerCommand() const;
     QString qscxmlcCommand() const;
 
-    virtual QString qtVersionString() const;
-    virtual QtVersionNumber qtVersion() const;
+    QString qtVersionString() const;
+    QtVersionNumber qtVersion() const;
 
     bool hasExamples() const;
     QString examplesPath() const;
