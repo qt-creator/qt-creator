@@ -130,6 +130,27 @@ static PyObject *cdbext_resolveSymbol(PyObject *, PyObject *args) // -> Value
     return rc;
 }
 
+static PyObject *cdbext_getNameByAddress(PyObject *, PyObject *args)
+{
+    ULONG64 address = 0;
+    if (!PyArg_ParseTuple(args, "K", &address))
+        Py_RETURN_NONE;
+
+    CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
+
+    PyObject* ret = NULL;
+    ULONG size;
+    symbols->GetNameByOffset (address, NULL, 0, &size, NULL);
+    char *name = new char[size];
+    const HRESULT hr = symbols->GetNameByOffset (address, name, size, NULL, NULL);
+    if (SUCCEEDED(hr))
+        ret = PyUnicode_FromString(name);
+    delete[] name;
+    if (ret == NULL)
+        Py_RETURN_NONE;
+    return ret;
+}
+
 static PyObject *cdbext_lookupType(PyObject *, PyObject *args) // -> Type
 {
     char *type;
@@ -325,6 +346,8 @@ static PyMethodDef cdbextMethods[] = {
      "Returns value of expression or None if the expression can not be resolved"},
     {"resolveSymbol",       cdbext_resolveSymbol,       METH_VARARGS,
      "Returns a list of symbol names matching the given pattern"},
+    {"getNameByAddress",    cdbext_getNameByAddress,    METH_VARARGS,
+     "Returns the name of the symbol at the given address"},
     {"lookupType",          cdbext_lookupType,          METH_VARARGS,
      "Returns type object or None if the type can not be resolved"},
     {"listOfLocals",        cdbext_listOfLocals,        METH_VARARGS,
