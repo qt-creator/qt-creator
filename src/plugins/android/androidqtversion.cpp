@@ -85,7 +85,7 @@ QString AndroidQtVersion::invalidReason() const
 
 QList<Abi> AndroidQtVersion::detectQtAbis() const
 {
-    QList<Abi> abis = qtAbisFromLibrary(qtCorePaths(versionInfo(), qtVersionString()));
+    QList<Abi> abis = qtAbisFromLibrary(qtCorePaths());
     for (int i = 0; i < abis.count(); ++i) {
         abis[i] = Abi(abis.at(i).architecture(),
                       abis.at(i).os(),

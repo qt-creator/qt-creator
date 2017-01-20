@@ -1686,11 +1686,13 @@ bool BaseQtVersion::isQtQuickCompilerSupported(QString *reason) const
     return true;
 }
 
-FileNameList BaseQtVersion::qtCorePaths(const QHash<QString,QString> &versionInfo, const QString &versionString)
+FileNameList BaseQtVersion::qtCorePaths() const
 {
+    const QString &versionString = qtVersionString();
+
     QStringList dirs;
-    dirs << qmakeProperty(versionInfo, "QT_INSTALL_LIBS")
-         << qmakeProperty(versionInfo, "QT_INSTALL_BINS");
+    dirs << qmakeProperty(versionInfo(), "QT_INSTALL_LIBS")
+         << qmakeProperty(versionInfo(), "QT_INSTALL_BINS");
 
     FileNameList staticLibs;
     FileNameList dynamicLibs;

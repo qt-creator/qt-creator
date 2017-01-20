@@ -53,7 +53,7 @@ QString EmbeddedLinuxQtVersion::type() const
 
 QList<ProjectExplorer::Abi> EmbeddedLinuxQtVersion::detectQtAbis() const
 {
-    return qtAbisFromLibrary(qtCorePaths(versionInfo(), qtVersionString()));
+    return qtAbisFromLibrary(qtCorePaths());
 }
 
 QString EmbeddedLinuxQtVersion::description() const
