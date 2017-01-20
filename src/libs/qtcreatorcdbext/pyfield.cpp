@@ -82,8 +82,8 @@ PY_FUNC_RET_STD_STRING(name, PY_OBJ_NAME)
 PY_FUNC_RET_NONE(isBaseClass, PY_OBJ_NAME)
 PY_FUNC_RET_OBJECT(type, PY_OBJ_NAME)
 PY_FUNC_RET_OBJECT(parentType, PY_OBJ_NAME)
-PY_FUNC(bitsize, PY_OBJ_NAME, "Q")
-PY_FUNC(bitpos, PY_OBJ_NAME, "Q")
+PY_FUNC(bitsize, PY_OBJ_NAME, "K")
+PY_FUNC(bitpos, PY_OBJ_NAME, "K")
 
 static PyMethodDef fieldMethods[] = {
     {"name",        PyCFunction(name),        METH_NOARGS,
