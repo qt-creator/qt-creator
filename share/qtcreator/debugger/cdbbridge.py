@@ -299,7 +299,31 @@ class Dumper(DumperBase):
             if namespaceIndex > 0:
                 namespace = name[:namespaceIndex + 2]
         self.qtNamespace = lambda: namespace
+        self.qtCustomEventFunc = cdbext.parseAndEvaluate('%s!%sQObject::customEvent'
+                                                         % (self.qtCoreModuleName(), namespace))
         return namespace
+
+    def couldBeQObjectVTable(self, vtablePtr):
+        try:
+            customEventFunc = self.extractPointer(vtablePtr + 8 * self.ptrSize())
+        except:
+            self.bump('nostruct-3')
+            return False
+
+        if customEventFunc in (self.qtCustomEventFunc, self.qtCustomEventPltFunc):
+            return True
+        try:
+            delta = int.from_bytes(self.readRawMemory(customEventFunc + 1, 4), byteorder='little')
+            if (customEventFunc + 5 + delta) in (self.qtCustomEventFunc, self.qtCustomEventPltFunc):
+                return True
+        except:
+            pass
+
+        try:
+            return 'QObject::customEvent' in cdbext.getNameByAddress(customEventFunc)
+        except:
+            return False
+
 
     def qtVersion(self):
         qtVersion = self.findValueByExpression('((void**)&%s)[2]' % self.qtHookDataSymbolName())
