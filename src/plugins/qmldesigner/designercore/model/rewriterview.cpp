@@ -766,7 +766,12 @@ void RewriterView::qmlTextChanged()
             if (m_instantQmlTextUpdate)
                 amendQmlText();
             else
+#ifndef QMLDESIGNER_TEST
                 m_amendTimer.start(400);
+#else
+                /*Keep test synchronous*/
+                amendQmlText();
+#endif
             break;
         }
         }
