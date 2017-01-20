@@ -76,7 +76,7 @@ public:
     BasicSmallStringVector &operator=(const BasicSmallStringVector &) = default;
 
     BasicSmallStringVector(BasicSmallStringVector &&) noexcept = default;
-    BasicSmallStringVector &operator=(BasicSmallStringVector &&) noexcept = default;
+    BasicSmallStringVector &operator=(BasicSmallStringVector &&) = default;
 
     SmallString join(SmallString &&separator) const
     {
