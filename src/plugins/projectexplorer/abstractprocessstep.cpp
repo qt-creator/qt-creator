@@ -215,9 +215,8 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
 void AbstractProcessStep::cleanUp(QProcess *process)
 {
     // The process has finished, leftover data is read in processFinished
-    bool returnValue = false;
     processFinished(process->exitCode(), process->exitStatus());
-    returnValue = processSucceeded(process->exitCode(), process->exitStatus()) || m_ignoreReturnValue;
+    const bool returnValue = processSucceeded(process->exitCode(), process->exitStatus()) || m_ignoreReturnValue;
 
     m_outputParserChain.reset();
     m_process.reset();
