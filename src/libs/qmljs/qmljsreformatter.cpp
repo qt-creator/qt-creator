@@ -147,13 +147,24 @@ protected:
         out(QString::fromLatin1(str), lastLoc);
     }
 
+    void outCommentText(const QString &str)
+    {
+        QStringList lines = str.split(QLatin1Char('\n'));
+        for (int i = 0; i < lines.size(); ++i) {
+            _line = lines.at(i);  // multiline comments don't keep track of previos lines
+            if (i != lines.size() - 1)
+                newLine();
+        }
+        _hadEmptyLine = false;
+    }
+
     void outComment(const SourceLocation &commentLoc)
     {
         SourceLocation fixedLoc = commentLoc;
         fixCommentLocation(fixedLoc);
         if (precededByEmptyLine(fixedLoc))
             newLine();
-        out(toString(fixedLoc)); // don't use the sourceloc overload here
+        outCommentText(toString(fixedLoc)); // don't use the sourceloc overload here
         if (followedByNewLine(fixedLoc))
             newLine();
         else
