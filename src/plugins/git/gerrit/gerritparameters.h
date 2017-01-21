@@ -46,6 +46,7 @@ public:
     GerritServer(const QString &host, unsigned short port, const QString &user, HostType type);
     bool operator==(const GerritServer &other) const;
     QString sshHostArgument() const;
+    QString url() const;
 
     QString host;
     QString user;

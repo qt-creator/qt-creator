@@ -84,10 +84,12 @@ QDebug operator<<(QDebug d, const GerritChange &c)
 }
 
 // Format default Url for a change
-static inline QString defaultUrl(const QSharedPointer<GerritParameters> &p, int gerritNumber)
+static inline QString defaultUrl(const QSharedPointer<GerritParameters> &p,
+                                 const GerritServer &server,
+                                 int gerritNumber)
 {
     QString result = QLatin1String(p->https ? "https://" : "http://");
-    result += p->server.host;
+    result += server.host;
     result += '/';
     result += QString::number(gerritNumber);
     return result;
@@ -194,14 +196,9 @@ QString GerritChange::filterString() const
     return result;
 }
 
-QStringList GerritChange::gitFetchArguments(const QSharedPointer<GerritParameters> &p) const
+QStringList GerritChange::gitFetchArguments(const GerritServer &server) const
 {
-    QStringList arguments;
-    const QString url = "ssh://" + p->server.sshHostArgument()
-            + ':' + QString::number(p->server.port) + '/'
-            + project;
-    arguments << "fetch" << url << currentPatchSet.ref;
-    return arguments;
+    return { "fetch", server.url() + '/' + project, currentPatchSet.ref };
 }
 
 // Helper class that runs ssh gerrit queries from a list of query argument
@@ -215,6 +212,7 @@ class QueryContext : public QObject {
 public:
     QueryContext(const QStringList &queries,
                  const QSharedPointer<GerritParameters> &p,
+                 const GerritServer &server,
                  QObject *parent = 0);
 
     ~QueryContext();
@@ -254,13 +252,16 @@ enum { timeOutMS = 30000 };
 
 QueryContext::QueryContext(const QStringList &queries,
                            const QSharedPointer<GerritParameters> &p,
+                           const GerritServer &server,
                            QObject *parent)
     : QObject(parent)
     , m_queries(queries)
     , m_currentQuery(0)
-    , m_baseArguments({ p->ssh, p->portFlag, QString::number(p->server.port),
-                        p->server.sshHostArgument(), "gerrit" })
 {
+    m_baseArguments << p->ssh;
+    if (server.port)
+        m_baseArguments << p->portFlag << QString::number(server.port);
+    m_baseArguments << server.sshHostArgument() << "gerrit";
     connect(&m_process, &QProcess::readyReadStandardError,
             this, &QueryContext::readyReadStandardError);
     connect(&m_process, &QProcess::readyReadStandardOutput,
@@ -505,13 +506,14 @@ QStandardItem *GerritModel::itemForNumber(int number) const
     return 0;
 }
 
-void GerritModel::refresh(const QString &query)
+void GerritModel::refresh(const QSharedPointer<GerritServer> &server, const QString &query)
 {
     if (m_query) {
         qWarning("%s: Another query is still running", Q_FUNC_INFO);
         return;
     }
     clearData();
+    m_server = server;
 
     // Assemble list of queries
 
@@ -521,17 +523,17 @@ void GerritModel::refresh(const QString &query)
     else
     {
         const QString statusOpenQuery = "status:open";
-        if (m_parameters->server.user.isEmpty()) {
+        if (m_server->user.isEmpty()) {
             queries.push_back(statusOpenQuery);
         } else {
             // Owned by:
-            queries.push_back(statusOpenQuery + " owner:" + m_parameters->server.user);
+            queries.push_back(statusOpenQuery + " owner:" + m_server->user);
             // For Review by:
-            queries.push_back(statusOpenQuery + " reviewer:" + m_parameters->server.user);
+            queries.push_back(statusOpenQuery + " reviewer:" + m_server->user);
         }
     }
 
-    m_query = new QueryContext(queries, m_parameters, this);
+    m_query = new QueryContext(queries, m_parameters, *m_server, this);
     connect(m_query, &QueryContext::queryFinished, this, &GerritModel::queryFinished);
     connect(m_query, &QueryContext::finished, this, &GerritModel::queriesFinished);
     emit refreshStateChanged(true);
@@ -572,6 +574,7 @@ void GerritModel::setState(GerritModel::QueryState s)
 */
 
 static bool parseOutput(const QSharedPointer<GerritParameters> &parameters,
+                        const GerritServer &server,
                         const QByteArray &output,
                         QList<GerritChangePtr> &result)
 {
@@ -645,7 +648,7 @@ static bool parseOutput(const QSharedPointer<GerritParameters> &parameters,
         change->number = object.value(numberKey).toString().toInt();
         change->url = object.value(urlKey).toString();
         if (change->url.isEmpty()) //  No "canonicalWebUrl" is in gerrit.config.
-            change->url = defaultUrl(parameters, change->number);
+            change->url = defaultUrl(parameters, server, change->number);
         change->title = object.value(titleKey).toString();
         const QJsonObject ownerJ = object.value(ownerKey).toObject();
         change->owner = ownerJ.value(ownerNameKey).toString();
@@ -743,7 +746,7 @@ bool gerritChangeLessThan(const GerritChangePtr &c1, const GerritChangePtr &c2)
 void GerritModel::queryFinished(const QByteArray &output)
 {
     QList<GerritChangePtr> changes;
-    setState(parseOutput(m_parameters, output, changes) ? Ok : Error);
+    setState(parseOutput(m_parameters, *m_server, output, changes) ? Ok : Error);
 
     // Populate a hash with indices for faster access.
     QHash<int, int> numberIndexHash;

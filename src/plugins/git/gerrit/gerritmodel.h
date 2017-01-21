@@ -35,6 +35,7 @@ QT_END_NAMESPACE
 
 namespace Gerrit {
 namespace Internal {
+class GerritServer;
 class GerritParameters;
 class QueryContext;
 
@@ -67,7 +68,7 @@ class GerritChange
 public:
     bool isValid() const { return number && !url.isEmpty() && !project.isEmpty(); }
     QString filterString() const;
-    QStringList gitFetchArguments(const QSharedPointer<GerritParameters> &p) const;
+    QStringList gitFetchArguments(const GerritServer &server) const;
 
     QString url;
     int number = 0;
@@ -119,7 +120,7 @@ public:
     enum QueryState { Idle, Running, Ok, Error };
     QueryState state() const { return m_state; }
 
-    void refresh(const QString &query);
+    void refresh(const QSharedPointer<GerritServer> &server, const QString &query);
 
 signals:
     void refreshStateChanged(bool isRefreshing); // For disabling the "Refresh" button.
@@ -137,6 +138,7 @@ private:
     QList<QStandardItem *> changeToRow(const GerritChangePtr &c) const;
 
     const QSharedPointer<GerritParameters> m_parameters;
+    QSharedPointer<GerritServer> m_server;
     QueryContext *m_query = 0;
     QueryState m_state = Idle;
     QString m_userName;

@@ -51,9 +51,10 @@ class TreeView;
 
 namespace Gerrit {
 namespace Internal {
-class GerritParameters;
-class GerritModel;
 class GerritChange;
+class GerritModel;
+class GerritParameters;
+class GerritServer;
 class QueryValidatingLineEdit;
 
 class GerritDialog : public QDialog
@@ -61,6 +62,8 @@ class GerritDialog : public QDialog
     Q_OBJECT
 public:
     explicit GerritDialog(const QSharedPointer<GerritParameters> &p,
+                          const QSharedPointer<GerritServer> &s,
+                          const QString &repository,
                           QWidget *parent = 0);
     ~GerritDialog();
     QString repositoryPath() const;
@@ -83,6 +86,7 @@ private:
     void slotFetchCherryPick();
     void slotFetchCheckout();
     void slotRefresh();
+    void updateRemote();
 
     void manageProgressIndicator();
 
@@ -93,6 +97,7 @@ private:
     void updateButtons();
 
     const QSharedPointer<GerritParameters> m_parameters;
+    const QSharedPointer<GerritServer> m_server;
     QSortFilterProxyModel *m_filterModel;
     GerritModel *m_model;
     QStringListModel *m_queryModel;
@@ -109,6 +114,7 @@ private:
     QLabel *m_repositoryChooserLabel;
     Utils::ProgressIndicator *m_progressIndicator;
     QTimer m_progressIndicatorTimer;
+    QString m_repository;
     bool m_fetchRunning;
 };
 

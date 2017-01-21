@@ -108,6 +108,14 @@ QString GerritServer::sshHostArgument() const
     return user.isEmpty() ? host : (user + '@' + host);
 }
 
+QString GerritServer::url() const
+{
+    QString res = "ssh://" + sshHostArgument();
+    if (port)
+        res += ':' + QString::number(port);
+    return res;
+}
+
 bool GerritParameters::equals(const GerritParameters &rhs) const
 {
     return server == rhs.server && ssh == rhs.ssh && https == rhs.https;

@@ -46,8 +46,9 @@ namespace Gerrit {
 namespace Internal {
 
 class GerritChange;
-class GerritParameters;
 class GerritDialog;
+class GerritParameters;
+class GerritServer;
 
 class GerritPlugin : public QObject
 {
@@ -77,6 +78,7 @@ private:
     void fetch(const QSharedPointer<GerritChange> &change, int mode);
 
     QSharedPointer<GerritParameters> m_parameters;
+    QSharedPointer<GerritServer> m_server;
     QPointer<GerritDialog> m_dialog;
     Core::Command *m_gerritCommand;
     Core::Command *m_pushToGerritCommand;

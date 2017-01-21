@@ -27,12 +27,17 @@
 #include "gerritmodel.h"
 #include "gerritparameters.h"
 
+#include <coreplugin/icore.h>
+#include "../gitplugin.h"
+#include "../gitclient.h"
+
 #include <utils/qtcassert.h>
 #include <utils/fancylineedit.h>
 #include <utils/itemviews.h>
 #include <utils/progressindicator.h>
 #include <utils/theme/theme.h>
-#include <coreplugin/icore.h>
+#include <utils/asconst.h>
+#include <utils/hostosinfo.h>
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -57,9 +62,12 @@ static const int layoutSpacing  = 5;
 static const int maxTitleWidth = 350;
 
 GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
+                           const QSharedPointer<GerritServer> &s,
+                           const QString &repository,
                            QWidget *parent)
     : QDialog(parent)
     , m_parameters(p)
+    , m_server(s)
     , m_filterModel(new QSortFilterProxyModel(this))
     , m_model(new GerritModel(p, this))
     , m_queryModel(new QStringListModel(this))
@@ -72,7 +80,6 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     , m_repositoryChooserLabel(new QLabel(tr("Apply in:") + ' ', this))
     , m_fetchRunning(false)
 {
-    setWindowTitle(tr("Gerrit %1@%2").arg(p->server.user, p->server.host));
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     QGroupBox *changesGroup = new QGroupBox(tr("Changes"));
@@ -171,6 +178,7 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     mainLayout->addWidget(splitter);
     mainLayout->addWidget(m_buttonBox);
 
+    m_repositoryChooser->setPath(repository);
     slotCurrentChanged();
     slotRefresh();
 
@@ -255,8 +263,67 @@ void GerritDialog::slotRefresh()
 {
     const QString &query = m_queryLineEdit->text().trimmed();
     updateCompletions(query);
-    m_model->refresh(query);
+    updateRemote();
+    m_model->refresh(m_server, query);
     m_treeView->sortByColumn(-1);
+}
+
+void GerritDialog::updateRemote()
+{
+    const QString repository = m_repositoryChooser->path();
+    if (m_repository == repository || !m_repositoryChooser->isValid())
+        return;
+    static const QRegularExpression sshPattern(
+                "^(?:(?<protocol>[^:]+)://)?(?:(?<user>[^@]+)@)?(?<host>[^:/]+)(?::(?<port>\\d+))?");
+    m_repository = repository;
+    *m_server = m_parameters->server;
+    QString errorMessage; // Mute errors. We'll just fallback to the defaults
+    QMap<QString, QString> remotesList =
+            Git::Internal::GitPlugin::client()->synchronousRemotesList(repository, &errorMessage);
+    QStringList remoteUrls;
+    // Prefer a remote named gerrit
+    const QString gerritRemote = remotesList.value("gerrit");
+    if (!gerritRemote.isEmpty()) {
+        remoteUrls << gerritRemote;
+        remotesList.remove("gerrit");
+    }
+    remoteUrls.append(remotesList.values());
+    GerritServer server;
+    for (const QString &r : Utils::asConst(remoteUrls)) {
+        // Skip local remotes (refer to the root or relative path)
+        if (r.isEmpty() || r.startsWith('/') || r.startsWith('.'))
+            continue;
+        // On Windows, local paths typically starts with <drive>:
+        if (Utils::HostOsInfo::isWindowsHost() && r[1] == ':')
+            continue;
+        QRegularExpressionMatch match = sshPattern.match(r);
+        if (match.hasMatch()) {
+            const QString protocol = match.captured("protocol");
+            if (protocol == "https")
+                server.type = GerritServer::Https;
+            else if (protocol == "http")
+                server.type = GerritServer::Http;
+            else if (protocol.isEmpty() || protocol == "ssh")
+                server.type = GerritServer::Ssh;
+            else
+                continue;
+            const QString user = match.captured("user");
+            server.user = user.isEmpty() ? m_parameters->server.user : user;
+            server.host = match.captured("host");
+            server.port = match.captured("port").toUShort();
+            // Only Ssh is currently supported. In order to extend support for http[s],
+            // we need to move this logic to the model, and attempt connection to each
+            // remote (do it only on refresh, not on each path change)
+            if (server.type == GerritServer::Ssh) {
+                *m_server = server;
+                break;
+            }
+        }
+    }
+    QString user = m_server->user;
+    if (!user.isEmpty())
+        user.append('@');
+    setWindowTitle(tr("Gerrit %1%2").arg(user, m_server->host));
 }
 
 void GerritDialog::manageProgressIndicator()
