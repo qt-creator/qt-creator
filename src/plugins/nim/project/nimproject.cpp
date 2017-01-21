@@ -27,6 +27,7 @@
 #include "nimbuildconfiguration.h"
 #include "nimprojectnode.h"
 #include "nimprojectmanager.h"
+#include "nimtoolchain.h"
 
 #include "../nimconstants.h"
 
@@ -35,6 +36,8 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/toolchain.h>
+#include <projectexplorer/kitinformation.h>
 #include <texteditor/textdocument.h>
 
 #include <utils/algorithm.h>
@@ -163,9 +166,20 @@ void NimProject::updateProject()
     emit parsingFinished();
 }
 
-bool NimProject::supportsKit(Kit *k, QString *) const
+bool NimProject::supportsKit(Kit *k, QString *errorMessage) const
 {
-    return k->isValid();
+    auto tc = dynamic_cast<NimToolChain*>(ToolChainKitInformation::toolChain(k, Constants::C_NIMLANGUAGE_ID));
+    if (!tc) {
+        if (errorMessage)
+            *errorMessage = tr("No nim compiler set.");
+        return false;
+    }
+    if (!tc->compilerCommand().exists()) {
+        if (errorMessage)
+            *errorMessage = tr("Nim compiler doesn't exist");
+        return false;
+    }
+    return true;
 }
 
 FileNameList NimProject::nimFiles() const

@@ -34,12 +34,14 @@
 #include "project/nimprojectmanager.h"
 #include "project/nimrunconfigurationfactory.h"
 #include "project/nimruncontrolfactory.h"
+#include "project/nimtoolchainfactory.h"
 #include "settings/nimcodestylepreferencesfactory.h"
 #include "settings/nimcodestylesettingspage.h"
 #include "settings/nimsettings.h"
 #include "settings/nimsnippetprovider.h"
 
 #include <coreplugin/fileiconprovider.h>
+#include <projectexplorer/toolchainmanager.h>
 #include <utils/mimetypes/mimedatabase.h>
 
 #include <QtPlugin>
@@ -65,6 +67,8 @@ bool NimPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
 
+    ProjectExplorer::ToolChainManager::registerLanguage(Constants::C_NIMLANGUAGE_ID, Constants::C_NIMLANGUAGE_NAME);
+
     MimeDatabase::addMimeTypes(QLatin1String(":/Nim.mimetypes.xml"));
 
     addAutoReleasedObject(new NimSettings);
@@ -78,6 +82,7 @@ bool NimPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     addAutoReleasedObject(new NimRunControlFactory);
     addAutoReleasedObject(new NimCodeStyleSettingsPage);
     addAutoReleasedObject(new NimCodeStylePreferencesFactory);
+    addAutoReleasedObject(new NimToolChainFactory);
 
     return true;
 }

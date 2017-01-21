@@ -37,7 +37,9 @@ HEADERS += \
     settings/nimcodestylepreferencesfactory.h \
     settings/nimsettings.h \
     settings/nimsnippetprovider.h \
-    settings/nimcodestylepreferenceswidget.h
+    settings/nimcodestylepreferenceswidget.h \
+    project/nimtoolchain.h \
+    project/nimtoolchainfactory.h
 
 SOURCES += \
     nimplugin.cpp \
@@ -66,7 +68,9 @@ SOURCES += \
     settings/nimcodestylepreferencesfactory.cpp \
     settings/nimsettings.cpp \
     settings/nimsnippetprovider.cpp \
-    settings/nimcodestylepreferenceswidget.cpp
+    settings/nimcodestylepreferenceswidget.cpp \
+    project/nimtoolchain.cpp \
+    project/nimtoolchainfactory.cpp
 
 FORMS += \
     project/nimcompilerbuildstepconfigwidget.ui \

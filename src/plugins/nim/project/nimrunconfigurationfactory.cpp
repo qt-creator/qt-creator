@@ -39,22 +39,21 @@ using namespace ProjectExplorer;
 namespace Nim {
 
 NimRunConfigurationFactory::NimRunConfigurationFactory()
-{
-}
+{}
 
 QList<Core::Id> NimRunConfigurationFactory::availableCreationIds(Target *parent,
                                                                  IRunConfigurationFactory::CreationMode mode) const
 {
     Q_UNUSED(mode);
+    QList<Core::Id> result;
     if (canHandle(parent))
-        return { Constants::C_NIMRUNCONFIGURATION_ID };
-    return {};
+        result.append(Constants::C_NIMRUNCONFIGURATION_ID);
+    return result;
 }
 
 QString NimRunConfigurationFactory::displayNameForId(Core::Id id) const
 {
-    QString result = id.toString() + QStringLiteral("-TempRunConf");
-    return result;
+    return id.toString() + QStringLiteral("-TempRunConf");
 }
 
 bool NimRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
@@ -74,7 +73,7 @@ bool NimRunConfigurationFactory::canClone(Target *parent, RunConfiguration *prod
 {
     QTC_ASSERT(parent, return false);
     QTC_ASSERT(product, return false);
-    return true;
+    return canHandle(parent);
 }
 
 RunConfiguration *NimRunConfigurationFactory::clone(Target *parent, RunConfiguration *product)
@@ -88,14 +87,15 @@ RunConfiguration *NimRunConfigurationFactory::clone(Target *parent, RunConfigura
 bool NimRunConfigurationFactory::canHandle(Target *parent) const
 {
     Q_UNUSED(parent);
+    if (!parent->project()->supportsKit(parent->kit()))
+        return false;
     return qobject_cast<NimProject *>(parent->project());
 }
 
 RunConfiguration *NimRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
 {
     Q_UNUSED(id);
-    auto result = new NimRunConfiguration(parent, id);
-    return result;
+    return new NimRunConfiguration(parent, id);
 }
 
 RunConfiguration *NimRunConfigurationFactory::doRestore(Target *parent, const QVariantMap &map)

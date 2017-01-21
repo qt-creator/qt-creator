@@ -126,6 +126,8 @@ BuildConfiguration *NimBuildConfigurationFactory::create(Target *parent, const B
 bool NimBuildConfigurationFactory::canRestore(const Target *parent, const QVariantMap &map) const
 {
     Q_UNUSED(parent);
+    if (!canHandle(parent))
+        return false;
     return NimBuildConfiguration::canRestore(map);
 }
 
@@ -147,6 +149,8 @@ bool NimBuildConfigurationFactory::canClone(const Target *parent, BuildConfigura
 {
     QTC_ASSERT(parent, return false);
     QTC_ASSERT(product, return false);
+    if (!canHandle(parent))
+        return false;
     return product->id() == Constants::C_NIMBUILDCONFIGURATION_ID;
 }
 

@@ -36,6 +36,10 @@ const char C_NIMEDITOR_ID[] = "Nim.NimEditor";
 const char C_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("OpenWith::Editors", "Nim Editor");
 const char C_NIM_ICON_PATH[] = ":/images/nim.png";
 
+// NimToolChain
+const char C_NIMTOOLCHAIN_TYPEID[] = "Nim.NimToolChain";
+const char C_NIMTOOLCHAIN_COMPILER_COMMAND_KEY[] = "Nim.NimToolChain.CompilerCommand";
+
 // NimRunConfiguration
 const char C_NIMRUNCONFIGURATION_ID[] = "Nim.NimRunConfiguration";
 const char C_NIMRUNCONFIGURATION_DISPLAY[] = QT_TRANSLATE_NOOP("NimRunConfiguration", "Current Build Target");

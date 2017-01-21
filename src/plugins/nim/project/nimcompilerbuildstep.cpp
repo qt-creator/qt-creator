@@ -25,12 +25,13 @@
 
 #include "nimcompilerbuildstep.h"
 #include "nimbuildconfiguration.h"
+#include "nimconstants.h"
 #include "nimcompilerbuildstepconfigwidget.h"
 #include "nimproject.h"
-
-#include "../nimconstants.h"
+#include "nimtoolchain.h"
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/kitinformation.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>
@@ -154,7 +155,12 @@ void NimCompilerBuildStep::updateOutFilePath()
 
 void NimCompilerBuildStep::updateCommand()
 {
-    processParameters()->setCommand(QStringLiteral("nim"));
+    QTC_ASSERT(target(), return);
+    QTC_ASSERT(target()->kit(), return);
+    Kit *kit = target()->kit();
+    auto tc = dynamic_cast<NimToolChain*>(ToolChainKitInformation::toolChain(kit, Constants::C_NIMLANGUAGE_ID));
+    QTC_ASSERT(tc, return);
+    processParameters()->setCommand(tc->compilerCommand().toString());
 }
 
 void NimCompilerBuildStep::updateWorkingDirectory()
