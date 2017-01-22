@@ -1988,28 +1988,30 @@ void FakeVimPluginPrivate::handleExCommand(bool *handled, const ExCommand &cmd)
     *handled = true;
     if ((cmd.matches("w", "write") || cmd.cmd == "wq") && cmd.args.isEmpty()) {
         // :w[rite]
+        bool saved = false;
         IEditor *editor = m_editorToHandler.key(handler);
         const QString fileName = handler->currentFileName();
         if (editor && editor->document()->filePath().toString() == fileName) {
-            // Handle that as a special case for nicer interaction with core
-            DocumentManager::saveDocument(editor->document());
-            // Check result by reading back.
-            QFile file3(fileName);
-            file3.open(QIODevice::ReadOnly);
-            QByteArray ba = file3.readAll();
-            handler->showMessage(MessageInfo, Tr::tr("\"%1\" %2 %3L, %4C written")
-                .arg(fileName).arg(' ').arg(ba.count('\n')).arg(ba.size()));
-            if (cmd.cmd == "wq")
-                delayedQuitRequested(cmd.hasBang, m_editorToHandler.key(handler));
-        } else {
-            handler->showMessage(MessageError, Tr::tr("File not saved"));
+            triggerAction(Core::Constants::SAVE);
+            saved = !editor->document()->isModified();
+            if (saved) {
+                QFile file3(fileName);
+                file3.open(QIODevice::ReadOnly);
+                const QByteArray ba = file3.readAll();
+                handler->showMessage(MessageInfo, Tr::tr("\"%1\" %2 %3L, %4C written")
+                    .arg(fileName).arg(' ').arg(ba.count('\n')).arg(ba.size()));
+                if (cmd.cmd == "wq")
+                    delayedQuitRequested(cmd.hasBang, m_editorToHandler.key(handler));
+            }
         }
+
+        if (!saved)
+            handler->showMessage(MessageError, Tr::tr("File not saved"));
     } else if (cmd.matches("wa", "wall")) {
         // :w[all]
-        QList<IDocument *> toSave = DocumentManager::modifiedDocuments();
-        QList<IDocument *> failed;
-        bool success = DocumentManager::saveModifiedDocuments(toSave, QString(), 0, QString(), 0, &failed);
-        if (!success)
+        triggerAction(Core::Constants::SAVEALL);
+        const QList<IDocument *> failed = DocumentManager::modifiedDocuments();
+        if (failed.isEmpty())
             handler->showMessage(MessageInfo, Tr::tr("Saving succeeded"));
         else
             handler->showMessage(MessageError, Tr::tr("%n files not saved", 0, failed.size()));
