@@ -148,7 +148,7 @@
         <item>
          <widget class="QCheckBox" name="signOffCheckBox">
           <property name="text">
-           <string>&amp;Sign off</string>
+           <string>Sign off</string>
           </property>
          </widget>
         </item>
