@@ -273,6 +273,8 @@ public:
 
     QString readGitVar(const QString &workingDirectory, const QString &configVar) const;
     QString readConfigValue(const QString &workingDirectory, const QString &configVar) const;
+    void setConfigValue(const QString &workingDirectory, const QString &configVar,
+                        const QString &value) const;
 
     QTextCodec *encoding(const QString &workingDirectory, const QString &configVar) const;
     bool readDataFromCommit(const QString &repoDirectory, const QString &commit,

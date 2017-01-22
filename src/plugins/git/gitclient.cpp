@@ -3001,6 +3001,12 @@ QString GitClient::readConfigValue(const QString &workingDirectory, const QStrin
     return readOneLine(workingDirectory, { "config", configVar });
 }
 
+void GitClient::setConfigValue(const QString &workingDirectory, const QString &configVar,
+                               const QString &value) const
+{
+    readOneLine(workingDirectory, { "config", configVar, value });
+}
+
 QString GitClient::readGitVar(const QString &workingDirectory, const QString &configVar) const
 {
     return readOneLine(workingDirectory, { "var", configVar });

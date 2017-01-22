@@ -221,6 +221,13 @@ bool GerritPushDialog::isValid() const
     return m_isValid;
 }
 
+void GerritPushDialog::storeTopic()
+{
+    const QString branch = m_ui->localBranchComboBox->currentText();
+    GitPlugin::client()->setConfigValue(m_workingDir, QString("branch.%1.topic").arg(branch),
+                                        selectedTopic());
+}
+
 void GerritPushDialog::setRemoteBranches(bool includeOld)
 {
     bool blocked = m_ui->targetBranchComboBox->blockSignals(true);
@@ -266,6 +273,10 @@ void GerritPushDialog::updateCommits(int index)
 {
     const QString branch = m_ui->localBranchComboBox->itemText(index);
     m_hasLocalCommits = m_ui->commitView->init(m_workingDir, branch, LogChangeWidget::Silent);
+    QString topic = GitPlugin::client()->readConfigValue(
+                m_workingDir, QString("branch.%1.topic").arg(branch));
+    if (!topic.isEmpty())
+        m_ui->topicLineEdit->setText(topic);
 
     const QString remoteBranch = determineRemoteBranch(branch);
     if (!remoteBranch.isEmpty()) {

@@ -322,6 +322,7 @@ void GerritPlugin::push(const QString &topLevel)
     if (dialog.exec() == QDialog::Rejected)
         return;
 
+    dialog.storeTopic();
     m_reviewers = dialog.reviewers();
 
     QString target = dialog.selectedCommit();

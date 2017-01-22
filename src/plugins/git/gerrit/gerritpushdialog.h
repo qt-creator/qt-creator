@@ -53,6 +53,7 @@ public:
     QString selectedTopic() const;
     QString reviewers() const;
     bool isValid() const;
+    void storeTopic();
 
 private:
     void setChangeRange();
