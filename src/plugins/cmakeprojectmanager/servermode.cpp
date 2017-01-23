@@ -63,14 +63,6 @@ Q_LOGGING_CATEGORY(cmakeServerMode, "qtc.cmake.serverMode");
 // Helpers:
 // ----------------------------------------------------------------------
 
-QString socketName()
-{
-    QUuid uuid = QUuid::createUuid();
-    if (HostOsInfo::isWindowsHost())
-        return "\\\\.\\pipe\\" + uuid.toString();
-    return Utils::TemporaryDirectory::masterDirectoryPath() + "/cmake-socket-" + uuid.toString();
-}
-
 bool isValid(const QVariant &v)
 {
     if (v.isNull())
@@ -93,6 +85,12 @@ ServerMode::ServerMode(const Environment &env,
                        bool experimental, int major, int minor,
                        QObject *parent) :
     QObject(parent),
+#if defined(Q_OS_UNIX)
+    // Some unixes (e.g. Darwin) limit the length of a local socket to about 100 char (or less).
+    // Since some unixes (e.g. Darwin) also point TMPDIR to /really/long/paths we need to create
+    // our own socket in a place closer to '/'.
+    m_socketDir("/tmp/cmake-"),
+#endif
     m_sourceDirectory(sourceDirectory), m_buildDirectory(buildDirectory),
     m_cmakeExecutable(cmakeExecutable),
     m_generator(generator), m_extraGenerator(extraGenerator),
@@ -109,7 +107,13 @@ ServerMode::ServerMode(const Environment &env,
 
     m_cmakeProcess->setEnvironment(env);
     m_cmakeProcess->setWorkingDirectory(buildDirectory.toString());
-    m_socketName = socketName();
+
+#if defined(Q_OS_UNIX)
+    m_socketName = m_socketDir.path() + "/socket";
+#else
+    m_socketName = QString::fromLatin1("\\\\.\\pipe\\") + QUuid::createUuid().toString();
+#endif
+
     const QStringList args = QStringList({ "-E", "server", "--pipe=" + m_socketName });
 
     connect(m_cmakeProcess.get(), &QtcProcess::started, this, [this]() { m_connectionTimer.start(); });
