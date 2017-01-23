@@ -484,8 +484,6 @@ static Core::MiniSplitter *createCentralSplitter(const QList<WidgetInfo> &widget
     outputPlaceholderSplitter->setStretchFactor(1, 0);
     outputPlaceholderSplitter->setOrientation(Qt::Vertical);
 
-    auto outputPanePlaceholder = new Core::OutputPanePlaceHolder(Core::Constants::MODE_DESIGN, outputPlaceholderSplitter);
-
     QTabWidget* tabWidget = createWidgetsInTabWidget(centralWidgetInfos);
     tabWidget->setObjectName("centralTabWidget");
     tabWidget->setTabPosition(QTabWidget::East);
@@ -502,6 +500,12 @@ static Core::MiniSplitter *createCentralSplitter(const QList<WidgetInfo> &widget
     backgroundWidget->setStyleSheet(Theming::replaceCssColors(QString::fromUtf8(sheet)));
 
     outputPlaceholderSplitter->addWidget(backgroundWidget);
+
+    QWidget *bottomSideBar = createbottomSideBarWidget(widgetInfos);
+    bottomSideBar->setObjectName("bottomSideBar");
+    outputPlaceholderSplitter->addWidget(bottomSideBar);
+
+    auto outputPanePlaceholder = new Core::OutputPanePlaceHolder(Core::Constants::MODE_DESIGN, outputPlaceholderSplitter);
     outputPlaceholderSplitter->addWidget(outputPanePlaceholder);
 
     return outputPlaceholderSplitter;
@@ -521,10 +525,9 @@ QWidget *DesignModeWidget::createCenterWidget()
     Core::MiniSplitter *centralSplitter = createCentralSplitter(viewManager().widgetInfos());
     m_centralTabWidget = centralSplitter->findChild<QTabWidget*>("centralTabWidget");
     Q_ASSERT(m_centralTabWidget);
+    m_bottomSideBar = centralSplitter->findChild<QWidget*>("bottomSideBar");
+    Q_ASSERT(m_bottomSideBar);
     horizontalLayout->addWidget(centralSplitter);
-
-    m_bottomSideBar = createbottomSideBarWidget(viewManager().widgetInfos());
-    horizontalLayout->addWidget(m_bottomSideBar.data());
 
     return centerWidget;
 }
