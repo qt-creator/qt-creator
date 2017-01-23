@@ -50,10 +50,8 @@
 namespace QmlDesigner {
 
 FormEditorView::FormEditorView(QObject *parent)
-    : AbstractView(parent),
-      m_transactionCounter(0)
+    : AbstractView(parent)
 {
-
 }
 
 FormEditorScene* FormEditorView::scene() const
@@ -63,7 +61,7 @@ FormEditorScene* FormEditorView::scene() const
 
 FormEditorView::~FormEditorView()
 {
-    m_currentTool = 0;
+    m_currentTool = nullptr;
     qDeleteAll(m_customToolList);
 }
 
@@ -147,8 +145,11 @@ void FormEditorView::createFormEditorWidget()
     Internal::FormEditorContext *formEditorContext = new Internal::FormEditorContext(m_formEditorWidget.data());
     Core::ICore::addContextObject(formEditorContext);
 
-    connect(formEditorWidget()->zoomAction(), SIGNAL(zoomLevelChanged(double)), SLOT(updateGraphicsIndicators()));
-    connect(formEditorWidget()->showBoundingRectAction(), SIGNAL(toggled(bool)), scene(), SLOT(setShowBoundingRects(bool)));
+    connect(formEditorWidget()->zoomAction(), &ZoomAction::zoomLevelChanged, [this]() {
+        m_currentTool->formEditorItemsChanged(scene()->allFormEditorItems());
+    });
+    connect(formEditorWidget()->showBoundingRectAction(), &QAction::toggled,
+            scene(), &FormEditorScene::setShowBoundingRects);
 }
 
 void FormEditorView::nodeCreated(const ModelNode &node)
@@ -533,15 +534,6 @@ void FormEditorView::exportAsImage()
     m_formEditorWidget->exportAsImage(m_scene->rootFormEditorItem()->boundingRect());
 }
 
-QList<ModelNode> FormEditorView::adjustStatesForModelNodes(const QList<ModelNode> &nodeList) const
-{
-    QList<ModelNode> adjustedNodeList;
-    foreach (const ModelNode &node, nodeList)
-        adjustedNodeList.append(node);
-
-    return adjustedNodeList;
-}
-
 QmlItemNode findRecursiveQmlItemNode(const QmlObjectNode &firstQmlObjectNode)
 {
     QmlObjectNode qmlObjectNode = firstQmlObjectNode;
@@ -576,11 +568,6 @@ void FormEditorView::instancePropertyChanged(const QList<QPair<ModelNode, Proper
         }
     }
     m_currentTool->formEditorItemsChanged(changedItems);
-}
-
-void FormEditorView::updateGraphicsIndicators()
-{
-    m_currentTool->formEditorItemsChanged(scene()->allFormEditorItems());
 }
 
 bool FormEditorView::isMoveToolAvailable() const

@@ -123,8 +123,6 @@ protected:
 
 protected slots:
     void delayedReset();
-    QList<ModelNode> adjustStatesForModelNodes(const QList<ModelNode> &nodeList) const;
-    void updateGraphicsIndicators();
     bool isMoveToolAvailable() const;
 
 private: //functions
@@ -141,8 +139,8 @@ private: //variables
     std::unique_ptr<SelectionTool> m_selectionTool;
     std::unique_ptr<ResizeTool> m_resizeTool;
     std::unique_ptr<DragTool> m_dragTool;
-    AbstractFormEditorTool *m_currentTool;
-    int m_transactionCounter;
+    AbstractFormEditorTool *m_currentTool = nullptr;
+    int m_transactionCounter = 0;
     std::function<void(int, int)> m_gotoErrorCallback;
 };
 
