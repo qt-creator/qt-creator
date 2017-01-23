@@ -372,14 +372,12 @@ void QMakeGlobals::parseProperties(const QByteArray &data, QHash<ProKey, ProStri
                     }
                     properties.insert(ProKey(name + QLatin1String("/raw")), value);
                 }
-                if (variant < PropGet)
-                    properties.insert(ProKey(name + QLatin1String("/get")), value);
-                properties.insert(ProKey(name + QLatin1String("/src")), value);
-            } else if (name.startsWith(QLatin1String("QT_HOST_"))) {
-                if (variant < PropGet)
-                    properties.insert(ProKey(name + QLatin1String("/get")), value);
-                properties.insert(ProKey(name + QLatin1String("/src")), value);
+            } else if (!name.startsWith(QLatin1String("QT_HOST_"))) {
+                continue;
             }
+            if (variant < PropGet)
+                properties.insert(ProKey(name + QLatin1String("/get")), value);
+            properties.insert(ProKey(name + QLatin1String("/src")), value);
         }
     }
 }
