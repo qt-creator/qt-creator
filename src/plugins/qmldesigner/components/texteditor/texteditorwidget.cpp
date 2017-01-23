@@ -42,10 +42,10 @@
 
 namespace QmlDesigner {
 
-TextEditorWidget::TextEditorWidget(TextEditorView *textEditorView) : QWidget()
-  , m_textEditorView(textEditorView)
-  , m_statusBar(new TextEditorStatusBar(this))
-
+TextEditorWidget::TextEditorWidget(TextEditorView *textEditorView)
+    : QWidget()
+    , m_textEditorView(textEditorView)
+    , m_statusBar(new TextEditorStatusBar(this))
 {
     QBoxLayout *layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -59,12 +59,12 @@ TextEditorWidget::TextEditorWidget(TextEditorView *textEditorView) : QWidget()
     setStyleSheet(Theming::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css")))));
 }
 
-void TextEditorWidget::setTextEditor(TextEditor::BaseTextEditor *textEditor) {
+void TextEditorWidget::setTextEditor(TextEditor::BaseTextEditor *textEditor)
+{
     m_textEditor.reset(textEditor);
     layout()->removeWidget(m_statusBar);
     layout()->addWidget(textEditor->editorWidget());
     layout()->addWidget(m_statusBar);
-
 
     connect(textEditor->editorWidget(), &QPlainTextEdit::cursorPositionChanged,
             &m_updateSelectionTimer, static_cast<void (QTimer::*)()>(&QTimer::start));
