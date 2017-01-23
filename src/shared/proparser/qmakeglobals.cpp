@@ -353,20 +353,20 @@ void QMakeGlobals::parseProperties(const QByteArray &data, QHash<ProKey, ProStri
             }
             if (name.startsWith(QLatin1String("QT_INSTALL_"))) {
                 if (plain) {
+                    if (name == QLatin1String("QT_INSTALL_PREFIX")
+                        || name == QLatin1String("QT_INSTALL_DATA")
+                        || name == QLatin1String("QT_INSTALL_BINS")) {
+                        // Qt4 fallback
+                        QString hname = name;
+                        hname.replace(3, 7, QLatin1String("HOST"));
+                        properties.insert(ProKey(hname), value);
+                        properties.insert(ProKey(hname + QLatin1String("/get")), value);
+                        properties.insert(ProKey(hname + QLatin1String("/src")), value);
+                    }
                     properties.insert(ProKey(name + QLatin1String("/raw")), value);
                     properties.insert(ProKey(name + QLatin1String("/get")), value);
                 }
                 properties.insert(ProKey(name + QLatin1String("/src")), value);
-                if (name == QLatin1String("QT_INSTALL_PREFIX")
-                    || name == QLatin1String("QT_INSTALL_DATA")
-                    || name == QLatin1String("QT_INSTALL_BINS")) {
-                    name.replace(3, 7, QLatin1String("HOST"));
-                    if (plain) {
-                        properties.insert(ProKey(name), value);
-                        properties.insert(ProKey(name + QLatin1String("/get")), value);
-                    }
-                    properties.insert(ProKey(name + QLatin1String("/src")), value);
-                }
             } else if (name.startsWith(QLatin1String("QT_HOST_"))) {
                 if (plain)
                     properties.insert(ProKey(name + QLatin1String("/get")), value);
