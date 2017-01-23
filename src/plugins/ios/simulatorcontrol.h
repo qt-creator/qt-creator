@@ -39,19 +39,32 @@ namespace Internal {
 
 class SimulatorControlPrivate;
 
-class SimulatorInfo {
+
+class SimulatorEntity {
+public:
+    QString name;
+    QString identifier;
+    bool operator <(const SimulatorEntity &o) const
+    {
+        return name < o.name;
+    }
+};
+
+class SimulatorInfo : public SimulatorEntity {
 public:
     bool isBooted() const { return state.compare(QStringLiteral("Booted")) == 0; }
     bool available;
     QString state;
     QString runtimeName;
-    QString name;
-    QString identifier;
-    bool operator <(const SimulatorInfo &o) const
-    {
-        return name < o.name;
-    }
 };
+
+class RuntimeInfo : public SimulatorEntity{
+public:
+    QString version;
+    QString build;
+};
+
+class DeviceTypeInfo : public SimulatorEntity {};
 
 class SimulatorControl : public QObject
 {
@@ -72,8 +85,12 @@ public:
     ~SimulatorControl();
 
 public:
+    static QList<DeviceTypeInfo> availableDeviceTypes();
+    static QFuture<QList<DeviceTypeInfo> > updateDeviceTypes();
+    static QList<RuntimeInfo> availableRuntimes();
+    static QFuture<QList<RuntimeInfo> > updateRuntimes();
     static QList<SimulatorInfo> availableSimulators();
-    static void updateAvailableSimulators();
+    static QFuture<QList<SimulatorInfo> > updateAvailableSimulators();
     static bool isSimulatorRunning(const QString &simUdid);
     static QString bundleIdentifier(const Utils::FileName &bundlePath);
     static QString bundleExecutable(const Utils::FileName &bundlePath);
@@ -85,6 +102,13 @@ public:
                                     bool waitForDebugger, const QStringList &extraArgs,
                                     const QString& stdoutPath = QString(),
                                     const QString& stderrPath = QString()) const;
+    QFuture<ResponseData> deleteSimulator(const QString &simUdid) const;
+    QFuture<ResponseData> resetSimulator(const QString &simUdid) const;
+    QFuture<ResponseData> renameSimulator(const QString &simUdid, const QString &newName) const;
+    QFuture<ResponseData> createSimulator(const QString &name,
+                                          const DeviceTypeInfo &deviceType,
+                                          const RuntimeInfo &runtime);
+    QFuture<ResponseData> takeSceenshot(const QString &simUdid, const QString &filePath);
 
 private:
     SimulatorControlPrivate *d;
@@ -92,4 +116,6 @@ private:
 } // namespace Internal
 } // namespace Ios
 
+Q_DECLARE_METATYPE(Ios::Internal::DeviceTypeInfo)
+Q_DECLARE_METATYPE(Ios::Internal::RuntimeInfo)
 Q_DECLARE_METATYPE(Ios::Internal::SimulatorInfo)
