@@ -262,10 +262,18 @@ bool ToolChain::fromMap(const QVariantMap &data)
     const bool autoDetect = data.value(QLatin1String(AUTODETECT_KEY), false).toBool();
     d->m_detection = autoDetect ? AutoDetectionFromSettings : ManualDetection;
 
-    if (data.contains(LANGUAGE_KEY_V2))
-        d->m_language = Core::Id::fromSetting(data.value(QLatin1String(LANGUAGE_KEY_V2)));
-    else if (data.contains(LANGUAGE_KEY_V1)) // Import from old settings
+    if (data.contains(LANGUAGE_KEY_V2)) {
+        // remove hack to trim language id in 4.4: This is to fix up broken language
+        // ids that happened in 4.3 master branch
+        const QString langId = data.value(QLatin1String(LANGUAGE_KEY_V2)).toString();
+        const int pos = langId.lastIndexOf('.');
+        if (pos >= 0)
+            d->m_language = Core::Id::fromString(langId.mid(pos + 1));
+        else
+            d->m_language = Core::Id::fromString(langId);
+    } else if (data.contains(LANGUAGE_KEY_V1)) { // Import from old settings
         d->m_language = Internal::fromLanguageV1(data.value(QLatin1String(LANGUAGE_KEY_V1)).toInt());
+    }
 
     if (!d->m_language.isValid())
         d->m_language = Core::Id(Constants::CXX_LANGUAGE_ID);

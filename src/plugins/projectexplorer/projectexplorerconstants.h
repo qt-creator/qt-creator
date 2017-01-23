@@ -210,8 +210,10 @@ const char BUILDSTEPS_DEPLOY[] = "ProjectExplorer.BuildSteps.Deploy";
 const char DEFAULT_DEPLOYCONFIGURATION_ID[] = "ProjectExplorer.DefaultDeployConfiguration";
 
 // Language
-const char C_LANGUAGE_ID[] = "ProjectExplorer.Language.C";
-const char CXX_LANGUAGE_ID[] = "ProjectExplorer.Language.Cxx";
+
+// Keep these short: These constants are exposed to the MacroExplorer!
+const char C_LANGUAGE_ID[] = "C";
+const char CXX_LANGUAGE_ID[] = "Cxx";
 
 // ToolChain TypeIds
 const char CLANG_TOOLCHAIN_TYPEID[] = "ProjectExplorer.ToolChain.Clang";

@@ -239,6 +239,20 @@ void ToolChainKitInformation::upgrade(Kit *k)
             k->setSticky(ToolChainKitInformation::id(), k->isSticky(oldIdV2));
         }
     }
+
+    // upgrade 4.3-temporary-master-state to 4.3:
+    {
+        const QVariantMap valueMap = k->value(ToolChainKitInformation::id()).toMap();
+        QVariantMap result;
+        for (const QString &key : valueMap.keys()) {
+            const int pos = key.lastIndexOf('.');
+            if (pos >= 0)
+                result.insert(key.mid(pos + 1), valueMap.value(key));
+            else
+                result.insert(key, valueMap.value(key));
+        }
+        k->setValue(ToolChainKitInformation::id(), result);
+    }
 }
 
 void ToolChainKitInformation::fix(Kit *k)
