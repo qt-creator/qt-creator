@@ -221,23 +221,10 @@ QVariant CrumblePathButton::data() const
 
 ///////////////////////////////////////////////////////////////////////////////
 
-struct CrumblePathPrivate
-{
-    explicit CrumblePathPrivate(CrumblePath *q);
-
-    QList<CrumblePathButton*> m_buttons;
-};
-
-CrumblePathPrivate::CrumblePathPrivate(CrumblePath *q)
-{
-    Q_UNUSED(q)
-}
-
 //
 // CrumblePath
 //
-CrumblePath::CrumblePath(QWidget *parent) :
-    QWidget(parent), d(new CrumblePathPrivate(this))
+CrumblePath::CrumblePath(QWidget *parent) : QWidget(parent)
 {
     setMinimumHeight(25);
     setMaximumHeight(25);
@@ -246,34 +233,33 @@ CrumblePath::CrumblePath(QWidget *parent) :
 
 CrumblePath::~CrumblePath()
 {
-    qDeleteAll(d->m_buttons);
-    d->m_buttons.clear();
-    delete d;
+    qDeleteAll(m_buttons);
+    m_buttons.clear();
 }
 
 void CrumblePath::selectIndex(int index)
 {
-    if (index > -1 && index < d->m_buttons.length())
-        d->m_buttons[index]->select(true);
+    if (index > -1 && index < m_buttons.length())
+        m_buttons[index]->select(true);
 }
 
 QVariant CrumblePath::dataForIndex(int index) const
 {
-    if (index > -1 && index < d->m_buttons.length())
-        return d->m_buttons[index]->data();
+    if (index > -1 && index < m_buttons.length())
+        return m_buttons[index]->data();
     return QVariant();
 }
 
 QVariant CrumblePath::dataForLastIndex() const
 {
-    if (d->m_buttons.isEmpty())
+    if (m_buttons.isEmpty())
         return QVariant();
-    return d->m_buttons.last()->data();
+    return m_buttons.last()->data();
 }
 
 int CrumblePath::length() const
 {
-    return d->m_buttons.length();
+    return m_buttons.length();
 }
 
 bool lessThan(const QAction *a1, const QAction *a2)
@@ -288,7 +274,7 @@ bool greaterThan(const QAction *a1, const QAction *a2)
 
 void CrumblePath::sortChildren(Qt::SortOrder order)
 {
-    QPushButton *lastButton = d->m_buttons.last();
+    QPushButton *lastButton = m_buttons.last();
 
     QMenu *childList = lastButton->menu();
     QTC_ASSERT(childList, return);
@@ -308,25 +294,25 @@ void CrumblePath::pushElement(const QString &title, const QVariant &data)
     connect(newButton, &QAbstractButton::clicked, this, &CrumblePath::emitElementClicked);
 
     int segType = CrumblePathButton::MiddleSegment;
-    if (!d->m_buttons.isEmpty()) {
-        if (d->m_buttons.length() == 1)
+    if (!m_buttons.isEmpty()) {
+        if (m_buttons.length() == 1)
             segType = segType | CrumblePathButton::FirstSegment;
-        d->m_buttons.last()->setSegmentType(segType);
+        m_buttons.last()->setSegmentType(segType);
     } else {
         segType = CrumblePathButton::FirstSegment | CrumblePathButton::LastSegment;
         newButton->setSegmentType(segType);
     }
     newButton->setData(data);
-    d->m_buttons.append(newButton);
+    m_buttons.append(newButton);
 
     resizeButtons();
 }
 
 void CrumblePath::addChild(const QString &title, const QVariant &data)
 {
-    QTC_ASSERT(!d->m_buttons.isEmpty(), return);
+    QTC_ASSERT(!m_buttons.isEmpty(), return);
 
-    QPushButton *lastButton = d->m_buttons.last();
+    QPushButton *lastButton = m_buttons.last();
 
     QMenu *childList = lastButton->menu();
     if (childList == 0)
@@ -341,23 +327,23 @@ void CrumblePath::addChild(const QString &title, const QVariant &data)
 
 void CrumblePath::popElement()
 {
-    QWidget *last = d->m_buttons.last();
-    d->m_buttons.removeLast();
+    QWidget *last = m_buttons.last();
+    m_buttons.removeLast();
     last->setParent(0);
     last->deleteLater();
 
     int segType = CrumblePathButton::MiddleSegment | CrumblePathButton::LastSegment;
-    if (!d->m_buttons.isEmpty()) {
-        if (d->m_buttons.length() == 1)
+    if (!m_buttons.isEmpty()) {
+        if (m_buttons.length() == 1)
             segType = CrumblePathButton::FirstSegment | CrumblePathButton::LastSegment;
-        d->m_buttons.last()->setSegmentType(segType);
+        m_buttons.last()->setSegmentType(segType);
     }
     resizeButtons();
 }
 
 void CrumblePath::clear()
 {
-    while (!d->m_buttons.isEmpty())
+    while (!m_buttons.isEmpty())
         popElement();
 }
 
@@ -370,17 +356,17 @@ void CrumblePath::resizeButtons()
 {
     int totalWidthLeft = width();
 
-    if (!d->m_buttons.isEmpty()) {
+    if (!m_buttons.isEmpty()) {
         QPoint nextElementPosition(0, 0);
 
-        d->m_buttons.first()->raise();
+        m_buttons.first()->raise();
         // rearrange all items so that the first item is on top (added last).
 
         // compute relative sizes
         QList<int> sizes;
         int totalSize = 0;
-        for (int i = 0; i < d->m_buttons.length() ; ++i) {
-            CrumblePathButton *button = d->m_buttons.at(i);
+        for (int i = 0; i < m_buttons.length() ; ++i) {
+            CrumblePathButton *button = m_buttons.at(i);
 
             QFontMetrics fm(button->font());
             int originalSize = ArrowBorderSize + fm.width(button->text()) + ArrowBorderSize + 12;
@@ -388,8 +374,8 @@ void CrumblePath::resizeButtons()
             totalSize += originalSize - ArrowBorderSize;
         }
 
-        for (int i = 0; i < d->m_buttons.length() ; ++i) {
-            CrumblePathButton *button = d->m_buttons.at(i);
+        for (int i = 0; i < m_buttons.length() ; ++i) {
+            CrumblePathButton *button = m_buttons.at(i);
 
             int candidateSize = (sizes.at(i) * totalWidthLeft) / totalSize;
             if (candidateSize < ArrowBorderSize)
@@ -407,9 +393,9 @@ void CrumblePath::resizeButtons()
             if (i > 0) {
                 // work-around for a compiler / optimization bug in i686-apple-darwin9-g
                 // without volatile, the optimizer (-O2) seems to do the wrong thing (tm
-                // the d->m_buttons array with an invalid argument.
+                // the m_buttons array with an invalid argument.
                 volatile int prevIndex = i - 1;
-                button->stackUnder(d->m_buttons[prevIndex]);
+                button->stackUnder(m_buttons[prevIndex]);
             }
         }
     }

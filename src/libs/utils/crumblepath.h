@@ -32,7 +32,7 @@
 
 namespace Utils {
 
-struct CrumblePathPrivate;
+class CrumblePathButton;
 
 class QTCREATOR_UTILS_EXPORT CrumblePath : public QWidget
 {
@@ -66,7 +66,7 @@ private:
     void setBackgroundStyle();
 
 private:
-    CrumblePathPrivate *d;
+    QList<CrumblePathButton*> m_buttons;
 };
 
 } // namespace Utils
