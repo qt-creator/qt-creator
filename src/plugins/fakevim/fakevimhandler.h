@@ -132,31 +132,31 @@ public:
     bool eventFilter(QObject *ob, QEvent *ev);
 
 signals:
-    void commandBufferChanged(const QString &msg, int cursorPos, int anchorPos,
-                              int messageLevel, FakeVimHandler *eventFilter);
-    void statusDataChanged(const QString &msg);
-    void extraInformationChanged(const QString &msg);
-    void selectionChanged(const QList<QTextEdit::ExtraSelection> &selection);
-    void highlightMatches(const QString &needle);
-    void writeAllRequested(QString *error);
-    void moveToMatchingParenthesis(bool *moved, bool *forward, QTextCursor *cursor);
-    void checkForElectricCharacter(bool *result, QChar c);
-    void indentRegion(int beginLine, int endLine, QChar typedChar);
-    void completionRequested();
-    void simpleCompletionRequested(const QString &needle, bool forward);
-    void windowCommandRequested(const QString &key, int count);
-    void findRequested(bool reverse);
-    void findNextRequested(bool reverse);
-    void handleExCommandRequested(bool *handled, const ExCommand &cmd);
-    void requestDisableBlockSelection();
-    void requestSetBlockSelection(const QTextCursor&);
-    void requestBlockSelection(QTextCursor*);
-    void requestHasBlockSelection(bool *on);
-    void foldToggle(int depth);
-    void foldAll(bool fold);
-    void fold(int depth, bool fold);
-    void foldGoTo(int count, bool current);
-    void jumpToGlobalMark(QChar mark, bool backTickMode, const QString &fileName);
+    void commandBufferChanged(FakeVimHandler *self, const QString &msg, int cursorPos, int anchorPos,
+                              int messageLevel);
+    void statusDataChanged(FakeVimHandler *self, const QString &msg);
+    void extraInformationChanged(FakeVimHandler *self, const QString &msg);
+    void selectionChanged(FakeVimHandler *self, const QList<QTextEdit::ExtraSelection> &selection);
+    void highlightMatches(FakeVimHandler *self, const QString &needle);
+    void writeAllRequested(FakeVimHandler *self, QString *error);
+    void moveToMatchingParenthesis(FakeVimHandler *self, bool *moved, bool *forward, QTextCursor *cursor);
+    void checkForElectricCharacter(FakeVimHandler *self, bool *result, QChar c);
+    void indentRegion(FakeVimHandler *self, int beginLine, int endLine, QChar typedChar);
+    void completionRequested(FakeVimHandler *self);
+    void simpleCompletionRequested(FakeVimHandler *self, const QString &needle, bool forward);
+    void windowCommandRequested(FakeVimHandler *self, const QString &key, int count);
+    void findRequested(FakeVimHandler *self, bool reverse);
+    void findNextRequested(FakeVimHandler *self, bool reverse);
+    void handleExCommandRequested(FakeVimHandler *self, bool *handled, const ExCommand &cmd);
+    void requestDisableBlockSelection(FakeVimHandler *self);
+    void requestSetBlockSelection(FakeVimHandler *self, const QTextCursor &cursor);
+    void requestBlockSelection(FakeVimHandler *self, QTextCursor *cursor);
+    void requestHasBlockSelection(FakeVimHandler *self, bool *on);
+    void foldToggle(FakeVimHandler *self, int depth);
+    void foldAll(FakeVimHandler *self, bool fold);
+    void fold(FakeVimHandler *self, int depth, bool fold);
+    void foldGoTo(FakeVimHandler *self, int count, bool current);
+    void jumpToGlobalMark(FakeVimHandler *handler, QChar mark, bool backTickMode, const QString &fileName);
 
 public:
     class Private;
