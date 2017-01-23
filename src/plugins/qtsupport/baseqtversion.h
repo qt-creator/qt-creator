@@ -122,7 +122,7 @@ public:
     QList<ProjectExplorer::Abi> qtAbis() const;
     virtual QList<ProjectExplorer::Abi> detectQtAbis() const = 0;
 
-    enum PropertyVariant { PropertyVariantGet, PropertyVariantSrc };
+    enum PropertyVariant { PropertyVariantDev, PropertyVariantGet, PropertyVariantSrc };
     QString qmakeProperty(const QByteArray &name,
                           PropertyVariant variant = PropertyVariantGet) const;
     void applyProperties(QMakeGlobals *qmakeGlobals) const;

@@ -1207,7 +1207,8 @@ QString BaseQtVersion::qmakeProperty(const QHash<ProKey,ProString> &versionInfo,
                                      PropertyVariant variant)
 {
     QString val = versionInfo.value(ProKey(QString::fromLatin1(
-            name + (variant == PropertyVariantGet ? "/get" : "/src")))).toQString();
+            name + (variant == PropertyVariantDev ? "/dev" :
+                    variant == PropertyVariantGet ? "/get" : "/src")))).toQString();
     if (!val.isNull())
         return val;
     return versionInfo.value(ProKey(QString::fromLatin1(name))).toQString();

@@ -351,7 +351,7 @@ void QMakeGlobals::parseProperties(const QByteArray &data, QHash<ProKey, ProStri
                     variant = PropRaw;
                 else if (name.endsWith(QLatin1String("/get")))
                     variant = PropGet;
-                else  // Nothing falls back on /src.
+                else  // Nothing falls back on /src or /dev.
                     continue;
                 name.chop(4);
             } else {
@@ -372,6 +372,8 @@ void QMakeGlobals::parseProperties(const QByteArray &data, QHash<ProKey, ProStri
                     }
                     properties.insert(ProKey(name + QLatin1String("/raw")), value);
                 }
+                if (variant <= PropRaw)
+                    properties.insert(ProKey(name + QLatin1String("/dev")), value);
             } else if (!name.startsWith(QLatin1String("QT_HOST_"))) {
                 continue;
             }
