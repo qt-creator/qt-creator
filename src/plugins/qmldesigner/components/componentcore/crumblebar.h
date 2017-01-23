@@ -54,8 +54,8 @@ private:
     void showSaveDialog();
 
 private:
-    bool m_isInternalCalled;
-    Utils::CrumblePath *m_crumblePath;
+    bool m_isInternalCalled = false;
+    Utils::CrumblePath *m_crumblePath = nullptr;
 };
 
 class CrumbleBarInfo {
