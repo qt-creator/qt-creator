@@ -228,9 +228,8 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
 
 void QmlDesignerPlugin::extensionsInitialized()
 {
-    QStringList mimeTypes;
-    mimeTypes.append(QmlJSTools::Constants::QML_MIMETYPE);
-    mimeTypes.append(QmlJSTools::Constants::QMLUI_MIMETYPE);
+    const QStringList mimeTypes( {QmlJSTools::Constants::QML_MIMETYPE,
+        QmlJSTools::Constants::QMLUI_MIMETYPE} );
 
     Core::DesignMode::instance()->registerDesignWidget(d->mainWidget, mimeTypes, d->context->context());
     connect(Core::DesignMode::instance(), &Core::DesignMode::actionsUpdated,
