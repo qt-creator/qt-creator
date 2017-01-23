@@ -78,10 +78,10 @@ public:
     DocumentManager documentManager;
     ShortCutManager shortCutManager;
 
-    Internal::DesignModeWidget *mainWidget;
+    Internal::DesignModeWidget *mainWidget = nullptr;
 
     DesignerSettings settings;
-    Internal::DesignModeContext *context;
+    Internal::DesignModeContext *context = nullptr;
 };
 
 QmlDesignerPlugin *QmlDesignerPlugin::m_instance = nullptr;
