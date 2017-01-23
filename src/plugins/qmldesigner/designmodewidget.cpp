@@ -227,7 +227,7 @@ void DesignModeWidget::disableWidgets()
     m_isDisabled = true;
 }
 
-void DesignModeWidget::showTextEdit()
+void DesignModeWidget::switchTextOrForm()
 {
     m_centralTabWidget->setCurrentIndex(m_centralTabWidget->currentIndex() == 0 ? 1 : 0);
 }

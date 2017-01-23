@@ -60,7 +60,6 @@ const char FORWARD_PUPPET_OUTPUT[] = "ForwardPuppetOutput";
 const char REFORMAT_UI_QML_FILES[] = "ReformatUiQmlFiles"; /* This Setting is not exposed in ui.
                                                               The setting can be used to turn off the feature,
                                                               if there are serious issues */
-const char TEXTEDIT_IN_DESIGNMODE[] = "TextEditInDesignMode";
 const char STATESEDITOR_EXPANDED[] = "StatesEditorExpanded";
 }
 

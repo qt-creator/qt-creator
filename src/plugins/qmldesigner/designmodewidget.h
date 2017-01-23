@@ -79,7 +79,7 @@ public:
 
     void enableWidgets();
     void disableWidgets();
-    void showTextEdit();
+    void switchTextOrForm();
 
     void showWarningMessageBox(const QList<DocumentMessage> &warnings);
     bool gotoCodeWasClicked();

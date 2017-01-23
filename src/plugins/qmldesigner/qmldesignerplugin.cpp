@@ -130,12 +130,6 @@ static bool shouldAssertInException()
     return !processEnvironment.value("QMLDESIGNER_ASSERT_ON_EXCEPTION").isEmpty();
 }
 
-static bool useTextEditInDesignMode()
-{
-    DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
-    return settings.value(DesignerSettingsKey::TEXTEDIT_IN_DESIGNMODE, true).toBool();
-}
-
 static bool warningsForQmlFilesInsteadOfUiQmlEnabled()
 {
     return DesignerSettings::getValue(DesignerSettingsKey::WARNING_FOR_QML_FILES_INSTEAD_OF_UIQML_FILES).toBool();
@@ -184,9 +178,22 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
 {
     if (!Utils::HostOsInfo::canCreateOpenGLContext(errorMessage))
         return false;
-
     d = new QmlDesignerPluginPrivate;
+    d->mainWidget = new Internal::DesignModeWidget;
+    return true;
+}
 
+bool QmlDesignerPlugin::delayedInitialize()
+{
+    integrateIntoQtCreator(d->mainWidget);
+    // adding default path to item library plugins
+    const QString pluginPath = Utils::HostOsInfo::isMacHost()
+            ? QString(QCoreApplication::applicationDirPath() + "/../PlugIns/QmlDesigner")
+            : QString(QCoreApplication::applicationDirPath() + "/../"
+                      + QLatin1String(IDE_LIBRARY_BASENAME) + "/qtcreator/plugins/qmldesigner");
+    MetaInfo::setPluginPaths(QStringList(pluginPath));
+
+    addAutoReleasedObject(new Internal::SettingsPage);
     d->settings.fromSettings(Core::ICore::settings());
 
     d->viewManager.registerViewTakingOwnership(new QmlDesigner::Internal::ConnectionView());
@@ -195,45 +202,11 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
     d->viewManager.registerFormEditorToolTakingOwnership(new QmlDesigner::TextTool);
     d->viewManager.registerFormEditorToolTakingOwnership(new QmlDesigner::PathTool);
 
-    const Core::Context switchContext(QmlDesigner::Constants::C_QMLDESIGNER,
-        QmlJSEditor::Constants::C_QMLJSEDITOR_ID);
-
-    QAction *switchTextDesignAction = new QAction(tr("Switch Text/Design"), this);
-    Core::Command *command = Core::ActionManager::registerAction(
-                switchTextDesignAction, QmlDesigner::Constants::SWITCH_TEXT_DESIGN, switchContext);
-    command->setDefaultKeySequence(QKeySequence(Qt::Key_F4));
-
-    // adding default path to item library plugins
-    const QString pluginPath = Utils::HostOsInfo::isMacHost()
-            ? QString(QCoreApplication::applicationDirPath() + "/../PlugIns/QmlDesigner")
-            : QString(QCoreApplication::applicationDirPath() + "/../"
-                      + QLatin1String(IDE_LIBRARY_BASENAME) + "/qtcreator/plugins/qmldesigner");
-    MetaInfo::setPluginPaths(QStringList(pluginPath));
-
-    createDesignModeWidget();
-    connect(switchTextDesignAction, &QAction::triggered, this, [this](){
-        if (Core::ModeManager::currentMode() == Core::Constants::MODE_DESIGN) {
-            if (useTextEditInDesignMode()) {
-                d->mainWidget->showTextEdit();
-            } else {
-                Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
-            }
-        }
-    });
-
-    addAutoReleasedObject(new Internal::SettingsPage);
-
     return true;
 }
 
 void QmlDesignerPlugin::extensionsInitialized()
 {
-    const QStringList mimeTypes( {QmlJSTools::Constants::QML_MIMETYPE,
-        QmlJSTools::Constants::QMLUI_MIMETYPE} );
-
-    Core::DesignMode::instance()->registerDesignWidget(d->mainWidget, mimeTypes, d->context->context());
-    connect(Core::DesignMode::instance(), &Core::DesignMode::actionsUpdated,
-        &d->shortCutManager, &ShortCutManager::updateActions);
 }
 
 static QStringList allUiQmlFilesforCurrentProject(const Utils::FileName &fileName)
@@ -262,11 +235,9 @@ static QString projectPath(const Utils::FileName &fileName)
     return path;
 }
 
-void QmlDesignerPlugin::createDesignModeWidget()
+void QmlDesignerPlugin::integrateIntoQtCreator(QWidget *modeWidget)
 {
-    d->mainWidget = new Internal::DesignModeWidget;
-
-    d->context = new Internal::DesignModeContext(d->mainWidget);
+    d->context = new Internal::DesignModeContext(modeWidget);
     Core::ICore::addContextObject(d->context);
     Core::Context qmlDesignerMainContext(Constants::C_QMLDESIGNER);
     Core::Context qmlDesignerFormEditorContext(Constants::C_QMLFORMEDITOR);
@@ -279,14 +250,22 @@ void QmlDesignerPlugin::createDesignModeWidget()
 
     d->shortCutManager.registerActions(qmlDesignerMainContext, qmlDesignerFormEditorContext, qmlDesignerNavigatorContext);
 
-    connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged, [=] (Core::IEditor *editor) {
+    const QStringList mimeTypes = { QmlJSTools::Constants::QML_MIMETYPE,
+                                    QmlJSTools::Constants::QMLUI_MIMETYPE };
+
+    Core::DesignMode::instance()->registerDesignWidget(modeWidget, mimeTypes, d->context->context());
+
+    connect(Core::DesignMode::instance(), &Core::DesignMode::actionsUpdated,
+        &d->shortCutManager, &ShortCutManager::updateActions);
+
+    connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged, [this] (Core::IEditor *editor) {
         if (d && checkIfEditorIsQtQuick(editor) && isInDesignerMode()) {
             d->shortCutManager.updateActions(editor);
             changeEditor();
         }
     });
 
-    connect(Core::EditorManager::instance(), &Core::EditorManager::editorsClosed, [=] (QList<Core::IEditor*> editors) {
+    connect(Core::EditorManager::instance(), &Core::EditorManager::editorsClosed, [this] (QList<Core::IEditor*> editors) {
         if (d) {
             if (d->documentManager.hasCurrentDesignDocument()
                     && editors.contains(currentDesignDocument()->textEditor()))
@@ -297,7 +276,7 @@ void QmlDesignerPlugin::createDesignModeWidget()
     });
 
     connect(Core::ModeManager::instance(), &Core::ModeManager::currentModeChanged,
-        [=] (Core::Id newMode, Core::Id oldMode) {
+        [this] (Core::Id newMode, Core::Id oldMode) {
 
         Core::IEditor *currentEditor = Core::EditorManager::currentEditor();
         if (d && currentEditor && checkIfEditorIsQtQuick(currentEditor) &&

@@ -62,6 +62,7 @@ public:
 
     //Plugin
     bool initialize(const QStringList &arguments, QString *errorMessage = 0) override;
+    bool delayedInitialize() override;
     void extensionsInitialized() override;
 
     static QmlDesignerPlugin *instance();
@@ -84,7 +85,7 @@ public:
     void switchToTextModeDeferred();
 
 private: // functions
-    void createDesignModeWidget();
+    void integrateIntoQtCreator(QWidget *modeWidget);
     void showDesigner();
     void hideDesigner();
     void changeEditor();
