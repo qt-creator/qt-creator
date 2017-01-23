@@ -352,7 +352,8 @@ void  DragTool::move(const QPointF &scenePosition, const QList<QGraphicsItem*> &
         if (containerItem && m_movingItem->parentItem() &&
                 containerItem != m_movingItem->parentItem()) {
 
-            m_moveManipulator.reparentTo(containerItem);
+            if (m_movingItem->qmlItemNode().canBereparentedTo(containerItem->qmlItemNode()))
+                m_moveManipulator.reparentTo(containerItem);
         }
 
         Snapper::Snapping useSnapping = Snapper::UseSnapping;

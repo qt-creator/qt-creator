@@ -101,7 +101,12 @@ void MoveTool::mouseMoveEvent(const QList<QGraphicsItem*> &itemList,
         if (containerItem && view()->currentState().isBaseState()) {
             if (containerItem != m_movingItems.first()->parentItem()
                     && event->modifiers().testFlag(Qt::ShiftModifier)) {
-                m_moveManipulator.reparentTo(containerItem);
+
+                FormEditorItem *movingItem = m_movingItems.first();
+
+                if (m_movingItems.count() > 1
+                        || (movingItem->qmlItemNode().canBereparentedTo(containerItem->qmlItemNode())))
+                        m_moveManipulator.reparentTo(containerItem);
             }
         }
 
