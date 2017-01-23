@@ -103,7 +103,10 @@ void ServerModeReader::setParameters(const BuildDirReader::Parameters &p)
         connect(m_cmakeServer.get(), &ServerMode::connected,
                 this, &ServerModeReader::isReadyNow, Qt::QueuedConnection); // Delay
         connect(m_cmakeServer.get(), &ServerMode::disconnected,
-                this, [this]() { m_cmakeServer.reset(); }, Qt::QueuedConnection); // Delay
+                this, [this]() {
+            stop();
+            m_cmakeServer.reset();
+        }, Qt::QueuedConnection); // Delay
     }
 }
 
