@@ -13,6 +13,10 @@
     <value type="QByteArray" key="PE.Profile.DeviceType">Desktop</value>
     <value type="QString" key="PE.Profile.SysRoot"></value>
     <value type="QString" key="PE.Profile.ToolChain">ProjectExplorer.ToolChain.Gcc:{c3f59b87-6997-4bd8-8067-ee04dc536371}</value>
+    <valuemap type="QVariantMap" key="PE.Profile.ToolChains">
+     <value type="QByteArray" key="C">{461bb8dc-22ff-461f-82fe-ebe8b21b697f}</value>
+     <value type="QString" key="Cxx">ProjectExplorer.ToolChain.Gcc:{c3f59b87-6997-4bd8-8067-ee04dc536371}</value>
+    </valuemap>
     <value type="QString" key="QtPM4.mkSpecInformation"></value>
     <value type="int" key="QtSupport.QtInformation">4</value>
    </valuemap>
@@ -97,6 +101,10 @@
     <value type="QByteArray" key="PE.Profile.DeviceType">GenericLinuxOsType</value>
     <value type="QString" key="PE.Profile.SysRoot"></value>
     <value type="QString" key="PE.Profile.ToolChain">ProjectExplorer.ToolChain.Gcc:{c3f59b87-6997-4bd8-8067-ee04dc536371}</value>
+    <valuemap type="QVariantMap" key="PE.Profile.ToolChains">
+     <value type="QByteArray" key="C">{461bb8dc-22ff-461f-82fe-ebe8b21b697f}</value>
+     <value type="QString" key="Cxx">ProjectExplorer.ToolChain.Gcc:{c3f59b87-6997-4bd8-8067-ee04dc536371}</value>
+    </valuemap>
     <value type="QString" key="QtPM4.mkSpecInformation"></value>
     <value type="int" key="QtSupport.QtInformation">4</value>
    </valuemap>
@@ -119,6 +127,10 @@
     <value type="QByteArray" key="PE.Profile.DeviceType">Desktop</value>
     <value type="QString" key="PE.Profile.SysRoot"></value>
     <value type="QString" key="PE.Profile.ToolChain">ProjectExplorer.ToolChain.Clang:{6afe7dea-8caa-424e-b370-b7b0a34015fb}</value>
+    <valuemap type="QVariantMap" key="PE.Profile.ToolChains">
+     <value type="QByteArray" key="C">{0db093b8-890b-4fad-a4bc-9078124fe866}</value>
+     <value type="QString" key="Cxx">ProjectExplorer.ToolChain.Clang:{6afe7dea-8caa-424e-b370-b7b0a34015fb}</value>
+    </valuemap>
     <value type="QString" key="QtPM4.mkSpecInformation"></value>
     <value type="int" key="QtSupport.QtInformation">9</value>
    </valuemap>
@@ -141,6 +153,10 @@
     <value type="QByteArray" key="PE.Profile.DeviceType">Desktop</value>
     <value type="QString" key="PE.Profile.SysRoot"></value>
     <value type="QString" key="PE.Profile.ToolChain">ProjectExplorer.ToolChain.Gcc:{c3f59b87-6997-4bd8-8067-ee04dc536371}</value>
+    <valuemap type="QVariantMap" key="PE.Profile.ToolChains">
+     <value type="QByteArray" key="C">{461bb8dc-22ff-461f-82fe-ebe8b21b697f}</value>
+     <value type="QString" key="Cxx">ProjectExplorer.ToolChain.Gcc:{c3f59b87-6997-4bd8-8067-ee04dc536371}</value>
+    </valuemap>
     <value type="QString" key="QtPM4.mkSpecInformation"></value>
     <value type="int" key="QtSupport.QtInformation">2</value>
    </valuemap>
@@ -163,6 +179,10 @@
     <value type="QByteArray" key="PE.Profile.DeviceType">Desktop</value>
     <value type="QString" key="PE.Profile.SysRoot"></value>
     <value type="QString" key="PE.Profile.ToolChain">ProjectExplorer.ToolChain.Clang:{6afe7dea-8caa-424e-b370-b7b0a34015fb}</value>
+    <valuemap type="QVariantMap" key="PE.Profile.ToolChains">
+     <value type="QByteArray" key="C">{0db093b8-890b-4fad-a4bc-9078124fe866}</value>
+     <value type="QString" key="Cxx">ProjectExplorer.ToolChain.Clang:{6afe7dea-8caa-424e-b370-b7b0a34015fb}</value>
+    </valuemap>
     <value type="QString" key="QtPM4.mkSpecInformation"></value>
     <value type="int" key="QtSupport.QtInformation">11</value>
    </valuemap>

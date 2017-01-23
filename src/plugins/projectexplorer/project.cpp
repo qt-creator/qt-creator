@@ -276,6 +276,7 @@ Target *Project::createTarget(Kit *k)
 
 bool Project::copySteps(Target *sourceTarget, Target *newTarget)
 {
+    QTC_ASSERT(newTarget, return false);
     bool fatalError = false;
     QStringList buildconfigurationError;
     QStringList deployconfigurationError;

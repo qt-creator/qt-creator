@@ -489,6 +489,8 @@ void LldbEngine::handleResponse(const QString &response)
             handleLocationNotification(item);
         else if (name == "output")
             handleOutputNotification(item);
+        else if (name == "pid")
+            notifyInferiorPid(item.toLongLong());
     }
 }
 

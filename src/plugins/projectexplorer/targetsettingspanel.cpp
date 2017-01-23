@@ -443,7 +443,7 @@ public:
         });
 
         QMenu *copyMenu = menu->addMenu(tr("Copy Steps From Other Kit..."));
-        if (m_kitId.isValid()) {
+        if (m_kitId.isValid() && m_project->target(m_kitId)) {
             const QList<Kit *> kits = KitManager::kits();
             for (Kit *kit : kits) {
                 QAction *copyAction = copyMenu->addAction(kit->displayName());
