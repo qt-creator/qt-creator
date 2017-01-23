@@ -77,6 +77,15 @@ exists(src/shared/qbs/qbs.pro) {
         QBS_CONFIG_ADDITION = qbs_no_dev_install qbs_enable_project_file_updates
         cache(CONFIG, add, QBS_CONFIG_ADDITION)
     }
+
+    # Create qbs documentation targets.
+    QBS_DOCS_BUILD_DIR=$$IDE_DOC_PATH
+    QBS_HTML_DOC_PATH=$$OUT_PWD/doc/html-qbs
+    QBS_DOCS_INSTALL_DIR=$$INSTALL_DOC_PATH
+    include(src/shared/qbs/qbs_version.pri)
+    include(src/shared/qbs/doc/doc_targets.pri)
+    docs.depends += qbs_docs
+    install_docs.depends += install_inst_qbs_qch_docs
 }
 
 contains(QT_ARCH, i386): ARCHITECTURE = x86
