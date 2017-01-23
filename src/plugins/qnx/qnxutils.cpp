@@ -71,17 +71,17 @@ QString QnxUtils::cpuDirShortDescription(const QString &cpuDir)
 
 QStringList QnxUtils::searchPaths(QnxQtVersion *qtVersion)
 {
-    const QDir pluginDir(qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_PLUGINS")));
+    const QDir pluginDir(qtVersion->qmakeProperty("QT_INSTALL_PLUGINS"));
     const QStringList pluginSubDirs = pluginDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
 
     QStringList searchPaths;
 
     Q_FOREACH (const QString &dir, pluginSubDirs) {
-        searchPaths << qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_PLUGINS"))
+        searchPaths << qtVersion->qmakeProperty("QT_INSTALL_PLUGINS")
                        + QLatin1Char('/') + dir;
     }
 
-    searchPaths << qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_LIBS"));
+    searchPaths << qtVersion->qmakeProperty("QT_INSTALL_LIBS");
     searchPaths << qtVersion->qnxTarget() + QLatin1Char('/') + qtVersion->cpuDir()
                    + QLatin1String("/lib");
     searchPaths << qtVersion->qnxTarget() + QLatin1Char('/') + qtVersion->cpuDir()

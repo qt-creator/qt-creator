@@ -148,7 +148,7 @@ void QnxQtVersion::addToEnvironment(const ProjectExplorer::Kit *k, Utils::Enviro
     updateEnvironment();
     env.modify(m_qnxEnv);
 
-    env.prependOrSetLibrarySearchPath(versionInfo().value(QLatin1String("QT_INSTALL_LIBS")));
+    env.prependOrSetLibrarySearchPath(qmakeProperty("QT_INSTALL_LIBS"));  // FIXME: PropertyVariantDev
 }
 
 Utils::Environment QnxQtVersion::qmakeRunEnvironment() const

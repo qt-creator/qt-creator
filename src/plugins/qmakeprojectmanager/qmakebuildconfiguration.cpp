@@ -584,7 +584,7 @@ QmakeBuildInfo *QmakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
         QString projectDirectory = projectFilePath.toFileInfo().absolutePath();
         QDir qtSourceDir = QDir(version->sourcePath().toString());
         QString relativeProjectPath = qtSourceDir.relativeFilePath(projectDirectory);
-        QString qtBuildDir = version->versionInfo().value(QStringLiteral("QT_INSTALL_PREFIX"));
+        QString qtBuildDir = version->qmakeProperty("QT_INSTALL_PREFIX");
         QString absoluteBuildPath = QDir::cleanPath(qtBuildDir + QLatin1Char('/') + relativeProjectPath);
 
         info->buildDirectory = FileName::fromString(absoluteBuildPath);

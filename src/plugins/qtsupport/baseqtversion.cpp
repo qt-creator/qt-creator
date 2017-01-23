@@ -1018,7 +1018,7 @@ void BaseQtVersion::ensureMkSpecParsed() const
 
     QMakeVfs vfs;
     QMakeGlobals option;
-    option.setProperties(versionInfo());
+    applyProperties(&option);
     option.environment = qmakeRunEnvironment().toProcessEnvironment();
     ProMessageHandler msgHandler(true);
     ProFileCacheManager::instance()->incRefCount();
@@ -1212,10 +1212,15 @@ QString BaseQtVersion::qmakeProperty(const QHash<QString,QString> &versionInfo, 
     return versionInfo.value(QString::fromLatin1(name));
 }
 
-QString BaseQtVersion::qmakeProperty(const QByteArray &name) const
+QString BaseQtVersion::qmakeProperty(const QByteArray &name, PropertyVariant variant) const
 {
     updateVersionInfo();
-    return qmakeProperty(m_versionInfo, name);
+    return qmakeProperty(m_versionInfo, name, variant);
+}
+
+void BaseQtVersion::applyProperties(QMakeGlobals *qmakeGlobals) const
+{
+    qmakeGlobals->setProperties(versionInfo());
 }
 
 bool BaseQtVersion::hasDocumentation() const

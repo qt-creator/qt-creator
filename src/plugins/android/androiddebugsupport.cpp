@@ -131,7 +131,7 @@ RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *
         Kit *kit = target->kit();
         QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
         if (version) {
-            const QString qmlQtDir = version->versionInfo().value(QLatin1String("QT_INSTALL_QML"));
+            const QString qmlQtDir = version->qmakeProperty("QT_INSTALL_QML");
             params.additionalSearchDirectories = QStringList(qmlQtDir);
         }
     }

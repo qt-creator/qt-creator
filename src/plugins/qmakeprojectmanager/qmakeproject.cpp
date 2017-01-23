@@ -819,7 +819,7 @@ QtSupport::ProFileReader *QmakeProject::createProFileReader(const QmakeProFileNo
 
         if (qtVersion && qtVersion->isValid()) {
             m_qmakeGlobals->qmake_abslocation = QDir::cleanPath(qtVersion->qmakeCommand().toString());
-            m_qmakeGlobals->setProperties(qtVersion->versionInfo());
+            qtVersion->applyProperties(m_qmakeGlobals);
         }
         m_qmakeGlobals->setDirectories(rootProjectNode()->sourceDir(), rootProjectNode()->buildDir());
 
