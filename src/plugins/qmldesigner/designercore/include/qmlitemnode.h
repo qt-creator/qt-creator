@@ -91,6 +91,7 @@ public:
 
     bool modelIsMovable() const;
     bool modelIsResizable() const;
+    bool modelIsInLayout() const;
 
     QRectF instanceBoundingRect() const;
     QRectF instancePaintedBoundingRect() const;
@@ -120,6 +121,7 @@ public:
 
     void setSize(const QSizeF &size);
     bool isInLayout() const;
+    bool canBereparentedTo(const ModelNode &potentialParent);
 };
 
 QMLDESIGNERCORE_EXPORT uint qHash(const QmlItemNode &node);

@@ -27,6 +27,7 @@
 #include <metainfo.h>
 #include "qmlchangeset.h"
 #include "nodelistproperty.h"
+#include "nodehints.h"
 #include "variantproperty.h"
 #include "bindingproperty.h"
 #include "qmlanchors.h"
@@ -367,29 +368,47 @@ bool itemIsMovable(const ModelNode &modelNode)
     if (modelNode.metaInfo().isSubclassOf("QtQuick.Controls.Tab"))
         return false;
 
-    if (modelNode.hasParentProperty()) {
-        ModelNode parentModelNode = modelNode.parentProperty().parentModelNode();
-        if (QmlItemNode::isValidQmlItemNode(parentModelNode)
-                && parentModelNode.metaInfo().isLayoutable())
-            return false;
-    }
-
-    return true;
+    NodeHints nodeHints(modelNode);
+    return nodeHints.isMovable();
 }
 
+bool itemIsResizable(const ModelNode &modelNode)
+{
+    if (modelNode.metaInfo().isSubclassOf("QtQuick.Controls.Tab"))
+        return false;
+
+    NodeHints nodeHints(modelNode);
+    return nodeHints.isResizable();
+}
 
 bool QmlItemNode::modelIsMovable() const
 {
     return !modelNode().hasBindingProperty("x")
             && !modelNode().hasBindingProperty("y")
-            && itemIsMovable(modelNode());
+            && itemIsMovable(modelNode())
+            && !modelIsInLayout();
 }
 
 bool QmlItemNode::modelIsResizable() const
 {
     return !modelNode().hasBindingProperty("width")
             && !modelNode().hasBindingProperty("height")
-            && itemIsMovable(modelNode());
+            && itemIsResizable(modelNode())
+            && !modelIsInLayout();
+}
+
+bool QmlItemNode::modelIsInLayout() const
+{
+    if (modelNode().hasParentProperty()) {
+        ModelNode parentModelNode = modelNode().parentProperty().parentModelNode();
+        if (QmlItemNode::isValidQmlItemNode(parentModelNode)
+                && parentModelNode.metaInfo().isLayoutable())
+            return true;
+        NodeHints nodeHint(parentModelNode);
+        return nodeHint.doesLayoutChildren();
+    }
+
+    return false;
 }
 
 QRectF  QmlItemNode::instanceBoundingRect() const
@@ -604,6 +623,16 @@ bool QmlItemNode::isInLayout() const
 
     return false;
 }
+
+bool QmlItemNode::canBereparentedTo(const ModelNode &potentialParent)
+{
+    NodeHints parentHints(potentialParent);
+    if (!parentHints.canBeContainerFor(modelNode()))
+        return false;
+    NodeHints nodeHints(modelNode());
+    return nodeHints.canBeReparentedTo(potentialParent);
+}
+
 
 void QmlItemNode::setSize(const QSizeF &size)
 {
