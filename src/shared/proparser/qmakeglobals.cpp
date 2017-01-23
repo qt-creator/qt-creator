@@ -324,6 +324,13 @@ bool QMakeGlobals::initProperties()
         QT_PCLOSE(proc);
     }
 #endif
+    parseProperties(data, properties);
+    return true;
+}
+#endif
+
+void QMakeGlobals::parseProperties(const QByteArray &data, QHash<ProKey, ProString> &properties)
+{
     const auto lines = data.split('\n');
     for (QByteArray line : lines) {
         int off = line.indexOf(':');
@@ -334,6 +341,8 @@ bool QMakeGlobals::initProperties()
         QString name = QString::fromLatin1(line.left(off));
         ProString value = ProString(QDir::fromNativeSeparators(
                     QString::fromLocal8Bit(line.mid(off + 1))));
+        if (value.isNull())
+            value = ProString(""); // Make sure it is not null, to discern from missing keys
         properties.insert(ProKey(name), value);
         if (name.startsWith(QLatin1String("QT_"))) {
             bool plain = !name.contains(QLatin1Char('/'));
@@ -365,9 +374,7 @@ bool QMakeGlobals::initProperties()
             }
         }
     }
-    return true;
 }
-#endif
 #endif // QT_BUILD_QMAKE
 
 QT_END_NAMESPACE

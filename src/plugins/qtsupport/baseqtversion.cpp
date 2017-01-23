@@ -1447,33 +1447,8 @@ bool BaseQtVersion::queryQMakeVariables(const FileName &binary, const Environmen
     if (output.isNull())
         return false;
 
-    QTextStream stream(&output);
-    while (!stream.atEnd()) {
-        const QString line = stream.readLine();
-        const int index = line.indexOf(QLatin1Char(':'));
-        if (index != -1) {
-            QString name = line.left(index);
-            ProString value(QDir::fromNativeSeparators(line.mid(index+1)));
-            if (value.isNull())
-                value = ProString(""); // Make sure it is not null, to discern from missing keys
-            versionInfo->insert(ProKey(name), value);
-            if (name.startsWith(QLatin1String("QT_")) && !name.contains(QLatin1Char('/'))) {
-                if (name.startsWith(QLatin1String("QT_INSTALL_"))) {
-                    versionInfo->insert(ProKey(name + QLatin1String("/raw")), value);
-                    versionInfo->insert(ProKey(name + QLatin1String("/get")), value);
-                    if (name == QLatin1String("QT_INSTALL_PREFIX")
-                        || name == QLatin1String("QT_INSTALL_DATA")
-                        || name == QLatin1String("QT_INSTALL_BINS")) {
-                        name.replace(3, 7, QLatin1String("HOST"));
-                        versionInfo->insert(ProKey(name), value);
-                        versionInfo->insert(ProKey(name + QLatin1String("/get")), value);
-                    }
-                } else if (name.startsWith(QLatin1String("QT_HOST_"))) {
-                    versionInfo->insert(ProKey(name + QLatin1String("/get")), value);
-                }
-            }
-        }
-    }
+    QMakeGlobals::parseProperties(output, *versionInfo);
+
     return true;
 }
 
