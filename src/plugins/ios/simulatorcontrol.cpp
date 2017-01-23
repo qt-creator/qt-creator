@@ -75,12 +75,10 @@ static bool runCommand(QString command, const QStringList &args, QByteArray *out
     return resp.result == Utils::SynchronousProcessResponse::Finished;
 }
 
-static QByteArray runSimCtlCommand(QStringList args)
+static bool runSimCtlCommand(QStringList args, QByteArray *output)
 {
-    QByteArray output;
     args.prepend(QStringLiteral("simctl"));
-    runCommand(QStringLiteral("xcrun"), args, &output);
-    return output;
+    return runCommand(QStringLiteral("xcrun"), args, output);
 }
 
 class SimulatorControlPrivate {
@@ -133,7 +131,8 @@ QList<Ios::Internal::IosDeviceType> SimulatorControl::availableSimulators()
 static QList<IosDeviceType> getAvailableSimulators()
 {
     QList<IosDeviceType> availableDevices;
-    const QByteArray output = runSimCtlCommand({QLatin1String("list"), QLatin1String("-j"), QLatin1String("devices")});
+    QByteArray output;
+    runSimCtlCommand({QLatin1String("list"), QLatin1String("-j"), QLatin1String("devices")}, &output);
     QJsonDocument doc = QJsonDocument::fromJson(output);
     if (!doc.isNull()) {
         const QJsonObject buildInfo = doc.object().value("devices").toObject();
@@ -219,7 +218,8 @@ SimulatorControlPrivate::SimDeviceInfo SimulatorControlPrivate::deviceInfo(const
     SimDeviceInfo info;
     bool found = false;
     if (!simUdid.isEmpty()) {
-        const QByteArray output = runSimCtlCommand({QLatin1String("list"), QLatin1String("-j"), QLatin1String("devices")});
+        QByteArray output;
+        runSimCtlCommand({QLatin1String("list"), QLatin1String("-j"), QLatin1String("devices")}, &output);
         QJsonDocument doc = QJsonDocument::fromJson(output);
         if (!doc.isNull()) {
             const QJsonObject buildInfo = doc.object().value(QStringLiteral("devices")).toObject();
@@ -331,14 +331,12 @@ void SimulatorControlPrivate::installApp(QFutureInterface<SimulatorControl::Resp
                                          const QString &simUdid, const Utils::FileName &bundlePath)
 {
     QTC_CHECK(bundlePath.exists());
-    QByteArray output = runSimCtlCommand({QStringLiteral("install"), simUdid, bundlePath.toString()});
-    SimulatorControl::ResponseData response(simUdid);
-    response.success = output.isEmpty();
-    response.commandOutput = output;
 
-    if (!fi.isCanceled()) {
+    SimulatorControl::ResponseData response(simUdid);
+    response.success = runSimCtlCommand({QStringLiteral("install"), simUdid, bundlePath.toString()},
+                                        &response.commandOutput);
+    if (!fi.isCanceled())
         fi.reportResult(response);
-    }
 }
 
 void SimulatorControlPrivate::launchApp(QFutureInterface<SimulatorControl::ResponseData> &fi,
@@ -365,11 +363,12 @@ void SimulatorControlPrivate::launchApp(QFutureInterface<SimulatorControl::Respo
                 args << extraArgument;
         }
 
-        response.commandOutput = runSimCtlCommand(args);
-        const QByteArray pIdStr = response.commandOutput.trimmed().split(' ').last().trimmed();
-        bool validPid = false;
-        response.pID = pIdStr.toLongLong(&validPid);
-        response.success = validPid;
+        if (runSimCtlCommand(args, &response.commandOutput)) {
+            const QByteArray pIdStr = response.commandOutput.trimmed().split(' ').last().trimmed();
+            bool validPid = false;
+            response.pID = pIdStr.toLongLong(&validPid);
+            response.success = validPid;
+        }
     }
 
     if (!fi.isCanceled()) {
