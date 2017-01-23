@@ -42,6 +42,11 @@
 class CurrentSymbolGroup
 {
 public:
+    CurrentSymbolGroup() = default;
+    ~CurrentSymbolGroup()
+    {
+        releaseSymbolGroup();
+    }
     IDebugSymbolGroup2 *get()
     {
         ULONG threadId = ExtensionCommandContext::instance()->threadId();
@@ -68,11 +73,19 @@ private:
     IDebugSymbolGroup2 *create(ULONG threadId, ULONG64 frameNumber)
     {
         CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
-        if (FAILED(symbols->GetScopeSymbolGroup2(DEBUG_SCOPE_GROUP_ALL, NULL, &m_symbolGroup)))
+        releaseSymbolGroup();
+        if (FAILED(symbols->GetScopeSymbolGroup2(DEBUG_SCOPE_GROUP_ALL, NULL, &m_symbolGroup))) {
+            releaseSymbolGroup();
             return nullptr;
+        }
         m_frameNumber = frameNumber;
         m_threadId = threadId;
         return m_symbolGroup;
+    }
+    void releaseSymbolGroup ()
+    {
+        if (m_symbolGroup)
+            m_symbolGroup->Release();
     }
 
 private:
