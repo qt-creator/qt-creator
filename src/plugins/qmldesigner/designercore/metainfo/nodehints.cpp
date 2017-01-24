@@ -150,7 +150,7 @@ bool NodeHints::isStackedContainer() const
 bool NodeHints::canBeReparentedTo(const ModelNode &potenialParent)
 {
     if (!isValid())
-        return false;
+        return true;
 
     return evaluateBooleanExpression("canBeReparented", true, potenialParent);
 }
