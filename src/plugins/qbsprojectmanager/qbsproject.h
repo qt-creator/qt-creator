@@ -139,6 +139,7 @@ private:
     void handleRuleExecutionDone();
     bool checkCancelStatus();
     void updateAfterParse();
+    void updateProjectNodes();
     void projectLoaded() override;
 
     static bool ensureWriteableQbsFile(const QString &file);

@@ -68,6 +68,7 @@
 
 #include <QCoreApplication>
 #include <QDir>
+#include <QElapsedTimer>
 #include <QFileInfo>
 #include <QMessageBox>
 #include <QVariantMap>
@@ -91,6 +92,26 @@ static const char CONFIG_INCLUDEPATHS[] = "includePaths";
 static const char CONFIG_SYSTEM_INCLUDEPATHS[] = "systemIncludePaths";
 static const char CONFIG_FRAMEWORKPATHS[] = "frameworkPaths";
 static const char CONFIG_SYSTEM_FRAMEWORKPATHS[] = "systemFrameworkPaths";
+
+class OpTimer
+{
+public:
+    OpTimer(const char *name) : m_name(name)
+    {
+        m_timer.start();
+    }
+    ~OpTimer()
+    {
+        if (qEnvironmentVariableIsSet(Constants::QBS_PROFILING_ENV)) {
+            MessageManager::write(QString("operation %1 took %2ms")
+                                  .arg(QLatin1String(m_name)).arg(m_timer.elapsed()));
+        }
+    }
+
+private:
+    QElapsedTimer m_timer;
+    const char * const m_name;
+};
 
 // --------------------------------------------------------------------
 // QbsProject:
@@ -459,12 +480,19 @@ bool QbsProject::checkCancelStatus()
 void QbsProject::updateAfterParse()
 {
     qCDebug(qbsPmLog) << "Updating data after parse";
-    rootProjectNode()->update();
+    OpTimer opTimer("updateAfterParse");
+    updateProjectNodes();
     updateDocuments(m_qbsProject.buildSystemFiles());
     updateBuildTargetData();
     updateCppCodeModel();
     updateQmlJsCodeModel();
     emit fileListChanged();
+}
+
+void QbsProject::updateProjectNodes()
+{
+    OpTimer opTimer("updateProjectNodes");
+    rootProjectNode()->update();
 }
 
 void QbsProject::handleQbsParsingDone(bool success)
@@ -621,13 +649,14 @@ void QbsProject::cancelParsing()
 
 void QbsProject::updateAfterBuild()
 {
+    OpTimer opTimer("updateAfterBuild");
     QTC_ASSERT(m_qbsProject.isValid(), return);
     const qbs::ProjectData &projectData = m_qbsProject.projectData();
     if (projectData == m_projectData)
         return;
     qCDebug(qbsPmLog) << "Updating data after build";
     m_projectData = projectData;
-    rootProjectNode()->update();
+    updateProjectNodes();
     updateBuildTargetData();
     updateCppCompilerCallData();
     if (m_extraCompilersPending) {
@@ -723,6 +752,7 @@ void QbsProject::prepareForParsing()
 
 void QbsProject::updateDocuments(const QSet<QString> &files)
 {
+    OpTimer opTimer("updateDocuments");
     // Update documents:
     QSet<QString> newFiles = files;
     QTC_ASSERT(!newFiles.isEmpty(), newFiles << projectFilePath().toString());
@@ -861,6 +891,7 @@ static void getExpandedCompilerFlags(QStringList &cFlags, QStringList &cxxFlags,
 
 void QbsProject::updateCppCodeModel()
 {
+    OpTimer optimer("updateCppCodeModel");
     if (!m_projectData.isValid())
         return;
 
@@ -1044,6 +1075,7 @@ void QbsProject::updateCppCodeModel()
 
 void QbsProject::updateCppCompilerCallData()
 {
+    OpTimer optimer("updateCppCompilerCallData");
     CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
     QTC_ASSERT(m_codeModelProjectInfo == modelManager->projectInfo(this), return);
 
@@ -1090,6 +1122,7 @@ void QbsProject::updateCppCompilerCallData()
 
 void QbsProject::updateQmlJsCodeModel()
 {
+    OpTimer optimer("updateQmlJsCodeModel");
     QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
     if (!modelManager)
         return;
@@ -1147,6 +1180,7 @@ void QbsProject::updateDeploymentInfo()
 
 void QbsProject::updateBuildTargetData()
 {
+    OpTimer optimer("updateBuildTargetData");
     updateApplicationTargets();
     updateDeploymentInfo();
     if (activeTarget())
