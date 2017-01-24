@@ -76,7 +76,8 @@ public:
     BasicSmallStringVector &operator=(const BasicSmallStringVector &) = default;
 
     BasicSmallStringVector(BasicSmallStringVector &&) noexcept = default;
-    BasicSmallStringVector &operator=(BasicSmallStringVector &&) = default;
+    BasicSmallStringVector &operator=(BasicSmallStringVector &&)
+        noexcept(std::is_nothrow_move_assignable<Base>::value) = default;
 
     SmallString join(SmallString &&separator) const
     {
