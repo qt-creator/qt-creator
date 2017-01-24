@@ -119,7 +119,6 @@ void FormEditorItem::updateVisibilty()
 {
 }
 
-
 FormEditorView *FormEditorItem::formEditorView() const
 {
     return scene()->editorView();
@@ -209,17 +208,6 @@ FormEditorItem* FormEditorItem::fromQGraphicsItem(QGraphicsItem *graphicsItem)
 {
     return qgraphicsitem_cast<FormEditorItem*>(graphicsItem);
 }
-
-//static QRectF alignedRect(const QRectF &rect)
-//{
-//    QRectF alignedRect(rect);
-//    alignedRect.setTop(std::floor(rect.top()) + 0.5);
-//    alignedRect.setBottom(std::floor(rect.bottom()) + 0.5);
-//    alignedRect.setLeft(std::floor(rect.left()) + 0.5);
-//    alignedRect.setRight(std::floor(rect.right()) + 0.5);
-//
-//    return alignedRect;
-//}
 
 void FormEditorItem::paintBoundingRect(QPainter *painter) const
 {
@@ -352,9 +340,6 @@ void FormEditorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, 
 
     if (!qmlItemNode().isRootModelNode())
         paintBoundingRect(painter);
-
-//    if (qmlItemNode().modelNode().metaInfo().isSubclassOf("QtQuick.Loader", -1, -1))
-//        paintComponentContentVisualisation(painter, boundingRect());
 
     painter->restore();
 }
