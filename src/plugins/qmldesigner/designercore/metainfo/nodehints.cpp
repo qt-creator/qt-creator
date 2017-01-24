@@ -76,7 +76,11 @@ QmlDesigner::NodeHints::NodeHints(const ModelNode &node) : m_modelNode(node)
         const ItemLibraryInfo *libraryInfo = model()->metaInfo().itemLibraryInfo();
         QList <ItemLibraryEntry> itemLibraryEntryList = libraryInfo->entriesForType(
                     modelNode().type(), modelNode().majorVersion(), modelNode().minorVersion());
-        m_hints =  itemLibraryEntryList.first().hints();
+
+
+        if (!itemLibraryEntryList.isEmpty())
+            m_hints = itemLibraryEntryList.first().hints();
+
     }
 }
 
@@ -114,7 +118,6 @@ bool NodeHints::doesLayoutChildren() const
 
 bool NodeHints::canBeDroppedInFormEditor() const
 {
-
     return evaluateBooleanExpression("canBeDroppedInFormEditor", true);
 }
 
