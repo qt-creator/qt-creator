@@ -614,7 +614,13 @@ QSize SelectorDelegate::sizeHint(const QStyleOptionViewItem &option, const QMode
     auto model = static_cast<const ProjectsModel *>(index.model());
     if (TreeItem *item = model->itemForIndex(index)) {
         switch (item->level()) {
-        case 2: s = QSize(s.width(), 3 * s.height()); break;
+        case 2:
+            s = QSize(s.width(), 3 * s.height());
+            break;
+        case 3:
+        case 4:
+            s = QSize(s.width(), s.height() * 1.2);
+            break;
         }
     }
     return s;
