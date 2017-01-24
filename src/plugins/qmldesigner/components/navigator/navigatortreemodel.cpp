@@ -27,6 +27,7 @@
 
 #include <bindingproperty.h>
 #include <nodeabstractproperty.h>
+#include <nodehints.h>
 #include <nodelistproperty.h>
 #include <nodeproperty.h>
 #include <variantproperty.h>
@@ -763,6 +764,10 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
 
     if (foundTarget) {
         ItemLibraryEntry itemLibraryEntry = itemLibraryEntryFromData(mimeData->data(QLatin1String("application/vnd.bauhaus.itemlibraryinfo")));
+
+         if (!NodeHints::fromItemLibraryEntry(itemLibraryEntry).canBeDroppedInNavigator())
+             return;
+
         QmlItemNode newQmlItemNode = QmlItemNode::createQmlItemNode(m_view, itemLibraryEntry, QPointF(), targetProperty);
 
         if (newQmlItemNode.isValid() && targetProperty.isNodeListProperty()) {
