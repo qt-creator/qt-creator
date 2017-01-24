@@ -120,133 +120,76 @@ public:
     void updateCurrentEditor(Core::IEditor *editor);
 
 public:
-    TextEditorActionHandler *q;
-    QAction *m_undoAction;
-    QAction *m_redoAction;
-    QAction *m_copyAction;
-    QAction *m_cutAction;
-    QAction *m_pasteAction;
-    QAction *m_circularPasteAction;
-    QAction *m_switchUtf8bomAction;
-    QAction *m_selectAllAction;
-    QAction *m_gotoAction;
-    QAction *m_printAction;
-    QAction *m_formatAction;
-    QAction *m_rewrapParagraphAction;
-    QAction *m_visualizeWhitespaceAction;
-    QAction *m_cleanWhitespaceAction;
-    QAction *m_textWrappingAction;
-    QAction *m_unCommentSelectionAction;
-    QAction *m_unfoldAllAction;
-    QAction *m_foldAction;
-    QAction *m_unfoldAction;
-    QAction *m_cutLineAction;
-    QAction *m_copyLineAction;
-    QAction *m_duplicateSelectionAction;
-    QAction *m_duplicateSelectionAndCommentAction;
-    QAction *m_deleteLineAction;
-    QAction *m_deleteEndOfWordAction;
-    QAction *m_deleteEndOfWordCamelCaseAction;
-    QAction *m_deleteStartOfWordAction;
-    QAction *m_deleteStartOfWordCamelCaseAction;
-    QAction *m_selectEncodingAction;
-    QAction *m_increaseFontSizeAction;
-    QAction *m_decreaseFontSizeAction;
-    QAction *m_resetFontSizeAction;
-    QAction *m_gotoBlockStartAction;
-    QAction *m_gotoBlockEndAction;
-    QAction *m_gotoBlockStartWithSelectionAction;
-    QAction *m_gotoBlockEndWithSelectionAction;
-    QAction *m_selectBlockUpAction;
-    QAction *m_selectBlockDownAction;
-    QAction *m_viewPageUpAction;
-    QAction *m_viewPageDownAction;
-    QAction *m_viewLineUpAction;
-    QAction *m_viewLineDownAction;
-    QAction *m_moveLineUpAction;
-    QAction *m_moveLineDownAction;
-    QAction *m_copyLineUpAction;
-    QAction *m_copyLineDownAction;
-    QAction *m_joinLinesAction;
-    QAction *m_insertLineAboveAction;
-    QAction *m_insertLineBelowAction;
-    QAction *m_upperCaseSelectionAction;
-    QAction *m_lowerCaseSelectionAction;
-    QAction *m_indentAction;
-    QAction *m_unindentAction;
-    QAction *m_followSymbolAction;
-    QAction *m_followSymbolInNextSplitAction;
-    QAction *m_jumpToFileAction;
-    QAction *m_jumpToFileInNextSplitAction;
+    TextEditorActionHandler *q = nullptr;
+    QAction *m_undoAction = nullptr;
+    QAction *m_redoAction = nullptr;
+    QAction *m_copyAction = nullptr;
+    QAction *m_cutAction = nullptr;
+    QAction *m_pasteAction = nullptr;
+    QAction *m_circularPasteAction = nullptr;
+    QAction *m_switchUtf8bomAction = nullptr;
+    QAction *m_selectAllAction = nullptr;
+    QAction *m_gotoAction = nullptr;
+    QAction *m_printAction = nullptr;
+    QAction *m_formatAction = nullptr;
+    QAction *m_rewrapParagraphAction = nullptr;
+    QAction *m_visualizeWhitespaceAction = nullptr;
+    QAction *m_cleanWhitespaceAction = nullptr;
+    QAction *m_textWrappingAction = nullptr;
+    QAction *m_unCommentSelectionAction = nullptr;
+    QAction *m_unfoldAllAction = nullptr;
+    QAction *m_foldAction = nullptr;
+    QAction *m_unfoldAction = nullptr;
+    QAction *m_cutLineAction = nullptr;
+    QAction *m_copyLineAction = nullptr;
+    QAction *m_duplicateSelectionAction = nullptr;
+    QAction *m_duplicateSelectionAndCommentAction = nullptr;
+    QAction *m_deleteLineAction = nullptr;
+    QAction *m_deleteEndOfWordAction = nullptr;
+    QAction *m_deleteEndOfWordCamelCaseAction = nullptr;
+    QAction *m_deleteStartOfWordAction = nullptr;
+    QAction *m_deleteStartOfWordCamelCaseAction = nullptr;
+    QAction *m_selectEncodingAction = nullptr;
+    QAction *m_increaseFontSizeAction = nullptr;
+    QAction *m_decreaseFontSizeAction = nullptr;
+    QAction *m_resetFontSizeAction = nullptr;
+    QAction *m_gotoBlockStartAction = nullptr;
+    QAction *m_gotoBlockEndAction = nullptr;
+    QAction *m_gotoBlockStartWithSelectionAction = nullptr;
+    QAction *m_gotoBlockEndWithSelectionAction = nullptr;
+    QAction *m_selectBlockUpAction = nullptr;
+    QAction *m_selectBlockDownAction = nullptr;
+    QAction *m_viewPageUpAction = nullptr;
+    QAction *m_viewPageDownAction = nullptr;
+    QAction *m_viewLineUpAction = nullptr;
+    QAction *m_viewLineDownAction = nullptr;
+    QAction *m_moveLineUpAction = nullptr;
+    QAction *m_moveLineDownAction = nullptr;
+    QAction *m_copyLineUpAction = nullptr;
+    QAction *m_copyLineDownAction = nullptr;
+    QAction *m_joinLinesAction = nullptr;
+    QAction *m_insertLineAboveAction = nullptr;
+    QAction *m_insertLineBelowAction = nullptr;
+    QAction *m_upperCaseSelectionAction = nullptr;
+    QAction *m_lowerCaseSelectionAction = nullptr;
+    QAction *m_indentAction = nullptr;
+    QAction *m_unindentAction = nullptr;
+    QAction *m_followSymbolAction = nullptr;
+    QAction *m_followSymbolInNextSplitAction = nullptr;
+    QAction *m_jumpToFileAction = nullptr;
+    QAction *m_jumpToFileInNextSplitAction = nullptr;
     QList<QAction *> m_modifyingActions;
 
-    uint m_optionalActions;
+    uint m_optionalActions = TextEditorActionHandler::None;
     QPointer<TextEditorWidget> m_currentEditorWidget;
     Core::Id m_contextId;
 };
 
 TextEditorActionHandlerPrivate::TextEditorActionHandlerPrivate
     (TextEditorActionHandler *parent, Core::Id contextId, uint optionalActions)
-  : q(parent),
-    m_undoAction(0),
-    m_redoAction(0),
-    m_copyAction(0),
-    m_cutAction(0),
-    m_pasteAction(0),
-    m_circularPasteAction(0),
-    m_switchUtf8bomAction(0),
-    m_selectAllAction(0),
-    m_gotoAction(0),
-    m_printAction(0),
-    m_formatAction(0),
-    m_visualizeWhitespaceAction(0),
-    m_cleanWhitespaceAction(0),
-    m_textWrappingAction(0),
-    m_unCommentSelectionAction(0),
-    m_unfoldAllAction(0),
-    m_foldAction(0),
-    m_unfoldAction(0),
-    m_cutLineAction(0),
-    m_copyLineAction(0),
-    m_duplicateSelectionAction(0),
-    m_duplicateSelectionAndCommentAction(0),
-    m_deleteLineAction(0),
-    m_deleteEndOfWordAction(0),
-    m_deleteEndOfWordCamelCaseAction(0),
-    m_deleteStartOfWordAction(0),
-    m_deleteStartOfWordCamelCaseAction(0),
-    m_selectEncodingAction(0),
-    m_increaseFontSizeAction(0),
-    m_decreaseFontSizeAction(0),
-    m_resetFontSizeAction(0),
-    m_gotoBlockStartAction(0),
-    m_gotoBlockEndAction(0),
-    m_gotoBlockStartWithSelectionAction(0),
-    m_gotoBlockEndWithSelectionAction(0),
-    m_selectBlockUpAction(0),
-    m_selectBlockDownAction(0),
-    m_viewPageUpAction(0),
-    m_viewPageDownAction(0),
-    m_viewLineUpAction(0),
-    m_viewLineDownAction(0),
-    m_moveLineUpAction(0),
-    m_moveLineDownAction(0),
-    m_copyLineUpAction(0),
-    m_copyLineDownAction(0),
-    m_joinLinesAction(0),
-    m_insertLineAboveAction(0),
-    m_insertLineBelowAction(0),
-    m_upperCaseSelectionAction(0),
-    m_lowerCaseSelectionAction(0),
-    m_indentAction(0),
-    m_unindentAction(0),
-    m_followSymbolAction(0),
-    m_followSymbolInNextSplitAction(0),
-    m_jumpToFileAction(0),
-    m_jumpToFileInNextSplitAction(0),
-    m_optionalActions(optionalActions),
-    m_currentEditorWidget(0),
-    m_contextId(contextId)
+  : q(parent)
+  , m_optionalActions(optionalActions)
+  , m_contextId(contextId)
 {
     createActions();
     connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,

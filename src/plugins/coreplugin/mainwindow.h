@@ -149,52 +149,52 @@ private:
     void readSettings();
     void saveWindowSettings();
 
-    ICore *m_coreImpl;
+    ICore *m_coreImpl = nullptr;
     QStringList m_aboutInformation;
     Context m_highPrioAdditionalContexts;
     Context m_lowPrioAdditionalContexts;
-    SettingsDatabase *m_settingsDatabase;
-    mutable QPrinter *m_printer;
-    WindowSupport *m_windowSupport;
-    EditorManager *m_editorManager;
-    ExternalToolManager *m_externalToolManager;
-    MessageManager *m_messageManager;
-    ProgressManagerPrivate *m_progressManager;
-    JsExpander *m_jsExpander;
-    VcsManager *m_vcsManager;
-    StatusBarManager *m_statusBarManager;
-    ModeManager *m_modeManager;
-    HelpManager *m_helpManager;
-    FancyTabWidget *m_modeStack;
-    NavigationWidget *m_navigationWidget;
-    RightPaneWidget *m_rightPaneWidget;
-    StatusBarWidget *m_outputView;
-    VersionDialog *m_versionDialog;
+    SettingsDatabase *m_settingsDatabase = nullptr;
+    mutable QPrinter *m_printer = nullptr;
+    WindowSupport *m_windowSupport = nullptr;
+    EditorManager *m_editorManager = nullptr;
+    ExternalToolManager *m_externalToolManager = nullptr;
+    MessageManager *m_messageManager = nullptr;
+    ProgressManagerPrivate *m_progressManager = nullptr;
+    JsExpander *m_jsExpander = nullptr;
+    VcsManager *m_vcsManager = nullptr;
+    StatusBarManager *m_statusBarManager = nullptr;
+    ModeManager *m_modeManager = nullptr;
+    HelpManager *m_helpManager = nullptr;
+    FancyTabWidget *m_modeStack = nullptr;
+    NavigationWidget *m_navigationWidget = nullptr;
+    RightPaneWidget *m_rightPaneWidget = nullptr;
+    StatusBarWidget *m_outputView = nullptr;
+    VersionDialog *m_versionDialog = nullptr;
 
     QList<IContext *> m_activeContext;
 
     QMap<QWidget *, IContext *> m_contextWidgets;
 
-    GeneralSettings *m_generalSettings;
-    SystemSettings *m_systemSettings;
-    ShortcutSettings *m_shortcutSettings;
-    ToolSettings *m_toolSettings;
-    MimeTypeSettings *m_mimeTypeSettings;
-    SystemEditor *m_systemEditor;
+    GeneralSettings *m_generalSettings = nullptr;
+    SystemSettings *m_systemSettings = nullptr;
+    ShortcutSettings *m_shortcutSettings = nullptr;
+    ToolSettings *m_toolSettings = nullptr;
+    MimeTypeSettings *m_mimeTypeSettings = nullptr;
+    SystemEditor *m_systemEditor = nullptr;
 
     // actions
-    QAction *m_focusToEditor;
-    QAction *m_newAction;
-    QAction *m_openAction;
-    QAction *m_openWithAction;
-    QAction *m_saveAllAction;
-    QAction *m_exitAction;
-    QAction *m_optionsAction;
-    QAction *m_toggleSideBarAction;
-    QAction *m_toggleModeSelectorAction;
-    QAction *m_themeAction;
+    QAction *m_focusToEditor = nullptr;
+    QAction *m_newAction = nullptr;
+    QAction *m_openAction = nullptr;
+    QAction *m_openWithAction = nullptr;
+    QAction *m_saveAllAction = nullptr;
+    QAction *m_exitAction = nullptr;
+    QAction *m_optionsAction = nullptr;
+    QAction *m_toggleSideBarAction = nullptr;
+    QAction *m_toggleModeSelectorAction = nullptr;
+    QAction *m_themeAction = nullptr;
 
-    QToolButton *m_toggleSideBarButton;
+    QToolButton *m_toggleSideBarButton = nullptr;
     QColor m_overrideColor;
     QList<std::function<bool()>> m_preCloseListeners;
 };
