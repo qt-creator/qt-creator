@@ -42,6 +42,7 @@
 #include <qtsupport/qtoutputformatter.h>
 #include <qtsupport/qtkitinformation.h>
 
+#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
@@ -66,6 +67,14 @@ namespace Ios {
 namespace Internal {
 
 static const QLatin1String deviceTypeKey("Ios.device_type");
+
+static IosDeviceType toIosDeviceType(const SimulatorInfo &device)
+{
+    IosDeviceType iosDeviceType(IosDeviceType::SimulatedDevice,
+                                device.identifier,
+                                QString("%1, %2").arg(device.name).arg(device.runtimeName));
+    return iosDeviceType;
+}
 
 class IosRunConfigurationWidget : public RunConfigWidget
 {
@@ -350,22 +359,24 @@ QString IosRunConfiguration::disabledReason() const
 
 IosDeviceType IosRunConfiguration::deviceType() const
 {
-    QList<IosDeviceType> availableSimulators;
-    if (m_deviceType.type == IosDeviceType::SimulatedDevice)
-        availableSimulators = SimulatorControl::availableSimulators();
-    if (!availableSimulators.isEmpty()) {
-        QList<IosDeviceType> elegibleDevices;
-        QString devname = m_deviceType.identifier.split(QLatin1Char(',')).value(0);
-        foreach (const IosDeviceType &dType, availableSimulators) {
-            if (dType == m_deviceType)
-                return m_deviceType;
-            if (!devname.isEmpty() && dType.identifier.startsWith(devname)
-                    && dType.identifier.split(QLatin1Char(',')).value(0) == devname)
-                elegibleDevices << dType;
+    if (m_deviceType.type == IosDeviceType::SimulatedDevice) {
+        QList<SimulatorInfo> availableSimulators = SimulatorControl::availableSimulators();
+        if (availableSimulators.isEmpty())
+            return m_deviceType;
+        if (Utils::contains(availableSimulators,
+                            Utils::equal(&SimulatorInfo::identifier, m_deviceType.identifier))) {
+                 return m_deviceType;
         }
-        if (!elegibleDevices.isEmpty())
-            return elegibleDevices.last();
-        return availableSimulators.last();
+        const QStringList parts = m_deviceType.displayName.split(QLatin1Char(','));
+        if (parts.count() < 2)
+            return toIosDeviceType(availableSimulators.last());
+
+        QList<SimulatorInfo> eligibleDevices;
+        eligibleDevices = Utils::filtered(availableSimulators, [parts](const SimulatorInfo &info) {
+            return info.name == parts.at(0) && info.runtimeName == parts.at(1);
+        });
+        return toIosDeviceType(eligibleDevices.isEmpty() ? availableSimulators.last()
+                                                         : eligibleDevices.last());
     }
     return m_deviceType;
 }
@@ -413,7 +424,7 @@ void IosRunConfigurationWidget::setDeviceTypeIndex(int devIndex)
 {
     QVariant selectedDev = m_deviceTypeModel.data(m_deviceTypeModel.index(devIndex, 0), Qt::UserRole + 1);
     if (selectedDev.isValid())
-        m_runConfiguration->setDeviceType(selectedDev.value<IosDeviceType>());
+        m_runConfiguration->setDeviceType(toIosDeviceType(selectedDev.value<SimulatorInfo>()));
 }
 
 
@@ -423,25 +434,27 @@ void IosRunConfigurationWidget::updateValues()
     m_deviceTypeLabel->setVisible(showDeviceSelector);
     m_deviceTypeComboBox->setVisible(showDeviceSelector);
     if (showDeviceSelector && m_deviceTypeModel.rowCount() == 0) {
-        foreach (const IosDeviceType &dType, SimulatorControl::availableSimulators()) {
-            QStandardItem *item = new QStandardItem(dType.displayName);
+        foreach (const SimulatorInfo &device, SimulatorControl::availableSimulators()) {
+            QStandardItem *item = new QStandardItem(QString("%1, %2").arg(device.name)
+                                                    .arg(device.runtimeName));
             QVariant v;
-            v.setValue(dType);
+            v.setValue(device);
             item->setData(v);
             m_deviceTypeModel.appendRow(item);
         }
     }
 
     IosDeviceType currentDType = m_runConfiguration->deviceType();
+    QVariant currentData = m_deviceTypeComboBox->currentData();
     if (currentDType.type == IosDeviceType::SimulatedDevice && !currentDType.identifier.isEmpty()
-            && (!m_deviceTypeComboBox->currentData().isValid()
-                || currentDType != m_deviceTypeComboBox->currentData().value<IosDeviceType>()))
+            && (!currentData.isValid()
+                || currentDType != toIosDeviceType(currentData.value<SimulatorInfo>())))
     {
         bool didSet = false;
         for (int i = 0; m_deviceTypeModel.hasIndex(i, 0); ++i) {
             QVariant vData = m_deviceTypeModel.data(m_deviceTypeModel.index(i, 0), Qt::UserRole + 1);
-            IosDeviceType dType = vData.value<IosDeviceType>();
-            if (dType == currentDType) {
+            SimulatorInfo dType = vData.value<SimulatorInfo>();
+            if (dType.identifier == currentDType.identifier) {
                 m_deviceTypeComboBox->setCurrentIndex(i);
                 didSet = true;
                 break;

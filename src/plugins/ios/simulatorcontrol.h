@@ -37,8 +37,21 @@ QT_END_NAMESPACE
 namespace Ios {
 namespace Internal {
 
-class IosDeviceType;
 class SimulatorControlPrivate;
+
+class SimulatorInfo {
+public:
+    bool isBooted() const { return state.compare(QStringLiteral("Booted")) == 0; }
+    bool available;
+    QString state;
+    QString runtimeName;
+    QString name;
+    QString identifier;
+    bool operator <(const SimulatorInfo &o) const
+    {
+        return name < o.name;
+    }
+};
 
 class SimulatorControl : public QObject
 {
@@ -59,7 +72,7 @@ public:
     ~SimulatorControl();
 
 public:
-    static QList<IosDeviceType> availableSimulators();
+    static QList<SimulatorInfo> availableSimulators();
     static void updateAvailableSimulators();
     static bool isSimulatorRunning(const QString &simUdid);
     static QString bundleIdentifier(const Utils::FileName &bundlePath);
@@ -78,3 +91,5 @@ private:
 };
 } // namespace Internal
 } // namespace Ios
+
+Q_DECLARE_METATYPE(Ios::Internal::SimulatorInfo)
