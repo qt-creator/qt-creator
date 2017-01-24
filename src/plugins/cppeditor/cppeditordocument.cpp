@@ -213,8 +213,9 @@ void CppEditorDocument::onFilePathChanged(const Utils::FileName &oldPath,
         Utils::MimeDatabase mdb;
         setMimeType(mdb.mimeTypeForFile(newPath.toFileInfo()).name());
 
-        disconnect(this, &Core::IDocument::contentsChanged, this, &CppEditorDocument::scheduleProcessDocument);
-        connect(this, &Core::IDocument::contentsChanged, this, &CppEditorDocument::scheduleProcessDocument);
+        connect(this, &Core::IDocument::contentsChanged,
+                this, &CppEditorDocument::scheduleProcessDocument,
+                Qt::UniqueConnection);
 
         // Un-Register/Register in ModelManager
         m_editorDocumentHandle.reset();
