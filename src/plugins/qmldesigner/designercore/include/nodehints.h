@@ -53,9 +53,6 @@ namespace Internal {
 class QMLDESIGNERCORE_EXPORT NodeHints
 {
 public:
-    NodeHints();
-    NodeHints(const ModelNode &modelNode);
-
     bool canBeContainerFor(const ModelNode &potenialChild) const;
     bool forceClip() const;
     bool doesLayoutChildren() const;
@@ -68,8 +65,10 @@ public:
     QString indexPropertyForStackedContainer() const;
 
     QHash<QString, QString> hints() const;
+    static NodeHints fromModelNode(const ModelNode &modelNode);
 
 private:
+    explicit NodeHints(const ModelNode &modelNode);
     ModelNode modelNode() const;
     bool isValid() const;
     Model *model() const;

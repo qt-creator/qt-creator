@@ -368,8 +368,8 @@ bool itemIsMovable(const ModelNode &modelNode)
     if (modelNode.metaInfo().isSubclassOf("QtQuick.Controls.Tab"))
         return false;
 
-    NodeHints nodeHints(modelNode);
-    return nodeHints.isMovable();
+
+    return NodeHints::fromModelNode(modelNode).isMovable();
 }
 
 bool itemIsResizable(const ModelNode &modelNode)
@@ -377,8 +377,7 @@ bool itemIsResizable(const ModelNode &modelNode)
     if (modelNode.metaInfo().isSubclassOf("QtQuick.Controls.Tab"))
         return false;
 
-    NodeHints nodeHints(modelNode);
-    return nodeHints.isResizable();
+    return NodeHints::fromModelNode(modelNode).isResizable();
 }
 
 bool QmlItemNode::modelIsMovable() const
@@ -404,8 +403,8 @@ bool QmlItemNode::modelIsInLayout() const
         if (QmlItemNode::isValidQmlItemNode(parentModelNode)
                 && parentModelNode.metaInfo().isLayoutable())
             return true;
-        NodeHints nodeHint(parentModelNode);
-        return nodeHint.doesLayoutChildren();
+
+        return NodeHints::fromModelNode(modelNode()).doesLayoutChildren();
     }
 
     return false;
@@ -626,11 +625,9 @@ bool QmlItemNode::isInLayout() const
 
 bool QmlItemNode::canBereparentedTo(const ModelNode &potentialParent)
 {
-    NodeHints parentHints(potentialParent);
-    if (!parentHints.canBeContainerFor(modelNode()))
+    if (!NodeHints::fromModelNode(potentialParent).canBeContainerFor(modelNode()))
         return false;
-    NodeHints nodeHints(modelNode());
-    return nodeHints.canBeReparentedTo(potentialParent);
+    return NodeHints::fromModelNode(modelNode()).canBeReparentedTo(potentialParent);
 }
 
 

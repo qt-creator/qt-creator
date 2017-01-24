@@ -70,11 +70,6 @@ static QVariant evaluateExpression(const QString &expression, const ModelNode &m
 
 } //Internal
 
-QmlDesigner::NodeHints::NodeHints()
-{
-
-}
-
 QmlDesigner::NodeHints::NodeHints(const ModelNode &node) : m_modelNode(node)
 {
     if (isValid()) {
@@ -173,6 +168,11 @@ QString NodeHints::indexPropertyForStackedContainer() const
 QHash<QString, QString> NodeHints::hints() const
 {
     return m_hints;
+}
+
+NodeHints NodeHints::fromModelNode(const ModelNode &modelNode)
+{
+    return NodeHints(modelNode);
 }
 
 ModelNode NodeHints::modelNode() const
