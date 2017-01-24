@@ -28,6 +28,7 @@
 #include "formeditorscene.h"
 #include "formeditorview.h"
 #include <metainfo.h>
+#include <nodehints.h>
 #include <rewritingexception.h>
 
 #include <QGraphicsSceneMouseEvent>
@@ -210,10 +211,32 @@ void DragTool::abort()
     }
 }
 
+static ItemLibraryEntry itemLibraryEntryFromMimeData(const QMimeData *mimeData)
+{
+    QByteArray data = mimeData->data(QStringLiteral("application/vnd.bauhaus.itemlibraryinfo"));
+
+    QDataStream stream(data);
+
+    ItemLibraryEntry itemLibraryEntry;
+    stream >> itemLibraryEntry;
+
+    return itemLibraryEntry;
+}
+
+static bool canBeDropped(const QMimeData *mimeData)
+{
+    return NodeHints::fromItemLibraryEntry(itemLibraryEntryFromMimeData(mimeData)).canBeDroppedInFormEditor();
+}
+
 static bool canHandleMimeData(const QMimeData *mimeData)
 {
     return mimeData->hasFormat(QStringLiteral("application/vnd.bauhaus.itemlibraryinfo"))
           || mimeData->hasFormat(QStringLiteral("application/vnd.bauhaus.libraryresource"));
+}
+
+static bool dragAndDropPossible(const QMimeData *mimeData)
+{
+    return canHandleMimeData(mimeData) && canBeDropped(mimeData);
 }
 
 static bool hasItemLibraryInfo(const QMimeData *mimeData)
@@ -228,7 +251,7 @@ static bool hasLibraryResources(const QMimeData *mimeData)
 
 void DragTool::dropEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraphicsSceneDragDropEvent *event)
 {
-    if (canHandleMimeData(event->mimeData())) {
+    if (dragAndDropPossible(event->mimeData())) {
         event->accept();
         end(generateUseSnapping(event->modifiers()));
 
@@ -244,23 +267,13 @@ void DragTool::dropEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraphicsSce
     }
 }
 
-static ItemLibraryEntry itemLibraryEntryFromMimeData(const QMimeData *mimeData)
-{
-    QByteArray data = mimeData->data(QStringLiteral("application/vnd.bauhaus.itemlibraryinfo"));
-
-    QDataStream stream(data);
-
-    ItemLibraryEntry itemLibraryEntry;
-    stream >> itemLibraryEntry;
-
-    return itemLibraryEntry;
-}
-
 void DragTool::dragEnterEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraphicsSceneDragDropEvent *event)
 {
-    if (canHandleMimeData(event->mimeData())) {
+    if (dragAndDropPossible(event->mimeData())) {
         m_blockMove = false;
+
         if (hasItemLibraryInfo(event->mimeData())) {
+
             view()->widgetInfo().widget->setFocus();
             m_isAborted = false;
         }
@@ -274,7 +287,7 @@ void DragTool::dragEnterEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraphi
 
 void DragTool::dragLeaveEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraphicsSceneDragDropEvent *event)
 {
-    if (canHandleMimeData(event->mimeData())) {
+    if (dragAndDropPossible(event->mimeData())) {
         event->accept();
 
         m_moveManipulator.end();
@@ -315,7 +328,7 @@ void DragTool::createDragNode(const QMimeData *mimeData, const QPointF &scenePos
 
 void DragTool::dragMoveEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneDragDropEvent *event)
 {
-    if (!m_blockMove && !m_isAborted && canHandleMimeData(event->mimeData())) {
+    if (!m_blockMove && !m_isAborted && dragAndDropPossible(event->mimeData())) {
         event->accept();
         if (m_dragNode.isValid()) {
             FormEditorItem *targetContainerItem = targetContainerOrRootItem(itemList);
