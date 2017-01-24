@@ -38,7 +38,7 @@ namespace Utils {
 template<uint SmallStringSize>
 class BasicSmallStringVector : public std::vector<BasicSmallString<SmallStringSize>>
 {
-    using SmallString =BasicSmallString<SmallStringSize>;
+    using SmallString = BasicSmallString<SmallStringSize>;
     using Base = std::vector<SmallString>;
 public:
     BasicSmallStringVector() = default;
