@@ -752,10 +752,11 @@ void QbsProject::updateDocuments(const QSet<QString> &files)
 
 static CppTools::ProjectFile::Kind cppFileType(const qbs::ArtifactData &sourceFile)
 {
-    if (CppTools::ProjectFile::isAmbiguousHeader(sourceFile.filePath()))
-        return CppTools::ProjectFile::AmbiguousHeader;
-    if (sourceFile.fileTags().contains(QLatin1String("hpp")))
+    if (sourceFile.fileTags().contains(QLatin1String("hpp"))) {
+        if (CppTools::ProjectFile::isAmbiguousHeader(sourceFile.filePath()))
+            return CppTools::ProjectFile::AmbiguousHeader;
         return CppTools::ProjectFile::CXXHeader;
+    }
     if (sourceFile.fileTags().contains(QLatin1String("cpp")))
         return CppTools::ProjectFile::CXXSource;
     if (sourceFile.fileTags().contains(QLatin1String("c")))
