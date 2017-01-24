@@ -345,14 +345,20 @@ void QMakeGlobals::parseProperties(const QByteArray &data, QHash<ProKey, ProStri
             value = ProString(""); // Make sure it is not null, to discern from missing keys
         properties.insert(ProKey(name), value);
         if (name.startsWith(QLatin1String("QT_"))) {
-            bool plain = !name.contains(QLatin1Char('/'));
-            if (!plain) {
-                if (!name.endsWith(QLatin1String("/get")))
+            enum { PropPut, PropRaw, PropGet } variant;
+            if (name.contains(QLatin1Char('/'))) {
+                if (name.endsWith(QLatin1String("/raw")))
+                    variant = PropRaw;
+                else if (name.endsWith(QLatin1String("/get")))
+                    variant = PropGet;
+                else  // Nothing falls back on /src.
                     continue;
                 name.chop(4);
+            } else {
+                variant = PropPut;
             }
             if (name.startsWith(QLatin1String("QT_INSTALL_"))) {
-                if (plain) {
+                if (variant < PropRaw) {
                     if (name == QLatin1String("QT_INSTALL_PREFIX")
                         || name == QLatin1String("QT_INSTALL_DATA")
                         || name == QLatin1String("QT_INSTALL_LIBS")
@@ -365,11 +371,12 @@ void QMakeGlobals::parseProperties(const QByteArray &data, QHash<ProKey, ProStri
                         properties.insert(ProKey(hname + QLatin1String("/src")), value);
                     }
                     properties.insert(ProKey(name + QLatin1String("/raw")), value);
-                    properties.insert(ProKey(name + QLatin1String("/get")), value);
                 }
+                if (variant < PropGet)
+                    properties.insert(ProKey(name + QLatin1String("/get")), value);
                 properties.insert(ProKey(name + QLatin1String("/src")), value);
             } else if (name.startsWith(QLatin1String("QT_HOST_"))) {
-                if (plain)
+                if (variant < PropGet)
                     properties.insert(ProKey(name + QLatin1String("/get")), value);
                 properties.insert(ProKey(name + QLatin1String("/src")), value);
             }
