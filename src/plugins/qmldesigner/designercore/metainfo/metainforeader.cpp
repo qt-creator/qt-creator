@@ -154,6 +154,7 @@ MetaInfoReader::ParserSate MetaInfoReader::readMetaInfoRootElement(const QString
     if (name == typeElementName) {
         m_currentClassName.clear();
         m_currentIcon.clear();
+        m_currentHints.clear();
         return ParsingType;
     } else {
         addErrorInvalidType(name);
