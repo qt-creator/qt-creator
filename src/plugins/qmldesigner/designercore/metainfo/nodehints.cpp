@@ -80,6 +80,11 @@ QmlDesigner::NodeHints::NodeHints(const ModelNode &node) : m_modelNode(node)
     }
 }
 
+NodeHints::NodeHints(const ItemLibraryEntry &entry)
+{
+    m_hints = entry.hints();
+}
+
 bool NodeHints::canBeContainerFor(const ModelNode &potenialChild) const
 {
     /* The default is true for now to avoid confusion. Once our .metaInfo files in Qt
@@ -173,6 +178,11 @@ QHash<QString, QString> NodeHints::hints() const
 NodeHints NodeHints::fromModelNode(const ModelNode &modelNode)
 {
     return NodeHints(modelNode);
+}
+
+NodeHints NodeHints::fromItemLibraryEntry(const ItemLibraryEntry &entry)
+{
+    return NodeHints(entry);
 }
 
 ModelNode NodeHints::modelNode() const

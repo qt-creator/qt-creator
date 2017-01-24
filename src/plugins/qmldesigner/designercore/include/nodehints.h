@@ -41,6 +41,7 @@ namespace QmlDesigner {
 class MetaInfo;
 class Model;
 class AbstractProperty;
+class ItemLibraryEntry;
 
 namespace Internal {
     class MetaInfoPrivate;
@@ -66,9 +67,11 @@ public:
 
     QHash<QString, QString> hints() const;
     static NodeHints fromModelNode(const ModelNode &modelNode);
+    static NodeHints fromItemLibraryEntry(const ItemLibraryEntry &entry);
 
 private:
     explicit NodeHints(const ModelNode &modelNode);
+    explicit NodeHints(const ItemLibraryEntry &entry);
     ModelNode modelNode() const;
     bool isValid() const;
     Model *model() const;
