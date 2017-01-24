@@ -367,13 +367,6 @@ bool QMakeGlobals::initProperties()
     }
     return true;
 }
-#else
-void QMakeGlobals::setProperties(const QHash<QString, QString> &props)
-{
-    QHash<QString, QString>::ConstIterator it = props.constBegin(), eit = props.constEnd();
-    for (; it != eit; ++it)
-        properties.insert(ProKey(it.key()), ProString(it.value()));
-}
 #endif
 #endif // QT_BUILD_QMAKE
 

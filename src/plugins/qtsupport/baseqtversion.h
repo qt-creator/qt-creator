@@ -48,6 +48,8 @@ class Task;
 } // namespace ProjectExplorer
 
 QT_BEGIN_NAMESPACE
+class ProKey;
+class ProString;
 class ProFileEvaluator;
 class QMakeGlobals;
 class QSettings;
@@ -246,14 +248,14 @@ private:
     enum Binaries { QmlViewer, QmlScene, Designer, Linguist, Uic, QScxmlc };
     QString findQtBinary(Binaries binary) const;
     void updateMkspec() const;
-    QHash<QString,QString> versionInfo() const;
+    QHash<ProKey, ProString> versionInfo() const;
     static bool queryQMakeVariables(const Utils::FileName &binary, const Utils::Environment &env,
-                                    QHash<QString, QString> *versionInfo, QString *error = 0);
-    static QString qmakeProperty(const QHash<QString,QString> &versionInfo, const QByteArray &name,
+                                    QHash<ProKey, ProString> *versionInfo, QString *error = 0);
+    static QString qmakeProperty(const QHash<ProKey, ProString> &versionInfo, const QByteArray &name,
                                  PropertyVariant variant = PropertyVariantGet);
-    static Utils::FileName mkspecDirectoryFromVersionInfo(const QHash<QString, QString> &versionInfo);
-    static Utils::FileName mkspecFromVersionInfo(const QHash<QString, QString> &versionInfo);
-    static Utils::FileName sourcePath(const QHash<QString, QString> &versionInfo);
+    static Utils::FileName mkspecDirectoryFromVersionInfo(const QHash<ProKey,ProString> &versionInfo);
+    static Utils::FileName mkspecFromVersionInfo(const QHash<ProKey,ProString> &versionInfo);
+    static Utils::FileName sourcePath(const QHash<ProKey,ProString> &versionInfo);
     void setId(int id); // used by the qtversionmanager for legacy restore
                         // and by the qtoptionspage to replace Qt versions
 
@@ -286,7 +288,7 @@ private:
 
     mutable QHash<QString, QString> m_mkspecValues;
 
-    mutable QHash<QString,QString> m_versionInfo;
+    mutable QHash<ProKey, ProString> m_versionInfo;
 
     Utils::FileName m_qmakeCommand;
     mutable QString m_qtVersionString;

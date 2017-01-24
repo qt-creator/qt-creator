@@ -47,7 +47,7 @@ QtVersionFactory::~QtVersionFactory()
 
 BaseQtVersion *QtVersionFactory::createQtVersionFromQMakePath(const Utils::FileName &qmakePath, bool isAutoDetected, const QString &autoDetectionSource, QString *error)
 {
-    QHash<QString, QString> versionInfo;
+    QHash<ProKey, ProString> versionInfo;
     if (!BaseQtVersion::queryQMakeVariables(qmakePath, Utils::Environment::systemEnvironment(),
                                             &versionInfo, error))
         return 0;

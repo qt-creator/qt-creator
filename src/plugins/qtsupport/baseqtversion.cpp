@@ -677,8 +677,8 @@ QStringList BaseQtVersion::warningReason() const
     QStringList ret;
     if (qtAbis().isEmpty())
         ret << QCoreApplication::translate("QtVersion", "ABI detection failed: Make sure to use a matching compiler when building.");
-    if (m_versionInfo.value(QLatin1String("QT_INSTALL_PREFIX/get"))
-        != m_versionInfo.value(QLatin1String("QT_INSTALL_PREFIX"))) {
+    if (m_versionInfo.value(ProKey("QT_INSTALL_PREFIX/get"))
+        != m_versionInfo.value(ProKey("QT_INSTALL_PREFIX"))) {
         ret << QCoreApplication::translate("QtVersion", "Non-installed -prefix build - for internal development only.");
     }
     return ret;
@@ -792,12 +792,13 @@ QString BaseQtVersion::toHtml(bool verbose) const
         str << "<tr><td><b>" << QCoreApplication::translate("BaseQtVersion", "Version:")
             << "</b></td><td>" << qtVersionString() << "</td></tr>";
         if (verbose) {
-            const QHash<QString,QString> vInfo = versionInfo();
+            const QHash<ProKey, ProString> vInfo = versionInfo();
             if (!vInfo.isEmpty()) {
-                QStringList keys = vInfo.keys();
-                keys.sort();
-                foreach (QString variableName, keys) {
-                    const QString &value = vInfo.value(variableName);
+                QList<ProKey> keys = vInfo.keys();
+                Utils::sort(keys);
+                foreach (const ProKey &key, keys) {
+                    const QString &value = vInfo.value(key).toQString();
+                    QString variableName = key.toQString();
                     if (variableName != QLatin1String("QMAKE_MKSPECS")
                         && !variableName.endsWith(QLatin1String("/raw"))) {
                         bool isPath = false;
@@ -1196,20 +1197,20 @@ void BaseQtVersion::updateVersionInfo() const
     m_versionInfoUpToDate = true;
 }
 
-QHash<QString,QString> BaseQtVersion::versionInfo() const
+QHash<ProKey,ProString> BaseQtVersion::versionInfo() const
 {
     updateVersionInfo();
     return m_versionInfo;
 }
 
-QString BaseQtVersion::qmakeProperty(const QHash<QString,QString> &versionInfo, const QByteArray &name,
+QString BaseQtVersion::qmakeProperty(const QHash<ProKey,ProString> &versionInfo, const QByteArray &name,
                                      PropertyVariant variant)
 {
-    QString val = versionInfo.value(QString::fromLatin1(
-            name + (variant == PropertyVariantGet ? "/get" : "/src")));
+    QString val = versionInfo.value(ProKey(QString::fromLatin1(
+            name + (variant == PropertyVariantGet ? "/get" : "/src")))).toQString();
     if (!val.isNull())
         return val;
-    return versionInfo.value(QString::fromLatin1(name));
+    return versionInfo.value(ProKey(QString::fromLatin1(name))).toQString();
 }
 
 QString BaseQtVersion::qmakeProperty(const QByteArray &name, PropertyVariant variant) const
@@ -1410,7 +1411,7 @@ static QByteArray runQmakeQuery(const FileName &binary, const Environment &env,
 }
 
 bool BaseQtVersion::queryQMakeVariables(const FileName &binary, const Environment &env,
-                                        QHash<QString, QString> *versionInfo, QString *error)
+                                        QHash<ProKey, ProString> *versionInfo, QString *error)
 {
     QString tmp;
     if (!error)
@@ -1452,23 +1453,23 @@ bool BaseQtVersion::queryQMakeVariables(const FileName &binary, const Environmen
         const int index = line.indexOf(QLatin1Char(':'));
         if (index != -1) {
             QString name = line.left(index);
-            QString value = QDir::fromNativeSeparators(line.mid(index+1));
+            ProString value(QDir::fromNativeSeparators(line.mid(index+1)));
             if (value.isNull())
-                value = QLatin1String(""); // Make sure it is not null, to discern from missing keys
-            versionInfo->insert(name, value);
+                value = ProString(""); // Make sure it is not null, to discern from missing keys
+            versionInfo->insert(ProKey(name), value);
             if (name.startsWith(QLatin1String("QT_")) && !name.contains(QLatin1Char('/'))) {
                 if (name.startsWith(QLatin1String("QT_INSTALL_"))) {
-                    versionInfo->insert(name + QLatin1String("/raw"), value);
-                    versionInfo->insert(name + QLatin1String("/get"), value);
+                    versionInfo->insert(ProKey(name + QLatin1String("/raw")), value);
+                    versionInfo->insert(ProKey(name + QLatin1String("/get")), value);
                     if (name == QLatin1String("QT_INSTALL_PREFIX")
                         || name == QLatin1String("QT_INSTALL_DATA")
                         || name == QLatin1String("QT_INSTALL_BINS")) {
                         name.replace(3, 7, QLatin1String("HOST"));
-                        versionInfo->insert(name, value);
-                        versionInfo->insert(name + QLatin1String("/get"), value);
+                        versionInfo->insert(ProKey(name), value);
+                        versionInfo->insert(ProKey(name + QLatin1String("/get")), value);
                     }
                 } else if (name.startsWith(QLatin1String("QT_HOST_"))) {
-                    versionInfo->insert(name + QLatin1String("/get"), value);
+                    versionInfo->insert(ProKey(name + QLatin1String("/get")), value);
                 }
             }
         }
@@ -1476,7 +1477,7 @@ bool BaseQtVersion::queryQMakeVariables(const FileName &binary, const Environmen
     return true;
 }
 
-FileName BaseQtVersion::mkspecDirectoryFromVersionInfo(const QHash<QString, QString> &versionInfo)
+FileName BaseQtVersion::mkspecDirectoryFromVersionInfo(const QHash<ProKey, ProString> &versionInfo)
 {
     QString dataDir = qmakeProperty(versionInfo, "QT_HOST_DATA", PropertyVariantSrc);
     if (dataDir.isEmpty())
@@ -1484,7 +1485,7 @@ FileName BaseQtVersion::mkspecDirectoryFromVersionInfo(const QHash<QString, QStr
     return FileName::fromUserInput(dataDir + QLatin1String("/mkspecs"));
 }
 
-FileName BaseQtVersion::mkspecFromVersionInfo(const QHash<QString, QString> &versionInfo)
+FileName BaseQtVersion::mkspecFromVersionInfo(const QHash<ProKey, ProString> &versionInfo)
 {
     FileName baseMkspecDir = mkspecDirectoryFromVersionInfo(versionInfo);
     if (baseMkspecDir.isEmpty())
@@ -1564,7 +1565,7 @@ FileName BaseQtVersion::mkspecFromVersionInfo(const QHash<QString, QString> &ver
     return mkspecFullPath;
 }
 
-FileName BaseQtVersion::sourcePath(const QHash<QString, QString> &versionInfo)
+FileName BaseQtVersion::sourcePath(const QHash<ProKey, ProString> &versionInfo)
 {
     const QString qt5Source = qmakeProperty(versionInfo, "QT_INSTALL_PREFIX/src");
     if (!qt5Source.isEmpty())
