@@ -1,0 +1,5 @@
+TestComponent 1.0 TestComponent.qml
+TestLayout 1.0 TestLayout.qml
+OnlyNavigator 1.0 OnlyNavigator.qml
+OnlyFormEditor 1.0 OnlyFormEditor.qml
+ForceClip 1.0 ForceClip.qml
