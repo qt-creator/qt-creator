@@ -1064,7 +1064,7 @@ private:
     void resetCommandBuffer();
     void showCommandBuffer(FakeVimHandler *handler, const QString &contents,
                            int cursorPos, int anchorPos, int messageLevel);
-    void showExtraInformation(const QString &msg);
+    void showExtraInformation(FakeVimHandler *handler, const QString &msg);
     void changeSelection(FakeVimHandler *handler, const QList<QTextEdit::ExtraSelection> &selections);
     void highlightMatches(FakeVimHandler *handler, const QString &needle);
     void moveToMatchingParenthesis(FakeVimHandler *handler, bool *moved, bool *forward, QTextCursor *cursor);
@@ -2156,7 +2156,7 @@ void FakeVimPluginPrivate::showCommandBuffer(FakeVimHandler *handler, const QStr
         w->setContents(contents, cursorPos, anchorPos, messageLevel, handler);
 }
 
-void FakeVimPluginPrivate::showExtraInformation(const QString &text)
+void FakeVimPluginPrivate::showExtraInformation(FakeVimHandler *, const QString &text)
 {
     EditorManager::splitSideBySide();
     QString title = "stdout.txt";
