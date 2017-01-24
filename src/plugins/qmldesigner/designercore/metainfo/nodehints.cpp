@@ -51,7 +51,7 @@ namespace QmlDesigner {
 
 namespace Internal {
 
-static QJSEngine *s_qJSEngine= nullptr;
+static QJSEngine *s_qJSEngine = nullptr;
 static JSObject *s_jsObject = nullptr;
 
 static QVariant evaluateExpression(const QString &expression, const ModelNode &modelNode, const ModelNode &otherNode)
@@ -77,10 +77,8 @@ QmlDesigner::NodeHints::NodeHints(const ModelNode &node) : m_modelNode(node)
         QList <ItemLibraryEntry> itemLibraryEntryList = libraryInfo->entriesForType(
                     modelNode().type(), modelNode().majorVersion(), modelNode().minorVersion());
 
-
         if (!itemLibraryEntryList.isEmpty())
             m_hints = itemLibraryEntryList.first().hints();
-
     }
 }
 
