@@ -114,18 +114,13 @@ bool NodeHints::doesLayoutChildren() const
 
 bool NodeHints::canBeDroppedInFormEditor() const
 {
-    if (!isValid())
-        return false;
 
-    return evaluateBooleanExpression("canBeDroppedInFormEditor", false);
+    return evaluateBooleanExpression("canBeDroppedInFormEditor", true);
 }
 
 bool NodeHints::canBeDroppedInNavigator() const
 {
-    if (!isValid())
-        return false;
-
-    return evaluateBooleanExpression("canBeDroppedInNavigator", false);
+    return evaluateBooleanExpression("canBeDroppedInNavigator", true);
 }
 
 bool NodeHints::isMovable() const
