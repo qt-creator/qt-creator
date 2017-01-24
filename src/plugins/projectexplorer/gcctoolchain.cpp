@@ -858,13 +858,13 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(const QString &comp
         if (tc.isNull())
             return result;
 
+        tc->setLanguage(language);
         tc->setMacroCache(QStringList(), macros);
         tc->setCompilerCommand(compilerPath);
         tc->setSupportedAbis(abiList);
         tc->setTargetAbi(abi);
         tc->setOriginalTargetTriple(detectedAbis.originalTargetTriple);
         tc->setDisplayName(tc->defaultDisplayName()); // reset displayname
-        tc->setLanguage(language);
 
         result.append(tc.take());
     }
