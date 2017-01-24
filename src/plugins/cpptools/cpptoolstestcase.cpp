@@ -302,8 +302,7 @@ ProjectInfo ProjectOpenerAndCloser::open(const QString &projectFile, bool config
 }
 
 TemporaryDir::TemporaryDir()
-    : m_temporaryDir(QFileInfo(Utils::TemporaryDirectory::masterDirectoryPath()).canonicalFilePath()
-                     + "/qtcreator-tests-XXXXXX")
+    : m_temporaryDir("qtcreator-tests-XXXXXX")
     , m_isValid(m_temporaryDir.isValid())
 {
 }
