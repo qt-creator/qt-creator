@@ -1,6 +1,6 @@
 TEMPLATE = subdirs
 
-@if "%{BuildTests}" == "always"
+@if "%{BuildAutoTests}" == "always"
 SUBDIRS += src \
            tests
 @else
