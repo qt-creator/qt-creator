@@ -8,3 +8,11 @@ TARGET = tst_reformatter
 
 SOURCES += \
     tst_reformatter.cpp
+
+DISTFILES += \
+    jssyntax.js \
+    objectliteral.js \
+    qmlreadonly.qml \
+    qmlsingleton.qml \
+    qmlsyntax.qml \
+    comments.qml
