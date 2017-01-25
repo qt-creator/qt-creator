@@ -86,7 +86,6 @@ protected:
                                      &generator,
                                      {generatedFile}};
 };
-
 using PchCreatorSlowTest = PchCreator;
 using PchCreatorVerySlowTest = PchCreator;
 
