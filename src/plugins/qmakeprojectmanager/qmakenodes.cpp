@@ -2372,10 +2372,18 @@ InstallsList QmakeProFileNode::installsList(const QtSupport::ProFileReader *read
     if (!reader)
         return result;
     const QStringList &itemList = reader->values(QLatin1String("INSTALLS"));
+    if (itemList.isEmpty())
+        return result;
+
+    const QString installPrefix
+            = reader->propertyValue(QLatin1String("QT_INSTALL_PREFIX"));
+    const QString devInstallPrefix
+            = reader->propertyValue(QLatin1String("QT_INSTALL_PREFIX/dev"));
+    bool fixInstallPrefix = (installPrefix != devInstallPrefix);
+
     foreach (const QString &item, itemList) {
         bool active = !reader->values(item + QLatin1String(".CONFIG"))
                         .contains(QLatin1String("no_default_install"));
-        QString itemPath;
         const QString pathVar = item + QLatin1String(".path");
         const QStringList &itemPaths = reader->values(pathVar);
         if (itemPaths.count() != 1) {
@@ -2387,8 +2395,16 @@ InstallsList QmakeProFileNode::installsList(const QtSupport::ProFileReader *read
                 continue;
             }
         }
-        itemPath = itemPaths.last();
 
+        QString itemPath = itemPaths.last();
+        if (fixInstallPrefix && itemPath.startsWith(installPrefix)) {
+            // This is a hack for projects which install into $$[QT_INSTALL_*],
+            // in particular Qt itself, examples being most relevant.
+            // Projects which implement their own install path policy must
+            // parametrize their INSTALLS themselves depending on the intended
+            // installation/deployment mode.
+            itemPath.replace(0, installPrefix.length(), devInstallPrefix);
+        }
         if (item == QLatin1String("target")) {
             if (active)
                 result.targetPath = itemPath;
