@@ -89,8 +89,7 @@ void CustomExecutableRunConfiguration::ctor()
 }
 
 CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *parent) :
-    RunConfiguration(parent, CUSTOM_EXECUTABLE_ID),
-    m_dialog(0)
+    RunConfiguration(parent, CUSTOM_EXECUTABLE_ID)
 {
     addExtraAspect(new LocalEnvironmentAspect(this, LocalEnvironmentAspect::BaseEnvironmentModifier()));
     addExtraAspect(new ArgumentsAspect(this, "ProjectExplorer.CustomExecutableRunConfiguration.Arguments"));
@@ -106,8 +105,7 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *paren
                                                                    CustomExecutableRunConfiguration *source) :
     RunConfiguration(parent, source),
     m_executable(source->m_executable),
-    m_workingDirectory(source->m_workingDirectory),
-    m_dialog(0)
+    m_workingDirectory(source->m_workingDirectory)
 {
     ctor();
 }
@@ -119,8 +117,8 @@ CustomExecutableRunConfiguration::~CustomExecutableRunConfiguration()
         emit configurationFinished();
         disconnect(m_dialog, &QDialog::finished,
                    this, &CustomExecutableRunConfiguration::configurationDialogFinished);
-        delete m_dialog;
     }
+    delete m_dialog;
 }
 
 CustomExecutableDialog::CustomExecutableDialog(CustomExecutableRunConfiguration *rc, QWidget *parent)
@@ -166,9 +164,8 @@ bool CustomExecutableDialog::event(QEvent *event)
 
 RunConfiguration::ConfigurationState CustomExecutableRunConfiguration::ensureConfigured(QString *errorMessage)
 {
-    Q_UNUSED(errorMessage)
     if (m_dialog) {// uhm already shown
-        *errorMessage = QLatin1String(""); // no error dialog
+        errorMessage->clear(); // no error dialog
         m_dialog->activateWindow();
         m_dialog->raise();
         return UnConfigured;
@@ -187,7 +184,7 @@ void CustomExecutableRunConfiguration::configurationDialogFinished()
     disconnect(m_dialog, &QDialog::finished,
             this, &CustomExecutableRunConfiguration::configurationDialogFinished);
     m_dialog->deleteLater();
-    m_dialog = 0;
+    m_dialog = nullptr;
     emit configurationFinished();
 }
 

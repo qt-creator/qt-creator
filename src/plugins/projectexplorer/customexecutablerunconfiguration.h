@@ -88,7 +88,7 @@ private:
 
     QString m_executable;
     QString m_workingDirectory;
-    CustomExecutableDialog *m_dialog;
+    CustomExecutableDialog *m_dialog = nullptr;
 };
 
 class CustomExecutableRunConfigurationFactory : public IRunConfigurationFactory
