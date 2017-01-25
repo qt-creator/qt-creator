@@ -325,26 +325,25 @@ private:
 // Documentation inside.
 class PROJECTEXPLORER_EXPORT SessionNode : public FolderNode
 {
-    friend class SessionManager;
 public:
     SessionNode();
-
-    QList<ProjectAction> supportedActions(Node *node) const override;
     QList<ProjectNode*> projectNodes() const;
-    QString addFileFilter() const override;
-    void accept(NodesVisitor *visitor) override;
 
-    bool showInSimpleTree() const override;
+private:
+    QList<ProjectAction> supportedActions(Node *node) const final;
+    QString addFileFilter() const final;
+    void accept(NodesVisitor *visitor) final;
+
+    bool showInSimpleTree() const final;
     void projectDisplayNameChanged(Node *node);
 
     SessionNode *asSessionNode() final { return this; }
     const SessionNode *asSessionNode() const final { return this; }
 
-protected:
-    void addProjectNodes(const QList<ProjectNode*> &projectNodes);
-    void removeProjectNodes(const QList<ProjectNode*> &projectNodes);
+    friend class SessionManager;
+    void addProjectNode(ProjectNode *projectNode);
+    void removeProjectNode(ProjectNode *projectNode);
 
-private:
     QList<ProjectNode*> m_projectNodes;
 };
 

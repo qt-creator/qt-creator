@@ -957,52 +957,22 @@ QString SessionNode::addFileFilter() const
     return QString::fromLatin1("*.c; *.cc; *.cpp; *.cp; *.cxx; *.c++; *.h; *.hh; *.hpp; *.hxx;");
 }
 
-void SessionNode::addProjectNodes(const QList<ProjectNode*> &projectNodes)
+void SessionNode::addProjectNode(ProjectNode *projectNode)
 {
-    if (!projectNodes.isEmpty()) {
-        QList<FolderNode*> folderNodes;
-        foreach (ProjectNode *projectNode, projectNodes)
-            folderNodes << projectNode;
+    QTC_ASSERT(!projectNode->parentFolderNode(),
+               qDebug("Project node has already a parent folder"));
+    projectNode->setParentFolderNode(this);
+    m_folderNodes.append(projectNode);
+    m_projectNodes.append(projectNode);
 
-        foreach (ProjectNode *project, projectNodes) {
-            QTC_ASSERT(!project->parentFolderNode(),
-                qDebug("Project node has already a parent folder"));
-            project->setParentFolderNode(this);
-            m_folderNodes.append(project);
-            m_projectNodes.append(project);
-        }
-
-        Utils::sort(m_folderNodes);
-        Utils::sort(m_projectNodes);
-   }
+    Utils::sort(m_folderNodes);
+    Utils::sort(m_projectNodes);
 }
 
-void SessionNode::removeProjectNodes(const QList<ProjectNode*> &projectNodes)
+void SessionNode::removeProjectNode(ProjectNode *projectNode)
 {
-    if (!projectNodes.isEmpty()) {
-        QList<FolderNode*> toRemove;
-        foreach (ProjectNode *projectNode, projectNodes)
-            toRemove << projectNode;
-
-        Utils::sort(toRemove);
-        auto toRemoveIter = toRemove.constBegin();
-        auto folderIter = m_folderNodes.begin();
-        auto projectIter = m_projectNodes.begin();
-        for (; toRemoveIter != toRemove.constEnd(); ++toRemoveIter) {
-            while (*projectIter != *toRemoveIter) {
-                ++projectIter;
-                QTC_ASSERT(projectIter != m_projectNodes.end(),
-                    qDebug("Project to remove is not part of specified folder!"));
-            }
-            while (*folderIter != *toRemoveIter) {
-                ++folderIter;
-                QTC_ASSERT(folderIter != m_folderNodes.end(),
-                    qDebug("Project to remove is not part of specified folder!"));
-            }
-            projectIter = m_projectNodes.erase(projectIter);
-            folderIter = m_folderNodes.erase(folderIter);
-        }
-    }
+    m_folderNodes.removeOne(projectNode);
+    m_projectNodes.removeOne(projectNode);
 }
 
 } // namespace ProjectExplorer
