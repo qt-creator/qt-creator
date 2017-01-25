@@ -627,7 +627,7 @@ static QString reformatCharacter(int code, int size, bool isSigned)
     if (isSigned) {
         out += QString::number(code);
         if (code < 0)
-            out += QString("/%1    ").arg((1 << (8*size)) + code).left(2 + 2 * size);
+            out += QString("/%1    ").arg((1ULL << (8*size)) + code).left(2 + 2 * size);
         else
             out += QString(2 + 2 * size, QLatin1Char(' '));
     } else {
