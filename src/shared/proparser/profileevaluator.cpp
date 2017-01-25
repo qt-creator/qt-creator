@@ -152,6 +152,10 @@ QVector<ProFileEvaluator::SourceFile> ProFileEvaluator::absoluteFileValues(
         }
         {
             int nameOff = absEl.lastIndexOf(QLatin1Char('/'));
+            if (nameOff < 0) {
+                // The entry is garbage (possibly after env var expansion)
+                goto next;
+            }
             QString absDir = d->m_tmp1.setRawData(absEl.constData(), nameOff);
             if (IoUtils::exists(absDir)) {
                 QString wildcard = d->m_tmp2.setRawData(absEl.constData() + nameOff + 1,
