@@ -478,6 +478,15 @@ struct TypeDef : Type
     }
 };
 
+struct RequiredMessage
+{
+    RequiredMessage() {}
+
+    RequiredMessage(const QString &message) : message(message) {}
+
+    QString message;
+};
+
 struct Check
 {
     Check() {}
@@ -686,6 +695,12 @@ public:
     const Data &operator+(const Check &check) const
     {
         checks.append(check);
+        return *this;
+    }
+
+    const Data &operator+(const RequiredMessage &check) const
+    {
+        requiredMessages.append(check);
         return *this;
     }
 
@@ -903,6 +918,7 @@ public:
     mutable QString code;
 
     mutable QList<Check> checks;
+    mutable QList<RequiredMessage> requiredMessages;
 };
 
 struct TempStuff
@@ -1629,6 +1645,15 @@ void tst_Dumpers::dumper()
         qDebug() << "SEEN INAMES " << seenINames;
         qDebug() << "EXPANDED     : " << expanded;
     }
+
+    for (int i = data.requiredMessages.size(); --i >= 0; ) {
+        RequiredMessage check = data.requiredMessages.at(i);
+        if (fullOutput.contains(check.message.toLatin1())) {
+            qDebug() << " EXPECTED MESSAGE TO BE MISSING, BUT FOUND: " << check.message;
+            ok = false;
+        }
+    }
+
     if (ok) {
         m_keepTemp = false;
     } else {
@@ -6496,6 +6521,14 @@ void tst_Dumpers::dumper_data()
             + Check("tc.1.bar", "15", "int")
             + Check("tc.2.bar", "15", "int")
             + Check("tc.3.bar", "15", "int");
+
+    QTest::newRow("ArrayOfFunctionPointers")
+            << Data("typedef int (*FP)(int *); \n"
+                    "int func(int *param) { unused(param); return 0; }  \n",
+                    "FP fps[5]; fps[0] = func; fps[0](0); unused(&fps);\n")
+            + RequiredMessage("Searching for type int (*)(int *) across all target modules, this could be very slow")
+            + LldbEngine;
+
 #if 0
 #ifdef Q_OS_LINUX
     // Hint: To open a failing test in Creator, do:
