@@ -30,6 +30,7 @@
 #include "toolchain.h"
 #include "abi.h"
 #include "buildconfiguration.h"
+#include "environmentaspect.h"
 #include "kitinformation.h"
 #include <extensionsystem/pluginmanager.h>
 
@@ -214,6 +215,11 @@ void RunConfiguration::ctor()
     expander->registerSubProvider([this]() -> Utils::MacroExpander * {
         BuildConfiguration *bc = target()->activeBuildConfiguration();
         return bc ? bc->macroExpander() : target()->macroExpander();
+    });
+    expander->registerPrefix(Constants::VAR_CURRENTRUN_ENV, tr("Variables in the current run environment"),
+                             [this](const QString &var) {
+        const auto envAspect = extraAspect<EnvironmentAspect>();
+        return envAspect ? envAspect->environment().value(var) : QString();
     });
     expander->registerVariable(Constants::VAR_CURRENTRUN_NAME,
             QCoreApplication::translate("ProjectExplorer", "The currently active run configuration's name."),

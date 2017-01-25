@@ -246,6 +246,7 @@ const char VAR_CURRENTBUILD_NAME[] = "CurrentBuild:Name";
 const char VAR_CURRENTBUILD_TYPE[] = "CurrentBuild:Type";
 const char VAR_CURRENTBUILD_ENV[] = "CurrentBuild:Env";
 const char VAR_CURRENTRUN_NAME[] = "CurrentRun:Name";
+const char VAR_CURRENTRUN_ENV[] = "CurrentRun:Env";
 const char VAR_CURRENTRUN_EXECUTABLE_PREFIX[] = "CurrentRun:Executable";
 const char VAR_CURRENTDEVICE_HOSTADDRESS[] = "CurrentDevice:HostAddress";
 const char VAR_CURRENTDEVICE_SSHPORT[] = "CurrentDevice:SshPort";
