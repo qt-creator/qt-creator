@@ -104,9 +104,12 @@ void BuildConfiguration::ctor()
     expander->registerVariable("buildDir", tr("Build directory"),
             [this] { return buildDirectory().toUserOutput(); });
 
-    expander->registerVariable(Constants::VAR_CURRENTBUILD_NAME,
-            QCoreApplication::translate("ProjectExplorer", "Name of current build"),
+    expander->registerVariable(Constants::VAR_CURRENTBUILD_NAME, tr("Name of current build"),
             [this] { return displayName(); }, false);
+
+    expander->registerPrefix(Constants::VAR_CURRENTBUILD_ENV,
+                             tr("Variables in the current build environment"),
+                             [this](const QString &var) { return environment().value(var); });
 }
 
 Utils::FileName BuildConfiguration::buildDirectory() const
