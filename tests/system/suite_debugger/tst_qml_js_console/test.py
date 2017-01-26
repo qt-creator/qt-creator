@@ -56,7 +56,7 @@ def useDebuggerConsole(expression, expectedOutput, check=None, checkOutp=None):
 
 def debuggerHasStopped():
     stopDebugger = findObject(":Debugger Toolbar.Exit Debugger_QToolButton")
-    fancyDebugButton = findObject(":*Qt Creator.Start Debugging_Core::Internal::FancyToolButton")
+    fancyDebugButton = waitForObject(":*Qt Creator.Start Debugging_Core::Internal::FancyToolButton")
     result = test.verify(not stopDebugger.enabled and fancyDebugButton.enabled,
                          "Verifying whether debugger buttons are in correct state.")
     ensureChecked(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton")
@@ -110,9 +110,6 @@ def testLoggingFeatures():
         clickButton(":*Qt Creator.Clear_QToolButton")
 
 def main():
-    test.warning("This test must be rewritten (QTCREATORBUG-15831)") # QmlJS Console has changed
-    return
-
     projName = "simpleQuickUI2.qmlproject"
     projFolder = os.path.dirname(findFile("testdata", "simpleQuickUI2/%s" % projName))
     if not neededFilePresent(os.path.join(projFolder, projName)):
@@ -128,7 +125,7 @@ def main():
         return
 
     # if Debug is enabled - 1 valid kit is assigned - real check for this is done in tst_qml_locals
-    fancyDebugButton = findObject(":*Qt Creator.Start Debugging_Core::Internal::FancyToolButton")
+    fancyDebugButton = waitForObject(":*Qt Creator.Start Debugging_Core::Internal::FancyToolButton")
     if test.verify(waitFor('fancyDebugButton.enabled', 5000), "Start Debugging is enabled."):
         # make sure QML Debugging is enabled
         switchViewTo(ViewConstants.PROJECTS)
