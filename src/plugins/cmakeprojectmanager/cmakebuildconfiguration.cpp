@@ -33,6 +33,7 @@
 #include "cmakeprojectconstants.h"
 #include "cmakebuildsettingswidget.h"
 #include "cmakeprojectmanager.h"
+#include "cmakeprojectnodes.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
@@ -216,6 +217,9 @@ void CMakeBuildConfiguration::generateProjectTree(CMakeListsNode *root,
     if (!m_buildDirManager || m_buildDirManager->isParsing())
         return;
 
+    root->removeProjectNodes();
+    root->setFolderNodes({});
+    root->setFileNodes({});
     m_buildDirManager->generateProjectTree(root, allFiles);
 }
 

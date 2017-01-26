@@ -250,11 +250,11 @@ static ProjectNode *updateCMakeInputs(CMakeListsNode *root,
     if (!cmakeVFolder) {
         if (hasInputs) {
             cmakeVFolder = new CMakeInputsNode(root->filePath());
-            root->addProjectNodes({ cmakeVFolder });
+            root->addProjectNode(cmakeVFolder);
         }
     } else {
         if (!hasInputs)
-            root->removeProjectNodes({ cmakeVFolder });
+            root->removeProjectNode(cmakeVFolder);
     }
     if (!hasInputs)
         return nullptr;
@@ -304,15 +304,11 @@ void ServerModeReader::generateProjectTree(CMakeListsNode *root,
     if (!m_projects.isEmpty())
         root->setDisplayName(m_projects.at(0)->name);
 
-    QSet<Node *> usedNodes;
-    usedNodes.insert(updateCMakeInputs(root, m_parameters.sourceDirectory, m_parameters.buildDirectory,
-                                       cmakeFilesSource, cmakeFilesBuild, cmakeFilesOther));
+    updateCMakeInputs(root, m_parameters.sourceDirectory, m_parameters.buildDirectory,
+                       cmakeFilesSource, cmakeFilesBuild, cmakeFilesOther);
 
-    usedNodes.unite(updateCMakeLists(root, cmakeLists));
-    usedNodes.unite(updateProjects(root, m_projects, allFiles));
-
-    // Trim out unused nodes:
-    root->trim(usedNodes);
+    updateCMakeLists(root, cmakeLists);
+    updateProjects(root, m_projects, allFiles);
 }
 
 QSet<Core::Id> ServerModeReader::updateCodeModel(CppTools::ProjectPartBuilder &ppBuilder)
@@ -583,7 +579,7 @@ QSet<Node *> ServerModeReader::updateCMakeLists(CMakeListsNode *root,
             cmln = static_cast<CMakeListsNode *>(parentNode->projectNode(fn->filePath()));
         if (!cmln) {
             cmln = new CMakeListsNode(fn->filePath());
-            parentNode->addProjectNodes({ cmln });
+            parentNode->addProjectNode(cmln);
         }
 
         // Find or create CMakeLists.txt filenode below CMakeListsNode:
@@ -647,7 +643,7 @@ static CMakeProjectNode *findOrCreateProjectNode(CMakeListsNode *root, const Uti
     CMakeProjectNode *pn = static_cast<CMakeProjectNode *>(cmln->projectNode(projectName));
     if (!pn) {
         pn = new CMakeProjectNode(projectName);
-        cmln->addProjectNodes({ pn });
+        cmln->addProjectNode(pn);
     }
     pn->setDisplayName(displayName);
     return pn;
@@ -688,7 +684,7 @@ static CMakeTargetNode *findOrCreateTargetNode(CMakeListsNode *root, const Utils
     CMakeTargetNode *tn = static_cast<CMakeTargetNode *>(cmln->projectNode(targetName));
     if (!tn) {
         tn = new CMakeTargetNode(targetName);
-        cmln->addProjectNodes({ tn });
+        cmln->addProjectNode(tn);
     }
     tn->setDisplayName(displayName);
     return tn;

@@ -91,18 +91,6 @@ static bool addFilesToResource(const Utils::FileName &resourceFile,
     return true;
 }
 
-static bool sortByPrefixAndLang(ProjectExplorer::FolderNode *a, ProjectExplorer::FolderNode *b)
-{
-    ResourceFolderNode *aa = static_cast<ResourceFolderNode *>(a);
-    ResourceFolderNode *bb = static_cast<ResourceFolderNode *>(b);
-
-    if (aa->prefix() < bb->prefix())
-        return true;
-    if (bb->prefix() < aa->prefix())
-        return false;
-    return aa->lang() < bb->lang();
-}
-
 ResourceTopLevelNode::ResourceTopLevelNode(
         const Utils::FileName &filePath, const QString &contents,
         ProjectExplorer::FolderNode *parent)

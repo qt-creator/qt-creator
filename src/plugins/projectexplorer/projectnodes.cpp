@@ -185,11 +185,6 @@ void Node::emitTreeChanged()
     ProjectTree::emitDataChanged();
 }
 
-Node *Node::trim(const QSet<Node *> &keepers)
-{
-    return keepers.contains(this) ? nullptr : this;
-}
-
 bool Node::sortByPath(const Node *a, const Node *b)
 {
     return a->filePath() < b->filePath();
@@ -337,26 +332,6 @@ QIcon FolderNode::icon() const
     if (m_icon.isNull())
         m_icon = Core::FileIconProvider::icon(QFileIconProvider::Folder);
     return m_icon;
-}
-
-Node *FolderNode::trim(const QSet<Node *> &keepers)
-{
-    if (keepers.contains(this))
-        return nullptr;
-
-    bool keepThis = false;
-    QList<Node *> toTrim = Utils::transform(m_fileNodes, [&keepers](Node *n) { return n->trim(keepers); });
-    int count = toTrim.count();
-    toTrim = Utils::filtered(toTrim, [](const Node *n) { return n; });
-    keepThis = (count != toTrim.count());
-    removeFileNodes(Utils::transform(toTrim, [](Node *n) { return static_cast<FileNode *>(n); }));
-
-    toTrim = Utils::transform(m_folderNodes, [&keepers](Node *n) { return n->trim(keepers); });
-    count = toTrim.count();
-    toTrim = Utils::filtered(toTrim, [](const Node *n) { return n; });
-    keepThis = keepThis || (count != toTrim.count());
-    removeFolderNodes(Utils::transform(toTrim, [](Node *n) { return static_cast<FolderNode *>(n); }));
-    return keepThis ? nullptr : this;
 }
 
 QList<FileNode*> FolderNode::fileNodes() const
@@ -829,25 +804,19 @@ QList<ProjectNode*> ProjectNode::projectNodes() const
   Adds project nodes specified by \a subProjects to the node hierarchy and
   emits the corresponding signals.
   */
-void ProjectNode::addProjectNodes(const QList<ProjectNode*> &subProjects)
+void ProjectNode::addProjectNode(ProjectNode *subProject)
 {
-    if (!subProjects.isEmpty()) {
-        QList<FolderNode*> folderNodes;
-        foreach (ProjectNode *projectNode, subProjects)
-            folderNodes << projectNode;
+    QTC_ASSERT(subProject, return);
+    QTC_ASSERT(!subProject->parentFolderNode(), return);
 
-        foreach (ProjectNode *project, subProjects) {
-            QTC_ASSERT(!project->parentFolderNode() || project->parentFolderNode() == this,
-                       qDebug("Project node has already a parent"));
-            project->setParentFolderNode(this);
-            m_folderNodes.append(project);
-            m_projectNodes.append(project);
-        }
+    subProject->setParentFolderNode(this);
+    m_folderNodes.append(subProject);
+    m_projectNodes.append(subProject);
 
-        Utils::sort(m_folderNodes);
-        Utils::sort(m_projectNodes);
-    }
+    Utils::sort(m_folderNodes);
+    Utils::sort(m_projectNodes);
 }
+
 
 /*!
   Removes project nodes specified by \a subProjects from the node hierarchy
@@ -856,50 +825,20 @@ void ProjectNode::addProjectNodes(const QList<ProjectNode*> &subProjects)
   All objects in the \a subProjects list are deleted.
 */
 
-void ProjectNode::removeProjectNodes(const QList<ProjectNode*> &subProjects)
+void ProjectNode::removeProjectNodes()
 {
-    if (!subProjects.isEmpty()) {
-        QList<FolderNode*> toRemove;
-        foreach (ProjectNode *projectNode, subProjects)
-            toRemove << projectNode;
-        Utils::sort(toRemove);
+    foreach (ProjectNode *subProject, m_projectNodes)
+        m_folderNodes.removeAll(subProject);
 
-        auto toRemoveIter = toRemove.constBegin();
-        auto folderIter = m_folderNodes.begin();
-        auto projectIter = m_projectNodes.begin();
-        for (; toRemoveIter != toRemove.constEnd(); ++toRemoveIter) {
-            while (*projectIter != *toRemoveIter) {
-                ++projectIter;
-                QTC_ASSERT(projectIter != m_projectNodes.end(),
-                    qDebug("Project to remove is not part of specified folder!"));
-            }
-            while (*folderIter != *toRemoveIter) {
-                ++folderIter;
-                QTC_ASSERT(folderIter != m_folderNodes.end(),
-                    qDebug("Project to remove is not part of specified folder!"));
-            }
-            delete *projectIter;
-            projectIter = m_projectNodes.erase(projectIter);
-            folderIter = m_folderNodes.erase(folderIter);
-        }
-    }
+    qDeleteAll(m_projectNodes);
+    m_projectNodes.clear();
 }
 
-Node *ProjectNode::trim(const QSet<Node *> &keepers)
+void ProjectNode::removeProjectNode(ProjectNode *subProject)
 {
-    if (keepers.contains(this))
-        return nullptr;
-
-    QList<Node *> toTrim
-            = Utils::transform(m_projectNodes, [&keepers](Node *n) { return n->trim(keepers); });
-    int count = toTrim.count();
-    toTrim = Utils::filtered(toTrim, [](Node *n) { return n; });
-    removeProjectNodes(Utils::transform(toTrim, [](Node *n) { return static_cast<ProjectNode *>(n); }));
-
-    if (!FolderNode::trim(keepers))
-        return nullptr;
-
-    return (toTrim.count() != count) ? nullptr : this;
+    m_projectNodes.removeOne(subProject);
+    m_folderNodes.removeOne(subProject);
+    delete subProject;
 }
 
 /*!

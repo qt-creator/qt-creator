@@ -681,7 +681,6 @@ void QbsProductNode::setQbsProductData(const qbs::Project &project, const qbs::P
     idx->setAbsoluteFilePathAndLine(Utils::FileName::fromString(prd.location().filePath()),
                         prd.location().line());
 
-    QList<ProjectExplorer::ProjectNode *> toAdd;
     QList<ProjectExplorer::ProjectNode *> toRemove = projectNodes();
 
     foreach (const qbs::GroupData &grp, prd.groups()) {
@@ -697,7 +696,7 @@ void QbsProductNode::setQbsProductData(const qbs::Project &project, const qbs::P
             gn->updateQbsGroupData(grp, productPath, productWasEnabled, productIsEnabled);
         } else {
             gn = new QbsGroupNode(grp, productPath);
-            toAdd.append(gn);
+            addProjectNode(gn);
         }
     }
 
@@ -708,8 +707,8 @@ void QbsProductNode::setQbsProductData(const qbs::Project &project, const qbs::P
                                  prd.buildDirectory(), true, true);
     }
 
-    addProjectNodes(toAdd);
-    removeProjectNodes(toRemove);
+    for (ProjectNode *node : toRemove)
+        removeProjectNode(node);
 
     m_qbsProductData = prd;
     if (updateExisting)
@@ -761,7 +760,6 @@ QbsProjectNode::~QbsProjectNode()
 
 void QbsProjectNode::update(const qbs::Project &qbsProject, const qbs::ProjectData &prjData)
 {
-    QList<ProjectExplorer::ProjectNode *> toAdd;
     QList<ProjectExplorer::ProjectNode *> toRemove = projectNodes();
 
     foreach (const qbs::ProjectData &subData, prjData.subProjects()) {
@@ -770,7 +768,7 @@ void QbsProjectNode::update(const qbs::Project &qbsProject, const qbs::ProjectDa
             auto subProject =
                     new QbsProjectNode(Utils::FileName::fromString(subData.location().filePath()));
             subProject->update(qbsProject, subData);
-            toAdd << subProject;
+            addProjectNode(subProject);
         } else {
             qn->update(qbsProject, subData);
             toRemove.removeOne(qn);
@@ -780,7 +778,7 @@ void QbsProjectNode::update(const qbs::Project &qbsProject, const qbs::ProjectDa
     foreach (const qbs::ProductData &prd, prjData.products()) {
         QbsProductNode *qn = findProductNode(QbsProject::uniqueProductName(prd));
         if (!qn) {
-            toAdd << new QbsProductNode(qbsProject, prd);
+            addProjectNode(new QbsProductNode(qbsProject, prd));
         } else {
             qn->setQbsProductData(qbsProject, prd);
             toRemove.removeOne(qn);
@@ -792,8 +790,8 @@ void QbsProjectNode::update(const qbs::Project &qbsProject, const qbs::ProjectDa
     else
         setDisplayName(project()->displayName());
 
-    removeProjectNodes(toRemove);
-    addProjectNodes(toAdd);
+    foreach (ProjectNode *node, toRemove)
+        removeProjectNode(node);
     m_projectData = prjData;
 }
 

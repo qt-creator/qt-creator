@@ -2043,7 +2043,7 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
 
             // delete files && folders && projects
             setFileNodes({});
-            removeProjectNodes(projectNodes());
+            removeProjectNodes();
             setFolderNodes({});
 
             m_projectType = InvalidProject;
@@ -2065,7 +2065,7 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
         }
 
         setFileNodes({});
-        removeProjectNodes(projectNodes());
+        removeProjectNodes();
         setFolderNodes({});
 
         m_projectType = result->projectType;
@@ -2091,7 +2091,6 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
         Utils::sort(existingProjectNodes, sortByPath);
         // result is already sorted
 
-        QList<ProjectNode*> toAdd;
         QList<ProjectNode*> toRemove;
 
         QList<ProjectNode*>::const_iterator existingIt = existingProjectNodes.constBegin();
@@ -2130,21 +2129,19 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
                 } else {
                     if (nodeToAdd->proFile) {
                         QmakePriFileNode *qmakePriFileNode = new QmakePriFileNode(m_project, this, nodeToAdd->name);
-                        qmakePriFileNode->setParentFolderNode(pn); // Needed for loop detection
+                        pn->addProjectNode(qmakePriFileNode);
                         qmakePriFileNode->setIncludedInExactParse(
                                     (result->state == EvalResult::EvalOk) && pn->includedInExactParse());
-                        toAdd << qmakePriFileNode;
                         qmakePriFileNode->update(nodeToAdd->result);
                         toCompare.append(qMakePair(qmakePriFileNode, nodeToAdd));
                     } else {
                         QmakeProFileNode *qmakeProFileNode = new QmakeProFileNode(m_project, nodeToAdd->name);
-                        qmakeProFileNode->setParentFolderNode(pn); // Needed for loop detection
+                        pn->addProjectNode(qmakeProFileNode);
                         qmakeProFileNode->setIncludedInExactParse(
                                     result->exactSubdirs.contains(qmakeProFileNode->filePath())
                                     && pn->includedInExactParse());
                         qmakeProFileNode->setParseInProgress(true);
                         qmakeProFileNode->asyncUpdate();
-                        toAdd << qmakeProFileNode;
                     }
                 }
             } else {
@@ -2176,12 +2173,8 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
                 qmakeProFileNode->setValidParseRecursive(false);
                 qmakeProFileNode->setParseInProgressRecursive(false);
             }
+            pn->removeProjectNode(node);
         }
-
-        if (!toRemove.isEmpty())
-            pn->removeProjectNodes(toRemove);
-        if (!toAdd.isEmpty())
-            pn->addProjectNodes(toAdd);
     }
 
     QmakePriFileNode::update(result->includedFiles.result);

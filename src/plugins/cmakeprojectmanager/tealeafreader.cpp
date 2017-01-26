@@ -243,20 +243,6 @@ CMakeConfig TeaLeafReader::takeParsedConfiguration()
     return result;
 }
 
-static void sanitizeTree(CMakeListsNode *root)
-{
-    QSet<FileName> uniqueFileNames;
-    QSet<Node *> uniqueNodes;
-    foreach (FileNode *fn, root->recursiveFileNodes()) {
-        const int count = uniqueFileNames.count();
-        uniqueFileNames.insert(fn->filePath());
-        if (count != uniqueFileNames.count())
-            uniqueNodes.insert(static_cast<Node *>(fn));
-    }
-    root->trim(uniqueNodes);
-    root->removeProjectNodes(root->projectNodes()); // Remove all project nodes
-}
-
 void TeaLeafReader::generateProjectTree(CMakeListsNode *root, const QList<const FileNode *> &allFiles)
 {
     root->setDisplayName(m_projectName);
@@ -308,7 +294,6 @@ void TeaLeafReader::generateProjectTree(CMakeListsNode *root, const QList<const 
 
     QList<FileNode *> fileNodes = m_files + Utils::transform(missingHeaders, [](const FileNode *fn) { return new FileNode(*fn); });
 
-    sanitizeTree(root); // Filter out duplicate nodes that e.g. the servermode reader introduces:
     root->buildTree(fileNodes, m_parameters.sourceDirectory);
     m_files.clear(); // Some of the FileNodes in files() were deleted!
 }
