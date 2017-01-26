@@ -217,27 +217,18 @@ CMakeConfig ServerModeReader::takeParsedConfiguration()
     return config;
 }
 
-FolderNode *setupCMakeVFolder(FolderNode *base, const Utils::FileName &basePath, int priority,
-                              const QString &displayName, QList<FileNode *> &files)
+void addCMakeVFolder(FolderNode *base, const Utils::FileName &basePath, int priority,
+                     const QString &displayName, QList<FileNode *> &files)
 {
     if (files.isEmpty())
-        return nullptr;
-
-    FolderNode *folder
-            = findOrDefault(base->folderNodes(), [basePath](const FolderNode *fn) {
-        return fn->filePath() == basePath;
-    });
-
-    if (!folder) {
-        folder = new VirtualFolderNode(basePath, priority);
-        folder->setDisplayName(displayName);
-        base->addFolderNode(folder);
-    }
+        return;
+    auto folder = new VirtualFolderNode(basePath, priority);
+    folder->setDisplayName(displayName);
+    base->addFolderNode(folder);
     folder->buildTree(files);
-    return folder;
 }
 
-static ProjectNode *updateCMakeInputs(CMakeListsNode *root,
+static ProjectNode *addCMakeInputs(CMakeListsNode *root,
                                       const Utils::FileName &sourceDir,
                                       const Utils::FileName &buildDir,
                                       QList<FileNode *> &sourceInputs,
@@ -259,22 +250,15 @@ static ProjectNode *updateCMakeInputs(CMakeListsNode *root,
     if (!hasInputs)
         return nullptr;
 
-    QList<FolderNode *> toKeep;
-    toKeep.append(setupCMakeVFolder(cmakeVFolder, sourceDir, 1000,
-                                    QCoreApplication::translate("CMakeProjectManager::Internal", "<Source Directory>"),
-                                    sourceInputs));
-    toKeep.append(setupCMakeVFolder(cmakeVFolder, buildDir, 100,
-                                    QCoreApplication::translate("CMakeProjectManager::Internal", "<Build Directory>"),
-                                    buildInputs));
-    toKeep.append(setupCMakeVFolder(cmakeVFolder, Utils::FileName(), 10,
-                                    QCoreApplication::translate("CMakeProjectManager::Internal", "<Other Locations>"),
-                                    rootInputs));
-
-    // Clean out unused nodes in "CMake Files":
-    const QList<FolderNode *> tmp = filtered(cmakeVFolder->folderNodes(), [&toKeep](FolderNode *fn) {
-        return !toKeep.contains(fn);
-    });
-    cmakeVFolder->removeFolderNodes(tmp);
+    addCMakeVFolder(cmakeVFolder, sourceDir, 1000,
+                      QCoreApplication::translate("CMakeProjectManager::Internal", "<Source Directory>"),
+                      sourceInputs);
+    addCMakeVFolder(cmakeVFolder, buildDir, 100,
+                      QCoreApplication::translate("CMakeProjectManager::Internal", "<Build Directory>"),
+                      buildInputs);
+    addCMakeVFolder(cmakeVFolder, Utils::FileName(), 10,
+                      QCoreApplication::translate("CMakeProjectManager::Internal", "<Other Locations>"),
+                      rootInputs);
 
     return cmakeVFolder;
 }
@@ -304,11 +288,11 @@ void ServerModeReader::generateProjectTree(CMakeListsNode *root,
     if (!m_projects.isEmpty())
         root->setDisplayName(m_projects.at(0)->name);
 
-    updateCMakeInputs(root, m_parameters.sourceDirectory, m_parameters.buildDirectory,
-                       cmakeFilesSource, cmakeFilesBuild, cmakeFilesOther);
+    addCMakeInputs(root, m_parameters.sourceDirectory, m_parameters.buildDirectory,
+                   cmakeFilesSource, cmakeFilesBuild, cmakeFilesOther);
 
-    updateCMakeLists(root, cmakeLists);
-    updateProjects(root, m_projects, allFiles);
+    addCMakeLists(root, cmakeLists);
+    addProjects(root, m_projects, allFiles);
 }
 
 QSet<Core::Id> ServerModeReader::updateCodeModel(CppTools::ProjectPartBuilder &ppBuilder)
@@ -538,7 +522,7 @@ void ServerModeReader::extractCacheData(const QVariantMap &data)
     m_cmakeCache = config;
 }
 
-void ServerModeReader::updateCMakeLists(CMakeListsNode *root, const QList<FileNode *> &cmakeLists)
+void ServerModeReader::addCMakeLists(CMakeListsNode *root, const QList<FileNode *> &cmakeLists)
 {
     const QDir baseDir = QDir(m_parameters.sourceDirectory.toString());
 
@@ -642,9 +626,9 @@ static CMakeProjectNode *findOrCreateProjectNode(CMakeListsNode *root, const Uti
     return pn;
 }
 
-void ServerModeReader::updateProjects(CMakeListsNode *root,
-                                      const QList<Project *> &projects,
-                                      const QList<const FileNode *> &allFiles)
+void ServerModeReader::addProjects(CMakeListsNode *root,
+                                   const QList<Project *> &projects,
+                                   const QList<const FileNode *> &allFiles)
 {
     QHash<Utils::FileName, QList<const FileNode *>> includeFiles;
     for (const FileNode *f : allFiles) {
@@ -656,12 +640,12 @@ void ServerModeReader::updateProjects(CMakeListsNode *root,
     for (const Project *p : projects) {
         CMakeProjectNode *pNode = findOrCreateProjectNode(root, p->sourceDirectory, p->name);
         QTC_ASSERT(pNode, continue);
-        updateTargets(root, p->targets, includeFiles);
+        addTargets(root, p->targets, includeFiles);
     }
 }
 
 static CMakeTargetNode *findOrCreateTargetNode(CMakeListsNode *root, const Utils::FileName &dir,
-                                                const QString &displayName)
+                                               const QString &displayName)
 {
     CMakeListsNode *cmln = findCMakeNode(root, dir);
     QTC_ASSERT(cmln, return nullptr);
@@ -678,22 +662,22 @@ static CMakeTargetNode *findOrCreateTargetNode(CMakeListsNode *root, const Utils
     return tn;
 }
 
-void ServerModeReader::updateTargets(CMakeListsNode *root,
-                                             const QList<ServerModeReader::Target *> &targets,
-                                             const QHash<FileName, QList<const FileNode *>> &headers)
+void ServerModeReader::addTargets(CMakeListsNode *root,
+                                  const QList<ServerModeReader::Target *> &targets,
+                                  const QHash<FileName, QList<const FileNode *>> &headers)
 {
     for (const Target *t : targets) {
         CMakeTargetNode *tNode = findOrCreateTargetNode(root, t->sourceDirectory, t->name);
         tNode->setTargetInformation(t->artifacts, t->type);
-        updateFileGroups(tNode, t->sourceDirectory, t->buildDirectory, t->fileGroups, headers);
+        addFileGroups(tNode, t->sourceDirectory, t->buildDirectory, t->fileGroups, headers);
     }
 }
 
-void ServerModeReader::updateFileGroups(ProjectNode *targetRoot,
-                                        const Utils::FileName &sourceDirectory,
-                                        const Utils::FileName &buildDirectory,
-                                        const QList<ServerModeReader::FileGroup *> &fileGroups,
-                                        const QHash<FileName, QList<const FileNode *>> &headers)
+void ServerModeReader::addFileGroups(ProjectNode *targetRoot,
+                                     const Utils::FileName &sourceDirectory,
+                                     const Utils::FileName &buildDirectory,
+                                     const QList<ServerModeReader::FileGroup *> &fileGroups,
+                                     const QHash<FileName, QList<const FileNode *>> &headers)
 {
     QList<FileNode *> toList;
     QSet<Utils::FileName> alreadyListed;
@@ -737,15 +721,10 @@ void ServerModeReader::updateFileGroups(ProjectNode *targetRoot,
             otherFileNodes.append(fn);
     }
 
-    QList<FolderNode *> toKeep;
-    toKeep.append(setupCMakeVFolder(targetRoot, sourceDirectory, 1000, tr("<Source Directory>"), sourceFileNodes));
-    toKeep.append(setupCMakeVFolder(targetRoot, buildDirectory, 100, tr("<Build Directory>"), buildFileNodes));
-    toKeep.append(setupCMakeVFolder(targetRoot, Utils::FileName(), 10, tr("<Other Locations>"), otherFileNodes));
-
-    const QList<FolderNode *> toDelete
-            = filtered(targetRoot->folderNodes(), [&toKeep](FolderNode *fn) { return !toKeep.contains(fn); });
-    if (!toDelete.isEmpty())
-        targetRoot->removeFolderNodes(toDelete);
+    targetRoot->removeFolderNodes();
+    addCMakeVFolder(targetRoot, sourceDirectory, 1000, tr("<Source Directory>"), sourceFileNodes);
+    addCMakeVFolder(targetRoot, buildDirectory, 100, tr("<Build Directory>"), buildFileNodes);
+    addCMakeVFolder(targetRoot, Utils::FileName(), 10, tr("<Other Locations>"), otherFileNodes);
 }
 
 } // namespace Internal

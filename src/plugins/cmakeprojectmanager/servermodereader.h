@@ -110,16 +110,16 @@ private:
     void extractCMakeInputsData(const QVariantMap &data);
     void extractCacheData(const QVariantMap &data);
 
-    void updateCMakeLists(CMakeListsNode *root, const QList<ProjectExplorer::FileNode *> &cmakeLists);
-    void updateProjects(CMakeListsNode *root, const QList<Project *> &projects,
-                        const QList<const ProjectExplorer::FileNode *> &allFiles);
-    void updateTargets(CMakeListsNode *root, const QList<Target *> &targets,
+    void addCMakeLists(CMakeListsNode *root, const QList<ProjectExplorer::FileNode *> &cmakeLists);
+    void addProjects(CMakeListsNode *root, const QList<Project *> &projects,
+                     const QList<const ProjectExplorer::FileNode *> &allFiles);
+    void addTargets(CMakeListsNode *root, const QList<Target *> &targets,
+                    const QHash<Utils::FileName, QList<const ProjectExplorer::FileNode *>> &headers);
+    void addFileGroups(ProjectExplorer::ProjectNode *targetRoot,
+                       const Utils::FileName &sourceDirectory,
+                       const Utils::FileName &buildDirectory,
+                       const QList<FileGroup *> &fileGroups,
                        const QHash<Utils::FileName, QList<const ProjectExplorer::FileNode *>> &headers);
-    void updateFileGroups(ProjectExplorer::ProjectNode *targetRoot,
-                          const Utils::FileName &sourceDirectory,
-                          const Utils::FileName &buildDirectory,
-                          const QList<FileGroup *> &fileGroups,
-                          const QHash<Utils::FileName, QList<const ProjectExplorer::FileNode *>> &headers);
 
     bool m_hasData = false;
 
