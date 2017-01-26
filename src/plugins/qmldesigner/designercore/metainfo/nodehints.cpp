@@ -46,22 +46,25 @@
 
 #include <QJSEngine>
 
-namespace QmlDesigner {
+#include <memory>
+#include <mutex>
 
+namespace QmlDesigner {
 
 namespace Internal {
 
-static QJSEngine *s_qJSEngine = nullptr;
+static std::once_flag s_singletonFlag;
+static std::unique_ptr<QJSEngine> s_qJSEngine;
 static JSObject *s_jsObject = nullptr;
 
 static QVariant evaluateExpression(const QString &expression, const ModelNode &modelNode, const ModelNode &otherNode)
 {
-    if (!s_qJSEngine) {
-        s_qJSEngine = new QJSEngine;
-        s_jsObject = new JSObject(s_qJSEngine);
+    std::call_once(s_singletonFlag, []() {
+        s_qJSEngine.reset(new QJSEngine);
+        s_jsObject = new JSObject(s_qJSEngine.get());
         QJSValue jsValue = s_qJSEngine->newQObject(s_jsObject);
         s_qJSEngine->globalObject().setProperty("model", jsValue);
-    }
+    });
 
     s_jsObject->setModelNode(modelNode);
     s_jsObject->setOtherNode(otherNode);
