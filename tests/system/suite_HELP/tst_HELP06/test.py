@@ -53,7 +53,7 @@ def main():
     switchViewTo(ViewConstants.HELP)
     manualQModelIndex = getQModelIndexStr("text?='Qt Creator Manual *'",
                                           ":Qt Creator_QHelpContentWidget")
-    doubleClick(manualQModelIndex, 5, 5, 0, Qt.LeftButton)
+    doubleClick(waitForObject(manualQModelIndex), 5, 5, 0, Qt.LeftButton)
     mouseClick(waitForObject(getQModelIndexStr("text='Building and Running an Example'",
                                                manualQModelIndex)), 5, 5, 0, Qt.LeftButton)
     helpSelector = waitForObject(":Qt Creator_HelpSelector_QComboBox")
