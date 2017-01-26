@@ -119,14 +119,11 @@ private:
     void extractCMakeInputsData(const QVariantMap &data);
     void extractCacheData(const QVariantMap &data);
 
-    QSet<ProjectExplorer::Node *> updateCMakeLists(CMakeListsNode *root,
-                                                   const QList<ProjectExplorer::FileNode *> &cmakeLists);
-    QSet<ProjectExplorer::Node *> updateProjects(CMakeListsNode *root,
-                                                 const QList<Project *> &projects,
-                                                 const QList<const ProjectExplorer::FileNode *> &allFiles);
-    QSet<ProjectExplorer::Node *> updateTargets(CMakeListsNode *root,
-                                                const QList<Target *> &targets,
-                                                const QHash<Utils::FileName, QList<const ProjectExplorer::FileNode *>> &headers);
+    void updateCMakeLists(CMakeListsNode *root, const QList<ProjectExplorer::FileNode *> &cmakeLists);
+    void updateProjects(CMakeListsNode *root, const QList<Project *> &projects,
+                        const QList<const ProjectExplorer::FileNode *> &allFiles);
+    void updateTargets(CMakeListsNode *root, const QList<Target *> &targets,
+                       const QHash<Utils::FileName, QList<const ProjectExplorer::FileNode *>> &headers);
     void updateFileGroups(ProjectExplorer::ProjectNode *targetRoot,
                           const Utils::FileName &sourceDirectory,
                           const Utils::FileName &buildDirectory,
