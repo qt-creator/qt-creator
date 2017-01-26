@@ -216,6 +216,9 @@ void GraphicsScene::removeSelectedItems()
 
 void GraphicsScene::copy()
 {
+    if (!m_document->currentTag())
+        return;
+
     QPointF minPos;
     QVector<ScxmlTag*> tags;
     if (m_document->currentTag()->tagType() == Scxml) {
