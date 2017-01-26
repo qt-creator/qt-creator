@@ -269,11 +269,9 @@ void CMakeBuildSettingsWidget::setError(const QString &message)
     m_errorMessageLabel->setText(message);
     m_errorMessageLabel->setToolTip(message);
 
-    m_configView->setVisible(!showError);
-    m_editButton->setVisible(!showError);
-    m_resetButton->setVisible(!showError);
-    m_showAdvancedCheckBox->setVisible(!showError);
-    m_reconfigureButton->setVisible(!showError);
+    m_editButton->setEnabled(!showError);
+    m_resetButton->setEnabled(!showError);
+    m_showAdvancedCheckBox->setEnabled(!showError);
 }
 
 void CMakeBuildSettingsWidget::setWarning(const QString &message)
