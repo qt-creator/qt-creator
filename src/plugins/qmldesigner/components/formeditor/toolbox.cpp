@@ -89,10 +89,9 @@ void ToolBox::addRightSideAction(QAction *action)
     m_rightToolBar->addAction(action);
 }
 
-
 QList<QAction*> ToolBox::actions() const
 {
-    return QList<QAction*>() << m_leftToolBar->actions() << m_rightToolBar->actions();
+    return m_leftToolBar->actions() + m_rightToolBar->actions();
 }
 
 } // namespace QmlDesigner
