@@ -38,13 +38,6 @@
 
 namespace CppTools { class ProjectPartBuilder; }
 
-namespace ProjectExplorer {
-class IOutputParser;
-class Kit;
-} // ProjectExplorer
-
-namespace Utils { class QtcProcess; }
-
 namespace CMakeProjectManager {
 namespace Internal {
 

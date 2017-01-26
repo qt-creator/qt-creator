@@ -28,16 +28,7 @@
 #include "builddirreader.h"
 #include "servermode.h"
 
-#include <utils/qtcprocess.h>
-
-#include <QSet>
-#include <QTimer>
-
 #include <memory>
-
-QT_FORWARD_DECLARE_CLASS(QLocalSocket);
-
-namespace Utils { class QtcProcess; }
 
 namespace CMakeProjectManager {
 namespace Internal {
