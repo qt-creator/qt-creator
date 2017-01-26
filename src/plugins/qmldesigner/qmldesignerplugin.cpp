@@ -259,10 +259,8 @@ void QmlDesignerPlugin::integrateIntoQtCreator(QWidget *modeWidget)
         &d->shortCutManager, &ShortCutManager::updateActions);
 
     connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged, [this] (Core::IEditor *editor) {
-        if (d && checkIfEditorIsQtQuick(editor) && isInDesignerMode()) {
-            d->shortCutManager.updateActions(editor);
+        if (d && checkIfEditorIsQtQuick(editor) && isInDesignerMode())
             changeEditor();
-        }
     });
 
     connect(Core::EditorManager::instance(), &Core::EditorManager::editorsClosed, [this] (QList<Core::IEditor*> editors) {
