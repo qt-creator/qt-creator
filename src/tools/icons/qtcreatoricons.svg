@@ -4034,7 +4034,7 @@
     <g
        transform="translate(336,0)"
        style="display:inline"
-       id="src/plugins/scxmleditor/common/images/icon-pan">
+       id="src/libs/utils/images/pan">
       <rect
          style="fill:#ffffff;fill-opacity:1"
          x="1228"

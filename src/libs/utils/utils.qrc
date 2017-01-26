@@ -170,5 +170,7 @@
         <file>images/namespace@2x.png</file>
         <file>images/filledcircle.png</file>
         <file>images/filledcircle@2x.png</file>
+        <file>images/pan.png</file>
+        <file>images/pan@2x.png</file>
     </qresource>
 </RCC>
