@@ -84,3 +84,4 @@ protected:
 };
 
 } // namespace Core
+CORE_EXPORT QDebug operator<<(QDebug debug, const Core::Context &context);

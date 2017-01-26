@@ -393,14 +393,6 @@ ActionManagerPrivate::~ActionManagerPrivate()
     qDeleteAll(m_idCmdMap);
 }
 
-QDebug operator<<(QDebug d, const Context &context)
-{
-    d << "CONTEXT: ";
-    foreach (Id id, context)
-        d << "   " << id.toString();
-    return d;
-}
-
 void ActionManagerPrivate::setContext(const Context &context)
 {
     // here are possibilities for speed optimization if necessary:
