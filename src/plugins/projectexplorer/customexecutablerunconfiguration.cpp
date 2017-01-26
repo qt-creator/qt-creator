@@ -182,7 +182,7 @@ RunConfiguration::ConfigurationState CustomExecutableRunConfiguration::ensureCon
 void CustomExecutableRunConfiguration::configurationDialogFinished()
 {
     disconnect(m_dialog, &QDialog::finished,
-            this, &CustomExecutableRunConfiguration::configurationDialogFinished);
+               this, &CustomExecutableRunConfiguration::configurationDialogFinished);
     m_dialog->deleteLater();
     m_dialog = nullptr;
     emit configurationFinished();
