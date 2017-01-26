@@ -231,7 +231,7 @@ FolderNode *setupCMakeVFolder(FolderNode *base, const Utils::FileName &basePath,
     if (!folder) {
         folder = new VirtualFolderNode(basePath, priority);
         folder->setDisplayName(displayName);
-        base->addFolderNodes({ folder });
+        base->addFolderNode(folder);
     }
     folder->buildTree(files);
     return folder;
@@ -583,7 +583,7 @@ void ServerModeReader::updateCMakeLists(CMakeListsNode *root, const QList<FileNo
         FileNode *cmFn = cmln->fileNode(fn->filePath());
         if (!cmFn) {
             cmFn = fn;
-            cmln->addFileNodes({ cmFn });
+            cmln->addFileNode(cmFn);
         }
         // Update displayName of CMakeListsNode:
         const QString dn = prefix.isEmpty() ? k : k.mid(prefix.count() + 1);

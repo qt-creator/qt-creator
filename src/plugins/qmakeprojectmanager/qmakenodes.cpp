@@ -453,7 +453,6 @@ struct InternalNode
                 existingFolderNodes.insert(node->filePath().toString(), node);
 
         QList<FolderNode *> foldersToRemove;
-        QList<FolderNode *> foldersToAdd;
         typedef QPair<InternalNode *, FolderNode *> NodePair;
         QList<NodePair> nodesToUpdate;
 
@@ -480,7 +479,7 @@ struct InternalNode
                     nodesToUpdate << NodePair(*it, *oldit);
                 } else {
                     FolderNode *newNode = createFolderNode(*it);
-                    foldersToAdd << newNode;
+                    folder->addFolderNode(newNode);
                     nodesToUpdate << NodePair(*it, newNode);
                 }
             }
@@ -506,7 +505,7 @@ struct InternalNode
                     nodesToUpdate << NodePair(it.value(), *oldit);
                 } else {
                     FolderNode *newNode = createFolderNode(it.value());
-                    foldersToAdd << newNode;
+                    folder->addFolderNode(newNode);
                     nodesToUpdate << NodePair(it.value(), newNode);
                 }
             }
@@ -524,8 +523,6 @@ struct InternalNode
 
         if (!foldersToRemove.isEmpty())
             folder->removeFolderNodes(foldersToRemove);
-        if (!foldersToAdd.isEmpty())
-            folder->addFolderNodes(foldersToAdd);
 
         foreach (const NodePair &np, nodesToUpdate)
             np.first->updateSubFolders(np.second);
@@ -582,7 +579,7 @@ struct InternalNode
             dynamic_cast<ResourceEditor::ResourceTopLevelNode *>(fn)->update();
     }
 };
-}
+} // Internal
 
 QStringList QmakePriFileNode::baseVPaths(QtSupport::ProFileReader *reader, const QString &projectDir, const QString &buildDir)
 {
@@ -701,7 +698,7 @@ void QmakePriFileNode::update(const Internal::PriFileEvalResult &result)
 {
     // add project file node
     if (m_fileNodes.isEmpty())
-        addFileNodes(QList<FileNode *>() << new FileNode(m_projectFilePath, FileType::Project, false));
+        addFileNode(new FileNode(m_projectFilePath, FileType::Project, false));
 
     m_recursiveEnumerateFiles = result.recursiveEnumerateFiles;
     watchFolders(result.folders.toSet());

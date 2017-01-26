@@ -121,7 +121,6 @@ ResourceTopLevelNode::~ResourceTopLevelNode()
 
 void ResourceTopLevelNode::update()
 {
-    QList<ProjectExplorer::FolderNode *> newPrefixList;
     QMap<PrefixFolderLang, QList<ProjectExplorer::FileNode *>> filesToAdd;
     QMap<PrefixFolderLang, QList<ProjectExplorer::FolderNode *>> foldersToAddToFolders;
     QMap<PrefixFolderLang, QList<ProjectExplorer::FolderNode *>> foldersToAddToPrefix;
@@ -139,8 +138,7 @@ void ResourceTopLevelNode::update()
             PrefixFolderLang prefixId(prefix, QString(), lang);
             if (!prefixNodes.contains(prefixId)) {
                 ProjectExplorer::FolderNode *fn = new ResourceFolderNode(file.prefix(i), file.lang(i), this);
-                newPrefixList << fn;
-
+                addFolderNode(fn);
                 prefixNodes.insert(prefixId, fn);
             }
             ResourceFolderNode *currentPrefixNode = static_cast<ResourceFolderNode*>(prefixNodes[prefixId]);
@@ -207,9 +205,6 @@ void ResourceTopLevelNode::update()
             }
         }
     }
-
-
-    addFolderNodes(newPrefixList);
 
     foreach (FolderNode *sfn, folderNodes()) {
         ResourceFolderNode *srn = static_cast<ResourceFolderNode *>(sfn);

@@ -217,9 +217,6 @@ void CMakeBuildConfiguration::generateProjectTree(CMakeListsNode *root,
     if (!m_buildDirManager || m_buildDirManager->isParsing())
         return;
 
-    root->removeProjectNodes();
-    root->setFolderNodes({});
-    root->setFileNodes({});
     m_buildDirManager->generateProjectTree(root, allFiles);
 }
 

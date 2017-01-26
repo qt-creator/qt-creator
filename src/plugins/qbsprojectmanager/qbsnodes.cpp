@@ -322,10 +322,9 @@ QbsGroupNode::QbsGroupNode(const qbs::GroupData &grp, const QString &productPath
 
     setIcon(m_groupIcon);
 
-    QbsFileNode *idx = new QbsFileNode(Utils::FileName::fromString(grp.location().filePath()),
-                                       ProjectExplorer::FileType::Project, false,
-                                       grp.location().line());
-    addFileNodes(QList<ProjectExplorer::FileNode *>() << idx);
+    addFileNode(new QbsFileNode(Utils::FileName::fromString(grp.location().filePath()),
+                                ProjectExplorer::FileType::Project, false,
+                                grp.location().line()));
 
     updateQbsGroupData(grp, productPath, true, true);
 }
@@ -583,11 +582,10 @@ QbsProductNode::QbsProductNode(const qbs::Project &project, const qbs::ProductDa
 
     setIcon(m_productIcon);
 
-    addFolderNodes(QList<ProjectExplorer::FolderNode *>() << m_generatedFilesNode);
-    auto idx = new QbsFileNode(Utils::FileName::fromString(prd.location().filePath()),
-                               ProjectExplorer::FileType::Project, false,
-                               prd.location().line());
-    addFileNodes(QList<ProjectExplorer::FileNode *>() << idx);
+    addFolderNode(m_generatedFilesNode);
+    addFileNode(new QbsFileNode(Utils::FileName::fromString(prd.location().filePath()),
+                                ProjectExplorer::FileType::Project, false,
+                                prd.location().line()));
 
     setQbsProductData(project, prd);
 }
@@ -760,38 +758,23 @@ QbsProjectNode::~QbsProjectNode()
 
 void QbsProjectNode::update(const qbs::Project &qbsProject, const qbs::ProjectData &prjData)
 {
-    QList<ProjectExplorer::ProjectNode *> toRemove = projectNodes();
+    QTC_ASSERT(isEmpty(), makeEmpty());
 
     foreach (const qbs::ProjectData &subData, prjData.subProjects()) {
-        QbsProjectNode *qn = findProjectNode(subData.name());
-        if (!qn) {
-            auto subProject =
-                    new QbsProjectNode(Utils::FileName::fromString(subData.location().filePath()));
-            subProject->update(qbsProject, subData);
-            addProjectNode(subProject);
-        } else {
-            qn->update(qbsProject, subData);
-            toRemove.removeOne(qn);
-        }
+        auto subProject =
+                new QbsProjectNode(Utils::FileName::fromString(subData.location().filePath()));
+        subProject->update(qbsProject, subData);
+        addProjectNode(subProject);
     }
 
-    foreach (const qbs::ProductData &prd, prjData.products()) {
-        QbsProductNode *qn = findProductNode(QbsProject::uniqueProductName(prd));
-        if (!qn) {
-            addProjectNode(new QbsProductNode(qbsProject, prd));
-        } else {
-            qn->setQbsProductData(qbsProject, prd);
-            toRemove.removeOne(qn);
-        }
-    }
+    foreach (const qbs::ProductData &prd, prjData.products())
+        addProjectNode(new QbsProductNode(qbsProject, prd));
 
     if (!prjData.name().isEmpty())
         setDisplayName(prjData.name());
     else
         setDisplayName(project()->displayName());
 
-    foreach (ProjectNode *node, toRemove)
-        removeProjectNode(node);
     m_projectData = prjData;
 }
 
@@ -816,8 +799,7 @@ void QbsProjectNode::ctor()
         m_projectIcon = generateIcon(QString::fromLatin1(ProjectExplorer::Constants::FILEOVERLAY_QT));
 
     setIcon(m_projectIcon);
-    addFileNodes(QList<ProjectExplorer::FileNode *>()
-                 << new ProjectExplorer::FileNode(filePath(), ProjectExplorer::FileType::Project, false));
+    addFileNode(new ProjectExplorer::FileNode(filePath(), ProjectExplorer::FileType::Project, false));
 }
 
 QbsProductNode *QbsProjectNode::findProductNode(const QString &uniqueName)
@@ -851,7 +833,7 @@ QbsRootProjectNode::QbsRootProjectNode(QbsProject *project) :
                                                        ProjectExplorer::NodeType::Folder,
                                                        QCoreApplication::translate("QbsRootProjectNode", "Qbs files")))
 {
-    addFolderNodes(QList<FolderNode *>() << m_buildSystemFiles);
+    addFolderNode(m_buildSystemFiles);
 }
 
 void QbsRootProjectNode::update()

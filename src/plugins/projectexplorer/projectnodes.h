@@ -245,13 +245,22 @@ public:
     // determines if node will be shown in the flat view, by default folder and projects aren't shown
     virtual bool showInSimpleTree() const;
 
+    void addFileNode(FileNode *file);
+    void removeFileNodes();
+    void removeFileNode(FileNode *file);
     void addFileNodes(const QList<FileNode*> &files);
     void removeFileNodes(const QList<FileNode*> &files);
     void setFileNodes(const QList<FileNode*> &files);
 
+    void addFolderNode(FolderNode *subFolder);
+    void removeFolderNodes();
+    void removeFolderNode(FolderNode *subFolder);
     void addFolderNodes(const QList<FolderNode*> &subFolders);
     void removeFolderNodes(const QList<FolderNode*> &subFolders);
     void setFolderNodes(const QList<FolderNode*> &folders);
+
+    void makeEmpty();
+    bool isEmpty() const;
 
     FolderNode *asFolderNode() override { return this; }
     const FolderNode *asFolderNode() const override { return this; }
@@ -303,6 +312,9 @@ public:
     void addProjectNode(ProjectNode *subProject);
     void removeProjectNodes();
     void removeProjectNode(ProjectNode *subProject);
+
+    void makeEmpty();
+    bool isEmpty() const;
 
     ProjectNode *asProjectNode() final { return this; }
     const ProjectNode *asProjectNode() const final { return this; }
