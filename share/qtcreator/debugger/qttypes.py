@@ -783,6 +783,7 @@ def qdump__QHostAddress(d, value):
         else:
             d.putValue('<unspecified protocol %s>' % protocol)
 
+    d.putNumChild(4)
     if d.isExpanded():
         with Children(d):
             d.putSubItem('ipString', ipString)
