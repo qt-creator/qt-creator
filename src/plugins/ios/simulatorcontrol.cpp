@@ -397,8 +397,8 @@ void SimulatorControlPrivate::startSimulator(QFutureInterface<SimulatorControl::
                                              const QString &simUdid)
 {
     SimulatorControl::ResponseData response(simUdid);
-    if (deviceInfo(simUdid).available) {
-        // Simulator is available.
+    SimulatorInfo simInfo = deviceInfo(simUdid);
+    if (simInfo.available && simInfo.isShutdown()) {
         const QString cmd = IosConfigurations::developerPath()
                 .appendPath(QStringLiteral("/Applications/Simulator.app/Contents/MacOS/Simulator"))
                 .toString();
