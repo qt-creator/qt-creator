@@ -143,7 +143,7 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     m_detailsBrowser->setTextInteractionFlags(Qt::TextBrowserInteraction);
     detailsLayout->addWidget(m_detailsBrowser);
 
-    m_repositoryChooser->setExpectedKind(Utils::PathChooser::Directory);
+    m_repositoryChooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
     m_repositoryChooser->setHistoryCompleter("Git.RepoDir.History");
     QHBoxLayout *repoPathLayout = new QHBoxLayout;
     repoPathLayout->addWidget(m_repositoryChooserLabel);
