@@ -551,10 +551,9 @@ BaseQtVersion *ExamplesListModel::findHighestQtVersion() const
 QStringList ExamplesListModel::exampleSources(QString *examplesInstallPath, QString *demosInstallPath)
 {
     QStringList sources;
-    QString resourceDir = Core::ICore::resourcePath() + QLatin1String("/welcomescreen/");
 
     // Qt Creator shipped tutorials
-    sources << (resourceDir + QLatin1String("/qtcreator_tutorials.xml"));
+    sources << ":/qtsupport/qtcreator_tutorials.xml";
 
     QString examplesPath;
     QString demosPath;

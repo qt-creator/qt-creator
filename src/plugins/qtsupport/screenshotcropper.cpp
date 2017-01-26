@@ -27,7 +27,6 @@
 
 #include <utils/fileutils.h>
 
-#include <coreplugin/icore.h>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 #include <QDebug>
@@ -45,7 +44,7 @@ public:
 AreasOfInterest::AreasOfInterest()
 {
 #ifdef QT_CREATOR
-    areas = ScreenshotCropper::loadAreasOfInterest(Core::ICore::resourcePath() + QLatin1String("/welcomescreen/images_areaofinterest.xml"));
+    areas = ScreenshotCropper::loadAreasOfInterest(":/qtsupport/images_areaofinterest.xml");
 #endif // QT_CREATOR
 }
 
