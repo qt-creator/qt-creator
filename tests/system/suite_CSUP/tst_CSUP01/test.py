@@ -66,9 +66,12 @@ def main():
         type(editorWidget, "<Return>")
         type(editorWidget, "re")
         triggerCompletion(editorWidget)
-        waitForObjectItem(":popupFrame_Proposal_QListView", "realpath")
-        doubleClickItem(":popupFrame_Proposal_QListView", "realpath", 5, 5, 0, Qt.LeftButton)
-        test.compare(str(lineUnderCursor(editorWidget)).strip(), "realpath()",
+        functionName = "realpath"
+        if platform.system() in ('Windows', 'Microsoft'):
+            functionName = "realloc"
+        waitForObjectItem(":popupFrame_Proposal_QListView", functionName)
+        doubleClickItem(":popupFrame_Proposal_QListView", functionName, 5, 5, 0, Qt.LeftButton)
+        test.compare(str(lineUnderCursor(editorWidget)).strip(), functionName + "()",
                      "Step 3: Verifying if: The list of suggestions is opened. It is "
                      "possible to select one of the suggestions.")
 # Step 4: Insert text "voi" to new line and press Tab.
