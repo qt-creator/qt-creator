@@ -816,9 +816,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             dd, &ProjectExplorerPluginPrivate::updateSessionMenu);
 
     // session manager action
-    dd->m_sessionManagerAction = new QAction(tr("Session &Manager..."), this);
-    cmd = ActionManager::registerAction(dd->m_sessionManagerAction, Constants::NEWSESSION);
-    mfile->addAction(cmd, Core::Constants::G_FILE_OPEN);
+    dd->m_sessionManagerAction = new QAction(tr("&Manage..."), this);
+    dd->m_sessionMenu->addAction(dd->m_sessionManagerAction);
+    dd->m_sessionMenu->addSeparator();
     cmd->setDefaultKeySequence(QKeySequence());
 
 
@@ -3305,6 +3305,8 @@ void ProjectExplorerPluginPrivate::handleSetStartupProject()
 void ProjectExplorerPluginPrivate::updateSessionMenu()
 {
     m_sessionMenu->clear();
+    dd->m_sessionMenu->addAction(dd->m_sessionManagerAction);
+    dd->m_sessionMenu->addSeparator();
     QActionGroup *ag = new QActionGroup(m_sessionMenu);
     connect(ag, &QActionGroup::triggered, this, &ProjectExplorerPluginPrivate::setSession);
     const QString activeSession = SessionManager::activeSession();

@@ -39,7 +39,7 @@
 
     When you exit \QC, a snapshot of your current workspace is stored as a
     \e session. To restore the session automatically when you start \QC,
-    select \uicontrol {File > Session Manager > Restore last session on startup}.
+    select \uicontrol {File > Sessions > Manage > Restore last session on startup}.
 
     When you open or create any of the following items, they automatically
     become a part of the session:
@@ -68,7 +68,7 @@
     to working on the first project, switch to the saved session. \QC opens the
     projects and files that belong to the session.
 
-    To manage sessions, select \uicontrol File > \uicontrol {Session Manager}.
+    To manage sessions, select \uicontrol File > \uicontrol Sessions > \uicontrol Manage.
 
     \image qtcreator-session-manager.png
 
