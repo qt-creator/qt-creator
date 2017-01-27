@@ -226,7 +226,7 @@ http://apt.llvm.org/ with:
    wget -O - http://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
    sudo apt-add-repository "deb http://apt.llvm.org/`lsb_release -cs`/ llvm-toolchain-`lsb_release -cs`-3.9 main"
    sudo apt-get update
-   sudo apt-get install libclang-3.9-dev
+   sudo apt-get install llvm-3.9 libclang-3.9-dev
 
 There is a workaround to set _GLIBCXX_USE_CXX11_ABI to 1 or 0, but we recommend
 to download the package from http://apt.llvm.org/.
