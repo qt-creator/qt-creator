@@ -84,8 +84,10 @@ private:
     }
     void releaseSymbolGroup ()
     {
-        if (m_symbolGroup)
-            m_symbolGroup->Release();
+        if (!m_symbolGroup)
+            return;
+        m_symbolGroup->Release();
+        m_symbolGroup = nullptr;
     }
 
 private:
