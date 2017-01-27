@@ -1010,7 +1010,7 @@ def qdump__std____1__once_flag(d, value):
     qdump__std__once_flag(d, value)
 
 def qdump__std__once_flag(d, value):
-    d.putItem(value[0])
+    d.putValue(value.extractPointer())
     d.putBetterType(value.type)
     d.putPlainChildren(value)
 

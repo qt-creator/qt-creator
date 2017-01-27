@@ -4409,8 +4409,7 @@ void tst_Dumpers::dumper_data()
             << Data("#include <mutex>\n",
                     "std::once_flag x; unused(&x);\n")
                + Cxx11Profile()
-               + Check("x", "0", "std::once_flag") % NoCdbEngine
-               + Check("x", "0x0", "std::once_flag") % CdbEngine;
+               + Check("x", "0", "std::once_flag");
 
 
     QTest::newRow("StdSharedPtr")
