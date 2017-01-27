@@ -70,7 +70,6 @@ class JIRA:
     # Helper class
     class Bug:
         CREATOR = 'QTCREATORBUG'
-        SIMULATOR = 'QTSIM'
         SDK = 'QTSDK'
         QT = 'QTBUG'
         QT_QUICKCOMPONENTS = 'QTCOMPONENTS'

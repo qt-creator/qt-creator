@@ -20,32 +20,6 @@
  <data>
   <variable>ToolChain.1</variable>
   <valuemap type="QVariantMap">
-   <value type="QString" key="ProjectExplorer.GccToolChain.Path">C:/QtSDK/Maemo/4.6.2/targets/fremantle-pr13/bin/g++.exe</value>
-   <valuelist type="QVariantList" key="ProjectExplorer.GccToolChain.SupportedAbis">
-    <value type="QString">arm-linux-generic-elf-32bit</value>
-   </valuelist>
-   <value type="QString" key="ProjectExplorer.GccToolChain.TargetAbi">arm-linux-maemo-elf-32bit</value>
-   <value type="bool" key="ProjectExplorer.ToolChain.Autodetect">false</value>
-   <value type="QString" key="ProjectExplorer.ToolChain.DisplayName">GCC for Fremantle</value>
-   <value type="QString" key="ProjectExplorer.ToolChain.Id">ProjectExplorer.ToolChain.Gcc:{333fff9b-5a71-4289-ac68-af2174cb68df}</value>
-  </valuemap>
- </data>
- <data>
-  <variable>ToolChain.2</variable>
-  <valuemap type="QVariantMap">
-   <value type="QString" key="ProjectExplorer.GccToolChain.Path">C:/QtSDK/Madde/targets/harmattan_10.2011.34-1/bin/g++.exe</value>
-   <valuelist type="QVariantList" key="ProjectExplorer.GccToolChain.SupportedAbis">
-    <value type="QString">arm-linux-generic-elf-32bit</value>
-   </valuelist>
-   <value type="QString" key="ProjectExplorer.GccToolChain.TargetAbi">arm-linux-harmattan-elf-32bit</value>
-   <value type="bool" key="ProjectExplorer.ToolChain.Autodetect">false</value>
-   <value type="QString" key="ProjectExplorer.ToolChain.DisplayName">GCC for Harmattan</value>
-   <value type="QString" key="ProjectExplorer.ToolChain.Id">ProjectExplorer.ToolChain.Gcc:{306bf3f1-a40e-49ca-9936-72af77d8ae6d}</value>
-  </valuemap>
- </data>
- <data>
-  <variable>ToolChain.3</variable>
-  <valuemap type="QVariantMap">
    <value type="QString" key="ProjectExplorer.MsvcToolChain.SupportedAbi">x86-windows-msvc2010-pe-32bit</value>
    <value type="QString" key="ProjectExplorer.MsvcToolChain.VarsBat">c:/Program Files (x86)/Microsoft Visual Studio 10.0/VC/vcvarsall.bat</value>
    <value type="QString" key="ProjectExplorer.MsvcToolChain.VarsBatArg">x86</value>
@@ -55,7 +29,7 @@
   </valuemap>
  </data>
  <data>
-  <variable>ToolChain.4</variable>
+  <variable>ToolChain.2</variable>
   <valuemap type="QVariantMap">
    <value type="QString" key="ProjectExplorer.GccToolChain.Path">C:/Qt/Qt5.4.1/Tools/mingw491_32/bin/g++.exe</value>
    <valuelist type="QVariantList" key="ProjectExplorer.GccToolChain.PlatformCodeGenFlags"/>
@@ -70,7 +44,7 @@
   </valuemap>
  </data>
  <data>
-  <variable>ToolChain.5</variable>
+  <variable>ToolChain.3</variable>
   <valuemap type="QVariantMap">
    <value type="QString" key="ProjectExplorer.GccToolChain.OriginalTargetTriple">mingw32</value>
    <value type="QString" key="ProjectExplorer.GccToolChain.Path">C:/QtSDK/mingw/bin/gcc.exe</value>
@@ -87,7 +61,7 @@
   </valuemap>
  </data>
  <data>
-  <variable>ToolChain.6</variable>
+  <variable>ToolChain.4</variable>
   <valuemap type="QVariantMap">
    <value type="QString" key="ProjectExplorer.GccToolChain.OriginalTargetTriple">i686-w64-mingw32</value>
    <value type="QString" key="ProjectExplorer.GccToolChain.Path">C:/Qt/Qt5.4.1/Tools/mingw491_32/bin/gcc.exe</value>
@@ -104,7 +78,7 @@
   </valuemap>
  </data>
  <data>
-  <variable>ToolChain.7</variable>
+  <variable>ToolChain.5</variable>
   <valuemap type="QVariantMap">
    <value type="QString" key="ProjectExplorer.MsvcToolChain.SupportedAbi">x86-windows-msvc2013-pe-32bit</value>
    <value type="QString" key="ProjectExplorer.MsvcToolChain.VarsBat">C:/Program Files (x86)/Microsoft Visual Studio 12.0/VC/vcvarsall.bat</value>
@@ -116,7 +90,7 @@
  </data>
  <data>
   <variable>ToolChain.Count</variable>
-  <value type="int">8</value>
+  <value type="int">6</value>
  </data>
  <data>
   <variable>Version</variable>

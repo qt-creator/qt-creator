@@ -33,23 +33,8 @@
   </valuemap>
  </data>
  <data>
-  <variable>DebuggerItem.2</variable>
-  <valuemap type="QVariantMap">
-   <valuelist type="QVariantList" key="Abis">
-    <value type="QString">arm-linux-generic-elf-32bit</value>
-   </valuelist>
-   <value type="bool" key="AutoDetected">true</value>
-   <value type="QString" key="AutoDetectionSource"></value>
-   <value type="QString" key="Binary">C:/QtSDK/pythongdb/python_2.7based/gdb-arm-none-linux-gnueabi.exe</value>
-   <value type="QString" key="DisplayName">Extracted from Kit Fremantle</value>
-   <value type="int" key="EngineType">1</value>
-   <value type="QString" key="Id">{5ad1d623-7300-41b4-ba32-99e11bfcb988}</value>
-   <value type="QString" key="Version"></value>
-  </valuemap>
- </data>
- <data>
   <variable>DebuggerItem.Count</variable>
-  <value type="int">3</value>
+  <value type="int">2</value>
  </data>
  <data>
   <variable>Version</variable>

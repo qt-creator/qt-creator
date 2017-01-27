@@ -28,11 +28,10 @@ import operator
 
 # for easier re-usage (because Python hasn't an enum type)
 class Targets:
-    ALL_TARGETS = map(lambda x: 2 ** x , range(7))
+    ALL_TARGETS = map(lambda x: 2 ** x , range(6))
 
     (DESKTOP_474_GCC,
      DESKTOP_480_DEFAULT,
-     SIMULATOR,
      EMBEDDED_LINUX,
      DESKTOP_531_DEFAULT,
      DESKTOP_541_GCC,
@@ -40,7 +39,7 @@ class Targets:
 
     @staticmethod
     def desktopTargetClasses():
-        desktopTargets = (sum(Targets.ALL_TARGETS) & ~Targets.SIMULATOR & ~Targets.EMBEDDED_LINUX)
+        desktopTargets = (sum(Targets.ALL_TARGETS) & ~Targets.EMBEDDED_LINUX)
         if platform.system() == 'Darwin':
             desktopTargets &= ~Targets.DESKTOP_541_GCC
         return desktopTargets
@@ -48,7 +47,7 @@ class Targets:
     @staticmethod
     def qt4Classes():
         return (Targets.DESKTOP_474_GCC | Targets.DESKTOP_480_DEFAULT
-                | Targets.SIMULATOR | Targets.EMBEDDED_LINUX)
+                | Targets.EMBEDDED_LINUX)
 
     @staticmethod
     def getStringForTarget(target):
@@ -59,8 +58,6 @@ class Targets:
                 return "Desktop 480 MSVC2010"
             else:
                 return "Desktop 480 GCC"
-        elif target == Targets.SIMULATOR:
-            return "Qt Simulator"
         elif target == Targets.EMBEDDED_LINUX:
             return "Embedded Linux"
         elif target == Targets.DESKTOP_531_DEFAULT:

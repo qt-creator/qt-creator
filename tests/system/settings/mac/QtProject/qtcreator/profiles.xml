@@ -34,69 +34,6 @@
    <valuemap type="QVariantMap" key="PE.Profile.Data">
     <value type="QString" key="Android.GdbServer.Information"></value>
     <value type="QString" key="Debugger.Information">{70e26273-2c0b-4534-bbc0-eb6ca670821a}</value>
-    <value type="QString" key="PE.Profile.Device">Desktop Device</value>
-    <value type="QByteArray" key="PE.Profile.DeviceType">Desktop</value>
-    <value type="QString" key="PE.Profile.SysRoot"></value>
-    <value type="QString" key="PE.Profile.ToolChain">ProjectExplorer.ToolChain.Gcc:{c3f59b87-6997-4bd8-8067-ee04dc536371}</value>
-    <value type="QString" key="QtPM4.mkSpecInformation"></value>
-    <value type="int" key="QtSupport.QtInformation">5</value>
-   </valuemap>
-   <value type="QString" key="PE.Profile.Icon">:///DESKTOP///</value>
-   <value type="QString" key="PE.Profile.Id">{68d379f6-357c-42a6-83c6-7743840db4ea}</value>
-   <valuelist type="QVariantList" key="PE.Profile.MutableInfo"/>
-   <value type="QString" key="PE.Profile.Name">Qt Simulator</value>
-   <value type="bool" key="PE.Profile.SDK">false</value>
-  </valuemap>
- </data>
- <data>
-  <variable>Profile.2</variable>
-  <valuemap type="QVariantMap">
-   <value type="bool" key="PE.Profile.AutoDetected">false</value>
-   <valuemap type="QVariantMap" key="PE.Profile.Data">
-    <value type="QString" key="Android.GdbServer.Information"></value>
-    <value type="QString" key="Debugger.Information">{70e26273-2c0b-4534-bbc0-eb6ca670821a}</value>
-    <value type="QString" key="PE.Profile.Device">{68a75dff-5ec6-40cb-884f-8f383ed2ebb2}</value>
-    <value type="QByteArray" key="PE.Profile.DeviceType">Maemo5OsType</value>
-    <value type="QString" key="PE.Profile.SysRoot"></value>
-    <value type="QString" key="PE.Profile.ToolChain">ProjectExplorer.ToolChain.Gcc:{32ee0a53-87d9-4f17-b8a5-a7642101e803}</value>
-    <value type="QString" key="QtPM4.mkSpecInformation"></value>
-    <value type="int" key="QtSupport.QtInformation">3</value>
-   </valuemap>
-   <value type="QString" key="PE.Profile.Icon">:///DESKTOP///</value>
-   <value type="QString" key="PE.Profile.Id">{f559999e-8f5d-4246-9321-ea9d1c444c85}</value>
-   <valuelist type="QVariantList" key="PE.Profile.MutableInfo"/>
-   <value type="QString" key="PE.Profile.Name">Fremantle</value>
-   <value type="bool" key="PE.Profile.SDK">false</value>
-  </valuemap>
- </data>
- <data>
-  <variable>Profile.3</variable>
-  <valuemap type="QVariantMap">
-   <value type="bool" key="PE.Profile.AutoDetected">false</value>
-   <valuemap type="QVariantMap" key="PE.Profile.Data">
-    <value type="QString" key="Android.GdbServer.Information"></value>
-    <value type="QString" key="Debugger.Information">{70e26273-2c0b-4534-bbc0-eb6ca670821a}</value>
-    <value type="QString" key="PE.Profile.Device">{1a0985cf-ad32-487c-8af8-85ee532ac19c}</value>
-    <value type="QByteArray" key="PE.Profile.DeviceType">HarmattanOsType</value>
-    <value type="QString" key="PE.Profile.SysRoot"></value>
-    <value type="QString" key="PE.Profile.ToolChain">ProjectExplorer.ToolChain.Gcc:{9be34a3b-acf0-4570-be0d-34cd224d8efe}</value>
-    <value type="QString" key="QtPM4.mkSpecInformation"></value>
-    <value type="int" key="QtSupport.QtInformation">1</value>
-   </valuemap>
-   <value type="QString" key="PE.Profile.Icon">:///DESKTOP///</value>
-   <value type="QString" key="PE.Profile.Id">{744799ff-3430-41e1-ad7d-d76c50c1c621}</value>
-   <valuelist type="QVariantList" key="PE.Profile.MutableInfo"/>
-   <value type="QString" key="PE.Profile.Name">Harmattan</value>
-   <value type="bool" key="PE.Profile.SDK">false</value>
-  </valuemap>
- </data>
- <data>
-  <variable>Profile.4</variable>
-  <valuemap type="QVariantMap">
-   <value type="bool" key="PE.Profile.AutoDetected">false</value>
-   <valuemap type="QVariantMap" key="PE.Profile.Data">
-    <value type="QString" key="Android.GdbServer.Information"></value>
-    <value type="QString" key="Debugger.Information">{70e26273-2c0b-4534-bbc0-eb6ca670821a}</value>
     <value type="QString" key="PE.Profile.Device">{7c5a3673-e300-4286-9666-0f86d3e3dc38}</value>
     <value type="QByteArray" key="PE.Profile.DeviceType">GenericLinuxOsType</value>
     <value type="QString" key="PE.Profile.SysRoot"></value>
@@ -116,7 +53,7 @@
   </valuemap>
  </data>
  <data>
-  <variable>Profile.5</variable>
+  <variable>Profile.2</variable>
   <valuemap type="QVariantMap">
    <value type="bool" key="PE.Profile.AutoDetected">false</value>
    <value type="QString" key="PE.Profile.AutoDetectionSource"></value>
@@ -143,7 +80,7 @@
   </valuemap>
  </data>
  <data>
-  <variable>Profile.6</variable>
+  <variable>Profile.3</variable>
   <valuemap type="QVariantMap">
    <value type="bool" key="PE.Profile.AutoDetected">false</value>
    <valuemap type="QVariantMap" key="PE.Profile.Data">
@@ -168,7 +105,7 @@
   </valuemap>
  </data>
  <data>
-  <variable>Profile.7</variable>
+  <variable>Profile.4</variable>
   <valuemap type="QVariantMap">
    <value type="bool" key="PE.Profile.AutoDetected">false</value>
    <value type="QString" key="PE.Profile.AutoDetectionSource"></value>
@@ -196,7 +133,7 @@
  </data>
  <data>
   <variable>Profile.Count</variable>
-  <value type="int">8</value>
+  <value type="int">5</value>
  </data>
  <data>
   <variable>Profile.Default</variable>
