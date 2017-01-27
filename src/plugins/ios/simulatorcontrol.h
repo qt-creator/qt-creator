@@ -58,6 +58,8 @@ public:
     bool isBooted() const { return state.compare(QStringLiteral("Booted")) == 0; }
     bool isShutdown() const { return state.compare(QStringLiteral("Shutdown")) == 0; }
     bool isShuttingDown() const { return state == "Shutting Down"; }
+    bool operator==(const SimulatorInfo &other) const;
+    bool operator!=(const SimulatorInfo &other) const { return !(*this == other); }
     bool available;
     QString state;
     QString runtimeName;

@@ -25,41 +25,42 @@
 
 #pragma once
 
-#include "iosconfigurations.h"
-#include "simulatorcontrol.h"
-#include <QWidget>
+#include <QDialog>
+#include <QFutureSynchronizer>
 
 namespace Ios {
 namespace Internal {
 
-namespace Ui { class IosSettingsWidget; }
-class SimulatorInfoModel;
-using SimulatorInfoList = QList<SimulatorInfo>;
+namespace Ui { class CreateSimulatorDialog; }
+class SimulatorControl;
+class RuntimeInfo;
+class DeviceTypeInfo;
 
-class IosSettingsWidget : public QWidget
+/*!
+    A dialog to select the iOS Device type and the runtime for a new
+    iOS simulator device.
+ */
+class CreateSimulatorDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    IosSettingsWidget(QWidget *parent = 0);
-    ~IosSettingsWidget();
+    explicit CreateSimulatorDialog(QWidget *parent = nullptr);
+    ~CreateSimulatorDialog();
 
-    void saveSettings();
-
-private:
-    void onStart();
-    void onCreate();
-    void onReset();
-    void onRename();
-    void onDelete();
-    void onScreenshot();
-    void onSelectionChanged();
+    QString name() const;
+    RuntimeInfo runtime() const;
+    DeviceTypeInfo deviceType() const;
 
 private:
-    Ui::IosSettingsWidget *m_ui = nullptr;
-    bool m_saveSettingsRequested = false;
+    void populateDeviceTypes(const QList<DeviceTypeInfo> &deviceTypes);
+    void populateRuntimes(const DeviceTypeInfo &deviceType);
+
+private:
+    QFutureSynchronizer<void> m_futureSync;
+    Ui::CreateSimulatorDialog *m_ui = nullptr;
     SimulatorControl *m_simControl = nullptr;
-    SimulatorInfoModel *m_simInfoModel = nullptr;
+    QList<RuntimeInfo> m_runtimes;
 };
 
 } // namespace Internal

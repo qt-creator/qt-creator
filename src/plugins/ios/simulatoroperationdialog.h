@@ -25,41 +25,42 @@
 
 #pragma once
 
-#include "iosconfigurations.h"
 #include "simulatorcontrol.h"
-#include <QWidget>
+
+#include <utils/outputformat.h>
+
+#include <QDialog>
+#include <QFuture>
+#include <QList>
+
+namespace Utils { class OutputFormatter; }
 
 namespace Ios {
 namespace Internal {
 
-namespace Ui { class IosSettingsWidget; }
-class SimulatorInfoModel;
-using SimulatorInfoList = QList<SimulatorInfo>;
+namespace Ui { class SimulatorOperationDialog; }
 
-class IosSettingsWidget : public QWidget
+class SimulatorOperationDialog : public QDialog
 {
     Q_OBJECT
+public:
+    explicit SimulatorOperationDialog(QWidget *parent = nullptr);
+    ~SimulatorOperationDialog();
 
 public:
-    IosSettingsWidget(QWidget *parent = 0);
-    ~IosSettingsWidget();
-
-    void saveSettings();
-
-private:
-    void onStart();
-    void onCreate();
-    void onReset();
-    void onRename();
-    void onDelete();
-    void onScreenshot();
-    void onSelectionChanged();
+    void addFutures(const QList<QFuture<void> > &futureList);
+    void addMessage(const QString &message, Utils::OutputFormat format);
+    void addMessage(const SimulatorInfo &siminfo, const SimulatorControl::ResponseData &response,
+                    const QString &context);
 
 private:
-    Ui::IosSettingsWidget *m_ui = nullptr;
-    bool m_saveSettingsRequested = false;
-    SimulatorControl *m_simControl = nullptr;
-    SimulatorInfoModel *m_simInfoModel = nullptr;
+    void futureFinished();
+    void updateInputs();
+
+private:
+    Ui::SimulatorOperationDialog *m_ui = nullptr;
+    Utils::OutputFormatter *m_formatter = nullptr;
+    QList<QFutureWatcher<void> *> m_futureWatchList;
 };
 
 } // namespace Internal

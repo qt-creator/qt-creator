@@ -574,5 +574,14 @@ QDebug &operator<<(QDebug &stream, const SimulatorInfo &info)
     return stream;
 }
 
+bool SimulatorInfo::operator==(const SimulatorInfo &other) const
+{
+    return identifier == other.identifier
+            && state == other.state
+            && name == other.name
+            && available == other.available
+            && runtimeName == other.runtimeName;
+}
+
 } // namespace Internal
 } // namespace Ios

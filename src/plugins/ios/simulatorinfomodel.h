@@ -25,41 +25,38 @@
 
 #pragma once
 
-#include "iosconfigurations.h"
 #include "simulatorcontrol.h"
-#include <QWidget>
+
+#include <QAbstractListModel>
+#include <QFutureSynchronizer>
 
 namespace Ios {
 namespace Internal {
 
-namespace Ui { class IosSettingsWidget; }
-class SimulatorInfoModel;
 using SimulatorInfoList = QList<SimulatorInfo>;
 
-class IosSettingsWidget : public QWidget
+class SimulatorInfoModel : public QAbstractItemModel
 {
     Q_OBJECT
 
 public:
-    IosSettingsWidget(QWidget *parent = 0);
-    ~IosSettingsWidget();
+    SimulatorInfoModel(QObject *parent = nullptr);
 
-    void saveSettings();
-
-private:
-    void onStart();
-    void onCreate();
-    void onReset();
-    void onRename();
-    void onDelete();
-    void onScreenshot();
-    void onSelectionChanged();
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex &parent) const override;
+    QVariant headerData(int section, Qt::Orientation orientation,
+                        int role = Qt::DisplayRole) const override;
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
+    QModelIndex parent(const QModelIndex &) const override;
 
 private:
-    Ui::IosSettingsWidget *m_ui = nullptr;
-    bool m_saveSettingsRequested = false;
-    SimulatorControl *m_simControl = nullptr;
-    SimulatorInfoModel *m_simInfoModel = nullptr;
+    void requestSimulatorInfo();
+    void populateSimulators(const SimulatorInfoList &simulatorList);
+
+private:
+    QFutureSynchronizer<void> m_fetchFuture;
+    SimulatorInfoList m_simList;
 };
 
 } // namespace Internal
