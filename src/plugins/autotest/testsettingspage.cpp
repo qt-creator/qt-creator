@@ -135,8 +135,9 @@ TestSettingsWidget::TestSettingsWidget(QWidget *parent)
     connect(m_ui.removeFilter, &QPushButton::clicked,
             this, &TestSettingsWidget::onRemoveFilterClicked);
     connect(m_ui.filterTreeWidget, &QTreeWidget::itemSelectionChanged, [this] () {
-        m_ui.editFilter->setEnabled(true);
-        m_ui.removeFilter->setEnabled(true);
+        const bool enable = m_ui.filterTreeWidget->selectionModel()->hasSelection();
+        m_ui.editFilter->setEnabled(enable);
+        m_ui.removeFilter->setEnabled(enable);
     });
 }
 
