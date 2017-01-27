@@ -369,9 +369,30 @@ class Dumper(DumperBase):
     def put(self, stuff):
         self.output += stuff
 
-    def lookupType(self, typeName):
-        if len(typeName) == 0:
+    def stripQintTypedefs(self, typeName):
+        if typeName.startswith('qint'):
+            prefix = ''
+            size = typeName[4:]
+        elif typeName.startswith('quint'):
+            prefix = 'unsigned '
+            size = typeName[5:]
+        else:
+            return typeName
+        if size == '8':
+            return '%schar' % prefix
+        elif size == '16':
+            return '%sshort' % prefix
+        elif size == '32':
+            return '%sint' % prefix
+        elif size == '64':
+            return '%sint64' % prefix
+        else:
+            return typeName
+
+    def lookupType(self, typeNameIn):
+        if len(typeNameIn) == 0:
             return None
+        typeName = self.stripQintTypedefs(typeNameIn)
         if self.typeData.get(typeName, None) is None:
             nativeType = self.lookupNativeType(typeName)
             return None if nativeType is None else self.fromNativeType(nativeType)
