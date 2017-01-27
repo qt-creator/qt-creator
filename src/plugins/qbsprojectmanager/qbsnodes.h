@@ -96,8 +96,7 @@ public:
     bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0) override;
     bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0) override;
     bool renameFile(const QString &filePath, const QString &newFilePath) override;
-    void updateQbsGroupData(const qbs::GroupData &grp, const QString &productPath,
-                            bool productWasEnabled, bool productIsEnabled);
+    void updateQbsGroupData(const qbs::GroupData &grp, const QString &productPath, bool productIsEnabled);
 
     qbs::GroupData qbsGroupData() const { return m_qbsGroupData; }
 
@@ -105,13 +104,13 @@ public:
 
     // group can be invalid
     static void setupFiles(FolderNode *root, const qbs::GroupData &group, const QStringList &files,
-                           const QString &productPath, bool updateExisting, bool generated);
+                           const QString &productPath, bool generated);
 
 private:
     static void setupFolder(ProjectExplorer::FolderNode *folder,
                             const QHash<QString, ProjectExplorer::FileType> &fileTypeHash,
                             const FileTreeNode *subFileTree, const QString &baseDir,
-                            bool updateExisting, bool generated);
+                            bool generated);
     static ProjectExplorer::FileType fileType(const qbs::ArtifactData &artifact);
 
     qbs::GroupData m_qbsGroupData;

@@ -217,7 +217,7 @@ CMakeConfig ServerModeReader::takeParsedConfiguration()
     return config;
 }
 
-void addCMakeVFolder(FolderNode *base, const Utils::FileName &basePath, int priority,
+static void addCMakeVFolder(FolderNode *base, const Utils::FileName &basePath, int priority,
                      const QString &displayName, QList<FileNode *> &files)
 {
     if (files.isEmpty())
@@ -228,39 +228,25 @@ void addCMakeVFolder(FolderNode *base, const Utils::FileName &basePath, int prio
     folder->buildTree(files);
 }
 
-static ProjectNode *addCMakeInputs(CMakeListsNode *root,
-                                      const Utils::FileName &sourceDir,
-                                      const Utils::FileName &buildDir,
-                                      QList<FileNode *> &sourceInputs,
-                                      QList<FileNode *> &buildInputs,
-                                      QList<FileNode *> &rootInputs)
+static void addCMakeInputs(CMakeListsNode *root,
+                           const Utils::FileName &sourceDir,
+                           const Utils::FileName &buildDir,
+                           QList<FileNode *> &sourceInputs,
+                           QList<FileNode *> &buildInputs,
+                           QList<FileNode *> &rootInputs)
 {
-    const bool hasInputs = !sourceInputs.isEmpty() || !buildInputs.isEmpty() || !rootInputs.isEmpty();
-    ProjectNode *cmakeVFolder
-            = root->projectNode(CMakeInputsNode::inputsPathFromCMakeListsPath(root->filePath()));
-    if (!cmakeVFolder) {
-        if (hasInputs) {
-            cmakeVFolder = new CMakeInputsNode(root->filePath());
-            root->addProjectNode(cmakeVFolder);
-        }
-    } else {
-        if (!hasInputs)
-            root->removeProjectNode(cmakeVFolder);
-    }
-    if (!hasInputs)
-        return nullptr;
+    ProjectNode *cmakeVFolder = new CMakeInputsNode(root->filePath());
+    root->addProjectNode(cmakeVFolder);
 
     addCMakeVFolder(cmakeVFolder, sourceDir, 1000,
-                      QCoreApplication::translate("CMakeProjectManager::Internal", "<Source Directory>"),
-                      sourceInputs);
+                    QCoreApplication::translate("CMakeProjectManager::Internal::ServerModeReader", "<Source Directory>"),
+                    sourceInputs);
     addCMakeVFolder(cmakeVFolder, buildDir, 100,
-                      QCoreApplication::translate("CMakeProjectManager::Internal", "<Build Directory>"),
-                      buildInputs);
+                    QCoreApplication::translate("CMakeProjectManager::Internal::ServerModeReader", "<Build Directory>"),
+                    buildInputs);
     addCMakeVFolder(cmakeVFolder, Utils::FileName(), 10,
-                      QCoreApplication::translate("CMakeProjectManager::Internal", "<Other Locations>"),
-                      rootInputs);
-
-    return cmakeVFolder;
+                    QCoreApplication::translate("CMakeProjectManager::Internal::ServerModeReader", "<Other Locations>"),
+                    rootInputs);
 }
 
 void ServerModeReader::generateProjectTree(CMakeListsNode *root,
@@ -288,8 +274,9 @@ void ServerModeReader::generateProjectTree(CMakeListsNode *root,
     if (!m_projects.isEmpty())
         root->setDisplayName(m_projects.at(0)->name);
 
-    addCMakeInputs(root, m_parameters.sourceDirectory, m_parameters.buildDirectory,
-                   cmakeFilesSource, cmakeFilesBuild, cmakeFilesOther);
+    if (!cmakeFilesSource.isEmpty() || !cmakeFilesBuild.isEmpty() || !cmakeFilesOther.isEmpty())
+        addCMakeInputs(root, m_parameters.sourceDirectory, m_parameters.buildDirectory,
+                       cmakeFilesSource, cmakeFilesBuild, cmakeFilesOther);
 
     addCMakeLists(root, cmakeLists);
     addProjects(root, m_projects, allFiles);
@@ -721,7 +708,6 @@ void ServerModeReader::addFileGroups(ProjectNode *targetRoot,
             otherFileNodes.append(fn);
     }
 
-    targetRoot->removeFolderNodes();
     addCMakeVFolder(targetRoot, sourceDirectory, 1000, tr("<Source Directory>"), sourceFileNodes);
     addCMakeVFolder(targetRoot, buildDirectory, 100, tr("<Build Directory>"), buildFileNodes);
     addCMakeVFolder(targetRoot, Utils::FileName(), 10, tr("<Other Locations>"), otherFileNodes);

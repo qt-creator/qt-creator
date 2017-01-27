@@ -439,144 +439,43 @@ struct InternalNode
     }
 
     // Makes the projectNode's subtree below the given folder match this internal node's subtree
-    void updateSubFolders(FolderNode *folder)
+    void addSubFolderContents(FolderNode *folder)
     {
-        if (type == FileType::Resource)
-            updateResourceFiles(folder);
-        else
-            updateFiles(folder, type);
+        if (type == FileType::Resource) {
+            for (const FileName &file : files) {
+                auto vfs = static_cast<QmakePriFileNode *>(folder->parentProjectNode())->m_project->qmakeVfs();
+                QString contents;
+                // Prefer the cumulative file if it's non-empty, based on the assumption
+                // that it contains more "stuff".
+                vfs->readVirtualFile(file.toString(), QMakeVfs::VfsCumulative, &contents);
+                // If the cumulative evaluation botched the file too much, try the exact one.
+                if (contents.isEmpty())
+                    vfs->readVirtualFile(file.toString(), QMakeVfs::VfsExact, &contents);
+                folder->addFolderNode(new ResourceEditor::ResourceTopLevelNode(file, contents, folder));
+            }
+        } else {
+            for (const FileName &file : files)
+                folder->addFileNode(new FileNode(file, type, false));
+        }
 
-        // updateFolders
-        QMultiMap<QString, FolderNode *> existingFolderNodes;
-        foreach (FolderNode *node, folder->folderNodes())
-            if (node->nodeType() != NodeType::Project && !dynamic_cast<ResourceEditor::ResourceTopLevelNode *>(node))
-                existingFolderNodes.insert(node->filePath().toString(), node);
-
-        QList<FolderNode *> foldersToRemove;
-        typedef QPair<InternalNode *, FolderNode *> NodePair;
-        QList<NodePair> nodesToUpdate;
-
-        // Check virtual
+        // Virtual
         {
-            QList<InternalNode *>::const_iterator it = virtualfolders.constBegin();
-            QList<InternalNode *>::const_iterator end = virtualfolders.constEnd();
-            for ( ; it != end; ++it) {
-                bool found = false;
-                QString path = (*it)->fullPath;
-                QMultiMap<QString, FolderNode *>::const_iterator oldit
-                        = existingFolderNodes.constFind(path);
-                while (oldit != existingFolderNodes.constEnd() && oldit.key() == path) {
-                    if (oldit.value()->nodeType() == NodeType::VirtualFolder) {
-                        VirtualFolderNode *vfn = dynamic_cast<VirtualFolderNode *>(oldit.value());
-                        if (vfn->priority() == (*it)->priority) {
-                            found = true;
-                            break;
-                        }
-                    }
-                    ++oldit;
-                }
-                if (found) {
-                    nodesToUpdate << NodePair(*it, *oldit);
-                } else {
-                    FolderNode *newNode = createFolderNode(*it);
-                    folder->addFolderNode(newNode);
-                    nodesToUpdate << NodePair(*it, newNode);
-                }
+            for (InternalNode *node : virtualfolders) {
+                FolderNode *newNode = createFolderNode(node);
+                folder->addFolderNode(newNode);
+                node->addSubFolderContents(newNode);
             }
         }
-        // Check subnodes
+        // Subnodes
         {
             QMap<QString, InternalNode *>::const_iterator it = subnodes.constBegin();
             QMap<QString, InternalNode *>::const_iterator end = subnodes.constEnd();
-
             for ( ; it != end; ++it) {
-                bool found = false;
-                QString path = it.value()->fullPath;
-                QMultiMap<QString, FolderNode *>::const_iterator oldit
-                        = existingFolderNodes.constFind(path);
-                while (oldit != existingFolderNodes.constEnd() && oldit.key() == path) {
-                    if (oldit.value()->nodeType() == NodeType::Folder) {
-                        found = true;
-                        break;
-                    }
-                    ++oldit;
-                }
-                if (found) {
-                    nodesToUpdate << NodePair(it.value(), *oldit);
-                } else {
-                    FolderNode *newNode = createFolderNode(it.value());
-                    folder->addFolderNode(newNode);
-                    nodesToUpdate << NodePair(it.value(), newNode);
-                }
+                FolderNode *newNode = createFolderNode(it.value());
+                folder->addFolderNode(newNode);
+                it.value()->addSubFolderContents(newNode);
             }
         }
-
-        QSet<FolderNode *> toKeep;
-        foreach (const NodePair &np, nodesToUpdate)
-            toKeep << np.second;
-
-        QMultiMap<QString, FolderNode *>::const_iterator jit = existingFolderNodes.constBegin();
-        QMultiMap<QString, FolderNode *>::const_iterator jend = existingFolderNodes.constEnd();
-        for ( ; jit != jend; ++jit)
-            if (!toKeep.contains(jit.value()))
-                foldersToRemove << jit.value();
-
-        if (!foldersToRemove.isEmpty())
-            folder->removeFolderNodes(foldersToRemove);
-
-        foreach (const NodePair &np, nodesToUpdate)
-            np.first->updateSubFolders(np.second);
-    }
-
-    // Makes the folder's files match this internal node's file list
-    void updateFiles(FolderNode *folder, FileType type)
-    {
-        SortByPath sortByPath;
-        Utils::sort(files, sortByPath);
-        QList<FileNode *> nodes;
-        foreach (const FileName &file, files)
-            nodes << new FileNode(file, type, false);
-        folder->setFileNodes(nodes);
-    }
-
-    // Makes the folder's files match this internal node's file list
-    void updateResourceFiles(FolderNode *folder)
-    {
-        QList<FolderNode *> existingResourceNodes; // for resource special handling
-        foreach (FolderNode *folderNode, folder->folderNodes()) {
-            if (ResourceEditor::ResourceTopLevelNode *rn = dynamic_cast<ResourceEditor::ResourceTopLevelNode *>(folderNode))
-                existingResourceNodes << rn;
-        }
-
-        QList<FolderNode *> resourcesToRemove;
-        FileNameList resourcesToAdd;
-
-        SortByPath sortByPath;
-        Utils::sort(files, sortByPath);
-        Utils::sort(existingResourceNodes, sortByPath);
-
-        ProjectExplorer::compareSortedLists(existingResourceNodes, files, resourcesToRemove, resourcesToAdd, sortByPath);
-
-        QList<FolderNode *> nodesToAdd;
-        nodesToAdd.reserve(resourcesToAdd.size());
-
-        foreach (const FileName &file, resourcesToAdd) {
-            auto vfs = static_cast<QmakePriFileNode *>(folder->parentProjectNode())->m_project->qmakeVfs();
-            QString contents;
-            // Prefer the cumulative file if it's non-empty, based on the assumption
-            // that it contains more "stuff".
-            vfs->readVirtualFile(file.toString(), QMakeVfs::VfsCumulative, &contents);
-            // If the cumulative evaluation botched the file too much, try the exact one.
-            if (contents.isEmpty())
-                vfs->readVirtualFile(file.toString(), QMakeVfs::VfsExact, &contents);
-            nodesToAdd.append(new ResourceEditor::ResourceTopLevelNode(file, contents, folder));
-        }
-
-        folder->removeFolderNodes(resourcesToRemove);
-        folder->addFolderNodes(nodesToAdd);
-
-        foreach (FolderNode *fn, nodesToAdd)
-            dynamic_cast<ResourceEditor::ResourceTopLevelNode *>(fn)->update();
     }
 };
 } // Internal
@@ -730,7 +629,7 @@ void QmakePriFileNode::update(const Internal::PriFileEvalResult &result)
         }
     }
 
-    contents.updateSubFolders(this);
+    contents.addSubFolderContents(this);
 }
 
 void QmakePriFileNode::watchFolders(const QSet<QString> &folders)
@@ -807,7 +706,7 @@ bool QmakePriFileNode::folderChanged(const QString &changedFolder, const QSet<Fi
         }
     }
 
-    contents.updateSubFolders(this);
+    contents.addSubFolderContents(this);
     return true;
 }
 
@@ -2039,10 +1938,7 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
                 return;
 
             // delete files && folders && projects
-            setFileNodes({});
-            removeProjectNodes();
-            setFolderNodes({});
-
+            makeEmpty();
             m_projectType = InvalidProject;
         }
         return;
@@ -2061,10 +1957,7 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
             }
         }
 
-        setFileNodes({});
-        removeProjectNodes();
-        setFolderNodes({});
-
+        makeEmpty();
         m_projectType = result->projectType;
     }
 

@@ -507,7 +507,7 @@ FolderNode::AddNewInformation FolderNode::addNewInformation(const QStringList &f
 }
 
 /*!
-  Adds file nodes specified by \a files to the internal list of the folder
+  Adds a file node specified by \a file to the internal list of the folder
   and emits the corresponding signals from the projectNode.
 
   This function should be called within an implementation of the public function
@@ -522,50 +522,13 @@ void FolderNode::addFileNode(FileNode *file)
                qDebug("File node has already a parent folder"));
 
     file->setParentFolderNode(this);
-    // Now find the correct place to insert file
-    if (m_fileNodes.count() == 0
-            || m_fileNodes.last() < file) {
-        // empty list or greater then last node
-        m_fileNodes.append(file);
-    } else {
-        auto it = std::lower_bound(m_fileNodes.begin(), m_fileNodes.end(), file);
-        m_fileNodes.insert(it, file);
-    }
-}
-
-void FolderNode::addFileNodes(const QList<FileNode *> &files)
-{
-    foreach (FileNode *file, files)
-        addFileNode(file);
+    m_fileNodes.append(file);
 }
 
 /*!
-  Removes \a files from the internal list and emits the corresponding signals.
-
-  All objects in the \a files list are deleted.
-  This function should be called within an implementation of the public function
-  removeFiles.
+  Sets file nodes specified by \a files to the internal list of the folder
+  and emits the corresponding signals from the projectNode.
 */
-
-void FolderNode::removeFileNodes()
-{
-    qDeleteAll(m_fileNodes);
-    m_fileNodes.clear();
-    ProjectTree::emitDataChanged();
-}
-
-void FolderNode::removeFileNodes(const QList<FileNode *> &files)
-{
-    for (FileNode *file : files)
-        removeFileNode(file);
- }
-
-void FolderNode::removeFileNode(FileNode *file)
-{
-    Q_ASSERT(managingProject());
-    m_fileNodes.removeAll(file);
-    delete file;
-}
 
 void FolderNode::setFileNodes(const QList<FileNode *> &files)
 {
@@ -573,11 +536,10 @@ void FolderNode::setFileNodes(const QList<FileNode *> &files)
     m_fileNodes = files;
     for (FileNode *node : m_fileNodes)
         node->setParentFolderNode(this);
-    ProjectTree::emitDataChanged();
 }
 
 /*!
-  Adds folder nodes specified by \a subFolders to the node hierarchy below
+  Adds a folder node specified by \a folder to the node hierarchy below
   \a parentFolder and emits the corresponding signals.
 */
 void FolderNode::addFolderNode(FolderNode *folder)
@@ -587,51 +549,7 @@ void FolderNode::addFolderNode(FolderNode *folder)
     QTC_ASSERT(!folder->parentFolderNode(),
                qDebug("Project node has already a parent folder"));
     folder->setParentFolderNode(this);
-
-    // Find the correct place to insert
-    if (m_folderNodes.count() == 0
-            || m_folderNodes.last() < folder) {
-        // empty list or greater then last node
-        m_folderNodes.append(folder);
-    } else {
-        // Binary Search for insertion point
-        auto it = std::lower_bound(m_folderNodes.begin(), m_folderNodes.end(), folder);
-        m_folderNodes.insert(it, folder);
-    }
-}
-
-void FolderNode::addFolderNodes(const QList<FolderNode*> &subFolders)
-{
-    for (FolderNode *folder : subFolders)
-        addFolderNode(folder);
-}
-
-/*!
-  Removes file nodes specified by \a subFolders from the node hierarchy and emits
-  the corresponding signals.
-
-  All objects in the \a subFolders list are deleted.
-*/
-void FolderNode::removeFolderNodes()
-{
-    qDeleteAll(m_folderNodes);
-    m_folderNodes.clear();
-    ProjectTree::emitDataChanged();
-}
-
-void FolderNode::removeFolderNodes(const QList<FolderNode*> &subFolders)
-{
-    Q_ASSERT(managingProject());
-    for (FolderNode *folder : subFolders)
-        removeFolderNode(folder);
-}
-
-void FolderNode::removeFolderNode(FolderNode *folder)
-{
-    Q_ASSERT(managingProject());
-    m_folderNodes.removeAll(folder);
-    delete folder;
-    ProjectTree::emitDataChanged();
+    m_folderNodes.append(folder);
 }
 
 void FolderNode::setFolderNodes(const QList<FolderNode *> &folders)
@@ -640,7 +558,6 @@ void FolderNode::setFolderNodes(const QList<FolderNode *> &folders)
     m_folderNodes = folders;
     for (FolderNode *node : m_folderNodes)
         node->setParentFolderNode(this);
-    ProjectTree::emitDataChanged();
 }
 
 bool FolderNode::showInSimpleTree() const
@@ -803,20 +720,10 @@ void ProjectNode::addProjectNode(ProjectNode *subProject)
 
 
 /*!
-  Removes project nodes specified by \a subProjects from the node hierarchy
-  and emits the corresponding signals.
+  Remove the project node specified by \a subProject from the node hierarchy.
 
   All objects in the \a subProjects list are deleted.
 */
-
-void ProjectNode::removeProjectNodes()
-{
-    foreach (ProjectNode *subProject, m_projectNodes)
-        m_folderNodes.removeAll(subProject);
-
-    qDeleteAll(m_projectNodes);
-    m_projectNodes.clear();
-}
 
 void ProjectNode::removeProjectNode(ProjectNode *subProject)
 {
@@ -827,7 +734,12 @@ void ProjectNode::removeProjectNode(ProjectNode *subProject)
 
 void ProjectNode::makeEmpty()
 {
-    removeProjectNodes();
+    foreach (ProjectNode *subProject, m_projectNodes)
+        m_folderNodes.removeAll(subProject);
+
+    qDeleteAll(m_projectNodes);
+    m_projectNodes.clear();
+
     setFolderNodes({});
     setFileNodes({});
 }

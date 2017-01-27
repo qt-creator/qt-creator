@@ -320,7 +320,7 @@ bool QbsProject::addFilesToProduct(QbsBaseProjectNode *node, const QStringList &
     if (notAdded->count() != filePaths.count()) {
         m_projectData = m_qbsProject.projectData();
         QbsGroupNode::setupFiles(node, reRetrieveGroupData(productData, groupData),
-                                 allPaths, QFileInfo(productFilePath).absolutePath(), true, false);
+                                 allPaths, QFileInfo(productFilePath).absolutePath(), false);
         rootProjectNode()->update();
         emit fileListChanged();
     }
@@ -349,7 +349,7 @@ bool QbsProject::removeFilesFromProduct(QbsBaseProjectNode *node, const QStringL
     if (notRemoved->count() != filePaths.count()) {
         m_projectData = m_qbsProject.projectData();
         QbsGroupNode::setupFiles(node, reRetrieveGroupData(productData, groupData), allPaths,
-                                 QFileInfo(productFilePath).absolutePath(), true, false);
+                                 QFileInfo(productFilePath).absolutePath(), false);
         rootProjectNode()->update();
         emit fileListChanged();
     }

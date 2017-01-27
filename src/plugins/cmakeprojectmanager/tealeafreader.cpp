@@ -270,10 +270,6 @@ void TeaLeafReader::generateProjectTree(CMakeListsNode *root, const QList<const 
         m_watchedFiles.insert(cm);
     }
 
-    QList<const FileNode *> added;
-    QList<FileNode *> deleted; // Unused!
-    ProjectExplorer::compareSortedLists(m_files, allFiles, deleted, added, Node::sortByPath);
-
     QSet<FileName> allIncludePathSet;
     for (const CMakeBuildTarget &bt : m_buildTargets) {
         const QList<Utils::FileName> targetIncludePaths
@@ -285,7 +281,7 @@ void TeaLeafReader::generateProjectTree(CMakeListsNode *root, const QList<const 
     const QList<FileName> allIncludePaths = allIncludePathSet.toList();
 
     const QList<const FileNode *> missingHeaders
-            = Utils::filtered(added, [&allIncludePaths](const FileNode *fn) -> bool {
+            = Utils::filtered(allFiles, [&allIncludePaths](const FileNode *fn) -> bool {
         if (fn->fileType() != FileType::Header)
             return false;
 
