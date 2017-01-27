@@ -25997,7 +25997,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Creates a deployable Qt Quick 2 application using Qt Quick Controls 2.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Note:&lt;/b&gt; Qt Quick Controls 2 are available with Qt 5.7 and later.</source>
-        <translation>Создание устанавливаемого приложение Qt Quick 2 с использованием Qt Quick Controls 2.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Замечание:&lt;/b&gt;Qt Quick Controls 2 недоступны начиная с Qt 5.7.</translation>
+        <translation>Создание устанавливаемого приложение Qt Quick 2 с использованием Qt Quick Controls 2.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Замечание: &lt;/b&gt;Qt Quick Controls 2 доступны начиная с Qt 5.7.</translation>
     </message>
     <message>
         <source>Enable native styling. Requires dependency on the QtWidgets module.</source>
