@@ -241,7 +241,7 @@ void RemoteLinuxRunConfiguration::handleBuildSystemDataUpdated()
 {
     emit deploySpecsChanged();
     emit targetInformationChanged();
-    updateEnabledState();
+    emit enabledChanged();
 }
 
 const char *RemoteLinuxRunConfiguration::IdPrefix = "RemoteLinuxRunConfiguration:";

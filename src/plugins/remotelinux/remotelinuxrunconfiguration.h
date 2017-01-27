@@ -89,9 +89,6 @@ protected:
     bool fromMap(const QVariantMap &map) override;
     QString defaultDisplayName();
 
-protected:
-    void updateEnabledState() { emit enabledChanged(); }
-
 private:
     void handleBuildSystemDataUpdated();
     void init();
