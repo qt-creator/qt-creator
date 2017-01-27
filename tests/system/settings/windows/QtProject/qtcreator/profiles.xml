@@ -44,7 +44,7 @@
     <value type="QString" key="PE.Profile.SysRoot"></value>
     <value type="QString" key="PE.Profile.ToolChain">ProjectExplorer.ToolChain.Msvc:{1186dad9-c485-4f69-b7e1-aff54c89ecb2}</value>
     <valuemap type="QVariantMap" key="PE.Profile.ToolChains">
-     <value type="QByteArray" key="C">{88921fca-56c4-4ea8-9681-ee0fa5085814}</value>
+     <value type="QByteArray" key="C">{93e707bd-236f-4d8d-917d-814aa358024b}</value>
      <value type="QString" key="Cxx">ProjectExplorer.ToolChain.Msvc:{1186dad9-c485-4f69-b7e1-aff54c89ecb2}</value>
     </valuemap>
     <value type="QString" key="QtPM4.mkSpecInformation"></value>
@@ -72,7 +72,7 @@
     <value type="QString" key="PE.Profile.SysRoot"></value>
     <value type="QString" key="PE.Profile.ToolChain">ProjectExplorer.ToolChain.Msvc:{1186dad9-c485-4f69-b7e1-aff54c89ecb2}</value>
     <valuemap type="QVariantMap" key="PE.Profile.ToolChains">
-     <value type="QByteArray" key="C">{88921fca-56c4-4ea8-9681-ee0fa5085814}</value>
+     <value type="QByteArray" key="C">{93e707bd-236f-4d8d-917d-814aa358024b}</value>
      <value type="QString" key="Cxx">ProjectExplorer.ToolChain.Msvc:{1186dad9-c485-4f69-b7e1-aff54c89ecb2}</value>
     </valuemap>
     <value type="QString" key="QtPM4.mkSpecInformation"></value>
@@ -128,7 +128,7 @@
     <value type="QString" key="PE.Profile.SysRoot"></value>
     <value type="QString" key="PE.Profile.ToolChain">{7ca0887f-a9a5-4251-aba6-560a15595d20}</value>
     <valuemap type="QVariantMap" key="PE.Profile.ToolChains">
-     <value type="QByteArray" key="C">{3cdb6753-cdee-4bb7-8fb3-2e7a60e279e3}</value>
+     <value type="QByteArray" key="C">{d35e7a1a-5ab8-4fd6-8a2c-634846c669bb}</value>
      <value type="QString" key="Cxx">{7ca0887f-a9a5-4251-aba6-560a15595d20}</value>
     </valuemap>
     <value type="QString" key="QtPM4.mkSpecInformation"></value>
