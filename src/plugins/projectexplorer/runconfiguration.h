@@ -266,6 +266,10 @@ public:
     virtual Runnable runnable() const;
     virtual Abi abi() const;
 
+    // Return the name of the build system target that created this run configuration.
+    // May return an empty string if no target built the executable!
+    virtual QString buildSystemTarget() const { return QString(); }
+
     void addExtraAspect(IRunConfigurationAspect *aspect);
 
 signals:

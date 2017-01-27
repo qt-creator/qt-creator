@@ -136,6 +136,11 @@ QString QmakeAndroidRunConfiguration::disabledReason() const
     return QString();
 }
 
+QString QmakeAndroidRunConfiguration::buildSystemTarget() const
+{
+    return qmakeProject()->mapProFilePathToTarget(m_proFilePath);
+}
+
 void QmakeAndroidRunConfiguration::proFileUpdated(QmakeProjectManager::QmakeProFileNode *pro, bool success, bool parseInProgress)
 {
     QmakeProject *project = qmakeProject();

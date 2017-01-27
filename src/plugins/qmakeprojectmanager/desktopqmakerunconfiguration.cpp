@@ -422,6 +422,11 @@ void DesktopQmakeRunConfiguration::addToBaseEnvironment(Environment &env) const
         env.prependOrSetLibrarySearchPath(qtVersion->qmakeProperty("QT_INSTALL_LIBS"));
 }
 
+QString DesktopQmakeRunConfiguration::buildSystemTarget() const
+{
+    return qmakeProject()->mapProFilePathToTarget(m_proFilePath);
+}
+
 Utils::FileName DesktopQmakeRunConfiguration::proFilePath() const
 {
     return m_proFilePath;

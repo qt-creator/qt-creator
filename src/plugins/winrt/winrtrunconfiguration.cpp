@@ -32,6 +32,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/runconfigurationaspects.h>
+#include <qmakeprojectmanager/qmakeproject.h>
 
 namespace WinRt {
 namespace Internal {
@@ -82,6 +83,12 @@ void WinRtRunConfiguration::setUninstallAfterStop(bool b)
 {
     m_uninstallAfterStop = b;
     emit uninstallAfterStopChanged(m_uninstallAfterStop);
+}
+
+QString WinRtRunConfiguration::buildSystemTarget() const
+{
+    return static_cast<QmakeProjectManager::QmakeProject *>(target()->project())
+            ->mapProFilePathToTarget(Utils::FileName::fromString(m_proFilePath));
 }
 
 } // namespace Internal

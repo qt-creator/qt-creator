@@ -47,6 +47,8 @@ public:
     bool uninstallAfterStop() const { return m_uninstallAfterStop; }
     void setUninstallAfterStop(bool b);
 
+    QString buildSystemTarget() const final;
+
 signals:
     void argumentsChanged(QString);
     void uninstallAfterStopChanged(bool);

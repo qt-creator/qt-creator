@@ -136,6 +136,8 @@ public:
     enum AsyncUpdateState { Base, AsyncFullUpdatePending, AsyncPartialUpdatePending, AsyncUpdateInProgress, ShuttingDown };
     AsyncUpdateState asyncUpdateState() const;
 
+    QString mapProFilePathToTarget(const Utils::FileName &proFilePath);
+
 signals:
     void proFileUpdated(QmakeProjectManager::QmakeProFileNode *node, bool, bool);
     void buildDirectoryInitialized();

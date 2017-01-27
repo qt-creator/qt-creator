@@ -274,6 +274,11 @@ QVariantMap IosRunConfiguration::toMap() const
     return res;
 }
 
+QString IosRunConfiguration::buildSystemTarget() const
+{
+    return static_cast<QmakeProject *>(target()->project())->mapProFilePathToTarget(m_profilePath);
+}
+
 bool IosRunConfiguration::isEnabled() const
 {
     if (m_parseInProgress || !m_parseSuccess)

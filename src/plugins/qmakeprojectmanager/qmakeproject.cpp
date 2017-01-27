@@ -1546,6 +1546,13 @@ QmakeProject::AsyncUpdateState QmakeProject::asyncUpdateState() const
     return m_asyncUpdateState;
 }
 
+QString QmakeProject::mapProFilePathToTarget(const FileName &proFilePath)
+{
+    const QmakeProjectManager::QmakeProFileNode *root = rootProjectNode();
+    const QmakeProjectManager::QmakeProFileNode *node = root ? root->findProFileFor(proFilePath) : nullptr;
+    return node ? node->targetInformation().target : QString();
+}
+
 } // namespace QmakeProjectManager
 
 #include "qmakeproject.moc"

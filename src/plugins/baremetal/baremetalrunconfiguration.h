@@ -58,6 +58,8 @@ public:
 
     QString projectFilePath() const;
 
+    QString buildSystemTarget() const final;
+
     static const char *IdPrefix;
 
 signals:

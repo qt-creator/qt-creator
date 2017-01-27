@@ -665,7 +665,7 @@ QList<ProjectExplorer::RunConfiguration *> QbsProductNode::runConfigurations() c
         QbsRunConfiguration *qbsRc = qobject_cast<QbsRunConfiguration *>(rc);
         if (!qbsRc)
             continue;
-        if (qbsRc->uniqueProductName() == QbsProject::uniqueProductName(qbsProductData()))
+        if (qbsRc->buildSystemTarget() == QbsProject::uniqueProductName(qbsProductData()))
             result << qbsRc;
     }
 

@@ -51,6 +51,8 @@ public:
     bool isEnabled() const override;
     QString disabledReason() const override;
 
+    QString buildSystemTarget() const final;
+
 protected:
     QmakeAndroidRunConfiguration(ProjectExplorer::Target *parent, QmakeAndroidRunConfiguration *source);
 

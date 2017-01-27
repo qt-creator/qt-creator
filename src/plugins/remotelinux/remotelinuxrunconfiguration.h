@@ -77,6 +77,8 @@ public:
 
     QVariantMap toMap() const override;
 
+    QString buildSystemTarget() const final;
+
     static const char *IdPrefix;
 
 signals:

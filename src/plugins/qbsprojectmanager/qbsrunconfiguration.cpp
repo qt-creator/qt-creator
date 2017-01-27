@@ -297,7 +297,7 @@ void QbsRunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
         env.prependOrSetLibrarySearchPath(qtVersion->qmakeProperty("QT_INSTALL_LIBS"));
 }
 
-QString QbsRunConfiguration::uniqueProductName() const
+QString QbsRunConfiguration::buildSystemTarget() const
 {
     return m_uniqueProductName;
 }

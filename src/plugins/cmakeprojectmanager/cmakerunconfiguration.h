@@ -56,6 +56,8 @@ public:
     bool isEnabled() const override;
     QString disabledReason() const override;
 
+    QString buildSystemTarget() const final { return m_buildTarget; }
+
 protected:
     CMakeRunConfiguration(ProjectExplorer::Target *parent, CMakeRunConfiguration *source);
     bool fromMap(const QVariantMap &map) override;

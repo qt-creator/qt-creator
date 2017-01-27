@@ -155,6 +155,15 @@ QString BareMetalRunConfiguration::projectFilePath() const
     return m_projectFilePath;
 }
 
+QString BareMetalRunConfiguration::buildSystemTarget() const
+{
+    const BuildTargetInfoList targets = target()->applicationTargets();
+    const Utils::FileName projectFilePath = Utils::FileName::fromString(m_projectFilePath);
+    auto bst = std::find_if(targets.list.constBegin(), targets.list.constEnd(),
+                            [&projectFilePath](const BuildTargetInfo &bti) { return bti.projectFilePath == projectFilePath; });
+    return (bst == targets.list.constEnd()) ? QString() : bst->targetName;
+}
+
 void BareMetalRunConfiguration::setDisabledReason(const QString &reason) const
 {
     m_disabledReason = reason;

@@ -78,6 +78,8 @@ public:
 
     void addToBaseEnvironment(Utils::Environment &env) const;
 
+    QString buildSystemTarget() const final;
+
 signals:
     void baseWorkingDirectoryChanged(const QString&);
     void usingDyldImageSuffixChanged(bool);
