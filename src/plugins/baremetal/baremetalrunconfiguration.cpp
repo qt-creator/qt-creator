@@ -163,7 +163,7 @@ void BareMetalRunConfiguration::setDisabledReason(const QString &reason) const
 void BareMetalRunConfiguration::handleBuildSystemDataUpdated()
 {
     emit targetInformationChanged();
-    updateEnableState();
+    emit enabledChanged();
 }
 
 const char *BareMetalRunConfiguration::IdPrefix = "BareMetal";
