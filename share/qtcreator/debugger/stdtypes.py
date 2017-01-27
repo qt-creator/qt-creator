@@ -393,7 +393,10 @@ def qdumpHelper__std__tree__iterator_MSVC(d, value):
             (left, parent, right, color, isnil, pad, child) = \
                 d.split("pppcc@{%s}" % (childType.name), node)
             if (childType.name.startswith("std::pair")):
-                d.putPairItem(None, child)
+                # workaround that values created via split have no members
+                keyType = childType[0].name
+                valueType = childType[1].name
+                d.putPairItem(None, child.split("{%s}@{%s}" % (keyType, valueType))[::2])
             else:
                 d.putSubItem("value", child)
 
