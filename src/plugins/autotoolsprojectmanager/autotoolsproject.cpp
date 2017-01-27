@@ -276,6 +276,8 @@ void AutotoolsProject::updateCppCodeModel()
     CppTools::ProjectInfo pInfo(this);
     CppTools::ProjectPartBuilder ppBuilder(pInfo);
 
+    ppBuilder.setProjectFile(projectFilePath().toString());
+
     CppTools::ProjectPart::QtVersion activeQtVersion = CppTools::ProjectPart::NoQt;
     if (QtSupport::BaseQtVersion *qtVersion =
             QtSupport::QtKitInformation::qtVersion(activeTarget()->kit())) {

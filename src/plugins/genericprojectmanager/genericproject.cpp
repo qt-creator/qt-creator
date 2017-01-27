@@ -354,6 +354,7 @@ void GenericProject::refreshCppCodeModel()
             activeQtVersion = CppTools::ProjectPart::Qt5;
     }
 
+    ppBuilder.setProjectFile(projectFilePath().toString());
     ppBuilder.setQtVersion(activeQtVersion);
     ppBuilder.setIncludePaths(projectIncludePaths());
     ppBuilder.setConfigFileName(configFileName());
