@@ -111,8 +111,11 @@ def qdump__boost__unordered__unordered_set(d, value):
         # its followed by size_t maxload, it's # effectively padded to a size_t
         bases, bucketCount, size, mlf, maxload, buckets = value.split('tttttp')
         # Distinguish 1.58 and 1.55. 1.58 used one template argument, 1.55 two.
-        ittype = d.lookupType(value.type.name + '::iterator').target()
-        forward = len(ittype.templateArguments()) == 1
+        try:
+            ittype = d.lookupType(value.type.name + '::iterator').target()
+            forward = len(ittype.templateArguments()) == 1
+        except:
+            forward = True
     else:
         # boost 1.48
         # Values are stored before the next pointers. Determine the offset.
