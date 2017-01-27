@@ -905,6 +905,9 @@ def qdump__QLinkedList(d, value):
 qqLocalesCount = None
 
 def qdump__QLocale(d, value):
+    if d.isMsvcTarget(): # as long as this dumper relies on calling functions skip it for cdb
+        return
+
     # Check for uninitialized 'index' variable. Retrieve size of
     # QLocale data array from variable in qlocale.cpp.
     # Default is 368 in Qt 4.8, 438 in Qt 5.0.1, the last one
