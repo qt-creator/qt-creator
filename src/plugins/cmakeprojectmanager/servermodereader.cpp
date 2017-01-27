@@ -312,7 +312,7 @@ QSet<Core::Id> ServerModeReader::updateCodeModel(CppTools::ProjectPartBuilder &p
         const QStringList flags = QtcProcess::splitArgs(fg->compileFlags);
         const QStringList includes = transform(fg->includePaths, [](const IncludePath *ip)  { return ip->path.toString(); });
 
-        ppBuilder.setProjectFile(fg->target->sourceDirectory.toString());
+        ppBuilder.setProjectFile(fg->target->sourceDirectory.toString() + "/CMakeLists.txt");
         ppBuilder.setDisplayName(fg->target->name + QString::number(counter));
         ppBuilder.setDefines(defineArg.toUtf8());
         ppBuilder.setIncludePaths(includes);

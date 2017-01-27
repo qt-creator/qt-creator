@@ -340,6 +340,7 @@ QSet<Id> TeaLeafReader::updateCodeModel(CppTools::ProjectPartBuilder &ppBuilder)
             includePaths = transform(cbt.includeFiles, &FileName::toString);
         }
         includePaths += m_parameters.buildDirectory.toString();
+        ppBuilder.setProjectFile(QString()); // No project file information available!
         ppBuilder.setIncludePaths(includePaths);
         ppBuilder.setCFlags(cflags);
         ppBuilder.setCxxFlags(cxxflags);
