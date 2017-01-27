@@ -81,10 +81,10 @@ def qdump__boost__container__list(d, value):
                 root = r["root_"]
             except:
                 root = r["m_header"]
-            p = root["next_"]
+            p = root["next_"].extractPointer()
             for i in d.childRange():
-                d.putSubItem(i, d.createValue(p.integer() + offset, innerType))
-                p = p["next_"]
+                d.putSubItem(i, d.createValue(p + offset, innerType))
+                p = d.extractPointer(p)
 
 
 def qdump__boost__gregorian__date(d, value):
