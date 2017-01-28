@@ -78,7 +78,7 @@ QDebug operator<<(QDebug d, const GerritPatchSet &p)
 
 QDebug operator<<(QDebug d, const GerritChange &c)
 {
-    d.nospace() << c.title << " by " << c.email
+    d.nospace() << c.fullTitle() << " by " << c.email
                 << ' ' << c.lastUpdated << ' ' <<  c.currentPatchSet;
     return d;
 }
@@ -199,6 +199,14 @@ QString GerritChange::filterString() const
 QStringList GerritChange::gitFetchArguments(const GerritServer &server) const
 {
     return { "fetch", server.url() + '/' + project, currentPatchSet.ref };
+}
+
+QString GerritChange::fullTitle() const
+{
+    QString res = title;
+    if (status == "DRAFT")
+        res += GerritModel::tr(" (Draft)");
+    return res;
 }
 
 // Helper class that runs ssh gerrit queries from a list of query argument
@@ -442,7 +450,7 @@ QString GerritModel::dependencyHtml(const QString &header, const int changeNumbe
     str << "<tr><td>" << header << "</td><td><a href="
         << serverPrefix << "r/" << changeNumber << '>' << changeNumber << "</a>";
     if (const QStandardItem *item = itemForNumber(changeNumber))
-        str << " (" << changeFromItem(item)->title << ')';
+        str << " (" << changeFromItem(item)->fullTitle() << ')';
     str << "</td></tr>";
     return res;
 }
@@ -466,7 +474,7 @@ QString GerritModel::toHtml(const QModelIndex& index) const
     QString result;
     QTextStream str(&result);
     str << "<html><head/><body><table>"
-        << "<tr><td>" << subjectHeader << "</td><td>" << c->title << "</td></tr>"
+        << "<tr><td>" << subjectHeader << "</td><td>" << c->fullTitle() << "</td></tr>"
         << "<tr><td>" << numberHeader << "</td><td><a href=\"" << c->url << "\">" << c->number << "</a></td></tr>"
         << "<tr><td>" << ownerHeader << "</td><td>" << c->owner << ' '
         << "<a href=\"mailto:" << c->email << "\">" << c->email << "</a></td></tr>"
@@ -703,7 +711,7 @@ QList<QStandardItem *> GerritModel::changeToRow(const GerritChangePtr &c) const
         row.append(item);
     }
     row[NumberColumn]->setData(c->number, Qt::DisplayRole);
-    row[TitleColumn]->setText(c->title);
+    row[TitleColumn]->setText(c->fullTitle());
     row[OwnerColumn]->setText(c->owner);
     // Shorten columns: Display time if it is today, else date
     const QString dateString = c->lastUpdated.date() == QDate::currentDate() ?

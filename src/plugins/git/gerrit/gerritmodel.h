@@ -69,6 +69,7 @@ public:
     bool isValid() const { return number && !url.isEmpty() && !project.isEmpty(); }
     QString filterString() const;
     QStringList gitFetchArguments(const GerritServer &server) const;
+    QString fullTitle() const; // title with potential "Draft" specifier
 
     QString url;
     int number = 0;
