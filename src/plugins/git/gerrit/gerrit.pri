@@ -14,4 +14,6 @@ HEADERS += $$PWD/gerritdialog.h \
     $$PWD/gerritpushdialog.h \
     $$PWD/branchcombobox.h
 
-FORMS += $$PWD/gerritpushdialog.ui
+FORMS += $$PWD/gerritdialog.ui \
+    $$PWD/gerritpushdialog.ui
+

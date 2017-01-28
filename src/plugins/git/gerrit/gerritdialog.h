@@ -25,37 +25,28 @@
 
 #pragma once
 
-#include <utils/pathchooser.h>
-
 #include <QDialog>
 #include <QSharedPointer>
 #include <QTimer>
 
+#include <functional>
+
 QT_BEGIN_NAMESPACE
-class QTreeView;
-class QLabel;
 class QModelIndex;
 class QSortFilterProxyModel;
-class QStandardItem;
 class QStringListModel;
 class QPushButton;
-class QDialogButtonBox;
-class QTextBrowser;
 QT_END_NAMESPACE
 
-namespace Utils {
-class FancyLineEdit;
-class ProgressIndicator;
-class TreeView;
-}
+namespace Utils { class ProgressIndicator; }
 
 namespace Gerrit {
 namespace Internal {
+namespace Ui { class GerritDialog; }
 class GerritChange;
 class GerritModel;
 class GerritParameters;
 class GerritServer;
-class QueryValidatingLineEdit;
 
 class GerritDialog : public QDialog
 {
@@ -99,19 +90,13 @@ private:
     const QSharedPointer<GerritParameters> m_parameters;
     const QSharedPointer<GerritServer> m_server;
     QSortFilterProxyModel *m_filterModel;
+    Ui::GerritDialog *m_ui;
     GerritModel *m_model;
     QStringListModel *m_queryModel;
-    Utils::TreeView *m_treeView;
-    QTextBrowser *m_detailsBrowser;
-    Utils::FancyLineEdit *m_queryLineEdit;
-    Utils::FancyLineEdit *m_filterLineEdit;
-    Utils::PathChooser *m_repositoryChooser;
-    QDialogButtonBox *m_buttonBox;
     QPushButton *m_displayButton;
     QPushButton *m_cherryPickButton;
     QPushButton *m_checkoutButton;
     QPushButton *m_refreshButton;
-    QLabel *m_repositoryChooserLabel;
     Utils::ProgressIndicator *m_progressIndicator;
     QTimer m_progressIndicatorTimer;
     QString m_repository;
