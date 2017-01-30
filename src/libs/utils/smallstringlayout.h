@@ -29,6 +29,12 @@
 
 #include <cstdint>
 
+#ifdef Q_CC_MSVC
+#   define ALIGNAS_16
+#elif
+#   define ALIGNAS_16 alignas(16)
+#endif
+
 namespace Utils {
 
 namespace Internal {
@@ -70,7 +76,7 @@ struct ShortStringLayout {
 };
 
 template <uint MaximumShortStringDataAreaSize>
-struct alignas(16) StringDataLayout {
+struct ALIGNAS_16 StringDataLayout {
     static_assert( MaximumShortStringDataAreaSize >= 15, "Size must be greater equal than 15 bytes!");
     static_assert(((MaximumShortStringDataAreaSize + 1) % 16) == 0, "Size + 1 must be dividable by 16!");
     StringDataLayout() noexcept = default;
