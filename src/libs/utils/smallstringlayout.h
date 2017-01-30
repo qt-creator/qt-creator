@@ -31,7 +31,7 @@
 
 #ifdef Q_CC_MSVC
 #   define ALIGNAS_16
-#elif
+#else
 #   define ALIGNAS_16 alignas(16)
 #endif
 
