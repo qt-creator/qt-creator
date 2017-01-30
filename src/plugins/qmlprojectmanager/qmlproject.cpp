@@ -63,7 +63,7 @@ QmlProject::QmlProject(Internal::Manager *manager, const Utils::FileName &fileNa
     setRootProjectNode(new Internal::QmlProjectNode(this));
 
     setProjectContext(Context(QmlProjectManager::Constants::PROJECTCONTEXT));
-    setProjectLanguages(Context(ProjectExplorer::Constants::LANG_QMLJS));
+    setProjectLanguages(Context(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID));
 
     m_projectName = projectFilePath().toFileInfo().completeBaseName();
 

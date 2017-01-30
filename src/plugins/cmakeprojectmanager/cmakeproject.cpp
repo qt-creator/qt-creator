@@ -82,7 +82,7 @@ CMakeProject::CMakeProject(CMakeManager *manager, const FileName &fileName)
 
     setRootProjectNode(new CMakeListsNode(fileName));
     setProjectContext(Core::Context(CMakeProjectManager::Constants::PROJECTCONTEXT));
-    setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
+    setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
 
     rootProjectNode()->setDisplayName(fileName.parentDir().fileName());
 

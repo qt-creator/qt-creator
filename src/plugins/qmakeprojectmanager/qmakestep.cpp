@@ -541,7 +541,8 @@ bool QMakeStep::fromMap(const QVariantMap &map)
     // change the qml_debug CONFIG flag based no the qmake build configuration.
     if (map.value(QLatin1String(QMAKE_QMLDEBUGLIBAUTO_KEY), false).toBool()) {
         m_linkQmlDebuggingLibrary =
-                project()->projectLanguages().contains(ProjectExplorer::Constants::LANG_QMLJS) &&
+                project()->projectLanguages().contains(
+                    ProjectExplorer::Constants::QMLJS_LANGUAGE_ID) &&
                 (qmakeBuildConfiguration()->qmakeBuildConfiguration() & BaseQtVersion::DebugBuild);
     } else {
         m_linkQmlDebuggingLibrary = map.value(QLatin1String(QMAKE_QMLDEBUGLIB_KEY), false).toBool();

@@ -130,7 +130,7 @@ QList<Core::Id> BaseProjectPartBuilder::createProjectPartsForFiles(const QString
 
     if (cat.hasParts()) {
         // The ProjextExplorer does not distinguish between other versions than C++ and QML.
-        languages += ProjectExplorer::Constants::LANG_CXX;
+        languages += ProjectExplorer::Constants::CXX_LANGUAGE_ID;
 
         if (cat.hasCxxSources()) {
             createProjectPart(cat.cxxSources(),

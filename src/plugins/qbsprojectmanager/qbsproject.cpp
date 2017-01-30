@@ -135,7 +135,7 @@ QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
     setRootProjectNode(new QbsRootProjectNode(this));
 
     setProjectContext(Context(Constants::PROJECT_ID));
-    setProjectLanguages(Context(ProjectExplorer::Constants::LANG_CXX));
+    setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
 
     connect(this, &Project::activeTargetChanged, this, &QbsProject::changeActiveTarget);
     connect(this, &Project::addedTarget, this, &QbsProject::targetWasAdded);
@@ -1137,7 +1137,8 @@ void QbsProject::updateQmlJsCodeModel()
         }
     }
 
-    setProjectLanguage(ProjectExplorer::Constants::LANG_QMLJS, !projectInfo.sourceFiles.isEmpty());
+    setProjectLanguage(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID,
+                       !projectInfo.sourceFiles.isEmpty());
     modelManager->updateProjectInfo(projectInfo, this);
 }
 

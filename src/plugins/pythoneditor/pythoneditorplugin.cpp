@@ -460,7 +460,7 @@ PythonProject::PythonProject(PythonProjectManager *manager, const QString &fileN
     setRootProjectNode(new PythonProjectNode(this));
 
     setProjectContext(Context(PythonProjectContext));
-    setProjectLanguages(Context(ProjectExplorer::Constants::LANG_CXX));
+    setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
 
     QFileInfo fileInfo = projectFilePath().toFileInfo();
 

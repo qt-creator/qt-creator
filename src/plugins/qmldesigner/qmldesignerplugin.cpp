@@ -246,7 +246,7 @@ void QmlDesignerPlugin::integrateIntoQtCreator(QWidget *modeWidget)
     d->context->context().add(qmlDesignerMainContext);
     d->context->context().add(qmlDesignerFormEditorContext);
     d->context->context().add(qmlDesignerNavigatorContext);
-    d->context->context().add(ProjectExplorer::Constants::LANG_QMLJS);
+    d->context->context().add(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID);
 
     d->shortCutManager.registerActions(qmlDesignerMainContext, qmlDesignerFormEditorContext, qmlDesignerNavigatorContext);
 

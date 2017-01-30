@@ -1017,7 +1017,7 @@ QString QmlJSEditorWidget::foldReplacementText(const QTextBlock &block) const
 
 QmlJSEditor::QmlJSEditor()
 {
-    addContext(ProjectExplorer::Constants::LANG_QMLJS);
+    addContext(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID);
 }
 
 bool QmlJSEditor::isDesignModePreferred() const

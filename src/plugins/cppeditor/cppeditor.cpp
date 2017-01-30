@@ -104,7 +104,7 @@ namespace Internal {
 
 CppEditor::CppEditor()
 {
-    addContext(ProjectExplorer::Constants::LANG_CXX);
+    addContext(ProjectExplorer::Constants::CXX_LANGUAGE_ID);
 }
 
 class CppEditorWidgetPrivate

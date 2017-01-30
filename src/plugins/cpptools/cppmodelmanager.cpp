@@ -972,7 +972,7 @@ ProjectPart::Ptr CppModelManager::fallbackProjectPart()
 
 bool CppModelManager::isCppEditor(Core::IEditor *editor)
 {
-    return editor->context().contains(ProjectExplorer::Constants::LANG_CXX);
+    return editor->context().contains(ProjectExplorer::Constants::CXX_LANGUAGE_ID);
 }
 
 bool CppModelManager::isClangCodeModelActive() const

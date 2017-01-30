@@ -234,7 +234,7 @@ bool DebuggerRunConfigurationAspect::useCppDebugger() const
 {
     if (d.useCppDebugger == AutoEnabledLanguage)
         return runConfiguration()->target()->project()->projectLanguages().contains(
-                    ProjectExplorer::Constants::LANG_CXX);
+                    ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     return d.useCppDebugger == EnabledLanguage;
 }
 
@@ -242,7 +242,7 @@ bool DebuggerRunConfigurationAspect::useQmlDebugger() const
 {
     if (d.useQmlDebugger == AutoEnabledLanguage) {
         const Core::Context languages = runConfiguration()->target()->project()->projectLanguages();
-        if (!languages.contains(ProjectExplorer::Constants::LANG_QMLJS))
+        if (!languages.contains(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID))
             return false;
 
         //
@@ -259,7 +259,7 @@ bool DebuggerRunConfigurationAspect::useQmlDebugger() const
             }
         }
 
-        return !languages.contains(ProjectExplorer::Constants::LANG_CXX);
+        return !languages.contains(ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     }
     return d.useQmlDebugger == EnabledLanguage;
 }

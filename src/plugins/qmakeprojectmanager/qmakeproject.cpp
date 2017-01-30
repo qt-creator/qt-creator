@@ -261,7 +261,7 @@ QmakeProject::QmakeProject(QmakeManager *manager, const QString &fileName) :
     setProjectManager(manager);
     setDocument(new QmakeProjectFile(fileName));
     setProjectContext(Core::Context(QmakeProjectManager::Constants::PROJECT_ID));
-    setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
+    setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setRequiredKitPredicate(QtSupport::QtKitInformation::qtVersionPredicate());
 
     const QTextCodec *codec = Core::EditorManager::defaultTextCodec();
@@ -478,7 +478,7 @@ void QmakeProject::updateQmlJSCodeModel()
     // This assumption fails when there are no QDeclarativeEngine/QDeclarativeView (QtQuick 1)
     // or QQmlEngine/QQuickView (QtQuick 2) instances.
     if (hasQmlLib)
-        addProjectLanguage(ProjectExplorer::Constants::LANG_QMLJS);
+        addProjectLanguage(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID);
 
     projectInfo.activeResourceFiles.removeDuplicates();
     projectInfo.allResourceFiles.removeDuplicates();

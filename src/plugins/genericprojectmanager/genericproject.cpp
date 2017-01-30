@@ -72,7 +72,7 @@ GenericProject::GenericProject(Manager *manager, const QString &fileName)
     setDocument(new GenericProjectFile(this, fileName, GenericProject::Everything));
     setRootProjectNode(new GenericProjectNode(this));
     setProjectContext(Context(GenericProjectManager::Constants::PROJECTCONTEXT));
-    setProjectLanguages(Context(ProjectExplorer::Constants::LANG_CXX));
+    setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
 
     const QFileInfo fileInfo = projectFilePath().toFileInfo();
     const QDir dir = fileInfo.dir();

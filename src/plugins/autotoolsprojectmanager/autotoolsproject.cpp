@@ -77,7 +77,7 @@ AutotoolsProject::AutotoolsProject(AutotoolsManager *manager, const QString &fil
     setDocument(new AutotoolsProjectFile(fileName));
     setRootProjectNode(new AutotoolsProjectNode(projectDirectory()));
     setProjectContext(Core::Context(Constants::PROJECT_CONTEXT));
-    setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
+    setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
 
     const QFileInfo fileInfo = projectFilePath().toFileInfo();
     m_projectName = fileInfo.absoluteDir().dirName();
