@@ -40,23 +40,23 @@ public:
     ProjectExplorer::Abi targetAbi() const override;
     bool isValid() const override;
 
-    QByteArray predefinedMacros(const QStringList &flags) const override;
-    CompilerFlags compilerFlags(const QStringList &flags) const;
-    ProjectExplorer::WarningFlags warningFlags(const QStringList &flags) const;
+    QByteArray predefinedMacros(const QStringList &flags) const final;
+    CompilerFlags compilerFlags(const QStringList &flags) const final;
+    ProjectExplorer::WarningFlags warningFlags(const QStringList &flags) const final;
 
     QList<ProjectExplorer::HeaderPath> systemHeaderPaths(const QStringList &flags,
-                                                         const Utils::FileName &sysRoot) const override;
-    void addToEnvironment(Utils::Environment &env) const override;
-    QString makeCommand(const Utils::Environment &env) const override;
-    Utils::FileName compilerCommand() const override;
+                                                         const Utils::FileName &sysRoot) const final;
+    void addToEnvironment(Utils::Environment &env) const final;
+    QString makeCommand(const Utils::Environment &env) const final;
+    Utils::FileName compilerCommand() const final;
     QString compilerVersion() const;
     void setCompilerCommand(const Utils::FileName &compilerCommand);
-    ProjectExplorer::IOutputParser *outputParser() const override;
-    ProjectExplorer::ToolChainConfigWidget *configurationWidget() override;
-    ProjectExplorer::ToolChain *clone() const override;
+    ProjectExplorer::IOutputParser *outputParser() const final;
+    ProjectExplorer::ToolChainConfigWidget *configurationWidget() final;
+    ProjectExplorer::ToolChain *clone() const final;
 
-    QVariantMap toMap() const override;
-    bool fromMap(const QVariantMap &data) override;
+    QVariantMap toMap() const final;
+    bool fromMap(const QVariantMap &data) final;
 
     static bool parseVersion(const Utils::FileName &path, std::tuple<int, int, int> &version);
 

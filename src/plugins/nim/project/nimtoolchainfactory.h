@@ -41,12 +41,12 @@ class NimToolChainFactory : public ProjectExplorer::ToolChainFactory
 public:
     NimToolChainFactory();
 
-    bool canCreate() override;
-    ProjectExplorer::ToolChain *create(Core::Id l) override;
-    bool canRestore(const QVariantMap &data) override;
-    ProjectExplorer::ToolChain *restore(const QVariantMap &data) override;
-    QSet<Core::Id> supportedLanguages() const override;
-    QList<ProjectExplorer::ToolChain *> autoDetect(const QList<ProjectExplorer::ToolChain *> &alreadyKnown) override;
+    bool canCreate() final;
+    ProjectExplorer::ToolChain *create(Core::Id l) final;
+    bool canRestore(const QVariantMap &data) final;
+    ProjectExplorer::ToolChain *restore(const QVariantMap &data) final;
+    QSet<Core::Id> supportedLanguages() const final;
+    QList<ProjectExplorer::ToolChain *> autoDetect(const QList<ProjectExplorer::ToolChain *> &alreadyKnown) final;
 };
 
 class NimToolChainConfigWidget : public ProjectExplorer::ToolChainConfigWidget
@@ -57,10 +57,10 @@ public:
     explicit NimToolChainConfigWidget(NimToolChain *tc);
 
 protected:
-    void applyImpl() override;
-    void discardImpl() override;
-    bool isDirtyImpl() const override;
-    void makeReadOnlyImpl() override;
+    void applyImpl() final;
+    void discardImpl() final;
+    bool isDirtyImpl() const final;
+    void makeReadOnlyImpl() final;
 
 private:
     void fillUI();
