@@ -123,6 +123,7 @@
 #include <utils/macroexpander.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/parameteraction.h>
+#include <utils/processhandle.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
@@ -2582,9 +2583,9 @@ void ProjectExplorerPlugin::runRunConfiguration(RunConfiguration *rc,
     emit m_instance->updateRunActions();
 }
 
-QList<QPair<Runnable, ProcessHandle>> ProjectExplorerPlugin::runningRunControlProcesses()
+QList<QPair<Runnable, Utils::ProcessHandle>> ProjectExplorerPlugin::runningRunControlProcesses()
 {
-    QList<QPair<Runnable, ProcessHandle>> processes;
+    QList<QPair<Runnable, Utils::ProcessHandle>> processes;
     foreach (RunControl *rc, dd->m_outputPane->allRunControls()) {
         if (rc->isRunning())
             processes << qMakePair(rc->runnable(), rc->applicationProcessHandle());
