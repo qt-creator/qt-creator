@@ -212,7 +212,7 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
 
     m_buildFileAction = new Utils::ParameterAction(tr("Build File"), tr("Build File \"%1\""),
                                                    Utils::ParameterAction::AlwaysEnabled, this);
-    command = ActionManager::registerAction(m_buildFileAction, Constants::BUILDFILE);
+    command = ActionManager::registerAction(m_buildFileAction, Constants::BUILDFILE, projectContext);
     command->setAttribute(Command::CA_Hide);
     command->setAttribute(Command::CA_UpdateText);
     command->setDescription(m_buildFileAction->text());
