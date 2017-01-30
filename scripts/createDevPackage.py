@@ -64,14 +64,8 @@ source_include_patterns = [
     r"^HACKING$",
     r"^LICENSE.*$",
     r"^README.md$",
-    r"^qtcreator.pri$",
-    r"^qtcreatordata.pri$",
-    r"^src/qtcreatorplugin.pri$",
-    r"^src/qtcreatorlibrary.pri$",
-    r"^src/qtcreatortool.pri$",
-    r"^src/rpath.pri$",
+    r"^.*\.pri$",
     r"^.*\.h$",
-    r"^.*_dependencies.pri$",
 ]
 
 build_include_patterns = [
