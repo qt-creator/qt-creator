@@ -26,8 +26,9 @@ exists($$LLVM_INSTALL_DIR) {
     win32-msvc2015:lessThan(QT_CL_PATCH_VERSION, 24210): QTC_NO_CLANG_LIBTOOLING = 1
     isEmpty(QTC_NO_CLANG_LIBTOOLING) {
         SUBDIRS += clangrefactoringbackend
+        SUBDIRS += clangpchmanagerbackend
     } else {
-        warning("Building the Clang refactoring back end is disabled.")
+        warning("Building the Clang refactoring back end and the pch manager plugins are disabled.")
     }
 }
 

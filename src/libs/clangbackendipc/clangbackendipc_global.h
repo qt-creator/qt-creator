@@ -45,10 +45,17 @@
 # define CLANGBACKENDPROCESSPATH ""
 #endif
 
+#ifdef UNIT_TESTS
+#define unitttest_public public
+#else
+#define unitttest_public private
+#endif
+
 namespace Utils {
 template <uint Size>
 class BasicSmallString;
 using SmallString = BasicSmallString<31>;
+using PathString = BasicSmallString<191>;
 }
 
 namespace ClangBackEnd {
@@ -124,7 +131,10 @@ enum class MessageType : quint8 {
     RequestSourceRangesAndDiagnosticsForQueryMessage,
     SourceRangesAndDiagnosticsForQueryMessage,
 
-    CancelMessage
+    CancelMessage,
+    UpdatePchProjectPartsMessage,
+    RemovePchProjectPartsMessage,
+    PrecompiledHeadersUpdatedMessage
 };
 
 template<MessageType messageEnumeration>

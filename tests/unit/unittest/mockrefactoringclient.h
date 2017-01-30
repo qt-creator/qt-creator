@@ -25,12 +25,9 @@
 
 #pragma once
 
-#include <refactoringclientinterface.h>
+#include "googletest.h"
 
-#include <gmock/gmock.h>
-#include <gmock/gmock-matchers.h>
-#include <gtest/gtest.h>
-#include "gtest-qt-printing.h"
+#include <refactoringclientinterface.h>
 
 class MockRefactoringClient : public ClangBackEnd::RefactoringClientInterface
 {

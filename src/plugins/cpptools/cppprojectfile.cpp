@@ -109,6 +109,16 @@ bool ProjectFile::isSource(ProjectFile::Kind kind)
     }
 }
 
+bool ProjectFile::isHeader() const
+{
+    return isHeader(kind);
+}
+
+bool ProjectFile::isSource() const
+{
+    return isSource(kind);
+}
+
 #define RETURN_TEXT_FOR_CASE(enumValue) case ProjectFile::enumValue: return #enumValue
 static const char *projectFileKindToText(ProjectFile::Kind kind)
 {

@@ -55,6 +55,9 @@ public:
     static bool isHeader(Kind kind);
     static bool isAmbiguousHeader(const QString &filePath);
 
+    bool isHeader() const;
+    bool isSource() const;
+
 public:
     ProjectFile() = default;
     ProjectFile(const QString &filePath, Kind kind);

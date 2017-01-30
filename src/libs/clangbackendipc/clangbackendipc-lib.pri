@@ -68,7 +68,16 @@ SOURCES += $$PWD/clangcodemodelserverinterface.cpp \
     $$PWD/sourcerangesanddiagnosticsforquerymessage.cpp \
     $$PWD/sourcerangewithtextcontainer.cpp \
     $$PWD/filecontainerv2.cpp \
-    $$PWD/cancelmessage.cpp
+    $$PWD/cancelmessage.cpp \
+    $$PWD/pchmanagerclientinterface.cpp \
+    $$PWD/pchmanagerserverinterface.cpp \
+    $$PWD/projectpartcontainerv2.cpp \
+    $$PWD/updatepchprojectpartsmessage.cpp \
+    $$PWD/pchmanagerserverproxy.cpp \
+    $$PWD/pchmanagerclientproxy.cpp \
+    $$PWD/projectpartpch.cpp \
+    $$PWD/precompiledheadersupdatedmessage.cpp \
+    $$PWD/removepchprojectpartsmessage.cpp
 
 HEADERS += \
     $$PWD/clangcodemodelserverinterface.h \
@@ -133,6 +142,15 @@ HEADERS += \
     $$PWD/sourcerangesanddiagnosticsforquerymessage.h \
     $$PWD/sourcerangewithtextcontainer.h \
     $$PWD/filecontainerv2.h \
-    $$PWD/cancelmessage.h
+    $$PWD/cancelmessage.h \
+    $$PWD/pchmanagerclientinterface.h \
+    $$PWD/pchmanagerserverinterface.h \
+    $$PWD/projectpartcontainerv2.h \
+    $$PWD/updatepchprojectpartsmessage.h \
+    $$PWD/pchmanagerserverproxy.h \
+    $$PWD/pchmanagerclientproxy.h \
+    $$PWD/projectpartpch.h \
+    $$PWD/precompiledheadersupdatedmessage.h \
+    $$PWD/removepchprojectpartsmessage.h
 
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols

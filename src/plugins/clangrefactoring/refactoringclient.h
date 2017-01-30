@@ -45,14 +45,14 @@ namespace ClangRefactoring {
 class RefactoringClient final : public ClangBackEnd::RefactoringClientInterface
 {
 public:
-    void alive() final;
+    void alive() override;
     void sourceLocationsForRenamingMessage(
-            ClangBackEnd::SourceLocationsForRenamingMessage &&message) final;
+            ClangBackEnd::SourceLocationsForRenamingMessage &&message) override;
     void sourceRangesAndDiagnosticsForQueryMessage(
-            ClangBackEnd::SourceRangesAndDiagnosticsForQueryMessage &&message) final;
+            ClangBackEnd::SourceRangesAndDiagnosticsForQueryMessage &&message) override;
 
     void setLocalRenamingCallback(
-            CppTools::RefactoringEngineInterface::RenameCallback &&localRenamingCallback) final;
+            CppTools::RefactoringEngineInterface::RenameCallback &&localRenamingCallback) override;
     void setRefactoringEngine(ClangRefactoring::RefactoringEngine *refactoringEngine);
     void setSearchHandle(ClangRefactoring::SearchHandle *searchHandleInterface);
     ClangRefactoring::SearchHandle *searchHandle() const;

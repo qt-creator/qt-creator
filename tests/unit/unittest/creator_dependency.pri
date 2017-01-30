@@ -13,9 +13,11 @@ include($$PWD/../../../src/shared/clang/clang_defines.pri)
 
 include($$PWD/../../../src/tools/clangbackend/ipcsource/clangbackendclangipc-source.pri)
 !isEmpty(LIBTOOLING_LIBS):include($$PWD/../../../src/tools/clangrefactoringbackend/source/clangrefactoringbackend-source.pri)
+include($$PWD/../../../src/tools/clangpchmanagerbackend/source/clangpchmanagerbackend-source.pri)
 include($$PWD/../../../src/plugins/clangcodemodel/clangcodemodelunittestfiles.pri)
 include($$PWD/../../../src/plugins/cpptools/cpptoolsunittestfiles.pri)
 !isEmpty(LIBTOOLING_LIBS):include($$PWD/../../../src/plugins/clangrefactoring/clangrefactoring-source.pri)
+include($$PWD/../../../src/plugins/clangpchmanager/clangpchmanager-source.pri)
 include(cplusplus.pri)
 }
 

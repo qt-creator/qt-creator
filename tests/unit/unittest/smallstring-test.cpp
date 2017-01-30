@@ -101,6 +101,15 @@ TEST(SmallString, CreateFromSmallStringIterators)
     ASSERT_THAT(text, SmallString("this is very very very very very much text"));
 }
 
+TEST(SmallString, CreateFromStringView)
+{
+    SmallStringView sourceText = "this is very very very very very much text";
+
+    SmallString text(sourceText);
+
+    ASSERT_THAT(text, SmallString("this is very very very very very much text"));
+}
+
 TEST(SmallString, ShortSmallStringIsReference)
 {
     SmallString longText("very very very very very long text");
@@ -656,6 +665,26 @@ TEST(SmallString, SmallerOperator)
     ASSERT_FALSE(SmallString("texta") < SmallString("text"));
     ASSERT_FALSE(SmallString("text") < SmallString("some"));
     ASSERT_FALSE(SmallString("text") < SmallString("text"));
+}
+
+TEST(SmallString, SmallerOperatorWithStringViewRight)
+{
+    ASSERT_TRUE(SmallString() < SmallStringView("text"));
+    ASSERT_TRUE(SmallString("some") < SmallStringView("text"));
+    ASSERT_TRUE(SmallString("text") < SmallStringView("texta"));
+    ASSERT_FALSE(SmallString("texta") < SmallStringView("text"));
+    ASSERT_FALSE(SmallString("text") < SmallStringView("some"));
+    ASSERT_FALSE(SmallString("text") < SmallStringView("text"));
+}
+
+TEST(SmallString, SmallerOperatorWithStringViewLeft)
+{
+    ASSERT_TRUE(SmallStringView("") < SmallString("text"));
+    ASSERT_TRUE(SmallStringView("some") < SmallString("text"));
+    ASSERT_TRUE(SmallStringView("text") < SmallString("texta"));
+    ASSERT_FALSE(SmallStringView("texta") < SmallString("text"));
+    ASSERT_FALSE(SmallStringView("text") < SmallString("some"));
+    ASSERT_FALSE(SmallStringView("text") < SmallString("text"));
 }
 
 TEST(SmallString, IsEmpty)

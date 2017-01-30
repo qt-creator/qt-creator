@@ -44,7 +44,10 @@ SOURCES += \
     clangreparsesupportivetranslationunitjob-test.cpp \
     clangsupportivetranslationunitinitializer-test.cpp \
     codecompleter-test.cpp \
-    clientserveroutsideprocess-test.cpp
+    clientserveroutsideprocess-test.cpp \
+    clangpathwatcher-test.cpp \
+    projectparts-test.cpp \
+    stringcache-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \
@@ -109,7 +112,13 @@ SOURCES += \
     symbolfinder-test.cpp \
     sourcerangeextractor-test.cpp \
     gtest-clang-printing.cpp \
-    testclangtool.cpp
+    testclangtool.cpp \
+    pchmanagerclientserverinprocess-test.cpp \
+    includecollector-test.cpp \
+    pchmanagerserver-test.cpp \
+    pchcreator-test.cpp \
+    pchmanagerclient-test.cpp \
+    projectupdater-test.cpp
 }
 
 exists($$GOOGLEBENCHMARK_DIR) {
@@ -131,7 +140,11 @@ HEADERS += \
     mocksearchhandle.h \
     compare-operators.h \
     gtest-creator-printing.h \
-    conditionally-disabled-tests.h
+    conditionally-disabled-tests.h \
+    mockqfilesystemwatcher.h \
+    mockclangpathwatcher.h \
+    mockprojectparts.h \
+    mockclangpathwatchernotifier.h
 
 !isEmpty(LIBCLANG_LIBS) {
 HEADERS += \
@@ -150,7 +163,12 @@ HEADERS += \
     mockrefactoringclient.h \
     mockrefactoringserver.h \
     gtest-clang-printing.h \
-    testclangtool.h
+    testclangtool.h \
+    mockpchmanagerserver.h \
+    mockpchmanagerclient.h \
+    testenvironment.h \
+    mockpchmanagernotifier.h \
+    mockpchcreator.h
 }
 
 OTHER_FILES += $$files(data/*)
