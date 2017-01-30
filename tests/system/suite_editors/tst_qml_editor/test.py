@@ -47,9 +47,6 @@ def main():
 
 def testRenameId():
     test.log("Testing rename of id")
-    navTree = waitForObject("{type='Utils::NavigationTreeView' unnamed='1' visible='1' "
-                            "window=':Qt Creator_Core::Internal::MainWindow'}")
-    model = navTree.model()
     files = ["FocusCore.ContextMenu\\.qml", "FocusCore.GridMenu\\.qml",
              "FocusCore.ListMenu\\.qml", "focus\\.qml"]
     originalTexts = {}
@@ -90,7 +87,7 @@ def testRenameId():
         test.compare(originalText,formerTxt, "Comparing %s" % file.replace("FocusCore.","").replace("\\",""))
     invokeMenuItem("File","Save All")
 
-def __invokeFindUsage__(treeView, filename, line, additionalKeyPresses, expectedCount):
+def __invokeFindUsage__(filename, line, additionalKeyPresses, expectedCount):
     openDocument("focus.QML.qml" + os.sep + "focus.%s" % filename)
     editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
     if not placeCursorToLine(editor, line, True):
@@ -104,19 +101,15 @@ def __invokeFindUsage__(treeView, filename, line, additionalKeyPresses, expected
 
 def testFindUsages():
     test.log("Testing find usage of an ID")
-    navTree = waitForObject("{type='Utils::NavigationTreeView' unnamed='1' visible='1' "
-                            "window=':Qt Creator_Core::Internal::MainWindow'}")
-    __invokeFindUsage__(navTree, "focus\\.qml", "FocusScope\s*\{", ["<Down>"], 6)
+    __invokeFindUsage__("focus\\.qml", "FocusScope\s*\{", ["<Down>"], 6)
     test.log("Testing find usage of a property")
     clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
     home = "<Home>"
     if platform.system() == "Darwin":
         home = "<Ctrl+Left>"
-    __invokeFindUsage__(navTree, "focus\\.qml", "id: window", ["<Down>", "<Down>", home], 26)
+    __invokeFindUsage__("focus\\.qml", "id: window", ["<Down>", "<Down>", home], 26)
 
 def testHovering():
-    navTree = waitForObject("{type='Utils::NavigationTreeView' unnamed='1' visible='1' "
-                            "window=':Qt Creator_Core::Internal::MainWindow'}")
     test.log("Testing hovering elements")
     openDocument("focus.QML.qml" + os.sep + "focus.focus\\.qml")
     editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")

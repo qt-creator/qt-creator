@@ -52,6 +52,7 @@ class Project;
 class Node;
 class FolderNode;
 class FileNode;
+class ProcessHandle;
 
 namespace Internal { class ProjectExplorerSettings; }
 
@@ -139,6 +140,7 @@ public:
     static void runStartupProject(Core::Id runMode, bool forceSkipDeploy = false);
     static void runRunConfiguration(RunConfiguration *rc, Core::Id runMode,
                              const bool forceSkipDeploy = false);
+    static QList<QPair<Runnable, ProcessHandle>> runningRunControlProcesses();
 
     static void addExistingFiles(FolderNode *folderNode, const QStringList &filePaths);
 

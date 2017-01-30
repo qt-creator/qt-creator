@@ -1062,10 +1062,12 @@ bool GitPlugin::submitEditorAboutToClose()
         m_gitClient->interactiveRebase(m_submitRepository, amendSHA1, true);
     } else {
         m_gitClient->continueCommandIfNeeded(m_submitRepository);
-        if (editor->panelData().pushAction == NormalPush)
+        if (editor->panelData().pushAction == NormalPush) {
             m_gitClient->push(m_submitRepository);
-        else if (editor->panelData().pushAction == PushToGerrit)
-            connect(editor, &QObject::destroyed, this, &GitPlugin::delayedPushToGerrit);
+        } else if (editor->panelData().pushAction == PushToGerrit) {
+            connect(editor, &QObject::destroyed, this, &GitPlugin::delayedPushToGerrit,
+                    Qt::QueuedConnection);
+        }
     }
 
     return true;
