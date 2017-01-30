@@ -33,7 +33,7 @@
 namespace ClangCodeModel {
 namespace Internal {
 
-UiHeaderOnDiskManager::UiHeaderOnDiskManager() : m_temporaryDir("qtc-clang-uiheader-XXXXXX")
+UiHeaderOnDiskManager::UiHeaderOnDiskManager() : m_temporaryDir("clang-uiheader-XXXXXX")
 {
     QTC_CHECK(m_temporaryDir.isValid());
 }

@@ -51,12 +51,20 @@
 #include <QString>
 #include <QVariant>
 
+#include <memory>
 #include <vector>
 
 using namespace ClangBackEnd;
 
 using ::testing::Eq;
 using ::testing::SizeIs;
+
+struct Data {
+    Data() : client(&mockClangCodeModelClient) {}
+
+    MockClangCodeModelClient mockClangCodeModelClient;
+    ClangBackEnd::ClangCodeModelConnectionClient client;
+};
 
 class ClientServerOutsideProcess : public ::testing::Test
 {
@@ -67,15 +75,14 @@ protected:
     static void SetUpTestCase();
     static void TearDownTestCase();
 
-    static MockClangCodeModelClient mockClangCodeModelClient;
-    static ClangBackEnd::ClangCodeModelConnectionClient client;
+    static std::unique_ptr<Data> d;
+    MockClangCodeModelClient &mockClangCodeModelClient = d->mockClangCodeModelClient;
+    ClangBackEnd::ClangCodeModelConnectionClient &client = d->client;
 };
 
-MockClangCodeModelClient ClientServerOutsideProcess::mockClangCodeModelClient;
-ClangBackEnd::ClangCodeModelConnectionClient ClientServerOutsideProcess::client(&ClientServerOutsideProcess::mockClangCodeModelClient);
+std::unique_ptr<Data> ClientServerOutsideProcess::d;
 
 using ClientServerOutsideProcessSlowTest = ClientServerOutsideProcess;
-
 
 TEST_F(ClientServerOutsideProcessSlowTest, RestartProcessAsynchronously)
 {
@@ -176,10 +183,12 @@ TEST_F(ClientServerOutsideProcess, SendUnregisterProjectPartsForEditorMessage)
 
 void ClientServerOutsideProcess::SetUpTestCase()
 {
-    QSignalSpy clientSpy(&client, &ConnectionClient::connectedToLocalSocket);
-    client.setProcessPath(Utils::HostOsInfo::withExecutableSuffix(QStringLiteral(ECHOSERVER)));
+    d.reset(new Data);
 
-    client.startProcessAndConnectToServerAsynchronously();
+    QSignalSpy clientSpy(&d->client, &ConnectionClient::connectedToLocalSocket);
+    d->client.setProcessPath(Utils::HostOsInfo::withExecutableSuffix(QStringLiteral(ECHOSERVER)));
+
+    d->client.startProcessAndConnectToServerAsynchronously();
 
     ASSERT_TRUE(clientSpy.wait(100000));
     ASSERT_THAT(clientSpy, SizeIs(1));
@@ -187,7 +196,8 @@ void ClientServerOutsideProcess::SetUpTestCase()
 
 void ClientServerOutsideProcess::TearDownTestCase()
 {
-    client.finishProcess();
+    d->client.finishProcess();
+    d.reset();
 }
 void ClientServerOutsideProcess::SetUp()
 {

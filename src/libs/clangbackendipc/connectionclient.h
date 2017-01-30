@@ -28,6 +28,8 @@
 #include "clangcodemodelserverproxy.h"
 #include "lineprefixer.h"
 
+#include <utils/temporarydirectory.h>
+
 #include <QLocalSocket>
 #include <QProcessEnvironment>
 #include <QScopedPointer>
@@ -124,7 +126,7 @@ private:
 
     mutable std::unique_ptr<QProcess> process_;
     QLocalSocket localSocket;
-    std::unique_ptr<QTemporaryDir> temporaryDirectory_;
+    std::unique_ptr<Utils::TemporaryDirectory> temporaryDirectory_;
     QTimer processAliveTimer;
     QString processPath_;
     bool isAliveTimerResetted = false;

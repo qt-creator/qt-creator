@@ -33,7 +33,6 @@
 #include <QCoreApplication>
 #include <QMetaMethod>
 #include <QProcess>
-#include <QTemporaryDir>
 #include <QThread>
 
 namespace ClangBackEnd {
@@ -221,8 +220,7 @@ void ConnectionClient::printStandardError()
 
 void ConnectionClient::resetTemporaryDir()
 {
-    const QString templatePath = QDir::tempPath() + QStringLiteral("/qtc-clang-XXXXXX");
-    temporaryDirectory_.reset(new QTemporaryDir(templatePath));
+    temporaryDirectory_ = std::make_unique<Utils::TemporaryDirectory>("clang-XXXXXX");
 }
 
 void ConnectionClient::connectLocalSocketConnected()
