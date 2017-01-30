@@ -560,6 +560,12 @@ void FolderNode::setFolderNodes(const QList<FolderNode *> &folders)
         node->setParentFolderNode(this);
 }
 
+void FolderNode::makeEmpty()
+{
+    setFolderNodes({});
+    setFileNodes({});
+}
+
 bool FolderNode::showInSimpleTree() const
 {
     return false;

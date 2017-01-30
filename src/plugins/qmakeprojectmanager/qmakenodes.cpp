@@ -451,7 +451,9 @@ struct InternalNode
                 // If the cumulative evaluation botched the file too much, try the exact one.
                 if (contents.isEmpty())
                     vfs->readVirtualFile(file.toString(), QMakeVfs::VfsExact, &contents);
-                folder->addFolderNode(new ResourceEditor::ResourceTopLevelNode(file, contents, folder));
+                auto resourceNode = new ResourceEditor::ResourceTopLevelNode(file, contents, folder);
+                folder->addFolderNode(resourceNode);
+                resourceNode->addInternalNodes();
             }
         } else {
             for (const FileName &file : files)

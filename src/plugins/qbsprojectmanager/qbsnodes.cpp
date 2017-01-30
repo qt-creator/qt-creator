@@ -499,7 +499,7 @@ void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root,
             }
 
             if (isQrcFile)
-                static_cast<ResourceTopLevelNode *>(fn)->update();
+                static_cast<ResourceTopLevelNode *>(fn)->addInternalNodes();
             else
                 setupFolder(fn, fileTypeHash, c, c->path(), generated);
         }

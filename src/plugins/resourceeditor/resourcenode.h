@@ -41,7 +41,7 @@ class RESOURCE_EXPORT ResourceTopLevelNode : public ProjectExplorer::FolderNode
 public:
     ResourceTopLevelNode(const Utils::FileName &filePath, const QString &contents, FolderNode *parent);
     ~ResourceTopLevelNode() override;
-    void update();
+    void addInternalNodes();
 
     QString addFileFilter() const override;
 

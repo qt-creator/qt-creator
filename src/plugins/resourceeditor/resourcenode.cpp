@@ -119,7 +119,7 @@ ResourceTopLevelNode::~ResourceTopLevelNode()
     delete m_document;
 }
 
-void ResourceTopLevelNode::update()
+void ResourceTopLevelNode::addInternalNodes()
 {
     QMap<PrefixFolderLang, QList<ProjectExplorer::FileNode *>> filesToAdd;
     QMap<PrefixFolderLang, QList<ProjectExplorer::FolderNode *>> foldersToAddToFolders;
@@ -518,7 +518,8 @@ bool ResourceFileWatcher::reload(QString *errorString, ReloadFlag flag, ChangeTy
     Q_UNUSED(flag)
     if (type == TypePermissions)
         return true;
-    m_node->update();
+    m_node->makeEmpty();
+    m_node->addInternalNodes();
     return true;
 }
 
