@@ -30,7 +30,6 @@
 #include "qmakenodes.h"
 
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectnodes.h>
 
 #include <QStringList>
 #include <QFutureInterface>
@@ -47,8 +46,6 @@ namespace QtSupport { class ProFileReader; }
 
 namespace QmakeProjectManager {
 class QmakeBuildConfiguration;
-class QmakePriFileNode;
-class QmakeProFileNode;
 
 namespace Internal {
 class CentralizedFolderWatcher;
@@ -63,19 +60,19 @@ class  QMAKEPROJECTMANAGER_EXPORT QmakeProject : public ProjectExplorer::Project
 
 public:
     QmakeProject(QmakeManager *manager, const QString &proFile);
-    ~QmakeProject() override;
+    ~QmakeProject() final;
 
-    QString displayName() const override;
-    QmakeManager *projectManager() const override;
+    QString displayName() const final;
+    QmakeManager *projectManager() const final;
 
-    bool supportsKit(ProjectExplorer::Kit *k, QString *errorMesage) const override;
+    bool supportsKit(ProjectExplorer::Kit *k, QString *errorMesage) const final;
 
-    QmakeProFileNode *rootProjectNode() const override;
+    QmakeProFileNode *rootProjectNode() const final;
     bool validParse(const Utils::FileName &proFilePath) const;
     bool parseInProgress(const Utils::FileName &proFilePath) const;
 
-    virtual QStringList files(FilesMode fileMode) const override;
-    virtual QStringList filesGeneratedFrom(const QString &file) const override;
+    virtual QStringList files(FilesMode fileMode) const final;
+    virtual QStringList filesGeneratedFrom(const QString &file) const final;
 
     enum Parsing {ExactParse, ExactAndCumulativeParse };
     QList<QmakeProFileNode *> allProFiles(const QList<QmakeProjectType> &projectTypes = QList<QmakeProjectType>(),
@@ -116,11 +113,11 @@ public:
     void watchFolders(const QStringList &l, QmakePriFileNode *node);
     void unwatchFolders(const QStringList &l, QmakePriFileNode *node);
 
-    bool needsConfiguration() const override;
+    bool needsConfiguration() const final;
 
-    void configureAsExampleProject(const QSet<Core::Id> &platforms) override;
+    void configureAsExampleProject(const QSet<Core::Id> &platforms) final;
 
-    bool requiresTargetPanel() const override;
+    bool requiresTargetPanel() const final;
 
     /// \internal
     QString disabledReasonForRunConfiguration(const Utils::FileName &proFilePath);
@@ -131,7 +128,7 @@ public:
     void emitBuildDirectoryInitialized();
     static void proFileParseError(const QString &errorMessage);
 
-    ProjectExplorer::ProjectImporter *projectImporter() const override;
+    ProjectExplorer::ProjectImporter *projectImporter() const final;
 
     enum AsyncUpdateState { Base, AsyncFullUpdatePending, AsyncPartialUpdatePending, AsyncUpdateInProgress, ShuttingDown };
     AsyncUpdateState asyncUpdateState() const;
@@ -148,7 +145,7 @@ public:
     void scheduleAsyncUpdateLater() { scheduleAsyncUpdate(); }
 
 protected:
-    RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
+    RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) final;
 
 private:
     void asyncUpdate();
