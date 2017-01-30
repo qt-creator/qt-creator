@@ -10,6 +10,8 @@ QtcPlugin {
     Depends { name: "TextEditor" }
     Depends { name: "ProjectExplorer" }
 
+    cpp.includePaths: base.concat(["."])
+
     Group {
         name: "General"
         files: [
@@ -49,7 +51,9 @@ QtcPlugin {
             "nimrunconfigurationfactory.h", "nimrunconfigurationfactory.cpp",
             "nimrunconfigurationwidget.h", "nimrunconfigurationwidget.cpp",
             "nimruncontrol.h", "nimruncontrol.cpp",
-            "nimruncontrolfactory.h", "nimruncontrolfactory.cpp"
+            "nimruncontrolfactory.h", "nimruncontrolfactory.cpp",
+            "nimtoolchain.h", "nimtoolchain.cpp",
+            "nimtoolchainfactory.h", "nimtoolchainfactory.cpp",
         ]
     }
 
