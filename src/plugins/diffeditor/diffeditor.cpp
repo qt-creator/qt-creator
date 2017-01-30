@@ -64,8 +64,6 @@ static const char ignoreWhitespaceKeyC[] = "IgnoreWhitespace";
 
 static const char diffViewKeyC[] = "DiffEditorType";
 
-static const char useDiffEditorKeyC[] = "UseDiffEditor";
-
 using namespace TextEditor;
 
 namespace DiffEditor {
