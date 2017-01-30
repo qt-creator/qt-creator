@@ -41,6 +41,12 @@ public:
 
     bool initialize(const QStringList &arguments, QString *errorMessage) final;
     void extensionsInitialized() final;
+
+#ifdef WITH_TESTS
+private slots:
+    void testNimParser_data();
+    void testNimParser();
+#endif
 };
 
 }
