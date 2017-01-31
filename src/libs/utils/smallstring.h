@@ -65,6 +65,11 @@ public:
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
     using size_type = std::size_t;
 
+    static_assert(Size < 64
+                ? sizeof(Internal::StringDataLayout<Size>) == Size + 1
+                : sizeof(Internal::StringDataLayout<Size>) == Size + 2,
+                  "Size is wrong");
+
     BasicSmallString() noexcept
         : m_data(Internal::StringDataLayout<Size>())
     {
@@ -498,7 +503,7 @@ public:
     constexpr static
     size_type shortStringCapacity() noexcept
     {
-        return BasicSmallStringLiteral<Size>::shortStringCapacity();
+        return Internal::StringDataLayout<Size>::shortStringCapacity();
     }
 
     size_type optimalCapacity(const size_type size)
@@ -897,6 +902,6 @@ std::vector<Type> clone(const std::vector<Type> &vector)
 }
 
 using SmallString = BasicSmallString<31>;
-using PathString = BasicSmallString<191>;
+using PathString = BasicSmallString<190>;
 
 } // namespace Utils

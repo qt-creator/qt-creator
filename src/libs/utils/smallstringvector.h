@@ -154,5 +154,5 @@ private:
 };
 
 using SmallStringVector = BasicSmallStringVector<31>;
-using PathStringVector = BasicSmallStringVector<191>;
+using PathStringVector = BasicSmallStringVector<190>;
 } // namespace Utils;

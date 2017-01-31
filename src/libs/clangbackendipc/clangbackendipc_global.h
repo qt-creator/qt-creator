@@ -55,7 +55,7 @@ namespace Utils {
 template <uint Size>
 class BasicSmallString;
 using SmallString = BasicSmallString<31>;
-using PathString = BasicSmallString<191>;
+using PathString = BasicSmallString<190>;
 }
 
 namespace ClangBackEnd {

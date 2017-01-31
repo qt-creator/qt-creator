@@ -28,6 +28,7 @@
 #include <QtGlobal>
 
 #include <cstdint>
+#include <type_traits>
 
 #ifdef Q_CC_MSVC
 #   define ALIGNAS_16
@@ -41,7 +42,19 @@ namespace Internal {
 
 using size_type = std::size_t;
 
-template <uint MaximumShortStringDataAreaSize>
+template<bool Bool>
+struct block_type
+{
+    using type = uint8_t;
+};
+
+template<>
+struct block_type<false> {
+    using type = uint16_t;
+};
+
+template <uint MaximumShortStringDataAreaSize,
+          typename BlockType = typename block_type<(MaximumShortStringDataAreaSize < 64)>::type>
 struct AllocatedLayout {
     struct Data {
         char *pointer;
@@ -49,12 +62,13 @@ struct AllocatedLayout {
         size_type capacity;
     } data;
     char dummy[MaximumShortStringDataAreaSize - sizeof(Data)];
-    std::uint8_t shortStringSize: 6;
-    std::uint8_t isReadOnlyReference : 1;
-    std::uint8_t isReference : 1;
+    BlockType shortStringSize : (sizeof(BlockType) * 8) - 2;
+    BlockType isReadOnlyReference : 1;
+    BlockType isReference : 1;
 };
 
-template <uint MaximumShortStringDataAreaSize>
+template <uint MaximumShortStringDataAreaSize,
+          typename BlockType = typename block_type<(MaximumShortStringDataAreaSize < 64)>::type>
 struct ReferenceLayout {
     struct Data {
         const char *pointer;
@@ -62,23 +76,28 @@ struct ReferenceLayout {
         size_type capacity;
     } data;
     char dummy[MaximumShortStringDataAreaSize - sizeof(Data)];
-    std::uint8_t shortStringSize: 6;
-    std::uint8_t isReadOnlyReference : 1;
-    std::uint8_t isReference : 1;
+    BlockType shortStringSize : (sizeof(BlockType) * 8) - 2;
+    BlockType isReadOnlyReference : 1;
+    BlockType isReference : 1;
 };
 
-template <uint MaximumShortStringDataAreaSize>
+template <uint MaximumShortStringDataAreaSize,
+          typename BlockType = typename block_type<(MaximumShortStringDataAreaSize < 64)>::type>
 struct ShortStringLayout {
     char string[MaximumShortStringDataAreaSize];
-    std::uint8_t shortStringSize: 6;
-    std::uint8_t isReadOnlyReference : 1;
-    std::uint8_t isReference : 1;
+    BlockType shortStringSize : (sizeof(BlockType) * 8) - 2;
+    BlockType isReadOnlyReference : 1;
+    BlockType isReference : 1;
 };
 
 template <uint MaximumShortStringDataAreaSize>
 struct ALIGNAS_16 StringDataLayout {
     static_assert( MaximumShortStringDataAreaSize >= 15, "Size must be greater equal than 15 bytes!");
-    static_assert(((MaximumShortStringDataAreaSize + 1) % 16) == 0, "Size + 1 must be dividable by 16!");
+    static_assert(MaximumShortStringDataAreaSize < 64
+                ? ((MaximumShortStringDataAreaSize + 1) % 16) == 0
+                : ((MaximumShortStringDataAreaSize + 2) % 16) == 0,
+                  "Size + 1 must be dividable by 16 if under 64 and Size + 2 must be dividable by 16 if over 64!");
+
     StringDataLayout() noexcept = default;
 
     constexpr StringDataLayout(const char *string,
@@ -115,6 +134,14 @@ struct ALIGNAS_16 StringDataLayout {
             reference.isReadOnlyReference = true;
         }
 #endif
+    }
+
+    constexpr static
+    size_type shortStringCapacity() noexcept
+    {
+        return MaximumShortStringDataAreaSize < 64
+             ? MaximumShortStringDataAreaSize - 1
+             : MaximumShortStringDataAreaSize - 2;
     }
 
     union {

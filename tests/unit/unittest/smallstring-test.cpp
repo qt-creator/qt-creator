@@ -33,6 +33,7 @@
 
 using namespace ::testing;
 
+using Utils::PathString;
 using Utils::SmallString;
 using Utils::SmallStringLiteral;
 using Utils::SmallStringView;
@@ -443,6 +444,15 @@ TEST(SmallString, SizeShortSmallString)
     auto size = shortText.size();
 
     ASSERT_THAT(size, 4);
+}
+
+TEST(SmallString, SizeShortPathString)
+{
+    SmallString shortPath("very very very very very very very very very very very long path which fits in the short memory");
+
+    auto size = shortPath.size();
+
+    ASSERT_THAT(size, 95);
 }
 
 TEST(SmallString, SizeLongSmallString)

@@ -89,7 +89,7 @@ public:
     constexpr static
     size_type shortStringCapacity() noexcept
     {
-        return sizeof(Internal::ShortStringLayout<Size>) - 2;
+        return Internal::StringDataLayout<Size>::shortStringCapacity();
     }
 
     bool isShortString() const noexcept
