@@ -461,5 +461,9 @@ class Dumper(DumperBase):
     def callHelper(self, rettype, value, function, args):
         raise Exception("cdb does not support calling functions")
 
+    def nameForCoreId(self, id):
+        idName = cdbext.call('Cored4!Core::nameForId(%d)' % id)
+        return self.fromNativeValue(idName)
+
     def putCallItem(self, name, rettype, value, func, *args):
         return

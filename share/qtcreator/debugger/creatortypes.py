@@ -89,15 +89,15 @@ def dumpLiteral(d, value):
     d.putValue(d.hexencode(readLiteral(d, value)), "latin1")
 
 def qdump__Core__Id(d, value):
-    if d.isMsvcTarget():
-        d.putValue(value.extractPointer())
+    val = value.extractPointer()
+    if True:
+        if d.isMsvcTarget():
+            name = d.nameForCoreId(val).address()
+        else:
+            name = d.parseAndEvaluate("Core::nameForId(0x%x)" % val).pointer()
+        d.putSimpleCharArray(name)
     else:
-        val = value.extractPointer()
-        try:
-            name = d.parseAndEvaluate("Core::nameForId(0x%x)" % val)
-            d.putSimpleCharArray(name.pointer())
-        except:
-            d.putValue(val)
+        d.putValue(val)
     d.putPlainChildren(value)
 
 def qdump__Debugger__Internal__GdbMi(d, value):
