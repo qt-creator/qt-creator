@@ -292,6 +292,7 @@ class DumperBase:
         self.currentPrintsAddress = True
         self.currentChildType = None
         self.currentChildNumChild = None
+        self.registerKnownTypes()
 
     def setVariableFetchingOptions(self, args):
         self.resultVarName = args.get('resultvarname', '')
@@ -493,6 +494,23 @@ class DumperBase:
     def lookupType(self, typeName):
         nativeType = self.lookupNativeType(typeName)
         return None if nativeType is None else self.fromNativeType(nativeType)
+
+    def registerKnownTypes(self):
+        typeId = 'QChar'
+        tdata = self.TypeData(self)
+        tdata.name = typeId
+        tdata.typeId = typeId
+        tdata.lbitsize = 16
+        tdata.code = TypeCodeStruct
+        field = self.Field(self)
+        field.name = 'ucs'
+        field.ltype = self.lookupType('unsigned short')
+        field.lbitsize = 16
+        field.lbitpos = 0
+        tdata.lfields = [field]
+        tdata.lalignment = 2
+        tdata.templateArguments = []
+        self.registerType(typeId, tdata)
 
     def nativeDynamicType(self, address, baseType):
         return baseType # Override in backends.
