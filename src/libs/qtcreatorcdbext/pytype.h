@@ -43,8 +43,10 @@ public:
     ULONG64 bitsize() const;
     int code() const;
     PyType target() const;
+    std::string targetName() const;
     PyFields fields() const;
     std::string module() const;
+    ULONG64 moduleId() const;
     int arrayElements() const;
 
     struct TemplateArgument
@@ -61,7 +63,6 @@ public:
 
     TemplateArguments templateArguments();
 
-    ULONG64 getModule() const;
     unsigned long getTypeId() const;
     bool isValid() const;
 
@@ -69,13 +70,9 @@ public:
 
 private:
     static PyType createUnresolvedType(const std::string &typeName);
-    static PyType createPointerType(const PyType &pointerType);
-    static PyType createArrayType(const PyType &targetType, unsigned long size);
 
     unsigned long           m_typeId = 0;
     ULONG64                 m_module = 0;
-    unsigned long           m_arraySize = 0;
-    std::shared_ptr<PyType> m_targetType;
     bool                    m_resolved = false;
     mutable std::string     m_name;
 };

@@ -46,9 +46,9 @@ PyField::PyField(std::string name, const PyType &parentType)
     auto extcmd = ExtensionCommandContext::instance();
     unsigned long typeID = 0;
     if (SUCCEEDED(extcmd->symbols()->GetFieldTypeAndOffset(
-                      d->parentType.getModule(), d->parentType.getTypeId(), d->name.c_str(),
+                      d->parentType.moduleId(), d->parentType.getTypeId(), d->name.c_str(),
                       &typeID, &d->offset))) {
-        d->type = PyType(d->parentType.getModule(), typeID);
+        d->type = PyType(d->parentType.moduleId(), typeID);
     }
 }
 

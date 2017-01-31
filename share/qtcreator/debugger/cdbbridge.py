@@ -66,6 +66,15 @@ class FakeVoidType(cdbext.Type):
         except:
             return FakeVoidType('void', self.dumper)
 
+    def targetName(self):
+        return self.target().name()
+
+    def arrayElements(self):
+        try:
+            return int(self.typeName[self.typeName.rindex('[') + 1:self.typeName.rindex(']')])
+        except:
+            return 0
+
     def stripTypedef(self):
         return self
 
@@ -137,11 +146,10 @@ class Dumper(DumperBase):
             nativeType = FakeVoidType(nativeType.name(), self)
 
         if code == TypeCodePointer:
-            return self.createPointerType(self.fromNativeType(nativeType.target()))
+            return self.createPointerType(self.lookupType(nativeType.targetName(), nativeType.moduleId()))
 
         if code == TypeCodeArray:
-            targetType = self.fromNativeType(nativeType.target())
-            return self.createArrayType(targetType, nativeType.arrayElements())
+            return self.createArrayType(self.lookupType(nativeType.targetName(), nativeType.moduleId()), nativeType.arrayElements())
 
         typeId = self.nativeTypeId(nativeType)
         if self.typeData.get(typeId, None) is None:
@@ -389,19 +397,19 @@ class Dumper(DumperBase):
         else:
             return typeName
 
-    def lookupType(self, typeNameIn):
+    def lookupType(self, typeNameIn, module = 0):
         if len(typeNameIn) == 0:
             return None
         typeName = self.stripQintTypedefs(typeNameIn)
         if self.typeData.get(typeName, None) is None:
-            nativeType = self.lookupNativeType(typeName)
+            nativeType = self.lookupNativeType(typeName, module)
             return None if nativeType is None else self.fromNativeType(nativeType)
         return self.Type(self, typeName)
 
-    def lookupNativeType(self, name):
+    def lookupNativeType(self, name, module = 0):
         if name.startswith('void'):
             return FakeVoidType(name, self)
-        return cdbext.lookupType(name)
+        return cdbext.lookupType(name, module)
 
     def reportResult(self, result, args):
         self.report('result={%s}' % (result))

@@ -81,12 +81,13 @@ static bool isArrayPointerAtPosition(const std::string &typeName, size_t positio
 
 static bool isArrayType(const std::string &typeName)
 {
-    if (typeName.empty() || typeName.back() != ']')
+    if (typeName.empty() || typeName.back() != ']' || (typeName.find('[') == std::string::npos))
         return false;
     // check for types like "int (*)[3]" which is a pointer to an integer array with 3 elements
     const auto arrayPosition = typeName.find_first_of('[');
-    return arrayPosition == std::string::npos
-            || arrayPosition < 3 || !isArrayPointerAtPosition(typeName, arrayPosition - 3);
+    const bool isArrayPointer = arrayPosition != std::string::npos
+            && arrayPosition >= 3 && isArrayPointerAtPosition(typeName, arrayPosition - 3);
+    return !isArrayPointer && (typeName.compare(0, 8, "__fptr()") != 0);
 }
 
 static ULONG extractArraySize(const std::string &typeName, size_t openArrayPos = 0)
@@ -211,31 +212,10 @@ PyType::PyType(ULONG64 module, unsigned long typeId, const std::string &name)
            m_name.erase(0, 6);
     if (m_name == "<function> *")
            m_name.erase(10);
-
-    const std::string &typeName = this->name();
-    if (isPointerType(typeName)) {
-        m_targetType.reset(new PyType(lookupType(stripPointerType(typeName), m_module)));
-    } else if (isArrayType(typeName)) {
-        const size_t openArrayPos = typeName.find_last_of('[');
-        if (openArrayPos != std::string::npos) {
-            m_targetType.reset(new PyType(lookupType(typeName.substr(0, openArrayPos), module)));
-            m_arraySize = extractArraySize(typeName, openArrayPos);
-        }
-    }
 }
 
 std::string PyType::name(bool withModule) const
 {
-    if (m_targetType && m_targetType->isValid()) {
-        std::ostringstream str;
-        str << m_targetType->name(withModule);
-        if (m_arraySize)
-            str << '[' << m_arraySize << ']';
-        else
-            str << '*';
-        return str.str();
-    }
-
     if (m_name.empty()) {
         auto symbols = ExtensionCommandContext::instance()->symbols();
         ULONG size = 0;
@@ -265,12 +245,6 @@ ULONG64 PyType::bitsize() const
 {
     if (!m_resolved)
         return 0;
-    if (m_targetType && m_targetType->isValid()) {
-        if (m_arraySize != 0)
-            return m_arraySize * m_targetType->bitsize();
-        if (m_arraySize == 0 || isPointerType(name()))
-            return pointerSize() * 8;
-    }
 
     ULONG size = 0;
     auto symbols = ExtensionCommandContext::instance()->symbols();
@@ -281,38 +255,47 @@ ULONG64 PyType::bitsize() const
 
 int PyType::code() const
 {
-    TypeCodes code = TypeCodeStruct;
-    if (!m_resolved) {
-        code = TypeCodeUnresolvable;
-    } else if (m_targetType) {
-        if (m_targetType->isValid())
-            code = m_arraySize == 0 ? TypeCodePointer : TypeCodeArray;
-        else
-            code = TypeCodeUnresolvable;
-    } else {
-        const std::string &typeName = name();
-        if (typeName.empty())
-            TypeCodeUnresolvable;
-        if (typeName.find("<function>") != std::string::npos)
-            code = TypeCodeFunction;
-        else if (isIntegralType(typeName))
-            code = TypeCodeIntegral;
-        else if (isFloatType(typeName))
-            code = TypeCodeFloat;
-    }
-    return code;
+    if (!m_resolved)
+        return TypeCodeUnresolvable;
+    const std::string &typeName = name();
+    if (typeName.empty())
+        return TypeCodeUnresolvable;
+    if (isPointerType(typeName))
+        return TypeCodePointer;
+    if (isArrayType(typeName))
+        return TypeCodeArray;
+    if (typeName.find("<function>") != std::string::npos)
+        return TypeCodeFunction;
+    if (isIntegralType(typeName))
+        return TypeCodeIntegral;
+    if (isFloatType(typeName))
+        return TypeCodeFloat;
+    return TypeCodeStruct;
 }
 
 PyType PyType::target() const
 {
-    return (m_targetType && m_targetType->isValid()) ? *m_targetType : PyType();
+    const std::string &typeName = name();
+    if (isPointerType(typeName) || isArrayType(typeName))
+        return lookupType(targetName(), m_module);
+    return PyType();
+}
+
+std::string PyType::targetName() const
+{
+    const std::string &typeName = name();
+    if (isPointerType(typeName))
+        return stripPointerType(typeName);
+    if (isArrayType(typeName))
+        return typeName.substr(0, typeName.find_last_of('['));
+    return typeName;
 }
 
 PyFields PyType::fields() const
 {
     CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
     PyFields fields;
-    if (m_targetType && m_targetType->isValid())
+    if (isArrayType(name()) || isPointerType(name()))
         return fields;
     for (ULONG fieldIndex = 0;; ++fieldIndex) {
         ULONG size = 0;
@@ -330,8 +313,6 @@ PyFields PyType::fields() const
 
 std::string PyType::module() const
 {
-    if (m_targetType && m_targetType->isValid())
-        return m_targetType->module();
     CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
     ULONG size;
     symbols->GetModuleNameString(DEBUG_MODNAME_MODULE, DEBUG_ANY_ID, m_module, NULL, 0, &size);
@@ -343,9 +324,14 @@ std::string PyType::module() const
     return std::string();
 }
 
+ULONG64 PyType::moduleId() const
+{
+    return m_module;
+}
+
 int PyType::arrayElements() const
 {
-    return m_arraySize;
+    return extractArraySize(name());
 }
 
 PyType::TemplateArguments PyType::templateArguments()
@@ -379,15 +365,8 @@ PyType PyType::lookupType(const std::string &typeNameIn, ULONG64 module)
     trimBack(typeName);
     trimFront(typeName);
 
-    if (isPointerType(typeName))
-        return createPointerType(lookupType(stripPointerType(typeName), module));
-    if (isArrayType(typeName)) {
-        size_t openArrayPos = typeName.find_last_of('[');
-        if (openArrayPos == std::string::npos)
-            return createUnresolvedType(typeName);
-        return createArrayType(lookupType(typeName.substr(0, openArrayPos), module),
-                               extractArraySize(typeName, openArrayPos));
-    }
+    if (isPointerType(typeName) || isArrayType(typeName))
+        return PyType(0, 0, typeName);
 
     if (typeName.find("enum ") == 0)
         typeName.erase(0, 5);
@@ -398,10 +377,10 @@ PyType PyType::lookupType(const std::string &typeNameIn, ULONG64 module)
 
     CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
     ULONG typeId;
-    HRESULT result;
-    if (module != 0)
+    HRESULT result = S_FALSE;
+    if (module != 0 && !isIntegralType(typeName) && !isFloatType(typeName))
         result = symbols->GetTypeId(module, typeName.c_str(), &typeId);
-    else
+    if (FAILED(result) || result == S_FALSE)
         result = symbols->GetSymbolTypeId(typeName.c_str(), &typeId, &module);
     if (FAILED(result))
         return createUnresolvedType(typeName);
@@ -414,28 +393,6 @@ PyType PyType::createUnresolvedType(const std::string &typeName)
     PyType unresolvedType;
     unresolvedType.m_name = typeName;
     return unresolvedType;
-}
-
-PyType PyType::createPointerType(const PyType &targetType)
-{
-    PyType pointerType;
-    pointerType.m_targetType.reset(new PyType(targetType));
-    pointerType.m_resolved = true;
-    return pointerType;
-}
-
-PyType PyType::createArrayType(const PyType &elementType, unsigned long size)
-{
-    PyType arrayType;
-    arrayType.m_targetType.reset(new PyType(elementType));
-    arrayType.m_resolved = true;
-    arrayType.m_arraySize = size;
-    return arrayType;
-}
-
-ULONG64 PyType::getModule() const
-{
-    return m_module;
 }
 
 unsigned long PyType::getTypeId() const
@@ -459,9 +416,11 @@ PY_FUNC(bitsize, PY_OBJ_NAME, "k")
 PY_FUNC(code, PY_OBJ_NAME, "k")
 PY_FUNC_RET_SELF(unqualified, PY_OBJ_NAME)
 PY_FUNC_RET_OBJECT(target, PY_OBJ_NAME)
+PY_FUNC_RET_STD_STRING(targetName, PY_OBJ_NAME)
 PY_FUNC_RET_SELF(stripTypedef, PY_OBJ_NAME)
 PY_FUNC_RET_OBJECT_LIST(fields, PY_OBJ_NAME)
 PY_FUNC_RET_STD_STRING(module, PY_OBJ_NAME)
+PY_FUNC(moduleId, PY_OBJ_NAME, "K")
 PY_FUNC(arrayElements, PY_OBJ_NAME, "k")
 PY_FUNC_DECL(templateArguments, PY_OBJ_NAME)
 {
@@ -484,12 +443,16 @@ static PyMethodDef typeMethods[] = {
      "Type without const/volatile"},
     {"target",              PyCFunction(target),                METH_NOARGS,
      "Type dereferenced if it is a pointer type, element if array etc"},
+    {"targetName",          PyCFunction(targetName),            METH_NOARGS,
+     "Typename dereferenced if it is a pointer type, element if array etc"},
     {"stripTypedef",        PyCFunction(stripTypedef),          METH_NOARGS,
      "Type with typedefs removed"},
     {"fields",              PyCFunction(fields),                METH_NOARGS,
      "List of fields (member and base classes) of this type"},
     {"module",              PyCFunction(module),                METH_NOARGS,
      "Returns name for the module containing this type"},
+    {"moduleId",            PyCFunction(moduleId),              METH_NOARGS,
+     "Returns id for the module containing this type"},
     {"arrayElements",       PyCFunction(arrayElements),         METH_NOARGS,
      "Returns the number of elements in an array or 0 for non array types"},
     {"templateArguments",   PyCFunction(templateArguments),     METH_NOARGS,

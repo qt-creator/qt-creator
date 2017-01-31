@@ -169,9 +169,10 @@ static PyObject *cdbext_getNameByAddress(PyObject *, PyObject *args)
 static PyObject *cdbext_lookupType(PyObject *, PyObject *args) // -> Type
 {
     char *type;
-    if (!PyArg_ParseTuple(args, "s", &type))
+    ULONG64 module;
+    if (!PyArg_ParseTuple(args, "sK", &type, &module))
         Py_RETURN_NONE;
-    return createPythonObject(PyType::lookupType(type));
+    return createPythonObject(PyType::lookupType(type, module));
 }
 
 static PyObject *cdbext_listOfLocals(PyObject *, PyObject *args) // -> [ Value ]
@@ -299,7 +300,7 @@ static PyObject *cdbext_createValue(PyObject *, PyObject *args)
         if (offset == address) {
             DEBUG_SYMBOL_PARAMETERS params;
             if (SUCCEEDED(symbolGroup->GetSymbolParameters(index, 1, &params))) {
-                if (params.TypeId == type->impl->getTypeId() && params.Module == type->impl->getModule())
+                if (params.TypeId == type->impl->getTypeId() && params.Module == type->impl->moduleId())
                     break;
             }
         }
