@@ -686,7 +686,7 @@ private:
         return *(data() + index);
     }
 
-    const char &at(size_type index) const
+    char at(size_type index) const
     {
         return *(data() + index);
     }
