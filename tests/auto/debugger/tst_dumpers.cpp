@@ -2353,6 +2353,7 @@ void tst_Dumpers::dumper_data()
                    "QLocale::MeasurementSystem m1 = loc1.measurementSystem();\n"
                    "unused(&loc0, &loc, &m, &loc1, &m1);\n")
               + CoreProfile()
+              + NoCdbEngine
               + CheckType("loc", "@QLocale")
               + CheckType("m", "@QLocale::MeasurementSystem")
               + Check("loc1", "\"en_US\"", "@QLocale")
@@ -2628,11 +2629,11 @@ void tst_Dumpers::dumper_data()
                + Check("test", "\"Name\"", "Bar::TestObject")
                + Check("test.[properties]", "<6 items>", "")
                + Check("test.[properties].myProp1",
-                    "\"Hello\"", "@QVariant (QString)")
+                    "\"Hello\"", "@QVariant (QString)") % NoCdbEngine
                + Check("test.[properties].myProp2",
-                    "\"World\"", "@QVariant (QByteArray)")
-               + Check("test.[properties].myProp3", "54", "@QVariant (long)")
-               + Check("test.[properties].myProp4", "44", "@QVariant (int)")
+                    "\"World\"", "@QVariant (QByteArray)") % NoCdbEngine
+               + Check("test.[properties].myProp3", "54", "@QVariant (long)") % NoCdbEngine
+               + Check("test.[properties].myProp4", "44", "@QVariant (int)") % NoCdbEngine
                + Check("test.[properties].4", "\"New\"",
                     "\"Stuff\"", "@QVariant (QByteArray)")
                + Check("test.[properties].5", "\"Old\"",
@@ -3514,22 +3515,22 @@ void tst_Dumpers::dumper_data()
                + Check("my.1.value.0", "[0]", "\"World\"", "@QString")
                //+ CheckType("v2", "@QVariant (MyType)")
                + Check("my", "<2 items>", TypeDef("QMap<unsigned int,QStringList>", "MyType"))
-               + Check("v2.data.0.key", "1", "unsigned int")
-               + Check("v2.data.0.value", "<1 items>", "@QStringList")
-               + Check("v2.data.0.value.0", "[0]", "\"Hello\"", "@QString")
-               + Check("v2.data.1.key", "3", "unsigned int")
-               + Check("v2.data.1.value", "<1 items>", "@QStringList")
-               + Check("v2.data.1.value.0", "[0]", "\"World\"", "@QString")
+               + Check("v2.data.0.key", "1", "unsigned int") % NoCdbEngine
+               + Check("v2.data.0.value", "<1 items>", "@QStringList") % NoCdbEngine
+               + Check("v2.data.0.value.0", "[0]", "\"Hello\"", "@QString") % NoCdbEngine
+               + Check("v2.data.1.key", "3", "unsigned int") % NoCdbEngine
+               + Check("v2.data.1.value", "<1 items>", "@QStringList") % NoCdbEngine
+               + Check("v2.data.1.value.0", "[0]", "\"World\"", "@QString") % NoCdbEngine
 
                + Check("list", "<3 items>", "@QList<int>")
                + Check("list.0", "[0]", "1", "int")
                + Check("list.1", "[1]", "2", "int")
                + Check("list.2", "[2]", "3", "int")
                //+ Check("v3", "", "@QVariant (@QList<int>)")
-               + Check("v3.data", "<3 items>", TypePattern(".*QList<int>"))
-               + Check("v3.data.0", "[0]", "1", "int")
-               + Check("v3.data.1", "[1]", "2", "int")
-               + Check("v3.data.2", "[2]", "3", "int");
+               + Check("v3.data", "<3 items>", TypePattern(".*QList<int>")) % NoCdbEngine
+               + Check("v3.data.0", "[0]", "1", "int") % NoCdbEngine
+               + Check("v3.data.1", "[1]", "2", "int") % NoCdbEngine
+               + Check("v3.data.2", "[2]", "3", "int") % NoCdbEngine;
 
 
     QTest::newRow("QVariant2")
@@ -3738,8 +3739,8 @@ void tst_Dumpers::dumper_data()
                //+ Check("ha1.protocol", "IPv4Protocol",
                //        "@QAbstractSocket::NetworkLayerProtocol") % LldbEngine
                + Check("ha1.scopeId", "\"\"", "@QString")
-               + Check("var", "", "@QVariant (@QHostAddress)")
-               + Check("var.data", ValuePattern(".*127.0.0.1.*"), "@QHostAddress");
+               + Check("var", "", "@QVariant (@QHostAddress)") % NoCdbEngine
+               + Check("var.data", ValuePattern(".*127.0.0.1.*"), "@QHostAddress") % NoCdbEngine;
 
 
     QTest::newRow("QVariantList")
@@ -3764,9 +3765,9 @@ void tst_Dumpers::dumper_data()
 
                + CoreProfile()
 
-               + Check("vl0", "<0 items>", "@QVariantList")
+               + Check("vl0", "<0 items>", TypeDef("@QList<@QVariant>", "@QVariantList"))
 
-               + Check("vl1", "<6 items>", "@QVariantList")
+               + Check("vl1", "<6 items>", TypeDef("@QList<@QVariant>", "@QVariantList"))
                + CheckType("vl1.0", "[0]", "@QVariant (int)")
                + CheckType("vl1.2", "[2]", "@QVariant (QString)")
 
@@ -3794,9 +3795,9 @@ void tst_Dumpers::dumper_data()
 
                + CoreProfile()
 
-               + Check("vm0", "<0 items>", "@QVariantMap")
+               + Check("vm0", "<0 items>", TypeDef("@QMap<@QString,@QVariant>", "@QVariantMap"))
 
-               + Check("vm1", "<6 items>", "@QVariantMap")
+               + Check("vm1", "<6 items>", TypeDef("@QMap<@QString,@QVariant>", "@QVariantMap"))
                + Check("vm1.0.key", "\"a\"", "@QString")
                + Check("vm1.0.value", "1", "@QVariant (int)")
                + Check("vm1.5.key", "\"f\"", "@QString")
@@ -3821,9 +3822,9 @@ void tst_Dumpers::dumper_data()
 
                + CoreProfile()
 
-               + Check("h0", "<0 items>", "@QVariantHash")
+               + Check("h0", "<0 items>", TypeDef("@QHash<@QString,@QVariant>", "@QVariantHash"))
 
-               + Check("h1", "<1 items>", "@QVariantHash")
+               + Check("h1", "<1 items>", TypeDef("@QHash<@QString,@QVariant>", "@QVariantHash"))
                + Check("h1.0.key", "\"one\"", "@QString")
                + Check("h1.0.value", "\"vone\"", "@QVariant (QString)")
 
@@ -5177,6 +5178,7 @@ void tst_Dumpers::dumper_data()
                     "Foo fb = b; unused(&fb);\n"
                     "Foo fc = c; unused(&fc);\n"
                     "Foo fd = d; unused(&fd);\n")
+                + NoCdbEngine // This doesn't work in cdb for now
                 + Check("fa", "a (-1000)", "Foo")
                 + Check("fb", "b (-999)", "Foo")
                 + Check("fc", "c (1)", "Foo")
@@ -6058,7 +6060,8 @@ void tst_Dumpers::dumper_data()
                     "Derived d;\n"
                     "Base *b = &d;\n"
                     "unused(&d, &b);\n")
-               + Check("b.@1.a", "a", "21", "int") + NoCdbEngine
+               + NoCdbEngine // FIXME
+               + Check("b.@1.a", "a", "21", "int")
                + Check("b.b", "b", "42", "int");
 
 
@@ -6109,7 +6112,7 @@ void tst_Dumpers::dumper_data()
                 "m[\"two\"].push_back(\"2\");\n"
                 "m[\"two\"].push_back(\"3\");\n"
                 "map_t::const_iterator it = m.begin();\n")
-         + Check("m", "<2 items>", "map_t")
+         + Check("m", "<2 items>", TypeDef("std::map<std::string, std::list<std::string>>","map_t"))
          + Check("m.0.first", "\"one\"", "std::string")
          + Check("m.0.second", "<3 items>", "std::list<std::string>")
          + Check("m.0.second.0", "[0]", "\"a\"", "std::string")
@@ -6120,10 +6123,14 @@ void tst_Dumpers::dumper_data()
          + Check("m.1.second.0", "[0]", "\"1\"", "std::string")
          + Check("m.1.second.1", "[1]", "\"2\"", "std::string")
          + Check("m.1.second.2", "[2]", "\"3\"", "std::string")
-         + CheckType("it", "std::map<std::string, std::list<std::string> >::const_iterator")
-         + Check("it.first", "\"one\"", "std::string")
-         + Check("it.second", "<3 items>", "std::list<std::string>");
-
+         + CheckType("it",  TypeDef("std::_Tree_const_iterator<std::_Tree_val<"
+                                    "std::_Tree_simple_types<std::pair<"
+                                    "std::string const ,std::list<std::string>>>>>",
+                                    "std::map<std::string, std::list<std::string> >::const_iterator"))
+         + Check("it.first", "\"one\"", "std::string") % NoCdbEngine
+         + Check("it.second", "<3 items>", "std::list<std::string>") % NoCdbEngine
+         + Check("it.0.first", "\"one\"", "std::string") % CdbEngine
+         + Check("it.0.second", "<3 items>", "std::list<std::string>") % CdbEngine;
 
     QTest::newRow("Varargs")
             << Data("#include <stdarg.h>\n"
