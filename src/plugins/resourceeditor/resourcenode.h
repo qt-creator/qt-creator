@@ -29,10 +29,6 @@
 #include <projectexplorer/projectnodes.h>
 #include <coreplugin/idocument.h>
 
-namespace ProjectExplorer {
-class RunConfiguration;
-}
-
 namespace ResourceEditor {
 namespace Internal { class ResourceFileWatcher; }
 

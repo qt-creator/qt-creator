@@ -39,15 +39,11 @@ QT_FORWARD_DECLARE_CLASS(QTreeView)
 
 namespace ProjectExplorer {
 
-class Project;
 class Node;
-class FolderNode;
-class FileNode;
 
 namespace Internal {
 
 class FlatModel;
-class WrapperNode;
 
 class ProjectTreeWidget : public QWidget
 {
