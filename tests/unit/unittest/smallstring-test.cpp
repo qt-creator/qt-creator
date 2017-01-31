@@ -205,6 +205,15 @@ TEST(SmallString, CopyLongConstExpressionSmallStringIsLongSmallString)
     ASSERT_FALSE(longTextCopy.isShortString());
 }
 
+TEST(SmallString, ShortPathStringIsShortString)
+{
+    const char *rawText = "very very very very very very very very very very very long path which fits in the short memory";
+
+    PathString text(rawText);
+
+    ASSERT_TRUE(text.isShortString());
+}
+
 TEST(SmallString, SmallStringFromCharacterArrayIsReference)
 {
     const char longCString[] = "very very very very very very very very very very very long string";
