@@ -29,16 +29,6 @@
 #include <QRegularExpression>
 #include <QSet>
 
-namespace {
-QSet<QString> asStringSet(const std::initializer_list<const char *> strings)
-{
-    QSet<QString> result;
-    for (auto s : strings)
-        result.insert(QLatin1String(s));
-    return result;
-}
-}
-
 namespace Nim {
 
 NimLexer::NimLexer(const QChar *text, int length, State state)
@@ -134,8 +124,7 @@ NimLexer::Token NimLexer::readOperator()
 
 bool NimLexer::matchCommentStart()
 {
-    return m_stream.peek() == QLatin1Char('#')
-           && m_stream.peek(1) != QLatin1Char('#');
+    return m_stream.peek() == '#' && m_stream.peek(1) != '#';
 }
 
 NimLexer::Token NimLexer::readComment()
@@ -179,8 +168,7 @@ NimLexer::Token NimLexer::readMultiLineComment(bool moveForward)
 
 bool NimLexer::matchDocumentationStart()
 {
-    return m_stream.peek() == QLatin1Char('#')
-           && m_stream.peek(1) == QLatin1Char('#');
+    return m_stream.peek() == '#' && m_stream.peek(1) == '#';
 }
 
 NimLexer::Token NimLexer::readDocumentation()
@@ -211,42 +199,42 @@ NimLexer::Token NimLexer::readNumber()
 
 bool NimLexer::matchIdentifierOrKeywordStart()
 {
-    static QRegularExpression isLetter(QLatin1String("[a-zA-Z\x80-\xFF]"));
+    static QRegularExpression isLetter("[a-zA-Z\x80-\xFF]");
     return isLetter.match(m_stream.peek()).hasMatch();
 }
 
 NimLexer::Token NimLexer::readIdentifierOrKeyword()
 {
-    static QRegularExpression isLetter {QLatin1String("[a-zA-Z\x80-\xFF]")};
-    static QSet<QString> keywords =
-        ::asStringSet({"addr", "and", "as", "asm", "atomic",
-                       "bind", "block", "break",
-                       "case", "cast", "concept", "const", "continue", "converter",
-                       "defer", "discard", "distinct", "div", "do",
-                       "elif", "else", "end", "enum", "except", "export",
-                       "finally", "for", "from", "func",
-                       "generic",
-                       "if", "import", "in", "include", "interface", "is", "isnot", "iterator",
-                       "let",
-                       "macro", "method", "mixin", "mod",
-                       "nil", "not", "notin",
-                       "object", "of", "or", "out",
-                       "proc", "ptr",
-                       "raise", "ref", "return",
-                       "shl", "shr", "static",
-                       "template", "try", "tuple", "type",
-                       "using",
-                       "var",
-                       "when", "while", "with", "without",
-                       "xor",
-                       "yield"
-                      });
+    static QRegularExpression isLetter("[a-zA-Z\x80-\xFF]");
+    static QSet<QString> keywords = {
+        "addr", "and", "as", "asm", "atomic",
+        "bind", "block", "break",
+        "case", "cast", "concept", "const", "continue", "converter",
+        "defer", "discard", "distinct", "div", "do",
+        "elif", "else", "end", "enum", "except", "export",
+        "finally", "for", "from", "func",
+        "generic",
+        "if", "import", "in", "include", "interface", "is", "isnot", "iterator",
+        "let",
+        "macro", "method", "mixin", "mod",
+        "nil", "not", "notin",
+        "object", "of", "or", "out",
+        "proc", "ptr",
+        "raise", "ref", "return",
+        "shl", "shr", "static",
+        "template", "try", "tuple", "type",
+        "using",
+        "var",
+        "when", "while", "with", "without",
+        "xor",
+        "yield"
+    };
     m_stream.setAnchor();
     m_stream.move();
 
     while (!m_stream.isEnd()) {
         const QChar &c = m_stream.peek();
-        if (!(c == QLatin1Char('_')
+        if (!(c == '_'
                 || c.isDigit()
                 || isLetter.match(c).hasMatch()))
             break;
@@ -263,7 +251,7 @@ NimLexer::Token NimLexer::readIdentifierOrKeyword()
 
 bool NimLexer::matchStringLiteralStart()
 {
-    return m_stream.peek() == QLatin1Char('"');
+    return m_stream.peek() == '"';
 }
 
 NimLexer::Token NimLexer::readStringLiteral()
@@ -272,8 +260,7 @@ NimLexer::Token NimLexer::readStringLiteral()
     m_stream.move();
 
     while (!m_stream.isEnd()) {
-        if (m_stream.peek() != QLatin1Char('\\')
-                && m_stream.peek(1) == QLatin1Char('"')) {
+        if (m_stream.peek() != '\\' && m_stream.peek(1) == '"') {
             m_stream.move(2);
             break;
         }
@@ -287,9 +274,9 @@ NimLexer::Token NimLexer::readStringLiteral()
 
 bool NimLexer::matchMultiLineStringLiteralStart()
 {
-    return m_stream.peek() == QLatin1Char('"')
-           && m_stream.peek(1) == QLatin1Char('"')
-           && m_stream.peek(2) == QLatin1Char('"');
+    return m_stream.peek() == '"'
+           && m_stream.peek(1) == '"'
+           && m_stream.peek(2) == '"';
 }
 
 NimLexer::Token NimLexer::readMultiLineStringLiteral(bool moveForward)
