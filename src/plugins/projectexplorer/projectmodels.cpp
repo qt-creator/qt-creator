@@ -221,6 +221,7 @@ void FlatModel::rebuildModel()
         if (!seen.contains(projectNode))
             addProjectNode(rootItem(), projectNode, &seen);
     }
+    rootItem()->sortChildren(&sortWrapperNodes);
 
     forAllItems([this](WrapperNode *node) {
         const QString path = node->m_node->filePath().toString();
