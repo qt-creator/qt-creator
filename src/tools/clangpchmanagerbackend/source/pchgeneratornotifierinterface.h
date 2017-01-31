@@ -25,22 +25,26 @@
 
 #pragma once
 
-#include "googletest.h"
+#include <iosfwd>
 
-#include <pchcreatorinterface.h>
-#include <projectpartpch.h>
-#include <projectpartcontainerv2.h>
+namespace ClangBackEnd {
 
-class MockPchCreator : public ClangBackEnd::PchCreatorInterface
+class ProjectPartPch;
+
+enum class TaskFinishStatus
+{
+    Successfully,
+    Unsuccessfully
+};
+
+class PchGeneratorNotifierInterface
 {
 public:
-    MOCK_METHOD1(generatePchs,
-                 void(const std::vector<ClangBackEnd::V2::ProjectPartContainer> &projectParts));
-    MOCK_METHOD0(takeProjectsIncludes,
-                 std::vector<ClangBackEnd::IdPaths>());
+    virtual ~PchGeneratorNotifierInterface();
 
-    void generatePchs(std::vector<ClangBackEnd::V2::ProjectPartContainer> &&projectParts)
-    {
-        generatePchs(projectParts);
-    }
+    virtual void taskFinished(TaskFinishStatus status, const ProjectPartPch &projectPartPch) = 0;
 };
+
+std::ostream &operator<<(std::ostream &out, TaskFinishStatus status);
+
+} // namespace ClangBackEnd

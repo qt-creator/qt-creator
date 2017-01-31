@@ -47,6 +47,7 @@ using testing::IsEmpty;
 
 using Utils::SmallString;
 using ClangBackEnd::V2::ProjectPartContainer;
+using ClangBackEnd::TaskFinishStatus;
 
 class PchManagerServer : public ::testing::Test
 {
@@ -76,18 +77,28 @@ protected:
                                       {main2Path.clone()}};
     std::vector<ClangBackEnd::V2::ProjectPartContainer> projectParts{projectPart1, projectPart2};
     ClangBackEnd::UpdatePchProjectPartsMessage updatePchProjectPartsMessage{Utils::clone(projectParts)};
-    std::vector<ClangBackEnd::ProjectPartPch> projectPartPchs{{projectPart1.projectPartId().clone(), "/path1/to/pch"},
-                                                              {projectPart2.projectPartId().clone(), "/path2/to/pch"}};
-    ClangBackEnd::PrecompiledHeadersUpdatedMessage precompiledHeaderUpdatedMessage{Utils::clone(projectPartPchs)};
+    ClangBackEnd::ProjectPartPch projectPartPch1{projectPart1.projectPartId().clone(), "/path1/to/pch"};
+    ClangBackEnd::ProjectPartPch projectPartPch2{projectPart2.projectPartId().clone(), "/path2/to/pch"};
+    std::vector<ClangBackEnd::ProjectPartPch> projectPartPchs{projectPartPch1, projectPartPch2};
+    ClangBackEnd::PrecompiledHeadersUpdatedMessage precompiledHeaderUpdatedMessage1{{projectPartPch1}};
+    ClangBackEnd::PrecompiledHeadersUpdatedMessage precompiledHeaderUpdatedMessage2{{projectPartPch2}};
     ClangBackEnd::RemovePchProjectPartsMessage removePchProjectPartsMessage{{projectPart1.projectPartId().clone(),
                                                                              projectPart2.projectPartId().clone()}};
 };
 
-TEST_F(PchManagerServer, CallPrecompiledHeadersUpdatedInClientForUpdate)
+TEST_F(PchManagerServer, CallPrecompiledHeadersForSuccessfullyFinishedTask)
 {
-    EXPECT_CALL(mockPchManagerClient, precompiledHeadersUpdated(precompiledHeaderUpdatedMessage));
+    EXPECT_CALL(mockPchManagerClient, precompiledHeadersUpdated(precompiledHeaderUpdatedMessage1));
 
-    server.updatePchProjectParts(updatePchProjectPartsMessage.clone());
+    server.taskFinished(TaskFinishStatus::Successfully, projectPartPch1);
+}
+
+TEST_F(PchManagerServer, DoNotCallPrecompiledHeadersForUnsuccessfullyFinishedTask)
+{
+    EXPECT_CALL(mockPchManagerClient, precompiledHeadersUpdated(precompiledHeaderUpdatedMessage1))
+            .Times(0);
+
+    server.taskFinished(TaskFinishStatus::Unsuccessfully, projectPartPch1);
 }
 
 TEST_F(PchManagerServer, CallBuildInPchCreator)
@@ -150,15 +161,6 @@ TEST_F(PchManagerServer, CallGeneratePchsInPchCreatorForIncludeChange)
     server.pathsWithIdsChanged({projectPartId1});
 }
 
-TEST_F(PchManagerServer, CallPrecompiledHeadersUpdatedInClientForIncludeChange)
-{
-    server.updatePchProjectParts(updatePchProjectPartsMessage.clone());
-
-    EXPECT_CALL(mockPchManagerClient, precompiledHeadersUpdated(precompiledHeaderUpdatedMessage));
-
-    server.pathsWithIdsChanged({projectPartId1});
-}
-
 TEST_F(PchManagerServer, CallUpdateIdPathsInFileSystemWatcherForIncludeChange)
 {
     server.updatePchProjectParts(updatePchProjectPartsMessage.clone());
@@ -172,8 +174,6 @@ void PchManagerServer::SetUp()
 {
     server.setClient(&mockPchManagerClient);
 
-    ON_CALL(mockPchCreator, takeProjectPartPchs())
-            .WillByDefault(Return(projectPartPchs));
     ON_CALL(mockProjectParts, update(projectParts))
             .WillByDefault(Return(projectParts));
     ON_CALL(mockProjectParts, projects(Utils::SmallStringVector{{projectPartId1}}))

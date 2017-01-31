@@ -34,6 +34,7 @@ class Environment
 public:
     virtual QString pchBuildDirectory() const = 0;
     virtual QString clangCompilerPath() const = 0;
+    virtual uint hardwareConcurrency() const = 0;
 };
 
 } // namespace ClangBackEnd

@@ -28,6 +28,7 @@
 #include "clangpathwatcherinterface.h"
 #include "clangpathwatchernotifier.h"
 #include "pchcreatorinterface.h"
+#include "pchgeneratornotifierinterface.h"
 #include "pchmanagerserverinterface.h"
 #include "projectpartsinterface.h"
 #include "stringcache.h"
@@ -36,7 +37,9 @@ namespace ClangBackEnd {
 
 class SourceRangesAndDiagnosticsForQueryMessage;
 
-class PchManagerServer : public PchManagerServerInterface, public ClangPathWatcherNotifier
+class PchManagerServer : public PchManagerServerInterface,
+                         public ClangPathWatcherNotifier,
+                         public PchGeneratorNotifierInterface
 {
 public:
     PchManagerServer(StringCache<Utils::SmallString> &filePathCache,
@@ -50,6 +53,7 @@ public:
     void removePchProjectParts(RemovePchProjectPartsMessage &&message) override;
 
     void pathsWithIdsChanged(const Utils::SmallStringVector &ids) override;
+    void taskFinished(TaskFinishStatus status, const ProjectPartPch &projectPartPch) override;
 
 private:
     StringCache<Utils::SmallString> &m_filePathCache;

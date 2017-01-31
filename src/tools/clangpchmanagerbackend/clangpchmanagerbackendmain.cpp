@@ -27,6 +27,7 @@
 #include <connectionserver.h>
 #include <environment.h>
 #include <pchcreator.h>
+#include <pchgenerator.h>
 #include <pchmanagerserver.h>
 #include <pchmanagerclientproxy.h>
 #include <projectparts.h>
@@ -36,12 +37,16 @@
 #include <QCoreApplication>
 #include <QFileSystemWatcher>
 #include <QLoggingCategory>
+#include <QProcess>
 #include <QTemporaryDir>
 #include <QTimer>
+
+#include <thread>
 
 using ClangBackEnd::ClangPathWatcher;
 using ClangBackEnd::ConnectionServer;
 using ClangBackEnd::PchCreator;
+using ClangBackEnd::PchGenerator;
 using ClangBackEnd::PchManagerClientProxy;
 using ClangBackEnd::PchManagerServer;
 using ClangBackEnd::ProjectParts;
@@ -58,6 +63,11 @@ public:
     QString clangCompilerPath() const override
     {
         return QString(CLANG_COMPILER_PATH);
+    }
+
+    uint hardwareConcurrency() const
+    {
+        return std::thread::hardware_concurrency();
     }
 
 private:
@@ -96,13 +106,17 @@ int main(int argc, char *argv[])
     StringCache<Utils::SmallString> filePathCache;
     ClangPathWatcher<QFileSystemWatcher, QTimer> includeWatcher(filePathCache);
     ApplicationEnvironment environment;
+    PchGenerator<QProcess> pchGenerator(environment);
     PchCreator pchCreator(environment, filePathCache);
+    pchCreator.setGenerator(&pchGenerator);
     ProjectParts projectParts;
     PchManagerServer clangPchManagerServer(filePathCache,
                                            includeWatcher,
                                            pchCreator,
                                            projectParts);
     includeWatcher.setNotifier(&clangPchManagerServer);
+    pchGenerator.setNotifier(&clangPchManagerServer);
+
     ConnectionServer<PchManagerServer, PchManagerClientProxy> connectionServer(connection);
     connectionServer.start();
     connectionServer.setServer(&clangPchManagerServer);

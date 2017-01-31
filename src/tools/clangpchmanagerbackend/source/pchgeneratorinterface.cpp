@@ -23,24 +23,9 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "pchgeneratorinterface.h"
 
-#include "googletest.h"
-
-#include <pchcreatorinterface.h>
-#include <projectpartpch.h>
-#include <projectpartcontainerv2.h>
-
-class MockPchCreator : public ClangBackEnd::PchCreatorInterface
+ClangBackEnd::PchGeneratorInterface::~PchGeneratorInterface()
 {
-public:
-    MOCK_METHOD1(generatePchs,
-                 void(const std::vector<ClangBackEnd::V2::ProjectPartContainer> &projectParts));
-    MOCK_METHOD0(takeProjectsIncludes,
-                 std::vector<ClangBackEnd::IdPaths>());
 
-    void generatePchs(std::vector<ClangBackEnd::V2::ProjectPartContainer> &&projectParts)
-    {
-        generatePchs(projectParts);
-    }
-};
+}

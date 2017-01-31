@@ -45,6 +45,11 @@ public:
         return QString::fromUtf8(CLANG_COMPILER_PATH);
     }
 
+    uint hardwareConcurrency() const
+    {
+        return 2;
+    }
+
 private:
     QTemporaryDir temporaryDirectory;
 };

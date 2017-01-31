@@ -49,7 +49,9 @@ SOURCES += \
     projectparts-test.cpp \
     stringcache-test.cpp \
     changedfilepathcompressor-test.cpp \
-    faketimer.cpp
+    faketimer.cpp \
+    pchgenerator-test.cpp \
+    fakeprocess.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \
@@ -148,7 +150,9 @@ HEADERS += \
     mockprojectparts.h \
     mockclangpathwatchernotifier.h \
     mockchangedfilepathcompressor.h \
-    faketimer.h
+    faketimer.h \
+    mockpchgeneratornotifier.h \
+    fakeprocess.h
 
 !isEmpty(LIBCLANG_LIBS) {
 HEADERS += \

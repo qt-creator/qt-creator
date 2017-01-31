@@ -27,6 +27,7 @@
 
 #include "pchcreatorinterface.h"
 
+#include "pchgeneratorinterface.h"
 #include "stringcache.h"
 #include "idpaths.h"
 
@@ -50,11 +51,13 @@ public:
                StringCache<Utils::SmallString> &filePathCache);
     PchCreator(V2::ProjectPartContainers &&projectsParts,
                Environment &environment,
-               StringCache<Utils::SmallString> &filePathCache);
+               StringCache<Utils::SmallString> &filePathCache,
+               PchGeneratorInterface *pchGenerator);
 
     void generatePchs(V2::ProjectPartContainers &&projectsParts) override;
-    std::vector<ProjectPartPch> takeProjectPartPchs() override;
     std::vector<IdPaths> takeProjectsIncludes() override;
+
+    void setGenerator(PchGeneratorInterface *pchGenerator);
 
 unitttest_public:
     Utils::SmallStringVector generateGlobalHeaderPaths() const;
@@ -70,7 +73,8 @@ unitttest_public:
     Utils::SmallString generatePchIncludeFileContent(const std::vector<uint> &includeIds) const;
     Utils::SmallString generateGlobalPchHeaderFileContent() const;
     std::unique_ptr<QFile> generateGlobalPchHeaderFile();
-    void generatePch(const Utils::SmallStringVector &commandLineArguments);
+    void generatePch(Utils::SmallStringVector &&commandLineArguments,
+                     ProjectPartPch &&projectPartPch);
     void generateGlobalPch();
 
     Utils::SmallString globalPchContent() const;
@@ -97,7 +101,7 @@ unitttest_public:
             const V2::ProjectPartContainer &projectPart) const;
     Utils::SmallStringVector generateProjectPartClangCompilerArguments(
              const V2::ProjectPartContainer &projectPart) const;
-    std::pair<ProjectPartPch, IdPaths> generateProjectPartPch(
+    IdPaths generateProjectPartPch(
             const V2::ProjectPartContainer &projectPart);
     static std::unique_ptr<QFile> generatePchHeaderFile(
             const Utils::SmallString &filePath,
@@ -108,7 +112,6 @@ unitttest_public:
 private:
     static QByteArray projectPartHash(const V2::ProjectPartContainer &projectPart);
     QByteArray globalProjectHash() const;
-    static void checkIfProcessHasError(const QProcess &process);
 
 private:
     V2::ProjectPartContainers m_projectParts;
@@ -116,6 +119,7 @@ private:
     std::vector<IdPaths> m_projectsIncludeIds;
     Environment &m_environment;
     StringCache<Utils::SmallString> &m_filePathCache;
+    PchGeneratorInterface *m_pchGenerator = nullptr;
 };
 
 } // namespace ClangBackEnd

@@ -38,7 +38,6 @@ public:
     virtual ~PchCreatorInterface();
 
     virtual void generatePchs(V2::ProjectPartContainers &&projectsParts) = 0;
-    virtual std::vector<ProjectPartPch> takeProjectPartPchs() = 0;
     virtual std::vector<IdPaths> takeProjectsIncludes() = 0;
 };
 

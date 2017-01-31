@@ -23,24 +23,66 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "fakeprocess.h"
 
-#include "googletest.h"
-
-#include <pchcreatorinterface.h>
-#include <projectpartpch.h>
-#include <projectpartcontainerv2.h>
-
-class MockPchCreator : public ClangBackEnd::PchCreatorInterface
+FakeProcess::FakeProcess()
 {
-public:
-    MOCK_METHOD1(generatePchs,
-                 void(const std::vector<ClangBackEnd::V2::ProjectPartContainer> &projectParts));
-    MOCK_METHOD0(takeProjectsIncludes,
-                 std::vector<ClangBackEnd::IdPaths>());
+}
 
-    void generatePchs(std::vector<ClangBackEnd::V2::ProjectPartContainer> &&projectParts)
-    {
-        generatePchs(projectParts);
-    }
-};
+FakeProcess::~FakeProcess()
+{
+    if (m_isStarted && !m_isFinished)
+        emit finished(0, QProcess::NormalExit);
+}
+
+void FakeProcess::finishUnsuccessfully()
+{
+    m_isFinished = true;
+    emit finished(1, QProcess::NormalExit);
+}
+
+void FakeProcess::finishByCrash()
+{
+    m_isFinished = true;
+    emit finished(0, QProcess::CrashExit);
+}
+
+void FakeProcess::finish()
+{
+    m_isFinished = true;
+    emit finished(0, QProcess::NormalExit);
+}
+
+void FakeProcess::setArguments(const QStringList &arguments)
+{
+    m_arguments = arguments;
+}
+
+void FakeProcess::setProgram(const QString &program)
+{
+    m_applicationPath = program;
+}
+
+void FakeProcess::setProcessChannelMode(QProcess::ProcessChannelMode)
+{
+}
+
+void FakeProcess::start()
+{
+    m_isStarted = true;
+}
+
+bool FakeProcess::isStarted() const
+{
+    return m_isStarted;
+}
+
+const QStringList &FakeProcess::arguments() const
+{
+    return m_arguments;
+}
+
+const QString &FakeProcess::applicationPath() const
+{
+    return m_applicationPath;
+}

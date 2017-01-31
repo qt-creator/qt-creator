@@ -25,22 +25,38 @@
 
 #pragma once
 
-#include "googletest.h"
+#include <QProcess>
 
-#include <pchcreatorinterface.h>
-#include <projectpartpch.h>
-#include <projectpartcontainerv2.h>
-
-class MockPchCreator : public ClangBackEnd::PchCreatorInterface
+class FakeProcess : public QObject
 {
-public:
-    MOCK_METHOD1(generatePchs,
-                 void(const std::vector<ClangBackEnd::V2::ProjectPartContainer> &projectParts));
-    MOCK_METHOD0(takeProjectsIncludes,
-                 std::vector<ClangBackEnd::IdPaths>());
+    Q_OBJECT
 
-    void generatePchs(std::vector<ClangBackEnd::V2::ProjectPartContainer> &&projectParts)
-    {
-        generatePchs(projectParts);
-    }
+public:
+    FakeProcess();
+    ~FakeProcess();
+
+    void finishUnsuccessfully();
+    void finishByCrash();
+    void finish();
+
+    void start();
+    void setArguments(const QStringList &arguments);
+    void setProgram(const QString &program);
+
+    void setProcessChannelMode(QProcess::ProcessChannelMode mode);
+
+
+    bool isStarted() const;
+
+    const QStringList &arguments() const;
+    const QString &applicationPath() const;
+
+signals:
+    void finished(int exitCode, QProcess::ExitStatus exitStatus);
+
+private:
+    QStringList m_arguments;
+    QString m_applicationPath;
+    bool m_isFinished = false;
+    bool m_isStarted = false;
 };

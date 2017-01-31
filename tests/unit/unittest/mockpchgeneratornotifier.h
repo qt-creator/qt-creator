@@ -27,20 +27,12 @@
 
 #include "googletest.h"
 
-#include <pchcreatorinterface.h>
-#include <projectpartpch.h>
-#include <projectpartcontainerv2.h>
+#include <pchgeneratornotifierinterface.h>
 
-class MockPchCreator : public ClangBackEnd::PchCreatorInterface
+class MockPchGeneratorNotifier : public ClangBackEnd::PchGeneratorNotifierInterface
 {
 public:
-    MOCK_METHOD1(generatePchs,
-                 void(const std::vector<ClangBackEnd::V2::ProjectPartContainer> &projectParts));
-    MOCK_METHOD0(takeProjectsIncludes,
-                 std::vector<ClangBackEnd::IdPaths>());
-
-    void generatePchs(std::vector<ClangBackEnd::V2::ProjectPartContainer> &&projectParts)
-    {
-        generatePchs(projectParts);
-    }
+    MOCK_METHOD2(taskFinished,
+                 void (ClangBackEnd::TaskFinishStatus status,
+                       const ClangBackEnd::ProjectPartPch &projectPartPch));
 };

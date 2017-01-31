@@ -58,8 +58,6 @@ void PchManagerServer::updatePchProjectParts(UpdatePchProjectPartsMessage &&mess
 {
     m_pchCreator.generatePchs(m_projectParts.update(message.takeProjectsParts()));
 
-    client()->precompiledHeadersUpdated(PrecompiledHeadersUpdatedMessage(m_pchCreator.takeProjectPartPchs()));
-
     m_fileSystemWatcher.updateIdPaths(m_pchCreator.takeProjectsIncludes());
 }
 
@@ -74,9 +72,13 @@ void PchManagerServer::pathsWithIdsChanged(const Utils::SmallStringVector &ids)
 {
     m_pchCreator.generatePchs(m_projectParts.projects(ids));
 
-    client()->precompiledHeadersUpdated(PrecompiledHeadersUpdatedMessage(m_pchCreator.takeProjectPartPchs()));
-
     m_fileSystemWatcher.updateIdPaths(m_pchCreator.takeProjectsIncludes());
+}
+
+void PchManagerServer::taskFinished(TaskFinishStatus status, const ProjectPartPch &projectPartPch)
+{
+    if (status == TaskFinishStatus::Successfully)
+        client()->precompiledHeadersUpdated(PrecompiledHeadersUpdatedMessage({projectPartPch.clone()}));
 }
 
 } // namespace ClangBackEnd

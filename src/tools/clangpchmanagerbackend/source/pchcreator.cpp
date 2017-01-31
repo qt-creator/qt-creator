@@ -33,7 +33,6 @@
 
 #include <QCryptographicHash>
 #include <QFile>
-#include <QProcess>
 
 namespace ClangBackEnd {
 
@@ -45,10 +44,12 @@ PchCreator::PchCreator(Environment &environment, StringCache<Utils::SmallString>
 
 PchCreator::PchCreator(V2::ProjectPartContainers &&projectsParts,
                        Environment &environment,
-                       StringCache<Utils::SmallString> &filePathCache)
+                       StringCache<Utils::SmallString> &filePathCache,
+                       PchGeneratorInterface *pchGenerator)
     : m_projectParts(std::move(projectsParts)),
       m_environment(environment),
-      m_filePathCache(filePathCache)
+      m_filePathCache(filePathCache),
+      m_pchGenerator(pchGenerator)
 {
 }
 
@@ -258,23 +259,17 @@ std::unique_ptr<QFile> PchCreator::generateGlobalPchHeaderFile()
                                  generateGlobalPchHeaderFileContent());
 }
 
-void PchCreator::generatePch(const Utils::SmallStringVector &clangCompilerArguments)
+void PchCreator::generatePch(Utils::SmallStringVector &&compilerArguments,
+                             ProjectPartPch &&projectPartPch)
 {
-    QProcess process;
-    process.setProcessChannelMode(QProcess::ForwardedChannels);
-
-    process.start(m_environment.clangCompilerPath(),
-                  convertToQStringList(clangCompilerArguments));
-    process.waitForFinished(100000);
-
-    checkIfProcessHasError(process);
+    m_pchGenerator->startTask(std::move(compilerArguments), std::move(projectPartPch));
 }
 
 void PchCreator::generateGlobalPch()
 {
     generateGlobalPchHeaderFile();
 
-    generatePch(generateGlobalClangCompilerArguments());
+    generatePch(generateGlobalClangCompilerArguments(), ProjectPartPch());
 }
 
 QStringList PchCreator::convertToQStringList(const Utils::SmallStringVector &compilerArguments)
@@ -308,14 +303,6 @@ QByteArray PchCreator::globalProjectHash() const
     auto result = hash.result();
 
     return result.toBase64(QByteArray::Base64UrlEncoding | QByteArray::OmitTrailingEquals);
-}
-
-void PchCreator::checkIfProcessHasError(const QProcess &process)
-{
-    if (process.exitCode()) {
-        const std::string errorString = process.errorString().toStdString();
-        throw PchNotCreatedError(errorString);
-    }
 }
 
 Utils::SmallString PchCreator::generateGlobalPchFilePathWithoutExtension() const
@@ -449,27 +436,25 @@ Utils::SmallStringVector PchCreator::generateProjectPartClangCompilerArguments(
     return compilerArguments;
 }
 
-std::pair<ProjectPartPch, IdPaths> PchCreator::generateProjectPartPch(
-        const V2::ProjectPartContainer &projectPart)
+IdPaths PchCreator::generateProjectPartPch(const V2::ProjectPartContainer &projectPart)
 {
     auto includes = generateProjectPartPchIncludes(projectPart);
     auto content = generatePchIncludeFileContent(includes);
     auto pchIncludeFilePath = generateProjectPathPchHeaderFilePath(projectPart);
     auto pchFilePath = generateProjectPartPchFilePath(projectPart);
-    auto file = generatePchHeaderFile(pchIncludeFilePath, content);
+    generatePchHeaderFile(pchIncludeFilePath, content);
 
-    generatePch(generateProjectPartClangCompilerArguments(projectPart));
+    generatePch(generateProjectPartClangCompilerArguments(projectPart),
+                {projectPart.projectPartId().clone(), std::move(pchFilePath)});
 
-    return {{projectPart.projectPartId().clone(), std::move(pchFilePath)},
-            {projectPart.projectPartId().clone(), includes}};
+    return {projectPart.projectPartId().clone(), std::move(includes)};
 }
 
 void PchCreator::generatePchs()
 {
     for (const V2::ProjectPartContainer &projectPart : m_projectParts) {
-        auto projectInfos = generateProjectPartPch(projectPart);
-        m_projectPartPchs.push_back(projectInfos.first);
-        m_projectsIncludeIds.push_back(projectInfos.second);
+        auto includePaths = generateProjectPartPch(projectPart);
+        m_projectsIncludeIds.push_back(std::move(includePaths));
     }
 }
 
@@ -480,14 +465,14 @@ void PchCreator::generatePchs(V2::ProjectPartContainers &&projectsParts)
     generatePchs();
 }
 
-std::vector<ProjectPartPch> PchCreator::takeProjectPartPchs()
-{
-    return std::move(m_projectPartPchs);
-}
-
 std::vector<IdPaths> PchCreator::takeProjectsIncludes()
 {
     return std::move(m_projectsIncludeIds);
+}
+
+void PchCreator::setGenerator(PchGeneratorInterface *pchGenerator)
+{
+    m_pchGenerator = pchGenerator;
 }
 
 std::unique_ptr<QFile> PchCreator::generatePchHeaderFile(

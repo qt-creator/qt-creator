@@ -64,16 +64,18 @@ public:
                             llvm::StringRef /*relativePath*/,
                             const clang::Module */*imported*/) override
     {
-        auto fileUID = file->getUID();
+        if (file) {
+            auto fileUID = file->getUID();
 
-        flagIncludeAlreadyRead(file);
+            flagIncludeAlreadyRead(file);
 
-        if (isNotInExcludedIncludeUID(fileUID)) {
-            auto notAlreadyIncluded = isNotAlreadyIncluded(fileUID);
-            if (notAlreadyIncluded.first) {
-                m_alreadyIncludedFileUIDs.insert(notAlreadyIncluded.second, fileUID);
-                uint includeId = m_filePathCache.stringId({fileName.data(), fileName.size()});
-                m_includeIds.emplace_back(includeId);
+            if (isNotInExcludedIncludeUID(fileUID)) {
+                auto notAlreadyIncluded = isNotAlreadyIncluded(fileUID);
+                if (notAlreadyIncluded.first) {
+                    m_alreadyIncludedFileUIDs.insert(notAlreadyIncluded.second, fileUID);
+                    uint includeId = m_filePathCache.stringId({fileName.data(), fileName.size()});
+                    m_includeIds.emplace_back(includeId);
+                }
             }
         }
     }

@@ -25,9 +25,12 @@
 
 #include "googletest.h"
 
+#include "fakeprocess.h"
+#include "mockpchgeneratornotifier.h"
 #include "testenvironment.h"
 
 #include <pchcreator.h>
+#include <pchgenerator.h>
 #include <stringcache.h>
 
 #include <QFileInfo>
@@ -70,9 +73,12 @@ protected:
                                       {header2Path.clone()},
                                       {main2Path.clone()}};
     TestEnvironment environment;
+    NiceMock<MockPchGeneratorNotifier> mockPchGeneratorNotifier;
+    ClangBackEnd::PchGenerator<FakeProcess> generator{environment, &mockPchGeneratorNotifier};
     ClangBackEnd::PchCreator creator{{projectPart1.clone(),projectPart2.clone()},
                                      environment,
-                                     filePathCache};
+                                     filePathCache,
+                                     &generator};
 };
 
 using PchCreatorSlowTest = PchCreator;
@@ -116,7 +122,7 @@ TEST_F(PchCreator, CreateGlobalCommandLine)
     ASSERT_THAT(arguments, ElementsAre(environment.clangCompilerPath(), "-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header", "-I", TESTDATA_DIR, "-x" , "c++-header", "-Wno-pragma-once-outside-header"));
 }
 
-TEST_F(PchCreator, CreateGlobalPchIncludes)
+TEST_F(PchCreatorVerySlowTest, CreateGlobalPchIncludes)
 {
     auto includeIds = creator.generateGlobalPchIncludeIds();
 
@@ -165,13 +171,6 @@ TEST_F(PchCreator, CreateGlobalClangCompilerArguments)
                                  Contains("-emit-pch"),
                                  Contains("-o"),
                                  Not(Contains(environment.clangCompilerPath()))));
-}
-
-TEST_F(PchCreatorVerySlowTest, CreateGlobalPch)
-{
-    creator.generateGlobalPch();
-
-    ASSERT_TRUE(QFileInfo::exists(creator.generateGlobalPchFilePath()));
 }
 
 TEST_F(PchCreator, CreateProjectPartCommandLine)
@@ -258,22 +257,33 @@ TEST_F(PchCreatorVerySlowTest, CreatePartPchs)
 {
     creator.generateGlobalPch();
 
-    auto projectPartPchAndIdPath = creator.generateProjectPartPch(projectPart1);
+    auto includePaths = creator.generateProjectPartPch(projectPart1);
 
-    ASSERT_THAT(projectPartPchAndIdPath.first.id(), projectPart1.projectPartId());
-    ASSERT_THAT(projectPartPchAndIdPath.first.path(), creator.generateProjectPartPchFilePath(projectPart1));
-    ASSERT_THAT(projectPartPchAndIdPath.second.id, projectPart1.projectPartId());
-    ASSERT_THAT(projectPartPchAndIdPath.second.paths, UnorderedElementsAre(1, 2, 3));
+    ASSERT_THAT(includePaths.id, projectPart1.projectPartId());
+    ASSERT_THAT(includePaths.paths, UnorderedElementsAre(1, 2, 3));
+}
+
+TEST_F(PchCreatorVerySlowTest, IncludesForCreatePchsForProjectParts)
+{
+    creator.generatePchs();
+
+    ASSERT_THAT(creator.takeProjectsIncludes(),
+                ElementsAre(Field(&IdPaths::id, "project1"),
+                            Field(&IdPaths::id, "project2")));
 }
 
 TEST_F(PchCreatorVerySlowTest, ProjectPartPchsForCreatePchsForProjectParts)
 {
-    creator.generatePchs();
+    EXPECT_CALL(mockPchGeneratorNotifier,
+                taskFinished(ClangBackEnd::TaskFinishStatus::Successfully,
+                             Property(&ProjectPartPch::id, "project1")));
+    EXPECT_CALL(mockPchGeneratorNotifier,
+                taskFinished(ClangBackEnd::TaskFinishStatus::Successfully,
+                             Property(&ProjectPartPch::id, "project2")));
 
-    ASSERT_THAT(creator.takeProjectPartPchs(),
-                ElementsAre(Property(&ProjectPartPch::id, "project1"),
-                            Property(&ProjectPartPch::id, "project2")));
+    creator.generatePchs();
 }
+
 
 TEST_F(PchCreatorVerySlowTest, IdPathsForCreatePchsForProjectParts)
 {

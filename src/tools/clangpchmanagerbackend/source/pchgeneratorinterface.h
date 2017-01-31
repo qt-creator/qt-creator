@@ -25,22 +25,21 @@
 
 #pragma once
 
-#include "googletest.h"
+#include <utils/smallstringvector.h>
 
-#include <pchcreatorinterface.h>
-#include <projectpartpch.h>
-#include <projectpartcontainerv2.h>
+namespace ClangBackEnd {
 
-class MockPchCreator : public ClangBackEnd::PchCreatorInterface
+class ProjectPartPch;
+
+class PchGeneratorInterface
 {
 public:
-    MOCK_METHOD1(generatePchs,
-                 void(const std::vector<ClangBackEnd::V2::ProjectPartContainer> &projectParts));
-    MOCK_METHOD0(takeProjectsIncludes,
-                 std::vector<ClangBackEnd::IdPaths>());
+    virtual ~PchGeneratorInterface();
 
-    void generatePchs(std::vector<ClangBackEnd::V2::ProjectPartContainer> &&projectParts)
-    {
-        generatePchs(projectParts);
-    }
+    virtual void startTask(Utils::SmallStringVector &&compilerArguments,
+                           ProjectPartPch &&projectPartPch) = 0;
+
 };
+
+} // namespace ClangBackEnd
+

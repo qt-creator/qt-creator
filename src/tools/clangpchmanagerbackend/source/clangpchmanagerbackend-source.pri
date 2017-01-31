@@ -10,7 +10,9 @@ SOURCES += \
     $$PWD/pchcreatorinterface.cpp \
     $$PWD/clangpathwatcherinterface.cpp \
     $$PWD/projectpartsinterface.cpp \
-    $$PWD/clangpathwatchernotifier.cpp
+    $$PWD/clangpathwatchernotifier.cpp \
+    $$PWD/pchgeneratornotifierinterface.cpp \
+    $$PWD/pchgeneratorinterface.cpp
 
 HEADERS += \
     $$PWD/clangpchmanagerbackend_global.h \
@@ -30,4 +32,7 @@ HEADERS += \
     $$PWD/clangpathwatcherinterface.h \
     $$PWD/projectpartsinterface.h \
     $$PWD/clangpathwatchernotifier.h \
-    $$PWD/changedfilepathcompressor.h
+    $$PWD/changedfilepathcompressor.h \
+    $$PWD/pchgenerator.h \
+    $$PWD/pchgeneratornotifierinterface.h \
+    $$PWD/pchgeneratorinterface.h
