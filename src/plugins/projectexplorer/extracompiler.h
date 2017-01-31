@@ -143,6 +143,7 @@ class PROJECTEXPLORER_EXPORT ExtraCompilerFactory : public QObject
     Q_OBJECT
 public:
     explicit ExtraCompilerFactory(QObject *parent = nullptr);
+    ~ExtraCompilerFactory();
 
     virtual FileType sourceType() const = 0;
     virtual QString sourceTag() const = 0;
@@ -150,7 +151,6 @@ public:
     virtual ExtraCompiler *create(const Project *project, const Utils::FileName &source,
                                   const Utils::FileNameList &targets) = 0;
 
-    static void registerExtraCompilerFactory(ExtraCompilerFactory *factory);
     static QList<ExtraCompilerFactory *> extraCompilerFactories();
 };
 

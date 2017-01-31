@@ -353,15 +353,12 @@ void ExtraCompiler::setContent(const Utils::FileName &file, const QByteArray &co
 
 ExtraCompilerFactory::ExtraCompilerFactory(QObject *parent) : QObject(parent)
 {
+    factories->append(this);
 }
 
-void ExtraCompilerFactory::registerExtraCompilerFactory(ExtraCompilerFactory *factory)
+ExtraCompilerFactory::~ExtraCompilerFactory()
 {
-    QList<ExtraCompilerFactory *> *factoryList = factories();
-    factoryList->append(factory);
-    connect(factory, &QObject::destroyed, [factoryList, factory]() {
-        factoryList->removeAll(factory);
-    });
+    factories->removeAll(this);
 }
 
 QList<ExtraCompilerFactory *> ExtraCompilerFactory::extraCompilerFactories()
