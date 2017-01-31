@@ -25,30 +25,62 @@
 
 #pragma once
 
-#ifdef UNIT_TESTS
-#define unitttest_public public
-#define non_unittest_final
-#else
-#define unitttest_public private
-#define non_unittest_final final
-#endif
+#include <clangpchmanagerbackend_global.h>
 
-namespace llvm {
-template <typename T, unsigned N>
-class SmallVector;
-}
+#include <utils/smallstringvector.h>
 
-using uint = unsigned int;
+#include <QTimer>
 
-namespace Utils {
-template <uint Size>
-class BasicSmallString;
-using SmallString = BasicSmallString<31>;
-using PathString = BasicSmallString<191>;
-}
+#include <functional>
 
 namespace ClangBackEnd {
 
-using USRName = llvm::SmallVector<char, 128>;
+template <typename Timer>
+class ChangedFilePathCompressor non_unittest_final
+{
+public:
+    ChangedFilePathCompressor()
+    {
+        m_timer.setSingleShot(true);
+    }
 
-}
+    virtual ~ChangedFilePathCompressor()
+    {
+    }
+
+    void addFilePath(const QString &filePath)
+    {
+        m_filePaths.push_back(filePath);
+
+        restartTimer();
+    }
+
+    Utils::SmallStringVector takeFilePaths()
+    {
+        return std::move(m_filePaths);
+    }
+
+    virtual void setCallback(std::function<void(Utils::SmallStringVector &&)> &&callback)
+    {
+        QObject::connect(&m_timer,
+                         &Timer::timeout,
+                         [this, callback=std::move(callback)] { callback(takeFilePaths()); });
+    }
+
+unitttest_public:
+    virtual void restartTimer()
+    {
+        m_timer.start(20);
+    }
+
+    Timer &timer()
+    {
+        return m_timer;
+    }
+
+private:
+    Utils::SmallStringVector m_filePaths;
+    Timer m_timer;
+};
+
+} // namespace ClangBackEnd

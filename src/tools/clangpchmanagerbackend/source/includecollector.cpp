@@ -65,14 +65,12 @@ std::vector<uint> IncludeCollector::generateExcludedIncludeFileUIDs(clang::FileM
     std::vector<uint> fileUIDs;
     fileUIDs.reserve(m_excludedIncludes.size());
 
-    auto generateUID = [&] (const Utils::SmallString &filePath) {
-        return fileManager.getFile({filePath.data(), filePath.size()})->getUID();
-    };
+    for (const Utils::SmallString &filePath : m_excludedIncludes) {
+        const clang::FileEntry *file = fileManager.getFile({filePath.data(), filePath.size()});
 
-    std::transform(m_excludedIncludes.begin(),
-                   m_excludedIncludes.end(),
-                   std::back_inserter(fileUIDs),
-                   generateUID);
+        if (file)
+            fileUIDs.push_back(file->getUID());
+    }
 
     std::sort(fileUIDs.begin(), fileUIDs.end());
 

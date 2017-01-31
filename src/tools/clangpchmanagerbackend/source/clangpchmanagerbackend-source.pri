@@ -29,4 +29,5 @@ HEADERS += \
     $$PWD/pchcreatorinterface.h \
     $$PWD/clangpathwatcherinterface.h \
     $$PWD/projectpartsinterface.h \
-    $$PWD/clangpathwatchernotifier.h
+    $$PWD/clangpathwatchernotifier.h \
+    $$PWD/changedfilepathcompressor.h

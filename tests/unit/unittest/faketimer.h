@@ -22,33 +22,25 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
 #pragma once
 
-#ifdef UNIT_TESTS
-#define unitttest_public public
-#define non_unittest_final
-#else
-#define unitttest_public private
-#define non_unittest_final final
-#endif
+#include <QObject>
 
-namespace llvm {
-template <typename T, unsigned N>
-class SmallVector;
-}
+class FakeTimer : public QObject
+{
+    Q_OBJECT
 
-using uint = unsigned int;
+public:
+    ~FakeTimer();
 
-namespace Utils {
-template <uint Size>
-class BasicSmallString;
-using SmallString = BasicSmallString<31>;
-using PathString = BasicSmallString<191>;
-}
+    void start(int interval);
+    void setSingleShot(bool);
 
-namespace ClangBackEnd {
+    void emitTimoutIfStarted();
 
-using USRName = llvm::SmallVector<char, 128>;
+signals:
+    void timeout();
 
-}
+private:
+    bool m_isStarted = false;
+};

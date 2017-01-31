@@ -37,6 +37,7 @@
 #include <QFileSystemWatcher>
 #include <QLoggingCategory>
 #include <QTemporaryDir>
+#include <QTimer>
 
 using ClangBackEnd::ClangPathWatcher;
 using ClangBackEnd::ConnectionServer;
@@ -93,11 +94,15 @@ int main(int argc, char *argv[])
     const QString connection =  processArguments(application);
 
     StringCache<Utils::SmallString> filePathCache;
-    ClangPathWatcher<QFileSystemWatcher> includeWatcher(filePathCache);
+    ClangPathWatcher<QFileSystemWatcher, QTimer> includeWatcher(filePathCache);
     ApplicationEnvironment environment;
     PchCreator pchCreator(environment, filePathCache);
     ProjectParts projectParts;
-    PchManagerServer clangPchManagerServer(filePathCache, includeWatcher, pchCreator, projectParts);
+    PchManagerServer clangPchManagerServer(filePathCache,
+                                           includeWatcher,
+                                           pchCreator,
+                                           projectParts);
+    includeWatcher.setNotifier(&clangPchManagerServer);
     ConnectionServer<PchManagerServer, PchManagerClientProxy> connectionServer(connection);
     connectionServer.start();
     connectionServer.setServer(&clangPchManagerServer);

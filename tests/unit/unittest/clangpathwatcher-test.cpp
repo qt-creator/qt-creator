@@ -25,6 +25,7 @@
 
 #include "googletest.h"
 
+#include "faketimer.h"
 #include "mockqfilesystemwatcher.h"
 #include "mockclangpathwatchernotifier.h"
 
@@ -39,7 +40,7 @@ using testing::IsEmpty;
 using testing::SizeIs;
 using testing::NiceMock;
 
-using Watcher = ClangBackEnd::ClangPathWatcher<NiceMock<MockQFileSytemWatcher>>;
+using Watcher = ClangBackEnd::ClangPathWatcher<NiceMock<MockQFileSytemWatcher>, FakeTimer>;
 using ClangBackEnd::WatcherEntry;
 
 class ClangPathWatcher : public testing::Test
@@ -307,6 +308,16 @@ TEST_F(ClangPathWatcher, NotifyFileChange)
 
     EXPECT_CALL(notifier, pathsWithIdsChanged(ElementsAre(id2, id1)));
 
+    mockQFileSytemWatcher.fileChanged(path1.toQString());
+}
+
+TEST_F(ClangPathWatcher, TwoNotifyFileChanges)
+{
+    watcher.addEntries({watcherEntry1, watcherEntry2, watcherEntry3, watcherEntry4, watcherEntry5});
+
+    EXPECT_CALL(notifier, pathsWithIdsChanged(ElementsAre(id2, id3, id1)));
+
+    mockQFileSytemWatcher.fileChanged(path2.toQString());
     mockQFileSytemWatcher.fileChanged(path1.toQString());
 }
 

@@ -25,30 +25,19 @@
 
 #pragma once
 
-#ifdef UNIT_TESTS
-#define unitttest_public public
-#define non_unittest_final
-#else
-#define unitttest_public private
-#define non_unittest_final final
-#endif
+#include "googletest.h"
 
-namespace llvm {
-template <typename T, unsigned N>
-class SmallVector;
-}
+#include "faketimer.h"
 
-using uint = unsigned int;
+#include <changedfilepathcompressor.h>
 
-namespace Utils {
-template <uint Size>
-class BasicSmallString;
-using SmallString = BasicSmallString<31>;
-using PathString = BasicSmallString<191>;
-}
+class MockChangedFilePathCompressor : public ClangBackEnd::ChangedFilePathCompressor<FakeTimer>
+{
+public:
+    MOCK_METHOD0(restartTimer,
+                 void ());
 
-namespace ClangBackEnd {
+    MOCK_METHOD1(callbackCalled,
+                 void (const Utils::SmallStringVector &filePaths));
+};
 
-using USRName = llvm::SmallVector<char, 128>;
-
-}

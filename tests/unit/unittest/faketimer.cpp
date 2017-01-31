@@ -23,32 +23,24 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "faketimer.h"
 
-#ifdef UNIT_TESTS
-#define unitttest_public public
-#define non_unittest_final
-#else
-#define unitttest_public private
-#define non_unittest_final final
-#endif
-
-namespace llvm {
-template <typename T, unsigned N>
-class SmallVector;
+FakeTimer::~FakeTimer()
+{
+    emitTimoutIfStarted();
 }
 
-using uint = unsigned int;
-
-namespace Utils {
-template <uint Size>
-class BasicSmallString;
-using SmallString = BasicSmallString<31>;
-using PathString = BasicSmallString<191>;
+void FakeTimer::start(int)
+{
+    m_isStarted = true;
 }
 
-namespace ClangBackEnd {
+void FakeTimer::setSingleShot(bool)
+{
+}
 
-using USRName = llvm::SmallVector<char, 128>;
-
+void FakeTimer::emitTimoutIfStarted()
+{
+    if (m_isStarted)
+        emit timeout();
 }

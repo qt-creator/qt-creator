@@ -47,7 +47,9 @@ SOURCES += \
     clientserveroutsideprocess-test.cpp \
     clangpathwatcher-test.cpp \
     projectparts-test.cpp \
-    stringcache-test.cpp
+    stringcache-test.cpp \
+    changedfilepathcompressor-test.cpp \
+    faketimer.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \
@@ -144,7 +146,9 @@ HEADERS += \
     mockqfilesystemwatcher.h \
     mockclangpathwatcher.h \
     mockprojectparts.h \
-    mockclangpathwatchernotifier.h
+    mockclangpathwatchernotifier.h \
+    mockchangedfilepathcompressor.h \
+    faketimer.h
 
 !isEmpty(LIBCLANG_LIBS) {
 HEADERS += \
