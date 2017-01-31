@@ -601,6 +601,14 @@ TEST(SmallString, EqualSmallStringOperator)
     ASSERT_FALSE(SmallString("text") == SmallString("text2"));
 }
 
+TEST(SmallString, EqualSmallStringOperatorWithDifferenceClassSizes)
+{
+    ASSERT_TRUE(SmallString() == PathString(""));
+    ASSERT_FALSE(SmallString() == PathString("text"));
+    ASSERT_TRUE(SmallString("text") == PathString("text"));
+    ASSERT_FALSE(SmallString("text") == PathString("text2"));
+}
+
 TEST(SmallString, EqualCStringArrayOperator)
 {
     ASSERT_TRUE(SmallString() == "");
@@ -685,6 +693,16 @@ TEST(SmallString, SmallerOperatorWithStringViewLeft)
     ASSERT_FALSE(SmallStringView("texta") < SmallString("text"));
     ASSERT_FALSE(SmallStringView("text") < SmallString("some"));
     ASSERT_FALSE(SmallStringView("text") < SmallString("text"));
+}
+
+TEST(SmallString, SmallerOperatorForDifferenceClassSizes)
+{
+    ASSERT_TRUE(SmallString() < PathString("text"));
+    ASSERT_TRUE(SmallString("some") < PathString("text"));
+    ASSERT_TRUE(SmallString("text") < PathString("texta"));
+    ASSERT_FALSE(SmallString("texta") < PathString("text"));
+    ASSERT_FALSE(SmallString("text") < PathString("some"));
+    ASSERT_FALSE(SmallString("text") < PathString("text"));
 }
 
 TEST(SmallString, IsEmpty)
@@ -1128,4 +1146,43 @@ TEST(SmallString, CompareTextWithDifferentLineEndings)
     auto convertedText = windowsText.toCarriageReturnsStripped();
 
     ASSERT_THAT(unixText, convertedText);
+}
+
+TEST(SmallString, ConstSubscriptOperator)
+{
+    const SmallString text = {"some text"};
+
+    auto &&sign = text[5];
+
+    ASSERT_THAT(sign, 't');
+}
+
+TEST(SmallString, NonConstSubscriptOperator)
+{
+    SmallString text = {"some text"};
+
+    auto &&sign = text[5];
+
+    ASSERT_THAT(sign, 't');
+}
+
+TEST(SmallString, ManipulateConstSubscriptOperator)
+{
+    const SmallString text = {"some text"};
+    auto &&sign = text[5];
+
+    sign = 'q';
+
+    ASSERT_THAT(text, SmallString{"some text"});
+}
+
+TEST(SmallString, ManipulateNonConstSubscriptOperator)
+{
+    char rawText[] = "some text";
+    SmallString text{rawText};
+    auto &&sign = text[5];
+
+    sign = 'q';
+
+    ASSERT_THAT(text, SmallString{"some qext"});
 }

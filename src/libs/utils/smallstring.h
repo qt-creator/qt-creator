@@ -506,45 +506,14 @@ public:
         return joinedString;
     }
 
-unitttest_public:
-    bool isShortString() const noexcept
+    char &operator[](std::size_t index)
     {
-        return !m_data.shortString.isReference;
+        return *(data() + index);
     }
 
-    bool isReadOnlyReference() const noexcept
+    char operator[](std::size_t index) const
     {
-        return m_data.shortString.isReadOnlyReference;
-    }
-
-    bool hasAllocatedMemory() const noexcept
-    {
-        return !isShortString() && !isReadOnlyReference();
-    }
-
-    bool fitsNotInCapacity(size_type capacity) const noexcept
-    {
-        return (isShortString() && capacity > shortStringCapacity())
-            || (!isShortString() && capacity > m_data.allocated.data.capacity);
-    }
-
-    static
-    size_type optimalHeapCapacity(const size_type size)
-    {
-        const size_type cacheLineSize = 64;
-
-        const auto divisionByCacheLineSize = std::div(int64_t(size), int64_t(cacheLineSize));
-
-        size_type cacheLineBlocks = size_type(divisionByCacheLineSize.quot);
-        const size_type supplement = divisionByCacheLineSize.rem ? 1 : 0;
-
-        cacheLineBlocks += supplement;
-        int exponent;
-        const double significand = std::frexp(cacheLineBlocks, &exponent);
-        const double factorOneDotFiveSignificant = std::ceil(significand * 4.) / 4.;
-        cacheLineBlocks = size_type(std::ldexp(factorOneDotFiveSignificant, exponent));
-
-        return cacheLineBlocks * cacheLineSize;
+        return *(data() + index);
     }
 
     template<size_type ArraySize>
@@ -573,12 +542,6 @@ unitttest_public:
     friend bool operator==(Type first, const BasicSmallString& second) noexcept
     {
         return second == first;
-    }
-
-    friend bool operator==(const BasicSmallString& first, const BasicSmallString& second) noexcept
-    {
-        return first.size() == second.size()
-            && std::memcmp(first.data(), second.data(), first.size()) == 0;
     }
 
     friend bool operator==(const BasicSmallString& first, const SmallStringView& second) noexcept
@@ -635,16 +598,6 @@ unitttest_public:
         return second != first;
     }
 
-    friend bool operator<(const BasicSmallString& first, const BasicSmallString& second) noexcept
-    {
-        if (first.size() != second.size())
-            return first.size() < second.size();
-
-        const int comparison = std::memcmp(first.data(), second.data(), first.size() + 1);
-
-        return comparison < 0;
-    }
-
     friend bool operator<(const BasicSmallString& first, SmallStringView second) noexcept
     {
         if (first.size() != second.size())
@@ -663,6 +616,47 @@ unitttest_public:
         const int comparison = std::memcmp(first.data(), second.data(), first.size());
 
         return comparison < 0;
+    }
+
+unitttest_public:
+    bool isShortString() const noexcept
+    {
+        return !m_data.shortString.isReference;
+    }
+
+    bool isReadOnlyReference() const noexcept
+    {
+        return m_data.shortString.isReadOnlyReference;
+    }
+
+    bool hasAllocatedMemory() const noexcept
+    {
+        return !isShortString() && !isReadOnlyReference();
+    }
+
+    bool fitsNotInCapacity(size_type capacity) const noexcept
+    {
+        return (isShortString() && capacity > shortStringCapacity())
+            || (!isShortString() && capacity > m_data.allocated.data.capacity);
+    }
+
+    static
+    size_type optimalHeapCapacity(const size_type size)
+    {
+        const size_type cacheLineSize = 64;
+
+        const auto divisionByCacheLineSize = std::div(int64_t(size), int64_t(cacheLineSize));
+
+        size_type cacheLineBlocks = size_type(divisionByCacheLineSize.quot);
+        const size_type supplement = divisionByCacheLineSize.rem ? 1 : 0;
+
+        cacheLineBlocks += supplement;
+        int exponent;
+        const double significand = std::frexp(cacheLineBlocks, &exponent);
+        const double factorOneDotFiveSignificant = std::ceil(significand * 4.) / 4.;
+        cacheLineBlocks = size_type(std::ldexp(factorOneDotFiveSignificant, exponent));
+
+        return cacheLineBlocks * cacheLineSize;
     }
 
 private:
@@ -817,6 +811,37 @@ private:
 private:
     Internal::StringDataLayout<Size> m_data;
 };
+
+template<template<uint> class String, uint Size>
+using isSameString = std::is_same<std::remove_reference_t<std::remove_cv_t<String<Size>>>,
+                                           BasicSmallString<Size>>;
+
+template<template<uint> class String,
+         uint SizeOne,
+         uint SizeTwo,
+         typename =  std::enable_if_t<isSameString<String, SizeOne>::value
+                                   || isSameString<String, SizeTwo>::value>>
+bool operator==(const String<SizeOne> &first, const String<SizeTwo> &second) noexcept
+{
+    return first.size() == second.size()
+        && std::memcmp(first.data(), second.data(), first.size()) == 0;
+}
+
+
+template<template<uint> class String,
+         uint SizeOne,
+         uint SizeTwo,
+         typename =  std::enable_if_t<isSameString<String, SizeOne>::value
+                                   || isSameString<String, SizeTwo>::value>>
+bool operator<(const String<SizeOne> &first, const String<SizeTwo> &second) noexcept
+{
+    if (first.size() != second.size())
+        return first.size() < second.size();
+
+    const int comparison = std::memcmp(first.data(), second.data(), first.size() + 1);
+
+    return comparison < 0;
+}
 
 template<typename Key,
          typename Value,
