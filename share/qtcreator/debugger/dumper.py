@@ -496,6 +496,14 @@ class DumperBase:
         return None if nativeType is None else self.fromNativeType(nativeType)
 
     def registerKnownTypes(self):
+        typeId = 'unsigned short'
+        tdata = self.TypeData(self)
+        tdata.name = typeId
+        tdata.typeId = typeId
+        tdata.lbitsize = 16
+        tdata.code = TypeCodeIntegral
+        self.registerType(typeId, tdata)
+
         typeId = 'QChar'
         tdata = self.TypeData(self)
         tdata.name = typeId
@@ -504,7 +512,7 @@ class DumperBase:
         tdata.code = TypeCodeStruct
         field = self.Field(self)
         field.name = 'ucs'
-        field.ltype = self.lookupType('unsigned short')
+        field.ltype = 'unsigned short'
         field.lbitsize = 16
         field.lbitpos = 0
         tdata.lfields = [field]
