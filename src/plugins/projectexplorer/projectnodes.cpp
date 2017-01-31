@@ -726,17 +726,8 @@ void ProjectNode::addProjectNode(ProjectNode *subProject)
 
 
 /*!
-  Remove the project node specified by \a subProject from the node hierarchy.
-
-  All objects in the \a subProjects list are deleted.
+  Removes all child nodes from the node hierarchy and deletes them.
 */
-
-void ProjectNode::removeProjectNode(ProjectNode *subProject)
-{
-    m_projectNodes.removeOne(subProject);
-    m_folderNodes.removeOne(subProject);
-    delete subProject;
-}
 
 void ProjectNode::makeEmpty()
 {

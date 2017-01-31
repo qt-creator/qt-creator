@@ -112,20 +112,6 @@ static const FileTypeDataStorage fileTypeDataStorage[] = {
       ProjectExplorer::Constants::FILEOVERLAY_UNKNOWN, "*;" }
 };
 
-class SortByPath
-{
-public:
-    bool operator()(Node *a, Node *b)
-    { return operator()(a->filePath(), b->filePath()); }
-    bool operator()(Node *a, const FileName &b)
-    { return operator()(a->filePath(), b); }
-    bool operator()(const FileName &a, Node *b)
-    { return operator()(a, b->filePath()); }
-    // Compare as strings to correctly detect case-only file rename
-    bool operator()(const FileName &a, const FileName &b)
-    { return a.toString() < b.toString(); }
-};
-
 class QmakeNodeStaticData {
 public:
     class FileTypeData {
@@ -1968,104 +1954,48 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
     //
 
     QString buildDirectory = buildDir();
-    SortByPath sortByPath;
 
     QList<QPair<QmakePriFileNode *, IncludedPriFile *>> toCompare;
 
     toCompare.append(qMakePair(this, &result->includedFiles));
+
+    makeEmpty();
 
     while (!toCompare.isEmpty()) {
         QmakePriFileNode *pn = toCompare.first().first;
         IncludedPriFile *tree = toCompare.first().second;
         toCompare.pop_front();
 
-        QList<ProjectNode*> existingProjectNodes = pn->projectNodes();
-        Utils::sort(existingProjectNodes, sortByPath);
-        // result is already sorted
-
-        QList<ProjectNode*> toRemove;
-
-        QList<ProjectNode*>::const_iterator existingIt = existingProjectNodes.constBegin();
-        auto newIt = tree->children.constBegin();
-
-        forever {
-            bool existingAtEnd = (existingIt == existingProjectNodes.constEnd());
-            bool newAtEnd = (newIt == tree->children.constEnd());
-
-            if (existingAtEnd && newAtEnd)
-                break; // we are done, hurray!
-
-            if (! existingAtEnd
-                    && (newAtEnd || (*existingIt)->filePath() < (*newIt)->name)) {
-                // Remove case
-                toRemove << *existingIt;
-                ++existingIt;
-            } else if (! newAtEnd
-                       && (existingAtEnd || (*newIt)->name < (*existingIt)->filePath())) {
-                // Adding a node
-                IncludedPriFile *nodeToAdd = *newIt;
-                ++newIt;
-
-                // Loop preventation, make sure that exact same node is not in our parent chain
-                bool loop = false;
-                Node *n = pn;
-                while ((n = n->parentFolderNode())) {
-                    if (dynamic_cast<QmakePriFileNode *>(n) && n->filePath() == nodeToAdd->name) {
-                        loop = true;
-                        break;
-                    }
+        for (IncludedPriFile *priFile : tree->children) {
+            // Loop preventation, make sure that exact same node is not in our parent chain
+            bool loop = false;
+            Node *n = pn;
+            while ((n = n->parentFolderNode())) {
+                if (dynamic_cast<QmakePriFileNode *>(n) && n->filePath() == priFile->name) {
+                    loop = true;
+                    break;
                 }
+            }
 
-                if (loop) {
-                    // Do nothing
-                } else {
-                    if (nodeToAdd->proFile) {
-                        QmakePriFileNode *qmakePriFileNode = new QmakePriFileNode(m_project, this, nodeToAdd->name);
-                        pn->addProjectNode(qmakePriFileNode);
-                        qmakePriFileNode->setIncludedInExactParse(
-                                    (result->state == EvalResult::EvalOk) && pn->includedInExactParse());
-                        qmakePriFileNode->update(nodeToAdd->result);
-                        toCompare.append(qMakePair(qmakePriFileNode, nodeToAdd));
-                    } else {
-                        QmakeProFileNode *qmakeProFileNode = new QmakeProFileNode(m_project, nodeToAdd->name);
-                        pn->addProjectNode(qmakeProFileNode);
-                        qmakeProFileNode->setIncludedInExactParse(
-                                    result->exactSubdirs.contains(qmakeProFileNode->filePath())
-                                    && pn->includedInExactParse());
-                        qmakeProFileNode->setParseInProgress(true);
-                        qmakeProFileNode->asyncUpdate();
-                    }
-                }
+            if (loop)
+                continue; // Do nothing
+
+            if (priFile->proFile) {
+                QmakePriFileNode *qmakePriFileNode = new QmakePriFileNode(m_project, this, priFile->name);
+                pn->addProjectNode(qmakePriFileNode);
+                qmakePriFileNode->setIncludedInExactParse(
+                            (result->state == EvalResult::EvalOk) && pn->includedInExactParse());
+                qmakePriFileNode->update(priFile->result);
+                toCompare.append(qMakePair(qmakePriFileNode, priFile));
             } else {
-                // Update existingNodeIte
-                if ((*newIt)->proFile) {
-                    QmakePriFileNode *priFileNode = static_cast<QmakePriFileNode *>(*existingIt);
-                    priFileNode->update((*newIt)->result);
-                    priFileNode->setIncludedInExactParse(
-                                (result->state == EvalResult::EvalOk) && pn->includedInExactParse());
-                    toCompare.append(qMakePair(priFileNode, *newIt));
-                } else {
-                    // We always parse exactly, because we later when async parsing don't know whether
-                    // the .pro file is included in this .pro file
-                    // So to compare that later parse with the sync one
-                    QmakeProFileNode *proFileNode = static_cast<QmakeProFileNode *>(*existingIt);
-                    proFileNode->setIncludedInExactParse(result->exactSubdirs.contains(proFileNode->filePath())
-                                                         && pn->includedInExactParse());
-                    proFileNode->asyncUpdate();
-                }
-                ++newIt;
-                ++existingIt;
-                // newCumalativeIt and newExactIt are already incremented
-
+                QmakeProFileNode *qmakeProFileNode = new QmakeProFileNode(m_project, priFile->name);
+                pn->addProjectNode(qmakeProFileNode);
+                qmakeProFileNode->setIncludedInExactParse(
+                            result->exactSubdirs.contains(qmakeProFileNode->filePath())
+                            && pn->includedInExactParse());
+                qmakeProFileNode->setParseInProgress(true);
+                qmakeProFileNode->asyncUpdate();
             }
-        } // for
-
-        foreach (ProjectNode *node, toRemove) {
-            if (QmakeProFileNode *qmakeProFileNode = dynamic_cast<QmakeProFileNode *>(node)) {
-                qmakeProFileNode->setValidParseRecursive(false);
-                qmakeProFileNode->setParseInProgressRecursive(false);
-            }
-            pn->removeProjectNode(node);
         }
     }
 
