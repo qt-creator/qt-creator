@@ -1186,3 +1186,45 @@ TEST(SmallString, ManipulateNonConstSubscriptOperator)
 
     ASSERT_THAT(text, SmallString{"some qext"});
 }
+
+TEST(SmallString, EmptyInitializerListContent)
+{
+    SmallString text = {};
+
+    ASSERT_THAT(text, SmallString());
+}
+
+TEST(SmallString, EmptyInitializerListSize)
+{
+    SmallString text = {};
+
+    ASSERT_THAT(text, SizeIs(0));
+}
+
+TEST(SmallString, EmptyInitializerListNullTerminated)
+{
+    auto end = SmallString{{}}[0];
+
+    ASSERT_THAT(end, '\0');
+}
+
+TEST(SmallString, InitializerListContent)
+{
+    SmallString text = {"some", " ", "text"};
+
+    ASSERT_THAT(text, SmallString("some text"));
+}
+
+TEST(SmallString, InitializerListSize)
+{
+    SmallString text = {"some", " ", "text"};
+
+    ASSERT_THAT(text, SizeIs(9));
+}
+
+TEST(SmallString, InitializerListNullTerminated)
+{
+    auto end = SmallString{"some", " ", "text"}[9];
+
+    ASSERT_THAT(end, '\0');
+}

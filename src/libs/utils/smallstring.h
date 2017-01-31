@@ -40,6 +40,8 @@
 #include <cstdlib>
 #include <climits>
 #include <cstring>
+#include <initializer_list>
+#include <numeric>
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -135,6 +137,28 @@ public:
     {
     }
 
+    BasicSmallString(std::initializer_list<Utils::SmallStringView> list)
+    {
+        std::size_t size = std::accumulate(list.begin(),
+                                           list.end(),
+                                           std::size_t(0),
+                                           [] (std::size_t size, Utils::SmallStringView string) {
+                return size + string.size();
+         });
+
+        reserve(size);
+        setSize(size);
+
+        char *currentData = data();
+
+        for (Utils::SmallStringView string : list) {
+            std::memcpy(currentData, string.data(), string.size());
+
+            currentData += string.size();
+        }
+
+        at(size) = 0;
+    }
 
     ~BasicSmallString() noexcept
     {
