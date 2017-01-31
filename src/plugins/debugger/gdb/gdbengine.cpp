@@ -896,6 +896,12 @@ void GdbEngine::runCommand(const DebuggerCommand &command)
 
     DebuggerCommand cmd = command;
 
+    if (cmd.function.isEmpty()) {
+        showMessage(QString("EMPTY FUNCTION RUN, TOKEN: %1 ARGS: %2")
+                        .arg(token).arg(cmd.args.toString()));
+        QTC_ASSERT(false, return);
+    }
+
     if (!stateAcceptsGdbCommands(state())) {
         showMessage(QString("NO GDB PROCESS RUNNING, CMD IGNORED: %1 %2")
             .arg(cmd.function).arg(state()));
@@ -2201,7 +2207,7 @@ void GdbEngine::executeRunToLine(const ContextData &data)
         loc = '"' + breakLocation(data.fileName) + '"' + ':' + QString::number(data.lineNumber);
     runCommand({"tbreak " + loc});
 
-    runCommand({"continue", RunRequest, CB(handleExecuteRunToLine)});
+    runCommand({"continue", NativeCommand|RunRequest, CB(handleExecuteRunToLine)});
 #else
     // Seems to jump to unpredicatable places. Observed in the manual
     // tests in the Foo::Foo() constructor with both gdb 6.8 and 7.1.
