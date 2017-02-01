@@ -92,9 +92,7 @@ void ExampleSetModel::update()
         extraManifestDirs.insert(set.manifestPath);
     }
 
-    QList<BaseQtVersion *> qtVersions = examplesModel->qtVersions();
-
-    foreach (BaseQtVersion *version, qtVersions) {
+    foreach (BaseQtVersion *version, QtVersionManager::versions()) {
         // sanitize away qt versions that have already been added through extra sets
         if (extraManifestDirs.contains(version->documentationPath())) {
             if (debugExamples()) {
@@ -488,11 +486,6 @@ void ExamplesListModel::updateQtVersions()
     if (defaultVersion && versions.contains(defaultVersion))
         versions.move(versions.indexOf(defaultVersion), 0);
 
-    if (m_qtVersions == versions && m_selectedExampleSetIndex >= 0)
-        return;
-
-    m_qtVersions = versions;
-
     m_exampleSetModel->update();
 
     int currentIndex = m_selectedExampleSetIndex;
@@ -510,9 +503,7 @@ void ExamplesListModel::updateQtVersions()
         // try to select the previously selected Qt version, or
         // select examples corresponding to 'highest' Qt version
         int currentQtId = m_exampleSetModel->getQtId(currentIndex);
-        BaseQtVersion *newQtVersion = Utils::findOrDefault(m_qtVersions,
-                                                    Utils::equal(&BaseQtVersion::uniqueId, currentQtId));
-
+        BaseQtVersion *newQtVersion = QtVersionManager::version(currentQtId);
         if (!newQtVersion)
             newQtVersion = findHighestQtVersion();
         currentIndex = m_exampleSetModel->indexForQtVersion(newQtVersion);
@@ -522,11 +513,10 @@ void ExamplesListModel::updateQtVersions()
 
 BaseQtVersion *ExamplesListModel::findHighestQtVersion() const
 {
-    QList<BaseQtVersion *> versions = qtVersions();
+    BaseQtVersion *newVersion = nullptr;
 
-    BaseQtVersion *newVersion = 0;
-
-    foreach (BaseQtVersion *version, versions) {
+    const QList<BaseQtVersion *> versions = QtVersionManager::versions();
+    for (BaseQtVersion *version : versions) {
         if (!newVersion) {
             newVersion = version;
         } else {
@@ -541,9 +531,6 @@ BaseQtVersion *ExamplesListModel::findHighestQtVersion() const
 
     if (!newVersion && !versions.isEmpty())
         newVersion = versions.first();
-
-    if (!newVersion)
-        return 0;
 
     return newVersion;
 }
@@ -569,7 +556,7 @@ QStringList ExamplesListModel::exampleSources(QString *examplesInstallPath, QStr
         demosPath = exampleSet.examplesPath;
     } else if (currentType == ExampleSetModel::QtExampleSet) {
         int qtId = m_exampleSetModel->getQtId(m_selectedExampleSetIndex);
-        foreach (BaseQtVersion *version, qtVersions()) {
+        foreach (BaseQtVersion *version, QtVersionManager::versions()) {
             if (version->uniqueId() == qtId) {
                 manifestScanPath = version->documentationPath();
                 examplesPath = version->examplesPath();
@@ -651,7 +638,7 @@ void ExamplesListModel::selectExampleSet(int index)
 
 QStringList ExamplesListModel::exampleSets() const
 {
-    return Utils::transform(m_qtVersions, &BaseQtVersion::displayName);
+    return Utils::transform(QtVersionManager::versions(), &BaseQtVersion::displayName);
 }
 
 ExamplesListModelFilter::ExamplesListModelFilter(ExamplesListModel *sourceModel, bool showTutorialsOnly, QObject *parent) :

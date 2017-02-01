@@ -117,7 +117,6 @@ public:
     int selectedExampleSet() const;
     void selectExampleSet(int index);
 
-    QList<BaseQtVersion*> qtVersions() const { return m_qtVersions; }
     QList<ExtraExampleSet> extraExampleSets() const { return m_extraExampleSets; }
     QStringList exampleSets() const;
 
@@ -139,7 +138,6 @@ private:
     QStringList exampleSources(QString *examplesInstallPath, QString *demosInstallPath);
 
     ExampleSetModel* m_exampleSetModel;
-    QList<BaseQtVersion*> m_qtVersions;
     QList<ExtraExampleSet> m_extraExampleSets;
     QList<ExampleItem> m_exampleItems;
     int m_selectedExampleSetIndex = -1;
