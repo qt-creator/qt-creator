@@ -359,10 +359,6 @@ bool GccToolChain::isValid() const
 QByteArray GccToolChain::predefinedMacros(const QStringList &cxxflags) const
 {
     QStringList allCxxflags = m_platformCodeGenFlags + cxxflags;  // add only cxxflags is empty?
-
-    // Using a clean environment breaks ccache/distcc/etc.
-    Environment env = Environment::systemEnvironment();
-    addToEnvironment(env);
     QStringList arguments = gccPredefinedMacrosOptions();
     for (int iArg = 0; iArg < allCxxflags.length(); ++iArg) {
         const QString &a = allCxxflags.at(iArg);
@@ -398,6 +394,9 @@ QByteArray GccToolChain::predefinedMacros(const QStringList &cxxflags) const
     if (!macros.isNull())
         return macros;
 
+    // Using a clean environment breaks ccache/distcc/etc.
+    Environment env = Environment::systemEnvironment();
+    addToEnvironment(env);
     macros = gccPredefinedMacros(m_compilerCommand, reinterpretOptions(arguments),
                                  env.toStringList());
 
