@@ -111,11 +111,13 @@ LLVM_CXXFLAGS = $$system($$llvm_config --cxxflags, lines)
 LLVM_CXXFLAGS ~= s,-fno-exceptions,
 LLVM_CXXFLAGS ~= s,-std=c++11,
 LLVM_CXXFLAGS ~= s,-std=c++0x,
-LLVM_CXXFLAGS ~= s,-O2,
+LLVM_CXXFLAGS ~= s,-O\S*,
+LLVM_CXXFLAGS ~= s,/O\S*,
 LLVM_CXXFLAGS ~= s,/W4,
-LLVM_CXXFLAGS ~= s,/EHc-,
+LLVM_CXXFLAGS ~= s,/EH\S*,
 LLVM_CXXFLAGS ~= s,-Werror=date-time,
 LLVM_CXXFLAGS ~= s,-fPIC,
+LLVM_CXXFLAGS ~= s,-pedantic,
 # split-dwarf needs objcopy which does not work via icecc out-of-the-box
 LLVM_CXXFLAGS ~= s,-gsplit-dwarf,
 
