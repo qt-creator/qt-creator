@@ -4823,7 +4823,12 @@ void tst_Dumpers::dumper_data()
                     "std::unordered_map<std::string, float> map2;\n"
                     "map2[\"11.0\"] = 11.0;\n"
                     "map2[\"22.0\"] = 22.0;\n"
-                    "unused(&map2);\n")
+                    "unused(&map2);\n"
+
+                    "std::unordered_multimap<int, std::string> map3;\n"
+                    "map3.insert({1, \"Foo\"});\n"
+                    "map3.insert({1, \"Bar\"});\n"
+                    "unused(&map3);\n" )
 
                + Cxx11Profile()
 
@@ -4847,7 +4852,13 @@ void tst_Dumpers::dumper_data()
                + Check("map2.1", "\"22.0\"", FloatValue("22.0"),
                        "std::pair<std::string, float>")             % CdbEngine
                + Check("map2.1.first", "\"22.0\"", "std::string")   % CdbEngine
-               + Check("map2.1.second", FloatValue("22"), "float")  % CdbEngine;
+               + Check("map2.1.second", FloatValue("22"), "float")  % CdbEngine
+
+               + Check("map3", "<2 items>", "std::unordered_multimap<int, std::string>")
+               + Check("map3.0", "[0] 1", "\"Bar\"", "") % NoCdbEngine
+               + Check("map3.1", "[1] 1", "\"Foo\"", "") % NoCdbEngine
+               + Check("map3.0", "1", "\"Foo\"", "std::pair<int const ,std::string>") % CdbEngine
+               + Check("map3.1", "1", "\"Bar\"", "std::pair<int const ,std::string>") % CdbEngine;
 
 
     QTest::newRow("StdUnorderedSet")
@@ -4856,7 +4867,12 @@ void tst_Dumpers::dumper_data()
                     "set1.insert(11);\n"
                     "set1.insert(22);\n"
                     "set1.insert(33);\n"
-                    "unused(&set1);\n")
+                    "unused(&set1);\n"
+
+                    "std::unordered_multiset<int> set2;\n"
+                    "set2.insert(42);\n"
+                    "set2.insert(42);\n"
+                    "unused(&set2);\n")
 
                + Cxx11Profile()
 
@@ -4865,7 +4881,11 @@ void tst_Dumpers::dumper_data()
                + Check("set1.0", "[0]", "11", "int") % CdbEngine
                + Check("set1.1", "[1]", "22", "int")
                + Check("set1.2", "[2]", "11", "int") % NoCdbEngine
-               + Check("set1.2", "[2]", "33", "int") % CdbEngine;
+               + Check("set1.2", "[2]", "33", "int") % CdbEngine
+
+               + Check("set2", "<2 items>", "std::unordered_multiset<int>")
+               + Check("set2.0", "[0]", "42", "int")
+               + Check("set2.1", "[1]", "42", "int");
 
 
 //    class Goo

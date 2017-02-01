@@ -763,6 +763,20 @@ def qdump__std__unordered_map(d, value):
 def qdump__std____debug__unordered_map(d, value):
     qdump__std__unordered_map(d, value)
 
+
+def qform__std__unordered_multimap():
+    return qform__std__unordered_map()
+
+def qform__std____debug__unordered_multimap():
+    return qform__std____debug__unordered_map()
+
+def qdump__std__unordered_multimap(d, value):
+    qdump__std__unordered_map(d, value)
+
+def qdump__std____debug__unordered_multimap(d, value):
+    qdump__std__unordered_multimap(d, value)
+
+
 def qdump__std__unordered_set(d, value):
     if d.isQnxTarget() or d.isMsvcTarget():
         qdump__std__list__QNX(d, value["_List"])
@@ -835,6 +849,12 @@ def qdump__std____1__unordered_set(d, value):
 
 def qdump__std____debug__unordered_set(d, value):
     qdump__std__unordered_set(d, value)
+
+def qdump__std__unordered_multiset(d, value):
+    qdump__std__unordered_set(d, value)
+
+def qdump__std____debug__unordered_multiset(d, value):
+    qdump__std__unordered_multiset(d, value)
 
 
 def qform__std__valarray():
