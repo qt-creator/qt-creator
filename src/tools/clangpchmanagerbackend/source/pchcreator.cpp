@@ -275,9 +275,9 @@ Utils::SmallString PchCreator::generatePchIncludeFileContent(
     fileContent.reserve(includes.size() * lineTemplateSize + contentSize(includes));
 
     for (const Utils::SmallString &include : includes) {
-        fileContent += "#include <";
+        fileContent += "#include \"";
         fileContent += include;
-        fileContent += ">\n";
+        fileContent += "\"\n";
     }
 
     return fileContent;

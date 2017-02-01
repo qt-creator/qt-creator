@@ -141,7 +141,7 @@ TEST_F(PchCreatorVerySlowTest, CreateGlobalPchFileContent)
 {
     auto content = creator.generateGlobalPchHeaderFileContent();
 
-    ASSERT_THAT(content, "#include <" TESTDATA_DIR "/includecollector_external3.h>\n#include <" TESTDATA_DIR "/includecollector_external1.h>\n#include <" TESTDATA_DIR "/includecollector_external2.h>\n");
+    ASSERT_THAT(content, "#include \"" TESTDATA_DIR "/includecollector_external3.h\"\n#include \"" TESTDATA_DIR "/includecollector_external1.h\"\n#include \"" TESTDATA_DIR "/includecollector_external2.h\"\n");
 }
 
 TEST_F(PchCreatorVerySlowTest, CreateGlobalPchHeaderFile)
@@ -151,7 +151,7 @@ TEST_F(PchCreatorVerySlowTest, CreateGlobalPchHeaderFile)
 
     auto content = file->readAll();
 
-    ASSERT_THAT(content, "#include <" TESTDATA_DIR "/includecollector_external3.h>\n#include <" TESTDATA_DIR "/includecollector_external1.h>\n#include <" TESTDATA_DIR "/includecollector_external2.h>\n");
+    ASSERT_THAT(content, "#include \"" TESTDATA_DIR "/includecollector_external3.h\"\n#include \"" TESTDATA_DIR "/includecollector_external1.h\"\n#include \"" TESTDATA_DIR "/includecollector_external2.h\"\n");
 }
 
 TEST_F(PchCreator, ConvertToQStringList)
@@ -214,7 +214,7 @@ TEST_F(PchCreatorSlowTest, CreateProjectPartPchFileContent)
 
     auto content = creator.generatePchIncludeFileContent(includes);
 
-    ASSERT_THAT(content, "#include <" TESTDATA_DIR "/includecollector_header2.h>\n#include <" TESTDATA_DIR "/includecollector_external1.h>\n#include <" TESTDATA_DIR "/includecollector_external2.h>\n");
+    ASSERT_THAT(content, "#include \"" TESTDATA_DIR "/includecollector_header2.h\"\n#include \"" TESTDATA_DIR "/includecollector_external1.h\"\n#include \"" TESTDATA_DIR "/includecollector_external2.h\"\n");
 }
 
 TEST_F(PchCreatorSlowTest, CreateProjectPartPchIncludeFile)
@@ -227,7 +227,7 @@ TEST_F(PchCreatorSlowTest, CreateProjectPartPchIncludeFile)
 
     auto fileContent = file->readAll();
 
-    ASSERT_THAT(fileContent, "#include <" TESTDATA_DIR "/includecollector_header2.h>\n#include <" TESTDATA_DIR "/includecollector_external1.h>\n#include <" TESTDATA_DIR "/includecollector_external2.h>\n");
+    ASSERT_THAT(fileContent, "#include \"" TESTDATA_DIR "/includecollector_header2.h\"\n#include \"" TESTDATA_DIR "/includecollector_external1.h\"\n#include \"" TESTDATA_DIR "/includecollector_external2.h\"\n");
 }
 
 TEST_F(PchCreator, CreateProjectPartPchCompilerArguments)
