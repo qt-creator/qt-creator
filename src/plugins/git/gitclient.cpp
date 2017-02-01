@@ -1118,7 +1118,7 @@ bool GitClient::synchronousReset(const QString &workingDirectory,
     // Note that git exits with 1 even if the operation is successful
     // Assume real failure if the output does not contain "foo.cpp modified"
     // or "Unstaged changes after reset" (git 1.7.0).
-    if (resp.result == SynchronousProcessResponse::Finished
+    if (resp.result != SynchronousProcessResponse::Finished
         && (!stdOut.contains("modified") && !stdOut.contains("Unstaged changes after reset"))) {
         if (files.isEmpty()) {
             msgCannotRun(arguments, workingDirectory, resp.stdErr(), errorMessage);

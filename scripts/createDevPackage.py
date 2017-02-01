@@ -58,20 +58,15 @@ def parse_arguments():
 source_include_patterns = [
     # directories
     r"^scripts/.*$",     # everything under scripts/
+    r"^share/(qtcreator/(qml/(qmlpuppet/(.*/)?)?)?)?$", # for shared headers for qt quick designer plugins
     r"^src/(.*/)?$",     # all directories under src/
     r"^plugins/(.*/)?$", # all directories under plugins/ (if this is run on extra plugin repositories)
     # files
     r"^HACKING$",
     r"^LICENSE.*$",
     r"^README.md$",
-    r"^qtcreator.pri$",
-    r"^qtcreatordata.pri$",
-    r"^src/qtcreatorplugin.pri$",
-    r"^src/qtcreatorlibrary.pri$",
-    r"^src/qtcreatortool.pri$",
-    r"^src/rpath.pri$",
+    r"^.*\.pri$",
     r"^.*\.h$",
-    r"^.*_dependencies.pri$",
 ]
 
 build_include_patterns = [

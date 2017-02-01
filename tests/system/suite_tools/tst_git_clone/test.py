@@ -74,7 +74,7 @@ def verifyVersionControlView(targetDir, canceled):
     clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
 
 def verifyFiles(targetDir):
-    for file in [".gitignore", "LGPL_EXCEPTION.txt", "installerfw.pro",
+    for file in [".gitignore", "LICENSE.GPL3-EXCEPT", "installerfw.pro",
                  os.path.join("tests", "test-installer", "create-test-installer.bat"),
                  os.path.join("src", "sdk", "main.cpp")]:
         test.verify(os.path.exists(os.path.join(targetDir, cloneDir, file)),
