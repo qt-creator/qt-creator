@@ -62,7 +62,7 @@ public:
                             const clang::FileEntry *file,
                             llvm::StringRef /*searchPath*/,
                             llvm::StringRef /*relativePath*/,
-                            const clang::Module */*imported*/) override
+                            const clang::Module * /*imported*/) override
     {
         if (file) {
             auto fileUID = file->getUID();
