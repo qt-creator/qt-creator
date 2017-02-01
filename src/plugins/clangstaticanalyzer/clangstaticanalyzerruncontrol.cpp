@@ -383,6 +383,7 @@ static AnalyzeUnits unitsToAnalyzeFromProjectParts(const QVector<ProjectPart::Pt
 
         foreach (const ProjectFile &file, projectPart->files) {
             QTC_CHECK(file.kind != ProjectFile::Unclassified);
+            QTC_CHECK(file.kind != ProjectFile::Unsupported);
             if (ProjectFile::isSource(file.kind)) {
                 const CompilerOptionsBuilder::PchUsage pchUsage = CppTools::getPchUsage();
                 const QStringList arguments

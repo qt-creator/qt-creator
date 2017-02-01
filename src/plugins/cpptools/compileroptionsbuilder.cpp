@@ -187,6 +187,7 @@ static QStringList createLanguageOptionGcc(ProjectFile::Kind fileKind, bool objc
 
     switch (fileKind) {
     case ProjectFile::Unclassified:
+    case ProjectFile::Unsupported:
         break;
     case ProjectFile::CHeader:
         if (objcExt)

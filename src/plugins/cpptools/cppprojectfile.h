@@ -36,6 +36,7 @@ class CPPTOOLS_EXPORT ProjectFile
 public:
     enum Kind {
         Unclassified,
+        Unsupported,
         AmbiguousHeader,
         CHeader,
         CSource,

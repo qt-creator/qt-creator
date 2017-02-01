@@ -1151,7 +1151,7 @@ static void slotTooltipOverrideRequested
                                   &context.function, &context.scopeFromLine, &context.scopeToLine);
     context.expression = fixCppExpression(raw);
     context.isCppEditor = CppTools::ProjectFile::classify(document->filePath().toString())
-                            != CppTools::ProjectFile::Unclassified;
+                            != CppTools::ProjectFile::Unsupported;
 
     if (context.expression.isEmpty()) {
         ToolTip::show(point, DebuggerToolTipManager::tr("No valid expression"),

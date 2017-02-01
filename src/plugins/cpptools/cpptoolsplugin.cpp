@@ -404,7 +404,7 @@ QString correspondingHeaderOrSource(const QString &fileName, bool *wasHeader)
     if (debug)
         qDebug() << Q_FUNC_INFO << fileName <<  kind;
 
-    if (kind == ProjectFile::Unclassified)
+    if (kind == ProjectFile::Unsupported)
         return QString();
 
     const QString baseName = fi.completeBaseName();

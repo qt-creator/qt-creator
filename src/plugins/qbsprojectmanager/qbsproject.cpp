@@ -795,7 +795,7 @@ static CppTools::ProjectFile::Kind cppFileType(const qbs::ArtifactData &sourceFi
         return CppTools::ProjectFile::ObjCSource;
     if (sourceFile.fileTags().contains(QLatin1String("objcpp")))
         return CppTools::ProjectFile::ObjCXXSource;
-    return CppTools::ProjectFile::Unclassified;
+    return CppTools::ProjectFile::Unsupported;
 }
 
 static QString groupLocationToProjectFile(const qbs::CodeLocation &location)

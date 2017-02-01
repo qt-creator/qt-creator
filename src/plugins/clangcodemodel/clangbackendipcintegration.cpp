@@ -373,7 +373,7 @@ void IpcCommunicator::initializeBackend()
 static QStringList projectPartOptions(const CppTools::ProjectPart::Ptr &projectPart)
 {
     const QStringList options = ClangCodeModel::Utils::createClangOptions(projectPart,
-        CppTools::ProjectFile::Unclassified); // No language option
+        CppTools::ProjectFile::Unsupported); // No language option
 
     return options;
 }

@@ -399,6 +399,7 @@ void ComponentViewController::createComponentModel(const ProjectExplorer::Folder
             isSource = true;
             break;
         case CppTools::ProjectFile::Unclassified:
+        case CppTools::ProjectFile::Unsupported:
             isSource = false;
             break;
         }
