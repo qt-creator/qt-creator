@@ -166,6 +166,20 @@ static PyObject *cdbext_getNameByAddress(PyObject *, PyObject *args)
     return ret;
 }
 
+static PyObject *cdbext_getAddressByName(PyObject *, PyObject *args)
+{
+    char *name = 0;
+    if (!PyArg_ParseTuple(args, "s", &name))
+        Py_RETURN_NONE;
+
+    CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
+
+    ULONG64 address = 0;
+    if (FAILED(symbols->GetOffsetByName(name, &address)))
+        address = 0;
+    return Py_BuildValue("K", address);
+}
+
 static PyObject *cdbext_lookupType(PyObject *, PyObject *args) // -> Type
 {
     char *type;
@@ -364,6 +378,8 @@ static PyMethodDef cdbextMethods[] = {
      "Returns a list of symbol names matching the given pattern"},
     {"getNameByAddress",    cdbext_getNameByAddress,    METH_VARARGS,
      "Returns the name of the symbol at the given address"},
+    {"getAddressByName",    cdbext_getAddressByName,    METH_VARARGS,
+     "Returns the address of the symbol with the given name"},
     {"lookupType",          cdbext_lookupType,          METH_VARARGS,
      "Returns type object or None if the type can not be resolved"},
     {"listOfLocals",        cdbext_listOfLocals,        METH_VARARGS,

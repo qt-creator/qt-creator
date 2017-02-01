@@ -421,7 +421,7 @@ class Dumper(DumperBase):
         return mem
 
     def findStaticMetaObject(self, typeName):
-        ptr = self.findValueByExpression('&' + typeName + '::staticMetaObject')
+        ptr = cdbext.getAddressByName(typeName + '::staticMetaObject')
         return ptr
 
     def warn(self, msg):
