@@ -77,6 +77,11 @@ public:
         return std::move(name_);
     }
 
+    Utils::PathString path()  const
+    {
+        return {directory_, "/", name_};
+    }
+
     friend QDataStream &operator<<(QDataStream &out, const FilePath &filePath)
     {
         out << filePath.directory_;
@@ -104,6 +109,12 @@ public:
     {
         return first.name_ == second.name_
             && first.directory_ == second.directory_;
+    }
+
+    friend bool operator<(const FilePath &first, const FilePath &second)
+    {
+        return std::tie(first.name_, first.directory_)
+             < std::tie(second.name_, second.directory_);
     }
 
     FilePath clone() const

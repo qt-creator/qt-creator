@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "filecontainerv2.h"
 #include "projectpartcontainerv2.h"
 
 namespace ClangBackEnd {
@@ -33,8 +34,10 @@ class UpdatePchProjectPartsMessage
 {
 public:
     UpdatePchProjectPartsMessage() = default;
-    UpdatePchProjectPartsMessage(V2::ProjectPartContainers &&projectsParts)
-        : projectsParts_(std::move(projectsParts))
+    UpdatePchProjectPartsMessage(V2::ProjectPartContainers &&projectsParts,
+                                 V2::FileContainers &&generatedFiles)
+        : projectsParts_(std::move(projectsParts)),
+          generatedFiles_(std::move(generatedFiles))
     {}
 
     const V2::ProjectPartContainers &projectsParts() const
@@ -47,9 +50,20 @@ public:
         return std::move(projectsParts_);
     }
 
+    const V2::FileContainers &generatedFiles() const
+    {
+        return generatedFiles_;
+    }
+
+    V2::FileContainers takeGeneratedFiles()
+    {
+        return std::move(generatedFiles_);
+    }
+
     friend QDataStream &operator<<(QDataStream &out, const UpdatePchProjectPartsMessage &message)
     {
         out << message.projectsParts_;
+        out << message.generatedFiles_;
 
         return out;
     }
@@ -57,6 +71,7 @@ public:
     friend QDataStream &operator>>(QDataStream &in, UpdatePchProjectPartsMessage &message)
     {
         in >> message.projectsParts_;
+        in >> message.generatedFiles_;
 
         return in;
     }
@@ -64,16 +79,19 @@ public:
     friend bool operator==(const UpdatePchProjectPartsMessage &first,
                            const UpdatePchProjectPartsMessage &second)
     {
-        return first.projectsParts_ == second.projectsParts_;
+        return first.projectsParts_ == second.projectsParts_
+            && first.generatedFiles_ == second.generatedFiles_;
     }
 
     UpdatePchProjectPartsMessage clone() const
     {
-        return UpdatePchProjectPartsMessage(Utils::clone(projectsParts_));
+        return UpdatePchProjectPartsMessage(Utils::clone(projectsParts_),
+                                            Utils::clone(generatedFiles_));
     }
 
 private:
     V2::ProjectPartContainers projectsParts_;
+    V2::FileContainers generatedFiles_;
 };
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const UpdatePchProjectPartsMessage &message);

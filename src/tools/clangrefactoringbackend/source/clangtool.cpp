@@ -58,10 +58,11 @@ void ClangTool::addFile(std::string &&directory,
     sourceFilePaths.push_back(fileContent.filePath);
 }
 
-void ClangTool::addFiles(const Utils::SmallStringVector &filePaths,
+template <typename Container>
+void ClangTool::addFiles(const Container &filePaths,
                          const Utils::SmallStringVector &arguments)
 {
-    for (const Utils::SmallString &filePath : filePaths) {
+    for (const typename Container::value_type &filePath : filePaths) {
         auto found = std::find(filePath.rbegin(), filePath.rend(), '/');
 
         auto fileNameBegin = found.base();
@@ -76,6 +77,13 @@ void ClangTool::addFiles(const Utils::SmallStringVector &filePaths,
     }
 }
 
+template
+void ClangTool::addFiles<Utils::SmallStringVector>(const Utils::SmallStringVector &filePaths,
+                                                   const Utils::SmallStringVector &arguments);
+template
+void ClangTool::addFiles<Utils::PathStringVector>(const Utils::PathStringVector &filePaths,
+                                                  const Utils::SmallStringVector &arguments);
+
 namespace {
 Utils::SmallString toNativeFilePath(const FilePath &filePath)
 {
@@ -87,13 +95,13 @@ Utils::SmallString toNativeFilePath(const FilePath &filePath)
 }
 }
 
-void ClangTool::addUnsavedFiles(std::vector<V2::FileContainer> &&unsavedFiles)
+void ClangTool::addUnsavedFiles(const V2::FileContainers &unsavedFiles)
 {
     unsavedFileContents.reserve(unsavedFileContents.size() + unsavedFiles.size());
 
-    auto convertToUnsavedFileContent = [] (V2::FileContainer &unsavedFile) {
+    auto convertToUnsavedFileContent = [] (const V2::FileContainer &unsavedFile) {
         return UnsavedFileContent{toNativeFilePath(unsavedFile.filePath()),
-                                  unsavedFile.takeUnsavedFileContent()};
+                                  unsavedFile.unsavedFileContent().clone()};
     };
 
     std::transform(unsavedFiles.begin(),

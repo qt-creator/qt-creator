@@ -28,6 +28,8 @@
 #include "clangbackendipc_global.h"
 #include "filepath.h"
 
+#include <vector>
+
 namespace ClangBackEnd {
 namespace V2 {
 
@@ -104,6 +106,12 @@ public:
             && first.commandLineArguments_ == second.commandLineArguments_;
     }
 
+    friend bool operator<(const FileContainer &first, const FileContainer &second)
+    {
+        return std::tie(first.documentRevision_, first.filePath_, first.unsavedFileContent_, first.commandLineArguments_)
+             < std::tie(second.documentRevision_, second.filePath_, second.unsavedFileContent_, second.commandLineArguments_);
+    }
+
     FileContainer clone() const
     {
         return FileContainer(filePath_.clone(),
@@ -119,9 +127,10 @@ private:
     quint32 documentRevision_ = 0;
 };
 
+using FileContainers = std::vector<FileContainer>;
+
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const FileContainer &container);
 void PrintTo(const FileContainer &container, ::std::ostream* os);
-
 
 } // namespace V2
 } // namespace ClangBackEnd

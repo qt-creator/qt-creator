@@ -27,8 +27,11 @@
 
 #include <clangpchmanager_global.h>
 
+#include <filecontainerv2.h>
+
 namespace CppTools {
 class ProjectPart;
+class ProjectFile;
 }
 
 namespace ClangBackEnd {
@@ -45,6 +48,7 @@ QT_FORWARD_DECLARE_CLASS(QStringList)
 
 namespace ClangPchManager {
 
+class HeaderAndSources;
 class PchManagerClient;
 
 class ProjectUpdater
@@ -53,16 +57,26 @@ public:
     ProjectUpdater(ClangBackEnd::PchManagerServerInterface &server,
                    PchManagerClient &client);
 
-    void updateProjectParts(const std::vector<CppTools::ProjectPart *> &projectParts);
+    void updateProjectParts(const std::vector<CppTools::ProjectPart *> &projectParts,
+                            ClangBackEnd::V2::FileContainers &&generatedFiles);
     void removeProjectParts(const QStringList &projectPartIds);
 
 unittest_public:
-    static ClangBackEnd::V2::ProjectPartContainer toProjectPartContainer(
-            CppTools::ProjectPart *projectPart);
-    static std::vector<ClangBackEnd::V2::ProjectPartContainer> toProjectPartContainers(
-            std::vector<CppTools::ProjectPart *> projectParts);
+    void setExcludedPaths(Utils::PathStringVector &&excludedPaths);
+
+    HeaderAndSources headerAndSourcesFromProjectPart(CppTools::ProjectPart *projectPart) const;
+    ClangBackEnd::V2::ProjectPartContainer toProjectPartContainer(
+            CppTools::ProjectPart *projectPart) const;
+    std::vector<ClangBackEnd::V2::ProjectPartContainer> toProjectPartContainers(
+            std::vector<CppTools::ProjectPart *> projectParts) const;
+    void addToHeaderAndSources(HeaderAndSources &headerAndSources,
+                               const CppTools::ProjectFile &projectFile) const;
+
+    static Utils::PathStringVector createExcludedPaths(
+            const ClangBackEnd::V2::FileContainers &generatedFiles);
 
 private:
+    Utils::PathStringVector m_excludedPaths;
     ClangBackEnd::PchManagerServerInterface &m_server;
     PchManagerClient &m_client;
 };

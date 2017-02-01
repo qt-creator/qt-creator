@@ -29,6 +29,8 @@
 
 #include <utils/smallstring.h>
 
+#include <algorithm>
+
 namespace ClangBackEnd {
 
 IncludeCollector::IncludeCollector(StringCache<Utils::SmallString> &filePathCache)
@@ -40,17 +42,31 @@ void IncludeCollector::collectIncludes()
 {
     clang::tooling::ClangTool tool = createTool();
 
-    auto excludedIncludeFileUIDs = generateExcludedIncludeFileUIDs(tool.getFiles());
-
     auto action = std::unique_ptr<CollectIncludesToolAction>(
-                new CollectIncludesToolAction(m_includeIds, m_filePathCache, excludedIncludeFileUIDs));
+                new CollectIncludesToolAction(m_includeIds,
+                                              m_filePathCache,
+                                              m_excludedIncludes));
 
     tool.run(action.get());
 }
 
-void IncludeCollector::setExcludedIncludes(Utils::SmallStringVector &&excludedIncludes)
+void IncludeCollector::setExcludedIncludes(Utils::PathStringVector &&excludedIncludes)
 {
-    this->m_excludedIncludes = std::move(excludedIncludes);
+#ifdef _WIN32
+    m_excludedIncludes.clear();
+    m_excludedIncludes.reserve(excludedIncludes.size());
+    std::transform(std::make_move_iterator(excludedIncludes.begin()),
+                   std::make_move_iterator(excludedIncludes.end()),
+                   std::back_inserter(m_excludedIncludes),
+                   [] (Utils::PathString &&path) {
+        path.replace("/", "\\");
+        return std::move(path);
+    });
+
+
+#else
+    m_excludedIncludes = std::move(excludedIncludes);
+#endif
 }
 
 std::vector<uint> IncludeCollector::takeIncludeIds()
@@ -60,21 +76,6 @@ std::vector<uint> IncludeCollector::takeIncludeIds()
     return std::move(m_includeIds);
 }
 
-std::vector<uint> IncludeCollector::generateExcludedIncludeFileUIDs(clang::FileManager &fileManager) const
-{
-    std::vector<uint> fileUIDs;
-    fileUIDs.reserve(m_excludedIncludes.size());
 
-    for (const Utils::SmallString &filePath : m_excludedIncludes) {
-        const clang::FileEntry *file = fileManager.getFile({filePath.data(), filePath.size()});
-
-        if (file)
-            fileUIDs.push_back(file->getUID());
-    }
-
-    std::sort(fileUIDs.begin(), fileUIDs.end());
-
-    return fileUIDs;
-}
 
 } // namespace ClangBackEnd

@@ -38,15 +38,12 @@ public:
 
     void collectIncludes();
 
-    void setExcludedIncludes(Utils::SmallStringVector &&excludedIncludes);
+    void setExcludedIncludes(Utils::PathStringVector &&excludedIncludes);
 
     std::vector<uint> takeIncludeIds();
 
 private:
-    std::vector<uint> generateExcludedIncludeFileUIDs(clang::FileManager &fileManager) const;
-
-private:
-    Utils::SmallStringVector m_excludedIncludes;
+    Utils::PathStringVector m_excludedIncludes;
     std::vector<uint> m_includeIds;
     Utils::SmallStringVector m_directories;
     StringCache<Utils::SmallString> &m_filePathCache;

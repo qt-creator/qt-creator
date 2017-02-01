@@ -2,3 +2,4 @@
 #include "includecollector_header2.h"
 #include "includecollector_external1.h"
 #include "../data/includecollector_external2.h"
+#include "includecollector_generated_file.h"

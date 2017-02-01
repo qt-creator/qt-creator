@@ -38,8 +38,8 @@ public:
     ProjectPartContainer() = default;
     ProjectPartContainer(Utils::SmallString &&projectPartId,
                          Utils::SmallStringVector &&arguments,
-                         Utils::SmallStringVector &&headerPaths,
-                         Utils::SmallStringVector &&sourcePaths)
+                         Utils::PathStringVector &&headerPaths,
+                         Utils::PathStringVector &&sourcePaths)
         : projectPartId_(std::move(projectPartId)),
           arguments_(std::move(arguments)),
           headerPaths_(std::move(headerPaths)),
@@ -57,12 +57,12 @@ public:
         return arguments_;
     }
 
-    const Utils::SmallStringVector &sourcePaths() const
+    const Utils::PathStringVector &sourcePaths() const
     {
         return sourcePaths_;
     }
 
-    const Utils::SmallStringVector &headerPaths() const
+    const Utils::PathStringVector &headerPaths() const
     {
         return headerPaths_;
     }
@@ -112,8 +112,8 @@ public:
 private:
     Utils::SmallString projectPartId_;
     Utils::SmallStringVector arguments_;
-    Utils::SmallStringVector headerPaths_;
-    Utils::SmallStringVector sourcePaths_;
+    Utils::PathStringVector headerPaths_;
+    Utils::PathStringVector sourcePaths_;
 };
 
 using ProjectPartContainers = std::vector<ProjectPartContainer>;

@@ -42,6 +42,7 @@
 #include <vector>
 
 using ClangBackEnd::UpdatePchProjectPartsMessage;
+using ClangBackEnd::V2::FileContainer;
 using ClangBackEnd::V2::ProjectPartContainer;
 using ClangBackEnd::RemovePchProjectPartsMessage;
 using ClangBackEnd::PrecompiledHeadersUpdatedMessage;
@@ -95,7 +96,8 @@ TEST_F(PchManagerClientServerInProcess, SendUpdatePchProjectPartsMessage)
                                       {"-x", "c++-header", "-Wno-pragma-once-outside-header"},
                                       {TESTDATA_DIR "/includecollector_header.h"},
                                       {TESTDATA_DIR "/includecollector_main.cpp"}};
-    UpdatePchProjectPartsMessage message{{projectPart2}};
+    FileContainer fileContainer{{"/path/to/", "file"}, "content", {}};
+    UpdatePchProjectPartsMessage message{{projectPart2}, {fileContainer}};
 
     EXPECT_CALL(mockPchManagerServer, updatePchProjectParts(message));
 

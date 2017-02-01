@@ -25,6 +25,7 @@
 
 #include "qtcreatorprojectupdater.h"
 
+#include <cpptools/abstracteditorsupport.h>
 #include <cpptools/cppmodelmanager.h>
 
 #include <projectexplorer/project.h>
@@ -43,7 +44,29 @@ QtCreatorProjectUpdater::QtCreatorProjectUpdater(ClangBackEnd::PchManagerServerI
     connectToCppModelManager();
 }
 
-void QtCreatorProjectUpdater::projectPartsUpdated(ProjectExplorer::Project *project)
+namespace {
+
+std::vector<ClangBackEnd::V2::FileContainer> createGeneratedFiles()
+{
+    auto abstractEditors = CppTools::CppModelManager::instance()->abstractEditorSupports();
+    std::vector<ClangBackEnd::V2::FileContainer> generatedFiles;
+    generatedFiles.reserve(std::size_t(abstractEditors.size()));
+
+    auto toFileContainer = [] (const CppTools::AbstractEditorSupport *abstractEditor) {
+        return  ClangBackEnd::V2::FileContainer(ClangBackEnd::FilePath(abstractEditor->fileName()),
+                                                Utils::SmallString::fromQByteArray(abstractEditor->contents()),
+                                                {});
+    };
+
+    std::transform(abstractEditors.begin(),
+                   abstractEditors.end(),
+                   std::back_inserter(generatedFiles),
+                   toFileContainer);
+
+    return generatedFiles;
+}
+
+std::vector<CppTools::ProjectPart*> createProjectParts(ProjectExplorer::Project *project)
 {
     const CppTools::ProjectInfo projectInfo = cppModelManager()->projectInfo(project);
 
@@ -61,7 +84,14 @@ void QtCreatorProjectUpdater::projectPartsUpdated(ProjectExplorer::Project *proj
                    std::back_inserter(projectParts),
                    convertToRawPointer);
 
-    updateProjectParts(projectParts);
+    return projectParts;
+}
+
+}
+
+void QtCreatorProjectUpdater::projectPartsUpdated(ProjectExplorer::Project *project)
+{
+    updateProjectParts(createProjectParts(project), createGeneratedFiles());
 }
 
 void QtCreatorProjectUpdater::projectPartsRemoved(const QStringList &projectPartIds)

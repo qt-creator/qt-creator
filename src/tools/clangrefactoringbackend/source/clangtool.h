@@ -94,10 +94,12 @@ public:
                  std::string &&fileName,
                  std::string &&content,
                  std::vector<std::string> &&commandLine);
-    void addFiles(const Utils::SmallStringVector &filePaths,
+
+    template <typename Container>
+    void addFiles(const Container &filePaths,
                  const Utils::SmallStringVector &arguments);
 
-    void addUnsavedFiles(std::vector<V2::FileContainer> &&unsavedFiles);
+    void addUnsavedFiles(const V2::FileContainers &unsavedFiles);
 
     clang::tooling::ClangTool createTool() const;
 

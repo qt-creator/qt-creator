@@ -52,17 +52,19 @@ public:
     PchCreator(V2::ProjectPartContainers &&projectsParts,
                Environment &environment,
                StringCache<Utils::SmallString> &filePathCache,
-               PchGeneratorInterface *pchGenerator);
+               PchGeneratorInterface *pchGenerator,
+               V2::FileContainers &&generatedFiles);
 
     void generatePchs(V2::ProjectPartContainers &&projectsParts) override;
+    void setGeneratedFiles(V2::FileContainers &&generatedFiles) override;
     std::vector<IdPaths> takeProjectsIncludes() override;
 
     void setGenerator(PchGeneratorInterface *pchGenerator);
 
 unitttest_public:
-    Utils::SmallStringVector generateGlobalHeaderPaths() const;
-    Utils::SmallStringVector generateGlobalSourcePaths() const;
-    Utils::SmallStringVector generateGlobalHeaderAndSourcePaths() const;
+    Utils::PathStringVector generateGlobalHeaderPaths() const;
+    Utils::PathStringVector generateGlobalSourcePaths() const;
+    Utils::PathStringVector generateGlobalHeaderAndSourcePaths() const;
     Utils::SmallStringVector generateGlobalArguments() const;
     Utils::SmallStringVector generateGlobalCommandLine() const;
     Utils::SmallStringVector generateGlobalPchCompilerArguments() const;
@@ -89,7 +91,9 @@ unitttest_public:
             const V2::ProjectPartContainer &projectPart) const;
     Utils::SmallString generateProjectPartPchFilePathWithoutExtension(
             const V2::ProjectPartContainer &projectPart) const;
-    static Utils::SmallStringVector generateProjectPartHeaderAndSourcePaths(
+    Utils::PathStringVector generateProjectPartHeaders(
+            const V2::ProjectPartContainer &projectPart) const;
+    static Utils::PathStringVector generateProjectPartHeaderAndSourcePaths(
             const V2::ProjectPartContainer &projectPart);
     std::vector<uint> generateProjectPartPchIncludes(
             const V2::ProjectPartContainer &projectPart) const;
@@ -115,6 +119,7 @@ private:
 
 private:
     V2::ProjectPartContainers m_projectParts;
+    V2::FileContainers m_generatedFiles;
     std::vector<ProjectPartPch> m_projectPartPchs;
     std::vector<IdPaths> m_projectsIncludeIds;
     Environment &m_environment;

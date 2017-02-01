@@ -40,6 +40,8 @@ namespace {
 using ClangBackEnd::IdPaths;
 using ClangBackEnd::ProjectPartPch;
 using ClangBackEnd::V2::ProjectPartContainer;
+using ClangBackEnd::V2::FileContainer;
+using Utils::PathString;
 using Utils::SmallString;
 
 using testing::_;
@@ -60,10 +62,12 @@ protected:
 
 protected:
     ClangBackEnd::StringCache<Utils::SmallString> filePathCache;
-    SmallString main1Path = TESTDATA_DIR "/includecollector_main3.cpp";
-    SmallString main2Path = TESTDATA_DIR "/includecollector_main2.cpp";
-    SmallString header1Path = TESTDATA_DIR "/includecollector_header1.h";
-    SmallString header2Path = TESTDATA_DIR "/includecollector_header2.h";
+    PathString main1Path = TESTDATA_DIR "/includecollector_main3.cpp";
+    PathString main2Path = TESTDATA_DIR "/includecollector_main2.cpp";
+    PathString header1Path = TESTDATA_DIR "/includecollector_header1.h";
+    PathString header2Path = TESTDATA_DIR "/includecollector_header2.h";
+    SmallString generatedFileName = "includecollector_generated_file.h";
+    PathString generatedFilePath = TESTDATA_DIR "/includecollector_generated_file.h";
     ProjectPartContainer projectPart1{"project1",
                                       {"-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header"},
                                       {header1Path.clone()},
@@ -73,12 +77,14 @@ protected:
                                       {header2Path.clone()},
                                       {main2Path.clone()}};
     TestEnvironment environment;
+    FileContainer generatedFile{{TESTDATA_DIR, generatedFileName.clone()}, "#pragma once", {}};
     NiceMock<MockPchGeneratorNotifier> mockPchGeneratorNotifier;
     ClangBackEnd::PchGenerator<FakeProcess> generator{environment, &mockPchGeneratorNotifier};
     ClangBackEnd::PchCreator creator{{projectPart1.clone(),projectPart2.clone()},
                                      environment,
                                      filePathCache,
-                                     &generator};
+                                     &generator,
+                                     {generatedFile}};
 };
 
 using PchCreatorSlowTest = PchCreator;
@@ -89,7 +95,7 @@ TEST_F(PchCreator, CreateGlobalHeaderPaths)
     auto filePaths = creator.generateGlobalHeaderPaths();
 
     ASSERT_THAT(filePaths,
-                UnorderedElementsAre(header1Path, header2Path));
+                UnorderedElementsAre(header1Path, header2Path, generatedFilePath));
 }
 
 TEST_F(PchCreator, CreateGlobalSourcePaths)
@@ -105,7 +111,7 @@ TEST_F(PchCreator, CreateGlobalHeaderAndSourcePaths)
     auto filePaths = creator.generateGlobalHeaderAndSourcePaths();
 
     ASSERT_THAT(filePaths,
-                UnorderedElementsAre(main1Path, main2Path, header1Path, header2Path));
+                UnorderedElementsAre(main1Path, main2Path, header1Path, header2Path, generatedFilePath));
 }
 
 TEST_F(PchCreator, CreateGlobalArguments)
@@ -178,6 +184,13 @@ TEST_F(PchCreator, CreateProjectPartCommandLine)
     auto commandLine = creator.generateProjectPartCommandLine(projectPart1);
 
     ASSERT_THAT(commandLine, ElementsAre(environment.clangCompilerPath(), "-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header"));
+}
+
+TEST_F(PchCreator, CreateProjectPartHeaders)
+{
+    auto includeIds = creator.generateProjectPartHeaders(projectPart1);
+
+    ASSERT_THAT(includeIds, UnorderedElementsAre(header1Path, generatedFilePath));
 }
 
 TEST_F(PchCreator, CreateProjectPartHeaderAndSources)

@@ -42,10 +42,12 @@
 namespace {
 
 using testing::_;
+using testing::ElementsAre;
 using testing::SizeIs;
 using testing::NiceMock;
 using testing::AnyNumber;
 
+using ClangBackEnd::V2::FileContainer;
 using ClangBackEnd::V2::ProjectPartContainer;
 using CppTools::ClangCompilerOptionsBuilder;
 
@@ -61,24 +63,26 @@ protected:
     ClangPchManager::ProjectUpdater updater{mockPchManagerServer, pchManagerClient};
     Utils::SmallString projectPartId{"project1"};
     Utils::SmallString projectPartId2{"project2"};
-    Utils::SmallStringVector headerPaths = {"/path/to/header1.h", "/path/to/header2.h"};
-    Utils::SmallStringVector sourcePaths = {"/path/to/source1.h", "/path/to/source2.h"};
+    Utils::PathStringVector headerPaths = {"/path/to/header1.h", "/path/to/header2.h"};
+    Utils::PathStringVector sourcePaths = {"/path/to/source1.cpp", "/path/to/source2.cpp"};
     CppTools::ProjectFile header1ProjectFile{headerPaths[0], CppTools::ProjectFile::CXXHeader};
     CppTools::ProjectFile header2ProjectFile{headerPaths[1], CppTools::ProjectFile::CXXHeader};
     CppTools::ProjectFile source1ProjectFile{sourcePaths[0], CppTools::ProjectFile::CXXSource};
     CppTools::ProjectFile source2ProjectFile{sourcePaths[1], CppTools::ProjectFile::CXXSource};
     CppTools::ProjectPart projectPart;
     ProjectPartContainer expectedContainer;
+    FileContainer generatedFile{{"/path/to", "header1.h"}, "content", {}};
 };
 
 TEST_F(ProjectUpdater, CallUpdatePchProjectParts)
 {
     std::vector<CppTools::ProjectPart*> projectParts = {&projectPart, &projectPart};
-    ClangBackEnd::UpdatePchProjectPartsMessage message{{expectedContainer.clone(), expectedContainer.clone()}};
+    ClangBackEnd::UpdatePchProjectPartsMessage message{{expectedContainer.clone(), expectedContainer.clone()},
+                                                       {generatedFile}};
 
     EXPECT_CALL(mockPchManagerServer, updatePchProjectParts(message));
 
-    updater.updateProjectParts(projectParts);
+    updater.updateProjectParts(projectParts, {generatedFile});
 }
 
 TEST_F(ProjectUpdater, CallRemovePchProjectParts)
@@ -103,6 +107,8 @@ TEST_F(ProjectUpdater, CallPrecompiledHeaderRemoved)
 
 TEST_F(ProjectUpdater, ConvertProjectPartToProjectPartContainer)
 {
+    updater.setExcludedPaths({"/path/to/header1.h"});
+
     auto container = updater.toProjectPartContainer(&projectPart);
 
     ASSERT_THAT(container, expectedContainer);
@@ -113,6 +119,13 @@ TEST_F(ProjectUpdater, ConvertProjectPartToProjectPartContainersHaveSameSizeLike
     auto containers = updater.toProjectPartContainers({&projectPart, &projectPart});
 
     ASSERT_THAT(containers, SizeIs(2));
+}
+
+TEST_F(ProjectUpdater, CreateExcludedPaths)
+{
+    auto excludedPaths = updater.createExcludedPaths({generatedFile});
+
+    ASSERT_THAT(excludedPaths, ElementsAre("/path/to/header1.h"));
 }
 
 void ProjectUpdater::SetUp()
@@ -133,8 +146,8 @@ void ProjectUpdater::SetUp()
 
     expectedContainer = {projectPartId.clone(),
                          arguments.clone(),
-                         headerPaths.clone(),
-                         sourcePaths.clone()};
+                         {headerPaths[1]},
+                          sourcePaths.clone()};
 }
 }
 

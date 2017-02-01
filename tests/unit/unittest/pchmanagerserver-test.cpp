@@ -45,7 +45,9 @@ using testing::Return;
 using testing::_;
 using testing::IsEmpty;
 
+using Utils::PathString;
 using Utils::SmallString;
+using ClangBackEnd::V2::FileContainer;
 using ClangBackEnd::V2::ProjectPartContainer;
 using ClangBackEnd::TaskFinishStatus;
 
@@ -62,10 +64,10 @@ protected:
     NiceMock<MockPchManagerClient> mockPchManagerClient;
     SmallString projectPartId1 = "project1";
     SmallString projectPartId2 = "project2";
-    SmallString main1Path = TESTDATA_DIR "/includecollector_main3.cpp";
-    SmallString main2Path = TESTDATA_DIR "/includecollector_main2.cpp";
-    SmallString header1Path = TESTDATA_DIR "/includecollector_header1.h";
-    SmallString header2Path = TESTDATA_DIR "/includecollector_header2.h";
+    PathString main1Path = TESTDATA_DIR "/includecollector_main3.cpp";
+    PathString main2Path = TESTDATA_DIR "/includecollector_main2.cpp";
+    PathString header1Path = TESTDATA_DIR "/includecollector_header1.h";
+    PathString header2Path = TESTDATA_DIR "/includecollector_header2.h";
     std::vector<ClangBackEnd::IdPaths> idPaths = {{projectPartId1, {1, 2}}};
     ProjectPartContainer projectPart1{projectPartId1.clone(),
                                       {"-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header"},
@@ -75,8 +77,10 @@ protected:
                                       {"-x", "c++-header", "-Wno-pragma-once-outside-header"},
                                       {header2Path.clone()},
                                       {main2Path.clone()}};
-    std::vector<ClangBackEnd::V2::ProjectPartContainer> projectParts{projectPart1, projectPart2};
-    ClangBackEnd::UpdatePchProjectPartsMessage updatePchProjectPartsMessage{Utils::clone(projectParts)};
+    std::vector<ProjectPartContainer> projectParts{projectPart1, projectPart2};
+    FileContainer generatedFile{{"/path/to/", "file"}, "content", {}};
+    ClangBackEnd::UpdatePchProjectPartsMessage updatePchProjectPartsMessage{Utils::clone(projectParts),
+                                                                            {generatedFile}};
     ClangBackEnd::ProjectPartPch projectPartPch1{projectPart1.projectPartId().clone(), "/path1/to/pch"};
     ClangBackEnd::ProjectPartPch projectPartPch2{projectPart2.projectPartId().clone(), "/path2/to/pch"};
     std::vector<ClangBackEnd::ProjectPartPch> projectPartPchs{projectPartPch1, projectPartPch2};
@@ -103,7 +107,10 @@ TEST_F(PchManagerServer, DoNotCallPrecompiledHeadersForUnsuccessfullyFinishedTas
 
 TEST_F(PchManagerServer, CallBuildInPchCreator)
 {
-    EXPECT_CALL(mockPchCreator, generatePchs(updatePchProjectPartsMessage.projectsParts()));
+    auto &&callSetGeneratedFiles = EXPECT_CALL(mockPchCreator,
+                                               setGeneratedFiles(updatePchProjectPartsMessage.generatedFiles()));
+    EXPECT_CALL(mockPchCreator, generatePchs(updatePchProjectPartsMessage.projectsParts()))
+            .After(callSetGeneratedFiles);
 
     server.updatePchProjectParts(updatePchProjectPartsMessage.clone());
 }

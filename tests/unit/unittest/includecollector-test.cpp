@@ -86,8 +86,11 @@ void IncludeCollector::SetUp()
     collector.addFile(TESTDATA_DIR, "includecollector_main.cpp", "", {"cc", "includecollector_main.cpp"});
     collector.addFile(TESTDATA_DIR, "includecollector_main2.cpp", "", {"cc", "includecollector_main2.cpp"});
 
+    collector.addUnsavedFiles({{{TESTDATA_DIR, "includecollector_generated_file.h"}, "#pragma once", {}}});
+
     collector.setExcludedIncludes({TESTDATA_DIR "/includecollector_header1.h",
-                                   TESTDATA_DIR "/includecollector_header2.h"});
+                                   TESTDATA_DIR "/includecollector_header2.h",
+                                   TESTDATA_DIR "/includecollector_generated_file.h"});
 }
 
 uint IncludeCollector::id(const Utils::SmallString &path)

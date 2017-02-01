@@ -56,6 +56,8 @@ void PchManagerServer::end()
 
 void PchManagerServer::updatePchProjectParts(UpdatePchProjectPartsMessage &&message)
 {
+    m_pchCreator.setGeneratedFiles(message.takeGeneratedFiles());
+
     m_pchCreator.generatePchs(m_projectParts.update(message.takeProjectsParts()));
 
     m_fileSystemWatcher.updateIdPaths(m_pchCreator.takeProjectsIncludes());

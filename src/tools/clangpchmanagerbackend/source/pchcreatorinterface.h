@@ -28,6 +28,7 @@
 #include "idpaths.h"
 #include "projectpartpch.h"
 
+#include <filecontainerv2.h>
 #include <projectpartcontainerv2.h>
 
 namespace ClangBackEnd {
@@ -38,6 +39,7 @@ public:
     virtual ~PchCreatorInterface();
 
     virtual void generatePchs(V2::ProjectPartContainers &&projectsParts) = 0;
+    virtual void setGeneratedFiles(V2::FileContainers &&generatedFiles) = 0;
     virtual std::vector<IdPaths> takeProjectsIncludes() = 0;
 };
 

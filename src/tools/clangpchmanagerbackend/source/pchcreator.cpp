@@ -45,12 +45,19 @@ PchCreator::PchCreator(Environment &environment, StringCache<Utils::SmallString>
 PchCreator::PchCreator(V2::ProjectPartContainers &&projectsParts,
                        Environment &environment,
                        StringCache<Utils::SmallString> &filePathCache,
-                       PchGeneratorInterface *pchGenerator)
+                       PchGeneratorInterface *pchGenerator,
+                       V2::FileContainers &&generatedFiles)
     : m_projectParts(std::move(projectsParts)),
+      m_generatedFiles(std::move(generatedFiles)),
       m_environment(environment),
       m_filePathCache(filePathCache),
       m_pchGenerator(pchGenerator)
 {
+}
+
+void PchCreator::setGeneratedFiles(V2::FileContainers &&generatedFiles)
+{
+    m_generatedFiles = generatedFiles;
 }
 
 namespace {
@@ -92,12 +99,13 @@ std::size_t globalCount(const V2::ProjectPartContainers &projectsParts,
                            sizeFunction);
 }
 
-template <typename GetterFunction>
-void generateGlobal(Utils::SmallStringVector &entries,
+template <typename Container,
+          typename GetterFunction>
+void generateGlobal(Container &entries,
                const V2::ProjectPartContainers &projectsParts,
                GetterFunction getterFunction)
 {
-    entries.reserve(entries.size() + globalCount(projectsParts, getterFunction));
+    entries.reserve(entries.capacity() + globalCount(projectsParts, getterFunction));
 
     for (const V2::ProjectPartContainer &projectPart : projectsParts) {
         const auto &projectPartPaths = getterFunction(projectPart);
@@ -106,41 +114,66 @@ void generateGlobal(Utils::SmallStringVector &entries,
     };
 }
 
-template <typename GetterFunction>
-Utils::SmallStringVector generateGlobal(
+template <typename Container,
+          typename GetterFunction>
+Utils::PathStringVector generateGlobal(
         const V2::ProjectPartContainers &projectsParts,
-        GetterFunction getterFunction)
+        GetterFunction getterFunction,
+        std::size_t prereserve = 0)
 {
-    Utils::SmallStringVector entries;
+    Container entries;
+    entries.reserve(prereserve);
 
     generateGlobal(entries, projectsParts, getterFunction);
 
     return entries;
 }
 
+
+Utils::PathStringVector generatedFilePaths(const V2::FileContainers &generaredFiles)
+{
+    Utils::PathStringVector generaredFilePaths;
+    generaredFilePaths.reserve(generaredFiles.size());
+
+    for (const V2::FileContainer &generatedFile : generaredFiles)
+        generaredFilePaths.push_back(generatedFile.filePath().path());
+
+    return generaredFilePaths;
 }
 
-Utils::SmallStringVector PchCreator::generateGlobalHeaderPaths() const
+}
+
+Utils::PathStringVector PchCreator::generateGlobalHeaderPaths() const
 {
     auto includeFunction = [] (const V2::ProjectPartContainer &projectPart)
-            -> const Utils::SmallStringVector & {
+            -> const Utils::PathStringVector & {
         return projectPart.headerPaths();
     };
 
-    return generateGlobal(m_projectParts, includeFunction);
+    Utils::PathStringVector headerPaths = generateGlobal<Utils::PathStringVector>(m_projectParts,
+                                                                                  includeFunction,
+                                                                                  m_generatedFiles.size());
+
+    Utils::PathStringVector generatedPath = generatedFilePaths(m_generatedFiles);
+
+    headerPaths.insert(headerPaths.end(),
+                       std::make_move_iterator(generatedPath.begin()),
+                       std::make_move_iterator(generatedPath.end()));
+
+    return headerPaths;
 }
 
-Utils::SmallStringVector PchCreator::generateGlobalSourcePaths() const
+Utils::PathStringVector PchCreator::generateGlobalSourcePaths() const
 {
     auto sourceFunction = [] (const V2::ProjectPartContainer &projectPart)
-            -> const Utils::SmallStringVector & {
+            -> const Utils::PathStringVector & {
         return projectPart.sourcePaths();
     };
 
-    return generateGlobal(m_projectParts, sourceFunction);
+    return generateGlobal<Utils::PathStringVector>(m_projectParts, sourceFunction);
 }
 
-Utils::SmallStringVector PchCreator::generateGlobalHeaderAndSourcePaths() const
+Utils::PathStringVector PchCreator::generateGlobalHeaderAndSourcePaths() const
 {
     const auto &sourcePaths = generateGlobalSourcePaths();
     auto includePaths = generateGlobalHeaderPaths();
@@ -212,6 +245,8 @@ std::vector<uint> PchCreator::generateGlobalPchIncludeIds() const
     collector.setExcludedIncludes(generateGlobalHeaderPaths());
 
     collector.addFiles(generateGlobalHeaderAndSourcePaths(), generateGlobalCommandLine());
+
+    collector.addUnsavedFiles(m_generatedFiles);
 
     collector.collectIncludes();
 
@@ -357,10 +392,29 @@ Utils::SmallString PchCreator::generateProjectPartPchFilePathWithoutExtension(
     return Utils::SmallString::fromQByteArray(fileName);
 }
 
-Utils::SmallStringVector PchCreator::generateProjectPartHeaderAndSourcePaths(
+Utils::PathStringVector PchCreator::generateProjectPartHeaders(
+        const V2::ProjectPartContainer &projectPart) const
+{
+   Utils::PathStringVector headerPaths;
+   headerPaths.reserve(projectPart.headerPaths().size() + m_generatedFiles.size());
+
+   std::copy(projectPart.headerPaths().begin(),
+             projectPart.headerPaths().end(),
+             std::back_inserter(headerPaths));
+
+   Utils::PathStringVector generatedPath = generatedFilePaths(m_generatedFiles);
+
+   std::copy(std::make_move_iterator(generatedPath.begin()),
+             std::make_move_iterator(generatedPath.end()),
+             std::back_inserter(headerPaths));
+
+   return headerPaths;
+}
+
+Utils::PathStringVector PchCreator::generateProjectPartHeaderAndSourcePaths(
         const V2::ProjectPartContainer &projectPart)
 {
-    Utils::SmallStringVector includeAndSources;
+    Utils::PathStringVector includeAndSources;
     includeAndSources.reserve(projectPart.headerPaths().size() + projectPart.sourcePaths().size());
 
     append(includeAndSources, projectPart.headerPaths());
@@ -374,10 +428,12 @@ std::vector<uint> PchCreator::generateProjectPartPchIncludes(
 {
     IncludeCollector collector(m_filePathCache);
 
-    collector.setExcludedIncludes(projectPart.headerPaths().clone());
+    collector.setExcludedIncludes(generateProjectPartHeaders(projectPart));
 
     collector.addFiles(generateProjectPartHeaderAndSourcePaths(projectPart),
                        generateProjectPartCommandLine(projectPart));
+
+    collector.addUnsavedFiles(m_generatedFiles);
 
     collector.collectIncludes();
 
