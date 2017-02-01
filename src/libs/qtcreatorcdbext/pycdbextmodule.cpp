@@ -104,6 +104,8 @@ static PyObject *cdbext_parseAndEvaluate(PyObject *, PyObject *args) // -> Value
     char *expr;
     if (!PyArg_ParseTuple(args, "s", &expr))
         Py_RETURN_NONE;
+    if (debugPyCdbextModule)
+        DebugPrint() << "evaluate expression: " << expr;
     CIDebugControl *control = ExtensionCommandContext::instance()->control();
     control->SetExpressionSyntax(DEBUG_EXPR_CPLUSPLUS);
     DEBUG_VALUE value;
