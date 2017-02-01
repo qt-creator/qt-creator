@@ -36,7 +36,7 @@
 
 namespace ClangBackEnd {
 
-PchCreator::PchCreator(Environment &environment, StringCache<Utils::SmallString> &filePathCache)
+PchCreator::PchCreator(Environment &environment, StringCache<Utils::PathString> &filePathCache)
    : m_environment(environment),
      m_filePathCache(filePathCache)
 {
@@ -44,7 +44,7 @@ PchCreator::PchCreator(Environment &environment, StringCache<Utils::SmallString>
 
 PchCreator::PchCreator(V2::ProjectPartContainers &&projectsParts,
                        Environment &environment,
-                       StringCache<Utils::SmallString> &filePathCache,
+                       StringCache<Utils::PathString> &filePathCache,
                        PchGeneratorInterface *pchGenerator,
                        V2::FileContainers &&generatedFiles)
     : m_projectParts(std::move(projectsParts)),
@@ -255,9 +255,9 @@ std::vector<uint> PchCreator::generateGlobalPchIncludeIds() const
 
 namespace {
 
-std::size_t contentSize(const std::vector<Utils::SmallString> &includes)
+std::size_t contentSize(const std::vector<Utils::PathString> &includes)
 {
-    auto countIncludeSize = [] (std::size_t size, const Utils::SmallString &include) {
+    auto countIncludeSize = [] (std::size_t size, const Utils::PathString &include) {
         return size + include.size();
     };
 
@@ -274,7 +274,7 @@ Utils::SmallString PchCreator::generatePchIncludeFileContent(
 
     fileContent.reserve(includes.size() * lineTemplateSize + contentSize(includes));
 
-    for (const Utils::SmallString &include : includes) {
+    for (const Utils::PathString &include : includes) {
         fileContent += "#include \"";
         fileContent += include;
         fileContent += "\"\n";

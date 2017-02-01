@@ -34,7 +34,7 @@ namespace ClangBackEnd {
 class IncludeCollector : public ClangTool
 {
 public:
-    IncludeCollector(StringCache<Utils::SmallString> &filePathCache);
+    IncludeCollector(StringCache<Utils::PathString> &filePathCache);
 
     void collectIncludes();
 
@@ -46,7 +46,7 @@ private:
     Utils::PathStringVector m_excludedIncludes;
     std::vector<uint> m_includeIds;
     Utils::SmallStringVector m_directories;
-    StringCache<Utils::SmallString> &m_filePathCache;
+    StringCache<Utils::PathString> &m_filePathCache;
 };
 
 } // namespace ClangBackEnd

@@ -235,7 +235,8 @@ HEADERS += \
     $$PWD/sizedarray.h \
     $$PWD/smallstringio.h \
     $$PWD/guard.h \
-    $$PWD/asconst.h
+    $$PWD/asconst.h \
+    $$PWD/smallstringfwd.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \

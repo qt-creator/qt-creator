@@ -33,7 +33,7 @@
 
 namespace ClangBackEnd {
 
-IncludeCollector::IncludeCollector(StringCache<Utils::SmallString> &filePathCache)
+IncludeCollector::IncludeCollector(StringCache<Utils::PathString> &filePathCache)
     :  m_filePathCache(filePathCache)
 {
 }

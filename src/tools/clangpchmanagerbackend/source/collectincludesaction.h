@@ -39,8 +39,8 @@ class CollectIncludesAction final : public clang::PreprocessOnlyAction
 {
 public:
     CollectIncludesAction(std::vector<uint> &includeIds,
-                          StringCache<Utils::SmallString> &filePathCache,
-                          const std::vector<uint> &excludedIncludeUID,
+                          StringCache<Utils::PathString> &filePathCache,
+                          std::vector<uint> &excludedIncludeUID,
                           std::vector<uint> &alreadyIncludedFileUIDs)
         : m_includeIds(includeIds),
           m_filePathCache(filePathCache),
@@ -77,8 +77,8 @@ public:
 
 private:
     std::vector<uint> &m_includeIds;
-    StringCache<Utils::SmallString> &m_filePathCache;
-    const std::vector<uint> &m_excludedIncludeUID;
+    StringCache<Utils::PathString> &m_filePathCache;
+    std::vector<uint> &m_excludedIncludeUID;
     std::vector<uint> &m_alreadyIncludedFileUIDs;
 };
 

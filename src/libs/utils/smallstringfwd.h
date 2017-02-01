@@ -25,25 +25,13 @@
 
 #pragma once
 
-#include <utils/smallstringfwd.h>
-
-#ifdef UNIT_TESTS
-#define unitttest_public public
-#define non_unittest_final
-#else
-#define unitttest_public private
-#define non_unittest_final final
-#endif
-
-namespace llvm {
-template <typename T, unsigned N>
-class SmallVector;
-}
+namespace Utils {
 
 using uint = unsigned int;
 
-namespace ClangBackEnd {
+template <uint Size>
+class BasicSmallString;
+using SmallString = BasicSmallString<31>;
+using PathString = BasicSmallString<190>;
 
-using USRName = llvm::SmallVector<char, 128>;
-
-}
+} // namespace Utils

@@ -37,7 +37,7 @@ class CollectIncludesToolAction final : public clang::tooling::FrontendActionFac
 {
 public:
     CollectIncludesToolAction(std::vector<uint> &includeIds,
-                              StringCache<Utils::SmallString> &filePathCache,
+                              StringCache<Utils::PathString> &filePathCache,
                               const Utils::PathStringVector &excludedIncludes)
         : m_includeIds(includeIds),
           m_filePathCache(filePathCache),
@@ -87,7 +87,7 @@ private:
     std::vector<uint> m_alreadyIncludedFileUIDs;
     std::vector<uint> m_excludedIncludeUIDs;
     std::vector<uint> &m_includeIds;
-    StringCache<Utils::SmallString> &m_filePathCache;
+    StringCache<Utils::PathString> &m_filePathCache;
     const Utils::PathStringVector &m_excludedIncludes;
 };
 

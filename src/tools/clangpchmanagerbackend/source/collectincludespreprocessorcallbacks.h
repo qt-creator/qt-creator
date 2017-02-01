@@ -44,7 +44,7 @@ class CollectIncludesPreprocessorCallbacks final : public clang::PPCallbacks
 public:
     CollectIncludesPreprocessorCallbacks(clang::HeaderSearch &headerSearch,
                                          std::vector<uint> &includeIds,
-                                         StringCache<Utils::SmallString> &filePathCache,
+                                         StringCache<Utils::PathString> &filePathCache,
                                          const std::vector<uint> &excludedIncludeUID,
                                          std::vector<uint>  &alreadyIncludedFileUIDs)
         : m_headerSearch(headerSearch),
@@ -119,7 +119,7 @@ public:
 private:
     clang::HeaderSearch &m_headerSearch;
     std::vector<uint> &m_includeIds;
-    StringCache<Utils::SmallString> &m_filePathCache;
+    StringCache<Utils::PathString> &m_filePathCache;
     const std::vector<uint> &m_excludedIncludeUID;
     std::vector<uint> &m_alreadyIncludedFileUIDs;
 };

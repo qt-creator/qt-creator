@@ -48,10 +48,10 @@ class PchCreator final : public PchCreatorInterface
 {
 public:
     PchCreator(Environment &environment,
-               StringCache<Utils::SmallString> &filePathCache);
+               StringCache<Utils::PathString> &filePathCache);
     PchCreator(V2::ProjectPartContainers &&projectsParts,
                Environment &environment,
-               StringCache<Utils::SmallString> &filePathCache,
+               StringCache<Utils::PathString> &filePathCache,
                PchGeneratorInterface *pchGenerator,
                V2::FileContainers &&generatedFiles);
 
@@ -123,7 +123,7 @@ private:
     std::vector<ProjectPartPch> m_projectPartPchs;
     std::vector<IdPaths> m_projectsIncludeIds;
     Environment &m_environment;
-    StringCache<Utils::SmallString> &m_filePathCache;
+    StringCache<Utils::PathString> &m_filePathCache;
     PchGeneratorInterface *m_pchGenerator = nullptr;
 };
 

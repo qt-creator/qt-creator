@@ -43,7 +43,7 @@ protected:
     uint id(const Utils::SmallString &path);
 
 protected:
-    ClangBackEnd::StringCache<Utils::SmallString> filePathCache;
+    ClangBackEnd::StringCache<Utils::PathString> filePathCache;
     ClangBackEnd::IncludeCollector collector{filePathCache};
 };
 

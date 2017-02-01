@@ -29,6 +29,8 @@
 
 #include <QtCore/qglobal.h>
 
+#include <utils/smallstringfwd.h>
+
 #ifdef UNIT_TESTS
 #include <gtest/gtest.h>
 #endif
@@ -50,13 +52,6 @@
 #else
 #define unitttest_public private
 #endif
-
-namespace Utils {
-template <uint Size>
-class BasicSmallString;
-using SmallString = BasicSmallString<31>;
-using PathString = BasicSmallString<190>;
-}
 
 namespace ClangBackEnd {
 

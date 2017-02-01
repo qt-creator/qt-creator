@@ -25,15 +25,11 @@
 
 #pragma once
 
+#include <utils/smallstringfwd.h>
+
 #include <vector>
 
 using uint = unsigned int;
-
-namespace Utils {
-template <uint Size>
-class BasicSmallString;
-using SmallString = BasicSmallString<31>;
-}
 
 namespace llvm {
 class StringRef;

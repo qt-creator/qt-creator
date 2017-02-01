@@ -61,7 +61,7 @@ protected:
     uint id(const Utils::SmallString &path);
 
 protected:
-    ClangBackEnd::StringCache<Utils::SmallString> filePathCache;
+    ClangBackEnd::StringCache<Utils::PathString> filePathCache;
     PathString main1Path = TESTDATA_DIR "/includecollector_main3.cpp";
     PathString main2Path = TESTDATA_DIR "/includecollector_main2.cpp";
     PathString header1Path = TESTDATA_DIR "/includecollector_header1.h";
