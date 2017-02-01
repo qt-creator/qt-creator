@@ -70,6 +70,7 @@ public:
 
 using ProjectFiles = QVector<ProjectFile>;
 
+const char *projectFileKindToText(ProjectFile::Kind kind);
 QDebug operator<<(QDebug stream, const CppTools::ProjectFile &projectFile);
 
 } // namespace CppTools

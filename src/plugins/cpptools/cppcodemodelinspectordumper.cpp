@@ -154,24 +154,7 @@ QString Utils::toString(ProjectPart::QtVersion qtVersion)
 
 QString Utils::toString(ProjectFile::Kind kind)
 {
-#define CASE_PROFECTFILEKIND(x) case ProjectFile::x: return QLatin1String(#x)
-    switch (kind) {
-    CASE_PROFECTFILEKIND(Unclassified);
-    CASE_PROFECTFILEKIND(CHeader);
-    CASE_PROFECTFILEKIND(CSource);
-    CASE_PROFECTFILEKIND(CXXHeader);
-    CASE_PROFECTFILEKIND(CXXSource);
-    CASE_PROFECTFILEKIND(ObjCHeader);
-    CASE_PROFECTFILEKIND(ObjCSource);
-    CASE_PROFECTFILEKIND(ObjCXXHeader);
-    CASE_PROFECTFILEKIND(ObjCXXSource);
-    CASE_PROFECTFILEKIND(CudaSource);
-    CASE_PROFECTFILEKIND(OpenCLSource);
-    CASE_PROFECTFILEKIND(AmbiguousHeader);
-    // no default to get a compiler warning if anything is added
-    }
-#undef CASE_PROFECTFILEKIND
-    return QString();
+    return QString::fromLatin1(projectFileKindToText(kind));
 }
 
 QString Utils::toString(CPlusPlus::Kind kind)

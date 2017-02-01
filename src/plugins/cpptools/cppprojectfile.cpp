@@ -120,7 +120,7 @@ bool ProjectFile::isSource() const
 }
 
 #define RETURN_TEXT_FOR_CASE(enumValue) case ProjectFile::enumValue: return #enumValue
-static const char *projectFileKindToText(ProjectFile::Kind kind)
+const char *projectFileKindToText(ProjectFile::Kind kind)
 {
     switch (kind) {
         RETURN_TEXT_FOR_CASE(Unclassified);
