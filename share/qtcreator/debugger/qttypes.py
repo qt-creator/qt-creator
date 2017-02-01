@@ -737,8 +737,13 @@ def qdump__QHostAddress(d, value):
     qtVersion = d.qtVersion()
     tiVersion = d.qtTypeInfoVersion()
     #warn('QT: %x, TI: %s' % (qtVersion, tiVersion))
+    mayNeedParse = True
     if tiVersion is not None:
-        if tiVersion >= 5:
+        if tiVersion >= 16:
+            # After a6cdfacf
+            p, scopeId, a6, a4, protocol = d.split('p{QString}16s{quint32}B', dd)
+            mayNeedParse = False
+        elif tiVersion >= 5:
             # Branch 5.8.0 at f70b4a13  TI: 15
             # Branch 5.7.0 at b6cf0418  TI: 5
             (ipString, scopeId, a6, a4, protocol, isParsed) \
@@ -760,8 +765,9 @@ def qdump__QHostAddress(d, value):
         (a4, a6, protocol, pad, ipString, isParsed, pad, scopeId) \
                 = d.split('{quint32}16sB@{QString}{bool}@{QString}', dd)
 
-    (ipStringData, ipStringSize, ipStringAlloc) = d.stringData(ipString)
-    if isParsed.integer() and ipStringSize > 0:
+    if mayNeedParse:
+        ipStringData, ipStringSize, ipStringAlloc = d.stringData(ipString)
+    if mayNeedParse and isParsed.integer() and ipStringSize > 0:
         d.putStringValue(ipString)
     else:
         # value.d.d->protocol:
@@ -786,9 +792,10 @@ def qdump__QHostAddress(d, value):
     d.putNumChild(4)
     if d.isExpanded():
         with Children(d):
-            d.putSubItem('ipString', ipString)
+            if mayNeedParse:
+                d.putSubItem('ipString', ipString)
+                d.putSubItem('isParsed', isParsed)
             d.putSubItem('scopeId', scopeId)
-            d.putSubItem('isParsed', isParsed)
             d.putSubItem('a', a4)
 
 

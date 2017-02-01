@@ -2047,7 +2047,7 @@ void tst_Dumpers::dumper_data()
                + NetworkProfile()
 
                + Check("ha1", "129.0.0.130", "@QHostAddress")
-               + Check("ha2", "\"127.0.0.1\"", "@QHostAddress")
+               + Check("ha2", ValuePattern(".*127.0.0.1.*"), "@QHostAddress")
                + Check("addr", "1:203:506:0:809:a0b:0:0", "@QIPv6Address")
                + Check("addr.3", "[3]", "3", "unsigned char");
 
@@ -3695,26 +3695,26 @@ void tst_Dumpers::dumper_data()
 
                + NetworkProfile()
 
-               + Check("ha", "\"127.0.0.1\"", "@QHostAddress")
+               + Check("ha", ValuePattern(".*127.0.0.1.*"), "@QHostAddress")
                + Check("ha.a", "2130706433", TypeDef("unsigned int", "@quint32"))
-               + Check("ha.ipString", "\"127.0.0.1\"", "@QString")
-               + Check("ha.isParsed", "1", "bool")
+               + Check("ha.ipString", ValuePattern(".*127.0.0.1.*"), "@QString")
+                    % QtVersion(0, 0x50800)
                //+ Check("ha.protocol", "@QAbstractSocket::IPv4Protocol (0)",
                //        "@QAbstractSocket::NetworkLayerProtocol") % GdbEngine
                //+ Check("ha.protocol", "IPv4Protocol",
                //        "@QAbstractSocket::NetworkLayerProtocol") % LldbEngine
                + Check("ha.scopeId", "\"\"", "@QString")
-               + Check("ha1", "\"127.0.0.1\"", "@QHostAddress")
+               + Check("ha1", ValuePattern(".*127.0.0.1.*"), "@QHostAddress")
                + Check("ha1.a", "2130706433", TypeDef("unsigned int", "@quint32"))
                + Check("ha1.ipString", "\"127.0.0.1\"", "@QString")
-               + Check("ha1.isParsed", "1", "bool")
+                    % QtVersion(0, 0x50800)
                //+ Check("ha1.protocol", "@QAbstractSocket::IPv4Protocol (0)",
                //        "@QAbstractSocket::NetworkLayerProtocol") % GdbEngine
                //+ Check("ha1.protocol", "IPv4Protocol",
                //        "@QAbstractSocket::NetworkLayerProtocol") % LldbEngine
                + Check("ha1.scopeId", "\"\"", "@QString")
                + Check("var", "", "@QVariant (@QHostAddress)")
-               + Check("var.data", "\"127.0.0.1\"", "@QHostAddress");
+               + Check("var.data", ValuePattern(".*127.0.0.1.*"), "@QHostAddress");
 
 
     QTest::newRow("QVariantList")
