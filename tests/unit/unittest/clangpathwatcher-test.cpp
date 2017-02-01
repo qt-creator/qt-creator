@@ -46,15 +46,15 @@ using ClangBackEnd::WatcherEntry;
 class ClangPathWatcher : public testing::Test
 {
 protected:
-    ClangBackEnd::StringCache<Utils::SmallString> pathCache;
+    ClangBackEnd::StringCache<Utils::PathString> pathCache;
     NiceMock<MockClangPathWatcherNotifier> notifier;
     Watcher watcher{pathCache, &notifier};
     NiceMock<MockQFileSytemWatcher> &mockQFileSytemWatcher = watcher.fileSystemWatcher();
     Utils::SmallString id1{"id4"};
     Utils::SmallString id2{"id2"};
     Utils::SmallString id3{"id3"};
-    Utils::SmallString path1{"/path/path1"};
-    Utils::SmallString path2{"/path/path2"};
+    Utils::PathString path1{"/path/path1"};
+    Utils::PathString path2{"/path/path2"};
     std::vector<uint> paths = watcher.pathCache().stringIds({path1, path2});
     std::vector<uint> ids = watcher.idCache().stringIds({id1, id2, id3});
     WatcherEntry watcherEntry1{ids[0], paths[0]};

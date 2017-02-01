@@ -79,7 +79,7 @@ TEST_F(ChangedFilePathCompressor, CallTimeOutAfterAddingPath)
 
 void ChangedFilePathCompressor::SetUp()
 {
-    compressor.setCallback([&] (Utils::SmallStringVector &&filePaths) {
+    compressor.setCallback([&] (Utils::PathStringVector &&filePaths) {
         mockCompressor.callbackCalled(filePaths);
     });
 }

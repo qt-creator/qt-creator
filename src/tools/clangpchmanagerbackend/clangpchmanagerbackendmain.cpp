@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
 
     const QString connection =  processArguments(application);
 
-    StringCache<Utils::SmallString> filePathCache;
+    StringCache<Utils::PathString> filePathCache;
     ClangPathWatcher<QFileSystemWatcher, QTimer> includeWatcher(filePathCache);
     ApplicationEnvironment environment;
     PchGenerator<QProcess> pchGenerator(environment);

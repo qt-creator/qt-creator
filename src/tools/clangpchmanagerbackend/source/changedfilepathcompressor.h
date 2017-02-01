@@ -55,12 +55,12 @@ public:
         restartTimer();
     }
 
-    Utils::SmallStringVector takeFilePaths()
+    Utils::PathStringVector takeFilePaths()
     {
         return std::move(m_filePaths);
     }
 
-    virtual void setCallback(std::function<void(Utils::SmallStringVector &&)> &&callback)
+    virtual void setCallback(std::function<void(Utils::PathStringVector &&)> &&callback)
     {
         QObject::connect(&m_timer,
                          &Timer::timeout,
@@ -79,7 +79,7 @@ unitttest_public:
     }
 
 private:
-    Utils::SmallStringVector m_filePaths;
+    Utils::PathStringVector m_filePaths;
     Timer m_timer;
 };
 

@@ -38,6 +38,6 @@ public:
                  void ());
 
     MOCK_METHOD1(callbackCalled,
-                 void (const Utils::SmallStringVector &filePaths));
+                 void (const Utils::PathStringVector &filePaths));
 };
 

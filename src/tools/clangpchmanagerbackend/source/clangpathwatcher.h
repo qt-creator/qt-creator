@@ -68,7 +68,7 @@ template <typename FileSystemWatcher,
 class ClangPathWatcher : public ClangPathWatcherInterface
 {
 public:
-    ClangPathWatcher(StringCache<Utils::SmallString> &pathCache,
+    ClangPathWatcher(StringCache<Utils::PathString> &pathCache,
                      ClangPathWatcherNotifier *notifier=nullptr)
         : m_pathCache(pathCache),
           m_notifier(notifier)
@@ -77,14 +77,14 @@ public:
                          &FileSystemWatcher::fileChanged,
                          [&] (const QString &filePath) { compressChangedFilePath(filePath); });
 
-        m_changedFilePathCompressor.setCallback([&] (Utils::SmallStringVector &&filePaths) {
+        m_changedFilePathCompressor.setCallback([&] (Utils::PathStringVector &&filePaths) {
             addChangedPathForFilePath(std::move(filePaths));
         });
     }
 
     ~ClangPathWatcher()
     {
-        m_changedFilePathCompressor.setCallback([&] (Utils::SmallStringVector &&) {});
+        m_changedFilePathCompressor.setCallback([&] (Utils::PathStringVector &&) {});
     }
 
     void updateIdPaths(const std::vector<IdPaths> &idPaths) override
@@ -366,7 +366,7 @@ unitttest_public:
         m_changedFilePathCompressor.addFilePath(filePath);
     }
 
-    WatcherEntries watchedEntriesForPaths(Utils::SmallStringVector &&filePaths)
+    WatcherEntries watchedEntriesForPaths(Utils::PathStringVector &&filePaths)
     {
         std::vector<uint> pathIds = m_pathCache.stringIds(filePaths);
 
@@ -403,7 +403,7 @@ unitttest_public:
         return std::move(ids);
     }
 
-    void addChangedPathForFilePath(Utils::SmallStringVector &&filePaths)
+    void addChangedPathForFilePath(Utils::PathStringVector &&filePaths)
     {
         if (m_notifier) {
             WatcherEntries foundEntries = watchedEntriesForPaths(std::move(filePaths));
@@ -414,7 +414,7 @@ unitttest_public:
         }
     }
 
-    StringCache<Utils::SmallString> &pathCache()
+    StringCache<Utils::PathString> &pathCache()
     {
         return m_pathCache;
     }
@@ -429,7 +429,7 @@ private:
     WatcherEntries m_watchedEntries;
     ChangedFilePathCompressor<Timer> m_changedFilePathCompressor;
     FileSystemWatcher m_fileSystemWatcher;
-    StringCache<Utils::SmallString> &m_pathCache;
+    StringCache<Utils::PathString> &m_pathCache;
     ClangPathWatcherNotifier *m_notifier;
 };
 

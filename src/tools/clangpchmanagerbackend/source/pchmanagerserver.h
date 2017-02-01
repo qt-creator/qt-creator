@@ -42,7 +42,7 @@ class PchManagerServer : public PchManagerServerInterface,
                          public PchGeneratorNotifierInterface
 {
 public:
-    PchManagerServer(StringCache<Utils::SmallString> &filePathCache,
+    PchManagerServer(StringCache<Utils::PathString> &filePathCache,
                      ClangPathWatcherInterface &fileSystemWatcher,
                      PchCreatorInterface &pchCreator,
                      ProjectPartsInterface &projectParts);
@@ -56,7 +56,7 @@ public:
     void taskFinished(TaskFinishStatus status, const ProjectPartPch &projectPartPch) override;
 
 private:
-    StringCache<Utils::SmallString> &m_filePathCache;
+    StringCache<Utils::PathString> &m_filePathCache;
     ClangPathWatcherInterface &m_fileSystemWatcher;
     PchCreatorInterface &m_pchCreator;
     ProjectPartsInterface &m_projectParts;
