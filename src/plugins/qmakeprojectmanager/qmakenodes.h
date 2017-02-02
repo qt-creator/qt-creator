@@ -35,23 +35,14 @@
 
 #include <QHash>
 #include <QStringList>
-#include <QDateTime>
 #include <QMap>
 #include <QFutureWatcher>
 
 namespace Utils { class FileName; }
 
-namespace Core { class ICore; }
+namespace QtSupport { class ProFileReader; }
 
-namespace QtSupport {
-class BaseQtVersion;
-class ProFileReader;
-}
-
-namespace ProjectExplorer {
-class RunConfiguration;
-class Project;
-}
+namespace ProjectExplorer { class RunConfiguration; }
 
 namespace QmakeProjectManager {
 class QmakeBuildConfiguration;
@@ -125,7 +116,6 @@ public:
     ~QmakePriFileNode() override;
 
     void update(const Internal::PriFileEvalResult &result);
-
 
     // ProjectNode interface
     QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const override;
@@ -229,47 +219,6 @@ private:
     friend struct Internal::InternalNode;
 };
 
-namespace Internal {
-class QmakePriFile : public Core::IDocument
-{
-public:
-    QmakePriFile(QmakePriFileNode *qmakePriFile);
-
-    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override;
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
-
-private:
-    QmakePriFileNode *m_priFile;
-};
-
-class ProVirtualFolderNode : public ProjectExplorer::VirtualFolderNode
-{
-public:
-    explicit ProVirtualFolderNode(const Utils::FileName &folderPath, int priority, const QString &typeName)
-        : VirtualFolderNode(folderPath, priority), m_typeName(typeName)
-    { }
-
-    QString displayName() const override;
-
-    QString addFileFilter() const override;
-
-    void setAddFileFilter(const QString &filter)
-    {
-        m_addFileFilter = filter;
-    }
-
-    QString tooltip() const override
-    {
-        return QString();
-    }
-
-private:
-    QString m_typeName;
-    QString m_addFileFilter;
-};
-
-} // namespace Internal
-
 class QMAKEPROJECTMANAGER_EXPORT TargetInformation
 {
 public:
@@ -360,22 +309,19 @@ public:
     bool isDebugAndRelease() const;
     bool isQtcRunnable() const;
 
-    void setParseInProgress(bool b);
     void setParseInProgressRecursive(bool b);
-    void setValidParse(bool b);
-    void setValidParseRecursive(bool b);
 
     void asyncUpdate();
 
 private:
+    void setParseInProgress(bool b);
+    void setValidParseRecursive(bool b);
+
     void applyAsyncEvaluate();
 
     void setupReader();
     Internal::EvalInput evalInput() const;
 
-    static bool evaluateOne(
-            const Internal::EvalInput &input, ProFile *pro, QtSupport::ProFileReader *reader,
-            bool cumulative, QtSupport::ProFileReader **buildPassReader);
     static Internal::EvalResult *evaluate(const Internal::EvalInput &input);
     void applyEvaluate(Internal::EvalResult *parseResult);
 
@@ -386,9 +332,6 @@ private:
 
     void updateGeneratedFiles(const QString &buildDir);
 
-    static QStringList fileListForVar(
-            const QHash<QString, QVector<ProFileEvaluator::SourceFile> > &sourceFiles,
-            const QString &varName);
     static QString uiDirPath(QtSupport::ProFileReader *reader, const QString &buildDir);
     static QString mocDirPath(QtSupport::ProFileReader *reader, const QString &buildDir);
     static QString sysrootify(const QString &path, const QString &sysroot, const QString &baseDir, const QString &outputDir);

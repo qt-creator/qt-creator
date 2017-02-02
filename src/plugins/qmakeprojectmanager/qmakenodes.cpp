@@ -229,80 +229,53 @@ public:
     QStringList errors;
 };
 
-QString ProVirtualFolderNode::displayName() const
+class QmakePriFile : public Core::IDocument
 {
-    return m_typeName;
-}
+public:
+    QmakePriFile(QmakePriFileNode *qmakePriFile)
+        : IDocument(nullptr), m_priFile(qmakePriFile)
+    {
+        setId("Qmake.PriFile");
+        setMimeType(QLatin1String(QmakeProjectManager::Constants::PROFILE_MIMETYPE));
+        setFilePath(m_priFile->filePath());
+    }
 
-QString ProVirtualFolderNode::addFileFilter() const
-{
-    return m_addFileFilter;
-}
-
-} // namespace Internal
-} // namespace QMakeProjectManager
-
-QmakePriFile::QmakePriFile(QmakeProjectManager::QmakePriFileNode *qmakePriFile)
-    : IDocument(0), m_priFile(qmakePriFile)
-{
-    setId("Qmake.PriFile");
-    setMimeType(QLatin1String(QmakeProjectManager::Constants::PROFILE_MIMETYPE));
-    setFilePath(m_priFile->filePath());
-}
-
-Core::IDocument::ReloadBehavior QmakePriFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
-{
-    Q_UNUSED(state)
-    Q_UNUSED(type)
-    return BehaviorSilent;
-}
-
-bool QmakePriFile::reload(QString *errorString, ReloadFlag flag, ChangeType type)
-{
-    Q_UNUSED(errorString)
-    Q_UNUSED(flag)
-    if (type == TypePermissions)
+    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override
+    {
+        Q_UNUSED(state)
+        Q_UNUSED(type)
+        return BehaviorSilent;
+    }
+    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override
+    {
+        Q_UNUSED(errorString)
+        Q_UNUSED(flag)
+        if (type == TypePermissions)
+            return true;
+        m_priFile->scheduleUpdate();
         return true;
-    m_priFile->scheduleUpdate();
-    return true;
-}
+    }
 
-/*!
-  \class QmakePriFileNode
-  Implements abstract ProjectNode class
-  */
+private:
+    QmakePriFileNode *m_priFile;
+};
 
-namespace QmakeProjectManager {
-
-QmakePriFileNode::QmakePriFileNode(QmakeProject *project, QmakeProFileNode *qmakeProFileNode,
-                                   const FileName &filePath)
-        : ProjectNode(filePath),
-          m_project(project),
-          m_qmakeProFileNode(qmakeProFileNode),
-          m_projectFilePath(filePath),
-          m_projectDir(filePath.toFileInfo().absolutePath())
+class ProVirtualFolderNode : public VirtualFolderNode
 {
-    Q_ASSERT(project);
-    m_qmakePriFile = new QmakePriFile(this);
-    Core::DocumentManager::addDocument(m_qmakePriFile);
+public:
+    ProVirtualFolderNode(const Utils::FileName &folderPath, int priority, const QString &typeName);
 
-    setDisplayName(filePath.toFileInfo().completeBaseName());
-    setIcon(qmakeNodeStaticData()->projectIcon);
-}
+    QString displayName() const final { return m_typeName; }
+    QString addFileFilter() const final { return m_addFileFilter; }
+    QString tooltip() const final { return QString(); }
 
-QmakePriFileNode::~QmakePriFileNode()
-{
-    watchFolders(QSet<QString>());
-    delete m_qmakePriFile;
-}
+    void setAddFileFilter(const QString &filter) { m_addFileFilter = filter; }
 
-void QmakePriFileNode::scheduleUpdate()
-{
-    QtSupport::ProFileCacheManager::instance()->discardFile(m_projectFilePath.toString());
-    m_qmakeProFileNode->scheduleUpdate(QmakeProFileNode::ParseLater);
-}
+private:
+    QString m_typeName;
+    QString m_addFileFilter;
+};
 
-namespace Internal {
 struct InternalNode
 {
     QList<InternalNode *> virtualfolders;
@@ -466,7 +439,45 @@ struct InternalNode
         }
     }
 };
+
+ProVirtualFolderNode::ProVirtualFolderNode(const FileName &folderPath, int priority, const QString &typeName)
+    : VirtualFolderNode(folderPath, priority), m_typeName(typeName)
+{ }
+
 } // Internal
+
+/*!
+  \class QmakePriFileNode
+  Implements abstract ProjectNode class
+  */
+
+QmakePriFileNode::QmakePriFileNode(QmakeProject *project, QmakeProFileNode *qmakeProFileNode,
+                                   const FileName &filePath)
+    : ProjectNode(filePath),
+      m_project(project),
+      m_qmakeProFileNode(qmakeProFileNode),
+      m_projectFilePath(filePath),
+      m_projectDir(filePath.toFileInfo().absolutePath())
+{
+    Q_ASSERT(project);
+    m_qmakePriFile = new QmakePriFile(this);
+    Core::DocumentManager::addDocument(m_qmakePriFile);
+
+    setDisplayName(filePath.toFileInfo().completeBaseName());
+    setIcon(qmakeNodeStaticData()->projectIcon);
+}
+
+QmakePriFileNode::~QmakePriFileNode()
+{
+    watchFolders(QSet<QString>());
+    delete m_qmakePriFile;
+}
+
+void QmakePriFileNode::scheduleUpdate()
+{
+    QtSupport::ProFileCacheManager::instance()->discardFile(m_projectFilePath.toString());
+    m_qmakeProFileNode->scheduleUpdate(QmakeProFileNode::ParseLater);
+}
 
 QStringList QmakePriFileNode::baseVPaths(QtSupport::ProFileReader *reader, const QString &projectDir, const QString &buildDir)
 {
@@ -506,7 +517,7 @@ QSet<FileName> QmakePriFileNode::recursiveEnumerate(const QString &folder)
     return result;
 }
 
-QStringList QmakeProFileNode::fileListForVar(
+static QStringList fileListForVar(
         const QHash<QString, QVector<ProFileEvaluator::SourceFile> > &sourceFiles,
         const QString &varName)
 {
@@ -1561,22 +1572,15 @@ void QmakeProFileNode::setParseInProgress(bool b)
     emit m_project->proFileUpdated(this, m_validParse, m_parseInProgress);
 }
 
+// Do note the absence of signal emission, always set validParse
+// before setParseInProgress, as that will emit the signals
 void QmakeProFileNode::setValidParseRecursive(bool b)
 {
-    setValidParse(b);
+    m_validParse = b;
     foreach (ProjectNode *subNode, projectNodes()) {
         if (QmakeProFileNode *node = dynamic_cast<QmakeProFileNode *>(subNode))
             node->setValidParseRecursive(b);
     }
-}
-
-// Do note the absence of signal emission, always set validParse
-// before setParseInProgress, as that will emit the signals
-void QmakeProFileNode::setValidParse(bool b)
-{
-    if (m_validParse == b)
-        return;
-    m_validParse = b;
 }
 
 bool QmakeProFileNode::validParse() const
@@ -1635,7 +1639,7 @@ void QmakeProFileNode::setupReader()
     m_readerCumulative->setCumulative(true);
 }
 
-bool QmakeProFileNode::evaluateOne(
+static bool evaluateOne(
         const EvalInput &input, ProFile *pro, QtSupport::ProFileReader *reader,
         bool cumulative, QtSupport::ProFileReader **buildPassReader)
 {
