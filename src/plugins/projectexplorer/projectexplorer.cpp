@@ -763,7 +763,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             dd, &ProjectExplorerPluginPrivate::updateSessionMenu);
 
     // session manager action
-    dd->m_sessionManagerAction = new QAction(tr("Session Manager..."), this);
+    dd->m_sessionManagerAction = new QAction(tr("Session &Manager..."), this);
     cmd = ActionManager::registerAction(dd->m_sessionManagerAction, Constants::NEWSESSION);
     mfile->addAction(cmd, Core::Constants::G_FILE_OPEN);
     cmd->setDefaultKeySequence(QKeySequence());
