@@ -50,7 +50,6 @@ QVariant QuickTestTreeItem::data(int column, int role) const
         break;
     case Qt::CheckStateRole:
         switch (type()) {
-        case Root:
         case TestDataFunction:
         case TestSpecialFunction:
         case TestDataTag:

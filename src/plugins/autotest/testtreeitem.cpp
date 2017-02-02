@@ -42,7 +42,8 @@ TestTreeItem::TestTreeItem(const QString &name, const QString &filePath, Type ty
       m_filePath(filePath),
       m_type(type)
 {
-    m_checked = (m_type == TestCase || m_type == TestFunctionOrSet) ? Qt::Checked : Qt::Unchecked;
+    m_checked = (m_type == TestCase || m_type == TestFunctionOrSet || m_type == Root)
+            ? Qt::Checked : Qt::Unchecked;
 }
 
 static QIcon testTreeIcon(TestTreeItem::Type type)
@@ -103,7 +104,7 @@ Qt::ItemFlags TestTreeItem::flags(int /*column*/) const
     static const Qt::ItemFlags defaultFlags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
     switch (m_type) {
     case Root:
-        return Qt::ItemIsEnabled;
+        return Qt::ItemIsEnabled | Qt::ItemIsAutoTristate | Qt::ItemIsUserCheckable;
     case TestCase:
         return defaultFlags | Qt::ItemIsAutoTristate | Qt::ItemIsUserCheckable;
     case TestFunctionOrSet:
@@ -161,13 +162,14 @@ void TestTreeItem::setChecked(const Qt::CheckState checkState)
             parent->revalidateCheckState();
         break;
     }
+    case Root:
     case TestFunctionOrSet:
     case TestCase: {
         Qt::CheckState usedState = (checkState == Qt::Unchecked ? Qt::Unchecked : Qt::Checked);
         for (int row = 0, count = childCount(); row < count; ++row)
             childItem(row)->setChecked(usedState);
         m_checked = usedState;
-        if (m_type == TestFunctionOrSet) {
+        if (m_type != Root) {
             if (auto parent = parentItem())
                 parent->revalidateCheckState();
         }
@@ -181,6 +183,7 @@ void TestTreeItem::setChecked(const Qt::CheckState checkState)
 Qt::CheckState TestTreeItem::checked() const
 {
     switch (m_type) {
+    case Root:
     case TestCase:
     case TestFunctionOrSet:
     case TestDataTag:
@@ -295,7 +298,7 @@ QSet<QString> TestTreeItem::internalTargets() const
 void TestTreeItem::revalidateCheckState()
 {
     const Type ttiType = type();
-    if (ttiType != TestCase && ttiType != TestFunctionOrSet)
+    if (ttiType != TestCase && ttiType != TestFunctionOrSet && ttiType != Root)
         return;
     if (childCount() == 0) // can this happen? (we're calling revalidateCS() on parentItem()
         return;
@@ -317,13 +320,13 @@ void TestTreeItem::revalidateCheckState()
         foundPartiallyChecked |= (child->checked() == Qt::PartiallyChecked);
         if (foundPartiallyChecked || (foundChecked && foundUnchecked)) {
             m_checked = Qt::PartiallyChecked;
-            if (ttiType == TestFunctionOrSet)
+            if (ttiType == TestFunctionOrSet || ttiType == TestCase)
                 parentItem()->revalidateCheckState();
             return;
         }
     }
     m_checked = (foundUnchecked ? Qt::Unchecked : Qt::Checked);
-    if (ttiType == TestFunctionOrSet)
+    if (ttiType == TestFunctionOrSet || ttiType == TestCase)
         parentItem()->revalidateCheckState();
 }
 

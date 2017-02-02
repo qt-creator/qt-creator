@@ -135,6 +135,8 @@ private:
     unsigned m_column = 0;
     QString m_proFile;
     Status m_status = NewlyAdded;
+
+    friend class TestTreeModel; // grant access to (private) revalidateCheckState()
 };
 
 class TestCodeLocationAndType
