@@ -1,5 +1,9 @@
 INCLUDEPATH += $$PWD
 
+HEADERS += \
+    $$PWD/clangrefactoringbackend_global.h \
+
+!isEmpty(LIBTOOLING_LIBS) {
 SOURCES += \
     $$PWD/refactoringcompilationdatabase.cpp \
     $$PWD/symbolfinder.cpp \
@@ -14,7 +18,6 @@ SOURCES += \
 
 HEADERS += \
     $$PWD/refactoringcompilationdatabase.h \
-    $$PWD/clangrefactoringbackend_global.h \
     $$PWD/symbolfinder.h \
     $$PWD/symbollocationfinderaction.h \
     $$PWD/refactoringserver.h \
@@ -27,3 +30,4 @@ HEADERS += \
     $$PWD/clangtool.h \
     $$PWD/sourcerangeextractor.h \
     $$PWD/locationsourcefilecallbacks.h
+}

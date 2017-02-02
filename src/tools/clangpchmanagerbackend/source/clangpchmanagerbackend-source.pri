@@ -1,9 +1,7 @@
 INCLUDEPATH += $$PWD
 
 SOURCES += \
-    $$PWD/includecollector.cpp \
     $$PWD/pchmanagerserver.cpp \
-    $$PWD/pchcreator.cpp \
     $$PWD/clangpathwatcher.cpp \
     $$PWD/projectparts.cpp \
     $$PWD/idpaths.cpp \
@@ -16,12 +14,6 @@ SOURCES += \
 
 HEADERS += \
     $$PWD/clangpchmanagerbackend_global.h \
-    $$PWD/includecollector.h \
-    $$PWD/collectincludestoolaction.h \
-    $$PWD/collectincludesaction.h \
-    $$PWD/collectincludespreprocessorcallbacks.h \
-    $$PWD/pchmanagerserver.h \
-    $$PWD/pchcreator.h \
     $$PWD/pchnotcreatederror.h \
     $$PWD/environment.h \
     $$PWD/clangpathwatcher.h \
@@ -36,3 +28,16 @@ HEADERS += \
     $$PWD/pchgenerator.h \
     $$PWD/pchgeneratornotifierinterface.h \
     $$PWD/pchgeneratorinterface.h
+
+!isEmpty(LIBTOOLING_LIBS) {
+SOURCES += \
+    $$PWD/includecollector.cpp \
+    $$PWD/pchcreator.cpp
+
+HEADERS += \
+    $$PWD/includecollector.h \
+    $$PWD/collectincludestoolaction.h \
+    $$PWD/collectincludesaction.h \
+    $$PWD/collectincludespreprocessorcallbacks.h \
+    $$PWD/pchcreator.h
+}

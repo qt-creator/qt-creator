@@ -40,10 +40,6 @@ SOURCES += \
     utf8-test.cpp \
     gtest-qt-printing.cpp \
     gtest-creator-printing.cpp \
-    clangparsesupportivetranslationunitjob-test.cpp \
-    clangreparsesupportivetranslationunitjob-test.cpp \
-    clangsupportivetranslationunitinitializer-test.cpp \
-    codecompleter-test.cpp \
     clientserveroutsideprocess-test.cpp \
     clangpathwatcher-test.cpp \
     projectparts-test.cpp \
@@ -51,7 +47,11 @@ SOURCES += \
     changedfilepathcompressor-test.cpp \
     faketimer.cpp \
     pchgenerator-test.cpp \
-    fakeprocess.cpp
+    fakeprocess.cpp \
+    pchmanagerclient-test.cpp \
+    projectupdater-test.cpp \
+    pchmanagerserver-test.cpp \
+    pchmanagerclientserverinprocess-test.cpp \
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \
@@ -101,7 +101,11 @@ SOURCES += \
     translationunitupdater-test.cpp \
     unsavedfiles-test.cpp \
     unsavedfile-test.cpp \
-    utf8positionfromlinecolumn-test.cpp
+    utf8positionfromlinecolumn-test.cpp \
+    clangparsesupportivetranslationunitjob-test.cpp \
+    clangreparsesupportivetranslationunitjob-test.cpp \
+    clangsupportivetranslationunitinitializer-test.cpp \
+    codecompleter-test.cpp
 }
 
 !isEmpty(LIBTOOLING_LIBS) {
@@ -117,12 +121,8 @@ SOURCES += \
     sourcerangeextractor-test.cpp \
     gtest-clang-printing.cpp \
     testclangtool.cpp \
-    pchmanagerclientserverinprocess-test.cpp \
     includecollector-test.cpp \
-    pchmanagerserver-test.cpp \
-    pchcreator-test.cpp \
-    pchmanagerclient-test.cpp \
-    projectupdater-test.cpp
+    pchcreator-test.cpp
 }
 
 exists($$GOOGLEBENCHMARK_DIR) {
@@ -152,17 +152,22 @@ HEADERS += \
     mockchangedfilepathcompressor.h \
     faketimer.h \
     mockpchgeneratornotifier.h \
-    fakeprocess.h
+    fakeprocess.h \
+    mockpchmanagerserver.h \
+    mockpchmanagerclient.h \
+    testenvironment.h \
+    mockpchmanagernotifier.h \
+    mockpchcreator.h \
+    dummyclangipcclient.h \
+    mockclangcodemodelclient.h \
+    mockclangcodemodelserver.h
 
 !isEmpty(LIBCLANG_LIBS) {
 HEADERS += \
     chunksreportedmonitor.h \
     clangasyncjob-base.h \
     diagnosticcontainer-matcher.h \
-    clangcompareoperators.h \
-    dummyclangipcclient.h \
-    mockclangcodemodelclient.h \
-    mockclangcodemodelserver.h
+    clangcompareoperators.h
 }
 
 !isEmpty(LIBTOOLING_LIBS) {
@@ -171,12 +176,7 @@ HEADERS += \
     mockrefactoringclient.h \
     mockrefactoringserver.h \
     gtest-clang-printing.h \
-    testclangtool.h \
-    mockpchmanagerserver.h \
-    mockpchmanagerclient.h \
-    testenvironment.h \
-    mockpchmanagernotifier.h \
-    mockpchcreator.h
+    testclangtool.h
 }
 
 OTHER_FILES += $$files(data/*)
