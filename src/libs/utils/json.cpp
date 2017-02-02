@@ -706,7 +706,7 @@ JsonSchema *JsonSchemaManager::schemaByName(const QString &baseName) const
     QHash<QString, JsonSchemaData>::iterator it = m_schemas.find(baseName);
     if (it == m_schemas.end()) {
         foreach (const QString &path, m_searchPaths) {
-            QFileInfo candidate(path % baseName % QLatin1String(".json"));
+            QFileInfo candidate(path + baseName + ".json");
             if (candidate.exists()) {
                 m_schemas.insert(baseName, candidate.absoluteFilePath());
                 break;
