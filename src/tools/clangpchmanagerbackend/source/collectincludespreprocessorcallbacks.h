@@ -60,7 +60,7 @@ public:
                             bool /*isAngled*/,
                             clang::CharSourceRange /*fileNameRange*/,
                             const clang::FileEntry *file,
-                            llvm::StringRef /*searchPath*/,
+                            llvm::StringRef searchPath,
                             llvm::StringRef /*relativePath*/,
                             const clang::Module * /*imported*/) override
     {
@@ -73,7 +73,10 @@ public:
                 auto notAlreadyIncluded = isNotAlreadyIncluded(fileUID);
                 if (notAlreadyIncluded.first) {
                     m_alreadyIncludedFileUIDs.insert(notAlreadyIncluded.second, fileUID);
-                    uint includeId = m_filePathCache.stringId({fileName.data(), fileName.size()});
+                    Utils::PathString filePath = fromNativePath({{searchPath.data(), searchPath.size()},
+                                                                 "/",
+                                                                 {fileName.data(), fileName.size()}});
+                    uint includeId = m_filePathCache.stringId(filePath);
                     m_includeIds.emplace_back(includeId);
                 }
             }
@@ -103,6 +106,14 @@ public:
         headerFileInfo.isImport = true;
         ++headerFileInfo.NumIncludes;
 
+    }
+
+    Utils::PathString fromNativePath(Utils::PathString &&filePath)
+    {
+#ifdef _WIN32
+        filePath.replace('\\', '/');
+#endif
+        return std::move(filePath);
     }
 
 private:

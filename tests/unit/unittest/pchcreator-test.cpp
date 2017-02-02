@@ -132,16 +132,16 @@ TEST_F(PchCreatorVerySlowTest, CreateGlobalPchIncludes)
     auto includeIds = creator.generateGlobalPchIncludeIds();
 
     ASSERT_THAT(includeIds,
-                UnorderedElementsAre(id("includecollector_external3.h"),
-                                     id("includecollector_external1.h"),
-                                     id("includecollector_external2.h")));
+                UnorderedElementsAre(id(TESTDATA_DIR "/includecollector_external3.h"),
+                                     id(TESTDATA_DIR "/includecollector_external1.h"),
+                                     id(TESTDATA_DIR "/includecollector_external2.h")));
 }
 
 TEST_F(PchCreatorVerySlowTest, CreateGlobalPchFileContent)
 {
     auto content = creator.generateGlobalPchHeaderFileContent();
 
-    ASSERT_THAT(content, "#include <includecollector_external3.h>\n#include <includecollector_external1.h>\n#include <includecollector_external2.h>\n");
+    ASSERT_THAT(content, "#include <" TESTDATA_DIR "/includecollector_external3.h>\n#include <" TESTDATA_DIR "/includecollector_external1.h>\n#include <" TESTDATA_DIR "/includecollector_external2.h>\n");
 }
 
 TEST_F(PchCreatorVerySlowTest, CreateGlobalPchHeaderFile)
@@ -151,7 +151,7 @@ TEST_F(PchCreatorVerySlowTest, CreateGlobalPchHeaderFile)
 
     auto content = file->readAll();
 
-    ASSERT_THAT(content, "#include <includecollector_external3.h>\n#include <includecollector_external1.h>\n#include <includecollector_external2.h>\n");
+    ASSERT_THAT(content, "#include <" TESTDATA_DIR "/includecollector_external3.h>\n#include <" TESTDATA_DIR "/includecollector_external1.h>\n#include <" TESTDATA_DIR "/includecollector_external2.h>\n");
 }
 
 TEST_F(PchCreator, ConvertToQStringList)
@@ -203,9 +203,9 @@ TEST_F(PchCreatorSlowTest, CreateProjectPartPchIncludes)
 {
     auto includeIds = creator.generateProjectPartPchIncludes(projectPart1);
 
-    ASSERT_THAT(includeIds, UnorderedElementsAre(id("includecollector_external1.h"),
-                                                 id("includecollector_external2.h"),
-                                                 id("includecollector_header2.h")));
+    ASSERT_THAT(includeIds, UnorderedElementsAre(id(TESTDATA_DIR "/includecollector_external1.h"),
+                                                 id(TESTDATA_DIR "/includecollector_external2.h"),
+                                                 id(TESTDATA_DIR "/includecollector_header2.h")));
 }
 
 TEST_F(PchCreatorSlowTest, CreateProjectPartPchFileContent)
@@ -214,7 +214,7 @@ TEST_F(PchCreatorSlowTest, CreateProjectPartPchFileContent)
 
     auto content = creator.generatePchIncludeFileContent(includes);
 
-    ASSERT_THAT(content, "#include <includecollector_header2.h>\n#include <includecollector_external1.h>\n#include <includecollector_external2.h>\n");
+    ASSERT_THAT(content, "#include <" TESTDATA_DIR "/includecollector_header2.h>\n#include <" TESTDATA_DIR "/includecollector_external1.h>\n#include <" TESTDATA_DIR "/includecollector_external2.h>\n");
 }
 
 TEST_F(PchCreatorSlowTest, CreateProjectPartPchIncludeFile)
@@ -227,7 +227,7 @@ TEST_F(PchCreatorSlowTest, CreateProjectPartPchIncludeFile)
 
     auto fileContent = file->readAll();
 
-    ASSERT_THAT(fileContent, "#include <includecollector_header2.h>\n#include <includecollector_external1.h>\n#include <includecollector_external2.h>\n");
+    ASSERT_THAT(fileContent, "#include <" TESTDATA_DIR "/includecollector_header2.h>\n#include <" TESTDATA_DIR "/includecollector_external1.h>\n#include <" TESTDATA_DIR "/includecollector_external2.h>\n");
 }
 
 TEST_F(PchCreator, CreateProjectPartPchCompilerArguments)
@@ -303,14 +303,14 @@ TEST_F(PchCreatorVerySlowTest, IdPathsForCreatePchsForProjectParts)
 
     ASSERT_THAT(creator.takeProjectsIncludes(),
                 ElementsAre(AllOf(Field(&IdPaths::id, "project1"),
-                                  Field(&IdPaths::paths, UnorderedElementsAre(id("includecollector_header2.h"),
-                                                                              id("includecollector_external1.h"),
-                                                                              id("includecollector_external2.h")))),
+                                  Field(&IdPaths::paths, UnorderedElementsAre(id(TESTDATA_DIR "/includecollector_header2.h"),
+                                                                              id(TESTDATA_DIR "/includecollector_external1.h"),
+                                                                              id(TESTDATA_DIR "/includecollector_external2.h")))),
                             AllOf(Field(&IdPaths::id, "project2"),
-                                  Field(&IdPaths::paths, UnorderedElementsAre(id("includecollector_external1.h"),
-                                                                              id("includecollector_external3.h"),
-                                                                              id("includecollector_header1.h"),
-                                                                              id("../data/includecollector_external2.h"))))));
+                                  Field(&IdPaths::paths, UnorderedElementsAre(id(TESTDATA_DIR "/includecollector_external1.h"),
+                                                                              id(TESTDATA_DIR "/includecollector_external3.h"),
+                                                                              id(TESTDATA_DIR "/includecollector_header1.h"),
+                                                                              id(TESTDATA_DIR "/../data/includecollector_external2.h"))))));
 }
 
 uint PchCreator::id(const Utils::SmallString &path)

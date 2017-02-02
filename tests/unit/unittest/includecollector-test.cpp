@@ -52,15 +52,15 @@ TEST_F(IncludeCollector, IncludesExternalHeader)
     collector.collectIncludes();
 
     ASSERT_THAT(collector.takeIncludeIds(),
-                AllOf(Contains(id("includecollector_external1.h")),
-                      Contains(id("../data/includecollector_external2.h"))));
+                AllOf(Contains(id(TESTDATA_DIR "/includecollector_external1.h")),
+                      Contains(id(TESTDATA_DIR "/../data/includecollector_external2.h"))));
 }
 
 TEST_F(IncludeCollector, DoesNotIncludesInternalHeader)
 {
     collector.collectIncludes();
 
-    ASSERT_THAT(collector.takeIncludeIds(), Not(Contains(id("includecollector_header1.h"))));
+    ASSERT_THAT(collector.takeIncludeIds(), Not(Contains(id(TESTDATA_DIR "/includecollector_header1.h"))));
 }
 
 TEST_F(IncludeCollector, NoDuplicate)
@@ -68,8 +68,8 @@ TEST_F(IncludeCollector, NoDuplicate)
     collector.collectIncludes();
 
     ASSERT_THAT(collector.takeIncludeIds(),
-                UnorderedElementsAre(id("includecollector_external1.h"),
-                                     id("../data/includecollector_external2.h")));
+                UnorderedElementsAre(id(TESTDATA_DIR "/includecollector_external1.h"),
+                                     id(TESTDATA_DIR "/../data/includecollector_external2.h")));
 }
 
 TEST_F(IncludeCollector, IncludesAreSorted)
@@ -77,8 +77,8 @@ TEST_F(IncludeCollector, IncludesAreSorted)
     collector.collectIncludes();
 
     ASSERT_THAT(collector.takeIncludeIds(),
-                ElementsAre(id("includecollector_external1.h"),
-                            id("../data/includecollector_external2.h")));
+                ElementsAre(id(TESTDATA_DIR "/includecollector_external1.h"),
+                            id(TESTDATA_DIR "/../data/includecollector_external2.h")));
 }
 
 void IncludeCollector::SetUp()
