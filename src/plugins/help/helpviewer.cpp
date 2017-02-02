@@ -33,7 +33,6 @@
 #include <utils/temporarydirectory.h>
 
 #include <QFileInfo>
-#include <QStringBuilder>
 #include <QUrl>
 
 #include <QApplication>

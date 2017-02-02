@@ -29,7 +29,6 @@
 #include <utils/fileutils.h>
 
 #include <QDir>
-#include <QStringBuilder>
 #include <QDebug>
 #include <QJsonDocument>
 

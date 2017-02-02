@@ -33,7 +33,6 @@
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
-#include <QStringBuilder>
 #include <QTextDocument>
 #include <QDebug>
 
