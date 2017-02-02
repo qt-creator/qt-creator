@@ -263,13 +263,11 @@ private:
 class ProVirtualFolderNode : public VirtualFolderNode
 {
 public:
-    ProVirtualFolderNode(const Utils::FileName &folderPath, int priority, const QString &typeName);
+    ProVirtualFolderNode(InternalNode *node);
 
     QString displayName() const final { return m_typeName; }
     QString addFileFilter() const final { return m_addFileFilter; }
     QString tooltip() const final { return QString(); }
-
-    void setAddFileFilter(const QString &filter) { m_addFileFilter = filter; }
 
 private:
     QString m_typeName;
@@ -382,14 +380,10 @@ struct InternalNode
     FolderNode *createFolderNode(InternalNode *node)
     {
         FolderNode *newNode = 0;
-        if (node->typeName.isEmpty()) {
+        if (node->typeName.isEmpty())
             newNode = new FolderNode(FileName::fromString(node->fullPath));
-        } else {
-            auto n = new ProVirtualFolderNode(FileName::fromString(node->fullPath),
-                                              node->priority, node->typeName);
-            n->setAddFileFilter(node->addFileFilter);
-            newNode = n;
-        }
+        else
+            newNode = new ProVirtualFolderNode(node);
 
         newNode->setDisplayName(node->displayName);
         if (!node->icon.isNull())
@@ -440,9 +434,11 @@ struct InternalNode
     }
 };
 
-ProVirtualFolderNode::ProVirtualFolderNode(const FileName &folderPath, int priority, const QString &typeName)
-    : VirtualFolderNode(folderPath, priority), m_typeName(typeName)
-{ }
+ProVirtualFolderNode::ProVirtualFolderNode(InternalNode *node)
+    : VirtualFolderNode(FileName::fromString(node->fullPath), node->priority),
+      m_typeName(node->typeName),
+      m_addFileFilter(node->addFileFilter)
+{}
 
 } // Internal
 
