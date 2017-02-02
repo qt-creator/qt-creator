@@ -473,6 +473,17 @@ public:
             replaceLargerSized(fromText, toText);
     }
 
+    void replace(char fromCharacter, char toCharacter)
+    {
+        reserve(size());
+
+        auto operation = [=] (char currentCharacter) {
+            return currentCharacter == fromCharacter ? toCharacter : currentCharacter;
+        };
+
+        std::transform(begin(), end(), begin(), operation);
+    }
+
     void replace(size_type position, size_type length, SmallStringView replacementText)
     {
         size_type newSize = size() - length + replacementText.size();

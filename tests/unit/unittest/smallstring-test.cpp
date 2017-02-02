@@ -747,6 +747,15 @@ TEST(SmallString, Clear)
     ASSERT_TRUE(text.isEmpty());
 }
 
+TEST(SmallString, ReplaceWithCharacter)
+{
+    SmallString text("here is some text, here is some text, here is some text");
+
+    text.replace('s', 'x');
+
+    ASSERT_THAT(text, SmallString("here ix xome text, here ix xome text, here ix xome text"));
+}
+
 TEST(SmallString, ReplaceWithEqualSizedText)
 {
     SmallString text("here is some text");
