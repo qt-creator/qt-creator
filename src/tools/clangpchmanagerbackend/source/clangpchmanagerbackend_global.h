@@ -28,10 +28,10 @@
 #include <utils/smallstringfwd.h>
 
 #ifdef UNIT_TESTS
-#define unitttest_public public
+#define unittest_public public
 #define non_unittest_final
 #else
-#define unitttest_public private
+#define unittest_public private
 #define non_unittest_final final
 #endif
 

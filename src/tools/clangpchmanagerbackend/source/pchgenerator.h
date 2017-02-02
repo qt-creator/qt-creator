@@ -63,7 +63,7 @@ public:
         m_notifier = notifier;
     }
 
-unitttest_public:
+unittest_public:
     Process *addTask(Utils::SmallStringVector &&compilerArguments, ProjectPartPch &&projectPartPch)
     {
         auto process = std::make_unique<Process>();

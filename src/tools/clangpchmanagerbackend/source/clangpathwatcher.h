@@ -110,7 +110,7 @@ public:
         m_notifier = notifier;
     }
 
-unitttest_public:
+unittest_public:
     static std::vector<uint> idsFromIdPaths(const std::vector<IdPaths> &idPaths)
     {
         std::vector<uint> ids;

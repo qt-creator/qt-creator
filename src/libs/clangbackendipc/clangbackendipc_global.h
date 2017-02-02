@@ -48,9 +48,9 @@
 #endif
 
 #ifdef UNIT_TESTS
-#define unitttest_public public
+#define unittest_public public
 #else
-#define unitttest_public private
+#define unittest_public private
 #endif
 
 namespace ClangBackEnd {

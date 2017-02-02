@@ -48,9 +48,9 @@
 #include <vector>
 
 #ifdef UNIT_TESTS
-#define unitttest_public public
+#define unittest_public public
 #else
-#define unitttest_public private
+#define unittest_public private
 #endif
 
 namespace Utils {
@@ -658,7 +658,7 @@ public:
         return comparison < 0;
     }
 
-unitttest_public:
+unittest_public:
     bool isShortString() const noexcept
     {
         return !m_data.shortString.isReference;

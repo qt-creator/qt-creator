@@ -42,7 +42,7 @@ public:
     void remove(const Utils::SmallStringVector &projectPartIds) override;
     V2::ProjectPartContainers projects(const Utils::SmallStringVector &projectPartIds) const override;
 
-unitttest_public:
+unittest_public:
     static V2::ProjectPartContainers uniqueProjectParts(V2::ProjectPartContainers &&projectsParts);
     V2::ProjectPartContainers newProjectParts(V2::ProjectPartContainers &&projectsParts) const;
     void mergeProjectParts(const V2::ProjectPartContainers &projectsParts);

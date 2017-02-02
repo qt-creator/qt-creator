@@ -68,7 +68,7 @@ public:
 
     void setRefactoringConnectionClient(ClangBackEnd::RefactoringConnectionClient *connectionClient);
 
-unitttest_public:
+unittest_public:
     void addSearchResult(const ClangBackEnd::SourceRangeWithTextContainer &sourceRange,
                          std::unordered_map<uint, QString> &filePaths);
 

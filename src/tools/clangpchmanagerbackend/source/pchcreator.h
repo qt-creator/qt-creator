@@ -61,7 +61,7 @@ public:
 
     void setGenerator(PchGeneratorInterface *pchGenerator);
 
-unitttest_public:
+unittest_public:
     Utils::PathStringVector generateGlobalHeaderPaths() const;
     Utils::PathStringVector generateGlobalSourcePaths() const;
     Utils::PathStringVector generateGlobalHeaderAndSourcePaths() const;

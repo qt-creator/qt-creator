@@ -45,7 +45,7 @@ public:
 
     void setConnectionClient(PchManagerConnectionClient *connectionClient);
 
-unitttest_public:
+unittest_public:
     const std::vector<PchManagerNotifierInterface*> &notifiers() const;
     void precompiledHeaderUpdated(const QString &projectPartId, const QString &pchFilePath);
 

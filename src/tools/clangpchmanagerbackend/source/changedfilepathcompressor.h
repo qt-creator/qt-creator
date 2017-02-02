@@ -67,7 +67,7 @@ public:
                          [this, callback=std::move(callback)] { callback(takeFilePaths()); });
     }
 
-unitttest_public:
+unittest_public:
     virtual void restartTimer()
     {
         m_timer.start(20);
