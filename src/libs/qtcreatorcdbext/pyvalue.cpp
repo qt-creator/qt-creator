@@ -104,7 +104,7 @@ ULONG64 PyValue::bitsize()
 
 Bytes PyValue::asBytes()
 {
-    if (m_symbolGroup)
+    if (!m_symbolGroup)
         return Bytes();
     ULONG64 address = 0;
     if (FAILED(m_symbolGroup->GetSymbolOffset(m_index, &address)))
