@@ -45,6 +45,10 @@ defineReplace(findClangLibInLibDir) {
     } else {
         exists ($${libdir}/libclang.*) {
             return("-llibclang")
+        } else {
+            exists ($${libdir}/liblibclang.dll.a) {
+                return("-llibclang.dll")
+            }
         }
     }
 }
@@ -78,8 +82,11 @@ LLVM_LIBDIR = $$quote($$system($$llvm_config --libdir, lines))
 LLVM_INCLUDEPATH = $$system($$llvm_config --includedir, lines)
 output = $$system($$llvm_config --version, lines)
 LLVM_VERSION = $$extractVersion($$output)
-unix:LLVM_STATIC_LIBS_STRING += $$system($$llvm_config --libs, lines)
-win32:LLVM_STATIC_LIBS_STRING += $$system($$llvm_config --libnames, lines)
+msvc {
+    LLVM_STATIC_LIBS_STRING += $$system($$llvm_config --libnames, lines)
+} else {
+    LLVM_STATIC_LIBS_STRING += $$system($$llvm_config --libs, lines)
+}
 LLVM_STATIC_LIBS_STRING += $$system($$llvm_config --system-libs, lines)
 
 LLVM_STATIC_LIBS = $$split(LLVM_STATIC_LIBS_STRING, " ")
