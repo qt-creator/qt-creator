@@ -184,7 +184,7 @@ void CppEditorWidget::finalizeInitialization()
             &d->m_localRenaming,
             &CppLocalRenaming::updateSelectionsForVariableUnderCursor);
 
-    connect(&d->m_useSelectionsUpdater, &CppUseSelectionsUpdater::finished,
+    connect(&d->m_useSelectionsUpdater, &CppUseSelectionsUpdater::finished, this,
             [this] (SemanticInfo::LocalUseMap localUses) {
                 QTC_CHECK(isSemanticInfoValidExceptLocalUses());
                 d->m_lastSemanticInfo.localUsesUpdated = true;
@@ -201,7 +201,7 @@ void CppEditorWidget::finalizeInitialization()
     connect(this, &QPlainTextEdit::cursorPositionChanged,
             d->m_cppEditorOutline, &CppEditorOutline::updateIndex);
 
-    connect(cppEditorDocument(), &CppEditorDocument::preprocessorSettingsChanged,
+    connect(cppEditorDocument(), &CppEditorDocument::preprocessorSettingsChanged, this,
             [this](bool customSettings) {
         d->m_preprocessorButton->setProperty("highlightWidget", customSettings);
         d->m_preprocessorButton->update();
@@ -216,7 +216,7 @@ void CppEditorWidget::finalizeInitialization()
     connect(this, &QPlainTextEdit::textChanged, this, &CppEditorWidget::updateFunctionDeclDefLink);
 
     // set up the use highlighitng
-    connect(this, &CppEditorWidget::cursorPositionChanged, [this]() {
+    connect(this, &CppEditorWidget::cursorPositionChanged, this, [this]() {
         if (!d->m_localRenaming.isActive())
             d->m_useSelectionsUpdater.scheduleUpdate();
 
