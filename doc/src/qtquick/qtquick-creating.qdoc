@@ -50,55 +50,54 @@
             a QQuickView. You can build the application and deploy it to desktop,
             embedded, and mobile target platforms.
 
-        \li \uicontrol {Qt Quick Controls 2 Application} and
-            \uicontrol {Qt Quick Controls Application} are like
+        \li \uicontrol {Qt Quick Controls 2 Application} is like
             \uicontrol {Qt Quick Application}, but using
             \l{http://doc.qt.io/qt-5/qtquickcontrols2-index.html}
-            {Qt Quick Controls 2} (requires Qt 5.7 or later) or
-            \l{http://doc.qt.io/qt-5/qtquickcontrols-index.html}
-            {Qt Quick Controls}.
+            {Qt Quick Controls 2} (requires Qt 5.7 or later).
 
         \li \uicontrol {Qt Canvas 3D Application} creates a Qt Quick application
             that imports the Qt Canvas 3D module and, optionally, includes
             \l{http://threejs.org}{three.js}.
 
-        \li \uicontrol {Qt Quick UI} (in the \uicontrol {Other Project}
+        \li \uicontrol {Qt Quick 2 UI} (in the \uicontrol {Other Project}
             category) creates a Qt Quick UI project with a single QML file that
-            contains the main view. You can review Qt Quick UI projects in a
-            \l{Previewing QML Files}{preview tool} and you need not build them.
-            They do not contain any C++ code.
+            contains the main view. You can review Qt Quick 2 UI projects in the
+            \l{Previewing QML Files}{QML Scene preview tool}. You do not need to
+            build them, because they do not contain any C++ code.
 
-        \li \uicontrol {Qt Quick Extension Plugins} (in the \uicontrol Library category)
+        \li \uicontrol {Qt Quick 2 Extension Plugin} (in the \uicontrol Library category)
             create C++ plugins that make it possible to offer extensions that
-            can be loaded dynamically into Qt Quick applications. Select
-            \uicontrol {Qt Quick 1 Extension Plugin} to create extensions for
-            Qt Quick 1 applications and \uicontrol {Qt Quick 2 Extension Plugin} to
-            create extensions for Qt Quick 2 applications.
+            can be loaded dynamically into Qt Quick 2 applications.
 
     \endlist
+
+    \note The SDK for a particular target platform might install additional
+    templates for that platform. For example, the QNX templates are installed
+    as part of the QNX SDK.
+
+    \QC creates the necessary boilerplate files. Some of the files are
+    specific to a particular target platform.
 
     \section1 Creating Qt Quick Applications
 
     \list 1
 
         \li Select \uicontrol File > \uicontrol {New File or Project} >
-            \uicontrol Application > \uicontrol {Qt Quick Application} or
-            \uicontrol {Qt Quick Controls 2 Application} > \uicontrol Choose.
+            \uicontrol Application > \uicontrol {Qt Quick Application} >
+            \uicontrol Choose.
 
-        \li For some Qt Quick applications, you must select the Qt version to
+        \li Select the Qt version to
             develop with in the \uicontrol {Minimal required Qt version} field.
             The Qt version determines the Qt Quick imports that are used in the
             QML files.
 
-        \li For some Qt Quick applications, you can select the
+        \li Select the
             \uicontrol {With .ui.qml file} check box to create an UI
             form that can contain a subset of the QML language. Similarly as
             with the UI forms for \QD, it is recommended that you use \QMLD to
             edit the UI forms. For more information, see \l{Qt Quick UI Forms}.
 
-        \li For some Qt Quick applications, you can also select the
-            \uicontrol {Enable native styling} check box. \QC adds a dependency
-            to the Qt Widgets module to the \c .pro file.
+        \li Select \uicontrol Next (or \uicontrol Continue on \macos).
 
         \li Select \l{glossary-buildandrun-kit}{kits} for running and building
             your project, and then click \uicontrol Next.
@@ -112,20 +111,21 @@
 
     \endlist
 
-    \note The SDK for a particular target platform might install additional
-    templates for that platform. For example, the QNX templates are installed
-    as part of the QNX SDK.
+    \QC generates a UI file, \e Page1Form.ui.qml, that you can modify in the
+    \QMLD \uicontrol {Form Editor} and two QML files, \e Page1.qml and
+    \e main.qml, that you can modify in the \uicontrol {Text Editor} to add the
+    application logic. The \e .ui.qml file is created if you selected the
+    \uicontrol {With .ui.qml file} check box.
 
-    \QC creates the necessary boilerplate files. Some of the files are
-    specific to a particular target platform.
+    \include creator-tutorial-create-qq-project.qdocinc
 
     \section1 Creating Qt Quick UI Projects
 
     \list 1
 
         \li Select \uicontrol File > \uicontrol {New File or Project} >
-            \uicontrol {Other Project} > \uicontrol {Qt Quick UI} or
-            \uicontrol {Qt Quick Controls UI} > \uicontrol Choose.
+            \uicontrol {Other Project} > \uicontrol {Qt Quick UI} >
+            \uicontrol Choose.
 
         \li In the \uicontrol {Minimal required Qt version} field, select the Qt
             version to develop with. The Qt version determines the Qt Quick
@@ -137,6 +137,11 @@
 
         \li Select the \uicontrol {With .ui.qml file} check box to create an UI
             form.
+
+        \li Select \uicontrol Next (or \uicontrol Continue on \macos).
+
+        \li Review the project settings, and click \uicontrol Finish (on Windows
+            and Linux) or \uicontrol Done (on \macos) to create the project.
 
     \endlist
 

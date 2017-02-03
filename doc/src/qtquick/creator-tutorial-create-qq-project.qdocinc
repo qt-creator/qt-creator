@@ -1,9 +1,9 @@
-    \section1 Creating the Project
+    \section1 Creating Qt Quick Controls 2 Applications
 
     \list 1
 
         \li Select \uicontrol File > \uicontrol {New File or Project} >
-            \uicontrol Application > \uicontrol {Qt Quick Controls Application}
+            \uicontrol Application > \uicontrol {Qt Quick Controls 2 Application}
             > \uicontrol Choose.
 
         \li In the \uicontrol Name field, enter a name for the application.
@@ -12,14 +12,9 @@
             files, and then select \uicontrol Next (or \uicontrol Continue on
             \macos).
 
-        \li In the \uicontrol {Minimal required Qt version} field, select
-            \uicontrol {Qt 5.4}, or later.
-
-        \li Deselect the \uicontrol {Enable native styling} check box to keep
-            the application size small. Enabling native styling would create
-            a dependency to the Qt Widgets module.
-
-        \li Select \uicontrol Next.
+        \li In the \uicontrol {Qt Quick Controls 2 Style} field, select one of
+            the predefined \l{Styling Qt Quick Controls 2}{UI styles} to use,
+            and then select \uicontrol Next.
 
         \li Select \l{glossary-buildandrun-kit}{kits} for the platforms that
             you want to build the application for. To build applications for
