@@ -271,7 +271,7 @@ void DoxygenGenerator::writeStart(QString *comment) const
     if (m_style == CppStyleB)
         comment->append(QLatin1String("//!"));
     else
-        comment->append(offsetString() % QLatin1String("/*") % startMark());
+        comment->append(offsetString() + "/*" + startMark());
 }
 
 void DoxygenGenerator::writeEnd(QString *comment) const
@@ -281,19 +281,19 @@ void DoxygenGenerator::writeEnd(QString *comment) const
     else if (m_style == CppStyleB)
         comment->append(QLatin1String("//!"));
     else
-        comment->append(offsetString() % QLatin1String(" */"));
+        comment->append(offsetString() + " */");
 }
 
 void DoxygenGenerator::writeContinuation(QString *comment) const
 {
     if (m_style == CppStyleA)
-        comment->append(offsetString() % QLatin1String("///"));
+        comment->append(offsetString() + "///");
     else if (m_style == CppStyleB)
-        comment->append(offsetString() % QLatin1String("//!"));
+        comment->append(offsetString() + "//!");
     else if (m_addLeadingAsterisks)
-        comment->append(offsetString() % QLatin1String(" *"));
+        comment->append(offsetString() + " *");
     else
-        comment->append(offsetString() % QLatin1String("  "));
+        comment->append(offsetString() + "  ");
 }
 
 void DoxygenGenerator::writeNewLine(QString *comment) const
@@ -305,11 +305,7 @@ void DoxygenGenerator::writeCommand(QString *comment,
                                     Command command,
                                     const QString &commandContent) const
 {
-    comment->append(QLatin1Char(' ')
-                    % styleMark()
-                    % commandSpelling(command)
-                    % commandContent
-                    % QLatin1Char('\n'));
+    comment->append(' ' + styleMark() + commandSpelling(command) + commandContent + '\n');
 }
 
 void DoxygenGenerator::writeBrief(QString *comment,
@@ -317,7 +313,7 @@ void DoxygenGenerator::writeBrief(QString *comment,
                                   const QString &prefix,
                                   const QString &suffix)
 {
-    QString content = prefix % QLatin1Char(' ') % brief % QLatin1Char(' ') % suffix;
+    QString content = prefix + ' ' + brief + ' ' + suffix;
     writeCommand(comment, BriefCommand, content.trimmed());
 }
 
