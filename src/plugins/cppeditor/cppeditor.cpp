@@ -232,13 +232,6 @@ void CppEditorWidget::finalizeInitialization()
     connect(d->m_preprocessorButton, &QAbstractButton::clicked, this, &CppEditorWidget::showPreProcessorWidget);
     insertExtraToolBarWidget(TextEditorWidget::Left, d->m_preprocessorButton);
 
-    // Toolbar: Actions to show minimized info bars
-    d->m_showInfoBarActions = MinimizableInfoBars::createShowInfoBarActions([this](QWidget *w) {
-        return this->insertExtraToolBarWidget(TextEditorWidget::Left, w);
-    });
-    connect(&cppEditorDocument()->minimizableInfoBars(), &MinimizableInfoBars::showAction,
-            this, &CppEditorWidget::onShowInfoBarAction);
-
     // Toolbar: Parse context
     ParseContextModel &parseContextModel = cppEditorDocument()->parseContextModel();
     d->m_parseContextWidget = new ParseContextWidget(parseContextModel, this);
@@ -252,6 +245,13 @@ void CppEditorWidget::finalizeInitialization()
 
     // Toolbar: Outline/Overview combo box
     insertExtraToolBarWidget(TextEditorWidget::Left, d->m_cppEditorOutline->widget());
+
+    // Toolbar: Actions to show minimized info bars
+    d->m_showInfoBarActions = MinimizableInfoBars::createShowInfoBarActions([this](QWidget *w) {
+        return this->insertExtraToolBarWidget(TextEditorWidget::Left, w);
+    });
+    connect(&cppEditorDocument()->minimizableInfoBars(), &MinimizableInfoBars::showAction,
+            this, &CppEditorWidget::onShowInfoBarAction);
 }
 
 void CppEditorWidget::finalizeInitializationAfterDuplication(TextEditorWidget *other)
