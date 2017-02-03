@@ -1006,7 +1006,7 @@
 
         \li The name for the function implementing a debugging helper for the type
             \c{namespace Project { template<typename T> struct Foo {... } } } is
-            \c{qdump__Project_Foo}.
+            \c{qdump__Project__Foo}.
 
         \li The name for the function implementing a debugging helper
             for the type \c{std::__1::vector<T>::iterator} is
