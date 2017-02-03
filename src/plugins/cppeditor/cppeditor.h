@@ -95,6 +95,9 @@ public:
     bool selectBlockUp() override;
     bool selectBlockDown() override;
 
+    static void updateWidgetHighlighting(QWidget *widget, bool highlight);
+    static bool isWidgetHighlighted(QWidget *widget);
+
 protected:
     bool event(QEvent *e) override;
     void contextMenuEvent(QContextMenuEvent *) override;

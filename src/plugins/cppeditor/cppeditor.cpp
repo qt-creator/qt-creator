@@ -203,8 +203,7 @@ void CppEditorWidget::finalizeInitialization()
 
     connect(cppEditorDocument(), &CppEditorDocument::preprocessorSettingsChanged, this,
             [this](bool customSettings) {
-        d->m_preprocessorButton->setProperty("highlightWidget", customSettings);
-        d->m_preprocessorButton->update();
+        updateWidgetHighlighting(d->m_preprocessorButton, customSettings);
     });
 
     // set up function declaration - definition link
@@ -266,6 +265,9 @@ void CppEditorWidget::finalizeInitializationAfterDuplication(TextEditorWidget *o
     d->m_cppEditorOutline->update();
     const Id selectionKind = CodeWarningsSelection;
     setExtraSelections(selectionKind, cppEditorWidget->extraSelections(selectionKind));
+
+    if (isWidgetHighlighted(cppEditorWidget->d->m_preprocessorButton))
+        updateWidgetHighlighting(d->m_preprocessorButton, true);
 
     d->m_parseContextWidget->syncToModel();
     d->m_parseContextAction->setVisible(
@@ -416,6 +418,17 @@ bool CppEditorWidget::selectBlockDown()
     d->m_cppSelectionChanger.stopChangeSelection();
 
     return changed;
+}
+
+void CppEditorWidget::updateWidgetHighlighting(QWidget *widget, bool highlight)
+{
+    widget->setProperty("highlightWidget", highlight);
+    widget->update();
+}
+
+bool CppEditorWidget::isWidgetHighlighted(QWidget *widget)
+{
+    return widget->property("highlightWidget").toBool();
 }
 
 void CppEditorWidget::renameSymbolUnderCursor()

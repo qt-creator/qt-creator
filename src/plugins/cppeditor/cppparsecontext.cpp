@@ -25,6 +25,8 @@
 
 #include "cppparsecontext.h"
 
+#include "cppeditor.h"
+
 #include <QAction>
 #include <QDir>
 #include <QDebug>
@@ -165,7 +167,7 @@ void ParseContextWidget::syncToModel()
 
     const bool isPreferred = m_parseContextModel.isCurrentPreferred();
     m_clearPreferredAction->setEnabled(isPreferred);
-    QComboBox::setProperty("highlightWidget", isPreferred);
+    CppEditorWidget::updateWidgetHighlighting(this, isPreferred);
 }
 
 } // namespace Internal
