@@ -71,8 +71,9 @@
 
     \section1 Using Qt Quick UI Forms
 
-    You can edit the forms in the \uicontrol Design mode. Items that are supposed to
-    be used in QML code have to be exported as properties:
+    You can edit the forms in the \uicontrol {Form Editor} and
+    \uicontrol {Text Editor} tabs in the \uicontrol Design mode. Items that are
+    supposed to be used in QML code have to be exported as properties:
 
     \code
     Item {

@@ -115,7 +115,8 @@
 
         \li Click \uicontrol Design to open the .qml file in \QMLD.
 
-        \li Drag and drop a QML type from the \uicontrol Library to the editor.
+        \li Drag and drop a QML type from the \uicontrol Library to the
+            \uicontrol Navigator or \uicontrol {Form Editor}.
 
         \li Edit its properties in the \uicontrol Properties pane.
 

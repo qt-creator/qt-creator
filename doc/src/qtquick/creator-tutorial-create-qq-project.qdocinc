@@ -34,6 +34,7 @@
 
     \endlist
 
-    \QC generates a UI file, \e MainForm.ui.qml, that you can modify in the
-    \uicontrol Design mode and a QML file, \e main.qml, that you can modify in
-    the \uicontrol Edit mode to add the application logic.
+    \QC generates a UI file, \e Page1Form.ui.qml, that you can modify in the
+    \QMLD \uicontrol {Form Editor} and two QML files, \e Page1.qml and
+    \e main.qml, that you can modify in the \uicontrol {Text Editor} to add the
+    application logic.

@@ -49,7 +49,8 @@
             \note Types are listed in the \uicontrol Library only if the
             filename begins with a capital letter.
 
-        \li Click \uicontrol {Design} to edit the file in the visual editor.
+        \li Click \uicontrol {Design} to edit the file in the
+            \uicontrol {Form Editor}.
 
         \li In the \uicontrol Navigator, select \uicontrol Item and set the
             width (\uicontrol W) and height (\uicontrol H) of the button in the
@@ -153,7 +154,8 @@
             \note Types are listed in the \uicontrol Library only if the
             filename begins with a capital letter.
 
-        \li Click \uicontrol {Design} to edit the file in the visual editor.
+        \li Click \uicontrol {Design} to edit the file in the
+            \uicontrol {Form Editor}.
 
         \li In the \uicontrol Navigator, select \uicontrol Item and set the
             width (\uicontrol W) and height (\uicontrol H) of the button in the
@@ -263,7 +265,8 @@
 
            \image qmldesigner-borderimage-connections.png "Item connections"
 
-        \li In the code editor, specify the \c clicked signal for the Item:
+        \li In the \uicontrol {Text Editor}, specify the \c clicked signal for
+            the Item:
 
             \qml
             Item {

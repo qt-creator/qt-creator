@@ -52,8 +52,9 @@
 
         \li \l {Using Qt Quick Designer}
 
-            You can use the code editor (Edit mode) or the visual editor (Design
-            mode) to develop Qt Quick applications.
+            You can use the \uicontrol {Form Editor} or the
+            \uicontrol {Text Editor} of \QMLD in the \uicontrol Design mode to
+            develop Qt Quick applications.
 
         \li \l {Editing PathView Properties}
 
