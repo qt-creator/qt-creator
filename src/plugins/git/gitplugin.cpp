@@ -1319,13 +1319,14 @@ void GitPlugin::stashList()
 
 void GitPlugin::updateActions(VcsBasePlugin::ActionState as)
 {
-    const bool repositoryEnabled = currentState().hasTopLevel();
+    const VcsBasePluginState state = currentState();
+    const bool repositoryEnabled = state.hasTopLevel();
     if (m_stashDialog)
-        m_stashDialog->refresh(currentState().topLevel(), false);
+        m_stashDialog->refresh(state.topLevel(), false);
     if (m_branchDialog)
-        m_branchDialog->refresh(currentState().topLevel(), false);
+        m_branchDialog->refresh(state.topLevel(), false);
     if (m_remoteDialog)
-        m_remoteDialog->refresh(currentState().topLevel(), false);
+        m_remoteDialog->refresh(state.topLevel(), false);
 
     m_commandLocator->setEnabled(repositoryEnabled);
     if (!enableMenuAction(as, m_menuAction))
@@ -1334,12 +1335,12 @@ void GitPlugin::updateActions(VcsBasePlugin::ActionState as)
         updateVersionWarning();
     // Note: This menu is visible if there is no repository. Only
     // 'Create Repository'/'Show' actions should be available.
-    const QString fileName = currentState().currentFileName();
+    const QString fileName = state.currentFileName();
     foreach (ParameterAction *fileAction, m_fileActions)
         fileAction->setParameter(fileName);
     // If the current file looks like a patch, offer to apply
-    m_applyCurrentFilePatchAction->setParameter(currentState().currentPatchFileDisplayName());
-    const QString projectName = currentState().currentProjectName();
+    m_applyCurrentFilePatchAction->setParameter(state.currentPatchFileDisplayName());
+    const QString projectName = state.currentProjectName();
     foreach (ParameterAction *projectAction, m_projectActions)
         projectAction->setParameter(projectName);
 
@@ -1347,7 +1348,7 @@ void GitPlugin::updateActions(VcsBasePlugin::ActionState as)
         repositoryAction->setEnabled(repositoryEnabled);
 
     m_submoduleUpdateAction->setVisible(repositoryEnabled
-            && !m_gitClient->submoduleList(currentState().topLevel()).isEmpty());
+            && !m_gitClient->submoduleList(state.topLevel()).isEmpty());
 
     updateContinueAndAbortCommands();
     updateRepositoryBrowserAction();
