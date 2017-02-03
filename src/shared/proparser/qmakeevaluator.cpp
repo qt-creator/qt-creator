@@ -1442,6 +1442,9 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
     if (flags & LoadPreFiles) {
         setupProject();
 
+        if (!m_option->extra_cmds[QMakeEvalEarly].isEmpty())
+            evaluateCommand(m_option->extra_cmds[QMakeEvalEarly], fL1S("(command line -early)"));
+
         for (ProValueMap::ConstIterator it = m_extraVars.constBegin();
              it != m_extraVars.constEnd(); ++it)
             m_valuemapStack.first().insert(it.key(), it.value());
@@ -1453,8 +1456,8 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
         if ((vr = evaluateFeatureFile(QLatin1String("default_pre.prf"))) == ReturnError)
             goto failed;
 
-        if (!m_option->precmds.isEmpty()) {
-            evaluateCommand(m_option->precmds, fL1S("(command line)"));
+        if (!m_option->extra_cmds[QMakeEvalBefore].isEmpty()) {
+            evaluateCommand(m_option->extra_cmds[QMakeEvalBefore], fL1S("(command line)"));
 
             // Again, after user configs, to override them
             applyExtraConfigs();
@@ -1467,7 +1470,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
     debugMsg(1, "done visiting file %s", qPrintable(pro->fileName()));
 
     if (flags & LoadPostFiles) {
-        evaluateCommand(m_option->postcmds, fL1S("(command line -after)"));
+        evaluateCommand(m_option->extra_cmds[QMakeEvalAfter], fL1S("(command line -after)"));
 
         // Again, to ensure the project does not mess with us.
         // Specifically, do not allow a project to override debug/release within a
@@ -1476,6 +1479,9 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
 
         if ((vr = evaluateFeatureFile(QLatin1String("default_post.prf"))) == ReturnError)
             goto failed;
+
+        if (!m_option->extra_cmds[QMakeEvalLate].isEmpty())
+            evaluateCommand(m_option->extra_cmds[QMakeEvalLate], fL1S("(command line -late)"));
 
         if ((vr = evaluateConfigFeatures()) == ReturnError)
             goto failed;
