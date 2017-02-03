@@ -1,11 +1,10 @@
 QT = core network
 
+msvc: QTC_LIB_DEPENDS += utils
 
 include(../qttest.pri)
 
 msvc {
-
-    QTC_LIB_DEPENDS += utils
 
     LIBS *= -L$$IDE_PLUGIN_PATH
     DEFINES += Q_PLUGIN_PATH=\"\\\"$$IDE_PLUGIN_PATH\\\"\"
