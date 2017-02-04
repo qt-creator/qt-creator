@@ -186,7 +186,8 @@ bool RemoteModel::refresh(const QString &workingDirectory, QString *errorMessage
 
     beginResetModel();
     m_remotes.clear();
-    foreach (const QString &remoteName, remotesList.keys()) {
+    const QList<QString> remotes = remotesList.keys();
+    for (const QString &remoteName : remotes) {
         Remote newRemote;
         newRemote.name = remoteName;
         newRemote.url = remotesList.value(remoteName);

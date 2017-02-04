@@ -48,8 +48,8 @@ void BranchComboBox::init(const QString &repository)
                 m_repository, { "--format=%(refname)", branchPrefix }, &output)) {
         return;
     }
-    QStringList branches = output.trimmed().split('\n');
-    foreach (const QString &ref, branches) {
+    const QStringList branches = output.trimmed().split('\n');
+    for (const QString &ref : branches) {
         const QString branch = ref.mid(branchPrefix.size());
         addItem(branch);
     }

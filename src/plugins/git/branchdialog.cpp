@@ -33,10 +33,12 @@
 #include "gitconstants.h"
 #include "ui_branchdialog.h"
 
-#include <utils/qtcassert.h>
-#include <utils/execmenu.h>
 #include <vcsbase/vcsoutputwindow.h>
 #include <coreplugin/documentmanager.h>
+
+#include <utils/asconst.h>
+#include <utils/execmenu.h>
+#include <utils/qtcassert.h>
 
 #include <QAction>
 #include <QItemSelectionModel>
@@ -217,7 +219,7 @@ void BranchDialog::checkout()
 
     QList<Stash> stashes;
     client->synchronousStashList(m_repository, &stashes);
-    foreach (const Stash &stash, stashes) {
+    for (const Stash &stash : Utils::asConst(stashes)) {
         if (stash.message.startsWith(popMessageStart)) {
             branchCheckoutDialog.foundStashForNextBranch();
             break;
@@ -245,7 +247,7 @@ void BranchDialog::checkout()
 
         QString stashName;
         client->synchronousStashList(m_repository, &stashes);
-        foreach (const Stash &stash, stashes) {
+        for (const Stash &stash : Utils::asConst(stashes)) {
             if (stash.message.startsWith(popMessageStart)) {
                 stashName = stash.name;
                 break;

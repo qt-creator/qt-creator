@@ -1,4 +1,7 @@
 include(../../qtcreatorplugin.pri)
+
+DEFINES += QT_NO_FOREACH
+
 HEADERS += gitplugin.h \
     gitconstants.h \
     gitclient.h \

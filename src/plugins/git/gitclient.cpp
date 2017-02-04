@@ -45,6 +45,7 @@
 #include <coreplugin/vcsmanager.h>
 
 #include <utils/algorithm.h>
+#include <utils/asconst.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
@@ -158,7 +159,7 @@ void BaseController::runCommand(const QList<QStringList> &args, QTextCodec *code
     connect(m_command.data(), &VcsCommand::finished, this, &BaseController::reloadFinished);
     m_command->addFlags(diffExecutionFlags());
 
-    foreach (const QStringList &arg, args) {
+    for (const QStringList &arg : args) {
         QTC_ASSERT(!arg.isEmpty(), continue);
 
         m_command->addJob(GitPlugin::client()->vcsBinary(), arg, GitPlugin::client()->vcsTimeoutS());
@@ -1002,7 +1003,8 @@ QStringList GitClient::setupCheckoutArguments(const QString &workingDirectory,
     QString remoteBranch;
     const QString head("/HEAD");
 
-    foreach (const QString &singleRef, output.split('\n')) {
+    const QStringList refs = output.split('\n');
+    for (const QString &singleRef : refs) {
         if (singleRef.startsWith(refSha)) {
             // branch name might be origin/foo/HEAD
             if (!singleRef.endsWith(head) || singleRef.count('/') > 1) {
@@ -1343,7 +1345,7 @@ QString GitClient::synchronousTopic(const QString &workingDirectory) const
     const QString dereference("^{}");
     QString remoteBranch;
 
-    foreach (const QString &ref, references) {
+    for (const QString &ref : Utils::asConst(references)) {
         int derefInd = ref.indexOf(dereference);
         if (ref.startsWith(tagStart))
             return ref.mid(tagStart.size(), (derefInd == -1) ? -1 : derefInd - tagStart.size());
@@ -1406,7 +1408,7 @@ void GitClient::synchronousTagsForCommit(const QString &workingDirectory, const 
     QStringList parents;
     QString errorMessage;
     synchronousParentRevisions(workingDirectory, revision, &parents, &errorMessage);
-    foreach (const QString &p, parents) {
+    for (const QString &p : Utils::asConst(parents)) {
         const SynchronousProcessResponse resp2 = vcsFullySynchronousExec(
                     workingDirectory, { "describe", "--tags", "--abbrev=0", p }, silentFlags);
         QString pf = resp2.stdOut();
@@ -1553,7 +1555,7 @@ bool GitClient::stashNameFromMessage(const QString &workingDirectory,
     QList<Stash> stashes;
     if (!synchronousStashList(workingDirectory, &stashes, errorMessage))
         return false;
-    foreach (const Stash &s, stashes) {
+    for (const Stash &s : Utils::asConst(stashes)) {
         if (s.message == message) {
             *name = s.name;
             return true;
@@ -1640,9 +1642,9 @@ QMap<QString,QString> GitClient::synchronousRemotesList(const QString &workingDi
         msgCannotRun(error, errorMessage);
         return result;
     }
-    QStringList remotes = output.split("\n");
 
-    foreach (const QString &remote, remotes) {
+    const QStringList remotes = output.split("\n");
+    for (const QString &remote : remotes) {
         if (!remote.endsWith(" (push)"))
             continue;
 
@@ -1682,10 +1684,9 @@ SubmoduleDataMap GitClient::submoduleList(const QString &workingDirectory) const
     if (cachedSubmoduleData.contains(workingDirectory))
         return cachedSubmoduleData.value(workingDirectory);
 
-    QStringList allConfigs = readConfigValue(workingDirectory, "-l")
-            .split('\n');
+    const QStringList allConfigs = readConfigValue(workingDirectory, "-l").split('\n');
     const QString submoduleLineStart = "submodule.";
-    foreach (const QString &configLine, allConfigs) {
+    for (const QString &configLine : allConfigs) {
         if (!configLine.startsWith(submoduleLineStart))
             continue;
 
@@ -1712,7 +1713,8 @@ SubmoduleDataMap GitClient::submoduleList(const QString &workingDirectory) const
     if (!result.isEmpty()) {
         QSettings gitmodulesFile(gitmodulesFileName, QSettings::IniFormat);
 
-        foreach (const QString &submoduleName, result.keys()) {
+        const QList<QString> submodules = result.keys();
+        for (const QString &submoduleName : submodules) {
             gitmodulesFile.beginGroup("submodule \"" + submoduleName + '"');
             const QString path = gitmodulesFile.value("path").toString();
             if (path.isEmpty()) { // invalid submodule entry in config
@@ -1782,8 +1784,8 @@ bool GitClient::synchronousCleanList(const QString &workingDirectory, const QStr
     bool res = cleanList(workingDirectory, modulePath, "-df", files, errorMessage);
     res &= cleanList(workingDirectory, modulePath, "-dXf", ignoredFiles, errorMessage);
 
-    SubmoduleDataMap submodules = submoduleList(workingDirectory + '/' + modulePath);
-    foreach (const SubmoduleData &submodule, submodules) {
+    const SubmoduleDataMap submodules = submoduleList(workingDirectory + '/' + modulePath);
+    for (const SubmoduleData &submodule : submodules) {
         if (submodule.ignore != "all"
                 && submodule.ignore != "dirty") {
             const QString submodulePath = modulePath.isEmpty() ? submodule.dir
@@ -1872,12 +1874,12 @@ void GitClient::updateSubmodulesIfNeeded(const QString &workingDirectory, bool p
     if (!m_updatedSubmodules.isEmpty() || submoduleList(workingDirectory).isEmpty())
         return;
 
-    QStringList submoduleStatus = synchronousSubmoduleStatus(workingDirectory);
+    const QStringList submoduleStatus = synchronousSubmoduleStatus(workingDirectory);
     if (submoduleStatus.isEmpty())
         return;
 
     bool updateNeeded = false;
-    foreach (const QString &status, submoduleStatus) {
+    for (const QString &status : submoduleStatus) {
         if (status.startsWith('+')) {
             updateNeeded = true;
             break;
@@ -1892,7 +1894,7 @@ void GitClient::updateSubmodulesIfNeeded(const QString &workingDirectory, bool p
         return;
     }
 
-    foreach (const QString &statusLine, submoduleStatus) {
+    for (const QString &statusLine : submoduleStatus) {
         // stash only for lines starting with +
         // because only they would be updated
         if (!statusLine.startsWith('+'))
@@ -1918,7 +1920,7 @@ void GitClient::updateSubmodulesIfNeeded(const QString &workingDirectory, bool p
 
 void GitClient::finishSubmoduleUpdate()
 {
-    foreach (const QString &submoduleDir, m_updatedSubmodules)
+    for (const QString &submoduleDir : Utils::asConst(m_updatedSubmodules))
         endStashScope(submoduleDir);
     m_updatedSubmodules.clear();
 }
@@ -2112,7 +2114,8 @@ QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryUR
     // split "82bfad2f51d34e98b18982211c82220b8db049b<tab>refs/heads/master"
     bool headFound = false;
     bool branchFound = false;
-    foreach (const QString &line, resp.stdOut().split('\n')) {
+    const QStringList lines = resp.stdOut().split('\n');
+    for (const QString &line : lines) {
         if (line.endsWith("\tHEAD")) {
             QTC_CHECK(headSha.isNull());
             headSha = line.left(line.indexOf('\t'));
@@ -2988,7 +2991,8 @@ bool GitClient::synchronousStashList(const QString &workingDirectory, QList<Stas
         return false;
     }
     Stash stash;
-    foreach (const QString &line, splitLines(resp.stdOut())) {
+    const QStringList lines = splitLines(resp.stdOut());
+    for (const QString &line : lines) {
         if (stash.parseStashLine(line))
             stashes->push_back(stash);
     }

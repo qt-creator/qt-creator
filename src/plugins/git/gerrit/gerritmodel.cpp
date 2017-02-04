@@ -31,6 +31,8 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <vcsbase/vcsoutputwindow.h>
+
+#include <utils/asconst.h>
 #include <utils/synchronousprocess.h>
 
 #include <QJsonArray>
@@ -106,7 +108,7 @@ QString GerritPatchSet::approvalsToHtml() const
     QString result;
     QTextStream str(&result);
     QString lastType;
-    foreach (const GerritApproval &a, approvals) {
+    for (const GerritApproval &a : approvals) {
         if (a.type != lastType) {
             if (!lastType.isEmpty())
                 str << "</tr>\n";
@@ -147,7 +149,7 @@ QString GerritPatchSet::approvalsColumn() const
         return result;
 
     TypeReviewMap reviews; // Sort approvals into a map by type character
-    foreach (const GerritApproval &a, approvals) {
+    for (const GerritApproval &a : approvals) {
         if (a.type != "STGN") { // Qt-Project specific: Ignore "STGN" (Staged)
             const QChar typeChar = a.type.at(0);
             TypeReviewMapIterator it = reviews.find(typeChar);
@@ -169,7 +171,7 @@ QString GerritPatchSet::approvalsColumn() const
 
 bool GerritPatchSet::hasApproval(const QString &userName) const
 {
-    foreach (const GerritApproval &a, approvals)
+    for (const GerritApproval &a : approvals)
         if (a.reviewer == userName)
             return true;
     return false;
@@ -178,7 +180,7 @@ bool GerritPatchSet::hasApproval(const QString &userName) const
 int GerritPatchSet::approvalLevel() const
 {
     int value = 0;
-    foreach (const GerritApproval &a, approvals)
+    for (const GerritApproval &a : approvals)
         applyApproval(a.approval, &value);
     return value;
 }
@@ -189,7 +191,7 @@ QString GerritChange::filterString() const
     QString result = QString::number(number) + blank + title + blank
             + owner + blank + project + blank
             + branch + blank + status;
-    foreach (const GerritApproval &a, currentPatchSet.approvals) {
+    for (const GerritApproval &a : currentPatchSet.approvals) {
         result += blank;
         result += a.reviewer;
     }
@@ -613,7 +615,7 @@ static bool parseOutput(const QSharedPointer<GerritParameters> &parameters,
     result.clear();
     result.reserve(lines.size());
 
-    foreach (const QByteArray &line, lines) {
+    for (const QByteArray &line : lines) {
         if (line.isEmpty())
             continue;
         QJsonParseError error;
@@ -791,7 +793,7 @@ void GerritModel::queryFinished(const QByteArray &output)
     std::stable_sort(changes.begin(), changes.end(), gerritChangeLessThan);
     numberIndexHash.clear();
 
-    foreach (const GerritChangePtr &c, changes) {
+    for (const GerritChangePtr &c : Utils::asConst(changes)) {
         // Avoid duplicate entries for example in the (unlikely)
         // case people do self-reviews.
         if (!itemForNumber(c->number)) {

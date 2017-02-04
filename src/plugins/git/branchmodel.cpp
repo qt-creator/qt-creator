@@ -27,9 +27,11 @@
 #include "gitclient.h"
 #include "gitconstants.h"
 
-#include <utils/qtcassert.h>
 #include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/vcscommand.h>
+
+#include <utils/asconst.h>
+#include <utils/qtcassert.h>
 
 #include <QDateTime>
 #include <QFont>
@@ -137,7 +139,7 @@ public:
             fn.append(nodes.first()->sha);
         nodes.removeFirst();
 
-        foreach (const BranchNode *n, nodes)
+        for (const BranchNode *n : Utils::asConst(nodes))
             fn.append(n->name);
 
         return fn;
@@ -167,7 +169,7 @@ public:
     {
         if (children.count() > 0) {
             QStringList names;
-            foreach (BranchNode *n, children) {
+            for (BranchNode *n : children) {
                 names.append(n->childrenNames());
             }
             return names;
@@ -340,9 +342,10 @@ Qt::ItemFlags BranchModel::flags(const QModelIndex &index) const
 
 void BranchModel::clear()
 {
-    foreach (BranchNode *root, m_rootNode->children)
+    for (BranchNode *root : Utils::asConst(m_rootNode->children)) {
         while (root->count())
             delete root->children.takeLast();
+    }
     if (hasTags())
         m_rootNode->children.takeLast();
 
@@ -368,7 +371,7 @@ bool BranchModel::refresh(const QString &workingDirectory, QString *errorMessage
 
     m_workingDirectory = workingDirectory;
     const QStringList lines = output.split('\n');
-    foreach (const QString &l, lines)
+    for (const QString &l : lines)
         parseOutputLine(l);
 
     if (m_currentBranch) {
@@ -558,8 +561,8 @@ bool BranchModel::branchIsMerged(const QModelIndex &idx)
         VcsOutputWindow::appendError(errorMessage);
     }
 
-    QStringList lines = output.split('\n', QString::SkipEmptyParts);
-    foreach (const QString &l, lines) {
+    const QStringList lines = output.split('\n', QString::SkipEmptyParts);
+    for (const QString &l : lines) {
         QString currentBranch = l.mid(2); // remove first letters (those are either
                                           // "  " or "* " depending on whether it is
                                           // the currently checked out branch or not)

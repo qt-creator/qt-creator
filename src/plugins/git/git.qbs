@@ -11,6 +11,8 @@ QtcPlugin {
     Depends { name: "VcsBase" }
     Depends { name: "DiffEditor" }
 
+    cpp.defines: base.concat(["QT_NO_FOREACH"])
+
     files: [
         "annotationhighlighter.cpp",
         "annotationhighlighter.h",

@@ -337,7 +337,7 @@ void GerritPlugin::push(const QString &topLevel)
 
     QStringList options;
     const QStringList reviewers = m_reviewers.split(',', QString::SkipEmptyParts);
-    foreach (const QString &reviewer, reviewers)
+    for (const QString &reviewer : reviewers)
         options << "r=" + reviewer;
 
     if (!options.isEmpty())
@@ -412,8 +412,8 @@ void GerritPlugin::fetch(const QSharedPointer<GerritChange> &change, int mode)
         // Check if remote from a working dir is the same as remote from patch
         QMap<QString, QString> remotesList = GitPlugin::client()->synchronousRemotesList(repository);
         if (!remotesList.isEmpty()) {
-            QStringList remotes = remotesList.values();
-            foreach (QString remote, remotes) {
+            const QStringList remotes = remotesList.values();
+            for (QString remote : remotes) {
                 if (remote.endsWith(".git"))
                     remote.chop(4);
                 if (remote.contains(m_server->host) && remote.endsWith(change->project)) {
@@ -423,8 +423,8 @@ void GerritPlugin::fetch(const QSharedPointer<GerritChange> &change, int mode)
             }
 
             if (!verifiedRepository) {
-                SubmoduleDataMap submodules = GitPlugin::client()->submoduleList(repository);
-                foreach (const SubmoduleData &submoduleData, submodules) {
+                const SubmoduleDataMap submodules = GitPlugin::client()->submoduleList(repository);
+                for (const SubmoduleData &submoduleData : submodules) {
                     QString remote = submoduleData.url;
                     if (remote.endsWith(".git"))
                         remote.chop(4);
@@ -501,7 +501,7 @@ QString GerritPlugin::findLocalRepository(QString project, const QString &branch
         if (!branchRegexp->isValid())
             branchRegexp.reset(); // Oops.
     }
-    foreach (const QString &repository, gitRepositories) {
+    for (const QString &repository : gitRepositories) {
         const QString fileName = Utils::FileName::fromString(repository).fileName();
         if ((!branchRegexp.isNull() && branchRegexp->exactMatch(fileName))
             || fileName == project) {
