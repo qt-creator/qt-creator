@@ -151,20 +151,13 @@ StashDialog::~StashDialog()
     delete ui;
 }
 
-QString StashDialog::msgRepositoryLabel(const QString &repository)
-{
-    return repository.isEmpty() ?
-            tr("<No repository>")  :
-            tr("Repository: %1").arg(QDir::toNativeSeparators(repository));
-}
-
 void StashDialog::refresh(const QString &repository, bool force)
 {
     if (m_repository == repository && !force)
         return;
     // Refresh
     m_repository = repository;
-    ui->repositoryLabel->setText(msgRepositoryLabel(repository));
+    ui->repositoryLabel->setText(GitPlugin::msgRepositoryLabel(repository));
     if (m_repository.isEmpty()) {
         m_model->setStashes(QList<Stash>());
     } else {

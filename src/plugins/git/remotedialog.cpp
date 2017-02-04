@@ -28,7 +28,6 @@
 #include "gitclient.h"
 #include "gitplugin.h"
 #include "remotemodel.h"
-#include "stashdialog.h" // for messages
 #include "ui_remotedialog.h"
 #include "ui_remoteadditiondialog.h"
 
@@ -114,7 +113,7 @@ void RemoteDialog::refresh(const QString &repository, bool force)
     if (m_remoteModel->workingDirectory() == repository && !force)
         return;
     // Refresh
-    m_ui->repositoryLabel->setText(StashDialog::msgRepositoryLabel(repository));
+    m_ui->repositoryLabel->setText(GitPlugin::msgRepositoryLabel(repository));
     if (repository.isEmpty()) {
         m_remoteModel->clear();
     } else {

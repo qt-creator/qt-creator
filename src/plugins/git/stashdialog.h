@@ -52,8 +52,6 @@ public:
     explicit StashDialog(QWidget *parent = 0);
     ~StashDialog() override;
 
-    static QString msgRepositoryLabel(const QString &repository);
-
     void refresh(const QString &repository, bool force);
 
 private:

@@ -167,6 +167,13 @@ GitClient *GitPlugin::client()
     return m_instance->m_gitClient;
 }
 
+QString GitPlugin::msgRepositoryLabel(const QString &repository)
+{
+    return repository.isEmpty() ?
+            tr("<No repository>")  :
+            tr("Repository: %1").arg(QDir::toNativeSeparators(repository));
+}
+
 const VcsBaseSubmitEditorParameters submitParameters = {
     Git::Constants::SUBMIT_MIMETYPE,
     Git::Constants::GITSUBMITEDITOR_ID,

@@ -32,7 +32,6 @@
 #include "gitutils.h"
 #include "gitconstants.h"
 #include "ui_branchdialog.h"
-#include "stashdialog.h" // Label helpers
 
 #include <utils/qtcassert.h>
 #include <utils/execmenu.h>
@@ -106,7 +105,7 @@ void BranchDialog::refresh(const QString &repository, bool force)
         return;
 
     m_repository = repository;
-    m_ui->repositoryLabel->setText(StashDialog::msgRepositoryLabel(m_repository));
+    m_ui->repositoryLabel->setText(GitPlugin::msgRepositoryLabel(m_repository));
     QString errorMessage;
     if (!m_model->refresh(m_repository, &errorMessage))
         VcsOutputWindow::appendError(errorMessage);

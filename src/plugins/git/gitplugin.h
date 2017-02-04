@@ -87,6 +87,7 @@ public:
 
     Gerrit::Internal::GerritPlugin *gerritPlugin() const;
     bool isCommitEditorOpen() const;
+    static QString msgRepositoryLabel(const QString &repository);
 
 public slots:
     void startCommit();
