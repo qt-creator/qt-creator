@@ -647,7 +647,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     /* "Gerrit" */
     m_gerritPlugin = new Gerrit::Internal::GerritPlugin(this);
     const bool ok = m_gerritPlugin->initialize(remoteRepositoryMenu);
-    m_gerritPlugin->updateActions(currentState().hasTopLevel());
+    m_gerritPlugin->updateActions(currentState());
     m_gerritPlugin->addToLocator(m_commandLocator);
 
     return ok;
@@ -1354,7 +1354,7 @@ void GitPlugin::updateActions(VcsBasePlugin::ActionState as)
     updateContinueAndAbortCommands();
     updateRepositoryBrowserAction();
 
-    m_gerritPlugin->updateActions(repositoryEnabled);
+    m_gerritPlugin->updateActions(state);
 }
 
 void GitPlugin::updateContinueAndAbortCommands()

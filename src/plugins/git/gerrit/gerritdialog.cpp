@@ -41,6 +41,7 @@
 
 #include <QCompleter>
 #include <QDesktopServices>
+#include <QFileInfo>
 #include <QPushButton>
 #include <QSortFilterProxyModel>
 #include <QStringListModel>
@@ -67,6 +68,7 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     m_ui->setupUi(this);
+    setCurrentPath(repository);
     m_queryModel->setStringList(m_parameters->savedQueries);
     QCompleter *completer = new QCompleter(this);
     completer->setModel(m_queryModel);
@@ -106,10 +108,6 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     connect(m_ui->treeView, &QAbstractItemView::activated,
             this, &GerritDialog::slotActivated);
 
-    m_ui->repositoryChooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
-    m_ui->repositoryChooser->setHistoryCompleter("Git.RepoDir.History");
-    m_ui->repositoryChooser->setPath(repository);
-
     m_displayButton = addActionButton(tr("&Show"), [this]() { slotFetchDisplay(); });
     m_cherryPickButton = addActionButton(tr("Cherry &Pick"), [this]() { slotFetchCherryPick(); });
     m_checkoutButton = addActionButton(tr("C&heckout"), [this]() { slotFetchCheckout(); });
@@ -129,12 +127,15 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
 
 QString GerritDialog::repositoryPath() const
 {
-    return m_ui->repositoryChooser->path();
+    return m_repository;
 }
 
 void GerritDialog::setCurrentPath(const QString &path)
 {
-    m_ui->repositoryChooser->setPath(path);
+    if (path == m_repository)
+        return;
+    m_repository = path;
+    m_ui->repositoryLabel->setText(Git::Internal::GitPlugin::msgRepositoryLabel(path));
 }
 
 QPushButton *GerritDialog::addActionButton(const QString &text,
@@ -211,16 +212,14 @@ void GerritDialog::slotRefresh()
 
 void GerritDialog::updateRemote()
 {
-    const QString repository = m_ui->repositoryChooser->path();
-    if (m_repository == repository || !m_ui->repositoryChooser->isValid())
+    if (m_repository.isEmpty() || !QFileInfo(m_repository).isDir())
         return;
     static const QRegularExpression sshPattern(
                 "^(?:(?<protocol>[^:]+)://)?(?:(?<user>[^@]+)@)?(?<host>[^:/]+)(?::(?<port>\\d+))?");
-    m_repository = repository;
     *m_server = m_parameters->server;
     QString errorMessage; // Mute errors. We'll just fallback to the defaults
     QMap<QString, QString> remotesList =
-            Git::Internal::GitPlugin::client()->synchronousRemotesList(repository, &errorMessage);
+            Git::Internal::GitPlugin::client()->synchronousRemotesList(m_repository, &errorMessage);
     QStringList remoteUrls;
     // Prefer a remote named gerrit
     const QString gerritRemote = remotesList.value("gerrit");

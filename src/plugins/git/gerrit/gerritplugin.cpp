@@ -297,10 +297,13 @@ bool GerritPlugin::initialize(ActionContainer *ac)
     return true;
 }
 
-void GerritPlugin::updateActions(bool hasTopLevel)
+void GerritPlugin::updateActions(const VcsBase::VcsBasePluginState &state)
 {
+    const bool hasTopLevel = state.hasTopLevel();
     m_gerritCommand->action()->setEnabled(hasTopLevel);
     m_pushToGerritCommand->action()->setEnabled(hasTopLevel);
+    if (m_dialog)
+        m_dialog->setCurrentPath(state.topLevel());
 }
 
 void GerritPlugin::addToLocator(CommandLocator *locator)
@@ -349,7 +352,6 @@ void GerritPlugin::push(const QString &topLevel)
 // Open or raise the Gerrit dialog window.
 void GerritPlugin::openView()
 {
-    const QString repository = GitPlugin::instance()->currentState().topLevel();
     if (m_dialog.isNull()) {
         while (!m_parameters->isValid()) {
             Core::AsynchronousMessageBox::warning(tr("Error"),
@@ -357,6 +359,7 @@ void GerritPlugin::openView()
             if (!ICore::showOptionsDialog("Gerrit"))
                 return;
         }
+        const QString repository = GitPlugin::instance()->currentState().topLevel();
         GerritDialog *gd = new GerritDialog(m_parameters, m_server, repository, ICore::mainWindow());
         gd->setModal(false);
         connect(gd, &GerritDialog::fetchDisplay, this,
@@ -369,8 +372,6 @@ void GerritPlugin::openView()
         connect(this, &GerritPlugin::fetchFinished, gd, &GerritDialog::fetchFinished);
         m_dialog = gd;
     }
-    if (!m_dialog->isVisible())
-        m_dialog->setCurrentPath(repository);
     const Qt::WindowStates state = m_dialog->windowState();
     if (state & Qt::WindowMinimized)
         m_dialog->setWindowState(state & ~Qt::WindowMinimized);
@@ -406,7 +407,7 @@ void GerritPlugin::fetch(const QSharedPointer<GerritChange> &change, int mode)
     QString repository;
     bool verifiedRepository = false;
     if (!m_dialog.isNull() && !m_parameters.isNull() && QFile::exists(m_dialog->repositoryPath()))
-        repository = VcsManager::findTopLevelForDirectory(m_dialog->repositoryPath());
+        repository = m_dialog->repositoryPath();
 
     if (!repository.isEmpty()) {
         // Check if remote from a working dir is the same as remote from patch

@@ -42,6 +42,8 @@ class Command;
 class CommandLocator;
 }
 
+namespace VcsBase { class VcsBasePluginState; }
+
 namespace Gerrit {
 namespace Internal {
 
@@ -64,7 +66,7 @@ public:
     void addToLocator(Core::CommandLocator *locator);
     void push(const QString &topLevel);
 
-    void updateActions(bool hasTopLevel);
+    void updateActions(const VcsBase::VcsBasePluginState &state);
 
 signals:
     void fetchStarted(const QSharedPointer<Gerrit::Internal::GerritChange> &change);

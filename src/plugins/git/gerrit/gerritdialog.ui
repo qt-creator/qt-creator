@@ -7,13 +7,43 @@
     <x>0</x>
     <y>0</y>
     <width>950</width>
-    <height>672</height>
+    <height>700</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Gerrit</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLabel" name="repositoryLabel">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string notr="true">Repository: Dummy</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
    <item>
     <widget class="QWidget" name="widget" native="true">
      <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -161,26 +191,6 @@
             </property>
            </widget>
           </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout">
-            <item>
-             <widget class="QLabel" name="repositoryChooserLabel">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>Apply in:</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="Utils::PathChooser" name="repositoryChooser" native="true"/>
-            </item>
-           </layout>
-          </item>
          </layout>
         </widget>
        </widget>
@@ -210,12 +220,6 @@
    <class>Utils::TreeView</class>
    <extends>QTreeView</extends>
    <header location="global">utils/itemviews.h</header>
-  </customwidget>
-  <customwidget>
-   <class>Utils::PathChooser</class>
-   <extends>QWidget</extends>
-   <header location="global">utils/pathchooser.h</header>
-   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>
