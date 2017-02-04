@@ -349,7 +349,7 @@ std::tuple<C, C> partition(const C &container, F predicate)
     C miss;
     auto hitIns = inserter(hit);
     auto missIns = inserter(miss);
-    foreach (auto i, container) {
+    for (auto i : container) {
         if (predicate(i))
             hitIns = i;
         else
