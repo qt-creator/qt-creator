@@ -422,10 +422,7 @@ FolderNode *FolderNode::recursiveFindOrCreateFolderNode(const QString &directory
 
 void FolderNode::buildTree(QList<FileNode *> &files, const Utils::FileName &overrideBaseDir)
 {
-    qDeleteAll(m_fileNodes);
-    m_fileNodes.clear();
-    qDeleteAll(m_folderNodes);
-    m_folderNodes.clear();
+    makeEmpty();
 
     foreach (ProjectExplorer::FileNode *fn, files) {
         // Get relative path to rootNode
@@ -433,6 +430,8 @@ void FolderNode::buildTree(QList<FileNode *> &files, const Utils::FileName &over
         ProjectExplorer::FolderNode *folder = recursiveFindOrCreateFolderNode(parentDir, overrideBaseDir);
         folder->addFileNode(fn);
     }
+
+    emitTreeChanged();
 }
 
 void FolderNode::accept(NodesVisitor *visitor)
