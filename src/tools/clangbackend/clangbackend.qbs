@@ -17,8 +17,8 @@ QtcTool {
     Group {
         prefix: "../qtcreatorcrashhandler/"
         files: [
-            "crashhandlersetup.h",
             "crashhandlersetup.cpp",
+            "crashhandlersetup.h",
         ]
     }
 

@@ -43,9 +43,9 @@ QtcPlugin {
         "clangassistproposalmodel.h",
         "clangbackendipcintegration.cpp",
         "clangbackendipcintegration.h",
+        "clangcodemodel.qrc",
         "clangcodemodelplugin.cpp",
         "clangcodemodelplugin.h",
-        "clangcodemodel.qrc",
         "clangcompletionassistinterface.cpp",
         "clangcompletionassistinterface.h",
         "clangcompletionassistprocessor.cpp",
@@ -98,9 +98,9 @@ QtcPlugin {
         condition: qtc.testsEnabled
         prefix: "test/"
         files: [
-            "data/clangtestdata.qrc",
             "clangcodecompletion_test.cpp",
             "clangcodecompletion_test.h",
+            "data/clangtestdata.qrc",
         ]
     }
 
