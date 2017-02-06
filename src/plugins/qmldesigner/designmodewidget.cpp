@@ -24,10 +24,10 @@
 ****************************************************************************/
 
 #include "designmodewidget.h"
+#include "switchsplittabwidget.h"
 
 #include <designeractionmanager.h>
 
-#include <coreplugin/outputpane.h>
 #include "qmldesignerplugin.h"
 #include "crumblebar.h"
 #include "documentwarningwidget.h"
@@ -37,6 +37,7 @@
 #include <itemlibrarywidget.h>
 #include <theming.h>
 
+#include <coreplugin/outputpane.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/designmode.h>
@@ -229,7 +230,10 @@ void DesignModeWidget::disableWidgets()
 
 void DesignModeWidget::switchTextOrForm()
 {
-    m_centralTabWidget->setCurrentIndex(m_centralTabWidget->currentIndex() == 0 ? 1 : 0);
+    if (m_centralTabWidget->currentWidget() == viewManager().widget("TextEditor"))
+        m_centralTabWidget->switchTo(viewManager().widget("FormEditor"));
+    else
+        m_centralTabWidget->switchTo(viewManager().widget("TextEditor"));
 }
 
 void DesignModeWidget::showWarningMessageBox(const QList<DocumentMessage> &warnings)
@@ -471,34 +475,24 @@ static QWidget *createbottomSideBarWidget(const QList<WidgetInfo> &widgetInfos)
 
 static Core::MiniSplitter *createCentralSplitter(const QList<WidgetInfo> &widgetInfos)
 {
-    QList<WidgetInfo> centralWidgetInfos;
-    foreach (const WidgetInfo &widgetInfo, widgetInfos) {
-        if (widgetInfo.placementHint == widgetInfo.CentralPane)
-            centralWidgetInfos.append(widgetInfo);
-    }
-
     // editor and output panes
     Core::MiniSplitter *outputPlaceholderSplitter = new Core::MiniSplitter;
     outputPlaceholderSplitter->setStretchFactor(0, 10);
     outputPlaceholderSplitter->setStretchFactor(1, 0);
     outputPlaceholderSplitter->setOrientation(Qt::Vertical);
 
-    QTabWidget* tabWidget = createWidgetsInTabWidget(centralWidgetInfos);
-    tabWidget->setObjectName("centralTabWidget");
-    tabWidget->setTabPosition(QTabWidget::East);
-    tabWidget->tabBar()->setObjectName("centralTabBar");
-    tabWidget->setTabBarAutoHide(true);
+    SwitchSplitTabWidget *switchSplitTabWidget = new SwitchSplitTabWidget();
 
-    QWidget *backgroundWidget = new QWidget();
-    backgroundWidget->setObjectName("backgroundWidget");
-    backgroundWidget->setLayout(new QVBoxLayout());
-    backgroundWidget->layout()->setMargin(0);
-    backgroundWidget->layout()->addWidget(tabWidget);
+    QString sheet = QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/centerwidget.css"));
+    switchSplitTabWidget->setStyleSheet(Theming::replaceCssColors(sheet));
 
-    QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/centerwidget.css");
-    backgroundWidget->setStyleSheet(Theming::replaceCssColors(QString::fromUtf8(sheet)));
 
-    outputPlaceholderSplitter->addWidget(backgroundWidget);
+    foreach (const WidgetInfo &widgetInfo, widgetInfos) {
+        if (widgetInfo.placementHint == widgetInfo.CentralPane)
+            switchSplitTabWidget->addTab(widgetInfo.widget, widgetInfo.tabName);
+    }
+
+    outputPlaceholderSplitter->addWidget(switchSplitTabWidget);
 
     QWidget *bottomSideBar = createbottomSideBarWidget(widgetInfos);
     bottomSideBar->setObjectName("bottomSideBar");
@@ -522,8 +516,10 @@ QWidget *DesignModeWidget::createCenterWidget()
     horizontalLayout->addWidget(createCrumbleBarFrame());
 
     Core::MiniSplitter *centralSplitter = createCentralSplitter(viewManager().widgetInfos());
-    m_centralTabWidget = centralSplitter->findChild<QTabWidget*>("centralTabWidget");
+    m_centralTabWidget = centralSplitter->findChild<SwitchSplitTabWidget*>();
     Q_ASSERT(m_centralTabWidget);
+    m_centralTabWidget->switchTo(viewManager().widget("FormEditor"));
+
     m_bottomSideBar = centralSplitter->findChild<QWidget*>("bottomSideBar");
     Q_ASSERT(m_bottomSideBar);
     horizontalLayout->addWidget(centralSplitter);
@@ -574,9 +570,9 @@ CrumbleBar *DesignModeWidget::crumbleBar() const
     return m_crumbleBar;
 }
 
-QTabWidget *DesignModeWidget::centralTabWidget() const
+void DesignModeWidget::showInternalTextEditor()
 {
-    return m_centralTabWidget;
+    m_centralTabWidget->switchTo(viewManager().widget("TextEditor"));
 }
 
 QString DesignModeWidget::contextHelpId() const

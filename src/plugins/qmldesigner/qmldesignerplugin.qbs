@@ -641,6 +641,8 @@ Project {
             "designmodecontext.h",
             "designmodewidget.cpp",
             "designmodewidget.h",
+            "switchsplittabwidget.cpp",
+            "switchsplittabwidget.h",
             "documentmanager.cpp",
             "documentmanager.h",
             "documentwarningwidget.cpp",
