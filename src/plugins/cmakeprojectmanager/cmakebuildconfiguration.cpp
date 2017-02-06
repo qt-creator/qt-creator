@@ -220,9 +220,9 @@ void CMakeBuildConfiguration::generateProjectTree(CMakeListsNode *root,
     m_buildDirManager->generateProjectTree(root, allFiles);
 }
 
-QSet<Core::Id> CMakeBuildConfiguration::updateCodeModel(CppTools::ProjectPartBuilder &ppBuilder)
+void CMakeBuildConfiguration::updateCodeModel(CppTools::RawProjectParts &rpps)
 {
-    return m_buildDirManager->updateCodeModel(ppBuilder);
+    m_buildDirManager->updateCodeModel(rpps);
 }
 
 FileName CMakeBuildConfiguration::shadowBuildDirectory(const FileName &projectFilePath,

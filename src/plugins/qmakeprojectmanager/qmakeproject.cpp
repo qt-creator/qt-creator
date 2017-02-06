@@ -39,10 +39,10 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <cpptools/cppmodelmanager.h>
+#include <cpptools/cpprawprojectpart.h>
 #include <cpptools/projectinfo.h>
-#include <cpptools/projectpartbuilder.h>
 #include <cpptools/projectpartheaderpath.h>
+#include <cpptools/cppprojectupdater.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildtargetinfo.h>
@@ -247,7 +247,8 @@ bool QmakeProjectFile::reload(QString *errorString, ReloadFlag flag, ChangeType 
 
 QmakeProject::QmakeProject(QmakeManager *manager, const QString &fileName) :
     m_projectFiles(new QmakeProjectFiles),
-    m_qmakeVfs(new QMakeVfs)
+    m_qmakeVfs(new QMakeVfs),
+    m_cppCodeModelUpdater(new CppTools::CppProjectUpdater(this))
 {
     setId(Constants::QMAKEPROJECT_ID);
     setProjectManager(manager);
@@ -275,7 +276,8 @@ QmakeProject::~QmakeProject()
 {
     delete m_projectImporter;
     m_projectImporter = nullptr;
-    m_codeModelFuture.cancel();
+    delete m_cppCodeModelUpdater;
+    m_cppCodeModelUpdater = nullptr;
     m_asyncUpdateState = ShuttingDown;
 
     // Make sure root node (and associated readers) are shut hown before proceeding
@@ -352,6 +354,13 @@ void QmakeProject::updateCppCodeModel()
         k = KitManager::defaultKit();
     QTC_ASSERT(k, return);
 
+    ToolChain *cToolChain
+            = ToolChainKitInformation::toolChain(k, ProjectExplorer::Constants::C_LANGUAGE_ID);
+    ToolChain *cxxToolChain
+            = ToolChainKitInformation::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+
+    m_cppCodeModelUpdater->cancel();
+
     QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(k);
     ProjectPart::QtVersion qtVersionForPart = ProjectPart::NoQt;
     if (qtVersion) {
@@ -363,26 +372,26 @@ void QmakeProject::updateCppCodeModel()
 
     FindQmakeProFiles findQmakeProFiles;
     const QList<QmakeProFileNode *> proFiles = findQmakeProFiles(rootProjectNode());
-    CppTools::ProjectInfo projectInfo(this);
-    CppTools::ProjectPartBuilder ppBuilder(projectInfo);
 
     QList<ProjectExplorer::ExtraCompiler *> generators;
-
+    CppTools::RawProjectParts rpps;
     foreach (QmakeProFileNode *pro, proFiles) {
         warnOnToolChainMismatch(pro);
 
-        ppBuilder.setDisplayName(pro->displayName());
-        ppBuilder.setProjectFile(pro->filePath().toString());
-        ppBuilder.setCxxFlags(pro->variableValue(Variable::CppFlags)); // TODO: Handle QMAKE_CFLAGS
-        ppBuilder.setDefines(pro->cxxDefines());
-        ppBuilder.setPreCompiledHeaders(pro->variableValue(Variable::PrecompiledHeader));
-        ppBuilder.setSelectedForBuilding(pro->includedInExactParse());
+        CppTools::RawProjectPart rpp;
+        rpp.setDisplayName(pro->displayName());
+        rpp.setProjectFile(pro->filePath().toString());
+        // TODO: Handle QMAKE_CFLAGS
+        rpp.setFlagsForCxx({cxxToolChain, pro->variableValue(Variable::CppFlags)});
+        rpp.setDefines(pro->cxxDefines());
+        rpp.setPreCompiledHeaders(pro->variableValue(Variable::PrecompiledHeader));
+        rpp.setSelectedForBuilding(pro->includedInExactParse());
 
         // Qt Version
         if (pro->variableValue(Variable::Config).contains(QLatin1String("qt")))
-            ppBuilder.setQtVersion(qtVersionForPart);
+            rpp.setQtVersion(qtVersionForPart);
         else
-            ppBuilder.setQtVersion(ProjectPart::NoQt);
+            rpp.setQtVersion(ProjectPart::NoQt);
 
         // Header paths
         CppTools::ProjectPartHeaderPaths headerPaths;
@@ -397,7 +406,7 @@ void QmakeProject::updateCppCodeModel()
             headerPaths += CppToolsHeaderPath(qtVersion->frameworkInstallPath(),
                                               CppToolsHeaderPath::FrameworkPath);
         }
-        ppBuilder.setHeaderPaths(headerPaths);
+        rpp.setHeaderPaths(headerPaths);
 
         // Files and generators
         QStringList fileList = pro->variableValue(Variable::Source);
@@ -408,14 +417,13 @@ void QmakeProject::updateCppCodeModel()
             });
         }
         generators.append(proGenerators);
+        rpp.setFiles(fileList);
 
-        const QList<Core::Id> languages = ppBuilder.createProjectPartsForFiles(fileList);
-        foreach (const Core::Id &language, languages)
-            setProjectLanguage(language, true);
+        rpps.append(rpp);
     }
 
     CppTools::GeneratedCodeModelSupport::update(generators);
-    m_codeModelFuture = CppTools::CppModelManager::instance()->updateProjectInfo(projectInfo);
+    m_cppCodeModelUpdater->update({this, cToolChain, cxxToolChain, k, rpps});
 }
 
 void QmakeProject::updateQmlJSCodeModel()
@@ -523,7 +531,7 @@ void QmakeProject::scheduleAsyncUpdate(QmakeProFileNode *node, QmakeProFile::Asy
             m_partialEvaluate.append(node);
 
         // Cancel running code model update
-        m_codeModelFuture.cancel();
+        m_cppCodeModelUpdater->cancel();
 
         startAsyncTimer(delay);
     } else if (m_asyncUpdateState == AsyncUpdateInProgress) {
@@ -561,7 +569,7 @@ void QmakeProject::scheduleAsyncUpdate(QmakeProFile::AsyncUpdateDelay delay)
     m_asyncUpdateState = AsyncFullUpdatePending;
 
     // Cancel running code model update
-    m_codeModelFuture.cancel();
+    m_cppCodeModelUpdater->cancel();
     startAsyncTimer(delay);
 }
 

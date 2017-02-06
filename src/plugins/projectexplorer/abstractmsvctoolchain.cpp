@@ -47,7 +47,9 @@ namespace Internal {
 AbstractMsvcToolChain::AbstractMsvcToolChain(Core::Id typeId, Core::Id l, Detection d,
                                              const Abi &abi,
                                              const QString& vcvarsBat) : ToolChain(typeId, d),
+    m_predefinedMacrosMutex(new QMutex),
     m_lastEnvironment(Utils::Environment::systemEnvironment()),
+    m_headerPathsMutex(new QMutex),
     m_abi(abi),
     m_vcvarsBat(vcvarsBat)
 {
@@ -63,6 +65,25 @@ AbstractMsvcToolChain::AbstractMsvcToolChain(Core::Id typeId, Detection d) :
     m_lastEnvironment(Utils::Environment::systemEnvironment())
 { }
 
+AbstractMsvcToolChain::~AbstractMsvcToolChain()
+{
+    delete m_predefinedMacrosMutex;
+    delete m_headerPathsMutex;
+}
+
+AbstractMsvcToolChain::AbstractMsvcToolChain(const AbstractMsvcToolChain &other)
+    : ToolChain(other),
+      m_debuggerCommand(other.m_debuggerCommand),
+      m_predefinedMacrosMutex(new QMutex),
+      m_predefinedMacros(other.m_predefinedMacros),
+      m_lastEnvironment(other.m_lastEnvironment),
+      m_resultEnvironment(other.m_resultEnvironment),
+      m_headerPathsMutex(new QMutex),
+      m_abi(other.m_abi),
+      m_vcvarsBat(other.m_vcvarsBat)
+{
+}
+
 Abi AbstractMsvcToolChain::targetAbi() const
 {
     return m_abi;
@@ -76,14 +97,23 @@ bool AbstractMsvcToolChain::isValid() const
     return fi.isFile() && fi.isExecutable();
 }
 
+ToolChain::PredefinedMacrosRunner AbstractMsvcToolChain::createPredefinedMacrosRunner() const
+{
+    Utils::Environment env(m_lastEnvironment);
+    addToEnvironment(env);
+
+    // This runner must be thread-safe!
+    return [this, env](const QStringList &cxxflags) {
+        QMutexLocker locker(m_predefinedMacrosMutex);
+        if (m_predefinedMacros.isEmpty())
+            m_predefinedMacros = msvcPredefinedMacros(cxxflags, env);
+        return m_predefinedMacros;
+    };
+}
+
 QByteArray AbstractMsvcToolChain::predefinedMacros(const QStringList &cxxflags) const
 {
-    if (m_predefinedMacros.isEmpty()) {
-        Utils::Environment env(m_lastEnvironment);
-        addToEnvironment(env);
-        m_predefinedMacros = msvcPredefinedMacros(cxxflags, env);
-    }
-    return m_predefinedMacros;
+    return createPredefinedMacrosRunner()(cxxflags);
 }
 
 ToolChain::CompilerFlags AbstractMsvcToolChain::compilerFlags(const QStringList &cxxflags) const
@@ -160,17 +190,25 @@ WarningFlags AbstractMsvcToolChain::warningFlags(const QStringList &cflags) cons
     return flags;
 }
 
-QList<HeaderPath> AbstractMsvcToolChain::systemHeaderPaths(const QStringList &cxxflags, const Utils::FileName &sysRoot) const
+ToolChain::SystemHeaderPathsRunner AbstractMsvcToolChain::createSystemHeaderPathsRunner() const
 {
-    Q_UNUSED(cxxflags);
-    Q_UNUSED(sysRoot);
-    if (m_headerPaths.isEmpty()) {
-        Utils::Environment env(m_lastEnvironment);
-        addToEnvironment(env);
-        foreach (const QString &path, env.value(QLatin1String("INCLUDE")).split(QLatin1Char(';')))
-            m_headerPaths.append(HeaderPath(path, HeaderPath::GlobalHeaderPath));
-    }
-    return m_headerPaths;
+    Utils::Environment env(m_lastEnvironment);
+    addToEnvironment(env);
+
+    return [this, env](const QStringList &, const QString &) {
+        QMutexLocker locker(m_headerPathsMutex);
+        if (m_headerPaths.isEmpty()) {
+            foreach (const QString &path, env.value(QLatin1String("INCLUDE")).split(QLatin1Char(';')))
+                m_headerPaths.append(HeaderPath(path, HeaderPath::GlobalHeaderPath));
+        }
+        return m_headerPaths;
+    };
+}
+
+QList<HeaderPath> AbstractMsvcToolChain::systemHeaderPaths(const QStringList &cxxflags,
+                                                           const Utils::FileName &sysRoot) const
+{
+    return createSystemHeaderPathsRunner()(cxxflags, sysRoot.toString());
 }
 
 void AbstractMsvcToolChain::addToEnvironment(Utils::Environment &env) const
@@ -231,6 +269,7 @@ bool AbstractMsvcToolChain::canClone() const
     return true;
 }
 
+// Function must be thread-safe!
 QByteArray AbstractMsvcToolChain::msvcPredefinedMacros(const QStringList cxxflags,
                                                        const Utils::Environment& env) const
 {

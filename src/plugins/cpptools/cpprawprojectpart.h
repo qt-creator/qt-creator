@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -26,31 +26,44 @@
 #pragma once
 
 #include "cpptools_global.h"
-
-#include "cppprojectinterface.h"
 #include "projectpart.h"
 
+#include <projectexplorer/toolchain.h>
+
 #include <functional>
-#include <memory>
 
 namespace CppTools {
 
-class ProjectInfo;
-
-class CPPTOOLS_EXPORT BaseProjectPartBuilder
+class CPPTOOLS_EXPORT RawProjectPartFlags
 {
 public:
-    BaseProjectPartBuilder(ProjectInterface *project, ProjectInfo &projectInfo);
+    RawProjectPartFlags() = default;
+    RawProjectPartFlags(const ProjectExplorer::ToolChain *toolChain,
+                        const QStringList &commandLineFlags);
+
+public:
+    QStringList commandLineFlags;
+    // The following are deduced from commandLineFlags.
+    ProjectExplorer::WarningFlags warningFlags = ProjectExplorer::WarningFlags::Default;
+    ProjectExplorer::ToolChain::CompilerFlags compilerFlags
+        = ProjectExplorer::ToolChain::CompilerFlag::NoFlags;
+};
+
+class CPPTOOLS_EXPORT RawProjectPart
+{
+public:
+    RawProjectPart() {}
 
     void setDisplayName(const QString &displayName);
+
+    // FileClassifier must be thread-safe.
+    using FileClassifier = std::function<ProjectFile::Kind (const QString &filePath)>;
+    void setFiles(const QStringList &files, FileClassifier fileClassifier = FileClassifier());
 
     void setProjectFile(const QString &projectFile);
     void setConfigFileName(const QString &configFileName);
 
     void setQtVersion(ProjectPart::QtVersion qtVersion);
-
-    void setCFlags(const QStringList &flags);
-    void setCxxFlags(const QStringList &flags);
 
     void setDefines(const QByteArray &defines);
     void setHeaderPaths(const ProjectPartHeaderPaths &headerPaths);
@@ -60,24 +73,26 @@ public:
 
     void setSelectedForBuilding(bool yesno);
 
-    using FileClassifier = std::function<ProjectFile::Kind (const QString &filePath)>;
-    QList<Core::Id> createProjectPartsForFiles(const QStringList &filePaths,
-                                               FileClassifier fileClassifier = FileClassifier());
+    void setFlagsForC(const RawProjectPartFlags &flags);
+    void setFlagsForCxx(const RawProjectPartFlags &flags);
 
-private:
-    void createProjectPart(const ProjectFiles &projectFiles,
-                           const QString &partName,
-                           ProjectPart::LanguageVersion languageVersion,
-                           ProjectPart::LanguageExtensions languageExtensions);
-    ToolChainInterfacePtr selectToolChain(ProjectPart::LanguageVersion languageVersion);
+public:
+    QString displayName;
+    QString projectFile;
+    QString projectConfigFile; // currently only used by the Generic Project Manager
+    QStringList precompiledHeaders;
+    ProjectPartHeaderPaths headerPaths;
+    QByteArray projectDefines;
+    ProjectPart::QtVersion qtVersion = ProjectPart::UnknownQt;
+    bool selectedForBuilding = true;
 
-private:
-    std::unique_ptr<ProjectInterface> m_project;
-    ProjectInfo &m_projectInfo;
+    RawProjectPartFlags flagsForC;
+    RawProjectPartFlags flagsForCxx;
 
-    ProjectPart::Ptr m_templatePart;
-    QStringList m_cFlags;
-    QStringList m_cxxFlags;
+    QStringList files;
+    FileClassifier fileClassifier;
 };
+
+using RawProjectParts = QVector<RawProjectPart>;
 
 } // namespace CppTools

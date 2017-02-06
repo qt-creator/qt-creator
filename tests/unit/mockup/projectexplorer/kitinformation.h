@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,31 +25,16 @@
 
 #pragma once
 
-#include "cppindexingsupport.h"
-#include "cppmodelmanager.h"
+#include <utils/fileutils.h>
 
-#include <QFutureSynchronizer>
+namespace ProjectExplorer {
 
-namespace CppTools {
-namespace Internal {
+class Kit;
 
-class BuiltinIndexingSupport: public CppIndexingSupport {
+class SysRootKitInformation
+{
 public:
-    BuiltinIndexingSupport();
-    ~BuiltinIndexingSupport();
-
-    QFuture<void> refreshSourceFiles(const QFutureInterface<void> &superFuture,
-                                     const QSet<QString> &sourceFiles,
-                                     CppModelManager::ProgressNotificationMode mode) override;
-    SymbolSearcher *createSymbolSearcher(SymbolSearcher::Parameters parameters,
-                                         QSet<QString> fileNames)  override;
-
-public:
-    static bool isFindErrorsIndexingActive();
-
-private:
-    QFutureSynchronizer<void> m_synchronizer;
+    static Utils::FileName sysRoot(const Kit *) { return Utils::FileName(); }
 };
 
-} // namespace Internal
-} // namespace CppTools
+} // namespace ProjectExplorer

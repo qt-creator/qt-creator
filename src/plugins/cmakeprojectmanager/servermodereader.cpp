@@ -34,7 +34,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <cpptools/projectpartbuilder.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/task.h>
@@ -287,9 +286,8 @@ void ServerModeReader::generateProjectTree(CMakeListsNode *root,
     addProjects(root, m_projects, allFiles);
 }
 
-QSet<Core::Id> ServerModeReader::updateCodeModel(CppTools::ProjectPartBuilder &ppBuilder)
+void ServerModeReader::updateCodeModel(CppTools::RawProjectParts &rpps)
 {
-    QSet<Core::Id> languages;
     int counter = 0;
     foreach (const FileGroup *fg, m_fileGroups) {
         ++counter;
@@ -304,23 +302,29 @@ QSet<Core::Id> ServerModeReader::updateCodeModel(CppTools::ProjectPartBuilder &p
         const QStringList flags = QtcProcess::splitArgs(fg->compileFlags);
         const QStringList includes = transform(fg->includePaths, [](const IncludePath *ip)  { return ip->path.toString(); });
 
-        ppBuilder.setProjectFile(fg->target->sourceDirectory.toString() + "/CMakeLists.txt");
-        ppBuilder.setDisplayName(fg->target->name + QString::number(counter));
-        ppBuilder.setDefines(defineArg.toUtf8());
-        ppBuilder.setIncludePaths(includes);
-        ppBuilder.setCFlags(flags);
-        ppBuilder.setCxxFlags(flags);
+        CppTools::RawProjectPart rpp;
+        rpp.setProjectFile(fg->target->sourceDirectory.toString() + "/CMakeLists.txt");
+        rpp.setDisplayName(fg->target->name + QString::number(counter));
+        rpp.setDefines(defineArg.toUtf8());
+        rpp.setIncludePaths(includes);
 
+        CppTools::RawProjectPartFlags cProjectFlags;
+        cProjectFlags.commandLineFlags = flags;
+        rpp.setFlagsForC(cProjectFlags);
 
-        languages.unite(QSet<Core::Id>::fromList(ppBuilder.createProjectPartsForFiles(transform(fg->sources, &FileName::toString))));
+        CppTools::RawProjectPartFlags cxxProjectFlags;
+        cxxProjectFlags.commandLineFlags = flags;
+        rpp.setFlagsForCxx(cxxProjectFlags);
+
+        rpp.setFiles(transform(fg->sources, &FileName::toString));
+
+        rpps.append(rpp);
     }
 
     qDeleteAll(m_projects); // Not used anymore!
     m_projects.clear();
     m_targets.clear();
     m_fileGroups.clear();
-
-    return languages;
 }
 
 void ServerModeReader::handleReply(const QVariantMap &data, const QString &inReplyTo)

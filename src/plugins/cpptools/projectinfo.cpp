@@ -25,9 +25,46 @@
 
 #include "projectinfo.h"
 
-#include <projectexplorer/project.h>
+#include <projectexplorer/abi.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 namespace CppTools {
+
+ToolChainInfo::ToolChainInfo(const ProjectExplorer::ToolChain *toolChain,
+                             const ProjectExplorer::Kit *kit)
+{
+    if (toolChain) {
+        // Keep the following cheap/non-blocking for the ui thread...
+        type = toolChain->typeId();
+        isMsvc2015ToolChain
+                = toolChain->targetAbi().osFlavor() == ProjectExplorer::Abi::WindowsMsvc2015Flavor;
+        wordWidth = toolChain->targetAbi().wordWidth();
+        targetTriple = type == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID
+            ? QLatin1String("i686-pc-windows-msvc")
+            : toolChain->originalTargetTriple(); // OK, compiler run is already cached.
+
+        // ...and save the potentially expensive operations for later so that
+        // they can be run from a worker thread.
+        sysRoothPath = ProjectExplorer::SysRootKitInformation::sysRoot(kit).toString();
+        headerPathsRunner = toolChain->createSystemHeaderPathsRunner();
+        predefinedMacrosRunner = toolChain->createPredefinedMacrosRunner();
+    }
+}
+
+ProjectUpdateInfo::ProjectUpdateInfo(ProjectExplorer::Project *project,
+                                     const ProjectExplorer::ToolChain *cToolChain,
+                                     const ProjectExplorer::ToolChain *cxxToolChain,
+                                     const ProjectExplorer::Kit *kit,
+                                     const RawProjectParts &rawProjectParts)
+    : project(project)
+    , rawProjectParts(rawProjectParts)
+    , cToolChain(cToolChain)
+    , cxxToolChain(cxxToolChain)
+    , cToolChainInfo(ToolChainInfo(cToolChain, kit))
+    , cxxToolChainInfo(ToolChainInfo(cxxToolChain, kit))
+{
+}
 
 ProjectInfo::ProjectInfo(QPointer<ProjectExplorer::Project> project)
     : m_project(project)

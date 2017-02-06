@@ -45,6 +45,7 @@
 #include <QTimer>
 
 namespace Core { class IDocument; }
+namespace CppTools { class CppProjectUpdater; }
 namespace ProjectExplorer { class BuildConfiguration; }
 
 namespace QbsProjectManager {
@@ -164,8 +165,8 @@ private:
         CancelStatusCancelingAltoghether
     } m_cancelStatus;
 
-    QFuture<void> m_codeModelFuture;
-    CppTools::ProjectInfo m_codeModelProjectInfo;
+    CppTools::CppProjectUpdater *m_cppCodeModelUpdater = nullptr;
+    CppTools::ProjectInfo m_cppCodeModelProjectInfo;
 
     QbsBuildConfiguration *m_currentBc;
 

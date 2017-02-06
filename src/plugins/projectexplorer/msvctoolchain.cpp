@@ -287,6 +287,7 @@ static QByteArray msvcCompilationFile()
 }
 
 // Run MSVC 'cl' compiler to obtain #defines.
+// Function must be thread-safe!
 QByteArray MsvcToolChain::msvcPredefinedMacros(const QStringList cxxflags,
                                                const Utils::Environment &env) const
 {

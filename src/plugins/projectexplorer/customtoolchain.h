@@ -77,12 +77,14 @@ public:
 
     bool isValid() const override;
 
+    PredefinedMacrosRunner createPredefinedMacrosRunner() const override;
     QByteArray predefinedMacros(const QStringList &cxxflags) const override;
     CompilerFlags compilerFlags(const QStringList &cxxflags) const override;
     WarningFlags warningFlags(const QStringList &cxxflags) const override;
     const QStringList &rawPredefinedMacros() const;
     void setPredefinedMacros(const QStringList &list);
 
+    SystemHeaderPathsRunner createSystemHeaderPathsRunner() const override;
     QList<HeaderPath> systemHeaderPaths(const QStringList &cxxFlags,
                                         const Utils::FileName &) const override;
     void addToEnvironment(Utils::Environment &env) const override;

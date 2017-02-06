@@ -81,6 +81,7 @@ protected:
     explicit MsvcToolChain(Core::Id typeId);
 
     Utils::Environment readEnvironmentSetting(const Utils::Environment& env) const final;
+    // Function must be thread-safe!
     QByteArray msvcPredefinedMacros(const QStringList cxxflags,
                                     const Utils::Environment &env) const override;
 

@@ -32,7 +32,10 @@
 #include "headerpath.h"
 
 #include <utils/fileutils.h>
+#include <QMutex>
 #include <QStringList>
+
+#include <functional>
 
 namespace ProjectExplorer {
 
@@ -48,6 +51,42 @@ class LinuxIccToolChainFactory;
 // GccToolChain
 // --------------------------------------------------------------------------
 
+class PROJECTEXPLORER_EXPORT HeaderPathsCache
+{
+public:
+    HeaderPathsCache() : m_mutex(QMutex::Recursive) {}
+    HeaderPathsCache(const HeaderPathsCache &other);
+    void insert(const QStringList &compilerCommand, const QList<HeaderPath> &headerPaths);
+    QList<HeaderPath> check(const QStringList &compilerCommand, bool *cacheHit) const;
+
+protected:
+    using CacheItem = QPair<QStringList, QList<HeaderPath>>;
+    using Cache = QList<CacheItem>;
+    Cache cache() const;
+
+private:
+    mutable QMutex m_mutex;
+    mutable Cache m_cache;
+};
+
+class PROJECTEXPLORER_EXPORT MacroCache
+{
+public:
+    MacroCache() : m_mutex(QMutex::Recursive) {}
+    MacroCache(const MacroCache &other);
+    void insert(const QStringList &compilerCommand, const QByteArray &macros);
+    QByteArray check(const QStringList &compilerCommand) const;
+
+protected:
+    using CacheItem = QPair<QStringList, QByteArray>;
+    using Cache = QList<CacheItem>;
+    Cache cache() const;
+
+private:
+    mutable QMutex m_mutex;
+    mutable Cache m_cache;
+};
+
 class PROJECTEXPLORER_EXPORT GccToolChain : public ToolChain
 {
 public:
@@ -61,12 +100,16 @@ public:
 
     bool isValid() const override;
 
-    QByteArray predefinedMacros(const QStringList &cxxflags) const override;
     CompilerFlags compilerFlags(const QStringList &cxxflags) const override;
     WarningFlags warningFlags(const QStringList &cflags) const override;
 
+    PredefinedMacrosRunner createPredefinedMacrosRunner() const override;
+    QByteArray predefinedMacros(const QStringList &cxxflags) const override;
+
+    SystemHeaderPathsRunner createSystemHeaderPathsRunner() const override;
     QList<HeaderPath> systemHeaderPaths(const QStringList &cxxflags,
                                         const Utils::FileName &sysRoot) const override;
+
     void addToEnvironment(Utils::Environment &env) const override;
     QString makeCommand(const Utils::Environment &environment) const override;
     Utils::FileNameList suggestedMkspecList() const override;
@@ -104,16 +147,13 @@ public:
     };
 
 protected:
-    typedef QList<QPair<QStringList, QByteArray> > GccCache;
-
     GccToolChain(const GccToolChain &) = default;
-
-    typedef QPair<QStringList, QByteArray> CacheItem;
 
     void setCompilerCommand(const Utils::FileName &path);
     void setSupportedAbis(const QList<Abi> &m_abis);
     void setOriginalTargetTriple(const QString &targetTriple);
-    void setMacroCache(const QStringList &allCxxflags, const QByteArray &macroCache) const;
+
+    void setMacroCache(const QStringList &allCxxflags, const QByteArray &macros) const;
     QByteArray macroCache(const QStringList &allCxxflags) const;
 
     virtual QString defaultDisplayName() const;
@@ -124,11 +164,9 @@ protected:
 
     // Reinterpret options for compiler drivers inheriting from GccToolChain (e.g qcc) to apply -Wp option
     // that passes the initial options directly down to the gcc compiler
-    virtual QStringList reinterpretOptions(const QStringList &argument) const { return argument; }
+    using OptionsReinterpreter = std::function<QStringList(const QStringList &options)>;
+    void setOptionsReinterpreter(const OptionsReinterpreter &optionsReinterpreter);
     static QList<HeaderPath> gccHeaderPaths(const Utils::FileName &gcc, const QStringList &args, const QStringList &env);
-
-    static const int PREDEFINED_MACROS_CACHE_SIZE;
-    mutable GccCache m_predefinedMacros;
 
     class WarningFlagAdder
     {
@@ -153,11 +191,16 @@ private:
     QStringList m_platformCodeGenFlags;
     QStringList m_platformLinkerFlags;
 
+    OptionsReinterpreter m_optionsReinterpreter = [](const QStringList &v) { return v; };
+
     Abi m_targetAbi;
     mutable QList<Abi> m_supportedAbis;
     mutable QString m_originalTargetTriple;
     mutable QList<HeaderPath> m_headerPaths;
     mutable QString m_version;
+
+    mutable MacroCache m_predefinedMacrosCache;
+    mutable HeaderPathsCache m_headerPathsCache;
 
     friend class Internal::GccToolChainConfigWidget;
     friend class Internal::GccToolChainFactory;

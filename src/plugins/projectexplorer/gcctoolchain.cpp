@@ -66,6 +66,105 @@ static const char targetAbiKeyC[] = "ProjectExplorer.GccToolChain.TargetAbi";
 static const char originalTargetTripleKeyC[] = "ProjectExplorer.GccToolChain.OriginalTargetTriple";
 static const char supportedAbisKeyC[] = "ProjectExplorer.GccToolChain.SupportedAbis";
 
+static const int CACHE_SIZE = 16;
+
+HeaderPathsCache::HeaderPathsCache(const HeaderPathsCache &other)
+{
+    QMutexLocker locker(&m_mutex);
+    m_cache = other.cache();
+}
+
+void HeaderPathsCache::insert(const QStringList &compilerCommand,
+                              const QList<HeaderPath> &headerPaths)
+{
+    CacheItem runResults;
+    runResults.first = compilerCommand;
+    runResults.second = headerPaths;
+
+    QMutexLocker locker(&m_mutex);
+    bool cacheHit = false;
+    check(compilerCommand, &cacheHit);
+    if (!cacheHit) {
+        m_cache.push_back(runResults);
+        if (m_cache.size() > CACHE_SIZE)
+            m_cache.pop_front();
+    }
+}
+
+QList<HeaderPath> HeaderPathsCache::check(const QStringList &compilerCommand,
+                                          bool *cacheHit) const
+{
+    QMutexLocker locker(&m_mutex);
+    for (Cache::iterator it = m_cache.begin(); it != m_cache.end(); ++it) {
+        if (it->first == compilerCommand) {
+            // Increase cached item priority
+            CacheItem pair = *it;
+            m_cache.erase(it);
+            m_cache.push_back(pair);
+
+            *cacheHit = true;
+            return pair.second;
+        }
+    }
+
+    *cacheHit = false;
+    return QList<HeaderPath>();
+}
+
+HeaderPathsCache::Cache HeaderPathsCache::cache() const
+{
+    QMutexLocker locker(&m_mutex);
+    return m_cache;
+}
+
+MacroCache::MacroCache(const MacroCache &other)
+{
+    QMutexLocker locker(&m_mutex);
+    m_cache = other.cache();
+}
+
+void MacroCache::insert(const QStringList &compilerCommand, const QByteArray &macros)
+{
+    if (macros.isNull())
+        return;
+
+    CacheItem runResults;
+    QByteArray data = macros;
+    runResults.first = compilerCommand;
+    if (macros.isNull())
+        data = QByteArray("");
+    runResults.second = data;
+
+    QMutexLocker locker(&m_mutex);
+    if (check(compilerCommand).isNull()) {
+        m_cache.push_back(runResults);
+        if (m_cache.size() > CACHE_SIZE)
+            m_cache.pop_front();
+    }
+}
+
+QByteArray MacroCache::check(const QStringList &compilerCommand) const
+{
+    QMutexLocker locker(&m_mutex);
+    for (Cache::iterator it = m_cache.begin(); it != m_cache.end(); ++it) {
+        if (it->first == compilerCommand) {
+            // Increase cached item priority
+            CacheItem pair = *it;
+            m_cache.erase(it);
+            m_cache.push_back(pair);
+
+            return pair.second;
+        }
+    }
+    return QByteArray();
+}
+
+MacroCache::Cache MacroCache::cache() const
+{
+    QMutexLocker locker(&m_mutex);
+    return m_cache;
+}
+
 static QByteArray runGcc(const FileName &gcc, const QStringList &arguments, const QStringList &env)
 {
     if (gcc.isEmpty() || !gcc.toFileInfo().isExecutable())
@@ -114,8 +213,6 @@ static QByteArray gccPredefinedMacros(const FileName &gcc, const QStringList &ar
     }
     return predefinedMacros;
 }
-
-const int GccToolChain::PREDEFINED_MACROS_CACHE_SIZE = 16;
 
 QList<HeaderPath> GccToolChain::gccHeaderPaths(const FileName &gcc, const QStringList &arguments,
                                                const QStringList &env)
@@ -252,38 +349,6 @@ void GccToolChain::setOriginalTargetTriple(const QString &targetTriple)
     toolChainUpdated();
 }
 
-void GccToolChain::setMacroCache(const QStringList &allCxxflags, const QByteArray &macros) const
-{
-    if (macros.isNull())
-        return;
-
-    CacheItem runResults;
-    QByteArray data = macros;
-    runResults.first = allCxxflags;
-    if (macros.isNull())
-        data = QByteArray("");
-    runResults.second = data;
-
-    m_predefinedMacros.push_back(runResults);
-    if (m_predefinedMacros.size() > PREDEFINED_MACROS_CACHE_SIZE)
-        m_predefinedMacros.pop_front();
-}
-
-QByteArray GccToolChain::macroCache(const QStringList &allCxxflags) const
-{
-    for (GccCache::iterator it = m_predefinedMacros.begin(); it != m_predefinedMacros.end(); ++it) {
-        if (it->first == allCxxflags) {
-            // Increase cached item priority
-            CacheItem pair = *it;
-            m_predefinedMacros.erase(it);
-            m_predefinedMacros.push_back(pair);
-
-            return pair.second;
-        }
-    }
-    return QByteArray();
-}
-
 QString GccToolChain::defaultDisplayName() const
 {
     if (!m_targetAbi.isValid())
@@ -348,6 +413,64 @@ bool GccToolChain::isValid() const
     return fi.isExecutable();
 }
 
+ToolChain::PredefinedMacrosRunner GccToolChain::createPredefinedMacrosRunner() const
+{
+    // Using a clean environment breaks ccache/distcc/etc.
+    Environment env = Environment::systemEnvironment();
+    addToEnvironment(env);
+    const Utils::FileName compilerCommand = m_compilerCommand;
+    const QStringList platformCodeGenFlags = m_platformCodeGenFlags;
+    OptionsReinterpreter reinterpretOptions = m_optionsReinterpreter;
+    QTC_CHECK(reinterpretOptions);
+    MacroCache *macroCache = &m_predefinedMacrosCache;
+
+    // This runner must be thread-safe!
+    return [env, compilerCommand, platformCodeGenFlags, reinterpretOptions, macroCache]
+            (const QStringList &cxxflags) {
+        QStringList allCxxflags = platformCodeGenFlags + cxxflags;  // add only cxxflags is empty?
+        QStringList arguments = gccPredefinedMacrosOptions();
+        for (int iArg = 0; iArg < allCxxflags.length(); ++iArg) {
+            const QString &a = allCxxflags.at(iArg);
+            if (a.startsWith("--gcc-toolchain=")) {
+                arguments << a;
+            } else if (a == "-arch") {
+                if (++iArg < allCxxflags.length() && !arguments.contains(a))
+                    arguments << a << allCxxflags.at(iArg);
+            } else if (a == "--sysroot" || a == "-isysroot" || a == "-D" ||a == "-U") {
+                if (++iArg < allCxxflags.length())
+                    arguments << a << allCxxflags.at(iArg);
+            } else if (a == "-m128bit-long-double" || a == "-m32" || a == "-m3dnow" || a == "-m3dnowa"
+                       || a == "-m64" || a == "-m96bit-long-double" || a == "-mabm" || a == "-maes"
+                       || a.startsWith("-march=") || a == "-mavx" || a.startsWith("-masm=")
+                       || a == "-mcx16" || a == "-mfma" || a == "-mfma4" || a == "-mlwp"
+                       || a == "-mpclmul" || a == "-mpopcnt" || a == "-msse" || a == "-msse2"
+                       || a == "-msse2avx" || a == "-msse3" || a == "-msse4" || a == "-msse4.1"
+                       || a == "-msse4.2" || a == "-msse4a" || a == "-mssse3"
+                       || a.startsWith("-mtune=") || a == "-mxop"
+                       || a == "-Os" || a == "-O0" || a == "-O1" || a == "-O2" || a == "-O3"
+                       || a == "-ffinite-math-only" || a == "-fshort-double" || a == "-fshort-wchar"
+                       || a == "-fsignaling-nans" || a == "-fno-inline" || a == "-fno-exceptions"
+                       || a == "-fstack-protector" || a == "-fstack-protector-all"
+                       || a == "-fsanitize=address" || a == "-fno-rtti"
+                       || a.startsWith("-std=") || a.startsWith("-stdlib=") || a.startsWith("-specs=")
+                       || a == "-ansi" || a == "-undef" || a.startsWith("-D") || a.startsWith("-U")
+                       || a == "-fopenmp" || a == "-Wno-deprecated" || a == "-fPIC" || a == "-fpic"
+                       || a == "-fPIE" || a == "-fpie")
+                arguments << a;
+        }
+
+        arguments = reinterpretOptions(arguments);
+        QByteArray macros = macroCache->check(arguments);
+        if (!macros.isNull())
+            return macros;
+
+        macros = gccPredefinedMacros(compilerCommand, arguments, env.toStringList());
+        macroCache->insert(arguments, macros);
+
+        return macros;
+    };
+}
+
 /**
  * @brief Asks compiler for set of predefined macros
  * @param cxxflags - compiler flags collected from project settings
@@ -359,50 +482,7 @@ bool GccToolChain::isValid() const
  */
 QByteArray GccToolChain::predefinedMacros(const QStringList &cxxflags) const
 {
-    QStringList allCxxflags = m_platformCodeGenFlags + cxxflags;  // add only cxxflags is empty?
-    QStringList arguments = gccPredefinedMacrosOptions();
-    for (int iArg = 0; iArg < allCxxflags.length(); ++iArg) {
-        const QString &a = allCxxflags.at(iArg);
-        if (a.startsWith("--gcc-toolchain=")) {
-            arguments << a;
-        } else if (a == "-arch") {
-            if (++iArg < allCxxflags.length() && !arguments.contains(a))
-                arguments << a << allCxxflags.at(iArg);
-        } else if (a == "--sysroot" || a == "-isysroot" || a == "-D" ||a == "-U") {
-            if (++iArg < allCxxflags.length())
-                arguments << a << allCxxflags.at(iArg);
-        } else if (a == "-m128bit-long-double" || a == "-m32" || a == "-m3dnow" || a == "-m3dnowa"
-                   || a == "-m64" || a == "-m96bit-long-double" || a == "-mabm" || a == "-maes"
-                   || a.startsWith("-march=") || a == "-mavx" || a.startsWith("-masm=")
-                   || a == "-mcx16" || a == "-mfma" || a == "-mfma4" || a == "-mlwp"
-                   || a == "-mpclmul" || a == "-mpopcnt" || a == "-msse" || a == "-msse2"
-                   || a == "-msse2avx" || a == "-msse3" || a == "-msse4" || a == "-msse4.1"
-                   || a == "-msse4.2" || a == "-msse4a" || a == "-mssse3"
-                   || a.startsWith("-mtune=") || a == "-mxop"
-                   || a == "-Os" || a == "-O0" || a == "-O1" || a == "-O2" || a == "-O3"
-                   || a == "-ffinite-math-only" || a == "-fshort-double" || a == "-fshort-wchar"
-                   || a == "-fsignaling-nans" || a == "-fno-inline" || a == "-fno-exceptions"
-                   || a == "-fstack-protector" || a == "-fstack-protector-all"
-                   || a == "-fsanitize=address" || a == "-fno-rtti"
-                   || a.startsWith("-std=") || a.startsWith("-stdlib=") || a.startsWith("-specs=")
-                   || a == "-ansi" || a == "-undef" || a.startsWith("-D") || a.startsWith("-U")
-                   || a == "-fopenmp" || a == "-Wno-deprecated" || a == "-fPIC" || a == "-fpic"
-                   || a == "-fPIE" || a == "-fpie")
-            arguments << a;
-    }
-
-    QByteArray macros = macroCache(arguments);
-    if (!macros.isNull())
-        return macros;
-
-    // Using a clean environment breaks ccache/distcc/etc.
-    Environment env = Environment::systemEnvironment();
-    addToEnvironment(env);
-    macros = gccPredefinedMacros(m_compilerCommand, reinterpretOptions(arguments),
-                                 env.toStringList());
-
-    setMacroCache(arguments, macros);
-    return macros;
+    return createPredefinedMacrosRunner()(cxxflags);
 }
 
 /**
@@ -516,29 +596,52 @@ WarningFlags GccToolChain::warningFlags(const QStringList &cflags) const
     return flags;
 }
 
-QList<HeaderPath> GccToolChain::systemHeaderPaths(const QStringList &cxxflags, const FileName &sysRoot) const
+ToolChain::SystemHeaderPathsRunner GccToolChain::createSystemHeaderPathsRunner() const
 {
-    if (m_headerPaths.isEmpty()) {
-        // Using a clean environment breaks ccache/distcc/etc.
-        Environment env = Environment::systemEnvironment();
-        addToEnvironment(env);
+    // Using a clean environment breaks ccache/distcc/etc.
+    Environment env = Environment::systemEnvironment();
+    addToEnvironment(env);
+
+    const Utils::FileName compilerCommand = m_compilerCommand;
+    const QStringList platformCodeGenFlags = m_platformCodeGenFlags;
+    OptionsReinterpreter reinterpretOptions = m_optionsReinterpreter;
+    QTC_CHECK(reinterpretOptions);
+    HeaderPathsCache *headerCache = &m_headerPathsCache;
+
+    // This runner must be thread-safe!
+    return [env, compilerCommand, platformCodeGenFlags, reinterpretOptions, headerCache]
+            (const QStringList &cxxflags, const QString &sysRoot) {
         // Prepare arguments
         QStringList arguments;
         if (!sysRoot.isEmpty())
-            arguments.append(QString::fromLatin1("--sysroot=%1").arg(sysRoot.toString()));
+            arguments.append(QString::fromLatin1("--sysroot=%1").arg(sysRoot));
 
         QStringList flags;
-        flags << m_platformCodeGenFlags << cxxflags;
+        flags << platformCodeGenFlags << cxxflags;
         foreach (const QString &a, flags) {
             if (a.startsWith("-stdlib=") || a.startsWith("--gcctoolchain="))
                 arguments << a;
         }
 
         arguments << "-xc++" << "-E" << "-v" << "-";
+        arguments = reinterpretOptions(arguments);
 
-        m_headerPaths = gccHeaderPaths(m_compilerCommand, reinterpretOptions(arguments), env.toStringList());
-    }
-    return m_headerPaths;
+        bool cacheHit = false;
+        QList<HeaderPath> paths = headerCache->check(arguments, &cacheHit);
+        if (cacheHit)
+            return paths;
+
+        paths = gccHeaderPaths(compilerCommand, arguments, env.toStringList());
+        headerCache->insert(arguments, paths);
+
+        return paths;
+    };
+}
+
+QList<HeaderPath> GccToolChain::systemHeaderPaths(const QStringList &cxxflags,
+                                                  const FileName &sysRoot) const
+{
+    return createSystemHeaderPathsRunner()(cxxflags, sysRoot.toString());
 }
 
 void GccToolChain::addCommandPathToEnvironment(const FileName &command, Environment &env)
@@ -735,6 +838,11 @@ void GccToolChain::updateSupportedAbis() const
     }
 }
 
+void GccToolChain::setOptionsReinterpreter(const OptionsReinterpreter &optionsReinterpreter)
+{
+    m_optionsReinterpreter = optionsReinterpreter;
+}
+
 GccToolChain::DetectedAbisResult GccToolChain::detectSupportedAbis() const
 {
     Environment env = Environment::systemEnvironment();
@@ -892,7 +1000,7 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolChain(const FileName &comp
             return result;
 
         tc->setLanguage(language);
-        tc->setMacroCache(QStringList(), macros);
+        tc->m_predefinedMacrosCache.insert(QStringList(), macros);
         tc->setCompilerCommand(compilerPath);
         tc->setSupportedAbis(detectedAbis.supportedAbis);
         tc->setTargetAbi(abi);
@@ -957,7 +1065,7 @@ void GccToolChainConfigWidget::applyImpl()
     tc->setDisplayName(displayName); // reset display name
     tc->setPlatformCodeGenFlags(splitString(m_platformCodeGenFlagsLineEdit->text()));
     tc->setPlatformLinkerFlags(splitString(m_platformLinkerFlagsLineEdit->text()));
-    tc->setMacroCache(tc->platformCodeGenFlags(), m_macros);
+    tc->m_predefinedMacrosCache.insert(tc->platformCodeGenFlags(), m_macros);
 }
 
 void GccToolChainConfigWidget::setFromToolchain()

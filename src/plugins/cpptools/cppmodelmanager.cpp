@@ -631,14 +631,22 @@ static QSet<QString> tooBigFilesRemoved(const QSet<QString> &files, int fileSize
 QFuture<void> CppModelManager::updateSourceFiles(const QSet<QString> &sourceFiles,
                                                  ProgressNotificationMode mode)
 {
+    const QFutureInterface<void> dummy;
+    return updateSourceFiles(dummy, sourceFiles, mode);
+}
+
+QFuture<void> CppModelManager::updateSourceFiles(const QFutureInterface<void> &superFuture,
+                                                 const QSet<QString> &sourceFiles,
+                                                 ProgressNotificationMode mode)
+{
     if (sourceFiles.isEmpty() || !d->m_indexerEnabled)
         return QFuture<void>();
 
     const QSet<QString> filteredFiles = tooBigFilesRemoved(sourceFiles, indexerFileSizeLimitInMb());
 
     if (d->m_indexingSupporter)
-        d->m_indexingSupporter->refreshSourceFiles(filteredFiles, mode);
-    return d->m_internalIndexingSupport->refreshSourceFiles(filteredFiles, mode);
+        d->m_indexingSupporter->refreshSourceFiles(superFuture, filteredFiles, mode);
+    return d->m_internalIndexingSupport->refreshSourceFiles(superFuture, filteredFiles, mode);
 }
 
 QList<ProjectInfo> CppModelManager::projectInfos() const
@@ -774,23 +782,25 @@ void CppModelManager::recalculateProjectPartMappings()
     d->m_symbolFinder.clearCache();
 }
 
-void CppModelManager::watchForCanceledProjectIndexer(QFuture<void> future,
+void CppModelManager::watchForCanceledProjectIndexer(const QVector<QFuture<void>> &futures,
                                                      ProjectExplorer::Project *project)
 {
     d->m_projectToIndexerCanceled.insert(project, false);
 
-    if (future.isCanceled() || future.isFinished())
-        return;
+    for (const QFuture<void> &future : futures) {
+        if (future.isCanceled() || future.isFinished())
+            continue;
 
-    QFutureWatcher<void> *watcher = new QFutureWatcher<void>();
-    connect(watcher, &QFutureWatcher<void>::canceled, this, [this, project]() {
-        if (d->m_projectToIndexerCanceled.contains(project)) // Project not yet removed
-            d->m_projectToIndexerCanceled.insert(project, true);
-    });
-    connect(watcher, &QFutureWatcher<void>::finished, this, [watcher]() {
-        watcher->deleteLater();
-    });
-    watcher->setFuture(future);
+        QFutureWatcher<void> *watcher = new QFutureWatcher<void>();
+        connect(watcher, &QFutureWatcher<void>::canceled, this, [this, project]() {
+            if (d->m_projectToIndexerCanceled.contains(project)) // Project not yet removed
+                d->m_projectToIndexerCanceled.insert(project, true);
+        });
+        connect(watcher, &QFutureWatcher<void>::finished, this, [watcher]() {
+            watcher->deleteLater();
+        });
+        watcher->setFuture(future);
+    }
 }
 
 void CppModelManager::updateCppEditorDocuments(bool projectsUpdated) const
@@ -823,6 +833,13 @@ void CppModelManager::updateCppEditorDocuments(bool projectsUpdated) const
 }
 
 QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectInfo)
+{
+    QFutureInterface<void> dummy;
+    return updateProjectInfo(dummy, newProjectInfo);
+}
+
+QFuture<void> CppModelManager::updateProjectInfo(QFutureInterface<void> &futureInterface,
+                                                 const ProjectInfo &newProjectInfo)
 {
     if (!newProjectInfo.isValid())
         return QFuture<void>();
@@ -908,10 +925,10 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectIn
     updateCppEditorDocuments(/*projectsUpdated = */ true);
 
     // Trigger reindexing
-    QFuture<void> indexerFuture = updateSourceFiles(filesToReindex, ForcedProgressNotification);
-    watchForCanceledProjectIndexer(indexerFuture, project);
-
-    return indexerFuture;
+    const QFuture<void> indexingFuture = updateSourceFiles(futureInterface, filesToReindex,
+                                                           ForcedProgressNotification);
+    watchForCanceledProjectIndexer({futureInterface.future(), indexingFuture}, project);
+    return indexingFuture;
 }
 
 ProjectInfo CppModelManager::updateCompilerCallDataForProject(

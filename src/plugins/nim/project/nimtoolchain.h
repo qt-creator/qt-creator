@@ -40,10 +40,12 @@ public:
     ProjectExplorer::Abi targetAbi() const override;
     bool isValid() const override;
 
+    PredefinedMacrosRunner createPredefinedMacrosRunner() const override;
     QByteArray predefinedMacros(const QStringList &flags) const final;
     CompilerFlags compilerFlags(const QStringList &flags) const final;
     ProjectExplorer::WarningFlags warningFlags(const QStringList &flags) const final;
 
+    SystemHeaderPathsRunner createSystemHeaderPathsRunner() const override;
     QList<ProjectExplorer::HeaderPath> systemHeaderPaths(const QStringList &flags,
                                                          const Utils::FileName &sysRoot) const final;
     void addToEnvironment(Utils::Environment &env) const final;

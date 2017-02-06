@@ -37,6 +37,8 @@
 
 #include <QFuture>
 
+namespace CppTools { class CppProjectUpdater; }
+
 namespace GenericProjectManager {
 namespace Internal {
 
@@ -104,7 +106,7 @@ private:
     QStringList m_rawProjectIncludePaths;
     QStringList m_projectIncludePaths;
 
-    QFuture<void> m_codeModelFuture;
+    CppTools::CppProjectUpdater *m_cppCodeModelUpdater = nullptr;
 
     ProjectExplorer::Target *m_activeTarget = nullptr;
 };

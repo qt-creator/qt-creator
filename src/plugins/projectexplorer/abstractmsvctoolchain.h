@@ -29,6 +29,8 @@
 #include "abi.h"
 #include "headerpath.h"
 
+#include <QMutex>
+
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 
@@ -41,14 +43,18 @@ public:
     explicit AbstractMsvcToolChain(Core::Id typeId, Core::Id l, Detection d,
                                    const Abi &abi, const QString& vcvarsBat);
     explicit AbstractMsvcToolChain(Core::Id typeId, Detection d);
+    AbstractMsvcToolChain(const AbstractMsvcToolChain &other);
+    ~AbstractMsvcToolChain();
 
     Abi targetAbi() const override;
 
     bool isValid() const override;
 
+    PredefinedMacrosRunner createPredefinedMacrosRunner() const override;
     QByteArray predefinedMacros(const QStringList &cxxflags) const override;
     CompilerFlags compilerFlags(const QStringList &cxxflags) const override;
     WarningFlags warningFlags(const QStringList &cflags) const override;
+    SystemHeaderPathsRunner createSystemHeaderPathsRunner() const override;
     QList<HeaderPath> systemHeaderPaths(const QStringList &cxxflags,
                                         const Utils::FileName &sysRoot) const override;
     void addToEnvironment(Utils::Environment &env) const override;
@@ -89,9 +95,11 @@ protected:
 
 
     Utils::FileName m_debuggerCommand;
+    mutable QMutex *m_predefinedMacrosMutex = nullptr;
     mutable QByteArray m_predefinedMacros;
     mutable Utils::Environment m_lastEnvironment;   // Last checked 'incoming' environment.
     mutable Utils::Environment m_resultEnvironment; // Resulting environment for VC
+    mutable QMutex *m_headerPathsMutex = nullptr;
     mutable QList<HeaderPath> m_headerPaths;
     Abi m_abi;
 

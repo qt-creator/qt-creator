@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,55 +25,35 @@
 
 #pragma once
 
-#include <projectexplorer/toolchain.h>
+#include "projectinfo.h"
 
-#include <memory>
-
-QT_BEGIN_NAMESPACE
-class QString;
-QT_END_NAMESPACE
-
-namespace Core {
-class Id;
-}
-
-namespace ProjectExplorer {
-class Project;
-class ToolChain;
-}
+#include <QFutureInterface>
 
 namespace CppTools {
+namespace Internal {
 
-class ToolChainInterface
+class ProjectInfoGenerator
 {
 public:
-    virtual ~ToolChainInterface() {}
+    ProjectInfoGenerator(const QFutureInterface<void> &futureInterface,
+                         const ProjectUpdateInfo &projectUpdateInfo);
 
-    virtual Core::Id type() const = 0;
-    virtual bool isMsvc2015Toolchain() const = 0;
+    ProjectInfo generate();
 
-    virtual unsigned wordWidth() const = 0;
-    virtual QString targetTriple() const = 0;
+private:
+    void createProjectParts(const RawProjectPart &rawProjectPart);
+    void createProjectPart(const RawProjectPart &rawProjectPart,
+                           const ProjectPart::Ptr &templateProjectPart,
+                           const ProjectFiles &projectFiles,
+                           const QString &partName,
+                           ProjectPart::LanguageVersion languageVersion,
+                           ProjectPart::LanguageExtensions languageExtensions);
 
-    virtual QByteArray predefinedMacros() const = 0;
-    virtual QList<ProjectExplorer::HeaderPath> systemHeaderPaths() const = 0;
+private:
+    const QFutureInterface<void> &m_futureInterface;
+    const ProjectUpdateInfo &m_projectUpdateInfo;
 
-    virtual ProjectExplorer::WarningFlags warningFlags() const = 0;
-    virtual ProjectExplorer::ToolChain::CompilerFlags compilerFlags() const = 0;
+    ProjectInfo m_projectInfo;
 };
-
-using ToolChainInterfacePtr = std::unique_ptr<ToolChainInterface>;
-
-class ProjectInterface
-{
-public:
-    virtual ~ProjectInterface() {}
-
-    virtual QString displayName() const = 0;
-    virtual QString projectFilePath() const = 0;
-
-    virtual ToolChainInterfacePtr toolChain(Core::Id language,
-                                            const QStringList &commandLineFlags) const = 0;
-};
-
+} // namespace Internal
 } // namespace CppTools

@@ -42,6 +42,7 @@ class QMakeGlobals;
 class QMakeVfs;
 QT_END_NAMESPACE
 
+namespace CppTools { class CppProjectUpdater; }
 namespace ProjectExplorer { class DeploymentData; }
 namespace QtSupport { class ProFileReader; }
 
@@ -205,7 +206,7 @@ private:
     bool m_cancelEvaluate = false;
     QList<QmakeProFileNode *> m_partialEvaluate;
 
-    QFuture<void> m_codeModelFuture;
+    CppTools::CppProjectUpdater *m_cppCodeModelUpdater = nullptr;
 
     Internal::CentralizedFolderWatcher *m_centralizedFolderWatcher = nullptr;
 

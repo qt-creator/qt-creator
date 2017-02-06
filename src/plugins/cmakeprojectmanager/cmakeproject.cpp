@@ -33,11 +33,11 @@
 #include "cmakeprojectmanager.h"
 
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <cpptools/cppmodelmanager.h>
+#include <cpptools/cpprawprojectpart.h>
+#include <cpptools/cppprojectupdater.h>
 #include <cpptools/generatedcodemodelsupport.h>
 #include <cpptools/projectinfo.h>
 #include <cpptools/cpptoolsconstants.h>
-#include <cpptools/projectpartbuilder.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/headerpath.h>
@@ -74,6 +74,7 @@ using namespace Internal;
   \class CMakeProject
 */
 CMakeProject::CMakeProject(CMakeManager *manager, const FileName &fileName)
+    : m_cppCodeModelUpdater(new CppTools::CppProjectUpdater(this))
 {
     setId(CMakeProjectManager::Constants::CMAKEPROJECT_ID);
     setProjectManager(manager);
@@ -133,8 +134,8 @@ CMakeProject::~CMakeProject()
         future.cancel();
         future.waitForFinished();
     }
+    delete m_cppCodeModelUpdater;
     setRootProjectNode(nullptr);
-    m_codeModelFuture.cancel();
     qDeleteAll(m_extraCompilers);
     qDeleteAll(m_allFiles);
 }
@@ -165,10 +166,6 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
         return;
     }
 
-    CppTools::CppModelManager *modelmanager = CppTools::CppModelManager::instance();
-    CppTools::ProjectInfo pinfo(this);
-    CppTools::ProjectPartBuilder ppBuilder(pinfo);
-
     CppTools::ProjectPart::QtVersion activeQtVersion = CppTools::ProjectPart::NoQt;
     if (QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(k)) {
         if (qtVersion->qtVersion() < QtSupport::QtVersionNumber(5,0,0))
@@ -177,14 +174,17 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
             activeQtVersion = CppTools::ProjectPart::Qt5;
     }
 
-    ppBuilder.setQtVersion(activeQtVersion);
+    CppTools::RawProjectParts rpps;
+    bc->updateCodeModel(rpps);
 
-    const QSet<Core::Id> languages = bc->updateCodeModel(ppBuilder);
-    for (const auto &lid : languages)
-        setProjectLanguage(lid, true);
+    for (CppTools::RawProjectPart &rpp : rpps) {
+        // TODO: Set the Qt version only if target actually depends on Qt.
+        rpp.setQtVersion(activeQtVersion);
+        // TODO: Support also C
+        rpp.setFlagsForCxx({tc, rpp.flagsForCxx.commandLineFlags});
+    }
 
-    m_codeModelFuture.cancel();
-    m_codeModelFuture = modelmanager->updateProjectInfo(pinfo);
+    m_cppCodeModelUpdater->update({this, nullptr, tc, k, rpps});
 
     updateQmlJSCodeModel();
 

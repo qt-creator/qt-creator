@@ -37,6 +37,8 @@ QT_FORWARD_DECLARE_CLASS(QDir)
 
 namespace Utils { class FileSystemWatcher; }
 
+namespace CppTools { class CppProjectUpdater; }
+
 namespace ProjectExplorer {
 class Node;
 class FolderNode;
@@ -119,7 +121,7 @@ private:
     /// Responsible for parsing the makefiles asynchronously in a thread
     MakefileParserThread *m_makefileParserThread = nullptr;
 
-    QFuture<void> m_codeModelFuture;
+    CppTools::CppProjectUpdater *m_cppCodeModelUpdater = nullptr;
 };
 
 } // namespace Internal

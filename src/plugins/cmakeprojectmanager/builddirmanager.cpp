@@ -38,7 +38,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <cpptools/cpptoolsconstants.h>
-#include <cpptools/projectpartbuilder.h>
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitinformation.h>
@@ -289,10 +288,10 @@ void BuildDirManager::generateProjectTree(CMakeListsNode *root, const QList<cons
         root->addNode(new FileNode(projectFile, FileType::Project, false));
 }
 
-QSet<Core::Id> BuildDirManager::updateCodeModel(CppTools::ProjectPartBuilder &ppBuilder)
+void BuildDirManager::updateCodeModel(CppTools::RawProjectParts &rpps)
 {
-    QTC_ASSERT(m_reader, return QSet<Core::Id>());
-    return m_reader->updateCodeModel(ppBuilder);
+    QTC_ASSERT(m_reader, return);
+    return m_reader->updateCodeModel(rpps);
 }
 
 void BuildDirManager::parse()

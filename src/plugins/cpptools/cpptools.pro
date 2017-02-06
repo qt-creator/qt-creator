@@ -42,7 +42,9 @@ HEADERS += \
     cppmodelmanagersupportinternal.h \
     cpppointerdeclarationformatter.h \
     cppprojectfile.h \
+    cppprojectupdater.h \
     cppqtstyleindenter.h \
+    cpprawprojectpart.h \
     cpprefactoringchanges.h \
     cppselectionchanger.h \
     cppsemanticinfo.h \
@@ -76,13 +78,11 @@ HEADERS += \
     projectpart.h \
     projectpartheaderpath.h \
     projectinfo.h \
-    projectpartbuilder.h \
+    cppprojectinfogenerator.h \
     compileroptionsbuilder.h \
     refactoringengineinterface.h \
     cppprojectfilecategorizer.h \
     clangcompileroptionsbuilder.h \
-    cppprojectinterface.h \
-    cppbaseprojectpartbuilder.h \
     cppprojectpartchooser.h \
 
 SOURCES += \
@@ -125,7 +125,9 @@ SOURCES += \
     cppmodelmanagersupportinternal.cpp \
     cpppointerdeclarationformatter.cpp \
     cppprojectfile.cpp \
+    cppprojectupdater.cpp \
     cppqtstyleindenter.cpp \
+    cpprawprojectpart.cpp \
     cpprefactoringchanges.cpp \
     cppselectionchanger.cpp \
     cppsemanticinfo.cpp \
@@ -154,10 +156,9 @@ SOURCES += \
     cpptoolsbridgeqtcreatorimplementation.cpp \
     projectpart.cpp \
     projectinfo.cpp \
-    projectpartbuilder.cpp \
+    cppprojectinfogenerator.cpp \
     compileroptionsbuilder.cpp \
     cppprojectfilecategorizer.cpp \
-    cppbaseprojectpartbuilder.cpp \
     clangcompileroptionsbuilder.cpp \
     cppprojectpartchooser.cpp \
 

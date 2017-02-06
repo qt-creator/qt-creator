@@ -32,7 +32,7 @@ SOURCES += \
     clientserverinprocess-test.cpp \
     lineprefixer-test.cpp \
     cppprojectfilecategorizer-test.cpp \
-    cppbaseprojectpartbuilder-test.cpp \
+    cppprojectinfogenerator-test.cpp \
     cppprojectpartchooser-test.cpp \
     processevents-utilities.cpp \
     mimedatabase-utilities.cpp \

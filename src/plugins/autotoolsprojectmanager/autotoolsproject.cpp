@@ -47,7 +47,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/projectinfo.h>
-#include <cpptools/projectpartbuilder.h>
+#include <cpptools/cppprojectupdater.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
 #include <qtsupport/baseqtversion.h>
@@ -70,7 +70,8 @@ using namespace AutotoolsProjectManager::Internal;
 using namespace ProjectExplorer;
 
 AutotoolsProject::AutotoolsProject(AutotoolsManager *manager, const QString &fileName) :
-    m_fileWatcher(new Utils::FileSystemWatcher(this))
+    m_fileWatcher(new Utils::FileSystemWatcher(this)),
+    m_cppCodeModelUpdater(new CppTools::CppProjectUpdater(this))
 {
     setId(Constants::AUTOTOOLS_PROJECT_ID);
     setProjectManager(manager);
@@ -86,6 +87,8 @@ AutotoolsProject::AutotoolsProject(AutotoolsManager *manager, const QString &fil
 
 AutotoolsProject::~AutotoolsProject()
 {
+    delete m_cppCodeModelUpdater;
+
     setRootProjectNode(0);
 
     if (m_makefileParserThread != 0) {
@@ -270,42 +273,47 @@ static QStringList filterIncludes(const QString &absSrc, const QString &absBuild
 
 void AutotoolsProject::updateCppCodeModel()
 {
-    CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
+    const Kit *k = nullptr;
+    if (Target *target = activeTarget())
+        k = target->kit();
+    else
+        k = KitManager::defaultKit();
+    QTC_ASSERT(k, return);
 
-    m_codeModelFuture.cancel();
-    CppTools::ProjectInfo pInfo(this);
-    CppTools::ProjectPartBuilder ppBuilder(pInfo);
+    ToolChain *cToolChain
+            = ToolChainKitInformation::toolChain(k, ProjectExplorer::Constants::C_LANGUAGE_ID);
+    ToolChain *cxxToolChain
+            = ToolChainKitInformation::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
 
-    ppBuilder.setProjectFile(projectFilePath().toString());
+    m_cppCodeModelUpdater->cancel();
+
+    CppTools::RawProjectPart rpp;
+    rpp.setProjectFile(projectFilePath().toString());
 
     CppTools::ProjectPart::QtVersion activeQtVersion = CppTools::ProjectPart::NoQt;
-    if (QtSupport::BaseQtVersion *qtVersion =
-            QtSupport::QtKitInformation::qtVersion(activeTarget()->kit())) {
+    if (QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(k)) {
         if (qtVersion->qtVersion() < QtSupport::QtVersionNumber(5,0,0))
             activeQtVersion = CppTools::ProjectPart::Qt4;
         else
             activeQtVersion = CppTools::ProjectPart::Qt5;
     }
 
-    ppBuilder.setQtVersion(activeQtVersion);
+    rpp.setQtVersion(activeQtVersion);
     const QStringList cflags = m_makefileParserThread->cflags();
     QStringList cxxflags = m_makefileParserThread->cxxflags();
     if (cxxflags.isEmpty())
         cxxflags = cflags;
-    ppBuilder.setCFlags(cflags);
-    ppBuilder.setCxxFlags(cxxflags);
+    rpp.setFlagsForC({cToolChain, cflags});
+    rpp.setFlagsForCxx({cxxToolChain, cxxflags});
 
     const QString absSrc = projectDirectory().toString();
     const Target *target = activeTarget();
     const QString absBuild = (target && target->activeBuildConfiguration())
             ? target->activeBuildConfiguration()->buildDirectory().toString() : QString();
 
-    ppBuilder.setIncludePaths(filterIncludes(absSrc, absBuild, m_makefileParserThread->includePaths()));
-    ppBuilder.setDefines(m_makefileParserThread->defines());
+    rpp.setIncludePaths(filterIncludes(absSrc, absBuild, m_makefileParserThread->includePaths()));
+    rpp.setDefines(m_makefileParserThread->defines());
+    rpp.setFiles(m_files);
 
-    const QList<Core::Id> languages = ppBuilder.createProjectPartsForFiles(m_files);
-    foreach (Core::Id language, languages)
-        setProjectLanguage(language, true);
-
-    m_codeModelFuture = modelManager->updateProjectInfo(pInfo);
+    m_cppCodeModelUpdater->update({this, cToolChain, cxxToolChain, k, {rpp}});
 }

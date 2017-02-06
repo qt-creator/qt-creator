@@ -53,8 +53,6 @@ public:
 protected:
     virtual DetectedAbisResult detectSupportedAbis() const override;
 
-    QStringList reinterpretOptions(const QStringList &args) const override;
-
 private:
     QString m_sdpPath;
 };
