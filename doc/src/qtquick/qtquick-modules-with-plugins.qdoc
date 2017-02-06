@@ -60,6 +60,15 @@
     then you can specify those using \c{QML_IMPORT_PATH} in the \c{.pro} file of your
     application.
 
+    If you use CMake, add the following command to the CMakeLists.txt file to
+    set the QML import path:
+
+    \code
+    {set(QML_IMPORT_PATH ${CMAKE_SOURCE_DIR}/qml ${CMAKE_BINARY_DIR}/imports CACHE string "" FORCE)}
+    \endcode
+
+    The import path affects all the targets built by the CMake project.
+
     Ideally, QML modules have a \c{plugins.qmltypes} file in the same directory
     as the \c qmldir file. The \c qmltypes file contains a description of the
     types exported by the module's plugins and is loaded by \QC when the

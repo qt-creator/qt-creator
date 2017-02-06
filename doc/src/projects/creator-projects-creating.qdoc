@@ -387,6 +387,41 @@
     You can create your own project and class wizards. For more information,
     see \l{Adding New Custom Wizards}.
 
+    \section2 Creating Resource Files
+
+    \QC supports the \l{The Qt Resource System}{Qt Resource System}, which is a
+    platform-independent mechanism for storing files in the application's
+    executable.
+
+    \image qtcreator-add-resource-wizard.png "New File or Project dialog"
+
+    The wizard creates a resource collection file (.qrc) that you can manage in
+    the resource editor.
+
+    \image qtcreator-add-resource.png "Editing resource files"
+
+    Select \uicontrol Add > \uicontrol {Add Files} to locate and add individual
+    files.
+
+    By default, resources are accessible in the application under the same file
+    name as they have in the source tree, with a \c{:/} prefix, or by a URL with
+    a \c qrc scheme. To specify a path prefix for all files in the \c .qrc file,
+    select \uicontrol Add > \uicontrol {Add Prefix} or enter the prefix in the
+    \uicontrol Prefix field.
+
+    Some resources need to change based on the user's locale, such as
+    translation files or icons. You can specify a locale in the
+    \uicontrol Language field.
+
+    Select \uicontrol Remove to remove the selected file from the resource
+    collection. In the \uicontrol {Remove File} dialog, select the
+    \uicontrol {Delete file permanently} check box to remove the file from
+    the file system. To remove files that cannot be found in the file system,
+    select \uicontrol {Remove Missing Files}.
+
+    The above functions are also available in the context menu in the
+    \uicontrol Projects view.
+
     \section2 Creating OpenGL Fragment and Vertex Shaders
 
     Qt provides support for integration with OpenGL implementations on all

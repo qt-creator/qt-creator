@@ -186,7 +186,7 @@ def __modifyAvailableTargets__(available, requiredQt, asStrings=False):
                 if not (requiredQtVersion == "480" and found.group(0) == "474"):
                     available.remove(currentItem)
             if requiredQtVersion > "480":
-                toBeRemoved = [Targets.EMBEDDED_LINUX, Targets.SIMULATOR]
+                toBeRemoved = [Targets.EMBEDDED_LINUX]
                 if asStrings:
                     toBeRemoved = Targets.getTargetsAsStrings(toBeRemoved)
                 for t in toBeRemoved:
@@ -424,9 +424,7 @@ def __chooseTargets__(targets=Targets.DESKTOP_474_GCC, availableTargets=None, ad
             if mustCheck:
                 test.fail("Failed to check target '%s'." % Targets.getStringForTarget(current))
             else:
-                # Simulator has been added without knowing whether configured or not - so skip warning here?
-                if current != Targets.SIMULATOR:
-                    test.warning("Target '%s' is not set up correctly." % Targets.getStringForTarget(current))
+                test.warning("Target '%s' is not set up correctly." % Targets.getStringForTarget(current))
     return checkedTargets
 
 def __createProjectHandleModuleSelection__(modules):
@@ -643,8 +641,6 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False):
             result.extend([Targets.DESKTOP_531_DEFAULT, Targets.DESKTOP_561_DEFAULT])
             if platform.system() != 'Darwin':
                 result.append(Targets.DESKTOP_541_GCC)
-        if not templateName == "Qt Creator Plugin" and (version == None or version < "5.0"):
-            result.append(Targets.SIMULATOR)
     elif 'Platform independent' in text:
         result = list(Targets.ALL_TARGETS)
         result.remove(Targets.EMBEDDED_LINUX)
