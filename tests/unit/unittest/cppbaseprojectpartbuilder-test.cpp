@@ -34,6 +34,7 @@
 
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/mimetypes/mimedatabase.h>
 
@@ -48,6 +49,7 @@ using CppTools::ProjectPart;
 using CppTools::ToolChainInterface;
 using CppTools::ToolChainInterfacePtr;
 
+using testing::Contains;
 using testing::Eq;
 using testing::UnorderedElementsAre;
 using testing::PrintToString;
@@ -213,6 +215,24 @@ TEST_F(BaseProjectPartBuilder, ProjectFileKindsMatchProjectPartVersion)
                                      IsProjectPart(ProjectPart::LatestCVersion, ProjectFile::ObjCHeader),
                                      IsProjectPart(ProjectPart::LatestCxxVersion, ProjectFile::CXXHeader),
                                      IsProjectPart(ProjectPart::LatestCxxVersion, ProjectFile::ObjCXXHeader)));
+}
+
+TEST_F(BaseProjectPartBuilder, ReportsCxxLanguage)
+{
+    ::BaseProjectPartBuilder builder(new EditableProject, projectInfo);
+
+    const QList<Core::Id> languages = builder.createProjectPartsForFiles(QStringList() << "foo.cpp");
+
+    ASSERT_THAT(languages, Eq(QList<Core::Id>() << ProjectExplorer::Constants::CXX_LANGUAGE_ID));
+}
+
+TEST_F(BaseProjectPartBuilder, ReportsCLanguage)
+{
+    ::BaseProjectPartBuilder builder(new EditableProject, projectInfo);
+
+    const QList<Core::Id> languages = builder.createProjectPartsForFiles(QStringList() << "foo.c");
+
+    ASSERT_THAT(languages, Eq(QList<Core::Id>() << ProjectExplorer::Constants::C_LANGUAGE_ID));
 }
 
 void BaseProjectPartBuilder::SetUp()
