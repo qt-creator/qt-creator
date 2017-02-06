@@ -971,9 +971,9 @@ void GdbEngine::runCommand(const DebuggerCommand &command)
         QMetaObject::invokeMethod(this, "handleResponse",
             Q_ARG(QString, buffer));
     } else {
-        write(cmd.function.toUtf8() + "\r\n");
+        m_gdbProc.write(cmd.function.toUtf8() + "\r\n");
         if (command.flags & NeedsFlush)
-            write("p 0\r\n");
+            m_gdbProc.write("p 0\r\n");
 
         // Start Watchdog.
         if (m_commandTimer.interval() <= 20000)
@@ -4344,11 +4344,6 @@ void GdbEngine::scheduleTestResponse(int testCase, const QString &response)
 void GdbEngine::requestDebugInformation(const DebugInfoTask &task)
 {
     QProcess::startDetached(task.command);
-}
-
-void GdbEngine::write(const QByteArray &data)
-{
-    m_gdbProc.write(data);
 }
 
 bool GdbEngine::prepareCommand()

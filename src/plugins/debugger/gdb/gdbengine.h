@@ -420,9 +420,6 @@ protected:
     DebuggerCommand m_lastDebuggableCommand;
 
 protected:
-    virtual void write(const QByteArray &data);
-
-protected:
     bool prepareCommand();
     void interruptLocalInferior(qint64 pid);
 
