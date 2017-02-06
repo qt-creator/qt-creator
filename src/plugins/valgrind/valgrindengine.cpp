@@ -177,7 +177,7 @@ void ValgrindToolRunner::receiveProcessError(const QString &message, QProcess::P
     } else if (m_isStopping && error == QProcess::Crashed) { // process gets killed on stop
         appendMessage(tr("Process terminated."), ErrorMessageFormat);
     } else {
-        appendMessage(QString("** %1 **\n").arg(message), ErrorMessageFormat);
+        appendMessage(tr("Process exited with return value %1\n").arg(message), NormalMessageFormat);
     }
 
     if (m_isStopping)
