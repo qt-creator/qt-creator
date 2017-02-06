@@ -250,7 +250,6 @@ void FormEditorView::nodeReparented(const ModelNode &node, const NodeAbstractPro
 
 WidgetInfo FormEditorView::widgetInfo()
 {
-
     if (!m_formEditorWidget)
         createFormEditorWidget();
 
