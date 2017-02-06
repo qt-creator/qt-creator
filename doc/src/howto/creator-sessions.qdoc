@@ -56,7 +56,7 @@
 
     \endlist
 
-    A session is  personal, that is, not meant to be shared. It is not supposed
+    A session is personal, that is, not meant to be shared. It is not supposed
     to reflect the project structure. It contains personal data, such as
     bookmarks and breakpoints that are usually not of interest to other
     developers working on the same projects.
@@ -68,16 +68,28 @@
     to working on the first project, switch to the saved session. \QC opens the
     projects and files that belong to the session.
 
-    To save a session under a new name, select \uicontrol File >
-    \uicontrol {Session Manager} > \uicontrol Clone.
-
-    To create a new session, select \uicontrol File >
-    \uicontrol {Session Manager} > \uicontrol New.
+    To manage sessions, select \uicontrol File > \uicontrol {Session Manager}.
 
     \image qtcreator-session-manager.png
 
-    To switch between sessions, choose \uicontrol {File > Session Manager} >
-    \uicontrol {Switch to}.
+    To save a session under a new name, select \uicontrol Clone.
+
+    To create a new session:
+
+    \list 1
+
+        \li Select \uicontrol New.
+
+         \li In the \uicontrol {Enter the name of the session} field, enter a
+             name for the session.
+
+        \li Select \uicontrol Create to create a new empty session or
+            \uicontrol {Create and Open} to create a session and to switch to
+            it.
+
+    \endlist
+
+    To switch between sessions, select \uicontrol {Switch to}.
 
     When you launch \QC, a list of existing sessions is displayed in the
     \uicontrol Welcome mode. To open a session, select it or press
