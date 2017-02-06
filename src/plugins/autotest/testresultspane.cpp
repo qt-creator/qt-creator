@@ -107,6 +107,9 @@ TestResultsPane::TestResultsPane(QObject *parent) :
     m_treeView->setHeaderHidden(true);
     m_treeView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     m_treeView->setContextMenuPolicy(Qt::CustomContextMenu);
+    pal = m_treeView->palette();
+    pal.setColor(QPalette::Base, pal.window().color());
+    m_treeView->setPalette(pal);
     m_model = new TestResultModel(this);
     m_filterModel = new TestResultFilterModel(m_model, this);
     m_filterModel->setDynamicSortFilter(true);
