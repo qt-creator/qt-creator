@@ -107,23 +107,23 @@ void ViewManager::attachNodeInstanceView()
 
 void ViewManager::attachRewriterView()
 {
-    if (currentDesignDocument()->rewriterView()) {
-        currentDesignDocument()->rewriterView()->setWidgetStatusCallback([this](bool enable) {
+    if (RewriterView *view = currentDesignDocument()->rewriterView()) {
+        view->setWidgetStatusCallback([this](bool enable) {
             if (enable)
                 enableWidgets();
             else
                 disableWidgets();
         });
 
-        currentModel()->setRewriterView(currentDesignDocument()->rewriterView());
-        currentDesignDocument()->rewriterView()->reactivateTextMofifierChangeSignals();
+        currentModel()->setRewriterView(view);
+        view->reactivateTextMofifierChangeSignals();
     }
 }
 
 void ViewManager::detachRewriterView()
 {
-    if (currentDesignDocument()->rewriterView()) {
-        currentDesignDocument()->rewriterView()->deactivateTextMofifierChangeSignals();
+    if (RewriterView *view = currentDesignDocument()->rewriterView()) {
+        view->deactivateTextMofifierChangeSignals();
         currentModel()->setRewriterView(0);
     }
 }
