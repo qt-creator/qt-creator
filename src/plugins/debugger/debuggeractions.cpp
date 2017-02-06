@@ -483,12 +483,6 @@ DebuggerSettings::DebuggerSettings()
     insertItem(AutoQuit, item);
 
     item = new SavedAction(this);
-    item->setSettingsKey(debugModeGroup, QLatin1String("AttemptQuickStart"));
-    item->setCheckable(true);
-    item->setDefaultValue(false);
-    insertItem(AttemptQuickStart, item);
-
-    item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("MultiInferior"));
     item->setCheckable(true);
     item->setDefaultValue(false);

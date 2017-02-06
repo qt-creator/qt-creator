@@ -392,13 +392,6 @@ GdbOptionsPageWidget2::GdbOptionsPageWidget2()
            "calls and is very likely to destroy your debugging session.</p></body></html>"));
     }
 
-    auto checkBoxAttemptQuickStart = new QCheckBox(groupBoxDangerous);
-    checkBoxAttemptQuickStart->setText(GdbOptionsPage::tr("Attempt quick start"));
-    checkBoxAttemptQuickStart->setToolTip(GdbOptionsPage::tr(
-        "<html><head/><body>Postpones reading debug information as long as possible. "
-        "This can result in faster startup times at the price of not being able to "
-        "set breakpoints by file and number.</body></html>"));
-
     auto checkBoxMultiInferior = new QCheckBox(groupBoxDangerous);
     checkBoxMultiInferior->setText(GdbOptionsPage::tr("Debug all children"));
     checkBoxMultiInferior->setToolTip(GdbOptionsPage::tr(
@@ -415,7 +408,6 @@ GdbOptionsPageWidget2::GdbOptionsPageWidget2()
     formLayout->addRow(checkBoxBreakOnAbort);
     if (checkBoxEnableReverseDebugging)
         formLayout->addRow(checkBoxEnableReverseDebugging);
-    formLayout->addRow(checkBoxAttemptQuickStart);
     formLayout->addRow(checkBoxMultiInferior);
 
     auto gridLayout = new QGridLayout(this);
@@ -426,7 +418,6 @@ GdbOptionsPageWidget2::GdbOptionsPageWidget2()
     group.insert(action(BreakOnWarning), checkBoxBreakOnWarning);
     group.insert(action(BreakOnFatal), checkBoxBreakOnFatal);
     group.insert(action(BreakOnAbort), checkBoxBreakOnAbort);
-    group.insert(action(AttemptQuickStart), checkBoxAttemptQuickStart);
     group.insert(action(MultiInferior), checkBoxMultiInferior);
     if (checkBoxEnableReverseDebugging)
         group.insert(action(EnableReverseDebugging), checkBoxEnableReverseDebugging);

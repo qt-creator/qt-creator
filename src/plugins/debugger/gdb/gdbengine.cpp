@@ -217,7 +217,6 @@ GdbEngine::GdbEngine(const DebuggerRunParameters &startParameters)
     m_commandsDoneCallback = 0;
     m_stackNeeded = false;
     m_terminalTrap = startParameters.useTerminal;
-    m_fullStartDone = false;
     m_systemDumpersLoaded = false;
     m_rerunPending = false;
     m_inUpdateLocals = false;
@@ -1382,14 +1381,6 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         return;
     }
 
-    bool gotoHandleStop1 = true;
-    if (!m_fullStartDone) {
-        m_fullStartDone = true;
-        runCommand({"sharedlibrary .*",
-                   [this, data](const DebuggerResponse &) { handleStop1(data); }});
-        gotoHandleStop1 = false;
-    }
-
     BreakpointResponseId rid(data["bkptno"].data());
     int lineNumber = 0;
     QString fullName;
@@ -1468,8 +1459,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
 
     CHECK_STATE(InferiorStopOk);
 
-    if (gotoHandleStop1)
-        handleStop1(data);
+    handleStop1(data);
 }
 
 static QString stopSignal(const Abi &abi)
@@ -4024,12 +4014,6 @@ void GdbEngine::startGdb(const QStringList &args)
     //QByteArray ba = QFileInfo(sp.dumperLibrary).path().toLocal8Bit();
     //if (!ba.isEmpty())
     //    runCommand("set solib-search-path " + ba);
-    if (attemptQuickStart()) {
-        runCommand({"set auto-solib-add off", ConsoleCommand});
-    } else {
-        m_fullStartDone = true;
-        runCommand({"set auto-solib-add on", ConsoleCommand});
-    }
 
     if (boolSetting(MultiInferior) || runParameters().multiProcess) {
         //runCommand("set follow-exec-mode new");
@@ -4360,22 +4344,6 @@ void GdbEngine::scheduleTestResponse(int testCase, const QString &response)
 void GdbEngine::requestDebugInformation(const DebugInfoTask &task)
 {
     QProcess::startDetached(task.command);
-}
-
-bool GdbEngine::attemptQuickStart() const
-{
-    // Don't try if the user does not ask for it.
-    if (!boolSetting(AttemptQuickStart))
-        return false;
-
-    // Don't try if there are breakpoints we might be able to handle.
-    BreakHandler *handler = breakHandler();
-    foreach (Breakpoint bp, handler->unclaimedBreakpoints()) {
-        if (acceptsBreakpoint(bp))
-            return false;
-    }
-
-    return true;
 }
 
 void GdbEngine::write(const QByteArray &data)

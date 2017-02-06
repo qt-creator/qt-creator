@@ -407,10 +407,6 @@ protected:
     void requestDebugInformation(const DebugInfoTask &task);
     DebugInfoTaskHandler *m_debugInfoTaskHandler;
 
-    // Indicates whether we had at least one full attempt to load
-    // debug information.
-    bool attemptQuickStart() const;
-    bool m_fullStartDone;
     bool m_systemDumpersLoaded;
 
     static QString msgGdbStopFailed(const QString &why);
