@@ -737,8 +737,7 @@ void ProjectNode::makeEmpty()
     qDeleteAll(m_projectNodes);
     m_projectNodes.clear();
 
-    setFolderNodes({});
-    setFileNodes({});
+    FolderNode::makeEmpty();
 }
 
 bool ProjectNode::isEmpty() const
