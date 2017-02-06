@@ -6,6 +6,7 @@
     "trDescription": "Creates a simple Nim application.",
     "trDisplayName": "Nim Application",
     "trDisplayCategory": "Non-Qt Project",
+    "featuresRequired": [ "ToolChain.Nim.NimToolChain" ],
     "icon": "icon.png",
     "enabled": "%{JS: [ %{Plugins} ].indexOf('Nim') >= 0 }",
 
