@@ -92,6 +92,7 @@ public:
     void addToEnvironment(const Kit *k, Utils::Environment &env) const override;
     void addToMacroExpander(Kit *kit, Utils::MacroExpander *expander) const override;
     IOutputParser *createOutputParser(const Kit *k) const override;
+    QSet<Core::Id> availableFeatures(const Kit *k) const override;
 
     static Core::Id id();
     static ToolChain *toolChain(const Kit *k, Core::Id language);
