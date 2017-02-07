@@ -798,6 +798,15 @@ QList<ToolChain *> GccToolChainFactory::autoDetect(const QList<ToolChain *> &alr
     return tcs;
 }
 
+QList<ToolChain *> GccToolChainFactory::autoDetect(const FileName &compilerPath, const Core::Id &language)
+{
+    const QString fileName = compilerPath.fileName();
+    if ((language == Constants::C_LANGUAGE_ID && fileName.startsWith("gcc"))
+            || (language == Constants::CXX_LANGUAGE_ID && fileName.startsWith("g++")))
+        return autoDetectToolChain(compilerPath, language);
+    return QList<ToolChain *>();
+}
+
 // Used by the ToolChainManager to restore user-generated tool chains
 bool GccToolChainFactory::canRestore(const QVariantMap &data)
 {
@@ -1170,6 +1179,15 @@ QList<ToolChain *> ClangToolChainFactory::autoDetect(const QList<ToolChain *> &a
     return result;
 }
 
+QList<ToolChain *> ClangToolChainFactory::autoDetect(const FileName &compilerPath, const Core::Id &language)
+{
+    const QString fileName = compilerPath.fileName();
+    if ((language == Constants::C_LANGUAGE_ID && fileName.startsWith("clang") && !fileName.startsWith("clang++"))
+            || (language == Constants::CXX_LANGUAGE_ID && fileName.startsWith("clang++")))
+        return autoDetectToolChain(compilerPath, language);
+    return QList<ToolChain *>();
+}
+
 bool ClangToolChainFactory::canRestore(const QVariantMap &data)
 {
     return typeIdFromMap(data) == Constants::CLANG_TOOLCHAIN_TYPEID;
@@ -1255,6 +1273,17 @@ QList<ToolChain *> MingwToolChainFactory::autoDetect(const QList<ToolChain *> &a
     return result;
 }
 
+QList<ToolChain *> MingwToolChainFactory::autoDetect(const FileName &compilerPath, const Core::Id &language)
+{
+    Abi ha = Abi::hostAbi();
+    ha = Abi(ha.architecture(), Abi::WindowsOS, Abi::WindowsMSysFlavor, Abi::PEFormat, ha.wordWidth());
+    const QString fileName = compilerPath.fileName();
+    if ((language == Constants::C_LANGUAGE_ID && fileName.startsWith("gcc"))
+            || (language == Constants::CXX_LANGUAGE_ID && fileName.startsWith("g++")))
+        return autoDetectToolChain(compilerPath, language, ha);
+    return QList<ToolChain *>();
+}
+
 bool MingwToolChainFactory::canRestore(const QVariantMap &data)
 {
     return typeIdFromMap(data) == Constants::MINGW_TOOLCHAIN_TYPEID;
@@ -1334,6 +1363,14 @@ QList<ToolChain *> LinuxIccToolChainFactory::autoDetect(const QList<ToolChain *>
 {
     return autoDetectToolchains("icpc", Abi::hostAbi(), Constants::CXX_LANGUAGE_ID,
                                 Constants::LINUXICC_TOOLCHAIN_TYPEID, alreadyKnown);
+}
+
+QList<ToolChain *> LinuxIccToolChainFactory::autoDetect(const FileName &compilerPath, const Core::Id &language)
+{
+    const QString fileName = compilerPath.fileName();
+    if (language == Constants::CXX_LANGUAGE_ID && fileName.startsWith("icpc"))
+        return autoDetectToolChain(compilerPath, language);
+    return QList<ToolChain *>();
 }
 
 bool LinuxIccToolChainFactory::canRestore(const QVariantMap &data)
