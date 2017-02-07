@@ -970,9 +970,9 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
 
     if (role == BaseTreeView::ExtraIndicesForColumnWidth) {
         QModelIndexList l;
-        foreach (TreeItem *item, m_watchRoot->children())
+        for (const TreeItem *item : *m_watchRoot)
             l.append(indexForItem(item));
-        foreach (TreeItem *item, m_returnRoot->children())
+        for (const TreeItem *item : *m_returnRoot)
             l.append(indexForItem(item));
         return QVariant::fromValue(l);
     }
@@ -1237,7 +1237,7 @@ void WatchModel::fetchMore(const QModelIndex &idx)
     WatchItem *item = nonRootItemForIndex(idx);
     if (item) {
         m_expandedINames.insert(item->iname);
-        if (item->children().isEmpty())
+        if (item->childCount() == 0)
             m_engine->expandItem(item->iname);
     }
 }
@@ -1988,10 +1988,10 @@ bool WatchHandler::insertItem(WatchItem *item)
     QTC_ASSERT(parent, return false);
 
     bool found = false;
-    const QVector<TreeItem *> siblings = parent->children();
+    const std::vector<TreeItem *> siblings(parent->begin(), parent->end());
     for (int row = 0, n = siblings.size(); row < n; ++row) {
-        if (static_cast<WatchItem *>(siblings.at(row))->iname == item->iname) {
-            m_model->destroyItem(parent->children().at(row));
+        if (static_cast<WatchItem *>(siblings[row])->iname == item->iname) {
+            m_model->destroyItem(parent->childAt(row));
             parent->insertChild(row, item);
             found = true;
             break;
@@ -2381,7 +2381,7 @@ void WatchHandler::fetchMore(const QString &iname) const
 {
     if (WatchItem *item = m_model->findItem(iname)) {
         m_model->m_expandedINames.insert(iname);
-        if (item->children().isEmpty())
+        if (item->childCount() == 0)
             m_model->m_engine->expandItem(iname);
     }
 }

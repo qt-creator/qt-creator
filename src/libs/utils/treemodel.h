@@ -64,10 +64,14 @@ public:
     TreeItem *lastChild() const;
     int level() const;
 
-    int childCount() const { return m_children.size(); }
+    using const_iterator = QVector<TreeItem *>::const_iterator;
+    using value_type = TreeItem *;
+    int childCount() const { return end() - begin(); }
     int indexInParent() const;
     TreeItem *childAt(int index) const;
-    QVector<TreeItem *> children() const { return m_children; }
+    int indexOf(const TreeItem *item) const;
+    const_iterator begin() const { return m_children.begin(); }
+    const_iterator end() const { return m_children.end(); }
     QModelIndex index() const;
     QAbstractItemModel *model() const;
 

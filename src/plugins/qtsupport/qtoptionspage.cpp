@@ -298,7 +298,7 @@ void QtOptionsPageWidget::cleanUpQtVersions()
     QVector<QtVersionItem *> toRemove;
     QString text;
 
-    foreach (Utils::TreeItem *child, m_manualItem->children()) {
+    for (TreeItem *child : *m_manualItem) {
         auto item = static_cast<QtVersionItem *>(child);
         if (item->version() && !item->version()->isValid()) {
             toRemove.append(item);
@@ -672,7 +672,7 @@ void QtOptionsPageWidget::editPath()
 void QtOptionsPageWidget::updateCleanUpButton()
 {
     bool hasInvalidVersion = false;
-    foreach (Utils::TreeItem *child, m_manualItem->children()) {
+    for (TreeItem *child : *m_manualItem) {
         auto item = static_cast<QtVersionItem *>(child);
         if (item->version() && !item->version()->isValid()) {
             hasInvalidVersion = true;

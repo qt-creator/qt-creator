@@ -135,7 +135,7 @@ void GdbServerProviderModel::apply()
     QTC_ASSERT(m_providersToRemove.isEmpty(), m_providersToRemove.clear());
 
     // Update providers
-    foreach (TreeItem *item, rootItem()->children()) {
+    for (TreeItem *item : *rootItem()) {
         auto n = static_cast<GdbServerProviderNode *>(item);
         if (!n->changed)
             continue;
@@ -173,7 +173,7 @@ GdbServerProviderNode *GdbServerProviderModel::findNode(const GdbServerProvider 
         return static_cast<GdbServerProviderNode *>(item)->provider == provider;
     };
 
-    return static_cast<GdbServerProviderNode *>(Utils::findOrDefault(rootItem()->children(), test));
+    return static_cast<GdbServerProviderNode *>(Utils::findOrDefault(*rootItem(), test));
 }
 
 QModelIndex GdbServerProviderModel::indexForProvider(GdbServerProvider *provider) const
@@ -209,7 +209,7 @@ GdbServerProviderNode *GdbServerProviderModel::createNode(
     auto n = new GdbServerProviderNode(provider, changed);
     if (n->widget) {
         connect(n->widget, &GdbServerProviderConfigWidget::dirty, this, [this, n] {
-            foreach (TreeItem *item, rootItem()->children()) {
+            for (TreeItem *item : *rootItem()) {
                 auto nn = static_cast<GdbServerProviderNode *>(item);
                 if (nn->widget == n->widget) {
                     nn->changed = true;

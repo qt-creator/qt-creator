@@ -104,7 +104,7 @@ void TestResultItem::updateResult()
         return;
 
     Result::Type newResult = Result::MessageTestCaseSuccess;
-    foreach (Utils::TreeItem *child, children()) {
+    for (Utils::TreeItem *child : *this) {
         const TestResult *current = static_cast<TestResultItem *>(child)->testResult();
         if (current) {
             switch (current->result()) {
@@ -131,7 +131,7 @@ void TestResultItem::updateResult()
 
 void TestResultItem::updateIntermediateChildren()
 {
-    for (Utils::TreeItem *child : children()) {
+    for (Utils::TreeItem *child : *this) {
         TestResultItem *childItem = static_cast<TestResultItem *>(child);
         if (childItem->testResult()->result() == Result::MessageIntermediate)
             childItem->updateResult();
@@ -225,9 +225,9 @@ void TestResultModel::addTestResult(const TestResultPtr &testResult, bool autoEx
 
 void TestResultModel::removeCurrentTestMessage()
 {
-    QVector<Utils::TreeItem *> topLevelItems = rootItem()->children();
+    std::vector<Utils::TreeItem *> topLevelItems(rootItem()->begin(), rootItem()->end());
     for (int row = topLevelItems.size() - 1; row >= 0; --row) {
-        TestResultItem *current = static_cast<TestResultItem *>(topLevelItems.at(row));
+        TestResultItem *current = static_cast<TestResultItem *>(topLevelItems[row]);
         if (current->testResult()->result() == Result::MessageCurrentTest) {
             destroyItem(current);
             break;

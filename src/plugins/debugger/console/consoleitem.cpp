@@ -128,7 +128,7 @@ bool ConsoleItem::setData(int column, const QVariant &data, int role)
 bool ConsoleItem::canFetchMore() const
 {
     // Always fetch all children, too, as the labels depend on them.
-    foreach (TreeItem *child, children()) {
+    for (TreeItem *child : *this) {
         if (static_cast<ConsoleItem *>(child)->m_doFetch)
             return true;
     }
@@ -143,7 +143,7 @@ void ConsoleItem::fetchMore()
         m_doFetch = std::function<void(ConsoleItem *)>();
     }
 
-    foreach (TreeItem *child, children()) {
+    for (TreeItem *child : *this) {
         ConsoleItem *item = static_cast<ConsoleItem *>(child);
         if (item->m_doFetch) {
             item->m_doFetch(item);

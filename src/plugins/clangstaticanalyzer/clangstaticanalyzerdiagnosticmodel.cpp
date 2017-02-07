@@ -80,7 +80,7 @@ void ClangStaticAnalyzerDiagnosticModel::addDiagnostics(const QList<Diagnostic> 
 QList<Diagnostic> ClangStaticAnalyzerDiagnosticModel::diagnostics() const
 {
     QList<Diagnostic> diags;
-    foreach (const Utils::TreeItem * const item, rootItem()->children())
+    for (const Utils::TreeItem * const item : *rootItem())
         diags << static_cast<const DiagnosticItem *>(item)->diagnostic();
     return diags;
 }

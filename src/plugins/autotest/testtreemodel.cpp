@@ -67,7 +67,7 @@ TestTreeModel *TestTreeModel::instance()
 
 TestTreeModel::~TestTreeModel()
 {
-    foreach (Utils::TreeItem *item, rootItem()->children()) {
+    for (Utils::TreeItem *item : *rootItem()) {
         item->removeChildren();
         takeItem(item); // do NOT delete the item as it's still a ptr hold by TestFrameworkManager
     }
@@ -141,7 +141,7 @@ Qt::ItemFlags TestTreeModel::flags(const QModelIndex &index) const
 
 bool TestTreeModel::hasTests() const
 {
-    foreach (Utils::TreeItem *frameworkRoot, rootItem()->children()) {
+    for (Utils::TreeItem *frameworkRoot : *rootItem()) {
         if (frameworkRoot->hasChildren())
             return true;
     }
@@ -151,7 +151,7 @@ bool TestTreeModel::hasTests() const
 QList<TestConfiguration *> TestTreeModel::getAllTestCases() const
 {
     QList<TestConfiguration *> result;
-    foreach (Utils::TreeItem *frameworkRoot, rootItem()->children())
+    for (Utils::TreeItem *frameworkRoot : *rootItem())
         result.append(static_cast<TestTreeItem *>(frameworkRoot)->getAllTestConfigurations());
     return result;
 }
@@ -159,7 +159,7 @@ QList<TestConfiguration *> TestTreeModel::getAllTestCases() const
 QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
 {
     QList<TestConfiguration *> result;
-    foreach (Utils::TreeItem *frameworkRoot, rootItem()->children())
+    for (Utils::TreeItem *frameworkRoot : *rootItem())
         result.append(static_cast<TestTreeItem *>(frameworkRoot)->getSelectedTestConfigurations());
     return result;
 }
@@ -167,7 +167,7 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
 void TestTreeModel::syncTestFrameworks()
 {
     // remove all currently registered
-    foreach (Utils::TreeItem *item, rootItem()->children()) {
+    for (Utils::TreeItem *item : *rootItem()) {
         item->removeChildren();
         takeItem(item); // do NOT delete the item as it's still a ptr hold by TestFrameworkManager
     }
@@ -190,8 +190,8 @@ void TestTreeModel::removeFiles(const QStringList &files)
 
 void TestTreeModel::markAllForRemoval()
 {
-    foreach (Utils::TreeItem *frameworkRoot, rootItem()->children()) {
-        foreach (Utils::TreeItem *item, frameworkRoot->children())
+    for (Utils::TreeItem *frameworkRoot : *rootItem()) {
+        for (Utils::TreeItem *item : *frameworkRoot)
             static_cast<TestTreeItem *>(item)->markForRemovalRecursively(true);
     }
 }
@@ -201,7 +201,7 @@ void TestTreeModel::markForRemoval(const QString &filePath)
     if (filePath.isEmpty())
         return;
 
-    for (Utils::TreeItem *frameworkRoot : rootItem()->children()) {
+    for (Utils::TreeItem *frameworkRoot : *rootItem()) {
         TestTreeItem *root = static_cast<TestTreeItem *>(frameworkRoot);
         for (int childRow = root->childCount() - 1; childRow >= 0; --childRow) {
             TestTreeItem *child = root->childItem(childRow);
@@ -212,7 +212,7 @@ void TestTreeModel::markForRemoval(const QString &filePath)
 
 void TestTreeModel::sweep()
 {
-    for (Utils::TreeItem *frameworkRoot : rootItem()->children()) {
+    for (Utils::TreeItem *frameworkRoot : *rootItem()) {
         TestTreeItem *root = static_cast<TestTreeItem *>(frameworkRoot);
         sweepChildren(root);
     }
@@ -277,7 +277,7 @@ void TestTreeModel::handleParseResult(const TestParseResult *result, TestTreeIte
 
 void TestTreeModel::removeAllTestItems()
 {
-    foreach (Utils::TreeItem *item, rootItem()->children())
+    for (Utils::TreeItem *item : *rootItem())
         item->removeChildren();
     emit testTreeModelChanged();
 }
@@ -353,9 +353,9 @@ int TestTreeModel::dataTagsCount() const
         return 0;
 
     int dataTagCount = 0;
-    foreach (Utils::TreeItem *item, rootNode->children()) {
+    for (Utils::TreeItem *item : *rootNode) {
         TestTreeItem *classItem = static_cast<TestTreeItem *>(item);
-        foreach (Utils::TreeItem *functionItem, classItem->children())
+        for (Utils::TreeItem *functionItem : *classItem)
             dataTagCount += functionItem->childCount();
    }
     return dataTagCount;

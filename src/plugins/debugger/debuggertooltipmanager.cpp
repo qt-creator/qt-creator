@@ -221,7 +221,7 @@ ToolTipWatchItem::ToolTipWatchItem(TreeItem *item)
     valueColor = model->data(idx.sibling(idx.row(), 1), Qt::ForegroundRole).value<QColor>();
     expandable = model->hasChildren(idx);
     expression = model->data(idx.sibling(idx.row(), 0), Qt::EditRole).toString();
-    foreach (TreeItem *child, item->children())
+    for (TreeItem *child : *item)
         appendChild(new ToolTipWatchItem(child));
 }
 

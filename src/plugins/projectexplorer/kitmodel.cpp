@@ -168,7 +168,7 @@ void KitModel::isAutoDetectedChanged()
 {
     auto w = qobject_cast<KitManagerConfigWidget *>(sender());
     int idx = -1;
-    idx = Utils::indexOf(m_manualRoot->children(), [w](TreeItem *node) {
+    idx = Utils::indexOf(*m_manualRoot, [w](TreeItem *node) {
         return static_cast<KitNode *>(node)->widget == w;
     });
     TreeItem *oldParent = nullptr;
@@ -176,7 +176,7 @@ void KitModel::isAutoDetectedChanged()
     if (idx != -1) {
         oldParent = m_manualRoot;
     } else {
-        idx = Utils::indexOf(m_autoRoot->children(), [w](TreeItem *node) {
+        idx = Utils::indexOf(*m_autoRoot, [w](TreeItem *node) {
             return static_cast<KitNode *>(node)->widget == w;
         });
         if (idx != -1) {
@@ -185,7 +185,7 @@ void KitModel::isAutoDetectedChanged()
     }
 
     if (oldParent && oldParent != newParent) {
-        beginMoveRows(indexForItem(oldParent), idx, idx, indexForItem(newParent), newParent->children().size());
+        beginMoveRows(indexForItem(oldParent), idx, idx, indexForItem(newParent), newParent->childCount());
         TreeItem *n = oldParent->childAt(idx);
         takeItem(n);
         newParent->appendChild(n);
@@ -281,8 +281,7 @@ KitNode *KitModel::createNode(Kit *k)
     auto node = new KitNode(k);
     m_parentLayout->addWidget(node->widget);
     connect(node->widget, &KitManagerConfigWidget::dirty, [this, node] {
-        if (m_autoRoot->children().contains(node)
-                || m_manualRoot->children().contains(node))
+        if (m_autoRoot->indexOf(node) != -1 || m_manualRoot->indexOf(node) != -1)
             node->update();
     });
     connect(node->widget, &KitManagerConfigWidget::isAutoDetectedChanged,
@@ -306,7 +305,7 @@ void KitModel::setDefaultNode(KitNode *node)
 
 void KitModel::addKit(Kit *k)
 {
-    foreach (TreeItem *n, m_manualRoot->children()) {
+    for (TreeItem *n : *m_manualRoot) {
         // Was added by us
         if (static_cast<KitNode *>(n)->widget->configures(k))
             return;

@@ -330,7 +330,7 @@ void ToolChainOptionsWidget::apply()
     // Update tool chains:
     foreach (const Core::Id &l, m_languageMap.keys()) {
         StaticTreeItem *parent = m_languageMap.value(l).second;
-        foreach (TreeItem *item, parent->children()) {
+        for (TreeItem *item : *parent) {
             auto tcItem = static_cast<ToolChainTreeItem *>(item);
             Q_ASSERT(tcItem->toolChain);
             if (tcItem->widget)

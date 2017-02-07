@@ -386,7 +386,7 @@ public:
 
         if (role == ItemActivatedFromBelowRole) {
             // I.e. 'Build' and 'Run' items were present and user clicked on them.
-            int child = children().indexOf(data.value<TreeItem *>());
+            int child = indexOf(data.value<TreeItem *>());
             QTC_ASSERT(child != -1, return false);
             m_currentChild = child; // Triggered from sub-item.
             SessionManager::setActiveTarget(m_project, target(), SetActive::Cascade);
@@ -788,7 +788,7 @@ void TargetGroupItemPrivate::handleAddedKit(Kit *kit)
 
 void TargetItem::updateSubItems()
 {
-    if (children().isEmpty() && isEnabled())
+    if (childCount() == 0 && isEnabled())
         m_currentChild = DefaultPage; // We will add children below.
     removeChildren();
     if (isEnabled()) {

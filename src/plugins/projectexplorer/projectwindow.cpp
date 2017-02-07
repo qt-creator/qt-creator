@@ -178,7 +178,7 @@ public:
         if (role == ItemActivatedFromBelowRole) {
             TreeItem *item = data.value<TreeItem *>();
             QTC_ASSERT(item, return false);
-            m_currentPanelIndex = children().indexOf(item);
+            m_currentPanelIndex = indexOf(item);
             QTC_ASSERT(m_currentPanelIndex != -1, return false);
             parent()->setData(0, QVariant::fromValue(static_cast<TreeItem *>(this)),
                               ItemActivatedFromBelowRole);
@@ -251,9 +251,9 @@ public:
         }
 
         if (role == ItemActivatedFromBelowRole) {
-            TreeItem *item = dat.value<TreeItem *>();
+            const TreeItem *item = dat.value<TreeItem *>();
             QTC_ASSERT(item, return false);
-            int res = children().indexOf(item);
+            int res = indexOf(item);
             QTC_ASSERT(res >= 0, return false);
             m_currentChildIndex = res;
             announceChange();
