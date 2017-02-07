@@ -27,16 +27,14 @@
 
 #include <coreplugin/iwelcomepage.h>
 
-#include <QStringList>
-
 QT_BEGIN_NAMESPACE
 class QFileInfo;
+class QStringList;
 QT_END_NAMESPACE
 
 namespace QtSupport {
 namespace Internal {
 
-class ExamplesListModel;
 class ExampleItem;
 
 class ExamplesWelcomePage : public Core::IWelcomePage
