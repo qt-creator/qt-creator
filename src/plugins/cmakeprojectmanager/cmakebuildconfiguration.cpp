@@ -426,6 +426,33 @@ CMakeBuildConfigurationFactory::CMakeBuildConfigurationFactory(QObject *parent) 
     ProjectExplorer::IBuildConfigurationFactory(parent)
 { }
 
+CMakeBuildConfigurationFactory::BuildType CMakeBuildConfigurationFactory::buildTypeFromByteArray(const QByteArray &in)
+{
+    const QByteArray bt = in.toLower();
+    if (bt == "debug")
+        return BuildTypeDebug;
+    if (bt == "release")
+        return BuildTypeRelease;
+    if (bt == "relwithdebinfo")
+        return BuildTypeRelWithDebInfo;
+    if (bt == "minsizerel")
+        return BuildTypeMinSizeRel;
+    return BuildTypeNone;
+}
+
+BuildConfiguration::BuildType CMakeBuildConfigurationFactory::cmakeBuildTypeToBuildType(const CMakeBuildConfigurationFactory::BuildType &in)
+{
+    // Cover all common CMake build types
+    if (in == BuildTypeRelease || in == BuildTypeMinSizeRel)
+        return BuildConfiguration::Release;
+    else if (in == BuildTypeDebug)
+        return BuildConfiguration::Debug;
+    else if (in == BuildTypeRelWithDebInfo)
+        return BuildConfiguration::Profile;
+    else
+        return BuildConfiguration::Unknown;
+}
+
 int CMakeBuildConfigurationFactory::priority(const ProjectExplorer::Target *parent) const
 {
     return canHandle(parent) ? 0 : -1;
@@ -603,14 +630,14 @@ CMakeBuildInfo *CMakeBuildConfigurationFactory::createBuildInfo(const ProjectExp
 
 ProjectExplorer::BuildConfiguration::BuildType CMakeBuildConfiguration::buildType() const
 {
-    QString cmakeBuildType;
+    QByteArray cmakeBuildTypeName;
     QFile cmakeCache(buildDirectory().toString() + QLatin1String("/CMakeCache.txt"));
     if (cmakeCache.open(QIODevice::ReadOnly)) {
         while (!cmakeCache.atEnd()) {
             QByteArray line = cmakeCache.readLine();
             if (line.startsWith("CMAKE_BUILD_TYPE")) {
                 if (int pos = line.indexOf('='))
-                    cmakeBuildType = QString::fromLocal8Bit(line.mid(pos + 1).trimmed());
+                    cmakeBuildTypeName = line.mid(pos + 1).trimmed();
                 break;
             }
         }
@@ -618,17 +645,9 @@ ProjectExplorer::BuildConfiguration::BuildType CMakeBuildConfiguration::buildTyp
     }
 
     // Cover all common CMake build types
-    if (cmakeBuildType.compare(QLatin1String("Release"), Qt::CaseInsensitive) == 0
-        || cmakeBuildType.compare(QLatin1String("MinSizeRel"), Qt::CaseInsensitive) == 0) {
-        return Release;
-    } else if (cmakeBuildType.compare(QLatin1String("Debug"), Qt::CaseInsensitive) == 0
-               || cmakeBuildType.compare(QLatin1String("DebugFull"), Qt::CaseInsensitive) == 0) {
-        return Debug;
-    } else if (cmakeBuildType.compare(QLatin1String("RelWithDebInfo"), Qt::CaseInsensitive) == 0) {
-        return Profile;
-    }
-
-    return Unknown;
+    const CMakeBuildConfigurationFactory::BuildType cmakeBuildType
+            = CMakeBuildConfigurationFactory::buildTypeFromByteArray(cmakeBuildTypeName);
+    return CMakeBuildConfigurationFactory::cmakeBuildTypeToBuildType(cmakeBuildType);
 }
 
 } // namespace Internal
