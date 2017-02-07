@@ -45,6 +45,8 @@
 
     \image creator_android_tutorial_ex_app.png
 
+    For more information about the UI choices you have, see \l{User Interfaces}.
+
     \section1 Setting up the Development Environment
 
     To be able to build and run the application on a mobile device, you must

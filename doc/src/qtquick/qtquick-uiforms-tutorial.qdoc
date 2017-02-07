@@ -36,6 +36,7 @@
     to implement a simplified version of the \l{Qt Quick Controls - UI Forms}
     {UI Forms example}, which provides an interface to a customer database and
     is purely written in QML and JavaScript.
+    For more information about the UI choices you have, see \l{User Interfaces}.
 
     \image qmldesigner-uiforms-example.png
 
