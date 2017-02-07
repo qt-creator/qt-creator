@@ -160,13 +160,10 @@ void ProjectInfo::finish()
             m_sourceFiles.insert(file.path);
 
         // Update defines
-        m_defines.append(part->toolchainDefines);
-        m_defines.append(part->projectDefines);
-        if (!part->projectConfigFile.isEmpty()) {
-            m_defines.append('\n');
-            m_defines += ProjectPart::readProjectConfigFile(part);
-            m_defines.append('\n');
-        }
+        m_defines.append(part->toolChainMacros);
+        m_defines.append(part->projectMacros);
+        if (!part->projectConfigFile.isEmpty())
+            m_defines += ProjectExplorer::Macro::toMacros(ProjectPart::readProjectConfigFile(part));
     }
 }
 

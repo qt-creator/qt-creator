@@ -118,7 +118,7 @@ ToolChain::PredefinedMacrosRunner AbstractMsvcToolChain::createPredefinedMacrosR
     };
 }
 
-QByteArray AbstractMsvcToolChain::predefinedMacros(const QStringList &cxxflags) const
+ProjectExplorer::Macros AbstractMsvcToolChain::predefinedMacros(const QStringList &cxxflags) const
 {
     return createPredefinedMacrosRunner()(cxxflags);
 }
@@ -275,13 +275,6 @@ IOutputParser *AbstractMsvcToolChain::outputParser() const
 bool AbstractMsvcToolChain::canClone() const
 {
     return true;
-}
-
-// Function must be thread-safe!
-QByteArray AbstractMsvcToolChain::msvcPredefinedMacros(const QStringList,
-                                                       const Utils::Environment&) const
-{
-    return QByteArray();
 }
 
 bool AbstractMsvcToolChain::generateEnvironmentSettings(const Utils::Environment &env,

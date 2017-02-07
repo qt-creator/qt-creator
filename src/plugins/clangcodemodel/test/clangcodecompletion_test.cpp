@@ -512,7 +512,7 @@ bool OpenEditorAtCursorPosition::waitUntil(const std::function<bool ()> &conditi
 }
 
 CppTools::ProjectPart::Ptr createProjectPart(const QStringList &files,
-                                             const QString &defines)
+                                             const ProjectExplorer::Macros &macros)
 {
     using namespace CppTools;
 
@@ -521,19 +521,19 @@ CppTools::ProjectPart::Ptr createProjectPart(const QStringList &files,
     foreach (const QString &file, files)
         projectPart->files.append(ProjectFile(file, ProjectFile::classify(file)));
     projectPart->qtVersion = ProjectPart::NoQt;
-    projectPart->projectDefines = defines.toUtf8();
+    projectPart->projectMacros = macros;
 
     return projectPart;
 }
 
 CppTools::ProjectInfo createProjectInfo(ProjectExplorer::Project *project,
                                         const QStringList &files,
-                                        const QString &defines)
+                                        const ProjectExplorer::Macros &macros)
 {
     using namespace CppTools;
     QTC_ASSERT(project, return ProjectInfo());
 
-    const CppTools::ProjectPart::Ptr projectPart = createProjectPart(files, defines);
+    const CppTools::ProjectPart::Ptr projectPart = createProjectPart(files, macros);
     ProjectInfo projectInfo = ProjectInfo(project);
     projectInfo.appendProjectPart(projectPart);
     return projectInfo;
@@ -543,11 +543,11 @@ class ProjectLoader
 {
 public:
     ProjectLoader(const QStringList &projectFiles,
-                  const QString &projectDefines,
+                  const ProjectExplorer::Macros &projectMacros,
                   bool testOnlyForCleanedProjects = false)
         : m_project(0)
         , m_projectFiles(projectFiles)
-        , m_projectDefines(projectDefines)
+        , m_projectMacros(projectMacros)
         , m_helper(0, testOnlyForCleanedProjects)
     {
     }
@@ -557,17 +557,17 @@ public:
         m_project = m_helper.createProject(QLatin1String("testProject"));
         const CppTools::ProjectInfo projectInfo = createProjectInfo(m_project,
                                                                     m_projectFiles,
-                                                                    m_projectDefines);
+                                                                    m_projectMacros);
         const QSet<QString> filesIndexedAfterLoading = m_helper.updateProjectInfo(projectInfo);
         return m_projectFiles.size() == filesIndexedAfterLoading.size();
     }
 
-    bool updateProject(const QString &updatedProjectDefines)
+    bool updateProject(const ProjectExplorer::Macros &updatedProjectMacros)
     {
         QTC_ASSERT(m_project, return false);
         const CppTools::ProjectInfo updatedProjectInfo = createProjectInfo(m_project,
                                                                            m_projectFiles,
-                                                                           updatedProjectDefines);
+                                                                           updatedProjectMacros);
         return updateProjectInfo(updatedProjectInfo);
 
     }
@@ -581,7 +581,7 @@ private:
 
     ProjectExplorer::Project *m_project;
     QStringList m_projectFiles;
-    QString m_projectDefines;
+    ProjectExplorer::Macros m_projectMacros;
     CppTools::Tests::ModelManagerTestHelper m_helper;
 };
 
@@ -865,8 +865,7 @@ void ClangCodeCompletionTest::testCompleteProjectDependingCode()
     const TestDocument testDocument("completionWithProject.cpp");
     QVERIFY(testDocument.isCreatedAndHasValidCursorPosition());
 
-    ProjectLoader projectLoader(QStringList(testDocument.filePath),
-                                _("#define PROJECT_CONFIGURATION_1\n"));
+    ProjectLoader projectLoader(QStringList(testDocument.filePath), {{"PROJECT_CONFIGURATION_1"}});
     QVERIFY(projectLoader.load());
 
     OpenEditorAtCursorPosition openEditor(testDocument);
@@ -891,7 +890,7 @@ void ClangCodeCompletionTest::testCompleteProjectDependingCodeAfterChangingProje
     {
         // Check completion with project configuration 1
         ProjectLoader projectLoader(QStringList(testDocument.filePath),
-                                    _("#define PROJECT_CONFIGURATION_1\n"),
+                                    {{"PROJECT_CONFIGURATION_1"}},
                                     /* testOnlyForCleanedProjects= */ true);
         QVERIFY(projectLoader.load());
         openEditor.waitUntilProjectPartChanged(QLatin1String("myproject.project"));
@@ -902,7 +901,7 @@ void ClangCodeCompletionTest::testCompleteProjectDependingCodeAfterChangingProje
         QVERIFY(!hasItem(proposal, "projectConfiguration2"));
 
         // Check completion with project configuration 2
-        QVERIFY(projectLoader.updateProject(_("#define PROJECT_CONFIGURATION_2\n")));
+        QVERIFY(projectLoader.updateProject({{"PROJECT_CONFIGURATION_2"}}));
         proposal = completionResults(openEditor.editor());
 
         QVERIFY(!hasItem(proposal, "projectConfiguration1"));

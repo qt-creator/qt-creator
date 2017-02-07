@@ -25,6 +25,8 @@
 
 #include "projectpart.h"
 
+#include <utils/algorithm.h>
+
 #include <QFile>
 #include <QDir>
 #include <QTextStream>
@@ -43,16 +45,9 @@ void ProjectPart::updateLanguageFeatures()
     if (!hasQt) {
         languageFeatures.qtKeywordsEnabled = false;
     } else {
-        const QByteArray noKeywordsMacro = "#define QT_NO_KEYWORDS";
-        const int noKeywordsIndex = projectDefines.indexOf(noKeywordsMacro);
-        if (noKeywordsIndex == -1) {
-            languageFeatures.qtKeywordsEnabled = true;
-        } else {
-            const char nextChar = projectDefines.at(noKeywordsIndex + noKeywordsMacro.length());
-            // Detect "#define QT_NO_KEYWORDS" and "#define QT_NO_KEYWORDS 1", but exclude
-            // "#define QT_NO_KEYWORDS_FOO"
-            languageFeatures.qtKeywordsEnabled = nextChar != '\n' && nextChar != ' ';
-        }
+        languageFeatures.qtKeywordsEnabled = !Utils::contains(
+                    projectMacros,
+                    [] (const ProjectExplorer::Macro &macro) { return macro.key == "QT_NO_KEYWORDS"; });
     }
 }
 

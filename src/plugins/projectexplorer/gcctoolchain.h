@@ -51,7 +51,7 @@ class LinuxIccToolChainFactory;
 // GccToolChain
 // --------------------------------------------------------------------------
 
-class PROJECTEXPLORER_EXPORT HeaderPathsCache
+class HeaderPathsCache
 {
 public:
     HeaderPathsCache() : m_mutex(QMutex::Recursive) {}
@@ -69,20 +69,22 @@ private:
     mutable Cache m_cache;
 };
 
-class PROJECTEXPLORER_EXPORT MacroCache
+class MacroCache
 {
 public:
-    MacroCache() : m_mutex(QMutex::Recursive) {}
+    MacroCache();
     MacroCache(const MacroCache &other);
-    void insert(const QStringList &compilerCommand, const QByteArray &macros);
-    QByteArray check(const QStringList &compilerCommand) const;
+    void insert(const QStringList &compilerCommand, const Macros &macros);
+    Macros check(const QStringList &compilerCommand) const;
 
 protected:
-    using CacheItem = QPair<QStringList, QByteArray>;
-    using Cache = QList<CacheItem>;
+    using CacheItem = QPair<QStringList, Macros>;
+    using Cache = QVector<CacheItem>;
     Cache cache() const;
 
 private:
+    // Does not lock!
+    Macros unlockedCheck(const QStringList &compilerCommand) const;
     mutable QMutex m_mutex;
     mutable Cache m_cache;
 };
@@ -104,7 +106,7 @@ public:
     WarningFlags warningFlags(const QStringList &cflags) const override;
 
     PredefinedMacrosRunner createPredefinedMacrosRunner() const override;
-    QByteArray predefinedMacros(const QStringList &cxxflags) const override;
+    Macros predefinedMacros(const QStringList &cxxflags) const override;
 
     SystemHeaderPathsRunner createSystemHeaderPathsRunner() const override;
     QList<HeaderPath> systemHeaderPaths(const QStringList &cxxflags,
@@ -147,14 +149,16 @@ public:
     };
 
 protected:
-    GccToolChain(const GccToolChain &) = default;
+    using CacheItem = QPair<QStringList, Macros>;
+    using GccCache = QVector<CacheItem>;
+
+    GccToolChain(const GccToolChain &);
 
     void setCompilerCommand(const Utils::FileName &path);
     void setSupportedAbis(const QList<Abi> &m_abis);
     void setOriginalTargetTriple(const QString &targetTriple);
-
-    void setMacroCache(const QStringList &allCxxflags, const QByteArray &macros) const;
-    QByteArray macroCache(const QStringList &allCxxflags) const;
+    void setMacroCache(const QStringList &allCxxflags, const Macros &macroCache) const;
+    Macros macroCache(const QStringList &allCxxflags) const;
 
     virtual QString defaultDisplayName() const;
     virtual CompilerFlags defaultCompilerFlags() const;

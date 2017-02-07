@@ -89,20 +89,21 @@ static bool includesQtQuickTest(const CPlusPlus::Document::Ptr &doc,
 static QString quickTestSrcDir(const CppTools::CppModelManager *cppMM,
                                const QString &fileName)
 {
-    static const QByteArray qtsd(" QUICK_TEST_SOURCE_DIR ");
     const QList<CppTools::ProjectPart::Ptr> parts = cppMM->projectPart(fileName);
     if (parts.size() > 0) {
-        QByteArray projDefines(parts.at(0)->projectDefines);
-        for (const QByteArray &line : projDefines.split('\n')) {
-            if (line.contains(qtsd)) {
-                QByteArray result = line.mid(line.indexOf(qtsd) + qtsd.length());
-                if (result.startsWith('"'))
-                    result.remove(result.length() - 1, 1).remove(0, 1);
-                if (result.startsWith("\\\""))
-                    result.remove(result.length() - 2, 2).remove(0, 2);
-                return QLatin1String(result);
-            }
-        }
+        const ProjectExplorer::Macros &macros = parts.at(0)->projectMacros;
+        auto found = std::find_if(
+                    macros.begin(),
+                    macros.end(),
+                    [] (const ProjectExplorer::Macro &macro) { return macro.key == "QUICK_TEST_SOURCE_DIR"; });
+       if (found != macros.end())  {
+           QByteArray result = found->value;
+           if (result.startsWith('"'))
+               result.remove(result.length() - 1, 1).remove(0, 1);
+           if (result.startsWith("\\\""))
+               result.remove(result.length() - 2, 2).remove(0, 2);
+           return QLatin1String(result);
+       }
     }
     return QString();
 }

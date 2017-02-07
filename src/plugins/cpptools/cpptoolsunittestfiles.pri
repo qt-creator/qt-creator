@@ -1,11 +1,7 @@
-# Currently there are no tests for the project explorer plugin, but we include
-# headers from it that needs to have the export/import adapted for Windows.
 shared {
     DEFINES += CPPTOOLS_LIBRARY
-    DEFINES += PROJECTEXPLORER_LIBRARY
 } else {
     DEFINES += CPPTOOLS_STATIC_LIBRARY
-    DEFINES += PROJECTEXPLORER_STATIC_LIBRARY
 }
 
 HEADERS += \

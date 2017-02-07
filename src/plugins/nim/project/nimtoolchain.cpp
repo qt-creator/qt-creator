@@ -82,9 +82,9 @@ ToolChain::PredefinedMacrosRunner NimToolChain::createPredefinedMacrosRunner() c
     return ToolChain::PredefinedMacrosRunner();
 }
 
-QByteArray NimToolChain::predefinedMacros(const QStringList &) const
+Macros NimToolChain::predefinedMacros(const QStringList &) const
 {
-    return QByteArray();
+    return Macros();
 }
 
 ToolChain::CompilerFlags NimToolChain::compilerFlags(const QStringList &) const

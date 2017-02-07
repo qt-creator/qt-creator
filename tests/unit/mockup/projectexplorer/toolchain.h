@@ -27,6 +27,7 @@
 
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/abi.h>
+#include <projectexplorer/projectmacro.h>
 #include <coreplugin/id.h>
 
 #include <functional>
@@ -59,7 +60,7 @@ public:
     using SystemHeaderPathsRunner = std::function<QList<HeaderPath>(const QStringList &cxxflags, const QString &sysRoot)>;
     virtual SystemHeaderPathsRunner createSystemHeaderPathsRunner() const { return SystemHeaderPathsRunner(); }
 
-    using PredefinedMacrosRunner = std::function<QByteArray(const QStringList &cxxflags)>;
+    using PredefinedMacrosRunner = std::function<Macros(const QStringList &cxxflags)>;
     virtual PredefinedMacrosRunner createPredefinedMacrosRunner() const { return PredefinedMacrosRunner(); }
 
     virtual QString originalTargetTriple() const { return QString(); }

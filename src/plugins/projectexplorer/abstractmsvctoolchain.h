@@ -53,7 +53,7 @@ public:
     QString originalTargetTriple() const override;
 
     PredefinedMacrosRunner createPredefinedMacrosRunner() const override;
-    QByteArray predefinedMacros(const QStringList &cxxflags) const override;
+    Macros predefinedMacros(const QStringList &cxxflags) const override;
     CompilerFlags compilerFlags(const QStringList &cxxflags) const override;
     WarningFlags warningFlags(const QStringList &cflags) const override;
     SystemHeaderPathsRunner createSystemHeaderPathsRunner() const override;
@@ -92,13 +92,14 @@ protected:
 
     static void inferWarningsForLevel(int warningLevel, WarningFlags &flags);
     virtual Utils::Environment readEnvironmentSetting(const Utils::Environment& env) const = 0;
-    virtual QByteArray msvcPredefinedMacros(const QStringList cxxflags,
-                                            const Utils::Environment& env) const;
+    // Function must be thread-safe!
+    virtual Macros msvcPredefinedMacros(const QStringList cxxflags,
+                                        const Utils::Environment& env) const = 0;
 
 
     Utils::FileName m_debuggerCommand;
     mutable QMutex *m_predefinedMacrosMutex = nullptr;
-    mutable QByteArray m_predefinedMacros;
+    mutable Macros m_predefinedMacros;
     mutable Utils::Environment m_lastEnvironment;   // Last checked 'incoming' environment.
     mutable Utils::Environment m_resultEnvironment; // Resulting environment for VC
     mutable QMutex *m_headerPathsMutex = nullptr;

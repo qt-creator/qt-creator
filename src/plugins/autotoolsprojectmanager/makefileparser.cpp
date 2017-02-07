@@ -108,9 +108,9 @@ QStringList MakefileParser::includePaths() const
     return m_includePaths;
 }
 
-QByteArray MakefileParser::defines() const
+ProjectExplorer::Macros MakefileParser::macros() const
 {
-    return m_defines;
+    return m_macros;
 }
 
 QStringList MakefileParser::cflags() const
@@ -449,11 +449,7 @@ bool MakefileParser::maybeParseDefine(const QString &term)
 {
     if (term.startsWith(QLatin1String("-D"))) {
         QString def = term.mid(2); // remove the "-D"
-        QByteArray data = def.toUtf8();
-        int pos = data.indexOf('=');
-        if (pos >= 0)
-            data[pos] = ' ';
-        m_defines += (QByteArray("#define ") + data + '\n');
+        m_macros += ProjectExplorer::Macro::fromKeyValue(def);
         return true;
     }
     return false;

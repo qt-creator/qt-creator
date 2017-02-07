@@ -1902,7 +1902,7 @@ void InternalCppCompletionAssistProcessor::addMacros_helper(const Snapshot &snap
     foreach (const Document::Include &i, doc->resolvedIncludes())
         addMacros_helper(snapshot, i.resolvedFileName(), processed, definedMacros);
 
-    foreach (const Macro &macro, doc->definedMacros()) {
+    foreach (const CPlusPlus::Macro &macro, doc->definedMacros()) {
         const QString macroName = macro.nameToQString();
         if (!macro.isHidden())
             definedMacros->insert(macroName);

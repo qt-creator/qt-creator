@@ -292,7 +292,7 @@ void QmakeProject::updateCppCodeModel()
         rpp.setBuildSystemTarget(pro->targetInformation().target);
         // TODO: Handle QMAKE_CFLAGS
         rpp.setFlagsForCxx({cxxToolChain, pro->variableValue(Variable::CppFlags)});
-        rpp.setDefines(pro->cxxDefines());
+        rpp.setMacros(ProjectExplorer::Macro::toMacros(pro->cxxDefines()));
         rpp.setPreCompiledHeaders(pro->variableValue(Variable::PrecompiledHeader));
         rpp.setSelectedForBuilding(pro->includedInExactParse());
 

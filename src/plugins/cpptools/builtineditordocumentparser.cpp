@@ -26,6 +26,7 @@
 #include "builtineditordocumentparser.h"
 #include "cppsourceprocessor.h"
 
+#include <projectexplorer/projectmacro.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/qtcassert.h>
@@ -91,9 +92,9 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
     }
 
     if (const ProjectPart::Ptr part = baseState.projectPartInfo.projectPart) {
-        configFile += part->toolchainDefines;
+        configFile += ProjectExplorer::Macro::toByteArray(part->toolChainMacros);
         configFile += overwrittenToolchainDefines(*part.data());
-        configFile += part->projectDefines;
+        configFile += ProjectExplorer::Macro::toByteArray(part->projectMacros);
         if (!part->projectConfigFile.isEmpty())
             configFile += ProjectPart::readProjectConfigFile(part);
         headerPaths = part->headerPaths;

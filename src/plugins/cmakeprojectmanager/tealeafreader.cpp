@@ -384,7 +384,7 @@ void TeaLeafReader::updateCodeModel(CppTools::RawProjectParts &rpps)
         cxxProjectFlags.commandLineFlags = cxxflags;
         rpp.setFlagsForCxx(cxxProjectFlags);
 
-        rpp.setDefines(cbt.defines);
+        rpp.setMacros(cbt.macros);
         rpp.setDisplayName(cbt.title);
         rpp.setFiles(transform(cbt.files, [](const FileName &fn) { return fn.toString(); }));
 

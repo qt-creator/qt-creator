@@ -43,4 +43,5 @@ using testing::Property;
 using testing::Return;
 using testing::ReturnRef;
 using testing::Sequence;
+using testing::StrEq;
 using testing::UnorderedElementsAre;

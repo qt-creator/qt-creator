@@ -48,44 +48,9 @@ void CompilerOptionsBuilder::add(const QString &option)
     m_options.append(option);
 }
 
-struct Macro {
-    static Macro fromDefineDirective(const QByteArray &defineDirective);
-    QByteArray toDefineOption(const QByteArray &option) const;
-
-    QByteArray name;
-    QByteArray value;
-};
-
-Macro Macro::fromDefineDirective(const QByteArray &defineDirective)
+void CompilerOptionsBuilder::addDefine(const ProjectExplorer::Macro &macro)
 {
-    const QByteArray str = defineDirective.mid(8);
-    const int spaceIdx = str.indexOf(' ');
-    const bool hasValue = spaceIdx != -1;
-
-    Macro macro;
-    macro.name = str.left(hasValue ? spaceIdx : str.size());
-    if (hasValue)
-        macro.value = str.mid(spaceIdx + 1);
-
-    return macro;
-}
-
-QByteArray Macro::toDefineOption(const QByteArray &option) const
-{
-    QByteArray result;
-
-    result.append(option);
-    result.append(name);
-    result.append('=');
-    if (!value.isEmpty())
-        result.append(value);
-
-    return result;
-}
-
-void CompilerOptionsBuilder::addDefine(const QByteArray &defineDirective)
-{
-    m_options.append(defineDirectiveToDefineOption(defineDirective));
+    m_options.append(defineDirectiveToDefineOption(macro));
 }
 
 void CompilerOptionsBuilder::addWordWidth()
@@ -162,19 +127,19 @@ void CompilerOptionsBuilder::addPrecompiledHeaderOptions(PchUsage pchUsage)
 
 void CompilerOptionsBuilder::addToolchainAndProjectDefines()
 {
-    addDefines(m_projectPart.toolchainDefines);
-    addDefines(m_projectPart.projectDefines);
+    addMacros(m_projectPart.toolChainMacros);
+    addMacros(m_projectPart.projectMacros);
 }
 
-void CompilerOptionsBuilder::addDefines(const QByteArray &defineDirectives)
+void CompilerOptionsBuilder::addMacros(const ProjectExplorer::Macros &macros)
 {
     QStringList result;
 
-    foreach (QByteArray def, defineDirectives.split('\n')) {
-        if (def.isEmpty() || excludeDefineDirective(def))
+    for (const ProjectExplorer::Macro &macro : macros) {
+        if (excludeDefineDirective(macro))
             continue;
 
-        const QString defineOption = defineDirectiveToDefineOption(def);
+        const QString defineOption = defineDirectiveToDefineOption(macro);
         if (!result.contains(defineOption))
             result.append(defineOption);
     }
@@ -303,8 +268,8 @@ void CompilerOptionsBuilder::addDefineToAvoidIncludingGccOrMinGwIntrinsics()
     const Core::Id type = m_projectPart.toolchainType;
     if (type == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID
             || type == ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID) {
-        addDefine("#define _X86INTRIN_H_INCLUDED");
-        addDefine("#define BOOST_UUID_NO_SIMD");
+        addDefine({"_X86INTRIN_H_INCLUDED"});
+        addDefine({"BOOST_UUID_NO_SIMD"});
     }
 }
 
@@ -315,14 +280,10 @@ static QByteArray toMsCompatibilityVersionFormat(const QByteArray &mscFullVer)
          + mscFullVer.mid(2, 2);
 }
 
-static QByteArray msCompatibilityVersionFromDefines(const QByteArray &defineDirectives)
+static QByteArray msCompatibilityVersionFromDefines(const ProjectExplorer::Macros &macros)
 {
-    foreach (QByteArray defineDirective, defineDirectives.split('\n')) {
-        if (defineDirective.isEmpty())
-            continue;
-
-        const Macro macro = Macro::fromDefineDirective(defineDirective);
-        if (macro.name == "_MSC_FULL_VER")
+    for (const ProjectExplorer::Macro &macro : macros) {
+        if (macro.key == "_MSC_FULL_VER")
             return toMsCompatibilityVersionFormat(macro.value);
     }
 
@@ -332,8 +293,8 @@ static QByteArray msCompatibilityVersionFromDefines(const QByteArray &defineDire
 void CompilerOptionsBuilder::addMsvcCompatibilityVersion()
 {
     if (m_projectPart.toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID) {
-        const QByteArray defines = m_projectPart.toolchainDefines + m_projectPart.projectDefines;
-        const QByteArray msvcVersion = msCompatibilityVersionFromDefines(defines);
+        const ProjectExplorer::Macros macros = m_projectPart.toolChainMacros + m_projectPart.projectMacros;
+        const QByteArray msvcVersion = msCompatibilityVersionFromDefines(macros);
 
         if (!msvcVersion.isEmpty()) {
             const QString option = QLatin1String("-fms-compatibility-version=")
@@ -398,7 +359,7 @@ void CompilerOptionsBuilder::addDefineFloat128ForMingw()
     // CLANG-UPGRADE-CHECK: Workaround still needed?
     // https://llvm.org/bugs/show_bug.cgi?id=30685
     if (m_projectPart.toolchainType == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID)
-        addDefine("#define __float128 short");
+        addDefine({"__float128", "short", ProjectExplorer::MacroType::Define});
 }
 
 QString CompilerOptionsBuilder::includeDirOption() const
@@ -406,12 +367,25 @@ QString CompilerOptionsBuilder::includeDirOption() const
     return QLatin1String("-I");
 }
 
-QString CompilerOptionsBuilder::defineDirectiveToDefineOption(const QByteArray &defineDirective)
+QByteArray CompilerOptionsBuilder::macroOption(const ProjectExplorer::Macro &macro) const
 {
-    const Macro macro = Macro::fromDefineDirective(defineDirective);
-    const QByteArray option = macro.toDefineOption(defineOption().toLatin1());
+    switch (macro.type) {
+        case ProjectExplorer::MacroType::Define:     return defineOption().toUtf8();
+        case ProjectExplorer::MacroType::Undefine:   return undefineOption().toUtf8();
+        default: return QByteArray();
+    }
+}
 
-    return QString::fromLatin1(option);
+QByteArray CompilerOptionsBuilder::toDefineOption(const ProjectExplorer::Macro &macro) const
+{
+    return macro.toKeyValue(macroOption(macro));
+}
+
+QString CompilerOptionsBuilder::defineDirectiveToDefineOption(const ProjectExplorer::Macro &macro) const
+{
+    const QByteArray option = toDefineOption(macro);
+
+    return QString::fromUtf8(option);
 }
 
 QString CompilerOptionsBuilder::defineOption() const
@@ -435,11 +409,11 @@ static bool isGccOrMinGwToolchain(const Core::Id &toolchainType)
         || toolchainType == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID;
 }
 
-bool CompilerOptionsBuilder::excludeDefineDirective(const QByteArray &defineDirective) const
+bool CompilerOptionsBuilder::excludeDefineDirective(const ProjectExplorer::Macro &macro) const
 {
     // This is a quick fix for QTCREATORBUG-11501.
     // TODO: do a proper fix, see QTCREATORBUG-11709.
-    if (defineDirective.startsWith("#define __cplusplus"))
+    if (macro.key == "__cplusplus")
         return true;
 
     // gcc 4.9 has:
@@ -449,7 +423,7 @@ bool CompilerOptionsBuilder::excludeDefineDirective(const QByteArray &defineDire
     // override clang's own (non-macro, it seems) definitions of the symbols on the left-hand
     // side.
     if (isGccOrMinGwToolchain(m_projectPart.toolchainType)
-            && defineDirective.contains("has_include")) {
+            && macro.key.contains("has_include")) {
         return true;
     }
 
@@ -459,14 +433,14 @@ bool CompilerOptionsBuilder::excludeDefineDirective(const QByteArray &defineDire
     // __builtin_va_arg_pack, which clang does not support (yet), so avoid
     // including those.
     if (m_projectPart.toolchainType == ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID
-            && defineDirective.startsWith("#define _FORTIFY_SOURCE")) {
+            && macro.key == "_FORTIFY_SOURCE") {
         return true;
     }
 
     // MinGW 6 supports some fancy asm output flags and uses them in an
     // intrinsics header pulled in by windows.h. Clang does not know them.
     if (m_projectPart.toolchainType == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID
-            && defineDirective.startsWith("#define __GCC_ASM_FLAG_OUTPUTS__")) {
+            && macro.key == "__GCC_ASM_FLAG_OUTPUTS__") {
         return true;
     }
 

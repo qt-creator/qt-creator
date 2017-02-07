@@ -82,8 +82,8 @@ protected:
 
     Utils::Environment readEnvironmentSetting(const Utils::Environment& env) const final;
     // Function must be thread-safe!
-    QByteArray msvcPredefinedMacros(const QStringList cxxflags,
-                                    const Utils::Environment &env) const override;
+    Macros msvcPredefinedMacros(const QStringList cxxflags,
+                                const Utils::Environment &env) const override;
 
 private:
     QList<Utils::EnvironmentItem> environmentModifications() const;

@@ -30,6 +30,7 @@
 #include <utils/fileutils.h>
 #include <utils/stringutils.h>
 #include <utils/algorithm.h>
+#include <projectexplorer/projectmacro.h>
 #include <projectexplorer/projectnodes.h>
 
 #include <QLoggingCategory>
@@ -71,8 +72,9 @@ void CMakeCbpParser::sortFiles()
     qCDebug(log) << "# Pre Dump    #";
     qCDebug(log) << "###############";
     foreach (const CMakeBuildTarget &target, m_buildTargets)
-        qCDebug(log) << target.title << target.sourceDirectory <<
-                 target.includeFiles << target.defines << target.files << "\n";
+        qCDebug(log) << target.title << target.sourceDirectory << target.includeFiles
+                     << ProjectExplorer::Macro::toByteArray(target.macros)
+                     << target.files << "\n";
 
     // find a good build target to fall back
     int fallbackIndex = 0;
@@ -153,7 +155,9 @@ void CMakeCbpParser::sortFiles()
     qCDebug(log) << "# After Dump  #";
     qCDebug(log) << "###############";
     foreach (const CMakeBuildTarget &target, m_buildTargets)
-        qCDebug(log) << target.title << target.sourceDirectory << target.includeFiles << target.defines << target.files << "\n";
+        qCDebug(log) << target.title << target.sourceDirectory << target.includeFiles
+                     << ProjectExplorer::Macro::toByteArray(target.macros)
+                     << target.files << "\n";
 }
 
 bool CMakeCbpParser::parseCbpFile(CMakeTool::PathMapper mapper, const FileName &fileName,
@@ -397,12 +401,8 @@ void CMakeCbpParser::parseAdd()
         m_buildTarget.compilerOptions.append(compilerOption);
         int macroNameIndex = compilerOption.indexOf("-D") + 2;
         if (macroNameIndex != 1) {
-            int assignIndex = compilerOption.indexOf('=', macroNameIndex);
-            if (assignIndex != -1)
-                compilerOption[assignIndex] = ' ';
-            m_buildTarget.defines.append("#define ");
-            m_buildTarget.defines.append(compilerOption.mid(macroNameIndex).toUtf8());
-            m_buildTarget.defines.append('\n');
+            const QString keyValue = compilerOption.mid(macroNameIndex);
+            m_buildTarget.macros.append(ProjectExplorer::Macro::fromKeyValue(keyValue));
         }
     }
 

@@ -35,6 +35,7 @@
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cpptoolsbridge.h>
 #include <cpptools/cppworkingcopy.h>
+#include <projectexplorer/projectmacro.h>
 #include <projectexplorer/project.h>
 
 #include <cplusplus/CppDocument.h>
@@ -49,6 +50,7 @@
 #include <QSortFilterProxyModel>
 
 #include <algorithm>
+#include <numeric>
 
 using namespace CPlusPlus;
 using namespace CppTools;
@@ -756,7 +758,7 @@ class MacrosModel : public QAbstractListModel
     Q_OBJECT
 public:
     MacrosModel(QObject *parent);
-    void configure(const QList<Macro> &macros);
+    void configure(const QList<CPlusPlus::Macro> &macros);
     void clear();
 
     enum Columns { LineNumberColumn, MacroColumn, ColumnCount };
@@ -767,14 +769,14 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
 private:
-    QList<Macro> m_macros;
+    QList<CPlusPlus::Macro> m_macros;
 };
 
 MacrosModel::MacrosModel(QObject *parent) : QAbstractListModel(parent)
 {
 }
 
-void MacrosModel::configure(const QList<Macro> &macros)
+void MacrosModel::configure(const QList<CPlusPlus::Macro> &macros)
 {
     emit layoutAboutToBeChanged();
     m_macros = macros;
@@ -802,7 +804,7 @@ QVariant MacrosModel::data(const QModelIndex &index, int role) const
 {
     const int column = index.column();
     if (role == Qt::DisplayRole || (role == Qt::ToolTipRole && column == MacroColumn)) {
-        const Macro macro = m_macros.at(index.row());
+        const CPlusPlus::Macro macro = m_macros.at(index.row());
         if (column == LineNumberColumn)
             return macro.line();
         else if (column == MacroColumn)
@@ -1614,7 +1616,8 @@ void CppCodeModelInspectorDialog::refresh()
     }
 
     // Merged entities
-    dumper.dumpMergedEntities(cmmi->headerPaths(), cmmi->definedMacros());
+    dumper.dumpMergedEntities(cmmi->headerPaths(),
+                              ProjectExplorer::Macro::toByteArray(cmmi->definedMacros()));
 }
 
 enum DocumentTabs {
@@ -1758,6 +1761,15 @@ void CppCodeModelInspectorDialog::clearProjectPartData()
                                      partTabName(ProjectPartPrecompiledHeadersTab));
 }
 
+static int defineCount(const ProjectExplorer::Macros &macros)
+{
+    using ProjectExplorer::Macro;
+    return int(std::count_if(
+                   macros.begin(),
+                   macros.end(),
+                   [](const Macro &macro) { return macro.type == ProjectExplorer::MacroType::Define; }));
+}
+
 void CppCodeModelInspectorDialog::updateProjectPartData(const ProjectPart::Ptr &part)
 {
     QTC_ASSERT(part, return);
@@ -1802,16 +1814,10 @@ void CppCodeModelInspectorDialog::updateProjectPartData(const ProjectPart::Ptr &
     m_ui->projectPartTab->setTabText(ProjectPartFilesTab,
         partTabName(ProjectPartFilesTab, part->files.size()));
 
-    // Defines
-    const QList<QByteArray> defineLines = part->toolchainDefines.split('\n')
-        + part->projectDefines.split('\n');
-    int numberOfDefines = 0;
-    foreach (const QByteArray &line, defineLines) {
-        if (line.startsWith("#define "))
-            ++numberOfDefines;
-    }
-    m_ui->partToolchainDefinesEdit->setPlainText(QString::fromUtf8(part->toolchainDefines));
-    m_ui->partProjectDefinesEdit->setPlainText(QString::fromUtf8(part->projectDefines));
+    int numberOfDefines = defineCount(part->toolChainMacros) + defineCount(part->projectMacros);
+
+    m_ui->partToolchainDefinesEdit->setPlainText(QString::fromUtf8(ProjectExplorer::Macro::toByteArray(part->toolChainMacros)));
+    m_ui->partProjectDefinesEdit->setPlainText(QString::fromUtf8(ProjectExplorer::Macro::toByteArray(part->projectMacros)));
     m_ui->projectPartTab->setTabText(ProjectPartDefinesTab,
         partTabName(ProjectPartDefinesTab, numberOfDefines));
 

@@ -67,7 +67,7 @@ public:
 
     void setQtVersion(ProjectPart::QtVersion qtVersion);
 
-    void setDefines(const QByteArray &defines);
+    void setMacros(const ProjectExplorer::Macros &macros);
     void setHeaderPaths(const ProjectPartHeaderPaths &headerPaths);
     void setIncludePaths(const QStringList &includePaths);
 
@@ -88,7 +88,7 @@ public:
     QString buildSystemTarget;
     QStringList precompiledHeaders;
     ProjectPartHeaderPaths headerPaths;
-    QByteArray projectDefines;
+    ProjectExplorer::Macros projectMacros;
     ProjectPart::QtVersion qtVersion = ProjectPart::UnknownQt;
     bool selectedForBuilding = true;
 

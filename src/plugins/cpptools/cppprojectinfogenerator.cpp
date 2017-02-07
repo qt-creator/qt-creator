@@ -143,7 +143,7 @@ private:
         if (!m_tcInfo.predefinedMacrosRunner)
             return; // No compiler set in kit.
 
-        m_projectPart.toolchainDefines = m_tcInfo.predefinedMacrosRunner(m_flags.commandLineFlags);
+        m_projectPart.toolChainMacros = m_tcInfo.predefinedMacrosRunner(m_flags.commandLineFlags);
     }
 
 private:
@@ -187,7 +187,7 @@ static ProjectPart::Ptr projectPartFromRawProjectPart(const RawProjectPart &rawP
     part->callGroupId = rawProjectPart.callGroupId;
     part->buildSystemTarget = rawProjectPart.buildSystemTarget;
     part->qtVersion = rawProjectPart.qtVersion;
-    part->projectDefines = rawProjectPart.projectDefines;
+    part->projectMacros = rawProjectPart.projectMacros;
     part->headerPaths = rawProjectPart.headerPaths;
     part->precompiledHeaders = rawProjectPart.precompiledHeaders;
     part->selectedForBuilding = rawProjectPart.selectedForBuilding;

@@ -99,7 +99,7 @@ private:
     AbiWidget *m_abiWidget;
 
     bool m_isReadOnly = false;
-    QByteArray m_macros;
+    ProjectExplorer::Macros m_macros;
 };
 
 // --------------------------------------------------------------------------

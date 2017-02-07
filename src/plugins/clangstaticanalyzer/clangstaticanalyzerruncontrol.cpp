@@ -224,8 +224,8 @@ public:
         optionsBuilder.addDefineToAvoidIncludingGccOrMinGwIntrinsics();
         const Core::Id type = projectPart.toolchainType;
         if (type != ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
-            optionsBuilder.addDefines(projectPart.toolchainDefines);
-        optionsBuilder.addDefines(projectPart.projectDefines);
+            optionsBuilder.addMacros(projectPart.toolChainMacros);
+        optionsBuilder.addMacros(projectPart.projectMacros);
         optionsBuilder.undefineClangVersionMacrosForMsvc();
         optionsBuilder.undefineCppLanguageFeatureMacrosForMsvc2015();
         optionsBuilder.addHeaderPathOptions();

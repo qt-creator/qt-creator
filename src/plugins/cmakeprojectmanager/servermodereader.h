@@ -86,7 +86,7 @@ private:
 
         Target *target = nullptr;
         QString compileFlags;
-        QStringList defines;
+        ProjectExplorer::Macros macros;
         QList<IncludePath *> includePaths;
         QString language;
         QList<Utils::FileName> sources;

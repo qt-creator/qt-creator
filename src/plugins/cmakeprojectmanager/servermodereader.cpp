@@ -45,6 +45,8 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
+#include <QVector>
+
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -325,14 +327,6 @@ void ServerModeReader::updateCodeModel(CppTools::RawProjectParts &rpps)
     int counter = 0;
     for (const FileGroup *fg : Utils::asConst(m_fileGroups)) {
         ++counter;
-        const QString defineArg
-                = transform(fg->defines, [](const QString &s) -> QString {
-                    QString result = QString::fromLatin1("#define ") + s;
-                    int assignIndex = result.indexOf('=');
-                    if (assignIndex != -1)
-                        result[assignIndex] = ' ';
-                    return result;
-                }).join('\n');
         const QStringList flags = QtcProcess::splitArgs(fg->compileFlags);
         const QStringList includes = transform(fg->includePaths, [](const IncludePath *ip)  { return ip->path.toString(); });
 
@@ -340,7 +334,7 @@ void ServerModeReader::updateCodeModel(CppTools::RawProjectParts &rpps)
         rpp.setProjectFileLocation(fg->target->sourceDirectory.toString() + "/CMakeLists.txt");
         rpp.setBuildSystemTarget(fg->target->name);
         rpp.setDisplayName(fg->target->name + QString::number(counter));
-        rpp.setDefines(defineArg.toUtf8());
+        rpp.setMacros(fg->macros);
         rpp.setIncludePaths(includes);
 
         CppTools::RawProjectPartFlags cProjectFlags;
@@ -523,7 +517,9 @@ ServerModeReader::FileGroup *ServerModeReader::extractFileGroupData(const QVaria
     auto fileGroup = new FileGroup;
     fileGroup->target = t;
     fileGroup->compileFlags = data.value("compileFlags").toString();
-    fileGroup->defines = data.value("defines").toStringList();
+    fileGroup->macros = Utils::transform<QVector>(data.value("defines").toStringList(), [](const QString &s) {
+        return ProjectExplorer::Macro::fromKeyValue(s);
+    });
     fileGroup->includePaths = transform(data.value("includePath").toList(),
                                         [](const QVariant &i) -> IncludePath* {
         const QVariantMap iData = i.toMap();
@@ -662,7 +658,7 @@ void ServerModeReader::fixTarget(ServerModeReader::Target *target) const
 
     for (const FileGroup *group : Utils::asConst(target->fileGroups)) {
         if (group->includePaths.isEmpty() && group->compileFlags.isEmpty()
-                && group->defines.isEmpty())
+                && group->macros.isEmpty())
             continue;
 
         const FileGroup *fallback = languageFallbacks.value(group->language);
@@ -688,13 +684,13 @@ void ServerModeReader::fixTarget(ServerModeReader::Target *target) const
         (*it)->language = fallback->language.isEmpty() ? "CXX" : fallback->language;
 
         if (*it == fallback
-                || !(*it)->includePaths.isEmpty() || !(*it)->defines.isEmpty()
+                || !(*it)->includePaths.isEmpty() || !(*it)->macros.isEmpty()
                 || !(*it)->compileFlags.isEmpty())
             continue;
 
         for (const IncludePath *ip : fallback->includePaths)
             (*it)->includePaths.append(new IncludePath(*ip));
-        (*it)->defines = fallback->defines;
+        (*it)->macros = fallback->macros;
         (*it)->compileFlags = fallback->compileFlags;
     }
 }

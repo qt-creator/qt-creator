@@ -27,6 +27,7 @@
 
 #include "projectexplorer_export.h"
 #include "projectexplorer_global.h"
+#include "projectmacro.h"
 
 #include <coreplugin/id.h>
 
@@ -122,9 +123,9 @@ public:
     virtual WarningFlags warningFlags(const QStringList &cflags) const = 0;
 
     // A PredefinedMacrosRunner is created in the ui thread and runs in another thread.
-    using PredefinedMacrosRunner = std::function<QByteArray(const QStringList &cxxflags)>;
+    using PredefinedMacrosRunner = std::function<Macros(const QStringList &cxxflags)>;
     virtual PredefinedMacrosRunner createPredefinedMacrosRunner() const = 0;
-    virtual QByteArray predefinedMacros(const QStringList &cxxflags) const = 0;
+    virtual Macros predefinedMacros(const QStringList &cxxflags) const = 0;
 
     // A SystemHeaderPathsRunner is created in the ui thread and runs in another thread.
     using SystemHeaderPathsRunner = std::function<QList<HeaderPath>(const QStringList &cxxflags, const QString &sysRoot)>;

@@ -46,7 +46,7 @@ public:
 
     // Add custom options
     void add(const QString &option);
-    void addDefine(const QByteArray &defineDirective);
+    void addDefine(const ProjectExplorer::Macro &marco);
 
     // Add options based on project part
     void addWordWidth();
@@ -55,7 +55,7 @@ public:
     void addHeaderPathOptions();
     void addPrecompiledHeaderOptions(PchUsage pchUsage);
     void addToolchainAndProjectDefines();
-    void addDefines(const QByteArray &defineDirectives);
+    void addMacros(const ProjectExplorer::Macros &macros);
     virtual void addLanguageOption(ProjectFile::Kind fileKind);
     virtual void addOptionsForLanguage(bool checkForBorlandExtensions = true);
 
@@ -67,7 +67,7 @@ public:
     void addDefineFloat128ForMingw();
 
 protected:
-    virtual bool excludeDefineDirective(const QByteArray &defineDirective) const;
+    virtual bool excludeDefineDirective(const ProjectExplorer::Macro &macro) const;
     virtual bool excludeHeaderPath(const QString &headerPath) const;
 
     virtual QString defineOption() const;
@@ -78,7 +78,9 @@ protected:
     const ProjectPart m_projectPart;
 
 private:
-    QString defineDirectiveToDefineOption(const QByteArray &defineDirective);
+    QByteArray macroOption(const ProjectExplorer::Macro &macro) const;
+    QByteArray toDefineOption(const ProjectExplorer::Macro &macro) const;
+    QString defineDirectiveToDefineOption(const ProjectExplorer::Macro &marco) const;
 
     QStringList m_options;
 };

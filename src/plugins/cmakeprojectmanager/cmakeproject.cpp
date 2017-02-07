@@ -559,7 +559,7 @@ void CMakeBuildTarget::clear()
     targetType = UtilityType;
     includeFiles.clear();
     compilerOptions.clear();
-    defines.clear();
+    macros.clear();
     files.clear();
 }
 

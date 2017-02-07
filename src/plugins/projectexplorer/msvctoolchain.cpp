@@ -410,31 +410,18 @@ static QByteArray msvcCompilationFile()
 //
 // [1] https://msdn.microsoft.com/en-us/library/b0084kay.aspx
 // [2] http://stackoverflow.com/questions/3665537/how-to-find-out-cl-exes-built-in-macros
-QByteArray MsvcToolChain::msvcPredefinedMacros(const QStringList cxxflags,
-                                               const Utils::Environment &env) const
+Macros MsvcToolChain::msvcPredefinedMacros(const QStringList cxxflags,
+                                           const Utils::Environment &env) const
 {
-    QByteArray predefinedMacros;
+    Macros predefinedMacros;
 
     QStringList toProcess;
-    foreach (const QString &arg, cxxflags) {
+    for (const QString &arg : cxxflags) {
         if (arg.startsWith(QLatin1String("/D"))) {
-            QString define = arg.mid(2);
-            int pos = define.indexOf(QLatin1Char('='));
-            if (pos < 0) {
-                predefinedMacros += "#define ";
-                predefinedMacros += define.toLocal8Bit();
-                predefinedMacros += '\n';
-            } else {
-                predefinedMacros += "#define ";
-                predefinedMacros += define.left(pos).toLocal8Bit();
-                predefinedMacros += ' ';
-                predefinedMacros += define.mid(pos + 1).toLocal8Bit();
-                predefinedMacros += '\n';
-            }
+            const QString define = arg.mid(2);
+            predefinedMacros.append(Macro::fromKeyValue(define));
         } else if (arg.startsWith(QLatin1String("/U"))) {
-            predefinedMacros += "#undef ";
-            predefinedMacros += arg.mid(2).toLocal8Bit();
-            predefinedMacros += '\n';
+            predefinedMacros.append({arg.mid(2).toLocal8Bit(), ProjectExplorer::MacroType::Undefine});
         } else if (arg.startsWith(QLatin1String("-I"))) {
             // Include paths should not have any effect on defines
         } else {
@@ -468,18 +455,8 @@ QByteArray MsvcToolChain::msvcPredefinedMacros(const QStringList cxxflags,
 
     const QStringList output = Utils::filtered(response.stdOut().split('\n'),
                                                [](const QString &s) { return s.startsWith('V'); });
-    foreach (const QString& line, output) {
-        QStringList split = line.split('=');
-        const QString key = split.at(0).mid(1);
-        QString value = split.at(1);
-        predefinedMacros += "#define ";
-        predefinedMacros += key.toUtf8();
-        predefinedMacros += ' ';
-        predefinedMacros += value.toUtf8();
-        predefinedMacros += '\n';
-    }
-    if (debug)
-        qDebug() << "msvcPredefinedMacros" << predefinedMacros;
+    for (const QString &line : output)
+        predefinedMacros.append(Macro::fromKeyValue(line.mid(1)));
     return predefinedMacros;
 }
 

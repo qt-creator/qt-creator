@@ -29,6 +29,8 @@
 
 #include <coreplugin/find/searchresultitem.h>
 
+#include <projectexplorer/projectmacro.h>
+
 namespace Core {
 namespace Search {
 
@@ -53,4 +55,36 @@ void PrintTo(const TextRange &range, ::std::ostream *os)
 }
 
 }
+}
+
+namespace ProjectExplorer {
+
+static const char *typeToString(const MacroType &type)
+{
+    switch (type) {
+        case MacroType::Invalid: return "MacroType::Invalid";
+        case MacroType::Define: return "MacroType::Define";
+        case MacroType::Undefine: return  "MacroType::Undefine";
+    }
+
+    return "";
+}
+
+std::ostream &operator<<(std::ostream &out, const MacroType &type)
+{
+    out << typeToString(type);
+
+    return out;
+}
+
+std::ostream &operator<<(std::ostream &out, const Macro &macro)
+{
+    out << "("
+        << macro.key.data() << ", "
+        << macro.value.data() << ", "
+        << macro.type << ")";
+
+  return out;
+}
+
 }

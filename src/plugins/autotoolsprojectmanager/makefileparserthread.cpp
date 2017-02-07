@@ -61,10 +61,10 @@ QStringList MakefileParserThread::includePaths() const
     return m_includePaths;
 }
 
-QByteArray MakefileParserThread::defines() const
+ProjectExplorer::Macros MakefileParserThread::macros() const
 {
     QMutexLocker locker(&m_mutex);
-    return m_defines;
+    return m_macros;
 }
 
 QStringList MakefileParserThread::cflags() const
@@ -109,7 +109,7 @@ void MakefileParserThread::run()
     m_sources = m_parser.sources();
     m_makefiles = m_parser.makefiles();
     m_includePaths = m_parser.includePaths();
-    m_defines = m_parser.defines();
+    m_macros = m_parser.macros();
     m_cflags = m_parser.cflags();
     m_cxxflags = m_parser.cxxflags();
 }

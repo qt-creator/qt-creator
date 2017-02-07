@@ -72,11 +72,11 @@ public:
     bool isValid() const override;
 
     PredefinedMacrosRunner createPredefinedMacrosRunner() const override;
-    QByteArray predefinedMacros(const QStringList &cxxflags) const override;
+    Macros predefinedMacros(const QStringList &cxxflags) const override;
     CompilerFlags compilerFlags(const QStringList &cxxflags) const override;
     WarningFlags warningFlags(const QStringList &cxxflags) const override;
-    const QStringList &rawPredefinedMacros() const;
-    void setPredefinedMacros(const QStringList &list);
+    const Macros &rawPredefinedMacros() const;
+    void setPredefinedMacros(const Macros &macros);
 
     SystemHeaderPathsRunner createSystemHeaderPathsRunner() const override;
     QList<HeaderPath> systemHeaderPaths(const QStringList &cxxFlags,
@@ -124,7 +124,7 @@ private:
     Utils::FileName m_makeCommand;
 
     Abi m_targetAbi;
-    QStringList m_predefinedMacros;
+    Macros m_predefinedMacros;
     QList<HeaderPath> m_systemHeaderPaths;
     QStringList m_cxx11Flags;
     Utils::FileNameList m_mkspecs;

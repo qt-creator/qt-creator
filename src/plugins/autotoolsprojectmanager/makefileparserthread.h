@@ -29,9 +29,12 @@
 
 #include "makefileparser.h"
 
+#include <projectexplorer/projectmacro.h>
+
 #include <QMutex>
 #include <QStringList>
 #include <QThread>
+#include <QVector>
 
 namespace AutotoolsProjectManager {
 namespace Internal {
@@ -46,6 +49,8 @@ namespace Internal {
 class MakefileParserThread : public QThread
 {
     Q_OBJECT
+
+    using Macros = ProjectExplorer::Macros;
 
 public:
     MakefileParserThread(const QString &makefile);
@@ -82,10 +87,10 @@ public:
     QStringList includePaths() const;
 
     /**
-     * @return Concatenated defines. Should be invoked, after the signal
+     * @return Concatenated macros. Should be invoked, after the signal
      *         finished() has been emitted.
      */
-    QByteArray defines() const;
+    Macros macros() const;
 
     /**
      * @return List of compiler flags for C. Should be invoked, after the signal
@@ -134,7 +139,7 @@ private:
     QStringList m_sources;      ///< Return value for MakefileParserThread::sources()
     QStringList m_makefiles;    ///< Return value for MakefileParserThread::makefiles()
     QStringList m_includePaths; ///< Return value for MakefileParserThread::includePaths()
-    QByteArray m_defines;       ///< Return value for MakefileParserThread::defines()
+    Macros m_macros;            ///< Return value for MakefileParserThread::macros()
     QStringList m_cflags;       ///< Return value for MakefileParserThread::cflags()
     QStringList m_cxxflags;     ///< Return value for MakefileParserThread::cxxflags()
 };

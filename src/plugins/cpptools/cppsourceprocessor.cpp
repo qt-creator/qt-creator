@@ -62,11 +62,12 @@ static Q_LOGGING_CATEGORY(log, "qtc.cpptools.sourceprocessor")
 
 namespace {
 
-inline QByteArray generateFingerPrint(const QList<Macro> &definedMacros, const QByteArray &code)
+inline QByteArray generateFingerPrint(const QList<CPlusPlus::Macro> &definedMacros,
+                                      const QByteArray &code)
 {
     QCryptographicHash hash(QCryptographicHash::Sha1);
     hash.addData(code);
-    foreach (const Macro &macro, definedMacros) {
+    foreach (const CPlusPlus::Macro &macro, definedMacros) {
         if (macro.isHidden()) {
             static const QByteArray undef("#undef ");
             hash.addData(undef);
@@ -98,10 +99,10 @@ inline Message messageNoFileContents(Document::Ptr &document, const QString &fil
     return Message(Message::Warning, document->fileName(), line, /*column =*/ 0, text);
 }
 
-inline const Macro revision(const WorkingCopy &workingCopy,
-                            const Macro &macro)
+inline const CPlusPlus::Macro revision(const WorkingCopy &workingCopy,
+                                       const CPlusPlus::Macro &macro)
 {
-    Macro newMacro(macro);
+    CPlusPlus::Macro newMacro(macro);
     newMacro.setFileRevision(workingCopy.get(macro.fileName()).second);
     return newMacro;
 }
@@ -316,7 +317,7 @@ QString CppSourceProcessor::resolveFile_helper(const QString &fileName,
     return QString();
 }
 
-void CppSourceProcessor::macroAdded(const Macro &macro)
+void CppSourceProcessor::macroAdded(const CPlusPlus::Macro &macro)
 {
     if (!m_currentDoc)
         return;
@@ -325,7 +326,7 @@ void CppSourceProcessor::macroAdded(const Macro &macro)
 }
 
 void CppSourceProcessor::passedMacroDefinitionCheck(unsigned bytesOffset, unsigned utf16charsOffset,
-                                                    unsigned line, const Macro &macro)
+                                                    unsigned line, const CPlusPlus::Macro &macro)
 {
     if (!m_currentDoc)
         return;
@@ -347,7 +348,7 @@ void CppSourceProcessor::failedMacroDefinitionCheck(unsigned bytesOffset, unsign
 }
 
 void CppSourceProcessor::notifyMacroReference(unsigned bytesOffset, unsigned utf16charOffset,
-                                              unsigned line, const Macro &macro)
+                                              unsigned line, const CPlusPlus::Macro &macro)
 {
     if (!m_currentDoc)
         return;
@@ -359,7 +360,7 @@ void CppSourceProcessor::notifyMacroReference(unsigned bytesOffset, unsigned utf
 }
 
 void CppSourceProcessor::startExpandingMacro(unsigned bytesOffset, unsigned utf16charOffset,
-                                             unsigned line, const Macro &macro,
+                                             unsigned line, const CPlusPlus::Macro &macro,
                                              const QVector<MacroArgumentReference> &actuals)
 {
     if (!m_currentDoc)
@@ -371,7 +372,7 @@ void CppSourceProcessor::startExpandingMacro(unsigned bytesOffset, unsigned utf1
                               line, actuals);
 }
 
-void CppSourceProcessor::stopExpandingMacro(unsigned, const Macro &)
+void CppSourceProcessor::stopExpandingMacro(unsigned, const CPlusPlus::Macro &)
 {
     if (!m_currentDoc)
         return;

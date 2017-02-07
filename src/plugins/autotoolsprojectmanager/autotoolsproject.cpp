@@ -298,7 +298,7 @@ void AutotoolsProject::updateCppCodeModel()
             ? target->activeBuildConfiguration()->buildDirectory().toString() : QString();
 
     rpp.setIncludePaths(filterIncludes(absSrc, absBuild, m_makefileParserThread->includePaths()));
-    rpp.setDefines(m_makefileParserThread->defines());
+    rpp.setMacros(m_makefileParserThread->macros());
     rpp.setFiles(m_files);
 
     m_cppCodeModelUpdater->update({this, cToolChain, cxxToolChain, k, {rpp}});

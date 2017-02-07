@@ -163,7 +163,7 @@ public:
     // Use this *only* for auto tests
     void setHeaderPaths(const ProjectPartHeaderPaths &headerPaths);
 
-    QByteArray definedMacros();
+    ProjectExplorer::Macros definedMacros();
 
     void enableGarbageCollector(bool enable);
 
@@ -229,7 +229,7 @@ private:
     void ensureUpdated();
     QStringList internalProjectFiles() const;
     ProjectPartHeaderPaths internalHeaderPaths() const;
-    QByteArray internalDefinedMacros() const;
+    ProjectExplorer::Macros internalDefinedMacros() const;
 
     void dumpModelManagerConfiguration(const QString &logFileId);
 

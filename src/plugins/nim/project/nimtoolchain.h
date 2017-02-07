@@ -41,7 +41,7 @@ public:
     bool isValid() const override;
 
     PredefinedMacrosRunner createPredefinedMacrosRunner() const override;
-    QByteArray predefinedMacros(const QStringList &flags) const final;
+    ProjectExplorer::Macros predefinedMacros(const QStringList &flags) const final;
     CompilerFlags compilerFlags(const QStringList &flags) const final;
     ProjectExplorer::WarningFlags warningFlags(const QStringList &flags) const final;
 

@@ -975,17 +975,7 @@ void QbsProject::updateCppCodeModel()
             QStringList list = props.getModulePropertiesAsStringList(
                         QLatin1String(CONFIG_CPP_MODULE),
                         QLatin1String(CONFIG_DEFINES));
-            QByteArray grpDefines;
-            foreach (const QString &def, list) {
-                QByteArray data = def.toUtf8();
-                int pos = data.indexOf('=');
-                if (pos >= 0)
-                    data[pos] = ' ';
-                else
-                    data.append(" 1"); // cpp.defines: [ "FOO" ] is considered to be "FOO=1"
-                grpDefines += (QByteArray("#define ") + data + '\n');
-            }
-            rpp.setDefines(grpDefines);
+            rpp.setMacros(Utils::transform<QVector>(list, [](const QString &s) { return ProjectExplorer::Macro::fromKeyValue(s); }));
 
             list = props.getModulePropertiesAsStringList(QLatin1String(CONFIG_CPP_MODULE),
                                                          QLatin1String(CONFIG_INCLUDEPATHS));

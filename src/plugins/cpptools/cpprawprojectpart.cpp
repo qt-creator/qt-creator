@@ -81,9 +81,9 @@ void RawProjectPart::setQtVersion(ProjectPart::QtVersion qtVersion)
     this->qtVersion = qtVersion;
 }
 
-void RawProjectPart::setDefines(const QByteArray &defines)
+void RawProjectPart::setMacros(const ProjectExplorer::Macros &macros)
 {
-    this->projectDefines = defines;
+    this->projectMacros = macros;
 }
 
 void RawProjectPart::setHeaderPaths(const ProjectPartHeaderPaths &headerPaths)
